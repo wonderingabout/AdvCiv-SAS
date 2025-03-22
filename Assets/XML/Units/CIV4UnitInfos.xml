@@ -6875,19 +6875,11 @@
 			<FlankingStrikes/>
 			<UnitAIs>
 				<UnitAI>
-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-			</UnitAIs>
-			<NotUnitAIs/>
+			</UnitAIs>---------------------------------------
+			</NotUnitAIs />
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>
@@ -7396,7 +7388,9 @@
 			<Capture>NONE</Capture>
 			<Combat>UNITCOMBAT_MELEE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
+			<!-- custom: pikemen are valuable as defenders, especially against knights and similar mounted units
+			, was _COUNTER-->
+			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_PIKEMAN</Description>
@@ -7454,6 +7448,15 @@
 			<FlankingStrikes/>
 			<UnitAIs>
 				<UnitAI>
+					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+			</UnitAIs>
+			<!-- custom: value pikemen more as city defenders, also the rock paper scissors logic when attacking a unit a group
+			makes it more likely that the pikeman would be wasted (or not used as optimally) while attacking a unit it is less good
+			against rather than defending (especially defending cities) against units it is very good against-->
+			<NotUnitAIs>
+				<UnitAI>
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
@@ -7465,8 +7468,25 @@
 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-			</UnitAIs>
-			<NotUnitAIs/>
+				<!-- custom: added a few other AI unit types to be extra safe they are strictly defenders (for more war performance, to avoid
+				suicides and war wastes in particular, at the cost of versatility)-->
+				<UnitAI>
+					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_ATTACK</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+			</NotUnitAIs>
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>
@@ -7584,7 +7604,9 @@
 			<Capture>NONE</Capture>
 			<Combat>UNITCOMBAT_MELEE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
+			<!-- custom: pikemen are valuable as defenders, especially against knights and similar mounted units
+			, was _COUNTER-->
+			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_HOLY_ROMAN_LANDSKNECHT</Description>
@@ -7640,9 +7662,10 @@
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
-			<UnitAIs>
+			<!-- custom: make pikemen more strictly defenders, to increase military effectiveness at the cost of versatility -->
+			<!-- <UnitAIs> -->
 				<!-- K-Mod -->
-				<UnitAI>
+				<!--<UnitAI>
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
@@ -7659,7 +7682,48 @@
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
-			<NotUnitAIs/>
+			<NotUnitAIs/>-->
+			<UnitAIs>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+			</UnitAIs>
+			<!-- custom: value pikemen more as city defenders, also the rock paper scissors logic when attacking a unit a group
+			makes it more likely that the pikeman would be wasted (or not used as optimally) while attacking a unit it is less good
+			against rather than defending (especially defending cities) against units it is very good against-->
+			<NotUnitAIs>
+				<UnitAI>
+					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<!-- custom: added a few other AI unit types to be extra safe they are strictly defenders (for more war performance, to avoid
+				suicides and war wastes in particular, at the cost of versatility)-->
+				<UnitAI>
+					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_ATTACK</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+			</NotUnitAIs>
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>
@@ -10683,15 +10747,18 @@
 			<FlankingStrikes/>
 			<UnitAIs>
 				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
 					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
-			<NotUnitAIs/>
+			<NotUnitAIs>
+					<!-- custom: archer is not strong enough to be valuable as an attacker, much more efficient/valuable
+					to keep it as a defeender only instead-->
+					<UnitAI>
+						<UnitAIType>UNITAI_ATTACK</UnitAIType>
+						<bUnitAI>1</bUnitAI>
+				</UnitAI>
+			</NotUnitAIs>
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>
@@ -10862,15 +10929,18 @@
 			<FlankingStrikes/>
 			<UnitAIs>
 				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
 					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
-			<NotUnitAIs/>
+			<NotUnitAIs>
+					<!-- custom: archer is not strong enough to be valuable as an attacker, much more efficient/valuable
+					to keep it as a defeender only instead-->
+					<UnitAI>
+						<UnitAIType>UNITAI_ATTACK</UnitAIType>
+						<bUnitAI>1</bUnitAI>
+				</UnitAI>
+			</NotUnitAIs>
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>
@@ -11042,15 +11112,18 @@
 			<FlankingStrikes/>
 			<UnitAIs>
 				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
 					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
-			<NotUnitAIs/>
+			<NotUnitAIs>
+					<!-- custom: archer is not strong enough to be valuable as an attacker, much more efficient/valuable
+					to keep it as a defeender only instead-->
+					<UnitAI>
+						<UnitAIType>UNITAI_ATTACK</UnitAIType>
+						<bUnitAI>1</bUnitAI>
+				</UnitAI>
+			</NotUnitAIs>
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>
@@ -11222,15 +11295,18 @@
 			<FlankingStrikes/>
 			<UnitAIs>
 				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
 					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
-			<NotUnitAIs/>
+			<NotUnitAIs>
+					<!-- custom: longbowmen is not strong enough to be valuable as an attacker, much more efficient/valuable
+					to keep it as a defeender only instead-->
+					<UnitAI>
+						<UnitAIType>UNITAI_ATTACK</UnitAIType>
+						<bUnitAI>1</bUnitAI>
+				</UnitAI>
+			</NotUnitAIs>
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>
