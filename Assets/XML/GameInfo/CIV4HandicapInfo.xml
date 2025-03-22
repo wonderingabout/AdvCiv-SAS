@@ -155,16 +155,27 @@
 					<TechType>TECH_ALPHABET</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: monarchy should help more early with new regime, wine happiness (and trade possibility maybe too?),
+				and possibility also to research feudalism sooner, machinery may not be so useful for the AI early even if it costs more,
+				was TECH_MACHINERY-->
 				<FreeTech>
-					<TechType>TECH_MACHINERY</TechType>
+					<TechType>TECH_MONARCHY</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<!-- custom: currency should greatly help early, perhaps about as much as feudalism but still leaving a chance for
+				the human player to catch up due to lower cost of this tech-->
+				<FreeTech>
+					<TechType>TECH_CURRENCY</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
+				also may be more versatile than printing press, was PRINTING_PRESS-->
+				<FreeTech>
+					<TechType>TECH_COMPASS</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_FEUDALISM</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_PRINTING_PRESS</TechType>
+					<TechType>TECH_DRAMA</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -327,12 +338,27 @@
 					<TechType>TECH_MATHEMATICS</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: monarchy should help more early with new regime, wine happiness (and trade possibility maybe too?),
+				and possibility also to research feudalism sooner, machinery may not be so useful for the AI early even if it costs more,
+				was TECH_MACHINERY-->
 				<FreeTech>
-					<TechType>TECH_MACHINERY</TechType>
+					<TechType>TECH_MONARCHY</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<!-- custom: currency should greatly help early, perhaps about as much as feudalism but still leaving a chance for
+				the human player to catch up due to lower cost of this tech-->
+				<FreeTech>
+					<TechType>TECH_CURRENCY</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
+				also may be more versatile than printing press, was PRINTING_PRESS-->
+				<FreeTech>
+					<TechType>TECH_COMPASS</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_PRINTING_PRESS</TechType>
+					<TechType>TECH_DRAMA</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -900,12 +926,21 @@
 					<TechType>TECH_MATHEMATICS</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: monarchy should help the AI more early with new regime, wine happiness (and trade possibility maybe too?),
+				and possibility also to research feudalism sooner, machinery may not be so useful for the AI early even if it costs more,
+				was TECH_MACHINERY-->
 				<FreeTech>
-					<TechType>TECH_MACHINERY</TechType>
+					<TechType>TECH_MONARCHY</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
+				also may be more versatile than printing press, was PRINTING_PRESS-->
+				<FreeTech>
+					<TechType>TECH_COMPASS</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_PRINTING_PRESS</TechType>
+					<TechType>TECH_DRAMA</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -1081,12 +1116,21 @@
 					<TechType>TECH_MATHEMATICS</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: monarchy should help the AI more early with new regime, wine happiness (and trade possibility maybe too?),
+				and possibility also to research feudalism sooner, machinery may not be so useful for the AI early even if it costs more,
+				was TECH_MACHINERY-->
 				<FreeTech>
-					<TechType>TECH_MACHINERY</TechType>
+					<TechType>TECH_MONARCHY</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
+				also may be more versatile than printing press, was PRINTING_PRESS-->
+				<FreeTech>
+					<TechType>TECH_COMPASS</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_PRINTING_PRESS</TechType>
+					<TechType>TECH_DRAMA</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -1284,12 +1328,21 @@
 					<TechType>TECH_MATHEMATICS</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: monarchy should help the AI more early with new regime, wine happiness (and trade possibility maybe too?),
+				and possibility also to research feudalism sooner, machinery may not be so useful for the AI early even if it costs more,
+				was TECH_MACHINERY-->
 				<FreeTech>
-					<TechType>TECH_MACHINERY</TechType>
+					<TechType>TECH_MONARCHY</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
+				also may be more versatile than printing press, was PRINTING_PRESS-->
+				<FreeTech>
+					<TechType>TECH_COMPASS</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_PRINTING_PRESS</TechType>
+					<TechType>TECH_DRAMA</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -1495,16 +1548,27 @@
 					<TechType>TECH_BRONZE_WORKING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: monarchy should help the AI more early with new regime, wine happiness (and trade possibility maybe too?),
+				and possibility also to research feudalism sooner, machinery may not be so useful for the AI early even if it costs more,
+				was TECH_MACHINERY-->
 				<FreeTech>
-					<TechType>TECH_MACHINERY</TechType>
+					<TechType>TECH_MONARCHY</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<!-- custom: currency should greatly help early the AI, perhaps about as much as feudalism but still leaving a chance for
+				the human player to catch up due to lower cost of this tech-->
+				<FreeTech>
+					<TechType>TECH_CURRENCY</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
+				also may be more versatile than printing press, was PRINTING_PRESS-->
+				<FreeTech>
+					<TechType>TECH_COMPASS</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_FEUDALISM</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_PRINTING_PRESS</TechType>
+					<TechType>TECH_DRAMA</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
