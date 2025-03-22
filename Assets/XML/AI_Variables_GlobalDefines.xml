@@ -94,7 +94,7 @@
 		<!-- We continue a war because we've been paid for it. (Or maybe, rather,
 			 to prove that we're a reliable hireling.) -->
 		<!-- custom: just because we are paid for a war is no incentive to risk weakening
-		our mainland, incentive should be more focused on potential gains (vs risk of loss) -->
+		our mainland, incentive should be more focused on potential gains (vs risk of loss), was 100 -->
 		<DefineName>UWAI_WEIGHT_HIRED_HAND</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
@@ -110,8 +110,9 @@
 	</Define>
 	<Define>
 		<!-- To weaken a civ that we perceive as a long-term military threat. -->
+		<!-- custom: may help AI attack sooner a rival that blocks his expansion?, was 100-->
 		<DefineName>UWAI_WEIGHT_PREEMPTIVE_WAR</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- Stop civs that we don't like from winning the game, or even civs
