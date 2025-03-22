@@ -662,7 +662,8 @@
 			<iGPThresholdPercent>100</iGPThresholdPercent>
 			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<!-- was 110 -->
-			<iResearchPercent>108</iResearchPercent>
+			<!-- custom: make the gap between human and AI tech costs closer to in higher difficulties, was 108-->
+			<iResearchPercent>110</iResearchPercent>
 			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
@@ -799,7 +800,8 @@
 			<iGPThresholdPercent>100</iGPThresholdPercent>
 			<iCultureLevelPercent>106</iCultureLevelPercent>
 			<!-- was 120 -->
-			<iResearchPercent>115</iResearchPercent>
+            <!-- custom: make the gap between human and AI tech costs closer to in higher difficulties, was 115-->
+			<iResearchPercent>119</iResearchPercent>
 			<!-- advc.251 (end) -->
 			<!-- advc.251 (start) -->
 			<iTrainPercent>100</iTrainPercent>
@@ -984,7 +986,8 @@
 			<iBaseGrowthThresholdPercent>110</iBaseGrowthThresholdPercent>
 			<iGPThresholdPercent>110</iGPThresholdPercent>
 			<iCultureLevelPercent>112</iCultureLevelPercent>
-			<iResearchPercent>130</iResearchPercent>
+			<!-- custom: make the gap between human and AI tech costs closer to in higher difficulties, was 130-->
+			<iResearchPercent>132</iResearchPercent>
 			<iTrainPercent>110</iTrainPercent>
 			<iConstructPercent>105</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
@@ -1177,7 +1180,8 @@
 			<iGPThresholdPercent>120</iGPThresholdPercent>
 			<iCultureLevelPercent>118</iCultureLevelPercent>
 			<!-- was 125 -->
-			<iResearchPercent>140</iResearchPercent>
+			<!-- custom: slightly reduce human costs due to AI having more earlier techs now, was 140-->
+			<iResearchPercent>135</iResearchPercent>
 			<iTrainPercent>120</iTrainPercent>
 			<iConstructPercent>110</iConstructPercent>
 			<iCreatePercent>110</iCreatePercent>
@@ -1390,7 +1394,8 @@
 			<iGPThresholdPercent>130</iGPThresholdPercent>
 			<iCultureLevelPercent>129</iCultureLevelPercent>
 			<!-- advc.251: was 130 -->
-			<iResearchPercent>150</iResearchPercent>
+			<!-- custom: slightly reduce human costs due to AI having more earlier techs now, was 150-->
+			<iResearchPercent>145</iResearchPercent>
 			<iTrainPercent>130</iTrainPercent>
 			<iConstructPercent>115</iConstructPercent>
 			<iCreatePercent>120</iCreatePercent>
