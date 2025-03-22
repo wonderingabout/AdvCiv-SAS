@@ -178,24 +178,29 @@
 					<TechType>TECH_DRAMA</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: optics should be more versatile than gunpowder, was TECH_GUNPOWDER -->
+				<FreeTech>
+					<TechType>TECH_OPTICS</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<!-- custom: gunpowder should be more versatile than steel plus is a sooner available tech, was TECH_STEEL -->
 				<FreeTech>
 					<TechType>TECH_GUNPOWDER</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
 				<FreeTech>
-					<TechType>TECH_STEAM_POWER</TechType>
+					<TechType>TECH_CHEMISTRY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: industrialism should be more useful to the player than plastics, was TECH_PLASTICS -->
 				<FreeTech>
-					<TechType>TECH_STEEL</TechType>
+					<TechType>TECH_INDUSTRIALISM</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: biology should be more useful to the player than refrigeration, was TECH_REFRIGERATION -->
 				<FreeTech>
-					<TechType>TECH_PLASTICS</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_REFRIGERATION</TechType>
+					<TechType>TECH_BIOLOGY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -361,12 +366,14 @@
 					<TechType>TECH_DRAMA</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
 				<FreeTech>
-					<TechType>TECH_STEAM_POWER</TechType>
+					<TechType>TECH_CHEMISTRY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: industrialism should be more useful to the player than plastics, was TECH_PLASTICS -->
 				<FreeTech>
-					<TechType>TECH_PLASTICS</TechType>
+					<TechType>TECH_INDUSTRIALISM</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -943,12 +950,14 @@
 					<TechType>TECH_DRAMA</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
 				<FreeTech>
-					<TechType>TECH_STEAM_POWER</TechType>
+					<TechType>TECH_CHEMISTRY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: industrialism should be more useful to the player than plastics, was TECH_PLASTICS -->
 				<FreeTech>
-					<TechType>TECH_PLASTICS</TechType>
+					<TechType>TECH_INDUSTRIALISM</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</AIFreeTechs>
@@ -1133,12 +1142,14 @@
 					<TechType>TECH_DRAMA</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
 				<FreeTech>
-					<TechType>TECH_STEAM_POWER</TechType>
+					<TechType>TECH_CHEMISTRY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: industrialism should be more useful to the player than plastics, was TECH_PLASTICS -->
 				<FreeTech>
-					<TechType>TECH_PLASTICS</TechType>
+					<TechType>TECH_INDUSTRIALISM</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</AIFreeTechs>
@@ -1345,12 +1356,14 @@
 					<TechType>TECH_DRAMA</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
 				<FreeTech>
-					<TechType>TECH_STEAM_POWER</TechType>
+					<TechType>TECH_CHEMISTRY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: industrialism should be more useful to the player than plastics, was TECH_PLASTICS -->
 				<FreeTech>
-					<TechType>TECH_PLASTICS</TechType>
+					<TechType>TECH_INDUSTRIALISM</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</AIFreeTechs>
@@ -1571,24 +1584,29 @@
 					<TechType>TECH_DRAMA</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: optics should be more versatile than gunpowder, was TECH_GUNPOWDER -->
+				<FreeTech>
+					<TechType>TECH_OPTICS</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<!-- custom: gunpowder should be more versatile than steel plus is a sooner available tech, was TECH_STEEL -->
 				<FreeTech>
 					<TechType>TECH_GUNPOWDER</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
 				<FreeTech>
-					<TechType>TECH_STEAM_POWER</TechType>
+					<TechType>TECH_CHEMISTRY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: industrialism should be more useful to the player than plastics, was TECH_PLASTICS -->
 				<FreeTech>
-					<TechType>TECH_STEEL</TechType>
+					<TechType>TECH_INDUSTRIALISM</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: biology should be more useful to the player than refrigeration, was TECH_REFRIGERATION -->
 				<FreeTech>
-					<TechType>TECH_PLASTICS</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_REFRIGERATION</TechType>
+					<TechType>TECH_BIOLOGY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</AIFreeTechs>
