@@ -284,8 +284,9 @@
 	<Define>
 		<!-- Ratio of enemy power to team power for AI to consider running TURTLE (all out defense, no offensive forays) strategy.  
 		Equal power would be 100.  BBAI default: 250 -->
+		<!-- custom: try turtling sooner to avoid a too late to defend situation, was 250 -->
 		<DefineName>BBAI_TURTLE_ENEMY_POWER_RATIO</DefineName>
-		<iDefineIntVal>250</iDefineIntVal>
+		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- Minimum stack strength ratio at which AI will attack enemy city it is next to, higher means less suicide.  BTS default: 120, BBAI: 125, now: 123 -->
