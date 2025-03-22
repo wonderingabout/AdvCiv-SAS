@@ -15692,13 +15692,13 @@
 					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: tentative chance to avoid catapults suicides/getting baited during enemy invasion -->
+				<!-- custom: tentative change to avoid catapults suicides/getting baited during enemy invasion -->
 				<UnitAI>
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
-			<!-- custom: tentative chance to avoid catapults suicides/getting baited during enemy invasion -->
+			<!-- custom: tentative change to avoid catapults suicides/getting baited during enemy invasion -->
 			<NotUnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
@@ -15711,6 +15711,7 @@
 				<UnitAI>
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
+				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
@@ -15895,13 +15896,13 @@
 					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: tentative chance to avoid catapults suicides/getting baited during enemy invasion -->
+				<!-- custom: tentative change to avoid catapults suicides/getting baited during enemy invasion -->
 				<UnitAI>
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
-			<!-- custom: tentative chance to avoid catapults suicides/getting baited during enemy invasion -->
+			<!-- custom: tentative change to avoid catapults suicides/getting baited during enemy invasion -->
 			<NotUnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
@@ -16099,7 +16100,7 @@
 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: tentative chance to avoid trebuchets suicides/getting baited during enemy invasion -->
+				<!-- custom: tentative change to avoid trebuchets suicides/getting baited during enemy invasion -->
 				<UnitAI>
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
@@ -16114,10 +16115,11 @@
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: tentative chance to avoid trebuchets suicides/getting baited during enemy invasion -->
+				<!-- custom: tentative change to avoid trebuchets suicides/getting baited during enemy invasion -->
 				<UnitAI>
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
+				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
