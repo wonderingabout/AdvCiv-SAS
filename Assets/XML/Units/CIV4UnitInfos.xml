@@ -4269,7 +4269,12 @@
 			<Capture>NONE</Capture>
 			<Combat>UNITCOMBAT_MELEE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+			<!-- custom: make them default to defenders, they could be attackers but less likely maybe this way?
+			Purpose is to make sure they are more likely to be upgraded into stronger units rather than die too soon
+			before that. Warriors are also a bit weak on total strength to be that effective to value sacrificing them,
+			their city defense bonus also makes it slightly more lean towards defending instead maybe
+			, was UNITAI_ATTACK -->
+			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_WARRIOR</Description>
@@ -4326,17 +4331,21 @@
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
 			<UnitAIs>
+				<!-- custom: warriors are valuable as city defenders too-->
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
-			<NotUnitAIs>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-			</NotUnitAIs>
+			<NotUnitAIs/>
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>
@@ -4449,7 +4458,12 @@
 			<Capture>NONE</Capture>
 			<Combat>UNITCOMBAT_MELEE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+			<!-- custom: make them default to defenders, they could be attackers but less likely maybe this way?
+			Purpose is to make sure they are more likely to be upgraded into stronger units rather than die too soon
+			before that. Warriors are also a bit weak on total strength to be that effective to value sacrificing them,
+			their city defense bonus also makes it slightly more lean towards defending instead maybe
+			, was UNITAI_ATTACK -->
+			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_INCAN_QUECHUA</Description>
@@ -4515,13 +4529,17 @@
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-			</UnitAIs>
-			<NotUnitAIs>
+				<!-- custom: warriors are valuable as city defenders too-->
 				<UnitAI>
 					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-			</NotUnitAIs>
+				<UnitAI>
+					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+			</UnitAIs>
+			<NotUnitAIs/>
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>
