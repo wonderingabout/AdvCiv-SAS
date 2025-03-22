@@ -1056,6 +1056,11 @@
 					<TechType>TECH_HUNTING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: also add fishing to help/speed up early AI growth (they would also not spend time thus on such techs)-->
+				<FreeTech>
+					<TechType>TECH_FISHING</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
 				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
 				             If AI wants to turtle later in the game, archers may be more relevant then.
 							 Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.
@@ -1239,6 +1244,15 @@
 					<TechType>TECH_HUNTING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: also add fishing and mysticism to help/speed up early AI growth (they would also not spend time thus on such techs)-->
+				<FreeTech>
+					<TechType>TECH_FISHING</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<FreeTech>
+					<TechType>TECH_MYSTICISM</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
 				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
 				             If AI wants to turtle later in the game, archers may be more relevant then.
 							 Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.
@@ -1251,6 +1265,17 @@
 				<!-- custom: instead, give them a tech that helps them expand more early -->
 				<FreeTech>
 					<TechType>TECH_POTTERY</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<!-- custom: give a bunch of smaller (animal husbandry) key or very optional techs rather than a few big ones.
+				It may make the early game more gradual while still having the AI not waste as much time on less rewarding techs.
+				, was IRON_WORKING-->
+				<FreeTech>
+					<TechType>TECH_ANIMAL_HUSBANDRY</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<FreeTech>
+					<TechType>TECH_BRONZE_WORKING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -1432,6 +1457,15 @@
 					<TechType>TECH_HUNTING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: also add fishing and mysticism to help/speed up early AI growth (they would also not spend time thus on such techs)-->
+				<FreeTech>
+					<TechType>TECH_FISHING</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<FreeTech>
+					<TechType>TECH_MYSTICISM</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
 				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
 				             If AI wants to turtle later in the game, archers may be more relevant then.
 							 Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.
@@ -1450,8 +1484,15 @@
 					<TechType>TECH_MATHEMATICS</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: give a bunch of smaller (bronze working and animal husbandry) key or very optional techs rather than a few big ones.
+				It may make the early game more gradual while still having the AI not waste as much time on less rewarding techs.
+				, was IRON_WORKING-->
 				<FreeTech>
-					<TechType>TECH_IRON_WORKING</TechType>
+					<TechType>TECH_ANIMAL_HUSBANDRY</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<FreeTech>
+					<TechType>TECH_BRONZE_WORKING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
