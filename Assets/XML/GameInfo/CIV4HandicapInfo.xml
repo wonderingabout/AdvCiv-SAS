@@ -885,14 +885,12 @@
 			<FreeTechs/>
 			<AIFreeTechs>
 				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
-				             If AI wants to turtle later in the game, archers may be more relevant then.
-							 Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.
-				-->
+				If AI wants to turtle later in the game, archers may be more relevant then.
+				Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.-->
 				<!--<FreeTech>
 					<TechType>TECH_ARCHERY</TechType>
 					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				-->
+				</FreeTech>-->
 				<!-- custom: instead, give them a tech that helps them expand more early -->
 				<FreeTech>
 					<TechType>TECH_POTTERY</TechType>
@@ -1068,14 +1066,12 @@
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
-				             If AI wants to turtle later in the game, archers may be more relevant then.
-							 Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.
-				-->
+				If AI wants to turtle later in the game, archers may be more relevant then.
+				Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.-->
 				<!--<FreeTech>
 					<TechType>TECH_ARCHERY</TechType>
 					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				-->
+				</FreeTech>-->
 				<!-- custom: instead, give them a tech that helps them expand more early -->
 				<FreeTech>
 					<TechType>TECH_POTTERY</TechType>
@@ -1262,14 +1258,12 @@
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
-				             If AI wants to turtle later in the game, archers may be more relevant then.
-							 Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.
-				-->
+				If AI wants to turtle later in the game, archers may be more relevant then.
+				Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.-->
 				<!--<FreeTech>
 					<TechType>TECH_ARCHERY</TechType>
 					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				-->
+				</FreeTech>-->
 				<!-- custom: instead, give them a tech that helps them expand more early -->
 				<FreeTech>
 					<TechType>TECH_POTTERY</TechType>
@@ -1475,14 +1469,12 @@
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
-				             If AI wants to turtle later in the game, archers may be more relevant then.
-							 Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.
-				-->
+				If AI wants to turtle later in the game, archers may be more relevant then.
+				Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.-->
 				<!--<FreeTech>
 					<TechType>TECH_ARCHERY</TechType>
 					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				-->
+				</FreeTech>-->
 				<!-- custom: instead, give them a tech that helps them expand more early -->
 				<FreeTech>
 					<TechType>TECH_POTTERY</TechType>
