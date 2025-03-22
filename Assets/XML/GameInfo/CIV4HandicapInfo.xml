@@ -1493,7 +1493,7 @@
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<!-- custom: give a bunch of smaller (bronze working and animal husbandry) key or very optional techs rather than a few big ones.
-				It may make the early game more gradual while still having the AI not waste as much time on less rewarding techs.
+				It may make the early game more gradual while still having the human not waste as much time on less rewarding techs.
 				, was IRON_WORKING-->
 				<FreeTech>
 					<TechType>TECH_ANIMAL_HUSBANDRY</TechType>
