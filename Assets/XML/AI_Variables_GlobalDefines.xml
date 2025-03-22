@@ -93,8 +93,10 @@
 	<Define>
 		<!-- We continue a war because we've been paid for it. (Or maybe, rather,
 			 to prove that we're a reliable hireling.) -->
+		<!-- custom: just because we are paid for a war is no incentive to risk weakening
+		our mainland, incentive should be more focused on potential gains (vs risk of loss) -->
 		<DefineName>UWAI_WEIGHT_HIRED_HAND</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- By conquering cities, we reduce culture pressure on our cities. -->
