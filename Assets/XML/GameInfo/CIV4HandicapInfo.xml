@@ -680,7 +680,8 @@
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
-			<iAIStartingDefenseUnits>0</iAIStartingDefenseUnits>
+			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased, was 0 -->
+			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
 			<iBarbarianDefenders>2</iBarbarianDefenders>
@@ -817,7 +818,8 @@
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
-			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
+			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased, was 1 -->
+			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
 			<iBarbarianDefenders>3</iBarbarianDefenders>
@@ -878,8 +880,18 @@
 			</Goodies>
 			<FreeTechs/>
 			<AIFreeTechs>
-				<FreeTech>
+				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
+				             If AI wants to turtle later in the game, archers may be more relevant then.
+							 Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.
+				-->
+				<!--<FreeTech>
 					<TechType>TECH_ARCHERY</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				-->
+				<!-- custom: instead, give them a tech that helps them expand more early -->
+				<FreeTech>
+					<TechType>TECH_POTTERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -975,6 +987,7 @@
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased, was 1 -->
 			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<!-- advc.250e: was 1 -->
@@ -1043,8 +1056,18 @@
 					<TechType>TECH_HUNTING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<FreeTech>
+				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
+				             If AI wants to turtle later in the game, archers may be more relevant then.
+							 Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.
+				-->
+				<!--<FreeTech>
 					<TechType>TECH_ARCHERY</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				-->
+				<!-- custom: instead, give them a tech that helps them expand more early -->
+				<FreeTech>
+					<TechType>TECH_POTTERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -1143,7 +1166,8 @@
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
 			<!-- advc.250e: was 3 -->
-			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
+			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased, was 2 -->
+			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>1</iAIStartingWorkerUnits>
 			<!-- advc.250e: was 1 -->
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
@@ -1215,8 +1239,18 @@
 					<TechType>TECH_HUNTING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<FreeTech>
+				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
+				             If AI wants to turtle later in the game, archers may be more relevant then.
+							 Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.
+				-->
+				<!--<FreeTech>
 					<TechType>TECH_ARCHERY</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				-->
+				<!-- custom: instead, give them a tech that helps them expand more early -->
+				<FreeTech>
+					<TechType>TECH_POTTERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -1318,7 +1352,8 @@
 			<!-- advc.250e: was 1 -->
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
 			<!-- advc.250e: was 4 -->
-			<iAIStartingDefenseUnits>3</iAIStartingDefenseUnits>
+			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased, was 3 -->
+			<iAIStartingDefenseUnits>6</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>1</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
 			<iBarbarianDefenders>4</iBarbarianDefenders>
@@ -1397,8 +1432,18 @@
 					<TechType>TECH_HUNTING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<FreeTech>
+				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
+				             If AI wants to turtle later in the game, archers may be more relevant then.
+							 Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.
+				-->
+				<!--<FreeTech>
 					<TechType>TECH_ARCHERY</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				-->
+				<!-- custom: instead, give them a tech that helps them expand more early -->
+				<FreeTech>
+					<TechType>TECH_POTTERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
