@@ -6893,11 +6893,19 @@
 			<FlankingStrikes/>
 			<UnitAIs>
 				<UnitAI>
-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+					<UnitAIType>UNITAI_RESERVE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-			</UnitAIs>---------------------------------------
-			</NotUnitAIs />
+				<UnitAI>
+					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+			</UnitAIs>
+			<NotUnitAIs/>
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>
