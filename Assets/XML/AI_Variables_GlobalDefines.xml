@@ -155,8 +155,10 @@
 		<!-- Distractions from fighting multiple wars are already covered by
 			 the military analysis, but not quite reliably, so this is an
 			 extra cost to discourage wars on multiple fronts. -->
+		<!-- custom: AI is unlikely to win 2 wars at the same time, so may help
+		     the AI to further discourage it, was 100 -->
 		<DefineName>UWAI_WEIGHT_DISTRACTION</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>200</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- Anger from war weariness and bonds of faith. -->
