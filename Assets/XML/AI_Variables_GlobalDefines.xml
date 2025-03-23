@@ -314,8 +314,8 @@
 	<Define>
 		<!-- Added to the utility threshold for starting a war while already in
 			 a war. Recommended: 10 (or sth. between 0 and 25). -->
-		<!-- custom: testing 25, would this make AIs more likely to fight multi wars,
-		     this increasing AI efficiency?, was 10 -->
+		<!-- custom: testing 25, would this make AIs less willing/likely to fight multi wars,
+		     thus increasing AI efficiency?, was 10 -->
 		<DefineName>UWAI_MULTI_WAR_RELUCTANCE</DefineName>
 		<iDefineIntVal>25</iDefineIntVal>
 	</Define>
@@ -350,8 +350,8 @@
 	<!-- -->
 	<Define> <!-- redefine -->
 		<!-- War success value of capturing a city.  BBAI: 25, BtS 10
-			 advc.130r: Reduce a little. Caveat: Should be careful about
-			 changing this value, it's used as a baseline in many places. -->
+		advc.130r: Reduce a little. Caveat: Should be careful about
+		changing this value, it's used as a baseline in many places. -->
 		<DefineName>WAR_SUCCESS_CITY_CAPTURING</DefineName>
 		<iDefineIntVal>22</iDefineIntVal>
 	</Define>
@@ -382,8 +382,8 @@
 		Lower means AI will more readily skip bombarding.  BBAI default: 300 -->
 		<!-- advc.114c: Was 260 in K-Mod, now 250. -->
 		<!-- custom: speed up a bit the early conquest, later in the game having a good pace/tempo and short war
-		     should also be valuable for the AI, would give less time to build more defenders while city is bombarded too
-		     so maybe it balances itself out this way -->
+	    should also be valuable for the AI, would give less time to build more defenders while city is bombarded too
+		so maybe it balances itself out this way -->
 		<DefineName>BBAI_SKIP_BOMBARD_BASE_STACK_RATIO</DefineName>
 		<iDefineIntVal>240</iDefineIntVal>
 	</Define>
@@ -391,14 +391,14 @@
 		<!-- Minimum stack strength ratio for AI to skip bombarding city and just attack, higher is more conservative.  BBAI default: 150 -->
 		<!-- advc.114c: Was 140 in K-Mod, now 137. -->
 		<!-- custom: similar as for skip_bombard_base_stack_ratio, to facilitate a bit more early attack, with in mind the
-		     possible benefits of doing so too, was 137 -->
+		possible benefits of doing so too, was 137 -->
 		<DefineName>BBAI_SKIP_BOMBARD_MIN_STACK_RATIO</DefineName>
 		<iDefineIntVal>135</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- Minimum city site value that the AI will consider settling. default: 600. (K-Mod) -->
 		<!-- some cities are not good enough but AI still settles them and cripples itself, hopefully this
-		     improves that while not hurting AI growth too much, was 600 -->
+		improves that while not hurting AI growth too much, was 600 -->
 		<DefineName>BBAI_MINIMUM_FOUND_VALUE</DefineName>
 		<iDefineIntVal>700</iDefineIntVal>
 	</Define>
