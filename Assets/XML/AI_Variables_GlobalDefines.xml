@@ -155,15 +155,18 @@
 		<!-- Distractions from fighting multiple wars are already covered by
 			 the military analysis, but not quite reliably, so this is an
 			 extra cost to discourage wars on multiple fronts. -->
-		<!-- custom: AI is unlikely to win 2 wars at the same time, so may help
-		     the AI to further discourage it, was 100 -->
+		<!-- custom: AI is unlikely to win 2+ wars at the same time, almost always
+		     likely to end bad for the AI, so may help the AI to further discourage
+			 it, was 100 -->
 		<DefineName>UWAI_WEIGHT_DISTRACTION</DefineName>
-		<iDefineIntVal>200</iDefineIntVal>
+		<iDefineIntVal>300</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- Anger from war weariness and bonds of faith. -->
 		<DefineName>UWAI_WEIGHT_PUBLIC_OPPOSITION</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<!-- custom: should matter less if war is short or/and conquered city has
+		     new ressources, was 100 -->
+		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- War leaves fewer units stationed in cities, which can lead to
@@ -177,14 +180,21 @@
 		<!-- Applies only when we're paid to start a war and the sponsor isn't
 			 apparently in need of assistance (or not even at war). Why hire
 			 us then? Will have to pay extra to allay our suspicions. -->
+		<!-- custom: need to pay more to make us going to war for/with
+		     someone as it is more likely to bite us back (or we'd be manipulated
+		     in doing so), was 100 -->
 		<DefineName>UWAI_WEIGHT_ULTERIOR_MOTIVES</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>200</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- Discourages early war against humans; not fair when the AI has a
 			 head start. -->
+		<!-- custom: give a bit more time for the human player to catch up, but
+		     not too much. Hopefully this also helps prevent suicidal war declarations
+			 that are done too soon and do not profit the player that declared war vs
+			 the rivals developing their economy in the early game instead -->
 		<DefineName>UWAI_WEIGHT_FAIR_PLAY</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>130</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- War as its own purpose. Before this aspect was added, there was too
@@ -192,7 +202,12 @@
 			 Especially affects AI leaders with aggressive/ suicidal
 			 personalities. -->
 		<DefineName>UWAI_WEIGHT_BELLICOSITY</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<!-- custom: the human player (and other players too) can't just play it
+		     safe and focus only on economy for ultra late game win, this should be
+			 punished by players that are strong enough to profit from that immediate
+			 advantage, and the human or other players should instead have a more
+			 balanced approach and be aware of that -->
+		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- Is the tactical situation favorable, i.e. do we/ do they have
@@ -201,8 +216,10 @@
 			 increased war utility. If still preparing war: Do we have suffi-
 			 cient units to start the war; is there still enough time to build
 			 them? -->
+		<!-- custom: hopefully helps the AI have a more dynamic or/and opportunistic
+		     response to local position , was 100 -->
 		<DefineName>UWAI_WEIGHT_TACTICAL_SITUATION</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- Pacifism for humanitarian reasons (roleplaying). This is different
@@ -218,16 +235,22 @@
 	<Define>
 	<!-- We're wary of waging war when a dangerous third party appears likely
 		 to intervene against us. -->
+	<!-- custom: overexpansion would kill the player, so some caution if outnumbered
+	     may help a lot, possibly the player being outnumbered to make a comeback later
+		 too? , was 100 -->
 		<DefineName>UWAI_WEIGHT_THIRD_PARTY_INTERVENTION</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>200</iDefineIntVal>
 	</Define>
 	<Define>
 	<!-- To keep the game entertaining for human players, we're more inclined
 		 to start a war if none has been fought among civs known to us for a
 		 long time. Conversely, we're more inclined to make peace if many wars
 		 have been ongoing for a long time. -->
+	<!-- custom: focus should be more on actual gains and risks of losses, not on
+	     entertaining the human player especially if doing a foolish war declaration
+		 that would later be exploited by other players, was 100 -->
 		<DefineName>UWAI_WEIGHT_DRAMATIC_ARC</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 
 	<Define>
@@ -247,16 +270,22 @@
 			 the faith" though.) UWAI_PERSONALITY_PERCENT>100 makes the
 			 personalities more pronounced (not tested). Negative values invert
 			 the personalities (not tested and not recommended). -->
+		<!-- custom: have personalities be more pronounced (experimental), maybe
+		     it would make the game more entertaining, or games in general more
+			 varied, without affecting as much effectiveness of decisions as compared
+			 to dramatic_war?, was 100 -->
 		<DefineName>UWAI_PERSONALITY_PERCENT</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>130</iDefineIntVal>
 	</Define>
 	<!-- [/advc.104x] -->
 	<!-- [advc.104] Misc. UWAI parameters -->
 	<Define>
 		<!-- Added to the utility threshold for starting a war while already in
 			 a war. Recommended: 10 (or sth. between 0 and 25). -->
+		<!-- custom: testing 25, would this make AIs more likely to fight multi wars,
+		     this increasing AI efficiency?, was 10 -->
 		<DefineName>UWAI_MULTI_WAR_RELUCTANCE</DefineName>
-		<iDefineIntVal>10</iDefineIntVal>
+		<iDefineIntVal>25</iDefineIntVal>
 	</Define>
     <Define>
 		<!-- When computing per-civ power values (which play an important role
@@ -270,8 +299,16 @@
 			 166%; one Spearman then corresponds to 3.15 Warriors. -->
 		<!-- advc.159: A fraction (3/4) of this value is also used for some
 			 tactical decisions outside the UWAI component. -->
+		<!-- custom: 2^1.59 is 3.010 strength corrected and 9.063 approximately
+		     so a spearman is closer to 3 (3.010 to be more exact (still approximate))
+			 warriors, so maybe this is a good enough odd to consider attacking with
+			 the 3 warriors now? May also help AI stacks not stare at each other too
+			 long and start city attacks sooner?
+			 Increased it to 160 to be safer (than 159) (so one warrior is 3.031 corrected
+			 strength and one spearman 9.063 strength and so one spearman would be as worth
+			 as 3.031 (too) warriors), was 166 -->
         <DefineName>POWER_CORRECTION</DefineName>
-		<iDefineIntVal>166</iDefineIntVal>
+		<iDefineIntVal>160</iDefineIntVal>
     </Define>
 	<!-- [/advc.104] -->
 
@@ -295,8 +332,10 @@
 	</Define>
 	<Define>
 		<!-- Minimum stack strength ratio at which AI will attack enemy city it is next to, higher means less suicide.  BTS default: 120, BBAI: 125, now: 123 -->
+		<!-- custom: many times AI troops are too long to start an attack and keep staring at each other, facilitate a bit more
+		the AI attack to start, was 123 -->
 		<DefineName>BBAI_ATTACK_CITY_STACK_RATIO</DefineName>
-		<iDefineIntVal>123</iDefineIntVal>
+		<iDefineIntVal>121</iDefineIntVal>
 	</Define>
 	<!-- advc.003j: Obsoleted by K-Mod code (CvUnitAI::AI_bombardCity) -->
 	<!-- Minimum attack odds of best attacker for AI to skip bombarding a city
@@ -310,18 +349,25 @@
 		This ratio is reduced by the AI's best attacker odds and how long it will take to bombard the city.
 		Lower means AI will more readily skip bombarding.  BBAI default: 300 -->
 		<!-- advc.114c: Was 260 in K-Mod, now 250. -->
+		<!-- custom: speed up a bit the early conquest, later in the game having a good pace/tempo and short war
+		     should also be valuable for the AI, would give less time to build more defenders while city is bombarded too
+		     so maybe it balances itself out this way -->
 		<DefineName>BBAI_SKIP_BOMBARD_BASE_STACK_RATIO</DefineName>
-		<iDefineIntVal>250</iDefineIntVal>
+		<iDefineIntVal>240</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- Minimum stack strength ratio for AI to skip bombarding city and just attack, higher is more conservative.  BBAI default: 150 -->
 		<!-- advc.114c: Was 140 in K-Mod, now 137. -->
+		<!-- custom: similar as for skip_bombard_base_stack_ratio, to facilitate a bit more early attack, with in mind the
+		     possible benefits of doing so too, was 137 -->
 		<DefineName>BBAI_SKIP_BOMBARD_MIN_STACK_RATIO</DefineName>
-		<iDefineIntVal>137</iDefineIntVal>
+		<iDefineIntVal>135</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- Minimum city site value that the AI will consider settling. default: 600. (K-Mod) -->
+		<!-- some cities are not good enough but AI still settles them and cripples itself, hopefully this
+		     improves that while not hurting AI growth too much -->
 		<DefineName>BBAI_MINIMUM_FOUND_VALUE</DefineName>
-		<iDefineIntVal>600</iDefineIntVal>
+		<iDefineIntVal>630</iDefineIntVal>
 	</Define>
 </Civ4Defines>
