@@ -148,11 +148,15 @@
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_MATHEMATICS</TechType>
+					<TechType>TECH_ALPHABET</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: replace mathematics with currency, more likely to be useful for the weaker player(s)'s economy (trade of ressources,
+				extra trade routes, trade of gold and gold per turn, etc.), but also later than mathematics so gives the stronger 
+				player(s) more breathing room to catch up until then, while making sure the weaker player(s) does not carelessly neglect to get this tech.,
+				was TECH_MATHEMATICS -->
 				<FreeTech>
-					<TechType>TECH_ALPHABET</TechType>
+					<TechType>TECH_CURRENCY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<!-- custom: monarchy should help more early with new regime, wine happiness (and trade possibility maybe too?),
@@ -160,12 +164,6 @@
 				was TECH_MACHINERY-->
 				<FreeTech>
 					<TechType>TECH_MONARCHY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: currency should greatly help early, perhaps about as much as feudalism but still leaving a chance for
-				the human player to catch up due to lower cost of this tech-->
-				<FreeTech>
-					<TechType>TECH_CURRENCY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
@@ -339,8 +337,12 @@
 					<TechType>TECH_AGRICULTURE</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: replace mathematics with currency, more likely to be useful for the weaker player(s)'s economy (trade of ressources,
+				extra trade routes, trade of gold and gold per turn, etc.), but also later than mathematics so gives the stronger 
+				player(s) more breathing room to catch up until then, while making sure the weaker player(s) does not carelessly neglect to get this tech.,
+				was TECH_MATHEMATICS -->
 				<FreeTech>
-					<TechType>TECH_MATHEMATICS</TechType>
+					<TechType>TECH_CURRENCY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<!-- custom: monarchy should help more early with new regime, wine happiness (and trade possibility maybe too?),
@@ -348,12 +350,6 @@
 				was TECH_MACHINERY-->
 				<FreeTech>
 					<TechType>TECH_MONARCHY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: currency should greatly help early, perhaps about as much as feudalism but still leaving a chance for
-				the human player to catch up due to lower cost of this tech-->
-				<FreeTech>
-					<TechType>TECH_CURRENCY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
@@ -663,7 +659,7 @@
 			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<!-- was 110 -->
 			<!-- custom: make the gap between human and AI tech costs closer to in higher difficulties, was 108-->
-			<iResearchPercent>110</iResearchPercent>
+			<iResearchPercent>111</iResearchPercent>
 			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
@@ -728,7 +724,8 @@
 			<!-- advc.251 -->
 			<iAIGPThresholdPercent>100</iAIGPThresholdPercent>
 			<!-- advc.251 -->
-			<iAIResearchPercent>103</iAIResearchPercent>
+			<!-- custom: try to make the game last longer by increasing AI costs a bit, was 103 -->
+			<iAIResearchPercent>105</iAIResearchPercent>
 			<iAITrainPercent>95</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>95</iAIConstructPercent>
@@ -800,7 +797,7 @@
 			<iGPThresholdPercent>100</iGPThresholdPercent>
 			<iCultureLevelPercent>106</iCultureLevelPercent>
 			<!-- was 120 -->
-            <!-- custom: make the gap between human and AI tech costs closer to in higher difficulties, was 115-->
+            <!-- custom: even now that the AI gets free techs at each era, maybe this can be increased a bit to be closer to emperor difficulty, was 115-->
 			<iResearchPercent>119</iResearchPercent>
 			<!-- advc.251 (end) -->
 			<!-- advc.251 (start) -->
@@ -931,8 +928,12 @@
 					<TechType>TECH_POTTERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: replace mathematics with currency, more likely to be useful for the weaker player(s)'s economy (trade of ressources,
+				extra trade routes, trade of gold and gold per turn, etc.), but also later than mathematics so gives the stronger 
+				player(s) more breathing room to catch up until then, while making sure the weaker player(s) does not carelessly neglect to get this tech.,
+				was TECH_MATHEMATICS -->
 				<FreeTech>
-					<TechType>TECH_MATHEMATICS</TechType>
+					<TechType>TECH_CURRENCY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<!-- custom: monarchy should help the AI more early with new regime, wine happiness (and trade possibility maybe too?),
@@ -986,8 +987,8 @@
 			<iBaseGrowthThresholdPercent>110</iBaseGrowthThresholdPercent>
 			<iGPThresholdPercent>110</iGPThresholdPercent>
 			<iCultureLevelPercent>112</iCultureLevelPercent>
-			<!-- custom: make the gap between human and AI tech costs closer to in higher difficulties, was 130-->
-			<iResearchPercent>132</iResearchPercent>
+			<!-- custom: slightly increase this to make it quite a bit harder than monarch, was 130 -->
+			<iResearchPercent>131</iResearchPercent>
 			<iTrainPercent>110</iTrainPercent>
 			<iConstructPercent>105</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
@@ -1103,11 +1104,12 @@
 			</Goodies>
 			<FreeTechs/>
 			<AIFreeTechs>
-				<FreeTech>
-					<TechType>TECH_HUNTING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: also add fishing to help/speed up early AI growth (they would also not spend time thus on such techs)-->
+				<!-- custom: removed TECH_HUNTING too, although it is a good tech, it is not urgent to get it, plus AIs start with a free scout
+				anyway, hopefully that delays the time when AIs start to get archers too, making them favour the more versatile warriors, or 
+				economy early. I don't know if scouts can exist without hunting, need to test if this does not break anything. -->
+				<!-- custom: also add fishing to help/speed up early AI growth (they would also not spend time thus on such techs), if it
+				helps delaying the time when AI stockpiles units it should also be good for their economy (plus getting sea food bonuses sooner
+				maybe too)-->
 				<FreeTech>
 					<TechType>TECH_FISHING</TechType>
 					<bFreeTech>1</bFreeTech>
@@ -1124,8 +1126,12 @@
 					<TechType>TECH_POTTERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: replace mathematics with currency, more likely to be useful for the weaker player(s)'s economy (trade of ressources,
+				extra trade routes, trade of gold and gold per turn, etc.), but also later than mathematics so gives the stronger 
+				player(s) more breathing room to catch up until then, while making sure the weaker player(s) does not carelessly neglect to get this tech.,
+				was TECH_MATHEMATICS -->
 				<FreeTech>
-					<TechType>TECH_MATHEMATICS</TechType>
+					<TechType>TECH_CURRENCY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<!-- custom: monarchy should help the AI more early with new regime, wine happiness (and trade possibility maybe too?),
@@ -1180,8 +1186,7 @@
 			<iGPThresholdPercent>120</iGPThresholdPercent>
 			<iCultureLevelPercent>118</iCultureLevelPercent>
 			<!-- was 125 -->
-			<!-- custom: slightly reduce human costs due to AI having more earlier techs now, was 140-->
-			<iResearchPercent>135</iResearchPercent>
+			<iResearchPercent>140</iResearchPercent>
 			<iTrainPercent>120</iTrainPercent>
 			<iConstructPercent>110</iConstructPercent>
 			<iCreatePercent>110</iCreatePercent>
@@ -1303,11 +1308,12 @@
 					<TechType>TECH_AGRICULTURE</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech-->
-				<FreeTech>
-					<TechType>TECH_HUNTING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: also add fishing and mysticism to help/speed up early AI growth (they would also not spend time thus on such techs)-->
+				<!-- custom: removed TECH_HUNTING too, although it is a good tech, it is not urgent to get it, plus AIs start with a free scout
+				anyway, hopefully that delays the time when AIs start to get archers too, making them favour the more versatile warriors, or 
+				economy early. I don't know if scouts can exist without hunting, need to test if this does not break anything. -->
+				<!-- custom: also add fishing to help/speed up early AI growth (they would also not spend time thus on such techs), if it
+				helps delaying the time when AI stockpiles units it should also be good for their economy (plus getting sea food bonuses sooner
+				maybe too)-->
 				<FreeTech>
 					<TechType>TECH_FISHING</TechType>
 					<bFreeTech>1</bFreeTech>
@@ -1339,8 +1345,12 @@
 					<TechType>TECH_BRONZE_WORKING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: replace mathematics with currency, more likely to be useful for the weaker player(s)'s economy (trade of ressources,
+				extra trade routes, trade of gold and gold per turn, etc.), but also later than mathematics so gives the stronger 
+				player(s) more breathing room to catch up until then, while making sure the weaker player(s) does not carelessly neglect to get this tech.,
+				was TECH_MATHEMATICS -->
 				<FreeTech>
-					<TechType>TECH_MATHEMATICS</TechType>
+					<TechType>TECH_CURRENCY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<!-- custom: monarchy should help the AI more early with new regime, wine happiness (and trade possibility maybe too?),
@@ -1394,8 +1404,8 @@
 			<iGPThresholdPercent>130</iGPThresholdPercent>
 			<iCultureLevelPercent>129</iCultureLevelPercent>
 			<!-- advc.251: was 130 -->
-			<!-- custom: slightly reduce human costs due to AI having more earlier techs now, was 150-->
-			<iResearchPercent>145</iResearchPercent>
+			<!-- custom: now that the AI receives free techs at each era, maybe this does not need to be enforced as strongly, was 150 -->
+			<iResearchPercent>148</iResearchPercent>
 			<iTrainPercent>130</iTrainPercent>
 			<iConstructPercent>115</iConstructPercent>
 			<iCreatePercent>120</iCreatePercent>
@@ -1526,11 +1536,12 @@
 					<TechType>TECH_AGRICULTURE</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech-->
-				<FreeTech>
-					<TechType>TECH_HUNTING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: also add fishing and mysticism to help/speed up early AI growth (they would also not spend time thus on such techs)-->
+				<!-- custom: removed TECH_HUNTING too, although it is a good tech, it is not urgent to get it, plus AIs start with a free scout
+				anyway, hopefully that delays the time when AIs start to get archers too, making them favour the more versatile warriors, or 
+				economy early. I don't know if scouts can exist without hunting, need to test if this does not break anything. -->
+				<!-- custom: also add fishing to help/speed up early AI growth (they would also not spend time thus on such techs), if it
+				helps delaying the time when AI stockpiles units it should also be good for their economy (plus getting sea food bonuses sooner
+				maybe too)-->
 				<FreeTech>
 					<TechType>TECH_FISHING</TechType>
 					<bFreeTech>1</bFreeTech>
@@ -1551,10 +1562,6 @@
 					<TechType>TECH_POTTERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_MATHEMATICS</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
 				<!-- custom: give a bunch of smaller (bronze working and animal husbandry) key or very optional techs rather than a few big ones.
 				It may make the early game more gradual while still having the human not waste as much time on less rewarding techs.
 				, was IRON_WORKING-->
@@ -1566,17 +1573,19 @@
 					<TechType>TECH_BRONZE_WORKING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
+				<!-- custom: replace mathematics with currency, more likely to be useful for the weaker player(s)'s economy (trade of ressources,
+				extra trade routes, trade of gold and gold per turn, etc.), but also later than mathematics so gives the stronger 
+				player(s) more breathing room to catch up until then, while making sure the weaker player(s) does not carelessly neglect to get this tech.,
+				was TECH_MATHEMATICS -->
+				<FreeTech>
+					<TechType>TECH_CURRENCY</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
 				<!-- custom: monarchy should help the AI more early with new regime, wine happiness (and trade possibility maybe too?),
 				and possibility also to research feudalism sooner, machinery may not be so useful for the AI early even if it costs more,
 				was TECH_MACHINERY-->
 				<FreeTech>
 					<TechType>TECH_MONARCHY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: currency should greatly help early the AI, perhaps about as much as feudalism but still leaving a chance for
-				the human player to catch up due to lower cost of this tech-->
-				<FreeTech>
-					<TechType>TECH_CURRENCY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
