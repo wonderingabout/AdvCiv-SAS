@@ -1567,7 +1567,18 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<FreePromotions/>
+			<!-- custom: similarly to what i did for the explorer unit, i think explore units
+			should be good at exploring, navigating forest type terrains is a good way to do so.
+			It is also a way to make the woodsman promotion play more of a key role in the game,
+			as it is currently quite useless i think. Scouts being good at such "terrains" (forest
+			-jungle, that civ4 code seems to name features) may be more realistic and immersive
+			this way, was empty -->
+			<FreePromotions>
+				<FreePromotion>
+					<PromotionType>PROMOTION_WOODSMAN1</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+			</FreePromotions>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
@@ -1742,7 +1753,18 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<!-- advc.315c: was PROMOTION_GUERILLA1 and PROMOTION_WOODSMAN1 -->
-			<FreePromotions/>
+			<!-- custom: unlike what is said in advc.315c, i think explore units should be good
+			at exploring, navigating forest type terrains is a good way to do so. It may be more
+			realistic and immersive this way. The verbose should not be a problem too.
+			There should be better ways to rework the unit maybe than to remove some of its
+			charateristic abilities, so for now i am reenabling woodsman 1 free promotion,
+			was empty -->
+			<FreePromotions>
+				<FreePromotion>
+					<PromotionType>PROMOTION_WOODSMAN1</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+			</FreePromotions>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
