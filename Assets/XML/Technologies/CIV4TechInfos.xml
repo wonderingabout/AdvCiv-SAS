@@ -675,10 +675,13 @@
 			<Strategy>TXT_KEY_TECH_FEUDALISM_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<!-- advc.131b -->
-			<!-- custom: not a problem if they search feudalism too soon or too often, it is a strong tech that helps both military and economy, was -125.
-					     The history relevance is not a problem to me, much more military performance of choosing a more effective tech (than machinery would be before that)
+			<!-- custom: not a problem if they search feudalism too soon or too often, it is a strong tech that helps both military and economy.
+			The history relevance is not a problem to me, much more military performance of choosing a more effective tech (than machinery would be before that
+			Trying to increase it further, ideally AIs would value feudalism more, which should help both economically and militarily. Should be much more useful
+			than engineering. I initially increased it to 0, now trying to increase it to 125. As AIs now get monarchy as a free tech, having feudalism soon after should be
+			a really attractive option, was -125
 			-->
-			<iAIWeight>0</iAIWeight>
+			<iAIWeight>125</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
 			<!-- advc.910: was 700 -->
 			<iCost>820</iCost>
@@ -2638,7 +2641,10 @@
 			<Help/>
 			<Strategy>TXT_KEY_TECH_CURRENCY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
-			<iAIWeight>0</iAIWeight>
+			<!-- custom: There is some value in getting currency soon in the game but not that high of a value that would require
+			decreasing the iAIWeight of concurrent techs, so slightly increasing the priority of currency while still giving some
+			variety of gameplay between AIs possibly ideally maybe, was 0. -->
+			<iAIWeight>20</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<iCost>400</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -5292,7 +5298,11 @@
 			<Help/>
 			<Strategy>TXT_KEY_TECH_ENGINEERING_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
-			<iAIWeight>0</iAIWeight>
+			<!-- custom: trying to reduce it, pikemen are cheap and longbowmen provide about as good defense bonuses, and since
+			they are more versatile it may help more. When rivals have enough knights, AI would then have enough techs or units to
+			to defend against that without requiring these defenders to be pikemen. This tech is not so bad, it's more so that
+			feudalism should be much better, helping economically too., was 0 -->
+			<iAIWeight>-100</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<iCost>1000</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
