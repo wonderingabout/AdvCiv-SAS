@@ -1807,15 +1807,31 @@
 			<iExperiencePercent>0</iExperiencePercent>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
-			<FeatureAttacks/>
+			<!-- custom: give woodsman promotion same attack bonuses than jungle bonuses it has,
+		    no specific reason why units would be good at defense in forest/jungle but weirdly not as good
+			at offense in such terrains
+			may also buff the woodsman promotion which is quite a bit weaker than other promotions, and since
+			city inner tile is never a forest or a jungle tile after city is planted, the woodsman promotion
+			would still not affect too much the warfare in the end so it would not be OP.
+			Also tweak the values a bit for it to be more gradual, was 20 -->
+			<FeatureAttacks>
+				<FeatureAttack>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureAttack>25</iFeatureAttack>
+				</FeatureAttack>
+				<FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>25</iFeatureAttack>
+				</FeatureAttack>
+			</FeatureAttacks>
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>20</iFeatureDefense>
+					<iFeatureDefense>25</iFeatureDefense>
 				</FeatureDefense>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>20</iFeatureDefense>
+					<iFeatureDefense>25</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitCombatMods/>
@@ -1891,15 +1907,31 @@
 			<iExperiencePercent>0</iExperiencePercent>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
-			<FeatureAttacks/>
+			<!-- custom: give woodsman promotion same attack bonuses than jungle bonuses it has,
+		    no specific reason why units would be good at defense in forest/jungle but weirdly not as good
+			at offense in such terrains
+			may also buff the woodsman promotion which is quite a bit weaker than other promotions, and since
+			city inner tile is never a forest or a jungle tile after city is planted, the woodsman promotion
+			would still not affect too much the warfare in the end so it would not be OP.
+			Also tweak the values a bit for it to be more gradual, was 30 -->
+			<FeatureAttacks>
+				<FeatureAttack>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureAttack>25</iFeatureAttack>
+				</FeatureAttack>
+				<FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>25</iFeatureAttack>
+				</FeatureAttack>
+			</FeatureAttacks>
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>30</iFeatureDefense>
+					<iFeatureDefense>25</iFeatureDefense>
 				</FeatureDefense>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>30</iFeatureDefense>
+					<iFeatureDefense>25</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitCombatMods/>
@@ -1984,17 +2016,34 @@
 			<iExperiencePercent>0</iExperiencePercent>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
+			<!-- custom: give woodsman promotion same attack bonuses than jungle bonuses it has,
+		    no specific reason why units would be good at defense in forest/jungle but weirdly not as good
+			at offense in such terrains
+			may also buff the woodsman promotion which is quite a bit weaker than other promotions, and since
+			city inner tile is never a forest or a jungle tile after city is planted, the woodsman promotion
+			would still not affect too much the warfare in the end so it would not be OP.
+			Also tweak the values a bit for it to be more gradual, was 50 -->
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureAttack>50</iFeatureAttack>
+					<iFeatureAttack>25</iFeatureAttack>
 				</FeatureAttack>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>50</iFeatureAttack>
+					<iFeatureAttack>25</iFeatureAttack>
 				</FeatureAttack>
 			</FeatureAttacks>
-			<FeatureDefenses/>
+			<!-- custom: was 0 -->
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>25</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>25</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitCombatMods/>
 			<DomainMods/>
 			<TerrainDoubleMoves/>
