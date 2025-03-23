@@ -397,9 +397,13 @@
 	</Define>
 	<Define>
 		<!-- Minimum city site value that the AI will consider settling. default: 600. (K-Mod) -->
-		<!-- some cities are not good enough but AI still settles them and cripples itself, hopefully this
-		improves that while not hurting AI growth too much, was 600 -->
+		<!-- custom: at first i thought some cities are not good enough but AI still settles them and
+		cripples itself, hopefully this improves that while not hurting AI growth too much, but it didn't
+		seem to do too much especially if increased too much. A very low value (around 300 for example)
+		seemed to be mostly ignored too (except AI had more cities that were a bit too crammed.
+		Trying other values, it seems 550 somehow, i don't know why, but consistently provides better
+		city spots to the AI, would need more testing to make sure., was 600 -->
 		<DefineName>BBAI_MINIMUM_FOUND_VALUE</DefineName>
-		<iDefineIntVal>700</iDefineIntVal>
+		<iDefineIntVal>550</iDefineIntVal>
 	</Define>
 </Civ4Defines>
