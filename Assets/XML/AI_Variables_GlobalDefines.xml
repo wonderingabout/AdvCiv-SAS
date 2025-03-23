@@ -23,7 +23,8 @@
 	<Define>
 		<!-- The cities we expect to conquer as economic assets. -->
 		<DefineName>UWAI_WEIGHT_GREED_FOR_ASSETS</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>125</iDefineIntVal>
+		<!-- custom: try to focus more on economically most profitable cities, was 100 -->
 	</Define>
 	<Define>
 		<!-- The economic value of accepted capitulations. 
@@ -51,7 +52,7 @@
 		     ourselves grow maybe, decreasing this a bit so hopefully AI is a bit more
 			 effective, was 100 -->
 		<DefineName>UWAI_WEIGHT_LOATHING</DefineName>
-		<iDefineIntVal>70</iDefineIntVal>
+		<iDefineIntVal>65</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- The prospect of a speedy military victory incites us to wage war.
@@ -62,7 +63,7 @@
 			 (exposure to other rivals, risk if war fails, slower economy short term,
 			 was 100)-->
 		<DefineName>UWAI_WEIGHT_MILITARY_VICTORY</DefineName>
-		<iDefineIntVal>105</iDefineIntVal>
+		<iDefineIntVal>130</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- Protect our partners because we want to continue trading with
@@ -73,7 +74,7 @@
 		     if rivals fight each other, we conquer back the cities they lost,
 			 liberate it for them to gain favour, or keep it as our expansion, was 100-->
 		<DefineName>UWAI_WEIGHT_PRESERVATION_OF_PARTNERS</DefineName>
-		<iDefineIntVal>80</iDefineIntVal>
+		<iDefineIntVal>75</iDefineIntVal>
 	</Define>
   <!-- The next four - Reconquista, Rebuke, Fidelity and Hired Hand - are about
 	   upholding a reputation. Since Civ 4 doesn't have a reputation system,
@@ -86,7 +87,7 @@
 			 term or even mid or long term maybe too sometimes so not increasing it a
 			 lot.,  was 100 -->
 		<DefineName>UWAI_WEIGHT_RECONQUISTA</DefineName>
-		<iDefineIntVal>110</iDefineIntVal>
+		<iDefineIntVal>120</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- We show we can take by force what was denied to us when we
@@ -106,11 +107,11 @@
 		<!-- By declaring war on a civ that recently attacked one of our
 			 partners, we demonstrate that it's worthwhile to be our partner,
 			 and dangerous to attack our partners. -->
-		<!-- custom: may make the early game more interesting and also punish
-		     overexpanding/overwarmongering players that may have been a bit
-			 too careless about their defenses while doing so, was 100 -->
+		<!-- custom: may make the early game more interesting/dynamic? And also
+		     punish overexpanding/overwarmongering players that may have been a
+			 bit too careless about their defenses while doing so, was 100 -->
 		<DefineName>UWAI_WEIGHT_FIDELITY</DefineName>
-		<iDefineIntVal>110</iDefineIntVal>
+		<iDefineIntVal>120</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- We continue a war because we've been paid for it. (Or maybe, rather,
@@ -127,7 +128,7 @@
 			 realistic/immersive too this way i think maybe), so make AI more likely to
 			 tolerate it, was 100 -->
 		<DefineName>UWAI_WEIGHT_BORDER_DISPUTES</DefineName>
-		<iDefineIntVal>90</iDefineIntVal>
+		<iDefineIntVal>85</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- Fight a joint war for the "mutual struggle" diplo bonus. -->
@@ -138,7 +139,7 @@
 		<!-- To weaken a civ that we perceive as a long-term military threat. -->
 		<!-- custom: may help AI attack sooner a rival that blocks its expansion?, was 100-->
 		<DefineName>UWAI_WEIGHT_PREEMPTIVE_WAR</DefineName>
-		<iDefineIntVal>125</iDefineIntVal>
+		<iDefineIntVal>130</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- Stop civs that we don't like from winning the game, or even civs
@@ -151,7 +152,7 @@
 			 may also make the game more dynamic and less one-sided for more immersion
 			 possibly too, was 100-->
 		<DefineName>UWAI_WEIGHT_KING_MAKING</DefineName>
-		<iDefineIntVal>105</iDefineIntVal>
+		<iDefineIntVal>115</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- Our military build-up, lost units and ravages of war. Adjusted
@@ -159,8 +160,10 @@
 			 opportunity cost). Also takes into account whether we'll have
 			 further use of units surviving the war and whether lost units
 			 will have to be replaced. -->
+		<!-- custom: trying to increase this slightly to make AI more competitive
+		     militarily?, was 100 -->
 		<DefineName>UWAI_WEIGHT_EFFORT</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>110</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- The risk of losing cities or vassals in the war, or even having to
@@ -191,7 +194,7 @@
 		     likely to end bad for the AI, so may help the AI to further discourage
 			 it, was 100 -->
 		<DefineName>UWAI_WEIGHT_DISTRACTION</DefineName>
-		<iDefineIntVal>300</iDefineIntVal>
+		<iDefineIntVal>400</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- Anger from war weariness and bonds of faith. -->
@@ -238,8 +241,11 @@
 		     safe and focus only on economy for ultra late game win, this should be
 			 punished by players that are strong enough to profit from that immediate
 			 advantage, and the human or other players should instead have a more
-			 balanced approach and be aware of that, was 100 -->
-		<iDefineIntVal>120</iDefineIntVal>
+			 balanced approach and be aware of that. Do not increase too much as other
+			 parameters control overall aggressiveness it seems i think, 
+			 now reverting it to 100 (may lower it below even, after all war should be
+			 for profit not just for war at least is how i intend it in this mod) was 100 -->
+		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- Is the tactical situation favorable, i.e. do we/ do they have
@@ -282,7 +288,7 @@
 	     entertaining the human player especially if doing a foolish war declaration
 		 that would later be exploited by other players, was 100 -->
 		<DefineName>UWAI_WEIGHT_DRAMATIC_ARC</DefineName>
-		<iDefineIntVal>10</iDefineIntVal>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 
 	<Define>
@@ -305,9 +311,13 @@
 		<!-- custom: have personalities be more pronounced (experimental), maybe
 		     it would make the game more entertaining, or games in general more
 			 varied, without affecting as much effectiveness of decisions as compared
-			 to dramatic_war?, was 100 -->
+			 to dramatic_war? Not increasing it a lot in case some leaders become
+			 too aggressive, slowing all players' early game expansion/development.
+			 Now trying to reduce it to have more efficient AIs, even though with
+			 some variation, but who should focus more on profit than on role-playing
+			 maybe ideally, was 100. -->
 		<DefineName>UWAI_PERSONALITY_PERCENT</DefineName>
-		<iDefineIntVal>120</iDefineIntVal>
+		<iDefineIntVal>95</iDefineIntVal>
 	</Define>
 	<!-- [/advc.104x] -->
 	<!-- [advc.104] Misc. UWAI parameters -->
@@ -358,7 +368,9 @@
 	<Define>
 		<!-- Ratio of enemy power to team power for AI to consider running TURTLE (all out defense, no offensive forays) strategy.  
 		Equal power would be 100.  BBAI default: 250 -->
-		<!-- custom: try turtling sooner to avoid a too late to defend situation, was 250 -->
+		<!-- custom: try turtling sooner to avoid a too late to defend situation, but also avoid a too high value as it seems to
+		cripple economy especially if one far away rival (most likely not a threat to us due to distance) is prompting us to turtle
+		uneededly, so not improving this too much attempts to work around this issue, was 250 -->
 		<DefineName>BBAI_TURTLE_ENEMY_POWER_RATIO</DefineName>
 		<iDefineIntVal>160</iDefineIntVal>
 	</Define>
@@ -397,9 +409,13 @@
 	</Define>
 	<Define>
 		<!-- Minimum city site value that the AI will consider settling. default: 600. (K-Mod) -->
-		<!-- some cities are not good enough but AI still settles them and cripples itself, hopefully this
-		improves that while not hurting AI growth too much, was 600 -->
+		<!-- custom: at first i thought some cities are not good enough but AI still settles them and
+		cripples itself, hopefully this improves that while not hurting AI growth too much, but it didn't
+		seem to do too much especially if increased too much. A very low value (around 300 for example)
+		seemed to be mostly ignored too (except AI had more cities that were a bit too crammed.
+		Trying other values, it seems 550 somehow, i don't know why, but consistently provides better
+		city spots to the AI, would need more testing to make sure., was 600 -->
 		<DefineName>BBAI_MINIMUM_FOUND_VALUE</DefineName>
-		<iDefineIntVal>700</iDefineIntVal>
+		<iDefineIntVal>550</iDefineIntVal>
 	</Define>
 </Civ4Defines>
