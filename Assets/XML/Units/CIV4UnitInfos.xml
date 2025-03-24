@@ -4642,19 +4642,21 @@
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
 		<UnitInfo>
-			<Class>UNITCLASS_WARRIOR</Class>
+			<!-- custom: rework of the quechua warrior, basing it on the spearman and not axeman as it seems
+			they were a versatile unit, but still quite often used some sort of spears it seems, basing it on
+			axeman would make them weaker against chariots which is not intended and did not seem to be especially
+			the case, also these units could be built soon now still while being quite relevant later maybe (not
+			preventing the incan player to build other stronger units if they want), was UNITCLASS_WARRIOR -->
+			<Class>UNITCLASS_SPEARMAN</Class>
 			<Type>UNIT_INCAN_QUECHUA</Type>
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
 			<Combat>UNITCOMBAT_MELEE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<!-- custom: make them default to defenders, they could be attackers but less likely maybe this way?
-			Purpose is to make sure they are more likely to be upgraded into stronger units rather than die too soon
-			before that. Warriors are also a bit weak on total strength to be that effective to value sacrificing them,
-			their city defense bonus also makes it slightly more lean towards defending instead maybe
-			, was UNITAI_ATTACK -->
-			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
+			<!-- custom: even though they are spearmen-type of units they are more versatile, so they are not
+			defenders as a default but instead UNITAI_ATTACK as it was for spearmen before my changes-->
+			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_INCAN_QUECHUA</Description>
@@ -4696,18 +4698,13 @@
 			<bHiddenNationality>0</bHiddenNationality>
 			<bAlwaysHostile>0</bAlwaysHostile>
 			<!-- advc.907b: Upgrade to MACEMAN disabled -->
+			<!-- custom: unit reworked, upgrades to axeman, spearman, maceman completely removed.
+			Considering they adopted new weapons in later ages it seems, i think it is fine to
+			allow them to be upgraded into pikemen -->
 			<UnitClassUpgrades>
 				<UnitClassUpgrade>
-					<UnitClassUpgradeType>UNITCLASS_AXEMAN</UnitClassUpgradeType>
+					<UnitClassUpgradeType>UNITCLASS_PIKEMAN</UnitClassUpgradeType>
 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
-				</UnitClassUpgrade>
-				<UnitClassUpgrade>
-					<UnitClassUpgradeType>UNITCLASS_SPEARMAN</UnitClassUpgradeType>
-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
-				</UnitClassUpgrade>
-				<UnitClassUpgrade>
-					<UnitClassUpgradeType>UNITCLASS_MACEMAN</UnitClassUpgradeType>
-					<bUnitClassUpgrade>0</bUnitClassUpgrade>
 				</UnitClassUpgrade>
 			</UnitClassUpgrades>
 			<UnitClassTargets/>
@@ -4720,11 +4717,21 @@
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: warriors are valuable as city defenders too-->
 				<UnitAI>
-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<!-- custom: with the unit rework, i think that unlike the other spearmen,
+				the quechua could now be more versatile so putting less focus on defense,
+				so i removed the city defense tag that i had added for the spearman -->
 				<UnitAI>
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
@@ -4742,7 +4749,8 @@
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>NONE</PrereqTech>
+			<!-- custom: rework of the quechua warrior, was NONE-->
+			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -4750,7 +4758,10 @@
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
 			<!-- advc.907b: was 20 -->
-			<iCost>15</iCost>
+			<!-- custom: rework of the quechua warrior, i read from the little i saw i mean
+			that it seems this unit was not specialized but mostly good at having big numbers,
+			so reducing cost to allow that while not giving it any (big) bonus, was 15 -->
+			<iCost>20</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -4774,7 +4785,8 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<iCombat>2</iCombat>
+			<!-- custom: rework of the unit, was 2 -->
+			<iCombat>4</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -4789,7 +4801,10 @@
 			<iCollateralDamageLimit>0</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>
-			<iCityDefense>25</iCityDefense>
+			<!-- custom: i want this to be a more versatile unit, perhaps a bit more
+			realistic/accurate this way, (also for balance the archer may be a bit too bad
+			in comparison else), was 25-->
+			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
 			<iHillsAttack>0</iHillsAttack>
 			<iHillsDefense>0</iHillsDefense>
@@ -4838,12 +4853,9 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<FreePromotions>
-				<FreePromotion>
-					<PromotionType>PROMOTION_COMBAT1</PromotionType>
-					<bFreePromotion>1</bFreePromotion>
-				</FreePromotion>
-			</FreePromotions>
+			<!-- custom: unit reworked, it is strong enough and cheap enough to not need combat 1,
+			was PROMOTION_COMBAT1-->
+			<FreePromotions/>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
