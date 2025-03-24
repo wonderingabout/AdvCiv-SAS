@@ -4763,9 +4763,9 @@
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: rework of the quechua warrior, was NONE-->
-			<PrereqTech>TECH_HUNTING</PrereqTech>
+			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<TechTypes>
-				<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+				<PrereqTech>TECH_HUNTING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
@@ -7808,9 +7808,7 @@
 			<Capture>NONE</Capture>
 			<Combat>UNITCOMBAT_MELEE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<!-- custom: pikemen are valuable as defenders, especially against knights and similar mounted units
-			, was _COUNTER-->
-			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
+			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_PIKEMAN</Description>
@@ -7864,22 +7862,25 @@
 			<UnitClassTargets/>
 			<UnitCombatTargets/>
 			<UnitClassDefenders/>
-			<UnitCombatDefenders/>
+			<!-- custom: now that the unit is reworked, defend first rather against these types:
+			(i don't know if it overwrites previous settings or just adds these though) -->
+			<UnitCombatDefenders>
+				<UnitCombatDefender>
+					<UnitCombatDefenderType>UNITCOMBAT_MELEE</UnitCombatDefenderType>
+					<bUnitCombatDefender>1</bUnitCombatDefender>
+				</UnitCombatDefender>
+				<UnitCombatDefender>
+					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED</UnitCombatDefenderType>
+					<bUnitCombatDefender>1</bUnitCombatDefender>
+				</UnitCombatDefender>
+			</UnitCombatDefenders>
 			<FlankingStrikes/>
+			<!-- custom: same as the reworked spearman-->
 			<UnitAIs>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-			</UnitAIs>
-			<!-- custom: value pikemen more as city defenders, also the rock paper scissors logic when attacking a unit a group
-			makes it more likely that the pikeman would be wasted (or not used as optimally) while attacking a unit it is less good
-			against rather than defending (especially defending cities) against units it is very good against-->
-			<NotUnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
@@ -7888,25 +7889,8 @@
 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: added a few other AI unit types to be extra safe they are strictly defenders (for more war performance, to avoid
-				suicides and war wastes in particular, at the cost of versatility)-->
-				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-			</NotUnitAIs>
+			</UnitAIs>
+			<NotUnitAIs/>
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>
@@ -7918,14 +7902,27 @@
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_ENGINEERING</PrereqTech>
-			<TechTypes/>
+			<!-- custom: unit reworked and more versatile now, also trying to obtain it
+			 sooner in same time as the other medieval units, and since copper is also
+			 allowed to make pikes now, iron working is not a requirement anymore, only
+			 bronze working is, was engineering only -->
+			<PrereqTech>TECH_FEUDALISM</PrereqTech>
+			<TechTypes>
+				<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+			</TechTypes>
 			<BonusType>BONUS_IRON</BonusType>
 			<PrereqBonuses/>
+
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>60</iCost>
+			<!-- custom: (needs fix) it seems the actual value after loading the map
+			is higher than this value, 60 becomes 65, 72 becomes 80, since i want to
+			have a final value of 60 for this unit, after several tries setting it
+			here to 56 works to have that final value i desire for this unit, was 60 -->
+			<iCost>56</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -7964,22 +7961,56 @@
 			<iCollateralDamageLimit>0</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>
-			<iCityDefense>0</iCityDefense>
+			<!-- custom: unit rework, make the spearman more versatile and buff it a bit too as
+			it is a bit weaker than the other early units currently, was 0 -->
+			<iCityDefense>25</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
-			<iHillsAttack>0</iHillsAttack>
-			<iHillsDefense>0</iHillsDefense>
+			<!-- custom: unit rework, make the spearman a more versatile unit, spearmen
+			could be useful (to help in) for uphill battles maybe now, was 0 -->
+			<iHillsAttack>10</iHillsAttack>
+			<!-- custom: unit rework, make the spearman a more versatile unit, was 0 -->
+			<iHillsDefense>25</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
+		    <!-- custom: unlike spearmen, pikemen are a bit too heavy and could maybe be
+			ambushed in the woods rather than benefitting from them maybe . Also their
+			pike is a long spear so more easy to spot from a distance maybe, also harder
+			to navigate in this tight terrain maybe mostly too maybe i mean. -->
+			<FeatureAttacks>
+			    <FeatureAttack>
+        			<FeatureType>FEATURE_FOREST</FeatureType>
+        			<iFeatureAttack>-15</iFeatureAttack>
+    			</FeatureAttack>
+				<FeatureAttack>
+        			<FeatureType>FEATURE_JUNGLE</FeatureType>
+        			<iFeatureAttack>-20</iFeatureAttack>
+    			</FeatureAttack>
+			</FeatureAttacks>
+			<FeatureDefenses>
+			    <FeatureDefense>
+        			<FeatureType>FEATURE_FOREST</FeatureType>
+        			<iFeatureDefense>-15</iFeatureDefense>
+    			</FeatureDefense>
+				<FeatureDefense>
+        			<FeatureType>FEATURE_JUNGLE</FeatureType>
+        			<iFeatureDefense>-20</iFeatureDefense>
+    			</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
+			<!-- custom: unit rework, make the spearman more versatile and buff it a bit
+			too	as it is a bit weaker than the other early units currently, was
+			UNITCOMBAT_MOUNTED 100 -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
-					<iUnitCombatMod>100</iUnitCombatMod>
+					<iUnitCombatMod>25</iUnitCombatMod>
+				</UnitCombatMod>
+				<UnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+					<iUnitCombatMod>25</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
 			<UnitCombatCollateralImmunes/>
@@ -8024,9 +8055,7 @@
 			<Capture>NONE</Capture>
 			<Combat>UNITCOMBAT_MELEE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<!-- custom: pikemen are valuable as defenders, especially against knights and similar mounted units
-			, was _COUNTER-->
-			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
+			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_HOLY_ROMAN_LANDSKNECHT</Description>
@@ -8080,23 +8109,25 @@
 			<UnitClassTargets/>
 			<UnitCombatTargets/>
 			<UnitClassDefenders/>
-			<UnitCombatDefenders/>
+			<!-- custom: now that the unit is reworked, defend first rather against these types:
+			(i don't know if it overwrites previous settings or just adds these though) -->
+			<UnitCombatDefenders>
+				<UnitCombatDefender>
+					<UnitCombatDefenderType>UNITCOMBAT_MELEE</UnitCombatDefenderType>
+					<bUnitCombatDefender>1</bUnitCombatDefender>
+				</UnitCombatDefender>
+				<UnitCombatDefender>
+					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED</UnitCombatDefenderType>
+					<bUnitCombatDefender>1</bUnitCombatDefender>
+				</UnitCombatDefender>
+			</UnitCombatDefenders>
 			<FlankingStrikes/>
-			<!-- custom: make pikemen more strictly defenders, to increase military effectiveness at the cost of versatility -->
+			<!-- custom: same as the reworked spearman-->
 			<UnitAIs>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-			</UnitAIs>
-			<!-- custom: value pikemen more as city defenders, also the rock paper scissors logic when attacking a unit a group
-			makes it more likely that the pikeman would be wasted (or not used as optimally) while attacking a unit it is less good
-			against rather than defending (especially defending cities) against units it is very good against-->
-			<NotUnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
@@ -8105,25 +8136,8 @@
 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: added a few other AI unit types to be extra safe they are strictly defenders (for more war performance, to avoid
-				suicides and war wastes in particular, at the cost of versatility)-->
-				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-			</NotUnitAIs>
+			</UnitAIs>
+			<NotUnitAIs/>
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>
@@ -8135,14 +8149,39 @@
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_ENGINEERING</PrereqTech>
-			<TechTypes/>
-			<BonusType>BONUS_IRON</BonusType>
-			<PrereqBonuses/>
+			<!-- custom: unit reworked and more versatile now, similar to what was
+			done for pikemen but it seems the holy roman special unit operated
+			at a later era in history than pikemen, and since the theme of them
+			being mercenaries and being recruted seems to fit quite well, i moved
+			it to civil service.
+			Maybe it also helps this unit that was a bit too op (or less balanced
+			overall maybe?) as compared to other pikemen. -->
+			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+			<TechTypes>
+				<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+				<PrereqTech>TECH_FEUDALISM</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+			</TechTypes>
+			<!-- custom: also allow copper (i view it as equivalent to bronze in this
+			game i mean) to make pikes, it may be a good enough material for that,
+			and allow diversity of gameplays maybe, was iron only-->
+			<BonusType>NONE</BonusType>
+			<PrereqBonuses>
+				<BonusType>BONUS_COPPER</BonusType>
+				<BonusType>BONUS_IRON</BonusType>
+				<BonusType>NONE</BonusType>
+				<BonusType>NONE</BonusType>
+			</PrereqBonuses>
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>60</iCost>
+			<!-- custom: (needs fix) it seems the actual value after loading the map
+			is higher than this value, 60 becomes 65, 72 becomes 80, since i want to
+			have a final value of 80 for this unit, after several tries setting it
+			here to 72 works to have that final value i desire for this unit.
+			Considering they are mercenaries, it should be expected their price/cost
+			is higher than regular units of a nation maybe, was 60. -->
+			<iCost>72</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -8181,26 +8220,64 @@
 			<iCollateralDamageLimit>0</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>
+			<!-- custom: since they are more mercenaries from the little i've read
+			and prone to mutiny, unlike the reworked pikemen i do not give them any
+			city defense bonus -->
 			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
-			<iHillsAttack>0</iHillsAttack>
-			<iHillsDefense>0</iHillsDefense>
+			<!-- custom: unit rework, higher than the reworked pikeman as they seem
+			to have been doing very well in most terrains, was 0 -->
+			<iHillsAttack>25</iHillsAttack>
+			<!-- custom: unit rework, make the spearman a more versatile unit, was 0 -->
+			<iHillsDefense>25</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<TerrainAttacks/>
-			<TerrainDefenses/>
+		    <!-- custom: unlike the reworked pikemen, the holy roman special unit seems
+			to good in most (all?) terrains, so removing the grass and plains penalties
+			that the reworked pikemen have, and adding grassland and plains bonuses,
+			which should be quite strong especially considering it applies to city
+			attacks and defenses if city is planted on this tile.
+			Also note that this buffs the plains terrain more than the grassland
+			terrain, despite lower bonuses, because now a player needs to plant on
+			a more valuable grassland tiles to have the defense bonuses, or if AI
+			plants less optimally on a grassland tile it would not affect them as
+			if they planted on plains. The human player though could also purposely
+			plant on grassland for these bonuses though. -->
+			<TerrainAttacks>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainAttack>30</iTerrainAttack>
+				</TerrainAttack>
+				<TerrainAttack>
+				<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainAttack>15</iTerrainAttack>
+				</TerrainAttack>
+			</TerrainAttacks>
+			<TerrainDefenses>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainDefense>30</iTerrainDefense>
+				</TerrainDefense>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainDefense>15</iTerrainDefense>
+				</TerrainDefense>
+			</TerrainDefenses>
 			<FeatureAttacks/>
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
+			<!-- custom: unit rework, make the spearman more versatile and buff it a bit
+			too	as it is a bit weaker than the other early units currently, was
+			UNITCOMBAT_MOUNTED 100 -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
-					<iUnitCombatMod>100</iUnitCombatMod>
+					<iUnitCombatMod>25</iUnitCombatMod>
 				</UnitCombatMod>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
-					<iUnitCombatMod>100</iUnitCombatMod>
+					<iUnitCombatMod>25</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
 			<UnitCombatCollateralImmunes/>
@@ -8233,7 +8310,21 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<FreePromotions/>
+			<!-- custom: from what i've read it seems they were very good at using
+			many war formations, so it seems to fit the theme to give them this
+			promotion. I had also intended to make them extra good against mounted
+			units. Considering they are available later and more expensive than
+			regular pikemen, they could be useful against knights and cuirassiers.
+			I am not sure they would be good enough against cavalries but i think
+			it would still help a bit maybe, but at the time cavalries appeared
+			it was not the era of the holy roman special unit anymore so should be
+			fine maybe and optimal even maybe. -->
+			<FreePromotions>
+				<FreePromotion>
+					<PromotionType>PROMOTION_FORMATION</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+			</FreePromotions>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
