@@ -1414,7 +1414,16 @@
 			<!-- advc.315a: Replaced with OnlyAttackAnimals -->
 			<bOnlyDefensive>0</bOnlyDefensive>
 			<!-- advc.315a -->
-			<bOnlyAttackAnimals>1</bOnlyAttackAnimals>
+			<!-- custom: minor rework, allow the scout to attack all rivals and cities or defend them,
+			but it should be disincentivized enough for human players due its low strength and not much
+			bonuses especially in city attack-defense, but it is better than nothing and quite realistic
+			that they would stand as last defenders, so adding it. The human player may also find some
+			other uses, that should not be mostly about gaining a strong advantage at war, for these units,
+			so maybe worth adding too.
+			For AI players, tags were added to more strictly enforce that they are used as explore units
+			only and nothing else ideally.
+			-->
+			<bOnlyAttackAnimals>0</bOnlyAttackAnimals>
 			<!-- advc.315b -->
 			<bOnlyAttackBarbarians>0</bOnlyAttackBarbarians>
 			<bNoCapture>0</bNoCapture>
@@ -1464,7 +1473,49 @@
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
-			<NotUnitAIs/>
+			<!-- custom: similarly as in the explorer rework, adding some AI player tags to make
+			extra sure scouts are not used/confused by the AI as attackers or even defenders.
+			The human player may do as they wish (for example baiting/defending against animals or
+			something), it should not be too valuable use of the scout, but maybe in some cases this
+			could make a difference, so allowing it (see above the scout rework changes) -->
+			<NotUnitAIs>
+				<UnitAI>
+					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+			</NotUnitAIs>
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>
@@ -1524,8 +1575,20 @@
 			<iCityAttack>0</iCityAttack>
 			<iCityDefense>0</iCityDefense>
 			<!-- advc.315c: Was 100; now BarbarianCombat instead. -->
-			<iAnimalCombat>0</iAnimalCombat>
-			<iBarbarianCombat>100</iBarbarianCombat>
+			<!-- custom: scout rework. Make scouts especially good against animals
+			(it is a sort of hunting after all), not so much against other humans
+			even if they are barbarians, was 0 -->
+			<!-- custom: i could have kept the animal bonus to 100 (so that 100 + 25 = 125
+			against animals), but that would be a bit too strong (and perhaps stronger
+			than needed especially considering the unit's cost. But if someday someone
+			would want to create animal units for other rivals, then they could maybe
+			decrease this to 75 (so that 100 + 25 = 125% against barbarian animals,
+			and 100% against other animals. Seems a bit too complicated and unlikely to
+			happen soon, so to simplify this i chose 75 instead of 100., was 0. -->
+			<iAnimalCombat>75</iAnimalCombat>
+			<!-- custom: was 100, scouts should not have good odds against anything other
+			than a warrior, even a barbarian warrior should still be stronger than a scout -->
+			<iBarbarianCombat>25</iBarbarianCombat>
 			<iHillsAttack>0</iHillsAttack>
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
@@ -1567,7 +1630,27 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<FreePromotions/>
+			<!-- custom: similarly to what i did for the explorer unit, i think explore units
+			should be good at exploring, navigating forest type terrains is a good way to do so.
+			It is also a way to make the woodsman promotion play more of a key role in the game,
+			as it is currently quite useless i think. Scouts being good at such "terrains" (forest
+			-jungle, that civ4 code seems to name features) may be more realistic and immersive
+			this way, was empty -->
+			<FreePromotions>
+				<FreePromotion>
+					<PromotionType>PROMOTION_WOODSMAN1</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+				<!-- custom: similarly as in the explorer rework, also give flaking 1 (only) to
+				scouts, should be valuable and also realistic. Exploring should involve to some
+				extent (i think) being good at retreating too. Since these units cannot become
+				military strong units, it's most likely (i think) fine to give them such bonuses
+				-->
+				<FreePromotion>
+					<PromotionType>PROMOTION_FLANKING1</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+			</FreePromotions>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
@@ -1594,9 +1677,17 @@
 			<!-- advc.315a -->
 			<bOnlyAttackAnimals>0</bOnlyAttackAnimals>
 			<!-- advc.315b -->
-			<bOnlyAttackBarbarians>1</bOnlyAttackBarbarians>
+			<!-- custom: unit reworked, can attack other players (more realistic), but should have
+			little incentive to do so considering its now low strength. More likely to be useful and valuable
+			for human players as a scouting unit. For AIs i added changes to make extra sure they use it strictly
+			(as much as possible) as an explorer and not for warfare, was 1-->
+			<bOnlyAttackBarbarians>0</bOnlyAttackBarbarians>
 			<!-- advc.315b: Not supposed to conquer Barbarian cities -->
-			<bNoCapture>1</bNoCapture>
+			<!-- custom: can conquer cities but should have little incentive to do so due to its low strength,
+			but if it were to actually conquer a city, especially barbarian city, it may be realistic and also
+			making sense too maybe, as it could only do so against really low strength defenders after its rework,
+			was 1 -->
+			<bNoCapture>0</bNoCapture>
 			<bQuickCombat>0</bQuickCombat>
 			<bRivalTerritory>0</bRivalTerritory>
 			<bMilitaryHappiness>0</bMilitaryHappiness>
@@ -1639,7 +1730,50 @@
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
-			<NotUnitAIs/>
+			<!-- custom: unit reworked, can attack cities if the human player wishes to do so,
+			but due to its low strength now it should be strongly disincentivized for human players.
+			Opportunistically maybe against really weak defenders at best maybe. But it should be
+			valuable as a scouting unit for the human player.
+			For AI players, similarly as for archer-type units, adding some NotUnitAIs to make
+			extra sure they are not used/confused by the AI as attackers or even defenders-->
+			<NotUnitAIs>
+				<UnitAI>
+					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+			</NotUnitAIs>
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>
@@ -1658,7 +1792,8 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>40</iCost>
+			<!-- custom: unit reworked, was 40 -->
+			<iCost>30</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -1682,7 +1817,8 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<iCombat>4</iCombat>
+			<!-- custom: unit reworked, was 4 -->
+			<iCombat>2</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -1698,7 +1834,32 @@
 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>
 			<iCityDefense>0</iCityDefense>
-			<iAnimalCombat>0</iAnimalCombat>
+			<!-- custom: should not be weaker than the scout in that regard, even if there
+			should be no animals left at this stage of the game -->
+			<!-- custom: as in the scout rework, make explorers especially good against animals
+			(it is a sort of hunting after all), not so much against other humans even if
+			they are barbarians, was 0 -->
+			<!-- custom: i could have kept the animal bonus to 100 (so that 100 + 25 = 125
+			against animals), but that would be a bit too strong (and perhaps stronger
+			than needed especially considering the unit's cost. But if someday someone
+			would want to create animal units for other rivals, then they could maybe
+			decrease this to 75 (so that 100 + 25 = 125% against barbarian animals,
+			and 100% against other animals. Seems a bit too complicated and unlikely to
+			happen soon, so to simplify this i chose 75 instead of 100., was 0. -->
+			<iAnimalCombat>75</iAnimalCombat>
+			<!-- custom tag: missing tag for some reason, i don't know if it breaks something to
+			add it, would need to test to see, but ideally no reason it should be worse than the
+			scout against barbarians, even if the boost is small -->
+			<!-- custom: this is mostly for role playing if i may say or-and historical accuracy
+			/realism, as there should be mostly no barbarians left when players start to have explorers
+			available, but if there were, the explorer would not be stronger than regular military
+			units to take the barbarians down, but they should be about strong enough to do so
+			(still slightly weaker and limited to vs barbarian fights), but more likely to happen
+			now if the player wishes so (mostly human players as this is currently more discouraged
+			for AI players in this mod to improve their efficiency). It also makes sense that their
+			tactics are slightly better against barbarians than those of the scouts, even if not by a
+			lot so i increased it from 25 that i chose initially to 50 -->
+			<iBarbarianCombat>50</iBarbarianCombat>
 			<iHillsAttack>0</iHillsAttack>
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
@@ -1742,7 +1903,37 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<!-- advc.315c: was PROMOTION_GUERILLA1 and PROMOTION_WOODSMAN1 -->
-			<FreePromotions/>
+			<!-- custom: unlike what is said in advc.315c, i think explore units should be good
+			at exploring, navigating forest type terrains is a good way to do so. It may be more
+			realistic and immersive this way. The verbose should not be a problem too.
+			The unit is reworked now so having this bonus should not hurt, it increases immersion
+			too i think.
+			was empty -->
+			<FreePromotions>
+				<FreePromotion>
+					<PromotionType>PROMOTION_WOODSMAN1</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+				<!-- custom: since woodsman promotion does not help to conquer cities, it is probably
+				fine (and realistic to give it to explorers, they are more in control of forest-jungle
+				environments, but still not enough to threaten specialized military units) -->
+				<FreePromotion>
+					<PromotionType>PROMOTION_WOODSMAN2</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+			<!-- custom: on top of that, giving them double flanking promotions, which should make them
+			very valuable as explorer-scouting units, especially considering they have no road obstruction.
+			Note: now that many AIs often get Compass as a free tech, perhaps it makes this tech more
+			valuable too now -->
+				<FreePromotion>
+					<PromotionType>PROMOTION_FLANKING1</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+				<FreePromotion>
+					<PromotionType>PROMOTION_FLANKING2</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+			</FreePromotions>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
