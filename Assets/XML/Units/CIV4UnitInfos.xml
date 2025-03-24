@@ -4710,7 +4710,20 @@
 			<UnitClassTargets/>
 			<UnitCombatTargets/>
 			<UnitClassDefenders/>
-			<UnitCombatDefenders/>
+			<UnitCombatDefenders>
+			<!-- custom: now that the unit is reworked, quecha is not especially good
+			against archer type of units currently, was 1 -->
+				<UnitCombatDefender>
+					<UnitCombatDefenderType>UNITCOMBAT_ARCHER</UnitCombatDefenderType>
+					<bUnitCombatDefender>0</bUnitCombatDefender>
+				</UnitCombatDefender>
+			<!-- custom: since it is now based on the spearman, adding this just in case,
+			to not first target mounted units we are not especially good against now -->
+				<UnitCombatDefender>
+					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED</UnitCombatDefenderType>
+					<bUnitCombatDefender>0</bUnitCombatDefender>
+				</UnitCombatDefender>
+			</UnitCombatDefenders>
 			<FlankingStrikes/>
 			<UnitAIs>
 				<UnitAI>
@@ -5788,8 +5801,27 @@
 			<FeatureNatives/>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<!-- custom: axes could be useful in navigating or fighting in the woods maybe. -->
+			<FeatureAttacks>
+			    <FeatureAttack>
+        			<FeatureType>FEATURE_FOREST</FeatureType>
+        			<iFeatureAttack>15</iFeatureAttack>
+    			</FeatureAttack>
+				<FeatureAttack>
+        			<FeatureType>FEATURE_JUNGLE</FeatureType>
+        			<iFeatureAttack>15</iFeatureAttack>
+    			</FeatureAttack>
+			</FeatureAttacks>
+			<FeatureDefenses>
+			    <FeatureDefense>
+        			<FeatureType>FEATURE_FOREST</FeatureType>
+        			<iFeatureDefense>15</iFeatureDefense>
+    			</FeatureDefense>
+				<FeatureDefense>
+        			<FeatureType>FEATURE_JUNGLE</FeatureType>
+        			<iFeatureDefense>15</iFeatureDefense>
+    			</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<UnitCombatMods>
@@ -7108,7 +7140,18 @@
 			<UnitClassTargets/>
 			<UnitCombatTargets/>
 			<UnitClassDefenders/>
-			<UnitCombatDefenders/>
+			<!-- custom: now that the unit is reworked, defend first rather against these types:
+			(i don't know if it overwrites previous settings or just adds these though) -->
+			<UnitCombatDefenders>
+				<UnitCombatDefender>
+					<UnitCombatDefenderType>UNITCOMBAT_MELEE</UnitCombatDefenderType>
+					<bUnitCombatDefender>1</bUnitCombatDefender>
+				</UnitCombatDefender>
+				<UnitCombatDefender>
+					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED</UnitCombatDefenderType>
+					<bUnitCombatDefender>1</bUnitCombatDefender>
+				</UnitCombatDefender>
+			</UnitCombatDefenders>
 			<FlankingStrikes/>
 			<UnitAIs>
 				<UnitAI>
@@ -7187,22 +7230,52 @@
 			<iCollateralDamageLimit>0</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>
-			<iCityDefense>0</iCityDefense>
+			<!-- custom: unit rework, make the spearman more versatile and buff it a bit too as
+			it is a bit weaker than the other early units currently, was 0 -->
+			<iCityDefense>25</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
-			<iHillsAttack>0</iHillsAttack>
-			<iHillsDefense>0</iHillsDefense>
+			<!-- custom: unit rework, make the spearman a more versatile unit, spearmen
+			could be useful (to help in) for uphill battles maybe now, was 0 -->
+			<iHillsAttack>10</iHillsAttack>
+			<!-- custom: unit rework, make the spearman a more versatile unit, was 0 -->
+			<iHillsDefense>25</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<!-- custom: spearmen could have some range advantage fighting in the woods maybe. -->
+			<FeatureAttacks>
+			    <FeatureAttack>
+        			<FeatureType>FEATURE_FOREST</FeatureType>
+        			<iFeatureAttack>15</iFeatureAttack>
+    			</FeatureAttack>
+				<FeatureAttack>
+        			<FeatureType>FEATURE_JUNGLE</FeatureType>
+        			<iFeatureAttack>15</iFeatureAttack>
+    			</FeatureAttack>
+			</FeatureAttacks>
+			<FeatureDefenses>
+			    <FeatureDefense>
+        			<FeatureType>FEATURE_FOREST</FeatureType>
+        			<iFeatureDefense>15</iFeatureDefense>
+    			</FeatureDefense>
+				<FeatureDefense>
+        			<FeatureType>FEATURE_JUNGLE</FeatureType>
+        			<iFeatureDefense>15</iFeatureDefense>
+    			</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
+			<!-- custom: unit rework, make the spearman more versatile and buff it a bit too as it
+			is a bit weaker than the other early units currently, was UNITCOMBAT_MOUNTED 100 -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
-					<iUnitCombatMod>100</iUnitCombatMod>
+					<iUnitCombatMod>25</iUnitCombatMod>
+				</UnitCombatMod>
+				<UnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+					<iUnitCombatMod>25</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
 			<UnitCombatCollateralImmunes/>
