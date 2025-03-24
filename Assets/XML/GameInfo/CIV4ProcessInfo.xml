@@ -22,7 +22,12 @@
 			<Type>PROCESS_RESEARCH</Type>
 			<Description>TXT_KEY_PROCESS_RESEARCH</Description>
 			<Strategy>TXT_KEY_PROCESS_RESEARCH_STRATEGY</Strategy>
-			<TechPrereq>TECH_MATHEMATICS</TechPrereq>
+			<!-- custom: since we can build libraries with writing, it would not be too
+			weird if research could be built from that time/tech too. Maybe would allow
+			more strategic diversity/depth especially at higher levels. Would need testing
+			to see how AIs would handle it but is maybe fine (would need to test to see /
+			be sure) -->
+			<TechPrereq>TECH_WRITING</TechPrereq>
 			<ProductionToCommerceModifiers>
 				<iProductionToCommerceModifier>0</iProductionToCommerceModifier>
 				<iProductionToCommerceModifier>50</iProductionToCommerceModifier>
@@ -34,6 +39,9 @@
 			<Type>PROCESS_CULTURE</Type>
 			<Description>TXT_KEY_PROCESS_CULTURE</Description>
 			<Strategy>TXT_KEY_PROCESS_CULTURE_STRATEGY</Strategy>
+			<!-- custom: aesthetics now instead of drama, maybe is more accurate/realistic
+			on top of maybe helping calm revolts sooner? Or/and more diverse strategies
+			possible now? Trying this as it may fit better for my mod at least maybe. -->
 			<TechPrereq>TECH_AESTHETICS</TechPrereq>
 			<ProductionToCommerceModifiers>
 				<iProductionToCommerceModifier>0</iProductionToCommerceModifier>

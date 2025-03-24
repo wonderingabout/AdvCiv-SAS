@@ -2353,7 +2353,11 @@
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>120</iCost>
+			<!-- custom: increase slightly the cost since writing is more valuable now (may decrease
+			alphabet cost to compensate and have about same total cost or something similar). Trying
+			also to keep historical accuracy so cost should not be too high, maybe more immersive this
+			way too maybe, was 120. -->
+			<iCost>142</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_ANCIENT</Era>
@@ -2501,7 +2505,9 @@
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>300</iCost>
+			<!-- custom: decrease alphabet cost to compensate the increased cost of writing.
+			May change more if/as i modify the techs more -->
+			<iCost>260</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_CLASSICAL</Era>
