@@ -5209,8 +5209,20 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<FreePromotions>
+				<!-- custom: i've read/watched quickly a few sources about this unit, none seem to
+				mention it being especially good in the woods, however many highlight the fact that
+				they are elite units which are very strong in battlefield and have sort of prestige
+				i mean in society, therefore i replaced it with the leader promotion that maybe will
+				be more useful for the AI (or/and the player) too, as i think the unit is quite weak
+				currently (weaker than axeman for same price, weaker than swordsman for not much
+				gold difference), added combat 1 promotion too as unit should still be quite weak
+				even with that, was PROMOTION_WOODSMAN1 was -->
 				<FreePromotion>
-					<PromotionType>PROMOTION_WOODSMAN1</PromotionType>
+					<PromotionType>PROMOTION_LEADERSHIP</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+				<FreePromotion>
+					<PromotionType>PROMOTION_COMBAT1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
