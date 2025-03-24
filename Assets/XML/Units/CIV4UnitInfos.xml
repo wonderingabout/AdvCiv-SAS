@@ -4750,8 +4750,12 @@
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: rework of the quechua warrior, was NONE-->
-			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
-			<TechTypes/>
+			<PrereqTech>TECH_HUNTING</PrereqTech>
+			<TechTypes>
+				<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+			</TechTypes>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
 			<ProductionTraits/>
