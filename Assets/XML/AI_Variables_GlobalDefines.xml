@@ -84,9 +84,11 @@
 		<!-- custom: city has our culture, so worth more and easier to benefit from
 		     than a rival's city. It may sometimes be wise to give up the city short
 			 term or even mid or long term maybe too sometimes so not increasing it a
-			 lot.,  was 100 -->
+			 lot.
+			 May be especially more important to defend our cities and their religion
+			 now i mean with the future religion changes i made,  was 100 -->
 		<DefineName>UWAI_WEIGHT_RECONQUISTA</DefineName>
-		<iDefineIntVal>110</iDefineIntVal>
+		<iDefineIntVal>130</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- We show we can take by force what was denied to us when we
@@ -198,7 +200,10 @@
 		<DefineName>UWAI_WEIGHT_PUBLIC_OPPOSITION</DefineName>
 		<!-- custom: should matter less if war is short or/and conquered city has
 		     new ressources, was 100 -->
-		<iDefineIntVal>50</iDefineIntVal>
+		<!-- custom: i originally put this at 50 and it seemed to perform quite well
+		from the (few) tests i made, now with the upcoming religion changes, try to
+		make the AI much more sensitive to it, was 50 last time i changed it -->
+		<iDefineIntVal>300</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- War leaves fewer units stationed in cities, which can lead to
@@ -315,9 +320,11 @@
 		<!-- Added to the utility threshold for starting a war while already in
 			 a war. Recommended: 10 (or sth. between 0 and 25). -->
 		<!-- custom: testing 25, would this make AIs less willing/likely to fight multi wars,
-		     thus increasing AI efficiency?, was 10 -->
+		     thus increasing AI efficiency?, was 10
+			 now i want to increase this more to see, seemed to perform quite well in the (few)
+			 tests i made, was 25 last time i changed it -->
 		<DefineName>UWAI_MULTI_WAR_RELUCTANCE</DefineName>
-		<iDefineIntVal>25</iDefineIntVal>
+		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
     <Define>
 		<!-- When computing per-civ power values (which play an important role
