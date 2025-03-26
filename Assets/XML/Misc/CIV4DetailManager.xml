@@ -97,10 +97,10 @@
 		<!-- advc.002b: Was (700, 1.5), (2500, 1.0), (6000, 0.67).
 			 Some 10% bigger for the medium distances to accommodate large
 			 displays better. More enlargement close up. -->
-		<Key>500,    2.00</Key>
-		<Key>2500,   1.30</Key>
-		<Key>3800,   1.10</Key>
-		<Key>6000,   0.84</Key>
+		<Key>500,    1.72</Key>
+		<Key>2500,   1.18</Key>
+		<Key>3800,   1.06</Key>
+		<Key>6000,   0.81</Key>
 		<Key>8500,   0.75</Key>
 		<Key>11500,  0.70</Key>
 		<Key>13500,  0.67</Key>

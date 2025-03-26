@@ -2147,11 +2147,11 @@ void CvPlayer::getCivilizationCityName(CvWString& szBuffer, CivilizationTypes eC
 }
 
 
-bool CvPlayer::isCityNameValid(CvWString& szName, bool bTestDestroyed) const
+bool CvPlayer::isCityNameValid(CvWString& szName, bool bTestPast) const
 {
-	if (bTestDestroyed)
+	if (bTestPast) // (advc.005c: renamed from "bTestDestroyed")
 	{
-		if (GC.getGame().isDestroyedCityName(szName))
+		if (GC.getGame().isPastCityName(szName))
 			return false;
 
 		for (PlayerIter<EVER_ALIVE> it; it.hasNext(); ++it)
@@ -4539,7 +4539,7 @@ void CvPlayer::disband(CvCity& kCity) // advc: param was CvCity*
 {
 	if (getNumCities() == 1)
 		setFoundedFirstCity(false);
-	GC.getGame().addDestroyedCityName(kCity.getName());
+	GC.getGame().addPastCityName(kCity.getName());
 	kCity.kill(true);
 }
 

@@ -19681,7 +19681,8 @@ void CvPlayerAI::AI_doCommerce()
 		}
 		if(iPartners > 0)
 		{
-			if (GC.getGame().isOption(GAMEOPTION_NO_TECH_BROKERING))
+			if (!GC.getGame().isOption(GAMEOPTION_NO_TECH_TRADING) &&
+				GC.getGame().isOption(GAMEOPTION_NO_TECH_BROKERING))
 			{
 				// Inspired by a change by Fuyu (in Better BUG AI?)
 				rPartnerScore *= fixp(0.77);
