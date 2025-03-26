@@ -4368,15 +4368,29 @@ CvWString const CvTeam::tradeItemString(TradeableItems eItem, int iData, TeamTyp
 	return L"";
 }
 
+// advc (from Taurus):
+bool CvTeam::isTechSplash() const
+{
+	CvGame const& kGame = GC.getGame();
+	// Cut from announceTechToPlayers
+	if (GC.getGame().isNetworkMultiPlayer() || gDLL->UI().noTechSplash())
+		return false;
+	// Never makes sense to show popups to AI teams
+	if (!isHuman())
+		return false;
+	// Queueing them for a (currently) nonactive team in Hot Seat can make sense
+	if (!isActive() && !kGame.isHotSeat())
+		return false;
+	return true;
+}
+
 void CvTeam::announceTechToPlayers(TechTypes eIndex, /* advc.156: */ PlayerTypes eDiscoverPlayer,
 	bool bPartial)
 {
-	CvGame const& kGame = GC.getGame();
-	bool bSound = ((kGame.isNetworkMultiPlayer() ||
+	bool bSound = ((!isTechSplash() ||
 			/*  advc.156: I think HotSeat doesn't play sounds along with messages,
 				but let's try. */
-			kGame.isHotSeat() ||
-			gDLL->UI().noTechSplash()) && !bPartial);
+			GC.getGame().isHotSeat()) && !bPartial);
 	for (MemberIter it(getID()); it.hasNext(); ++it)
 	{
 		CvPlayer const& kPlayer = *it;
@@ -4762,13 +4776,35 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 		} // </advc.106>
 	}
 
-	if (bNewValue && bAnnounce && kGame.isFinalInitialized() &&
-		!gDLL->GetWorldBuilderMode())
+	if (bNewValue && bAnnounce && /* advc: */ isHuman() &&
+		kGame.isFinalInitialized() && !gDLL->GetWorldBuilderMode())
 	{
-		FAssert(ePlayer != NO_PLAYER);
-		if (GET_PLAYER(ePlayer).isResearch() &&
-			GET_PLAYER(ePlayer).getCurrentResearch() == NO_TECH &&
-			GET_PLAYER(ePlayer).isHuman()) // K-Mod
+		// <advc.001> (from Taurus) Humans always do the choosing in human-AI teams
+		if (!GET_PLAYER(ePlayer).isHuman())
+		{
+			CvPlayer& kLeader = GET_PLAYER(getLeaderID());
+			if (kLeader.isActive() || kGame.isHotSeat()) // Avoid multiple popups
+			{
+				ePlayer = kLeader.getID();
+				/*	Easier to handle the missing tech splash popup here than in
+					CvEventManager.py. Debatable whether this is really a bugfix;
+					also tagging advc.155. */
+				if (isTechSplash())
+				{
+					CvPopupInfo* pTechSplash = new CvPopupInfo();
+					if (pTechSplash != NULL)
+					{
+						pTechSplash->setButtonPopupType(BUTTONPOPUP_PYTHON_SCREEN);
+						pTechSplash->setData1(eTech);
+						pTechSplash->setText(L"showTechSplash");
+						kLeader.addPopup(pTechSplash);
+					}
+				}
+			}
+		} // </advc.001>
+		CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+		if (kPlayer.isResearch() && kPlayer.getCurrentResearch() == NO_TECH &&
+			kPlayer.isHuman()) // K-Mod
 		{
 			CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_WHAT_TO_RESEARCH_NEXT");
 			GET_PLAYER(ePlayer).chooseTech(0, szBuffer);

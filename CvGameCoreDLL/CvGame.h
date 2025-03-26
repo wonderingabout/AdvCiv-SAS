@@ -761,8 +761,8 @@ public:
 	std::string getScriptData() const;																	// Exposed to Python
 	void setScriptData(std::string szNewValue);															// Exposed to Python
 
-	bool isDestroyedCityName(CvWString& szName) const;
-	void addDestroyedCityName(CvWString const& szName);
+	bool isPastCityName(CvWString& szName) const; // advc.005c: was "isDestroyedCityName"
+	void addPastCityName(CvWString const& szName); // advc.005c: was "addDestroyedCityName"
 
 	bool isGreatPersonBorn(CvWString& szName) const;
 	void addGreatPersonBornName(CvWString const& szName);
@@ -1111,7 +1111,8 @@ protected:
 	IDInfo* m_pLegacyOrgSeatData;
 	//int** m_apaiPlayerVote; // obsoleted by BtS
 	// </advc.enum>
-	std::vector<CvWString> m_aszDestroyedCities;
+	// advc.005c: Renamed from "DestroyedCities"
+	std::vector<CvWString> m_aszPastCities;
 	std::vector<CvWString> m_aszGreatPeopleBorn;
 
 	FFreeListTrashArray<VoteSelectionData> m_voteSelections;

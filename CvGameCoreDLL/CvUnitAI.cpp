@@ -207,7 +207,14 @@ bool CvUnitAI::AI_update()
 				return false;
 		}
 	} // </advc.139>
-
+	/*	<advc> A frequent breakpoint for debugging, and usually on the stack
+		when breaking elsewhere. */
+#ifdef _DEBUG
+	CvCity* pCityDbg = getPlot().getPlotCity();
+	int iGroupSzDbg = getGroup()->getNumUnits();
+	char const* szTypeDbg = m_pUnitInfo->getType();
+#endif
+	// </advc>
 	switch (eUnitAI)
 	{
 	case UNITAI_UNKNOWN:

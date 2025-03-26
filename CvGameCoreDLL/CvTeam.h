@@ -714,6 +714,7 @@ protected:
 	// <advc.039>
 	CvWString const tradeItemString(TradeableItems eItem, int iData,
 			TeamTypes eFrom) const; // </advc.039>
+	bool isTechSplash() const; // advc
 	void announceTechToPlayers(TechTypes eIndex,
 			PlayerTypes eDiscoverPlayer, // advc.156
 			bool bPartial = false);
