@@ -886,23 +886,8 @@ void CvGame::initFreeCivState()
 	FOR_EACH_ENUM(Tech)
 	{
 		// <advc.126> Later-era free tech only for later-era starts.
-		/* custom: rever this logic and give free techs to AIs regardless of eras.
-		   as the game goes on they are more likely to be caught up by the human
-		   player. To keep things still challenging for the human player, giving
-		   free techs at all eras to all eligible players (in lower difficulties the
-		   human player would gain free techs instead).
-		   I think that a more conservative approach to the techs needed rather than
-		   disabling this entirely should help the AI a lot without hurting the human
-		   player too much. Key techs of a low tech cost (such as currency, or much
-		   less needed ones to not have AIs spend time on them (such as compass) may
-		   help the AI stay competitive.
-		   If it is too hard for the human players, there should be other areas to
-		   balance this, the purpose is to make the AI catch up with the game and
-		   not gradually losing, i would want the battle to be more decisive and intense
-		   with this change)
 		if (GC.getInfo(eLoopTech).getEra() > getStartEra())
 			continue; // </advc.126>
-		*/
 		for (TeamIter<ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
 		{
 			CvTeam& kTeam = *itTeam;
