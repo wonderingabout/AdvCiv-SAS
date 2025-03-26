@@ -30,9 +30,7 @@
 			<iGPThresholdPercent>80</iGPThresholdPercent>
 			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<!-- was 60 -->
-			<!-- custom: this is lowest difficulty and AI still get free techs, so although the human player
-			also get techs, some of which specific to the human player, do not decrease too much the gap, was 72 -->
-			<iResearchPercent>68</iResearchPercent>
+			<iResearchPercent>72</iResearchPercent>
 			<iTrainPercent>80</iTrainPercent>
 			<!-- was 80 (let's steer beginners away a bit from just playing SimCity) -->
 			<iConstructPercent>85</iConstructPercent>
@@ -80,8 +78,7 @@
 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
 			<iStartingDefenseUnits>0</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
-			<!-- custom: to help discover the game, give a free explorer unit, was 0-->
-			<iStartingExploreUnits>1</iStartingExploreUnits>
+			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
 			<iAIStartingDefenseUnits>0</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
@@ -94,8 +91,7 @@
 			<iAIGrowthPercent>125</iAIGrowthPercent>
 			<iAIGPThresholdPercent>125</iAIGPThresholdPercent>
 			<!-- Lower tech costs for the AI -->
-			<!-- custom: increase AI costs to make the game last longer maybe, was 90 -->
-			<iAIResearchPercent>95</iAIResearchPercent>
+			<iAIResearchPercent>90</iAIResearchPercent>
 			<!-- was 6x 160 -->
 			<iAITrainPercent>125</iAITrainPercent>
 			<iAIWorldTrainPercent>125</iAIWorldTrainPercent>
@@ -138,8 +134,6 @@
 				<GoodyType>GOODY_TECH</GoodyType>
 				<GoodyType>GOODY_TECH</GoodyType>
 			</Goodies>
-			<!-- custom: for a new player or-and lowest difficulty, having most early worker improvements available and most early ressources
-			revealed at the start may help so i added the required techs that enable so here -->
 			<FreeTechs>
 				<FreeTech>
 					<TechType>TECH_THE_WHEEL</TechType>
@@ -150,74 +144,51 @@
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_HUNTING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-					<FreeTech>
 					<TechType>TECH_MINING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-					<FreeTech>
-					<TechType>TECH_POTTERY</TechType>
+				<FreeTech>
+					<TechType>TECH_MATHEMATICS</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-					<FreeTech>
-					<TechType>TECH_ANIMAL_HUSBANDRY</TechType>
+				<FreeTech>
+					<TechType>TECH_ALPHABET</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-					<FreeTech>
-					<TechType>TECH_BRONZE_WORKING</TechType>
+				<FreeTech>
+					<TechType>TECH_MACHINERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-					<FreeTech>
-					<TechType>TECH_IRON_WORKING</TechType>
+				<FreeTech>
+					<TechType>TECH_FEUDALISM</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<FreeTech>
+					<TechType>TECH_PRINTING_PRESS</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<FreeTech>
+					<TechType>TECH_GUNPOWDER</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<FreeTech>
+					<TechType>TECH_STEAM_POWER</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<FreeTech>
+					<TechType>TECH_STEEL</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<FreeTech>
+					<TechType>TECH_PLASTICS</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<FreeTech>
+					<TechType>TECH_REFRIGERATION</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
-			<!-- custom: make this difficulty slightly harder than it was, should be quite easier than the higher one but not that much easier,
-			hopefully difficulty is more gradual with this now.
-			Also, giving the AI techs increase their efficiency and how fast/smooth their economies develop, so even at lower difficulties
-			it may make sense/be helpful, the handicap research percentages can be adjusted accordingly to desired difficulty, while still
-			often giving AIs free techs to increase their efficiency.
-			Noble is now same challenge as prince but with much less research penalties (and a few other type of penalties less too), which
-			should be a big enough leap to still be relevant, leaving lower than noble difficulties be advantageous to the human player.-->
-			<AIFreeTechs>
-				<FreeTech>
-					<TechType>TECH_POTTERY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: give a bunch of smaller (bronze working) key or very optional techs rather than a few big ones.
-				It may make the early game more gradual while still having the AI not waste as much time on less rewarding techs.
-				, was IRON_WORKING-->
-				<FreeTech>
-					<TechType>TECH_BRONZE_WORKING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: replace mathematics with currency, more likely to be useful for the weaker player(s)'s economy (trade of ressources,
-				extra trade routes, trade of gold and gold per turn, etc.), but also later than mathematics so gives the stronger 
-				player(s) more breathing room to catch up until then, while making sure the weaker player(s) does not carelessly neglect to get this tech.,
-				was TECH_MATHEMATICS -->
-				<FreeTech>
-					<TechType>TECH_CURRENCY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
-				also may be more versatile than printing press, was PRINTING_PRESS-->
-				<FreeTech>
-					<TechType>TECH_COMPASS</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
-				<FreeTech>
-					<TechType>TECH_CHEMISTRY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: add laser to make AIs still quite competitive in the late game maybe -->
-				<FreeTech>
-					<TechType>TECH_LASER</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-			</AIFreeTechs>
+			<AIFreeTechs/>
 			<!-- advc.250a -->
 			<iDifficulty>0</iDifficulty>
 		</HandicapInfo>
@@ -242,8 +213,7 @@
 			<iGPThresholdPercent>95</iGPThresholdPercent>
 			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<!-- was 75 -->
-			<!-- custom: reduce this as AI still have free techs at this difficulty, was 85 -->
-			<iResearchPercent>73</iResearchPercent>
+			<iResearchPercent>85</iResearchPercent>
 			<iTrainPercent>95</iTrainPercent>
 			<iConstructPercent>95</iConstructPercent>
 			<iCreatePercent>80</iCreatePercent>
@@ -344,53 +314,37 @@
 				<GoodyType>GOODY_TECH</GoodyType>
 				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
 			</Goodies>
-			<!-- custom: the wheel and agriculture don't seem such critical techs to have, gives the human player a
-			bit more breathing room if the AI has less early techs too, so removed them. -->
-			<FreeTechs/>
-			<!-- custom: make this difficulty slightly harder than it was, should be quite easier than the higher one but not that much easier,
-			hopefully difficulty is more gradual with this now.
-			Also, giving the AI techs increase their efficiency and how fast/smooth their economies develop, so even at lower difficulties
-			it may make sense/be helpful, the handicap research percentages can be adjusted accordingly to desired difficulty, while still
-			often giving AIs free techs to increase their efficiency.
-			Noble is now same challenge as prince but with much less research penalties (and a few other type of penalties less too), which
-			should be a big enough leap to still be relevant, leaving lower than noble difficulties be advantageous to the human player.-->
-			<AIFreeTechs>
+			<FreeTechs>
 				<FreeTech>
-					<TechType>TECH_POTTERY</TechType>
+					<TechType>TECH_THE_WHEEL</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<!-- custom: give a bunch of smaller (bronze working) key or very optional techs rather than a few big ones.
-				It may make the early game more gradual while still having the AI not waste as much time on less rewarding techs.
-				, was IRON_WORKING-->
 				<FreeTech>
-					<TechType>TECH_BRONZE_WORKING</TechType>
+					<TechType>TECH_AGRICULTURE</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<!-- custom: replace mathematics with currency, more likely to be useful for the weaker player(s)'s economy (trade of ressources,
-				extra trade routes, trade of gold and gold per turn, etc.), but also later than mathematics so gives the stronger 
-				player(s) more breathing room to catch up until then, while making sure the weaker player(s) does not carelessly neglect to get this tech.,
-				was TECH_MATHEMATICS -->
 				<FreeTech>
-					<TechType>TECH_CURRENCY</TechType>
+					<TechType>TECH_MATHEMATICS</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
-				also may be more versatile than printing press, was PRINTING_PRESS-->
 				<FreeTech>
-					<TechType>TECH_COMPASS</TechType>
+					<TechType>TECH_MACHINERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
 				<FreeTech>
-					<TechType>TECH_CHEMISTRY</TechType>
+					<TechType>TECH_PRINTING_PRESS</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<!-- custom: add laser to make AIs still quite competitive in the late game maybe -->
 				<FreeTech>
-					<TechType>TECH_LASER</TechType>
+					<TechType>TECH_STEAM_POWER</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-			</AIFreeTechs>
+				<FreeTech>
+					<TechType>TECH_PLASTICS</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+			</FreeTechs>
+			<AIFreeTechs/>
 			<!-- advc.250a -->
 			<iDifficulty>10</iDifficulty>
 		</HandicapInfo>
@@ -416,8 +370,7 @@
 			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
 			<iGPThresholdPercent>100</iGPThresholdPercent>
 			<iCultureLevelPercent>100</iCultureLevelPercent>
-			<!-- bonus: reduce this a bit as AI still has a few free techs now, was 90 -->
-			<iResearchPercent>85</iResearchPercent>
+			<iResearchPercent>90</iResearchPercent>
 			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>90</iCreatePercent>
@@ -515,53 +468,13 @@
 				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
 				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
 			</Goodies>
-			<!-- custom: the wheel doesn't seem such a critical tech to have, gives the human player a bit more
-			breathing room if the AI has less early techs too, was TECH_THE_WHEEL -->
-			<FreeTechs/>
-			<!-- custom: make this difficulty slightly harder than it was, should be quite easier than the higher one but not that much easier,
-			hopefully difficulty is more gradual with this now.
-			Also, giving the AI techs increase their efficiency and how fast/smooth their economies develop, so even at lower difficulties
-			it may make sense/be helpful, the handicap research percentages can be adjusted accordingly to desired difficulty, while still
-			often giving AIs free techs to increase their efficiency.
-			Noble is now same challenge as prince but with much less research penalties (and a few other type of penalties less too), which
-			should be a big enough leap to still be relevant, leaving lower than noble difficulties be advantageous to the human player.-->
-			<AIFreeTechs>
+			<FreeTechs>
 				<FreeTech>
-					<TechType>TECH_POTTERY</TechType>
+					<TechType>TECH_THE_WHEEL</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<!-- custom: give a bunch of smaller (bronze working) key or very optional techs rather than a few big ones.
-				It may make the early game more gradual while still having the AI not waste as much time on less rewarding techs.
-				, was IRON_WORKING-->
-				<FreeTech>
-					<TechType>TECH_BRONZE_WORKING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: replace mathematics with currency, more likely to be useful for the weaker player(s)'s economy (trade of ressources,
-				extra trade routes, trade of gold and gold per turn, etc.), but also later than mathematics so gives the stronger 
-				player(s) more breathing room to catch up until then, while making sure the weaker player(s) does not carelessly neglect to get this tech.,
-				was TECH_MATHEMATICS -->
-				<FreeTech>
-					<TechType>TECH_CURRENCY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
-				also may be more versatile than printing press, was PRINTING_PRESS-->
-				<FreeTech>
-					<TechType>TECH_COMPASS</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
-				<FreeTech>
-					<TechType>TECH_CHEMISTRY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: add laser to make AIs still quite competitive in the late game maybe -->
-				<FreeTech>
-					<TechType>TECH_LASER</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-			</AIFreeTechs>
+			</FreeTechs>
+			<AIFreeTechs/>
 			<!-- advc.250a -->
 			<iDifficulty>20</iDifficulty>
 		</HandicapInfo>
@@ -632,7 +545,6 @@
 			<!-- advc.313: was -40 -->
 			<iAIAnimalBonus>-25</iAIAnimalBonus>
 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
-			<!-- custom: considering noble is intended to be a bit harder now and a bridge closer to prince, also increase the value here, was 0 -->
 			<iStartingDefenseUnits>0</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
@@ -690,57 +602,7 @@
 				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
 			</Goodies>
 			<FreeTechs/>
-			<!-- custom: make noble slightly harder than it was, should be quite easier than prince but not that much easier, hopefully
-			difficulty is more gradual with this now.
-			Also, giving the AI techs increase their efficiency and how fast/smooth their economies develop, so even at lower difficulties
-			it may make sense/be helpful, the handicap research percentages can be adjusted accordingly to desired difficulty, while still
-			often giving AIs free techs to increase their efficiency.
-			Noble is now same challenge as prince but with much less research penalties (and a few other type of penalties less too), which
-			should be a big enough leap to still be relevant, leaving lower than noble difficulties be advantageous to the human player.-->
-			<AIFreeTechs>
-				<FreeTech>
-					<TechType>TECH_POTTERY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: give a bunch of smaller (bronze working) key or very optional techs rather than a few big ones.
-				It may make the early game more gradual while still having the AI not waste as much time on less rewarding techs.
-				, was IRON_WORKING-->
-				<FreeTech>
-					<TechType>TECH_BRONZE_WORKING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: replace mathematics with currency, more likely to be useful for the weaker player(s)'s economy (trade of ressources,
-				extra trade routes, trade of gold and gold per turn, etc.), but also later than mathematics so gives the stronger 
-				player(s) more breathing room to catch up until then, while making sure the weaker player(s) does not carelessly neglect to get this tech.,
-				was TECH_MATHEMATICS -->
-				<FreeTech>
-					<TechType>TECH_CURRENCY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: monarchy should help the AI more early with new regime, wine happiness (and trade possibility maybe too?),
-				and possibility also to research feudalism sooner, machinery may not be so useful for the AI early even if it costs more,
-				was TECH_MACHINERY-->
-				<FreeTech>
-					<TechType>TECH_MONARCHY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
-				also may be more versatile than printing press, was PRINTING_PRESS-->
-				<FreeTech>
-					<TechType>TECH_COMPASS</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
-				<FreeTech>
-					<TechType>TECH_CHEMISTRY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: add laser to make AIs still quite competitive in the late game maybe -->
-				<FreeTech>
-					<TechType>TECH_LASER</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-			</AIFreeTechs>
+			<AIFreeTechs/>
 			<!-- advc.250a -->
 			<iDifficulty>30</iDifficulty>
 		</HandicapInfo>
@@ -767,8 +629,7 @@
 			<iGPThresholdPercent>100</iGPThresholdPercent>
 			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<!-- was 110 -->
-			<!-- custom: make the gap between human and AI tech costs closer to in higher difficulties, was 108-->
-			<iResearchPercent>114</iResearchPercent>
+			<iResearchPercent>108</iResearchPercent>
 			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
@@ -819,14 +680,9 @@
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
-			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
-			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
-			was 0 -->
-			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>0</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
-			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
-			warriors are now more likely to be defenders, was 0 -->
-			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
 			<iBarbarianDefenders>2</iBarbarianDefenders>
 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
 			<!-- advc.251: was 10 -->
@@ -835,8 +691,7 @@
 			<!-- advc.251 -->
 			<iAIGPThresholdPercent>100</iAIGPThresholdPercent>
 			<!-- advc.251 -->
-			<!-- custom: try to make the game last longer by increasing AI costs a bit, was 103 -->
-			<iAIResearchPercent>108</iAIResearchPercent>
+			<iAIResearchPercent>103</iAIResearchPercent>
 			<iAITrainPercent>95</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>95</iAIConstructPercent>
@@ -881,52 +736,7 @@
 				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
 			</Goodies>
 			<FreeTechs/>
-			<!-- custom: make prince slightly harder than it was, should be quite easier than monarch but not that much easier, hopefully
-			difficulty is more gradual with this now -->
-			<AIFreeTechs>
-				<FreeTech>
-					<TechType>TECH_POTTERY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: give a bunch of smaller (bronze working) key or very optional techs rather than a few big ones.
-				It may make the early game more gradual while still having the AI not waste as much time on less rewarding techs.
-				, was IRON_WORKING-->
-				<FreeTech>
-					<TechType>TECH_BRONZE_WORKING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: replace mathematics with currency, more likely to be useful for the weaker player(s)'s economy (trade of ressources,
-				extra trade routes, trade of gold and gold per turn, etc.), but also later than mathematics so gives the stronger 
-				player(s) more breathing room to catch up until then, while making sure the weaker player(s) does not carelessly neglect to get this tech.,
-				was TECH_MATHEMATICS -->
-				<FreeTech>
-					<TechType>TECH_CURRENCY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: monarchy should help the AI more early with new regime, wine happiness (and trade possibility maybe too?),
-				and possibility also to research feudalism sooner, machinery may not be so useful for the AI early even if it costs more,
-				was TECH_MACHINERY-->
-				<FreeTech>
-					<TechType>TECH_MONARCHY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
-				also may be more versatile than printing press, was PRINTING_PRESS-->
-				<FreeTech>
-					<TechType>TECH_COMPASS</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
-				<FreeTech>
-					<TechType>TECH_CHEMISTRY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: add laser to make AIs still quite competitive in the late game maybe -->
-				<FreeTech>
-					<TechType>TECH_LASER</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-			</AIFreeTechs>
+			<AIFreeTechs/>
 			<!-- advc.250a -->
 			<iDifficulty>40</iDifficulty>
 		</HandicapInfo>
@@ -953,8 +763,7 @@
 			<iGPThresholdPercent>100</iGPThresholdPercent>
 			<iCultureLevelPercent>106</iCultureLevelPercent>
 			<!-- was 120 -->
-            <!-- custom: even now that the AI gets free techs at each era, maybe this can be increased a bit to be closer to emperor difficulty, was 115-->
-			<iResearchPercent>120</iResearchPercent>
+			<iResearchPercent>115</iResearchPercent>
 			<!-- advc.251 (end) -->
 			<!-- advc.251 (start) -->
 			<iTrainPercent>100</iTrainPercent>
@@ -1008,14 +817,9 @@
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
-			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
-			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
-			was 1 -->
-			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
-			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
-			warriors are now more likely to be defenders, was 0 -->
-			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
 			<iBarbarianDefenders>3</iBarbarianDefenders>
 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
 			<!-- advc.251: was 20 -->
@@ -1023,8 +827,7 @@
 			<iAIGrowthPercent>95</iAIGrowthPercent>
 			<!-- advc.251 (start) -->
 			<iAIGPThresholdPercent>95</iAIGPThresholdPercent>
-			<!-- custom: increase this slightly so the game is slightly longer paced, was 110-->
-			<iAIResearchPercent>112</iAIResearchPercent>
+			<iAIResearchPercent>110</iAIResearchPercent>
 			<!-- was 90 -->
 			<iAITrainPercent>95</iAITrainPercent>
 			<!-- was 100 -->
@@ -1075,63 +878,28 @@
 			</Goodies>
 			<FreeTechs/>
 			<AIFreeTechs>
-				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
-				If AI wants to turtle later in the game, archers may be more relevant then.
-				Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.-->
-				<!--<FreeTech>
+				<FreeTech>
 					<TechType>TECH_ARCHERY</TechType>
 					<bFreeTech>1</bFreeTech>
-				</FreeTech>-->
-				<!-- custom: instead, give them a tech that helps them expand more early -->
-				<FreeTech>
-					<TechType>TECH_POTTERY</TechType>
-					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<!-- custom: give a bunch of smaller (bronze working) key or very optional techs rather than a few big ones.
-				It may make the early game more gradual while still having the AI not waste as much time on less rewarding techs.
-				, was IRON_WORKING-->
 				<FreeTech>
-					<TechType>TECH_BRONZE_WORKING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: replace mathematics with currency, more likely to be useful for the weaker player(s)'s economy (trade of ressources,
-				extra trade routes, trade of gold and gold per turn, etc.), but also later than mathematics so gives the stronger 
-				player(s) more breathing room to catch up until then, while making sure the weaker player(s) does not carelessly neglect to get this tech.,
-				was TECH_MATHEMATICS -->
-				<FreeTech>
-					<TechType>TECH_CURRENCY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: monarchy should help the AI more early with new regime, wine happiness (and trade possibility maybe too?),
-				and possibility also to research feudalism sooner, machinery may not be so useful for the AI early even if it costs more,
-				was TECH_MACHINERY-->
-				<FreeTech>
-					<TechType>TECH_MONARCHY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
-				also may be more versatile than printing press, was PRINTING_PRESS-->
-				<FreeTech>
-					<TechType>TECH_COMPASS</TechType>
+					<TechType>TECH_MATHEMATICS</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_DRAMA</TechType>
+					<TechType>TECH_MACHINERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
 				<FreeTech>
-					<TechType>TECH_CHEMISTRY</TechType>
+					<TechType>TECH_PRINTING_PRESS</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<!-- custom: industrialism should be more useful to the player than plastics, was TECH_PLASTICS -->
 				<FreeTech>
-					<TechType>TECH_INDUSTRIALISM</TechType>
+					<TechType>TECH_STEAM_POWER</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<!-- custom: add laser to make AIs still quite competitive in the late game maybe -->
 				<FreeTech>
-					<TechType>TECH_LASER</TechType>
+					<TechType>TECH_PLASTICS</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</AIFreeTechs>
@@ -1158,9 +926,7 @@
 			<iBaseGrowthThresholdPercent>110</iBaseGrowthThresholdPercent>
 			<iGPThresholdPercent>110</iGPThresholdPercent>
 			<iCultureLevelPercent>112</iCultureLevelPercent>
-			<!-- custom: slightly reduce this to have a bit more gap vs immortal, especially considering AI has many new
-			free techs now, was 130 -->
-			<iResearchPercent>128</iResearchPercent>
+			<iResearchPercent>130</iResearchPercent>
 			<iTrainPercent>110</iTrainPercent>
 			<iConstructPercent>105</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
@@ -1209,15 +975,10 @@
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
-			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
-			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
-			was 2 -->
-			<iAIStartingDefenseUnits>3</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<!-- advc.250e: was 1 -->
-			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
-			warriors are now more likely to be defenders, was 0 -->
-			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
 			<iBarbarianDefenders>3</iBarbarianDefenders>
 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
 			<!-- advc.251: was 50 -->
@@ -1226,8 +987,7 @@
 			<!-- advc.251 (start) -->
 			<iAIGPThresholdPercent>90</iAIGPThresholdPercent>
 			<!-- Higher tech costs for the AI -->
-			<!-- custom: increase this slightly so the game is slightly longer paced, was 115-->
-			<iAIResearchPercent>116</iAIResearchPercent>
+			<iAIResearchPercent>115</iAIResearchPercent>
 			<!-- was 85 -->
 			<iAITrainPercent>95</iAITrainPercent>
 			<!-- was 100 -->
@@ -1279,73 +1039,32 @@
 			</Goodies>
 			<FreeTechs/>
 			<AIFreeTechs>
-				<!-- custom: removed TECH_HUNTING too, although it is a good tech, it is not urgent to get it, plus AIs start with a free scout
-				anyway, hopefully that delays the time when AIs start to get archers too, making them favour the more versatile warriors, or 
-				economy early. I don't know if scouts can exist without hunting, need to test if this does not break anything. -->
-				<!-- custom: also add fishing to help/speed up early AI growth (they would also not spend time thus on such techs), if it
-				helps delaying the time when AI stockpiles units it should also be good for their economy (plus getting sea food bonuses sooner
-				maybe too)-->
 				<FreeTech>
-					<TechType>TECH_FISHING</TechType>
+					<TechType>TECH_HUNTING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
-				If AI wants to turtle later in the game, archers may be more relevant then.
-				Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.-->
-				<!--<FreeTech>
+				<FreeTech>
 					<TechType>TECH_ARCHERY</TechType>
 					<bFreeTech>1</bFreeTech>
-				</FreeTech>-->
-				<!-- custom: instead, give them a tech that helps them expand more early -->
-				<FreeTech>
-					<TechType>TECH_POTTERY</TechType>
-					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<!-- custom: replace mathematics with currency, more likely to be useful for the weaker player(s)'s economy (trade of ressources,
-				extra trade routes, trade of gold and gold per turn, etc.), but also later than mathematics so gives the stronger 
-				player(s) more breathing room to catch up until then, while making sure the weaker player(s) does not carelessly neglect to get this tech.,
-				was TECH_MATHEMATICS -->
-				<!-- custom: give a bunch of smaller (bronze working) key or very optional techs rather than a few big ones.
-				It may make the early game more gradual while still having the AI not waste as much time on less rewarding techs.
-				, was IRON_WORKING-->
 				<FreeTech>
-					<TechType>TECH_BRONZE_WORKING</TechType>
+					<TechType>TECH_MATHEMATICS</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_CURRENCY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: monarchy should help the AI more early with new regime, wine happiness (and trade possibility maybe too?),
-				and possibility also to research feudalism sooner, machinery may not be so useful for the AI early even if it costs more,
-				was TECH_MACHINERY-->
-				<FreeTech>
-					<TechType>TECH_MONARCHY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
-				also may be more versatile than printing press, was PRINTING_PRESS-->
-				<FreeTech>
-					<TechType>TECH_COMPASS</TechType>
+					<TechType>TECH_MACHINERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_DRAMA</TechType>
+					<TechType>TECH_PRINTING_PRESS</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
 				<FreeTech>
-					<TechType>TECH_CHEMISTRY</TechType>
+					<TechType>TECH_STEAM_POWER</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<!-- custom: industrialism should be more useful to the player than plastics, was TECH_PLASTICS -->
 				<FreeTech>
-					<TechType>TECH_INDUSTRIALISM</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: add laser to make AIs still quite competitive in the late game maybe -->
-				<FreeTech>
-					<TechType>TECH_LASER</TechType>
+					<TechType>TECH_PLASTICS</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</AIFreeTechs>
@@ -1373,8 +1092,7 @@
 			<iGPThresholdPercent>120</iGPThresholdPercent>
 			<iCultureLevelPercent>118</iCultureLevelPercent>
 			<!-- was 125 -->
-			<!-- custom: now that the AI receives free techs at each era, maybe this does not need to be enforced as strongly, was 140 -->
-			<iResearchPercent>133</iResearchPercent>
+			<iResearchPercent>140</iResearchPercent>
 			<iTrainPercent>120</iTrainPercent>
 			<iConstructPercent>110</iConstructPercent>
 			<iCreatePercent>110</iCreatePercent>
@@ -1425,15 +1143,10 @@
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
 			<!-- advc.250e: was 3 -->
-			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
-			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
-			was 2 -->
-			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>1</iAIStartingWorkerUnits>
 			<!-- advc.250e: was 1 -->
-			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
-			warriors are now more likely to be defenders, was 0 -->
-			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
 			<!-- advc.250e: was 4 -->
 			<iBarbarianDefenders>3</iBarbarianDefenders>
 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
@@ -1498,77 +1211,32 @@
 					<TechType>TECH_AGRICULTURE</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech-->
-				<!-- custom: removed TECH_HUNTING too, although it is a good tech, it is not urgent to get it, plus AIs start with a free scout
-				anyway, hopefully that delays the time when AIs start to get archers too, making them favour the more versatile warriors, or 
-				economy early. I don't know if scouts can exist without hunting, need to test if this does not break anything. -->
-				<!-- custom: also add fishing to help/speed up early AI growth (they would also not spend time thus on such techs), if it
-				helps delaying the time when AI stockpiles units it should also be good for their economy (plus getting sea food bonuses sooner
-				maybe too)-->
 				<FreeTech>
-					<TechType>TECH_FISHING</TechType>
+					<TechType>TECH_HUNTING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
-				If AI wants to turtle later in the game, archers may be more relevant then.
-				Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.-->
-				<!--<FreeTech>
+				<FreeTech>
 					<TechType>TECH_ARCHERY</TechType>
 					<bFreeTech>1</bFreeTech>
-				</FreeTech>-->
-				<!-- custom: instead, give them a tech that helps them expand more early -->
-				<FreeTech>
-					<TechType>TECH_POTTERY</TechType>
-					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<!-- custom: give a bunch of smaller (animal husbandry) key or very optional techs rather than a few big ones.
-				It may make the early game more gradual while still having the AI not waste as much time on less rewarding techs.
-				, was IRON_WORKING-->
 				<FreeTech>
-					<TechType>TECH_ANIMAL_HUSBANDRY</TechType>
+					<TechType>TECH_MATHEMATICS</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_BRONZE_WORKING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: replace mathematics with currency, more likely to be useful for the weaker player(s)'s economy (trade of ressources,
-				extra trade routes, trade of gold and gold per turn, etc.), but also later than mathematics so gives the stronger 
-				player(s) more breathing room to catch up until then, while making sure the weaker player(s) does not carelessly neglect to get this tech.,
-				was TECH_MATHEMATICS -->
-				<FreeTech>
-					<TechType>TECH_CURRENCY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: monarchy should help the AI more early with new regime, wine happiness (and trade possibility maybe too?),
-				and possibility also to research feudalism sooner, machinery may not be so useful for the AI early even if it costs more,
-				was TECH_MACHINERY-->
-				<FreeTech>
-					<TechType>TECH_MONARCHY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
-				also may be more versatile than printing press, was PRINTING_PRESS-->
-				<FreeTech>
-					<TechType>TECH_COMPASS</TechType>
+					<TechType>TECH_MACHINERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_DRAMA</TechType>
+					<TechType>TECH_PRINTING_PRESS</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
 				<FreeTech>
-					<TechType>TECH_CHEMISTRY</TechType>
+					<TechType>TECH_STEAM_POWER</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<!-- custom: industrialism should be more useful to the player than plastics, was TECH_PLASTICS -->
 				<FreeTech>
-					<TechType>TECH_INDUSTRIALISM</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: add laser to make AIs still quite competitive in the late game maybe -->
-				<FreeTech>
-					<TechType>TECH_LASER</TechType>
+					<TechType>TECH_PLASTICS</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</AIFreeTechs>
@@ -1595,8 +1263,7 @@
 			<iGPThresholdPercent>130</iGPThresholdPercent>
 			<iCultureLevelPercent>129</iCultureLevelPercent>
 			<!-- advc.251: was 130 -->
-			<!-- custom: now that the AI receives free techs at each era, maybe this does not need to be enforced as strongly, was 145 -->
-			<iResearchPercent>140</iResearchPercent>
+			<iResearchPercent>150</iResearchPercent>
 			<iTrainPercent>130</iTrainPercent>
 			<iConstructPercent>115</iConstructPercent>
 			<iCreatePercent>120</iCreatePercent>
@@ -1651,10 +1318,7 @@
 			<!-- advc.250e: was 1 -->
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
 			<!-- advc.250e: was 4 -->
-			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
-			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
-			was 3 -->
-			<iAIStartingDefenseUnits>5</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>3</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>1</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
 			<iBarbarianDefenders>4</iBarbarianDefenders>
@@ -1720,99 +1384,61 @@
 			</Goodies>
 			<FreeTechs/>
 			<AIFreeTechs>
-				<!-- custom: the wheel doesn't seem such a critical tech to have, gives the human player a bit more
-				breathing room if the AI has less early techs too, was TECH_THE_WHEEL -->
+				<FreeTech>
+					<TechType>TECH_THE_WHEEL</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
 				<!-- advc.250e -->
 				<!--FreeTech>
 					<TechType>TECH_AGRICULTURE</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech-->
-				<!-- custom: removed TECH_HUNTING too, although it is a good tech, it is not urgent to get it, plus AIs start with a free scout
-				anyway, hopefully that delays the time when AIs start to get archers too, making them favour the more versatile warriors, or 
-				economy early. I don't know if scouts can exist without hunting, need to test if this does not break anything. -->
-				<!-- custom: also add fishing to help/speed up early AI growth (they would also not spend time thus on such techs), if it
-				helps delaying the time when AI stockpiles units it should also be good for their economy (plus getting sea food bonuses sooner
-				maybe too)-->
 				<FreeTech>
-					<TechType>TECH_FISHING</TechType>
+					<TechType>TECH_HUNTING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_MYSTICISM</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
-				If AI wants to turtle later in the game, archers may be more relevant then.
-				Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.-->
-				<!--<FreeTech>
 					<TechType>TECH_ARCHERY</TechType>
 					<bFreeTech>1</bFreeTech>
-				</FreeTech>-->
-				<!-- custom: instead, give them a tech that helps them expand more early -->
-				<FreeTech>
-					<TechType>TECH_POTTERY</TechType>
-					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<!-- custom: give a bunch of smaller (bronze working and animal husbandry) key or very optional techs rather than a few big ones.
-				It may make the early game more gradual while still having the human not waste as much time on less rewarding techs.
-				, was IRON_WORKING-->
 				<FreeTech>
-					<TechType>TECH_ANIMAL_HUSBANDRY</TechType>
+					<TechType>TECH_MATHEMATICS</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_BRONZE_WORKING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: replace mathematics with currency, more likely to be useful for the weaker player(s)'s economy (trade of ressources,
-				extra trade routes, trade of gold and gold per turn, etc.), but also later than mathematics so gives the stronger 
-				player(s) more breathing room to catch up until then, while making sure the weaker player(s) does not carelessly neglect to get this tech.,
-				was TECH_MATHEMATICS -->
-				<FreeTech>
-					<TechType>TECH_CURRENCY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: monarchy should help the AI more early with new regime, wine happiness (and trade possibility maybe too?),
-				and possibility also to research feudalism sooner, machinery may not be so useful for the AI early even if it costs more,
-				was TECH_MACHINERY-->
-				<FreeTech>
-					<TechType>TECH_MONARCHY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
-				also may be more versatile than printing press, was PRINTING_PRESS-->
-				<FreeTech>
-					<TechType>TECH_COMPASS</TechType>
+					<TechType>TECH_IRON_WORKING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_DRAMA</TechType>
+					<TechType>TECH_MACHINERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<!-- custom: optics should be more versatile than gunpowder, was TECH_GUNPOWDER -->
 				<FreeTech>
-					<TechType>TECH_OPTICS</TechType>
+					<TechType>TECH_FEUDALISM</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<!-- custom: removed tech TECH_GUNPOWDER to give the human player more time/momentum to catch up maybe -->
-				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
 				<FreeTech>
-					<TechType>TECH_CHEMISTRY</TechType>
+					<TechType>TECH_PRINTING_PRESS</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<!-- custom: industrialism should be more useful to the player than plastics, was TECH_PLASTICS -->
 				<FreeTech>
-					<TechType>TECH_INDUSTRIALISM</TechType>
+					<TechType>TECH_GUNPOWDER</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<!-- custom: biology should be more useful to the player than refrigeration, was TECH_REFRIGERATION -->
 				<FreeTech>
-					<TechType>TECH_BIOLOGY</TechType>
+					<TechType>TECH_STEAM_POWER</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
-				<!-- custom: add laser to make AIs still quite competitive in the late game maybe -->
 				<FreeTech>
-					<TechType>TECH_LASER</TechType>
+					<TechType>TECH_STEEL</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<FreeTech>
+					<TechType>TECH_PLASTICS</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<FreeTech>
+					<TechType>TECH_REFRIGERATION</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</AIFreeTechs>
