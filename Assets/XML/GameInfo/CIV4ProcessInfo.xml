@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Jesse Smith (Firaxis Games) -->
+<!-- Sid Meier's Civilization 4 -->
+<!-- Copyright Firaxis Games 2005 -->
+<!-- -->
+<!-- Process -->
+<Civ4ProcessInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
+	<ProcessInfos>
+		<ProcessInfo>
+			<Type>PROCESS_WEALTH</Type>
+			<Description>TXT_KEY_PROCESS_WEALTH</Description>
+			<Strategy>TXT_KEY_PROCESS_WEALTH_STRATEGY</Strategy>
+			<TechPrereq>TECH_CURRENCY</TechPrereq>
+			<ProductionToCommerceModifiers>
+				<iProductionToCommerceModifier>50</iProductionToCommerceModifier>
+				<iProductionToCommerceModifier>0</iProductionToCommerceModifier>
+				<iProductionToCommerceModifier>0</iProductionToCommerceModifier>
+			</ProductionToCommerceModifiers>
+			<Button>Art/Interface/Buttons/Process/ProcessWealth.dds</Button>
+		</ProcessInfo>
+		<ProcessInfo>
+			<Type>PROCESS_RESEARCH</Type>
+			<Description>TXT_KEY_PROCESS_RESEARCH</Description>
+			<Strategy>TXT_KEY_PROCESS_RESEARCH_STRATEGY</Strategy>
+			<!-- custom: since we can build libraries with writing, it would not be too
+			weird if research could be built from that time/tech too. Maybe would allow
+			more strategic diversity/depth especially at higher levels. Would need testing
+			to see how AIs would handle it but is maybe fine (would need to test to see /
+			be sure) -->
+			<TechPrereq>TECH_WRITING</TechPrereq>
+			<ProductionToCommerceModifiers>
+				<iProductionToCommerceModifier>0</iProductionToCommerceModifier>
+				<iProductionToCommerceModifier>50</iProductionToCommerceModifier>
+				<iProductionToCommerceModifier>0</iProductionToCommerceModifier>
+			</ProductionToCommerceModifiers>
+			<Button>Art/Interface/Buttons/Process/ProcessResearch.dds</Button>
+		</ProcessInfo>
+		<ProcessInfo>
+			<Type>PROCESS_CULTURE</Type>
+			<Description>TXT_KEY_PROCESS_CULTURE</Description>
+			<Strategy>TXT_KEY_PROCESS_CULTURE_STRATEGY</Strategy>
+			<!-- custom: aesthetics now instead of drama, maybe is more accurate/realistic
+			on top of maybe helping calm revolts sooner? Or/and more diverse strategies
+			possible now? Trying this as it may fit better for my mod at least maybe. -->
+			<TechPrereq>TECH_AESTHETICS</TechPrereq>
+			<ProductionToCommerceModifiers>
+				<iProductionToCommerceModifier>0</iProductionToCommerceModifier>
+				<iProductionToCommerceModifier>0</iProductionToCommerceModifier>
+				<iProductionToCommerceModifier>50</iProductionToCommerceModifier>
+			</ProductionToCommerceModifiers>
+			<Button>Art/Interface/Buttons/Process/ProcessCulture.dds</Button>
+		</ProcessInfo>
+	</ProcessInfos>
+</Civ4ProcessInfo>

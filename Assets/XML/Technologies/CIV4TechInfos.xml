@@ -295,7 +295,8 @@
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>120</iCost>
+			<!-- custom: trying to make tech pace more gradual or/and accurate, was 120 -->
+			<iCost>230</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_ANCIENT</Era>
@@ -366,7 +367,8 @@
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>300</iCost>
+			<!-- custom: trying to make tech pace more gradual or/and accurate, was 300 -->
+			<iCost>580</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_CLASSICAL</Era>
@@ -635,7 +637,9 @@
 			<CommerceFlexible>
 				<bFlexible>0</bFlexible>
 				<bFlexible>0</bFlexible>
-				<bFlexible>1</bFlexible>
+				<!-- custom: now that culture can be built from aesthetics, music can be
+				more worthwhile to use to control the slider now maybe instead, was 1 -->
+				<bFlexible>0</bFlexible>
 				<bFlexible>0</bFlexible>
 			</CommerceFlexible>
 			<TerrainTrades/>
@@ -684,7 +688,15 @@
 			<iAIWeight>125</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
 			<!-- advc.910: was 700 -->
-			<iCost>820</iCost>
+			<!-- custom: feudalism is a key important tech with the unit reworks in my mod now, also from the little i checked it
+			seems it started a bit sooner than other techs, so maybe fine to reduce this a bit, so that most civs also access
+			sooner this key tech. Maybe this helps avoiding snowballs of some players.
+			I am not concerned so much about the year number, much more on the turn number. As long as progression is gradual
+			enough in numbers of turns, maybe the increment of turns rather could be updated? What i want is to keep a gradual
+			ratio increase between techs, not a brutal one, unless i have a strong reason to do so. Testing this to see, was 820.
+			Considering the cost of monarchy is increased now, and that feudalism requires it, then feudalism's cost can be
+			further reduced to keep historical accuracy maybe -->
+			<iCost>450</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MEDIEVAL</Era>
@@ -903,7 +915,8 @@
 			<iAIWeight>0</iAIWeight>
 			<!-- advc.552: was 0 -->
 			<iAITradeModifier>10</iAITradeModifier>
-			<iCost>800</iCost>
+			<!-- custom: trying to make tech pace more gradual or/and accurate, was 800 -->
+			<iCost>400</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MEDIEVAL</Era>
@@ -2340,7 +2353,11 @@
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>120</iCost>
+			<!-- custom: increase slightly the cost since writing is more valuable now (may decrease
+			alphabet cost to compensate and have about same total cost or something similar). Trying
+			also to keep historical accuracy so cost should not be too high, maybe more immersive this
+			way too maybe, was 120. -->
+			<iCost>142</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_ANCIENT</Era>
@@ -2488,7 +2505,9 @@
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>300</iCost>
+			<!-- custom: decrease alphabet cost to compensate the increased cost of writing.
+			May change more if/as i modify the techs more -->
+			<iCost>260</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_CLASSICAL</Era>
@@ -2646,7 +2665,8 @@
 			variety of gameplay between AIs possibly ideally maybe, was 0. -->
 			<iAIWeight>20</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>400</iCost>
+			<!-- custom: trying to make tech pace more gradual or/and accurate, was 400 -->
+			<iCost>305</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_CLASSICAL</Era>
@@ -4759,7 +4779,8 @@
 			know more optimal city spots (that include copper) sooner, among other possible reasons -->
 			<iAIWeight>30</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>120</iCost>
+			<!-- custom: trying to make tech pace more gradual or/and accurate historically, was 120 -->
+			<iCost>135</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_ANCIENT</Era>
@@ -4915,7 +4936,8 @@
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.131b: was 200 -->
-			<iCost>210</iCost>
+			<!-- custom: trying to make tech pace more gradual or/and accurate, was 210 -->
+			<iCost>190</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_CLASSICAL</Era>
@@ -4989,7 +5011,12 @@
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.306: was 450 -->
-			<iCost>375</iCost>
+			<!-- custom: trying to make tech pace more gradual or/and accurate, this
+			tech should also be more strategic in my mod, some units may specifically
+			require metal casting, not just for the forges, is maybe more accurate
+			historically too maybe from the little i've read i mean, hopefully this
+			maybe increases immersion also, was 375 -->
+			<iCost>260</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_CLASSICAL</Era>
@@ -5227,7 +5254,8 @@
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
 			<!-- advc.306: was 700 -->
-			<iCost>710</iCost>
+			<!-- custom: trying to make tech pace more gradual or/and accurate, was 710 -->
+			<iCost>890</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MEDIEVAL</Era>
