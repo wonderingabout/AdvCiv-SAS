@@ -7918,11 +7918,7 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: (needs fix) it seems the actual value after loading the map
-			is higher than this value, 60 becomes 65, 72 becomes 80, since i want to
-			have a final value of 60 for this unit, after several tries setting it
-			here to 56 works to have that final value i desire for this unit, was 60 -->
-			<iCost>56</iCost>
+			<iCost>60</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -8175,13 +8171,7 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: (needs fix) it seems the actual value after loading the map
-			is higher than this value, 60 becomes 65, 72 becomes 80, since i want to
-			have a final value of 80 for this unit, after several tries setting it
-			here to 72 works to have that final value i desire for this unit.
-			Considering they are mercenaries, it should be expected their price/cost
-			is higher than regular units of a nation maybe, was 60. -->
-			<iCost>72</iCost>
+			<iCost>80</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
