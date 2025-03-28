@@ -116,3 +116,7 @@ not need at all but not sure, is as it would be:
 todo add links
 - drive: you can find some previews [here](https://drive.google.com/drive/folders/1thBnA_TzWq2psd8Tg8RaorwmPZzqgN9M?usp=drive_link), under the high-medium-low-very
 low priority branch of examples i submitted to adv city maintainer i mean anyways
+
+change music of other older existing players? Etc
+
+cut music in several morceaux? Etc
