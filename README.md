@@ -1,8 +1,10 @@
 # AdvCiv mods
-Todo write in detail
-test commit
-
-I intend to do 3 mods built on top of each other.
+I intend to do 3 mods of [AdvCiv](https://github.com/f1rpo/AdvCiv/tree/1.12)
+(based on latest version which is currently 1.12 (which is also the one i
+linked in this case i mean anyways) as i am writing this, and will update
+whenever there are new changes that are stable (meaning as long as they don't
+break all good, else i can always fix them later if solved in this case i
+mean anyways) built on top of each other. 
 
 The purpose is for players interested to use them in advciv base or
 maybe other mods too.
@@ -15,9 +17,13 @@ Note that this is a work in progress so it would not be ready too soon,
 at least not the higher "levels" of the mod as they are more complex i
 mean.
 
-## Mod 1: AdvCiv SBAI
+This branch covers the [Mod 3: AdvCiv SBAIMTOCO](https://github.com/wonderingabout/AdvCiv/tree/tech-rework?tab=readme-ov-file#mod-3-sbaimtoco-sbai--mto--complete-overhaul)
 
+## Mod 1: AdvCiv SBAI
 SBAI stands for Stricter Balancing AI
+
+A preview of the changes (screenshots), can be found on this google drive
+[here](https://drive.google.com/drive/folders/1rHm7J8RwLoqbDpJ5H7pvIGX7NET6s2YN?usp=sharing).
 
 Here are the main changes one may expect:
 - balancing the handicap (which is the difficulty settings), so that
@@ -47,15 +53,18 @@ of the cavalry in tech tree view is weirdly at military tradition (same as
 the cuirassier) and not at rifling)
 - some new mechanics, even though this mod 1 is conservative, there are still
 things i consider suboptimal. For example, players will be able to build
-research at writing not alphabet, and building culture at mysticism (much sooner),
-which is historically (i think) more realistic, on top of allowing more diverse
-strategies. Culture may help against revolts for example, and even in ancient
-times rulers would try (i think) to appease their people by any cultural means
-they would have.. For even deeper changes, i would encourage you to try the following
-versions (see below)
+research at writing not alphabet, and building culture at mysticism (much
+sooner), which is historically (i think) more realistic, on top of allowing
+more diverse strategies. Culture may help against revolts for example, and
+even in ancient times rulers would try (i think) to appease their people by
+ any cultural means they would have.. For even deeper changes, i would
+ encourage you to try the following versions (see below).
 
 
 ## Mod 2: SBAIMTO (SBAI + Military and Terrain Overhaul)
+A preview of the changes (screenshots), can be found on this google drive
+[here](https://drive.google.com/drive/folders/1v4jkm383NGL761ciMUdU6hGuZKvLo00w?usp=sharing).
+
 - Military overhaul: most units have been completely reworked to be a lot more
 versatile, which i think is realistic. For example, scouts and explorers can
 attack, even workers should be able to defend cities (even though very weak),
@@ -72,6 +81,9 @@ More changes too not listed here. For more changes, including more terrain chang
 you may try the next "level" of this mod i am uploading i mean.
 
 ## Mod 3: SBAIMTOCO (SBAI + MTO + Complete Overhaul)
+A preview of the changes (screenshots), can be found on this google drive
+[here](https://drive.google.com/drive/folders/1izx8zrzwJL8nKkP4cXcwklYAHtQrq888?usp=sharing).
+
 - Religion overhaul: Religion is now completely changed, it's not just a bunch of
 (politically correct i think) stats, but each religion has its specific bonuses,
 also AIs will be much more sensitive to it, it should play a huge role at all stages
@@ -80,7 +92,7 @@ of the game so requiring absolute strategy or at least carefulness if i may say.
 too hopefully or/and has more gameplay depth maybe i mean
 - New Buildings (and units too most likely)
 - Removed small wonders, replaced with other changes, great wonders having a special
-perk and limited to min and max one per cit in the wonders available i mean, so Rome
+perk and limited to min and max one per civ in the wonders available i mean, so Rome
 cannot have 5 wonders (example, i don't know if this number is accurate is just to
 illustrate i mean) while other rivals have at best only one wonder related to their
 historical real past, it should make a stronger incentive to build or protect or
@@ -95,17 +107,19 @@ stages, so i cannot make the mods available too soon, most other changes not eve
 started at all, but i have an idea i mean, except a quite very long time maybe if
 i still wantt to do this mod i mean anyway, thanks
 
-You can follow the progress in particular in the specific folder (subfolder of this
-bigger project i mean): 
+## General status about the mod
+Still experimental, and ongoing many changes, hopefully i can do some of these
+as i enjoy it a lot (so much i mean anyways), but for now in this case i mean
+anyways, i want to remember, (remind myself or others in this case i mean
+anyways) about these points:
+- todo
 
 # Credits
-
 To write, but mostly i am very thankful of AdvCiv, it's such a nice improvement
 from Civ4, and it's maintainer is very open to feedback at least in my
 exchanges/experiences during these times i mean anyways.
 
 # Sources
-
 A few useful links :
 - todo: tutorial on how to compile the DLL and/or files for Advciv (but should not
 be needed if you only modify XML files if i am not mistaken i mean anyways)
@@ -114,10 +128,6 @@ doing your own mod. Civ4 allows to do a lot of things with just XML, which
 surprised me a lot in a way that pleased me i mean anyways.
 So far i have not touched the deeper code such as C++ and Python, maybe i will
 not need at all but not sure, is as it would be:
+
+
 todo add links
-- drive: you can find some previews [here](https://drive.google.com/drive/folders/1thBnA_TzWq2psd8Tg8RaorwmPZzqgN9M?usp=drive_link), under the high-medium-low-very
-low priority branch of examples i submitted to adv city maintainer i mean anyways
-
-change music of other older existing players? Etc
-
-cut music in several morceaux? Etc
