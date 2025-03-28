@@ -1,0 +1,218 @@
+Notes about some tech design choices i made:
+- todo: Sheep and cattle (and fish types of animals too i don't know did not check, ?)
+were already understood as meat (i think) so reveal them at game start, but horse
+has a strategic value to build units in this game, so Mounted riding (or whichever
+name i chose for this tech i mean) reveals horse now, not animal husbandry (more
+accurate maybe this way and more incentive to search mounted riding especially)
+Maybe this gives more room for the AI, and is maybe more realistic too, also as
+all players are affected by this, maybe this is "fair" i mean maybe.
+- Fishing was done without workboat initially, but currently workers don't have
+the function to move to water, so for now workboats to sailing (also not sure
+AI will be able to handle it).
+Maybe a way to adress this is, for early foods (fish, crab, and clam), fishing increases
+food by +1 for these without doing anything (but for whales need a work boat entirely),
+and then a work boat gives the missing +1 (or more?) food, +maybe some commerce for
+extra incentive. Also coast tiles are weaker so i would like to buff them if possible,
+so maybe would give more than +1 food, and people trading these food ressources is
+realistic too i think.
+- todo: Also to buff water tiles maybe work boats would not require food to be stopped
+to be built anymore? (and reduce hammer price too?)
+- Todo: increase spawn rate of sea food, especially coastal? Or maybe only for some
+ressources? Etc, or is too much maybe?
+- About that point, moved most early regional trading abilities in the specific tech
+(that is just alphabet renamed/repurposed i mean, as it was doublon of writing and
+not necessarily accurate (i don't know didn't check) or useful since i have most (all?)
+techs i need in the early game)
+- Is more realistic to hide some strategic ressources (too) until they are understood
+as such, so for example wine, stone, gold, silver, among others are now hidden
+todo: Add more too. Would that make game too painful? But maybe more realistic this
+way?
+
+- todo: workers with strength if AI can handle it?
+- todo: Renamed "Galley" to "sailboat" or use another model somewhere else?
+- Stone mines existed much before masonry, so moved the quarry there
+- Culture building started very early in human civilization if i am not mistaken,
+i put mysticism as the starting point now, maybe helps to diversify strategies too?
+- Monuments around 50 000 BCE were technically masonry i think, but the more modern
+form of masonry started around 10 000 BCE so putting it there rather (maybe earlier
+monuments could be more considered as combining stones? But i don't know much about
+this (yet?) so is just a tentative explanation/gap-filler i mean)
+- todo: Agriculture makes more sense if people have cottages (but is it houses/shelters?
+That they would have built (??) in earlier times but were still nomadic, so it was 
+(i don't know but i theorize i mean(?)) more convenient to start agriculture when there
+were houses near to settle in?)
+- todo: rename cottage to shelter or house?
+Then=and do in total: Shelter/CottageS/Hamlet/Village? But maybe this is uneeded and
+needlessly complicates so may leave as is?
+- No settlers are possible to build until Agriculture is discovered (about the time)
+where players are sedentary, but for convenience of gameplay all players start with
+a settler so they can choose their settling spot
+
+- Wine was consumed much sooner than at monarchy, during agriculture a bit later
+(from the little i looked 13 000 BCE alcoholic brewages were already consumed),
+most likely (i think) was way sooner than that, so revealing wine at game start but
+put the winery at agriculture as it's at about same time, and i don't see a better
+tech choice.
+As for wine reveal i chose pottery, maybe it's early enough and they had now cups
+to consume it?
+
+- Granaries did not necessarily require stones (some oldest ones were in wood), but
+at about same time than masonry so more convenient to put them there. Also they
+appeared a bit later than pottery unless i'm mistaken so maybe fits more at masonry
+tech for a time concordance perspective i mean maybe.
+- Slavery appeared around agriculture time if not sooner, more accurate to put it
+there, maybe helps diversify gameplay too?
+
+- The Wheel was not necessary for the road building (see south america), but these
+2 (the wheel and road building) appeared at around same time so convenient to group
+them there with no seemingly better tech choice.
+- No reason why bronze tools can't cut jungle if they can cut forest, also some
+societes (american continent maybe(?) for example) prospered really early in jungle lands
+so option should be there)
+- First metal to be cast was gold not copper, bronze working came later
+- Currency was done with gold before silver and copper were (broadly?) available
+- Writing did not require paper necessarily (see cuneiform writing, stone tablets for
+example)
+- Papyrus was not made of wood but of fibers of a plant if i am not mistaken
+- There are many epics written, so keeping the name generic so that it can be a small
+wonder maybe (that all players can build)
+
+- I think it's interesting maybe (at least i want) to add the mythology/paganism
+religions (egyptian/greek/roman/etc mythologies, strangely forgotten(?) or missing in civ4,
+hence in advciv too that is conservative generally about such changes (which helps
+me mod this more easily which i am thankful for)). To do that i removed confucianism.
+I think there are a bit too many religions mid game and not enough earlier, i would
+want some religion tensions/fights/strategic possibilities, not just one religion
+leading to the next, and ideally not a religious tech leading to the next (else someone
+would take all religions), ideally if it can be historically accurate or immersive
+or enjoyable i would try to do it in a way that avoids that maybe and is hopefully
+interesting at least to me maybe.
+- moved pacifism from philosophy to meditation, maybe more realistic or immersive
+this way? Or i could find some other use for philosophy?
+- Apostolic Palace appears historically way too late to be of use anymore (1500 AD +
+approximately), so i used the earliest international treaty instead (Egyptian-Hittie
+Treaty) to symbolize its function (sort of because only 2 leaders and not actively
+planning other than peace but still is internation diplomacy) and replace
+- organized religion allows to build missionaries (missionaries requires temple now
+not monastery), i did not look but i thinkwhen a religion is founded and has a temple
+it would quite naturally want to spread, is also a way to buff religion early
+or/and increase gameplay depth/immersion/enjoyment maybe
+- todo: find some other use for the monastery now, most likely
+removing science bonus for something else (gold?), not sure how
+science and religion are connected, in fact should be the opposite, since in civ4 gold
+is science would amount to the same in the end maybe, but at least the difference is
+there, may or not tweak it more but would be something like this at least for
+now maybe
+- monasteries are now named into another type of building (but
+still same asset, with each a specific function. Not all
+religions have monasteries, perhaps this also helps add more
+diversity to religions in the game and hopefully more enjoyable
+too maybe). These buildings are reworked with all previous removed (including the +10%
+science that seems totally unrelated to me (in fact more often than not religions would
+reduce science, but i'm trying to not add negative bonuses to keep the experience
+simple and enjoyable maybe, and also not penalize the AI that may not handle them too
+well maybe. This is what i did/intend to do, can be built in each city. Cost may vary too?
+(This may give ideas too: https://en.wikipedia.org/wiki/Altar)
+todo: All altars give +1 happy (maybe it makes it more worthwhile the quite high cost (?)
+they would have, but not sure if i want these to be that expansive, may want to speed up
+the game a bit instead? But want it to be gradual too so will need need to test i mean)
+Additionally
+    - Hindu monastery: +2 free priests in city (never obsolete)
+    - Pagan altar: slavery -100% anger in ancient eras, obsolete at scientific method
+    (a bit too soon for neopaganism but maybe fine, also maybe is a balance change by
+    not overbuffing slavery later in the game which may also be a bit unrealistic)?
+    - Jewish altar: slavery sacrifice cost -50% (obsolete at scientific method, maybe
+    we understand now they are living creatures so the illusion of the free sacrifice
+    is off?)
+    - Buddhist monastery: +2 free merchants in city (never obsolete)
+    - 
+    - 
+
+- corporations reworked:
+todo: but if doing it with cathedrals instead, reduce temple limit to 1?
+Cathedrals are much better to prevent snowballing, they are a good incentive
+to build temples first too, would need to test, but having the new religion
+icon of corporations would be nice
+    - Hindu modern day: Hammer +50% (in city) (since they don't need to worship as much
+    at least in public, their productivity increases maybe?, requires hinduism,
+    requires scientific method, requires hindu monastery (for same reasons to
+    make it worth more to stick to their religion despite diplomacy cost if rival
+    has another one))
+    - Neopagan altar: something about peace? Culture + 100% (in city), (requires paganism
+    religion, requires scientific method tech; also requires pagan altar building
+    (maybe would make it more worthwhile to stick to their religion even if
+    diplomatic costs, may help AIs who stay too long in their religion too?)?)
+    - Neo Buddhist movements: Science +50% (in city) (they are more sceptic and
+    reject previous buddhist teachings from the little i've read quite quick i
+    mean)
+    - Zionism: new military units free promotions City Raider 1 + 2 + 3,
+    requires judaism, requires nationalism, requires jewish altar
+
+    - Jihad: new military units free promotions Flanking 1 + 2 + free promotion Ambush,
+    requires islam, requires nationalism, requires todo: first islamic
+    type of altar building
+
+todo: modify it so all(?, or most?) units can use Ambush promotion, and maybe all
+units use all promotions?
+todo: remove corporation "missionaries"? Is too cumbersome
+, todo rework aztec special building
+
+- civil service actually started around 100 BC in imperial China if i am not mistaken
+(see xiolian bureaucracy, even though it was not meritocratic they were still civil
+officers), in fact even before that around 400 BC during the warring states if i am not
+mistaken from (the little) i've read i mean.
+- monarchies existed already from the time of Narmer (pharaoh of ancient egypt) and
+enmebaragasi (sumerian king of kish) from the little i've read (and recopied i mean),
+maybe monarchies existed before that even though i did not check nor do i know about
+this information i mean.
+- Also about that, considering the pharaoh was believed (by the egyptians i mean
+in the ancient egyptian religion from the little i've saw/read about this and my
+intuition and knowledge about this too (a bit) i mean) to have the divine power 
+of kingship incarnated in him, it could also be said that divine right originated
+at that time if not sooner, as a result i may simply remove the divine right tech
+unless i find a specific purpose for it (trying to de-clutter i mean the early era
+that already has many techs, and this is also sort of redundant too i think i
+mean)
+
+- about the education tech and universities, unlike what a quick googling yields,
+some searches (also quick i mean) pointed to University of al-Qarawiyyin which was
+founded around 850 AD, so much sooner than the other results that points to around
+1100 AD (I try to look at history in all the world oldest, not just western or old
+world i mean, as much as possible).
+- todo: about the madrasa, change required techs, at least by adding the first islamic
+tech (was divine right but i need to rename it now), makes up for the fact that the
+building was op (i think) quite nicely, now should be fine
+
+- macemen are completely off, not with civil service but much sooner, from what i've
+read it seems around 1500 BC copper maces were used (against Ramses II for example),
+earlier versions (in stone or marble) are said to not be so good from the little i've
+read, so putting them around 1500 BC rather, it is also a nice middle ground between
+axemen and swordsmen
+- about swordsmen, if i am not mistaken, swordsmen used copper swords originally but
+they were not so good, so i put swordsmen around the time of iron working (are said
+to not be so good (due to bending? Or/and due to expensive costs?), so putting them
+around 1500 BC rather)
+todo: macemen can be built with copper and iron, but swordsmen only with iron then
+to simplify? (else i would have to create many units for no major functionnal difference
+so probably not best/a good idea nor efficient i mean)
+
+- about guilds there were craftsmen/artisans guilds and merchant guilds, so i am
+putting an or for tech requirement not requiring both metal casting and early regional
+trading but only either of these techs to be able to research guilds. The first ones
+seem to be around 2200 BC if i am not mistaken i mean.
+About the workshop improvement with guilds, i read that when guilds started (at least
+about when i read) they had a set of detailed instructions and standards to follow for
+their productions, so maybe the civ4 makers were quite rightly nice to put the bonus
+there (some things they did were great, other are really inaccurate (i don't know if
+voluntarily or not, but i am trying to fix this ideally i mean at least in this mod))
+
+- early regional trading seems to have happened as early as 15 000 BCE to 25 000 BCE,
+maybe even sooner but i don't know (did not search extra much about this point i mean),
+even though cities should still not have been settled (no agriculture yet) if i am not
+mistaken, there were still trading networks set up/functionning from what i read if i
+am not mistaken.
+
+- about spying i could not find the precise information about when, it seems to have
+existed at least in around 3000 BC. Since early regional trading had existed for much
+before that, i had assume quite naturally people were able to spy on each other from that
+time maybe. I am not sure but i think it is quite fine to put it here.
