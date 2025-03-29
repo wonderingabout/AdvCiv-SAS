@@ -537,27 +537,18 @@
 		 (unless the player owns the respective holy city). Set to -1 to
 		 disable those announcements in all eras or to 7 or greater to enable
 		 them in all eras. -->
-	<!-- custom: with the incoming changes i made on religious monastery (now
-	altars) and religious corporations (now special buildings too later in the
-	game, religion is more important, it is more important to pay attention to
-	religion. As also the reward is much stronger to stick to our religion
-	despite potential diplomacy costs).
-	May be a bit more realistic too this way, as religious conflicts do not
-	end (i think) even in modern times, hopefully more interesting and
-	enjoyable this way, was 4 -->
 	<Define>
 		<DefineName>STOP_RELIGION_SPREAD_ANNOUNCE_ERA</DefineName>
-		<iDefineIntVal>6</iDefineIntVal>
+		<iDefineIntVal>4</iDefineIntVal>
 	</Define>
 
 	<!-- advc.106e: 0 (recommended) means that there is no announcement when a
 		 religion spreads in a foreign city whose owner already has that
 		 religion as his or her state religion. Set to 1 to receive such
 		 announcements. -->
-	<!-- custom: set to 1 due to reasons above, was 0 -->
 	<Define>
 		<DefineName>ANNOUNCE_STATE_RELIGION_SPREAD</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 
 	<!-- advc.106h: 1 (recommended) means that the game settings are recorded
