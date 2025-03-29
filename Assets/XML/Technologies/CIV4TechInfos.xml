@@ -295,8 +295,10 @@
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<!-- custom: trying to make tech pace more gradual or/and accurate, was 120 -->
-			<iCost>230</iCost>
+			<!-- custom: trying to make tech pace more gradual or/and accurate, 
+			- note- will change it more in next commits,
+			was 120 -->
+			<iCost>225</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_ANCIENT</Era>
@@ -367,8 +369,12 @@
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<!-- custom: trying to make tech pace more gradual or/and accurate, was 300 -->
-			<iCost>580</iCost>
+			<!-- custom: trying to make tech pace more gradual or/and accurate.
+			This maybe works better as monarchy allows a jump straight to feudalism,
+			while the jump from mathematics to engineering for example requires
+			2 techs in comparison, trying to make a more even gap here i think helps
+			too or/and may be interesting, was 300. -->
+			<iCost>470</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_CLASSICAL</Era>
@@ -637,8 +643,9 @@
 			<CommerceFlexible>
 				<bFlexible>0</bFlexible>
 				<bFlexible>0</bFlexible>
-				<!-- custom: now that culture can be built from aesthetics, music can be
-				more worthwhile to use to control the slider now maybe instead, was 1 -->
+				<!-- custom: now that culture can be built earlier, music can be
+				more worthwhile to use to control the slider now maybe instead,
+				was 1 -->
 				<bFlexible>0</bFlexible>
 				<bFlexible>0</bFlexible>
 			</CommerceFlexible>
@@ -679,24 +686,37 @@
 			<Strategy>TXT_KEY_TECH_FEUDALISM_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<!-- advc.131b -->
-			<!-- custom: not a problem if they search feudalism too soon or too often, it is a strong tech that helps both military and economy.
-			The history relevance is not a problem to me, much more military performance of choosing a more effective tech (than machinery would be before that
-			Trying to increase it further, ideally AIs would value feudalism more, which should help both economically and militarily. Should be much more useful
-			than engineering. I initially increased it to 0, now trying to increase it to 125. As AIs now get monarchy as a free tech, having feudalism soon after should be
-			a really attractive option, was -125
-			-->
+			<!-- custom: not a problem if they search feudalism too soon or too often, it
+			is a strong tech that helps both military and economy, especially with unit
+			reworks (more units are available at feudalism or around it now, and this is
+			even before the more extensive changes)
+			The history relevance is not a problem to me, much more military performance
+			of choosing a more effective tech (than machinery would be before that).
+			I am not trying to penalize machinery, ideally just increase the relative and
+			absolute importance of feudalism, but as things currently are and as i don't
+			want to submit too much changes in base advciv (yet?), balancing this would mean
+			reducing the priority of machinery and engineering, since i think they are not
+			good enough as they are now to be valued over feudalism.
+			I initially increased it to 0, now trying to increase it to 125. But as
+			monarchy is more expensive now relative to monarchy + feudalism combined cost,
+			and as feudalism's cost is reduced quite a bit now, having feudalism for cheaper,
+			and with stronger bonuses than before my changes, should be even an even more
+			attractive option or/and efficient/effective (is it the same? i mean anyways)
+			than it was. Was -125 -->
 			<iAIWeight>125</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
 			<!-- advc.910: was 700 -->
-			<!-- custom: feudalism is a key important tech with the unit reworks in my mod now, also from the little i checked it
-			seems it started a bit sooner than other techs, so maybe fine to reduce this a bit, so that most civs also access
-			sooner this key tech. Maybe this helps avoiding snowballs of some players.
-			I am not concerned so much about the year number, much more on the turn number. As long as progression is gradual
-			enough in numbers of turns, maybe the increment of turns rather could be updated? What i want is to keep a gradual
-			ratio increase between techs, not a brutal one, unless i have a strong reason to do so. Testing this to see, was 820.
-			Considering the cost of monarchy is increased now, and that feudalism requires it, then feudalism's cost can be
-			further reduced to keep historical accuracy maybe -->
-			<iCost>450</iCost>
+			<!-- custom: Maybe this also helps avoiding snowballs of some players.
+			What i want is also to keep a gradual ratio increase between techs, not
+			a brutal one, unless i have a strong reason to do so.
+			To keep the gameplay aligned with the tech tree, monarchy + feudalism is a
+			3 tech columns jump, so mathematics construction engineering (which is also
+			a 3 row change) for example should cost about the same unless there is a
+			strong reason to do so. Still, the cost of this tech is i think still a bit
+			too high, considering it's importance strategically and economically, and its
+			proximity with monarchy, gap shouldn't be as wide, maybe?
+			was 820. -->
+			<iCost>720</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MEDIEVAL</Era>
@@ -915,8 +935,11 @@
 			<iAIWeight>0</iAIWeight>
 			<!-- advc.552: was 0 -->
 			<iAITradeModifier>10</iAITradeModifier>
-			<!-- custom: trying to make tech pace more gradual or/and accurate, was 800 -->
-			<iCost>400</iCost>
+			<!-- custom: trying to make tech pace more gradual or/and accurate,
+			is also historically more accurate if i am not mistaken,
+			- note- will change it more in next commits,
+			 was 800 -->
+			<iCost>600</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MEDIEVAL</Era>
@@ -2116,10 +2139,16 @@
 			<Help/>
 			<Strategy>TXT_KEY_TECH_POTTERY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
-			<!-- custom: if AI does not get pottery as a free tech, it is however still a quite important tech. Getting cottages or/and
-			starting to build a granary sooner should help the AI, although not as much (i think) as more military or expansion focused techs -->
+			<!-- custom: if AI does not get pottery soon enough, it would fall
+			behind in techs, (and same applies for the human player).
+			Getting cottages or/and	starting to build a granary	sooner should help
+			the AI, although not as much (i think) as more military or expansion
+			focused techs, so increasing the priority but not a lot. -->
 			<iAIWeight>20</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
+			<!-- custom: pottery is also a very old tech historically
+			- note- will change it more in next commits,
+			-->
 			<iCost>80</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -2264,8 +2293,10 @@
 			<Strategy>TXT_KEY_TECH_SAILING_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<!-- advc.131b -->
-			<!-- custom: if AIs want to get an early lighthouse or/and moai or/and galleys, it may not be so useless in some contexts
-			Rebalance the priorities of techs elsewhere (such as in free tech handicaps for example) , was -100 -->
+			<!-- custom: if AIs want to get an early lighthouse or/and moai
+			or/and galleys, it may not be so useless in some contexts.
+			Rebalance the priorities of techs elsewhere (such as in free tech
+			handicaps for example), was -100 -->
 			<iAIWeight>-20</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.301 -->
@@ -2353,11 +2384,14 @@
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<!-- custom: increase slightly the cost since writing is more valuable now (may decrease
-			alphabet cost to compensate and have about same total cost or something similar). Trying
-			also to keep historical accuracy so cost should not be too high, maybe more immersive this
-			way too maybe, was 120. -->
-			<iCost>142</iCost>
+			<!-- custom: increase slightly the cost since writing is more valuable
+			now (may decrease alphabet cost to compensate and have about same total
+			cost or something similar). Trying also to keep historical accuracy so
+			cost should not be too high, maybe more immersive this
+			way too maybe, was 120. 
+			- note- will change it more in next commits,
+			-->
+			<iCost>150</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_ANCIENT</Era>
@@ -2505,7 +2539,8 @@
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<!-- custom: decrease alphabet cost to compensate the increased cost of writing.
+			<!-- custom: decrease alphabet cost to compensate the increased
+			cost of writing.
 			May change more if/as i modify the techs more -->
 			<iCost>260</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -2660,12 +2695,15 @@
 			<Help/>
 			<Strategy>TXT_KEY_TECH_CURRENCY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
-			<!-- custom: There is some value in getting currency soon in the game but not that high of a value that would require
-			decreasing the iAIWeight of concurrent techs, so slightly increasing the priority of currency while still giving some
+			<!-- custom: There is some value in getting currency soon in the game
+			but not that high of a value that would require
+			decreasing the iAIWeight of concurrent techs, so slightly increasing
+			the priority of currency while still giving some
 			variety of gameplay between AIs possibly ideally maybe, was 0. -->
 			<iAIWeight>20</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<!-- custom: trying to make tech pace more gradual or/and accurate, was 400 -->
+			<!-- custom: trying to make tech pace more gradual or/and accurate,
+			was 400 -->
 			<iCost>305</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -4533,16 +4571,11 @@
 			<Help/>
 			<Strategy>TXT_KEY_TECH_ARCHERY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
-			<!--custom: archery should be much less important to AIs now that they start with the more versatile warriors,
-			it should maybe be important if AI is getting behind in military power or/and adopting turtle strategy, else it may
-			be fine to wait until feudalism is discovered if the AI then wants longbowmen.
-			Axemen and similar units should be good enough defenders, adding swordsmen or/and chariots or spearmen should also help
-			balance out all this for more AI early versatility.
-			Archers are also quite bad at rushing another AI early, and wars do not seem to happen too soon so maybe wait until chariots
-			or/and spearmen or/and axemen are available before building rush units.
-			In short, if AI is weaker only then archers are relevant, else focus on versatility rather and warriors and their upgrades instead.
-			, was 0-->
-			<iAIWeight>-80</iAIWeight>
+			<!-- custom: no need to change this if we make archers more versatile now,
+			AI building too much inefficient archers or/and using them to rush even more
+			effectively would not be a problem and perhaps even an advantage now (that
+			archers are versatile and quite good at attack too)-->
+			<iAIWeight>0</iAIWeight>
 			<!-- advc.552: was 10 -->
 			<iAITradeModifier>0</iAITradeModifier>
 			<iCost>60</iCost>
@@ -4690,10 +4723,17 @@
 			<Help/>
 			<Strategy>TXT_KEY_TECH_ANIMAL_HUSBANDRY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
-			<!-- custom: if AIs value bronze working more now, so would be the counter to axemen (which is chariots).
-			Animal husbandry should also help revealing horse planting spots sooner to have better city locations, and getting pastures
-			sooner on relevant ressources to help growth and production, therefore i put a higher weight than for bronze working -->
-			<iAIWeight>50</iAIWeight>
+			<!-- custom: if AIs value bronze working more now, so would be the
+			counter to axemen (which is chariots).
+			Animal husbandry should also help revealing horse planting spots
+			sooner to have better city locations, and getting pastures sooner,
+			for military and having farm on food ressources sooner too to help
+			growth and production, therefore i put a higher weight than for
+			bronze working, so should be very valuable for the AIs.
+			From a historical standpoint, also makes sense, i think
+			- note- will change it more in next commits,
+			-->
+			<iAIWeight>40</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<iCost>100</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -4775,11 +4815,16 @@
 			<Help/>
 			<Strategy>TXT_KEY_TECH_BRONZE_WORKING_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
-			<!-- custom: bronze working is extra important to get early on, to upgrade the warrior free defenders into axemen at higher difficulties, or to
-			know more optimal city spots (that include copper) sooner, among other possible reasons -->
+			<!-- custom: bronze working is extra important to get early on, as
+			axemen are really strong and cheap, and upgrading existing warriors
+			shouold be nice for the AIs.
+			Or to know more optimal city spots (that include copper) sooner, among
+			other possible reasons. -->
 			<iAIWeight>30</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<!-- custom: trying to make tech pace more gradual or/and accurate historically, was 120 -->
+			<!-- custom: trying to make tech pace more gradual or/and accurate
+			historically, was 120
+			- note- will change it more in next commits, -->
 			<iCost>135</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -4932,11 +4977,15 @@
 			<Strategy>TXT_KEY_TECH_IRON_WORKING_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<!-- advc.131b -->
-			<!-- custom: if AIs badly want to get iron working, no reason to prevent that, was -30 -->
+			<!-- custom: if AIs badly want to get iron working, no reason to
+			prevent that, was -30 -->
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.131b: was 200 -->
-			<!-- custom: trying to make tech pace more gradual or/and accurate, was 210 -->
+			<!-- custom: trying to make tech pace more gradual or/and accurate,
+			was 210 
+			- note- will change it more in next commits,
+			-->
 			<iCost>190</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -5011,11 +5060,9 @@
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.306: was 450 -->
-			<!-- custom: trying to make tech pace more gradual or/and accurate, this
-			tech should also be more strategic in my mod, some units may specifically
-			require metal casting, not just for the forges, is maybe more accurate
-			historically too maybe from the little i've read i mean, hopefully this
-			maybe increases immersion also, was 375 -->
+			<!-- custom: trying to make tech pace more gradual, this tech should also
+			be more strategic for the early forges, was 375 
+			- note- will change it more in next commits,-->
 			<iCost>260</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -5254,8 +5301,7 @@
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
 			<!-- advc.306: was 700 -->
-			<!-- custom: trying to make tech pace more gradual or/and accurate, was 710 -->
-			<iCost>890</iCost>
+			<iCost>710</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MEDIEVAL</Era>

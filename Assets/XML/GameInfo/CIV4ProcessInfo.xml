@@ -24,9 +24,15 @@
 			<Strategy>TXT_KEY_PROCESS_RESEARCH_STRATEGY</Strategy>
 			<!-- custom: since we can build libraries with writing, it would not be too
 			weird if research could be built from that time/tech too. Maybe would allow
-			more strategic diversity/depth especially at higher levels. Would need testing
-			to see how AIs would handle it but is maybe fine (would need to test to see /
-			be sure) -->
+			more strategic diversity/depth especially at higher levels.
+			Also, alphabet is already a too OP of a tech with the tech trading ability
+			gained in particular.
+			Would need testing to see how AIs would handle it but is maybe fine,
+			especially considering writing is the tech just before alphabet.
+			May also allow to decrease the relative importance (and tech cost)
+			of alphabet, for a more gradual gameplay maybe ideally, rather than
+			a spike one (in tech research in particular, that becomes less and less
+			enticing to actually finish the game, i think). -->
 			<TechPrereq>TECH_WRITING</TechPrereq>
 			<ProductionToCommerceModifiers>
 				<iProductionToCommerceModifier>0</iProductionToCommerceModifier>
@@ -39,9 +45,13 @@
 			<Type>PROCESS_CULTURE</Type>
 			<Description>TXT_KEY_PROCESS_CULTURE</Description>
 			<Strategy>TXT_KEY_PROCESS_CULTURE_STRATEGY</Strategy>
-			<!-- custom: aesthetics now instead of drama, maybe is more accurate/realistic
-			on top of maybe helping calm revolts sooner? Or/and more diverse strategies
-			possible now? Trying this as it may fit better for my mod at least maybe. -->
+			<!-- custom: aesthetics now instead of drama, maybe is more
+			accurate/realistic on top of maybe helping calm revolts sooner?
+			Or/and more diverse strategies possible now too also maybe.
+			I think it should help and is worth reworking even in the
+			conservative changes (even without the extensive tech reworks
+			or-and ajustuments i made in the more extensive mods) i did,
+			there is stil value to do so, i think i mean anyways. -->
 			<TechPrereq>TECH_AESTHETICS</TechPrereq>
 			<ProductionToCommerceModifiers>
 				<iProductionToCommerceModifier>0</iProductionToCommerceModifier>
