@@ -340,15 +340,18 @@
 			 166%; one Spearman then corresponds to 3.15 Warriors. -->
 		<!-- advc.159: A fraction (3/4) of this value is also used for some
 			 tactical decisions outside the UWAI component. -->
-		<!-- custom: 2^1.59 is 3.010 strength corrected and 9.063 approximately
-		so a spearman (basing myself on base bts/advic strength, just as an example
-		mostly used to illustrate the math a bit i mean anyways) is closer to 3
-		(3.010 to be more exact (still approximate)) warriors, so maybe this is good
-		enough odds to consider attacking with the 3 warriors now? May also help
-		AI stacks not stare at each other too long and start city attacks sooner?
-		Increased it to 160 to be safer (than 159) (so one warrior is 3.031 corrected
-		strength and one spearman 9.063 strength and so one spearman would be as worth
-		as 3.031 (too) warriors), was 166 -->
+		<!-- custom: 2^1.59 = 3.010 strength corrected and 4^1.59 = 9.063
+		approximately so a spearman (basing myself on base bts/advic strength,
+		just as an example mostly used to illustrate the math a bit i mean
+		anyways) is closer to 3	(9.063 / 3.010 = 3.010 (too)) warriors to be
+		more exact (still approximate)), so maybe this is good enough odds to
+		consider attacking with the 3 warriors now?
+		May also help AI stacks	not stare at each other too long and start city
+		attacks sooner?
+		Increased it to 160 to be safer (than 159), so one warrior is
+		2^1.6 = 3.031 corrected strength now and one spearman is 4^1.6 = 9.063
+		corrected strength now,	and so one spearman	is now as worth as
+		9.063 / 3.031 = 2.990 warriors, which is maybe a bit safer, was 166 -->
         <DefineName>POWER_CORRECTION</DefineName>
 		<iDefineIntVal>160</iDefineIntVal>
     </Define>
