@@ -340,15 +340,15 @@
 			 166%; one Spearman then corresponds to 3.15 Warriors. -->
 		<!-- advc.159: A fraction (3/4) of this value is also used for some
 			 tactical decisions outside the UWAI component. -->
-		<!-- custom: Extra checking the kmod value:
+		<!-- custom: Extra checking the K-Mod's value:
 		2^1.66 = 3.160 and 4^1.66 = 9.987 , so one spearman is as strong, corrected,
-		as 9.987 / 3.160 = 3.160 (too) warriors, same as kmod value indeed so my
+		as 9.987 / 3.160 = 3.160 (too) warriors, same as K-Mod's value indeed so my
 		math is hopefully correct in this case at least i mean anyways.
 
 		Now changing it to a maybe more fit for my purpose value or how i think
 		it may fit better the game:
 		2^1.59 = 3.010 strength corrected and 4^1.59 = 9.063
-		approximately so a spearman (basing myself on base bts/advic strength,
+		approximately so a spearman (basing myself on base BTS/AdvCiv strength,
 		just as an example mostly used to illustrate the math a bit i mean
 		anyways) is closer to 3	(9.063 / 3.010 = 3.011 , to be more exact
 		(still approximate)) warriors now, so maybe this is good enough odds
