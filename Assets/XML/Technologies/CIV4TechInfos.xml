@@ -2003,7 +2003,7 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>1</iGridX>
+			<iGridX>2</iGridX>
 			<iGridY>3</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
@@ -2032,7 +2032,9 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs/>
-			<AndPreReqs/>
+			<AndPreReqs>
+				<PrereqTech>TECH_POTTERY</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_THE_WHEEL_QUOTE</Quote>
 			<Sound>AS2D_TECH_THE_WHEEL</Sound>
 			<SoundMP>AS2D_TECH_MP_THE_WHEEL</SoundMP>
@@ -2151,7 +2153,7 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>2</iGridX>
+			<iGridX>1</iGridX>
 			<iGridY>3</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
@@ -2175,13 +2177,8 @@
 					<iFlavor>9</iFlavor>
 				</Flavor>
 			</Flavors>
-			<OrPreReqs>
-				<PrereqTech>TECH_AGRICULTURE</PrereqTech>
-				<PrereqTech>TECH_FISHING</PrereqTech>
-			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_THE_WHEEL</PrereqTech>
-			</AndPreReqs>
+			<OrPreReqs/>
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_POTTERY_QUOTE</Quote>
 			<Sound>AS2D_TECH_POTTERY</Sound>
 			<SoundMP>AS2D_TECH_MP_POTTERY</SoundMP>
@@ -2254,7 +2251,9 @@
 			<Quote>TXT_KEY_TECH_AESTHETICS_QUOTE</Quote>
 			<Sound>AS2D_TECH_AESTHETICS</Sound>
 			<SoundMP>SND_TECH_MP_AESTHETICS</SoundMP>
-			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,2,16</Button>
+			<!-- custom:
+			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,2,16</Button> -->
+			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,8,6</Button>
 		</TechInfo>
 		<TechInfo>
 			<Type>TECH_SAILING</Type>
