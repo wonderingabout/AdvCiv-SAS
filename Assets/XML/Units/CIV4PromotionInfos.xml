@@ -1569,7 +1569,8 @@
 			<iCityAttack>0</iCityAttack>
 			<iCityDefense>0</iCityDefense>
 			<iHillsAttack>0</iHillsAttack>
-			<!-- custom: similarly to woodsman promotions, make it more even between levels, was 20 -->
+			<!-- custom: similarly to woodsman promotions, make it more even
+			between levels, was 20 -->
 			<iHillsDefense>25</iHillsDefense>
 			<iKamikazePercent>0</iKamikazePercent>
 			<iRevoltProtection>0</iRevoltProtection>
@@ -1645,7 +1646,8 @@
 			<iCityAttack>0</iCityAttack>
 			<iCityDefense>0</iCityDefense>
 			<iHillsAttack>0</iHillsAttack>
-			<!-- custom: similarly to woodsman promotions, make it more even between levels, was 30 -->
+			<!-- custom: similarly to woodsman promotions, make it more even
+			between levels, was 30 -->
 			<iHillsDefense>25</iHillsDefense>
 			<iKamikazePercent>0</iKamikazePercent>
 			<iRevoltProtection>0</iRevoltProtection>
@@ -1809,13 +1811,18 @@
 			<iExperiencePercent>0</iExperiencePercent>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
-			<!-- custom: give woodsman promotion same attack bonuses than jungle bonuses it has,
-		    no specific reason why units would be good at defense in forest/jungle but weirdly not as good
-			at offense in such terrains
-			may also buff the woodsman promotion which is quite a bit weaker than other promotions, and since
-			city inner tile is never a forest or a jungle tile after city is planted, the woodsman promotion
-			would still not affect too much the warfare in the end so it would not be OP.
-			Also tweak the values a bit for it to be more gradual, was 20 -->
+			<!-- custom: give woodsman promotion same attack bonuses than
+			jungle bonuses it has, no specific reason why units would be
+			good at defense in forest/jungle but weirdly not as good at
+			offense	in such terrains.
+			May also buff the woodsman promotion which is quite (very i
+			think i	mean anyways) a bit weaker than other promotions, and
+			since city inner tile is never a forest or a jungle tile after
+			city is planted, the woodsman promotion would still not affect
+			too much the warfare in the end so it would not be OP.
+			Also tweak the values a bit for it to be more gradual (no strong
+			reason to do otherwise, i think about this case i mean anyways),
+			was 20 -->
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -1909,13 +1916,9 @@
 			<iExperiencePercent>0</iExperiencePercent>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
-			<!-- custom: give woodsman promotion same attack bonuses than jungle bonuses it has,
-		    no specific reason why units would be good at defense in forest/jungle but weirdly not as good
-			at offense in such terrains
-			may also buff the woodsman promotion which is quite a bit weaker than other promotions, and since
-			city inner tile is never a forest or a jungle tile after city is planted, the woodsman promotion
-			would still not affect too much the warfare in the end so it would not be OP.
-			Also tweak the values a bit for it to be more gradual, was 30 -->
+			<!-- custom: give woodsman promotion same attack bonuses than
+			jungle bonuses it has, same reasoning as for woodsman 1, was 30
+			-->
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -2018,13 +2021,16 @@
 			<iExperiencePercent>0</iExperiencePercent>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
-			<!-- custom: give woodsman promotion same attack bonuses than jungle bonuses it has,
-		    no specific reason why units would be good at defense in forest/jungle but weirdly not as good
-			at offense in such terrains
-			may also buff the woodsman promotion which is quite a bit weaker than other promotions, and since
-			city inner tile is never a forest or a jungle tile after city is planted, the woodsman promotion
-			would still not affect too much the warfare in the end so it would not be OP.
-			Also tweak the values a bit for it to be more gradual, was 50 -->
+			<!-- custom: give woodsman promotion same attack bonuses than
+			jungle bonuses it has, same reasoning as for woodsman 1 and 2,
+			just now we get 25 attack and 25 defense instead of only 50
+			defense (attack, for jungle/forest "terrains" which are not
+			part of where cities are planted, at least in base bts/advciv
+			i mean anyways, is more useful, jungle is less due to no city
+			to defend in jungle (no bonus) as game currently is in this
+			case i mean anyways, so prefering a more versatile should help
+			a tad/tiny bit extra more the quite very weak in this case i
+			mean anyways woodsman promotion, was 30. -->
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -2334,12 +2340,23 @@
 			<iAdjacentTileHealChange>0</iAdjacentTileHealChange>
 			<iCombatPercent>0</iCombatPercent>
 			<iCityAttack>0</iCityAttack>
-			<!-- custom: make this promotion gradual too, also as strong as an option as guerilla
-			promotions with their change now, was 20. It could be also said perhaps that cities are
-			easier to garrison than to attack, especially at earlier/lower levels (anyone could maybe
-			defend the city or barricade, but fewer would be able to attack maybe.
-			This also makes defender units slightly more attractive as only them can have this
-			promotion unless i'm mistaken) -->
+			<!-- custom: make this promotion gradual (25) too, i don't see
+			a strong reason to do otherwise (20 vs 25) i mean anyways.
+			Also as strong as an option as guerilla promotions with their
+			change now, was 20 (it may seem unfair due to one being a more
+			versatile (garrison handles all terrains, but only for cities)
+			choice (while guerrilla defends hills on all tiles, but not
+			helpful in cities i mean anyways in this case i mean anyways)
+			on top of it also being as strong), but maybe this is okay like
+			this.
+			It could be also said perhaps that cities are easier to garrison
+			than to attack, especially at earlier/lower	levels (anyone could
+			maybe defend the city or barricade, but fewer would be able to
+			attack maybe).
+			This also makes defender units slightly more attractive (or/and
+			effective in this case i mean anyways) as only them can have this
+			promotion unless i'm mistaken, in this case	at least i mean
+			anyways) -->
 			<iCityDefense>25</iCityDefense>
 			<iHillsAttack>0</iHillsAttack>
 			<iHillsDefense>0</iHillsDefense>
@@ -2360,20 +2377,6 @@
 			<UnitCombats>
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
-					<bUnitCombat>1</bUnitCombat>
-				</UnitCombat>
-				<!-- custom: spearmen reworked, trying it to make them a more versatile unit,
-				and better defenders too to be more realistic/accurate maybe and also
-				competitive, as they are a bit too weak currently.
-				While doing this rework, i noticed (and thought before too briefly i mean)
-				that there is no specific reason why melee units can't defend cities too,
-				so i am adding the city defense promotion to them too
-				I am not sure it is necessary to add more strict UNITAI tags to make sure
-				melee units are strictly offensive units, it may be fine if the AI uses them
-				at defense too, but should try to still give defensive units an edge and specific
-				value-->
-				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 				<UnitCombat>
@@ -2447,11 +2450,6 @@
 					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
-				<!-- custom: allowing this promotion too for melee units -->
-				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
-					<bUnitCombat>1</bUnitCombat>
-				</UnitCombat>
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
@@ -2501,8 +2499,10 @@
 			<iAdjacentTileHealChange>0</iAdjacentTileHealChange>
 			<iCombatPercent>0</iCombatPercent>
 			<iCityAttack>0</iCityAttack>
-			<!-- custom: make this promotion gradual in line with the other city garrison
-			ones, was 30 -->
+			<!-- custom: make this promotion gradual in line with city
+			garrison 1 and 2, is also maybe as defending should still be
+			quite strong and strong enough, in this case, i mean anyways,
+			at least, was 30 -->
 			<iCityDefense>25</iCityDefense>
 			<iHillsAttack>0</iHillsAttack>
 			<iHillsDefense>0</iHillsDefense>
@@ -2516,21 +2516,18 @@
 			<TerrainDefenses/>
 			<FeatureAttacks/>
 			<FeatureDefenses/>
-			<!-- custom: since more units have access to this promotion now, make it a bit weaker,
-			not only for balance, also because defenders can be good against all invaders, not only
-			a specific type, i think it's more realistic this way, was UNITCOMBAT_MELEE 10 -->
-			<UnitCombatMods/>
+			<UnitCombatMods>
+				<UnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+					<iUnitCombatMod>10</iUnitCombatMod>
+				</UnitCombatMod>
+			</UnitCombatMods>
 			<DomainMods/>
 			<TerrainDoubleMoves/>
 			<FeatureDoubleMoves/>
 			<UnitCombats>
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
-					<bUnitCombat>1</bUnitCombat>
-				</UnitCombat>
-				<!-- custom: allowing this promotion too for melee units -->
-				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 				<UnitCombat>
@@ -3011,12 +3008,13 @@
 			<iEvasionChange>0</iEvasionChange>
 			<iWithdrawalChange>0</iWithdrawalChange>
 			<iCargoChange>0</iCargoChange>
-			<!-- custom: making this more gradual, also considering siege units are
-			very strong and good at decimating stacks (on top of bombarding cities),
-			and also considering that barrage promotion is more versatile than city
-			attack promotion (that could only be used to attack cities, not random
-			stacks or units elsewhere), i am nerfing this a bit. 20% applied to many
-			units should/may still be quite good., was 30 -->
+			<!-- custom: making this more gradual, also considering siege
+			units are very strong and good at decimating stacks (on top of
+			bombarding cities),	and also considering that barrage promotion
+			is more versatile than city	attack promotion (that could only be
+			used to attack cities, not random stacks or units elsewhere), i
+			am nerfing this a bit. 20% applied to many units should/may still
+			be quite good., was 30 -->
 			<iCollateralDamageChange>20</iCollateralDamageChange>
 			<iBombardRateChange>0</iBombardRateChange>
 			<iFirstStrikesChange>0</iFirstStrikesChange>
@@ -3093,10 +3091,17 @@
 			<iEvasionChange>0</iEvasionChange>
 			<iWithdrawalChange>0</iWithdrawalChange>
 			<iCargoChange>0</iCargoChange>
-			<!-- custom: making this more gradual, and nerfing this more severely
-			than barrage 2, maybe this way this option is as competitive as city
-			attack 3?, was 50 -->
-			<iCollateralDamageChange>20</iCollateralDamageChange>
+			<!-- custom: making this more gradual, and nerfing this more
+			severely than barrage 2, maybe this way this option is as
+			competitive as city	raider 3 (considering its versatility due
+			to being aplliable (i checked to be sure it is indeed a word
+			if i may say i mean anyways) outside of cities i mean anyways)?
+			Considering how effective siege	(a bit op i think at least in
+			this case i mean anyways) units	are later in the game (even
+			early enough), the 50% extra bonus promotion at level 3 in
+			this case i mean anyways is ridiculous in this case i mean
+			anyways, was 50 -->
+			<iCollateralDamageChange>25</iCollateralDamageChange>
 			<iBombardRateChange>0</iBombardRateChange>
 			<iFirstStrikesChange>0</iFirstStrikesChange>
 			<iChanceFirstStrikesChange>0</iChanceFirstStrikesChange>
