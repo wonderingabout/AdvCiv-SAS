@@ -340,10 +340,12 @@
 			 166%; one Spearman then corresponds to 3.15 Warriors. -->
 		<!-- advc.159: A fraction (3/4) of this value is also used for some
 			 tactical decisions outside the UWAI component. -->
-		<!-- custom: Extra checking the K-Mod's value:
+		<!-- custom: Extra checking the AdvCiv's value:
 		2^1.66 = 3.160 and 4^1.66 = 9.987 , so one spearman is as strong, corrected,
-		as 9.987 / 3.160 = 3.160 (too) warriors, same as K-Mod's value indeed so my
-		math is hopefully correct in this case at least i mean anyways.
+		as 9.987 / 3.160 = 3.160 (too) warriors, about same as AdvCiv's value indeed
+		((very) slightly different due to rounding so 3.15 becomes 3.16 in my case i
+		mean anyways), so my math is hopefully correct in this case at least i mean
+		anyways.
 
 		Now changing it to a maybe more fit for my purpose value or how i think
 		it may fit better the game:
