@@ -1414,16 +1414,7 @@
 			<!-- advc.315a: Replaced with OnlyAttackAnimals -->
 			<bOnlyDefensive>0</bOnlyDefensive>
 			<!-- advc.315a -->
-			<!-- custom: minor rework, allow the scout to attack all rivals and cities or defend them,
-			but it should be disincentivized enough for human players due its low strength and not much
-			bonuses especially in city attack-defense, but it is better than nothing and quite realistic
-			that they would stand as last defenders, so adding it. The human player may also find some
-			other uses, that should not be mostly about gaining a strong advantage at war, for these units,
-			so maybe worth adding too.
-			For AI players, tags were added to more strictly enforce that they are used as explore units
-			only and nothing else ideally.
-			-->
-			<bOnlyAttackAnimals>0</bOnlyAttackAnimals>
+			<bOnlyAttackAnimals>1</bOnlyAttackAnimals>
 			<!-- advc.315b -->
 			<bOnlyAttackBarbarians>0</bOnlyAttackBarbarians>
 			<bNoCapture>0</bNoCapture>
@@ -1473,49 +1464,7 @@
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
-			<!-- custom: similarly as in the explorer rework, adding some AI player tags to make
-			extra sure scouts are not used/confused by the AI as attackers or even defenders.
-			The human player may do as they wish (for example baiting/defending against animals or
-			something), it should not be too valuable use of the scout, but maybe in some cases this
-			could make a difference, so allowing it (see above the scout rework changes) -->
-			<NotUnitAIs>
-				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-			</NotUnitAIs>
+			<NotUnitAIs/>
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>
@@ -1575,20 +1524,8 @@
 			<iCityAttack>0</iCityAttack>
 			<iCityDefense>0</iCityDefense>
 			<!-- advc.315c: Was 100; now BarbarianCombat instead. -->
-			<!-- custom: scout rework. Make scouts especially good against animals
-			(it is a sort of hunting after all), not so much against other humans
-			even if they are barbarians, was 0 -->
-			<!-- custom: i could have kept the animal bonus to 100 (so that 100 + 25 = 125
-			against animals), but that would be a bit too strong (and perhaps stronger
-			than needed especially considering the unit's cost. But if someday someone
-			would want to create animal units for other rivals, then they could maybe
-			decrease this to 75 (so that 100 + 25 = 125% against barbarian animals,
-			and 100% against other animals. Seems a bit too complicated and unlikely to
-			happen soon, so to simplify this i chose 75 instead of 100., was 0. -->
-			<iAnimalCombat>75</iAnimalCombat>
-			<!-- custom: was 100, scouts should not have good odds against anything other
-			than a warrior, even a barbarian warrior should still be stronger than a scout -->
-			<iBarbarianCombat>25</iBarbarianCombat>
+			<iAnimalCombat>0</iAnimalCombat>
+			<iBarbarianCombat>100</iBarbarianCombat>
 			<iHillsAttack>0</iHillsAttack>
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
@@ -1630,27 +1567,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: similarly to what i did for the explorer unit, i think explore units
-			should be good at exploring, navigating forest type terrains is a good way to do so.
-			It is also a way to make the woodsman promotion play more of a key role in the game,
-			as it is currently quite useless i think. Scouts being good at such "terrains" (forest
-			-jungle, that civ4 code seems to name features) may be more realistic and immersive
-			this way, was empty -->
-			<FreePromotions>
-				<FreePromotion>
-					<PromotionType>PROMOTION_WOODSMAN1</PromotionType>
-					<bFreePromotion>1</bFreePromotion>
-				</FreePromotion>
-				<!-- custom: similarly as in the explorer rework, also give flaking 1 (only) to
-				scouts, should be valuable and also realistic. Exploring should involve to some
-				extent (i think) being good at retreating too. Since these units cannot become
-				military strong units, it's most likely (i think) fine to give them such bonuses
-				-->
-				<FreePromotion>
-					<PromotionType>PROMOTION_FLANKING1</PromotionType>
-					<bFreePromotion>1</bFreePromotion>
-				</FreePromotion>
-			</FreePromotions>
+			<FreePromotions/>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
@@ -1677,17 +1594,9 @@
 			<!-- advc.315a -->
 			<bOnlyAttackAnimals>0</bOnlyAttackAnimals>
 			<!-- advc.315b -->
-			<!-- custom: unit reworked, can attack other players (more realistic), but should have
-			little incentive to do so considering its now low strength. More likely to be useful and valuable
-			for human players as a scouting unit. For AIs i added changes to make extra sure they use it strictly
-			(as much as possible) as an explorer and not for warfare, was 1-->
-			<bOnlyAttackBarbarians>0</bOnlyAttackBarbarians>
+			<bOnlyAttackBarbarians>1</bOnlyAttackBarbarians>
 			<!-- advc.315b: Not supposed to conquer Barbarian cities -->
-			<!-- custom: can conquer cities but should have little incentive to do so due to its low strength,
-			but if it were to actually conquer a city, especially barbarian city, it may be realistic and also
-			making sense too maybe, as it could only do so against really low strength defenders after its rework,
-			was 1 -->
-			<bNoCapture>0</bNoCapture>
+			<bNoCapture>1</bNoCapture>
 			<bQuickCombat>0</bQuickCombat>
 			<bRivalTerritory>0</bRivalTerritory>
 			<bMilitaryHappiness>0</bMilitaryHappiness>
@@ -1730,50 +1639,7 @@
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
-			<!-- custom: unit reworked, can attack cities if the human player wishes to do so,
-			but due to its low strength now it should be strongly disincentivized for human players.
-			Opportunistically maybe against really weak defenders at best maybe. But it should be
-			valuable as a scouting unit for the human player.
-			For AI players, similarly as for archer-type units, adding some NotUnitAIs to make
-			extra sure they are not used/confused by the AI as attackers or even defenders-->
-			<NotUnitAIs>
-				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-			</NotUnitAIs>
+			<NotUnitAIs/>
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>
@@ -1792,8 +1658,7 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: unit reworked, was 40 -->
-			<iCost>30</iCost>
+			<iCost>40</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -1817,8 +1682,7 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<!-- custom: unit reworked, was 4 -->
-			<iCombat>2</iCombat>
+			<iCombat>4</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -1834,32 +1698,7 @@
 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>
 			<iCityDefense>0</iCityDefense>
-			<!-- custom: should not be weaker than the scout in that regard, even if there
-			should be no animals left at this stage of the game -->
-			<!-- custom: as in the scout rework, make explorers especially good against animals
-			(it is a sort of hunting after all), not so much against other humans even if
-			they are barbarians, was 0 -->
-			<!-- custom: i could have kept the animal bonus to 100 (so that 100 + 25 = 125
-			against animals), but that would be a bit too strong (and perhaps stronger
-			than needed especially considering the unit's cost. But if someday someone
-			would want to create animal units for other rivals, then they could maybe
-			decrease this to 75 (so that 100 + 25 = 125% against barbarian animals,
-			and 100% against other animals. Seems a bit too complicated and unlikely to
-			happen soon, so to simplify this i chose 75 instead of 100., was 0. -->
-			<iAnimalCombat>75</iAnimalCombat>
-			<!-- custom tag: missing tag for some reason, i don't know if it breaks something to
-			add it, would need to test to see, but ideally no reason it should be worse than the
-			scout against barbarians, even if the boost is small -->
-			<!-- custom: this is mostly for role playing if i may say or-and historical accuracy
-			/realism, as there should be mostly no barbarians left when players start to have explorers
-			available, but if there were, the explorer would not be stronger than regular military
-			units to take the barbarians down, but they should be about strong enough to do so
-			(still slightly weaker and limited to vs barbarian fights), but more likely to happen
-			now if the player wishes so (mostly human players as this is currently more discouraged
-			for AI players in this mod to improve their efficiency). It also makes sense that their
-			tactics are slightly better against barbarians than those of the scouts, even if not by a
-			lot so i increased it from 25 that i chose initially to 50 -->
-			<iBarbarianCombat>50</iBarbarianCombat>
+			<iAnimalCombat>0</iAnimalCombat>
 			<iHillsAttack>0</iHillsAttack>
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
@@ -1903,37 +1742,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<!-- advc.315c: was PROMOTION_GUERILLA1 and PROMOTION_WOODSMAN1 -->
-			<!-- custom: unlike what is said in advc.315c, i think explore units should be good
-			at exploring, navigating forest type terrains is a good way to do so. It may be more
-			realistic and immersive this way. The verbose should not be a problem too.
-			The unit is reworked now so having this bonus should not hurt, it increases immersion
-			too i think.
-			was empty -->
-			<FreePromotions>
-				<FreePromotion>
-					<PromotionType>PROMOTION_WOODSMAN1</PromotionType>
-					<bFreePromotion>1</bFreePromotion>
-				</FreePromotion>
-				<!-- custom: since woodsman promotion does not help to conquer cities, it is probably
-				fine (and realistic to give it to explorers, they are more in control of forest-jungle
-				environments, but still not enough to threaten specialized military units) -->
-				<FreePromotion>
-					<PromotionType>PROMOTION_WOODSMAN2</PromotionType>
-					<bFreePromotion>1</bFreePromotion>
-				</FreePromotion>
-			<!-- custom: on top of that, giving them double flanking promotions, which should make them
-			very valuable as explorer-scouting units, especially considering they have no road obstruction.
-			Note: now that many AIs often get Compass as a free tech, perhaps it makes this tech more
-			valuable too now -->
-				<FreePromotion>
-					<PromotionType>PROMOTION_FLANKING1</PromotionType>
-					<bFreePromotion>1</bFreePromotion>
-				</FreePromotion>
-				<FreePromotion>
-					<PromotionType>PROMOTION_FLANKING2</PromotionType>
-					<bFreePromotion>1</bFreePromotion>
-				</FreePromotion>
-			</FreePromotions>
+			<FreePromotions/>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
@@ -4460,12 +4269,7 @@
 			<Capture>NONE</Capture>
 			<Combat>UNITCOMBAT_MELEE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<!-- custom: make them default to defenders, they could be attackers but less likely maybe this way?
-			Purpose is to make sure they are more likely to be upgraded into stronger units rather than die too soon
-			before that. Warriors are also a bit weak on total strength to be that effective to value sacrificing them,
-			their city defense bonus also makes it slightly more lean towards defending instead maybe
-			, was UNITAI_ATTACK -->
-			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
+			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_WARRIOR</Description>
@@ -4522,21 +4326,17 @@
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
 			<UnitAIs>
-				<!-- custom: warriors are valuable as city defenders too-->
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
-			<NotUnitAIs/>
+			<NotUnitAIs>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+			</NotUnitAIs>
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>
@@ -4642,20 +4442,13 @@
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
 		<UnitInfo>
-			<!-- custom: rework of the quechua warrior, basing it on the spearman and not axeman as it seems
-			they were a versatile unit, but still quite often used some sort of spears it seems, basing it on
-			axeman would make them weaker against chariots which is not intended and did not seem to be especially
-			the case, also these units could be built soon now still while being quite relevant later maybe (not
-			preventing the incan player to build other stronger units if they want), was UNITCLASS_WARRIOR -->
-			<Class>UNITCLASS_SPEARMAN</Class>
+			<Class>UNITCLASS_WARRIOR</Class>
 			<Type>UNIT_INCAN_QUECHUA</Type>
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
 			<Combat>UNITCOMBAT_MELEE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<!-- custom: even though they are spearmen-type of units they are more versatile, so they are not
-			defenders as a default but instead UNITAI_ATTACK as it was for spearmen before my changes-->
 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
@@ -4698,59 +4491,37 @@
 			<bHiddenNationality>0</bHiddenNationality>
 			<bAlwaysHostile>0</bAlwaysHostile>
 			<!-- advc.907b: Upgrade to MACEMAN disabled -->
-			<!-- custom: unit reworked, upgrades to axeman, spearman, maceman completely removed.
-			Considering they adopted new weapons in later ages it seems, i think it is fine to
-			allow them to be upgraded into pikemen -->
 			<UnitClassUpgrades>
 				<UnitClassUpgrade>
-					<UnitClassUpgradeType>UNITCLASS_PIKEMAN</UnitClassUpgradeType>
+					<UnitClassUpgradeType>UNITCLASS_AXEMAN</UnitClassUpgradeType>
 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+				</UnitClassUpgrade>
+				<UnitClassUpgrade>
+					<UnitClassUpgradeType>UNITCLASS_SPEARMAN</UnitClassUpgradeType>
+					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+				</UnitClassUpgrade>
+				<UnitClassUpgrade>
+					<UnitClassUpgradeType>UNITCLASS_MACEMAN</UnitClassUpgradeType>
+					<bUnitClassUpgrade>0</bUnitClassUpgrade>
 				</UnitClassUpgrade>
 			</UnitClassUpgrades>
 			<UnitClassTargets/>
 			<UnitCombatTargets/>
 			<UnitClassDefenders/>
-			<UnitCombatDefenders>
-			<!-- custom: now that the unit is reworked, quecha is not especially good
-			against archer type of units currently, was 1 -->
-				<UnitCombatDefender>
-					<UnitCombatDefenderType>UNITCOMBAT_ARCHER</UnitCombatDefenderType>
-					<bUnitCombatDefender>0</bUnitCombatDefender>
-				</UnitCombatDefender>
-			<!-- custom: since it is now based on the spearman, adding this just in case,
-			to not first target mounted units we are not especially good against now -->
-				<UnitCombatDefender>
-					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED</UnitCombatDefenderType>
-					<bUnitCombatDefender>0</bUnitCombatDefender>
-				</UnitCombatDefender>
-			</UnitCombatDefenders>
+			<UnitCombatDefenders/>
 			<FlankingStrikes/>
 			<UnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<!-- custom: with the unit rework, i think that unlike the other spearmen,
-				the quechua could now be more versatile so putting less focus on defense,
-				so i removed the city defense tag that i had added for the spearman -->
-				<UnitAI>
-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
 			</UnitAIs>
-			<NotUnitAIs/>
+			<NotUnitAIs>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+			</NotUnitAIs>
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>
@@ -4762,23 +4533,15 @@
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: rework of the quechua warrior, was NONE-->
-			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
-			<TechTypes>
-				<PrereqTech>TECH_HUNTING</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-			</TechTypes>
+			<PrereqTech>NONE</PrereqTech>
+			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
 			<!-- advc.907b: was 20 -->
-			<!-- custom: rework of the quechua warrior, i read from the little i saw i mean
-			that it seems this unit was not specialized but mostly good at having big numbers,
-			so reducing cost to allow that while not giving it any (big) bonus, was 15 -->
-			<iCost>20</iCost>
+			<iCost>15</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -4802,8 +4565,7 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<!-- custom: rework of the unit, was 2 -->
-			<iCombat>4</iCombat>
+			<iCombat>2</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -4818,10 +4580,7 @@
 			<iCollateralDamageLimit>0</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>
-			<!-- custom: i want this to be a more versatile unit, perhaps a bit more
-			realistic/accurate this way, (also for balance the archer may be a bit too bad
-			in comparison else), was 25-->
-			<iCityDefense>0</iCityDefense>
+			<iCityDefense>25</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
 			<iHillsAttack>0</iHillsAttack>
 			<iHillsDefense>0</iHillsDefense>
@@ -4870,9 +4629,12 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: unit reworked, it is strong enough and cheap enough to not need combat 1,
-			was PROMOTION_COMBAT1-->
-			<FreePromotions/>
+			<FreePromotions>
+				<FreePromotion>
+					<PromotionType>PROMOTION_COMBAT1</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+			</FreePromotions>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
@@ -5238,20 +5000,8 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<FreePromotions>
-				<!-- custom: i've read/watched quickly a few sources about this unit, none seem to
-				mention it being especially good in the woods, however many highlight the fact that
-				they are elite units which are very strong in battlefield and have sort of prestige
-				i mean in society, therefore i replaced it with the leader promotion that maybe will
-				be more useful for the AI (or/and the player) too, as i think the unit is quite weak
-				currently (weaker than axeman for same price, weaker than swordsman for not much
-				gold difference), added combat 1 promotion too as unit should still be quite weak
-				even with that, was PROMOTION_WOODSMAN1 was -->
 				<FreePromotion>
-					<PromotionType>PROMOTION_LEADERSHIP</PromotionType>
-					<bFreePromotion>1</bFreePromotion>
-				</FreePromotion>
-				<FreePromotion>
-					<PromotionType>PROMOTION_COMBAT1</PromotionType>
+					<PromotionType>PROMOTION_WOODSMAN1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -5801,27 +5551,8 @@
 			<FeatureNatives/>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
-			<!-- custom: axes could be useful in navigating or fighting in the woods maybe. -->
-			<FeatureAttacks>
-			    <FeatureAttack>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureAttack>15</iFeatureAttack>
-    			</FeatureAttack>
-				<FeatureAttack>
-        			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureAttack>15</iFeatureAttack>
-    			</FeatureAttack>
-			</FeatureAttacks>
-			<FeatureDefenses>
-			    <FeatureDefense>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureDefense>15</iFeatureDefense>
-    			</FeatureDefense>
-				<FeatureDefense>
-        			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureDefense>15</iFeatureDefense>
-    			</FeatureDefense>
-			</FeatureDefenses>
+			<FeatureAttacks/>
+			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<UnitCombatMods>
@@ -7140,18 +6871,7 @@
 			<UnitClassTargets/>
 			<UnitCombatTargets/>
 			<UnitClassDefenders/>
-			<!-- custom: now that the unit is reworked, defend first rather against these types:
-			(i don't know if it overwrites previous settings or just adds these though) -->
-			<UnitCombatDefenders>
-				<UnitCombatDefender>
-					<UnitCombatDefenderType>UNITCOMBAT_MELEE</UnitCombatDefenderType>
-					<bUnitCombatDefender>1</bUnitCombatDefender>
-				</UnitCombatDefender>
-				<UnitCombatDefender>
-					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED</UnitCombatDefenderType>
-					<bUnitCombatDefender>1</bUnitCombatDefender>
-				</UnitCombatDefender>
-			</UnitCombatDefenders>
+			<UnitCombatDefenders/>
 			<FlankingStrikes/>
 			<UnitAIs>
 				<UnitAI>
@@ -7230,52 +6950,22 @@
 			<iCollateralDamageLimit>0</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>
-			<!-- custom: unit rework, make the spearman more versatile and buff it a bit too as
-			it is a bit weaker than the other early units currently, was 0 -->
-			<iCityDefense>25</iCityDefense>
+			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
-			<!-- custom: unit rework, make the spearman a more versatile unit, spearmen
-			could be useful (to help in) for uphill battles maybe now, was 0 -->
-			<iHillsAttack>10</iHillsAttack>
-			<!-- custom: unit rework, make the spearman a more versatile unit, was 0 -->
-			<iHillsDefense>25</iHillsDefense>
+			<iHillsAttack>0</iHillsAttack>
+			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
-			<!-- custom: spearmen could have some range advantage fighting in the woods maybe. -->
-			<FeatureAttacks>
-			    <FeatureAttack>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureAttack>15</iFeatureAttack>
-    			</FeatureAttack>
-				<FeatureAttack>
-        			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureAttack>15</iFeatureAttack>
-    			</FeatureAttack>
-			</FeatureAttacks>
-			<FeatureDefenses>
-			    <FeatureDefense>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureDefense>15</iFeatureDefense>
-    			</FeatureDefense>
-				<FeatureDefense>
-        			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureDefense>15</iFeatureDefense>
-    			</FeatureDefense>
-			</FeatureDefenses>
+			<FeatureAttacks/>
+			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<!-- custom: unit rework, make the spearman more versatile and buff it a bit too as it
-			is a bit weaker than the other early units currently, was UNITCOMBAT_MOUNTED 100 -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
-					<iUnitCombatMod>25</iUnitCombatMod>
-				</UnitCombatMod>
-				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
-					<iUnitCombatMod>25</iUnitCombatMod>
+					<iUnitCombatMod>100</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
 			<UnitCombatCollateralImmunes/>
@@ -7370,18 +7060,7 @@
 			<UnitClassTargets/>
 			<UnitCombatTargets/>
 			<UnitClassDefenders/>
-			<!-- custom: now that the unit is reworked, defend first rather against these types:
-			(i don't know if it overwrites previous settings or just adds these though) -->
-			<UnitCombatDefenders>
-				<UnitCombatDefender>
-					<UnitCombatDefenderType>UNITCOMBAT_MELEE</UnitCombatDefenderType>
-					<bUnitCombatDefender>1</bUnitCombatDefender>
-				</UnitCombatDefender>
-				<UnitCombatDefender>
-					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED</UnitCombatDefenderType>
-					<bUnitCombatDefender>1</bUnitCombatDefender>
-				</UnitCombatDefender>
-			</UnitCombatDefenders>
+			<UnitCombatDefenders/>
 			<FlankingStrikes/>
 			<UnitAIs>
 				<UnitAI>
@@ -7464,72 +7143,22 @@
 			<iCollateralDamageLimit>0</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>
-			<!-- custom: unit rework, make the spearman more versatile and buff it a bit too as
-			it is a bit weaker than the other early units currently, was 0 -->
-			<iCityDefense>25</iCityDefense>
+			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
-			<!-- custom: unit rework, make the spearman a more versatile unit, spearmen
-			could be useful (to help in) for uphill battles maybe now, was 0 -->
-			<iHillsAttack>10</iHillsAttack>
-			<!-- custom: unit rework, make the spearman a more versatile unit, was 0 -->
-			<iHillsDefense>25</iHillsDefense>
+			<iHillsAttack>0</iHillsAttack>
+			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<!-- custom: make the impi extra good on plains, seems quite realistic
-			from the little i saw about this unit/civ, may also buff the plains
-			terrain that is currently just worse than grassland especially due
-			to yields in the early game.
-			This buff is also quite strong because cities can be planted in plains
-			tiles, in which case bonus would be same as city raider almost, but it
-			would serve of a good way to punish overoptimizing planting on lower food
-			tiles, maybe more immersive, and maybe adds more strategic depth about
-			city planting, finally also makes AIs not always optimal planting
-			decisions a bit less worse sometimes maybe -->
-			<TerrainAttacks>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainAttack>20</iTerrainAttack>
-				</TerrainAttack>
-			</TerrainAttacks>
-			<TerrainDefenses>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainDefense>20</iTerrainDefense>
-				</TerrainDefense>
-			</TerrainDefenses>
-			<!-- custom: spearmen could have some range advantage fighting in the woods maybe. -->
-			<FeatureAttacks>
-			    <FeatureAttack>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureAttack>15</iFeatureAttack>
-    			</FeatureAttack>
-				<FeatureAttack>
-        			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureAttack>15</iFeatureAttack>
-    			</FeatureAttack>
-			</FeatureAttacks>
-			<FeatureDefenses>
-			    <FeatureDefense>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureDefense>15</iFeatureDefense>
-    			</FeatureDefense>
-				<FeatureDefense>
-        			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureDefense>15</iFeatureDefense>
-    			</FeatureDefense>
-			</FeatureDefenses>
+			<TerrainAttacks/>
+			<TerrainDefenses/>
+			<FeatureAttacks/>
+			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<!-- custom: unit rework, make the spearman more versatile and buff it a bit too as it
-			is a bit weaker than the other early units currently, was UNITCOMBAT_MOUNTED 100 -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
-					<iUnitCombatMod>25</iUnitCombatMod>
-				</UnitCombatMod>
-				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
-					<iUnitCombatMod>25</iUnitCombatMod>
+					<iUnitCombatMod>100</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
 			<UnitCombatCollateralImmunes/>
@@ -7629,18 +7258,7 @@
 			<UnitClassTargets/>
 			<UnitCombatTargets/>
 			<UnitClassDefenders/>
-			<!-- custom: now that the unit is reworked, defend first rather against these types:
-			(i don't know if it overwrites previous settings or just adds these though) -->
-			<UnitCombatDefenders>
-				<UnitCombatDefender>
-					<UnitCombatDefenderType>UNITCOMBAT_MELEE</UnitCombatDefenderType>
-					<bUnitCombatDefender>1</bUnitCombatDefender>
-				</UnitCombatDefender>
-				<UnitCombatDefender>
-					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED</UnitCombatDefenderType>
-					<bUnitCombatDefender>1</bUnitCombatDefender>
-				</UnitCombatDefender>
-			</UnitCombatDefenders>
+			<UnitCombatDefenders/>
 			<FlankingStrikes/>
 			<UnitAIs>
 				<UnitAI>
@@ -7718,52 +7336,22 @@
 			<iCollateralDamageLimit>0</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>
-			<!-- custom: unit rework, make the spearman more versatile and buff it a bit too as
-			it is a bit weaker than the other early units currently, was 0 -->
-			<iCityDefense>25</iCityDefense>
+			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
-			<!-- custom: unit rework, make the spearman a more versatile unit, spearmen
-			could be useful (to help in) for uphill battles maybe now, was 0 -->
-			<iHillsAttack>10</iHillsAttack>
-			<!-- custom: unit rework, make the spearman a more versatile unit, was 0 -->
-			<iHillsDefense>25</iHillsDefense>
+			<iHillsAttack>0</iHillsAttack>
+			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
-			<!-- custom: spearmen could have some range advantage fighting in the woods maybe. -->
-			<FeatureAttacks>
-			    <FeatureAttack>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureAttack>15</iFeatureAttack>
-    			</FeatureAttack>
-				<FeatureAttack>
-        			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureAttack>15</iFeatureAttack>
-    			</FeatureAttack>
-			</FeatureAttacks>
-			<FeatureDefenses>
-			    <FeatureDefense>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureDefense>15</iFeatureDefense>
-    			</FeatureDefense>
-				<FeatureDefense>
-        			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureDefense>15</iFeatureDefense>
-    			</FeatureDefense>
-			</FeatureDefenses>
+			<FeatureAttacks/>
+			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<!-- custom: unit rework, make the spearman more versatile and buff it a bit too as it
-			is a bit weaker than the other early units currently, was UNITCOMBAT_MOUNTED 100 -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
-					<iUnitCombatMod>25</iUnitCombatMod>
-				</UnitCombatMod>
-				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
-					<iUnitCombatMod>25</iUnitCombatMod>
+					<iUnitCombatMod>100</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
 			<UnitCombatCollateralImmunes/>
@@ -7862,20 +7450,8 @@
 			<UnitClassTargets/>
 			<UnitCombatTargets/>
 			<UnitClassDefenders/>
-			<!-- custom: now that the unit is reworked, defend first rather against these types:
-			(i don't know if it overwrites previous settings or just adds these though) -->
-			<UnitCombatDefenders>
-				<UnitCombatDefender>
-					<UnitCombatDefenderType>UNITCOMBAT_MELEE</UnitCombatDefenderType>
-					<bUnitCombatDefender>1</bUnitCombatDefender>
-				</UnitCombatDefender>
-				<UnitCombatDefender>
-					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED</UnitCombatDefenderType>
-					<bUnitCombatDefender>1</bUnitCombatDefender>
-				</UnitCombatDefender>
-			</UnitCombatDefenders>
+			<UnitCombatDefenders/>
 			<FlankingStrikes/>
-			<!-- custom: same as the reworked spearman-->
 			<UnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
@@ -7902,19 +7478,10 @@
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: unit reworked and more versatile now, also trying to obtain it
-			 sooner in same time as the other medieval units, and since copper is also
-			 allowed to make pikes now, iron working is not a requirement anymore, only
-			 bronze working is, was engineering only -->
-			<PrereqTech>TECH_FEUDALISM</PrereqTech>
-			<TechTypes>
-				<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-			</TechTypes>
+			<PrereqTech>TECH_ENGINEERING</PrereqTech>
+			<TechTypes/>
 			<BonusType>BONUS_IRON</BonusType>
 			<PrereqBonuses/>
-
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
@@ -7957,56 +7524,22 @@
 			<iCollateralDamageLimit>0</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>
-			<!-- custom: unit rework, make the spearman more versatile and buff it a bit too as
-			it is a bit weaker than the other early units currently, was 0 -->
-			<iCityDefense>25</iCityDefense>
+			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
-			<!-- custom: unit rework, make the spearman a more versatile unit, spearmen
-			could be useful (to help in) for uphill battles maybe now, was 0 -->
-			<iHillsAttack>10</iHillsAttack>
-			<!-- custom: unit rework, make the spearman a more versatile unit, was 0 -->
-			<iHillsDefense>25</iHillsDefense>
+			<iHillsAttack>0</iHillsAttack>
+			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
-		    <!-- custom: unlike spearmen, pikemen are a bit too heavy and could maybe be
-			ambushed in the woods rather than benefitting from them maybe . Also their
-			pike is a long spear so more easy to spot from a distance maybe, also harder
-			to navigate in this tight terrain maybe mostly too maybe i mean. -->
-			<FeatureAttacks>
-			    <FeatureAttack>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureAttack>-15</iFeatureAttack>
-    			</FeatureAttack>
-				<FeatureAttack>
-        			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureAttack>-20</iFeatureAttack>
-    			</FeatureAttack>
-			</FeatureAttacks>
-			<FeatureDefenses>
-			    <FeatureDefense>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureDefense>-15</iFeatureDefense>
-    			</FeatureDefense>
-				<FeatureDefense>
-        			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureDefense>-20</iFeatureDefense>
-    			</FeatureDefense>
-			</FeatureDefenses>
+			<FeatureAttacks/>
+			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<!-- custom: unit rework, make the spearman more versatile and buff it a bit
-			too	as it is a bit weaker than the other early units currently, was
-			UNITCOMBAT_MOUNTED 100 -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
-					<iUnitCombatMod>25</iUnitCombatMod>
-				</UnitCombatMod>
-				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
-					<iUnitCombatMod>25</iUnitCombatMod>
+					<iUnitCombatMod>100</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
 			<UnitCombatCollateralImmunes/>
@@ -8105,21 +7638,14 @@
 			<UnitClassTargets/>
 			<UnitCombatTargets/>
 			<UnitClassDefenders/>
-			<!-- custom: now that the unit is reworked, defend first rather against these types:
-			(i don't know if it overwrites previous settings or just adds these though) -->
-			<UnitCombatDefenders>
-				<UnitCombatDefender>
-					<UnitCombatDefenderType>UNITCOMBAT_MELEE</UnitCombatDefenderType>
-					<bUnitCombatDefender>1</bUnitCombatDefender>
-				</UnitCombatDefender>
-				<UnitCombatDefender>
-					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED</UnitCombatDefenderType>
-					<bUnitCombatDefender>1</bUnitCombatDefender>
-				</UnitCombatDefender>
-			</UnitCombatDefenders>
+			<UnitCombatDefenders/>
 			<FlankingStrikes/>
-			<!-- custom: same as the reworked spearman-->
 			<UnitAIs>
+				<!-- K-Mod -->
+				<UnitAI>
+					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
@@ -8145,33 +7671,14 @@
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: unit reworked and more versatile now, similar to what was
-			done for pikemen but it seems the holy roman special unit operated
-			at a later era in history than pikemen, and since the theme of them
-			being mercenaries and being recruted seems to fit quite well, i moved
-			it to civil service.
-			Maybe it also helps this unit that was a bit too op (or less balanced
-			overall maybe?) as compared to other pikemen. -->
-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
-			<TechTypes>
-				<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
-				<PrereqTech>TECH_FEUDALISM</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-			</TechTypes>
-			<!-- custom: also allow copper (i view it as equivalent to bronze in this
-			game i mean) to make pikes, it may be a good enough material for that,
-			and allow diversity of gameplays maybe, was iron only-->
-			<BonusType>NONE</BonusType>
-			<PrereqBonuses>
-				<BonusType>BONUS_COPPER</BonusType>
-				<BonusType>BONUS_IRON</BonusType>
-				<BonusType>NONE</BonusType>
-				<BonusType>NONE</BonusType>
-			</PrereqBonuses>
+			<PrereqTech>TECH_ENGINEERING</PrereqTech>
+			<TechTypes/>
+			<BonusType>BONUS_IRON</BonusType>
+			<PrereqBonuses/>
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>80</iCost>
+			<iCost>60</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -8210,64 +7717,26 @@
 			<iCollateralDamageLimit>0</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>
-			<!-- custom: since they are more mercenaries from the little i've read
-			and prone to mutiny, unlike the reworked pikemen i do not give them any
-			city defense bonus -->
 			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
-			<!-- custom: unit rework, higher than the reworked pikeman as they seem
-			to have been doing very well in most terrains, was 0 -->
-			<iHillsAttack>25</iHillsAttack>
-			<!-- custom: unit rework, make the spearman a more versatile unit, was 0 -->
-			<iHillsDefense>25</iHillsDefense>
+			<iHillsAttack>0</iHillsAttack>
+			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-		    <!-- custom: unlike the reworked pikemen, the holy roman special unit seems
-			to good in most (all?) terrains, so removing the grass and plains penalties
-			that the reworked pikemen have, and adding grassland and plains bonuses,
-			which should be quite strong especially considering it applies to city
-			attacks and defenses if city is planted on this tile.
-			Also note that this buffs the plains terrain more than the grassland
-			terrain, despite lower bonuses, because now a player needs to plant on
-			a more valuable grassland tiles to have the defense bonuses, or if AI
-			plants less optimally on a grassland tile it would not affect them as
-			if they planted on plains. The human player though could also purposely
-			plant on grassland for these bonuses though. -->
-			<TerrainAttacks>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainAttack>30</iTerrainAttack>
-				</TerrainAttack>
-				<TerrainAttack>
-				<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainAttack>15</iTerrainAttack>
-				</TerrainAttack>
-			</TerrainAttacks>
-			<TerrainDefenses>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainDefense>30</iTerrainDefense>
-				</TerrainDefense>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainDefense>15</iTerrainDefense>
-				</TerrainDefense>
-			</TerrainDefenses>
+			<TerrainAttacks/>
+			<TerrainDefenses/>
 			<FeatureAttacks/>
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<!-- custom: unit rework, make the spearman more versatile and buff it a bit
-			too	as it is a bit weaker than the other early units currently, was
-			UNITCOMBAT_MOUNTED 100 -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
-					<iUnitCombatMod>25</iUnitCombatMod>
+					<iUnitCombatMod>100</iUnitCombatMod>
 				</UnitCombatMod>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
-					<iUnitCombatMod>25</iUnitCombatMod>
+					<iUnitCombatMod>100</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
 			<UnitCombatCollateralImmunes/>
@@ -8300,21 +7769,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: from what i've read it seems they were very good at using
-			many war formations, so it seems to fit the theme to give them this
-			promotion. I had also intended to make them extra good against mounted
-			units. Considering they are available later and more expensive than
-			regular pikemen, they could be useful against knights and cuirassiers.
-			I am not sure they would be good enough against cavalries but i think
-			it would still help a bit maybe, but at the time cavalries appeared
-			it was not the era of the holy roman special unit anymore so should be
-			fine maybe and optimal even maybe. -->
-			<FreePromotions>
-				<FreePromotion>
-					<PromotionType>PROMOTION_FORMATION</PromotionType>
-					<bFreePromotion>1</bFreePromotion>
-				</FreePromotion>
-			</FreePromotions>
+			<FreePromotions/>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
@@ -11228,47 +10683,15 @@
 			<FlankingStrikes/>
 			<UnitAIs>
 				<UnitAI>
+					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
 					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: if AI is strong enough to start an offensive on someone, it may not hurt to take a few defenders
-				as an extra to do so. If these defenders die then AI could build offensive units maybe now instead.
-				They may also help defend other cities by roaming -->
-				<UnitAI>
-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
 			</UnitAIs>
-			<NotUnitAIs>
-				<!-- custom: archer is not strong enough to be valuable as an attacker, much more efficient/valuable
-				to keep it as a defeender only instead-->
-				<UnitAI>
-						<UnitAIType>UNITAI_ATTACK</UnitAIType>
-						<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<!-- custom: make extra sure these defender type units are not baited or suicide during enemy invasion
-				or other related situations -->
-				<UnitAI>
-					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-			</NotUnitAIs>
+			<NotUnitAIs/>
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>
@@ -11439,47 +10862,15 @@
 			<FlankingStrikes/>
 			<UnitAIs>
 				<UnitAI>
-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<!-- custom: if AI is strong enough to start an offensive on someone, it may not hurt to take a few defenders
-				as an extra to do so. If these defenders die then AI could build offensive units maybe now instead.
-				They may also help defend other cities by roaming -->
-				<UnitAI>
-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-			</UnitAIs>
-			<NotUnitAIs>
-				<!-- custom: archer is not strong enough to be valuable as an attacker, much more efficient/valuable
-				to keep it as a defeender only instead-->
-				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: make extra sure these defender type units are not baited or suicide during enemy invasion
-				or other related situations -->
 				<UnitAI>
-					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
+					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-			</NotUnitAIs>
+			</UnitAIs>
+			<NotUnitAIs/>
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>
@@ -11651,47 +11042,15 @@
 			<FlankingStrikes/>
 			<UnitAIs>
 				<UnitAI>
-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<!-- custom: if AI is strong enough to start an offensive on someone, it may not hurt to take a few defenders
-				as an extra to do so. If these defenders die then AI could build offensive units maybe now instead.
-				They may also help defend other cities by roaming -->
-				<UnitAI>
-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-			</UnitAIs>
-			<NotUnitAIs>
-				<!-- custom: archer is not strong enough to be valuable as an attacker, much more efficient/valuable
-				to keep it as a defeender only instead-->
-				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: make extra sure these defender type units are not baited or suicide during enemy invasion
-				or other related situations -->
 				<UnitAI>
-					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
+					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-			</NotUnitAIs>
+			</UnitAIs>
+			<NotUnitAIs/>
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>
@@ -11863,47 +11222,15 @@
 			<FlankingStrikes/>
 			<UnitAIs>
 				<UnitAI>
-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<!-- custom: if AI is strong enough to start an offensive on someone, it may not hurt to take a few defenders
-				as an extra to do so. If these defenders die then AI could build offensive units maybe now instead.
-				They may also help defend other cities by roaming -->
-				<UnitAI>
-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-			</UnitAIs>
-			<NotUnitAIs>
-				<!-- custom: longbowmen are not strong enough to be valuable as an attacker, much more efficient/valuable
-				to keep them as a defeender only instead-->
-				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: make extra sure these defender type units are not baited or suicide during enemy invasion
-				or other related situations -->
 				<UnitAI>
-					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
+					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-			</NotUnitAIs>
+			</UnitAIs>
+			<NotUnitAIs/>
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>
@@ -16167,31 +15494,8 @@
 					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: tentative change to avoid catapults suicides/getting baited during enemy invasion -->
-				<UnitAI>
-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
 			</UnitAIs>
-			<!-- custom: tentative change to avoid catapults suicides/getting baited during enemy invasion -->
-			<NotUnitAIs>
-				<UnitAI>
-					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-			</NotUnitAIs>
+			<NotUnitAIs/>
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>
@@ -16371,31 +15675,12 @@
 					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: tentative change to avoid catapults suicides/getting baited during enemy invasion -->
-				<UnitAI>
-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-			</UnitAIs>
-			<!-- custom: tentative change to avoid catapults suicides/getting baited during enemy invasion -->
-			<NotUnitAIs>
-				<UnitAI>
-					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-			</NotUnitAIs>
+			</UnitAIs>
+			<NotUnitAIs/>
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>
@@ -16576,11 +15861,6 @@
 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: tentative change to avoid trebuchets suicides/getting baited during enemy invasion -->
-				<UnitAI>
-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
 			</UnitAIs>
 			<NotUnitAIs>
 				<UnitAI>
@@ -16589,15 +15869,6 @@
 				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<!-- custom: tentative change to avoid trebuchets suicides/getting baited during enemy invasion -->
-				<UnitAI>
-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</NotUnitAIs>
