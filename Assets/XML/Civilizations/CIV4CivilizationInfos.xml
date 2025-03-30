@@ -1764,19 +1764,11 @@
 					<BuildingType>BUILDING_INCAN_TERRACE</BuildingType>
 				</Building>
 			</Buildings>
+			<!-- custom: -->
 			<Units>
-				<!-- custom: unit reworked, the quechua is now based on the spearman -->
 				<Unit>
 					<UnitClassType>UNITCLASS_SPEARMAN</UnitClassType>
 					<UnitType>UNIT_INCAN_QUECHUA</UnitType>
-				</Unit>
-				<!-- custom: workaround (needs fix) for some reason the quechua is not allocated
-				to the incan civilization. I noticed that adding the impi here too works around the
-				issue (but weirdly only in 2nd position), but it is not optimal leaving as is for
-				now -->
-				<Unit>
-				    <UnitClassType>UNITCLASS_SPEARMAN</UnitClassType>
-					<UnitType>UNIT_ZULU_IMPI</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>
