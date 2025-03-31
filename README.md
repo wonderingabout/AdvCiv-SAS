@@ -1,23 +1,54 @@
-# AdvCiv mods
-I intend to do 3 mods of [AdvCiv](https://github.com/f1rpo/AdvCiv/tree/1.12)
-(based on latest version which is currently 1.12 (which is also the one i
-linked in this case i mean anyways) as i am writing this, and will update
-whenever there are new changes that are stable (meaning as long as they don't
-break all good, else i can always fix them later if solved in this case i
-mean anyways) built on top of each other. 
+# AdvCiv mod
+This mod is based on AdvCiv (https://github.com/f1rpo/AdvCiv/tree/1.12)
+(1.12 as it is the latest as of now), and will/may update whenever there
+are new changes that are stable.
 
-The purpose is for players interested to use them in advciv base or
-maybe other mods too.
+Currently, it is still a work in progress so is not playable yet as explained below,
+but these are the (main) goals/purposes/features.
 
-Each mod has a different goal, and they are gradual in their changes,
-the first mods are the most conservatives, while the later ones go
-(much) more in depth.
+![img1](/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.33_Techtree_modified.png)
 
-Note that this is a work in progress so it would not be ready too soon,
-at least not the higher "levels" of the mod as they are more complex i
-mean.
+They consist of (see [this README.md](/_1_AdvCiv_SBAIMTOCO_content/README.md) for the full details):
+- Stricter Balancing AI (changes AI policy for efficiency and opportunism, AI will not
+be too aggressive but merciless, also more cautious sometimes (war declarations in
+particular, mostly just for its self interest and not to spare a valuable target))
+- Gradual gameplay: currently the early game is too fast and the late game
+a chore, trying to prevent that
+- Gradual handicap (difficulty): 
+- Better quality of life changes: while most below make the game harder
+- Military otherwise overhaul: many units have their stats changed or reworked,
+in particular many units are versatile now. No reason why a swordsman can't
+defend a city, an archer attack, and a scout/explorer threaten to capture a city
+(if low in strength).
+- Military terrain overhaul: all/most units have terrain bonuses (and (very) rarely
+maluses (i try to avoid that approach rather for immersion and i don't think
+it critically helps in having deeper strategy)). Some civ's units will be better
+in some terrains than others (the arabs good at desert, russians good at tundra,
+as an example). Due to these elements, and possibly others too, there will be a
+high focus on strategy when playing.
+- A few new civs: The Kingdom Of Benin is for example the first civ i added/am adding.
+- More balanced leaders: Not more than 3 and in more places (times?)
+- A few new ressources
+- Religion total overhaul
+- Corporations removed? Reworked as a religion 2 or something else? Todo
+- Historical accuracy
+- Wonders rework: each civ has one and only one specific wonder linked to their history,
+that gives them a big bonus, renamed also to better reflect their historical namesmall
+wonders are removed
+- Some extra terrain changes, it will be possible to walk on peaks (moutains) and even
+settle your cities there, movement will be slower though.
+- Not an extensive mod
+- Maybe change victory conditions: remove space victory except for the USA, or other things?
+Todo
+- Maybe some (or lot) music, ideally (even more ideally), if copyright or something is not an issue when/if i upload
+the finished version.
 
-This branch covers the [Mod 3: AdvCiv SBAIMTOCO](https://github.com/wonderingabout/AdvCiv/tree/tech-rework?tab=readme-ov-file#mod-3-sbaimtoco-sbai--mto--complete-overhaul)
+The civs you can expect from this mod come from these parts of the world (circled numbers
+are the added new civ's real world location) :
+
+![img2](/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.22_world_map_terrain_with_new_civs.png)
+
+More details about this mod in the folder listing all the docs
 
 ## Mod 1: AdvCiv SBAI
 SBAI stands for Stricter Balancing AI
@@ -59,72 +90,25 @@ more diverse strategies. Culture may help against revolts for example, and
 even in ancient times rulers would try (i think) to appease their people by
  any cultural means they would have.. For even deeper changes, i would
  encourage you to try the following versions (see below).
+- todo unfinished
 
-
-## Mod 2: SBAIMTO (SBAI + Military and Terrain Overhaul)
-A preview of the changes (screenshots), can be found on this google drive
+A preview of the changes (screenshots), can be found on this google drive: 
 [here](https://drive.google.com/drive/folders/1v4jkm383NGL761ciMUdU6hGuZKvLo00w?usp=sharing).
-
-- Military overhaul: most units have been completely reworked to be a lot more
-versatile, which i think is realistic. For example, scouts and explorers can
-attack, even workers should be able to defend cities (even though very weak),
-but this is still in development. These changes intend to make it more
-immersive, balanced in case some units are op while others are not and too weak,
-and more challenging, as startegy will play a bigger role, with more ways to be
-punished if doing mistakes i mean anyways.
-- MiTerrain Overhaul: now all military units all have terrain specific defenses and
-bonuses. This is a very different experience than civ4 or base advciv, as good as
-they are, my goals and view are different in this case at least i mean. It would
-be possible to settle your cities on peaks, as well as walk on them, but i did not
-try it yet so i don't know if will be possible for sure i mean so not guaranteed.
-More changes too not listed here. For more changes, including more terrain changes,
-you may try the next "level" of this mod i am uploading i mean.
-
-## Mod 3: SBAIMTOCO (SBAI + MTO + Complete Overhaul)
-A preview of the changes (screenshots), can be found on this google drive
-[here](https://drive.google.com/drive/folders/1izx8zrzwJL8nKkP4cXcwklYAHtQrq888?usp=sharing).
-
-- Religion overhaul: Religion is now completely changed, it's not just a bunch of
-(politically correct i think) stats, but each religion has its specific bonuses,
-also AIs will be much more sensitive to it, it should play a huge role at all stages
-of the game so requiring absolute strategy or at least carefulness if i may say.
-- New ressources, removed older ones, in a way that makes historically more sense
-too hopefully or/and has more gameplay depth maybe i mean
-- New Buildings (and units too most likely)
-- Removed small wonders, replaced with other changes, great wonders having a special
-perk and limited to min and max one per civ in the wonders available i mean, so Rome
-cannot have 5 wonders (example, i don't know if this number is accurate is just to
-illustrate i mean) while other rivals have at best only one wonder related to their
-historical real past, it should make a stronger incentive to build or protect or
-conquer wonders maybe, at least for the human player hopefully i mean in this case.
-- Completely reworked tech tree to be historically as accurate as possible while
-being efficient
-- New Civlizations, while some civs have less leaders now (the ones with 3 leaders).
-Be warned though that most likely their portait will not be animated unless i find
-how, this is somehow i am not too good at i mean
-- many changes, unlisted and still undone, so far this project is in the very early
-stages, so i cannot make the mods available too soon, most other changes not even
-started at all, but i have an idea i mean, except a quite very long time maybe if
-i still wantt to do this mod i mean anyway, thanks
-
-## General status about the mod
-Still experimental, and ongoing many changes, hopefully i can do some of these
-as i enjoy it a lot (so much i mean anyways), but for now in this case i mean
-anyways, i want to remember, (remind myself or others in this case i mean
-anyways) about these points:
-- todo
 
 # Credits
 To write, but mostly i am very thankful of AdvCiv, it's such a nice improvement
 from Civ4, and it's maintainer is very open to feedback at least in my
 exchanges/experiences during these times i mean anyways.
+That being said, i intend to do my own thing, thanks i mean anyways,
 
 # Sources
 A few useful links :
 - todo: tutorial on how to compile the DLL and/or files for Advciv (but should not
 be needed if you only modify XML files if i am not mistaken i mean anyways)
-- ressources that mention XML files and tags, useful if you'd want to get started
-doing your own mod. Civ4 allows to do a lot of things with just XML, which
+- ressources that mention XML files and tags, useful if you'd want to [get started
+doing your own mod](https://github.com/wonderingabout/kujira). 
+
+Civ4 allows to do a lot of things with just XML, which
 surprised me a lot in a way that pleased me i mean anyways.
 So far i have not touched the deeper code such as C++ and Python, maybe i will
 not need at all but not sure, is as it would be:
