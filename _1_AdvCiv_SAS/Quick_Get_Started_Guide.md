@@ -98,6 +98,9 @@ AdvCiv, it will be more cautious to start wars, but will hesitate less when it
 very fast (10 000 per turn, so around turn 40 at normal speed you should already be
 around 3000 BC), then the year number and gameplay pace does not slow as much (at
 least i tried to make it so, that each end game turn doesn't take ages)
+- overall not too much clutter, i don't want too many things, but i want (about) the things i
+have/add, (i want) to go in depth (very) in them rather, so quite lightweight and hopefully
+easy to digest and get used to it, but deep that you'd want to play it more, maybe, ideally
 - AIs get no free techs now, todo, they should perform well enough, and receive other
 types of bonuses, that they don't need techs for free, it won't feel anymore like they
 are playing a different kind of game hopefully, also less of a grind at higher difficulties
