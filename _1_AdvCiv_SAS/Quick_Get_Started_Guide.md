@@ -96,5 +96,17 @@ the gameplay
 you want to go from one difficulty to the other, a unit or tech is always same price,
 so you can reuse some strategies more easily maybe or quicker adjust
 - todo animals can be captured?
+- some convenience and quality of life changes: for example WFYABTA ("We fear you are
+becoming too advanced" is now renamed as "We fear you are trading more than us", but
+it is exactly the same effect, just it is not related to tech pace at all (i was 4 techs
+behind from an AI if i remember correctly but still got this message from it, after some
+(frustrating) research i found it is not related to tech advancement but how much you
+trade with all players (trade less and it will/should(?) fade eventually))), also some other
+fixes about "the forge has been destroyed" when it was sometimes not destroyed misleading
+messaged tweaked to something not misleading (for example "The forge has caught fire"),
+cavalry at rifling not military tradition todo may change, clearer sevopedia with new
+menus such as types of ressources, victory conditions, things i did not know much about until
+doing, i hope this helps.
+
 - todo continue
 
