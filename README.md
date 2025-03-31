@@ -68,7 +68,7 @@ If you want to know more about the project, how i ordered the tree tech historic
 on balance changes and such, please visit it.
 
 # Credits
-- AdvCiv: to write, but mostly i am very thankful of AdvCiv, it's such a nice improvement
+- AdvCiv: todo write, but mostly i am very thankful of AdvCiv, it's such a nice improvement
 from Civ4, and it's maintainer is very open to feedback at least in my
 exchanges/experiences during these times i mean anyways, thanks
 - Cavemen2Cosmos: i took quite a lot of content from there, thanks
@@ -76,9 +76,10 @@ exchanges/experiences during these times i mean anyways, thanks
 - Firaxis's Civ4 game and Civ4 BTS: Civ4 allows to do a lot of things with just XML,
 which surprised me a lot in a way that pleased me i mean anyways. So far i have not touched
 the deeper code such as C++ and Python, maybe i will not need at all but not sure, is as it
-would be:
+would be. Also, even without modding, the base game is quite nice, thanks for that i mean
+and in general maybe too(?), thanks,
 
-# A few useful links :
+# A few useful links
 - todo: tutorial on how to compile the DLL and/or files for Advciv (but should not
 be needed if you only modify XML files if i am not mistaken i mean anyways)
 - ressources that mention XML files and tags, useful if you'd want to [get started
