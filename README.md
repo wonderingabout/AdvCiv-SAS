@@ -76,8 +76,7 @@ exchanges/experiences during these times i mean anyways, thanks
 - Firaxis's Civ4 game and Civ4 BTS: Civ4 allows to do a lot of things with just XML,
 which surprised me a lot in a way that pleased me i mean anyways. So far i have not touched
 the deeper code such as C++ and Python, maybe i will not need at all but not sure, is as it
-would be. Also, even without modding, the base game is quite nice, thanks for that i mean
-and in general maybe too(?), thanks,
+would be. Also, even without modding, the base game is quite nice, thanks too i mean, thanks,
 
 # A few useful links
 - todo: tutorial on how to compile the DLL and/or files for Advciv (but should not
