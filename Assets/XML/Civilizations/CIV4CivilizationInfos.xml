@@ -1265,6 +1265,9 @@
 		is good at growing i mean anyways based on my understanding and what i read of it
 		in the wiki (didn't read all but maybe enough hopefully about this case i mean
 		anyways, i mean anyways at least maybe i mean anyways)
+		the city name, in Map2, "BC" is very weird, skipping it, anyways.
+		Some city names are blurred hopefully i got them right at least about this i mean
+		anyways,
 		-->
 		<CivilizationInfo>
 			<Type>CIVILIZATION_KINGDOM_OF_BENIN</Type>
@@ -1281,21 +1284,36 @@
 			<Cities>
 				<City>TXT_KEY_CITY_NAME_EDO</City>
 				<City>TXT_KEY_CITY_NAME_UGHOTON</City>
-				<City>TXT_KEY_CITY_ILE_UGBODU</City>
-				<City>TXT_KEY_CITY_ILE_MAHIN</City>
-				<City>TXT_KEY_CITY_ILE_UKUNZU</City>
-				<City>TXT_KEY_CITY_ILE_UROMI</City>
-				<City>TXT_KEY_CITY_ILE_ONDO</City>
-				<City>TXT_KEY_CITY_ILE_AKURE</City>
-				<City>TXT_KEY_CITY_ILE_UZEA</City>
-				<City>TXT_KEY_CITY_ILE_OWO</City>
-				<City>TXT_KEY_CITY_ILE_IKERE</City>
-				<City>TXT_KEY_CITY_ADO_EKITI</City>
-				<City>TXT_KEY_CITY_ADO_EKO</City>
-				<City>TXT_KEY_CITY_ADO_EKITI</City>
-				<City>TXT_KEY_CITY_ADO_IPOKIA</City>
-				<City>TXT_KEY_CITY_ADO_ITAKETE</City>
-				<City>TXT_KEY_CITY_ADO_APA</City>
+				<City>TXT_KEY_CITY_NAME_UGBODU</City>
+				<City>TXT_KEY_CITY_NAME_ELUR</City>
+				<City>TXT_KEY_CITY_NAME_AGBAR</City>
+				<City>TXT_KEY_CITY_NAME_UKUNZU</City>
+				<City>TXT_KEY_CITY_NAME_GWATO</City>
+				<City>TXT_KEY_CITY_NAME_GUMOHUNNWUN</City>
+				<City>TXT_KEY_CITY_NAME_UGO</City>				
+				<City>TXT_KEY_CITY_NAME_MAHIN</City>
+				<City>TXT_KEY_CITY_NAME_ODE_ITSEKIRI</City>				
+				<City>TXT_KEY_CITY_NAME_TSHA</City>				
+				<City>TXT_KEY_CITY_NAME_AYAKOTOGBO</City>
+				<City>TXT_KEY_CITY_NAME_ONIE</City>
+				<City>TXT_KEY_CITY_NAME_UROMI</City>
+				<City>TXT_KEY_CITY_NAME_AKURE</City>
+				<City>TXT_KEY_CITY_NAME_UZEA</City>
+				<City>TXT_KEY_CITY_NAME_OWO</City>
+				<City>TXT_KEY_CITY_NAME_IKERE</City>
+				<City>TXT_KEY_CITY_NAME_ONDO</City>
+				<City>TXT_KEY_CITY_NAME_EKO</City>
+				<City>TXT_KEY_CITY_NAME_EKITI</City>
+				<City>TXT_KEY_CITY_NAME_IPOKIA</City>
+				<City>TXT_KEY_CITY_NAME_TAKETE</City>
+				<City>TXT_KEY_CITY_NAME_APA</City>
+				<City>TXT_KEY_CITY_NAME_HON</City>
+				<City>TXT_KEY_CITY_NAME_IKWE</City>
+				<City>TXT_KEY_CITY_NAME_IDWARI</City>
+				<City>TXT_KEY_CITY_NAME_ADO</City>
+				<City>TXT_KEY_CITY_NAME_BADAGRI</City>
+				<City>TXT_KEY_CITY_NAME_IDOLA</City>
+				<City>TXT_KEY_CITY_NAME_ONITSHA</City>
 			</Cities>
 			<Buildings>
 				<Building>
