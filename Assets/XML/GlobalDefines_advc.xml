@@ -1404,4 +1404,10 @@
 		<iDefineIntVal>1000</iDefineIntVal>
 	</Define>
 
+	<!-- custom:-->
+	<Define>
+		<DefineName>START_YEAR</DefineName>
+		<iDefineIntVal>-100000</iDefineIntVal>
+	</Define>
+
 </Civ4Defines>

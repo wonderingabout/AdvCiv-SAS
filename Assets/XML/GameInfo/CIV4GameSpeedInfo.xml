@@ -287,22 +287,55 @@
 			<iInflationOffset>-90</iInflationOffset>
 			<iVictoryDelayPercent>100</iVictoryDelayPercent>
 			<!-- advc.910: Changed all of the turn counts -->
+			<!-- custom:
+
+			For from -100 000 to -50 000	;	Month increment: 12 * 10 000 years = 120 000 months		;	Turns: 5
+			For from -50 000  to -25 000	;	Month increment: 12 * 5 000  years = 60 000  months		;	Turns: 5
+			For from -25 000  to -12 500	;	Month increment: 12 * 2 500  years = 30 000  months		;	Turns: 5
+			For from -12 500  to -8 500		;	Month increment: 12 * 1 000  years = 12 000  months		;	Turns: 4
+			For from  -8 000  to -6 000		;	Month increment: 12 * 500    years = 6 000   months		;	Turns: 6
+			For from  -6 000  to -4 000		;	Month increment: 12 * 250    years = 3 000   months		;	Turns: 8
+			For from  -4 000  to -3 000		;	Month increment: 12 * 100    years = 1 200   months		;	Turns: 10
+			For from  -3 000  to -2 100		;	Month increment: 12 * 75     years = 900     months		;	Turns: 12
+			For from  -2 100  to -1 500		;	Month increment: 12 * 50     years = 600     months		;	Turns: 12
+
+			-->
 			<GameTurnInfos>
 				<GameTurnInfo>
-					<iMonthIncrement>480</iMonthIncrement>
-					<iTurnsPerIncrement>65</iTurnsPerIncrement>
+					<iMonthIncrement>120000</iMonthIncrement>
+					<iTurnsPerIncrement>5</iTurnsPerIncrement>
 				</GameTurnInfo>
 				<GameTurnInfo>
-					<iMonthIncrement>300</iMonthIncrement>
-					<iTurnsPerIncrement>80</iTurnsPerIncrement>
+					<iMonthIncrement>60000</iMonthIncrement>
+					<iTurnsPerIncrement>5</iTurnsPerIncrement>
 				</GameTurnInfo>
 				<GameTurnInfo>
-					<iMonthIncrement>240</iMonthIncrement>
-					<iTurnsPerIncrement>40</iTurnsPerIncrement>
+					<iMonthIncrement>30000</iMonthIncrement>
+					<iTurnsPerIncrement>5</iTurnsPerIncrement>
 				</GameTurnInfo>
 				<GameTurnInfo>
-					<iMonthIncrement>120</iMonthIncrement>
-					<iTurnsPerIncrement>25</iTurnsPerIncrement>
+					<iMonthIncrement>12000</iMonthIncrement>
+					<iTurnsPerIncrement>4</iTurnsPerIncrement>
+				</GameTurnInfo>
+				<GameTurnInfo>
+					<iMonthIncrement>6000</iMonthIncrement>
+					<iTurnsPerIncrement>6</iTurnsPerIncrement>
+				</GameTurnInfo>
+				<GameTurnInfo>
+					<iMonthIncrement>3000</iMonthIncrement>
+					<iTurnsPerIncrement>8</iTurnsPerIncrement>
+				</GameTurnInfo>
+				<GameTurnInfo>
+					<iMonthIncrement>1200</iMonthIncrement>
+					<iTurnsPerIncrement>10</iTurnsPerIncrement>
+				</GameTurnInfo>
+				<GameTurnInfo>
+					<iMonthIncrement>900</iMonthIncrement>
+					<iTurnsPerIncrement>12</iTurnsPerIncrement>
+				</GameTurnInfo>
+				<GameTurnInfo>
+					<iMonthIncrement>600</iMonthIncrement>
+					<iTurnsPerIncrement>12</iTurnsPerIncrement>
 				</GameTurnInfo>
 				<GameTurnInfo>
 					<iMonthIncrement>60</iMonthIncrement>
