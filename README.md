@@ -1,14 +1,14 @@
-# AdvCiv mod
-This mod is based on AdvCiv (https://github.com/f1rpo/AdvCiv/tree/1.12)
-(1.12 as it is the latest as of now), and will/may update whenever there
-are new changes that are stable.
+# AdvCiv SAS (Simple Advanced Strategy)
+This mod (AdvCiv SAS (Simple Advanced Strategy)) is based on
+[AdvCiv 1.12](https://github.com/f1rpo/AdvCiv/tree/1.12) as it is the latest as of
+now), and will/may update whenever there are new changes that are stable.
 
 Currently, it is still a work in progress so is not playable yet as explained below,
 but these are the (main) goals/purposes/features.
 
-![img1](/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.33_Techtree_modified.png)
+![img1](/_1_AdvCiv_SAS/Docs_And_Appendixes/0.33_Techtree_modified.png)
 
-They consist of (see [this README.md](/_1_AdvCiv_SBAIMTOCO_content/README.md) for the full details):
+They consist of (see [this README.md](/_1_AdvCiv_SAS/README.md) for the full details):
 - Stricter Balancing AI (changes AI policy for efficiency and opportunism, AI will not
 be too aggressive but merciless, also more cautious sometimes (war declarations in
 particular, mostly just for its self interest and not to spare a valuable target))
@@ -46,16 +46,21 @@ the finished version.
 The civs you can expect from this mod come from these parts of the world (circled numbers
 are the added new civ's real world location) :
 
-![img2](/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.22_world_map_terrain_with_new_civs.png)
+![img2](/_1_AdvCiv_SAS/Docs_And_Appendixes/0.22_world_map_terrain_with_new_civs.png)
 
 A preview of the changes (screenshots), can be found on this google drive: 
 [here](https://drive.google.com/drive/folders/1v4jkm383NGL761ciMUdU6hGuZKvLo00w?usp=sharing).
 
 # Credits
-To write, but mostly i am very thankful of AdvCiv, it's such a nice improvement
+- AdvCiv: to write, but mostly i am very thankful of AdvCiv, it's such a nice improvement
 from Civ4, and it's maintainer is very open to feedback at least in my
-exchanges/experiences during these times i mean anyways.
-That being said, i intend to do my own thing, thanks i mean anyways,
+exchanges/experiences during these times i mean anyways, thanks
+- Cavemen2Cosmos: i took quite a lot of content from there, thanks
+- Realism Invictus: i took quite a bit content from there, thanks,
+- Firaxis's Civ4 game and Civ4 BTS: Civ4 allows to do a lot of things with just XML,
+which surprised me a lot in a way that pleased me i mean anyways. So far i have not touched
+the deeper code such as C++ and Python, maybe i will not need at all but not sure, is as it
+would be:
 
 # Sources
 A few useful links :
@@ -64,10 +69,7 @@ be needed if you only modify XML files if i am not mistaken i mean anyways)
 - ressources that mention XML files and tags, useful if you'd want to [get started
 doing your own mod](https://github.com/wonderingabout/kujira). 
 
-Civ4 allows to do a lot of things with just XML, which
-surprised me a lot in a way that pleased me i mean anyways.
-So far i have not touched the deeper code such as C++ and Python, maybe i will
-not need at all but not sure, is as it would be:
+
 
 
 todo add links
