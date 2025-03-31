@@ -8,7 +8,15 @@ but these are the (main) goals/purposes/features.
 
 ![img1](/_1_AdvCiv_SAS/Docs_And_Appendixes/0.33_Techtree_modified.png)
 
-They consist of (see [this README.md](/_1_AdvCiv_SAS/README.md) for the full details):
+## Quick Start Guide
+If you just want to play and do not need all the project bigger details, i added
+a quick guide of the main changes from civ4 and base AdvCiv players:
+[here](/_1_AdvCiv_SAS/Quick_Get_Started_Guide.md)
+
+## Project Goals and global view on gameplay changes
+
+The more general gameplay type of changes consist of
+(see [this README.md](/_1_AdvCiv_SAS/README.md) for the full details):
 - Stricter Balancing AI (changes AI policy for efficiency and opportunism, AI will not
 be too aggressive but merciless, also more cautious sometimes (war declarations in
 particular, mostly just for its self interest and not to spare a valuable target))
@@ -62,8 +70,7 @@ which surprised me a lot in a way that pleased me i mean anyways. So far i have 
 the deeper code such as C++ and Python, maybe i will not need at all but not sure, is as it
 would be:
 
-# Sources
-A few useful links :
+# A few useful links :
 - todo: tutorial on how to compile the DLL and/or files for Advciv (but should not
 be needed if you only modify XML files if i am not mistaken i mean anyways)
 - ressources that mention XML files and tags, useful if you'd want to [get started
