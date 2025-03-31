@@ -22,11 +22,28 @@ the jaguar warrior)
 - terrain is very important, almost all units have terrain bonuses, and sometimes
 rarely terrain maluses (i prefer to buff the weak than nerf the strong, unless
 relevant quite strongly maybe)
-- snow and desert are important now! Some bonuses are added to some units or/and
-Civlizations (for example todo), some buildings give bonus to desert and snow
-yields (for example todo)
+- some terrains are buffed, for example snow, desert, and water tiles are (very)
+important now. Some terrain specific bonuses are added to some units or/and
+Civlizations (for example todo), some buildings give bonus to desert and snow yields
+, for example the impluvium building (Kingdom of Benin) improves quite a lot the
+desert tiles (you can gain more bonuses with other buildings or techs or civs for
+example), and another example is the building that replaces moai (nerfed but not a lot)
+gives hammer on all coast and lake tiles (but not ocean) (should be a buff overall)
+- More terrain bonuses from techs and buildings: for example fishing gives food
+on all water tiles (even without boat)
 - no more small wonders! To simplify gameplay, great wonders, now named wonders,
-have stronger and more significant effects now, for example todo
+have stronger and more significant effects now. As explained above with the example
+of Moai Stautes transformed into a building, some nice effects have also been transferred
+Moai Statues, they will become slightly nerfed as a building (also in a way to buff
+water tiles as they are quite (very) weak in AdvCiv/BTS i think, trying to address,
+for example todo
+- some great wonders have changed names to reflect their history more, for example 
+"The Great Lighthouse" is now "Lighthouse of Alexandria", and some wonders are tied
+to another civ than in civ4 bts/advciv, for example "The great wall" no longer is
+linked with China but is now "The Ancient Walls of Benin", if you want to know why,
+see [the Mod folder](/_1_AdvCiv_SAS/), i have also put the 
+[source](https://thinkafrica.net/walls-of-benin/)
+here directly to illustrate this example.
 - also, each civilization now is tied to a great wonder, everyone can build it,
 but if the civilization tied to it builds it first
 - some gameplay elements happen at different times, can resarch sooner, build
@@ -48,9 +65,6 @@ instead i tried to put some nice images relatively as i thought would fit and i
 like, took quite a lot from existing mods
 - Some new ressources, for example camel and todo, some removed ressources, for
 example wine and todo
-- More terrain bonuses from techs and buildings: for example fishing gives food
-on all water tiles (even without boat), the impluvium building (Kingdom of Benin)
-improves quite a lot the desert tiles (you can gain more bonuses with other)
 - todo: space victory removed, it's too tedious to do, instead the USA is the
 only civ who wins if they build the programme Appolo, make sure to keep them in
 check
