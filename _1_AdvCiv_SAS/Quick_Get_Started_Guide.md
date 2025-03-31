@@ -80,8 +80,21 @@ now maybe)
 - opportunistic and efficient AI: the AI will not be much more aggressive than
 AdvCiv, it will be more cautious to start wars, but will hesitate less when it
 (thinks it can) profit, so be careful and plan well
-- i intend this to be quite fast paced
+- i intend this to be quite fast paced, game starts at -100 000 BC but it increments
+very fast (10 000 per turn, so around turn 40 at normal speed you should already be
+around 3000 BC), then the year number and gameplay pace does not slow as much (at
+least i tried to make it so, that each end game turn doesn't take ages)
+- AIs get no free techs now, todo, they should perform well enough, and receive other
+types of bonuses, that they don't need techs for free, it won't feel anymore like they
+are playing a different kind of game hopefully, also less of a grind at higher difficulties
+(but hard in different ways todo)
+- difficulties have also been adjusted in that lower difficulties are harder (i don't
+want them to be placeholders anymore), and harder ones less of a grind (ideally),
+consider starting at a low difficulty to adjust first if not sure or to get used to
+the gameplay
+- costs of tech and units are always the same unlike in AdvCiv, maybe it helps if
+you want to go from one difficulty to the other, a unit or tech is always same price,
+so you can reuse some strategies more easily maybe or quicker adjust
 - todo animals can be captured?
-
 - todo continue
 

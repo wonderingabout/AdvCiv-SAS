@@ -59,6 +59,14 @@ are the added new civ's real world location) :
 A preview of the changes (screenshots), can be found on this google drive: 
 [here](https://drive.google.com/drive/folders/1v4jkm383NGL761ciMUdU6hGuZKvLo00w?usp=sharing).
 
+## Docs
+
+I added quite a bit of documentation, pictures, and other elements about this AdvCiv SAS mod:
+[here](/_1_AdvCiv_SAS/)
+
+If you want to know more about the project, how i ordered the tree tech historically, why i decided
+on balance changes and such, please visit it.
+
 # Credits
 - AdvCiv: to write, but mostly i am very thankful of AdvCiv, it's such a nice improvement
 from Civ4, and it's maintainer is very open to feedback at least in my
