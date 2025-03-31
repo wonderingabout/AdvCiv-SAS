@@ -1,9 +1,9 @@
 # Quick Get Started Guide
 
-This page does not go to go deep into the technicalities, for that see the other
-documents of this mod, but it gives instead a quick starter guide on the key
-few differences between AdvCiv and AdvCiv SAS, for newcomer players used to
-AdvCiv, Civ4 BTS, or some similar mods
+This page does not go to go deep into the technicalities, for that see the
+[other documents](/_1_AdvCiv_SAS/) of this mod, but it gives instead a quick
+starter guide on the key few differences between AdvCiv and AdvCiv SAS, for
+newcomer players used to AdvCiv, Civ4 BTS, or some similar mods
 
 ## Main Changes quick starter guide
 
