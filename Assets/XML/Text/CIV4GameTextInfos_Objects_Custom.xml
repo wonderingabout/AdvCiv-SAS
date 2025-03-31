@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by XMLSPY 2004 Professional Ed. Release 2, Installed Multi + SMP for 3 users (Firaxis Games) -->
+<!-- Sid Meier's Civilization 4 -->
+<!-- Copyright Firaxis Games 2005 -->
+<!-- -->
+<!-- Game Text Objects -->
+<Civ4GameText xmlns="http://www.firaxis.com">
+	<!-- custom: rename "Ivory" to "Elephants", there are 2 main reasons
+	for why i suggest this change i mean anyways: 
+	- 1) you need elephants to build war elephants, not ivory, even if you
+	were to somehow find ivory somewhere, it would/could not magically turn
+	into a war elephant, so using the animal instead i mean anyways makes much
+	more sense i think -why no one thought ofor did this rather maybe? I mean
+	 anwyays
+	- 2) ivory doesn't grow on the groud, if i am not mistaken and understand
+	it correctly i mean anwyays, but is derived from elephants, whether they
+	are alive or dead (could be traded though but it's about terrain ressources
+	in this case i mean anyways). So it is more immersive, realistic, and making
+	sense to use "Elephants" instead of ivory i think i mean anyways. One could
+	also maybe imagine that elephants the animal itself makes people happy, like
+	for the zoo or something?
+	note: Since they are part of the animals that are countable in english rather
+	than uncountable (see discussion (actually link and my code comments i mean
+	anyways..) below about cattle if i am not mistaken) and seeing that civ4
+	doesn't seem to bother with singulars too much about animals at least i mean
+	anyways, (and i like it	better this way and/or also thinks itsmore fit to this
+	i mean anyways).
+	As for the elephants (and not the cattle below or similar type of animals i
+	mean anyways), based on the 2 bullet points before that note i mean anyways,
+	and using an approach similar than for the "ice" renaming to "ice land" i
+	mean anyways, but much more simple as i can directly fetch the wikipedia page
+	if it has the plural form, or a dictionnary alternatively i mean anyways,
+	here is the result, from https://en.wikipedia.org/wiki/Elephant,
+	leading to dictionnaires or translators, after some double checking sometimes
+	ideally too i mean anyways in other website in this case i mean anyways : -->
+	<TEXT>
+		<Tag>TXT_KEY_BONUS_IVORY</Tag>
+		<!-- custom: https://en.wiktionary.org/wiki/elephant -->
+		<English>Elephants</English>
+		<!-- custom: https://fr.wikipedia.org/wiki/%C3%89l%C3%A9phant
+		https://fr.wiktionary.org/wiki/%C3%A9l%C3%A9phants
+		-->
+		<French>
+			<Text>Éléphants</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<!-- custom: https://de.wikipedia.org/wiki/Elefanten
+		https://www.verbformen.com/declension/nouns/Elefant.htm#UeBearbeiten -->
+		<German>
+			<Text>Elefanten</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<!-- custom:
+		https://context.reverso.net/translation/english-italian/Elephants -->
+		<Italian>
+			<Text>Elefanti</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<!-- custom:
+		https://context.reverso.net/translation/english-spanish/Elephants -->
+		<Spanish>
+			<Text>Elefantes</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+
+	<!-- custom: similarly to what was done with the elephants, try to find a better
+	fitting word. Be careful, according to, for example:
+	https://forum.wordreference.com/threads/sheep-countable-uncountable.2057034/post-13154720 ,
+	some animals are (best fit as i mean?) countable (5 cats for example) while others
+	are best fit at singular (5 sheep for example)
+	There is less gains in changing what is already working (and maybe more accurate in this case)
+	i mean anyways. But specifically for cattle however rather than cows as it applies to all sexes
+	of the cows,
+	while still being specific and not generic if i'm not mistaken i mean anyways:
+	https://www.idausa.org/campaign/guardian/latest-news/difference-cows-cattle-meaning/#:~:text=The%20difference%20between%20cows%20and,strictly%20to%20mature%20female%20bovines.
+	https://context.reverso.net/translation/english-french/cows
+	Also the audio announcer says in https://civilization.fandom.com/wiki/Animal_Husbandry_(Civ4):
+	"Blessed shall be the fruit of thy cattle, the increase of thy kine, and the flocks of thy sheep."
+	– The Bible, Deuteronomy 28:4
+	So i think it's very immersive and nice to use cattle here too on top of being
+	more accurate it seems i mean anyways
+	-->
+	<TEXT>
+	<Tag>TXT_KEY_BONUS_COW</Tag>
+	<English>Cattle</English>
+	<!-- custom: keeping as is, but for reference:
+	https://context.reverso.net/translation/english-french/cattle
+	"bétail" (on same link i mean anyways) seems to be "livestock" and not "cattle"
+	so not the meaning i would want, same as for elephants, i would want to refer to
+	the (living) animal, not (its value as) the product i mean anyways.
+	-->
+	<French>
+		<Text>Bovins</Text>
+		<Gender>Male</Gender>
+		<Plural>1</Plural>
+	</French>
+	<!-- custom: https://context.reverso.net/translation/english-german/cattle
+	https://en.wiktionary.org/wiki/Vieh
+	https://en.wiktionary.org/wiki/Rind
+	Similar as for the french translation, vieh seems to be about livestock so
+	less accurate/relevant i think i mean anyways than Rind here, which the
+	translator suggested too due to its many examples if i may say i mean anyways,
+	which is also why i think it's so good if i may say i mean anyways.. -->
+	<German>
+		<Text>Rind</Text>
+		<Gender>Male</Gender>
+		<Plural>0</Plural>
+	</German>
+	<!-- custom: https://context.reverso.net/translation/english-italian/cattle
+	suggests "bestiame" but the existing civ4 bovino seems more accurate so
+	keeping it, so throw some caution at the examples it gives (do reverse
+	translate or search on google or some other engine/place i mean anyways,
+	but generally is very good, as it also suggest the gender too of the words
+	and their (what seems like theirs i mean anyways) synonyms i mean anyways) -->
+	<Italian>
+		<Text>Bovino</Text>
+		<Gender>Male</Gender>
+		<Plural>0</Plural>
+	</Italian>
+	<!-- custom: https://context.reverso.net/translation/english-spanish/cattle
+	the suggested reses (this is maybe a good maybe i mean anyways example of
+	reverse translation i mean anyways):
+	https://context.reverso.net/translation/spanish-english/reses)
+	i did not look in detail but it seems more linked to butchering/livestock(?),
+	but may be mistaken as i did not look in details i mean anyways, as bovinos
+	(from the first link in italian cattle's XML i mean anyways) suggested by
+	reverso.net among others should be good enough maybe in this, case i mean
+	anyways, and so does ganado too after a quick search i mean anyways:
+	https://www.collinsdictionary.com/dictionary/spanish-english/ganado
+	A good approach may be to just pick the ones with the most amount of
+	relevant examples after	checking them, to avoid to have to check if
+	singular or plural depending on the language i mean anyways, so would be
+	this for example maybe i mean anyways:
+	https://context.reverso.net/translation/english-spanish/cattle#bovinos -->
+	<Spanish>
+		<Text>Bovinos</Text>
+		<!-- custom: is masculine:
+		https://www.spanishdict.com/translate/bovidos#:~:text=bovinos,Masculine%20pluralofbovino(adjective) -->
+		<Gender>Male</Gender>
+		<Plural>1</Plural>
+	</Spanish>
+	</TEXT>
+	<!-- custom: add Civ Kingdom Of Benin with their leader Ogiso Igodo -->
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_OGISO_IGODO</Tag>
+		<English>Ogiso Igodo</English>
+		<French>
+			<Text>Ogiso Igodo</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Ogiso Igodo</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Ogiso Igodo</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Ogiso Igodo</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<TEXT>
+		<!-- custom: https://en.wikipedia.org/wiki/Kingdom_of_Benin -->
+		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_DESC</Tag>
+		<English>Kingdom Of Benin</English>
+		<French>
+			<Text>Royaume du Bénin</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Königreich Benin</Text>
+			<Gender>Neuter</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Regno del Benin</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Imperio Et&#237;ope</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_SHORT_DESC</Tag>
+		<!-- custom: Kingdom of Benin (Nigeria) has no relation (according to wiki
+		i mean anyways if i understood it correctly i mean anyways) with modern
+		Benin, trying to keep the full name to make the distinction clearer, even
+		though some circumstances could call for shortening it if purely realistic
+		i mean anyways-->
+		<English>Kingdom Of Benin</English>
+		<French>
+			<Text>Royaume du Bénin</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Königreich Benin</Text>
+			<Gender>Neuter</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Regno del Benin</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Imperio Et&#237;ope</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<!-- custom: i found no clear mention of an adjective, going with
+	"people of Benin" mentionned here:
+	https://en.wikipedia.org/wiki/Kingdom_of_Benin#Founding
+	(from a quite quick glance in this case at least i mean anyways)
+	Translated using Quillbot:
+	https://quillbot.com/fr/traduction?sl=auto&tl=fr&text=the+people+of+Benin
+	which i find works very well at least in this case i mean anyways (as
+	imperfect as it is at least maybe in this case maybe i mean anyways about
+	this i mean anyways at least i mean anyways) -->
+	<TEXT>
+		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_ADJECTIVE</Tag>
+		<English>
+			<Text>the people of Benin</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</English>
+		<French>
+			<Text>le peuple béninois</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>das Volk von Benin</Text>
+			<Gender>Neuter</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>il popolo del Benin</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>el pueblo de Benín</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<!-- custom: this mentions clearly and several times the impluvium as a
+	special	building the Kingdom Of Benin had:
+	https://en.wikipedia.org/wiki/Kingdom_of_Benin#Architecture
+	Not sure about the gender, except French partly from google results
+	i mean anyways, keeping as Neuter in german and Male in other
+	languages for ease of use (of translating all this too i mean
+	anyways even though i like but focus on myself indeed i mean
+	anyways)
+	Also using People of Benin and not Kingdom of Benin to try to use
+	the adjective form (see below in this case at least i mean anyways)
+	i mean anyways even though is an expression should maybe be ok in
+	this case at least maybe about this case at least i mean anyways -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PEOPLE_OF_BENIN_IMPLUVIUM</Tag>
+		<English>Impluvium</English>
+		<French>
+			<Text>Impluvium</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Impluvium</Text>
+			<Gender>Neuter</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Impluvium</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Impluvium</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<!-- custom: very disciplined nation, and using crossbowmen, see:
+	https://en.wikipedia.org/wiki/Kingdom_of_Benin#Military
+	About German at least, i found the gender to be masculine at least
+	if i'm not mistaken if i may say (quite proudly) i mean anyways,
+	not that i did check them all in this case or others if i may
+	say i mean anyways, not that it is ideal about this case, at least
+	maybe or not or yes, anyways is as is maybe or not or yes or not
+	maybe, i mean anyways -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_PEOPLE_OF_BENIN_DISCIPLINED_CROSSBOWMAN</Tag>
+		<English>Disciplined Crossbowman</English>
+		<French>
+			<Text>Arbalétrier discipliné:Arbalétriers disciplinés</Text>
+			<Gender>Male</Gender>
+			<Plural>0:1</Plural>
+		</French>
+		<German>
+			<Text>Disziplinierter Armbrustschütze:Disziplinierte Armbrustschützen</Text>
+			<Gender>Male</Gender>
+			<Plural>0:1</Plural>
+		</German>
+		<Italian>
+			<Text>Balestriere Disciplionato:Ballesteros disciplinados</Text>
+			<Gender>Male</Gender>
+			<Plural>0:1</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Ballestero disciplinado:Balestrieri Disciplini</Text>
+			<Gender>Male</Gender>
+			<Plural>0:1</Plural>
+		</Spanish>
+	</TEXT>
+</Civ4GameText>

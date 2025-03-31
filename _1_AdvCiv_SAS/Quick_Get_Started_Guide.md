@@ -3,25 +3,25 @@
 This page does not go to go deep into the technicalities, for that see the
 [other documents](/_1_AdvCiv_SAS/) of this mod, but it gives instead a quick
 starter guide on the key few differences between AdvCiv and AdvCiv SAS, for
-newcomer players used to AdvCiv, Civ4 BTS, or some similar mods
+newcomer players used to AdvCiv, Civ4 BTS, or some similar mods.
 
 ## Main Changes quick starter guide
 
 - explore units can attack : but their strength should be quite low
 - military units are versatile: swordsmen can defend, archers can attack,
 maybe even workers too
-- unit promotions are reworked: woodsman for example is buffed
+- unit promotions are reworked or/and rebalanced: woodsman for example is buffed
 - military units are reworked: for example the holy roman empire special unit,
-to better accomodate its history and stats, or/and are built at a different time,
-in particular the settler is now not freely available but requires agriculture
+to better accomodate its history and stats, can be built starting from a different
+tech, in particular the settler is now not freely available but requires agriculture
 (is historical too, but for convenience first settler at starting game is provided
-for free as it was in civ4 bts and advciv)
+for free as it was in Civ4 BTS and AdvCiv)
 - military units are rebalanced: some op units (according to me) are nerfed
 slightly (for example: todo), some weaker ones buffed quite a lot (for example
 the jaguar warrior)
 - terrain is very important, almost all units have terrain bonuses, and sometimes
 rarely terrain maluses (i prefer to buff the weak than nerf the strong, unless
-relevant quite strongly maybe)
+i think it is relevant (quite strongly))
 - some terrains are buffed, for example snow, desert, and water tiles are (very)
 important now. Some terrain specific bonuses are added to some units or/and
 Civlizations (for example todo), some buildings give bonus to desert and snow yields

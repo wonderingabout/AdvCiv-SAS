@@ -1246,6 +1246,109 @@
 			<CivilizationSelectionSound>AS3D_ETHIOPIA_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_ETHIOPIA_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
+		<!-- custom: add Kingdom Of Benin
+		source for the map (files appended in docs):
+		https://www.nairaland.com/7653263/map-great-benin-kingdom-till
+		and https://smarthistory.org/benin-art-patrons/
+		I don't have the order of founding them so i will go approximately maybe
+		i mean anyways
+		APA city doesn't seem to be their city but seems about right i mean
+		anyways maybe in this case at least mayeb i mean anyways.
+		note:
+		for religion is a filler until i replace religion with paganism, commit would
+		be overloaded if i did all changes at same time about this case at least maybe
+		or not i mean anyways i mean anywyas, so put confucianism as a filler in this case
+		i mean anyways
+		same if i may say in this case maybe i mean anyways about techs, since i did not
+		implement the new techs in this case at least i mean anywyas, putting some filler
+		techs, among them Mysticism and Agriculture may fit quite well as it's a civ that
+		is good at growing i mean anyways based on my understanding and what i read of it
+		in the wiki (didn't read all but maybe enough hopefully about this case i mean
+		anyways, i mean anyways at least maybe i mean anyways)
+		-->
+		<CivilizationInfo>
+			<Type>CIVILIZATION_KINGDOM_OF_BENIN</Type>
+			<Description>TXT_KEY_CIV_KINGDOM_OF_BENIN_DESC</Description>
+			<ShortDescription>TXT_KEY_CIV_KINGDOM_OF_BENIN_SHORT_DESC</ShortDescription>
+			<Adjective>TXT_KEY_CIV_KINGDOM_OF_BENIN_ADJECTIVE</Adjective>
+			<Civilopedia>TXT_KEY_CIV_ETHIOPIA_PEDIA</Civilopedia>
+			<DefaultPlayerColor>PLAYERCOLOR_MIDDLE_GREEN</DefaultPlayerColor>
+			<ArtDefineTag>ART_DEF_CIVILIZATION_ETHIOPIA</ArtDefineTag>
+			<ArtStyleType>ARTSTYLE_MIDDLE_EAST</ArtStyleType>
+			<UnitArtStyleType>UNIT_ARTSTYLE_MIDDLE_EAST</UnitArtStyleType>
+			<bPlayable>1</bPlayable>
+			<bAIPlayable>1</bAIPlayable>
+			<Cities>
+				<City>TXT_KEY_CITY_NAME_EDO</City>
+				<City>TXT_KEY_CITY_NAME_UGHOTON</City>
+				<City>TXT_KEY_CITY_ILE_UGBODU</City>
+				<City>TXT_KEY_CITY_ILE_MAHIN</City>
+				<City>TXT_KEY_CITY_ILE_UKUNZU</City>
+				<City>TXT_KEY_CITY_ILE_UROMI</City>
+				<City>TXT_KEY_CITY_ILE_ONDO</City>
+				<City>TXT_KEY_CITY_ILE_AKURE</City>
+				<City>TXT_KEY_CITY_ILE_UZEA</City>
+				<City>TXT_KEY_CITY_ILE_OWO</City>
+				<City>TXT_KEY_CITY_ILE_IKERE</City>
+				<City>TXT_KEY_CITY_ADO_EKITI</City>
+				<City>TXT_KEY_CITY_ADO_EKO</City>
+				<City>TXT_KEY_CITY_ADO_EKITI</City>
+				<City>TXT_KEY_CITY_ADO_IPOKIA</City>
+				<City>TXT_KEY_CITY_ADO_ITAKETE</City>
+				<City>TXT_KEY_CITY_ADO_APA</City>
+			</Cities>
+			<Buildings>
+				<Building>
+					<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
+					<BuildingType>BUILDING_PEOPLE_OF_BENIN_IMPLUVIUM</BuildingType>
+				</Building>
+			</Buildings>
+			<Units>
+				<Unit>
+					<UnitClassType>UNITCLASS_CROSSBOWMAN</UnitClassType>
+					<UnitType>UNIT_PEOPLE_OF_BENIN_DISCIPLINED_CROSSBOWMAN</UnitType>
+				</Unit>
+			</Units>
+			<FreeUnitClasses>
+				<FreeUnitClass>
+					<UnitClassType>UNITCLASS_SETTLER</UnitClassType>
+					<iFreeUnits>1</iFreeUnits>
+				</FreeUnitClass>
+			</FreeUnitClasses>
+			<FreeBuildingClasses>
+				<FreeBuildingClass>
+					<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
+					<bFreeBuildingClass>1</bFreeBuildingClass>
+				</FreeBuildingClass>
+			</FreeBuildingClasses>
+			<FreeTechs>
+				<FreeTech>
+					<TechType>TECH_MYSTICISM</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+				<FreeTech>
+					<TechType>TECH_AGRICULTURE</TechType>
+					<bFreeTech>1</bFreeTech>
+				</FreeTech>
+			</FreeTechs>
+			<DisableTechs/>
+			<InitialCivics>
+				<CivicType>CIVIC_DESPOTISM</CivicType>
+				<CivicType>CIVIC_BARBARISM</CivicType>
+				<CivicType>CIVIC_TRIBALISM</CivicType>
+				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
+				<CivicType>CIVIC_PAGANISM</CivicType>
+			</InitialCivics>
+			<Leaders>
+				<Leader>
+					<LeaderName>LEADER_OGISO_IGODO</LeaderName>
+					<bLeaderAvailability>1</bLeaderAvailability>
+				</Leader>
+			</Leaders>
+			<DerivativeCiv>NONE</DerivativeCiv>
+			<CivilizationSelectionSound>AS3D_ETHIOPIA_SELECT</CivilizationSelectionSound>
+			<CivilizationActionSound>AS3D_ETHIOPIA_ORDER</CivilizationActionSound>
+		</CivilizationInfo>
 		<CivilizationInfo>
 			<Type>CIVILIZATION_FRANCE</Type>
 			<Description>TXT_KEY_CIV_FRANCE_DESC</Description>

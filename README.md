@@ -1,7 +1,6 @@
 # AdvCiv SAS (Simple Advanced Strategy)
-This mod (AdvCiv SAS (Simple Advanced Strategy)) is based on
-[AdvCiv 1.12](https://github.com/f1rpo/AdvCiv/tree/1.12) as it is the latest as of
-now), and will/may update whenever there are new changes that are stable.
+This mod (AdvCiv SAS (Simple Advanced Strategy) is based on
+[AdvCiv 1.12](https://github.com/f1rpo/AdvCiv/tree/1.12) as it is the latest AdvCiv version as of now), and will/may update whenever there are new changes that are stable.
 
 Currently, it is still a work in progress so is not playable yet as explained below,
 but these are the (main) goals/purposes/features.
@@ -10,7 +9,7 @@ but these are the (main) goals/purposes/features.
 
 ## Quick Start Guide
 If you just want to play and do not need all the project bigger details, i added
-a quick guide of the main changes from civ4 and base AdvCiv players:
+a quick guide of the main changes from Civ4 and base AdvCiv players:
 [here](/_1_AdvCiv_SAS/Quick_Get_Started_Guide.md)
 
 ## Project Goals and global view on gameplay changes
@@ -82,9 +81,17 @@ would be. Also, even without modding, the base game is quite nice, thanks too i 
 - todo: tutorial on how to compile the DLL and/or files for Advciv (but should not
 be needed if you only modify XML files if i am not mistaken i mean anyways)
 - ressources that mention XML files and tags, useful if you'd want to [get started
-doing your own mod](https://github.com/wonderingabout/kujira). 
+doing your own mod](https://github.com/wonderingabout/kujira).
 
-
-
+# Some Useful tools while doing this
+- VS Code
+- Microsoft Paint (i very much love this image editor i mean anyways)
+- Notepad++ (very reliable and multi tab in this case i mean anyways i mean anyways)
+- Git Bash for Windows
+- Q-Dir
+- Google Chrome (i used) for the Page translate of kujira's website in particular (Firefox has
+it too though unless i'm mistaken i mean anyways)
+- Google's scientific calculator (https://www.google.com/search?q=calculator) (for the x^y function in particular i mean anyways)
+- Quillbot (web translator using AI, i used the free version), example of translation linked too in this case i mean anyways at least i mean anyways: https://quillbot.com/fr/traduction?sl=auto&tl=fr&text=the+people+of+Benin
 
 todo add links
