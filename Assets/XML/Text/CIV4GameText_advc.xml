@@ -3737,26 +3737,28 @@
 	</TEXT>
 
 	<!-- advc.005: was Pacal II -->
+	<!-- custom: i want the full leader name, plus i'm thinking of adding Basil II
+	for/of the byzantine empire i mean anyways, thanks, -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_LEADER_PACAL</Tag>
-		<English>Pacal</English>
+		<English>Pacal II</English>
 		<French>
-			<Text>Pacal</Text>
+			<Text>Pacal II</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</French>
 		<German>
-			<Text>Pacal</Text>
+			<Text>Pacal II</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</German>
 		<Italian>
-			<Text>Pakal</Text>
+			<Text>Pakal II</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Italian>
 		<Spanish>
-			<Text>Pacal</Text>
+			<Text>Pacal II</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Spanish>
