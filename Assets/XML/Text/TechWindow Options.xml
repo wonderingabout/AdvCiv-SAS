@@ -40,19 +40,19 @@
 	
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_TECHWINDOW__CIVILOPEDIATEXT_TEXT</Tag>
-		<English>Show Civilopedia Text</English>
-		<German>Civilopedia-Text anzeigen</German>
-		<Italian>Mostra il testo della Civilopedia</Italian>
-		<Spanish>Mostrar texto de Civilopedia</Spanish>
+		<English>Show Sevopedia Text</English>
+		<German>Sevopedia-Text anzeigen</German>
+		<Italian>Mostra il testo della Sevopedia</Italian>
+		<Spanish>Mostrar texto de Sevopedia</Spanish>
 	</TEXT>
 	
 	<!-- advc.004: Minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_TECHWINDOW__CIVILOPEDIATEXT_HOVER</Tag>
-		<English>When checked, the historical background text from Civilopedia is displayed after the tech quote.</English>
+		<English>When checked, the historical background text from Sevopedia is displayed after the tech quote.</English>
 		<German>Zeigt im Technologie-Popup (nach dem einleitenden Zitat) den Zivilopädie-Text über die historischen Hintergründe an.</German>
-		<Italian>Quando è selezionato, include il testo della Civilopedia dopo la citazione per la tecnologia scoperta.</Italian>
-		<Spanish>Si se activa, se muestra el texto de Civilopedia después de la cita para la tecnología descubierta.</Spanish>
+		<Italian>Quando è selezionato, include il testo della Sevopedia dopo la citazione per la tecnologia scoperta.</Italian>
+		<Spanish>Si se activa, se muestra el texto de Sevopedia después de la cita para la tecnología descubierta.</Spanish>
 	</TEXT>
 	
 		<!-- advc.060 -->

@@ -450,10 +450,10 @@
 	<!-- advc.004y: Info about known issue added -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__SEVOPEDIA_HOVER</Tag>
-		<English>Enables the Sevopedia layout of the Civilopedia (requires restart). Known issue: Regardless of this setting, if the Civilopedia is accessed from the Opening Menu, Sevopedia is automatically enabled and remains enabled until the game is restarted.</English>
+		<English>Enables the Sevopedia layout of the Sevopedia (requires restart). Known issue: Regardless of this setting, if the Sevopedia is accessed from the Opening Menu, Sevopedia is automatically enabled and remains enabled until the game is restarted.</English>
 		<French>En activant, utilise le Sevopedia (requièrt un redémarrage).</French>
 		<German>Aktiviert das Sevopedia-Layout für die Zivilopädie (erfordert Neustart). Bekanntes Problem: Bei Zugriff auf die Zivilopädie vom Hauptmenü aus wird Sevopedia in jedem Fall aktiviert und bleibt dann bis zum nächsten Neustart aktiv.</German>
-		<Italian>Quando è selezionato, viene utilizzata la Sevopedia invece della Civilopedia (è richiesto un riavvio perchè il cambiamento abbia effetto).</Italian>
+		<Italian>Quando è selezionato, viene utilizzata la Sevopedia invece della Sevopedia (è richiesto un riavvio perchè il cambiamento abbia effetto).</Italian>
 		<Spanish>Si se activa, emplea la Sevopedia (requiere reiniciar).</Spanish>
 	</TEXT>
 	

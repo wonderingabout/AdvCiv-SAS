@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by XMLSPY 2004 Professional Ed. Release 2, Installed Multi + SMP for 3 users (Firaxis Games) -->
+<!-- Sid Meier's Civilization 4 -->
+<!-- Copyright Firaxis Games 2005 -->
+<!-- -->
+<!-- Game Text Infos -->
+<Civ4GameText xmlns="http://www.firaxis.com">
+    <!-- custom: rename Civilopedia to Sevopedia 
+    imported from: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameTextInfos.xml
+    and then modified by me about this i mean anyways
+    -->
+    <TEXT>
+		<Tag>TXT_KEY_MAIN_MENU_CIVILOPEDIA</Tag>
+		<English>Sevopedia</English>
+		<French>Sevopedia</French>
+		<German>Sevopedia</German>
+		<Italian>Sevopedia</Italian>
+		<Spanish>Sevopedia</Spanish>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_WIDGET_HELP</Tag>
+		<English>Sevopedia</English>
+		<French>Sevopedia</French>
+		<German>Sevopedia</German>
+		<Italian>Sevopedia</Italian>
+		<Spanish>Sevopedia</Spanish>
+	</TEXT>
+    <!-- custom: Replace "return to the civilopedia" (italian translated
+    with google translate in language of my choice i mean anyways) with
+    "alto" i mean anyways (should mean "up" unless i'm mistaken i mean
+    anyways based on google translate in language of my choice i mean
+    anyways)-->
+    <TEXT>
+		<Tag>TXT_KEY_PEDIA_SCREEN_TOP</Tag>
+		<English>Top</English>
+		<French>Haut</French>
+		<German>Nach oben</German>
+		<Italian>Alto</Italian>
+		<Spanish>Inicio</Spanish>
+	</TEXT>
+    <!-- custom: moved from:
+    C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\Assets\XML\Text\CIV4GameText_advc.xml
+    Better centralize all data in same place, especially if they come from same
+    file originally at least about this i mean anyways
+    -->
+	<!-- advc.004y: Like TXT_KEY_MAIN_MENU_CIVILOPEDIA (CIV4GameTextInfos.xml),
+		 but all capitalized. -->
+	<!-- custom: rename civilopedia to sevopedia, better if players get used to
+	(start getting used to it about this i mean anyways), hopefully the pedia
+	part of it should be clear (enough) about this at least i mean anyways if
+	i may say maybe, thanks,
+	If everyone can have it in same language even better about this i mean
+	anyways if possible about this i mean anyways, thanks, -->
+	<TEXT>
+		<Tag>TXT_KEY_CIVILOPEDIA_TITLE</Tag>
+		<English>SEVOPEDIA</English>
+		<French>SEVOPEDIA</French>
+		<German>SEVOPEDIA</German>
+		<Italian>SEVOPEDIA</Italian>
+		<Spanish>SEVOPEDIA</Spanish>
+	</TEXT>
+</Civ4GameText>
