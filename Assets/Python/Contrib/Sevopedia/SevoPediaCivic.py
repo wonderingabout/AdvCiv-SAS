@@ -121,22 +121,29 @@ class SevoPediaCivic:
 		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "",
 				True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT,
 				PanelStyles.PANEL_STYLE_BLUE50)
+		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY
+		# in SevoPediaBuilding.py (refer to this file for details),
+		# removing (hiding) the entry entirely from the sevopedia. -->
+		szText = u""
+		#if len(gc.getCivicInfo(self.iCivic).getStrategy()) > 0:
+		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
+		#	szText += gc.getCivicInfo(self.iCivic).getStrategy()
 		#szText = gc.getCivicInfo(self.iCivic).getCivilopedia()
 		# <advc.004y> Show strategy help; same as for units.
-		szText = u""
-		if len(gc.getCivicInfo(self.iCivic).getStrategy()) > 0:
-			szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
-			szText += gc.getCivicInfo(self.iCivic).getStrategy()
-			# Balance changes need to have a separate key b/c strategy help gets shown in popups; needs to be concise.
-			# I'm hardcoding the text key here out of laziness - and also b/c it shouldn't be referenced anywhere else.
-			szKey = "TXT_KEY_CIVIC_"
-			szKey += gc.getCivicInfo(self.iCivic).getDescription().upper()
-			szKey += "_CHANGES_PEDIA"
-			szChanges = localText.getText(str(szKey.replace(" ", "_")), ())
-			if not szChanges.endswith("PEDIA"):
-				szText += u"\n\t"
-				szText += szChanges
-		szText += u"\n\n"
+		#szText = u""
+		#if len(gc.getCivicInfo(self.iCivic).getStrategy()) > 0:
+		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
+		#	szText += gc.getCivicInfo(self.iCivic).getStrategy()
+		#	# Balance changes need to have a separate key b/c strategy help gets shown in popups; needs to be concise.
+		#	# I'm hardcoding the text key here out of laziness - and also b/c it shouldn't be referenced anywhere else.
+		#	szKey = "TXT_KEY_CIVIC_"
+		#	szKey += gc.getCivicInfo(self.iCivic).getDescription().upper()
+		#	szKey += "_CHANGES_PEDIA"
+		#	szChanges = localText.getText(str(szKey.replace(" ", "_")), ())
+		#	if not szChanges.endswith("PEDIA"):
+		#		szText += u"\n\t"
+		#		szText += szChanges
+		#szText += u"\n\n"
 		szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
 		szText += gc.getCivicInfo(self.iCivic).getCivilopedia()
 		# </advc.004y>

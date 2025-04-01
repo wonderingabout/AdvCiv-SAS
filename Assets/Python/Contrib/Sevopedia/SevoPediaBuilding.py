@@ -234,11 +234,24 @@ class SevoPediaBuilding:
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel( panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE, self.W_HISTORY_PANE, self.H_HISTORY_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
 		textName = self.top.getNextWidgetName()
+		# <!-- custom: too much hassle/"nightmare" to maintain (which i agree
+		# with if i may say i mean anyways), + also often inacurate, especially
+		# if someone were to make a mod, changing settings again, or simply in
+		#  AdvCiv or/and existing other mods any balance or rework change about
+		# this i mean anyways, would be hindered/halted by this (not so helpful)
+		# Strategy point, so removing it entirely from the sevopedia.
+		# But no need (i think) to reimport all the assets just to remove base
+		# civ4/BTS descriptions, we can just ignore them, probably much easier
+		# unless we want to do additional modifications to the entry(ies) (if
+		# so we may want to import the specific assets concerned about this
+		# i mean anyways).
+		# Doing so is also much faster i mean anyways about this i mean anyways.
+		# -->
 		szText = u""
-		if len(gc.getBuildingInfo(self.iBuilding).getStrategy()) > 0:
-			szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
-			szText += gc.getBuildingInfo(self.iBuilding).getStrategy()
-			szText += u"\n\n"
+		# if len(gc.getBuildingInfo(self.iBuilding).getStrategy()) > 0:
+		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
+		#	szText += gc.getBuildingInfo(self.iBuilding).getStrategy()
+		#	szText += u"\n\n"
 		szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
 		szText += gc.getBuildingInfo(self.iBuilding).getCivilopedia()
 		screen.addMultilineText( textName, szText, self.X_HISTORY_PANE + 15, self.Y_HISTORY_PANE + 40, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)

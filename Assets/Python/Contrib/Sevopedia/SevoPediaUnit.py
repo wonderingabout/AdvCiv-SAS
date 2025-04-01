@@ -274,10 +274,13 @@ class SevoPediaUnit:
 		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE, self.W_HISTORY_PANE, self.H_HISTORY_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		textName = self.top.getNextWidgetName()
 		szText = u""
-		if len(gc.getUnitInfo(self.iUnit).getStrategy()) > 0:
-			szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
-			szText += gc.getUnitInfo(self.iUnit).getStrategy()
-			szText += u"\n\n"
+		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY
+		# in SevoPediaBuilding.py (refer to this file for details),
+		# removing (hiding) the entry entirely from the sevopedia. -->
+		#if len(gc.getUnitInfo(self.iUnit).getStrategy()) > 0:
+		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
+		#	szText += gc.getUnitInfo(self.iUnit).getStrategy()
+		#	szText += u"\n\n"
 		szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
 		szText += gc.getUnitInfo(self.iUnit).getCivilopedia()
 		screen.addMultilineText(textName, szText, self.X_HISTORY_PANE + 15, self.Y_HISTORY_PANE + 40, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
