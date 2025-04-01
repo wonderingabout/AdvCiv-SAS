@@ -3766,24 +3766,24 @@
 	<!-- advc.005: Removed regnal number I (all languages) -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_LEADER_JUSTINIAN</Tag>
-		<English>Justinian</English>
+		<English>Justinian I</English>
 		<French>
 			<Text>Justinien Ier</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</French>
 		<German>
-			<Text>Justinian</Text>
+			<Text>Justinian I</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</German>
 		<Italian>
-			<Text>Giustiniano</Text>
+			<Text>Giustiniano I</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Italian>
 		<Spanish>
-			<Text>Justiniano</Text>
+			<Text>Justiniano I</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Spanish>
@@ -3817,24 +3817,24 @@
 	<!-- was Augustus Caesar (in Warlords Civ4GameTextObjects XML) -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_LEADER_AUGUSTUS</Tag>
-		<English>Augustus</English>
+		<English>Augustus Caesar</English>
 		<French>
 			<Text>Auguste</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</French>
 		<German>
-			<Text>Augustus</Text>
+			<Text>Augustus Caesar</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</German>
 		<Italian>
-			<Text>Augusto</Text>
+			<Text>Augusto Caesar</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Italian>
 		<Spanish>
-			<Text>Augusto</Text>
+			<Text>Augusto Caesar</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Spanish>
@@ -3842,24 +3842,24 @@
 	<!-- was Willem van Oranje (in BtS Civ4GameTextObjects XML) -->
 	<TEXT> <!-- redefine -->
 	<Tag>TXT_KEY_LEADER_WILLEM_VAN_ORANJE</Tag>
-		<English>Willem</English>
+		<English>Willem van Oranje</English>
 		<French>
-			<Text>Guillaume</Text>
+			<Text>Guillaume van Oranje</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</French>
 		<German>
-			<Text>Wilhelm</Text>
+			<Text>Wilhelm van Oranje</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</German>
 		<Italian>
-			<Text>Guglielmo</Text>
+			<Text>Guglielmo van Oranje</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Italian>
 		<Spanish>
-			<Text>Guillermo</Text>
+			<Text>Guillermo van Oranje</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Spanish>
@@ -3867,24 +3867,24 @@
 	<!-- was Suryavarman II. (in BtS Civ4GameTextObjects XML) -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_LEADER_SURYAVARMAN</Tag>
-		<English>Suryavarman</English>
+		<English>Suryavarman II</English>
 		<French>
-			<Text>Suryavarman</Text>
+			<Text>Suryavarman II</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</French>
 		<German>
-			<Text>Suryavarman</Text>
+			<Text>Suryavarman II</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</German>
 		<Italian>
-			<Text>Suryavarman</Text>
+			<Text>Suryavarman II</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Italian>
 		<Spanish>
-			<Text>Suryavarman</Text>
+			<Text>Suryavarman II</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Spanish>
