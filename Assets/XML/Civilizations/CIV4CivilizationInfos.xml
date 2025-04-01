@@ -1265,7 +1265,8 @@
 		is good at growing i mean anyways based on my understanding and what i read of it
 		in the wiki (didn't read all but maybe enough hopefully about this case i mean
 		anyways, i mean anyways at least maybe i mean anyways)
-		the city name, in Map2, "BC" is very weird, skipping it, anyways.
+		the city name, in Map2, "BC" seems like benin city (which is edo, the capital)
+		if i'm not mistaken i mean anyways.
 		Some city names are blurred hopefully i got them right at least about this i mean
 		anyways,
 		-->
@@ -1281,40 +1282,51 @@
 			<UnitArtStyleType>UNIT_ARTSTYLE_MIDDLE_EAST</UnitArtStyleType>
 			<bPlayable>1</bPlayable>
 			<bAIPlayable>1</bAIPlayable>
+			<!-- custom: from EDO to ELUR (quite close ring around Edo / Benin City (same city unless i'm mistaken i mean anyways))-->
+			<!-- custom: from ELUR (excluded) to AYE (included), west side of Edo / Benin City -->
+			<!-- custom: from AYE (excluded) to UZEA (included), far east of Edo / Benin City -->
+			<!-- custom: from UZEA (excluded) to AKURE (included), north of Edo / Benin City -->
+			<!-- custom: from AKURE (excluded) to ABOH (included), farther cities in all directions, and also west and north west further sides -->
+			<!-- custom: from ABOH (excluded) to ITAKETE (included), even further cities or furthest remaining -->
 			<Cities>
 				<City>TXT_KEY_CITY_NAME_EDO</City>
 				<City>TXT_KEY_CITY_NAME_UGHOTON</City>
-				<City>TXT_KEY_CITY_NAME_UGBODU</City>
-				<City>TXT_KEY_CITY_NAME_ELUR</City>
-				<City>TXT_KEY_CITY_NAME_AGBAR</City>
-				<City>TXT_KEY_CITY_NAME_UKUNZU</City>
+				<City>TXT_KEY_CITY_NAME_UGBINI</City>
+				<City>TXT_KEY_CITY_NAME_URHONIGBE</City>
+				<City>TXT_KEY_CITY_NAME_SAPELE</City>
 				<City>TXT_KEY_CITY_NAME_GWATO</City>
-				<City>TXT_KEY_CITY_NAME_GUMOHUNNWUN</City>
-				<City>TXT_KEY_CITY_NAME_UGO</City>				
+				<City>TXT_KEY_CITY_NAME_UDO</City>
+				<City>TXT_KEY_CITY_NAME_UGO</City>
+				<City>TXT_KEY_CITY_NAME_UMOGHUNNWUN</City>
+				<City>TXT_KEY_CITY_NAME_WARL</City>
+				<City>TXT_KEY_CITY_NAME_AGBAR</City>
+				<City>TXT_KEY_CITY_NAME_ELUR</City>
 				<City>TXT_KEY_CITY_NAME_MAHIN</City>
-				<City>TXT_KEY_CITY_NAME_ODE_ITSEKIRI</City>				
-				<City>TXT_KEY_CITY_NAME_TSHA</City>				
-				<City>TXT_KEY_CITY_NAME_AYAKOTOGBO</City>
-				<City>TXT_KEY_CITY_NAME_ONIE</City>
+				<City>TXT_KEY_CITY_NAME_AKOTOGBO</City>
+				<City>TXT_KEY_CITY_NAME_AYE</City>
+				<City>TXT_KEY_CITY_NAME_UGBODU</City>
+				<City>TXT_KEY_CITY_NAME_UKUNZU</City>
 				<City>TXT_KEY_CITY_NAME_UROMI</City>
-				<City>TXT_KEY_CITY_NAME_AKURE</City>
 				<City>TXT_KEY_CITY_NAME_UZEA</City>
-				<City>TXT_KEY_CITY_NAME_OWO</City>
-				<City>TXT_KEY_CITY_NAME_IKERE</City>
-				<City>TXT_KEY_CITY_NAME_ONDO</City>
-				<City>TXT_KEY_CITY_NAME_EKO</City>
-				<City>TXT_KEY_CITY_NAME_EKITI</City>
-				<City>TXT_KEY_CITY_NAME_IPOKIA</City>
-				<City>TXT_KEY_CITY_NAME_TAKETE</City>
-				<City>TXT_KEY_CITY_NAME_APA</City>
 				<City>TXT_KEY_CITY_NAME_HON</City>
-				<City>TXT_KEY_CITY_NAME_IKWE</City>
-				<City>TXT_KEY_CITY_NAME_IDWARI</City>
-				<City>TXT_KEY_CITY_NAME_ADO</City>
-				<City>TXT_KEY_CITY_NAME_BADAGRI</City>
-				<City>TXT_KEY_CITY_NAME_IDOLA</City>
+				<City>TXT_KEY_CITY_NAME_OWO</City>
+				<City>TXT_KEY_CITY_NAME_AKURE</City>
+				<City>TXT_KEY_CITY_NAME_ODE_ITSEKIRI</City>		
+				<City>TXT_KEY_CITY_NAME_ONDO</City>
 				<City>TXT_KEY_CITY_NAME_IKARE</City>
+				<City>TXT_KEY_CITY_NAME_IKWE</City>
 				<City>TXT_KEY_CITY_NAME_ONITSHA</City>
+				<City>TXT_KEY_CITY_NAME_ABOH</City>
+				<City>TXT_KEY_CITY_NAME_EKO</City>
+				<City>TXT_KEY_CITY_NAME_IDWARI</City>
+				<City>TXT_KEY_CITY_NAME_BADAGRI</City>
+				<City>TXT_KEY_CITY_NAME_IKERE</City>
+				<City>TXT_KEY_CITY_NAME_ADO</City>
+				<City>TXT_KEY_CITY_NAME_EKITI</City>
+				<City>TXT_KEY_CITY_NAME_IDOLA</City>
+				<City>TXT_KEY_CITY_NAME_APA</City>
+				<City>TXT_KEY_CITY_NAME_IPOKIA</City>
+				<City>TXT_KEY_CITY_NAME_ITAKETE</City>
 			</Cities>
 			<Buildings>
 				<Building>
