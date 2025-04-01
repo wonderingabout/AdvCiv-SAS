@@ -635,7 +635,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			#	if (iCapitalBuildingClass >= 0 and
 			#	info.isCivilizationFreeBuildingClass(iCapitalBuildingClass)):
 			#		continue
-			#r.append((descr,i))
 			r.append((descr,i))
 		return r # </advc.004y>
 
