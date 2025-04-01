@@ -321,54 +321,7 @@
 	<!-- advc.002b: Shortening "Beyond the Sword" to "BtS" so that the page
 		 names can be displayed despite the increased font size.
 		 Originally in CIV4GameText_BTS.xml and CIV4GameText_Objects_BTS.xml. -->
-	<TEXT>
-		<Tag>TXT_KEY_BTS_CIVS</Tag>
-		<English>BtS Civilizations</English>
-		<French>Civilisations de BtS</French>
-		<German>BtS-Zivilisationen</German>
-		<Italian>Civilt&#224; di BtS</Italian>
-		<Spanish>Civilizaciones de "BtS"</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BTS_BUILDINGS</Tag>
-		<English>BtS Buildings</English>
-		<French>B&#226;timents de BtS</French>
-		<German>BtS-Geb&#228;ude</German>
-		<Italian>Edifici di BtS</Italian>
-		<Spanish>Edificios de "BtS"</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BTS_UNITS</Tag>
-		<English>BtS Units</English>
-		<French>Unit&#233;s de BtS</French>
-		<German>BtS-Einheiten</German>
-		<Italian>Unit&#224; di BtS</Italian>
-		<Spanish>Unidades de "BtS"</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BTS_LEADERS</Tag>
-		<English>BtS Leaders</English>
-		<French>Dirigeants de BtS</French>
-		<German>BtS-Herrscher</German>
-		<Italian>Leader di BtS</Italian>
-		<Spanish>L&#237;deres de "BtS"</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BTS_WONDERS</Tag>
-		<English>BtS Wonders</English>
-		<French>Merveilles de BtS</French>
-		<German>BtS-Wunder</German>
-		<Italian>Meraviglie di BtS</Italian>
-		<Spanish>Maravillas de "BtS"</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BTS_TECHS</Tag>
-		<English>BtS Technologies</English>
-		<French>Technologies de BtS</French>
-		<German>BtS-Technologien</German>
-		<Italian>Tecnologie di BtS</Italian>
-		<Spanish>Tecnolog&#237;as de "BtS"</Spanish>
-	</TEXT>
+	<!-- custom: remove BTS links, unneeded, see CIV4NewConceptInfos.xml for details -->
 	<TEXT>
 		<Tag>TXT_KEY_BTS_RULES_CHANGES</Tag>
 		<English>BtS Rules Changes</English>

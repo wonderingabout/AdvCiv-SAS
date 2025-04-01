@@ -56,36 +56,10 @@
 			<Description>TXT_KEY_CONCEPT_AIR_PROMOTIONS</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_AIR_PROMOTIONS_PEDIA</Civilopedia>
 		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_BTS_BUILDINGS</Type>
-			<Description>TXT_KEY_BTS_BUILDINGS</Description>
-			<Civilopedia>TXT_KEY_BTS_BUILDINGS_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_BTS_CIVS</Type>
-			<Description>TXT_KEY_BTS_CIVS</Description>
-			<Civilopedia>TXT_KEY_BTS_CIVS_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_BTS_UNITS</Type>
-			<Description>TXT_KEY_BTS_UNITS</Description>
-			<Civilopedia>TXT_KEY_BTS_UNITS_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_BTS_LEADERS</Type>
-			<Description>TXT_KEY_BTS_LEADERS</Description>
-			<Civilopedia>TXT_KEY_BTS_LEADERS_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_BTS_WONDERS</Type>
-			<Description>TXT_KEY_BTS_WONDERS</Description>
-			<Civilopedia>TXT_KEY_BTS_WONDERS_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_BTS_TECHS</Type>
-			<Description>TXT_KEY_BTS_TECHS</Description>
-			<Civilopedia>TXT_KEY_BTS_TECHS_PEDIA</Civilopedia>
-		</NewConceptInfo>
+		<!-- custom: removed links to civ4 assets, no need to maintain them
+		BTS ca be considered the base game now, plus this information is
+		avaialble elsewhere, for example in the sevopedia pages specific
+		to each of these, about this i mean anyways -->
 		<NewConceptInfo>
 			<Type>CONCEPT_BTS_RULES_CHANGES</Type>
 			<Description>TXT_KEY_BTS_RULES_CHANGES</Description>
