@@ -250,10 +250,11 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 				self.W_QUOTE_PANE, self.H_QUOTE_PANE,
 				PanelStyles.PANEL_STYLE_BLUE50)
 		# <advc.004y> Show strategy help too (like for civics)
+		szText = u""
 		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY
 		# in SevoPediaBuilding.py (refer to this file for details),
-		# removing (hiding) the entry entirely from the sevopedia. -->
-		szText = u""
+		# removing (hiding) the entry entirely from the sevopedia.
+		# -->
 		#if len(gc.getTechInfo(self.iTech).getStrategy()) > 0:
 		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
 		#	szText += gc.getTechInfo(self.iTech).getStrategy()

@@ -276,7 +276,8 @@ class SevoPediaUnit:
 		szText = u""
 		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY
 		# in SevoPediaBuilding.py (refer to this file for details),
-		# removing (hiding) the entry entirely from the sevopedia. -->
+		# removing (hiding) the entry entirely from the sevopedia.
+		# -->
 		#if len(gc.getUnitInfo(self.iUnit).getStrategy()) > 0:
 		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
 		#	szText += gc.getUnitInfo(self.iUnit).getStrategy()

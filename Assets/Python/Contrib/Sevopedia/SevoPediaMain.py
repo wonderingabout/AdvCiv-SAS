@@ -622,15 +622,20 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <advc.004y> Filter out minor civ, but not Barbarians (which do have
 		# sensible strategy text). Distinguish b/w them by checking for
 		# free Palace. Not sure if that's really better than using
-		# gc.getInfoTypeForString("CIVILIZATION_MINOR")
+		#gc.getInfoTypeForString("CIVILIZATION_MINOR")
 		r = []
 		for descr,i in civList:
 			info = gc.getCivilizationInfo(i)
-			if not info.isPlayable():
-				iCapitalBuildingClass = gc.getDefineINT("CAPITAL_BUILDINGCLASS")
-				if (iCapitalBuildingClass >= 0 and
-				info.isCivilizationFreeBuildingClass(iCapitalBuildingClass)):
-					continue
+			# <!-- custom: reveal minor nation, i want all information
+			# available in the sevopedia. Useful maybe for other mods,
+			# i at least would want mine to be this way about this i mean
+			# at least maybe i mean anyways
+			#if not info.isPlayable():
+			#	iCapitalBuildingClass = gc.getDefineINT("CAPITAL_BUILDINGCLASS")
+			#	if (iCapitalBuildingClass >= 0 and
+			#	info.isCivilizationFreeBuildingClass(iCapitalBuildingClass)):
+			#		continue
+			#r.append((descr,i))
 			r.append((descr,i))
 		return r # </advc.004y>
 

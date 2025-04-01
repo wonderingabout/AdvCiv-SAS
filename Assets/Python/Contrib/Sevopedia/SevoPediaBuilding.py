@@ -234,6 +234,7 @@ class SevoPediaBuilding:
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel( panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE, self.W_HISTORY_PANE, self.H_HISTORY_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
 		textName = self.top.getNextWidgetName()
+		szText = u""
 		# <!-- custom: too much hassle/"nightmare" to maintain (which i agree
 		# with if i may say i mean anyways), + also often inacurate, especially
 		# if someone were to make a mod, changing settings again, or simply in
@@ -247,7 +248,6 @@ class SevoPediaBuilding:
 		# i mean anyways).
 		# Doing so is also much faster i mean anyways about this i mean anyways.
 		# -->
-		szText = u""
 		# if len(gc.getBuildingInfo(self.iBuilding).getStrategy()) > 0:
 		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
 		#	szText += gc.getBuildingInfo(self.iBuilding).getStrategy()

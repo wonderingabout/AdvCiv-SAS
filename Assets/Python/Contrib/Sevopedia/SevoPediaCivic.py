@@ -121,10 +121,11 @@ class SevoPediaCivic:
 		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "",
 				True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT,
 				PanelStyles.PANEL_STYLE_BLUE50)
+		szText = u""
 		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY
 		# in SevoPediaBuilding.py (refer to this file for details),
-		# removing (hiding) the entry entirely from the sevopedia. -->
-		szText = u""
+		# removing (hiding) the entry entirely from the sevopedia.
+		# -->
 		#if len(gc.getCivicInfo(self.iCivic).getStrategy()) > 0:
 		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
 		#	szText += gc.getCivicInfo(self.iCivic).getStrategy()
