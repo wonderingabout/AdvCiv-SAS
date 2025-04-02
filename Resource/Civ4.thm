@@ -4,7 +4,7 @@
    other mods also copy all those files. At least I've gotten rid of the
    copied tga files. */
 
-resource_path "Mods\AdvCiv\Resource";
+resource_path "Mods\AdvCiv-SAS\Resource";
 /* For some obscure reason, the includes in Civ4Theme.thm can't be moved here
    - both Civ4.thm and Civ4Theme.thm are necessary. */
-include "Mods\AdvCiv\Resource\Civ4Theme.thm";
+include "Mods\AdvCiv-SAS\Resource\Civ4Theme.thm";

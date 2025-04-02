@@ -333,7 +333,7 @@
 		<!-- advc.002b: Set modified theme as default -->
 		<MiscArtInfo>
 			<Type>DEFAULT_THEME_NAME</Type>
-			<Path>Mods/AdvCiv/Resource/Civ4.thm</Path>
+			<Path>Mods/AdvCiv-SAS/Resource/Civ4.thm</Path>
 			<fScale>0.0</fScale>
 			<NIF>None</NIF>
 			<KFM>None</KFM>

@@ -48,8 +48,4 @@ Recommended, change your config as you prefer, see this page for details todo
 
 There is one annoying option about system not compatible, i may provide an example file for convenience later maybe or/and complete these instructions maybe ideally i mean anyways but not sure, is about this i mean anyways, thanks,
 
-todo test if changing AdvCiv to AdvCiv-SAS work, may be safer to rename mod folder (and update link with same mod fodler name too) if it doesn not work or until i test it, but still impelmented initial changes of it and maybe it will work
-
-# todo
-
-todo later rename full github/git project too to AdvCiv-SAS after i do some testing on it i mean anyways abou this at least i mean anyways
+For resolution, i use 1920 x 1080 even though i ahve a larger resolution (4K but anyways), it simply runs betetr i think at that resolution, will add hopefully some other time when i want about this i mean anyways some more options i would think are good or worth considering about this i mean anyways at least i mean anyways, thanks,
