@@ -117,10 +117,13 @@ class SevoPediaCivic:
 	def placeText(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
+		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need
+		# the redundant background i mean anyways about this at least i mean
+		# anyways -->
 		# advc.004y: Label added for this panel
-		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "",
-				True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT,
-				PanelStyles.PANEL_STYLE_BLUE50)
+		#screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
+		textName = self.top.getNextWidgetName()
 		szText = u""
 		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY
 		# in SevoPediaBuilding.py (refer to this file for details),
@@ -145,12 +148,14 @@ class SevoPediaCivic:
 		#		szText += u"\n\t"
 		#		szText += szChanges
 		#szText += u"\n\n"
-		szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
+		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need
+		# the redundant background i mean anyways about this at least i mean
+		# anyways -->
+		#szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
 		szText += gc.getCivicInfo(self.iCivic).getCivilopedia()
 		# </advc.004y>
-		screen.attachMultilineText(panelName, "Text", szText,
-				WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
+		#screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(textName, szText, self.X_TEXT + 8 , self.Y_TEXT + 11, self.W_TEXT - (15 * 2), self.H_TEXT - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 	def handleInput (self, inputClass):

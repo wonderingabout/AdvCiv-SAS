@@ -232,7 +232,11 @@ class SevoPediaBuilding:
 	def placeHistory(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel( panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE, self.W_HISTORY_PANE, self.H_HISTORY_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
+		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need
+		# the redundant background i mean anyways about this at least i mean
+		# anyways -->
+		#screen.addPanel( panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE, self.W_HISTORY_PANE, self.H_HISTORY_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
+		screen.addPanel( panelName, "", "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE, self.W_HISTORY_PANE, self.H_HISTORY_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
 		textName = self.top.getNextWidgetName()
 		szText = u""
 		# <!-- custom: too much hassle/"nightmare" to maintain (which i agree
@@ -252,9 +256,19 @@ class SevoPediaBuilding:
 		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
 		#	szText += gc.getBuildingInfo(self.iBuilding).getStrategy()
 		#	szText += u"\n\n"
-		szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
+		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need
+		# the redundant background i mean anyways about this at least i mean
+		# anyways -->
+		#szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
 		szText += gc.getBuildingInfo(self.iBuilding).getCivilopedia()
-		screen.addMultilineText( textName, szText, self.X_HISTORY_PANE + 15, self.Y_HISTORY_PANE + 40, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need
+		# the redundant background i mean anyways about this at least i mean
+		# anyways
+		# but here we also restore(? or add padding?) using a method that allows
+		# that (if i am not mistaken that the other method doesn't allow that?
+		# About this i mean anyways i mean anyways -->
+		#screen.addMultilineText( textName, szText, self.X_HISTORY_PANE + 15, self.Y_HISTORY_PANE + 40, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText( textName, szText, self.X_HISTORY_PANE + 8, self.Y_HISTORY_PANE + 11, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

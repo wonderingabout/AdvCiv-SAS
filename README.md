@@ -6,7 +6,6 @@ Currently, it is still a work in progress so is not playable yet as explained be
 but these are the (main) goals/purposes/features.
 
 ![img1](/_1_AdvCiv-SAS/Docs_And_Appendixes/0.33_Techtree_modified.png)
-
 ## How to play?
 
 If you are a new player and/or want to play this mod and would like a few instructions on how
