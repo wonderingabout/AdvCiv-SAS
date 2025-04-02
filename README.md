@@ -7,7 +7,13 @@ but these are the (main) goals/purposes/features.
 
 ![img1](/_1_AdvCiv_SAS/Docs_And_Appendixes/0.33_Techtree_modified.png)
 
+## How to play?
+
+If you are a new player and/or want to play this mod and would like a few instructions on how
+to install it and play it, i have provided a few instructions [here](/_1_AdvCiv_SAS/Quick_Install_Setup_Guide.md)
+
 ## Quick Start Guide
+
 If you just want to play and do not need all the project bigger details, i added
 a quick guide of the main changes from Civ4 and base AdvCiv players:
 [here](/_1_AdvCiv_SAS/Quick_Get_Started_Guide.md)

@@ -18,6 +18,13 @@ spearman 2: pikeman (fanti dar mar) from realism invictus (or keep old pikeman o
 spearman 3 (medieval): heavy spearman from realism invictus
 spearman 4: (renaissance) pikeman halberdier from realism invictus
 
+assasin units:
+courtesan: 
+assassin (arab i think unit or generic)
+thief
+
+
+
 carabinier? c2c
 
 add lancer?
