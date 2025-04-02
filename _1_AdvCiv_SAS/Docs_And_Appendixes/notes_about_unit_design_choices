@@ -29,3 +29,70 @@ Mapuche Ironwood Clubman or Nootka Clubman or/and a civ i implemented
 - make immortal of persia melee seems more accurate but did not look in detail only quick about this i mean anwyays at least
 
 - clubman (warrior renamed for less generic name maybe i mean anyways about this i mean anyways) has quite high animal bonus so maybe give less to javelin or unit type i implement of stone age? Etc
+
+- worker increases improvement speed at each era
+- fast worker only for one era or 5 of them?
+
+- greatly reduce unit upgrade cost but somehow prevent warrior stacking
+mega upgrade? Faster paced game + chaning how it relates to production maybe
+(not much cost difference between units eras but tech needed maybe for example etc,
+but then would need adjust city growth of hammer so not sure about that but is
+example of approach i mean anyways about that (example) at least i mean anyways)
+
+- add lancer unit combat(? if i am not mistaken) type maybe: includes camel lancer
+
+- change starting strengtgh to 10 but increase it more gradually? (more realistic?
+But then warriros would eb cheaper so increase a bit their cost? But then barabarians
+would be stronger so adjust their spawn rate? But is maybe bad design to limit it so
+buff civs somehow too?)
+
+- religion specific units: initially for the crusader as a variant of the swordsman i got
+this idea i mean anyways but can extend it by having religion specific units throughout the
+game, it could be thought of as special nits maybe interesting
+
+- add modern jihadist for jihad (islam neo-religion)
+
+- give bonus against other units or religions?
+Jihadists of medieval bonus against medieval other relgiios? Etc
+
+- add religious_swordsman, cannot be built but only as a class for
+other religious units? But for what use? Etc, Not sure if worth about
+this i eman anyways, at least maybe or not at least mayeb, but i mean
+anyways i mean anyways
+
+- mounted riding has changed its icon as a result to incude all or
+more units animal types about this i mean anyways at least indeed
+maybe but i mean anyways
+
+- each civ starts with 2-3 miliary unuits at the very least then maybe,
+and then early unuits can be more expensive  (and later ones cheaper)
+
+- a clubman can win against a legionary not too unrealistic for example,
+but not against a tank at all so adjusting that too
+
+- change the mechanic that axeman is good against lances, it's ridiculous
+i think but not sure as i don't know lot, create a melee_lance type and 
+melee_axe type combat types i tihnk i mean anyways
+
+- create subtypes too instead of mounted, no reason a pikeman is good against a
+camel gunner at all so no longer mounted but instead mounted_sword moutned_gun
+mounted_lance mounted_archer
+
+- archers no good against lancers, because of shield?
+
+- archers start with collateral damage 1? But low strength then?
+
+- siege very weak in defense then against msot units
+
+- mounted riding needs a new following tech as first horse archer was
+much later (elephant and camel most liekly too but didnt check in detail
+more, about this i mean anyways)
+
+- all civs start with one worker at least some 2? , is about this i mean
+anyways at least?
+
+- paganist religious unit too
+- and for buddhism monks maybe?
+
+- add type melee_fist too for this, and melee_assasin maybe? That woudl target
+most annoying units? Etc. About this i mean anyways, etc.

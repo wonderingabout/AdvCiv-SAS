@@ -3,3 +3,28 @@ worker 2 : -
 worker 3 : 
 worker 4 : 
 worker 5 : 
+
+camel archer for camel archer2 (medieval): c2c (if texture is different)
+camel lacer 1: bactrian cataphract from c2c
+camel lancer: -
+camel "sword": camel knight from c2c i mean anyways about this at least i mean anyways
+camel cuirassier: camel gunner from c2c
+camel cavalry: meharist from c2c
+
+horseman: horseman from history rewritten
+
+spearman 1: spearman from history rewritten?
+spearman 2: pikeman (fanti dar mar) from realism invictus (or keep old pikeman of civ4 somewhere ideally?)
+spearman 3 (medieval): heavy spearman from realism invictus
+spearman 4: (renaissance) pikeman halberdier from realism invictus
+
+carabinier? c2c
+
+add lancer?
+
+knight (lancer): civ4 bts?
+knight swordsman
+
+crusader: inquisition? (or theology?) + make it require a religion for production
+
+make horse sword good against melee sword and axe
