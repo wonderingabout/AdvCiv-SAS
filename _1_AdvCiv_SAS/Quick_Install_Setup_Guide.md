@@ -1,4 +1,4 @@
-To install and play this mod AdvCiv SAS, you can follow these steps:
+To install and play this mod AdvCiv-SAS, you can follow these steps:
 
 # Install Civilization 4 Beyond the Sword (skip if already done)
 
@@ -6,9 +6,9 @@ To install and play this mod AdvCiv SAS, you can follow these steps:
 
 First you need to install (or have it installed already ) Civilization 4 Beyond the Sword.
 
-# Download (or clone from git if you know how and prefer) this mod AdvCiv SAS
+# Download (or clone from git if you know how and prefer) this mod AdvCiv-SAS
 
-Then download (or clone from git if you know how as you prefer) this AdvCiv SAS
+Then download (or clone from git if you know how as you prefer) this AdvCiv-SAS
 mod. Extract the archive in the Mods folder of BTS/BTS (be careful twice BTS), for example,
 using Steam the path of AdvCiv should be:
 

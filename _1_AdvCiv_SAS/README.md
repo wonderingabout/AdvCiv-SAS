@@ -1,10 +1,10 @@
 # Detailed Goals of this mod
 In addition to the quick(er) summary in the [main README.md](../README.md)
-of this AdvCiv SAS mod project, here is more information about the changes
+of this AdvCiv-SAS mod project, here is more information about the changes
 and the reasoning behind them.
 
 For a quick starter guide on the main changes between base AdvCiv and
-Advciv SAS, please see rather the [Quick Get Started Guide](Quick_Get_Started_Guide.md)
+Advciv-SAS, please see rather the [Quick Get Started Guide](Quick_Get_Started_Guide.md)
 
 todo write
 

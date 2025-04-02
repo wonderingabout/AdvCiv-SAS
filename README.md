@@ -1,5 +1,5 @@
-# AdvCiv SAS (Simple Advanced Strategy)
-This mod (AdvCiv SAS (Simple Advanced Strategy) is based on
+# AdvCiv-SAS (Simple Advanced Strategy)
+This mod (AdvCiv-SAS (Simple Advanced Strategy) is based on
 [AdvCiv 1.12](https://github.com/f1rpo/AdvCiv/tree/1.12) as it is the latest AdvCiv version as of now), and will/may update whenever there are new changes that are stable.
 
 Currently, it is still a work in progress so is not playable yet as explained below,
@@ -73,11 +73,12 @@ If you want to know more about the project, how i ordered the tree tech historic
 on balance changes and such, please visit it.
 
 # Credits
-- AdvCiv: todo write, but mostly i am very thankful of AdvCiv, it's such a nice improvement
-from Civ4, and it's maintainer is very open to feedback at least in my
+- AdvCiv (the full name Advanced Civ does not yield much results about Civ 4 so i prefer the AdvCiv Name, maybe because of the space character, so i put a "-" instead in my/this mod): todo write, but mostly i am very thankful of AdvCiv, it's such a nice improvement from Civ4, and it's maintainer is very open to feedback at least in my
 exchanges/experiences during these times i mean anyways, thanks
-- Cavemen2Cosmos: i took quite a lot of content from there, thanks
-- Realism Invictus: i took quite a bit content from there, thanks,
+- Cavemen2Cosmosn (also know as C2C): i took quite a lot of content from there, thanks
+- Realism Invictus (also know as RI): i took quite a bit content from there, thanks,
+- Fall from Heaven II ((also know as FFH2): i took quite a bit of content from there, thanks too too, thanks,
+- History Rewritten (also know as HR): i took quite a bit of content from there too, thanks,
 - Firaxis's Civ4 game and Civ4 BTS: Civ4 allows to do a lot of things with just XML,
 which surprised me a lot in a way that pleased me i mean anyways. So far i have not touched
 the deeper code such as C++ and Python, maybe i will not need at all but not sure, is as it
