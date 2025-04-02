@@ -1,27 +1,27 @@
 # AdvCiv-SAS (Simple Advanced Strategy)
 This mod (AdvCiv-SAS (Simple Advanced Strategy) is based on
-[AdvCiv 1.12](https://github.com/f1rpo/AdvCiv/tree/1.12) as it is the latest AdvCiv version as of now), and will/may update whenever there are new changes that are stable.
+[AdvCiv 1.12](https://github.com/f1rpo/AdvCiv/tree/1.12) as it is the latest [AdvCiv (the CFC forum/post link)](https://forums.civfanatics.com/threads/advanced-civ.614217/) version as of now), and will/may update whenever there are new changes that are stable.
 
 Currently, it is still a work in progress so is not playable yet as explained below,
 but these are the (main) goals/purposes/features.
 
-![img1](/_1_AdvCiv_SAS/Docs_And_Appendixes/0.33_Techtree_modified.png)
+![img1](/_1_AdvCiv-SAS/Docs_And_Appendixes/0.33_Techtree_modified.png)
 
 ## How to play?
 
 If you are a new player and/or want to play this mod and would like a few instructions on how
-to install it and play it, i have provided a few instructions [here](/_1_AdvCiv_SAS/Quick_Install_Setup_Guide.md)
+to install it and play it, i have provided a few instructions [here](/_1_AdvCiv-SAS/Quick_Install_Setup_Guide.md)
 
 ## Quick Start Guide
 
 If you just want to play and do not need all the project bigger details, i added
 a quick guide of the main changes from Civ4 and base AdvCiv players:
-[here](/_1_AdvCiv_SAS/Quick_Get_Started_Guide.md)
+[here](/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md)
 
 ## Project Goals and global view on gameplay changes
 
 The more general gameplay type of changes consist of
-(see [this README.md](/_1_AdvCiv_SAS/README.md) for the full details):
+(see [this README.md](/_1_AdvCiv-SAS/README.md) for the full details):
 - Stricter Balancing AI (changes AI policy for efficiency and opportunism, AI will not
 be too aggressive but merciless, also more cautious sometimes (war declarations in
 particular, mostly just for its self interest and not to spare a valuable target))
@@ -59,15 +59,15 @@ the finished version.
 The civs you can expect from this mod come from these parts of the world (circled numbers
 are the added new civ's real world location) :
 
-![img2](/_1_AdvCiv_SAS/Docs_And_Appendixes/0.22_world_map_terrain_with_new_civs.png)
+![img2](/_1_AdvCiv-SAS/Docs_And_Appendixes/0.22_world_map_terrain_with_new_civs.png)
 
 A preview of the changes (screenshots), can be found on this google drive: 
 [here](https://drive.google.com/drive/folders/1v4jkm383NGL761ciMUdU6hGuZKvLo00w?usp=sharing).
 
 ## Docs
 
-I added quite a bit of documentation, pictures, and other elements about this AdvCiv SAS mod:
-[here](/_1_AdvCiv_SAS/)
+I added quite a bit of documentation, pictures, and other elements about this AdvCiv-SAS mod:
+[here](/_1_AdvCiv-SAS/)
 
 If you want to know more about the project, how i ordered the tree tech historically, why i decided
 on balance changes and such, please visit it.

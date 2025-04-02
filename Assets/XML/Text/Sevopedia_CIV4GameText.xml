@@ -137,25 +137,13 @@
 		<Italian>[ICON_BULLET]Fornisce %d1_Num-%d2_Num [COLOR_HIGHLIGHT_TEXT][LINK=literal]%s3_BonusName[\LINK][COLOR_REVERT] (%F4_BonusIcon)</Italian>
 		<Spanish>[ICON_BULLET]Da %d1_Num-%d2_Num de [COLOR_HIGHLIGHT_TEXT][LINK=literal]%s3_BonusName[\LINK][COLOR_REVERT] (%F4_BonusIcon)</Spanish>
 	</TEXT>
-	<!-- Swapped these two; one is from CIV4GameText_Misc1.xml, the other from
-		 CIV4GameText_BTS.xml. I think they're only used for Civilopedia and
-		 Sevopedia. No change in the Romance languages because both use the
-		 same term (and I can't think of a better one). -->
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_CIVILOPEDIA_HISTORY</Tag>
 		<English>Background</English>
-		<French>Histoire</French>
-		<German>Hintergrund</German>
-		<Italian>Storia</Italian>
-		<Spanish>Historia</Spanish>
-	</TEXT>
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_CIVILOPEDIA_BACKGROUND</Tag>
-		<English>[BOLD]History:[\BOLD][NEWLINE]</English>
-		<French>[BOLD]Histoire :[\BOLD][NEWLINE]</French>
-		<German>[BOLD]Geschichte:[\BOLD][NEWLINE]</German>
-		<Italian>[BOLD]Storia:[\BOLD][NEWLINE]</Italian>
-		<Spanish>[BOLD]Historia:[\BOLD][NEWLINE]</Spanish>
+		<French>Background</French>
+		<German>Background</German>
+		<Italian>Background</Italian>
+		<Spanish>Background</Spanish>
 	</TEXT>
 	<!-- Based on TXT_KEY_PEDIA_CATEGORY_BUILDING and _PROJECT in
 		 CIV4GameTextInfos_Objects.xml -->

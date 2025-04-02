@@ -271,7 +271,10 @@ class SevoPediaUnit:
 	def placeHistory(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE, self.W_HISTORY_PANE, self.H_HISTORY_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+		# <!-- custom: i don't need the "History:", is redundant with background
+		# that is already about the unit's background -->
+		#screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE, self.W_HISTORY_PANE, self.H_HISTORY_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, "", "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE, self.W_HISTORY_PANE, self.H_HISTORY_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		textName = self.top.getNextWidgetName()
 		szText = u""
 		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY
@@ -282,11 +285,16 @@ class SevoPediaUnit:
 		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
 		#	szText += gc.getUnitInfo(self.iUnit).getStrategy()
 		#	szText += u"\n\n"
-		szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
+		# <!-- custom: i don't need the background: tag either, a box being there is
+		# explicit enough and clearer this way prettier more efficient i think
+		# i mean anyways at least i want about this at least maybe but i mean
+		# i mean anyways
+		#szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
 		szText += gc.getUnitInfo(self.iUnit).getCivilopedia()
-		screen.addMultilineText(textName, szText, self.X_HISTORY_PANE + 15, self.Y_HISTORY_PANE + 40, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
-
+		# <!-- custom: i don't need the "History:", is redundant with background
+		# that is already about the unit's background -->
+		#screen.addMultilineText(textName, szText, self.X_HISTORY_PANE + 15, self.Y_HISTORY_PANE + 40, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(textName, szText, self.X_HISTORY_PANE, self.Y_HISTORY_PANE + 10, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 	def placePromotions(self):
 		screen = self.top.getScreen()

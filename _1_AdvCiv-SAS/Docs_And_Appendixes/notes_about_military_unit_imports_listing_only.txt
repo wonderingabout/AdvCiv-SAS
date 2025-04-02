@@ -1,9 +1,11 @@
+workers:
 worker 1 : 
 worker 2 : -
 worker 3 : 
 worker 4 : 
 worker 5 : 
 
+camels:
 camel archer for camel archer2 (medieval): c2c (if texture is different)
 camel lacer 1: bactrian cataphract from c2c
 camel lancer: -
@@ -11,14 +13,22 @@ camel "sword": camel knight from c2c i mean anyways about this at least i mean a
 camel cuirassier: camel gunner from c2c
 camel cavalry: meharist from c2c
 
+elephants:
+
+horse units:
+
 horseman: horseman from history rewritten
 
+more advanced chariot?
+
+lance units:
 spearman 1: spearman from history rewritten?
 spearman 2: pikeman (fanti dar mar) from realism invictus (or keep old pikeman of civ4 somewhere ideally?)
 spearman 3 (medieval): heavy spearman from realism invictus
 spearman 4: (renaissance) pikeman halberdier from realism invictus
 
 assasin units:
+spy of civ4 give it attack too? and early spy? Etc About this i mean anyways, at least, i mean anyways
 courtesan: 
 assassin (arab i think unit or generic)
 thief

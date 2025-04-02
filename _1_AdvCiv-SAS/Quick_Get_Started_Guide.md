@@ -1,8 +1,8 @@
 # Quick Get Started Guide
 
 This page does not go to go deep into the technicalities, for that see the
-[other documents](/_1_AdvCiv_SAS/) of this mod, but it gives instead a quick
-starter guide on the key few differences between AdvCiv and AdvCiv SAS, for
+[other documents](/_1_AdvCiv-SAS/) of this mod, but it gives instead a quick
+starter guide on the key few differences between AdvCiv and AdvCiv-SAS, for
 newcomer players used to AdvCiv, Civ4 BTS, or some similar mods.
 
 ## Main Changes quick starter guide
@@ -41,7 +41,7 @@ for example todo
 "The Great Lighthouse" is now "Lighthouse of Alexandria", and some wonders are tied
 to another civ than in civ4 bts/advciv, for example "The great wall" no longer is
 linked with China but is now "The Ancient Walls of Benin", if you want to know why,
-see [the Mod folder](/_1_AdvCiv_SAS/), i have also put the 
+see [the Mod folder](/_1_AdvCiv-SAS/), i have also put the 
 [source](https://thinkafrica.net/walls-of-benin/)
 here directly to illustrate this example.
 - also, each civilization now is tied to a great wonder, everyone can build it,
@@ -52,7 +52,7 @@ guilds i think todo)
 - some ressources are not revealed until a certain tech: sheep is always visible,
 but gold not until metal casting.
 - a few new civs added, mostly in snow/desert terrains, or underrepresented parts
-of the world, see [world map with civs](/_1_AdvCiv_SAS/Docs_And_Appendixes/0.22_world_map_terrain_with_new_civs.png)
+of the world, see [world map with civs](/_1_AdvCiv-SAS/Docs_And_Appendixes/0.22_world_map_terrain_with_new_civs.png)
 (todo add link), for example The Kingdom Of Benin (Nigeria), or in weaker terrains
 (that are now buffed), for example Canada
 - Leaders have been changed: unless strongly desired, all civs have at max 2
