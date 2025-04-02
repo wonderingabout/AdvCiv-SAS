@@ -11320,7 +11320,7 @@
 			<iFirstStrikes>1</iFirstStrikes>
 			<iChanceFirstStrikes>1</iChanceFirstStrikes>
 			<iInterceptionProbability>0</iInterceptionProbability>
-			<iEvasionProbability>10</iEvasionProbability>
+			<iEvasionProbability>0</iEvasionProbability>
 			<iWithdrawalProb>50</iWithdrawalProb>
 			<iCollateralDamage>10</iCollateralDamage>
 			<iCollateralDamageLimit>25</iCollateralDamageLimit>

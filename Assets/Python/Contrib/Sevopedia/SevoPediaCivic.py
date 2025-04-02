@@ -155,7 +155,7 @@ class SevoPediaCivic:
 		szText += gc.getCivicInfo(self.iCivic).getCivilopedia()
 		# </advc.004y>
 		#screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.addMultilineText(textName, szText, self.X_TEXT + 8 , self.Y_TEXT + 11, self.W_TEXT - (15 * 2), self.H_TEXT - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(textName, szText, self.X_TEXT + 7 , self.Y_TEXT + 11, self.W_TEXT - (15 * 2), self.H_TEXT - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 	def handleInput (self, inputClass):

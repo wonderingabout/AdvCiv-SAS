@@ -268,7 +268,7 @@ class SevoPediaBuilding:
 		# that (if i am not mistaken that the other method doesn't allow that?
 		# About this i mean anyways i mean anyways -->
 		#screen.addMultilineText( textName, szText, self.X_HISTORY_PANE + 15, self.Y_HISTORY_PANE + 40, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.addMultilineText( textName, szText, self.X_HISTORY_PANE + 8, self.Y_HISTORY_PANE + 11, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText( textName, szText, self.X_HISTORY_PANE + 7, self.Y_HISTORY_PANE + 11, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

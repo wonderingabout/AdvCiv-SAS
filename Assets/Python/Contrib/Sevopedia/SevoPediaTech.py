@@ -272,7 +272,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		# too, restoring it and adding/restoring/modifying padding at the same
 		# time about this at least i mean anyways
 		#screen.addMultilineText(szQuoteTextWidget, szText, self.X_QUOTE_PANE + 15, self.Y_QUOTE_PANE + 15, self.W_QUOTE_PANE - (15 * 2), self.H_QUOTE_PANE - (15 * 2), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.addMultilineText(szQuoteTextWidget, szText, self.X_QUOTE_PANE + 10, self.Y_QUOTE_PANE + 12, self.W_QUOTE_PANE - (15 * 2), self.H_QUOTE_PANE - (15 * 2), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(szQuoteTextWidget, szText, self.X_QUOTE_PANE + 9, self.Y_QUOTE_PANE + 12, self.W_QUOTE_PANE - (15 * 2), self.H_QUOTE_PANE - (15 * 2), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		# <advc.004y> Now that the quote isn't on top anymore, we can keep it simple:
 		#screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
