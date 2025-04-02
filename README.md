@@ -82,6 +82,15 @@ exchanges/experiences during these times i mean anyways, thanks
 which surprised me a lot in a way that pleased me i mean anyways. So far i have not touched
 the deeper code such as C++ and Python, maybe i will not need at all but not sure, is as it
 would be. Also, even without modding, the base game is quite nice, thanks too i mean, thanks,
+- RFC, last but .. least, RFC mod which i forgot or can't or don't want to remember the full
+name of, not my favourite mod, but they did teach me or rather give me the idea from looking
+at a thing they did, so even though i maybe could have found it myself, or maybe i could not,
+in all fairness and with that being said, it's a caveaty thanks from me whatever that means,
+your stuff still helped me, so thanks too, would be unfair not to say, at least i mean anyways,
+in this case, maybe, anyways i mean anyways, thanks too even though i don't want to admit
+in this case too i mean anyways, but thanks indeeed about this at least i mean anyways, thanks,
+and i do my things if or when i want or don't do as i want or do with all that being said i mean
+anyways now, as is, maybe or not, or as is, but anyways, thanks,
 
 # A few useful links
 - todo: tutorial on how to compile the DLL and/or files for Advciv (but should not
