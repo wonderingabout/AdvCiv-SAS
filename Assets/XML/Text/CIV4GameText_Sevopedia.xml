@@ -80,6 +80,39 @@
 		<Italian>Forme di governo e Religioni preferite</Italian>
 		<Spanish>Principio y religión favoritos</Spanish>
 	</TEXT>
+
+	<!-- custom: rename "Base Terrain" to "Terrains"
+	(also switching to the plural form, same as for
+	"Features" (no reason why not and why it was not
+	like that, at least about this i mean anyways
+	i mean anyways, thanks,)),
+	Maybe simpler is better here at least i mean anyways
+	at least i mean anyways, thanks, -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_TERRAIN</Tag>
+		<English>Terrains</English>
+		<French>
+			<Text>Terrains</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</French>
+		<German>
+			<Text>Terrains</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</German>
+		<Italian>
+			<Text>Terrains</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Terrains</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</Spanish>
+	</TEXT>
+
 	<!-- custom: translate everything technical i want to
 	clarify in English, not sure the translation are
 	accurate (enough), about this i mean anyways, at least
