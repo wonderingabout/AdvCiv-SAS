@@ -85,6 +85,8 @@ doing your own mod](https://github.com/wonderingabout/kujira).
 
 # Some Useful tools while doing this
 - VS Code
+- Windows 10 (Windows 11 was so laggy and broke after update, now going back to Windows 10
+that i bombarded with updates and installs still works amazing so i recommend it, about this i mean anyways at least)
 - Microsoft Paint (i very much love this image editor i mean anyways)
 - Notepad++ (very reliable and multi tab in this case i mean anyways i mean anyways)
 - Git Bash for Windows

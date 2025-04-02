@@ -4460,12 +4460,11 @@
 			<Capture>NONE</Capture>
 			<Combat>UNITCOMBAT_MELEE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<!-- custom: make them default to defenders, they could be attackers but less likely maybe this way?
-			Purpose is to make sure they are more likely to be upgraded into stronger units rather than die too soon
-			before that. Warriors are also a bit weak on total strength to be that effective to value sacrificing them,
-			their city defense bonus also makes it slightly more lean towards defending instead maybe
-			, was UNITAI_ATTACK -->
-			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
+			<!-- custom: make them default to defenders for safer AI early but
+			really they could be attackers and maybe i should not block this about
+			this i mean anyways growth i mean anyways hold it back their potential
+			about this i mean anyways -->
+			<DefaultUnitAI>UNITAI_RESERVE</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_WARRIOR</Description>
@@ -4595,7 +4594,7 @@
 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>
 			<iCityDefense>25</iCityDefense>
-			<iAnimalCombat>0</iAnimalCombat>
+			<iAnimalCombat>50</iAnimalCombat>
 			<iHillsAttack>0</iHillsAttack>
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
@@ -4642,11 +4641,6 @@
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
 		<UnitInfo>
-			<!-- custom: rework of the quechua warrior, basing it on the spearman and not axeman as it seems
-			they were a versatile unit, but still quite often used some sort of spears it seems, basing it on
-			axeman would make them weaker against chariots which is not intended and did not seem to be especially
-			the case, also these units could be built soon now still while being quite relevant later maybe (not
-			preventing the incan player to build other stronger units if they want), was UNITCLASS_WARRIOR -->
 			<Class>UNITCLASS_SPEARMAN</Class>
 			<Type>UNIT_INCAN_QUECHUA</Type>
 			<UniqueNames/>
@@ -4654,8 +4648,6 @@
 			<Capture>NONE</Capture>
 			<Combat>UNITCOMBAT_MELEE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<!-- custom: even though they are spearmen-type of units they are more versatile, so they are not
-			defenders as a default but instead UNITAI_ATTACK as it was for spearmen before my changes-->
 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
@@ -4698,12 +4690,11 @@
 			<bHiddenNationality>0</bHiddenNationality>
 			<bAlwaysHostile>0</bAlwaysHostile>
 			<!-- advc.907b: Upgrade to MACEMAN disabled -->
-			<!-- custom: unit reworked, upgrades to axeman, spearman, maceman completely removed.
-			Considering they adopted new weapons in later ages it seems, i think it is fine to
-			allow them to be upgraded into pikemen -->
+			<!-- custom: unit is versatile now and maceman is sooner so enabled it 
+			or/and other possible reasons about this at least i mean anyways -->
 			<UnitClassUpgrades>
 				<UnitClassUpgrade>
-					<UnitClassUpgradeType>UNITCLASS_PIKEMAN</UnitClassUpgradeType>
+					<UnitClassUpgradeType>UNITCLASS_MACEMAN</UnitClassUpgradeType>
 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
 				</UnitClassUpgrade>
 			</UnitClassUpgrades>
@@ -4742,9 +4733,6 @@
 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: with the unit rework, i think that unlike the other spearmen,
-				the quechua could now be more versatile so putting less focus on defense,
-				so i removed the city defense tag that i had added for the spearman -->
 				<UnitAI>
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
@@ -4762,7 +4750,6 @@
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: rework of the quechua warrior, was NONE-->
 			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_HUNTING</PrereqTech>
@@ -4775,9 +4762,6 @@
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
 			<!-- advc.907b: was 20 -->
-			<!-- custom: rework of the quechua warrior, i read from the little i saw i mean
-			that it seems this unit was not specialized but mostly good at having big numbers,
-			so reducing cost to allow that while not giving it any (big) bonus, was 15 -->
 			<iCost>20</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -4802,7 +4786,6 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<!-- custom: rework of the unit, was 2 -->
 			<iCombat>4</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
@@ -4818,19 +4801,53 @@
 			<iCollateralDamageLimit>0</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>
-			<!-- custom: i want this to be a more versatile unit, perhaps a bit more
-			realistic/accurate this way, (also for balance the archer may be a bit too bad
-			in comparison else), was 25-->
 			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
-			<iHillsAttack>0</iHillsAttack>
-			<iHillsDefense>0</iHillsDefense>
+			<iHillsAttack>30</iHillsAttack>
+			<iHillsDefense>50</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<TerrainAttacks/>
-			<TerrainDefenses/>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<!-- custom: quechua rework (ctrl+f maybe helpful for that too etc)-->
+			<TerrainAttacks>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainAttack>10</iTerrainAttack>
+				</TerrainAttack>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_PEAK</TerrainType>
+					<iTerrainAttack>50</iTerrainAttack>
+				</TerrainAttack>
+			</TerrainAttacks>
+			<TerrainDefenses>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainDefense>15</iTerrainDefense>
+				</TerrainDefense>		
+				<TerrainDefense>
+					<TerrainType>TERRAIN_PEAK</TerrainType>
+					<iTerrainDefense>100</iTerrainDefense>
+				</TerrainDefense>
+			</TerrainDefenses>
+			<FeatureAttacks>
+			    <FeatureAttack>
+        			<FeatureType>FEATURE_FOREST</FeatureType>
+        			<iFeatureAttack>10</iFeatureAttack>
+    			</FeatureAttack>
+				<FeatureAttack>
+        			<FeatureType>FEATURE_JUNGLE</FeatureType>
+        			<iFeatureAttack>10</iFeatureAttack>
+    			</FeatureAttack>
+			</FeatureAttacks>
+			<FeatureDefenses>
+			    <FeatureDefense>
+        			<FeatureType>FEATURE_FOREST</FeatureType>
+        			<iFeatureDefense>10</iFeatureDefense>
+    			</FeatureDefense>
+				<FeatureDefense>
+        			<FeatureType>FEATURE_JUNGLE</FeatureType>
+        			<iFeatureDefense>10</iFeatureDefense>
+    			</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<!-- advc.907b: Combat bonus vs. Archer (100) removed -->
@@ -5805,21 +5822,21 @@
 			<FeatureAttacks>
 			    <FeatureAttack>
         			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureAttack>15</iFeatureAttack>
+        			<iFeatureAttack>10</iFeatureAttack>
     			</FeatureAttack>
 				<FeatureAttack>
         			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureAttack>15</iFeatureAttack>
+        			<iFeatureAttack>10</iFeatureAttack>
     			</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
 			    <FeatureDefense>
         			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureDefense>15</iFeatureDefense>
+        			<iFeatureDefense>10</iFeatureDefense>
     			</FeatureDefense>
 				<FeatureDefense>
         			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureDefense>15</iFeatureDefense>
+        			<iFeatureDefense>10</iFeatureDefense>
     			</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -7247,21 +7264,21 @@
 			<FeatureAttacks>
 			    <FeatureAttack>
         			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureAttack>15</iFeatureAttack>
+        			<iFeatureAttack>10</iFeatureAttack>
     			</FeatureAttack>
 				<FeatureAttack>
         			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureAttack>15</iFeatureAttack>
+        			<iFeatureAttack>10</iFeatureAttack>
     			</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
 			    <FeatureDefense>
         			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureDefense>15</iFeatureDefense>
+        			<iFeatureDefense>10</iFeatureDefense>
     			</FeatureDefense>
 				<FeatureDefense>
         			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureDefense>15</iFeatureDefense>
+        			<iFeatureDefense>10</iFeatureDefense>
     			</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -7475,16 +7492,6 @@
 			<iHillsDefense>25</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<!-- custom: make the impi extra good on plains, seems quite realistic
-			from the little i saw about this unit/civ, may also buff the plains
-			terrain that is currently just worse than grassland especially due
-			to yields in the early game.
-			This buff is also quite strong because cities can be planted in plains
-			tiles, in which case bonus would be same as city raider almost, but it
-			would serve of a good way to punish overoptimizing planting on lower food
-			tiles, maybe more immersive, and maybe adds more strategic depth about
-			city planting, finally also makes AIs not always optimal planting
-			decisions a bit less worse sometimes maybe -->
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
@@ -7501,21 +7508,21 @@
 			<FeatureAttacks>
 			    <FeatureAttack>
         			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureAttack>15</iFeatureAttack>
+        			<iFeatureAttack>10</iFeatureAttack>
     			</FeatureAttack>
 				<FeatureAttack>
         			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureAttack>15</iFeatureAttack>
+        			<iFeatureAttack>10</iFeatureAttack>
     			</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
 			    <FeatureDefense>
         			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureDefense>15</iFeatureDefense>
+        			<iFeatureDefense>10</iFeatureDefense>
     			</FeatureDefense>
 				<FeatureDefense>
         			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureDefense>15</iFeatureDefense>
+        			<iFeatureDefense>10</iFeatureDefense>
     			</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -7735,21 +7742,21 @@
 			<FeatureAttacks>
 			    <FeatureAttack>
         			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureAttack>15</iFeatureAttack>
+        			<iFeatureAttack>10</iFeatureAttack>
     			</FeatureAttack>
 				<FeatureAttack>
         			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureAttack>15</iFeatureAttack>
+        			<iFeatureAttack>10</iFeatureAttack>
     			</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
 			    <FeatureDefense>
         			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureDefense>15</iFeatureDefense>
+        			<iFeatureDefense>10</iFeatureDefense>
     			</FeatureDefense>
 				<FeatureDefense>
         			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureDefense>15</iFeatureDefense>
+        			<iFeatureDefense>10</iFeatureDefense>
     			</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -8239,7 +8246,7 @@
 					<iTerrainAttack>30</iTerrainAttack>
 				</TerrainAttack>
 				<TerrainAttack>
-				<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
 					<iTerrainAttack>15</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
@@ -11231,23 +11238,16 @@
 					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: if AI is strong enough to start an offensive on someone, it may not hurt to take a few defenders
-				as an extra to do so. If these defenders die then AI could build offensive units maybe now instead.
-				They may also help defend other cities by roaming -->
 				<UnitAI>
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
 			<NotUnitAIs>
-				<!-- custom: archer is not strong enough to be valuable as an attacker, much more efficient/valuable
-				to keep it as a defeender only instead-->
 				<UnitAI>
 						<UnitAIType>UNITAI_ATTACK</UnitAIType>
 						<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: make extra sure these defender type units are not baited or suicide during enemy invasion
-				or other related situations -->
 				<UnitAI>
 					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
 					<bUnitAI>1</bUnitAI>
@@ -11320,7 +11320,7 @@
 			<iFirstStrikes>1</iFirstStrikes>
 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
 			<iInterceptionProbability>0</iInterceptionProbability>
-			<iEvasionProbability>0</iEvasionProbability>
+			<iEvasionProbability>10</iEvasionProbability>
 			<iWithdrawalProb>0</iWithdrawalProb>
 			<iCollateralDamage>0</iCollateralDamage>
 			<iCollateralDamageLimit>0</iCollateralDamageLimit>
@@ -11334,8 +11334,26 @@
 			<FeatureNatives/>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<FeatureAttacks>
+			    <FeatureAttack>
+        			<FeatureType>FEATURE_FOREST</FeatureType>
+        			<iFeatureAttack>25</iFeatureAttack>
+    			</FeatureAttack>
+				<FeatureAttack>
+        			<FeatureType>FEATURE_JUNGLE</FeatureType>
+        			<iFeatureAttack>25</iFeatureAttack>
+    			</FeatureAttack>
+			</FeatureAttacks>
+			<FeatureDefenses>
+			    <FeatureDefense>
+        			<FeatureType>FEATURE_FOREST</FeatureType>
+        			<iFeatureDefense>25</iFeatureDefense>
+    			</FeatureDefense>
+				<FeatureDefense>
+        			<FeatureType>FEATURE_JUNGLE</FeatureType>
+        			<iFeatureDefense>25</iFeatureDefense>
+    			</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<UnitCombatMods/>
@@ -11369,7 +11387,12 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<FreePromotions/>
+			<FreePromotions>
+				<FreePromotion>
+					<PromotionType>PROMOTION_FLANKING1</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+			</FreePromotions>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
@@ -11442,23 +11465,16 @@
 					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: if AI is strong enough to start an offensive on someone, it may not hurt to take a few defenders
-				as an extra to do so. If these defenders die then AI could build offensive units maybe now instead.
-				They may also help defend other cities by roaming -->
 				<UnitAI>
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
 			<NotUnitAIs>
-				<!-- custom: archer is not strong enough to be valuable as an attacker, much more efficient/valuable
-				to keep it as a defeender only instead-->
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: make extra sure these defender type units are not baited or suicide during enemy invasion
-				or other related situations -->
 				<UnitAI>
 					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
 					<bUnitAI>1</bUnitAI>
@@ -11538,16 +11554,45 @@
 			<iCollateralDamageLimit>0</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>
-			<iCityDefense>50</iCityDefense>
+			<iCityDefense>10</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
 			<iHillsAttack>0</iHillsAttack>
-			<iHillsDefense>25</iHillsDefense>
+			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<TerrainAttacks/>
-			<TerrainDefenses/>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<!-- custom: skirmisher (useful for ctrl+f too maybe etc)-->
+			<TerrainAttacks>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainAttack>30</iTerrainAttack>
+				</TerrainAttack>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_DESERT</TerrainType>
+					<iTerrainAttack>50</iTerrainAttack>
+				</TerrainAttack>
+			</TerrainAttacks>
+			<TerrainDefenses>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainDefense>40</iTerrainDefense>
+				</TerrainDefense>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_DESERT</TerrainType>
+					<iTerrainDefense>75</iTerrainDefense>
+				</TerrainDefense>
+			</TerrainDefenses>
+			<FeatureAttacks>
+			    <FeatureAttack>
+        			<FeatureType>FEATURE_FOREST</FeatureType>
+        			<iFeatureAttack>10</iFeatureAttack>
+    			</FeatureAttack>
+			</FeatureAttacks>
+			<FeatureDefenses>
+			    <FeatureDefense>
+        			<FeatureType>FEATURE_FOREST</FeatureType>
+        			<iFeatureDefense>10</iFeatureDefense>
+    			</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<UnitCombatMods/>
@@ -11581,7 +11626,12 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<FreePromotions/>
+			<FreePromotions>
+				<FreePromotion>
+					<PromotionType>PROMOTION_FLANKING1</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+			</FreePromotions>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
@@ -11654,23 +11704,16 @@
 					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: if AI is strong enough to start an offensive on someone, it may not hurt to take a few defenders
-				as an extra to do so. If these defenders die then AI could build offensive units maybe now instead.
-				They may also help defend other cities by roaming -->
 				<UnitAI>
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
 			<NotUnitAIs>
-				<!-- custom: archer is not strong enough to be valuable as an attacker, much more efficient/valuable
-				to keep it as a defeender only instead-->
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: make extra sure these defender type units are not baited or suicide during enemy invasion
-				or other related situations -->
 				<UnitAI>
 					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
 					<bUnitAI>1</bUnitAI>
@@ -11734,7 +11777,7 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<iCombat>3</iCombat>
+			<iCombat>5</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -11748,23 +11791,51 @@
 			<iCollateralDamage>0</iCollateralDamage>
 			<iCollateralDamageLimit>0</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
-			<iCityAttack>0</iCityAttack>
-			<iCityDefense>50</iCityDefense>
+			<iCityAttack>10</iCityAttack>
+			<iCityDefense>10</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
 			<iHillsAttack>0</iHillsAttack>
-			<iHillsDefense>25</iHillsDefense>
+			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<TerrainAttacks/>
-			<TerrainDefenses/>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<TerrainAttacks>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainAttack>25</iTerrainAttack>
+				</TerrainAttack>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_DESERT</TerrainType>
+					<iTerrainAttack>35</iTerrainAttack>
+				</TerrainAttack>
+			</TerrainAttacks>
+			<TerrainDefenses>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainDefense>40</iTerrainDefense>
+				</TerrainDefense>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_DESERT</TerrainType>
+					<iTerrainDefense>40</iTerrainDefense>
+				</TerrainDefense>
+			</TerrainDefenses>
+			<FeatureAttacks>
+			    <FeatureAttack>
+        			<FeatureType>FEATURE_FOREST</FeatureType>
+        			<iFeatureAttack>10</iFeatureAttack>
+    			</FeatureAttack>
+			</FeatureAttacks>
+			<FeatureDefenses>
+			    <FeatureDefense>
+        			<FeatureType>FEATURE_FOREST</FeatureType>
+        			<iFeatureDefense>10</iFeatureDefense>
+    			</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
-					<iUnitCombatMod>50</iUnitCombatMod>
+					<iUnitCombatMod>20</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
 			<UnitCombatCollateralImmunes/>
@@ -11797,7 +11868,12 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<FreePromotions/>
+			<FreePromotions>
+				<FreePromotion>
+					<PromotionType>PROMOTION_FLANKING1</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+			</FreePromotions>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
@@ -12008,7 +12084,12 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<FreePromotions/>
+			<FreePromotions>
+				<FreePromotion>
+					<PromotionType>PROMOTION_FLANKING1</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+			</FreePromotions>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
@@ -13704,7 +13785,7 @@
 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
 			<iInterceptionProbability>0</iInterceptionProbability>
 			<iEvasionProbability>0</iEvasionProbability>
-			<iWithdrawalProb>20</iWithdrawalProb>
+			<iWithdrawalProb>50</iWithdrawalProb>
 			<iCollateralDamage>0</iCollateralDamage>
 			<iCollateralDamageLimit>100</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>6</iCollateralDamageMaxUnits>
