@@ -80,25 +80,33 @@
 		<Italian>Forme di governo e Religioni preferite</Italian>
 		<Spanish>Principio y religión favoritos</Spanish>
 	</TEXT>
+	<!-- custom: translate everything technical i want to
+	clarify in English, not sure the translation are
+	accurate (enough), about this i mean anyways, at least
+	i mean anyways, i mean anyways, thanks, -->
 	<!-- advc.004y: To replace TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT.
 		 I've kept the FIS translations from there. -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_IMPROVEMENT_YIELD</Tag>
-		<English>Improvement Yields</English>
-		<French>Am&#233;nagements</French>
-		<German>Gesteigerte Erträge</German>
-		<Italian>Miglioramenti</Italian>
-		<Spanish>Mejoras</Spanish>
+		<English>Improvements Bonus Tile Yields</English>
+		<French>Improvements Bonus Tile Yields</French>
+		<German>Improvements Bonus Tile Yields</German>
+		<Italian>Improvements Bonus Tile Yields</Italian>
+		<Spanish>Improvements Bonus Tile Yields</Spanish>
 	</TEXT>
+	<!-- custom: update to a clearer name, not translating
+	though, easier this way, hopefully clear enough else
+	i may make a mistake in translation, but worth improving
+	about this i mean anyways -->
 	<!-- advc.004y: From CIV4GameTextInfos.xml. Only English and German
 		 changed. -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_PEDIA_BONUS_YIELDS</Tag>
-		<English>Bonus Resources</English>
-		<French>Rendement bonus</French>
-		<German>Bonusressourcen</German>
-		<Italian>Prodotti bonus</Italian>
-		<Spanish>Rendim. bonif.</Spanish>
+		<English>Natural Bonus Tile Yields</English>
+		<French>Natural Bonus Tile Yields</French>
+		<German>Natural Bonus Tile Yields</German>
+		<Italian>Natural Bonus Tile Yields</Italian>
+		<Spanish>Natural Bonus Tile Yields</Spanish>
 	</TEXT>
 		<!-- advc.004y: Originally in CIV4GameTextInfos.xml. Only removed the
 		 parentheses and "Total"; more comprehensible this way. -->
