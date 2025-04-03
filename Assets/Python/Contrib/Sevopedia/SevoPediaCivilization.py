@@ -150,7 +150,7 @@ class SevoPediaCivilization:
 		# SevoPediaCivic.py for additional potential or not about this i mean
 		# anyways information, thanks, -->
 		# screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.addMultilineText(textName, szText, self.X_TEXT + 7 , self.Y_TEXT + 10, self.W_TEXT - (15 * 2), self.H_TEXT - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(textName, szText, self.X_TEXT + 7 , self.Y_TEXT + 10, self.W_TEXT - (15 * 2), self.H_TEXT - (15 * 2) - 25 + 29, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
