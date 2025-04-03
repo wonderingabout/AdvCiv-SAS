@@ -64,16 +64,28 @@ class SevoPediaBonus:
 		self.Y_REQUIRES = self.Y_IMPROVEMENTS_PANE + self.H_IMPROVEMENTS_PANE + 10
 		self.H_REQUIRES = 110
 
-		self.X_BUILDINGS = self.X_BONUS_ANIMATION
-		self.W_BUILDINGS = self.W_BONUS_ANIMATION
-		self.Y_BUILDINGS = self.Y_REQUIRES
-		self.H_BUILDINGS = self.H_REQUIRES
+		# <!-- custom: todo add self.X_ENABLES and similar i mean anyways, thanks, -->
 
 		self.X_ALLOWS_PANE = self.X_BONUS_PANE
 		self.W_ALLOWS_PANE = self.top.R_PEDIA_PAGE - self.X_ALLOWS_PANE
 		self.Y_ALLOWS_PANE = self.Y_REQUIRES + self.H_REQUIRES + 10
 		self.H_ALLOWS_PANE = 110
 
+		# <!-- custom: put the buildings panel under the units (allows) panel
+		# so easier to refer to it directly, now, i mean anyways i mean anyways,
+		# at least about this i mean anyways i mean anyways, thanks,
+		# it will also be identical in dimensions (or very close) so we will
+		# not need to change much (coordinates or other things) this way,
+		# at least about this, i mean, anyways, i mean anyways, maybe,
+		# i mean anyways, or not, i mean anyways, thanks, -->
+		self.X_BUILDINGS = self.X_ALLOWS_PANE
+		self.W_BUILDINGS = self.W_ALLOWS_PANE 
+		self.Y_BUILDINGS = self.Y_ALLOWS_PANE
+		self.H_BUILDINGS = self.H_ALLOWS_PANE
+
+		# <!--custom: not changing the existing math since it was already done,
+		# but ideally should base this on the buildings panel now just above it
+		# i mean anywyas, thanks,
 		self.X_HISTORY_PANE = self.X_ALLOWS_PANE
 		self.W_HISTORY_PANE = self.W_ALLOWS_PANE
 		self.Y_HISTORY_PANE = self.Y_ALLOWS_PANE + self.H_ALLOWS_PANE + 10
@@ -256,7 +268,15 @@ class SevoPediaBonus:
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		# advc.004y: txt key was TXT_KEY_PEDIA_CATEGORY_BUILDING
-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_CATEGORY_BUILDING_PROJECT", ()), "", False, True, self.X_BUILDINGS, self.Y_BUILDINGS, self.W_BUILDINGS, self.H_BUILDINGS, PanelStyles.PANEL_STYLE_BLUE50 )
+		# <!-- custom: starting the buildings panel from a lower (Y)
+		# position, with the horizontal position (X), width of the panel (W),
+		# height of the panel (H) are not changed, same as the allows (units)
+		# panel.
+		# Now the buildings panel will be larger as the units panel, useful
+		# for ressources like marble that could not fit all, plus now we have
+		# room to create a new Enables panel i mean anyways, at least in this
+		# case i mean anyways, thanks,
+		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_CATEGORY_BUILDING_PROJECT", ()), "", False, True, self.X_BUILDINGS, self.Y_BUILDINGS + 120, self.W_BUILDINGS, self.H_BUILDINGS, PanelStyles.PANEL_STYLE_BLUE50 )
 		screen.attachLabel(panelName, "", "  ")
 		# advc.905b: Moved this loop from placeAllows, which only deals with units now.
 		for eLoopBuilding in range(gc.getNumBuildingInfos()):
