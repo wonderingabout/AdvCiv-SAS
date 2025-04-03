@@ -89,9 +89,9 @@ class SevoPediaImprovement:
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		# advc.004y: text key was TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_IMPROVEMENT_YIELD", ()), "", True, True, self.X_IMPROVEMENTS_PANE, self.Y_IMPROVEMENTS_PANE, self.W_IMPROVEMENTS_PANE, self.H_IMPROVEMENTS_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_IMPROVEMENT_YIELD", ()), "", True, True, self.X_IMPROVEMENTS_PANE, self.Y_IMPROVEMENTS_PANE, self.W_IMPROVEMENTS_PANE, self.H_IMPROVEMENTS_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		listName = self.top.getNextWidgetName()
-		screen.attachListBoxGFC( panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY )
+		screen.attachListBoxGFC(panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(listName, False)
 
 		# <!-- custom: changes based on the same idea i
@@ -126,7 +126,7 @@ class SevoPediaImprovement:
 			if (iYieldChange != 0):
 				# <!-- custom: change here -->
 				#szYield = localText.getText("TXT_KEY_PEDIA_IRRIGATED_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar()))
-				# note: event though we don't use the %s1
+				# note: even though we don't use the %s1
 				# field anymore, the parameter is needed for
 				# localText.getText else the display shows
 				# something weird, so since we don't use it,
@@ -148,8 +148,9 @@ class SevoPediaImprovement:
 		# bonuses, but may be useful if someone were to
 		# reuse these sevopedia changes i did (quite proudly)
 		# if i may say i mean anyways (but my hand or arm
-		# hurts to i am a contortionist in position while writing xd if i may say, about this at least i mean
-		# anyways.
+		# hurts too as i am a contortionist in position
+		# while writing xd if i may say, about this at least
+		# i mean anyways.
 		for k in range(YieldTypes.NUM_YIELD_TYPES):
 			iYieldChange = gc.getImprovementInfo(self.iImprovement).getHillsYieldChange(k)
 			if (iYieldChange != 0):
