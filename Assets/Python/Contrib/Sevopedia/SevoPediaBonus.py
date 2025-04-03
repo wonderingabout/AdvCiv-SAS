@@ -90,6 +90,17 @@ class SevoPediaBonus:
 		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getBonusInfo(self.iBonus).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		screen.addBonusGraphicGFC(self.top.getNextWidgetName(), self.iBonus, self.X_BONUS_ANIMATION, self.Y_BONUS_ANIMATION, self.W_BONUS_ANIMATION, self.H_BONUS_ANIMATION, WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_BONUS_ANIMATION, self.Z_ROTATION_BONUS_ANIMATION, self.SCALE_ANIMATION, True)
 
+
+		# <!-- custom: todo unfinished in this case at least i mean anyways,
+		# thanks,
+		# move the panel position, so that it starts from a
+		# lower (H) point in the screen. This place freed will be used
+		# to put the larger Buildings , while we create an Enables panel
+		# instead where the Buildings panel was, hopefulyl much clearer
+		# and more room to fit many buildings this way now, and to separate
+		#  tech reveals and tech enables, both currently in the "Requires"
+		# panel which is very weird i think, will be renamed to to "Reveals"
+		# ), at least in this case i mean anyways, thanks, -->
 		self.placeStats()
 		self.placeYield()
 		self.placeRequires()
@@ -283,10 +294,35 @@ class SevoPediaBonus:
 	def placeHistory(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel( panelName,localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE, self.W_HISTORY_PANE, self.H_HISTORY_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+		# <!-- custom: make the panel total height (H) smaller,
+		# and make it start from a lower point in the screen which is same
+		# as having moved it lower in the screen (Y), if i am not mistaken
+		# this is how it works i mean functions i mean, at least about this
+		# i mean anyways, maybe or not, i mean anyways, i mean anyways, thanks,
+		# just freeing enough space to put our new panel, no need to
+		# reduce too much the history panel's size -->
+		#screen.addPanel( panelName,localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE, self.W_HISTORY_PANE, self.H_HISTORY_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName,localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE + 100, self.W_HISTORY_PANE, self.H_HISTORY_PANE - 100, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panelName, "", "  ")
 		textName = self.top.getNextWidgetName()
-		screen.addMultilineText( textName, gc.getBonusInfo(self.iBonus).getCivilopedia(), self.X_HISTORY_PANE + 15, self.Y_HISTORY_PANE + 40, self.W_HISTORY_PANE - (30), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		# <!custom: -- move the text line (too), to a lower point (Y) so that it
+		# fits starting from the new position of the history panel, and correct
+		# height of the text line (H) (use a very long text as replacement, for
+		# example of rice, if you don't have any resource with a long enough
+		# text to test with i mean anwyays, in this case at least, i mean anyways,
+		# thanks, ) so that text does not go out of the screen.
+		# If we reach (fill) the end of the text panel, instead a scroll will
+		# appear at desired height, make it match around the end of the text
+		# panel, in this case at least i mean anyways, thanks,
+		# <!-- custom: also reduce padding to match how it was changed in
+		# the other categories at least in this case i mean anyways, thanks, -->
+		# <!-- custom: i also don't think we need casting (30), so keeping
+		# it as the more simple 30, at least in this case i mean anyways,
+		# seems to run file so leaving as is (as i fixed it i mean anyways),
+		# not that it was an error but weird i think in this case at least
+		# indeed maybe i mean anyways, thanks,
+		#screen.addMultilineText( textName, gc.getBonusInfo(self.iBonus).getCivilopedia(), self.X_HISTORY_PANE + 15, self.Y_HISTORY_PANE + 40, self.W_HISTORY_PANE - (30), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(textName, gc.getBonusInfo(self.iBonus).getCivilopedia(), self.X_HISTORY_PANE + 7, self.Y_HISTORY_PANE + 10 + 100 + 23, self.W_HISTORY_PANE - 30, self.H_HISTORY_PANE - (15 * 2) - 25 - 100, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
