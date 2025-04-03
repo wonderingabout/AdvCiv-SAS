@@ -212,6 +212,21 @@
 			<Plural>1</Plural>
 		</Spanish>
 	</TEXT>
+	<!-- custom: be careful, unlike what the txt key says, this is
+	applied to improvements category not ressources category.
+	Also clarifying it to a more detailed/accurate name to
+	hopefully help the player or/and others or not or yes at
+	least about this i mean anyways i mean anyways, thanks,
+	was "Bonus Yields", thanks, -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BONUS_YIELDS</Tag>
+		<English>Improvements Bonus Tile Yields</English>
+		<French>Improvements Bonus Tile Yields</French>
+		<German>Improvements Bonus Tile Yields</German>
+		<Italian>Improvements Bonus Tile Yields</Italian>
+		<Spanish>Improvements Bonus Tile Yields</Spanish>
+	</TEXT>
+
 	<!-- custom: keep this TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT
 	specifically for the Improvements category title (or/and
 	other places where it is used), we need a new TXT KEY
@@ -251,11 +266,11 @@
 	i mean anyways, i mean anyways, thanks, -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_IMPROVEMENT_YIELD</Tag>
-		<English>Improvements Bonus Tile Yields</English>
-		<French>Improvements Bonus Tile Yields</French>
-		<German>Improvements Bonus Tile Yields</German>
-		<Italian>Improvements Bonus Tile Yields</Italian>
-		<Spanish>Improvements Bonus Tile Yields</Spanish>
+		<English>Natural Bonus Tile Yields</English>
+		<French>Natural Bonus Tile Yields</French>
+		<German>Natural Bonus Tile Yields</German>
+		<Italian>Natural Bonus Tile Yields</Italian>
+		<Spanish>Natural Bonus Tile Yields</Spanish>
 	</TEXT>
 		<!-- advc.004y: Originally in CIV4GameTextInfos.xml. Only removed the
 		 parentheses and "Total"; more comprehensible this way. -->
