@@ -84,8 +84,8 @@ class SevoPediaBonus:
 		self.H_BUILDINGS = self.H_ALLOWS_PANE
 
 		# <!--custom: not changing the existing math since it was already done,
-		# but ideally should base this on the buildings panel now just above it
-		# i mean anywyas, thanks,
+		# but ideally (i think (?)) should base this on the buildings panel now
+		# just above it i mean anywyas, thanks,
 		self.X_HISTORY_PANE = self.X_ALLOWS_PANE
 		self.W_HISTORY_PANE = self.W_ALLOWS_PANE
 		self.Y_HISTORY_PANE = self.Y_ALLOWS_PANE + self.H_ALLOWS_PANE + 10
@@ -325,7 +325,7 @@ class SevoPediaBonus:
 		# just freeing enough space to put our new panel, no need to
 		# reduce too much the history panel's size -->
 		#screen.addPanel( panelName,localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE, self.W_HISTORY_PANE, self.H_HISTORY_PANE, PanelStyles.PANEL_STYLE_BLUE50)
-		screen.addPanel(panelName,localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE + 100, self.W_HISTORY_PANE, self.H_HISTORY_PANE - 100, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName,localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE + 120, self.W_HISTORY_PANE, self.H_HISTORY_PANE - 120, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panelName, "", "  ")
 		textName = self.top.getNextWidgetName()
 		# <!custom: -- move the text line (too), to a lower point (Y) so that it
@@ -345,7 +345,7 @@ class SevoPediaBonus:
 		# not that it was an error but weird i think in this case at least
 		# indeed maybe i mean anyways, thanks,
 		#screen.addMultilineText( textName, gc.getBonusInfo(self.iBonus).getCivilopedia(), self.X_HISTORY_PANE + 15, self.Y_HISTORY_PANE + 40, self.W_HISTORY_PANE - (30), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.addMultilineText(textName, gc.getBonusInfo(self.iBonus).getCivilopedia(), self.X_HISTORY_PANE + 7, self.Y_HISTORY_PANE + 10 + 100 + 23, self.W_HISTORY_PANE - 30, self.H_HISTORY_PANE - (15 * 2) - 25 - 100, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(textName, gc.getBonusInfo(self.iBonus).getCivilopedia(), self.X_HISTORY_PANE + 7, self.Y_HISTORY_PANE + 10 + 120 + 23, self.W_HISTORY_PANE - 30, self.H_HISTORY_PANE - (15 * 2) - 25 - 120, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
