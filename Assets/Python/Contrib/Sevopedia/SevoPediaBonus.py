@@ -108,6 +108,7 @@ class SevoPediaBonus:
 		#screen.addListBoxGFC(panelName, "", self.X_STATS_PANE, self.Y_STATS_PANE, self.W_STATS_PANE, self.H_STATS_PANE, TableStyles.TABLE_STYLE_EMPTY)
 		screen.addListBoxGFC(panelName, "", self.X_STATS_PANE, self.Y_STATS_PANE - 18, self.W_STATS_PANE + 380 , self.H_STATS_PANE, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(panelName, False)
+		
 		for k in range(YieldTypes.NUM_YIELD_TYPES):
 			iYieldChange = gc.getBonusInfo(self.iBonus).getYieldChange(k)
 			if (iYieldChange != 0):

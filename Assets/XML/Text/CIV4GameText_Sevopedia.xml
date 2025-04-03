@@ -83,7 +83,7 @@
 
 
 	<!-- custom -->
-	<!--				TERRAIN CATEGORY				-->
+	<!--				TERRAINS CATEGORY				-->
 	<!-- custom: rename "Base Terrain" to "Terrains"
 	(also switching to the plural form, same as for
 	"Features" (no reason why not and why it was not
@@ -269,13 +269,17 @@
 			<Plural>1</Plural>
 		</Spanish>
 	</TEXT>
+	<!-- custom: using the singular form here as this is
+	only about our current (selected) improvement's
+	yields, at least about this i mean anyways i mean
+	anyways, thanks, -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_IMPROVEMENT_YIELD</Tag>
-		<English>Natural Bonus Tile Yields</English>
-		<French>Natural Bonus Tile Yields</French>
-		<German>Natural Bonus Tile Yields</German>
-		<Italian>Natural Bonus Tile Yields</Italian>
-		<Spanish>Natural Bonus Tile Yields</Spanish>
+		<English>Improvement Bonus Tile Yields</English>
+		<French>Improvement Bonus Tile Yields</French>
+		<German>Improvement Bonus Tile Yields</German>
+		<Italian>Improvement Bonus Tile Yields</Italian>
+		<Spanish>Improvement Bonus Tile Yields</Spanish>
 	</TEXT>
 	<!-- custom: be careful, unlike what the txt key says, this
 	TXT_KEY_PEDIA_BONUS_YIELDS is applied to improvements category
@@ -286,11 +290,72 @@
 	was "Bonus Yields", thanks, -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_BONUS_YIELDS</Tag>
-		<English>Improvements Bonus Tile Yields</English>
-		<French>Improvements Bonus Tile Yields</French>
-		<German>Improvements Bonus Tile Yields</German>
-		<Italian>Improvements Bonus Tile Yields</Italian>
-		<Spanish>Improvements Bonus Tile Yields</Spanish>
+		<English>On Ressources Extra Improvements Bonus Tile Yields</English>
+		<French>On Ressources Extra Improvements Bonus Tile Yields</French>
+		<German>On Ressources Extra Improvements Bonus Tile Yields</German>
+		<Italian>On Ressources Extra Improvements Bonus Tile Yields</Italian>
+		<Spanish>On Ressources Extra Improvements Bonus Tile Yields</Spanish>
+	</TEXT>
+	<!-- custom: "Food: +1F (with Irrigation)" becomes
+	now "+1F (with Irrigation)", remove the uneeded
+	"%s1: " too now at least about this i mean anyways,
+	see placeYield in SevoPediaImprovement.py for
+	details, thanks, -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_IRRIGATED_YIELD</Tag>
+		<!-- %s1 = TXT_KEY_IMPROVEMENT -->
+		<English>%D2%F3 (with Irrigation)</English>
+		<French>%D2%F3 (avec irrigation)</French>
+		<German>Modernisierung %s1: %D2%F3 (mit Bew&#228;sserung)</German>
+		<Italian>%D2%F3 (con irrigazione)</Italian>
+		<Spanish>%D2 %F3 (con riego)</Spanish>
+	</TEXT>
+	<!-- custom: for the german translation the	text was/
+	looks(ed) weird so i applied the english one instead at
+	least about this i mean anyways, thanks,
+	"Production: +1H (on Hills)" is now "+1H (on Hills)"
+	-->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_HILLS_YIELD</Tag>
+		<!-- %s1 = TXT_KEY_IMPROVEMENT -->
+		<English>%D2%F3 (on Hills)</English>
+		<French>%D2%F3 (sur les collines)</French>
+		<German>%D2%F3 (on Hills)</German>
+		<Italian>%D2%F3 (sulle colline)</Italian>
+		<Spanish>%D2 %F3 (en colinas)</Spanish>
+	</TEXT>
+	<!-- custom: similarly (done) as for for/in
+	TXT_KEY_PEDIA_HILLS_YIELD, at least about this
+	i mean anyways, thanks, -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_RIVER_YIELD</Tag>
+		<!-- %s1 = TXT_KEY_IMPROVEMENT -->
+		<English>%D2%F3 (next to River)</English>
+		<French>%D2%F3 (pr&#232;s des fleuves)</French>
+		<German>%D2%F3 (next to River)</German>
+		<Italian>%D2%F3 (vicino a un fiume)</Italian>
+		<Spanish>%D2 %F3 (junto a un r&#237;o)</Spanish>
+	</TEXT>
+	<!-- custom: similarly (done) as for for/in
+	TXT_KEY_PEDIA_HILLS_YIELD -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_TECH_YIELD</Tag>
+		<!-- %s1 = TXT_KEY_IMPROVEMENT  %s4 = TXT_KEY_BONUS -->
+		<English>%D2%F3 (with [LINK=literal]%s4[\LINK])</English>
+		<French>%D2%F3 (avec [LINK=literal]%s4[\LINK])</French>
+		<German>%D2%F3 (with [LINK=literal]%s4[\LINK])</German>
+		<Italian>%D2%F3 (con [LINK=literal]%s4[\LINK])</Italian>
+		<Spanish>%D2 %F3 (con [LINK=literal]%s4[\LINK])</Spanish>
+	</TEXT>
+	<!-- custom: similarly (done) as for for/in
+	TXT_KEY_PEDIA_HILLS_YIELD -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_ROUTE_YIELD</Tag>
+		<English>%D2%F3 (with [LINK=CONCEPT_MOVEMENT]%s4[\LINK])</English>
+		<French>%D2%F3 (avec [LINK=CONCEPT_MOVEMENT]%s4[\LINK])</French>
+		<German>%D2%F3 (with [LINK=CONCEPT_MOVEMENT]%s4[\LINK])</German>
+		<Italian>%D2%F3 (con [LINK=CONCEPT_MOVEMENT]%s4[\LINK])</Italian>
+		<Spanish>%D2 %F3 (con [LINK=CONCEPT_MOVEMENT]%s4[\LINK])</Spanish>
 	</TEXT>
 
 
