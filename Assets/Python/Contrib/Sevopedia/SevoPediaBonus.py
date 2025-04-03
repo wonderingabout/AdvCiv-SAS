@@ -118,8 +118,16 @@ class SevoPediaBonus:
 		self.placeStats()
 		self.placeYield()
 		self.placeSpecial()
-		self.placeRequires() # <!-- custom: todo rename to self.placeReveals() i mean anyways, thanks, i mean anyways, thanks, -->
-		# <!-- custom: todo add (create i mean anyways i mean anyways) self.placeEnables() -->
+		self.placeRequires()
+		# <!-- custom: todo rename to self.placeReveals() i mean anyways, thanks, i mean anyways, thanks, -->
+
+
+
+		# <!-- custom: separate reveals from enables
+		self.placeEnables()
+		
+
+		
 		self.placeAllows()
 		self.placeBuildings()
 		self.placeHistory()
@@ -222,6 +230,41 @@ class SevoPediaBonus:
 		if (iTech > -1):
 			screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
 			screen.attachLabel(panelName, "", u"(" + localText.getText("TXT_KEY_PEDIA_BONUS_APPEARANCE", ()) + u")")
+		iTech = gc.getBonusInfo(self.iBonus).getTechCityTrade()
+		if (iTech > -1):
+			screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
+			screen.attachLabel(panelName, "", u"(" + localText.getText("TXT_KEY_PEDIA_BONUS_TRADE", ()) + u")")
+
+
+
+	# <!-- custom: base this on the placeRequires function as it is
+	# very similar, only moved to the right, at least about this
+	# i mean anyways, thanks, slightly adjust values, about this,
+	# i mean, anyways, maybe or not maybe, as is, but anyways,
+	# thanks, i mean anyways, thanks, -->
+	def placeEnables(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		# <!-- custom: move it at the right, in this case at least i mean anyways,
+		# of the requires panel, about this i mean anyways, at least, maybe, thanks,
+		# note: self.X_REQUIRES + 685 works i mean about this anyways, but since the
+		# new Enables panel is aligned with the effects panel, easier to use same 
+		# horizontal postion (X) i mean anyways, about this at least, i mean anyways,
+		# thanks,
+		# May support much better lower resolutions too, as we would be aligned with
+		# effects panel and not too far from it i mean anyways, thanks, so most likely
+		# better i think to align it based on the effects panel, even though the
+		# functionnal code is the same/similar as in the requires/reveals panel
+		# i mean anyways, about this i mean anyways, thanks,
+		# -->
+		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_REQUIRES", ()), "", False, True, self.X_EFFECTS_PANE, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES, PanelStyles.PANEL_STYLE_BLUE50 )
+		screen.attachLabel(panelName, "", "  ")
+
+		iTech = gc.getBonusInfo(self.iBonus).getTechReveal()
+		if (iTech > -1):
+			screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
+			screen.attachLabel(panelName, "", u"(" + localText.getText("TXT_KEY_PEDIA_BONUS_APPEARANCE", ()) + u")")
+
 		iTech = gc.getBonusInfo(self.iBonus).getTechCityTrade()
 		if (iTech > -1):
 			screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
