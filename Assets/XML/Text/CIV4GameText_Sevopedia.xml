@@ -167,11 +167,11 @@
 	thanks, -->
 	<TEXT> 
 		<Tag>TXT_KEY_PEDIA_BONUS_YIELDS_CUSTOM_PANEL_TEXT</Tag>
-		<English>Bonus Tile Yields</English>
-		<French>Bonus Tile Yields</French>
-		<German>Bonus Tile Yields</German>
-		<Italian>Bonus Tile Yields</Italian>
-		<Spanish>Bonus Tile Yields</Spanish>
+		<English>Natural Bonus Tile Yields</English>
+		<French>Natural Bonus Tile Yields</French>
+		<German>Natural Bonus Tile Yields</German>
+		<Italian>Natural Bonus Tile Yields</Italian>
+		<Spanish>Natural Bonus Tile Yields</Spanish>
 	</TEXT>
 	<!-- custom: translate everything technical i want to
 	clarify in English, not sure the translation are
