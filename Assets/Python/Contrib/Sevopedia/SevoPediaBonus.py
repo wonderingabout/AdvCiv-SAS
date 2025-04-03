@@ -112,8 +112,20 @@ class SevoPediaBonus:
 					sign = "+"
 				else:
 					sign = ""
-				szYield = (u"%s: %s%i " % (gc.getYieldInfo(k).getDescription(), sign, iYieldChange))
-				screen.appendListBoxString(panelName, u"<font=3>" + szYield.upper() + (u"%c" % gc.getYieldInfo(k).getChar()) + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+				# custom: beautify, no need to mention "FOOD: +1", just "+1" is enough especially
+				# with the food logo i mean anyways i mean anyways, thanks,
+				#szYield = (u"%s: %s%i " % (gc.getYieldInfo(k).getDescription(), sign, iYieldChange))
+				szYield = (u"%s%i " % (sign, iYieldChange))
+				# <!-- custom: add an information about the precise type of yield it is, which can be otherwise very confusing
+				# note: used the same logic as in other parts of the code,
+				# for example placeStats in SevoPediaProject.py is quite
+				# (very) similar and helped quite a lot even though i did
+				# it myself thanks to things i learned or/and taught to
+				# me i mean anyways i mean anyways, should be much more
+				# beautiful (and pleasant/satisfying to do too i mean anyways), thanks,(), thanks,-->
+				#screen.appendListBoxString(panelName, u"<font=3>" + szYield.upper() + (u"%c" % gc.getYieldInfo(k).getChar()) + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+				szText = u"<font=4><b>" + localText.getText("TXT_KEY_PEDIA_BONUS_YIELDS_CUSTOM_PANEL_TEXT", ()) + "\n" + szYield.upper() + (u"%c" % gc.getYieldInfo(k).getChar()) + u"</b></font>"
+				screen.appendListBoxString(panelName, szText, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
