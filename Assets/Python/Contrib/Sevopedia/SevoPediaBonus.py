@@ -103,8 +103,8 @@ class SevoPediaBonus:
 	def placeStats(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		# <!-- custom: max box width and height starting position we want to
-		# write our text adjusted -->
+		# <!-- custom: max box width and height starting position we
+		# want to write our text adjusted -->
 		#screen.addListBoxGFC(panelName, "", self.X_STATS_PANE, self.Y_STATS_PANE, self.W_STATS_PANE, self.H_STATS_PANE, TableStyles.TABLE_STYLE_EMPTY)
 		screen.addListBoxGFC(panelName, "", self.X_STATS_PANE, self.Y_STATS_PANE - 18, self.W_STATS_PANE + 380 , self.H_STATS_PANE, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(panelName, False)
@@ -116,17 +116,21 @@ class SevoPediaBonus:
 					sign = "+"
 				else:
 					sign = ""
-				# <!-- custom: beautify, no need to mention "FOOD: +1", just "+1" is enough especially
-				# with the food logo i mean anyways i mean anyways, thanks, -->
+				# <!-- custom: beautify, no need to mention "FOOD: +1",
+				# just "+1" is enough especially with the food icon i
+				# mean anyways i mean anyways, thanks, -->
 				#szYield = (u"%s: %s%i " % (gc.getYieldInfo(k).getDescription(), sign, iYieldChange))
 				szYield = (u"%s%i " % (sign, iYieldChange))
-				# <!-- custom: add an information about the precise type of yield it is, which can be otherwise very confusing
-				# note: used the same logic as in other parts of the code,
-				# for example placeStats in SevoPediaProject.py is quite
-				# (very) similar and helped quite a lot even though i did
-				# it myself thanks to things i learned or/and taught to
-				# me i mean anyways i mean anyways, should be much more
-				# beautiful (and pleasant/satisfying to do too i mean anyways), thanks,(), thanks,-->
+				# <!-- custom: add an information about the precise
+				# type of yield it is, which can be otherwise very
+				# confusing
+				# note: used the same logic as in other parts of the
+				# code, for example placeStats in SevoPediaProject.py
+				# is quite (very) similar and helped quite a lot even
+				# though i did it myself thanks to things i learned
+				# or/and taught to me i mean anyways i mean anyways,
+				# should be much more beautiful (and pleasant/satisfying
+				# to do too i mean anyways), thanks,(), thanks,-->
 				#screen.appendListBoxString(panelName, u"<font=3>" + szYield.upper() + (u"%c" % gc.getYieldInfo(k).getChar()) + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 				szText = u"<font=4><b>" + localText.getText("TXT_KEY_PEDIA_BONUS_YIELDS_CUSTOM_PANEL_TEXT", ()) + "\n\n" + szYield.upper() + (u"%c" % gc.getYieldInfo(k).getChar()) + u"</b></font>"
 				screen.appendListBoxString(panelName, szText, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
@@ -167,22 +171,6 @@ class SevoPediaBonus:
 
 
 
-	def placeSpecial(self):
-		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_EFFECTS", ()), "", True, False,
-				 self.X_EFFECTS_PANE, self.Y_EFFECTS_PANE, self.W_EFFECTS_PANE, self.H_EFFECTS_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
-		listName = self.top.getNextWidgetName()
-		screen.attachListBoxGFC( panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY )
-		screen.enableSelect(listName, False)
-		szSpecialText = CyGameTextMgr().getBonusHelp(self.iBonus, True)
-		splitText = string.split( szSpecialText, "\n" )
-		for special in splitText:
-			if len( special ) != 0:
-				screen.appendListBoxString( listName, special, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-
-
-
 	def placeRequires(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -196,16 +184,6 @@ class SevoPediaBonus:
 		if (iTech > -1):
 			screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
 			screen.attachLabel(panelName, "", u"(" + localText.getText("TXT_KEY_PEDIA_BONUS_TRADE", ()) + u")")
-
-
-
-	def placeHistory(self):
-		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel( panelName,localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE, self.W_HISTORY_PANE, self.H_HISTORY_PANE, PanelStyles.PANEL_STYLE_BLUE50)
-		screen.attachLabel(panelName, "", "  ")
-		textName = self.top.getNextWidgetName()
-		screen.addMultilineText( textName, gc.getBonusInfo(self.iBonus).getCivilopedia(), self.X_HISTORY_PANE + 15, self.Y_HISTORY_PANE + 40, self.W_HISTORY_PANE - (30), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -283,6 +261,32 @@ class SevoPediaBonus:
 				# </advc.003l>
 				screen.attachImageButton( panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, eLoopUnit, 1, False )
 		# advc.905b: Allowed buildings moved to placeBuildings
+
+
+
+	def placeSpecial(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_EFFECTS", ()), "", True, False,
+				 self.X_EFFECTS_PANE, self.Y_EFFECTS_PANE, self.W_EFFECTS_PANE, self.H_EFFECTS_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
+		listName = self.top.getNextWidgetName()
+		screen.attachListBoxGFC( panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY )
+		screen.enableSelect(listName, False)
+		szSpecialText = CyGameTextMgr().getBonusHelp(self.iBonus, True)
+		splitText = string.split( szSpecialText, "\n" )
+		for special in splitText:
+			if len( special ) != 0:
+				screen.appendListBoxString( listName, special, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+
+
+
+	def placeHistory(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel( panelName,localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE, self.W_HISTORY_PANE, self.H_HISTORY_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.attachLabel(panelName, "", "  ")
+		textName = self.top.getNextWidgetName()
+		screen.addMultilineText( textName, gc.getBonusInfo(self.iBonus).getCivilopedia(), self.X_HISTORY_PANE + 15, self.Y_HISTORY_PANE + 40, self.W_HISTORY_PANE - (30), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
