@@ -59,16 +59,16 @@ class SevoPediaBonus:
 		self.Y_EFFECTS_PANE = self.Y_IMPROVEMENTS_PANE
 		self.H_EFFECTS_PANE = self.H_IMPROVEMENTS_PANE
 
-		self.X_REVEALS = self.X_BONUS_PANE
-		self.W_REVEALS = self.W_BONUS_PANE
-		self.Y_REVEALS = self.Y_IMPROVEMENTS_PANE + self.H_IMPROVEMENTS_PANE + 10
-		self.H_REVEALS = 110
+		self.X_REVEALED_BY = self.X_BONUS_PANE
+		self.W_REVEALED_BY = self.W_BONUS_PANE
+		self.Y_REVEALED_BY = self.Y_IMPROVEMENTS_PANE + self.H_IMPROVEMENTS_PANE + 10
+		self.H_REVEALED_BY = 110
 
 		# <!-- custom: todo add self.X_ENABLES and similar i mean anyways, thanks, -->
 
 		self.X_ALLOWS_PANE = self.X_BONUS_PANE
 		self.W_ALLOWS_PANE = self.top.R_PEDIA_PAGE - self.X_ALLOWS_PANE
-		self.Y_ALLOWS_PANE = self.Y_REVEALS + self.H_REVEALS + 10
+		self.Y_ALLOWS_PANE = self.Y_REVEALED_BY + self.H_REVEALED_BY + 10
 		self.H_ALLOWS_PANE = 110
 
 		# <!-- custom: put the buildings panel under the units (allows) panel
@@ -119,10 +119,10 @@ class SevoPediaBonus:
 		self.placeYield()
 		self.placeSpecial()
 		# <!-- custom: split the former/old about this i mean anyways
-		# placeRequires, into placeReveals and placeEnables (which is
+		# placeRequires, into placeRevealedBy and placeEnables (which is
 		# hopefully more accurate this way too i mean anyways, thanks,
 		# -->
-		self.placeReveals()
+		self.placeRevealedBy()
 		self.placeEnables()
 		self.placeAllows()
 		self.placeBuildings()
@@ -217,11 +217,17 @@ class SevoPediaBonus:
 
 
 
-	def placeReveals(self):
+	def placeRevealedBy(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		# <!-- custom: note, i mean anyways: TXT_KEY_PEDIA_BONUS_APPEARANCE
-		# is "Reveals" thanks, about this i mean anyways, thanks,
+		# is "Reveals", using a custom TXT KEY "Revealed By" 
+		# TXT_KEY_PEDIA_BONUS_APPEARANCE_REVEALED_BY_CUSTOM
+		# specifically for the Sevopedia, because now that we formatted it
+		# like that, in this case i mean anyways at least, "Revealed By" would
+		# fit better than "Reveals". Stil keeping the old entry intact for the
+		# Civilopedia, is about this i mean anyways, at least i mean anyways, 
+		# thanks,
 		# note: "Appearance"/"Reveals" is the logic it seems of an appearance
 		# but i still find it very confusing, why not use the same name i mean
 		# anyways, but as long as works, about this and in this case i mean,
@@ -231,7 +237,7 @@ class SevoPediaBonus:
 		# but as is or not, i mean, or not, but anyways, as is or not,
 		# i mean anyways, maybe or not, as is, thanks,
 		# -->
-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_BONUS_APPEARANCE", ()), "", False, True, self.X_REVEALS, self.Y_REVEALS, self.W_REVEALS, self.H_REVEALS, PanelStyles.PANEL_STYLE_BLUE50 )
+		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_BONUS_APPEARANCE_REVEALED_BY_CUSTOM", ()), "", False, True, self.X_REVEALED_BY, self.Y_REVEALED_BY, self.W_REVEALED_BY, self.H_REVEALED_BY, PanelStyles.PANEL_STYLE_BLUE50 )
 		screen.attachLabel(panelName, "", "  ")
 
 		iTech = gc.getBonusInfo(self.iBonus).getTechReveal()
@@ -249,7 +255,7 @@ class SevoPediaBonus:
 
 
 	# <!-- custom: base this on former placeRequires (now split
-	# between placeReveals and placeEnables with some adjustments
+	# between placeRevealedBy and placeEnables with some adjustments
 	# and quite minor tweaks maybe i mean anywyas but that i still
 	# did and do feel quite proudly about, about this i mean anyways,
 	# but continuing the code now i mean hope helps if i may say
@@ -264,7 +270,7 @@ class SevoPediaBonus:
 		panelName = self.top.getNextWidgetName()
 		# <!-- custom: move it at the right, in this case at least i mean anyways,
 		# of the requires panel, about this i mean anyways, at least, maybe, thanks,
-		# note: self.X_REVEALS + 685 works i mean about this anyways, but since the
+		# note: self.X_REVEALED_BY + 685 works i mean about this anyways, but since the
 		# new Enables panel is aligned with the effects panel, easier to use same 
 		# horizontal postion (X) i mean anyways, about this at least, i mean anyways,
 		# thanks,
@@ -276,7 +282,7 @@ class SevoPediaBonus:
 		# -->
 		# <!-- custom: note, i mean anyways: TXT_KEY_PEDIA_BONUS_TRADE
 		# is "Enables" thanks, about this i mean anyways, thanks, -->
-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_BONUS_TRADE", ()), "", False, True, self.X_EFFECTS_PANE, self.Y_REVEALS, self.W_REVEALS, self.H_REVEALS, PanelStyles.PANEL_STYLE_BLUE50 )
+		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_BONUS_TRADE", ()), "", False, True, self.X_EFFECTS_PANE, self.Y_REVEALED_BY, self.W_REVEALED_BY, self.H_REVEALED_BY, PanelStyles.PANEL_STYLE_BLUE50 )
 		screen.attachLabel(panelName, "", "  ")
 
 		iTech = gc.getBonusInfo(self.iBonus).getTechCityTrade()

@@ -226,7 +226,18 @@
 			<Text>Improvements Bonus Tile Yields</Text>
 			<Gender>Male</Gender>
 			<Plural>1</Plural>
-		</Spanish>
+		</Spanish>	
+	</TEXT>
+	<!-- custom: create a new entry "Revealed By" specifically for
+	the sevopedia, the civilopedia still uses reveals due to how
+	the text "reveals" is displayed in the civilopedia rather -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BONUS_APPEARANCE_REVEALED_BY_CUSTOM</Tag>
+		<English>Revealed By</English>
+		<French>Revealed By</French>
+		<German>Revealed By</German>
+		<Italian>Revealed By</Italian>
+		<Spanish>Revealed By</Spanish>
 	</TEXT>
 
 
