@@ -118,16 +118,12 @@ class SevoPediaBonus:
 		self.placeStats()
 		self.placeYield()
 		self.placeSpecial()
+		# <!-- custom: split the former/old about this i mean anyways
+		# placeRequires, into placeReveals and placeEnables (which is
+		# hopefully more accurate this way too i mean anyways, thanks,
+		# -->
 		self.placeRequires()
-		# <!-- custom: todo rename to self.placeReveals() i mean anyways, thanks, i mean anyways, thanks, -->
-
-
-
-		# <!-- custom: separate reveals from enables
 		self.placeEnables()
-		
-
-		
 		self.placeAllows()
 		self.placeBuildings()
 		self.placeHistory()
@@ -224,24 +220,41 @@ class SevoPediaBonus:
 	def placeRequires(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_REQUIRES", ()), "", False, True, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES, PanelStyles.PANEL_STYLE_BLUE50 )
+		# <!-- custom: note, i mean anyways: TXT_KEY_PEDIA_BONUS_APPEARANCE
+		# is "Reveals" thanks, about this i mean anyways, thanks,
+		# note: "Appearance"/"Reveals" is the logic it seems of an appearance
+		# but i still find it very confusing, why not use the same name i mean
+		# anyways, but as long as works, about this and in this case i mean,
+		# anyways, i mean anyways, as is or not or etc i mean maybe or not or
+		# yes, but anyways, i mean anyways, sorry if too spammy but i wanted
+		# though so how can i apologize, about this and me i mean anyways,
+		# but as is or not, i mean, or not, but anyways, as is or not,
+		# i mean anyways, maybe or not, as is, thanks,
+		# -->
+		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_BONUS_APPEARANCE", ()), "", False, True, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES, PanelStyles.PANEL_STYLE_BLUE50 )
 		screen.attachLabel(panelName, "", "  ")
+
 		iTech = gc.getBonusInfo(self.iBonus).getTechReveal()
 		if (iTech > -1):
 			screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
-			screen.attachLabel(panelName, "", u"(" + localText.getText("TXT_KEY_PEDIA_BONUS_APPEARANCE", ()) + u")")
-		iTech = gc.getBonusInfo(self.iBonus).getTechCityTrade()
-		if (iTech > -1):
-			screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
-			screen.attachLabel(panelName, "", u"(" + localText.getText("TXT_KEY_PEDIA_BONUS_TRADE", ()) + u")")
+			# <!-- custom: we don't need the extra "(Reveals)" or "(Enables)" texts
+			# now that they are both not a "requires" anymore (which i think was very
+			# inaccurate i mean but anyways is just my opinion, now fixed at least,
+			# i mean about this, anyways, i mean anyways, thanks,
+			# remove the line entirely, i mean anyways, i mean anyways, thanks,
+			# about this at least i mean anyways, maybe or not as is or not,
+			# but anyways, i mean anyways, as is or not anyways i mean, thanks, -->
+			#screen.attachLabel(panelName, "", u"(" + localText.getText("TXT_KEY_PEDIA_BONUS_APPEARANCE", ()) + u")")
 
 
 
-	# <!-- custom: base this on the placeRequires function as it is
-	# very similar, only moved to the right, at least about this
-	# i mean anyways, thanks, slightly adjust values, about this,
-	# i mean, anyways, maybe or not maybe, as is, but anyways,
-	# thanks, i mean anyways, thanks, -->
+	# <!-- custom: base this on the now/soon to be, about this i
+	# mean anyways, at least i mean anyways, as is, i mean anyways,
+	# thanks, as is, former placeRequires function as it is very
+	# similar, only moved to the right, at least about this i mean
+	# anyways, thanks, slightly adjust values, about this, i mean,
+	# anyways, maybe or not maybe, as is, but anyways, thanks, i
+	# mean anyways, thanks, -->
 	def placeEnables(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -255,20 +268,25 @@ class SevoPediaBonus:
 		# effects panel and not too far from it i mean anyways, thanks, so most likely
 		# better i think to align it based on the effects panel, even though the
 		# functionnal code is the same/similar as in the requires/reveals panel
-		# i mean anyways, about this i mean anyways, thanks,
+		# i mean anyways, about this i mean anyways, thanks, 
 		# -->
-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_REQUIRES", ()), "", False, True, self.X_EFFECTS_PANE, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES, PanelStyles.PANEL_STYLE_BLUE50 )
+		# <!-- custom: note, i mean anyways: TXT_KEY_PEDIA_BONUS_TRADE
+		# is "Enables" thanks, about this i mean anyways, thanks, -->
+		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_BONUS_TRADE", ()), "", False, True, self.X_EFFECTS_PANE, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES, PanelStyles.PANEL_STYLE_BLUE50 )
 		screen.attachLabel(panelName, "", "  ")
-
-		iTech = gc.getBonusInfo(self.iBonus).getTechReveal()
-		if (iTech > -1):
-			screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
-			screen.attachLabel(panelName, "", u"(" + localText.getText("TXT_KEY_PEDIA_BONUS_APPEARANCE", ()) + u")")
 
 		iTech = gc.getBonusInfo(self.iBonus).getTechCityTrade()
 		if (iTech > -1):
 			screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
-			screen.attachLabel(panelName, "", u"(" + localText.getText("TXT_KEY_PEDIA_BONUS_TRADE", ()) + u")")
+			# <!-- custom: we don't need the extra "(Reveals)" or "(Enables)" texts
+			# now that they are both not a "requires" anymore (which i think was very
+			# inaccurate i mean but anyways is just my opinion, now fixed at least,
+			# i mean about this, anyways, i mean anyways, thanks,
+			# remove the line entirely, i mean anyways, i mean anyways, thanks,
+			# about this at least i mean anyways, maybe or not as is or not,
+			# but anyways, i mean anyways, as is or not anyways i mean, thanks, -->
+			#screen.attachLabel(panelName, "", u"(" + localText.getText("TXT_KEY_PEDIA_BONUS_TRADE", ()) + u")")
+
 
 
 
