@@ -1937,6 +1937,23 @@
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
+		<!-- custom: use a spy dedicated entry to remove much of the
+		unclear or mistaken or not relevant to a mod information about
+		espionage as a whole: we only want the relevant infos about
+		the spy as a unit, also solves some display issues in the
+		sevopedia, while fixing potentially existing or future
+		inaccuracies so i think is very good, doing it for my mod
+		but implemented with this file so that it could be more
+		easily exported in other mods or base advciv if wished, but
+		is just a suggestion i mean anyways, else i am regardless
+		using it i mean anyways, focsuing on me i mean anywyas,
+		as is or not i mean anyways, thanks, -->
+		<!-- custom: for reference, old data was:
+		<Civilopedia>TXT_KEY_CONCEPT_ESPIONAGE_PEDIA_SR</Civilopedia>
+		putting it outside of the class to make sure no weird bugs are
+		caused by in-class comments, about this at least i mean anyways,
+		thanks,
+		-->
 		<UnitInfo>
 			<Class>UNITCLASS_SPY</Class>
 			<Type>UNIT_SPY</Type>
@@ -1949,7 +1966,7 @@
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_SPY</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_ESPIONAGE_PEDIA_SR</Civilopedia>
+			<Civilopedia>TXT_KEY_CONCEPT_ESPIONAGE_PEDIA_SR_SPY_UNIT_PEDIA_CUSTOM</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_SPY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
