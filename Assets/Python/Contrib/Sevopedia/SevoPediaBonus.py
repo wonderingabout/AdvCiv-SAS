@@ -90,23 +90,26 @@ class SevoPediaBonus:
 		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getBonusInfo(self.iBonus).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		screen.addBonusGraphicGFC(self.top.getNextWidgetName(), self.iBonus, self.X_BONUS_ANIMATION, self.Y_BONUS_ANIMATION, self.W_BONUS_ANIMATION, self.H_BONUS_ANIMATION, WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_BONUS_ANIMATION, self.Z_ROTATION_BONUS_ANIMATION, self.SCALE_ANIMATION, True)
 
-
 		# <!-- custom: todo unfinished in this case at least i mean anyways,
 		# thanks,
-		# move the panel position, so that it starts from a
-		# lower (H) point in the screen. This place freed will be used
-		# to put the larger Buildings , while we create an Enables panel
-		# instead where the Buildings panel was, hopefulyl much clearer
-		# and more room to fit many buildings this way now, and to separate
-		#  tech reveals and tech enables, both currently in the "Requires"
-		# panel which is very weird i think, will be renamed to to "Reveals"
-		# ), at least in this case i mean anyways, thanks, -->
+		# Move the panel position, so that it starts from a
+		# lower point in the screen.
+		# We will use this newly freed place in this case at least i mean
+		# anyways to put the larger Buildings, while we create an Enables
+		# panel instead where the Buildings panel was.
+		# Hopefully much clearer and more room to fit many buildings this
+		# way now, and to separate tech reveals and tech enables,
+		# both currently in the "Requires" panel which is very weird i
+		# think, will be renamed to to "Reveals"), at least in this case
+		# i mean anyways, thanks,
+		# -->
 		self.placeStats()
 		self.placeYield()
-		self.placeRequires()
-		self.placeBuildings()
-		self.placeAllows()
 		self.placeSpecial()
+		self.placeRequires() # <!-- custom: todo rename to self.placeReveals() i mean anyways, thanks, i mean anyways, thanks, -->
+		# <!-- custom: todo add (create i mean anyways i mean anyways) self.placeEnables() -->
+		self.placeAllows()
+		self.placeBuildings()
 		self.placeHistory()
 
 
@@ -182,6 +185,22 @@ class SevoPediaBonus:
 
 
 
+	def placeSpecial(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_EFFECTS", ()), "", True, False,
+				 self.X_EFFECTS_PANE, self.Y_EFFECTS_PANE, self.W_EFFECTS_PANE, self.H_EFFECTS_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
+		listName = self.top.getNextWidgetName()
+		screen.attachListBoxGFC( panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY )
+		screen.enableSelect(listName, False)
+		szSpecialText = CyGameTextMgr().getBonusHelp(self.iBonus, True)
+		splitText = string.split( szSpecialText, "\n" )
+		for special in splitText:
+			if len( special ) != 0:
+				screen.appendListBoxString( listName, special, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+
+
+
 	def placeRequires(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -195,6 +214,41 @@ class SevoPediaBonus:
 		if (iTech > -1):
 			screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
 			screen.attachLabel(panelName, "", u"(" + localText.getText("TXT_KEY_PEDIA_BONUS_TRADE", ()) + u")")
+
+
+
+	def placeAllows(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		# advc.905b: txt key was TXT_KEY_PEDIA_ALLOWS
+		screen.addPanel( panelName, localText.getText("TXT_KEY_WB_UNITS", ()), "", False, True, self.X_ALLOWS_PANE, self.Y_ALLOWS_PANE, self.W_ALLOWS_PANE, self.H_ALLOWS_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
+		screen.attachLabel(panelName, "", "  ")
+		iActivePlayer = gc.getGame().getActivePlayer() # advc.003l
+		for eLoopUnit in range(gc.getNumUnitInfos()):
+			bFound = False
+			if (gc.getUnitInfo(eLoopUnit).getPrereqAndBonus() == self.iBonus):
+				bFound = True
+			else:
+				j = 0
+				while (not bFound and j < gc.getNUM_UNIT_PREREQ_OR_BONUSES()):
+					if (gc.getUnitInfo(eLoopUnit).getPrereqOrBonuses(j) == self.iBonus):
+						bFound = True
+					j += 1
+			# <advc.905b>
+			if not bFound:
+				for j in range(gc.getNUM_UNIT_PREREQ_OR_BONUSES()):
+					if gc.getUnitInfo(eLoopUnit).getSpeedBonuses(j) == self.iBonus:
+						bFound = True
+						break
+			# </advc.905b>
+			if bFound:
+				szButton = gc.getUnitInfo(eLoopUnit).getButton()
+				# <advc.003l>
+				if iActivePlayer >= 0:
+					szButton = gc.getPlayer(iActivePlayer).getUnitButton(eLoopUnit)
+				# </advc.003l>
+				screen.attachImageButton( panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, eLoopUnit, 1, False )
+		# advc.905b: Allowed buildings moved to placeBuildings
 
 
 
@@ -237,57 +291,6 @@ class SevoPediaBonus:
 			if info.getBonusProductionModifier(self.iBonus) != 0:
 				screen.attachImageButton(panelName, "", info.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
 		# </advc.004y>
-
-
-
-	def placeAllows(self):
-		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		# advc.905b: txt key was TXT_KEY_PEDIA_ALLOWS
-		screen.addPanel( panelName, localText.getText("TXT_KEY_WB_UNITS", ()), "", False, True, self.X_ALLOWS_PANE, self.Y_ALLOWS_PANE, self.W_ALLOWS_PANE, self.H_ALLOWS_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
-		screen.attachLabel(panelName, "", "  ")
-		iActivePlayer = gc.getGame().getActivePlayer() # advc.003l
-		for eLoopUnit in range(gc.getNumUnitInfos()):
-			bFound = False
-			if (gc.getUnitInfo(eLoopUnit).getPrereqAndBonus() == self.iBonus):
-				bFound = True
-			else:
-				j = 0
-				while (not bFound and j < gc.getNUM_UNIT_PREREQ_OR_BONUSES()):
-					if (gc.getUnitInfo(eLoopUnit).getPrereqOrBonuses(j) == self.iBonus):
-						bFound = True
-					j += 1
-			# <advc.905b>
-			if not bFound:
-				for j in range(gc.getNUM_UNIT_PREREQ_OR_BONUSES()):
-					if gc.getUnitInfo(eLoopUnit).getSpeedBonuses(j) == self.iBonus:
-						bFound = True
-						break
-			# </advc.905b>
-			if bFound:
-				szButton = gc.getUnitInfo(eLoopUnit).getButton()
-				# <advc.003l>
-				if iActivePlayer >= 0:
-					szButton = gc.getPlayer(iActivePlayer).getUnitButton(eLoopUnit)
-				# </advc.003l>
-				screen.attachImageButton( panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, eLoopUnit, 1, False )
-		# advc.905b: Allowed buildings moved to placeBuildings
-
-
-
-	def placeSpecial(self):
-		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_EFFECTS", ()), "", True, False,
-				 self.X_EFFECTS_PANE, self.Y_EFFECTS_PANE, self.W_EFFECTS_PANE, self.H_EFFECTS_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
-		listName = self.top.getNextWidgetName()
-		screen.attachListBoxGFC( panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY )
-		screen.enableSelect(listName, False)
-		szSpecialText = CyGameTextMgr().getBonusHelp(self.iBonus, True)
-		splitText = string.split( szSpecialText, "\n" )
-		for special in splitText:
-			if len( special ) != 0:
-				screen.appendListBoxString( listName, special, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 
 
