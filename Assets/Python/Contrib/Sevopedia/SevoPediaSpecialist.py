@@ -80,9 +80,21 @@ class SevoPediaSpecialist:
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
-		szText = gc.getSpecialistInfo(self.iSpecialist).getCivilopedia()
-		screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		# <!-- custom: similarly to how was done in 
+		# SevoPediaCivic.py 's placeText i mean anyways,
+		# thanks -->
 
+		textName = self.top.getNextWidgetName()
+		szText = u""
+		szText = gc.getSpecialistInfo(self.iSpecialist).getCivilopedia()
+		# <!-- custom: use a method that allows us to use padding instead (unless i'm mistaken about how it works, still should
+		# work this way i mean anyways, similarly to how was done in 
+		# SevoPediaCivic.py 's placeText (by me i mean anyways (bit quite proudly i mean anyways but anyways), thanks, )
+		# adjust the values a big for this specialist category, about
+		# this at least i mean anyways, as is or not or etc i mean
+		# anyways, thanks,
+		#screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(textName, szText, self.X_TEXT + 7 , self.Y_TEXT + 10 - 20, self.W_TEXT - (15 * 2), self.H_TEXT - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 	def handleInput (self, inputClass):
