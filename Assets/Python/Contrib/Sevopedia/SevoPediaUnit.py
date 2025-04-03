@@ -297,7 +297,7 @@ class SevoPediaUnit:
 		# (for example any religious missionary unit about this i mean anyways, as is
 		# or not i mean anyways as is or not i mean anyways, thanks,)
 		#screen.addMultilineText(textName, szText, self.X_HISTORY_PANE + 15, self.Y_HISTORY_PANE + 40, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.addMultilineText(textName, szText, self.X_HISTORY_PANE + 7 , self.Y_HISTORY_PANE + 10, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25 + 30, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(textName, szText, self.X_HISTORY_PANE + 7 , self.Y_HISTORY_PANE + 10, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25 + 41, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		
 
