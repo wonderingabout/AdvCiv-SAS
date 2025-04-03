@@ -112,6 +112,51 @@
 			<Plural>1</Plural>
 		</Spanish>
 	</TEXT>
+	<!-- custom: remove mention of the "terrain"
+	in "terrain features" of the root sevopedia
+	category, i think it's confusing, and hinders
+	the (especially new(er)) player to grasp that
+	in civ4 (at least bts i mean anyways) terrains
+	and features are 2 diferent things, there should
+	be either "terrains" or "features", i think it's
+	an easier way to approach these new "concepts"
+	of civ4, at least i mean anyways about this
+	i mean anyways i mean anyways.
+	Not necessary to remove it everywhere, the
+	sentences may become a bit weird too, but in
+	key visibility and isolated (not sentences),
+	it should be a no brainer i think, at least
+	about this and in this case i mean anyways,
+	thanks,
+	I also don't trust these translations, so
+	putting the English version rather, maybe
+	easier this way or/and betetr long term
+	i mean anyways about this at least i mean
+	anyways, thanks, -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_FEATURE</Tag>
+		<English>Features</English>
+		<French>
+			<Text>Features</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</French>
+		<German>
+			<Text>Features</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</German>
+		<Italian>
+			<Text>Features</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Features</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</Spanish>
+	</TEXT>
 
 	<!-- custom: translate everything technical i want to
 	clarify in English, not sure the translation are
@@ -128,7 +173,7 @@
 	affecting the other which is not optimal, so creating this
 	new text key, and updating the Python too to support it)
 	-->
-		<TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT_CUSTOM_NEW_FOR_RESSOURCES_IMPROVEMENTS</Tag>
 		<English>Improvements Bonus Tile Yields</English>
 		<French>
