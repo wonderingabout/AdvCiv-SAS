@@ -81,6 +81,9 @@
 		<Spanish>Principio y religión favoritos</Spanish>
 	</TEXT>
 
+
+	<!-- custom -->
+	<!--				TERRAIN CATEGORY				-->
 	<!-- custom: rename "Base Terrain" to "Terrains"
 	(also switching to the plural form, same as for
 	"Features" (no reason why not and why it was not
@@ -112,6 +115,10 @@
 			<Plural>1</Plural>
 		</Spanish>
 	</TEXT>
+
+
+	<!-- custom -->
+	<!--				FEATURES CATEGORY				-->
 	<!-- custom: remove mention of the "terrain"
 	in "terrain features" of the root sevopedia
 	category, i think it's confusing, and hinders
@@ -157,6 +164,10 @@
 			<Plural>1</Plural>
 		</Spanish>
 	</TEXT>
+
+
+	<!-- custom -->
+	<!--				RESSOURCES CATEGORY				-->
 	<!-- custom: create a new TXT KEY for ressources natural
 	tile yields, making it extra clear what these
 	yields are:
@@ -178,16 +189,21 @@
 	accurate (enough), about this i mean anyways, at least
 	i mean anyways, i mean anyways, thanks, -->
 	<!-- custom: also replace TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT
-	to something clearer at the same time, maybe helps i mean
-	anyways at least i want to do about this, i mean anyways,
-	at least, as is, i mean anyways, thanks,
-	Create a new TXT KEY specifically for the improvements info
-	of the ressources (bonus) category (currently this txt key
-	is shared between category title "Improvements", and
-	Ressources/"Improvements", not possible to modify one without
-	affecting the other which is not optimal, so creating this
-	new text key, and updating the Python too to support it)
+	to something clearer at the same time, maybe helps i
+	mean anyways at least i want to do about this, i mean
+	anyways, at least, as is, i mean anyways, thanks,
+	Create a new TXT KEY specifically for the improvements
+	info of the ressources (bonus) category (before creating
+	this new txt key, the previous one was shared between
+	category title "Improvements", and	Ressources/"Improvements",
+	not possible to modify one without affecting the other
+	which is not optimal, so creating this new text key,
+	and updating the Python too to support it)
 	-->
+	<!-- custom: be careful, this applies to the ressources category
+	not the improvement category unlike what the tile may mislead
+	to think or not at least about this i mean anyways i mean anyways,
+	thanks, -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT_CUSTOM_NEW_FOR_RESSOURCES_IMPROVEMENTS</Tag>
 		<English>Improvements Bonus Tile Yields</English>
@@ -212,21 +228,10 @@
 			<Plural>1</Plural>
 		</Spanish>
 	</TEXT>
-	<!-- custom: be careful, unlike what the txt key says, this is
-	applied to improvements category not ressources category.
-	Also clarifying it to a more detailed/accurate name to
-	hopefully help the player or/and others or not or yes at
-	least about this i mean anyways i mean anyways, thanks,
-	was "Bonus Yields", thanks, -->
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_BONUS_YIELDS</Tag>
-		<English>Improvements Bonus Tile Yields</English>
-		<French>Improvements Bonus Tile Yields</French>
-		<German>Improvements Bonus Tile Yields</German>
-		<Italian>Improvements Bonus Tile Yields</Italian>
-		<Spanish>Improvements Bonus Tile Yields</Spanish>
-	</TEXT>
 
+
+	<!-- custom -->
+	<!--				IMPROVEMENTS CATEGORY				-->
 	<!-- custom: keep this TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT
 	specifically for the Improvements category title (or/and
 	other places where it is used), we need a new TXT KEY
@@ -235,7 +240,11 @@
 	i created for that, i mean anyways, thanks,
 	)-->
 	<!-- advc.004y: To replace TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT.
-		 I've kept the FIS translations from there. -->
+	I've kept the FIS translations from there. -->
+	<!-- custom: translate everything technical i want to
+	clarify in English, not sure the translation are
+	accurate (enough), about this i mean anyways, at least
+	i mean anyways, i mean anyways, thanks, -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT</Tag>
 		<English>Improvements</English>
@@ -260,10 +269,6 @@
 			<Plural>1</Plural>
 		</Spanish>
 	</TEXT>
-	<!-- custom: translate everything technical i want to
-	clarify in English, not sure the translation are
-	accurate (enough), about this i mean anyways, at least
-	i mean anyways, i mean anyways, thanks, -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_IMPROVEMENT_YIELD</Tag>
 		<English>Natural Bonus Tile Yields</English>
@@ -272,8 +277,25 @@
 		<Italian>Natural Bonus Tile Yields</Italian>
 		<Spanish>Natural Bonus Tile Yields</Spanish>
 	</TEXT>
-		<!-- advc.004y: Originally in CIV4GameTextInfos.xml. Only removed the
-		 parentheses and "Total"; more comprehensible this way. -->
+	<!-- custom: be careful, unlike what the txt key says, this
+	TXT_KEY_PEDIA_BONUS_YIELDS is applied to improvements category
+	not ressources category.
+	Also clarifying it to a more detailed/accurate name to
+	hopefully help the player or/and others or not or yes at
+	least about this i mean anyways i mean anyways, thanks,
+	was "Bonus Yields", thanks, -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BONUS_YIELDS</Tag>
+		<English>Improvements Bonus Tile Yields</English>
+		<French>Improvements Bonus Tile Yields</French>
+		<German>Improvements Bonus Tile Yields</German>
+		<Italian>Improvements Bonus Tile Yields</Italian>
+		<Spanish>Improvements Bonus Tile Yields</Spanish>
+	</TEXT>
+
+
+	<!-- advc.004y: Originally in CIV4GameTextInfos.xml. Only removed the
+	parentheses and "Total"; more comprehensible this way. -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_BUILDING_REQ_BUILDINGS_NOCITY</Tag>
 		<English>[COLOR_WARNING_TEXT]Requires %s1_Name: %d2[COLOR_REVERT]</English>
