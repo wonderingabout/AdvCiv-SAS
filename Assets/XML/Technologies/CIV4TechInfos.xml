@@ -4532,7 +4532,7 @@
 			<Help/>
 			<Strategy>TXT_KEY_TECH_ARCHERY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
-			<!--custom: archery should be much less important to AIs now that they start with the more versatile warriors,
+			<!-- custom: archery should be much less important to AIs now that they start with the more versatile warriors,
 			it should maybe be important if AI is getting behind in military power or/and adopting turtle strategy, else it may
 			be fine to wait until feudalism is discovered if the AI then wants longbowmen.
 			Axemen and similar units should be good enough defenders, adding swordsmen or/and chariots or spearmen should also help

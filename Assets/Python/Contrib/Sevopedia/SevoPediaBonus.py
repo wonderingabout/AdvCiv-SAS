@@ -112,8 +112,8 @@ class SevoPediaBonus:
 					sign = "+"
 				else:
 					sign = ""
-				# custom: beautify, no need to mention "FOOD: +1", just "+1" is enough especially
-				# with the food logo i mean anyways i mean anyways, thanks,
+				# <!-- custom: beautify, no need to mention "FOOD: +1", just "+1" is enough especially
+				# with the food logo i mean anyways i mean anyways, thanks, -->
 				#szYield = (u"%s: %s%i " % (gc.getYieldInfo(k).getDescription(), sign, iYieldChange))
 				szYield = (u"%s%i " % (sign, iYieldChange))
 				# <!-- custom: add an information about the precise type of yield it is, which can be otherwise very confusing
