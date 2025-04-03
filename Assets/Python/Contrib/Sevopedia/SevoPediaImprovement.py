@@ -115,9 +115,12 @@ class SevoPediaImprovement:
 					sign = "+"
 				else:
 					sign = ""
-				# <!-- custom: change here -->
+				# <!-- custom: change here, also add a
+				# larger font, especially now that we have
+				# more room with less text now at least in
+				# this case i mean anyways, thanks -->
 				#szYield += (u"%s: %s%i%c" % (gc.getYieldInfo(k).getDescription(), sign, iYieldChange, gc.getYieldInfo(k).getChar()))
-				szYield += (u"%s%i%c" % (sign, iYieldChange, gc.getYieldInfo(k).getChar()))
+				szYield += (u"<font=4>%s%i%c</font>" % (sign, iYieldChange, gc.getYieldInfo(k).getChar()))
 				screen.appendListBoxString(listName, szYield, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		# <!-- custom: this part is for yields that require irrigation (for example farm + 1 food) -->
@@ -136,7 +139,8 @@ class SevoPediaImprovement:
 				# at least about this i mean anyways
 				# thanks,		
 				szYield = localText.getText("TXT_KEY_PEDIA_IRRIGATED_YIELD", ("", iYieldChange, gc.getYieldInfo(k).getChar()))
-				screen.appendListBoxString(listName, szYield, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				szText = u"<font=4>" + szYield + u"</font>"
+				screen.appendListBoxString(listName, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		# <!-- custom: (it seems) no improvement of the
 		# sevopedia in base bts/advciv uses this part.
@@ -155,7 +159,8 @@ class SevoPediaImprovement:
 			iYieldChange = gc.getImprovementInfo(self.iImprovement).getHillsYieldChange(k)
 			if (iYieldChange != 0):
 				szYield = localText.getText("TXT_KEY_PEDIA_HILLS_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar()))
-				screen.appendListBoxString(listName, szYield, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				szText = u"<font=4>" + szYield + u"</font>"
+				screen.appendListBoxString(listName, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		#<!-- custom: similarly (done) as for for/in
 		# TXT_KEY_PEDIA_HILLS_YIELD -->
@@ -164,7 +169,8 @@ class SevoPediaImprovement:
 			iYieldChange = gc.getImprovementInfo(self.iImprovement).getRiverSideYieldChange(k)
 			if (iYieldChange != 0):
 				szYield = localText.getText("TXT_KEY_PEDIA_RIVER_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar()))
-				screen.appendListBoxString(listName, szYield, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				szText = u"<font=4>" + szYield + u"</font>"
+				screen.appendListBoxString(listName, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		# <!-- custom: this part is for yields that require an additional tech than the one required to gain access to the ressources (for example
 		# + 1 hammer with mine (requires railroad), + 1 commerce with town (requires printing press))
@@ -174,9 +180,10 @@ class SevoPediaImprovement:
 				iYieldChange = gc.getImprovementInfo(self.iImprovement).getTechYieldChanges(iTech, k)
 				if (iYieldChange != 0):
 					szYield = localText.getText("TXT_KEY_PEDIA_TECH_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar(), gc.getTechInfo(iTech).getDescription()))
-					screen.appendListBoxString(listName, szYield, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					szText = u"<font=4>" + szYield + u"</font>"
+					screen.appendListBoxString(listName, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-		# 	<!-- custom: similarly (done) as for for/in
+		# <!-- custom: similarly (done) as for for/in
 		# TXT_KEY_PEDIA_HILLS_YIELD, at least about this
 		# i mean anyways, thanks, -->
 		for iCivic in range(gc.getNumCivicInfos()):
@@ -185,16 +192,23 @@ class SevoPediaImprovement:
 				iYieldChange = gc.getCivicInfo(iCivic).getImprovementYieldChanges(self.iImprovement, k)
 				if (iYieldChange != 0):
 					szYield = localText.getText("TXT_KEY_PEDIA_TECH_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar(), gc.getCivicInfo(iCivic).getDescription()))
-					screen.appendListBoxString(listName, szYield, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					szText = u"<font=4>" + szYield + u"</font>"
+					screen.appendListBoxString(listName, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		#<!-- custom: similarly (done) as for for/in
 		# TXT_KEY_PEDIA_HILLS_YIELD -->
 		for iRoute in range(gc.getNumRouteInfos()):
 			for k in range(YieldTypes.NUM_YIELD_TYPES):
 				iYieldChange = gc.getImprovementInfo(self.iImprovement).getRouteYieldChanges(iRoute, k)
-				if (iYieldChange != 0):										
-					szYield += localText.getText("TXT_KEY_PEDIA_ROUTE_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar(), gc.getRouteInfo(iRoute).getTextKey())) + u"\n"
-					screen.appendListBoxString(listName, szYield, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				if (iYieldChange != 0):									
+					# <!-- custom: remove newline, doesn't
+					# necessary unless i'm mistaken at least
+					# in this case i mean anyways, thanks,
+					# -->
+					#szYield += localText.getText("TXT_KEY_PEDIA_ROUTE_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar(), gc.getRouteInfo(iRoute).getTextKey())) + u"\n"
+					szYield += localText.getText("TXT_KEY_PEDIA_ROUTE_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar(), gc.getRouteInfo(iRoute).getTextKey()))
+					szText = u"<font=4>" + szYield + u"</font>"
+					screen.appendListBoxString(listName, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
