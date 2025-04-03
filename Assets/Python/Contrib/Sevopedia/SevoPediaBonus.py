@@ -103,7 +103,10 @@ class SevoPediaBonus:
 	def placeStats(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addListBoxGFC(panelName, "", self.X_STATS_PANE, self.Y_STATS_PANE, self.W_STATS_PANE, self.H_STATS_PANE, TableStyles.TABLE_STYLE_EMPTY)
+		# <!-- custom: max box width and height starting position we want to
+		# write our text adjusted
+		#screen.addListBoxGFC(panelName, "", self.X_STATS_PANE, self.Y_STATS_PANE, self.W_STATS_PANE, self.H_STATS_PANE, TableStyles.TABLE_STYLE_EMPTY)
+		screen.addListBoxGFC(panelName, "", self.X_STATS_PANE, self.Y_STATS_PANE - 18, self.W_STATS_PANE + 380 , self.H_STATS_PANE, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(panelName, False)
 		for k in range(YieldTypes.NUM_YIELD_TYPES):
 			iYieldChange = gc.getBonusInfo(self.iBonus).getYieldChange(k)
@@ -124,7 +127,7 @@ class SevoPediaBonus:
 				# me i mean anyways i mean anyways, should be much more
 				# beautiful (and pleasant/satisfying to do too i mean anyways), thanks,(), thanks,-->
 				#screen.appendListBoxString(panelName, u"<font=3>" + szYield.upper() + (u"%c" % gc.getYieldInfo(k).getChar()) + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
-				szText = u"<font=4><b>" + localText.getText("TXT_KEY_PEDIA_BONUS_YIELDS_CUSTOM_PANEL_TEXT", ()) + "\n" + szYield.upper() + (u"%c" % gc.getYieldInfo(k).getChar()) + u"</b></font>"
+				szText = u"<font=4><b>" + localText.getText("TXT_KEY_PEDIA_BONUS_YIELDS_CUSTOM_PANEL_TEXT", ()) + "\n\n" + szYield.upper() + (u"%c" % gc.getYieldInfo(k).getChar()) + u"</b></font>"
 				screen.appendListBoxString(panelName, szText, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 
