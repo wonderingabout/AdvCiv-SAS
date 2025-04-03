@@ -161,7 +161,7 @@
 	tile yields, making it extra clear what these
 	yields are:
 	- they are not global (yield on tile only)
-	- they are bonus (not natural tile yield)
+	- they are bonus (and natural tile yield)
 	I think this part about ressources is very confusing too
 	i mean anyways, hopefully clearer, at least about this,
 	thanks, -->
