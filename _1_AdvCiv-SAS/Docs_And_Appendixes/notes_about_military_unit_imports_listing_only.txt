@@ -25,6 +25,13 @@ hawk ffh2
 hyena history rewritten?
 
 
+barbarians
+axeman all: axeman c2c or sons of asena ffh2
+lance medium all: beastman ffh2
+horse sword 4 - magnadine hero ffh2
+crossbow all: bellybowman ffh2
+
+
 workers
 worker 1: 
 worker 2: -
@@ -59,6 +66,24 @@ explore 4:
 explore 5:
 explore 6:
 explore 7:
+
+
+___________________________________________________________________________________________
+boats:
+
+transport boats:
+transport 1: raft c2c
+transport 2: galley
+transport 3: galleon
+transport 4: -
+transport 5: -
+transport 6: -
+transport 7: -
+
+
+war boats
+war boat 1: war canoe c2c
+
 ___________________________________________________________________________________________
 camels:
 
@@ -120,11 +145,13 @@ chariot lancer 2: mursili 2 c2c todo icon from screenshot i mean anyways etc i m
 
 horseman: horseman from history rewritten
 
-horse archer
+horse archers
 -
+- horse archer 3: horse archer c2c
+- horse archer 4: -
 -
 
-horse crossbow:
+horse crossbows:
 -
 -
 horse crossbow 3: horse crossbowman c2c
@@ -136,13 +163,13 @@ horse lancers:
 -
 -
 -
-horse lancer 3: light cavalry c2c
+horse lancer 3: horseman alemannic realism invictus todo icon
 horse lancer 4: heavy cavalry c2c
 -
 -
 
 
-horse swordsman
+horse swords:
 -
 -
 -
@@ -150,23 +177,20 @@ horse sword 4: -
 -
 -
 
-
-
-
 ____________________________________________________________________________________________
 macemen
 maceman 1: -
 maceman 2: maceman c2c
-maceman 3:
-maceman 4: -
+maceman 3: -
+maceman 4: battlemaster ffh2
 
 
 
 axemen
 axeman 1: stone axeman c2c
-axeman 2: -
-axeman 3:
-axeman 4: heavy axeman c2c
+axeman 2: beastman ffh2
+axeman 3: -
+axeman 4: lucian ffh2          heavy axeman c2c
 -
 -
 
@@ -205,8 +229,8 @@ lance heavy 4  phalanx from ffh2
 short swords
 -
 short sword 2: gladiator c2c
-short sword 3: swordsman miecznik realism invictus
-short sword 4: swordsman alemannic realism invictus
+short sword 3: swordsman alemannic realism invictus
+short sword 4: alazkan the assassin (ffh2)
 
 
 medium sword
@@ -221,16 +245,10 @@ medium sword 4: medieval swordsman hostes realism invictus
 longswords:
 -
 longsword 2: eidolon ffh2
-longsword 3: demagog ffh2
-longsword 4: heavy swordsman c2c
+longsword 3: champion ffh2
+longsword 4: skuld ffh2
 -
 -
-
-
-
-
-champion ffh2
-
 
 
 _____________________________________________________________________________________________
@@ -239,28 +257,26 @@ archers
 short bows
 archer 1: stone thrower c2c
 archer 2: -
-archer 3:
-archer 4:
--
+archer 3: archer semitic realism invictus
+archer 4: marksman ffh2
 -
 
 
 longbows
 -
+longbow 2: -
+longbow 3: longbowman magyar realism invictus
+longbow 4: longbowman ghaznavid realism invictus
 -
-longbow 3: -
-longbow 4:
-longbow 5?
 
 
 crossbows:
 -
 -
-crossbow 3:
-crossbow 4:-(?)
+crossbow 3: -
+crossbow 4: nordic
 -
--
--
+
 
 ____________________________________________________________________________________________
 assasin units:
@@ -316,9 +332,9 @@ corporations todo
 
 coropration mace: cartwright c2c
 corporation axe: adventurer ffh2
-corporation lance:
-corporation sword:
-corporation archer:
+corporation lance: rogue c2c
+corporation sword: valkyrie ffh2
+corporation archer: firebow ffh2
 corporation assasin: adept ffh2
 corporation gun:
 
@@ -330,6 +346,7 @@ special units
 persia: immortal (foot) history rewritten
 samratian or their western neighbour or other: bactrian c2c
 xiongnu or their neighbour: flurry ffh2
+englant: longbow welsh realism invictus?
 
 
 
