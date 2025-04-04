@@ -80,7 +80,7 @@ camel sword:
 -
 -
 -
-camel sword 4: camel knight c2c
+camel sword 4: camel rider c2c
 -
 
 camel crossbow:
