@@ -279,7 +279,7 @@ crossbows:
 -
 -
 crossbow 3: -
-crossbow 4: nordic
+crossbow 4: crossbow nordic realism invictus
 -
 
 
