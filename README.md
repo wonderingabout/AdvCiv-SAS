@@ -17,6 +17,14 @@ If you just want to play and do not need all the project bigger details, i added
 a quick guide of the main changes from Civ4 and base AdvCiv players:
 [here](/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md)
 
+note: it is recommended to read this part even if you want to know the deeper
+changes. There are stuff and things/information i added only recently in it,
+which may not be available in the longer docs.
+
+I may also update it after releasing mods, maybe, but not guaranteed, if there
+are significant changes i would like to add or mention/talk about there. But
+i would move them to the bottom so you don't have to reread all ideally.
+
 ## Project Goals and global view on gameplay changes
 
 The more general gameplay type of changes consist of

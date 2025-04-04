@@ -5,6 +5,8 @@ This page does not go to go deep into the technicalities, for that see the
 starter guide on the key few differences between AdvCiv and AdvCiv-SAS, for
 newcomer players used to AdvCiv, Civ4 BTS, or some similar mods.
 
+todo cleanup extensive comments and move them to a longer changes guide notes
+
 ## Main Changes quick starter guide
 
 - explore units can attack : but their strength should be quite low
@@ -22,6 +24,30 @@ the jaguar warrior)
 - terrain is very important, almost all units have terrain bonuses, and sometimes
 rarely terrain maluses (i prefer to buff the weak than nerf the strong, unless
 i think it is relevant (quite strongly))
+- another element of attention is that military (at least early ones, now don't
+have much strength difference between them. For example, a clubman (warrior) would
+be 10 strength, and a swordsman only 15 strength, while an archer would be 6 strength
+but with extra or/and other bonuses. In exchange of these adjustments, upgrade costs
+are much cheaper todo, so you will not be able to build full warriors then upgrade
+them later while going full economy. Also, since units are so close in strength now,
+at least early ones, terrain multipliers and promotions multipliers play an especially
+big part. The power correction part has been entirely removed or rather negated, in
+fact slightly under 100 now. As a human even if odds are slightly below certainty, if
+odds are good enough, attack. In exchange also, city attack has been severly increased,
+now an AI will want to be about twice +/- as strong as city defenders else would not
+bother to attack, ideally. Hopefully and ideally, in theory, this means AIs should/would
+behave like a human player would or closer to it, hesitating less to attack and may be
+willing to risk if good enough odds or reward, but more guarded about attacking stronger
+targets otherwise, at least in theory. They should especially target more lone units
+outside of cities, but much less those in cities.)
+- global defines have been changed to have religion importance higher (in terms
+of culture strength (not exactly sure what this means but should be fine and as i
+intend i think i mean) for example, lower revolt chance, anger from war quite a
+bit reduced higher reluctance to agree to a war trade, etc. A bit more pragmatic
+or/and opportunistic, or possibly realistic conditions, war may not always be a
+fatality, at least in the long run, even though it's hell at first, but this is
+not a strong or much likeable opinion of me to have, i simply think it would
+make gameplay better/easier/more relaxing, and is also more realistic too this way
 - some terrains are buffed, for example snow, desert, and water tiles are (very)
 important now. Some terrain specific bonuses are added to some units or/and
 Civlizations (for example todo), some buildings give bonus to desert and snow yields
@@ -31,6 +57,21 @@ example), and another example is the building that replaces moai (nerfed but not
 gives hammer on all coast and lake tiles (but not ocean) (should be a buff overall)
 - More terrain bonuses from techs and buildings: for example fishing gives food
 on all water tiles (even without boat)
+- Start map behaviour is affected, not so much terrain polishing (map script
+removing bad tiles such as jungle or snow or peak, they are now kept, but
+instead you have more starting vision to choose your spot, which should be
+realistic too because at 100 000 BCE (approximately) humans may have enough vision
+of their surroundings to know where to live or adjust to it maybe (even though
+first city settling is not as realistic, but is for convenience, and could maybe
+be imagined as a nomadic settlment in the region maybe, still convenient so allowing
+it)), also these "bad" terrains should be buffed a bit or quite a lot, so they
+would be more considered as alternative strategic options rather than bad tiles, among
+other possible changes
+- worker cost is reduced
+- missionaries, spies, corporation executives todo have their cost greatly reduced,
+be sure to build them soon enough, also the effects they give access to (if conversion
+succeeds for missionaries (for corproations todo maybe it would be 100%?(?))) are even
+stronger.
 - no more small wonders! To simplify gameplay, great wonders, now named wonders,
 have stronger and more significant effects now. As explained above with the example
 of Moai Stautes transformed into a building, some nice effects have also been transferred
@@ -122,8 +163,19 @@ trade with all players (trade less and it will/should(?) fade eventually))), als
 fixes about "the forge has been destroyed" when it was sometimes not destroyed misleading
 messaged tweaked to something not misleading (for example "The forge has caught fire"),
 cavalry at rifling not military tradition todo may change, clearer sevopedia with new
-menus such as types of ressources, victory conditions, things i did not know much about until
-doing, i hope this helps.
+menus such as types of ressources, victory conditions, and tweaked existing ones to be
+clearer or/and easier to navigate hopefully, i hope this helps.
+- enabled floodplains after raze, hopefully they (previous city (owners) developped the
+land well enough that it can still be profitable, also for more relaxed and interesting
+gameplay, i would want the difficulty to be elsewhere, not in such tedious things)
+- voluntary vassals are permanent, think of their culture being absorbed by the empire,
+and them merging with the empire, becoming its citizens, so pay attention to that, and
+if you don't want it to happen to other rivals, plan your strategy based on that maybe
+- unlike in AdvCiv, we love the king chance is restored, i think it's a cool mechanic
+and also pleasant for the player, maybe realistic too, so if it can happen all good
+(feels good in civ3 for example if i may say about my small (or not so, about this
+at least indeed i mean, much but, but i mean anyways not promised i mean anyways
+) experience (about civ3 i mean anyways, thanks,))
 
 - todo continue
 

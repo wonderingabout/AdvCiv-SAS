@@ -1,47 +1,306 @@
-workers:
-worker 1 : 
-worker 2 : -
-worker 3 : 
-worker 4 : 
-worker 5 : 
+eras:
+1 = starter / stone age(?)
+2 = bronze age
+3 = iron age
+4 = medieval
+5 = renaissance
+6 = industrial
+7 = modern/atomic
+8 = future
 
+
+________________________________________________________________
+animals
+lion -
+bear -
+panther
+tiger: tiger ffh2
+wolf -
+hawk ffh2
+hyena history rewritten?
+
+
+workers
+worker 1: 
+worker 2: -
+worker 3: 
+worker 4: 
+worker 5: 
+worker 6: labourer history rewritten
+
+work boats (if need take from c2c but i dont thnik is worth for gameplay, leaving for later or none etc)
+work boat 1:
+work boat 2: work boat history rewritten
+work boat 3: work boat ffh2
+work boat 4:
+work boat 5:
+work boat 6:
+
+
+settlers
+-
+settler 2: settler ffh2
+settler 3
+settler 4
+settler 5
+settler 6
+
+
+scout/explorer
+explore 1:
+explore 2:
+explore 3: scout c2c
+explore 4:
+explore 5:
+explore 6:
+explore 7:
+___________________________________________________________________________________________
 camels:
-camel archer for camel archer2 (medieval): c2c (if texture is different)
-camel lacer 1: bactrian cataphract from c2c
-camel lancer: -
-camel "sword": camel knight from c2c i mean anyways about this at least i mean anyways
-camel cuirassier: camel gunner from c2c
-camel cavalry: meharist from c2c
+
+camel archers
+-
+-
+camel archer 3: -
+camel archer 4: late horse archer realism invictus
+-
+
+camel lancers
+-
+-
+camel lancer 3: bactrian cataphract c2c
+camel lancer 4: -
+
+
+camel sword:
+-
+-
+-
+camel sword 4: camel knight c2c
+-
+
+camel crossbow:
+
+
+
+camel gun:
+-
+-
+-
+-
+camel gun 5: (camel cuirassier) camel gunner from c2c
+camel gun 6: camel cavalry: meharist from c2c
+
+
 
 elephants:
+-
+-
+war elephant 3: atlas elephant (hero used as a unit here i mean anyways) history rewritten
+war elephant 4: -
+-
+-
 
 horse units:
 
+chariots
+-
+chariot 2: -
+-
+-
+-
+
 horseman: horseman from history rewritten
 
-more advanced chariot?
+horse archer
+-
+-
+
+horse crossbow:
+-
+-
+horse crossbow 3: horse crossbowman c2c
+horse crossbow 4: strezelcy history rewritten
+-
+-
+
+horse lancers:
+-
+-
+-
+horse lancer 3: light cavalry c2c
+horse lancer 4: heavy cavalry c2c
+-
+-
+
+
+horse swordsman
+-
+-
+-
+horse sword 4: -
+-
+-
+
+
+
+
+____________________________________________________________________________________________
+macemen
+maceman 1: -
+maceman 2: maceman c2c
+maceman 3:
+maceman 4: -
+
+
+
+axemen
+axeman 1: stone axeman c2c
+axeman 2: -
+axeman 3:
+axeman 4: heavy axeman c2c
+-
+-
+
+
 
 lance units:
-spearman 1: spearman from history rewritten?
-spearman 2: pikeman (fanti dar mar) from realism invictus (or keep old pikeman of civ4 somewhere ideally?)
-spearman 3 (medieval): heavy spearman from realism invictus
-spearman 4: (renaissance) pikeman halberdier from realism invictus
 
+lance light units
+lance light 1: stone spearman c2c
+lance light 2: javelineer c2c
+lance light 3: skirmisher c2c
+lance light 4:
+-
+-
+
+
+
+lance medium units
+lance medium 1:
+lance medium 2: -
+lance medium 3: spearman c2c
+lance medium 4:
+-
+-
+
+
+lances heavy units
+-
+lance heavy 2  phalanx -
+lance heavy 3: spearman wlocznik realism invictus
+lance heavy 4  phalanx from ffh2
+-
+-
+
+
+short swords
+-
+short sword 2:
+
+
+medium sword
+-
+medium sword 2: -
+medium sword 3: guard c2c
+medium sword 4:
+-
+-
+
+
+longswords:
+-
+-
+longsword 3: eidolon ffh2
+longsword 4: heavy swordsman c2c
+-
+-
+
+
+
+
+champion ffh2
+
+
+
+_____________________________________________________________________________________________
+archers
+
+short bows
+archer 1: stone thrower c2c
+archer 2: -
+archer 3:
+archer 4:
+-
+-
+
+
+longbows
+-
+-
+longbow 3: -
+longbow 4:
+longbow 5?
+
+
+crossbows:
+-
+-
+crossbow 3:
+crossbow 4:
+crossbow 5?
+-
+-
+
+____________________________________________________________________________________________
 assasin units:
-spy of civ4 give it attack too? and early spy? Etc About this i mean anyways, at least, i mean anyways
+spy of civ4 give it attack too? and early spy?
 courtesan: 
 assassin (arab i think unit or generic)
 thief
+burglar c2c
 
 
 
-carabinier? c2c
 
-add lancer?
+___________________________________________________________________________________________
+religious units :
 
-knight (lancer): civ4 bts?
-knight swordsman
+early religion military
+paganism:
+hinduism:
+judaism:
+buddhism: monk
+daoism:
+christianism: crusader
+islam:
 
-crusader: inquisition? (or theology?) + make it require a religion for production
 
-make horse sword good against melee sword and axe
+
+
+neo religion military
+paganism:
+hinduism:
+judaism:
+buddhism: 
+daoism:
+christianism:
+islam:
+
+
+
+religious missionairess
+paganism:
+hinduism:
+judaism:
+buddhism: 
+daoism:
+christianism:
+islam:
+
+
+___________________________________________________________________________________________
+special units
+
+persia: immortal (foot) history rewritten
+samratian or their western neighbour or other: bactrian c2c
+xiongnu or their neighbour: flurry ffh2

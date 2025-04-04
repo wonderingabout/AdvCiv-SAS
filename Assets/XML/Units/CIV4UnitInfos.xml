@@ -4,6 +4,47 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- Unit Infos -->
+<!-- custom: multiply iPower by:
+- 10 for standard military units for example (clubman (warrior)),
+i don't know if this takes into account promotions and other
+multipliers such as natural base stats, but maybe this helps the
+problem of suicidal war declarations in particular, idea i got from
+realism invictus's commit https://sourceforge.net/p/civ4mods/code/5464/
+(name/description) (without actually looking at their code, but i can take it from there,
+about this i
+mean anywyas, as is or not but i mean anyways, thanks, )
+for example
+10 strength x 10 multiplier = 100 iPower for the clubman
+- 7 for cover military units or (more) specialized defenders, for
+example for the archer, they will not directly attack cities, even
+if they may participate in the assault but a bit of a threat, for ex
+6 strength x 7 multiplier = 42 iPower
+- 5 for animals: not used currently but if some players were to control
+animals, these animals may ont be able to (be) use(d in) advanced
+strategy(ies) maybe, but their raw power, usually higher than of
+humans, should not be ignored for example for the lion
+15 strength x 5 = 75 iPower
+- 5 for support military too: for example the explorer has good enough
+stats to attack in some cases, but more often than not is not a threat
+against regular military at all, so for example would be
+6 strength x 5 = 30 iPower
+- 2 for support units (worker if i give them strength), for example
+an ancient worker
+3 strength x 2 = 6 iPower, not entirely useless (may delay city
+capture or very rarely fight animals, but mostly not a threat)
+- 1 (much less) for naval units, for example x1, indeed they
+can barely have any major influence on land warfare, and their
+strength may be misleading, for the calculation for example
+3 strength (early sailboat) x 1 = 1 iPower
+10 strength (early frigate) x 1 = 10 iPower
+
+As for iAsset, as this should not directly affect combat tactics
+or choices (i think), increase it just by strength count, so that
+it scales accurately, for example for the clubman:
+10 stregth = iAsset value of 10
+for example for the archer
+6 strength = iAsset value of 6
+-->
 <Civ4UnitInfos xmlns="x-schema:CIV4UnitSchema.xml">
 	<UnitInfos>
 		<UnitInfo>
@@ -110,7 +151,7 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<iCombat>2</iCombat>
+			<iCombat>15</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -162,8 +203,8 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>1</iAsset>
-			<iPower>1</iPower>
+			<iAsset>15</iAsset>
+			<iPower>75</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -289,7 +330,7 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<iCombat>3</iCombat>
+			<iCombat>20</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -333,8 +374,8 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>1</iAsset>
-			<iPower>1</iPower>
+			<iAsset>20</iAsset>
+			<iPower>100</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -460,7 +501,7 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<iCombat>2</iCombat>
+			<iCombat>14</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -504,8 +545,8 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>1</iAsset>
-			<iPower>1</iPower>
+			<iAsset>14</iAsset>
+			<iPower>70</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -631,7 +672,7 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<iCombat>1</iCombat>
+			<iCombat>12</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -684,8 +725,8 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>1</iAsset>
-			<iPower>1</iPower>
+			<iAsset>12</iAsset>
+			<iPower>60</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -855,7 +896,7 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>4</iAsset>
+			<iAsset>25</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>4</iGroupSize>
@@ -1052,7 +1093,7 @@
 			</ProductionTraits>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>60</iCost>
+			<iCost>35</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -1115,7 +1156,7 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>2</iAsset>
+			<iAsset>20</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>2</iGroupSize>
@@ -1370,7 +1411,7 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>2</iAsset>
+			<iAsset>30</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>2</iGroupSize>
@@ -1414,15 +1455,12 @@
 			<!-- advc.315a: Replaced with OnlyAttackAnimals -->
 			<bOnlyDefensive>0</bOnlyDefensive>
 			<!-- advc.315a -->
-			<!-- custom: minor rework, allow the scout to attack all rivals and cities or defend them,
-			but it should be disincentivized enough for human players due its low strength and not much
-			bonuses especially in city attack-defense, but it is better than nothing and quite realistic
-			that they would stand as last defenders, so adding it. The human player may also find some
-			other uses, that should not be mostly about gaining a strong advantage at war, for these units,
-			so maybe worth adding too.
-			For AI players, tags were added to more strictly enforce that they are used as explore units
-			only and nothing else ideally.
-			-->
+			<!-- custom: minor rework, allow the scout to attack (or
+			defend against) all rivals units and cities, but it should
+			be disincentivized enough for players due its low strength
+			and not much bonuses especially in city	attack-defense,
+			still better than nothing in this case i mean anyways,
+			thanks,	-->
 			<bOnlyAttackAnimals>0</bOnlyAttackAnimals>
 			<!-- advc.315b -->
 			<bOnlyAttackBarbarians>0</bOnlyAttackBarbarians>
@@ -1473,11 +1511,8 @@
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
-			<!-- custom: similarly as in the explorer rework, adding some AI player tags to make
-			extra sure scouts are not used/confused by the AI as attackers or even defenders.
-			The human player may do as they wish (for example baiting/defending against animals or
-			something), it should not be too valuable use of the scout, but maybe in some cases this
-			could make a difference, so allowing it (see above the scout rework changes) -->
+			<!-- custom: making	extra sure scouts are not used/confused
+			by the AI as attackers or even defenders. -->
 			<NotUnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
@@ -1558,7 +1593,7 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<iCombat>1</iCombat>
+			<iCombat>4</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -1575,22 +1610,13 @@
 			<iCityAttack>0</iCityAttack>
 			<iCityDefense>0</iCityDefense>
 			<!-- advc.315c: Was 100; now BarbarianCombat instead. -->
-			<!-- custom: scout rework. Make scouts especially good against animals
-			(it is a sort of hunting after all), not so much against other humans
-			even if they are barbarians, was 0 -->
-			<!-- custom: i could have kept the animal bonus to 100 (so that 100 + 25 = 125
-			against animals), but that would be a bit too strong (and perhaps stronger
-			than needed especially considering the unit's cost. But if someday someone
-			would want to create animal units for other rivals, then they could maybe
-			decrease this to 75 (so that 100 + 25 = 125% against barbarian animals,
-			and 100% against other animals. Seems a bit too complicated and unlikely to
-			happen soon, so to simplify this i chose 75 instead of 100., was 0. -->
-			<iAnimalCombat>75</iAnimalCombat>
-			<!-- custom: was 100, scouts should not have good odds against anything other
-			than a warrior, even a barbarian warrior should still be stronger than a scout -->
+			<!-- custom: scout rework. Make scouts especially good against
+			animals (it is a sort of hunting after all), not so much
+			against	other humans even if they are barbarians, was 0 -->
+			<iAnimalCombat>200</iAnimalCombat>
 			<iBarbarianCombat>25</iBarbarianCombat>
-			<iHillsAttack>0</iHillsAttack>
-			<iHillsDefense>0</iHillsDefense>
+			<iHillsAttack>25</iHillsAttack>
+			<iHillsDefense>25</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
 			<TerrainAttacks/>
@@ -1611,8 +1637,8 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>1</iAsset>
-			<iPower>0</iPower>
+			<iAsset>15</iAsset>
+			<iPower>20</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>2</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -1630,22 +1656,17 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: similarly to what i did for the explorer unit, i think explore units
-			should be good at exploring, navigating forest type terrains is a good way to do so.
-			It is also a way to make the woodsman promotion play more of a key role in the game,
-			as it is currently quite useless i think. Scouts being good at such "terrains" (forest
-			-jungle, that civ4 code seems to name features) may be more realistic and immersive
-			this way, was empty -->
+			<!-- custom: i think explore units should be good at exploring,
+			navigating forest type terrains is a good way to do so. -->
 			<FreePromotions>
 				<FreePromotion>
 					<PromotionType>PROMOTION_WOODSMAN1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
-				<!-- custom: similarly as in the explorer rework, also give flaking 1 (only) to
-				scouts, should be valuable and also realistic. Exploring should involve to some
-				extent (i think) being good at retreating too. Since these units cannot become
-				military strong units, it's most likely (i think) fine to give them such bonuses
-				-->
+				<!-- custom: also give flaking 1 (only) to scouts, should be valuable
+				and also realistic. Exploring should involve to some extent (i think)
+				being good at retreating too. Explore units have a quite low strength
+				so this is more for defense in this case i mean anyways, thanks,-->
 				<FreePromotion>
 					<PromotionType>PROMOTION_FLANKING1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
@@ -1677,16 +1698,10 @@
 			<!-- advc.315a -->
 			<bOnlyAttackAnimals>0</bOnlyAttackAnimals>
 			<!-- advc.315b -->
-			<!-- custom: unit reworked, can attack other players (more realistic), but should have
-			little incentive to do so considering its now low strength. More likely to be useful and valuable
-			for human players as a scouting unit. For AIs i added changes to make extra sure they use it strictly
-			(as much as possible) as an explorer and not for warfare, was 1-->
+			<!-- custom: unit reworked -->
 			<bOnlyAttackBarbarians>0</bOnlyAttackBarbarians>
 			<!-- advc.315b: Not supposed to conquer Barbarian cities -->
-			<!-- custom: can conquer cities but should have little incentive to do so due to its low strength,
-			but if it were to actually conquer a city, especially barbarian city, it may be realistic and also
-			making sense too maybe, as it could only do so against really low strength defenders after its rework,
-			was 1 -->
+			<!-- custom: can conquer cities, was 1 -->
 			<bNoCapture>0</bNoCapture>
 			<bQuickCombat>0</bQuickCombat>
 			<bRivalTerritory>0</bRivalTerritory>
@@ -1730,12 +1745,7 @@
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
-			<!-- custom: unit reworked, can attack cities if the human player wishes to do so,
-			but due to its low strength now it should be strongly disincentivized for human players.
-			Opportunistically maybe against really weak defenders at best maybe. But it should be
-			valuable as a scouting unit for the human player.
-			For AI players, similarly as for archer-type units, adding some NotUnitAIs to make
-			extra sure they are not used/confused by the AI as attackers or even defenders-->
+			<!-- custom: -->
 			<NotUnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
@@ -1792,7 +1802,6 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: unit reworked, was 40 -->
 			<iCost>30</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -1817,8 +1826,7 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<!-- custom: unit reworked, was 4 -->
-			<iCombat>2</iCombat>
+			<iCombat>6</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -1834,34 +1842,19 @@
 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>
 			<iCityDefense>0</iCityDefense>
-			<!-- custom: should not be weaker than the scout in that regard, even if there
-			should be no animals left at this stage of the game -->
-			<!-- custom: as in the scout rework, make explorers especially good against animals
-			(it is a sort of hunting after all), not so much against other humans even if
-			they are barbarians, was 0 -->
-			<!-- custom: i could have kept the animal bonus to 100 (so that 100 + 25 = 125
-			against animals), but that would be a bit too strong (and perhaps stronger
-			than needed especially considering the unit's cost. But if someday someone
-			would want to create animal units for other rivals, then they could maybe
-			decrease this to 75 (so that 100 + 25 = 125% against barbarian animals,
-			and 100% against other animals. Seems a bit too complicated and unlikely to
-			happen soon, so to simplify this i chose 75 instead of 100., was 0. -->
-			<iAnimalCombat>75</iAnimalCombat>
-			<!-- custom tag: missing tag for some reason, i don't know if it breaks something to
-			add it, would need to test to see, but ideally no reason it should be worse than the
-			scout against barbarians, even if the boost is small -->
-			<!-- custom: this is mostly for role playing if i may say or-and historical accuracy
-			/realism, as there should be mostly no barbarians left when players start to have explorers
-			available, but if there were, the explorer would not be stronger than regular military
-			units to take the barbarians down, but they should be about strong enough to do so
-			(still slightly weaker and limited to vs barbarian fights), but more likely to happen
-			now if the player wishes so (mostly human players as this is currently more discouraged
-			for AI players in this mod to improve their efficiency). It also makes sense that their
-			tactics are slightly better against barbarians than those of the scouts, even if not by a
-			lot so i increased it from 25 that i chose initially to 50 -->
-			<iBarbarianCombat>50</iBarbarianCombat>
-			<iHillsAttack>0</iHillsAttack>
-			<iHillsDefense>0</iHillsDefense>
+			<!-- custom: a bit weaker than the scout in some aspects
+			(animals, but better than the scout in others (barbarians),
+			may include a sort of simulation of realism of the
+			colonization that happened later in history too, as
+			western countries started to explore, if there are any
+			barbarians cities left i mean anyways, which may happen
+			more often now with the boosts i made to barbarians or
+			will make or not i mean anyways about this for barbarians
+			i mean anyways, thanks, ) -->
+			<iAnimalCombat>100</iAnimalCombat>
+			<iBarbarianCombat>100</iBarbarianCombat>
+			<iHillsAttack>25</iHillsAttack>
+			<iHillsDefense>25</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
 			<TerrainAttacks/>
@@ -1883,8 +1876,8 @@
 			<!-- advc.315c: was 0 -->
 			<iCultureGarrison>3</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>2</iAsset>
-			<iPower>2</iPower>
+			<iAsset>35</iAsset>
+			<iPower>30</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>2</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -1902,29 +1895,15 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- advc.315c: was PROMOTION_GUERILLA1 and PROMOTION_WOODSMAN1 -->
-			<!-- custom: unlike what is said in advc.315c, i think explore units should be good
-			at exploring, navigating forest type terrains is a good way to do so. It may be more
-			realistic and immersive this way. The verbose should not be a problem too.
-			The unit is reworked now so having this bonus should not hurt, it increases immersion
-			too i think.
-			was empty -->
 			<FreePromotions>
 				<FreePromotion>
 					<PromotionType>PROMOTION_WOODSMAN1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
-				<!-- custom: since woodsman promotion does not help to conquer cities, it is probably
-				fine (and realistic to give it to explorers, they are more in control of forest-jungle
-				environments, but still not enough to threaten specialized military units) -->
 				<FreePromotion>
 					<PromotionType>PROMOTION_WOODSMAN2</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
-			<!-- custom: on top of that, giving them double flanking promotions, which should make them
-			very valuable as explorer-scouting units, especially considering they have no road obstruction.
-			Note: now that many AIs often get Compass as a free tech, perhaps it makes this tech more
-			valuable too now -->
 				<FreePromotion>
 					<PromotionType>PROMOTION_FLANKING1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
@@ -1937,16 +1916,16 @@
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<!-- custom: use a spy dedicated entry to remove much of the
-		unclear or mistaken or not relevant to a mod information about
-		espionage as a whole: we only want the relevant infos about
-		the spy as a unit, also solves some display issues in the
+		<!-- custom: use a spy dedicated txt key entry to remove much
+		of the unclear or mistaken or not relevant to a mod information
+		about espionage as a whole: we only want the relevant infos
+		about the spy as a unit, also solves some display issues in the
 		sevopedia, while fixing potentially existing or future
 		inaccuracies so i think is very good, doing it for my mod
 		but implemented with this file so that it could be more
 		easily exported in other mods or base advciv if wished, but
 		is just a suggestion i mean anyways, else i am regardless
-		using it i mean anyways, focsuing on me i mean anywyas,
+		using it i mean anyways, focsuing on me i mean anyways,
 		as is or not i mean anyways, thanks, -->
 		<!-- custom: for reference, old data was:
 		<Civilopedia>TXT_KEY_CONCEPT_ESPIONAGE_PEDIA_SR</Civilopedia>
@@ -2039,7 +2018,7 @@
 				</Flavor>
 			</Flavors>
 			<iAIWeight>0</iAIWeight>
-			<iCost>40</iCost>
+			<iCost>20</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -2102,7 +2081,7 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>2</iAsset>
+			<iAsset>15</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -2211,7 +2190,7 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>100</iCost>
+			<iCost>20</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -2274,7 +2253,7 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>3</iAsset>
+			<iAsset>30</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -2378,7 +2357,7 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>100</iCost>
+			<iCost>20</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -2441,7 +2420,7 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>3</iAsset>
+			<iAsset>30</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -2545,7 +2524,7 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>100</iCost>
+			<iCost>20</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -2608,7 +2587,7 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>3</iAsset>
+			<iAsset>30</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -2712,7 +2691,7 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>100</iCost>
+			<iCost>20</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -2775,7 +2754,7 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>3</iAsset>
+			<iAsset>30</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -2879,7 +2858,7 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>100</iCost>
+			<iCost>20</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -2942,7 +2921,7 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>3</iAsset>
+			<iAsset>30</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -3046,7 +3025,7 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>100</iCost>
+			<iCost>20</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -3109,7 +3088,7 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>3</iAsset>
+			<iAsset>30</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -3213,7 +3192,7 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>100</iCost>
+			<iCost>20</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -3276,7 +3255,7 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>3</iAsset>
+			<iAsset>30</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -3381,7 +3360,7 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>40</iCost>
+			<iCost>20</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -3444,7 +3423,7 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>2</iAsset>
+			<iAsset>30</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -3548,7 +3527,7 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>40</iCost>
+			<iCost>20</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -3611,7 +3590,7 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>2</iAsset>
+			<iAsset>30</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -3715,7 +3694,7 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>40</iCost>
+			<iCost>20</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -3778,7 +3757,7 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>2</iAsset>
+			<iAsset>30</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -3882,7 +3861,7 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>40</iCost>
+			<iCost>20</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -3945,7 +3924,7 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>2</iAsset>
+			<iAsset>30</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -4049,7 +4028,7 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>40</iCost>
+			<iCost>20</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -4112,7 +4091,7 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>2</iAsset>
+			<iAsset>30</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -4216,7 +4195,7 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>40</iCost>
+			<iCost>20</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -4279,7 +4258,7 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>2</iAsset>
+			<iAsset>30</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -4383,7 +4362,7 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>40</iCost>
+			<iCost>20</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -4446,7 +4425,7 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>2</iAsset>
+			<iAsset>30</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -4571,7 +4550,7 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>20</iCost>
+			<iCost>25</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -4634,8 +4613,8 @@
 			<iConscription>1</iConscription>
 			<iCultureGarrison>3</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>1</iAsset>
-			<iPower>2</iPower>
+			<iAsset>10</iAsset>
+			<iPower>100</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -4707,8 +4686,9 @@
 			<bHiddenNationality>0</bHiddenNationality>
 			<bAlwaysHostile>0</bAlwaysHostile>
 			<!-- advc.907b: Upgrade to MACEMAN disabled -->
-			<!-- custom: unit is versatile now and maceman is sooner so enabled it 
-			or/and other possible reasons about this at least i mean anyways -->
+			<!-- custom: unit is versatile now and maceman is sooner so enabled
+			it or/and other possible reasons about this at least i mean anyways
+			-->
 			<UnitClassUpgrades>
 				<UnitClassUpgrade>
 					<UnitClassUpgradeType>UNITCLASS_MACEMAN</UnitClassUpgradeType>
