@@ -8,8 +8,13 @@ eras:
 7 = modern/atomic
 8 = future
 
+_________________________________________________________________________
+removed units:
+pikeman (not useful about this i mean anyways, thanks)
+chariot - (not accurate, should be lance or archer, not sword if i'm not mistaken i mean anyways, thanks,)
 
-________________________________________________________________
+
+_________________________________________________________________________
 animals
 lion -
 bear -
@@ -68,7 +73,7 @@ camel lancers
 -
 -
 camel lancer 3: bactrian cataphract c2c
-camel lancer 4: -
+camel lancer 4: 
 
 
 camel sword:
@@ -102,12 +107,16 @@ war elephant 4: -
 
 horse units:
 
-chariots
+chariot archers
 -
-chariot 2: -
+chariot 2: chariot archer c2c
 -
 -
 -
+
+chariot lancers
+-
+chariot lancer 2: mursili 2 c2c todo icon from screenshot i mean anyways etc i mean anyways, thanks,
 
 horseman: horseman from history rewritten
 
@@ -169,7 +178,7 @@ lance light units
 lance light 1: stone spearman c2c
 lance light 2: javelineer c2c
 lance light 3: skirmisher c2c
-lance light 4:
+lance light 4: spearman frankish realism invictus 
 -
 -
 
@@ -179,7 +188,7 @@ lance medium units
 lance medium 1:
 lance medium 2: -
 lance medium 3: spearman c2c
-lance medium 4:
+lance medium 4: spearman duguth realism invictus todo change icon/thumbnail/picture i mean anyways about this i mean anyways thanks (source: https://www.google.com/url?sa=i&url=https%3A%2F%2Fforums.civfanatics.com%2Fthreads%2Funit-between-spearman-and-pikeman.684531%2F&psig=AOvVaw1W6Yk7vCgpW9Kmr1Fna8Pk&ust=1743871585689000&source=images&cd=vfe&opi=89978449&ved=0CBcQjhxqFwoTCLDAipHqvowDFQAAAAAdAAAAABAE)
 -
 -
 
@@ -195,22 +204,24 @@ lance heavy 4  phalanx from ffh2
 
 short swords
 -
-short sword 2:
+short sword 2: gladiator c2c
+short sword 3: swordsman miecznik realism invictus
+short sword 4: swordsman alemannic realism invictus
 
 
 medium sword
 -
 medium sword 2: -
-medium sword 3: guard c2c
-medium sword 4:
+medium sword 3: alfred the great (hero) c2c
+medium sword 4: medieval swordsman hostes realism invictus
 -
 -
 
 
 longswords:
 -
--
-longsword 3: eidolon ffh2
+longsword 2: eidolon ffh2
+longsword 3: demagog ffh2
 longsword 4: heavy swordsman c2c
 -
 -
@@ -246,16 +257,17 @@ crossbows:
 -
 -
 crossbow 3:
-crossbow 4:
-crossbow 5?
+crossbow 4:-(?)
+-
 -
 -
 
 ____________________________________________________________________________________________
 assasin units:
 spy of civ4 give it attack too? and early spy?
-courtesan: 
+courtesan ffh2
 assassin (arab i think unit or generic)
+assassin ffh2
 thief
 burglar c2c
 
@@ -298,9 +310,26 @@ christianism:
 islam:
 
 
+
+____________________________________________________________________________________________
+corporations todo
+
+coropration mace: cartwright c2c
+corporation axe: adventurer ffh2
+corporation lance:
+corporation sword:
+corporation archer:
+corporation assasin: adept ffh2
+corporation gun:
+
+todo
+
 ___________________________________________________________________________________________
 special units
 
 persia: immortal (foot) history rewritten
 samratian or their western neighbour or other: bactrian c2c
 xiongnu or their neighbour: flurry ffh2
+
+
+
