@@ -26,15 +26,20 @@ hyena history rewritten?
 
 
 barbarians
-axeman all: axeman c2c or sons of asena ffh2
+axeman all: sons of asena ffh2
+lance light all: (?)
 lance medium all: beastman ffh2
-horse sword 4 - magnadine hero ffh2
+lance heavy all: (?)
+horse sword 4: magnadine hero ffh2
+horse lancer:
 crossbow all: bellybowman ffh2
+swordsman:
 
 
-workers
+
+workers (same as work boat maybe not worth it so much or just once in later eras maybe about this i mean anyways, thanks,)
 worker 1: 
-worker 2: -
+-
 worker 3: 
 worker 4: 
 worker 5: 
@@ -50,20 +55,20 @@ work boat 6:
 
 
 settlers
+settler 1: -
 -
-settler 2: settler ffh2
-settler 3
-settler 4
+-
+-
 settler 5
-settler 6
+-
 
 
 scout/explorer
-explore 1:
+explore 1: -
 explore 2:
 explore 3: scout c2c
 explore 4:
-explore 5:
+explore 5: -
 explore 6:
 explore 7:
 
