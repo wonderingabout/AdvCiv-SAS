@@ -73,7 +73,7 @@ camel lancers
 -
 -
 camel lancer 3: bactrian cataphract c2c
-camel lancer 4: 
+camel lancer 4: camel knight c2c
 
 
 camel sword:
