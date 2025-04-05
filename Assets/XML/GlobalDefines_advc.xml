@@ -572,9 +572,9 @@
 	now or change this now that all units have more strength, if it's about
 	relative strength with rivals or the "average" unit a civ can build, then
 	it would not need to be changed maybe(?), but if it's about total strength
-	absolute of a unit, then all units are stronger and a clubman (warrior)
-	maybe increase the sense of safeness a bit too much, leaving as is,
-	maybe todo relook at this later or maybe not, about this i mean
+	absolute of a unit, then all units are stronger and an ancient maceman
+	(warrior) maybe increase the sense of safeness a bit too much, leaving as
+	is,	maybe todo relook at this later or maybe not, about this i mean
 	anyways at least or not i mean but anyways i mean anyways, thanks, -->
 	<Define>
 		<DefineName>DEMAND_BETTER_PROTECTION</DefineName>

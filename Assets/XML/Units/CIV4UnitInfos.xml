@@ -5,16 +5,15 @@
 <!-- -->
 <!-- Unit Infos -->
 <!-- custom: multiply iPower by:
-- 10 for standard military units for example (clubman (warrior)),
-i don't know if this takes into account promotions and other
-multipliers such as natural base stats, but maybe this helps the
+- 10 for standard military units for example (ancient maceman
+(warrior)), i don't know if this takes into account promotions and
+other multipliers such as natural base stats, but maybe this helps the
 problem of suicidal war declarations in particular, idea i got from
 realism invictus's commit https://sourceforge.net/p/civ4mods/code/5464/
-(name/description) (without actually looking at their code, but i can take it from there,
-about this i
-mean anywyas, as is or not but i mean anyways, thanks, )
-for example
-10 strength x 10 multiplier = 100 iPower for the clubman
+(name/description) (without actually looking at their code, but i can
+take it from there, about this i mean anywyas, as is or not but i mean
+anyways, thanks, ), for example
+10 strength x 10 multiplier = 100 iPower for the ancient maceman
 - 7 for cover military units or (more) specialized defenders, for
 example for the archer, they will not directly attack cities, even
 if they may participate in the assault but a bit of a threat, for ex
@@ -40,7 +39,7 @@ strength may be misleading, for the calculation for example
 
 As for iAsset, as this should not directly affect combat tactics
 or choices (i think), increase it just by strength count, so that
-it scales accurately, for example for the clubman:
+it scales accurately, for example for the ancient maceman:
 10 stregth = iAsset value of 10
 for example for the archer
 6 strength = iAsset value of 6

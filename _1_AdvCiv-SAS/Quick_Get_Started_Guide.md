@@ -25,10 +25,10 @@ the jaguar warrior)
 rarely terrain maluses (i prefer to buff the weak than nerf the strong, unless
 i think it is relevant (quite strongly))
 - another element of attention is that military (at least early ones, now don't
-have much strength difference between them. For example, a clubman (warrior) would
-be 10 strength, and a swordsman only 15 strength, while an archer would be 6 strength
-but with extra or/and other bonuses. In exchange of these adjustments, upgrade costs
-are much cheaper todo, so you will not be able to build full warriors then upgrade
+have much strength difference between them. For example, an ancien maceman (warrior)
+would be 10 strength, and a swordsman only 15 strength, while an archer would be 6
+strength but with extra or/and other bonuses. In exchange of these adjustments, upgrade
+costs are much cheaper todo, so you will not be able to build full warriors then upgrade
 them later while going full economy. Also, since units are so close in strength now,
 at least early ones, terrain multipliers and promotions multipliers play an especially
 big part. The power correction part has been entirely removed or rather negated, in
