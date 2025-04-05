@@ -9,7 +9,25 @@ todo cleanup extensive comments and move them to a longer changes guide notes
 
 ## Main Changes quick starter guide
 
-- explore units can attack : but their strength should be quite low
+- game pace advances exponentially: later eras have fewer techs and units. This
+avoids the hassle of a long and tedious endgame, but is also realistic as most
+of history in the amount of years, happened in the past. Bronze Age alone was
+longer than most of our recent eras for example, and even more so for Stone Age.
+However, units and eras give exponentially bigger bonuses too, and tech costs
+and such have been adjusted. Taking also into account that players (should/generally
+i think) spend more time on the end game to manage all cities and units or other
+things, maybe this will even out and game will still feel the same speed for each
+era. Beware to not neglect tech as later ones will be key if no player still has
+yet won the game. There are also less units and buildings to fasten the end game
+(but trying to keep just enough techs to make it last long enough) time per turn
+in minutes/hour played.
+- as a result of the previous point, it should be even less likely for a "spearman"
+(now there are more units of this type in AdvCiv-SAS, see below at military reworks)
+to win against a tank, and also much less likely for a swordsman to every match a
+musketman, for example, which should also make more sense historically hopefully.
+Defenders may have a chance to prevail while being behind in tech but it will be
+(much) harder.
+- explore units can attack: but their strength should be quite low
 - military units are versatile: swordsmen can defend, archers can attack,
 maybe even workers too
 - unit promotions are reworked or/and rebalanced: woodsman for example is buffed
@@ -18,6 +36,38 @@ to better accomodate its history and stats, can be built starting from a differe
 tech, in particular the settler is now not freely available but requires agriculture
 (is historical too, but for convenience first settler at starting game is provided
 for free as it was in Civ4 BTS and AdvCiv)
+- another example is that there are some subclasses of units, for example for
+"spearmen", there are now "lance light" units, "lance medium" units, and "lance
+heavy" units. Each have different strengths and weaknesses, with generally the
+faster ones having less damage/strength but better at defense/avoiding/harassing
+other units quite freely, while the slower ones have high strength, can defend
+and attack well, but no such bonuses, and may cost a bit more too, see the
+[military tree map view](/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43%20military%20tree_modified.png)
+, also available ingame in the sevopedia entry (that has been a bit tweaked/reworked
+too btw) in/at "Units Tree".
+- another example is an ancient Maceman ("warrior" in the stone age) will be stronger
+than a medieval light swordsman, but the medieval light swordsman will have (much more)
+bonuses that should make him (or her but most often him i mean anyways) more valuable
+as a military unit. This is also realistic too, no reason why an ancient maceman could
+not defeat a swordsman, if looking at strength and chance alone, unlike what is, a bit
+too extremely the case i think, in base advciv/bts, even accounting for armor and such,
+i think, an ancient unit may be stronger by melee alone, so some strategy will be necesasry
+to have the best (or better) odds in AdvCiv-SAS, i think, hopefully in an immersive
+and not tedious experience too i mean anyways. The tech tree is fairly straightforward,
+with max one unit type per era, for example, which should hopefully help make sense
+of that and getting immersed into it, while not neglecting on strategy, hopefully,
+at least was my/one of my goal(s) making (and became as i was making too) this
+AdvCiv-SAS mod. Note also that this is not the case for all units and eras, only the
+ones i found most relevant ones and to not be tedious enough (there is no work boat
+1 work boat 2 workboat 3 etc for example, only one for all eras, but there are a few
+workers every few eras, but there are military units for each new era, at max one unit
+per class type (for example "sword light", "lance heavy", are each one type), and not
+for all types, also lesser in later stages of the game to simplify/rush/reach sooner
+the endgame)
+- some units can only be built under specific conditions, for example each religion
+has one unit (same for neo religions at later eras. See religion changes below for
+details), for example Buddhism is required to build monks (melee fist fighters)
+(yes such as shaolin but anyways..) and Christianism for Crusaders, etc.
 - military units are rebalanced: some op units (according to me) are nerfed
 slightly (for example: todo), some weaker ones buffed quite a lot (for example
 the jaguar warrior)

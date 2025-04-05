@@ -28,21 +28,43 @@
 		<Italian>Contenuto</Italian>
 		<Spanish>Contenido</Spanish>
 	</TEXT>
+	<!-- custom: rename "Unit Upgrades" to "Units Tree",
+	clearer and consistent with "Promotion Upgrades Tree",
+	while also short enough to fit in the sevopedia panel
+	if i am not mistaken that this is a panel indeed i
+	mean anyways, thanks
+	Also note that this/it is not necessarily about
+	upgrading units but showing them, even though
+	upgrading them may be the end result, but still,
+	this should not be a wrong way to present things,
+	regarding how this is just a tree that displays
+	units and how they relate to each other (think
+	of it as looking back maybe for example, not
+	necessarily upgrade only, or also looking at per
+	era units in a vertical way for example i mean
+	anyways (in AdvCiv-SAS the tech tree would be
+	designed in such a way that each era has one
+	type of unit, and each unit is aligned vertically
+	(in the colum corresponding to) where it starts,
+	maybe this can help this be more intuitive too)
+	thanks, ) -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT_UPGRADES</Tag>
-		<English>Unit Upgrades</English>
-		<French>Améliorations des Unités</French>
-		<German>Modernisierungen</German>
-		<Italian>Avanzamenti</Italian>
-		<Spanish>Modernizaciones</Spanish>
+		<English>Units Tree</English>
+		<French>Units Tree</French>
+		<German>Units Tree</German>
+		<Italian>Units Tree</Italian>
+		<Spanish>Units Tree</Spanish>
 	</TEXT>
+	<!-- custom: use the plural here too:
+	"Promotion Tree" -> "Promotions Tree" -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_PROMOTION_TREE</Tag>
-		<English>Promotion Tree</English>
-		<French>Arborescence des Promotions</French>
-		<German>Beförderungsbaum</German>
-		<Italian>Albero Promoz.</Italian>
-		<Spanish>Árbol de ascensos</Spanish>
+		<English>Promotions Tree</English>
+		<French>Promotions Tree</French>
+		<German>Promotions Tree</German>
+		<Italian>Promotions Tree</Italian>
+		<Spanish>Promotions Tree</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_NATIONAL_WONDERS</Tag>

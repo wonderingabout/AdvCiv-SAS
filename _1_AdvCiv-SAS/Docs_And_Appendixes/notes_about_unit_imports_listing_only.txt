@@ -5,8 +5,9 @@ eras:
 4 = medieval
 5 = renaissance
 6 = industrial
-7 = modern/atomic
-8 = future
+7 = atomic
+8 = modern
+9 = robotic
 
 _________________________________________________________________________
 removed units:
