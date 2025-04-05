@@ -455,7 +455,7 @@ gun defense units
 -
 gun defense 5:
 gun defense 6:
-gun defense 7: blauwe garde (hero) _ gunner garde history rewritten
+gun defense 7: blauwe garde (hero) _ royal guard (gunner) history rewritten
 gun defense 8: viet cong (hero) ? _ liberator (?) history rewritten
 gun defense 9: super soldier _ laser guard c2c
 
