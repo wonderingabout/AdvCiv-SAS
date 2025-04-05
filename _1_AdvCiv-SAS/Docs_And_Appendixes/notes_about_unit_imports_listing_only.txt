@@ -46,24 +46,34 @@ gun units for barbarians? Terrorists? Etc i mean anyways, thanks, etc, i mean an
 
 
 
-workers (same as work boat maybe not worth it so much or just once in later eras maybe about this i mean anyways, thanks,)
--
--
-worker 3: maybe a bit faster one but not sure is worth the hassle of upgrading them, will see/think (is) about this i mean anyways i mean anyways, thanks,
--
--
-worker 6: labourer history rewritten
--
--
+workers (auto-upgrades, graphics update only) (now that it auto upgrades, i want to add graphics to it) : 
+worker 1:
+worker 2: -
+worker 3: -
+worker 4:
+worker 5:
+worker 6: 
+worker 7: labourer history rewritten
+worker 8: - ?
 worker 9: service droid c2c
 
 
 
-work boats
-now that it auto upgrades, i want to add graphics to it, less tedious for me to implement
-and for player to upgrade them everytime (it is done auto)
-(auto-upgrades, graphics update only)
+work boats (auto-upgrades)
 work boat 1:
+work boat 2:
+work boat 3:
+-
+-
+work boat 5:
+-
+-
+-
+
+
+settlers (now that auto-upgrades i may want to add more unit designs, but not much functional benefit so todo maybe at few eras but much later in mod developement of AdvCiv-SAS about this i mean anyways, thanks)
+-
+-
 -
 -
 -
@@ -71,16 +81,7 @@ work boat 1:
 -
 
 
-settlers
--
--
--
--
--
--
-
-
-scout/explorer
+scouts (auto-upgrades)
 scout 1: -
 -
 explore 3: scout c2c
@@ -91,12 +92,12 @@ explore 7: maybe add one here too for consistency and realism (one every 2 eras,
 -
 explore 9: scout droid c2c
 
-air explore
+air explore (auto-upgrades)
 -
 -
 -
 -
-air explore 5: hot air baloon c2c
+air explore 5: hot air baloon c2c (but late in renaissance)
 air explore 6: Dirigible _ -
 air explore 7: -
 -
@@ -105,7 +106,7 @@ air explore 9: drone helicopter c2c
 
 
 ___________________________________________________________________________________________
-boats:
+boats
 
 transport boats:
 transport 1: raft c2c
@@ -481,7 +482,7 @@ corporations todo
 coropration mace: cartwright c2c
 corporation axe: adventurer ffh2
 corporation lance: rogue c2c
-corporation sword: valkyrie ffh2
+corporation sword: valkyrie ffh2 (looks like saber so nice i could use it here i mean anyways, thanks, todo ; also too unlikel to be used as military unit graphically, but glad i found another use for it todo, is about this i mean anywyas, at least but i focus and should i mean anyways, so and and is really about this at least.. i mean anyways but focus i mean anyways and maybe is just about this, but anyways i mean anywyas as is or not or yes or etc maybe yes or not anywyas as is etc i mean anyways, thanks, to not mislead or other i mean anyways, is this what this person meant idk or not but anyways, todo delete this comment too before merging pr, but still is as is i mean anywyas, thanks, among other possible meaning or not but anyways still is as is and i should focus or not or yes etc i mean anyways, thanks, )
 corporation archer: firebow ffh2
 corporation assasin: adept ffh2
 corporation gun:
@@ -492,7 +493,7 @@ ________________________________________________________________________________
 special units
 
 persia: immortal (foot) history rewritten
-samratian or their western neighbour or other: bactrian c2c
+samratian or their western neighbour or other: bactrian c2c or some other unit if bactrian horse lance(r) is used i mean anyways, thanks,
 xiongnu or their neighbour: flurry ffh2
 englant: longbow welsh realism invictus?
 
