@@ -10,7 +10,7 @@ eras:
 9 = robotic
 
 _________________________________________________________________________
-base units removed units:
+base units removed:
 pikeman (not useful about this i mean anyways, thanks)
 chariot (not accurate, should be lance or archer, not sword if i'm not mistaken i mean anyways, thanks,)
 swordsman (not as pretty or accurate than the bronze era equivalent i chose about this i mean anyways, thanks)
@@ -191,7 +191,7 @@ lance medium 4: spearman duguth realism invictus todo change icon/thumbnail/pict
 -
 
 
-lances heavy units
+lance heavy units
 -
 lance heavy 2  phalanx -
 lance heavy 3: spearman wlocznik realism invictus
