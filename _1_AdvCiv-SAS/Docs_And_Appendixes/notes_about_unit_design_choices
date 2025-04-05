@@ -469,3 +469,45 @@ big, or maybe not, if it is practical enough, at least about this i mean anyways
 so what i would do i think is leave it here as an air explore unit, it may have some value
 in doing so/having such a role i mean anyways, while also being connected to the drone
 later i added too in robotic era i mean anywyas, thanks,
+
+- maybe make only only design of worker change at new era while having a tech give all
+workers higher bonuses (for example improvement build speed or/and move speed or/and other
+things about this i mean anyways, thanks, ) rather than having to manually upgrade each of
+them? I don't know how but should be possible seeing as the skin of the worker changes
+some at some era in base advciv/bts, then i could just give new worker effect at era
+maybe. It may be from a human player perhaps personal or not about this i mean anyways
+satisfying to upgrade workers so they are stronger, especially if free, but it is
+perhaps needlessly tedious, and there will be a lot to focus on on the map or game in
+general. Taking some if not more of the "tediousness" if that word exists (, i checked it
+does exist all good about this only i mean but anyways, ) may help the human player focus
+on the key strategic elements of the game more. There is not much strategy in upgrading
+workers or support units actually.
+
+- i have also decided, me i mean anyways, about this i mean anyways, to extend this logic
+to most or some support units i find it most relevant with i mean anyways, perhaps as a
+means to simplify the game a remove tediousness. This has a nice (unintended originally/
+initially of me but nice to happen, about this i mean anyways, thanks, ) side effect,
+which is that i would have to implement much less units, only one, same as what civ4bts/
+base advciv did for the worker, that gets a graphical age at some era if i am not mistaken
+i mean anyways, about this i mean anyways, thanks , but is only one unit. Putting the
+bonuses outside of the unit is really an efficient and simplifying design i may or not
+use for other units maybe too, about this i mean anyways, thanks,
+
+- may have to do some rouding on worker building times (and increase/decrease as in nerf/buff
+the time of some improvements) or rather increase/decrease (as in tweak/rebalance/adjust so
+that there is no rouding leading to no improvement, maybe if i can do this and it is practical
+and desirable about this i mean anyways, thanks, ). Plantations may be a bit too long to build
+i think for example, for no specific reason i think, maybe it would help the AI too this way.
+But reducing it too much would not make it feel like strategy, so adjusting this (and the fort
+maybe too in particular reduce its build time maybe too? May make it more valuable for human
+players, also realistic, even though a fort is long, should not be that long i mean anyways,
+thanks, ), so adjust/rebalance or/and buff/nerf these all maybe too, about this i mean anyways,
+thanks,
+
+- note also: it makes the "Unit Upgrades Tree" old name (now "Unit Tree") even less relevant now,
+as this is more about listing most units (religous not included for simplicity for example, also
+unique units too for example but anyways), so this is a change that is coming down altogether i
+mean anywyas, consciously or rather willingly or rather intendedly or unintendly or even that is
+inaccurate, basically i mean anyways not with that as an original intention/thought, but eventually
+and about this i mean anyways an intention i willingly implemented later on, after having thought
+and considered it, but it is again about this i mean anyways, i mean anyways, thanks,

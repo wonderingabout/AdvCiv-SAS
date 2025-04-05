@@ -71,6 +71,11 @@ details), for example Buddhism is required to build monks (melee fist fighters)
 - military units are rebalanced: some op units (according to me) are nerfed
 slightly (for example: todo), some weaker ones buffed quite a lot (for example
 the jaguar warrior)
+- some units automatically upgrade, for example the workers, scout, and similar
+units. They get a new design grahically at a new era, but also more bonuses, for
+example every few eras workers may become more and more productive (faster
+improvement build time, or/and move speed/ or and other things for example).
+This is to remove the tediousness or a part of it from the game
 - terrain is very important, almost all units have terrain bonuses, and sometimes
 rarely terrain maluses (i prefer to buff the weak than nerf the strong, unless
 i think it is relevant (quite strongly))

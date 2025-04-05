@@ -59,8 +59,11 @@ worker 9: service droid c2c
 
 
 
-work boats (if need take from c2c but i dont thnik is worth for gameplay, leaving for later or none etc)
--
+work boats
+now that it auto upgrades, i want to add graphics to it, less tedious for me to implement
+and for player to upgrade them everytime (it is done auto)
+(auto-upgrades, graphics update only)
+work boat 1:
 -
 -
 -
