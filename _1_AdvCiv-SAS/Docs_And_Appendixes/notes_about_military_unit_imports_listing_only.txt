@@ -11,7 +11,8 @@ eras:
 _________________________________________________________________________
 removed units:
 pikeman (not useful about this i mean anyways, thanks)
-chariot - (not accurate, should be lance or archer, not sword if i'm not mistaken i mean anyways, thanks,)
+chariot (not accurate, should be lance or archer, not sword if i'm not mistaken i mean anyways, thanks,)
+swordsman (not as pretty or accurate than the bronze era equivalent i chose about this i mean anyways, thanks)
 
 
 _________________________________________________________________________
@@ -152,8 +153,8 @@ horseman: horseman from history rewritten
 
 horse archers
 -
-- horse archer 3: horse archer c2c
-- horse archer 4: -
+- horse archer 3: -
+-
 -
 
 horse crossbows:
@@ -240,8 +241,8 @@ short sword 4: alazkan the assassin (ffh2)
 
 medium sword
 -
-medium sword 2: -
-medium sword 3: alfred the great (hero) c2c
+medium sword 2: alfred the great (hero) c2c
+medium sword 3: eidolon ffh2
 medium sword 4: medieval swordsman hostes realism invictus
 -
 -
@@ -249,8 +250,8 @@ medium sword 4: medieval swordsman hostes realism invictus
 
 longswords:
 -
-longsword 2: eidolon ffh2
-longsword 3: champion ffh2
+-
+-
 longsword 4: skuld ffh2
 -
 -
