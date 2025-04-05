@@ -176,7 +176,7 @@ horseman: horseman from history rewritten
 
 horse archers
 -
-- horse archer 3: -
+horse archer 3: -
 -
 -
 
@@ -244,10 +244,10 @@ maceman 4: battlemaster ffh2
 
 
 axemen
-axeman 1: stone axeman c2c
-axeman 2: beastman ffh2
+axeman 1: beastman ffh2
+axeman 2: heavy axeman c2c
 axeman 3: -
-axeman 4: lucian ffh2          heavy axeman c2c
+axeman 4: lucian ffh2
 -
 -
 
@@ -360,10 +360,10 @@ siege:
 "soft" siege units i mean anyways, about this, and at least - at least, i mean anyways, thanks:
 -
 -
-soft siege 3:
+soft siege 3: -
 soft siege 4: would want a unit here i mean anyways, ballista?
 soft siege 5: -
-soft siege 6: -
+soft siege 6: culverin c2c
 soft siege 7: -
 soft siege 8: ?
 
@@ -371,10 +371,11 @@ soft siege 8: ?
 heavy siege units
 -
 -
-soft siege 3: -
+heavy siege 3: -
 -
--
-soft siege 6: mortar c2c
+heavy siege 5: bombard (mortar c2c)
+heavy siege 6: great bombard c2c
+
 
 
 
@@ -411,7 +412,7 @@ gun support units
 -
 -
 -
-gun defense 6: sniper c2c
+gun defense 6: a sort of sniper but the one of c2c about this i mean anyways, anyways i mean anyways, thanks, was same as rifleman did not see aobut this i mean anyways, focus i mean anyways i mean i focus i mean anyways, thanks, so would need a replacement or alternative and is about this i mean i mean anyways, at least or not at least in that maybe none and aobut this i mean anyways or not but as is and i focus or not or yes etc i mean anyways, thanks, 
 gun defense 7:
 gun defense 8:
 
