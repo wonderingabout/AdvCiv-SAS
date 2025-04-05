@@ -68,6 +68,9 @@ the endgame)
 has one unit (same for neo religions at later eras. See religion changes below for
 details), for example Buddhism is required to build monks (melee fist fighters)
 (yes such as shaolin but anyways..) and Christianism for Crusaders, etc.
+- on that note, some religious units are listed on the units tree of the sevopedia
+while some others not, check for detail the sevopedia (todo update this bullet
+point) page of the sevopedia? 
 - military units are rebalanced: some op units (according to me) are nerfed
 slightly (for example: todo), some weaker ones buffed quite a lot (for example
 the jaguar warrior)
