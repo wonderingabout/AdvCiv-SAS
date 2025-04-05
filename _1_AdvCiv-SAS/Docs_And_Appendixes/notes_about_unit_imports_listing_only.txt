@@ -479,7 +479,7 @@ religious units :
 early religion military
 paganism:donal lugh (hero) _ mythical swordsman (medium) ffh2
 hinduism: stephanos (hero) _ god horse lance ffh2 (as they worship or value animals greatly maybe etc)
-judaism: maybe a worker, after all they were an oppressed people in history if i'm not mistaken
+judaism: maybe a worker, after all they were an oppressed people in history if i'm not mistaken. Idea of effect: reduced worker price, since is lower now, may reduce it to 10 hammer only maybe for example, etc.
 buddhism: monk _ monk ffh2
 daoism: monk _ daoist monk c2c (maybe change remove health icon if i want to make it a fighter like the buddhist monk)
 christianism: crusader
