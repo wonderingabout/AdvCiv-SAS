@@ -373,7 +373,8 @@ heavy siege units
 -
 soft siege 3: -
 -
-soft siege 5: mortar c2c
+-
+soft siege 6: mortar c2c
 
 
 
