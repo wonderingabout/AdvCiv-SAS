@@ -54,7 +54,8 @@ worker 3: maybe a bit faster one but not sure is worth the hassle of upgrading t
 -
 worker 6: labourer history rewritten
 -
-worker 8: service droid c2c
+-
+worker 9: service droid c2c
 
 
 
@@ -72,20 +73,20 @@ settlers
 -
 -
 -
-settler 5
+-
 -
 
 
 scout/explorer
--
+scout 1: -
 -
 explore 3: scout c2c
 -
 explore 5: -
 -
-explore 7: scout droid c2c
+explore 7: maybe add one here too for consistency and realism (one every 2 eras, and explorer in atomic war a bit weird, maybe could have some more bonuses too for this explore unit 7 i mean anyways, thanks,)
 -
-
+explore 9: scout droid c2c
 
 air explore
 -
@@ -93,9 +94,12 @@ air explore
 -
 -
 air explore 5: hot air baloon c2c
-air explore 6: -
-air explore 7: drone helicopter c2c
+air explore 6: Dirigible _ -
+air explore 7: -
 -
+air explore 9: drone helicopter c2c
+-
+
 
 ___________________________________________________________________________________________
 boats:
@@ -104,15 +108,23 @@ transport boats:
 transport 1: raft c2c
 transport 2: galley
 transport 3: galleon
-transport 4: -
-transport 5: -
-transport 6: -
-transport 7: -
-
+transport 4:
+transport 5:
+transport 6:
+transport 7:
+transport 8:
+transport 9:
 
 war boats
 war boat 1: war canoe c2c
 -
+war boat 3: -
+war boat 4:
+war boat 5:
+war boat 6:
+war boat 7:
+war boat 8:
+war boat 9:
 
 
 ___________________________________________________________________________________________
@@ -368,6 +380,7 @@ soft siege 5: culverin c2c
 soft siege 6: rifled cannon (agyu) realism invictus
 soft siege 7: atomic age artillery _ -
 soft siege 8: ?
+soft siege 9: ?
 
 
 heavy siege units
@@ -378,7 +391,8 @@ heavy siege 4: medieval trebuchet _ mobile trebuchet realism invictus
 heavy siege 5: great bombard c2c
 heavy siege 6: armstrong heavy cannon: -
 heave siege 7: howitzer realism invictus
-heavy siege 8: ?
+soft siege 8: ?
+soft siege 9: ?
 
 
 
@@ -394,7 +408,8 @@ gun offense units
 gun offense 5: - (?)
 gun offense 6:
 gun offense 7:
-gun offense 8: (laser gun? As they did in Empire Earth (1) ((which i liked a big lot i mean anywyas, thanks,) for example)) -> special infantry c2c
+gun offense 8:
+gun offense 9: (laser gun? As they did in Empire Earth (1) ((which i liked a big lot i mean anywyas, thanks,) for example)) -> special infantry c2c
 
 
 gun defense units
@@ -405,7 +420,8 @@ gun defense units
 gun defense 5:
 gun defense 6:
 gun defense 7:
-gun defense 8: super soldier c2c
+gun defense 8:
+gun defense 9: super soldier c2c
 
 
 gun support units
@@ -417,6 +433,7 @@ gun support units
 gun defense 6: a sort of sniper but the one of c2c about this i mean anyways, anyways i mean anyways, thanks, was same as rifleman did not see aobut this i mean anyways, focus i mean anyways i mean i focus i mean anyways, thanks, so would need a replacement or alternative and is about this i mean i mean anyways, at least or not at least in that maybe none and aobut this i mean anyways or not but as is and i focus or not or yes etc i mean anyways, thanks, 
 gun defense 7:
 gun defense 8:
+gun defense 9:
 
 ___________________________________________________________________________________________
 religious units :
