@@ -64,6 +64,16 @@ workers every few eras, but there are military units for each new era, at max on
 per class type (for example "sword light", "lance heavy", are each one type), and not
 for all types, also lesser in later stages of the game to simplify/rush/reach sooner
 the endgame)
+- about that too, there are new - specific - unit combat types, for example axemen
+are melee_axe type, light swordsmen melee_swords_light, heavy lance units are
+melee_lance_heavy. So no more weirdness of axeman being good against lancer,
+now the relationships between types will be more complicated or rather defined
+(may make more sense at same time too), for example an axeman may be good against
+swordsmen (for example todo), but not against heavy lances. Light lances may have
+strong bonuses against all/most melee types, except fast ones, and light swords strong
+bonuses against all/most melee types too except fast ones (their strength would be
+lower though). Strategy should be much more important while not being too tedious
+ideally.
 - some units can only be built under specific conditions, for example each religion
 has one unit (same for neo religions at later eras. See religion changes below for
 details), for example Buddhism is required to build monks (melee fist fighters)
