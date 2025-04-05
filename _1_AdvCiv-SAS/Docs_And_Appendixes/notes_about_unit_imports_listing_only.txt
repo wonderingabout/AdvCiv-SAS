@@ -52,7 +52,7 @@ worker 3: maybe a bit faster one but not sure is worth the hassle of upgrading t
 -
 worker 6: labourer history rewritten
 -
-worker 8: robot i would want etc about this i mean anyways etc about this i mean anyways thanks
+worker 8: service droid c2c
 
 
 
@@ -60,7 +60,7 @@ work boats (if need take from c2c but i dont thnik is worth for gameplay, leavin
 -
 -
 -
-work boat 4:
+-
 -
 -
 
@@ -81,7 +81,18 @@ explore 3: scout c2c
 -
 explore 5: -
 -
-explore 7: drone i would want maybe about this i mean anyways, thanks, -> drone helicopter c2c
+explore 7: scout droid c2c
+-
+
+
+air explore
+-
+-
+-
+-
+air explore 5: hot air baloon c2c
+air explore 6: -
+air explore 7: drone helicopter c2c
 -
 
 ___________________________________________________________________________________________
