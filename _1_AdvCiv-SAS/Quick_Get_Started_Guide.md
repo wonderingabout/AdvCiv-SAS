@@ -42,7 +42,7 @@ targets otherwise, at least in theory. They should especially target more lone u
 outside of cities, but much less those in cities.)
 - global defines have been changed to have religion importance higher (in terms
 of culture strength (not exactly sure what this means but should be fine and as i
-intend i think i mean) for example, lower revolt chance, anger from war quite a
+intend i think i mean)) for example, lower revolt chance, anger from war quite a
 bit reduced higher reluctance to agree to a war trade, etc. A bit more pragmatic
 or/and opportunistic, or possibly realistic conditions, war may not always be a
 fatality, at least in the long run, even though it's hell at first, but this is

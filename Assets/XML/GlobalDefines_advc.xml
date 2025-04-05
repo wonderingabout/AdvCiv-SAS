@@ -479,7 +479,17 @@
 		 after razing.
 		 Either way, founding a city clears all terrain features in the
 		 city tile - at least temporarily. -->
-	<!-- custom: -->
+	<!-- custom: i would not want the difficulty to be in such tedious
+	things, may also be more pleasant for the human player, may indirectly
+	help the AI too, also there is no strong reason to think a land
+	developped by a civ could not be reused by other civs even if city
+	is destroyed (not atomic bomb or something i mean but anyways about
+	this i mean anyways, thanks, ), or else maybe i mean anyways then
+	all terrains should be degraded about this i mean anywyas after
+	being used and destroyed. I don't find such design desirable nor
+	realistic, so i choose the more pleasant and effective and simple
+	and perhaps rationnal approach, hopefully allowing a more relaxing
+	gameplay too, about this i mean, anyways, i mean anyways, thanks, -->
     <Define>
         <DefineName>FLOODPLAIN_AFTER_RAZE</DefineName>
         <iDefineIntVal>1</iDefineIntVal>
