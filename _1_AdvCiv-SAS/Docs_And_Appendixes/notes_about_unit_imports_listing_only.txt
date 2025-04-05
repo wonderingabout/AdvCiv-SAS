@@ -10,11 +10,25 @@ eras:
 9 = robotic
 
 _________________________________________________________________________
-removed units:
+base units removed units:
 pikeman (not useful about this i mean anyways, thanks)
 chariot (not accurate, should be lance or archer, not sword if i'm not mistaken i mean anyways, thanks,)
 swordsman (not as pretty or accurate than the bronze era equivalent i chose about this i mean anyways, thanks)
 catapult (not accurate enough or pretty enough i mean clear enough too to distinguish medieval and early catapult)
+
+
+
+_________________________________________________________________________
+special units
+
+persia: immortal (foot) (hero) history rewritten
+samratihoran: flurry ffh2
+xiongnu: horseman (han) realism invictus rename to another unit name, maybe "Xiongnu horseman"?
+mongol: rename unit to keshig + give them the keshig (hero) of history rewritten. Plus i checked on wiki quick, their unit art design seems more accurate too (and more epic etc), for info: https://en.wikipedia.org/wiki/Kheshig
+england: longbow welsh realism invictus?
+greece: hoplite? hero history rewritten
+france: chevalier (hero) history rewritten
+
 
 
 _________________________________________________________________________
@@ -46,7 +60,8 @@ gun units for barbarians? Terrorists? Etc i mean anyways, thanks, etc, i mean an
 
 
 
-workers (auto-upgrades, graphics update only) (now that it auto upgrades, i want to add graphics to it) : 
+workers (auto-upgrades, graphics update only) (now that it auto upgrades, i want to add graphics to it):
+find many workers in realism invictus for example (or c2c (but c2c's workers may have a different name or not etc) or/and other etc)
 worker 1:
 worker 2: -
 worker 3: -
@@ -72,9 +87,9 @@ work boat 5:
 
 
 settlers (now that auto-upgrades i may want to add more unit designs, but not much functional benefit so todo maybe at few eras but much later in mod developement of AdvCiv-SAS about this i mean anyways, thanks)
+settler 1: -
 -
--
--
+settler 3: immigrant c2c
 -
 -
 -
@@ -119,6 +134,8 @@ transport 7:
 transport 8:
 transport 9:
 
+
+
 war boats
 war boat 1: war canoe c2c
 -
@@ -131,133 +148,14 @@ war boat 8:
 war boat 9:
 
 
+
 ___________________________________________________________________________________________
-camels:
-
-camel archers
--
--
-camel archer 3: -
-camel archer 4: late horse archer realism invictus
--
-
-camel lancers
--
--
-camel lancer 3: bactrian cataphract c2c
-camel lancer 4: camel knight c2c
-
-
-camel sword:
--
--
--
-camel sword 4: camel rider c2c
--
-
-camel crossbow:
-
-
-
-camel gun:
--
--
--
--
-camel gun 5: (camel cuirassier) camel gunner from c2c
-camel gun 6: camel cavalry: meharist from c2c
-
-
-
-elephants:
--
--
-war elephant 3: atlas elephant (hero used as a unit here i mean anyways) history rewritten
-war elephant 4: -
--
--
-
-horse units:
-
-chariot archers
--
-chariot 2: chariot archer c2c
--
--
--
-
-chariot lancers
--
-chariot lancer 2: mursili 2 c2c todo icon from screenshot i mean anyways etc i mean anyways, thanks,
-
-horseman: horseman from history rewritten
-
-horse archers
--
-horse archer 3: -
--
--
-
-horse crossbows:
--
--
-horse crossbow 3: horse crossbowman c2c
-horse crossbow 4: strezelcy history rewritten
--
--
-
-horse lancers:
--
--
--
-horse lancer 3: horseman alemannic realism invictus todo icon
-horse lancer 4: heavy cavalry c2c
--
--
-
-
-horse swords:
--
--
--
-horse sword 4: -
--
--
-
-
-
-horse gun attackers:
--
--
--
--
-horse gun attacker 5: -
-horse gun attacker 6: -
--
--
-
-
-horse gun defenders:
--
--
--
--
-horse gun defender 5: carabinier c2c
-horse gun defender 6:
--
--
-
-
-
-
-
-
-____________________________________________________________________________________________
 macemen
 maceman 1: -
 maceman 2: maceman c2c
 maceman 3: -
 maceman 4: battlemaster ffh2
+
 
 
 
@@ -301,11 +199,13 @@ lance heavy 4  phalanx from ffh2
 -
 
 
+
 short swords
 -
 short sword 2: gladiator c2c
 short sword 3: swordsman alemannic realism invictus
 short sword 4: alazkan the assassin (ffh2)
+
 
 
 medium sword
@@ -337,12 +237,14 @@ archer 4: marksman ffh2
 -
 
 
+
 longbows
 -
 longbow 2: -
 longbow 3: longbowman magyar realism invictus
 longbow 4: longbowman ghaznavid realism invictus
 -
+
 
 
 crossbows:
@@ -354,26 +256,155 @@ crossbow 4: crossbow nordic realism invictus
 
 
 ____________________________________________________________________________________________
-assasin units:
-spy of civ4 give it attack too? and early spy?
-courtesan ffh2
-assassin (arab i think unit or generic)
-assassin ffh2
-thief
-burglar c2c
 
-
-
-spy units?
+horse units:
+horse crossbows:
 -
-lara croft (c2c? Need check if was there i mean anyways, etc, i mean anyways about this i mean anywyas, thanks,)
-special agent c2c
+-
+horse crossbow 3: horse crossbowman c2c
+horse crossbow 4: strezelcy history rewritten
+-
+-
+
+
+
+chariot archers
+-
+chariot 2: chariot archer c2c
+-
+-
+-
+
+chariot lancers
+-
+chariot lancer 2: mursili 2 c2c todo icon from screenshot i mean anyways etc i mean anyways, thanks,
+
+horseman: horseman from history rewritten
+
+horse archers
+-
+horse archer 3: -
+-
+-
+
+
+
+horse lancers:
+-
+-
+-
+horse lancer 3: horseman alemannic realism invictus todo icon
+horse lancer 4: heavy cavalry c2c
+-
+-
+
+
+horse swords:
+-
+-
+-
+horse sword 4: -
+-
+-
+
+
+
+horse gun attackers:
+-
+-
+-
+-
+horse gun attacker 5: -
+horse gun attacker 6: -
+-
+-
+
+
+horse gun defenders:
+-
+-
+-
+-
+horse gun defender 5: carabinier c2c
+horse gun defender 6: bandeirante (hero) _ Sheriff history rewritten
+-
+-
+
+
+
+
+camels:
+camel crossbows
+
+
+
+
+camel archers
+-
+-
+camel archer 3: -
+camel archer 4: late horse archer realism invictus
+-
+
+
+
+camel lancers
+-
+-
+camel lancer 3: bactrian cataphract c2c
+camel lancer 4: camel knight c2c
+
+
+
+
+camel swords:
+-
+-
+-
+camel sword 4: camel rider c2c
+-
 
 
 
 
 
-___________________________________________________________________________________________
+
+
+
+camel gun offense:
+-
+-
+-
+-
+camel gun offense 5: camel cuirassier _ camel gunner from c2c
+camel gun offense 6: meharist _ camel cavalry c2c
+-
+
+
+camel gun defense:
+-
+-
+-
+-
+camel gun defense 5: hajana (hero) _ camel patroller history rewritten todo change icon use the one of the camel trench cavalry (c2c) for example, or the icon of imajaghan (hero) (history rewritten), or edit myself but not guaranteed result etc
+camel gun defense 6:
+-
+-
+
+
+
+
+elephants:
+-
+-
+war elephant 3: atlas elephant (hero used as a unit here i mean anyways) history rewritten
+war elephant 4: -
+-
+-
+
+
+____________________________________________________________________________________________
+
 siege:
 "soft" siege units i mean anyways, about this, and at least - at least, i mean anyways, thanks:
 -
@@ -413,7 +444,7 @@ gun offense 5: - (?)
 gun offense 6:
 gun offense 7:
 gun offense 8:
-gun offense 9: (laser gun? As they did in Empire Earth (1) ((which i liked a big lot i mean anywyas, thanks,) for example)) -> special infantry c2c
+gun offense 9: special infantry _ laser infantry c2c
 
 
 gun defense units
@@ -423,9 +454,9 @@ gun defense units
 -
 gun defense 5:
 gun defense 6:
-gun defense 7:
-gun defense 8:
-gun defense 9: super soldier c2c
+gun defense 7: blauwe garde (hero) _ gunner garde history rewritten
+gun defense 8: viet cong (hero) ? _ liberator (?) history rewritten
+gun defense 9: super soldier _ laser guard c2c
 
 
 gun support units
@@ -439,15 +470,17 @@ gun defense 7:
 gun defense 8:
 gun defense 9:
 
+
+
 ___________________________________________________________________________________________
 religious units :
 
 early religion military
-paganism:
-hinduism:
-judaism:
-buddhism: monk
-daoism:
+paganism:donal lugh (hero) _ mythical swordsman (medium) ffh2
+hinduism: stephanos (hero) _ god horse lance ffh2 (as they worship or value animals greatly maybe etc)
+judaism: maybe a worker, after all they were an oppressed people in history if i'm not mistaken
+buddhism: monk _ monk ffh2
+daoism: monk _ daoist monk c2c (maybe change remove health icon if i want to make it a fighter like the buddhist monk)
 christianism: crusader
 islam: mujahid (ansar) realism invictus
 
@@ -455,17 +488,18 @@ islam: mujahid (ansar) realism invictus
 
 
 neo religion military
-paganism:
-hinduism:
-judaism:
+paganism: gibbon goetia (hero) _ heretic ffh2
+hinduism: cassay (hero) - hindu cavalry history rewritten
+judaism: ? _ zionist colon/infantry
 buddhism: 
 daoism:
 christianism:
-islam:
+islam: ? _ terrorist / jihadist
 
 
 
-religious missionairess
+
+religious missionairess (keep as is? but history rewritten or/and other have nice ones, etc)
 paganism:
 hinduism:
 judaism:
@@ -482,20 +516,32 @@ corporations todo
 coropration mace: cartwright c2c
 corporation axe: adventurer ffh2
 corporation lance: rogue c2c
-corporation sword: valkyrie ffh2 (looks like saber so nice i could use it here i mean anyways, thanks, todo ; also too unlikel to be used as military unit graphically, but glad i found another use for it todo, is about this i mean anywyas, at least but i focus and should i mean anyways, so and and is really about this at least.. i mean anyways but focus i mean anyways and maybe is just about this, but anyways i mean anywyas as is or not or yes or etc maybe yes or not anywyas as is etc i mean anyways, thanks, to not mislead or other i mean anyways, is this what this person meant idk or not but anyways, todo delete this comment too before merging pr, but still is as is i mean anywyas, thanks, among other possible meaning or not but anyways still is as is and i should focus or not or yes etc i mean anyways, thanks, )
+corporation sword: valkyrie ffh2
 corporation archer: firebow ffh2
 corporation assasin: adept ffh2
 corporation gun:
 
 todo
 
-___________________________________________________________________________________________
-special units
 
-persia: immortal (foot) history rewritten
-samratian or their western neighbour or other: bactrian c2c or some other unit if bactrian horse lance(r) is used i mean anyways, thanks,
-xiongnu or their neighbour: flurry ffh2
-englant: longbow welsh realism invictus?
 
+____________________________________________________________________________________________
+assasin units: (maybe not do? Gameplay too untidy with this maybe? Etc)
+spy of civ4 give it attack too? and early spy?
+assassin (arab i think unit or generic)
+assassin ffh2
+thief
+burglar c2c
+courtesan ffh2
+
+
+spy units?
+-
+lara croft (c2c? Need check if was there i mean anyways, etc, i mean anyways about this i mean anywyas, thanks,)
+special agent c2c
+
+
+
+____________________________________________________________________________________________
 
 
