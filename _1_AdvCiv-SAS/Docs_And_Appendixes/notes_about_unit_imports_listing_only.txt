@@ -27,36 +27,46 @@ hyena history rewritten?
 
 
 barbarians
+galley: babary corsair c2c
+maceman all: (?)
 axeman all: sons of asena ffh2
 lance light all: (?)
 lance medium all: beastman ffh2
 lance heavy all: (?)
+sword light all:
+sword medium all:
+sword heavy all: 
 horse sword 4: magnadine hero ffh2
-horse lancer:
+horse lancer: bandit rider c2c
 crossbow all: bellybowman ffh2
-swordsman:
+archer all:
+gun units for barbarians? Terrorists? Etc i mean anyways, thanks, etc, i mean anyways, thanks,
 
 
 
 workers (same as work boat maybe not worth it so much or just once in later eras maybe about this i mean anyways, thanks,)
-worker 1: 
 -
-worker 3: 
-worker 4: 
-worker 5: 
+-
+worker 3: maybe a bit faster one but not sure is worth the hassle of upgrading them, will see/think (is) about this i mean anyways i mean anyways, thanks,
+-
+-
 worker 6: labourer history rewritten
+-
+worker 8: robot i would want etc about this i mean anyways etc about this i mean anyways thanks
+
+
 
 work boats (if need take from c2c but i dont thnik is worth for gameplay, leaving for later or none etc)
-work boat 1:
-work boat 2: work boat history rewritten
-work boat 3: work boat ffh2
+-
+-
+-
 work boat 4:
-work boat 5:
-work boat 6:
+-
+-
 
 
 settlers
-settler 1: -
+-
 -
 -
 -
@@ -65,18 +75,14 @@ settler 5
 
 
 scout/explorer
-explore 1: -
-explore 2:
+-
+-
 explore 3: scout c2c
-explore 4:
+-
 explore 5: -
-explore 6:
-explore 7:
-
-___________________________________________________________________________________________
-siege:
-
-
+-
+explore 7: drone i would want maybe about this i mean anyways, thanks, -> drone helicopter c2c
+-
 
 ___________________________________________________________________________________________
 boats:
@@ -93,6 +99,8 @@ transport 7: -
 
 war boats
 war boat 1: war canoe c2c
+-
+
 
 ___________________________________________________________________________________________
 camels:
@@ -186,6 +194,34 @@ horse swords:
 horse sword 4: -
 -
 -
+
+
+
+horse gun attackers:
+-
+-
+-
+-
+horse gun attacker 5: -
+horse gun attacker 6: -
+-
+-
+
+
+horse gun defenders:
+-
+-
+-
+-
+horse gun defender 5: carabinier c2c
+horse gun defender 6:
+-
+-
+
+
+
+
+
 
 ____________________________________________________________________________________________
 macemen
@@ -299,6 +335,73 @@ burglar c2c
 
 
 
+spy units?
+-
+lara croft (c2c? Need check if was there i mean anyways, etc, i mean anyways about this i mean anywyas, thanks,)
+special agent c2c
+
+
+
+
+
+___________________________________________________________________________________________
+siege:
+"soft" siege units i mean anyways, about this, and at least - at least, i mean anyways, thanks:
+-
+-
+soft siege 3:
+soft siege 4: would want a unit here i mean anyways, ballista?
+soft siege 5: -
+soft siege 6: -
+soft siege 7: -
+soft siege 8: ?
+
+
+heavy siege units
+-
+-
+soft siege 3: -
+-
+soft siege 5: mortar c2c
+
+
+
+
+
+___________________________________________________________________________________________
+gun units
+
+gun offense units
+-
+-
+-
+-
+gun offense 5: - (?)
+gun offense 6:
+gun offense 7:
+gun offense 8: (laser gun? As they did in Empire Earth (1) ((which i liked a big lot i mean anywyas, thanks,) for example)) -> special infantry c2c
+
+
+gun defense units
+-
+-
+-
+-
+gun defense 5:
+gun defense 6:
+gun defense 7:
+gun defense 8: super soldier c2c
+
+
+gun support units
+-
+-
+-
+-
+-
+gun defense 6: sniper c2c
+gun defense 7:
+gun defense 8:
 
 ___________________________________________________________________________________________
 religious units :
