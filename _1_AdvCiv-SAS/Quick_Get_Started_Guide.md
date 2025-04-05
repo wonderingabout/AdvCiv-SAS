@@ -79,6 +79,17 @@ units. They get a new design grahically at a new era, but also more bonuses, for
 example every few eras workers may become more and more productive (faster
 improvement build time, or/and move speed/ or and other things for example).
 This is to remove the tediousness or a part of it from the game
+- about this too, for simplicity most unit upgrade are fairly straightforward and
+relaxed: all offensive units can be upraded to offense gun units, same for defensive
+melee units into defensive gun units, same for all offensive mounted units into
+offensive mounted units. I don't want the tediousness (if any must have to be, not
+sure about this too but anyways) to be there. Historically is also not so nonsensical
+to think archers started to use a gun, or even axemen actually, once it's not an
+effective weapon anymore. Cavalries and similar upgrade into tanks, maybe their skills
+translate into driving the tank better or having a better understanding of military
+tactics/logistics required in doing so. This is mostly to simplify the tedious parts
+of the game while also making all units relevant, a few one rather than many useless
+ones, so plan your strategy accordingly.
 - terrain is very important, almost all units have terrain bonuses, and sometimes
 rarely terrain maluses (i prefer to buff the weak than nerf the strong, unless
 i think it is relevant (quite strongly))
