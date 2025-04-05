@@ -489,7 +489,8 @@
 	being used and destroyed. I don't find such design desirable nor
 	realistic, so i choose the more pleasant and effective and simple
 	and perhaps rationnal approach, hopefully allowing a more relaxing
-	gameplay too, about this i mean, anyways, i mean anyways, thanks, -->
+	gameplay too, about this i mean, anyways, i mean anyways, thanks,
+	was 0 -->
     <Define>
         <DefineName>FLOODPLAIN_AFTER_RAZE</DefineName>
         <iDefineIntVal>1</iDefineIntVal>
