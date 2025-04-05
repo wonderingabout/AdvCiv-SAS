@@ -14,7 +14,6 @@ pikeman (not useful about this i mean anyways, thanks)
 chariot (not accurate, should be lance or archer, not sword if i'm not mistaken i mean anyways, thanks,)
 swordsman (not as pretty or accurate than the bronze era equivalent i chose about this i mean anyways, thanks)
 catapult (not accurate enough or pretty enough i mean clear enough too to distinguish medieval and early catapult)
-cannon (not accurate enough or visibly clear enough for my needs in this mod i mean)
 
 
 _________________________________________________________________________
@@ -366,7 +365,7 @@ soft siege 3: early catapult _ catapult (mangonel) realism invictus
 soft siege 4: medieval catapult _ catapult (hu dan pao) realism invictus
 soft siege 5: culverin c2c
 soft siege 6: rifled cannon (agyu) realism invictus
-soft siege 7: -
+soft siege 7: atomic age artillery _ -
 soft siege 8: ?
 
 
@@ -375,10 +374,10 @@ heavy siege units
 -
 heavy siege 3: early trebuchet _ -
 heavy siege 4: medieval trebuchet _ mobile trebuchet realism invictus
-heavy siege 5: bombard (mortar c2c)
-heavy siege 6: great bombard c2c
-
-
+heavy siege 5: great bombard c2c
+heavy siege 6: armstrong heavy cannon: -
+heave siege 7: howitzer realism invictus
+heavy siege 8: ?
 
 
 
