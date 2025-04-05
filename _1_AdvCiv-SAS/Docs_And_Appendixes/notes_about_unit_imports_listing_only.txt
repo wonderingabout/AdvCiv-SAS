@@ -28,6 +28,7 @@ mongol: rename unit to keshig + give them the keshig (hero) of history rewritten
 england: longbow welsh realism invictus?
 greece: hoplite? hero history rewritten
 france: chevalier (hero) history rewritten
+egypt: rename war chariot to wereryet like history rewritten did?
 
 
 
