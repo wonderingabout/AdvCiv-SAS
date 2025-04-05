@@ -68,23 +68,28 @@ are the added new civ's real world location) :
 
 ![img2](/_1_AdvCiv-SAS/Docs_And_Appendixes/0.22_world_map_terrain_with_new_civs.png)
 
-A preview of the changes (screenshots), can be found on this google drive: 
-[here](https://drive.google.com/drive/folders/1v4jkm383NGL761ciMUdU6hGuZKvLo00w?usp=sharing).
+Here is a view (current) of the military tree you can expect/find in this AdvCiv-SAS mod below.
+I tweaked the existing one of base AdvCiv/civ4 BTS for historical accuracy and gameplay
+diversity:
+![img3](/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43%20military%20tree_modified.png)
 
 ## Docs
 
 I added quite a bit of documentation, pictures, and other elements about this AdvCiv-SAS mod:
 [here](/_1_AdvCiv-SAS/)
 
+Additionally, A preview of the changes (screenshots), can be found on this google drive: 
+[here](https://drive.google.com/drive/folders/1v4jkm383NGL761ciMUdU6hGuZKvLo00w?usp=sharing).
+
 If you want to know more about the project, how i ordered the tree tech historically, why i decided
-on balance changes and such, please visit it.
+on balance changes and such, please visit these pages (as well).
 
 # Credits
 - AdvCiv (the full name Advanced Civ does not yield much results about Civ 4 so i prefer the AdvCiv Name, maybe because of the space character, so i put a "-" instead in my/this mod): todo write, but mostly i am very thankful of AdvCiv, it's such a nice improvement from Civ4, and it's maintainer is very open to feedback at least in my
 exchanges/experiences during these times i mean anyways, thanks
 - Cavemen2Cosmosn (also know as C2C): i took quite a lot of content from there, thanks
 - Realism Invictus (also know as RI): i took quite a bit content from there, thanks,
-- Fall from Heaven II ((also know as FFH2): i took quite a bit of content from there, thanks too too, thanks,
+- Fall from Heaven II (also know as FFH2): i took quite a bit of content from there, thanks too too, thanks,
 - History Rewritten (also know as HR): i took quite a bit of content from there too, thanks,
 - Firaxis's Civ4 game and Civ4 BTS: Civ4 allows to do a lot of things with just XML,
 which surprised me a lot in a way that pleased me i mean anyways. So far i have not touched
