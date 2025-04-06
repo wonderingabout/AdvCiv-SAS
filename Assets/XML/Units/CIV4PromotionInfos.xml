@@ -1275,9 +1275,11 @@ else it gets messy really quickly, thanks, -->
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
-			<PromotionPrereqOr1>PROMOTION_COMBAT4</PromotionPrereqOr1>
+			<!-- custom: reduce prerequirement, was PROMOTION_COMBAT4-->
+			<PromotionPrereqOr1>PROMOTION_COMBAT1</PromotionPrereqOr1>
 			<!-- advc.200: was PROMOTION_DRILL4 in K-Mod; reverted -->
-			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
+			<!-- custom: extend eligible prerequired promotions, was NONE -->
+			<PromotionPrereqOr2>PROMOTION_CITY_RAIDER1</PromotionPrereqOr2>
 			<TechPrereq>TECH_MILITARY_SCIENCE</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>

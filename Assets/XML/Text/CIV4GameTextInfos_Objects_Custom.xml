@@ -381,6 +381,33 @@
 			<Plural>0</Plural>
 		</Spanish>
 	</TEXT>
+	<!-- custom: spies don't conduct raids for example in base
+	civ bts/advciv so "commando" does not fit, is also not
+	intuitive, hopefully clearer now -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COMMANDO</Tag>
+		<English>Logistician</English>
+		<French>
+			<Text>Logistician</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Logistician</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Logistician</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Logistician</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
 
 	<!-- custom: clear counter unit promotion names -->
 	<TEXT>
