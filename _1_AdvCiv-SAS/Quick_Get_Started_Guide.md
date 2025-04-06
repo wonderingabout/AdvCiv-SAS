@@ -47,9 +47,9 @@ for example "Combat III" is now "Combat 3" too.
 - unit promotions are reworked or/and rebalanced: woodsman for example is buffed,
 some are rebalanced or nerfed, and other some promotions have also their requirements
 changed, for archers have access to city bombard promotion (units are reworked too,
-see below), or "Logistician" (named "Commando" before) is now accessible after
+see below), or "Logistics" (named "Commando" before) is now accessible after
 Combat 1 or City Attack 1 todo rename. Some are available sooner too, for example
-"Logistician" is available at "The Wheel", not "Military Science" anymore, since
+"Logistics" is available at "The Wheel", not "Military Science" anymore, since
 we understand roads we can use them, maybe, more strategic importance now too maybe
 hopefully.
 - military units are reworked: for example the holy roman empire special unit,

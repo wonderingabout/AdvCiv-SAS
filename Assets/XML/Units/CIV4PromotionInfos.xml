@@ -1234,11 +1234,13 @@ full order to take from for quick editing or/and copy/paste:
 			<Description>TXT_KEY_PROMOTION_BLITZ</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
-			<PromotionPrereq>NONE</PromotionPrereq>
+			<!-- custom: -->
+			<PromotionPrereq>PROMOTION_DRILL1</PromotionPrereq>
 			<!-- advc.164: was PROMOTION_DRILL3 in K-Mod -->
-			<PromotionPrereqOr1>PROMOTION_DRILL1</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_COMBAT3</PromotionPrereqOr2>
-			<TechPrereq>TECH_MILITARY_SCIENCE</TechPrereq>
+			<PromotionPrereqOr1>PROMOTION_CITY_RAIDER1</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_COMBAT1</PromotionPrereqOr2>
+			<!-- custom: reduce tech prerequirement, was TECH_MILITARY_SCIENCE -->
+			<TechPrereq>TECH_ENGINEERING</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
 			<!-- advc.164: No change to the value. 1 means 1 extra attack now;

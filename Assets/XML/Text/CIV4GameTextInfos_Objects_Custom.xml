@@ -381,29 +381,57 @@
 			<Plural>0</Plural>
 		</Spanish>
 	</TEXT>
+	<!-- custom: name is more epic, not necessarily clearer (especially
+	with new tech requirement that is sooner, in earlier eras, but it
+	is historically more correct according to my research about this
+	quick i mean anyways, plus name is more epic now, anyways) -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_BLITZ</Tag>
+		<English>Blitzkrieg</English>
+		<French>
+			<Text>Blitzkrieg</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Blitzkrieg</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Blitzkrieg</Text>
+			<Gender>Female</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Blitzkrieg</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
 	<!-- custom: spies don't conduct raids for example in base
 	civ bts/advciv so "commando" does not fit, is also not
 	intuitive, hopefully clearer now -->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_COMMANDO</Tag>
-		<English>Logistician</English>
+		<English>Logistics</English>
 		<French>
-			<Text>Logistician</Text>
+			<Text>Logistics</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</French>
 		<German>
-			<Text>Logistician</Text>
+			<Text>Logistics</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</German>
 		<Italian>
-			<Text>Logistician</Text>
+			<Text>Logistics</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Italian>
 		<Spanish>
-			<Text>Logistician</Text>
+			<Text>Logistics</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Spanish>
