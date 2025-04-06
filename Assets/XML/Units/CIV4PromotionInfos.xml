@@ -1,4 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?><!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Jon Shafer (Firaxis Games) --><!-- Sid Meier's Civilization 4 --><!-- Copyright Firaxis Games 2005 --><!-- --><!-- Promotion Infos --><Civ4PromotionInfos xmlns="x-schema:CIV4UnitSchema.xml">
+<?xml version="1.0" encoding="UTF-8"?><!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Jon Shafer (Firaxis Games) --><!-- Sid Meier's Civilization 4 --><!-- Copyright Firaxis Games 2005 --><!-- --><!-- Promotion Infos -->
+<!--
+custom: for <UnitCombats> please alphabetical/sevopedia listing order,
+else it gets messy really quickly, thanks, -->
+<Civ4PromotionInfos xmlns="x-schema:CIV4UnitSchema.xml">
 	<PromotionInfos>
 		<PromotionInfo>
 			<Type>PROMOTION_COMBAT1</Type>
@@ -3125,9 +3129,14 @@
 			<DomainMods/>
 			<TerrainDoubleMoves/>
 			<FeatureDoubleMoves/>
+			<!-- custom: give city bombard damage to more unit types -->
+			<!-- custom: todo create air_bomber and air_fighter types, give
+			city bombard only to air_bomber not air_fighter, doesn't make (much)
+			sense but leaving as is for now until todo fix about this i mean
+			anyways, thanks, -->
 			<UnitCombats>
 				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_AIR</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 				<UnitCombat>
@@ -3136,6 +3145,10 @@
 				</UnitCombat>
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 			</UnitCombats>

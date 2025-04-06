@@ -354,6 +354,34 @@
 		</Spanish>
 	</TEXT>
 
+	<!-- custom: clearer renaming to some promotions,
+	accuracy is so misleading as a name for example,
+	hopefully clearer now -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_ACCURACY</Tag>
+		<English>City Bombard Damage</English>
+		<French>
+			<Text>City Bombard Damage</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>City Bombard Damage</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>City Bombard Damage</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>City Bombard Damage</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+
 	<!-- custom: clear counter unit promotion names -->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_AMBUSH</Tag>
@@ -426,12 +454,12 @@
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Spanish>
+	</TEXT>
 	<!-- custom: rename or/and create subtypes for each melee type
 	maybe or maybe not and put them all in same promotion easier?
 	Or partly simply by having counter melee sword, or counter sword?
 	Todo -->
-	</TEXT>
-		<TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_SHOCK</Tag>
 		<English>Counter-Melee</English>
 		<French>
