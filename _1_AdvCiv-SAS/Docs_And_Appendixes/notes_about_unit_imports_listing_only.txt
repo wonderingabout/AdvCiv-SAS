@@ -515,7 +515,7 @@ gun defense units
 gun offense 5: mahardlek (unique) _ imperial arquebus guard history rewritten 
 gun offense 6: -
 gun defense 7: - (machine gun -)
-gun defense 8: navy seal (the usa - ) _ Counter Terrorist (Maverick)
+gun defense 8: navy seal (the usa - ) _ Counter Terrorist (Maverick M4A1)
 gun defense 9: special infantry c2c
 
 
