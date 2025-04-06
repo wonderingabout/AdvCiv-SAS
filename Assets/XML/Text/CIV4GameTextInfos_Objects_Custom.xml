@@ -354,7 +354,7 @@
 		</Spanish>
 	</TEXT>
 
-	<!-- custom: clear counter unit promotion names-->
+	<!-- custom: clear counter unit promotion names -->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_AMBUSH</Tag>
 		<English>Counter-Tank</English>
@@ -426,9 +426,10 @@
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Spanish>
-	<!-- custom: rename or/and create subtypes for each melee type maybe or maybe not
-	and put them all in same promotion easier? Or partly simply by having counter
-	melee sword, or counter sword? Todo -->
+	<!-- custom: rename or/and create subtypes for each melee type
+	maybe or maybe not and put them all in same promotion easier?
+	Or partly simply by having counter melee sword, or counter sword?
+	Todo -->
 	</TEXT>
 		<TEXT>
 		<Tag>TXT_KEY_PROMOTION_SHOCK</Tag>
@@ -498,6 +499,158 @@
 		</Italian>
 		<Spanish>
 			<Text>Counter-Mounted</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+
+	<!-- custom: use arabic numerals for/in promotions naming(/es),
+	add missing "translations" for some promotions too (for example)
+	combat 6, even though i just copy paste to english for ease of use
+	(of translation) and convenience, i don't want it to be displayed
+	as "VI" ingame but "6" so adding these extra ones. -->
+		<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COMBAT1</Tag>
+		<English>Combat 1</English>
+		<French>
+			<Text>Combat 1</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Kampf 1</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Combattimento 1</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Combate 1</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COMBAT2</Tag>
+		<English>Combat 2</English>
+		<French>
+			<Text>Combat 2</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Kampf 2</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Combattimento 2</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Combate 2</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COMBAT3</Tag>
+		<English>Combat 3</English>
+		<French>
+			<Text>Combat 3</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Kampf 3</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Combattimento 3</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Combate 3</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COMBAT4</Tag>
+		<English>Combat 4</English>
+		<French>
+			<Text>Combat 4</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Kampf 4</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Combattimento 4</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Combate 4</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COMBAT5</Tag>
+		<English>Combat 5</English>
+		<French>
+			<Text>Combat 5</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Kampf 5</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Combattimento 5</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Combate 5</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<!-- custom added missing languages in base civ4/BTS to have "6"
+	not "VI" everywhere -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COMBAT6</Tag>
+		<English>Combat 6</English>
+		<French>
+			<Text>Combat 6</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Kampf 6</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Combattimento 6</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Combate 6</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Spanish>

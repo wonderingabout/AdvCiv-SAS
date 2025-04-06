@@ -40,11 +40,14 @@ Defenders may have a chance to prevail while being behind in tech but it will be
 - explore units can attack: but their strength should be quite low
 - military units are versatile: swordsmen can defend, archers can attack,
 maybe even workers too
+- unit promotions have clearer names now too: for example Counter-Archer,
+counter Siege, Counter-Tank. Or another example is "City Bombard" (instead
+of barrage). Numeric naming has been changed too for clarity and ease of read:
+for example "Combat III" is now "Combat 3" too.
 - unit promotions are reworked or/and rebalanced: woodsman for example is buffed,
 some are rebalanced or nerfed, and other some promotions have also their requirements
-changed, for example todo
-- unit promotions have clearer names now too: for example Counter-Archer,
-counter Siege, Counter-Tank.
+changed, for archers have access to city bombard promotion (units are reworked too,
+see below)
 - military units are reworked: for example the holy roman empire special unit,
 to better accomodate its history and stats, can be built starting from a different
 tech, in particular the settler is now not freely available but requires agriculture
