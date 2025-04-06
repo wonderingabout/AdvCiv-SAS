@@ -9,7 +9,7 @@ todo cleanup extensive comments and move them to a longer changes guide notes
 
 ## Main Changes quick starter guide
 
-- tech tree is vastly ordered for historical accuracy (for example steel is at
+- tech tree is vastly reordered for historical accuracy (for example steel is at
 iron age, pottery is before the wheel, metal casting before currency and before
 bronze working), but it is mostly the same techs as in civ4 bts/base advciv,
 hopefully easier to get into/used to, and i did not see a specific reason to
