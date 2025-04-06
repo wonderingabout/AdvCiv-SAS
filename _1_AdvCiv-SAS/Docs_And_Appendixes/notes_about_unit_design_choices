@@ -519,7 +519,10 @@ i mean anyways, thanks,
 - grenadier throughout history, around 1500 AD according to wiki:
 https://en.wikipedia.org/wiki/Grenade#Gunpowder
 moved the grenadier to renaissance, added other units instead for more accuracy
-or realism or wanting other units there
+or realism or wanting other units there, but now added grenadier back to industrial era, because it
+is its time of/in history i mean anyways and about this i mean anyways, and added an earlier type of
+grenadier sooner in tech tree to have a nice line of their ancestors, about this i mean, anyways,
+etc i mean anyways, thanks,
 
 - i wanted to use the valkyrie from ffh2, but doesn't fit too well as a military unit, using it
 as the corporation (sword) todo executive, looks like saber, glad it/she could fit there
@@ -532,3 +535,201 @@ see, or/and affect AI building units priorities
 
 - having religious units provides an extra incentive to build religious for players, especially
 humans players, may be good to put more emphasis on religion in this AdvCiv-SAS mod i think.
+
+- SAM seems to not have been as successful about this i mean anyways, thanks, as depicted in civ4.
+According to this source for example after checking quick https://www.reddit.com/r/WarCollege/comments/kesgsy/were_sam_systems_a_superior_strategy_to_air_power/
+the hit rate was quite (very) low, and only bruteforce could make it any useful.
+This is from the little i've read, i didn't check in detail.
+Nerfed the SAM infantry from civ4's values, while slightly buffing the modern sam, i would/should/would
+want ideally to nerf it more to something like 10%, but nerfing it anymore would make the unit useless.
+I could give air interception promotion to sam units, while making their starting values lower, but it
+is too much hassle for an about final result, also not too realistic that suddenly somehow a SAM infantry
+may be very effective at shooting at a very fast plane, there are physics limit here, i think, about this
+i mean anyways, thanks,
+It is mostly newer tech that would, i think should and about this i mean anyways, give better air
+interception chances for ground units, about this i mean anyways, thanks, and as for air units, they
+may get promotions though, an F-15 may get better at shooting bombers or other planes or other things
+i mean anyways, thanks.
+I did not search in detail about this i mean anywyas, thanks, but seems to make sense to me this way, at
+least or/and si also how i would want to do it, about this i mean anyways, thanks,
+
+- oldest mobile samm at least in 1939 https://en.wikipedia.org/wiki/Self-propelled_anti-aircraft_weapon#History ,
+putting it at rocketry rather than laser seems about right (this is before i reordered the later techs, still
+even in civ4 bts/base advciv should make more sense hopefully but i focus on my mod AdvCiv-SAS about this i mean
+anyways at least, thanks, )
+
+- oldest railroad 1758 https://www.google.com/search?q=oldest+railroad&rlz=1C1GCEA_enFR1111FR1111&oq=oldest+railroad&gs_lcrp=EgZjaHJvbWUyBggAEEUYOdIBCDE5OThqMGoxqAIAsAIA&sourceid=chrome&ie=UTF-8 ,
+oldest machine gun 1884 https://en.wikipedia.org/wiki/Maxim_gun , did not look in detail but this seems like yet
+another historical inconsistency in an otherwise very good game, putting the machine gun later in tech tree ;
+oldest assembly line seems to be in 1853 or around it, putting the machine gun at this hopefully makes more sense.
+
+- oldest airplane in 1903: https://en.wikipedia.org/wiki/History_of_aviation#History
+
+-  for the mechanized infantry i didn't look in detail, barely looekd at all due to lack of data and not most
+interesting period of history about these techs at least i mean, still mechanized infantry should be a bit stronger
+than machine gun at intercepting air units, so increased its value quite a bit, still much less than specialized mobile
+sam so each would have their purpose and a player would not just spam mechanical infantries hopefully, about this
+i mean anyways, thanks.
+
+- also about the mechanized infantry i mean anyways, seems to be much sooner than robotics https://en.wikipedia.org/wiki/Mechanized_infantry#History around 1950s or sooner or later depending which is considered a baseline of a sophisticated
+enough or functionnal enough one. I don't know a lot and barely looked at the topic only quick and about this i mean anyways,
+still seems to me tech should be "advanced" if i may say or rather to clarify i mean the opposite meaning abotu this i mean anyways, thanks, be earlier in history than robotics, about this i mean anyways, thanks, so put it at industrialism tech,
+but may and most liekly would adjust this or other prerequirements, or maybe not, based on how i reorder the tech tree, still is good data to know, aobut this i mean anyways, data points maybe one may say, but i mean/meant about this i mean anyways, at least and at least at first, but anwyays i mean anyways, thanks,
+
+- adjusting the tank to be oldest (than mechanized infantry) too i mean anyways, based o very quick look seems to be
+https://en.wikipedia.org/wiki/History_of_the_tank 1916 approximately if not sooner, veyr interesting to see how it is
+linked to very early(ier) parts of history, may have to keep these in mind as i adjust tech prerequirements of the new
+tech tree i make if i make or/and want to do or not, about this i mean anyways, thanks,
+This data is also helpful to sort these units in the unit tree i am making currently or will continue to make, and
+is about this i mean anyways, thanks, anyways, so what i mean is that it will also be useful or/and helpful data for
+that, which is good, i think, if i may judge, about this i mean anyways, which i think i can, about this i mean
+anyways, as it concerns = involves me, about this i mean and meant anyways, i should focus maybe anyways, but anyways,
+i mean anyways, thanks,
+
+- costs are all over the place, a tank should be much more expensive than infantries even if they are at similar eras,
+but will adjust later, when i do tech tree or other things or rebalancing
+
+- oldest mobile artillery in 1917 https://en.wikipedia.org/wiki/Self-propelled_artillery#:~:text=The%20British%20Gun%20Carrier%20Mark,1917%20during%20World%20War%20I. , did not look in detail but changing the tech requirement of this unit to assembly line same as the tank
+
+- but now the artillery itself does not make sense anymore, is currently in civ4 bts / base advciv at artillery which is
+later than assembly line in tech tree.. but it is maybe just a few, it is after all accessing directly after rifling, so
+adjust position about this i mean anyways, thanks, of artillery tech so that it appears closer to rifling in tech tree,
+maybe increase or decrease cost bit to make it closer to assembly line, but quite a bit before that, see this
+https://en.wikipedia.org/wiki/Artillery#Modern
+that i already linked and found myself rereading just now, about this and is about this i mean anyways, thanks,
+and is about a different part about/in this case, now is about after the armstrong gun unlike what i quoted before,
+about and is about this i mean anyways, thanks,
+
+- also anti tank could (most likely i mean anwyways and about this mean anyways etc at least or not at least but i meant
+it about this anyways etc i mean anyways, thanks) not have happened before tanks,
+before realizing that about this i mean anyways, i checked this unit too, about this i mean anyways:
+https://en.wikipedia.org/wiki/Anti-tank_warfare
+Which made me immediately realized such a unit could only exist when tanks also appeared.
+May create a bazooka or something that preceded if it existed but didn't check, now checked quick is a bit later than
+the first tanks that bazooka happened it seems from very quick search but focusing on the anti tank, also as i said
+i don't want to complicate the late game too much aobut this i mean anyways, and make it converge to reach a fast endgame
+so players can finish the game, about this i mean, anwyays.. i really mean about this but anyways, at least is what i meant
+as i was writing it, but anyways i mean anwyays, thanks,
+And as for this unit (anti tank), adjusting tech to assembly line to match the tank.
+Hopefully more interesting to have all the military techs of atomic eras at the same time, strategically and it will be
+also a hge chaos xd if i may say buti  focus i mean anyways, about this i mean anyways, thanks, befitting of the end game
+of a map, nukes and such, i don't play much these eras, but if it's fast enough, maybe i would, about this i mean anyways
+at least really but anyways i should focus and not oversay etc but i mean anyways, and delete this later too and
+simialr types of comments before merging this pr, but wanted to say them now whatever they mean or not and that i was
+clear about or not, but i should focus and anyways, thanks,
+
+- about modern armor / tanks, it seems they improved (very) significantly during cold war as compared to the first tanks
+https://en.wikipedia.org/wiki/History_of_the_tank#Cold_War, but as i want to simplify the tech tree, will not include
+extra intermediate number of tanks. Modern Armor did not require computers unless i'm mistaken i mean anyways, so will
+advance it sooner in the modern era, and add only one new tank to keep one unit type per era logic in the robotic era,
+hopefully much better this way, at least maknig sense to me and simple enough design, maybe is also what they (civ4 makers
+/ devs maybe i should say rather to not hurt my ego ro not, to delete this comment later but so be it anyways wanted to say
+it so said it, about this i mean anyways, as is or not i mean anyways, but i focus but maybe is as is, or maybe not but maybe
+yes, etc, or not or yes etc, anyways as is and i focus etc i mean anyways etc, i mean anyways, thanks,) , so as for the modern
+tank, will put it in modern era before computers, and add a new robotic tank (that appears) a bit later (not that i would do
+it later, or maybe i would or not, is about this i mean anyways.. thanks,.... to dlete later this too before merging this
+pr i mean anyways, thanks, ) in the tech tree, hopefully this way makes more or simply maybe makes sense historically, while
+also making the gameplay design elegant and simple yet deep and rich enough especially for strategy, about this i mean
+anyways, etc i mean anyways, thanks, Thank you realism invictus or/and other mods for providing me the units in advance..
+About this indeed, i mean too, in this case though, but so be it, anyways i mean anyways, thanks, maybe delete this later
+or maybe not or maybe yes rather etc, but anyways, i mean anyways, thanks. Hopefully now all the tech tree and most modern
+units and future robotic ones, about this i mean and meant anyways, at least but i really meant when writing this and about
+this, maybe no one is reading too even though i don't (actively) want confirmation nor am i reading or checking, to delete
+later maybe too msot likely i think yes etc i mean anwyays,a s i want or tno or do or not i mean anyways, etc i mean anyways,
+thanks, Another reason why i put it in robotic era rather is it seems to look from a quick wiki glance and about this i mean anyways really to delete later maybe this comment too etc as i did not check and do not i think want to check but whether i
+want or not to check or not is up to me, and most likely no one is reading this, still if someone were to and somehow be
+interested about what i say, i think it's in my best interest, maybe, most liekly maybe, i don't know, to not look, but in
+all cases for now i would want to focus, and i don't want to say this in a misleading way, it may stay so even in infinite
+future, but i am most likely just talking to myself, but i don't dislike, still was to clarify tomyself or/and others, but
+still, one never knows what the future is made of, i just shoudln't give hope though, but to being with i am probably
+deluded about this, but even if not, it's probably in my bets interest to not act on this fantasy, or maybe idea or maybe
+rather wonder(ing) about but maybe not quote myself i don't like too much even though i don't mind but hsoudl maybe not give
+it that name or maybe not to delete later before merging this pr but anyways etc i eman anyways, was to clarify be clear
+without abd intent whatever that means or not, perhaps to be fair with msyelf or/and others, i don't know what the future
+is made of, i should just be clear about what the present is, and sadly isn't made of, if some were to have hopes, i am sorry
+to have to battle them, within myself, and with my imaginary readers too maybe, but if some were to read, i am still fighting
+this internal battle, of trying to convince myself of what is best for me. Practically, it is probably best to do so, time
+seems to have told me so, but i probably said too much, and who knows, to not entirely close doors, but i should be realistic
+about what i can and cannot accept of the past, for my own wellbeing and mental healthiness or/and ego whatever others may
+call it, i believe it's best for everyone, maybe, most likely, so i will commit to that within myself to not act on these
+thoughts/feelings, which is maybe objectively whtever that means since it's subjective but anwyays betetr maybe, etc, to
+delete before merging i eman anyways, thanks,
+
+- marksmanship leads to snipers https://en.wikipedia.org/wiki/Sniper#1543-1600 , so i want to link it with the ffh2
+unit, i also really like it so i want it to lead to snipers, plus it has a quite longbow so can most likely be
+categorized/typed about this i mean anyways as such (i.e. as a longbow and not an archer, which seems to fit the unit
+better too, about this i mean anyways, thanks, ). After rechecking this, put it back to archers, just to be exhaustive, etc i mean anyways, thanks, is about this i mean anywyas etc i mean anyways, also = i additionnally mean it, is about this etc
+i mean anywyas, to not mislead etc myself or/and other for my best etc interest i mean anywyas todo delete later before
+merging this pr etc i mean anyways, thanks,
+
+- i want upgrades to be farily straightforward too, so archers can become snipers (and crossbows too, thinking
+of it i mean anyways), not just longbows. There may not be much more units though than with previous classification
+i made of gun support only vs now gun bomber/sniper, but i like this more, and is about this i mean anyways at least,
+anywyas, should focus, thanks, Also i really wanted snipers from the moment i noticed this unit was possible to build,
+i mean that i knew before but still seeing it, and is about this i mean anyways at least anyways, for example in realism
+invictus or or or/and etc i mean anyways some other mod(s) about this i mean anyways made me realize i want it, but i
+need to stop my mind from overthinking because i really didn't mean that about other things, however i am not strongly
+opposed to it, just it doesn't seem practical or feasable or mentally healthy for me to do now, note to delete later,
+the fact that i am writing this and thinking about this is indicative enough, after all this time, that i am not indifferent
+to it and is not just a why not attitude, but i have to be practical, and i note aside if i may say etc i mean anyways like
+this creative side of me, if it has or wants to overthink so be it, still i don't see this as a practical choice for me
+to make or maybe mentally healthy for me, but i still yearn about it, in all consciousness and control that it is really
+best to not act on it, i mean to be fair, and in a strong yearning not a casual one, but that is in control, maybe, whatever
+that means without wanting to sound arrogant, is the only way of possible others but so be it that i found to survive, and
+it maybe suits me quite well, anywyas note to delete later before merging this PR, most likely no one is, but if someone is,
+thanks, i mean anyways etc, thanks,
+
+- grenadiers existed before industrial era, so revising previous judgment, and is about this i mean only anyways but i
+overthink always so todo delete this before merging (this) pr i mean anyways but i like to overthink and be an overthinker
+i mean anyways but focus and be pragmatic about my present and future, then maybe i can relax, if just a bit, and dream, but
+in a realistic world, or an ideal world but not of misery, maybe, todo delete this later before merging this pr i mean anyways,
+etc i mean anyways, thanks, a bit extra read that i did not read much about about this i mean anyways etc, i mean anyways, thanks, (and before that https://en.wikipedia.org/wiki/Grenadier#Grenades etc i mean anyways, thanks, )
+https://en.wikipedia.org/wiki/Thunder_crash_bomb
+
+- after a bit of research about realism invictus ingame etc i mean only etc anyways, and was only for all others i mean
+about this etc todo delete this later anywyas etc, why does it make me said/emotional, well anywyas todo delete before
+merging, is maybe not a bad thing, but anywyas, or whether it is or not is my business, but didnt feel like bad, whatever
+i do what i want or tno but delete before merging anyways, that the ming grenadier seems to fit very well, ming is before
+qing in china from quick googling +/- wiki, and ming fits the medieval timeline quite well about this i mean anywyas, focus,
+etc i mean anyways, thanks, even their clothes are medieval (enough), about this i mean anyways, thanks, todo delete this
+later also to not overtress myself, but glad i said it whatever that means i mean anyways now i can relax maybe or not etc
+is maybe selfish or not but so what i am selfish maybe, not to mean i dont thnk or care of others but is how i am and like to
+be but etc anyways etc anyways todo delete this before merging etc i mean anyways, thanks, will be a lot of deleting but so
+be it, is how i want it to be, and i deleted a lot of other things, not to be too proud of, but not ashamed either, i did what
+i wanted or and do no or not no need justify myself etc delete this before merging pr i mean anyways etc, thanks,
+
+- the improved medium tank of realism invictus fits very well and is consistent/congruent (if i meant the correct word and
+am not mistaken about its meaning of congruent about this i mean anyways etc, i mean anyways thanks), so using it for the
+atomic tank, in fact it was same name mentionned of the medium tank if i am not mistaken during or rather after ww2 about this
+i mean anyways, thanks, so using it etc i mean anyways, thanks, shold double check but should be this name, about this i mean
+anyways, thanks, Yes it's exactly that https://en.wikipedia.org/wiki/History_of_the_tank#Cold_War it seems i mean anyways,
+medium tank during cold war fits very well and perfectly etc i mean anyways, thanks, good to have checked but is only about
+this i mean anyways not to play with feelings or something, i overthink, other imaginary readers may think they deserve it
+or something after what they have done or not, but to be more pragmatic(al? anyways), i should focus on myself etc i mean
+anyways and be realist, still allowing myself to be an idealist person as i am i think and want to be i think too, but not
+in a world that hurts, not that anyone is guilty or something, it's probably just how it had to be, but this is not certain,
+still this is how it is now i think as sad as it is, but maybe had to, idk, anyways i can only focus on myself too and
+advance indeed maybe whatever that means, simply as for me taking care of myself first, not overstressing myself so should
+delete this later etc before merging this pr i mean anyways but glad i said it evne though most likely no one is reading
+but etc focus on me and my mod, even if someone were, good if they enjoy it, but if they want more, unlikely again, but
+who knows, maybe, then i think it's best not to, i don't think i can handle it, me or my mental health or/and ego of what i
+can allow others to do to me, not that i was perfect but i tried to, well anyways no one is responsible except for their
+choices, but with what i know now of determinism and evolution, the tiny bit of it, i question how much of it was even within
+our control, it's heavily determined by biology and birth, still one is responsible for their actions, and it had to happen
+this way, as unfair as it is, it was very painful for me to see nature is cruel and very unfair, unlike what i was taught
+and thought, most likely was protected from, but also sort of manipulated into doing things maybe that suit others or not and
+not me, still i am happy to be who i am today nd it's maybe the most important, delete these notes too that are personal before merging this pr etc i mean anyways, thanks,
+
+- for the offense gun 8 (atomic as currently is etc i mean anywyas, thanks), chose the AK-47, realism invictus has some nice models and detailed units for this period of history, so i am just shutting my brain off and taking whatever seems to suit/fit quite well here about this i mean anywyas, thanks, not detailed much either etc i mean anywyas, but for example this reminds me of my childhood of ak-47 terrorists vs counter terrorists maverick in counter stike, source in particular, which many who
+played may relate, my favourite map was poolparty btw xd.. which i was was (quite) very good at it but anywyas, and my favourite
+one was the arctic terrorist, wanted one for this unit but didnt find, chose the model (unit) that seemed to best fit the AK-47
+model etc i mean anyways, not detailed much also bit zz or zzz but no i should delete this later etc i mean anywyas, thanks,
+but yes bit tired still want to continue but not necessarily detail all, especially if i checked lot or not about this i mean
+anywyas, may allow me to go faster on mod, but i also want to share, still clean up these later etc i mean anyways, thanks,
+thanks for reading though, if not is not and as is etc but maybe still thanks or not, still delete this later and focus on
+myself and what seems best for me which is to not indulge in these thoughts/feelings etc i mean anywyas, thanks for reading
+but maybe no one is but i dont seek a confirmation necessarily, clean up these later etc i mean anyways, thanks, but thanks
+for making me write here even if not here, maybe, as painful as it is and was to experience these, but focus on myself and my
+new sort of future but anyways, is as it is etc maybe anyways, delete later i mean anyways and be realistic about this all etc
+i mean anyways, thanks,
+

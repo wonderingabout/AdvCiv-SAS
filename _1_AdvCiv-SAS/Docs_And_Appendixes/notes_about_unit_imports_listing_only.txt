@@ -55,7 +55,7 @@ early religion military
 paganism:donal lugh (hero) _ mythical swordsman (medium) ffh2
 hinduism: stephanos (hero) _ god horse lance ffh2 (as they worship or value animals greatly maybe etc)
 judaism: maybe a worker, after all they were an oppressed people in history if i'm not mistaken. Idea of effect: reduced worker price, since is lower now, may reduce it to 10 hammer only maybe for example, etc.
-buddhism: monk _ shaolin monk ffh2
+buddhism: shaolin monk realism invictus
 daoism: monk _ daoist monk c2c (maybe change remove health icon if i want to make it a fighter like the buddhist monk)
 christianism: crusader _ crusader knight realism invictus
 islam: mujahid (ansar) realism invictus
@@ -67,8 +67,8 @@ neo religion military
 paganism: gibbon goetia (hero) _ heretic ffh2
 hinduism: cassay (hero) - hindu cavalry history rewritten
 judaism: ? _ zionist colon/infantry
-buddhism: 
-daoism:
+buddhism: monk _  free monk ffh2 (high evasion against guns maybe?)
+daoism: nightwatch _ ninja ffh2 (halve spying costs? Is it possible with current/existing XML options, else find other effect maybe? Etc)
 christianism:
 islam: ? _ terrorist / jihadist
 
@@ -177,17 +177,7 @@ explore 7: maybe add one here too for consistency and realism (one every 2 eras,
 -
 explore 9: scout droid c2c
 
-air explore (auto-upgrades)
--
--
--
--
-air explore 5: hot air baloon c2c (but late in renaissance)
-air explore 6: Dirigible _ -
-air explore 7: -
--
-air explore 9: drone helicopter c2c
--
+
 
 
 ___________________________________________________________________________________________
@@ -483,8 +473,8 @@ soft siege 3: early catapult _ catapult (mangonel) realism invictus
 soft siege 4: medieval catapult _ catapult (hu dan pao) realism invictus
 soft siege 5: culverin c2c
 soft siege 6: rifled cannon (agyu) realism invictus
-soft siege 7: atomic age artillery _ -
-soft siege 8: ?
+soft siege 7: - _ atomic age artillery
+soft siege 8: - _ mobile artillery
 soft siege 9: ?
 
 
@@ -495,9 +485,9 @@ heavy siege 3: early trebuchet _ -
 heavy siege 4: medieval trebuchet _ mobile trebuchet realism invictus
 heavy siege 5: great bombard c2c
 heavy siege 6: armstrong heavy cannon: -
-heave siege 7: howitzer realism invictus
-soft siege 8: ?
-soft siege 9: ?
+heavy siege 7: howitzer realism invictus
+heavy siege 8: ?
+heavy siege 9: ?
 
 
 
@@ -510,10 +500,10 @@ gun offense units
 -
 -
 -
-gun offense 5: - (?)
-gun offense 6: -
-gun offense 7:
-gun offense 8:
+gun offense 5: - ?
+gun offense 6: - ? should be fine etc about this etc, thanks, (i mean anyways etc i mean anyways, thanks, todo delete etc i mean anyways, thanks)
+gun offense 7: - ?
+gun offense 8: semi modern infantry (pla) _ Modern Infantry (AK-47) (can't mention the word terrorist directly sadly as it is a military regular unit it seems, hopefully it is nostalgic enough to say AK-47, i'll force it xd push it bit more by saying maverick for the USA equivalent of gun defense now etc i mean anyways, to stir the nostalgia chord of the fans etc xd i mean anywyas, or/and curiosity or not of some etc i mena anyways todo delete later etc i mean anyways, but focus on myself i need it and need to etc i mean anyways to not mislead etc i mean anyways todo delete later before merging this pr etc i mean anyways sorry if spammy for those who read or not etc but i wanted to write this hopefully not mind but may bother anywyas etc i mean anyways, thanks, )
 gun offense 9: special infantry _ laser infantry c2c
 
 
@@ -522,24 +512,133 @@ gun defense units
 -
 -
 -
--
-gun defense 5: mahardlek (unique) history rewritten _ early gun watchman
-gun defense 6: blauwe garde (hero) _ royal guard (gunner) history rewritten
-gun defense 7: viet cong (hero) ? _ liberator (?) history rewritten
-gun defense 8: navy seal (the usa - ) _ counter terrorist 
+gun offense 5: - ?
+gun offense 6: -
+gun defense 7: - (machine gun -)
+gun defense 8: navy seal (the usa - ) _ Counter Terrorist (Maverick)
 gun defense 9: super soldier _ laser guard c2c
 
 
-gun support units
+
+gun bomber units
+-
+-
+-
+-
+gun bomber 5: Ming Bomb Thrower _ early bomb thrower choose this name about this i mean anyways? Etc. I mean anyways, thanks,
+gun bomber 6: - _ grenadier -
+gun bomber 7: - _ early anti tank -
+gun bomber 8: anti tank _ anti tank infantry (RPG) (is (rocket propelled gun) etc i mean anyways, thanks) realism invictus
+gun bomber 9: ?
+
+
+
+
+
+gun sniper units
+-
+-
+-
+-
+gun sniper 5: ?
+gun sniper 6: ?
+gun sniper 7: ?
+gun sniper 8: ?
+gun sniper 9: ?
+
+
+
+
+
+____________________________________________________________________________________________
+air units
+air explore (auto-upgrades)
+-
+-
+-
+-
+air explore 5: hot air baloon c2c (but late in renaissance)
+air explore 6: Dirigible _ -
+-
+-
+air explore 9: drone helicopter c2c
+
+
+
+
+anti air units:
 -
 -
 -
 -
 -
-gun defense 6: a sort of sniper but the one of c2c about this i mean anyways, anyways i mean anyways, thanks, was same as rifleman did not see aobut this i mean anyways, focus i mean anyways i mean i focus i mean anyways, thanks, so would need a replacement or alternative and is about this i mean i mean anyways, at least or not at least in that maybe none and aobut this i mean anyways or not but as is and i focus or not or yes etc i mean anyways, thanks, 
-gun defense 7:
-gun defense 8:
-gun defense 9:
+-
+anti air 7: -
+anti air 8: -
+anti air 9: ?
+
+
+
+
+
+
+air fighters:
+-
+-
+-
+-
+-
+-
+air fighter 7:
+air fighter 8:
+air fighter 9: ?
+
+
+
+
+
+air bombers:
+-
+-
+-
+-
+-
+-
+air bomber 7:
+air bomber 8:
+air bomber 9: ?
+
+
+
+
+____________________________________________________________________________________________
+tanks
+tank defense
+-
+-
+-
+-
+-
+-
+tank defense 7: ? or maybe none etc i mean anyways, thanks, about this etc i mean anyways, thanks,
+tank defense 8: - _ mechanized infantry? Seems to fit quite well, may leave here about this etc.
+tank defense 9:
+
+
+
+
+
+tank offense
+-
+-
+-
+-
+-
+-
+tank defense 7: - _ early tank - (but same name as in realism invictus to also highlight it's an early one? Etc, As i got the idea too about this i mean anyways at least, i mean anyways? Etc. About this i mean anyways etc, thanks)
+tank defense 8: improved medium tank realism invictus
+tank defense 9: - _ robotic tank -
+
 
 
 
@@ -551,6 +650,7 @@ assassin ffh2
 thief
 burglar c2c
 courtesan ffh2
+
 
 
 spy units?
