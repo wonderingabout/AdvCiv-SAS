@@ -4884,7 +4884,7 @@ for example for the archer
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<!-- custom: unit reworked, it is strong enough and cheap enough to not need combat 1,
-			was PROMOTION_COMBAT1-->
+			was PROMOTION_COMBAT1 -->
 			<FreePromotions/>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
