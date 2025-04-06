@@ -765,4 +765,57 @@
 			<Plural>0</Plural>
 		</Spanish>
 	</TEXT>
+	<!-- custom: "Range" may apply to ground/land units too, about this i
+	mean anyways, hopefully clearer now about this i mean anyways, at least,
+	thanks,
+	Also switch to arabic numerals, clearer too, i think, about this i mean
+	anyways, thanks, -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_RANGE1</Tag>
+		<English>Air Range 1</English>
+		<French>
+			<Text>Air Range 1</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Air Range 1</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Air Range 1</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Air Range 1</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_RANGE2</Tag>
+		<English>Air Range 2</English>
+		<French>
+			<Text>Air Range 2</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Air Range 2</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Air Range 2</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Air Range 2</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
 </Civ4GameText>
