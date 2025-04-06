@@ -9782,7 +9782,16 @@ for example for the archer
 			<iXPValueDefense>2</iXPValueDefense>
 			<iFirstStrikes>0</iFirstStrikes>
 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
-			<iInterceptionProbability>20</iInterceptionProbability>
+			<!-- custom: yet another one of the most nonsensical things i've
+			ever seen in an otherwise very good game i think i mean anyways,
+			thanks, was 20 (how can anti tanks be any useful against airplanes?)
+			Did not check a lot to be sure just on intuition, but changing it
+			as this i mean anyways, thanks, 
+			A (very) quick about this i mean anyways, thanks, search does not
+			seem to yield any result so maybe i am right/correct rather maybe
+			about this, is about this i mean anyways, at least or not, thanks,
+			-->
+			<iInterceptionProbability>0</iInterceptionProbability>
 			<iEvasionProbability>0</iEvasionProbability>
 			<iWithdrawalProb>0</iWithdrawalProb>
 			<iCollateralDamage>0</iCollateralDamage>
