@@ -1280,7 +1280,10 @@ else it gets messy really quickly, thanks, -->
 			<!-- advc.200: was PROMOTION_DRILL4 in K-Mod; reverted -->
 			<!-- custom: extend eligible prerequired promotions, was NONE -->
 			<PromotionPrereqOr2>PROMOTION_CITY_RAIDER1</PromotionPrereqOr2>
-			<TechPrereq>TECH_MILITARY_SCIENCE</TechPrereq>
+			<!-- custom: no reason to go so far in tech tree to require it,
+			make it to the wheel for example, where roads are discovered,
+			may make more sense, was TECH_MILITARY_SCIENCE-->
+			<TechPrereq>TECH_THE_WHEEL</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
 			<iBlitz>0</iBlitz>

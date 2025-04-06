@@ -48,7 +48,10 @@ for example "Combat III" is now "Combat 3" too.
 some are rebalanced or nerfed, and other some promotions have also their requirements
 changed, for archers have access to city bombard promotion (units are reworked too,
 see below), or "Logistician" (named "Commando" before) is now accessible after
-Combat 1 or City Attack 1 todo rename.
+Combat 1 or City Attack 1 todo rename. Some are available sooner too, for example
+"Logistician" is available at "The Wheel", not "Military Science" anymore, since
+we understand roads we can use them, maybe, more strategic importance now too maybe
+hopefully.
 - military units are reworked: for example the holy roman empire special unit,
 to better accomodate its history and stats, can be built starting from a different
 tech, in particular the settler is now not freely available but requires agriculture
