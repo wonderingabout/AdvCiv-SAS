@@ -15,7 +15,7 @@ pikeman (not useful about this i mean anyways, thanks)
 chariot (not accurate, should be lance or archer, not sword if i'm not mistaken i mean anyways, thanks,)
 swordsman (not as pretty or accurate than the bronze era equivalent i chose about this i mean anyways, thanks)
 catapult (not accurate enough or pretty enough i mean clear enough too to distinguish medieval and early catapult)
-
+infantry (too generic and i have many more specialized gun units about this i mean anyways etc i mean anyways, thanks,)
 
 
 _________________________________________________________________________
@@ -502,9 +502,9 @@ gun offense units
 -
 gun offense 5: - ?
 gun offense 6: - ? should be fine etc about this etc, thanks, (i mean anyways etc i mean anyways, thanks, todo delete etc i mean anyways, thanks)
-gun offense 7: - ?
-gun offense 8: semi modern infantry (pla) _ Modern Infantry (AK-47) (can't mention the word terrorist directly sadly as it is a military regular unit it seems, hopefully it is nostalgic enough to say AK-47, i'll force it xd push it bit more by saying maverick for the USA equivalent of gun defense now etc i mean anyways, to stir the nostalgia chord of the fans etc xd i mean anywyas, or/and curiosity or not of some etc i mena anyways todo delete later etc i mean anyways, but focus on myself i need it and need to etc i mean anyways to not mislead etc i mean anyways todo delete later before merging this pr etc i mean anyways sorry if spammy for those who read or not etc but i wanted to write this hopefully not mind but may bother anywyas etc i mean anyways, thanks, )
-gun offense 9: special infantry _ laser infantry c2c
+gun offense 7: trench infantry realism invictus
+gun offense 8: semi modern infantry (pla) _ Modern Infantry (AK-47)
+gun offense 9: super soldier c2c
 
 
 gun defense units
@@ -512,11 +512,11 @@ gun defense units
 -
 -
 -
-gun offense 5: - ?
-gun offense 6: - or trench infantry from realism invictus? Etc
+gun offense 5: mahardlek (unique) _ imperial arquebus guard history rewritten 
+gun offense 6: -
 gun defense 7: - (machine gun -)
 gun defense 8: navy seal (the usa - ) _ Counter Terrorist (Maverick)
-gun defense 9: super soldier _ laser guard c2c
+gun defense 9: special infantry c2c
 
 
 
