@@ -11,10 +11,10 @@ todo cleanup extensive comments and move them to a longer changes guide notes
 
 - tech tree is vastly reordered for historical accuracy (for example steel is at
 iron age, pottery is before the wheel, metal casting before currency and before
-bronze working), but it is mostly the same techs as in civ4 bts/base advciv,
-hopefully easier to get into/used to, and i did not see a specific reason to
-change these, initially i started this AdvCiv-SAS mod mostly to readjust tech
-tree if i remember corectly.
+bronze working; and medicine at iron age, that too should be about accurate),
+but it is mostly the same techs as in civ4 bts/base advciv, hopefully easier to get
+into/used to, and i did not see a specific reason to change these, initially i
+started this AdvCiv-SAS mod mostly to readjust tech tree if i remember correctly.
 - the "citizen" specialist is removed, instead added the doctor specialist (that)
 gives health todo and a great doctor great person that gives todo unlocked at
 medicine tech todo. I found "citizen" quite useless and annoying even sometimes,
