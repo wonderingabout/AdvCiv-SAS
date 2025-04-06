@@ -188,8 +188,9 @@ example wine and todo
 - todo: space victory removed, it's too tedious to do, instead the USA is the
 only civ who wins if they build the programme Appolo, make sure to keep them in
 check
-- some special units are changed: the USA's F-15 are not relevant soon enough,
-replaced with a sooner unit for example todo
+- some special units are changed: the USA's Navy Seal or some other units are
+not relevant soon enough, or/and not accurate (enough), replaced with a sooner
+unit for example todo
 - one new religion, paganism is added, confucianism is removed, maybe more early
 wars, also historically more relevant/+/-accurate too i think
 - religion is very important: unlike in civ4 where they are very similar, now

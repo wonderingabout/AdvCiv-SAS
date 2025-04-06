@@ -19,25 +19,94 @@ catapult (not accurate enough or pretty enough i mean clear enough too to distin
 
 
 _________________________________________________________________________
-special units
+civilization units
 
-persia: immortal (foot) (hero) history rewritten
+kingdom of benin: ? _ disciplined crossbow ?
+incan empire: - _ Ruminawi (https://en.wikipedia.org/wiki/Rumi%C3%B1awi_(Inca_warrior)) 
+persia: immortal (foot) (unique) history rewritten
 samratihoran: flurry ffh2
 xiongnu: horseman (han) realism invictus rename to another unit name, maybe "Xiongnu horseman"?
-mongol: rename unit to keshig + give them the keshig (hero) of history rewritten. Plus i checked on wiki quick, their unit art design seems more accurate too (and more epic etc), for info: https://en.wikipedia.org/wiki/Kheshig
+mongol: rename unit to keshig + give them the keshig (unique) history rewritten. Plus i checked on wiki quick, their unit art design seems more accurate too (and more epic etc), for info: https://en.wikipedia.org/wiki/Kheshig
 england: longbow welsh realism invictus?
 greece: hoplite? hero history rewritten
-france: chevalier (hero) history rewritten
+france: chevalier (unique) history rewritten
 egypt: rename war chariot to wereryet like history rewritten did?
+vikings: berserk (unique) history rewritten
+holy roman empire: crusader (teutonic order) _ teutonic knight (based on my empire earth 2 memories - souvenirs) (make it a bit later in tech tree (still medieval) but stronger)
+germany: landsknetch (from history rewritten (but may create bugs if some are buggy or maybe not?) or - ?) _ landsknetch mercenary
+the usa: bandeirante (hero) _ Sheriff history rewritten
+dutch: worker (dutch) realism invictus, give it production bonus - synergizes well with dutch commerce tendency
+arabs: ? _ hashishin
+sumeria: etlu history rewritten?
+carthage?
+khmer: ballista elephant history rewritten (based on a google image quick search looks the same / more like the one of history rewritten) for graphical change, same unit otherwise or maybe rebalance will see etc
+celts?
+spain?
+korea?
+byzantine? cataphract history rewritten? or use dromon same as in civ3?
 
+
+
+
+___________________________________________________________________________________________
+religious units :
+
+early religion military
+paganism:donal lugh (hero) _ mythical swordsman (medium) ffh2
+hinduism: stephanos (hero) _ god horse lance ffh2 (as they worship or value animals greatly maybe etc)
+judaism: maybe a worker, after all they were an oppressed people in history if i'm not mistaken. Idea of effect: reduced worker price, since is lower now, may reduce it to 10 hammer only maybe for example, etc.
+buddhism: monk _ monk ffh2
+daoism: monk _ daoist monk c2c (maybe change remove health icon if i want to make it a fighter like the buddhist monk)
+christianism: crusader _ crusader knight realism invictus
+islam: mujahid (ansar) realism invictus
+
+
+
+
+neo religion military
+paganism: gibbon goetia (hero) _ heretic ffh2
+hinduism: cassay (hero) - hindu cavalry history rewritten
+judaism: ? _ zionist colon/infantry
+buddhism: 
+daoism:
+christianism:
+islam: ? _ terrorist / jihadist
+
+
+
+
+religious missionairess (keep as is? but history rewritten or/and other have nice ones, etc)
+paganism:
+hinduism:
+judaism:
+buddhism: 
+daoism:
+christianism:
+islam:
+
+
+
+____________________________________________________________________________________________
+corporations todo
+
+coropration mace: cartwright c2c
+corporation axe: adventurer ffh2
+corporation lance: rogue c2c
+corporation sword: valkyrie ffh2
+corporation archer: firebow ffh2
+corporation assasin: adept ffh2
+corporation gun:
+
+todo
 
 
 _________________________________________________________________________
 animals
 lion -
 bear -
+polar bear history rewritten?
 panther
-tiger: tiger ffh2
+tiger: tiger ffh2 or history rewritten maybe more stable or maybe not? Etc
 wolf -
 hawk ffh2
 hyena history rewritten?
@@ -327,7 +396,7 @@ horse gun defenders:
 -
 -
 horse gun defender 5: carabinier c2c
-horse gun defender 6: bandeirante (hero) _ Sheriff history rewritten
+horse gun defender 6: 
 -
 -
 
@@ -442,7 +511,7 @@ gun offense units
 -
 -
 gun offense 5: - (?)
-gun offense 6:
+gun offense 6: -
 gun offense 7:
 gun offense 8:
 gun offense 9: special infantry _ laser infantry c2c
@@ -453,10 +522,11 @@ gun defense units
 -
 -
 -
-gun defense 5:
-gun defense 6:
-gun defense 7: blauwe garde (hero) _ royal guard (gunner) history rewritten
-gun defense 8: viet cong (hero) ? _ liberator (?) history rewritten
+-
+gun defense 5: mahardlek (unique) history rewritten _ early gun watchman
+gun defense 6: blauwe garde (hero) _ royal guard (gunner) history rewritten
+gun defense 7: viet cong (hero) ? _ liberator (?) history rewritten
+gun defense 8: navy seal (the usa - ) _ counter terrorist 
 gun defense 9: super soldier _ laser guard c2c
 
 
@@ -470,59 +540,6 @@ gun defense 6: a sort of sniper but the one of c2c about this i mean anyways, an
 gun defense 7:
 gun defense 8:
 gun defense 9:
-
-
-
-___________________________________________________________________________________________
-religious units :
-
-early religion military
-paganism:donal lugh (hero) _ mythical swordsman (medium) ffh2
-hinduism: stephanos (hero) _ god horse lance ffh2 (as they worship or value animals greatly maybe etc)
-judaism: maybe a worker, after all they were an oppressed people in history if i'm not mistaken. Idea of effect: reduced worker price, since is lower now, may reduce it to 10 hammer only maybe for example, etc.
-buddhism: monk _ monk ffh2
-daoism: monk _ daoist monk c2c (maybe change remove health icon if i want to make it a fighter like the buddhist monk)
-christianism: crusader
-islam: mujahid (ansar) realism invictus
-
-
-
-
-neo religion military
-paganism: gibbon goetia (hero) _ heretic ffh2
-hinduism: cassay (hero) - hindu cavalry history rewritten
-judaism: ? _ zionist colon/infantry
-buddhism: 
-daoism:
-christianism:
-islam: ? _ terrorist / jihadist
-
-
-
-
-religious missionairess (keep as is? but history rewritten or/and other have nice ones, etc)
-paganism:
-hinduism:
-judaism:
-buddhism: 
-daoism:
-christianism:
-islam:
-
-
-
-____________________________________________________________________________________________
-corporations todo
-
-coropration mace: cartwright c2c
-corporation axe: adventurer ffh2
-corporation lance: rogue c2c
-corporation sword: valkyrie ffh2
-corporation archer: firebow ffh2
-corporation assasin: adept ffh2
-corporation gun:
-
-todo
 
 
 
