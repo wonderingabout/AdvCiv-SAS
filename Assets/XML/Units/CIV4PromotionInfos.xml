@@ -4595,10 +4595,12 @@ full order to take from for quick editing or/and copy/paste:
 			<Description>TXT_KEY_PROMOTION_ACE</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
-			<PromotionPrereq>NONE</PromotionPrereq>
-			<PromotionPrereqOr1>PROMOTION_COMBAT3</PromotionPrereqOr1>
+			<!-- custom: -->
+			<PromotionPrereq>PROMOTION_COMBAT2</PromotionPrereq>
+			<PromotionPrereqOr1>NONE</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
-			<TechPrereq>NONE</TechPrereq>
+			<!-- custom: -->
+			<TechPrereq>TECH_FLIGHT</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
 			<iBlitz>0</iBlitz>

@@ -381,6 +381,33 @@
 			<Plural>0</Plural>
 		</Spanish>
 	</TEXT>
+	<!-- custom: an ace can be on the ground/land too, about this i
+	mean anyways, thanks, hopefully clearer now, about this i mean
+	anyways, thanks, -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_ACE</Tag>
+		<English>Air Evasion</English>
+		<French>
+			<Text>Air Evasion</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Air Evasion</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Air Evasion</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Air Evasion</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
 	<!-- custom: name is more epic, not necessarily clearer (especially
 	with new tech requirement that is sooner, in earlier eras, but it
 	is historically more correct according to my research about this
