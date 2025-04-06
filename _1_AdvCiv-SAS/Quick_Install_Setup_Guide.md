@@ -49,3 +49,5 @@ Recommended, change your config as you prefer, see this page for details todo
 There is one annoying option about system not compatible, i may provide an example file for convenience later maybe or/and complete these instructions maybe ideally i mean anyways but not sure, is about this i mean anyways, thanks,
 
 For resolution, i use 1920 x 1080 even though i ahve a larger resolution (4K but anyways), it simply runs betetr i think at that resolution, will add hopefully some other time when i want about this i mean anyways some more options i would think are good or worth considering about this i mean anyways at least i mean anyways, thanks,
+
+If you're developping a mod or want to though, i highly recommend "windowed" rather, or whatever it is named, fullscreen is nice for playing i think, but way too tedious when modding and testing etc.
