@@ -5,14 +5,19 @@
 <!-- -->
 <!-- Basic Infos -->
 <Civ4NewConceptInfos xmlns="x-schema:CIV4BasicInfoSchema.xml">
-	<!-- custom: test remove espionnage bts concept to move it to game concepts -->
 	<NewConceptInfos>
-		<!-- custom: removed the entries that are composed of links to civ4
-		bts new content (as opposed to vanilla). No need to maintain these
-		as BTS can be considered the base game now, plus this information is
-		available elsewhere and already part of the game with all other
+		<!-- custom: removed entirely the entries that are composed of links
+		to civ4	bts new content (as opposed to vanilla). No need to maintain
+		these as BTS can be considered the base game now, plus this information
+		is available elsewhere and already part of the game with all other
 		civ4 vanilla+BTS content, for example in the sevopedia pages specific
 		to each of these, about this i mean anyways -->
+
+		<!-- custom: moved many NewConceptInfos to C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml
+		(or the equivalent of this folder for your civ4 installation path,
+		please read the code comments there (currently at least i mean anyways
+		at the top of this mentionned CIV4BasicInfos.xml file) for details,
+		thanks, ) -->
 		<NewConceptInfo>
 			<Type>CONCEPT_BTS_RULES_CHANGES</Type>
 			<Description>TXT_KEY_BTS_RULES_CHANGES</Description>
