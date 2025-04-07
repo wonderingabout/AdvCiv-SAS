@@ -74,34 +74,30 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.ITEM_LIST_ID	= "PediaMainItemList"
 		self.UPGRADES_GRAPH_ID	= "PediaMainUpgradesGraph"
 
-		# <!-- custom: support 1920 x 1080 as default, not 1024 x 768, there are more
-		# benefits in supporting and using all the screen space than to accomodate
-		# older screen resolutions, even though would have been nice to if possible
-		# or convenient, i believe the extra space will be useful.
-		# Also we don't use the outside margins part of the screen while in the
-		# sevopedia, trying to maximize it too, distracts less too maybe.
-		# As for the margins, not much value in being able to see the advisors tab
-		# (if i understand it correctly that it is the buttons on top right during
-		# a game i mean etc i mean anyways, thanks, ), i think, however i also think
-		# i mean anyways, thanks, that the place/extra room should be useful to fit
-		# more data or simply enlarge the view, hopefully making it all clearer and
-		# more pleasant to see, while also displaying more data.
-		# seems to be how realism invictus runs at 1920 x 1080 at least when i play
-		# it i mean on my computer, i mean, not to say we should do so because they
-		# did, just i think it's a more desirable design for AdvCiv-SAS, about this
-		# i mean etc anyways i mean anyways, thanks,
-		# todo -->
 		self.H_SCREEN = 768
 		self.W_SCREEN = 1024
+
 		# <advc.004y>
 		self.bWideScreen = True
 		self.bFullScreen = True
 		if self.bFullScreen:
 			self.bWideScreen = True
-		self.HORIZONTAL_MARGIN = 30
+		# <!-- custom: Not much value in being able to see the advisors tab
+		# (if i understand it correctly that it is the buttons on top right
+		# during a game i mean etc i mean anyways, thanks, ), i think,
+		# however i also think i mean anyways, thanks, that the place/extra
+		# room should be useful to fit more data or simply enlarge the view,
+		# hopefully making it all clearer and more pleasant to see, while
+		# also displaying more data.
+		# Seems to be how realism invictus runs at 1920 x 1080 at least
+		# when i play it i mean on my computer, i mean, not to say we
+		# should do so because they did, just i think it's a more desirable
+		# design for AdvCiv-SAS, about this# i mean etc anyways i mean
+		# anyways, thanks, -->
+		self.HORIZONTAL_MARGIN = 0
 		# VERTICAL_MARGIN: Want the Advisor buttons to remain visible. BOTTOM_MARGIN could be 0, but I don't think asymmetrical margins look good.
-		self.TOP_MARGIN = 50
-		self.BOTTOM_MARGIN = 50
+		self.TOP_MARGIN = 0
+		self.BOTTOM_MARGIN = 0
 		if self.bWideScreen:
 			self.W_SCREEN = max(self.W_SCREEN, self.getScreen().getXResolution() - 2 * self.HORIZONTAL_MARGIN)
 			if self.W_SCREEN <= 1024:
@@ -406,8 +402,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.szCategoryReligions	= localText.getText("TXT_KEY_PEDIA_CATEGORY_RELIGION", ())
 		self.szCategoryCorporations	= localText.getText("TXT_KEY_CONCEPT_CORPORATIONS", ())
 		# <!-- custom: see below at self.categoryList 's code comment -->
-		self.szCategoryConceptsNew	= localText.getText("TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW", ())
 		self.szCategoryConcepts		= localText.getText("TXT_KEY_PEDIA_CATEGORY_CONCEPT", ())
+		self.szCategoryConceptsNew	= localText.getText("TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW", ())
 		self.szCategoryHints		= localText.getText("TXT_KEY_PEDIA_CATEGORY_HINTS", ())
 		self.szCategoryShortcuts	= localText.getText("TXT_KEY_PEDIA_CATEGORY_SHORTCUTS", ())
 		
@@ -438,8 +434,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			# more visible this way (as i think it is more relevant, more likely
 			# to be useful, more visible hopefully as the first icon, about this
 			# i mean etc i mean anyways, thanks, -->
-			["HINTS",	self.szCategoryConceptsNew],
 			["HINTS",	self.szCategoryConcepts],
+			["HINTS",	self.szCategoryConceptsNew],
 			["HINTS",	self.szCategoryHints],
 			["HINTS",	self.szCategoryShortcuts], # advc.004y: Restored
 			]
