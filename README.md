@@ -26,41 +26,6 @@ I may also update it after releasing mods, maybe, but not guaranteed, if there
 are significant changes i would like to add or mention/talk about there. But
 i would move them to the bottom so you don't have to reread all ideally.
 
-## Quick Context
-
-This AdvCiv-SAS mod is based on these mods:
-- Civ4 BTS that is based on vanilla Civ4 (among other possible expansions (?))
-- K-Mod that is based on Civ4 BTS
-- AdvCiv that is based on K-Mod
-- AdvCiv-SAS that is based on AdvCiv
-
-To help you transition between these mods, especially if you are a Civ4 vanilla,
-Civ4 BTS, K-Mod, or other mod player, you can refer to the "Mods Info" category
-of the Sevopedia (or you could say Civilopedia) ingame (or from main menu accessible
-too), that tries/attempts to list a few main rules changes between each of these mods.
-
-Not balance changes that are too much and already taken account in the Sevopedia
-entries automatically of each unit/building (so visit these if needed to know more
-about AdvCiv-SAS in particular) for example the page of the scout unit to know its
-cost or effects.
-
-But instead, things like how in AdvCiv (and maybe in K-Mod too i don't know actually
-when this rule was added todo), you need to have cities revealed with a scout or
-any unit, or have the map view of this city otherwise (world map trade (, etc ?)),
-else even if these cities are connected by land roads or naval road/path, they would
-still not have any trade routes until you have view of these cities.
-
-I hope having a list of such changes may help players, and perhaps me while compliling,
-as in gathering such a list of elements, understand and perhaps enjoy the game better
-maybe, but as for all players maybe rather, hopefully it would help transition to new
-mods and in particular to AdvCivSAS (i will add some rules changes if i make them
-there too.)
-
-These rules changes entries may not be exhaustive or maybe would but hopefully will help,
-and i can gradually complete them as i see fit or learn, or based on feedback, not
-guaranteed though, but if need please refer to it, hope it helps you, or as for me doing
-what i want if i want, i mean.
-
 ## Project Goals and global view on gameplay changes
 
 The more general gameplay type of changes consist of
@@ -120,6 +85,41 @@ Additionally, A preview of the changes (screenshots), can be found on this googl
 If you want to know more about the project, how i ordered the tree tech historically, why i decided
 on balance changes and such, please visit these pages (as well).
 
+## Some Extra Context
+
+This AdvCiv-SAS mod is based on these mods:
+- Civ4 BTS that is based on vanilla Civ4 (among other possible expansions (?))
+- K-Mod that is based on Civ4 BTS
+- AdvCiv that is based on K-Mod
+- AdvCiv-SAS that is based on AdvCiv
+
+To help you transition between these mods, especially if you are a Civ4 vanilla,
+Civ4 BTS, K-Mod, or other mod player, you can refer to the "Mods Info" category
+of the Sevopedia (or you could say Civilopedia) ingame (or from main menu accessible
+too), that tries/attempts to list a few main rules changes between each of these mods.
+
+Not balance changes that are too much and already taken account in the Sevopedia
+entries automatically of each unit/building (so visit these if needed to know more
+about AdvCiv-SAS in particular) for example the page of the scout unit to know its
+cost or effects.
+
+But instead, things like how in AdvCiv (and maybe in K-Mod too i don't know actually
+when this rule was added todo), you need to have cities revealed with a scout or
+any unit, or have the map view of this city otherwise (world map trade (, etc ?)),
+else even if these cities are connected by land roads or naval road/path, they would
+still not have any trade routes until you have view of these cities.
+
+I hope having a list of such changes may help players, and perhaps me while compliling,
+as in gathering such a list of elements, understand and perhaps enjoy the game better
+maybe, but as for all players maybe rather, hopefully it would help transition to new
+mods and in particular to AdvCivSAS (i will add some rules changes if i make them
+there too.)
+
+These rules changes entries may not be exhaustive or maybe would but hopefully will help,
+and i can gradually complete them as i see fit or learn, or based on feedback, not
+guaranteed though, but if need please refer to it, hope it helps you, or as for me doing
+what i want if i want, i mean.
+
 # Credits
 - AdvCiv (the full name Advanced Civ does not yield much results about Civ 4 so i prefer the AdvCiv Name, maybe because of the space character, so i put a "-" instead in my/this mod): todo write, but mostly i am very thankful of AdvCiv, it's such a nice improvement from Civ4, and it's maintainer is very open to feedback at least in my
 exchanges/experiences during these times i mean anyways, thanks
@@ -140,6 +140,8 @@ in this case, maybe, anyways i mean anyways, thanks too even though i don't want
 in this case too i mean anyways, but thanks indeeed about this at least i mean anyways, thanks,
 and i do my things if or when i want or don't do as i want or do with all that being said i mean
 anyways now, as is, maybe or not, or as is, but anyways, thanks,
+
+todo add quote
 
 # A few useful links
 - todo: tutorial on how to compile the DLL and/or files for Advciv (but should not

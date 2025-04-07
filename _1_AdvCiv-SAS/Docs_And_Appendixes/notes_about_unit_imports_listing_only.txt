@@ -37,7 +37,7 @@ vikings: berserk (unique) history rewritten
 holy roman empire: crusader (teutonic order) _ teutonic knight (based on my empire earth 2 memories - souvenirs) (make it a bit later in tech tree (still medieval) but stronger)
 germany: landsknetch (from history rewritten (but may create bugs if some are buggy or maybe not?) or - ?) _ landsknetch mercenary
 the usa: bandeirante (hero) _ Sheriff history rewritten
-dutch: worker (dutch) realism invictus, give it production bonus - synergizes well with dutch commerce tendency
+dutch: worker (dutch) realism invictus or/and great farmer c2c for later era
 arabs: ? _ hashishin
 sumeria: etlu history rewritten?
 carthage?
@@ -339,7 +339,7 @@ chariot 2: chariot archer c2c
 
 chariot lancers
 -
-chariot lancer 2: mursili 2 c2c todo icon from screenshot i mean anyways etc i mean anyways, thanks,
+chariot lancer 2: mursili 2 c2c (note: using same icon as the old chariot sword for convenience, but is a chariot lancer now, about this i mean anyways etc i mean anyways, thanks, todo delete later this maybe too etc i mean anyways, thanks, )
 -
 
 
@@ -476,7 +476,7 @@ soft siege 5: culverin c2c
 soft siege 6: rifled cannon (agyu) realism invictus
 soft siege 7: - _ atomic age artillery
 soft siege 8: - _ mobile artillery
-soft siege 9: ?
+soft siege 9: NLOS Cannon _ Ultra-High Temperature Artillery c2c
 
 
 heavy siege units
@@ -487,8 +487,8 @@ heavy siege 4: medieval trebuchet _ mobile trebuchet realism invictus
 heavy siege 5: great bombard c2c
 heavy siege 6: armstrong heavy cannon: -
 heavy siege 7: howitzer realism invictus
-heavy siege 8: ?
-heavy siege 9: ?
+-
+-
 
 
 
@@ -505,7 +505,7 @@ gun offense 5: - _ rename to arquebusier? -
 gun offense 6: rifleman realism invictus (same unit just different art etc) (use the icon of the old rifleman of base civ4 bts/advciv? Etc)
 gun offense 7: trench infantry realism invictus
 gun offense 8: semi modern infantry (pla) _ Modern Infantry (AK-47)
-gun offense 9: super soldier c2c
+gun offense 9: hi tech marine _ AI-assisted infantry c2c
 
 
 gun defense units
@@ -517,7 +517,7 @@ gun defense 5: mahardlek (unique) _ imperial arquebus guard history rewritten
 gun defense 6: blauwe guard (unique) _ royal (rifleman?) guard history rewritten
 gun defense 7: - (machine gun -)
 gun defense 8: navy seal (the usa - ) _ Counter Terrorist (Maverick M4A1)
-gun defense 9: special infantry c2c
+gun defense 9: powered exoskeleton infantry c2c 
 
 
 
@@ -530,7 +530,7 @@ gun bomber 5: Ming Bomb Thrower _ early bomb thrower choose this name about this
 gun bomber 6: - _ grenadier -
 gun bomber 7: - _ early anti tank -
 gun bomber 8: anti tank _ anti tank infantry (RPG) (is (rocket propelled gun) etc i mean anyways, thanks) realism invictus
-gun bomber 9: ?
+gun bomber 9: anti tank _ AI powered bazooka c2c
 
 
 
@@ -545,7 +545,7 @@ gun sniper 5:  (unique) _ long range marksman history rewritten
 gun sniper 6: rifleman (british) _ - sharpshooter realism invictus
 gun sniper 7: infantry IJA _ early sniper realism invictus
 gun sniper 8: semi modern infantry (south asia) _ modern sniper
-gun sniper 9: ?
+gun sniper 9: automatons _ semi automatic sniper c2c
 
 
 
@@ -623,7 +623,7 @@ tank defense
 -
 tank defense 7: superheavy tank (FCM 2C) - superheavy tank (FCM 2C) realism invictus
 tank defense 8: - _ mechanized infantry? Seems to fit quite well, may leave here about this etc.
-tank defense 9: NLOS Cannon _ Laser Tank Defender c2c
+tank defense 9: Hi-Tech APC _ AI-assisted APC c2c
 
 
 
