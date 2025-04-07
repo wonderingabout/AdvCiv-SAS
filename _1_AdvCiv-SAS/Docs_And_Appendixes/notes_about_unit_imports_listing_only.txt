@@ -502,7 +502,7 @@ gun offense units
 -
 -
 gun offense 5: - _ rename to arquebusier? -
-gun offense 6: rifleman realism invictus (same unit just different art etc)
+gun offense 6: rifleman realism invictus (same unit just different art etc) (use the icon of the old rifleman of base civ4 bts/advciv? Etc)
 gun offense 7: trench infantry realism invictus
 gun offense 8: semi modern infantry (pla) _ Modern Infantry (AK-47)
 gun offense 9: super soldier c2c
