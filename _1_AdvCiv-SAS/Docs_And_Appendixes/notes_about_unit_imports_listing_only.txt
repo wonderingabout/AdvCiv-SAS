@@ -21,6 +21,8 @@ infantry (too generic and i have many more specialized gun units about this i me
 air bomber (put B52 instead)
 stealth bomber (simplifying the end game, removing stealth air units)
 fighter (put fokker dr.1 instead)
+caravel (too close to the galleon, also not very sensical that it can somehow enter borders without accord)
+ship of the line (too close to the frigate for too little extra benefit, redundant)
 
 
 _________________________________________________________________________
@@ -33,7 +35,9 @@ samratihoran: flurry ffh2
 xiongnu: horseman (han) realism invictus rename to another unit name, maybe "Xiongnu horseman"?
 mongol: rename unit to keshig + give them the keshig (unique) history rewritten. Plus i checked on wiki quick, their unit art design seems more accurate too (and more epic etc), for info: https://en.wikipedia.org/wiki/Kheshig
 england: longbow welsh realism invictus?
-greece: hoplite? hero history rewritten
+greece: hoplite hero history rewritten but rename to hoplite phalanx, put it in lance heavy class, mid iron age not bronze
+age, plus check if copper requirement or if copper +/- iron (i.e. if copepr is absolutely necessary or if iron is good enough
+too i mean anyways about this etc i mean anyways, thanks, )
 france: chevalier (unique) history rewritten
 egypt: rename war chariot to wereryet like history rewritten did?
 vikings: berserk (unique) history rewritten
@@ -60,8 +64,8 @@ early religion military
 paganism:donal lugh (hero) _ mythical swordsman (medium) ffh2
 hinduism: stephanos (hero) _ god horse lance ffh2 (as they worship or value animals greatly maybe etc)
 judaism: maybe a worker, after all they were an oppressed people in history if i'm not mistaken. Idea of effect: reduced worker price, since is lower now, may reduce it to 10 hammer only maybe for example, etc.
-buddhism: shaolin monk realism invictus
-daoism: monk _ daoist monk c2c (maybe change remove health icon if i want to make it a fighter like the buddhist monk)
+buddhism: shaolin monk realism invictus (class is lancer light)
+daoism: monk _ daoist monk c2c (maybe change remove health icon if i want to make it a fighter like the buddhist monk) (class is lancer light)
 christianism: crusader _ crusader knight realism invictus
 islam: mujahid (ansar) realism invictus
 
@@ -72,7 +76,7 @@ neo religion military
 paganism: gibbon goetia (hero) _ heretic ffh2
 hinduism: cassay (hero) - hindu cavalry history rewritten
 judaism: semi-modern infantry (tsahal) _ zionist colon/infantry 
-buddhism: monk _  free monk ffh2 (high evasion against guns maybe?)
+buddhism: monk _  free monk ffh2 (find some effect or maybe another type of unit see buddhism's history etc)
 daoism: nightwatch _ ninja ffh2 (halve spying costs? Is it possible with current/existing XML options, else find other effect maybe? Etc)
 christianism: semi modern infantry (usa) _ special ops realism invictus (note that it fits fbi and such but also kgb and such, both christian in historical culture, so may fit well)
 islam: anti tank infantry _ "allahu akbar" (jihadist), give it city attack and collateral damage, but weak(er) stats otherwise, maybe some evade too, not politically correct but historically accurate maybe, a bit funny too even though not for all but is arrogant to say delete later i wanted to do this about this though i mean at least focus i really meant about this at least when i wrote this delete later etc
@@ -185,34 +189,6 @@ explore 7: maybe add one here too for consistency and realism (one every 2 eras,
 explore 9: scout droid c2c
 
 
-
-
-___________________________________________________________________________________________
-boats
-
-transport boats:
-transport 1: raft c2c
-transport 2: galley
-transport 3: galleon
-transport 4:
-transport 5:
-transport 6:
-transport 7:
-transport 8:
-transport 9:
-
-
-
-war boats
-war boat 1: war canoe c2c
--
-war boat 3: -
-war boat 4:
-war boat 5:
-war boat 6:
-war boat 7:
-war boat 8:
-war boat 9:
 
 
 
@@ -615,6 +591,9 @@ air bomber 8: Long range bomber B52 realism invictus - Modern bomber B52
 air bomber 9: drone tactical bomber c2c
 
 
+
+
+
 gunships:
 -
 -
@@ -625,6 +604,7 @@ gunships:
 -
 gunship 8: -
 gunship 9: hybrid gunship c2c
+
 
 
 
@@ -656,6 +636,43 @@ tank offense
 tank offense 7: -
 tank offense 8: improved medium tank realism invictus
 tank offense 9: - _ robotic tank -
+
+
+
+
+
+___________________________________________________________________________________________
+boats
+
+transport boats:
+transport 1: raft c2c
+transport 2: galley
+transport 3: galleon
+transport 4:
+transport 5:
+transport 6:
+transport 7:
+transport 8:
+transport 9:
+
+
+
+war boats
+war boat 1: war canoe c2c
+-
+war boat 3: - (trireme)
+war boat 4:
+war boat 5: - (frigate)
+war boat 6:
+war boat 7:
+war boat 8:
+war boat 9:
+
+
+
+
+
+
 
 
 

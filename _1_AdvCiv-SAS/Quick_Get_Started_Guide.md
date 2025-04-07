@@ -120,6 +120,27 @@ point) page of the sevopedia?
 - military units are rebalanced: some op units (according to me) are nerfed
 slightly (for example: todo), some weaker ones buffed quite a lot (for example
 the jaguar warrior)
+- some units have been removed: sometimes for graphical reasons: for example the
+rifleman has a new graphic art but the concept of a rifleman remains in itself
+(may be rebalanced or not though like the other units though)
+- some units have been removed: sometimes for gameplay reasons: for example the
+caravel has been removed because too close to the galleon and i want only one
+type/class of unit per era, also not very sensical to me that somehow these
+boats can travel incognito or freely in borders without being attacked. May
+move this ability to privateers maybe todo but not sure; or the stealth bomber
+to simplify gameplay especially the endgame, there are stronger bombers at each
+era, just not stealth, or for example the panzer has been removed for a sooner,
+more likely to be useful civ unit: the teutonic (foot) knight.
+- some units have been removed: sometimes for historical accuracy or flavor one
+could say maybe reasons: for example the phalanx civ unit of the greek empire
+is now the hoplite phalanx (a lancer heavy type/class, not based on the axeman
+anymore), and available in mid iron age not in bronze age for better historical
+accuracy. I did not check them all (maybe todo fix this note if did) but those
+who i did and that i found to be (especially if gravely) mistaken and that i
+wanted and did decide to fix or did i did fix. Feel free to point historical
+accuracies to me, not guaranteed i would fix them, but if i am available to
+read them and all i may or/and reply to those requests i mean about these, but
+not guaranteed, may or not, about this, thanks,
 - some units automatically upgrade, for example the workers, scout, and similar
 units. They get a new design graphically at a new era, but also more bonuses, for
 example every few eras workers may become more and more productive (faster
