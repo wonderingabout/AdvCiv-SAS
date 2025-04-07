@@ -18,6 +18,9 @@ catapult (not accurate enough or pretty enough i mean clear enough too to distin
 cavalry (same reason as rifleman, see below, thanks,)
 rifleman (not immersive enough / art not good enough about this etc, in comparison to realism invictus's model in particular etc)
 infantry (too generic and i have many more specialized gun units about this i mean anyways etc i mean anyways, thanks,)
+air bomber (put B52 instead)
+stealth bomber (simplifying the end game, removing stealth air units)
+fighter (put fokker dr.1 instead)
 
 
 _________________________________________________________________________
@@ -134,6 +137,8 @@ gun units for barbarians? Terrorists? Etc i mean anyways, thanks, etc, i mean an
 
 workers (auto-upgrades, graphics update only) (now that it auto upgrades, i want to add graphics to it):
 find many workers in realism invictus for example (or c2c (but c2c's workers may have a different name or not etc) or/and other etc)
+(if need realism invictus has also many many worker models if need for multiple eras or/and other civs about this etc i mean
+anyways, etc i mean anyways i mean anyways, thanks, )
 worker 1:
 worker 2: -
 worker 3: -
@@ -576,7 +581,7 @@ anti air units:
 -
 anti air 7: -
 anti air 8: -
-anti air 9: ?
+anti air 9: acv sam c2c
 
 
 
@@ -590,9 +595,9 @@ air fighters:
 -
 -
 -
-air fighter 7:
-air fighter 8:
-air fighter 9: ?
+air fighter 7: Triplane (Fokker Dr.1) realism invictus
+air fighter 8: -
+air fighter 9: hypersonic fighter c2c
 
 
 
@@ -605,9 +610,21 @@ air bombers:
 -
 -
 -
-air bomber 7:
-air bomber 8:
-air bomber 9: ?
+air bomber 7: early bomber realism invictus
+air bomber 8: Long range bomber B52 realism invictus - Modern bomber B52
+air bomber 9: drone tactical bomber c2c
+
+
+gunships:
+-
+-
+-
+-
+-
+-
+-
+gunship 8: -
+gunship 9: hybrid gunship c2c
 
 
 
