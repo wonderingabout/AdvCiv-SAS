@@ -1,13 +1,13 @@
 eras:
-1 = starter / stone age(?)
+1 = stone age
 2 = bronze age
 3 = iron age
-4 = medieval
+4 = medieval era
 5 = renaissance
-6 = industrial
-7 = atomic
-8 = modern
-9 = robotic
+6 = industrial era
+7 = atomic era
+8 = modern era
+9 = robotic era
 
 _________________________________________________________________________
 base units removed:
@@ -414,7 +414,7 @@ camel archer 4: late horse archer realism invictus
 camel lancers
 -
 -
-camel lancer 3: bactrian cataphract c2c
+camel lancer 3: bactrian cataphract c2c todo remove flag icon etc about this etcs
 camel lancer 4: camel knight c2c
 
 
@@ -449,7 +449,7 @@ camel gun defense:
 -
 -
 camel gun defense 5: hajana (hero) _ camel patroller history rewritten todo change icon use the one of the camel trench cavalry (c2c) for example, or the icon of imajaghan (hero) (history rewritten), or edit myself but not guaranteed result etc
-camel gun defense 6: meharist _ camel rifle guard c2c
+camel gun defense 6: meharist _ camel rifle guard c2c todo remove flag of in the icon about this etc
 -
 
 

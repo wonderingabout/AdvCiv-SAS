@@ -37,6 +37,59 @@ to win against a tank, and also much less likely for a swordsman to every match 
 musketman, for example, which should also make more sense historically hopefully.
 Defenders may have a chance to prevail while being behind in tech but it will be
 (much) harder.
+- the civilopedia is renamed the sevopedia, it is the same thing but is the name
+of the more modern version (made by modders) of it.
+- on that note, unit classes todo refers to unit categories/types, for example
+in Civ4 BTS/base AdvCiv these were for example archers, explore units, etc.
+- there are many new unit classes todo, see the sevopedia entry "Unit classes"
+for details. This allows to give specific bonuses to specific classes. For example,
+there are now new classes classes of units (and modified existing ones too), for
+example for there is no more "melee" class that the spearman was part of in civ4
+BTS/base advciv. Instead of these old classes and units, for example about the
+former spearman, there are now lancers (new type of units) that are subdivided into
+3 new classes: melee_lancer_light, melee_lancer_medium (includes the former spearman
+that is now a lancer medium at the bronze age era, for example), melee_lancer_heavy.
+See the "Unit classes" category of the sevopedia (ingame) for details.
+- each of these classes have different units with different strengths and weaknesses,
+but to give a general idea, generally the faster ones will have less damage/strength
+but better at defense/avoiding/harassing other units quite freely, while the slower
+ones have high strength, can defend and attack well, but no such bonuses, and may
+cost a bit more too, see the
+[military tree map view](/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43%20military%20tree_modified.png)
+, also available ingame in the sevopedia entry (that has been a bit tweaked/reworked
+too btw) in/at "Units Tree".
+- A consequence of this is also that now there will be hopefully no more weirdness of
+the axeman being good against lancer, now the relationships between types will be more
+complicated or rather defined (may make more sense at same time too), for example an
+axeman may be good against swordsmen (for example todo), but not against heavy lances.
+Light lances may have strong bonuses against all/most melee types, except fast ones,
+and light swords strong bonuses against all/most melee types too except fast ones
+(their strength would be lower though). Strategy should be much more important while
+not being too tedious ideally.
+- another example is an ancient Maceman ("warrior" in the stone age) will be stronger
+than a medieval light swordsman, but the medieval light swordsman will have (much more)
+bonuses that should make him (or her but most often him i mean anyways) more valuable
+as a military unit. This is also realistic too, no reason why an ancient maceman could
+not defeat a swordsman, if looking at strength and chance alone, unlike what is, a bit
+too extremely the case i think, in base advciv/bts, even accounting for armor and such,
+i think, an ancient unit may be stronger by melee alone, so some strategy will be necesasry
+to have the best (or better) odds in AdvCiv-SAS, i think, hopefully in an immersive
+and not tedious experience too i mean anyways.
+- unique units are now renamed civilization units: they are not unique and can be built
+many times, just by only one civ in AdvCiv-SAS (and in base civ4 BTS/AdvCiv too if i
+am not mistaken) if i am not mistaken at least. Could be shortened to civ units maybe
+too as i may or not or not always do further in this doc or/and other docs, hopefully
+the meaning of this expression would be clear enough (fast worker for india for example)
+- The tech tree is fairly straightforward, with max one (minus the civ units)
+unit type per era, for example, which should hopefully help make sense of that and getting
+immersed into it, while not neglecting on strategy, hopefully, at least was my/one of my
+goal(s) making (and became as i was making too) this AdvCiv-SAS mod. Note also that this
+is not the case for all units and eras, only the ones i found most relevant ones and to
+not be tedious enough (there is no work boat 1 work boat 2 workboat 3 etc for example,
+only one for all eras, but there are a few workers every few eras, but there are military
+units for each new era, at max one unit per class type (for example "sword light", "lance
+heavy", are each one type), and not for all types, also lesser in later stages of the game
+to simplify/rush/reach sooner the endgame)
 - explore units can attack: but their strength should be quite low
 - military units are versatile: swordsmen can defend, archers can attack,
 maybe even workers too
@@ -57,44 +110,6 @@ to better accomodate its history and stats, can be built starting from a differe
 tech, in particular the settler is now not freely available but requires agriculture
 (is historical too, but for convenience first settler at starting game is provided
 for free as it was in Civ4 BTS and AdvCiv)
-- another example is that there are some subclasses of units, for example for
-"spearmen", there are now "lance light" units, "lance medium" units, and "lance
-heavy" units. Each have different strengths and weaknesses, with generally the
-faster ones having less damage/strength but better at defense/avoiding/harassing
-other units quite freely, while the slower ones have high strength, can defend
-and attack well, but no such bonuses, and may cost a bit more too, see the
-[military tree map view](/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43%20military%20tree_modified.png)
-, also available ingame in the sevopedia entry (that has been a bit tweaked/reworked
-too btw) in/at "Units Tree".
-- another example is an ancient Maceman ("warrior" in the stone age) will be stronger
-than a medieval light swordsman, but the medieval light swordsman will have (much more)
-bonuses that should make him (or her but most often him i mean anyways) more valuable
-as a military unit. This is also realistic too, no reason why an ancient maceman could
-not defeat a swordsman, if looking at strength and chance alone, unlike what is, a bit
-too extremely the case i think, in base advciv/bts, even accounting for armor and such,
-i think, an ancient unit may be stronger by melee alone, so some strategy will be necesasry
-to have the best (or better) odds in AdvCiv-SAS, i think, hopefully in an immersive
-and not tedious experience too i mean anyways. The tech tree is fairly straightforward,
-with max one unit type per era, for example, which should hopefully help make sense
-of that and getting immersed into it, while not neglecting on strategy, hopefully,
-at least was my/one of my goal(s) making (and became as i was making too) this
-AdvCiv-SAS mod. Note also that this is not the case for all units and eras, only the
-ones i found most relevant ones and to not be tedious enough (there is no work boat
-1 work boat 2 workboat 3 etc for example, only one for all eras, but there are a few
-workers every few eras, but there are military units for each new era, at max one unit
-per class type (for example "sword light", "lance heavy", are each one type), and not
-for all types, also lesser in later stages of the game to simplify/rush/reach sooner
-the endgame)
-- about that too, there are new - specific - unit combat types, for example axemen
-are melee_axe type, light swordsmen melee_swords_light, heavy lance units are
-melee_lance_heavy. So no more weirdness of axeman being good against lancer,
-now the relationships between types will be more complicated or rather defined
-(may make more sense at same time too), for example an axeman may be good against
-swordsmen (for example todo), but not against heavy lances. Light lances may have
-strong bonuses against all/most melee types, except fast ones, and light swords strong
-bonuses against all/most melee types too except fast ones (their strength would be
-lower though). Strategy should be much more important while not being too tedious
-ideally.
 - some units can only be built under specific conditions, for example each religion
 has one unit (same for neo religions at later eras. See religion changes below for
 details), for example Buddhism is required to build monks (melee fist fighters)
@@ -106,7 +121,7 @@ point) page of the sevopedia?
 slightly (for example: todo), some weaker ones buffed quite a lot (for example
 the jaguar warrior)
 - some units automatically upgrade, for example the workers, scout, and similar
-units. They get a new design grahically at a new era, but also more bonuses, for
+units. They get a new design graphically at a new era, but also more bonuses, for
 example every few eras workers may become more and more productive (faster
 improvement build time, or/and move speed/ or and other things for example).
 This is to remove the tediousness or a part of it from the game

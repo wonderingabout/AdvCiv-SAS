@@ -126,4 +126,85 @@ hopefully more readable now at least about this i mean anyways -->
 			<Plural>0</Plural>
 		</Spanish>
 	</TEXT>
+
+	<!-- custom: clearer or/and more specific or/and
+	consistent with the "language"/terminology i mean
+	anyways if i may say etc i mean anyways, thanks,
+	used in Civ4/base AdvCiv (by extension etc i mean
+	anyways, thanks, ), no reason not to use it, about
+	this etc i mean anyways, thanks, -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT_COMBAT</Tag>
+		<English>Unit Classes</English>
+		<French>
+			<Text>Unit Classes</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Unit Classes</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Unit Classes</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Unit Classes</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+
+	<!-- custom: "Unique Units" are/were etc about this i mean
+	anyways, thanks, not unique (could be built many times, just
+	by one civ if i am not mistaken), just restricted to one civ
+	if i am not mistaken i mean anyways and about this etc i mean
+	anyways, thanks, so renaming it to "Civ-specific Units".
+	After futher consideration, about this etc, there are no
+	Multi Civ-specific units (units that can be built only
+	be a few civs in common) in AdvCiv-SAS if i am not mistaken,
+	and about this etc, and the name is quite tedious/complicated
+	to remember/use, so renaming it rather to "Civilization Units",
+	which may be shortened to "Civ Units" by players if they so
+	desire or prefer maybe, about this etc i mean anyways, thanks,
+	hopefully clearer. -->
+	<TEXT>
+		<Tag>TXT_KEY_FREE_UNITS</Tag>
+		<English>Civilization Units</English>
+		<French>Civilization Units</French>
+		<German>Civilization Units</German>
+		<Italian>Civilization Units</Italian>
+		<Spanish>Civilization Units</Spanish>
+	</TEXT>
+		<TEXT>
+		<Tag>TXT_KEY_FREE_UNITS_NO</Tag>
+		<English>No Civilization Unit</English>
+		<French>No Civilization Unit</French>
+		<German>No Civilization Unit</German>
+		<Italian>No Civilization Unit</Italian>
+		<Spanish>No Civilization Unit</Spanish>
+	</TEXT>
+	<!-- custom: "Civilization Unit for Russian Empire"
+	-> "Civilization Unit For the Russian Empire";
+	Adding a "the" too, hopefully clearer this way,	also i was
+	not sure if "of" is more correct than "for" but seems more
+	intuitive to me but may be grammatically incorrect or less
+	accurate, leaving as is but adding a mention of it here
+	etc, thanks,
+	-->
+	<TEXT>
+		<Tag>TXT_KEY_UNIQUE_UNIT</Tag>
+		<English>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</English>
+		<French>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</French>
+		<German>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</German>
+		<Italian>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</Italian>
+		<Spanish>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</Spanish>
+	</TEXT>
+	<!--custom:	Not changing it in TXT_KEY_BTS_RULES_CHANGES_PEDIA_SR
+	as it is an outdated doc anyways i mean etc i mean anyways,
+	indicating it as such too etc i mean anyways and about this
+	etc at least i mean etc i mean anyways, thanks, -->
 </Civ4GameText>
