@@ -15,6 +15,7 @@ pikeman (not useful about this i mean anyways, thanks)
 chariot (not accurate, should be lance or archer, not sword if i'm not mistaken i mean anyways, thanks,)
 swordsman (not as pretty or accurate than the bronze era equivalent i chose about this i mean anyways, thanks)
 catapult (not accurate enough or pretty enough i mean clear enough too to distinguish medieval and early catapult)
+rifleman (not immersive enough / art not good enough about this etc, in comparison to realism invictus's model in particular etc)
 infantry (too generic and i have many more specialized gun units about this i mean anyways etc i mean anyways, thanks,)
 
 
@@ -293,7 +294,7 @@ short bows
 archer 1: stone thrower c2c
 archer 2: -
 archer 3: archer semitic realism invictus
-archer 4: marksman ffh2
+archer 4: marksman _ marksman same name? Ffh2 etc
 -
 
 
@@ -500,8 +501,8 @@ gun offense units
 -
 -
 -
-gun offense 5: - ?
-gun offense 6: - ? should be fine etc about this etc, thanks, (i mean anyways etc i mean anyways, thanks, todo delete etc i mean anyways, thanks)
+gun offense 5: - _ rename to arquebusier? -
+gun offense 6: rifleman realism invictus (same unit just different art etc)
 gun offense 7: trench infantry realism invictus
 gun offense 8: semi modern infantry (pla) _ Modern Infantry (AK-47)
 gun offense 9: super soldier c2c
@@ -512,8 +513,8 @@ gun defense units
 -
 -
 -
-gun offense 5: mahardlek (unique) _ imperial arquebus guard history rewritten 
-gun offense 6: -
+gun defense 5: mahardlek (unique) _ imperial arquebus guard history rewritten 
+gun defense 6: blauwe guard (unique) _ royal (rifleman?) guard history rewritten
 gun defense 7: - (machine gun -)
 gun defense 8: navy seal (the usa - ) _ Counter Terrorist (Maverick M4A1)
 gun defense 9: special infantry c2c
@@ -540,10 +541,10 @@ gun sniper units
 -
 -
 -
-gun sniper 5: ?
-gun sniper 6: ?
-gun sniper 7: ?
-gun sniper 8: ?
+gun sniper 5:  (unique) _ long range marksman history rewritten
+gun sniper 6: rifleman (british) _ - sharpshooter realism invictus
+gun sniper 7: early sniper
+gun sniper 8: modern sniper
 gun sniper 9: ?
 
 
