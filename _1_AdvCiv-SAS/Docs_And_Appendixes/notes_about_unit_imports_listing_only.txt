@@ -15,6 +15,7 @@ pikeman (not useful about this i mean anyways, thanks)
 chariot (not accurate, should be lance or archer, not sword if i'm not mistaken i mean anyways, thanks,)
 swordsman (not as pretty or accurate than the bronze era equivalent i chose about this i mean anyways, thanks)
 catapult (not accurate enough or pretty enough i mean clear enough too to distinguish medieval and early catapult)
+cavalry (same reason as rifleman, see below, thanks,)
 rifleman (not immersive enough / art not good enough about this etc, in comparison to realism invictus's model in particular etc)
 infantry (too generic and i have many more specialized gun units about this i mean anyways etc i mean anyways, thanks,)
 
@@ -67,11 +68,11 @@ islam: mujahid (ansar) realism invictus
 neo religion military
 paganism: gibbon goetia (hero) _ heretic ffh2
 hinduism: cassay (hero) - hindu cavalry history rewritten
-judaism: ? _ zionist colon/infantry
+judaism: semi-modern infantry (tsahal) _ zionist colon/infantry 
 buddhism: monk _  free monk ffh2 (high evasion against guns maybe?)
 daoism: nightwatch _ ninja ffh2 (halve spying costs? Is it possible with current/existing XML options, else find other effect maybe? Etc)
-christianism:
-islam: ? _ terrorist / jihadist
+christianism: semi modern infantry (usa) _ special ops realism invictus (note that it fits fbi and such but also kgb and such, both christian in historical culture, so may fit well)
+islam: anti tank infantry _ "allahu akbar" (jihadist), give it city attack and collateral damage, but weak(er) stats otherwise, maybe some evade too, not politically correct but historically accurate maybe, a bit funny too even though not for all but is arrogant to say delete later i wanted to do this about this though i mean at least focus i really meant about this at least when i wrote this delete later etc
 
 
 
@@ -339,8 +340,9 @@ chariot 2: chariot archer c2c
 chariot lancers
 -
 chariot lancer 2: mursili 2 c2c todo icon from screenshot i mean anyways etc i mean anyways, thanks,
+-
 
-horseman: horseman from history rewritten
+
 
 horse archers
 -
@@ -354,8 +356,8 @@ horse lancers:
 -
 -
 -
-horse lancer 3: horseman alemannic realism invictus todo icon
-horse lancer 4: heavy cavalry c2c
+horse lancer 3: horseman alemannic _ horse lancer realism invictus todo icon
+horse lancer 4: heavy cavalry c2c _ medieval horse lancer knight
 -
 -
 
@@ -364,7 +366,7 @@ horse swords:
 -
 -
 -
-horse sword 4: -
+horse sword 4: - medieval horse sword knight
 -
 -
 
@@ -376,7 +378,7 @@ horse gun attackers:
 -
 -
 horse gun attacker 5: -
-horse gun attacker 6: -
+horse gun attacker 6: cavalry _ rifle cavalry realism invictus
 -
 -
 
@@ -387,7 +389,7 @@ horse gun defenders:
 -
 -
 horse gun defender 5: carabinier c2c
-horse gun defender 6: 
+horse gun defender 6: cavalry (argentinian) _ royal horse rifle guard (some name like this maybe etc + todo maybe change icon too etc)
 -
 -
 
@@ -438,7 +440,6 @@ camel gun offense:
 -
 -
 camel gun offense 5: camel cuirassier _ camel gunner from c2c
-camel gun offense 6: meharist _ camel cavalry c2c
 -
 
 
@@ -448,8 +449,7 @@ camel gun defense:
 -
 -
 camel gun defense 5: hajana (hero) _ camel patroller history rewritten todo change icon use the one of the camel trench cavalry (c2c) for example, or the icon of imajaghan (hero) (history rewritten), or edit myself but not guaranteed result etc
-camel gun defense 6:
--
+camel gun defense 6: meharist _ camel rifle guard c2c
 -
 
 
@@ -543,8 +543,8 @@ gun sniper units
 -
 gun sniper 5:  (unique) _ long range marksman history rewritten
 gun sniper 6: rifleman (british) _ - sharpshooter realism invictus
-gun sniper 7: early sniper
-gun sniper 8: modern sniper
+gun sniper 7: infantry IJA _ early sniper realism invictus
+gun sniper 8: semi modern infantry (south asia) _ modern sniper
 gun sniper 9: ?
 
 
@@ -621,7 +621,7 @@ tank defense
 -
 -
 -
-tank defense 7: ? or maybe none etc i mean anyways, thanks, about this etc i mean anyways, thanks,
+tank defense 7: superheavy tank (FCM 2C) - superheavy tank (FCM 2C) realism invictus
 tank defense 8: - _ mechanized infantry? Seems to fit quite well, may leave here about this etc.
 tank defense 9:
 
@@ -636,9 +636,9 @@ tank offense
 -
 -
 -
-tank defense 7: - _ early tank - (but same name as in realism invictus to also highlight it's an early one? Etc, As i got the idea too about this i mean anyways at least, i mean anyways? Etc. About this i mean anyways etc, thanks)
-tank defense 8: improved medium tank realism invictus
-tank defense 9: - _ robotic tank -
+tank offense 7: -
+tank offense 8: improved medium tank realism invictus
+tank offense 9: - _ robotic tank -
 
 
 
