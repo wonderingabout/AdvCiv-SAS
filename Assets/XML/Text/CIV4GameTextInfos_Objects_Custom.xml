@@ -5,6 +5,93 @@
 <!-- -->
 <!-- Game Text Objects -->
 <Civ4GameText xmlns="http://www.firaxis.com">
+	<!-- custom: gather all base civ4 (vanilla or BTS alike)
+	content in the same directory, it is old enough that i
+	can and i think it may be considered as the same mod, at
+	least for the purpose of this mod.
+	I hope to gather some useful data in mods info that may	be
+	especially useful/helpful in transitioning to such mods, and
+	that may not be so easy to find in the extensive docs or
+	forums online, about this etc, thanks, was "Game Concepts".
+	I prefer to keep the data as it can be useful/helpful to the
+	players maybe, and not delete it entirely, but clearly indicate
+	(or more clearly indicate) that it is outdate so that players
+	know what they are looking at ideally and hopefully, did not
+	translate as i did not do too in other places for convenience,
+	ideally should do so, hopefully it would be clear enough or
+	not critical enough or bothering enough for them, about this
+	i mean, etc, i mean anyways about this, i mean anyways, thanks,
+	was "Game Concepts"	-->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT</Tag>
+		<English>Mods Info</English>
+		<French>
+			<Text>Mods Info</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</French>
+		<German>
+			<Text>Mods Info</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</German>
+		<Italian>
+			<Text>Mods Info</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Mods Info</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</Spanish>
+	</TEXT>
+	<!-- custom: was "BtS Concepts", see code comments in
+	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml
+	(or the equivalent of this path in your AdvCiv installation path i
+	mean anyways, thanks, )	of this mod for details, thanks
+	
+	Add the tag/mention "(Outdated)" to signify that this info
+	is not up to date anymore, but may help for general purposes
+	maybe especially ingame. Add this mention may also remove
+	the burden for modders to maintain this page, as i think it
+	is more practical for players to go online (if possible)
+	about this etc to gather the data they want. Hopefully more
+	helpful and clearer this way, would serve my purposes at
+	least, and all good if it does to other, else i do this for
+	me i mean anyways etc i mean anyways, thanks,
+	Also "BtS" is one character shorter than "Game", while also
+	being more significant (if that is a word i can use to mean
+	that it indicates more) of the fact that it relates to base
+	civ4 (vanilla or BTS or similar content), and not to (i.e.
+	as opposed to) mods info (K-Mod, AdvCiv based on K-Mod,
+	AdvCiv-SAS based on AdvCiv, etc. ).
+	-->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW</Tag>
+		<English>BtS Info (Outdated)</English>
+		<French>
+			<Text>BtS Info (Outdated)</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>BtS Info (Outdated)</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>BtS Info (Outdated)</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>BtS Info (Outdated)</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+
 	<!-- custom: rename "Ivory" to "Elephants", there are 2 main reasons
 	for why i suggest this change i mean anyways: 
 	- 1) you need elephants to build war elephants, not ivory, even if you
@@ -917,4 +1004,5 @@
 			<Plural>0</Plural>
 		</Spanish>
 	</TEXT>
+
 </Civ4GameText>

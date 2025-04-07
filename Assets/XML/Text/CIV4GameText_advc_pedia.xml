@@ -54,30 +54,20 @@ hopefully more readable now at least about this i mean anyways -->
 		<Italian>Cambiamenti delle regole di BtS</Italian>
 		<Spanish>Cambios en las reglas de "BtS"</Spanish>
 	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW</Tag>
-		<English>BtS Concepts</English>
-		<French>
-			<Text>Concepts de BtS</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</French>
-		<German>
-			<Text>BtS-Konzepte</Text>
-			<Gender>Neuter</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Nozioni di BtS</Text>
-			<Gender>Female</Gender>
-			<Plural>1</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Conceptos de "BtS"</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</Spanish>
-	</TEXT>
+
+	<!-- custom: as was done in advc.002g, deleting
+	TXT_KEY_PEDIA_CATEGORY_CONCEPT from here as i am replacing
+	it elsewhere in the asset files of this mod, hopefully
+	more likely to be compatible with base AdvCiv this way
+	maybe (?)
+	Or/and my AdvCiv-SAS mod-specific information being more
+	easily "gatherable" or "noticeable" "analyzable" there
+	i mean anyways if these words make sense (in terms of
+	getting the point across) and their meaning makes sense
+	too (in terms of having a meaning that is clear and
+	understood) hopefully etc (if these are not the same
+	thing, hopefully clearer too maybe, anyways etc, i
+	mean anyways, thanks, ) -->
 
 	<!-- advc.004y: Heading for "changes" box in trait articles -->
 	<TEXT>

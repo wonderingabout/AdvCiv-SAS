@@ -74,6 +74,23 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.ITEM_LIST_ID	= "PediaMainItemList"
 		self.UPGRADES_GRAPH_ID	= "PediaMainUpgradesGraph"
 
+		# <!-- custom: support 1920 x 1080 as default, not 1024 x 768, there are more
+		# benefits in supporting and using all the screen space than to accomodate
+		# older screen resolutions, even though would have been nice to if possible
+		# or convenient, i believe the extra space will be useful.
+		# Also we don't use the outside margins part of the screen while in the
+		# sevopedia, trying to maximize it too, distracts less too maybe.
+		# As for the margins, not much value in being able to see the advisors tab
+		# (if i understand it correctly that it is the buttons on top right during
+		# a game i mean etc i mean anyways, thanks, ), i think, however i also think
+		# i mean anyways, thanks, that the place/extra room should be useful to fit
+		# more data or simply enlarge the view, hopefully making it all clearer and
+		# more pleasant to see, while also displaying more data.
+		# seems to be how realism invictus runs at 1920 x 1080 at least when i play
+		# it i mean on my computer, i mean, not to say we should do so because they
+		# did, just i think it's a more desirable design for AdvCiv-SAS, about this
+		# i mean etc anyways i mean anyways, thanks,
+		# todo -->
 		self.H_SCREEN = 768
 		self.W_SCREEN = 1024
 		# <advc.004y>
@@ -388,8 +405,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.szCategoryCivics		= localText.getText("TXT_KEY_PEDIA_CATEGORY_CIVIC", ())
 		self.szCategoryReligions	= localText.getText("TXT_KEY_PEDIA_CATEGORY_RELIGION", ())
 		self.szCategoryCorporations	= localText.getText("TXT_KEY_CONCEPT_CORPORATIONS", ())
-		self.szCategoryConcepts		= localText.getText("TXT_KEY_PEDIA_CATEGORY_CONCEPT", ())
+		# <!-- custom: see below at self.categoryList 's code comment -->
 		self.szCategoryConceptsNew	= localText.getText("TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW", ())
+		self.szCategoryConcepts		= localText.getText("TXT_KEY_PEDIA_CATEGORY_CONCEPT", ())
 		self.szCategoryHints		= localText.getText("TXT_KEY_PEDIA_CATEGORY_HINTS", ())
 		self.szCategoryShortcuts	= localText.getText("TXT_KEY_PEDIA_CATEGORY_SHORTCUTS", ())
 		
@@ -416,8 +434,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			["CIVICS",	self.szCategoryCivics],
 			["CIVICS",	self.szCategoryReligions],
 			["CIVICS",	self.szCategoryCorporations],
-			["HINTS",	self.szCategoryConcepts],
+			# <!-- custom: put "Mods Info" before "BtS Info (Outdated)", hopefully
+			# more visible this way (as i think it is more relevant, more likely
+			# to be useful, more visible hopefully as the first icon, about this
+			# i mean etc i mean anyways, thanks, -->
 			["HINTS",	self.szCategoryConceptsNew],
+			["HINTS",	self.szCategoryConcepts],
 			["HINTS",	self.szCategoryHints],
 			["HINTS",	self.szCategoryShortcuts], # advc.004y: Restored
 			]
@@ -469,9 +491,17 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			graphic = self.categoryGraphics[category[0]]
 			# <advc.002b> Prepend graphic only if there is room
 			szHeading = category[1]
-			iThresh = 16 # For English, 16 happens to be OK.
+			# <!-- custom: allow room to fit more characters, if less are used
+			# still displays fine/same, if text is too long to fit the box, up
+			# to the modder to adjust the text rather, 20 should still leave
+			# some margin especially on higher displays while giving the flexibility
+			# to have a bit longer text maybe, was 16-->
+			iThresh = 20 # For English, 16 happens to be OK.
 			if gc.getGame().getCurrentLanguage() != 0:
-				iThresh = 15
+				# <!-- custom: not sure other languages need critically more
+				# space (if i understand it correctly), but giving -1 too
+				# there, was 15 -->
+				iThresh = 19
 			if len(szHeading) <= iThresh:
 				szHeading = graphic + szHeading # </advc.002b>
 			screen.appendListBoxStringNoUpdate(self.CATEGORY_LIST_ID, szHeading, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MAIN + i + 1, 0, CvUtil.FONT_LEFT_JUSTIFY)
