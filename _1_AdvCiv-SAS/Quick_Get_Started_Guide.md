@@ -139,7 +139,7 @@ has been removed for a sooner, more likely to be useful civ unit: the teutonic (
 knight.
 - some units have been removed: sometimes for historical accuracy or flavor one
 could say maybe reasons: for example the phalanx civ unit of the greek empire
-is now the hoplite phalanx (a lancer heavy class, not based on the axeman
+is now the hoplite phalanx (a lancer heavy combat type, not based on the axeman
 anymore), and available in mid iron age not in bronze age for better historical
 accuracy. I did not check them all (maybe todo fix this note if did) but those
 who i did and that i found to be (especially if gravely) mistaken and that i
