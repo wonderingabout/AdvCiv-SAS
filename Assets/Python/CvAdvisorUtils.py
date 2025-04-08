@@ -58,9 +58,11 @@ def unitBuiltFeats(pCity, pUnit):
 	
 	# <!-- custom: implementing our new unit combat types, for example archery units:
 	# archers bow short, archers bow long, archers crossbow
-	# i am not sure exactly what this code does except play a sound and why it does
-	# to some unit combat types and not others, but for now for simplicity and such
-	# i am just going to change the combat type here too.
+	# i am not sure exactly what this code does except play a sound or maybe other things?
+	# Nor do i know why it does to some unit combat types and not others, but for now for
+	# simplicity and such i am just going to change the combat type here too and add the
+	# new ones i create if i feel the need or/and think it would be (a) good (idea) to do
+	# so. -->
 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT)):
 
 		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_ARCHER_BOW_SHORT")):
@@ -73,6 +75,24 @@ def unitBuiltFeats(pCity, pUnit):
 				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT)
 				popupInfo.setData2(pCity.getID())
 				popupInfo.setText(localText.getText("TXT_KEY_FEAT_UNITCOMBAT_ARCHER_BOW_SHORT", (pUnit.getNameKey(), pCity.getNameKey(), )))
+				popupInfo.setOnClickedPythonCallback("featAccomplishedOnClickedCallback")
+				popupInfo.setOnFocusPythonCallback("featAccomplishedOnFocusCallback")
+				popupInfo.addPythonButton(localText.getText("TXT_KEY_FEAT_ACCOMPLISHED_OK", ()), "")
+				popupInfo.addPythonButton(localText.getText("TXT_KEY_FEAT_ACCOMPLISHED_MORE", ()), "")
+				popupInfo.addPopup(pCity.getOwner())
+
+	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_LONG)):
+
+		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_ARCHER_BOW_LONG")):
+		
+			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_LONG, True)
+			
+			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+				popupInfo = CyPopupInfo()
+				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_LONG)
+				popupInfo.setData2(pCity.getID())
+				popupInfo.setText(localText.getText("TXT_KEY_FEAT_UNITCOMBAT_ARCHER_BOW_LONG", (pUnit.getNameKey(), pCity.getNameKey(), )))
 				popupInfo.setOnClickedPythonCallback("featAccomplishedOnClickedCallback")
 				popupInfo.setOnFocusPythonCallback("featAccomplishedOnFocusCallback")
 				popupInfo.addPythonButton(localText.getText("TXT_KEY_FEAT_ACCOMPLISHED_OK", ()), "")

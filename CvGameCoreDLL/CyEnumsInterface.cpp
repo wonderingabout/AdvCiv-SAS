@@ -1492,6 +1492,7 @@ void CyEnumsPythonInterface()
 	/*<!-- custom: new unit combat types and modifying existing ones --> */
 	python::enum_<FeatTypes>("FeatTypes")
 		.value("FEAT_UNITCOMBAT_ARCHER_BOW_SHORT", FEAT_UNITCOMBAT_ARCHER_BOW_SHORT)
+		.value("FEAT_UNITCOMBAT_ARCHER_BOW_LONG", FEAT_UNITCOMBAT_ARCHER_BOW_LONG)
 		.value("FEAT_UNITCOMBAT_MOUNTED", FEAT_UNITCOMBAT_MOUNTED)
 		.value("FEAT_UNITCOMBAT_MELEE", FEAT_UNITCOMBAT_MELEE)
 		.value("FEAT_UNITCOMBAT_SIEGE", FEAT_UNITCOMBAT_SIEGE)

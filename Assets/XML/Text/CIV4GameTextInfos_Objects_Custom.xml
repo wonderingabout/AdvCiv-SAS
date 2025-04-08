@@ -1006,7 +1006,7 @@
 	</TEXT>
 
 	<!-- custom: new/modified unit combat types -->
-		<TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_UNITCOMBAT_ARCHER_BOW_SHORT</Tag>
 		<English>Archers (Bow, Short range)</English>
 		<French>
@@ -1026,6 +1026,30 @@
 		</Italian>
 		<Spanish>
 			<Text>Archers (Bow, Short range)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_ARCHER_BOW_LONG</Tag>
+		<English>Archers (Bow, Long range)</English>
+		<French>
+			<Text>Archers (Bow, Long range)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</French>
+		<German>
+			<Text>Archers (Bow, Long range)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</German>
+		<Italian>
+			<Text>Archers (Bow, Long range)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Archers (Bow, Long range)</Text>
 			<Gender>Male</Gender>
 			<Plural>1</Plural>
 		</Spanish>

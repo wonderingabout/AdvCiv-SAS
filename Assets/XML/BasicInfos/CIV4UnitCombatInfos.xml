@@ -20,13 +20,17 @@ or/and modify existing ones, for example, archery units would become:
 			<Button>,Art/Interface/Buttons/Promotions/Recon_Units.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,7</Button>
 		</UnitCombatInfo>
 
-
+		<!-- custom: archer combat types -->
 		<UnitCombatInfo>
 			<Type>UNITCOMBAT_ARCHER_BOW_SHORT</Type>
 			<Description>TXT_KEY_UNITCOMBAT_ARCHER_BOW_SHORT</Description>
 			<Button>,Art/Interface/Buttons/Promotions/Cover.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,5</Button>
 		</UnitCombatInfo>
-		<!-- custom: todo create bow long, and crossbow -->
+		<UnitCombatInfo>
+			<Type>UNITCOMBAT_ARCHER_BOW_LONG</Type>
+			<Description>TXT_KEY_UNITCOMBAT_ARCHER_BOW_LONG</Description>
+			<Button>,Art/Interface/Buttons/Promotions/Cover.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,5</Button>
+		</UnitCombatInfo>
 
 		<UnitCombatInfo>
 			<Type>UNITCOMBAT_MOUNTED</Type>
