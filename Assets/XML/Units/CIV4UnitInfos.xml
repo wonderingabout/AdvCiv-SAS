@@ -4699,17 +4699,10 @@ for example for the archer
 			<UnitClassDefenders/>
 			<UnitCombatDefenders>
 			<!-- custom: now that the unit is reworked, quecha is not especially good
-			against archer type of units currently, was 1 -->
-				<UnitCombatDefender>
-					<UnitCombatDefenderType>UNITCOMBAT_ARCHER</UnitCombatDefenderType>
-					<bUnitCombatDefender>0</bUnitCombatDefender>
-				</UnitCombatDefender>
-			<!-- custom: since it is now based on the spearman, adding this just in case,
-			to not first target mounted units we are not especially good against now -->
-				<UnitCombatDefender>
-					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED</UnitCombatDefenderType>
-					<bUnitCombatDefender>0</bUnitCombatDefender>
-				</UnitCombatDefender>
+			against archer type of units currently, line removed, was 1-->
+			<!-- custom: since it is now based on the spearman, also removing the line
+			to defend first against mounted units, as we are not especially good against
+			them now -->
 			</UnitCombatDefenders>
 			<FlankingStrikes/>
 			<UnitAIs>
@@ -4847,12 +4840,9 @@ for example for the archer
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<!-- advc.907b: Combat bonus vs. Archer (100) removed -->
-			<UnitCombatMods>
-				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
-					<iUnitCombatMod>0</iUnitCombatMod>
-				</UnitCombatMod>
-			</UnitCombatMods>
+			<!-- custom: removing the tag seems to work the same in
+			the sevopedia, so doing that rather -->
+			<UnitCombatMods/>
 			<UnitCombatCollateralImmunes/>
 			<DomainMods/>
 			<BonusProductionModifiers/>
@@ -8828,20 +8818,7 @@ for example for the archer
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<UnitCombatMods>
-				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
-					<iUnitCombatMod>25</iUnitCombatMod>
-				</UnitCombatMod>
-				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
-					<iUnitCombatMod>25</iUnitCombatMod>
-				</UnitCombatMod>
-				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
-					<iUnitCombatMod>25</iUnitCombatMod>
-				</UnitCombatMod>
-			</UnitCombatMods>
+			<UnitCombatMods/>
 			<UnitCombatCollateralImmunes/>
 			<DomainMods/>
 			<BonusProductionModifiers/>
@@ -11181,7 +11158,7 @@ for example for the archer
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_ARCHER</Combat>
+			<Combat>UNITCOMBAT_ARCHER_BOW_SHORT</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
@@ -11408,7 +11385,7 @@ for example for the archer
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_ARCHER</Combat>
+			<Combat>UNITCOMBAT_ARCHER_BOW_SHORT</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
@@ -11647,7 +11624,7 @@ for example for the archer
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_ARCHER</Combat>
+			<Combat>UNITCOMBAT_ARCHER_BOW_SHORT</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
@@ -11889,7 +11866,7 @@ for example for the archer
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_ARCHER</Combat>
+			<Combat>UNITCOMBAT_ARCHER_BOW_SHORT</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
@@ -12105,7 +12082,7 @@ for example for the archer
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_ARCHER</Combat>
+			<Combat>UNITCOMBAT_ARCHER_BOW_SHORT</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
@@ -12304,7 +12281,7 @@ for example for the archer
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_ARCHER</Combat>
+			<Combat>UNITCOMBAT_ARCHER_BOW_SHORT</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
@@ -12500,7 +12477,7 @@ for example for the archer
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_ARCHER</Combat>
+			<Combat>UNITCOMBAT_ARCHER_BOW_SHORT</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
@@ -13216,7 +13193,7 @@ for example for the archer
 			<UnitClassDefenseMods/>
 			<UnitCombatMods>
 				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
 					<!-- advc.907e: was 50 -->
 					<iUnitCombatMod>25</iUnitCombatMod>
 				</UnitCombatMod>

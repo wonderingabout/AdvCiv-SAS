@@ -7486,9 +7486,14 @@
 			<BonusHealthChanges/>
 			<BonusHappinessChanges/>
 			<BonusProductionModifiers/>
+			<!-- custom: todo change this as i rework the obelisk building,
+			and even before that when the defenders become other types of
+			units, it would be mostly lancers heavy and sword heavy i think
+			but leaving as is for now but with todo mark to remember to do
+			it -->
 			<UnitCombatFreeExperiences>
 				<UnitCombatFreeExperience>
-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
 					<iExperience>3</iExperience>
 				</UnitCombatFreeExperience>
 			</UnitCombatFreeExperiences>

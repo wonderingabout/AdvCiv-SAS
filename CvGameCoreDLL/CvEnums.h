@@ -1265,8 +1265,9 @@ ENUM_START(CitySafety, CITYSAFETY)
 	CITYSAFETY_PERFECT, // for advc.ctr
 ENUM_END(CitySafety, CITYSAFETY) // </advc.139>
 
+/* <!-- custom: new unit combat types and modifying existing ones --> */
 ENUM_START(Feat, FEAT)
-	FEAT_UNITCOMBAT_ARCHER,
+	FEAT_UNITCOMBAT_ARCHER_BOW_SHORT,
 	FEAT_UNITCOMBAT_MOUNTED,
 	FEAT_UNITCOMBAT_MELEE,
 	FEAT_UNITCOMBAT_SIEGE,

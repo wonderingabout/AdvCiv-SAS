@@ -9736,9 +9736,10 @@
 			<iUnitImmobileTurns>0</iUnitImmobileTurns>
 			<UnitPromotion/>
 			<UnitName/>
+			<!-- custom: todo add the other archer types here too maybe -->
 			<UnitCombatPromotions>
 				<UnitCombatPromotion>
-					<UnitCombat>UNITCOMBAT_ARCHER</UnitCombat>
+					<UnitCombat>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombat>
 					<UnitPromotion>PROMOTION_COMBAT1</UnitPromotion>
 				</UnitCombatPromotion>
 			</UnitCombatPromotions>

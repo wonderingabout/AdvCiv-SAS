@@ -276,9 +276,12 @@
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
+			<!-- custom: todo rework protective trait to either include more defenders
+			or all unit types, as it is too weak, or specify all defense types, will
+			see about this i mean etc i mean anyways, thanks, todo -->
 			<FreePromotionUnitCombats>
 				<FreePromotionUnitCombat>
-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
 					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
 				</FreePromotionUnitCombat>
 				<FreePromotionUnitCombat>

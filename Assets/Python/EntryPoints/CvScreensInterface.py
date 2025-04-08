@@ -1116,7 +1116,8 @@ def featAccomplishedOnClickedCallback(argsList):
 	if (iButtonId == 1):
 		if (iData1 == FeatTypes.FEAT_TRADE_ROUTE):
 			showDomesticAdvisor(())
-		elif ((iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER) and (iData1 <= FeatTypes.FEAT_UNIT_SPY)):
+		# <!-- custom: new unit combat types -->
+		elif ((iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT) and (iData1 <= FeatTypes.FEAT_UNIT_SPY)):
 			showMilitaryAdvisor()
 		elif ((iData1 >= FeatTypes.FEAT_COPPER_CONNECTED) and (iData1 <= FeatTypes.FEAT_FOOD_CONNECTED)):
 			showForeignAdvisorScreen([0])
@@ -1139,9 +1140,24 @@ def featAccomplishedOnFocusCallback(argsList):
 	bOption2 = argsList[6]
 	
 	CyInterface().playGeneralSound("AS2D_FEAT_ACCOMPLISHED")
-	if ((iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER) and (iData1 <= FeatTypes.FEAT_FOOD_CONNECTED)):
+	# <!-- custom: implementing our new unit combat types, for example archery units:
+	# archers bow short, archers bow long, archers crossbow
+	# i am not sure exactly what this code does except play a sound and why it does
+	# to some unit combat types and not others, but for now for simplicity and such
+	# i am just going to change the combat type here too.
+	# Adding the crossbows too, i don't know if this is safe considering they were not
+	# added before, but testing to see what happens, maybe it works. (?) -->
+	#if ((iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER) and (iData1 <= FeatTypes.FEAT_FOOD_CONNECTED)):
+	#	CyInterface().lookAtCityOffset(iData2)
+	# todo
+	#
+	#
+	#if (( (iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT) or (iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_LONG) or (iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_CROSSBOW) ) and (iData1 <= FeatTypes.FEAT_FOOD_CONNECTED)):
+	#
+	#
+	#
+	if (( (iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT) ) and (iData1 <= FeatTypes.FEAT_FOOD_CONNECTED)):
 		CyInterface().lookAtCityOffset(iData2)
-		
 	return 0
 
 

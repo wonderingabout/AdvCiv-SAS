@@ -1005,4 +1005,30 @@
 		</Spanish>
 	</TEXT>
 
+	<!-- custom: new/modified unit combat types -->
+		<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_ARCHER_BOW_SHORT</Tag>
+		<English>Archers (Bow, Short range)</English>
+		<French>
+			<Text>Archers (Bow, Short range)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</French>
+		<German>
+			<Text>Archers (Bow, Short range)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</German>
+		<Italian>
+			<Text>Archers (Bow, Short range)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Archers (Bow, Short range)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</Spanish>
+	</TEXT>
+
 </Civ4GameText>

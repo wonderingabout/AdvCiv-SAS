@@ -157,6 +157,7 @@ that i bombarded with updates and installs still works amazing so i recommend it
 - Notepad++ (very reliable and multi tab in this case i mean anyways i mean anyways)
 - Git Bash for Windows
 - Q-Dir
+- WizTree (very useful (and reliable and effective) to find the files i want when i want)
 - Google Chrome (i used) for the Page translate of kujira's website in particular (Firefox has
 it too though unless i'm mistaken i mean anyways)
 - Google's scientific calculator (https://www.google.com/search?q=calculator) (for the x^y function in particular i mean anyways)

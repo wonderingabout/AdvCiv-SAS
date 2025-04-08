@@ -56,18 +56,24 @@ def populationFeat(iPlayer, eFeat, szText):
 
 def unitBuiltFeats(pCity, pUnit):
 	
-	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER)):
+	# <!-- custom: implementing our new unit combat types, for example archery units:
+	# archers bow short, archers bow long, archers crossbow
+	# i am not sure exactly what this code does except play a sound and why it does
+	# to some unit combat types and not others, but for now for simplicity and such
+	# i am just going to change the combat type here too (and recompile the DLL)
+	# after that.
+	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT)):
 
-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_ARCHER")):
+		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_ARCHER_BOW_SHORT")):
 		
-			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER, True)
+			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT, True)
 			
 			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
 				popupInfo = CyPopupInfo()
 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
-				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_ARCHER)
+				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT)
 				popupInfo.setData2(pCity.getID())
-				popupInfo.setText(localText.getText("TXT_KEY_FEAT_UNITCOMBAT_ARCHER", (pUnit.getNameKey(), pCity.getNameKey(), )))
+				popupInfo.setText(localText.getText("TXT_KEY_FEAT_UNITCOMBAT_ARCHER_BOW_SHORT", (pUnit.getNameKey(), pCity.getNameKey(), )))
 				popupInfo.setOnClickedPythonCallback("featAccomplishedOnClickedCallback")
 				popupInfo.setOnFocusPythonCallback("featAccomplishedOnFocusCallback")
 				popupInfo.addPythonButton(localText.getText("TXT_KEY_FEAT_ACCOMPLISHED_OK", ()), "")
