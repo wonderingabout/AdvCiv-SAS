@@ -967,7 +967,7 @@ to the galley, may increase the galley's cost instead, which makes sense when th
 even though in AdvCiv-SAS it will be able to carry any type of troops, but make it more expensive too based on previous info
 etc i mean anyways about this, i mean anyways, thanks,
 
-- ancient rowboat from around ancient egypt so bronze age: https://en.wikipedia.org/wiki/Rowing#Ancient_Egypt (ancient egypt is around 3000 BCE if i'm not mistaken and(/or rather maybe too aloso about this etc anyways i mean anyways, thanks, ) from the little i've seen too anyways)
+- ancient rowboat from around ancient egypt so bronze age: https://en.wikipedia.org/wiki/Rowing#Ancient_Egypt (ancient egypt is around 3000 BCE if i'm not mistaken and(/or rather maybe too also about this etc anyways i mean anyways, thanks, ) from the little i've seen too anyways)
 
 - galleys history (for design (model) chocies) etc i mean anyways and about this etc i mean anyways, thanks, https://www.warhistoryonline.com/ancient-history/galleys-first-great-warships-m.html and quick look also i mean aobut this really todo delete alater this remark/part of the note but anyways https://curriculumvisions.com/search/G/galley/galley.html
 
@@ -981,10 +981,23 @@ on this (about this etc i mean anyways, thanks, )
 
 - oldest privateers around 1200 AD, including it in medieval era even though late part of it, i also find it's a cool design
 where pirates have a golden era (about this etc i mean anyways, etc i mean anyways, thanks, ), where they are stronger than
-even frigates, about this etc i mean anyways, thanks,
+even frigates, about this etc i mean anyways, thanks, ; or maybe bit weaker than frigates but much sooner etc is about this
+too at least i mean not mislead delete later wanted say etc i mean anyways, thanks, most likely no one is reading but still
+even if someone is i say this for myself not tohaev a reply not that it is forbidden or somethign but i'd rather focus on
+myself etc etc etc etc i mean anyways delete later before merging this pr etc i mean anyways, thanks,
 
 - for simplicity skipping some early steam powered boats (to keep the one boat (type) per era "rule", also not that much
 of a difference even though would have been nice maybe, for example the quote about napoleon and steam power if i remember
 correctly that i read quite some time ago but anyways (like 1 year or less or bit more idk exactly most likely bit less but
 anyways about this etc i mean anyways, thanks, )), hopefully clearer or at least smoother gameplay this way, make them around
 1850 AD then, about this etc i mean anyways, etc i mean anyways, thanks,
+
+- first paddle steamer around 1774, so make them a bit sooner than ironclad https://en.wikipedia.org/wiki/Paddle_steamer#History , small inconsistency as a result that ironclad is available later than paddle steamer even though it is a military and should have a later technology such as steam power, but probably fine in civ4 if techs are close enough, could even be same tech maybe to simplify maybe, and i want end game to be faster, anyways,
+
+- first destroyer in 1885: https://en.wikipedia.org/wiki/Destroyer
+
+- first potentially viable as a weapon submarine in 1866 https://en.wikipedia.org/wiki/History_of_submarines#Mechanical_power , make it as same time as early destroyer to simplify, use the u-boat from realism invictus for nostalgy of empire earth 1 maybe and also because/as it is a reliable memory of me a bit if not deluded but is about this etc i mean anyways maybe delete this (part of the) remark or maybe not etc i mean anyways, thanks,
+
+- nuclear submarines are submarines powered by nuclear energy, not necessarily having nuclear weapons https://en.wikipedia.org/wiki/Nuclear_submarine , due to their high cost, removing them to simplify end game and also less things to implement, but main reason is they make less sense, i had assumed ignorantly but as it is that it had nuclear weapon, is about this etc i mean anyways, thanks, is thanks to realism invictus that i noticed they have (it seems) no submarines, removed them before that, then added them for exhaustiveness, then after hcecking for realism invictus models and seeing they seemingly don't have them ((thanks to their very nice search bar i am thankful for aobut this etc i mean anyways, thanks, ) but don't want to implement at least not yet about this etc i mean anyways thanks not mislead is really about this i may be the one deluded even though didn't think of it though but anyways, still does not change what i have to do which is to focus on myself and would stay same in infinite future most likely unless i would meet someone else i mesh well with as unpleasant it may be to read but most likely no one is reading this well anyways delete this later and do my own thing etc i mean anywyas etc i mean anyways thanks, but thanks if interested in my project, even though it may sound unneeded or undesired charity and was not my intention else would have said maybe or not but anyways delete later before merging this PR), so now reverting back to only one type of submarine but is about this etc i mean anyways at least etc i mean anyways not to mislead delete later etc i mean anyways would be same in infinite future that i do'nt want this feeling i have but anyways etc or maybe longing or whatever it is but best to focus on myself even though free to feel or wonder about it but safer to leave it at that and not mislead, more reasonable maybe too anyways etc i mean anwyays not to mislead, myself or others, is safer or maybe even better for me at least this way maybe, not that i am bittr anymore, i think, (?), but anyways (this would mean i am open to talk, but not to take things further, i think, as hurtful is to read this, but most likely no one is reading this, hopefully, but maybe someone or few is/are, if so it would not be a problem, as these are my true feelings, and i am not ashamed to say them, even though not all need to know them nor do i want to share them with all, but anyways) etc i mean anwyays delete this before megring this pr etc i mean anyways, thanks, and put back (nuclear) submarine in robotic era (9) about this etc i mean anyways, thanks,
+
+- first sea plane carrier in 1912: https://en.wikipedia.org/wiki/History_of_the_aircraft_carrier ; to simplify make them available at flight but add another tech requirement so it's slightly later but not a lot (for example flight + assembly line but would need to check so this is just an example, it may be wrong as a result, see latest sevopedia implementation if i don't forget to do it about this etc i mean anyways, thanks, for the accurate and udpate version i chose if i didn't forget it and is about this etc i mean anyways, thanks, )

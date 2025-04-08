@@ -18377,13 +18377,8 @@ for example for the archer
 					<UnitClassUpgradeType>UNITCLASS_FRIGATE</UnitClassUpgradeType>
 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
 				</UnitClassUpgrade>
-				<UnitClassUpgrade>
-					<UnitClassUpgradeType>UNITCLASS_ATTACK_SUBMARINE</UnitClassUpgradeType>
-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
-				</UnitClassUpgrade>
-				<UnitClassUpgrade>
-					<UnitClassUpgradeType>UNITCLASS_DESTROYER</UnitClassUpgradeType>
-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+				<!-- custom: caravel into attack submarine and destroyer very weird, and
+				does not suit the units in my mod, removed -->
 				</UnitClassUpgrade>
 			</UnitClassUpgrades>
 			<UnitClassTargets/>

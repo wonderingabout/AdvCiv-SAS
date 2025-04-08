@@ -9,25 +9,46 @@ eras:
 8 = modern era
 9 = robotic era
 
-_________________________________________________________________________
+_______________________________________________________________________
+__
 base units removed:
 pikeman (not useful about this i mean anyways, thanks)
-chariot (not accurate, should be lance or archer, not sword if i'm not mistaken i mean anyways, thanks,)
+chariot sword (not accurate, should be lance or archer, not sword if i'm not mistaken i mean anyways, thanks,)
 swordsman (not as pretty or accurate than the bronze era equivalent i chose about this i mean anyways, thanks)
 catapult (not accurate enough or pretty enough i mean clear enough too to distinguish medieval and early catapult)
 cavalry (same reason as rifleman, see below, thanks,)
 rifleman (not immersive enough / art not good enough about this etc, in comparison to realism invictus's model in particular etc)
+grenadier (same)
 infantry (too generic and i have many more specialized gun units about this i mean anyways etc i mean anyways, thanks,)
 air bomber (put B52 instead)
 stealth bomber (simplifying the end game, removing stealth air units)
 fighter (put fokker dr.1 instead)
+bomber (same as infantry)
 caravel (too close to the galleon, also not very sensical that it can somehow enter borders without accord)
 ship of the line (too close to the frigate for too little extra benefit, redundant)
 galley (not distinct (from other units) or accurate enough design)
 trireme (same (reason as for the (etc i mean anyways, thanks, )) as galley)
 privateer (same)
 ironclad (same)
+transport (same)
+attack submarine (same)
+nuclear submarine (same, also not accurate see docs for details, thanks, )
+battleship (simplify gameplay)
+missile cruiser (same)
+stealth destroyer (same)
+carrier (same as infantry)
 
+
+special units removed:
+those that replaced, if the previous unit that was replaced is not
+used for something else (another unit etc i mean anwyays about this
+etc i mean anyways, thanks, )
+
+
+
+maybe add:
+boat anti air unit (same as in empire eath nostlagy but was maybe cool mechanic too anyways etc i mean anyways, thanks, )
+add again missile cruiser? Is about this etc i mean anyways, thanks,
 
 _________________________________________________________________________
 civilization units
@@ -654,10 +675,10 @@ transport 2: sailboat _ ancient rowboat realism invictus
 transport 3: Sailboat (Bireme) _ Bireme Sailboat realism invictus
 transport 4: trade ship (cog) _ cog realism invictus
 transport 5: - (galleon)
-transport 6:
-transport 7:
-transport 8:
-transport 9:
+transport 6: paddlewheeler _ paddle steamer realism invictus
+transport 7: troopship _ industrial transport realism invictus
+transport 8: transport _ early modern transport realism invictus
+transport 9: amphibious transport dock _ early robotic transport
 
 
 
@@ -668,9 +689,9 @@ war boat 3: galley (eastern trireme) _ trireme galley realism invictus
 war boat 4: war galley _ medieval galley realism invictus
 war boat 5: - (frigate)
 war boat 6: ironclad _ ironclad warship realism invictus
-war boat 7:
-war boat 8:
-war boat 9:
+war boat 7: escort _ early atomic destroyer realism invictus
+war boat 8: destroyer _ early modern destroyer realism invictus
+war boat 9: modern destroyer _ early robotic destroyer realism invictus
 
 
 
@@ -678,8 +699,8 @@ war boats foreign:
 -
 -
 -
-war boat foreign 4: - privateer realism invictus
-war boat foreign 5: - heavy privateer realism invictus
+war boat foreign 4: - privateer realism invictus (add cargo to them any type test if it doesnt break anything if no open broder etc, if declares war auto is fine unles AI does it accidentally about this mean anyways etc i mean anwyays thanks)
+war boat foreign 5: - heavy privateer realism invictus (add cargo to them any type test if it doesnt break anything if no open broder etc, if declares war auto is fine unles AI does it accidentally about this mean anyways etc i mean anwyays thanks)
 -
 -
 -
@@ -687,13 +708,37 @@ war boat foreign 5: - heavy privateer realism invictus
 
 
 
+submarines:
+-
+-
+-
+-
+-
+-
+submarine 7: coastal submarine (german) _ early submarine (U-Boat) realism invictus
+submarine 8: submarine (shchuka-class) _ early modern submarine realism invictus
+submarine 9: ballistic submarine (Astute-class)_ ballistic submarine (Astute) realism invictus
+
+
+
+
+carrier boats:
+-
+-
+-
+-
+-
+-
+-
+carrier boat 8: carrier (graf zeppelin-class) _ early carrier realism invictus
+carrier boat 9: modern carrier (Type 001A) _ early robotic carrier (Type 001A) realism invictus
 
 
 
 
 
 ____________________________________________________________________________________________
-assasin units: (maybe not do? Gameplay too untidy with this maybe? Etc)
+assasin units? (maybe not do? Gameplay too untidy with this maybe? Etc)
 spy of civ4 give it attack too? and early spy?
 assassin (arab i think unit or generic)
 assassin ffh2
