@@ -39,25 +39,30 @@ Defenders may have a chance to prevail while being behind in tech but it will be
 (much) harder.
 - the civilopedia is renamed the sevopedia, it is the same thing but is the name
 of the more modern version (made by modders) of it.
-- on that note, unit classes todo refers to unit categories/types, for example
-in Civ4 BTS/base AdvCiv these were for example archers, explore units, etc.
-- there are many new unit classes todo, see the sevopedia entry "Unit classes"
-for details. This allows to give specific bonuses to specific classes. For example,
-there are now new classes classes of units (and modified existing ones too), for
-example for there is no more "melee" class that the spearman was part of in civ4
-BTS/base advciv. Instead of these old classes and units, for example about the
-former spearman, there are now lancers (new type of units) that are subdivided into
-3 new classes: melee_lancer_light, melee_lancer_medium (includes the former spearman
-that is now a lancer medium at the bronze age era, for example), melee_lancer_heavy.
-See the "Unit classes" category of the sevopedia (ingame) for details.
-- each of these classes have different units with different strengths and weaknesses,
-but to give a general idea, generally the faster ones will have less damage/strength
-but better at defense/avoiding/harassing other units quite freely, while the slower
-ones have high strength, can defend and attack well, but no such bonuses, and may
-cost a bit more too, see the
-[military tree map view](/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43%20military%20tree_modified.png)
-, also available ingame in the sevopedia entry (that has been a bit tweaked/reworked
-too btw) in/at "Units Tree".
+- on that note, unit combat types todo refers to unit categories/types, for example
+in Civ4 BTS/base AdvCiv these were for example archery units, recon units (scout,
+explorer), melee units (spearman, axeman, swordsman, maceman, pikeman, etc.), etc.
+- there are many new unit combat types todo, see the sevopedia entry "Unit Combat
+Types" for details. This allows to give specific bonuses to specific combat types.
+For example, there are now new combat types of units (and modified existing ones
+too), for example there is no more "melee" combat type. Instead, for example about
+the former spearman (that was part of the melee combat type), there are now 3 new
+combat types the old "spearman" can be part of, melee_lancer_light, melee_lancer_medium
+(includes the former spearman that is now a lancer medium combat type at the bronze
+age era, for example), melee_lancer_heavy. See the "Unit Combat types" category of the
+sevopedia (ingame)(the sevopedia has been a bit tweaked/reworked too btw) for details.
+- why bother to do (all) that? Each of these combat types have different units with
+different strengths and weaknesses, but to give a general idea, generally the faster
+ones will have less damage/strength but better at defense/avoiding/harassing other
+units quite freely, while the slower ones have high strength, can defend and attack
+well, but no such bonuses, and may cost a bit more too. Strategy should be a lot
+more important and versatile/flexible/to be adjusted based on local circumstances.
+For a full view of all existing units, on top of viewing the "Unit Combat Types",
+you can also see the "Units Tree" for a better view of in the sevopedia ingame, or
+this version of the units tree i made that lists the unit combat types and era for
+it as well if it helps (may be a bit outdated though but should not be too much)
+[military tree map view](/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43%20military%20tree_modified.png).
+
 - A consequence of this is also that now there will be hopefully no more weirdness of
 the axeman being good against lancer, now the relationships between types will be more
 complicated or rather defined (may make more sense at same time too), for example an
@@ -87,7 +92,7 @@ goal(s) making (and became as i was making too) this AdvCiv-SAS mod. Note also t
 is not the case for all units and eras, only the ones i found most relevant ones and to
 not be tedious enough (there is no work boat 1 work boat 2 workboat 3 etc for example,
 only one for all eras, but there are a few workers every few eras, but there are military
-units for each new era, at max one unit per class type (for example "sword light", "lance
+units for each new era, at max one unit per combat type (for example "sword light", "lance
 heavy", are each one type), and not for all types, also lesser in later stages of the game
 to simplify/rush/reach sooner the endgame)
 - explore units can attack: but their strength should be quite low
@@ -125,15 +130,16 @@ rifleman has a new graphic art but the concept of a rifleman remains in itself
 (may be rebalanced or not though like the other units though)
 - some units have been removed: sometimes for gameplay reasons: for example the
 caravel has been removed because too close to the galleon and i want only one
-type/class of unit per era, also not very sensical to me that somehow these
-boats can travel incognito or freely in borders without being attacked. May
-move this ability to privateers maybe todo but not sure; or the stealth bomber
-to simplify gameplay especially the endgame, there are stronger bombers at each
-era, just not stealth, or for example the panzer has been removed for a sooner,
-more likely to be useful civ unit: the teutonic (foot) knight.
+class (for example a caravel, a galleon, a worker, etc.) of unit per era, also
+not very sensical to me that somehow these boats can travel incognito or freely
+in borders without being attacked. May move this ability to privateers maybe todo
+but not sure; or the stealth bomber to simplify gameplay especially the endgame,
+there are stronger bombers at each era, just not stealth, or for example the panzer
+has been removed for a sooner, more likely to be useful civ unit: the teutonic (foot)
+knight.
 - some units have been removed: sometimes for historical accuracy or flavor one
 could say maybe reasons: for example the phalanx civ unit of the greek empire
-is now the hoplite phalanx (a lancer heavy type/class, not based on the axeman
+is now the hoplite phalanx (a lancer heavy class, not based on the axeman
 anymore), and available in mid iron age not in bronze age for better historical
 accuracy. I did not check them all (maybe todo fix this note if did) but those
 who i did and that i found to be (especially if gravely) mistaken and that i
