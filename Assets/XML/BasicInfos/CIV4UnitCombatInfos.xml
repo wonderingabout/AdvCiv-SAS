@@ -31,6 +31,11 @@ or/and modify existing ones, for example, archery units would become:
 			<Description>TXT_KEY_UNITCOMBAT_ARCHER_BOW_LONG</Description>
 			<Button>,Art/Interface/Buttons/Promotions/Cover.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,5</Button>
 		</UnitCombatInfo>
+		<UnitCombatInfo>
+			<Type>UNITCOMBAT_ARCHER_CROSSBOW</Type>
+			<Description>TXT_KEY_UNITCOMBAT_ARCHER_CROSSBOW</Description>
+			<Button>,Art/Interface/Buttons/Promotions/Cover.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,5</Button>
+		</UnitCombatInfo>
 
 		<UnitCombatInfo>
 			<Type>UNITCOMBAT_MOUNTED</Type>

@@ -199,7 +199,12 @@ example), and another example is the building that replaces moai (nerfed but not
 gives hammer on all coast and lake tiles (but not ocean) (should be a buff overall)
 - More terrain bonuses from techs and buildings: for example fishing gives food
 on all water tiles (even without boat)
-- Start map behaviour is affected, not so much terrain polishing (map script
+- traits have been reworked, some weak traits have been buffed or/and modified,
+while some other op traits may have been modified (not necessarily nerfed). For
+example, the protective trait has been buffed, as i had found it too weak or/and
+not relevant enough. This is not necessarily for all traits. Please look at the
+Sevopedia "Traits" entries to have the latest updated version of the traits effects
+- start map behaviour is affected, not so much terrain polishing (map script
 removing bad tiles such as jungle or snow or peak, they are now kept, but
 instead you have more starting vision to choose your spot, which should be
 realistic too because at 100 000 BCE (approximately) humans may have enough vision
@@ -319,6 +324,22 @@ and also pleasant for the player, maybe realistic too, so if it can happen all g
 (feels good in civ3 for example if i may say about my small (or not so, about this
 at least indeed i mean, much but, but i mean anyways not promised i mean anyways
 ) experience (about civ3 i mean anyways, thanks,))
+- unless specified otherwise, the source for the Sevopedia content, the place text panels
+(history text panel generally if i am not mistaken) is more often than not and in most
+cases Wikipedia. Info may be reordered and slightly edited or more heavily so, not saying
+it eveyrtime (that the source is wikipedia) to reduce tediousness of saying it and writing
+everytime, while hopefully not reducing game immersion for the player too. Sometimes i
+quote from other sources or make addition of my own, some of these sources may be found
+in the [docs](/_1_AdvCiv-SAS/Docs_And_Appendixes/) or/and in other places of this AdvCiv-SAS
+mod hopefully, or you (or it in general anyways) could maybe be googled (or search engine
+of your choice or preference or some other way) by typing bits of the text content and
+hopefully finding the source for the rest. It may be a bit (too) tedious for me to
+compile/gather all these sources, but some of them can be found, if not most, in the docs
+spread at different places. Hopefully this is convenient enough or not too inconvenient
+so that i can focus more on gameplay changes and such, and maybe helps the player too
+(immersion, or more indirectly more content and such since i can focus more on other
+things but not promised, may or not, ideally would, but doing as i want or not, i hope
+this helps though, anyways) 
 
 - todo continue
 

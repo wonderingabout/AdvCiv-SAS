@@ -262,64 +262,58 @@
 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_DESC</Tag>
 		<English>Kingdom Of Benin</English>
 		<French>
-			<Text>Royaume du Bénin</Text>
+			<Text>Kingdom Of Benin</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</French>
 		<German>
-			<Text>Königreich Benin</Text>
-			<Gender>Neuter</Gender>
+			<Text>Kingdom Of Benin</Text>
+			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</German>
 		<Italian>
-			<Text>Regno del Benin</Text>
+			<Text>Kingdom Of Benin</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Italian>
 		<Spanish>
-			<Text>Imperio Et&#237;ope</Text>
+			<Text>Kingdom Of Benin</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_SHORT_DESC</Tag>
-		<!-- custom: Kingdom of Benin (Nigeria) has no relation (according to wiki
-		i mean anyways if i understood it correctly i mean anyways) with modern
-		Benin, trying to keep the full name to make the distinction clearer, even
-		though some circumstances could call for shortening it if purely realistic
-		i mean anyways-->
+		<!-- custom: Kingdom of Benin (Nigeria) has no relation (according
+		to wiki if i understood it correctly) with modern Benin, trying to
+		keep the full name to make the distinction clearer, even though
+		some circumstances could call for shortening it if purely realistic
+		-->
 		<English>Kingdom Of Benin</English>
 		<French>
-			<Text>Royaume du Bénin</Text>
+			<Text>Kingdom Of Benin</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</French>
 		<German>
-			<Text>Königreich Benin</Text>
-			<Gender>Neuter</Gender>
+			<Text>Kingdom Of Benin</Text>
+			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</German>
 		<Italian>
-			<Text>Regno del Benin</Text>
+			<Text>Kingdom Of Benin</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Italian>
 		<Spanish>
-			<Text>Imperio Et&#237;ope</Text>
+			<Text>Kingdom Of Benin</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Spanish>
 	</TEXT>
 	<!-- custom: i found no clear mention of an adjective, going with
 	"people of Benin" mentionned here:
-	https://en.wikipedia.org/wiki/Kingdom_of_Benin#Founding
-	(from a quite quick glance in this case at least i mean anyways)
-	Translated using Quillbot:
-	https://quillbot.com/fr/traduction?sl=auto&tl=fr&text=the+people+of+Benin
-	which i find works very well at least in this case i mean anyways (as
-	imperfect as it is at least maybe in this case maybe i mean anyways about
-	this i mean anyways at least i mean anyways) -->
+	https://en.wikipedia.org/wiki/Kingdom_of_Benin#Founding -->
 	<TEXT>
 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_ADJECTIVE</Tag>
 		<English>
@@ -328,40 +322,33 @@
 			<Plural>1</Plural>
 		</English>
 		<French>
-			<Text>le peuple béninois</Text>
+			<Text>the people of Benin</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</French>
 		<German>
-			<Text>das Volk von Benin</Text>
+			<Text>the people of Benin</Text>
 			<Gender>Neuter</Gender>
 			<Plural>0</Plural>
 		</German>
 		<Italian>
-			<Text>il popolo del Benin</Text>
+			<Text>the people of Benin</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Italian>
 		<Spanish>
-			<Text>el pueblo de Benín</Text>
+			<Text>the people of Benin</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Spanish>
 	</TEXT>
-	<!-- custom: this mentions clearly and several times the impluvium as a
-	special	building the Kingdom Of Benin had:
+	<!-- custom: this mentions clearly and several times the impluvium as
+	a special building the Kingdom Of Benin had:
 	https://en.wikipedia.org/wiki/Kingdom_of_Benin#Architecture
-	Not sure about the gender, except French partly from google results
-	i mean anyways, keeping as Neuter in german and Male in other
-	languages for ease of use (of translating all this too i mean
-	anyways even though i like but focus on myself indeed i mean
-	anyways)
-	Also using People of Benin and not Kingdom of Benin to try to use
-	the adjective form (see below in this case at least i mean anyways)
-	i mean anyways even though is an expression should maybe be ok in
-	this case at least maybe about this case at least i mean anyways -->
+	Also using People of Benin would be a weird adjective form so
+	using Kingdom of Benin instead -->
 	<TEXT>
-		<Tag>TXT_KEY_BUILDING_PEOPLE_OF_BENIN_IMPLUVIUM</Tag>
+		<Tag>TXT_KEY_BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM</Tag>
 		<English>Impluvium</English>
 		<French>
 			<Text>Impluvium</Text>
@@ -370,7 +357,7 @@
 		</French>
 		<German>
 			<Text>Impluvium</Text>
-			<Gender>Neuter</Gender>
+			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</German>
 		<Italian>
@@ -385,37 +372,33 @@
 		</Spanish>
 	</TEXT>
 	<!-- custom: very disciplined nation, and using crossbowmen, see:
-	https://en.wikipedia.org/wiki/Kingdom_of_Benin#Military
-	About German at least, i found the gender to be masculine at least
-	if i'm not mistaken if i may say (quite proudly) i mean anyways,
-	not that i did check them all in this case or others if i may
-	say i mean anyways, not that it is ideal about this case, at least
-	maybe or not or yes, anyways is as is maybe or not or yes or not
-	maybe, i mean anyways -->
+	https://en.wikipedia.org/wiki/Kingdom_of_Benin#Military -->
 	<TEXT>
-		<Tag>TXT_KEY_UNIT_PEOPLE_OF_BENIN_DISCIPLINED_CROSSBOWMAN</Tag>
+		<Tag>TXT_KEY_UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN</Tag>
 		<English>Disciplined Crossbowman</English>
 		<French>
-			<Text>Arbalétrier discipliné:Arbalétriers disciplinés</Text>
+			<Text>Disciplined Crossbowman</Text>
 			<Gender>Male</Gender>
-			<Plural>0:1</Plural>
+			<Plural>0</Plural>
 		</French>
 		<German>
-			<Text>Disziplinierter Armbrustschütze:Disziplinierte Armbrustschützen</Text>
+			<Text>Disciplined Crossbowman</Text>
 			<Gender>Male</Gender>
-			<Plural>0:1</Plural>
+			<Plural>0</Plural>
 		</German>
 		<Italian>
-			<Text>Balestriere Disciplionato:Ballesteros disciplinados</Text>
+			<Text>Disciplined Crossbowman</Text>
 			<Gender>Male</Gender>
-			<Plural>0:1</Plural>
+			<Plural>0</Plural>
 		</Italian>
 		<Spanish>
-			<Text>Ballestero disciplinado:Balestrieri Disciplini</Text>
+			<Text>Disciplined Crossbowman</Text>
 			<Gender>Male</Gender>
-			<Plural>0:1</Plural>
+			<Plural>0</Plural>
 		</Spanish>
 	</TEXT>
+
+
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_WARRIOR</Tag>
 		<English>Ancient Maceman</English>
@@ -1050,6 +1033,30 @@
 		</Italian>
 		<Spanish>
 			<Text>Archers (Bow, Long range)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_ARCHER_CROSSBOW</Tag>
+		<English>Archers (Crossbow)</English>
+		<French>
+			<Text>Archers (Crossbow)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</French>
+		<German>
+			<Text>Archers (Crossbow)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</German>
+		<Italian>
+			<Text>Archers (Crossbow)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Archers (Crossbow)</Text>
 			<Gender>Male</Gender>
 			<Plural>1</Plural>
 		</Spanish>
