@@ -18379,7 +18379,6 @@ for example for the archer
 				</UnitClassUpgrade>
 				<!-- custom: caravel into attack submarine and destroyer very weird, and
 				does not suit the units in my mod, removed -->
-				</UnitClassUpgrade>
 			</UnitClassUpgrades>
 			<UnitClassTargets/>
 			<UnitCombatTargets/>
