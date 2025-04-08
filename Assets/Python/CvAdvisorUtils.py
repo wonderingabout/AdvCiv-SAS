@@ -60,8 +60,7 @@ def unitBuiltFeats(pCity, pUnit):
 	# archers bow short, archers bow long, archers crossbow
 	# i am not sure exactly what this code does except play a sound and why it does
 	# to some unit combat types and not others, but for now for simplicity and such
-	# i am just going to change the combat type here too (and recompile the DLL)
-	# after that.
+	# i am just going to change the combat type here too.
 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT)):
 
 		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_ARCHER_BOW_SHORT")):
