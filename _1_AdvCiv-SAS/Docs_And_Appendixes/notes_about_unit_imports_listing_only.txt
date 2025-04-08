@@ -23,6 +23,10 @@ stealth bomber (simplifying the end game, removing stealth air units)
 fighter (put fokker dr.1 instead)
 caravel (too close to the galleon, also not very sensical that it can somehow enter borders without accord)
 ship of the line (too close to the frigate for too little extra benefit, redundant)
+galley (not distinct (from other units) or accurate enough design)
+trireme (same (reason as for the (etc i mean anyways, thanks, )) as galley)
+privateer (same)
+ironclad (same)
 
 
 _________________________________________________________________________
@@ -52,7 +56,7 @@ khmer: ballista elephant history rewritten (based on a google image quick search
 celts?
 spain?
 korea?
-byzantine? cataphract history rewritten? or use dromon same as in civ3?
+byzantine? cataphract history rewritten? or use dromon (in c2c for example exists) same as in civ3?
 
 
 
@@ -646,10 +650,10 @@ boats
 
 transport boats:
 transport 1: raft c2c
-transport 2: 
-transport 3: galleon
-transport 4:
-transport 5:
+transport 2: sailboat _ ancient rowboat realism invictus
+transport 3: Sailboat (Bireme) _ Bireme Sailboat realism invictus
+transport 4: trade ship (cog) _ cog realism invictus
+transport 5: - (galleon)
 transport 6:
 transport 7:
 transport 8:
@@ -659,16 +663,27 @@ transport 9:
 
 war boats
 war boat 1: war canoe c2c
-war boat 2: - (rename galley to early galley)
-war boat 3: - (trireme)
-war boat 4:
+war boat 2: galley - early galley realism invictus (but use the icon of the galley longship)
+war boat 3: galley (eastern trireme) _ trireme galley realism invictus
+war boat 4: war galley _ medieval galley realism invictus
 war boat 5: - (frigate)
-war boat 6:
+war boat 6: ironclad _ ironclad warship realism invictus
 war boat 7:
 war boat 8:
 war boat 9:
 
 
+
+war boats foreign:
+-
+-
+-
+war boat foreign 4: - privateer realism invictus
+war boat foreign 5: - heavy privateer realism invictus
+-
+-
+-
+-
 
 
 
