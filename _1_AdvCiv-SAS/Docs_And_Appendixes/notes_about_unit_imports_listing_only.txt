@@ -646,7 +646,7 @@ boats
 
 transport boats:
 transport 1: raft c2c
-transport 2: galley
+transport 2: 
 transport 3: galleon
 transport 4:
 transport 5:
@@ -659,7 +659,7 @@ transport 9:
 
 war boats
 war boat 1: war canoe c2c
--
+war boat 2: - (rename galley to early galley)
 war boat 3: - (trireme)
 war boat 4:
 war boat 5: - (frigate)
