@@ -147,7 +147,9 @@ todo add quote
 - todo: tutorial on how to compile the DLL and/or files for Advciv (but should not
 be needed if you only modify XML files if i am not mistaken i mean anyways)
 - ressources that mention XML files and tags, useful if you'd want to [get started
-doing your own mod](https://github.com/wonderingabout/kujira).
+doing your own mod](https://github.com/wonderingabout/kujira), or alternatively/to
+complement for example [modiki's website too](https://modiki.civfanatics.com/index.php/Civ4TraitInfos)
+maybe (even though i mostly use kujira's website, maybe this one helps too).
 
 # Some Useful tools while doing this
 - VS Code
@@ -158,9 +160,10 @@ that i bombarded with updates and installs still works amazing so i recommend it
 - Git Bash for Windows
 - Q-Dir
 - WizTree (very useful (and reliable and effective) to find the files i want when i want)
+- Visual C++ 2010 Express (is free, just requires after trial a free registration if i am not mistaken todo): works great to compile the DLL i want/require it after some mod changes
 - Google Chrome (i used) for the Page translate of kujira's website in particular (Firefox has
 it too though unless i'm mistaken i mean anyways)
 - Google's scientific calculator (https://www.google.com/search?q=calculator) (for the x^y function in particular i mean anyways)
-- Quillbot (web translator using AI, i used the free version), example of translation linked too in this case i mean anyways at least i mean anyways: https://quillbot.com/fr/traduction?sl=auto&tl=fr&text=the+people+of+Benin
+- Quillbot (web translator using AI, i used the free version), example of translation linked too in this case i mean anyways at least i mean anyways: https://quillbot.com/fr/traduction?sl=auto&tl=fr&text=the+people+of+Benin (did not use this example in my mod as i put almost everything i added or modified in English only for (my) convenience and ease of modding even though not ideal hopefully fine (should not use that place/line to say that ideally too but hopefully maybe fine too..)) and alternatively dictionaries if i want more technical translations or wiki pages or some other places/pages or not maybe
 
 todo add links
