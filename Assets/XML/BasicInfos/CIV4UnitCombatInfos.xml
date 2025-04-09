@@ -73,8 +73,8 @@ or/and modify existing ones, for example, archery units would become:
 			<Button>,Art/Interface/Buttons/Promotions/Naval_Units.dds,Art/Interface/Buttons/Promotions_Atlas.dds,3,7</Button>
 		</UnitCombatInfo>
 		<UnitCombatInfo>
-			<Type>UNITCOMBAT_AIR</Type>
-			<Description>TXT_KEY_UNITCOMBAT_AIR</Description>
+			<Type>UNITCOMBAT_AIR_BOMBER</Type>
+			<Description>TXT_KEY_UNITCOMBAT_AIR_BOMBER</Description>
 			<Button>,Art/Interface/Buttons/Promotions/Naval_Units.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,6,15</Button>
 		</UnitCombatInfo>
 	</UnitCombatInfos>

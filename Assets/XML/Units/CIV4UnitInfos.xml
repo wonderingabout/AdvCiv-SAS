@@ -20848,7 +20848,7 @@ for example for the archer
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_AIR</Combat>
+			<Combat>UNITCOMBAT_AIR_BOMBER</Combat>
 			<Domain>DOMAIN_AIR</Domain>
 			<DefaultUnitAI>UNITAI_ATTACK_AIR</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
@@ -21019,7 +21019,7 @@ for example for the archer
 			<UniqueNames/>
 			<Special>SPECIALUNIT_FIGHTER</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_AIR</Combat>
+			<Combat>UNITCOMBAT_AIR_BOMBER</Combat>
 			<Domain>DOMAIN_AIR</Domain>
 			<DefaultUnitAI>UNITAI_DEFENSE_AIR</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
@@ -21194,7 +21194,7 @@ for example for the archer
 			<UniqueNames/>
 			<Special>SPECIALUNIT_FIGHTER</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_AIR</Combat>
+			<Combat>UNITCOMBAT_AIR_BOMBER</Combat>
 			<Domain>DOMAIN_AIR</Domain>
 			<DefaultUnitAI>UNITAI_DEFENSE_AIR</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
@@ -21369,7 +21369,7 @@ for example for the archer
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_AIR</Combat>
+			<Combat>UNITCOMBAT_AIR_BOMBER</Combat>
 			<Domain>DOMAIN_AIR</Domain>
 			<DefaultUnitAI>UNITAI_ATTACK_AIR</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
