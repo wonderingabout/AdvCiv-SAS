@@ -622,15 +622,6 @@
 			<DefaultUnit>UNIT_DESTROYER</DefaultUnit>
 		</UnitClassInfo>
 		<UnitClassInfo>
-			<Type>UNITCLASS_STEALTH_DESTROYER</Type>
-			<Description>TXT_KEY_UNIT_STEALTH_DESTROYER</Description>
-			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
-			<iMaxTeamInstances>-1</iMaxTeamInstances>
-			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
-			<iInstanceCostModifier>0</iInstanceCostModifier>
-			<DefaultUnit>UNIT_STEALTH_DESTROYER</DefaultUnit>
-		</UnitClassInfo>
-		<UnitClassInfo>
 			<Type>UNITCLASS_BATTLESHIP</Type>
 			<Description>TXT_KEY_UNIT_BATTLESHIP</Description>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>

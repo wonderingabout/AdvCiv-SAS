@@ -10,7 +10,19 @@ eras:
 9 = robotic era
 
 _______________________________________________________________________
-__
+units entirely removed:
+stealth bomber (simplifying the end game, removing stealth air units)
+nuclear submarine (same, also not accurate see docs for details)
+stealth destroyer (same)_
+missile cruiser (same)
+
+caravel (too close to the galleon, also not very sensical that it can somehow enter borders without accord)
+ship of the line (too close to the frigate for too little extra benefit, redundant)
+battleship (simplify gameplay)
+
+
+
+
 base units removed:
 pikeman (not useful)
 chariot sword (not accurate, should be lance or archer, not sword if i'm not mistaken )
@@ -21,21 +33,17 @@ rifleman (not immersive enough / art not good enough, in comparison to realism i
 grenadier (same)
 infantry (too generic and i have many more specialized gun units ,)
 air bomber (put B52 instead)
-stealth bomber (simplifying the end game, removing stealth air units)
 fighter (put fokker dr.1 instead)
 bomber (same as infantry)
-caravel (too close to the galleon, also not very sensical that it can somehow enter borders without accord)
-ship of the line (too close to the frigate for too little extra benefit, redundant)
+
+
+
 galley (not distinct (from other units) or accurate enough design)
 trireme (same reason as for the galley)
 privateer (same)
 ironclad (same)
 transport (same)
 attack submarine (same)
-nuclear submarine (same, also not accurate see docs for details)
-battleship (simplify gameplay)
-missile cruiser (same)
-stealth destroyer (same)
 carrier (same as infantry)
 
 

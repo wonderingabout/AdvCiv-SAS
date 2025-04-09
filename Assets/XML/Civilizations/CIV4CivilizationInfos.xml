@@ -4817,10 +4817,6 @@
 					<UnitType>NONE</UnitType>
 				</Unit>
 				<Unit>
-					<UnitClassType>UNITCLASS_STEALTH_DESTROYER</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
 					<UnitClassType>UNITCLASS_MISSILE_CRUISER</UnitClassType>
 					<UnitType>NONE</UnitType>
 				</Unit>
