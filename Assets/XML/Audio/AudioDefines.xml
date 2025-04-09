@@ -4755,13 +4755,6 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_BUILD_STEALTH_BOMBER</SoundID>
-			<Filename>Sounds/Units/BuildStealthBomber</Filename>
-			<LoadType>DYNAMIC_RES</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
 			<SoundID>SND_BUILD_SWORDSMAN</SoundID>
 			<Filename>Sounds/Units/BuildSwordsman</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>

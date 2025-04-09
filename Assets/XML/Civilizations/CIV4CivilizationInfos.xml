@@ -4857,10 +4857,6 @@
 					<UnitType>NONE</UnitType>
 				</Unit>
 				<Unit>
-					<UnitClassType>UNITCLASS_STEALTH_BOMBER</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
 					<UnitClassType>UNITCLASS_GUIDED_MISSILE</UnitClassType>
 					<UnitType>NONE</UnitType>
 				</Unit>
