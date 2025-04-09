@@ -5524,7 +5524,6 @@
 				<UnitClass>UNITCLASS_BATTLESHIP</UnitClass>
 				<UnitClass>UNITCLASS_MISSILE_CRUISER</UnitClass>
 				<UnitClass>UNITCLASS_STEALTH_DESTROYER</UnitClass>
-				<UnitClass>UNITCLASS_SUBMARINE</UnitClass>
 				<UnitClass>UNITCLASS_ATTACK_SUBMARINE</UnitClass>
 				<UnitClass>UNITCLASS_CARRIER</UnitClass>
 				<UnitClass>UNITCLASS_TRANSPORT</UnitClass>
@@ -13273,7 +13272,6 @@
 				<UnitClass>UNITCLASS_STEALTH_DESTROYER</UnitClass>
 				<UnitClass>UNITCLASS_BATTLESHIP</UnitClass>
 				<UnitClass>UNITCLASS_MISSILE_CRUISER</UnitClass>
-				<UnitClass>UNITCLASS_SUBMARINE</UnitClass>
 				<UnitClass>UNITCLASS_ATTACK_SUBMARINE</UnitClass>
 				<UnitClass>UNITCLASS_CARRIER</UnitClass>
 			</UnitsRequired>

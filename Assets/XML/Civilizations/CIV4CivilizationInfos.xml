@@ -4829,10 +4829,6 @@
 					<UnitType>NONE</UnitType>
 				</Unit>
 				<Unit>
-					<UnitClassType>UNITCLASS_SUBMARINE</UnitClassType>
-					<UnitType>NONE</UnitType>
-				</Unit>
-				<Unit>
 					<UnitClassType>UNITCLASS_ATTACK_SUBMARINE</UnitClassType>
 					<UnitType>NONE</UnitType>
 				</Unit>
