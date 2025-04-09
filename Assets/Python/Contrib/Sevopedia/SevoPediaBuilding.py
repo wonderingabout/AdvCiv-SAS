@@ -233,40 +233,30 @@ class SevoPediaBuilding:
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need
-		# the redundant background i mean anyways about this at least i mean
-		# anyways -->
+		# the redundant background
+		# -->
 		#screen.addPanel( panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE, self.W_HISTORY_PANE, self.H_HISTORY_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
 		screen.addPanel( panelName, "", "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE, self.W_HISTORY_PANE, self.H_HISTORY_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
 		textName = self.top.getNextWidgetName()
 		szText = u""
 		# <!-- custom: too much hassle/"nightmare" to maintain (which i agree
-		# with if i may say i mean anyways), + also often inacurate, especially
-		# if someone were to make a mod, changing settings again, or simply in
-		#  AdvCiv or/and existing other mods any balance or rework change about
-		# this i mean anyways, would be hindered/halted by this (not so helpful)
-		# Strategy point, so removing it entirely from the sevopedia.
-		# But no need (i think) to reimport all the assets just to remove base
-		# civ4/BTS descriptions, we can just ignore them, probably much easier
-		# unless we want to do additional modifications to the entry(ies) (if
-		# so we may want to import the specific assets concerned about this
-		# i mean anyways).
-		# Doing so is also much faster i mean anyways about this i mean anyways.
+		# with), + also often inaccurate, especially if someone were to make a
+		# mod, just ignoring them without importing the XML assets as well is
+		# much more efficient, more reliable, and perhaps clearer in the
+		# sevopedia too maybe.
 		# -->
 		# if len(gc.getBuildingInfo(self.iBuilding).getStrategy()) > 0:
 		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
 		#	szText += gc.getBuildingInfo(self.iBuilding).getStrategy()
 		#	szText += u"\n\n"
 		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need
-		# the redundant background i mean anyways about this at least i mean
-		# anyways -->
+		# the redundant background
+		# -->
 		#szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
 		szText += gc.getBuildingInfo(self.iBuilding).getCivilopedia()
-		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need
-		# the redundant background i mean anyways about this at least i mean
-		# anyways
-		# but here we also restore(? or add padding?) using a method that allows
-		# that (if i am not mistaken that the other method doesn't allow that?
-		# About this i mean anyways i mean anyways -->
+		# but here we also restore/add padding using a method that allows
+		# that (if i am not mistaken that the other method doesn't allow that)
+		# -->
 		#screen.addMultilineText( textName, szText, self.X_HISTORY_PANE + 15, self.Y_HISTORY_PANE + 40, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.addMultilineText( textName, szText, self.X_HISTORY_PANE + 7, self.Y_HISTORY_PANE + 10, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 

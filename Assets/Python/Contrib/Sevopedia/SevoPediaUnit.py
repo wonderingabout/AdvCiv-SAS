@@ -285,17 +285,16 @@ class SevoPediaUnit:
 		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
 		#	szText += gc.getUnitInfo(self.iUnit).getStrategy()
 		#	szText += u"\n\n"
-		# <!-- custom: i don't need the background: tag either, a box being there is
-		# explicit enough and clearer this way prettier more efficient i think
-		# i mean anyways at least i want about this at least maybe but i mean
-		# i mean anyways
+		# <!-- custom: i don't need the background: tag either, a box being there
+		# is explicit enough, clearer, prettier, and more efficient i think.
+		# -->
 		#szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
 		szText += gc.getUnitInfo(self.iUnit).getCivilopedia()
 		# <!-- custom: i don't need the "History:", is redundant with background
 		# that is already about the unit's background -->
 		# <!-- custom: fix height too low, does not display properly the concept texts
-		# (for example any religious missionary unit about this i mean anyways, as is
-		# or not i mean anyways as is or not i mean anyways, thanks,)
+		# (for example any religious missionary unit)
+		# -->
 		#screen.addMultilineText(textName, szText, self.X_HISTORY_PANE + 15, self.Y_HISTORY_PANE + 40, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.addMultilineText(textName, szText, self.X_HISTORY_PANE + 7 , self.Y_HISTORY_PANE + 10, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25 + 41, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 

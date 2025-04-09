@@ -142,8 +142,8 @@
 		 Recommended: 300% to make the AI more reluctant to DoW a more powerful
 		 civ; 100 for original behavior. -->
 	<!-- custom: trying to increase this, not sure if helpful or not or taken
-	into account, but tring it i mean anyways, we don't want to be baited
-	into a war we can't win !, was 300 -->
+	into account, but tring it, we don't want to be baited into a war we can't
+	win! Was 300 -->
     <Define>
         <DefineName>WAR_TRADEVAL_POWER_WEIGHT</DefineName>
         <iDefineIntVal>1000</iDefineIntVal>
@@ -159,12 +159,12 @@
 		 Changing the factor will increase or decrease foreign culture strength
 		 over the entire game; the exponent affects especially the late game. -->
 	<!-- custom: we don't want revolt chance to be too high, especially early
-	when i think it is currently the most mismatched,
-	what i mean is i find it too high me, but if the reasoning is strength increasing,
+	when i think it is currently the most mismatched.
+	I find it too high to/for me, but if the reasoning is strength increasing,
 	thus making it too high early, then it's not a problem, as strength
 	values are much tighter now. Between units, except until things like tanks
-	maybe, but citizens wouldn't object to a tank, i think, so should be fine
-	i mean anyways, also game would most likely be decided early and before that,
+	maybe, but citizens wouldn't object to a tank, i think, so should be fine,
+	also game would most likely be decided early and before that,
 	but if not, then it would be realistic this way too i think,
 	was 135 -->
 	<Define>
@@ -185,8 +185,8 @@
 		 state religion (no suppression if no state religion).
 		 Recommended: 33 (doubling is way too much I think) -->
 	<!-- custom: everything about religion i want to play a much bigger part,
-	increase it for my mod advciv sas or whatever name i choose i mean anyways,
-	thanks, was 33 -->
+	increase it for advciv-sas, was 33
+	-->
 	<Define> <!-- redefine -->
 		<DefineName>REVOLT_OFFENSE_STATE_RELIGION_MODIFIER</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
@@ -231,8 +231,7 @@
 		 move within your borders. Recommended: 0; 1 for original behavior. -->
 	<!-- custom: trying 1 as i think religion is more important now, maybe a bit
 	excessive but players may even want to target misssionaries which i may
-	rework too or maybe not not promised nor guaranteed i mean anyways,
-	i mean anyways, thanks, was 0 -->
+	rework too maybe, was 0 -->
 	<Define>
 		<DefineName>SHOW_FRIENDLY_MISSIONARY_MOVES</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -296,8 +295,8 @@
 	<!-- custom: i want to trying increasing this and see what happens,
 	first city planted is very important, may help the AI, possibly the
 	human player too, also since now (some) ressources are hidden until
-	required tech and such i mean anyways, it may be lucky to spawn just
-	at the right spot i mean anyways, was 100-->
+	required tech and such, it may be a pleasant find to notice at
+	ressource reveal we had spawned just at the right spot maybe, was 100 -->
 	<Define>
         <DefineName>SPI_TIME_LIMIT_PERCENT</DefineName>
         <iDefineIntVal>250</iDefineIntVal>
@@ -307,8 +306,7 @@
 		 higher default player counts in AdvCiv. -->
 	<!-- custom: trying increasing this slightly to have
 	AIs less crammed at each other or walled early possibly
-	i deally maybe i mean anyways about this, thanks,
-	was 10 -->
+	ideally, was 10 -->
 	<Define> <!-- redefine -->
 		<DefineName>STARTING_DISTANCE_PERCENT</DefineName>
 		<iDefineIntVal>13</iDefineIntVal>
@@ -321,8 +319,7 @@
 		 If the "Balanced" map option is set (not all maps have one), then
 		 normalization works as in BtS and this XML value is ignored. -->
 	<!-- custom: not changing this as it can remove ice and jungle it
-	seems see next point below and its explanation i mean anyways,
-	thanks -->
+	seems see next point below and its explanation -->
 	<Define>
         <DefineName>NORMALIZE_STARTPLOTS_AGGRESSIVELY</DefineName>
         <iDefineIntVal>0</iDefineIntVal>
@@ -350,8 +347,7 @@
 		 NSA is set). -->
 	<!-- custom: increasing this and seeing what happens, i want terrains
 	(and features) to be more important, also jungle may not necessarily
-	be a bit terrain in my mod, would need to check test more about this
-	i mean anyways, thanks,-->
+	be a bit terrain in AdvCiv-SAS, would need to check test more -->
     <Define>
         <DefineName>THRESH-BAD-FEAT-PER-CITY</DefineName>
         <iDefineIntVal>12</iDefineIntVal>
@@ -368,8 +364,8 @@
 	<!-- custom: i don't want terrain to be aggressively or even just
 	normalized like this, try to disable it and see, buff terrains
 	that are extra weak or give them some other boosts too maybe,
-	maybe this increases strategy or/and other or/and balance
-	or/and other etc i mean anyways, thanks, was 75-->
+	maybe this increases strategy or/and other related or similar
+	things, was 75-->
     <Define>
         <DefineName>REMOVAL_CHANCE_BAD_TERRAIN</DefineName>
         <iDefineIntVal>0</iDefineIntVal>
@@ -378,10 +374,8 @@
 	<!-- [advc.108]
 		 See REMOVAL_CHANCE_BAD_TERRAIN; same deal for Peaks.
 		 Recommended: 75; use 100 for BtS/ K-Mod behavior. -->
-	<!-- custom: same for peaks, also i want them to be useful
-	and have few ideas how but not promised and is about this
-	at least i mean anyways i mean, anyways, i mean anyways,
-	thanks, 0 -->
+	<!-- custom: same for peaks, also i want them to be useful,
+	was 75. -->
     <Define>
         <DefineName>REMOVAL_CHANCE_PEAK</DefineName>
         <iDefineIntVal>0</iDefineIntVal>
@@ -395,12 +389,9 @@
 		 metric see plotDistance in CvGameCoreUtils.cpp; 2 corresponds to the
 		 city cross. Set to 0 for BtS behavior - then, only the tiles
 		 visible by the initial units are revealed. -->
-	<!--custom: give a bit more sight, as terrain is so important,
-	give a chance for AIs and human players too (all players in
-	short about this i mean anyways actually i mean anyways) to choose
-	the one they value for their strategy, as for AIs simply more
-	chance to choose a better one maybe about this i mean anyways
-	at least, thanks, was 2-->
+	<!-- custom: give a bit more sight, as terrain is so important,
+	give a chance for all players (AI and human) to choose the one they
+	value for their strategy, was 2-->
 	<Define>
 		<DefineName>START_SIGHT_RANGE</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
@@ -416,15 +407,14 @@
          Recommended: 65; use 0 or less for BtS behavior.
 		 -->
 	<!-- custom: a voluntary vassal, especially a weak one (which should often
-	be the case else they would not vassalize), could be considered as absorbed
-	by the culture of the bigger empire and become its citizens, some tribes
-	being absorbed maybe for example in some animes or other things or maybe
-	history too but i mean anyways. Even if somehow they were not satisfied
-	and wanted to move away from the empire, they would be too weak to do so,
-	and at this point they may just as well die, there is no alternative
-	at least about this i mean anyways, meaning they would not be able to
-	survive even if they separate from the empire as sad as it is, but is
-	as is maybe good or not i mean anyways, thanks, was 65 -->
+	be the case else why they would have vassalized), could be considered as
+	having been absorbed by the culture of the bigger empire and become its
+	citizens, some tribes being absorbed maybe for example in some animes or
+	in other things or maybe history too. Even if somehow they were not
+	satisfied and wanted to move away from the empire, they would be too weak
+	to do so, and at this point they may just as well die, there is no
+	alternative, meaning they would not be able to survive even if they
+	separate from the empire as sad as it is, was 65 -->
     <Define>
         <DefineName>VASSAL_DENY_OWN_LOSSES_FACTOR</DefineName>
         <iDefineIntVal>0</iDefineIntVal>
@@ -463,8 +453,7 @@
 		 0 or less means unmodded resource placement.
 		 Recommended: 1 -->
 	<!-- custom: ressources being scarce is maybe what makes the game
-	strategic so leaving as is, i think, about this at least i mean
-	anywyas, thanks -->
+	strategic so leaving as is, i think -->
     <Define>
         <DefineName>SUBLINEAR_BONUS_QUANTITIES</DefineName>
         <iDefineIntVal>1</iDefineIntVal>
@@ -483,14 +472,11 @@
 	things, may also be more pleasant for the human player, may indirectly
 	help the AI too, also there is no strong reason to think a land
 	developped by a civ could not be reused by other civs even if city
-	is destroyed (not atomic bomb or something i mean but anyways about
-	this i mean anyways, thanks, ), or else maybe i mean anyways then
-	all terrains should be degraded about this i mean anywyas after
-	being used and destroyed. I don't find such design desirable nor
-	realistic, so i choose the more pleasant and effective and simple
-	and perhaps rationnal approach, hopefully allowing a more relaxing
-	gameplay too, about this i mean, anyways, i mean anyways, thanks,
-	was 0 -->
+	is destroyed (not atomic bomb or something though), or else then
+	all terrains should be degraded being used and destroyed then maybe.
+	I don't find such design desirable nor realistic, so i choose the
+	more pleasant and effective approach, hopefully allowing a more
+	relaxed gameplay in that regard, was 0 -->
     <Define>
         <DefineName>FLOODPLAIN_AFTER_RAZE</DefineName>
         <iDefineIntVal>1</iDefineIntVal>
@@ -504,9 +490,9 @@
 		 Recommended: a high value in order to disable celebrations;
 		 original value from GlobalDefines.xml: 8 -->
 	<!-- custom: i think it is a cool and immersive experience for the
-	human players, mad add bit more strategy to the game or intensity
-	or simply just immersion and relax, so renabling that, if i understand
-	it correctly and about that i mean anyways, thanks, was 100 -->
+	human players (at least was in civ3 for example when i played it),
+	may add a bit more strategy to the game or intensity or simply just
+	immersion and relax, so reenabling that, was 100 -->
 	<Define> <!-- redefine -->
 		<DefineName>WE_LOVE_THE_KING_POPULATION_MIN_POPULATION</DefineName>
 		<iDefineIntVal>5</iDefineIntVal>
@@ -574,8 +560,7 @@
 	it would not need to be changed maybe(?), but if it's about total strength
 	absolute of a unit, then all units are stronger and an ancient maceman
 	(warrior) maybe increase the sense of safeness a bit too much, leaving as
-	is,	maybe todo relook at this later or maybe not, about this i mean
-	anyways at least or not i mean but anyways i mean anyways, thanks, -->
+	is,	maybe todo relook at this later -->
 	<Define>
 		<DefineName>DEMAND_BETTER_PROTECTION</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -602,10 +587,7 @@
 		 Set to 0 for BtS behavior (no era transitions in replays).
 		 Recommended: 0, rather use SHOW_FIRST_TO_DISCOVER_IN_REPLAY. -->
 	<!-- custom: i want era to be more important, so i would want them
-	to be shown in replay, if i understand what replay is which is in
-	this case at least i mean anyways after game ends the city planting
-	turns etc i mean anyways shown on the map, about this at least i
-	mean anyways, thanks, was 0 -->
+	to be shown in replay, was 0 -->
 	<Define>
 		<DefineName>SHOW_ENTERED_ERA_IN_REPLAY</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -613,9 +595,9 @@
 	<!-- [advc.106]
 		 If set to 1 (recommended), the first discovery of each tech is recorded
 		 in replays. If set to 0, only Liberalism is recorded (BtS behavior). -->
-	<!-- custom: i want reply to show more useful/valuable data so why not,
+	<!-- custom: i want replay to show more useful/valuable data so why not,
 	also is maybe a good reminder/hint to me to add more first to discover
-	effects or/and tweak them i mean anyways, thanks,-->
+	effects or/and tweak them -->
 	<Define>
 		<DefineName>SHOW_FIRST_TO_DISCOVER_IN_REPLAY</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -645,8 +627,8 @@
 	May be a bit more realistic too this way, as religious conflicts do not
 	end (i think) even in modern times, hopefully more interesting and
 	enjoyable this way, 
-	todo to change this if era number increases (or decreases too maybe?)
-	about this at least i mean anywyas, thanks, was 4 -->
+	todo to change this if era number increases (or decreases too maybe?),
+	was 4 -->
 	<Define>
 		<DefineName>STOP_RELIGION_SPREAD_ANNOUNCE_ERA</DefineName>
 		<iDefineIntVal>6</iDefineIntVal>
@@ -715,23 +697,17 @@
 	     awkward incentive to stop short of elimination when
 		 capitulation isn't possible.) -->
 	<!-- custom: i found war influence on happiness to be a bit
-	too high in advciv, maybe this can be reduced a bit, i would
-	want to about this at least i mean anywyas, my other idea if
-	i may say is that maybe, or rather my first idea about this, i
-	mean, anyways, i mean anyways, is that citizens can maybe be
-	more rational about war and not as angry about it more
-	realistically, viewing it as an eventuality and simply trying
-	to survive or profit from it (for their advantage, not in evil
-	way or some may do but (i) focus on this and about i mean
-	anyways, but/or/also i mean anyways my other idea/consideration
-	is that maybe after some time citizens can "get over it", as
-	unkind it is to say, what i mean by that is that citizens may
-	see the war in a different light, especially some long time
-	after they are conquerred, and especially if the new ruler
-	provides good protection, perhaps even perk, but is about
-	this i mean, anywyas, at least, i mean anyways, (i) should
-	focus i mean anyways, maybe or not etc i mean anyways, as
-	is or not i mean anyways, thanks, , was 50) -->
+	too high in advciv, maybe this can be reduced a bit, my other
+	idea is that citizens can maybe be more rational about war and
+	not as angry about it more realistically, viewing it as an
+	eventuality and simply trying to survive or profit from it.
+	My other idea/consideration is that maybe after some time
+	citizens can "get over it", as unkind it is to say, what i
+	mean by that is that citizens may see the war in a different
+	light, especially some long time after they are conquerred,
+	and especially if the new ruler	provides good protection,
+	and perhaps even perks, maybe the game would be more realistic
+	this way, was 50) -->
 	<Define> <!-- redefine -->
 		<DefineName>AT_WAR_CULTURE_ANGER_MODIFIER</DefineName>
 		<iDefineIntVal>25</iDefineIntVal>
@@ -743,9 +719,7 @@
 		 I've slightly increased the value (to 425) to even out rounding errors.
 		 I've tried 50% (520), which is a nice even value and results in 100%
 		 culture anger at wartime, but that seemed a bit too punishing. -->
-	<!-- custom: leaving as is because religion is important, in my mod i
-	mean this mod advciv-sas if i stick with this name about this i mean
-	anyways, thanks, -->
+	<!-- custom: leaving as is because religion is important in advciv-sas -->
 	<Define> <!-- redefine -->
 		<DefineName>CULTURE_PERCENT_ANGER</DefineName>
 		<iDefineIntVal>425</iDefineIntVal>
@@ -834,19 +808,16 @@
 		 decreasing as the civs expand.
 		 Recommended: 54 -->
 	<!-- custom: i want to greatly reduce this. Players all start with a
-	few defenders, up to them to use them well, i want barbarians to be
+	few defenders now, up to them to use them well, i want barbarians to be
 	stronger and have a stronger influence early on, more realistic this
 	way too i think, and they would have more impact before they fade.
 	May even push the idea further with terrorists, or maybe pirates as
-	some players/mod do from the little i saw about this i mean anyways
-	or read about this i mean anyways
-	Increasing it a bit too much may be tedious, but it's the goal (not
-	to be tedious i mean anywyas, but to put higher emphasis on military
-	and realism, i may buff the other players or all if they struggle
-	against barbarians, but i would not want to nerf barbarians though,
-	testing this to see but may be good as is or slightly tweak it later
-	maybe, not sure though, is about this at least i mean anyways, thanks,
-	was 54) -->
+	some players/mod(s) do.
+	Increasing it a bit too much may be tedious, but the goal is to put
+	higher emphasis on military	and realism, i may buff the other players
+	or all if they struggle	against barbarians, but i would not want to
+	nerf barbarians though,	testing this to see but may be good as is or
+	slightly tweak it later	maybe, was 54 -->
     <Define>
         <DefineName>BARB_PEAK_PERCENT</DefineName>
         <iDefineIntVal>5</iDefineIntVal>

@@ -12,18 +12,15 @@ why i chose it over the great wall of China)
 - traits: protective, financial (or organized? or charismatic?)
 - special unit: Disciplined Crossbowman: see file for detail (desert, plains (is same as
 savanna?), jungle, forest bonus)
-- model: will try to 'steal" from some other mods even if not so cool of me to say if i may say
-but is as is maybe or not or yes i mean anywaysn else i could duplicate a crossbowman i ma
-anyways first starting to make the unit work if i may say i mean anyways
+- model: see [unit imports doc](/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt)
 - special building: impluvium (based on aquaduct),
 desert tiles +2 food + 4 commerce,
 plain tiles + 2 food and 1 commerce
 jungle tiles + 1 food + 1 hammer
 credit for the image: https://fr.pinterest.com/pin/412290540863776580/
 (- prefered terrain: jungle, savanna)
-- relationship with leaders: love hate with britain, good relationship with african leaders?, growth temperament i think but easy to defend/attack if threatened, contact with Jao's portugal traders i mean, good contact with dutch travelevers too
-- based on: Zara Yaqob seems to fit quite well from the little i know i mean anywyas, and i could
-tweak it from there if i may say i mean anyways
+- relationship with leaders: love hate with britain, good relationship with african leaders?, growth temperament i think but easy to defend/attack if threatened, contact with Jao's portugal traders, good contact with dutch travelevers too
+- based on: Zara Yaqob seems to fit quite well, and i could tweak it from there
 - music diplomacy: Iron Age 1 + 2 (cuts) African Voices [YtrouhSprzA]
 (but cut this file at 02:29)
 source: https://www.youtube.com/watch?v=YtrouhSprzA&list=RDQMsP4ztQIr7S4&start_radio=1
@@ -32,13 +29,13 @@ downloaded with yt-dlp
 full: https://www.google.com/imgres?q=Ogiso%20Igodo&imgurl=https%3A%2F%2Flookaside.instagram.com%2Fseo%2Fgoogle_widget%2Fcrawler%2F%3Fmedia_id%3D3285326410148945280&imgrefurl=https%3A%2F%2Fwww.instagram.com%2Fhistorylovers_001%2Fp%2FC2X0vjAIfAN%2F&docid=q7Q1Dp0uU2tR_M&tbnid=PY9QsZmqx6syPM&vet=12ahUKEwiM5tH-16uMAxVnUqQEHWzzPEsQM3oECGkQAA..i&w=673&h=673&hcb=2&ved=2ahUKEwiM5tH-16uMAxVnUqQEHWzzPEsQM3oECGkQAA#imgrc=PY9QsZmqx6syPM&imgdii=CJTvEIPbz2mqNM
 - map of the (old kingdom) kingdom provided: https://thinkafrica.net/walls-of-benin/
 - cities: 
-see the XML file (in file (or equivalent folder where you have installed AdvCiv i mean anyways in this case at least i mean anyways C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\Assets\XML\Civilizations\CIV4CivilizationInfos.xml, ctrl+f <Type>CIVILIZATION_KINGDOM_OF_BENIN</Type>), i have this map also but not accurate 
+see the XML file (in file (or equivalent folder where you have installed AdvCiv C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\Assets\XML\Civilizations\CIV4CivilizationInfos.xml, ctrl+f <Type>CIVILIZATION_KINGDOM_OF_BENIN</Type>), i have this map also but not accurate 
 - associated great wonder: The Ancient Walls of Benin (16,000 Kilometres (800AD-14th Century)),
 source: https://thinkafrica.net/walls-of-benin/
 -banner/flag: 
 source: https://en.wikipedia.org/wiki/Unidentified_flag_from_the_Kingdom_of_Benin
 
-- for (great) wonder sevopedia text, see sevopedia but do not forget to quote this i mean anywyas:
+- for (great) wonder sevopedia text, see sevopedia but do not forget to quote this:
 quote from same source (https://thinkafrica.net/walls-of-benin/)
 -
 The walls of Benin Kingdom compared to the Great Wall of China is arguably a much grander project and strongly reflects the collective will of a people. This is because unlike the walls of China, the Great walls of Benin were started with a clear intention and goal from the onset. The Edo people had an unwavering focus; generations after generations worked on steadily for over 500 years and were goal oriented until the project was completed. This was no mean feat.
@@ -56,7 +53,7 @@ end of quote
 
 
 (desert and wet forest would work very well i think), they have forest defense too very good
-i mean anyways for terrain balance
+for terrain balance
 
 - general characteristics: human sacrifices to the gods, state religion, Ogiuwu god
 worshipped at a special altar, hereditary monarchy, benin river, trying to attract

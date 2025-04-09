@@ -45,8 +45,8 @@ defend a city, an archer attack, and a scout/explorer threaten to capture a city
 maluses (i try to avoid that approach rather for immersion and i don't think
 it critically helps in having deeper strategy)). Some civ's units will be better
 in some terrains than others (the arabs good at desert, russians good at tundra,
-as an example). Due to these elements, and possibly others too, there will be a
-high focus on strategy when playing.
+as an example). Due to these elements, and possibly others too, there should be a
+much higher focus on strategy when playing.
 - A few new civs: The Kingdom Of Benin is for example the first civ i added/am adding.
 - More balanced leaders: Not more than 3 and in more places (times?)
 - A few new ressources
@@ -117,35 +117,32 @@ there too.)
 
 These rules changes entries may not be exhaustive or maybe would but hopefully will help,
 and i can gradually complete them as i see fit or learn, or based on feedback, not
-guaranteed though, but if need please refer to it, hope it helps you, or as for me doing
-what i want if i want, i mean.
+guaranteed though, but if need please refer to it if needed.
 
 # Credits
 - AdvCiv (the full name Advanced Civ does not yield much results about Civ 4 so i prefer the AdvCiv Name, maybe because of the space character, so i put a "-" instead in my/this mod): todo write, but mostly i am very thankful of AdvCiv, it's such a nice improvement from Civ4, and it's maintainer is very open to feedback at least in my
-exchanges/experiences during these times i mean anyways, thanks
+exchanges/experiences during these times
 - Cavemen2Cosmosn (also know as C2C): i took quite a lot of content from there, thanks
 - Realism Invictus (also know as RI): i took quite a bit content from there, thanks,
-- Fall from Heaven II (also know as FFH2): i took quite a bit of content from there, thanks too too, thanks,
+- Fall from Heaven II (also know as FFH2): i took quite a bit of content from there, thanks
+too too, thanks,
 - History Rewritten (also know as HR): i took quite a bit of content from there too, thanks,
 - Firaxis's Civ4 game and Civ4 BTS: Civ4 allows to do a lot of things with just XML,
-which surprised me a lot in a way that pleased me i mean anyways. So far i have not touched
-the deeper code such as C++ and Python, maybe i will not need at all but not sure, is as it
-would be. Also, even without modding, the base game is quite nice, thanks too i mean, thanks,
+which surprised me a lot in a way that pleased me. So far i have not touched the deeper code
+such as C++ and Python, maybe i will not need at all but not sure, is as it would be. Also,
+even without modding, the base game is quite nice, thanks too i mean, thanks,
 - RFC, last but .. least, RFC mod which i forgot or can't or don't want to remember the full
 name of, not my favourite mod, but they did teach me or rather give me the idea from looking
 at a thing they did, so even though i maybe could have found it myself, or maybe i could not,
 in all fairness and with that being said, it's a caveaty thanks from me whatever that means,
-your stuff still helped me, so thanks too, would be unfair not to say, at least i mean anyways,
-in this case, maybe, anyways i mean anyways, thanks too even though i don't want to admit
-in this case too i mean anyways, but thanks indeeed about this at least i mean anyways, thanks,
-and i do my things if or when i want or don't do as i want or do with all that being said i mean
-anyways now, as is, maybe or not, or as is, but anyways, thanks,
+your stuff still helped me, so thanks too, would be unfair not to say, thanks too even though
+i am not too keen on admitting it, but thanks
 
 todo add quote
 
 # A few useful links
 - todo: tutorial on how to compile the DLL and/or files for Advciv (but should not
-be needed if you only modify XML files if i am not mistaken i mean anyways)
+be needed if you only modify XML files if i am not mistaken)
 - ressources that mention XML files and tags, useful if you'd want to [get started
 doing your own mod](https://github.com/wonderingabout/kujira), or alternatively/to
 complement for example [modiki's website too](https://modiki.civfanatics.com/index.php/Civ4TraitInfos)
@@ -154,16 +151,17 @@ maybe (even though i mostly use kujira's website, maybe this one helps too).
 # Some Useful tools while doing this
 - VS Code
 - Windows 10 (Windows 11 was so laggy and broke after update, now going back to Windows 10
-that i bombarded with updates and installs still works amazing so i recommend it, about this i mean anyways at least)
-- Microsoft Paint (i very much love this image editor i mean anyways)
-- Notepad++ (very reliable and multi tab in this case i mean anyways i mean anyways)
+that i bombarded with updates and installs still works amazing so i recommend it)
+- Microsoft Paint (i very much love this image editor)
+- Notepad++ (very reliable and multi tab)
 - Git Bash for Windows
 - Q-Dir
 - WizTree (very useful (and reliable and effective) to find the files i want when i want)
+- VS Code (especially for the global search feature, very useful, (except partly) when it does not desynchronize folders before git commits)
 - Visual C++ 2010 Express (is free, just requires after trial a free registration if i am not mistaken todo): works great to compile the DLL i want/require it after some mod changes
 - Google Chrome (i used) for the Page translate of kujira's website in particular (Firefox has
-it too though unless i'm mistaken i mean anyways)
-- Google's scientific calculator (https://www.google.com/search?q=calculator) (for the x^y function in particular i mean anyways)
-- Quillbot (web translator using AI, i used the free version), example of translation linked too in this case i mean anyways at least i mean anyways: https://quillbot.com/fr/traduction?sl=auto&tl=fr&text=the+people+of+Benin (did not use this example in my mod as i put almost everything i added or modified in English only for (my) convenience and ease of modding even though not ideal hopefully fine (should not use that place/line to say that ideally too but hopefully maybe fine too..)) and alternatively dictionaries if i want more technical translations or wiki pages or some other places/pages or not maybe
+it too though unless i'm mistaken)
+- Google's scientific calculator (https://www.google.com/search?q=calculator) (for the x^y function in particular)
+- Quillbot (web translator using AI, i used the free version), example of translation linked too: https://quillbot.com/fr/traduction?sl=auto&tl=fr&text=the+people+of+Benin (did not use this example in AdvCiv-SAS as i put almost everything i added or modified in English only for (my) convenience and ease of modding even though not ideal hopefully fine (should not use that place/line to say that ideally too but hopefully maybe fine too..))
 
 todo add links

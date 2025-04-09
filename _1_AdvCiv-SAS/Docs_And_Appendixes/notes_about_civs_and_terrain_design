@@ -1,83 +1,81 @@
-Additional info if not covered by the other notes docs i mean anyways:
+Additional info if not covered by the other notes docs:
 
 This list may help: https://civilization.fandom.com/wiki/Civilizations_(Civ4)
 Overall i want to reiterate that i want a simple and efficient design, not too
 many techs especially not too late in the game where i think it's too bloated,
 hopefully removing some would improve immersion, AI performance, player
-enjoyment, and strategy to be deeper yet simple which i would enjoy in this
-case i mean anyways?
+enjoyment, and strategy to be deeper yet simple which i would enjoy hopefully
+and perhaps other players too maybe
 
 - i intend to buff the snow terrain quite strongly, for that i would want
 to add a few new civs.
 - about snow, i have the idea to add christmas, that would give bonuses in snow
-lands maybe i mean anyways.
-- i would also want the civs to be more spread i mean as i may say in other
-place(s) of this document or not i mean anyways
+lands maybe.
+- i would also want the civs to be more spread
 
 - trying to make them anime looking for immersion, is ok if it's not the exact
-correct leader too (or maybe i could use AI but i don't know i mean anyways, may
-be more fun with characters from anime?), i think a real picture like in some
-other mods liek realism invictus, not to criticize negatively i mean anyways, would
-not fit me well, not enjoyable or immersive, so going with the 
+correct leader too (or maybe i could use AI but i don't know, may be more fun
+with characters from anime?), i think a real picture like in some other mods
+like realism invictus, not to criticize negatively, would not fit me well, not
+enjoyable or immersive, so going with the picture idea maybe rather here
 
-The ideas (of civs to add i mean anyways) i have or am considering so far are:
-note: this world map (appended in this git) also helps get ideas maybe i mean anyways:
+The ideas (of civs to add) i have or am considering so far are:
+note: this world map (appended in this git) also helps get ideas maybe:
 https://www.mapsofworld.com/
 (note: about traits, i may rework traits later so this is experimental rather not
-certain in this case i mean anyways)
+certain)
 
 0.1) new civ see specific text file in new content folders:
 
 1) Kingdom of Benin (Nigeria)
-2) Xiongnu Empire: https://en.wikipedia.org/wiki/List_of_ancient_great_powers#Xiongnu and https://en.wikipedia.org/wiki/Xiongnu , snow terrain, unused part of world, long history, rivalry with china, great wall of china built because of them, etc, very useful and connected to main things + desert not farm from them so maybe snow+desert civ etc , also https://www.nouvelobs.com/sciences/20230425.OBS72611/les-xiongnu-un-empire-multiethnique-en-mongolie-antique-ou-les-femmes-jouaient-un-role-crucial.html, give them them a horse lancer i think, see docs for details of units chosen etc
+2) Xiongnu Empire: https://en.wikipedia.org/wiki/List_of_ancient_great_powers#Xiongnu and https://en.wikipedia.org/wiki/Xiongnu , snow terrain, unused part of world, long history, rivalry with china, great wall of china built because of them, very useful and connected to main things + desert not farm from them so maybe snow+desert civ etc , also https://www.nouvelobs.com/sciences/20230425.OBS72611/les-xiongnu-un-empire-multiethnique-en-mongolie-antique-ou-les-femmes-jouaient-un-role-crucial.html, give them them a horse lancer i think, see docs for details of units chosen etc
 3) Sarmatian Empire: many women give them flurry from FFH2, plus geographical location ideal spot still not used, for example https://www.reddit.com/r/history/comments/aordvx/comment/eg3u3l1/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button and https://en.wikipedia.org/wiki/Sarmatians
 3.5) iroquois
-3.6) inuits see my notes about this etc.
-4) Dahomey tribes (Benin but not Kingdom), interesting for rivalry or clear confusion or associated with kiongdom of benin by name even though unrelated unless i'm mistaken, give them the flurry from FFH2? But not right as in accurate skin color, indeed african people were black colored but flurry is white todo find better as in more suited unit or something else or other civ but maybe solution about this at least i mean anyways etc
+3.6) inuits see my notes
+4) Dahomey tribes (Benin but not Kingdom), interesting for rivalry or clear confusion or associated with kiongdom of benin by name even though unrelated unless i'm mistaken, give them the flurry from FFH2? But not right as in accurate skin color, african people were black colored but flurry is white todo find better as in more suited unit or something else or other civ
 2) Canada:
-5) Nootka Civilization (west coast canada)? https://www.google.com/search?q=Nootka&rlz=1C1GCEA_enFR1111FR1111&sourceid=chrome&ie=UTF-8 as asdvised to me i mean guess intutition i mean anyways from nootka clubman of age of empires game etc
-6) Mapuche for mapuche ironwood clubman? https://en.wikipedia.org/wiki/Mapuche# also from a war gam einspired i mean anyways etc
+5) Nootka Civilization (west coast canada)? https://www.google.com/search?q=Nootka&rlz=1C1GCEA_enFR1111FR1111&sourceid=chrome&ie=UTF-8 as mentionned for example for the nootka clubman of age of empires game etc
+6) Mapuche for mapuche ironwood clubman? https://en.wikipedia.org/wiki/Mapuche# also from a war game inspired
 3) Iceland: 
 4) Alaska?: https://en.wikipedia.org/wiki/History_of_Alaska
 5) Greenland
 6) Tundra Asia
-7) Central Asia: some civ uses camels, there is also tundra not far so even beter i mean anyways
-(maybe some building related to snow i mean anyways)?
+7) Central Asia: some civ uses camels, there is also tundra not far so even better
+(maybe some building related to snow )?
 14) add some autonomous countries of russia? Chukotka or others? Etc
 8) Australia? But i want snow first if possible more interesting as more widespread though
-i mean anyways
 9) one desertic civ that could use camel or other special desert boosts (but there are many
 desertic ones already)
 10) 1-2 jungle civs, in south america or somewhere? Could help boosting this terrain and not
-grassland i mean anyways: Brazil?
-11) 1-3 civs in africa it's so unbalanced i mean: https://www.google.com/search?q=most+influential+african+ancient+civilizations&oq=most+influential+african+ancient+civilizations&gs_lcrp=EgZjaHJvbWUyBggAEEUYOdIBCTExMjE1ajBqMagCALACAA&sourceid=chrome&ie=UTF-8
+grassland: Brazil?
+11) 1-3 civs in africa it's so unbalanced: https://www.google.com/search?q=most+influential+african+ancient+civilizations&oq=most+influential+african+ancient+civilizations&gs_lcrp=EgZjaHJvbWUyBggAEEUYOdIBCTExMjE1ajBqMagCALACAA&sourceid=chrome&ie=UTF-8
 12) Indonesia?
 13) Congo?
-+ look at history rewritten's civs or/and other mods, but also want to do myself first about this etc
++ look at history rewritten's civs or/and other mods, but also want to do myself first
 
 Also, some civs have 3 leaders, while others have only 1, it's blatantly assymetrical enough
-when looking at the map i sent (which makes me quite angry liek half+ of the world does not
-exist i mean anywyas, but maybe i can fix or more modestly rather maybe improve that if not
-too arrgoant of me to say if i may say i mean anyways)
+when looking at the map i sent (which makes me quite angry like half+ of the world does not
+exist, but maybe i can fix/adjust it too my taste/preference/opinion/feel if not too
+arrogant of me to say, anyways
 
 I am considering or thinking about removing these leaders (especially those with 3 leaders
-which i think is too much considering others have only 1 i mean anyways).
+which i think is too much considering others have only 1).
 Especially annoying also because it would mean always playing against same civs everytime
-statistically, i want some variety, not excess of people though, just variety regardelss,
-with low number in this case i mean anyways.
+statistically, i want some variety, not excess of people though, just variety regardless,
+with low number.
 
 1) England: one of the 3 leaders, i chose
 2) France: one of the 3 leaders, i chose
 3) unfinished
 
 I want to change these civilizations:
-1) Arabia: special unit is now the assassin (see below or ctrl+f if i may say i mean anyways)
+1) Arabia: special unit is now the assassin (see below or ctrl+f)
 2)
 
 
 - i want to buff snow by giving a new ressource
 
-Some desert ideas first i mean anyways:
+Some desert ideas first:
 - animals: https://www.earthreminder.com/animals-that-live-in-the-desert/
 - plants: todo add
 , but first idea to not forget: cotton and cotton plants, may help a lot eastern civs and/or
@@ -90,21 +88,20 @@ For now i'm considering to add these ressources, would not want to clutter the m
 2) Camel i think: https://en.wikipedia.org/wiki/Camel#History
 2.5) onion
 3) scorpios: in particular for their venom, maybe an assasination tech too to make arabs op
-or some other civs (Poison tech or thing related i mean)? Historically they were very strong
+or some other civs (Poison tech or thing related)? Historically they were very strong
 or relevant, i don't know much, but would increase immersion a lot too
 Could be linked with espionnage maybe too? What if i changed the arab special unit to assassin
-modified to be stronger in one way or another i mean anyways, and give camel archer to some other
-civ?
+modified to be stronger in one way or another, and give camel archer to some other civ?
 See: https://en.wikipedia.org/wiki/Scorpion#Relationship_with_humans
 13) snake: https://en.wikipedia.org/wiki/Snake#Interactions_with_humans seems to have many
 uses on top of poison, could use this most likely
 14) caterpillar moth? For silk? What about cotton or other? Etc
 6) explorer dog/wolf? (in particular may help snow players, even in war maybe?)
-4) spiders? actually probably not, not strong enough or specific enough nor versatile enough
-i mean anyways, based on: https://en.wikipedia.org/wiki/Spider#Human_interaction
+4) spiders? actually probably not, not strong enough or specific enough nor versatile enough,
+based on: https://en.wikipedia.org/wiki/Spider#Human_interaction
 5) snake? emblematic enough, can it be useful though except for venom?
 
-7) giraffe?/antelope? (would buff plains too i mean anyways)
+7) giraffe?/antelope? (would buff plains too)
 9) salt? would help hills terrain maybe? But is quite strong already?
 10) chicken?
 11) birds?
@@ -113,51 +110,51 @@ i mean anyways, based on: https://en.wikipedia.org/wiki/Spider#Human_interaction
 
 - camels are great in particular for plains and desert and similar,
 may even buff such terrains as they are food ressource (could make it give it gold too
-with guilds tech for example maybe i mean anyways or some other tech related to trading
-maybe i mean anyways). Would make also more historical sense of why camel archers don't
-require horse to be built, they would be the counter equivalent of horses in grassland
-which are a bit too op (gives hammer and all mounted units), maybe add one more ressource?
+with guilds tech for example maybe or some other tech related to trading maybe).
+Would make also more historical sense of why camel archers don't require horse to be
+built, they would be the counter equivalent of horses in grassland which are a bit too
+op (gives hammer and all mounted units), maybe add one more ressource?
 Llama? Or something else?
-- as they (camels) store water in their body if i'm not mistaken i mean anyways,
-i'm thinking of making them very strong i mean anyways
+- as they (camels) store water in their body if i'm not mistaken, i'm thinking of making
+them very strong
 - (revealed with animal husbandry? But understood as meat earlier
-i think so maybe not needed, it would buff desert terrain too to do so i mean anyways)
+i think so maybe not needed, it would buff desert terrain too to do so)
 - one thing i have against scorpios is they are a bit too widespread? So maybe a building
 related thing rather for poison? It would at least make a stronger incentive,
 something like barracks give this or that promotion maybe or something, also useful for
 medicine? They are also a strong and quite symbolic part of the world even in the western
-world if i may say i mean anyways, and not as dynamic as an eagle so it would make more
-sense to make them as a ressource rather than a living animal i mean anyways. Also if you're
-so hungry in the desert, you could eat anything, i am sure they must be very rich in food,
-if you manage to capture them and don't die i mean anyways
+world, and not as dynamic as an eagle so it would make more
+sense to make them as a ressource rather than a living animal. Also if you're so hungry
+in the desert, you could eat anything, i am sure they must be very rich in food, if you
+manage to capture them and don't die
 +1 happy face as they can be pets too? The scorpio is overall very nice too because
 it can give me a stronger reason to add a few other subrepresented civs, especially in
-Africa and Antarctica type of lands i mean anyways. Simple design though so not too many
-civs, to give some variety but not drown in too much civs i mean anyways, ideally i can
-give each a specific identity personality yield or others, may base on an existing one
-and tweak it maybe or do it full custom but less likely i mean anyways.
-- the camel synergizes so wel
+Africa and Antarctica type of lands. Simple design though so not too many civs, to give
+some variety but not drown in too much civs, ideally i can give each a specific identity
+personality yield or others, may base on an existing one and tweak it maybe or do it full
+custom but less likely.
+- the camel synergizes so well (? forgot to finish sentence it seems maybe, maybe fine,
+anyways)
 
 unrelated note: i want to make all players be able to control animals.
 I don't know how feasable or if it would require other things than XML, but would be lot
 of fun, with insisting on simple design, not too cluttered ressources or animals.
 
 - could use birds as pigeon voyeur or ancestor of airship? But is bit far-fetched as
-they can't speak to humans nor have cameras on them in ancient times i mean anyways?
+they can't speak to humans nor have cameras on them in ancient times?
 - i want to add chicken or am considering it, but i would want one food ressource for desert
-too which is my second big goal i mean anyways in this case
+too which is my second big goal
 - i would need to think of what to do/how i can reuse the winery improvement (maybe
 i could make a winery building in city rather to be more accurate, else may just remove
-it as it's not core i think will see i mean anyways)
+it as it's not core i think will see)
 - i also want to buff desert. Will probably remove wine as it's historically inaccurate
 as wine is not brewed only from grapes (also they did not even call it grapes but wine
-as if it was on trees i mean anyways, so even more reason to change it.
+as if it was on trees, so even more reason to change it.
 I would not want to have too much units or content, ifi would not a lot more, so far there
 are things that can be removed/changed maybe instead)
-- i thought of spiders but not so good now i think i mean anyways, see above in bullet
-point why i mean anyways. As a counter to the scorpio maybe? Or would that clutter too much? Sorry for
-sensitive about this animal players i mean anyways, i am trying to make add meaningful
-content if i may say i mean anyways. Maybe the snake then?
+- i thought of spiders but not so good now i think, see above in bullet point why. As a
+counter to the scorpio maybe? Or would that clutter too much? Sorry for sensitive about
+this animal players, i am trying to make add meaningful content. Maybe the snake then?
 
 I am considering or thinking about removing these ressources currently:
 
@@ -169,26 +166,24 @@ I want to add these plant ressources:
 2) Coffee
 3) Tea
 8) flowers (for garden improvement (see below)?)
-9) assassins: the plant/drugs(?) they use? Would need more research, etc
-10) cocaine? (but i am not responsible for players is just a game i mean anyways,
+9) assassins: the plant/drugs(?) they use? Would need more research
+10) cocaine? (but i am not responsible for players is just a game,
 if they enjoy all good, else i am not respinsible
-11) papaver, discovered by medicine (much earlier than it is in civ4/base advciv
-i mean anyways)?
+11) papaver, discovered by medicine (much earlier than it is in civ4/base advciv)?
 
 I am considering changing these improvements:
 1) Igloo: will grow like a cottage but give hammer instead, only on snow (ice?)
 1.5) I also want something similar for desert (and maybe plains too?) -> Cave (spending time
 in cave helps), Link it with meditation tech, few people or leaders went to desert to find
-themselves or some other purpose after all maybe in this case at least about this at least
-i mean anyways maybe i mean anyways, see https://fr.wikipedia.org/wiki/Travers%C3%A9e_du_d%C3%A9sert
-is in french but maybe you can find equivalent i mean anyways i mean anyways
-2) Well->(can be built near oasis? What would be tech requirment would need to look later,
-if/when i want or ot to do, is in this case is also what i want to say i mean anyways
+themselves or some other purpose after all maybe, see
+https://fr.wikipedia.org/wiki/Travers%C3%A9e_du_d%C3%A9sert
+is in french but maybe you can find equivalent
+2) Well: can be built near oasis? What would be tech requirment would need to look later
 For water in desert and plains which conditions? rework the well so that it can be used much
 earlier in the game in more tiles, maybe it can buff desert or plains in some conditions in
 particular?
 7) I want something similar to the well in snow: sauna? Are said to be healthy in particular
-at cold temperatures (but i don't know i mean anyways not responsible), may buff desert too,
+at cold temperatures (but i don't know not responsible anyways), may buff desert too,
 reuse the hammam for that? Rework the hammam? Rename it sauna?
 Or add a sauna? But is inefficient i think (or hammam replaces sauna? A bit far fetched but may
 work maybe?)
@@ -198,17 +193,16 @@ for cotton plant or something?
 5) Plantation->Coffee+/-Tea (may boost american civs? (other than the US?), link it with some
 medieval renaissance trade tech like triangulary commerce or something? That would give slavery
 even more bonuses? Not cool maybe but i want my game to be realistic and enjoyable (no maluses,
-only lost opportunities if not taken in the game i mean anyways in this case i mean anyways))
+only lost opportunities if not taken in the game))
 6) Garden/Plantation->Papapver (makes opium?)
-7) Preserve forest: i want to be able to use it much sooner in history in the game i mean
-anyways
+7) Preserve forest: i want to be able to use it much sooner in history in the game
 
 - with more textile based things, i could throw in a tech too about clothing or something
-maybe i mean anyways, with culture or military effects i mean anyways?
+maybe, with culture or military effects? (but may be infeffective or too cluttered or
+not historically accurate with existing tree, will see)
 - i want snow terrain to reduce health (cold kills bacteria) -0.5 health per snow tile,
 would make tundra cities viable maybe with high coast commerce (that i want to buff too,
-currently the water tiles are way too weak and (sadly) in this case i mean anyways ignored
-in this case i mean anyways)
+currently the water tiles are way too weak and (sadly) most often ignored)
 - i need a drugs tech, use the grocer for this?
 
 I want to buff these ressources:
@@ -217,7 +211,7 @@ I want to buff these ressources:
 I want to modify these terrains:
 1) Snow/Ice: give bonus with christmas tech or build or ressource or civ
 
-- buff forest taiga (which is tundra forest if i'm not mistaken i mean anyways) ?
+- buff forest taiga (which is tundra forest)?
 
 - if keep de gaulle give him desert bonus? (because of
 https://fr.wikipedia.org/wiki/Travers%C3%A9e_du_d%C3%A9sert and to buff desert?)

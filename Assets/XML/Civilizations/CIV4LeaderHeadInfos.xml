@@ -12162,15 +12162,13 @@
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
 		<!-- custom: basing Ogiso Igodo on Zara Yaqob and tweaking from there, seems the
-		profile that fits the best or quite best in this case at least i mean anyways
-		(growth type and financial, fairly peaceful, but also good at defense and a bit
-		military if need (mostly defense if i understood it correctly about this at least
-		in this case i mean also i mean anyways))
-		Will tweak later most things about this i mean at least i mean anyways, first
-		comitting and/or testing to see if it works
-		Will also change Zara Yaqob's assets later if there are i mean anyways (and
-		there are here at least i mean about this maybe in this case i mean anyways),
-		first testing about this i mean anyways, thanks, -->
+		profile that fits the best or quite best (growth type and financial, fairly
+		peaceful, but also good at defense and a bit military if need (mostly defense
+		if i understood it correctly or read enough)
+		Will tweak later most things, first comitting and/or testing to see
+		if it works
+		Will also change Zara Yaqob's assets later,	first testing to see if it works
+		-->
 		<LeaderHeadInfo>
 			<Type>LEADER_OGISO_IGODO</Type>
 			<Description>TXT_KEY_LEADER_OGISO_IGODO</Description>

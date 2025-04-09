@@ -12,14 +12,14 @@ eras:
 _______________________________________________________________________
 __
 base units removed:
-pikeman (not useful about this i mean anyways, thanks)
-chariot sword (not accurate, should be lance or archer, not sword if i'm not mistaken i mean anyways, thanks,)
-swordsman (not as pretty or accurate than the bronze era equivalent i chose about this i mean anyways, thanks)
-catapult (not accurate enough or pretty enough i mean clear enough too to distinguish medieval and early catapult)
-cavalry (same reason as rifleman, see below, thanks,)
-rifleman (not immersive enough / art not good enough about this etc, in comparison to realism invictus's model in particular etc)
+pikeman (not useful)
+chariot sword (not accurate, should be lance or archer, not sword if i'm not mistaken )
+swordsman (not as pretty or accurate than the bronze era equivalent i chose)
+catapult (not accurate enough or pretty enough or clear enough too to distinguish medieval and early catapult)
+cavalry (same reason as rifleman, see below)
+rifleman (not immersive enough / art not good enough, in comparison to realism invictus's model in particular)
 grenadier (same)
-infantry (too generic and i have many more specialized gun units about this i mean anyways etc i mean anyways, thanks,)
+infantry (too generic and i have many more specialized gun units ,)
 air bomber (put B52 instead)
 stealth bomber (simplifying the end game, removing stealth air units)
 fighter (put fokker dr.1 instead)
@@ -27,12 +27,12 @@ bomber (same as infantry)
 caravel (too close to the galleon, also not very sensical that it can somehow enter borders without accord)
 ship of the line (too close to the frigate for too little extra benefit, redundant)
 galley (not distinct (from other units) or accurate enough design)
-trireme (same (reason as for the (etc i mean anyways, thanks, )) as galley)
+trireme (same reason as for the galley)
 privateer (same)
 ironclad (same)
 transport (same)
 attack submarine (same)
-nuclear submarine (same, also not accurate see docs for details, thanks, )
+nuclear submarine (same, also not accurate see docs for details)
 battleship (simplify gameplay)
 missile cruiser (same)
 stealth destroyer (same)
@@ -41,28 +41,27 @@ carrier (same as infantry)
 
 special units removed:
 those that replaced, if the previous unit that was replaced is not
-used for something else (another unit etc i mean anwyays about this
-etc i mean anyways, thanks, )
+used for something else
 
 
 
 maybe add:
-boat anti air unit (same as in empire eath nostlagy but was maybe cool mechanic too anyways etc i mean anyways, thanks, )
-add again missile cruiser? Is about this etc i mean anyways, thanks,
+boat anti air unit (same as in empire earth 1 nostalgy but was maybe cool mechanic too anyways)
+add again missile cruiser?
 
 _________________________________________________________________________
 civilization units
 
-kingdom of benin: ? _ disciplined crossbow ?
-incan empire: - _ Ruminawi (https://en.wikipedia.org/wiki/Rumi%C3%B1awi_(Inca_warrior)) 
+kingdom of benin: ? _ disciplined crossbow
+incan empire: - _ Ruminawi? (https://en.wikipedia.org/wiki/Rumi%C3%B1awi_(Inca_warrior)) 
 persia: immortal (foot) (unique) history rewritten
-samratihoran: flurry ffh2
+samratian: flurry ffh2
 xiongnu: horseman (han) realism invictus rename to another unit name, maybe "Xiongnu horseman"?
-mongol: rename unit to keshig + give them the keshig (unique) history rewritten. Plus i checked on wiki quick, their unit art design seems more accurate too (and more epic etc), for info: https://en.wikipedia.org/wiki/Kheshig
+mongol: rename unit to keshig + give them the keshig (unique) history rewritten. Plus i checked on wiki quick, their unit art design seems more accurate too (and more epic), for info: https://en.wikipedia.org/wiki/Kheshig
 england: longbow welsh realism invictus?
 greece: hoplite hero history rewritten but rename to hoplite phalanx, put it in lance heavy class, mid iron age not bronze
 age, plus check if copper requirement or if copper +/- iron (i.e. if copepr is absolutely necessary or if iron is good enough
-too i mean anyways about this etc i mean anyways, thanks, )
+too)
 france: chevalier (unique) history rewritten
 egypt: rename war chariot to wereryet like history rewritten did?
 vikings: berserk (unique) history rewritten
@@ -73,7 +72,7 @@ dutch: worker (dutch) realism invictus or/and great farmer c2c for later era
 arabs: ? _ hashishin
 sumeria: etlu history rewritten?
 carthage?
-khmer: ballista elephant history rewritten (based on a google image quick search looks the same / more like the one of history rewritten) for graphical change, same unit otherwise or maybe rebalance will see etc
+khmer: ballista elephant history rewritten (based on a google image quick search looks the same / more like the one of history rewritten) for graphical change, same unit otherwise or maybe rebalance will see
 celts?
 spain?
 korea?
@@ -87,8 +86,8 @@ religious units :
 
 early religion military
 paganism:donal lugh (hero) _ mythical swordsman (medium) ffh2
-hinduism: stephanos (hero) _ god horse lance ffh2 (as they worship or value animals greatly maybe etc)
-judaism: maybe a worker, after all they were an oppressed people in history if i'm not mistaken. Idea of effect: reduced worker price, since is lower now, may reduce it to 10 hammer only maybe for example, etc.
+hinduism: stephanos (hero) _ god horse lance ffh2 (as they worship or value animals greatly maybe)
+judaism: maybe a worker, after all they were an oppressed people in history if i'm not mistaken. Idea of effect: reduced worker price, since is lower now, may reduce it to 10 hammer only maybe for example
 buddhism: shaolin monk realism invictus (class is lancer light)
 daoism: monk _ daoist monk c2c (maybe change remove health icon if i want to make it a fighter like the buddhist monk) (class is lancer light)
 christianism: crusader _ crusader knight realism invictus
@@ -101,15 +100,15 @@ neo religion military
 paganism: gibbon goetia (hero) _ heretic ffh2
 hinduism: cassay (hero) - hindu cavalry history rewritten
 judaism: semi-modern infantry (tsahal) _ zionist colon/infantry 
-buddhism: monk _  free monk ffh2 (find some effect or maybe another type of unit see buddhism's history etc)
-daoism: nightwatch _ ninja ffh2 (halve spying costs? Is it possible with current/existing XML options, else find other effect maybe? Etc)
+buddhism: monk _  free monk ffh2 (find some effect or maybe another type of unit see buddhism's history)
+daoism: nightwatch _ ninja ffh2 (halve spying costs? Is it possible with current/existing XML options, else find other effect maybe?)
 christianism: semi modern infantry (usa) _ special ops realism invictus (note that it fits fbi and such but also kgb and such, both christian in historical culture, so may fit well)
-islam: anti tank infantry _ "allahu akbar" (jihadist), give it city attack and collateral damage, but weak(er) stats otherwise, maybe some evade too, not politically correct but historically accurate maybe, a bit funny too even though not for all but is arrogant to say delete later i wanted to do this about this though i mean at least focus i really meant about this at least when i wrote this delete later etc
+islam: anti tank infantry _ "allahu akbar" (jihadist), give it city attack and collateral damage, but weak(er) stats otherwise, maybe some evade too, not politically correct but historically accurate maybe, a bit funny too see disclaimer at root of project for note on that
 
 
 
 
-religious missionairess (keep as is? but history rewritten or/and other have nice ones, etc)
+religious missionairess (keep as is? but history rewritten or/and other have nice ones)
 paganism:
 hinduism:
 judaism:
@@ -140,7 +139,7 @@ lion -
 bear -
 polar bear history rewritten?
 panther
-tiger: tiger ffh2 or history rewritten maybe more stable or maybe not? Etc
+tiger: tiger ffh2 or history rewritten maybe more stable or maybe not?
 wolf -
 hawk ffh2
 hyena history rewritten?
@@ -160,14 +159,13 @@ horse sword 4: magnadine hero ffh2
 horse lancer: bandit rider c2c
 crossbow all: bellybowman ffh2
 archer all:
-gun units for barbarians? Terrorists? Etc i mean anyways, thanks, etc, i mean anyways, thanks,
+gun units for barbarians? Terrorists?
 
 
 
 workers (auto-upgrades, graphics update only) (now that it auto upgrades, i want to add graphics to it):
-find many workers in realism invictus for example (or c2c (but c2c's workers may have a different name or not etc) or/and other etc)
-(if need realism invictus has also many many worker models if need for multiple eras or/and other civs about this etc i mean
-anyways, etc i mean anyways i mean anyways, thanks, )
+find many workers in realism invictus for example (or c2c (but c2c's workers may have a different name or not) or/and other)
+(if need realism invictus has also many many worker models if need for multiple eras or/and other civs)
 worker 1:
 worker 2: -
 worker 3: -
@@ -192,7 +190,7 @@ work boat 5:
 -
 
 
-settlers (now that auto-upgrades i may want to add more unit designs, but not much functional benefit so todo maybe at few eras but much later in mod developement of AdvCiv-SAS about this i mean anyways, thanks)
+settlers (now that auto-upgrades i may want to add more unit designs, but not much functional benefit so todo maybe at few eras but much later in mod developement of AdvCiv-SAS)
 settler 1: -
 -
 settler 3: immigrant c2c
@@ -209,7 +207,7 @@ explore 3: scout c2c
 -
 explore 5: -
 -
-explore 7: maybe add one here too for consistency and realism (one every 2 eras, and explorer in atomic war a bit weird, maybe could have some more bonuses too for this explore unit 7 i mean anyways, thanks,)
+explore 7: maybe add one here too for consistency and realism (one every 2 eras, and explorer in atomic war a bit weird, maybe could have some more bonuses too for this explore unit 7)
 -
 explore 9: scout droid c2c
 
@@ -253,7 +251,7 @@ lance medium units
 lance medium 1:
 lance medium 2: -
 lance medium 3: spearman c2c
-lance medium 4: spearman duguth realism invictus todo change icon/thumbnail/picture i mean anyways about this i mean anyways thanks (source: https://www.google.com/url?sa=i&url=https%3A%2F%2Fforums.civfanatics.com%2Fthreads%2Funit-between-spearman-and-pikeman.684531%2F&psig=AOvVaw1W6Yk7vCgpW9Kmr1Fna8Pk&ust=1743871585689000&source=images&cd=vfe&opi=89978449&ved=0CBcQjhxqFwoTCLDAipHqvowDFQAAAAAdAAAAABAE)
+lance medium 4: spearman duguth realism invictus todo change icon/thumbnail/picture (source: https://www.google.com/url?sa=i&url=https%3A%2F%2Fforums.civfanatics.com%2Fthreads%2Funit-between-spearman-and-pikeman.684531%2F&psig=AOvVaw1W6Yk7vCgpW9Kmr1Fna8Pk&ust=1743871585689000&source=images&cd=vfe&opi=89978449&ved=0CBcQjhxqFwoTCLDAipHqvowDFQAAAAAdAAAAABAE)
 -
 -
 
@@ -301,7 +299,7 @@ short bows
 archer 1: stone thrower c2c
 archer 2: -
 archer 3: archer semitic realism invictus
-archer 4: marksman _ marksman same name? Ffh2 etc
+archer 4: marksman _ marksman same name? Ffh2
 -
 
 
@@ -345,7 +343,7 @@ chariot 2: chariot archer c2c
 
 chariot lancers
 -
-chariot lancer 2: mursili 2 c2c (note: using same icon as the old chariot sword for convenience, but is a chariot lancer now, about this i mean anyways etc i mean anyways, thanks, todo delete later this maybe too etc i mean anyways, thanks, )
+chariot lancer 2: mursili 2 c2c (note: using same icon as the old chariot sword for convenience, but is a chariot lancer now)
 -
 
 
@@ -395,7 +393,7 @@ horse gun defenders:
 -
 -
 horse gun defender 5: carabinier c2c
-horse gun defender 6: cavalry (argentinian) _ royal horse rifle guard (some name like this maybe etc + todo maybe change icon too etc)
+horse gun defender 6: cavalry (argentinian) _ royal horse rifle guard (some name like this maybe + todo maybe change icon too)
 -
 -
 
@@ -420,7 +418,7 @@ camel archer 4: late horse archer realism invictus
 camel lancers
 -
 -
-camel lancer 3: bactrian cataphract c2c todo remove flag icon etc about this etcs
+camel lancer 3: bactrian cataphract c2c todo remove flag icon
 camel lancer 4: camel knight c2c
 
 
@@ -454,8 +452,8 @@ camel gun defense:
 -
 -
 -
-camel gun defense 5: hajana (hero) _ camel patroller history rewritten todo change icon use the one of the camel trench cavalry (c2c) for example, or the icon of imajaghan (hero) (history rewritten), or edit myself but not guaranteed result etc
-camel gun defense 6: meharist _ camel rifle guard c2c todo remove flag of in the icon about this etc
+camel gun defense 5: hajana (hero) _ camel patroller history rewritten todo change icon use the one of the camel trench cavalry (c2c) for example, or the icon of imajaghan (hero) (history rewritten), or edit myself maybe
+camel gun defense 6: meharist _ camel rifle guard c2c todo remove flag of in the icon
 -
 
 
@@ -464,7 +462,7 @@ camel gun defense 6: meharist _ camel rifle guard c2c todo remove flag of in the
 elephants:
 -
 -
-war elephant 3: atlas elephant (hero used as a unit here i mean anyways) history rewritten
+war elephant 3: atlas elephant (hero used as a unit here) history rewritten
 war elephant 4: -
 -
 -
@@ -473,16 +471,16 @@ war elephant 4: -
 ____________________________________________________________________________________________
 
 siege:
-"soft" siege units i mean anyways, about this, and at least - at least, i mean anyways, thanks:
+light siege units:
 -
 -
-soft siege 3: early catapult _ catapult (mangonel) realism invictus
-soft siege 4: medieval catapult _ catapult (hu dan pao) realism invictus
-soft siege 5: culverin c2c
-soft siege 6: rifled cannon (agyu) realism invictus
-soft siege 7: - _ atomic age artillery
-soft siege 8: - _ mobile artillery
-soft siege 9: NLOS Cannon _ Ultra-High Temperature Artillery c2c
+light siege 3: early catapult _ catapult (mangonel) realism invictus
+light siege 4: medieval catapult _ catapult (hu dan pao) realism invictus
+light siege 5: culverin c2c
+light siege 6: rifled cannon (agyu) realism invictus
+light siege 7: - _ atomic age artillery
+light siege 8: - _ mobile artillery
+light siege 9: NLOS Cannon _ Ultra-High Temperature Artillery c2c
 
 
 heavy siege units
@@ -508,10 +506,11 @@ gun offense units
 -
 -
 gun offense 5: - _ rename to arquebusier? -
-gun offense 6: rifleman realism invictus (same unit just different art etc) (use the icon of the old rifleman of base civ4 bts/advciv? Etc)
+gun offense 6: rifleman realism invictus (same unit just different art) (use the icon of the old rifleman of base civ4 bts/advciv?)
 gun offense 7: trench infantry realism invictus
 gun offense 8: semi modern infantry (pla) _ Modern Infantry (AK-47)
 gun offense 9: hi tech marine _ AI-assisted infantry c2c
+
 
 
 gun defense units
@@ -532,10 +531,10 @@ gun bomber units
 -
 -
 -
-gun bomber 5: Ming Bomb Thrower _ early bomb thrower choose this name about this i mean anyways? Etc. I mean anyways, thanks,
+gun bomber 5: Ming Bomb Thrower _ early bomb thrower
 gun bomber 6: - _ grenadier -
 gun bomber 7: - _ early anti tank -
-gun bomber 8: anti tank _ anti tank infantry (RPG) (is (rocket propelled gun) etc i mean anyways, thanks) realism invictus
+gun bomber 8: anti tank _ anti tank infantry (RPG) (is (rocket propelled gun)) realism invictus
 gun bomber 9: anti tank _ AI powered bazooka c2c
 
 
@@ -644,7 +643,7 @@ tank defense
 -
 -
 tank defense 7: superheavy tank (FCM 2C) - superheavy tank (FCM 2C) realism invictus
-tank defense 8: - _ mechanized infantry? Seems to fit quite well, may leave here about this etc.
+tank defense 8: - _ mechanized infantry
 tank defense 9: Hi-Tech APC _ AI-assisted APC c2c
 
 
@@ -699,8 +698,8 @@ war boats foreign:
 -
 -
 -
-war boat foreign 4: - privateer realism invictus (add cargo to them any type test if it doesnt break anything if no open broder etc, if declares war auto is fine unles AI does it accidentally about this mean anyways etc i mean anwyays thanks)
-war boat foreign 5: - heavy privateer realism invictus (add cargo to them any type test if it doesnt break anything if no open broder etc, if declares war auto is fine unles AI does it accidentally about this mean anyways etc i mean anwyays thanks)
+war boat foreign 4: - privateer realism invictus (add cargo to them any type test if it doesnt break anything if no open border, if declares war auto is fine unles AI does it accidentally)
+war boat foreign 5: - heavy privateer realism invictus (same)
 -
 -
 -
@@ -738,7 +737,7 @@ carrier boat 9: modern carrier (Type 001A) _ early robotic carrier (Type 001A) r
 
 
 ____________________________________________________________________________________________
-assasin units? (maybe not do? Gameplay too untidy with this maybe? Etc)
+assasin units? (maybe not do? Gameplay too untidy with this maybe?)
 spy of civ4 give it attack too? and early spy?
 assassin (arab i think unit or generic)
 assassin ffh2
@@ -750,7 +749,7 @@ courtesan ffh2
 
 spy units?
 -
-lara croft (c2c? Need check if was there i mean anyways, etc, i mean anyways about this i mean anywyas, thanks,)
+lara croft (c2c? Need check if was there)
 special agent c2c
 
 

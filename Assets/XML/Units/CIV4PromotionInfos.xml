@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Jon Shafer (Firaxis Games) --><!-- Sid Meier's Civilization 4 --><!-- Copyright Firaxis Games 2005 --><!-- --><!-- Promotion Infos -->
 <!--
 custom: for <UnitCombats> please alphabetical/sevopedia listing order,
-else it gets messy really quickly, thanks, 
+else it gets messy really quickly
 
 full order to take from for quick editing or/and copy/paste:
 
@@ -2575,16 +2575,6 @@ full order to take from for quick editing or/and copy/paste:
 					<UnitCombatType>UNITCOMBAT_ARCHER_CROSSBOW</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
-				<!-- custom: spearmen reworked, trying it to make them a more versatile unit,
-				and better defenders too to be more realistic/accurate maybe and also
-				competitive, as they are a bit too weak currently.
-				While doing this rework, i noticed (and thought before too briefly i mean)
-				that there is no specific reason why melee units can't defend cities too,
-				so i am adding the city defense promotion to them too
-				I am not sure it is necessary to add more strict UNITAI tags to make sure
-				melee units are strictly offensive units, it may be fine if the AI uses them
-				at defense too, but should try to still give defensive units an edge and
-				specific value-->
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
@@ -3400,8 +3390,7 @@ full order to take from for quick editing or/and copy/paste:
 			<!-- custom: give city bombard damage to more unit types -->
 			<!-- custom: todo create air_bomber and air_fighter types, give
 			city bombard only to air_bomber not air_fighter, doesn't make (much)
-			sense but leaving as is for now until todo fix about this i mean
-			anyways, thanks, -->
+			sense but leaving as is for now until todo fix -->
 			<UnitCombats>
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_AIR</UnitCombatType>
@@ -4730,13 +4719,12 @@ full order to take from for quick editing or/and copy/paste:
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,2,15</Button>
 		</PromotionInfo>
-		<!-- custom: may seem useless to put tech flight everytime since we
-		don't get air units before air flight, but may help the AI not
-		pick this promotion too soon in/on gun units about this i mean
-		anyways at least thanks, and also maybe helps also to make it
-		more visible in tech tree map view about this i mean anyways,
-		may clutter a bit but worth it if more visible especially to
-		new(er) players, about this i mean anyways, thanks, -->
+		<!-- custom: may seem useless to put tech flight everytime since
+		we don't get air units before air flight, but may help the AI not
+		pick this promotion too soon for gun units. Also maybe helps to
+		make it	more visible in the tech tree view. May clutter a bit but
+		worth it if more visible especially to new(er) players, i think,
+		but even experienced ones. -->
 		<PromotionInfo>
 			<Type>PROMOTION_INTERCEPTION1</Type>
 			<Description>TXT_KEY_PROMOTION_INTERCEPTION1</Description>

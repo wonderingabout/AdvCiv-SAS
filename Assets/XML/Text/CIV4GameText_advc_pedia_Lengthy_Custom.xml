@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!-- custom: moved the lengthy part of the Sevopedia changes
-to this file, but only for my mod specific changes (for example
+to this file, but only for AdvCiv-SAS specific changes (for example
 a new civ, a new leader, etc) that are lengthy.
 Hopefully more readable now, and perhaps exportable if some wish,
 AdvCiv or/and other mods, at least it's cleanly separated -->
@@ -41,15 +41,13 @@ AdvCiv or/and other mods, at least it's cleanly separated -->
 	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_BTS.xml then modified to fit this leader
 	Mention of Ogiso Igodo also here:
 	https://en.wikipedia.org/wiki/Ogiso_monarchy#Origin_and_establishment
-	Here too (found link on the page linked just above in this case i mean
-	anyways at least maybe i mean anyways)
+	Here too (found link on the page linked just above)
 	https://en.wikipedia.org/wiki/Igodo
-	some info here too i mean anyways:
+	some info here too:
 	https://en.wikipedia.org/wiki/Igodomigodo
-	note: i mean anyways, that put everything in English in all languages is
-	so much more convenient and faster, maybe not best and ideal but many
-	paragraphs and such even with translator, i hope i can invest my efforts
-	elsewhere.
+	note:putting everything in English in all languages is so much more convenient
+	and faster, maybe not best and ideal but many paragraphs and such even with
+	translator, i hope i can invest my efforts elsewhere.
 	I don't mind translating it once in English though is quite cool and
 	interesting, but many times is a chore, i also think (and hope) that lost
 	players	would play in English, else maybe they would not mind too much about

@@ -73,16 +73,16 @@ and light swords strong bonuses against all/most melee types too except fast one
 not being too tedious ideally.
 - another example is an ancient Maceman ("warrior" in the stone age) will be stronger
 than a medieval light swordsman, but the medieval light swordsman will have (much more)
-bonuses that should make him (or her but most often him i mean anyways) more valuable
+bonuses that should make him (or her but most often him) more valuable
 as a military unit. This is also realistic too, no reason why an ancient maceman could
 not defeat a swordsman, if looking at strength and chance alone, unlike what is, a bit
 too extremely the case i think, in base advciv/bts, even accounting for armor and such,
 i think, an ancient unit may be stronger by melee alone, so some strategy will be necesasry
 to have the best (or better) odds in AdvCiv-SAS, i think, hopefully in an immersive
-and not tedious experience too i mean anyways.
+and not tedious experience too.
 - unique units are now renamed civilization units: they are not unique and can be built
 many times, just by only one civ in AdvCiv-SAS (and in base civ4 BTS/AdvCiv too if i
-am not mistaken) if i am not mistaken at least. Could be shortened to civ units maybe
+am not mistaken) if i am not mistaken. Could be shortened to civ units maybe
 too as i may or not or not always do further in this doc or/and other docs, hopefully
 the meaning of this expression would be clear enough (fast worker for india for example)
 - The tech tree is fairly straightforward, with max one (minus the civ units)
@@ -117,7 +117,7 @@ tech, in particular the settler is now not freely available but requires agricul
 for free as it was in Civ4 BTS and AdvCiv)
 - some units can only be built under specific conditions, for example each religion
 has one unit (same for neo religions at later eras. See religion changes below for
-details), for example Buddhism is required to build monks (melee fist fighters)
+details), for example Buddhism is required to build monks (lance light combat type)
 (yes such as shaolin but anyways..) and Christianism for Crusaders, etc.
 - on that note, some religious units are listed on the units tree of the sevopedia
 while some others not, check for detail the sevopedia (todo update this bullet
@@ -145,8 +145,8 @@ accuracy. I did not check them all (maybe todo fix this note if did) but those
 who i did and that i found to be (especially if gravely) mistaken and that i
 wanted and did decide to fix or did i did fix. Feel free to point historical
 accuracies to me, not guaranteed i would fix them, but if i am available to
-read them and all i may or/and reply to those requests i mean about these, but
-not guaranteed, may or not, about this, thanks,
+read them and all i may or/and reply to those requests about these, but
+not guaranteed, may or not,
 - some units automatically upgrade, for example the workers, scout, and similar
 units. They get a new design graphically at a new era, but also more bonuses, for
 example every few eras workers may become more and more productive (faster
@@ -184,7 +184,7 @@ targets otherwise, at least in theory. They should especially target more lone u
 outside of cities, but much less those in cities.)
 - global defines have been changed to have religion importance higher (in terms
 of culture strength (not exactly sure what this means but should be fine and as i
-intend i think i mean)) for example, lower revolt chance, anger from war quite a
+intend i think maybe)) for example, lower revolt chance, anger from war quite a
 bit reduced higher reluctance to agree to a war trade, etc. A bit more pragmatic
 or/and opportunistic, or possibly realistic conditions, war may not always be a
 fatality, at least in the long run, even though it's hell at first, but this is
@@ -287,8 +287,8 @@ AdvCiv, it will be more cautious to start wars, but will hesitate less when it
 very fast (10 000 per turn, so around turn 40 at normal speed you should already be
 around 3000 BC), then the year number and gameplay pace does not slow as much (at
 least i tried to make it so, that each end game turn doesn't take ages)
-- overall not too much clutter, i don't want too many things, but i want (about) the things i
-have/add, (i want) to go in depth (very) in them rather, so quite lightweight and hopefully
+- overall not too much clutter, i don't want too many things, but i want the things i
+have/add, to go (very) in depth in them rather, so quite lightweight and hopefully
 easy to digest and get used to it, but deep that you'd want to play it more, maybe, ideally
 - AIs get no free techs now, todo, they should perform well enough, and receive other
 types of bonuses, that they don't need techs for free, it won't feel anymore like they
@@ -321,13 +321,11 @@ and them merging with the empire, becoming its citizens, so pay attention to tha
 if you don't want it to happen to other rivals, plan your strategy based on that maybe
 - unlike in AdvCiv, we love the king chance is restored, i think it's a cool mechanic
 and also pleasant for the player, maybe realistic too, so if it can happen all good
-(feels good in civ3 for example if i may say about my small (or not so, about this
-at least indeed i mean, much but, but i mean anyways not promised i mean anyways
-) experience (about civ3 i mean anyways, thanks,))
+(feels good in civ3 for example at least from/in my experience playing it)
 - unless specified otherwise, the source for the Sevopedia content, the place text panels
 (history text panel generally if i am not mistaken) is more often than not and in most
 cases Wikipedia. Info may be reordered and slightly edited or more heavily so, not saying
-it eveyrtime (that the source is wikipedia) to reduce tediousness of saying it and writing
+it everytime (that the source is wikipedia) to reduce tediousness of saying it and writing
 everytime, while hopefully not reducing game immersion for the player too. Sometimes i
 quote from other sources or make addition of my own, some of these sources may be found
 in the [docs](/_1_AdvCiv-SAS/Docs_And_Appendixes/) or/and in other places of this AdvCiv-SAS

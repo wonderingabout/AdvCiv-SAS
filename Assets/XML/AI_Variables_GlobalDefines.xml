@@ -86,7 +86,7 @@
 		or even mid or long term maybe too sometimes so not increasing it a lot,
 		was 100 
 		May be especially more important to defend our cities and their religion
-			 now i mean with the future religion changes i made,  was 100 -->
+		now with the future religion changes i made, was 100 -->
 		<DefineName>UWAI_WEIGHT_RECONQUISTA</DefineName>
 		<iDefineIntVal>130</iDefineIntVal>
 	</Define>
@@ -323,10 +323,9 @@
 		<!-- custom: now i want to increase this more to see, seemed to perform
 		quite well in the (few) tests i made, was 25 last time i changed it,
 		not to totally prevent it, but very strongly discourage it, it really
-		should be very bad for the AI to fight multi wars in terms of wining
-		i mean, as for roleplaying it is not my core concern at least about this
-		point that affects AI performance meaning its strength i mean, i think,
-		was 25 last time i modified it -->
+		should be very bad for the AI to fight multi wars in terms of winning,
+		as for roleplaying it is not my core concern especially as this may
+		affect AI performance/strength, was 25 last time i modified it -->
 		<DefineName>UWAI_MULTI_WAR_RELUCTANCE</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
@@ -344,19 +343,17 @@
 			 tactical decisions outside the UWAI component. -->
 		<!-- custom: Extra checking the AdvCiv's value:
 		2^1.66 = 3.160 and 4^1.66 = 9.987 , so one spearman is as strong, corrected,
-		as 9.987 / 3.160 = 3.160 (too) warriors, about same as AdvCiv's value indeed
-		((very) slightly different due to rounding so 3.15 becomes 3.16 in my case i
-		mean anyways), so my math is hopefully correct in this case at least i mean
-		anyways.
+		as 9.987 / 3.160 = 3.160 (too) warriors, about same as AdvCiv's value
+		((very) slightly different due to rounding so 3.15 becomes 3.16), so my math
+		is hopefully correct.
 
 		Now changing it to a maybe more fit for my purpose value or how i think
 		it may fit better the game:
 		2^1.59 = 3.010 strength corrected and 4^1.59 = 9.063
-		approximately so a spearman (basing myself on base BTS/AdvCiv strength,
-		just as an example mostly used to illustrate the math a bit i mean
-		anyways) is closer to 3	(9.063 / 3.010 = 3.011 , to be more exact
-		(still approximate)) warriors now, so maybe this is good enough odds
-		to consider attacking with the 3 warriors now?
+		approximately so a spearman (basing myself on base BTS/AdvCiv strength
+		for example) is closer to 3	(9.063 / 3.010 = 3.011, to be more exact
+		warriors now, so maybe this is good enough odds to consider attacking
+		with the 3 warriors now?
 		May also help AI stacks	not stare at each other too long and start city
 		attacks sooner?
 		
@@ -364,7 +361,8 @@
 		2^1.6 = 3.031 corrected strength now and one spearman is 4^1.6 = 9.190
 		corrected strength now,	and so one spearman	is now as worth as
 		9.190 / 3.031 = 3.032 warriors, which is maybe a bit safer,
-		was 166 -->
+		was 166
+		-->
         <DefineName>POWER_CORRECTION</DefineName>
 		<iDefineIntVal>160</iDefineIntVal>
     </Define>
@@ -391,21 +389,22 @@
 		just because one player that is	sometimes far from them produces
 		(way) more units than the other players. Maybe this creates a
 		vicious loop where the "angry" unit pomper (think montezuma/
-		khmer/boudica AI in the early game maybe as an example maybe
-		if i am not mistaken i mean) sees that they have now less and
-		(in their perception) not enough units (more) than the other
-		rivals, so they produce	more, inducing the other players to
-		produce more etc.
+		khmer/boudica AI in the early game maybe as an example maybe)
+		sees that they have now less and (in their perception) not
+		enough units (more) than the otherrivals, so they produce
+		more, inducing the other players to	produce more etc.
 		To prevent that, i am putting the value higher than i would
 		want to, at	160	currently.
 		Ideally	if higher than 110 power ratio the AI should start
 		to turtle, else it's a big	gamble to bet on not being attacked
-		(for what reason i	mean anyways?), especially with my changes
-		that aim at making the AI more pragmatic and opportunistic, to
-		increase its strength and realism too maybe i mean, so that i
-		can enjoy the game more and hopefully others if they try these
-		changes i made and want a similar type of gameplay (else they
-		may tweak or not it as they see fit maybe i mean)), was 250 -->
+		(for what reason would they hold back on that?), especially with
+		my changes that aim at making the AI more pragmatic and
+		opportunistic, to increase its strength and realism too maybe,
+		so that i can enjoy the game more and hopefully others
+		if they try these changes i made and want a similar type of
+		gameplay (else they	may tweak or not it as they see fit maybe)),
+		was 250
+		-->
 		<DefineName>BBAI_TURTLE_ENEMY_POWER_RATIO</DefineName>
 		<iDefineIntVal>160</iDefineIntVal>
 	</Define>

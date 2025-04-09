@@ -82,18 +82,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.bFullScreen = True
 		if self.bFullScreen:
 			self.bWideScreen = True
-		# <!-- custom: Not much value in being able to see the advisors tab
-		# (if i understand it correctly that it is the buttons on top right
-		# during a game i mean etc i mean anyways, thanks, ), i think,
-		# however i also think i mean anyways, thanks, that the place/extra
-		# room should be useful to fit more data or simply enlarge the view,
-		# hopefully making it all clearer and more pleasant to see, while
-		# also displaying more data.
-		# Seems to be how realism invictus runs at 1920 x 1080 at least
-		# when i play it i mean on my computer, i mean, not to say we
-		# should do so because they did, just i think it's a more desirable
-		# design for AdvCiv-SAS, about this# i mean etc anyways i mean
-		# anyways, thanks, -->
+		# <!-- custom: Not much value in being able to see the elements at the
+		# edge parts of the screen, however i think the extra room can be useful
+		# to fit more data or simply enlarge the view, hopefully making it all
+		# clearer and more pleasant to see.
+		# Other mods such as realism invictus or c2c use the entire screen for
+		# the sevopedia if i'm not mistaken and i like it fine, tested in
+		# AdvCiv-SAS and i like it very much, so removing margins now.
+		# -->
 		self.HORIZONTAL_MARGIN = 0
 		# VERTICAL_MARGIN: Want the Advisor buttons to remain visible. BOTTOM_MARGIN could be 0, but I don't think asymmetrical margins look good.
 		self.TOP_MARGIN = 0
@@ -431,9 +427,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			["CIVICS",	self.szCategoryReligions],
 			["CIVICS",	self.szCategoryCorporations],
 			# <!-- custom: put "Mods Info" before "BtS Info (Outdated)", hopefully
-			# more visible this way (as i think it is more relevant, more likely
-			# to be useful, more visible hopefully as the first icon, about this
-			# i mean etc i mean anyways, thanks, -->
+			# more visible and maybe useful too this way -->
 			["HINTS",	self.szCategoryConcepts],
 			["HINTS",	self.szCategoryConceptsNew],
 			["HINTS",	self.szCategoryHints],
@@ -653,9 +647,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		for descr,i in civList:
 			info = gc.getCivilizationInfo(i)
 			# <!-- custom: reveal minor nation, i want all information
-			# available in the sevopedia. Useful maybe for other mods,
-			# i at least would want mine to be this way about this i mean
-			# at least maybe i mean anyways
+			# available in the sevopedia. May also be useful for other
+			# mods.
+			# -->
 			#if not info.isPlayable():
 			#	iCapitalBuildingClass = gc.getDefineINT("CAPITAL_BUILDINGCLASS")
 			#	if (iCapitalBuildingClass >= 0 and

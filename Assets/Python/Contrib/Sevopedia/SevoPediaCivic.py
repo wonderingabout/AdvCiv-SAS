@@ -118,16 +118,15 @@ class SevoPediaCivic:
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need
-		# the redundant background i mean anyways about this at least i mean
-		# anyways -->
+		# the redundant background
+		# -->
 		# advc.004y: Label added for this panel
 		#screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.addPanel(panelName, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
 		# <!-- custom: also adding textName (same as in the placeHistory
 		# functions of other files, such as SevoPediaUnit.py, see those
-		# for details or more accurate or not information i mean anyways,
-		# it works as is about this i mean anyways, at least, maybe, about
-		# this i mean anyways, thanks, -->
+		# for details or more accurate or not information
+		# -->
 		textName = self.top.getNextWidgetName()
 		szText = u""
 		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY
@@ -154,8 +153,8 @@ class SevoPediaCivic:
 		#		szText += szChanges
 		#szText += u"\n\n"
 		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need
-		# the redundant background i mean anyways about this at least i mean
-		# anyways -->
+		# the redundant background
+		# -->
 		#szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
 		szText += gc.getCivicInfo(self.iCivic).getCivilopedia()
 		# </advc.004y>

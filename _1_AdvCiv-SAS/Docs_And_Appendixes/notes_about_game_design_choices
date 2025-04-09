@@ -1,10 +1,10 @@
 If not covered in notes about tech design choices, here are some additional notes
-to inform i mean about some game design choices i made:
+to inform about some game design choices i made:
 
 - todo: trying to minimally change the game existing assets to have AI perform as best
 as possible and not complicate what i don't want (i would prefer the game to be deeper
 in other ways and settings by what is existing), it may also be enough/plentiful to mod
-and make it deeper i mean. Not sure i'll stand by this promise about this game mod, for
+and make it deeper. Not sure i'll stand by this promise, for
 now is how (it seems) i intend to do it (but again is not restrictive and is a todo comment).
 - todo: in advciv (i don't know if same in bts) culture buildings give double culture at 1000
 historical years. I may change this if i found how and i want to, for now leaving as is as is
@@ -21,7 +21,7 @@ and more intuitive of me to understand what it is, functionally is the same inga
 - todo: complete military overhaul: terrain, etc
 - units way more versatile or/and stick to their roles, for exemple archers not
 defenders, melee units can be defenders, changed defense targets, unitai roles (may
-need to try them more or tweak them to be as specific as possible, etc.
+need to try them more or tweak them to be as specific as possible).
 - todo: promotions are available to more unit types, melee have access to city garrison
 now, archer type have city raider now also for example. I may have to up or reduce the
 strength of the units as i rework them, may have to also tweak/rework some units if it
@@ -36,54 +36,47 @@ when to switch or not maybe, may also help the AI revolt less (pointlesly?/often
 if it does?
 
 - while researching pagan religions i found this https://en.wikipedia.org/wiki/Prehistoric_religion ,
-leads to https://en.wikipedia.org/wiki/Venus_of_Laussel , very good i think i mean anyways at least
-in this case, i can reuse this for the snow tiles boost (great lighthouse in civ4 bts/advciv but
-much stronger), bison new ressource i was considering to add (Also for snow terrain too?), also it's
-available early and i like it overall, wanted to add joan d'arc for france so a female figure is cool
-too of that, even though not same religion but may be fine at least in this case i mean anyways.
-It's also connected to mining (with stone/quarry there too now in this case at least i mean anyways,
-so very nice and connected in this case at least i mean anyways)
+leads to https://en.wikipedia.org/wiki/Venus_of_Laussel , very good i think, i can reuse this for the
+snow tiles boost (great lighthouse in civ4 bts/advciv but much stronger), bison new ressource i was
+considering to add (Also for snow terrain too?), also it's available early and i like it overall,
+wanted to add joan d'arc for france so a female figure is cool too of that, even though not same
+religion but may be fine.
+It's also connected to mining (with stone/quarry there too now, so very nice and connected maybe too)
 
-- space victory is disabled except for the USA if they build Appollo Programm, or for Russia if they
-build the Soviet space program (https://en.wikipedia.org/wiki/Soviet_space_program), they can rival
+- space victory is disabled todo except for the USA if they build Appollo Programm, or for Russia if
+they build the Soviet space program (https://en.wikipedia.org/wiki/Soviet_space_program), they can rival
 each other and it's quite late in the game, also other civs can build it (or declare war or something
-else to distrub it i mean anyways) and then game would go on, if still not finished
+else to distrub it) and then game would go on, if still not finished
 
-- i would want less units for later stages of the game, and more generally to simplify the game as
-goes on later stages i mean anyways. This would mean less units as said i mean anyways about this
-i mean anyways, thanks , i mean anyways, thanks, less techs (even though most advances were made
-later, historically in number of years it is not incorrect to say most of human history indeed
-happened in the past about this i mean anyways, thanks. So trying to reflect that in gameplay,
-while maybe also helping the human player or giving more incentive to finish the game may not
-be (such) a bad game design choice, i think a quite good one but is my opinion and about this
-i mean anyways, i focus i mean anyways, thanks, i mean anyways, thanks). I may alter tech cost for
-later stages to compensate for example, while giving enough of few techs about this i mean anyways
-to make it feel like there is progression, just for what i think is optimal, not to purposely
-degrade gameplay, even though i am free to choose design i want, i would like a pleasant one if
-possible, but i mean, is about this i mean anyways, i focus if i want or do or not, about this i
-mean anyways, i should focus or not but as is or not i mean anyways, anyways as is i mean anyways
-maybe or not or yes etc i mean anyways, thanks,
+- i would want less units for later stages of the game, and more generally to simplify the game
+as goes on later stages. This would mean less units as said, less techs (even though most advances
+were made later, historically in number of years it is not incorrect to say most of human history
+happened in the past. So trying to reflect that in the gameplay, while maybe also helping
+the human player or giving more incentive to finish the game may not be (such) a bad game design,
+i think a quite good one but is my opinion). I may alter tech cost for
+later stages to compensate for example, while giving enough of few techs to make it feel like
+there is progression, just for what i think is optimal, not to purposely degrade gameplay, even
+though i am free to choose design i want, i would like a pleasant one if possible
 
-- i have put modern era and robotic era (on top/after existing atomic era, about this i mean
-anyways). This is because some edge units do not fit too well, also these eras are distinct
-enough in tech or overall features (appearence, units and such, etc i mean anyways). I have
-solved this by making these eras very short. This also fits well my idea to shorten later eras
-to give the player incentives to finish the game (also as it's quite tedious, i tend to skip
-these too if i may say but is talking about me, anyways). Also, this may be historically quite
-accurate, as as i said in other earlier notes about this mod in this directory, most of history
-happened indeed in the past, in stone age and such, however most of advances were made and continue
+- i have put modern era and robotic era (on top/after existing atomic era). This is because some
+edge units do not fit too well, also these eras are distinct enough in tech or overall features
+(appearence, units and such). I have solved this by making these eras very short. This also
+fits well my idea to shorten later eras to give the player incentives to finish the game (also as
+it's quite tedious, i tend to skip these too). Also, this may be historically quite accurate, as
+as i said in other earlier notes about this mod in this directory, most of history happened
+in the past, in stone age and such, however most of advances were made and continue
 to be made in recent times. It could be said history is "converging" or/and acccelerating, and
 designing the game and game tree in such a way is not wrong or flawed, if one were to judge based
-on quite objective standards, about this i mean anyways. If it can make it less tediosu to play
+on quite objective standards. If it can make it less tedious to play
 the late game, all the better. As late turns can be very long with many instructions per turn,
 maybe in time spent (minutes/hour played by the player) per era/tech, it would amount to the
 same in the end, so willingly or not, maybe this may work quite well. I don't want history
 to be exhaustive (would be way too long to begin with if ever (practically) possible (should be
-but way too long/tedious, about this i mean anyways))
+but way too long/tedious))
 
 - for the blitz promotion, now "blitzkrieg", i have read some answers or rather messages or
-rather posts as it was not directly to me about this i mean anyways in this case is what i
-meant but anyways, blitzkrieg worked in medieval and even earlier according to these sources:
+rather posts as it was not directly to me, blitzkrieg worked in medieval and even earlier
+according to these sources:
 - https://www.quora.com/Would-blitzkrieg-tactics-have-worked-in-the-ancient-medieval-warfare
 - https://www.quora.com/Would-blitzkrieg-tactics-have-worked-in-the-ancient-medieval-warfare/answer/Larry-Penland
 
@@ -98,16 +91,15 @@ So, the short answer: Yes, not only would they work, they did."
 End of quote
 
 Based on this i have reduced Blitzkrieg promotion to Engineering, which is also conveniently quite
-(very) good as i wanted to buff this tech i mean anyways, thanks.
+(very) good as i wanted to buff this tech.
 
 May be especially useful to archers now for example
-as they can harass troops quite freely and get away with it, in AdvCiv-SAS i mean anyways, thanks,
+as they can harass troops quite freely and get away with it, in AdvCiv-SAS
 
 - amphibious attacks were very old according to
 https://www.britannica.com/technology/amphibious-warfare ,
 but became more popular or something around iron age, simplifying this logic, since we gain
 bridge building at construction, to also gain amphibious there.
-Amphibious promotion is also buffed "in exchange" about this i mean anyways, thanks, it was
+Amphibious promotion is also buffed "in exchange", it was
 too weak and i wanted to buff it, added a tech requirement to prevent it.
-Still not a big buff but should help hopefully maybe i mean anywyas, about this, i mean
-anyways, thanks,
+Still not a big buff but should help hopefully maybe

@@ -30,9 +30,8 @@
 	</TEXT>
 	<!-- custom: rename "Unit Upgrades" to "Units Tree",
 	clearer and consistent with "Promotion Upgrades Tree",
-	while also short enough to fit in the sevopedia panel
-	if i am not mistaken that this is a panel indeed i
-	mean anyways, thanks
+	while also short enough to fit well enough in the
+	sevopedia panel.
 	Also note that this/it is not necessarily about
 	upgrading units but showing them, even though
 	upgrading them may be the end result, but still,
@@ -41,13 +40,12 @@
 	units and how they relate to each other (think
 	of it as looking back maybe for example, not
 	necessarily upgrade only, or also looking at per
-	era units in a vertical way for example i mean
-	anyways (in AdvCiv-SAS the tech tree would be
-	designed in such a way that each era has one
-	type of unit, and each unit is aligned vertically
-	(in the colum corresponding to) where it starts,
-	maybe this can help this be more intuitive too)
-	thanks, ) -->
+	era units in a vertical way for example (in
+	AdvCiv-SAS the tech tree would be designed in such
+	a way that each era has one	type of unit, and each
+	unit is aligned vertically (in the column
+	corresponding to) where it starts, maybe this can
+	 help this be more intuitive too) -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT_UPGRADES</Tag>
 		<English>Units Tree</English>
@@ -109,10 +107,8 @@
 	<!-- custom: rename "Base Terrain" to "Terrains"
 	(also switching to the plural form, same as for
 	"Features" (no reason why not and why it was not
-	like that, at least about this i mean anyways
-	i mean anyways, thanks,)),
-	Maybe simpler is better here at least i mean anyways
-	at least i mean anyways, thanks, -->
+	like that).
+	Maybe simpler is better here. -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_TERRAIN</Tag>
 		<English>Terrains</English>
@@ -144,24 +140,20 @@
 	<!-- custom: remove mention of the "terrain"
 	in "terrain features" of the root sevopedia
 	category, i think it's confusing, and hinders
-	the (especially new(er)) player to grasp that
-	in civ4 (at least bts i mean anyways) terrains
-	and features are 2 diferent things, there should
-	be either "terrains" or "features", i think it's
+	the (especially new(er)) player's ease of
+	grasping that terrains and features are 2
+	diferent things, there should be either
+	"terrains" or "features", i think it's
 	an easier way to approach these new "concepts"
-	of civ4, at least i mean anyways about this
-	i mean anyways i mean anyways.
+	of civ4.
 	Not necessary to remove it everywhere, the
 	sentences may become a bit weird too, but in
 	key visibility and isolated (not sentences),
-	it should be a no brainer i think, at least
-	about this and in this case i mean anyways,
-	thanks,
+	it should be a no brainer i think.
 	I also don't trust these translations, so
 	putting the English version rather, maybe
-	easier this way or/and betetr long term
-	i mean anyways about this at least i mean
-	anyways, thanks, -->
+	easier this way or/and better long term.
+	-->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_FEATURE</Tag>
 		<English>Features</English>
@@ -195,9 +187,8 @@
 	yields are:
 	- they are not global (yield on tile only)
 	- they are bonus (and natural tile yield)
-	I think this part about ressources is very confusing too
-	i mean anyways, hopefully clearer, at least about this,
-	thanks, -->
+	I think this part about ressources is very confusing too,
+	hopefully clearer now -->
 	<TEXT> 
 		<Tag>TXT_KEY_PEDIA_BONUS_YIELDS_CUSTOM_PANEL_TEXT</Tag>
 		<English>Natural Bonus Tile Yields</English>
@@ -207,25 +198,21 @@
 		<Spanish>Natural Bonus Tile Yields</Spanish>
 	</TEXT>
 	<!-- custom: translate everything technical i want to
-	clarify in English, not sure the translation are
-	accurate (enough), about this i mean anyways, at least
-	i mean anyways, i mean anyways, thanks, -->
+	clarify to the English version only, not sure the translations
+	are	accurate (enough) -->
 	<!-- custom: also replace TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT
-	to something clearer at the same time, maybe helps i
-	mean anyways at least i want to do about this, i mean
-	anyways, at least, as is, i mean anyways, thanks,
+	to something clearer at the same time, maybe helps.
 	Create a new TXT KEY specifically for the improvements
 	info of the ressources (bonus) category (before creating
 	this new txt key, the previous one was shared between
 	category title "Improvements", and	Ressources/"Improvements",
 	not possible to modify one without affecting the other
 	which is not optimal, so creating this new text key,
-	and updating the Python too to support it)
+	and updating the python files too to support it)
 	-->
-	<!-- custom: be careful, this applies to the ressources category
-	not the improvement category unlike what the tile may mislead
-	to think or not at least about this i mean anyways i mean anyways,
-	thanks, -->
+	<!-- custom: be careful, this applies to the ressources
+	category not the improvement category unlike what the
+	tile may (mis)lead to think -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT_CUSTOM_NEW_FOR_RESSOURCES_IMPROVEMENTS</Tag>
 		<English>Improvements Bonus Tile Yields</English>
@@ -270,14 +257,10 @@
 	other places where it is used), we need a new TXT KEY
 	for the Ressources/"Improvements" now though, see
 	TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT_CUSTOM_NEW_FOR_RESSOURCES_IMPROVEMENTS
-	i created for that, i mean anyways, thanks,
-	)-->
+	i created for that
+	-->
 	<!-- advc.004y: To replace TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT.
 	I've kept the FIS translations from there. -->
-	<!-- custom: translate everything technical i want to
-	clarify in English, not sure the translation are
-	accurate (enough), about this i mean anyways, at least
-	i mean anyways, i mean anyways, thanks, -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT</Tag>
 		<English>Improvements</English>
@@ -304,8 +287,7 @@
 	</TEXT>
 	<!-- custom: using the singular form here as this is
 	only about our current (selected) improvement's
-	yields, at least about this i mean anyways i mean
-	anyways, thanks, -->
+	yields -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_IMPROVEMENT_YIELD</Tag>
 		<English>Improvement Bonus Tile Yields</English>
@@ -318,9 +300,7 @@
 	TXT_KEY_PEDIA_BONUS_YIELDS is applied to improvements category
 	not ressources category.
 	Also clarifying it to a more detailed/accurate name to
-	hopefully help the player or/and others or not or yes at
-	least about this i mean anyways i mean anyways, thanks,
-	was "Bonus Yields", thanks, -->
+	hopefully help the player, was "Bonus Yields" -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_BONUS_YIELDS</Tag>
 		<English>On Ressources Extra Improvements Bonus Tile Yields</English>
@@ -331,9 +311,8 @@
 	</TEXT>
 	<!-- custom: "Food: +1F (with Irrigation)" becomes
 	now "+1F (with Irrigation)", remove the uneeded
-	"%s1: " too now at least about this i mean anyways,
-	see placeYield in SevoPediaImprovement.py for
-	details, thanks, -->
+	"%s1: " too now, see placeYield in SevoPediaImprovement.py
+	for	details -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_IRRIGATED_YIELD</Tag>
 		<!-- %s1 = TXT_KEY_IMPROVEMENT -->
@@ -344,8 +323,7 @@
 		<Spanish>%D2 %F3 (con riego)</Spanish>
 	</TEXT>
 	<!-- custom: for the german translation the	text was/
-	looks(ed) weird so i applied the english one instead at
-	least about this i mean anyways, thanks,
+	looks(ed) weird so i applied the english one instead
 	"Production: +1H (on Hills)" is now "+1H (on Hills)"
 	-->
 	<TEXT>
@@ -358,8 +336,7 @@
 		<Spanish>%D2 %F3 (en colinas)</Spanish>
 	</TEXT>
 	<!-- custom: similarly (done) as for for/in
-	TXT_KEY_PEDIA_HILLS_YIELD, at least about this
-	i mean anyways, thanks, -->
+	TXT_KEY_PEDIA_HILLS_YIELD -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_RIVER_YIELD</Tag>
 		<!-- %s1 = TXT_KEY_IMPROVEMENT -->

@@ -6,22 +6,10 @@
 <!-- Game Text Objects -->
 <Civ4GameText xmlns="http://www.firaxis.com">
 	<!-- custom: gather all base civ4 (vanilla or BTS alike)
-	content in the same directory, it is old enough that i
-	can and i think it may be considered as the same mod, at
-	least for the purpose of this mod.
-	I hope to gather some useful data in mods info that may	be
-	especially useful/helpful in transitioning to such mods, and
-	that may not be so easy to find in the extensive docs or
-	forums online, about this etc, thanks, was "Game Concepts".
-	I prefer to keep the data as it can be useful/helpful to the
+	content in the same category, was "Game Concepts".
+	I prefer to keep the data as it can be useful/helpful to
 	players maybe, and not delete it entirely, but clearly indicate
-	(or more clearly indicate) that it is outdate so that players
-	know what they are looking at ideally and hopefully, did not
-	translate as i did not do too in other places for convenience,
-	ideally should do so, hopefully it would be clear enough or
-	not critical enough or bothering enough for them, about this
-	i mean, etc, i mean anyways about this, i mean anyways, thanks,
-	was "Game Concepts"	-->
+	(or more clearly indicate) that it is outdated.	-->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT</Tag>
 		<English>Mods Info</English>
@@ -48,24 +36,20 @@
 	</TEXT>
 	<!-- custom: was "BtS Concepts", see code comments in
 	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml
-	(or the equivalent of this path in your AdvCiv installation path i
-	mean anyways, thanks, )	of this mod for details, thanks
-	
-	Add the tag/mention "(Outdated)" to signify that this info
+	(or the equivalent of this path in your mod installation path).
+
+	Added the tag/mention "(Outdated)" to signify that this info
 	is not up to date anymore, but may help for general purposes
 	maybe especially ingame. Add this mention may also remove
 	the burden for modders to maintain this page, as i think it
 	is more practical for players to go online (if possible)
-	about this etc to gather the data they want. Hopefully more
-	helpful and clearer this way, would serve my purposes at
-	least, and all good if it does to other, else i do this for
-	me i mean anyways etc i mean anyways, thanks,
-	Also "BtS" is one character shorter than "Game", while also
-	being more significant (if that is a word i can use to mean
-	that it indicates more) of the fact that it relates to base
-	civ4 (vanilla or BTS or similar content), and not to (i.e.
-	as opposed to) mods info (K-Mod, AdvCiv based on K-Mod,
-	AdvCiv-SAS based on AdvCiv, etc. ).
+	to find/gather the data they want, while also serving my
+	purposes.
+	Also "BtS" is one character shorter than "Game", with the
+	other advantage (i think) of being more indicative of the
+	fact that it relates to base civ4 (vanilla or BTS or
+	similar), and not to other mods info (for example K-Mod,
+	AdvCiv, AdvCiv-SAS, etc).
 	-->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW</Tag>
@@ -92,146 +76,89 @@
 		</Spanish>
 	</TEXT>
 
-	<!-- custom: rename "Ivory" to "Elephants", there are 2 main reasons
-	for why i suggest this change i mean anyways: 
+	<!-- custom: rename "Ivory" to "Elephants".
+	Here the main reasons for
+	this change: 
 	- 1) you need elephants to build war elephants, not ivory, even if you
 	were to somehow find ivory somewhere, it would/could not magically turn
-	into a war elephant, so using the animal instead i mean anyways makes much
-	more sense i think -why no one thought ofor did this rather maybe? I mean
-	 anwyays
-	- 2) ivory doesn't grow on the groud, if i am not mistaken and understand
-	it correctly i mean anwyays, but is derived from elephants, whether they
-	are alive or dead (could be traded though but it's about terrain ressources
-	in this case i mean anyways). So it is more immersive, realistic, and making
-	sense to use "Elephants" instead of ivory i think i mean anyways. One could
-	also maybe imagine that elephants the animal itself makes people happy, like
-	for the zoo or something?
+	into a war elephant, so using the animal instead.
+	- 2) ivory doesn't grow on the groud i think if i am not mistaken, but is
+	derived from elephants, independent of whether they are alive or dead.
+	- 3) One could also maybe imagine that elephants the animal itself makes people
+	happy, and not necessarily their ivory.
 	note: Since they are part of the animals that are countable in english rather
-	than uncountable (see discussion (actually link and my code comments i mean
-	anyways..) below about cattle if i am not mistaken) and seeing that civ4
-	doesn't seem to bother with singulars too much about animals at least i mean
-	anyways, (and i like it	better this way and/or also thinks itsmore fit to this
-	i mean anyways).
-	As for the elephants (and not the cattle below or similar type of animals i
-	mean anyways), based on the 2 bullet points before that note i mean anyways,
-	and using an approach similar than for the "ice" renaming to "ice land" i
-	mean anyways, but much more simple as i can directly fetch the wikipedia page
-	if it has the plural form, or a dictionnary alternatively i mean anyways,
-	here is the result, from https://en.wikipedia.org/wiki/Elephant,
-	leading to dictionnaires or translators, after some double checking sometimes
-	ideally too i mean anyways in other website in this case i mean anyways : -->
+	than uncountable (see code comment below about cattle) and seeing that civ4
+	doesn't seem to bother with singulars too much about animals at least. I also
+	prefer this version, anyways.
+	-->
 	<TEXT>
 		<Tag>TXT_KEY_BONUS_IVORY</Tag>
-		<!-- custom: https://en.wiktionary.org/wiki/elephant -->
 		<English>Elephants</English>
-		<!-- custom: https://fr.wikipedia.org/wiki/%C3%89l%C3%A9phant
-		https://fr.wiktionary.org/wiki/%C3%A9l%C3%A9phants
-		-->
 		<French>
-			<Text>Éléphants</Text>
+			<Text>Elephants</Text>
 			<Gender>Male</Gender>
-			<Plural>0</Plural>
+			<Plural>1</Plural>
 		</French>
-		<!-- custom: https://de.wikipedia.org/wiki/Elefanten
-		https://www.verbformen.com/declension/nouns/Elefant.htm#UeBearbeiten -->
 		<German>
-			<Text>Elefanten</Text>
+			<Text>Elephants</Text>
 			<Gender>Male</Gender>
-			<Plural>0</Plural>
+			<Plural>1</Plural>
 		</German>
-		<!-- custom:
-		https://context.reverso.net/translation/english-italian/Elephants -->
 		<Italian>
-			<Text>Elefanti</Text>
+			<Text>Elephants</Text>
 			<Gender>Male</Gender>
-			<Plural>0</Plural>
+			<Plural>1</Plural>
 		</Italian>
-		<!-- custom:
-		https://context.reverso.net/translation/english-spanish/Elephants -->
 		<Spanish>
-			<Text>Elefantes</Text>
+			<Text>Elephants</Text>
 			<Gender>Male</Gender>
-			<Plural>0</Plural>
+			<Plural>1</Plural>
 		</Spanish>
 	</TEXT>
 
-	<!-- custom: similarly to what was done with the elephants, try to find a better
-	fitting word. Be careful, according to, for example:
+	<!-- custom: similarly to what was done with the elephants, "Cattle" seems a better
+	fit to me than "Cow".
+	Be careful, according to, for example:
 	https://forum.wordreference.com/threads/sheep-countable-uncountable.2057034/post-13154720 ,
-	some animals are (best fit as i mean?) countable (5 cats for example) while others
+	some animals are countable (5 cats for example) in English while others
 	are best fit at singular (5 sheep for example)
-	There is less gains in changing what is already working (and maybe more accurate in this case)
-	i mean anyways. But specifically for cattle however rather than cows as it applies to all sexes
-	of the cows,
-	while still being specific and not generic if i'm not mistaken i mean anyways:
+	There is less gains in changing what is already working. But specifically for cattle
+	however rather than cows as it applies to all sexes of the cows, while still being
+	specific and not generic if i'm not mistaken:
 	https://www.idausa.org/campaign/guardian/latest-news/difference-cows-cattle-meaning/#:~:text=The%20difference%20between%20cows%20and,strictly%20to%20mature%20female%20bovines.
 	https://context.reverso.net/translation/english-french/cows
 	Also the audio announcer says in https://civilization.fandom.com/wiki/Animal_Husbandry_(Civ4):
 	"Blessed shall be the fruit of thy cattle, the increase of thy kine, and the flocks of thy sheep."
 	– The Bible, Deuteronomy 28:4
 	So i think it's very immersive and nice to use cattle here too on top of being
-	more accurate it seems i mean anyways
+	more accurate it seems.
 	-->
 	<TEXT>
 	<Tag>TXT_KEY_BONUS_COW</Tag>
 	<English>Cattle</English>
-	<!-- custom: keeping as is, but for reference:
-	https://context.reverso.net/translation/english-french/cattle
-	"bétail" (on same link i mean anyways) seems to be "livestock" and not "cattle"
-	so not the meaning i would want, same as for elephants, i would want to refer to
-	the (living) animal, not (its value as) the product i mean anyways.
-	-->
 	<French>
-		<Text>Bovins</Text>
+		<Text>Cattle</Text>
 		<Gender>Male</Gender>
 		<Plural>1</Plural>
 	</French>
-	<!-- custom: https://context.reverso.net/translation/english-german/cattle
-	https://en.wiktionary.org/wiki/Vieh
-	https://en.wiktionary.org/wiki/Rind
-	Similar as for the french translation, vieh seems to be about livestock so
-	less accurate/relevant i think i mean anyways than Rind here, which the
-	translator suggested too due to its many examples if i may say i mean anyways,
-	which is also why i think it's so good if i may say i mean anyways.. -->
 	<German>
-		<Text>Rind</Text>
+		<Text>Cattle</Text>
 		<Gender>Male</Gender>
-		<Plural>0</Plural>
+		<Plural>1</Plural>
 	</German>
-	<!-- custom: https://context.reverso.net/translation/english-italian/cattle
-	suggests "bestiame" but the existing civ4 bovino seems more accurate so
-	keeping it, so throw some caution at the examples it gives (do reverse
-	translate or search on google or some other engine/place i mean anyways,
-	but generally is very good, as it also suggest the gender too of the words
-	and their (what seems like theirs i mean anyways) synonyms i mean anyways) -->
 	<Italian>
-		<Text>Bovino</Text>
+		<Text>Cattle</Text>
 		<Gender>Male</Gender>
-		<Plural>0</Plural>
+		<Plural>1</Plural>
 	</Italian>
-	<!-- custom: https://context.reverso.net/translation/english-spanish/cattle
-	the suggested reses (this is maybe a good maybe i mean anyways example of
-	reverse translation i mean anyways):
-	https://context.reverso.net/translation/spanish-english/reses)
-	i did not look in detail but it seems more linked to butchering/livestock(?),
-	but may be mistaken as i did not look in details i mean anyways, as bovinos
-	(from the first link in italian cattle's XML i mean anyways) suggested by
-	reverso.net among others should be good enough maybe in this, case i mean
-	anyways, and so does ganado too after a quick search i mean anyways:
-	https://www.collinsdictionary.com/dictionary/spanish-english/ganado
-	A good approach may be to just pick the ones with the most amount of
-	relevant examples after	checking them, to avoid to have to check if
-	singular or plural depending on the language i mean anyways, so would be
-	this for example maybe i mean anyways:
-	https://context.reverso.net/translation/english-spanish/cattle#bovinos -->
 	<Spanish>
-		<Text>Bovinos</Text>
-		<!-- custom: is masculine:
-		https://www.spanishdict.com/translate/bovidos#:~:text=bovinos,Masculine%20pluralofbovino(adjective) -->
+		<Text>Cattle</Text>
 		<Gender>Male</Gender>
 		<Plural>1</Plural>
 	</Spanish>
 	</TEXT>
+
+
 	<!-- custom: add Civ Kingdom Of Benin with their leader Ogiso Igodo -->
 	<TEXT>
 		<Tag>TXT_KEY_LEADER_OGISO_IGODO</Tag>
@@ -451,9 +378,8 @@
 			<Plural>0</Plural>
 		</Spanish>
 	</TEXT>
-	<!-- custom: an ace can be on the ground/land too, about this i
-	mean anyways, thanks, hopefully clearer now, about this i mean
-	anyways, thanks, -->
+	<!-- custom: an ace can be about ground units too, hopefully
+	clearer now -->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_ACE</Tag>
 		<English>Air Evasion</English>
@@ -480,8 +406,7 @@
 	</TEXT>
 	<!-- custom: name is more epic, not necessarily clearer (especially
 	with new tech requirement that is sooner, in earlier eras, but it
-	is historically more correct according to my research about this
-	quick i mean anyways, plus name is more epic now, anyways) -->
+	is also historically more correct according to my research) -->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_BLITZ</Tag>
 		<English>Blitzkrieg</English>
@@ -836,8 +761,7 @@
 		</Spanish>
 	</TEXT>
 	<!-- custom: use arabic numerals instead of roman numerals,
-	hopefully clearer at least about this i mean anyways, thanks,
-	-->
+	hopefully clearer -->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_INTERCEPTION1</Tag>
 		<English>Air Interception 1</English>
@@ -934,11 +858,9 @@
 			<Plural>0</Plural>
 		</Spanish>
 	</TEXT>
-	<!-- custom: "Range" may apply to ground/land units too, about this i
-	mean anyways, hopefully clearer now about this i mean anyways, at least,
-	thanks,
-	Also switch to arabic numerals, clearer too, i think, about this i mean
-	anyways, thanks, -->
+	<!-- custom: "Range" may apply to ground units too hopefully clearer now,
+	Also switch to arabic numerals, clearer too, i think, and also prefer,
+	anyways. -->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_RANGE1</Tag>
 		<English>Air Range 1</English>

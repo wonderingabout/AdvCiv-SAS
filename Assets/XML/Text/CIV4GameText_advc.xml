@@ -3737,8 +3737,8 @@
 	</TEXT>
 
 	<!-- advc.005: was Pacal II -->
-	<!-- custom: i want the full leader name, plus i'm thinking of adding Basil II
-	for/of the byzantine empire i mean anyways, thanks, -->
+	<!-- custom: i want the full leader name, plus i'm thinking of
+	adding Basil II	for the byzantine empire -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_LEADER_PACAL</Tag>
 		<English>Pacal II</English>

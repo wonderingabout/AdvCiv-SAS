@@ -16,8 +16,7 @@ My goals doing this are:
 
 Purpose:
 - gather all Civ4 old data together (vanilla + BTS)
-- put "(Outdated)" in category name hosting them about this i mean
-anyways, thanks,
+- put "(Outdated)" in category name hosting them
 - use a new category containing Bts Rules changes and also other rules
 changes (not balance of +1 -1 stats that can be found elsewhere and
 prone to change and long to update for little gain, but things like
@@ -25,19 +24,19 @@ scouts (or any unit) needing to explore rival cities (or otherwise
 have a map vision of these rival cities) to be able to have a trade
 route with them, even if they are connected by route it would not be,
 alone and on/of(?) itself enough. I don't know if this is an AdvCiv
-or K-Mod change, but i would want to
+or K-Mod change, but i would want to add a mention of this explaining
+it.
 
-I had figured out most of it, but could not make it work, about this i
-mean at least etc i mean anyways, thanks, so i asked @f1rpo which gave
-me a very detailed answer that helped me solve this.
+I had figured out most of it, but could not make it work, so i asked
+@f1rpo which gave me a very detailed answer that helped me solve this.
 
 Credit goes to @f1rpo, current maintainer of AdvCiv, to have explained
 to me (see below for the explanation quoted, that i added here with
-@f1rpo's accord but anyways i mean anyways, thanks, ) in thorough detail
-how to achieve that, which helped a lot. I had given to @f1rpo slightly
-different names for the categories than the one i provided here at the
-"rename" bullet points above, but the explanation should be mostly
-(almost entirely in fact) the same (minus these name differences).
+@f1rpo's accord) in thorough detail  how to achieve that, which helped
+a lot. I had given to @f1rpo slightly different names for the categories
+than the one i provided here at the "rename" bullet points above, but
+the explanation should be mostly (almost entirely in fact) the same
+(minus these name differences).
 
 Go to the bottom after this quote to see the slight alteration i had to
 make it work for my needs in AdvCiv-SAS.
@@ -80,9 +79,9 @@ End of quote.
 
 Alteration:
 This mostly works, very great, just "Mods Info" now contains the old civ4
-concepts (vanilla + bts (, minus bts rules changes as i wanted), while
+concepts (vanilla + bts (minus bts rules changes as i wanted), while
 bts rules change "concept" (categorized as such but doesn't seem a concept
-to me like the other ones (concepts) but anyways...) is now in
+to me like the other ones (concepts) but anyways) is now in
 "Bts Info (Outdated)".
 This is not exactly what i wanted, but almost.
 
@@ -101,12 +100,10 @@ Unintuitive and not ideal because now old civ4 concepts, that
 are still in BasicInfos.xml in this mod now though, are stored
 under the newconceptinfo txtkey, while having conceptinfo XML
 tags, while bts rules changes and similar new entries i would
-want to create or not etc i mean anyways, thanks, are now
-in NewConceptInfos XML tags as i think is intended, but with
-ConceptInfo TXT Keys (and not NewConceptInfos TXT Keys as i
-would have wanted).
+want to create or not, are now in NewConceptInfos XML tags as
+i think is intended, but with ConceptInfo TXT Keys (and not
+NewConceptInfos TXT Keys as i would have wanted).
 So not ideal but works, hopefully helps.
-
 -->
 <Civ4BasicInfos xmlns="x-schema:CIV4BasicInfoSchema.xml">
 	<ConceptInfos>
@@ -184,11 +181,10 @@ So not ideal but works, hopefully helps.
 			<Civilopedia>TXT_KEY_CONCEPT_LIBERATION_PEDIA</Civilopedia>
 		</ConceptInfo>
 
-		<!-- custom: these old vanilla civ4 concepts (if i am not mistaken
-		i mean anyways that they are old vanilla civ4 concepts, thanks, )
-		were already in BasicInfos.XML, and are now (in the Sevopedia) also
+		<!-- custom: these old vanilla civ4 concepts (if i am not mistaken)
+		were already in BasicInfos.XML, and are now (in the Sevopedia) instead,
 		displayed alongside the BTS concepts (almost all, except BTS rules
-		changes i mean anyways, thanks, ) .
+		changes).
 		I think the game and the BTS expansion is old enough to consider
 		them the same game, so merging these together for a clear view,
 		and to highlight they are outdated in the new TXT KEY of the
