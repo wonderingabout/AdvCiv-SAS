@@ -61,4 +61,29 @@ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond
 		</Spanish>
 	</TEXT>
 
+    <TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_AIR_FIGHTER</Tag>
+		<English>Air (Fighter)</English>
+		<French>
+			<Text>Air (Fighter)</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Air (Fighter)</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Air (Fighter)</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Air (Fighter)</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+
 </Civ4GameText>

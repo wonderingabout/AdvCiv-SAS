@@ -11,6 +11,10 @@ full order to take from for quick editing or/and copy/paste:
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
@@ -109,10 +113,14 @@ full order to take from for quick editing or/and copy/paste:
 			<DomainMods/>
 			<TerrainDoubleMoves/>
 			<FeatureDoubleMoves/>
-			<!-- custom: alphabetical/sevopedia order, add siege units -->
+			<!-- custom: alphabetical/sevopedia order -->
 			<UnitCombats>
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 				<UnitCombat>
@@ -217,10 +225,13 @@ full order to take from for quick editing or/and copy/paste:
 			<DomainMods/>
 			<TerrainDoubleMoves/>
 			<FeatureDoubleMoves/>
-			<!-- custom: alphabetical/sevopedia order, add siege units -->
 			<UnitCombats>
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 				<UnitCombat>
@@ -325,10 +336,13 @@ full order to take from for quick editing or/and copy/paste:
 			<DomainMods/>
 			<TerrainDoubleMoves/>
 			<FeatureDoubleMoves/>
-			<!-- custom: alphabetical/sevopedia order, add siege units -->
 			<UnitCombats>
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 				<UnitCombat>
@@ -436,7 +450,7 @@ full order to take from for quick editing or/and copy/paste:
 			<!-- custom: alphabetical/sevopedia order, add siege units -->
 			<UnitCombats>
 				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 				<UnitCombat>
@@ -544,15 +558,11 @@ full order to take from for quick editing or/and copy/paste:
 			<!-- custom: alphabetical/sevopedia order, add siege units -->
 			<UnitCombats>
 				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
-					<bUnitCombat>1</bUnitCombat>
-				</UnitCombat>
-				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_LONG</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 				<UnitCombat>
@@ -3221,7 +3231,7 @@ full order to take from for quick editing or/and copy/paste:
 			<FeatureDoubleMoves/>
 			<UnitCombats>
 				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 				<UnitCombat>
@@ -3238,6 +3248,10 @@ full order to take from for quick editing or/and copy/paste:
 				</UnitCombat>
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 			</UnitCombats>
@@ -3306,7 +3320,7 @@ full order to take from for quick editing or/and copy/paste:
 			<FeatureDoubleMoves/>
 			<UnitCombats>
 				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 				<UnitCombat>
@@ -3323,6 +3337,10 @@ full order to take from for quick editing or/and copy/paste:
 				</UnitCombat>
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 			</UnitCombats>
@@ -4323,7 +4341,7 @@ full order to take from for quick editing or/and copy/paste:
 			<FeatureDoubleMoves/>
 			<UnitCombats>
 				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 				<UnitCombat>
@@ -4640,6 +4658,10 @@ full order to take from for quick editing or/and copy/paste:
 					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
 			</UnitCombats>
 			<HotKey/>
 			<bAltDown>0</bAltDown>
@@ -4706,6 +4728,10 @@ full order to take from for quick editing or/and copy/paste:
 			<UnitCombats>
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 			</UnitCombats>
@@ -4783,6 +4809,10 @@ full order to take from for quick editing or/and copy/paste:
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
@@ -4848,12 +4878,9 @@ full order to take from for quick editing or/and copy/paste:
 			<DomainMods/>
 			<TerrainDoubleMoves/>
 			<FeatureDoubleMoves/>
-			<!-- custom: disallow further interception to gun units, unlikely
-			they would do something, create a specific unit type if need for
-			anti air rather -->
 			<UnitCombats>
 				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 			</UnitCombats>
@@ -4924,7 +4951,7 @@ full order to take from for quick editing or/and copy/paste:
 			anti air rather -->
 			<UnitCombats>
 				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 			</UnitCombats>
@@ -4989,12 +5016,9 @@ full order to take from for quick editing or/and copy/paste:
 			<DomainMods/>
 			<TerrainDoubleMoves/>
 			<FeatureDoubleMoves/>
-			<!-- custom: disallow further interception to gun units, unlikely
-			they would do something, create a specific unit type if need for
-			anti air rather -->
 			<UnitCombats>
 				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 			</UnitCombats>
@@ -5064,6 +5088,10 @@ full order to take from for quick editing or/and copy/paste:
 			<UnitCombats>
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 			</UnitCombats>
