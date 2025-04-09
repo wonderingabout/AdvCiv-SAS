@@ -1,20 +1,20 @@
 disclaimer that this is not exhaustive would be way too long (even though
-wouldn't mind but i need to code my mod indeed about this at least if i may
-maybe i mean anyways, hope helps about this maybe i mean anyways)
+wouldn't mind but i need to code AdvCiv-SAS, still hope this is helpful or/and
+informative, anyways)
 
 - mongol army good at retreat:
 https://en.wikipedia.org/wiki/Withdrawal_(military)#Feigned_retreat
-so starts with more flanking or/and other related things etc
+so starts with more flanking or/and other related things
 
 - babylon bowman more of an infantry and easier to replace
 https://civilization.fandom.com/wiki/Bowman_(Civ5)
 
 - quechua not specialized but good at big numbers so cheap for its strength
-without much extras about this i mean anyways
+without much extras
 
 - camel cavalry very common in history due to unit being very adaptable
 so i want to make it a real alternative to horse for all civs, not just have horse or
-lose (or build melee etc): https://en.wikipedia.org/wiki/Camel_cavalry plus also
+lose (or build melee): https://en.wikipedia.org/wiki/Camel_cavalry plus also
 for desert environments and maybe plains too but would need to check
 
 - camel archer to all civs
@@ -26,53 +26,50 @@ for desert environments and maybe plains too but would need to check
 - could reuse some special warrior units maybe to have it more specialized: https://www.google.com/search?q=clubman+warrior
 Mapuche Ironwood Clubman or Nootka Clubman or/and a civ i implemented
 
-- make immortal of persia melee seems more accurate but did not look in detail only quick about this i mean anwyays at least
+- make immortal of persia melee seems more accurate but did not look in detail
 
-- clubman (warrior renamed for less generic name maybe i mean anyways about this i mean anyways) has quite high animal bonus so maybe give less to javelin or unit type i implement of stone age? Etc
+- ancient maceman (warrior renamed for less generic name maybe) has quite high animal bonus so maybe give less to javelin or unit type i implement of stone age?
 
 - worker increases improvement speed at each era
 - fast worker only for one era or 5 of them?
 
 - greatly reduce unit upgrade cost but somehow prevent warrior stacking
 mega upgrade? Faster paced game + chaning how it relates to production maybe
-(not much cost difference between units eras but tech needed maybe for example etc,
+(not much cost difference between units eras but tech needed maybe for example,
 but then would need adjust city growth of hammer so not sure about that but is
-example of approach i mean anyways about that (example) at least i mean anyways)
+example of approach)
 
-- add lancer unit combat(? if i am not mistaken) type maybe: includes camel lancer
+- add lancer unit combat (? if i am not mistaken) type maybe: includes camel lancer
 
-- change starting strengtgh to 10 but increase it more gradually? (more realistic?
+- change starting strength to 10 but increase it more gradually? (more realistic?
 But then warriros would eb cheaper so increase a bit their cost? But then barabarians
 would be stronger so adjust their spawn rate? But is maybe bad design to limit it so
 buff civs somehow too?)
 
 - religion specific units: initially for the crusader as a variant of the swordsman i got
-this idea i mean anyways but can extend it by having religion specific units throughout the
+this idea but can extend it by having religion specific units throughout the
 game, it could be thought of as special nits maybe interesting
 
 - add modern jihadist for jihad (islam neo-religion)
 
 - give bonus against other units or religions?
-Jihadists of medieval bonus against medieval other relgiios? Etc
+Jihadists of medieval bonus against medieval other relgions?
 
 - add religious_swordsman, cannot be built but only as a class for
-other religious units? But for what use? Etc, Not sure if worth about
-this i eman anyways, at least maybe or not at least mayeb, but i mean
-anyways i mean anyways
+other religious units? But for what use? Not sure if worth
 
 - mounted riding has changed its icon as a result to incude all or
-more units animal types about this i mean anyways at least indeed
-maybe but i mean anyways
+more units animal types
 
 - each civ starts with 2-3 miliary unuits at the very least then maybe,
 and then early unuits can be more expensive  (and later ones cheaper)
 
-- a clubman can win against a legionary not too unrealistic for example,
+- an ancient maceman can win against a legionary not too unrealistic for example,
 but not against a tank at all so adjusting that too
 
 - change the mechanic that axeman is good against lances, it's ridiculous
 i think but not sure as i don't know lot, create a melee_lance type and 
-melee_axe type combat types i tihnk i mean anyways
+melee_axe type combat types i think
 
 - create subtypes too instead of mounted, no reason a pikeman is good against a
 camel gunner at all so no longer mounted but instead mounted_sword moutned_gun
@@ -85,11 +82,9 @@ mounted_lance mounted_archer
 - siege very weak in defense then against msot units
 
 - mounted riding needs a new following tech as first horse archer was
-much later (elephant and camel most liekly too but didnt check in detail
-more, about this i mean anyways)
+much later (elephant and camel most likely too but didnt check in detail)
 
-- all civs start with one worker at least some 2? , is about this i mean
-anyways at least?
+- all civs start with one worker at least some 2?
 
 - paganist religious unit too
 
@@ -97,26 +92,466 @@ anyways at least?
 
 - add type melee_fist too for this
 
-- need to add melee_assasin maybe? That woudl target most annoying units? Etc.
-About this i mean anyways, etc. Maybe the courtesan too? Etc (150% attack against
-all melee units (mounted too fast to see her maybe... i mean anyways about this
-i mean anyways)but 90% less defense against all military units, can attack in stacks maybe)
+- need to add melee_assasin maybe? That woudl target most annoying units?
+Maybe the courtesan too? (150% attack against
+all melee units (mounted too fast to see her maybe) but 90% less defense against all
+military units, can attack in stacks maybe)
 
 - free starting worker may help ais a lot, realistic too
 
 - starting with 3 military units also solves the problem of early barbarians,
 AIs less vulnerable to them, maybe i could buff barbarians now even, and now
-units can be more expensive too with more gradual diff, clubman could win
-against swordsman much more often realistic too i think
+units can be more expensive too with more gradual diff, the ancient maceman could
+win against swordsman much more often realistic too i think
 
 - add melee_thief class maybe too?
 
-- give flanking 2 or 3 to courtesan? make ehr a special unit too maybe, else would
+- give flanking 2 or 3 to courtesan? make her a special unit too maybe, else would
 be spammed and if used as a tactic troops would not fall for it or less can work
-only once about this i mean maybe not indeed i mean anywys or i mean anyways
+only once
 
 - ninja is the chinese (?? if historically accurate would need to check assasin?)
 
 - create male and female assasin?
 
 - merge assassin and thief to simplify design?
+
+- longbows were available/existing even before bronze age, but to simplify,
+start from bronze age, because a bit too unlikely (way too old) in the stone
+age
+
+- no horse archers after iron age due to (them being in) their decline according
+to wikipedia in: https://en.wikipedia.org/wiki/Mounted_archery#Appearance_in_history
+
+- oldest longswords were in the middle ages (/medieval era is the same thing if i am
+not mistaken), according to:
+- - https://www.reddit.com/r/AskHistorians/comments/3fzfdt/in_europe_between_600ad_and_1600ad_were/?rdt=34816
+- - https://artofswordmaking.com/gallery/earliest-longswords-
+- - https://en.wikipedia.org/wiki/Longsword#History
+I initially wanted to fill all the eras with all (compatible) types of weapons, especially
+for swords, but after checking, this is more accurate maybe, maybe this helps simplifying
+gameplay, there (it) starts to be (has) a bit too much units so if i could simplify that at
+same time may be nice, especially if accurate (or more accurate), but a few more units are
+nice though. May do it as often as i find it convenient, suitable, doable, or desirable for
+AdvCiv-SAS and for me i mean.
+
+- I also chose the skuld of ff2 rather the champion partly because it fits the other stronger
+units i took from ffh2 such as the strongest axeman i chose for medieval era, i think the
+art works well, on top of giving a good feel, so the/a slight alteration in look as compared
+to the champion is fine about 
+
+- oldest (or among oldest) curved swords existed in late bronze age if i'm not
+mistaken this (after the 2 brackets (and coma) sword was in bronze),
+the khopesh for examples was such a sword according to: https://swordis.com/blog/curved-blade-swords/#:~:text=The%20ancient%20Egyptian%20Khopesh%2C%20believed,influenced%20by%20the%20Sumerian%20Sickle.
+
+So keeping the gladiator from c2c as the fast/light swordsman 2 (bronze), i really wanted to have
+fast units in all eras so glad this can fit, may have found an other unit otherwise
+
+- about this point it seems fast spears (+/- throw) were still
+(https://en.wikipedia.org/wiki/Spear-thrower#History) relevant in Renaissance in Spanish vs Aztecs
+battle, due to it being able to penetrate blade mail, even though not steel mail, but this is accurate
+enough to put them in the medieval era too
+
+- catapult was from iron age:
+https://en.wikipedia.org/wiki/List_of_siege_engines
+https://en.wikipedia.org/wiki/Catapult
+Around 7 BC(E) according to wikipedia i don't want
+to complicate too much the support type of military or civilian units (partly because they don't
+have too much of an influence in terms of gameplay), so i
+would rather just keep one or a few. Still, this is a bit empty, maybe i will add some more, not
+promised or guaranteed though.
+It may also have an influence on the AI, so i would rather have the AI build the few core units
+with some diversity, than be confused or build many of the more "useless" ones relatively in
+terms of gameplay and gameplay win.
+If it can help the human player or/and provide a more satisfying, easier to grasp/digest or/and
+focus on experience
+
+- i want defense and defense units to be slightly more effective than offense, so defense units
+would be available sligtly sooner, be slightly more effective, and it seems conveniently, that
+they are slightly more too. In exchange, they would cost slightly more.
+Maybe this would put more emphasis on strategy, also avoid human players spamming attackers
+retardedly, it may also help the AI
+upgrade their units sooner, so human players would need to use a more effective strategy than
+spamming attackers when AI defenders are relatively the weakest. I may have to make sure defenders
+always get new units and upgrades, i could transform
+the musketman as an offense unit and add a new defensive unit at same era, or some similar
+approach and check if accurate too historically or leave as is.
+Example: more lancers, grenadier slightly before rifle (but would need to check if this is all
+accurate or maybe would leave as is or not)
+
+- if some units do not fit too well at a specific era, especially edge of era units, i may solve
+this by giving them an early or late tech requirement in said era. Similar logic for all units
+in the military upgrade tree
+
+- after all giving more siege units to AIs especially. AI is very fond of these if i am not
+mistaken in civ4 BTS/base advciv in particular. May help AI perform better and not keep catapults so
+long until canons are available. May make gameplay more interesting for human players maybe too. If so
+all good, if not i would rather have the AI be more competitive, not in a grindy way, but just
+making sure tech(ing) is always important, not just military, so the human player will need to pay
+attention to this too, and not just stack outdated attackers and then somehow win.
+
+- canons around 1200 AD:
+https://en.wikipedia.org/wiki/History_of_cannons
+culverins around 1500 AD:
+https://www.britannica.com/technology/culverin
+Simplify by putting one in each era
+
+- about siege not necessary in all eras to not overclutter gameplay but will see
+
+- there were early catapults and medieval catapults, putting one of each type may help solve
+this issue:
+https://en.wikipedia.org/wiki/Catapult#Other_ancient_catapults
+https://en.wikipedia.org/wiki/Catapult#Medieval_catapults
+
+- why does cavalry evolve in gunship??? I didn't know this!!! Not played much if at all
+games so late in the stage/era, of course i have to remove this, it is
+completely nonsensical i think, will try to find better link in upgrade else do none.
+
+- more info on artillery: https://en.wikipedia.org/wiki/Artillery#Invention_of_gunpowder
+It seems artillery was quite stagnant from gunpowder discovery in end of medieval era
+to napoleonic wars time which i classify as industrial age from what i
+know (yet) about this era, but i want to show some progression and to
+have units available so the AI can upgrade them, perhaps the human player too. And
+some technological advancements were made or must have been made, i think after
+some researches, the (armstrong) rifled cannon from realism invictus (that i had found
+myself somehow before researching but anyways), and the armstrong
+(heavy) cannon (using the base bts one for that as it fits quite well too) for the heavy
+artillery, may fit quite well.
+
+- history of ballons (https://en.wikipedia.org/wiki/History_of_ballooning) indicates it
+seems, that dirigibles ("airship" in civ4 bts/base advciv)
+(name given by wikipedia and that may make more sense according to my intuition and
+very little info i know on the topic had little impact militarily.
+I may give them a bit of strength but not a lot.
+It seems to make sense intuitively but did not check in detail. I would not want too much
+units in late game, was thinking to upgrade this into helicopter but difference
+may be too big, or maybe not, if it is practical enough so what i would do i think is
+leave it here as an air explore unit, it may have
+some value in doing so/having such a role, while also being connected to the
+drone later i added too in robotic era
+
+- maybe make only only design of worker change at new era while having a tech give all
+workers higher bonuses (for example improvement build speed or/and move speed or/and other
+things) rather than having to manually upgrade each of
+them? I don't know how but should be possible seeing as the skin of the worker changes
+some at some era in base advciv/bts, then i could just give new worker effect at era
+maybe. It may be from a human player perhaps personal or not
+satisfying to upgrade workers so they are stronger, especially if free, but it is
+perhaps needlessly tedious, and there will be a lot to focus on on the map or game in
+general. Taking some if not more of the "tediousness" if that word exists (i checked it
+does exist all good) may help the human player focus
+on the key strategic elements of the game more. There is not much strategy in upgrading
+workers or support units actually.
+
+- i am considering to extend this logic
+to most or some support units i find it most relevant with, perhaps as a
+means to simplify the game a remove tediousness. This has a nice (unintended originally/
+initially of me) side effect,
+which is that i would have to implement much less units, only one, same as what civ4bts/
+base advciv did for the worker, that gets a graphical update at some era, but is only one unit.
+Putting the bonuses outside of the unit is really an efficient and simplifying design i may
+or not use for other units maybe too
+
+- may have to do some rounding on worker building times (and increase/decrease as in nerf/buff
+the time of some improvements) or rather increase/decrease (as in tweak/rebalance/adjust so
+that there is no rounding leading to no improvement, maybe if i can do this and it is practical
+and desirable). Plantations may be a bit too long to build
+i think for example, for no specific reason i think, maybe it would help the AI too this way.
+But reducing it too much would not make it feel like strategy, so adjusting this (and the fort
+maybe too in particular reduce its build time maybe too? May make it more valuable for human
+players, also realistic, even though a fort is long, should not be that long), so adjust/rebalance or/and buff/nerf these all maybe too
+
+- note also: it makes the "Unit Upgrades Tree" old name (now "Unit Tree") even less relevant now,
+as this is more about listing most units (religous not included for simplicity for example, also
+unique units too for example but anyways), so this is a change that is coming down altogether
+
+- the worker is a very important and often used unit so i may go extra lengthy into making sure it
+gets as many graphical updates as possible maybe
+
+- grenadier throughout history, around 1500 AD according to wiki:
+https://en.wikipedia.org/wiki/Grenade#Gunpowder
+moved the grenadier to renaissance, added other units instead for more accuracy
+or realism or wanting other units there, but now added grenadier back to industrial era, because it
+is its time of/in history, and added an earlier type of
+grenadier sooner in tech tree to have a nice line of their ancestors
+
+- i wanted to use the valkyrie from ffh2, but doesn't fit too well as a military unit, using it
+as the corporation (sword) todo executive, looks like saber, glad it/she could fit there
+
+- i like that the laser infantry fits the theme/reminds me of/replicates Empire Earth (1)'s foot infantry
+in the latest eras (which i liked a big lot)
+
+- could add medics like medevac helicopter (c2c) but may make gameplay too tedious, not sure, will
+see, or/and affect AI building units priorities
+
+- having religious units provides an extra incentive to build religious for players, especially
+humans players, may be good to put more emphasis on religion in this AdvCiv-SAS mod i think.
+
+- SAM seems to not have been as successful as is depicted (based on unit stats) in civ4.
+According to this source for example after checking quick https://www.reddit.com/r/WarCollege/comments/kesgsy/were_sam_systems_a_superior_strategy_to_air_power/
+the hit rate was quite (very) low, and only bruteforce could make it any useful.
+This is from what i've read, i didn't check in detail.
+Nerfed the SAM infantry from civ4's values, while slightly buffing the modern sam, i would/should/would
+want ideally to nerf it more to something like 10%, but nerfing it anymore would make the unit useless.
+I could give air interception promotion to sam units, while making their starting values lower, but it
+is too much hassle for an about final result, also not too realistic that suddenly somehow a SAM infantry
+may be very effective at shooting at a very fast plane, there are physics limit here, i think
+It is mostly newer tech that would, and i think should, give better air
+interception chances for ground unitsand as for air units, they
+may get promotions though, an F-15 may get better at shooting bombers or other planes or other things
+I did not search in detail, but seems to make sense to me this way or/and suitable/desirable for my
+needs.
+
+- oldest mobile sam at least in 1939 https://en.wikipedia.org/wiki/Self-propelled_anti-aircraft_weapon#History ,
+putting it at rocketry rather than laser seems about right (this is before i reordered the later techs, still
+even in civ4 bts/base advciv should make more sense hopefully)
+
+- oldest railroad 1758 https://www.google.com/search?q=oldest+railroad&rlz=1C1GCEA_enFR1111FR1111&oq=oldest+railroad&gs_lcrp=EgZjaHJvbWUyBggAEEUYOdIBCDE5OThqMGoxqAIAsAIA&sourceid=chrome&ie=UTF-8 ,
+oldest machine gun 1884 https://en.wikipedia.org/wiki/Maxim_gun , did not look in detail but this seems like yet
+another historical inconsistency in an otherwise very good game, putting the machine gun later in tech tree ;
+oldest assembly line seems to be in 1853 or around it, putting the machine gun at this hopefully makes more sense.
+
+- oldest airplane in 1903: https://en.wikipedia.org/wiki/History_of_aviation#History
+
+-  for the mechanized infantry i didn't look in detail, barely looekd at all due to lack of data and not most
+interesting period of history about these techs, still mechanized infantry should be a bit stronger
+than machine gun at intercepting air units, so increased its value quite a bit, still much less than specialized mobile
+sam so each would have their purpose and a player would not just spam mechanical infantries hopefully
+
+- also about the mechanized infantry, seems to be much sooner than robotics https://en.wikipedia.org/wiki/Mechanized_infantry#History around 1950s or sooner or later depending which is considered a baseline of a sophisticated
+enough or functionnal enough one. I don't know a lot and barely looked at the topic only quick,
+still seems to me tech should be "advanced" earlier in history than robotics, so put it at industrialism tech,
+but may and most liekly would adjust this or other prerequirements, or maybe not, based on how i reorder the tech tree, still is good data (points) to know (about)
+
+- adjusting the tank to be oldest (than mechanized infantry) too, based on very quick look seems to be
+https://en.wikipedia.org/wiki/History_of_the_tank 1916 approximately if not sooner, very interesting to see how it is
+linked to very early(ier) parts of history, may have to keep these in mind as i adjust tech prerequirements of the new
+tech tree
+This data is also helpful to sort these units in the unit tree i am making currently
+
+- costs are all over the place, a tank should be much more expensive than infantries even if they are at similar eras,
+but will adjust later, when i do tech tree or other things or rebalancing
+
+- oldest mobile artillery in 1917 https://en.wikipedia.org/wiki/Self-propelled_artillery#:~:text=The%20British%20Gun%20Carrier%20Mark,1917%20during%20World%20War%20I. , did not look in detail but changing the tech requirement of this unit to assembly line same as the tank
+
+- but now the artillery itself does not make sense anymore, is currently in civ4 bts / base advciv at artillery which is
+later than assembly line in tech tree.. but it is maybe just a few, it is after all accessing directly after rifling, so
+adjust position of artillery tech so that it appears closer to rifling in tech tree,
+maybe increase or decrease cost bit to make it closer to assembly line, but quite a bit before that, see this
+https://en.wikipedia.org/wiki/Artillery#Modern
+that i already linked and found myself rereading just now but about a different part (the armstrong gun)
+
+- also anti tank could not have happened before tanks,
+before realizing that, i checked this unit too:
+https://en.wikipedia.org/wiki/Anti-tank_warfare
+Which made me immediately realized such a unit could only exist when tanks also appeared.
+May create a bazooka or something that preceded if it existed but didn't check, now checked quick is a bit later than
+the first tanks that bazooka happened it seems from very quick search but focusing on the anti tank, also as i said
+i don't want to complicate the late game too much, and make it converge to reach a fast endgame
+so players can (or may be more likely to) finish the game hopefully with it not being (as it would not be) too tedious (now hopefully)
+
+- And as for this unit (anti tank), adjusting tech to assembly line to match the tank.
+Hopefully more interesting to have all the military techs of atomic eras at the same time, strategically and it will be
+also a hge chaos xd befitting of the end game
+of a map, nukes and such, i don't play much these eras, but if it's fast enough, maybe i would
+
+- about modern armor / tanks, it seems they improved (very) significantly during cold war as compared to the first tanks
+https://en.wikipedia.org/wiki/History_of_the_tank#Cold_War, but as i want to simplify the tech tree, will not include
+extra intermediate number of tanks. Modern Armor did not require computers unless i'm mistaken, so will
+advance it sooner in the modern era, and add only one new tank to keep one unit type per era logic in the robotic era,
+hopefully much better this way, at least making sense to me and simple enough design, maybe is also what they (civ4 makers/devs) meant/wanted maybe, so as for the modern
+tank, will put it in modern era before computers, and add a new robotic tank (that appears) a bit later in the tech tree, hopefully this way makes more sense historically, while
+also making the gameplay design elegant and simple yet deep and rich enough especially for strategy. Hopefully now all the tech tree and most modern
+units and future robotic ones.
+
+- marksmanship leads to snipers https://en.wikipedia.org/wiki/Sniper#1543-1600 , so i want to link it with the ffh2
+unit, i also really like it so i want it to lead to snipers, plus it has a quite longbow so can most likely be
+categorized/typed as such (i.e. as a longbow and not an archer, which seems to fit the unit
+better too).
+
+- i want upgrades to be farily straightforward too, so archers can become snipers (and crossbows too), not just longbows.
+There may not be much more units though than with previous classification
+i made of gun support only vs now gun bomber/sniper, but i like this more. Also i really wanted snipers from the moment i noticed this unit was possible to build, that i knew before but still seeing it, for example in realism
+invictus or/and some other mod(s).
+
+- grenadiers existed before industrial era, so revising previous judgment, and before that https://en.wikipedia.org/wiki/Grenadier#Grenades https://en.wikipedia.org/wiki/Thunder_crash_bomb
+
+- after a bit of research about realism invictus ingame i found that the ming grenadier seems to fit very well, ming is before
+qing in china from quick googling +/- wiki, and ming fits the medieval timeline quite well, even their clothes are medieval (enough).
+
+- the improved medium tank of realism invictus fits very well and is consistent with the other assets i want, so using it for the
+atomic tank, in fact it was same name mentionned of the medium tank if i am not mistaken during or rather after ww2, so using it (after checking https://en.wikipedia.org/wiki/History_of_the_tank#Cold_War, is indeed that)it seems medium tank during cold war fits very well
+
+- for the offense gun 8 (atomic as currently is), chose the AK-47, realism invictus has some nice models and detailed units for this period of history, so i am just shutting my brain off and taking whatever seems to suit/fit quite well here, not detailed much either, but for example this reminds me of my childhood of ak-47 terrorists vs counter terrorists maverick (M4A1) in counter stike, source in particular, which many who
+played may relate, my favourite map was poolparty btw xd.. which i was was (quite) very good at it but anyways, and my favourite
+one was the arctic terrorist, wanted one for this unit but didnt find, chose the model (unit) that seemed to best fit the AK-47
+model, not detailed much
+
+- about the modern ground gun infantry (offense), i can't mention the word terrorist directly sadly as it is a military regular
+unit it seems, hopefully it is nostalgic enough to say AK-47, i'll force it xd push it bit more by saying maverick (M4A1) for
+the USA equivalent of gun defense now, to stir the nostalgia chord of the fans xd, or/and curiosity
+
+- reuse this wikipedia description https://en.wikipedia.org/wiki/Sniper#1543-1600 (as quoted before) about the early sniper that i may call "long range marksman" or similar as in this wikipedia quote below etc, after the initial date of 1543-1600, beginning of quote:
+"Long range marksmanship occurred as early as the mid-sixteenth century.
+
+One example is the Ise-no-kami school of gunnery. It was founded by the Christian feudal lord of the Saiki Domain, Mori Takamasa (毛利高政 1559- 1628). Takamasa had aspired to become a marksman from a young age, and in his prime, he used up a 10-tan sailboat's worth of ammunition in just a few years, showing his considerable passion. He is said to have always told people, "You won't improve your skills unless you fire that much ammunition." During the battle of Ulsan Castle in Korea, he was a master of guns, firing at the enemy from a distance of seven cho ( about 770 meters ) with a 278 cm long "焔魔王 - Flaming Demon King" O-zutsu (Matchlock Cannon) throwing the enemy camp into confusion with his accurate shots."
+end of quote
+
+- about the long range sharpshooter same :
+https://en.wikipedia.org/wiki/Sniper#1701%E2%80%931800 and https://en.wikipedia.org/wiki/Sniper#1801%E2%80%931900
+quote:
+"
+1701–1800
+Later "sharpshooting" or "sniping" became implemented in shooting terminology.
+
+For example: in the 1752 Appin Murder, Colin Roy Campbell of Glenure was shot in the back near Duror by an unknown sniper, most likely from within Clan Stewart of Appin, in retaliation for Campbell's role in an early version of the Highland Clearances; the mass eviction of Stewart clansmen and their replacement by members of Clan Campbell.
+
+Hunting terminology was quickly adapted to warfare by British soldiers. In a 1772 letter, a soldier described enemies firing very accurately:
+
+… in erecting our batteries, the people frequently play tricks, by putting a hat with a cockade in it on a spunge staff, which the enemy fire at and often hit, to the diversion of the soldiery, who humorously call it sniping, and watch the flash to return the fire.
+
+On 11 September 1777, during the Battle of Brandywine, British Captain Patrick Ferguson had a tall, distinguished American officer in his rifle's iron sights. Ferguson did not take the shot, as he considered shooting anyone in the back dishonourable. Only later, did Ferguson learn that George Washington had been on the battlefield that day.
+
+At the Battles of Saratoga, Morgan's Riflemen hid in the trees and used early model rifles to shoot senior British officers. Most notably, Timothy Murphy shot and killed General Simon Fraser of Balnain on 7 October 1777 at a distance of about 400 yards.
+
+In early 1800, Colonel Coote Manningham and Lieutenant-Colonel the Hon. William Stewart of the British Army proposed using what they had learned while leading light infantry to establish a special unit of marksmen. Subsequently raised as the "Experimental Corps of Riflemen", they were armed with the formidable Baker rifle rather than the inaccurate smoothbore muskets used by most troops at that time. Through the combination of a leather wad and tight grooves on the inside of the barrel (rifling), this weapon was far more accurate, though slower to load. On 25 August 1800, three companies, under the command of Stewart, spearheaded an amphibious landing at Ferrol, Spain.
+
+1801–1900
+The term, "sharp shooter" was in use in British newspapers as early as 1801. In the Edinburgh Advertiser, 23 June 1801, can be found the following quote in a piece about the North British Militia; "This Regiment has several Field Pieces, and two companies of Sharp Shooters, which are very necessary in the modern Stile of War". The term appears even earlier, around 1781, in Continental Europe, translated from the German Scharfschütze. Scouts in the Ashanti army were made up of professional hunters who used their skill as marksmen to snipe at advancing enemy forces in response to detection by the enemy. They executed this often from a perch high in trees. The Whitworth rifle was arguably the first long-range sniper rifle in the world. A muzzleloader designed by Sir Joseph Whitworth, a prominent British engineer, it used polygonal rifling instead, which meant that the projectile did not have to bite into grooves as was done with conventional rifling. The Whitworth rifle was far more accurate than the Pattern 1853 Enfield, which had shown some weaknesses during the recent Crimean War. At trials in 1857 which tested the accuracy and range of both weapons, Whitworth's design outperformed the Enfield at a rate of about three to one. The Whitworth rifle was capable of hitting the target at a range of 2,000 yards, whereas the Enfield could only manage it at 1,400 yards.
+
+During the Crimean War, the first optical sights were designed to fit onto rifles. Much of this pioneering work was the brainchild of Colonel D. Davidson, using optical sights produced by Chance Brothers of Birmingham. This allowed a marksman to observe and target objects more accurately at a greater distance than ever before. The telescopic sight, or scope, was originally fixed and could not be adjusted, which therefore limited its range.
+
+Despite its success at the trials, the rifle was not adopted by the British Army. However, the Whitworth Rifle Company was able to sell the weapon to the French army, and also to the Confederacy during the American Civil War, where both the Union and Confederate armies employed sharpshooters. The most notable incident was during the Battle of Spotsylvania Court House, where on 9 May 1864, Union General John Sedgwick was killed by a Confederate Whitworth sharpshooter at a range of about 1,000 yards (910 meters) after saying the enemy "couldn't hit an elephant at this distance"."
+end of quote
+
+- for the early sniper, similarly, quote https://en.wikipedia.org/wiki/Sniper#Second_Boer_War + https://en.wikipedia.org/wiki/Sniper#World_War_I
+
+- for the modern sniper similarly, quote https://en.wikipedia.org/wiki/Sniper#World_War_II
+
+- about the camel gun unit (industrial era), i have put it to defense rather than offense as it was,
+i don't have another model except the camel cavalry from c2c that doesn't seem realistic with its occidental-like
+outfit (seems like just a cavalry with a camel with some other strange c2c models but i am thankful they have them
+at least for the ones i took if not more and took many of them from them kindly made available as part of their game by them),
+also the rest is only based on my intuition but i don't think/feel camels would be effective as attackers and be able to apply flanking or other strategies which i don't know a lot
+about but i assume would happen this way, the speed of the horse cavalry would just outmatch it, but again did
+not check. Also against other gun units unlike in previous eras, the camel would start to fall behind
+vs the horse i think based on intuition but etc, still should be helpful and provide some defense value
+especially in the desert or similar terrains, may adjust bonuses based on terrains also for this unit (camel defender) as i intend to do to all/most units. It is also more convenient that i don't have a camel offense model this way, using it as/at defense(der).
+
+- for the horse industrial/imperial age defender (i say imperial because of how many big empires fought with royal guards
+and such from little i know or saw in anime and such, and on this topic: ) i as soon as i realized it, which is today xd
+but anyways, want badly to add an imperial/royal horse defender like in rose of versailles the anime, would be so badass.. But
+anyways
+
+- make the "title" of the units more clear sometimes maybe and more dinstinct from their unit type, i thought intuitively
+it was the same but is not, for example "rifle cavalry",
+"horse knight", for example maybe ; Oscar!!!! (rose of versailles anime)
+
+- the transition from the superheavy tank (FCM 2C) of WW1 (tank defender i (quite) luckily) to the mechanized infantry does not fit that well as they have quite different roles from what i know, but it should be fine (enough) i think because
+mechanized infantry also served as anti personnel from what i saw about this topic and learned,
+i would not want the upgrade to be a downgrade, will see how i balance mechanized infantry to make it valuable,
+taking historical accuracy in mind, maybe there's a way to balance this unit.
+
+- for the sniper 8 (modern), trying to match this picture of the wikipedia page of the sniper mentionned earlier (https://en.wikipedia.org/wiki/File:Pav-Stamp.jpg) even though a bit earlier than modern era but should do maybe, as for the sniper 7.. i made a change(s) after writing this, read below
+
+- ended up reverting this logic as the infantry IJA of realism invictus fits well the sniper 7 (atomic) maybe rather, will adjust a newer maybe more modern sniper 8 instead
+
+- about the christian neo religious unit (special ops, see notes about unit imports for details, (and disclaimer notice
+at root of this docs )), it conveniently and without me noticing it happened that special ops are common between
+the usa (fbi, nsa, etc from what i know about this) and russia (kgb etc maybe too from what i know about this), both of
+which are historically christian countries, so may fit the narrative
+
+- about the snipers wanted to choose the units with a quite big backpack and that look quite thin too, remins me of my
+empire earth (1 (i also played empire earth (2) but bit less and unrelated (to this point))) souvenirs / memories of the sniper unit
+
+- noticing this later, but it's also convenient the upgrade design path is (fairly/quite) straightforward
+(all archer upgrades into guns, all mounted into tanks, etc) as this way, it also allows units tree to be more compact and
+hopefully maybe clearer too, pleasant side effect, did not intend it to be this way but nice that it is (ended up) being
+this way now
+
+- while searching for a new dutch unit, i had found the idea of a/the dutch worker in realism invictus, much better than the east indiaman i think. Then i also "luckily" found some while later, the great
+farmer in c2c that looks very dutch or dutch enough, so following that another "lucky" search i found/learned (https://www.google.com/search?q=dutch+famring that leads to https://www.nationalgeographic.com/magazine/article/holland-agriculture-sustainable-farming) that the dutch are farming leaders, very nice, may also synergize very well with the
+Dutch growth tendency, as i had noticed before too while adding the first worker for the Dutch. May use both of these for 2 separate eras, or for other civs maybe, or a similar approach for other civs, as i was considering about the Chinese civ unit for example to switch it to a worker, before that. About the Dutch worker, may give it improvement build speed or another type of bonus maybe.
+
+- for the robotic era (era 9 currently), reusing the concept of the automatic
+body sniper of c2c, but with a human one that handles instead an AI powered gun, that aims semi automatically or/and provides
+other boosting military assistance. Very useful and helpful concept and models from c2c,
+even though i got the idea myself on how to tweak them or even without looking at what they did too much, still very helpful,
+thanks! Also is the only unit so far i have seen that holds an actual sniper so very useful, even though i am not sure it can be visible ingame
+
+- using the same logic for the gun bomber 9, AI powered bazooka, is all connected and nice
+
+- about the powered exoskeleton infantry (gun defense era 9 (robotic)) (keeping same name as in c2c), make it (description or/and stats) so that it uses its exoskeleton to be tougher, deal deadlier
+blows, while being able to tank more, but slightly slower, so is a defender type of unit
+
+- about tanks, make it so that offense or rather defense tank 9 is (slightly) stronger than offense tank 9, since i don't
+have or/and want to use the existing modern armor model while upgrading it (in description and as compared to base civ4
+bts/base advciv's modern armor) saying it's robotic. So the defense tank would be stronger due to more advanced AI integration,
+but to make use of these at their max potential, the structure of the unit needs to be adjusted in a way that is currently
+(in the lore of this unit) not compatible with tank offense in terms of performance and speed in particular, it could be justified
+that way maybe, by the fact that this new technology could not yet be implemented in newer mobile attack tanks, but has already
+been included in more stationary tanks
+
+- for the light siege unit 9 (robotic era), try this approach of having this unit fire ultra high temperature "bullets", that would maybe melt the defenses of mechanized robotic units
+
+- removed stealth bomber to simplify end game
+
+- nostalgy empire earth 1 b52 bomber, and even though the Fokker Dr.7 seems to be generally considered best or among best
+according to this source https://hushkit.net/2014/12/08/the-ten-greatest-biplane-fighters/, still i choose the red barron
+https://en.wikipedia.org/wiki/Manfred_von_Richthofen for nostalgy and also to honour his memory whatever that means.
+Also i disagree with realism invictus's description (yet again or history placement), it seems unlike what is said in realism invictus, the air fighters (including biplanes, the
+Fokker Dr.1 is/was a triplane, is an inaccuracy that seems to be in realism invictus even though they have the correct model and description it seems though but anyways) played a key role or at least important in victory. I also really like his bio.
+
+- first frigate around 1500 AD: https://en.wikipedia.org/wiki/Frigate#:~:text=The%20classic%20sailing%20frigate%2C%20or,first%20example%20of%20this%20type.
+
+- removed caravel: Too close to the galleon, also not very sensical that it can somehow enter borders without accord, may add this ability (cargo) to privateers but not sure, in particular because i am not sure AIs would handle it well, but would make
+more sense at least. May remove also other units or not similarly, for example the ship of the line or/and other units.
+
+- hoplite is lance heavy, and a phalanx, https://en.wikipedia.org/wiki/Hoplite#Ancient_Greece, more on the origin of the
+word here too https://www.worldhistory.org/hoplite/ (make them available from the mid iron age (around 700 BC approximately)
+(so no longer based on the axeman as in base civ4 bts/advciv but on the spearman, and name changed to match this to "hoplite
+phalanx" (similar to the one in history rewritten but slightly different, and similar than in civ3 which i liked a lot but i
+play civ4 and enjoy it much more now (not that i dislike civ3 but anyways, civ3 for example got it better with the
+name and unit type (lancer not axeman) but wrong on availability, for example not bronze age and bronze working but mid iron age if i am not mistaken which is much later, may check if copper or bronze requirement but for now and later adjust tech requirement first))))
+
+- types of feudal age vessels: https://www.altered-realms.com/iron-age-transportation/ , very useful data
+
+Added a screenshot (about which i merged the parts of table with Microsoft Paint which i like a lot but anyways) in docs.
+
+Based on this i should reduce the cost of other ships or/and add new ships maybe , the sailboat maybe for example as an alternative
+to the galley, may increase the galley's cost instead, which makes sense when thinking about it
+
+- galleys first from around 3000 BC: https://en.wikipedia.org/wiki/Galley#Early_history , however they were war boats that could contain troops from what i understand of it, so make it carry troops and make it a war boat not a transport class boat,
+even though in AdvCiv-SAS it will be able to carry any type of troops, but make it more expensive too based on previous info
+
+- ancient rowboat from around ancient egypt so bronze age: https://en.wikipedia.org/wiki/Rowing#Ancient_Egypt (ancient egypt is around 3000 BCE if i'm not mistaken)
+
+- galleys history (for design/model choices) https://www.warhistoryonline.com/ancient-history/galleys-first-great-warships-m.html and https://curriculumvisions.com/search/G/galley/galley.html
+
+- make upgrade to etiher frigate or privateer (idea from history rewritten but modified their idea)
+
+- early galley of realism invictus should fit better and is more distinct that the one in bts that looks quite generic, not
+sure it accurate regarding bronze age designs (of galleys) but maybe/hopefully accurate enough, and i did not find much data
+on this.
+
+- medieval galley: https://www.quora.com/What-are-some-characteristics-of-medieval-galleys (quite late in medieval era a bit in the middle a little further)
+
+- oldest privateers around 1200 AD, including it in medieval era even though late part of it, i also find it's a cool design
+where pirates have a golden era, where they are stronger than
+even frigates, or maybe bit weaker than frigates but much sooner
+too
+
+- for simplicity skipping some early steam powered boats (to keep the one boat (type) per era "rule", also not that much
+of a difference even though would have been nice maybe, for example the quote about napoleon and steam power if i remember
+correctly that i read quite some time ago, hopefully clearer or at least smoother gameplay this way, make them around
+1850 AD then)
+
+- first paddle steamer around 1774, so make them a bit sooner than ironclad https://en.wikipedia.org/wiki/Paddle_steamer#History , small inconsistency as a result that ironclad is available later than paddle steamer even though it is a military and should have a later technology such as steam power, but probably fine in civ4 if techs are close enough, could even be same tech maybe to simplify maybe, and i want end game to be faster.
+
+- first destroyer in 1885: https://en.wikipedia.org/wiki/Destroyer
+
+- first potentially viable as a weapon submarine in 1866 https://en.wikipedia.org/wiki/History_of_submarines#Mechanical_power , make it as same time as early destroyer to simplify, use the u-boat from realism invictus for nostalgy of empire earth 1 maybe and also because/as it is a reliable memory that i remember well enough to know it's this era maybe anyways.
+
+- nuclear submarines are submarines powered by nuclear energy, not necessarily having nuclear weapons https://en.wikipedia.org/wiki/Nuclear_submarine , due to their high cost, removing them to simplify end game and also less things to implement, but main reason is they make less sense, i had assumed ignorantly but as it is that it had nuclear weapon, is thanks to realism invictus that i noticed they have (it seems) no submarines, removed them before that, then added them for exhaustiveness, then after checking for realism invictus models and seeing they seemingly don't have them ((thanks to their very nice search bar i am thankful for but anyways) but don't want to implement at least not yet, partly because it may be quite laggy or cause bugs but or/and other reasons maybe i don't know but anyways), so now reverting back to only one type of submarine, and put back (nuclear) submarine in robotic era (9)
+
+- first sea plane carrier in 1912: https://en.wikipedia.org/wiki/History_of_the_aircraft_carrier ; to simplify make them available at flight but add another tech requirement so it's slightly later but not a lot (for example flight + assembly line but would need to check so this is just an example, it may be wrong as a result, see latest sevopedia implementation if i don't forget to do it, for the accurate and updated version i chose if i didn't forget it)

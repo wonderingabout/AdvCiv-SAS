@@ -9736,9 +9736,19 @@
 			<iUnitImmobileTurns>0</iUnitImmobileTurns>
 			<UnitPromotion/>
 			<UnitName/>
+			<!-- custom: new archer combat types -->
 			<UnitCombatPromotions>
 				<UnitCombatPromotion>
-					<UnitCombat>UNITCOMBAT_ARCHER</UnitCombat>
+					<UnitCombat>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombat>
+					<UnitPromotion>PROMOTION_COMBAT1</UnitPromotion>
+				</UnitCombatPromotion>
+				<UnitCombatPromotion>
+					<UnitCombat>UNITCOMBAT_ARCHER_BOW_LONG</UnitCombat>
+					<UnitPromotion>PROMOTION_COMBAT1</UnitPromotion>
+				<!-- custom: add other types of archer units maybe too -->
+				</UnitCombatPromotion>
+					<UnitCombatPromotion>
+					<UnitCombat>UNITCOMBAT_ARCHER_CROSSBOW</UnitCombat>
 					<UnitPromotion>PROMOTION_COMBAT1</UnitPromotion>
 				</UnitCombatPromotion>
 			</UnitCombatPromotions>

@@ -76,15 +76,24 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		self.H_SCREEN = 768
 		self.W_SCREEN = 1024
+
 		# <advc.004y>
 		self.bWideScreen = True
 		self.bFullScreen = True
 		if self.bFullScreen:
 			self.bWideScreen = True
-		self.HORIZONTAL_MARGIN = 30
+		# <!-- custom: Not much value in being able to see the elements at the
+		# edge parts of the screen, however i think the extra room can be useful
+		# to fit more data or simply enlarge the view, hopefully making it all
+		# clearer and more pleasant to see.
+		# Other mods such as realism invictus or c2c use the entire screen for
+		# the sevopedia if i'm not mistaken and i like it fine, tested in
+		# AdvCiv-SAS and i like it very much, so removing margins now.
+		# -->
+		self.HORIZONTAL_MARGIN = 0
 		# VERTICAL_MARGIN: Want the Advisor buttons to remain visible. BOTTOM_MARGIN could be 0, but I don't think asymmetrical margins look good.
-		self.TOP_MARGIN = 50
-		self.BOTTOM_MARGIN = 50
+		self.TOP_MARGIN = 0
+		self.BOTTOM_MARGIN = 0
 		if self.bWideScreen:
 			self.W_SCREEN = max(self.W_SCREEN, self.getScreen().getXResolution() - 2 * self.HORIZONTAL_MARGIN)
 			if self.W_SCREEN <= 1024:
@@ -388,6 +397,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.szCategoryCivics		= localText.getText("TXT_KEY_PEDIA_CATEGORY_CIVIC", ())
 		self.szCategoryReligions	= localText.getText("TXT_KEY_PEDIA_CATEGORY_RELIGION", ())
 		self.szCategoryCorporations	= localText.getText("TXT_KEY_CONCEPT_CORPORATIONS", ())
+		# <!-- custom: see below at self.categoryList 's code comment -->
 		self.szCategoryConcepts		= localText.getText("TXT_KEY_PEDIA_CATEGORY_CONCEPT", ())
 		self.szCategoryConceptsNew	= localText.getText("TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW", ())
 		self.szCategoryHints		= localText.getText("TXT_KEY_PEDIA_CATEGORY_HINTS", ())
@@ -416,6 +426,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			["CIVICS",	self.szCategoryCivics],
 			["CIVICS",	self.szCategoryReligions],
 			["CIVICS",	self.szCategoryCorporations],
+			# <!-- custom: put "Mods Info" before "BtS Info (Outdated)", hopefully
+			# more visible and maybe useful too this way -->
 			["HINTS",	self.szCategoryConcepts],
 			["HINTS",	self.szCategoryConceptsNew],
 			["HINTS",	self.szCategoryHints],
@@ -469,9 +481,17 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			graphic = self.categoryGraphics[category[0]]
 			# <advc.002b> Prepend graphic only if there is room
 			szHeading = category[1]
-			iThresh = 16 # For English, 16 happens to be OK.
+			# <!-- custom: allow room to fit more characters, if less are used
+			# still displays fine/same, if text is too long to fit the box, up
+			# to the modder to adjust the text rather, 20 should still leave
+			# some margin especially on higher displays while giving the flexibility
+			# to have a bit longer text maybe, was 16-->
+			iThresh = 20 # For English, 16 happens to be OK.
 			if gc.getGame().getCurrentLanguage() != 0:
-				iThresh = 15
+				# <!-- custom: not sure other languages need critically more
+				# space (if i understand it correctly), but giving -1 too
+				# there, was 15 -->
+				iThresh = 19
 			if len(szHeading) <= iThresh:
 				szHeading = graphic + szHeading # </advc.002b>
 			screen.appendListBoxStringNoUpdate(self.CATEGORY_LIST_ID, szHeading, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MAIN + i + 1, 0, CvUtil.FONT_LEFT_JUSTIFY)
@@ -627,9 +647,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		for descr,i in civList:
 			info = gc.getCivilizationInfo(i)
 			# <!-- custom: reveal minor nation, i want all information
-			# available in the sevopedia. Useful maybe for other mods,
-			# i at least would want mine to be this way about this i mean
-			# at least maybe i mean anyways
+			# available in the sevopedia. May also be useful for other
+			# mods.
+			# -->
 			#if not info.isPlayable():
 			#	iCapitalBuildingClass = gc.getDefineINT("CAPITAL_BUILDINGCLASS")
 			#	if (iCapitalBuildingClass >= 0 and

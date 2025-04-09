@@ -5,146 +5,160 @@
 <!-- -->
 <!-- Game Text Objects -->
 <Civ4GameText xmlns="http://www.firaxis.com">
-	<!-- custom: rename "Ivory" to "Elephants", there are 2 main reasons
-	for why i suggest this change i mean anyways: 
-	- 1) you need elephants to build war elephants, not ivory, even if you
-	were to somehow find ivory somewhere, it would/could not magically turn
-	into a war elephant, so using the animal instead i mean anyways makes much
-	more sense i think -why no one thought ofor did this rather maybe? I mean
-	 anwyays
-	- 2) ivory doesn't grow on the groud, if i am not mistaken and understand
-	it correctly i mean anwyays, but is derived from elephants, whether they
-	are alive or dead (could be traded though but it's about terrain ressources
-	in this case i mean anyways). So it is more immersive, realistic, and making
-	sense to use "Elephants" instead of ivory i think i mean anyways. One could
-	also maybe imagine that elephants the animal itself makes people happy, like
-	for the zoo or something?
-	note: Since they are part of the animals that are countable in english rather
-	than uncountable (see discussion (actually link and my code comments i mean
-	anyways..) below about cattle if i am not mistaken) and seeing that civ4
-	doesn't seem to bother with singulars too much about animals at least i mean
-	anyways, (and i like it	better this way and/or also thinks itsmore fit to this
-	i mean anyways).
-	As for the elephants (and not the cattle below or similar type of animals i
-	mean anyways), based on the 2 bullet points before that note i mean anyways,
-	and using an approach similar than for the "ice" renaming to "ice land" i
-	mean anyways, but much more simple as i can directly fetch the wikipedia page
-	if it has the plural form, or a dictionnary alternatively i mean anyways,
-	here is the result, from https://en.wikipedia.org/wiki/Elephant,
-	leading to dictionnaires or translators, after some double checking sometimes
-	ideally too i mean anyways in other website in this case i mean anyways : -->
+	<!-- custom: gather all base civ4 (vanilla or BTS alike)
+	content in the same category, was "Game Concepts".
+	I prefer to keep the data as it can be useful/helpful to
+	players maybe, and not delete it entirely, but clearly indicate
+	(or more clearly indicate) that it is outdated.	-->
 	<TEXT>
-		<Tag>TXT_KEY_BONUS_IVORY</Tag>
-		<!-- custom: https://en.wiktionary.org/wiki/elephant -->
-		<English>Elephants</English>
-		<!-- custom: https://fr.wikipedia.org/wiki/%C3%89l%C3%A9phant
-		https://fr.wiktionary.org/wiki/%C3%A9l%C3%A9phants
-		-->
+		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT</Tag>
+		<English>Mods Info</English>
 		<French>
-			<Text>Éléphants</Text>
+			<Text>Mods Info</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</French>
+		<German>
+			<Text>Mods Info</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</German>
+		<Italian>
+			<Text>Mods Info</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Mods Info</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</Spanish>
+	</TEXT>
+	<!-- custom: was "BtS Concepts", see code comments in
+	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml
+	(or the equivalent of this path in your mod installation path).
+
+	Added the tag/mention "(Outdated)" to signify that this info
+	is not up to date anymore, but may help for general purposes
+	maybe especially ingame. Add this mention may also remove
+	the burden for modders to maintain this page, as i think it
+	is more practical for players to go online (if possible)
+	to find/gather the data they want, while also serving my
+	purposes.
+	Also "BtS" is one character shorter than "Game", with the
+	other advantage (i think) of being more indicative of the
+	fact that it relates to base civ4 (vanilla or BTS or
+	similar), and not to other mods info (for example K-Mod,
+	AdvCiv, AdvCiv-SAS, etc).
+	-->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW</Tag>
+		<English>BtS Info (Outdated)</English>
+		<French>
+			<Text>BtS Info (Outdated)</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</French>
-		<!-- custom: https://de.wikipedia.org/wiki/Elefanten
-		https://www.verbformen.com/declension/nouns/Elefant.htm#UeBearbeiten -->
 		<German>
-			<Text>Elefanten</Text>
+			<Text>BtS Info (Outdated)</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</German>
-		<!-- custom:
-		https://context.reverso.net/translation/english-italian/Elephants -->
 		<Italian>
-			<Text>Elefanti</Text>
+			<Text>BtS Info (Outdated)</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Italian>
-		<!-- custom:
-		https://context.reverso.net/translation/english-spanish/Elephants -->
 		<Spanish>
-			<Text>Elefantes</Text>
+			<Text>BtS Info (Outdated)</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Spanish>
 	</TEXT>
 
-	<!-- custom: similarly to what was done with the elephants, try to find a better
-	fitting word. Be careful, according to, for example:
+	<!-- custom: rename "Ivory" to "Elephants".
+	Here the main reasons for
+	this change: 
+	- 1) you need elephants to build war elephants, not ivory, even if you
+	were to somehow find ivory somewhere, it would/could not magically turn
+	into a war elephant, so using the animal instead.
+	- 2) ivory doesn't grow on the groud i think if i am not mistaken, but is
+	derived from elephants, independent of whether they are alive or dead.
+	- 3) One could also maybe imagine that elephants the animal itself makes people
+	happy, and not necessarily their ivory.
+	note: Since they are part of the animals that are countable in english rather
+	than uncountable (see code comment below about cattle) and seeing that civ4
+	doesn't seem to bother with singulars too much about animals at least. I also
+	prefer this version, anyways.
+	-->
+	<TEXT>
+		<Tag>TXT_KEY_BONUS_IVORY</Tag>
+		<English>Elephants</English>
+		<French>
+			<Text>Elephants</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</French>
+		<German>
+			<Text>Elephants</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</German>
+		<Italian>
+			<Text>Elephants</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Elephants</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</Spanish>
+	</TEXT>
+
+	<!-- custom: similarly to what was done with the elephants, "Cattle" seems a better
+	fit to me than "Cow".
+	Be careful, according to, for example:
 	https://forum.wordreference.com/threads/sheep-countable-uncountable.2057034/post-13154720 ,
-	some animals are (best fit as i mean?) countable (5 cats for example) while others
+	some animals are countable (5 cats for example) in English while others
 	are best fit at singular (5 sheep for example)
-	There is less gains in changing what is already working (and maybe more accurate in this case)
-	i mean anyways. But specifically for cattle however rather than cows as it applies to all sexes
-	of the cows,
-	while still being specific and not generic if i'm not mistaken i mean anyways:
+	There is less gains in changing what is already working. But specifically for cattle
+	however rather than cows as it applies to all sexes of the cows, while still being
+	specific and not generic if i'm not mistaken:
 	https://www.idausa.org/campaign/guardian/latest-news/difference-cows-cattle-meaning/#:~:text=The%20difference%20between%20cows%20and,strictly%20to%20mature%20female%20bovines.
 	https://context.reverso.net/translation/english-french/cows
 	Also the audio announcer says in https://civilization.fandom.com/wiki/Animal_Husbandry_(Civ4):
 	"Blessed shall be the fruit of thy cattle, the increase of thy kine, and the flocks of thy sheep."
 	– The Bible, Deuteronomy 28:4
 	So i think it's very immersive and nice to use cattle here too on top of being
-	more accurate it seems i mean anyways
+	more accurate it seems.
 	-->
 	<TEXT>
 	<Tag>TXT_KEY_BONUS_COW</Tag>
 	<English>Cattle</English>
-	<!-- custom: keeping as is, but for reference:
-	https://context.reverso.net/translation/english-french/cattle
-	"bétail" (on same link i mean anyways) seems to be "livestock" and not "cattle"
-	so not the meaning i would want, same as for elephants, i would want to refer to
-	the (living) animal, not (its value as) the product i mean anyways.
-	-->
 	<French>
-		<Text>Bovins</Text>
+		<Text>Cattle</Text>
 		<Gender>Male</Gender>
 		<Plural>1</Plural>
 	</French>
-	<!-- custom: https://context.reverso.net/translation/english-german/cattle
-	https://en.wiktionary.org/wiki/Vieh
-	https://en.wiktionary.org/wiki/Rind
-	Similar as for the french translation, vieh seems to be about livestock so
-	less accurate/relevant i think i mean anyways than Rind here, which the
-	translator suggested too due to its many examples if i may say i mean anyways,
-	which is also why i think it's so good if i may say i mean anyways.. -->
 	<German>
-		<Text>Rind</Text>
+		<Text>Cattle</Text>
 		<Gender>Male</Gender>
-		<Plural>0</Plural>
+		<Plural>1</Plural>
 	</German>
-	<!-- custom: https://context.reverso.net/translation/english-italian/cattle
-	suggests "bestiame" but the existing civ4 bovino seems more accurate so
-	keeping it, so throw some caution at the examples it gives (do reverse
-	translate or search on google or some other engine/place i mean anyways,
-	but generally is very good, as it also suggest the gender too of the words
-	and their (what seems like theirs i mean anyways) synonyms i mean anyways) -->
 	<Italian>
-		<Text>Bovino</Text>
+		<Text>Cattle</Text>
 		<Gender>Male</Gender>
-		<Plural>0</Plural>
+		<Plural>1</Plural>
 	</Italian>
-	<!-- custom: https://context.reverso.net/translation/english-spanish/cattle
-	the suggested reses (this is maybe a good maybe i mean anyways example of
-	reverse translation i mean anyways):
-	https://context.reverso.net/translation/spanish-english/reses)
-	i did not look in detail but it seems more linked to butchering/livestock(?),
-	but may be mistaken as i did not look in details i mean anyways, as bovinos
-	(from the first link in italian cattle's XML i mean anyways) suggested by
-	reverso.net among others should be good enough maybe in this, case i mean
-	anyways, and so does ganado too after a quick search i mean anyways:
-	https://www.collinsdictionary.com/dictionary/spanish-english/ganado
-	A good approach may be to just pick the ones with the most amount of
-	relevant examples after	checking them, to avoid to have to check if
-	singular or plural depending on the language i mean anyways, so would be
-	this for example maybe i mean anyways:
-	https://context.reverso.net/translation/english-spanish/cattle#bovinos -->
 	<Spanish>
-		<Text>Bovinos</Text>
-		<!-- custom: is masculine:
-		https://www.spanishdict.com/translate/bovidos#:~:text=bovinos,Masculine%20pluralofbovino(adjective) -->
+		<Text>Cattle</Text>
 		<Gender>Male</Gender>
 		<Plural>1</Plural>
 	</Spanish>
 	</TEXT>
+
+
 	<!-- custom: add Civ Kingdom Of Benin with their leader Ogiso Igodo -->
 	<TEXT>
 		<Tag>TXT_KEY_LEADER_OGISO_IGODO</Tag>
@@ -175,64 +189,58 @@
 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_DESC</Tag>
 		<English>Kingdom Of Benin</English>
 		<French>
-			<Text>Royaume du Bénin</Text>
+			<Text>Kingdom Of Benin</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</French>
 		<German>
-			<Text>Königreich Benin</Text>
-			<Gender>Neuter</Gender>
+			<Text>Kingdom Of Benin</Text>
+			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</German>
 		<Italian>
-			<Text>Regno del Benin</Text>
+			<Text>Kingdom Of Benin</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Italian>
 		<Spanish>
-			<Text>Imperio Et&#237;ope</Text>
+			<Text>Kingdom Of Benin</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_SHORT_DESC</Tag>
-		<!-- custom: Kingdom of Benin (Nigeria) has no relation (according to wiki
-		i mean anyways if i understood it correctly i mean anyways) with modern
-		Benin, trying to keep the full name to make the distinction clearer, even
-		though some circumstances could call for shortening it if purely realistic
-		i mean anyways-->
+		<!-- custom: Kingdom of Benin (Nigeria) has no relation (according
+		to wiki if i understood it correctly) with modern Benin, trying to
+		keep the full name to make the distinction clearer, even though
+		some circumstances could call for shortening it if purely realistic
+		-->
 		<English>Kingdom Of Benin</English>
 		<French>
-			<Text>Royaume du Bénin</Text>
+			<Text>Kingdom Of Benin</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</French>
 		<German>
-			<Text>Königreich Benin</Text>
-			<Gender>Neuter</Gender>
+			<Text>Kingdom Of Benin</Text>
+			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</German>
 		<Italian>
-			<Text>Regno del Benin</Text>
+			<Text>Kingdom Of Benin</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Italian>
 		<Spanish>
-			<Text>Imperio Et&#237;ope</Text>
+			<Text>Kingdom Of Benin</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Spanish>
 	</TEXT>
 	<!-- custom: i found no clear mention of an adjective, going with
 	"people of Benin" mentionned here:
-	https://en.wikipedia.org/wiki/Kingdom_of_Benin#Founding
-	(from a quite quick glance in this case at least i mean anyways)
-	Translated using Quillbot:
-	https://quillbot.com/fr/traduction?sl=auto&tl=fr&text=the+people+of+Benin
-	which i find works very well at least in this case i mean anyways (as
-	imperfect as it is at least maybe in this case maybe i mean anyways about
-	this i mean anyways at least i mean anyways) -->
+	https://en.wikipedia.org/wiki/Kingdom_of_Benin#Founding -->
 	<TEXT>
 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_ADJECTIVE</Tag>
 		<English>
@@ -241,40 +249,33 @@
 			<Plural>1</Plural>
 		</English>
 		<French>
-			<Text>le peuple béninois</Text>
+			<Text>the people of Benin</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</French>
 		<German>
-			<Text>das Volk von Benin</Text>
+			<Text>the people of Benin</Text>
 			<Gender>Neuter</Gender>
 			<Plural>0</Plural>
 		</German>
 		<Italian>
-			<Text>il popolo del Benin</Text>
+			<Text>the people of Benin</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Italian>
 		<Spanish>
-			<Text>el pueblo de Benín</Text>
+			<Text>the people of Benin</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Spanish>
 	</TEXT>
-	<!-- custom: this mentions clearly and several times the impluvium as a
-	special	building the Kingdom Of Benin had:
+	<!-- custom: this mentions clearly and several times the impluvium as
+	a special building the Kingdom Of Benin had:
 	https://en.wikipedia.org/wiki/Kingdom_of_Benin#Architecture
-	Not sure about the gender, except French partly from google results
-	i mean anyways, keeping as Neuter in german and Male in other
-	languages for ease of use (of translating all this too i mean
-	anyways even though i like but focus on myself indeed i mean
-	anyways)
-	Also using People of Benin and not Kingdom of Benin to try to use
-	the adjective form (see below in this case at least i mean anyways)
-	i mean anyways even though is an expression should maybe be ok in
-	this case at least maybe about this case at least i mean anyways -->
+	Also using People of Benin would be a weird adjective form so
+	using Kingdom of Benin instead -->
 	<TEXT>
-		<Tag>TXT_KEY_BUILDING_PEOPLE_OF_BENIN_IMPLUVIUM</Tag>
+		<Tag>TXT_KEY_BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM</Tag>
 		<English>Impluvium</English>
 		<French>
 			<Text>Impluvium</Text>
@@ -283,7 +284,7 @@
 		</French>
 		<German>
 			<Text>Impluvium</Text>
-			<Gender>Neuter</Gender>
+			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</German>
 		<Italian>
@@ -298,59 +299,689 @@
 		</Spanish>
 	</TEXT>
 	<!-- custom: very disciplined nation, and using crossbowmen, see:
-	https://en.wikipedia.org/wiki/Kingdom_of_Benin#Military
-	About German at least, i found the gender to be masculine at least
-	if i'm not mistaken if i may say (quite proudly) i mean anyways,
-	not that i did check them all in this case or others if i may
-	say i mean anyways, not that it is ideal about this case, at least
-	maybe or not or yes, anyways is as is maybe or not or yes or not
-	maybe, i mean anyways -->
+	https://en.wikipedia.org/wiki/Kingdom_of_Benin#Military -->
 	<TEXT>
-		<Tag>TXT_KEY_UNIT_PEOPLE_OF_BENIN_DISCIPLINED_CROSSBOWMAN</Tag>
+		<Tag>TXT_KEY_UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN</Tag>
 		<English>Disciplined Crossbowman</English>
 		<French>
-			<Text>Arbalétrier discipliné:Arbalétriers disciplinés</Text>
+			<Text>Disciplined Crossbowman</Text>
 			<Gender>Male</Gender>
-			<Plural>0:1</Plural>
+			<Plural>0</Plural>
 		</French>
 		<German>
-			<Text>Disziplinierter Armbrustschütze:Disziplinierte Armbrustschützen</Text>
+			<Text>Disciplined Crossbowman</Text>
 			<Gender>Male</Gender>
-			<Plural>0:1</Plural>
+			<Plural>0</Plural>
 		</German>
 		<Italian>
-			<Text>Balestriere Disciplionato:Ballesteros disciplinados</Text>
+			<Text>Disciplined Crossbowman</Text>
 			<Gender>Male</Gender>
-			<Plural>0:1</Plural>
+			<Plural>0</Plural>
 		</Italian>
 		<Spanish>
-			<Text>Ballestero disciplinado:Balestrieri Disciplini</Text>
+			<Text>Disciplined Crossbowman</Text>
 			<Gender>Male</Gender>
-			<Plural>0:1</Plural>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+
+
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_WARRIOR</Tag>
+		<English>Ancient Maceman</English>
+		<French>
+			<Text>Ancient Maceman</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Ancient Maceman</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Ancient Maceman</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Ancient Maceman</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+
+	<!-- custom: clearer renaming to some promotions,
+	accuracy is so misleading as a name for example,
+	hopefully clearer now -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_ACCURACY</Tag>
+		<English>City Bombard Damage</English>
+		<French>
+			<Text>City Bombard Damage</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>City Bombard Damage</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>City Bombard Damage</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>City Bombard Damage</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<!-- custom: an ace can be about ground units too, hopefully
+	clearer now -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_ACE</Tag>
+		<English>Air Evasion</English>
+		<French>
+			<Text>Air Evasion</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Air Evasion</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Air Evasion</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Air Evasion</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<!-- custom: name is more epic, not necessarily clearer (especially
+	with new tech requirement that is sooner, in earlier eras, but it
+	is also historically more correct according to my research) -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_BLITZ</Tag>
+		<English>Blitzkrieg</English>
+		<French>
+			<Text>Blitzkrieg</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Blitzkrieg</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Blitzkrieg</Text>
+			<Gender>Female</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Blitzkrieg</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<!-- custom: spies don't conduct raids for example in base
+	civ bts/advciv so "commando" does not fit, is also not
+	intuitive, hopefully clearer now -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COMMANDO</Tag>
+		<English>Logistics</English>
+		<French>
+			<Text>Logistics</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Logistics</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Logistics</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Logistics</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+
+	<!-- custom: clear counter unit promotion names -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_AMBUSH</Tag>
+		<English>Counter-Tank</English>
+		<French>
+			<Text>Counter-Tank</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Counter-Tank</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Counter-Tank</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Counter-Tank</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
 		</Spanish>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_UNIT_WARRIOR</Tag>
-		<English>Clubman</English>
+		<Tag>TXT_KEY_PROMOTION_CHARGE</Tag>
+		<English>Counter-Siege</English>
 		<French>
-			<Text>Clubman</Text>
+			<Text>Counter-Siege</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</French>
 		<German>
-			<Text>Clubman</Text>
+			<Text>Counter-Siege</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</German>
 		<Italian>
-			<Text>Clubman</Text>
+			<Text>Counter-Siege</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Italian>
 		<Spanish>
-			<Text>Clubman</Text>
+			<Text>Counter-Siege</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Spanish>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COVER</Tag>
+		<English>Counter-Archer</English>
+		<French>
+			<Text>Counter-Archer</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Counter-Archer</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Counter-Archer</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Counter-Archer</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<!-- custom: rename or/and create subtypes for each melee type
+	maybe or maybe not and put them all in same promotion easier?
+	Or partly simply by having counter melee sword, or counter sword?
+	Todo -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_SHOCK</Tag>
+		<English>Counter-Melee</English>
+		<French>
+			<Text>Counter-Melee</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Counter-Melee</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Counter-Melee</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Counter-Melee</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_PINCH</Tag>
+		<English>Counter-Gun</English>
+		<French>
+			<Text>Counter-Gun</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Counter-Gun</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Counter-Gun</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Counter-Gun</Text>
+			<Gender>Counter-Gun</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_FORMATION</Tag>
+		<English>Counter-Mounted</English>
+		<French>
+			<Text>Counter-Mounted</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Counter-Mounted</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Counter-Mounted</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Counter-Mounted</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+
+	<!-- custom: use arabic numerals for/in promotions naming(/es),
+	add missing "translations" for some promotions too (for example)
+	combat 6, even though i just copy paste to english for ease of use
+	(of translation) and convenience, i don't want it to be displayed
+	as "VI" ingame but "6" so adding these extra ones. -->
+		<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COMBAT1</Tag>
+		<English>Combat 1</English>
+		<French>
+			<Text>Combat 1</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Kampf 1</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Combattimento 1</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Combate 1</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COMBAT2</Tag>
+		<English>Combat 2</English>
+		<French>
+			<Text>Combat 2</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Kampf 2</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Combattimento 2</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Combate 2</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COMBAT3</Tag>
+		<English>Combat 3</English>
+		<French>
+			<Text>Combat 3</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Kampf 3</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Combattimento 3</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Combate 3</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COMBAT4</Tag>
+		<English>Combat 4</English>
+		<French>
+			<Text>Combat 4</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Kampf 4</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Combattimento 4</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Combate 4</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COMBAT5</Tag>
+		<English>Combat 5</English>
+		<French>
+			<Text>Combat 5</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Kampf 5</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Combattimento 5</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Combate 5</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<!-- custom added missing languages in base civ4/BTS to have "6"
+	not "VI" everywhere -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COMBAT6</Tag>
+		<English>Combat 6</English>
+		<French>
+			<Text>Combat 6</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Kampf 6</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Combattimento 6</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Combate 6</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<!-- custom: use arabic numerals instead of roman numerals,
+	hopefully clearer -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_INTERCEPTION1</Tag>
+		<English>Air Interception 1</English>
+		<French>
+			<Text>Air Interception 1</Text>
+			<Gender>Female</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Air Interception 1</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Air Interception 1</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Air Interception 1</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_INTERCEPTION2</Tag>
+		<English>Air Interception 2</English>
+		<French>
+			<Text>Air Interception 2</Text>
+			<Gender>Female</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Air Interception 2</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Air Interception 2</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Air Interception 2</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_INTERCEPTION3_CUSTOM</Tag>
+		<English>Air Interception 3</English>
+		<French>
+			<Text>Air Interception 3</Text>
+			<Gender>Female</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Air Interception 3</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Air Interception 3</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Air Interception 3</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_INTERCEPTION4_CUSTOM</Tag>
+		<English>Air Interception 4</English>
+		<French>
+			<Text>Air Interception 4</Text>
+			<Gender>Female</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Air Interception 4</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Air Interception 4</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Air Interception 4</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<!-- custom: "Range" may apply to ground units too hopefully clearer now,
+	Also switch to arabic numerals, clearer too, i think, and also prefer,
+	anyways. -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_RANGE1</Tag>
+		<English>Air Range 1</English>
+		<French>
+			<Text>Air Range 1</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Air Range 1</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Air Range 1</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Air Range 1</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_RANGE2</Tag>
+		<English>Air Range 2</English>
+		<French>
+			<Text>Air Range 2</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Air Range 2</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Air Range 2</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Air Range 2</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+
+	<!-- custom: new/modified unit combat types -->
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_ARCHER_BOW_SHORT</Tag>
+		<English>Archers (Bow, Short range)</English>
+		<French>
+			<Text>Archers (Bow, Short range)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</French>
+		<German>
+			<Text>Archers (Bow, Short range)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</German>
+		<Italian>
+			<Text>Archers (Bow, Short range)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Archers (Bow, Short range)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_ARCHER_BOW_LONG</Tag>
+		<English>Archers (Bow, Long range)</English>
+		<French>
+			<Text>Archers (Bow, Long range)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</French>
+		<German>
+			<Text>Archers (Bow, Long range)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</German>
+		<Italian>
+			<Text>Archers (Bow, Long range)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Archers (Bow, Long range)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_ARCHER_CROSSBOW</Tag>
+		<English>Archers (Crossbow)</English>
+		<French>
+			<Text>Archers (Crossbow)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</French>
+		<German>
+			<Text>Archers (Crossbow)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</German>
+		<Italian>
+			<Text>Archers (Crossbow)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Archers (Crossbow)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</Spanish>
+	</TEXT>
+
 </Civ4GameText>

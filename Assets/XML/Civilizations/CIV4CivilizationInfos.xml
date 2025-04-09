@@ -1251,24 +1251,16 @@
 		https://www.nairaland.com/7653263/map-great-benin-kingdom-till
 		and https://smarthistory.org/benin-art-patrons/
 		I don't have the order of founding them so i will go approximately maybe
-		i mean anyways
-		APA city doesn't seem to be their city but seems about right i mean
-		anyways maybe in this case at least mayeb i mean anyways.
+		APA city doesn't seem to be their city but seems about right.
 		note:
 		for religion is a filler until i replace religion with paganism, commit would
-		be overloaded if i did all changes at same time about this case at least maybe
-		or not i mean anyways i mean anywyas, so put confucianism as a filler in this case
-		i mean anyways
-		same if i may say in this case maybe i mean anyways about techs, since i did not
-		implement the new techs in this case at least i mean anywyas, putting some filler
-		techs, among them Mysticism and Agriculture may fit quite well as it's a civ that
-		is good at growing i mean anyways based on my understanding and what i read of it
-		in the wiki (didn't read all but maybe enough hopefully about this case i mean
-		anyways, i mean anyways at least maybe i mean anyways)
-		the city name, in Map2, "BC" seems like benin city (which is edo, the capital)
-		if i'm not mistaken i mean anyways.
-		Some city names are blurred hopefully i got them right at least about this i mean
-		anyways,
+		be overloaded if i did all changes at same time.
+		About techs, since i did not implement the new techs, putting some filler techs,
+		among them Mysticism and Agriculture may fit quite well as it's a civ that is good
+		at growing based on my understanding and what i read of it in the wiki.
+		The city name, in Map2, "BC" seems like benin city (which is edo, the capital)
+		if i'm not mistaken.
+		Some city names are blurred hopefully i got them right
 		-->
 		<CivilizationInfo>
 			<Type>CIVILIZATION_KINGDOM_OF_BENIN</Type>
@@ -1282,7 +1274,7 @@
 			<UnitArtStyleType>UNIT_ARTSTYLE_MIDDLE_EAST</UnitArtStyleType>
 			<bPlayable>1</bPlayable>
 			<bAIPlayable>1</bAIPlayable>
-			<!-- custom: from EDO to ELUR (quite close ring around Edo / Benin City (same city unless i'm mistaken i mean anyways))-->
+			<!-- custom: from EDO to ELUR (quite close ring around Edo / Benin City (same city unless i'm mistaken) -->
 			<!-- custom: from ELUR (excluded) to AYE (included), west side of Edo / Benin City -->
 			<!-- custom: from AYE (excluded) to UZEA (included), far east of Edo / Benin City -->
 			<!-- custom: from UZEA (excluded) to AKURE (included), north of Edo / Benin City -->
@@ -1331,13 +1323,13 @@
 			<Buildings>
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
-					<BuildingType>BUILDING_PEOPLE_OF_BENIN_IMPLUVIUM</BuildingType>
+					<BuildingType>BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
 				<Unit>
 					<UnitClassType>UNITCLASS_CROSSBOWMAN</UnitClassType>
-					<UnitType>UNIT_PEOPLE_OF_BENIN_DISCIPLINED_CROSSBOWMAN</UnitType>
+					<UnitType>UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>

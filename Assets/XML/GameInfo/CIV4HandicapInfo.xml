@@ -78,15 +78,15 @@
 			<!-- advc.313: was -40 -->
 			<iAIAnimalBonus>-25</iAIAnimalBonus>
 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
-			<iStartingDefenseUnits>0</iStartingDefenseUnits>
+			<iStartingDefenseUnits>6</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<!-- custom: to help discover the game, give a free explorer unit, was 0-->
 			<iStartingExploreUnits>1</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
-			<iAIStartingDefenseUnits>0</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
-			<iBarbarianDefenders>1</iBarbarianDefenders>
+			<iBarbarianDefenders>3</iBarbarianDefenders>
 			<iAIDeclareWarProb>25</iAIDeclareWarProb>
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<!-- advc.251 (start) -->
@@ -286,14 +286,14 @@
 			<!-- advc.313: was -40 -->
 			<iAIAnimalBonus>-25</iAIAnimalBonus>
 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
-			<iStartingDefenseUnits>0</iStartingDefenseUnits>
+			<iStartingDefenseUnits>5</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
-			<iAIStartingDefenseUnits>0</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
-			<iBarbarianDefenders>1</iBarbarianDefenders>
+			<iBarbarianDefenders>3</iBarbarianDefenders>
 			<iAIDeclareWarProb>50</iAIDeclareWarProb>
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<!-- advc.251 (start) -->
@@ -459,14 +459,14 @@
 			<!-- advc.313: was -40 -->
 			<iAIAnimalBonus>-25</iAIAnimalBonus>
 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
-			<iStartingDefenseUnits>0</iStartingDefenseUnits>
+			<iStartingDefenseUnits>4</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
-			<iAIStartingDefenseUnits>0</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
-			<iBarbarianDefenders>1</iBarbarianDefenders>
+			<iBarbarianDefenders>3</iBarbarianDefenders>
 			<iAIDeclareWarProb>75</iAIDeclareWarProb>
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<iAIGrowthPercent>110</iAIGrowthPercent>
@@ -633,14 +633,14 @@
 			<iAIAnimalBonus>-25</iAIAnimalBonus>
 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
 			<!-- custom: considering noble is intended to be a bit harder now and a bridge closer to prince, also increase the value here, was 0 -->
-			<iStartingDefenseUnits>0</iStartingDefenseUnits>
+			<iStartingDefenseUnits>3</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
-			<iAIStartingDefenseUnits>0</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
-			<iBarbarianDefenders>2</iBarbarianDefenders>
+			<iBarbarianDefenders>3</iBarbarianDefenders>
 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<iAIGrowthPercent>100</iAIGrowthPercent>
@@ -815,19 +815,19 @@
 			<iAIAnimalBonus>-25</iAIAnimalBonus>
 			<!-- advc.313: end -->
 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
-			<iStartingDefenseUnits>0</iStartingDefenseUnits>
+			<iStartingDefenseUnits>3</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
 			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
 			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
 			was 0 -->
-			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
 			warriors are now more likely to be defenders, was 0 -->
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
-			<iBarbarianDefenders>2</iBarbarianDefenders>
+			<iBarbarianDefenders>4</iBarbarianDefenders>
 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
 			<!-- advc.251: was 10 -->
 			<iAIWorkRateModifier>5</iAIWorkRateModifier>
@@ -1004,19 +1004,19 @@
 			<iAIAnimalBonus>-25</iAIAnimalBonus>
 			<!-- advc.313: end -->
 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
-			<iStartingDefenseUnits>0</iStartingDefenseUnits>
+			<iStartingDefenseUnits>3</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
 			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
 			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
 			was 1 -->
-			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
 			warriors are now more likely to be defenders, was 0 -->
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
-			<iBarbarianDefenders>3</iBarbarianDefenders>
+			<iBarbarianDefenders>4</iBarbarianDefenders>
 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
 			<!-- advc.251: was 20 -->
 			<iAIWorkRateModifier>10</iAIWorkRateModifier>
@@ -1205,20 +1205,20 @@
 			<iAIAnimalBonus>-25</iAIAnimalBonus>
 			<!-- advc.313: end -->
 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
-			<iStartingDefenseUnits>0</iStartingDefenseUnits>
+			<iStartingDefenseUnits>3</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
 			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
 			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
 			was 2 -->
-			<iAIStartingDefenseUnits>3</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>5</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<!-- advc.250e: was 1 -->
 			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
 			warriors are now more likely to be defenders, was 0 -->
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
-			<iBarbarianDefenders>3</iBarbarianDefenders>
+			<iBarbarianDefenders>5</iBarbarianDefenders>
 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
 			<!-- advc.251: was 50 -->
 			<iAIWorkRateModifier>15</iAIWorkRateModifier>
@@ -1420,7 +1420,7 @@
 			<iAIAnimalBonus>-25</iAIAnimalBonus>
 			<!-- advc.313: end -->
 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
-			<iStartingDefenseUnits>0</iStartingDefenseUnits>
+			<iStartingDefenseUnits>3</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
@@ -1428,14 +1428,14 @@
 			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
 			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
 			was 2 -->
-			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>5</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>1</iAIStartingWorkerUnits>
 			<!-- advc.250e: was 1 -->
 			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
 			warriors are now more likely to be defenders, was 0 -->
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
 			<!-- advc.250e: was 4 -->
-			<iBarbarianDefenders>3</iBarbarianDefenders>
+			<iBarbarianDefenders>5</iBarbarianDefenders>
 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
 			<!-- advc.251: was 75 -->
 			<iAIWorkRateModifier>20</iAIWorkRateModifier>
@@ -1645,7 +1645,7 @@
 			<iAIAnimalBonus>-25</iAIAnimalBonus>
 			<!-- advc.313: end -->
 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
-			<iStartingDefenseUnits>0</iStartingDefenseUnits>
+			<iStartingDefenseUnits>3</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<!-- advc.250e: was 1 -->
@@ -1654,10 +1654,10 @@
 			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
 			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
 			was 3 -->
-			<iAIStartingDefenseUnits>5</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>6</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>1</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
-			<iBarbarianDefenders>4</iBarbarianDefenders>
+			<iBarbarianDefenders>5</iBarbarianDefenders>
 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
 			<!-- advc.251: was 100 -->
 			<iAIWorkRateModifier>25</iAIWorkRateModifier>

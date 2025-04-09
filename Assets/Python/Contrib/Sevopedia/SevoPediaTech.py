@@ -243,8 +243,8 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need
-		# the redundant background i mean anyways about this at least i mean
-		# anyways -->
+		# the redundant background
+		# -->
 		# advc.004y: Label added for this panel
 		#screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_QUOTE_PANE, self.Y_QUOTE_PANE, self.W_QUOTE_PANE, self.H_QUOTE_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.addPanel(panelName, "", "", True, True, self.X_QUOTE_PANE, self.Y_QUOTE_PANE, self.W_QUOTE_PANE, self.H_QUOTE_PANE, PanelStyles.PANEL_STYLE_BLUE50)
@@ -260,8 +260,8 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		#	szText += u"\n\n"
 		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
 		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need
-		# the redundant background i mean anyways about this at least i mean
-		# anyways -->
+		# the redundant background
+		# -->
 		# <!-- custom: add this instead only: -->
 		#szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
 		# </advc.004y>
@@ -270,7 +270,8 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		szQuoteTextWidget = self.top.getNextWidgetName()
 		# <!-- custom: i prefer the fancier design, find it way more beautiful
 		# too, restoring it and adding/restoring/modifying padding at the same
-		# time about this at least i mean anyways
+		# time
+		# -->
 		#screen.addMultilineText(szQuoteTextWidget, szText, self.X_QUOTE_PANE + 15, self.Y_QUOTE_PANE + 15, self.W_QUOTE_PANE - (15 * 2), self.H_QUOTE_PANE - (15 * 2), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.addMultilineText(szQuoteTextWidget, szText, self.X_QUOTE_PANE + 9, self.Y_QUOTE_PANE + 12, self.W_QUOTE_PANE - (15 * 2), self.H_QUOTE_PANE - (15 * 2), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		# <advc.004y> Now that the quote isn't on top anymore, we can keep it simple:

@@ -6,85 +6,22 @@
 <!-- Basic Infos -->
 <Civ4NewConceptInfos xmlns="x-schema:CIV4BasicInfoSchema.xml">
 	<NewConceptInfos>
-		<NewConceptInfo>
-			<Type>CONCEPT_ESPIONAGE</Type>
-			<Description>TXT_KEY_ESPIONAGE_CULTURE</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_ESPIONAGE_PEDIA_SR</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_COLONIES</Type>
-			<Description>TXT_KEY_CONCEPT_COLONIES</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_COLONIES_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_CORPORATIONS</Type>
-			<Description>TXT_KEY_CONCEPT_CORPORATIONS</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_CORPORATIONS_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_SEA_TRADE</Type>
-			<Description>TXT_KEY_CONCEPT_SEA_TRADE</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_SEA_TRADE_PEDIA_TR</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_FLANK_ATTACK</Type>
-			<Description>TXT_KEY_CONCEPT_FLANK_ATTACK</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_FLANK_ATTACK_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_GREAT_SPY</Type>
-			<Description>TXT_KEY_CONCEPT_GREAT_SPY</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_GREAT_SPY_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_LATE_START</Type>
-			<Description>TXT_KEY_CONCEPT_LATE_START</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_LATE_START_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_EVENTS</Type>
-			<Description>TXT_KEY_CONCEPT_EVENTS</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_EVENTS_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_AIR_COMBAT</Type>
-			<Description>TXT_KEY_CONCEPT_AIR_COMBAT</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_AIR_COMBAT_PEDIA_SR</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_AIR_PROMOTIONS</Type>
-			<Description>TXT_KEY_CONCEPT_AIR_PROMOTIONS</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_AIR_PROMOTIONS_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<!-- custom: removed links to civ4 assets, no need to maintain them
-		BTS ca be considered the base game now, plus this information is
-		avaialble elsewhere, for example in the sevopedia pages specific
-		to each of these, about this i mean anyways -->
+		<!-- custom: removed entirely the entries that are composed of links
+		to civ4	bts new content (as opposed to vanilla). No need to maintain
+		these as BTS can be considered the base game now, plus this information
+		is available elsewhere and already part of the game with all other
+		civ4 vanilla+BTS content, for example in the sevopedia pages specific
+		to each of these -->
+
+		<!-- custom: moved many NewConceptInfos to C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml
+		(or the equivalent of this folder for your civ4 installation path,
+		read the code comments there for details. -->
 		<NewConceptInfo>
 			<Type>CONCEPT_BTS_RULES_CHANGES</Type>
 			<Description>TXT_KEY_BTS_RULES_CHANGES</Description>
 			<Civilopedia>TXT_KEY_BTS_RULES_CHANGES_PEDIA_SR</Civilopedia>
 		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_BTS_FOREST_PRESERVE</Type>
-			<Description>TXT_KEY_BTS_FOREST_PRESERVE</Description>
-			<Civilopedia>TXT_KEY_BTS_FOREST_PRESERVE_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_APOSTOLIC_PALACE</Type>
-			<Description>TXT_KEY_CONCEPT_APOSTOLIC_PALACE</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_APOSTOLIC_PALACE_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_FORT</Type>
-			<Description>TXT_KEY_CONCEPT_FORT</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_FORT_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_LIBERATION</Type>
-			<Description>TXT_KEY_CONCEPT_LIBERATION</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_LIBERATION_PEDIA</Civilopedia>
-		</NewConceptInfo>
+
 		<!-- advc.004y: Shortcut categories restored (originally by
 			 Ekmek) -->
 		<NewConceptInfo>

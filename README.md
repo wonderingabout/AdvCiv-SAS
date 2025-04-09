@@ -6,6 +6,7 @@ Currently, it is still a work in progress so is not playable yet as explained be
 but these are the (main) goals/purposes/features.
 
 ![img1](/_1_AdvCiv-SAS/Docs_And_Appendixes/0.33_Techtree_modified.png)
+
 ## How to play?
 
 If you are a new player and/or want to play this mod and would like a few instructions on how
@@ -16,6 +17,14 @@ to install it and play it, i have provided a few instructions [here](/_1_AdvCiv-
 If you just want to play and do not need all the project bigger details, i added
 a quick guide of the main changes from Civ4 and base AdvCiv players:
 [here](/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md)
+
+note: it is recommended to read this part even if you want to know the deeper
+changes. There are stuff and things/information i added only recently in it,
+which may not be available in the longer docs.
+
+I may also update it after releasing mods, maybe, but not guaranteed, if there
+are significant changes i would like to add or mention/talk about there. But
+i would move them to the bottom so you don't have to reread all ideally.
 
 ## Project Goals and global view on gameplay changes
 
@@ -36,8 +45,8 @@ defend a city, an archer attack, and a scout/explorer threaten to capture a city
 maluses (i try to avoid that approach rather for immersion and i don't think
 it critically helps in having deeper strategy)). Some civ's units will be better
 in some terrains than others (the arabs good at desert, russians good at tundra,
-as an example). Due to these elements, and possibly others too, there will be a
-high focus on strategy when playing.
+as an example). Due to these elements, and possibly others too, there should be a
+much higher focus on strategy when playing.
 - A few new civs: The Kingdom Of Benin is for example the first civ i added/am adding.
 - More balanced leaders: Not more than 3 and in more places (times?)
 - A few new ressources
@@ -60,55 +69,99 @@ are the added new civ's real world location) :
 
 ![img2](/_1_AdvCiv-SAS/Docs_And_Appendixes/0.22_world_map_terrain_with_new_civs.png)
 
-A preview of the changes (screenshots), can be found on this google drive: 
-[here](https://drive.google.com/drive/folders/1v4jkm383NGL761ciMUdU6hGuZKvLo00w?usp=sharing).
+Here is a view (current) of the military tree you can expect/find in this AdvCiv-SAS mod below.
+I tweaked the existing one of base AdvCiv/civ4 BTS for historical accuracy and gameplay
+diversity:
+![img3](/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43%20military%20tree_modified.png)
 
 ## Docs
 
 I added quite a bit of documentation, pictures, and other elements about this AdvCiv-SAS mod:
 [here](/_1_AdvCiv-SAS/)
 
+Additionally, A preview of the changes (screenshots), can be found on this google drive: 
+[here](https://drive.google.com/drive/folders/1v4jkm383NGL761ciMUdU6hGuZKvLo00w?usp=sharing).
+
 If you want to know more about the project, how i ordered the tree tech historically, why i decided
-on balance changes and such, please visit it.
+on balance changes and such, please visit these pages (as well).
+
+## Some Extra Context
+
+This AdvCiv-SAS mod is based on these mods:
+- Civ4 BTS that is based on vanilla Civ4 (among other possible expansions (?))
+- K-Mod that is based on Civ4 BTS
+- AdvCiv that is based on K-Mod
+- AdvCiv-SAS that is based on AdvCiv
+
+To help you transition between these mods, especially if you are a Civ4 vanilla,
+Civ4 BTS, K-Mod, or other mod player, you can refer to the "Mods Info" category
+of the Sevopedia (or you could say Civilopedia) ingame (or from main menu accessible
+too), that tries/attempts to list a few main rules changes between each of these mods.
+
+Not balance changes that are too much and already taken account in the Sevopedia
+entries automatically of each unit/building (so visit these if needed to know more
+about AdvCiv-SAS in particular) for example the page of the scout unit to know its
+cost or effects.
+
+But instead, things like how in AdvCiv (and maybe in K-Mod too i don't know actually
+when this rule was added todo), you need to have cities revealed with a scout or
+any unit, or have the map view of this city otherwise (world map trade (, etc ?)),
+else even if these cities are connected by land roads or naval road/path, they would
+still not have any trade routes until you have view of these cities.
+
+I hope having a list of such changes may help players, and perhaps me while compliling,
+as in gathering such a list of elements, understand and perhaps enjoy the game better
+maybe, but as for all players maybe rather, hopefully it would help transition to new
+mods and in particular to AdvCivSAS (i will add some rules changes if i make them
+there too.)
+
+These rules changes entries may not be exhaustive or maybe would but hopefully will help,
+and i can gradually complete them as i see fit or learn, or based on feedback, not
+guaranteed though, but if need please refer to it if needed.
 
 # Credits
 - AdvCiv (the full name Advanced Civ does not yield much results about Civ 4 so i prefer the AdvCiv Name, maybe because of the space character, so i put a "-" instead in my/this mod): todo write, but mostly i am very thankful of AdvCiv, it's such a nice improvement from Civ4, and it's maintainer is very open to feedback at least in my
-exchanges/experiences during these times i mean anyways, thanks
+exchanges/experiences during these times
 - Cavemen2Cosmosn (also know as C2C): i took quite a lot of content from there, thanks
 - Realism Invictus (also know as RI): i took quite a bit content from there, thanks,
-- Fall from Heaven II ((also know as FFH2): i took quite a bit of content from there, thanks too too, thanks,
+- Fall from Heaven II (also know as FFH2): i took quite a bit of content from there, thanks
+too too, thanks,
 - History Rewritten (also know as HR): i took quite a bit of content from there too, thanks,
 - Firaxis's Civ4 game and Civ4 BTS: Civ4 allows to do a lot of things with just XML,
-which surprised me a lot in a way that pleased me i mean anyways. So far i have not touched
-the deeper code such as C++ and Python, maybe i will not need at all but not sure, is as it
-would be. Also, even without modding, the base game is quite nice, thanks too i mean, thanks,
+which surprised me a lot in a way that pleased me. So far i have not touched the deeper code
+such as C++ and Python, maybe i will not need at all but not sure, is as it would be. Also,
+even without modding, the base game is quite nice, thanks too i mean, thanks,
 - RFC, last but .. least, RFC mod which i forgot or can't or don't want to remember the full
 name of, not my favourite mod, but they did teach me or rather give me the idea from looking
 at a thing they did, so even though i maybe could have found it myself, or maybe i could not,
 in all fairness and with that being said, it's a caveaty thanks from me whatever that means,
-your stuff still helped me, so thanks too, would be unfair not to say, at least i mean anyways,
-in this case, maybe, anyways i mean anyways, thanks too even though i don't want to admit
-in this case too i mean anyways, but thanks indeeed about this at least i mean anyways, thanks,
-and i do my things if or when i want or don't do as i want or do with all that being said i mean
-anyways now, as is, maybe or not, or as is, but anyways, thanks,
+your stuff still helped me, so thanks too, would be unfair not to say, thanks too even though
+i am not too keen on admitting it, but thanks
+
+todo add quote
 
 # A few useful links
 - todo: tutorial on how to compile the DLL and/or files for Advciv (but should not
-be needed if you only modify XML files if i am not mistaken i mean anyways)
+be needed if you only modify XML files if i am not mistaken)
 - ressources that mention XML files and tags, useful if you'd want to [get started
-doing your own mod](https://github.com/wonderingabout/kujira).
+doing your own mod](https://github.com/wonderingabout/kujira), or alternatively/to
+complement for example [modiki's website too](https://modiki.civfanatics.com/index.php/Civ4TraitInfos)
+maybe (even though i mostly use kujira's website, maybe this one helps too).
 
 # Some Useful tools while doing this
 - VS Code
 - Windows 10 (Windows 11 was so laggy and broke after update, now going back to Windows 10
-that i bombarded with updates and installs still works amazing so i recommend it, about this i mean anyways at least)
-- Microsoft Paint (i very much love this image editor i mean anyways)
-- Notepad++ (very reliable and multi tab in this case i mean anyways i mean anyways)
+that i bombarded with updates and installs still works amazing so i recommend it)
+- Microsoft Paint (i very much love this image editor)
+- Notepad++ (very reliable and multi tab)
 - Git Bash for Windows
 - Q-Dir
+- WizTree (very useful (and reliable and effective) to find the files i want when i want)
+- VS Code (especially for the global search feature, very useful, (except partly) when it does not desynchronize folders before git commits)
+- Visual C++ 2010 Express (is free, just requires after trial a free registration if i am not mistaken todo): works great to compile the DLL i want/require it after some mod changes
 - Google Chrome (i used) for the Page translate of kujira's website in particular (Firefox has
-it too though unless i'm mistaken i mean anyways)
-- Google's scientific calculator (https://www.google.com/search?q=calculator) (for the x^y function in particular i mean anyways)
-- Quillbot (web translator using AI, i used the free version), example of translation linked too in this case i mean anyways at least i mean anyways: https://quillbot.com/fr/traduction?sl=auto&tl=fr&text=the+people+of+Benin
+it too though unless i'm mistaken)
+- Google's scientific calculator (https://www.google.com/search?q=calculator) (for the x^y function in particular)
+- Quillbot (web translator using AI, i used the free version), example of translation linked too: https://quillbot.com/fr/traduction?sl=auto&tl=fr&text=the+people+of+Benin (did not use this example in AdvCiv-SAS as i put almost everything i added or modified in English only for (my) convenience and ease of modding even though not ideal hopefully fine (should not use that place/line to say that ideally too but hopefully maybe fine too..))
 
 todo add links

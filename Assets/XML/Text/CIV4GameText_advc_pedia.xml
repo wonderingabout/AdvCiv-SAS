@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- custom: moved the lengthy part of the Sevopedia changes
-to Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml,
-hopefully more readable now at least about this i mean anyways -->
+<!-- custom: moved the lengthy part of the Sevopedia changes,
+specific to AdvCiv-SAS, to
+Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml,
+hopefully more readable or exportable if need/want be now -->
 
 <!-- advc.008: Since the Civilopedia changes are so wordy (not the
      changes, but the copied text), I've moved them out of
@@ -54,30 +55,6 @@ hopefully more readable now at least about this i mean anyways -->
 		<Italian>Cambiamenti delle regole di BtS</Italian>
 		<Spanish>Cambios en las reglas de "BtS"</Spanish>
 	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW</Tag>
-		<English>BtS Concepts</English>
-		<French>
-			<Text>Concepts de BtS</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</French>
-		<German>
-			<Text>BtS-Konzepte</Text>
-			<Gender>Neuter</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Nozioni di BtS</Text>
-			<Gender>Female</Gender>
-			<Plural>1</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Conceptos de "BtS"</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</Spanish>
-	</TEXT>
 
 	<!-- advc.004y: Heading for "changes" box in trait articles -->
 	<TEXT>
@@ -86,20 +63,113 @@ hopefully more readable now at least about this i mean anyways -->
 		<German>Änderungen</German>
 	</TEXT>
 
-	<!-- custom: from Age of Empires wiki (and game too?), did not find much
-	info online so using this sorry if copyright hope not a problem about this
-	i mean anyways at least maybe i mean anyways, maybe is not so bad since i
-	modified text and is short about this i mean anyways maybe at least,
-	i mean anyways
+	<!-- custom: from Age of Empires wiki, did not find much info online so using
+	this (see copyright at root of project if needed):
 	https://ageofempires.fandom.com/wiki/Clubman
-	Slightly edited too to fit civ4 or other things i mean anyways about this
-	at least i mean anyways-->
+	Slightly edited too to fit AdvCiv-SAS -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_WARRIOR_PEDIA</Tag>
-		<English>[TAB]The Clubman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</English>
-		<French>[TAB]The Clubman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</French>
-		<German>[TAB]The Clubman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</German>
-		<Italian>[TAB]The Clubman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</Italian>
-		<Spanish>[TAB]The Clubman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</Spanish>
+		<English>[TAB]Sometimes called the "clubman" (as it wields a wooden club), the Ancient Maceman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</English>
+		<French>[TAB]Sometimes called the "clubman" (as it wields a wooden club), the Ancient Maceman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</French>
+		<German>[TAB]Sometimes called the "clubman" (as it wields a wooden club), the Ancient Maceman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</German>
+		<Italian>[TAB]Sometimes called the "clubman" (as it wields a wooden club), the Ancient Maceman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</Italian>
+		<Spanish>[TAB]Sometimes called the "clubman" (as it wields a wooden club), the Ancient Maceman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</Spanish>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_MODERN_ARMOR</Tag>
+		<English>Robotic Tank</English>
+		<French>
+			<Text>Robotic Tank</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Robotic Tank</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Robotic Tank</Text>
+			<Gender>Female</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Robotic Tank</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+
+	<!-- custom: use civ4 dev language unless we have
+	a reason not, harmonizes terminlogy hopefully
+	while being clearer for players. -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT_COMBAT</Tag>
+		<English>Unit Combat Types</English>
+		<French>
+			<Text>Unit Combat Types</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Unit Combat Types</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Unit Combat Types</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Unit Combat Types</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+
+	<!-- custom: "Unique Units" were not unique (could be built
+	many times, just it was only by one civ in civ4, so i had
+	renamed	it to "Civ-specific Units" initially.
+	After futher consideration, there are no multi Civ-specific
+	units (units that can be built only	be a few civs in common)
+	in AdvCiv-SAS if i am not mistaken,	and the name civ-specific
+	is quite tedious/complicated to remember/use, so renaming it
+	rather to "Civilization Units", which may be shortened to
+	"Civ Units" by players if they so desire or prefer maybe,
+	hopefully clearer.
+	-->
+	<TEXT>
+		<Tag>TXT_KEY_FREE_UNITS</Tag>
+		<English>Civilization Units</English>
+		<French>Civilization Units</French>
+		<German>Civilization Units</German>
+		<Italian>Civilization Units</Italian>
+		<Spanish>Civilization Units</Spanish>
+	</TEXT>
+		<TEXT>
+		<Tag>TXT_KEY_FREE_UNITS_NO</Tag>
+		<English>No Civilization Unit</English>
+		<French>No Civilization Unit</French>
+		<German>No Civilization Unit</German>
+		<Italian>No Civilization Unit</Italian>
+		<Spanish>No Civilization Unit</Spanish>
+	</TEXT>
+	<!-- custom: "Civilization Unit for Russian Empire"
+	-> "Civilization Unit For the Russian Empire";
+	Adding a "the" too, hopefully clearer this way,	also i was
+	not sure if "of" is more correct than "for" but seems more
+	intuitive to me but may be grammatically incorrect or less
+	accurate, leaving as is but adding a mention of it here.
+	-->
+	<TEXT>
+		<Tag>TXT_KEY_UNIQUE_UNIT</Tag>
+		<English>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</English>
+		<French>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</French>
+		<German>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</German>
+		<Italian>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</Italian>
+		<Spanish>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</Spanish>
+	</TEXT>
+	<!--custom:	Not changing it in TXT_KEY_BTS_RULES_CHANGES_PEDIA_SR
+	as it is an outdated doc. -->
 </Civ4GameText>

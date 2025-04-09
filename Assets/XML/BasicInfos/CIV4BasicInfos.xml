@@ -1,0 +1,443 @@
+<?xml version="1.0"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by lcollins (Firaxis Games) -->
+<!-- Sid Meier's Civilization 4 -->
+<!-- Copyright Firaxis Games 2005 -->
+<!-- -->
+<!-- Basic Infos -->
+<!-- custom: file imported from:
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\BasicInfos\CIV4BasicInfos.xml
+then modified to:
+
+My goals doing this are:
+- rename "BtS Concepts" to "Mods Info"
+- rename "Game Concepts" to "BtS Info (Outdated)"
+- move all entries that are in "Mods Info (Outdated)"
+(except BtS rules changes) to "BtS Info (Outdated)"
+
+Purpose:
+- gather all Civ4 old data together (vanilla + BTS)
+- put "(Outdated)" in category name hosting them
+- use a new category containing Bts Rules changes and also other rules
+changes (not balance of +1 -1 stats that can be found elsewhere and
+prone to change and long to update for little gain, but things like
+scouts (or any unit) needing to explore rival cities (or otherwise
+have a map vision of these rival cities) to be able to have a trade
+route with them, even if they are connected by route it would not be,
+alone and on/of(?) itself enough. I don't know if this is an AdvCiv
+or K-Mod change, but i would want to add a mention of this explaining
+it.
+
+I had figured out most of it, but could not make it work, so i asked
+@f1rpo which gave me a very detailed answer that helped me solve this.
+
+Credit goes to @f1rpo, current maintainer of AdvCiv, to have explained
+to me (see below for the explanation quoted, that i added here with
+@f1rpo's accord) in thorough detail  how to achieve that, which helped
+a lot. I had given to @f1rpo slightly different names for the categories
+than the one i provided here at the "rename" bullet points above, but
+the explanation should be mostly (almost entirely in fact) the same
+(minus these name differences).
+
+Go to the bottom after this quote to see the slight alteration i had to
+make it work for my needs in AdvCiv-SAS.
+
+Beginning of quote:
+"
+Apparently,
+TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW
+is the name of the "BtS Concepts" category. So that can be changed to "Mods information" in CIV4GameText_advc_pedia.xml or can be moved to a different game text file and changed there. (The original definition is in CIV4GameText_Objects_BTS.xml.) The "Game Concepts" text key is TXT_KEY_PEDIA_CATEGORY_CONCEPT in CIV4GameTextInfos_Objects.xml (base game); can be re-defined to "BtS Concepts". Regarding the placement of concepts in categories, Sevopedia has these functions:
+Spoiler : 
+Python:
+	def getNewConceptInfo(self, id):
+		info = gc.getNewConceptInfo(id)
+		if not self.isShortcutInfo(info) and not self.isTraitInfo(info):
+			return info
+		return None
+
+	def isTraitInfo(self, info):
+		return info.getType().find("_TRAIT_") != -1
+
+	def isShortcutInfo(self, info):
+		return info.getType().find("SHORTCUTS") != -1
+So, if it has "_TRAIT_" or "SHORTCUTS" in its type string, it's not a BtS Concept. Everything else in BasicInfos\Civ4NewConceptInfos.xml is a BtS Concept. The pre-BtS Concepts are taken from CIV4BasicInfos.xml (the BtS version of that file). Those ConceptInfo or NewConceptInfo elements specify one text key each for the heading and for the exposition:
+XML:
+<ConceptInfo>
+	<Type>CONCEPT_ANIMALS</Type>
+	<Description>TXT_KEY_CONCEPT_ANIMALS</Description>
+	<Civilopedia>TXT_KEY_CONCEPT_ANIMALS_PEDIA</Civilopedia>
+</ConceptInfo>
+So, to move the BtS Concepts into Game Concepts, one could copy Civ4BasicInfos.xml from BtS into the mod, cut-and-paste all the non-trait, non-shortcut NewConceptInfo elements from Civ4NewConceptInfos.xml into CIV4BasicInfos.xml and change them from NewConceptInfo to ConceptInfo. And then create NewConceptInfo elements in Civ4NewConceptInfos.xml for the content you want in there, e.g.
+XML:
+		<NewConceptInfo>
+			<Type>CONCEPT_KMOD_RULES</Type>
+			<Description>TXT_KEY_KMOD_RULES</Description>
+			<Civilopedia>TXT_KEY_KMOD_RULES_PEDIA</Civilopedia>
+		</NewConceptInfo>
+(Could be named anything, I think; just so long as it doesn't say "trait" or "shortcut".) Plus the corresponding text key definitions in a game text file. All just in theory. Might even work if Sevopedia is disabled via the BUG menu. Ignoring that possibility, there are probably more surgical ways to achieve what you want through changes in SevoPediaMain.py. But you'd need to change a bunch of (small) functions there, not just the three I included above.
+"
+End of quote.
+
+Alteration:
+This mostly works, very great, just "Mods Info" now contains the old civ4
+concepts (vanilla + bts (minus bts rules changes as i wanted), while
+bts rules change "concept" (categorized as such but doesn't seem a concept
+to me like the other ones (concepts) but anyways) is now in
+"Bts Info (Outdated)".
+This is not exactly what i wanted, but almost.
+
+To solve this, i have done this extra step, which slightly alters
+@f1rpo's given explanation, by doing this instead of what is in
+@f1rpo's explanation:
+- rename "Game Concepts" to "Mod Info"
+- rename "BtS Game Concepts" to "Bts Info (Outdated)".
+
+Additionally, i also did not need to rename TXT KEY types nor any
+data so that it would include "_TRAIT_" or "SHORTCUTS" in it.
+I don't know if i did all steps correctly, but at least it works
+now.
+
+Unintuitive and not ideal because now old civ4 concepts, that
+are still in BasicInfos.xml in this mod now though, are stored
+under the newconceptinfo txtkey, while having conceptinfo XML
+tags, while bts rules changes and similar new entries i would
+want to create or not, are now in NewConceptInfos XML tags as
+i think is intended, but with ConceptInfo TXT Keys (and not
+NewConceptInfos TXT Keys as i would have wanted).
+So not ideal but works, hopefully helps.
+-->
+<Civ4BasicInfos xmlns="x-schema:CIV4BasicInfoSchema.xml">
+	<ConceptInfos>
+		<!--custom: moved these concepts away from:
+		C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4NewConceptInfos.xml
+		Then renamed them from NewConceptInfo to ConceptInfo -->
+		<ConceptInfo>
+		<Type>CONCEPT_ESPIONAGE</Type>
+		<Description>TXT_KEY_ESPIONAGE_CULTURE</Description>
+		<Civilopedia>TXT_KEY_CONCEPT_ESPIONAGE_PEDIA_SR</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_COLONIES</Type>
+			<Description>TXT_KEY_CONCEPT_COLONIES</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_COLONIES_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_CORPORATIONS</Type>
+			<Description>TXT_KEY_CONCEPT_CORPORATIONS</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_CORPORATIONS_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_SEA_TRADE</Type>
+			<Description>TXT_KEY_CONCEPT_SEA_TRADE</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SEA_TRADE_PEDIA_TR</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_FLANK_ATTACK</Type>
+			<Description>TXT_KEY_CONCEPT_FLANK_ATTACK</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_FLANK_ATTACK_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_GREAT_SPY</Type>
+			<Description>TXT_KEY_CONCEPT_GREAT_SPY</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_GREAT_SPY_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_LATE_START</Type>
+			<Description>TXT_KEY_CONCEPT_LATE_START</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_LATE_START_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_EVENTS</Type>
+			<Description>TXT_KEY_CONCEPT_EVENTS</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_EVENTS_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_AIR_COMBAT</Type>
+			<Description>TXT_KEY_CONCEPT_AIR_COMBAT</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_AIR_COMBAT_PEDIA_SR</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_AIR_PROMOTIONS</Type>
+			<Description>TXT_KEY_CONCEPT_AIR_PROMOTIONS</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_AIR_PROMOTIONS_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_BTS_FOREST_PRESERVE</Type>
+			<Description>TXT_KEY_BTS_FOREST_PRESERVE</Description>
+			<Civilopedia>TXT_KEY_BTS_FOREST_PRESERVE_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_APOSTOLIC_PALACE</Type>
+			<Description>TXT_KEY_CONCEPT_APOSTOLIC_PALACE</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_APOSTOLIC_PALACE_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_FORT</Type>
+			<Description>TXT_KEY_CONCEPT_FORT</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_FORT_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_LIBERATION</Type>
+			<Description>TXT_KEY_CONCEPT_LIBERATION</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_LIBERATION_PEDIA</Civilopedia>
+		</ConceptInfo>
+
+		<!-- custom: these old vanilla civ4 concepts (if i am not mistaken)
+		were already in BasicInfos.XML, and are now (in the Sevopedia) instead,
+		displayed alongside the BTS concepts (almost all, except BTS rules
+		changes).
+		I think the game and the BTS expansion is old enough to consider
+		them the same game, so merging these together for a clear view,
+		and to highlight they are outdated in the new TXT KEY of the
+		sevopedia category "BTS Concepts " -->
+		<ConceptInfo>
+			<Type>CONCEPT_ANIMALS</Type>
+			<Description>TXT_KEY_CONCEPT_ANIMALS</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_ANIMALS_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_AIR_UNITS</Type>
+			<Description>TXT_KEY_CONCEPT_AIR_UNITS</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_AIR_UNITS_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_BARBARIANS</Type>
+			<Description>TXT_KEY_CONCEPT_BARBARIANS</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_BARBARIANS_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_BORDERS</Type>
+			<Description>TXT_KEY_CONCEPT_BORDERS</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_BORDERS_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_BUILDINGS</Type>
+			<Description>TXT_KEY_CONCEPT_BUILDINGS</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_BUILDINGS_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_CITIES</Type>
+			<Description>TXT_KEY_CONCEPT_CITIES</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_CITIES_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_CITY_NETWORK</Type>
+			<Description>TXT_KEY_CONCEPT_CITY_NETWORK</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_CITY_NETWORK_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_CIVICS</Type>
+			<Description>TXT_KEY_CONCEPT_CIVICS</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_CIVICS_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_COMBAT</Type>
+			<Description>TXT_KEY_CONCEPT_COMBAT</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_COMBAT_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_COMMERCE</Type>
+			<Description>TXT_KEY_CONCEPT_COMMERCE</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_COMMERCE_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_CULTURE</Type>
+			<Description>TXT_KEY_CONCEPT_CULTURE</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_CULTURE_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_DIPLOMACY</Type>
+			<Description>TXT_KEY_CONCEPT_DIPLOMACY</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_DIPLOMACY_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_DRAFT</Type>
+			<Description>TXT_KEY_CONCEPT_DRAFT</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_DRAFT_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_EXPLORATION</Type>
+			<Description>TXT_KEY_CONCEPT_EXPLORATION</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_EXPLORATION_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_FOOD</Type>
+			<Description>TXT_KEY_CONCEPT_FOOD</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_FOOD_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_GOLDEN_AGE</Type>
+			<Description>TXT_KEY_CONCEPT_GOLDEN_AGE</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_GOLDEN_AGE_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_GREAT_PEOPLE</Type>
+			<Description>TXT_KEY_CONCEPT_GREAT_PEOPLE</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_GREAT_PEOPLE_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_HAPPINESS</Type>
+			<Description>TXT_KEY_CONCEPT_HAPPINESS</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_HAPPINESS_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_HEALTH</Type>
+			<Description>TXT_KEY_CONCEPT_HEALTH</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_HEALTH_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_HURRY_PRODUCTION</Type>
+			<Description>TXT_KEY_CONCEPT_HURRY_PRODUCTION</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_HURRY_PRODUCTION_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_IMPROVEMENTS</Type>
+			<Description>TXT_KEY_CONCEPT_IMPROVEMENTS</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_IMPROVEMENTS_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_LEADERS</Type>
+			<Description>TXT_KEY_CONCEPT_LEADERS</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_LEADERS_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_MAINTENANCE</Type>
+			<Description>TXT_KEY_CONCEPT_MAINTENANCE</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_MAINTENANCE_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_MAPS</Type>
+			<Description>TXT_KEY_CONCEPT_MAPS</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_MAPS_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_MOVEMENT</Type>
+			<Description>TXT_KEY_CONCEPT_MOVEMENT</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_MOVEMENT_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_NUKES</Type>
+			<Description>TXT_KEY_CONCEPT_NUKES</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_NUKES_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_PRODUCTION</Type>
+			<Description>TXT_KEY_CONCEPT_PRODUCTION</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_PRODUCTION_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_PROMOTIONS</Type>
+			<Description>TXT_KEY_CONCEPT_PROMOTIONS</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_PROMOTIONS_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_RELIGION</Type>
+			<Description>TXT_KEY_CONCEPT_RELIGION</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_RELIGION_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_RESEARCH</Type>
+			<Description>TXT_KEY_CONCEPT_RESEARCH</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_RESEARCH_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_RESISTANCE</Type>
+			<Description>TXT_KEY_CONCEPT_RESISTANCE</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_RESISTANCE_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_RESOURCES</Type>
+			<Description>TXT_KEY_CONCEPT_RESOURCES</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_RESOURCES_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_REVOLUTION</Type>
+			<Description>TXT_KEY_CONCEPT_REVOLUTION</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_REVOLUTION_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_SPACESHIP</Type>
+			<Description>TXT_KEY_CONCEPT_SPACESHIP</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SPACESHIP_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_SPECIALISTS</Type>
+			<Description>TXT_KEY_CONCEPT_SPECIALISTS</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SPECIALISTS_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_TECHNOLOGY</Type>
+			<Description>TXT_KEY_CONCEPT_TECHNOLOGY</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_TECHNOLOGY_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_TERRAIN</Type>
+			<Description>TXT_KEY_CONCEPT_TERRAIN</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_TERRAIN_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_TRADE</Type>
+			<Description>TXT_KEY_CONCEPT_TRADE</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_TRADE_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_TRANSPORT</Type>
+			<Description>TXT_KEY_CONCEPT_TRANSPORT</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_TRANSPORT_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_TREASURY</Type>
+			<Description>TXT_KEY_CONCEPT_TREASURY</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_TREASURY_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_UNITS</Type>
+			<Description>TXT_KEY_CONCEPT_UNITS</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_UNITS_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_UNITED_NATIONS</Type>
+			<Description>TXT_KEY_CONCEPT_UNITED_NATIONS</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_UNITED_NATIONS_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_VICTORY</Type>
+			<Description>TXT_KEY_CONCEPT_VICTORY</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_VICTORY_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_WAR</Type>
+			<Description>TXT_KEY_CONCEPT_WAR</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_WAR_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_WAR_WEARINESS</Type>
+			<Description>TXT_KEY_CONCEPT_WAR_WEARINESS</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_WAR_WEARINESS_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_WEALTH</Type>
+			<Description>TXT_KEY_CONCEPT_WEALTH</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_WEALTH_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_WONDERS</Type>
+			<Description>TXT_KEY_CONCEPT_WONDERS</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_WONDERS_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_GREAT_GENERALS</Type>
+			<Description>TXT_KEY_CONCEPT_GREAT_GENERALS</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_GREAT_GENERALS_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_VASSAL_STATES</Type>
+			<Description>TXT_KEY_CONCEPT_VASSAL_STATES</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_VASSAL_STATES_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_IRRIGATION</Type>
+			<Description>TXT_KEY_CONCEPT_IRRIGATION</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_IRRIGATION_PEDIA</Civilopedia>
+		</ConceptInfo>
+	</ConceptInfos>
+</Civ4BasicInfos>

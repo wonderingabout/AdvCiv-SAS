@@ -688,7 +688,7 @@
 			<iAIWeight>125</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
 			<!-- advc.910: was 700 -->
-			<!-- custom: feudalism is a key important tech with the unit reworks in my mod now, also from the little i checked it
+			<!-- custom: feudalism is a key important tech with the unit reworks in AdvCiv-SAS now, also from what i checked, it
 			seems it started a bit sooner than other techs, so maybe fine to reduce this a bit, so that most civs also access
 			sooner this key tech. Maybe this helps avoiding snowballs of some players.
 			I am not concerned so much about the year number, much more on the turn number. As long as progression is gradual
@@ -4532,16 +4532,7 @@
 			<Help/>
 			<Strategy>TXT_KEY_TECH_ARCHERY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
-			<!-- custom: archery should be much less important to AIs now that they start with the more versatile warriors,
-			it should maybe be important if AI is getting behind in military power or/and adopting turtle strategy, else it may
-			be fine to wait until feudalism is discovered if the AI then wants longbowmen.
-			Axemen and similar units should be good enough defenders, adding swordsmen or/and chariots or spearmen should also help
-			balance out all this for more AI early versatility.
-			Archers are also quite bad at rushing another AI early, and wars do not seem to happen too soon so maybe wait until chariots
-			or/and spearmen or/and axemen are available before building rush units.
-			In short, if AI is weaker only then archers are relevant, else focus on versatility rather and warriors and their upgrades instead.
-			, was 0-->
-			<iAIWeight>-80</iAIWeight>
+			<iAIWeight>0</iAIWeight>
 			<!-- advc.552: was 10 -->
 			<iAITradeModifier>0</iAITradeModifier>
 			<iCost>60</iCost>
@@ -5011,10 +5002,10 @@
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.306: was 450 -->
 			<!-- custom: trying to make tech pace more gradual or/and accurate, this
-			tech should also be more strategic in my mod, some units may specifically
+			tech should also be more strategic in AdvCiv-SAS, some units may specifically
 			require metal casting, not just for the forges, is maybe more accurate
-			historically too maybe from the little i've read i mean, hopefully this
-			maybe increases immersion also, was 375 -->
+			historically too maybe, hopefully this maybe increases immersion also,
+			was 375 -->
 			<iCost>260</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>

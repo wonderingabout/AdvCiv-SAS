@@ -41,7 +41,7 @@
 			<Strategy>TXT_KEY_PROCESS_CULTURE_STRATEGY</Strategy>
 			<!-- custom: aesthetics now instead of drama, maybe is more accurate/realistic
 			on top of maybe helping calm revolts sooner? Or/and more diverse strategies
-			possible now? Trying this as it may fit better for my mod at least maybe. -->
+			possible now? Trying this as it may fit better in AdvCiv-SAS. -->
 			<TechPrereq>TECH_AESTHETICS</TechPrereq>
 			<ProductionToCommerceModifiers>
 				<iProductionToCommerceModifier>0</iProductionToCommerceModifier>

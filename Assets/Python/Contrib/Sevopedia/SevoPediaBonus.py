@@ -64,7 +64,7 @@ class SevoPediaBonus:
 		self.Y_REVEALED_BY = self.Y_IMPROVEMENTS_PANE + self.H_IMPROVEMENTS_PANE + 10
 		self.H_REVEALED_BY = 110
 
-		# <!-- custom: todo add self.X_ENABLES and similar i mean anyways, thanks, -->
+		# <!-- custom: todo add self.X_ENABLES and similar -->
 
 		self.X_ALLOWS_PANE = self.X_BONUS_PANE
 		self.W_ALLOWS_PANE = self.top.R_PEDIA_PAGE - self.X_ALLOWS_PANE
@@ -72,12 +72,9 @@ class SevoPediaBonus:
 		self.H_ALLOWS_PANE = 110
 
 		# <!-- custom: put the buildings panel under the units (allows) panel
-		# so easier to refer to it directly, now, i mean anyways i mean anyways,
-		# at least about this i mean anyways i mean anyways, thanks,
-		# it will also be identical in dimensions (or very close) so we will
-		# not need to change much (coordinates or other things) this way,
-		# at least about this, i mean, anyways, i mean anyways, maybe,
-		# i mean anyways, or not, i mean anyways, thanks, -->
+		# so easier to refer to it directly, it will also be identical in
+		# dimensions (or very close) so we will not need to change much
+		# (coordinates or other things) this way -->
 		self.X_BUILDINGS = self.X_ALLOWS_PANE
 		self.W_BUILDINGS = self.W_ALLOWS_PANE 
 		self.Y_BUILDINGS = self.Y_ALLOWS_PANE
@@ -85,7 +82,7 @@ class SevoPediaBonus:
 
 		# <!--custom: not changing the existing math since it was already done,
 		# but ideally (i think (?)) should base this on the buildings panel now
-		# just above it i mean anywyas, thanks,
+		# just above it
 		self.X_HISTORY_PANE = self.X_ALLOWS_PANE
 		self.W_HISTORY_PANE = self.W_ALLOWS_PANE
 		self.Y_HISTORY_PANE = self.Y_ALLOWS_PANE + self.H_ALLOWS_PANE + 10
@@ -102,25 +99,22 @@ class SevoPediaBonus:
 		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getBonusInfo(self.iBonus).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		screen.addBonusGraphicGFC(self.top.getNextWidgetName(), self.iBonus, self.X_BONUS_ANIMATION, self.Y_BONUS_ANIMATION, self.W_BONUS_ANIMATION, self.H_BONUS_ANIMATION, WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_BONUS_ANIMATION, self.Z_ROTATION_BONUS_ANIMATION, self.SCALE_ANIMATION, True)
 
-		# <!-- custom: todo unfinished in this case at least i mean anyways,
-		# thanks,
-		# Move the panel position, so that it starts from a
+		# <!-- custom: Move the panel position, so that it starts from a
 		# lower point in the screen.
-		# We will use this newly freed place in this case at least i mean
-		# anyways to put the larger Buildings, while we create an Enables
-		# panel instead where the Buildings panel was.
+		# We will use this newly freed place to put the larger Buildings,
+		# while we create an Enables panel instead where the Buildings
+		# panel was.
 		# Hopefully much clearer and more room to fit many buildings this
 		# way now, and to separate tech reveals and tech enables,
 		# both currently in the "Requires" panel which is very weird i
-		# think, will be renamed to to "Reveals"), at least in this case
-		# i mean anyways, thanks,
+		# think, will be renamed to to "Reveals")
 		# -->
 		self.placeStats()
 		self.placeYield()
 		self.placeSpecial()
-		# <!-- custom: split the former/old about this i mean anyways
-		# placeRequires, into placeRevealedBy and placeEnables (which is
-		# hopefully more accurate this way too i mean anyways, thanks,
+		# <!-- custom: split the former/old  placeRequires, into
+		# placeRevealedBy and placeEnables (which is hopefully more
+		# accurate this way too
 		# -->
 		self.placeRevealedBy()
 		self.placeEnables()
@@ -147,20 +141,18 @@ class SevoPediaBonus:
 				else:
 					sign = ""
 				# <!-- custom: beautify, no need to mention "FOOD: +1",
-				# just "+1" is enough especially with the food icon i
-				# mean anyways i mean anyways, thanks, -->
+				# just "+1" is enough especially with the food icon
+				# -->
 				#szYield = (u"%s: %s%i " % (gc.getYieldInfo(k).getDescription(), sign, iYieldChange))
 				szYield = (u"%s%i " % (sign, iYieldChange))
-				# <!-- custom: add an information about the precise
+				# <!-- custom: add information about the precise
 				# type of yield it is, which can be otherwise very
 				# confusing
 				# note: used the same logic as in other parts of the
-				# code, for example placeStats in SevoPediaProject.py
-				# is quite (very) similar and helped quite a lot even
-				# though i did it myself thanks to things i learned
-				# or/and taught to me i mean anyways i mean anyways,
-				# should be much more beautiful (and pleasant/satisfying
-				# to do too i mean anyways), thanks,(), thanks,-->
+				# code; for example placeStats in SevoPediaProject.py
+				# is quite (very) similar and helped quite a lot,
+				# should be much more beautiful/pleasant hopefully
+				# -->
 				#screen.appendListBoxString(panelName, u"<font=3>" + szYield.upper() + (u"%c" % gc.getYieldInfo(k).getChar()) + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 				szText = u"<font=4><b>" + localText.getText("TXT_KEY_PEDIA_BONUS_YIELDS_CUSTOM_PANEL_TEXT", ()) + "\n\n" + szYield.upper() + (u"%c" % gc.getYieldInfo(k).getChar()) + u"</b></font>"
 				screen.appendListBoxString(panelName, szText, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
@@ -172,8 +164,8 @@ class SevoPediaBonus:
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT_CUSTOM_NEW_FOR_RESSOURCES_IMPROVEMENTS", ()), "", True, True, self.X_IMPROVEMENTS_PANE, self.Y_IMPROVEMENTS_PANE, self.W_IMPROVEMENTS_PANE, self.H_IMPROVEMENTS_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
 		# <!-- custom: removed unused bonusInfo variable,
-		# seems safe at least in this case i mean anyways,
-		# thanks,
+		# seems safe
+		# -->
 		for j in range(gc.getNumImprovementInfos()):
 			bFirst = True
 			szYield = u""
@@ -220,22 +212,16 @@ class SevoPediaBonus:
 	def placeRevealedBy(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		# <!-- custom: note, i mean anyways: TXT_KEY_PEDIA_BONUS_APPEARANCE
+		# <!-- custom:
+		# note that TXT_KEY_PEDIA_BONUS_APPEARANCE
 		# is "Reveals", using a custom TXT KEY "Revealed By" 
 		# TXT_KEY_PEDIA_BONUS_APPEARANCE_REVEALED_BY_CUSTOM
-		# specifically for the Sevopedia, because now that we formatted it
-		# like that, in this case i mean anyways at least, "Revealed By" would
-		# fit better than "Reveals". Stil keeping the old entry intact for the
-		# Civilopedia, is about this i mean anyways, at least i mean anyways, 
-		# thanks,
-		# note: "Appearance"/"Reveals" is the logic it seems of an appearance
-		# but i still find it very confusing, why not use the same name i mean
-		# anyways, but as long as works, about this and in this case i mean,
-		# anyways, i mean anyways, as is or not or etc i mean maybe or not or
-		# yes, but anyways, i mean anyways, sorry if too spammy but i wanted
-		# though so how can i apologize, about this and me i mean anyways,
-		# but as is or not, i mean, or not, but anyways, as is or not,
-		# i mean anyways, maybe or not, as is, thanks,
+		# specifically for the Sevopedia, because now that we formatted
+		# it like that, "Revealed By" would fit better than "Reveals".
+		# Stil keeping the old entry intact for the Civilopedia
+		# note: "Appearance"/"Reveals" is the logic it seems of an
+		# appearance but i still find it very confusing, why not use the
+		# same name, but as long as it works is maybe fine
 		# -->
 		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_BONUS_APPEARANCE_REVEALED_BY_CUSTOM", ()), "", False, True, self.X_REVEALED_BY, self.Y_REVEALED_BY, self.W_REVEALED_BY, self.H_REVEALED_BY, PanelStyles.PANEL_STYLE_BLUE50 )
 		screen.attachLabel(panelName, "", "  ")
@@ -243,58 +229,37 @@ class SevoPediaBonus:
 		iTech = gc.getBonusInfo(self.iBonus).getTechReveal()
 		if (iTech > -1):
 			screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
-			# <!-- custom: we don't need the extra "(Reveals)" or "(Enables)" texts
-			# now that they are both not a "requires" anymore (which i think was very
-			# inaccurate i mean but anyways is just my opinion, now fixed at least,
-			# i mean about this, anyways, i mean anyways, thanks,
-			# remove the line entirely, i mean anyways, i mean anyways, thanks,
-			# about this at least i mean anyways, maybe or not as is or not,
-			# but anyways, i mean anyways, as is or not anyways i mean, thanks, -->
+			# <!-- custom: we don't need the extra "(Reveals)" or "(Enables)"
+			# texts now that they are both not a "requires" anymore (which i
+			# think was very inaccurate, now fixed
+			# -->
 			#screen.attachLabel(panelName, "", u"(" + localText.getText("TXT_KEY_PEDIA_BONUS_APPEARANCE", ()) + u")")
 
 
 
 	# <!-- custom: base this on former placeRequires (now split
 	# between placeRevealedBy and placeEnables with some adjustments
-	# and quite minor tweaks maybe i mean anywyas but that i still
-	# did and do feel quite proudly about, about this i mean anyways,
-	# but continuing the code now i mean hope helps if i may say
-	# maybe me too or not or yes or not, but anyways as is i mean
-	# anyways, thanks, ) function as it is very similar, only moved
-	# to the right, at least about this i mean anyways, thanks,
-	# slightly adjust values, about this, i mean, anyways, maybe or
-	# not maybe, as is, but anyways, thanks, i mean anyways, thanks,
+	# and quite minor tweaks
 	# -->
 	def placeEnables(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		# <!-- custom: move it at the right, in this case at least i mean anyways,
-		# of the requires panel, about this i mean anyways, at least, maybe, thanks,
-		# note: self.X_REVEALED_BY + 685 works i mean about this anyways, but since the
-		# new Enables panel is aligned with the effects panel, easier to use same 
-		# horizontal postion (X) i mean anyways, about this at least, i mean anyways,
-		# thanks,
-		# May support much better lower resolutions too, as we would be aligned with
-		# effects panel and not too far from it i mean anyways, thanks, so most likely
-		# better i think to align it based on the effects panel, even though the
-		# functionnal code is the same/similar as in the requires/reveals panel
-		# i mean anyways, about this i mean anyways, thanks, 
+		# <!-- custom: move it at the right of the requires panel
+		# note: self.X_REVEALED_BY + 685 works, but since the new
+		# Enables panel is aligned with the effects panel, easier to
+		# use same horizontal postion (X)
+		# May support much better lower resolutions too, as we would
+		# be aligned with effects panel and not too far from it if i
+		# am not mistaken
+		# note: TXT_KEY_PEDIA_BONUS_TRADE is "Enables"
 		# -->
-		# <!-- custom: note, i mean anyways: TXT_KEY_PEDIA_BONUS_TRADE
-		# is "Enables" thanks, about this i mean anyways, thanks, -->
 		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_BONUS_TRADE", ()), "", False, True, self.X_EFFECTS_PANE, self.Y_REVEALED_BY, self.W_REVEALED_BY, self.H_REVEALED_BY, PanelStyles.PANEL_STYLE_BLUE50 )
 		screen.attachLabel(panelName, "", "  ")
 
 		iTech = gc.getBonusInfo(self.iBonus).getTechCityTrade()
 		if (iTech > -1):
 			screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
-			# <!-- custom: we don't need the extra "(Reveals)" or "(Enables)" texts
-			# now that they are both not a "requires" anymore (which i think was very
-			# inaccurate i mean but anyways is just my opinion, now fixed at least,
-			# i mean about this, anyways, i mean anyways, thanks,
-			# remove the line entirely, i mean anyways, i mean anyways, thanks,
-			# about this at least i mean anyways, maybe or not as is or not,
-			# but anyways, i mean anyways, as is or not anyways i mean, thanks, -->
+			# <!-- custom: same -->
 			#screen.attachLabel(panelName, "", u"(" + localText.getText("TXT_KEY_PEDIA_BONUS_TRADE", ()) + u")")
 
 
@@ -345,8 +310,8 @@ class SevoPediaBonus:
 		# panel.
 		# Now the buildings panel will be larger as the units panel, useful
 		# for ressources like marble that could not fit all, plus now we have
-		# room to create a new Enables panel i mean anyways, at least in this
-		# case i mean anyways, thanks,
+		# room to create a new Enables panel
+		# -->
 		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_CATEGORY_BUILDING_PROJECT", ()), "", False, True, self.X_BUILDINGS, self.Y_BUILDINGS + 120, self.W_BUILDINGS, self.H_BUILDINGS, PanelStyles.PANEL_STYLE_BLUE50 )
 		screen.attachLabel(panelName, "", "  ")
 		# advc.905b: Moved this loop from placeAllows, which only deals with units now.
@@ -390,31 +355,27 @@ class SevoPediaBonus:
 		panelName = self.top.getNextWidgetName()
 		# <!-- custom: make the panel total height (H) smaller,
 		# and make it start from a lower point in the screen which is same
-		# as having moved it lower in the screen (Y), if i am not mistaken
-		# this is how it works i mean functions i mean, at least about this
-		# i mean anyways, maybe or not, i mean anyways, i mean anyways, thanks,
-		# just freeing enough space to put our new panel, no need to
-		# reduce too much the history panel's size -->
+		# as having moved it lower in the screen (Y), if i am not mistaken.
+		# Just freeing enough space to put our new panel, no need to
+		# reduce too much the history panel's size
+		# -->
 		#screen.addPanel( panelName,localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE, self.W_HISTORY_PANE, self.H_HISTORY_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.addPanel(panelName,localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE + 120, self.W_HISTORY_PANE, self.H_HISTORY_PANE - 120, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panelName, "", "  ")
 		textName = self.top.getNextWidgetName()
-		# <!custom: -- move the text line (too), to a lower point (Y) so that it
+		# <!-- custom: move the text line too, to a lower point (Y) so that it
 		# fits starting from the new position of the history panel, and correct
 		# height of the text line (H) (use a very long text as replacement, for
-		# example of rice, if you don't have any resource with a long enough
-		# text to test with i mean anwyays, in this case at least, i mean anyways,
-		# thanks, ) so that text does not go out of the screen.
-		# If we reach (fill) the end of the text panel, instead a scroll will
-		# appear at desired height, make it match around the end of the text
-		# panel, in this case at least i mean anyways, thanks,
+		# example of rice, to test if text fits well if needed)
 		# <!-- custom: also reduce padding to match how it was changed in
-		# the other categories at least in this case i mean anyways, thanks, -->
+		# the other categories -->
 		# <!-- custom: i also don't think we need casting (30), so keeping
-		# it as the more simple 30, at least in this case i mean anyways,
-		# seems to run file so leaving as is (as i fixed it i mean anyways),
-		# not that it was an error but weird i think in this case at least
-		# indeed maybe i mean anyways, thanks,
+		# it as the more simple 30
+		# after testing (no casting), seems to run fine so leaving as is,
+		# not that it was an error i think per say but i don't know, but weird
+		# so "fixed" it even though it was not an "error" i think, just
+		# redudant maybe.
+		# -->
 		#screen.addMultilineText( textName, gc.getBonusInfo(self.iBonus).getCivilopedia(), self.X_HISTORY_PANE + 15, self.Y_HISTORY_PANE + 40, self.W_HISTORY_PANE - (30), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.addMultilineText(textName, gc.getBonusInfo(self.iBonus).getCivilopedia(), self.X_HISTORY_PANE + 7, self.Y_HISTORY_PANE + 10 + 120 + 23, self.W_HISTORY_PANE - 30, self.H_HISTORY_PANE - (15 * 2) - 25 - 120, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
