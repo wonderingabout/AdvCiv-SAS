@@ -103,3 +103,7 @@ bridge building at construction, to also gain amphibious there.
 Amphibious promotion is also buffed "in exchange", it was
 too weak and i wanted to buff it, added a tech requirement to prevent it.
 Still not a big buff but should help hopefully maybe
+
+- medic is not related to combat, separating these logics while also buffing
+medic promotions. Disallow it on non-living units, which may or not get their
+specific promotion (Mechanic for example if i were to implement it)

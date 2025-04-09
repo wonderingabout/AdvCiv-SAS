@@ -49,7 +49,7 @@
 	</TEXT>
 	<!--custom:	Not changing it in TXT_KEY_BTS_RULES_CHANGES_PEDIA_SR
 	as it is an outdated doc. -->
-	
+
 
 	<!-- custom: gather all base civ4 (vanilla or BTS alike)
 	content in the same category, was "Game Concepts".
@@ -1027,6 +1027,97 @@
 			<Text>Archers (Crossbow)</Text>
 			<Gender>Male</Gender>
 			<Plural>1</Plural>
+		</Spanish>
+	</TEXT>
+
+
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_MEDIC1</Tag>
+		<English>Medic 1</English>
+		<French>
+			<Text>Medic 1</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Medic 1</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Medic 1</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Medic 1</Text>
+			<Gender>Female</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_MEDIC2</Tag>
+		<English>Medic 2</English>
+		<French>
+			<Text>Medic 2</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Medic 2</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Medic 2</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Medic 2</Text>
+			<Gender>Female</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<!-- custom: from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Warlords\Assets\XML\Text\CIV4GameText_Warlords.xml -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_MEDIC3</Tag>
+		<English>Medic 3</English>
+		<French>Medic 3</French>
+		<German>Medic 3</German>
+		<Italian>Medic 3</Italian>
+		<Spanish>Medic 3</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_MEDIC4</Tag>
+		<English>Medic 4</English>
+		<French>Medic 4</French>
+		<German>Medic 4</German>
+		<Italian>Medic 4</Italian>
+		<Spanish>Medic 4</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_MARCH</Tag>
+		<English>Medic (Ambulatory)</English>
+		<French>
+			<Text>Medic (Ambulatory)</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Medic (Ambulatory)</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Medic (Ambulatory)</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Medic (Ambulatory)</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
 		</Spanish>
 	</TEXT>
 </Civ4GameText>
