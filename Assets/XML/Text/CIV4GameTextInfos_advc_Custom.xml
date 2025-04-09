@@ -53,4 +53,19 @@
 		<Italian>SEVOPEDIA</Italian>
 		<Spanish>SEVOPEDIA</Spanish>
 	</TEXT>
+
+	<!-- custom: rename "We fear you are becoming too advanced." (WFYABTA)
+	to "We fear you are trading more than us" (WFYATMTU), the former is
+	misleading as a player can receive it even if lagging behind in techs
+	and trying to trade, from what i understand/read/remember in the past
+	it is actually related to how much a player trades regardless of tech
+	progress, hopefully clearer now. -->
+	<TEXT>
+		<Tag>TXT_KEY_DENIAL_TECH_WHORE</Tag>
+		<English>"We fear you are trading more than us."</English>
+		<French>"We fear you are trading more than us."</French>
+		<German>"We fear you are trading more than us."</German>
+		<Italian>"We fear you are trading more than us."</Italian>
+		<Spanish>"We fear you are trading more than us."</Spanish>
+	</TEXT>
 </Civ4GameText>
