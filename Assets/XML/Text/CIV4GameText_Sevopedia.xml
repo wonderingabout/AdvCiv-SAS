@@ -84,13 +84,15 @@
 		 (en. BTS Concepts, fr. Conceptes BTS, dt. Beyond the Sword-Konzepte,
 		 it. Concetti di BTS, es. Conceptos BtS)
 		 because I'm replacing this key in CIV4GameText_advc_pedia.xml. -->
+	<!-- custom: rename "Unique Buildings" to "Civilization Buildings",
+	hopefully clearer -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIQUE_BUILDINGS</Tag>
-		<English>Unique Buildings</English>
-		<French>Bâtiments Uniques</French>
-		<German>Einzigartige Gebäude</German>
-		<Italian>Edifici Unici</Italian>
-		<Spanish>Edificios Únicos</Spanish>
+		<English>Civilization Buildings</English>
+		<French>Civilization Buildings</French>
+		<German>Civilization Buildings</German>
+		<Italian>Civilization Buildings</Italian>
+		<Spanish>Civilization Buildings</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_FAV_CIVIC_AND_RELIGION</Tag>
