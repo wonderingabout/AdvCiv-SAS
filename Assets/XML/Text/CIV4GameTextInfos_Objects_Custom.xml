@@ -5,6 +5,52 @@
 <!-- -->
 <!-- Game Text Objects -->
 <Civ4GameText xmlns="http://www.firaxis.com">
+	<!-- custom: "Unique Units" were not unique (could be built
+	many times, just it was only by one civ in civ4, so i had
+	renamed	it to "Civ-specific Units" initially.
+	After futher consideration, there are no multi Civ-specific
+	units (units that can be built only	be a few civs in common)
+	in AdvCiv-SAS if i am not mistaken,	and the name civ-specific
+	is quite tedious/complicated to remember/use, so renaming it
+	rather to "Civilization Units", which may be shortened to
+	"Civ Units" by players if they so desire or prefer maybe,
+	hopefully clearer.
+	-->
+	<TEXT>
+		<Tag>TXT_KEY_FREE_UNITS</Tag>
+		<English>Civilization Units</English>
+		<French>Civilization Units</French>
+		<German>Civilization Units</German>
+		<Italian>Civilization Units</Italian>
+		<Spanish>Civilization Units</Spanish>
+	</TEXT>
+		<TEXT>
+		<Tag>TXT_KEY_FREE_UNITS_NO</Tag>
+		<English>No Civilization Unit</English>
+		<French>No Civilization Unit</French>
+		<German>No Civilization Unit</German>
+		<Italian>No Civilization Unit</Italian>
+		<Spanish>No Civilization Unit</Spanish>
+	</TEXT>
+	<!-- custom: "Civilization Unit for Russian Empire"
+	-> "Civilization Unit For the Russian Empire";
+	Adding a "the" too, hopefully clearer this way,	also i was
+	not sure if "of" is more correct than "for" but seems more
+	intuitive to me but may be grammatically incorrect or less
+	accurate, leaving as is but adding a mention of it here.
+	-->
+	<TEXT>
+		<Tag>TXT_KEY_UNIQUE_UNIT</Tag>
+		<English>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</English>
+		<French>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</French>
+		<German>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</German>
+		<Italian>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</Italian>
+		<Spanish>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</Spanish>
+	</TEXT>
+	<!--custom:	Not changing it in TXT_KEY_BTS_RULES_CHANGES_PEDIA_SR
+	as it is an outdated doc. -->
+	
+
 	<!-- custom: gather all base civ4 (vanilla or BTS alike)
 	content in the same category, was "Game Concepts".
 	I prefer to keep the data as it can be useful/helpful to
@@ -983,29 +1029,4 @@
 			<Plural>1</Plural>
 		</Spanish>
 	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_UNITCOMBAT_AIR_BOMBER</Tag>
-		<English>Air (Bomber)</English>
-		<French>
-			<Text>Air (Bomber)</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Air (Bomber)</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Air (Bomber)</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Air (Bomber)</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
-	</TEXT>
-
 </Civ4GameText>

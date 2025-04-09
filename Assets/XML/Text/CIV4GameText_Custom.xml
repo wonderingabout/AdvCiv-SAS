@@ -1,7 +1,22 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by lcollins (Firaxis Games) -->
-<!-- custom: custom assets for AdvCiv-SAS -->
+<!-- custom: custom GameText xml type of assets for AdvCiv-SAS -->
 <Civ4GameText xmlns="http://www.firaxis.com">
+	<!-- advc.002b: Shortening "Beyond the Sword" to "BtS" so that the page
+		 names can be displayed despite the increased font size.
+		 Originally in CIV4GameText_BTS.xml and CIV4GameText_Objects_BTS.xml. -->
+	<!-- custom: remove BTS links, unneeded, see CIV4NewConceptInfos.xml for details -->
+	<!-- custom: moved to file with similar filename than in civ4 bts -->
+	<TEXT>
+		<Tag>TXT_KEY_BTS_RULES_CHANGES</Tag>
+		<English>BtS Rules Changes</English>
+		<French>R&#232;gles modifi&#233;es de BtS</French>
+		<German>BtS-Regel&#228;nderungen</German>
+		<Italian>Cambiamenti delle regole di BtS</Italian>
+		<Spanish>Cambios en las reglas de "BtS"</Spanish>
+	</TEXT>
+
+
     <!-- custom: Kingdom of Benin cities -->
 	<TEXT>
 		<Tag>TXT_KEY_CITY_NAME_EDO_CUSTOM</Tag>

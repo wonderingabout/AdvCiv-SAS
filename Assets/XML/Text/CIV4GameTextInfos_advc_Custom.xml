@@ -5,6 +5,22 @@
 <!-- -->
 <!-- Game Text Infos -->
 <Civ4GameText xmlns="http://www.firaxis.com">
+	<!-- advc.008a: Removed "Only" because this is going to be shown for
+		 wonders like Stonehenge that become unavailable surprisingly early
+		 (Classical start), but also for e.g. Apostolic Palace, which becomes
+		 unavailable surprisingly late (Industrial start).
+		 German and Italian text was missing the "start era" part and thus
+		 misleading. Original key in CIV4GameTextInfos.xml. -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_MAX_START_ERA</Tag>
+		<English>[ICON_BULLET]Can be Built on %s1_Name and Earlier Starts</English>
+		<French>[ICON_BULLET]Construction possible &#224; l'&#233;poque "%s1_Name" et pour les d&#233;buts de partie plus pr&#233;coces</French>
+		<German>[ICON_BULLET]Kann bei Start im Zeitalter %s1_Name oder fr&#252;her errichtet werden</German>
+		<Italian>[ICON_BULLET]Può essere costruito quando si inizia nell'era %s1_Name o prima</Italian>
+		<Spanish>[ICON_BULLET]Se puede construir en [NUM1:el:la:los:las] %s1_Name e inicios anteriores</Spanish>
+	</TEXT>
+	
+
     <!-- custom: rename Civilopedia to Sevopedia 
     imported from: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameTextInfos.xml
     and then modified for AdvCiv-SAS
