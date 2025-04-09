@@ -14,11 +14,12 @@ units entirely removed:
 stealth bomber (simplifying the end game, removing stealth air units)
 nuclear submarine (same, also not accurate see docs for details)
 stealth destroyer (same)_
-missile cruiser (same)
 
 caravel (too close to the galleon, also not very sensical that it can somehow enter borders without accord)
 ship of the line (too close to the frigate for too little extra benefit, redundant)
 battleship (simplify gameplay)
+
+missile cruiser (same) ?
 
 
 
