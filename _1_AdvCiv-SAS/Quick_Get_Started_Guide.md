@@ -10,7 +10,7 @@ todo cleanup extensive comments and move them to a longer changes guide notes
 ## Sevopedia AdvCiv-SAS Entry
 
 Some of the changes in AdvCiv-SAS (coming from AdvCiv) are also listed in the
-Sevopedia Entry (non-eshaustive), please visit it there (the screenshot below
+Sevopedia Entry (non-exhaustive), please visit it there (the screenshot below
 (click to view it full size) may not be updated, it is to give a preview/general
 idea):
 
