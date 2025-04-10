@@ -397,7 +397,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.szCategoryCivics		= localText.getText("TXT_KEY_PEDIA_CATEGORY_CIVIC", ())
 		self.szCategoryReligions	= localText.getText("TXT_KEY_PEDIA_CATEGORY_RELIGION", ())
 		self.szCategoryCorporations	= localText.getText("TXT_KEY_CONCEPT_CORPORATIONS", ())
-		# <!-- custom: see below at self.categoryList 's code comment -->
 		self.szCategoryConcepts		= localText.getText("TXT_KEY_PEDIA_CATEGORY_CONCEPT", ())
 		self.szCategoryConceptsNew	= localText.getText("TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW", ())
 		self.szCategoryHints		= localText.getText("TXT_KEY_PEDIA_CATEGORY_HINTS", ())
@@ -426,8 +425,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			["CIVICS",	self.szCategoryCivics],
 			["CIVICS",	self.szCategoryReligions],
 			["CIVICS",	self.szCategoryCorporations],
-			# <!-- custom: put "Mods Info" before "BtS Info (Outdated)", hopefully
-			# more visible and maybe useful too this way -->
 			["HINTS",	self.szCategoryConcepts],
 			["HINTS",	self.szCategoryConceptsNew],
 			["HINTS",	self.szCategoryHints],
@@ -481,17 +478,19 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			graphic = self.categoryGraphics[category[0]]
 			# <advc.002b> Prepend graphic only if there is room
 			szHeading = category[1]
-			# <!-- custom: allow room to fit more characters, if less are used
-			# still displays fine/same, if text is too long to fit the box, up
-			# to the modder to adjust the text rather, 20 should still leave
-			# some margin especially on higher displays while giving the flexibility
-			# to have a bit longer text maybe, was 16-->
-			iThresh = 20 # For English, 16 happens to be OK.
+			# For English, 16 happens to be OK.
+			# <!-- custom: allow room to fit more characters; our
+			# text "Bts Concepts (Outdated)" doesn't fit if this
+			# is less than 23.
+			# Not increasing to 24 to accomodate 23 for other
+			# languages, as they are unlikely to use such long
+			# texts anyway, saving the one extra iThresh instead,
+			# was 16
+			# --> 
+			iThresh = 23
 			if gc.getGame().getCurrentLanguage() != 0:
-				# <!-- custom: not sure other languages need critically more
-				# space (if i understand it correctly), but giving -1 too
-				# there, was 15 -->
-				iThresh = 19
+				# <!-- custom: was 15 -->
+				iThresh = 23
 			if len(szHeading) <= iThresh:
 				szHeading = graphic + szHeading # </advc.002b>
 			screen.appendListBoxStringNoUpdate(self.CATEGORY_LIST_ID, szHeading, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MAIN + i + 1, 0, CvUtil.FONT_LEFT_JUSTIFY)

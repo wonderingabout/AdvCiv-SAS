@@ -55,35 +55,8 @@
 	content in the same category, was "Game Concepts".
 	I prefer to keep the data as it can be useful/helpful to
 	players maybe, and not delete it entirely, but clearly indicate
-	(or more clearly indicate) that it is outdated.	-->
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT</Tag>
-		<English>Mods Info</English>
-		<French>
-			<Text>Mods Info</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</French>
-		<German>
-			<Text>Mods Info</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</German>
-		<Italian>
-			<Text>Mods Info</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Mods Info</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</Spanish>
-	</TEXT>
-	<!-- custom: was "BtS Concepts", see code comments in
-	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml
-	(or the equivalent of this path in your mod installation path).
-
+	(or more clearly indicate) that it is outdated.
+	
 	Added the tag/mention "(Outdated)" to signify that this info
 	is not up to date anymore, but may help for general purposes
 	maybe especially ingame. Add this mention may also remove
@@ -98,25 +71,53 @@
 	AdvCiv, AdvCiv-SAS, etc).
 	-->
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW</Tag>
-		<English>BtS Info (Outdated)</English>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT</Tag>
+		<English>Bts Concepts (Outdated)</English>
 		<French>
-			<Text>BtS Info (Outdated)</Text>
+			<Text>Bts Concepts (Outdated)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</French>
+		<German>
+			<Text>Bts Concepts (Outdated)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</German>
+		<Italian>
+			<Text>Bts Concepts (Outdated)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Bts Concepts (Outdated)</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</Spanish>
+	</TEXT>
+	<!-- custom: was "BtS Concepts", see code comments in
+	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml
+	(or the equivalent of this path in your mod installation path).
+	-->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW</Tag>
+		<English>Mods Information</English>
+		<French>
+			<Text>Mods Information</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</French>
 		<German>
-			<Text>BtS Info (Outdated)</Text>
+			<Text>Mods Information</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</German>
 		<Italian>
-			<Text>BtS Info (Outdated)</Text>
+			<Text>Mods Information</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Italian>
 		<Spanish>
-			<Text>BtS Info (Outdated)</Text>
+			<Text>Mods Information</Text>
 			<Gender>Male</Gender>
 			<Plural>0</Plural>
 		</Spanish>
