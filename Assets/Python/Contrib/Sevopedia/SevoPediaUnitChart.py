@@ -21,26 +21,35 @@ class SevoPediaUnitChart:
 
 		self.X_TABLE = self.top.X_PEDIA_PAGE
 		self.Y_TABLE = self.top.Y_PEDIA_PAGE
-		self.W_TABLE = 1200
 		self.H_TABLE = self.top.H_PEDIA_PAGE
 
 		self.MARGIN = 20
-
-		self.N_COLUMNS = 10
-		self.W_NAMES = 270
-		self.W_NUMS = ((self.W_TABLE - (self.MARGIN * 2) - self.W_NAMES) / (self.N_COLUMNS - 1))
+		self.N_COLUMNS = 0
+		self.W_NAME = 270
+		self.W_NUM = 100
+		
+		self.W_TABLE = ((self.N_COLUMNS - 2 - 1) * self.W_NUM) + (2 * self.MARGIN)
 
 
 
 	def interfaceScreen(self, iGroup):
 		self.iGroup = iGroup
-		self.placeUnitTable()
 
+		self.placeUnitTable()
 
 
 	def placeUnitTable(self):
 		screen = self.top.getScreen()
 		table = self.top.getNextWidgetName()
+
+		isAirCombatType = ( (self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR_BOMBER')) or (self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR_FIGHTER')) )
+
+		if not isAirCombatType:
+			self.N_COLUMNS = 8
+		else:
+			self.N_COLUMNS = 10
+		
+		self.W_TABLE = ( self.W_NAME + ((self.N_COLUMNS - 1) * self.W_NUM) ) + (2 * self.MARGIN)
 
 		# <!-- custom: blue is more readable than standard i find, imported
 		# from base AdvCiv and modified with a similar kind of purpose
@@ -65,7 +74,7 @@ class SevoPediaUnitChart:
 		)
 		screen.enableSort(table)
 
-		szNames = gc.getUnitCombatInfo(self.iGroup).getDescription()
+		szName = gc.getUnitCombatInfo(self.iGroup).getDescription()
 		szStrength = u"%c" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR)
 
 		# <!-- custom: display the icon instead of text -->
@@ -87,20 +96,12 @@ class SevoPediaUnitChart:
 		szBombard = u"%c" % CyGame().getSymbolID(FontSymbols.DEFENSE_CHAR)
 		szCollateral = u"Collateral"
 
-		szWithdrawAirEvasion = u""
-		isSelfAirCombatType = ( (self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR_BOMBER')) or (self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR_FIGHTER')) )
-		if isSelfAirCombatType:
-			szWithdrawAirEvasion = u"Air Evasion"
-		else:
-			szWithdrawAirEvasion = u"Withdraw"
+		szWithdraw = u"Withdraw"
+		szAirEvasion = u"Air Evasion"
 
 		szCost = u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()
 
-		szAirIntercept = u"Air Intercept"
-		szAirRange = u"Air Range"
 
-
-		screen.setTableColumnHeader(table, 0, u"<font=2>    " + szNames + u"    </font>", self.W_NAMES)
 		# <!-- custom: trick (to center the headers text too) taught to me by ChatGPT, quoting it:
 		# "
 		# screen.setTableColumnHeader(...) don't use FONT_*_JUSTIFY like the cell contents, but there's a workaround.
@@ -122,116 +123,178 @@ class SevoPediaUnitChart:
 		# May also serve for future reference maybe, anyways, thanks a lot ChatGPT, and to those who advised me or told me
 		# about how i could use it, in particular for civ4, or/and or things to thank for or not, anyways,
 		#  -->
-		screen.setTableColumnHeader(table, 1, u"<font=2>        " + szStrength + u"        </font>", self.W_NUMS)
-		screen.setTableColumnHeader(table, 2, u"<font=2>        " + szMove + u"        </font>", self.W_NUMS)
-		screen.setTableColumnHeader(table, 3, u"<font=2>   " + szFirstStrike + u"   </font>", self.W_NUMS)
-		screen.setTableColumnHeader(table, 4, u"<font=2>        " + szBombard + u"        </font>", self.W_NUMS)
-		screen.setTableColumnHeader(table, 5, u"<font=2>  " + szCollateral + u"   </font>", self.W_NUMS)
-		screen.setTableColumnHeader(table, 6, u"<font=2>  " + szWithdrawAirEvasion + u" </font>", self.W_NUMS)
-		screen.setTableColumnHeader(table, 7, u"<font=2>" + szAirIntercept + u"</font>", self.W_NUMS)
-		screen.setTableColumnHeader(table, 8, u"<font=2>    " + szAirRange + u"    </font>", self.W_NUMS)
-		screen.setTableColumnHeader(table, 9, u"<font=2>        " + szCost + u"        </font>", self.W_NUMS)
 
+		if isAirCombatType:
+			szAirIntercept = u"Air Intercept"
+			szAirRange = u"Air Range"
+			
+			screen.setTableColumnHeader(table, 0, u"<font=2>    " + szName + u"    </font>", self.W_NAME)
+			screen.setTableColumnHeader(table, 1, u"<font=2>        " + szStrength + u"        </font>", self.W_NUM)
+			screen.setTableColumnHeader(table, 2, u"<font=2>        " + szMove + u"        </font>", self.W_NUM)
+			screen.setTableColumnHeader(table, 3, u"<font=2>   " + szFirstStrike + u"   </font>", self.W_NUM)
+			screen.setTableColumnHeader(table, 4, u"<font=2>        " + szBombard + u"        </font>", self.W_NUM)
+			screen.setTableColumnHeader(table, 5, u"<font=2>  " + szCollateral + u"   </font>", self.W_NUM)
+			screen.setTableColumnHeader(table, 6, u"<font=2>  " + szAirEvasion + u" </font>", self.W_NUM)
+			screen.setTableColumnHeader(table, 7, u"<font=2>" + szAirIntercept + u"</font>", self.W_NUM)
+			screen.setTableColumnHeader(table, 8, u"<font=2>    " + szAirRange + u"    </font>", self.W_NUM)
+			screen.setTableColumnHeader(table, 9, u"<font=2>        " + szCost + u"        </font>", self.W_NUM)
 
-		for iUnit in xrange(gc.getNumUnitInfos()):
-			UnitInfo = gc.getUnitInfo(iUnit)
-			if self.iGroup == UnitInfo.getUnitCombatType():
-				iRow = screen.appendTableRow(table)
+			for iUnit in xrange(gc.getNumUnitInfos()):
+				UnitInfo = gc.getUnitInfo(iUnit)
+				if self.iGroup == UnitInfo.getUnitCombatType():
+					iRow = screen.appendTableRow(table)
 
-				# Name
-				iCol = 0
-				screen.setTableText(table, iCol, iRow, u"<font=3>" + UnitInfo.getDescription() + u"</font>", UnitInfo.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, CvUtil.FONT_LEFT_JUSTIFY)
+					self.placeTableName(screen, table, 0, iRow, UnitInfo, iUnit)
+					self.placeTableCombat(screen, table, 1, iRow, UnitInfo)
+					self.placeTableMovement(screen, table, 2, iRow, UnitInfo)
+					self.placeTableFirstStrike(screen, table, 3, iRow, UnitInfo)
+					self.placeTableBombard(screen, table, 4, iRow, UnitInfo)
+					self.placeTableCollateral(screen, table, 5, iRow, UnitInfo)
+					self.placeTableAirEvasion(screen, table, 6, iRow, UnitInfo)
+					self.placeTableAirInterception(screen, table, 7, iRow, UnitInfo)
+					self.placeTableAirRange(screen, table, 8, iRow, UnitInfo)
+					self.placeTableCost(screen, table, 9, iRow, UnitInfo)
 
-				# Combat Strength
-				iCol += 1
-				if UnitInfo.getAirCombat() > 0:
-					szCombatNum = u"%d" % UnitInfo.getAirCombat()
-				else:
-					szCombatNum = u"%d" % UnitInfo.getCombat()
+		else:
+			screen.setTableColumnHeader(table, 0, u"<font=2>    " + szName + u"    </font>", self.W_NAME)
+			screen.setTableColumnHeader(table, 1, u"<font=2>        " + szStrength + u"        </font>", self.W_NUM)
+			screen.setTableColumnHeader(table, 2, u"<font=2>        " + szMove + u"        </font>", self.W_NUM)
+			screen.setTableColumnHeader(table, 3, u"<font=2>   " + szFirstStrike + u"   </font>", self.W_NUM)
+			screen.setTableColumnHeader(table, 4, u"<font=2>        " + szBombard + u"        </font>", self.W_NUM)
+			screen.setTableColumnHeader(table, 5, u"<font=2>  " + szCollateral + u"   </font>", self.W_NUM)
+			screen.setTableColumnHeader(table, 6, u"<font=2>  " + szWithdraw + u" </font>", self.W_NUM)
+			screen.setTableColumnHeader(table, 7, u"<font=2>        " + szCost + u"        </font>", self.W_NUM)
 
-				screen.setTableInt(table, iCol, iRow, u"<font=3>" + szCombatNum + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			for iUnit in xrange(gc.getNumUnitInfos()):
+				UnitInfo = gc.getUnitInfo(iUnit)
+				if self.iGroup == UnitInfo.getUnitCombatType():
+					iRow = screen.appendTableRow(table)
 
-				# Movement
-				iCol += 1
-				if UnitInfo.getAirRange() > 0:
-					szMovesNum = u"%d" % UnitInfo.getAirRange()
-				else:
-					szMovesNum = u"%d" % UnitInfo.getMoves()
-
-				screen.setTableInt(table, iCol, iRow, u"<font=3>" + szMovesNum + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
-
-				# First Strikes
-				iCol += 1
-				if UnitInfo.getFirstStrikes() > 0:
-					szBombardRate = u"%d" % UnitInfo.getFirstStrikes()
-				# <!-- custom: keeping this beautification as it is a lot more
-				# useful/readable than having tons of 0s, anyways -->
-				else:
-					szBombardRate = u""
-
-				screen.setTableInt(table, iCol, iRow, u"<font=3>" + szBombardRate + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
-
-				# Bombard
-				iCol += 1
-				if UnitInfo.getBombardRate() > 0:
-					szBombardRate = u"%d%%" % UnitInfo.getBombardRate()
-				elif UnitInfo.getBombRate() > 0:
-					szBombardRate = u"%d%%" % UnitInfo.getBombRate()
-				else:
-					szBombardRate = u""
-
-				screen.setTableInt(table, iCol, iRow, u"<font=3>" + szBombardRate + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
-
-				# Collateral
-				iCol += 1
-				if UnitInfo.getCollateralDamage() > 0:
-					szCollateralRate = u"%d%% (%d)" % (UnitInfo.getCollateralDamageLimit(), UnitInfo.getCollateralDamageMaxUnits())
-				else:
-					szCollateralRate = u""
-
-				screen.setTableInt(table, iCol, iRow, u"<font=3>" + szCollateralRate + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
-
-				# Withdrawal / Air Evasion
-				iCol += 1
-				if isSelfAirCombatType and UnitInfo.getEvasionProbability() > 0:
-					szWithdrawalAirEvasionRate = u"%d%%" % UnitInfo.getEvasionProbability()
-				elif UnitInfo.getWithdrawalProbability() > 0:
-					szWithdrawalAirEvasionRate = u"%d%%" % UnitInfo.getWithdrawalProbability()
-				else:
-					szWithdrawalAirEvasionRate = u""
-
-				screen.setTableInt(table, iCol, iRow, u"<font=3>" + szWithdrawalAirEvasionRate + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
-
-				# Air Interception
-				iCol += 1
-				if UnitInfo.getInterceptionProbability() > 0:
-					szAirInterceptionRate = u"%d%%" % (UnitInfo.getInterceptionProbability())
-				else:
-					szAirInterceptionRate = u""
-
-				screen.setTableInt(table, iCol, iRow, u"<font=3>" + szAirInterceptionRate + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
-
-				# Air Range
-				iCol += 1
-				if UnitInfo.getAirRange() > 0:
-					szAirRangeNum = u"%d" % UnitInfo.getAirRange()
-				else:
-					szAirRangeNum = u""
-
-				screen.setTableInt(table, iCol, iRow, u"<font=3>" + szAirRangeNum + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
-
-				# Cost
-				iCol += 1
-				if UnitInfo.getProductionCost() < 0:
-					szCostNum = CyTranslator().getText("TXT_KEY_NON_APPLICABLE", ())
-				else:
-					szCostNum = u"%d" % UnitInfo.getProductionCost()
-
-				screen.setTableInt(table, iCol, iRow, u"<font=3>" + szCostNum + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+					self.placeTableName(screen, table, 0, iRow, UnitInfo, iUnit)
+					self.placeTableCombat(screen, table, 1, iRow, UnitInfo)
+					self.placeTableMovement(screen, table, 2, iRow, UnitInfo)
+					self.placeTableFirstStrike(screen, table, 3, iRow, UnitInfo)
+					self.placeTableBombard(screen, table, 4, iRow, UnitInfo)
+					self.placeTableCollateral(screen, table, 5, iRow, UnitInfo)
+					self.placeTableWithdraw(screen, table, 6, iRow, UnitInfo)
+					self.placeTableCost(screen, table, 7, iRow, UnitInfo)
 
 
 
-	# <!-- custom: seems we never call this function, commenting it out,
-	# may even be deleted maybe(?) -->
-	#def handleInput(self, inputClass):
-	#	return 0
+	def placeTableName(self, screen, table, iCol, iRow, UnitInfo, iUnit):
+		# Name
+		screen.setTableText(table, iCol, iRow, u"<font=3>" + UnitInfo.getDescription() + u"</font>", UnitInfo.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, CvUtil.FONT_LEFT_JUSTIFY)
+
+
+
+	def placeTableCombat(self, screen, table, iCol, iRow, UnitInfo):
+		# Combat Strength
+		if UnitInfo.getAirCombat() > 0:
+			szCombatNum = u"%d" % UnitInfo.getAirCombat()
+		else:
+			szCombatNum = u"%d" % UnitInfo.getCombat()
+
+		screen.setTableInt(table, iCol, iRow, u"<font=3>" + szCombatNum + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+
+
+	def placeTableMovement(self, screen, table, iCol, iRow, UnitInfo):
+		# Movement
+		if UnitInfo.getAirRange() > 0:
+			szMovesNum = u"%d" % UnitInfo.getAirRange()
+		else:
+			szMovesNum = u"%d" % UnitInfo.getMoves()
+
+		screen.setTableInt(table, iCol, iRow, u"<font=3>" + szMovesNum + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+
+
+	def placeTableFirstStrike(self, screen, table, iCol, iRow, UnitInfo):
+		# First Strikes
+		if UnitInfo.getFirstStrikes() > 0:
+			szFirstStrikesNum = u"%d" % UnitInfo.getFirstStrikes()
+		# <!-- custom: keeping this beautification as it is a lot more
+		# useful/readable than having tons of 0s, anyways -->
+		else:
+			szFirstStrikesNum = u""
+
+		screen.setTableInt(table, iCol, iRow, u"<font=3>" + szFirstStrikesNum + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+
+
+	def placeTableBombard(self, screen, table, iCol, iRow, UnitInfo):
+	# Bombard
+		if UnitInfo.getBombardRate() > 0:
+			szBombardRate = u"%d%%" % UnitInfo.getBombardRate()
+		elif UnitInfo.getBombRate() > 0:
+			szBombardRate = u"%d%%" % UnitInfo.getBombRate()
+		else:
+			szBombardRate = u""
+
+		screen.setTableInt(table, iCol, iRow, u"<font=3>" + szBombardRate + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+
+
+	def placeTableCollateral(self, screen, table, iCol, iRow, UnitInfo):
+		# Collateral
+			if UnitInfo.getCollateralDamage() > 0:
+				szCollateralRate = u"%d%% (%d)" % (UnitInfo.getCollateralDamageLimit(), UnitInfo.getCollateralDamageMaxUnits())
+			else:
+				szCollateralRate = u""
+
+			screen.setTableInt(table, iCol, iRow, u"<font=3>" + szCollateralRate + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+
+
+	def placeTableWithdraw(self, screen, table, iCol, iRow, UnitInfo):
+		# Withdrawal
+		if UnitInfo.getWithdrawalProbability() > 0:
+			szWithdrawalRate = u"%d%%" % UnitInfo.getWithdrawalProbability()
+		else:
+			szWithdrawalRate = u""
+
+		screen.setTableInt(table, iCol, iRow, u"<font=3>" + szWithdrawalRate + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+
+
+	def placeTableAirEvasion(self, screen, table, iCol, iRow, UnitInfo):
+		# Air Evasion
+		if UnitInfo.getEvasionProbability() > 0:
+			szAirEvasionRate = u"%d%%" % UnitInfo.getEvasionProbability()
+		else:
+			szAirEvasionRate = u""
+
+		screen.setTableInt(table, iCol, iRow, u"<font=3>" + szAirEvasionRate + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+
+
+	def placeTableAirInterception(self, screen, table, iCol, iRow, UnitInfo):
+		# Air Interception
+		if UnitInfo.getInterceptionProbability() > 0:
+			szAirInterceptionRate = u"%d%%" % (UnitInfo.getInterceptionProbability())
+		else:
+			szAirInterceptionRate = u""
+
+		screen.setTableInt(table, iCol, iRow, u"<font=3>" + szAirInterceptionRate + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+
+
+	def placeTableAirRange(self, screen, table, iCol, iRow, UnitInfo):
+		# Air Range
+		if UnitInfo.getAirRange() > 0:
+			szAirRangeNum = u"%d" % UnitInfo.getAirRange()
+		else:
+			szAirRangeNum = u""
+
+		screen.setTableInt(table, iCol, iRow, u"<font=3>" + szAirRangeNum + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+
+
+	def placeTableCost(self, screen, table, iCol, iRow, UnitInfo):
+		# Cost
+		if UnitInfo.getProductionCost() < 0:
+			szCostNum = CyTranslator().getText("TXT_KEY_NON_APPLICABLE", ())
+		else:
+			szCostNum = u"%d" % UnitInfo.getProductionCost()
+
+		screen.setTableInt(table, iCol, iRow, u"<font=3>" + szCostNum + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
