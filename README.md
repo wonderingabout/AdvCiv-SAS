@@ -127,16 +127,14 @@ exchanges/experiences during these times
 - Fall from Heaven II (also know as FFH2): i took quite a bit of content from there, thanks
 too too, thanks,
 - History Rewritten (also know as HR): i took quite a bit of content from there too, thanks,
+- RFC Dawn Of Civilization, while this mod is not my favourite somehow, i must admit they have
+some very nice content, in particular the Sevopedia categories i could take entirely for/in
+AdvCiv-SAS without barely any modification needed (for example the Sevopedia Terrain Page),
+thanks a lot!
 - Firaxis's Civ4 game and Civ4 BTS: Civ4 allows to do a lot of things with just XML,
 which surprised me a lot in a way that pleased me. So far i have not touched the deeper code
 such as C++ and Python, maybe i will not need at all but not sure, is as it would be. Also,
 even without modding, the base game is quite nice, thanks too i mean, thanks,
-- RFC, last but .. least, RFC mod which i forgot or can't or don't want to remember the full
-name of, not my favourite mod, but they did teach me or rather give me the idea from looking
-at a thing they did, so even though i maybe could have found it myself, or maybe i could not,
-in all fairness and with that being said, it's a caveaty thanks from me whatever that means,
-your stuff still helped me, so thanks too, would be unfair not to say, thanks too even though
-i am not too keen on admitting it, but thanks
 
 todo add quote
 
