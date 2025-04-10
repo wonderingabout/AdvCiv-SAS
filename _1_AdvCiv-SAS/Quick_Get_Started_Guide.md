@@ -7,6 +7,15 @@ newcomer players used to AdvCiv, Civ4 BTS, or some similar mods.
 
 todo cleanup extensive comments and move them to a longer changes guide notes
 
+## Sevopedia AdvCiv-SAS Entry
+
+Some of the changes in AdvCiv-SAS (coming from AdvCiv) are also listed in the
+Sevopedia Entry (non-eshaustive), please visit it there (the screenshot below
+(click to view it full size) may not be updated, it is to give a preview/general
+idea):
+
+<img src="./Docs_And_Appendixes/0.61_sevopedia_advciv_sas_core_changes.JPG" width="250"></img>
+
 ## Main Changes quick starter guide
 
 - tech tree is vastly reordered for historical accuracy (for example steel is at
