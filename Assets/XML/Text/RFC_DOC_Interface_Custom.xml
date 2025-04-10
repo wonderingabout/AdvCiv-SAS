@@ -16,4 +16,12 @@ and modified for our needs if needed.
 		<Italian>Feature</Italian>
 		<Spanish>Feature</Spanish>
 	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_PEDIA_TERRAIN</Tag>
+		<English>Terrain</English>
+		<French>Terrain</French>
+		<German>Terrain</German>
+		<Italian>Terrain</Italian>
+		<Spanish>Terrain</Spanish>
+	</TEXT>
 </Civ4GameText>
