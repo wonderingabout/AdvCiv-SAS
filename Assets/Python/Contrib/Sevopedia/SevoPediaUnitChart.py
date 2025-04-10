@@ -21,12 +21,12 @@ class SevoPediaUnitChart:
 
 		self.X_TABLE = self.top.X_PEDIA_PAGE
 		self.Y_TABLE = self.top.Y_PEDIA_PAGE
-		self.W_TABLE = 1100
+		self.W_TABLE = 1200
 		self.H_TABLE = self.top.H_PEDIA_PAGE
 
 		self.MARGIN = 20
 
-		self.N_COLUMNS = 9
+		self.N_COLUMNS = 10
 		self.W_NAMES = 270
 		self.W_NUMS = ((self.W_TABLE - (self.MARGIN * 2) - self.W_NAMES) / (self.N_COLUMNS - 1))
 
@@ -65,15 +65,12 @@ class SevoPediaUnitChart:
 		)
 		screen.enableSort(table)
 
+		szNames = gc.getUnitCombatInfo(self.iGroup).getDescription()
 		szStrength = u"%c" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR)
 
-		isSelfAirCombatType = ( (self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR_BOMBER')) or (self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR_FIGHTER')) )
-		if isSelfAirCombatType:
-			szMoveRange = u"Range"
-		else:
-			# <!-- custom: display the icon instead of text -->
-			#szMoveRange = "Moves"
-			szMoveRange = u"%c" % CyGame().getSymbolID(FontSymbols.MOVES_CHAR)
+		# <!-- custom: display the icon instead of text -->
+		#szMove = "Moves"
+		szMove = u"%c" % CyGame().getSymbolID(FontSymbols.MOVES_CHAR)
 
 		# <!-- custom: display more potentially useful information,
 		# useful in AdvCiv-SAS and/or maybe other mods as well,
@@ -88,10 +85,10 @@ class SevoPediaUnitChart:
 		#	szSpecial = "1st Strike"
 		szFirstStrike = u"1st Strike"
 		szBombard = u"%c" % CyGame().getSymbolID(FontSymbols.DEFENSE_CHAR)
-
 		szCollateral = u"Collateral"
 
 		szWithdrawAirEvasion = u""
+		isSelfAirCombatType = ( (self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR_BOMBER')) or (self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR_FIGHTER')) )
 		if isSelfAirCombatType:
 			szWithdrawAirEvasion = u"Air Evasion"
 		else:
@@ -100,10 +97,10 @@ class SevoPediaUnitChart:
 		szCost = u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()
 
 		szAirIntercept = u"Air Intercept"
+		szAirRange = u"Air Range"
 
-		szCost = u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()
 
-		screen.setTableColumnHeader(table, 0, u"<font=2>" + gc.getUnitCombatInfo(self.iGroup).getDescription() + u"</font>", self.W_NAMES)
+		screen.setTableColumnHeader(table, 0, u"<font=2>    " + szNames + u"    </font>", self.W_NAMES)
 		# <!-- custom: trick (to center the headers text too) taught to me by ChatGPT, quoting it:
 		# "
 		# screen.setTableColumnHeader(...) don't use FONT_*_JUSTIFY like the cell contents, but there's a workaround.
@@ -126,13 +123,15 @@ class SevoPediaUnitChart:
 		# about how i could use it, in particular for civ4, or/and or things to thank for or not, anyways,
 		#  -->
 		screen.setTableColumnHeader(table, 1, u"<font=2>        " + szStrength + u"        </font>", self.W_NUMS)
-		screen.setTableColumnHeader(table, 2, u"<font=2>        " + szMoveRange + u"        </font>", self.W_NUMS)
+		screen.setTableColumnHeader(table, 2, u"<font=2>        " + szMove + u"        </font>", self.W_NUMS)
 		screen.setTableColumnHeader(table, 3, u"<font=2>   " + szFirstStrike + u"   </font>", self.W_NUMS)
 		screen.setTableColumnHeader(table, 4, u"<font=2>        " + szBombard + u"        </font>", self.W_NUMS)
 		screen.setTableColumnHeader(table, 5, u"<font=2>  " + szCollateral + u"   </font>", self.W_NUMS)
 		screen.setTableColumnHeader(table, 6, u"<font=2>  " + szWithdrawAirEvasion + u" </font>", self.W_NUMS)
-		screen.setTableColumnHeader(table, 7, u"<font=2>        " + szCost + u"        </font>", self.W_NUMS)
-		screen.setTableColumnHeader(table, 8, u"<font=2>" + szAirIntercept + u"</font>", self.W_NUMS)
+		screen.setTableColumnHeader(table, 7, u"<font=2>" + szAirIntercept + u"</font>", self.W_NUMS)
+		screen.setTableColumnHeader(table, 8, u"<font=2>    " + szAirRange + u"    </font>", self.W_NUMS)
+		screen.setTableColumnHeader(table, 9, u"<font=2>        " + szCost + u"        </font>", self.W_NUMS)
+
 
 		for iUnit in xrange(gc.getNumUnitInfos()):
 			UnitInfo = gc.getUnitInfo(iUnit)
@@ -203,15 +202,6 @@ class SevoPediaUnitChart:
 
 				screen.setTableInt(table, iCol, iRow, u"<font=3>" + szWithdrawalAirEvasionRate + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
-				# Cost
-				iCol += 1
-				if UnitInfo.getProductionCost() < 0:
-					szCostNum = CyTranslator().getText("TXT_KEY_NON_APPLICABLE", ())
-				else:
-					szCostNum = u"%d" % UnitInfo.getProductionCost()
-
-				screen.setTableInt(table, iCol, iRow, u"<font=3>" + szCostNum + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
-
 				# Air Interception
 				iCol += 1
 				if UnitInfo.getInterceptionProbability() > 0:
@@ -220,6 +210,24 @@ class SevoPediaUnitChart:
 					szAirInterceptionRate = u""
 
 				screen.setTableInt(table, iCol, iRow, u"<font=3>" + szAirInterceptionRate + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+				# Air Range
+				iCol += 1
+				if UnitInfo.getAirRange() > 0:
+					szAirRangeNum = u"%d" % UnitInfo.getAirRange()
+				else:
+					szAirRangeNum = u""
+
+				screen.setTableInt(table, iCol, iRow, u"<font=3>" + szAirRangeNum + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+				# Cost
+				iCol += 1
+				if UnitInfo.getProductionCost() < 0:
+					szCostNum = CyTranslator().getText("TXT_KEY_NON_APPLICABLE", ())
+				else:
+					szCostNum = u"%d" % UnitInfo.getProductionCost()
+
+				screen.setTableInt(table, iCol, iRow, u"<font=3>" + szCostNum + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 
 
