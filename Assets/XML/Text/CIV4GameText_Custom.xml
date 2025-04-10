@@ -9,11 +9,27 @@
 	<!-- custom: moved to file with similar filename than in civ4 bts -->
 	<TEXT>
 		<Tag>TXT_KEY_BTS_RULES_CHANGES</Tag>
-		<English>BtS Rules Changes</English>
-		<French>R&#232;gles modifi&#233;es de BtS</French>
-		<German>BtS-Regel&#228;nderungen</German>
-		<Italian>Cambiamenti delle regole di BtS</Italian>
-		<Spanish>Cambios en las reglas de "BtS"</Spanish>
+		<English>0_BtS Rules Changes</English>
+		<French>0_R&#232;gles modifi&#233;es de BtS</French>
+		<German>0_BtS-Regel&#228;nderungen</German>
+		<Italian>0_Cambiamenti delle regole di BtS</Italian>
+		<Spanish>0_Cambios en las reglas de "BtS"</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_ADVCIV_SAS_CORE_CHANGES</Tag>
+		<English>3_AdvCiv-SAS Core Changes</English>
+		<French>3_AdvCiv-SAS Core Changes</French>
+		<German>3_AdvCiv-SAS Core Changes</German>
+		<Italian>3_AdvCiv-SAS Core Changes</Italian>
+		<Spanish>3_AdvCiv-SAS Core Changes</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_ADVCIV_SAS_CORE_CHANGES</Tag>
+		<English>AdvCiv-SAS Core Changes</English>
+		<French>AdvCiv-SAS Core Changes</French>
+		<German>AdvCiv-SAS Core Changes</German>
+		<Italian>AdvCiv-SAS Core Changes</Italian>
+		<Spanish>AdvCiv-SAS Core Changes</Spanish>
 	</TEXT>
 
 
