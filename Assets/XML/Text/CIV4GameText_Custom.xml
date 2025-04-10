@@ -17,6 +17,15 @@
 	</TEXT>
 
 
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_INTERCEPT_TEXT</Tag>
+		<English>[ICON_BULLET]%D1_Change%% Air Interception Chance</English>
+		<French>[ICON_BULLET]%D1_Change%% Air Interception Chance</French>
+		<German>[ICON_BULLET]%D1_Change%% Air Interception Chance</German>
+		<Italian>[ICON_BULLET]%D1_Change%% Air Interception Chance</Italian>
+		<Spanish>[ICON_BULLET]%D1_Change%% Air Interception Chance</Spanish>
+	</TEXT>
+
     <!-- custom: Kingdom of Benin cities -->
 	<TEXT>
 		<Tag>TXT_KEY_CITY_NAME_EDO_CUSTOM</Tag>

@@ -4497,7 +4497,8 @@
 	
 	<!-- advc.004a: Replacing TXT_KEY_BUG_TECH_PREFS_ALL, 
 		 TXT_KEY_BUG_TECH_PREFS_CURRENT and TXT_KEY_BUG_TECH_PREFS_FUTURE in
-		 BUG_CIV4GameText.xml -->
+		 BUG_CIV4GameText.xml-->
+	<!-- custom: this file is named BUG_CIV4GameText_Custom.xml now though -->
 	<TEXT>
 		<Tag>TXT_KEY_ADVC_TECH_PREFS_FUTURE</Tag>
 		<English>After finishing queued research, i.e.</English>
@@ -6681,13 +6682,27 @@
 
 	<!-- advc.650: Would be nice to make clear somehow that the evasion chance
 		 is already taken into account here. -->
+	<!-- custom: "Interception" part of the text renamed to "Air Interception".
+	As for the other point not sure what the other point exactly is.
+	After a bit of research, and reading also this 
+	https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/
+	it seems only tactical nukes in base civ4/advciv have air evasion chance.
+	If i understood it correctly, using a more generic word such as "Adjusted",
+	we don't have to commit to a specific Air Evasion value, while also taking into
+	account potential Air Evasion of the unit we want to air intercept.
+	What i don't know is, if an air fighter also had base air evasion, would the
+	air interception chance also be adjusted? If so, i may want to put the adjusted
+	word there too (for all air interception chances, not just of nukes) just in
+	case. But since i have not found such a txt key, maybe because this only
+	happens (/could be displayed) during combat, which depend on air evasion of
+	the air unit, putting this "Adjusted" word only here then. -->
 	<TEXT>
 		<Tag>TXT_KEY_NUKE_INTERCEPT_CHANCE</Tag>
-		<English>[COLOR_NEGATIVE_TEXT]Interception[COLOR_REVERT] chance (%s1_TeamName): %d2%%</English>
-		<French>Chance d'[COLOR_NEGATIVE_TEXT]interception[COLOR_REVERT] (%s1_TeamName): %d2%%</French>
-		<German>[COLOR_NEGATIVE_TEXT]Abfangchance[COLOR_REVERT] (%s1_TeamName): %d2%%</German>
-		<Italian>Probabilità di [COLOR_NEGATIVE_TEXT]intercettazione[COLOR_REVERT] (%s1_TeamName): %d2%%</Italian>
-		<Spanish>Probabilidad de [COLOR_NEGATIVE_TEXT]intercepción[COLOR_REVERT] (%s1_TeamName): %d2%%</Spanish>
+		<English>[COLOR_NEGATIVE_TEXT]Adjusted Air Interception chance[COLOR_REVERT](%s1_TeamName): %d2%%</English>
+		<French>[COLOR_NEGATIVE_TEXT]Adjusted Air Interception chance[COLOR_REVERT](%s1_TeamName): %d2%</French>
+		<German>[COLOR_NEGATIVE_TEXT]Adjusted Air Interception chance[COLOR_REVERT](%s1_TeamName): %d2%</German>
+		<Italian>[COLOR_NEGATIVE_TEXT]Adjusted Air Interception chance[COLOR_REVERT](%s1_TeamName): %d2%</Italian>
+		<Spanish>[COLOR_NEGATIVE_TEXT]Adjusted Air Interception chance[COLOR_REVERT](%s1_TeamName): %d2%</Spanish>
 	</TEXT>
 
 	<!-- advc.004g: "Plot" is slang; "tile" is the proper game term.

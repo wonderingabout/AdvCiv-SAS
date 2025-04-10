@@ -4720,8 +4720,8 @@ full order to take from for quick editing or/and copy/paste:
 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,2,15</Button>
 		</PromotionInfo>
 		<PromotionInfo>
-			<Type>PROMOTION_INTERCEPTION1</Type>
-			<Description>TXT_KEY_PROMOTION_INTERCEPTION1</Description>
+			<Type>PROMOTION_AIR_INTERCEPTION1</Type>
+			<Description>TXT_KEY_PROMOTION_AIR_INTERCEPTION1</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
@@ -4741,7 +4741,6 @@ full order to take from for quick editing or/and copy/paste:
 			<iMovesChange>0</iMovesChange>
 			<iMoveDiscountChange>0</iMoveDiscountChange>
 			<iAirRangeChange>0</iAirRangeChange>
-			<!-- custom: 5 -->
 			<iInterceptChange>5</iInterceptChange>
 			<iEvasionChange>0</iEvasionChange>
 			<iWithdrawalChange>0</iWithdrawalChange>
@@ -4796,11 +4795,11 @@ full order to take from for quick editing or/and copy/paste:
 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,3,15</Button>
 		</PromotionInfo>
 		<PromotionInfo>
-			<Type>PROMOTION_INTERCEPTION2</Type>
-			<Description>TXT_KEY_PROMOTION_INTERCEPTION2</Description>
+			<Type>PROMOTION_AIR_INTERCEPTION2</Type>
+			<Description>TXT_KEY_PROMOTION_AIR_INTERCEPTION2</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
-			<PromotionPrereq>PROMOTION_INTERCEPTION1</PromotionPrereq>
+			<PromotionPrereq>PROMOTION_AIR_INTERCEPTION1</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_COMBAT1</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
 			<TechPrereq>TECH_FLIGHT</TechPrereq>
@@ -4864,11 +4863,11 @@ full order to take from for quick editing or/and copy/paste:
 		</PromotionInfo>
 		<!-- custom: new promotion -->
 		<PromotionInfo>
-			<Type>PROMOTION_INTERCEPTION3</Type>
-			<Description>TXT_KEY_PROMOTION_INTERCEPTION3_CUSTOM</Description>
+			<Type>PROMOTION_AIR_INTERCEPTION3</Type>
+			<Description>TXT_KEY_PROMOTION_AIR_INTERCEPTION3</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
-			<PromotionPrereq>PROMOTION_INTERCEPTION2</PromotionPrereq>
+			<PromotionPrereq>PROMOTION_AIR_INTERCEPTION2</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_COMBAT2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
 			<TechPrereq>TECH_FLIGHT</TechPrereq>
@@ -4934,11 +4933,11 @@ full order to take from for quick editing or/and copy/paste:
 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,4,15</Button>
 		</PromotionInfo>
 		<PromotionInfo>
-			<Type>PROMOTION_INTERCEPTION4</Type>
-			<Description>TXT_KEY_PROMOTION_INTERCEPTION4_CUSTOM</Description>
+			<Type>PROMOTION_AIR_INTERCEPTION4</Type>
+			<Description>TXT_KEY_PROMOTION_AIR_INTERCEPTION4</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
-			<PromotionPrereq>PROMOTION_INTERCEPTION3</PromotionPrereq>
+			<PromotionPrereq>PROMOTION_AIR_INTERCEPTION3</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_COMBAT3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
 			<TechPrereq>TECH_FLIGHT</TechPrereq>
