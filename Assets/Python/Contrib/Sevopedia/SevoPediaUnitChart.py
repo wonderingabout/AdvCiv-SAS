@@ -1,9 +1,9 @@
 # <!-- custom: imported from RFC Dawn of Civilization mod:
 #C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaUnitChart.py
 # which may be modified or not for AdvCiv-SAS
-#
+# 
 # parts of this code have also been imported from base advciv:
-#
+# https://github.com/f1rpo/AdvCiv/blob/master/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
 # and modified or not for AdvCiv-SAS
 # -->
 
@@ -26,6 +26,10 @@ class SevoPediaUnitChart:
 
 		self.MARGIN = 20
 
+		self.N_COLUMNS = 8
+		self.W_NAMES = 270
+		self.W_NUMS = ((self.W_TABLE - (self.MARGIN * 2) - self.W_NAMES) / (self.N_COLUMNS - 1))
+
 
 
 	def interfaceScreen(self, iGroup):
@@ -38,18 +42,17 @@ class SevoPediaUnitChart:
 		screen = self.top.getScreen()
 		table = self.top.getNextWidgetName()
 
-		nColumns = 8
 		# <!-- custom: blue is more readable than standard i find, imported
 		# from base AdvCiv and modified with a similar kind of purpose
 		# -->
-		#screen.addTableControlGFC(table, nColumns, self.X_TABLE, self.Y_TABLE, self.W_TABLE, self.H_TABLE, True, False, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
+		#screen.addTableControlGFC(table, self.N_COLUMNS, self.X_TABLE, self.Y_TABLE, self.W_TABLE, self.H_TABLE, True, False, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
 		#screen.setStyle(table, "Table_StandardCiv_Style")
 		#screen.enableSort(table)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, self.X_TABLE, self.Y_TABLE, self.W_TABLE, self.H_TABLE, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, self.X_TABLE + self.MARGIN, self.Y_TABLE + self.MARGIN, self.W_TABLE - (self.MARGIN * 2), self.H_TABLE - (self.MARGIN * 2), PanelStyles.PANEL_STYLE_BLUE50)
 		table = self.top.getNextWidgetName()
 		screen.addTableControlGFC(table,
-							nColumns,
+							self.N_COLUMNS,
 							self.X_TABLE + self.MARGIN,
 							self.Y_TABLE + self.MARGIN + 5,
 							self.W_TABLE - (self.MARGIN * 2),
@@ -88,21 +91,20 @@ class SevoPediaUnitChart:
 
 		szCollateral = u"Collateral"
 
+		szWithdrawAirEvasion = u""
 		if isSelfAirUnit:
 			szWithdrawAirEvasion = u"Air Evasion"
 		else:
 			szWithdrawAirEvasion = u"Withdraw"
+
 		szCost = u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()
 
-		iWidthNames = 270
-		iWidthNums = ((self.W_TABLE - (self.MARGIN * 2) - iWidthNames) / (nColumns - 1))
-
-		screen.setTableColumnHeader(table, 0, u"<font=2>" + gc.getUnitCombatInfo(self.iGroup).getDescription() + u"</font>", iWidthNames)
+		screen.setTableColumnHeader(table, 0, u"<font=2>" + gc.getUnitCombatInfo(self.iGroup).getDescription() + u"</font>", self.W_NAMES)
 		# <!-- custom: add strength icon, imported from base AdvCiv code:
 		# https://github.com/f1rpo/AdvCiv/blob/master/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
 		# and modified for AdvCiv-SAS to display the icon instead of text -->
 		# -->
-		#screen.setTableColumnHeader(table, 1, u"<font=2>" + "Strength" + "</font>", iWidthNums)
+		#screen.setTableColumnHeader(table, 1, u"<font=2>" + "Strength" + "</font>", self.W_NUMS)
 		# <!-- custom: trick (to center the headers text too) taught to me by ChatGPT, quoting it:
 		# "
 		# screen.setTableColumnHeader(...) don't use FONT_*_JUSTIFY like the cell contents, but there's a workaround.
@@ -124,13 +126,13 @@ class SevoPediaUnitChart:
 		# May also serve for future reference maybe, anyways, thanks a lot ChatGPT, and to those who advised me or told me
 		# about how i could use it, in particular for civ4, or/and or things to thank for or not, anyways,
 		#  -->
-		screen.setTableColumnHeader(table, 1, u"<font=2>        " + szStrength + u"        </font>", iWidthNums)
-		screen.setTableColumnHeader(table, 2, u"<font=2>        " + szMoveRange + u"        </font>", iWidthNums)
-		screen.setTableColumnHeader(table, 3, u"<font=2>   " + szFirstStrike + u"   </font>", iWidthNums)
-		screen.setTableColumnHeader(table, 4, u"<font=2>        " + szBombard + u"        </font>", iWidthNums)
-		screen.setTableColumnHeader(table, 5, u"<font=2>  " + szCollateral + u"   </font>", iWidthNums)
-		screen.setTableColumnHeader(table, 6, u"<font=2>  " + szWithdrawAirEvasion + u" </font>", iWidthNums)
-		screen.setTableColumnHeader(table, 7, u"<font=2>        " + szCost + u"        </font>", iWidthNums)
+		screen.setTableColumnHeader(table, 1, u"<font=2>        " + szStrength + u"        </font>", self.W_NUMS)
+		screen.setTableColumnHeader(table, 2, u"<font=2>        " + szMoveRange + u"        </font>", self.W_NUMS)
+		screen.setTableColumnHeader(table, 3, u"<font=2>   " + szFirstStrike + u"   </font>", self.W_NUMS)
+		screen.setTableColumnHeader(table, 4, u"<font=2>        " + szBombard + u"        </font>", self.W_NUMS)
+		screen.setTableColumnHeader(table, 5, u"<font=2>  " + szCollateral + u"   </font>", self.W_NUMS)
+		screen.setTableColumnHeader(table, 6, u"<font=2>  " + szWithdrawAirEvasion + u" </font>", self.W_NUMS)
+		screen.setTableColumnHeader(table, 7, u"<font=2>        " + szCost + u"        </font>", self.W_NUMS)
 
 		for iUnit in xrange(gc.getNumUnitInfos()):
 			UnitInfo = gc.getUnitInfo(iUnit)
