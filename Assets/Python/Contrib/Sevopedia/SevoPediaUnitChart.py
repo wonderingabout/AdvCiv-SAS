@@ -1,6 +1,11 @@
-# imported from RFC Dawn of Civilization mod:
+# <!-- custom: imported from RFC Dawn of Civilization mod:
 #C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaUnitChart.py
 # which may be modified or not for AdvCiv-SAS
+#
+# parts of this code have also been imported from base advciv:
+#
+# and modified or not for AdvCiv-SAS
+# -->
 
 from CvPythonExtensions import *
 import CvUtil
@@ -43,19 +48,29 @@ class SevoPediaUnitChart:
 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, self.X_TABLE, self.Y_TABLE, self.W_TABLE, self.H_TABLE, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, self.X_TABLE + self.MARGIN, self.Y_TABLE + self.MARGIN, self.W_TABLE - (self.MARGIN * 2), self.H_TABLE - (self.MARGIN * 2), PanelStyles.PANEL_STYLE_BLUE50)
 		table = self.top.getNextWidgetName()
-		screen.addTableControlGFC(table, nColumns, self.X_TABLE + self.MARGIN, self.Y_TABLE + self.MARGIN + 5, self.W_TABLE - (self.MARGIN * 2), self.H_TABLE - (self.MARGIN * 2) - 5, True, False, 32,32, TableStyles.TABLE_STYLE_EMPTY)
+		screen.addTableControlGFC(table,
+							nColumns,
+							self.X_TABLE + self.MARGIN,
+							self.Y_TABLE + self.MARGIN + 5,
+							self.W_TABLE - (self.MARGIN * 2),
+							self.H_TABLE - (self.MARGIN * 2) - 5,
+							True,
+							False,
+							32,
+							32,
+							TableStyles.TABLE_STYLE_EMPTY
+		)
 		screen.enableSort(table)
 
-		selfIsAirUnit = ( (self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR_BOMBER')) or (self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR_FIGHTER')) )
+		szStrength = u"%c" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR)
 
-		if selfIsAirUnit:
-			szMove = u"Range"
+		isSelfAirUnit = ( (self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR_BOMBER')) or (self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR_FIGHTER')) )
+		if isSelfAirUnit:
+			szMoveRange = u"Range"
 		else:
-			# <!-- custom: imported from based AdvCiv and modified in a
-			# similar way as for/in other parts of this code, to display
-			# the icon instead of text -->
-			#szMove = "Moves"
-			szMove = u"%c" % CyGame().getSymbolID(FontSymbols.MOVES_CHAR)
+			# <!-- custom: display the icon instead of text -->
+			#szMoveRange = "Moves"
+			szMoveRange = u"%c" % CyGame().getSymbolID(FontSymbols.MOVES_CHAR)
 
 		# <!-- custom: display more potentially useful information,
 		# useful in AdvCiv-SAS and/or maybe other mods as well,
@@ -63,22 +78,24 @@ class SevoPediaUnitChart:
 		# a micro (or big) change, more versatile and flexible this
 		# way too.
 		# -->
-		# if self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR') or self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_NAVAL') or self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_SIEGE'):
+		#if self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR') or self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_NAVAL') or self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_SIEGE'):
 			# <!-- custom: imported and modified from base advciv in a similar way -->
-			#szFirstStrike = "Bombard"
+			#szSpecial = "Bombard"
+		#else:
+		#	szSpecial = "1st Strike"
+		szFirstStrike = u"1st Strike"
 		szBombard = u"%c" % CyGame().getSymbolID(FontSymbols.DEFENSE_CHAR)
 
-		szFirstStrike = u"1st Strike"
+		szCollateral = u"Collateral"
 
-		if selfIsAirUnit:
-			szWithdraw = u"Evade"
-
+		if isSelfAirUnit:
+			szWithdrawAirEvasion = u"Air Evasion"
 		else:
-			szWithdraw = u"Withdraw"
+			szWithdrawAirEvasion = u"Withdraw"
+		szCost = u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()
 
 		iWidthNames = 270
 		iWidthNums = ((self.W_TABLE - (self.MARGIN * 2) - iWidthNames) / (nColumns - 1))
-
 
 		screen.setTableColumnHeader(table, 0, u"<font=2>" + gc.getUnitCombatInfo(self.iGroup).getDescription() + u"</font>", iWidthNames)
 		# <!-- custom: add strength icon, imported from base AdvCiv code:
@@ -86,15 +103,34 @@ class SevoPediaUnitChart:
 		# and modified for AdvCiv-SAS to display the icon instead of text -->
 		# -->
 		#screen.setTableColumnHeader(table, 1, u"<font=2>" + "Strength" + "</font>", iWidthNums)
-		screen.setTableColumnHeader(table, 1, u"%c" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR), iWidthNums)
-		screen.setTableColumnHeader(table, 2, u"<font=2>" + szMove + u"</font>", iWidthNums)
-		screen.setTableColumnHeader(table, 3, u"<font=2>" + szFirstStrike + u"</font>", iWidthNums)
-		screen.setTableColumnHeader(table, 4, u"<font=2>" + szBombard + u"</font>", iWidthNums)
-		screen.setTableColumnHeader(table, 5, u"<font=2>" + u"Collateral" + u"</font>", iWidthNums)
-		screen.setTableColumnHeader(table, 6, u"<font=2>" + szWithdraw + u"</font>", iWidthNums)
-		# <!-- custom: imported and modified from base advciv in a similar way -->
-		#screen.setTableColumnHeader(table, 6, u"<font=2>" + "Cost" + "</font>", iWidthNums)
-		screen.setTableColumnHeader(table, 7, u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar(), iWidthNums)
+		# <!-- custom: trick (to center the headers text too) taught to me by ChatGPT, quoting it:
+		# "
+		# screen.setTableColumnHeader(...) don't use FONT_*_JUSTIFY like the cell contents, but there's a workaround.
+		# Unfortunately, the setTableColumnHeader(...) function in Civ4's Python API does not provide a direct way to align the text (like FONT_CENTER_JUSTIFY). But there is a common workaround:
+		# 
+		# Workaround: Pad the header label string manually
+		# By adding spaces before and after the header text, you can visually center it.
+		#  you want to center the header labels in the table (not just the unit entries). The headers set via
+		# Example:
+		# screen.setTableColumnHeader("UnitChart", 1, "   Unit   ", table_width - 100)
+		# You can play with the spacing — more spaces = more centered-looking text depending on the column width.
+		#
+		# Optional enhancement: Use a monospaced font for table headers
+		# If your font is monospaced (unlikely in Civ4 UI), the manual padding is more predictable. In Civ4, though, font kerning varies — so some trial and error is needed.
+		# 
+		# Advanced modding option (if you're feeling bold)
+		# If you're okay with digging into the SDK or custom DLL builds (like AdvCiv or BUG), it’s technically possible to modify the table rendering to expose alignment options for headers. But this is definitely a bigger job — the manual padding is the easiest trick.
+		# "
+		# May also serve for future reference maybe, anyways, thanks a lot ChatGPT, and to those who advised me or told me
+		# about how i could use it, in particular for civ4, or/and or things to thank for or not, anyways,
+		#  -->
+		screen.setTableColumnHeader(table, 1, u"<font=2>        " + szStrength + u"        </font>", iWidthNums)
+		screen.setTableColumnHeader(table, 2, u"<font=2>        " + szMoveRange + u"        </font>", iWidthNums)
+		screen.setTableColumnHeader(table, 3, u"<font=2>   " + szFirstStrike + u"   </font>", iWidthNums)
+		screen.setTableColumnHeader(table, 4, u"<font=2>        " + szBombard + u"        </font>", iWidthNums)
+		screen.setTableColumnHeader(table, 5, u"<font=2>  " + szCollateral + u"   </font>", iWidthNums)
+		screen.setTableColumnHeader(table, 6, u"<font=2>  " + szWithdrawAirEvasion + u" </font>", iWidthNums)
+		screen.setTableColumnHeader(table, 7, u"<font=2>        " + szCost + u"        </font>", iWidthNums)
 
 		for iUnit in xrange(gc.getNumUnitInfos()):
 			UnitInfo = gc.getUnitInfo(iUnit)
@@ -156,7 +192,7 @@ class SevoPediaUnitChart:
 
 				# Withdrawal
 				iCol += 1
-				if selfIsAirUnit and UnitInfo.getEvasionProbability() > 0:
+				if isSelfAirUnit and UnitInfo.getEvasionProbability() > 0:
 					szWithdrawalRate = u"%d%%" % UnitInfo.getEvasionProbability()
 				elif UnitInfo.getWithdrawalProbability() > 0:
 					szWithdrawalRate = u"%d%%" % UnitInfo.getWithdrawalProbability()
