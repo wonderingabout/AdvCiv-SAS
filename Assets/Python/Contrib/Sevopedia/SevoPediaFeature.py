@@ -1,6 +1,6 @@
 # imported from RFC Dawn of Civilization mod:
 #C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaFeature.py
-# With some modifications to make it work for/in AdvCiv-SAS
+# which may be modified or not for AdvCiv-SAS
 
 
 from CvPythonExtensions import *

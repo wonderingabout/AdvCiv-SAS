@@ -1,88 +1,135 @@
-# Sid Meier's Civilization 4
-# Copyright Firaxis Games 2005
-
-#
-# Sevopedia 2.3
-#   sevotastic.blogspot.com
-#   sevotastic@yahoo.com
-#
-# additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
-#
+# imported from RFC Dawn of Civilization mod:
+#C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaUnitChart.py
+# which may be modified or not for AdvCiv-SAS
 
 from CvPythonExtensions import *
 import CvUtil
-import ScreenInput
-import SevoScreenEnums
 
 gc = CyGlobalContext()
-ArtFileMgr = CyArtFileMgr()
-localText = CyTranslator()
+
+
 
 class SevoPediaUnitChart:
-
 	def __init__(self, main):
 		self.iGroup = -1
 		self.top = main
 
-		self.MARGIN = 20
-		self.X_UNITS = self.top.X_PEDIA_PAGE
-		self.Y_UNITS = self.top.Y_PEDIA_PAGE
-		self.W_UNITS = self.top.W_PEDIA_PAGE
-		self.H_UNITS = self.top.H_PEDIA_PAGE
-		self.DY_UNITS = 40
-		self.Y_TEXT_MARGIN = 6
+		self.X_TABLE = self.top.X_PEDIA_PAGE
+		self.Y_TABLE = self.top.Y_PEDIA_PAGE
+		self.W_TABLE = self.top.W_PEDIA_PAGE
+		self.H_TABLE = self.top.H_PEDIA_PAGE
 
 
 
 	def interfaceScreen(self, iGroup):
 		self.iGroup = iGroup
-		screen = self.top.getScreen()
 		self.placeUnitTable()
 
 
 
 	def placeUnitTable(self):
 		screen = self.top.getScreen()
+		table = self.top.getNextWidgetName()
 
-		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, self.X_UNITS, self.Y_UNITS, self.W_UNITS, self.H_UNITS, PanelStyles.PANEL_STYLE_BLUE50)
-		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, self.X_UNITS + self.MARGIN, self.Y_UNITS + self.MARGIN, self.W_UNITS - (self.MARGIN * 2), self.H_UNITS - (self.MARGIN * 2), PanelStyles.PANEL_STYLE_BLUE50)
-		szTable = self.top.getNextWidgetName()
-		screen.addTableControlGFC(szTable, 4, self.X_UNITS + self.MARGIN, self.Y_UNITS + self.MARGIN + 5, self.W_UNITS - (self.MARGIN * 2), self.H_UNITS - (self.MARGIN * 2) - 5, True, False, 32,32, TableStyles.TABLE_STYLE_EMPTY)
-		screen.enableSort(szTable)
-		iTableWidth = self.W_UNITS - (self.MARGIN * 2)
-		iColWidth = int(iTableWidth * (7 / 19.0))
-		screen.setTableColumnHeader(szTable, 0, "", iColWidth)
-		iColWidth = int(iTableWidth * (4 / 19.0))
-		screen.setTableColumnHeader(szTable, 1, u"%c" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR), iColWidth)
-		screen.setTableColumnHeader(szTable, 2, u"%c" % CyGame().getSymbolID(FontSymbols.MOVES_CHAR), iColWidth)
-		screen.setTableColumnHeader(szTable, 3, u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar(), iColWidth)
-		nUnits = 0
-		for j in range(gc.getNumUnitInfos()):
-			if (self.iGroup == gc.getUnitInfo(j).getUnitCombatType() or self.iGroup == gc.getNumUnitCombatInfos()):
-				nUnits += 1
-		dy = self.DY_UNITS
-		yTextMargin = self.Y_TEXT_MARGIN
-		if (self.iGroup == gc.getNumUnitCombatInfos()):
-			dy = self.DY_UNITS/2
-			yTextMargin = 0
-		i = 0
-		unitsList=[(0,0,0,0,0)]*nUnits
-		for j in range(gc.getNumUnitInfos()):
-			if (self.iGroup == gc.getUnitInfo(j).getUnitCombatType() or self.iGroup == gc.getNumUnitCombatInfos()):
-				if (gc.getUnitInfo(j).getProductionCost() < 0):
-					szCost = localText.getText("TXT_KEY_NON_APPLICABLE", ())
+		nColumns = 7
+		screen.addTableControlGFC(table, nColumns, self.X_TABLE, self.Y_TABLE, self.W_TABLE, self.H_TABLE, True, False, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
+		screen.setStyle(table, "Table_StandardCiv_Style")
+		screen.enableSort(table)
+
+		if self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR'):
+			szMove = "Range"
+		else:
+			szMove = "Moves"
+
+		if self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR') or self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_NAVAL') or self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_SIEGE'):
+			szSpecial = "Bombard"
+		else:
+			szSpecial = "1st Strike"
+
+		if self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR'):
+			szWithdraw = "Evade"
+		else:
+			szWithdraw = "Withdraw"
+
+		iWidth = ((self.W_TABLE - 180) / (nColumns - 1))
+		screen.setTableColumnHeader(table, 0, u"<font=2>" + gc.getUnitCombatInfo(self.iGroup).getDescription() + "</font>", 182)
+		screen.setTableColumnHeader(table, 1, u"<font=2>" + "Strength" + "</font>", iWidth)
+		screen.setTableColumnHeader(table, 2, u"<font=2>" + szMove + "</font>", iWidth)
+		screen.setTableColumnHeader(table, 3, u"<font=2>" + szSpecial + "</font>", iWidth)
+		screen.setTableColumnHeader(table, 4, u"<font=2>" + "Collateral" + "</font>", iWidth)
+		screen.setTableColumnHeader(table, 5, u"<font=2>" + szWithdraw + "</font>", iWidth)
+		screen.setTableColumnHeader(table, 6, u"<font=2>" + "Cost" + "</font>", iWidth)
+
+		for iUnit in xrange(gc.getNumUnitInfos()):
+			UnitInfo = gc.getUnitInfo(iUnit)
+			if self.iGroup == UnitInfo.getUnitCombatType():
+				iRow = screen.appendTableRow(table)
+
+				# Name
+				iCol = 0
+				screen.setTableText(table, iCol, iRow, u"<font=3>" + UnitInfo.getDescription() + u"</font>", UnitInfo.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, CvUtil.FONT_LEFT_JUSTIFY)
+
+				# Combat Strength
+				iCol += 1
+				if UnitInfo.getAirCombat() > 0:
+					szCombat = u"%d" % UnitInfo.getAirCombat()
 				else:
-					szCost = unicode(gc.getUnitInfo(j).getProductionCost())# + u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()
-				unitsList[i] = (gc.getUnitInfo(j).getCombat(), gc.getUnitInfo(j).getMoves(), szCost, gc.getUnitInfo(j).getDescription(), j)
-				i += 1
-		for i in range(nUnits):			
-			iRow = screen.appendTableRow(szTable)
-			screen.setTableText(szTable, 0, iRow, u"<font=3>" + unitsList[i][3] + u"</font>", "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, unitsList[i][4], 1, CvUtil.FONT_LEFT_JUSTIFY)	
-			screen.setTableInt(szTable, 1, iRow, u"<font=3>" + unicode(unitsList[i][0]) + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			screen.setTableInt(szTable, 2, iRow, u"<font=3>" + unicode(unitsList[i][1]) + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			screen.setTableInt(szTable, 3, iRow, u"<font=3>" + unicode(unitsList[i][2]) + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					szCombat = u"%d" % UnitInfo.getCombat()
+
+				screen.setTableInt(table, iCol, iRow, u"<font=3>" + szCombat + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+				# Movement
+				iCol += 1
+				if UnitInfo.getAirRange() > 0:
+					szMoves = u"%d" % UnitInfo.getAirRange()
+				else:
+					szMoves = u"%d" % UnitInfo.getMoves()
+
+				screen.setTableInt(table, iCol, iRow, u"<font=3>" + szMoves + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+				# Bombard/First Strikes
+				iCol += 1
+				if UnitInfo.getBombardRate() > 0:
+					szBombard = u"%d%%" % UnitInfo.getBombardRate()
+				elif UnitInfo.getBombRate() > 0:
+					szBombard = u"%d%%" % UnitInfo.getBombRate()
+				elif UnitInfo.getFirstStrikes() > 0 and not (self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR') or self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_NAVAL') or self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_SIEGE')):
+					szBombard = u"%d" % UnitInfo.getFirstStrikes()
+				else:
+					szBombard = u""
+
+				screen.setTableInt(table, iCol, iRow, u"<font=3>" + szBombard + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+				# Collateral
+				iCol += 1
+				if UnitInfo.getCollateralDamage() > 0:
+					szCollateral = u"%d%% (%d)" % (UnitInfo.getCollateralDamageLimit(), UnitInfo.getCollateralDamageMaxUnits())
+				else:
+					szCollateral = u""
+
+				screen.setTableInt(table, iCol, iRow, u"<font=3>" + szCollateral + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+				# Withdrawal
+				iCol += 1
+				if self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR') and UnitInfo.getEvasionProbability() > 0:
+					szWithdrawal = u"%d%%" % UnitInfo.getEvasionProbability()
+				elif UnitInfo.getWithdrawalProbability() > 0:
+					szWithdrawal = u"%d%%" % UnitInfo.getWithdrawalProbability()
+				else:
+					szWithdrawal = u""
+
+				screen.setTableInt(table, iCol, iRow, u"<font=3>" + szWithdrawal + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+				# Cost
+				iCol += 1
+				if UnitInfo.getProductionCost() < 0:
+					szCost = CyTranslator().getText("TXT_KEY_NON_APPLICABLE", ())
+				else:
+					szCost = u"%d" % UnitInfo.getProductionCost()
+
+				screen.setTableInt(table, iCol, iRow, u"<font=3>" + szCost + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 
 
-	def handleInput (self, inputClass):
+	def handleInput(self, inputClass):
 		return 0
