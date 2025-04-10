@@ -16,8 +16,10 @@ class SevoPediaUnitChart:
 
 		self.X_TABLE = self.top.X_PEDIA_PAGE
 		self.Y_TABLE = self.top.Y_PEDIA_PAGE
-		self.W_TABLE = self.top.W_PEDIA_PAGE
+		self.W_TABLE = 900
 		self.H_TABLE = self.top.H_PEDIA_PAGE
+
+		self.MARGIN = 20
 
 
 
@@ -32,33 +34,55 @@ class SevoPediaUnitChart:
 		table = self.top.getNextWidgetName()
 
 		nColumns = 7
-		screen.addTableControlGFC(table, nColumns, self.X_TABLE, self.Y_TABLE, self.W_TABLE, self.H_TABLE, True, False, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
-		screen.setStyle(table, "Table_StandardCiv_Style")
+		# <!-- custom: blue is more readable than standard i find, imported
+		# from base AdvCiv and modified with a similar kind of purpose
+		# -->
+		#screen.addTableControlGFC(table, nColumns, self.X_TABLE, self.Y_TABLE, self.W_TABLE, self.H_TABLE, True, False, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
+		#screen.setStyle(table, "Table_StandardCiv_Style")
+		#screen.enableSort(table)
+		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, self.X_TABLE, self.Y_TABLE, self.W_TABLE, self.H_TABLE, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, self.X_TABLE + self.MARGIN, self.Y_TABLE + self.MARGIN, self.W_TABLE - (self.MARGIN * 2), self.H_TABLE - (self.MARGIN * 2), PanelStyles.PANEL_STYLE_BLUE50)
+		table = self.top.getNextWidgetName()
+		screen.addTableControlGFC(table, nColumns, self.X_TABLE + self.MARGIN, self.Y_TABLE + self.MARGIN + 5, self.W_TABLE - (self.MARGIN * 2), self.H_TABLE - (self.MARGIN * 2) - 5, True, False, 32,32, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSort(table)
 
 		if self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR'):
 			szMove = "Range"
 		else:
-			szMove = "Moves"
+			# <!-- custom: imported from based AdvCiv and modified in a
+			# similar way as for/in other parts of this code, to display
+			# the icon instead of text -->
+			#szMove = "Moves"
+			szMove = u"%c" % CyGame().getSymbolID(FontSymbols.MOVES_CHAR)
 
 		if self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR') or self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_NAVAL') or self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_SIEGE'):
-			szSpecial = "Bombard"
+			# <!-- custom: imported and modified from base advciv in a similar way -->
+			#szSpecial = "Bombard"
+			szSpecial = u"%c" % CyGame().getSymbolID(FontSymbols.DEFENSE_CHAR)
 		else:
 			szSpecial = "1st Strike"
 
 		if self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR'):
 			szWithdraw = "Evade"
+
 		else:
 			szWithdraw = "Withdraw"
 
 		iWidth = ((self.W_TABLE - 180) / (nColumns - 1))
 		screen.setTableColumnHeader(table, 0, u"<font=2>" + gc.getUnitCombatInfo(self.iGroup).getDescription() + "</font>", 182)
-		screen.setTableColumnHeader(table, 1, u"<font=2>" + "Strength" + "</font>", iWidth)
+		# <!-- custom: add strength icon, imported from base AdvCiv code:
+		# https://github.com/f1rpo/AdvCiv/blob/master/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+		# and modified for AdvCiv-SAS to display the icon instead of text -->
+		# -->
+		#screen.setTableColumnHeader(table, 1, u"<font=2>" + "Strength" + "</font>", iWidth)
+		screen.setTableColumnHeader(table, 1, u"%c" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR), iWidth)
 		screen.setTableColumnHeader(table, 2, u"<font=2>" + szMove + "</font>", iWidth)
 		screen.setTableColumnHeader(table, 3, u"<font=2>" + szSpecial + "</font>", iWidth)
 		screen.setTableColumnHeader(table, 4, u"<font=2>" + "Collateral" + "</font>", iWidth)
 		screen.setTableColumnHeader(table, 5, u"<font=2>" + szWithdraw + "</font>", iWidth)
-		screen.setTableColumnHeader(table, 6, u"<font=2>" + "Cost" + "</font>", iWidth)
+		# <!-- custom: imported and modified from base advciv in a similar way -->
+		#screen.setTableColumnHeader(table, 6, u"<font=2>" + "Cost" + "</font>", iWidth)
+		screen.setTableColumnHeader(table, 6, u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar(), iWidth)
 
 		for iUnit in xrange(gc.getNumUnitInfos()):
 			UnitInfo = gc.getUnitInfo(iUnit)

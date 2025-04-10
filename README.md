@@ -138,14 +138,6 @@ even without modding, the base game is quite nice, thanks too i mean, thanks,
 
 todo add quote
 
-# A few useful links
-- todo: tutorial on how to compile the DLL and/or files for Advciv (but should not
-be needed if you only modify XML files if i am not mistaken)
-- ressources that mention XML files and tags, useful if you'd want to [get started
-doing your own mod](https://github.com/wonderingabout/kujira), or alternatively/to
-complement for example [modiki's website too](https://modiki.civfanatics.com/index.php/Civ4TraitInfos)
-maybe (even though i mostly use kujira's website, maybe this one helps too).
-
 # Some Useful tools while doing this
 - VS Code
 - Windows 10 (Windows 11 was so laggy and broke after update, now going back to Windows 10
@@ -162,4 +154,17 @@ it too though unless i'm mistaken)
 - Google's scientific calculator (https://www.google.com/search?q=calculator) (for the x^y function in particular)
 - Quillbot (web translator using AI, i used the free version), example of translation linked too: https://quillbot.com/fr/traduction?sl=auto&tl=fr&text=the+people+of+Benin (did not use this example in AdvCiv-SAS as i put almost everything i added or modified in English only for (my) convenience and ease of modding even though not ideal hopefully fine (should not use that place/line to say that ideally too but hopefully maybe fine too..))
 
-todo add links
+# Starting your mod
+I have written [this page](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/) that gives some
+non-exhaustive pointers, if you want to start your own mod.
+
+Disclaimer that i may not be able to give any feedback on it even if asked, also that i may
+not be available or wish to do so or not do for any reason, i might/may one or few times, but
+i may simply not for any reason, such as focusing on myself, resting, anything or nothing or
+other. Nor can i be held responsible of any result of following these. Please read the (more)
+detailed disclaimer there on page i linked above for details. However, with that being said,
+i hope the ressources provided there give you some help, anyways.
+
+Else or additionally, you may find more help asking your question(s) directly on
+[CivFanaticsCenter's Civ4 Forum](https://forums.civfanatics.com/categories/civilization-iv.143/)
+rather maybe. Hopefully this data i provided is also helpful though.
