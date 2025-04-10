@@ -21380,7 +21380,7 @@
 			<UnitCombatPromotions>
 				<UnitCombatPromotion>
 					<UnitCombat>UNITCOMBAT_GUN</UnitCombat>
-					<UnitPromotion>PROMOTION_MARCH</UnitPromotion>
+					<UnitPromotion>PROMOTION_DRILL1</UnitPromotion>
 				</UnitCombatPromotion>
 			</UnitCombatPromotions>
 			<UnitClassPromotions/>

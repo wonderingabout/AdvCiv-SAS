@@ -1597,7 +1597,7 @@ full order to take from for quick editing or/and copy/paste:
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>PROMOTION_MEDIC2</PromotionPrereq>
-			<PromotionPrereqOr1>PROMOTION_MARCH</PromotionPrereqOr1>
+			<PromotionPrereqOr1>PROMOTION_MEDIC_AMBULATORY</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
 			<TechPrereq>TECH_MEDICINE</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
@@ -1774,8 +1774,8 @@ full order to take from for quick editing or/and copy/paste:
 			<Button>,Art/Interface/Buttons/Promotions/Combat5.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,8,16</Button>
 		</PromotionInfo>
 		<PromotionInfo>
-			<Type>PROMOTION_MARCH</Type>
-			<Description>TXT_KEY_PROMOTION_MARCH</Description>
+			<Type>PROMOTION_MEDIC_AMBULATORY</Type>
+			<Description>TXT_KEY_PROMOTION_MEDIC_AMBULATORY</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
