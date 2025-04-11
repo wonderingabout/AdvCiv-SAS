@@ -28,9 +28,9 @@ i would move them to the bottom so you don't have to reread all ideally.
 
 ## AI-generated images
 
-One of the unexpected things that popped up while doing it and is/found to be very pleasant but anyways, is the visual art of icons, i want AI generated (by ChatGPT) ones as they can be very nice. I have uploaded mine (or rather ChatGPT's creation with my prompts and feebackbut anyways) [here](https://drive.google.com/drive/folders/1WTQqrstpKywyHF9TjmvBy4edo8Jh1pYm). You can find below an example of preview for the lancer light 3 (iron age as of now if not always or not anyways) (click to view in full size):
+One of the unexpected things that popped up while doing it and is/found to be very pleasant but anyways, is the visual art of icons, i want AI generated (by ChatGPT) ones as they can be very nice. I have uploaded mine (or rather ChatGPT's creation with my prompts and feebackbut anyways) [here](https://drive.google.com/drive/folders/1WTQqrstpKywyHF9TjmvBy4edo8Jh1pYm). You can find below an example of preview for the lancer light 2 (bronze age as of now if not always or not anyways) (click to view in full size):
 
-<img src="./_1_AdvCiv-SAS/AI-generated images (files only) preview(s)/lance_light_3_ChatGPT Image Apr 11, 2025, 07_54_22 PM.png" width="150"></img>
+<img src="./_1_AdvCiv-SAS/AI-generated images (files only) preview(s)/lance_light_2_ChatGPT Image Apr 11, 2025, 07_54_22 PM.png" width="150"></img>
 
 Another example (longbow 3 (iron age)):
 

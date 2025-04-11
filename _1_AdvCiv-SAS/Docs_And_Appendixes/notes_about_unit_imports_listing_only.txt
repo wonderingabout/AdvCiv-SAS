@@ -315,7 +315,7 @@ archer 4: longbowman ghaznavid realism invictus or some other unit that looks mo
 
 longbows
 -
-longbow 2: -
+longbow 2: - need a new icon there todo
 longbow 3: longbowman magyar realism invictus
 longbow 4: marksman _ marksman same name? Ffh2
 -
