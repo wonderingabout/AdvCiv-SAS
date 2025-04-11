@@ -36,6 +36,10 @@ Another example (longbow 3 (iron age)):
 
 <img src="./_1_AdvCiv-SAS/AI-generated images (files only) preview(s)/longbow_3_ChatGPT Image Apr 11, 2025, 08_46_15 PM.png" width="150"></img>
 
+Another example (sword light 4 (medieval era))
+
+<img src="./_1_AdvCiv-SAS/AI-generated images (files only) preview(s)/sword_light_4_ChatGPT Image Apr 11, 2025, 10_55_02 PM.png" width="150"></img>
+
 People and modders are free to reuse them as long as you mention me (link to this github page for example is fine) being the source (and that AI did it maybe too ideally, anyways).
 
 I'll start with units, as there are a few i wanted to replace or create new ones for AdvCiv-SAS's new units first, and will see how it goes based on that.

@@ -452,7 +452,7 @@ camel gun offense:
 -
 -
 -
-camel gun offense 5: camel cuirassier _ camel gunner from c2c
+camel gun offense 5: camel cuirassier _ camel gunner from c2c , need a new icon
 -
 
 
