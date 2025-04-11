@@ -61,3 +61,13 @@ do not maintain aspect ratio
 - ingame check result, in my case looks very nice or as nice as could i think with starting image, displays well in (ingame) sevopedia leader view and ingame diplomacy
 
 This is just an example, adapt as you see fit
+
+- then for the leaderhead button (mini icon of the leader in the sevopedia if i am not mistaken),
+i took/made it from the enlarged as in 512 x 512 not aspect maintained ratio .dds (or .png is
+maybe better or not?) obtained at last step (may take the portrait directly as ChatGPT advised
+maybe but i don't know), make a 96 x 96 crop selection around his head with Paint.NET, then fine
+tune it to 64 x 64 in a similar manner, and save it as a different file for example Ogiso_Igodo_button.dds,
+implement it in XML, looks very very good, at least for me i think, anyways, may or not do further beautification
+or not such as rounded edges or other things or not, but more than good enough for my purpose and i do what
+i want if i want or not anyways, hope this helps or not maybe doesn't, but wanted to send/write this as well,
+may serve me to reference it later again, or someone else or other purpose, anyways,
