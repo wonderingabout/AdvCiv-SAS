@@ -308,7 +308,7 @@ short bows
 archer 1: stone thrower c2c
 archer 2: -
 archer 3: archer semitic realism invictus
-archer 4: marksman _ marksman same name? Ffh2
+archer 4: longbowman ghaznavid realism invictus or some other unit that looks more mongolish need to remake this
 -
 
 
@@ -317,7 +317,7 @@ longbows
 -
 longbow 2: -
 longbow 3: longbowman magyar realism invictus
-longbow 4: longbowman ghaznavid realism invictus
+longbow 4: marksman _ marksman same name? Ffh2
 -
 
 

@@ -32,9 +32,9 @@ One of the unexpected things that popped up while doing it and is/found to be ve
 
 <img src="./_1_AdvCiv-SAS/AI-generated images (files only) preview(s)/lance_light_3_ChatGPT Image Apr 11, 2025, 07_54_22 PM.png" width="150"></img>
 
-Another example:
+Another example (longbow 3 (iron age)):
 
-<img src="./_1_AdvCiv-SAS/AI-generated images (files only) preview(s)/longbow_woman_2_ChatGPT Image Apr 11, 2025, 08_33_39 PM.png" width="150"></img>
+<img src="./_1_AdvCiv-SAS/AI-generated images (files only) preview(s)/longbow_3_ChatGPT Image Apr 11, 2025, 08_46_15 PM.png" width="150"></img>
 
 People and modders are free to reuse them as long as you mention me (link to this github page for example is fine) being the source (and that AI did it maybe too ideally, anyways).
 
