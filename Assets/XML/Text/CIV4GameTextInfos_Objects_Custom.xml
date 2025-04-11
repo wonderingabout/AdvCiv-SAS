@@ -19,18 +19,10 @@
 	<TEXT>
 		<Tag>TXT_KEY_FREE_UNITS</Tag>
 		<English>Civilization Units</English>
-		<French>Civilization Units</French>
-		<German>Civilization Units</German>
-		<Italian>Civilization Units</Italian>
-		<Spanish>Civilization Units</Spanish>
 	</TEXT>
-		<TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_FREE_UNITS_NO</Tag>
 		<English>No Civilization Unit</English>
-		<French>No Civilization Unit</French>
-		<German>No Civilization Unit</German>
-		<Italian>No Civilization Unit</Italian>
-		<Spanish>No Civilization Unit</Spanish>
 	</TEXT>
 	<!-- custom: "Civilization Unit for Russian Empire"
 	-> "Civilization Unit For the Russian Empire";
@@ -42,10 +34,6 @@
 	<TEXT>
 		<Tag>TXT_KEY_UNIQUE_UNIT</Tag>
 		<English>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</English>
-		<French>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</French>
-		<German>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</German>
-		<Italian>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</Italian>
-		<Spanish>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</Spanish>
 	</TEXT>
 	<!--custom:	Not changing it in TXT_KEY_BTS_RULES_CHANGES_PEDIA_SR
 	as it is an outdated doc. -->
@@ -73,26 +61,6 @@
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT</Tag>
 		<English>Bts Concepts (Outdated)</English>
-		<French>
-			<Text>Bts Concepts (Outdated)</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</French>
-		<German>
-			<Text>Bts Concepts (Outdated)</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</German>
-		<Italian>
-			<Text>Bts Concepts (Outdated)</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Bts Concepts (Outdated)</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</Spanish>
 	</TEXT>
 	<!-- custom: was "BtS Concepts", see code comments in
 	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml
@@ -101,26 +69,6 @@
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW</Tag>
 		<English>Mods Information</English>
-		<French>
-			<Text>Mods Information</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Mods Information</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Mods Information</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Mods Information</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 
 	<!-- custom: rename "Ivory" to "Elephants".
@@ -141,26 +89,6 @@
 	<TEXT>
 		<Tag>TXT_KEY_BONUS_IVORY</Tag>
 		<English>Elephants</English>
-		<French>
-			<Text>Elephants</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</French>
-		<German>
-			<Text>Elephants</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</German>
-		<Italian>
-			<Text>Elephants</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Elephants</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</Spanish>
 	</TEXT>
 
 	<!-- custom: similarly to what was done with the elephants, "Cattle" seems a better
@@ -181,28 +109,8 @@
 	more accurate it seems.
 	-->
 	<TEXT>
-	<Tag>TXT_KEY_BONUS_COW</Tag>
-	<English>Cattle</English>
-	<French>
-		<Text>Cattle</Text>
-		<Gender>Male</Gender>
-		<Plural>1</Plural>
-	</French>
-	<German>
-		<Text>Cattle</Text>
-		<Gender>Male</Gender>
-		<Plural>1</Plural>
-	</German>
-	<Italian>
-		<Text>Cattle</Text>
-		<Gender>Male</Gender>
-		<Plural>1</Plural>
-	</Italian>
-	<Spanish>
-		<Text>Cattle</Text>
-		<Gender>Male</Gender>
-		<Plural>1</Plural>
-	</Spanish>
+		<Tag>TXT_KEY_BONUS_COW</Tag>
+		<English>Cattle</English>
 	</TEXT>
 
 
@@ -210,111 +118,27 @@
 	<TEXT>
 		<Tag>TXT_KEY_LEADER_OGISO_IGODO</Tag>
 		<English>Ogiso Igodo</English>
-		<French>
-			<Text>Ogiso Igodo</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Ogiso Igodo</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Ogiso Igodo</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Ogiso Igodo</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
+	<!-- custom: https://en.wikipedia.org/wiki/Kingdom_of_Benin -->
 	<TEXT>
-		<!-- custom: https://en.wikipedia.org/wiki/Kingdom_of_Benin -->
 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_DESC</Tag>
 		<English>Kingdom Of Benin</English>
-		<French>
-			<Text>Kingdom Of Benin</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Kingdom Of Benin</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Kingdom Of Benin</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Kingdom Of Benin</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
+	<!-- custom: Kingdom of Benin (Nigeria) has no relation (according
+	to wiki if i understood it correctly) with modern Benin, trying to
+	keep the full name to make the distinction clearer, even though
+	some circumstances could call for shortening it if purely realistic
+	-->
 	<TEXT>
 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_SHORT_DESC</Tag>
-		<!-- custom: Kingdom of Benin (Nigeria) has no relation (according
-		to wiki if i understood it correctly) with modern Benin, trying to
-		keep the full name to make the distinction clearer, even though
-		some circumstances could call for shortening it if purely realistic
-		-->
 		<English>Kingdom Of Benin</English>
-		<French>
-			<Text>Kingdom Of Benin</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Kingdom Of Benin</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Kingdom Of Benin</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Kingdom Of Benin</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 	<!-- custom: i found no clear mention of an adjective, going with
 	"people of Benin" mentionned here:
 	https://en.wikipedia.org/wiki/Kingdom_of_Benin#Founding -->
 	<TEXT>
 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_ADJECTIVE</Tag>
-		<English>
-			<Text>the people of Benin</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</English>
-		<French>
-			<Text>the people of Benin</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>the people of Benin</Text>
-			<Gender>Neuter</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>the people of Benin</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>the people of Benin</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
+		<English>the people of Benin</English>
 	</TEXT>
 	<!-- custom: this mentions clearly and several times the impluvium as
 	a special building the Kingdom Of Benin had:
@@ -324,78 +148,18 @@
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM</Tag>
 		<English>Impluvium</English>
-		<French>
-			<Text>Impluvium</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Impluvium</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Impluvium</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Impluvium</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 	<!-- custom: very disciplined nation, and using crossbowmen, see:
 	https://en.wikipedia.org/wiki/Kingdom_of_Benin#Military -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN</Tag>
 		<English>Disciplined Crossbowman</English>
-		<French>
-			<Text>Disciplined Crossbowman</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Disciplined Crossbowman</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Disciplined Crossbowman</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Disciplined Crossbowman</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 
 
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_WARRIOR</Tag>
 		<English>Ancient Maceman</English>
-		<French>
-			<Text>Ancient Maceman</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Ancient Maceman</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Ancient Maceman</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Ancient Maceman</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 
 	<!-- custom: clearer renaming to some promotions,
@@ -404,52 +168,12 @@
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_ACCURACY</Tag>
 		<English>City Bombard Damage</English>
-		<French>
-			<Text>City Bombard Damage</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>City Bombard Damage</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>City Bombard Damage</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>City Bombard Damage</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 	<!-- custom: an ace can be about ground units too, hopefully
 	clearer now -->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_ACE</Tag>
 		<English>Air Evasion</English>
-		<French>
-			<Text>Air Evasion</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Air Evasion</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Air Evasion</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Air Evasion</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 	<!-- custom: name is more epic, not necessarily clearer (especially
 	with new tech requirement that is sooner, in earlier eras, but it
@@ -457,26 +181,6 @@
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_BLITZ</Tag>
 		<English>Blitzkrieg</English>
-		<French>
-			<Text>Blitzkrieg</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Blitzkrieg</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Blitzkrieg</Text>
-			<Gender>Female</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Blitzkrieg</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 	<!-- custom: spies don't conduct raids for example in base
 	civ bts/advciv so "commando" does not fit, is also not
@@ -484,100 +188,20 @@
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_COMMANDO</Tag>
 		<English>Logistics</English>
-		<French>
-			<Text>Logistics</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Logistics</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Logistics</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Logistics</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 
 	<!-- custom: clear counter unit promotion names -->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_AMBUSH</Tag>
 		<English>Counter-Tank</English>
-		<French>
-			<Text>Counter-Tank</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Counter-Tank</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Counter-Tank</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Counter-Tank</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_CHARGE</Tag>
 		<English>Counter-Siege</English>
-		<French>
-			<Text>Counter-Siege</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Counter-Siege</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Counter-Siege</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Counter-Siege</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_COVER</Tag>
 		<English>Counter-Archer</English>
-		<French>
-			<Text>Counter-Archer</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Counter-Archer</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Counter-Archer</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Counter-Archer</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 	<!-- custom: rename or/and create subtypes for each melee type
 	maybe or maybe not and put them all in same promotion easier?
@@ -586,74 +210,14 @@
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_SHOCK</Tag>
 		<English>Counter-Melee</English>
-		<French>
-			<Text>Counter-Melee</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Counter-Melee</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Counter-Melee</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Counter-Melee</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_PINCH</Tag>
 		<English>Counter-Gun</English>
-		<French>
-			<Text>Counter-Gun</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Counter-Gun</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Counter-Gun</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Counter-Gun</Text>
-			<Gender>Counter-Gun</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_FORMATION</Tag>
 		<English>Counter-Mounted</English>
-		<French>
-			<Text>Counter-Mounted</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Counter-Mounted</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Counter-Mounted</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Counter-Mounted</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 
 	<!-- custom: use arabic numerals for/in promotions naming(/es),
@@ -661,249 +225,49 @@
 	combat 6, even though i just copy paste to english for ease of use
 	(of translation) and convenience, i don't want it to be displayed
 	as "VI" ingame but "6" so adding these extra ones. -->
-		<TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_COMBAT1</Tag>
 		<English>Combat 1</English>
-		<French>
-			<Text>Combat 1</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Kampf 1</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Combattimento 1</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Combate 1</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_COMBAT2</Tag>
 		<English>Combat 2</English>
-		<French>
-			<Text>Combat 2</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Kampf 2</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Combattimento 2</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Combate 2</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_COMBAT3</Tag>
 		<English>Combat 3</English>
-		<French>
-			<Text>Combat 3</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Kampf 3</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Combattimento 3</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Combate 3</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_COMBAT4</Tag>
 		<English>Combat 4</English>
-		<French>
-			<Text>Combat 4</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Kampf 4</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Combattimento 4</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Combate 4</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_COMBAT5</Tag>
 		<English>Combat 5</English>
-		<French>
-			<Text>Combat 5</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Kampf 5</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Combattimento 5</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Combate 5</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 	<!-- custom added missing languages in base civ4/BTS to have "6"
 	not "VI" everywhere -->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_COMBAT6</Tag>
 		<English>Combat 6</English>
-		<French>
-			<Text>Combat 6</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Kampf 6</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Combattimento 6</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Combate 6</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 	<!-- custom: use arabic numerals instead of roman numerals,
 	hopefully clearer -->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_AIR_INTERCEPTION1</Tag>
 		<English>Air Interception 1</English>
-		<French>
-			<Text>Air Interception 1</Text>
-			<Gender>Female</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Air Interception 1</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Air Interception 1</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Air Interception 1</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_AIR_INTERCEPTION2</Tag>
 		<English>Air Interception 2</English>
-		<French>
-			<Text>Air Interception 2</Text>
-			<Gender>Female</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Air Interception 2</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Air Interception 2</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Air Interception 2</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_AIR_INTERCEPTION3</Tag>
 		<English>Air Interception 3</English>
-		<French>
-			<Text>Air Interception 3</Text>
-			<Gender>Female</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Air Interception 3</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Air Interception 3</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Air Interception 3</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_AIR_INTERCEPTION4</Tag>
 		<English>Air Interception 4</English>
-		<French>
-			<Text>Air Interception 4</Text>
-			<Gender>Female</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Air Interception 4</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Air Interception 4</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Air Interception 4</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 	<!-- custom: "Range" may apply to ground units too hopefully clearer now,
 	Also switch to arabic numerals, clearer too, i think, and also prefer,
@@ -911,214 +275,46 @@
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_RANGE1</Tag>
 		<English>Air Range 1</English>
-		<French>
-			<Text>Air Range 1</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Air Range 1</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Air Range 1</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Air Range 1</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_RANGE2</Tag>
 		<English>Air Range 2</English>
-		<French>
-			<Text>Air Range 2</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Air Range 2</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Air Range 2</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Air Range 2</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 
 	<!-- custom: new/modified unit combat types -->
 	<TEXT>
 		<Tag>TXT_KEY_UNITCOMBAT_ARCHER_BOW_SHORT</Tag>
-		<English>Archers (Bow, Short range)</English>
-		<French>
-			<Text>Archers (Bow, Short range)</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</French>
-		<German>
-			<Text>Archers (Bow, Short range)</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</German>
-		<Italian>
-			<Text>Archers (Bow, Short range)</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Archers (Bow, Short range)</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</Spanish>
+		<English>Archers (Bow, Short)</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_UNITCOMBAT_ARCHER_BOW_LONG</Tag>
-		<English>Archers (Bow, Long range)</English>
-		<French>
-			<Text>Archers (Bow, Long range)</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</French>
-		<German>
-			<Text>Archers (Bow, Long range)</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</German>
-		<Italian>
-			<Text>Archers (Bow, Long range)</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Archers (Bow, Long range)</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</Spanish>
+		<English>Archers (Bow, Long)</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_UNITCOMBAT_ARCHER_CROSSBOW</Tag>
 		<English>Archers (Crossbow)</English>
-		<French>
-			<Text>Archers (Crossbow)</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</French>
-		<German>
-			<Text>Archers (Crossbow)</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</German>
-		<Italian>
-			<Text>Archers (Crossbow)</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Archers (Crossbow)</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</Spanish>
 	</TEXT>
 
 
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_MEDIC1</Tag>
 		<English>Medic 1</English>
-		<French>
-			<Text>Medic 1</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Medic 1</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Medic 1</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Medic 1</Text>
-			<Gender>Female</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_MEDIC2</Tag>
 		<English>Medic 2</English>
-		<French>
-			<Text>Medic 2</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Medic 2</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Medic 2</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Medic 2</Text>
-			<Gender>Female</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 	<!-- custom: from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Warlords\Assets\XML\Text\CIV4GameText_Warlords.xml -->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_MEDIC3</Tag>
 		<English>Medic 3</English>
-		<French>Medic 3</French>
-		<German>Medic 3</German>
-		<Italian>Medic 3</Italian>
-		<Spanish>Medic 3</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_MEDIC4</Tag>
 		<English>Medic 4</English>
-		<French>Medic 4</French>
-		<German>Medic 4</German>
-		<Italian>Medic 4</Italian>
-		<Spanish>Medic 4</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_MEDIC_AMBULATORY</Tag>
 		<English>Medic (Ambulatory)</English>
-		<French>
-			<Text>Medic (Ambulatory)</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Medic (Ambulatory)</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Medic (Ambulatory)</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Medic (Ambulatory)</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 </Civ4GameText>

@@ -28,6 +28,7 @@
 		<Italian>Contenuto</Italian>
 		<Spanish>Contenido</Spanish>
 	</TEXT>
+
 	<!-- custom: rename "Unit Upgrades" to "Units Tree",
 	clearer and consistent with "Promotion Upgrades Tree",
 	while also short enough to fit well enough in the
@@ -49,21 +50,14 @@
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT_UPGRADES</Tag>
 		<English>Units Tree</English>
-		<French>Units Tree</French>
-		<German>Units Tree</German>
-		<Italian>Units Tree</Italian>
-		<Spanish>Units Tree</Spanish>
 	</TEXT>
 	<!-- custom: use the plural here too:
 	"Promotion Tree" -> "Promotions Tree" -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_PROMOTION_TREE</Tag>
 		<English>Promotions Tree</English>
-		<French>Promotions Tree</French>
-		<German>Promotions Tree</German>
-		<Italian>Promotions Tree</Italian>
-		<Spanish>Promotions Tree</Spanish>
 	</TEXT>
+
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_NATIONAL_WONDERS</Tag>
 		<English>National Wonders</English>
@@ -80,6 +74,7 @@
 		<Italian>Grandi Merav.</Italian>
 		<Spanish>Maravillas del Mundo</Spanish>
 	</TEXT>
+
 	<!-- advc.002g: Deleted TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW
 		 (en. BTS Concepts, fr. Conceptes BTS, dt. Beyond the Sword-Konzepte,
 		 it. Concetti di BTS, es. Conceptos BtS)
@@ -89,11 +84,8 @@
 	<TEXT>
 		<Tag>TXT_KEY_UNIQUE_BUILDINGS</Tag>
 		<English>Civilization Buildings</English>
-		<French>Civilization Buildings</French>
-		<German>Civilization Buildings</German>
-		<Italian>Civilization Buildings</Italian>
-		<Spanish>Civilization Buildings</Spanish>
 	</TEXT>
+
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_FAV_CIVIC_AND_RELIGION</Tag>
 		<English>Favorite Civic and Religion</English>
@@ -114,26 +106,6 @@
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_TERRAIN</Tag>
 		<English>Terrains</English>
-		<French>
-			<Text>Terrains</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</French>
-		<German>
-			<Text>Terrains</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</German>
-		<Italian>
-			<Text>Terrains</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Terrains</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</Spanish>
 	</TEXT>
 
 
@@ -159,26 +131,6 @@
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_FEATURE</Tag>
 		<English>Features</English>
-		<French>
-			<Text>Features</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</French>
-		<German>
-			<Text>Features</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</German>
-		<Italian>
-			<Text>Features</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Features</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</Spanish>
 	</TEXT>
 
 
@@ -194,14 +146,7 @@
 	<TEXT> 
 		<Tag>TXT_KEY_PEDIA_BONUS_YIELDS_CUSTOM_PANEL_TEXT</Tag>
 		<English>Natural Bonus Tile Yields</English>
-		<French>Natural Bonus Tile Yields</French>
-		<German>Natural Bonus Tile Yields</German>
-		<Italian>Natural Bonus Tile Yields</Italian>
-		<Spanish>Natural Bonus Tile Yields</Spanish>
 	</TEXT>
-	<!-- custom: translate everything technical i want to
-	clarify to the English version only, not sure the translations
-	are	accurate (enough) -->
 	<!-- custom: also replace TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT
 	to something clearer at the same time, maybe helps.
 	Create a new TXT KEY specifically for the improvements
@@ -218,26 +163,6 @@
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT_CUSTOM_NEW_FOR_RESSOURCES_IMPROVEMENTS</Tag>
 		<English>Improvements Bonus Tile Yields</English>
-		<French>
-			<Text>Improvements Bonus Tile Yields</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</French>
-		<German>
-			<Text>Improvements Bonus Tile Yields</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</German>
-		<Italian>
-			<Text>Improvements Bonus Tile Yields</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Improvements Bonus Tile Yields</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</Spanish>	
 	</TEXT>
 	<!-- custom: create a new entry "Revealed By" specifically for
 	the sevopedia, the civilopedia still uses reveals due to how
@@ -245,10 +170,6 @@
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_BONUS_APPEARANCE_REVEALED_BY_CUSTOM</Tag>
 		<English>Revealed By</English>
-		<French>Revealed By</French>
-		<German>Revealed By</German>
-		<Italian>Revealed By</Italian>
-		<Spanish>Revealed By</Spanish>
 	</TEXT>
 
 
@@ -266,26 +187,6 @@
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT</Tag>
 		<English>Improvements</English>
-		<French>
-			<Text>Improvements</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</French>
-		<German>
-			<Text>Improvements</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</German>
-		<Italian>
-			<Text>Improvements</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Improvements</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</Spanish>
 	</TEXT>
 	<!-- custom: using the singular form here as this is
 	only about our current (selected) improvement's
@@ -293,10 +194,6 @@
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_IMPROVEMENT_YIELD</Tag>
 		<English>Improvement Bonus Tile Yields</English>
-		<French>Improvement Bonus Tile Yields</French>
-		<German>Improvement Bonus Tile Yields</German>
-		<Italian>Improvement Bonus Tile Yields</Italian>
-		<Spanish>Improvement Bonus Tile Yields</Spanish>
 	</TEXT>
 	<!-- custom: be careful, unlike what the txt key says, this
 	TXT_KEY_PEDIA_BONUS_YIELDS is applied to improvements category
@@ -306,10 +203,6 @@
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_BONUS_YIELDS</Tag>
 		<English>On Ressources Extra Improvements Bonus Tile Yields</English>
-		<French>On Ressources Extra Improvements Bonus Tile Yields</French>
-		<German>On Ressources Extra Improvements Bonus Tile Yields</German>
-		<Italian>On Ressources Extra Improvements Bonus Tile Yields</Italian>
-		<Spanish>On Ressources Extra Improvements Bonus Tile Yields</Spanish>
 	</TEXT>
 	<!-- custom: "Food: +1F (with Irrigation)" becomes
 	now "+1F (with Irrigation)", remove the uneeded
@@ -333,7 +226,6 @@
 		<!-- %s1 = TXT_KEY_IMPROVEMENT -->
 		<English>%D2%F3 (on Hills)</English>
 		<French>%D2%F3 (sur les collines)</French>
-		<German>%D2%F3 (on Hills)</German>
 		<Italian>%D2%F3 (sulle colline)</Italian>
 		<Spanish>%D2 %F3 (en colinas)</Spanish>
 	</TEXT>
@@ -344,7 +236,6 @@
 		<!-- %s1 = TXT_KEY_IMPROVEMENT -->
 		<English>%D2%F3 (next to River)</English>
 		<French>%D2%F3 (pr&#232;s des fleuves)</French>
-		<German>%D2%F3 (next to River)</German>
 		<Italian>%D2%F3 (vicino a un fiume)</Italian>
 		<Spanish>%D2 %F3 (junto a un r&#237;o)</Spanish>
 	</TEXT>
@@ -355,7 +246,6 @@
 		<!-- %s1 = TXT_KEY_IMPROVEMENT  %s4 = TXT_KEY_BONUS -->
 		<English>%D2%F3 (with [LINK=literal]%s4[\LINK])</English>
 		<French>%D2%F3 (avec [LINK=literal]%s4[\LINK])</French>
-		<German>%D2%F3 (with [LINK=literal]%s4[\LINK])</German>
 		<Italian>%D2%F3 (con [LINK=literal]%s4[\LINK])</Italian>
 		<Spanish>%D2 %F3 (con [LINK=literal]%s4[\LINK])</Spanish>
 	</TEXT>
@@ -365,7 +255,6 @@
 		<Tag>TXT_KEY_PEDIA_ROUTE_YIELD</Tag>
 		<English>%D2%F3 (with [LINK=CONCEPT_MOVEMENT]%s4[\LINK])</English>
 		<French>%D2%F3 (avec [LINK=CONCEPT_MOVEMENT]%s4[\LINK])</French>
-		<German>%D2%F3 (with [LINK=CONCEPT_MOVEMENT]%s4[\LINK])</German>
 		<Italian>%D2%F3 (con [LINK=CONCEPT_MOVEMENT]%s4[\LINK])</Italian>
 		<Spanish>%D2 %F3 (con [LINK=CONCEPT_MOVEMENT]%s4[\LINK])</Spanish>
 	</TEXT>

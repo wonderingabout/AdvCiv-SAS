@@ -28,27 +28,19 @@
     <TEXT>
 		<Tag>TXT_KEY_MAIN_MENU_CIVILOPEDIA</Tag>
 		<English>Sevopedia</English>
-		<French>Sevopedia</French>
-		<German>Sevopedia</German>
-		<Italian>Sevopedia</Italian>
-		<Spanish>Sevopedia</Spanish>
 	</TEXT>
     <TEXT>
 		<Tag>TXT_KEY_WIDGET_HELP</Tag>
 		<English>Sevopedia</English>
-		<French>Sevopedia</French>
-		<German>Sevopedia</German>
-		<Italian>Sevopedia</Italian>
-		<Spanish>Sevopedia</Spanish>
 	</TEXT>
-    <!-- custom: Replace "return to the civilopedia" with "alto"
-	(italian translated with google translate) -->
+    <!-- custom: Replace "Torna a civilopedia" (with "top")
+	to match what is done in the other translations (or so it seems)
+	and using "sevopedia" rather than "civilopedia" -->
     <TEXT>
 		<Tag>TXT_KEY_PEDIA_SCREEN_TOP</Tag>
 		<English>Top</English>
 		<French>Haut</French>
 		<German>Nach oben</German>
-		<Italian>Alto</Italian>
 		<Spanish>Inicio</Spanish>
 	</TEXT>
     <!-- custom: moved from:
@@ -64,10 +56,6 @@
 	<TEXT>
 		<Tag>TXT_KEY_CIVILOPEDIA_TITLE</Tag>
 		<English>SEVOPEDIA</English>
-		<French>SEVOPEDIA</French>
-		<German>SEVOPEDIA</German>
-		<Italian>SEVOPEDIA</Italian>
-		<Spanish>SEVOPEDIA</Spanish>
 	</TEXT>
 
 	<!-- custom: rename "We fear you are becoming too advanced." (WFYABTA)
@@ -79,10 +67,6 @@
 	<TEXT>
 		<Tag>TXT_KEY_DENIAL_TECH_WHORE</Tag>
 		<English>"We fear you are trading more than us."</English>
-		<French>"We fear you are trading more than us."</French>
-		<German>"We fear you are trading more than us."</German>
-		<Italian>"We fear you are trading more than us."</Italian>
-		<Spanish>"We fear you are trading more than us."</Spanish>
 	</TEXT>
 
 	<!-- custom: do not change the tag name unless we need to,
@@ -91,25 +75,13 @@
 	<TEXT>
 		<Tag>TXT_KEY_MISSION_INTERCEPT</Tag>
 		<English>Air Intercept</English>
-		<French>Air Intercept</French>
-		<German>Air Intercept</German>
-		<Italian>Air Intercept</Italian>
-		<Spanish>Air Intercept</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_INTERCEPT_AIRCRAFT</Tag>
 		<English>[ICON_BULLET]Can Air Intercept Aircraft (%d1_Amount%% Chance)</English>
-		<French>[ICON_BULLET]Can Air Intercept Aircraft (%d1_Amount%% Chance)</French>
-		<German>[ICON_BULLET]Can Air Intercept Aircraft (%d1_Amount%% Chance)</German>
-		<Italian>[ICON_BULLET]Can Air Intercept Aircraft (%d1_Amount%% Chance)</Italian>
-		<Spanish>[ICON_BULLET]Can Air Intercept Aircraft (%d1_Amount%% Chance)</Spanish>
 	</TEXT>
-		<TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_UNIT_EVADE_INTERCEPTION</Tag>
 		<English>[ICON_BULLET]Can Air Evade Air Interception (%d1_Amount%% Chance)</English>
-		<French>[ICON_BULLET]Can Air Evade Air Interception (%d1_Amount%% Chance)</French>
-		<German>[ICON_BULLET]Can Air Evade Air Interception (%d1_Amount%% Chance)</German>
-		<Italian>[ICON_BULLET]Can Air Evade Air Interception (%d1_Amount%% Chance)</Italian>
-		<Spanish>[ICON_BULLET]Can Air Evade Air Interception (%d1_Amount%% Chance)</Spanish>
 	</TEXT>
 </Civ4GameText>

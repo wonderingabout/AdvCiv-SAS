@@ -650,10 +650,6 @@
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_INTERCEPT</Tag>
 		<English>Air Intercept</English>
-		<French>Air Intercept</French>
-		<German>Air Intercept</German>
-		<Italian>Air Intercept</Italian>
-		<Spanish>Air Intercept</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_PATROL</Tag>

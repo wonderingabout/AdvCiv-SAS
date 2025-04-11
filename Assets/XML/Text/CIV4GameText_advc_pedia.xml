@@ -29,33 +29,9 @@ hopefully more readable or exportable if need/want be now -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_WARRIOR_PEDIA</Tag>
 		<English>[TAB]Sometimes called the "clubman" (as it wields a wooden club), the Ancient Maceman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</English>
-		<French>[TAB]Sometimes called the "clubman" (as it wields a wooden club), the Ancient Maceman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</French>
-		<German>[TAB]Sometimes called the "clubman" (as it wields a wooden club), the Ancient Maceman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</German>
-		<Italian>[TAB]Sometimes called the "clubman" (as it wields a wooden club), the Ancient Maceman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</Italian>
-		<Spanish>[TAB]Sometimes called the "clubman" (as it wields a wooden club), the Ancient Maceman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_MODERN_ARMOR</Tag>
 		<English>Robotic Tank</English>
-		<French>
-			<Text>Robotic Tank</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Robotic Tank</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Robotic Tank</Text>
-			<Gender>Female</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Robotic Tank</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 </Civ4GameText>

@@ -1797,108 +1797,32 @@
 		<Italian>km&#178;</Italian>
 		<Spanish> km&#178;</Spanish>
 	</TEXT>
+	<!-- custom: was Alexander -->
 	<!-- These two French names were too long for the best/ worst columns -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_LEADER_ALEXANDER</Tag>
-		<English>Alexander</English>
-		<French>
-			<Text>Alexandre</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Alexander</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Alessandro</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Alejandro</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
+		<English>Alexander III The Great</English>
 	</TEXT>
+	<!-- custom: was Tokugawa -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_LEADER_TOKUGAWA</Tag>
-		<English>Tokugawa</English>
-		<French>
-			<Text>Tokugawa</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Tokugawa</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Tokugawa</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Tokugawa</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
+		<English>Tokugawa Ieyasu</English>
 	</TEXT>
+	<!-- custom: was Genghis in some languages or some other version, anyways, -->
 	<!-- German spelling was long and unusual -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_LEADER_GENGHIS_KHAN</Tag>
 		<English>Genghis Khan</English>
-		<French>
-			<Text>Gengis</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Dschingis Khan</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Genghis Khan</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Gengis Kan</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
+	<!-- custom: was Isabella -->
 	<!-- Spanish was too long -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_LEADER_ISABELLA</Tag>
 		<English>
-			<Text>Isabella</Text>
+			<Text>Isabella I</Text>
 			<Gender>Female</Gender>
 			<Plural>0</Plural>
 		</English>
-		<French>
-			<Text>Isabelle</Text>
-			<Gender>Female</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Isabella</Text>
-			<Gender>Female</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Isabella</Text>
-			<Gender>Female</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Isabel</Text>
-			<Gender>Female</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 	<!-- From CIV4GameText_Misc1.xml. "ca." added b/c it's now
 		 an approximation. -->
@@ -3742,152 +3666,37 @@
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_LEADER_PACAL</Tag>
 		<English>Pacal II</English>
-		<French>
-			<Text>Pacal II</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Pacal II</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Pakal II</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Pacal II</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
+	<!-- custom: was Justinian -->
 	<!-- advc.005: Removed regnal number I (all languages) -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_LEADER_JUSTINIAN</Tag>
 		<English>Justinian I</English>
-		<French>
-			<Text>Justinien Ier</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Justinian I</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Giustiniano I</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Justiniano I</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
+
+	<!-- custom: should be functionnaly the same to delete other
+	languages if translation is same if i am not mistaken, so doing
+	that here, anyways, -->
 	<!-- advc.005: was Asoka -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_LEADER_ASOKA</Tag>
 		<English>Ashoka</English>
-		<French>
-			<Text>Ashoka</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Ashoka</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Ashoka</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Ashoka</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 	<!-- 002b: Shortened leader names -->
-	<!-- was Augustus Caesar (in Warlords Civ4GameTextObjects XML) -->
+	<!-- custom: was Augustus (in Warlords Civ4GameTextObjects XML) -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_LEADER_AUGUSTUS</Tag>
 		<English>Augustus Caesar</English>
-		<French>
-			<Text>Auguste</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Augustus Caesar</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Augusto Caesar</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Augusto Caesar</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
-	<!-- was Willem van Oranje (in BtS Civ4GameTextObjects XML) -->
+	<!-- custom: was Willem (in BtS Civ4GameTextObjects XML) -->
 	<TEXT> <!-- redefine -->
 	<Tag>TXT_KEY_LEADER_WILLEM_VAN_ORANJE</Tag>
 		<English>Willem van Oranje</English>
-		<French>
-			<Text>Guillaume van Oranje</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Wilhelm van Oranje</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Guglielmo van Oranje</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Guillermo van Oranje</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
-	<!-- was Suryavarman II. (in BtS Civ4GameTextObjects XML) -->
+	<!-- custom: was Suryavarman. (in BtS Civ4GameTextObjects XML) -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_LEADER_SURYAVARMAN</Tag>
 		<English>Suryavarman II</English>
-		<French>
-			<Text>Suryavarman II</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Suryavarman II</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Suryavarman II</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Suryavarman II</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
 	</TEXT>
 	
 	<!-- advc.004r: Based on TXT_KEY_MISC_YOU_DISCOVERED_BONUSin
@@ -6699,10 +6508,6 @@
 	<TEXT>
 		<Tag>TXT_KEY_NUKE_INTERCEPT_CHANCE</Tag>
 		<English>[COLOR_NEGATIVE_TEXT]Adjusted Air Interception chance[COLOR_REVERT](%s1_TeamName): %d2%%</English>
-		<French>[COLOR_NEGATIVE_TEXT]Adjusted Air Interception chance[COLOR_REVERT](%s1_TeamName): %d2%</French>
-		<German>[COLOR_NEGATIVE_TEXT]Adjusted Air Interception chance[COLOR_REVERT](%s1_TeamName): %d2%</German>
-		<Italian>[COLOR_NEGATIVE_TEXT]Adjusted Air Interception chance[COLOR_REVERT](%s1_TeamName): %d2%</Italian>
-		<Spanish>[COLOR_NEGATIVE_TEXT]Adjusted Air Interception chance[COLOR_REVERT](%s1_TeamName): %d2%</Spanish>
 	</TEXT>
 
 	<!-- advc.004g: "Plot" is slang; "tile" is the proper game term.
