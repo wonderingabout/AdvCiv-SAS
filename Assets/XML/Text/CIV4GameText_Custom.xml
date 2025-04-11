@@ -2,11 +2,12 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by lcollins (Firaxis Games) -->
 <!-- custom: custom GameText xml type of assets for AdvCiv-SAS -->
 <Civ4GameText xmlns="http://www.firaxis.com">
+	<!-- custom: remove BTS links, unneeded, see CIV4NewConceptInfos.xml for details -->
+	<!-- custom: the other conceptinfo entries have been moved to file
+	with similar filename than in civ4 bts -->
 	<!-- advc.002b: Shortening "Beyond the Sword" to "BtS" so that the page
 		 names can be displayed despite the increased font size.
 		 Originally in CIV4GameText_BTS.xml and CIV4GameText_Objects_BTS.xml. -->
-	<!-- custom: remove BTS links, unneeded, see CIV4NewConceptInfos.xml for details -->
-	<!-- custom: moved to file with similar filename than in civ4 bts -->
 	<TEXT>
 		<Tag>TXT_KEY_BTS_RULES_CHANGES</Tag>
 		<English>0_BtS Rules Changes</English>
@@ -14,10 +15,6 @@
 	<TEXT>
 		<Tag>TXT_KEY_ADVCIV_SAS_CORE_CHANGES</Tag>
 		<English>3_AdvCiv-SAS Core Changes</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_ADVCIV_SAS_CORE_CHANGES</Tag>
-		<English>AdvCiv-SAS Core Changes</English>
 	</TEXT>
 
 

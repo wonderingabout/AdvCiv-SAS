@@ -464,7 +464,7 @@
 		-->
 		<LeaderheadArtInfo>
 			<Type>ART_DEF_LEADER_OGISO_IGODO</Type>
-			<Button>Art/LeaderHeads/Ogiso_Igodo.dds</Button>
+			<Button>Art/LeaderHeads/Ogiso_Igodo_Button.dds</Button>
 			<NIF>Art/LeaderHeads/Ogiso_Igodo.dds</NIF>
 			<KFM>art/LeaderHeads/Mansa_Musa/mansa_musa.kfm</KFM>
 			<NoShaderNIF>art/LeaderHeads/Mansa_Musa/mansa_musa_noshader.nif</NoShaderNIF>
