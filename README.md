@@ -26,6 +26,20 @@ I may also update it after releasing mods, maybe, but not guaranteed, if there
 are significant changes i would like to add or mention/talk about there. But
 i would move them to the bottom so you don't have to reread all ideally.
 
+## AI-generated images
+
+One of the unexpected things that popped up while doing it and is/found to be very pleasant but anyways, is the visual art of icons, i want AI generated (by ChatGPT) ones as they can be very nice. I have uploaded mine (or rather ChatGPT's creation with my prompts and feebackbut anyways)[here](/https://drive.google.com/drive/folders/1WTQqrstpKywyHF9TjmvBy4edo8Jh1pYm). You can find below an example of preview for the lancer light 3 (iron age as of now if not always or not anyways) (click to view in full size):
+
+<img src="./_1_AdvCiv-SAS/AI-generated images (files only) preview(s)/lance_light_iron_ChatGPT Image Apr 11, 2025, 07_54_22 PM.png" width="150"></img>
+
+People and modders are free to reuse them as long as you mention me (link to this github page for example is fine) being the source (and that AI did it maybe too ideally, anyways).
+
+I'll start with units, as there are a few i wanted to replace or create new ones for AdvCiv-SAS's new units first, and will see how it goes based on that.
+
+I am not doing the ingame art though, just the icons, unless i would unexpectedly so, it should most likely be asummed i would not. I intend to add women in some of these units. Not for equalitarism or anything, just because i think it would be cool and accurate, it would be mostly lightweight weapons for accuracy, not following any specified pattern or ratios, as i prefer.
+
+Hopefully helpful and interesting.
+
 ## Project Goals and global view on gameplay changes
 
 The more general gameplay type of changes consist of
@@ -63,6 +77,7 @@ settle your cities there, movement will be slower though.
 Todo
 - Maybe some (or lot) music, ideally (even more ideally), if copyright or something is not an issue when/if i upload
 the finished version.
+- Recent new goal but anyways: new AI-generated icons (using ChatGPT for now at least if not always or not but anyways)
 
 The civs you can expect from this mod come from these parts of the world (circled numbers
 are the added new civ's real world location) :

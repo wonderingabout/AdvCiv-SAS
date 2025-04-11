@@ -250,7 +250,7 @@ lance light units
 lance light 1: stone spearman c2c
 lance light 2: javelineer c2c
 lance light 3: skirmisher c2c
-lance light 4: spearman frankish realism invictus 
+lance light 4: spearman frankish realism invictus, for the icon one with chat gpt
 -
 -
 
@@ -461,7 +461,7 @@ camel gun defense:
 -
 -
 -
-camel gun defense 5: hajana (hero) _ camel patroller history rewritten todo change icon use the one of the camel trench cavalry (c2c) for example, or the icon of imajaghan (hero) (history rewritten), or edit myself maybe
+camel gun defense 5: hajana (hero) _ camel patroller history rewritten _ change icon (done) with the one of chat gpt (todo implement)
 camel gun defense 6: meharist _ camel rifle guard c2c todo remove flag of in the icon
 -
 
