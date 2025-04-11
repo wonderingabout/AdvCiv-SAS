@@ -143,15 +143,15 @@ class SevoPediaUnitChart:
 			szAirRange = u"Air Range"
 			
 			screen.setTableColumnHeader(table, 0, u"<font=2>    " + szName + u"    </font>", self.W_NAME)
-			screen.setTableColumnHeader(table, 1, u"<font=2>        " + szStrength + u"        </font>", self.W_NUM)
-			screen.setTableColumnHeader(table, 2, u"<font=2>        " + szMove + u"        </font>", self.W_NUM)
+			screen.setTableColumnHeader(table, 1, u"<font=2>         " + szStrength + u"       </font>", self.W_NUM)
+			screen.setTableColumnHeader(table, 2, u"<font=2>         " + szMove + u"       </font>", self.W_NUM)
 			screen.setTableColumnHeader(table, 3, u"<font=2>   " + szFirstStrike + u"   </font>", self.W_NUM)
-			screen.setTableColumnHeader(table, 4, u"<font=2>        " + szBombard + u"        </font>", self.W_NUM)
+			screen.setTableColumnHeader(table, 4, u"<font=2>         " + szBombard + u"       </font>", self.W_NUM)
 			screen.setTableColumnHeader(table, 5, u"<font=2>  " + szCollateral + u"   </font>", self.W_NUM)
 			screen.setTableColumnHeader(table, 6, u"<font=2>  " + szAirEvasion + u" </font>", self.W_NUM)
 			screen.setTableColumnHeader(table, 7, u"<font=2>" + szAirIntercept + u"</font>", self.W_NUM)
 			screen.setTableColumnHeader(table, 8, u"<font=2>    " + szAirRange + u"    </font>", self.W_NUM)
-			screen.setTableColumnHeader(table, 9, u"<font=2>        " + szCost + u"        </font>", self.W_NUM)
+			screen.setTableColumnHeader(table, 9, u"<font=2>         " + szCost + u"       </font>", self.W_NUM)
 
 			for iUnit in xrange(gc.getNumUnitInfos()):
 				UnitInfo = gc.getUnitInfo(iUnit)
@@ -171,13 +171,13 @@ class SevoPediaUnitChart:
 
 		else:
 			screen.setTableColumnHeader(table, 0, u"<font=2>    " + szName + u"    </font>", self.W_NAME)
-			screen.setTableColumnHeader(table, 1, u"<font=2>        " + szStrength + u"        </font>", self.W_NUM)
-			screen.setTableColumnHeader(table, 2, u"<font=2>        " + szMove + u"        </font>", self.W_NUM)
+			screen.setTableColumnHeader(table, 1, u"<font=2>         " + szStrength + u"       </font>", self.W_NUM)
+			screen.setTableColumnHeader(table, 2, u"<font=2>         " + szMove + u"       </font>", self.W_NUM)
 			screen.setTableColumnHeader(table, 3, u"<font=2>   " + szFirstStrike + u"   </font>", self.W_NUM)
-			screen.setTableColumnHeader(table, 4, u"<font=2>        " + szBombard + u"        </font>", self.W_NUM)
+			screen.setTableColumnHeader(table, 4, u"<font=2>         " + szBombard + u"       </font>", self.W_NUM)
 			screen.setTableColumnHeader(table, 5, u"<font=2>  " + szCollateral + u"   </font>", self.W_NUM)
 			screen.setTableColumnHeader(table, 6, u"<font=2>  " + szWithdraw + u" </font>", self.W_NUM)
-			screen.setTableColumnHeader(table, 7, u"<font=2>        " + szCost + u"        </font>", self.W_NUM)
+			screen.setTableColumnHeader(table, 7, u"<font=2>         " + szCost + u"       </font>", self.W_NUM)
 
 			for iUnit in xrange(gc.getNumUnitInfos()):
 				UnitInfo = gc.getUnitInfo(iUnit)
