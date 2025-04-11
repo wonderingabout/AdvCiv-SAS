@@ -214,10 +214,7 @@ class SevoPediaUnitChart:
 
 	def placeTableMovement(self, screen, table, iCol, iRow, UnitInfo):
 		# Movement
-		if UnitInfo.getAirRange() > 0:
-			szMovesNum = u"%d" % UnitInfo.getAirRange()
-		else:
-			szMovesNum = u"%d" % UnitInfo.getMoves()
+		szMovesNum = u"%d" % UnitInfo.getMoves()
 
 		screen.setTableInt(table, iCol, iRow, u"<font=3>" + szMovesNum + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
