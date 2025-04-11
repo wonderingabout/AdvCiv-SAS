@@ -142,7 +142,9 @@ todo add quote
 - VS Code
 - Windows 10 (Windows 11 was so laggy and broke after update, now going back to Windows 10
 that i bombarded with updates and installs still works amazing so i recommend it)
+- ChatGPT: taught me some nice tricks, such as [centering text labels](https://github.com/wonderingabout/AdvCiv-SAS/commit/f0f55128ea391cdb174a051fffc5f97dc1155ced) or information in general about civ4 code, thanks too ChatGPT helped a lot, and to those who told me aobut it and that i could use it in civ4 in particular, and also thanks maybe to other thanks or not anyways, (but sometimes it struggles or gives incorrect information so check it etc, anyways thanks etc thanks! (Really), anyways,)
 - Microsoft Paint (i very much love this image editor)
+- Paint.NET for .dds conversion for example (may use DXT1 with mip maps (Bicubic) and keep gamma correction enabled, or DXT5 with mip maps (not tried so far todo or not, anyways, ) for example if you need/use transparency (i don't know a lot about this, is according to ChatGPT's info, which seems accurate about this at least, anyways, ) and i don't know if gamma would be needed or best desired here too maybe, refer to ChatGPT or other places/sources for that specific info)
 - Notepad++ (very reliable and multi tab)
 - Git Bash for Windows
 - Q-Dir
@@ -152,7 +154,6 @@ that i bombarded with updates and installs still works amazing so i recommend it
 - Google Chrome (i used) for the Page translate of kujira's website in particular (Firefox has
 it too though unless i'm mistaken)
 - Google's scientific calculator (https://www.google.com/search?q=calculator) (for the x^y function in particular)
-- ChatGPT: taught me some nice tricks, such as [centering text labels](https://github.com/wonderingabout/AdvCiv-SAS/commit/f0f55128ea391cdb174a051fffc5f97dc1155ced) or information in general about civ4 code, thanks too ChatGPT helped a lot, and to those who told me aobut it and that i could use it in civ4 in particular, and also thanks maybe to other thanks or not anyways, (but sometimes it struggles or gives incorrect information so check it etc, anyways thanks etc thanks! (Really), anyways,)
 - Quillbot (web translator using AI, i used the free version), example of translation linked too: https://quillbot.com/fr/traduction?sl=auto&tl=fr&text=the+people+of+Benin (did not use this example in AdvCiv-SAS as i put almost everything i added or modified in English only for (my) convenience and ease of modding even though not ideal hopefully fine (should not use that place/line to say that ideally too but hopefully maybe fine too..))
 
 # Starting your mod

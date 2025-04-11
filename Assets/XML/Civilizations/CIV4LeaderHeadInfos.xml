@@ -12173,7 +12173,7 @@
 			<Type>LEADER_OGISO_IGODO</Type>
 			<Description>TXT_KEY_LEADER_OGISO_IGODO</Description>
 			<Civilopedia>TXT_KEY_LEADER_OGISO_IGODO_PEDIA</Civilopedia>
-			<ArtDefineTag>ART_DEF_LEADER_ZARA_YAQOB</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_LEADER_OGISO_IGODO</ArtDefineTag>
 			<iWonderConstructRand>20</iWonderConstructRand>
 			<iBaseAttitude>2</iBaseAttitude>
 			<iBasePeaceWeight>6</iBasePeaceWeight>
