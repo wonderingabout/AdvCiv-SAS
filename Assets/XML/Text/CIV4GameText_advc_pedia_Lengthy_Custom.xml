@@ -92,13 +92,93 @@ AdvCiv or/and other mods, at least it's cleanly separated -->
 
 
 
+	<!-- custom: 
+	If we define only the <English>My translation example</Example> tag without
+	putting the other language tags, then (according to ChatGPT), the other languages will
+	see the English version, no need to copy paste the same version many times, thanks ChatGPT
+	etc too maybe anyways.
+	Detailed explanations of ChatGPT below (i modified the formatting of it a bit but same content (i may have added Upper cases instead or Change a bit some sentences to connect them, should be mostly the same)).
+
+	1) For new content we add (for example if we were to add a new sniper unit (great memory ChatGPT thanks a lot, anyways, )):
+:
+	Quote:
+	"
+	What happens if you only define an XML entry in English?
+
+	If you only define one language (like English) in your XML (e.g., CIV4GameText.xml), and leave out translations for other languages, then:
+	Yes — other languages will see the English version.
+
+	Why?
+	Because Civ4's text system falls back to English if:
+	- A translation is missing for the current language.
+	- The player's selected language is not found in the XML at all.
+
+	So for example:
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_SNIPER</Tag>
+		<English>Sniper</English>
+	</TEXT>
+
+	If the player has their game language set to French, Spanish, or anything else — they'll still see "Sniper" in English, because:
+	- The game didn’t find <French>, <German>, etc., for that tag.
+	- So it shows <English> as a fallback.
+
+	Exceptions / Notes:
+	- If the <English> field is missing entirely, the game will show the tag name (like TXT_KEY_UNIT_SNIPER) instead.
+	- If you include a <French> tag but leave it empty, it may show nothing or just whitespace — so it's better to leave other languages out entirely unless you have a proper translation.
+	"
+
+
+	2) For content already existing in the game (for example FEATURE_ICE):
+	Quoting ChatGPT again, thanks ChatGPT and etc thanks all too or not too etc, anyways:
+
+	Quote:
+	"
+	This gets into how overrides work in Civ4's XML system. Here's the breakdown:
+	You override an existing in-game text key (e.g. TXT_KEY_FEATURE_ICE) in your mod's XML:
+
+	<TEXT>
+		<Tag>TXT_KEY_FEATURE_ICE</Tag>
+		<English>Frozen Hell</English>
+	</TEXT>
+
+	But you do not include <French>, <German>, etc.
+
+	What happens in-game?
+	Civ4 will completely override the original text entry, even in non-English languages.
+
+	So:
+	- English players will see: "Frozen Hell"
+	- French players will not see the original Firaxis French translation — they’ll see "Frozen Hell" too.
+	- Other languages will also see your new English text, not the base game's translation.
+	"
+
+	Important Note:
+	Once you override a <Tag> in your mod, the original translations are no longer used, even if you only replace <English>.
+	That means:
+	- You're responsible for translations if you want to preserve them.
+	- If not, it's totally fine — Civ4 will fall back to your <English> string in all languages.
+
+	Pro Tip:
+	If you're just changing English and want to keep the original translations, you can rename the tag, like:
+
+	<Tag>TXT_KEY_FEATURE_ICE_ALT</Tag>
+
+	Then use TXT_KEY_FEATURE_ICE_ALT wherever you want (e.g. in your modified CIV4FeatureInfos.xml). That way:
+	- The original TXT_KEY_FEATURE_ICE stays untouched.
+	- You can localize or not as you like.
+
+	Summary:
+	What You Do										What Players See
+	Only override <English> of a base tag			All languages will see your English string
+	Don't touch a tag								Players see base game translations
+	Rename the tag									Original untouched; you're free to localize your version
+	"
+	
+	-->
 	<TEXT>
 		<Tag>TXT_KEY_ADVCIV_SAS_CORE_CHANGES_PEDIA_SR</Tag>
-		<English>[H1]AdvCiv to AdvCiv-SAS Core Changes[\H1][PARAGRAPH:2]Non-exhaustive list of changes in AdvCiv-SAS as compared to AdvCiv (excluding balance changes, for that please refer to the Sevopedia entries of the items you want to see, for example "Units", "Technologies", or "Traits" to have the latest updated version of their effects.)[PARAGRAPH:1]For more details, in particular about the changes, https://github.com/wonderingabout/AdvCiv-SAS/, in particular the "Quick Start Guide" there[NEWLINE][NEWLINE][BOLD]Renaming[\BOLD][NEWLINE]- "We fear you are becoming too advanced" (WFYABTA) has been renamed to "We fear you are trading more than us" (WFYATMTU), as WFYABTA is misleading, and not related at all to your tech progress but to how much you trade if i'm not mistaken, and you can get WFYABTA even if you are lagging behind in tech progress, hopefully clearer now.[NEWLINE]- (Air) interception chance for nukes is now named "Adjusted Air Interception Chance", as it also accounts for Nuke's Air evasion chance if i am not mistaken, see also this for details: https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/</English>
-		<French></French>
-		<German></German>
-		<Italian></Italian>
-		<Spanish></Spanish>
+		<English>[H1]AdvCiv to AdvCiv-SAS Core Changes[\H1][PARAGRAPH:2]Non-exhaustive list of changes in AdvCiv-SAS as compared to AdvCiv (excluding balance changes, for that please refer to the Sevopedia entries of the items you want to see, for example "Units", "Technologies", or "Traits" to have the latest updated version of their effects.)[PARAGRAPH:1]For more details, in particular about the changes, https://github.com/wonderingabout/AdvCiv-SAS/, in particular the "Quick Start Guide" there[NEWLINE][NEWLINE][BOLD]Renaming[\BOLD][NEWLINE]- "We fear you are becoming too advanced" (WFYABTA) has been renamed to "We fear you are trading more than us" (WFYATMTU), as WFYABTA is misleading, and not related at all to your tech progress but to how much you trade if i'm not mistaken, and you can get WFYABTA even if you are lagging behind in tech progress, hopefully clearer now.[NEWLINE]- (Air) interception chance for nukes is now named "Adjusted Air Interception Chance", as it also accounts for Nuke's Air evasion chance if i am not mistaken, see also this for details: https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/ [NEWLINE]- Renamed [LINK=TERRAIN_SNOW]"Ice" (Terrain) to "Ice Sheet"[\LINK], and [LINK=FEATURE_ICE]"Ice" (Feature) to "Ice Cap"[\LINK], hopefully clearer and more accurate, see their Sevopedia entries for details.[NEWLINE]- Renamed [LINK=BONUS_COW]"Cow" (Ressource) to "Cattle"[\LINK], hopefully clearer and more accurate (and immersive maybe), see the Sevopedia entry for details.[NEWLINE][NEWLINE][BOLD]Translations[\BOLD][NEWLINE]- For the new content or modified one in this mod (AdvCiv-SAS), only English translations are provided. Even if your game is in another language, you will still see some text, but in English. For modders, see the detailed explanation (code comment), mostly provided by ChatGPT and which was very helpful (to me at least, anyways, ) on how this is implemented at TXT_KEY_ADVCIV_SAS_CORE_CHANGES_PEDIA_SR 's entry in Mods\AdvCiv-SAS\Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml</English>
 	</TEXT>
 
 

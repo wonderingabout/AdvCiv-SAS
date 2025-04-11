@@ -86,4 +86,15 @@ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond
 		</Spanish>
 	</TEXT>
 
+	<!-- custom: disambiguate Ice Terrain vs Ice Feature, hopefully clearer with
+	these 2 separate terms (see RFC for details): -->
+	<TEXT>
+		<Tag>TXT_KEY_TERRAIN_ICE</Tag>
+		<English>Ice Sheet</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_FEATURE_ICE</Tag>
+		<English>Ice Cap</English>
+	</TEXT>
+
 </Civ4GameText>
