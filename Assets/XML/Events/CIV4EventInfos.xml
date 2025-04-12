@@ -12450,7 +12450,7 @@
 			<UnitClassPromotions>
 				<UnitClassPromotion>
 					<UnitClass>UNITCLASS_AXEMAN</UnitClass>
-					<UnitPromotion>PROMOTION_SHOCK</UnitPromotion>
+					<UnitPromotion>PROMOTION_COUNTER_MELEE</UnitPromotion>
 				</UnitClassPromotion>
 			</UnitClassPromotions>
 			<BuildingClass>NONE</BuildingClass>
@@ -13138,7 +13138,7 @@
 			<UnitClassPromotions>
 				<UnitClassPromotion>
 					<UnitClass>UNITCLASS_PIKEMAN</UnitClass>
-					<UnitPromotion>PROMOTION_SHOCK</UnitPromotion>
+					<UnitPromotion>PROMOTION_COUNTER_MELEE</UnitPromotion>
 				</UnitClassPromotion>
 			</UnitClassPromotions>
 			<BuildingClass>NONE</BuildingClass>
@@ -17306,7 +17306,7 @@
 			<UnitClassPromotions>
 				<UnitClassPromotion>
 					<UnitClass>UNITCLASS_SWORDSMAN</UnitClass>
-					<UnitPromotion>PROMOTION_SHOCK</UnitPromotion>
+					<UnitPromotion>PROMOTION_COUNTER_MELEE</UnitPromotion>
 				</UnitClassPromotion>
 			</UnitClassPromotions>
 			<BuildingClass>NONE</BuildingClass>

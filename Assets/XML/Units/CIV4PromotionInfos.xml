@@ -803,7 +803,7 @@ full order to take from for quick editing or/and copy/paste:
 
 
 		<PromotionInfo>
-			<Type>PROMOTION_SHOCK</Type>
+			<Type>PROMOTION_COUNTER_MELEE</Type>
 			<Description>TXT_KEY_PROMOTION_SHOCK</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
@@ -894,6 +894,8 @@ full order to take from for quick editing or/and copy/paste:
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Shock.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,5</Button>
 		</PromotionInfo>
+
+		
 		<PromotionInfo>
 			<Type>PROMOTION_FORMATION</Type>
 			<Description>TXT_KEY_PROMOTION_FORMATION</Description>
