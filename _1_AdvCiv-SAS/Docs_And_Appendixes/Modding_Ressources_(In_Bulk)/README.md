@@ -46,7 +46,7 @@ maybe (even though i mostly use kujira's website, maybe this one helps too).
 
 ## Files
 
-Please see in [/Files](/_1_AdvCiv-SAS/Docs_And_Appendixes/Coding_Help/)
+Please see in [/Files](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/)
 
 In particular the XML icons tags may be helpful maybe, among other possible
 files you'd find helpful or not.
