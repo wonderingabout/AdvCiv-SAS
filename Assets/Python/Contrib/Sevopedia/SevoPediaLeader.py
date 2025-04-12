@@ -157,29 +157,37 @@ class SevoPediaLeader:
 		# some additions or modifications or removals or other i did or did not, anyways
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, "", "", True, True, self.X_AI_PERSONALITY, self.Y_AI_PERSONALITY, self.W_AI_PERSONALITY , self.H_AI_PERSONALITY, PanelStyles.PANEL_STYLE_BLUE50)
-
-		text = u"<font=3b>AI Personality</font>\n\n"
+		screen.addPanel(panelName, localText.getText("TXT_KEY_AI_PERSONALITY", ()), "", True, True,
+						self.X_AI_PERSONALITY, self.Y_AI_PERSONALITY,
+						self.W_AI_PERSONALITY, self.H_AI_PERSONALITY,
+						PanelStyles.PANEL_STYLE_BLUE50)
 
 		leader = gc.getLeaderHeadInfo(iLeader)
 		numLeaders = gc.getNumLeaderHeadInfos()
 
+		# Table positioning
+		xName = self.X_AI_PERSONALITY + 15
+		xValue = xName + 260
+		xScale = xValue + 60
+		y = self.Y_AI_PERSONALITY + 35
+		lineHeight = 22
+
 		def get_plus_scale(val, min_val, max_val, inverse=False):
 			if max_val == min_val:
-				return "+", "COLOR_WHITE"
+				return "+"
 			ratio = float(val - min_val) / float(max_val - min_val)
 			if inverse:
 				ratio = 1.0 - ratio
 			if ratio < 0.2:
-				return "+", "COLOR_RED"
+				return "+"
 			elif ratio < 0.4:
-				return "++", "COLOR_YELLOW"
+				return "++"
 			elif ratio < 0.6:
-				return "+++", "COLOR_CYAN"
+				return "+++"
 			elif ratio < 0.8:
-				return "++++", "COLOR_GREEN"
+				return "++++"
 			else:
-				return "+++++", "COLOR_HIGHLIGHT_TEXT"
+				return "+++++"
 
 		attribute_categories = {
 			"War Strategy": [
@@ -247,36 +255,36 @@ class SevoPediaLeader:
 		}
 
 		for category, attributes in attribute_categories.items():
-			text += u"\n<font=3b>%s</font>\n" % category
+			screen.setText(self.top.getNextWidgetName(), "", u"<font=3b>%s</font>" % category,
+						   CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
+						   WidgetTypes.WIDGET_GENERAL, -1, -1)
+			y += lineHeight
+
 			for label, funcName in attributes:
 				try:
-					values = []
-					for i in range(numLeaders):
-						try:
-							val = getattr(gc.getLeaderHeadInfo(i), funcName)()
-							values.append(val)
-						except:
-							continue
+					values = [getattr(gc.getLeaderHeadInfo(i), funcName)() for i in range(numLeaders)]
 					value = getattr(leader, funcName)()
 					min_val = min(values)
 					max_val = max(values)
-
-					# NEW: Use plus-scale with color
-					inverse_tags = [
+					inverse = funcName in [
 						"getDogpileWarRand", "getDemandRebukedWarProb", "getDeclareWarTradeRand",
 						"getMaxWarRand", "getLimitedWarRand", "getBaseAttackOddsChange",
 						"getRefuseToTalkWarThreshold", "getNoTechTradeThreshold"
 					]
-					plus_label, color = get_plus_scale(value, min_val, max_val, funcName in inverse_tags)
-					# <!-- custom: bold version by ChatGPT too as all this code anyways, i am just testing xd
-					# and fixing or something but anyways -->
-					#text += u"%s: %d (<color=%s><b>%s</b></color>)\n" % (label, value, color, plus_label)
-					text += u"%s: %d (%s)\n" % (label, value, u"<color=%s>%s</color>" % (color, plus_label))
+					plus_label = get_plus_scale(value, min_val, max_val, inverse)
 
+					screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % label,
+								   CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
+								   WidgetTypes.WIDGET_GENERAL, -1, -1)
+					screen.setText(self.top.getNextWidgetName(), "", u"<font=2b>%d</font>" % value,
+								   CvUtil.FONT_LEFT_JUSTIFY, xValue, y, 0, FontTypes.SMALL_FONT,
+								   WidgetTypes.WIDGET_GENERAL, -1, -1)
+					screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % plus_label,
+								   CvUtil.FONT_LEFT_JUSTIFY, xScale, y, 0, FontTypes.SMALL_FONT,
+								   WidgetTypes.WIDGET_GENERAL, -1, -1)
+					y += lineHeight
 				except:
-					pass  # Failsafe
-
-		screen.addMultilineText(self.top.getNextWidgetName(), text, self.X_AI_PERSONALITY, self.Y_AI_PERSONALITY, self.W_AI_PERSONALITY , self.H_AI_PERSONALITY, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					pass
 
 
 
