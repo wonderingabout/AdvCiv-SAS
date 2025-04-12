@@ -40,21 +40,30 @@ class SevoPediaLeader:
 		self.X_CIV = self.X_LEADERHEAD_PANE + (self.W_LEADERHEAD_PANE - self.W_CIV) / 2
 		self.Y_CIV = self.Y_LEADERHEAD_PANE + self.H_LEADERHEAD_PANE + 10
 
+		# <!-- custom: make room to add AI personality panel -->
+		self.W_AI_PERSONALITY = 500
+		self.W_AI_PERSONALITY_MARGIN = 20
+
 		self.X_CIVIC = self.X_LEADERHEAD_PANE + self.W_LEADERHEAD_PANE + 10
 		self.Y_CIVIC = self.Y_LEADERHEAD_PANE
-		self.W_CIVIC = self.top.R_PEDIA_PAGE - self.X_CIVIC
+		self.W_CIVIC = self.top.R_PEDIA_PAGE - self.W_AI_PERSONALITY - self.X_CIVIC - self.W_AI_PERSONALITY_MARGIN
 		self.H_CIVIC = 80
 
 		self.X_TRAITS = self.X_LEADERHEAD_PANE + self.W_LEADERHEAD_PANE + 10
 		self.Y_TRAITS = self.Y_CIVIC + self.H_CIVIC + 10
-		self.W_TRAITS = self.top.R_PEDIA_PAGE - self.X_TRAITS
+		self.W_TRAITS = self.top.R_PEDIA_PAGE - self.W_AI_PERSONALITY - self.X_TRAITS - self.W_AI_PERSONALITY_MARGIN
 		self.H_TRAITS = self.Y_CIV + self.H_CIV - self.Y_TRAITS
 
 		self.X_HISTORY = self.X_LEADERHEAD_PANE
 		self.Y_HISTORY = self.Y_CIV + self.H_CIV + 10
-		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
+		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.W_AI_PERSONALITY - self.X_HISTORY - self.W_AI_PERSONALITY_MARGIN
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
+		# <!-- custom: the rest of the data here, as it is dependent on other data we need first
+		# that (i.e. before being able to add these) -->
+		self.X_AI_PERSONALITY = self.X_HISTORY + self.W_HISTORY + self.W_AI_PERSONALITY_MARGIN
+		self.Y_AI_PERSONALITY = self.Y_CIVIC
+		self.H_AI_PERSONALITY = self.top.B_PEDIA_PAGE - 65
 
 
 	def interfaceScreen(self, iLeader):
@@ -71,6 +80,7 @@ class SevoPediaLeader:
 		self.placeReligion()
 		self.placeCiv()
 		self.placeTraits()
+		self.placeAIPersonalityPanel(iLeader)
 
 
 
@@ -138,6 +148,61 @@ class SevoPediaLeader:
 		CivilopediaText = gc.getLeaderHeadInfo(self.iLeader).getCivilopedia()
 		CivilopediaText = u"<font=2>" + CivilopediaText + u"</font>"
 		screen.attachMultilineText(panelName, historyTextName, CivilopediaText, WidgetTypes.WIDGET_GENERAL,-1,-1, CvUtil.FONT_LEFT_JUSTIFY)
+
+
+
+	def placeAIPersonalityPanel(self, iLeader):
+		# <!-- custom: based on placeHistory then tweaked or/and modified or/and not
+		# also data fetching logic mostly if not entirely provided by ChatGPT, or/and with
+		# some additions or modifications or removals or other i did or did not, anyways
+		leader = gc.getLeaderHeadInfo(iLeader)
+
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, "", "", True, True, self.X_AI_PERSONALITY, self.Y_AI_PERSONALITY, self.W_AI_PERSONALITY , self.H_AI_PERSONALITY, PanelStyles.PANEL_STYLE_BLUE50)
+
+		historyTextName = self.top.getNextWidgetName()
+		text = u"<font=3b>AI Personality</font>\n\n"
+
+		# AI-related fields to display
+		aiValues = [
+			("Max War Rand", leader.getMaxWarRand()),
+			("Max War Nearby Power Ratio", leader.getMaxWarNearbyPowerRatio()),
+			("Max War Distant Power Ratio", leader.getMaxWarDistantPowerRatio()),
+			("Max War Min Adjacent Land Percent", leader.getMaxWarMinAdjacentLandPercent()),
+			("Limited War Rand", leader.getLimitedWarRand()),
+			("Limited War Power Ratio", leader.getLimitedWarPowerRatio()),
+			("Dogpile War Rand", leader.getDogpileWarRand()),
+			("Declare War Trade Rand", leader.getDeclareWarTradeRand()),
+			("Demand Tribute Attitude Threshold", leader.getDemandTributeAttitudeThreshold()),
+			("No War Attitude Threshold", leader.getNoWarAttitudeProb(AttitudeTypes.ATTITUDE_FURIOUS)),
+			("Build Unit Prob", leader.getBuildUnitProb()),
+			("Base Attack Odds Change", leader.getBaseAttackOddsChange()),
+			("Wonder Construct Rand", leader.getWonderConstructRand()),
+			("Peace Weight", leader.getPeaceWeight()),
+			("Warmonger Respect", leader.getWarmongerRespect()),
+			("Civic Weight", leader.getCivicWeight()),
+			("Religion Weight", leader.getReligionWeight()),
+			("Espionage Weight", leader.getEspionageWeight()),  # AdvCiv-specific
+			("Favorite Civic", gc.getCivicInfo(leader.getFavoriteCivic()).getDescription() if leader.getFavoriteCivic() != -1 else "None"),
+			("Favorite Religion", gc.getReligionInfo(leader.getFavoriteReligion()).getDescription() if leader.getFavoriteReligion() != -1 else "None"),
+		]
+		
+		# Add each stat with tier label
+		for label, value in aiValues:
+			if value >= 100:
+				level = "Very High"
+			elif value >= 70:
+				level = "High"
+			elif value >= 40:
+				level = "Medium"
+			elif value >= 1:
+				level = "Low"
+			else:
+				level = "None"
+			text += "%s: %d (%s)\n" % (label, value, level)
+
+			screen.addMultilineText(self.top.getNextWidgetName(), text, self.X_AI_PERSONALITY, self.Y_AI_PERSONALITY, self.W_AI_PERSONALITY , self.H_AI_PERSONALITY, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
