@@ -12535,7 +12535,7 @@
 			<UnitCombatPromotions>
 				<UnitCombatPromotion>
 					<UnitCombat>UNITCOMBAT_MELEE</UnitCombat>
-					<UnitPromotion>PROMOTION_COVER</UnitPromotion>
+					<UnitPromotion>PROMOTION_COUNTER_ARCHER</UnitPromotion>
 				</UnitCombatPromotion>
 			</UnitCombatPromotions>
 			<UnitClassPromotions/>

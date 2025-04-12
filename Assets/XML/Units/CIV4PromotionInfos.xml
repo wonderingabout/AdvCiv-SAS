@@ -609,8 +609,13 @@ full order to take from for quick editing or/and copy/paste:
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Combat5.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,6</Button>
 		</PromotionInfo>
+
+
+
+		<!-- custom: COUNTER PROMOTIONS -->
+		
 		<PromotionInfo>
-			<Type>PROMOTION_COVER</Type>
+			<Type>PROMOTION_COUNTER_ARCHER</Type>
 			<Description>TXT_KEY_PROMOTION_COVER</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
