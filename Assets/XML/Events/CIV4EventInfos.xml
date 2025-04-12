@@ -13052,7 +13052,7 @@
 			<UnitClassPromotions>
 				<UnitClassPromotion>
 					<UnitClass>UNITCLASS_FIGHTER</UnitClass>
-					<UnitPromotion>PROMOTION_RANGE1</UnitPromotion>
+					<UnitPromotion>PROMOTION_AIR_RANGE1</UnitPromotion>
 				</UnitClassPromotion>
 			</UnitClassPromotions>
 			<BuildingClass>NONE</BuildingClass>

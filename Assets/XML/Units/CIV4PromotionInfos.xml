@@ -4578,7 +4578,7 @@ full order to take from for quick editing or/and copy/paste:
 		worth it if more visible especially to new(er) players, i think,
 		but even experienced ones. -->
 		<PromotionInfo>
-			<Type>PROMOTION_RANGE1</Type>
+			<Type>PROMOTION_AIR_RANGE1</Type>
 			<Description>TXT_KEY_PROMOTION_RANGE1</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
@@ -4649,11 +4649,11 @@ full order to take from for quick editing or/and copy/paste:
 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,1,15</Button>
 		</PromotionInfo>
 		<PromotionInfo>
-			<Type>PROMOTION_RANGE2</Type>
+			<Type>PROMOTION_AIR_RANGE2</Type>
 			<Description>TXT_KEY_PROMOTION_RANGE2</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
-			<PromotionPrereq>PROMOTION_RANGE1</PromotionPrereq>
+			<PromotionPrereq>PROMOTION_AIR_RANGE1</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_COMBAT2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
 			<TechPrereq>TECH_FLIGHT</TechPrereq>
