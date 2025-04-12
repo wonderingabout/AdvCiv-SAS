@@ -66,6 +66,14 @@ Except and on top of these examples, i also rewrote, quite modestly or more prou
 
 <img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.61_sevopedia_advciv_sas_core_changes.JPG" width="250"></img>
 
+example 4: features category of the sevopedia, based rfc doc's and slightly tweaked or not, thanks a lot
+
+<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.64_sevopedia_features_jungle_panel.JPG" width="250"></img>
+
+example 5: ressources category, mostly my own modding and first attemps at deciphering civ4's python, not inordinate if i may say quite fairly, but i like it this end result a lot, may further improve or not, the feedback always helps me, but sometimes the negative ones hurts me more, however sometimes the negative ones lead to better future outcomes, so i am thankful of it when it is done in sincerity and consideration maybe, something like this, even though maybe unpleasant at first, but this is not always, sometimes it's just painful and best avoided i think at least for me anyways, some other times it's painful but leads to better/good results in the future maybe, not guaranteed and just my personal opinion not responsible of what you reader make of it with you or/and others or not make of it, was sharing my advice or rather opinion maybe, each are free or not etc, anyways. As for this page or/and other pages or/and not, may tweak it further or not as i see fit, anyways
+
+<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.65_sevopedia_ressources_copper_panel.JPG" width="250"></img>
+
 ## Project Goals and global view on gameplay changes
 
 The more general gameplay type of changes consist of
