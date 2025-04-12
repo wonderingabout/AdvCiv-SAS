@@ -2070,7 +2070,7 @@ for example for the archer
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_COMMANDO</PromotionType>
+					<PromotionType>PROMOTION_LOGISTICS</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -23623,7 +23623,7 @@ for example for the archer
 			<!-- K-Mod -->
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_COMMANDO</PromotionType>
+					<PromotionType>PROMOTION_LOGISTICS</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
