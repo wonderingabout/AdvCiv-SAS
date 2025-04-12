@@ -1229,7 +1229,7 @@ full order to take from for quick editing or/and copy/paste:
 			<Button>,Art/Interface/Buttons/Promotions/Amphibious.dds,Art/Interface/Buttons/Promotions_Atlas.dds,3,1</Button>
 		</PromotionInfo>
 		<PromotionInfo>
-			<Type>PROMOTION_BLITZ</Type>
+			<Type>PROMOTION_BLITZKRIEG</Type>
 			<Description>TXT_KEY_PROMOTION_BLITZ</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>

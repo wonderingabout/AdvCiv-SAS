@@ -15597,7 +15597,7 @@ for example for the archer
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_BLITZ</PromotionType>
+					<PromotionType>PROMOTION_BLITZKRIEG</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -15792,7 +15792,7 @@ for example for the archer
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_BLITZ</PromotionType>
+					<PromotionType>PROMOTION_BLITZKRIEG</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 				<!-- advc.907f -->
@@ -15985,7 +15985,7 @@ for example for the archer
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_BLITZ</PromotionType>
+					<PromotionType>PROMOTION_BLITZKRIEG</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
