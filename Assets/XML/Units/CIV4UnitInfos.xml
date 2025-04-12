@@ -8181,7 +8181,7 @@ for example for the archer
 			mounted units. -->
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_FORMATION</PromotionType>
+					<PromotionType>PROMOTION_COUNTER_MOUNTED</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
