@@ -981,9 +981,9 @@ full order to take from for quick editing or/and copy/paste:
 			<Button>,Art/Interface/Buttons/Promotions/Formation.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,2</Button>
 		</PromotionInfo>
 
-		
+
 		<PromotionInfo>
-			<Type>PROMOTION_CHARGE</Type>
+			<Type>PROMOTION_COUNTER_SIEGE</Type>
 			<Description>TXT_KEY_PROMOTION_CHARGE</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
@@ -1067,6 +1067,8 @@ full order to take from for quick editing or/and copy/paste:
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Charge.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,5</Button>
 		</PromotionInfo>
+
+		
 		<PromotionInfo>
 			<Type>PROMOTION_AMBUSH</Type>
 			<Description>TXT_KEY_PROMOTION_AMBUSH</Description>
