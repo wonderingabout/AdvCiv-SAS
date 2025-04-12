@@ -48,6 +48,24 @@ I am not doing the ingame art though, just the icons, unless i would unexpectedl
 
 Hopefully helpful and interesting.
 
+## Example of Sevopedia reworks (click on the images below to view them full size)
+
+example 1: AI personality panel (data fetched directly from xml in live, auto updated to latest current in your mod folder), thanks a lot ChatGPT and all who helped me directly or indirectly or not or yes etc anyways:
+
+<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.62_sevopedia_AI_Personality_sample.JPG" width="250"></img>
+
+example 2: Unit Chart (Unit Combat Types expanded page when you click on a combat type), thanks a lot to RFC DOC mod's code which i used quite heavily, then base AdvCiv which i sued to enhance it (blue background, margin), then i rewrote it heavily again to tweak it and add dynamic table size based on unit combat type (for example air units have 10 columns (air interception and air range), while other unit combat types only have 8, click to view these images full size:
+
+<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.63_sevopedia_unit_chart.JPG" width="250"></img>
+
+example 3: AdvCiv-SAS core changes coming from AdvCiv (thanks to [@f1rpo](https://github.com/f1rpo), main (only one i think actually? But anyways) maintainer of AdvCiv for the help in achieving that in particular). It is one of the cases where ChatGPT could not help so i especially appreciate it in this case even more, thanks a lot if i may say i mean anyways, thanks, really, thanks,
+
+(note: this one is also available on the [Quick Get Started Guide](/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md) that i recommend you to read (but not obligated, anyways), if you haven't and want to start playing AdvCiv-SAS)
+
+Except and on top of these examples, i also rewrote, quite modestly or more proudly (often proud and bit cocky but in friednly way whatever that means maybe but bit humble too anyways) other entries in the sevopedia, based on other mods or advciv or/and ChatGPT or/and other ressources or not or/and myself or/and other indirect helps or not or yes or not or etc, anyways, please visit it to have latest data if interested, anyways.
+
+<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.61_sevopedia_advciv_sas_core_changes.JPG" width="250"></img>
+
 ## Project Goals and global view on gameplay changes
 
 The more general gameplay type of changes consist of

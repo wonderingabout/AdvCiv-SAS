@@ -155,54 +155,91 @@ class SevoPediaLeader:
 		# <!-- custom: based on placeHistory then tweaked or/and modified or/and not
 		# also data fetching logic mostly if not entirely provided by ChatGPT, or/and with
 		# some additions or modifications or removals or other i did or did not, anyways
-		leader = gc.getLeaderHeadInfo(iLeader)
-
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, "", "", True, True, self.X_AI_PERSONALITY, self.Y_AI_PERSONALITY, self.W_AI_PERSONALITY , self.H_AI_PERSONALITY, PanelStyles.PANEL_STYLE_BLUE50)
 
-		historyTextName = self.top.getNextWidgetName()
 		text = u"<font=3b>AI Personality</font>\n\n"
 
-		# AI-related fields to display
-		aiValues = [
-			("Max War Rand", leader.getMaxWarRand()),
-			("Max War Nearby Power Ratio", leader.getMaxWarNearbyPowerRatio()),
-			("Max War Distant Power Ratio", leader.getMaxWarDistantPowerRatio()),
-			("Max War Min Adjacent Land Percent", leader.getMaxWarMinAdjacentLandPercent()),
-			("Limited War Rand", leader.getLimitedWarRand()),
-			("Limited War Power Ratio", leader.getLimitedWarPowerRatio()),
-			("Dogpile War Rand", leader.getDogpileWarRand()),
-			("Declare War Trade Rand", leader.getDeclareWarTradeRand()),
-			("Demand Tribute Attitude Threshold", leader.getDemandTributeAttitudeThreshold()),
-			("No War Attitude Threshold", leader.getNoWarAttitudeProb(AttitudeTypes.ATTITUDE_FURIOUS)),
-			("Build Unit Prob", leader.getBuildUnitProb()),
-			("Base Attack Odds Change", leader.getBaseAttackOddsChange()),
-			("Wonder Construct Rand", leader.getWonderConstructRand()),
-			("Peace Weight", leader.getPeaceWeight()),
-			("Warmonger Respect", leader.getWarmongerRespect()),
-			("Civic Weight", leader.getCivicWeight()),
-			("Religion Weight", leader.getReligionWeight()),
-			("Espionage Weight", leader.getEspionageWeight()),  # AdvCiv-specific
-			("Favorite Civic", gc.getCivicInfo(leader.getFavoriteCivic()).getDescription() if leader.getFavoriteCivic() != -1 else "None"),
-			("Favorite Religion", gc.getReligionInfo(leader.getFavoriteReligion()).getDescription() if leader.getFavoriteReligion() != -1 else "None"),
-		]
-		
-		# Add each stat with tier label
-		for label, value in aiValues:
-			if value >= 100:
-				level = "Very High"
-			elif value >= 70:
-				level = "High"
-			elif value >= 40:
-				level = "Medium"
-			elif value >= 1:
-				level = "Low"
-			else:
-				level = "None"
-			text += "%s: %d (%s)\n" % (label, value, level)
+		leader = gc.getLeaderHeadInfo(iLeader)
+		numLeaders = gc.getNumLeaderHeadInfos()
 
-			screen.addMultilineText(self.top.getNextWidgetName(), text, self.X_AI_PERSONALITY, self.Y_AI_PERSONALITY, self.W_AI_PERSONALITY , self.H_AI_PERSONALITY, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		def get_threshold_label(val, min_val, max_val):
+			if max_val == min_val:
+				return "N/A"
+			ratio = float(val - min_val) / float(max_val - min_val)
+			if ratio < 0.2:
+				return "Very Low"
+			elif ratio < 0.4:
+				return "Low"
+			elif ratio < 0.6:
+				return "Medium"
+			elif ratio < 0.8:
+				return "High"
+			else:
+				return "Very High"
+
+		# === Categories and attributes ===
+		attribute_categories = {
+			"War Strategy": [
+				("Max War Rand", "getMaxWarRand"),
+				("Max War Nearby Power Ratio", "getMaxWarNearbyPowerRatio"),
+				("Max War Distant Power Ratio", "getMaxWarDistantPowerRatio"),
+				("Max War Min Adjacent Land Percent", "getMaxWarMinAdjacentLandPercent"),
+				("Limited War Rand", "getLimitedWarRand"),
+				("Limited War Power Ratio", "getLimitedWarPowerRatio"),
+				("Dogpile War Rand", "getDogpileWarRand"),
+				("Make Peace Rand", "getMakePeaceRand"),
+			],
+			"Diplomacy": [
+				("Base Attitude", "getBaseAttitude"),
+				("Peace Weight", "getBasePeaceWeight"),
+				("Warmonger Respect", "getWarmongerRespect"),
+				("Demand Sneak Prob", "getDemandRebukedSneakProb"),
+				("Demand War Prob", "getDemandRebukedWarProb"),
+				("Refuse Talk Threshold", "getRefuseToTalkWarThreshold"),
+				("No Tech Trade Threshold", "getNoTechTradeThreshold"),
+				("Tech Trade Known %", "getTechTradeKnownPercent"),
+				("Declare War Trade Rand", "getDeclareWarTradeRand"),
+			],
+			"Economic Preferences": [
+				("Espionage Weight", "getEspionageWeight"),
+				("Build Unit Prob", "getBuildUnitProb"),
+				("Base Attack Odds", "getBaseAttackOddsChange"),
+				("Attack Odds Rand", "getAttackOddsChangeRand"),
+				("Wonder Construct Rand", "getWonderConstructRand"),
+				("Max Gold Trade %", "getMaxGoldTradePercent"),
+				("Max GPT Trade %", "getMaxGoldPerTurnTradePercent"),
+			],
+			"Victory Strategy": [
+				("Culture Victory Weight", "getCultureVictoryWeight"),
+				("Space Victory Weight", "getSpaceVictoryWeight"),
+				("Conquest Victory Weight", "getConquestVictoryWeight"),
+				("Domination Victory Weight", "getDominationVictoryWeight"),
+				("Diplomacy Victory Weight", "getDiplomacyVictoryWeight"),
+			],
+		}
+
+		for category, attributes in attribute_categories.items():
+			text += u"\n<font=3b>%s</font>\n" % category
+			for label, funcName in attributes:
+				try:
+					values = []
+					for i in range(numLeaders):
+						try:
+							val = getattr(gc.getLeaderHeadInfo(i), funcName)()
+							values.append(val)
+						except:
+							continue
+					value = getattr(leader, funcName)()
+					min_val = min(values)
+					max_val = max(values)
+					level = get_threshold_label(value, min_val, max_val)
+					text += u"%s: %d (%s)\n" % (label, value, level)
+				except:
+					pass  # Failsafe if tag is missing
+
+		screen.addMultilineText(self.top.getNextWidgetName(), text, self.X_AI_PERSONALITY, self.Y_AI_PERSONALITY, self.W_AI_PERSONALITY , self.H_AI_PERSONALITY, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
