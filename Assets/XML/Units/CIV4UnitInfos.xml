@@ -9693,7 +9693,7 @@ for example for the archer
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_AMBUSH</PromotionType>
+					<PromotionType>PROMOTION_COUNTER_TANK</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
