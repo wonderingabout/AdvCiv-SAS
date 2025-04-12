@@ -16,6 +16,9 @@ idea):
 
 <img src="./Docs_And_Appendixes/0.61_sevopedia_advciv_sas_core_changes.JPG" width="250"></img>
 
+For more screensot previews of new sevopedia entries or udpated ones (not exhaustive), please
+visit [this page of the main README.md](/README.md#example-of-sevopedia-reworks-click-on-the-images-below-to-view-them-full-size)
+
 ## Full exhaustive changes
 
 If you want to see the full very exhaustive code changes between AdvCiv current
