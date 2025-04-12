@@ -164,20 +164,22 @@ class SevoPediaLeader:
 		leader = gc.getLeaderHeadInfo(iLeader)
 		numLeaders = gc.getNumLeaderHeadInfos()
 
-		def get_threshold_label(val, min_val, max_val):
+		def get_plus_scale(val, min_val, max_val, inverse=False):
 			if max_val == min_val:
-				return "N/A"
+				return "+", "COLOR_WHITE"
 			ratio = float(val - min_val) / float(max_val - min_val)
+			if inverse:
+				ratio = 1.0 - ratio
 			if ratio < 0.2:
-				return "Very Low"
+				return "+", "COLOR_RED"
 			elif ratio < 0.4:
-				return "Low"
+				return "++", "COLOR_YELLOW"
 			elif ratio < 0.6:
-				return "Medium"
+				return "+++", "COLOR_CYAN"
 			elif ratio < 0.8:
-				return "High"
+				return "++++", "COLOR_GREEN"
 			else:
-				return "Very High"
+				return "+++++", "COLOR_HIGHLIGHT_TEXT"
 
 		attribute_categories = {
 			"War Strategy": [
@@ -258,15 +260,21 @@ class SevoPediaLeader:
 					value = getattr(leader, funcName)()
 					min_val = min(values)
 					max_val = max(values)
-					level = get_threshold_label(value, min_val, max_val)
-					text += u"%s: %d (%s)\n" % (label, value, level)
+
+					# NEW: Use plus-scale with color
+					inverse_tags = [
+						"getDogpileWarRand", "getDemandRebukedWarProb", "getDeclareWarTradeRand",
+						"getMaxWarRand", "getLimitedWarRand", "getBaseAttackOddsChange",
+						"getRefuseToTalkWarThreshold", "getNoTechTradeThreshold"
+					]
+					plus_label, color = get_plus_scale(value, min_val, max_val, funcName in inverse_tags)
+					# <!-- custom: bold version by ChatGPT too as all this code anyways, i am just testing xd
+					# and fixing or something but anyways -->
+					#text += u"%s: %d (<color=%s><b>%s</b></color>)\n" % (label, value, color, plus_label)
+					text += u"%s: %d (%s)\n" % (label, value, u"<color=%s>%s</color>" % (color, plus_label))
+
 				except:
-					# Some tags may return enums (like ATTITUDE_PLEASED)
-					try:
-						value = getattr(leader, funcName)()
-						text += u"%s: %s\n" % (label, str(value))
-					except:
-						pass
+					pass  # Failsafe
 
 		screen.addMultilineText(self.top.getNextWidgetName(), text, self.X_AI_PERSONALITY, self.Y_AI_PERSONALITY, self.W_AI_PERSONALITY , self.H_AI_PERSONALITY, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
