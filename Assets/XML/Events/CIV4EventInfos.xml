@@ -12622,7 +12622,7 @@
 			<UnitClassPromotions>
 				<UnitClassPromotion>
 					<UnitClass>UNITCLASS_MUSKETMAN</UnitClass>
-					<UnitPromotion>PROMOTION_PINCH</UnitPromotion>
+					<UnitPromotion>PROMOTION_COUNTER_GUN</UnitPromotion>
 				</UnitClassPromotion>
 			</UnitClassPromotions>
 			<BuildingClass>NONE</BuildingClass>
@@ -12794,7 +12794,7 @@
 			<UnitClassPromotions>
 				<UnitClassPromotion>
 					<UnitClass>UNITCLASS_GRENADIER</UnitClass>
-					<UnitPromotion>PROMOTION_PINCH</UnitPromotion>
+					<UnitPromotion>PROMOTION_COUNTER_GUN</UnitPromotion>
 				</UnitClassPromotion>
 			</UnitClassPromotions>
 			<BuildingClass>NONE</BuildingClass>
@@ -22662,7 +22662,7 @@
 			<UnitClassPromotions>
 				<UnitClassPromotion>
 					<UnitClass>UNITCLASS_MUSKETMAN</UnitClass>
-					<UnitPromotion>PROMOTION_PINCH</UnitPromotion>
+					<UnitPromotion>PROMOTION_COUNTER_GUN</UnitPromotion>
 				</UnitClassPromotion>
 			</UnitClassPromotions>
 			<BuildingClass>NONE</BuildingClass>
