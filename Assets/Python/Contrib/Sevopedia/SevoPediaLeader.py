@@ -179,7 +179,6 @@ class SevoPediaLeader:
 			else:
 				return "Very High"
 
-		# === Categories and attributes ===
 		attribute_categories = {
 			"War Strategy": [
 				("Max War Rand", "getMaxWarRand"),
@@ -202,6 +201,13 @@ class SevoPediaLeader:
 				("Tech Trade Known %", "getTechTradeKnownPercent"),
 				("Declare War Trade Rand", "getDeclareWarTradeRand"),
 			],
+			"Victory Strategy": [
+				("Culture Victory Weight", "getCultureVictoryWeight"),
+				("Space Victory Weight", "getSpaceVictoryWeight"),
+				("Conquest Victory Weight", "getConquestVictoryWeight"),
+				("Domination Victory Weight", "getDominationVictoryWeight"),
+				("Diplomacy Victory Weight", "getDiplomacyVictoryWeight"),
+			],
 			"Economic Preferences": [
 				("Espionage Weight", "getEspionageWeight"),
 				("Build Unit Prob", "getBuildUnitProb"),
@@ -211,12 +217,30 @@ class SevoPediaLeader:
 				("Max Gold Trade %", "getMaxGoldTradePercent"),
 				("Max GPT Trade %", "getMaxGoldPerTurnTradePercent"),
 			],
-			"Victory Strategy": [
-				("Culture Victory Weight", "getCultureVictoryWeight"),
-				("Space Victory Weight", "getSpaceVictoryWeight"),
-				("Conquest Victory Weight", "getConquestVictoryWeight"),
-				("Domination Victory Weight", "getDominationVictoryWeight"),
-				("Diplomacy Victory Weight", "getDiplomacyVictoryWeight"),
+			"Attitude Modifiers": [
+				("Worse Rank Attitude Change", "getWorseRankDifferenceAttitudeChange"),
+				("Better Rank Attitude Change", "getBetterRankDifferenceAttitudeChange"),
+				("Close Borders Attitude Change", "getCloseBordersAttitudeChange"),
+				("Same Religion Attitude Limit", "getSameReligionAttitudeChangeLimit"),
+				("Diff Religion Attitude Limit", "getDifferentReligionAttitudeChangeLimit"),
+				("Share War Attitude Limit", "getShareWarAttitudeChangeLimit"),
+				("Favorite Civic Attitude Limit", "getFavoriteCivicAttitudeChangeLimit"),
+			],
+			"Trade Thresholds": [
+				("Tech Refuse Attitude", "getTechRefuseAttitudeThreshold"),
+				("City Refuse Attitude", "getCityRefuseAttitudeThreshold"),
+				("Strategic Bonus Refuse Attitude", "getStrategicBonusRefuseAttitudeThreshold"),
+				("Health Bonus Refuse Attitude", "getHealthBonusRefuseAttitudeThreshold"),
+				("Happiness Bonus Refuse Attitude", "getHappinessBonusRefuseAttitudeThreshold"),
+				("Map Refuse Attitude", "getMapRefuseAttitudeThreshold"),
+				("Declare War Refuse Attitude", "getDeclareWarRefuseAttitudeThreshold"),
+				("Declare War On Them Refuse", "getDeclareWarThemRefuseAttitudeThreshold"),
+				("Stop Trading Refuse", "getStopTradingRefuseAttitudeThreshold"),
+				("Stop Trading Them Refuse", "getStopTradingThemRefuseAttitudeThreshold"),
+				("Adopt Civic Refuse", "getAdoptCivicRefuseAttitudeThreshold"),
+				("Convert Religion Refuse", "getConvertReligionRefuseAttitudeThreshold"),
+				("Open Borders Refuse", "getOpenBordersRefuseAttitudeThreshold"),
+				("Vassal Refuse", "getVassalRefuseAttitudeThreshold"),
 			],
 		}
 
@@ -237,7 +261,12 @@ class SevoPediaLeader:
 					level = get_threshold_label(value, min_val, max_val)
 					text += u"%s: %d (%s)\n" % (label, value, level)
 				except:
-					pass  # Failsafe if tag is missing
+					# Some tags may return enums (like ATTITUDE_PLEASED)
+					try:
+						value = getattr(leader, funcName)()
+						text += u"%s: %s\n" % (label, str(value))
+					except:
+						pass
 
 		screen.addMultilineText(self.top.getNextWidgetName(), text, self.X_AI_PERSONALITY, self.Y_AI_PERSONALITY, self.W_AI_PERSONALITY , self.H_AI_PERSONALITY, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
