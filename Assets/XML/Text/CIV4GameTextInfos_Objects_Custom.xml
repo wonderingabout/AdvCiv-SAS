@@ -172,7 +172,7 @@
 	<!-- custom: an ace can be about ground units too, hopefully
 	clearer now -->
 	<TEXT>
-		<Tag>TXT_KEY_PROMOTION_ACE</Tag>
+		<Tag>TXT_KEY_PROMOTION_AIR_EVASION</Tag>
 		<English>Air Evasion</English>
 	</TEXT>
 	<!-- custom: name is more epic, not necessarily clearer (especially

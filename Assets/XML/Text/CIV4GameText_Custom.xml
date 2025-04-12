@@ -17,7 +17,15 @@
 		<English>3_AdvCiv-SAS Core Changes</English>
 	</TEXT>
 
-
+	<!-- custom: do not rename the tag itself as we would have to recompile
+	and may break compatibility with other mods, we mostly (just or not)
+	wanted to rename the tag of promotioninfo itself that is much more used
+	and prone to confusing those who read it maybe, at least me, anyways,
+	-->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_EVASION_TEXT</Tag>
+		<English>[ICON_BULLET]%D1_Change%% Air Evasion Chance</English>
+	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_INTERCEPT_TEXT</Tag>
 		<English>[ICON_BULLET]%D1_Change%% Air Interception Chance</English>

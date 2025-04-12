@@ -4999,9 +4999,10 @@ full order to take from for quick editing or/and copy/paste:
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,4,15</Button>
 		</PromotionInfo>
+		<!-- custom: "ace" is now "air_evasion" -->
 		<PromotionInfo>
-			<Type>PROMOTION_ACE</Type>
-			<Description>TXT_KEY_PROMOTION_ACE</Description>
+			<Type>PROMOTION_AIR_EVASION</Type>
+			<Description>TXT_KEY_PROMOTION_AIR_EVASION</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>PROMOTION_COMBAT2</PromotionPrereq>
