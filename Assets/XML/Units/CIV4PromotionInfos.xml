@@ -2908,7 +2908,7 @@ full order to take from for quick editing or/and copy/paste:
 
 
 		<PromotionInfo>
-			<Type>PROMOTION_BARRAGE1</Type>
+			<Type>PROMOTION_COLLATERAL_DAMAGE1</Type>
 			<Description>TXT_KEY_PROMOTION_BARRAGE1</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
@@ -2933,7 +2933,7 @@ full order to take from for quick editing or/and copy/paste:
 			<iEvasionChange>0</iEvasionChange>
 			<iWithdrawalChange>0</iWithdrawalChange>
 			<iCargoChange>0</iCargoChange>
-			<iCollateralDamageChange>20</iCollateralDamageChange>
+			<iCollateralDamageChange>15</iCollateralDamageChange>
 			<iBombardRateChange>0</iBombardRateChange>
 			<iFirstStrikesChange>0</iFirstStrikesChange>
 			<iChanceFirstStrikesChange>0</iChanceFirstStrikesChange>
@@ -2962,8 +2962,20 @@ full order to take from for quick editing or/and copy/paste:
 			<TerrainDoubleMoves/>
 			<FeatureDoubleMoves/>
 			<UnitCombats>
+				<!-- custom: does the air strike mission of the fighters
+				(or/and similar type of units) apply in collateral damage
+				calculation? Assuming yes, also adding air fighter unit
+				combat type here-->
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 				<UnitCombat>
@@ -2978,6 +2990,31 @@ full order to take from for quick editing or/and copy/paste:
 					<UnitCombatType>UNITCOMBAT_ARCHER_CROSSBOW</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<!-- custom: todo replace only for lance light (they can throw them), not
+				exactly collateral but close enough maybe? same for sword light, imagine
+				they can throw shurikens or knifes or something from a distance (then
+				maybe run away), i also like that it is consistent with the other light
+				units having collateral damage -->
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<!-- custom: todo replace with mounted (camel archers and crossbows and
+				gunners (all) and horse archers and crossbows), only it is not elephants
+				but not elephants too, even though they are heavy, they could easily be
+				dodged, their power was most in dissuasion if i am not mistaken, interesting
+				also to have them have different stats/abilities than the other mounted
+				units for strategical different purposes, anyways,  -->
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<!-- custom: todo replace with war boats and war boats (and submarines too
+				i think but todo check) foreign only -->
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
@@ -2995,12 +3032,12 @@ full order to take from for quick editing or/and copy/paste:
 			<Button>,Art/Interface/Buttons/Promotions/Barrage1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,1</Button>
 		</PromotionInfo>
 		<PromotionInfo>
-			<Type>PROMOTION_BARRAGE2</Type>
+			<Type>PROMOTION_COLLATERAL_DAMAGE2</Type>
 			<Description>TXT_KEY_PROMOTION_BARRAGE2</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
-			<PromotionPrereqOr1>PROMOTION_BARRAGE1</PromotionPrereqOr1>
+			<PromotionPrereqOr1>PROMOTION_COLLATERAL_DAMAGE1</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
 			<TechPrereq>NONE</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
@@ -3020,7 +3057,7 @@ full order to take from for quick editing or/and copy/paste:
 			<iEvasionChange>0</iEvasionChange>
 			<iWithdrawalChange>0</iWithdrawalChange>
 			<iCargoChange>0</iCargoChange>
-			<iCollateralDamageChange>20</iCollateralDamageChange>
+			<iCollateralDamageChange>15</iCollateralDamageChange>
 			<iBombardRateChange>0</iBombardRateChange>
 			<iFirstStrikesChange>0</iFirstStrikesChange>
 			<iChanceFirstStrikesChange>0</iChanceFirstStrikesChange>
@@ -3049,8 +3086,20 @@ full order to take from for quick editing or/and copy/paste:
 			<TerrainDoubleMoves/>
 			<FeatureDoubleMoves/>
 			<UnitCombats>
+				<!-- custom: does the air strike mission of the fighters
+				(or/and similar type of units) apply in collateral damage
+				calculation? Assuming yes, also adding air fighter unit
+				combat type here-->
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 				<UnitCombat>
@@ -3065,6 +3114,31 @@ full order to take from for quick editing or/and copy/paste:
 					<UnitCombatType>UNITCOMBAT_ARCHER_CROSSBOW</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<!-- custom: todo replace only for lance light (they can throw them), not
+				exactly collateral but close enough maybe? same for sword light, imagine
+				they can throw shurikens or knifes or something from a distance (then
+				maybe run away), i also like that it is consistent with the other light
+				units having collateral damage -->
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<!-- custom: todo replace with mounted (camel archers and crossbows and
+				gunners (all) and horse archers and crossbows), only it is not elephants
+				but not elephants too, even though they are heavy, they could easily be
+				dodged, their power was most in dissuasion if i am not mistaken, interesting
+				also to have them have different stats/abilities than the other mounted
+				units for strategical different purposes, anyways,  -->
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<!-- custom: todo replace with war boats and war boats (and submarines too
+				i think but todo check) foreign only -->
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
@@ -3082,12 +3156,12 @@ full order to take from for quick editing or/and copy/paste:
 			<Button>,Art/Interface/Buttons/Promotions/Barrage2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,5,1</Button>
 		</PromotionInfo>
 		<PromotionInfo>
-			<Type>PROMOTION_BARRAGE3</Type>
+			<Type>PROMOTION_COLLATERAL_DAMAGE3</Type>
 			<Description>TXT_KEY_PROMOTION_BARRAGE3</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
-			<PromotionPrereqOr1>PROMOTION_BARRAGE2</PromotionPrereqOr1>
+			<PromotionPrereqOr1>PROMOTION_COLLATERAL_DAMAGE2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
 			<TechPrereq>NONE</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
@@ -3107,7 +3181,7 @@ full order to take from for quick editing or/and copy/paste:
 			<iEvasionChange>0</iEvasionChange>
 			<iWithdrawalChange>0</iWithdrawalChange>
 			<iCargoChange>0</iCargoChange>
-			<iCollateralDamageChange>20</iCollateralDamageChange>
+			<iCollateralDamageChange>25</iCollateralDamageChange>
 			<iBombardRateChange>0</iBombardRateChange>
 			<iFirstStrikesChange>0</iFirstStrikesChange>
 			<iChanceFirstStrikesChange>0</iChanceFirstStrikesChange>
@@ -3135,14 +3209,13 @@ full order to take from for quick editing or/and copy/paste:
 			<DomainMods/>
 			<TerrainDoubleMoves/>
 			<FeatureDoubleMoves/>
-			<!-- custom: give city bombard damage to more unit types -->
 			<UnitCombats>
+				<!-- custom: does the air strike mission of the fighters
+				(or/and similar type of units) apply in collateral damage
+				calculation? Assuming yes, also adding air fighter unit
+				combat type here-->
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
-					<bUnitCombat>1</bUnitCombat>
-				</UnitCombat>
-				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_LONG</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 				<UnitCombat>
@@ -3153,10 +3226,210 @@ full order to take from for quick editing or/and copy/paste:
 					<UnitCombatType>UNITCOMBAT_ARCHER_CROSSBOW</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
+				<!-- custom: todo only gun bomber and gun defender -->
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<!-- custom: todo only sword light -->
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<!-- custom: todo replace with mounted (camel archers and crossbows and
+				gunners (all) and horse archers and crossbows), only it is not elephants
+				but not elephants too, even though they are heavy, they could easily be
+				dodged, their power was most in dissuasion if i am not mistaken, interesting
+				also to have them have different stats/abilities than the other mounted
+				units for strategical different purposes, anyways,
+				
+				todo remove elephants from here and mounted offense units -->
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<!-- custom: todo replace with war boats and war boats (and submarines too
+				i think but todo check) foreign only -->
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+			</UnitCombats>
+			<HotKey/>
+			<bAltDown>0</bAltDown>
+			<bShiftDown>0</bShiftDown>
+			<bCtrlDown>0</bCtrlDown>
+			<iHotKeyPriority>0</iHotKeyPriority>
+			<Button>,Art/Interface/Buttons/Promotions/Barrage3.dds,Art/Interface/Buttons/Promotions_Atlas.dds,6,1</Button>
+		</PromotionInfo>
+		<PromotionInfo>
+			<Type>PROMOTION_COLLATERAL_DAMAGE4</Type>
+			<Description>TXT_KEY_PROMOTION_BARRAGE4</Description>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<LayerAnimationPath>NONE</LayerAnimationPath>
+			<PromotionPrereq>NONE</PromotionPrereq>
+			<PromotionPrereqOr1>PROMOTION_COLLATERAL_DAMAGE3</PromotionPrereqOr1>
+			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
+			<TechPrereq>NONE</TechPrereq>
+			<StateReligionPrereq>NONE</StateReligionPrereq>
+			<bLeader>0</bLeader>
+			<iBlitz>0</iBlitz>
+			<bAmphib>0</bAmphib>
+			<bRiver>0</bRiver>
+			<bEnemyRoute>0</bEnemyRoute>
+			<bAlwaysHeal>0</bAlwaysHeal>
+			<bHillsDoubleMove>0</bHillsDoubleMove>
+			<bImmuneToFirstStrikes>0</bImmuneToFirstStrikes>
+			<iVisibilityChange>0</iVisibilityChange>
+			<iMovesChange>0</iMovesChange>
+			<iMoveDiscountChange>0</iMoveDiscountChange>
+			<iAirRangeChange>0</iAirRangeChange>
+			<iInterceptChange>0</iInterceptChange>
+			<iEvasionChange>0</iEvasionChange>
+			<iWithdrawalChange>0</iWithdrawalChange>
+			<iCargoChange>0</iCargoChange>
+			<iCollateralDamageChange>35</iCollateralDamageChange>
+			<iBombardRateChange>0</iBombardRateChange>
+			<iFirstStrikesChange>0</iFirstStrikesChange>
+			<iChanceFirstStrikesChange>0</iChanceFirstStrikesChange>
+			<iEnemyHealChange>0</iEnemyHealChange>
+			<iNeutralHealChange>0</iNeutralHealChange>
+			<iFriendlyHealChange>0</iFriendlyHealChange>
+			<iSameTileHealChange>0</iSameTileHealChange>
+			<iAdjacentTileHealChange>0</iAdjacentTileHealChange>
+			<iCombatPercent>0</iCombatPercent>
+			<iCityAttack>0</iCityAttack>
+			<iCityDefense>0</iCityDefense>
+			<iHillsAttack>0</iHillsAttack>
+			<iHillsDefense>0</iHillsDefense>
+			<iKamikazePercent>0</iKamikazePercent>
+			<iRevoltProtection>0</iRevoltProtection>
+			<iCollateralDamageProtection>0</iCollateralDamageProtection>
+			<iPillageChange>0</iPillageChange>
+			<iUpgradeDiscount>0</iUpgradeDiscount>
+			<iExperiencePercent>0</iExperiencePercent>
+			<TerrainAttacks/>
+			<TerrainDefenses/>
+			<FeatureAttacks/>
+			<FeatureDefenses/>
+			<UnitCombatMods/>
+			<DomainMods/>
+			<TerrainDoubleMoves/>
+			<FeatureDoubleMoves/>
+			<UnitCombats>
+				<!-- custom: does the air strike mission of the fighters
+				(or/and similar type of units) apply in collateral damage
+				calculation? Assuming yes, also adding air fighter unit
+				combat type here-->
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<!-- custom: todo only gun bomber -->
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<!-- custom: todo replace with war boats and war boats (and submarines too
+				i think but todo check) foreign only 
+				todo only boat cuirassiers if i add them again, anyways, -->
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<!-- custom: todo only heavy artillery -->
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+			</UnitCombats>
+			<HotKey/>
+			<bAltDown>0</bAltDown>
+			<bShiftDown>0</bShiftDown>
+			<bCtrlDown>0</bCtrlDown>
+			<iHotKeyPriority>0</iHotKeyPriority>
+			<Button>,Art/Interface/Buttons/Promotions/Barrage3.dds,Art/Interface/Buttons/Promotions_Atlas.dds,6,1</Button>
+		</PromotionInfo>
+		<PromotionInfo>
+			<Type>PROMOTION_COLLATERAL_DAMAGE5</Type>
+			<Description>TXT_KEY_PROMOTION_BARRAGE5</Description>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<LayerAnimationPath>NONE</LayerAnimationPath>
+			<PromotionPrereq>PROMOTION_LEADER</PromotionPrereq>
+			<PromotionPrereqOr1>PROMOTION_COLLATERAL_DAMAGE4</PromotionPrereqOr1>
+			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
+			<TechPrereq>NONE</TechPrereq>
+			<StateReligionPrereq>NONE</StateReligionPrereq>
+			<bLeader>1</bLeader>
+			<iBlitz>0</iBlitz>
+			<bAmphib>0</bAmphib>
+			<bRiver>0</bRiver>
+			<bEnemyRoute>0</bEnemyRoute>
+			<bAlwaysHeal>0</bAlwaysHeal>
+			<bHillsDoubleMove>0</bHillsDoubleMove>
+			<bImmuneToFirstStrikes>0</bImmuneToFirstStrikes>
+			<iVisibilityChange>0</iVisibilityChange>
+			<iMovesChange>0</iMovesChange>
+			<iMoveDiscountChange>0</iMoveDiscountChange>
+			<iAirRangeChange>0</iAirRangeChange>
+			<iInterceptChange>0</iInterceptChange>
+			<iEvasionChange>0</iEvasionChange>
+			<iWithdrawalChange>0</iWithdrawalChange>
+			<iCargoChange>0</iCargoChange>
+			<iCollateralDamageChange>100</iCollateralDamageChange>
+			<iBombardRateChange>0</iBombardRateChange>
+			<iFirstStrikesChange>0</iFirstStrikesChange>
+			<iChanceFirstStrikesChange>0</iChanceFirstStrikesChange>
+			<iEnemyHealChange>0</iEnemyHealChange>
+			<iNeutralHealChange>0</iNeutralHealChange>
+			<iFriendlyHealChange>0</iFriendlyHealChange>
+			<iSameTileHealChange>0</iSameTileHealChange>
+			<iAdjacentTileHealChange>0</iAdjacentTileHealChange>
+			<iCombatPercent>25</iCombatPercent>
+			<iCityAttack>0</iCityAttack>
+			<iCityDefense>0</iCityDefense>
+			<iHillsAttack>0</iHillsAttack>
+			<iHillsDefense>0</iHillsDefense>
+			<iKamikazePercent>0</iKamikazePercent>
+			<iRevoltProtection>0</iRevoltProtection>
+			<iCollateralDamageProtection>0</iCollateralDamageProtection>
+			<iPillageChange>0</iPillageChange>
+			<iUpgradeDiscount>0</iUpgradeDiscount>
+			<iExperiencePercent>0</iExperiencePercent>
+			<TerrainAttacks/>
+			<TerrainDefenses/>
+			<FeatureAttacks/>
+			<FeatureDefenses/>
+			<UnitCombatMods/>
+			<DomainMods/>
+			<TerrainDoubleMoves/>
+			<FeatureDoubleMoves/>
+			<UnitCombats>
+				<!-- custom: does the air strike mission of the fighters
+				(or/and similar type of units) apply in collateral damage
+				calculation? Assuming yes, also adding air fighter unit
+				combat type here-->
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<!-- custom: todo only gun bomber -->
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<!-- custom: todo replace with war boats and war boats (and submarines too
+				i think but todo check) foreign only 
+				todo only boat cuirassiers if i add them again, anyways, -->
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<!-- custom: todo only heavy artillery -->
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>

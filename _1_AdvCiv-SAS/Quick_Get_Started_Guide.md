@@ -16,6 +16,15 @@ idea):
 
 <img src="./Docs_And_Appendixes/0.61_sevopedia_advciv_sas_core_changes.JPG" width="250"></img>
 
+## Full exhaustive changes
+
+If you want to see the full very exhaustive code changes between AdvCiv current
+latest stable, for example 1.12 here, and AdvCiv-SAS, please visit this [pull
+request compare](https://github.com/wonderingabout/AdvCiv-SAS/pull/13).
+
+Be warned though it can be very lengthy, so read below if you
+want (some of the) main quick pointers rather.
+
 ## Main Changes quick starter guide
 
 - tech tree is vastly reordered for historical accuracy (for example steel is at
@@ -105,6 +114,11 @@ units for each new era, at max one unit per combat type (for example "sword ligh
 heavy", are each one type), and not for all types, also lesser in later stages of the game
 to simplify/rush/reach sooner the endgame)
 - explore units can attack: but their strength should be quite low
+- ground explore units can move through all terrains since the begining of the game,
+not water tiles though, but for example peaks. They also all ignore terrain
+movement costs, not just the (renaissance) explorer
+- air explore units for example the dirigible todo (old airship) can move through
+all terrains, including peaks and water tiles
 - military units are versatile: swordsmen can defend, archers can attack,
 maybe even workers too
 - unit promotions have clearer names now too: for example Counter-Archer,
@@ -139,13 +153,14 @@ rifleman has a new graphic art but the concept of a rifleman remains in itself
 (may be rebalanced or not though like the other units though)
 - some units have been removed: sometimes for gameplay reasons: for example the
 caravel has been removed because too close to the galleon and i want only one
-class (for example a caravel, a galleon, a worker, etc.) of unit per era, also
-not very sensical to me that somehow these boats can travel incognito or freely
+class (for example a caravel, a galleon, a worker, etc.) of unit per era
+- also not very sensical to me that somehow these boats can travel incognito or freely
 in borders without being attacked. May move this ability to privateers maybe todo
 but not sure; or the stealth bomber to simplify gameplay especially the endgame,
 there are stronger bombers at each era, just not stealth, or for example the panzer
 has been removed for a sooner, more likely to be useful civ unit: the teutonic (foot)
-knight.
+knight. This ability has been removed from most units where i felt/thought it
+didn't make sense, such as submarines or/and other units.
 - some units have been removed: sometimes for historical accuracy or flavor one
 could say maybe reasons: for example the phalanx civ unit of the greek empire
 is now the hoplite phalanx (a lancer heavy combat type, not based on the axeman

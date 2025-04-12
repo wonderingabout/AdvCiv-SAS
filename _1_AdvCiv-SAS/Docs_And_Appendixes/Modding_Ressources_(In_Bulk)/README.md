@@ -40,6 +40,8 @@ be needed if you only modify XML files if i am not mistaken)
 doing your own mod](https://github.com/wonderingabout/kujira)
 - or alternatively/to complement for example [modiki's website too](https://modiki.civfanatics.com/index.php/Civ4TraitInfos)
 maybe (even though i mostly use kujira's website, maybe this one helps too).
+- list of unitAIs [kujira](https://gforestshade.github.io/kujira/post/keyichiran/#%E3%83%A6%E3%83%8B%E3%83%83%E3%83%88) and
+[cfc forum with what they do (may be accurate or not anyways)](https://forums.civfanatics.com/threads/list-of-unitais-and-what-they-do.353919/)
 - todo add links if i have/want(/do) more to add
 
 ## Files

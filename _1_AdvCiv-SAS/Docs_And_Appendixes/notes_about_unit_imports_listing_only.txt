@@ -72,8 +72,8 @@ greece: hoplite hero history rewritten but rename to hoplite phalanx, put it in 
 age, plus check if copper requirement or if copper +/- iron (i.e. if copepr is absolutely necessary or if iron is good enough
 too)
 france: chevalier (unique) history rewritten
-egypt: rename war chariot to wereryet like history rewritten did?
-vikings: berserk (unique) history rewritten
+egypt: rename war chariot to were yet like history rewritten did?
+vikings: add an ancient boat that can go to the ocean? (See notes unit design doc for details) berserk (unique) history rewritten
 holy roman empire: crusader (teutonic order) _ teutonic knight (based on my empire earth 2 memories - souvenirs) (make it a bit later in tech tree (still medieval) but stronger)
 germany: landsknetch (from history rewritten (but may create bugs if some are buggy or maybe not?) or - ?) _ landsknetch mercenary
 the usa: bandeirante (hero) _ Sheriff history rewritten

@@ -5913,23 +5913,48 @@
 		<Spanish>[COLOR_WARNING_TEXT]Máximo da&#241;o (%d1%%) infligido[COLOR_REVERT]</Spanish>
 	</TEXT>
 
+
+	<!-- custom: clearer and more exhaustive formula:
+	"Collateral Damage (max: 200%) to 3 Defenders"
+	is now:
+	"Collateral Damage to 3 Units: 30% (max: 200%)"
+	Collateral Damage can be used on any type of units, not strictly
+	"defenders" even though it is technically true, hopefully clearer
+	now especially for the player or/and me at least or not, anyways,
+	was:
+	<English>[ICON_BULLET]Collateral Damage (max. %d1%%) to %d2 [NUM1:Defender:Defenders]</English>
+	todo
+	-->
 	<!-- advc.004: From CIV4GameTextChanged_BTS.xml. State collateralDamageMaxUnits.  -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE</Tag>
 		<English>[ICON_BULLET]Collateral Damage (max. %d1%%) to %d2 [NUM1:Defender:Defenders]</English>
-		<French>[ICON_BULLET]Dommages collat&#233;raux (max. %d1%%) à %d2 [NUM1:défenseur:défenseurs]</French>
-		<German>[ICON_BULLET]Kollateralschaden (max. %d1%%) an %d2 Verteidiger</German>
-		<Italian>[ICON_BULLET]Danni collaterali (max. %d1%%) a %d2 [NUM1:difensore:difensori]</Italian>
-		<Spanish>[ICON_BULLET]Da&#241;os colaterales (max. %d1%%) a %d2 [NUM1:defensor:defensores]</Spanish>
 	</TEXT>
+	<!-- custom: clearer and more exhaustive formula:
+	"Coll. Damage (max: 100%) to 3 Defenders"
+	is now:
+	"Collateral Damage (3): 30% (max: 200%)"
+	Collateral Damage can be used on any type of units, not strictly
+	"defenders" even though it is technically true, hopefully clearer
+	now especially for the player or/and me at least or not, anyways,
+	was:
+	<English>[ICON_BULLET]Coll. Damage (max. %d1%%) to %d2 [NUM1:Defender:Defenders]</English>
+	todo
+	-->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE_SHORT</Tag>
 		<English>[ICON_BULLET]Coll. Damage (max. %d1%%) to %d2 [NUM1:Defender:Defenders]</English>
-		<French>[ICON_BULLET]Dommages collat&#233;raux (max. %d1%%) à %d2 [NUM1:défenseur:défenseurs]</French>
-		<German>[ICON_BULLET]Kollateralschaden (max. %d1%%, %d2 Verteidiger)</German>
-		<Italian>[ICON_BULLET]Danni collaterali (max. %d1%%) a %d2 [NUM1:difensore:difensori]</Italian>
-		<Spanish>[ICON_BULLET]Da&#241;os colaterales (max. %d1%%) a %d2 [NUM1:defensor:defensores]</Spanish>
 	</TEXT>
+	<!-- custom:
+	was:
+	<English>[ICON_BULLET]Causes Collateral Damage (%D1_Amount%%)</English>
+	todo?
+	-->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE_EXTRA</Tag>
+		<English>[ICON_BULLET]Causes Collateral Damage (%D1_Amount%%)</English>
+	</TEXT>
+
 
 	<!-- advc.030 -->
 	<TEXT>

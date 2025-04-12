@@ -280,6 +280,26 @@
 		<Tag>TXT_KEY_PROMOTION_RANGE2</Tag>
 		<English>Air Range 2</English>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_BARRAGE1</Tag>
+		<English>Collateral Damage 1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_BARRAGE2</Tag>
+		<English>Collateral Damage 2</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_BARRAGE3</Tag>
+		<English>Collateral Damage 3</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_BARRAGE4</Tag>
+		<English>Collateral Damage 4</English>
+	</TEXT>
+		<TEXT>
+		<Tag>TXT_KEY_PROMOTION_BARRAGE5</Tag>
+		<English>Collateral Damage 5</English>
+	</TEXT>
 
 	<!-- custom: new/modified unit combat types -->
 	<TEXT>
