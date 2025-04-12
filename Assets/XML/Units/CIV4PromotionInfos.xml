@@ -3541,7 +3541,7 @@ full order to take from for quick editing or/and copy/paste:
 			<Button>,Art/Interface/Buttons/Promotions/Barrage3.dds,Art/Interface/Buttons/Promotions_Atlas.dds,6,1</Button>
 		</PromotionInfo>
 		<PromotionInfo>
-			<Type>PROMOTION_ACCURACY</Type>
+			<Type>PROMOTION_CITY_BOMBARD_DAMAGE</Type>
 			<Description>TXT_KEY_PROMOTION_ACCURACY</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
