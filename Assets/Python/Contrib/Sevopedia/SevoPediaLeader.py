@@ -161,7 +161,7 @@ class SevoPediaLeader:
 		# that (i.e. before being able to add these) -->
 		self.X_AI_PERSONALITY = self.top.R_PEDIA_PAGE - self.W_AI_PERSONALITY 
 		self.Y_AI_PERSONALITY = self.Y_LEADERHEAD_PANE
-		self.H_AI_PERSONALITY = self.top.B_PEDIA_PAGE
+		self.H_AI_PERSONALITY = self.H_LEADERHEAD_PANE + self.SMALL_MARGIN + self.H_FAVORITES + self.SMALL_MARGIN + self.H_HISTORY
 
 
 
@@ -215,7 +215,7 @@ class SevoPediaLeader:
 		return iLeaderCiv # </advc.001>
 
 
-
+	# <!-- custom: imported from RFC DOC and modified or/and not for AdvCiv-SAS, anyways, -->
 	def placeFavorites(self):
 		screen = self.top.getScreen()
 		panel = self.top.getNextWidgetName()
@@ -257,17 +257,39 @@ class SevoPediaLeader:
 		screen.attachMultilineText(panelName, historyTextName, CivilopediaText, WidgetTypes.WIDGET_GENERAL,-1,-1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
-
+	# <!-- custom: based on placeHistory then tweaked or/and modified or/and not
+	# also data fetching logic mostly if not entirely provided by ChatGPT, or/and with
+	# some additions or modifications or removals or other i did or did not, anyways
 	def placeAIPersonalityPanel(self, iLeader):
-		# <!-- custom: based on placeHistory then tweaked or/and modified or/and not
-		# also data fetching logic mostly if not entirely provided by ChatGPT, or/and with
-		# some additions or modifications or removals or other i did or did not, anyways
 		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_AI_PERSONALITY", ()), "", True, True,
+		firstPanelName = self.top.getNextWidgetName()
+		firstPanelHeaderTxt = localText.getText("TXT_KEY_AI_PERSONALITY", ()) + " (1)"
+		screen.addPanel(firstPanelName, firstPanelHeaderTxt, "", True, True,
 						self.X_AI_PERSONALITY, self.Y_AI_PERSONALITY,
 						self.W_AI_PERSONALITY, self.H_AI_PERSONALITY,
 						PanelStyles.PANEL_STYLE_BLUE50)
+		
+		
+
+		# SECOND EMPTY PANEL (right next to the first)
+		xSecondPanel = self.X_AI_PERSONALITY - self.W_AI_PERSONALITY - self.MEDIUM_MARGIN
+		ySecondPanel = self.Y_AI_PERSONALITY
+		wSecondPanel = self.W_AI_PERSONALITY
+		hSecondPanel = self.H_AI_PERSONALITY
+
+		emptyPanelName = self.top.getNextWidgetName()
+		emptyPanelHeaderTxt = localText.getText("TXT_KEY_AI_PERSONALITY", ()) + " (2)"
+		#screen.addPanel(emptyPanelName, emptyPanelHeaderTxt, "", True, True,
+		#				xSecondPanel, ySecondPanel, wSecondPanel, hSecondPanel,
+		#				PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(emptyPanelName, emptyPanelHeaderTxt, "", True, True,
+						xSecondPanel, ySecondPanel, wSecondPanel, hSecondPanel,
+						PanelStyles.PANEL_STYLE_BLUE50)
+
+		# Leave the second panel empty for now — no content yet.
+
+
+
 
 		leader = gc.getLeaderHeadInfo(iLeader)
 		numLeaders = gc.getNumLeaderHeadInfos()
@@ -361,37 +383,67 @@ class SevoPediaLeader:
 			],
 		}
 
+
+
+
+		# <!-- custom: increment to know max items (or tweak further by using
+		# pre-ordering logic or reorder data but first try or not this anyways)
+		# -->
+		i = 0
+		j = 0
+		limitHeight = 36
+
+
+
+
 		for category, attributes in attribute_categories.items():
-			screen.setText(self.top.getNextWidgetName(), "", u"<font=3b>%s</font>" % category,
-						   CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
-						   WidgetTypes.WIDGET_GENERAL, -1, -1)
-			y += lineHeight
 
-			for label, funcName in attributes:
-				try:
-					values = [getattr(gc.getLeaderHeadInfo(i), funcName)() for i in range(numLeaders)]
-					value = getattr(leader, funcName)()
-					min_val = min(values)
-					max_val = max(values)
-					inverse = funcName in [
-						"getDogpileWarRand", "getDemandRebukedWarProb", "getDeclareWarTradeRand",
-						"getMaxWarRand", "getLimitedWarRand", "getBaseAttackOddsChange",
-						"getRefuseToTalkWarThreshold", "getNoTechTradeThreshold"
-					]
-					plus_label = get_plus_scale(value, min_val, max_val, inverse)
 
-					screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % label,
-								   CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
-								   WidgetTypes.WIDGET_GENERAL, -1, -1)
-					screen.setText(self.top.getNextWidgetName(), "", u"<font=2b>%d</font>" % value,
-								   CvUtil.FONT_LEFT_JUSTIFY, xValue, y, 0, FontTypes.SMALL_FONT,
-								   WidgetTypes.WIDGET_GENERAL, -1, -1)
-					screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % plus_label,
-								   CvUtil.FONT_LEFT_JUSTIFY, xScale, y, 0, FontTypes.SMALL_FONT,
-								   WidgetTypes.WIDGET_GENERAL, -1, -1)
-					y += lineHeight
-				except:
-					pass
+			if j < limitHeight:
+
+
+				screen.setText(self.top.getNextWidgetName(), "", u"<font=3b>%s</font>" % category,
+							CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
+							WidgetTypes.WIDGET_GENERAL, -1, -1)
+				y += lineHeight
+
+
+				# <!-- custom: test
+				i += 1
+
+				for label, funcName in attributes:
+
+
+					if j < limitHeight:
+
+
+						try:
+							values = [getattr(gc.getLeaderHeadInfo(i), funcName)() for i in range(numLeaders)]
+							value = getattr(leader, funcName)()
+							min_val = min(values)
+							max_val = max(values)
+							inverse = funcName in [
+								"getDogpileWarRand", "getDemandRebukedWarProb", "getDeclareWarTradeRand",
+								"getMaxWarRand", "getLimitedWarRand", "getBaseAttackOddsChange",
+								"getRefuseToTalkWarThreshold", "getNoTechTradeThreshold"
+							]
+							plus_label = get_plus_scale(value, min_val, max_val, inverse)
+
+							screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % label,
+										CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
+										WidgetTypes.WIDGET_GENERAL, -1, -1)
+							screen.setText(self.top.getNextWidgetName(), "", u"<font=2b>%d</font>" % value,
+										CvUtil.FONT_LEFT_JUSTIFY, xValue, y, 0, FontTypes.SMALL_FONT,
+										WidgetTypes.WIDGET_GENERAL, -1, -1)
+							screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % plus_label,
+										CvUtil.FONT_LEFT_JUSTIFY, xScale, y, 0, FontTypes.SMALL_FONT,
+										WidgetTypes.WIDGET_GENERAL, -1, -1)
+							y += lineHeight
+
+							# <!-- custom: test
+							j += 1
+						except:
+							pass
 
 
 
