@@ -142,8 +142,6 @@ class SevoPediaLeader:
 		# case, image looks less compressed on its sides but not sure or guaranteed, check yourself if want to be sure or
 		# not, but i hope this helps, and that being said, anyways) anyways
 		# -->
-		#self.W_LEADERHEAD_PANE = 240
-		#self.H_LEADERHEAD_PANE = 290
 		self.W_LEADERHEAD_PANE = 327
 		self.H_LEADERHEAD_PANE = 400
 
@@ -178,29 +176,18 @@ class SevoPediaLeader:
 		# the history panel's (relative) position, anyways --> 
 		self.W_HISTORY = self.top.R_PEDIA_PAGE - (2 * (self.W_AI_PERSONALITY + self.MEDIUM_MARGIN)) - self.X_LEADERHEAD_PANE
 
-		#self.X_FAVORITES = self.X_LEADERHEAD_PANE + self.W_LEADERHEAD_PANE + 10
-		#self.Y_FAVORITES = self.Y_LEADERHEAD_PANE
-		#self.W_FAVORITES = self.top.R_PEDIA_PAGE - self.X_FAVORITES - 64 - 10
-		#self.H_FAVORITES = 110
-
-		# mycode todo delete
-		#self.X_FAVORITES = self.X_LEADERHEAD_PANE + self.W_LEADERHEAD_PANE + self.MEDIUM_MARGIN
-		#self.Y_FAVORITES = self.Y_LEADERHEAD_PANE
-		#self.W_FAVORITES = self.W_HISTORY - self.W_CIV - self.MEDIUM_MARGIN
-
 		self.X_FAVORITES = self.X_LEADERHEAD_PANE
 		self.Y_FAVORITES = self.Y_LEADERHEAD_PANE + self.H_LEADERHEAD_PANE + self.SMALL_MARGIN
 		self.W_FAVORITES = self.W_HISTORY - self.W_CIV - self.SMALL_MARGIN
 
-		#self.X_HISTORY = self.X_LEADERHEAD_PANE
-		#self.Y_HISTORY = self.Y_CIV + 64 + 10
-		#self.W_HISTORY = self.top.R_PEDIA_PAGE - self.W_AI_PERSONALITY - self.X_HISTORY - self.MEDIUM_MARGIN
-		#self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 		self.X_HISTORY = self.X_LEADERHEAD_PANE
 		self.Y_HISTORY = self.Y_FAVORITES + self.H_FAVORITES + self.SMALL_MARGIN
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
-		# <!-- custom: traits have the green color somehow, do not comment-out until i find how so i
+		# <!-- custom: traits have the green color somehow,
+		#
+		# do not comment-out until i find how so i
+		#
 		# can feed it / = ask ChatGPT about it if it has ideas -->
 		#self.X_TRAITS = self.X_LEADERHEAD_PANE + self.W_LEADERHEAD_PANE + 10
 		#self.Y_TRAITS = self.Y_LEADERHEAD_PANE + 80 + 10
@@ -213,12 +200,8 @@ class SevoPediaLeader:
 
 		# <!-- custom: move the civ (flag) closer to favourite civis and religions or somewhere else,
 		# more beautiful and less cumbersome this way maybe i think, anyways -->
-		#self.X_CIV = self.X_LEADERHEAD_PANE + (self.W_LEADERHEAD_PANE - self.W_CIV) / 2
-		#self.Y_CIV = self.Y_LEADERHEAD_PANE + self.H_LEADERHEAD_PANE + 10
 		self.X_CIV = self.X_HISTORY + self.W_HISTORY - self.CIV_MARGIN - self.W_CIV
-		#self.Y_CIV = self.Y_HISTORY - self.CIV_MARGIN - self.W_CIV
 		# <!-- custom: put the flag/civ at the middle Y of the favourites panel -->
-		#self.Y_CIV = self.Y_HISTORY - self.CIV_MARGIN - self.W_CIV
 		# <!-- custom: quite high as compared to favourites panel's lowest point -->
 		self.Y_CIV = self.Y_FAVORITES + self.CIV_DISELEVATION
 
@@ -233,13 +216,15 @@ class SevoPediaLeader:
 	def interfaceScreen(self, iLeader):
 		self.iLeader = iLeader
 
-		# <!-- custom: change call order to match filling from top left to bottom right, more
-		# intuitive this way perhaps, anyways, -->
+		# <!-- custom: change call order to match filling/building order, generally
+		# from top left to bottom and left to right but not always, reordering in
+		# such a way is maybe a bit more intuitive this way perhaps or/and clearer
+		# or/and helpful or not or other etc anyways, -->
 		self.placeLeader(iLeader)
-		self.placeCiv()
 		self.placeFavorites()
-		self.placeTraits()
 		self.placeHistory()
+		self.placeCiv()
+		self.placeTraits()
 		self.placeAIPersonalityPanel(iLeader)
 
 
@@ -253,6 +238,37 @@ class SevoPediaLeader:
 		screen.addPanel(leaderPanelWidget, "", "", True, True, self.X_LEADERHEAD_PANE, self.Y_LEADERHEAD_PANE, self.W_LEADERHEAD_PANE, self.H_LEADERHEAD_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		self.leaderWidget = self.top.getNextWidgetName()
 		screen.addLeaderheadGFC(self.leaderWidget, iLeader, AttitudeTypes.ATTITUDE_PLEASED, self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+
+
+	# <!-- custom: imported from RFC DOC and modified or/and not for AdvCiv-SAS, anyways, -->
+	def placeFavorites(self):
+		screen = self.top.getScreen()
+		panel = self.top.getNextWidgetName()
+		screen.addPanel(panel, CyTranslator().getText("TXT_KEY_PEDIA_FAVOURITE_CIVICS_AND_RELIGIONS", ()), "", False, True, self.X_FAVORITES, self.Y_FAVORITES, self.W_FAVORITES, self.H_FAVORITES, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.enableSelect(panel, False)
+		screen.attachLabel(panel, "", "  ")
+
+		# Civic
+		iCivic = gc.getLeaderHeadInfo(self.iLeader).getFavoriteCivic()
+		if iCivic > -1:
+			screen.attachImageButton(panel, "", gc.getCivicInfo(iCivic).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iCivic, 1, False)
+
+		# Religion
+		iReligion = gc.getLeaderHeadInfo(self.iLeader).getFavoriteReligion()
+		if iReligion > -1:
+			screen.attachImageButton(panel, "", gc.getReligionInfo(iReligion).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iReligion, 1, False)
+
+
+
+	def placeHistory(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, "", "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
+		historyTextName = self.top.getNextWidgetName()
+		CivilopediaText = gc.getLeaderHeadInfo(self.iLeader).getCivilopedia()
+		CivilopediaText = u"<font=2>" + CivilopediaText + u"</font>"
+		screen.attachMultilineText(panelName, historyTextName, CivilopediaText, WidgetTypes.WIDGET_GENERAL,-1,-1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -280,25 +296,6 @@ class SevoPediaLeader:
 		return iLeaderCiv # </advc.001>
 
 
-	# <!-- custom: imported from RFC DOC and modified or/and not for AdvCiv-SAS, anyways, -->
-	def placeFavorites(self):
-		screen = self.top.getScreen()
-		panel = self.top.getNextWidgetName()
-		screen.addPanel(panel, CyTranslator().getText("TXT_KEY_PEDIA_FAVOURITE_CIVICS_AND_RELIGIONS", ()), "", False, True, self.X_FAVORITES, self.Y_FAVORITES, self.W_FAVORITES, self.H_FAVORITES, PanelStyles.PANEL_STYLE_BLUE50)
-		screen.enableSelect(panel, False)
-		screen.attachLabel(panel, "", "  ")
-
-		# Civic
-		iCivic = gc.getLeaderHeadInfo(self.iLeader).getFavoriteCivic()
-		if iCivic > -1:
-			screen.attachImageButton(panel, "", gc.getCivicInfo(iCivic).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iCivic, 1, False)
-
-		# Religion
-		iReligion = gc.getLeaderHeadInfo(self.iLeader).getFavoriteReligion()
-		if iReligion > -1:
-			screen.attachImageButton(panel, "", gc.getReligionInfo(iReligion).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iReligion, 1, False)
-
-
 
 	def placeTraits(self):
 		screen = self.top.getScreen()
@@ -312,22 +309,10 @@ class SevoPediaLeader:
 
 
 
-	def placeHistory(self):
-		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, "", "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
-		historyTextName = self.top.getNextWidgetName()
-		CivilopediaText = gc.getLeaderHeadInfo(self.iLeader).getCivilopedia()
-		CivilopediaText = u"<font=2>" + CivilopediaText + u"</font>"
-		screen.attachMultilineText(panelName, historyTextName, CivilopediaText, WidgetTypes.WIDGET_GENERAL,-1,-1, CvUtil.FONT_LEFT_JUSTIFY)
-
-
 	# <!-- custom: based on placeHistory then tweaked or/and modified or/and not
 	# also data fetching logic mostly if not entirely provided by ChatGPT, or/and with
 	# some additions or modifications or removals or other i did or did not, anyways
 	def placeAIPersonalityPanel(self, iLeader):
-
-
 		screen = self.top.getScreen()
 
 		# === FIRST PANEL ===
@@ -423,8 +408,6 @@ class SevoPediaLeader:
 
 		render_categories(screen, left_categories, xName1, xValue1, xScale1, y1)
 		render_categories(screen, right_categories, xName2, xValue2, xScale2, y2)
-
-
 
 
 
