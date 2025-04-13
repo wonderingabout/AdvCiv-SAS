@@ -36,6 +36,71 @@ class SevoPediaLeader:
 
 
 	def __init__(self, main):
+		self.ai_attribute_categories = {
+			"War Strategy": [
+				("Max War Rand", "getMaxWarRand"),
+				("Max War Nearby Power Ratio", "getMaxWarNearbyPowerRatio"),
+				("Max War Distant Power Ratio", "getMaxWarDistantPowerRatio"),
+				("Max War Min Adjacent Land Percent", "getMaxWarMinAdjacentLandPercent"),
+				("Limited War Rand", "getLimitedWarRand"),
+				("Limited War Power Ratio", "getLimitedWarPowerRatio"),
+				("Dogpile War Rand", "getDogpileWarRand"),
+				("Make Peace Rand", "getMakePeaceRand"),
+			],
+			"Diplomacy": [
+				("Base Attitude", "getBaseAttitude"),
+				("Peace Weight", "getBasePeaceWeight"),
+				("Warmonger Respect", "getWarmongerRespect"),
+				("Demand Sneak Prob", "getDemandRebukedSneakProb"),
+				("Demand War Prob", "getDemandRebukedWarProb"),
+				("Refuse Talk Threshold", "getRefuseToTalkWarThreshold"),
+				("No Tech Trade Threshold", "getNoTechTradeThreshold"),
+				("Tech Trade Known %", "getTechTradeKnownPercent"),
+				("Declare War Trade Rand", "getDeclareWarTradeRand"),
+			],
+			"Victory Strategy": [
+				("Culture Victory Weight", "getCultureVictoryWeight"),
+				("Space Victory Weight", "getSpaceVictoryWeight"),
+				("Conquest Victory Weight", "getConquestVictoryWeight"),
+				("Domination Victory Weight", "getDominationVictoryWeight"),
+				("Diplomacy Victory Weight", "getDiplomacyVictoryWeight"),
+			],
+			"Economic Preferences": [
+				("Espionage Weight", "getEspionageWeight"),
+				("Build Unit Prob", "getBuildUnitProb"),
+				("Base Attack Odds", "getBaseAttackOddsChange"),
+				("Attack Odds Rand", "getAttackOddsChangeRand"),
+				("Wonder Construct Rand", "getWonderConstructRand"),
+				("Max Gold Trade %", "getMaxGoldTradePercent"),
+				("Max GPT Trade %", "getMaxGoldPerTurnTradePercent"),
+			],
+			"Attitude Modifiers": [
+				("Worse Rank Attitude Change", "getWorseRankDifferenceAttitudeChange"),
+				("Better Rank Attitude Change", "getBetterRankDifferenceAttitudeChange"),
+				("Close Borders Attitude Change", "getCloseBordersAttitudeChange"),
+				("Same Religion Attitude Limit", "getSameReligionAttitudeChangeLimit"),
+				("Diff Religion Attitude Limit", "getDifferentReligionAttitudeChangeLimit"),
+				("Share War Attitude Limit", "getShareWarAttitudeChangeLimit"),
+				("Favorite Civic Attitude Limit", "getFavoriteCivicAttitudeChangeLimit"),
+			],
+			"Trade Thresholds": [
+				("Tech Refuse Attitude", "getTechRefuseAttitudeThreshold"),
+				("City Refuse Attitude", "getCityRefuseAttitudeThreshold"),
+				("Strategic Bonus Refuse Attitude", "getStrategicBonusRefuseAttitudeThreshold"),
+				("Health Bonus Refuse Attitude", "getHealthBonusRefuseAttitudeThreshold"),
+				("Happiness Bonus Refuse Attitude", "getHappinessBonusRefuseAttitudeThreshold"),
+				("Map Refuse Attitude", "getMapRefuseAttitudeThreshold"),
+				("Declare War Refuse Attitude", "getDeclareWarRefuseAttitudeThreshold"),
+				("Declare War On Them Refuse", "getDeclareWarThemRefuseAttitudeThreshold"),
+				("Stop Trading Refuse", "getStopTradingRefuseAttitudeThreshold"),
+				("Stop Trading Them Refuse", "getStopTradingThemRefuseAttitudeThreshold"),
+				("Adopt Civic Refuse", "getAdoptCivicRefuseAttitudeThreshold"),
+				("Convert Religion Refuse", "getConvertReligionRefuseAttitudeThreshold"),
+				("Open Borders Refuse", "getOpenBordersRefuseAttitudeThreshold"),
+				("Vassal Refuse", "getVassalRefuseAttitudeThreshold"),
+			],
+		}
+
 		self.iLeader = -1
 		self.top = main
 
@@ -261,70 +326,7 @@ class SevoPediaLeader:
 	# also data fetching logic mostly if not entirely provided by ChatGPT, or/and with
 	# some additions or modifications or removals or other i did or did not, anyways
 	def placeAIPersonalityPanel(self, iLeader):
-		attribute_categories = {
-			"War Strategy": [
-				("Max War Rand", "getMaxWarRand"),
-				("Max War Nearby Power Ratio", "getMaxWarNearbyPowerRatio"),
-				("Max War Distant Power Ratio", "getMaxWarDistantPowerRatio"),
-				("Max War Min Adjacent Land Percent", "getMaxWarMinAdjacentLandPercent"),
-				("Limited War Rand", "getLimitedWarRand"),
-				("Limited War Power Ratio", "getLimitedWarPowerRatio"),
-				("Dogpile War Rand", "getDogpileWarRand"),
-				("Make Peace Rand", "getMakePeaceRand"),
-			],
-			"Diplomacy": [
-				("Base Attitude", "getBaseAttitude"),
-				("Peace Weight", "getBasePeaceWeight"),
-				("Warmonger Respect", "getWarmongerRespect"),
-				("Demand Sneak Prob", "getDemandRebukedSneakProb"),
-				("Demand War Prob", "getDemandRebukedWarProb"),
-				("Refuse Talk Threshold", "getRefuseToTalkWarThreshold"),
-				("No Tech Trade Threshold", "getNoTechTradeThreshold"),
-				("Tech Trade Known %", "getTechTradeKnownPercent"),
-				("Declare War Trade Rand", "getDeclareWarTradeRand"),
-			],
-			"Victory Strategy": [
-				("Culture Victory Weight", "getCultureVictoryWeight"),
-				("Space Victory Weight", "getSpaceVictoryWeight"),
-				("Conquest Victory Weight", "getConquestVictoryWeight"),
-				("Domination Victory Weight", "getDominationVictoryWeight"),
-				("Diplomacy Victory Weight", "getDiplomacyVictoryWeight"),
-			],
-			"Economic Preferences": [
-				("Espionage Weight", "getEspionageWeight"),
-				("Build Unit Prob", "getBuildUnitProb"),
-				("Base Attack Odds", "getBaseAttackOddsChange"),
-				("Attack Odds Rand", "getAttackOddsChangeRand"),
-				("Wonder Construct Rand", "getWonderConstructRand"),
-				("Max Gold Trade %", "getMaxGoldTradePercent"),
-				("Max GPT Trade %", "getMaxGoldPerTurnTradePercent"),
-			],
-			"Attitude Modifiers": [
-				("Worse Rank Attitude Change", "getWorseRankDifferenceAttitudeChange"),
-				("Better Rank Attitude Change", "getBetterRankDifferenceAttitudeChange"),
-				("Close Borders Attitude Change", "getCloseBordersAttitudeChange"),
-				("Same Religion Attitude Limit", "getSameReligionAttitudeChangeLimit"),
-				("Diff Religion Attitude Limit", "getDifferentReligionAttitudeChangeLimit"),
-				("Share War Attitude Limit", "getShareWarAttitudeChangeLimit"),
-				("Favorite Civic Attitude Limit", "getFavoriteCivicAttitudeChangeLimit"),
-			],
-			"Trade Thresholds": [
-				("Tech Refuse Attitude", "getTechRefuseAttitudeThreshold"),
-				("City Refuse Attitude", "getCityRefuseAttitudeThreshold"),
-				("Strategic Bonus Refuse Attitude", "getStrategicBonusRefuseAttitudeThreshold"),
-				("Health Bonus Refuse Attitude", "getHealthBonusRefuseAttitudeThreshold"),
-				("Happiness Bonus Refuse Attitude", "getHappinessBonusRefuseAttitudeThreshold"),
-				("Map Refuse Attitude", "getMapRefuseAttitudeThreshold"),
-				("Declare War Refuse Attitude", "getDeclareWarRefuseAttitudeThreshold"),
-				("Declare War On Them Refuse", "getDeclareWarThemRefuseAttitudeThreshold"),
-				("Stop Trading Refuse", "getStopTradingRefuseAttitudeThreshold"),
-				("Stop Trading Them Refuse", "getStopTradingThemRefuseAttitudeThreshold"),
-				("Adopt Civic Refuse", "getAdoptCivicRefuseAttitudeThreshold"),
-				("Convert Religion Refuse", "getConvertReligionRefuseAttitudeThreshold"),
-				("Open Borders Refuse", "getOpenBordersRefuseAttitudeThreshold"),
-				("Vassal Refuse", "getVassalRefuseAttitudeThreshold"),
-			],
-		}
+
 
 		screen = self.top.getScreen()
 
@@ -393,7 +395,7 @@ class SevoPediaLeader:
 							   CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
 							   WidgetTypes.WIDGET_GENERAL, -1, -1)
 				y += lineHeight
-				for label, funcName in attribute_categories[category]:
+				for label, funcName in self.ai_attribute_categories[category]:
 					try:
 						values = [getattr(gc.getLeaderHeadInfo(i), funcName)() for i in range(numLeaders)]
 						value = getattr(leader, funcName)()
