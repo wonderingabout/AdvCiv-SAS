@@ -337,9 +337,9 @@ class SevoPediaLeader:
 		leader = gc.getLeaderHeadInfo(iLeader)
 		numLeaders = gc.getNumLeaderHeadInfos()
 
-		# Layout config
 		lineHeight = 22
-		categorySpacing = 10  # Extra padding between categories
+		categorySpacing = 10
+		legendSpacing = 15
 
 		xName1 = self.X_AI_PERSONALITY + 15
 		xValue1 = xName1 + 260
@@ -351,22 +351,45 @@ class SevoPediaLeader:
 		xScale2 = xValue2 + 60
 		y2 = self.Y_AI_PERSONALITY + 35
 
-		def get_plus_scale(val, min_val, max_val, inverse=False):
+		def get_symbol_scale(val, min_val, max_val, inverse, symbol):
 			if max_val == min_val:
-				return "+"
+				return symbol
 			ratio = float(val - min_val) / float(max_val - min_val)
 			if inverse:
 				ratio = 1.0 - ratio
 			if ratio < 0.2:
-				return "+"
+				return symbol
 			elif ratio < 0.4:
-				return "++"
+				return symbol * 2
 			elif ratio < 0.6:
-				return "+++"
+				return symbol * 3
 			elif ratio < 0.8:
-				return "++++"
+				return symbol * 4
 			else:
-				return "+++++"
+				return symbol * 5
+
+		attr_types = {
+			"War Strategy": "threat",
+			"Diplomacy": "diplomacy",
+			"Victory Strategy": "efficiency",
+			"Economic Preferences": "efficiency",
+			"Attitude Modifiers": "diplomacy",
+			"Trade Thresholds": "diplomacy"
+		}
+
+		symbols = {
+			#"threat": ">",
+			#"threat": "o",
+			"threat": "+",
+			"efficiency": "#",
+			"diplomacy": "="
+		}
+
+		inverse_logic = [
+			"getDogpileWarRand", "getDemandRebukedWarProb", "getDeclareWarTradeRand",
+			"getMaxWarRand", "getLimitedWarRand", "getBaseAttackOddsChange",
+			"getRefuseToTalkWarThreshold", "getNoTechTradeThreshold"
+		]
 
 		left_categories = ["War Strategy", "Diplomacy", "Victory Strategy"]
 		right_categories = ["Economic Preferences", "Attitude Modifiers", "Trade Thresholds"]
@@ -376,7 +399,7 @@ class SevoPediaLeader:
 			first = True
 			for category in categories:
 				if not first:
-					y += categorySpacing  # Add spacing between categories
+					y += categorySpacing
 				else:
 					first = False
 
@@ -384,18 +407,18 @@ class SevoPediaLeader:
 							   CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
 							   WidgetTypes.WIDGET_GENERAL, -1, -1)
 				y += lineHeight
+
+				attrType = attr_types.get(category, "efficiency")
+				symbol = symbols.get(attrType, ">")
+
 				for label, funcName in self.ai_attribute_categories[category]:
 					try:
 						values = [getattr(gc.getLeaderHeadInfo(i), funcName)() for i in range(numLeaders)]
 						value = getattr(leader, funcName)()
 						min_val = min(values)
 						max_val = max(values)
-						inverse = funcName in [
-							"getDogpileWarRand", "getDemandRebukedWarProb", "getDeclareWarTradeRand",
-							"getMaxWarRand", "getLimitedWarRand", "getBaseAttackOddsChange",
-							"getRefuseToTalkWarThreshold", "getNoTechTradeThreshold"
-						]
-						plus_label = get_plus_scale(value, min_val, max_val, inverse)
+						inverse = funcName in inverse_logic
+						scale_text = get_symbol_scale(value, min_val, max_val, inverse, symbol)
 
 						screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % label,
 									   CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
@@ -403,12 +426,22 @@ class SevoPediaLeader:
 						screen.setText(self.top.getNextWidgetName(), "", u"<font=2b>%d</font>" % value,
 									   CvUtil.FONT_LEFT_JUSTIFY, xValue, y, 0, FontTypes.SMALL_FONT,
 									   WidgetTypes.WIDGET_GENERAL, -1, -1)
-						screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % plus_label,
+						screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % scale_text,
 									   CvUtil.FONT_LEFT_JUSTIFY, xScale, y, 0, FontTypes.SMALL_FONT,
 									   WidgetTypes.WIDGET_GENERAL, -1, -1)
 						y += lineHeight
 					except:
 						pass
+
+			# Add legend at bottom
+			y += legendSpacing
+			screen.setText(self.top.getNextWidgetName(), "", u"<font=2>――――――――――――――――――</font>",
+						   CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
+						   WidgetTypes.WIDGET_GENERAL, -1, -1)
+			y += lineHeight
+			screen.setText(self.top.getNextWidgetName(), "", u"<font=2>Legend: Threat = #   Efficiency = >   Diplomacy = :</font>",
+						   CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
+						   WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		render_categories(screen, left_categories, xName1, xValue1, xScale1, y1)
 		render_categories(screen, right_categories, xName2, xValue2, xScale2, y2)
