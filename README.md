@@ -28,7 +28,7 @@ i would move them to the bottom so you don't have to reread all ideally.
 
 ## Sex-neutral unit names or/and combat types (todo and non-exhaustive)
 
-Yet to be done, but i want (more at least) sex-neutral terms for units. Tbh i don't care much if at all (but is maybe nice, anyways), but i intend to implement some women units, especially light units where i think women make more sense (less strength required and they are more agile perhaps too, anyways). I also think (some of them) they were very lousy (names), for example for "spearman" it's basically just weapon-man, i am not even sure it's a proper word for most units but i don't know much about this, anyways. Also, unless the unit was strongly masculine, i see no reason to use weaponman specifically, anyways.
+Yet to be done, but i want (more at least) sex-neutral terms for units. Tbh i don't care much if at all (but is maybe nice, anyways), but i intend to implement some women units, especially light units where i think women make more sense (less strength required and they are more agile perhaps too, anyways). I also think they (some of them at least anyways) were very lousy (names), for example for "spearman" it's basically just weapon-man, i am not even sure it's a proper word for most units but i don't know much about this, anyways. Also, unless the unit was strongly masculine, i see no reason to use weaponman specifically, anyways.
 
 Back to the topic of sex-neutral units,So "Swordsman" does not make sense anymore for that, see [Less generic or inaccurate unit names or/and combat types (todo)](#less-generic-or-inaccurate-unit-names-orand-combat-types-todo) for details.
 
