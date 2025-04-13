@@ -126,11 +126,23 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		self.X_CATEGORIES = 0
 		self.Y_CATEGORIES = (self.Y_TOP_PANEL + self.H_TOP_PANEL) - 4
-		self.W_CATEGORIES = 182 # advc.002b: was 175
+		# <!-- custom: was 182 -->
+		# advc.002b: was 175
+		self.W_CATEGORIES = 182
 		# <advc.004y>
 		if self.bWideScreen:
+			# <!-- custom: could reduce it to 200 still displaying all text in the
+			# dedicated panel (but very close, 199 does not fit, 200 is the strict
+			# minimum on 1920 x 1080, and i assume resolutions don't affect this but
+			# i don't know, still even if they did is quite minor (at worse the text
+			# would need 2 rows (in total to be displayed in just the category, but
+			# the place/room i gain is very (and much more useful than this header
+			# width, so leaving as is, even if does not work/function as intended is
+			# fine, as long as not critically broken this is (just but anyways...)
+			# the category header text, we need info on the main big panel rather,
+			# anyways), was 230 -->
 			# Can't be much thinner than this or hover text will sometimes appear in the categories columns and sometimes (when the text box is too wide) in the items column
-			self.W_CATEGORIES = 230
+			self.W_CATEGORIES = 200
 		# </advc.004y>
 		self.H_CATEGORIES = (self.Y_BOT_PANEL + 3) - self.Y_CATEGORIES
 
@@ -139,6 +151,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.W_ITEMS = 210
 		# <advc.004y>
 		if self.bWideScreen:
+			# <!-- custom: was 230 -->
 			self.W_ITEMS = 230
 		# </advc.004y>
 		self.H_ITEMS = self.H_CATEGORIES
@@ -482,8 +495,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			# <!-- custom: allow room to fit more characters; our
 			# text "Concepts (Outdated)" doesn't fit otherwise.
 			#
-			# Not increasing to further to accomodate the -1 for other
-			# languages, as they are unlikely to use such long
+			# Not increasing this further to accomodate the -1 for
+			# other languages, as they are unlikely to use such long
 			# texts anyway, and i really need or/and want the extra
 			# space (that is not so useful in categories headers
 			# i think, but anyways), was 16
