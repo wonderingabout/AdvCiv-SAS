@@ -9,10 +9,10 @@ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond
 then modified to:
 
 My goals doing this are:
-- rename "BtS Concepts" to "Mods Info"
-- rename "Game Concepts" to "BtS Concepts (Outdated)"
+- rename "Concepts" to "Mods Info"
+- rename "Game Concepts" to "Concepts (Outdated)"
 - move all entries that are in "Mods Info (Outdated)"
-(except BtS rules changes) to "BtS Concepts (Outdated)"
+(except BtS rules changes) to "Concepts (Outdated)"
 
 Purpose:
 - gather all Civ4 old data together (vanilla + BTS)
@@ -150,12 +150,12 @@ now.
 
 		<!-- custom: these old vanilla civ4 concepts (if i am not mistaken)
 		were already in BasicInfos.XML, and are now (in the Sevopedia) instead,
-		displayed alongside the BTS concepts (almost all, except BTS rules
+		displayed alongside the Concepts (almost all, except BTS rules
 		changes).
 		I think the game and the BTS expansion is old enough to consider
 		them the same game, so merging these together for a clear view,
 		and to highlight they are outdated in the new TXT KEY of the
-		sevopedia category "BTS Concepts " -->
+		sevopedia category "Concepts " -->
 		<ConceptInfo>
 			<Type>CONCEPT_ANIMALS</Type>
 			<Description>TXT_KEY_CONCEPT_ANIMALS</Description>

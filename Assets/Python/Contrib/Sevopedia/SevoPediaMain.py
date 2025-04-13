@@ -480,17 +480,18 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			szHeading = category[1]
 			# For English, 16 happens to be OK.
 			# <!-- custom: allow room to fit more characters; our
-			# text "Bts Concepts (Outdated)" doesn't fit if this
-			# is less than 23.
-			# Not increasing to 24 to accomodate 23 for other
+			# text "Concepts (Outdated)" doesn't fit otherwise.
+			#
+			# Not increasing to further to accomodate the -1 for other
 			# languages, as they are unlikely to use such long
-			# texts anyway, saving the one extra iThresh instead,
-			# was 16
+			# texts anyway, and i really need or/and want the extra
+			# space (that is not so useful in categories headers
+			# i think, but anyways), was 16
 			# --> 
-			iThresh = 23
+			iThresh = 19
 			if gc.getGame().getCurrentLanguage() != 0:
 				# <!-- custom: was 15 -->
-				iThresh = 23
+				iThresh = 19
 			if len(szHeading) <= iThresh:
 				szHeading = graphic + szHeading # </advc.002b>
 			screen.appendListBoxStringNoUpdate(self.CATEGORY_LIST_ID, szHeading, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MAIN + i + 1, 0, CvUtil.FONT_LEFT_JUSTIFY)
