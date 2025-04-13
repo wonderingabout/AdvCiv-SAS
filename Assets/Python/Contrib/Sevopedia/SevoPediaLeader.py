@@ -48,19 +48,22 @@ class SevoPediaLeader:
 		# - in sevopedia (before my fix): 421 x 488 	(ratio: 0,8627)    ;    (reverse-ratio: 1,1591)
 		# - ingame diplomacy: 709 x 866 				(ratio: 0,8187)    ;    (reverse-ratio: 1,1214)
 		# (data extracted from my notes_about_art_design file in this mod, please look at it or the filename
-		# containing this data or similar for details, thanks,)
-		# Since the value (ratio in particular is different than what i measured (0,8627 bd 0,8278 here, i will
+		# containing this data or similar for details)
+		#
+		# Since the value (ratio in particular is different than what i measured (0,8627 vs 0,8278 here, i will
 		# try to adjust it based on that to hopefully have a matching ratio or a bit better or more or not,
 		# anyways, )) (while also increasing the portrait/picture which i think is a bit small currently, maybe
 		# more immersive or/and pleasant or not, anyways, )
-		# Now ratio is 287 / 350 = 0,8200 (much closer to 0,8187 i measured in game, while also increasing size
-		# (of the portrait anyways) anyways)
-		# this looks good but i want to try to increase it more (portrait size, anyways, ):
+		# Now ratio is 287 / 350 = 0,8200 (much closer to 0,8187 that i measured in game diplomacy (see above,
+		# anyways), while also increasing size (of the portrait anyways) anyways)
+		#
+		# This looks good but i want to try to increase it more (portrait size, anyways, ):
 		# Now 327 / 400 = 0,8175 (which is very close to 0,8187 while also a bigger picture, anyways)
 		# Increasing it more is maybe possible but we start to see the pixels in the animations (see Gandhi's arm)
 		# not being straight for example, if we replace animations with images like with/for Ogiso Igodo (Kingdom
 		# of Benin, anyways) then hese enhanced portaits would be better and more epic, will see if i increase it
 		# more or not, maybe leaving as is at least for now or not, anyways,
+		#
 		# Actually all this calculation is not exactly accurate because W_LEADERHEAD_PANE and W_LEADERHEAD are
 		# different in this base advciv / sevopedia(?) code, but hopefully accurate enough and ratio should be
 		# much closer now to the ingame diplomacy ratio, hopefully less stretched but not sure or guaranteed, should
