@@ -21,6 +21,8 @@ localText = CyTranslator()
 
 class SevoPediaLeader:
 
+
+
 	def __init__(self, main):
 		self.iLeader = -1
 		self.top = main
@@ -66,6 +68,7 @@ class SevoPediaLeader:
 		self.H_AI_PERSONALITY = self.top.B_PEDIA_PAGE - 65
 
 
+
 	def interfaceScreen(self, iLeader):
 		self.iLeader = iLeader
 		screen = self.top.getScreen()
@@ -75,11 +78,13 @@ class SevoPediaLeader:
 		self.leaderWidget = self.top.getNextWidgetName()
 		screen.addLeaderheadGFC(self.leaderWidget, self.iLeader, AttitudeTypes.ATTITUDE_PLEASED, self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
-		self.placeHistory()
+		# <!-- custom: change call order to match filling from top left to bottom right, more
+		# intuitive this way perhaps, anyways, -->
+		self.placeCiv()
 		self.placeCivic()
 		self.placeReligion()
-		self.placeCiv()
 		self.placeTraits()
+		self.placeHistory()
 		self.placeAIPersonalityPanel(iLeader)
 
 
@@ -91,17 +96,6 @@ class SevoPediaLeader:
 			if civ.isLeaders(self.iLeader):
 				screen.setImageButton(self.top.getNextWidgetName(), civ.getButton(), self.X_CIV, self.Y_CIV, self.W_CIV, self.H_CIV, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iCiv, 1)
 
-
-
-	def placeTraits(self):
-		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_TRAITS", ()), "", True, False, self.X_TRAITS, self.Y_TRAITS, self.W_TRAITS, self.H_TRAITS, PanelStyles.PANEL_STYLE_BLUE50)
-		listName = self.top.getNextWidgetName()
-		# advc.001: Civ search moved into a static method
-		szSpecialText = CyGameTextMgr().parseLeaderTraits(self.iLeader, SevoPediaLeader.getCiv(self.iLeader), False, True)
-		szSpecialText = szSpecialText[1:]
-		screen.addMultilineText(listName, szSpecialText, self.X_TRAITS+5, self.Y_TRAITS+30, self.W_TRAITS-10, self.H_TRAITS-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 	# advc.001 (from Taurus): Static for use by SevoPediaMain; body cut from placeTraits.
@@ -118,6 +112,7 @@ class SevoPediaLeader:
 		return iLeaderCiv # </advc.001>
 
 
+
 	def placeCivic(self):		
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -129,6 +124,7 @@ class SevoPediaLeader:
 			screen.addMultilineText(listName, szCivicText, self.X_CIVIC+5, self.Y_CIVIC+30, self.W_CIVIC-10, self.H_CIVIC-10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
+
 	def placeReligion(self):		
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -137,6 +133,18 @@ class SevoPediaLeader:
 			szReligionText = u"<link=literal>" + gc.getReligionInfo(iReligion).getDescription() + u"</link>"
 			listName = self.top.getNextWidgetName()
 			screen.addMultilineText(listName, szReligionText, self.X_CIVIC+5, self.Y_CIVIC+50, self.W_CIVIC-10, self.H_CIVIC-10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+
+
+	def placeTraits(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_TRAITS", ()), "", True, False, self.X_TRAITS, self.Y_TRAITS, self.W_TRAITS, self.H_TRAITS, PanelStyles.PANEL_STYLE_BLUE50)
+		listName = self.top.getNextWidgetName()
+		# advc.001: Civ search moved into a static method
+		szSpecialText = CyGameTextMgr().parseLeaderTraits(self.iLeader, SevoPediaLeader.getCiv(self.iLeader), False, True)
+		szSpecialText = szSpecialText[1:]
+		screen.addMultilineText(listName, szSpecialText, self.X_TRAITS+5, self.Y_TRAITS+30, self.W_TRAITS-10, self.H_TRAITS-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
