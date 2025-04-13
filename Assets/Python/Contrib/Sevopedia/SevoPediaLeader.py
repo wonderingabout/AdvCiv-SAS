@@ -33,9 +33,13 @@ localText = CyTranslator()
 
 class SevoPediaLeader:
 
-
-
 	def __init__(self, main):
+		# <!-- custom: may improve performance and code reliability and practicality to put
+		# the dictionnary at init rather than inside , is just my opinion/thought/feel, may
+		# or not, but hope helps, anyways see the ChatGPT breakdown (at the end of this
+		# commit's message) for details:
+		# https://github.com/wonderingabout/AdvCiv-SAS/commit/bd42f5ad49d4370e9ef41081da6ed5e652939250
+		# -->
 		self.ai_attribute_categories = {
 			"War Strategy": [
 				("Max War Rand", "getMaxWarRand"),
