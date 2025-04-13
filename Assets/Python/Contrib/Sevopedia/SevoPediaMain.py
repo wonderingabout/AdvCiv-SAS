@@ -126,9 +126,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		self.X_CATEGORIES = 0
 		self.Y_CATEGORIES = (self.Y_TOP_PANEL + self.H_TOP_PANEL) - 4
-		# <!-- custom: was 182 -->
+		# <!-- custom: increase for smaller screens (resolutions) too, now that
+		# sevopedia is expanded (no margins) they should have much more room
+		# hopefully to accomodate a full row width, increase only as minimally
+		# as necessary (acording to what i measured) (did nto test but should
+		# hopefully work perhaps even better, anywyas), was 182 -->
 		# advc.002b: was 175
-		self.W_CATEGORIES = 182
+		self.W_CATEGORIES = 200
 		# <advc.004y>
 		if self.bWideScreen:
 			# <!-- custom: could reduce it to 200 still displaying all text in the
@@ -140,7 +144,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			# width, so leaving as is, even if does not work/function as intended is
 			# fine, as long as not critically broken this is (just but anyways...)
 			# the category header text, we need info on the main big panel rather,
-			# anyways), was 230 -->
+			# anyways), was 230
+			# May actually even be visually clearer as the distance between the words
+			# in categories and the items's words in the items category is smaller,
+			# perhaps allowing for an even smaller,allowing for a faster and more direct,
+			# perhaps clearer intutive connection between these maybe but anyways
+			# -->
 			# Can't be much thinner than this or hover text will sometimes appear in the categories columns and sometimes (when the text box is too wide) in the items column
 			self.W_CATEGORIES = 200
 		# </advc.004y>
@@ -148,10 +157,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		self.X_ITEMS = self.X_CATEGORIES + self.W_CATEGORIES + 2
 		self.Y_ITEMS = self.Y_CATEGORIES
-		self.W_ITEMS = 210
+		# <!-- custom: same reasoning as for/in smaller categories, did not
+		# test but should be fine with the new space, anyways, was 210
+		self.W_ITEMS = 230
 		# <advc.004y>
 		if self.bWideScreen:
-			# <!-- custom: was 230 -->
 			self.W_ITEMS = 230
 		# </advc.004y>
 		self.H_ITEMS = self.H_CATEGORIES
