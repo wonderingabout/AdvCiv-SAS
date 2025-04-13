@@ -261,63 +261,6 @@ class SevoPediaLeader:
 	# also data fetching logic mostly if not entirely provided by ChatGPT, or/and with
 	# some additions or modifications or removals or other i did or did not, anyways
 	def placeAIPersonalityPanel(self, iLeader):
-		screen = self.top.getScreen()
-		firstPanelName = self.top.getNextWidgetName()
-		firstPanelHeaderTxt = localText.getText("TXT_KEY_AI_PERSONALITY", ()) + " (1)"
-		screen.addPanel(firstPanelName, firstPanelHeaderTxt, "", True, True,
-						self.X_AI_PERSONALITY, self.Y_AI_PERSONALITY,
-						self.W_AI_PERSONALITY, self.H_AI_PERSONALITY,
-						PanelStyles.PANEL_STYLE_BLUE50)
-		
-		
-
-		# SECOND EMPTY PANEL (right next to the first)
-		xSecondPanel = self.X_AI_PERSONALITY - self.W_AI_PERSONALITY - self.MEDIUM_MARGIN
-		ySecondPanel = self.Y_AI_PERSONALITY
-		wSecondPanel = self.W_AI_PERSONALITY
-		hSecondPanel = self.H_AI_PERSONALITY
-
-		emptyPanelName = self.top.getNextWidgetName()
-		emptyPanelHeaderTxt = localText.getText("TXT_KEY_AI_PERSONALITY", ()) + " (2)"
-		#screen.addPanel(emptyPanelName, emptyPanelHeaderTxt, "", True, True,
-		#				xSecondPanel, ySecondPanel, wSecondPanel, hSecondPanel,
-		#				PanelStyles.PANEL_STYLE_BLUE50)
-		screen.addPanel(emptyPanelName, emptyPanelHeaderTxt, "", True, True,
-						xSecondPanel, ySecondPanel, wSecondPanel, hSecondPanel,
-						PanelStyles.PANEL_STYLE_BLUE50)
-
-		# Leave the second panel empty for now — no content yet.
-
-
-
-
-		leader = gc.getLeaderHeadInfo(iLeader)
-		numLeaders = gc.getNumLeaderHeadInfos()
-
-		# Table positioning
-		xName = self.X_AI_PERSONALITY + 15
-		xValue = xName + 260
-		xScale = xValue + 60
-		y = self.Y_AI_PERSONALITY + 35
-		lineHeight = 22
-
-		def get_plus_scale(val, min_val, max_val, inverse=False):
-			if max_val == min_val:
-				return "+"
-			ratio = float(val - min_val) / float(max_val - min_val)
-			if inverse:
-				ratio = 1.0 - ratio
-			if ratio < 0.2:
-				return "+"
-			elif ratio < 0.4:
-				return "++"
-			elif ratio < 0.6:
-				return "+++"
-			elif ratio < 0.8:
-				return "++++"
-			else:
-				return "+++++"
-
 		attribute_categories = {
 			"War Strategy": [
 				("Max War Rand", "getMaxWarRand"),
@@ -383,67 +326,98 @@ class SevoPediaLeader:
 			],
 		}
 
+		screen = self.top.getScreen()
 
+		# === FIRST PANEL ===
+		firstPanelName = self.top.getNextWidgetName()
+		screen.addPanel(firstPanelName, localText.getText("TXT_KEY_AI_PERSONALITY", ()) + " (1)", "", True, True,
+						self.X_AI_PERSONALITY, self.Y_AI_PERSONALITY,
+						self.W_AI_PERSONALITY, self.H_AI_PERSONALITY,
+						PanelStyles.PANEL_STYLE_BLUE50)
 
+		# === SECOND PANEL ===
+		secondPanelName = self.top.getNextWidgetName()
+		xSecond = self.X_AI_PERSONALITY - self.W_AI_PERSONALITY - self.MEDIUM_MARGIN
+		screen.addPanel(secondPanelName, localText.getText("TXT_KEY_AI_PERSONALITY", ()) + " (2)", "", True, True,
+						xSecond, self.Y_AI_PERSONALITY,
+						self.W_AI_PERSONALITY, self.H_AI_PERSONALITY,
+						PanelStyles.PANEL_STYLE_BLUE50)
 
-		# <!-- custom: increment to know max items (or tweak further by using
-		# pre-ordering logic or reorder data but first try or not this anyways)
-		# -->
-		i = 0
-		j = 0
-		limitHeight = 36
+		leader = gc.getLeaderHeadInfo(iLeader)
+		numLeaders = gc.getNumLeaderHeadInfos()
 
+		# Layout config
+		lineHeight = 22
+		xName1 = self.X_AI_PERSONALITY + 15
+		xValue1 = xName1 + 260
+		xScale1 = xValue1 + 60
+		y1 = self.Y_AI_PERSONALITY + 35
 
+		xName2 = xSecond + 15
+		xValue2 = xName2 + 260
+		xScale2 = xValue2 + 60
+		y2 = self.Y_AI_PERSONALITY + 35
 
+		def get_plus_scale(val, min_val, max_val, inverse=False):
+			if max_val == min_val:
+				return "+"
+			ratio = float(val - min_val) / float(max_val - min_val)
+			if inverse:
+				ratio = 1.0 - ratio
+			if ratio < 0.2:
+				return "+"
+			elif ratio < 0.4:
+				return "++"
+			elif ratio < 0.6:
+				return "+++"
+			elif ratio < 0.8:
+				return "++++"
+			else:
+				return "+++++"
 
-		for category, attributes in attribute_categories.items():
+		# Define which categories go in each panel
+		left_categories = ["War Strategy", "Diplomacy", "Victory Strategy"]
+		right_categories = ["Economic Preferences", "Attitude Modifiers", "Trade Thresholds"]
 
-
-			if j < limitHeight:
-
-
+		# Common function for rendering
+		def render_categories(screen, categories, xName, xValue, xScale, yStart):
+			y = yStart
+			for category in categories:
 				screen.setText(self.top.getNextWidgetName(), "", u"<font=3b>%s</font>" % category,
-							CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
-							WidgetTypes.WIDGET_GENERAL, -1, -1)
+							   CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
+							   WidgetTypes.WIDGET_GENERAL, -1, -1)
 				y += lineHeight
+				for label, funcName in attribute_categories[category]:
+					try:
+						values = [getattr(gc.getLeaderHeadInfo(i), funcName)() for i in range(numLeaders)]
+						value = getattr(leader, funcName)()
+						min_val = min(values)
+						max_val = max(values)
+						inverse = funcName in [
+							"getDogpileWarRand", "getDemandRebukedWarProb", "getDeclareWarTradeRand",
+							"getMaxWarRand", "getLimitedWarRand", "getBaseAttackOddsChange",
+							"getRefuseToTalkWarThreshold", "getNoTechTradeThreshold"
+						]
+						plus_label = get_plus_scale(value, min_val, max_val, inverse)
+
+						screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % label,
+									   CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
+									   WidgetTypes.WIDGET_GENERAL, -1, -1)
+						screen.setText(self.top.getNextWidgetName(), "", u"<font=2b>%d</font>" % value,
+									   CvUtil.FONT_LEFT_JUSTIFY, xValue, y, 0, FontTypes.SMALL_FONT,
+									   WidgetTypes.WIDGET_GENERAL, -1, -1)
+						screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % plus_label,
+									   CvUtil.FONT_LEFT_JUSTIFY, xScale, y, 0, FontTypes.SMALL_FONT,
+									   WidgetTypes.WIDGET_GENERAL, -1, -1)
+						y += lineHeight
+					except:
+						pass
+
+		# Render each table
+		render_categories(screen, left_categories, xName1, xValue1, xScale1, y1)
+		render_categories(screen, right_categories, xName2, xValue2, xScale2, y2)
 
 
-				# <!-- custom: test
-				i += 1
-
-				for label, funcName in attributes:
-
-
-					if j < limitHeight:
-
-
-						try:
-							values = [getattr(gc.getLeaderHeadInfo(i), funcName)() for i in range(numLeaders)]
-							value = getattr(leader, funcName)()
-							min_val = min(values)
-							max_val = max(values)
-							inverse = funcName in [
-								"getDogpileWarRand", "getDemandRebukedWarProb", "getDeclareWarTradeRand",
-								"getMaxWarRand", "getLimitedWarRand", "getBaseAttackOddsChange",
-								"getRefuseToTalkWarThreshold", "getNoTechTradeThreshold"
-							]
-							plus_label = get_plus_scale(value, min_val, max_val, inverse)
-
-							screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % label,
-										CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
-										WidgetTypes.WIDGET_GENERAL, -1, -1)
-							screen.setText(self.top.getNextWidgetName(), "", u"<font=2b>%d</font>" % value,
-										CvUtil.FONT_LEFT_JUSTIFY, xValue, y, 0, FontTypes.SMALL_FONT,
-										WidgetTypes.WIDGET_GENERAL, -1, -1)
-							screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % plus_label,
-										CvUtil.FONT_LEFT_JUSTIFY, xScale, y, 0, FontTypes.SMALL_FONT,
-										WidgetTypes.WIDGET_GENERAL, -1, -1)
-							y += lineHeight
-
-							# <!-- custom: test
-							j += 1
-						except:
-							pass
 
 
 
