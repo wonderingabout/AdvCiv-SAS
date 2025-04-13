@@ -17,6 +17,13 @@
 		<English>3_AdvCiv-SAS Core Changes</English>
 	</TEXT>
 
+
+	<TEXT>
+		<Tag>TXT_KEY_AI_PERSONALITY</Tag>
+		<English>AI Personality</English>
+	</TEXT>
+
+
 	<!-- custom: do not rename the tag itself as we would have to recompile
 	and may break compatibility with other mods, we mostly (just or not)
 	wanted to rename the tag of promotioninfo itself that is much more used

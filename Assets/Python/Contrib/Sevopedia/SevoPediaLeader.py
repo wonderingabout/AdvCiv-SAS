@@ -8,6 +8,18 @@
 #
 # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
 #
+# <!-- custom: part of the code here (placeFavourites in particular, but not exhaustive or maybe exhaustive
+# or not, anyways, is imported from RFC Dawn of Civilization mod:
+# C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaLeader.py
+# which may be modified or not for AdvCiv-SAS
+# 
+# And a big part of the code, in particular the AI Personality code, is almost entirely provided by ChatGPT (and the
+# result of my prompts to it), which i may have then modified or not for AdvCiv-SAS
+#
+# Apart from that, i may have modified the existing base advciv code (that i found good enough so using it as a base
+# rather than removing it, and quite good actually, only needing tweaking but is a solid base (i think or not) maybe
+# or not, anyways, ) or not for AdvCiv-SAS, anyways,
+# -->
 
 from CvPythonExtensions import *
 import CvUtil
@@ -29,66 +41,154 @@ class SevoPediaLeader:
 
 		self.X_LEADERHEAD_PANE = self.top.X_PEDIA_PAGE
 		self.Y_LEADERHEAD_PANE = self.top.Y_PEDIA_PAGE
-		self.W_LEADERHEAD_PANE = 240
-		self.H_LEADERHEAD_PANE = 290
+		# <!-- custom: for the ratio of the portrait, make it (at least i chose to make it
+		# explained after this anyways) match the ingame diplomacy portrait ratio
+		# 240 / 290 = 0,8278
+		# i have measured this on my (4K but anyways) screen in windowed mode (for dev mod but anyways)
+		# - in sevopedia (before my fix): 421 x 488 	(ratio: 0,8627)    ;    (reverse-ratio: 1,1591)
+		# - ingame diplomacy: 709 x 866 				(ratio: 0,8187)    ;    (reverse-ratio: 1,1214)
+		# (data extracted from my notes_about_art_design file in this mod, please look at it or the filename
+		# containing this data or similar for details, thanks,)
+		# Since the value (ratio in particular is different than what i measured (0,8627 bd 0,8278 here, i will
+		# try to adjust it based on that to hopefully have a matching ratio or a bit better or more or not,
+		# anyways, )) (while also increasing the portrait/picture which i think is a bit small currently, maybe
+		# more immersive or/and pleasant or not, anyways, )
+		# Now ratio is 287 / 350 = 0,8200 (much closer to 0,8187 i measured in game, while also increasing size
+		# (of the portrait anyways) anyways)
+		# this looks good but i want to try to increase it more (portrait size, anyways, ):
+		# Now 327 / 400 = 0,8175 (which is very close to 0,8187 while also a bigger picture, anyways)
+		# Increasing it more is maybe possible but we start to see the pixels in the animations (see Gandhi's arm)
+		# not being straight for example, if we replace animations with images like with/for Ogiso Igodo (Kingdom
+		# of Benin, anyways) then hese enhanced portaits would be better and more epic, will see if i increase it
+		# more or not, maybe leaving as is at least for now or not, anyways,
+		# Actually all this calculation is not exactly accurate because W_LEADERHEAD_PANE and W_LEADERHEAD are
+		# different in this base advciv / sevopedia(?) code, but hopefully accurate enough and ratio should be
+		# much closer now to the ingame diplomacy ratio, hopefully less stretched but not sure or guaranteed, should
+		# be for images i send as replacements of animations though as i base them on the ingame diplomacy's ratio,
+		# not the old sevopedia leader portait ratio, anyways, so now the new sevopedia ratio for the leader portrait
+		# i have added is hopefully much much closer to the old and as of now still existing ratio of the ingame
+		# diplomacy leader portrait, which i don't think i'm changing anytime soon as it is most likely more tedious for
+		# questionable gain, so using this one as a basis rather, not that is undoable but probably much harder and not
+		# necessarily worth it, and if animations are based on the diplomacy ingame ratio rather then they may also display
+		# better in the sevopedia with my new sevopedia ratio, (which intuitively or from a quick glance seems to be the
+		# case, image looks less compressed on its sides but not sure or guaranteed, check yourself if want to be sure or
+		# not, but i hope this helps, and that being said, anyways) anyways
+		# -->
+		#self.W_LEADERHEAD_PANE = 240
+		#self.H_LEADERHEAD_PANE = 290
+		self.W_LEADERHEAD_PANE = 327
+		self.H_LEADERHEAD_PANE = 400
+
+		# <!-- custom:
+		# 1) absolute dimensions first -->
+
+		# <!-- custom: make room to add AI personality panel -->
+		self.W_AI_PERSONALITY = 395
+
+		self.SMALL_MARGIN = 10
+		self.MEDIUM_MARGIN = 20
+		# <!-- custom: we also need this information sooner, move it here with the more absolute
+		# dimensions of some elements
+		self.W_CIV = 64
+		self.H_CIV = 64
+		self.CIV_MARGIN = 0
+		self.CIV_DISELEVATION = 38
+		
+		self.H_FAVORITES = 110
+
+		# <!-- custom:
+		# 2) relative dimensions or/and positions then -->
 
 		self.W_LEADERHEAD = self.W_LEADERHEAD_PANE - 30
 		self.H_LEADERHEAD = self.H_LEADERHEAD_PANE - 34
 		self.X_LEADERHEAD = self.X_LEADERHEAD_PANE + (self.W_LEADERHEAD_PANE - self.W_LEADERHEAD) / 2
 		self.Y_LEADERHEAD = self.Y_LEADERHEAD_PANE + (self.H_LEADERHEAD_PANE - self.H_LEADERHEAD) / 2 + 3
 
-		self.W_CIV = 64
-		self.H_CIV = 64
-		self.X_CIV = self.X_LEADERHEAD_PANE + (self.W_LEADERHEAD_PANE - self.W_CIV) / 2
-		self.Y_CIV = self.Y_LEADERHEAD_PANE + self.H_LEADERHEAD_PANE + 10
+		# <!-- custom: we need self.W_HISTORY before the favourites coordinates, (even though the history
+		# panel is placed under/after the favourites panel when i constructed the page's "spacing" and
+		# dimensions of (and between) panels, anyways) because/as the favourites panel uses/needs/is based on
+		# the history panel's (relative) position, anyways --> 
+		self.W_HISTORY = self.top.R_PEDIA_PAGE - (2 * (self.W_AI_PERSONALITY + self.MEDIUM_MARGIN)) - self.X_LEADERHEAD_PANE
 
-		# <!-- custom: make room to add AI personality panel -->
-		self.W_AI_PERSONALITY = 500
-		self.W_AI_PERSONALITY_MARGIN = 20
+		#self.X_FAVORITES = self.X_LEADERHEAD_PANE + self.W_LEADERHEAD_PANE + 10
+		#self.Y_FAVORITES = self.Y_LEADERHEAD_PANE
+		#self.W_FAVORITES = self.top.R_PEDIA_PAGE - self.X_FAVORITES - 64 - 10
+		#self.H_FAVORITES = 110
 
-		self.X_CIVIC = self.X_LEADERHEAD_PANE + self.W_LEADERHEAD_PANE + 10
-		self.Y_CIVIC = self.Y_LEADERHEAD_PANE
-		self.W_CIVIC = self.top.R_PEDIA_PAGE - self.W_AI_PERSONALITY - self.X_CIVIC - self.W_AI_PERSONALITY_MARGIN
-		self.H_CIVIC = 80
+		# mycode todo delete
+		#self.X_FAVORITES = self.X_LEADERHEAD_PANE + self.W_LEADERHEAD_PANE + self.MEDIUM_MARGIN
+		#self.Y_FAVORITES = self.Y_LEADERHEAD_PANE
+		#self.W_FAVORITES = self.W_HISTORY - self.W_CIV - self.MEDIUM_MARGIN
 
-		self.X_TRAITS = self.X_LEADERHEAD_PANE + self.W_LEADERHEAD_PANE + 10
-		self.Y_TRAITS = self.Y_CIVIC + self.H_CIVIC + 10
-		self.W_TRAITS = self.top.R_PEDIA_PAGE - self.W_AI_PERSONALITY - self.X_TRAITS - self.W_AI_PERSONALITY_MARGIN
-		self.H_TRAITS = self.Y_CIV + self.H_CIV - self.Y_TRAITS
+		self.X_FAVORITES = self.X_LEADERHEAD_PANE
+		self.Y_FAVORITES = self.Y_LEADERHEAD_PANE + self.H_LEADERHEAD_PANE + self.SMALL_MARGIN
+		self.W_FAVORITES = self.W_HISTORY - self.W_CIV - self.SMALL_MARGIN
 
+		#self.X_HISTORY = self.X_LEADERHEAD_PANE
+		#self.Y_HISTORY = self.Y_CIV + 64 + 10
+		#self.W_HISTORY = self.top.R_PEDIA_PAGE - self.W_AI_PERSONALITY - self.X_HISTORY - self.MEDIUM_MARGIN
+		#self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 		self.X_HISTORY = self.X_LEADERHEAD_PANE
-		self.Y_HISTORY = self.Y_CIV + self.H_CIV + 10
-		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.W_AI_PERSONALITY - self.X_HISTORY - self.W_AI_PERSONALITY_MARGIN
+		self.Y_HISTORY = self.Y_FAVORITES + self.H_FAVORITES + self.SMALL_MARGIN
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+
+		# <!-- custom: traits have the green color somehow, do not comment-out until i find how so i
+		# can feed it / = ask ChatGPT about it if it has ideas -->
+		#self.X_TRAITS = self.X_LEADERHEAD_PANE + self.W_LEADERHEAD_PANE + 10
+		#self.Y_TRAITS = self.Y_LEADERHEAD_PANE + 80 + 10
+		#self.W_TRAITS = self.top.R_PEDIA_PAGE - self.W_AI_PERSONALITY - self.X_TRAITS - self.MEDIUM_MARGIN
+		#self.H_TRAITS = 64 + 64 - self.Y_TRAITS
+		self.X_TRAITS = self.X_LEADERHEAD_PANE + self.W_LEADERHEAD_PANE + self.SMALL_MARGIN
+		self.Y_TRAITS = self.Y_LEADERHEAD_PANE
+		self.W_TRAITS = self.W_HISTORY - self.W_LEADERHEAD_PANE - self.SMALL_MARGIN
+		self.H_TRAITS = self.H_LEADERHEAD_PANE
+
+		# <!-- custom: move the civ (flag) closer to favourite civis and religions or somewhere else,
+		# more beautiful and less cumbersome this way maybe i think, anyways -->
+		#self.X_CIV = self.X_LEADERHEAD_PANE + (self.W_LEADERHEAD_PANE - self.W_CIV) / 2
+		#self.Y_CIV = self.Y_LEADERHEAD_PANE + self.H_LEADERHEAD_PANE + 10
+		self.X_CIV = self.X_HISTORY + self.W_HISTORY - self.CIV_MARGIN - self.W_CIV
+		#self.Y_CIV = self.Y_HISTORY - self.CIV_MARGIN - self.W_CIV
+		# <!-- custom: put the flag/civ at the middle Y of the favourites panel -->
+		#self.Y_CIV = self.Y_HISTORY - self.CIV_MARGIN - self.W_CIV
+		# <!-- custom: quite high as compared to favourites panel's lowest point -->
+		self.Y_CIV = self.Y_FAVORITES + self.CIV_DISELEVATION
 
 		# <!-- custom: the rest of the data here, as it is dependent on other data we need first
 		# that (i.e. before being able to add these) -->
-		self.X_AI_PERSONALITY = self.X_HISTORY + self.W_HISTORY + self.W_AI_PERSONALITY_MARGIN
-		self.Y_AI_PERSONALITY = self.Y_CIVIC
-		self.H_AI_PERSONALITY = self.top.B_PEDIA_PAGE - 65
+		self.X_AI_PERSONALITY = self.top.R_PEDIA_PAGE - self.W_AI_PERSONALITY 
+		self.Y_AI_PERSONALITY = self.Y_LEADERHEAD_PANE
+		self.H_AI_PERSONALITY = self.top.B_PEDIA_PAGE
 
 
 
 	def interfaceScreen(self, iLeader):
 		self.iLeader = iLeader
-		screen = self.top.getScreen()
-
-		leaderPanelWidget = self.top.getNextWidgetName()
-		screen.addPanel(leaderPanelWidget, "", "", True, True, self.X_LEADERHEAD_PANE, self.Y_LEADERHEAD_PANE, self.W_LEADERHEAD_PANE, self.H_LEADERHEAD_PANE, PanelStyles.PANEL_STYLE_BLUE50)
-		self.leaderWidget = self.top.getNextWidgetName()
-		screen.addLeaderheadGFC(self.leaderWidget, self.iLeader, AttitudeTypes.ATTITUDE_PLEASED, self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# <!-- custom: change call order to match filling from top left to bottom right, more
 		# intuitive this way perhaps, anyways, -->
+		self.placeLeader(iLeader)
 		self.placeCiv()
-		self.placeCivic()
-		self.placeReligion()
+		self.placeFavorites()
 		self.placeTraits()
 		self.placeHistory()
 		self.placeAIPersonalityPanel(iLeader)
 
 
 
+	# <!-- custom: wrap leader placement in a specific function for clarity
+	# or/and flexibility or not anyways,
+	# -->
+	def placeLeader(self, iLeader):
+		screen = self.top.getScreen()
+		leaderPanelWidget = self.top.getNextWidgetName()
+		screen.addPanel(leaderPanelWidget, "", "", True, True, self.X_LEADERHEAD_PANE, self.Y_LEADERHEAD_PANE, self.W_LEADERHEAD_PANE, self.H_LEADERHEAD_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+		self.leaderWidget = self.top.getNextWidgetName()
+		screen.addLeaderheadGFC(self.leaderWidget, iLeader, AttitudeTypes.ATTITUDE_PLEASED, self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+
+
+	# <!-- custom: logo / flag of the civ -->
 	def placeCiv(self):
 		screen = self.top.getScreen()
 		for iCiv in range(gc.getNumCivilizationInfos()):
@@ -113,26 +213,22 @@ class SevoPediaLeader:
 
 
 
-	def placeCivic(self):		
+	def placeFavorites(self):
 		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_FAV_CIVIC_AND_RELIGION", ()), "", True, True, self.X_CIVIC, self.Y_CIVIC, self.W_CIVIC, self.H_CIVIC, PanelStyles.PANEL_STYLE_BLUE50)
+		panel = self.top.getNextWidgetName()
+		screen.addPanel(panel, CyTranslator().getText("TXT_KEY_PEDIA_FAVOURITE_CIVICS_AND_RELIGIONS", ()), "", False, True, self.X_FAVORITES, self.Y_FAVORITES, self.W_FAVORITES, self.H_FAVORITES, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.enableSelect(panel, False)
+		screen.attachLabel(panel, "", "  ")
+
+		# Civic
 		iCivic = gc.getLeaderHeadInfo(self.iLeader).getFavoriteCivic()
-		if (-1 != iCivic):
-			szCivicText = u"<link=literal>" + gc.getCivicInfo(iCivic).getDescription() + u"</link>"
-			listName = self.top.getNextWidgetName()
-			screen.addMultilineText(listName, szCivicText, self.X_CIVIC+5, self.Y_CIVIC+30, self.W_CIVIC-10, self.H_CIVIC-10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		if iCivic > -1:
+			screen.attachImageButton(panel, "", gc.getCivicInfo(iCivic).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iCivic, 1, False)
 
-
-
-	def placeReligion(self):		
-		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
+		# Religion
 		iReligion = gc.getLeaderHeadInfo(self.iLeader).getFavoriteReligion()
-		if (-1 != iReligion):
-			szReligionText = u"<link=literal>" + gc.getReligionInfo(iReligion).getDescription() + u"</link>"
-			listName = self.top.getNextWidgetName()
-			screen.addMultilineText(listName, szReligionText, self.X_CIVIC+5, self.Y_CIVIC+50, self.W_CIVIC-10, self.H_CIVIC-10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		if iReligion > -1:
+			screen.attachImageButton(panel, "", gc.getReligionInfo(iReligion).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iReligion, 1, False)
 
 
 
