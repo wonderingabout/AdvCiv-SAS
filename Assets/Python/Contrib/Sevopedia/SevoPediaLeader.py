@@ -348,6 +348,8 @@ class SevoPediaLeader:
 
 		# Layout config
 		lineHeight = 22
+		categorySpacing = 10  # Extra padding between categories
+
 		xName1 = self.X_AI_PERSONALITY + 15
 		xValue1 = xName1 + 260
 		xScale1 = xValue1 + 60
@@ -375,14 +377,18 @@ class SevoPediaLeader:
 			else:
 				return "+++++"
 
-		# Define which categories go in each panel
 		left_categories = ["War Strategy", "Diplomacy", "Victory Strategy"]
 		right_categories = ["Economic Preferences", "Attitude Modifiers", "Trade Thresholds"]
 
-		# Common function for rendering
 		def render_categories(screen, categories, xName, xValue, xScale, yStart):
 			y = yStart
+			first = True
 			for category in categories:
+				if not first:
+					y += categorySpacing  # Add spacing between categories
+				else:
+					first = False
+
 				screen.setText(self.top.getNextWidgetName(), "", u"<font=3b>%s</font>" % category,
 							   CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
 							   WidgetTypes.WIDGET_GENERAL, -1, -1)
@@ -413,7 +419,6 @@ class SevoPediaLeader:
 					except:
 						pass
 
-		# Render each table
 		render_categories(screen, left_categories, xName1, xValue1, xScale1, y1)
 		render_categories(screen, right_categories, xName2, xValue2, xScale2, y2)
 
