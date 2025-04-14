@@ -7,17 +7,34 @@ newcomer players used to AdvCiv, Civ4 BTS, or some similar mods.
 
 todo cleanup extensive comments and move them to a longer changes guide notes
 
-## Sevopedia AdvCiv-SAS Entry
+## Sevopedia AdvCiv-SAS Entries
 
 Some of the changes in AdvCiv-SAS (coming from AdvCiv) are also listed in the
 Sevopedia Entry (non-exhaustive), please visit it there (the screenshot below
 (click to view it full size) may not be updated, it is to give a preview/general
 idea):
 
-<img src="./Docs_And_Appendixes/0.61_sevopedia_advciv_sas_core_changes.JPG" width="250"></img>
+<img src="./Docs_And_Appendixes/0.611_sevopedia_advciv_sas_core_changes.JPG" width="250"></img>
+
+There are also other additions, in particular written by ChatGPT which are documented, such as
+AI personality aggregates, very important addition to AdvCiv-SAS, hopefully useful
+documentation, and provided (code + documentation of it mostly by ChatGPT, even though
+i contributed quite a bit too but for most is by ChatGPT, anyways), recommended to see
+[this](/README.md#advciv-sas-core-sevopedia-pages-documentation-and-such)
+
+A copy of the screenshots (may not be latest version of it)
+
+<img src="./Docs_And_Appendixes/0.6121_sevopedia_advciv_sas_ai_personality.JPG" width="250"></img>
+<img src="./Docs_And_Appendixes/0.6122_sevopedia_advciv_sas_ai_personality.JPG" width="250"></img>
+<img src="./Docs_And_Appendixes/0.6123_sevopedia_advciv_sas_ai_personality.JPG" width="250"></img>
+<img src="./Docs_And_Appendixes/0.6124_sevopedia_advciv_sas_ai_personality.JPG" width="250"></img>
+<img src="./Docs_And_Appendixes/0.6125_sevopedia_advciv_sas_ai_personality.JPG" width="250"></img>
 
 For more screensot previews of new sevopedia entries or udpated ones (not exhaustive), please
 visit [this page of the main README.md](/README.md#example-of-sevopedia-reworks-click-on-the-images-below-to-view-them-full-size)
+
+And remember the latest info if there is any newer is ingame, there may also be other
+sevopedia docs or not written by ChatGPT or not, anyways.
 
 ## Full exhaustive changes
 
@@ -30,10 +47,6 @@ want (some of the) main quick pointers rather.
 
 ## Main Changes quick starter guide
 
-- AI personality aggregates, very important addition to AdvCiv-SAS, hopefully useful
-documentation, and provided (code + documentation of it mostly by ChatGPT, even though
-i contributed quite a bit too but for most is by ChatGPT, anyways), recommended to see
-[this](/README.md#advciv-sas-core-sevopedia-pages-documentation-and-such)
 - tech tree is vastly reordered for historical accuracy (for example steel is at
 iron age, pottery is before the wheel, metal casting before currency and before
 bronze working; and medicine at iron age, that too should be about accurate),

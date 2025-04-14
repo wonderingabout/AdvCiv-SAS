@@ -39,7 +39,11 @@ Except and on top of these examples, i also rewrote, quite modestly or more prou
 
 example 2: AI personality aggregates, and AI personality aggregates, very important addition, please visit the sevopedia in "Mods Information" help, related page for latest updated version, a screenshot here which may be accurate (as in updated or not, anyways):
 
-<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.612_sevopedia_advciv_sas_ai_personality.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.6121_sevopedia_advciv_sas_ai_personality.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.6122_sevopedia_advciv_sas_ai_personality.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.6123_sevopedia_advciv_sas_ai_personality.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.6124_sevopedia_advciv_sas_ai_personality.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.6125_sevopedia_advciv_sas_ai_personality.JPG" width="250"></img>
 
 ### other (existing mostly if not only) categories
 example 1: AI personality panel (data fetched directly from xml in live, auto updated to latest current in your mod folder), thanks a lot ChatGPT and all who helped me directly or indirectly or not or yes etc anyways:
