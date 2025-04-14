@@ -65,6 +65,10 @@ AI_HEADER_TRADE_THRESHOLDS = "Trade Thresholds"
 
 
 
+AI_AGGREGATE_CATEGORY_BREAKS = [6, 13]
+
+
+
 AI_ATTRIBUTE_CATEGORIES = {
 	AI_HEADER_WAR_STRATEGY: [
 		("Max War Rand", "getMaxWarRand"),
@@ -624,8 +628,8 @@ class SevoPediaLeader:
 
 				if category == AI_HEADER_AGGREGATES:
 					for idx, (label, fields) in enumerate(AI_AGGREGATES):
-						if idx in [6, 13]:  # or whatever indexes separate groups (War/Diplomacy/Economic/etc.)
-							y += categorySpacing
+						if idx in AI_AGGREGATE_CATEGORY_BREAKS:  # or whatever indexes separate groups (War/Diplomacy/Economic/etc.)
+							y += categorySpacing * 2  # Two-line spacing between groups
 
 						score = calculate_aggregate(leader, fields)
 						symbols_used = get_symbol_scale(score)
