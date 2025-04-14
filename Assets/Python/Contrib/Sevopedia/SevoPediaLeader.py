@@ -49,8 +49,24 @@ localText = CyTranslator()
 # these to init for more information if needed:
 # https://github.com/wonderingabout/AdvCiv-SAS/commit/bd42f5ad49d4370e9ef41081da6ed5e652939250
 # -->
+
+
+
+AI_HEADER_AGGREGATES = "Aggregates (% normalized)"
+
+
+
+AI_HEADER_WAR_STRATEGY = "War Strategy"
+AI_HEADER_DIPLOMACY = "Diplomacy"
+AI_HEADER_VICTORY_STRATEGY = "Victory Strategy (currently not working)"
+AI_HEADER_ECONOMIC_PREFERENCES = "Economic Preferences"
+AI_HEADER_ATTITUDE_MODIFIERS = "Attitude Modifiers"
+AI_HEADER_TRADE_THRESHOLDS = "Trade Thresholds"
+
+
+
 AI_ATTRIBUTE_CATEGORIES = {
-	"War Strategy": [
+	AI_HEADER_WAR_STRATEGY: [
 		("Max War Rand", "getMaxWarRand"),
 		("Max War Nearby Power Ratio", "getMaxWarNearbyPowerRatio"),
 		("Max War Distant Power Ratio", "getMaxWarDistantPowerRatio"),
@@ -60,7 +76,7 @@ AI_ATTRIBUTE_CATEGORIES = {
 		("Dogpile War Rand", "getDogpileWarRand"),
 		("Make Peace Rand", "getMakePeaceRand"),
 	],
-	"Diplomacy": [
+	AI_HEADER_DIPLOMACY: [
 		("Base Attitude", "getBaseAttitude"),
 		("Peace Weight", "getBasePeaceWeight"),
 		("Warmonger Respect", "getWarmongerRespect"),
@@ -71,14 +87,14 @@ AI_ATTRIBUTE_CATEGORIES = {
 		("Tech Trade Known %", "getTechTradeKnownPercent"),
 		("Declare War Trade Rand", "getDeclareWarTradeRand"),
 	],
-	"Victory Strategy (currently not working)": [
+	AI_HEADER_VICTORY_STRATEGY: [
 		("Culture Victory Weight", "getCultureVictoryWeight"),
 		("Space Victory Weight", "getSpaceVictoryWeight"),
 		("Conquest Victory Weight", "getConquestVictoryWeight"),
 		("Domination Victory Weight", "getDominationVictoryWeight"),
 		("Diplomacy Victory Weight", "getDiplomacyVictoryWeight"),
 	],
-	"Economic Preferences": [
+	AI_HEADER_ECONOMIC_PREFERENCES: [
 		("Espionage Weight", "getEspionageWeight"),
 		("Build Unit Prob", "getBuildUnitProb"),
 		("Base Attack Odds", "getBaseAttackOddsChange"),
@@ -87,7 +103,7 @@ AI_ATTRIBUTE_CATEGORIES = {
 		("Max Gold Trade %", "getMaxGoldTradePercent"),
 		("Max GPT Trade %", "getMaxGoldPerTurnTradePercent"),
 	],
-	"Attitude Modifiers": [
+	AI_HEADER_ATTITUDE_MODIFIERS: [
 		("Worse Rank Attitude Change", "getWorseRankDifferenceAttitudeChange"),
 		("Better Rank Attitude Change", "getBetterRankDifferenceAttitudeChange"),
 		("Close Borders Attitude Change", "getCloseBordersAttitudeChange"),
@@ -96,7 +112,7 @@ AI_ATTRIBUTE_CATEGORIES = {
 		("Share War Attitude Limit", "getShareWarAttitudeChangeLimit"),
 		("Favorite Civic Attitude Limit", "getFavoriteCivicAttitudeChangeLimit"),
 	],
-	"Trade Thresholds": [
+	AI_HEADER_TRADE_THRESHOLDS: [
 		("Tech Refuse Attitude", "getTechRefuseAttitudeThreshold"),
 		("City Refuse Attitude", "getCityRefuseAttitudeThreshold"),
 		("Strategic Bonus Refuse Attitude", "getStrategicBonusRefuseAttitudeThreshold"),
@@ -273,10 +289,6 @@ AI_AGGREGATES = [
 		("getMaxWarNearbyPowerRatio", False)
 	])
 ]
-
-
-
-AGGREGATES_HEADER = "Aggregates (% normalized)"
 
 
 
@@ -564,20 +576,20 @@ class SevoPediaLeader:
 			return total // count
 
 		# Same categories as before, with Aggregates inserted
-		left_categories = ["War Strategy", AGGREGATES_HEADER]
-		right_categories = ["Diplomacy", "Attitude Modifiers", "Economic Preferences", "Trade Thresholds", "Victory Strategy (currently not working)"]
+		left_categories = [AI_HEADER_WAR_STRATEGY, AI_HEADER_AGGREGATES]
+		right_categories = [AI_HEADER_DIPLOMACY, AI_HEADER_ATTITUDE_MODIFIERS, AI_HEADER_ECONOMIC_PREFERENCES, AI_HEADER_TRADE_THRESHOLDS, AI_HEADER_VICTORY_STRATEGY]
 
 		# <!-- custom: currently if not always logic not used of different symbols for different categories,
 		# may be useful or not keeping as is or not, anyways
 		# -->
 		#attr_types = {
-		#	"War Strategy": "threat",
-		#	"Diplomacy": "diplomacy",
-		#	"Victory Strategy (currently not working)": "efficiency",
-		#	"Economic Preferences": "efficiency",
-		#	"Attitude Modifiers": "diplomacy",
-		#	"Trade Thresholds": "diplomacy",
-		#	"Aggregates": "efficiency"
+		#	AI_HEADER_WAR_STRATEGY: "threat",
+		#	AI_HEADER_DIPLOMACY: "diplomacy",
+		#	AI_HEADER_VICTORY_STRATEGY: "efficiency",
+		#	AI_HEADER_ECONOMIC_PREFERENCES: "efficiency",
+		#	AI_HEADER_ATTITUDE_MODIFIERS: "diplomacy",
+		#	AI_HEADER_TRADE_THRESHOLDS: "diplomacy",
+		#	AI_HEADER_AGGREGATES: "efficiency"
 		#}
 
 		# <!-- custom: also note alternative symbols to consider too maybe:
@@ -610,7 +622,7 @@ class SevoPediaLeader:
 							   WidgetTypes.WIDGET_GENERAL, -1, -1)
 				y += lineHeight
 
-				if category == AGGREGATES_HEADER:
+				if category == AI_HEADER_AGGREGATES:
 					for idx, (label, fields) in enumerate(AI_AGGREGATES):
 						if idx in [6, 13]:  # or whatever indexes separate groups (War/Diplomacy/Economic/etc.)
 							y += categorySpacing
