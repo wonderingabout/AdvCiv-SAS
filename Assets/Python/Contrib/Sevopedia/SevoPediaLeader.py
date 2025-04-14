@@ -341,7 +341,9 @@ cache_ai_value_ranges()
 
 
 
-# <!-- custom: -->
+# <!-- custom: see full ChatGPT / catgpt breakdown here, anyways, :
+# https://github.com/wonderingabout/AdvCiv-SAS/commit/bf8764cb337550b4e84cef5106acdaaf4b159018
+# -->
 # Precomputed aggregate scores for each leader
 AI_AGGREGATE_SCORES = {}
 
