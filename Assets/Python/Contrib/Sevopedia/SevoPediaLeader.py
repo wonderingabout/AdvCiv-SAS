@@ -300,6 +300,43 @@ AI_AGGREGATES = [
 
 
 
+# <!-- custom: performance improvement, store the all leaders calculation once
+# then refer to the result directly here (cache according to ChatGPT this
+# called and i intutiively or from general culture of this IT things but
+# anyways agree maybe anyways)
+# -->
+# Precomputed min/max cache for all AI personality functions
+AI_VALUE_RANGES = {}
+
+def cache_ai_value_ranges():
+	global AI_VALUE_RANGES
+	numLeaders = gc.getNumLeaderHeadInfos()
+	unique_funcs = set()
+
+	# Collect all function names from both individual attributes and aggregates
+	for category_attrs in AI_ATTRIBUTE_CATEGORIES.values():
+		for _, funcName in category_attrs:
+			unique_funcs.add(funcName)
+	for _, funcPairs in AI_AGGREGATES:
+		for funcName, _ in funcPairs:
+			unique_funcs.add(funcName)
+
+	for funcName in unique_funcs:
+		values = []
+		for i in range(numLeaders):
+			try:
+				val = getattr(gc.getLeaderHeadInfo(i), funcName)()
+				values.append(val)
+			except:
+				pass
+		if values:
+			AI_VALUE_RANGES[funcName] = (min(values), max(values))
+
+# Initialize the cache
+cache_ai_value_ranges()
+
+
+
 class SevoPediaLeader:
 
 	def __init__(self, main):
@@ -514,6 +551,45 @@ class SevoPediaLeader:
 	# <!-- custom: based on placeHistory then tweaked or/and modified or/and not
 	# also data fetching logic mostly if not entirely provided by ChatGPT, or/and with
 	# some additions or modifications or removals or other i did or did not, anyways
+
+	# <!-- custom: currently if not always logic not used of different symbols for different categories,
+	# may be useful or not keeping as is or not, anyways
+	# -->
+	#attr_types = {
+	#	AI_HEADER_WAR_STRATEGY: "threat",
+	#	AI_HEADER_DIPLOMACY: "diplomacy",
+	#	AI_HEADER_VICTORY_STRATEGY: "efficiency",
+	#	AI_HEADER_ECONOMIC_PREFERENCES: "efficiency",
+	#	AI_HEADER_ATTITUDE_MODIFIERS: "diplomacy",
+	#	AI_HEADER_TRADE_THRESHOLDS: "diplomacy",
+	#	AI_HEADER_AGGREGATES: "efficiency"
+	#}
+
+
+
+	# <!-- custom: also note alternative symbols to consider too maybe:
+	# "+", "o" (the letter o renders quite well but anyways)
+
+	#symbols = {
+	#	"threat": "#",
+	#	"efficiency": ">",
+	#	"diplomacy": "="
+	#}
+
+
+
+	# <!-- custom: currently if not always logic not used of different symbols for different categories,
+	# may be useful or not keeping as is or not, anyways
+	#attrType = attr_types.get(category, "efficiency")
+	#symbol = symbols.get(attrType, ">")
+	# -->
+
+
+
+	#<!-- custom: link not working to concept page of ai personality, disabling it for now, if not always or not etc anyways, -->
+
+
+
 	def placeAIPersonalityPanel(self, iLeader):
 		screen = self.top.getScreen()
 
@@ -533,7 +609,6 @@ class SevoPediaLeader:
 						PanelStyles.PANEL_STYLE_BLUE50)
 
 		leader = gc.getLeaderHeadInfo(iLeader)
-		numLeaders = gc.getNumLeaderHeadInfos()
 
 		lineHeight = 22
 		categorySpacing = 10
@@ -560,7 +635,8 @@ class SevoPediaLeader:
 			else:
 				return "#####"
 
-		def normalize(value, min_val, max_val, inverse=False):
+		def normalize(value, funcName, inverse=False):
+			min_val, max_val = AI_VALUE_RANGES.get(funcName, (0, 0))
 			if max_val == min_val:
 				return 0
 			norm = float(value - min_val) / float(max_val - min_val)
@@ -573,9 +649,8 @@ class SevoPediaLeader:
 			count = 0
 			for funcName, inverse in fields:
 				try:
-					values = [getattr(gc.getLeaderHeadInfo(i), funcName)() for i in range(numLeaders)]
 					val = getattr(leaderInfo, funcName)()
-					total += normalize(val, min(values), max(values), inverse)
+					total += normalize(val, funcName, inverse)
 					count += 1
 				except:
 					pass
@@ -583,32 +658,14 @@ class SevoPediaLeader:
 				return 0
 			return total // count
 
-		# Same categories as before, with Aggregates inserted
 		left_categories = [AI_HEADER_WAR_STRATEGY, AI_HEADER_AGGREGATES]
-		right_categories = [AI_HEADER_DIPLOMACY, AI_HEADER_ATTITUDE_MODIFIERS, AI_HEADER_ECONOMIC_PREFERENCES, AI_HEADER_TRADE_THRESHOLDS, AI_HEADER_VICTORY_STRATEGY]
-
-		# <!-- custom: currently if not always logic not used of different symbols for different categories,
-		# may be useful or not keeping as is or not, anyways
-		# -->
-		#attr_types = {
-		#	AI_HEADER_WAR_STRATEGY: "threat",
-		#	AI_HEADER_DIPLOMACY: "diplomacy",
-		#	AI_HEADER_VICTORY_STRATEGY: "efficiency",
-		#	AI_HEADER_ECONOMIC_PREFERENCES: "efficiency",
-		#	AI_HEADER_ATTITUDE_MODIFIERS: "diplomacy",
-		#	AI_HEADER_TRADE_THRESHOLDS: "diplomacy",
-		#	AI_HEADER_AGGREGATES: "efficiency"
-		#}
-
-		# <!-- custom: also note alternative symbols to consider too maybe:
-		# "+", "o" (the letter o renders quite well but anyways)
-
-
-		#symbols = {
-		#	"threat": "#",
-		#	"efficiency": ">",
-		#	"diplomacy": "="
-		#}
+		right_categories = [
+			AI_HEADER_DIPLOMACY,
+			AI_HEADER_ATTITUDE_MODIFIERS,
+			AI_HEADER_ECONOMIC_PREFERENCES,
+			AI_HEADER_TRADE_THRESHOLDS,
+			AI_HEADER_VICTORY_STRATEGY
+		]
 
 		inverse_logic = [
 			"getDogpileWarRand", "getDemandRebukedWarProb", "getDeclareWarTradeRand",
@@ -626,55 +683,46 @@ class SevoPediaLeader:
 					first = False
 
 				screen.setText(self.top.getNextWidgetName(), "", u"<font=3b>%s</font>" % category,
-							   CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
-							   WidgetTypes.WIDGET_GENERAL, -1, -1)
+							CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
+							WidgetTypes.WIDGET_GENERAL, -1, -1)
 				y += lineHeight
 
 				if category == AI_HEADER_AGGREGATES:
 					for idx, (label, fields) in enumerate(AI_AGGREGATES):
-						if idx in AI_AGGREGATE_CATEGORY_BREAKS:  # or whatever indexes separate groups (War/Diplomacy/Economic/etc.)
-							y += categorySpacing * 2  # Two-line spacing between groups
+						if idx in AI_AGGREGATE_CATEGORY_BREAKS:
+							y += categorySpacing * 2
 
 						score = calculate_aggregate(leader, fields)
 						symbols_used = get_symbol_scale(score)
-						
+
 						screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % label,
-									   CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
-									   WidgetTypes.WIDGET_GENERAL, -1, -1)
+									CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
+									WidgetTypes.WIDGET_GENERAL, -1, -1)
 						screen.setText(self.top.getNextWidgetName(), "", u"<font=2b>%d</font>" % score,
-									   CvUtil.FONT_LEFT_JUSTIFY, xValue, y, 0, FontTypes.SMALL_FONT,
-									   WidgetTypes.WIDGET_GENERAL, -1, -1)
+									CvUtil.FONT_LEFT_JUSTIFY, xValue, y, 0, FontTypes.SMALL_FONT,
+									WidgetTypes.WIDGET_GENERAL, -1, -1)
 						screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % symbols_used,
-									   CvUtil.FONT_LEFT_JUSTIFY, xScale, y, 0, FontTypes.SMALL_FONT,
-									   WidgetTypes.WIDGET_GENERAL, -1, -1)
+									CvUtil.FONT_LEFT_JUSTIFY, xScale, y, 0, FontTypes.SMALL_FONT,
+									WidgetTypes.WIDGET_GENERAL, -1, -1)
 						y += lineHeight
 					continue
 
-				# <!-- custom: currently if not always logic not used of different symbols for different categories,
-				# may be useful or not keeping as is or not, anyways
-				#attrType = attr_types.get(category, "efficiency")
-				#symbol = symbols.get(attrType, ">")
-				# -->
-
 				for label, funcName in AI_ATTRIBUTE_CATEGORIES.get(category, []):
 					try:
-						values = [getattr(gc.getLeaderHeadInfo(i), funcName)() for i in range(numLeaders)]
 						value = getattr(leader, funcName)()
-						min_val = min(values)
-						max_val = max(values)
 						inverse = funcName in inverse_logic
-						score = normalize(value, min_val, max_val, inverse)
+						score = normalize(value, funcName, inverse)
 						scale_text = get_symbol_scale(score)
 
 						screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % label,
-									   CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
-									   WidgetTypes.WIDGET_GENERAL, -1, -1)
+									CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
+									WidgetTypes.WIDGET_GENERAL, -1, -1)
 						screen.setText(self.top.getNextWidgetName(), "", u"<font=2b>%d</font>" % value,
-									   CvUtil.FONT_LEFT_JUSTIFY, xValue, y, 0, FontTypes.SMALL_FONT,
-									   WidgetTypes.WIDGET_GENERAL, -1, -1)
+									CvUtil.FONT_LEFT_JUSTIFY, xValue, y, 0, FontTypes.SMALL_FONT,
+									WidgetTypes.WIDGET_GENERAL, -1, -1)
 						screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % scale_text,
-									   CvUtil.FONT_LEFT_JUSTIFY, xScale, y, 0, FontTypes.SMALL_FONT,
-									   WidgetTypes.WIDGET_GENERAL, -1, -1)
+									CvUtil.FONT_LEFT_JUSTIFY, xScale, y, 0, FontTypes.SMALL_FONT,
+									WidgetTypes.WIDGET_GENERAL, -1, -1)
 						y += lineHeight
 					except:
 						pass
