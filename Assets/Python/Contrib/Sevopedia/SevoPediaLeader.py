@@ -380,7 +380,6 @@ cache_ai_aggregate_scores()
 
 
 
-
 class SevoPediaLeader:
 
 	def __init__(self, main):
