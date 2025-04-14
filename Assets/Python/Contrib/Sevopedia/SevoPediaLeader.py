@@ -341,6 +341,44 @@ cache_ai_value_ranges()
 
 
 
+# <!-- custom: -->
+# Precomputed aggregate scores for each leader
+AI_AGGREGATE_SCORES = {}
+
+def cache_ai_aggregate_scores():
+	global AI_AGGREGATE_SCORES
+	numLeaders = gc.getNumLeaderHeadInfos()
+
+	for iLeader in range(numLeaders):
+		leaderInfo = gc.getLeaderHeadInfo(iLeader)
+		leaderScores = {}
+		for label, fields in AI_AGGREGATES:
+			total = 0
+			count = 0
+			for funcName, inverse in fields:
+				try:
+					val = getattr(leaderInfo, funcName)()
+					min_val, max_val = AI_VALUE_RANGES.get(funcName, (0, 0))
+					if max_val != min_val:
+						norm = float(val - min_val) / float(max_val - min_val)
+						if inverse:
+							norm = 1.0 - norm
+						total += int(norm * 100)
+						count += 1
+				except:
+					pass
+			if count > 0:
+				leaderScores[label] = total // count
+			else:
+				leaderScores[label] = 0
+		AI_AGGREGATE_SCORES[iLeader] = leaderScores
+
+# Call this after cache_ai_value_ranges()
+cache_ai_aggregate_scores()
+
+
+
+
 class SevoPediaLeader:
 
 	def __init__(self, main):
@@ -648,20 +686,6 @@ class SevoPediaLeader:
 				norm = 1.0 - norm
 			return int(norm * 100)
 
-		def calculate_aggregate(leaderInfo, fields):
-			total = 0
-			count = 0
-			for funcName, inverse in fields:
-				try:
-					val = getattr(leaderInfo, funcName)()
-					total += normalize(val, funcName, inverse)
-					count += 1
-				except:
-					pass
-			if count == 0:
-				return 0
-			return total // count
-
 		left_categories = [AI_HEADER_WAR_STRATEGY, AI_HEADER_AGGREGATES]
 		right_categories = [
 			AI_HEADER_DIPLOMACY,
@@ -696,7 +720,7 @@ class SevoPediaLeader:
 						if idx in AI_AGGREGATE_CATEGORY_BREAKS:
 							y += categorySpacing * 2
 
-						score = calculate_aggregate(leader, fields)
+						score = AI_AGGREGATE_SCORES.get(iLeader, {}).get(label, 0)
 						symbols_used = get_symbol_scale(score)
 
 						screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % label,
