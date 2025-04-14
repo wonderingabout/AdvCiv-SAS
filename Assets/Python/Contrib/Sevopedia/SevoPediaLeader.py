@@ -304,6 +304,10 @@ AI_AGGREGATES = [
 # then refer to the result directly here (cache according to ChatGPT this
 # called and i intutiively or from general culture of this IT things but
 # anyways agree maybe anyways)
+# Also read ChatGPT here breakdown for (much more) details (but mine is cool
+# too maybe and i helped it and hapyp of result wit it etc but anyways (to give
+# myself soem credit too xd but anyways)):
+# https://github.com/wonderingabout/AdvCiv-SAS/commit/9b7a6735ce834e0d85aed7f94bff17a9155a0853
 # -->
 # Precomputed min/max cache for all AI personality functions
 AI_VALUE_RANGES = {}
