@@ -33,6 +33,16 @@ A copy of the screenshots (may not be latest version of it)
 For more screensot previews of new sevopedia entries or udpated ones (not exhaustive), please
 visit [this page of the main README.md](/README.md#example-of-sevopedia-reworks-click-on-the-images-below-to-view-them-full-size)
 
+And please be sure to check the AI personality panel (same link as above), it is a major improvement of/in AdvCiv-SAS, a sample below provided to you as well here:
+
+<img src="./Docs_And_Appendixes/0.621_sevopedia_AI_Personality_sample.JPG" width="250"></img>
+<img src="./Docs_And_Appendixes/0.622_sevopedia_AI_Personality_sample.JPG" width="250"></img>
+<img src="./Docs_And_Appendixes/0.623_sevopedia_AI_Personality_sample.JPG" width="250"></img>
+<img src="./Docs_And_Appendixes/0.624_sevopedia_AI_Personality_sample.JPG" width="250"></img>
+<img src="./Docs_And_Appendixes/0.625_sevopedia_AI_Personality_sample.JPG" width="250"></img>
+<img src="./Docs_And_Appendixes/0.626_sevopedia_AI_Personality_sample.JPG" width="250"></img>
+<img src="./Docs_And_Appendixes/0.627_sevopedia_AI_Personality_sample.JPG" width="250"></img>
+
 And remember the latest info if there is any newer is ingame, there may also be other
 sevopedia docs or not written by ChatGPT or not, anyways.
 

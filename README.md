@@ -54,6 +54,7 @@ example 1: AI personality panel (data fetched directly from xml in live, auto up
 <img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.624_sevopedia_AI_Personality_sample.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.625_sevopedia_AI_Personality_sample.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.626_sevopedia_AI_Personality_sample.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.627_sevopedia_AI_Personality_sample.JPG" width="250"></img>
 
 example 2: Unit Chart (Unit Combat Types expanded page when you click on a combat type), thanks a lot to RFC DOC mod's code which i used quite heavily, then base AdvCiv which i sued to enhance it (blue background, margin), then i rewrote it heavily again to tweak it and add dynamic table size based on unit combat type (for example air units have 10 columns (air interception and air range), while other unit combat types only have 8, click to view these images full size:
 

@@ -140,163 +140,229 @@ AI_ATTRIBUTE_CATEGORIES = {
 
 
 
-# Aggregates grouped thematically in code (for clarity and future doc)
-AI_AGGREGATES = [
+# Revised AI_AGGREGATES with more representative parameters (5–10 where useful)
+REVISED_AI_AGGREGATES = [
+
 	# === WAR / CONFLICT BEHAVIOR ===
 	("Aggressive", [
 		("getMaxWarRand", False),
+		("getLimitedWarRand", False),
+		("getDogpileWarRand", False),
 		("getBuildUnitProb", False),
-		("getBaseAttackOddsChange", False)
+		("getBaseAttackOddsChange", False),
+		("getAttackOddsChangeRand", False),
+		("getWarmongerRespect", False)
 	]),
 	("Dogpiler", [
 		("getDogpileWarRand", False),
 		("getDeclareWarTradeRand", False),
-		("getWarmongerRespect", False)
+		("getMaxWarRand", False),
+		("getWarmongerRespect", False),
+		("getPowerWeightModifier", False)
 	]),
 	("Allied Warmonger", [
 		("getWarmongerRespect", False),
 		("getShareWarAttitudeChangeLimit", False),
-		("getDogpileWarRand", False)
+		("getDogpileWarRand", False),
+		("getDeclareWarTradeRand", False)
 	]),
 	("Reckless", [
 		("getBaseAttackOddsChange", False),
+		("getAttackOddsChangeRand", False),
 		("getLimitedWarRand", True),
-		("getDeclareWarRefuseAttitudeThreshold", True)
+		("getMaxWarRand", True),
+		("getDeclareWarRefuseAttitudeThreshold", True),
+		("getRefuseToTalkWarThreshold", True)
 	]),
 	("Cautious", [
 		("getLimitedWarRand", False),
 		("getLimitedWarPowerRatio", False),
-		("getMaxWarNearbyPowerRatio", True)
+		("getMaxWarNearbyPowerRatio", True),
+		("getMakePeaceRand", False),
+		("getRefuseToTalkWarThreshold", False)
 	]),
 	("Power Tracker", [
 		("getMaxWarNearbyPowerRatio", False),
 		("getMaxWarDistantPowerRatio", False),
-		("getLimitedWarPowerRatio", False)
+		("getLimitedWarPowerRatio", False),
+		("getPowerWeightModifier", False)
 	]),
 
 	# === DIPLOMACY & PERSONALITY ===
 	("Peaceful", [
 		("getMakePeaceRand", False),
 		("getBasePeaceWeight", False),
-		("getRefuseToTalkWarThreshold", True)
+		("getCultureVictoryWeight", False),
+		("getRefuseToTalkWarThreshold", True),
+		("getSameReligionAttitudeChangeLimit", False),
+		("getDiplomacyVictoryWeight", False)
 	]),
 	("Diplomatic", [
 		("getBasePeaceWeight", False),
-		("getNoTechTradeThreshold", True),
-		("getOpenBordersRefuseAttitudeThreshold", True)
+		("getTechTradeKnownPercent", False),
+		("getOpenBordersRefuseAttitudeThreshold", True),
+		("getSameReligionAttitudeChangeLimit", False),
+		("getWarmongerRespect", True),
+		("getFavoriteCivicAttitudeChangeLimit", False)
 	]),
 	("Stubborn", [
 		("getTechRefuseAttitudeThreshold", False),
 		("getCityRefuseAttitudeThreshold", False),
 		("getStopTradingRefuseAttitudeThreshold", False),
 		("getAdoptCivicRefuseAttitudeThreshold", False),
-		("getConvertReligionRefuseAttitudeThreshold", False)
+		("getConvertReligionRefuseAttitudeThreshold", False),
+		("getDeclareWarRefuseAttitudeThreshold", False),
+		("getMapRefuseAttitudeThreshold", False),
+		("getVassalRefuseAttitudeThreshold", False)
 	]),
 	("Flexible", [
 		("getAdoptCivicRefuseAttitudeThreshold", True),
 		("getConvertReligionRefuseAttitudeThreshold", True),
-		("getFavoriteCivicAttitudeChangeLimit", True)
+		("getFavoriteCivicAttitudeChangeLimit", True),
+		("getSameReligionAttitudeChangeLimit", True),
+		("getNoTechTradeThreshold", True)
 	]),
 	("Grudgy", [
 		("getWorseRankDifferenceAttitudeChange", False),
 		("getCloseBordersAttitudeChange", False),
-		("getDifferentReligionAttitudeChangeLimit", False)
+		("getDifferentReligionAttitudeChangeLimit", False),
+		("getDeclareWarThemRefuseAttitudeThreshold", False)
 	]),
 	("Collaborative", [
 		("getShareWarAttitudeChangeLimit", False),
 		("getSameReligionAttitudeChangeLimit", False),
-		("getFavoriteCivicAttitudeChangeLimit", False)
+		("getFavoriteCivicAttitudeChangeLimit", False),
+		("getOpenBordersRefuseAttitudeThreshold", True)
 	]),
 	("Isolationist", [
 		("getOpenBordersRefuseAttitudeThreshold", False),
+		("getStopTradingRefuseAttitudeThreshold", False),
+		("getStopTradingThemRefuseAttitudeThreshold", False),
+		("getVassalRefuseAttitudeThreshold", False),
 		("getDeclareWarRefuseAttitudeThreshold", False),
-		("getStopTradingRefuseAttitudeThreshold", False)
+		("getMapRefuseAttitudeThreshold", False),
+		("getTechRefuseAttitudeThreshold", False)
 	]),
 	("Dealbreaker", [
 		("getRefuseToTalkWarThreshold", False),
 		("getTechRefuseAttitudeThreshold", False),
-		("getStopTradingRefuseAttitudeThreshold", False)
+		("getStopTradingRefuseAttitudeThreshold", False),
+		("getDeclareWarRefuseAttitudeThreshold", False)
 	]),
 	("Vassalizer", [
 		("getVassalRefuseAttitudeThreshold", False),
 		("getPowerWeightModifier", False),
-		("getRefuseToTalkWarThreshold", True)
+		("getRefuseToTalkWarThreshold", True),
+		("getMaxWarNearbyPowerRatio", False)
 	]),
 
 	# === ECONOMIC / STRATEGIC ===
 	("Trader", [
 		("getTechTradeKnownPercent", False),
 		("getMaxGoldTradePercent", False),
-		("getMapRefuseAttitudeThreshold", True)
+		("getMapRefuseAttitudeThreshold", True),
+		("getMaxGoldPerTurnTradePercent", False),
+		("getCityRefuseAttitudeThreshold", True)
 	]),
 	("Tech Hoarder", [
 		("getNoTechTradeThreshold", False),
 		("getTechRefuseAttitudeThreshold", False),
-		("getTechTradeKnownPercent", True)
+		("getTechTradeKnownPercent", True),
+		("getDeclareWarTradeRand", False)
 	]),
 	("Gold Hoarder", [
 		("getMaxGoldTradePercent", False),
 		("getMaxGoldPerTurnTradePercent", False),
-		("getCityRefuseAttitudeThreshold", False)
+		("getCityRefuseAttitudeThreshold", False),
+		("getMapRefuseAttitudeThreshold", False)
 	]),
 	("Stingy", [
 		("getHealthBonusRefuseAttitudeThreshold", False),
 		("getHappinessBonusRefuseAttitudeThreshold", False),
-		("getStrategicBonusRefuseAttitudeThreshold", False)
+		("getStrategicBonusRefuseAttitudeThreshold", False),
+		("getGoldTradedLimitPercent", False)
 	]),
 	("Builder", [
 		("getWonderConstructRand", True),
 		("getBuildUnitProb", True),
-		("getMaxGoldTradePercent", False)
+		("getMaxGoldTradePercent", False),
+		("getBasePeaceWeight", False),
+		("getCultureVictoryWeight", False)
 	]),
 	("Wonder Chaser", [
 		("getWonderConstructRand", True),
 		("getBuildUnitProb", True),
-		("getBasePeaceWeight", False)
+		("getBasePeaceWeight", False),
+		("getCultureVictoryWeight", False),
+		("getTechTradeKnownPercent", True)
 	]),
 	("Culture Pusher", [
 		("getCultureVictoryWeight", False),
 		("getMaxWarMinAdjacentLandPercent", True),
-		("getSameReligionAttitudeChangeLimit", False)
+		("getSameReligionAttitudeChangeLimit", False),
+		("getFavoriteCivicAttitudeChangeLimit", False)
 	]),
 
 	# === HYBRID / ABSTRACT BEHAVIOR ===
 	("Opportunistic", [
 		("getDeclareWarTradeRand", False),
 		("getTechTradeKnownPercent", False),
-		("getWarmongerRespect", False)
+		("getWarmongerRespect", False),
+		("getDogpileWarRand", False),
+		("getAttackOddsChangeRand", False)
 	]),
 	("Sneaky", [
 		("getDemandRebukedSneakProb", False),
 		("getDogpileWarRand", False),
-		("getEspionageWeight", False)
+		("getEspionageWeight", False),
+		("getDeclareWarTradeRand", False),
+		("getRefuseToTalkWarThreshold", False)
 	]),
 	("Civic Enforcer", [
 		("getFavoriteCivicAttitudeChangeLimit", False),
 		("getAdoptCivicRefuseAttitudeThreshold", False),
-		("getNoTechTradeThreshold", False)
+		("getNoTechTradeThreshold", False),
+		("getConvertReligionRefuseAttitudeThreshold", False),
+		("getStopTradingRefuseAttitudeThreshold", False)
 	]),
 	("Globalist", [
 		("getTechTradeKnownPercent", False),
 		("getMaxWarDistantPowerRatio", False),
-		("getDeclareWarTradeRand", False)
+		("getDeclareWarTradeRand", False),
+		("getOpenBordersRefuseAttitudeThreshold", True)
 	]),
 	("Micro-manager", [
 		("getAttackOddsChangeRand", False),
 		("getMakePeaceRand", False),
-		("getRefuseToTalkWarThreshold", False)
+		("getRefuseToTalkWarThreshold", False),
+		("getLimitedWarPowerRatio", False)
 	]),
 	("Unpredictable", [
 		("getAttackOddsChangeRand", False),
 		("getLimitedWarRand", False),
-		("getDeclareWarTradeRand", False)
+		("getDeclareWarTradeRand", False),
+		("getMakePeaceRand", False),
+		("getPowerWeightModifier", False)
 	]),
 	("Border Watcher", [
 		("getMaxWarMinAdjacentLandPercent", False),
 		("getCloseBordersAttitudeChange", False),
-		("getMaxWarNearbyPowerRatio", False)
+		("getMaxWarNearbyPowerRatio", False),
+		("getDeclareWarRefuseAttitudeThreshold", True)
 	])
 ]
+
+
+
+
+
+# Inverted because higher = more caution, less aggression
+#"getMaxWarMinAdjacentLandPercent",
+
+# DO NOT INVERT the below — they are already *positive signs* of the behavior
+# So we REMOVE:
+# "getSameReligionAttitudeChangeLimit",
+# "getFavoriteCivicAttitudeChangeLimit",
 
 
 
@@ -310,107 +376,130 @@ AI_AGGREGATES = [
 # https://github.com/wonderingabout/AdvCiv-SAS/commit/9b7a6735ce834e0d85aed7f94bff17a9155a0853
 # -->
 # Precomputed min/max cache for all AI personality functions
-AI_VALUE_RANGES = {}
-
-def cache_ai_value_ranges():
-	global AI_VALUE_RANGES
-	numLeaders = gc.getNumLeaderHeadInfos()
-	unique_funcs = set()
-
-	# Collect all function names from both individual attributes and aggregates
-	for category_attrs in AI_ATTRIBUTE_CATEGORIES.values():
-		for _, funcName in category_attrs:
-			unique_funcs.add(funcName)
-	for _, funcPairs in AI_AGGREGATES:
-		for funcName, _ in funcPairs:
-			unique_funcs.add(funcName)
-
-	for funcName in unique_funcs:
-		values = []
-		for i in range(numLeaders):
-			try:
-				val = getattr(gc.getLeaderHeadInfo(i), funcName)()
-				values.append(val)
-			except:
-				pass
-		if values:
-			AI_VALUE_RANGES[funcName] = (min(values), max(values))
-
-# Initialize the cache
-cache_ai_value_ranges()
 
 
 
-# <!-- custom: see full ChatGPT / catgpt breakdown here, anyways, :
-# https://github.com/wonderingabout/AdvCiv-SAS/commit/bf8764cb337550b4e84cef5106acdaaf4b159018
-# -->
-# Precomputed aggregate scores for each leader
-AI_AGGREGATE_SCORES = {}
+# --- AI Caching and Aggregation Fixes for Median & Average Percentile Scoring ---
 
+# --- Inversion logic updated (moved to top for reuse) ---
+AI_INVERTED_TRAITS = set([
+	"getRefuseToTalkWarThreshold",
+	"getNoTechTradeThreshold",
+	"getOpenBordersRefuseAttitudeThreshold",
+	"getStopTradingRefuseAttitudeThreshold",
+	"getAdoptCivicRefuseAttitudeThreshold",
+	"getConvertReligionRefuseAttitudeThreshold",
+	"getDeclareWarRefuseAttitudeThreshold",
+	"getCityRefuseAttitudeThreshold",
+	"getMapRefuseAttitudeThreshold",
+	"getTechRefuseAttitudeThreshold",
+	"getHealthBonusRefuseAttitudeThreshold",
+	"getHappinessBonusRefuseAttitudeThreshold",
+	"getStrategicBonusRefuseAttitudeThreshold",
+	"getDeclareWarThemRefuseAttitudeThreshold",
+	"getStopTradingThemRefuseAttitudeThreshold",
+	"getVassalRefuseAttitudeThreshold",
+	"getMaxWarMinAdjacentLandPercent",
+	"getLimitedWarRand",
+	"getMaxWarRand",
+	"getDogpileWarRand"
+])
 
-
-# New cache for percentile normalization
-AI_PERCENTILE_SCORES = {}
-
-# Helper to compute percentile position of a value in a sorted list
-# Returns integer between 0 and 100
-
-def get_percentile(value, sorted_values):
+# --- Utility function for percentile calculation ---
+def get_percentile(value, sorted_values, inverse=False):
 	if not sorted_values:
 		return 0
 	count = len(sorted_values)
-	for i, v in enumerate(sorted_values):
-		if value <= v:
-			return int(i * 100 / (count - 1))
-	return 100
+	for i in range(count):
+		if value <= sorted_values[i]:
+			pos = int(i * 100 / (count - 1))
+			break
+	else:
+		pos = 100
+	if inverse:
+		pos = 100 - pos
+	return pos
 
+# --- Cache for percentile ranking ---
+AI_VALUE_RANGES = {}
+AI_SORTED_VALUES = {}
+AI_AGGREGATE_SCORES = {}
+AI_PERCENTILE_SCORES = {}
+AI_AGGREGATE_RAW_SCORES = {}  # Store average for future use
 
-def cache_ai_aggregate_scores():
-	global AI_AGGREGATE_SCORES, AI_PERCENTILE_SCORES
+# --- Caching function for AI attribute value ranges ---
+def cache_ai_value_ranges():
+	global AI_VALUE_RANGES, AI_SORTED_VALUES
+	all_func_values = {}
 	numLeaders = gc.getNumLeaderHeadInfos()
-	all_trait_values = {}  # {funcName: [v1, v2, ..., vN]}
 
-	# First pass: gather all values by function
-	for funcName in AI_VALUE_RANGES:
-		all_trait_values[funcName] = []
-		for iLeader in range(numLeaders):
-			try:
-				val = getattr(gc.getLeaderHeadInfo(iLeader), funcName)()
-				all_trait_values[funcName].append(val)
-			except:
-				all_trait_values[funcName].append(None)  # Keep alignment
+	for i in range(numLeaders):
+		leaderInfo = gc.getLeaderHeadInfo(i)
+		for funcName in dir(leaderInfo):
+			if funcName.startswith("get") and callable(getattr(leaderInfo, funcName)):
+				try:
+					val = getattr(leaderInfo, funcName)()
+					all_func_values.setdefault(funcName, []).append(val)
+				except:
+					continue
 
-	# Build sorted lists (excluding None)
-	sorted_trait_values = {}
-	for funcName, values in all_trait_values.items():
-		sorted_trait_values[funcName] = sorted([v for v in values if v is not None])
+	for funcName, values in all_func_values.items():
+		if values:
+			AI_VALUE_RANGES[funcName] = (min(values), max(values))
+			AI_SORTED_VALUES[funcName] = sorted(values)
 
-	# Second pass: compute aggregate scores
+# --- Cache aggregate scores with both median and average ---
+def cache_ai_aggregate_scores():
+	global AI_AGGREGATE_SCORES, AI_PERCENTILE_SCORES, AI_AGGREGATE_RAW_SCORES
+	numLeaders = gc.getNumLeaderHeadInfos()
+	AI_AGGREGATE_SCORES.clear()
+	AI_PERCENTILE_SCORES.clear()
+	AI_AGGREGATE_RAW_SCORES.clear()
+
 	for iLeader in range(numLeaders):
 		leaderInfo = gc.getLeaderHeadInfo(iLeader)
 		leaderScores = {}
-		for label, fields in AI_AGGREGATES:
-			score_total = 0
-			score_count = 0
-			for funcName, inverse in fields:
+		leaderAverages = {}
+
+		for label, fields in REVISED_AI_AGGREGATES:
+			percentiles = []
+
+			for funcName, _ in fields:
 				try:
 					val = getattr(leaderInfo, funcName)()
-					percentile = get_percentile(val, sorted_trait_values[funcName])
-					if inverse:
-						percentile = 100 - percentile
-					score_total += percentile
-					score_count += 1
+					sorted_vals = AI_SORTED_VALUES.get(funcName, [])
+					if not sorted_vals:
+						continue
+					inv = funcName in AI_INVERTED_TRAITS
+					percentile = get_percentile(val, sorted_vals, inv)
+					percentiles.append(percentile)
 				except:
-					pass
-			if score_count > 0:
-				leaderScores[label] = score_total // score_count
-			else:
-				leaderScores[label] = 0
-		AI_AGGREGATE_SCORES[iLeader] = leaderScores
-		AI_PERCENTILE_SCORES[iLeader] = leaderScores  # same for now
+					continue
 
-# Re-run after caching ranges
+			if percentiles:
+				average = int(round(sum(percentiles) / float(len(percentiles))))
+				median = sorted(percentiles)[len(percentiles) // 2]
+			else:
+				average = 0
+				median = 0
+
+			leaderScores[label] = median
+			leaderAverages[label] = average
+
+		AI_AGGREGATE_SCORES[iLeader] = leaderScores
+		AI_AGGREGATE_RAW_SCORES[iLeader] = leaderAverages
+		AI_PERCENTILE_SCORES[iLeader] = leaderScores
+
+# Reinitialize cache with corrected logic
+cache_ai_value_ranges()
 cache_ai_aggregate_scores()
+
+# (<!-- custom: good sign checked emoji i remove here just to be safe with civ4 python, keeping the explanaton though, anyways, -->)
+# AI personality panel rendering logic already uses AI_AGGREGATE_SCORES (median), so no changes are needed there for now.
+# 
+# (<!-- custom: paper note and pen emoji, removed replaced with this text for same reason etc anyways etc -->)
+# However, in future we may want to render AI_AGGREGATE_RAW_SCORES (average) alongside or as a tooltip, toggle, or legend.
+# For now, averages are computed and stored, but not shown.
 
 
 
@@ -730,12 +819,6 @@ class SevoPediaLeader:
 			AI_HEADER_VICTORY_STRATEGY
 		]
 
-		inverse_logic = [
-			"getDogpileWarRand", "getDemandRebukedWarProb", "getDeclareWarTradeRand",
-			"getMaxWarRand", "getLimitedWarRand", "getBaseAttackOddsChange",
-			"getRefuseToTalkWarThreshold", "getNoTechTradeThreshold"
-		]
-
 		def render_categories(screen, categories, xName, xValue, xScale, yStart):
 			y = yStart
 			first = True
@@ -751,7 +834,7 @@ class SevoPediaLeader:
 				y += lineHeight
 
 				if category == AI_HEADER_AGGREGATES:
-					for idx, (label, fields) in enumerate(AI_AGGREGATES):
+					for idx, (label, fields) in enumerate(REVISED_AI_AGGREGATES):
 						if idx in AI_AGGREGATE_CATEGORY_BREAKS:
 							y += categorySpacing * 2
 
@@ -773,7 +856,7 @@ class SevoPediaLeader:
 				for label, funcName in AI_ATTRIBUTE_CATEGORIES.get(category, []):
 					try:
 						value = getattr(leader, funcName)()
-						inverse = funcName in inverse_logic
+						inverse = funcName in AI_INVERTED_TRAITS
 						score = normalize(value, funcName, inverse)
 						scale_text = get_symbol_scale(score)
 
