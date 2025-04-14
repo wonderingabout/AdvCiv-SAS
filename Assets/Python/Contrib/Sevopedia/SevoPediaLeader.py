@@ -64,7 +64,11 @@ AI_HEADER_ATTITUDE_MODIFIERS = "Attitude Modifiers"
 AI_HEADER_TRADE_THRESHOLDS = "Trade Thresholds"
 
 
-
+# <!-- custom: at which index we skip line in the AI_HEADER_AGGREGATES category,
+# between its subcategories, for example afetr the 6th element power tracker
+# currently we would skip lines here before displaying Peaceful in the next
+# category, for visual clarity
+# -->
 AI_AGGREGATE_CATEGORY_BREAKS = [6, 13]
 
 

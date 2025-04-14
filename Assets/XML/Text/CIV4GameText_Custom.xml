@@ -5,12 +5,20 @@
 	<!-- custom: remove BTS links, unneeded, see CIV4NewConceptInfos.xml for details -->
 	<!-- custom: the other conceptinfo entries have been moved to file
 	with similar filename than in civ4 bts -->
+
+
+
+	<!-- custom: rename "BtS Rules Changes" to
+	"0_BtS Rules Changes (Outdated)", really important to not confuse the
+	user/player about how this data is unrelated to us, but they may still
+	want to access it, espcially if they ar ein knowledge of that/aware of
+	that, as they prefer maybe or not etc but etc anyways" -->
 	<!-- advc.002b: Shortening "Beyond the Sword" to "BtS" so that the page
 		 names can be displayed despite the increased font size.
 		 Originally in CIV4GameText_BTS.xml and CIV4GameText_Objects_BTS.xml. -->
 	<TEXT>
 		<Tag>TXT_KEY_BTS_RULES_CHANGES</Tag>
-		<English>0_BtS Rules Changes</English>
+		<English>0_BtS Rules Changes (Outdated)</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_ADVCIV_SAS_CORE_CHANGES</Tag>
