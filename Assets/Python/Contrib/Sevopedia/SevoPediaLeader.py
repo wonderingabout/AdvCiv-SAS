@@ -105,6 +105,164 @@ class SevoPediaLeader:
 			],
 		}
 
+		# Aggregates grouped thematically in code (for clarity and future doc)
+		self.ai_aggregates = [
+			# === WAR / CONFLICT BEHAVIOR ===
+			("Aggressive", [
+				("getMaxWarRand", False),
+				("getBuildUnitProb", False),
+				("getBaseAttackOddsChange", False)
+			]),
+			("Dogpiler", [
+				("getDogpileWarRand", False),
+				("getDeclareWarTradeRand", False),
+				("getWarmongerRespect", False)
+			]),
+			("Allied Warmonger", [
+				("getWarmongerRespect", False),
+				("getShareWarAttitudeChangeLimit", False),
+				("getDogpileWarRand", False)
+			]),
+			("Reckless", [
+				("getBaseAttackOddsChange", False),
+				("getLimitedWarRand", True),
+				("getDeclareWarRefuseAttitudeThreshold", True)
+			]),
+			("Cautious", [
+				("getLimitedWarRand", False),
+				("getLimitedWarPowerRatio", False),
+				("getMaxWarNearbyPowerRatio", True)
+			]),
+			("Power Tracker", [
+				("getMaxWarNearbyPowerRatio", False),
+				("getMaxWarDistantPowerRatio", False),
+				("getLimitedWarPowerRatio", False)
+			]),
+
+			# === DIPLOMACY & PERSONALITY ===
+			("Peaceful", [
+				("getMakePeaceRand", False),
+				("getBasePeaceWeight", False),
+				("getRefuseToTalkWarThreshold", True)
+			]),
+			("Diplomatic", [
+				("getBasePeaceWeight", False),
+				("getNoTechTradeThreshold", True),
+				("getOpenBordersRefuseAttitudeThreshold", True)
+			]),
+			("Stubborn", [
+				("getTechRefuseAttitudeThreshold", False),
+				("getCityRefuseAttitudeThreshold", False),
+				("getStopTradingRefuseAttitudeThreshold", False),
+				("getAdoptCivicRefuseAttitudeThreshold", False),
+				("getConvertReligionRefuseAttitudeThreshold", False)
+			]),
+			("Flexible", [
+				("getAdoptCivicRefuseAttitudeThreshold", True),
+				("getConvertReligionRefuseAttitudeThreshold", True),
+				("getFavoriteCivicAttitudeChangeLimit", True)
+			]),
+			("Grudgy", [
+				("getWorseRankDifferenceAttitudeChange", False),
+				("getCloseBordersAttitudeChange", False),
+				("getDifferentReligionAttitudeChangeLimit", False)
+			]),
+			("Collaborative", [
+				("getShareWarAttitudeChangeLimit", False),
+				("getSameReligionAttitudeChangeLimit", False),
+				("getFavoriteCivicAttitudeChangeLimit", False)
+			]),
+			("Isolationist", [
+				("getOpenBordersRefuseAttitudeThreshold", False),
+				("getDeclareWarRefuseAttitudeThreshold", False),
+				("getStopTradingRefuseAttitudeThreshold", False)
+			]),
+			("Dealbreaker", [
+				("getRefuseToTalkWarThreshold", False),
+				("getTechRefuseAttitudeThreshold", False),
+				("getStopTradingRefuseAttitudeThreshold", False)
+			]),
+			("Vassalizer", [
+				("getVassalRefuseAttitudeThreshold", False),
+				("getPowerWeightModifier", False),
+				("getRefuseToTalkWarThreshold", True)
+			]),
+
+			# === ECONOMIC / STRATEGIC ===
+			("Trader", [
+				("getTechTradeKnownPercent", False),
+				("getMaxGoldTradePercent", False),
+				("getMapRefuseAttitudeThreshold", True)
+			]),
+			("Tech Hoarder", [
+				("getNoTechTradeThreshold", False),
+				("getTechRefuseAttitudeThreshold", False),
+				("getTechTradeKnownPercent", True)
+			]),
+			("Gold Hoarder", [
+				("getMaxGoldTradePercent", False),
+				("getMaxGoldPerTurnTradePercent", False),
+				("getCityRefuseAttitudeThreshold", False)
+			]),
+			("Stingy", [
+				("getHealthBonusRefuseAttitudeThreshold", False),
+				("getHappinessBonusRefuseAttitudeThreshold", False),
+				("getStrategicBonusRefuseAttitudeThreshold", False)
+			]),
+			("Builder", [
+				("getWonderConstructRand", True),
+				("getBuildUnitProb", True),
+				("getMaxGoldTradePercent", False)
+			]),
+			("Wonder Chaser", [
+				("getWonderConstructRand", True),
+				("getBuildUnitProb", True),
+				("getBasePeaceWeight", False)
+			]),
+			("Culture Pusher", [
+				("getCultureVictoryWeight", False),
+				("getMaxWarMinAdjacentLandPercent", True),
+				("getSameReligionAttitudeChangeLimit", False)
+			]),
+
+			# === HYBRID / ABSTRACT BEHAVIOR ===
+			("Opportunistic", [
+				("getDeclareWarTradeRand", False),
+				("getTechTradeKnownPercent", False),
+				("getWarmongerRespect", False)
+			]),
+			("Sneaky", [
+				("getDemandRebukedSneakProb", False),
+				("getDogpileWarRand", False),
+				("getEspionageWeight", False)
+			]),
+			("Civic Enforcer", [
+				("getFavoriteCivicAttitudeChangeLimit", False),
+				("getAdoptCivicRefuseAttitudeThreshold", False),
+				("getNoTechTradeThreshold", False)
+			]),
+			("Globalist", [
+				("getTechTradeKnownPercent", False),
+				("getMaxWarDistantPowerRatio", False),
+				("getDeclareWarTradeRand", False)
+			]),
+			("Micro-manager", [
+				("getAttackOddsChangeRand", False),
+				("getMakePeaceRand", False),
+				("getRefuseToTalkWarThreshold", False)
+			]),
+			("Unpredictable", [
+				("getAttackOddsChangeRand", False),
+				("getLimitedWarRand", False),
+				("getDeclareWarTradeRand", False)
+			]),
+			("Border Watcher", [
+				("getMaxWarMinAdjacentLandPercent", False),
+				("getCloseBordersAttitudeChange", False),
+				("getMaxWarNearbyPowerRatio", False)
+			])
+		]
+
 		self.iLeader = -1
 		self.top = main
 
@@ -370,164 +528,6 @@ class SevoPediaLeader:
 				norm = 1.0 - norm
 			return int(norm * 100)
 
-		# Aggregates grouped thematically in code (for clarity and future doc)
-		aggregates = [
-			# === WAR / CONFLICT BEHAVIOR ===
-			("Aggressive", [
-				("getMaxWarRand", False),
-				("getBuildUnitProb", False),
-				("getBaseAttackOddsChange", False)
-			]),
-			("Dogpiler", [
-				("getDogpileWarRand", False),
-				("getDeclareWarTradeRand", False),
-				("getWarmongerRespect", False)
-			]),
-			("Allied Warmonger", [
-				("getWarmongerRespect", False),
-				("getShareWarAttitudeChangeLimit", False),
-				("getDogpileWarRand", False)
-			]),
-			("Reckless", [
-				("getBaseAttackOddsChange", False),
-				("getLimitedWarRand", True),
-				("getDeclareWarRefuseAttitudeThreshold", True)
-			]),
-			("Cautious", [
-				("getLimitedWarRand", False),
-				("getLimitedWarPowerRatio", False),
-				("getMaxWarNearbyPowerRatio", True)
-			]),
-			("Power Tracker", [
-				("getMaxWarNearbyPowerRatio", False),
-				("getMaxWarDistantPowerRatio", False),
-				("getLimitedWarPowerRatio", False)
-			]),
-
-			# === DIPLOMACY & PERSONALITY ===
-			("Peaceful", [
-				("getMakePeaceRand", False),
-				("getBasePeaceWeight", False),
-				("getRefuseToTalkWarThreshold", True)
-			]),
-			("Diplomatic", [
-				("getBasePeaceWeight", False),
-				("getNoTechTradeThreshold", True),
-				("getOpenBordersRefuseAttitudeThreshold", True)
-			]),
-			("Stubborn", [
-				("getTechRefuseAttitudeThreshold", False),
-				("getCityRefuseAttitudeThreshold", False),
-				("getStopTradingRefuseAttitudeThreshold", False),
-				("getAdoptCivicRefuseAttitudeThreshold", False),
-				("getConvertReligionRefuseAttitudeThreshold", False)
-			]),
-			("Flexible", [
-				("getAdoptCivicRefuseAttitudeThreshold", True),
-				("getConvertReligionRefuseAttitudeThreshold", True),
-				("getFavoriteCivicAttitudeChangeLimit", True)
-			]),
-			("Grudgy", [
-				("getWorseRankDifferenceAttitudeChange", False),
-				("getCloseBordersAttitudeChange", False),
-				("getDifferentReligionAttitudeChangeLimit", False)
-			]),
-			("Collaborative", [
-				("getShareWarAttitudeChangeLimit", False),
-				("getSameReligionAttitudeChangeLimit", False),
-				("getFavoriteCivicAttitudeChangeLimit", False)
-			]),
-			("Isolationist", [
-				("getOpenBordersRefuseAttitudeThreshold", False),
-				("getDeclareWarRefuseAttitudeThreshold", False),
-				("getStopTradingRefuseAttitudeThreshold", False)
-			]),
-			("Dealbreaker", [
-				("getRefuseToTalkWarThreshold", False),
-				("getTechRefuseAttitudeThreshold", False),
-				("getStopTradingRefuseAttitudeThreshold", False)
-			]),
-			("Vassalizer", [
-				("getVassalRefuseAttitudeThreshold", False),
-				("getPowerWeightModifier", False),
-				("getRefuseToTalkWarThreshold", True)
-			]),
-
-			# === ECONOMIC / STRATEGIC ===
-			("Trader", [
-				("getTechTradeKnownPercent", False),
-				("getMaxGoldTradePercent", False),
-				("getMapRefuseAttitudeThreshold", True)
-			]),
-			("Tech Hoarder", [
-				("getNoTechTradeThreshold", False),
-				("getTechRefuseAttitudeThreshold", False),
-				("getTechTradeKnownPercent", True)
-			]),
-			("Gold Hoarder", [
-				("getMaxGoldTradePercent", False),
-				("getMaxGoldPerTurnTradePercent", False),
-				("getCityRefuseAttitudeThreshold", False)
-			]),
-			("Stingy", [
-				("getHealthBonusRefuseAttitudeThreshold", False),
-				("getHappinessBonusRefuseAttitudeThreshold", False),
-				("getStrategicBonusRefuseAttitudeThreshold", False)
-			]),
-			("Builder", [
-				("getWonderConstructRand", True),
-				("getBuildUnitProb", True),
-				("getMaxGoldTradePercent", False)
-			]),
-			("Wonder Chaser", [
-				("getWonderConstructRand", True),
-				("getBuildUnitProb", True),
-				("getBasePeaceWeight", False)
-			]),
-			("Culture Pusher", [
-				("getCultureVictoryWeight", False),
-				("getMaxWarMinAdjacentLandPercent", True),
-				("getSameReligionAttitudeChangeLimit", False)
-			]),
-
-			# === HYBRID / ABSTRACT BEHAVIOR ===
-			("Opportunistic", [
-				("getDeclareWarTradeRand", False),
-				("getTechTradeKnownPercent", False),
-				("getWarmongerRespect", False)
-			]),
-			("Sneaky", [
-				("getDemandRebukedSneakProb", False),
-				("getDogpileWarRand", False),
-				("getEspionageWeight", False)
-			]),
-			("Civic Enforcer", [
-				("getFavoriteCivicAttitudeChangeLimit", False),
-				("getAdoptCivicRefuseAttitudeThreshold", False),
-				("getNoTechTradeThreshold", False)
-			]),
-			("Globalist", [
-				("getTechTradeKnownPercent", False),
-				("getMaxWarDistantPowerRatio", False),
-				("getDeclareWarTradeRand", False)
-			]),
-			("Micro-manager", [
-				("getAttackOddsChangeRand", False),
-				("getMakePeaceRand", False),
-				("getRefuseToTalkWarThreshold", False)
-			]),
-			("Unpredictable", [
-				("getAttackOddsChangeRand", False),
-				("getLimitedWarRand", False),
-				("getDeclareWarTradeRand", False)
-			]),
-			("Border Watcher", [
-				("getMaxWarMinAdjacentLandPercent", False),
-				("getCloseBordersAttitudeChange", False),
-				("getMaxWarNearbyPowerRatio", False)
-			])
-		]
-
 		def calculate_aggregate(leaderInfo, fields):
 			total = 0
 			count = 0
@@ -585,7 +585,7 @@ class SevoPediaLeader:
 				y += lineHeight
 
 				if category == AGGREGATES_HEADER:
-					for label, fields in aggregates:
+					for label, fields in self.ai_aggregates:
 						score = calculate_aggregate(leader, fields)
 						symbols_used = get_symbol_scale(score)
 						screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % label,
