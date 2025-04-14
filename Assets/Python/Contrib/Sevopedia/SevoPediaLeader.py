@@ -347,35 +347,69 @@ cache_ai_value_ranges()
 # Precomputed aggregate scores for each leader
 AI_AGGREGATE_SCORES = {}
 
-def cache_ai_aggregate_scores():
-	global AI_AGGREGATE_SCORES
-	numLeaders = gc.getNumLeaderHeadInfos()
 
+
+# New cache for percentile normalization
+AI_PERCENTILE_SCORES = {}
+
+# Helper to compute percentile position of a value in a sorted list
+# Returns integer between 0 and 100
+
+def get_percentile(value, sorted_values):
+	if not sorted_values:
+		return 0
+	count = len(sorted_values)
+	for i, v in enumerate(sorted_values):
+		if value <= v:
+			return int(i * 100 / (count - 1))
+	return 100
+
+
+def cache_ai_aggregate_scores():
+	global AI_AGGREGATE_SCORES, AI_PERCENTILE_SCORES
+	numLeaders = gc.getNumLeaderHeadInfos()
+	all_trait_values = {}  # {funcName: [v1, v2, ..., vN]}
+
+	# First pass: gather all values by function
+	for funcName in AI_VALUE_RANGES:
+		all_trait_values[funcName] = []
+		for iLeader in range(numLeaders):
+			try:
+				val = getattr(gc.getLeaderHeadInfo(iLeader), funcName)()
+				all_trait_values[funcName].append(val)
+			except:
+				all_trait_values[funcName].append(None)  # Keep alignment
+
+	# Build sorted lists (excluding None)
+	sorted_trait_values = {}
+	for funcName, values in all_trait_values.items():
+		sorted_trait_values[funcName] = sorted([v for v in values if v is not None])
+
+	# Second pass: compute aggregate scores
 	for iLeader in range(numLeaders):
 		leaderInfo = gc.getLeaderHeadInfo(iLeader)
 		leaderScores = {}
 		for label, fields in AI_AGGREGATES:
-			total = 0
-			count = 0
+			score_total = 0
+			score_count = 0
 			for funcName, inverse in fields:
 				try:
 					val = getattr(leaderInfo, funcName)()
-					min_val, max_val = AI_VALUE_RANGES.get(funcName, (0, 0))
-					if max_val != min_val:
-						norm = float(val - min_val) / float(max_val - min_val)
-						if inverse:
-							norm = 1.0 - norm
-						total += int(norm * 100)
-						count += 1
+					percentile = get_percentile(val, sorted_trait_values[funcName])
+					if inverse:
+						percentile = 100 - percentile
+					score_total += percentile
+					score_count += 1
 				except:
 					pass
-			if count > 0:
-				leaderScores[label] = total // count
+			if score_count > 0:
+				leaderScores[label] = score_total // score_count
 			else:
 				leaderScores[label] = 0
 		AI_AGGREGATE_SCORES[iLeader] = leaderScores
+		AI_PERCENTILE_SCORES[iLeader] = leaderScores  # same for now
 
-# Call this after cache_ai_value_ranges()
+# Re-run after caching ranges
 cache_ai_aggregate_scores()
 
 
