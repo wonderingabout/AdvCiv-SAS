@@ -71,7 +71,7 @@ AI_ATTRIBUTE_CATEGORIES = {
 		("Tech Trade Known %", "getTechTradeKnownPercent"),
 		("Declare War Trade Rand", "getDeclareWarTradeRand"),
 	],
-	"Victory Strategy": [
+	"Victory Strategy (currently not working)": [
 		("Culture Victory Weight", "getCultureVictoryWeight"),
 		("Space Victory Weight", "getSpaceVictoryWeight"),
 		("Conquest Victory Weight", "getConquestVictoryWeight"),
@@ -565,23 +565,30 @@ class SevoPediaLeader:
 
 		# Same categories as before, with Aggregates inserted
 		left_categories = ["War Strategy", AGGREGATES_HEADER]
-		right_categories = ["Diplomacy", "Attitude Modifiers", "Economic Preferences", "Trade Thresholds", "Victory Strategy"]
+		right_categories = ["Diplomacy", "Attitude Modifiers", "Economic Preferences", "Trade Thresholds", "Victory Strategy (currently not working)"]
 
-		attr_types = {
-			"War Strategy": "threat",
-			"Diplomacy": "diplomacy",
-			"Victory Strategy": "efficiency",
-			"Economic Preferences": "efficiency",
-			"Attitude Modifiers": "diplomacy",
-			"Trade Thresholds": "diplomacy",
-			"Aggregates": "efficiency"
-		}
+		# <!-- custom: currently if not always logic not used of different symbols for different categories,
+		# may be useful or not keeping as is or not, anyways
+		# -->
+		#attr_types = {
+		#	"War Strategy": "threat",
+		#	"Diplomacy": "diplomacy",
+		#	"Victory Strategy (currently not working)": "efficiency",
+		#	"Economic Preferences": "efficiency",
+		#	"Attitude Modifiers": "diplomacy",
+		#	"Trade Thresholds": "diplomacy",
+		#	"Aggregates": "efficiency"
+		#}
 
-		symbols = {
-			"threat": "#",
-			"efficiency": ">",
-			"diplomacy": "="
-		}
+		# <!-- custom: also note alternative symbols to consider too maybe:
+		# "+", "o" (the letter o renders quite well but anyways)
+
+
+		#symbols = {
+		#	"threat": "#",
+		#	"efficiency": ">",
+		#	"diplomacy": "="
+		#}
 
 		inverse_logic = [
 			"getDogpileWarRand", "getDemandRebukedWarProb", "getDeclareWarTradeRand",
@@ -604,9 +611,13 @@ class SevoPediaLeader:
 				y += lineHeight
 
 				if category == AGGREGATES_HEADER:
-					for label, fields in AI_AGGREGATES:
+					for idx, (label, fields) in enumerate(AI_AGGREGATES):
+						if idx in [6, 13]:  # or whatever indexes separate groups (War/Diplomacy/Economic/etc.)
+							y += categorySpacing
+
 						score = calculate_aggregate(leader, fields)
 						symbols_used = get_symbol_scale(score)
+						
 						screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % label,
 									   CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
 									   WidgetTypes.WIDGET_GENERAL, -1, -1)
@@ -619,8 +630,11 @@ class SevoPediaLeader:
 						y += lineHeight
 					continue
 
-				attrType = attr_types.get(category, "efficiency")
-				symbol = symbols.get(attrType, ">")
+				# <!-- custom: currently if not always logic not used of different symbols for different categories,
+				# may be useful or not keeping as is or not, anyways
+				#attrType = attr_types.get(category, "efficiency")
+				#symbol = symbols.get(attrType, ">")
+				# -->
 
 				for label, funcName in AI_ATTRIBUTE_CATEGORIES.get(category, []):
 					try:
