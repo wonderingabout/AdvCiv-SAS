@@ -30,6 +30,10 @@ want (some of the) main quick pointers rather.
 
 ## Main Changes quick starter guide
 
+- AI personality aggregates, very important addition to AdvCiv-SAS, hopefully useful
+documentation, and provided (code + documentation of it mostly by ChatGPT, even though
+i contributed quite a bit too but for most is by ChatGPT, anyways), recommended to see
+[this](/README.md#advciv-sas-core-sevopedia-pages-documentation-and-such)
 - tech tree is vastly reordered for historical accuracy (for example steel is at
 iron age, pottery is before the wheel, metal casting before currency and before
 bronze working; and medicine at iron age, that too should be about accurate),

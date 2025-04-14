@@ -517,7 +517,8 @@ class SevoPediaLeader:
 			return total // count
 
 		# Same categories as before, with Aggregates inserted
-		left_categories = ["War Strategy", "Aggregates"]
+		AGGREGATES_HEADER = "Aggregates (% normalized)"
+		left_categories = ["War Strategy", AGGREGATES_HEADER]
 		right_categories = ["Diplomacy", "Attitude Modifiers", "Economic Preferences", "Trade Thresholds", "Victory Strategy"]
 
 		attr_types = {
@@ -556,7 +557,7 @@ class SevoPediaLeader:
 							   WidgetTypes.WIDGET_GENERAL, -1, -1)
 				y += lineHeight
 
-				if category == "Aggregates":
+				if category == AGGREGATES_HEADER:
 					for label, fields in aggregates:
 						score = calculate_aggregate(leader, fields)
 						symbols_used = get_symbol_scale(score)
@@ -600,8 +601,8 @@ class SevoPediaLeader:
 
 		render_categories(screen, left_categories, xName1, xValue1, xScale1, y1)
 		render_categories(screen, right_categories, xName2, xValue2, xScale2, y2)
-
-
+		
+		#<!-- custom: link not working to concept page of ai personality, disabling it for now, if not always or not etc anyways, -->
 
 	def handleInput (self, inputClass):
 		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER):

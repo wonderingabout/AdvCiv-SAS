@@ -26,6 +26,43 @@ I may also update it after releasing mods, maybe, but not guaranteed, if there
 are significant changes i would like to add or mention/talk about there. But
 i would move them to the bottom so you don't have to reread all ideally.
 
+## Example of Sevopedia reworks (click on the images below to view them full size)
+
+### advciv-sas core sevopedia pages (documentation and such)
+example 1: AdvCiv-SAS core changes coming from AdvCiv (thanks to [@f1rpo](https://github.com/f1rpo), main (only one i think actually? But anyways) maintainer of AdvCiv for the help in achieving that in particular). It is one of the cases where ChatGPT could not help so i especially appreciate it in this case even more, thanks a lot if i may say i mean anyways, thanks, really, thanks,
+
+<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.611_sevopedia_advciv_sas_core_changes.JPG" width="250"></img>
+
+(note: this one is also available on the [Quick Get Started Guide](/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md) that i recommend you to read (but not obligated, anyways), if you haven't and want to start playing AdvCiv-SAS)
+
+Except and on top of these examples, i also rewrote, quite modestly or more proudly (often proud and bit cocky but in friednly way whatever that means maybe but bit humble too anyways) other entries in the sevopedia, based on other mods or advciv or/and ChatGPT or/and other ressources or not or/and myself or/and other indirect helps or not or yes or not or etc, anyways, please visit it to have latest data if interested, anyways.
+
+example 2: AI personality aggregates, and AI personality aggregates, very important addition, please visit the sevopedia in "Mods Information" help, related page for latest updated version, a screenshot here which may be accurate (as in updated or not, anyways):
+
+<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.612_sevopedia_advciv_sas_ai_personality.JPG" width="250"></img>
+
+### other (existing mostly if not only) categories
+example 1: AI personality panel (data fetched directly from xml in live, auto updated to latest current in your mod folder), thanks a lot ChatGPT and all who helped me directly or indirectly or not or yes etc anyways:
+
+<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.621_sevopedia_AI_Personality_sample.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.622_sevopedia_AI_Personality_sample.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.623_sevopedia_AI_Personality_sample.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.624_sevopedia_AI_Personality_sample.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.625_sevopedia_AI_Personality_sample.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.626_sevopedia_AI_Personality_sample.JPG" width="250"></img>
+
+example 2: Unit Chart (Unit Combat Types expanded page when you click on a combat type), thanks a lot to RFC DOC mod's code which i used quite heavily, then base AdvCiv which i sued to enhance it (blue background, margin), then i rewrote it heavily again to tweak it and add dynamic table size based on unit combat type (for example air units have 10 columns (air interception and air range), while other unit combat types only have 8, click to view these images full size:
+
+<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.63_sevopedia_unit_chart.JPG" width="250"></img>
+
+example 3: features category of the sevopedia, based rfc doc's and slightly tweaked or not, thanks a lot
+
+<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.64_sevopedia_features_jungle_panel.JPG" width="250"></img>
+
+example 4: ressources category, mostly my own modding and first attemps at deciphering civ4's python, not inordinate if i may say quite fairly, but i like it this end result a lot, may further improve or not, the feedback always helps me, but sometimes the negative ones hurts me more, however sometimes the negative ones lead to better future outcomes, so i am thankful of it when it is done in sincerity and consideration maybe, something like this, even though maybe unpleasant at first, but this is not always, sometimes it's just painful and best avoided i think at least for me anyways, some other times it's painful but leads to better/good results in the future maybe, not guaranteed and just my personal opinion not responsible of what you reader make of it with you or/and others or not make of it, was sharing my advice or rather opinion maybe, each are free or not etc, anyways. As for this page or/and other pages or/and not, may tweak it further or not as i see fit, anyways
+
+<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.65_sevopedia_ressources_copper_panel.JPG" width="250"></img>
+
 ## Sex-neutral unit names or/and combat types (todo and non-exhaustive)
 
 Yet to be done, but i want (more at least) sex-neutral terms for units. Tbh i don't care much if at all (but is maybe nice, anyways), but i intend to implement some women units, especially light units where i think women make more sense (less strength required and they are more agile perhaps too, anyways). I also think they (some of them at least anyways) were very lousy (names), for example for "spearman" it's basically just weapon-man, i am not even sure it's a proper word for most units but i don't know much about this, anyways. Also, unless the unit was strongly masculine, i see no reason to use weaponman specifically, anyways.
@@ -95,36 +132,6 @@ I'll start with units, as there are a few i wanted to replace or create new ones
 I am not doing the ingame art though, just the icons, unless i would unexpectedly so, it should most likely be asummed i would not. I intend to add women in some of these units. Not for equalitarism or anything, just because i think it would be cool and accurate, it would be mostly lightweight weapons for accuracy, not following any specified pattern or ratios, as i prefer.
 
 Hopefully helpful and interesting.
-
-## Example of Sevopedia reworks (click on the images below to view them full size)
-
-example 1: AI personality panel (data fetched directly from xml in live, auto updated to latest current in your mod folder), thanks a lot ChatGPT and all who helped me directly or indirectly or not or yes etc anyways:
-
-<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.621_sevopedia_AI_Personality_sample.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.622_sevopedia_AI_Personality_sample.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.623_sevopedia_AI_Personality_sample.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.624_sevopedia_AI_Personality_sample.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.625_sevopedia_AI_Personality_sample.JPG" width="250"></img>
-
-example 2: Unit Chart (Unit Combat Types expanded page when you click on a combat type), thanks a lot to RFC DOC mod's code which i used quite heavily, then base AdvCiv which i sued to enhance it (blue background, margin), then i rewrote it heavily again to tweak it and add dynamic table size based on unit combat type (for example air units have 10 columns (air interception and air range), while other unit combat types only have 8, click to view these images full size:
-
-<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.63_sevopedia_unit_chart.JPG" width="250"></img>
-
-example 3: AdvCiv-SAS core changes coming from AdvCiv (thanks to [@f1rpo](https://github.com/f1rpo), main (only one i think actually? But anyways) maintainer of AdvCiv for the help in achieving that in particular). It is one of the cases where ChatGPT could not help so i especially appreciate it in this case even more, thanks a lot if i may say i mean anyways, thanks, really, thanks,
-
-(note: this one is also available on the [Quick Get Started Guide](/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md) that i recommend you to read (but not obligated, anyways), if you haven't and want to start playing AdvCiv-SAS)
-
-Except and on top of these examples, i also rewrote, quite modestly or more proudly (often proud and bit cocky but in friednly way whatever that means maybe but bit humble too anyways) other entries in the sevopedia, based on other mods or advciv or/and ChatGPT or/and other ressources or not or/and myself or/and other indirect helps or not or yes or not or etc, anyways, please visit it to have latest data if interested, anyways.
-
-<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.61_sevopedia_advciv_sas_core_changes.JPG" width="250"></img>
-
-example 4: features category of the sevopedia, based rfc doc's and slightly tweaked or not, thanks a lot
-
-<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.64_sevopedia_features_jungle_panel.JPG" width="250"></img>
-
-example 5: ressources category, mostly my own modding and first attemps at deciphering civ4's python, not inordinate if i may say quite fairly, but i like it this end result a lot, may further improve or not, the feedback always helps me, but sometimes the negative ones hurts me more, however sometimes the negative ones lead to better future outcomes, so i am thankful of it when it is done in sincerity and consideration maybe, something like this, even though maybe unpleasant at first, but this is not always, sometimes it's just painful and best avoided i think at least for me anyways, some other times it's painful but leads to better/good results in the future maybe, not guaranteed and just my personal opinion not responsible of what you reader make of it with you or/and others or not make of it, was sharing my advice or rather opinion maybe, each are free or not etc, anyways. As for this page or/and other pages or/and not, may tweak it further or not as i see fit, anyways
-
-<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.65_sevopedia_ressources_copper_panel.JPG" width="250"></img>
 
 ## Project Goals and global view on gameplay changes
 

@@ -16,12 +16,18 @@
 		<Tag>TXT_KEY_ADVCIV_SAS_CORE_CHANGES</Tag>
 		<English>3_AdvCiv-SAS Core Changes</English>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_ADVCIV_SAS_CORE_AI_PERSONALITY_AGGREGATES</Tag>
+		<English>4_AdvCiv-SAS AI Personality</English>
+	</TEXT>
+
 
 
 	<TEXT>
 		<Tag>TXT_KEY_AI_PERSONALITY</Tag>
 		<English>AI Personality</English>
 	</TEXT>
+
 
 
 	<!-- custom: do not rename the tag itself as we would have to recompile

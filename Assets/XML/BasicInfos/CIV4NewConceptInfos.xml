@@ -27,6 +27,11 @@
 			<Description>TXT_KEY_ADVCIV_SAS_CORE_CHANGES</Description>
 			<Civilopedia>TXT_KEY_ADVCIV_SAS_CORE_CHANGES_PEDIA_SR</Civilopedia>
 		</NewConceptInfo>
+		<NewConceptInfo>
+			<Type>CONCEPT_ADVCIV_SAS_CORE_AI_PERSONALITY_AGGREGATES</Type>
+			<Description>TXT_KEY_ADVCIV_SAS_CORE_AI_PERSONALITY_AGGREGATES</Description>
+			<Civilopedia>TXT_KEY_ADVCIV_SAS_CORE_AI_PERSONALITY_AGGREGATES_PEDIA_SR</Civilopedia>
+		</NewConceptInfo>
 
 		<!-- advc.004y: Shortcut categories restored (originally by
 			 Ekmek) -->
