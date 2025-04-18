@@ -26,6 +26,8 @@ import CvUtil
 import ScreenInput
 import SevoScreenEnums
 import random
+# <!-- custom: debug -->
+import sys
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -52,14 +54,6 @@ localText = CyTranslator()
 
 
 
-# === CATEGORY HEADERS ===
-#AI_HEADER_AGGREGATES = "Normalized Aggregates (UWAI-based) (0 - 100 (%))"
-#AI_HEADER_WAR_STRATEGY = "War Strategy (UWAI)"
-#AI_HEADER_DIPLOMACY = "Diplomacy (UWAI)"
-#AI_HEADER_ECONOMIC_PREFERENCES = "Economy / Build (UWAI)"
-
-
-
 # <!-- custom: performance improvement, store the all leaders calculation once
 # then refer to the result directly here (cache according to ChatGPT this
 # called and i intutiively or from general culture of this IT things but
@@ -70,6 +64,7 @@ localText = CyTranslator()
 # https://github.com/wonderingabout/AdvCiv-SAS/commit/9b7a6735ce834e0d85aed7f94bff17a9155a0853
 # -->
 # Precomputed min/max cache for all AI personality functions
+
 
 
 """ # === CATEGORY HEADERS ===
@@ -532,17 +527,24 @@ def cache_ai_aggregate_scores():
         agg_averages = {}
         # Calculate aggregate score for each category
         for label, fields in REVISED_AI_AGGREGATES:
+            print("[DEBUG] Starting aggregate:", label)
             percentiles = []
             for funcName, _ in fields:  # (use _ for invert flag from data; logic uses global AI_INVERTED_TRAITS)
                 try:
                     raw_val = getattr(leaderInfo, funcName)()
                 except Exception:
+                    print("[DEBUG]  - ERROR in %s: %s" % (funcName, sys.exc_info()[1]))
                     continue
                 sorted_vals = AI_SORTED_VALUES.get(funcName, [])
                 if not sorted_vals:
                     continue
+                #print("[DEBUG]      Trait %s | raw=%d | invert=%s" % (funcName, raw_val, invert))
+                print("[DEBUG]      Trait %s | raw=%d" % (funcName, raw_val))
                 inv = funcName in AI_INVERTED_TRAITS
                 pct = get_percentile(raw_val, sorted_vals, inverse=inv)
+                print("[DEBUG]      Percentile for %s: %d" % (funcName, pct))
+                #print("[DEBUG]  - Leader %d | %s: raw=%d, pct=%d, invert=%s" % (iLeader, funcName, raw_val, pct, invert))
+                print("[DEBUG]  - Leader %d | %s: raw=%d, pct=%d, inv=%s" % (iLeader, funcName, raw_val, pct, inv))
                 percentiles.append(pct)
             if percentiles:
                 # Average (mean) of percentiles
@@ -550,6 +552,7 @@ def cache_ai_aggregate_scores():
                 # Median of percentiles (middle value in sorted order)
                 sorted_pcts = sorted(percentiles)
                 median_score = sorted_pcts[len(sorted_pcts) // 2]
+                print("[DEBUG]    > Final %s score: avg=%d, median=%d, count=%d" % (label, avg_score, median_score, len(percentiles)))
             else:
                 avg_score = 0
                 median_score = 0
