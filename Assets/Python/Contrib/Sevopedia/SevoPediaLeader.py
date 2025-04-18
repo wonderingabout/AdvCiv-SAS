@@ -548,10 +548,12 @@ def cache_ai_aggregate_scores():
                 percentiles.append(pct)
             if percentiles:
                 # Average (mean) of percentiles
-                avg_score = int(round(sum(percentiles) / float(len(percentiles))))
+				# <!-- custom: avoid 100.4 (for example) being rounded to 101 -->
+                avg_score = min(100, int(round(sum(percentiles) / float(len(percentiles)))))
                 # Median of percentiles (middle value in sorted order)
                 sorted_pcts = sorted(percentiles)
-                median_score = sorted_pcts[len(sorted_pcts) // 2]
+				# <!-- custom: avoid 100.4 (for example) being rounded to 101 -->
+                median_score = min(100, sorted_pcts[len(sorted_pcts) // 2])
                 print("[DEBUG]    > Final %s score: avg=%d, median=%d, count=%d" % (label, avg_score, median_score, len(percentiles)))
             else:
                 avg_score = 0
