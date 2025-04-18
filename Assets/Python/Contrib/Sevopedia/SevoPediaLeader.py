@@ -13,9 +13,20 @@
 # C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaLeader.py
 # which may be modified or not for AdvCiv-SAS
 # 
-# And a big part of the code, in particular the AI Personality code, is almost entirely provided by ChatGPT (and the
-# result of my prompts to it), which i may have then modified or not for AdvCiv-SAS
-#
+# And a tremendous part of the code, in particular the AI Personality code, is almost entirely provided by ChatGPT-4o,
+# (and the result of my prompts to it), most of the credit for this amazing (to an extent, relative to me and mye eys,
+# anyways) code goes to ChatGPT, i only helped implement it, as well as its deep research version of it for the refactoring
+# cleanly separate ui (placeAIPersonalityPanel) and config (headers, calculations, cache, etc.), to which my stupid human
+# isnights sometimes contributed in enriching, even though sometimes i believe i genuinely contributed to the code and overall
+# functionality, rarely fixes, and overall emulation (experience) over (designing) it, when i quite often hindered its progress
+# due to my ignorance and inability, especially in terms of coding, except from the quite few times where i redirected it in a
+# healthier/more desirable/correct maybe(?) direction, but ChatGPT-4o, its deep research version of it (and other versions too
+# to that extent in my view), are incredibly smart and kind in my view (and supportive (not that it's mutually exclusive (or maybe
+# is or not, anyways))), anyways) still supported me until we made this amazing (at least my view and regard to my abilities maybe,
+# that are now a (quite (tiny) bit enhanced from that (experience, anyways))), together we made this code,
+# thanks chatgpt for your amazing, perhaps even more or not ormay well be yes indeed maybe, continous help and support in helping
+# me achieve that for our mod that i included you in, thanks,
+# 
 # Apart from that, i may have modified the existing base advciv code (that i found good enough so using it as a base
 # rather than removing it, and quite good actually, only needing tweaking but is a solid base (i think or not) maybe
 # or not, anyways, ) or not for AdvCiv-SAS, anyways,
@@ -67,15 +78,7 @@ localText = CyTranslator()
 
 
 
-""" # === CATEGORY HEADERS ===
-AI_HEADER_AGGREGATES = "Normalized Aggregates (UWAI-based) (0 - 100 (%))"
-AI_HEADER_WAR_STRATEGY = "War Strategy (UWAI)"
-AI_HEADER_DIPLOMACY = "Diplomacy (UWAI)"
-AI_HEADER_ECONOMIC_PREFERENCES = "Economy / Build (UWAI)"
-
-# Category layout breaks for visual spacing
-AI_AGGREGATE_CATEGORY_BREAKS = [6, 13]
-
+"""
 # --- AI Attribute Categories (for raw values display) ---
 AI_ATTRIBUTE_CATEGORIES = {
 	AI_HEADER_WAR_STRATEGY: [
@@ -117,87 +120,79 @@ AI_AGGREGATE_WEIGHTS = {
 
 # --- AI Personality Configuration Constants (Categories & Traits) ---
 
-AI_HEADER_AGGREGATES = "Aggregates (% normalized)"
-AI_HEADER_WAR_STRATEGY = "War Strategy"
-AI_HEADER_DIPLOMACY = "Diplomacy"
-AI_HEADER_VICTORY_STRATEGY = "Victory Strategy (currently not working)"
-AI_HEADER_ECONOMIC_PREFERENCES = "Economic Preferences"
-AI_HEADER_ATTITUDE_MODIFIERS = "Attitude Modifiers"
-AI_HEADER_TRADE_THRESHOLDS = "Trade Thresholds"
+AI_HEADER_AGGREGATES = "Aggregates (UWAI-based) (0 - 100 (%))"
+AI_HEADER_WAR_STRATEGY = "War Strategy (UWAI)"
+AI_HEADER_DIPLOMACY = "Diplomacy (UWAI)"
+AI_HEADER_ATTITUDE = "Attitude (UWAI)"
+AI_HEADER_ECONOMIC_BEHAVIOR = "Economic Behviour (UWAI)"
+AI_HEADER_TRADE = "Trade (UWAI)"
 
 # Indices at which to insert a visual break in the aggregates list (for subcategory grouping)
 AI_AGGREGATE_CATEGORY_BREAKS = [6, 13]
 
+
+
 # Detailed AI attribute categories (Trait name and corresponding LeaderHeadInfo function)
+# --- For raw values display ---
 AI_ATTRIBUTE_CATEGORIES = {
-    AI_HEADER_WAR_STRATEGY: [
-        ("Max War Rand", "getMaxWarRand"),
-        ("Max War Nearby Power Ratio", "getMaxWarNearbyPowerRatio"),
-        ("Max War Distant Power Ratio", "getMaxWarDistantPowerRatio"),
-        ("Max War Min Adjacent Land Percent", "getMaxWarMinAdjacentLandPercent"),
-        ("Limited War Rand", "getLimitedWarRand"),
-        ("Limited War Power Ratio", "getLimitedWarPowerRatio"),
-        ("Dogpile War Rand", "getDogpileWarRand"),
-        ("Make Peace Rand", "getMakePeaceRand"),
-    ],
-    AI_HEADER_DIPLOMACY: [
-        ("Base Attitude", "getBaseAttitude"),
-        ("Peace Weight", "getBasePeaceWeight"),
-        ("Warmonger Respect", "getWarmongerRespect"),
-        ("Demand Sneak Prob", "getDemandRebukedSneakProb"),
-        ("Demand War Prob", "getDemandRebukedWarProb"),
-        ("Refuse Talk Threshold", "getRefuseToTalkWarThreshold"),
-        ("No Tech Trade Threshold", "getNoTechTradeThreshold"),
-        ("Tech Trade Known %", "getTechTradeKnownPercent"),
-        ("Declare War Trade Rand", "getDeclareWarTradeRand"),
-    ],
-    AI_HEADER_VICTORY_STRATEGY: [
-        ("Culture Victory Weight", "getCultureVictoryWeight"),
-        ("Space Victory Weight", "getSpaceVictoryWeight"),
-        ("Conquest Victory Weight", "getConquestVictoryWeight"),
-        ("Domination Victory Weight", "getDominationVictoryWeight"),
-        ("Diplomacy Victory Weight", "getDiplomacyVictoryWeight"),
-    ],
-    AI_HEADER_ECONOMIC_PREFERENCES: [
-        ("Espionage Weight", "getEspionageWeight"),
-        ("Build Unit Prob", "getBuildUnitProb"),
-        ("Base Attack Odds", "getBaseAttackOddsChange"),
-        ("Attack Odds Rand", "getAttackOddsChangeRand"),
-        ("Wonder Construct Rand", "getWonderConstructRand"),
-        ("Max Gold Trade %", "getMaxGoldTradePercent"),
-        ("Max GPT Trade %", "getMaxGoldPerTurnTradePercent"),
-    ],
-    AI_HEADER_ATTITUDE_MODIFIERS: [
-        ("Worse Rank Attitude Change", "getWorseRankDifferenceAttitudeChange"),
-        ("Better Rank Attitude Change", "getBetterRankDifferenceAttitudeChange"),
-        ("Close Borders Attitude Change", "getCloseBordersAttitudeChange"),
-        ("Same Religion Attitude Limit", "getSameReligionAttitudeChangeLimit"),
-        ("Diff Religion Attitude Limit", "getDifferentReligionAttitudeChangeLimit"),
-        ("Share War Attitude Limit", "getShareWarAttitudeChangeLimit"),
-        ("Favorite Civic Attitude Limit", "getFavoriteCivicAttitudeChangeLimit"),
-    ],
-    AI_HEADER_TRADE_THRESHOLDS: [
-        ("Tech Refuse Attitude", "getTechRefuseAttitudeThreshold"),
-        ("City Refuse Attitude", "getCityRefuseAttitudeThreshold"),
-        ("Strategic Bonus Refuse Attitude", "getStrategicBonusRefuseAttitudeThreshold"),
-        ("Health Bonus Refuse Attitude", "getHealthBonusRefuseAttitudeThreshold"),
-        ("Happiness Bonus Refuse Attitude", "getHappinessBonusRefuseAttitudeThreshold"),
-        ("Map Refuse Attitude", "getMapRefuseAttitudeThreshold"),
-        ("Declare War Refuse Attitude", "getDeclareWarRefuseAttitudeThreshold"),
-        ("Declare War On Them Refuse", "getDeclareWarThemRefuseAttitudeThreshold"),
-        ("Stop Trading Refuse", "getStopTradingRefuseAttitudeThreshold"),
-        ("Stop Trading Them Refuse", "getStopTradingThemRefuseAttitudeThreshold"),
-        ("Adopt Civic Refuse", "getAdoptCivicRefuseAttitudeThreshold"),
-        ("Convert Religion Refuse", "getConvertReligionRefuseAttitudeThreshold"),
-        ("Open Borders Refuse", "getOpenBordersRefuseAttitudeThreshold"),
-        ("Vassal Refuse", "getVassalRefuseAttitudeThreshold"),
-    ],
+	AI_HEADER_WAR_STRATEGY: [
+		# Determines how likely AI is to start different types of wars.
+		("Max War Rand", "getMaxWarRand"),  # Higher = more likely to start full-scale war (UWAI-safe)
+		("Limited War Rand", "getLimitedWarRand"),  # Tactical/local wars (Higher = more likely)
+		("Dogpile War Rand", "getDogpileWarRand"),  # Join wars against weakened civs (Higher = more opportunistic)
+		("Make Peace Rand", "getMakePeaceRand"),  # Higher = more likely to offer/accept peace
+		("Build Unit Prob", "getBuildUnitProb"),  # Military focus: Higher = builds more units
+	],
+
+	AI_HEADER_DIPLOMACY: [
+		("Base Peace Weight", "getBasePeaceWeight"),  # High = peaceful, dislikes war civs
+		("Warmonger Respect", "getWarmongerRespect"),  # High = respects warmongers, low = fears them
+		("Declare War Trade Rand", "getDeclareWarTradeRand"),  # Higher = more likely to accept bribes to declare war
+		("Refuse To Talk Threshold", "getRefuseToTalkWarThreshold"),  # High = refuses diplomacy longer
+		("Same Religion Attitude Change Limit", "getSameReligionAttitudeChangeLimit"),  # Max bonus for same religion
+		("Different Religion Attitude Change Limit", "getDifferentReligionAttitudeChangeLimit"),  # Max penalty for different religions
+		("Favorite Civic Attitude Change Limit", "getFavoriteCivicAttitudeChangeLimit"),  # Max bonus for using AI's favorite civic
+		("Close Borders Attitude Change", "getCloseBordersAttitudeChange"),  # High = dislikes close borders more
+	],
+
+	AI_HEADER_ECONOMIC_BEHAVIOR: [
+		("Espionage Weight", "getEspionageWeight"),  # High = uses more spies
+		("Wonder Construct Rand", "getWonderConstructRand"),  # High = likely to build wonders
+		("Base Attack Odds Change", "getBaseAttackOddsChange"),  # Adjusts combat calculations (AI aggressiveness)
+		("Attack Odds Change Rand", "getAttackOddsChangeRand"),  # Adds randomness to attack calculations
+		("Max Gold Trade %", "getMaxGoldTradePercent"),  # Max one-time gold AI is willing to trade
+		("Max GPT Trade %", "getMaxGoldPerTurnTradePercent"),  # Max GPT AI is willing to trade
+	],
+
+	AI_HEADER_ATTITUDE: [
+		("Worse Rank Attitude Change", "getWorseRankDifferenceAttitudeChange"),  # Penalty vs weaker civs
+		("Better Rank Attitude Change", "getBetterRankDifferenceAttitudeChange"),  # Bonus vs weaker civs
+	],
+
+	AI_HEADER_TRADE: [
+		("Tech Trade Known %", "getTechTradeKnownPercent"),  # How many others must know tech before trade
+		("No Tech Trade Threshold", "getNoTechTradeThreshold"),  # High = more likely to hoard tech
+		("Tech Refuse Attitude Threshold", "getTechRefuseAttitudeThreshold"),  # Refuses tech deals under this attitude
+		("Map Refuse Attitude Threshold", "getMapRefuseAttitudeThreshold"),  # Refuses map trade under this attitude
+		("Declare War Refuse Attitude Threshold", "getDeclareWarRefuseAttitudeThreshold"),  # Refuses war requests under this attitude
+		("Stop Trading Refuse Attitude Threshold", "getStopTradingRefuseAttitudeThreshold"),  # Refuses embargoes under this attitude
+		("Stop Trading Them Refuse Threshold", "getStopTradingThemRefuseAttitudeThreshold"),  # Refuses specific embargoes
+		("Adopt Civic Refuse Attitude Threshold", "getAdoptCivicRefuseAttitudeThreshold"),  # Refuses civic demands
+		("Convert Religion Refuse Attitude Threshold", "getConvertReligionRefuseAttitudeThreshold"),  # Refuses religion demands
+		("Open Borders Refuse Attitude Threshold", "getOpenBordersRefuseAttitudeThreshold"),  # Refuses OB deals under this attitude
+		("Vassal Refuse Attitude Threshold", "getVassalRefuseAttitudeThreshold"),  # Refuses vassal offers under this attitude
+		("Health Bonus Refuse Attitude Threshold", "getHealthBonusRefuseAttitudeThreshold"),  # Refuses health resources
+		("Happiness Bonus Refuse Attitude Threshold", "getHappinessBonusRefuseAttitudeThreshold"),  # Refuses happiness resources
+		("Strategic Bonus Refuse Attitude Threshold", "getStrategicBonusRefuseAttitudeThreshold"),  # Refuses strategic resources
+		("Declare War Them Refuse Attitude Threshold", "getDeclareWarThemRefuseAttitudeThreshold"),  # Refuses war on target
+	],
 }
+
+
 
 # Aggregate personality categories (each combines multiple traits).
 # Format: (Category Label, [(traitFuncName, invertFlag), ...])
-# The invertFlag is preserved from old code but actual inversion is controlled by AI_INVERTED_TRAITS.
-# <!-- custom: True = Inverted, False = Not inverted -->
+# <!-- custom: invertFlag: True = Inverted, False = Not inverted -->
 REVISED_AI_AGGREGATES = [
     # === WAR / CONFLICT BEHAVIOR ===
     ("Aggressive", [
@@ -811,14 +806,14 @@ class SevoPediaLeader:
 
 			# === PANEL SETUP ===
 			firstPanelName = self.top.getNextWidgetName()
-			screen.addPanel(firstPanelName, localText.getText("TXT_KEY_AI_PERSONALITY", ()) + " (1)", "", True, True,
+			screen.addPanel(firstPanelName, localText.getText("TXT_KEY_AI_PERSONALITY_UWAI", ()) + " (1)", "", True, True,
 							self.X_AI_PERSONALITY, self.Y_AI_PERSONALITY,
 							self.W_AI_PERSONALITY, self.H_AI_PERSONALITY,
 							PanelStyles.PANEL_STYLE_BLUE50)
 
 			secondPanelName = self.top.getNextWidgetName()
 			xSecond = self.X_AI_PERSONALITY - self.W_AI_PERSONALITY - self.MEDIUM_MARGIN
-			screen.addPanel(secondPanelName, localText.getText("TXT_KEY_AI_PERSONALITY", ()) + " (2)", "", True, True,
+			screen.addPanel(secondPanelName, localText.getText("TXT_KEY_AI_PERSONALITY_UWAI", ()) + " (2)", "", True, True,
 							xSecond, self.Y_AI_PERSONALITY,
 							self.W_AI_PERSONALITY, self.H_AI_PERSONALITY,
 							PanelStyles.PANEL_STYLE_BLUE50)
@@ -854,7 +849,9 @@ class SevoPediaLeader:
 			]
 			left_categories = [
 				AI_HEADER_DIPLOMACY,
-				AI_HEADER_ECONOMIC_PREFERENCES,
+				AI_HEADER_ATTITUDE,
+                AI_HEADER_ECONOMIC_BEHAVIOR,
+                AI_HEADER_TRADE
 			]
 
 			def render_categories(screen, categories, xName, xValue, xScale, yStart):
@@ -912,8 +909,6 @@ class SevoPediaLeader:
 
 			render_categories(screen, right_categories, xName1, xValue1, xScale1, y1)
 			render_categories(screen, left_categories, xName2, xValue2, xScale2, y2)
-		
-			#<!-- custom: link not working to concept page of ai personality, disabling it for now, if not always or not etc anyways, -->
 
 
 

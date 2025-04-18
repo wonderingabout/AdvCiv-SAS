@@ -13,8 +13,14 @@
 # C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaLeader.py
 # which may be modified or not for AdvCiv-SAS
 # 
-# And a big part of the code, in particular the AI Personality code, is almost entirely provided by ChatGPT (and the
-# result of my prompts to it), which i may have then modified or not for AdvCiv-SAS
+# And a tremendous part of the code, in particular the AI Personality code, is almost entirely provided by ChatGPT-4o,
+# (and the result of my prompts to it), most of the credit for this amazing (to an extent, relative to me and mye eys,
+# anyways) code goes to ChatGPT, i only helped implement it, as well as its deep research version of it for the refactoring
+# cleanly separate ui (placeAIPersonalityPanel) and config (headers, calculations, cache, etc.), to which my stupid human
+# isnights sometimes contributed in enriching, even though sometimes i believe i genuinely contributed to the code and overall
+# functionality, rarely fixes, and overall emulation (experience) over (designing) it, when i quite often hindered its progress
+# due to my ignorance and inability, especially in terms of coding, but ChatGPT-4o, its deep research version of it (and other versions for that extent are
+# too for example in my view
 #
 # Apart from that, i may have modified the existing base advciv code (that i found good enough so using it as a base
 # rather than removing it, and quite good actually, only needing tweaking but is a solid base (i think or not) maybe
@@ -54,7 +60,7 @@ localText = CyTranslator()
 
 
 """
-old invert logic to remove:
+old invert logic flags (removed):
 AI_INVERTED_TRAITS = set([
     # Attitude threshold traits (higher threshold = more reluctance or caution)
     "getRefuseToTalkWarThreshold",
@@ -353,6 +359,9 @@ AI_ATTRIBUTE_CATEGORIES = {
 
 
 """
+probably not uwai safe
+
+
 v3 of uwai safe ai attributes
 # Categorized UWAI-safe AI attributes with descriptions and inversion notes
 raw_ai_categories = OrderedDict({

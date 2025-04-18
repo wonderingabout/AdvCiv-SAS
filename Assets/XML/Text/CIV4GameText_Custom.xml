@@ -25,15 +25,15 @@
 		<English>3_AdvCiv-SAS Core Changes</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_ADVCIV_SAS_CORE_AI_PERSONALITY_AGGREGATES</Tag>
-		<English>4_AdvCiv-SAS AI Personality</English>
+		<Tag>TXT_KEY_ADVCIV_SAS_CORE_AI_PERSONALITY_UWAI</Tag>
+		<English>4_AdvCiv-SAS AI Personality (UWAI)</English>
 	</TEXT>
 
 
 
 	<TEXT>
-		<Tag>TXT_KEY_AI_PERSONALITY</Tag>
-		<English>AI Personality</English>
+		<Tag>TXT_KEY_AI_PERSONALITY_UWAI</Tag>
+		<English>AI Personality (UWAI)</English>
 	</TEXT>
 
 
