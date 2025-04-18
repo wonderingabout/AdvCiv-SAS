@@ -837,16 +837,28 @@ class SevoPediaLeader:
 			yLeft = self.Y_AI_PERSONALITY + 35
 
 			def get_symbol_scale(score):
-				if score < 20:
+				if score < 10:
+					return ""
+				elif score < 20:
 					return "#"
-				elif score < 40:
+				elif score < 30:
 					return "##"
-				elif score < 60:
+				elif score < 40:
 					return "###"
-				elif score < 80:
+				elif score < 50:
 					return "####"
-				else:
+				elif score < 60:
 					return "#####"
+				elif score < 70:
+					return "######"
+				elif score < 80:
+					return "#######"
+				elif score < 90:
+					return "########"
+				elif score < 100:
+					return "#########"
+				else:
+					return "##########"
 
 			right_categories = [
 				AI_HEADER_WAR_STRATEGY,
