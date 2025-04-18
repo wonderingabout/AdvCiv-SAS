@@ -197,12 +197,13 @@ AI_ATTRIBUTE_CATEGORIES = {
 # Aggregate personality categories (each combines multiple traits).
 # Format: (Category Label, [(traitFuncName, invertFlag), ...])
 # The invertFlag is preserved from old code but actual inversion is controlled by AI_INVERTED_TRAITS.
+# <!-- custom: True = Inverted, False = Not inverted -->
 REVISED_AI_AGGREGATES = [
     # === WAR / CONFLICT BEHAVIOR ===
     ("Aggressive", [
-        ("getMaxWarRand", False),
-        ("getLimitedWarRand", False),
-        ("getDogpileWarRand", False),
+        ("getMaxWarRand", True),
+        ("getLimitedWarRand", True),
+        ("getDogpileWarRand", True),
         ("getBuildUnitProb", False),
         ("getBaseAttackOddsChange", False),
         ("getAttackOddsChangeRand", False),
@@ -508,9 +509,12 @@ def cache_ai_attribute_data():
                 raw_val = getattr(leaderInfo, funcName)()
             except Exception:
                 continue
-            # Compute percentile, inverting if necessary
-            inv = funcName in AI_INVERTED_TRAITS
-            norm_val = get_percentile(raw_val, sorted_vals, inverse=inv)
+            # <!-- custom: old code comment from chatgpt deep search --> Compute percentile, inverting if necessary
+            # <!-- custom: old code comment from chatgpt deep search --> inv = funcName in AI_INVERTED_TRAITS
+			# Compute percentile, as for inverting we never invert raw trait
+			# values anymore. They are shown as-is in the raw categories.
+			# Only aggregates apply inversion.
+            norm_val = get_percentile(raw_val, sorted_vals, inverse=False)
             leader_data[funcName] = {"raw": raw_val, "normalized": norm_val}
         AI_ATTRIBUTE_DATA[iLeader] = leader_data
 
@@ -529,7 +533,8 @@ def cache_ai_aggregate_scores():
         for label, fields in REVISED_AI_AGGREGATES:
             print("[DEBUG] Starting aggregate:", label)
             percentiles = []
-            for funcName, _ in fields:  # (use _ for invert flag from data; logic uses global AI_INVERTED_TRAITS)
+            # <!-- custom: from newer chatgpt, per-aggregate inversion logic -->
+            for funcName, invert in fields:  # old comment from deep search: (use _ for invert flag from data; logic uses global AI_INVERTED_TRAITS)
                 try:
                     raw_val = getattr(leaderInfo, funcName)()
                 except Exception:
@@ -538,13 +543,14 @@ def cache_ai_aggregate_scores():
                 sorted_vals = AI_SORTED_VALUES.get(funcName, [])
                 if not sorted_vals:
                     continue
-                #print("[DEBUG]      Trait %s | raw=%d | invert=%s" % (funcName, raw_val, invert))
-                print("[DEBUG]      Trait %s | raw=%d" % (funcName, raw_val))
-                inv = funcName in AI_INVERTED_TRAITS
-                pct = get_percentile(raw_val, sorted_vals, inverse=inv)
+                print("[DEBUG]      Trait %s | raw=%d | invert=%s" % (funcName, raw_val, invert))
+                #print("[DEBUG]      Trait %s | raw=%d" % (funcName, raw_val))
+                #inv = funcName in AI_INVERTED_TRAITS
+                #pct = get_percentile(raw_val, sorted_vals, inverse=inv)
+                pct = get_percentile(raw_val, sorted_vals, inverse=invert)
                 print("[DEBUG]      Percentile for %s: %d" % (funcName, pct))
-                #print("[DEBUG]  - Leader %d | %s: raw=%d, pct=%d, invert=%s" % (iLeader, funcName, raw_val, pct, invert))
-                print("[DEBUG]  - Leader %d | %s: raw=%d, pct=%d, inv=%s" % (iLeader, funcName, raw_val, pct, inv))
+                print("[DEBUG]  - Leader %d | %s: raw=%d, pct=%d, invert=%s" % (iLeader, funcName, raw_val, pct, invert))
+                #print("[DEBUG]  - Leader %d | %s: raw=%d, pct=%d, inv=%s" % (iLeader, funcName, raw_val, pct, inv))
                 percentiles.append(pct)
             if percentiles:
                 # Average (mean) of percentiles

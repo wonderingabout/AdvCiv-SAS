@@ -53,6 +53,37 @@ localText = CyTranslator()
 # -->
 
 
+"""
+old invert logic to remove:
+AI_INVERTED_TRAITS = set([
+    # Attitude threshold traits (higher threshold = more reluctance or caution)
+    "getRefuseToTalkWarThreshold",
+    "getNoTechTradeThreshold",
+    "getOpenBordersRefuseAttitudeThreshold",
+    "getStopTradingRefuseAttitudeThreshold",
+    "getAdoptCivicRefuseAttitudeThreshold",
+    "getConvertReligionRefuseAttitudeThreshold",
+    "getDeclareWarRefuseAttitudeThreshold",
+    "getCityRefuseAttitudeThreshold",
+    "getMapRefuseAttitudeThreshold",
+    "getTechRefuseAttitudeThreshold",
+    "getHealthBonusRefuseAttitudeThreshold",
+    "getHappinessBonusRefuseAttitudeThreshold",
+    "getStrategicBonusRefuseAttitudeThreshold",
+    "getDeclareWarThemRefuseAttitudeThreshold",
+    "getStopTradingThemRefuseAttitudeThreshold",
+    "getVassalRefuseAttitudeThreshold",
+    # War decision traits where higher = more cautious (less aggressive)
+    "getMaxWarMinAdjacentLandPercent",
+    "getLimitedWarRand",
+    "getMaxWarRand",
+    "getDogpileWarRand",
+])
+
+
+getBasePeaceWeight": -1,          # Lower = more aggressive
+"""
+
 
 # <!-- custom: performance improvement, store the all leaders calculation once
 # then refer to the result directly here (cache according to ChatGPT this
@@ -588,6 +619,11 @@ AGGREGATES_DETAILED = OrderedDict([
 
 
 """
+		# UWAI-safe subset only!
+		# Deprecated under UWAI
+		#"getMaxWarNearbyPowerRatio": -1,
+		#"getLimitedWarPowerRatio": -1,
+		#"getMaxWarMinAdjacentLandPercent": -1,
 ai aggregates v2-v3(?)
 Always show details
 
