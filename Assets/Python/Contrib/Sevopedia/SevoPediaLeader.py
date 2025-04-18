@@ -408,31 +408,7 @@ REVISED_AI_AGGREGATES = [
     ]),
 ]
 
-# --- Inversion logic: traits where higher values indicate "less" of the behavior, so invert their score ---
-AI_INVERTED_TRAITS = set([
-    # Attitude threshold traits (higher threshold = more reluctance or caution)
-    "getRefuseToTalkWarThreshold",
-    "getNoTechTradeThreshold",
-    "getOpenBordersRefuseAttitudeThreshold",
-    "getStopTradingRefuseAttitudeThreshold",
-    "getAdoptCivicRefuseAttitudeThreshold",
-    "getConvertReligionRefuseAttitudeThreshold",
-    "getDeclareWarRefuseAttitudeThreshold",
-    "getCityRefuseAttitudeThreshold",
-    "getMapRefuseAttitudeThreshold",
-    "getTechRefuseAttitudeThreshold",
-    "getHealthBonusRefuseAttitudeThreshold",
-    "getHappinessBonusRefuseAttitudeThreshold",
-    "getStrategicBonusRefuseAttitudeThreshold",
-    "getDeclareWarThemRefuseAttitudeThreshold",
-    "getStopTradingThemRefuseAttitudeThreshold",
-    "getVassalRefuseAttitudeThreshold",
-    # War decision traits where higher = more cautious (less aggressive)
-    "getMaxWarMinAdjacentLandPercent",
-    "getLimitedWarRand",
-    "getMaxWarRand",
-    "getDogpileWarRand",
-])
+
 
 # --- Utility: Percentile calculation (0–100) with optional inversion ---
 def get_percentile(value, sorted_values, inverse=False):
@@ -509,8 +485,6 @@ def cache_ai_attribute_data():
                 raw_val = getattr(leaderInfo, funcName)()
             except Exception:
                 continue
-            # <!-- custom: old code comment from chatgpt deep search --> Compute percentile, inverting if necessary
-            # <!-- custom: old code comment from chatgpt deep search --> inv = funcName in AI_INVERTED_TRAITS
 			# Compute percentile, as for inverting we never invert raw trait
 			# values anymore. They are shown as-is in the raw categories.
 			# Only aggregates apply inversion.
@@ -533,8 +507,8 @@ def cache_ai_aggregate_scores():
         for label, fields in REVISED_AI_AGGREGATES:
             print("[DEBUG] Starting aggregate:", label)
             percentiles = []
-            # <!-- custom: from newer chatgpt, per-aggregate inversion logic -->
-            for funcName, invert in fields:  # old comment from deep search: (use _ for invert flag from data; logic uses global AI_INVERTED_TRAITS)
+            # per-aggregate inversion logic -->
+            for funcName, invert in fields:
                 try:
                     raw_val = getattr(leaderInfo, funcName)()
                 except Exception:
@@ -544,20 +518,18 @@ def cache_ai_aggregate_scores():
                 if not sorted_vals:
                     continue
                 print("[DEBUG]      Trait %s | raw=%d | invert=%s" % (funcName, raw_val, invert))
-                #print("[DEBUG]      Trait %s | raw=%d" % (funcName, raw_val))
-                #inv = funcName in AI_INVERTED_TRAITS
-                #pct = get_percentile(raw_val, sorted_vals, inverse=inv)
                 pct = get_percentile(raw_val, sorted_vals, inverse=invert)
                 print("[DEBUG]      Percentile for %s: %d" % (funcName, pct))
                 print("[DEBUG]  - Leader %d | %s: raw=%d, pct=%d, invert=%s" % (iLeader, funcName, raw_val, pct, invert))
-                #print("[DEBUG]  - Leader %d | %s: raw=%d, pct=%d, inv=%s" % (iLeader, funcName, raw_val, pct, inv))
                 percentiles.append(pct)
             if percentiles:
                 # Average (mean) of percentiles
-				# <!-- custom: avoid 100.4 (for example) being rounded to 101 -->
+				# <!-- custom: from newer chatgpt too that i could not understand at that time ;(  :
+                # avoid 100.4 (for example) being rounded to 101 -->
                 avg_score = min(100, int(round(sum(percentiles) / float(len(percentiles)))))
                 # Median of percentiles (middle value in sorted order)
                 sorted_pcts = sorted(percentiles)
+                # <!-- custom: from newer chatgpt too that i could not understand at that time ;(  :
 				# <!-- custom: avoid 100.4 (for example) being rounded to 101 -->
                 median_score = min(100, sorted_pcts[len(sorted_pcts) // 2])
                 print("[DEBUG]    > Final %s score: avg=%d, median=%d, count=%d" % (label, avg_score, median_score, len(percentiles)))
@@ -576,7 +548,6 @@ cache_ai_aggregate_scores()
 
 
 
-# (<!-- custom: paper note and pen emoji, removed replaced with this text for same reason etc anyways etc -->)
 # However, in future we may want to render AI_AGGREGATE_RAW_SCORES (average) alongside or as a tooltip, toggle, or legend.
 # For now, averages are computed and stored, but not shown.
 
