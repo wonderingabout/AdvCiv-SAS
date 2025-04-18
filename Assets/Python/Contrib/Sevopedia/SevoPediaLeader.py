@@ -149,9 +149,9 @@ AI_ATTRIBUTE_CATEGORIES = {
 		("Warmonger Respect", "getWarmongerRespect"),  # High = respects warmongers, low = fears them
 		("Declare War Trade Rand", "getDeclareWarTradeRand"),  # Higher = more likely to accept bribes to declare war
 		("Refuse To Talk Threshold", "getRefuseToTalkWarThreshold"),  # High = refuses diplomacy longer
-		("Same Religion Attitude Change Limit", "getSameReligionAttitudeChangeLimit"),  # Max bonus for same religion
-		("Different Religion Attitude Change Limit", "getDifferentReligionAttitudeChangeLimit"),  # Max penalty for different religions
-		("Favorite Civic Attitude Change Limit", "getFavoriteCivicAttitudeChangeLimit"),  # Max bonus for using AI's favorite civic
+		("Same Religion Att. Ch. Limit", "getSameReligionAttitudeChangeLimit"),  # Max bonus for same religion
+		("Different Religion Att. Ch. Limit", "getDifferentReligionAttitudeChangeLimit"),  # Max penalty for different religions
+		("Favorite Civic Att. Ch. Limit", "getFavoriteCivicAttitudeChangeLimit"),  # Max bonus for using AI's favorite civic
 		("Close Borders Attitude Change", "getCloseBordersAttitudeChange"),  # High = dislikes close borders more
 	],
 
@@ -172,19 +172,19 @@ AI_ATTRIBUTE_CATEGORIES = {
 	AI_HEADER_TRADE: [
 		("Tech Trade Known %", "getTechTradeKnownPercent"),  # How many others must know tech before trade
 		("No Tech Trade Threshold", "getNoTechTradeThreshold"),  # High = more likely to hoard tech
-		("Tech Refuse Attitude Threshold", "getTechRefuseAttitudeThreshold"),  # Refuses tech deals under this attitude
-		("Map Refuse Attitude Threshold", "getMapRefuseAttitudeThreshold"),  # Refuses map trade under this attitude
-		("Declare War Refuse Attitude Threshold", "getDeclareWarRefuseAttitudeThreshold"),  # Refuses war requests under this attitude
-		("Stop Trading Refuse Attitude Threshold", "getStopTradingRefuseAttitudeThreshold"),  # Refuses embargoes under this attitude
-		("Stop Trading Them Refuse Threshold", "getStopTradingThemRefuseAttitudeThreshold"),  # Refuses specific embargoes
-		("Adopt Civic Refuse Attitude Threshold", "getAdoptCivicRefuseAttitudeThreshold"),  # Refuses civic demands
-		("Convert Religion Refuse Attitude Threshold", "getConvertReligionRefuseAttitudeThreshold"),  # Refuses religion demands
-		("Open Borders Refuse Attitude Threshold", "getOpenBordersRefuseAttitudeThreshold"),  # Refuses OB deals under this attitude
-		("Vassal Refuse Attitude Threshold", "getVassalRefuseAttitudeThreshold"),  # Refuses vassal offers under this attitude
-		("Health Bonus Refuse Attitude Threshold", "getHealthBonusRefuseAttitudeThreshold"),  # Refuses health resources
-		("Happiness Bonus Refuse Attitude Threshold", "getHappinessBonusRefuseAttitudeThreshold"),  # Refuses happiness resources
-		("Strategic Bonus Refuse Attitude Threshold", "getStrategicBonusRefuseAttitudeThreshold"),  # Refuses strategic resources
-		("Declare War Them Refuse Attitude Threshold", "getDeclareWarThemRefuseAttitudeThreshold"),  # Refuses war on target
+		("Tech Refuse Att. Thr.", "getTechRefuseAttitudeThreshold"),  # Refuses tech deals under this attitude
+		("Map Refuse Att. Thr.", "getMapRefuseAttitudeThreshold"),  # Refuses map trade under this attitude
+		("Declare War Refuse Att. Thr.", "getDeclareWarRefuseAttitudeThreshold"),  # Refuses war requests under this attitude
+		("Stop Trading Refuse Att. Thr.", "getStopTradingRefuseAttitudeThreshold"),  # Refuses embargoes under this attitude
+		("Stop Trading Them Refuse Thr.", "getStopTradingThemRefuseAttitudeThreshold"),  # Refuses specific embargoes
+		("Adopt Civic Refuse Att. Thr.", "getAdoptCivicRefuseAttitudeThreshold"),  # Refuses civic demands
+		("Convert Religion Refuse Att. Thr.", "getConvertReligionRefuseAttitudeThreshold"),  # Refuses religion demands
+		("Open Borders Refuse Att. Thr.", "getOpenBordersRefuseAttitudeThreshold"),  # Refuses OB deals under this attitude
+		("Vassal Refuse Att. Thr.", "getVassalRefuseAttitudeThreshold"),  # Refuses vassal offers under this attitude
+		("Health Bonus Refuse Att. Thr.", "getHealthBonusRefuseAttitudeThreshold"),  # Refuses health resources
+		("Happiness Bonus Refuse Att. Thr.", "getHappinessBonusRefuseAttitudeThreshold"),  # Refuses happiness resources
+		("Strategic Bonus Refuse Att. Thr.", "getStrategicBonusRefuseAttitudeThreshold"),  # Refuses strategic resources
+		("Declare War Them Refuse Att. Thr.", "getDeclareWarThemRefuseAttitudeThreshold"),  # Refuses war on target
 	],
 }
 
