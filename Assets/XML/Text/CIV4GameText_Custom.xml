@@ -32,8 +32,12 @@
 
 
 	<TEXT>
-		<Tag>TXT_KEY_AI_PERSONALITY_UWAI</Tag>
-		<English>AI Personality (UWAI)</English>
+		<Tag>TXT_KEY_AI_PERSONALITY_UWAI_LEFT_PANEL</Tag>
+		<English>AI Personality (UWAI) (2)</English>
+	</TEXT>
+		<TEXT>
+		<Tag>TXT_KEY_AI_PERSONALITY_UWAI_RIGHT_PANEL</Tag>
+		<English>AI Personality (UWAI) (1)</English>
 	</TEXT>
 
 

@@ -118,7 +118,7 @@ AI_AGGREGATE_WEIGHTS = {
 
 
 
-# --- AI Personality Configuration Constants (Categories & Traits) ---
+# --- AI Personality Configuration Constants (Categories & Attributes) ---
 
 AI_HEADER_AGGREGATES = "Aggregates (UWAI-based) (0 - 100 (%))"
 AI_HEADER_WAR_STRATEGY = "War Strategy (UWAI)"
@@ -190,7 +190,7 @@ AI_ATTRIBUTE_CATEGORIES = {
 
 
 
-# Aggregate personality categories (each combines multiple traits).
+# Aggregate personality categories (each combines multiple attributes).
 # Format: (Category Label, [(traitFuncName, invertFlag), ...])
 # <!-- custom: invertFlag: True = Inverted, False = Not inverted -->
 REVISED_AI_AGGREGATES = [
@@ -434,7 +434,7 @@ AI_ATTRIBUTE_DATA = {}      # {iLeader: { funcName: {"raw": val, "normalized": p
 AI_AGGREGATE_SCORES = {}    # {iLeader: { aggregateLabel: medianPercentile } }
 AI_AGGREGATE_RAW_SCORES = {}# {iLeader: { aggregateLabel: averagePercentile } }
 
-# --- Caching function: Compute min/max ranges and sorted values for all AI traits ---
+# --- Caching function: Compute min/max ranges and sorted values for all AI attributes ---
 def cache_ai_value_ranges():
     """Populate AI_VALUE_RANGES and AI_SORTED_VALUES for all AI trait functions across all leaders."""
     global AI_VALUE_RANGES, AI_SORTED_VALUES
@@ -480,7 +480,16 @@ def cache_ai_attribute_data():
                 raw_val = getattr(leaderInfo, funcName)()
             except Exception:
                 continue
-			# Compute percentile, as for inverting we never invert raw trait
+			# <!-- custom: unlike what (deep?) chatgpt said here (maybe i mislead it? (probably?
+			# but not totally sure or guaranteed (maybe i did not etc, anyways), anyways), i think)
+			# maybe it would be a nice idea now that we have cleanly separated (is it because why?
+			# That we should do that? But anyways) UI display and config computation and cache logics,
+			# to also invert (raw) ai attributes too in ai categories todo, but as code is currently
+			# implemented we would have to specify it twice both in ai attributes and in ai aggregates
+			# (top of the config listings (don't know the exact name, anyways)), which would be
+			# redundant, so leaving as is but maybe todo
+			# 
+			# (deep?) chatgpt note: Compute percentile, as for inverting we never invert raw trait
 			# values anymore. They are shown as-is in the raw categories.
 			# Only aggregates apply inversion.
             norm_val = get_percentile(raw_val, sorted_vals, inverse=False)
@@ -636,13 +645,9 @@ class SevoPediaLeader:
 
 		# <!-- custom: traits have the green color somehow,
 		#
-		# do not comment-out until i find how so i
+		# (i (should/would) (maybe)) do not comment-out until i find how so i
 		#
 		# can feed it / = ask ChatGPT about it if it has ideas -->
-		#self.X_TRAITS = self.X_LEADERHEAD_PANE + self.W_LEADERHEAD_PANE + 10
-		#self.Y_TRAITS = self.Y_LEADERHEAD_PANE + 80 + 10
-		#self.W_TRAITS = self.top.R_PEDIA_PAGE - self.W_AI_PERSONALITY - self.X_TRAITS - self.MEDIUM_MARGIN
-		#self.H_TRAITS = 64 + 64 - self.Y_TRAITS
 		self.X_TRAITS = self.X_LEADERHEAD_PANE + self.W_LEADERHEAD_PANE + self.SMALL_MARGIN
 		self.Y_TRAITS = self.Y_LEADERHEAD_PANE
 		self.W_TRAITS = self.W_HISTORY - self.W_LEADERHEAD_PANE - self.SMALL_MARGIN
@@ -805,31 +810,31 @@ class SevoPediaLeader:
 			screen = self.top.getScreen()
 
 			# === PANEL SETUP ===
-			firstPanelName = self.top.getNextWidgetName()
-			screen.addPanel(firstPanelName, localText.getText("TXT_KEY_AI_PERSONALITY_UWAI", ()) + " (1)", "", True, True,
+			rightPanelName = self.top.getNextWidgetName()
+			screen.addPanel(rightPanelName, localText.getText("TXT_KEY_AI_PERSONALITY_UWAI_RIGHT_PANEL", ()), "", True, True,
 							self.X_AI_PERSONALITY, self.Y_AI_PERSONALITY,
 							self.W_AI_PERSONALITY, self.H_AI_PERSONALITY,
 							PanelStyles.PANEL_STYLE_BLUE50)
 
-			secondPanelName = self.top.getNextWidgetName()
-			xSecond = self.X_AI_PERSONALITY - self.W_AI_PERSONALITY - self.MEDIUM_MARGIN
-			screen.addPanel(secondPanelName, localText.getText("TXT_KEY_AI_PERSONALITY_UWAI", ()) + " (2)", "", True, True,
-							xSecond, self.Y_AI_PERSONALITY,
+			leftPanelName = self.top.getNextWidgetName()
+			xLeftPanel = self.X_AI_PERSONALITY - self.W_AI_PERSONALITY - self.MEDIUM_MARGIN
+			screen.addPanel(leftPanelName, localText.getText("TXT_KEY_AI_PERSONALITY_UWAI_LEFT_PANEL", ()), "", True, True,
+							xLeftPanel, self.Y_AI_PERSONALITY,
 							self.W_AI_PERSONALITY, self.H_AI_PERSONALITY,
 							PanelStyles.PANEL_STYLE_BLUE50)
 
 			lineHeight = 22
 			categorySpacing = 10
 
-			xName1 = self.X_AI_PERSONALITY + 15
-			xValue1 = xName1 + 260
-			xScale1 = xValue1 + 60
-			y1 = self.Y_AI_PERSONALITY + 35
+			xNameRight = self.X_AI_PERSONALITY + 15
+			xValueRight = xNameRight + 260
+			xScaleRight = xValueRight + 60
+			yRight = self.Y_AI_PERSONALITY + 35
 
-			xName2 = xSecond + 15
-			xValue2 = xName2 + 260
-			xScale2 = xValue2 + 60
-			y2 = self.Y_AI_PERSONALITY + 35
+			xNameLeft = xLeftPanel + 15
+			xValueLeft = xNameLeft + 260
+			xScale2Left = xValueLeft + 60
+			yLeft = self.Y_AI_PERSONALITY + 35
 
 			def get_symbol_scale(score):
 				if score < 20:
@@ -907,8 +912,8 @@ class SevoPediaLeader:
 						except:
 							pass
 
-			render_categories(screen, right_categories, xName1, xValue1, xScale1, y1)
-			render_categories(screen, left_categories, xName2, xValue2, xScale2, y2)
+			render_categories(screen, right_categories, xNameRight, xValueRight, xScaleRight, yRight)
+			render_categories(screen, left_categories, xNameLeft, xValueLeft, xScale2Left, yLeft)
 
 
 
