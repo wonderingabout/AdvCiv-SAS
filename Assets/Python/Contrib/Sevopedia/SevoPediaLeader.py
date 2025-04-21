@@ -833,7 +833,7 @@ class SevoPediaLeader:
 
 			xNameLeft = xLeftPanel + 15
 			xValueLeft = xNameLeft + 260
-			xScale2Left = xValueLeft + 60
+			xScaleLeft = xValueLeft + 60
 			yLeft = self.Y_AI_PERSONALITY + 35
 
 			def get_symbol_scale(score):
@@ -925,7 +925,7 @@ class SevoPediaLeader:
 							pass
 
 			render_categories(screen, right_categories, xNameRight, xValueRight, xScaleRight, yRight)
-			render_categories(screen, left_categories, xNameLeft, xValueLeft, xScale2Left, yLeft)
+			render_categories(screen, left_categories, xNameLeft, xValueLeft, xScaleLeft, yLeft)
 
 
 
