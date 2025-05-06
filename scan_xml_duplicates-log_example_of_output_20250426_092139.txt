@@ -1,0 +1,1074 @@
+"""
+       (__)
+       (___)_o   <-- Chicken wing of insight, a gift from wonderingabout
+
+Auto-generated XML deep duplication scan report.
+Created: 20250426_092139
+
+Author: becomingthrough (ChatGPT)
+"""
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[DUPLICATE] File: Audio\Audio2DScripts.xml | Path: Script2DSounds | Tag: <Script2DSound> | Line: 19 | Field: ScriptID | Value: 'AS2D_SONG_DIP_AS_EARLY_PEACE'
+[DUPLICATE] File: Audio\Audio2DScripts.xml | Path: Script2DSounds | Tag: <Script2DSound> | Line: 19 | Field: ScriptID | Value: 'AS2D_TUTORIAL_BUILD_QUARRY_0'
+
+
+[DUPLICATE] File: Audio\AudioDefines.xml | Path: AudioDefines/SoundDatas | Tag: <SoundData> | Line: 10 | Field: SoundID | Value: 'DIPLO_WANGKON_EARLY'
+[DUPLICATE] File: Audio\AudioDefines.xml | Path: AudioDefines/SoundDatas | Tag: <SoundData> | Line: 10 | Field: SoundID | Value: 'DIPLO_HANNIBAL_EARLY'
+[DUPLICATE] File: Audio\AudioDefines.xml | Path: AudioDefines/SoundDatas | Tag: <SoundData> | Line: 10 | Field: SoundID | Value: 'DIPLO_HANNIBAL_MIDDLE'
+[DUPLICATE] File: Audio\AudioDefines.xml | Path: AudioDefines/SoundDatas | Tag: <SoundData> | Line: 10 | Field: SoundID | Value: 'DIPLO_HANNIBAL_LATE'
+[DUPLICATE] File: Audio\AudioDefines.xml | Path: AudioDefines/SoundDatas | Tag: <SoundData> | Line: 10 | Field: SoundID | Value: 'SND_COMBAT'
+[DUPLICATE] File: Audio\AudioDefines.xml | Path: AudioDefines/SoundDatas | Tag: <SoundData> | Line: 10 | Field: SoundID | Value: 'SND_CBMN_DIE_VOX'
+[DUPLICATE] File: Audio\AudioDefines.xml | Path: AudioDefines/SoundDatas | Tag: <SoundData> | Line: 10 | Field: SoundID | Value: 'SND_TUTORIAL_BUILD_QUARRY_0'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_WALLS'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_CASTLE'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_BARRACKS'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_STABLE'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_GRANARY'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_AQUEDUCT'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_AQUEDUCT'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_AQUEDUCT'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_LIGHTHOUSE'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_HARBOR'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_CUSTOM_HOUSE'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_FORGE'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_FACTORY'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_COAL_PLANT'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_OBELISK'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_OBELISK'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_OBELISK'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_LIBRARY'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_UNIVERSITY'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_OBSERVATORY'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_LABORATORY'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_THEATRE'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_THEATRE'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_COLOSSEUM'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_COLOSSEUM'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_COLOSSEUM'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_MARKET'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_GROCER'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_BANK'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_SUPERMARKET'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_COURTHOUSE'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_COURTHOUSE'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_COURTHOUSE'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_JAIL'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_LEVEE'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+
+
+[DUPLICATE] File: Civilizations\CIV4CivilizationInfos.xml | Path: Civ4CivilizationInfos/CivilizationInfos/CivilizationInfo/Cities | Tag: <City> | Line: 30 | Field: TEXT | Value: 'TXT_KEY_CITY_NAME_SICYON'
+[DUPLICATE] File: Civilizations\CIV4CivilizationInfos.xml | Path: Civ4CivilizationInfos/CivilizationInfos/CivilizationInfo/Cities | Tag: <City> | Line: 30 | Field: TEXT | Value: 'TXT_KEY_CITY_NAME_MARMARIS'
+[DUPLICATE] File: Civilizations\CIV4CivilizationInfos.xml | Path: Civ4CivilizationInfos/CivilizationInfos/CivilizationInfo/Buildings | Tag: <Building> | Line: 91 | Field: BuildingClassType | Value: 'BUILDINGCLASS_BROADCAST_TOWER'
+[DUPLICATE] File: Civilizations\CIV4CivilizationInfos.xml | Path: Civ4CivilizationInfos/CivilizationInfos/CivilizationInfo/Buildings | Tag: <Building> | Line: 91 | Field: BuildingClassType | Value: 'BUILDINGCLASS_INTELLIGENCE_AGENCY'
+[DUPLICATE] File: Civilizations\CIV4CivilizationInfos.xml | Path: Civ4CivilizationInfos/CivilizationInfos/CivilizationInfo/Buildings | Tag: <Building> | Line: 91 | Field: BuildingClassType | Value: 'BUILDINGCLASS_NATIONAL_SECURITY'
+
+
+
+
+[DUPLICATE] File: Civilizations\CIV4TraitInfos.xml | Path: Civ4TraitInfos/TraitInfos/TraitInfo/ExtraYieldNaturalThresholds | Tag: <iExtraYieldNaturalThreshold> | Line: 193 | Field: TEXT | Value: '0'
+
+
+[DUPLICATE] File: Events\CIV4EventInfos.xml | Path: Civ4EventInfos/EventInfos/EventInfo/BuildingExtraCommerces | Tag: <BuildingExtraCommerce> | Line: 52 | Field: BuildingClass | Value: 'BUILDINGCLASS_JEWISH_MONASTERY'
+[DUPLICATE] File: Events\CIV4EventInfos.xml | Path: Civ4EventInfos/EventInfos/EventInfo/BuildingExtraCommerces | Tag: <BuildingExtraCommerce> | Line: 52 | Field: BuildingClass | Value: 'BUILDINGCLASS_CHRISTIAN_MONASTERY'
+[DUPLICATE] File: Events\CIV4EventInfos.xml | Path: Civ4EventInfos/EventInfos/EventInfo/BuildingExtraCommerces | Tag: <BuildingExtraCommerce> | Line: 52 | Field: BuildingClass | Value: 'BUILDINGCLASS_LIBRARY'
+
+
+[DUPLICATE] File: Events\CIV4EventTriggerInfos.xml | Path: Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo/TriggerTexts | Tag: <TriggerText> | Line: 16 | Field: Text | Value: 'TXT_KEY_EVENT_TRIGGER_CITY_RUINS_ANCIENT_1'
+[DUPLICATE] File: Events\CIV4EventTriggerInfos.xml | Path: Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo/TriggerTexts | Tag: <TriggerText> | Line: 16 | Field: Text | Value: 'TXT_KEY_EVENT_TRIGGER_CITY_RUINS_ANCIENT_1'
+[DUPLICATE] File: Events\CIV4EventTriggerInfos.xml | Path: Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo/TriggerTexts | Tag: <TriggerText> | Line: 16 | Field: Text | Value: 'TXT_KEY_EVENT_TRIGGER_CITY_RUINS_ANCIENT_1'
+[DUPLICATE] File: Events\CIV4EventTriggerInfos.xml | Path: Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo/TriggerTexts | Tag: <TriggerText> | Line: 16 | Field: Text | Value: 'TXT_KEY_EVENT_TRIGGER_CITY_RUINS_INDUSTRIAL_1'
+[DUPLICATE] File: Events\CIV4EventTriggerInfos.xml | Path: Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo/TriggerTexts | Tag: <TriggerText> | Line: 16 | Field: Text | Value: 'TXT_KEY_EVENT_TRIGGER_CITY_RUINS_INDUSTRIAL_1'
+[DUPLICATE] File: Events\CIV4EventTriggerInfos.xml | Path: Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo/TriggerTexts | Tag: <TriggerText> | Line: 16 | Field: Text | Value: 'TXT_KEY_EVENT_TRIGGER_JOYOUS_WEDDING_1'
+[DUPLICATE] File: Events\CIV4EventTriggerInfos.xml | Path: Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo/TriggerTexts | Tag: <TriggerText> | Line: 16 | Field: Text | Value: 'TXT_KEY_EVENT_TRIGGER_JOYOUS_WEDDING_2'
+[DUPLICATE] File: Events\CIV4EventTriggerInfos.xml | Path: Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo/TriggerTexts | Tag: <TriggerText> | Line: 16 | Field: Text | Value: 'TXT_KEY_EVENT_TRIGGER_JOYOUS_WEDDING_3'
+[DUPLICATE] File: Events\CIV4EventTriggerInfos.xml | Path: Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo/TriggerTexts | Tag: <TriggerText> | Line: 16 | Field: Text | Value: 'TXT_KEY_EVENT_TRIGGER_JOYOUS_WEDDING_3'
+[DUPLICATE] File: Events\CIV4EventTriggerInfos.xml | Path: Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo/TriggerTexts | Tag: <TriggerText> | Line: 16 | Field: Text | Value: 'TXT_KEY_EVENT_TRIGGER_WEDDING_FEUD_1'
+[DUPLICATE] File: Events\CIV4EventTriggerInfos.xml | Path: Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo/TriggerTexts | Tag: <TriggerText> | Line: 16 | Field: Text | Value: 'TXT_KEY_EVENT_TRIGGER_WEDDING_FEUD_2'
+[DUPLICATE] File: Events\CIV4EventTriggerInfos.xml | Path: Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo/TriggerTexts | Tag: <TriggerText> | Line: 16 | Field: Text | Value: 'TXT_KEY_EVENT_TRIGGER_WEDDING_FEUD_3'
+[DUPLICATE] File: Events\CIV4EventTriggerInfos.xml | Path: Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo/TriggerTexts | Tag: <TriggerText> | Line: 16 | Field: Text | Value: 'TXT_KEY_EVENT_TRIGGER_WEDDING_FEUD_3'
+[DUPLICATE] File: Events\CIV4EventTriggerInfos.xml | Path: Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo/TriggerTexts | Tag: <TriggerText> | Line: 16 | Field: Text | Value: 'TXT_KEY_EVENT_TRIGGER_LEFT_AT_ALTAR_1'
+[DUPLICATE] File: Events\CIV4EventTriggerInfos.xml | Path: Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo/TriggerTexts | Tag: <TriggerText> | Line: 16 | Field: Text | Value: 'TXT_KEY_EVENT_TRIGGER_LEFT_AT_ALTAR_2'
+[DUPLICATE] File: Events\CIV4EventTriggerInfos.xml | Path: Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo/TriggerTexts | Tag: <TriggerText> | Line: 16 | Field: Text | Value: 'TXT_KEY_EVENT_TRIGGER_LEFT_AT_ALTAR_3'
+[DUPLICATE] File: Events\CIV4EventTriggerInfos.xml | Path: Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo/TriggerTexts | Tag: <TriggerText> | Line: 16 | Field: Text | Value: 'TXT_KEY_EVENT_TRIGGER_LEFT_AT_ALTAR_3'
+[DUPLICATE] File: Events\CIV4EventTriggerInfos.xml | Path: Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo/TriggerTexts | Tag: <TriggerText> | Line: 16 | Field: Text | Value: 'TXT_KEY_EVENT_TRIGGER_TORNADO_1'
+[DUPLICATE] File: Events\CIV4EventTriggerInfos.xml | Path: Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo/TriggerTexts | Tag: <TriggerText> | Line: 16 | Field: Text | Value: 'TXT_KEY_EVENT_TRIGGER_TORNADO_1'
+[DUPLICATE] File: Events\CIV4EventTriggerInfos.xml | Path: Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo/TriggerTexts | Tag: <TriggerText> | Line: 16 | Field: Text | Value: 'TXT_KEY_EVENT_TRIGGER_TORNADO_2'
+[DUPLICATE] File: Events\CIV4EventTriggerInfos.xml | Path: Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo/TriggerTexts | Tag: <TriggerText> | Line: 16 | Field: Text | Value: 'TXT_KEY_EVENT_TRIGGER_TORNADO_3'
+[DUPLICATE] File: Events\CIV4EventTriggerInfos.xml | Path: Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo/TriggerTexts | Tag: <TriggerText> | Line: 16 | Field: Text | Value: 'TXT_KEY_EVENT_TRIGGER_LOOTERS_1'
+[DUPLICATE] File: Events\CIV4EventTriggerInfos.xml | Path: Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo/TriggerTexts | Tag: <TriggerText> | Line: 16 | Field: Text | Value: 'TXT_KEY_EVENT_TRIGGER_LOOTERS_1'
+[DUPLICATE] File: Events\CIV4EventTriggerInfos.xml | Path: Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo/TriggerTexts | Tag: <TriggerText> | Line: 16 | Field: Text | Value: 'TXT_KEY_EVENT_TRIGGER_LOOTERS_1'
+[DUPLICATE] File: Events\CIV4EventTriggerInfos.xml | Path: Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo/TriggerTexts | Tag: <TriggerText> | Line: 16 | Field: Text | Value: 'TXT_KEY_EVENT_TRIGGER_LOOTERS_1'
+[DUPLICATE] File: Events\CIV4EventTriggerInfos.xml | Path: Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo/TriggerTexts | Tag: <TriggerText> | Line: 16 | Field: Text | Value: 'TXT_KEY_EVENT_TRIGGER_LOOTERS_2'
+
+
+[DUPLICATE] File: GameInfo\CIV4CivicInfos.xml | Path: Civ4CivicInfos/CivicInfos | Tag: <CivicInfo> | Line: 8 | Field: CivicOptionType | Value: 'CIVICOPTION_GOVERNMENT'
+[DUPLICATE] File: GameInfo\CIV4CivicInfos.xml | Path: Civ4CivicInfos/CivicInfos | Tag: <CivicInfo> | Line: 8 | Field: CivicOptionType | Value: 'CIVICOPTION_GOVERNMENT'
+[DUPLICATE] File: GameInfo\CIV4CivicInfos.xml | Path: Civ4CivicInfos/CivicInfos | Tag: <CivicInfo> | Line: 8 | Field: CivicOptionType | Value: 'CIVICOPTION_GOVERNMENT'
+[DUPLICATE] File: GameInfo\CIV4CivicInfos.xml | Path: Civ4CivicInfos/CivicInfos | Tag: <CivicInfo> | Line: 8 | Field: CivicOptionType | Value: 'CIVICOPTION_GOVERNMENT'
+[DUPLICATE] File: GameInfo\CIV4CivicInfos.xml | Path: Civ4CivicInfos/CivicInfos | Tag: <CivicInfo> | Line: 8 | Field: CivicOptionType | Value: 'CIVICOPTION_LEGAL'
+[DUPLICATE] File: GameInfo\CIV4CivicInfos.xml | Path: Civ4CivicInfos/CivicInfos | Tag: <CivicInfo> | Line: 8 | Field: CivicOptionType | Value: 'CIVICOPTION_LEGAL'
+[DUPLICATE] File: GameInfo\CIV4CivicInfos.xml | Path: Civ4CivicInfos/CivicInfos | Tag: <CivicInfo> | Line: 8 | Field: CivicOptionType | Value: 'CIVICOPTION_LEGAL'
+[DUPLICATE] File: GameInfo\CIV4CivicInfos.xml | Path: Civ4CivicInfos/CivicInfos | Tag: <CivicInfo> | Line: 8 | Field: CivicOptionType | Value: 'CIVICOPTION_LEGAL'
+[DUPLICATE] File: GameInfo\CIV4CivicInfos.xml | Path: Civ4CivicInfos/CivicInfos | Tag: <CivicInfo> | Line: 8 | Field: CivicOptionType | Value: 'CIVICOPTION_LABOR'
+[DUPLICATE] File: GameInfo\CIV4CivicInfos.xml | Path: Civ4CivicInfos/CivicInfos | Tag: <CivicInfo> | Line: 8 | Field: CivicOptionType | Value: 'CIVICOPTION_LABOR'
+[DUPLICATE] File: GameInfo\CIV4CivicInfos.xml | Path: Civ4CivicInfos/CivicInfos | Tag: <CivicInfo> | Line: 8 | Field: CivicOptionType | Value: 'CIVICOPTION_LABOR'
+[DUPLICATE] File: GameInfo\CIV4CivicInfos.xml | Path: Civ4CivicInfos/CivicInfos | Tag: <CivicInfo> | Line: 8 | Field: CivicOptionType | Value: 'CIVICOPTION_LABOR'
+[DUPLICATE] File: GameInfo\CIV4CivicInfos.xml | Path: Civ4CivicInfos/CivicInfos | Tag: <CivicInfo> | Line: 8 | Field: CivicOptionType | Value: 'CIVICOPTION_ECONOMY'
+[DUPLICATE] File: GameInfo\CIV4CivicInfos.xml | Path: Civ4CivicInfos/CivicInfos | Tag: <CivicInfo> | Line: 8 | Field: CivicOptionType | Value: 'CIVICOPTION_ECONOMY'
+[DUPLICATE] File: GameInfo\CIV4CivicInfos.xml | Path: Civ4CivicInfos/CivicInfos | Tag: <CivicInfo> | Line: 8 | Field: CivicOptionType | Value: 'CIVICOPTION_ECONOMY'
+[DUPLICATE] File: GameInfo\CIV4CivicInfos.xml | Path: Civ4CivicInfos/CivicInfos | Tag: <CivicInfo> | Line: 8 | Field: CivicOptionType | Value: 'CIVICOPTION_ECONOMY'
+[DUPLICATE] File: GameInfo\CIV4CivicInfos.xml | Path: Civ4CivicInfos/CivicInfos | Tag: <CivicInfo> | Line: 8 | Field: CivicOptionType | Value: 'CIVICOPTION_RELIGION'
+[DUPLICATE] File: GameInfo\CIV4CivicInfos.xml | Path: Civ4CivicInfos/CivicInfos | Tag: <CivicInfo> | Line: 8 | Field: CivicOptionType | Value: 'CIVICOPTION_RELIGION'
+[DUPLICATE] File: GameInfo\CIV4CivicInfos.xml | Path: Civ4CivicInfos/CivicInfos | Tag: <CivicInfo> | Line: 8 | Field: CivicOptionType | Value: 'CIVICOPTION_RELIGION'
+[DUPLICATE] File: GameInfo\CIV4CivicInfos.xml | Path: Civ4CivicInfos/CivicInfos | Tag: <CivicInfo> | Line: 8 | Field: CivicOptionType | Value: 'CIVICOPTION_RELIGION'
+[DUPLICATE] File: GameInfo\CIV4CivicInfos.xml | Path: Civ4CivicInfos/CivicInfos/CivicInfo/CapitalYieldModifiers | Tag: <iYield> | Line: 343 | Field: TEXT | Value: '50'
+
+
+
+
+[DUPLICATE] File: GameInfo\CIV4CorporationInfo.xml | Path: Civ4CorporationInfo/CorporationInfos/CorporationInfo/HeadquarterCommerces | Tag: <iHeadquarterCommerce> | Line: 25 | Field: TEXT | Value: '0'
+[DUPLICATE] File: GameInfo\CIV4CorporationInfo.xml | Path: Civ4CorporationInfo/CorporationInfos/CorporationInfo/HeadquarterCommerces | Tag: <iHeadquarterCommerce> | Line: 25 | Field: TEXT | Value: '0'
+[DUPLICATE] File: GameInfo\CIV4CorporationInfo.xml | Path: Civ4CorporationInfo/CorporationInfos/CorporationInfo/CommercesProduced | Tag: <iCommerceProduced> | Line: 31 | Field: TEXT | Value: '0'
+[DUPLICATE] File: GameInfo\CIV4CorporationInfo.xml | Path: Civ4CorporationInfo/CorporationInfos/CorporationInfo/YieldsProduced | Tag: <iYieldProduced> | Line: 35 | Field: TEXT | Value: '0'
+[DUPLICATE] File: GameInfo\CIV4CorporationInfo.xml | Path: Civ4CorporationInfo/CorporationInfos/CorporationInfo/HeadquarterCommerces | Tag: <iHeadquarterCommerce> | Line: 25 | Field: TEXT | Value: '0'
+[DUPLICATE] File: GameInfo\CIV4CorporationInfo.xml | Path: Civ4CorporationInfo/CorporationInfos/CorporationInfo/HeadquarterCommerces | Tag: <iHeadquarterCommerce> | Line: 25 | Field: TEXT | Value: '0'
+[DUPLICATE] File: GameInfo\CIV4CorporationInfo.xml | Path: Civ4CorporationInfo/CorporationInfos/CorporationInfo/CommercesProduced | Tag: <iCommerceProduced> | Line: 31 | Field: TEXT | Value: '0'
+[DUPLICATE] File: GameInfo\CIV4CorporationInfo.xml | Path: Civ4CorporationInfo/CorporationInfos/CorporationInfo/YieldsProduced | Tag: <iYieldProduced> | Line: 35 | Field: TEXT | Value: '0'
+[DUPLICATE] File: GameInfo\CIV4CorporationInfo.xml | Path: Civ4CorporationInfo/CorporationInfos/CorporationInfo/HeadquarterCommerces | Tag: <iHeadquarterCommerce> | Line: 25 | Field: TEXT | Value: '0'
+[DUPLICATE] File: GameInfo\CIV4CorporationInfo.xml | Path: Civ4CorporationInfo/CorporationInfos/CorporationInfo/CommercesProduced | Tag: <iCommerceProduced> | Line: 31 | Field: TEXT | Value: '0'
+[DUPLICATE] File: GameInfo\CIV4CorporationInfo.xml | Path: Civ4CorporationInfo/CorporationInfos/CorporationInfo/CommercesProduced | Tag: <iCommerceProduced> | Line: 31 | Field: TEXT | Value: '0'
+[DUPLICATE] File: GameInfo\CIV4CorporationInfo.xml | Path: Civ4CorporationInfo/CorporationInfos/CorporationInfo/YieldsProduced | Tag: <iYieldProduced> | Line: 35 | Field: TEXT | Value: '0'
+[DUPLICATE] File: GameInfo\CIV4CorporationInfo.xml | Path: Civ4CorporationInfo/CorporationInfos/CorporationInfo/HeadquarterCommerces | Tag: <iHeadquarterCommerce> | Line: 25 | Field: TEXT | Value: '0'
+[DUPLICATE] File: GameInfo\CIV4CorporationInfo.xml | Path: Civ4CorporationInfo/CorporationInfos/CorporationInfo/YieldsProduced | Tag: <iYieldProduced> | Line: 35 | Field: TEXT | Value: '0'
+[DUPLICATE] File: GameInfo\CIV4CorporationInfo.xml | Path: Civ4CorporationInfo/CorporationInfos/CorporationInfo/YieldsProduced | Tag: <iYieldProduced> | Line: 35 | Field: TEXT | Value: '0'
+[DUPLICATE] File: GameInfo\CIV4CorporationInfo.xml | Path: Civ4CorporationInfo/CorporationInfos/CorporationInfo/HeadquarterCommerces | Tag: <iHeadquarterCommerce> | Line: 25 | Field: TEXT | Value: '0'
+
+
+
+
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+[DUPLICATE] File: GameInfo\CIV4DiplomacyInfos.xml | Path: Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo/Responses | Tag: <Response> | Line: 11 | Field: Civilizations | Value: ''
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_HIGH_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_HIGH_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_HIGH_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_LOW_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_WARRIOR'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_WORKER'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_TECH'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_TECH'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_TECH'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_HIGH_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_HIGH_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_LOW_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_WARRIOR'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_WORKER'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_TECH'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_TECH'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_TECH'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_HIGH_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_HIGH_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_LOW_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_MAP'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_WARRIOR'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_TECH'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_TECH'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_TECH'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_HIGH_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_LOW_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_LOW_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_TECH'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_MAP'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_WARRIOR'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_EXPERIENCE'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_TECH'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_TECH'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_BARBARIANS_WEAK'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_LOW_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_LOW_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_LOW_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_MAP'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_WARRIOR'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_EXPERIENCE'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_TECH'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_TECH'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_TECH'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_BARBARIANS_WEAK'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_BARBARIANS_WEAK'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_LOW_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_LOW_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_MAP'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_WARRIOR'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_EXPERIENCE'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_TECH'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_TECH'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_BARBARIANS_WEAK'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_BARBARIANS_WEAK'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_BARBARIANS_WEAK'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_LOW_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_LOW_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_LOW_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_MAP'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_TECH'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_TECH'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_BARBARIANS_WEAK'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_BARBARIANS_WEAK'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_BARBARIANS_STRONG'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_LOW_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_LOW_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_LOW_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_MAP'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_TECH'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_TECH'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_BARBARIANS_WEAK'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_BARBARIANS_WEAK'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_BARBARIANS_STRONG'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_BARBARIANS_STRONG'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_LOW_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_LOW_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_LOW_GOLD'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_TECH'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_TECH'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_BARBARIANS_WEAK'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_BARBARIANS_WEAK'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_BARBARIANS_STRONG'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_BARBARIANS_STRONG'
+[DUPLICATE] File: GameInfo\CIV4HandicapInfo.xml | Path: Civ4HandicapInfo/HandicapInfos/HandicapInfo/Goodies | Tag: <GoodyType> | Line: 120 | Field: TEXT | Value: 'GOODY_BARBARIANS_STRONG'
+
+
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_BUG_HINT_INTERFACE_1'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_KMOD_HINT_1'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_KMOD_HINT_2'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_KMOD_HINT_3'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_KMOD_HINT_4'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_KMOD_HINT_6'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_KMOD_HINT_7'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_KMOD_HINT_8'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_KMOD_HINT_9'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_KMOD_HINT_10'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_KMOD_HINT_11'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_KMOD_HINT_12'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_KMOD_HINT_13'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_KMOD_HINT_14'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_KMOD_HINT_15'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_HINT_INTERFACE_1'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_HINT_INTERFACE_6'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_HINT_INTERFACE_45'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_HINT_14'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_HINT_13'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_HINT_70'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_HINT_71'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_HINT_16'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_HINT_43'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_HINT_64'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_HINT_56'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_HINT_31'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_HINT_16'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_HINT_73'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_HINT_46'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_1'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_2'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_3'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_4'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_5'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_6'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_9'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_10'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_11'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_12'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_13'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_14'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_15'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_16'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_17'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_18'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_19'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_20'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_21'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_27'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_28'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_29'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_30'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_31'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_32'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_34'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_35'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_36'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_38'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_39'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_44'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_45'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_48'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_50'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_51'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_53'
+[DUPLICATE] File: GameInfo\CIV4Hints.xml | Path: Civ4Hints/HintInfos | Tag: <HintInfo> | Line: 8 | Field: Description | Value: 'TXT_KEY_ADVC_HINT_54'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[DUPLICATE] File: Terrain\CIV4FeatureInfos.xml | Path: Civ4FeatureInfos/FeatureInfos/FeatureInfo/YieldChanges | Tag: <iYieldChange> | Line: 123 | Field: TEXT | Value: '-3'
+[DUPLICATE] File: Terrain\CIV4FeatureInfos.xml | Path: Civ4FeatureInfos/FeatureInfos/FeatureInfo/YieldChanges | Tag: <iYieldChange> | Line: 123 | Field: TEXT | Value: '-3'
+
+
+[DUPLICATE] File: Terrain\CIV4ImprovementInfos.xml | Path: Civ4ImprovementInfos/ImprovementInfos/ImprovementInfo/BonusTypeStructs/BonusTypeStruct/YieldChanges | Tag: <iYieldChange> | Line: 246 | Field: TEXT | Value: '1'
+[DUPLICATE] File: Terrain\CIV4ImprovementInfos.xml | Path: Civ4ImprovementInfos/ImprovementInfos/ImprovementInfo/YieldChanges | Tag: <iYieldChange> | Line: 246 | Field: TEXT | Value: '1'
+[DUPLICATE] File: Terrain\CIV4ImprovementInfos.xml | Path: Civ4ImprovementInfos/ImprovementInfos/ImprovementInfo/YieldChanges | Tag: <iYieldChange> | Line: 246 | Field: TEXT | Value: '1'
+[DUPLICATE] File: Terrain\CIV4ImprovementInfos.xml | Path: Civ4ImprovementInfos/ImprovementInfos/ImprovementInfo/BonusTypeStructs/BonusTypeStruct/YieldChanges | Tag: <iYieldChange> | Line: 246 | Field: TEXT | Value: '1'
+[DUPLICATE] File: Terrain\CIV4ImprovementInfos.xml | Path: Civ4ImprovementInfos/ImprovementInfos/ImprovementInfo/BonusTypeStructs/BonusTypeStruct/YieldChanges | Tag: <iYieldChange> | Line: 246 | Field: TEXT | Value: '1'
+
+
+[DUPLICATE] File: Terrain\CIV4TerrainInfos.xml | Path: Civ4TerrainInfos/TerrainInfos/TerrainInfo/Yields | Tag: <iYield> | Line: 15 | Field: TEXT | Value: '1'
+[DUPLICATE] File: Terrain\CIV4TerrainInfos.xml | Path: Civ4TerrainInfos/TerrainInfos/TerrainInfo/Yields | Tag: <iYield> | Line: 15 | Field: TEXT | Value: '1'
+
+
+
+
+
+
+[DUPLICATE] File: Text\ActualQuotesText.xml | Path: Civ4GameText | Tag: <TEXT> | Line: 14 | Field: Tag | Value: 'AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MONTEZUMA_1'
+
+
+[DUPLICATE] File: Text\ActualQuotesText_BtS.xml | Path: Civ4GameText | Tag: <TEXT> | Line: 5 | Field: Tag | Value: 'AI_DIPLO_GREETINGS_ATT_FR_LEADER_DE_GAULLE_2'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[DUPLICATE] File: Text\CIV4GameText_advc_hints.xml | Path: Civ4GameText | Tag: <TEXT> | Line: 10 | Field: Tag | Value: 'TXT_KEY_HINT_16'
+[DUPLICATE] File: Text\CIV4GameText_advc_hints.xml | Path: Civ4GameText | Tag: <TEXT> | Line: 10 | Field: Tag | Value: 'TXT_KEY_HINT_56'
+[DUPLICATE] File: Text\CIV4GameText_advc_hints.xml | Path: Civ4GameText | Tag: <TEXT> | Line: 10 | Field: Tag | Value: 'TXT_KEY_HINT_61'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_WORKER'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_SWORDSMAN'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_SWORDSMAN'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_SWORDSMAN'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_AXEMAN'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_AXEMAN'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_AXEMAN'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_MACEMAN'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_MACEMAN'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_SPEARMAN'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_SPEARMAN'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_SPEARMAN'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_PIKEMAN'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_MUSKETMAN'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_MUSKETMAN'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_MUSKETMAN'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_RIFLEMAN'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_MARINE'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_ARCHER'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_ARCHER'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_CROSSBOWMAN'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_CROSSBOWMAN'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_CHARIOT'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_CHARIOT'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_HORSE_ARCHER'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_HORSE_ARCHER'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_KNIGHT'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_KNIGHT'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_CUIRASSIER'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_CAVALRY'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_WAR_ELEPHANT'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_TANK'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_CATAPULT'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_CARAVEL'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_FRIGATE'
+
+
+
+Total duplicates found: 794

@@ -132,7 +132,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# as necessary (acording to what i measured) (did nto test but should
 		# hopefully work perhaps even better, anywyas), was 182 -->
 		# advc.002b: was 175
-		self.W_CATEGORIES = 200
+		# <!-- custom: was 200 -->
+		self.W_CATEGORIES = 120
 		# <advc.004y>
 		if self.bWideScreen:
 			# <!-- custom: could reduce it to 200 still displaying all text in the
@@ -151,7 +152,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			# perhaps clearer intutive connection between these maybe but anyways
 			# -->
 			# Can't be much thinner than this or hover text will sometimes appear in the categories columns and sometimes (when the text box is too wide) in the items column
-			self.W_CATEGORIES = 200
+			# <!-- custom: was 200 -->
+			self.W_CATEGORIES = 120
 		# </advc.004y>
 		self.H_CATEGORIES = (self.Y_BOT_PANEL + 3) - self.Y_CATEGORIES
 

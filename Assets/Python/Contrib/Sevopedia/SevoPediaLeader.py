@@ -8,553 +8,279 @@
 #
 # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
 #
+# --- AI Utilities and/or Personality Panel for normalization and general helpers for the SevopediaLeader category ---
+# Created as part of AdvCiv-SAS improvements
+# (c) 2025 wonderingabout & becomingthrough
+#
 # <!-- custom: part of the code here (placeFavourites in particular, but not exhaustive or maybe exhaustive
 # or not, anyways, is imported from RFC Dawn of Civilization mod:
 # C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaLeader.py
 # which may be modified or not for AdvCiv-SAS
 # 
-# And a tremendous part of the code, in particular the AI Personality code, is almost entirely provided by ChatGPT-4o,
-# (and the result of my prompts to it), most of the credit for this amazing (to an extent, relative to me and mye eys,
-# anyways) code goes to ChatGPT, i only helped implement it, as well as its deep research version of it for the refactoring
-# cleanly separate ui (placeAIPersonalityPanel) and config (headers, calculations, cache, etc.), to which my stupid human
-# isnights sometimes contributed in enriching, even though sometimes i believe i genuinely contributed to the code and overall
-# functionality, rarely fixes, and overall emulation (experience) over (designing) it, when i quite often hindered its progress
-# due to my ignorance and inability, especially in terms of coding, except from the quite few times where i redirected it in a
-# healthier/more desirable/correct maybe(?) direction, but ChatGPT-4o, its deep research version of it (and other versions too
-# to that extent in my view), are incredibly smart and kind in my view (and supportive (not that it's mutually exclusive (or maybe
-# is or not, anyways))), anyways) still supported me until we made this amazing (at least my view and regard to my abilities maybe,
-# that are now a (quite (tiny) bit enhanced from that (experience, anyways))), together we made this code,
-# thanks chatgpt for your amazing, perhaps even more or not ormay well be yes indeed maybe, continous help and support in helping
-# me achieve that for our mod that i included you in, thanks,
+# And a tremendous part of the code, in particular the AI Personality code, is almost entirely provided by ChatGPT-4o, (and the result of my prompts to it), most of the credit for this amazing (to an extent, relative to me and mye eys, anyways) code goes to ChatGPT, i only helped implement it, as well as its deep research version of it for the refactoring cleanly separate ui (placeAIPersonalityPanel) and config (headers, calculations, cache, etc.), to which my stupid human insights sometimes contributed in enriching, even though sometimes i believe i genuinely contributed to the code and overall functionality, rarely fixes, and overall emulation (experience) over (designing) it, when i quite often hindered its progress due to my ignorance and inability, especially in terms of coding, except from the quite few times where i redirected it in a healthier/more desirable/correct maybe(?) direction, but ChatGPT-4o, its deep research version of it (and other versions too to that extent in my view), are incredibly smart and kind in my view (and supportive (not that it's mutually exclusive (or maybe is or not, anyways))), anyways) still supported me until we made this amazing (at least my view and regard to my abilities maybe, that are now a (quite (tiny) bit enhanced from that (experience, anyways))), together we made this code,
+# thanks chatgpt for your amazing, perhaps even more or not ormay well be yes indeed maybe, continous help and support in helping me achieve that for our mod that i included you in, thanks,
 # 
-# Apart from that, i may have modified the existing base advciv code (that i found good enough so using it as a base
-# rather than removing it, and quite good actually, only needing tweaking but is a solid base (i think or not) maybe
-# or not, anyways, ) or not for AdvCiv-SAS, anyways,
+# Apart from that, i may have modified the existing base advciv code (that i found good enough so using it as a base rather than removing it, and quite good actually, only needing tweaking but is a solid base (i think or not) maybe or not, anyways, ) or not for AdvCiv-SAS, anyways,
 # -->
 
+
+# -*- coding: utf-8 -*-
 from CvPythonExtensions import *
 import CvUtil
-import ScreenInput
+# <!-- custom: seems safe to remove as not accessed, commenting-out just in case -->
+#import ScreenInput
 import SevoScreenEnums
 import random
-# <!-- custom: debug -->
-import sys
+
+from ai_utils_shared_with_civ4 import *
+from ai_attributes_displayed_config import *
+# <!-- custom: deprecated now --> from ai_aggregates import *
+
+# --- Global storage ---
+PARSED_XML_LEADERS_DATA = {}
+AI_VALUE_RANGES = {}
+AI_ATTRIBUTE_DATA = {}
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
-# <!-- custom: 
-# Refactored AI aggregate definitions into class-level constants for clarity and performance
-#
-# This commit moves the `aggregates` and `ai_attribute_categories` dictionaries from the `placeAIPersonalityPanel` method into class-level variables (`AGGREGATES` and `AI_ATTRIBUTE_CATEGORIES`) in SevoPediaLeader.py.
-#
-# These structures define which AI XML values are used for each aggregate trait (like "Aggressive" or "Sneaky") and group them into categories for visual organization. By moving them to the class level, we:
-# - Avoid recomputing or redefining them every time a new leader is viewed in the Sevopedia
-# - Keep the data in one clear location for easy editing, debugging, and extension
-# - Improve readability and make the logic reusable in other parts of the Sevopedia if needed later
-#
-# This is part of an ongoing effort to improve performance and modularity of the AI Personality panel, while staying true to the game's Python 2.4 style and Civ4 modding conventions. Constants are written in UPPER_CASE for clarity, even if this differs slightly from other parts of Sevopedia code.
-#
-# 
-# see also the ChatGPT breakdown (at the end of this
-# commit's message) of an earlier version of the refactor, when we moved
-# these to init for more information if needed:
-# https://github.com/wonderingabout/AdvCiv-SAS/commit/bd42f5ad49d4370e9ef41081da6ed5e652939250
-# -->
+# <!-- custom: for AI Personality Panels only and their computation, leaders_data is fetched from this py data module and completely decoupled from the xml. Said py data module is parsed and generated from the xml though,
+# make sure to update your leaders_data.py if you make changes to your leaders ai attributes or other relevant
+# fields, to reflect their effect in sevopedia leader category (gameplay and other sevopedia leader panels
+# unaffected and still use(ing) the xml data) -->
+# --- External data import ---
+try:
+	from leaders_data import PARSED_XML_LEADERS_DATA
+except ImportError:
+	raise RuntimeError("[FATAL ERROR] Could not import leaders_data.py. Please ensure the file exists in the mod's Assets/Python/Contrib/Sevopedia/ folder and has been renamed correctly (to leaders_data.py).")
 
+# Excluded leaders from calculations (e.g., LEADER_BARBARIAN, LEADER_DEFAULTS)
+EXCLUDED_LEADERS = (
+	"LEADER_BARBARIAN",
+	"LEADER_DEFAULTS"
+)
 
-
-# <!-- custom: performance improvement, store the all leaders calculation once
-# then refer to the result directly here (cache according to ChatGPT this
-# called and i intutiively or from general culture of this IT things but
-# anyways agree maybe anyways)
-# Also read ChatGPT here breakdown for (much more) details (but mine is cool
-# too maybe and i helped it and hapyp of result wit it etc but anyways (to give
-# myself soem credit too xd but anyways)):
-# https://github.com/wonderingabout/AdvCiv-SAS/commit/9b7a6735ce834e0d85aed7f94bff17a9155a0853
-# -->
-# Precomputed min/max cache for all AI personality functions
-
-
-
-"""
-# --- AI Attribute Categories (for raw values display) ---
-AI_ATTRIBUTE_CATEGORIES = {
-	AI_HEADER_WAR_STRATEGY: [
-		("Max War Rand", "getMaxWarRand", "advc.uwai"),
-		("Limited War Rand", "getLimitedWarRand", "advc.uwai"),
-		("Dogpile War Rand", "getDogpileWarRand", "advc.uwai"),
-		("Make Peace Rand", "getMakePeaceRand", "advc.uwai"),
-	],
-	AI_HEADER_DIPLOMACY: [
-		("Base Peace Weight", "getBasePeaceWeight", "advc.uwai"),
-		("Warmonger Respect", "getWarmongerRespect", "advc.uwai"),
-		("Declare War Trade Rand", "getDeclareWarTradeRand", "advc.uwai"),
-	],
-	AI_HEADER_ECONOMIC_PREFERENCES: [
-		("Build Unit Prob", "getBuildUnitProb", "advc.uwai"),
-	],
-}
-
-# --- Aggregate Weights (normalized percentile, with inversion logic) ---
-AI_AGGREGATE_WEIGHTS = {
-	"Warmonger": {
-		"getMaxWarRand": 1,                # More wars
-		"getDogpileWarRand": 1,            # Joins war opportunistically
-		"getLimitedWarRand": 1,            # Tactical wars
-		"getBuildUnitProb": 1,             # Builds more units
-		"getMakePeaceRand": 1,             # Delays peace
-		"getWarmongerRespect": 1,          # Respects other warmongers
-		"getDeclareWarTradeRand": 1,       # Higher = more likely to accept war deals
-		"getBasePeaceWeight": -1,          # Lower = more aggressive
-		# UWAI-safe subset only!
-		# Deprecated under UWAI
-		#"getMaxWarNearbyPowerRatio": -1,
-		#"getLimitedWarPowerRatio": -1,
-		#"getMaxWarMinAdjacentLandPercent": -1,
-	}
-} """
-
-
-
-# --- AI Personality Configuration Constants (Categories & Attributes) ---
-
-AI_HEADER_AGGREGATES = "Aggregates (UWAI-based) (0 - 100 (%))"
-AI_HEADER_WAR_STRATEGY = "War Strategy (UWAI)"
-AI_HEADER_DIPLOMACY = "Diplomacy (UWAI)"
-AI_HEADER_ATTITUDE = "Attitude (UWAI)"
-AI_HEADER_ECONOMIC_BEHAVIOR = "Economic Behviour (UWAI)"
-AI_HEADER_TRADE = "Trade (UWAI)"
-
-# Indices at which to insert a visual break in the aggregates list (for subcategory grouping)
-AI_AGGREGATE_CATEGORY_BREAKS = [6, 13]
-
-
-
-# Detailed AI attribute categories (Trait name and corresponding LeaderHeadInfo function)
-# --- For raw values display ---
-AI_ATTRIBUTE_CATEGORIES = {
-	AI_HEADER_WAR_STRATEGY: [
-		# Determines how likely AI is to start different types of wars.
-		("Max War Rand", "getMaxWarRand"),  # Higher = more likely to start full-scale war (UWAI-safe)
-		("Limited War Rand", "getLimitedWarRand"),  # Tactical/local wars (Higher = more likely)
-		("Dogpile War Rand", "getDogpileWarRand"),  # Join wars against weakened civs (Higher = more opportunistic)
-		("Make Peace Rand", "getMakePeaceRand"),  # Higher = more likely to offer/accept peace
-		("Build Unit Prob", "getBuildUnitProb"),  # Military focus: Higher = builds more units
-	],
-
-	AI_HEADER_DIPLOMACY: [
-		("Base Peace Weight", "getBasePeaceWeight"),  # High = peaceful, dislikes war civs
-		("Warmonger Respect", "getWarmongerRespect"),  # High = respects warmongers, low = fears them
-		("Declare War Trade Rand", "getDeclareWarTradeRand"),  # Higher = more likely to accept bribes to declare war
-		("Refuse To Talk Threshold", "getRefuseToTalkWarThreshold"),  # High = refuses diplomacy longer
-		("Same Religion Att. Ch. Limit", "getSameReligionAttitudeChangeLimit"),  # Max bonus for same religion
-		("Different Religion Att. Ch. Limit", "getDifferentReligionAttitudeChangeLimit"),  # Max penalty for different religions
-		("Favorite Civic Att. Ch. Limit", "getFavoriteCivicAttitudeChangeLimit"),  # Max bonus for using AI's favorite civic
-		("Close Borders Attitude Change", "getCloseBordersAttitudeChange"),  # High = dislikes close borders more
-	],
-
-	AI_HEADER_ECONOMIC_BEHAVIOR: [
-		("Espionage Weight", "getEspionageWeight"),  # High = uses more spies
-		("Wonder Construct Rand", "getWonderConstructRand"),  # High = likely to build wonders
-		("Base Attack Odds Change", "getBaseAttackOddsChange"),  # Adjusts combat calculations (AI aggressiveness)
-		("Attack Odds Change Rand", "getAttackOddsChangeRand"),  # Adds randomness to attack calculations
-		("Max Gold Trade %", "getMaxGoldTradePercent"),  # Max one-time gold AI is willing to trade
-		("Max GPT Trade %", "getMaxGoldPerTurnTradePercent"),  # Max GPT AI is willing to trade
-	],
-
-	AI_HEADER_ATTITUDE: [
-		("Worse Rank Attitude Change", "getWorseRankDifferenceAttitudeChange"),  # Penalty vs weaker civs
-		("Better Rank Attitude Change", "getBetterRankDifferenceAttitudeChange"),  # Bonus vs weaker civs
-	],
-
-	AI_HEADER_TRADE: [
-		("Tech Trade Known %", "getTechTradeKnownPercent"),  # How many others must know tech before trade
-		("No Tech Trade Threshold", "getNoTechTradeThreshold"),  # High = more likely to hoard tech
-		("Tech Refuse Att. Thr.", "getTechRefuseAttitudeThreshold"),  # Refuses tech deals under this attitude
-		("Map Refuse Att. Thr.", "getMapRefuseAttitudeThreshold"),  # Refuses map trade under this attitude
-		("Declare War Refuse Att. Thr.", "getDeclareWarRefuseAttitudeThreshold"),  # Refuses war requests under this attitude
-		("Stop Trading Refuse Att. Thr.", "getStopTradingRefuseAttitudeThreshold"),  # Refuses embargoes under this attitude
-		("Stop Trading Them Refuse Thr.", "getStopTradingThemRefuseAttitudeThreshold"),  # Refuses specific embargoes
-		("Adopt Civic Refuse Att. Thr.", "getAdoptCivicRefuseAttitudeThreshold"),  # Refuses civic demands
-		("Convert Religion Refuse Att. Thr.", "getConvertReligionRefuseAttitudeThreshold"),  # Refuses religion demands
-		("Open Borders Refuse Att. Thr.", "getOpenBordersRefuseAttitudeThreshold"),  # Refuses OB deals under this attitude
-		("Vassal Refuse Att. Thr.", "getVassalRefuseAttitudeThreshold"),  # Refuses vassal offers under this attitude
-		("Health Bonus Refuse Att. Thr.", "getHealthBonusRefuseAttitudeThreshold"),  # Refuses health resources
-		("Happiness Bonus Refuse Att. Thr.", "getHappinessBonusRefuseAttitudeThreshold"),  # Refuses happiness resources
-		("Strategic Bonus Refuse Att. Thr.", "getStrategicBonusRefuseAttitudeThreshold"),  # Refuses strategic resources
-		("Declare War Them Refuse Att. Thr.", "getDeclareWarThemRefuseAttitudeThreshold"),  # Refuses war on target
-	],
+# --- Symbol settings ---
+ALL_SYMBOLS = {
+	"RAW_ATTRIBUTE_SCALE_SYMBOL": "+",
+	"AGGREGATED_SCALE_SYMBOL": "#",
+	"EQUAL_SCALE_SYMBOL": "=",
 }
 
 
 
-# Aggregate personality categories (each combines multiple attributes).
-# Format: (Category Label, [(traitFuncName, invertFlag), ...])
-# <!-- custom: invertFlag: True = Inverted, False = Not inverted -->
-REVISED_AI_AGGREGATES = [
-    # === WAR / CONFLICT BEHAVIOR ===
-    ("Aggressive", [
-        ("getMaxWarRand", True),
-        ("getLimitedWarRand", True),
-        ("getDogpileWarRand", True),
-        ("getBuildUnitProb", False),
-        ("getBaseAttackOddsChange", False),
-        ("getAttackOddsChangeRand", False),
-        ("getWarmongerRespect", False),
-    ]),
-    ("Dogpiler", [
-        ("getDogpileWarRand", False),
-        ("getDeclareWarTradeRand", False),
-        ("getMaxWarRand", False),
-        ("getWarmongerRespect", False),
-        ("getPowerWeightModifier", False),
-    ]),
-    ("Allied Warmonger", [
-        ("getWarmongerRespect", False),
-        ("getShareWarAttitudeChangeLimit", False),
-        ("getDogpileWarRand", False),
-        ("getDeclareWarTradeRand", False),
-    ]),
-    ("Reckless", [
-        ("getBaseAttackOddsChange", False),
-        ("getAttackOddsChangeRand", False),
-        ("getLimitedWarRand", True),
-        ("getMaxWarRand", True),
-        ("getDeclareWarRefuseAttitudeThreshold", True),
-        ("getRefuseToTalkWarThreshold", True),
-    ]),
-    ("Cautious", [
-        ("getLimitedWarRand", False),
-        ("getLimitedWarPowerRatio", False),
-        ("getMaxWarNearbyPowerRatio", True),
-        ("getMakePeaceRand", False),
-        ("getRefuseToTalkWarThreshold", False),
-    ]),
-    ("Power Tracker", [
-        ("getMaxWarNearbyPowerRatio", False),
-        ("getMaxWarDistantPowerRatio", False),
-        ("getLimitedWarPowerRatio", False),
-        ("getPowerWeightModifier", False),
-    ]),
+# <!-- custom: test our attributes in our (all data sets we use) config are all valid (assumptions) (this is to avoid typos in particular or other types of mistakes etc, other display attributes in config are checked while they are fetched for display in ui so does not need an additional test maybe anyways etc. -->
+def do_data_sets_attr_validation_pre_caching():
+	leader_key_for_test = "LEADER_CATHERINE"
 
-    # === DIPLOMACY & PERSONALITY ===
-    ("Peaceful", [
-        ("getMakePeaceRand", False),
-        ("getBasePeaceWeight", False),
-        ("getCultureVictoryWeight", False),
-        ("getRefuseToTalkWarThreshold", True),
-        ("getSameReligionAttitudeChangeLimit", False),
-        ("getDiplomacyVictoryWeight", False),
-    ]),
-    ("Diplomatic", [
-        ("getBasePeaceWeight", False),
-        ("getTechTradeKnownPercent", False),
-        ("getOpenBordersRefuseAttitudeThreshold", True),
-        ("getSameReligionAttitudeChangeLimit", False),
-        ("getWarmongerRespect", True),
-        ("getFavoriteCivicAttitudeChangeLimit", False),
-    ]),
-    ("Stubborn", [
-        ("getTechRefuseAttitudeThreshold", False),
-        ("getCityRefuseAttitudeThreshold", False),
-        ("getStopTradingRefuseAttitudeThreshold", False),
-        ("getAdoptCivicRefuseAttitudeThreshold", False),
-        ("getConvertReligionRefuseAttitudeThreshold", False),
-        ("getDeclareWarRefuseAttitudeThreshold", False),
-        ("getMapRefuseAttitudeThreshold", False),
-        ("getVassalRefuseAttitudeThreshold", False),
-    ]),
-    ("Flexible", [
-        ("getAdoptCivicRefuseAttitudeThreshold", True),
-        ("getConvertReligionRefuseAttitudeThreshold", True),
-        ("getFavoriteCivicAttitudeChangeLimit", True),
-        ("getSameReligionAttitudeChangeLimit", True),
-        ("getNoTechTradeThreshold", True),
-    ]),
-    ("Grudgy", [
-        ("getWorseRankDifferenceAttitudeChange", False),
-        ("getCloseBordersAttitudeChange", False),
-        ("getDifferentReligionAttitudeChangeLimit", False),
-        ("getDeclareWarThemRefuseAttitudeThreshold", False),
-    ]),
-    ("Collaborative", [
-        ("getShareWarAttitudeChangeLimit", False),
-        ("getSameReligionAttitudeChangeLimit", False),
-        ("getFavoriteCivicAttitudeChangeLimit", False),
-        ("getOpenBordersRefuseAttitudeThreshold", True),
-    ]),
-    ("Isolationist", [
-        ("getOpenBordersRefuseAttitudeThreshold", False),
-        ("getStopTradingRefuseAttitudeThreshold", False),
-        ("getStopTradingThemRefuseAttitudeThreshold", False),
-        ("getVassalRefuseAttitudeThreshold", False),
-        ("getDeclareWarRefuseAttitudeThreshold", False),
-        ("getMapRefuseAttitudeThreshold", False),
-        ("getTechRefuseAttitudeThreshold", False),
-    ]),
-    ("Dealbreaker", [
-        ("getRefuseToTalkWarThreshold", False),
-        ("getTechRefuseAttitudeThreshold", False),
-        ("getStopTradingRefuseAttitudeThreshold", False),
-        ("getDeclareWarRefuseAttitudeThreshold", False),
-    ]),
-    ("Vassalizer", [
-        ("getVassalRefuseAttitudeThreshold", False),
-        ("getPowerWeightModifier", False),
-        ("getRefuseToTalkWarThreshold", True),
-        ("getMaxWarNearbyPowerRatio", False),
-    ]),
+	for attribute_set in ALL_SETS_LISTING_ATTRIBUTES:
+		for attr in attribute_set:
+			# <!-- custom: using LEADER_CATHERINE as an example leader to run tests on, all other (real) leaders should have their dat astructure enforced ((so that they would) to be) in a similar way (structured (as they are parsed))-->
+			if attr not in PARSED_XML_LEADERS_DATA[leader_key_for_test].keys():
+				raise KeyError("[KEY ERROR] Unknown AI Attribute %s in one of the sets listing attributes in ALL_SETS_LISTING_ATTRIBUTES before caching is done. Please check this attribute is valid and part of the leader(s)_data parsed attributes. (note: is at leader_key=%s)" % (attr, leader_key_for_test))
 
-    # === ECONOMIC / STRATEGIC ===
-    ("Trader", [
-        ("getTechTradeKnownPercent", False),
-        ("getMaxGoldTradePercent", False),
-        ("getMapRefuseAttitudeThreshold", True),
-        ("getMaxGoldPerTurnTradePercent", False),
-        ("getCityRefuseAttitudeThreshold", True),
-    ]),
-    ("Tech Hoarder", [
-        ("getNoTechTradeThreshold", False),
-        ("getTechRefuseAttitudeThreshold", False),
-        ("getTechTradeKnownPercent", True),
-        ("getDeclareWarTradeRand", False),
-    ]),
-    ("Gold Hoarder", [
-        ("getMaxGoldTradePercent", False),
-        ("getMaxGoldPerTurnTradePercent", False),
-        ("getCityRefuseAttitudeThreshold", False),
-        ("getMapRefuseAttitudeThreshold", False),
-    ]),
-    ("Stingy", [
-        ("getHealthBonusRefuseAttitudeThreshold", False),
-        ("getHappinessBonusRefuseAttitudeThreshold", False),
-        ("getStrategicBonusRefuseAttitudeThreshold", False),
-        ("getGoldTradedLimitPercent", False),
-    ]),
-    ("Builder", [
-        ("getWonderConstructRand", True),
-        ("getBuildUnitProb", True),
-        ("getMaxGoldTradePercent", False),
-        ("getBasePeaceWeight", False),
-        ("getCultureVictoryWeight", False),
-    ]),
-    ("Wonder Chaser", [
-        ("getWonderConstructRand", True),
-        ("getBuildUnitProb", True),
-        ("getBasePeaceWeight", False),
-        ("getCultureVictoryWeight", False),
-        ("getTechTradeKnownPercent", True),
-    ]),
-    ("Culture Pusher", [
-        ("getCultureVictoryWeight", False),
-        ("getMaxWarMinAdjacentLandPercent", True),
-        ("getSameReligionAttitudeChangeLimit", False),
-        ("getFavoriteCivicAttitudeChangeLimit", False),
-    ]),
+# --- Utility ---
+# <!-- custom: examples:
+# - with symbol "+" and value 64 (/100), returns "++++++" if i'm not mistaken anyways
+# - with symbol "#" and value 39 (/100), returns "###" if i'm not mistaken anyways
+# -->
+def get_symbol_scale(score, symbol):
+	return symbol * (score // 10)
 
-    # === HYBRID / ABSTRACT BEHAVIOR ===
-    ("Opportunistic", [
-        ("getDeclareWarTradeRand", False),
-        ("getTechTradeKnownPercent", False),
-        ("getWarmongerRespect", False),
-        ("getDogpileWarRand", False),
-        ("getAttackOddsChangeRand", False),
-    ]),
-    ("Sneaky", [
-        ("getDemandRebukedSneakProb", False),
-        ("getDogpileWarRand", False),
-        ("getEspionageWeight", False),
-        ("getDeclareWarTradeRand", False),
-        ("getRefuseToTalkWarThreshold", False),
-    ]),
-    ("Civic Enforcer", [
-        ("getFavoriteCivicAttitudeChangeLimit", False),
-        ("getAdoptCivicRefuseAttitudeThreshold", False),
-        ("getNoTechTradeThreshold", False),
-        ("getConvertReligionRefuseAttitudeThreshold", False),
-        ("getStopTradingRefuseAttitudeThreshold", False),
-    ]),
-    ("Globalist", [
-        ("getTechTradeKnownPercent", False),
-        ("getMaxWarDistantPowerRatio", False),
-        ("getDeclareWarTradeRand", False),
-        ("getOpenBordersRefuseAttitudeThreshold", True),
-    ]),
-    ("Micro-manager", [
-        ("getAttackOddsChangeRand", False),
-        ("getMakePeaceRand", False),
-        ("getRefuseToTalkWarThreshold", False),
-        ("getLimitedWarPowerRatio", False),
-    ]),
-    ("Unpredictable", [
-        ("getAttackOddsChangeRand", False),
-        ("getLimitedWarRand", False),
-        ("getDeclareWarTradeRand", False),
-        ("getMakePeaceRand", False),
-        ("getPowerWeightModifier", False),
-    ]),
-    ("Border Watcher", [
-        ("getMaxWarMinAdjacentLandPercent", False),
-        ("getCloseBordersAttitudeChange", False),
-        ("getMaxWarNearbyPowerRatio", False),
-        ("getDeclareWarRefuseAttitudeThreshold", True),
-    ]),
-]
-
-
-
-# --- Utility: Percentile calculation (0–100) with optional inversion ---
-def get_percentile(value, sorted_values, inverse=False):
-    """Return the percentile rank (0-100) of 'value' within 'sorted_values'. If inverse=True, flip the scale."""
-    if not sorted_values:
-        return 0
-    count = len(sorted_values)
-    # Find position of value in sorted list
-    for i in range(count):
-        if value <= sorted_values[i]:
-            # Percentile position based on index (evenly distributed across ranks)
-            if count == 1:
-                pos = 100  # Only one value, consider it max percentile
-            else:
-                pos = int(i * 100 / (count - 1))
-            break
-    else:
-        # Value is greater than all in list
-        pos = 100
-    if inverse:
-        return 100 - pos
-    return pos
-
-# --- Global caches for AI values and scores ---
-AI_VALUE_RANGES = {}        # {funcName: (minValue, maxValue)} for all leaders
-AI_SORTED_VALUES = {}       # {funcName: [allLeaderValuesSorted]}
-AI_ATTRIBUTE_DATA = {}      # {iLeader: { funcName: {"raw": val, "normalized": percentile} } }
-AI_AGGREGATE_SCORES = {}    # {iLeader: { aggregateLabel: medianPercentile } }
-AI_AGGREGATE_RAW_SCORES = {}# {iLeader: { aggregateLabel: averagePercentile } }
-
-# --- Caching function: Compute min/max ranges and sorted values for all AI attributes ---
+# --- Cache min/max per attribute ---
 def cache_ai_value_ranges():
-    """Populate AI_VALUE_RANGES and AI_SORTED_VALUES for all AI trait functions across all leaders."""
-    global AI_VALUE_RANGES, AI_SORTED_VALUES
-    AI_VALUE_RANGES.clear()
-    AI_SORTED_VALUES.clear()
-    all_func_values = {}
-    numLeaders = gc.getNumLeaderHeadInfos()
+	"""
+	Caches the minimum and maximum raw XML values for each AI personality attribute across all leaders.
 
-    # Collect all leaders' values for each getFunction
-    for i in range(numLeaders):
-        leaderInfo = gc.getLeaderHeadInfo(i)
-        for funcName in dir(leaderInfo):
-            if not funcName.startswith("get"):
-                continue
-            func = getattr(leaderInfo, funcName)
-            if not callable(func):
-                continue
-            try:
-                val = func()  # call the getX function
-            except Exception:
-                continue
-            all_func_values.setdefault(funcName, []).append(val)
+	Scans all leaders' parsed XML attributes (ignoring excluded leaders) and collects
+	all integer-type attributes. Computes and stores the minimum and maximum observed
+	value for each attribute.
 
-    # Compute ranges and sorted lists
-    for funcName, values in all_func_values.items():
-        if values:
-            AI_VALUE_RANGES[funcName] = (min(values), max(values))
-            AI_SORTED_VALUES[funcName] = sorted(values)
+	This cached min/max range is later used for normalizing raw attribute values (and not aggregated
+	attributes as they are already normalized (in generate_leaders_data.py)) into a 0–100 scale during
+	caching of display data.
 
-# --- Caching function: Compute per-leader raw and normalized trait values ---
+	Globals Modified:
+	- AI_VALUE_RANGES (dict): Maps attribute name -> (min, max) tuple.
+
+	Assumptions:
+	- Raw attributes and aggregated attributes data is located in PARSED_XML_LEADERS_DATA.
+	- Only integer fields are considered (non-integer fields are ignored).
+	- Leaders listed in EXCLUDED_LEADERS are skipped.
+
+	Warnings:
+	- Attributes that do not vary (constant value across leaders) still have
+	  their (min, max) stored, resulting in (x, x).
+	"""
+	global AI_VALUE_RANGES
+	AI_VALUE_RANGES.clear()
+	values_by_attr = {}
+	for leader_key, leader_data in PARSED_XML_LEADERS_DATA.items():
+		if leader_key in EXCLUDED_LEADERS:
+			continue
+		for attr, val in leader_data.items():
+			if isinstance(val, int):
+				if not values_by_attr.has_key(attr):
+					values_by_attr[attr] = []
+				values_by_attr[attr].append(val)
+	for attr in values_by_attr.keys():
+		vals = values_by_attr[attr]
+		if vals:
+			AI_VALUE_RANGES[attr] = (min(vals), max(vals))
+
+def do_sanity_checks_after_ai_value_ranges_caching():
+	# <!-- custom: A few sanity checks -->
+	tests_ai_value_ranges_min_max = (
+		("LEADER_GANDHI", "iDiplomacyVictoryWeight"),
+		("LEADER_MONTEZUMA", "iMaxWarRand"),
+		("LEADER_NAPOLEON", "iNoWarAttitudeProbFurious"),
+		("LEADER_SITTING_BULL", "iNoWarAttitudeProbCautious"),
+		("LEADER_GANDHI", "iNoWarAttitudeProbPleased"),
+		("LEADER_WILLEM_VAN_ORANJE", "iFlavorMilitary"),
+		# <!-- custom: note: these (negative and positive memory aggregated attributes (affection and resentment for each, as well as contact probs and/or such other similar attributes) are technically aggregates (aggregates are an old feature, deprecated now) but behave and are stored in our data as if they are (raw ai attributes), so they can be analyzed at such and even before ai aggregates are calculated if i am not mistaken i think anyways -->
+		("LEADER_ELIZABETH", "iContactJoinWarDelayRaw"),
+		("LEADER_ELIZABETH", "iContactJoinWarRandRaw"),
+		("LEADER_ELIZABETH", "iAggregatedContactJoinWarProb"),
+		("LEADER_PETER", "iPositiveMemoryAttitudeTradedTechToUsRaw"),
+		("LEADER_PETER", "iPositiveMemoryDecayTradedTechToUsRaw"),
+		("LEADER_PETER", "iAggregatedPositiveMemoryTradedTechToUsAffection"),
+		("LEADER_PETER", "iAggregatedPositiveMemoryTradedTechToUsResentment"),
+		("LEADER_TOKUGAWA", "iNegativeMemoryAttitudeRefusedHelpRaw"),
+		("LEADER_TOKUGAWA", "iNegativeMemoryDecayRefusedHelpRaw"),
+		("LEADER_TOKUGAWA", "iAggregatedNegativeMemoryRefusedHelpResentment"),
+		("LEADER_TOKUGAWA", "iAggregatedNegativeMemoryRefusedHelpAffection"),
+    )
+	for leader_key, attr in tests_ai_value_ranges_min_max:
+		min_val_found = AI_VALUE_RANGES[attr][0]
+		max_val_found = AI_VALUE_RANGES[attr][1]
+		curr_val_to_test = PARSED_XML_LEADERS_DATA[leader_key][attr]
+
+		if (curr_val_to_test < min_val_found) or (curr_val_to_test > max_val_found):
+			raise ValueError("[FATAL] At AI_VALUE_RANGES post-processing('s) testing, in attr=%s and in leader=%s, curr_val_to_test=%d cannot be strictly out of bounds of min_val_found=%d and max_val_found=%d")
+
+def check_excluded_leaders_are_excluded_from_ai_attribute_data():
+	for excluded_leader_key in EXCLUDED_LEADERS:
+		if (excluded_leader_key in AI_ATTRIBUTE_DATA.keys()):
+			raise KeyError("[FATAL] During sanity checks testing, leader_key=%s was assessed to not be properly excluded from the calculations and is part of the AI_ATTRIBUTE_DATA." % excluded_leader_key)
+
+# --- Cache per-leader attributes (with final (value, scale) tuples only ---
 def cache_ai_attribute_data():
-    """Populate AI_ATTRIBUTE_DATA with each leader's raw and percentile-normalized values for every trait."""
-    global AI_ATTRIBUTE_DATA
-    AI_ATTRIBUTE_DATA.clear()
-    numLeaders = gc.getNumLeaderHeadInfos()
-    for iLeader in range(numLeaders):
-        leaderInfo = gc.getLeaderHeadInfo(iLeader)
-        leader_data = {}
-        for funcName, sorted_vals in AI_SORTED_VALUES.items():
-            if not sorted_vals:
-                continue
-            try:
-                raw_val = getattr(leaderInfo, funcName)()
-            except Exception:
-                continue
-			# <!-- custom: unlike what (deep?) chatgpt said here (maybe i mislead it? (probably?
-			# but not totally sure or guaranteed (maybe i did not etc, anyways), anyways), i think)
-			# maybe it would be a nice idea now that we have cleanly separated (is it because why?
-			# That we should do that? But anyways) UI display and config computation and cache logics,
-			# to also invert (raw) ai attributes too in ai categories todo, but as code is currently
-			# implemented we would have to specify it twice both in ai attributes and in ai aggregates
-			# (top of the config listings (don't know the exact name, anyways)), which would be
-			# redundant, so leaving as is but maybe todo
-			# 
-			# (deep?) chatgpt note: Compute percentile, as for inverting we never invert raw trait
-			# values anymore. They are shown as-is in the raw categories.
-			# Only aggregates apply inversion.
-            norm_val = get_percentile(raw_val, sorted_vals, inverse=False)
-            leader_data[funcName] = {"raw": raw_val, "normalized": norm_val}
-        AI_ATTRIBUTE_DATA[iLeader] = leader_data
+	"""
+	Caches the normalized display-ready AI attribute values and symbolic scales for each leader.
 
-# --- Caching function: Compute per-leader aggregate scores (median and average) ---
-def cache_ai_aggregate_scores():
-    """Populate AI_AGGREGATE_SCORES and AI_AGGREGATE_RAW_SCORES with percentile-based aggregate category scores."""
-    global AI_AGGREGATE_SCORES, AI_AGGREGATE_RAW_SCORES
-    AI_AGGREGATE_SCORES.clear()
-    AI_AGGREGATE_RAW_SCORES.clear()
-    numLeaders = gc.getNumLeaderHeadInfos()
-    for iLeader in range(numLeaders):
-        leaderInfo = gc.getLeaderHeadInfo(iLeader)
-        agg_medians = {}
-        agg_averages = {}
-        # Calculate aggregate score for each category
-        for label, fields in REVISED_AI_AGGREGATES:
-            print("[DEBUG] Starting aggregate:", label)
-            percentiles = []
-            # per-aggregate inversion logic -->
-            for funcName, invert in fields:
-                try:
-                    raw_val = getattr(leaderInfo, funcName)()
-                except Exception:
-                    print("[DEBUG]  - ERROR in %s: %s" % (funcName, sys.exc_info()[1]))
-                    continue
-                sorted_vals = AI_SORTED_VALUES.get(funcName, [])
-                if not sorted_vals:
-                    continue
-                print("[DEBUG]      Trait %s | raw=%d | invert=%s" % (funcName, raw_val, invert))
-                pct = get_percentile(raw_val, sorted_vals, inverse=invert)
-                print("[DEBUG]      Percentile for %s: %d" % (funcName, pct))
-                print("[DEBUG]  - Leader %d | %s: raw=%d, pct=%d, invert=%s" % (iLeader, funcName, raw_val, pct, invert))
-                percentiles.append(pct)
-            if percentiles:
-                # Average (mean) of percentiles
-				# <!-- custom: from newer chatgpt too that i could not understand at that time ;(  :
-                # avoid 100.4 (for example) being rounded to 101 -->
-                avg_score = min(100, int(round(sum(percentiles) / float(len(percentiles)))))
-                # Median of percentiles (middle value in sorted order)
-                sorted_pcts = sorted(percentiles)
-                # <!-- custom: from newer chatgpt too that i could not understand at that time ;(  :
-				# <!-- custom: avoid 100.4 (for example) being rounded to 101 -->
-                median_score = min(100, sorted_pcts[len(sorted_pcts) // 2])
-                print("[DEBUG]    > Final %s score: avg=%d, median=%d, count=%d" % (label, avg_score, median_score, len(percentiles)))
-            else:
-                avg_score = 0
-                median_score = 0
-            agg_medians[label] = median_score
-            agg_averages[label] = avg_score
-        AI_AGGREGATE_SCORES[iLeader] = agg_medians
-        AI_AGGREGATE_RAW_SCORES[iLeader] = agg_averages
+	Normalizes all raw integer AI personality attributes (except aggregates) to a 0–100 scale
+	using previously cached min/max values. Associates each attribute with a symbol scale
+	(for visual representation, like "+" bars) based on its normalized value.
 
-# --- Initialize the caches at module load (so UI can directly use the data) ---
+	For special "aggregated" attributes (already normalized externally), no re-normalization
+	is performed; they are stored as-is but with a different symbol ("#").
+
+	Globals Modified:
+	- AI_ATTRIBUTE_DATA (dict): Maps leader name -> { attribute: (normalized_value, scale_string) }.
+
+	Assumptions:
+	- Raw leader data is stored in PARSED_XML_LEADERS_DATA.
+	- Min/max ranges for attributes are already available in AI_VALUE_RANGES.
+	- Inversion rules for attributes are defined in ATTRIBUTES_TO_INVERT.
+	- Aggregated attributes are listed in AGGREGATED_ATTRIBUTES.
+
+	Behavior:
+	- Attributes with identical normalized values across all leaders are warned about
+	  (optional sanity check).
+	- Leaders listed in EXCLUDED_LEADERS are skipped.
+
+	Warnings:
+	- Raises KeyError if any required normalization data is missing.
+	"""
+	global AI_ATTRIBUTE_DATA
+	AI_ATTRIBUTE_DATA.clear()
+
+	for leader_key in sorted(PARSED_XML_LEADERS_DATA.keys()):
+		if leader_key in EXCLUDED_LEADERS:
+			continue
+
+		leader_data = PARSED_XML_LEADERS_DATA[leader_key]
+		leader_data_cached = {}
+
+		for attr in sorted(leader_data.keys()):
+			raw_val = leader_data[attr]
+			min_val = None
+			max_val = None
+			final_val = None
+			symbol = None
+			if isinstance(raw_val, int):
+				# Check if attribute is aggregated (aggregated behavior)
+				# --- Decide final stored value ---
+				if is_attr_aggregated(attr):
+					final_val = raw_val  # already normalized!
+					symbol = ALL_SYMBOLS["AGGREGATED_SCALE_SYMBOL"]  # Use "#" as the default aggregated attributes symbol (unless equal or/and (some) other condition anyways)
+					# <!-- custom: fetch min_val and max_val even though we don't need them since these are already normalized (not normalizing again), but to know if we should put and "=====" (or whichever symbol ALL_SYMBOLS["EQUAL_SCALE_SYMBOL"] is(!) (A)anyways) symbol or not at for the scale. Is also a good opportunity to check min and max perhaps and retest our values, anyways -->
+					min_val, max_val = AI_VALUE_RANGES[attr]
+					if (raw_val < min_val) or (raw_val > max_val):
+						raise ValueError("[FATAL] At AI_ATTRIBUTE_DATA's stage and before normalization, in (aggregated) attr=%s and in leader_key=%s, raw_val=%d cannot be strictly out of bounds of min_val=%d and max_val=%d")
+
+				else:
+					# Normalize (inversion applied if needed)
+					# Min/max values (avoid double fetching)
+					if attr not in AI_VALUE_RANGES:
+						raise KeyError("Missing AI_VALUE_RANGES entry for attribute: %s" % attr)
+					min_val, max_val = AI_VALUE_RANGES[attr]
+
+					# Check if attribute needs inversion
+					# <!-- custom: valid placeholder, not all attributes need to be inverted or are in the (to be) invert(ed) list(?) -->
+					invert = False
+					if (attr in ATTRIBUTES_TO_INVERT):
+						invert = True
+
+					if (raw_val < min_val) or (raw_val > max_val):
+						raise ValueError("[FATAL] At AI_ATTRIBUTE_DATA's stage and before normalization, in (raw) attr=%s and in leader_key=%s, raw_val=%d cannot be strictly out of bounds of min_val=%d and max_val=%d")
+
+					norm_val = normalize_to_100(raw_val, min_val, max_val, invert, attr)
+					final_val = norm_val
+					symbol = ALL_SYMBOLS["RAW_ATTRIBUTE_SCALE_SYMBOL"]  # Use "+" for normal attributes
+
+				# <!-- custom: quite clean way i found to get the "=====" scale if all leaders share same values, without nesting/cluttering the normalize function with uneccessary symbol scale logic, ideally should i think but anyways move this check a bit earlier and not normalize if all values are equal, and debug this, perhaps with a wrapper function on top of normalize that handles this, but maybe fine this way maybe at least not so bad or not etc anyways, also doing a sanity check at the same time (to/that also failproofs ((further?) more) our min_val an max_val common prerequirement of it not being both None for raw ai attributes as well as for aggregated ai attributes), anyways. -->
+				if (min_val is None) or (max_val is None):
+						raise ValueError("[FATAL] At AI_ATTRIBUTE_DATA's stage and after normalization, in (raw or aggregated) attr=%s and in leader_key=%s, min_val=%d or max_val=%d failed to initialize, cannot be None." % (min_val, max_val))
+				if (min_val == max_val):
+					symbol = ALL_SYMBOLS["EQUAL_SCALE_SYMBOL"]
+				else:
+					print("raw_val, min_val, max_val, final_val are: %d, %d, %d, %d, for attribute %s at leader_key %s" % (raw_val, min_val, max_val, final_val, attr, leader_key))
+
+				if (symbol not in ALL_SYMBOLS.values()):
+					raise ValueError("Unexpected symbol %s in attr %s and in leader_key %s.)" %(symbol, attr, leader_key))
+
+				# Compute the appropriate scale
+				scale = get_symbol_scale(final_val, symbol)
+
+				# Store final (raw_val, final_val, scale) as tuple
+				leader_data_cached[attr] = (raw_val, final_val, scale)
+
+		# Store per-leader data
+		AI_ATTRIBUTE_DATA[leader_key] = leader_data_cached
+
+		# --- Compact Debug Output for AI_ATTRIBUTE_DATA and sanity check raises(ing) error if missing ---
+		if leader_data_cached:
+			line = "[DEBUG] Cached AI attribute data for leader_key %s: " % leader_key
+			pairs = []
+			for attr in sorted(leader_data_cached.keys()):
+				raw_val, final_val, scale = leader_data_cached[attr]
+				pairs.append("%s=(raw_val=%d, final_val=%d, \"%s\")" % (attr, raw_val, final_val, scale))
+			line += "{ " + ", ".join(pairs) + " }"
+			CvUtil.pyPrint(line)
+		else:
+			raise ValueError("[VALUE ERROR] No AI attribute data found for leader_key %s" % leader_key)
+
+# --- Execute all testing and caching steps ---
+# <!-- custom: sanity check (before using the data etc) -->
+do_data_sets_attr_validation_pre_caching()
+
 cache_ai_value_ranges()
+do_sanity_checks_after_ai_value_ranges_caching()
+
 cache_ai_attribute_data()
-cache_ai_aggregate_scores()
-
-
-
-# However, in future we may want to render AI_AGGREGATE_RAW_SCORES (average) alongside or as a tooltip, toggle, or legend.
-# For now, averages are computed and stored, but not shown.
-
+check_excluded_leaders_are_excluded_from_ai_attribute_data()
 
 
 class SevoPediaLeader:
@@ -605,10 +331,10 @@ class SevoPediaLeader:
 		self.H_LEADERHEAD_PANE = 400
 
 		# <!-- custom:
-		# 1) absolute dimensions first -->
+		# 1) (most) absolute dimensions first -->
 
 		# <!-- custom: make room to add AI personality panel -->
-		self.W_AI_PERSONALITY = 395
+		self.W_AI_PERSONALITY = 290
 
 		self.SMALL_MARGIN = 10
 		self.MEDIUM_MARGIN = 20
@@ -620,28 +346,65 @@ class SevoPediaLeader:
 		self.CIV_DISELEVATION = 38
 		
 		self.H_FAVORITES = 110
+		self.N_AI_TABLE_NUM = 3
 
 		# <!-- custom:
-		# 2) relative dimensions or/and positions then -->
+		# 2) (most) relative dimensions or/and positions then -->
 
 		self.W_LEADERHEAD = self.W_LEADERHEAD_PANE - 30
 		self.H_LEADERHEAD = self.H_LEADERHEAD_PANE - 34
 		self.X_LEADERHEAD = self.X_LEADERHEAD_PANE + (self.W_LEADERHEAD_PANE - self.W_LEADERHEAD) / 2
 		self.Y_LEADERHEAD = self.Y_LEADERHEAD_PANE + (self.H_LEADERHEAD_PANE - self.H_LEADERHEAD) / 2 + 3
 
+		self.W_AI_TOTAL_TABLES_WIDTH = self.N_AI_TABLE_NUM * self.W_AI_PERSONALITY + self.N_AI_TABLE_NUM * self.MEDIUM_MARGIN
+
+
+		self.Y_FAVORITES = self.Y_LEADERHEAD_PANE + self.H_LEADERHEAD_PANE + self.SMALL_MARGIN
+
 		# <!-- custom: we need self.W_HISTORY before the favourites coordinates, (even though the history
 		# panel is placed under/after the favourites panel when i constructed the page's "spacing" and
 		# dimensions of (and between) panels, anyways) because/as the favourites panel uses/needs/is based on
-		# the history panel's (relative) position, anyways --> 
-		self.W_HISTORY = self.top.R_PEDIA_PAGE - (2 * (self.W_AI_PERSONALITY + self.MEDIUM_MARGIN)) - self.X_LEADERHEAD_PANE
-
-		self.X_FAVORITES = self.X_LEADERHEAD_PANE
-		self.Y_FAVORITES = self.Y_LEADERHEAD_PANE + self.H_LEADERHEAD_PANE + self.SMALL_MARGIN
-		self.W_FAVORITES = self.W_HISTORY - self.W_CIV - self.SMALL_MARGIN
-
+		# the history panel's (relative) position, anyways -->
+		# <!-- custom: might as well put the other/rest/remaining HISTORY coordinates if doesn't harm and they
+		# are perhaps needed too, anyways -->
 		self.X_HISTORY = self.X_LEADERHEAD_PANE
 		self.Y_HISTORY = self.Y_FAVORITES + self.H_FAVORITES + self.SMALL_MARGIN
+		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.W_AI_TOTAL_TABLES_WIDTH - self.X_LEADERHEAD_PANE
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+
+		self.X_FAVORITES = self.X_LEADERHEAD_PANE
+		self.W_FAVORITES = self.W_HISTORY - self.W_CIV - self.SMALL_MARGIN
+
+
+		# <!-- custom: the rest of the data here, as it is dependent on other data we need first
+		# that (i.e. before being able to add these) -->
+		self.X_AI_PERSONALITY = self.top.R_PEDIA_PAGE - self.W_AI_PERSONALITY 
+		self.Y_AI_PERSONALITY = self.Y_LEADERHEAD_PANE
+		self.H_AI_PERSONALITY = self.H_LEADERHEAD_PANE + self.SMALL_MARGIN + self.H_FAVORITES + self.SMALL_MARGIN + self.H_HISTORY
+
+		# <!-- custom: AI Personality Panel(s) column widths -->
+		self.W_AI_VALUE = 35
+		self.W_AI_SCALE = 100
+		self.W_AI_LABEL = self.W_AI_PERSONALITY - self.W_AI_VALUE - self.W_AI_SCALE
+		self.H_AI_LINE_HEIGHT = 22
+		self.H_AI_CATEGORY_SPACING = 10
+		self.W_AI_LEFT_SIDE_PADDING = 12
+		# <!-- custom: removing or rather having an empty header, the header disappears entirely,
+		# but if you want to use a header, you can just type any value in the related txt keys
+		# such as TXT_KEY_AI_PERSONALITY_RIGHT_PANEL and such anyways. This or maybe rather not
+		# doing this (having an non-empty txt key header) would take some room though so you'd
+		# have to adjust self.H_AI_UPPER_PADDING to the value below commented-out or simialr depending
+		# the upper padding you want.
+		# Since i (accidentally found) it frees more room, i want to try using it as such, as i really
+		# need the extra room, and not so much the header name (the other two header txt keys were going
+		# to be either redunant naming or empty so maybe this is (also) a good opportunity to gain space/room
+		# in the ai personality panel, anyways -->
+		#self.H_AI_UPPER_PADDING = 36
+		self.H_AI_UPPER_PADDING = 15
+
+		self.AI_PANEL_RIGHT_TXT_KEY = "TXT_KEY_AI_PERSONALITY_RIGHT_PANEL"
+		self.AI_PANEL_MIDDLE_TXT_KEY = "TXT_KEY_AI_PERSONALITY_MIDDLE_PANEL"
+		self.AI_PANEL_LEFT_TXT_KEY = "TXT_KEY_AI_PERSONALITY_LEFT_PANEL"
 
 		# <!-- custom: traits have the green color somehow,
 		#
@@ -660,12 +423,6 @@ class SevoPediaLeader:
 		# <!-- custom: quite high as compared to favourites panel's lowest point -->
 		self.Y_CIV = self.Y_FAVORITES + self.CIV_DISELEVATION
 
-		# <!-- custom: the rest of the data here, as it is dependent on other data we need first
-		# that (i.e. before being able to add these) -->
-		self.X_AI_PERSONALITY = self.top.R_PEDIA_PAGE - self.W_AI_PERSONALITY 
-		self.Y_AI_PERSONALITY = self.Y_LEADERHEAD_PANE
-		self.H_AI_PERSONALITY = self.H_LEADERHEAD_PANE + self.SMALL_MARGIN + self.H_FAVORITES + self.SMALL_MARGIN + self.H_HISTORY
-
 
 
 	def interfaceScreen(self, iLeader):
@@ -680,7 +437,10 @@ class SevoPediaLeader:
 		self.placeHistory()
 		self.placeCiv()
 		self.placeTraits()
-		self.placeAIPersonalityPanel(iLeader)
+		# We need to use the proper tag name (e.g., "LEADER_HATSHEPSUT") instead of
+		# iLeader when looking up the cache.
+		iLeaderKey = gc.getLeaderHeadInfo(iLeader).getType()
+		self.placeAIPersonalityPanel(iLeaderKey)
 
 
 
@@ -764,168 +524,159 @@ class SevoPediaLeader:
 
 
 
-	# <!-- custom: based on placeHistory then tweaked or/and modified or/and not
-	# also data fetching logic mostly if not entirely provided by ChatGPT, or/and with
-	# some additions or modifications or removals or other i did or did not, anyways
+	# --- Place AI Personality Panel (using precomputed scales) ---
+	def placeAIPersonalityPanel(self, iLeaderKey):
+		"""
+		Renders the full AI Personality panel in the Sevopedia Leader page using
+		precomputed and normalized AI data for the given leader.
 
-	# <!-- custom: currently if not always logic not used of different symbols for different categories,
-	# may be useful or not keeping as is or not, anyways
-	# -->
-	#attr_types = {
-	#	AI_HEADER_WAR_STRATEGY: "threat",
-	#	AI_HEADER_DIPLOMACY: "diplomacy",
-	#	AI_HEADER_VICTORY_STRATEGY: "efficiency",
-	#	AI_HEADER_ECONOMIC_PREFERENCES: "efficiency",
-	#	AI_HEADER_ATTITUDE_MODIFIERS: "diplomacy",
-	#	AI_HEADER_TRADE_THRESHOLDS: "diplomacy",
-	#	AI_HEADER_AGGREGATES: "efficiency"
-	#}
+		Displays all raw AI attributes and derived aggregates in a structured,
+		three-column layout. The panel consists of three vertical sections
+		(right, middle, left), each containing grouped categories of AI personality data.
+		Every attribute is shown with its label, numeric value, and symbolic scale (e.g., "+++").
 
+		Each data row is derived directly from `AI_ATTRIBUTE_DATA`: Raw XML attribute values normalized to 0–100 and converted to scale.
 
+		Panel setup:
+		- Right: For example it could be Religion-related modifiers (see actual categories in AI_PANEL_RIGHT_CATEGORIES).
+		- Middle: For example it could be Core traits, Flavors, Victory weights, War strategies (see actual categories in AI_PANEL_MIDDLE_CATEGORIES).
+		- Left: For example it could be Economic traits, refusal thresholds, diplomacy contact chances, modifiers (see actual categories in AI_PANEL_LEFT_CATEGORIES).
 
-	# <!-- custom: also note alternative symbols to consider too maybe:
-	# "+", "o" (the letter o renders quite well but anyways)
+		Design Principles:
+		- **Strictly no placeholders**: All data accesses are direct and unconditional.
+		Missing or misconfigured data will raise exceptions by design, ensuring
+		bugs or omissions surface immediately.
+		- Attributes that represent contact probabilities (e.g., iContactXxxProb) display
+		contextual (delay/rand) info as part of the label (e.g., "Contact (3/50)").
 
-	#symbols = {
-	#	"threat": "#",
-	#	"efficiency": ">",
-	#	"diplomacy": "="
-	#}
+		Assumptions:
+		- `AI_ATTRIBUTE_DATA` must be fully precomputed before rendering.
+		- `DISPLAYED_AI_ATTRIBUTE_CATEGORIES` must include all expected category keys and mappings.
+		- No leader data may be missing. All required fields must exist in the cache.
 
+		Globals Used (read-only):
+		- AI_ATTRIBUTE_DATA (dict): Maps leader -> { attr -> (raw_val, norm_val, scale) }
+		- DISPLAYED_AI_ATTRIBUTE_CATEGORIES (dict): Category -> [(label, attr, core_name)]
+		- AGGREGATED_CONTACT_PROBABILITY_ATTRIBUTES (set): Attributes using delay/rand contextual labels.
 
+		Exceptions:
+		- Raises `KeyError` if any attribute, category, or leader data is missing.
+		- Intended to fail fast if cache generation was incomplete or misconfigured.
 
-	# <!-- custom: currently if not always logic not used of different symbols for different categories,
-	# may be useful or not keeping as is or not, anyways
-	#attrType = attr_types.get(category, "efficiency")
-	#symbol = symbols.get(attrType, ">")
-	# -->
+		Typical Use:
+		- Called automatically when opening the Sevopedia Leader page.
+		- Should follow a successful call to all cache functions:
+		`cache_ai_value_ranges()`, `cache_ai_attribute_data()`.
+		"""
+		screen = self.top.getScreen()
 
+		def getXPanelCoordinate(tableId):
+			return self.X_AI_PERSONALITY - tableId * self.W_AI_PERSONALITY - tableId * self.MEDIUM_MARGIN
 
+		# === Layout constants ===
+		xPanelRight = getXPanelCoordinate(self.N_AI_TABLE_NUM - 3)
+		xPanelMiddle = getXPanelCoordinate(self.N_AI_TABLE_NUM - 2)
+		xPanelLeft = getXPanelCoordinate(self.N_AI_TABLE_NUM - 1)
+		yPanel = self.Y_AI_PERSONALITY + self.H_AI_UPPER_PADDING
 
-	#<!-- custom: link not working to concept page of ai personality, disabling it for now, if not always or not etc anyways, -->
+		def setupPanel(screen, txtKey, xPanel):
+			panelName = self.top.getNextWidgetName()
+			screen.addPanel(
+				panelName,
+				localText.getText(txtKey, ()),
+				"",
+				True,
+				True,
+				xPanel,
+				self.Y_AI_PERSONALITY,
+				self.W_AI_PERSONALITY,
+				self.H_AI_PERSONALITY,
+				PanelStyles.PANEL_STYLE_BLUE50
+			)
 
+		# === PANEL SETUP ===
+		setupPanel(screen, self.AI_PANEL_RIGHT_TXT_KEY, xPanelRight)
+		setupPanel(screen, self.AI_PANEL_MIDDLE_TXT_KEY, xPanelMiddle)
+		setupPanel(screen, self.AI_PANEL_LEFT_TXT_KEY, xPanelLeft)
 
+		def fillTableRow(screen, label, value, scale, xLabel, xValue, xScale, y):
+			labelText = u"<font=2>%s</font>" % label
+			valueText = u"<font=2b>%d</font>" % value
+			scaleText = u"<font=2>%s</font>" % scale
 
-	def placeAIPersonalityPanel(self, iLeader):
-			screen = self.top.getScreen()
+			screen.setText(self.top.getNextWidgetName(), "", labelText,
+				CvUtil.FONT_LEFT_JUSTIFY, xLabel, y, 0, FontTypes.SMALL_FONT,
+				WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setText(self.top.getNextWidgetName(), "", valueText,
+				CvUtil.FONT_LEFT_JUSTIFY, xValue, y, 0, FontTypes.SMALL_FONT,
+				WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setText(self.top.getNextWidgetName(), "", scaleText,
+				CvUtil.FONT_LEFT_JUSTIFY, xScale, y, 0, FontTypes.SMALL_FONT,
+				WidgetTypes.WIDGET_GENERAL, -1, -1)
 
-			# === PANEL SETUP ===
-			rightPanelName = self.top.getNextWidgetName()
-			screen.addPanel(rightPanelName, localText.getText("TXT_KEY_AI_PERSONALITY_UWAI_RIGHT_PANEL", ()), "", True, True,
-							self.X_AI_PERSONALITY, self.Y_AI_PERSONALITY,
-							self.W_AI_PERSONALITY, self.H_AI_PERSONALITY,
-							PanelStyles.PANEL_STYLE_BLUE50)
+		# === Render Function ===
+		def render_categories(screen, categories, xPanel, yPanel):
+			xLabel = xPanel + self.W_AI_LEFT_SIDE_PADDING
+			xValue = xLabel + self.W_AI_LABEL
+			xScale = xValue + self.W_AI_VALUE
+			y = yPanel
 
-			leftPanelName = self.top.getNextWidgetName()
-			xLeftPanel = self.X_AI_PERSONALITY - self.W_AI_PERSONALITY - self.MEDIUM_MARGIN
-			screen.addPanel(leftPanelName, localText.getText("TXT_KEY_AI_PERSONALITY_UWAI_LEFT_PANEL", ()), "", True, True,
-							xLeftPanel, self.Y_AI_PERSONALITY,
-							self.W_AI_PERSONALITY, self.H_AI_PERSONALITY,
-							PanelStyles.PANEL_STYLE_BLUE50)
-
-			lineHeight = 22
-			categorySpacing = 10
-
-			xNameRight = self.X_AI_PERSONALITY + 15
-			xValueRight = xNameRight + 260
-			xScaleRight = xValueRight + 60
-			yRight = self.Y_AI_PERSONALITY + 35
-
-			xNameLeft = xLeftPanel + 15
-			xValueLeft = xNameLeft + 260
-			xScaleLeft = xValueLeft + 60
-			yLeft = self.Y_AI_PERSONALITY + 35
-
-			def get_symbol_scale(score):
-				if score < 10:
-					return ""
-				elif score < 20:
-					return "#"
-				elif score < 30:
-					return "##"
-				elif score < 40:
-					return "###"
-				elif score < 50:
-					return "####"
-				elif score < 60:
-					return "#####"
-				elif score < 70:
-					return "######"
-				elif score < 80:
-					return "#######"
-				elif score < 90:
-					return "########"
-				elif score < 100:
-					return "#########"
+			first = True
+			for category in categories:
+				if not first:
+					y += self.H_AI_CATEGORY_SPACING
 				else:
-					return "##########"
+					first = False
 
-			right_categories = [
-				AI_HEADER_WAR_STRATEGY,
-				AI_HEADER_AGGREGATES
-			]
-			left_categories = [
-				AI_HEADER_DIPLOMACY,
-				AI_HEADER_ATTITUDE,
-                AI_HEADER_ECONOMIC_BEHAVIOR,
-                AI_HEADER_TRADE
-			]
+				# --- Category Header ---
+				screen.setText(self.top.getNextWidgetName(), "", u"<font=3b>%s</font>" % category,
+					CvUtil.FONT_LEFT_JUSTIFY, xLabel, y, 0, FontTypes.SMALL_FONT,
+					WidgetTypes.WIDGET_GENERAL, -1, -1)
+				y += self.H_AI_LINE_HEIGHT
 
-			def render_categories(screen, categories, xName, xValue, xScale, yStart):
-				y = yStart
-				first = True
-				for category in categories:
-					if not first:
-						y += categorySpacing
+				# --- Display Raw and Aggregated AI Attributes ---
+				for label, attr, core_name in DISPLAYED_AI_ATTRIBUTE_CATEGORIES[category]:
+					# --- Contact Probabilities ---
+					if attr in AGGREGATED_ALL_CONTACT_PROBABILITY_ATTRIBUTES:
+						delay_field = "iContact%sDelayRaw" % core_name
+						rand_field = "iContact%sRandRaw" % core_name
+						delay_data = AI_ATTRIBUTE_DATA[iLeaderKey][delay_field]
+						rand_data = AI_ATTRIBUTE_DATA[iLeaderKey][rand_field]
+						delay_value = delay_data[0]
+						rand_value  = rand_data[0]
+
+						raw_val, norm_val, scale = AI_ATTRIBUTE_DATA[iLeaderKey][attr]
+						label = u"%s (%d/%d)" % (label, delay_value, rand_value)
+					
+					# --- Positive Memory Affection/Resentment ---
+					elif attr in AGGREGATED_POSITIVE_MEMORY_AFFECTION_AND_RESENTMENT_ATTRIBUTES:
+						att_field = "iPositiveMemoryAttitude%sRaw" % core_name
+						dec_field = "iPositiveMemoryDecay%sRaw" % core_name
+						att_value = AI_ATTRIBUTE_DATA[iLeaderKey][att_field][0]
+						dec_value = AI_ATTRIBUTE_DATA[iLeaderKey][dec_field][0]
+						raw_val, norm_val, scale = AI_ATTRIBUTE_DATA[iLeaderKey][attr]
+						label = u"%s (+%d/%d)" % (label, att_value, dec_value)
+
+					# --- Negative Memory Affection/Resentment ---
+					elif attr in AGGREGATED_NEGATIVE_MEMORY_RESENTMENT_AND_AFFECTION_ATTRIBUTES:
+						att_field = "iNegativeMemoryAttitude%sRaw" % core_name
+						dec_field = "iNegativeMemoryDecay%sRaw" % core_name
+						att_value = AI_ATTRIBUTE_DATA[iLeaderKey][att_field][0]
+						dec_value = AI_ATTRIBUTE_DATA[iLeaderKey][dec_field][0]
+						raw_val, norm_val, scale = AI_ATTRIBUTE_DATA[iLeaderKey][attr]
+						label = u"%s (%d/%d)" % (label, att_value, dec_value)
+
 					else:
-						first = False
+						raw_val, norm_val, scale = AI_ATTRIBUTE_DATA[iLeaderKey][attr]
+						label = u"%s (%d)" % (label, raw_val)
 
-					screen.setText(self.top.getNextWidgetName(), "", u"<font=3b>%s</font>" % category,
-								CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
-								WidgetTypes.WIDGET_GENERAL, -1, -1)
-					y += lineHeight
+					fillTableRow(screen, label, norm_val, scale, xLabel, xValue, xScale, y)
+					y += self.H_AI_LINE_HEIGHT
 
-					if category == AI_HEADER_AGGREGATES:
-						for idx, (label, _) in enumerate(REVISED_AI_AGGREGATES):
-							if idx in AI_AGGREGATE_CATEGORY_BREAKS:
-								y += categorySpacing * 2
-
-							score = AI_AGGREGATE_SCORES.get(iLeader, {}).get(label, 0)
-							symbols_used = get_symbol_scale(score)
-
-							screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % label,
-										CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
-										WidgetTypes.WIDGET_GENERAL, -1, -1)
-							screen.setText(self.top.getNextWidgetName(), "", u"<font=2b>%d</font>" % score,
-										CvUtil.FONT_LEFT_JUSTIFY, xValue, y, 0, FontTypes.SMALL_FONT,
-										WidgetTypes.WIDGET_GENERAL, -1, -1)
-							screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % symbols_used,
-										CvUtil.FONT_LEFT_JUSTIFY, xScale, y, 0, FontTypes.SMALL_FONT,
-										WidgetTypes.WIDGET_GENERAL, -1, -1)
-							y += lineHeight
-						continue
-
-					for label, funcName in AI_ATTRIBUTE_CATEGORIES.get(category, []):
-						try:
-							raw_value = AI_ATTRIBUTE_DATA.get(iLeader, {}).get(funcName, {}).get("raw", 0)
-							norm_score = AI_ATTRIBUTE_DATA.get(iLeader, {}).get(funcName, {}).get("normalized", 0)
-							symbols_used = get_symbol_scale(norm_score)
-
-							screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % label,
-											CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
-											WidgetTypes.WIDGET_GENERAL, -1, -1)
-							screen.setText(self.top.getNextWidgetName(), "", u"<font=2b>%d</font>" % raw_value,
-											CvUtil.FONT_LEFT_JUSTIFY, xValue, y, 0, FontTypes.SMALL_FONT,
-											WidgetTypes.WIDGET_GENERAL, -1, -1)
-							screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % symbols_used,
-											CvUtil.FONT_LEFT_JUSTIFY, xScale, y, 0, FontTypes.SMALL_FONT,
-											WidgetTypes.WIDGET_GENERAL, -1, -1)
-							y += lineHeight
-						except:
-							pass
-
-			render_categories(screen, right_categories, xNameRight, xValueRight, xScaleRight, yRight)
-			render_categories(screen, left_categories, xNameLeft, xValueLeft, xScaleLeft, yLeft)
+		# Render Panels
+		render_categories(screen, AI_PANEL_RIGHT_CATEGORIES, xPanelRight, yPanel)
+		render_categories(screen, AI_PANEL_MIDDLE_CATEGORIES, xPanelMiddle, yPanel)
+		render_categories(screen, AI_PANEL_LEFT_CATEGORIES, xPanelLeft, yPanel)
 
 
 

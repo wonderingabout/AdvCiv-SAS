@@ -1,0 +1,7 @@
+ai aggregate debug per/for one leader example :)
+
+in same file (C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log)
+
+we have:
+
+PY:[DEBUG] Cached AI aggregate scores for leader LEADER_ALEXANDER: { AGGRESSIVE=(None, median=40, average=45,"####"), BACKSTABBER=(None, median=60, average=65,"######"), CAUTIOUS_PEACEKEEPER=(None, median=43, average=52,"####"), CIVIC_IDEALIST=(None, median=50, average=57,"#####"), CONQUEROR=(None, median=50, average=37,"#####"), DEFENSIVE=(None, median=73, average=53,"#######"), HONOR_BOUND=(None, median=57, average=52,"#####"), HUMILIATION_AVERTER=(None, median=50, average=58,"#####"), INSTIGATOR=(None, median=77, average=76,"#######"), META_STRATEGIST=(None, median=70, average=55,"#######"), PACIFIST=(None, median=33, average=35,"###"), PHILOSOPHER_KING=(None, median=64, average=69,"######"), RELIGIOUS_ZEALOT=(None, median=50, average=56,"#####"), RUTHLESS_SCHEMER=(None, median=57, average=64,"#####"), TURMOIL_MAKER=(None, median=67, average=62,"######") }

@@ -4051,8 +4051,9 @@
 					<AttitudeType>ATTITUDE_PLEASED</AttitudeType>
 					<iNoWarProb>110</iNoWarProb>
 				</NoWarAttitudeProb>
+				<!-- custom: fix AdvCiv Duplicate PLEASED, should be friendly unless i'm mistaken, was ATTITUDE_PLEASED 115-->
 				<NoWarAttitudeProb>
-					<AttitudeType>ATTITUDE_PLEASED</AttitudeType>
+					<AttitudeType>ATTITUDE_FRIENDLY</AttitudeType>
 					<iNoWarProb>115</iNoWarProb>
 				</NoWarAttitudeProb>
 			</NoWarAttitudeProbs>

@@ -100,9 +100,10 @@
 		improves immersion, however AI demands are sometimes ridiculous,
 		so increase it only a bit. It does currently feel that they would
 		never ever declare war even though they have reason to (according to
-		what they think/value it seems i think maybe), was 100. -->
+		what they think/value it seems i think maybe), was 100.-->
+		<!-- custom: but it does seem like they never ever declare war when requesting tribute making it pointless, trying to increase it more anyways etc ; it's maybe also more realistic this way, as the losing side will just have to comply regardless how insensitive/senseless the request is, was 110. -->
 		<DefineName>UWAI_WEIGHT_REBUKE</DefineName>
-		<iDefineIntVal>110</iDefineIntVal>
+		<iDefineIntVal>200</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- By declaring war on a civ that recently attacked one of our

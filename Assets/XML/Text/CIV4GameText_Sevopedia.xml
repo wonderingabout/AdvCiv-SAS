@@ -49,30 +49,26 @@
 	 help this be more intuitive too) -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT_UPGRADES</Tag>
-		<English>Units Tree</English>
+		<!-- custom: <English>Units Tree</English> -->
+		<English>Un. Tree</English>
 	</TEXT>
 	<!-- custom: use the plural here too:
 	"Promotion Tree" -> "Promotions Tree" -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_PROMOTION_TREE</Tag>
-		<English>Promotions Tree</English>
+		<!-- custom: <English>Promotions Tree</English> -->
+		<English>Pr. Tree</English>
 	</TEXT>
 
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_NATIONAL_WONDERS</Tag>
-		<English>National Wonders</English>
-		<French>Merveilles Nationales</French>
-		<German>Nationalwunder</German>
-		<Italian>Merav. Naz.</Italian>
-		<Spanish>Maravillas Nacionales</Spanish>
+		<!-- custom: <English>National Wonders</English> -->
+		<English>N. Wond.</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_GREAT_WONDERS</Tag>
-		<English>Great Wonders</English>
-		<French>Merveilles Mondiales</French>
-		<German>Weltwunder</German>
-		<Italian>Grandi Merav.</Italian>
-		<Spanish>Maravillas del Mundo</Spanish>
+		<!-- custom: <English>Great Wonders</English> -->
+		<English>G. Wond.</English>
 	</TEXT>
 
 	<!-- advc.002g: Deleted TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW
@@ -187,7 +183,8 @@
 	I've kept the FIS translations from there. -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT</Tag>
-		<English>Improvements</English>
+		<!-- custom: <English>Improvements</English> -->
+		<English>Improv.</English>
 	</TEXT>
 	<!-- custom: using the singular form here as this is
 	only about our current (selected) improvement's

@@ -25,19 +25,26 @@
 		<English>3_AdvCiv-SAS Core Changes</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_ADVCIV_SAS_CORE_AI_PERSONALITY_UWAI</Tag>
-		<English>4_AdvCiv-SAS AI Personality (UWAI)</English>
+		<Tag>TXT_KEY_ADVCIV_SAS_CORE_AI_PERSONALITY_PANEL_INTRO</Tag>
+		<English>4_AdvCiv-SAS AI Personality Panel Intro</English>
 	</TEXT>
 
 
-
+	<!-- custom: i have accidentally noticed that having an empty "header" tag removes it
+	entirely while also and still giving the flexibility to add it again later (but you('d)
+	need to adjust self.H_AI_UPPER_PADDING in SevoPediaLeader.py to accodomodate that, see
+	the specific implementation and code comments there for details)-->
 	<TEXT>
-		<Tag>TXT_KEY_AI_PERSONALITY_UWAI_LEFT_PANEL</Tag>
-		<English>AI Personality (UWAI) (2)</English>
+		<Tag>TXT_KEY_AI_PERSONALITY_RIGHT_PANEL</Tag>
+		<English></English>
 	</TEXT>
-		<TEXT>
-		<Tag>TXT_KEY_AI_PERSONALITY_UWAI_RIGHT_PANEL</Tag>
-		<English>AI Personality (UWAI) (1)</English>
+	<TEXT>
+		<Tag>TXT_KEY_AI_PERSONALITY_MIDDLE_PANEL</Tag>
+		<English></English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_AI_PERSONALITY_LEFT_PANEL</Tag>
+		<English></English>
 	</TEXT>
 
 

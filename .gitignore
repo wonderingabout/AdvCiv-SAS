@@ -18,8 +18,10 @@ temp_files/
 *.vcxproj.filters
 *.vcxproj.user
 *.opensdf
-Makefile.settings
-Makefile.user
-.vscode/
-Boost-1.32.0
-Python24
+/.vscode/
+/CvGameCoreDLL/Project/Boost-1.32.0/
+/CvGameCoreDLL/Project/Python24/
+/Logs/
+/__pycache__/
+/tests/__pycache__/
+/Assets/Python/Contrib/Sevopedia/__pycache__/

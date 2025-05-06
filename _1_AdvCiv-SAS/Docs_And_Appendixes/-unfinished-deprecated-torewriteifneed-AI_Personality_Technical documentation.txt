@@ -1,0 +1,79 @@
+Currently, in sevopedialeader.py (appended), i am coding and have successfully implemented with/thanks to the help of/by/with your friend/relative chatgpt 4-o, an ai personality panel feature (2 panels in fact) that displays some of the preferences of ai leaders, in particular of the currently selected leader in the sevopedia (for example Gandhi, Montezuma, etc.).
+
+The data we display and analyze is:
+- raw ai attributes: for example warrand (400 for gandhi, 50 for montezuma). Below is an example of how an ai attribute is represented in our code:
+
+# Detailed AI attribute categories (Attribute name and corresponding LeaderHeadInfo function)
+# --- For raw values display ---
+# (label, funcName)
+# label is a prettier and more human readable string than funcName would be for human players
+("Max War Rand", "getMaxWarRand"),  # Higher = more likely to start large-scale wars
+
+- ai aggregates: they aim to represent the behaviour of a leader regardring some ai attributes that characterize said behaviour. For example conqueror, tech_broker, diplomat etc. An aggregate is the accumulation/mathematical merging of the impact of several ai attributes to reflect the currently selected leader and how said leader fares as compared to all leaders in a median-based sorting (we explain later in the text how we compute these). For example a leader like montezuma will have say 90% conqueror while gandhi will have say 0% of conqueror (may not be exact, is just to illustrate). Here is an example of how an ai aggregate is represented and implemented in our code:
+
+# Aggregate personality categories (each combines multiple attributes).
+# Format: (Category Label, [(attributeFuncName, invertFlag, weightFloat), ...])
+# <!-- custom:
+# invertFlag: True = Inverted, False = Not inverted
+# weightFloat: float between 0 and 1 depending on weight contribution to the aggregate
+# (example 1.0, 0.7, 0.3, etc.), always positive
+# ⚔️ WAR
+# 🏹 CONQUEROR – Long-term domination planner, prefers full wars and expansion.
+("CONQUEROR", [
+    ("getConquestVictoryWeight", False, 1.0),  # Long-term domination goal
+    ("getMaxWarRand", True, 0.8),  # Willing to start full wars
+    ("getMaxWarNearbyPowerRatio", True, 0.6),  # Attacks if they feel stronger
+]),
+
+Also note that for example, for Gandhi, Hammurabi, and Montezuma, the values for each of these attributes are:
+
+Gandhi (peaceful/low conqueror):
+getConquestVictoryWeight =0
+getMaxWarRand = 400
+getMaxWarNearbyPowerRatio = 100
+
+Hammurabi (medium/intermediate conqueror):
+getConquestVictoryWeight = 35
+getMaxWarRand = 200
+getMaxWarNearbyPowerRatio = 110
+
+Montezuma (high/aggressive conqueror):
+getConquestVictoryWeight = 70
+getMaxWarRand = 50
+getMaxWarNearbyPowerRatio = 130
+
+To go back on the representation of aggregates in our (me and becomingthrough chatgpt anyways) code, it is done at module initilization before the class code of SevopediaLeader. In our code, the leader data initialization and preprocessing logic is done efficiently and only once at module load before the class code. We first define some static data such as the examples above, and for example also other reused strings such as header names, etc. Then, in the cache_ai_value_ranges function, we load and cache the ai attributes data of all leaders in AI_VALUE_RANGES and AI_SORTED_VALUES. Caching before class load is done to increase performance, especially but not only on less performant devices, perhaps, ideally. 
+
+Then, our pre-processing of the leaders data involves the get_percentile function that returns the percentile value of the ai attribute that is passed as parameter, between 0 and 100 (normalization) in a median or average based distribution (currently only median is used). For example warrand 50 would be for example the 3% percentile among all leaders, while the warrand 400 would be close to example the 95% percentile among all leaders for the raw ai attribute value of warrand.
+
+This get_percentile function is used both for the processing of raw ai attributes and of the ai aggregates, which take then different paths (even though we display both for each leader and quite similarly eventually, it is done quite differently too):
+
+1) for raw ai attributes we rely on the function cache_ai_attribute_data, to simply cache each leader's raw (ex: for warrand 400 for Gandhi, 50 for Montezuma) and percentile-normalized values (for example 95%, 3%) for every attribute.for all leaders.
+
+2) for ai aggregates (ex: conqueror, diplomat, etc.), we also use ai attributes data, but we do not call the aforementionned cache_ai_attribute_data. Instead we use the cache_ai_aggregate_scores. For each ai attribute that composes the ai aggregate (ex: conqueror is composed of getConquestVictoryWeight, getMaxWarRand, getMaxWarNearbyPowerRatio (may or not be accurate, it is to illustrate and as an example)), we first look at if the ai attribute is directly correlated (more warrand (higher value) equals more conqueror aggregate behaviour), or "inversely" correlated with this aggregate (more warrand (higher value) equals less conqueror aggregate behaviour). For example Gandhi which is known to be peaceful has a warrand of 400, while Montezuma which is knows to be a warmonger has a value of 50. By cross-checking and confirming a similar distribution (low value for warmongers, high(er) value for peaceful personalities), we can infer warrand is invertly correlated with the conqueror behaviour, so we invert it, and set the invertFlag to true. This means that unlike for what we did before for raw ai attributes that we do not invert, here in ai aggregates processing, we instead invert the ai attributes, so for example warrand 400 will now be instead 100 - 95 = 5% percentile among all leaders, while warrand 50 will be for example 100 - 3 = 97% percentile among all leaders. This ensures that the warrand attribute is accurately correlated with the conqueror aggregate, as now a higher percentile of warrand will result in a higher conqueror aggregate score as epxlained later in this paragraph. It is important and key to note that ai attributes are aggregate specific, for example a buildunitprob attribute (example, may be accurate or not, is to illustrate) that would be directly correlated with more units being produced (higher value equals more units produced), would as a consequence be directly correlated to some war aggregates (conqueror or/and other aggregates) as more units equal more war, but less in a builder (example) aggregate for example, as more units being built equals less buildings and wonders, so we would invert (true) this buildunitprob aattribute for the builder aggregate, while we we would not (false) invert it for some war aggregates (conqueror or/and other aggregates). We repeat this process for all the other ai attributes that compose the ai aggregate, and for each aggregate too. Attributes in ai aggregates are also characterized by a weightFloat (positive value between 0 and 1), that aim at representing the partial contribution of said attribute to the aggregate, for example in the (example may be accurate or not, is to illustrate) conqueror aggregate, getConquestVictoryWeight attribute may be an important part of conquering behaviour so it has a maxium weight of 1.0, while getMaxWarNearbyPowerRatio is important to an extent to the conquerir behaviour but less, so it would have a quite high weight but lower than 1.0, for example 0.6. These partial weights, as well as inversion flags mentionned before, for each ai attribute of an aggregate, are then computed by the same get_percentile that we used for the processing of raw ai attributes, but this time the overall conqueror (for example) aggregate score takes into account, for each ai attribute that composes it, both the inversion, and the partial weight, for example for Gandhi we may have (example that may or not be accurate) for the conqueror aggregate 3% percentile (with inversion or not) of the warrand attribute at a 0.8 weight + 20% percentile (with inversion or not) of the conquestvictory attribute at a 1.0 weight + 40% percentile (with inversion or not) of the warnearbypowerratio attribute at a 0.6 weight, and this is how Gandhi would get, say, a score of 
+
+to fix add in docs compression to 100 before inversions
+now, if we want the value of a specific leader, say gandhi:
+warrand = 440 / 500 * 100 = 88 warrand now (before inversion, or 100 - 88 = 12 after ivnersion for the conqueror aggregate)
+conquestivctory = 0 / 80 * 100 = 0 conquestvictory  attribute (no inversion here)
+
+but for montezuma it would be:
+warrand = 50 / 500 * 100 = 10 warrand attribute (before inversion, or 100 - 10 = 90 after invnersion for the conqueror aggregate)
+conquestivctory = 70 / 80 * 100 = 87.5 conquestvictory attribute (no inversion here)
+
+note: add a divide by 0 exception where max is 0 hehe to avoid crashing maybe if i'm not mistaken :)
+
+
+Config is cleanly separated from the display logic, done by 
+
+
+
+These computation parts of the logic are cleanly separated from the display part of the logic, in the self.placeAIPersonalityPanel(iLeader) method called in the interfaceScreen(self, iLeader) function. 
+
+
+
+- left panel: here we display only raw ai attributes. for these we only the label (example: 400 if Gandhi is the selected leader currently), and then a scale between "" and "++++++++++" graded every 10% based on how said ai attribute distribution among all leaders. For example warrand 400 will be "++++++++++" or close to it, and warrand 50 will be "+" or close to it.See after bullet points for details.
+
+- right panel: ai aggregates, which aim to represent the behaviour of a leader regardring some ai attributes that characterize it. An aggregate is the accumulation/mathematical merging of the impact of severla ai attributes to reflect the behaviour of a leader in these. For example conqueror, tech_broker, diplomat etc. Aggregates use the same display code logic than raw ai attributes, slightly altered to display them a bit differently, but in the end we have an ai aggregate label such as "conqueror", "diplomat", etc: first we display the label (example: "conqueror", etc), then the normalized value (0-100 (%)) (median-based) which we will explain later in this text how we obtain it. The end result is that for example a leader like montezuma will have say 90% conqueror while gandhi will have say 0% of conqueror (may not be exact, is just to illustrate). These % represent how the leader fares among all leaders in a median-based sorting, we explain later in the paragraph how we compute this. As part of having already done such a computation and sorting is made (more details later in the text, and other steps like partial weighting, explained later in the text too)Normalization does more than just  (see below (next paragraph) for the details of that at the computation logic part), we 
+
+The computation logic (that we can call "config" to refer to it easier, even though it does not really/strictly have such a name) is done once at module load, where load the available ai attributevalues of all ai attributes of all leaders, then 

@@ -33,6 +33,28 @@ Else or additionally, you may find more help asking your question(s) directly on
 [CivFanaticsCenter's Civ4 Forum](https://forums.civfanatics.com/categories/civilization-iv.143/)
 rather maybe. Hopefully this data i provided is also helpful though.
 
+## A few useful tips
+
+### full git log
+
+Always keep a .txt copy of the full git log of the/your entire project, very useful when doing a global search (for example with VS Code), you can gain while doing so precious information about some features you want to know more about.
+
+You can create such an exhaustive git log with, for example for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size):
+
+```
+cd "C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS/" && git --no-pager log > git_log_repository_full.txt
+```
+
+For example for AdvCiv-SAS, i put this file (that i ideally should/try to update every while) in this folder [for example](/_0.0_Common_Docs/git_log_repository_full.txt) (but any place (you want) should do (fine) as long as it is in your mod (anywhere inside it maybe anyways)).
+
+### manual(s) and docs in .txt
+
+Similarly, i have found it very useful to keep a .txt copy of the docs i use, in particular technical ones, and such as the [AdvCiv base docs](/_0.5_AdvCiv_Base_Docs/) in particular the [manual in .txt](/_0.5_AdvCiv_Base_Docs/manual.txt)
+
+When doing a global search with VS Code for anything, as long as this manual.txt for example (or other files) are in the mods folders (anywhere, this/her is an example, anyways), then i can and may often (not guaranteed but maybe) also find useful information as part of my global search results.
+
+Not necessarily for all docs, or may if you want, but sure is very convenient, hopefully helpful tip or maybe not but in all cases etc anyways.
+
 ## A few useful links
 - todo: tutorial on how to compile the DLL and/or files for Advciv (but should not
 be needed if you only modify XML files if i am not mistaken)
@@ -46,7 +68,7 @@ maybe (even though i mostly use kujira's website, maybe this one helps too).
 
 ## Files
 
-Please see in [/Files](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/)
+Please see the files (mostly if not only images) [in the Modding_Ressources Google Drive]([/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp))
 
 In particular the XML icons tags may be helpful maybe, among other possible
 files you'd find helpful or not.

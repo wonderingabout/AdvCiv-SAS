@@ -14,37 +14,17 @@ Sevopedia Entry (non-exhaustive), please visit it there (the screenshot below
 (click to view it full size) may not be updated, it is to give a preview/general
 idea):
 
-<img src="./Docs_And_Appendixes/0.611_sevopedia_advciv_sas_core_changes.JPG" width="250"></img>
+<img src="./Images_In_General/0.611_sevopedia_advciv_sas_core_changes.JPG" width="250"></img>
 
-There are also other additions, in particular written by ChatGPT which are documented, such as
-AI personality aggregates, very important addition to AdvCiv-SAS, hopefully useful
-documentation, and provided (code + documentation of it mostly by ChatGPT, even though
-i contributed quite a bit too but for most is by ChatGPT, anyways), recommended to see
-[this](/README.md#advciv-sas-core-sevopedia-pages-documentation-and-such)
+There are also other additions, in particular written/coded by me wonderingabout and ChatGPT which are documented (mostly by me (wonderingabout) though hehe anyways etc), such as the AI personality panel (featuring raw and AI attributes display and ranking for all leaders), very important addition to AdvCiv-SAS, hopefully useful in understanding how each and all AI leaders behave and relate to each other, please read (if interested etc anyways) the (more) extensive documentation of how it works [from the main README.md link](/README.md#advciv-sas-core-changes-from-advciv), [or directly here](/README_AI_Personality_Panel.md) if you want (to look etc anyways) for the full page.
 
-A copy of the screenshots (may not be latest version of it)
+A copy of the screenshots (may not be latest version of it) of how it looks ingame:
 
-<img src="./Docs_And_Appendixes/0.6121_sevopedia_advciv_sas_ai_personality.JPG" width="250"></img>
-<img src="./Docs_And_Appendixes/0.6122_sevopedia_advciv_sas_ai_personality.JPG" width="250"></img>
-<img src="./Docs_And_Appendixes/0.6123_sevopedia_advciv_sas_ai_personality.JPG" width="250"></img>
-<img src="./Docs_And_Appendixes/0.6124_sevopedia_advciv_sas_ai_personality.JPG" width="250"></img>
-<img src="./Docs_And_Appendixes/0.6125_sevopedia_advciv_sas_ai_personality.JPG" width="250"></img>
+<img src="../_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
+<img src="../_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
+<img src="../_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
 
-For more screensot previews of new sevopedia entries or udpated ones (not exhaustive), please
-visit [this page of the main README.md](/README.md#example-of-sevopedia-reworks-click-on-the-images-below-to-view-them-full-size)
-
-And please be sure to check the AI personality panel (same link as above), it is a major improvement of/in AdvCiv-SAS, a sample below provided to you as well here:
-
-<img src="./Docs_And_Appendixes/0.621_sevopedia_AI_Personality_sample.JPG" width="250"></img>
-<img src="./Docs_And_Appendixes/0.622_sevopedia_AI_Personality_sample.JPG" width="250"></img>
-<img src="./Docs_And_Appendixes/0.623_sevopedia_AI_Personality_sample.JPG" width="250"></img>
-<img src="./Docs_And_Appendixes/0.624_sevopedia_AI_Personality_sample.JPG" width="250"></img>
-<img src="./Docs_And_Appendixes/0.625_sevopedia_AI_Personality_sample.JPG" width="250"></img>
-<img src="./Docs_And_Appendixes/0.626_sevopedia_AI_Personality_sample.JPG" width="250"></img>
-<img src="./Docs_And_Appendixes/0.627_sevopedia_AI_Personality_sample.JPG" width="250"></img>
-
-And remember the latest info if there is any newer is ingame, there may also be other
-sevopedia docs or not written by ChatGPT or not, anyways.
+For more screensot previews of new sevopedia entries or udpated ones (not exhaustive), you can visit [the AI personality panel sevopedialeader feature page of the main README.md](/README.md#ai-personality-panel-sevopedialeader-feature).
 
 ## Full exhaustive changes
 
@@ -109,7 +89,7 @@ For a full view of all existing units, on top of viewing the "Unit Combat Types"
 you can also see the "Units Tree" for a better view of in the sevopedia ingame, or
 this version of the units tree i made that lists the unit combat types and era for
 it as well if it helps (may be a bit outdated though but should not be too much)
-[military tree map view](/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43%20military%20tree_modified.png).
+[military tree map view](/_1_AdvCiv-SAS/Images_In_General/0.43%20military%20tree_modified.png).
 
 - A consequence of this is also that now there will be hopefully no more weirdness of
 the axeman being good against lancer, now the relationships between types will be more
@@ -294,7 +274,7 @@ guilds i think todo)
 - some ressources are not revealed until a certain tech: sheep is always visible,
 but gold not until metal casting.
 - a few new civs added, mostly in snow/desert terrains, or underrepresented parts
-of the world, see [world map with civs](/_1_AdvCiv-SAS/Docs_And_Appendixes/0.22_world_map_terrain_with_new_civs.png)
+of the world, see [world map with civs](/_1_AdvCiv-SAS/Images_In_General/0.22_world_map_terrain_with_new_civs.png)
 (todo add link), for example The Kingdom Of Benin (Nigeria), or in weaker terrains
 (that are now buffed), for example Canada
 - Leaders have been changed: unless strongly desired, all civs have at max 2

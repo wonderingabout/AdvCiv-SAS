@@ -14,7 +14,7 @@ using Steam the path of AdvCiv should be:
 
 C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\
 
-If you don't use Steam you can still play this mod, you'll just have to change the path to where civ4 was installed (and might have less DRMs at the same time so may be even betetr as you prefer)
+If you don't use Steam you can still play this mod, you'll just have to change the path to where civ4 was installed (and might have less DRMs at the same time so may be even better as you prefer)
 
 # Place a shortcut on your desktop
 

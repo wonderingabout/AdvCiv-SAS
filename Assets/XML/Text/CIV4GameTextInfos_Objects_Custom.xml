@@ -60,15 +60,47 @@
 	-->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT</Tag>
-		<English>Concepts (Outdated)</English>
+		<!-- custom: <English>Concepts (Outdated)</English>-->
+		<English>Outdated</English>
 	</TEXT>
+
 	<!-- custom: was "BtS Concepts", see code comments in
 	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml
 	(or the equivalent of this path in your mod installation path).
 	-->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW</Tag>
-		<English>Mods Information</English>
+		<!-- custom: <English>Mods Information</English>-->
+		<English>Mods Info</English>
+	</TEXT>
+	
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_TECH</Tag>
+		<!-- custom: <English>Technologies</English>-->
+		<English>Techs</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT</Tag>
+		<English>Un. List</English>
+	</TEXT>
+		<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_SPECIALIST</Tag>
+		<!-- custom: <English>Specialists</English>-->
+		<English>People</English>
+	</TEXT>
+		<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_BONUS</Tag>
+		<!-- custom: <English>Resources</English>-->
+		<English>Bonus</English>
+	</TEXT>
+		<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_CIV</Tag>
+		<!-- custom: <English>Civilizations</English>-->
+		<English>Civs</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_PROMOTION</Tag>
+		<English>Pr. List</English>
 	</TEXT>
 
 	<!-- custom: rename "Ivory" to "Elephants".

@@ -13,7 +13,13 @@ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond
 	while being clearer for players. -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT_COMBAT</Tag>
-		<English>Unit Combat Types</English>
+		<!-- <English>Unit Combat Types</English> -->
+		<English>Combat</English>
+	</TEXT>
+		<TEXT>
+		<Tag>TXT_KEY_CONCEPT_CORPORATIONS</Tag>
+		<!-- <English>Corporations</English> -->
+		<English>Corporat.</English>
 	</TEXT>
 
 	<TEXT>
