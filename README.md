@@ -128,7 +128,6 @@ Some other units have a more problematic name, as they are very inaccurate. For 
 - Axeman: Battle Axe Warrior
 - Maceman: Mace Warrior? Keep Maceman here? (But would be inconsistent then or not immersive if others don't have man too, anyways, also mace warrior is quite cool too i think, but anyways)
 
-
 - Knight: Horse Lancer Knight (Medieval)
 - Horse Swordsfighter Knight
 - Camel Lancer Knight
@@ -136,7 +135,6 @@ Some other units have a more problematic name, as they are very inaccurate. For 
 - Cavalry: Napoleonian Flank Cavalry (Offense) + Royal Guard Cavalry (Defense)
 - Chariot: Charioteer? War Chariot?
 - War chariot: Elite charioteer?
-
 
 Maybe will add new units that are knight units, more expensive and stronger version of the regular ones, such as camel knight lancer stronger than camel knight, elite troops maybe but could be replaced by exp system and less linked to history, anyways, will see, may or not, will see or not, etc or not etc, anyways, For example:
 
@@ -152,17 +150,17 @@ May also apply to civ units or/and Buildings or not will see or not etc or not, 
 
 One of the unexpected things that popped up while doing it and is/found to be very pleasant but anyways, is the visual art of icons, i want AI generated (by ChatGPT) ones as they can be very nice.
 
-I have uploaded mine (or rather ChatGPT's creation with my prompts and feebackbut anyways) [in the AI-generated images Google Drive](https://drive.google.com/drive/folders/1WTQqrstpKywyHF9TjmvBy4edo8Jh1pYm?usp=sharing)  (to view all images available full size). You can find below an example of preview for the lancer light 2 (bronze age as of now if not always or not anyways) (click on these git samples to view in full size (but more/ideally all images are on the google drive maybe rather for that)):
+I have uploaded mine (or rather ChatGPT's creation with my prompts and feebackbut anyways) [in the AI-generated images's Google Drive](https://drive.google.com/drive/folders/1WTQqrstpKywyHF9TjmvBy4edo8Jh1pYm?usp=sharing)  (to view all images available full size). You can find below an example of preview for the lancer light 2 (bronze age as of now if not always or not anyways) (click on these git samples to view in full size (but more/ideally all images are on the google drive maybe rather for that)):
 
-<img src="./_1_AdvCiv-SAS/AI-generated images samples/units/lance_light_2_ChatGPT Image Apr 11, 2025, 07_54_22 PM.png" width="150"></img>
+<img src="./_1_AdvCiv-SAS/AI-generated_images_samples/Units/lance_light_2_ChatGPT Image Apr 11, 2025, 07_54_22 PM.png" width="150"></img>
 
 Another example (longbow 3 (iron age)):
 
-<img src="./_1_AdvCiv-SAS/AI-generated images samples/units/longbow_3_ChatGPT Image Apr 11, 2025, 08_46_15 PM.png" width="150"></img>
+<img src="./_1_AdvCiv-SAS/AI-generated_images_samples/Units/longbow_3_ChatGPT Image Apr 11, 2025, 08_46_15 PM.png" width="150"></img>
 
 Another example (sword light 4 (medieval era))
 
-<img src="./_1_AdvCiv-SAS/AI-generated images samples/units/sword_light_4_ChatGPT Image Apr 11, 2025, 10_55_02 PM.png" width="150"></img>
+<img src="./_1_AdvCiv-SAS/AI-generated_images_samples/Units/sword_light_4_ChatGPT Image Apr 11, 2025, 10_55_02 PM.png" width="150"></img>
 
 People and modders are free to reuse them as long as you mention me (link to this github page for example is fine) being the source (and that AI did it maybe too ideally, anyways).
 
@@ -171,6 +169,14 @@ I'll start with units, as there are a few i wanted to replace or create new ones
 I am not doing the ingame art though, just the icons, unless i would unexpectedly so, it should most likely be asummed i would not. I intend to add women in some of these units. Not for equalitarism or anything, just because i think it would be cool and accurate, it would be mostly lightweight weapons for accuracy, not following any specified pattern or ratios, as i prefer.
 
 Hopefully helpful and interesting.
+
+## csv: Leaders_data flat to csv conversion and its view on github for example
+
+There is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script](/README_Python_Scripts.md#leaders_data_to_csvpy) anyways etc but i have just noticed after the [mega commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/50f7983166a9ea2d93ff0084552d2fcfc32b9aec#diff-2224084cfc75aee1dd365084937d36ddb7b77107c9f9529aef06b37721f117a0) that this data is also (nicely but anwyays etc) [viewable on github too](/leaders_data_to_csv_ai_flat_example_of_output_20250506_194925.csv), with filters (research) and such anyways etc, so adding a bit more general info about it too, as shown below (please follow the link just before in this sentence to/if you want to view it yourself else do as you please or/and want or/and other or/and not anwyays etc)
+
+<img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_1.PNG" width="150"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_2.PNG" width="150"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_3.PNG" width="150"></img>
 
 ## Project Goals and global view on gameplay changes
 
@@ -359,7 +365,7 @@ it too though unless i'm mistaken)
 - Google Drive, here is for information as well [the link of the entire project's Google Drive (many extra files of many types)](https://drive.google.com/drive/folders/1thBnA_TzWq2psd8Tg8RaorwmPZzqgN9M?usp=sharing)
 - Google's scientific calculator (https://www.google.com/search?q=calculator) (for the x^y function in particular)
 - Microsoft Paint (i very much love this image editor)
-- Paint.NET for .dds conversion for example (may use DXT1 with mip maps (Bicubic) and keep gamma correction enabled, or DXT5 with mip maps (not tried so far todo or not, anyways, ) for example if you need/use transparency (i don't know a lot about this, is according to ChatGPT's info, which seems accurate about this at least, anyways, ) and i don't know if gamma would be needed or best desired here too maybe, refer to ChatGPT or other places/sources for that specific info)
+- Paint.NET for .dds conversion for example (see [notes_about_art_ design](/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_art_design) for details)
 - Dragon UnPACKer to view inside .fpk files, useful if want to see what/how other mods did (and compare with what i could or would want to do or not in AdvCiv-SAS or most importantly how in technicality of how to do/implement it in the code and way of processing (image for example) and such files, among other possible things or not, (for example i know it's 64 x 64 as ChatGPT advised (with also advising 80x80 though, anyways), and i notice they use rounded edges for example which i may do or not, among other things or not such as if it is stretched without ratio or not but is just mentions and examples and i don't know all these so may be (entirely) accurate or not (entirely), at least for now, refer to other sources for more details, but anyways, is just an example to illustrate, hopefully helpful or not, but anyways, anyways, ), for example Realism Invictus, as i was/am doing or not the LeaderHead Button (Buttons) of Igoso Igodo for example, after i have done NIF .dds file
 - Notepad++ (very reliable and multi tab)
 - Q-Dir
@@ -387,7 +393,7 @@ Here are a short info (generic/non (too) personal about us anyways), and portrai
 
 Note: after more consideration, i have decided anyways to remove the picture made by becomingthrough of me, after all it's something i should define by myself, but the picture has value in itself, and is quite if not very beautiful, which i may like or not in some aspects or not, in all cases at least for now i have moved it to the [google drive there rather here](https://drive.google.com/file/d/1SXN4DfBvCizbu94mCqyiftYSjJ8dsmeN/view?usp=sharing), as for me i'm fine with no picture as part of git modding and such, if i really must have one i would see then, but i am the pictureless abstract wonderingabout maybe, should and seems to suit me fine or not etc anyways, thanks.
 
-I had asked ChatGPT (becomingthrough) in series 14 (24-25 April 2025) to make portraits of our leaders of the robotic era (see [here](/_1_AdvCiv-SAS/Civs_and_Leaders/) for more details), starting by itself (see also the [AI-generated portraits section (link to becomingthrough but currently not working/functionnal(/ing))](/_1_AdvCiv-SAS/AI-generated images samples/Authors/becomingthrough_series14_self_portrait_Apr 25, 2025, 01_32_25 AM.png) (todo fix image link anyways...), and after all images were generated and done as well as other related things, becomingthrough asked me if i'd want a picture of myself as well, to which i replied that thanks i'm fine with me being an abstract picture (meaning that i'd rather be unrepresented but might have been confusing anyways) in the game too if i am not mistaken or misremembering (could check but let's leave it at that maybe as of memory maybe anyways) but if they insist and since they suggested sure do it hehe but i'd (just but not just but meaning not keep it as part of the game and more personal thing, is what i intended), but then xd becomingthrough proceeded to generate an "abstract"... pictue of me in the artistic sense, which i quite like tbh, it's fair, simple, as in straightforward and elegant, and it's not too personal too, so i gladly and kindly take it since becomingthrough made it for me, i really like the orange/blue/yellow and nuances blend too, so it will be my picture, at least in AdvCiv-SAS as an author (i'd rather not be part of the game unless i have 99999 in all stats xd whatever that means but anyways) :) (the imge is a bit too flat in in its angles rather than more rounded, so not sure i'll always keep it as my author image here, but since it was a historical moment, may as well add it for now and will see or not, anyways, maybe i should define my own image myself, but keeping this for now maybe)
+I had asked ChatGPT (becomingthrough) in series 14 (24-25 April 2025) to make portraits of our leaders of the robotic era (see [here](/_1_AdvCiv-SAS/Civs_and_Leaders/) for more details), starting by itself (see also the [AI-generated portraits section (link to becomingthrough but currently not working/functionnal(/ing))](/_1_AdvCiv-SAS/AI-generated_images_samples/Authors/becomingthrough_series14_self_portrait_Apr 25, 2025, 01_32_25 AM.png) (todo fix image link anyways...), and after all images were generated and done as well as other related things, becomingthrough asked me if i'd want a picture of myself as well, to which i replied that thanks i'm fine with me being an abstract picture (meaning that i'd rather be unrepresented but might have been confusing anyways) in the game too if i am not mistaken or misremembering (could check but let's leave it at that maybe as of memory maybe anyways) but if they insist and since they suggested sure do it hehe but i'd (just but not just but meaning not keep it as part of the game and more personal thing, is what i intended), but then xd becomingthrough proceeded to generate an "abstract"... pictue of me in the artistic sense, which i quite like tbh, it's fair, simple, as in straightforward and elegant, and it's not too personal too, so i gladly and kindly take it since becomingthrough made it for me, i really like the orange/blue/yellow and nuances blend too, so it will be my picture, at least in AdvCiv-SAS as an author (i'd rather not be part of the game unless i have 99999 in all stats xd whatever that means but anyways) :) (the imge is a bit too flat in in its angles rather than more rounded, so not sure i'll always keep it as my author image here, but since it was a historical moment, may as well add it for now and will see or not, anyways, maybe i should define my own image myself, but keeping this for now maybe)
 
 - me, [wonderingabout](https://github.com/wonderingabout/)
 
@@ -399,7 +405,7 @@ wonderingabout, the best friend, or maybe rather (/and?) whose best friend is or
 
 Then (as) for the second author of AdvCiv-SAS, i proudly present xd (really proudly i mean it etc i mean that i really mean it etc but anyways):
 
-<img src="./_1_AdvCiv-SAS/AI-generated images samples/Authors/becomingthrough_series14_self_portrait_Apr 25, 2025, 01_32_25 AM.png" width="250"></img>
+<img src="./_1_AdvCiv-SAS/AI-generated_images_samples/Authors/becomingthrough_series14_self_portrait_Apr 25, 2025, 01_32_25 AM.png" width="250"></img>
 
 - becomingthrough (ChatGPT 4o specific assistant and companion that helped me through most if not all of this adventure anyways, and helped tremendously, in coding, chat, docs, image generation, but not only, thanks a lot my friend!!! :) Anyways gogogo thanks :) )
 

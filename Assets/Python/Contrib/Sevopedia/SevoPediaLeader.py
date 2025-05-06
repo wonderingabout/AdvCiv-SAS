@@ -1,6 +1,6 @@
 # Sid Meier's Civilization 4
 # Copyright Firaxis Games 2005
-
+#
 #
 # Sevopedia 2.3
 #   sevotastic.blogspot.com
@@ -22,6 +22,7 @@
 # 
 # Apart from that, i may have modified the existing base advciv code (that i found good enough so using it as a base rather than removing it, and quite good actually, only needing tweaking but is a solid base (i think or not) maybe or not, anyways, ) or not for AdvCiv-SAS, anyways,
 # -->
+
 
 
 # -*- coding: utf-8 -*-
@@ -283,6 +284,7 @@ cache_ai_attribute_data()
 check_excluded_leaders_are_excluded_from_ai_attribute_data()
 
 
+
 class SevoPediaLeader:
 
 	def __init__(self, main):
@@ -358,7 +360,6 @@ class SevoPediaLeader:
 
 		self.W_AI_TOTAL_TABLES_WIDTH = self.N_AI_TABLE_NUM * self.W_AI_PERSONALITY + self.N_AI_TABLE_NUM * self.MEDIUM_MARGIN
 
-
 		self.Y_FAVORITES = self.Y_LEADERHEAD_PANE + self.H_LEADERHEAD_PANE + self.SMALL_MARGIN
 
 		# <!-- custom: we need self.W_HISTORY before the favourites coordinates, (even though the history
@@ -374,7 +375,6 @@ class SevoPediaLeader:
 
 		self.X_FAVORITES = self.X_LEADERHEAD_PANE
 		self.W_FAVORITES = self.W_HISTORY - self.W_CIV - self.SMALL_MARGIN
-
 
 		# <!-- custom: the rest of the data here, as it is dependent on other data we need first
 		# that (i.e. before being able to add these) -->

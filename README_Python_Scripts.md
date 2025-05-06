@@ -234,7 +234,7 @@ It is almost certainly a mistake and should be:
             }
 ```
 
-Our [generate_leaders_data.py](/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module sucessfully detected/detects it, for example before fixing the XML of Gandhi we have:
+Our [generate_leaders_data.py](/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module) sucessfully detected/detects it, for example before fixing the XML of Gandhi we have:
 
 ```
 Microsoft Windows [version 10.0.19045.5737]
@@ -286,15 +286,25 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
 
 # leaders_data_to_csv.py
 
-Similarl(ly) to other scripts, usage is for example for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size):
+Similar(ly) to other scripts, usage is for example for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size).
+
+(note: it requires leaders_data.py to be existing and in your AdvCiv-SAS's sevopedia folder (a default leaders_data.py is provided in AdvCiv-SAS, but if you want changes reflected in the .csv output, you need to regenerate a new leaders_data and update it, see/read [this Python script's README.md's generate_leaders_data.py section for details](/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module)) anyways etc)
 
 ```
-cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & python flatten_leader_data_to_csv.py
+cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & python flatten_leaders_data_to_csv.py
 ```
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/csv_output_example__elader_data_script_1.PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/csv_output_example__elader_data_2.PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/csv_output_example__elader_data_libre_office_view_1.PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/csv_output_example__elader_data_libre_office_view_2.PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/csv_output_example__leader_data_script_1.PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/csv_output_example__leaders_data_2.PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/csv_output_example__leader_data_libre_office_view_1.PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/csv_output_example__leader_data_libre_office_view_2.PNG" width="250"></img>
 
-Then you can sort it, enhance it, adjust row length and such, bu the base idea is here, hoepfully helpful, anyways.
+See also some general info about it (such as the GitHub view of it that is quite nice i think but anyways etc) here in the [main README.md's specific flatten leaders_data to .csv section](/README.md#csv-leaders_data-flat-to-csv-conversion-and-its-view-on-github-for-example) for details
+
+For convenience and exhaustiveness, such display/view on the Github website is also provided here, but please/you can anyways etc (also) (anyways etc) visit the ((AdvCiv-SAS) Project's) main README.md's csv section linked above for details.
+
+<img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_1.PNG" width="150"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_2.PNG" width="150"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_3.PNG" width="150"></img>
+
+Then you can sort it, enhance it, adjust row length and such, but the base idea is here, hopefully helpful, anyways.

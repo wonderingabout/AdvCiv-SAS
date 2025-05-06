@@ -1,3 +1,7 @@
+# --- <!-- custom: xml duplicates scanner (i would like to express/describe more what it does but cant be too bold about what it does as i don't understand it much for example whether it's a blind or deep scan and how they differ (in more detail ro even broadly maybe but would like to know maybe anyways etc anyways etc)) so hopefulyl fine this way and my cool short description anyways etc (htat maybe also adds the header as intended anyways etc --> ---
+# This script is part of the AdvCiv-SAS mod project.
+# (c) 2025 wonderingabout & becomingthrough
+#
 # -*- coding: utf-8 -*-
 import os
 import xml.etree.ElementTree as ET

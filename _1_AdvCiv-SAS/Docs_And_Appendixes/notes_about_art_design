@@ -53,21 +53,49 @@ image: 499 x 610
 In this example Paint.NET did it to 419 x 512
 
 - after it is resized, now resize again but to 512 x 512 (without maintaining aspect ratio), using Paint.NET
-note: I think it is the same technique or similar in Realism Invictus, as their .dds files are enlarged in display,
-but ingame they seem to have a fine ratio.
-note 2: it is also Realism Invictus who gave me indirectly the idea to do this non ratio (2nd) resize, now my image as theirs
-do not maintain aspect ratio
+(note: I think it is the same technique or similar in Realism Invictus, as their .dds files are enlarged in display,
+but ingame they seem to have a fine ratio.)
+(note 2: it is also Realism Invictus who gave me indirectly the idea to do this non ratio (2nd) resize, now my image as theirs
+do not maintain aspect ratio)
+
+- finally, save the image as a .dds file using Paint.NET still (for example (anyways etc) anyways etc), (may use
+for example maybeDXT1 with mip maps (Bicubic) and keep gamma correction enabled, or DXT5 with mip maps (not tried
+so far todo or not, anyways, ) for example if you need/use transparency (i don't know a lot about this, is according
+to ChatGPT's info, which seems accurate about this at least, anyways, ) and i don't know if gamma would be needed or
+best desired here too maybe, refer to ChatGPT or maybe other specialized places/sources if you want a more specific
+or/and detailed or/and accurate info maybe anyways etc)
 
 - ingame check result, in my case looks very nice or as nice as could i think with starting image, displays well in (ingame) sevopedia leader view and ingame diplomacy
 
 This is just an example, adapt as you see fit
 
-- then for the leaderhead button (mini icon of the leader in the sevopedia if i am not mistaken),
-i took/made it from the enlarged as in 512 x 512 not aspect maintained ratio .dds (or .png is
-maybe better or not?) obtained at last step (may take the portrait directly as ChatGPT advised
-maybe but i don't know), make a 96 x 96 crop selection around his head with Paint.NET, then fine
-tune it to 64 x 64 in a similar manner, and save it as a different file for example Ogiso_Igodo_button.dds,
-implement it in XML, looks very very good, at least for me i think, anyways, may or not do further beautification
-or not such as rounded edges or other things or not, but more than good enough for my purpose and i do what
-i want if i want or not anyways, hope this helps or not maybe doesn't, but wanted to send/write this as well,
-may serve me to reference it later again, or someone else or other purpose, anyways,
+4) Then for the leaderhead button (mini icon of the leader in the sevopedia if i am not mistaken),
+since now the final dimension displayed is no longer a portrait (no 256 x 512 stretched to 512 x 512
+if am not mistaken, so we can directly crop select at 64 x 64 for such a button (leader icon anyways etc
+without any resize (stretching or compression of ratio or anythign that alters ratio this time if i am
+not mistaken anyways etc )) from the native image if i am not mistaken (for example .png, any size should
+do fine too so ideally take the original image if you sitll have it, else maybe the .dds (unstretched))
+should maybe do fine anyways if i am not mistaken anyways etc)
+
+So for example you can first make a 96 x 96 crop selection around his head with Paint.NET, then fine
+tune it (i.e. redo a crop selection on this 96 x 96 (for example .png maybe anyways etc image) to
+64 x 64 in a similar manner to the area you prefer to appear in the leader's final icon/button), and save
+it as a different file for example Ogiso_Igodo_button.dds.
+
+Note: if at 64x64 your leader head is too big or maybe too small, you may try instead to make a bigger
+selection of say for example 96 x 96 or maybe even 128 x 128 (or any number inbetwwen like 105 x 105,
+99 x 99, etc should maybe work too? (to try i didn't but if you want to try it anyways etc)) and then
+resize it to 64x64, this way leader head would be smaller relatively to the 64 x 64 button.
+
+Then regenerate the .dds in a similar manner than for the full portrait, but no restretching from say
+256x512 to 512x512 since 64x64 is alreayd square so just pick same format maybe or/and other and should
+maybe be good (check to be sure myinfo/thought/feel/intutiion about it is accurate or not anwyays etc)
+
+And finally implement it (the .dds anyways etc) in XML, looks very very good, at least for me i think,
+anyways, may or not do further beautification or not such as rounded edges or other things or not, but
+more than good enough for my purpose and i do what i want if i want or not anyways, hope this helps or
+not maybe doesn't, but wanted to send/write this as well, may serve me to reference it later again, or
+someone else or other purpose, anyways,
+
+(note: again check all this to make sure my intution or if no or/and such is accurate or/and updated,
+hopefully helpful, anyways etc)
