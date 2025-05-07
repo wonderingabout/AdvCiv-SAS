@@ -83,7 +83,7 @@ def normalize_to_100(value, min_val, max_val, invert, attr_name=""):
 	- Shifts for non-zero minimums:
 	  - If min_val < 0, shifts range upwards.
 	  - If min_val > 0, shifts range downwards.
-	- Normalizes shifted_min / shifted_max.
+	- Normalizes shifted_value / shifted_max.
 	- Optionally inverts the normalized value.
 	- Converts final normalized value to 0–100 integer.
 

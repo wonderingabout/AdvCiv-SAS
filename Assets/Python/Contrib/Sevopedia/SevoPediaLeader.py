@@ -160,11 +160,6 @@ def do_sanity_checks_after_ai_value_ranges_caching():
 		if (curr_val_to_test < min_val_found) or (curr_val_to_test > max_val_found):
 			raise ValueError("[FATAL] At AI_VALUE_RANGES post-processing('s) testing, in attr=%s and in leader=%s, curr_val_to_test=%d cannot be strictly out of bounds of min_val_found=%d and max_val_found=%d")
 
-def check_excluded_leaders_are_excluded_from_ai_attribute_data():
-	for excluded_leader_key in EXCLUDED_LEADERS:
-		if (excluded_leader_key in AI_ATTRIBUTE_DATA.keys()):
-			raise KeyError("[FATAL] During sanity checks testing, (excluded) leader_key=%s was assessed to not be properly excluded from the calculations and is part of the AI_ATTRIBUTE_DATA." % excluded_leader_key)
-
 # --- Cache per-leader attributes (with final (value, scale) tuples only ---
 def cache_ai_attribute_data():
 	"""
@@ -281,8 +276,14 @@ def cache_ai_attribute_data():
 		else:
 			raise ValueError("[VALUE ERROR] No AI attribute data found for leader_key %s" % leader_key)
 
+def check_excluded_leaders_are_excluded_from_ai_attribute_data():
+	for excluded_leader_key in EXCLUDED_LEADERS:
+		if (excluded_leader_key in AI_ATTRIBUTE_DATA.keys()):
+			raise KeyError("[FATAL] During sanity checks testing, (excluded) leader_key=%s was assessed to not be properly excluded from the calculations and is part of the AI_ATTRIBUTE_DATA." % excluded_leader_key)
+
 # <!-- custom: also check for missing (compatible ai attributes as compared to what is parsed in leaders_data.py to make sure we didn't miss any (attribute)) -->
 def ensure_no_compatible_attrs_overlooked_from_leaders_data_in_ai_attribute_data_after_caching():
+	# <!-- custom: testing for only one leader (any) after all are parsed should be enough, no need to test for all as they have the same structure if i am not mistaken anyways etc -->
 	leader_key_for_test = "LEADER_CATHERINE"
 	cached_ai_attribute_attrs = AI_ATTRIBUTE_DATA[leader_key_for_test].keys()
 	test_leader_data = PARSED_XML_LEADERS_DATA[leader_key_for_test]
@@ -301,9 +302,8 @@ do_sanity_checks_after_ai_value_ranges_caching()
 
 test_expected_shifting_pre_normalize_to_100()
 cache_ai_attribute_data()
+# <!-- custom: make sure our just/newly stored values in AI_ATTRIBUTE_DATA are reliable at least quite a bit maybe anyways etc anyways etc -->
 check_excluded_leaders_are_excluded_from_ai_attribute_data()
-
-# <!-- custom: make sure our just/newly stored values in AI_ATTRIBUTE_DATA are reliable at least quite a bit maybe anyways etc anyways etc, testing for only one leader (any) after all are parsed should be enough, no need to test for all as they have the same structure if i am not mistaken anyways etc -->
 ensure_no_compatible_attrs_overlooked_from_leaders_data_in_ai_attribute_data_after_caching()
 
 

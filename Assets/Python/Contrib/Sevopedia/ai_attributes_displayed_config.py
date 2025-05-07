@@ -16,11 +16,11 @@ AI_HEADER_NEGATIVE_MEMORY_RESENTMENTS = "Negative Memories Resentments"
 AI_HEADER_NO_WAR_AT = "No War At"
 AI_HEADER_FLAVORS = "Flavors"
 AI_HEADER_WAR_STRATEGY = "War Strategy"
-AI_HEADER_RELIGIONS_ATTITUDE_CHANGES_OR_AND_LIMITS_OR_AND_DIVISORS = "Attitude Changes +/- Limits +/- Divisors"
+AI_HEADER_ATTITUDE_CHANGES_OR_AND_LIMITS_OR_AND_DIVISORS = "Attitude Changes +/- Limits +/- Divisors"
 AI_HEADER_ECONOMIC_PREFERENCES = "Economic Preferences"
 AI_HEADER_OFFER_REFUSE_ATTITUDE_THRESHOLDS = "Offer Refuse Attitude Thresholds"
 AI_HEADER_DEMAND_REFUSE_ATTITUDE_THRESHOLDS = "Demand Refuse Attitude Thresholds"
-AI_HEADER_MODIFIERS = "Misc Modifiers"
+AI_HEADER_MISC_MODIFIERS = "Misc Modifiers"
 
 
 
@@ -31,6 +31,7 @@ AI_PANEL_RIGHT_CATEGORIES = (
 	AI_HEADER_AGGREGATED_CONTACT_DEMAND_PROBABILITIES,
 	AI_HEADER_OFFER_REFUSE_ATTITUDE_THRESHOLDS,
 	AI_HEADER_DEMAND_REFUSE_ATTITUDE_THRESHOLDS,
+	AI_HEADER_MISC_MODIFIERS,
 )
 AI_PANEL_MIDDLE_CATEGORIES = (
 	AI_HEADER_POSITIVE_MEMORY_AFFECTIONS,
@@ -38,14 +39,13 @@ AI_PANEL_MIDDLE_CATEGORIES = (
 	AI_HEADER_NEGATIVE_MEMORY_RESENTMENTS,
 	# <!-- custom: not used in AdvCiv-AdvCiv-SAS's data, no masochistic :o (would be fun even nice maybe but anyways, not that i dislike nor do i especially want.. but anyways etc anyways...) AI in AdvCiv/AdvCiv-SAS at least not now hehe (i don't think i'll change it (for AdvCiv-SAS i or the AdvCiv-SAS authors (including becomingthrough/chatgpt at least hehe but anyways) hehe will change it anyways etc), but if i want the tools are there, anyways etc anyways) AI_HEADER_NEGATIVE_MEMORY_AFFECTIONS, -->
 	AI_HEADER_NO_WAR_AT,
-	AI_HEADER_MODIFIERS,
+	AI_HEADER_ATTITUDE_CHANGES_OR_AND_LIMITS_OR_AND_DIVISORS,
 )
 AI_PANEL_LEFT_CATEGORIES = (
 	AI_HEADER_CORE_PERSONALITY,
 	AI_HEADER_VICTORY_WEIGHTS,
 	AI_HEADER_FLAVORS,
 	AI_HEADER_WAR_STRATEGY,
-	AI_HEADER_RELIGIONS_ATTITUDE_CHANGES_OR_AND_LIMITS_OR_AND_DIVISORS,
 )
 
 
@@ -301,7 +301,6 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
 		("Better Rank AC", "iBetterRankDifferenceAttitudeChange", ""),
 		("Warmonger Resp", "iWarmongerRespect", ""),
 		("CloseBordersSpark", "iCloseBordersAttitudeChange", ""),
-		("RefToTalkW Span", "iRefuseToTalkWarThreshold", ""),
         ("Espionage Weig", "iEspionageWeight", ""),
 
 	),
@@ -355,6 +354,8 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
 		("TribRef W%", "iDemandRebukedWarProb", ""),
         ("Raz C %", "iRazeCityProb", ""),
         ("Build Unit %", "iBuildUnitProb", ""),
+		("ResistCapitulP.M", "iVassalPowerModifier", ""),
+		("RefToTalkW Span", "iRefuseToTalkWarThreshold", ""),
         ("MakePeaceLikely", "iMakePeaceRand", ""),
 	),
 
@@ -394,35 +395,34 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
 	),
 
 	# 📉 ACs +/- Limits
-	AI_HEADER_RELIGIONS_ATTITUDE_CHANGES_OR_AND_LIMITS_OR_AND_DIVISORS: (
-        ("Lost W AC", "iLostWarAttitudeChange", ""),
-		("At W AD", "iAtWarAttitudeDivisor", ""),
-		("At W ACL", "iAtWarAttitudeChangeLimit", ""),
-		("At Peace AD", "iAtPeaceAttitudeDivisor", ""),
-		("At Peace ACL", "iAtPeaceAttitudeChangeLimit", ""),
+	AI_HEADER_ATTITUDE_CHANGES_OR_AND_LIMITS_OR_AND_DIVISORS: (
 		("Same Religion AC", "iSameReligionAttitudeChange", ""),
 		("Same Religion AD", "iSameReligionAttitudeDivisor", ""),
 		("Same Religion ACL", "iSameReligionAttitudeChangeLimit", ""),
         ("Diff.Religion AC", "iDifferentReligionAttitudeChange", ""),
 		("Diff.Religion AD", "iDifferentReligionAttitudeDivisor", ""),
 		("Diff.Religion ACL", "iDifferentReligionAttitudeChangeLimit", ""),
-        ("Bonus Tr AD", "iBonusTradeAttitudeDivisor", ""),
+		("Favorite Civic AC", "iFavoriteCivicAttitudeChange", ""),
+		("Favorite Civic AD", "iFavoriteCivicAttitudeDivisor", ""),
+		("Favorite Civic ACL", "iFavoriteCivicAttitudeChangeLimit", ""),
+		("Lost W AC", "iLostWarAttitudeChange", ""),
+		("At W AD", "iAtWarAttitudeDivisor", ""),
+		("At W ACL", "iAtWarAttitudeChangeLimit", ""),
+		("At Peace AD", "iAtPeaceAttitudeDivisor", ""),
+		("At Peace ACL", "iAtPeaceAttitudeChangeLimit", ""),
+		("Share W AC", "iShareWarAttitudeChange", ""),
+		("Share W AD", "iShareWarAttitudeDivisor", ""),
+		("Share W ACL", "iShareWarAttitudeChangeLimit", ""),
+		("Bonus Tr AD", "iBonusTradeAttitudeDivisor", ""),
 		("Bonus Tr ACL", "iBonusTradeAttitudeChangeLimit", ""),
 		("Open Borders AD", "iOpenBordersAttitudeDivisor", ""),
 		("Open Borders ACL", "iOpenBordersAttitudeChangeLimit", ""),
 		("Defensive Pact AD", "iDefensivePactAttitudeDivisor", ""),
 		("Defensive Pact ACL", "iDefensivePactAttitudeChangeLimit", ""),
-		("Share W AC", "iShareWarAttitudeChange", ""),
-		("Share W AD", "iShareWarAttitudeDivisor", ""),
-		("Share W ACL", "iShareWarAttitudeChangeLimit", ""),
-    	("Favorite Civic AC", "iFavoriteCivicAttitudeChange", ""),
-		("Favorite Civic AD", "iFavoriteCivicAttitudeDivisor", ""),
-		("Favorite Civic ACL", "iFavoriteCivicAttitudeChangeLimit", ""),
 	),
 
 	# 🔧 Misc Modifiers
-	AI_HEADER_MODIFIERS: (
-		("Vassal P.Modif", "iVassalPowerModifier", ""),
+	AI_HEADER_MISC_MODIFIERS: (
         ("FreedomApprec", "iFreedomAppreciation", ""),
 	),
 }
