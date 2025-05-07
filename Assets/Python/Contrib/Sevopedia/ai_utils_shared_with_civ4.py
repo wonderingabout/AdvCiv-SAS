@@ -39,16 +39,18 @@ def get_shifted_values(min_val, value, max_val):
 	#	value = 24		->	shifted_value = 24 - 19 = 5
 	#	max_val = 53	->	shifted_max = 53 - 19 = 34
 	#
+	# example 8 (sanity check):
+	# 	min_val = 0		->	shifted_min = 0
+	#	value = 24		->	shifted_value = 24
+	#	max_val = 53	->	shifted_max = 53
+	#
 	# -->
-	if min_val != 0:
-		shifted_min = 0
-		shifted_value = value - min_val
-		shifted_max = max_val - min_val
-	else:
-		shifted_min = min_val
-		shifted_value = value
-		shifted_max = max_val
-	
+
+	# <!-- custom: if min_val == 0, we return same values (min_val, value, max_val) as received -->
+	shifted_min = 0
+	shifted_value = value - min_val
+	shifted_max = max_val - min_val
+
 	return shifted_min, shifted_value, shifted_max
 
 def test_expected_shifting_pre_normalize_to_100():
@@ -61,6 +63,7 @@ def test_expected_shifting_pre_normalize_to_100():
 		(-19, -11, 152, 0, 8, 171),	# 5
 		(-72, -55, 37, 0, 17, 109),	# (1.)6
 		(19, 24, 53, 0, 5, 34),		# 7
+		(0, 24, 53, 0, 24, 53),		# 8
 	)
 
 	for min_val, value, max_val, expected_shifted_min, expected_shifted_value, expected_shifted_max in vals_to_test:
