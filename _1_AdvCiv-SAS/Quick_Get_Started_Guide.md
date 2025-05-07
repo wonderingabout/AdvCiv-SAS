@@ -293,6 +293,23 @@ check
 - some special units are changed: the USA's Navy Seal or some other units are
 not relevant soon enough, or/and not accurate (enough), replaced with a sooner
 unit for example todo
+- religion "taoism" has been renamed to "daoism" and all related entries (temple
+and other buildings, units such as missionary etc, and description/history in
+sevopedia and such), i have heard many times of the "Dao" (or read maybe rather
+anyways etc) in manhua (translated) but never ever saw "Tao", while both seem
+correct as chinese translitterations if am not mistaken, it seemed that Dao is
+perhaps more fit, but in all cases even if not i'd rather use this one i'm more
+famililar with and that makes more sense to me, hopefulyl clearer for others or/and
+maybe not anyways etc
+- shrines now require a religion to be built, for example the daoist shrine now
+(also) requires to have the daoism religion, and not just own the holy city, this
+way the shrine can appear in the sevopedia religion new buildings panel (see [the main README.md's note/screenshots for details about Sevopedia religion changes](/README.md#other-sevopedia-category-examples)),
+but also seems to make more sense unless i am mistaken or/and it (may?) create other
+issues possibly or maybe not, then (i'd) try it and see, this means for example
+conquerring a city is now not enough to build a shrine, you need the specific
+religion for it, which again seems to make more sense to me too so maybe an all in
+all better change, unless i am mistaken, but try and see, maybe works well or maybe
+not or yes or other, anyways etc
 - one new religion, paganism is added, confucianism is removed, maybe more early
 wars, also historically more relevant/+/-accurate too i think
 - religion is very important: unlike in civ4 where they are very similar, now

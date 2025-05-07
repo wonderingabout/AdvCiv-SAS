@@ -145,6 +145,27 @@
 		<English>Cattle</English>
 	</TEXT>
 
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_DAOIST_TEMPLE</Tag>
+		<English>Daoist Temple</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_DAOIST_MONASTERY</Tag>
+		<English>Daoist Monastery</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_DAOIST_CATHEDRAL</Tag>
+		<English>Daoist Pagoda</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_DAOIST_SHRINE</Tag>
+		<English>The Dai Miao</English>
+	</TEXT>
+
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_DAOIST_MISSIONARY</Tag>
+		<English>Daoist Missionary</English>
+	</TEXT>
 
 	<!-- custom: add Civ Kingdom Of Benin with their leader Ogiso Igodo -->
 	<TEXT>

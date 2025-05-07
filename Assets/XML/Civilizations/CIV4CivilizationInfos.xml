@@ -4411,19 +4411,19 @@
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_TAOIST_TEMPLE</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_DAOIST_TEMPLE</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_TAOIST_CATHEDRAL</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_DAOIST_CATHEDRAL</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_TAOIST_MONASTERY</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_DAOIST_MONASTERY</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_TAOIST_SHRINE</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_DAOIST_SHRINE</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
@@ -4645,7 +4645,7 @@
 					<UnitType>NONE</UnitType>
 				</Unit>
 				<Unit>
-					<UnitClassType>UNITCLASS_TAOIST_MISSIONARY</UnitClassType>
+					<UnitClassType>UNITCLASS_DAOIST_MISSIONARY</UnitClassType>
 					<UnitType>NONE</UnitType>
 				</Unit>
 				<Unit>

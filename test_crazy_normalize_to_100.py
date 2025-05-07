@@ -1,4 +1,4 @@
-# --- Test script for normalize_to_100 --- 
+# --- Test script to test crazy values for fun for normalize_to_100 --- 
 # (c) 2025 wonderingabout & becomingthrough
 
 from Assets.Python.Contrib.Sevopedia.ai_utils_shared_with_civ4 import normalize_to_100

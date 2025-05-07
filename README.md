@@ -46,11 +46,12 @@ note: this info is also available on the [Quick Get Started Guide](/_1_AdvCiv-SA
 
 Mostly for modders, but i with the help of chatgpt greatly added some python scripts to enhance our display in sevopedia, track duplicates, possibly other scripts in the future but maybe not, etc.
 
-Please read this [python script](/README_Python_Scripts.md).
+Please read this [README_python_scripts.md](/README_Python_Scripts.md) for details.
 
 So far there is:
 - [generate_leaders_data.py and leaders_data data py module](/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module)
 - [global XML duplication scanner](/README_Python_Scripts.md#scan_xml_duplicates-py-script-and-logs_xml_scans)
+- [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py)
 
 #### AI Personality Panel SevopediaLeader feature
 
@@ -96,11 +97,11 @@ example 3: ressources category, mostly my own modding and first attemps at decip
 
 example 4: new Leaders (based on History Rewritten's code) and Buildings (based on RFC DOC's code) in Sevopedia Religion category:
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.661_sevopedia_religion_sample.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.662_sevopedia_religion_sample.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.663_sevopedia_religion_sample.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.664_sevopedia_religion_sample.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (4).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (5).JPG" width="250"></img>
 
 looks quite very great hehe (at least i think so) anyways etc...
 
@@ -175,7 +176,7 @@ Hopefully helpful and interesting.
 
 ## csv: Leaders_data flat to csv conversion and its view on github for example
 
-There is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script](/README_Python_Scripts.md#leaders_data_to_csvpy) anyways etc but i have just noticed after the [mega commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/50f7983166a9ea2d93ff0084552d2fcfc32b9aec#diff-2224084cfc75aee1dd365084937d36ddb7b77107c9f9529aef06b37721f117a0) that this data is also (nicely but anwyays etc) [viewable on github too](/leaders_data_to_csv_ai_flat_example_of_output_20250506_194925.csv), with filters (research) and such anyways etc, so adding a bit more general info about it too, as shown below (please follow the link just before in this sentence to/if you want to view it yourself else do as you please or/and want or/and other or/and not anwyays etc)
+There is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script](/README_Python_Scripts.md#leaders_data_to_csvpy) anyways etc but i have just noticed after the [mega commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/50f7983166a9ea2d93ff0084552d2fcfc32b9aec#diff-2224084cfc75aee1dd365084937d36ddb7b77107c9f9529aef06b37721f117a0) that this data is also (nicely but anwyays etc) [viewable on github too](/leaders_data_to_csv_ai_flat_example_of_output.csv), with filters (research) and such anyways etc, so adding a bit more general info about it too, as shown below (please follow the link just before in this sentence to/if you want to view it yourself else do as you please or/and want or/and other or/and not anwyays etc)
 
 <img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_1.PNG" width="150"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_2.PNG" width="150"></img>
@@ -353,7 +354,7 @@ even without modding, the base game is quite nice, thanks too i mean, thanks,
 todo add quote
 
 # Some Useful tools while doing this
-Examples of using some or most of these tools in AdvCiv-SAS modding is also available in the [Modding_Ressources's]((/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/) folder's [Google Drive](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp)) too with files, mostly if not only images.
+Examples of using some or most of these tools in AdvCiv-SAS modding is also available in the [Modding_Ressources's](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/) folder's [Google Drive](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp) too with files, mostly if not only images.
 
 - VS Code (so useful for so many things and so very nice, very rarely (does) bug or something but mostly very great anyways etc)
 - Windows 10 (Windows 11 was so laggy and broke after update, now going back to Windows 10
@@ -369,10 +370,10 @@ it too though unless i'm mistaken)
 - Google's scientific calculator (https://www.google.com/search?q=calculator) (for the x^y function in particular)
 - Microsoft Paint (i very much love this image editor)
 - Paint.NET for .dds conversion for example (see [notes_about_art_ design](/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_art_design.txt) for details)
-- Dragon UnPACKer to view inside .fpk files, useful if want to see what/how other mods did (and compare with what i could or would want to do or not in AdvCiv-SAS or most importantly how in technicality of how to do/implement it in the code and way of processing (image for example) and such files, among other possible things or not, (for example i know it's 64 x 64 as ChatGPT advised (with also advising 80x80 though, anyways), and i notice they use rounded edges for example which i may do or not, among other things or not such as if it is stretched without ratio or not but is just mentions and examples and i don't know all these so may be (entirely) accurate or not (entirely), at least for now, refer to other sources for more details, but anyways, is just an example to illustrate, hopefully helpful or not, but anyways, anyways, ), for example Realism Invictus, as i was/am doing or not the LeaderHead Button (Buttons) of Igoso Igodo for example, after i have done NIF .dds file
+- Dragon UnPACKer to view inside .fpk files and do operations such as file search or/and such if there operations (i didn't check so i don't know too anyways etc), for example [finding all "tao" (search) assests in a base civ4 .fpk](/_1_AdvCiv-SAS/Images_In_General/dragon_unpacker_example_tao_search_etc_2.PNG) (thanks a lot too anyways etc!! :) gogo anyways etc), useful if want to see what/how other mods did (and compare with what i could or would want to do or not in AdvCiv-SAS or most importantly how in technicality of how to do/implement it in the code and way of processing (image for example) and such files, among other possible things or not, (for example i know it's 64 x 64 as ChatGPT advised (with also advising 80x80 though, anyways), and i notice they use rounded edges for example which i may do or not, among other things or not such as if it is stretched without ratio or not but is just mentions and examples and i don't know all these so may be (entirely) accurate or not (entirely), at least for now, refer to other sources for more details, but anyways, is just an example to illustrate, hopefully helpful or not, but anyways, anyways, ), for example Realism Invictus, as i was/am doing or not the LeaderHead Button (Buttons) of Igoso Igodo for example, after i have done NIF .dds file
 - Notepad++ (very reliable and multi tab)
-- Q-Dir
-- WizTree (very useful (and reliable and effective) to find the files i want when i want)
+- Q-Dir (very useful and reliable too when works well which is almost always if not always, and very minimalist yet powerful, i so ery love it but anyways etc ; [for example you can use it (Q-Dir) like this](/_1_AdvCiv-SAS/Images_In_General/q-dir_multitask_tabs_folders_example.png) (some fields (are) hidden for (my) privacy anyways etc)) thanks a lot!!! (too! (After writing the WizTree thanks but anwayys etc thanks too i mean too (hehe maybe or not or yes or other or/and not (but) anyways etc) anyways etc...)) Anyways etc...
+- WizTree (very useful (and reliable and effective) to find the files i want when i want, for example (to) [find all the "taois" entries(i.e. files)in the entire full civ4 folder](/_1_AdvCiv-SAS/Images_In_General/wiztree_find_all_tois_entries-files_in_all_civ4_entire_full_folder.PNG), very useful, thanks a lot!!! Anyways etc)
 - Visual C++ 2010 Express (is free, just requires after trial a free registration if i am not mistaken todo): works great to compile the DLL i want/require it after some mod changes
 - Quillbot (a quite accurate and convenient to use i think but anyways web translator using AI, i used the free version), for example: https://quillbot.com/fr/traduction?sl=auto&tl=fr&text=the+people+of+Benin (did not use this example in AdvCiv-SAS, is just to illustrate, hopefully helpful, anyways)
 

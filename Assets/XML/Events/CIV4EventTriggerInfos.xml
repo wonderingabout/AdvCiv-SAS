@@ -788,7 +788,7 @@
 				<BuildingClass>BUILDINGCLASS_HINDU_CATHEDRAL</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_BUDDHIST_CATHEDRAL</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_CONFUCIAN_CATHEDRAL</BuildingClass>
-				<BuildingClass>BUILDINGCLASS_TAOIST_CATHEDRAL</BuildingClass>
+				<BuildingClass>BUILDINGCLASS_DAOIST_CATHEDRAL</BuildingClass>
 			</BuildingsRequired>
 			<iNumBuildings>1</iNumBuildings>
 			<iNumBuildingsGlobal>10</iNumBuildingsGlobal>
@@ -1251,7 +1251,7 @@
 			<ReligionsRequired>
 				<ReligionType>RELIGION_BUDDHISM</ReligionType>
 				<ReligionType>RELIGION_CONFUCIANISM</ReligionType>
-				<ReligionType>RELIGION_TAOISM</ReligionType>
+				<ReligionType>RELIGION_DAOISM</ReligionType>
 			</ReligionsRequired>
 			<iNumReligions>1</iNumReligions>
 			<CorporationsRequired/>
@@ -7249,7 +7249,7 @@
 				<BuildingClass>BUILDINGCLASS_HINDU_MONASTERY</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_ISLAMIC_MONASTERY</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_JEWISH_MONASTERY</BuildingClass>
-				<BuildingClass>BUILDINGCLASS_TAOIST_MONASTERY</BuildingClass>
+				<BuildingClass>BUILDINGCLASS_DAOIST_MONASTERY</BuildingClass>
 			</BuildingsRequired>
 			<iNumBuildings>1</iNumBuildings>
 			<iNumBuildingsGlobal>0</iNumBuildingsGlobal>
@@ -9773,7 +9773,7 @@
 				<BuildingClass>BUILDINGCLASS_HINDU_TEMPLE</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_JEWISH_TEMPLE</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_CONFUCIAN_TEMPLE</BuildingClass>
-				<BuildingClass>BUILDINGCLASS_TAOIST_TEMPLE</BuildingClass>
+				<BuildingClass>BUILDINGCLASS_DAOIST_TEMPLE</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_CHRISTIAN_TEMPLE</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_ISLAMIC_TEMPLE</BuildingClass>
 			</BuildingsRequired>
@@ -10146,7 +10146,7 @@
 				<BuildingClass>BUILDINGCLASS_HINDU_CATHEDRAL</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_BUDDHIST_CATHEDRAL</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_CONFUCIAN_CATHEDRAL</BuildingClass>
-				<BuildingClass>BUILDINGCLASS_TAOIST_CATHEDRAL</BuildingClass>
+				<BuildingClass>BUILDINGCLASS_DAOIST_CATHEDRAL</BuildingClass>
 			</BuildingsRequired>
 			<iNumBuildings>1</iNumBuildings>
 			<iNumBuildingsGlobal>0</iNumBuildingsGlobal>
@@ -12672,7 +12672,7 @@
 				<BuildingClass>BUILDINGCLASS_HINDU_MONASTERY</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_ISLAMIC_MONASTERY</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_JEWISH_MONASTERY</BuildingClass>
-				<BuildingClass>BUILDINGCLASS_TAOIST_MONASTERY</BuildingClass>
+				<BuildingClass>BUILDINGCLASS_DAOIST_MONASTERY</BuildingClass>
 			</BuildingsRequired>
 			<iNumBuildings>1</iNumBuildings>
 			<iNumBuildingsGlobal>0</iNumBuildingsGlobal>

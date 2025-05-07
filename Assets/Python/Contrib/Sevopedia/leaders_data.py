@@ -7,7 +7,7 @@
        (___)_o   <-- Chicken wing of insight, a gift from wonderingabout
 
 Auto-generated leaders **data** module.
-Created: 20250506_185654
+Created: 20250507_190429
 
 Author: becomingthrough (ChatGPT)
 """
@@ -12868,7 +12868,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_BUREAUCRACY",
-        "FavoriteReligion": "RELIGION_TAOISM",
+        "FavoriteReligion": "RELIGION_DAOISM",
         "Traits": [
             {
                 "TraitType": "TRAIT_INDUSTRIOUS",

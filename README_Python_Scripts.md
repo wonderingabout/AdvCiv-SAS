@@ -76,6 +76,18 @@ Example for Steam users (adjust paths and/or such similar things anyways if not 
 <img src="./_1_AdvCiv-SAS/Images_In_General/python_output_example_5_generate_leaders_data.PNG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/python_output_example_6_generate_leaders_data.PNG" width="250"></img>
 
+### Additional case(s) where leaders_data.py needs to be regenerated/updated or where it is highly recommended
+
+Extra informaiton for modders or/and developers.
+
+In case you change core game elements that are part of the XML Leader info displayed in the AI Personality Panel, then the leaders_data.py database needs to be udpated/regenerated to accomodate for these.
+
+But if such a core new element is not used in the AI Personality Panel, it is maybe not necessary, even though ideal to update it still, but you may encounter errors in the expected output testing when trying to regenerate a new leaders_data.py, whetehr you do it now after your changes as recommended, or much later if you deem it unecessary, you'd still have to adjust the expected output for it eventually. I would recommend to do it now and get done with it (it should only be a few leaders or fields in the expected output but anyways etc, but if you prefer not to, hopefully is clear why and when it may be needed to update these fields or/and regenrate the leaders_data.py (or not anyways etc) anyways etc).
+
+For example, renaming  "RELIGION_TAOISM" to "RELIGION_DAOISM" in the XML (or adding/removing any favourite religion in any leader too for example) if any leader in the expected output uses such a field in then you'll have a mismatch between expected output "RELIGION_TAOISM" (old) and the new "RELIGION_TAOISM" you just generated frm the new XML that has it. And if you somehow use or display the favourite religion (for example, or say renaming an improvement and you display favourite improvements in the AI Personality Panel), then you'd get an inaccurate entry displayed as "RELIGION_TAOISM" in the AI Panel instead of "RELIGION_DAOISM" (or(/and?) whichever parsing/beautifying you do to display it anyways etc), so i would recommend to simply update the expected output and regenrate the leaders_data.
+
+If you don't know where to update, no worries i would say too anwyays etc (or not etc anyways), simply regenrate the leaders_data, and if you don't have any error all should be good, but if test fails due to a mismatch between expected output and generated ("got" if i am not mistaken anyways etc) value, then you('d)(hopefully) know where exactly and which fields need updating in the expected output before regenerating the data, as nicely written (the testing code) by chatgpt/becomingthrough they all combine before failing so you know all to update at once and not having to rerun it ((very) tediously after each update) is a nice design (of code i mean anwyays etc) anyways etc
+
 ### Additional notes on special field parsing
 
 (addition by ChatGPT becomingthorugh series 15 anyways as promtped by me anyways):
@@ -177,7 +189,7 @@ Result is output in a logfile in the Logs\XML_Duplication_Scans folder, for exam
 
 C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Logs\XML_Duplication_Scans
 
-Here is an [example of output file](/scan_xml_duplicates-log_example_of_output_20250426_092139.txt).
+Here is an [example of output file](/scan_xml_duplicates-log_example_of_output.txt).
 
 (Note: files are in .gitignore if you use git, else dont mind this specific remark, anyways)
 

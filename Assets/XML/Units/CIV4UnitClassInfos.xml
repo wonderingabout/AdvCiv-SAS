@@ -207,13 +207,13 @@
 			<DefaultUnit>UNIT_CONFUCIAN_MISSIONARY</DefaultUnit>
 		</UnitClassInfo>
 		<UnitClassInfo>
-			<Type>UNITCLASS_TAOIST_MISSIONARY</Type>
-			<Description>TXT_KEY_UNIT_TAOIST_MISSIONARY</Description>
+			<Type>UNITCLASS_DAOIST_MISSIONARY</Type>
+			<Description>TXT_KEY_UNIT_DAOIST_MISSIONARY</Description>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
 			<iMaxTeamInstances>-1</iMaxTeamInstances>
 			<iMaxPlayerInstances>3</iMaxPlayerInstances>
 			<iInstanceCostModifier>0</iInstanceCostModifier>
-			<DefaultUnit>UNIT_TAOIST_MISSIONARY</DefaultUnit>
+			<DefaultUnit>UNIT_DAOIST_MISSIONARY</DefaultUnit>
 		</UnitClassInfo>
 		<UnitClassInfo>
 			<Type>UNITCLASS_WARRIOR</Type>

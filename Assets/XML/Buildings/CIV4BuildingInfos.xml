@@ -14668,7 +14668,7 @@
 			<ReligionType>RELIGION_JUDAISM</ReligionType>
 			<StateReligion>NONE</StateReligion>
 			<bStateReligion>0</bStateReligion>
-			<PrereqReligion>NONE</PrereqReligion>
+			<PrereqReligion>RELIGION_JUDAISM</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<FoundsCorporation>NONE</FoundsCorporation>
 			<GlobalReligionCommerce>RELIGION_JUDAISM</GlobalReligionCommerce>
@@ -15405,7 +15405,7 @@
 			<ReligionType>RELIGION_CHRISTIANITY</ReligionType>
 			<StateReligion>NONE</StateReligion>
 			<bStateReligion>0</bStateReligion>
-			<PrereqReligion>NONE</PrereqReligion>
+			<PrereqReligion>RELIGION_CHRISTIANITY</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<FoundsCorporation>NONE</FoundsCorporation>
 			<GlobalReligionCommerce>RELIGION_CHRISTIANITY</GlobalReligionCommerce>
@@ -16142,7 +16142,7 @@
 			<ReligionType>RELIGION_ISLAM</ReligionType>
 			<StateReligion>NONE</StateReligion>
 			<bStateReligion>0</bStateReligion>
-			<PrereqReligion>NONE</PrereqReligion>
+			<PrereqReligion>RELIGION_ISLAM</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<FoundsCorporation>NONE</FoundsCorporation>
 			<GlobalReligionCommerce>RELIGION_ISLAM</GlobalReligionCommerce>
@@ -16879,7 +16879,7 @@
 			<ReligionType>RELIGION_HINDUISM</ReligionType>
 			<StateReligion>NONE</StateReligion>
 			<bStateReligion>0</bStateReligion>
-			<PrereqReligion>NONE</PrereqReligion>
+			<PrereqReligion>RELIGION_HINDUISM</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<FoundsCorporation>NONE</FoundsCorporation>
 			<GlobalReligionCommerce>RELIGION_HINDUISM</GlobalReligionCommerce>
@@ -17616,7 +17616,7 @@
 			<ReligionType>RELIGION_BUDDHISM</ReligionType>
 			<StateReligion>NONE</StateReligion>
 			<bStateReligion>0</bStateReligion>
-			<PrereqReligion>NONE</PrereqReligion>
+			<PrereqReligion>RELIGION_BUDDHISM</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<FoundsCorporation>NONE</FoundsCorporation>
 			<GlobalReligionCommerce>RELIGION_BUDDHISM</GlobalReligionCommerce>
@@ -18353,7 +18353,7 @@
 			<ReligionType>RELIGION_CONFUCIANISM</ReligionType>
 			<StateReligion>NONE</StateReligion>
 			<bStateReligion>0</bStateReligion>
-			<PrereqReligion>NONE</PrereqReligion>
+			<PrereqReligion>RELIGION_CONFUCIANISM</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<FoundsCorporation>NONE</FoundsCorporation>
 			<GlobalReligionCommerce>RELIGION_CONFUCIANISM</GlobalReligionCommerce>
@@ -18530,20 +18530,20 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<BuildingInfo>
-			<BuildingClass>BUILDINGCLASS_TAOIST_TEMPLE</BuildingClass>
-			<Type>BUILDING_TAOIST_TEMPLE</Type>
+			<BuildingClass>BUILDINGCLASS_DAOIST_TEMPLE</BuildingClass>
+			<Type>BUILDING_DAOIST_TEMPLE</Type>
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
-			<Description>TXT_KEY_BUILDING_TAOIST_TEMPLE</Description>
-			<Civilopedia>TXT_KEY_BUILDING_TAOIST_TEMPLE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_TAOIST_TEMPLE_STRATEGY</Strategy>
+			<Description>TXT_KEY_BUILDING_DAOIST_TEMPLE</Description>
+			<Civilopedia>TXT_KEY_BUILDING_DAOIST_TEMPLE_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_DAOIST_TEMPLE_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
-			<ArtDefineTag>ART_DEF_BUILDING_TAOIST_TEMPLE</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_BUILDING_DAOIST_TEMPLE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
 			<HolyCity>NONE</HolyCity>
-			<ReligionType>RELIGION_TAOISM</ReligionType>
+			<ReligionType>RELIGION_DAOISM</ReligionType>
 			<StateReligion>NONE</StateReligion>
 			<bStateReligion>0</bStateReligion>
-			<PrereqReligion>RELIGION_TAOISM</PrereqReligion>
+			<PrereqReligion>RELIGION_DAOISM</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<FoundsCorporation>NONE</FoundsCorporation>
 			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
@@ -18679,7 +18679,7 @@
 			<FreeSpecialistCounts/>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
-			<ConstructSound>AS2D_BUILD_TAOIST</ConstructSound>
+			<ConstructSound>AS2D_BUILD_DAOIST</ConstructSound>
 			<BonusHealthChanges/>
 			<BonusHappinessChanges/>
 			<BonusProductionModifiers/>
@@ -18710,20 +18710,20 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<BuildingInfo>
-			<BuildingClass>BUILDINGCLASS_TAOIST_CATHEDRAL</BuildingClass>
-			<Type>BUILDING_TAOIST_CATHEDRAL</Type>
+			<BuildingClass>BUILDINGCLASS_DAOIST_CATHEDRAL</BuildingClass>
+			<Type>BUILDING_DAOIST_CATHEDRAL</Type>
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
-			<Description>TXT_KEY_BUILDING_TAOIST_CATHEDRAL</Description>
-			<Civilopedia>TXT_KEY_BUILDING_TAOIST_CATHEDRAL_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_TAOIST_CATHEDRAL_STRATEGY</Strategy>
+			<Description>TXT_KEY_BUILDING_DAOIST_CATHEDRAL</Description>
+			<Civilopedia>TXT_KEY_BUILDING_DAOIST_CATHEDRAL_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_DAOIST_CATHEDRAL_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
-			<ArtDefineTag>ART_DEF_BUILDING_TAOIST_CATHEDRAL</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_BUILDING_DAOIST_CATHEDRAL</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
 			<HolyCity>NONE</HolyCity>
-			<ReligionType>RELIGION_TAOISM</ReligionType>
+			<ReligionType>RELIGION_DAOISM</ReligionType>
 			<StateReligion>NONE</StateReligion>
 			<bStateReligion>0</bStateReligion>
-			<PrereqReligion>RELIGION_TAOISM</PrereqReligion>
+			<PrereqReligion>RELIGION_DAOISM</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<FoundsCorporation>NONE</FoundsCorporation>
 			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
@@ -18857,7 +18857,7 @@
 			<FreeSpecialistCounts/>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
-			<ConstructSound>AS2D_BUILD_TAOIST</ConstructSound>
+			<ConstructSound>AS2D_BUILD_DAOIST</ConstructSound>
 			<BonusHealthChanges/>
 			<BonusHappinessChanges>
 				<BonusHappinessChange>
@@ -18877,7 +18877,7 @@
 			<BuildingHappinessChanges/>
 			<PrereqBuildingClasses>
 				<PrereqBuildingClass>
-					<BuildingClassType>BUILDINGCLASS_TAOIST_TEMPLE</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_DAOIST_TEMPLE</BuildingClassType>
 					<iNumBuildingNeeded>2</iNumBuildingNeeded>
 				</PrereqBuildingClass>
 			</PrereqBuildingClasses>
@@ -18903,20 +18903,20 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<BuildingInfo>
-			<BuildingClass>BUILDINGCLASS_TAOIST_MONASTERY</BuildingClass>
-			<Type>BUILDING_TAOIST_MONASTERY</Type>
+			<BuildingClass>BUILDINGCLASS_DAOIST_MONASTERY</BuildingClass>
+			<Type>BUILDING_DAOIST_MONASTERY</Type>
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
-			<Description>TXT_KEY_BUILDING_TAOIST_MONASTERY</Description>
-			<Civilopedia>TXT_KEY_BUILDING_TAOIST_MONASTERY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_TAOIST_MONASTERY_STRATEGY</Strategy>
+			<Description>TXT_KEY_BUILDING_DAOIST_MONASTERY</Description>
+			<Civilopedia>TXT_KEY_BUILDING_DAOIST_MONASTERY_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_DAOIST_MONASTERY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
-			<ArtDefineTag>ART_DEF_BUILDING_TAOIST_MONASTERY</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_BUILDING_DAOIST_MONASTERY</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
 			<HolyCity>NONE</HolyCity>
-			<ReligionType>RELIGION_TAOISM</ReligionType>
+			<ReligionType>RELIGION_DAOISM</ReligionType>
 			<StateReligion>NONE</StateReligion>
 			<bStateReligion>0</bStateReligion>
-			<PrereqReligion>RELIGION_TAOISM</PrereqReligion>
+			<PrereqReligion>RELIGION_DAOISM</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<FoundsCorporation>NONE</FoundsCorporation>
 			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
@@ -19051,7 +19051,7 @@
 			<FreeSpecialistCounts/>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
-			<ConstructSound>AS2D_BUILD_TAOIST</ConstructSound>
+			<ConstructSound>AS2D_BUILD_DAOIST</ConstructSound>
 			<BonusHealthChanges/>
 			<BonusHappinessChanges/>
 			<BonusProductionModifiers/>
@@ -19077,23 +19077,23 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<BuildingInfo>
-			<BuildingClass>BUILDINGCLASS_TAOIST_SHRINE</BuildingClass>
-			<Type>BUILDING_TAOIST_SHRINE</Type>
+			<BuildingClass>BUILDINGCLASS_DAOIST_SHRINE</BuildingClass>
+			<Type>BUILDING_DAOIST_SHRINE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
-			<Description>TXT_KEY_BUILDING_TAOIST_SHRINE</Description>
-			<Civilopedia>TXT_KEY_BUILDING_TAOIST_SHRINE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_TAOIST_SHRINE_STRATEGY</Strategy>
+			<Description>TXT_KEY_BUILDING_DAOIST_SHRINE</Description>
+			<Civilopedia>TXT_KEY_BUILDING_DAOIST_SHRINE_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_DAOIST_SHRINE_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
-			<ArtDefineTag>ART_DEF_BUILDING_TAOIST_SHRINE</ArtDefineTag>
-			<MovieDefineTag>ART_DEF_MOVIE_SHRINE_TAOIST</MovieDefineTag>
-			<HolyCity>RELIGION_TAOISM</HolyCity>
-			<ReligionType>RELIGION_TAOISM</ReligionType>
+			<ArtDefineTag>ART_DEF_BUILDING_DAOIST_SHRINE</ArtDefineTag>
+			<MovieDefineTag>ART_DEF_MOVIE_SHRINE_DAOIST</MovieDefineTag>
+			<HolyCity>RELIGION_DAOISM</HolyCity>
+			<ReligionType>RELIGION_DAOISM</ReligionType>
 			<StateReligion>NONE</StateReligion>
 			<bStateReligion>0</bStateReligion>
-			<PrereqReligion>NONE</PrereqReligion>
+			<PrereqReligion>RELIGION_DAOISM</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<FoundsCorporation>NONE</FoundsCorporation>
-			<GlobalReligionCommerce>RELIGION_TAOISM</GlobalReligionCommerce>
+			<GlobalReligionCommerce>RELIGION_DAOISM</GlobalReligionCommerce>
 			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
@@ -19218,7 +19218,7 @@
 			<CommerceHappinesses/>
 			<ReligionChanges>
 				<ReligionChange>
-					<ReligionType>RELIGION_TAOISM</ReligionType>
+					<ReligionType>RELIGION_DAOISM</ReligionType>
 					<iReligionChange>1</iReligionChange>
 				</ReligionChange>
 			</ReligionChanges>
@@ -19236,7 +19236,7 @@
 				<bCommerceChangeOriginalOwner>0</bCommerceChangeOriginalOwner>
 				<bCommerceChangeOriginalOwner>1</bCommerceChangeOriginalOwner>
 			</CommerceChangeOriginalOwners>
-			<ConstructSound>AS2D_BUILD_TAOIST</ConstructSound>
+			<ConstructSound>AS2D_BUILD_DAOIST</ConstructSound>
 			<BonusHealthChanges/>
 			<BonusHappinessChanges/>
 			<BonusProductionModifiers/>

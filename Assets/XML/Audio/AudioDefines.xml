@@ -3656,15 +3656,15 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_BUILD_TAOIST</SoundID>
-			<Filename>Sounds/Buildings/TaoistDink</Filename>
+			<SoundID>SND_BUILD_DAOIST</SoundID>
+			<Filename>Sounds/Buildings/DaoistDink</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_BUILD_TAOIST_MOVIE</SoundID>
-			<Filename>Sounds/Buildings/Taoist</Filename>
+			<SoundID>SND_BUILD_DAOIST_MOVIE</SoundID>
+			<Filename>Sounds/Buildings/Daoist</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -4769,8 +4769,8 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_BUILD_TAOIST_MISSIONARY</SoundID>
-			<Filename>Sounds/Units/BuildTaoistMissionary</Filename>
+			<SoundID>SND_BUILD_DAOIST_MISSIONARY</SoundID>
+			<Filename>Sounds/Units/BuildDaoistMissionary</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -5525,8 +5525,8 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TAOIST_MISSIONARY_ACTIVATE</SoundID>
-			<Filename>Sounds/Units/TaoistMissionaryActivate</Filename>
+			<SoundID>SND_DAOIST_MISSIONARY_ACTIVATE</SoundID>
+			<Filename>Sounds/Units/DaoistMissionaryActivate</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -5546,22 +5546,22 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TAOIST_MISS_DIE_VOX</SoundID>
-			<Filename>Sounds/Units/TaoistMissDieVox</Filename>
+			<SoundID>SND_DAOIST_MISS_DIE_VOX</SoundID>
+			<Filename>Sounds/Units/DaoistMissDieVox</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TAOIST_MISS_FIDGT_VOX</SoundID>
-			<Filename>Sounds/Units/TaoistMissFidgtVox</Filename>
+			<SoundID>SND_DAOIST_MISS_FIDGT_VOX</SoundID>
+			<Filename>Sounds/Units/DaoistMissFidgtVox</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TAOIST_MISS_FORT_VOX</SoundID>
-			<Filename>Sounds/Units/TaoistMissFortVox</Filename>
+			<SoundID>SND_DAOIST_MISS_FORT_VOX</SoundID>
+			<Filename>Sounds/Units/DaoistMissFortVox</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>

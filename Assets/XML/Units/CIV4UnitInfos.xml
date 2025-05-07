@@ -4318,8 +4318,8 @@ then adjust maybe anyways):
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
 		<UnitInfo>
-			<Class>UNITCLASS_TAOIST_MISSIONARY</Class>
-			<Type>UNIT_TAOIST_MISSIONARY</Type>
+			<Class>UNITCLASS_DAOIST_MISSIONARY</Class>
+			<Type>UNIT_DAOIST_MISSIONARY</Type>
 			<UniqueNames/>
 			<Special>SPECIALUNIT_PEOPLE</Special>
 			<Capture>NONE</Capture>
@@ -4328,9 +4328,9 @@ then adjust maybe anyways):
 			<DefaultUnitAI>UNITAI_MISSIONARY</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
-			<Description>TXT_KEY_UNIT_TAOIST_MISSIONARY</Description>
+			<Description>TXT_KEY_UNIT_DAOIST_MISSIONARY</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_RELIGION_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_TAOIST_MISSIONARY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_UNIT_DAOIST_MISSIONARY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -4377,7 +4377,7 @@ then adjust maybe anyways):
 			<Builds/>
 			<ReligionSpreads>
 				<ReligionSpread>
-					<ReligionType>RELIGION_TAOISM</ReligionType>
+					<ReligionType>RELIGION_DAOISM</ReligionType>
 					<!-- K-Mod: was 40 -->
 					<iReligionSpread>20</iReligionSpread>
 				</ReligionSpread>
@@ -4388,9 +4388,9 @@ then adjust maybe anyways):
 			<HolyCity>NONE</HolyCity>
 			<ReligionType>NONE</ReligionType>
 			<StateReligion>NONE</StateReligion>
-			<PrereqReligion>RELIGION_TAOISM</PrereqReligion>
+			<PrereqReligion>RELIGION_DAOISM</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
-			<PrereqBuilding>BUILDING_TAOIST_MONASTERY</PrereqBuilding>
+			<PrereqBuilding>BUILDING_DAOIST_MONASTERY</PrereqBuilding>
 			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
@@ -4471,7 +4471,7 @@ then adjust maybe anyways):
 				<iRangedWaveSize>0</iRangedWaveSize>
 				<UnitMeshGroup>
 					<iRequired>1</iRequired>
-					<EarlyArtDefineTag>ART_DEF_UNIT_TAOIST_MISSIONARY</EarlyArtDefineTag>
+					<EarlyArtDefineTag>ART_DEF_UNIT_DAOIST_MISSIONARY</EarlyArtDefineTag>
 				</UnitMeshGroup>
 			</UnitMeshGroups>
 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
@@ -22318,7 +22318,7 @@ then adjust maybe anyways):
 					<bBuilding>1</bBuilding>
 				</Building>
 				<Building>
-					<BuildingType>BUILDING_TAOIST_SHRINE</BuildingType>
+					<BuildingType>BUILDING_DAOIST_SHRINE</BuildingType>
 					<bBuilding>1</bBuilding>
 				</Building>
 			</Buildings>
