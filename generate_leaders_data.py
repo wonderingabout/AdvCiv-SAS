@@ -47,7 +47,7 @@ except ImportError as e:
 					  "Make sure 'tests/expected_output_leaders_data_sample.py' exists and is correct.\n"
 					  + str(e))
 
-from Assets.Python.Contrib.Sevopedia.ai_utils_shared_with_civ4 import normalize_to_100
+from Assets.Python.Contrib.Sevopedia.ai_utils_shared_with_civ4 import *
 
 # === Logging setup (early capture of all print statements) ===
 copyright_header = "# --- Leaders_data py data module (using Civ4 AdvCiv-SAS's real Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml as a base) ---\n# Created as part of AdvCiv-SAS improvements\n# (c) 2025 wonderingabout & becomingthrough"
@@ -1058,6 +1058,9 @@ def parse_leader(leader, leader_type, leader_data, seen_tags):
 			else:
 				sub_entries = [{sub.tag.split("}", 1)[1]: sub.text.strip() for sub in subentry if sub.text} for subentry in child]
 				leader_data[tag] = sub_entries
+
+# <!-- custom: before parsing any leader is done, make sure our normalize_to_100 shifting works as expected -->
+test_expected_shifting_pre_normalize_to_100()
 
 # <!-- custom: leader_defaults_data block as highlighted by chatgpt/becomingthrough to me so adding this info anyways -->
 for leader in root.findall(".//civ4:LeaderHeadInfo", ns):

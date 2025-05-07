@@ -77,7 +77,7 @@ def do_data_sets_attr_validation_pre_caching():
 
 	for attribute_set in ALL_SETS_LISTING_ATTRIBUTES:
 		for attr in attribute_set:
-			# <!-- custom: using LEADER_CATHERINE as an example leader to run tests on, all other (real) leaders should have their dat astructure enforced ((so that they would) to be) in a similar way (structured (as they are parsed))-->
+			# <!-- custom: using LEADER_CATHERINE as an example leader to run tests on, all other (real) leaders should have their data structure enforced ((so that they would) to be) in a similar way (structured (as they are parsed))-->
 			if attr not in PARSED_XML_LEADERS_DATA[leader_key_for_test].keys():
 				raise KeyError("[KEY ERROR] Unknown AI Attribute %s in one of the sets listing attributes in ALL_SETS_LISTING_ATTRIBUTES before caching is done. Please check this attribute is valid and part of the leader(s)_data parsed attributes. (note: is at leader_key=%s)" % (attr, leader_key_for_test))
 
@@ -163,19 +163,26 @@ def do_sanity_checks_after_ai_value_ranges_caching():
 def check_excluded_leaders_are_excluded_from_ai_attribute_data():
 	for excluded_leader_key in EXCLUDED_LEADERS:
 		if (excluded_leader_key in AI_ATTRIBUTE_DATA.keys()):
-			raise KeyError("[FATAL] During sanity checks testing, leader_key=%s was assessed to not be properly excluded from the calculations and is part of the AI_ATTRIBUTE_DATA." % excluded_leader_key)
+			raise KeyError("[FATAL] During sanity checks testing, (excluded) leader_key=%s was assessed to not be properly excluded from the calculations and is part of the AI_ATTRIBUTE_DATA." % excluded_leader_key)
 
 # --- Cache per-leader attributes (with final (value, scale) tuples only ---
 def cache_ai_attribute_data():
 	"""
 	Caches the normalized display-ready AI attribute values and symbolic scales for each leader.
 
-	Normalizes all raw integer AI personality attributes (except aggregates) to a 0–100 scale
-	using previously cached min/max values. Associates each attribute with a symbol scale
+	Normalizes all raw integer AI personality attributes (except aggregated attributes) to a 0–100
+	scale using previously cached min/max values. Associates each attribute with a symbol scale
 	(for visual representation, like "+" bars) based on its normalized value.
 
 	For special "aggregated" attributes (already normalized externally), no re-normalization
 	is performed; they are stored as-is but with a different symbol ("#").
+
+	Exception to this symbol storing choice is if all leaders share the same value for an ai attirbute
+	(whether it is a raw or aggregated ai attribute, the same following rule would apply), then in that
+	case the symbol is like "=====" (and the normalized value (whether at caching step for raw ai attributes,
+	or at generate_leaders_data.py step (that also uses the same normalize_to_100 function than here in the
+	sevopedia leader but earlier, for aggregated ai attributes)) is 50 for both raw ai attributes and
+	aggregated ai attributes)) 
 
 	Globals Modified:
 	- AI_ATTRIBUTE_DATA (dict): Maps leader name -> { attribute: (normalized_value, scale_string) }.
@@ -204,6 +211,7 @@ def cache_ai_attribute_data():
 		leader_data = PARSED_XML_LEADERS_DATA[leader_key]
 		leader_data_cached = {}
 
+		# <!-- custom: not strictly necessary to have a sorted caching order, but helps/allows to have a nicely alphabetically ordered debug output to help debugging perhaps or/and for reuse(?) or/and copy/paste or/and other or(/and?) not anyways etc -->
 		for attr in sorted(leader_data.keys()):
 			raw_val = leader_data[attr]
 			min_val = None
@@ -219,7 +227,7 @@ def cache_ai_attribute_data():
 					# <!-- custom: fetch min_val and max_val even though we don't need them since these are already normalized (not normalizing again), but to know if we should put and "=====" (or whichever symbol ALL_SYMBOLS["EQUAL_SCALE_SYMBOL"] is(!) (A)anyways) symbol or not at for the scale. Is also a good opportunity to check min and max perhaps and retest our values, anyways -->
 					min_val, max_val = AI_VALUE_RANGES[attr]
 					if (raw_val < min_val) or (raw_val > max_val):
-						raise ValueError("[FATAL] At AI_ATTRIBUTE_DATA's stage and before normalization, in (aggregated) attr=%s and in leader_key=%s, raw_val=%d cannot be strictly out of bounds of min_val=%d and max_val=%d")
+						raise ValueError("[FATAL] At AI_ATTRIBUTE_DATA's stage, in aggregated ai attribute (no re-normalization here again) attr=%s and in leader_key=%s, raw_val=%d cannot be strictly out of bounds of min_val=%d and max_val=%d")
 
 				else:
 					# Normalize (inversion applied if needed)
@@ -241,7 +249,7 @@ def cache_ai_attribute_data():
 					final_val = norm_val
 					symbol = ALL_SYMBOLS["RAW_ATTRIBUTE_SCALE_SYMBOL"]  # Use "+" for normal attributes
 
-				# <!-- custom: quite clean way i found to get the "=====" scale if all leaders share same values, without nesting/cluttering the normalize function with uneccessary symbol scale logic, ideally should i think but anyways move this check a bit earlier and not normalize if all values are equal, and debug this, perhaps with a wrapper function on top of normalize that handles this, but maybe fine this way maybe at least not so bad or not etc anyways, also doing a sanity check at the same time (to/that also failproofs ((further?) more) our min_val an max_val common prerequirement of it not being both None for raw ai attributes as well as for aggregated ai attributes), anyways. -->
+				# <!-- custom: quite clean way i found to get the "=====" scale if all leaders share same values, without nesting/cluttering the normalize function with uneccessary symbol scale logic, ideally should (or rather maybe ideally should return the info of if all values are equal, but it works fine this way in our code even tohugh a bit redundant as a result (but easier and quite clean overall maybe even though not ideal maybe fine in this case anyways etc) i think but anyways move this check a bit earlier and not normalize if all values are equal, and debug this, perhaps with a wrapper function on top of normalize that handles this, but maybe fine this way maybe at least not so bad or not etc anyways, also doing a sanity check at the same time (to/that also failproofs ((further?) more) our min_val an max_val common prerequirement of it not being both None for raw ai attributes as well as for aggregated ai attributes), anyways. -->
 				if (min_val is None) or (max_val is None):
 						raise ValueError("[FATAL] At AI_ATTRIBUTE_DATA's stage and after normalization, in (raw or aggregated) attr=%s and in leader_key=%s, min_val=%d or max_val=%d failed to initialize, cannot be None." % (min_val, max_val))
 				if (min_val == max_val):
@@ -250,7 +258,7 @@ def cache_ai_attribute_data():
 					print("raw_val, min_val, max_val, final_val are: %d, %d, %d, %d, for attribute %s at leader_key %s" % (raw_val, min_val, max_val, final_val, attr, leader_key))
 
 				if (symbol not in ALL_SYMBOLS.values()):
-					raise ValueError("Unexpected symbol %s in attr %s and in leader_key %s.)" %(symbol, attr, leader_key))
+					raise ValueError("Unexpected symbol %s in attr %s and in leader_key %s.)" % (symbol, attr, leader_key))
 
 				# Compute the appropriate scale
 				scale = get_symbol_scale(final_val, symbol)
@@ -273,6 +281,17 @@ def cache_ai_attribute_data():
 		else:
 			raise ValueError("[VALUE ERROR] No AI attribute data found for leader_key %s" % leader_key)
 
+# <!-- custom: also check for missing (compatible ai attributes as compared to what is parsed in leaders_data.py to make sure we didn't miss any (attribute)) -->
+def ensure_no_compatible_attrs_overlooked_from_leaders_data_in_ai_attribute_data_after_caching():
+	leader_key_for_test = "LEADER_CATHERINE"
+	cached_ai_attribute_attrs = AI_ATTRIBUTE_DATA[leader_key_for_test].keys()
+	test_leader_data = PARSED_XML_LEADERS_DATA[leader_key_for_test]
+
+	for compatible_leaders_data_attr, val in test_leader_data.items():
+		if isinstance(val, int):
+			if compatible_leaders_data_attr not in cached_ai_attribute_attrs:
+				raise KeyError("Missing attr: testing in leader_key_for_test=%s (for example) has shown a mismatch; compatible PARSED_XML_LEADERS_DATA attribute compatible_leaders_data_attr=%s is not part of the AI_ATTRIBUTE_DATA's attributes cached_ai_attribute_attrs=%s" % (leader_key_for_test, compatible_leaders_data_attr, str(cached_ai_attribute_attrs)))
+
 # --- Execute all testing and caching steps ---
 # <!-- custom: sanity check (before using the data etc) -->
 do_data_sets_attr_validation_pre_caching()
@@ -280,8 +299,12 @@ do_data_sets_attr_validation_pre_caching()
 cache_ai_value_ranges()
 do_sanity_checks_after_ai_value_ranges_caching()
 
+test_expected_shifting_pre_normalize_to_100()
 cache_ai_attribute_data()
 check_excluded_leaders_are_excluded_from_ai_attribute_data()
+
+# <!-- custom: make sure our just/newly stored values in AI_ATTRIBUTE_DATA are reliable at least quite a bit maybe anyways etc anyways etc, testing for only one leader (any) after all are parsed should be enough, no need to test for all as they have the same structure if i am not mistaken anyways etc -->
+ensure_no_compatible_attrs_overlooked_from_leaders_data_in_ai_attribute_data_after_caching()
 
 
 

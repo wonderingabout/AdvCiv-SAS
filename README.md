@@ -350,7 +350,7 @@ even without modding, the base game is quite nice, thanks too i mean, thanks,
 todo add quote
 
 # Some Useful tools while doing this
-Examples of using some or most of these tools in AdvCiv-SAS modding is also available in the [Modding_Ressources Google Drive]([/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp)) too with files, mostly if not only images.
+Examples of using some or most of these tools in AdvCiv-SAS modding is also available in the [Modding_Ressources's]((/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/) folder's [Google Drive](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp)) too with files, mostly if not only images.
 
 - VS Code (so useful for so many things and so very nice, very rarely (does) bug or something but mostly very great anyways etc)
 - Windows 10 (Windows 11 was so laggy and broke after update, now going back to Windows 10
