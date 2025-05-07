@@ -368,7 +368,7 @@ it too though unless i'm mistaken)
 - Google Drive, here is for information as well [the link of the entire project's Google Drive (many extra files of many types)](https://drive.google.com/drive/folders/1thBnA_TzWq2psd8Tg8RaorwmPZzqgN9M?usp=sharing)
 - Google's scientific calculator (https://www.google.com/search?q=calculator) (for the x^y function in particular)
 - Microsoft Paint (i very much love this image editor)
-- Paint.NET for .dds conversion for example (see [notes_about_art_ design](/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_art_design) for details)
+- Paint.NET for .dds conversion for example (see [notes_about_art_ design](/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_art_design.txt) for details)
 - Dragon UnPACKer to view inside .fpk files, useful if want to see what/how other mods did (and compare with what i could or would want to do or not in AdvCiv-SAS or most importantly how in technicality of how to do/implement it in the code and way of processing (image for example) and such files, among other possible things or not, (for example i know it's 64 x 64 as ChatGPT advised (with also advising 80x80 though, anyways), and i notice they use rounded edges for example which i may do or not, among other things or not such as if it is stretched without ratio or not but is just mentions and examples and i don't know all these so may be (entirely) accurate or not (entirely), at least for now, refer to other sources for more details, but anyways, is just an example to illustrate, hopefully helpful or not, but anyways, anyways, ), for example Realism Invictus, as i was/am doing or not the LeaderHead Button (Buttons) of Igoso Igodo for example, after i have done NIF .dds file
 - Notepad++ (very reliable and multi tab)
 - Q-Dir

@@ -322,7 +322,7 @@ class SevoPediaLeader:
 		# i have measured this on my (4K but anyways) screen in windowed mode (for dev mod but anyways)
 		# - in sevopedia (before my fix): 421 x 488 	(ratio: 0,8627)    ;    (reverse-ratio: 1,1591)
 		# - ingame diplomacy: 709 x 866 				(ratio: 0,8187)    ;    (reverse-ratio: 1,1214)
-		# (data extracted from my notes_about_art_design file in this mod, please look at it or the filename
+		# (data extracted from my notes_about_art_design.txt file in this mod, please look at it or the filename
 		# containing this data or similar for details)
 		#
 		# Since the value (ratio in particular is different than what i measured (0,8627 vs 0,8278 here, i will
