@@ -3657,14 +3657,14 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_BUILD_DAOIST</SoundID>
-			<Filename>Sounds/Buildings/DaoistDink</Filename>
+			<Filename>Sounds/Buildings/TaoistDink</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_BUILD_DAOIST_MOVIE</SoundID>
-			<Filename>Sounds/Buildings/Daoist</Filename>
+			<Filename>Sounds/Buildings/Taoist</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -4770,7 +4770,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_BUILD_DAOIST_MISSIONARY</SoundID>
-			<Filename>Sounds/Units/BuildDaoistMissionary</Filename>
+			<Filename>Sounds/Units/BuildTaoistMissionary</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -5526,7 +5526,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_DAOIST_MISSIONARY_ACTIVATE</SoundID>
-			<Filename>Sounds/Units/DaoistMissionaryActivate</Filename>
+			<Filename>Sounds/Units/TaoistMissionaryActivate</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -5547,21 +5547,21 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_DAOIST_MISS_DIE_VOX</SoundID>
-			<Filename>Sounds/Units/DaoistMissDieVox</Filename>
+			<Filename>Sounds/Units/TaoistMissDieVox</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_DAOIST_MISS_FIDGT_VOX</SoundID>
-			<Filename>Sounds/Units/DaoistMissFidgtVox</Filename>
+			<Filename>Sounds/Units/TaoistMissFidgtVox</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_DAOIST_MISS_FORT_VOX</SoundID>
-			<Filename>Sounds/Units/DaoistMissFortVox</Filename>
+			<Filename>Sounds/Units/TaoistMissFortVox</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>

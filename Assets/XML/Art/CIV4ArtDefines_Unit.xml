@@ -423,14 +423,14 @@
 		</UnitArtInfo>
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_DAOIST_MISSIONARY</Type>
-			<Button>,Art/Interface/Buttons/Units/Missionary_Daoist.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,3</Button>
+			<Button>,Art/Interface/Buttons/Units/Missionary_Taoist.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,3</Button>
 			<fScale>0.46</fScale>
 			<fInterfaceScale>1.0</fInterfaceScale>
 			<bActAsLand>0</bActAsLand>
 			<bActAsAir>0</bActAsAir>
-			<NIF>Art/Units/Missionary/Daoist/DaoistMissionary.nif</NIF>
-			<KFM>Art/Units/Missionary/Daoist/DaoistMissionary.kfm</KFM>
-			<SHADERNIF>Art/Units/Missionary/Daoist/DaoistMissionary_FX.nif</SHADERNIF>
+			<NIF>Art/Units/Missionary/Taoist/TaoistMissionary.nif</NIF>
+			<KFM>Art/Units/Missionary/Taoist/TaoistMissionary.kfm</KFM>
+			<SHADERNIF>Art/Units/Missionary/Taoist/TaoistMissionary_FX.nif</SHADERNIF>
 			<ShadowDef>
 				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
 				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>

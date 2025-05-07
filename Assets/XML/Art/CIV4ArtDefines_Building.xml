@@ -996,9 +996,9 @@ and then modified for AdvCiv-SAS
 			<bAnimated>1</bAnimated>
 			<fScale>2.75</fScale>
 			<fInterfaceScale>0.76</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Temple/daoist/daoist_temple.nif</NIF>
+			<NIF>Art/Structures/Buildings/Temple/taoist/taoist_temple.nif</NIF>
 			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/Temple_Daoist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,4,15</Button>
+			<Button>,Art/Interface/Buttons/Buildings/Temple_Taoist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,4,15</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_DAOIST_CATHEDRAL</Type>
@@ -1006,9 +1006,9 @@ and then modified for AdvCiv-SAS
 			<bAnimated>0</bAnimated>
 			<fScale>1.71</fScale>
 			<fInterfaceScale>0.53</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Cathedrals/daoist_cathedral.nif</NIF>
+			<NIF>Art/Structures/Buildings/Cathedrals/Taoist_cathedral.nif</NIF>
 			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/Cathedral_Daoist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,1,15</Button>
+			<Button>,Art/Interface/Buttons/Buildings/Cathedral_Taoist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,1,15</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_DAOIST_MONASTERY</Type>
@@ -1016,9 +1016,9 @@ and then modified for AdvCiv-SAS
 			<bAnimated>1</bAnimated>
 			<fScale>2.63</fScale>
 			<fInterfaceScale>0.48</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Monastery/Daoist/Daoist_monastery.nif</NIF>
+			<NIF>Art/Structures/Buildings/Monastery/Taoist/Taoist_monastery.nif</NIF>
 			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/Monastery_Daoist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,2,15</Button>
+			<Button>,Art/Interface/Buttons/Buildings/Monastery_Taoist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,2,15</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_DAOIST_SHRINE</Type>
@@ -1026,9 +1026,9 @@ and then modified for AdvCiv-SAS
 			<bAnimated>0</bAnimated>
 			<fScale>1.26</fScale>
 			<fInterfaceScale>0.83</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Shrine/Daoist_shrine.nif</NIF>
+			<NIF>Art/Structures/Buildings/Shrine/Taoist_shrine.nif</NIF>
 			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/Shrine_Daoist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,15</Button>
+			<Button>,Art/Interface/Buttons/Buildings/Shrine_Taoist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,15</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_HEROIC_EPIC</Type>

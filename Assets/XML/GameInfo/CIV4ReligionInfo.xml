@@ -219,10 +219,10 @@ and then modified for AdvCiv-SAS
 				<iStateReligionCommerce>0</iStateReligionCommerce>
 				<iStateReligionCommerce>1</iStateReligionCommerce>
 			</StateReligionCommerces>
-			<Button>Art/Interface/Buttons/Religions/Daoism.dds</Button>
-			<TechButton>Art/Interface/Buttons/TechTree/Daoism.dds</TechButton>
-			<GenericTechButton>,Art/Interface/Buttons/TechTree/Daoism.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,3,3</GenericTechButton>
-			<MovieFile>Art/Movies/Religion/Daoism/Dao_Found.nif</MovieFile>
+			<Button>Art/Interface/Buttons/Religions/Taoism.dds</Button>
+			<TechButton>Art/Interface/Buttons/TechTree/Taoism.dds</TechButton>
+			<GenericTechButton>,Art/Interface/Buttons/TechTree/Taoism.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,3,3</GenericTechButton>
+			<MovieFile>Art/Movies/Religion/Taoism/Tao_Found.nif</MovieFile>
 			<MovieSound>AS2D_BUILD_DAOIST_MOVIE</MovieSound>
 			<Sound>AS2D_BUILD_DAOIST</Sound>
 		</ReligionInfo>
