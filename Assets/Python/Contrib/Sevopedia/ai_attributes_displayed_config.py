@@ -16,7 +16,7 @@ AI_HEADER_NEGATIVE_MEMORY_RESENTMENTS = "Negative Memories Resentments"
 AI_HEADER_NO_WAR_AT = "No War At"
 AI_HEADER_FLAVORS = "Flavors"
 AI_HEADER_WAR_STRATEGY = "War Strategy"
-AI_HEADER_ATTITUDE_CHANGES_OR_AND_LIMITS_OR_AND_DIVISORS = "Attitude Changes +/- Limits +/- Divisors"
+AI_HEADER_ATTITUDE_CHANGES_OR_AND_LIMITS_OR_AND_DIVISORS = "Attitude Changes +/- Lims +/- Divs"
 AI_HEADER_ECONOMIC_PREFERENCES = "Economic Preferences"
 AI_HEADER_OFFER_REFUSE_ATTITUDE_THRESHOLDS = "Offer Refuse Attitude Thresholds"
 AI_HEADER_DEMAND_REFUSE_ATTITUDE_THRESHOLDS = "Demand Refuse Attitude Thresholds"
@@ -60,6 +60,8 @@ ATTRIBUTES_TO_INVERT = set([
 	"iDogpileWarRand",
 	"iMaxWarMinAdjacentLandPercent",
 	"iLimitedWarRand",
+	# <!-- custom: ideally would make an aggregated attribute or/and(?) combined (maybe or rather here anyways etc) system, (see iShareWarAttitudeChangeLimit's code comment in this ai_attributes_displayed_config.py file for details) but displaying the info if hopefully helpful and simple enough for me to do this way first at least if not always or maybe not or maybe yes too though, but, in all cases anyways as is etc, hopefully helpful this way or maybe not, anyways etc, here in this simpler implementaiton that is not bad but jsut not ideal anyways etc, a lower score means more intense feelings of aversion/resentment towards a different religion ( - 5 < - 1) so inverting it, and 0 is where AI cares less (would have been so nice with an affection/resentment system but anyways as is mabye or not (but?) anyways etc -->
+	"iDifferentReligionAttitudeChangeLimit",
 	"iMakePeaceRand",
 	#
 	"iNoTechTradeThreshold",
@@ -197,7 +199,7 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
 		("Tr Tech", "iAggregatedContactTradeTechProb", "TradeTech"),
 		("Tr Bonus", "iAggregatedContactTradeBonusProb", "TradeBonus"),
         ("Tr Map", "iAggregatedContactTradeMapProb", "TradeMap"),
-		("GiveWeakHelp", "iAggregatedContactGiveHelpProb", "GiveHelp"),
+		("GiveWkHelp", "iAggregatedContactGiveHelpProb", "GiveHelp"), # <!-- custom: "Give (the) Weak(er player(s)) Help" if i am not mistaken and understood it correctly according to modiki or/and kujira's website description and my understanding of it anyways etc  (is a repetition of understanding twice i (maybe) understand... (3 times now but) anyways etc... -->
 		("Defensive Pact", "iAggregatedContactDefensivePactProb", "DefensivePact"),
 		("Perm. Alliance", "iAggregatedContactPermanentAllianceProb", "PermanentAlliance"),
 	),
@@ -348,12 +350,14 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
 		("Lim.W PR.", "iLimitedWarPowerRatio", ""),
 		("Risky Aggr", "iBaseAttackOddsChange", ""),
         ("Risky Aggr Rand+", "iAttackOddsChangeRand", ""),
-        ("W AllianceMaker", "iDeclareWarTradeRand", ""),
-        ("Dogpile Likely", "iDogpileWarRand", ""),
-        ("TribRef SneakW%", "iDemandRebukedSneakProb", ""),
-		("TribRef W%", "iDemandRebukedWarProb", ""),
-        ("Raz C %", "iRazeCityProb", ""),
+		("Raz C %", "iRazeCityProb", ""),
         ("Build Unit %", "iBuildUnitProb", ""),
+		("TribRef SneakW%", "iDemandRebukedSneakProb", ""),
+		("TribRef W%", "iDemandRebukedWarProb", ""),
+		("Dogpile Likely", "iDogpileWarRand", ""),
+        ("W AllianceMaker", "iDeclareWarTradeRand", ""),
+		("Share W ACL", "iShareWarAttitudeChangeLimit", ""),
+		# <!-- custom: not ideal but putting the iShareWarAttitudeChangeLimit here in war strategy where i found some place, as it is one of the only 4 Attitude Changes +/- Limits +/- Changes that varies/"changes" if i mays ay anyways etc among all leaders in base AdvCiv XML and thus AdvCiv-SAS by extension (and its leaders_data too if i am not mistaken by extension too as it is directly derived from it (i.e. from said/such/the (AdvCiv-SAS's) XML anyways etc), ideally i would want to aggregate them (combining AC + ACL + AD to give a synthetic representation of these either aggregated like the previosu aggregated oens or maybe switch rather to a rela math computation formula (as i didn't know the exact formula and didn't want to make it too complicated as it was hard enough to just make it work xd but now i would love to, but anyways etc, for now most convenient is just to show the info about these 4 critically variying attributes and see later if or not if anyways etc i would aggregate or/and combine them or/and maybe the other aggregated attributes (some or all (of them) anyways etc) in a similar manner or not anyways etc, for now this is fast and hopefully representative enough (even though we don't see all raw vals or fields by doing it in such a way, hopefully better than nothig if i may say maybe or not but in all cases hopefully helpful maybe or not anyways etc ; ideally i would love (too) to represent (it this attitude changes +/- limits ++/- divisors system anyways etc) in an (for example for same religion Aggregated behaviour not yet named anyways etc) in an same religion such aggregated name behaviour affection and same religion such aggregated name behaviour resentment, meaning AI would be able to resent having same religion, or vice versa loving having a different religion, similarly to how the positive/negative memory with affection/resentment system works, this would be ideal and so loveable? lovely? so nice (but?) anyways etc going for most simple for now if not for always or not or/and other or/and not (or other? or not?) (and other? and not?) anyways etc, this information is useful so hopefuly helpful to display it or maybe not or yes or/and(?) other or/and(?) not anyways etc -->
 		("ResistCapitulP.M", "iVassalPowerModifier", ""),
 		("RefToTalkW Span", "iRefuseToTalkWarThreshold", ""),
         ("MakePeaceLikely", "iMakePeaceRand", ""),
@@ -364,7 +368,7 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
 		("Max Gold Tr%", "iMaxGoldTradePercent", ""),
 		("Max GPT Tr%", "iMaxGoldPerTurnTradePercent", ""),
 		("NoTechYetRdy%", "iTechTradeKnownPercent", ""),
-		("NoTechTooAdvTrT", "iNoTechTradeThreshold", ""),
+		("NoTech2AdvTrT", "iNoTechTradeThreshold", ""),
 		("Wonder C.R", "iWonderConstructRand", ""),
 	),
     
@@ -395,16 +399,25 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
 	),
 
 	# 📉 ACs +/- Limits
+	# <!-- custom: see the code comment at iShareWarAttitudeChangeLimit in this ai_attributes_displayed_config.py file for details -->
 	AI_HEADER_ATTITUDE_CHANGES_OR_AND_LIMITS_OR_AND_DIVISORS: (
+		("Same Religion ACL", "iSameReligionAttitudeChangeLimit", ""),
+		("Diff.Religion ACL", "iDifferentReligionAttitudeChangeLimit", ""),
+		("Favorite Civic ACL", "iFavoriteCivicAttitudeChangeLimit", ""),
+		# <!-- custom: separating values that change among leaders for those that don't, not ideal and not exhaustive but hopefully helpful maybe or not anwyays etc, see the code comment at iShareWarAttitudeChangeLimit in this ai_attributes_displayed_config.py file for details  -->
 		("Same Religion AC", "iSameReligionAttitudeChange", ""),
 		("Same Religion AD", "iSameReligionAttitudeDivisor", ""),
-		("Same Religion ACL", "iSameReligionAttitudeChangeLimit", ""),
+		#
+		# ACL missing from this category
+		#
         ("Diff.Religion AC", "iDifferentReligionAttitudeChange", ""),
 		("Diff.Religion AD", "iDifferentReligionAttitudeDivisor", ""),
-		("Diff.Religion ACL", "iDifferentReligionAttitudeChangeLimit", ""),
+		# ACL missing from this category
 		("Favorite Civic AC", "iFavoriteCivicAttitudeChange", ""),
 		("Favorite Civic AD", "iFavoriteCivicAttitudeDivisor", ""),
-		("Favorite Civic ACL", "iFavoriteCivicAttitudeChangeLimit", ""),
+		#
+		# ACL missing from this category
+		#
 		("Lost W AC", "iLostWarAttitudeChange", ""),
 		("At W AD", "iAtWarAttitudeDivisor", ""),
 		("At W ACL", "iAtWarAttitudeChangeLimit", ""),
@@ -412,7 +425,9 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
 		("At Peace ACL", "iAtPeaceAttitudeChangeLimit", ""),
 		("Share W AC", "iShareWarAttitudeChange", ""),
 		("Share W AD", "iShareWarAttitudeDivisor", ""),
-		("Share W ACL", "iShareWarAttitudeChangeLimit", ""),
+		#
+		# ACL missing from this category
+		#
 		("Bonus Tr AD", "iBonusTradeAttitudeDivisor", ""),
 		("Bonus Tr ACL", "iBonusTradeAttitudeChangeLimit", ""),
 		("Open Borders AD", "iOpenBordersAttitudeDivisor", ""),
