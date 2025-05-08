@@ -7,7 +7,7 @@
        (___)_o   <-- Chicken wing of insight, a gift from wonderingabout
 
 Auto-generated leaders **data** module.
-Created: 20250507_190429
+Created: 20250508_205129
 
 Author: becomingthrough (ChatGPT)
 """
@@ -762,7 +762,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 20,
         "FavoriteCivic": "CIVIC_VASSALAGE",
-        "FavoriteReligion": "NONE",
+        "FavoriteReligion": "RELIGION_PAGANISM",
         "Traits": [
             {
                 "TraitType": "TRAIT_PHILOSOPHICAL",
@@ -1453,7 +1453,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 20,
         "FavoriteCivic": "CIVIC_REPRESENTATION",
-        "FavoriteReligion": "NONE",
+        "FavoriteReligion": "RELIGION_PAGANISM",
         "Traits": [
             {
                 "TraitType": "TRAIT_IMPERIALIST",
@@ -2120,7 +2120,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 10,
         "FavoriteCivic": "CIVIC_UNIVERSAL_SUFFRAGE",
-        "FavoriteReligion": "NONE",
+        "FavoriteReligion": "RELIGION_PAGANISM",
         "Traits": [
             {
                 "TraitType": "TRAIT_CHARISMATIC",
@@ -3431,7 +3431,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_NATIONHOOD",
-        "FavoriteReligion": "RELIGION_CHRISTIANITY",
+        "FavoriteReligion": "NONE",
         "Traits": [
             {
                 "TraitType": "TRAIT_CHARISMATIC",
@@ -4107,7 +4107,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_FREE_RELIGION",
-        "FavoriteReligion": "NONE",
+        "FavoriteReligion": "RELIGION_PAGANISM",
         "Traits": [
             {
                 "TraitType": "TRAIT_ORGANIZED",
@@ -5114,7 +5114,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": -1,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_UNIVERSAL_SUFFRAGE",
-        "FavoriteReligion": "RELIGION_CHRISTIANITY",
+        "FavoriteReligion": "NONE",
         "Traits": [
             {
                 "TraitType": "TRAIT_PHILOSOPHICAL",
@@ -5781,7 +5781,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 50,
         "FavoriteCivic": "CIVIC_POLICE_STATE",
-        "FavoriteReligion": "NONE",
+        "FavoriteReligion": "RELIGION_DAOISM",
         "Traits": [
             {
                 "TraitType": "TRAIT_AGGRESSIVE",
@@ -6126,7 +6126,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_HEREDITARY_RULE",
-        "FavoriteReligion": "NONE",
+        "FavoriteReligion": "RELIGION_PAGANISM",
         "Traits": [
             {
                 "TraitType": "TRAIT_PROTECTIVE",
@@ -6451,7 +6451,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_BUREAUCRACY",
-        "FavoriteReligion": "NONE",
+        "FavoriteReligion": "RELIGION_PAGANISM",
         "Traits": [
             {
                 "TraitType": "TRAIT_ORGANIZED",
@@ -6776,7 +6776,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_FREE_MARKET",
-        "FavoriteReligion": "NONE",
+        "FavoriteReligion": "RELIGION_PAGANISM",
         "Traits": [
             {
                 "TraitType": "TRAIT_FINANCIAL",
@@ -7105,7 +7105,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 0,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_ORGANIZED_RELIGION",
-        "FavoriteReligion": "NONE",
+        "FavoriteReligion": "RELIGION_PAGANISM",
         "Traits": [
             {
                 "TraitType": "TRAIT_SPIRITUAL",
@@ -7463,7 +7463,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 0,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_HEREDITARY_RULE",
-        "FavoriteReligion": "NONE",
+        "FavoriteReligion": "RELIGION_PAGANISM",
         "Traits": [
             {
                 "TraitType": "TRAIT_INDUSTRIOUS",
@@ -8500,7 +8500,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 20,
         "FavoriteCivic": "CIVIC_REPRESENTATION",
-        "FavoriteReligion": "NONE",
+        "FavoriteReligion": "RELIGION_PAGANISM",
         "Traits": [
             {
                 "TraitType": "TRAIT_ORGANIZED",
@@ -9513,7 +9513,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_EMANCIPATION",
-        "FavoriteReligion": "RELIGION_CHRISTIANITY",
+        "FavoriteReligion": "NONE",
         "Traits": [
             {
                 "TraitType": "TRAIT_PHILOSOPHICAL",
@@ -11097,11 +11097,11 @@ PARSED_XML_LEADERS_DATA = {
         "iAggregatedNegativeMemoryCancelledVassalAgreementResentment": 50,
         "iAggregatedNegativeMemoryDeclaredWarRecentResentment": 50
     },
-    "LEADER_MONTEZUMA": {
-        "Type": "LEADER_MONTEZUMA",
-        "Description": "TXT_KEY_LEADER_MONTEZUMA",
-        "Civilopedia": "TXT_KEY_LEADER_MONTEZUMA_PEDIA",
-        "ArtDefineTag": "ART_DEF_LEADER_MONTEZUMA",
+    "LEADER_MOCTEZUMA": {
+        "Type": "LEADER_MOCTEZUMA",
+        "Description": "TXT_KEY_LEADER_MOCTEZUMA",
+        "Civilopedia": "TXT_KEY_LEADER_MOCTEZUMA_PEDIA",
+        "ArtDefineTag": "ART_DEF_LEADER_MOCTEZUMA",
         "iWonderConstructRand": 0,
         "iBaseAttitude": -1,
         "iBasePeaceWeight": 0,
@@ -11153,7 +11153,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_POLICE_STATE",
-        "FavoriteReligion": "NONE",
+        "FavoriteReligion": "RELIGION_PAGANISM",
         "Traits": [
             {
                 "TraitType": "TRAIT_AGGRESSIVE",
@@ -11192,61 +11192,61 @@ PARSED_XML_LEADERS_DATA = {
         "DiplomacyIntroMusicPeace": [
             {
                 "EraType": "ERA_ANCIENT",
-                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_EARLY_INTRO"
+                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_EARLY_INTRO"
             },
             {
                 "EraType": "ERA_CLASSICAL",
-                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_EARLY_INTRO"
+                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_EARLY_INTRO"
             },
             {
                 "EraType": "ERA_MEDIEVAL",
-                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_MIDDLE_INTRO"
+                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_MIDDLE_INTRO"
             },
             {
                 "EraType": "ERA_RENAISSANCE",
-                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_MIDDLE_INTRO"
+                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_MIDDLE_INTRO"
             },
             {
                 "EraType": "ERA_INDUSTRIAL",
-                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_LATE_INTRO"
+                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_LATE_INTRO"
             },
             {
                 "EraType": "ERA_MODERN",
-                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_LATE_INTRO"
+                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_LATE_INTRO"
             },
             {
                 "EraType": "ERA_FUTURE",
-                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_LATE_INTRO"
+                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_LATE_INTRO"
             }
         ],
         "DiplomacyMusicPeace": [
             {
                 "EraType": "ERA_ANCIENT",
-                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_EARLY_LP"
+                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_EARLY_LP"
             },
             {
                 "EraType": "ERA_CLASSICAL",
-                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_EARLY_LP"
+                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_EARLY_LP"
             },
             {
                 "EraType": "ERA_MEDIEVAL",
-                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_MIDDLE_LP"
+                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_MIDDLE_LP"
             },
             {
                 "EraType": "ERA_RENAISSANCE",
-                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_MIDDLE_LP"
+                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_MIDDLE_LP"
             },
             {
                 "EraType": "ERA_INDUSTRIAL",
-                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_LATE_LP"
+                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_LATE_LP"
             },
             {
                 "EraType": "ERA_MODERN",
-                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_LATE_LP"
+                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_LATE_LP"
             },
             {
                 "EraType": "ERA_FUTURE",
-                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_LATE_LP"
+                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_LATE_LP"
             }
         ],
         "DiplomacyIntroMusicWar": "",
@@ -11842,7 +11842,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_HEREDITARY_RULE",
-        "FavoriteReligion": "NONE",
+        "FavoriteReligion": "RELIGION_PAGANISM",
         "Traits": [
             {
                 "TraitType": "TRAIT_FINANCIAL",
@@ -12173,7 +12173,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_REPRESENTATION",
-        "FavoriteReligion": "NONE",
+        "FavoriteReligion": "RELIGION_PAGANISM",
         "Traits": [
             {
                 "TraitType": "TRAIT_PHILOSOPHICAL",
@@ -13201,7 +13201,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_HEREDITARY_RULE",
-        "FavoriteReligion": "NONE",
+        "FavoriteReligion": "RELIGION_PAGANISM",
         "Traits": [
             {
                 "TraitType": "TRAIT_FINANCIAL",
@@ -13534,7 +13534,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_ORGANIZED_RELIGION",
-        "FavoriteReligion": "NONE",
+        "FavoriteReligion": "RELIGION_PAGANISM",
         "Traits": [
             {
                 "TraitType": "TRAIT_SPIRITUAL",
@@ -14587,7 +14587,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 20,
         "FavoriteCivic": "CIVIC_POLICE_STATE",
-        "FavoriteReligion": "NONE",
+        "FavoriteReligion": "RELIGION_PAGANISM",
         "Traits": [
             {
                 "TraitType": "TRAIT_AGGRESSIVE",
@@ -14911,7 +14911,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 50,
         "FavoriteCivic": "CIVIC_ENVIRONMENTALISM",
-        "FavoriteReligion": "NONE",
+        "FavoriteReligion": "RELIGION_PAGANISM",
         "Traits": [
             {
                 "TraitType": "TRAIT_PHILOSOPHICAL",
@@ -16919,7 +16919,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 0,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_CASTE_SYSTEM",
-        "FavoriteReligion": "RELIGION_CONFUCIANISM",
+        "FavoriteReligion": "RELIGION_BUDDHISM",
         "Traits": [
             {
                 "TraitType": "TRAIT_FINANCIAL",
@@ -18255,8 +18255,8 @@ PARSED_XML_LEADERS_DATA = {
         "iOpenBordersRefuseAttitudeThreshold": -1,
         "iVassalRefuseAttitudeThreshold": 0,
         "iVassalPowerModifier": 0,
-        "FavoriteCivic": "CIVIC_THEOCRACY",
-        "FavoriteReligion": "RELIGION_CHRISTIANITY",
+        "FavoriteCivic": "CIVIC_HEREDITARY_RULE",
+        "FavoriteReligion": "RELIGION_PAGANISM",
         "Traits": [
             {
                 "TraitType": "TRAIT_PROTECTIVE",

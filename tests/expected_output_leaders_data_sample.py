@@ -424,7 +424,7 @@ def get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE():
 			"iVassalRefuseAttitudeThreshold": 1,
 			"iVassalPowerModifier": 20,
 			"FavoriteCivic": "CIVIC_VASSALAGE",
-			"FavoriteReligion": "NONE",
+			"FavoriteReligion": "RELIGION_PAGANISM",
 			"Traits": [
 				{
 					"TraitType": "TRAIT_PHILOSOPHICAL",

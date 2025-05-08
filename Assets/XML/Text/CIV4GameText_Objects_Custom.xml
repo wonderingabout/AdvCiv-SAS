@@ -48,20 +48,4 @@ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond
 		<Tag>TXT_KEY_FEATURE_ICE</Tag>
 		<English>Ice Cap</English>
 	</TEXT>
-
-	<!-- cuustom: taken from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameTextInfos_Objects.xml and then modified for AdvCiv-SAS -->
-	<TEXT>
-		<Tag>TXT_KEY_RELIGION_DAOISM</Tag>
-		<English>Daoism</English>
-	</TEXT>
-	<!-- custom: taken from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Text\CIV4GameText_Objects_BTS.xml and then modified for AdvCiv-SAS -->
-	<TEXT>
-		<Tag>TXT_KEY_RELIGION_DAOISM_ADJECTIVE</Tag>
-		<English>
-			<Text>Daoist</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</English>
-	</TEXT>
-
 </Civ4GameText>

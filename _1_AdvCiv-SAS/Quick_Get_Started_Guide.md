@@ -312,6 +312,23 @@ all better change, unless i am mistaken, but try and see, maybe works well or ma
 not or yes or other, anyways etc
 - one new religion, paganism is added, confucianism is removed, maybe more early
 wars, also historically more relevant/+/-accurate too i think
+- fixed many religious inaccuracies in leaders, at least some or those i could spot
+with (being) enough certainty (certain enough) anyways etc, for example frederick
+the great was agnostic not christian, brennus seems to have leaned more towards no
+religion in gaul than paganism (not an accuracy just did not make him auto pagan)
+if i am not mistaken, cyrus not religious pagan but darius is, seemingly, chruchill
+not being so and really christian that he would (strongly (enough)) prefer it over
+other religions, (if i am not mistaken about these or/and others) anyways etc, see
+[notes_about_religious_design.txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_religious_design.txt)
+for details
+- in particular, an important nuance, is that a leader can prefer a religion without
+having said religion himself/herself/itself, for example genghis khan seems to have
+been tengrist something if i am not mistaken anyways etc, but (see notes linked above
+for details) still seems to have had a quite strong liking/preference for daoism, especially
+if he had to choose a religion among those in civ4, including none or daoism, if i am not
+mistaken about the recollection and analysis i read, so is jsut my opinion not necessarily
+accurate but convenient to fill daoism if accurate enough, and maybe accurate too in
+general anyways etc
 - religion is very important: unlike in civ4 where they are very similar, now
 each religion has specific bonuses (for example paganism gives slavery bonuses,
 but buddhism gives science bonus), also the cathedrals have been removed (too

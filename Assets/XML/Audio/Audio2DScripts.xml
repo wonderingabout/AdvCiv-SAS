@@ -3928,8 +3928,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_DIPLO_MONTEZUMA_EARLY_INTRO</ScriptID>
-		<SoundID>DIPLO_MONTEZUMA_EARLY_INTRO</SoundID>
+		<ScriptID>AS2D_DIPLO_MOCTEZUMA_EARLY_INTRO</ScriptID>
+		<SoundID>DIPLO_MOCTEZUMA_EARLY_INTRO</SoundID>
 		<SoundType>GAME_MUSIC</SoundType>
 		<iMinVolume>75</iMinVolume>
 		<iMaxVolume>75</iMaxVolume>
@@ -3951,8 +3951,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_DIPLO_MONTEZUMA_EARLY_LP</ScriptID>
-		<SoundID>DIPLO_MONTEZUMA_EARLY_LP</SoundID>
+		<ScriptID>AS2D_DIPLO_MOCTEZUMA_EARLY_LP</ScriptID>
+		<SoundID>DIPLO_MOCTEZUMA_EARLY_LP</SoundID>
 		<SoundType>GAME_MUSIC</SoundType>
 		<iMinVolume>75</iMinVolume>
 		<iMaxVolume>75</iMaxVolume>
@@ -3974,8 +3974,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_DIPLO_MONTEZUMA_MIDDLE_INTRO</ScriptID>
-		<SoundID>DIPLO_MONTEZUMA_MIDDLE_INTRO</SoundID>
+		<ScriptID>AS2D_DIPLO_MOCTEZUMA_MIDDLE_INTRO</ScriptID>
+		<SoundID>DIPLO_MOCTEZUMA_MIDDLE_INTRO</SoundID>
 		<SoundType>GAME_MUSIC</SoundType>
 		<iMinVolume>75</iMinVolume>
 		<iMaxVolume>75</iMaxVolume>
@@ -3997,8 +3997,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_DIPLO_MONTEZUMA_MIDDLE_LP</ScriptID>
-		<SoundID>DIPLO_MONTEZUMA_MIDDLE_LP</SoundID>
+		<ScriptID>AS2D_DIPLO_MOCTEZUMA_MIDDLE_LP</ScriptID>
+		<SoundID>DIPLO_MOCTEZUMA_MIDDLE_LP</SoundID>
 		<SoundType>GAME_MUSIC</SoundType>
 		<iMinVolume>75</iMinVolume>
 		<iMaxVolume>75</iMaxVolume>
@@ -4020,8 +4020,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_DIPLO_MONTEZUMA_LATE_INTRO</ScriptID>
-		<SoundID>DIPLO_MONTEZUMA_LATE_INTRO</SoundID>
+		<ScriptID>AS2D_DIPLO_MOCTEZUMA_LATE_INTRO</ScriptID>
+		<SoundID>DIPLO_MOCTEZUMA_LATE_INTRO</SoundID>
 		<SoundType>GAME_MUSIC</SoundType>
 		<iMinVolume>75</iMinVolume>
 		<iMaxVolume>75</iMaxVolume>
@@ -4043,8 +4043,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_DIPLO_MONTEZUMA_LATE_LP</ScriptID>
-		<SoundID>DIPLO_MONTEZUMA_LATE_LP</SoundID>
+		<ScriptID>AS2D_DIPLO_MOCTEZUMA_LATE_LP</ScriptID>
+		<SoundID>DIPLO_MOCTEZUMA_LATE_LP</SoundID>
 		<SoundType>GAME_MUSIC</SoundType>
 		<iMinVolume>75</iMinVolume>
 		<iMaxVolume>75</iMaxVolume>
@@ -8735,8 +8735,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_BUILD_CONFUCIAN</ScriptID>
-		<SoundID>SND_BUILD_CONFUCIAN</SoundID>
+		<ScriptID>AS2D_BUILD_PAGAN</ScriptID>
+		<SoundID>SND_BUILD_PAGAN</SoundID>
 		<SoundType>GAME_SFX</SoundType>
 		<iMinVolume>90</iMinVolume>
 		<iMaxVolume>90</iMaxVolume>
@@ -8758,8 +8758,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_BUILD_CONFUCIAN_MOVIE</ScriptID>
-		<SoundID>SND_BUILD_CONFUCIAN_MOVIE</SoundID>
+		<ScriptID>AS2D_BUILD_PAGAN_MOVIE</ScriptID>
+		<SoundID>SND_BUILD_PAGAN_MOVIE</SoundID>
 		<SoundType>GAME_SFX</SoundType>
 		<iMinVolume>80</iMinVolume>
 		<iMaxVolume>80</iMaxVolume>

@@ -4151,8 +4151,8 @@ then adjust maybe anyways):
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
 		<UnitInfo>
-			<Class>UNITCLASS_CONFUCIAN_MISSIONARY</Class>
-			<Type>UNIT_CONFUCIAN_MISSIONARY</Type>
+			<Class>UNITCLASS_PAGAN_MISSIONARY</Class>
+			<Type>UNIT_PAGAN_MISSIONARY</Type>
 			<UniqueNames/>
 			<Special>SPECIALUNIT_PEOPLE</Special>
 			<Capture>NONE</Capture>
@@ -4161,9 +4161,9 @@ then adjust maybe anyways):
 			<DefaultUnitAI>UNITAI_MISSIONARY</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
-			<Description>TXT_KEY_UNIT_CONFUCIAN_MISSIONARY</Description>
+			<Description>TXT_KEY_UNIT_PAGAN_MISSIONARY</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_RELIGION_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_CONFUCIAN_MISSIONARY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_UNIT_PAGAN_MISSIONARY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -4210,7 +4210,7 @@ then adjust maybe anyways):
 			<Builds/>
 			<ReligionSpreads>
 				<ReligionSpread>
-					<ReligionType>RELIGION_CONFUCIANISM</ReligionType>
+					<ReligionType>RELIGION_PAGANISM</ReligionType>
 					<!-- K-Mod: was 40 -->
 					<iReligionSpread>20</iReligionSpread>
 				</ReligionSpread>
@@ -4221,9 +4221,9 @@ then adjust maybe anyways):
 			<HolyCity>NONE</HolyCity>
 			<ReligionType>NONE</ReligionType>
 			<StateReligion>NONE</StateReligion>
-			<PrereqReligion>RELIGION_CONFUCIANISM</PrereqReligion>
+			<PrereqReligion>RELIGION_PAGANISM</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
-			<PrereqBuilding>BUILDING_CONFUCIAN_MONASTERY</PrereqBuilding>
+			<PrereqBuilding>BUILDING_PAGAN_MONASTERY</PrereqBuilding>
 			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
@@ -4304,7 +4304,7 @@ then adjust maybe anyways):
 				<iRangedWaveSize>0</iRangedWaveSize>
 				<UnitMeshGroup>
 					<iRequired>1</iRequired>
-					<EarlyArtDefineTag>ART_DEF_UNIT_CONFUCIAN_MISSIONARY</EarlyArtDefineTag>
+					<EarlyArtDefineTag>ART_DEF_UNIT_PAGAN_MISSIONARY</EarlyArtDefineTag>
 				</UnitMeshGroup>
 			</UnitMeshGroups>
 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
@@ -22314,7 +22314,7 @@ then adjust maybe anyways):
 					<bBuilding>1</bBuilding>
 				</Building>
 				<Building>
-					<BuildingType>BUILDING_CONFUCIAN_SHRINE</BuildingType>
+					<BuildingType>BUILDING_PAGAN_SHRINE</BuildingType>
 					<bBuilding>1</bBuilding>
 				</Building>
 				<Building>

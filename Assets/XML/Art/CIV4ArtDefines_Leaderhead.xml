@@ -159,7 +159,7 @@
 			<BackgroundKFM>art/LeaderHeads/Mao/Mao_tse_tung_BG.kfm</BackgroundKFM>
 		</LeaderheadArtInfo>
 		<LeaderheadArtInfo>
-			<Type>ART_DEF_LEADER_MONTEZUMA</Type>
+			<Type>ART_DEF_LEADER_MOCTEZUMA</Type>
 			<Button>,Art/interface/LeaderHeads/Btn_LH_Aztec_Montezuma.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,6,10</Button>
 			<NIF>art/LeaderHeads/Montezuma/montezuma.nif</NIF>
 			<KFM>art/LeaderHeads/Montezuma/montezuma.kfm</KFM>

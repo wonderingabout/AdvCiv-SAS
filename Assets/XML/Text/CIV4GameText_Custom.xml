@@ -69,6 +69,16 @@
 		<English>[ICON_BULLET]%D1_Change%% Air Interception Chance</English>
 	</TEXT>
 
+
+
+	<!-- custom: now renamed "montezuma" to "moctezuma (2/II) anyways etc"-->
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_MOCTEZUMA_CASTLE</Tag>
+		<English>Moctezuma Castle</English>
+	</TEXT>
+
+
+
     <!-- custom: Kingdom of Benin cities -->
 	<TEXT>
 		<Tag>TXT_KEY_CITY_NAME_EDO_CUSTOM</Tag>

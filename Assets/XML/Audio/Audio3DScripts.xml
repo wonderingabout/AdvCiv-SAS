@@ -7462,8 +7462,8 @@ and then modified for AdvCiv-SAS
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script3DSound>
 	<Script3DSound>
-		<ScriptID>AS3D_UN_CONFUCIAN_MISS_ACTIVATE</ScriptID>
-		<SoundID>SND_CONFUCIAN_MISS_ACTIVATE</SoundID>
+		<ScriptID>AS3D_UN_PAGAN_MISS_ACTIVATE</ScriptID>
+		<SoundID>SND_PAGAN_MISS_ACTIVATE</SoundID>
 		<SoundType>GAME_SFX</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>

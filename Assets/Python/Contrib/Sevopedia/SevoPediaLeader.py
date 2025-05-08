@@ -134,7 +134,7 @@ def do_sanity_checks_after_ai_value_ranges_caching():
 	# <!-- custom: A few sanity checks -->
 	tests_ai_value_ranges_min_max = (
 		("LEADER_GANDHI", "iDiplomacyVictoryWeight"),
-		("LEADER_MONTEZUMA", "iMaxWarRand"),
+		("LEADER_MOCTEZUMA", "iMaxWarRand"),
 		("LEADER_NAPOLEON", "iNoWarAttitudeProbFurious"),
 		("LEADER_SITTING_BULL", "iNoWarAttitudeProbCautious"),
 		("LEADER_GANDHI", "iNoWarAttitudeProbPleased"),

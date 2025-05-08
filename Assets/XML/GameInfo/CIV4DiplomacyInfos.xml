@@ -196,14 +196,14 @@
 					<Civilizations/>
 					<Leaders>
 						<Leader>
-							<LeaderType>LEADER_MONTEZUMA</LeaderType>
+							<LeaderType>LEADER_MOCTEZUMA</LeaderType>
 							<bLeaderType>1</bLeaderType>
 						</Leader>
 					</Leaders>
 					<Attitudes/>
 					<DiplomacyPowers/>
 					<DiplomacyText>
-						<Text>AI_DIPLO_FIRST_CONTACT_LEADER_MONTEZUMA_1</Text>
+						<Text>AI_DIPLO_FIRST_CONTACT_LEADER_MOCTEZUMA_1</Text>
 					</DiplomacyText>
 				</Response>
 				<Response>
@@ -951,14 +951,14 @@
 					<Civilizations/>
 					<Leaders>
 						<Leader>
-							<LeaderType>LEADER_MONTEZUMA</LeaderType>
+							<LeaderType>LEADER_MOCTEZUMA</LeaderType>
 							<bLeaderType>1</bLeaderType>
 						</Leader>
 					</Leaders>
 					<Attitudes/>
 					<DiplomacyPowers/>
 					<DiplomacyText>
-						<Text>AI_DIPLO_REFUSE_TO_TALK_LEADER_MONTEZUMA_1</Text>
+						<Text>AI_DIPLO_REFUSE_TO_TALK_LEADER_MOCTEZUMA_1</Text>
 					</DiplomacyText>
 				</Response>
 				<Response>
@@ -1757,14 +1757,14 @@
 					<Civilizations/>
 					<Leaders>
 						<Leader>
-							<LeaderType>LEADER_MONTEZUMA</LeaderType>
+							<LeaderType>LEADER_MOCTEZUMA</LeaderType>
 							<bLeaderType>1</bLeaderType>
 						</Leader>
 					</Leaders>
 					<Attitudes/>
 					<DiplomacyPowers/>
 					<DiplomacyText>
-						<Text>AI_DIPLO_NO_PEACE_LEADER_MONTEZUMA_1</Text>
+						<Text>AI_DIPLO_NO_PEACE_LEADER_MOCTEZUMA_1</Text>
 					</DiplomacyText>
 				</Response>
 				<Response>
@@ -2559,7 +2559,7 @@
 					<Civilizations/>
 					<Leaders>
 						<Leader>
-							<LeaderType>LEADER_MONTEZUMA</LeaderType>
+							<LeaderType>LEADER_MOCTEZUMA</LeaderType>
 							<bLeaderType>1</bLeaderType>
 						</Leader>
 					</Leaders>
@@ -2579,7 +2579,7 @@
 					</Attitudes>
 					<DiplomacyPowers/>
 					<DiplomacyText>
-						<Text>AI_DIPLO_GREETINGS_ATT_FR_LEADER_MONTEZUMA_1</Text>
+						<Text>AI_DIPLO_GREETINGS_ATT_FR_LEADER_MOCTEZUMA_1</Text>
 					</DiplomacyText>
 				</Response>
 				<Response>
@@ -4012,7 +4012,7 @@
 					<Civilizations/>
 					<Leaders>
 						<Leader>
-							<LeaderType>LEADER_MONTEZUMA</LeaderType>
+							<LeaderType>LEADER_MOCTEZUMA</LeaderType>
 							<bLeaderType>1</bLeaderType>
 						</Leader>
 					</Leaders>
@@ -4028,7 +4028,7 @@
 					</Attitudes>
 					<DiplomacyPowers/>
 					<DiplomacyText>
-						<Text>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_MONTEZUMA_1</Text>
+						<Text>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_MOCTEZUMA_1</Text>
 					</DiplomacyText>
 				</Response>
 				<Response>
@@ -5972,7 +5972,7 @@
 					<Civilizations/>
 					<Leaders>
 						<Leader>
-							<LeaderType>LEADER_MONTEZUMA</LeaderType>
+							<LeaderType>LEADER_MOCTEZUMA</LeaderType>
 							<bLeaderType>1</bLeaderType>
 						</Leader>
 					</Leaders>
@@ -5984,7 +5984,7 @@
 						</DiplomacyPower>
 					</DiplomacyPowers>
 					<DiplomacyText>
-						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_WEAKER_MONTEZUMA_1</Text>
+						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_WEAKER_MOCTEZUMA_1</Text>
 					</DiplomacyText>
 				</Response>
 				<Response>
@@ -6956,7 +6956,7 @@
 					<Civilizations/>
 					<Leaders>
 						<Leader>
-							<LeaderType>LEADER_MONTEZUMA</LeaderType>
+							<LeaderType>LEADER_MOCTEZUMA</LeaderType>
 							<bLeaderType>1</bLeaderType>
 						</Leader>
 					</Leaders>
@@ -6968,7 +6968,7 @@
 						</DiplomacyPower>
 					</DiplomacyPowers>
 					<DiplomacyText>
-						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_EQUAL_MONTEZUMA_1</Text>
+						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_EQUAL_MOCTEZUMA_1</Text>
 					</DiplomacyText>
 				</Response>
 				<Response>
@@ -7902,7 +7902,7 @@
 					<Civilizations/>
 					<Leaders>
 						<Leader>
-							<LeaderType>LEADER_MONTEZUMA</LeaderType>
+							<LeaderType>LEADER_MOCTEZUMA</LeaderType>
 							<bLeaderType>1</bLeaderType>
 						</Leader>
 					</Leaders>
@@ -7914,7 +7914,7 @@
 						</DiplomacyPower>
 					</DiplomacyPowers>
 					<DiplomacyText>
-						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MONTEZUMA_1_CORRECTED</Text>
+						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_1_CORRECTED</Text>
 					</DiplomacyText>
 				</Response>
 				<Response>

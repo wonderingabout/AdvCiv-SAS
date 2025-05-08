@@ -106,7 +106,7 @@
 	</TEXT>
 	<!-- advc.005h: Make this #2, i.e. preserve "let us each slaughter slaves". -->
 	<TEXT>
-		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_MONTEZUMA_2</Tag>
+		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_MOCTEZUMA_2</Tag>
 		<English>[CT_NAME]. I know you have been told much evil of me; believe only what you see with your eyes, for those who speak ill of me are my enemies, and some were my vassals and have rebelled against me at your coming and said those things to gain favour with you. Please, let us have peace!</English>
 		<French>C'est un plaisir de faire votre connaissance, [CT_NAME] ! Sacrifions tous deux cinq mille esclaves pour c&#233;l&#233;brer cette rencontre de bon augure.</French>
 		<German>Ich freue mich, Euch kennen zu lernen, [CT_NAME]! Lasst uns zur Feier dieses denkw&#252;rdigen Augenblicks je f&#252;nfzigtausend Sklaven opfern!</German>
@@ -679,7 +679,7 @@
 		<Spanish>&#161;Jam&#225;s! &#161;Al&#225; os cuenta entre sus enemigos! &#161;Se acerca vuestra perdici&#243;n!</Spanish>
 	</TEXT>
 	<TEXT>
-		<Tag>AI_DIPLO_NO_PEACE_LEADER_MONTEZUMA_1</Tag>
+		<Tag>AI_DIPLO_NO_PEACE_LEADER_MOCTEZUMA_1</Tag>
 		<English>Do the kings know the destiny of those they left behind, their posterity? If only they are watching! If only they can see what I see! This is a glorious war, it will not end!</English>
 		<French>Non. Nous n'avons pas encore extermin&#233; assez de guerriers des [CT_CIV_ADJ] pour &#233;tancher la soif de sang de nos dieux. Essayez plus tard.</French>
 		<German>Nein! Wir haben noch nicht genug [CT_CIV_ADJ:3] Krieger geopfert, um die G&#246;tter zu bes&#228;nftigen! Meldet Euch sp&#228;ter noch mal!</German>
@@ -880,7 +880,7 @@
 		<Spanish>&#161;Mil bendiciones caigan sobre vos, omnipotente [CT_NAME]! &#161;La visita de alguien tan importante es un gran honor para mi humilde reino!</Spanish>
 	</TEXT>
 	<TEXT>
-		<Tag>AI_DIPLO_GREETINGS_ATT_FR_LEADER_MONTEZUMA_1</Tag>
+		<Tag>AI_DIPLO_GREETINGS_ATT_FR_LEADER_MOCTEZUMA_1</Tag>
 		<English>My friend, I know that you have been told that the walls of my houses are made of gold, and that other things in my household are likewise of gold. The houses, as you can see, are of stone and lime and clay, but as long as you are here, consider these houses your own.</English>
 		<French>Bienvenue, [CT_NAME] ! Je vais massacrer mille esclaves pour c&#233;l&#233;brer votre visite !</French>
 		<German>Willkommen, [CT_NAME]! Ich werde Euch zu Ehren zahlreiche Sklaven niedermetzeln lassen!</German>
@@ -1241,8 +1241,8 @@
 	<TEXT>
 		<Tag>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_NAPOLEON_2</Tag>
 		<English>You again. The great proof of madness is the disproportion of one's designs to one's means. You are mad, [CT_NAME].</English>
-		<French>La grande preuve de la folie est la disproportion de ses desseins avec ses moyens. Vous êtes [NUM1:fou:folle], [CT_NAME].</French>
-		<German>Wenn das nicht [CT_NAME] ist. Apropos, Tollheit erweist sich klar am Missverhältnis von Mitteln und Zielen.</German>
+		<French>La grande preuve de la folie est la disproportion de ses desseins avec ses moyens. Vous ï¿½tes [NUM1:fou:folle], [CT_NAME].</French>
+		<German>Wenn das nicht [CT_NAME] ist. Apropos, Tollheit erweist sich klar am Missverhï¿½ltnis von Mitteln und Zielen.</German>
 		<Italian>Ho poco tempo da dedicare alle tue chiacchiere, [CT_NAME]. Taglia corto.</Italian>
 		<Spanish>Tengo poco tiempo para hablar con vos, [CT_NAME], en resumidas cuentas.</Spanish>
 	</TEXT>
@@ -1251,7 +1251,7 @@
 		<Tag>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_NAPOLEON_3</Tag>
 		<English>The fool, my dear [CT_NAME], has one great advantage over a man of sense - [NUM1:he:she] is always satisfied with [NUM1:himself:herself].</English>
 		<French>Je n'ai pas de temps &#224; perdre en bavardages, [CT_NAME]. Notre entrevue n'a dur&#233; que trop longtemps.</French>
-		<German>Man muss es Euch lassen, [NUM1:mon cher:ma chère] [CT_NAME]: Was Selbstzufriedenheit angeht, ist der Narr dem verständigen Mann weit voraus.</German>
+		<German>Man muss es Euch lassen, [NUM1:mon cher:ma chï¿½re] [CT_NAME]: Was Selbstzufriedenheit angeht, ist der Narr dem verstï¿½ndigen Mann weit voraus.</German>
 		<Italian>Ho poco tempo da dedicare alle tue chiacchiere, [CT_NAME]. Taglia corto.</Italian>
 		<Spanish>Tengo poco tiempo para hablar con vos, [CT_NAME], en resumidas cuentas.</Spanish>
 	</TEXT>
@@ -1598,7 +1598,7 @@
 		<Spanish>Las mejores cosas de la vida son las que salen gratis, [CT_NAME]. Por desgracia, la continuidad de nuestra amistad no es una de ellas.</Spanish>
 	</TEXT>
 	<TEXT>
-		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_WEAKER_MONTEZUMA_1</Tag>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_WEAKER_MOCTEZUMA_1</Tag>
 		<English>Your deputy [OUR_NAME] has come to you, [CT_NAME]. I ask of you these presents with which to welcome me to your home.</English>
 		<French>Les dieux veulent des sacrifices, [CT_NAME]. Si votre civilisation veut durer, je vous conseille de vous plier &#224; mes exigences.</French>
 		<German>Die G&#246;tter fordern Opfer, [CT_NAME]! Wenn Eure Zivilisation &#252;berleben soll, w&#228;rt Ihr gut beraten, dieser Forderung nachzukommen!</German>
@@ -1745,7 +1745,7 @@
 		<Spanish>No os mentiremos, [CT_NAME], queremos algo de vosotros. D&#225;dnoslo gentilmente en cuanto os sea posible.</Spanish>
 	</TEXT>
 	<TEXT>
-		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_EQUAL_MONTEZUMA_1</Tag>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_EQUAL_MOCTEZUMA_1</Tag>
 		<English>I pray to our Gods that you will not make me send my warriors into your house. They would cast you out of it and overthrow your rule. When you tried to recover what you had lost, it would be too late.</English>
 		<French>L'[OUR_EMPIRE] vous demande un modeste pr&#233;sent, [CT_NAME]. Mais si vous pr&#233;f&#233;rez, nous pouvons nous battre jusqu'&#224; la mort.</French>
 		<German>Das [OUR_EMPIRE:2] fordert eine kleine Spende von Euch, [CT_NAME]. Wenn es Euch lieber ist, k&#246;nnen wir aber auch so lange gegeneinander k&#228;mpfen, bis nur noch einer von uns &#252;brig ist!</German>
@@ -1865,11 +1865,11 @@
 		<Italian>[CT_CIV_SHORT:1] sta affrontando una battaglia contro i malvagi, i pagani e i barbari, [CT_NAME]. &#200; ora di mostrare apprezzamento.</Italian>
 		<Spanish>La poderosa [CT_CIV_SHORT] es el frente de batalla contra el mal, los ateos, los infieles y los b&#225;rbaros, [CT_NAME]. Es hora de que nos mostr&#233;is vuestro aprecio. </Spanish>
 	</TEXT>
-	<!-- advc.005f: This key was named "AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MONTEZUMA_1_CORRECTED"
+	<!-- advc.005f: This key was named "AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_1_CORRECTED"
 		 in Warlords. I don't see how that will "correct" anything. Give it the same name as the
 		 Vanilla key instead (which says "think well or we'll re-evaluate our friendship"). -->
 	<TEXT>
-		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MONTEZUMA_1</Tag>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_1</Tag>
 		<English>Your weakness is contemptible, [CT_NAME]! Give us what we want or perish!</English>
 		<French>Votre faiblesse est m&#233;prisable, [CT_NAME] ! Donnez-nous ce que nous voulons ou ce sera la mort !</French>
 		<German>Ihr seid uns&#228;glich j&#228;mmerlich und schwach, [CT_NAME]! Gebt uns, was wir verlangen, oder sterbt!</German>
@@ -1910,16 +1910,17 @@
 		<Spanish>No cre&#225;is que os estamos exigiendo un tributo, [CT_NAME]. Pensad en ello como en una inversi&#243;n en la paz mundial.</Spanish>
 	</TEXT>
 	<TEXT>
-		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MONTEZUMA_1</Tag>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_1</Tag>
 		<English>These are [OUR_NAME]'s demands, [CT_NAME]. Should you displease me, I will punish you by sending my hosts of brave warriors against you.</English>
 		<French>Votre faiblesse est m&#233;prisable, [CT_NAME] ! Donnez-nous ce que nous voulons ou ce sera la mort !</French>
 		<German>Ihr seid uns&#228;glich j&#228;mmerlich und schwach, [CT_NAME]! Gebt uns, was wir verlangen, oder sterbt!</German>
 		<Italian>La tua debolezza &#232; imbarazzante, #CT_NAME! Dacci ci&#242; che vogliamo o morirai!</Italian>
 		<Spanish>&#161;Vuestra debilidad es despreciable, [CT_NAME]! &#161;Dadnos lo que queremos o pereced!</Spanish>
 	</TEXT>
+	<!-- custom: now named Moctezuma, not montezuma anymore, otherwise same at least for this part if not for other or maybe not but anyways etc anyways etc-->
 	<!-- advc.005h: Repurpose Montezuma's power_weaker #1 -->
 	<TEXT>
-		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MONTEZUMA_2</Tag>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_2</Tag>
 		<English>The gods demand sacrifice, [CT_NAME]. If your civilization is to exist for much longer, I recommend that you comply.</English>
 		<French>Les dieux veulent des sacrifices, [CT_NAME]. Si votre civilisation veut durer, je vous conseille de vous plier &#224; mes exigences.</French>
 		<German>Die G&#246;tter fordern Opfer, [CT_NAME]! Wenn Eure Zivilisation &#252;berleben soll, w&#228;rt Ihr gut beraten, dieser Forderung nachzukommen!</German>
@@ -2189,7 +2190,7 @@
 		<Tag>AI_DIPLO_DECLARE_WAR_LEADER_GANDHI_1</Tag>
 		<English>You present me with a choice only between violence and cowardice, and cowardice is the greatest vice. ([OUR_NAME] declares war!)</English>
 		<French>Je suppose que vous r&#233;alisez que cela signifie la guerre ? ([OUR_NAME] vous d&#233;clare la guerre !)</French>
-		<German>Ihr stellt mich vor die Wahl allein zwischen Gewalt und Feigheit, und Feigheit ist das größte Laster. ([OUR_NAME] declares war!)</German>
+		<German>Ihr stellt mich vor die Wahl allein zwischen Gewalt und Feigheit, und Feigheit ist das grï¿½ï¿½te Laster. ([OUR_NAME] declares war!)</German>
 		<Italian>Credo tu sappia che questo significa guerra. ([OUR_NAME] dichiara guerra!)</Italian>
 		<Spanish>Supongo que os dais cuenta de que esto significa la guerra. (&#161;[OUR_NAME] os declara la guerra!)</Spanish>
 	</TEXT>
@@ -2201,7 +2202,7 @@
 		<Tag>AI_DIPLO_DECLARE_WAR_LEADER_ALEXANDER_1</Tag>
 		<English>I've brought a kaffis of mustard seed for you, [CT_NAME], to foretaste the bitterness of my victory. ([OUR_NAME] declares war!)</English>
 		<French>Ce monde n'est pas assez grand pour nous deux, [CT_NAME] ! ([OUR_NAME] vous d&#233;clare la guerre !)</French>
-		<German>Ich lasse Euch Senfkörner zukommen, [CT_NAME], -- als Vorgeschmack auf Eure bittere Niederlage! ([OUR_NAME] declares war!)</German>
+		<German>Ich lasse Euch Senfkï¿½rner zukommen, [CT_NAME], -- als Vorgeschmack auf Eure bittere Niederlage! ([OUR_NAME] declares war!)</German>
 		<Italian>Questo mondo non &#232; grande abbastanza per tutti e due, [CT_NAME]! ([OUR_NAME] dichiara guerra!)</Italian>
 		<Spanish>&#161;Este mundo no es lo bastante grande para nuestras dos naciones, [CT_NAME]! (&#161;[OUR_NAME] os declara la guerra!)</Spanish>
 	</TEXT>

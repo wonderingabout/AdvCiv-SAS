@@ -11740,7 +11740,7 @@ void CvCity::read(FDataStreamBase* pStream)
 		{
 			char const* aszShrineNames[] = { "BUILDING_JEWISH_SHRINE", "BUILDING_CHRISTIAN_SHRINE",
 					"BUILDING_ISLAMIC_SHRINE", "BUILDING_HINDU_SHRINE", "BUILDING_BUDDHIST_SHRINE",
-					"BUILDING_CONFUCIAN_SHRINE", "BUILDING_DAOIST_SHRINE" };
+					"BUILDING_PAGAN_SHRINE", "BUILDING_DAOIST_SHRINE" };
 			for (int i = 0; i < ARRAYSIZE(aszShrineNames); i++)
 			{
 				BuildingTypes eShrine = (BuildingTypes)GC.getInfoTypeForString(aszShrineNames[i]);

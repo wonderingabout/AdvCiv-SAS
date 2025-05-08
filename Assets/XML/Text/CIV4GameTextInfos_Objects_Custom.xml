@@ -145,6 +145,20 @@
 		<English>Cattle</English>
 	</TEXT>
 
+
+
+	<TEXT>
+		<Tag>TXT_KEY_RELIGION_DAOISM</Tag>
+		<English>Daoism</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_RELIGION_DAOISM_ADJECTIVE</Tag>
+		<English>
+			<Text>Daoist</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</English>
+	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_DAOIST_TEMPLE</Tag>
 		<English>Daoist Temple</English>
@@ -161,11 +175,101 @@
 		<Tag>TXT_KEY_BUILDING_DAOIST_SHRINE</Tag>
 		<English>The Dai Miao</English>
 	</TEXT>
-
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_DAOIST_MISSIONARY</Tag>
 		<English>Daoist Missionary</English>
 	</TEXT>
+	<!-- custom: putting the daoist (after having renamed "taoism" into "daoism") strategy tags here too in AdvCiv-SAS but as we don't use startegy tags at all anymore in AdvCiv-SAS's placeHistory panels, they will be empty just to have the tag existing, but it shuold never be used otherwise or displayed anymore in AdvCiv-SAS's sevopedia if i am not mistaken anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_DAOIST_TEMPLE_STRATEGY</Tag>
+		<English></English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_DAOIST_MONASTERY_STRATEGY</Tag>
+		<English></English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_DAOIST_CATHEDRAL_STRATEGY</Tag>
+		<English></English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_DAOIST_SHRINE_STRATEGY</Tag>
+		<English></English>
+	</TEXT>
+
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_DAOIST_MISSIONARY_STRATEGY</Tag>
+		<English></English>
+	</TEXT>
+
+
+	<TEXT>
+		<Tag>TXT_KEY_RELIGION_PAGANISM</Tag>
+		<English>Paganism</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_RELIGION_PAGANISM_ADJECTIVE</Tag>
+		<English>
+			<Text>Pagan</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PAGAN_TEMPLE</Tag>
+		<English>Pagan Temple</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PAGAN_MONASTERY</Tag>
+		<English>Pagan Monastery</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PAGAN_CATHEDRAL</Tag>
+		<English>Pagan Academy</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PAGAN_SHRINE</Tag>
+		<English>Pagan Shrine</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_PAGAN_MISSIONARY</Tag>
+		<English>Pagan Missionary</English>
+	</TEXT>
+		<TEXT>
+		<Tag>TXT_KEY_UNIT_PAGAN_MISSIONARY_STRATEGY</Tag>
+		<English></English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PAGAN_TEMPLE_STRATEGY</Tag>
+		<English></English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PAGAN_MONASTERY_STRATEGY</Tag>
+		<English></English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PAGAN_CATHEDRAL_STRATEGY</Tag>
+		<English></English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PAGAN_SHRINE_STRATEGY</Tag>
+		<English></English>
+	</TEXT>
+
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_PAGAN_MISSIONARY_STRATEGY</Tag>
+		<English></English>
+	</TEXT>
+
+
+
+	<!-- custom: rename to more accurate naming from "Montezuma" to "Moctezuma II" -->
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_MOCTEZUMA</Tag>
+		<English>Moctezuma II</English>
+	</TEXT>
+
+
 
 	<!-- custom: add Civ Kingdom Of Benin with their leader Ogiso Igodo -->
 	<TEXT>

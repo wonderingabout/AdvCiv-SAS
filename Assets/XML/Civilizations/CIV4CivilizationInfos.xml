@@ -344,7 +344,7 @@
 			</InitialCivics>
 			<Leaders>
 				<Leader>
-					<LeaderName>LEADER_MONTEZUMA</LeaderName>
+					<LeaderName>LEADER_MOCTEZUMA</LeaderName>
 					<bLeaderAvailability>1</bLeaderAvailability>
 				</Leader>
 			</Leaders>
@@ -2762,7 +2762,7 @@
 				<City>TXT_KEY_CITY_NAME_FRIJOLES_CANYON</City>
 				<City>TXT_KEY_CITY_NAME_PUYE_CLIFF</City>
 				<City>TXT_KEY_CITY_NAME_KIET_SIEL</City>
-				<City>TXT_KEY_CITY_NAME_MONTEZUMA_CASTLE</City>
+				<City>TXT_KEY_CITY_NAME_MOCTEZUMA_CASTLE</City>
 				<City>TXT_KEY_CITY_NAME_WICKLIFFE</City>
 				<City>TXT_KEY_CITY_NAME_AZTALAN</City>
 				<City>TXT_KEY_CITY_NAME_ANGEL_MOUNDS</City>
@@ -4395,19 +4395,19 @@
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_CONFUCIAN_TEMPLE</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_PAGAN_TEMPLE</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_CONFUCIAN_CATHEDRAL</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_PAGAN_CATHEDRAL</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_CONFUCIAN_MONASTERY</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_PAGAN_MONASTERY</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_CONFUCIAN_SHRINE</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_PAGAN_SHRINE</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
@@ -4641,7 +4641,7 @@
 					<UnitType>NONE</UnitType>
 				</Unit>
 				<Unit>
-					<UnitClassType>UNITCLASS_CONFUCIAN_MISSIONARY</UnitClassType>
+					<UnitClassType>UNITCLASS_PAGAN_MISSIONARY</UnitClassType>
 					<UnitType>NONE</UnitType>
 				</Unit>
 				<Unit>

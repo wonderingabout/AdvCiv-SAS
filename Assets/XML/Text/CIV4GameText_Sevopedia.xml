@@ -7,10 +7,6 @@
 	<TEXT>
 		<Tag>TXT_KEY_SEVOPEDIA_TITLE</Tag>
 		<English>SEVOPEDIA</English>
-		<French>SEVOPEDIA</French>
-		<German>SEVOPEDIA</German>
-		<Italian>SEVOPEDIA</Italian>
-		<Spanish>SEVOPEDIA</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SCREEN_INDEX</Tag>
@@ -349,28 +345,5 @@
 		<German>Reichweite: unbegrenzt</German>
 		<Italian>Raggio d'azione: illimitato</Italian>
 		<Spanish>Alcance: sin l&#237;mite</Spanish>
-	</TEXT>
-
-	<!-- custom: putting the daoist (after having renamed "taoism" into "daoism") strategy tags here too in AdvCiv-SAS but as we don't use startegy tags at all anymore in AdvCiv-SAS's placeHistory panels, they will be empty just to have the tag existing, but it shuold never be used otherwise or displayed anymore in AdvCiv-SAS's sevopedia if i am not mistaken anyways etc -->
-	<TEXT>
-		<Tag>TXT_KEY_BUILDING_DAOIST_TEMPLE_STRATEGY</Tag>
-		<English></English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUILDING_DAOIST_MONASTERY_STRATEGY</Tag>
-		<English></English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUILDING_DAOIST_CATHEDRAL_STRATEGY</Tag>
-		<English></English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUILDING_DAOIST_SHRINE_STRATEGY</Tag>
-		<English></English>
-	</TEXT>
-
-	<TEXT>
-		<Tag>TXT_KEY_UNIT_DAOIST_MISSIONARY_STRATEGY</Tag>
-		<English></English>
 	</TEXT>
 </Civ4GameText>

@@ -6,7 +6,7 @@
 <!-- Leader Infos and AI Settings -->
 <Civ4LeaderHeadInfos xmlns="x-schema:CIV4CivilizationsSchema.xml">
 	<LeaderHeadInfos>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Barbarian (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_BARBARIAN</Type>
 			<Description>TXT_KEY_LEADER_BARBARIAN</Description>
 			<Civilopedia>TXT_KEY_LEADER_BARBARIAN_PEDIA</Civilopedia>
@@ -180,7 +180,7 @@
 			 (For the non-optional elements, LEADER_DEFAULTS has to set some
 			 default as well - 0, NONE or an empty string - but it won't matter
 			 because every LeaderHeadInfo has to define those elements.) -->
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Defaults (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_DEFAULTS</Type>
 			<Description></Description>
 			<Civilopedia></Civilopedia>
@@ -847,7 +847,7 @@
 		</LeaderHeadInfo>
 		<!-- advc.xmldefault (end) -->
 
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Alexander (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_ALEXANDER</Type>
 			<Description>TXT_KEY_LEADER_ALEXANDER</Description>
 			<Civilopedia>TXT_KEY_LEADER_ALEXANDER_PEDIA</Civilopedia>
@@ -908,7 +908,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>20</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_VASSALAGE</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_PHILOSOPHICAL</TraitType>
@@ -1048,7 +1048,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Asoka (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_ASOKA</Type>
 			<Description>TXT_KEY_LEADER_ASOKA</Description>
 			<Civilopedia>TXT_KEY_LEADER_ASOKA_PEDIA</Civilopedia>
@@ -1289,7 +1289,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Augustus (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_AUGUSTUS</Type>
 			<Description>TXT_KEY_LEADER_AUGUSTUS</Description>
 			<Civilopedia>TXT_KEY_LEADER_AUGUSTUS_CAESAR_PEDIA</Civilopedia>
@@ -1351,7 +1351,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>20</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_REPRESENTATION</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_IMPERIALIST</TraitType>
@@ -1500,7 +1500,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Bismarck (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_BISMARCK</Type>
 			<Description>TXT_KEY_LEADER_BISMARCK</Description>
 			<Civilopedia>TXT_KEY_LEADER_BISMARCK_PEDIA</Civilopedia>
@@ -1712,7 +1712,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Boudica (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_BOUDICA</Type>
 			<Description>TXT_KEY_LEADER_BOUDICA</Description>
 			<Civilopedia>TXT_KEY_LEADER_BOUDICA_PEDIA</Civilopedia>
@@ -1775,7 +1775,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>10</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_UNIVERSAL_SUFFRAGE</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_CHARISMATIC</TraitType>
@@ -1914,7 +1914,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Brennus (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_BRENNUS</Type>
 			<Description>TXT_KEY_LEADER_BRENNUS</Description>
 			<Civilopedia>TXT_KEY_LEADER_BRENNUS_PEDIA</Civilopedia>
@@ -1978,7 +1978,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_ORGANIZED_RELIGION</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>NONE</FavoriteReligion> <!-- custom: none, not religion_paganism for brennus, see notes_about_religious_design.txt for details -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_SPIRITUAL</TraitType>
@@ -2118,7 +2118,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Catherine (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_CATHERINE</Type>
 			<Description>TXT_KEY_LEADER_CATHERINE</Description>
 			<Civilopedia>TXT_KEY_LEADER_CATHERINE_PEDIA</Civilopedia>
@@ -2356,7 +2356,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Charlemagne (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_CHARLEMAGNE</Type>
 			<Description>TXT_KEY_LEADER_CHARLEMAGNE</Description>
 			<Civilopedia>TXT_KEY_LEADER_CHARLEMAGNE_PEDIA</Civilopedia>
@@ -2564,7 +2564,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Churchill (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_CHURCHILL</Type>
 			<Description>TXT_KEY_LEADER_CHURCHILL</Description>
 			<Civilopedia>TXT_KEY_LEADER_WINSTON_CHURCHILL_PEDIA</Civilopedia>
@@ -2626,7 +2626,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_NATIONHOOD</FavoriteCivic>
-			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
+			<FavoriteReligion>NONE</FavoriteReligion> <!-- custom: none, not religion_christianity, see notes_about_religious_design.txt for details -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_CHARISMATIC</TraitType>
@@ -2774,7 +2774,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Cyrus (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_CYRUS</Type>
 			<Description>TXT_KEY_LEADER_CYRUS</Description>
 			<Civilopedia>TXT_KEY_LEADER_CYRUS_PEDIA</Civilopedia>
@@ -2838,7 +2838,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_VASSALAGE</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>NONE</FavoriteReligion> <!-- custom: seems none not paganism, see notes for details -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_CHARISMATIC</TraitType>
@@ -2993,7 +2993,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Darius (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_DARIUS</Type>
 			<Description>TXT_KEY_LEADER_DARIUS</Description>
 			<Civilopedia>TXT_KEY_LEADER_DARIUS_PEDIA</Civilopedia>
@@ -3057,7 +3057,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_FREE_RELIGION</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion> <!-- custom: paganism not none, see notes for details -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_ORGANIZED</TraitType>
@@ -3215,7 +3215,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: De_Gaulle (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_DE_GAULLE</Type>
 			<Description>TXT_KEY_LEADER_DE_GAULLE</Description>
 			<Civilopedia>TXT_KEY_LEADER_DE_GAULLE_PEDIA</Civilopedia>
@@ -3428,7 +3428,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Elizabeth (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_ELIZABETH</Type>
 			<Description>TXT_KEY_LEADER_ELIZABETH</Description>
 			<Civilopedia>TXT_KEY_LEADER_ELIZABETH_PEDIA</Civilopedia>
@@ -3640,7 +3640,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Frederick (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_FREDERICK</Type>
 			<Description>TXT_KEY_LEADER_FREDERICK</Description>
 			<Civilopedia>TXT_KEY_LEADER_FREDERICK_PEDIA</Civilopedia>
@@ -3702,7 +3702,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_ANNOYED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_UNIVERSAL_SUFFRAGE</FavoriteCivic>
-			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
+			<FavoriteReligion>NONE</FavoriteReligion> <!-- custom: actually seems none not christianity, see notes for details -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_PHILOSOPHICAL</TraitType>
@@ -3851,7 +3851,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Gandhi (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_GANDHI</Type>
 			<Description>TXT_KEY_LEADER_GANDHI</Description>
 			<Civilopedia>TXT_KEY_LEADER_GANDHI_PEDIA</Civilopedia>
@@ -4112,7 +4112,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Genghis_Khan (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_GENGHIS_KHAN</Type>
 			<Description>TXT_KEY_LEADER_GENGHIS_KHAN</Description>
 			<Civilopedia>TXT_KEY_LEADER_GENGHIS_KHAN_PEDIA</Civilopedia>
@@ -4174,7 +4174,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>50</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_POLICE_STATE</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>RELIGION_DAOISM</FavoriteReligion> <!-- custom: not strictly daoist, but closest and seems accurate, see notes for details-->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_AGGRESSIVE</TraitType>
@@ -4331,7 +4331,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Gilgamesh (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_GILGAMESH</Type>
 			<Description>TXT_KEY_LEADER_GILGAMESH</Description>
 			<Civilopedia>TXT_KEY_LEADER_GILGAMESH_PEDIA</Civilopedia>
@@ -4394,7 +4394,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_HEREDITARY_RULE</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion> <!-- custom: not sure and quick read but (this)(paganism) seems accurate enough anyways etc -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_PROTECTIVE</TraitType>
@@ -4535,7 +4535,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Hammurabi (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_HAMMURABI</Type>
 			<Description>TXT_KEY_LEADER_HAMMURABI</Description>
 			<Civilopedia>TXT_KEY_LEADER_HAMMURABI_PEDIA</Civilopedia>
@@ -4598,7 +4598,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_BUREAUCRACY</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_ORGANIZED</TraitType>
@@ -4735,7 +4735,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Hannibal (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_HANNIBAL</Type>
 			<Description>TXT_KEY_LEADER_HANNIBAL</Description>
 			<Civilopedia>TXT_KEY_LEADER_HANNIBAL_PEDIA</Civilopedia>
@@ -4796,7 +4796,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_FREE_MARKET</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_FINANCIAL</TraitType>
@@ -4939,7 +4939,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Hatshepsut (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_HATSHEPSUT</Type>
 			<Description>TXT_KEY_LEADER_HATSHEPSUT</Description>
 			<Civilopedia>TXT_KEY_LEADER_HATSHEPSUT_PEDIA</Civilopedia>
@@ -5001,7 +5001,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_ORGANIZED_RELIGION</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_SPIRITUAL</TraitType>
@@ -5175,7 +5175,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Huayna_Capac (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_HUAYNA_CAPAC</Type>
 			<Description>TXT_KEY_LEADER_HUAYNA_CAPAC</Description>
 			<Civilopedia>TXT_KEY_LEADER_HUAYNA_CAPAC_PEDIA</Civilopedia>
@@ -5238,7 +5238,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_HEREDITARY_RULE</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_INDUSTRIOUS</TraitType>
@@ -5396,7 +5396,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Isabella (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_ISABELLA</Type>
 			<Description>TXT_KEY_LEADER_ISABELLA</Description>
 			<Civilopedia>TXT_KEY_LEADER_ISABELLA_PEDIA</Civilopedia>
@@ -5636,7 +5636,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Joao (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_JOAO</Type>
 			<Description>TXT_KEY_LEADER_JOAO</Description>
 			<Civilopedia>TXT_KEY_LEADER_JOAO_PEDIA</Civilopedia>
@@ -5842,7 +5842,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Julius_Caesar (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_JULIUS_CAESAR</Type>
 			<Description>TXT_KEY_LEADER_JULIUS_CAESAR</Description>
 			<Civilopedia>TXT_KEY_LEADER_JULIUS_CAESAR_PEDIA</Civilopedia>
@@ -5903,7 +5903,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>20</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_REPRESENTATION</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_ORGANIZED</TraitType>
@@ -6047,7 +6047,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Justinian (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_JUSTINIAN</Type>
 			<Description>TXT_KEY_LEADER_JUSTINIAN</Description>
 			<Civilopedia>TXT_KEY_LEADER_JUSTINIAN_PEDIA</Civilopedia>
@@ -6258,7 +6258,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Kublai_Khan (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_KUBLAI_KHAN</Type>
 			<Description>TXT_KEY_LEADER_KUBLAI_KHAN</Description>
 			<Civilopedia>TXT_KEY_LEADER_KUBLAI_KHAN_PEDIA</Civilopedia>
@@ -6513,7 +6513,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Lincoln (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_LINCOLN</Type>
 			<Description>TXT_KEY_LEADER_LINCOLN</Description>
 			<Civilopedia>TXT_KEY_LEADER_LINCOLN_PEDIA</Civilopedia>
@@ -6575,7 +6575,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_EMANCIPATION</FavoriteCivic>
-			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
+			<FavoriteReligion>NONE</FavoriteReligion> <!-- custom: lincoln seems to lean much more towards agnosticism, see notes for details -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_PHILOSOPHICAL</TraitType>
@@ -6720,7 +6720,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Louis_14 (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_LOUIS_XIV</Type>
 			<Description>TXT_KEY_LEADER_LOUISXIV</Description>
 			<Civilopedia>TXT_KEY_LEADER_LOUISXIV_PEDIA</Civilopedia>
@@ -6942,7 +6942,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Mansa_Musa (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_MANSA_MUSA</Type>
 			<Description>TXT_KEY_LEADER_MANSA_MUSA</Description>
 			<Civilopedia>TXT_KEY_LEADER_MANSA_MUSA_PEDIA</Civilopedia>
@@ -7145,7 +7145,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Chinese_Leader(Mao) (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_CHINESE_LEADER</Type>
 			<Description>TXT_KEY_LEADER_CHINESE_LEADER</Description>
 			<Civilopedia>TXT_KEY_LEADER_CHINESE_LEADER_PEDIA</Civilopedia>
@@ -7352,7 +7352,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Mehmed (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_MEHMED</Type>
 			<Description>TXT_KEY_LEADER_MEHMED</Description>
 			<Civilopedia>TXT_KEY_LEADER_MEHMED_II_PEDIA</Civilopedia>
@@ -7553,11 +7553,11 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
-			<Type>LEADER_MONTEZUMA</Type>
-			<Description>TXT_KEY_LEADER_MONTEZUMA</Description>
-			<Civilopedia>TXT_KEY_LEADER_MONTEZUMA_PEDIA</Civilopedia>
-			<ArtDefineTag>ART_DEF_LEADER_MONTEZUMA</ArtDefineTag>
+		<LeaderHeadInfo> <!-- custom: Moctezuma (2) (add leader name here too for easier vs code tree read while in the file) -->
+			<Type>LEADER_MOCTEZUMA</Type>
+			<Description>TXT_KEY_LEADER_MOCTEZUMA</Description>
+			<Civilopedia>TXT_KEY_LEADER_MOCTEZUMA_PEDIA</Civilopedia>
+			<ArtDefineTag>ART_DEF_LEADER_MOCTEZUMA</ArtDefineTag>
 			<iWonderConstructRand>0</iWonderConstructRand>
 			<iBaseAttitude>-1</iBaseAttitude>
 			<iBasePeaceWeight>0</iBasePeaceWeight>
@@ -7614,7 +7614,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_POLICE_STATE</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_AGGRESSIVE</TraitType>
@@ -7720,67 +7720,67 @@
 			<DiplomacyIntroMusicPeace>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_ANCIENT</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_EARLY_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_CLASSICAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_EARLY_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MEDIEVAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_MIDDLE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_MIDDLE_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_RENAISSANCE</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_MIDDLE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_MIDDLE_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_LATE_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_LATE_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_LATE_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyIntroMusicPeace>
 			<DiplomacyMusicPeace>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_ANCIENT</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_EARLY_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_EARLY_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_CLASSICAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_EARLY_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_EARLY_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MEDIEVAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_MIDDLE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_MIDDLE_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_RENAISSANCE</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_MIDDLE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_MIDDLE_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_LATE_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_LATE_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_LATE_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyMusicPeace>
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Napoleon (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_NAPOLEON</Type>
 			<Description>TXT_KEY_LEADER_NAPOLEON</Description>
 			<Civilopedia>TXT_KEY_LEADER_NAPOLEON_PEDIA</Civilopedia>
@@ -7993,7 +7993,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Pacal (2) (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_PACAL</Type>
 			<Description>TXT_KEY_LEADER_PACAL</Description>
 			<Civilopedia>TXT_KEY_LEADER_PACAL_PEDIA</Civilopedia>
@@ -8058,7 +8058,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_HEREDITARY_RULE</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion> <!-- custom: did not find much info for pacal (2) so going with the very succint wiki mention that i could not refute or investigate further in short time and quick data sample (if need else not necessary to explictly refute anwyays etc) hopefully accuate enough anyways etc -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_FINANCIAL</TraitType>
@@ -8205,7 +8205,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Pericles (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_PERICLES</Type>
 			<Description>TXT_KEY_LEADER_PERICLES</Description>
 			<Civilopedia>TXT_KEY_LEADER_PERICLES_PEDIA</Civilopedia>
@@ -8266,7 +8266,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_REPRESENTATION</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_PHILOSOPHICAL</TraitType>
@@ -8414,7 +8414,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Peter (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_PETER</Type>
 			<Description>TXT_KEY_LEADER_PETER</Description>
 			<Civilopedia>TXT_KEY_LEADER_PETER_PEDIA</Civilopedia>
@@ -8653,7 +8653,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Qin_Shi_Huang (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_QIN_SHI_HUANG</Type>
 			<Description>TXT_KEY_LEADER_QIN_SHI_HUANG</Description>
 			<Civilopedia>TXT_KEY_LEADER_QIN_SHI_HUANG_PEDIA</Civilopedia>
@@ -8716,7 +8716,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_BUREAUCRACY</FavoriteCivic>
-			<FavoriteReligion>RELIGION_DAOISM</FavoriteReligion>
+			<FavoriteReligion>RELIGION_DAOISM</FavoriteReligion> <!-- custom: not much info from quick read only a very tiny indirect reference to "taoism" (not daoism in eng sources it seems but anyways etc) in a wiki external source, so may or not be related but hopefully accurate enough anyways etc (Han adopted confucianism (from my quick read/understanding) but i was/am not sure daoism was the previous "religion"(?) (dominant) or if it was traditional chinese religion or/and some form of paganism they seem to mention too in qin dynasty wikis but as i don't know a lot and there is no direct contradiction keeping as is hoepfully nad maybe (or not but anyways... etc) accurate enough anyways etc) -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_INDUSTRIOUS</TraitType>
@@ -8881,7 +8881,7 @@
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
 		<!-- (advc: Swapped with Ramesses for alphabetical order) -->
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Ragnar (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_RAGNAR</Type>
 			<Description>TXT_KEY_LEADER_RAGNAR</Description>
 			<Civilopedia>TXT_KEY_LEADER_RAGNAR_PEDIA</Civilopedia>
@@ -8943,7 +8943,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_HEREDITARY_RULE</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_FINANCIAL</TraitType>
@@ -9082,7 +9082,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Ramesses (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_RAMESSES</Type>
 			<Description>TXT_KEY_LEADER_RAMESSES</Description>
 			<Civilopedia>TXT_KEY_LEADER_RAMESSES_II_PEDIA</Civilopedia>
@@ -9147,7 +9147,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_ORGANIZED_RELIGION</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_SPIRITUAL</TraitType>
@@ -9319,7 +9319,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Franklin_Roosevelt (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_FRANKLIN_ROOSEVELT</Type>
 			<Description>TXT_KEY_LEADER_ROOSEVELT</Description>
 			<Civilopedia>TXT_KEY_LEADER_ROOSEVELT_PEDIA</Civilopedia>
@@ -9536,7 +9536,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Saladin (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_SALADIN</Type>
 			<Description>TXT_KEY_LEADER_SALADIN</Description>
 			<Civilopedia>TXT_KEY_LEADER_SALADIN_PEDIA</Civilopedia>
@@ -9776,7 +9776,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Shaka (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_SHAKA</Type>
 			<Description>TXT_KEY_LEADER_SHAKA</Description>
 			<Civilopedia>TXT_KEY_LEADER_SHAKA_PEDIA</Civilopedia>
@@ -9837,7 +9837,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>20</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_POLICE_STATE</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_AGGRESSIVE</TraitType>
@@ -9969,7 +9969,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Sitting_Bull (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_SITTING_BULL</Type>
 			<Description>TXT_KEY_LEADER_SITTING_BULL</Description>
 			<Civilopedia>TXT_KEY_LEADER_SITTING_BULL_PEDIA</Civilopedia>
@@ -10030,7 +10030,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>50</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_ENVIRONMENTALISM</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_PHILOSOPHICAL</TraitType>
@@ -10172,7 +10172,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Stalin (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_STALIN</Type>
 			<Description>TXT_KEY_LEADER_STALIN</Description>
 			<Civilopedia>TXT_KEY_LEADER_JOSEF_STALIN_PEDIA</Civilopedia>
@@ -10413,7 +10413,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Suleiman (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_SULEIMAN</Type>
 			<Description>TXT_KEY_LEADER_SULEIMAN</Description>
 			<Civilopedia>TXT_KEY_LEADER_SULEIMAN_PEDIA</Civilopedia>
@@ -10618,7 +10618,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Suryavarman (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_SURYAVARMAN</Type>
 			<Description>TXT_KEY_LEADER_SURYAVARMAN</Description>
 			<Civilopedia>TXT_KEY_LEADER_SURYAVARMAN_PEDIA</Civilopedia>
@@ -10856,7 +10856,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Tokugawa (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_TOKUGAWA</Type>
 			<Description>TXT_KEY_LEADER_TOKUGAWA</Description>
 			<Civilopedia>TXT_KEY_LEADER_TOKUGAWA_PEDIA</Civilopedia>
@@ -11108,7 +11108,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Victoria (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_VICTORIA</Type>
 			<Description>TXT_KEY_LEADER_VICTORIA</Description>
 			<Civilopedia>TXT_KEY_LEADER_VICTORIA_PEDIA</Civilopedia>
@@ -11305,7 +11305,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Wangkon (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_WANGKON</Type>
 			<Description>TXT_KEY_LEADER_WANGKON</Description>
 			<Civilopedia>TXT_KEY_LEADER_WANG_KON_PEDIA</Civilopedia>
@@ -11367,7 +11367,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_CASTE_SYSTEM</FavoriteCivic>
-			<FavoriteReligion>RELIGION_CONFUCIANISM</FavoriteReligion>
+			<FavoriteReligion>RELIGION_BUDDHISM</FavoriteReligion> <!-- custom: no confucianism anymore, leaning closer to buddhism it seems, so changed to it, read notes for details -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_FINANCIAL</TraitType>
@@ -11513,7 +11513,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Washington (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_WASHINGTON</Type>
 			<Description>TXT_KEY_LEADER_WASHINGTON</Description>
 			<Civilopedia>TXT_KEY_LEADER_WASHINGTON_PEDIA</Civilopedia>
@@ -11745,7 +11745,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Willhem_Van_Oranje (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_WILLEM_VAN_ORANJE</Type>
 			<Description>TXT_KEY_LEADER_WILLEM_VAN_ORANJE</Description>
 			<Civilopedia>TXT_KEY_LEADER_WILLEM_VAN_ORANJE_PEDIA</Civilopedia>
@@ -11957,7 +11957,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Zara_Yaqob (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_ZARA_YAQOB</Type>
 			<Description>TXT_KEY_LEADER_ZARA_YAQOB</Description>
 			<Civilopedia>TXT_KEY_LEADER_ZARA_YAQOB_PEDIA</Civilopedia>
@@ -12170,7 +12170,7 @@
 		if it works
 		Will also change Zara Yaqob's assets later,	first testing to see if it works
 		-->
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: Ogiso Igodo (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_OGISO_IGODO</Type>
 			<Description>TXT_KEY_LEADER_OGISO_IGODO</Description>
 			<Civilopedia>TXT_KEY_LEADER_OGISO_IGODO_PEDIA</Civilopedia>
@@ -12232,8 +12232,10 @@
 			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_ANNOYED</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_THEOCRACY</FavoriteCivic>
-			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
+			<!-- custom: Kingdom of Benin was a hereditary monarchy according to: https://en.wikipedia.org/wiki/Kingdom_of_Benin#Burials -->
+			<FavoriteCivic>CIVIC_HEREDITARY_RULE</FavoriteCivic>
+			<!-- custom: they seem to lean more towards paganism than christianity even though both seem ot be part of the kingdom of benin i mean anyways, etc, see notes for details -->
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_PROTECTIVE</TraitType>

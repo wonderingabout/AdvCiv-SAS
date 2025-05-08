@@ -1311,42 +1311,42 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_MONTEZUMA_EARLY_INTRO</SoundID>
+			<SoundID>DIPLO_MOCTEZUMA_EARLY_INTRO</SoundID>
 			<Filename>Sounds/Diplomacy/Montezuma_Early_Intro</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_MONTEZUMA_EARLY_LP</SoundID>
+			<SoundID>DIPLO_MOCTEZUMA_EARLY_LP</SoundID>
 			<Filename>Sounds/Diplomacy/Montezuma_Early_Lp</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_MONTEZUMA_MIDDLE_INTRO</SoundID>
+			<SoundID>DIPLO_MOCTEZUMA_MIDDLE_INTRO</SoundID>
 			<Filename>Sounds/Diplomacy/Montezuma_Middle_Intro</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_MONTEZUMA_MIDDLE_LP</SoundID>
+			<SoundID>DIPLO_MOCTEZUMA_MIDDLE_LP</SoundID>
 			<Filename>Sounds/Diplomacy/Montezuma_Middle_Lp</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_MONTEZUMA_LATE_INTRO</SoundID>
+			<SoundID>DIPLO_MOCTEZUMA_LATE_INTRO</SoundID>
 			<Filename>Sounds/Diplomacy/Montezuma_Middle_Intro</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_MONTEZUMA_LATE_LP</SoundID>
+			<SoundID>DIPLO_MOCTEZUMA_LATE_LP</SoundID>
 			<Filename>Sounds/Diplomacy/Montezuma_Middle_Lp</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -3642,14 +3642,14 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_BUILD_CONFUCIAN</SoundID>
+			<SoundID>SND_BUILD_PAGAN</SoundID>
 			<Filename>Sounds/Buildings/ConfucianistDink</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_BUILD_CONFUCIAN_MOVIE</SoundID>
+			<SoundID>SND_BUILD_PAGAN_MOVIE</SoundID>
 			<Filename>Sounds/Buildings/Confuscianist</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -5476,7 +5476,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_CONFUCIAN_MISS_ACTIVATE</SoundID>
+			<SoundID>SND_PAGAN_MISS_ACTIVATE</SoundID>
 			<Filename>Sounds/Units/ConfucianMissActivate</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>

@@ -1050,14 +1050,14 @@ I am not sure which i should take, but since there are redundancies i guess i sh
 			<Rotate>45</Rotate>
 			<Scale>2.9</Scale>
 		</ArtRef>
-		<ArtRef Name="building:BUILDING_CONFUCIAN_TEMPLE">
+		<ArtRef Name="building:BUILDING_PAGAN_TEMPLE">
 			<Rotate>45</Rotate>
 			<Scale>2.5</Scale>
 		</ArtRef>
 		<ArtRef Name="building:BUILDING_DAOIST_TEMPLE">
 			<Scale>2.75</Scale>
 		</ArtRef>
-		<ArtRef Name="building:BUILDING_CONFUCIAN_MONASTERY">
+		<ArtRef Name="building:BUILDING_PAGAN_MONASTERY">
 			<Scale>2.5</Scale>
 		</ArtRef>
 		<ArtRef Name="building:BUILDING_DAOIST_MONASTERY">
@@ -1135,7 +1135,7 @@ I am not sure which i should take, but since there are redundancies i guess i sh
 			<Attribute Class="Rotation">90,270</Attribute>
 			<Scale>2.09</Scale>
 		</ArtRef>
-		<ArtRef Name="building:BUILDING_CONFUCIAN_CATHEDRAL">
+		<ArtRef Name="building:BUILDING_PAGAN_CATHEDRAL">
 			<Attribute Class="Rotation">90,180</Attribute>
 			<Scale>2.0</Scale>
 		</ArtRef>
@@ -1185,7 +1185,7 @@ I am not sure which i should take, but since there are redundancies i guess i sh
 		<ArtRef Name="building:BUILDING_BUDDHIST_SHRINE">
 			<Attribute Class="Rotation">0,180</Attribute>
 		</ArtRef>
-		<ArtRef Name="building:BUILDING_CONFUCIAN_SHRINE">
+		<ArtRef Name="building:BUILDING_PAGAN_SHRINE">
 			<Attribute Class="Rotation">0,180</Attribute>
 			<Scale>1.0</Scale>
 		</ArtRef>

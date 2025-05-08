@@ -787,7 +787,7 @@
 				<BuildingClass>BUILDINGCLASS_ISLAMIC_CATHEDRAL</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_HINDU_CATHEDRAL</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_BUDDHIST_CATHEDRAL</BuildingClass>
-				<BuildingClass>BUILDINGCLASS_CONFUCIAN_CATHEDRAL</BuildingClass>
+				<BuildingClass>BUILDINGCLASS_PAGAN_CATHEDRAL</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_DAOIST_CATHEDRAL</BuildingClass>
 			</BuildingsRequired>
 			<iNumBuildings>1</iNumBuildings>
@@ -1249,8 +1249,8 @@
 			<BonusesRequired/>
 			<RoutesRequired/>
 			<ReligionsRequired>
+				<ReligionType>RELIGION_PAGANISM</ReligionType>
 				<ReligionType>RELIGION_BUDDHISM</ReligionType>
-				<ReligionType>RELIGION_CONFUCIANISM</ReligionType>
 				<ReligionType>RELIGION_DAOISM</ReligionType>
 			</ReligionsRequired>
 			<iNumReligions>1</iNumReligions>
@@ -7245,7 +7245,7 @@
 			<BuildingsRequired>
 				<BuildingClass>BUILDINGCLASS_BUDDHIST_MONASTERY</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_CHRISTIAN_MONASTERY</BuildingClass>
-				<BuildingClass>BUILDINGCLASS_CONFUCIAN_MONASTERY</BuildingClass>
+				<BuildingClass>BUILDINGCLASS_PAGAN_MONASTERY</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_HINDU_MONASTERY</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_ISLAMIC_MONASTERY</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_JEWISH_MONASTERY</BuildingClass>
@@ -9772,7 +9772,7 @@
 				<BuildingClass>BUILDINGCLASS_BUDDHIST_TEMPLE</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_HINDU_TEMPLE</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_JEWISH_TEMPLE</BuildingClass>
-				<BuildingClass>BUILDINGCLASS_CONFUCIAN_TEMPLE</BuildingClass>
+				<BuildingClass>BUILDINGCLASS_PAGAN_TEMPLE</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_DAOIST_TEMPLE</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_CHRISTIAN_TEMPLE</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_ISLAMIC_TEMPLE</BuildingClass>
@@ -10145,7 +10145,7 @@
 				<BuildingClass>BUILDINGCLASS_ISLAMIC_CATHEDRAL</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_HINDU_CATHEDRAL</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_BUDDHIST_CATHEDRAL</BuildingClass>
-				<BuildingClass>BUILDINGCLASS_CONFUCIAN_CATHEDRAL</BuildingClass>
+				<BuildingClass>BUILDINGCLASS_PAGAN_CATHEDRAL</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_DAOIST_CATHEDRAL</BuildingClass>
 			</BuildingsRequired>
 			<iNumBuildings>1</iNumBuildings>
@@ -12668,7 +12668,7 @@
 			<BuildingsRequired>
 				<BuildingClass>BUILDINGCLASS_BUDDHIST_MONASTERY</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_CHRISTIAN_MONASTERY</BuildingClass>
-				<BuildingClass>BUILDINGCLASS_CONFUCIAN_MONASTERY</BuildingClass>
+				<BuildingClass>BUILDINGCLASS_PAGAN_MONASTERY</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_HINDU_MONASTERY</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_ISLAMIC_MONASTERY</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_JEWISH_MONASTERY</BuildingClass>

@@ -17793,20 +17793,20 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<BuildingInfo>
-			<BuildingClass>BUILDINGCLASS_CONFUCIAN_TEMPLE</BuildingClass>
-			<Type>BUILDING_CONFUCIAN_TEMPLE</Type>
+			<BuildingClass>BUILDINGCLASS_PAGAN_TEMPLE</BuildingClass>
+			<Type>BUILDING_PAGAN_TEMPLE</Type>
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
-			<Description>TXT_KEY_BUILDING_CONFUCIAN_TEMPLE</Description>
-			<Civilopedia>TXT_KEY_BUILDING_CONFUCIAN_TEMPLE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_CONFUCIAN_TEMPLE_STRATEGY</Strategy>
+			<Description>TXT_KEY_BUILDING_PAGAN_TEMPLE</Description>
+			<Civilopedia>TXT_KEY_BUILDING_PAGAN_TEMPLE_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_PAGAN_TEMPLE_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
-			<ArtDefineTag>ART_DEF_BUILDING_CONFUCIAN_TEMPLE</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_BUILDING_PAGAN_TEMPLE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
 			<HolyCity>NONE</HolyCity>
-			<ReligionType>RELIGION_CONFUCIANISM</ReligionType>
+			<ReligionType>RELIGION_PAGANISM</ReligionType>
 			<StateReligion>NONE</StateReligion>
 			<bStateReligion>0</bStateReligion>
-			<PrereqReligion>RELIGION_CONFUCIANISM</PrereqReligion>
+			<PrereqReligion>RELIGION_PAGANISM</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<FoundsCorporation>NONE</FoundsCorporation>
 			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
@@ -17942,7 +17942,7 @@
 			<FreeSpecialistCounts/>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
-			<ConstructSound>AS2D_BUILD_CONFUCIAN</ConstructSound>
+			<ConstructSound>AS2D_BUILD_PAGAN</ConstructSound>
 			<BonusHealthChanges/>
 			<BonusHappinessChanges/>
 			<BonusProductionModifiers/>
@@ -17973,20 +17973,20 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<BuildingInfo>
-			<BuildingClass>BUILDINGCLASS_CONFUCIAN_CATHEDRAL</BuildingClass>
-			<Type>BUILDING_CONFUCIAN_CATHEDRAL</Type>
+			<BuildingClass>BUILDINGCLASS_PAGAN_CATHEDRAL</BuildingClass>
+			<Type>BUILDING_PAGAN_CATHEDRAL</Type>
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
-			<Description>TXT_KEY_BUILDING_CONFUCIAN_CATHEDRAL</Description>
-			<Civilopedia>TXT_KEY_BUILDING_CONFUCIAN_CATHEDRAL_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_CONFUCIAN_CATHEDRAL_STRATEGY</Strategy>
+			<Description>TXT_KEY_BUILDING_PAGAN_CATHEDRAL</Description>
+			<Civilopedia>TXT_KEY_BUILDING_PAGAN_CATHEDRAL_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_PAGAN_CATHEDRAL_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
-			<ArtDefineTag>ART_DEF_BUILDING_CONFUCIAN_CATHEDRAL</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_BUILDING_PAGAN_CATHEDRAL</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
 			<HolyCity>NONE</HolyCity>
-			<ReligionType>RELIGION_CONFUCIANISM</ReligionType>
+			<ReligionType>RELIGION_PAGANISM</ReligionType>
 			<StateReligion>NONE</StateReligion>
 			<bStateReligion>0</bStateReligion>
-			<PrereqReligion>RELIGION_CONFUCIANISM</PrereqReligion>
+			<PrereqReligion>RELIGION_PAGANISM</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<FoundsCorporation>NONE</FoundsCorporation>
 			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
@@ -18120,7 +18120,7 @@
 			<FreeSpecialistCounts/>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
-			<ConstructSound>AS2D_BUILD_CONFUCIAN</ConstructSound>
+			<ConstructSound>AS2D_BUILD_PAGAN</ConstructSound>
 			<BonusHealthChanges/>
 			<BonusHappinessChanges>
 				<BonusHappinessChange>
@@ -18140,7 +18140,7 @@
 			<BuildingHappinessChanges/>
 			<PrereqBuildingClasses>
 				<PrereqBuildingClass>
-					<BuildingClassType>BUILDINGCLASS_CONFUCIAN_TEMPLE</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_PAGAN_TEMPLE</BuildingClassType>
 					<iNumBuildingNeeded>2</iNumBuildingNeeded>
 				</PrereqBuildingClass>
 			</PrereqBuildingClasses>
@@ -18166,20 +18166,20 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<BuildingInfo>
-			<BuildingClass>BUILDINGCLASS_CONFUCIAN_MONASTERY</BuildingClass>
-			<Type>BUILDING_CONFUCIAN_MONASTERY</Type>
+			<BuildingClass>BUILDINGCLASS_PAGAN_MONASTERY</BuildingClass>
+			<Type>BUILDING_PAGAN_MONASTERY</Type>
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
-			<Description>TXT_KEY_BUILDING_CONFUCIAN_MONASTERY</Description>
-			<Civilopedia>TXT_KEY_BUILDING_CONFUCIAN_MONASTERY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_CONFUCIAN_MONASTERY_STRATEGY</Strategy>
+			<Description>TXT_KEY_BUILDING_PAGAN_MONASTERY</Description>
+			<Civilopedia>TXT_KEY_BUILDING_PAGAN_MONASTERY_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_PAGAN_MONASTERY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
-			<ArtDefineTag>ART_DEF_BUILDING_CONFUCIAN_MONASTERY</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_BUILDING_PAGAN_MONASTERY</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
 			<HolyCity>NONE</HolyCity>
-			<ReligionType>RELIGION_CONFUCIANISM</ReligionType>
+			<ReligionType>RELIGION_PAGANISM</ReligionType>
 			<StateReligion>NONE</StateReligion>
 			<bStateReligion>0</bStateReligion>
-			<PrereqReligion>RELIGION_CONFUCIANISM</PrereqReligion>
+			<PrereqReligion>RELIGION_PAGANISM</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<FoundsCorporation>NONE</FoundsCorporation>
 			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
@@ -18314,7 +18314,7 @@
 			<FreeSpecialistCounts/>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
-			<ConstructSound>AS2D_BUILD_CONFUCIAN</ConstructSound>
+			<ConstructSound>AS2D_BUILD_PAGAN</ConstructSound>
 			<BonusHealthChanges/>
 			<BonusHappinessChanges/>
 			<BonusProductionModifiers/>
@@ -18340,23 +18340,23 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<BuildingInfo>
-			<BuildingClass>BUILDINGCLASS_CONFUCIAN_SHRINE</BuildingClass>
-			<Type>BUILDING_CONFUCIAN_SHRINE</Type>
+			<BuildingClass>BUILDINGCLASS_PAGAN_SHRINE</BuildingClass>
+			<Type>BUILDING_PAGAN_SHRINE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
-			<Description>TXT_KEY_BUILDING_CONFUCIAN_SHRINE</Description>
-			<Civilopedia>TXT_KEY_BUILDING_CONFUCIAN_SHRINE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_CONFUCIAN_SHRINE_STRATEGY</Strategy>
+			<Description>TXT_KEY_BUILDING_PAGAN_SHRINE</Description>
+			<Civilopedia>TXT_KEY_BUILDING_PAGAN_SHRINE_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_PAGAN_SHRINE_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
-			<ArtDefineTag>ART_DEF_BUILDING_CONFUCIAN_SHRINE</ArtDefineTag>
-			<MovieDefineTag>ART_DEF_MOVIE_SHRINE_CONFUCIAN</MovieDefineTag>
-			<HolyCity>RELIGION_CONFUCIANISM</HolyCity>
-			<ReligionType>RELIGION_CONFUCIANISM</ReligionType>
+			<ArtDefineTag>ART_DEF_BUILDING_PAGAN_SHRINE</ArtDefineTag>
+			<MovieDefineTag>ART_DEF_MOVIE_SHRINE_PAGAN</MovieDefineTag>
+			<HolyCity>RELIGION_PAGANISM</HolyCity>
+			<ReligionType>RELIGION_PAGANISM</ReligionType>
 			<StateReligion>NONE</StateReligion>
 			<bStateReligion>0</bStateReligion>
-			<PrereqReligion>RELIGION_CONFUCIANISM</PrereqReligion>
+			<PrereqReligion>RELIGION_PAGANISM</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<FoundsCorporation>NONE</FoundsCorporation>
-			<GlobalReligionCommerce>RELIGION_CONFUCIANISM</GlobalReligionCommerce>
+			<GlobalReligionCommerce>RELIGION_PAGANISM</GlobalReligionCommerce>
 			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
@@ -18481,7 +18481,7 @@
 			<CommerceHappinesses/>
 			<ReligionChanges>
 				<ReligionChange>
-					<ReligionType>RELIGION_CONFUCIANISM</ReligionType>
+					<ReligionType>RELIGION_PAGANISM</ReligionType>
 					<iReligionChange>1</iReligionChange>
 				</ReligionChange>
 			</ReligionChanges>
@@ -18499,7 +18499,7 @@
 				<bCommerceChangeOriginalOwner>0</bCommerceChangeOriginalOwner>
 				<bCommerceChangeOriginalOwner>1</bCommerceChangeOriginalOwner>
 			</CommerceChangeOriginalOwners>
-			<ConstructSound>AS2D_BUILD_CONFUCIAN</ConstructSound>
+			<ConstructSound>AS2D_BUILD_PAGAN</ConstructSound>
 			<BonusHealthChanges/>
 			<BonusHappinessChanges/>
 			<BonusProductionModifiers/>

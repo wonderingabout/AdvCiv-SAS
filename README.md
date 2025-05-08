@@ -102,6 +102,7 @@ example 4: new Leaders (based on History Rewritten's code) and Buildings (based 
 <img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (3).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (4).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (5).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (6).JPG" width="250"></img>
 
 looks quite very great hehe (at least i think so) anyways etc...
 

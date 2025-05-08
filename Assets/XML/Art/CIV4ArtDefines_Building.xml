@@ -951,7 +951,7 @@ and then modified for AdvCiv-SAS
 			<Button>,Art/Interface/Buttons/Buildings/Shrine_Buddhist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,13</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_CONFUCIAN_TEMPLE</Type>
+			<Type>ART_DEF_BUILDING_PAGAN_TEMPLE</Type>
 			<LSystem>LSYSTEM_2x2</LSystem>
 			<bAnimated>1</bAnimated>
 			<fScale>2.5</fScale>
@@ -961,7 +961,7 @@ and then modified for AdvCiv-SAS
 			<Button>,Art/Interface/Buttons/Buildings/Temple_Confuscianist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,4,12</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_CONFUCIAN_CATHEDRAL</Type>
+			<Type>ART_DEF_BUILDING_PAGAN_CATHEDRAL</Type>
 			<LSystem>LSYSTEM_2x3</LSystem>
 			<bAnimated>0</bAnimated>
 			<fScale>1.8</fScale>
@@ -971,7 +971,7 @@ and then modified for AdvCiv-SAS
 			<Button>,Art/Interface/Buttons/Buildings/Cathedral_Confuscianist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,1,12</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_CONFUCIAN_MONASTERY</Type>
+			<Type>ART_DEF_BUILDING_PAGAN_MONASTERY</Type>
 			<LSystem>LSYSTEM_2x2</LSystem>
 			<bAnimated>1</bAnimated>
 			<fScale>2.5</fScale>
@@ -981,7 +981,7 @@ and then modified for AdvCiv-SAS
 			<Button>,Art/Interface/Buttons/Buildings/Monastery_Confuscianist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,2,12</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_CONFUCIAN_SHRINE</Type>
+			<Type>ART_DEF_BUILDING_PAGAN_SHRINE</Type>
 			<LSystem>LSYSTEM_3x2</LSystem>
 			<bAnimated>0</bAnimated>
 			<fScale>1.0</fScale>

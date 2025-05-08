@@ -165,12 +165,12 @@ and then modified for AdvCiv-SAS
 			<Sound>AS2D_BUILD_BUDDHIST</Sound>
 		</ReligionInfo>
 		<ReligionInfo>
-			<Type>RELIGION_CONFUCIANISM</Type>
-			<Description>TXT_KEY_RELIGION_CONFUCIANISM</Description>
-			<Adjective>TXT_KEY_RELIGION_CONFUCIANISM_ADJECTIVE</Adjective>
-			<Civilopedia>TXT_KEY_RELIGION_CONFUCIANISM_PEDIA</Civilopedia>
-			<TechPrereq>TECH_CODE_OF_LAWS</TechPrereq>
-			<FreeUnitClass>UNITCLASS_CONFUCIAN_MISSIONARY</FreeUnitClass>
+			<Type>RELIGION_PAGANISM</Type>
+			<Description>TXT_KEY_RELIGION_PAGANISM</Description>
+			<Adjective>TXT_KEY_RELIGION_PAGANISM_ADJECTIVE</Adjective>
+			<Civilopedia>TXT_KEY_RELIGION_PAGANISM_PEDIA</Civilopedia>
+			<TechPrereq>TECH_MYSTICISM</TechPrereq>
+			<FreeUnitClass>UNITCLASS_PAGAN_MISSIONARY</FreeUnitClass>
 			<iFreeUnits>1</iFreeUnits>
 			<iSpreadFactor>100</iSpreadFactor>
 			<GlobalReligionCommerces>
@@ -192,8 +192,8 @@ and then modified for AdvCiv-SAS
 			<TechButton>Art/Interface/Buttons/TechTree/Confucianism.dds</TechButton>
 			<GenericTechButton>,Art/Interface/Buttons/TechTree/Confucianism.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,7,3</GenericTechButton>
 			<MovieFile>Art/Movies/Religion/Confucianism/Con_Found.nif</MovieFile>
-			<MovieSound>AS2D_BUILD_CONFUCIAN_MOVIE</MovieSound>
-			<Sound>AS2D_BUILD_CONFUCIAN</Sound>
+			<MovieSound>AS2D_BUILD_PAGAN_MOVIE</MovieSound>
+			<Sound>AS2D_BUILD_PAGAN</Sound>
 		</ReligionInfo>
 		<ReligionInfo>
 			<Type>RELIGION_DAOISM</Type>
