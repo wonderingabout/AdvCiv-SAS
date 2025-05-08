@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- custom: Assets imported from Rise Of Mankind (291) mod (with
+some modifications or not for AdvCiv-SAS anyways etc):
+Assets imported from this file (possibly from other ones too):
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Rise of Mankind\
+which may be modified or not for AdvCiv-SAS
+-->
+<Civ4GameText>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDINGS_ROM_291</Tag>
+		<English>Buildings</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_UNITS_ROM_291</Tag>
+		<English>Units</English>
+	</TEXT>
+</Civ4GameText>

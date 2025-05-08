@@ -13,9 +13,9 @@
 # C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\History Rewritten\Assets\Python\Pedia\CvPediaReligion.py
 # which may be modified or not for AdvCiv-SAS
 #
-# <!-- custom: part of the code here (placeBuildings in particular, but not exhaustive or maybe exhaustive
-# or not, anyways, is imported from RFC Dawn of Civilization mod:
-# C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaReligion.py
+# <!-- custom: part of the code here (placeBuilding and placeUnit in particular, but not exhaustive or maybe exhaustive
+# or not, anyways, is imported from Rise of Mankind (291) mod:
+# C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Rise of Mankind\
 # which may be modified or not for AdvCiv-SAS
 
 from CvPythonExtensions import *
@@ -45,10 +45,15 @@ class SevoPediaReligion:
 		self.W_REQUIRES = 84
 		self.H_REQUIRES = 110
 
-		self.X_BUILDINGS = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
-		self.Y_BUILDINGS = self.Y_REQUIRES
-		self.W_BUILDINGS = self.top.R_PEDIA_PAGE - self.X_BUILDINGS
-		self.H_BUILDINGS = self.H_REQUIRES
+		self.X_BUILDING = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
+		self.Y_BUILDING = self.Y_REQUIRES
+		self.W_BUILDING = (self.top.R_PEDIA_PAGE - self.X_BUILDING - self.MEDIUM_MARGIN) / 2
+		self.H_BUILDING = self.H_REQUIRES
+
+		self.X_UNIT = self.X_BUILDING + self.W_BUILDING + self.MEDIUM_MARGIN
+		self.Y_UNIT = self.Y_BUILDING
+		self.W_UNIT = self.top.R_PEDIA_PAGE - self.X_UNIT
+		self.H_UNIT = 110
 
 		self.X_SPECIAL = self.X_MAIN_PANE + self.W_MAIN_PANE + self.MEDIUM_MARGIN
 		self.Y_SPECIAL = self.Y_REQUIRES + self.H_REQUIRES + self.MEDIUM_MARGIN - 5
@@ -85,7 +90,8 @@ class SevoPediaReligion:
 
 		self.placeSpecial()
 		self.placeRequires()
-		self.placeBuildings()
+		self.placeBuilding()
+		self.placeUnit()
 		self.placeLeaders()
 		self.placeText()
 
@@ -101,27 +107,36 @@ class SevoPediaReligion:
 			screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
 
 
-
-	def placeBuildings(self):
+	# Rise of Mankind 2.9
+	def placeBuilding(self):
 		screen = self.top.getScreen()
-		panel = self.top.getNextWidgetName()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_BUILDINGS_ROM_291", ()), "", False, True, self.X_BUILDING, self.Y_BUILDING, self.W_BUILDING, self.H_BUILDING, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.attachLabel(panelName, "", "  ")
+		for iBuilding in range(gc.getNumBuildingInfos()):
+			# buildings have several options for religions so need to check them all, only one of them needs to be true
+			iPrereq = gc.getBuildingInfo(iBuilding).getPrereqReligion()
+			iPrereq2 = gc.getBuildingInfo(iBuilding).getReligionType()
+			iPrereq3 = gc.getBuildingInfo(iBuilding).getStateReligion()
+			iPrereq4 = gc.getBuildingInfo(iBuilding).getGlobalReligionCommerce()
+			if (iPrereq == self.iReligion or iPrereq2 == self.iReligion or iPrereq3 == self.iReligion):
+				screen.attachImageButton(panelName, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
+#			elif (iPrereq == self.iReligion and iPrereq4 > 0):
+#				screen.attachImageButton(panelName, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
 
-		screen.addPanel(panel, CyTranslator().getText("TXT_KEY_PEDIA_BUILDINGS", ()), "", False, True, self.X_BUILDINGS, self.Y_BUILDINGS, self.W_BUILDINGS, self.H_BUILDINGS, PanelStyles.PANEL_STYLE_BLUE50)
-		screen.attachLabel(panel, "", "  ")
 
-		for iBuildingClass in xrange(gc.getNumBuildingClassInfos()):
-			iCivilization = CyGame().getActiveCivilizationType()
-			if iCivilization > -1:
-				iBuilding = gc.getCivilizationInfo(iCivilization).getCivilizationBuildings(iBuildingClass)
-			else:
-				iBuilding = gc.getBuildingClassInfo(iBuildingClass).getDefaultBuildingIndex()
 
-			if iBuilding > -1:
-				building = gc.getBuildingInfo(iBuilding)
-				#if self.iReligion in [building.getPrereqReligion(), building.getOrPrereqReligion(), building.getStateReligion(), building.getOrStateReligion(), building.getHolyCity()]:
-				#	screen.attachImageButton(panel, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, -1, False)
-				if self.iReligion in [building.getPrereqReligion(), building.getStateReligion()]:
-					screen.attachImageButton(panel, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, -1, False)
+	def placeUnit(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_UNITS_ROM_291", ()), "", False, True, self.X_UNIT, self.Y_UNIT, self.W_UNIT, self.H_UNIT, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.attachLabel(panelName, "", "  ")
+		for iUnit in range(gc.getNumUnitInfos()):
+			iPrereq = gc.getUnitInfo(iUnit).getPrereqReligion()
+			iPrereq2 = gc.getUnitInfo(iUnit).getReligionType()
+			iPrereq3 = gc.getUnitInfo(iUnit).getStateReligion()
+			if (iPrereq == self.iReligion or iPrereq2 == self.iReligion or iPrereq3 == self.iReligion):
+				screen.attachImageButton(panelName, "", gc.getUnitInfo(iUnit).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 
 
 

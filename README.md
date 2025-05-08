@@ -95,7 +95,7 @@ example 3: ressources category, mostly my own modding and first attemps at decip
 
 <img src="./_1_AdvCiv-SAS/Images_In_General/0.65_sevopedia_ressources_copper_panel.JPG" width="250"></img>
 
-example 4: new Leaders (based on History Rewritten's code) and Buildings (based on RFC DOC's code) in Sevopedia Religion category:
+example 4: new Leaders (based on History Rewritten's code) and Buildings (based originally/initially on RFC DOC's code and then ROM 291 as it was cleaner and seemingly more exahaustive and has more other features too anyways etc) and Units (based on ROM 291's code too) in Sevopedia Religion category:
 
 <img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (2).JPG" width="250"></img>
@@ -345,6 +345,7 @@ exchanges/experiences during these times
 - Fall from Heaven II (also know as FFH2): i took quite a bit of content from there, thanks
 too too, thanks,
 - History Rewritten (also know as HR): i took quite a bit of content from there too, thanks,
+- Rise of Mankind (291) (i don't know their other name but maybe is fine to call them as is anyways etc (i also sometimes call them/their/this mod "ROM 291" (/ ROM 291) if accurate enough or some similar name i call them anyways etc)): a lot of very amazing code like religion leaders code, religion units code, many leaders, i don't know which exactly i'll take from, but very nice, thanks a lot! or to match other texts thanks too i mean anyways etc, thanks, anyways etc, thanks,
 - RFC Dawn Of Civilization (which i refer to as RFC DOC sometimes hopefully accurate anyways etc), while this mod is not my favourite somehow, i must admit they have some very nice content, in particular the Sevopedia categories i could take entirely for/in AdvCiv-SAS without barely any modification needed (for example the Sevopedia Terrain Page), thanks a lot!
 - Firaxis's Civ4 game and Civ4 BTS: Civ4 allows to do a lot of things with just XML,
 which surprised me a lot in a way that pleased me. So far i have not touched the deeper code
