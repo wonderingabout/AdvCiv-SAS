@@ -8,6 +8,10 @@
 #
 # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
 #
+# <!-- custom: part of the code here (placeReplacedBy (renamed from placeReplacements of: ) in particular, but not exhaustive or maybe exhaustive or not, anyways, is imported from RFC DOC mod:
+# C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaUnit.py
+# which may be modified or not for AdvCiv-SAS
+# -->
 
 from CvPythonExtensions import *
 import CvUtil
@@ -31,7 +35,7 @@ class SevoPediaUnit:
 		self.Y_UNIT_PANE = self.top.Y_PEDIA_PAGE
 		# <!-- custom: no margins to merge edges with promo pane for nicer display maybe i mean anyways etc -->
 		self.W_UNIT_PANE = (self.top.R_PEDIA_PAGE - self.X_UNIT_PANE) / 4
-		self.H_UNIT_PANE = 200
+		self.H_UNIT_PANE = 190
 
 		# <!-- custom: no margins to merge edges with unit pane for nicer display maybe i mean anyways etc -->
 		# <!-- custom: merge effect by partially joining their borders, i accidentally found or/and maybe got the idea and looks very nice, just is slightly not centered maybe fixable or not but and in all cases anyways etc anyways etc -->
@@ -67,8 +71,13 @@ class SevoPediaUnit:
 		self.W_PREREQ_PANE = self.W_UNIT_PANE * 2
 		self.H_PREREQ_PANE = 110
 
-		self.X_UPGRADES_TO_PANE = self.X_UNIT_PANE
-		self.Y_UPGRADES_TO_PANE = self.Y_PREREQ_PANE + self.H_PREREQ_PANE + self.SMALL_MARGIN
+		self.X_REPLACED_BY = self.X_PREREQ_PANE
+		self.Y_REPLACED_BY = self.Y_PREREQ_PANE + self.H_PREREQ_PANE + self.SMALL_MARGIN
+		self.W_REPLACED_BY = self.W_PREREQ_PANE
+		self.H_REPLACED_BY = self.H_PREREQ_PANE
+
+		self.X_UPGRADES_TO_PANE = self.X_PREREQ_PANE
+		self.Y_UPGRADES_TO_PANE = self.Y_REPLACED_BY + self.H_REPLACED_BY + self.SMALL_MARGIN
 		self.W_UPGRADES_TO_PANE = self.W_PREREQ_PANE
 		self.H_UPGRADES_TO_PANE = self.H_PREREQ_PANE
 
@@ -80,14 +89,14 @@ class SevoPediaUnit:
 		self.X_UNIT_ANIMATION = self.X_UNIT_PANE + self.W_SPECIAL_PANE + self.MEDIUM_MARGIN
 		self.Y_UNIT_ANIMATION = self.Y_UNIT_PANE + 7
 		self.W_UNIT_ANIMATION = (self.top.R_PEDIA_PAGE - self.X_UNIT_PANE) / 2
-		self.H_UNIT_ANIMATION = 400
+		self.H_UNIT_ANIMATION = self.H_UNIT_PANE + self.SMALL_MARGIN + self.H_PREREQ_PANE + self.SMALL_MARGIN + self.H_REPLACED_BY - 7
 
 		self.X_ROTATION_UNIT_ANIMATION = -20
 		self.Z_ROTATION_UNIT_ANIMATION = 30
 		self.SCALE_ANIMATION = 1.0
 
 		self.X_HISTORY_PANE = self.X_UNIT_ANIMATION
-		self.Y_HISTORY_PANE = self.Y_UNIT_ANIMATION + self.H_UNIT_ANIMATION + self.MEDIUM_MARGIN
+		self.Y_HISTORY_PANE = self.Y_UNIT_ANIMATION + self.H_UNIT_ANIMATION + self.MEDIUM_MARGIN + 17
 		self.W_HISTORY_PANE = self.W_UNIT_ANIMATION
 		self.H_HISTORY_PANE = self.top.B_PEDIA_PAGE - self.Y_HISTORY_PANE
 
@@ -111,6 +120,7 @@ class SevoPediaUnit:
 		self.placeStats()
 		self.placeUpgradesTo()
 		self.placeRequires()
+		self.placeReplacedBy()
 		self.placeSpecial()
 		self.placePromotions()
 		self.placeHistory()
@@ -223,6 +233,26 @@ class SevoPediaUnit:
 		iPrereq = gc.getUnitInfo(self.iUnit).getPrereqBuilding()
 		if (iPrereq >= 0):
 			screen.attachImageButton(panelName, "", gc.getBuildingInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iPrereq, -1, False)
+
+
+
+	def placeReplacedBy(self):
+		screen = self.top.getScreen()
+		panel = self.top.getNextWidgetName()
+		screen.addPanel(panel, CyTranslator().getText("TXT_KEY_PEDIA_REPLACED_BY_CUSTOM", ()), "", False, True, self.X_REPLACED_BY, self.Y_REPLACED_BY, self.W_REPLACED_BY, self.H_REPLACED_BY, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.attachLabel(panel, "", "  ")
+		
+		iUnitClass = gc.getUnitInfo(self.iUnit).getUnitClassType()
+		iBaseUnit = gc.getUnitClassInfo(iUnitClass).getDefaultUnitIndex()
+		
+		if self.iUnit != iBaseUnit:
+			screen.attachImageButton(panel, "", gc.getUnitInfo(iBaseUnit).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iBaseUnit, 1, False)
+			return
+		
+		for iUnit in xrange(gc.getNumUnitInfos()):
+			if self.iUnit != iUnit and not gc.getUnitInfo(iUnit).isGraphicalOnly():
+				if iUnitClass == gc.getUnitInfo(iUnit).getUnitClassType():
+					screen.attachImageButton(panel, "", gc.getUnitInfo(iUnit).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 
 
 

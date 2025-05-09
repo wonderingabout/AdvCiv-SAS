@@ -9666,10 +9666,10 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 						GC.getInfo(eLoopCivilization).getTextKeyWide()));
 			}
 		}
-
-		szBuffer.append(NEWLINE);
-		szBuffer.append(gDLL->getText("TXT_KEY_REPLACES_UNIT",
-				GC.getInfo(eDefaultUnit).getTextKeyWide()));
+		// <!-- custom: we now have a replaced by panel, so we don't need and don't want anymore this extra replaces field/line anyways etc (see sevopediaunit.py for details) -->
+		//szBuffer.append(NEWLINE);
+		//szBuffer.append(gDLL->getText("TXT_KEY_REPLACES_UNIT",
+		//		GC.getInfo(eDefaultUnit).getTextKeyWide()));
 	}
 
 	if (kUnitClass.isWorldUnit())
@@ -10033,9 +10033,10 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 				if (eLoopUnit != eUnit &&
 					eUnitClass == GC.getInfo(eLoopUnit).getUnitClassType())
 				{
-					szBuffer.append(NEWLINE);
-					szBuffer.append(gDLL->getText("TXT_KEY_REPLACED_BY_UNIT",
-							GC.getInfo(eLoopUnit).getTextKeyWide()));
+					// <!-- custom: we now have a replaced by panel, so we don't need and don't want anymore this extra replaced by field/line anyways etc (see sevopediaunit.py for details) -->
+					//szBuffer.append(NEWLINE);
+					//szBuffer.append(gDLL->getText("TXT_KEY_REPLACED_BY_UNIT",
+					//		GC.getInfo(eLoopUnit).getTextKeyWide()));
 				}
 			}
 		}

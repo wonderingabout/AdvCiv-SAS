@@ -122,6 +122,19 @@ new Cities (based on Middle-earth mod's (very amazing!!!!!! (Not that others are
 <img src="./_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (2).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (3).JPG" width="250"></img>
 
+##### example 6: unit list category
+
+Reordered and beautified the original AdvCiv Sevopedia code while trying to keep its original structure, but added relative positioning everywhere or almost if not everywhere, this means that ideally the panels sizes should/would/will respond/adjust/adapt maybe indeed but anyways etc... to the screen resolution, removing the old harcoded logic, hopefully cleaner now (not tested at smaller resolutions).
+
+Finally and most importantly, as something simialr as said in the paragraph just above (relative dimensioning in other panels even though still cool but anyways etc), new Replaced By imported from RFC DOC and adjusted or not or yes or and other or and not but anyways etc:
+
+<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (4).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (5).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (6).JPG" width="250"></img>
+
 ## Sex-neutral unit names or/and combat types (todo and non-exhaustive)
 
 Yet to be done, but i want (more at least) sex-neutral terms for units. Tbh i don't care much if at all (but is maybe nice, anyways), but i intend to implement some women units, especially light units where i think women make more sense (less strength required and they are more agile perhaps too, anyways). I also think they (some of them at least anyways) were very lousy (names), for example for "spearman" it's basically just weapon-man, i am not even sure it's a proper word for most units but i don't know much about this, anyways. Also, unless the unit was strongly masculine, i see no reason to use weaponman specifically, anyways.
