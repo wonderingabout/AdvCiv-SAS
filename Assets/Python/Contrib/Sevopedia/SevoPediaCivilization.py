@@ -8,6 +8,11 @@
 #
 # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
 #
+# <!-- custom: part of the code here (placeCities in particular, but not exhaustive or maybe exhaustive
+# or not, anyways, is imported from Middle-Earth's mod's Platypedia, in:
+# C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth\Assets\Python\Screens\PlatyPedia\PlatyPediaCivilization.py
+# which may be modified or not for AdvCiv-SAS
+# -->
 
 from CvPythonExtensions import *
 import CvUtil
@@ -24,20 +29,30 @@ class SevoPediaCivilization:
 		self.iCivilization = -1
 		self.top = main
 
+		self.MEDIUM_MARGIN = 15
+
 		self.X_MAIN_PANE = self.top.X_PEDIA_PAGE
 		self.Y_MAIN_PANE = self.top.Y_PEDIA_PAGE
 
 		self.Y_TECH = self.Y_MAIN_PANE
 		self.H_TECH = 110
 
-		self.Y_LEADER = self.Y_TECH + self.H_TECH + 10
-		self.H_LEADER = 110
+		self.Y_LEADER = self.Y_TECH + self.H_TECH + self.MEDIUM_MARGIN  - 5
+		self.H_LEADER = self.H_TECH
 
 		self.H_MAIN_PANE = self.Y_LEADER + self.H_LEADER - self.Y_MAIN_PANE
 		self.W_MAIN_PANE = self.H_MAIN_PANE
 
-		self.X_TECH = self.X_MAIN_PANE + self.W_MAIN_PANE + 10
-		self.W_TECH = self.top.R_PEDIA_PAGE - self.X_TECH
+		self.Y_TEXT = self.Y_MAIN_PANE + self.H_MAIN_PANE + self.MEDIUM_MARGIN
+		self.H_TEXT = self.top.B_PEDIA_PAGE - self.Y_TEXT
+
+		self.W_CITIES = 295
+		self.H_CITIES = self.H_MAIN_PANE + self.MEDIUM_MARGIN + self.H_TEXT
+		self.X_CITIES = self.top.R_PEDIA_PAGE - self.W_CITIES
+		self.Y_CITIES = self.Y_MAIN_PANE
+
+		self.X_TECH = self.X_MAIN_PANE + self.W_MAIN_PANE + self.MEDIUM_MARGIN
+		self.W_TECH = (self.top.R_PEDIA_PAGE - self.X_TECH - self.W_CITIES - (2 * self.MEDIUM_MARGIN)) / 2
 
 		self.X_LEADER = self.X_TECH
 		self.W_LEADER = self.W_TECH
@@ -48,24 +63,22 @@ class SevoPediaCivilization:
 		self.Y_ICON = self.Y_MAIN_PANE + (self.H_MAIN_PANE - self.H_ICON) / 2
 		self.ICON_SIZE = 64
 
-		self.X_BUILDING = self.X_MAIN_PANE
-		self.Y_BUILDING = self.Y_LEADER + self.H_LEADER + 10
+		self.X_BUILDING = self.X_TECH + self.W_TECH + self.MEDIUM_MARGIN
+		self.Y_BUILDING = self.Y_TECH
 		# <advc.004y> was 130
-		self.W_BUILDING = self.W_MAIN_PANE
+		self.W_BUILDING = self.W_TECH
 		# This would split the space evenly between UU and UB
 		#self.W_BUILDING = (self.top.R_PEDIA_PAGE - self.X_BUILDING - 10) // 2
 		# </advc.004y>
-		self.H_BUILDING = 110
+		self.H_BUILDING = self.H_TECH
 
-		self.X_UNIT = self.X_BUILDING + self.W_BUILDING + 10
-		self.Y_UNIT = self.Y_BUILDING
-		self.W_UNIT = self.top.R_PEDIA_PAGE - self.X_UNIT
-		self.H_UNIT = 110
+		self.X_UNIT = self.X_BUILDING
+		self.Y_UNIT = self.Y_LEADER
+		self.W_UNIT = self.W_TECH
+		self.H_UNIT = self.H_TECH
 
 		self.X_TEXT = self.X_MAIN_PANE
-		self.Y_TEXT = self.Y_BUILDING + self.H_BUILDING + 10
-		self.W_TEXT = self.top.R_PEDIA_PAGE - self.X_TEXT
-		self.H_TEXT = self.top.B_PEDIA_PAGE - self.Y_TEXT
+		self.W_TEXT = self.W_MAIN_PANE + self.MEDIUM_MARGIN + self.W_LEADER + self.MEDIUM_MARGIN + self.W_UNIT
 
 
 
@@ -77,11 +90,27 @@ class SevoPediaCivilization:
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
 		screen.addDDSGFC(self.top.getNextWidgetName(), ArtFileMgr.getCivilizationArtInfo(gc.getCivilizationInfo(self.iCivilization).getArtDefineTag()).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
+		self.placeCities()
 		self.placeTech()
 		self.placeBuilding()
 		self.placeUnit()
 		self.placeLeader()
 		self.placeText()
+
+
+
+	def placeCities(self):
+		screen = self.top.getScreen()
+		screen.addPanel(self.top.getNextWidgetName(), CyTranslator().getText("TXT_KEY_CONCEPT_CITIES", ()), "", True, True, self.X_CITIES, self.Y_CITIES, self.W_CITIES, self.H_CITIES, PanelStyles.PANEL_STYLE_BLUE50 )
+		Info = gc.getCivilizationInfo(self.iCivilization)
+		szText = ""
+		for i in xrange(Info.getNumCityNames()):
+			if i == 0:
+				szText += CyTranslator().getText("[ICON_STAR]", ())
+			else:
+				szText += "\n" + CyTranslator().getText("[ICON_BULLET]", ())
+			szText += CyTranslator().getText(Info.getCityNames(i), ())
+		screen.addMultilineText(self.top.getNextWidgetName(), szText, self.X_CITIES + 10, self.Y_CITIES + 30, self.W_CITIES, self.H_CITIES - 30, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

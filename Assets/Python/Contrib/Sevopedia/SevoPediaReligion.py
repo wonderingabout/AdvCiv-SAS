@@ -12,11 +12,13 @@
 # or not, anyways, is imported from History Rewritten mod:
 # C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\History Rewritten\Assets\Python\Pedia\CvPediaReligion.py
 # which may be modified or not for AdvCiv-SAS
+# -->
 #
 # <!-- custom: part of the code here (placeBuilding and placeUnit in particular, but not exhaustive or maybe exhaustive
 # or not, anyways, is imported from Rise of Mankind (291) mod:
 # C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Rise of Mankind\
 # which may be modified or not for AdvCiv-SAS
+# -->
 
 from CvPythonExtensions import *
 import CvUtil
