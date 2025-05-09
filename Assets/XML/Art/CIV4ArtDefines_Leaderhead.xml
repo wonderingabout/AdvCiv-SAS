@@ -6,9 +6,16 @@
 <!-- Leaderhead art path information -->
 <Civ4ArtDefines xmlns="x-schema:CIV4ArtDefinesSchema.xml">
 	<LeaderheadArtInfos>
+		<!-- custom: 
+		old barbarian button code:
+			<Button>,Art/interface/LeaderHeads/Btn_LH_Mongol_Genghis.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,6,12</Button>
+		new button imported from Realism invictus mod's .fpk and specifically and only this button
+		extracted (not whole files) with dragon unpacker, at file:
+		C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Realism Invictus\Assets\RI_37_Interface0.FPK
+		with some adjustments or not for AdvCiv-SAS -->
 		<LeaderheadArtInfo>
 			<Type>ART_DEF_LEADER_BARBARIAN</Type>
-			<Button>,Art/interface/LeaderHeads/Btn_LH_Mongol_Genghis.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,6,12</Button>
+			<Button>Art/interface/Buttons/LeaderHeads/TRTeambut_button.dds</Button>
 			<NIF>art/LeaderHeads/Sid/sid.nif</NIF>
 			<KFM>art/LeaderHeads/Sid/sid.kfm</KFM>
 			<NoShaderNIF>art/LeaderHeads/Sid/sid_noshader.nif</NoShaderNIF>
@@ -458,13 +465,11 @@
 		-->
 
 
-		<!-- custom: add Ogiso Igodo's Art (Picture)
-		did/done as advised to me by ChatGPT with some adjustments
-		or not for AdvCiv
-		-->
+		<!-- custom: add Ogiso Igodo's Art (Picture) did/done as advised to me by ChatGPT with
+		some adjustments or not for AdvCiv-SAS -->
 		<LeaderheadArtInfo>
 			<Type>ART_DEF_LEADER_OGISO_IGODO</Type>
-			<Button>Art/LeaderHeads/Ogiso_Igodo_Button.dds</Button>
+			<Button>Art/Interface/Buttons/LeaderHeads/Ogiso_Igodo_Button.dds</Button>
 			<NIF>Art/LeaderHeads/Ogiso_Igodo.dds</NIF>
 			<KFM>art/LeaderHeads/Mansa_Musa/mansa_musa.kfm</KFM>
 			<NoShaderNIF>art/LeaderHeads/Mansa_Musa/mansa_musa_noshader.nif</NoShaderNIF>

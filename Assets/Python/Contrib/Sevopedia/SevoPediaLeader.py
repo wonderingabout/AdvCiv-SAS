@@ -57,7 +57,7 @@ except ImportError:
 	raise RuntimeError("[FATAL ERROR] Could not import leaders_data.py. Please ensure the file exists in the mod's Assets/Python/Contrib/Sevopedia/ folder and has been renamed correctly (to leaders_data.py).")
 
 # Excluded leaders from calculations (e.g., LEADER_BARBARIAN, LEADER_DEFAULTS)
-EXCLUDED_LEADERS = (
+EXCLUDED_LEADERS_FROM_LEADERS_DATA = (
 	"LEADER_BARBARIAN",
 	"LEADER_DEFAULTS"
 )
@@ -108,7 +108,7 @@ def cache_ai_value_ranges():
 	Assumptions:
 	- Raw attributes and aggregated attributes data is located in PARSED_XML_LEADERS_DATA.
 	- Only integer fields are considered (non-integer fields are ignored).
-	- Leaders listed in EXCLUDED_LEADERS are skipped.
+	- Leaders listed in EXCLUDED_LEADERS_FROM_LEADERS_DATA are skipped.
 
 	Warnings:
 	- Attributes that do not vary (constant value across leaders) still have
@@ -118,7 +118,7 @@ def cache_ai_value_ranges():
 	AI_VALUE_RANGES.clear()
 	values_by_attr = {}
 	for leader_key, leader_data in PARSED_XML_LEADERS_DATA.items():
-		if leader_key in EXCLUDED_LEADERS:
+		if leader_key in EXCLUDED_LEADERS_FROM_LEADERS_DATA:
 			continue
 		for attr, val in leader_data.items():
 			if isinstance(val, int):
@@ -191,7 +191,7 @@ def cache_ai_attribute_data():
 	Behavior:
 	- Attributes with identical normalized values across all leaders are warned about
 	  (optional sanity check).
-	- Leaders listed in EXCLUDED_LEADERS are skipped.
+	- Leaders listed in EXCLUDED_LEADERS_FROM_LEADERS_DATA are skipped.
 
 	Warnings:
 	- Raises KeyError if any required normalization data is missing.
@@ -200,7 +200,7 @@ def cache_ai_attribute_data():
 	AI_ATTRIBUTE_DATA.clear()
 
 	for leader_key in sorted(PARSED_XML_LEADERS_DATA.keys()):
-		if leader_key in EXCLUDED_LEADERS:
+		if leader_key in EXCLUDED_LEADERS_FROM_LEADERS_DATA:
 			continue
 
 		leader_data = PARSED_XML_LEADERS_DATA[leader_key]
@@ -250,7 +250,7 @@ def cache_ai_attribute_data():
 				if (min_val == max_val):
 					symbol = ALL_SYMBOLS["EQUAL_SCALE_SYMBOL"]
 				else:
-					print("raw_val, min_val, max_val, final_val are: %d, %d, %d, %d, for attribute %s at leader_key %s" % (raw_val, min_val, max_val, final_val, attr, leader_key))
+					CvUtil.pyPrint("raw_val, min_val, max_val, final_val are: %d, %d, %d, %d, for attribute %s at leader_key %s" % (raw_val, min_val, max_val, final_val, attr, leader_key))
 
 				if (symbol not in ALL_SYMBOLS.values()):
 					raise ValueError("Unexpected symbol %s in attr %s and in leader_key %s.)" % (symbol, attr, leader_key))
@@ -276,8 +276,8 @@ def cache_ai_attribute_data():
 		else:
 			raise ValueError("[VALUE ERROR] No AI attribute data found for leader_key %s" % leader_key)
 
-def check_excluded_leaders_are_excluded_from_ai_attribute_data():
-	for excluded_leader_key in EXCLUDED_LEADERS:
+def check_excluded_leaders_from_leaders_data_are_excluded_from_ai_attribute_data():
+	for excluded_leader_key in EXCLUDED_LEADERS_FROM_LEADERS_DATA:
 		if (excluded_leader_key in AI_ATTRIBUTE_DATA.keys()):
 			raise KeyError("[FATAL] During sanity checks testing, (excluded) leader_key=%s was assessed to not be properly excluded from the calculations and is part of the AI_ATTRIBUTE_DATA." % excluded_leader_key)
 
@@ -303,7 +303,7 @@ do_sanity_checks_after_ai_value_ranges_caching()
 test_expected_shifting_pre_normalize_to_100()
 cache_ai_attribute_data()
 # <!-- custom: make sure our just/newly stored values in AI_ATTRIBUTE_DATA are reliable at least quite a bit maybe anyways etc anyways etc -->
-check_excluded_leaders_are_excluded_from_ai_attribute_data()
+check_excluded_leaders_from_leaders_data_are_excluded_from_ai_attribute_data()
 ensure_no_compatible_attrs_overlooked_from_leaders_data_in_ai_attribute_data_after_caching()
 
 
@@ -463,7 +463,22 @@ class SevoPediaLeader:
 		# We need to use the proper tag name (e.g., "LEADER_HATSHEPSUT") instead of
 		# iLeader when looking up the cache.
 		iLeaderKey = gc.getLeaderHeadInfo(iLeader).getType()
-		self.placeAIPersonalityPanel(iLeaderKey)
+		# <!-- custom: for excluded leaders from leaders_data, leave the zone/space where the AI
+		# personality panel was supposed to be especially empty, instead of getting a key error
+		# or missing leader from leaders_data (but we still want the excluded leaders to be
+		# excluded from computation as it could and most likely will most often if not always affect
+		# the ranking and scores normalized of other leaders with this additional data (unless they
+		# somehow are all still equal or something similar, but is not too likely, anyways etc
+		# anyways etc))
+		# This is especially useful for LEADER_BARBARIAN in particular that is somehow accessible
+		# in the sevopedia civilization category from the barbarian civ i mean anyways (which is
+		# also useful because we now display their city names for example, see sevopedia civilization
+		# for details about how we place city names in it now)
+		# -->
+		if (iLeaderKey not in EXCLUDED_LEADERS_FROM_LEADERS_DATA):
+			self.placeAIPersonalityPanel(iLeaderKey)
+		else:
+			CvUtil.pyPrint("[DEBUG] Excluded leader iLeaderKey=%s from leaders_data (EXCLUDED_LEADERS_FROM_LEADERS_DATA=%s) is skipped, leave the place where AI Personality panel was supposed to be entirely empty so we don't get a missing key in leaders_data Error, while signifying enough the excluded leader currently selected doesn't have a leader_data and AI Personality Panel at all/is not part of it." % (iLeaderKey, str(EXCLUDED_LEADERS_FROM_LEADERS_DATA)))
 
 
 

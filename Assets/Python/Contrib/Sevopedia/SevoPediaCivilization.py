@@ -9,7 +9,7 @@
 # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
 #
 # <!-- custom: part of the code here (placeCities in particular, but not exhaustive or maybe exhaustive
-# or not, anyways, is imported from Middle-Earth's mod's Platypedia, in:
+# or not, anyways, is imported from Middle-earth's mod's Platypedia, in:
 # C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth\Assets\Python\Screens\PlatyPedia\PlatyPediaCivilization.py
 # which may be modified or not for AdvCiv-SAS
 # -->
@@ -46,7 +46,7 @@ class SevoPediaCivilization:
 		self.Y_TEXT = self.Y_MAIN_PANE + self.H_MAIN_PANE + self.MEDIUM_MARGIN
 		self.H_TEXT = self.top.B_PEDIA_PAGE - self.Y_TEXT
 
-		self.W_CITIES = 295
+		self.W_CITIES = 290
 		self.H_CITIES = self.H_MAIN_PANE + self.MEDIUM_MARGIN + self.H_TEXT
 		self.X_CITIES = self.top.R_PEDIA_PAGE - self.W_CITIES
 		self.Y_CITIES = self.Y_MAIN_PANE
