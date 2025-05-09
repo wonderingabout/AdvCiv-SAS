@@ -325,25 +325,4 @@
 			<Plural>1</Plural>
 		</Spanish>
 	</TEXT>
-	<!-- advc.004y: Based on TXT_KEY_DOMAIN_IMMOBILE
-		(CIV4GameTextInfos_Objects.xml) -->
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_IMMOBILE</Tag>
-		<English>immobile</English>
-		<French>unit&#233; statique</French>
-		<German>unbeweglich</German>
-		<Italian>unità fisse</Italian>
-		<Spanish>inm&#243;vil</Spanish>
-	</TEXT>
-	<!-- advc.004y: Based on TXT_KEY_PEDIA_RANGE
-		(CIV4GameTextInfos.xml) and TXT_KEY_CIVIC_UNLIMTED
-		(CIV4GameTextInfos.xml) -->
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_RANGE_UNLIMITED</Tag>
-		<English>Range: unlimited</English>
-		<French>Port&#233;e : sans limite</French>
-		<German>Reichweite: unbegrenzt</German>
-		<Italian>Raggio d'azione: illimitato</Italian>
-		<Spanish>Alcance: sin l&#237;mite</Spanish>
-	</TEXT>
 </Civ4GameText>

@@ -33,15 +33,9 @@
 		<Tag>TXT_KEY_WIDGET_HELP</Tag>
 		<English>Sevopedia</English>
 	</TEXT>
-    <!-- custom: Replace "Torna a civilopedia" (with "top")
-	to match what is done in the other translations (or so it seems)
-	and using "sevopedia" rather than "civilopedia" -->
     <TEXT>
 		<Tag>TXT_KEY_PEDIA_SCREEN_TOP</Tag>
 		<English>Top</English>
-		<French>Haut</French>
-		<German>Nach oben</German>
-		<Spanish>Inicio</Spanish>
 	</TEXT>
     <!-- custom: moved from:
     C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\Assets\XML\Text\CIV4GameText_advc.xml
@@ -57,6 +51,41 @@
 		<Tag>TXT_KEY_CIVILOPEDIA_TITLE</Tag>
 		<English>SEVOPEDIA</English>
 	</TEXT>
+
+	<!-- custom: all below in this group modified to remove the	extra
+	redundant/uneeded for example "STRENGTH: " in "STRENGTH: 5" now
+	displaying (only) as "5" much clearer and cleaner i think this way,
+	making a separate tag in case the original one is relevant somewhere
+	else, anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_COST_CUSTOM</Tag>
+		<English>%d1_Num</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_STRENGTH_CUSTOM</Tag>
+		<English>%d1_Num</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_MOVEMENT_CUSTOM</Tag>
+		<English>%d1_Num</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_RANGE_CUSTOM</Tag>
+		<English>%d1_Num</English>
+	</TEXT>
+	<!-- advc.004y: Based on TXT_KEY_PEDIA_RANGE
+	(CIV4GameTextInfos.xml) and TXT_KEY_CIVIC_UNLIMTED
+	(CIV4GameTextInfos.xml) -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_RANGE_UNLIMITED_CUSTOM</Tag>
+		<English>unlimited</English>
+	</TEXT>
+	<!-- custom: removed TXT_KEY_PEDIA_IMMOBILE, we don't seem to use it anywhere
+	in advciv (nor even civ4 actually), and since we don't use it anymore in
+	sevopedia unit now (hide the field rather entirely anyways etc, may as well
+	remove it now, anyways etc) -->
+
+
 
 	<!-- custom: rename "We fear you are becoming too advanced." (WFYABTA)
 	to "We fear you are trading more than us" (WFYATMTU), the former is

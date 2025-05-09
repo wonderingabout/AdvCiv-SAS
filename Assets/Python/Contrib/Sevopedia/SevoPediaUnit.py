@@ -23,18 +23,22 @@ class SevoPediaUnit:
 	def __init__(self, main):
 		self.iUnit = -1
 		self.top = main
-		# <advc.004y>
-		bWideScreen = self.top.bWideScreen
-		X_RESOLUTION = screen = self.top.getScreen().getXResolution()
-		# </advc.004y>
+
+		self.MEDIUM_MARGIN = 15
+		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+
 		self.X_UNIT_PANE = self.top.X_PEDIA_PAGE
 		self.Y_UNIT_PANE = self.top.Y_PEDIA_PAGE
-		self.W_UNIT_PANE = 325
-		# <advc.004y>
-		if bWideScreen:
-			self.W_UNIT_PANE = (self.W_UNIT_PANE * X_RESOLUTION) // 1024
-		self.H_UNIT_PANE = 175 # advc.002b: was 145
-		# </advc.004y>
+		# <!-- custom: no margins to merge edges with promo pane for nicer display maybe i mean anyways etc -->
+		self.W_UNIT_PANE = (self.top.R_PEDIA_PAGE - self.X_UNIT_PANE) / 4
+		self.H_UNIT_PANE = 200
+
+		# <!-- custom: no margins to merge edges with unit pane for nicer display maybe i mean anyways etc -->
+		# <!-- custom: merge effect by partially joining their borders, i accidentally found or/and maybe got the idea and looks very nice, just is slightly not centered maybe fixable or not but and in all cases anyways etc anyways etc -->
+		self.X_PROMO_PANE = self.X_UNIT_PANE + self.W_UNIT_PANE - 5
+		self.Y_PROMO_PANE = self.Y_UNIT_PANE
+		self.W_PROMO_PANE = self.W_UNIT_PANE + 5
+		self.H_PROMO_PANE = self.H_UNIT_PANE
 
 		# advc.004y: Move the button and icon size settings up
 		self.ICON_SIZE = 64
@@ -58,57 +62,34 @@ class SevoPediaUnit:
 		self.W_STATS_PANE = 250
 		self.H_STATS_PANE = 200
 
-		self.X_UNIT_ANIMATION = self.X_UNIT_PANE + self.W_UNIT_PANE + 10
-		self.W_UNIT_ANIMATION = self.top.R_PEDIA_PAGE - self.X_UNIT_ANIMATION
+		self.X_PREREQ_PANE = self.X_UNIT_PANE
+		self.Y_PREREQ_PANE = self.Y_UNIT_PANE + self.H_UNIT_PANE + self.SMALL_MARGIN
+		self.W_PREREQ_PANE = self.W_UNIT_PANE * 2
+		self.H_PREREQ_PANE = 110
+
+		self.X_UPGRADES_TO_PANE = self.X_UNIT_PANE
+		self.Y_UPGRADES_TO_PANE = self.Y_PREREQ_PANE + self.H_PREREQ_PANE + self.SMALL_MARGIN
+		self.W_UPGRADES_TO_PANE = self.W_PREREQ_PANE
+		self.H_UPGRADES_TO_PANE = self.H_PREREQ_PANE
+
+		self.X_SPECIAL_PANE = self.X_UNIT_PANE
+		self.Y_SPECIAL_PANE = self.Y_UPGRADES_TO_PANE + self.H_UPGRADES_TO_PANE + self.SMALL_MARGIN
+		self.W_SPECIAL_PANE = self.W_PREREQ_PANE
+		self.H_SPECIAL_PANE = self.top.B_PEDIA_PAGE - self.Y_SPECIAL_PANE
+
+		self.X_UNIT_ANIMATION = self.X_UNIT_PANE + self.W_SPECIAL_PANE + self.MEDIUM_MARGIN
 		self.Y_UNIT_ANIMATION = self.Y_UNIT_PANE + 7
-		self.H_UNIT_ANIMATION = self.H_UNIT_PANE - 7
+		self.W_UNIT_ANIMATION = (self.top.R_PEDIA_PAGE - self.X_UNIT_PANE) / 2
+		self.H_UNIT_ANIMATION = 400
+
 		self.X_ROTATION_UNIT_ANIMATION = -20
 		self.Z_ROTATION_UNIT_ANIMATION = 30
 		self.SCALE_ANIMATION = 1.0
 
-		self.X_PREREQ_PANE = self.X_UNIT_PANE
-		self.Y_PREREQ_PANE = self.Y_UNIT_PANE + self.H_UNIT_PANE + 10
-		self.W_PREREQ_PANE = 280
-		# <advc.004y> Same split between PREREQ_PANE and UPGRADES_TO_PANE as between UNIT_PANE and UNIT_ANIMATION
-		if bWideScreen:
-			self.W_PREREQ_PANE = self.W_UNIT_PANE
-		# </advc.004y>
-		self.H_PREREQ_PANE = 110
-
-		self.X_UPGRADES_TO_PANE = self.X_PREREQ_PANE + self.W_PREREQ_PANE + 10
-		self.Y_UPGRADES_TO_PANE = self.Y_PREREQ_PANE
-		self.W_UPGRADES_TO_PANE = self.top.R_PEDIA_PAGE - self.X_UPGRADES_TO_PANE
-		self.H_UPGRADES_TO_PANE = self.H_PREREQ_PANE
-
-		self.X_SPECIAL_PANE = self.X_UNIT_PANE
-		self.Y_SPECIAL_PANE = self.Y_PREREQ_PANE + self.H_PREREQ_PANE + 10
-		self.W_SPECIAL_PANE = 280
-		# <advc.004y>
-		if bWideScreen:
-			self.W_SPECIAL_PANE = self.W_UNIT_PANE
-		# </advc.004y>
-		self.H_SPECIAL_PANE = 175
-
-		self.X_PROMO_PANE = self.X_SPECIAL_PANE + self.W_SPECIAL_PANE + 10
-		self.Y_PROMO_PANE = self.Y_SPECIAL_PANE
-		self.W_PROMO_PANE = self.W_UPGRADES_TO_PANE
-		self.H_PROMO_PANE = self.H_SPECIAL_PANE
-
-		self.X_HISTORY_PANE = self.X_UNIT_PANE
-		self.Y_HISTORY_PANE = self.Y_SPECIAL_PANE + self.H_SPECIAL_PANE + 10
-		self.W_HISTORY_PANE = self.top.R_PEDIA_PAGE - self.X_HISTORY_PANE
-		#self.H_HISTORY_PANE = self.top.B_PEDIA_PAGE - self.Y_HISTORY_PANE
-		# <advc.004y> If there's space left, I want to use it for the SPECIAL_PANE.
-		self.H_HISTORY_PANE = 190
-		iSpaceLeft = self.top.B_PEDIA_PAGE - self.Y_HISTORY_PANE - self.H_HISTORY_PANE
-		if iSpaceLeft < 0:
-			self.H_HISTORY_PANE += iSpaceLeft
-		else:
-			self.H_SPECIAL_PANE += iSpaceLeft
-			# Need to update these as well (not nice)
-			self.H_PROMO_PANE += iSpaceLeft
-			self.Y_HISTORY_PANE += iSpaceLeft
-		# </advc.004y>
+		self.X_HISTORY_PANE = self.X_UNIT_ANIMATION
+		self.Y_HISTORY_PANE = self.Y_UNIT_ANIMATION + self.H_UNIT_ANIMATION + self.MEDIUM_MARGIN
+		self.W_HISTORY_PANE = self.W_UNIT_ANIMATION
+		self.H_HISTORY_PANE = self.top.B_PEDIA_PAGE - self.Y_HISTORY_PANE
 
 
 
@@ -140,48 +121,56 @@ class SevoPediaUnit:
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		iCombatType = gc.getUnitInfo(self.iUnit).getUnitCombatType()
+
 		if (iCombatType != -1):
 			screen.setImageButton(self.top.getNextWidgetName(), gc.getUnitCombatInfo(iCombatType).getButton(), self.X_STATS_PANE, self.Y_STATS_PANE - 35, 32, 32, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iCombatType, 0)
 			screen.setText(self.top.getNextWidgetName(), "", u"<font=3>" + gc.getUnitCombatInfo(iCombatType).getDescription() + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_STATS_PANE + 37, self.Y_STATS_PANE - 30, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iCombatType, 0)
+
 		screen.addListBoxGFC(panelName, "", self.X_STATS_PANE, self.Y_STATS_PANE, self.W_STATS_PANE, self.H_STATS_PANE, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(panelName, False)
+
 		if (gc.getUnitInfo(self.iUnit).getAirCombat() > 0 and gc.getUnitInfo(self.iUnit).getCombat() == 0):
 			iStrength = gc.getUnitInfo(self.iUnit).getAirCombat()
 		else:
 			iStrength = gc.getUnitInfo(self.iUnit).getCombat()
 		if iStrength > 0: # advc.004y: Don't show 0 strength for nukes
 			szName = self.top.getNextWidgetName()
-			szStrength = localText.getText("TXT_KEY_PEDIA_STRENGTH", (iStrength,))
-			screen.appendListBoxStringNoUpdate(panelName, u"<font=4>" + szStrength.upper() + u"%c" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR) + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+			szStrength = localText.getText("TXT_KEY_PEDIA_STRENGTH_CUSTOM", (iStrength,))
+			szStrengthText = u"%c  " % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR) + szStrength
+			screen.appendListBoxStringNoUpdate(panelName, u"<font=4>" + szStrengthText + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+
 		eDomain = gc.getUnitInfo(self.iUnit).getDomainType()
-		# <advc.004y>
-		if eDomain == DomainTypes.DOMAIN_IMMOBILE: # Show "immobile" instead of 1 move
+		# <!-- custom: don't show movement for domain immobile units (missiles and such for example, not air fighters and such if i am not mistaken anyways etc) --> 
+		if eDomain != DomainTypes.DOMAIN_IMMOBILE:
+			# <!-- custom: show all stats that we want/have as they are, including 1 move air or
+			# 4 move helicopter, (hoepfully helpful ,) (but) (if or not)(anyways etc) anyways etc -->
+			## Don't show 1 move for air units
+			#elif eDomain != DomainTypes.DOMAIN_AIR: # </advc.004y>
 			szName = self.top.getNextWidgetName()
-			szImmobile = localText.getText("TXT_KEY_PEDIA_IMMOBILE", ())
-			screen.appendListBoxStringNoUpdate(panelName, u"<font=4>" + szImmobile.upper(), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
-		# Don't show 1 move for air units
-		elif eDomain != DomainTypes.DOMAIN_AIR: # </advc.004y>
-			szName = self.top.getNextWidgetName()
-			szMovement = localText.getText("TXT_KEY_PEDIA_MOVEMENT", (gc.getUnitInfo(self.iUnit).getMoves(),))
-			screen.appendListBoxStringNoUpdate(panelName, u"<font=4>" + szMovement.upper() + u"%c" % CyGame().getSymbolID(FontSymbols.MOVES_CHAR) + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+			szMovement = localText.getText("TXT_KEY_PEDIA_MOVEMENT_CUSTOM", (gc.getUnitInfo(self.iUnit).getMoves(),))
+			szMovementText = u"%c  " % CyGame().getSymbolID(FontSymbols.MOVES_CHAR) + szMovement
+			screen.appendListBoxStringNoUpdate(panelName, u"<font=4>" + szMovementText + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+
 		# advc.004y: Moved range above production cost. Condition for ICBM added.
 		if gc.getUnitInfo(self.iUnit).getAirRange() > 0 or gc.getUnitInfo(self.iUnit).getNukeRange() >= 0:
 			szName = self.top.getNextWidgetName()
 			iRange = gc.getUnitInfo(self.iUnit).getAirRange()
 			if iRange > 0: # advc.004y
-				szRange = localText.getText("TXT_KEY_PEDIA_RANGE", (iRange,))
+				szRange = localText.getText("TXT_KEY_PEDIA_RANGE_CUSTOM", (iRange,))
 			# <advc.004y> Unlimited range
 			else:
-				szRange = localText.getText("TXT_KEY_PEDIA_RANGE_UNLIMITED", ())
+				szRange = localText.getText("TXT_KEY_PEDIA_RANGE_UNLIMITED_CUSTOM", ())
 			# </advc.004y>
-			screen.appendListBoxStringNoUpdate(panelName, u"<font=4>" + szRange.upper() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+			szRangeText = u"R    " + szRange
+			screen.appendListBoxStringNoUpdate(panelName, u"<font=4>" + szRangeText + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 		if (gc.getUnitInfo(self.iUnit).getProductionCost() >= 0 and not gc.getUnitInfo(self.iUnit).isFound()):
 			szName = self.top.getNextWidgetName()
 			if self.top.iActivePlayer == -1:
-				szCost = localText.getText("TXT_KEY_PEDIA_COST", ((gc.getUnitInfo(self.iUnit).getProductionCost() * gc.getDefineINT("UNIT_PRODUCTION_PERCENT"))/100,))
+				szCost = localText.getText("TXT_KEY_PEDIA_COST_CUSTOM", ((gc.getUnitInfo(self.iUnit).getProductionCost() * gc.getDefineINT("UNIT_PRODUCTION_PERCENT"))/100,))
 			else:
-				szCost = localText.getText("TXT_KEY_PEDIA_COST", (gc.getActivePlayer().getUnitProductionNeeded(self.iUnit),))
-			screen.appendListBoxStringNoUpdate(panelName, u"<font=4>" + szCost.upper() + u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+				szCost = localText.getText("TXT_KEY_PEDIA_COST_CUSTOM", (gc.getActivePlayer().getUnitProductionNeeded(self.iUnit),))
+			szCostText = u"%c  " % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar() + szCost
+			screen.appendListBoxStringNoUpdate(panelName, u"<font=4>" + szCostText + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.updateListBox(panelName)
 
 
@@ -303,7 +292,9 @@ class SevoPediaUnit:
 	def placePromotions(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_CATEGORY_PROMOTION", ()), "", True, True, self.X_PROMO_PANE, self.Y_PROMO_PANE, self.W_PROMO_PANE, self.H_PROMO_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+		# <!-- custom: no "header" for smoother display with how the unit pane is done (and promo pane is next to it now anyways etc) -->
+		# screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_CATEGORY_PROMOTION", ()), "", True, True, self.X_PROMO_PANE, self.Y_PROMO_PANE, self.W_PROMO_PANE, self.H_PROMO_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText("", ()), "", True, True, self.X_PROMO_PANE, self.Y_PROMO_PANE, self.W_PROMO_PANE, self.H_PROMO_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		rowListName = self.top.getNextWidgetName()
 		screen.addMultiListControlGFC(rowListName, "", self.X_PROMO_PANE+15, self.Y_PROMO_PANE+40, self.W_PROMO_PANE-20, self.H_PROMO_PANE-40, 1, self.PROMOTION_ICON_SIZE, self.PROMOTION_ICON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 		for k in range(gc.getNumPromotionInfos()):

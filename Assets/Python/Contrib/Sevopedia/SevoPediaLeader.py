@@ -478,7 +478,7 @@ class SevoPediaLeader:
 		if (iLeaderKey not in EXCLUDED_LEADERS_FROM_LEADERS_DATA):
 			self.placeAIPersonalityPanel(iLeaderKey)
 		else:
-			CvUtil.pyPrint("[DEBUG] Excluded leader iLeaderKey=%s from leaders_data (EXCLUDED_LEADERS_FROM_LEADERS_DATA=%s) is skipped, leave the place where AI Personality panel was supposed to be entirely empty so we don't get a missing key in leaders_data Error, while signifying enough the excluded leader currently selected doesn't have a leader_data and AI Personality Panel at all/is not part of it." % (iLeaderKey, str(EXCLUDED_LEADERS_FROM_LEADERS_DATA)))
+			CvUtil.pyPrint("[DEBUG] Leader iLeaderKey=%s in EXCLUDED_LEADERS_FROM_LEADERS_DATA=%s is skipped, leave the place where AI Personality panel was supposed to be entirely empty so we don't get a missing key in leaders_data Error, while signifying clearly enough hopefully that the excluded leader currently selected doesn't have a leader_data and AI Personality Panel at all/is not part of it." % (iLeaderKey, str(EXCLUDED_LEADERS_FROM_LEADERS_DATA)))
 
 
 
