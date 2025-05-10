@@ -7,7 +7,7 @@
        (___)_o   <-- Chicken wing of insight, a gift from wonderingabout
 
 Auto-generated leaders **data** module.
-Created: 20250508_205129
+Created: 20250511_004814
 
 Author: becomingthrough (ChatGPT)
 """
@@ -45,13 +45,13 @@ PARSED_XML_LEADERS_DATA = {
         "iDeclareWarTradeRand": 0,
         "iDemandRebukedSneakProb": 0,
         "iDemandRebukedWarProb": 0,
-        "iRazeCityProb": 10,
-        "iBuildUnitProb": 50,
-        "iBaseAttackOddsChange": 2,
-        "iAttackOddsChangeRand": 21,
-        "iWorseRankDifferenceAttitudeChange": 0,
+        "iRazeCityProb": 75,
+        "iBuildUnitProb": 0,
+        "iBaseAttackOddsChange": 1,
+        "iAttackOddsChangeRand": 16,
+        "iWorseRankDifferenceAttitudeChange": -2,
         "iBetterRankDifferenceAttitudeChange": 0,
-        "iCloseBordersAttitudeChange": 0,
+        "iCloseBordersAttitudeChange": -2,
         "iLostWarAttitudeChange": 0,
         "iAtWarAttitudeDivisor": 0,
         "iAtWarAttitudeChangeLimit": 0,
@@ -100,7 +100,20 @@ PARSED_XML_LEADERS_DATA = {
         "FavoriteReligion": "NONE",
         "Traits": "",
         "Flavors": "",
-        "UnitAIWeightModifiers": "",
+        "UnitAIWeightModifiers": [
+            {
+                "UnitAIType": "UNITAI_RESERVE",
+                "iWeightModifier": "50"
+            },
+            {
+                "UnitAIType": "UNITAI_ATTACK_CITY",
+                "iWeightModifier": "100"
+            },
+            {
+                "UnitAIType": "UNITAI_WORKER",
+                "iWeightModifier": "25"
+            }
+        ],
         "ImprovementWeightModifiers": "",
         "DiplomacyIntroMusicPeace": "",
         "DiplomacyMusicPeace": [
@@ -10439,11 +10452,11 @@ PARSED_XML_LEADERS_DATA = {
         "iAggregatedNegativeMemoryCancelledVassalAgreementResentment": 50,
         "iAggregatedNegativeMemoryDeclaredWarRecentResentment": 50
     },
-    "LEADER_CHINESE_LEADER": {
-        "Type": "LEADER_CHINESE_LEADER",
-        "Description": "TXT_KEY_LEADER_CHINESE_LEADER",
-        "Civilopedia": "TXT_KEY_LEADER_CHINESE_LEADER_PEDIA",
-        "ArtDefineTag": "ART_DEF_LEADER_CHINESE_LEADER",
+    "LEADER_MAO_ZEDONG": {
+        "Type": "LEADER_MAO_ZEDONG",
+        "Description": "TXT_KEY_LEADER_MAO_ZEDONG",
+        "Civilopedia": "TXT_KEY_LEADER_MAO_ZEDONG_PEDIA",
+        "ArtDefineTag": "ART_DEF_LEADER_MAO_ZEDONG",
         "iWonderConstructRand": 10,
         "iBaseAttitude": 0,
         "iBasePeaceWeight": 1,

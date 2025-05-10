@@ -40,15 +40,20 @@
 			<iDeclareWarTradeRand>0</iDeclareWarTradeRand>
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
-			<iRazeCityProb>10</iRazeCityProb>
-			<iBuildUnitProb>50</iBuildUnitProb>
+			<!-- custom: make barbarians more likely to destroy cities rather than conquer them, after all they are barbarians, so the human player or other players should tightly defend to prevent that, reinvading is a bit too convenient, as barbarians should be more likely i think and ideally to pillage and destroy everything, not so much conquer all, and if they are too strong, it should be balanced elsewhere not here (which currently tones down their war/raze tendency which i think is not ideal, hopefully more idela this way now and balancing their strength in an other place if need if they are too strong and thus raze too often cities, not here, i wouldn't want gameplay to be too forgiving but accurate, however i want it lenient in its balance whatever that means, that i want it fair and fun, but hard enough and not toned down, and accurate, maybe clear enough this way whatever that means or not or yes or and other or and not anyways etc) -->
+			<iRazeCityProb>75</iRazeCityProb>
+			<!-- custom: this can probably be safely be reduced now that barbarian leader gets many buildings for free and most buildings not allowed to be built, so it is (and should be i think but anyways etc) fine if it errs a bit by that i mean builing more buildings, eventually after completing them, most very fast, barbarian leader should turn back to war mode, is maybe also good to make sure barbarian leader doesn't skip the 1 hammer "free" buildings it has "right" to whatever that means, anyways etc.
+			We need to make sure barbarian has no access to other buildings though, so for example now barbarian would build more buildings (redundant but anyways etc) among the few it has access to (most of which should be 1 turn thing anywyas etc), more workers too ideally if it needs, and then finally go back to building units as intended -->
+			<iBuildUnitProb>0</iBuildUnitProb>
+			<!-- custom: i want barbarians to be more cautious and calculating, they are not stupid and shouldn't be, but a bit adventurous too though maybe whatever that means or not or and other or and not anyways etc -->
 			<!-- advc.114d: was 0 -->
-			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
+			<iBaseAttackOddsChange>1</iBaseAttackOddsChange>
 			<!-- advc.114d: was 16 -->
-			<iAttackOddsChangeRand>21</iAttackOddsChangeRand>
-			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
+			<iAttackOddsChangeRand>16</iAttackOddsChangeRand>
+			<!-- custom: make them pick up on the weak is smart and more realistic too, they wouldn't attack someone they can't win against ideally i think, even if a bit less hopefully more accurate this way maybe or not or yes but anyways etc, anyways etc -->
+			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
-			<iCloseBordersAttitudeChange>0</iCloseBordersAttitudeChange>
+			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
 			<iLostWarAttitudeChange>0</iLostWarAttitudeChange>
 			<iAtWarAttitudeDivisor>0</iAtWarAttitudeDivisor>
 			<iAtWarAttitudeChangeLimit>0</iAtWarAttitudeChangeLimit>
@@ -104,7 +109,23 @@
 			<MemoryDecays/>
 			<MemoryAttitudePercents/>
 			<NoWarAttitudeProbs/>
-			<UnitAIWeightModifiers/>
+			<!-- custom: focus more on raw force and light harass units like archers, barbarians were also very good archers in particular if i am not mistaken, but anyways etc, enforcing more the attack makes them more proactive about attacking, while flexible enough to also defend, while ideally also focusing on the most effective units to achieve that, and keep otherwise caution.
+			Make sure to build enough workers and early enough to develop the land too, anyways etc.
+			Attack with purpose, do not bother with wandering units/stacks, aim straight for cities or defend. -->
+			<UnitAIWeightModifiers>
+				<UnitAIWeightModifier>
+					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+					<iWeightModifier>50</iWeightModifier>
+				</UnitAIWeightModifier>
+				<UnitAIWeightModifier>
+					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+					<iWeightModifier>100</iWeightModifier>
+				</UnitAIWeightModifier>
+				<UnitAIWeightModifier>
+					<UnitAIType>UNITAI_WORKER</UnitAIType>
+					<iWeightModifier>25</iWeightModifier>
+				</UnitAIWeightModifier>
+			</UnitAIWeightModifiers>
 			<ImprovementWeightModifiers/>
 			<!-- advc: Should be OK to collapse this -->
 			<DiplomacyIntroMusicPeace/>
@@ -7145,11 +7166,11 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Chinese_Leader(Mao) (add leader name here too for easier vs code tree read while in the file) -->
-			<Type>LEADER_CHINESE_LEADER</Type>
-			<Description>TXT_KEY_LEADER_CHINESE_LEADER</Description>
-			<Civilopedia>TXT_KEY_LEADER_CHINESE_LEADER_PEDIA</Civilopedia>
-			<ArtDefineTag>ART_DEF_LEADER_CHINESE_LEADER</ArtDefineTag>
+		<LeaderHeadInfo> <!-- custom: Mao_Zedong (add leader name here too for easier vs code tree read while in the file) -->
+			<Type>LEADER_MAO_ZEDONG</Type>
+			<Description>TXT_KEY_LEADER_MAO_ZEDONG</Description>
+			<Civilopedia>TXT_KEY_LEADER_MAO_ZEDONG_PEDIA</Civilopedia>
+			<ArtDefineTag>ART_DEF_LEADER_MAO_ZEDONG</ArtDefineTag>
 			<iWonderConstructRand>10</iWonderConstructRand>
 			<iBaseAttitude>0</iBaseAttitude>
 			<iBasePeaceWeight>1</iBasePeaceWeight>

@@ -158,8 +158,8 @@
 			<iStartOfReign>1312</iStartOfReign>
 		</TruLeaderInfo>
 		<TruLeaderInfo>
-			<Type>TRU_CHINESE_LEADER</Type>
-			<LeaderType>LEADER_CHINESE_LEADER</LeaderType>
+			<Type>TRU_MAO_ZEDONG</Type>
+			<LeaderType>LEADER_MAO_ZEDONG</LeaderType>
 			<!-- Proclamation of PRC -->
 			<iStartOfReign>1949</iStartOfReign>
 		</TruLeaderInfo>

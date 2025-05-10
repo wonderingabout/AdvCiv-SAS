@@ -1155,7 +1155,7 @@ I am not sure which i should take, but since there are redundancies i guess i sh
 			<Attribute Class="Rotation">0,90,180</Attribute>
 			<Scale>1.8</Scale>
 		</ArtRef>
-		<ArtRef Name="building:BUILDING_GREAT_PALACE">
+		<ArtRef Name="building:BUILDING_FORBIDDEN_PALACE">
 			<Attribute Class="Rotation">0,180</Attribute>
 		</ArtRef>
 		<ArtRef Name="building:BUILDING_LIBRARY">

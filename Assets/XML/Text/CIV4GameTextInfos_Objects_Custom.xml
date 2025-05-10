@@ -249,10 +249,6 @@
 		<English>Lighthouse (Barbarian)</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_BUILDING_MONUMENT_BARBARIAN</Tag>
-		<English>Monument (Barbarian)</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_BUILDING_WALLS_BARBARIAN</Tag>
 		<English>Walls (Barbarian)</English>
 	</TEXT>
@@ -268,9 +264,9 @@
 	- BUILDINGCLASS_OBELISK (when relating(related?) to the monument building class and not the (non existent(/existing?))(egyptian) obelisk building class) (and all similar entries such as art file(i.e. XML asset) tag names and such) to BUILDINGCLASS_MONUMENT
 	- BUILDING_OBELISK (when relating(related?) to the monument building and not the (egyptian) obelisk building) (same as above) to BUILDING_MONUMENT
 	- (so) exception(s?) being: TXT_KEY_BUILDING_OBELISK to TXT_KEY_BUILDING_EGYPTIAN_OBELISK (to match the existing civ4 format that (quite if not lot but anyways etc at least and still to go back on topic anyways etc) makes/made sense)
-	- all the while keeping the original TXT_KEY_BUILDING_MONUMENT and similar, when applies/relating(relates?) to the monument building and not the obelisk building (can hardly be mroe confusing, i mean could but is about as confusing as it could or may have been in civ4, purposely or not, but anyways etc and hopefully a lot clearer now, and helpful or not, but in all cases or not anyways etc)
+	- all the while keeping the original TXT_KEY_BUILDING_MONUMENT and similar, when applies/relating(relates?) to the monument building and not the obelisk building (can hardly be more confusing, i mean could but is about as confusing as it could or may have been in civ4, purposely or not, but anyways etc and hopefully a lot clearer now, and helpful or not, but in all cases or not anyways etc)
 
-	So now there are either MONUMENT for the building class monuments, and MONUMENT for the building monument (generic building for all civs), or EGYPTIAN_OBELISK only and specifically only for the egyptian obelisk building (that is still named ingame "Obelisk" though as no reason to introduce the natinality/country in the name i think, but hoepfully a lot clearer in code now too, anyways etc, keeping the "egyptian" part in code name to clarify the confusion with original names, hopefully a lot clearer now, anyways etc)
+	So now there are either MONUMENT for the building class monuments, and MONUMENT for the building monument (generic building for all civs), or EGYPTIAN_OBELISK only and specifically only for the egyptian obelisk building (that is still named ingame "Obelisk" though as no reason to introduce the nationality/country in the name i think, but hopefully a lot clearer in code now too, anyways etc, keeping the "egyptian" part in code name to clarify the confusion with original names, hopefully a lot clearer now, anyways etc)
 	-->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_EGYPTIAN_OBELISK</Tag>
@@ -279,6 +275,18 @@
 
 
 
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_FORBIDDEN_PALACE</Tag>
+		<English>Forbidden Palace</English>
+	</TEXT>
+
+
+
+	<!-- custom: rename to more accurate naming from "Chinese_Leader" (wtf??? but anyways etc) to "Mao Zedong" as he is accurately named in several (most in fact parts of the code), hopefully clearer now or/and more sensical or/and consistent or maybe not or yes or and other or and not, (but) anyways etc... -->
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_MAO_ZEDONG</Tag>
+		<English>Mao Zedong</English>
+	</TEXT>
 	<!-- custom: rename to more accurate naming from "Montezuma" to "Moctezuma II" -->
 	<TEXT>
 		<Tag>TXT_KEY_LEADER_MOCTEZUMA</Tag>

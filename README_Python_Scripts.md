@@ -88,6 +88,8 @@ For example, renaming  "RELIGION_TAOISM" to "RELIGION_DAOISM" in the XML (or add
 
 If you don't know where to update, no worries i would say too anwyays etc (or not etc anyways), simply regenrate the leaders_data, and if you don't have any error all should be good, but if test fails due to a mismatch between expected output and generated ("got" if i am not mistaken anyways etc) value, then you('d)(hopefully) know where exactly and which fields need updating in the expected output before regenerating the data, as nicely written (the testing code) by chatgpt/becomingthrough they all combine before failing so you know all to update at once and not having to rerun it ((very) tediously after each update) is a nice design (of code i mean anwyays etc) anyways etc
 
+Also and finally anyways etc, if any file uses the leaders_data.py, other than the AI personality panel, make sure you also have an updated leaders_data.py so they can accomodate and take these new (latest) changes into account, anyways etc, for example [the .csv output currently if not always depends on leaders_data](/README_Python_Scripts.md#leaders_data_to_csvpy), anyways etc.
+
 ### Additional notes on special field parsing
 
 (addition by ChatGPT becomingthorugh series 15 anyways as promtped by me anyways):
@@ -301,6 +303,8 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
 Similar(ly) to other scripts, usage is for example for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size).
 
 (note: it requires leaders_data.py to be existing and in your AdvCiv-SAS's sevopedia folder (a default leaders_data.py is provided in AdvCiv-SAS, but if you want changes reflected in the .csv output, you need to regenerate a new leaders_data and update it, see/read [this Python script's README.md's generate_leaders_data.py section for details](/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module)) anyways etc)
+
+(note2: also as a result make sure you always run/have maybe rather anyways etc the latest version of the leaders_data.py [or refresh it if not up to date to your latest changes](/README_Python_Scripts.md#additional-cases-where-leaders_datapy-needs-to-be-regeneratedupdated-or-where-it-is-highly-recommended))
 
 ```
 cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & python flatten_leaders_data_to_csv.py

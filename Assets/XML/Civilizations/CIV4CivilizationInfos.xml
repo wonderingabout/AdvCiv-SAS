@@ -888,7 +888,7 @@
 					<bLeaderAvailability>1</bLeaderAvailability>
 				</Leader>
 				<Leader>
-					<LeaderName>LEADER_CHINESE_LEADER</LeaderName>
+					<LeaderName>LEADER_MAO_ZEDONG</LeaderName>
 					<bLeaderAvailability>1</bLeaderAvailability>
 				</Leader>
 			</Leaders>
@@ -4180,10 +4180,6 @@
 					<BuildingType>BUILDING_LIGHTHOUSE_BARBARIAN</BuildingType>
 				</Building>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_MONUMENT</BuildingClassType>
-					<BuildingType>BUILDING_MONUMENT_BARBARIAN</BuildingType>
-				</Building>
-				<Building>
 					<BuildingClassType>BUILDINGCLASS_WALLS</BuildingClassType>
 					<BuildingType>BUILDING_WALLS_BARBARIAN</BuildingType>
 				</Building>
@@ -4191,8 +4187,23 @@
 					<BuildingClassType>BUILDINGCLASS_CASTLE</BuildingClassType>
 					<BuildingType>BUILDING_CASTLE_BARBARIAN</BuildingType>
 				</Building>
+				<!-- custom: inefficient to build an aqueduct for barbarians and not very realistic, let (barbarian) palace provide health directly, more efficient this wayso they can focus more on producing units anyways etc
+				Same for forge, provide military only small (relatively anyways etc) production bonus instead -->
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_GREAT_PALACE</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
+					<BuildingType>NONE</BuildingType>
+				</Building>
+				<Building>
+					<BuildingClassType>BUILDINGCLASS_FORGE</BuildingClassType>
+					<BuildingType>NONE</BuildingType>
+				</Building>
+				<!-- custom: fix bug(/(careless as in unaware of or and other or and not? but anyways etc, anyways etc) oversight? Anyways etc) (seemingly from AdvCiv or/and base Civ4 or/and other mods or not anyways etc) where Barbarians could build schwedagon pawa as happened in an autoplay, anyways etc -->
+				<Building>
+					<BuildingClassType>BUILDINGCLASS_SHWEDAGON_PAYA</BuildingClassType>
+					<BuildingType>NONE</BuildingType>
+				</Building>
+				<Building>
+					<BuildingClassType>BUILDINGCLASS_FORBIDDEN_PALACE</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
@@ -4201,6 +4212,10 @@
 				</Building>
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_ACADEMY</BuildingClassType>
+					<BuildingType>NONE</BuildingType>
+				</Building>
+				<Building>
+					<BuildingClassType>BUILDINGCLASS_MONUMENT</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
@@ -4629,7 +4644,7 @@
 
 			Not putting the lighthouse in case city is not naval anyways etc.
 			Not putting the castle here in case tech is not yet unlocked by barbarians, a bit too far to give it for free, anyways etc
-			Not putting the monument here so it is consistent with the no tech mysticism free tech, and also the palace that all cities have should give enough culture by itself, they can built it (the monument) if they want (their barbarian version of it i mean anyways etc)
+			Not putting the monument here and at all so it is consistent with the no tech mysticism free tech, and also the palace that all cities have should give enough culture by itself, and hopefully barbarians are more efficient this way and perhaps more realistic too (their behaviour and such maybe or/and tendencies or/and other or/and not or yes but anyways etc), as they can't bring their monuments wih themselves if they roam, and now they can focus slightly more on building units or whichever thing they should do more, also more consistent with no mysticism and such, or/and other reasons or/and not, but anyways etc anyways etc
 			-->
 			<FreeBuildingClasses>
 				<FreeBuildingClass>

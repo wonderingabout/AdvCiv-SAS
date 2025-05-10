@@ -122,7 +122,7 @@
 		<Spanish>Saludos, honorable [CT_NAME]. Esperemos que siempre reine la paz entre el [OUR_EMPIRE] y [CT_CIV_SHORT], pues ella es lo &#250;nico que se interpone entre vosotros y la aniquilaci&#243;n total. </Spanish>
 	</TEXT>
 	<TEXT>
-		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_CHINESE_LEADER_1</Tag>
+		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_MAO_ZEDONG_1</Tag>
 		<English>Greetings, [CT_NAME]. The heroic people of [OUR_CIV_SHORT] salute you! Remember: once all struggle is grasped, miracles are possible.</English>
 		<French>Bonjour, [CT_NAME]. C'est un plaisir de vous rencontrer. Tenez, je vous offre un exemplaire de mon petit livre rouge. Vous y apprendrez peut-&#234;tre quelque chose.</French>
 		<German>Seid gegr&#252;&#223;t, [CT_NAME]. Ich freue mich, Eure Bekanntschaft zu machen. Hier, nehmt diese Abschrift meines kleinen roten Leitfadens. Ihr k&#246;nntet noch etwas lernen!</German>
@@ -130,7 +130,7 @@
 		<Spanish>Saludos, [CT_NAME]. Es un placer conoceros. Tomad un ejemplar de mi libro rojo. Puede que aprend&#225;is algo y todo.</Spanish>
 	</TEXT>
 	<TEXT>
-		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_CHINESE_LEADER_2</Tag>
+		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_MAO_ZEDONG_2</Tag>
 		<English>Greetings, [CT_NAME]. I am [OUR_NAME]. People like me sound like a lot of big cannons. Don't let that bother you though. Shall we have peace?</English>
 		<French>Bonjour, [CT_NAME]. C'est un plaisir de vous rencontrer. Tenez, je vous offre un exemplaire de mon petit livre rouge. Vous y apprendrez peut-&#234;tre quelque chose.</French>
 		<German>Seid gegr&#252;&#223;t, [CT_NAME]. Ich freue mich, Eure Bekanntschaft zu machen. Hier, nehmt diese Abschrift meines kleinen roten Leitfadens. Ihr k&#246;nntet noch etwas lernen!</German>
@@ -138,7 +138,7 @@
 		<Spanish>Saludos, [CT_NAME]. Es un placer conoceros. Tomad un ejemplar de mi libro rojo. Puede que aprend&#225;is algo y todo.</Spanish>
 	</TEXT>
 	<TEXT>
-		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_CHINESE_LEADER_3</Tag>
+		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_MAO_ZEDONG_3</Tag>
 		<English>Welcome, [CT_NAME]. I am [OUR_NAME], leader of the [OUR_CIV_ADJ] people. The cardinal responsibility of leadership is to identify the dominant contradiction at each point of the historical process and to work out a central line to resolve it. How should the two of us resolve this meeting?</English>
 		<French>Bonjour, [CT_NAME]. C'est un plaisir de vous rencontrer. Tenez, je vous offre un exemplaire de mon petit livre rouge. Vous y apprendrez peut-&#234;tre quelque chose.</French>
 		<German>Seid gegr&#252;&#223;t, [CT_NAME]. Ich freue mich, Eure Bekanntschaft zu machen. Hier, nehmt diese Abschrift meines kleinen roten Leitfadens. Ihr k&#246;nntet noch etwas lernen!</German>
@@ -471,7 +471,7 @@
 		<Spanish>Vuestra mera visi&#243;n nos ofende, [CT_NAME]. &#161;Fuera de aqu&#237;!</Spanish>
 	</TEXT>
 	<TEXT>
-		<Tag>AI_DIPLO_REFUSE_TO_TALK_LEADER_CHINESE_LEADER_1</Tag>
+		<Tag>AI_DIPLO_REFUSE_TO_TALK_LEADER_MAO_ZEDONG_1</Tag>
 		<English>All reactionaries are paper tigers, and so are you!</English>
 		<French>Les [OUR_CIV_SHORT] n'&#233;couteront pas vos mensonges !</French>
 		<German>Das Volk von [OUR_CIV_SHORT] wird Euren kleinb&#252;rgerlichen L&#252;gen kein Geh&#246;r schenken!</German>
@@ -696,7 +696,7 @@
 		<Spanish>No. No hab&#233;is aprendido a respetar como es debido a vuestros superiores.</Spanish>
 	</TEXT>
 	<TEXT>
-		<Tag>AI_DIPLO_NO_PEACE_LEADER_CHINESE_LEADER_1</Tag>
+		<Tag>AI_DIPLO_NO_PEACE_LEADER_MAO_ZEDONG_1</Tag>
 		<English>Passivity is fatal to us. Our goal is to make the enemy passive. You are the enemy. There will be no peace.</English>
 		<French>Il ne pourra jamais y avoir de paix entre le peuple et les oppresseurs capitalistes de la bourgeoisie qui le spolie et l'exploite ! Je parle de vous, imb&#233;cile.</French>
 		<German>Es kann niemals Frieden herrschen in dem endlosen Krieg zwischen dem einfachen Volk und den kapitalistischen Blutsaugern, die es versklaven wollen! Und damit seid Ihr gemeint, Dummkopf!</German>
@@ -896,7 +896,7 @@
 		<Spanish>&#161;Saludos, [CT_NAME]! &#191;A qui&#233;n debemos traicionar y destruir hoy?</Spanish>
 	</TEXT>
 	<TEXT>
-		<Tag>AI_DIPLO_GREETINGS_ATT_FR_LEADER_CHINESE_LEADER_1</Tag>
+		<Tag>AI_DIPLO_GREETINGS_ATT_FR_LEADER_MAO_ZEDONG_1</Tag>
 		<English>Let a hundred flowers bloom, let a hundred schools of thought contend! This is a good day. How may [OUR_CIV_SHORT] be of service?</English>
 		<French>Au nom du glorieux Parti Communiste de Chine et de tous ses paysans incultes... heu, de tous ses "glorieux travailleurs"... je vous salue !</French>
 		<German>Im Namen der gro&#223;en ruhmreichen kommunistischen Partei Chinas und all ihrer einfallslosen kleinen Anh&#228;nger - &#228;h, ich meine "ehrenhaften Arbeiter" - Willkommen!</German>
@@ -1163,7 +1163,7 @@
 		<Spanish>&#161;Saludos, [CT_NAME]! Nos complace veros, como siempre.</Spanish>
 	</TEXT>
 	<TEXT>
-		<Tag>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_CHINESE_LEADER_1</Tag>
+		<Tag>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_MAO_ZEDONG_1</Tag>
 		<English>Swollen in head, weak in legs, sharp in tongue but empty in belly. Needless to say, I haven't missed you.</English>
 		<French>Ce sont les gens comme vous, [CT_NAME], qui entachent la r&#233;putation des impitoyables dictateurs. Que venez-vous faire ici ?</French>
 		<German>Es sind Menschen wie Ihr, [CT_NAME], die ruchlosen Diktatoren einen schlechten Ruf bescheren! Warum seid Ihr gekommen?</German>
@@ -1172,7 +1172,7 @@
 	</TEXT>
 
 	<TEXT>
-		<Tag>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_CHINESE_LEADER_2</Tag>
+		<Tag>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_MAO_ZEDONG_2</Tag>
 		<English>You think too small, [CT_NAME], like the frog at the bottom of the well. He thinks the sky is only as big as the top of the well. If he surfaced, he would have an entirely different view. What do you want?</English>
 		<French>Ce sont les gens comme vous, [CT_NAME], qui entachent la r&#233;putation des impitoyables dictateurs. Que venez-vous faire ici ?</French>
 		<German>Es sind Menschen wie Ihr, [CT_NAME], die ruchlosen Diktatoren einen schlechten Ruf bescheren! Warum seid Ihr gekommen?</German>
@@ -1614,7 +1614,7 @@
 		<Spanish>Es una civilizaci&#243;n muy bonita la que ten&#233;is, [CT_NAME]. Ser&#237;a una desgracia que algo malo le sucediera... Nos entendemos, &#191;no?</Spanish>
 	</TEXT>
 	<TEXT>
-		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_WEAKER_CHINESE_LEADER_1</Tag>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_WEAKER_MAO_ZEDONG_1</Tag>
 		<English>[OUR_CIV_SHORT] is a tiger, [CT_NAME]. In waking a tiger, use a long stick. Or better still, give us this and let it remain asleep.</English>
 		<French>[CT_NAME], veuillez nous donner ceci imm&#233;diatement. Consid&#233;rez que c'est un investissement pour pr&#233;server notre belle amiti&#233;...</French>
 		<German>Bitte, kommt dieser Forderung umgehend nach, [CT_NAME]! Betrachtet es als Investition in unsere freundschaftlichen Beziehungen.</German>
@@ -1753,7 +1753,7 @@
 		<Spanish>El [OUR_EMPIRE] os pide una peque&#241;a donaci&#243;n, [CT_NAME]. O, si lo prefer&#237;s, podemos combatir hasta que una de las dos naciones quede destruida. </Spanish>
 	</TEXT>
 	<TEXT>
-		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_EQUAL_CHINESE_LEADER_1</Tag>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_EQUAL_MAO_ZEDONG_1</Tag>
 		<English>Politics is war without bloodshed, while war is politics with bloodshed. Which type of politics do you prefer?</English>
 		<French>Voulez-vous participer &#224; notre programme de partage des richesses, [CT_NAME] ?</French>
 		<German>Wollt Ihr nicht vielleicht an dem allseits beliebten "Wie werde ich reich"-Programm teilnehmen, [CT_NAME]?</German>
@@ -1936,7 +1936,7 @@
 		<Spanish>&#161;Si quer&#233;is que sobreviva vuestra pat&#233;tica civilizaci&#243;n, [CT_NAME], ser&#225; mejor que cumpl&#225;is nuestras exigencias!</Spanish>
 	</TEXT>
 	<TEXT>
-		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_CHINESE_LEADER_1</Tag>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MAO_ZEDONG_1</Tag>
 		<English>We demand this, [CT_NAME]. Communism is not love. Communism is a hammer which we use to crush the enemy.</English>
 		<French>Les glorieux travailleurs des [CT_CIV_ADJ] supportent depuis trop longtemps d&#233;j&#224; votre insolence de bourgeois ! Nous allons imm&#233;diatement redistribuer les richesses !</French>
 		<German>Die ruhmreichen [CT_CIV_ADJ:2] Arbeiter haben sich Eure ver&#228;chtlichen Unversch&#228;mtheiten schon viel zu lange gefallen lassen! Jetzt ist es an der Zeit, Euer Verm&#246;gen ein wenig umzuverteilen!</German>
