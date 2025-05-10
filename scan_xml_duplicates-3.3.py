@@ -26,7 +26,7 @@ log_folder = os.path.join("Logs", "XML_Duplication_Scans")
 os.makedirs(log_folder, exist_ok=True)
 
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-log_path = os.path.join(log_folder, f"xml_duplicate_log_{timestamp}.txt")
+log_path = os.path.join(log_folder, f"scan_xml_duplicates_log_{timestamp}.txt")
 
 warnings = []
 total_duplicates = 0

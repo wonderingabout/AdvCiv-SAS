@@ -3439,7 +3439,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_BUILD_OBELISK</SoundID>
+			<SoundID>SND_BUILD_MONUMENT</SoundID>
 			<Filename>Sounds/Buildings/Obelisk</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -9949,21 +9949,21 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TUTORIAL_BUILD_OBELISK_0</SoundID>
+			<SoundID>SND_TUTORIAL_BUILD_MONUMENT_0</SoundID>
 			<Filename>Sounds/Tutorial/Tut_18A</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TUTORIAL_BUILD_OBELISK_1</SoundID>
+			<SoundID>SND_TUTORIAL_BUILD_MONUMENT_1</SoundID>
 			<Filename>Sounds/Tutorial/Tut_18B</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TUTORIAL_BUILD_OBELISK_2</SoundID>
+			<SoundID>SND_TUTORIAL_BUILD_MONUMENT_2</SoundID>
 			<Filename>Sounds/Tutorial/Tut_18C</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>

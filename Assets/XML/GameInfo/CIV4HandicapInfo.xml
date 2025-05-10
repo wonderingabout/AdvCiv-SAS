@@ -8,12 +8,12 @@
 	<HandicapInfos>
 		<!-- advc.126: Added free tech for later eras to
 			 Settler and Chieftain. -->
-		<HandicapInfo>
+		<HandicapInfo> <!-- custom: settler (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
 			<Type>HANDICAP_SETTLER</Type>
 			<Description>TXT_KEY_HANDICAP_SETTLER</Description>
 			<Help>TXT_KEY_HANDICAP_SETTLER_HELP</Help>
 			<!-- advc.251: was 5 -->
-			<iFreeWinsVsBarbs>4</iFreeWinsVsBarbs>
+			<iFreeWinsVsBarbs>3</iFreeWinsVsBarbs>
 			<!-- advc.309: was 25 -->
 			<iAnimalAttackProb>30</iAnimalAttackProb>
 			<iStartingLocPercent>10</iStartingLocPercent>
@@ -58,7 +58,7 @@
 			<!-- advc.251: was 6 -->
 			<iHappyBonus>5</iHappyBonus>
 			<!-- advc.148: was 2 -->
-			<iAttitudeChange>3</iAttitudeChange>
+			<iAttitudeChange>2</iAttitudeChange>
 			<iNoTechTradeModifier>100</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>-100</iTechTradeKnownModifier>
 			<!-- advc.309: was 100 -->
@@ -71,13 +71,13 @@
 			<iBarbarianCreationTurnsElapsed>48</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 55 -->
 			<iBarbarianCityCreationTurnsElapsed>60</iBarbarianCityCreationTurnsElapsed>
-			<iBarbarianCityCreationProb>4</iBarbarianCityCreationProb>
+			<iBarbarianCityCreationProb>5</iBarbarianCityCreationProb>
 			<!-- advc.313: was -70 -->
-			<iAnimalBonus>-60</iAnimalBonus>
-			<iBarbarianBonus>-40</iBarbarianBonus>
+			<iAnimalBonus>-30</iAnimalBonus>
+			<iBarbarianBonus>-30</iBarbarianBonus>
 			<!-- advc.313: was -40 -->
-			<iAIAnimalBonus>-25</iAIAnimalBonus>
-			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+			<iAIAnimalBonus>-30</iAIAnimalBonus>
+			<iAIBarbarianBonus>-30</iAIBarbarianBonus>
 			<iStartingDefenseUnits>6</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<!-- custom: to help discover the game, give a free explorer unit, was 0-->
@@ -86,7 +86,7 @@
 			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
-			<iBarbarianDefenders>3</iBarbarianDefenders>
+			<iBarbarianDefenders>2</iBarbarianDefenders>
 			<iAIDeclareWarProb>25</iAIDeclareWarProb>
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<!-- advc.251 (start) -->
@@ -221,12 +221,12 @@
 			<!-- advc.250a -->
 			<iDifficulty>0</iDifficulty>
 		</HandicapInfo>
-		<HandicapInfo>
+		<HandicapInfo> <!-- custom: chieftain (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
 			<Type>HANDICAP_CHIEFTAIN</Type>
 			<Description>TXT_KEY_HANDICAP_CHIEFTAIN</Description>
 			<Help>TXT_KEY_HANDICAP_CHIEFTAIN_HELP</Help>
 			<!-- advc.251: was 4 -->
-			<iFreeWinsVsBarbs>3</iFreeWinsVsBarbs>
+			<iFreeWinsVsBarbs>2</iFreeWinsVsBarbs>
 			<iAnimalAttackProb>50</iAnimalAttackProb>
 			<iStartingLocPercent>20</iStartingLocPercent>
 			<!-- advc.250c: was 130 -->
@@ -265,7 +265,7 @@
 			<iHealthBonus>3</iHealthBonus>
 			<iHappyBonus>5</iHappyBonus>
 			<!-- advc.148: was 1 -->
-			<iAttitudeChange>2</iAttitudeChange>
+			<iAttitudeChange>1</iAttitudeChange>
 			<!-- advc.251: was 90 -->
 			<iNoTechTradeModifier>85</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>-50</iTechTradeKnownModifier>
@@ -281,8 +281,8 @@
 			<iBarbarianCityCreationTurnsElapsed>55</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>5</iBarbarianCityCreationProb>
 			<!-- advc.313: was -60 -->
-			<iAnimalBonus>-45</iAnimalBonus>
-			<iBarbarianBonus>-30</iBarbarianBonus>
+			<iAnimalBonus>-25</iAnimalBonus>
+			<iBarbarianBonus>-25</iBarbarianBonus>
 			<!-- advc.313: was -40 -->
 			<iAIAnimalBonus>-25</iAIAnimalBonus>
 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
@@ -394,12 +394,12 @@
 			<!-- advc.250a -->
 			<iDifficulty>10</iDifficulty>
 		</HandicapInfo>
-		<HandicapInfo>
+		<HandicapInfo> <!-- custom: warlord (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
 			<Type>HANDICAP_WARLORD</Type>
 			<Description>TXT_KEY_HANDICAP_WARLORD</Description>
 			<Help>TXT_KEY_HANDICAP_WARLORD_HELP</Help>
 			<!-- advc.251: was 3 -->
-			<iFreeWinsVsBarbs>2</iFreeWinsVsBarbs>
+			<iFreeWinsVsBarbs>1</iFreeWinsVsBarbs>
 			<!-- advc.309: was 75 -->
 			<iAnimalAttackProb>60</iAnimalAttackProb>
 			<!-- advc.108b: was 30 -->
@@ -439,7 +439,7 @@
 			<iHealthBonus>2</iHealthBonus>
 			<iHappyBonus>4</iHappyBonus>
 			<!-- advc.148: was 0 -->
-			<iAttitudeChange>1</iAttitudeChange>
+			<iAttitudeChange>0</iAttitudeChange>
 			<!-- advc.251: was 80 -->
 			<iNoTechTradeModifier>75</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>-25</iTechTradeKnownModifier>
@@ -452,13 +452,13 @@
 			<iBarbarianCreationTurnsElapsed>40</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 45 -->
 			<iBarbarianCityCreationTurnsElapsed>50</iBarbarianCityCreationTurnsElapsed>
-			<iBarbarianCityCreationProb>5</iBarbarianCityCreationProb>
+			<iBarbarianCityCreationProb>10</iBarbarianCityCreationProb>
 			<!-- advc.313: was -50 -->
-			<iAnimalBonus>-30</iAnimalBonus>
-			<iBarbarianBonus>-20</iBarbarianBonus>
+			<iAnimalBonus>-20</iAnimalBonus>
+			<iBarbarianBonus>0</iBarbarianBonus>
 			<!-- advc.313: was -40 -->
-			<iAIAnimalBonus>-25</iAIAnimalBonus>
-			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+			<iAIAnimalBonus>-20</iAIAnimalBonus>
+			<iAIBarbarianBonus>0</iAIBarbarianBonus>
 			<iStartingDefenseUnits>4</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
@@ -565,12 +565,12 @@
 			<!-- advc.250a -->
 			<iDifficulty>20</iDifficulty>
 		</HandicapInfo>
-		<HandicapInfo>
+		<HandicapInfo> <!-- custom: noble (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
 			<Type>HANDICAP_NOBLE</Type>
 			<Description>TXT_KEY_HANDICAP_NOBLE</Description>
 			<Help>TXT_KEY_HANDICAP_NOBLE_HELP</Help>
 			<!-- advc.251: was 2 -->
-			<iFreeWinsVsBarbs>1</iFreeWinsVsBarbs>
+			<iFreeWinsVsBarbs>0</iFreeWinsVsBarbs>
 			<!-- advc.309: was 85 -->
 			<iAnimalAttackProb>70</iAnimalAttackProb>
 			<!-- advc.108b: was 40 -->
@@ -625,13 +625,13 @@
 			<iBarbarianCreationTurnsElapsed>36</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 40 -->
 			<iBarbarianCityCreationTurnsElapsed>45</iBarbarianCityCreationTurnsElapsed>
-			<iBarbarianCityCreationProb>6</iBarbarianCityCreationProb>
+			<iBarbarianCityCreationProb>15</iBarbarianCityCreationProb>
 			<!-- advc.313: was -40 -->
-			<iAnimalBonus>-25</iAnimalBonus>
-			<iBarbarianBonus>-10</iBarbarianBonus>
+			<iAnimalBonus>0</iAnimalBonus>
+			<iBarbarianBonus>0</iBarbarianBonus>
 			<!-- advc.313: was -40 -->
-			<iAIAnimalBonus>-25</iAIAnimalBonus>
-			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+			<iAIAnimalBonus>0</iAIAnimalBonus>
+			<iAIBarbarianBonus>0</iAIBarbarianBonus>
 			<!-- custom: considering noble is intended to be a bit harder now and a bridge closer to prince, also increase the value here, was 0 -->
 			<iStartingDefenseUnits>3</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
@@ -744,7 +744,7 @@
 			<!-- advc.250a -->
 			<iDifficulty>30</iDifficulty>
 		</HandicapInfo>
-		<HandicapInfo>
+		<HandicapInfo> <!-- custom: prince (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
 			<Type>HANDICAP_PRINCE</Type>
 			<Description>TXT_KEY_HANDICAP_PRINCE</Description>
 			<Help>TXT_KEY_HANDICAP_PRINCE_HELP</Help>
@@ -804,17 +804,17 @@
 			<iBarbarianCreationTurnsElapsed>32</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 35 -->
 			<iBarbarianCityCreationTurnsElapsed>40</iBarbarianCityCreationTurnsElapsed>
-			<iBarbarianCityCreationProb>6</iBarbarianCityCreationProb>
+			<iBarbarianCityCreationProb>20</iBarbarianCityCreationProb>
 			<!-- advc.313: was -30 -->
-			<iAnimalBonus>-20</iAnimalBonus>
-			<iBarbarianBonus>-5</iBarbarianBonus>
+			<iAnimalBonus>0</iAnimalBonus>
+			<iBarbarianBonus>0</iBarbarianBonus>
 			<!-- advc.313: start -->
 			<!-- was (effectively) -25 -->
-			<iBarbarianCityAttackBonus>-20</iBarbarianCityAttackBonus>
+			<iBarbarianCityAttackBonus>0</iBarbarianCityAttackBonus>
 			<!-- was -40 -->
-			<iAIAnimalBonus>-25</iAIAnimalBonus>
+			<iAIAnimalBonus>0</iAIAnimalBonus>
 			<!-- advc.313: end -->
-			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+			<iAIBarbarianBonus>0</iAIBarbarianBonus>
 			<iStartingDefenseUnits>3</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
@@ -827,7 +827,7 @@
 			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
 			warriors are now more likely to be defenders, was 0 -->
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
-			<iBarbarianDefenders>4</iBarbarianDefenders>
+			<iBarbarianDefenders>3</iBarbarianDefenders>
 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
 			<!-- advc.251: was 10 -->
 			<iAIWorkRateModifier>5</iAIWorkRateModifier>
@@ -932,7 +932,7 @@
 		</HandicapInfo>
 		<!-- advc.126: Added free tech for later eras to
 			 all handicaps below. -->
-		<HandicapInfo>
+		<HandicapInfo> <!-- custom: monarch (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
 			<Type>HANDICAP_MONARCH</Type>
 			<Description>TXT_KEY_HANDICAP_MONARCH</Description>
 			<Help>TXT_KEY_HANDICAP_MONARCH_HELP</Help>
@@ -992,18 +992,18 @@
 			<iBarbarianCreationTurnsElapsed>28</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 30 -->
 			<iBarbarianCityCreationTurnsElapsed>35</iBarbarianCityCreationTurnsElapsed>
-			<iBarbarianCityCreationProb>7</iBarbarianCityCreationProb>
+			<iBarbarianCityCreationProb>25</iBarbarianCityCreationProb>
 			<!-- advc.313: start -->
 			<!-- was -20 -->
-			<iAnimalBonus>-15</iAnimalBonus>
+			<iAnimalBonus>0</iAnimalBonus>
 			<!-- was 0 -->
-			<iBarbarianBonus>-5</iBarbarianBonus>
+			<iBarbarianBonus>0</iBarbarianBonus>
 			<!-- was (effectively) -25 -->
-			<iBarbarianCityAttackBonus>-20</iBarbarianCityAttackBonus>
+			<iBarbarianCityAttackBonus>0</iBarbarianCityAttackBonus>
 			<!-- was -40 -->
-			<iAIAnimalBonus>-25</iAIAnimalBonus>
+			<iAIAnimalBonus>0</iAIAnimalBonus>
 			<!-- advc.313: end -->
-			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+			<iAIBarbarianBonus>0</iAIBarbarianBonus>
 			<iStartingDefenseUnits>3</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
@@ -1138,7 +1138,7 @@
 			<!-- advc.250a -->
 			<iDifficulty>50</iDifficulty>
 		</HandicapInfo>
-		<HandicapInfo>
+		<HandicapInfo> <!-- custom: emperor (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
 			<Type>HANDICAP_EMPEROR</Type>
 			<Description>TXT_KEY_HANDICAP_EMPEROR</Description>
 			<Help>TXT_KEY_HANDICAP_EMPEROR_HELP</Help>
@@ -1194,17 +1194,17 @@
 			<iBarbarianCreationTurnsElapsed>24</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 25 -->
 			<iBarbarianCityCreationTurnsElapsed>30</iBarbarianCityCreationTurnsElapsed>
-			<iBarbarianCityCreationProb>7</iBarbarianCityCreationProb>
-			<iAnimalBonus>-10</iAnimalBonus>
+			<iBarbarianCityCreationProb>30</iBarbarianCityCreationProb>
+			<iAnimalBonus>0</iAnimalBonus>
 			<!-- advc.313: start -->
 			<!-- was 0 -->
-			<iBarbarianBonus>-5</iBarbarianBonus>
+			<iBarbarianBonus>0</iBarbarianBonus>
 			<!-- was (effectively) -25 -->
-			<iBarbarianCityAttackBonus>-20</iBarbarianCityAttackBonus>
+			<iBarbarianCityAttackBonus>0</iBarbarianCityAttackBonus>
 			<!-- was -40 -->
-			<iAIAnimalBonus>-25</iAIAnimalBonus>
+			<iAIAnimalBonus>0</iAIAnimalBonus>
 			<!-- advc.313: end -->
-			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+			<iAIBarbarianBonus>0</iAIBarbarianBonus>
 			<iStartingDefenseUnits>3</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
@@ -1352,7 +1352,7 @@
 			<!-- advc.250a -->
 			<iDifficulty>60</iDifficulty>
 		</HandicapInfo>
-		<HandicapInfo>
+		<HandicapInfo> <!-- custom: immortal (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
 			<Type>HANDICAP_IMMORTAL</Type>
 			<Description>TXT_KEY_HANDICAP_IMMORTAL</Description>
 			<Help>TXT_KEY_HANDICAP_IMMORTAL_HELP</Help>
@@ -1409,17 +1409,17 @@
 			<iBarbarianCreationTurnsElapsed>20</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 20 -->
 			<iBarbarianCityCreationTurnsElapsed>25</iBarbarianCityCreationTurnsElapsed>
-			<iBarbarianCityCreationProb>8</iBarbarianCityCreationProb>
-			<iAnimalBonus>-5</iAnimalBonus>
+			<iBarbarianCityCreationProb>35</iBarbarianCityCreationProb>
+			<iAnimalBonus>0</iAnimalBonus>
 			<!-- advc.313: start -->
 			<!-- was 0 -->
-			<iBarbarianBonus>-5</iBarbarianBonus>
+			<iBarbarianBonus>0</iBarbarianBonus>
 			<!-- was (effectively) -25 -->
-			<iBarbarianCityAttackBonus>-15</iBarbarianCityAttackBonus>
+			<iBarbarianCityAttackBonus>0</iBarbarianCityAttackBonus>
 			<!-- was -40 -->
-			<iAIAnimalBonus>-25</iAIAnimalBonus>
+			<iAIAnimalBonus>0</iAIAnimalBonus>
 			<!-- advc.313: end -->
-			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+			<iAIBarbarianBonus>0</iAIBarbarianBonus>
 			<iStartingDefenseUnits>3</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
@@ -1575,7 +1575,7 @@
 			<!-- advc.250a -->
 			<iDifficulty>70</iDifficulty>
 		</HandicapInfo>
-		<HandicapInfo>
+		<HandicapInfo> <!-- custom: deity (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
 			<Type>HANDICAP_DEITY</Type>
 			<Description>TXT_KEY_HANDICAP_DEITY</Description>
 			<Help>TXT_KEY_HANDICAP_DEITY_HELP</Help>
@@ -1631,20 +1631,20 @@
 			<iBarbarianCreationTurnsElapsed>16</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 15 -->
 			<iBarbarianCityCreationTurnsElapsed>25</iBarbarianCityCreationTurnsElapsed>
-			<iBarbarianCityCreationProb>8</iBarbarianCityCreationProb>
+			<iBarbarianCityCreationProb>40</iBarbarianCityCreationProb>
 			<iAnimalBonus>0</iAnimalBonus>
 			<iBarbarianBonus>0</iBarbarianBonus>
 			<!-- advc.313: start -->
 			<!-- was (effectively) -25 -->
-			<iBarbarianCityAttackBonus>-10</iBarbarianCityAttackBonus>
+			<iBarbarianCityAttackBonus>0</iBarbarianCityAttackBonus>
 			<!-- was (effectively) -10 in K-Mod -->
-			<iSeaBarbarianBonus>-5</iSeaBarbarianBonus>
+			<iSeaBarbarianBonus>0</iSeaBarbarianBonus>
 			<!-- (Let Barbarians benefit from the advc.905a speed increase) -->
 			<iSeaBarbarianExtraMoves>0</iSeaBarbarianExtraMoves>
 			<!-- was -40 -->
-			<iAIAnimalBonus>-25</iAIAnimalBonus>
+			<iAIAnimalBonus>0</iAIAnimalBonus>
 			<!-- advc.313: end -->
-			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+			<iAIBarbarianBonus>0</iAIBarbarianBonus>
 			<iStartingDefenseUnits>3</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>

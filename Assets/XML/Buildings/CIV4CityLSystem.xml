@@ -255,7 +255,7 @@ I am not sure which i should take, but since there are redundancies i guess i sh
 			<Attribute Class="Scalar">iBatchGroup:1</Attribute>
 		</ArtRef>		
 		<!-- LEAF 1x1 BUILDINGS -->
-		<ArtRef Name="building:BUILDING_OBELISK">
+		<ArtRef Name="building:BUILDING_MONUMENT">
 			<Scale>1.25</Scale>
 		</ArtRef>
 		<ArtRef Name="building:BUILDING_EGYPTIAN_OBELISK">

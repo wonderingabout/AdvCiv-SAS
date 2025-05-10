@@ -1455,10 +1455,10 @@
 		</CivicInfo>
 		<CivicInfo>
 			<CivicOptionType>CIVICOPTION_RELIGION</CivicOptionType>
-			<Type>CIVIC_PAGANISM</Type>
-			<Description>TXT_KEY_CIVIC_PAGANISM</Description>
-			<Civilopedia>TXT_KEY_CIVIC_PAGANISM_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_CIVIC_PAGANISM_STRATEGY</Strategy>
+			<Type>CIVIC_PREHISTORIC_RELIGION</Type>
+			<Description>TXT_KEY_CIVIC_PREHISTORIC_RELIGION</Description>
+			<Civilopedia>TXT_KEY_CIVIC_PREHISTORIC_RELIGION_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Button>,Art/Interface/Buttons/Civics/Paganism.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,4,2</Button>
 			<TechPrereq>NONE</TechPrereq>
 			<iAnarchyLength>1</iAnarchyLength>

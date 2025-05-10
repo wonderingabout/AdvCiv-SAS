@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- custom: moved the lengthy part of the Sevopedia changes,
+specific to AdvCiv-SAS, to
+Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml,
+hopefully more readable or exportable if need/want be now -->
+
+<!-- advc.008: Since the Civilopedia changes are so wordy (not the
+     changes, but the copied text), I've moved them out of
+     CIV4GameText_advc.xml, where the rest of the Advanced Civ game text
+	 is located.
+	 Starting with the two text keys changed by K-Mod
+	 (one of them commented out, already in K-Mod) cut from
+	 Civ4GameText_K-Mod.xml. The comments above those keys
+	 are also from K-Mod. -->
+
+<Civ4GameText>
+	<!-- advc.004y: Heading for "changes" box in trait articles -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CHANGES</Tag>
+		<English>Changes</English>
+	</TEXT>
+
+	<!-- custom: from Age of Empires wiki, did not find much info online so using
+	this (see copyright at root of project if needed):
+	https://ageofempires.fandom.com/wiki/Clubman
+	Slightly edited too to fit AdvCiv-SAS -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_WARRIOR_PEDIA</Tag>
+		<English>[TAB]Sometimes called the "clubman" (as it wields a wooden club), the Ancient Maceman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_MODERN_ARMOR</Tag>
+		<English>Robotic Tank</English>
+	</TEXT>
+
+
+
+	<!-- custom: not a lengthy description per se but anyways etc but putting here as fits the theme maybe or not but in all cases anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_GENERIC_BARBARIAN_CUSTOM_SEE_FOR_DETAILS_PEDIA</Tag>
+		<English>[TAB]See [LINK=CIVILIZATION_BARBARIAN]Barbarians (Civilization)[\LINK] for details.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_WORKER_BARBARIAN</Tag>
+		<English>Worker (Barbarian)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_WORK_BOAT_BARBARIAN</Tag>
+		<English>Work Boat (Barbarian)</English>
+	</TEXT>
+</Civ4GameText>

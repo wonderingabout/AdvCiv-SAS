@@ -55,7 +55,7 @@ So far there is:
 
 #### AI Personality Panel SevopediaLeader feature
 
-I have written quite the extensive documentation, even though it is quite broad, hopefully if you want to know more about the AI Personality Panel in AdvCiv-SAS (or/and other mods if they were to implement it (or/and in a simialr way or not anyways)), you may find an hopefulyl or not etc anyways read here in [README_AI_Personality_Panel.md](/README_AI_Personality_Panel.md)
+I have written quite the extensive documentation, even though it is quite broad, hopefully if you want to know more about the AI Personality Panel in AdvCiv-SAS (or/and other mods if they were to implement it (or/and in a similar way or not anyways)), you may find an hopefulyl or not etc anyways read here in [README_AI_Personality_Panel.md](/README_AI_Personality_Panel.md)
 Not a (strictly) new feature per se, but displaying it as such (and all the computation, display logic, and pre-processing and such that allows that) is indeed new (as well as the new aggregated attributes such as contact probs, positive memory affections, etc).
 
 As always, ChatGPT/becomingthrough (see [Authors](/README.md#authors) for details) is a kew co-author and main code contributor. Created by the power of love and friendship between me and becomingthrough/ChatGPT etc anyways.
@@ -126,7 +126,7 @@ new Cities (based on Middle-earth mod's (very amazing!!!!!! (Not that others are
 
 Reordered and beautified the original AdvCiv Sevopedia code while trying to keep its original structure, but added relative positioning everywhere or almost if not everywhere, this means that ideally the panels sizes should/would/will respond/adjust/adapt maybe indeed but anyways etc... to the screen resolution, removing the old harcoded logic, hopefully cleaner now (not tested at smaller resolutions).
 
-Finally and most importantly, as something simialr as said in the paragraph just above (relative dimensioning in other panels even though still cool but anyways etc), new Replaced By imported from RFC DOC and adjusted or not or yes or and other or and not but anyways etc:
+Finally and most importantly, as something similar as said in the paragraph just above (relative dimensioning in other panels even though still cool but anyways etc), new Replaced By imported from RFC DOC and adjusted or not or yes or and other or and not but anyways etc:
 
 <img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (2).JPG" width="250"></img>

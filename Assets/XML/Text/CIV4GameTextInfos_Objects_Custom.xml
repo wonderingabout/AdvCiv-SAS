@@ -5,6 +5,14 @@
 <!-- -->
 <!-- Game Text Objects -->
 <Civ4GameText xmlns="http://www.firaxis.com">
+	<!-- custom:we don't use startegy tags at all anymore in AdvCiv-SAS, they will be empty just to have the tag existing, but it shuold never be used otherwise or displayed anymore in AdvCiv-SAS's sevopedia if i am not mistaken anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Tag>
+		<English></English>
+	</TEXT>
+
+
+
 	<!-- custom: "Unique Units" were not unique (could be built
 	many times, just it was only by one civ in civ4, so i had
 	renamed	it to "Civ-specific Units" initially.
@@ -179,28 +187,7 @@
 		<Tag>TXT_KEY_UNIT_DAOIST_MISSIONARY</Tag>
 		<English>Daoist Missionary</English>
 	</TEXT>
-	<!-- custom: putting the daoist (after having renamed "taoism" into "daoism") strategy tags here too in AdvCiv-SAS but as we don't use startegy tags at all anymore in AdvCiv-SAS's placeHistory panels, they will be empty just to have the tag existing, but it shuold never be used otherwise or displayed anymore in AdvCiv-SAS's sevopedia if i am not mistaken anyways etc -->
-	<TEXT>
-		<Tag>TXT_KEY_BUILDING_DAOIST_TEMPLE_STRATEGY</Tag>
-		<English></English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUILDING_DAOIST_MONASTERY_STRATEGY</Tag>
-		<English></English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUILDING_DAOIST_CATHEDRAL_STRATEGY</Tag>
-		<English></English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUILDING_DAOIST_SHRINE_STRATEGY</Tag>
-		<English></English>
-	</TEXT>
 
-	<TEXT>
-		<Tag>TXT_KEY_UNIT_DAOIST_MISSIONARY_STRATEGY</Tag>
-		<English></English>
-	</TEXT>
 
 
 	<TEXT>
@@ -235,30 +222,59 @@
 		<Tag>TXT_KEY_UNIT_PAGAN_MISSIONARY</Tag>
 		<English>Pagan Missionary</English>
 	</TEXT>
-		<TEXT>
-		<Tag>TXT_KEY_UNIT_PAGAN_MISSIONARY_STRATEGY</Tag>
-		<English></English>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_CIVIC_PREHISTORIC_RELIGION</Tag>
+		<English>Prehistoric Religion</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PALACE_BARBARIAN</Tag>
+		<English>Palace (Barbarian)</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_BUILDING_PAGAN_TEMPLE_STRATEGY</Tag>
-		<English></English>
+		<Tag>TXT_KEY_BUILDING_BARRACKS_BARBARIAN</Tag>
+		<English>Barracks (Barbarian)</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_BUILDING_PAGAN_MONASTERY_STRATEGY</Tag>
-		<English></English>
+		<Tag>TXT_KEY_BUILDING_GRANARY_BARBARIAN</Tag>
+		<English>Granary (Barbarian)</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_BUILDING_PAGAN_CATHEDRAL_STRATEGY</Tag>
-		<English></English>
+		<Tag>TXT_KEY_BUILDING_LIGHTHOUSE_BARBARIAN</Tag>
+		<English>Lighthouse (Barbarian)</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_BUILDING_PAGAN_SHRINE_STRATEGY</Tag>
-		<English></English>
+		<Tag>TXT_KEY_BUILDING_MONUMENT_BARBARIAN</Tag>
+		<English>Monument (Barbarian)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_WALLS_BARBARIAN</Tag>
+		<English>Walls (Barbarian)</English>
 	</TEXT>
 
 	<TEXT>
-		<Tag>TXT_KEY_UNIT_PAGAN_MISSIONARY_STRATEGY</Tag>
-		<English></English>
+		<Tag>TXT_KEY_BUILDING_CASTLE_BARBARIAN</Tag>
+		<English>Castle (Barbarian)</English>
+	</TEXT>
+
+
+	<!-- custom: extremely confusing base Civ4 (and still in AdvCiv (even though did not have or maybe rather import all asset files to (easily?) allow that but anyways etc, that could have done or not but as far as i'm concerned (maybe(or not(, but anwyays etc))) and to go back on topic, anyways etc: ) but anyways etc anyways etc...)
+	naming of the obelisk, now renamed:
+	- BUILDINGCLASS_OBELISK (when relating(related?) to the monument building class and not the (non existent(/existing?))(egyptian) obelisk building class) (and all similar entries such as art file(i.e. XML asset) tag names and such) to BUILDINGCLASS_MONUMENT
+	- BUILDING_OBELISK (when relating(related?) to the monument building and not the (egyptian) obelisk building) (same as above) to BUILDING_MONUMENT
+	- (so) exception(s?) being: TXT_KEY_BUILDING_OBELISK to TXT_KEY_BUILDING_EGYPTIAN_OBELISK (to match the existing civ4 format that (quite if not lot but anyways etc at least and still to go back on topic anyways etc) makes/made sense)
+	- all the while keeping the original TXT_KEY_BUILDING_MONUMENT and similar, when applies/relating(relates?) to the monument building and not the obelisk building (can hardly be mroe confusing, i mean could but is about as confusing as it could or may have been in civ4, purposely or not, but anyways etc and hopefully a lot clearer now, and helpful or not, but in all cases or not anyways etc)
+
+	So now there are either MONUMENT for the building class monuments, and MONUMENT for the building monument (generic building for all civs), or EGYPTIAN_OBELISK only and specifically only for the egyptian obelisk building (that is still named ingame "Obelisk" though as no reason to introduce the natinality/country in the name i think, but hoepfully a lot clearer in code now too, anyways etc, keeping the "egyptian" part in code name to clarify the confusion with original names, hopefully a lot clearer now, anyways etc)
+	-->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_EGYPTIAN_OBELISK</Tag>
+		<English>Obelisk</English>
 	</TEXT>
 
 
