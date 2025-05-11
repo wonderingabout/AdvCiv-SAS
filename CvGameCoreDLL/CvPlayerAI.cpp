@@ -2130,12 +2130,12 @@ bool CvPlayerAI::AI_acceptUnit(CvUnit const& kUnit) const
 		// K-Mod
 		switch (kUnit.AI_getUnitAIType())
 		{
-		case UNITAI_PROPHET:
-		case UNITAI_ARTIST:
-		case UNITAI_SCIENTIST:
-		case UNITAI_GENERAL:
-		case UNITAI_MERCHANT:
-		case UNITAI_ENGINEER:
+		case UNITAI_GREAT_PROPHET:
+		case UNITAI_GREAT_ARTIST:
+		case UNITAI_GREAT_SCIENTIST:
+		case UNITAI_GREAT_GENERAL:
+		case UNITAI_GREAT_MERCHANT:
+		case UNITAI_GREAT_ENGINEER:
 		case UNITAI_GREAT_SPY:
 			return true;
 		default:
@@ -2201,12 +2201,12 @@ DomainTypes CvPlayerAI::AI_unitAIDomainType(UnitAITypes eUnitAI) const
 	case UNITAI_CITY_SPECIAL:
 	case UNITAI_EXPLORE:
 	case UNITAI_MISSIONARY:
-	case UNITAI_PROPHET:
-	case UNITAI_ARTIST:
-	case UNITAI_SCIENTIST:
-	case UNITAI_GENERAL:
-	case UNITAI_MERCHANT:
-	case UNITAI_ENGINEER:
+	case UNITAI_GREAT_PROPHET:
+	case UNITAI_GREAT_ARTIST:
+	case UNITAI_GREAT_SCIENTIST:
+	case UNITAI_GREAT_GENERAL:
+	case UNITAI_GREAT_MERCHANT:
+	case UNITAI_GREAT_ENGINEER:
 	case UNITAI_GREAT_SPY: // K-Mod
 	case UNITAI_SPY:
 	case UNITAI_ATTACK_CITY_LEMMING:
@@ -6447,12 +6447,12 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
 					} // K-Mod end
 					break;
 
-				case UNITAI_PROPHET:
-				case UNITAI_ARTIST:
-				case UNITAI_SCIENTIST:
-				case UNITAI_GENERAL:
-				case UNITAI_MERCHANT:
-				case UNITAI_ENGINEER:
+				case UNITAI_GREAT_PROPHET:
+				case UNITAI_GREAT_ARTIST:
+				case UNITAI_GREAT_SCIENTIST:
+				case UNITAI_GREAT_GENERAL:
+				case UNITAI_GREAT_MERCHANT:
+				case UNITAI_GREAT_ENGINEER:
 				case UNITAI_GREAT_SPY: // K-Mod
 					break;
 
@@ -13695,12 +13695,12 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI,
 			}
 			break;
 
-		case UNITAI_PROPHET:
-		case UNITAI_ARTIST:
-		case UNITAI_SCIENTIST:
-		case UNITAI_GENERAL:
-		case UNITAI_MERCHANT:
-		case UNITAI_ENGINEER:
+		case UNITAI_GREAT_PROPHET:
+		case UNITAI_GREAT_ARTIST:
+		case UNITAI_GREAT_SCIENTIST:
+		case UNITAI_GREAT_GENERAL:
+		case UNITAI_GREAT_MERCHANT:
+		case UNITAI_GREAT_ENGINEER:
 		case UNITAI_GREAT_SPY: // K-Mod
 		case UNITAI_SPY:
 			break;
@@ -14233,12 +14233,12 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI,
 		}
 		break;
 
-	case UNITAI_PROPHET:
-	case UNITAI_ARTIST:
-	case UNITAI_SCIENTIST:
-	case UNITAI_GENERAL:
-	case UNITAI_MERCHANT:
-	case UNITAI_ENGINEER:
+	case UNITAI_GREAT_PROPHET:
+	case UNITAI_GREAT_ARTIST:
+	case UNITAI_GREAT_SCIENTIST:
+	case UNITAI_GREAT_GENERAL:
+	case UNITAI_GREAT_MERCHANT:
+	case UNITAI_GREAT_ENGINEER:
 	case UNITAI_GREAT_SPY: // K-Mod
 		break;
 
@@ -28689,12 +28689,12 @@ int CvPlayerAI::AI_disbandValue(CvUnitAI const& kUnit, bool bMilitaryOnly) const
 		}
 		break;
 
-	case UNITAI_PROPHET:
-	case UNITAI_ARTIST:
-	case UNITAI_SCIENTIST:
-	case UNITAI_GENERAL:
-	case UNITAI_MERCHANT:
-	case UNITAI_ENGINEER:
+	case UNITAI_GREAT_PROPHET:
+	case UNITAI_GREAT_ARTIST:
+	case UNITAI_GREAT_SCIENTIST:
+	case UNITAI_GREAT_GENERAL:
+	case UNITAI_GREAT_MERCHANT:
+	case UNITAI_GREAT_ENGINEER:
 	case UNITAI_GREAT_SPY:
 		iValue *= 20;
 		break;

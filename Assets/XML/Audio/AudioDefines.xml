@@ -7261,7 +7261,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_ANC_SCIENTIST_ACT_VOX</SoundID>
+			<SoundID>SND_ANC_GREAT_SCIENTIST_ACT_VOX</SoundID>
 			<Filename>Sounds/Units/AncScientistActVox</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>

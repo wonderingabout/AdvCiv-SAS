@@ -1666,8 +1666,8 @@ then adjust maybe anyways):
 				</ProductionTrait>
 			</ProductionTraits>
 			<Flavors/>
-			<iAIWeight>0</iAIWeight>
-			<!-- custom: (trying to) make sure they (barbarians) can build it fast (enough(, anyways etc)), see CIV4BuildingInfos.xml for details -->
+			<!-- custom: (trying to) make sure they (barbarians) can build it fast (enough(, anyways etc)) and in high quantity (enough (too) anyways etc( anyways etc...)), see CIV4BuildingInfos.xml for details -->
+			<iAIWeight>75</iAIWeight>
 			<iCost>1</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -1679,7 +1679,8 @@ then adjust maybe anyways):
 			<iAirUnitCap>0</iAirUnitCap>
 			<iDropRange>0</iDropRange>
 			<iNukeRange>-1</iNukeRange>
-			<iWorkRate>100</iWorkRate>
+			<!-- custom: due to war state, they often in cities, so to (partially try to) avoid (or/and compensate that (situation bu anyways etc anyways etc) anyways etc anyways etc) that, make them work extra fast -->
+			<iWorkRate>500</iWorkRate>
 			<iBaseDiscover>0</iBaseDiscover>
 			<iDiscoverMultiplier>0</iDiscoverMultiplier>
 			<iBaseHurry>0</iBaseHurry>
@@ -22641,8 +22642,8 @@ then adjust maybe anyways):
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
 		<UnitInfo>
-			<Class>UNITCLASS_PROPHET</Class>
-			<Type>UNIT_PROPHET</Type>
+			<Class>UNITCLASS_GREAT_PROPHET</Class>
+			<Type>UNIT_GREAT_PROPHET</Type>
 			<UniqueNames>
 				<UniqueName>TXT_KEY_GREAT_PERSON_MOSES</UniqueName>
 				<UniqueName>TXT_KEY_GREAT_PERSON_MAHAVIRA</UniqueName>
@@ -22676,12 +22677,12 @@ then adjust maybe anyways):
 			<Capture>NONE</Capture>
 			<Combat>NONE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<DefaultUnitAI>UNITAI_PROPHET</DefaultUnitAI>
+			<DefaultUnitAI>UNITAI_GREAT_PROPHET</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_GREAT_PROPHET</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_GREAT_PEOPLE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_GREAT_PROPHET_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -22725,7 +22726,7 @@ then adjust maybe anyways):
 			<FlankingStrikes/>
 			<UnitAIs>
 				<UnitAI>
-					<UnitAIType>UNITAI_PROPHET</UnitAIType>
+					<UnitAIType>UNITAI_GREAT_PROPHET</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
@@ -22860,7 +22861,7 @@ then adjust maybe anyways):
 				<iRangedWaveSize>1</iRangedWaveSize>
 				<UnitMeshGroup>
 					<iRequired>1</iRequired>
-					<EarlyArtDefineTag>ART_DEF_UNIT_PROPHET</EarlyArtDefineTag>
+					<EarlyArtDefineTag>ART_DEF_UNIT_GREAT_PROPHET</EarlyArtDefineTag>
 				</UnitMeshGroup>
 			</UnitMeshGroups>
 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
@@ -22874,8 +22875,8 @@ then adjust maybe anyways):
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
 		<UnitInfo>
-			<Class>UNITCLASS_ARTIST</Class>
-			<Type>UNIT_ARTIST</Type>
+			<Class>UNITCLASS_GREAT_ARTIST</Class>
+			<Type>UNIT_GREAT_ARTIST</Type>
 			<UniqueNames>
 				<UniqueName>TXT_KEY_GREAT_PERSON_HOMER</UniqueName>
 				<UniqueName>TXT_KEY_GREAT_PERSON_THESPIS</UniqueName>
@@ -22918,7 +22919,7 @@ then adjust maybe anyways):
 			<Capture>NONE</Capture>
 			<Combat>NONE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<DefaultUnitAI>UNITAI_ARTIST</DefaultUnitAI>
+			<DefaultUnitAI>UNITAI_GREAT_ARTIST</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_GREAT_ARTIST</Description>
@@ -22967,7 +22968,7 @@ then adjust maybe anyways):
 			<FlankingStrikes/>
 			<UnitAIs>
 				<UnitAI>
-					<UnitAIType>UNITAI_ARTIST</UnitAIType>
+					<UnitAIType>UNITAI_GREAT_ARTIST</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
@@ -23080,8 +23081,8 @@ then adjust maybe anyways):
 				<iRangedWaveSize>1</iRangedWaveSize>
 				<UnitMeshGroup>
 					<iRequired>1</iRequired>
-					<EarlyArtDefineTag>ART_DEF_UNIT_ARTIST</EarlyArtDefineTag>
-					<LateArtDefineTag>ART_DEF_UNIT_ARTIST_MODERN</LateArtDefineTag>
+					<EarlyArtDefineTag>ART_DEF_UNIT_GREAT_ARTIST</EarlyArtDefineTag>
+					<LateArtDefineTag>ART_DEF_UNIT_GREAT_ARTIST_MODERN</LateArtDefineTag>
 				</UnitMeshGroup>
 			</UnitMeshGroups>
 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
@@ -23095,8 +23096,8 @@ then adjust maybe anyways):
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
 		<UnitInfo>
-			<Class>UNITCLASS_SCIENTIST</Class>
-			<Type>UNIT_SCIENTIST</Type>
+			<Class>UNITCLASS_GREAT_SCIENTIST</Class>
+			<Type>UNIT_GREAT_SCIENTIST</Type>
 			<UniqueNames>
 				<UniqueName>TXT_KEY_GREAT_PERSON_MERIT_PTAH</UniqueName>
 				<UniqueName>TXT_KEY_GREAT_PERSON_XI_LING_SHI</UniqueName>
@@ -23143,7 +23144,7 @@ then adjust maybe anyways):
 			<Capture>NONE</Capture>
 			<Combat>NONE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<DefaultUnitAI>UNITAI_SCIENTIST</DefaultUnitAI>
+			<DefaultUnitAI>UNITAI_GREAT_SCIENTIST</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_GREAT_SCIENTIST</Description>
@@ -23192,7 +23193,7 @@ then adjust maybe anyways):
 			<FlankingStrikes/>
 			<UnitAIs>
 				<UnitAI>
-					<UnitAIType>UNITAI_SCIENTIST</UnitAIType>
+					<UnitAIType>UNITAI_GREAT_SCIENTIST</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
@@ -23311,8 +23312,8 @@ then adjust maybe anyways):
 				<iRangedWaveSize>1</iRangedWaveSize>
 				<UnitMeshGroup>
 					<iRequired>1</iRequired>
-					<EarlyArtDefineTag>ART_DEF_UNIT_SCIENTIST</EarlyArtDefineTag>
-					<LateArtDefineTag>ART_DEF_UNIT_SCIENTIST_MODERN</LateArtDefineTag>
+					<EarlyArtDefineTag>ART_DEF_UNIT_GREAT_SCIENTIST</EarlyArtDefineTag>
+					<LateArtDefineTag>ART_DEF_UNIT_GREAT_SCIENTIST_MODERN</LateArtDefineTag>
 				</UnitMeshGroup>
 			</UnitMeshGroups>
 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
@@ -23326,8 +23327,8 @@ then adjust maybe anyways):
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
 		<UnitInfo>
-			<Class>UNITCLASS_MERCHANT</Class>
-			<Type>UNIT_MERCHANT</Type>
+			<Class>UNITCLASS_GREAT_MERCHANT</Class>
+			<Type>UNIT_GREAT_MERCHANT</Type>
 			<UniqueNames>
 				<UniqueName>TXT_KEY_GREAT_PERSON_HARKUF</UniqueName>
 				<UniqueName>TXT_KEY_GREAT_PERSON_HANNO</UniqueName>
@@ -23364,7 +23365,7 @@ then adjust maybe anyways):
 			<Capture>NONE</Capture>
 			<Combat>NONE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<DefaultUnitAI>UNITAI_MERCHANT</DefaultUnitAI>
+			<DefaultUnitAI>UNITAI_GREAT_MERCHANT</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_GREAT_MERCHANT</Description>
@@ -23413,7 +23414,7 @@ then adjust maybe anyways):
 			<FlankingStrikes/>
 			<UnitAIs>
 				<UnitAI>
-					<UnitAIType>UNITAI_MERCHANT</UnitAIType>
+					<UnitAIType>UNITAI_GREAT_MERCHANT</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
@@ -23528,8 +23529,8 @@ then adjust maybe anyways):
 				<iRangedWaveSize>1</iRangedWaveSize>
 				<UnitMeshGroup>
 					<iRequired>1</iRequired>
-					<EarlyArtDefineTag>ART_DEF_UNIT_MERCHANT</EarlyArtDefineTag>
-					<LateArtDefineTag>ART_DEF_UNIT_MERCHANT_MODERN</LateArtDefineTag>
+					<EarlyArtDefineTag>ART_DEF_UNIT_GREAT_MERCHANT</EarlyArtDefineTag>
+					<LateArtDefineTag>ART_DEF_UNIT_GREAT_MERCHANT_MODERN</LateArtDefineTag>
 				</UnitMeshGroup>
 			</UnitMeshGroups>
 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
@@ -23543,8 +23544,8 @@ then adjust maybe anyways):
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
 		<UnitInfo>
-			<Class>UNITCLASS_ENGINEER</Class>
-			<Type>UNIT_ENGINEER</Type>
+			<Class>UNITCLASS_GREAT_ENGINEER</Class>
+			<Type>UNIT_GREAT_ENGINEER</Type>
 			<UniqueNames>
 				<UniqueName>TXT_KEY_GREAT_PERSON_IMHOTEP</UniqueName>
 				<UniqueName>TXT_KEY_GREAT_PERSON_ARCHIMEDES</UniqueName>
@@ -23583,7 +23584,7 @@ then adjust maybe anyways):
 			<Capture>NONE</Capture>
 			<Combat>NONE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<DefaultUnitAI>UNITAI_ENGINEER</DefaultUnitAI>
+			<DefaultUnitAI>UNITAI_GREAT_ENGINEER</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_GREAT_ENGINEER</Description>
@@ -23632,7 +23633,7 @@ then adjust maybe anyways):
 			<FlankingStrikes/>
 			<UnitAIs>
 				<UnitAI>
-					<UnitAIType>UNITAI_ENGINEER</UnitAIType>
+					<UnitAIType>UNITAI_GREAT_ENGINEER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
@@ -23747,8 +23748,8 @@ then adjust maybe anyways):
 				<iRangedWaveSize>1</iRangedWaveSize>
 				<UnitMeshGroup>
 					<iRequired>1</iRequired>
-					<EarlyArtDefineTag>ART_DEF_UNIT_ENGINEER</EarlyArtDefineTag>
-					<LateArtDefineTag>ART_DEF_UNIT_ENGINEER_MODERN</LateArtDefineTag>
+					<EarlyArtDefineTag>ART_DEF_UNIT_GREAT_ENGINEER</EarlyArtDefineTag>
+					<LateArtDefineTag>ART_DEF_UNIT_GREAT_ENGINEER_MODERN</LateArtDefineTag>
 				</UnitMeshGroup>
 			</UnitMeshGroups>
 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
@@ -23810,7 +23811,7 @@ then adjust maybe anyways):
 			<Capture>NONE</Capture>
 			<Combat>NONE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<DefaultUnitAI>UNITAI_GENERAL</DefaultUnitAI>
+			<DefaultUnitAI>UNITAI_GREAT_GENERAL</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_GREAT_GENERAL</Description>
@@ -23859,7 +23860,7 @@ then adjust maybe anyways):
 			<FlankingStrikes/>
 			<UnitAIs>
 				<UnitAI>
-					<UnitAIType>UNITAI_GENERAL</UnitAIType>
+					<UnitAIType>UNITAI_GREAT_GENERAL</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
@@ -24045,6 +24046,7 @@ then adjust maybe anyways):
 			<Capture>NONE</Capture>
 			<Combat>NONE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
+			<!-- custom: should have been before my fix UNITAI_MERCHANT (and) not UNITAI_GREAT_MERCHANT (anyways etc) as it didn't exist if i am not mistaken anyways etc, and now UNITAI_GREAT_MERCHANT exists indeed in place(/instead) of the confusing UNITAI_GENERAL, same for other confusing great people not being great or sometimes great naming, for some of them not (semi for general, never for spy as the normal spy exists as a unit too, all for other great people but only in some fields, not txt keys that have a great naming and not in specialist that have a non great type of for example scientist, but in unit_ and unitclass_ and unitai_ as said before, extremely confusing and unclear, hopefully a lot clearer now, see custom code comment in CIV4UnitInfos.xml that mentions "K-Mod: was UNITAI_GREAT_MERCHANT" (use vs code global search or simialr if you want to find the comment (currently same file in first lines of the file), ), hopefully a lot clearer now, anyways etc... -->
 			<!-- K-Mod: was UNITAI_GREAT_MERCHANT -->
 			<DefaultUnitAI>UNITAI_GREAT_SPY</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
@@ -24094,6 +24096,7 @@ then adjust maybe anyways):
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
+			<!-- custom: should have been before my fix UNITAI_MERCHANT (and) not UNITAI_GREAT_MERCHANT (anyways etc) as it didn't exist if i am not mistaken anyways etc, and now UNITAI_GREAT_MERCHANT exists indeed in place(/instead) of the confusing UNITAI_GENERAL, same for other confusing great people not being great or sometimes great naming, for some of them not (semi for general, never for spy as the normal spy exists as a unit too, all for other great people but only in some fields, not txt keys that have a great naming and not in specialist that have a non great type of for example scientist, but in unit_ and unitclass_ and unitai_ as said before, extremely confusing and unclear, hopefully a lot clearer now, see custom code comment in CIV4UnitInfos.xml that mentions "K-Mod: was UNITAI_GREAT_MERCHANT" (use vs code global search or simialr if you want to find the comment (currently same file in first lines of the file), ), hopefully a lot clearer now, anyways etc... -->
 			<UnitAIs>
 				<!-- K-Mod: was UNITAI_GREAT_MERCHANT -->
 				<UnitAI>

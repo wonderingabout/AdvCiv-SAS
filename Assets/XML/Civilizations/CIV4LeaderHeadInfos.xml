@@ -11,6 +11,7 @@
 			<Description>TXT_KEY_LEADER_BARBARIAN</Description>
 			<Civilopedia>TXT_KEY_LEADER_BARBARIAN_PEDIA</Civilopedia>
 			<ArtDefineTag>ART_DEF_LEADER_BARBARIAN</ArtDefineTag>
+			<!-- custom: trying to fix barbarians building wonders (great and national wonders alike) but still this iWonderConstructRand -9999 doesnt make a difference so reverting it back to 0, see the "custom:" code comment at <BuildingClassType>BUILDINGCLASS_SHWEDAGON_PAYA</BuildingClassType> for <Type>CIVILIZATION_BARBARIAN</Type> in (adjust if non-Steam path or/and to where your advciv-sas folder is anyways etc): C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Civilizations\CIV4CivilizationInfos.xml for details -->
 			<iWonderConstructRand>0</iWonderConstructRand>
 			<iBaseAttitude>0</iBaseAttitude>
 			<iBasePeaceWeight>0</iBasePeaceWeight>
@@ -44,7 +45,8 @@
 			<iRazeCityProb>75</iRazeCityProb>
 			<!-- custom: this can probably be safely be reduced now that barbarian leader gets many buildings for free and most buildings not allowed to be built, so it is (and should be i think but anyways etc) fine if it errs a bit by that i mean builing more buildings, eventually after completing them, most very fast, barbarian leader should turn back to war mode, is maybe also good to make sure barbarian leader doesn't skip the 1 hammer "free" buildings it has "right" to whatever that means, anyways etc.
 			We need to make sure barbarian has no access to other buildings though, so for example now barbarian would build more buildings (redundant but anyways etc) among the few it has access to (most of which should be 1 turn thing anywyas etc), more workers too ideally if it needs, and then finally go back to building units as intended -->
-			<iBuildUnitProb>0</iBuildUnitProb>
+			<!-- custom: also trying a higher/high buildunitprob to make sure or try to make sure they build more units and less wonders, not sure it will work but trying anyways etc anyways etc ; upadte about this buildunitprob 100, it seems extremely effective no wonder at all in one autoplay, much less normal buildings too in barbarians but still the core palace we want, no lighthouse ever though even in naval cities, may tweak it bit but seems extremely promising, testing more to be sure, anyways etc -->
+			<iBuildUnitProb>100</iBuildUnitProb>
 			<!-- custom: i want barbarians to be more cautious and calculating, they are not stupid and shouldn't be, but a bit adventurous too though maybe whatever that means or not or and other or and not anyways etc -->
 			<!-- advc.114d: was 0 -->
 			<iBaseAttackOddsChange>1</iBaseAttackOddsChange>
@@ -103,7 +105,13 @@
 			<FavoriteCivic>NONE</FavoriteCivic>
 			<FavoriteReligion>NONE</FavoriteReligion>
 			<Traits/>
-			<Flavors/>
+			<!-- custom: trying to make them build more or rather maybe less wonders and do more wars, as their barbarian profile would incline them to ideally as in as i would want them in theory maybe anyways etc i mean anyways, this is actually taken from genghis khan code hehe even though he is not a barbarian leader per se at least in civ4 if not everywhere or not i don't know enough to say but could learn or not but in all cases anyways etc was just to mention this or not hehe as i wanted or nto hehe or not hehe or yes hehe but anyways etc anyways etc ; not sure it will make a difference but trying, but as is, anyways etc anyways etc -->
+			<Flavors>
+				<Flavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<iFlavor>10</iFlavor>
+				</Flavor>
+			</Flavors>
 			<ContactRands/>
 			<ContactDelays/>
 			<MemoryDecays/>
@@ -111,19 +119,21 @@
 			<NoWarAttitudeProbs/>
 			<!-- custom: focus more on raw force and light harass units like archers, barbarians were also very good archers in particular if i am not mistaken, but anyways etc, enforcing more the attack makes them more proactive about attacking, while flexible enough to also defend, while ideally also focusing on the most effective units to achieve that, and keep otherwise caution.
 			Make sure to build enough workers and early enough to develop the land too, anyways etc.
-			Attack with purpose, do not bother with wandering units/stacks, aim straight for cities or defend. -->
+			Attack with purpose, do not bother with wandering units/stacks, aim straight for cities or defend.
+			It seems also 25 (for UNITAI_WORKER, anyways etc anyways etc...) is not enough to make enough workers and fast/soon enough, trying a higher number, anyways etc.
+			-->
 			<UnitAIWeightModifiers>
 				<UnitAIWeightModifier>
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
-					<iWeightModifier>50</iWeightModifier>
+					<iWeightModifier>75</iWeightModifier>
 				</UnitAIWeightModifier>
 				<UnitAIWeightModifier>
 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
-					<iWeightModifier>100</iWeightModifier>
+					<iWeightModifier>75</iWeightModifier>
 				</UnitAIWeightModifier>
 				<UnitAIWeightModifier>
 					<UnitAIType>UNITAI_WORKER</UnitAIType>
-					<iWeightModifier>25</iWeightModifier>
+					<iWeightModifier>75</iWeightModifier>
 				</UnitAIWeightModifier>
 			</UnitAIWeightModifiers>
 			<ImprovementWeightModifiers/>

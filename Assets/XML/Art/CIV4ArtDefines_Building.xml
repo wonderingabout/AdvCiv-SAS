@@ -711,7 +711,7 @@ and then modified for AdvCiv-SAS
 			<Button>,Art/Interface/Buttons/Buildings/ScotlandYard.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,3,8</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_NATIONAL_SECURITY</Type>
+			<Type>ART_DEF_BUILDING_SECURITY_BUREAU</Type>
 			<LSystem>LSYSTEM_4x2</LSystem>
 			<bAnimated>1</bAnimated>
 			<fScale>0.4</fScale>

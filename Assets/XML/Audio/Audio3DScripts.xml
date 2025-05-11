@@ -18511,8 +18511,8 @@ and then modified for AdvCiv-SAS
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script3DSound>
 	<Script3DSound>
-		<ScriptID>AS3D_UN_ANC_SCIENTIST_ACT_VOX</ScriptID>
-		<SoundID>SND_ANC_SCIENTIST_ACT_VOX</SoundID>
+		<ScriptID>AS3D_UN_ANC_GREAT_SCIENTIST_ACT_VOX</ScriptID>
+		<SoundID>SND_ANC_GREAT_SCIENTIST_ACT_VOX</SoundID>
 		<SoundType>GAME_SFX</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>

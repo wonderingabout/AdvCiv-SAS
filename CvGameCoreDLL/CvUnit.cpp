@@ -446,7 +446,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
 		CvEventReporter::getInstance().unitKilled(this, ePlayer);
 		if (NO_UNIT != getLeaderUnitType() ||
 			// <advc.004u> Treat unattached GP here too
-			m_pUnitInfo->getDefaultUnitAIType() == UNITAI_GENERAL ||
+			m_pUnitInfo->getDefaultUnitAIType() == UNITAI_GREAT_GENERAL ||
 			isGoldenAge()) // </advc.004u>
 		{
 			CvWString szBuffer;
@@ -10146,7 +10146,7 @@ const wchar* CvUnit::getNameKey() const
 wchar const* CvUnit::getNameKeyNoGG() const
 {
 	if(getLeaderUnitType() == NO_UNIT &&
-		m_pUnitInfo->getDefaultUnitAIType() != UNITAI_GENERAL &&
+		m_pUnitInfo->getDefaultUnitAIType() != UNITAI_GREAT_GENERAL &&
 		!isGoldenAge())
 	{
 		return getNameKey();

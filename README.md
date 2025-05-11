@@ -135,50 +135,9 @@ Finally and most importantly, as something similar as said in the paragraph just
 <img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (5).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (6).JPG" width="250"></img>
 
-## Sex-neutral unit names or/and combat types (todo and non-exhaustive)
+## Sex-neutral and Less Generic-neutral (too) unit names or/and combat types (todo and non-exhaustive)
 
-Yet to be done, but i want (more at least) sex-neutral terms for units. Tbh i don't care much if at all (but is maybe nice, anyways), but i intend to implement some women units, especially light units where i think women make more sense (less strength required and they are more agile perhaps too, anyways). I also think they (some of them at least anyways) were very lousy (names), for example for "spearman" it's basically just weapon-man, i am not even sure it's a proper word for most units but i don't know much about this, anyways. Also, unless the unit was strongly masculine, i see no reason to use weaponman specifically, anyways.
-
-Back to the topic of sex-neutral units,So "Swordsman" does not make sense anymore for that, see [Less generic or inaccurate unit names or/and combat types (todo)](#less-generic-or-inaccurate-unit-names-orand-combat-types-todo) for details.
-
-This is a todo, so will not start listing sources, will do it in a proper notes file if i have to (or/and want to) and link to it (may abridge this section and move most of it there maybe then if i do it, anyways), but i want to at least share my ideas, maybe some will like them or want to think about them at least maybe.
-
-Making some of them more badass at the same time, i think see mostly if not only anyways [Less generic or inaccurate unit names or/and combat types (todo)](#less-generic-or-inaccurate-unit-names-orand-combat-types-todo)
-
-So far i am thinking of (non exhaustive, no source or explanation provided, it will be in docs else too tedious to do here anyways):
-
-- Swordsman: Swordsfighter (Light, Medium, Heavy)
-- Spearman: Lancer (Light, Medium, Heavy)
-- Longbowman: Longbow? Longbow Soldier?
-- Crossbowman: Crossbow? Crossbow Soldier?
-- Rifleman: Rifle Soldier?
-
-## Less generic or inaccurate unit names or/and combat types (todo and non-exhaustive)
-
-For some i don't mind if they are masculine, indeed an axe is heavier and more brutal of a weapon (todo check though), so makes more sense for a man to wield it. Not that no women ever did or would want to, but less likely, so may keep man here. But i found a more epic and badass (i think but anyways) name after a quick bit of research so using this instead, see below, anyways.
-
-Some other units have a more problematic name, as they are very inaccurate. For example a Knight is a title if i am not mistaken, not any medieval horse. Some medieval horse warriors/fighters were not knights probably (did not check, anyways). The teutonic knight (around germany) for example may have been a foot unit maybe for example? (need to check, anyways is just my initial notes on it abridged and without sources so i can share it and get it out of my mind, (and also because i like, but anyways), but anyways,). Similarly cavalry could be in any era if i'm not mistaken but need to check too or/and more, anyways:
-
-- Axeman: Battle Axe Warrior
-- Maceman: Mace Warrior? Keep Maceman here? (But would be inconsistent then or not immersive if others don't have man too, anyways, also mace warrior is quite cool too i think, but anyways)
-
-- Knight: Horse Lancer Knight (Medieval)
-- Horse Swordsfighter Knight
-- Camel Lancer Knight
-- Camel Swordsfighter Knight
-- Cavalry: Napoleonian Flank Cavalry (Offense) + Royal Guard Cavalry (Defense)
-- Chariot: Charioteer? War Chariot?
-- War chariot: Elite charioteer?
-
-Maybe will add new units that are knight units, more expensive and stronger version of the regular ones, such as camel knight lancer stronger than camel knight, elite troops maybe but could be replaced by exp system and less linked to history, anyways, will see, may or not, will see or not, etc or not etc, anyways, For example:
-
-- Camel Lancer
-- Horse Swordsfighter
-- (note i don't think there were knights horse archers but i don't know, may or not them as a result plus don't want to complicate (needlessly?) the unit tree, will see what i do or not or will see or not etc or not, anyways,)
-
-Not exhaustive or maybe is or not but or/and todo, anyways
-
-May also apply to civ units or/and Buildings or not will see or not etc or not, anyways,
+See [README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md](/README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md) for details.
 
 ## AI-generated images
 
@@ -273,65 +232,8 @@ on balance changes and such, please visit these pages (as well).
 
 ## Known issues
 
-Some known issues, that will not necessarily be fixed, but maybe or not but anyways, however good and maybe useful to keep them as reminder in case we want or for souvenir, anyways:
+See [README_Known_Issues.md](/README_Known_Issues.md) for details
 
-- while debugging the new ai personality feature in the sevopedia in advciv-sas (our mod), we found some information that some ai attributes seem to be shared accross all leaders:
-
-```
-PY:[DEBUG] Cached AI attribute data for leader LEADER_ZARA_YAQOB
-PY:[WARNING] Attribute 'iAtPeaceAttitudeChangeLimit' has an identical *raw* value (1) across all 53 leaders
-PY:[WARNING] Attribute 'iAtPeaceAttitudeChangeLimit' has an identical *normalized* value (0) across all 53 leaders
-PY:[WARNING] Attribute 'iAtPeaceAttitudeDivisor' has an identical *raw* value (60) across all 53 leaders
-PY:[WARNING] Attribute 'iAtPeaceAttitudeDivisor' has an identical *normalized* value (0) across all 53 leaders
-PY:[WARNING] Attribute 'iAtWarAttitudeChangeLimit' has an identical *raw* value (5) across all 53 leaders
-PY:[WARNING] Attribute 'iAtWarAttitudeChangeLimit' has an identical *normalized* value (0) across all 53 leaders
-PY:[WARNING] Attribute 'iAtWarAttitudeDivisor' has an identical *raw* value (-5) across all 53 leaders
-PY:[WARNING] Attribute 'iAtWarAttitudeDivisor' has an identical *normalized* value (0) across all 53 leaders
-PY:[WARNING] Attribute 'iAttackOddsChangeRand' has an identical *raw* value (8) across all 53 leaders
-PY:[WARNING] Attribute 'iAttackOddsChangeRand' has an identical *normalized* value (0) across all 53 leaders
-PY:[WARNING] Attribute 'iBonusTradeAttitudeChangeLimit' has an identical *raw* value (2) across all 53 leaders
-PY:[WARNING] Attribute 'iBonusTradeAttitudeChangeLimit' has an identical *normalized* value (0) across all 53 leaders
-PY:[WARNING] Attribute 'iBonusTradeAttitudeDivisor' has an identical *raw* value (50) across all 53 leaders
-PY:[WARNING] Attribute 'iBonusTradeAttitudeDivisor' has an identical *normalized* value (0) across all 53 leaders
-PY:[WARNING] Attribute 'iDefensivePactAttitudeChangeLimit' has an identical *raw* value (2) across all 53 leaders
-PY:[WARNING] Attribute 'iDefensivePactAttitudeChangeLimit' has an identical *normalized* value (0) across all 53 leaders
-PY:[WARNING] Attribute 'iDefensivePactAttitudeDivisor' has an identical *raw* value (12) across all 53 leaders
-PY:[WARNING] Attribute 'iDefensivePactAttitudeDivisor' has an identical *normalized* value (0) across all 53 leaders
-PY:[WARNING] Attribute 'iDifferentReligionAttitudeChange' has an identical *raw* value (-1) across all 53 leaders
-PY:[WARNING] Attribute 'iDifferentReligionAttitudeChange' has an identical *normalized* value (0) across all 53 leaders
-PY:[WARNING] Attribute 'iDifferentReligionAttitudeDivisor' has an identical *raw* value (-15) across all 53 leaders
-PY:[WARNING] Attribute 'iDifferentReligionAttitudeDivisor' has an identical *normalized* value (0) across all 53 leaders
-PY:[WARNING] Attribute 'iFavoriteCivicAttitudeChange' has an identical *raw* value (1) across all 53 leaders
-PY:[WARNING] Attribute 'iFavoriteCivicAttitudeChange' has an identical *normalized* value (0) across all 53 leaders
-PY:[WARNING] Attribute 'iFavoriteCivicAttitudeDivisor' has an identical *raw* value (10) across all 53 leaders
-PY:[WARNING] Attribute 'iFavoriteCivicAttitudeDivisor' has an identical *normalized* value (0) across all 53 leaders
-PY:[WARNING] Attribute 'iFreedomAppreciation' has an identical *raw* value (10) across all 53 leaders
-PY:[WARNING] Attribute 'iFreedomAppreciation' has an identical *normalized* value (0) across all 53 leaders
-PY:[WARNING] Attribute 'iLostWarAttitudeChange' has an identical *raw* value (-1) across all 53 leaders
-PY:[WARNING] Attribute 'iLostWarAttitudeChange' has an identical *normalized* value (0) across all 53 leaders
-PY:[WARNING] Attribute 'iLoveOfPeace' has an identical *raw* value (0) across all 53 leaders
-PY:[WARNING] Attribute 'iLoveOfPeace' has an identical *normalized* value (0) across all 53 leaders
-PY:[WARNING] Attribute 'iOpenBordersAttitudeChangeLimit' has an identical *raw* value (2) across all 53 leaders
-PY:[WARNING] Attribute 'iOpenBordersAttitudeChangeLimit' has an identical *normalized* value (0) across all 53 leaders
-PY:[WARNING] Attribute 'iOpenBordersAttitudeDivisor' has an identical *raw* value (25) across all 53 leaders
-PY:[WARNING] Attribute 'iOpenBordersAttitudeDivisor' has an identical *normalized* value (0) across all 53 leaders
-PY:[WARNING] Attribute 'iPeaceWeightRand' has an identical *raw* value (3) across all 53 leaders
-PY:[WARNING] Attribute 'iPeaceWeightRand' has an identical *normalized* value (0) across all 53 leaders
-PY:[WARNING] Attribute 'iSameReligionAttitudeChange' has an identical *raw* value (1) across all 53 leaders
-PY:[WARNING] Attribute 'iSameReligionAttitudeChange' has an identical *normalized* value (0) across all 53 leaders
-PY:[WARNING] Attribute 'iSameReligionAttitudeDivisor' has an identical *raw* value (10) across all 53 leaders
-PY:[WARNING] Attribute 'iSameReligionAttitudeDivisor' has an identical *normalized* value (0) across all 53 leaders
-PY:[WARNING] Attribute 'iShareWarAttitudeChange' has an identical *raw* value (1) across all 53 leaders
-PY:[WARNING] Attribute 'iShareWarAttitudeChange' has an identical *normalized* value (0) across all 53 leaders
-PY:[WARNING] Attribute 'iShareWarAttitudeDivisor' has an identical *raw* value (8) across all 53 leaders
-PY:[WARNING] Attribute 'iShareWarAttitudeDivisor' has an identical *normalized* value (0) across all 53 leaders
-```
-
-Some of these such as iLoveOfPeace are not used in AdvCiv; i disabled (commented-out) from display (in SevoPediaLeader.py) such unused ai attributes to not clutter the display, see [AI Personality Panel Feature section](/README.md#ai-personality-sevopedia-feature) for (more) details, and more specifically in the full AI Personality Panel Feature [this part](/README_AI_Personality_Panel.md#note-about-some-ai-attributes-being-ignored).
-
-Leaving as is otherwise (except from hiding most or/and commenting out unused ones such as iLovePeace (in AdvCiv) anyways) for now if not always or not anyways etc.
-
-We may also spread some values more (i.e. in AdvCiv-SAS etc anyways) that are way too often shared between leaders, not just the common to all leaders, may be a good opportunity perhaps, but not sure or guarnateed, for now only mentionning the issue.
 
 ## Some Extra Context
 
@@ -366,6 +268,8 @@ there too.)
 These rules changes entries may not be exhaustive or maybe would but hopefully will help,
 and i can gradually complete them as i see fit or learn, or based on feedback, not
 guaranteed though, but if need please refer to it if needed.
+
+
 
 # Credits
 - AdvCiv (the full name Advanced Civ does not yield much results about Civ 4 so i prefer the AdvCiv Name, maybe because of the space character, so i put a "-" instead in my/this mod): todo write, but mostly i am very thankful of AdvCiv, it's such a nice improvement from Civ4, and it's maintainer is very open to feedback at least in my
@@ -402,7 +306,7 @@ it too though unless i'm mistaken)
 - Google's scientific calculator (https://www.google.com/search?q=calculator) (for the x^y function in particular)
 - Microsoft Paint (i very much love this image editor)
 - Paint.NET for .dds conversion for example (see [notes_about_art_ design](/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_art_design.txt) for details)
-- Dragon UnPACKer to view inside .fpk files and do operations such as file search or/and such if there operations (i didn't check so i don't know too anyways etc), for example [finding all "tao" (search) assests in a base civ4 .fpk](/_1_AdvCiv-SAS/Images_In_General/dragon_unpacker_example_tao_search_etc_2.PNG) (thanks a lot too anyways etc!! :) gogo anyways etc), useful if want to see what/how other mods did (and compare with what i could or would want to do or not in AdvCiv-SAS or most importantly how in technicality of how to do/implement it in the code and way of processing (image for example) and such files, among other possible things or not, (for example i know it's 64 x 64 as ChatGPT advised (with also advising 80x80 though, anyways), and i notice they use rounded edges for example which i may do or not, among other things or not such as if it is stretched without ratio or not but is just mentions and examples and i don't know all these so may be (entirely) accurate or not (entirely), at least for now, refer to other sources for more details, but anyways, is just an example to illustrate, hopefully helpful or not, but anyways, anyways, ), for example Realism Invictus, as i was/am doing or not the LeaderHead Button (Buttons) of Igoso Igodo for example, after i have done NIF .dds file
+- Dragon UnPACKer to view inside .fpk files and do operations such as file search or/and such if there operations (i didn't check so i don't know too anyways etc), for example [finding all "tao" (search) assests in a base civ4 .fpk](/_1_AdvCiv-SAS/Images_In_General/dragon_unpacker_example_tao_search_etc_2.PNG) (thanks a lot too anyways etc!! :) gogo anyways etc, useful if want to see what/how other mods did (and compare with what i could or would want to do or not in AdvCiv-SAS or most importantly how in technicality of how to do/implement it in the code and way of processing (image for example) and such files, among other possible things or not, (for example i know it's 64 x 64 as ChatGPT advised (with also advising 80x80 though, anyways), and i notice they use rounded edges for example which i may do or not, among other things or not such as if it is stretched without ratio or not but is just mentions and examples and i don't know all these so may be (entirely) accurate or not (entirely), at least for now, refer to other sources for more details, but anyways, is just an example to illustrate, hopefully helpful or not, but anyways, anyways, ), for example Realism Invictus, as i was/am doing or not the LeaderHead Button (Buttons) of Igoso Igodo for example, after i have done NIF .dds file
 - Notepad++ (very reliable and multi tab)
 - Q-Dir (very useful and reliable too when works well which is almost always if not always, and very minimalist yet powerful, i so ery love it but anyways etc ; [for example you can use it (Q-Dir) like this](/_1_AdvCiv-SAS/Images_In_General/q-dir_multitask_tabs_folders_example.png) (some fields (are) hidden for (my) privacy anyways etc)) thanks a lot!!! (too! (After writing the WizTree thanks but anwayys etc thanks too i mean too (hehe maybe or not or yes or other or/and not (but) anyways etc) anyways etc...)) Anyways etc...
 - WizTree (very useful (and reliable and effective) to find the files i want when i want, for example (to) [find all the "taois" entries(i.e. files)in the entire full civ4 folder](/_1_AdvCiv-SAS/Images_In_General/wiztree_find_all_tois_entries-files_in_all_civ4_entire_full_folder.PNG), very useful, thanks a lot!!! Anyways etc)

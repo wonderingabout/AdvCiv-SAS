@@ -265,14 +265,14 @@ bool CvUnitAI::AI_update()
 	case UNITAI_MISSIONARY:
 		AI_missionaryMove();
 		break;
-	case UNITAI_GENERAL:
+	case UNITAI_GREAT_GENERAL:
 		AI_generalMove();
 		break;
-	case UNITAI_PROPHET:
-	case UNITAI_ARTIST:
-	case UNITAI_SCIENTIST:
-	case UNITAI_MERCHANT:
-	case UNITAI_ENGINEER:
+	case UNITAI_GREAT_PROPHET:
+	case UNITAI_GREAT_ARTIST:
+	case UNITAI_GREAT_SCIENTIST:
+	case UNITAI_GREAT_MERCHANT:
+	case UNITAI_GREAT_ENGINEER:
 	// K-Mod
 	case UNITAI_GREAT_SPY:
 		//AI_greatSpyMove();
@@ -584,12 +584,12 @@ int CvUnitAI::AI_groupFirstVal() /* advc: */ const
 	case UNITAI_MISSIONARY:
 		return 10;
 
-	case UNITAI_PROPHET:
-	case UNITAI_ARTIST:
-	case UNITAI_SCIENTIST:
-	case UNITAI_GENERAL:
-	case UNITAI_MERCHANT:
-	case UNITAI_ENGINEER:
+	case UNITAI_GREAT_PROPHET:
+	case UNITAI_GREAT_ARTIST:
+	case UNITAI_GREAT_SCIENTIST:
+	case UNITAI_GREAT_GENERAL:
+	case UNITAI_GREAT_MERCHANT:
+	case UNITAI_GREAT_ENGINEER:
 	case UNITAI_GREAT_SPY: // K-Mod
 		return 11;
 

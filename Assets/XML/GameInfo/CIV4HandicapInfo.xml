@@ -279,7 +279,7 @@
 			<iBarbarianCreationTurnsElapsed>44</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 50 -->
 			<iBarbarianCityCreationTurnsElapsed>55</iBarbarianCityCreationTurnsElapsed>
-			<iBarbarianCityCreationProb>5</iBarbarianCityCreationProb>
+			<iBarbarianCityCreationProb>10</iBarbarianCityCreationProb>
 			<!-- advc.313: was -60 -->
 			<iAnimalBonus>-25</iAnimalBonus>
 			<iBarbarianBonus>-25</iBarbarianBonus>
@@ -452,7 +452,7 @@
 			<iBarbarianCreationTurnsElapsed>40</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 45 -->
 			<iBarbarianCityCreationTurnsElapsed>50</iBarbarianCityCreationTurnsElapsed>
-			<iBarbarianCityCreationProb>10</iBarbarianCityCreationProb>
+			<iBarbarianCityCreationProb>15</iBarbarianCityCreationProb>
 			<!-- advc.313: was -50 -->
 			<iAnimalBonus>-20</iAnimalBonus>
 			<iBarbarianBonus>0</iBarbarianBonus>
@@ -625,7 +625,7 @@
 			<iBarbarianCreationTurnsElapsed>36</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 40 -->
 			<iBarbarianCityCreationTurnsElapsed>45</iBarbarianCityCreationTurnsElapsed>
-			<iBarbarianCityCreationProb>15</iBarbarianCityCreationProb>
+			<iBarbarianCityCreationProb>20</iBarbarianCityCreationProb>
 			<!-- advc.313: was -40 -->
 			<iAnimalBonus>0</iAnimalBonus>
 			<iBarbarianBonus>0</iBarbarianBonus>
@@ -804,7 +804,7 @@
 			<iBarbarianCreationTurnsElapsed>32</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 35 -->
 			<iBarbarianCityCreationTurnsElapsed>40</iBarbarianCityCreationTurnsElapsed>
-			<iBarbarianCityCreationProb>20</iBarbarianCityCreationProb>
+			<iBarbarianCityCreationProb>25</iBarbarianCityCreationProb>
 			<!-- advc.313: was -30 -->
 			<iAnimalBonus>0</iAnimalBonus>
 			<iBarbarianBonus>0</iBarbarianBonus>
@@ -992,7 +992,7 @@
 			<iBarbarianCreationTurnsElapsed>28</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 30 -->
 			<iBarbarianCityCreationTurnsElapsed>35</iBarbarianCityCreationTurnsElapsed>
-			<iBarbarianCityCreationProb>25</iBarbarianCityCreationProb>
+			<iBarbarianCityCreationProb>30</iBarbarianCityCreationProb>
 			<!-- advc.313: start -->
 			<!-- was -20 -->
 			<iAnimalBonus>0</iAnimalBonus>
@@ -1194,7 +1194,7 @@
 			<iBarbarianCreationTurnsElapsed>24</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 25 -->
 			<iBarbarianCityCreationTurnsElapsed>30</iBarbarianCityCreationTurnsElapsed>
-			<iBarbarianCityCreationProb>30</iBarbarianCityCreationProb>
+			<iBarbarianCityCreationProb>35</iBarbarianCityCreationProb>
 			<iAnimalBonus>0</iAnimalBonus>
 			<!-- advc.313: start -->
 			<!-- was 0 -->
@@ -1409,7 +1409,7 @@
 			<iBarbarianCreationTurnsElapsed>20</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 20 -->
 			<iBarbarianCityCreationTurnsElapsed>25</iBarbarianCityCreationTurnsElapsed>
-			<iBarbarianCityCreationProb>35</iBarbarianCityCreationProb>
+			<iBarbarianCityCreationProb>40</iBarbarianCityCreationProb>
 			<iAnimalBonus>0</iAnimalBonus>
 			<!-- advc.313: start -->
 			<!-- was 0 -->
@@ -1631,7 +1631,7 @@
 			<iBarbarianCreationTurnsElapsed>16</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 15 -->
 			<iBarbarianCityCreationTurnsElapsed>25</iBarbarianCityCreationTurnsElapsed>
-			<iBarbarianCityCreationProb>40</iBarbarianCityCreationProb>
+			<iBarbarianCityCreationProb>45</iBarbarianCityCreationProb>
 			<iAnimalBonus>0</iAnimalBonus>
 			<iBarbarianBonus>0</iBarbarianBonus>
 			<!-- advc.313: start -->

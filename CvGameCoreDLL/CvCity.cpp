@@ -11583,7 +11583,7 @@ void CvCity::read(FDataStreamBase* pStream)
 			CvBuildingInfo const& kVersailles = GC.getInfo(eVersailles);
 			int iRateChange = kVersailles.getGreatPeopleRateChange();
 			UnitClassTypes eOldGPClass = (UnitClassTypes)GC.getInfoTypeForString(
-						"UNITCLASS_MERCHANT", true);
+						"UNITCLASS_GREAT_MERCHANT", true);
 			UnitClassTypes eNewGPClass = (UnitClassTypes)kVersailles.getGreatPeopleUnitClass();
 			/*	To provide some safety against messing up savegames of a mod-mod
 				that may not have adopted this XML change */

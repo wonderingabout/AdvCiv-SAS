@@ -7,7 +7,7 @@
        (___)_o   <-- Chicken wing of insight, a gift from wonderingabout
 
 Auto-generated leaders **data** module.
-Created: 20250511_004814
+Created: 20250511_164411
 
 Author: becomingthrough (ChatGPT)
 """
@@ -46,7 +46,7 @@ PARSED_XML_LEADERS_DATA = {
         "iDemandRebukedSneakProb": 0,
         "iDemandRebukedWarProb": 0,
         "iRazeCityProb": 75,
-        "iBuildUnitProb": 0,
+        "iBuildUnitProb": 100,
         "iBaseAttackOddsChange": 1,
         "iAttackOddsChangeRand": 16,
         "iWorseRankDifferenceAttitudeChange": -2,
@@ -99,19 +99,26 @@ PARSED_XML_LEADERS_DATA = {
         "FavoriteCivic": "NONE",
         "FavoriteReligion": "NONE",
         "Traits": "",
-        "Flavors": "",
+        "iFlavorMilitary": 10,
+        "iFlavorReligion": 0,
+        "iFlavorProduction": 0,
+        "iFlavorGold": 0,
+        "iFlavorScience": 0,
+        "iFlavorCulture": 0,
+        "iFlavorGrowth": 0,
+        "iFlavorEspionage": 0,
         "UnitAIWeightModifiers": [
             {
                 "UnitAIType": "UNITAI_RESERVE",
-                "iWeightModifier": "50"
+                "iWeightModifier": "75"
             },
             {
                 "UnitAIType": "UNITAI_ATTACK_CITY",
-                "iWeightModifier": "100"
+                "iWeightModifier": "75"
             },
             {
                 "UnitAIType": "UNITAI_WORKER",
-                "iWeightModifier": "25"
+                "iWeightModifier": "75"
             }
         ],
         "ImprovementWeightModifiers": "",

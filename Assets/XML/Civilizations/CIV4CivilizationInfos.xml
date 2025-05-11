@@ -4188,7 +4188,8 @@
 					<BuildingType>BUILDING_CASTLE_BARBARIAN</BuildingType>
 				</Building>
 				<!-- custom: inefficient to build an aqueduct for barbarians and not very realistic, let (barbarian) palace provide health directly, more efficient this wayso they can focus more on producing units anyways etc
-				Same for forge, provide military only small (relatively anyways etc) production bonus instead -->
+				Same for forge, provide military only small (relatively anyways etc) production bonus instead
+				Test to not put the stable too for efficiency and maybe bit accuracy/realism maybe or not or yes or and other or and not but in all cases anyways etc -->
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
@@ -4197,23 +4198,27 @@
 					<BuildingClassType>BUILDINGCLASS_FORGE</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
-				<!-- custom: fix bug(/(careless as in unaware of or and other or and not? but anyways etc, anyways etc) oversight? Anyways etc) (seemingly from AdvCiv or/and base Civ4 or/and other mods or not anyways etc) where Barbarians could build schwedagon pawa as happened in an autoplay, anyways etc -->
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_SHWEDAGON_PAYA</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_STABLE</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_FORBIDDEN_PALACE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_VERSAILLES</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_ACADEMY</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
+				<!-- custom: fix bug(/(careless as in unaware of or and other or and not? but anyways etc, anyways etc) oversight? Anyways etc) (seemingly from AdvCiv or/and base Civ4 or/and other mods or not anyways etc) where Barbarians could build schwedagon pawa as happened in an autoplay, anyways etc
+				
+				update: this doesn't fix it so removed, and it was already there, plus they tried to build mausolleum of mausollos todo (ideally i mean anyways) fix make barbarians not build any wonder at all (but maybe not too bad as is but certainly not ideal maybe... But anyways etc anyways etc anyways etc anyways etc...)
+				-->
+				<!-- custom: 
+				old code lines such as:
+					<Building>
+						<BuildingClassType>BUILDINGCLASS_SHWEDAGON_PAYA</BuildingClassType>
+						<BuildingType>NONE</BuildingType>
+					</Building>
+				seem to have no effect at all on preventing barbarians from building wonders, as they built (still (but)(anyways etc) anyways etc shwedagon paya and mausoleum of mausollos, perhaps this was just hidden as they were not prosperous enough, but now that they can compete for wonders too with other players, they (barbarians) try(were trying anyways etc) to build wonders sometimes even completed them before other players), so as the code is useless or not entirely effective, removed it, and now trying this very negative as in in value as in in number anyways etc anyways etc anyways etc iWonderConstructRand which seems to do the trick, and no more spaghetti code (but i lovbe spaghetti (to eat) but anyways etc...(maybe code too or not too but in all cases anyways etc...)) so we don't have to remove it and clean our code
+
+				I have tried using <iWonderConstructRand>-9999</iWonderConstructRand> (for <Type>LEADER_BARBARIAN</Type>) or some very negative in value as in in number anyways etc but doesn't work
+
+				then i tried <iBuildUnitProb>100</iBuildUnitProb> and seems to work extremely well and be effective, no wonder at all now in barbarians, no normal building though like the lighthouse anymore even though the barabarian version of it is so much cheaper and such to build anyways etc, may tone it down a bit, or/and test more to be sure, but this seems fixed now, anyways etc
+				-->
+				<!-- custom: (Normal Buildings)-->
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_MONUMENT</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
@@ -4255,11 +4260,15 @@
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_NATIONAL_SECURITY</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_ACADEMY</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_INTELLIGENCE_AGENCY</BuildingClassType>
+					<BuildingType>NONE</BuildingType>
+				</Building>
+				<Building>
+					<BuildingClassType>BUILDINGCLASS_SECURITY_BUREAU</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>
@@ -4326,200 +4335,18 @@
 					<BuildingClassType>BUILDINGCLASS_THEATRE</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_BROADCAST_TOWER</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_INTELLIGENCE_AGENCY</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_NATIONAL_SECURITY</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<!-- custom: also allow barbarians holy cities in case they are first to found a religion and get a great prophet for it, (and (anyways etc)) also allow them to build all religious buildings in case a religion reaches them no reason why they couldn't, and otherwise still remain warmongerers i tihnk, (but) anyways etc (it also declutters the xml a bit (xd.. (i am free indeed(!...)if i may say (yes) but anwyays etc....))-->
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_HEROIC_EPIC</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_NATIONAL_EPIC</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_GLOBE_THEATRE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
+				<!-- custom: also for national wonders, lines such as:
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_HERMITAGE</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_OXFORD_UNIVERSITY</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_WALL_STREET</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_IRON_WORKS</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_MT_RUSHMORE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_NATIONAL_PARK</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_MOAI_STATUES</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_RED_CROSS</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_SCOTLAND_YARD</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_WEST_POINT</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_GREAT_LIBRARY</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_GREAT_LIGHTHOUSE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_ORACLE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_STONEHENGE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_PARTHENON</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_ANGKOR_WAT</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_HAGIA_SOPHIA</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_CHICHEN_ITZA</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_SISTINE_CHAPEL</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_SPIRAL_MINARET</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_NOTRE_DAME</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_TAJ_MAHAL</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_KREMLIN</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_EIFFEL_TOWER</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_STATUE_OF_LIBERTY</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_BROADWAY</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_ROCKNROLL</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_HOLLYWOOD</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_GREAT_DAM</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_PENTAGON</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_UNITED_NATIONS</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_SPACE_ELEVATOR</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_COLOSSUS</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_HANGING_GARDEN</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_PYRAMID</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_GREAT_WALL</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_SANKORE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_ARTEMIS</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_CRISTO_REDENTOR</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_SHWEDAGON_PAYA</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_MAUSOLEUM_OF_MAUSSOLLOS</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_STATUE_OF_ZEUS</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
+				are useless it seems, at least they do not prevent barbarians building moai and hermitage for example, (should have said hermitage first butmoai came to midn first plus historically was before so maybe should have said moai first but hemritage was last so i thought of it sooner as i think it was more recent is why i thought of it first but anyways whether or this is why removing the spaghetti code since it is nothelping and  we don't want to maintain it when and if we add new wonders, especially if needless, anyways etc)-->
+
+				<!-- custom: also allow barbarians (even though i am not sure these lines make any difference seemingly since it was an old code comment but as for logic yes i(/we((?)?)) would not mind barbarians having holy cities if they discover a religion but they seem to do it on their own just fine regardless, i saw them have the mahadhobi thing if i am not mistaken too good for them anyways moving on as in focusing on civ4 again anyways etc this mod advciv-sas i mean anyways etc anyways etc) would not holy cities in case they are first to found a religion and get a great prophet for it, (and (anyways etc)) also allow them to build all religious buildings in case a religion reaches them no reason why they couldn't, and otherwise still remain warmongerers i tihnk, (but) anyways etc (it also declutters the xml a bit (xd.. (i am free indeed(!...)if i may say (yes) but anwyays etc....))-->
 			</Buildings>
+
+
+
 			<!-- custom: barbarians are now stronger, all the military units are now allowed unlike in base AdvCiv anyways etc:
 			pikeman, rifleman, grenadier, infantry, marine, etc (think of them as bandits, mercenaries,
 			pirates, terrorists, or such, anyways etc)
@@ -4615,21 +4442,21 @@
 					<UnitClassType>UNITCLASS_SPY</UnitClassType>
 					<UnitType>NONE</UnitType>
 				</Unit>
-				<!-- custom: also allow barbarians great prophets in case they are first to found a religion -->
+				<!-- custom: also allow barbarians great prophets in case they are first to found a religion, so not putting a NON here for GREAT_PROPHET in case it would disallow a great prophet being born (in a barbarian city) and (is)(too) if i am not mistaken anyways etc anyways etc -->
 				<Unit>
-					<UnitClassType>UNITCLASS_ARTIST</UnitClassType>
+					<UnitClassType>UNITCLASS_GREAT_ARTIST</UnitClassType>
 					<UnitType>NONE</UnitType>
 				</Unit>
 				<Unit>
-					<UnitClassType>UNITCLASS_SCIENTIST</UnitClassType>
+					<UnitClassType>UNITCLASS_GREAT_SCIENTIST</UnitClassType>
 					<UnitType>NONE</UnitType>
 				</Unit>
 				<Unit>
-					<UnitClassType>UNITCLASS_MERCHANT</UnitClassType>
+					<UnitClassType>UNITCLASS_GREAT_MERCHANT</UnitClassType>
 					<UnitType>NONE</UnitType>
 				</Unit>
 				<Unit>
-					<UnitClassType>UNITCLASS_ENGINEER</UnitClassType>
+					<UnitClassType>UNITCLASS_GREAT_ENGINEER</UnitClassType>
 					<UnitType>NONE</UnitType>
 				</Unit>
 				<Unit>

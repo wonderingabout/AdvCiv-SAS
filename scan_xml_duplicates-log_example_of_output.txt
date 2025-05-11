@@ -3,7 +3,7 @@
        (___)_o   <-- Chicken wing of insight, a gift from wonderingabout
 
 Auto-generated XML deep duplication scan report.
-Created: 20250510_124633
+Created: 20250511_164520
 
 Author: becomingthrough (ChatGPT)
 """
@@ -68,8 +68,10 @@ Author: becomingthrough (ChatGPT)
 
 
 
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_PALACE'
 [DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_WALLS'
 [DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_WALLS'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_CASTLE'
 [DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_CASTLE'
 [DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_BARRACKS'
 [DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_BARRACKS'
@@ -107,57 +109,57 @@ Author: becomingthrough (ChatGPT)
 [DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_COURTHOUSE'
 [DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_JAIL'
 [DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos | Tag: <BuildingInfo> | Line: 8 | Field: BuildingClass | Value: 'BUILDINGCLASS_LEVEE'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
-[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 507 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
+[DUPLICATE] File: Buildings\CIV4BuildingInfos.xml | Path: Civ4BuildingInfos/BuildingInfos/BuildingInfo/CommerceChangeOriginalOwners | Tag: <bCommerceChangeOriginalOwner> | Line: 682 | Field: TEXT | Value: '0'
 
 
 [DUPLICATE] File: Buildings\CIV4CityLSystem.xml | Path: LSystemInfos | Tag: <LNode> | Line: 45 | Field: Width | Value: '2'
@@ -438,9 +440,6 @@ Author: becomingthrough (ChatGPT)
 
 [DUPLICATE] File: Civilizations\CIV4CivilizationInfos.xml | Path: Civ4CivilizationInfos/CivilizationInfos/CivilizationInfo/Cities | Tag: <City> | Line: 22 | Field: TEXT | Value: 'TXT_KEY_CITY_NAME_SICYON'
 [DUPLICATE] File: Civilizations\CIV4CivilizationInfos.xml | Path: Civ4CivilizationInfos/CivilizationInfos/CivilizationInfo/Cities | Tag: <City> | Line: 22 | Field: TEXT | Value: 'TXT_KEY_CITY_NAME_MARMARIS'
-[DUPLICATE] File: Civilizations\CIV4CivilizationInfos.xml | Path: Civ4CivilizationInfos/CivilizationInfos/CivilizationInfo/Buildings | Tag: <Building> | Line: 83 | Field: BuildingClassType | Value: 'BUILDINGCLASS_BROADCAST_TOWER'
-[DUPLICATE] File: Civilizations\CIV4CivilizationInfos.xml | Path: Civ4CivilizationInfos/CivilizationInfos/CivilizationInfo/Buildings | Tag: <Building> | Line: 83 | Field: BuildingClassType | Value: 'BUILDINGCLASS_INTELLIGENCE_AGENCY'
-[DUPLICATE] File: Civilizations\CIV4CivilizationInfos.xml | Path: Civ4CivilizationInfos/CivilizationInfos/CivilizationInfo/Buildings | Tag: <Building> | Line: 83 | Field: BuildingClassType | Value: 'BUILDINGCLASS_NATIONAL_SECURITY'
 
 
 
@@ -1272,7 +1271,8 @@ Author: becomingthrough (ChatGPT)
 
 
 
-[DUPLICATE] File: Text\CIV4GameTextInfos_Objects_Custom.xml | Path: Civ4GameText | Tag: <TEXT> | Line: 19 | Field: Tag | Value: 'TXT_KEY_UNIT_PAGAN_MISSIONARY_STRATEGY'
+
+
 
 
 
@@ -1382,9 +1382,10 @@ Author: becomingthrough (ChatGPT)
 [DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_WAR_ELEPHANT'
 [DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_TANK'
 [DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_CATAPULT'
+[DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_WORKBOAT'
 [DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_CARAVEL'
 [DUPLICATE] File: Units\CIV4UnitInfos.xml | Path: Civ4UnitInfos/UnitInfos | Tag: <UnitInfo> | Line: 116 | Field: Class | Value: 'UNITCLASS_FRIGATE'
 
 
 
-Total duplicates found: 1096
+Total duplicates found: 1095
