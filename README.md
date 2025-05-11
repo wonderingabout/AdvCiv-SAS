@@ -15,16 +15,21 @@ to install it and play it, i have provided a few instructions [here](/_1_AdvCiv-
 ## Quick Start Guide
 
 If you just want to play and do not need all the project bigger details, i added
-a quick guide of the main changes from Civ4 and base AdvCiv players:
+a quick guide of the main changes from Civ4 and base AdvCiv for players:
 [here](/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md)
 
 note: it is recommended to read this part even if you want to know the deeper
 changes. There are stuff and things/information i added only recently in it,
 which may not be available in the longer docs.
 
-I may also update it after releasing mods, maybe, but not guaranteed, if there
-are significant changes i would like to add or mention/talk about there. But
-i would move them to the bottom so you don't have to reread all ideally.
+I may also update it after releasing the AdvCiv-SAS mod (and its new or/and
+future version(s)if there are after initial release ideally but if not and in
+all cases anyways etc), maybe, but not guaranteed, if there are significant
+changes i would like to add or mention/talk about there. But i would move them
+to the bottom so you don't have to reread all ideally but not sure i would do
+that though so and anyways as is or not anyways etc anyways etc hopefully
+helpful enough this way if this way is the way maybe (or not but in all cases
+anyways etc anyways etc) but anyways etc...
 
 ## Important Sevopedia reworks (click on the images below to view them full size)
 
@@ -104,6 +109,8 @@ mostly my own modding and first attemps at deciphering civ4's python, not inordi
 ##### example 4: religion category
 
 new Leaders (based on History Rewritten's code) and Buildings (based originally/initially on RFC DOC's code and then ROM 291 as it was cleaner and seemingly more exahaustive and has more other features too anyways etc) and Units (based on ROM 291's code too) panels in Sevopedia Religion category:
+
+()anyways etc(,)( )Also note that all leaders now have in AdvCiv-SAS an updated pedia entry based on real wikipedia content, hopefully clearer, more exhaustive, neutral enough, and accurate and updated maybe too, may or not be less politically correct but i don't care, in fact i encourage it and like it, as long as tone is kind and helpful or not necessarily and not respectful either but kind or something, not to impose this as a dictature of myself even though could but would not be very kind, or maybe is in my own way or maybe not or yes etc but anyways... Below are the screenshots (and) enjoy anyways etc, maybe i should read them too now that their formatting is fixed and all if i may say, i am sure it can be instructive but i don't care too much about the technicalities of religions, still the historical part of them is very interesting, to me at least, knowing where we or at least i come from and where we or maybe i at least maybe go too or not or yes or trying to guess it or assess choose or let it be chosen by itself or myself or and other or and not anyways etc and screenshot samples are below for some/most of them please view ingame for more content or/and updated one anyways etc(and thanks(?) i want to say to to you reading really (if someone even reads but i write for myself at least maybe and that being said read after bracket anyways etc:  (even though i like readers but i also like doing my own things alone, so with that said happy if you like, happy if i like, may be mutually exclusive or maybe not, but in all cases hopefully helpful or maybe not or yes or and other or and not anyways etc)) but that being said focus and do civ4 thing or not but anyways etc..):
 
 <img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (2).JPG" width="250"></img>
@@ -244,7 +251,7 @@ This AdvCiv-SAS mod is based on these mods:
 - AdvCiv-SAS that is based on AdvCiv
 
 To help you transition between these mods, especially if you are a Civ4 vanilla,
-Civ4 BTS, K-Mod, or other mod player, you can refer to the "Mods Info" category
+Civ4 BTS, K-Mod, or other mod player, you can refer to the "Mods Info" todo category
 of the Sevopedia (or you could say Civilopedia) ingame (or from main menu accessible
 too), that tries/attempts to list a few main rules changes between each of these mods.
 
@@ -268,8 +275,6 @@ there too.)
 These rules changes entries may not be exhaustive or maybe would but hopefully will help,
 and i can gradually complete them as i see fit or learn, or based on feedback, not
 guaranteed though, but if need please refer to it if needed.
-
-
 
 # Credits
 - AdvCiv (the full name Advanced Civ does not yield much results about Civ 4 so i prefer the AdvCiv Name, maybe because of the space character, so i put a "-" instead in my/this mod): todo write, but mostly i am very thankful of AdvCiv, it's such a nice improvement from Civ4, and it's maintainer is very open to feedback at least in my
@@ -311,6 +316,7 @@ it too though unless i'm mistaken)
 - Q-Dir (very useful and reliable too when works well which is almost always if not always, and very minimalist yet powerful, i so ery love it but anyways etc ; [for example you can use it (Q-Dir) like this](/_1_AdvCiv-SAS/Images_In_General/q-dir_multitask_tabs_folders_example.png) (some fields (are) hidden for (my) privacy anyways etc)) thanks a lot!!! (too! (After writing the WizTree thanks but anwayys etc thanks too i mean too (hehe maybe or not or yes or other or/and not (but) anyways etc) anyways etc...)) Anyways etc...
 - WizTree (very useful (and reliable and effective) to find the files i want when i want, for example (to) [find all the "taois" entries(i.e. files)in the entire full civ4 folder](/_1_AdvCiv-SAS/Images_In_General/wiztree_find_all_tois_entries-files_in_all_civ4_entire_full_folder.PNG), very useful, thanks a lot!!! Anyways etc)
 - Visual C++ 2010 Express (is free, just requires after trial a free registration if i am not mistaken todo): works great to compile the DLL i want/require it after some mod changes
+- Wikipedia, a lot of very amazing, informative, quite if not lot and very accurate and neutral but just a bit and enough opiniated, and very exhaustive and all, thanks a big big lot! For making wikipedia and all and letting me and others or not but at least for me use it, good if helps others or maybe not or yes or both or not or and other or maybe yes or not or other anyways speaking about me etc thanks anyways anyways etc, thanks,
 - Quillbot (a quite accurate and convenient to use i think but anyways web translator using AI, i used the free version), for example: https://quillbot.com/fr/traduction?sl=auto&tl=fr&text=the+people+of+Benin (did not use this example in AdvCiv-SAS, is just to illustrate, hopefully helpful, anyways)
 
 # Starting your mod
