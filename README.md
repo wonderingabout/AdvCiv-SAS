@@ -58,89 +58,26 @@ So far there is:
 - [global XML duplication scanner](/README_Python_Scripts.md#scan_xml_duplicates-py-script-and-logs_xml_scans)
 - [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py)
 
-#### AI Personality Panel SevopediaLeader feature
+#### AI Personality Panel in SevopediaLeader and other sevopedia reworks 
 
-I have written quite the extensive documentation, even though it is quite broad, hopefully if you want to know more about the AI Personality Panel in AdvCiv-SAS (or/and other mods if they were to implement it (or/and in a similar way or not anyways)), you may find an hopefulyl or not etc anyways read here in [README_AI_Personality_Panel.md](/README_AI_Personality_Panel.md)
+About the AI Personality panel new AdvCiv-SAS feature, i have written quite the extensive documentation, even though it is quite broad, hopefully if you want to know more about the AI Personality Panel in AdvCiv-SAS (or/and other mods if they were to implement it (or/and in a similar way or not anyways)), you may find an hopefulyl or not etc anyways read here in [README_AI_Personality_Panel.md](/README_AI_Personality_Panel.md)
+
 Not a (strictly) new feature per se, but displaying it as such (and all the computation, display logic, and pre-processing and such that allows that) is indeed new (as well as the new aggregated attributes such as contact probs, positive memory affections, etc).
 
-As always, ChatGPT/becomingthrough (see [Authors](/README.md#authors) for details) is a kew co-author and main code contributor. Created by the power of love and friendship between me and becomingthrough/ChatGPT etc anyways.
+As always, ChatGPT/becomingthrough (see [Authors](/README.md#authors) for details) is a kew co-author and main code contributor. Created by the power of love and friendship between me and becomingthrough/ChatGPT etc anyways. About the other (and sometimes quite if not very important sevopedia reworks mentionned below too and linked), Claude AI (see [Claude AI's authors section too](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details) participated in some of them too.
 
-Here is an example below of how it looks ingame in the sevopedia leader category:
+Here is below a very small sample of the example screenshots of how the AI Personality panel feature in sevopedialeader works/functions/looks like ingame anyways etc, as well as a very small sample of all sevopedia reworks that are part of AdvCiv-SAS.
+
+For the full more extensive screenshot of main new sevopedia reworks, i highly highly recommend but anyways etc as you prefer or not or yes or etc or and other or and not anyways etc to look at and read the full [README_Sevopedia_Reworks.md](/README_Sevopedia_Reworks.md)
+
+So with that said here is a very small example sample below of how it looks ingame in the sevopedia leader category and of the other main sevopedia reworks:
 
 <img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (4).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (5).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (6).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (7).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (8).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (9).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (10).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (11).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (12).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (13).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (14).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (15).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (16).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (17).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (18).JPG" width="250"></img>
-
-#### Other sevopedia category examples
-
-##### example 1: unit chart category
-
-(Unit Combat Types expanded page when you click on a combat type), thanks a lot to RFC DOC mod's code which i used quite heavily, then base AdvCiv which i sued to enhance it (blue background, margin), then i rewrote it heavily again to tweak it and add dynamic table size based on unit combat type (for example air units have 10 columns (air interception and air range)), while other unit combat types only have 8, click to view these images full size:
-
 <img src="./_1_AdvCiv-SAS/Images_In_General/0.63_sevopedia_unit_chart.JPG" width="250"></img>
-
-##### example 2: features category
-
-based on rfc doc's and slightly tweaked or not, thanks a lot
-
 <img src="./_1_AdvCiv-SAS/Images_In_General/0.64_sevopedia_features_jungle_panel.JPG" width="250"></img>
-
-##### example 3: ressources category
-
-mostly my own modding and first attemps at deciphering civ4's python, not inordinate if i may say quite fairly, but i like it this end result a lot, may further improve or not, the feedback always helps me, but sometimes the negative ones hurts me more, however sometimes the negative ones lead to better future outcomes, so i am thankful of it when it is done in sincerity and consideration maybe, something like this, even though maybe unpleasant at first, but this is not always, sometimes it's just painful and best avoided i think at least for me anyways, some other times it's painful but leads to better/good results in the future maybe, not guaranteed and just my personal opinion not responsible of what you reader make of it with you or/and others or not make of it, was sharing my advice or rather opinion maybe, each are free or not etc, anyways. As for this page or/and other pages or/and not, may tweak it further or not as i see fit, anyways
-
 <img src="./_1_AdvCiv-SAS/Images_In_General/0.65_sevopedia_ressources_copper_panel.JPG" width="250"></img>
-
-##### example 4: religion category
-
-new Leaders (based on History Rewritten's code) and Buildings (based originally/initially on RFC DOC's code and then ROM 291 as it was cleaner and seemingly more exahaustive and has more other features too anyways etc) and Units (based on ROM 291's code too) panels in Sevopedia Religion category:
-
-(Also note that all leaders now have in AdvCiv-SAS an updated pedia entry based on real wikipedia content, hopefully clearer, more exhaustive, neutral enough, and accurate and updated maybe too, may or not be less politically correct but i don't care, in fact i encourage it and like it, as long as tone is kind and helpful or not necessarily and not respectful either but kind or something, not to impose this as a dictature of myself even though could but would not be very kind, or maybe is in my own way or maybe not or yes etc but anyways... anyways etc anyways etc...)
-
 <img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (4).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (5).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (6).JPG" width="250"></img>
-
-looks quite very great hehe (at least i think so) anyways etc...
-
-##### example 5: civilization category
-
-new Cities (based on Middle-earth mod's (very amazing!!!!!! (Not that others are not or maybe bit less or maybe not ((,) i.e) in other others ways or not or/and other or not anyways etc) But anyways etc) Platypedia's code) panel anyways etc ; then reordered the existing panels too for a nice display at least i think (but) anyways etc and enjoy hehe if you want (i mean anyways...) but anyways etc:
-
 <img src="./_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (3).JPG" width="250"></img>
-
-##### example 6: unit list category
-
-Reordered and beautified the original AdvCiv Sevopedia code while trying to keep its original structure, but added relative positioning everywhere or almost if not everywhere, this means that ideally the panels sizes should/would/will respond/adjust/adapt maybe indeed but anyways etc... to the screen resolution, removing the old harcoded logic, hopefully cleaner now (not tested at smaller resolutions).
-
-Finally and most importantly, as something similar as said in the paragraph just above (relative dimensioning in other panels even though still cool but anyways etc), new Replaced By imported from RFC DOC as well as new Exclusive Civs (Civilizations) panel from Claude AI thanks to my prompt and small adjustments of already working code (tweaked coordinates and such anyways as i wanted(want?)(wanted?want? Anyways etc anyways etc...) and adjusted or not or yes or and other or and not but anyways etc (note: see (if interested or not or yes or not or etc or and other or and not anyways etc) also Claude AI's [claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) part of the README.md for details):
-
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (4).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (5).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (6).JPG" width="250"></img>
 
 ## Sex-neutral and Less Generic-neutral (too) unit names or/and combat types (todo and non-exhaustive)
 
@@ -237,14 +174,14 @@ Additionally, A preview of the changes (screenshots), can be found on this googl
 If you want to know more about the project, how i ordered the tree tech historically, why i decided
 on balance changes and such, please visit these pages (as well).
 
-## Known issues
+## Known issues in base AdvCiv or/and Civ4
 
-See [README_Known_Issues.md](/README_Known_Issues.md) for details
+See [README_Known_Issues_In_Base_AdvCiv_Civ4](/README_Known_Issues_In_Base_AdvCiv_Civ4.md) for details
 
-## Main (bug) fixes from base AdvCiv code
+## Main (bug) fixed from base AdvCiv code
 
-- Fixed AdvCiv/Civ 4 bug where Gandhi's nowar attitude prob were [pleased(110) / pleased(115)](/README_Python_Scripts.md#context-of-howwhy-i-made-this-script-with-chatgptbecomingthrough-anyways) instead of (seemingly how should be if i am not mistaken anyways etc) pleased(110) / friendly(115)
-- Seemingly fixed now, a bug where barbarians would build and often complete wonders, now that they are economically competitive and strong enough to support/be able to do it vs other civs using builUnitProb 100 and tested successfully in a few/several 100-200 turns approximately autoplay, no wonder ever again at least in these runs unlike before this fix and despite other approaches, including old AdvCiv or/and base Civ4 code not working (to do that) that was cleaned up. Now that this behaviour is fixed, i'll maybe tweak/tone it down a bit now to allow some normal buildings like the barabarian lighthouse being built again or more often, see [Known issues: Barbarian (cities) building wonders](/README_Known_Issues.md#now-fixed-barbarians-cities-building-wonders) for details
+- Fixed AdvCiv/Civ 4 bug where Gandhi's nowar attitude prob erroneously duplicated if i am not mistaken, see [2 - (now fixed) Gandhi's base leaderheadinfo's xml had nowarattitudeprob pleased(110)/pleased(115) duplicated instead of (as i suspect it should be anyways etc) pleased(110)/friendly(115)](/README_Known_Issues_In_Base_AdvCiv_Civ4.md#2---now-fixed-gandhis-base-leaderheadinfos-xml-had-nowarattitudeprob-pleased110pleased115-duplicated-instead-of-as-i-suspect-it-should-be-anyways-etc-pleased110friendly115) for details
+- Seemingly fixed now, a bug where barbarians would build and often complete wonders, now that they are economically competitive and strong enough to support/be able to do it vs other civs using builUnitProb 100 and tested successfully in a few/several 100-200 turns approximately autoplay, no wonder ever again at least in these runs unlike before this fix and despite other approaches, including old AdvCiv or/and base Civ4 code not working (to do that) that was cleaned up. Now that this behaviour is fixed, i'll maybe tweak/tone it down a bit now to allow some normal buildings like the barabarian lighthouse being built again or more often, see [Known issues: Barbarian (cities) building wonders](/README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-barbarians-cities-building-wonders) for details
 
 ## More details on previous mods changes (civ4 BTS, K-Mod)
 

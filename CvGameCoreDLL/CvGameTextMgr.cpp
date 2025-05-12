@@ -9653,8 +9653,9 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 	CvUnitClassInfo const& kUnitClass = GC.getInfo(eUnitClass); // advc
 	UnitTypes const eDefaultUnit = kUnitClass.getDefaultUnit();
 
-	if (eDefaultUnit != NO_UNIT && eDefaultUnit != eUnit)
-	{
+	// <!-- custom: removing the check entirely now as we have/use placeExclusiveCivs code now instead to display civ buttons, see below the nested "custom:" code comment for details -->
+	//if (eDefaultUnit != NO_UNIT && eDefaultUnit != eUnit)
+	//{
 		// <!-- custom: now that we have the new placeExclusiveCivs added by Claude AI and my prompt and adjustments or not or yes of the already working code or and other or and not anyways etc, we (also but anyways etc...) don't the old TXT_KEY_UNIQUE_UNIT ("No civilization unit for the Babylonian Empire" (or similar with "unique unit" before i had renamed it for AdvCiv-SAS) for example anyways etc) panel-->
 		//FOR_EACH_ENUM(Civilization)
 		//{
@@ -9671,7 +9672,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 		//szBuffer.append(NEWLINE);
 		//szBuffer.append(gDLL->getText("TXT_KEY_REPLACES_UNIT",
 		//		GC.getInfo(eDefaultUnit).getTextKeyWide()));
-	}
+	//}
 
 	if (kUnitClass.isWorldUnit())
 	{

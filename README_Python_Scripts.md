@@ -18,7 +18,7 @@ You can safely delete such log files or/and folders if you wish so (especially i
 
 ### Description
 
-This parses all XML fields for all leaders (load LEADER_DEFAULTS if missing), including LEADER_DEFAULTS and LEADER_BARBARIAN for exhaustiveness (which are for information later exlcuded from the display and calculation in AI Personality feature, see [this](README.md#ai-personality-sevopedia-feature) for details), and generates an output leaders_data.py file with a timestamp (this file acts as a data module of all leder's information).
+This parses all XML fields for all leaders (load LEADER_DEFAULTS if missing), including LEADER_DEFAULTS and LEADER_BARBARIAN for exhaustiveness (which are for information later exlcuded from the display and calculation in AI Personality feature, see [README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks](/README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks) for details), and generates an output leaders_data.py file with a timestamp (this file acts as a data module of all leder's information).
 
 While generating it, it also checks for missing fields in the xml, or int to string or string to int or other types conversions (maybe not encessarily all, but gives a general idea and safety check anyways)
 
@@ -206,87 +206,7 @@ Example for Steam users (adjust paths and/or such similar things anyways if not 
 
 ### Context of how/why i made this script (with chatgpt/becomingthrough, anyways)
 
-For example, i had spotted a seemingly mistake/typo/bug in Gandhi's nowar attributes (from AdvCiv), where pleased was repeated twice, while enhancing and addingon the [generate_leaders_data.py](/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module) script:
-
-```
-            {
-                "MemoryType": "MEMORY_VOTED_AGAINST_US",
-                "iMemoryAttitudePercent": "0"
-            }
-        ],
-        "NoWarAttitudeProbs": [
-            {
-                "AttitudeType": "ATTITUDE_FURIOUS",
-                "iNoWarProb": "20"
-            },
-            {
-                "AttitudeType": "ATTITUDE_ANNOYED",
-                "iNoWarProb": "50"
-            },
-            {
-                "AttitudeType": "ATTITUDE_CAUTIOUS",
-                "iNoWarProb": "85"
-            },
-            {
-                "AttitudeType": "ATTITUDE_PLEASED",
-                "iNoWarProb": "110"
-            },
-            {
-                "AttitudeType": "ATTITUDE_PLEASED",
-                "iNoWarProb": "115"
-            }
-        ],
-        "UnitAIWeightModifiers": "",
-```
-
-It is almost certainly a mistake and should be:
-
-```
-            {
-                "AttitudeType": "ATTITUDE_FRIENDLY",
-                "iNoWarProb": "115"
-            }
-```
-
-Our [generate_leaders_data.py](/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module) sucessfully detected/detects it, for example before fixing the XML of Gandhi we have:
-
-```
-Microsoft Windows [version 10.0.19045.5737]
-(c) Microsoft Corporation. Tous droits réservés.
-
-C:\Users\PC>cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & python generate_leaders_data.py
-[WARNING] Duplicate NoWarAttitudeProb 'ATTITUDE_PLEASED' for leader LEADER_GANDHI
-[SUCCESS] Leader data written to: leaders_data_20250426_100035.py
-
-C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS>
-```
-
-And after fixing Gandhi's XML we now have:
-
-```
-C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS>cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & scan_xml_duplicates-3.3.py
-[SUCCESS] Leader data written to: leaders_data_20250426_100152.py
-
-C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS>
-```
-
-So i had the idea to generalize this approach to find if we don't have other such duplicates and perhaps may improve our XML data and reliability, and the reult is our now [xml_duplication_check](/README_Python_Scripts.md#scan_xml_duplicates-py-script-and-logs_xml_scans), currently if not always or not etc anyways version 3.3 as per chatgpt's naming and greta help in doing this (coded all i only gave pointers and feedback, joint collaboration hehe anyways.)
-
-Since there are false positives, i am not sure how to interpret it, but hopefully useful enopugh, so adding this script here, and funcitonal enough (skim through results you known false for example maybe i mean, anyways)
-
-Results are very good, if you have good eyes or are veyr patient or/and know where and what to look at or/and other things or not anyways, we successfulyl spot it specifically (Gandhi's seemingly('s?) mistake/typo/bug)
-
-before XML fix:
-
-<img src="./_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi before is spotted 1.PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi before is spotted 2.PNG" width="250"></img>
-
-and successfully not spot/count it anymore after fix:
-
-<img src="./_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi after fix is successfully not spotted-counted anymore 1.PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/xml-duplicate-checker-3.3 - gandhi after fix is successfully not spotted-counted anymore 2.PNG" width="250"></img>
-
-hopefully helpful, thanks, anyways, thanks,
+See [2- (now fixed) Gandhi's base leaderheadinfo's xml had nowarattitudeprob pleased(110)/pleased(115) duplicated instead of (as i suspect it should be anyways etc) pleased(110)/friendly(115)](/README_Known_Issues_In_Base_AdvCiv_Civ4.md#2---now-fixed-gandhis-base-leaderheadinfos-xml-had-nowarattitudeprob-pleased110pleased115-duplicated-instead-of-as-i-suspect-it-should-be-anyways-etc-pleased110friendly115) for details
 
 # test_normalize_to_100
 
