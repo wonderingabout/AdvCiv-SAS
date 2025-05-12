@@ -140,16 +140,6 @@ Results are very good, if you have good eyes or are veyr patient or/and know whe
 
 A few screenshots of the issue (screenshot previews below as long as links are valid anyways etc) in [this Google drive folder about this issue](https://drive.google.com/drive/folders/1WNHP4fQQ1Dbm4JnXx9YDedCnLzrOO8ey?usp=sharing)
 
-before XML fix:
-
-<img src="../Images_In_General/xml-duplicate-checker-3.3 - gandhi before is spotted 1.PNG" width="250"></img>
-<img src="../Images_In_General/xml-duplicate-checker-3.3 - gandhi before is spotted 2.PNG" width="250"></img>
-
-and successfully not spot/count it anymore after fix:
-
-<img src="../Images_In_General/xml-duplicate-checker-3.3 - gandhi after fix is successfully not spotted-counted anymore 1.PNG" width="250"></img>
-<img src="../Images_In_General/xml-duplicate-checker-3.3 - gandhi after fix is successfully not spotted-counted anymore 2.PNG" width="250"></img>
-
 ## 3 - (now fixed) Barbarians (cities) building wonders
 
 UPDATE: seemingly now fixed using builUnitProb 100 or a similar value, testing more to be sure but seems extremely effective in stopping all (great and wonder) building tendency entirely in barbarian, ened to test more to be sure (in case) i am not mistaken anyways etc, may tone it dow a bit so they can build the barabarian lighthouse they seemingly never do now, but anyways etc

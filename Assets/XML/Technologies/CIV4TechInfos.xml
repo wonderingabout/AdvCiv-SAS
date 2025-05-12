@@ -2251,9 +2251,7 @@
 			<Quote>TXT_KEY_TECH_AESTHETICS_QUOTE</Quote>
 			<Sound>AS2D_TECH_AESTHETICS</Sound>
 			<SoundMP>SND_TECH_MP_AESTHETICS</SoundMP>
-			<!-- custom:
-			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,2,16</Button> -->
-			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,8,6</Button>
+			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,2,16</Button>
 		</TechInfo>
 		<TechInfo>
 			<Type>TECH_SAILING</Type>
