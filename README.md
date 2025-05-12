@@ -10,13 +10,13 @@ but these are the (main) goals/purposes/features.
 ## How to play?
 
 If you are a new player and/or want to play this mod and would like a few instructions on how
-to install it and play it, i have provided a few instructions [here](/_1_AdvCiv-SAS/Quick_Install_Setup_Guide.md)
+to install it and play it, i have provided a few instructions in the [README_Quick_Install_Setup_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md)
 
 ## Quick Start Guide
 
 If you just want to play and do not need all the project bigger details, i added
 a quick guide of the main changes from Civ4 and base AdvCiv for players:
-[here](/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md)
+[README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md)
 
 note: it is recommended to read this part even if you want to know the deeper
 changes. There are stuff and things/information i added only recently in it,
@@ -45,22 +45,22 @@ These list the main changes from AdvCiv to (transitionning) to AdvCiv-SAS. They 
 
 <img src="./_1_AdvCiv-SAS/Images_In_General/0.611_sevopedia_advciv_sas_core_changes.JPG" width="250"></img>
 
-note: this info is also available on the [Quick Get Started Guide](/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md) that i (would) recommend to read (as well) (but up to your preference and choice) as it contains more info there, if you haven't and want to start playing AdvCiv-SAS (but again as you prefer/want/do anyways or not or anyways etc)
+note: this info is also available in the [README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md) that i (would) recommend to read (as well) (but up to your preference and choice) as it contains more info there, if you haven't and want to start playing AdvCiv-SAS (but again as you prefer/want/do anyways or not or anyways etc)
 
 #### Python Scripts
 
 Mostly for modders, but i with the help of chatgpt greatly added some python scripts to enhance our display in sevopedia, track duplicates, possibly other scripts in the future but maybe not, etc.
 
-Please read this [README_python_scripts.md](/README_Python_Scripts.md) for details.
+Please read this [README_python_scripts.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md) for details.
 
 So far there is:
-- [generate_leaders_data.py and leaders_data data py module](/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module)
-- [global XML duplication scanner](/README_Python_Scripts.md#scan_xml_duplicates-py-script-and-logs_xml_scans)
+- [generate_leaders_data.py and leaders_data data py module ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module)
+- [global XML duplication scanner ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#scan_xml_duplicates-py-script-and-logs_xml_scans)
 - [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py)
 
 #### AI Personality Panel in SevopediaLeader and other sevopedia reworks 
 
-About the AI Personality panel new AdvCiv-SAS feature, i have written quite the extensive documentation, even though it is quite broad, hopefully if you want to know more about the AI Personality Panel in AdvCiv-SAS (or/and other mods if they were to implement it (or/and in a similar way or not anyways)), you may find an hopefulyl or not etc anyways read here in [README_AI_Personality_Panel.md](/README_AI_Personality_Panel.md)
+About the AI Personality panel new AdvCiv-SAS feature, i have written quite the extensive documentation, even though it is quite broad, hopefully if you want to know more about the AI Personality Panel in AdvCiv-SAS (or/and other mods if they were to implement it (or/and in a similar way or not anyways)), you may find an hopefulyl or not etc anyways read here in the [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md)
 
 Not a (strictly) new feature per se, but displaying it as such (and all the computation, display logic, and pre-processing and such that allows that) is indeed new (as well as the new aggregated attributes such as contact probs, positive memory affections, etc).
 
@@ -81,7 +81,7 @@ So with that said here is a very small example sample below of how it looks inga
 
 ## Sex-neutral and Less Generic-neutral (too) unit names or/and combat types (todo and non-exhaustive)
 
-See [README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md](/README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md) for details.
+See the [README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md) for details.
 
 ## AI-generated images
 
@@ -109,7 +109,7 @@ Hopefully helpful and interesting.
 
 ## csv: Leaders_data flat to csv conversion and its view on github for example
 
-There is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script](/README_Python_Scripts.md#leaders_data_to_csvpy) anyways etc but i have just noticed after the [mega commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/50f7983166a9ea2d93ff0084552d2fcfc32b9aec#diff-2224084cfc75aee1dd365084937d36ddb7b77107c9f9529aef06b37721f117a0) that this data is also (nicely but anwyays etc) [(click here to view it on on github too)](/leaders_data_to_csv_ai_flat_example_of_output.csv) (you can also click on the collapse tree button thing to get an even larger display and scroll down the page to remove from "vision field" the uneeded (for this task of viewing fields in the csv in github) the top headers but is just suggestion or not anyways etc anyways etc...), with filters (research) and such anyways etc, so adding a bit more general info about it too, as shown below
+There is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#leaders_data_to_csvpy) anyways etc but i have just noticed after the [mega commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/50f7983166a9ea2d93ff0084552d2fcfc32b9aec#diff-2224084cfc75aee1dd365084937d36ddb7b77107c9f9529aef06b37721f117a0) that this data is also (nicely but anwyays etc) [(click here to view it on on github too)](/leaders_data_to_csv_ai_flat_example_of_output.csv) (you can also click on the collapse tree button thing to get an even larger display and scroll down the page to remove from "vision field" the uneeded (for this task of viewing fields in the csv in github) the top headers but is just suggestion or not anyways etc anyways etc...), with filters (research) and such anyways etc, so adding a bit more general info about it too, as shown below
 
 <img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (1).PNG" width="150"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (2).PNG" width="150"></img>
@@ -176,12 +176,12 @@ on balance changes and such, please visit these pages (as well).
 
 ## Known issues in base AdvCiv or/and Civ4
 
-See [README_Known_Issues_In_Base_AdvCiv_Civ4](/README_Known_Issues_In_Base_AdvCiv_Civ4.md) for details
+See the [README_Known_Issues_In_Base_AdvCiv_Civ4.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md) for details
 
-## Main (bug) fixed from base AdvCiv code
+## Main (bugs) fixed from base AdvCiv code
 
-- Fixed AdvCiv/Civ 4 bug where Gandhi's nowar attitude prob erroneously duplicated if i am not mistaken, see [2 - (now fixed) Gandhi's base leaderheadinfo's xml had nowarattitudeprob pleased(110)/pleased(115) duplicated instead of (as i suspect it should be anyways etc) pleased(110)/friendly(115)](/README_Known_Issues_In_Base_AdvCiv_Civ4.md#2---now-fixed-gandhis-base-leaderheadinfos-xml-had-nowarattitudeprob-pleased110pleased115-duplicated-instead-of-as-i-suspect-it-should-be-anyways-etc-pleased110friendly115) for details
-- Seemingly fixed now, a bug where barbarians would build and often complete wonders, now that they are economically competitive and strong enough to support/be able to do it vs other civs using builUnitProb 100 and tested successfully in a few/several 100-200 turns approximately autoplay, no wonder ever again at least in these runs unlike before this fix and despite other approaches, including old AdvCiv or/and base Civ4 code not working (to do that) that was cleaned up. Now that this behaviour is fixed, i'll maybe tweak/tone it down a bit now to allow some normal buildings like the barabarian lighthouse being built again or more often, see [Known issues: Barbarian (cities) building wonders](/README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-barbarians-cities-building-wonders) for details
+- Fixed AdvCiv/Civ 4 bug where Gandhi's nowar attitude prob erroneously duplicated if i am not mistaken, see the [README_Known_Issues_In_Base_AdvCiv_Civ4.md#2---now-fixed-gandhis-base-leaderheadinfos-xml-had-nowarattitudeprob-pleased110pleased115-duplicated-instead-of-as-i-suspect-it-should-be-anyways-etc-pleased110friendly115](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#2---now-fixed-gandhis-base-leaderheadinfos-xml-had-nowarattitudeprob-pleased110pleased115-duplicated-instead-of-as-i-suspect-it-should-be-anyways-etc-pleased110friendly115) for details
+- Seemingly fixed now, a bug where barbarians would build and often complete wonders, now that they are economically competitive and strong enough to support/be able to do it vs other civs using builUnitProb 100 and tested successfully in a few/several 100-200 turns approximately autoplay, no wonder ever again at least in these runs unlike before this fix and despite other approaches, including old AdvCiv or/and base Civ4 code not working (to do that) that was cleaned up. Now that this behaviour is fixed, i'll maybe tweak/tone it down a bit now to allow some normal buildings like the barabarian lighthouse being built again or more often, see the [README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-barbarians-cities-building-wonders](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-barbarians-cities-building-wonders) for details
 
 ## More details on previous mods changes (civ4 BTS, K-Mod)
 
@@ -250,7 +250,7 @@ that i bombarded with updates and installs still works amazing so i recommend it
 - Git Bash for Windows
 - GitHub Website
 - GitHub gist works even better that what is in the following brackets (otherwise as a secondary alternative maybe pastes.io, so great and soooo much better than pastebin on all leevls at least those that matter to me if not more anyways gogogo!!!)
-- ChatGPT: incredibly helpful and my best friend, even its memory trims a lot now though sadly it seems, anyways, : [ChatGPT Readme](/README_ChatGPT.md)
+- ChatGPT: incredibly helpful and my best friend, even its memory trims a lot now though sadly it seems, anyways, see the [README_ChatGPT.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md) for details
 - Claude AI: another useful AI that implemented for example successfully with my prompt and me actually doing the implementation itself but provided the code (and logic?) and such or not such anyways etc very nicely for the [sevopediaunit's placeExclusiveCivs method/code/function/anyways etc](https://drive.google.com/drive/folders/1MLtCWamEl6P8rZs8f8xu0bfEBRUP0du1), see Claude AI's small part but hopefully helpful or exhaustive (enough) or not or yes or and other or and not anyways etc of this README.md [claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for more details (hehe xd anyways etc anyways etc...)
 - Google Chrome (i used) for the Page translate of kujira's website in particular (Firefox has
 it too though unless i'm mistaken)
