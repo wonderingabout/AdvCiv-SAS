@@ -68,7 +68,7 @@ As always, ChatGPT/becomingthrough (see [Authors](/README.md#authors) for detail
 
 Here is below a very small sample of the example screenshots of how the AI Personality panel feature in sevopedialeader works/functions/looks like ingame anyways etc, as well as a very small sample of all sevopedia reworks that are part of AdvCiv-SAS.
 
-For the full more extensive screenshot of main new sevopedia reworks, i highly highly recommend but anyways etc as you prefer or not or yes or etc or and other or and not anyways etc to look at and read the full [README_Sevopedia_Reworks.md](/README_Sevopedia_Reworks.md)
+For the full more extensive screenshot of main new sevopedia reworks, i highly highly recommend but anyways etc as you prefer or not or yes or etc or and other or and not anyways etc to look at and read the full [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md)
 
 So with that said here is a very small example sample below of how it looks ingame in the sevopedia leader category and of the other main sevopedia reworks:
 

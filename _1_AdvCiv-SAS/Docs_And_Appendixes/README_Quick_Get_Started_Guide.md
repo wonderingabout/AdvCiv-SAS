@@ -24,7 +24,7 @@ A copy of the screenshots (may not be latest version of it) of how it looks inga
 <img src="../_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
 <img src="../_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
 
-For more screensot previews of new sevopedia entries or udpated ones (not exhaustive), you can visit the [README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks](/README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks) link (for details (too anyways etc)).
+For more screenshot previews of new sevopedia entries or udpated ones (not exhaustive), you can visit the [README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks](/README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks) link (for details (too anyways etc)).
 
 ## Full exhaustive changes
 
@@ -304,7 +304,7 @@ famililar with and that makes more sense to me, hopefulyl clearer for others or/
 maybe not anyways etc
 - shrines now require a religion to be built, for example the daoist shrine now
 (also) requires to have the daoism religion, and not just own the holy city, this
-way the shrine can appear in the sevopedia religion new buildings panel (see the [README_Sevopedia_Reworks.md#example-5-religion-category](/README_Sevopedia_Reworks.md#example-5-religion-category)),
+way the shrine can appear in the sevopedia religion new buildings panel (see the [README_Sevopedia_Reworks.md#example-5-religion-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-5-religion-category)),
 but also seems to make more sense unless i am mistaken or/and it (may?) create other
 issues possibly or maybe not, then (i'd) try it and see, this means for example
 conquerring a city is now not enough to build a shrine, you need the specific
