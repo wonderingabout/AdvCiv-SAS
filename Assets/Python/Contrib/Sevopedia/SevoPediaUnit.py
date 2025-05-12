@@ -11,6 +11,8 @@
 # <!-- custom: part of the code here (placeReplacedBy (renamed from placeReplacements of: ) in particular, but not exhaustive or maybe exhaustive or not, anyways, is imported from RFC DOC mod:
 # C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaUnit.py
 # which may be modified or not for AdvCiv-SAS
+#
+# <!-- custom: new placeExclusiveCivs added entirely (i only tweaked the coordinates to suit/match where i want(ed?) it anyways etc) by Claude AI from my prompt anyways etc, now we have buttons for the civ(s) that can build a unit, and no button at all if all civs can build the currently selected unit (to not clutter the display needlessly with all civs buttons and is also clearer to know immediately that all can build it with the panel being empty), thanks a lot Claude AI! Anyways etc anyways etc anyways etc... -->
 # -->
 
 from CvPythonExtensions import *
@@ -91,12 +93,17 @@ class SevoPediaUnit:
 		self.W_UNIT_ANIMATION = (self.top.R_PEDIA_PAGE - self.X_UNIT_PANE) / 2
 		self.H_UNIT_ANIMATION = self.H_UNIT_PANE + self.SMALL_MARGIN + self.H_PREREQ_PANE + self.SMALL_MARGIN + self.H_REPLACED_BY - 7
 
+		self.X_EXCLUSIVE_CIVS = self.X_UPGRADES_TO_PANE + self.W_UPGRADES_TO_PANE + self.MEDIUM_MARGIN
+		self.Y_EXCLUSIVE_CIVS = self.Y_UPGRADES_TO_PANE
+		self.W_EXCLUSIVE_CIVS = self.W_UPGRADES_TO_PANE
+		self.H_EXCLUSIVE_CIVS = self.H_UPGRADES_TO_PANE
+
 		self.X_ROTATION_UNIT_ANIMATION = -20
 		self.Z_ROTATION_UNIT_ANIMATION = 30
 		self.SCALE_ANIMATION = 1.0
 
 		self.X_HISTORY_PANE = self.X_UNIT_ANIMATION
-		self.Y_HISTORY_PANE = self.Y_UNIT_ANIMATION + self.H_UNIT_ANIMATION + self.MEDIUM_MARGIN + 17
+		self.Y_HISTORY_PANE = self.Y_EXCLUSIVE_CIVS + self.H_EXCLUSIVE_CIVS + self.MEDIUM_MARGIN + 17
 		self.W_HISTORY_PANE = self.W_UNIT_ANIMATION
 		self.H_HISTORY_PANE = self.top.B_PEDIA_PAGE - self.Y_HISTORY_PANE
 
@@ -118,11 +125,12 @@ class SevoPediaUnit:
 		screen.addUnitGraphicGFC(self.top.getNextWidgetName(), self.iUnit, self.X_UNIT_ANIMATION, self.Y_UNIT_ANIMATION, self.W_UNIT_ANIMATION, self.H_UNIT_ANIMATION, WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_UNIT_ANIMATION, self.Z_ROTATION_UNIT_ANIMATION, self.SCALE_ANIMATION, True)
 
 		self.placeStats()
-		self.placeUpgradesTo()
+		self.placePromotions()
 		self.placeRequires()
 		self.placeReplacedBy()
+		self.placeUpgradesTo()
+		self.placeExclusiveCivs()
 		self.placeSpecial()
-		self.placePromotions()
 		self.placeHistory()
 
 
@@ -274,6 +282,40 @@ class SevoPediaUnit:
 					szButton = gc.getPlayer(iActivePlayer).getUnitButton(eLoopUnit)
 				# </advc.003l>
 				screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, eLoopUnit, 1, False)
+
+
+
+	def placeExclusiveCivs(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		
+		# Create panel
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_EXCLUSIVE_CIVS", ()), "", False, True, 
+					self.X_EXCLUSIVE_CIVS, self.Y_EXCLUSIVE_CIVS, 
+					self.W_EXCLUSIVE_CIVS, self.H_EXCLUSIVE_CIVS, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.attachLabel(panelName, "", "  ")
+		
+		# Get unit class info
+		iUnitClass = gc.getUnitInfo(self.iUnit).getUnitClassType()
+		iDefaultUnit = gc.getUnitClassInfo(iUnitClass).getDefaultUnitIndex()
+		
+		# Check if this is a unique (i.e.civ-specific) unit (not the default unit for its class)
+		bIsUnique = (self.iUnit != iDefaultUnit)
+		
+		# If this is a unique (i.e.civ-specific) unit, show which civ can build it
+		if bIsUnique:
+			# Find which civ has this unique (i.e.civ-specific) unit
+			for iCiv in range(gc.getNumCivilizationInfos()):
+				if gc.getCivilizationInfo(iCiv).isPlayable():
+					iCivUnit = gc.getCivilizationInfo(iCiv).getCivilizationUnits(iUnitClass)
+					if iCivUnit == self.iUnit:
+						screen.attachImageButton(panelName, "", gc.getCivilizationInfo(iCiv).getButton(), 
+											GenericButtonSizes.BUTTON_SIZE_CUSTOM, 
+											WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iCiv, -1, False)
+		# If this is the default unit, show "Available to all civilizations"
+		else:
+			screen.attachLabel(panelName, "", 
+							localText.getText("TXT_KEY_PEDIA_AVAILABLE_ALL_CIVS", ()))
 
 
 

@@ -9655,17 +9655,18 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 
 	if (eDefaultUnit != NO_UNIT && eDefaultUnit != eUnit)
 	{
-		FOR_EACH_ENUM(Civilization)
-		{
-			UnitTypes eUniqueUnit = GC.getInfo(eLoopCivilization).
-					getCivilizationUnits(eUnitClass);
-			if (eUniqueUnit == eUnit)
-			{
-				szBuffer.append(NEWLINE);
-				szBuffer.append(gDLL->getText("TXT_KEY_UNIQUE_UNIT",
-						GC.getInfo(eLoopCivilization).getTextKeyWide()));
-			}
-		}
+		// <!-- custom: now that we have the new placeExclusiveCivs added by Claude AI and my prompt and adjustments or not or yes of the already working code or and other or and not anyways etc, we (also but anyways etc...) don't the old TXT_KEY_UNIQUE_UNIT ("No civilization unit for the Babylonian Empire" (or similar with "unique unit" before i had renamed it for AdvCiv-SAS) for example anyways etc) panel-->
+		//FOR_EACH_ENUM(Civilization)
+		//{
+		//	UnitTypes eUniqueUnit = GC.getInfo(eLoopCivilization).
+		//			getCivilizationUnits(eUnitClass);
+		//	if (eUniqueUnit == eUnit)
+		//	{
+		//		szBuffer.append(NEWLINE);
+		//		szBuffer.append(gDLL->getText("TXT_KEY_UNIQUE_UNIT",
+		//				GC.getInfo(eLoopCivilization).getTextKeyWide()));
+		//	}
+		//}
 		// <!-- custom: we now have a replaced by panel, so we don't need and don't want anymore this extra replaces field/line anyways etc (see sevopediaunit.py for details) -->
 		//szBuffer.append(NEWLINE);
 		//szBuffer.append(gDLL->getText("TXT_KEY_REPLACES_UNIT",

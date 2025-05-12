@@ -21,6 +21,20 @@ hopefully more readable or exportable if need/want be now -->
 		<English>Changes</English>
 	</TEXT>
 
+
+
+	<!-- custom: code (TXT_KEYs anyways etc) for our new placeExclusiveCivs method added in sevopediaunit thanks to Claude AI and my prompts and (very small or not but all or not anyways etc) adjustments anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_EXCLUSIVE_CIVS</Tag>
+		<English>Civilizations</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_AVAILABLE_ALL_CIVS</Tag>
+		<English>All</English>
+	</TEXT>
+
+
+
 	<!-- custom: from Age of Empires wiki, did not find much info online so using
 	this (see copyright at root of project if needed):
 	https://ageofempires.fandom.com/wiki/Clubman

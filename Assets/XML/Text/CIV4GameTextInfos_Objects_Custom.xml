@@ -32,19 +32,7 @@
 		<Tag>TXT_KEY_FREE_UNITS_NO</Tag>
 		<English>No Civilization Unit</English>
 	</TEXT>
-	<!-- custom: "Civilization Unit for Russian Empire"
-	-> "Civilization Unit For the Russian Empire";
-	Adding a "the" too, hopefully clearer this way,	also i was
-	not sure if "of" is more correct than "for" but seems more
-	intuitive to me but may be grammatically incorrect or less
-	accurate, leaving as is but adding a mention of it here.
-	-->
-	<TEXT>
-		<Tag>TXT_KEY_UNIQUE_UNIT</Tag>
-		<English>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</English>
-	</TEXT>
-	<!--custom:	Not changing it in TXT_KEY_BTS_RULES_CHANGES_PEDIA_SR
-	as it is an outdated doc. -->
+
 
 
 	<!-- custom: gather all base civ4 (vanilla or BTS alike)

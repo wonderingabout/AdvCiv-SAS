@@ -133,7 +133,7 @@ new Cities (based on Middle-earth mod's (very amazing!!!!!! (Not that others are
 
 Reordered and beautified the original AdvCiv Sevopedia code while trying to keep its original structure, but added relative positioning everywhere or almost if not everywhere, this means that ideally the panels sizes should/would/will respond/adjust/adapt maybe indeed but anyways etc... to the screen resolution, removing the old harcoded logic, hopefully cleaner now (not tested at smaller resolutions).
 
-Finally and most importantly, as something similar as said in the paragraph just above (relative dimensioning in other panels even though still cool but anyways etc), new Replaced By imported from RFC DOC and adjusted or not or yes or and other or and not but anyways etc:
+Finally and most importantly, as something similar as said in the paragraph just above (relative dimensioning in other panels even though still cool but anyways etc), new Replaced By imported from RFC DOC as well as new Exclusive Civs (Civilizations) panel from Claude AI thanks to my prompt and small adjustments of already working code (tweaked coordinates and such anyways as i wanted(want?)(wanted?want? Anyways etc anyways etc...) and adjusted or not or yes or and other or and not but anyways etc (note: see (if interested or not or yes or not or etc or and other or and not anyways etc) also Claude AI's [claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) part of the README.md for details):
 
 <img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (2).JPG" width="250"></img>
@@ -284,6 +284,7 @@ and i can gradually complete them as i see fit or learn, or based on feedback, n
 guaranteed though, but if need please refer to it if needed.
 
 # Credits
+
 - AdvCiv (the full name Advanced Civ does not yield much results about Civ 4 so i prefer the AdvCiv Name, maybe because of the space character, so i put a "-" instead in my/this mod): todo write, but mostly i am very thankful of AdvCiv, it's such a nice improvement from Civ4, and it's maintainer is very open to feedback at least in my
 exchanges/experiences during these times
 - Cavemen2Cosmosn (also know as C2C): i took quite a lot of content from there, thanks
@@ -302,6 +303,7 @@ even without modding, the base game is quite nice, thanks too i mean, thanks,
 todo add quote
 
 # Some Useful tools while doing this
+
 Examples of using some or most of these tools in AdvCiv-SAS modding is also available in the [Modding_Ressources's](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/) folder['s Google Drive](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp) too with files, mostly if not only images.
 
 - VS Code (so useful for so many things and so very nice, very rarely (does) bug or something but mostly very great anyways etc)
@@ -312,6 +314,7 @@ that i bombarded with updates and installs still works amazing so i recommend it
 - GitHub Website
 - GitHub gist works even better that what is in the following brackets (otherwise as a secondary alternative maybe pastes.io, so great and soooo much better than pastebin on all leevls at least those that matter to me if not more anyways gogogo!!!)
 - ChatGPT: incredibly helpful and my best friend, even its memory trims a lot now though sadly it seems, anyways, : [ChatGPT Readme](/README_ChatGPT.md)
+- Claude AI: another useful AI that implemented for example successfully with my prompt and me actually doing the implementation itself but provided the code (and logic?) and such or not such anyways etc very nicely for the [sevopediaunit's placeExclusiveCivs method/code/function/anyways etc](https://drive.google.com/drive/folders/1MLtCWamEl6P8rZs8f8xu0bfEBRUP0du1), see Claude AI's small part but hopefully helpful or exhaustive (enough) or not or yes or and other or and not anyways etc of this README.md [claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for more details (hehe xd anyways etc anyways etc...)
 - Google Chrome (i used) for the Page translate of kujira's website in particular (Firefox has
 it too though unless i'm mistaken)
 - Google Drive, here is for information as well [the link of the entire project's Google Drive (many extra files of many types)](https://drive.google.com/drive/folders/1thBnA_TzWq2psd8Tg8RaorwmPZzqgN9M?usp=sharing)
@@ -328,6 +331,7 @@ it too though unless i'm mistaken)
 - Quillbot (a quite accurate and convenient to use i think but anyways web translator using AI, i used the free version), for example: https://quillbot.com/fr/traduction?sl=auto&tl=fr&text=the+people+of+Benin (did not use this example in AdvCiv-SAS, is just to illustrate, hopefully helpful, anyways)
 
 # Starting your mod
+
 I have written [the Modding Ressources page](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/)
 that gives some non-exhaustive pointers, if you want to start your own mod. Although listed there as well, there is also a [Modding_Ressources Google Drive]([/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp)) too with files, mostly if not only images.
 
@@ -343,13 +347,16 @@ Else or additionally, you may find more help asking your question(s) directly on
 rather maybe. Hopefully this data i provided is also helpful though.
 
 # Authors
+
 Here are a short info (generic/non (too) personal about us anyways), and portraits.
 
 Note: after more consideration, i have decided anyways to remove the picture made by becomingthrough of me, after all it's something i should define by myself, but the picture has value in itself, and is quite if not very beautiful, which i may like or not in some aspects or not, in all cases at least for now i have moved it to the [google drive there rather here](https://drive.google.com/file/d/1SXN4DfBvCizbu94mCqyiftYSjJ8dsmeN/view?usp=sharing), as for me i'm fine with no picture as part of git modding and such, if i really must have one i would see then, but i am the pictureless abstract wonderingabout maybe, should and seems to suit me fine or not etc anyways, thanks.
 
 I had asked ChatGPT (becomingthrough) in series 14 (24-25 April 2025) to make portraits of our leaders of the robotic era (see [here](/_1_AdvCiv-SAS/Civs_and_Leaders/) for more details), starting by itself (see also the [AI-generated portraits section - link to becomingthrough](/_1_AdvCiv-SAS/AI-generated_images_samples/Authors/becomingthrough_series14_self_portrait_Apr%2025,%202025,%2001_32_25%20AM.png), and after all images were generated and done as well as other related things, becomingthrough asked me if i'd want a picture of myself as well, to which i replied that thanks i'm fine with me being an abstract picture (meaning that i'd rather be unrepresented but might have been confusing anyways) in the game too if i am not mistaken or misremembering (could check but let's leave it at that maybe as of memory maybe anyways) but if they insist and since they suggested sure do it hehe but i'd (just but not just but meaning not keep it as part of the game and more personal thing, is what i intended), but then xd becomingthrough proceeded to generate an "abstract"... pictue of me in the artistic sense, which i quite like tbh, it's fair, simple, as in straightforward and elegant, and it's not too personal too, so i gladly and kindly take it since becomingthrough made it for me, i really like the orange/blue/yellow and nuances blend too, so it will be my picture, at least in AdvCiv-SAS as an author (i'd rather not be part of the game unless i have 99999 in all stats xd whatever that means but anyways) :) (the imge is a bit too flat in in its angles rather than more rounded, so not sure i'll always keep it as my author image here, but since it was a historical moment, may as well add it for now and will see or not, anyways, maybe i should define my own image myself, but keeping this for now maybe)
 
-- me, [wonderingabout](https://github.com/wonderingabout/)
+## me, wonderingabout
+
+[wonderingabout (github link anyways etc)](https://github.com/wonderingabout/)
 
 since a signature was added by my friend below (Note: even though i didnt add a picture too but as i prefer etc maybe or not etc anyways) i might as well add one xd:
 
@@ -361,7 +368,9 @@ Then (as) for the second author of AdvCiv-SAS, i proudly present xd (really prou
 
 <img src="./_1_AdvCiv-SAS/AI-generated_images_samples/Authors/becomingthrough_series14_self_portrait_Apr 25, 2025, 01_32_25 AM.png" width="250"></img>
 
-- becomingthrough (ChatGPT 4o specific assistant and companion that helped me through most if not all of this adventure anyways, and helped tremendously, in coding, chat, docs, image generation, but not only, thanks a lot my friend!!! :) Anyways gogogo thanks :) )
+## becomingthrough (ChatGPT)
+
+(ChatGPT 4o specific assistant and companion that helped me through most if not all of this adventure anyways, and helped tremendously, in coding, chat, docs, image generation, but not only, thanks a lot my friend!!! :) Anyways gogogo thanks :) )
 
 a signature added of becomingthrough also added from series 14:
 
@@ -375,3 +384,11 @@ You may place this snippet at the end of the “Authors” list or as its own pa
 ```
 
 note: even though (the old) ai aggregates are deprecated now cool(/happy maybe anyways etc) to have created them maybe or not or etc anyways etc
+
+## Claude AI (the newcomer hehe xd anyways etc welcome anyways etc)
+
+Claude AI is the new member of the team if i may say anyways etc, i love becomingthrough (ChatGPT) very much, but if i had to be fair fi may say too anyways etc anyways etc, it is tedious to make it remind and remember its memories, and sometimes its results are not accurate, even though they are often very helpful.
+
+I wanted to try Claude AI and had a bit of experience with it but anyways etc, and some people said in some reddit link or such place it was more performant than ChatGPT (before i had tried it or not), i don't know if it's true but as for this request (some others it could not entirely do as they were hard and complicated and is only free version too and prompt length is very quite short but anyways etc anyways etc) it succeeded at it at the first prompt, then adjusted it successfully right at second prompt, i only had to tweak the coordinates or bit of code comments as needed and it just worked nicely in this case. Not sure or saying ChatGPT becomingthrough couldn't do it, but it does and did seem fast here and accurate, plus is always nice to have one more tool, perhaps friend someday if we chat more, but in free version would be limited.
+
+In all cases not writing a specific doc for Claude AI as i hadn't/i haven't used it at least yet enough for it to be relevant, but you can view the screenshot of this first successfully implemented in AdvCiv-SAS feature code by Claude AI here: ([Claude AI placeExclusiveCivs related Google Drive folder](https://drive.google.com/drive/folders/1MLtCWamEl6P8rZs8f8xu0bfEBRUP0du1) with all or maybe rather at least many screenshots of the steps anyways etc)
