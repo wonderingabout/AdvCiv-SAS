@@ -409,13 +409,3 @@ things but not promised, may or not, ideally would, but doing as i want or not, 
 this helps though, anyways)
 
 - todo continue
-
-## Main fixes (quick and non-exhaustive (may or may not be anyways etc) anyways etc) from base AdvCiv or/and Civ4
-
-### Gandhi nowar pleased/pleased duplicted
-
-Fixed AdvCiv/Civ 4 bug where Gandhi's nowar attitude prob were [pleased(110) / pleased(115)](/README_Python_Scripts.md#context-of-howwhy-i-made-this-script-with-chatgptbecomingthrough-anyways) instead of (seemingly how should be if i am not mistaken anyways etc) pleased(110) / friendly(115)
-
-### Barbarian (cities) building wonders
-
-Seemingly fixed now, testing more to be sure if i do test then tweaking it a bit to allow some normal buildings like the barabarian lighthouse being built again or more often, see [Known issues: Barbarian (cities) building wonders](/README_Known_Issues.md#barbarians-cities-building-wonders) for details
