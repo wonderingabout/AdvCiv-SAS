@@ -1,3 +1,5 @@
+Note: if you want to add leaders or other kinds of button art assets or such, below instructions aim to help at that even though they may not be 100% accurate or best practive, but may be maybe or not anyways etc ; however it should also be noted if i may say i mean anyways that it may be easier to rather import existing art assets from many mods, but if you want to import your own manual art asset, perhaps as static images .dds files, this is how i do it, not guaranteed is best way to do it, may or may not be, but it worked and hopefulyl helpful enough if you want to do so, otherwise i would recommend in general or all cases to maybe import directy already refined art assets from other mods, but as you prefer and wish and is below as i did too if i may say but anyways etc anyways etc anyways etc and as you are free to do or wis to do or not anyways etc...
+
 Leader dimensions obtained using Paint.NET manual selection (approximately but should be quite precise but not guaranteed may or not anyways) on a 4K screen windowed mode.
 
 1) AdvCiv (+/- / AdvCiv-SAS at least for now) base art dimensions:

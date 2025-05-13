@@ -1,6 +1,6 @@
 # Sid Meier's Civilization 4
 # Copyright Firaxis Games 2005
-
+#
 #
 # Sevopedia 2.3
 #   sevotastic.blogspot.com
@@ -39,6 +39,30 @@ class SevoPediaUnit:
 		self.W_UNIT_PANE = (self.top.R_PEDIA_PAGE - self.X_UNIT_PANE) / 4
 		self.H_UNIT_PANE = 190
 
+		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code anyways etc) and modified it and its logic for advciv-sas or not or yes or and other things or and not anyways etc -->
+		self.ICON_SIZE = 64
+		self.ICON_FRAME_SIZE = 164
+		self.MAX_ICON_FRAME_SIZE = 164
+
+		if (self.ICON_SIZE > self.ICON_FRAME_SIZE):
+			raise ValueError(u"[FATAL] self.ICON_SIZE=%d cannot be bigger/higher than self.ICON_FRAME_SIZE=%d, self.ICON_SIZE must fit within the frame, please adjust self.ICON_SIZE or/and self.ICON_FRAME_SIZE so that 0 < self.ICON_SIZE < self.ICON_FRAME_SIZE" % (self.ICON_SIZE, self.ICON_FRAME_SIZE))
+		if (self.ICON_FRAME_SIZE > self.MAX_ICON_FRAME_SIZE):
+			raise ValueError(u"[FATAL] Out of bounds self.ICON_FRAME_SIZE=%d, must be lower than  cannot be bigger/higher than self.MAX_ICON_FRAME_SIZE, please reduce self.ICON_FRAME_SIZE so that 0 < self.ICON_FRAME_SIZE < self.MAX_ICON_FRAME_SIZE" % (self.ICON_FRAME_SIZE, self.MAX_ICON_FRAME_SIZE))
+
+		self.W_ICON = self.ICON_SIZE
+		self.H_ICON = self.ICON_SIZE
+		# <!-- custom: if self.ICON_SIZE is small (e.g. 64), start at the center of self.X_UNIT_PANE, but if self.ICON_SIZE is big (e.g. 164) start at the left most part of self.X_UNIT_PANE ; same reasoning for Y position -->
+		self.X_ICON = self.X_UNIT_PANE + (self.ICON_FRAME_SIZE - self.ICON_SIZE) / 2
+		self.Y_ICON = self.Y_UNIT_PANE + (self.H_UNIT_PANE - self.H_ICON) / 2
+
+		# <!-- custom: add an extra margin to accomodate the potentially larger self.ICON_SIZE (than for example 64), if diff is 0 this is harmless to keep too so is dynamical code that can handle optionally larger self.ICON_SIZE (vs old self.ICON_SIZE of 64) that you may keep or remove as you prefer anyways etc -->
+		self.SMALLER_ICON_SIZE_THAN_ICON_FRAME_MARGIN = (self.ICON_FRAME_SIZE - self.ICON_SIZE) / 2
+
+		self.STATS_PANE_LEFT_SIDE_MARGIN = 0
+		self.STATS_PANE_UPPER_PADDING = 42
+
+		self.PROMOTION_ICON_SIZE = 32
+
 		# <!-- custom: no margins to merge edges with unit pane for nicer display maybe i mean anyways etc -->
 		# <!-- custom: merge effect by partially joining their borders, i accidentally found or/and maybe got the idea and looks very nice, just is slightly not centered maybe fixable or not but and in all cases anyways etc anyways etc -->
 		self.X_PROMO_PANE = self.X_UNIT_PANE + self.W_UNIT_PANE - 5
@@ -46,27 +70,10 @@ class SevoPediaUnit:
 		self.W_PROMO_PANE = self.W_UNIT_PANE + 5
 		self.H_PROMO_PANE = self.H_UNIT_PANE
 
-		# advc.004y: Move the button and icon size settings up
-		self.ICON_SIZE = 64
-		# <advc.004y> Perhaps better not to enlarge the icon; use one size everyhwere in the game.
-		#if bWideScreen:
-		#	self.ICON_SIZE = 96 # </advc.004y>
-		self.BUTTON_SIZE = 64
-		self.PROMOTION_ICON_SIZE = 32
-
-		# <advc.004y> ICON_SIZE as lower bound for icon frame
-		iIconFrameSize = max(100, self.ICON_SIZE)
-		self.W_ICON = iIconFrameSize # was 100
-		self.H_ICON = iIconFrameSize # was 100
-		# Divisor was 2; don't want the button to touch the unit stats.
-		self.X_ICON = self.X_UNIT_PANE + (self.H_UNIT_PANE - self.H_ICON) / 4
-		# </advc.004y>
-		self.Y_ICON = self.Y_UNIT_PANE + (self.H_UNIT_PANE - self.H_ICON) / 2
-
-		self.X_STATS_PANE = self.X_UNIT_PANE + 130
-		self.Y_STATS_PANE = self.Y_UNIT_PANE + 42
-		self.W_STATS_PANE = 250
-		self.H_STATS_PANE = 200
+		self.X_STATS_PANE = self.X_UNIT_PANE + self.STATS_PANE_LEFT_SIDE_MARGIN + self.W_ICON + (2 *self.SMALLER_ICON_SIZE_THAN_ICON_FRAME_MARGIN)
+		self.Y_STATS_PANE = self.Y_UNIT_PANE + self.STATS_PANE_UPPER_PADDING
+		self.W_STATS_PANE = self.W_UNIT_PANE - self.W_ICON - (2 * self.SMALLER_ICON_SIZE_THAN_ICON_FRAME_MARGIN) - self.STATS_PANE_LEFT_SIDE_MARGIN
+		self.H_STATS_PANE = self.H_UNIT_PANE - self.STATS_PANE_UPPER_PADDING
 
 		self.X_PREREQ_PANE = self.X_UNIT_PANE
 		self.Y_PREREQ_PANE = self.Y_UNIT_PANE + self.H_UNIT_PANE + self.SMALL_MARGIN
@@ -88,19 +95,19 @@ class SevoPediaUnit:
 		self.W_SPECIAL_PANE = self.W_PREREQ_PANE
 		self.H_SPECIAL_PANE = self.top.B_PEDIA_PAGE - self.Y_SPECIAL_PANE
 
-		self.X_UNIT_ANIMATION = self.X_UNIT_PANE + self.W_SPECIAL_PANE + self.MEDIUM_MARGIN
+		self.X_UNIT_ANIMATION = self.X_UNIT_PANE + self.W_PREREQ_PANE + self.MEDIUM_MARGIN
 		self.Y_UNIT_ANIMATION = self.Y_UNIT_PANE + 7
-		self.W_UNIT_ANIMATION = (self.top.R_PEDIA_PAGE - self.X_UNIT_PANE) / 2
+		self.W_UNIT_ANIMATION = self.W_PREREQ_PANE - self.MEDIUM_MARGIN
 		self.H_UNIT_ANIMATION = self.H_UNIT_PANE + self.SMALL_MARGIN + self.H_PREREQ_PANE + self.SMALL_MARGIN + self.H_REPLACED_BY - 7
-
-		self.X_EXCLUSIVE_CIVS = self.X_UPGRADES_TO_PANE + self.W_UPGRADES_TO_PANE + self.MEDIUM_MARGIN
-		self.Y_EXCLUSIVE_CIVS = self.Y_UPGRADES_TO_PANE
-		self.W_EXCLUSIVE_CIVS = self.W_UPGRADES_TO_PANE
-		self.H_EXCLUSIVE_CIVS = self.H_UPGRADES_TO_PANE
 
 		self.X_ROTATION_UNIT_ANIMATION = -20
 		self.Z_ROTATION_UNIT_ANIMATION = 30
 		self.SCALE_ANIMATION = 1.0
+
+		self.X_EXCLUSIVE_CIVS = self.X_UPGRADES_TO_PANE + self.W_UPGRADES_TO_PANE + self.MEDIUM_MARGIN
+		self.Y_EXCLUSIVE_CIVS = self.Y_UPGRADES_TO_PANE
+		self.W_EXCLUSIVE_CIVS = self.W_UNIT_ANIMATION
+		self.H_EXCLUSIVE_CIVS = self.H_UPGRADES_TO_PANE
 
 		self.X_HISTORY_PANE = self.X_UNIT_ANIMATION
 		self.Y_HISTORY_PANE = self.Y_EXCLUSIVE_CIVS + self.H_EXCLUSIVE_CIVS + self.MEDIUM_MARGIN + 17
@@ -110,6 +117,19 @@ class SevoPediaUnit:
 
 
 	def interfaceScreen(self, iUnit):
+		self.placeUnitPane(iUnit)
+		self.placeStats()
+		self.placePromotions()
+		self.placeRequires()
+		self.placeReplacedBy()
+		self.placeUpgradesTo()
+		self.placeExclusiveCivs()
+		self.placeSpecial()
+		self.placeHistory()
+
+
+
+	def placeUnitPane(self, iUnit):
 		self.iUnit = iUnit
 		screen = self.top.getScreen()
 
@@ -123,15 +143,6 @@ class SevoPediaUnit:
 		# </advc.003l>
 		screen.addDDSGFC(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		screen.addUnitGraphicGFC(self.top.getNextWidgetName(), self.iUnit, self.X_UNIT_ANIMATION, self.Y_UNIT_ANIMATION, self.W_UNIT_ANIMATION, self.H_UNIT_ANIMATION, WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_UNIT_ANIMATION, self.Z_ROTATION_UNIT_ANIMATION, self.SCALE_ANIMATION, True)
-
-		self.placeStats()
-		self.placePromotions()
-		self.placeRequires()
-		self.placeReplacedBy()
-		self.placeUpgradesTo()
-		self.placeExclusiveCivs()
-		self.placeSpecial()
-		self.placeHistory()
 
 
 
@@ -364,7 +375,7 @@ class SevoPediaUnit:
 	def placePromotions(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		# <!-- custom: no "header" for smoother display with how the unit pane is done (and promo pane is next to it now anyways etc) -->
+		# <!-- custom: no TXT_KEY_PEDIA_CATEGORY_PROMOTION "header" for smoother display with how the unit pane is done (and promo pane is next to it now anyways etc) -->
 		# screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_CATEGORY_PROMOTION", ()), "", True, True, self.X_PROMO_PANE, self.Y_PROMO_PANE, self.W_PROMO_PANE, self.H_PROMO_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.addPanel(panelName, localText.getText("", ()), "", True, True, self.X_PROMO_PANE, self.Y_PROMO_PANE, self.W_PROMO_PANE, self.H_PROMO_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		rowListName = self.top.getNextWidgetName()

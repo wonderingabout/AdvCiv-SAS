@@ -615,7 +615,6 @@ class SevoPediaLeader:
 		xPanelRight = getXPanelCoordinate(self.N_AI_TABLE_NUM - 3)
 		xPanelMiddle = getXPanelCoordinate(self.N_AI_TABLE_NUM - 2)
 		xPanelLeft = getXPanelCoordinate(self.N_AI_TABLE_NUM - 1)
-		yPanel = self.Y_AI_PERSONALITY + self.H_AI_UPPER_PADDING
 
 		def setupPanel(screen, txtKey, xPanel):
 			panelName = self.top.getNextWidgetName()
@@ -629,7 +628,7 @@ class SevoPediaLeader:
 				self.Y_AI_PERSONALITY,
 				self.W_AI_PERSONALITY,
 				self.H_AI_PERSONALITY,
-				PanelStyles.PANEL_STYLE_BLUE50
+				PanelStyles.PANEL_STYLE_BLUE50,
 			)
 
 		# === PANEL SETUP ===
@@ -653,11 +652,11 @@ class SevoPediaLeader:
 				WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# === Render Function ===
-		def render_categories(screen, categories, xPanel, yPanel):
+		def renderCategories(screen, categories, xPanel, yPanel):
 			xLabel = xPanel + self.W_AI_LEFT_SIDE_PADDING
 			xValue = xLabel + self.W_AI_LABEL
 			xScale = xValue + self.W_AI_VALUE
-			y = yPanel
+			y = yPanel + self.H_AI_UPPER_PADDING
 
 			first = True
 			for category in categories:
@@ -712,9 +711,9 @@ class SevoPediaLeader:
 					y += self.H_AI_LINE_HEIGHT
 
 		# Render Panels
-		render_categories(screen, AI_PANEL_RIGHT_CATEGORIES, xPanelRight, yPanel)
-		render_categories(screen, AI_PANEL_MIDDLE_CATEGORIES, xPanelMiddle, yPanel)
-		render_categories(screen, AI_PANEL_LEFT_CATEGORIES, xPanelLeft, yPanel)
+		renderCategories(screen, AI_PANEL_RIGHT_CATEGORIES, xPanelRight, self.Y_AI_PERSONALITY)
+		renderCategories(screen, AI_PANEL_MIDDLE_CATEGORIES, xPanelMiddle, self.Y_AI_PERSONALITY)
+		renderCategories(screen, AI_PANEL_LEFT_CATEGORIES, xPanelLeft, self.Y_AI_PERSONALITY)
 
 
 

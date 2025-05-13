@@ -1,0 +1,217 @@
+notes_about_leaders_i_want_to_add_or_(quite_at_least)_strongly_consider_from_other_mods
+
+todo check HR remaining leaders more in depth and/or other more minor mods to make sure we have all or at least most we want maybe anyways etc anyways etc anyways etc...
+
+Abbreviations to add in readme (then remove duplicate explanation here anyways etc):
+- NW (Neoteric World)
+- COM (Chronicles of mankind)
+- LOR (Legends of revolution)
+- PSYX's MW 4 (PSYX's Modern world 4)
+- SOI (Sword of Islam)? If i add form it not sure yet but most likely but not sure anyways etc anyways etc anyways etc may or may not anyways etc
+
+nigeria / kingdom of benin
+- HR leaders some or all (+/- some other assets)
+
+hebrew civilization
+- the civ itself maybe from HR
+- david NW
+- Herod? (HR)
+- solomon (HR?)
+- ben gurion NW
+- baldwin I/1? (SOI) or could eaily reuse his very nice texture for another jewish/hebrew or and other or and not leader anyways etc
+
+Berbers (look at HR+++, maybe RFC DOC or maybe SOI mod if add from there too? Anyways etc)
+- Maimonides i think (Abi bin omar SOI? or alp arslan (SOI too anyways etc)? Or muhammad Gori? (SOI) or nur ad din zengi? (SOI)) or Al Hadi Yahya? (SOI), jewish leader (see https://listverse.com/2008/10/21/top-10-most-influential-jews-in-history/ and https://en.wikipedia.org/wiki/Maimonides or and other links or and not anyways etc)
+
+Arabs
+- Bilqis (HR)
+- Harun al rashid? (RFC DOC? Or SOI?)
+- Saladin? (RFC DOC? Or SOI?)
+- Suleiman? (RFC DOC? Or SOI?)
+
+Egypt
+- Cleopatra (ROM 291? or the one in many other mods but that i may want a bit less if not lot or other or not anyways etc?)
+- Nasser? (RFC DOC? Check if HR's version is same or not too anyways etc may or (may (i.e. not anyways etc...)) not add him though anyways etc anyways etc anyways etc)
+
+Persia
+- Xerxes? (NW?, or LOR?)
+- Khosrow I/1? (RFC DOC)
+
+Sumer:
+- Sargon? (HR, is a different skin from Gilgamesh's one too even though quite similar thugh but quite different a lot bit too anyways etc anyways etc anyways etc... (so i want to add him but not sure need to do search bit on him anywyas etc... (But) May or not do anyway etc... Ideall yes but not sure or guaranteed may or may not anyways etc...))
+
+Sumer and Akkad:
+- Nebuchadrezzar II/2? (ROM 291? or HR?)
+
+Hitties?
+- Suppiluliuma I/1? (ROM 291? Or maybe rather HR? Or and other or and not? Anyways etc)
+
+Carthage
+- Dido COM
+
+Byzantine(s)
+- Theodora (COM?)
+- Basil II/2? (RFC DOC maybe rather? or ROM 291? Or SOI?)
+
+Holy roman
+- Charles 5? (LOR? or ROM 291?)
+- franz joseph 1? (LOR? or PSYX's MW 4)
+- Barbarosa? (RFC DOC)
+- francis I/1? (RFC DOC)
+
+Greece
+- Alexander? (LOR? or RFC DOC?)
+- Pericles? (check if RFC DOC's version is same as civ4's one anyways etc)
+- Leonidas? (HR, quite different from other mods may or not add him anyways etc)
+
+Russia
+- Lenin? (COM? or ROM?)
+- Ivan the terrible? (COM? or PSYX's MW 4? Or RFC DOC's version that i like a bit less too maybe(but anwyays etc(?)?))
+- Catherine? (PSYX's MW 4? Or keep original one fine as is or maybe not improve or choose this one maybe rather?)
+- Stalin? (LOR)
+
+France
+- Joan of Arc (COM? / ROM 291 if same?)
+- Napoleon?? (RFC DOC)
+
+Germany
+- Hitler (RFC DOC? or NW?)
+- Bismarck? (RFC DOC)
+
+England
+- Alfred the Great (RFC DOC)
+
+The Dutch/Netherlands
+- William III/3? (RFC DOC) Very Very Very nice texture and didnt see it in any other, plus his animatio is unusual if  am not msitaken anwyays etc (todo check his wiki or such to see if add him or rename to some other leader or maye not anyways etc)
+
+Spain:
+- Franco? (RFC DOC)
+- Felipe II? (RFC DOC)
+
+Rome (change flag button to HR's? Or not? Anyways etc anyways etc...)
+- Constantine? (LOR?)
+- Marcus aurelius? (ROM 291?)
+- Lorenzo de Medici? (RFC DOC? Or HR?)
+- Mussolini? (RFC DOC)
+
+Celts
+- Vercingetorix? (HR)
+
+Vikings/Scandinavia (maybe rename to scandinavia as vikings was a title if i am not mistaken not a nation but not sure to check or and as i want or not maybe or maybe not or etc but anyways etc)
+- Canute/Knut (Durin from M-E? Or HR?)
+- Gustavus II? (RFC DOC? Or some other mod that had a version of him but maybe that i liked bit less or not or and oher or and not anyways etc?, or LOR?)
+
+Mali
+- Mansa Musa? (RFC DOC)
+
+Ethiopia
+- Zara Yaqob? (RFC DOC) (but i like the default civ4 one so much so not sure.. but it is veyr different or could use it for another thing maybe? This new or (the) old civ4 one? Anyways etc)
+
+Zulu
+- Mandela? (HR) (but google to be sure i add him or not anyways etc, interesting to have an african version of gandhi but anyways etc)
+
+China
+- Hongwu? (HR (very nice skin or and animation at least bit if not lot but anwyas etc), RFC DOC)
+- Tang Taizong (RFC DOC) (yes definitely i woudl voe and i mean by that and as in i really want to add him, but this texture is a bit too similar to theother one, but i hope i can or will chosoe to add him or another version of him for this leader, from my research he was a very important leader in china and sadly occulted in civ4 hopefully i can ad dhim anways etc) (but thanks civ4 is nice sitll but i hope i can improve enhance/cusotmize it anyways etc)
+- Mao Zedong? (RFC DOC)
+- Qin Shi Huang(di?)? (HR? Or RFC DOC?)
+
+Korea
+- Sejong? (Maybe HR rather if it is not the same? Or RFC DOC?)
+- Kim Jong II/2 (NW?)
+
+Japan
+- Hirohito? (COM? or ROM 291?)
+- Meiji (LOR? or ? or RFC DOC?)
+- Kanmu? (RFC DOC)
+
+USA
+- Washington? (LOR?)
+
+Canada
+- MacDonald? (RFC DOC)
+- Trudeau? (RFC DOC)
+
+Iroquois
+- Logan (NW? or LOR?)
+- Hiawatha (LOR?)
+
+Incan
+- Pachacuti? (HR) (very very very nice animation and lroe seems to fit well too todo check like others event though didn't write a todo for each but may or not do anwys etc anyways etc anyways etc)
+- Bolivar? (LOR? or RFC DOC?)
+
+Maya
+- Xoc? (HR) Or for other leader or civ? ANyways etc
+
+Brasil(? But i think yes as i had intended but in all cases anyways etc anyways etc anyways etc but not guarnateed may or may not anyways etc anyways etc anyways etc...)
+- Pedro II/2? (RFC DOC)
+
+Khmer
+- Suryavarman II/2? (RFC DOC)
+
+To maybe use but no nation yet if nto always or not but anyways etc:
+- Maria II/2 (RFC DOC, very beautiful and i never saw her skin/texture/asset in another mod (animation at least if also image did not look lot so cant know fpr sure or much but in all cases i would love as in woudl really quite badly want to add her, she is dignified with a nice background too and pleasant, slightly on cautious and tense threatening side it seems if i am not mistaken, so i really like her, but anyways etc anwyays etc))
+- Songzan Ganbu? (RFC DOC) very very nice animation and very original texture, at least i like it very much, i don't know if i'll add him or not but anyways etc, wish i can or could or can or find how or not, but may or may not anyways etc
+- Kochininako (HR) is very very hot and neutral not purposely or overly sexy at all but very hot, this is why i want toa dd her or is jsut a feel i like her picture and animation and all, may be for another leader though or not, anyways etc
+- Mangallal (Rani, from HR) would be nice if i could or do add her anyways etc but need to do more googling anywys etc, may also be for another leader anyways etc very very nice animatio though but anyways etc....
+- Piye (HR) is very hot and african leader muscular and all wow he looks egyptian and dignified i really want to add him but i don't know for which civ todo search or not but anyways etc
+- Vatavelli? (RFC DOC) very very very nice too anyways etc babylonion/sumer like texture, i hope i can and will add him, is quite uique too if i am not mistaken anyways etc, may or may not anyways etc
+- Maximilian? (HR) very nice skin though and really unique with the rounded hat but anyways etc, may or not add him even as other leader but not sure may not too indeed or may or not but anyways etc
+- Mbemba? (RFC DOC) (the coughing animation mentionned below again now but still quite original skin animation of african leader may add in other leader or and not anyways etc (zulu? Or and othe ror and not or nto add or othe or and not? Anyways etc))
+- Salamasina? (HR) very nice skin but a bit too based on Hatshepsut's skin/animation if i am not mistaken anyways etc but is very different sitl though anwyays etc and other skins/aniamtions a ebased on other leaders too anyways etc anyways etc anyways etc
+- Timur (or SOI?) (/Tamerlane he is called in RFC DOC?)? (RFC DOC version of him (i don't know anythig at all about him but he does happen to eb in many mods anwyays etc (cpoudl elanrornt or and othe ror and not but(!!) anwyays etc anwyas etc anyways etc...)) in RFC DOC is different and i like it but will see may or may not anyways etc)
+- Celebrimbor (M-E)
+- Eorl the Young (M-E)
+- Hyarmencil I(/1) (M-E)
+- Kaimierz III/3 Wielki the Great (RFC DOC) (maybe for Philip king of england? Anyways etc)
+- Herumor? (M-E)
+- Saruman? (M-E)
+- Gil-galad? (M-E)
+- Galadriel Artanis? (M-E)
+- Sauron? (M-E)
+- Tar-Aldarion? (M-E)
+- Castimir? (M-E)
+- Dharmasetu? (RFC DOC) (he coughs which i don't think i saw in other animations so very nice if i could add him anyways etc)
+- Krishna Deva Raya? (RFC DOC) (he has a nice animation too but not sure i can use him,  don't think i saw this animation in other leaders and background is nice, if i could use him though would be very nice incoporate him in game i mean anwyays will see or not anyways etc, may or may not though anyways etc anyways etc)
+- Suharto? (RFC DOC)
+- Ivan sirko? (PSYX's MW 4)
+- John Curtin? (PSYX's MW 4)
+- Mihai viteazul? (PSYX's MW 4)
+- Niall Noigialliach? (PSYX's MW 4)
+- Songsten gampo? (PSYX's MW 4)
+- Saint stephen of hungrary? (PSYX's MW 4?)
+- Tomislav? (PSYX's MW 4)
+- Trung Tarc? (PSYX's MW 4? (based on isabella it seems with background of green nature anyways etc))
+- Tamar? (Another version of isabella quite different which i like quite a lot (SOI) anyways etc)
+- Yulia Tymoshenko? (PSYX's MW 4?)
+- Alfonso Henriques? (RFC DOC)
+- Aho'eitu? (RFC DOC)
+- Aleksabdr I/1 Pavlovich? (RFC DOC)
+- Benazir bhutto? (RFC DOC)
+- Lazaro cardenas del rio? (RFC DOC)
+- Castilla? (RFC DOC)
+- Catherine alternative version? (RFC DOC)
+- Isabella alternative version? (RFC DOC)
+- George I/1? (RFC DOC)
+- Gerhardsen? (RFC DOC)
+- hiram I/1? (RFC DOC)
+- juarez? (RFC DOC)
+- khomeini? (RFC DOC)
+- lobsang gyatso? (RFC DOC)
+- Menelik? (RFC DOC)
+- Muhammand ibn tug? (RFC DOC)
+- Peron? (RFC DOC) (very cool and unique texture/animation, could use for another leader too maybe if not this one(leader)/civ anyways etc)
+- Pilsudski? (RFC DOC)
+- Rajendra chola? (RFC DOC)
+- San Martin? (RFC DOC)
+- Yaqub al mansur? (RFC DOC)
+- Jingu (HR) may add her for other leaders but is quite the unique skin, wish i can or would add her but not sure though, may not or may or not, anyways etc
+- Bohemond? (SOI) looks like Knut/Canute version but is another skin with darker hair or "reddish"(?) or whichever word is technically accurate anyways etc and such anyways etc
+- Prithviraj Chauhan? (SOI)
+- Ashot I (SOI)
+- Marti? (NW)
+- Agueybana? (NW)
+- Ahmadinejad? (NW)
+- Cochise? (NW)
+- Hussein? ((Saddam,) NW)
+- Sipan? (NW)

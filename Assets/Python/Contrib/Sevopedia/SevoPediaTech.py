@@ -36,7 +36,6 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		self.Y_ICON = self.Y_TECH_PANE + (self.H_TECH_PANE - self.H_ICON) / 2
 
 		self.ICON_SIZE = 64
-		self.BUTTON_SIZE = 64
 
 		self.X_COST = self.X_TECH_PANE + 110
 		self.Y_COST = self.Y_TECH_PANE + 47

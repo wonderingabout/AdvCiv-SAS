@@ -107,6 +107,10 @@ I am not doing the ingame art though, just the icons, unless i would unexpectedl
 
 Hopefully helpful and interesting.
 
+## .dds (button) size comparison analysis
+
+See [README_Dds_button_size_comparison_analysis.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Dds_button_size_comparison_analysis.md) for details
+
 ## csv: Leaders_data flat to csv conversion and its view on github for example
 
 There is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#leaders_data_to_csvpy) anyways etc but i have just noticed after the [mega commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/50f7983166a9ea2d93ff0084552d2fcfc32b9aec#diff-2224084cfc75aee1dd365084937d36ddb7b77107c9f9529aef06b37721f117a0) that this data is also (nicely but anwyays etc) [(click here to view it on on github too)](/leaders_data_to_csv_ai_flat_example_of_output.csv) (you can also click on the collapse tree button thing to get an even larger display and scroll down the page to remove from "vision field" the uneeded (for this task of viewing fields in the csv in github) the top headers but is just suggestion or not anyways etc anyways etc...), with filters (research) and such anyways etc, so adding a bit more general info about it too, as shown below
@@ -270,7 +274,7 @@ it too though unless i'm mistaken)
 # Starting your mod
 
 I have written [the Modding Ressources page](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/)
-that gives some non-exhaustive pointers, if you want to start your own mod. Although listed there as well, there is also a [Modding_Ressources Google Drive]([/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp)) too with files, mostly if not only images.
+that gives some non-exhaustive pointers, if you want to start your own mod. Although listed there as well, there is also a [Modding_Ressources Google Drive](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp) too with files, mostly if not only images.
 
 Disclaimer that i may not be able to give any feedback on it even if asked, also that i may
 not be available or wish to do so or not do for any reason, i might/may one or few times, but

@@ -87,6 +87,31 @@
 
 
 
+	<!-- custom: in sevopediabuilding and perhaps in other places that use our custom
+	tag, "Happy: 5" (for example) is now "5" anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_HAPPY_CUSTOM</Tag>
+		<English>%D1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_UNHAPPY_CUSTOM</Tag>
+		<English>%D1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_HEALTHY_CUSTOM</Tag>
+		<English>%D1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_UNHEALTHY_CUSTOM</Tag>
+		<English>%D1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_GREAT_PEOPLE_CUSTOM</Tag>
+		<English>%D1</English>
+	</TEXT>
+
+
+
 	<!-- custom: rename "We fear you are becoming too advanced." (WFYABTA)
 	to "We fear you are trading more than us" (WFYATMTU), the former is
 	misleading as a player can receive it even if lagging behind in techs

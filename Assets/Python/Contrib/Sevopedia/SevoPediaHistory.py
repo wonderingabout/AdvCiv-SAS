@@ -23,8 +23,6 @@ class SevoPediaHistory:
 	def __init__(self, main):
 		self.top = main
 
-		self.BUTTON_SIZE = 48
-
 		self.X_TEXT = self.top.X_PEDIA_PAGE
 		self.Y_TEXT = self.top.Y_PEDIA_PAGE
 		self.H_TEXT = self.top.H_PEDIA_PAGE

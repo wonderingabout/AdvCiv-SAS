@@ -1261,7 +1261,7 @@
 			<Adjective>TXT_KEY_CIV_KINGDOM_OF_BENIN_ADJECTIVE</Adjective>
 			<Civilopedia>TXT_KEY_CIV_KINGDOM_OF_BENIN_PEDIA</Civilopedia>
 			<DefaultPlayerColor>PLAYERCOLOR_MIDDLE_GREEN</DefaultPlayerColor>
-			<ArtDefineTag>ART_DEF_CIVILIZATION_ETHIOPIA</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_CIVILIZATION_KINGDOM_OF_BENIN</ArtDefineTag>
 			<ArtStyleType>ARTSTYLE_MIDDLE_EAST</ArtStyleType>
 			<UnitArtStyleType>UNIT_ARTSTYLE_MIDDLE_EAST</UnitArtStyleType>
 			<bPlayable>1</bPlayable>

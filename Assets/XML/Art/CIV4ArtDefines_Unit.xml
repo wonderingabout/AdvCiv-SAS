@@ -1181,6 +1181,15 @@
 				<AudioRunTypeEnd>ENDSTEP_TANK</AudioRunTypeEnd>
 			</AudioRunSounds>
 		</UnitArtInfo>
+		<!-- custom:
+			<Button>,Art/Interface/Buttons/Units/Archer.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,1</Button>
+			etc...
+			<NIF>Art/Units/Archer/Archer.nif</NIF>
+			<KFM>Art/Units/Archer/Archer.kfm</KFM>
+		 -->
+		<!-- custom:
+			<Button>Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_64.dds</Button>
+		-->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_ARCHER</Type>
 			<Button>,Art/Interface/Buttons/Units/Archer.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,1</Button>

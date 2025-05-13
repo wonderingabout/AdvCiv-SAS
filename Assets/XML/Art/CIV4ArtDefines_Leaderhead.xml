@@ -16,7 +16,7 @@
 		-->
 		<LeaderheadArtInfo>
 			<Type>ART_DEF_LEADER_BARBARIAN</Type>
-			<Button>Art/interface/Buttons/LeaderHeads/TRTeambut_Button.dds</Button>
+			<Button>Art/AdvCiv_SAS/LeaderHeads/Barbarian/TRTeambut_Button.dds</Button>
 			<NIF>art/LeaderHeads/Sid/sid.nif</NIF>
 			<KFM>art/LeaderHeads/Sid/sid.kfm</KFM>
 			<NoShaderNIF>art/LeaderHeads/Sid/sid_noshader.nif</NoShaderNIF>
@@ -463,19 +463,43 @@
 		</LeaderheadArtInfo>
 		-->
 
+		<!-- custom: example from history rewritten mod, where we took meader_ewuare (kingdom
+		of benin)'s animation and such all art assets after our initial static image approach,
+		to use the many available one, while keeping consistency with the existing concept in
+		civ4 of images being animated which is quite nice, and since we have so many animations
+		available in all mods, better use them rather at least when we can anyways etc:
+		<LeaderheadArtInfo>
+			<Type>ART_DEF_LEADER_EWUARE</Type>
+			<Button>Art/LeaderHeads/Ewuare/Button_Ewuare.dds</Button>
+			<NIF>Art/LeaderHeads/Ewuare/shaka.nif</NIF>
+			<KFM>Art/LeaderHeads/Ewuare/shaka.kfm</KFM>
+			<NoShaderNIF>Art/LeaderHeads/Ewuare/shaka.nif</NoShaderNIF>
+			<BackgroundKFM>Art/LeaderHeads/Ewuare/Shaka_BG.kfm</BackgroundKFM>
+		</LeaderheadArtInfo>
+		-->
 
-
-		<!-- custom: add Ogiso Igodo's Art (Picture) did/done as advised to me by ChatGPT with
-		some adjustments or not for AdvCiv-SAS -->
+		<!-- custom: our old static version of Ogiso Igodo:
+		add Ogiso Igodo's Art (Picture) did/done as advised to me by ChatGPT with
+		some adjustments or not for AdvCiv-SAS
 		<LeaderheadArtInfo>
 			<Type>ART_DEF_LEADER_OGISO_IGODO</Type>
-			<Button>Art/Interface/Buttons/LeaderHeads/Ogiso_Igodo_Button.dds</Button>
-			<NIF>Art/LeaderHeads/Ogiso_Igodo.dds</NIF>
+			<Button>Art/AdvCiv_SAS/LeaderHeads/Ogiso_Igodo/Ogiso_Igodo_Button.dds</Button>
+			<NIF>Art/AdvCiv_SAS/LeaderHeads/Ogiso_Igodo/Ogiso_Igodo_NIF_Static.dds</NIF>
 			<KFM>art/LeaderHeads/Mansa_Musa/mansa_musa.kfm</KFM>
 			<NoShaderNIF>art/LeaderHeads/Mansa_Musa/mansa_musa_noshader.nif</NoShaderNIF>
 			<BackgroundKFM>art/LeaderHeads/Mansa_Musa/Mansa_Musa_BG.kfm</BackgroundKFM>
 		</LeaderheadArtInfo>
+		-->
 
 
+
+		<LeaderheadArtInfo>
+			<Type>ART_DEF_LEADER_OGISO_IGODO</Type>
+			<Button>Art/AdvCiv_SAS/LeaderHeads/Ogiso_Igodo/Button_Ewuare.dds</Button>
+			<NIF>Art/AdvCiv_SAS/LeaderHeads/Ogiso_Igodo/shaka.nif</NIF>
+			<KFM>Art/AdvCiv_SAS/LeaderHeads/Ogiso_Igodo/shaka.kfm</KFM>
+			<NoShaderNIF>Art/AdvCiv_SAS/LeaderHeads/Ogiso_Igodo/shaka.nif</NoShaderNIF>
+			<BackgroundKFM>Art/AdvCiv_SAS/LeaderHeads/Ogiso_Igodo/Shaka_BG.kfm</BackgroundKFM>
+		</LeaderheadArtInfo>
 	</LeaderheadArtInfos>
 </Civ4ArtDefines>

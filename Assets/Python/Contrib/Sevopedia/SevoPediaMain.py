@@ -108,11 +108,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# </advc.004y>
 
 		self.H_PANEL = 55
-		# advc (tbd.): Increase these based on screen dimensions?
-		self.BUTTON_SIZE = 64 
-		self.BUTTON_COLUMNS = 9
-		self.ITEMS_MARGIN = 18
-		self.ITEMS_SEPARATION = 2
 
 		self.X_TOP_PANEL = 0
 		self.Y_TOP_PANEL = 0

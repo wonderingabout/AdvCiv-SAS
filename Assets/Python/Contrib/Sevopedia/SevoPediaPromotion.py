@@ -23,8 +23,6 @@ class SevoPediaPromotion:
 	def __init__(self, main):
 		self.iPromotion = -1
 		self.top = main
-	
-		self.BUTTON_SIZE = 46
 		
 		self.X_UNIT_PANE = self.top.X_PEDIA_PAGE
 		self.Y_UNIT_PANE = self.top.Y_PEDIA_PAGE
