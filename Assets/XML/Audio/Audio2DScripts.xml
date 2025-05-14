@@ -8738,8 +8738,8 @@
 		<ScriptID>AS2D_BUILD_PAGAN</ScriptID>
 		<SoundID>SND_BUILD_PAGAN</SoundID>
 		<SoundType>GAME_SFX</SoundType>
-		<iMinVolume>90</iMinVolume>
-		<iMaxVolume>90</iMaxVolume>
+		<iMinVolume>70</iMinVolume>
+		<iMaxVolume>70</iMaxVolume>
 		<iPitchChangeDown>0</iPitchChangeDown>
 		<iPitchChangeUp>0</iPitchChangeUp>
 		<iMinLeftPan>-1</iMinLeftPan>
@@ -8761,8 +8761,8 @@
 		<ScriptID>AS2D_BUILD_PAGAN_MOVIE</ScriptID>
 		<SoundID>SND_BUILD_PAGAN_MOVIE</SoundID>
 		<SoundType>GAME_SFX</SoundType>
-		<iMinVolume>80</iMinVolume>
-		<iMaxVolume>80</iMaxVolume>
+		<iMinVolume>70</iMinVolume>
+		<iMaxVolume>70</iMaxVolume>
 		<iPitchChangeDown>0</iPitchChangeDown>
 		<iPitchChangeUp>0</iPitchChangeUp>
 		<iMinLeftPan>-1</iMinLeftPan>

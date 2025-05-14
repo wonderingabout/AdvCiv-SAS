@@ -3643,14 +3643,14 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_BUILD_PAGAN</SoundID>
-			<Filename>Sounds/Buildings/ConfucianistDink</Filename>
+			<Filename>Art/AdvCiv_SAS/Religions/Paganism/BaalismSnd</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_BUILD_PAGAN_MOVIE</SoundID>
-			<Filename>Sounds/Buildings/Confuscianist</Filename>
+			<Filename>Art/AdvCiv_SAS/Religions/Paganism/BaalismSnd</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
