@@ -117,7 +117,9 @@ class SevoPediaUnit:
 
 
 	def interfaceScreen(self, iUnit):
-		self.placeUnitPane(iUnit)
+		self.iUnit = iUnit
+
+		self.placeUnitPane()
 		self.placeStats()
 		self.placePromotions()
 		self.placeRequires()
@@ -129,8 +131,7 @@ class SevoPediaUnit:
 
 
 
-	def placeUnitPane(self, iUnit):
-		self.iUnit = iUnit
+	def placeUnitPane(self):
 		screen = self.top.getScreen()
 
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_UNIT_PANE, self.Y_UNIT_PANE, self.W_UNIT_PANE, self.H_UNIT_PANE, PanelStyles.PANEL_STYLE_BLUE50)
@@ -343,9 +344,8 @@ class SevoPediaUnit:
 	def placeHistory(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		# <!-- custom: i don't need the "History:", is redundant with background
+		# <!-- custom: i don't need the "History:" in TXT_KEY_CIVILOPEDIA_HISTORY, is redundant with background
 		# that is already about the unit's background -->
-		#screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE, self.W_HISTORY_PANE, self.H_HISTORY_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.addPanel(panelName, "", "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE, self.W_HISTORY_PANE, self.H_HISTORY_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		textName = self.top.getNextWidgetName()
 		szText = u""
@@ -362,8 +362,6 @@ class SevoPediaUnit:
 		# -->
 		#szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
 		szText += gc.getUnitInfo(self.iUnit).getCivilopedia()
-		# <!-- custom: i don't need the "History:", is redundant with background
-		# that is already about the unit's background -->
 		# <!-- custom: fix height too low, does not display properly the concept texts
 		# (for example any religious missionary unit)
 		# -->
@@ -376,7 +374,6 @@ class SevoPediaUnit:
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		# <!-- custom: no TXT_KEY_PEDIA_CATEGORY_PROMOTION "header" for smoother display with how the unit pane is done (and promo pane is next to it now anyways etc) -->
-		# screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_CATEGORY_PROMOTION", ()), "", True, True, self.X_PROMO_PANE, self.Y_PROMO_PANE, self.W_PROMO_PANE, self.H_PROMO_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.addPanel(panelName, localText.getText("", ()), "", True, True, self.X_PROMO_PANE, self.Y_PROMO_PANE, self.W_PROMO_PANE, self.H_PROMO_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		rowListName = self.top.getNextWidgetName()
 		screen.addMultiListControlGFC(rowListName, "", self.X_PROMO_PANE+15, self.Y_PROMO_PANE+40, self.W_PROMO_PANE-20, self.H_PROMO_PANE-40, 1, self.PROMOTION_ICON_SIZE, self.PROMOTION_ICON_SIZE, TableStyles.TABLE_STYLE_STANDARD)

@@ -455,7 +455,7 @@ class SevoPediaLeader:
 		# from top left to bottom and left to right but not always, reordering in
 		# such a way is maybe a bit more intuitive this way perhaps or/and clearer
 		# or/and helpful or not or other etc anyways, -->
-		self.placeLeader(iLeader)
+		self.placeLeader()
 		self.placeFavorites()
 		self.placeHistory()
 		self.placeCiv()
@@ -485,12 +485,12 @@ class SevoPediaLeader:
 	# <!-- custom: wrap leader placement in a specific function for clarity
 	# or/and flexibility or not anyways,
 	# -->
-	def placeLeader(self, iLeader):
+	def placeLeader(self):
 		screen = self.top.getScreen()
 		leaderPanelWidget = self.top.getNextWidgetName()
 		screen.addPanel(leaderPanelWidget, "", "", True, True, self.X_LEADERHEAD_PANE, self.Y_LEADERHEAD_PANE, self.W_LEADERHEAD_PANE, self.H_LEADERHEAD_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		self.leaderWidget = self.top.getNextWidgetName()
-		screen.addLeaderheadGFC(self.leaderWidget, iLeader, AttitudeTypes.ATTITUDE_PLEASED, self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.addLeaderheadGFC(self.leaderWidget, self.iLeader, AttitudeTypes.ATTITUDE_PLEASED, self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 

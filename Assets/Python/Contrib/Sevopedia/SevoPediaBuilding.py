@@ -104,7 +104,9 @@ class SevoPediaBuilding:
 
 
 	def interfaceScreen(self, iBuilding):
-		self.placeBuildingPane(iBuilding)
+		self.iBuilding = iBuilding
+
+		self.placeBuildingPane()
 		self.placeStats()
 		self.placeRequires()
 		self.placeSpecial()
@@ -112,8 +114,7 @@ class SevoPediaBuilding:
 
 
 
-	def placeBuildingPane(self, iBuilding):
-		self.iBuilding = iBuilding
+	def placeBuildingPane(self):
 		screen = self.top.getScreen()
 
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_BUILDING_PANE, self.Y_BUILDING_PANE, self.W_BUILDING_PANE, self.H_BUILDING_PANE, PanelStyles.PANEL_STYLE_BLUE50)
@@ -183,10 +184,6 @@ class SevoPediaBuilding:
 
 			buildingInfo = gc.getBuildingInfo(self.iBuilding)
 
-			#panelName = self.top.getNextWidgetName()
-			#screen.addListBoxGFC(panelName, "", self.X_STATS_PANE, self.Y_STATS_PANE, self.W_STATS_PANE, self.H_STATS_PANE, TableStyles.TABLE_STYLE_EMPTY)
-			#screen.enableSelect(panelName, False)
-
 			# <!-- custom: if i am not mistaken it seems we never use the code below and i don't understand too well what it is for, but especially in our placeStats pane i don't think we use it at all if i am not mistaken, so commenting it out
 			"""
 			if (isWorldWonderClass(gc.getBuildingInfo(self.iBuilding).getBuildingClassType())):
@@ -221,8 +218,6 @@ class SevoPediaBuilding:
 				else:
 					szCost = localText.getText("TXT_KEY_PEDIA_COST_CUSTOM", (gc.getPlayer(self.top.iActivePlayer).getBuildingProductionNeeded(self.iBuilding),))
 				szText2 = u"%c  %s" % (gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar(), szCost)
-				#szCostText = u"<font=4>" + szText2 + u"</font>"
-				#screen.appendListBoxStringNoUpdate(panelName, szCostText, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 				fillCell(screen, szText2, x, y)
 				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
 
@@ -235,8 +230,6 @@ class SevoPediaBuilding:
 						szSign = ""
 					szText1 = szSign + str(buildingInfo.getYieldChange(k))
 					szText2 = u"%c  %s" % (gc.getYieldInfo(k).getChar(), szText1)
-					#szText2Text = u"<font=4>" + szText2 + u"</font>"
-					#screen.appendListBoxStringNoUpdate(panelName, szText2Text, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 					fillCell(screen, szText2, x, y)
 					x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
 
@@ -250,8 +243,6 @@ class SevoPediaBuilding:
 						szSign = ""
 					szText1 = szSign + str(iTotalCommerce)
 					szText2 = u"%c  %s" % (gc.getCommerceInfo(k).getChar(), szText1)
-					#szText2Text = u"<font=4>" + szText2 + u"</font>"
-					#screen.appendListBoxStringNoUpdate(panelName, szText2Text, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 					fillCell(screen, szText2, x, y)
 					x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
 
@@ -264,15 +255,11 @@ class SevoPediaBuilding:
 			if (iHappiness > 0):
 				szText = localText.getText("TXT_KEY_PEDIA_HAPPY_CUSTOM", (iHappiness,))
 				szText2 = u"%c  %s" % (CyGame().getSymbolID(FontSymbols.HAPPY_CHAR), szText)
-				#szText2Text = u"<font=4>" + szText2 + u"</font>"
-				#screen.appendListBoxStringNoUpdate(panelName, szText2Text, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 				fillCell(screen, szText2, x, y)
 				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
 			elif (iHappiness < 0):
 				szText = localText.getText("TXT_KEY_PEDIA_UNHAPPY_CUSTOM", (-iHappiness,))
 				szText2 = u"%c  %s" % (CyGame().getSymbolID(FontSymbols.UNHAPPY_CHAR), szText)
-				#szText2Text = u"<font=4>" + szText2 + u"</font>"
-				#screen.appendListBoxStringNoUpdate(panelName, szText2Text, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 				fillCell(screen, szText2, x, y)
 				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
 
@@ -285,15 +272,11 @@ class SevoPediaBuilding:
 			if (iHealth > 0):
 				szText = localText.getText("TXT_KEY_PEDIA_HEALTHY_CUSTOM", (iHealth,))
 				szText2 = u"%c  %s" % (CyGame().getSymbolID(FontSymbols.HEALTHY_CHAR), szText)
-				#szText2Text = u"<font=4>" + szText2 + u"</font>"
-				#screen.appendListBoxStringNoUpdate(panelName, szText2Text, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 				fillCell(screen, szText2, x, y)
 				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
 			elif (iHealth < 0):
 				szText = localText.getText("TXT_KEY_PEDIA_UNHEALTHY_CUSTOM", (-iHealth,))
 				szText2 = u"%c  %s" % (CyGame().getSymbolID(FontSymbols.UNHEALTHY_CHAR), szText)
-				#szText2Text = u"<font=4>" + szText2 + u"</font>"
-				#screen.appendListBoxStringNoUpdate(panelName, szText2Text, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 				fillCell(screen, szText2, x, y)
 				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
 
@@ -301,12 +284,8 @@ class SevoPediaBuilding:
 			if (buildingInfo.getGreatPeopleRateChange() != 0):
 				szText = localText.getText("TXT_KEY_PEDIA_GREAT_PEOPLE_CUSTOM", (buildingInfo.getGreatPeopleRateChange(),))
 				szText2 = u"%c  %s" % (CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR), szText)
-				#szText2Text = u"<font=4>" + szText2 + u"</font>"
-				#screen.appendListBoxStringNoUpdate(panelName, szText2Text, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 				fillCell(screen, szText2, x, y)
 				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
-
-		#screen.updateListBox(panelName)
 
 		# Render Panels
 		renderCells(screen, columnWidth, self.X_STATS_PANE, self.Y_STATS_PANE)
@@ -363,18 +342,13 @@ class SevoPediaBuilding:
 	def placeHistory(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need
-		# the redundant background
+		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need the redundant background
 		# -->
 		#screen.addPanel( panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE, self.W_HISTORY_PANE, self.H_HISTORY_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
 		screen.addPanel( panelName, "", "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE, self.W_HISTORY_PANE, self.H_HISTORY_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
 		textName = self.top.getNextWidgetName()
 		szText = u""
-		# <!-- custom: too much hassle/"nightmare" to maintain (which i agree
-		# with), + also often inaccurate, especially if someone were to make a
-		# mod, just ignoring them without importing the XML assets as well is
-		# much more efficient, more reliable, and perhaps clearer in the
-		# sevopedia too maybe.
+		# <!-- custom: too much hassle/"nightmare" to maintain the strategy texts in history panel (which i agree with), + also often inaccurate, especially if someone were to make a mod, just ignoring them without importing the XML assets as well is much more efficient, more reliable, and perhaps clearer in the sevopedia too maybe.
 		# -->
 		# if len(gc.getBuildingInfo(self.iBuilding).getStrategy()) > 0:
 		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
@@ -385,8 +359,7 @@ class SevoPediaBuilding:
 		# -->
 		#szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
 		szText += gc.getBuildingInfo(self.iBuilding).getCivilopedia()
-		# but here we also restore/add padding using a method that allows
-		# that (if i am not mistaken that the other method doesn't allow that)
+		# but here we also restore/add padding
 		# -->
 		#screen.addMultilineText( textName, szText, self.X_HISTORY_PANE + 15, self.Y_HISTORY_PANE + 40, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.addMultilineText( textName, szText, self.X_HISTORY_PANE + 7, self.Y_HISTORY_PANE + 10, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
