@@ -1,0 +1,98 @@
+in sevopediaproject,
+printObjAttrs(projectInfo) where projectInfo is gc.getProjectInfo(self.iProject) , so in other words:
+printObjAttrs(gc.getProjectInfo(self.iProject)) if i am not mistaken anyways etc,
+returns/logs/prints this anyways etc:
+
+__class__
+
+__delattr__
+
+__dict__ = {}
+
+__doc__ = None
+
+__getattribute__
+
+__hash__
+
+__init__
+
+__instance_size__ = 484
+
+__module__ = CvPythonExtensions
+
+__new__
+
+__reduce__
+
+__reduce_ex__
+
+__repr__
+
+__setattr__
+
+__str__
+
+__weakref__ = None
+
+getAnyoneProjectPrereq
+
+getBonusProductionModifier
+
+getButton
+
+getCivilopedia
+
+getCreateSound
+
+getDescription
+
+getDescriptionForm
+
+getEveryoneSpecialBuilding
+
+getEveryoneSpecialUnit
+
+getHelp
+
+getMaxGlobalInstances
+
+getMaxTeamInstances
+
+getMovieArtDef
+
+getNukeInterception
+
+getProductionCost
+
+getProjectsNeeded
+
+getStrategy
+
+getSuccessRate
+
+getTechPrereq
+
+getTechShare
+
+getText
+
+getTextKey
+
+getType
+
+getVictoryDelayPercent
+
+getVictoryMinThreshold
+
+getVictoryPrereq
+
+getVictoryThreshold
+
+isAllowsNukes
+
+isGraphicalOnly
+
+isMatchForLink
+
+isSpaceship

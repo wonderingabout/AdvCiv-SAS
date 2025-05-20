@@ -61,10 +61,11 @@
 		<!-- custom: <English>National Wonders</English> -->
 		<English>N. Wond.</English>
 	</TEXT>
+	<!-- custom: rename "great wonders" to "world wonders", hopefully more accurate, (or/and) (anyways etc) intuitive, or/and maybe also or yes or not or yes in line with world project (one only possible in entire world, hopefully makes more sense now, anyways etc) -->
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_CATEGORY_GREAT_WONDERS</Tag>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_WORLD_WONDERS</Tag>
 		<!-- custom: <English>Great Wonders</English> -->
-		<English>G. Wond.</English>
+		<English>W. Wond.</English>
 	</TEXT>
 
 	<!-- advc.002g: Deleted TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW

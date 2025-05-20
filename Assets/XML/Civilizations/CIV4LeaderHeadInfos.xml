@@ -26,8 +26,9 @@
 			<!-- BBAI Victory Strategy -->
 			<iCultureVictoryWeight>0</iCultureVictoryWeight>
 			<iSpaceVictoryWeight>0</iSpaceVictoryWeight>
-			<iConquestVictoryWeight>0</iConquestVictoryWeight>
-			<iDominationVictoryWeight>0</iDominationVictoryWeight>
+			<!-- custom: try to make barbarians more aggressive or conqueror like now that they have developped enough cities with many units to do so instead of keeping them too long in cities -->
+			<iConquestVictoryWeight>70</iConquestVictoryWeight>
+			<iDominationVictoryWeight>30</iDominationVictoryWeight>
 			<iDiplomacyVictoryWeight>0</iDiplomacyVictoryWeight>
 			<!-- BBAI Victory Strategy -->
 			<iMaxWarRand>0</iMaxWarRand>

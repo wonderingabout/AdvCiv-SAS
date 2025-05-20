@@ -20,6 +20,62 @@
 		<Spanish>[ICON_BULLET]Se puede construir en [NUM1:el:la:los:las] %s1_Name e inicios anteriores</Spanish>
 	</TEXT>
 	
+	<!-- custom: added here for exhaustiveness, not modified (as) for the English language('s version) (anyways etc) -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PROVIDES_POWER</Tag>
+		<English>[ICON_BULLET]Provides power ([ICON_POWER])</English>
+	</TEXT>
+
+
+
+	<!-- custom: generic one (english version only anyways etc) we replace one if i may say anyways etc was:
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PROVIDES_POWER_WITH</Tag>
+		<English>[ICON_BULLET]Provides Power with [COLOR_HIGHLIGHT_TEXT][LINK=literal]%s1_BonusName[\LINK][COLOR_REVERT]</English>
+	</TEXT>
+	-->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PROVIDES_POWER_WITH</Tag>
+		<English>[ICON_BULLET]Provides power ([ICON_POWER]) with [COLOR_HIGHLIGHT_TEXT][LINK=literal]%s1_BonusName[\LINK][COLOR_REVERT] (from any city as long as this bonus is connected to your trade network)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PROVIDES_POWER_WITH_BONUS_IN_THIS_CITY_DIRTY</Tag>
+		<English>in this city (dirty power ([ICON_POWER])): </English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PROVIDES_POWER_WITH_BONUS_IN_THIS_CITY_CLEAN</Tag>
+		<English>in this city (clean power ([ICON_POWER])): </English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PROVIDES_POWER_IN_THIS_CITY_DIRTY</Tag>
+		<English>in this city (dirty power ([ICON_POWER])): </English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PROVIDES_POWER_IN_THIS_CITY_CLEAN</Tag>
+		<English>in this city (clean power ([ICON_POWER])): </English>
+	</TEXT>
+
+
+
+
+	<!-- custom: remove the common provides power part from the areacleanpower message, and add mention that area clean power (areacleanpower anyways etc) (all cities clean power if i am not mistaken anyways etc) also applies to all cities, (note: ) perhaps differently in terms of unhealthiness bonus or not but anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER_APPENDIX_IN_ALL_CITIES</Tag>
+		<English>(clean power ([ICON_POWER])) for All Cities on this Continent: </English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER_IN_THIS_CITY_CLEAN_OR_DIRTY_QUESTION</Tag>
+		<English>; as for in this City specifically rather instead, i (advciv-sas developer/maintainer anyways etc) don't know if clean in all cities overrides dirty in this city specifically or if if dirty in this city specifically adds up (only in this city) to clean power health change from all cities so showing both for this city, so in this city clean power ([ICON_POWER]) (or dirty power ([ICON_POWER]) ?): </English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER_IN_THIS_CITY_CLEAN</Tag>
+		<English>: in this City (clean power ([ICON_POWER])): </English>
+	</TEXT>
+
+
 
     <!-- custom: rename Civilopedia to Sevopedia 
     imported from: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameTextInfos.xml

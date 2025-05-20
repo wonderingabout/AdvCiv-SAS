@@ -39,7 +39,17 @@ based on rfc doc's and slightly tweaked or not, thanks a lot
 
 mostly my own modding and first attemps at deciphering civ4's python, not inordinate if i may say quite fairly, but i like it this end result a lot, may further improve or not, the feedback always helps me, but sometimes the negative ones hurts me more, however sometimes the negative ones lead to better future outcomes, so i am thankful of it when it is done in sincerity and consideration maybe, something like this, even though maybe unpleasant at first, but this is not always, sometimes it's just painful and best avoided i think at least for me anyways, some other times it's painful but leads to better/good results in the future maybe, not guaranteed and just my personal opinion not responsible of what you reader make of it with you or/and others or not make of it, was sharing my advice or rather opinion maybe, each are free or not etc, anyways. As for this page or/and other pages or/and not, may tweak it further or not as i see fit, anyways
 
-<img src="../Images_In_General/0.65_sevopedia_ressources_copper_panel.JPG" width="250"></img>
+after having written this first paragraph above in this same example 4, a more extensive rewrite/refactor was done based on [example-7-unit-list-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-7-unit-list-category) and [example-8-building-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-8-building-category), (and) also with the help of Claude AI (see [Authors for details (Claude AI's section) in the main readme.me](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details) (anyways etc), in particular changes include that we now have also added a placeObsoleteWith function now that tells us when a bonus/ressource is obsolete (i.e. at which tech anyways etc) anyways etc anyways etc anyways etc.
+
+<img src="../Images_In_General/0.650_sevopedia_bonus_sample (1).JPG" width="250"></img>
+<img src="../Images_In_General/0.650_sevopedia_bonus_sample (2).JPG" width="250"></img>
+<img src="../Images_In_General/0.650_sevopedia_bonus_sample (3).JPG" width="250"></img>
+<img src="../Images_In_General/0.650_sevopedia_bonus_sample (4).JPG" width="250"></img>
+<img src="../Images_In_General/0.650_sevopedia_bonus_sample (5).JPG" width="250"></img>
+<img src="../Images_In_General/0.650_sevopedia_bonus_sample (6).JPG" width="250"></img>
+<img src="../Images_In_General/0.650_sevopedia_bonus_sample (7).JPG" width="250"></img>
+<img src="../Images_In_General/0.650_sevopedia_bonus_sample (8).JPG" width="250"></img>
+<img src="../Images_In_General/0.650_sevopedia_bonus_sample (9).JPG" width="250"></img>
 
 ## example 5: religion category
 
@@ -68,7 +78,9 @@ new Cities (based on Middle-earth mod's (very amazing!!!!!! (Not that others are
 
 Reordered and beautified the original AdvCiv Sevopedia code while trying to keep its original structure, but added relative positioning everywhere or almost if not everywhere, this means that ideally the panels sizes should/would/will respond/adjust/adapt maybe indeed but anyways etc... to the screen resolution, removing the old harcoded logic, hopefully cleaner now (not tested at smaller resolutions).
 
-Finally and most importantly, as something similar as said in the paragraph just above (relative dimensioning in other panels even though still cool but anyways etc), new Replaced By imported from RFC DOC as well as new Exclusive Civs (Civilizations) panel from Claude AI thanks to my prompt and small adjustments of already working code (tweaked coordinates and such anyways as i wanted(want?)(wanted?want? Anyways etc anyways etc...) and adjusted or not or yes or and other or and not but anyways etc (note: see (if interested or not or yes or not or etc or and other or and not anyways etc) also Claude AI's [claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) part of the README.md for details):
+Finally and most importantly, as something similar as said in the paragraph just above (relative dimensioning in other panels even though still cool but anyways etc), new Replace (Replaced By / Replaces) panel from (for the replaced by part and idea anyways etc) RFC DOC, as well as new Exclusive Civs (Civilizations) panel from/by Claude AI thanks to/with my prompt and small adjustments of already working code (tweaked coordinates and such anyways as i wanted(want?)(wanted?want? Anyways etc anyways etc...) and adjusted or not or yes or and other or and not but anyways etc (note: see (if interested or not or yes or not or etc or and other or and not anyways etc) also Claude AI's [claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) part of the README.md for details)):
+
+After having written these, combat information was added (which units is this unit strong against or weak against, in which plot types, city or not, terrains, features, etc if any more/other or not etc if not but or anyways etc anyways etc anyways etc..., free promotions, etc) largely with the help of Claude AI (see [Authors for details (Claude AI's section) in the main readme.me](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details), as well as other changes or not or yes or and other or and not anyways etc, see readme or code comments or code itself for details hopefully exhaustive and clear easy enough to read maybe ideally but in all caes or not or yes or and other or and not anyways etc.
 
 <img src="../Images_In_General/0.680_sevopedia_unit_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/0.680_sevopedia_unit_sample (2).JPG" width="250"></img>
@@ -76,3 +88,23 @@ Finally and most importantly, as something similar as said in the paragraph just
 <img src="../Images_In_General/0.680_sevopedia_unit_sample (4).JPG" width="250"></img>
 <img src="../Images_In_General/0.680_sevopedia_unit_sample (5).JPG" width="250"></img>
 <img src="../Images_In_General/0.680_sevopedia_unit_sample (6).JPG" width="250"></img>
+
+## example 8: building category
+
+Based on the sevopedia unit previous rework, and also with the help of Claude AI (see [Authors for details (Claude AI's section) in the main readme.me](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details) refactored, beautified, and enhanced sevopedia building as well, with a few new additions in particular such as placeFree, RequiredFor, a more exhaustive Requires as well, placeStats reworked (in particular great person buttons (icons) show now, commerce double times as well( for exampel that every 1000 year one building may give double culturee output (flat only if i am not mistaken i.e. +2 only if i am not mistaken anyways etc)), and % modifier as well (for example +25% culture, +25% espionage rate if i am not mistaken anyways etc, as well as using a grid for beautification anyways etc)), anew ObsoleteWith, see similarly code or other docs if they exist, maybe code comments too can help for details in [SevopediaBuilding.py](/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py) for details.
+
+<img src="../Images_In_General/0.690_sevopedia_building_sample (1).JPG" width="250"></img>
+<img src="../Images_In_General/0.690_sevopedia_building_sample (2).JPG" width="250"></img>
+<img src="../Images_In_General/0.690_sevopedia_building_sample (3).JPG" width="250"></img>
+<img src="../Images_In_General/0.690_sevopedia_building_sample (4).JPG" width="250"></img>
+<img src="../Images_In_General/0.690_sevopedia_building_sample (5).JPG" width="250"></img>
+<img src="../Images_In_General/0.690_sevopedia_building_sample (6).JPG" width="250"></img>
+<img src="../Images_In_General/0.690_sevopedia_building_sample (7).JPG" width="250"></img>
+<img src="../Images_In_General/0.690_sevopedia_building_sample (8).JPG" width="250"></img>
+<img src="../Images_In_General/0.690_sevopedia_building_sample (9).JPG" width="250"></img>
+<img src="../Images_In_General/0.690_sevopedia_building_sample (10).JPG" width="250"></img>
+<img src="../Images_In_General/0.690_sevopedia_building_sample (11).JPG" width="250"></img>
+<img src="../Images_In_General/0.690_sevopedia_building_sample (12).JPG" width="250"></img>
+<img src="../Images_In_General/0.690_sevopedia_building_sample (13).JPG" width="250"></img>
+<img src="../Images_In_General/0.690_sevopedia_building_sample (14).JPG" width="250"></img>
+<img src="../Images_In_General/0.690_sevopedia_building_sample (15).JPG" width="250"></img>

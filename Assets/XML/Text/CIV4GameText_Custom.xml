@@ -2,34 +2,6 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by lcollins (Firaxis Games) -->
 <!-- custom: custom GameText xml type of assets for AdvCiv-SAS -->
 <Civ4GameText xmlns="http://www.firaxis.com">
-	<!-- custom: remove BTS links, unneeded, see CIV4NewConceptInfos.xml for details -->
-	<!-- custom: the other conceptinfo entries have been moved to file
-	with similar filename than in civ4 bts -->
-
-
-
-	<!-- custom: rename "BtS Rules Changes" to
-	"0_BtS Rules Changes (Outdated)", really important to not confuse the
-	user/player about how this data is unrelated to us, but they may still
-	want to access it, espcially if they ar ein knowledge of that/aware of
-	that, as they prefer maybe or not etc but etc anyways" -->
-	<!-- advc.002b: Shortening "Beyond the Sword" to "BtS" so that the page
-		 names can be displayed despite the increased font size.
-		 Originally in CIV4GameText_BTS.xml and CIV4GameText_Objects_BTS.xml. -->
-	<TEXT>
-		<Tag>TXT_KEY_BTS_RULES_CHANGES</Tag>
-		<English>0_BtS Rules Changes (Outdated)</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_ADVCIV_SAS_CORE_CHANGES</Tag>
-		<English>3_AdvCiv-SAS Core Changes</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_ADVCIV_SAS_CORE_AI_PERSONALITY_PANEL_INTRO</Tag>
-		<English>4_AdvCiv-SAS AI Personality Panel Intro</English>
-	</TEXT>
-
-
 	<!-- custom: i have accidentally noticed that having an empty "header" tag removes it
 	entirely while also and still giving the flexibility to add it again later (but you('d)
 	need to adjust self.H_AI_UPPER_PADDING in SevoPediaLeader.py to accodomodate that, see
@@ -47,6 +19,45 @@
 		<English></English>
 	</TEXT>
 
+
+
+	<!-- custom: remove the very unclear "Enables" text, that is at best inaccurate/unclear at worse a clear error, regardless of intent which is not for me to judge perhaps (at least not too much maybe or not or yes or and other or and not or other or etc anyways etc anyways etc anyways etc), and it does indeed "enable" something if i may say anyways etc, but perhaps it could have been rephrased in a clearer way perhaps if i may say anyways etc anyways etc anyways etc, and in all cases maybe rather anyways etc, i hope i can make it clearer by trying to find what it does, for example in https://modiki.civfanatics.com/index.php/Civ4BonusInfos (and similar info in kujira's website translated to english as well, see ctrl+f "kujira" global search for details anyways etc), it states about this: "The technology that enables the trading of this resource." , S(s)o (anyways etc) i think we can rephrase it for concision (since it should be about (ideally) 84px (, but in practice a bit larger since we have the room and display a bit more text of it and smooth spacing if i may say anyways etc anyways etc anyways etc...) since there is only one tech if i am not mistaken anyways etc) to for example as below anyways etc hopefully helpful or not anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BONUS_TRADE</Tag>
+		<English>Tradeable Since</English>
+	</TEXT>
+
+
+
+	<!-- custom: we have modified this in AdvCiv-SAS, now walls and castles stay relevant even at renaissance and after, no reason to prevent that, seems more intuitive to me as walls are still a component of later eras up to modern times, and something that could be used to shield against an attacker if i am not mistaken, at least i want it to be this way in AdvCiv-SAS, may help nerf the op gun units, that will be op if needed in other ways but not by melting through walls like it's butter if i may say anyways etc anyways etc anyways etc... See also <bIgnoreBuildingDefense>0</bIgnoreBuildingDefense> in CIV4UnitInfos.xml (for details anyways etc) or/and (tranlslate to english ((following) web page (anyways etc)) using web browser or such) https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense for details. -->
+	<!-- advc.004c: Based on TXT_KEY_BUILDING_DEFENSE_MOD (see below).
+		 For the DefenseRaise XML tag. Use the defense icon and refer to
+		 non-gunpowder-based units as "pre-Renaissance". "Gunpowder-based" is
+		 too similar to "Gunpowder" (unit class). -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_DEFENSE_RAISE</Tag>
+		<English>[ICON_BULLET]Raises [ICON_DEFENSE] to %d1_Mod%% against All Units (using now bIgnoreBuildingDefense 0 ... for all units... right?(?))</English>
+	</TEXT>
+	<!-- custom: about the ones below ("_DEFENSE_MOD", "_BUILDING_BOMBARD_DEFENSE"), i am not sure it is covered by <bIgnoreBuildingDefense>0</bIgnoreBuildingDefense> but updating the text as well because it is how i would want it to be ideally, hopefully clearer this way despite my confusion, ideally it works as intended, else the issue is raised at least maybe or not, but anyways etc anyways etc anyways etc... todo investigate this more if need(ed(?)) anyways etc anyways etc anyways etc... -->
+	<!-- DEFENSE_MOD should be supplanted by DEFENSE_RAISE. But perhaps it
+		 won't be in a mod-mod. So let's update DEFENSE_MOD as well: Use the
+		 defense icon and state that it increases (only) building defense. -->
+	<TEXT> <!-- redefine -->
+		<Tag>TXT_KEY_BUILDING_DEFENSE_MOD</Tag>
+		<English>[ICON_BULLET]+%d1_Mod%% Building [ICON_DEFENSE] (against pre-Renaissance Units (only?(?)))</English>
+	</TEXT>
+	<!-- From CIV4GameText_Warlords_Changed.xml.
+		 To be consistent with the above. -->
+	<TEXT> <!-- redefine -->
+		<Tag>TXT_KEY_BUILDING_BOMBARD_DEFENSE_MOD</Tag>
+		<English>[ICON_BULLET]%D1_Mod%% [ICON_DEFENSE] Bombardment (by pre-Renaissance Units only?(?))</English>
+	</TEXT>
+	<!-- From CIV4GameTextInfos.xml. Also for consistency. Chichen Itza
+		 actually is cumulative with culture defense. -->
+	<TEXT> <!-- redefine -->
+		<Tag>TXT_KEY_BUILDING_DEFENSE_MOD_ALL_CITIES</Tag>
+		<English>[ICON_BULLET]%d1_Mod%% [ICON_DEFENSE] in All Cities</English>
+	</TEXT>
 
 
 	<!-- custom: do not rename the tag itself as we would have to recompile

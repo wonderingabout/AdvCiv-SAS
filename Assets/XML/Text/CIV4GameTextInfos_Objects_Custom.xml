@@ -275,6 +275,11 @@
 		<Tag>TXT_KEY_BUILDING_FORBIDDEN_PALACE</Tag>
 		<English>Forbidden Palace</English>
 	</TEXT>
+	<!-- custom: rename GREAT_DAM to THREE_GORGES_DAM similarly than for FORBIDDEN_PALACE anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_THREE_GORGES_DAM</Tag>
+		<English>The Three Gorges Dam</English>
+	</TEXT>
 	<!-- custom: similarly rename NATIONAL_SECURITY that had nothing like a national wonder or anything related if am not mistaken maybe or not or yes but anyways etc to hopefully less confusing or not or yes or and other or and not anyways etc SECURITY_BUREAU anyways etc -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_SECURITY_BUREAU</Tag>

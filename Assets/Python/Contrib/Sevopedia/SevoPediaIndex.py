@@ -47,7 +47,7 @@ class SevoPediaIndex:
 		
 		buildingList = self.top.getBuildingList()
 		nationalWonderList = self.top.getNationalWonderList()
-		greatWonderList = self.top.getGreatWonderList()
+		worldWonderList = self.top.getWorldWonderList()
 		projectList = self.top.getProjectList()
 		specialistList = self.top.getSpecialistList()
 		
@@ -98,7 +98,7 @@ class SevoPediaIndex:
 				list.append([item[0][17:].capitalize(),"Wonder",item])
 			else:
 				list.append([item[0],"Wonder",item])
-		for item in greatWonderList:
+		for item in worldWonderList:
 			if (item[0][0:4]=="The "):
 				list.append([item[0][4:]+","+item[0][0:3],"Wonder",item])
 			elif (item[0][:17]=="TXT_KEY_BUILDING_"):

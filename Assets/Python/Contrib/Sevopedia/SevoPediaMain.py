@@ -128,7 +128,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# hopefully work perhaps even better, anywyas), was 182 -->
 		# advc.002b: was 175
 		# <!-- custom: was 200 -->
-		self.W_CATEGORIES = 120
+		self.W_CATEGORIES = 124
 		# <advc.004y>
 		if self.bWideScreen:
 			# <!-- custom: could reduce it to 200 still displaying all text in the
@@ -148,7 +148,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			# -->
 			# Can't be much thinner than this or hover text will sometimes appear in the categories columns and sometimes (when the text box is too wide) in the items column
 			# <!-- custom: was 200 -->
-			self.W_CATEGORIES = 120
+			self.W_CATEGORIES = 124
 		# </advc.004y>
 		self.H_CATEGORIES = (self.Y_BOT_PANEL + 3) - self.Y_CATEGORIES
 
@@ -207,7 +207,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			SevoScreenEnums.PEDIA_PROMOTION_TREE	: self.placePromotionTree,
 			SevoScreenEnums.PEDIA_BUILDINGS		: self.placeBuildings,
 			SevoScreenEnums.PEDIA_NATIONAL_WONDERS	: self.placeNationalWonders,
-			SevoScreenEnums.PEDIA_GREAT_WONDERS	: self.placeGreatWonders,
+			SevoScreenEnums.PEDIA_WORLD_WONDERS	: self.placeWorldWonders,
 			SevoScreenEnums.PEDIA_PROJECTS		: self.placeProjects,
 			SevoScreenEnums.PEDIA_SPECIALISTS		: self.placeSpecialists,
 			SevoScreenEnums.PEDIA_TERRAINS		: self.placeTerrains,
@@ -238,7 +238,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			SevoScreenEnums.PEDIA_PROMOTIONS		: SevoPediaPromotion.SevoPediaPromotion(self),
 			SevoScreenEnums.PEDIA_BUILDINGS		: self.pediaBuilding,
 			SevoScreenEnums.PEDIA_NATIONAL_WONDERS	: SevoPediaBuilding.SevoPediaBuilding(self),
-			SevoScreenEnums.PEDIA_GREAT_WONDERS	: SevoPediaBuilding.SevoPediaBuilding(self),
+			SevoScreenEnums.PEDIA_WORLD_WONDERS	: SevoPediaBuilding.SevoPediaBuilding(self),
 			SevoScreenEnums.PEDIA_PROJECTS		: SevoPediaProject.SevoPediaProject(self),
 			SevoScreenEnums.PEDIA_SPECIALISTS		: SevoPediaSpecialist.SevoPediaSpecialist(self),
 			SevoScreenEnums.PEDIA_TERRAINS		: SevoPediaTerrain.SevoPediaTerrain(self),
@@ -403,7 +403,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.szCategoryPromotionTree	= localText.getText("TXT_KEY_PEDIA_CATEGORY_PROMOTION_TREE", ())
 		self.szCategoryBuildings	= localText.getText("TXT_KEY_PEDIA_CATEGORY_BUILDING", ())
 		self.szCategoryNationalWonders	= localText.getText("TXT_KEY_PEDIA_CATEGORY_NATIONAL_WONDERS", ())
-		self.szCategoryGreatWonders	= localText.getText("TXT_KEY_PEDIA_CATEGORY_GREAT_WONDERS", ())
+		self.szCategoryWorldWonders	= localText.getText("TXT_KEY_PEDIA_CATEGORY_WORLD_WONDERS", ())
 		self.szCategoryProjects		= localText.getText("TXT_KEY_PEDIA_CATEGORY_PROJECT", ())
 		self.szCategorySpecialists	= localText.getText("TXT_KEY_PEDIA_CATEGORY_SPECIALIST", ())
 		self.szCategoryTerrains		= localText.getText("TXT_KEY_PEDIA_CATEGORY_TERRAIN", ())
@@ -431,7 +431,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			["PROMOTIONS",	self.szCategoryPromotionTree],
 			["BUILDINGS",	self.szCategoryBuildings],
 			["BUILDINGS",	self.szCategoryNationalWonders],
-			["BUILDINGS",	self.szCategoryGreatWonders],
+			["BUILDINGS",	self.szCategoryWorldWonders],
 			["BUILDINGS",	self.szCategoryProjects],
 			["SPECIALISTS",	self.szCategorySpecialists],
 			["TERRAINS",	self.szCategoryTerrains],
@@ -589,11 +589,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		return self.pediaBuilding.getBuildingSortedList(1)
 
 
-	def placeGreatWonders(self):
-		self.list = self.getGreatWonderList()
+	def placeWorldWonders(self):
+		self.list = self.getWorldWonderList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, gc.getBuildingInfo)
 	
-	def getGreatWonderList(self):
+	def getWorldWonderList(self):
 		return self.pediaBuilding.getBuildingSortedList(2)
 
 

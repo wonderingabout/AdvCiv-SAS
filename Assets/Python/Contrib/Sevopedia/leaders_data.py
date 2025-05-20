@@ -7,7 +7,7 @@
        (___)_o   <-- Chicken wing of insight, a gift from wonderingabout
 
 Auto-generated leaders **data** module.
-Created: 20250511_164411
+Created: 20250520_162311
 
 Author: becomingthrough (ChatGPT)
 """
@@ -31,8 +31,8 @@ PARSED_XML_LEADERS_DATA = {
         "iMaxGoldPerTurnTradePercent": 0,
         "iCultureVictoryWeight": 0,
         "iSpaceVictoryWeight": 0,
-        "iConquestVictoryWeight": 0,
-        "iDominationVictoryWeight": 0,
+        "iConquestVictoryWeight": 70,
+        "iDominationVictoryWeight": 30,
         "iDiplomacyVictoryWeight": 0,
         "iMaxWarRand": 0,
         "iMaxWarNearbyPowerRatio": 0,
@@ -46,7 +46,7 @@ PARSED_XML_LEADERS_DATA = {
         "iDemandRebukedSneakProb": 0,
         "iDemandRebukedWarProb": 0,
         "iRazeCityProb": 75,
-        "iBuildUnitProb": 100,
+        "iBuildUnitProb": 70,
         "iBaseAttackOddsChange": 1,
         "iAttackOddsChangeRand": 16,
         "iWorseRankDifferenceAttitudeChange": -2,

@@ -1351,7 +1351,7 @@ and then modified for AdvCiv-SAS
 			<Button>,Art/Interface/Buttons/Buildings/Hollywood.dds,Art/Interface/Buttons/Buildings_Atlas.dds,8,3</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_GREAT_DAM</Type>
+			<Type>ART_DEF_BUILDING_THREE_GORGES_DAM</Type>
 			<LSystem>LSYSTEM_4x4</LSystem>
 			<bAnimated>1</bAnimated>
 			<fScale>0.98</fScale>

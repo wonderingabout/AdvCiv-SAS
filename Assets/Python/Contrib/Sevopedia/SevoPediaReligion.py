@@ -37,6 +37,7 @@ class SevoPediaReligion:
 		self.top = main
 
 		self.MEDIUM_MARGIN = 15
+		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
 
 		self.X_MAIN_PANE = self.top.X_PEDIA_PAGE
 		self.Y_MAIN_PANE = self.top.Y_PEDIA_PAGE
@@ -58,7 +59,7 @@ class SevoPediaReligion:
 		self.H_UNIT = 110
 
 		self.X_SPECIAL = self.X_MAIN_PANE + self.W_MAIN_PANE + self.MEDIUM_MARGIN
-		self.Y_SPECIAL = self.Y_REQUIRES + self.H_REQUIRES + self.MEDIUM_MARGIN - 5
+		self.Y_SPECIAL = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
 		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL
 		self.H_SPECIAL = 150
 
@@ -73,12 +74,12 @@ class SevoPediaReligion:
 		self.X_LEADERS = self.X_MAIN_PANE
 		self.W_LEADERS = self.top.R_PEDIA_PAGE - self.X_LEADERS
 		self.H_LEADERS = 110
-		self.Y_LEADERS = self.Y_MAIN_PANE + self.H_MAIN_PANE + self.MEDIUM_MARGIN - 5
+		self.Y_LEADERS = self.Y_MAIN_PANE + self.H_MAIN_PANE + self.SMALL_MARGIN
 
-		self.X_TEXT = self.X_MAIN_PANE
-		self.Y_TEXT = self.Y_LEADERS + self.H_LEADERS + self.MEDIUM_MARGIN - 5
-		self.W_TEXT = self.top.R_PEDIA_PAGE - self.X_TEXT
-		self.H_TEXT = self.top.B_PEDIA_PAGE - self.Y_TEXT
+		self.X_HISTORY = self.X_MAIN_PANE
+		self.Y_HISTORY = self.Y_LEADERS + self.H_LEADERS + self.SMALL_MARGIN
+		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
+		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
 
 
@@ -95,7 +96,7 @@ class SevoPediaReligion:
 		self.placeBuilding()
 		self.placeUnit()
 		self.placeLeaders()
-		self.placeText()
+		self.placeHistory()
 
 
 
@@ -157,10 +158,10 @@ class SevoPediaReligion:
 
 
 
-	def placeText(self):
+	def placeHistory(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel( panelName, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50 )
+		screen.addPanel( panelName, "", "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50 )
 		szText = gc.getReligionInfo(self.iReligion).getCivilopedia()
 		screen.attachMultilineText( panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 

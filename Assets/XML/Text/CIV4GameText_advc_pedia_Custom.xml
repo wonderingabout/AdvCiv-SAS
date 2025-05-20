@@ -23,14 +23,102 @@ hopefully more readable or exportable if need/want be now -->
 
 
 
-	<!-- custom: code (TXT_KEYs anyways etc) for our new placeExclusiveCivs method added in sevopediaunit thanks to Claude AI and my prompts and (very small or not but all or not anyways etc) adjustments anyways etc -->
+	<!-- custom: code (TXT_KEYs anyways etc) for our new placeExclusiveCivs, placeObsoletesWith, and placeReplace methods added in sevopediaunit thanks to Claude AI's code and explanations and my prompts and (very small or not but all or not anyways etc) adjustments anyways etc -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_EXCLUSIVE_CIVS</Tag>
 		<English>Civilizations</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_AVAILABLE_ALL_CIVS</Tag>
+		<Tag>TXT_KEY_PEDIA_EXCLUSIVE_CIVS_NO_BUTTON_FOUND</Tag>
 		<English>All</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_OBSOLETE</Tag>
+		<English>Obsolete</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_OBSOLETE_NO_BUTTON_FOUND</Tag>
+		<English>Never</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_REPLACES_CUSTOM</Tag>
+		<English>Replaces</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FREE_ITEMS</Tag>
+		<English>Free Promotion, Building, Bonus, Specialists</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FREE_PROMOTIONS</Tag>
+		<English>Free Promotions</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FREE_ITEMS_NO_BUTTON_FOUND</Tag>
+		<English>None</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_REQUIRES_NO_BUTTON_FOUND</Tag>
+		<English>None</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_REQUIRED_FOR</Tag>
+		<English>Required For</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_REQUIRED_FOR_NO_BUTTON_FOUND</Tag>
+		<English>Nothing</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_REPLACE_NO_BUTTON_FOUND</Tag>
+		<English>Nothing</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_UPGRADES_TO_NO_BUTTON_FOUND</Tag>
+		<English>Nothing</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS</Tag>
+		<English>Against Classes (A|D), Combat Types (A+D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS_NO_BUTTON_FOUND</Tag>
+		<English>None</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_OF_OTHER_UNITS_MODIFIERS_AGAINST_THIS_UNIT</Tag>
+		<English>Of Other Classes's Units (A|D), Combat Types's Units (A+D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_OF_OTHER_UNITS_MODIFIERS_AGAINST_THIS_UNIT_NO_BUTTON_FOUND</Tag>
+		<English>None</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS</Tag>
+		<English>Peak, Hill, City, Terrains, Features (A/D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS_NO_BUTTON_FOUND</Tag>
+		<English>None</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BONUS_OBSOLETE_WITH</Tag>
+		<English>Obsolete With</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BONUS_OBSOLETE_WITH_NO_BUTTON_FOUND</Tag>
+		<English>Never</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BONUS_REVEALED_BY_NO_BUTTON_FOUND</Tag>
+		<English>Always</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BONUS_TRADEABLE_SINCE_NO_BUTTON_FOUND</Tag>
+		<English>Always</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BONUS_GENERIC_NONE</Tag>
+		<English>None</English>
 	</TEXT>
 
 

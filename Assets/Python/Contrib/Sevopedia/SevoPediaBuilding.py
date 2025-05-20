@@ -8,7 +8,17 @@
 #
 # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
 #
-# <!-- custom: refactoring (of the below (and in too but anyways etc anyways etc)) is based on the sevopediaunit refactoring with small alterations/changes or/and not to fit/suit the sevopedia building code/features (also refactoring it (i.e: the sevopediabuilding code anyways etc) allowed to further polish and tweak and refactor or/and ifx or not or and other or and not anyways etc the sevopediaunit code so very nice or not nice or nice but not necessary or is or is not maybe or not (is) or yes (is not) but anyways etc anyways etc anyways etc...) done before that/this one anyways etc anyways etc, please/you can look there if you want more code comments and clarifications about the changes anyways etc anyways etc anyways etc) -->
+# <!-- custom: refactoring (of the below (and in too but anyways etc anyways etc)) is based on the sevopediaunit refactoring with small alterations/changes or/and not to fit/suit the sevopedia building code/features (also refactoring it (i.e: the sevopediabuilding code anyways etc) allowed to further polish and tweak and refactor or/and fix or not or and other or and not anyways etc the sevopediaunit code so very nice or not nice or nice but not necessary or is or is not maybe or not (is) or yes (is not) but anyways etc anyways etc anyways etc...) done before that/this one anyways etc anyways etc, please/you can look there if you want more code comments and clarifications about the changes anyways etc anyways etc anyways etc)
+# -->
+# <!-- custom: new, added thanks to Claude AI's code and my prompts anyways etc or and other things or and not anyways etc, and adjusted and tweaked or and modified in general or not general ways or not anyways etc for AdvCiv-SAS:
+# - placeExclusiveCivs: now we have buttons for the civ(s) that can build a unit, and no button at all if all civs can build the currently selected unit (to not clutter the display needlessly with all civs buttons and is also clearer to know immediately that all can build it with the panel being empty),
+# - placeObsoleteWith in a similar manner than (for?) placeExclusiveCivs to show the button of the tech that obsoletes this currently selected building anyways etc anyways etc anyways etc...
+# - (and) placeReplace (but anyways etc anyways etc anyways etc...): based on the one in sevopediaunit that was based on another mod's code (see in sevopediaunit's code for details anyways etc anyways etc anyways etc...) and adjusted or not or yes or other etc anyways etc for and while adding it to sevopediabuilding, improvements (or not.. or yes, or other anyways etc) of which that have served to enhance the one in sevopediaunit back so all good maybe or not all good or all good or other or and not but anywyas etc... anyways etc anyways etc anyways etc..
+# - placeRequiredFor,
+# - placeFree
+# - enhanced or beautified or tweaked or and other or and not some if not most or maybe even or not or maybe or and anyways etc all functions/methods of this py file, anyways etc.
+#  thanks a lot Claude AI! (and the other mod too ("!" too or ! too or maye rather !"" or "!" or rather ! or "!" too but anyways etc anyways etc anyways thanks too in short maybe anyways etc anywas etc anyways etc...) Anyways etc anyways etc anyways etc... -->
+# -->
 
 from CvPythonExtensions import *
 import CvUtil
@@ -30,7 +40,7 @@ class SevoPediaBuilding:
 
 		self.X_BUILDING_PANE = self.top.X_PEDIA_PAGE
 		self.Y_BUILDING_PANE = self.top.Y_PEDIA_PAGE
-		self.W_BUILDING_PANE = (self.top.R_PEDIA_PAGE - self.X_BUILDING_PANE) / 2
+		self.W_BUILDING_PANE = (self.top.R_PEDIA_PAGE - self.X_BUILDING_PANE - self.MEDIUM_MARGIN) / 2
 		self.H_BUILDING_PANE = 190
 
 		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code anyways etc) and modified it and its logic for advciv-sas or not or yes or and other things or and not anyways etc -->
@@ -55,6 +65,10 @@ class SevoPediaBuilding:
 		self.STATS_PANE_LEFT_SIDE_MARGIN = 0
 		self.STATS_PANE_UPPER_PADDING = 38
 
+		# <!-- custom: before starting, store last displayed placeStats coordinate, initialize or/and reinitialize them to none anyways etc, these are only used in placeStats so it should be safe, but we need to store them for later reuse (to display in/at/during a second pass anyways etc the great people button in another overlapping transparent panel), see placeStats "custom 7.1:" for details -->
+		self.X_LAST_DISPLAYED_GRID_ITEM = None
+		self.Y_LAST_DISPLAYED_GRID_ITEM = None
+
 		self.X_STATS_PANE = self.X_BUILDING_PANE + self.STATS_PANE_LEFT_SIDE_MARGIN + self.W_ICON + (2 * self.SMALLER_ICON_SIZE_THAN_ICON_FRAME_MARGIN)
 		self.Y_STATS_PANE = self.Y_BUILDING_PANE + self.STATS_PANE_UPPER_PADDING
 		self.W_STATS_PANE = self.W_BUILDING_PANE - self.W_ICON - (2 * self.SMALLER_ICON_SIZE_THAN_ICON_FRAME_MARGIN) - self.STATS_PANE_LEFT_SIDE_MARGIN
@@ -62,44 +76,65 @@ class SevoPediaBuilding:
 
 		self.H_STATS_PANE_LINE_HEIGHT = 38
 
-		self.X_PREREQ_PANE = self.X_BUILDING_PANE
-		self.Y_PREREQ_PANE = self.Y_BUILDING_PANE + self.H_BUILDING_PANE + self.SMALL_MARGIN
-		self.W_PREREQ_PANE = self.W_BUILDING_PANE
-		self.H_PREREQ_PANE = 110
+		# <!-- custom: see sevopediaunit's self.W_TOTAL_EFFECTIVE_UNIT_PANE for differences in implementation anyways etc -->
+		self.W_TOTAL_EFFECTIVE_BUILDING_PANE = self.W_BUILDING_PANE
 
-		self.X_REPLACED_BY = self.X_PREREQ_PANE
-		self.Y_REPLACED_BY = self.Y_PREREQ_PANE + self.H_PREREQ_PANE + self.SMALL_MARGIN
-		self.W_REPLACED_BY = self.W_PREREQ_PANE
-		self.H_REPLACED_BY = self.H_PREREQ_PANE
+		self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING = 8
+		self.HYPOTHESIZED_INTER_BUTTON_SPACING = 4
 
-		self.X_OBSOLETES_WITH = self.X_PREREQ_PANE
-		self.Y_OBSOLETES_WITH = self.Y_REPLACED_BY + self.H_REPLACED_BY + self.SMALL_MARGIN
-		self.W_OBSOLETES_WITH = self.W_PREREQ_PANE
-		self.H_OBSOLETES_WITH = self.H_PREREQ_PANE
+		self.X_REQUIRES = self.X_BUILDING_PANE
+		self.Y_REQUIRES = self.Y_BUILDING_PANE + self.H_BUILDING_PANE + self.SMALL_MARGIN
+		self.W_REQUIRES = self.W_TOTAL_EFFECTIVE_BUILDING_PANE
+		self.H_REQUIRES = 110
 
-		self.X_SPECIAL_PANE = self.X_BUILDING_PANE
-		self.Y_SPECIAL_PANE = self.Y_PREREQ_PANE + self.H_PREREQ_PANE + self.SMALL_MARGIN
-		self.W_SPECIAL_PANE = self.W_PREREQ_PANE
-		self.H_SPECIAL_PANE = self.top.B_PEDIA_PAGE - self.Y_SPECIAL_PANE
+		self.X_REQUIRED_FOR = self.X_BUILDING_PANE
+		self.Y_REQUIRED_FOR = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
+		self.W_REQUIRED_FOR = self.W_TOTAL_EFFECTIVE_BUILDING_PANE
+		self.H_REQUIRED_FOR = self.H_REQUIRES
 
-		self.X_BUILDING_ANIMATION = self.X_BUILDING_PANE + self.W_BUILDING_PANE + self.MEDIUM_MARGIN
-		self.Y_BUILDING_ANIMATION = self.Y_BUILDING_PANE + 7
-		self.W_BUILDING_ANIMATION = self.W_BUILDING_PANE - self.MEDIUM_MARGIN
-		self.H_BUILDING_ANIMATION = self.H_BUILDING_PANE + self.SMALL_MARGIN + self.H_PREREQ_PANE + self.SMALL_MARGIN + self.H_REPLACED_BY - 7
+		self.W_OBSOLETE_WITH = 84
+
+		self.X_FREE = self.X_BUILDING_PANE
+		self.Y_FREE = self.Y_REQUIRED_FOR + self.H_REQUIRED_FOR + self.SMALL_MARGIN
+		self.W_FREE = self.W_TOTAL_EFFECTIVE_BUILDING_PANE - self.W_OBSOLETE_WITH - self.MEDIUM_MARGIN
+		self.H_FREE = self.H_REQUIRES
+
+		self.X_OBSOLETE_WITH = self.X_FREE + self.W_FREE + self.MEDIUM_MARGIN
+		self.Y_OBSOLETE_WITH = self.Y_FREE
+		self.H_OBSOLETE_WITH = self.H_REQUIRES
+
+		self.X_SPECIAL = self.X_BUILDING_PANE
+		self.Y_SPECIAL = self.Y_FREE + self.H_FREE + self.SMALL_MARGIN
+		self.W_SPECIAL = self.W_TOTAL_EFFECTIVE_BUILDING_PANE
+		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
+
+		self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE = 7
+
+		self.X_BUILDING_ANIMATION = self.X_BUILDING_PANE + self.W_TOTAL_EFFECTIVE_BUILDING_PANE + self.MEDIUM_MARGIN
+		self.Y_BUILDING_ANIMATION = self.Y_BUILDING_PANE + self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
+		self.W_BUILDING_ANIMATION = self.W_TOTAL_EFFECTIVE_BUILDING_PANE
+		self.H_BUILDING_ANIMATION = self.H_BUILDING_PANE + self.SMALL_MARGIN + self.H_REQUIRES + self.SMALL_MARGIN + self.H_FREE - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
 		
 		self.X_ROTATION_BUILDING_ANIMATION = -20
 		self.Z_ROTATION_BUILDING_ANIMATION = 30
 		self.SCALE_ANIMATION = 0.7
 
-		self.X_EXCLUSIVE_CIVS = self.X_OBSOLETES_WITH + self.W_OBSOLETES_WITH + self.MEDIUM_MARGIN
-		self.Y_EXCLUSIVE_CIVS = self.Y_OBSOLETES_WITH
-		self.W_EXCLUSIVE_CIVS = self.W_BUILDING_ANIMATION
-		self.H_EXCLUSIVE_CIVS = self.H_OBSOLETES_WITH
+		self.X_REPLACE = self.X_BUILDING_ANIMATION
+		self.Y_REPLACE = self.Y_BUILDING_ANIMATION + self.H_BUILDING_ANIMATION + self.SMALL_MARGIN
+		self.W_REPLACE = ((self.W_BUILDING_ANIMATION - self.MEDIUM_MARGIN) / 2)
+		self.H_REPLACE = self.H_REQUIRES
 
-		self.X_HISTORY_PANE = self.X_BUILDING_ANIMATION
-		self.Y_HISTORY_PANE = self.Y_EXCLUSIVE_CIVS + self.H_EXCLUSIVE_CIVS + self.MEDIUM_MARGIN + 17
-		self.W_HISTORY_PANE = self.W_BUILDING_ANIMATION
-		self.H_HISTORY_PANE = self.top.B_PEDIA_PAGE - self.Y_HISTORY_PANE
+		self.X_EXCLUSIVE_CIVS = self.X_BUILDING_ANIMATION + self.W_REPLACE + self.MEDIUM_MARGIN
+		self.Y_EXCLUSIVE_CIVS = self.Y_REPLACE
+		self.W_EXCLUSIVE_CIVS = self.W_REPLACE
+		self.H_EXCLUSIVE_CIVS = self.H_REPLACE
+
+		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
+
+		self.X_HISTORY = self.X_BUILDING_ANIMATION
+		self.Y_HISTORY = self.Y_EXCLUSIVE_CIVS + self.H_EXCLUSIVE_CIVS + self.SMALL_MARGIN
+		self.W_HISTORY = self.W_BUILDING_ANIMATION
+		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
 
 
@@ -109,7 +144,13 @@ class SevoPediaBuilding:
 		self.placeBuildingPane()
 		self.placeStats()
 		self.placeRequires()
+		self.placeRequiredFor()
+		self.placeFree()
+		self.placeObsoleteWith()
 		self.placeSpecial()
+		self.placeBuildingAnimation()
+		self.placeReplace()
+		self.placeExclusiveCivs()
 		self.placeHistory()
 
 
@@ -117,21 +158,37 @@ class SevoPediaBuilding:
 	def placeBuildingPane(self):
 		screen = self.top.getScreen()
 
-		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_BUILDING_PANE, self.Y_BUILDING_PANE, self.W_BUILDING_PANE, self.H_BUILDING_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_BUILDING_PANE, self.Y_BUILDING_PANE, self.W_TOTAL_EFFECTIVE_BUILDING_PANE, self.H_BUILDING_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
 		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getBuildingInfo(self.iBuilding).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-		screen.addBuildingGraphicGFC(self.top.getNextWidgetName(), self.iBuilding, self.X_BUILDING_ANIMATION, self.Y_BUILDING_ANIMATION, self.W_BUILDING_ANIMATION, self.H_BUILDING_ANIMATION, WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_BUILDING_ANIMATION, self.Z_ROTATION_BUILDING_ANIMATION, self.SCALE_ANIMATION, True)
 
 
 
 	# <!-- custom: table code based on placeAiPersonality panel method/function in sevopedialeader we (me and becomingthrough chatgpt) had written and enhanced together and all anyways etc, modifying/adjusting it for this sevopediabuilding (much) simpler panel (stats pane) need but still important as we don't want to scroll after say 4th element, move to 2nd column rather and resume filling there. -->
 	def placeStats(self):
 		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		placeStatsPanelTxtKey = ""
+
+		buildingInfo = gc.getBuildingInfo(self.iBuilding)
+
 		numColumns = 3
 		columnWidth = self.W_STATS_PANE / numColumns
 
-		def setupPanel(screen, txtKey):
-			panelName = self.top.getNextWidgetName()
+		# <!-- custom: refer to code below to know max element count, so far we have in our code (see below for how it is implemented anyways etc), taken from claude AI's message and adjusted (formatted or not anyways etc) or not anyways etc thanks claude hehe anyways etc -->
+		# Here's what the method now does in sequence:
+		# - 1. Cost: Shows production cost
+		# - 2. Yield Changes: Shows direct yields like food (+1 food from Baray)
+		# - 3. Commerce Changes: Shows actual commerce amounts (+x science, gold, culture, espionage)
+		# - 4. Commerce Modifiers: Shows percentage bonuses and double times (+x% and x2 times)
+		# - 5. Happiness/Unhappiness: Shows happiness effects
+		# - 6. Health/Unhealth: Shows health effects
+		# - 7. Great People: Shows great people rate changes
+		#
+		# <!-- custom: note: we have a risk of overflow of data/items to display, if all or most of these fields are full, while only having 9 grid positions to do so, this should be extremely rare, but if it were to happen, you can increase grid size to 3 columns * 4 rows (to do that, you could for example reduce line height spacing (but may eb a bit ugly (maybe) but anyways), reduce upper padding (but maybe not needed or not lot as we can even now display a 4th row but not as pretty if starting from current "padded"(?)/upper padding), or for example artifically increase the panel height so the code thinks it has more room to fill one more row (which it has but then is bit ugly(ier) anyways etc) (the 4th before going to a new column and back to 1st row anyways etc), or maybe tweak the code i proudly as in rather funnily? did if that is a word hehe by myself based on old code from sevopedia leader's grid code (renderCategories and such if i am not mistaken and they are still named the same now anyways etc which we created as well with chatgpt/becomingthorugh (see authors for details) but anyways etc anyways etc anyways etc...) and adjusting/refatoring it for our need for this sevopedia building's placeStats anyways etc anyways etc anyways etc), or/and other things ways maybe to refactor it or not so it fits a 4th row or yes or and other or and not anyways etc. Since we don't have to do this, 9 grid of 3 columns * 3 rows are probably enough for us so staying/sticking with that maybe anyways etc anyways etc anyways etc...
+		# -->
+
+		def setupPanel(screen, panelName, txtKey, panelStyle):
 			screen.addPanel(
 				panelName,
 				localText.getText(txtKey, ()),
@@ -142,17 +199,12 @@ class SevoPediaBuilding:
 				self.Y_STATS_PANE,
 				self.W_STATS_PANE,
 				self.H_STATS_PANE,
-				# <!-- custom: useful for debugging, otherwise we don't need a blue on blue color, prefer transparent ("EMPTY" if i am not mistaken anyways etc), anyways etc -->
-				#PanelStyles.PANEL_STYLE_BLUE50,
-				PanelStyles.PANEL_STYLE_EMPTY,
+				panelStyle,
 			)
 
 		# === PANEL SETUP ===
-		setupPanel(screen, "")
-
-		# <!-- custom: refer to code below to know max element count, so far we have in our code:
-		# Cost (1), Food (2), Gold per turn (GPT anyways etc... anyways etc...) (3), Culture (4), Espionage (5), Happiness or Unhappiness (6), Health(y?)(iness?? Anyways etc... Anyways etc...) or Unhealth(y)(same anyways etc... anyways etc...) (7), Great people (8), hopefully i didn't miss any but may have had, no functional difference, but good to know the informative and accurate value still maybe or not or yes or and other or maybe not but anyways etc anyways etc anyways etc...
-		# -->
+		# <!-- custom: blue panel style PanelStyles.PANEL_STYLE_BLUE50 is/can be anyways etc useful for debugging, otherwise we don't need a blue on blue color, prefer transparent ("EMPTY" if i am not mistaken anyways etc), anyways etc -->
+		setupPanel(screen, panelName, placeStatsPanelTxtKey, PanelStyles.PANEL_STYLE_EMPTY)
 
 		def fillCell(screen, label, xLabel, y):
 			labelText = u"<font=4>%s</font>" % label
@@ -177,12 +229,10 @@ class SevoPediaBuilding:
 				return x, y, rowItemId
 
 		# === Render Function ===
-		def renderCells(screen, columnWidth, xPanel, yPanel):
+		def renderCells(screen, buildingInfo, columnWidth, xPanel, yPanel):
 			x = xPanel
 			y = yPanel
 			rowItemId = 0
-
-			buildingInfo = gc.getBuildingInfo(self.iBuilding)
 
 			# <!-- custom: if i am not mistaken it seems we never use the code below and i don't understand too well what it is for, but especially in our placeStats pane i don't think we use it at all if i am not mistaken, so commenting it out
 			"""
@@ -221,19 +271,21 @@ class SevoPediaBuilding:
 				fillCell(screen, szText2, x, y)
 				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
 
-			# <!-- custom: 2 and 3: Food (2) and Gold per turn (3) if i am not mistaken anyways etc (which would anyways etc GPT anyways etc...) -->
+
+			# 2: <!-- custom: 2 Direct Yield Changes (like Food, Production, Commerce) (2) -->
 			for k in range(YieldTypes.NUM_YIELD_TYPES):
-				if (buildingInfo.getYieldChange(k) != 0):
-					if (buildingInfo.getYieldChange(k) > 0):
+				iYieldChange = buildingInfo.getYieldChange(k)
+				if (iYieldChange != 0):
+					if (iYieldChange > 0):
 						szSign = "+"
 					else:
 						szSign = ""
-					szText1 = szSign + str(buildingInfo.getYieldChange(k))
+					szText1 = szSign + str(iYieldChange)
 					szText2 = u"%c  %s" % (gc.getYieldInfo(k).getChar(), szText1)
 					fillCell(screen, szText2, x, y)
 					x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
 
-			# <!-- custom: 4 and 5: Culture (4) and Espionage (5) anyways etc anyways etc...... anyways etc... -->
+			# <!-- custom: 3: Commerce Changes (Science, Gold, Culture, Espionage) (3) -->
 			for k in range(CommerceTypes.NUM_COMMERCE_TYPES):
 				iTotalCommerce = buildingInfo.getObsoleteSafeCommerceChange(k) + buildingInfo.getCommerceChange(k)
 				if (iTotalCommerce != 0):
@@ -246,7 +298,39 @@ class SevoPediaBuilding:
 					fillCell(screen, szText2, x, y)
 					x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
 
-			# <!-- custom: 6: Happiness or Unhappiness anyways etc -->
+			# <!-- custom: 4: Commerce Modifiers and Double Times (4) -->
+			for k in range(CommerceTypes.NUM_COMMERCE_TYPES):
+				iCommerceModifier = buildingInfo.getCommerceModifier(k)
+				iCommerceDoubleTime = buildingInfo.getCommerceChangeDoubleTime(k)
+				iGlobalCommerceModifier = buildingInfo.getGlobalCommerceModifier(k)
+				
+				# <!-- custom: placeSpecial (already) handles the full info display (currently not double times though if not always or not anyways etc), so we can simply be concise maybe or not or other anyways etc and display the total of "local" (if any (too than in global that i wrote the if any of before but anyways etc anyways etc anyways etc...)) + global commerce modifier (if any) rather anyways etc -->
+				# Total modifier (local + global)
+				iTotalModifier = iCommerceModifier + iGlobalCommerceModifier
+				
+				# Display if either modifier or double time exists
+				if (iTotalModifier != 0 or iCommerceDoubleTime > 0):
+					szText = ""
+					
+					# Add modifier percentage
+					if (iTotalModifier != 0):
+						if (iTotalModifier > 0):
+							szSign = "+"
+						else:
+							szSign = ""
+						szText += szSign + str(iTotalModifier) + "%"
+					
+					# Add double time if present
+					if (iCommerceDoubleTime > 0):
+						if (len(szText) > 0):
+							szText += ", "
+						szText += "x2(" + str(iCommerceDoubleTime) + "Y)"
+					
+					szText2 = u"%c  %s" % (gc.getCommerceInfo(k).getChar(), szText)
+					fillCell(screen, szText2, x, y)
+					x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
+
+			# <!-- custom: 5: Happiness or Unhappiness anyways etc (5) -->
 			iHappiness = buildingInfo.getHappiness()
 			if self.top.iActivePlayer != -1:
 				if (self.iBuilding == gc.getCivilizationInfo(gc.getPlayer(self.top.iActivePlayer).getCivilizationType()).getCivilizationBuildings(buildingInfo.getBuildingClassType())):
@@ -263,7 +347,7 @@ class SevoPediaBuilding:
 				fillCell(screen, szText2, x, y)
 				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
 
-			# <!-- custom: 7: Health(y?)(iness?? Anyways etc... Anyways etc...) or Unhealth(y)(same anyways etc... anyways etc...) anyways etc -->
+			# <!-- custom: 6: Health(y?)(iness?? Anyways etc... Anyways etc...) or Unhealth(y)(same anyways etc... anyways etc...) anyways etc (6) -->
 			iHealth = buildingInfo.getHealth()
 			if self.top.iActivePlayer != -1:
 				if (self.iBuilding == gc.getCivilizationInfo(gc.getPlayer(self.top.iActivePlayer).getCivilizationType()).getCivilizationBuildings(buildingInfo.getBuildingClassType())):
@@ -280,35 +364,234 @@ class SevoPediaBuilding:
 				fillCell(screen, szText2, x, y)
 				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
 
-			# <!-- custom: 8: Great people -->
-			if (buildingInfo.getGreatPeopleRateChange() != 0):
-				szText = localText.getText("TXT_KEY_PEDIA_GREAT_PEOPLE_CUSTOM", (buildingInfo.getGreatPeopleRateChange(),))
+			# <!-- custom: version below ("custom: 7: original version:") works at successfully displaying great people information as a textual szText2, for example "+2" is now "+2 (Great Scientist)", but this is too long, and while it could be abbreviated, i would prefer to display buttons rather next to the value, i don't know how well it will work if great people type is not a great people (for example and such if understood it correctly that non great people type of units can spawn from great people count any unit in fact if i am not mistaken anyways etc) (could add a fallback indeed as Claude AI suggested in a more advanced (not here) version of the code (due to it being more complicated, but basically it just abbreviates previous example to "+2 (G.Sci)", but i preferred simplicity in this case so kept this code rather anyways etc, commented-out still though as we are now trying and maybe will succeed or not but anyways etc to do a button approach rather would look cooler as in prettier or mroe pelasant anyways etc --> 
+			"""
+			# <!-- custom: 7: original version: Great people -->
+			if buildingInfo.getGreatPeopleRateChange() != 0:
+				# First get the building's great person type (e.g., SPECIALIST_GREAT_MERCHANT)
+				greatPersonType = buildingInfo.getGreatPeopleUnitClass()
+				
+				# Get the name of the great person type
+				greatPersonName = ""
+				
+				if greatPersonType != -1:
+					# Get the unit info for the great person type
+					# First we need to get the default unit for this unit class for the current civilization
+					if self.top.iActivePlayer != -1:
+						iGreatPersonUnit = gc.getCivilizationInfo(gc.getPlayer(self.top.iActivePlayer).getCivilizationType()).getCivilizationUnits(greatPersonType)
+					else:
+						iGreatPersonUnit = gc.getUnitClassInfo(greatPersonType).getDefaultUnitIndex()
+					
+					if iGreatPersonUnit != -1:
+						greatPersonName = gc.getUnitInfo(iGreatPersonUnit).getDescription()
+
+				# Create the text with the great person rate change
+				szText = CyTranslator().getText("TXT_KEY_PEDIA_GREAT_PEOPLE_CUSTOM", (buildingInfo.getGreatPeopleRateChange(),))
+				
+				# If we found a great person type, add its name to the text
+				if greatPersonName:
+					szText += " (" + greatPersonName + ")"
+				
+				# Format with the great people character
 				szText2 = u"%c  %s" % (CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR), szText)
+				
+				# Display the text
 				fillCell(screen, szText2, x, y)
 				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
+			"""
+			
+			# <!-- custom: 7.1: alternative version part 1: Great people, only display the great people icon and the value, for example "(Great People icon) +2", use a button later in "custom 8.2:" rather instead anyways etc -->
+			if buildingInfo.getGreatPeopleRateChange() != 0:
+				# First get the building's great person type (e.g., SPECIALIST_GREAT_MERCHANT)
+				greatPersonType = buildingInfo.getGreatPeopleUnitClass()
+
+				# Create the text with the great person rate change
+				szText = CyTranslator().getText("TXT_KEY_PEDIA_GREAT_PEOPLE_CUSTOM", (buildingInfo.getGreatPeopleRateChange(),))
+				
+				# Format with the great people character
+				szText2 = u"%c  %s" % (CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR), szText)
+				
+				# Display the text
+				fillCell(screen, szText2, x, y)
+				# <!-- custom: since this is our last usage/placeStats info displayed, we don't get the next coordinates, but instead store current coordinates (of last item displayed, anyways etc) to know where to place our great people button later in "custom: 7.2" below (if i am not mistaken that it is below, it should be in all cases later or not or yes but anyways etc anyways etc anyways etc -->
+				self.X_LAST_DISPLAYED_GRID_ITEM = x
+				self.Y_LAST_DISPLAYED_GRID_ITEM = y
 
 		# Render Panels
-		renderCells(screen, columnWidth, self.X_STATS_PANE, self.Y_STATS_PANE)
+		renderCells(screen, buildingInfo, columnWidth, self.X_STATS_PANE, self.Y_STATS_PANE)
+
+		# <!-- custom: 7.2: alternative version: now that textual and placeStats display is finished (minus Great People info), handle it as a separate panel now, that overlaps with placeStats, and that is transparent in color background, using last grid coordinates while we have them, the inner placeStats logic, and finishing by displaying the Great People info as button as we want it anyways etc -->
+		def placeGreatPeopleStats(screen, buildingInfo):
+			screen = self.top.getScreen()
+			panelName = self.top.getNextWidgetName()
+			greatPersonPanelTxtKey = ""
+
+			buttonXOffset = 66
+			# <!-- custom: slightly shift the button if button size (w and h) are higher than 32 to simulate a better centering effect towards the text of "+2" (great people count example) for example, the buttonYOffset = +2 if it were same value is purely coincidental value that suited us to center the button, no correlation or link at least voluntary anyways etc -->
+			buttonYOffset = -2
+			buttonW = 39
+			buttonH = buttonW
+
+			# Only proceed if this building affects great people rate
+			if buildingInfo.getGreatPeopleRateChange() == 0:
+				return
+			
+			# === PANEL SETUP ===
+			setupPanel(screen, panelName, greatPersonPanelTxtKey, PanelStyles.PANEL_STYLE_EMPTY)
+
+			# Get great person information
+			greatPersonType = buildingInfo.getGreatPeopleUnitClass()
+			greatPersonName = ""
+			#greatPersonAbbrev = ""
+			greatPersonIcon = None
+
+			"""
+			# Create abbreviated name
+			if greatPersonName:
+				nameParts = greatPersonName.split()
+				if len(nameParts) >= 2 and nameParts[0].lower() == "great":
+					secondWord = nameParts[1]
+					if len(secondWord) > 4:
+						secondWordAbbrev = secondWord[:4] + "."
+					else:
+						secondWordAbbrev = secondWord
+					greatPersonAbbrev = "G." + secondWordAbbrev
+				else:
+					greatPersonAbbrev = "".join([word[0] for word in nameParts if word])
+			"""
+
+			if greatPersonType != -1:
+				# Get the unit info for the great person type
+				if self.top.iActivePlayer != -1:
+					iGreatPersonUnit = gc.getCivilizationInfo(gc.getPlayer(self.top.iActivePlayer).getCivilizationType()).getCivilizationUnits(greatPersonType)
+				else:
+					iGreatPersonUnit = gc.getUnitClassInfo(greatPersonType).getDefaultUnitIndex()
+				
+				if iGreatPersonUnit != -1:
+					greatPersonInfo = gc.getUnitInfo(iGreatPersonUnit)
+					greatPersonName = greatPersonInfo.getDescription()
+					greatPersonIcon = greatPersonInfo.getButton()
+					
+				# Create text string
+				gpRateText = CyTranslator().getText(greatPersonPanelTxtKey, (buildingInfo.getGreatPeopleRateChange(),))
+
+				# This approach uses a separate panel with both an icon and text
+				if greatPersonIcon:
+					iconWidget = self.top.getNextWidgetName()
+					screen.addDDSGFC(iconWidget, greatPersonIcon, 
+									self.X_LAST_DISPLAYED_GRID_ITEM + buttonXOffset,  # X position 
+									self.Y_LAST_DISPLAYED_GRID_ITEM + buttonYOffset,  # Y position
+									buttonW, buttonH,  # Width and height of icon
+									WidgetTypes.WIDGET_GENERAL, -1, -1)
+					
+					"""
+					# Add text next to the icon
+					textWidget = self.top.getNextWidgetName()
+					screen.setLabelAt(textWidget, panelName, u"<font=3>%s</font>" % gpRateText, 
+									CvUtil.FONT_LEFT_JUSTIFY, 
+									50,  # X offset within panel (after icon)
+									10,  # Y offset within panel
+									0, FontTypes.SMALL_FONT, 
+									WidgetTypes.WIDGET_GENERAL, -1, -1)
+					"""
+				else:
+					# <!-- custom: else our placeStats "custom: 7.1" already handles the display of the great people icon and the great people rate value (text too anyways etc) if i am not mistaken, so maybe we can ignore code below as well and clean it up in next commit or any time further i wish or and other or and not or and etc anyways etc, keeping as is for nwo until cleanup anyways etc. Also, if there is some special info like the great peiople unit name that is/would/were not (//to anyways etc) /be/ anyways etc any of the great people units (for example a settler if i am not mistaken that this is possible too from what i understood of what i read of Claude AI or online but maybe was claude AI's explanation anyways etc, then we still have the placeSpecial info not removed to cover us anyways etc (i chose to not remove it in the end as it has some sueful information like defenses obsoleting or not with exceptions, power being this or that, or/and other special or confusing well or well enough hopefully as they did if they enjoyed or not o wanted or not anyways etc, so cleaned from DLL placeSpecial messages only the obvious uneeded logic that clearly overlaps with the new panels we have (placeFree, placeRequiredFor, placeExclusiveCivs as was done (DLL cleanup of redundant messages) in sevopedia unit and now applied to sevopedia building, anyways etc.)) -->
+					"""
+					# Just add text if no icon
+					textWidget = self.top.getNextWidgetName()
+					textWithSymbol = u"%c  %s" % (CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR), gpRateText)
+					screen.setLabelAt(textWidget, panelName, u"<font=3>%s</font>" % textWithSymbol, 
+									CvUtil.FONT_LEFT_JUSTIFY, 
+									self.X_LAST_DISPLAYED_GRID_ITEM + buttonXOffset - 10,  # X position <-- !custom: as text is smaller than button, the x offset can be a bit smaller most likely, to use space more efficiently, did not tets but hoepfulyl should work well and not grind/eat away at our left "+2" (great people value example anyways etc), else shift back to the right as needed (by increasing this extra negative offset i added (- 10 in this example may not eb accurate or updated anyways etc)  anyways etc) --> 
+									self.Y_LAST_DISPLAYED_GRID_ITEM,  # Y position <!-- custom: no need for special centering effect then if i am not mistaken, did not test text display if no icon is found but maybe works well or well enough hopefully anyways etc -->
+									0, FontTypes.SMALL_FONT, 
+									WidgetTypes.WIDGET_GENERAL, -1, -1)
+					"""
+					
+		placeGreatPeopleStats(screen, buildingInfo)
+
+
+
+	def getXOccurenceFound(self, xPanel, nCountOccurencesFound, buttonSize, xSubstractedAdjustment):
+		# <!-- custom: all buttons are spaced, except the first one that depends on panel left side padding, so do a - 1 to account for that -->
+		if (nCountOccurencesFound < 1):
+			raise ValueError("[FATAL] nCountOccurencesFound=%d cannot be < 1, make sure you first increment nCountOccurencesFound at first occurence found before calling this getXOccurenceFound method anyways etc." % nCountOccurencesFound)
+		return xPanel + self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING + (nCountOccurencesFound * buttonSize) + ((nCountOccurencesFound - 1) * self.HYPOTHESIZED_INTER_BUTTON_SPACING) - xSubstractedAdjustment
+
+
+
+	def displayPanelButtonsSNumsOrTxts(self, screen, xNumsOrTextsFound, buttonSize, yPanel, hPanel):
+		yPanelBottomPart = yPanel + int(0.8 * hPanel)
+		for xOccurenceFound, numFreeTxtOccurenceFound in xNumsOrTextsFound:
+			textName = self.top.getNextWidgetName()
+			szText = numFreeTxtOccurenceFound
+			screen.addMultilineText(textName, szText, xOccurenceFound, yPanelBottomPart, 2 * buttonSize, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+
+
+	def displayPanelSTxtKeyNoButton(self, screen, txtKeyNoButtonFound, xPanel, yPanel, wPanel, hPanel):
+		yPanelCenter = yPanel + (hPanel / 2)
+		textName = self.top.getNextWidgetName()
+		szText = CyTranslator().getText(txtKeyNoButtonFound, ())
+		screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+
+
+	def displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(self, screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, xPanel, yPanel, wPanel, hPanel):
+		# <!-- custom: now display(ing anyways etc) the corresponding num or text matching the button if any (button) anyways etc -->
+		if isButtonFound:
+			self.displayPanelButtonsSNumsOrTxts(screen, xNumsOrTextsFound, buttonSize, yPanel, hPanel)
+
+		# If no <!-- custom: button --> found, display a message
+		else:
+			self.displayPanelSTxtKeyNoButton(screen, txtKeyNoButtonFound, xPanel, yPanel, wPanel, hPanel)
 
 
 
 	def placeRequires(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_REQUIRES", ()), "", False, True, self.X_PREREQ_PANE, self.Y_PREREQ_PANE, self.W_PREREQ_PANE, self.H_PREREQ_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
+
+		# Create panel with proper styling
+		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_REQUIRES", ()), "", False, True, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES, PanelStyles.PANEL_STYLE_BLUE50 )
+		# <!-- custom: additionnal left side padding for the button(s) -->
 		screen.attachLabel(panelName, "", "  ")
+
+		# <!-- custom: store free items found results -->
+		# <!-- custom: (Also) P(p)romotions and buildings don't grant a num of promotions or buildings so adjust logic for them too anyways etc. -->
+		nCountOccurencesFound = 0
+		xNumsOrTextsFound = []
+		buttonSize = 64
 
 		for iPrereq in range(gc.getNumTechInfos()):
 			if isTechRequiredForBuilding(iPrereq, self.iBuilding):
+				nCountOccurencesFound += 1
+				# <!-- custom: no specific text, but respecting our structure to simplify code, not most efficient but maybe works at least for now if not always or not or and other or and not anyways etc -->
+				# <!-- custom: store text position matching the button for later display as a text -->
+				numFreeTxt = ""
+				xSubstractedAdjustment = int(0.91 * buttonSize)
+				xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_REQUIRES, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+
+				# <!-- custom: (but) attach button right now -->
 				screen.attachImageButton( panelName, "", gc.getTechInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iPrereq, 1, False )
 
 		iPrereq = gc.getBuildingInfo(self.iBuilding).getPrereqAndBonus()
 		if (iPrereq >= 0):
+			nCountOccurencesFound += 1
+			numFreeTxt = ""
+			xSubstractedAdjustment = int(0.91 * buttonSize)
+			xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_REQUIRES, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+
 			screen.attachImageButton( panelName, "", gc.getBonusInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iPrereq, -1, False )
 
 		for k in range(gc.getNUM_BUILDING_PREREQ_OR_BONUSES()):
 			iPrereq = gc.getBuildingInfo(self.iBuilding).getPrereqOrBonuses(k)
 			if (iPrereq >= 0):
+				nCountOccurencesFound += 1
+				numFreeTxt = ""
+				xSubstractedAdjustment = int(0.91 * buttonSize)
+				xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_REQUIRES, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+
 				screen.attachImageButton( panelName, "", gc.getBonusInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iPrereq, -1, False )
 
 		iCorporation = gc.getBuildingInfo(self.iBuilding).getFoundsCorporation()
@@ -321,48 +604,475 @@ class SevoPediaBuilding:
 						screen.attachLabel(panelName, "", localText.getText("TXT_KEY_OR", ()))
 					else:
 						bFirst = False
+					nCountOccurencesFound += 1
+					numFreeTxt = ""
+					xSubstractedAdjustment = int(0.91 * buttonSize)
+					xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_REQUIRES, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+
 					screen.attachImageButton( panelName, "", gc.getBonusInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iPrereq, -1, False )
 
 		iPrereq = gc.getBuildingInfo(self.iBuilding).getPrereqReligion()
 		if (iPrereq >= 0):
+			nCountOccurencesFound += 1
+			numFreeTxt = ""
+			xSubstractedAdjustment = int(0.91 * buttonSize)
+			xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_REQUIRES, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+
 			screen.attachImageButton( panelName, "", gc.getReligionInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iPrereq, -1, False )
+
+		# Check for project requirements - New code for Manhattan Project and other projects
+		buildingInfo = gc.getBuildingInfo(self.iBuilding)
+		iSpecialBuildingType = buildingInfo.getSpecialBuildingType()
+		
+		# Check all projects to see if any enables this special building
+		if (iSpecialBuildingType >= 0):
+			# Display them with "OR" between if there are multiple
+			bFirst = True
+
+			for iProject in range(gc.getNumProjectInfos()):
+				projectInfo = gc.getProjectInfo(iProject)
+				if projectInfo.getEveryoneSpecialBuilding() == iSpecialBuildingType:			
+					nCountOccurencesFound += 1
+					numFreeTxt = ""
+					xSubstractedAdjustment = int(0.91 * buttonSize)
+					xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_REQUIRES, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+					screen.attachImageButton(panelName, "", projectInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iProject, -1, False)
+
+					# Add "OR" text between projects
+					if not bFirst:
+						# <!-- custom: workaround as our code doesn't handle inconsistent occurence size (a button is 64px currently if not always or not anyways etc, but a label "or" would be smaller than 64px, messing the txtNums alignment of subsequent buttons (if any anyways etc), so to not rewrite all our code or tweak it too deeply, maybe this alternative solution is/can be quite elegant too instead, of putting the "or" label rather as a txtNum just between the buttons, and belonging to the new 2nd button we are adding (no "or" if first project so maybe more sensical or intuitive this way even though is still a hack but maybe not so bad or not or yes or and other or and not anyways etc anyways etc anyways etc...), not having thus to rewrite our otherwise working/functionning(functionnal?) code, anyways etc anyways etc anyways etc...
+						# (Also) S(s)ince our next button is a project, if we were to use this "or", it is fine to be a bit more aggressive with the adjustment and place the txtNum right inbetween both buttons, as no txtNum will be left or right of this txtNum directly in contact with it and colliding or being merged in unintended way, so i quite like this elegant solution :) hehe if i may say, but anyways etc anyways etc anyways etc...
+						#  -->
+						#screen.attachLabel(panelName, "", localText.getText("TXT_KEY_OR", ()))
+						numFreeTxt = localText.getText("TXT_KEY_OR", ())
+						xSubstractedAdjustment = int(1.27 * buttonSize)
+						xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_REQUIRES, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+
+					bFirst = False
+
+		# Check for required buildings
+		"""
+		<!-- custom:
+		For the example for Eiffel Tower (base advciv data):
+			<PrereqBuildingClasses/>
+			<BuildingClassNeededs>
+				<BuildingClassNeeded>
+					<BuildingClassType>BUILDINGCLASS_FORGE</BuildingClassType>
+					<bNeededInCity>1</bNeededInCity>
+				</BuildingClassNeeded>
+			</BuildingClassNeededs>
+
+		But for (,) for example (anyways etc) the Oxford University (base advciv data) for example anyways etc
+			<PrereqBuildingClasses>
+				<PrereqBuildingClass>
+					<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
+					<iNumBuildingNeeded>4</iNumBuildingNeeded>
+				</PrereqBuildingClass>
+			</PrereqBuildingClasses>
+			<BuildingClassNeededs>
+				<BuildingClassNeeded>
+					<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
+					<bNeededInCity>1</bNeededInCity>
+				</BuildingClassNeeded>
+			</BuildingClassNeededs>
+
+		So if i am not mistaken we need to account for both:
+		- BuildingClassNeededs (buildingInfo.isBuildingClassNeededInCity(i) below if i am not mistaken indeed (but) anyways etc) (see also (translate to english with your web browser or/and such or not if you want/wish/please or not as you prefer or not or yes or and other or and not anyways etc: https://gforestshade.github.io/kujira/post/civ4buildinginfos/#prereqbuildingclasses)), and
+		- PrereqBuildingClasses (buildingInfo.getPrereqNumOfBuildingClass(i) below if i am not mistaken anyways etc... anyways etc anyways etc... , see also as well https://gforestshade.github.io/kujira/post/civ4buildinginfos/#buildingclassneededs if you want/wish/do or not or and other or and not anyways etc anyways etc anyways etc...) and represent them accurately ideally too anyways etc(...) anyways etc anyways etc...
+		-->
+		"""
+
+		buildingInfo = gc.getBuildingInfo(self.iBuilding)
+		for i in range(gc.getNumBuildingClassInfos()):
+			# Check if this building class is needed in the city
+			if buildingInfo.isBuildingClassNeededInCity(i):
+				# Get the default building of this class for the current civilization
+				if self.top.iActivePlayer != -1:
+					iDefaultBuilding = gc.getCivilizationInfo(gc.getPlayer(self.top.iActivePlayer).getCivilizationType()).getCivilizationBuildings(i)
+				else:
+					iDefaultBuilding = gc.getBuildingClassInfo(i).getDefaultBuildingIndex()
+				
+				# If a valid building exists, display its button
+				if iDefaultBuilding != -1:
+					nCountOccurencesFound += 1
+					numFreeTxt = "InC"
+					xSubstractedAdjustment = int(0.75 * buttonSize)
+					xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_REQUIRES, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+
+					screen.attachImageButton(panelName, "", gc.getBuildingInfo(iDefaultBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefaultBuilding, -1, False)
+
+		# Handle PrereqBuildingClasses (buildings needed across civilization)
+		for i in range(gc.getNumBuildingClassInfos()):
+			iNumRequired = 0
+			iNumRequired = buildingInfo.getPrereqNumOfBuildingClass(i)
+			
+			if iNumRequired > 0:
+				# Get the default building of this class for the current civilization
+				if self.top.iActivePlayer != -1:
+					iDefaultBuilding = gc.getCivilizationInfo(gc.getPlayer(self.top.iActivePlayer).getCivilizationType()).getCivilizationBuildings(i)
+				else:
+					iDefaultBuilding = gc.getBuildingClassInfo(i).getDefaultBuildingIndex()
+				
+				# If a valid building exists, display its button with number required
+				if iDefaultBuilding != -1:
+					nCountOccurencesFound += 1
+					numFreeTxt = u"AllC %s+RM" % iNumRequired
+					xSubstractedAdjustment = int(1.19 * buttonSize)
+					xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_REQUIRES, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+
+					screen.attachImageButton(panelName, "", gc.getBuildingInfo(iDefaultBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefaultBuilding, -1, False)
+					
+					# Add a label showing the required number
+					#screen.attachLabel(panelName, "", " x" + str(iNumRequired))
+
+		# <!-- custom: display each relevant button's nums or/and txts if any, else if no button is found to display at all, display instead the no button found txtkey in all the panel.
+		# Note: easy copy paste x, y, w, h, coordinates from panel creation is faster and perhaps more reliable too if you want (optionally) or/and need it or/and choose it or not but anyways etc anyways etc anyways etc... And i say this specifically after having written this (comment(ed)-out) advice and making the mistake here for example as well as in some other places despite having applied it correctly in some (other other but anyways etc anyways etc anyways etc...) places (for example _free coordinates instead of _requires here but anyways etc anyways etc anyways etc...) anyways etc so now fixing it (!) if i may say but anyways etc anyways etc anyways etc..., (and)(but anyways etc anyways etc anyways etc...) so now applying this advice to me as well after noticing the numsOrTxts of the corresponding buttons are at wrong spot so hopefully helpful to me(!) (too but anyways etc anyways etc anyways etc...) if i may say but anyways etc anyways etc anyways etc... 
+		# -->
+		isButtonFound = (nCountOccurencesFound > 0)
+		txtKeyNoButtonFound = "TXT_KEY_PEDIA_REQUIRES_NO_BUTTON_FOUND"
+		self.displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES)
+
+
+
+	def placeRequiredFor(self):
+		"""Shows buildings that require this building as a prerequisite"""
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+
+		nCountOccurencesFound = 0
+		xNumsOrTextsFound = []
+		buttonSize = 64
+
+		# Create panel with proper styling
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_REQUIRED_FOR", ()), "", False, True, self.X_REQUIRED_FOR, self.Y_REQUIRED_FOR, self.W_REQUIRED_FOR, self.H_REQUIRED_FOR, PanelStyles.PANEL_STYLE_BLUE50)
+		# Add padding
+		screen.attachLabel(panelName, "", "  ")
+		
+		# Get the building class of our current building
+		iCurrentBuildingClass = gc.getBuildingInfo(self.iBuilding).getBuildingClassType()
+		
+		# Loop through all buildings to check which ones require this building class
+		for iLoopBuilding in range(gc.getNumBuildingInfos()):
+			loopBuildingInfo = gc.getBuildingInfo(iLoopBuilding)
+			
+			# Check if this building is needed via BuildingClassNeededs
+			if loopBuildingInfo.isBuildingClassNeededInCity(iCurrentBuildingClass):
+				nCountOccurencesFound += 1
+				numFreeTxt = "InC"
+				xSubstractedAdjustment = int(0.75 * buttonSize)
+				xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_REQUIRED_FOR, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+
+				screen.attachImageButton(panelName, "", loopBuildingInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iLoopBuilding, -1, False)
+			
+			# Check if this building is needed via PrereqBuildingClasses
+			iNumRequired = loopBuildingInfo.getPrereqNumOfBuildingClass(iCurrentBuildingClass)
+			if iNumRequired > 0:
+				nCountOccurencesFound += 1
+				numFreeTxt = u"AllC %s+RM" % iNumRequired
+				xSubstractedAdjustment = int(1.19 * buttonSize)
+				xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_REQUIRED_FOR, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+
+				screen.attachImageButton(panelName, "", loopBuildingInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iLoopBuilding, -1, False)
+
+		isButtonFound = (nCountOccurencesFound > 0)
+		txtKeyNoButtonFound = "TXT_KEY_PEDIA_REQUIRED_FOR_NO_BUTTON_FOUND"
+		self.displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, self.X_REQUIRED_FOR, self.Y_REQUIRED_FOR, self.W_REQUIRED_FOR, self.H_REQUIRED_FOR)
+
+
+
+	def placeFree(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		
+		# Create panel with proper styling
+		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_FREE_ITEMS", ()), "", False, True, self.X_FREE, self.Y_FREE, self.W_FREE, self.H_FREE, PanelStyles.PANEL_STYLE_BLUE50)
+		# Additional left side padding for the button(s)
+		screen.attachLabel(panelName, "", "  ")
+		
+		nCountOccurencesFound = 0
+		xNumsOrTextsFound = []
+		buttonSize = 64
+		xSubstractedAdjustmentNums = 0.61
+
+		# Get the building info
+		buildingInfo = gc.getBuildingInfo(self.iBuilding)
+
+		# Check if the building grants a free promotion<!-- custom: , and attach(or /"display" maybe indeed too anyways etc anyways etc anyways etc as ClaudeAI said anyways etc its button if there is any/a (free promotion) -->
+		iFreePromotion = buildingInfo.getFreePromotion()
+		if iFreePromotion != -1:
+			# <!-- custom: store text position matching the button for later display as a text -->
+			nCountOccurencesFound += 1
+			numFreeTxt = "All Un.C"
+			xSubstractedAdjustment = int(1.04 * buttonSize)
+			xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_FREE, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+
+			# <!-- custom: (but) attach button right now -->
+			screen.attachImageButton(panelName, "", gc.getPromotionInfo(iFreePromotion).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iFreePromotion, -1, False)
+		
+		# Check if the building grants a free building
+		iFreeBuildingClass = buildingInfo.getFreeBuildingClass()
+		if iFreeBuildingClass != -1:
+			nCountOccurencesFound += 1
+			numFreeTxt = "All Cs"
+			xSubstractedAdjustment = int(0.87 * buttonSize)
+			xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_FREE, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+
+			# Get the default building of this class for the current civilization
+			if self.top.iActivePlayer != -1:
+				iDefaultBuilding = gc.getCivilizationInfo(gc.getPlayer(self.top.iActivePlayer).getCivilizationType()).getCivilizationBuildings(iFreeBuildingClass)
+			else:
+				iDefaultBuilding = gc.getBuildingClassInfo(iFreeBuildingClass).getDefaultBuildingIndex()
+			
+			# If a valid building exists, display its button
+			if iDefaultBuilding != -1:
+				screen.attachImageButton(panelName, "", gc.getBuildingInfo(iDefaultBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefaultBuilding, -1, False)
+
+		# Check if the building grants a free bonus
+		iFreeBonus = buildingInfo.getFreeBonus()
+		iNumFreeBonuses = buildingInfo.getNumFreeBonuses()
+		
+		if iFreeBonus != -1:
+			# <!-- custom: store text position matching the button for later display as a text -->
+			nCountOccurencesFound += 1
+
+			# <!-- custom: note: for freebonus, according to kujira's website if i am not mistaken anyways etc, in https://gforestshade.github.io/kujira/post/civ4buildinginfos/#inumfreebonuses (translated to english with google chrome):
+			"""
+			This determines the amount of resource this structure produces.
+			If <FreeBonus> is set to a value other than NONE and you set this to a positive value,the structure will produce the specified amount of the specified resource.
+			If you want a variable number based on map size instead of a fixed number, specify -1, in which case the value of <iNumFreeBuildingBonuses> from each map size definition in \XML\GameInfo\CIV4WorldInfo.xml will be used. If you do not want to use this feature, specify 0.
+
+			Example 1:
+			<FreeBonus>NONE</FreeBonus>
+			<iNumFreeBonuses>0</iNumFreeBonuses>
+
+			Example 2: Produce hit musicals in numbers that depend on the map size.
+			<FreeBonus>BONUS_DRAMA</FreeBonus>
+			<iNumFreeBonuses>-1</iNumFreeBonuses>
+
+			Example 3: Produce one horse.
+			<FreeBonus>BONUS_HORSE</FreeBonus>
+			<iNumFreeBonuses>1</iNumFreeBonuses>
+			"""	
+			# based on this, displaying free bonus if >= 1 or if == -1, adjusting display depending on this
+			# -->
+
+			if iNumFreeBonuses == -1:
+				numFreeTxt = "RM"
+				xSubstractedAdjustment = int(0.74 * buttonSize)
+			elif iNumFreeBonuses >= 1:
+				numFreeTxt = u"%s" % (iNumFreeBonuses)
+				xSubstractedAdjustment = int(xSubstractedAdjustmentNums * buttonSize)
+			else:
+				raise ValueError("[FATAL] Unexpected iNumFreeBonuses=%d value out of bounds iNumFreeBonuses == -1 or iNumFreeBonuses >=1, please verify the code and iNumFreeBonuses are behaving as intended and adjust this sevopedia code or/and your mod code based on this as you want/prefer anyways etc. Note: for info str(FreeBonus) (for display in this error message anyways etc)=%s anyways etc." % (iNumFreeBonuses, str(iFreeBonus)))
+			
+			xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_FREE, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+
+			# <!-- custom: (but) attach button right now -->
+			screen.attachImageButton(panelName, "", gc.getBonusInfo(iFreeBonus).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iFreeBonus, -1, False)
+			
+		# Check if the building grants free specialists - simpler approach
+		for iSpecialist in range(gc.getNumSpecialistInfos()):
+			if buildingInfo.getFreeSpecialistCount(iSpecialist) > 0:
+				# <!-- custom: store text position matching the button for later display as a text -->
+				nCountOccurencesFound += 1
+				iSpecialistCount = buildingInfo.getFreeSpecialistCount(iSpecialist)
+				numFreeTxt = u"%s" % (iSpecialistCount)
+				xSubstractedAdjustment = int(xSubstractedAdjustmentNums * buttonSize)
+				xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_FREE, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+
+				# <!-- custom: (but) attach button right now -->
+				screen.attachImageButton(panelName, "", gc.getSpecialistInfo(iSpecialist).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, iSpecialist, -1, False)
+
+		isButtonFound = (nCountOccurencesFound > 0)
+		txtKeyNoButtonFound = "TXT_KEY_PEDIA_FREE_ITEMS_NO_BUTTON_FOUND"
+		self.displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, self.X_FREE, self.Y_FREE, self.W_FREE, self.H_FREE)
+
+
+
+		"""
+		For (/to) parsing (parse?) this (i.e. free power only not power for example with ressource(s?)/bonus(es? (which is PowerBonus if i am not mistaken and that we ignore then if i am not mistaken to do so anyways etc anyways etc anyways etc anyways etc((.)... anyways etc...)) anyways) (tentative (for me to assess (anyways etc)) (but maybe successful (/fructful?) anyways etc) rules seem to be after some testing (with a "power>1" global search in unit infos and tweaking or maybe rather anyways etc temporarily modifying some values to see some if not all or not or yes or and other or and not anyways etc edge case reuslts), for example:
+		- BUILDING_THREE_GORGES_DAM (now renamed from GREAT_DAM see code comments for details (if any (i.e. details anyways etc) anyways etc)):
+			<bPower>0</bPower>
+			<bDirtyPower>0</bDirtyPower>
+			<bAreaCleanPower>1</bAreaCleanPower>
+		And ingame in placeSpecial we see: "Provides Power ((icon/button? anyways etc)) for All cities in this continent", so we parse it as a "AllC Clean" or something like this anyways etc, to know if clean or dirty for all cities, i changed its values a bit to:
+			<bPower>0</bPower>
+			<!-- custom: test -->
+			<bDirtyPower>1</bDirtyPower>
+			<bAreaCleanPower>1</bAreaCleanPower>
+		The placeSpecial text remains the same, no mention of dirty power in it, i assume clean (in this case anyways etc) wins over dirty so power is clean by default of win of strongest ones in this city as in all cities already is anyways etc, they don't seem to cumulate anyways etc
+		The Civ4 Wiki also gives some useful info about this: https://civilization.fandom.com/wiki/Power_(Civ4), so we updated in AdvCiv-SAS the DLL message that comes with (in PlaceSpecial if i am not mistaken anyways etc) TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER (now renamed to TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER) to match and reflect and inform of this (unhappiness existence and count anyways etc) (if we are (ideally maybe yes or not or yes or and other or and not or etc anyways etc) not mistaken in our understanding indeed maybe or not or yes or and other or and not anyways etc).
+
+		"""
+		"""
+		#<!-- custom: example of how to directly import a button path to write the button in sevopedia anyways etc... From Claude AI as well and works for the great prophet button successfully displayed in the sevopedia's placeFree panel for example anyways etc anyways etc anyways etc
+		#powerButton = "Art/Interface/Buttons/Buildings/Power.dds"  # You might need to adjust this path
+		powerButton = ",Art/Interface/Buttons/Units/GreatProphet.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,1"
+		# etc...
+						screen.attachImageButton(panelName, "", powerButton, 
+									GenericButtonSizes.BUTTON_SIZE_CUSTOM, 
+									WidgetTypes.WIDGET_GENERAL, -1, -1, False)
+		We eventually don't use it as we in the end don't implement the unreliable and messy free power functionality (at least we couldn't make it work), but hopefully helpful enough and helped us fix other issues as well or understand betetr the game (how it works/functions) anyways etc...
+		For reference, the power button code can be found here using the Warlords atlas (i assume it was used for a religion, but probably works very well for the power button if we were to implement it, which we don't do here in the end, anyways etc):
+		in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Warlords\Assets\Art\Interface\Buttons\Warlords_Atlas_2.dds
+		powerButtonPath = ",Art/Interface/MainScreen/CityScreen/Great_Engineer.dds,Art/Interface/Buttons/Warlords_Atlas_2.dds,6,11"
+		-->
+		"""
+
+
+
+	def placeObsoleteWith(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		
+		# Create panel with proper styling
+		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_OBSOLETE", ()), "", False, True, self.X_OBSOLETE_WITH, self.Y_OBSOLETE_WITH, self.W_OBSOLETE_WITH, self.H_OBSOLETE_WITH, PanelStyles.PANEL_STYLE_BLUE50)
+		# <!-- custom: additionnal left side padding for the button(s) -->
+		screen.attachLabel(panelName, "", "  ")
+		
+		# Get the building info
+		buildingInfo = gc.getBuildingInfo(self.iBuilding)
+		
+		# Check if the building has an obsolete tech directly <!-- custom: (i assume is about the obsoletetech info in (adjust to your mod path) for example C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Buildings\CIV4BuildingInfos.xml) -->
+		iObsoleteTech = buildingInfo.getObsoleteTech()
+	
+		# If no direct obsolete tech, check if it's a special building type<!-- cus
+		# <!-- custom: (e.g. the jewish monastery appears as never obsolete from the direct obsolete tech check due to <ObsoleteTech>NONE</ObsoleteTech>, but it does get obsolete at scientific method though in <ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech> at (adjust with your mod path if different) for example C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Buildings\CIV4SpecialBuildingInfos.xml (now this file is/has been imported in AdvCiv-SAS as well in case we need to change it and to have all info we want and control it if i may say anyways etc anyways etc anyways etc...)) -->
+		if iObsoleteTech == -1:
+			iSpecialBuildingType = buildingInfo.getSpecialBuildingType()
+			if iSpecialBuildingType != -1:
+				# Get the special building info
+				specialBuildingInfo = gc.getSpecialBuildingInfo(iSpecialBuildingType)
+				# Check if the special building has an obsolete tech
+				iObsoleteTech = specialBuildingInfo.getObsoleteTech()
+
+		# <!-- custom: after having checked both directly for an obsolete tech, or indirectly through special buiding, now display button if any:
+		if iObsoleteTech != -1:
+			screen.attachImageButton(panelName, "", gc.getTechInfo(iObsoleteTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iObsoleteTech, -1, False)
+
+		else:
+			# <!-- custom: prettier display -->
+			# If there's no obsolete tech, display "Never" or "None"
+			#screen.attachLabel(panelName, "", CyTranslator().getText("TXT_KEY_PEDIA_NEVER_OBSOLETE", ()))
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_OBSOLETE_NO_BUTTON_FOUND"
+			self.displayPanelSTxtKeyNoButton(screen, txtKeyNoButtonFound, self.X_OBSOLETE_WITH, self.Y_OBSOLETE_WITH, self.W_OBSOLETE_WITH, self.H_OBSOLETE_WITH)
+
+
+
+	def placeReplace(self):
+		screen = self.top.getScreen()
+		panel = self.top.getNextWidgetName()
+
+		iBuildingClass = gc.getBuildingInfo(self.iBuilding).getBuildingClassType()
+		iBaseBuilding = gc.getBuildingClassInfo(iBuildingClass).getDefaultBuildingIndex()
+
+		# Use different text key depending on whether this is a unique or base building
+		if self.iBuilding != iBaseBuilding:
+			# This is a unique building that replaces a base building
+			panelTxtKey = "TXT_KEY_PEDIA_REPLACES_CUSTOM"
+		else:
+			# This is a base building that can be replaced by unique buildings
+			panelTxtKey = "TXT_KEY_PEDIA_REPLACED_BY_CUSTOM"
+
+		# Create panel with proper styling
+		screen.addPanel(panel, CyTranslator().getText(panelTxtKey, ()), "", False, True, self.X_REPLACE, self.Y_REPLACE, self.W_REPLACE, self.H_REPLACE, PanelStyles.PANEL_STYLE_BLUE50)
+		# <!-- custom: additionnal left side padding for the button(s) -->
+		screen.attachLabel(panel, "", "  ")
+
+		# <!-- custom: handle no building found message -->
+		isButtonFound = False
+
+		# If this is a unique (i.e.civ-specific) building, show the base building it replaces
+		if self.iBuilding != iBaseBuilding:
+			isButtonFound = True
+			screen.attachImageButton(panel, "", gc.getBuildingInfo(iBaseBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBaseBuilding, 1, False)
+			return
+
+		else:
+			# If this is the base building, show all unique (i.e.civ-specific) buildings that replace it
+			for iBuilding in xrange(gc.getNumBuildingInfos()):
+				if self.iBuilding != iBuilding and not gc.getBuildingInfo(iBuilding).isGraphicalOnly():
+					if iBuildingClass == gc.getBuildingInfo(iBuilding).getBuildingClassType():
+						isButtonFound = True
+						screen.attachImageButton(panel, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
+
+		if not isButtonFound:
+			## If there's no replace (replaced by or/nor replaces anyways etc), display "Nothing" or similar anyways etc
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_REPLACE_NO_BUTTON_FOUND"
+			self.displayPanelSTxtKeyNoButton(screen, txtKeyNoButtonFound, self.X_REPLACE, self.Y_REPLACE, self.W_REPLACE, self.H_REPLACE)
+
+
+
+	def placeExclusiveCivs(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+
+		# Create panel with proper styling
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_EXCLUSIVE_CIVS", ()), "", False, True, self.X_EXCLUSIVE_CIVS, self.Y_EXCLUSIVE_CIVS, self.W_EXCLUSIVE_CIVS, self.H_EXCLUSIVE_CIVS, PanelStyles.PANEL_STYLE_BLUE50)
+		# <!-- custom: additionnal left side padding for the button(s) -->
+		screen.attachLabel(panelName, "", "  ")
+		
+		# Get building class info
+		iBuildingClass = gc.getBuildingInfo(self.iBuilding).getBuildingClassType()
+		iDefaultBuilding = gc.getBuildingClassInfo(iBuildingClass).getDefaultBuildingIndex()
+
+		# Check if this is a unique (i.e.civ-specific) building (not the default building for its class)
+		bIsUnique = (self.iBuilding != iDefaultBuilding)
+
+		# If this is a unique (i.e.civ-specific) building, show which civ can build it
+		if bIsUnique:
+			# Find which civ has this unique (i.e.civ-specific) building
+			for iCiv in range(gc.getNumCivilizationInfos()):
+				# <!-- custom: include barbarians and perhaps other non playable civs in the display for example for the/to display the anyways etc barbarian palace, barbarian granary (so comment out the isPlayable check as Claude AI explained indeed and that i implemented in a simpler manner thanks to its explanation but anyways etc, but also unindent the below below too anyways etc), or/and other civs or not if such exist or not or and other or yes or and not or yes but anyways etc -->
+				#if gc.getCivilizationInfo(iCiv).isPlayable():
+				iCivBuilding = gc.getCivilizationInfo(iCiv).getCivilizationBuildings(iBuildingClass)
+				if iCivBuilding == self.iBuilding:
+					screen.attachImageButton(panelName, "", gc.getCivilizationInfo(iCiv).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iCiv, -1, False)
+		# If this is the default building, show "Available to all civilizations"
+		else:
+			# <!-- custom: prettier display -->
+			#screen.attachLabel(panelName, "", localText.getText("TXT_KEY_PEDIA_AVAILABLE_ALL_CIVS", ()))
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_EXCLUSIVE_CIVS_NO_BUTTON_FOUND"
+			self.displayPanelSTxtKeyNoButton(screen, txtKeyNoButtonFound, self.X_EXCLUSIVE_CIVS, self.Y_EXCLUSIVE_CIVS, self.W_EXCLUSIVE_CIVS, self.H_EXCLUSIVE_CIVS)
 
 
 
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()), "", True, False, self.X_SPECIAL_PANE, self.Y_SPECIAL_PANE, self.W_SPECIAL_PANE, self.H_SPECIAL_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
+		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50 )
 		listName = self.top.getNextWidgetName()
 		szSpecialText = CyGameTextMgr().getBuildingHelp(self.iBuilding, True, False, False, None)[1:]
-		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL_PANE+5, self.Y_SPECIAL_PANE+30, self.W_SPECIAL_PANE-10, self.H_SPECIAL_PANE-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+30, self.W_SPECIAL-10, self.H_SPECIAL-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+
+
+	def placeBuildingAnimation(self):
+		screen = self.top.getScreen()	
+		screen.addBuildingGraphicGFC(self.top.getNextWidgetName(), self.iBuilding, self.X_BUILDING_ANIMATION, self.Y_BUILDING_ANIMATION, self.W_BUILDING_ANIMATION, self.H_BUILDING_ANIMATION, WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_BUILDING_ANIMATION, self.Z_ROTATION_BUILDING_ANIMATION, self.SCALE_ANIMATION, True)
 
 
 
 	def placeHistory(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need the redundant background
-		# -->
-		#screen.addPanel( panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE, self.W_HISTORY_PANE, self.H_HISTORY_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
-		screen.addPanel( panelName, "", "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE, self.W_HISTORY_PANE, self.H_HISTORY_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
+		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need the redundant background -->
+		#screen.addPanel( panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50 )
+		screen.addPanel( panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50 )
 		textName = self.top.getNextWidgetName()
 		szText = u""
-		# <!-- custom: too much hassle/"nightmare" to maintain the strategy texts in history panel (which i agree with), + also often inaccurate, especially if someone were to make a mod, just ignoring them without importing the XML assets as well is much more efficient, more reliable, and perhaps clearer in the sevopedia too maybe.
-		# -->
+		# <!-- custom: too much hassle/"nightmare" to maintain the strategy texts in history panel (which i agree with), + also often inaccurate, especially if someone were to make a mod, just ignoring them without importing the XML assets as well is much more efficient, more reliable, and perhaps clearer in the sevopedia too maybe. -->
 		# if len(gc.getBuildingInfo(self.iBuilding).getStrategy()) > 0:
 		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
 		#	szText += gc.getBuildingInfo(self.iBuilding).getStrategy()
 		#	szText += u"\n\n"
-		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need
-		# the redundant background
-		# -->
+		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need the redundant background -->
 		#szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
 		szText += gc.getBuildingInfo(self.iBuilding).getCivilopedia()
-		# but here we also restore/add padding
-		# -->
-		#screen.addMultilineText( textName, szText, self.X_HISTORY_PANE + 15, self.Y_HISTORY_PANE + 40, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.addMultilineText( textName, szText, self.X_HISTORY_PANE + 7, self.Y_HISTORY_PANE + 10, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		# <!-- custom: but here we also restore/add padding -->
+		#screen.addMultilineText( textName, szText, self.X_HISTORY + 15, self.Y_HISTORY + 40, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		#screen.addMultilineText( textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 10, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 30, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

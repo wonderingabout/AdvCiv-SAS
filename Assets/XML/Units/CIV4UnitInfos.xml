@@ -126,7 +126,7 @@ then adjust maybe anyways):
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_LION</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_ANIMALS_PEDIA</Civilopedia>
+			<Civilopedia>TXT_KEY_ANIMAL_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_ANIMAL_STRATEGY</Strategy>
 			<Advisor>NONE</Advisor>
 			<bAnimal>1</bAnimal>
@@ -305,7 +305,7 @@ then adjust maybe anyways):
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_BEAR</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_ANIMALS_PEDIA</Civilopedia>
+			<Civilopedia>TXT_KEY_ANIMAL_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_ANIMAL_STRATEGY</Strategy>
 			<Advisor>NONE</Advisor>
 			<bAnimal>1</bAnimal>
@@ -476,7 +476,7 @@ then adjust maybe anyways):
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_PANTHER</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_ANIMALS_PEDIA</Civilopedia>
+			<Civilopedia>TXT_KEY_ANIMAL_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_ANIMAL_STRATEGY</Strategy>
 			<Advisor>NONE</Advisor>
 			<bAnimal>1</bAnimal>
@@ -647,7 +647,7 @@ then adjust maybe anyways):
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_WOLF</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_ANIMALS_PEDIA</Civilopedia>
+			<Civilopedia>TXT_KEY_ANIMAL_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_ANIMAL_STRATEGY</Strategy>
 			<Advisor>NONE</Advisor>
 			<bAnimal>1</bAnimal>
@@ -2236,7 +2236,7 @@ then adjust maybe anyways):
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_SPY</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_ESPIONAGE_PEDIA_SR_SPY_UNIT_PEDIA_CUSTOM</Civilopedia>
+			<Civilopedia>TXT_KEY_SPY_UNIT_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_SPY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
@@ -3582,7 +3582,7 @@ then adjust maybe anyways):
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_JEWISH_MISSIONARY</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_RELIGION_PEDIA</Civilopedia>
+			<Civilopedia>TXT_KEY_MISSIONARY_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_JEWISH_MISSIONARY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<bAnimal>0</bAnimal>
@@ -3749,7 +3749,7 @@ then adjust maybe anyways):
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_CHRISTIAN_MISSIONARY</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_RELIGION_PEDIA</Civilopedia>
+			<Civilopedia>TXT_KEY_MISSIONARY_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_CHRISTIAN_MISSIONARY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<bAnimal>0</bAnimal>
@@ -3916,7 +3916,7 @@ then adjust maybe anyways):
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_ISLAMIC_MISSIONARY</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_RELIGION_PEDIA</Civilopedia>
+			<Civilopedia>TXT_KEY_MISSIONARY_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_ISLAMIC_MISSIONARY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<bAnimal>0</bAnimal>
@@ -4083,7 +4083,7 @@ then adjust maybe anyways):
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_HINDU_MISSIONARY</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_RELIGION_PEDIA</Civilopedia>
+			<Civilopedia>TXT_KEY_MISSIONARY_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_HINDU_MISSIONARY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<bAnimal>0</bAnimal>
@@ -4250,7 +4250,7 @@ then adjust maybe anyways):
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_BUDDHIST_MISSIONARY</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_RELIGION_PEDIA</Civilopedia>
+			<Civilopedia>TXT_KEY_MISSIONARY_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_BUDDHIST_MISSIONARY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<bAnimal>0</bAnimal>
@@ -4417,7 +4417,7 @@ then adjust maybe anyways):
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_PAGAN_MISSIONARY</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_RELIGION_PEDIA</Civilopedia>
+			<Civilopedia>TXT_KEY_MISSIONARY_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<bAnimal>0</bAnimal>
@@ -4584,7 +4584,7 @@ then adjust maybe anyways):
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_DAOIST_MISSIONARY</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_RELIGION_PEDIA</Civilopedia>
+			<Civilopedia>TXT_KEY_MISSIONARY_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<bAnimal>0</bAnimal>
@@ -12473,8 +12473,7 @@ then adjust maybe anyways):
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<!-- custom: first commit this then test if it works, to save the data
-		first, will edit/tweak later todo -->
+		<!-- custom: first commit this then test if it works, to save the data first, will edit/tweak later todo -->
 		<UnitInfo>
 			<Class>UNITCLASS_CROSSBOWMAN</Class>
 			<Type>UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN</Type>
@@ -24046,7 +24045,7 @@ then adjust maybe anyways):
 			<Capture>NONE</Capture>
 			<Combat>NONE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<!-- custom: should have been before my fix UNITAI_MERCHANT (and) not UNITAI_GREAT_MERCHANT (anyways etc) as it didn't exist if i am not mistaken anyways etc, and now UNITAI_GREAT_MERCHANT exists indeed in place(/instead) of the confusing UNITAI_GENERAL, same for other confusing great people not being great or sometimes great naming, for some of them not (semi for general, never for spy as the normal spy exists as a unit too, all for other great people but only in some fields, not txt keys that have a great naming and not in specialist that have a non great type of for example scientist, but in unit_ and unitclass_ and unitai_ as said before, extremely confusing and unclear, hopefully a lot clearer now, see custom code comment in CIV4UnitInfos.xml that mentions "K-Mod: was UNITAI_GREAT_MERCHANT" (use vs code global search or simialr if you want to find the comment (currently same file in first lines of the file), ), hopefully a lot clearer now, anyways etc... -->
+			<!-- custom: should have been before my fix UNITAI_MERCHANT (and) not UNITAI_GREAT_MERCHANT (anyways etc) as it didn't exist if i am not mistaken anyways etc, and now UNITAI_GREAT_MERCHANT exists indeed in place(/instead) of the confusing UNITAI_MERCHANT anyways etc, same for other confusing great people not being great or sometimes great naming, for some of them not (semi for general, never for spy as the normal spy exists as a unit too, all for other great people but only in some fields, not txt keys that have a great naming and not in specialist that have a non great type of for example scientist, but in unit_ and unitclass_ and unitai_ as said before, extremely confusing and unclear, hopefully a lot clearer now, see custom code comment in CIV4UnitInfos.xml that mentions "K-Mod: was UNITAI_GREAT_MERCHANT" (use vs code global search or simialr if you want to find the comment (currently same file in first lines of the file), ), hopefully a lot clearer now, anyways etc... -->
 			<!-- K-Mod: was UNITAI_GREAT_MERCHANT -->
 			<DefaultUnitAI>UNITAI_GREAT_SPY</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
@@ -24096,7 +24095,7 @@ then adjust maybe anyways):
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
-			<!-- custom: should have been before my fix UNITAI_MERCHANT (and) not UNITAI_GREAT_MERCHANT (anyways etc) as it didn't exist if i am not mistaken anyways etc, and now UNITAI_GREAT_MERCHANT exists indeed in place(/instead) of the confusing UNITAI_GENERAL, same for other confusing great people not being great or sometimes great naming, for some of them not (semi for general, never for spy as the normal spy exists as a unit too, all for other great people but only in some fields, not txt keys that have a great naming and not in specialist that have a non great type of for example scientist, but in unit_ and unitclass_ and unitai_ as said before, extremely confusing and unclear, hopefully a lot clearer now, see custom code comment in CIV4UnitInfos.xml that mentions "K-Mod: was UNITAI_GREAT_MERCHANT" (use vs code global search or simialr if you want to find the comment (currently same file in first lines of the file), ), hopefully a lot clearer now, anyways etc... -->
+			<!-- custom: should have been before my fix UNITAI_MERCHANT (and) not UNITAI_GREAT_MERCHANT (anyways etc) as it didn't exist if i am not mistaken anyways etc, and now UNITAI_GREAT_MERCHANT exists indeed in place(/instead) of the confusing UNITAI_MERCHANT anyways etc, same for other confusing great people not being great or sometimes great naming, for some of them not (semi for general, never for spy as the normal spy exists as a unit too, all for other great people but only in some fields, not txt keys that have a great naming and not in specialist that have a non great type of for example scientist, but in unit_ and unitclass_ and unitai_ as said before, extremely confusing and unclear, hopefully a lot clearer now, see custom code comment in CIV4UnitInfos.xml that mentions "K-Mod: was UNITAI_GREAT_MERCHANT" (use vs code global search or simialr if you want to find the comment (currently same file in first lines of the file), ), hopefully a lot clearer now, anyways etc... -->
 			<UnitAIs>
 				<!-- K-Mod: was UNITAI_GREAT_MERCHANT -->
 				<UnitAI>

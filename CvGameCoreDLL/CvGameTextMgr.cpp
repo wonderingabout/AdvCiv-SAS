@@ -9291,6 +9291,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 		}
 	}
 
+	/* <!-- custom: now that we display them as buttons in a specific/dedicated panel anyways etc, with txtNum for each (for example ("+50/-30", "__/-30", "+50/__", etc) rather in sevopedia unit, we don't need the old cumbersome data, so hiding it from sevopedia placeSpecial, while still keeping it in game at least for now if not always or not anyways etc -->
 	if (u.getCityAttackModifier() == u.getCityDefenseModifier())
 	{
 		if (u.getCityAttackModifier() != 0)
@@ -9316,6 +9317,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 					u.getCityDefenseModifier()));
 		}
 	}
+	*/
 
 	if (u.getAnimalCombatModifier() != 0)
 	{
@@ -9338,6 +9340,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 				u.getDropRange()));
 	}
 
+	/* <!-- custom: similar reasoning as for TXT_KEY_UNIT_CITY_STRENGTH_MOD, remove the fields we don't need anymore anyways etc as we display them as button with a txtNum under the button  in sevopedia unit, while keeping ingame text as is at least for now if not for always or and not or and other or and not or other anyways etc -->
 	if (u.getHillsDefenseModifier() == u.getHillsAttackModifier())
 	{
 		if (u.getHillsAttackModifier() != 0)
@@ -9444,6 +9447,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 					GC.getInfo(eLoopUnitCombat).getTextKeyWide()));
 		}
 	}
+	*/
 
 	FOR_EACH_ENUM(Domain)
 	{
@@ -9594,6 +9598,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 			szBuffer.append(szTempBuffer);
 		}
 	} // </advc.905b>
+	/* <!-- custom: remove "Starts with..." type of messages in sevopediaunit's placeSpecial panel, as we handle and display these/that rather in the new placeFree Panel now as buttons, plus info is not used/showed ingame in map view in the unit summary's bullet points, and there are no edge case like for/in city defenses (building being partially obsolete but not entirely "except for defensive bonus" or something similar i mean anyways etc), so safe to remove and uneeded to keep anyways etc now, if i am not mistaken, anyways etc anyways etc anyways etc... -->
 	{
 		bool bFirst = true;
 		FOR_EACH_ENUM(Promotion)
@@ -9608,6 +9613,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 			}
 		}
 	}
+	*/
 	if (u.getExtraCost() != 0)
 	{
 		szBuffer.append(NEWLINE);
@@ -9651,28 +9657,30 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 	// test for unique unit
 	UnitClassTypes const eUnitClass = u.getUnitClassType();
 	CvUnitClassInfo const& kUnitClass = GC.getInfo(eUnitClass); // advc
+	/* <!-- custom: similarly to what/how was done for eDefaultBuilding if i am not mistaken anyways etc anyways etc anyways etc where our other(s? anyways etc anyways etc anyways etc) "custom:" code comment(s?) are(/is? anyways etc anyways etc anyways etc), it seems we don't use this eDefaultUnit anywhere else in our/this DLL code anymore, and another eDefaultUnit is redefined where eDefaultUnit is used if i am not mistaken so commenting-out this definition as well anyways etc anyways etc anyways etc -->
 	UnitTypes const eDefaultUnit = kUnitClass.getDefaultUnit();
 
-	// <!-- custom: removing the check entirely now as we have/use placeExclusiveCivs code now instead to display civ buttons, see below the nested "custom:" code comment for details -->
-	//if (eDefaultUnit != NO_UNIT && eDefaultUnit != eUnit)
-	//{
-		// <!-- custom: now that we have the new placeExclusiveCivs added by Claude AI and my prompt and adjustments or not or yes of the already working code or and other or and not anyways etc, we (also but anyways etc...) don't the old TXT_KEY_UNIQUE_UNIT ("No civilization unit for the Babylonian Empire" (or similar with "unique unit" before i had renamed it for AdvCiv-SAS) for example anyways etc) panel-->
-		//FOR_EACH_ENUM(Civilization)
-		//{
-		//	UnitTypes eUniqueUnit = GC.getInfo(eLoopCivilization).
-		//			getCivilizationUnits(eUnitClass);
-		//	if (eUniqueUnit == eUnit)
-		//	{
-		//		szBuffer.append(NEWLINE);
-		//		szBuffer.append(gDLL->getText("TXT_KEY_UNIQUE_UNIT",
-		//				GC.getInfo(eLoopCivilization).getTextKeyWide()));
-		//	}
-		//}
-		// <!-- custom: we now have a replaced by panel, so we don't need and don't want anymore this extra replaces field/line anyways etc (see sevopediaunit.py for details) -->
+	<!-- custom: now that we have the new placeExclusiveCivs added by Claude AI and my prompt and adjustments or not or yes of the already working code or and other or and not anyways etc, we (also but anyways etc...) don't the old TXT_KEY_UNIQUE_UNIT ("No civilization unit for the Babylonian Empire" (or similar with "unique unit" before i had renamed it for AdvCiv-SAS) for example anyways etc) panel -->
+	if (eDefaultUnit != NO_UNIT && eDefaultUnit != eUnit)
+	{
+		
+		FOR_EACH_ENUM(Civilization)
+		{
+			UnitTypes eUniqueUnit = GC.getInfo(eLoopCivilization).
+					getCivilizationUnits(eUnitClass);
+			if (eUniqueUnit == eUnit)
+			{
+				szBuffer.append(NEWLINE);
+				szBuffer.append(gDLL->getText("TXT_KEY_UNIQUE_UNIT",
+						GC.getInfo(eLoopCivilization).getTextKeyWide()));
+			}
+		}
+		// <!-- custom: we now have a placeReplace panel, so we don't need and don't want anymore this extra replaces field/line anyways etc (see sevopediaunit.py for details) -->
 		//szBuffer.append(NEWLINE);
 		//szBuffer.append(gDLL->getText("TXT_KEY_REPLACES_UNIT",
 		//		GC.getInfo(eDefaultUnit).getTextKeyWide()));
-	//}
+	}
+	*/
 
 	if (kUnitClass.isWorldUnit())
 	{
@@ -9787,6 +9795,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 						GC.getInfo(u.getHolyCity()).getChar()));
 			}
 		}
+		/* <!-- custom: similarly to how was done in sevopedia building, we now also display project requirement(s) of units in sevopediaunit anyways etc with buttons, "or" separated if there are many for a same special unit, see the other(s) "custom:" comment about buildings in this .cpp file for details, or/and sevopedia building or/and unit for details on the(ir) anyways etc differences of implementation and how it overall works/functions anyways etc anyways etc anyways etc or/and other places or info or maybe not anyways etc anyways etc anyways etc -->
 		{
 			bool bFirst = true;
 			if (u.getSpecialUnitType() != NO_SPECIALUNIT &&
@@ -9811,10 +9820,12 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 			if (!bFirst)
 				szBuffer.append(ENDCOLR);
 		}
+		*/
 		{
 			bool bFirst = true;
 			if (u.isNuke() && (pCity == NULL || !GC.getGame().isNukesValid()))
 			{
+				/* <!-- custom: similarly to what was done for the sevopedia building project('s) require(s) that we now display as button(s) in same placeRequires at least as of now if not always or not or and other or and not anyways etc, it seems sevopedia unit has 2 requires texts for projects, one where multiple projects are (one or the other i don't think is (it) (is) (a) cumulative (requirement) anyways etc) required appending them with an "or", and after commenting it out just above if i am not mistaken in this .cpp code, some units that are mono or somehow also multi project requirement(ed?) in some or most or all or not cases still show the project requirement in placeSpecial, so commenting this out also solves this it seems -->
 				FOR_EACH_ENUM(Project)
 				{
 					if (GC.getInfo(eLoopProject).isAllowsNukes())
@@ -9828,6 +9839,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 								gDLL->getText("TXT_KEY_OR").c_str(), bFirst);
 					}
 				}
+				*/
 				FOR_EACH_ENUM(Building)
 				{
 					if (GC.getInfo(eLoopBuilding).isAllowsNukes())
@@ -10026,6 +10038,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 		}
 	}
 
+	/* <!-- custom: we now have a placeReplace method/function in sevopedia unit, so we don't need and don't want anymore this extra replaced by field/line anyways etc (see sevopediaunit.py for details) -->
 	if (bCivilopediaText)
 	{
 		if (eDefaultUnit == eUnit)
@@ -10035,14 +10048,14 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 				if (eLoopUnit != eUnit &&
 					eUnitClass == GC.getInfo(eLoopUnit).getUnitClassType())
 				{
-					// <!-- custom: we now have a replaced by panel, so we don't need and don't want anymore this extra replaced by field/line anyways etc (see sevopediaunit.py for details) -->
-					//szBuffer.append(NEWLINE);
-					//szBuffer.append(gDLL->getText("TXT_KEY_REPLACED_BY_UNIT",
-					//		GC.getInfo(eLoopUnit).getTextKeyWide()));
+					szBuffer.append(NEWLINE);
+					szBuffer.append(gDLL->getText("TXT_KEY_REPLACED_BY_UNIT",
+							GC.getInfo(eLoopUnit).getTextKeyWide()));
 				}
 			}
 		}
 	}
+	*/
 
 	if (pCity != NULL)
 	{
@@ -10335,10 +10348,12 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
 		}
 	}
 
+	/* <!-- custom: similarly to how was done in sevopedia unit, now that we have, in sevopedia building anyways etc, the placeExclusiveCivs and placeReplace functions/methods, we don't need want this old logic anymore, displaying it elsewhere in hopefully nicer or/and more helpful or maybe not or yes or etc but anyways etc anyways etc anyways etc... -->
+	// <!-- custom: also it seems all the other place(s) that used this eDefaultBuilding are(/is anyways etc) now all commented-out by (all) (where) our "custom:" code comment('s comment-out block(s) are), and the other eDefaultBuilding still used in the code are redefined if i am not mistaken so we can probably safely comment-out this whole block rather if i am not mistaken anyways etc anyways etc anyways etc -->
 	// test for unique building
 	BuildingTypes eDefaultBuilding = GC.getInfo(eBuildingClass).getDefaultBuilding();
 
-	if (eDefaultBuilding != eBuilding && /* advc.004w: */ !bInBuildingList)
+	if (eDefaultBuilding != eBuilding && // advc.004w: // !bInBuildingList)
 	{
 		FOR_EACH_ENUM(Civilization)
 		{
@@ -10359,6 +10374,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
 					GC.getInfo(eDefaultBuilding).getTextKeyWide()));
 		}
 	}
+	*/
 
 	if (bCivilopediaText ||
 		ePlayer == NO_PLAYER) // advc: Civilopedia from opening menu
@@ -10620,26 +10636,93 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_PROVIDES_POWER"));
 
+		// <!-- custom: split the message info between/to cover anyways etc clean and dirty cases anyways etc -->
 		/*if (kBuilding.isDirtyPower() && (GC.getDefineINT(CvGlobals::DIRTY_POWER_HEALTH_CHANGE) != 0)) {
 			szTempBuffer.Format(L" (+%d%c)", abs(GC.getDefineINT(CvGlobals::DIRTY_POWER_HEALTH_CHANGE)), ((GC.getDefineINT(CvGlobals::DIRTY_POWER_HEALTH_CHANGE) > 0) ? gDLL->getSymbolID(HEALTHY_CHAR): gDLL->getSymbolID(UNHEALTHY_CHAR)));
 			szBuffer.append(szTempBuffer);
 		}*/ // BtS
 		// K-Mod. Also include base health change from power.
-		int iPowerHealth = GC.getDefineINT(CvGlobals::POWER_HEALTH_CHANGE) +
-				(!kBuilding.isDirtyPower() ? 0 :
-				GC.getDefineINT(CvGlobals::DIRTY_POWER_HEALTH_CHANGE));
-		if (iPowerHealth)
+		// <!-- custom: also display "+0" as well as it is useful info to know that power has unhealhiness of +0 rather than +2 for example if it were the case anyways etc -->
+		int iPowerHealthChange = GC.getDefineINT(CvGlobals::POWER_HEALTH_CHANGE);
+
+		int iPowerHealthDirtyToAdd;
+		if (kBuilding.isDirtyPower())
 		{
-			szTempBuffer.Format(L" (+%d%c)", abs(iPowerHealth), iPowerHealth > 0 ?
+			iPowerHealthDirtyToAdd = GC.getDefineINT(CvGlobals::DIRTY_POWER_HEALTH_CHANGE);	
+		}
+		else
+		{
+			iPowerHealthDirtyToAdd = 0;
+		}
+		int iPowerBonusTotal = iPowerHealthChange + iPowerHealthDirtyToAdd;
+
+		if (kBuilding.isDirtyPower())
+		{
+			szBuffer.append(" " + gDLL->getText("TXT_KEY_BUILDING_PROVIDES_POWER_IN_THIS_CITY_DIRTY"));
+			szTempBuffer.Format(L" +%d %c", abs(iPowerBonusTotal), iPowerBonusTotal >= 0 ?
 					gDLL->getSymbolID(HEALTHY_CHAR) : gDLL->getSymbolID(UNHEALTHY_CHAR));
 			szBuffer.append(szTempBuffer);
 		} // K-Mod end
+		else
+		{
+			szBuffer.append(" " + gDLL->getText("TXT_KEY_BUILDING_PROVIDES_POWER_IN_THIS_CITY_CLEAN"));
+			szTempBuffer.Format(L" +%d %c", abs(iPowerBonusTotal), iPowerBonusTotal >= 0 ?
+					gDLL->getSymbolID(HEALTHY_CHAR) : gDLL->getSymbolID(UNHEALTHY_CHAR));
+			szBuffer.append(szTempBuffer);
+		}
 	}
 
 	if (kBuilding.isAreaCleanPower())
 	{
 		szBuffer.append(NEWLINE);
-		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER"));
+		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_PROVIDES_POWER"));
+		// <!-- custom: also add the K-Mod code block nice info if i may say but anyways etc anyways etc anyways etc for area clean power to not misleadingly assume but anyways etc anyways etc anyways etc that (areacleanpower) power has no unhealthy effect or be ignorant or confused about it anyways etc
+		// But since power is always clean if i am not mistaken due to the all cities effect, display only the clean power unhealthiness value/number (not the dirty pwoer value one anyways etc) and part of this K-Mod code if i may say anyways etc anyways etc anyways etc...
+		// But since i am not sure that dirty power is cancelled in this city if both areacleanpower and dirtypower are specified, added a "(?)" as well anyways etc -->
+		// <!-- custom: split the message info between/to cover anyways etc clean and dirty cases anyways etc -->
+		// K-Mod. Also include base health change from power.
+		// <!-- custom: display instead "-0" as it is useful info to know that power has unhealhiness of +0 rather than +2 for example if it were the case anyways etc -->
+
+		// K-Mod end
+		// <!-- custom: then add info about the effect and its value (number anyways etc anyways etc anyways etc...) in all cities as well, since power is always clean if i am not mistaken due to the all cities effect, display only the clean power unhealthiness value/number (not the dirty pwoer value one anyways etc) anyways etc -->
+		// <!-- custom: display instead "-0" as it is useful info to know that power has unhealhiness of +0 rather than +2 for example if it were the case anyways etc -->
+		szBuffer.append(" " + gDLL->getText("TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER_APPENDIX_IN_ALL_CITIES"));
+		int iPowerHealthChangeAll = GC.getDefineINT(CvGlobals::POWER_HEALTH_CHANGE);
+		if (iPowerHealthChangeAll)
+		{
+			szTempBuffer.Format(L" +%d %c", abs(iPowerHealthChangeAll),
+					iPowerHealthChangeAll >= 0 ? gDLL->getSymbolID(HEALTHY_CHAR) :
+					gDLL->getSymbolID(UNHEALTHY_CHAR));
+			szBuffer.append(szTempBuffer);
+		}
+
+		int iPowerHealthChange = GC.getDefineINT(CvGlobals::POWER_HEALTH_CHANGE);
+
+		int iPowerHealthDirtyToAdd;
+		if (kBuilding.isDirtyPower())
+		{
+			iPowerHealthDirtyToAdd = GC.getDefineINT(CvGlobals::DIRTY_POWER_HEALTH_CHANGE);	
+		}
+		else
+		{
+			iPowerHealthDirtyToAdd = 0;
+		}
+		int iPowerBonusTotal = iPowerHealthChange + iPowerHealthDirtyToAdd;
+
+		if (kBuilding.isDirtyPower())
+		{
+			szBuffer.append(" " + gDLL->getText("TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER_IN_THIS_CITY_CLEAN_OR_DIRTY_QUESTION"));
+			szTempBuffer.Format(L" +%d (or +%d ?) %c", abs(iPowerHealthChange), abs(iPowerBonusTotal), iPowerBonusTotal >= 0 ?
+					gDLL->getSymbolID(HEALTHY_CHAR) : gDLL->getSymbolID(UNHEALTHY_CHAR));
+			szBuffer.append(szTempBuffer);
+		} // K-Mod end
+		else
+		{
+			szBuffer.append(" " + gDLL->getText("TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER_IN_THIS_CITY_CLEAN"));
+			szTempBuffer.Format(L" +%d %c", abs(iPowerBonusTotal), iPowerBonusTotal >= 0 ?
+					gDLL->getSymbolID(HEALTHY_CHAR) : gDLL->getSymbolID(UNHEALTHY_CHAR));
+			szBuffer.append(szTempBuffer);
+		}
 	}
 
 	if (kBuilding.isAreaBorderObstacle())
@@ -11433,7 +11516,9 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
 	}
 	if (kBuilding.getPowerBonus() != NO_BONUS)
 	{
+		// <!-- custom: add info about whether power is clean or dirty for bonus as well, and add the power icon, similarly to how was done in the other TXT_KEY_BUILDING_PROVIDES_POWER similar/apparented reworks of the placeSpecial messages anyways etc, see this DLL code or/and XML txt key changes or/and sevopediabuilding if any change is there too about this or not in all cases anyways etc anyways etc anyways etc... -->
 		szBuffer.append(NEWLINE);
+		// <!-- custom: common message at the start anyways etc anyways etc anyways etc -->
 		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_PROVIDES_POWER_WITH",
 				GC.getInfo((BonusTypes)kBuilding.getPowerBonus()).getTextKeyWide()));
 
@@ -11442,17 +11527,33 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
 			szBuffer.append(szTempBuffer);
 		}*/ // BtS
 		// K-Mod. Also include base health change from power.
-		int iPowerHealth = GC.getDefineINT(CvGlobals::POWER_HEALTH_CHANGE) +
-				(!kBuilding.isDirtyPower() ? 0 :
-				GC.getDefineINT(CvGlobals::DIRTY_POWER_HEALTH_CHANGE));
-		if (iPowerHealth)
+		int iPowerHealthChange = GC.getDefineINT(CvGlobals::POWER_HEALTH_CHANGE);
+
+		int iPowerHealthDirtyToAdd;
+		if (kBuilding.isDirtyPower())
 		{
-			szTempBuffer.Format(L" (+%d%c)", abs(iPowerHealth),
-					iPowerHealth > 0 ? gDLL->getSymbolID(HEALTHY_CHAR) :
-					gDLL->getSymbolID(UNHEALTHY_CHAR));
+			iPowerHealthDirtyToAdd = GC.getDefineINT(CvGlobals::DIRTY_POWER_HEALTH_CHANGE);	
+		}
+		else
+		{
+			iPowerHealthDirtyToAdd = 0;
+		}
+		int iPowerBonusTotal = iPowerHealthChange + iPowerHealthDirtyToAdd;
+
+		if (kBuilding.isDirtyPower())
+		{
+			szBuffer.append(" " + gDLL->getText("TXT_KEY_BUILDING_PROVIDES_POWER_WITH_BONUS_IN_THIS_CITY_DIRTY"));
+			szTempBuffer.Format(L" +%d %c", abs(iPowerBonusTotal), iPowerBonusTotal >= 0 ?
+					gDLL->getSymbolID(HEALTHY_CHAR) : gDLL->getSymbolID(UNHEALTHY_CHAR));
+			szBuffer.append(szTempBuffer);
+		} // K-Mod end
+		else
+		{
+			szBuffer.append(" " + gDLL->getText("TXT_KEY_BUILDING_PROVIDES_POWER_WITH_BONUS_IN_THIS_CITY_CLEAN"));
+			szTempBuffer.Format(L" +%d %c", abs(iPowerBonusTotal), iPowerBonusTotal >= 0 ?
+					gDLL->getSymbolID(HEALTHY_CHAR) : gDLL->getSymbolID(UNHEALTHY_CHAR));
 			szBuffer.append(szTempBuffer);
 		}
-		// K-Mod end
 	}
 	{
 		bool bFirst = true;
@@ -11727,6 +11828,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
 		}
 	}
 
+	/* <!-- custom: we now have a placeReplace method/function in sevopedia unit, so we don't need and don't want anymore this extra replaced by field/line anyways etc (see sevopediaunit.py for details) -->
 	if (bCivilopediaText && eDefaultBuilding == eBuilding)
 	{
 		FOR_EACH_ENUM(Building)
@@ -11742,6 +11844,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
 			}
 		}
 	}
+	*/
 }
 
 
@@ -11764,6 +11867,7 @@ void CvGameTextMgr::buildBuildingRequiresString(CvWStringBuffer& szBuffer,
 					GC.getInfo((ReligionTypes) kBuilding.getHolyCity()).getChar()));
 		}
 	}
+	/* <!-- custom: now that sevopedia building shows projects in placeRequires as buttons, we can safely remove this from placeSpecial, after having (i did and hopefully did not make a mistake but should be fine or not or yes or and other or and not as we read after brackets anyways etc to know why i think that anyways etc: ) now display multiple projects (all a special unit needs), to all unit types belonging to this special unit, and we separate them with a "or" (see sevopedia building's and sevopediaunit's placeRequires(s) for comparison of their differences or not of/in implementation as well as the rest of their code if needed as well to see the differences as there are (quite) more differences than these but hopefully quite clear or not or yes or and other or and not anyways etc anyways etc anyways etc, or/and other places like docs or such or yes or not or and other or and not anyways etc anyways etc anyways etc -->
 	{
 		bool bFirst = true;
 		if (kBuilding.getSpecialBuildingType() != NO_SPECIALBUILDING)
@@ -11791,6 +11895,7 @@ void CvGameTextMgr::buildBuildingRequiresString(CvWStringBuffer& szBuffer,
 		if (!bFirst)
 			szBuffer.append(ENDCOLR);
 	}
+	*/
 	if (kBuilding.getSpecialBuildingType() != NO_SPECIALBUILDING)
 	{
 		if (pCity == NULL ||

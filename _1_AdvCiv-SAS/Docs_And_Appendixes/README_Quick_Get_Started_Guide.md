@@ -114,6 +114,7 @@ many times, just by only one civ in AdvCiv-SAS (and in base civ4 BTS/AdvCiv too 
 am not mistaken) if i am not mistaken. Could be shortened to civ units maybe
 too as i may or not or not always do further in this doc or/and other docs, hopefully
 the meaning of this expression would be clear enough (fast worker for india for example)
+- Renamed "Ressource" to "Bonus" for shorter Sevopedia category width, but also perhaps a good opportunity to match code name and game name maybe at least is how i would want to do it an AdvCiv-SAS if hopefully fine as in functionning well anyways etc.
 - The tech tree is fairly straightforward, with max one (minus the civ units)
 unit type per era, for example, which should hopefully help make sense of that and getting
 immersed into it, while not neglecting on strategy, hopefully, at least was my/one of my
@@ -249,25 +250,23 @@ be imagined as a nomadic settlment in the region maybe, still convenient so allo
 it)), also these "bad" terrains should be buffed a bit or quite a lot, so they
 would be more considered as alternative strategic options rather than bad tiles, among
 other possible changes
+- All units now are affected by city defenses (walls, castles, etc if any more/other), even gunpowder and later on units, seems more realistic to me this way, as walls can help against guns and against all (almost?) units, actually even if not having the tech for guns itself. See also for details: bIgnoreBuildingDefense in CIV4UnitInfos.xml or/and (tranlslate to english ((following) web page (anyways etc)) using web browser or such) https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense for details (too anyways etc(.)) anyways etc... .
 - worker cost is reduced
 - missionaries, spies, corporation executives todo have their cost greatly reduced,
 be sure to build them soon enough, also the effects they give access to (if conversion
 succeeds for missionaries (for corproations todo maybe it would be 100%?(?))) are even
 stronger.
-- no more small wonders! To simplify gameplay, great wonders, now named wonders,
-have stronger and more significant effects now. As explained above with the example
-of Moai Stautes transformed into a building, some nice effects have also been transferred
-Moai Statues, they will become slightly nerfed as a building (also in a way to buff
-water tiles as they are quite (very) weak in AdvCiv/BTS i think, trying to address,
-for example todo
-- some great wonders have changed names to reflect their history more, for example 
+- renamed "great wonders" to "world wonders", but functionally the exact same if i am not mistaken, i hope it is clearer, more intutiive, and in line with "world project", hinting more strongly at the fact that only one is possible in the entire world if i am not mistaken, anyways etc.
+- (todo check if still accurate and if we implement this in advciv-sas or simply rather reduce their count or/and rework them anyways etc: ) no more small wonders! To simplify gameplay, world wonders, have stronger and more significant effects now. As explained above with the example
+of Moai Stautes transformed into a building, some nice effects have also been transferred Moai Statues, they will become slightly nerfed as a building (also in a way to buff water tiles as they are quite (very) weak in AdvCiv/BTS i think, trying to address, for example todo)
+- some world wonders have changed names to reflect their history more, for example 
 "The Great Lighthouse" is now "Lighthouse of Alexandria", and some wonders are tied
 to another civ than in civ4 bts/advciv, for example "The great wall" no longer is
 linked with China but is now "The Ancient Walls of Benin", if you want to know why,
 see [the Mod folder](/_1_AdvCiv-SAS/), i have also put the 
 [source](https://thinkafrica.net/walls-of-benin/)
 here directly to illustrate this example.
-- also, each civilization now is tied to a great wonder, everyone can build it,
+- also, each civilization now is tied to a world wonder, everyone can build it,
 but if the civilization tied to it builds it first
 - some gameplay elements happen at different times, can resarch sooner, build
 culture sooner, slavery sooner, plantations sooner, tech trading a bit later (at

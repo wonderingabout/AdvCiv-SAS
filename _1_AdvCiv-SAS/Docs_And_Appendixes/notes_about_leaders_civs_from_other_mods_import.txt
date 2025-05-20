@@ -9,9 +9,6 @@ Abbreviations to add in readme (then remove duplicate explanation here anyways e
 - PSYX's MW 4 (PSYX's Modern world 4)
 - SOI (Sword of Islam)? If i add form it not sure yet but most likely but not sure anyways etc anyways etc anyways etc may or may not anyways etc
 
-nigeria / kingdom of benin
-- HR leaders some or all (+/- some other assets)
-
 hebrew civilization
 - the civ itself maybe from HR
 - david NW
@@ -21,7 +18,12 @@ hebrew civilization
 - baldwin I/1? (SOI) or could eaily reuse his very nice texture for another jewish/hebrew or and other or and not leader anyways etc
 
 Berbers (look at HR+++, maybe RFC DOC or maybe SOI mod if add from there too? Anyways etc)
-- Maimonides i think (Abi bin omar SOI? or alp arslan (SOI too anyways etc)? Or muhammad Gori? (SOI) or nur ad din zengi? (SOI)) or Al Hadi Yahya? (SOI), jewish leader (see https://listverse.com/2008/10/21/top-10-most-influential-jews-in-history/ and https://en.wikipedia.org/wiki/Maimonides or and other links or and not anyways etc)
+- Maimonides i think (Abi bin omar SOI? or alp arslan (SOI too anyways etc)? Or muhammad Gori? (SOI) or nur ad din zengi? (SOI)) or Al Hadi Yahya? (SOI), or al mu'izz li din allah? (SOI) jewish leader (see https://listverse.com/2008/10/21/top-10-most-influential-jews-in-history/ and https://en.wikipedia.org/wiki/Maimonides or and other links or and not anyways etc)
+- massinissa? (HR? Or RFC DOC?)
+
+Carthage (and Phoenicians? Add or research info about this ("and phoeinicians" i mean anyways etc) todo or not or yes or other or etc anyways etc...)
+- Dido COM (same in ROM 291 too if i am not mistaken anyways etc)
+- Hiram I/1? (RFC DOC)
 
 Arabs
 - Bilqis (HR)
@@ -30,7 +32,7 @@ Arabs
 - Suleiman? (RFC DOC? Or SOI?)
 
 Egypt
-- Cleopatra (ROM 291? or the one in many other mods but that i may want a bit less if not lot or other or not anyways etc?)
+- Cleopatra (add "VII"/7 in name too anyways etc) (ROM 291? or the one in many other mods but that i may want a bit less if not lot or other or not anyways etc?)
 - Nasser? (RFC DOC? Check if HR's version is same or not too anyways etc may or (may (i.e. not anyways etc...)) not add him though anyways etc anyways etc anyways etc)
 
 Persia
@@ -45,9 +47,7 @@ Sumer and Akkad:
 
 Hitties?
 - Suppiluliuma I/1? (ROM 291? Or maybe rather HR? Or and other or and not? Anyways etc)
-
-Carthage
-- Dido COM
+- hattusili I/1? (HR)
 
 Byzantine(s)
 - Theodora (COM?)
@@ -62,17 +62,18 @@ Holy roman
 
 Greece
 - Alexander? (LOR? or RFC DOC?)
-- Pericles? (check if RFC DOC's version is same as civ4's one anyways etc)
+- Pericles? (also rename to "Perikles" as in HR? Anyways etc) (check if RFC DOC's version is same as civ4's one anyways etc)
 - Leonidas? (HR, quite different from other mods may or not add him anyways etc)
 
 Russia
 - Lenin? (COM? or ROM?)
 - Ivan the terrible? (COM? or PSYX's MW 4? Or RFC DOC's version that i like a bit less too maybe(but anwyays etc(?)?))
-- Catherine? (PSYX's MW 4? Or keep original one fine as is or maybe not improve or choose this one maybe rather?) (or use RFC DOC's alternative skin, but i like the main (civ4 base one anyways etc) a lot, then could reuse orignal elsewhere, or maybe not? Anyways etc, But remake one does sem more accurate but is it necessary here? Or not? Or yes? ANyways etc)
+- Catherine? (PSYX's MW 4 = "Mary Stuart"'s version? Or keep original one fine as is or maybe not improve or choose this one maybe rather?) (or use RFC DOC's alternative skin, but i like the main (civ4 base one anyways etc) a lot, then could reuse orignal elsewhere, or maybe not? Anyways etc, But remake one does sem more accurate but is it necessary here? Or not? Or yes? ANyways etc)
 - Stalin? (LOR)
 
 France
 - Joan of Arc (COM? / ROM 291 if same?)
+- Clovis? (HR)
 - Napoleon?? (RFC DOC)
 
 Germany
@@ -85,13 +86,14 @@ England
 
 The Dutch/Netherlands
 - William III/3? (RFC DOC) Very Very Very nice texture and didnt see it in any other, plus his animatio is unusual if  am not msitaken anwyays etc (todo check his wiki or such to see if add him or rename to some other leader or maye not anyways etc)
+- Michiel de Ruyter? (HR)
 
 Spain:
 - Franco? (RFC DOC)
-- Felipe II? (RFC DOC)
+- Felipe II? (RFC DOC? Or Philip II (NW)?)
 
 Rome (change flag button to HR's? Or not? Anyways etc anyways etc...)
-- Constantine? (LOR?)
+- Constantine? (LOR? or HR?)
 - Marcus aurelius? (ROM 291?)
 - Lorenzo de Medici? (RFC DOC? Or HR?)
 - Mussolini? (RFC DOC)
@@ -102,7 +104,14 @@ Celts
 Vikings/Scandinavia (maybe rename to scandinavia as vikings was a title if i am not mistaken not a nation but not sure to check or and as i want or not maybe or maybe not or etc but anyways etc)
 - Margaret I/1 (use Isabella alternative version (RFC DOC)) (https://en.wikipedia.org/wiki/Margaret_I_of_Denmark and found (here anyways etc) according to same msot influential link below at other leaders to use maybe anyways etc)
 - Canute/Knut (Durin from M-E? Or HR?)
+- Gustav II/2 adolf? (HR)
 - Gustavus II? (RFC DOC? Or some other mod that had a version of him but maybe that i liked bit less or not or and oher or and not anyways etc?, or LOR?)
+
+nigeria / kingdom of benin
+- HR leaders some or all (+/- some other assets), in particular but maybe not only
+- Ogiso Igodo (using Ewuare for now, switch to Askiya muhammad Toure's skin/animation (HR)? Or Dingha Cisse?(s same? Anyways etc) (HR))
+- Queen Idia? (using Nzinga (HR)?) (most likely (to add her anyways etc) but not 100% sure at least yet or and other or and not anyways etc)
+- Queen Iden ideally too yes anyways etc but not sure but ideally would want very much but not sure may or not add her anyways etc(,) ; maybe use this for her bio anyways etc anyways etc anyways etc..: https://www.oriire.com/article/love-in-nobility-the-woman-king-queen-iden-of-benin-kingdom-nigeria or/and aonther link i ahd found before anyways etc...: https://edoworld.net/Queen_Iden_Benin.html
 
 Mali
 - Mansa Musa? (RFC DOC)
@@ -112,6 +121,19 @@ Ethiopia
 
 Zulu
 - Mandela? (HR) (but google to be sure i add him or not anyways etc, interesting to have an african version of gandhi but anyways etc)
+
+India (wanted to add more hindu leaders, according to this found this (quite quick search but quite good too maybe or not or yes or and other or and not anyways etc search) (https://www.reddit.com/r/IndianHistory/comments/1718t9n/whos_the_best_indian_kingemperor_in_your_opinion/) then in HR too or/and other mods anyways and then looked at this too anyways etc https://www.jagranjosh.com/general-knowledge/top-kings-and-queens-who-defined-indian-history-1736947234-1, maybe also then looked (me) later at this anyways etc anyways etc anyways etc (:) https://www.quora.com/Is-RajaRaja-I-the-greatest-king-in-Indian-history-Has-he-invaded-south-east-Asia : )
+- Chandragupta Maurya? (HR?)
+- Samudragupta https://en.wikipedia.org/wiki/Samudragupta (""Napoleon of India,"" xd but yes may be accurate evne though didnt read and ideally shoudl or if i want only or not anyways etc his bio at least bit more or not but anyways etc)
+- Raja Raja Chola maybe rather than krishnadevaraya? (use Rajndra Chola I/1 from HR? Anyways etc, or use Shehe Mvita from HR? or use Bayinnaung from HR? Anyways etc) https://en.wikipedia.org/wiki/Rajaraja_I in https://www.quora.com/Is-RajaRaja-I-the-greatest-king-in-Indian-history-Has-he-invaded-south-east-Asia and in https://www.quora.com/Is-RajaRaja-I-the-greatest-king-in-Indian-history-Has-he-invaded-south-east-Asia/answer/Kanthaswamy-Balasubramaniam
+- Krishnadevaraya i think most likely as well anyways etc https://en.wikipedia.org/wiki/Krishnadevaraya and in https://www.quora.com/Was-Krishnadevaraya-a-great-king-or-only-a-great-warrior and in https://www.quora.com/Was-Krishnadevaraya-a-great-king-or-only-a-great-warrior/answer/Aditya-Kulkarni-72 , religious tolerance acorcidng to these links (may search more or not or not now or other anyways etc)
+- or https://www.reddit.com/r/IndianHistory/comments/1718t9n/comment/k4dsdjv/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button and in (then, anyways etc) https://www.reddit.com/r/IndianHistory/comments/1718t9n/comment/k4dsdjv/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button and in https://www.quora.com/Why-was-Amoghavarsha-I-so-famous/answer/Aditya-Kulkarni-72 and in https://www.quora.com/Why-was-Amoghavarsha-I-so-famous
+- Sher Shah Suri? https://en.wikipedia.org/wiki/Sher_Shah_Suri and https://www.reddit.com/r/IndianHistory/comments/1718t9n/comment/k3pleyq (represents (or maybe rather shows as each represent only themselves or not or yes or etc or and other or and not anwyays etc..) the muslim part or a part of the muslim part/world perhaps), interesting also for his religious tolerance (inclination) and/or also administrative policies ((i) read very little about it/him the mainlines mostly/onyl but seems very interesting if i may say anyways etc anyways etc anyways etc...)
+- or Akbar the Great? (,) instead but then he does not like islam, in fact for example: https://www.reddit.com/r/exmuslim/comments/1fhuytf/mughal_emperor_akbar_was_an_apostate_how_is_this/ , which may be interesting too an areligious indian leader anyways etc, but maybhe was not so great? https://www.quora.com/If-Akbars-forces-killed-thousands-of-innocent-people-and-peasants-during-the-Siege-of-Chittorgarh-why-is-he-referred-to-as-Akbar-the-Great-everywhere/answer/Ninad-Kshirsagar-3?no_redirect=1 and https://www.quora.com/Why-did-King-Akbar-like-the-Hindus-Why-did-he-not-force-the-whole-country-to-embrace-Islam/answer/Sayan-Mukherjee-172 but is mostly about competency for me cruel or evil or kind or lveoy or such shoudn't matter too much when it comes to rulers maybe or maybe it does, but when adding leaders for civ4 i want all profiles if not for other things or and not anwyas etc, as for akbar maybe not adding him since the roster is big and full of indian history now, but if i added him, would make no favourite relgiion since he is not muslim from what i dunrstand of these coments and linked above (he created his own religin, tolerated all religioins, etc), still less cruel than other mughals but i don't know a lot aobut him still learned etc but anways etc)
+
+Khmer
+- Suryavarman II/2? (RFC DOC)
+- Jayavarman VII/7 (HR one (i.e. version (of him) (anyways etc)) i think as it seems more accurate (also i (subjectively) like it more but anyways etc anyways etc anyways etc... than (the one ((.e.) version (of him)) anyways etc) (anyways etc) after this sentence anyways etc... (sentence (after it) was/is anyways etc: ) or ROM 291(/COM version seems same anyways etc) maybe or not or other? Anyways etc)
 
 China
 - Hongwu? (HR (very nice skin or and animation at least bit if not lot but anwyas etc), RFC DOC)
@@ -149,9 +171,6 @@ Maya
 Brasil(? But i think yes as i had intended but in all cases anyways etc anyways etc anyways etc but not guarnateed may or may not anyways etc anyways etc anyways etc...)
 - Pedro II/2? (RFC DOC)
 
-Khmer
-- Suryavarman II/2? (RFC DOC)
-
 To maybe use but no nation yet if nto always or not but anyways etc:
 note: found maria theresa's leader role/leader name person maybe rather anyways etc here: https://www.google.com/search?q=most+influent+queens+in+europe&rlz=1C1GCEA_enFR1111FR1111&oq=most+influent+queens+in+europe&gs_lcrp=EgZjaHJvbWUyBggAEEUYOdIBCDQ2OTVqMGoxqAIAsAIA&sourceid=chrome&ie=UTF-8 look at similar types of searches maybe or not or and other or not about most influential or popular or such leaders or other kinds of persons or not to find some original ones maybe or and relevant ones or not anyways etc, we can always add bio ourselves, anyways etc anyways etc anyways etc...
 - Songzan Ganbu? (RFC DOC) very very nice animation and very original texture, at least i like it very much, i don't know if i'll add him or not but anyways etc, wish i can or could or can or find how or not, but may or may not anyways etc
@@ -160,6 +179,7 @@ note: found maria theresa's leader role/leader name person maybe rather anyways 
 - Piye (HR) is very hot and african leader muscular and all wow he looks egyptian and dignified i really want to add him but i don't know for which civ todo search or not but anyways etc
 - Vatavelli? (RFC DOC) very very very nice too anyways etc babylonion/sumer like texture, i hope i can and will add him, is quite uique too if i am not mistaken anyways etc, may or may not anyways etc
 - Maximilian? (HR) very nice skin though and really unique with the rounded hat but anyways etc, may or not add him even as other leader but not sure may not too indeed or may or not but anyways etc
+- Dihya al-Kahina (HR), may reuse her skin/animation very nice and unique too anyways etc, if need for another leader as lore is not too convincing to make her an advciv-sas leader but i hope i can find some purpose or use or and othe ror and not for her anywys etc
 - Mbemba? (RFC DOC) (the coughing animation mentionned below again now but still quite original skin animation of african leader may add in other leader or and not anyways etc (zulu? Or and othe ror and not or nto add or othe or and not? Anyways etc))
 - Salamasina? (HR) very nice skin but a bit too based on Hatshepsut's skin/animation if i am not mistaken anyways etc but is very different sitl though anwyays etc and other skins/aniamtions a ebased on other leaders too anyways etc anyways etc anyways etc
 - Timur (or SOI?) (/Tamerlane he is called in RFC DOC?)? (RFC DOC version of him (i don't know anythig at all about him but he does happen to eb in many mods anwyays etc (cpoudl elanrornt or and othe ror and not but(!!) anwyays etc anwyas etc anyways etc...)) in RFC DOC is different and i like it but will see may or may not anyways etc)
@@ -171,6 +191,7 @@ note: found maria theresa's leader role/leader name person maybe rather anyways 
 - Saruman? (M-E)
 - Gil-galad? (M-E)
 - Galadriel Artanis? (M-E)
+- tymoshenko? (PSYX's MW 4) yulia
 - Sauron? (M-E)
 - Tar-Aldarion? (M-E)
 - Castimir? (M-E)
@@ -186,6 +207,7 @@ note: found maria theresa's leader role/leader name person maybe rather anyways 
 - Tomislav? (PSYX's MW 4)
 - Trung Tarc? (PSYX's MW 4? (based on isabella it seems with background of green nature anyways etc))
 - Tamar? (Another version of isabella quite different which i like quite a lot (SOI) anyways etc)
+- Isabella (HR) alternative version that looks more medieval due to background anyways etc, maybe i can use her or not, ideally yes and display her nicely in advciv-sas but not sure anyways etc
 - Yulia Tymoshenko? (PSYX's MW 4?)
 - Alfonso Henriques? (RFC DOC)
 - Aho'eitu? (RFC DOC)
@@ -198,7 +220,6 @@ note: found maria theresa's leader role/leader name person maybe rather anyways 
 - Gerhardsen? (RFC DOC)
 - hiram I/1? (RFC DOC)
 - juarez? (RFC DOC)
-- khomeini? (RFC DOC)
 - lobsang gyatso? (RFC DOC)
 - Menelik? (RFC DOC)
 - Muhammand ibn tug? (RFC DOC)
@@ -213,7 +234,9 @@ note: found maria theresa's leader role/leader name person maybe rather anyways 
 - Ashot I (SOI)
 - Marti? (NW)
 - Agueybana? (NW)
-- Ahmadinejad? (NW)
 - Cochise? (NW)
 - Hussein? ((Saddam,) NW)
+- Ahmadinejad? (NW)
+- Khomeini? (RFC DOC)
 - Sipan? (NW)
+

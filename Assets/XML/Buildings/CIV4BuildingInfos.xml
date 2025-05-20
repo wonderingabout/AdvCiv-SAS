@@ -2,6 +2,145 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by lcollins (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
+<!-- custom: below comment block with all or many attributes/fields infos is taken from Doto mod in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Doto\Assets\modules_old\ExtraBonus\ExtraBonus_CIV4BuildingInfos.xml, i don't know if all applies to us but good to have this info so adding it to our file, and thanks too for it anyways etc, serves as additional info to confirm our hypothesis/observation/external civ4 doc/wiki read website that areacleanpower (all cities power) is indeed clean not 0 unhealthy anyways etc -->
+<!-- BuildingInfos	 This begins and ends the file. Everything must go in between these two, or it will not work.
+BuildingInfo	 Encloses the entry for each building.
+Advisor	Defines the type of advisor that would recommend this building in the in-game menus.
+ArtDefineTag	Specifies the tag in the Civ4ArtDefines_Building file that provides graphic data for this building.
+Bonus	Bonus type that speeds production.
+BuildingClass	The class of the building, as defined in the Civ4BuildingClassInfos file.
+CivicOption	Free civics allowed with building (for example, the Pyramids enable all Government civics).
+Civilopedia	Refers to a tag in the Civ4GameText_Civilopedia_BuildingsProjects file which stores the Civilopedia description for the Building.
+ConstructSound	Sound used when building is completed. See the AudioDefines, Audio2DScripts, and Audio3DScripts files.
+Description	Refers to a tag in the Civ4GameTextInfos_Objects file that stores the in-game name of the Building.
+FreeBonus	Provides the city with iFreeBonus (see below) number of a certain resource, like Hit Musicals (BONUS_DRAMA), Hit Songs (BONUS_MUSIC), or Hit Movies (BONUS_MOVIES).
+FreeBuilding	Provides the listed building free to every city. For example, the Three Gorges Dam gives a Hydro Station to each city.
+FreePromotion	Allows building to give listed promotion to all units built in that city, like Red Cross and Medic I.
+FreeStartEra	Building is free if you start in this Era or later.
+GlobalReligionCommerce	Earns gold from every city with this religion.
+GreatPeopleUnitClass	Type of Great Person Points the building generates.
+HolyCity	If set, the building can only be constructed in the Holy City of the religion specified.
+MaxStartEra	Latest Era the building can be constructed.
+MovieDefineTag	Specifies the tag in the Civ4ArtDefines_Movie file that will play when this building is constructed.
+NoBonus	The building blocks the resource from being accessed in the city. (Ex: National Park blocks coal).
+ObsoleteTech	Tech that makes the building obsolete (like Economics for Castles).
+PowerBonus	Any building with this bonus supplies power to the given city (i.e. BONUS_COAL for the Coal Plant).
+PrereqBonuses	Bonus type required for production.
+PrereqReligion	Defines Religion needed for production.
+ReligionType	If set, the Building can only be constructed if the specified Religion type is present in a city within the Civilization (though not necessarily in the city where it is being constructed).
+SpecialBuildingType	Determines whether or not the building is one the special types listed in the Civ4SpecialBuildingInfos file, like a monastery or cathedral.
+StateReligion	If set, the Building can only be constructed while the specified Religion type is the Civilization's State Religion.
+Strategy	Refers to a tag in the Civ4GameText_Strategy file that stores the strategic or usage info on the Building, displayed in mouseover pop-ups.
+Type	The type of Building (see the Civ4ArtDefines_Building file).
+VictoryPrereq	Victory type required for construction of the building (i.e. the Diplomacy victory condition must be enabled for the United Nations to be available).
+DiploVoteType	If one is set, the building will allow diplomatic voting of the votes allowed by that vote type; used by the United Nations and the Apostolic Palace.
+iAirlift	The distance from city that units can be airlifted.
+iAirModifier	Damage change from air units.
+iAIWeight	Importance of building to the AI.
+iAllCityDefense	% change in defense in all cities (e.g. Chichen Itza increases defenses by 25% ).
+iAnarchyModifier	% change in anarchy length.
+iAreaHappiness	Change in happiness in all cities on this continent.
+iAreaHealth	Change in healthiness in all cities on this continent.
+iAreaFreeSpecialist	Free specialists allowed in all cities on this continent (e.g. Statue of Liberty grants +1 specialist per city).
+iAsset	Point value of building for victory score.
+iBombardDefense	Percent reduction in damage to defense a city can get from bombardment from non-gunpowder units
+iCitiesPrereq	Requisite number of cities for this building.
+iCoastalTradeRoutes	Increases the number of trade routes in all coastal cities by this amount.
+iConquestProb	Percentage chance building will survive if city is captured.
+iCost	Building cost in hammers.
+iDefense	% change in this city's defense bonus.
+iExperience	Experience bonus to units built in this city.
+iFoodKept	% of food kept after city grows.
+iFreeSpecialist	Free specialists allowed in this city.
+iFreeTechs	Number of free techs provided when built.
+iGlobalExperience	Experience bonus to units built in all cities (e.g. the Pentagon gives +2 XP to all units).
+iGlobalFreeSpecialist	Free specialists allowed in all cities.
+iGlobalGreatPeopleRateModifier	% increase of Great Person Points generation rate for civilization.
+iGlobalHappiness	Change in happiness in all cities.
+iGlobalHealth	Change in healthiness in all cities.
+iGlobalHurryModifier	% change in hurry cost in all cities.
+iGlobalPopulationChange	Change in population globally.
+iGlobalSpaceProductionModifier	% change in spaceship parts production in all cities.
+iGlobalTradeRoutes	Change in number of trade routes in all cities.
+iGlobalWarWearinessModifier	% change in war weariness in all cities.
+iGreatPeopleRateChange	Integer change in Great Person Points generation (i.e. used for wonders, like the Pyramid's +2 Great Engineer points per turn).
+iGreatPeopleRateModifier	% increase of Great Person Points generation rate in this city.
+iHappiness	Change in happiness in this city.
+iHealRateChange	% change in healing rates.
+iHealth	Change in healthiness in this city.
+iHurryCostModifier	Building hurry cost modifier (e.g. a value of 100 makes the building, usually a wonder, twice as expensive to rush via gold or population).
+iLevelPrereq	Requisite unit level (e.g. a level 6 unit is required for West Point).
+iMaintenanceModifier	% change in maintenance cost.
+iMaxLatitude	Maximum distance from equator.
+iMilitaryProductionModifier	% change in military units' production.
+iMinAreaSize	Size of adjacent body of water for sea buildings (usually 10).
+iMinLatitude	Minimum distance from equator.
+iNukeModifier	Damage change from nukes.
+iNukeExplosionRand	Chance that a nuclear power plant will randomly blow up, causing a meltdown (default 1 in 1000).
+iNumFreeBonuses	Connected to the FreeBonus tag, this determines how many of the specified resource to provide. -1 gives 5 of the above bonuses. Any number >= 0 is itself, i.e. 10 here with a BONUS_DRAMA in the FreeBonus tag means 10 Hit Musicals from your city. Anything below -1 shows up as that negative number.
+iPower	Value used by AI to calculate a player's relative strength (Forge, Heroic Epic, etc. influence this).
+iSpaceProductionModifier	% change in spaceship parts' production.
+iStateReligionHappiness	Change in happiness with state religion.
+iTeamsPrereq	Instances among a team in multiplayer (e.g. the Apostolic Palace and United Nations have the value 3, while most buildings have a value of 0).
+iTradeRouteModifier	% change in trade routes' yield in this city.
+iTradeRoutes	Change in number of trade routes in this city.
+iWarWearinessModifier	% change in war weariness.
+iWorkerSpeedModifier	% change in worker speed.
+bAllowsNukes	Allows nukes for all players.
+bAreaCleanPower	Provides clean power to all cities on same continent (e.g. Three Gorges Dam).
+bBorderObstacle	If Barbarians can no longer cross the players borders.
+bBuildingOnlyHealthy	Removes unhealthiness caused by buildings (e.g. used by Recycling Center).
+bCapital	Sets the Capital City. There can only be one per civilization.
+bCenterInCity	Appears to locate the building at the center of the city. Buildings with a value of 1 for this tag include Aqueduct, Castle, and Monument.
+bDiploVote	Allows diplomatic votes (e.g. the United Nations); Vanilla and Warlords version of DiploVoteType
+bDirtyPower	Power provided is polluting.
+bForceTeamVoteEligible	Forces team members to vote with you.
+bGoldenAge	Starts a golden age (e.g. used by Taj Mahal).
+bGovernmentCenter	Makes the city a center of government (multiple allowed per civilization). Used by the Versailles wonder.
+bMapCentering	On completion, centers the map.
+bNeverCapture	Indicates if the building is destroyed when the city is captured.
+bNoUnhappiness	Removes all unhappiness from the city. Used by the Globe Theatre.
+bNoUnhealthyPopulation	Removes all unhealthiness from population. Used by the National Park.
+bNukeImmune	Makes the building immune to nuking.
+bPower	Provides power.
+bPrereqReligion	Indicates if a Religion must be present.
+bRiver	Requires river.
+bTeamShare	Allows team members to build together.
+bWater	Requires water.
+BonusHappinessChanges	This defines the changes in happiness provided by the building if you have the specified resources. The tag BonusHappinessChange, bracketed by BonusHappinessChanges, contains each individual resource and its effect. BonusType defines the type of resource, and iHappinessChange defines the amount of happiness increase.
+BonusHealthChanges	This defines the changes in healthiness provided by the building if you have the specified resources. The tag BonusHealthChange, bracketed by BonusHealthChanges, contains each individual resource and its effect. BonusType defines the type of resource, and iHealthChange defines the amount of health increase.
+BonusProductionModifiers	This controls the production bonuses for the building as a result of specified resources. BonusProductionModifier contains each individual resources and its effect, BonusType defines the type of resource, and iProductionModifier is a percentage value defining the change in production (e.g. Walls have a value for BONUS_TIMBER of 100).
+BonusYieldModifiers	This defines the bonuses to resources' yields from a building. BonusYieldModifier declares each resource, BonusType defines the type of resource, YieldModifiers brackets the three yield tags, and iYield controls the percentage change in food, hammer, and commerce production in that city.
+BuildingClassNeededs	This tag defines the buildings in the city that are required for the particular city improvement. BuildingClassNeeded defines the individual building classes, BuildingClassType declares the specific type of building, bNeededInCity is a Boolean tag controlling whether the building is needed in this city, and BuildingInfo brackets the entire building group.
+BuildingHappinessChanges	Defines which other buildings get happiness when this one is built.
+CommerceChangeDoubleTimes	Defines how many turns must pass before a given commerce output is doubled. For example, Versailles starts giving 10 Culture per turn, but after 1000 years, begins giving 20 Culture per turn. The three iCommerce tags refer to beakers, gold, and culture per turn.
+CommerceChangeOriginalOwners	Defines the increases in beakers, gold, culture, and espionage per turn that the building provides, using the iCommerce integer tag. Only the player that builds it gets the specified commerce changes.
+CommerceChanges	Defines the increases in beakers, gold, culture, and espionage per turn that the building provides, using the iCommerce integer tag.
+CommerceFlexibles	Allows players to adjust the commerce rate, just like technologies.
+CommerceHappinesses	This determines the percentage change in tax/research/culture sliders' rates, respectively, that produce happy faces, using the iCommerce tag. This is used for buildings like the Theater and Hippodrome.
+CommerceModifiers	Percentage change to the commerce production for the entire city (e.g. 25 is 25% increase), using the iCommerce tag. The first tag controls beakers per turn, the second gold per turn, the third culture per turn, and the fourth in espionage per turn.
+DomainFreeExperiences	This tag defines the experience bonus given to units of a certain type. The DomainFreeExperience tag contains each unit type, DomainType declares whether the unit is a land, sea, or air unit, and iExperience is an integer tag defining how many XP points are given to that unit type.
+DomainProductionModifiers	This tag defines the production bonus given to units of a certain type. The DomainFreeExperience tag contains each unit type, DomainType declares whether the unit is a land, sea, or air unit, and iProductionModifier defines the percentage bonus given to unit construction for that type.
+Flavors	Used by the AI to decide what buildings to build based on personality
+FreeSpecialistCounts	This tag lists the free specialists given to a city by the particular building. The FreeSpecialistCount brackets the info for each specialist type (Spy, Engineer, Merchant, etc.), SpecialistType declares the individual specialist type, and iFreeSpecialistCount controls how many free specialists of that type are granted.
+GlobalSeaPlotYieldChanges	Change in sea square yield for all cities, using the iYield integer tag.
+HotKey	Essentially useless. This relies on the Boolean tags bAltDown, bCtrlDown, and bShiftDown.
+ObsoleteSafeCommerceChanges	Additions to commerce outputs that aren't affected by other changes and the building going obsolete. Used primarily for culture per turn, this relies on the iCommerce integer tag.
+PrereqBuildingClasses	This specifies the amount of certain building class needed to construct this city improvement. PrereqBuildingClass brackets the info for each building class, BuildingClassType declares the building type, and iNumBuildingNeeded states the number of that building type required.
+ProductionTraits	This tag contains all the leader traits' production bonuses for the building. For example, Aggressive leaders receive a bonus when building a Barracks. ProductionTrait contains the info for each trait, ProductionTraitType defines the particular trait type, and iProductionTrait declares the percentage bonus to production.
+ReligionChanges	Similar to HOLY_CITY_INFLUENCE in GlobalDefines.xml, sets the change in religious influence the city has, which is used when determining religion spread. ReligionChange contains the info for each religion, ReligionType indicates the particular religion affecting the building, and iReligionChange is an integer tag used to affect this building.
+SeaPlotYieldChanges	This defines the change in sea squares' yield, using the iYield integer tag for food, hammers, and commerce output.
+RiverPlotYieldChanges	This defines the change in river squares' yield, using the iYield integer tag for food, hammers, and commerce output.
+SpecialistCounts	This list tag controls how many of each type of specialist this building allows (e.g. a Library allows only 2 Scientists). SpecialistCount contains the info for each specialist, SpecialistType declares the specialist type, and iSpecialistCount defines how many of that type are permitted.
+SpecialistExtraCommerces	Bonus provided to specialists by the building, uses iCommerce tag (e.g. Sistine Chapel provides extra culture per turn to each specialist).
+SpecialistYieldChanges	This controls the bonuses given to each specialist type by the building in question. SpecialistYieldChange contains all of the tags for each particular specialist: SpecialistType declares the type of specialist (Spy, Engineer, Merchant, etc.) and YieldChanges uses the iYield integer tag to modify Food, Hammers, and Gold per turn output.
+StateReligionCommerces	Bonus provided by buildings of the state religion, uses iCommerce tag (again used by the Sistine Chapel to increase culture per turn output of religous buildings).
+TechTypes	This tag lists all technologies that are required to allow construction. Note that you must have all of these techs beforehand (i.e. these are AND techs, not OR techs). The PrereqTech tag is used to bracket each individual prerequisite.
+UnitCombatFreeExperiences	This controls experience point bonuses to units of a certain combat type (Siege, Mounted, Melee, etc.). UnitCombatFreeExperience groups the information for each unit type, and the iExperience integer tag describes how much free XP to give to that type.
+YieldChanges	Defines the change in city yield, using iYield. There are three iYield tags: the first is for food per turn change, the second for hammers per turn, and the third for commerce per turn (e.g. the Palace provides 8 free commerce per turn).
+YieldModifiers	Percentage change to the yields for the entire city (e.g. 25 is 25% increase), using the iYield tag. The first tag controls food per turn, the second hammers per turn, and the third commerce per turn. (e.g the Forge provides 25% more hammers per turn)
+fVisibilityPriority	Used to give certain buildings priority when drawing them on the map. Most buildings have a value of 1.0, but the Aqueduct, for example, as a value of 10240000.0 in order to ensure that it is always drawn first.
+-->
 <!-- Building Infos -->
 
 <Civ4BuildingInfos xmlns="x-schema:CIV4BuildingsSchema.xml">
@@ -282,7 +421,7 @@
 			<iGlobalHappiness>0</iGlobalHappiness>
 			<iStateReligionHappiness>0</iStateReligionHappiness>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
-			<iMilitaryProductionModifier>10</iMilitaryProductionModifier>
+			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
 			<iSpaceProductionModifier>0</iSpaceProductionModifier>
 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
 			<iTradeRoutes>0</iTradeRoutes>
@@ -1255,6 +1394,8 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
+		<!-- custom: according to https://en.wikipedia.org/wiki/Castle#Later_use_and_revival_castles castle should be relevant much later than economics, which also seems a weird tech to "correlate" it with (obsolescence of castles, i don't see a clear link if i may say i mean anyways etc...) if that is an accurate word here anyways etc anyways etc anyways etc...
+		It's also interesting (i think but anyways etc) from a gameplay standpoint i think to make them relevant longer and not too soon obsolete so they are not worth building, and stockpilers run then rampage with pre-made farming strategies, it would require to be more careful about the whole game and pace now and war plans and such or not such or and other or and not, hopefully an interesting change but if not at least one i would like so doing it and hopefully helpful or enjoyable or and not or yes or and other or and not or etc or not or yes or other or not anyways etc anyways etc anyways etc... -->
 		<BuildingInfo>
 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
 			<Type>BUILDING_CASTLE</Type>
@@ -1277,7 +1418,7 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
-			<ObsoleteTech>TECH_ECONOMICS</ObsoleteTech>
+			<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 			<PrereqTech>TECH_ENGINEERING</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -1317,7 +1458,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>1</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>100</iCost>
+			<iCost>130</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -1387,7 +1528,7 @@
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
-				<iCommerce>1</iCommerce>
+				<iCommerce>2</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -1475,7 +1616,7 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
-			<ObsoleteTech>TECH_ECONOMICS</ObsoleteTech>
+			<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 			<PrereqTech>TECH_ENGINEERING</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -1585,7 +1726,7 @@
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
-				<iCommerce>1</iCommerce>
+				<iCommerce>3</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -1677,7 +1818,7 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
-			<ObsoleteTech>TECH_ECONOMICS</ObsoleteTech>
+			<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 			<PrereqTech>TECH_ENGINEERING</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -1787,7 +1928,7 @@
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
-				<iCommerce>1</iCommerce>
+				<iCommerce>3</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -3535,11 +3676,12 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
+			<!-- custom: was 0, 0, 1 -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<!-- advc.908b: was 2 -->
-				<iCommerce>1</iCommerce>
+				<iCommerce>2</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -4009,7 +4151,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>1</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>100</iCost>
+			<iCost>80</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -4110,6 +4252,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
+		<!-- custom: if it helps for balance or/and info or/and tweaking or/and other things anyways etc https://en.wikipedia.org/wiki/Baray -->
 		<BuildingInfo>
 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
 			<Type>BUILDING_KHMER_BARAY</Type>
@@ -4247,7 +4390,12 @@
 			<CommerceChanges/>
 			<ObsoleteSafeCommerceChanges/>
 			<CommerceChangeDoubleTimes/>
-			<CommerceModifiers/>
+			<CommerceModifiers>
+				<iCommerce>0</iCommerce>
+				<iCommerce>0</iCommerce>
+				<iCommerce>25</iCommerce>
+				<iCommerce>0</iCommerce>
+			</CommerceModifiers>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
 			<StateReligionCommerces/>
@@ -4915,7 +5063,11 @@
 			<CommerceChanges/>
 			<ObsoleteSafeCommerceChanges/>
 			<CommerceChangeDoubleTimes/>
-			<CommerceModifiers/>
+			<CommerceModifiers>
+				<iCommerce>15</iCommerce>
+				<iCommerce>0</iCommerce>
+				<iCommerce>0</iCommerce>
+			</CommerceModifiers>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
 			<StateReligionCommerces/>
@@ -5447,7 +5599,11 @@
 			<CommerceChanges/>
 			<ObsoleteSafeCommerceChanges/>
 			<CommerceChangeDoubleTimes/>
-			<CommerceModifiers/>
+			<CommerceModifiers>
+				<iCommerce>10</iCommerce>
+				<iCommerce>0</iCommerce>
+				<iCommerce>0</iCommerce>
+			</CommerceModifiers>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
 			<StateReligionCommerces/>
@@ -9103,8 +9259,9 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
+		<!-- custom: basing it (madrassa anyways etc) allows arabs to build great library and heroic epic and such, while being more consistent with timeline where they are more relevant (didn't check but i assume or/and from memory that they are religous, thus islamic buildings mostly if not only, anyways etc), this is also good because now anyways etc i can justify or maybe make them strogner as well as i had intended and vs the university they are not op anymore. Finally it is quite realistic too, and also pre islamic arabs, although i didn't check, maybe had their own libraries too, so if the case, nice they can, and now arabs can build great lbirary and such (assuming we son't rework it but anyways etc...) -->
 		<BuildingInfo>
-			<BuildingClass>BUILDINGCLASS_LIBRARY</BuildingClass>
+			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
 			<Type>BUILDING_ARABIAN_MADRASSA</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_ARABIAN_MADRASSA</Description>
@@ -9123,11 +9280,12 @@
 			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
 			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
 			<VictoryPrereq>NONE</VictoryPrereq>
+			<!-- custom: was ERA_RENAISSANCE -->
 			<!-- advc.126: was ERA_MODERN -->
-			<FreeStartEra>ERA_RENAISSANCE</FreeStartEra>
+			<FreeStartEra>ERA_MODERN</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_WRITING</PrereqTech>
+			<PrereqTech>TECH_DIVINE_RIGHT</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -9170,7 +9328,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>90</iCost>
+			<iCost>225</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -9247,7 +9405,8 @@
 			</CommerceChangeDoubleTimes>
 			<CommerceModifiers>
 				<iCommerce>0</iCommerce>
-				<iCommerce>25</iCommerce>
+				<iCommerce>35</iCommerce>
+				<iCommerce>15</iCommerce>
 			</CommerceModifiers>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
@@ -9267,7 +9426,7 @@
 			<FreeSpecialistCounts/>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
-			<ConstructSound>AS2D_BUILD_LIBRARY</ConstructSound>
+			<ConstructSound>AS2D_BUILD_UNIVERSITY</ConstructSound>
 			<BonusHealthChanges/>
 			<BonusHappinessChanges/>
 			<BonusProductionModifiers/>
@@ -9280,15 +9439,16 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: was 8 Science anyways etc -->
 			<!-- advc.020: was 10 Science -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
-					<iFlavor>8</iFlavor>
+					<iFlavor>10</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>6</iFlavor>
+					<iFlavor>7</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -9622,7 +9782,7 @@
 			</CommerceChangeDoubleTimes>
 			<CommerceModifiers>
 				<iCommerce>0</iCommerce>
-				<iCommerce>35</iCommerce>
+				<iCommerce>50</iCommerce>
 			</CommerceModifiers>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
@@ -11928,8 +12088,9 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
+			<!-- custom: reduced further among other things or not anyways etc, was 130 -->
 			<!-- advc.911b: was 150 -->
-			<iCost>130</iCost>
+			<iCost>110</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -12059,6 +12220,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
+		<!-- custom: if it helps for balance or/and info or/and tweaking or/and other things anyways etc https://en.wikipedia.org/wiki/Forum_(Roman) -->
 		<BuildingInfo>
 			<BuildingClass>BUILDINGCLASS_MARKET</BuildingClass>
 			<Type>BUILDING_ROMAN_FORUM</Type>
@@ -12121,8 +12283,9 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
+			<!-- custom: reduced further among other things(/changes (made)) or not or yes or and other or and not anyways etc, was 130. -->
 			<!-- advc.911b: was 150 -->
-			<iCost>130</iCost>
+			<iCost>110</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -12133,7 +12296,7 @@
 			<iLevelPrereq>0</iLevelPrereq>
 			<iMinLatitude>0</iMinLatitude>
 			<iMaxLatitude>90</iMaxLatitude>
-			<iGreatPeopleRateModifier>25</iGreatPeopleRateModifier>
+			<iGreatPeopleRateModifier>50</iGreatPeopleRateModifier>
 			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
 			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
@@ -25512,11 +25675,12 @@
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>
 			<iNumFreeBonuses>0</iNumFreeBonuses>
-			<FreeBuilding>BUILDINGCLASS_BROADCAST_TOWER</FreeBuilding>
+			<!-- custom: remove free broadcast towers based on this: https://forums.civfanatics.com/threads/the-eiffel-tower-and-broadcast-towers.224537/ , i don't know a lot about this and didn't know at all hehe if i may say anyways, but it does seem weird to have free broadcast towers in all cities just because one eiffel tower is built. The building itself (probably anyways etc) needs to be reworked or removed, for now changing its effects a bit or more than bit anyways etc. -->
+			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>UNITCLASS_GREAT_MERCHANT</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
+			<iGreatPeopleRateChange>4</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>1</bTeamShare>
@@ -25579,7 +25743,7 @@
 			<iGlobalHealth>0</iGlobalHealth>
 			<iHappiness>0</iHappiness>
 			<iAreaHappiness>0</iAreaHappiness>
-			<iGlobalHappiness>0</iGlobalHappiness>
+			<iGlobalHappiness>1</iGlobalHappiness>
 			<iStateReligionHappiness>0</iStateReligionHappiness>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
@@ -25607,21 +25771,30 @@
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
-				<iCommerce>6</iCommerce>
+				<iCommerce>10</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<iCommerce>1000</iCommerce>
 			</CommerceChangeDoubleTimes>
-			<CommerceModifiers/>
+			<CommerceModifiers>
+				<iCommerce>30</iCommerce>
+				<iCommerce>0</iCommerce>
+				<iCommerce>50</iCommerce>
+			</CommerceModifiers>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
 			<StateReligionCommerces/>
 			<CommerceHappinesses/>
 			<ReligionChanges/>
 			<SpecialistCounts/>
-			<FreeSpecialistCounts/>
+			<FreeSpecialistCounts>
+				<FreeSpecialistCount>
+					<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+					<iFreeSpecialistCount>2</iFreeSpecialistCount>
+				</FreeSpecialistCount>
+			</FreeSpecialistCounts>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners>
 				<bCommerceChangeOriginalOwner>0</bCommerceChangeOriginalOwner>
@@ -25655,10 +25828,10 @@
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>8</iFlavor>
+					<iFlavor>12</iFlavor>
 				</Flavor>
 				<Flavor>
-					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<FlavorType>FLAVOR_GOLD</FlavorType>
 					<iFlavor>4</iFlavor>
 				</Flavor>
 			</Flavors>
@@ -26386,14 +26559,14 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<BuildingInfo>
-			<BuildingClass>BUILDINGCLASS_GREAT_DAM</BuildingClass>
-			<Type>BUILDING_GREAT_DAM</Type>
+			<BuildingClass>BUILDINGCLASS_THREE_GORGES_DAM</BuildingClass>
+			<Type>BUILDING_THREE_GORGES_DAM</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
-			<Description>TXT_KEY_BUILDING_GREAT_DAM</Description>
-			<Civilopedia>TXT_KEY_BUILDING_GREAT_DAM_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_GREAT_DAM_STRATEGY</Strategy>
+			<Description>TXT_KEY_BUILDING_THREE_GORGES_DAM</Description>
+			<Civilopedia>TXT_KEY_BUILDING_THREE_GORGES_DAM_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
-			<ArtDefineTag>ART_DEF_BUILDING_GREAT_DAM</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_BUILDING_THREE_GORGES_DAM</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_THREE_GORGES_DAM</MovieDefineTag>
 			<HolyCity>NONE</HolyCity>
 			<ReligionType>NONE</ReligionType>

@@ -1,12 +1,12 @@
-List of all civs's great wonders.
+List of all civs's world wonders.
 
-In this mod each civ can have, and must have, 1 and only 1 great wonder.
+In this mod each civ can have, and must have, 1 and only 1 world wonder.
 
-Building the civ's specific great wonder before the other rivals will
+Building the civ's specific world wonder before the other rivals will
 trigger a special effect.
 
 Small wonders have been removed from this mod, there are none, no one
-can build them, some will be recycled as great wonders though.
+can build them, some will be recycled as world wonders though.
 This intends  to put more more emphasis on wonder building (and making
 them stronger too, to have a more tense and interesting game exciting
 too maybe, also avoid the nonsense of having many moai statues, etc,

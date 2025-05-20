@@ -20,6 +20,8 @@ or/and modify existing ones, for example, archery units would become:
 			<Button>,Art/Interface/Buttons/Promotions/Recon_Units.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,7</Button>
 		</UnitCombatInfo>
 
+
+
 		<!-- custom: archer combat types -->
 		<UnitCombatInfo>
 			<Type>UNITCOMBAT_ARCHER_BOW_SHORT</Type>
@@ -36,6 +38,8 @@ or/and modify existing ones, for example, archery units would become:
 			<Description>TXT_KEY_UNITCOMBAT_ARCHER_CROSSBOW</Description>
 			<Button>,Art/Interface/Buttons/Promotions/Cover.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,5</Button>
 		</UnitCombatInfo>
+
+
 
 		<UnitCombatInfo>
 			<Type>UNITCOMBAT_MOUNTED</Type>
@@ -72,6 +76,9 @@ or/and modify existing ones, for example, archery units would become:
 			<Description>TXT_KEY_UNITCOMBAT_NAVAL</Description>
 			<Button>,Art/Interface/Buttons/Promotions/Naval_Units.dds,Art/Interface/Buttons/Promotions_Atlas.dds,3,7</Button>
 		</UnitCombatInfo>
+
+
+		
 		<UnitCombatInfo>
 			<Type>UNITCOMBAT_AIR_BOMBER</Type>
 			<Description>TXT_KEY_UNITCOMBAT_AIR_BOMBER</Description>
