@@ -1098,8 +1098,8 @@
 			</DiscouragedCivs>
 		</TruBonusInfo>
 		<TruBonusInfo>
-			<Type>TRU_WINE</Type>
-			<BonusType>BONUS_WINE</BonusType>
+			<Type>TRU_GRAPES</Type>
+			<BonusType>BONUS_GRAPES</BonusType>
 			<!-- Don't discourage the Americas. Suitable vines did grow there,
 				 and it's not proven that they weren't fermented. -->
 			<DiscouragedCivs>

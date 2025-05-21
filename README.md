@@ -42,7 +42,9 @@ This sevopedia category displays key information about AdvCiv-SAS (non-exhaustiv
 
 These list the main changes from AdvCiv to (transitionning) to AdvCiv-SAS. They are not exhaustive, screenshot below is provided for info and may not eb updated or accurate (anymore or is is or not anyways etc). Please take note of these before proceeding further in the documentation.
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.611_sevopedia_advciv_sas_core_changes.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/0.610_sevopedia_advciv_sas_core_changes (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/0.610_sevopedia_advciv_sas_core_changes (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/0.610_sevopedia_advciv_sas_core_changes (3).JPG" width="250"></img>
 
 note: this info is also available in the [README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md) that i (would) recommend to read (as well) (but up to your preference and choice) as it contains more info there, if you haven't and want to start playing AdvCiv-SAS (but again as you prefer/want/do anyways or not or anyways etc)
 

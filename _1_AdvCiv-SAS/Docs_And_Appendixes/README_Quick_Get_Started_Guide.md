@@ -14,7 +14,7 @@ Sevopedia Entry (non-exhaustive), please visit it there (the screenshot below
 (click to view it full size) may not be updated, it is to give a preview/general
 idea):
 
-<img src="./Images_In_General/0.611_sevopedia_advciv_sas_core_changes.JPG" width="250"></img>
+<img src="./Images_In_General/0.610_sevopedia_advciv_sas_core_changes (1)" width="250"></img>
 
 There are also other additions, in particular written/coded by me wonderingabout and ChatGPT which are documented (mostly by me (wonderingabout) though hehe anyways etc), such as the AI personality panel (featuring raw and AI attributes display and ranking for all leaders), very important addition to AdvCiv-SAS, hopefully useful in understanding how each and all AI leaders behave and relate to each other, please read (if interested etc anyways) the (more) extensive documentation of how it works in [README.md#advciv-sas-core-changes-from-advciv](/README.md#advciv-sas-core-changes-from-advciv), or directly in [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md) if you want (to look etc anyways) for the full page.
 
@@ -287,6 +287,7 @@ instead i tried to put some nice images relatively as i thought would fit and i
 like, took quite a lot from existing mods
 - Some new ressources, for example camel and todo, some removed ressources, for
 example wine and todo
+- Renamed "Wine" (Bonus) to "Grapes". As part of renaming wine to grapes, additionally reworked grapes: now improved by IMPROVEMENT_FARM, not anymore by the old improvement_winery now removed. This matches historicality better if i may say and if it's a word anyways etc, as wine was consumed much before 4000 BC. Also, some wines are not made from grapes at all if i am not mistaken, and grapes can be eaten out of the wine usage. Updated bonus's description with a wikipedia based one as often if not always done when updating pedia entries of/in advciv-sas or and other mods using this mod's (i.e. this advciv-sas's code anyways etc). Also, the winery/happiness part of wine is transferred to the grocer building instead, now grapes gives happiness not health anymore. Similarly although not directly related, sugar now also gives happiness not health anymore through grocer. Hopefully buffes these mid game bonus effects while making these ressources more relevant as they were (a) bit (anyways etc) weak compared to say wheat or corn. See code comments for details or the ingame sevopedia entry of the grapes with also maybe or not or yes anyways etc latest updated info if anything changed since i wrote (am writing currently but anyways etc also wrote when viewing from later the new now maybe or not or yes anyways etc) but this should be the bulk of it and hopefully makes gameplay more accurate or/and interesting perhaps or/and enjoyable or not anyways etc. 
 - todo: space victory removed, it's too tedious to do, instead the USA is the
 only civ who wins if they build the programme Appolo, make sure to keep them in
 check

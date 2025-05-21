@@ -50,6 +50,8 @@ after having written this first paragraph above in this same example 4, a more e
 <img src="../Images_In_General/0.650_sevopedia_bonus_sample (7).JPG" width="250"></img>
 <img src="../Images_In_General/0.650_sevopedia_bonus_sample (8).JPG" width="250"></img>
 <img src="../Images_In_General/0.650_sevopedia_bonus_sample (9).JPG" width="250"></img>
+<img src="../Images_In_General/0.650_sevopedia_bonus_sample (10).JPG" width="250"></img>
+<img src="../Images_In_General/0.650_sevopedia_bonus_sample (11).JPG" width="250"></img>
 
 ## example 5: religion category
 

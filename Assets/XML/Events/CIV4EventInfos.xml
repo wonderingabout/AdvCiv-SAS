@@ -11577,7 +11577,7 @@
 			<iFeatureChange>0</iFeatureChange>
 			<ImprovementType>NONE</ImprovementType>
 			<iImprovementChange>0</iImprovementChange>
-			<BonusType>BONUS_WINE</BonusType>
+			<BonusType>BONUS_GRAPES</BonusType>
 			<iBonusChange>1</iBonusChange>
 			<RouteType>NONE</RouteType>
 			<iRouteChange>0</iRouteChange>
@@ -11658,7 +11658,7 @@
 			<iFeatureChange>0</iFeatureChange>
 			<ImprovementType>NONE</ImprovementType>
 			<iImprovementChange>1</iImprovementChange>
-			<BonusType>BONUS_WINE</BonusType>
+			<BonusType>BONUS_GRAPES</BonusType>
 			<iBonusChange>1</iBonusChange>
 			<RouteType>ROUTE_ROAD</RouteType>
 			<iRouteChange>1</iRouteChange>

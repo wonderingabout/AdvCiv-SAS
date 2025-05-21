@@ -119,6 +119,8 @@
 		<English>Elephants</English>
 	</TEXT>
 
+
+
 	<!-- custom: similarly to what was done with the elephants, "Cattle" seems a better
 	fit to me than "Cow".
 	Be careful, according to, for example:
@@ -141,9 +143,15 @@
 		<English>Cattle</English>
 	</TEXT>
 
+
+
 	<TEXT>
 		<Tag>TXT_KEY_BONUS_GEMSTONES</Tag>
 		<English>Gemstones</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BONUS_GRAPES</Tag>
+		<English>Grapes</English>
 	</TEXT>
 
 

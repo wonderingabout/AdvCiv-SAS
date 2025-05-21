@@ -1110,10 +1110,6 @@ then adjust maybe anyways):
 					<bBuild>1</bBuild>
 				</Build>
 				<Build>
-					<BuildType>BUILD_WINERY</BuildType>
-					<bBuild>1</bBuild>
-				</Build>
-				<Build>
 					<BuildType>BUILD_COTTAGE</BuildType>
 					<bBuild>1</bBuild>
 				</Build>
@@ -1364,10 +1360,6 @@ then adjust maybe anyways):
 					<bBuild>1</bBuild>
 				</Build>
 				<Build>
-					<BuildType>BUILD_WINERY</BuildType>
-					<bBuild>1</bBuild>
-				</Build>
-				<Build>
 					<BuildType>BUILD_COTTAGE</BuildType>
 					<bBuild>1</bBuild>
 				</Build>
@@ -1614,10 +1606,6 @@ then adjust maybe anyways):
 				</Build>
 				<Build>
 					<BuildType>BUILD_WELL</BuildType>
-					<bBuild>1</bBuild>
-				</Build>
-				<Build>
-					<BuildType>BUILD_WINERY</BuildType>
 					<bBuild>1</bBuild>
 				</Build>
 				<Build>

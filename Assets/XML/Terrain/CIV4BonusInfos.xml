@@ -1815,18 +1815,19 @@
 			</FeatureTerrainBooleans>
 		</BonusInfo>
 		<BonusInfo>
-			<Type>BONUS_WINE</Type>
-			<Description>TXT_KEY_BONUS_WINE</Description>
-			<Civilopedia>TXT_KEY_BONUS_WINE_PEDIA</Civilopedia>
+			<Type>BONUS_GRAPES</Type>
+			<Description>TXT_KEY_BONUS_GRAPES</Description>
+			<Civilopedia>TXT_KEY_BONUS_GRAPES_PEDIA</Civilopedia>
 			<BonusClassType>BONUSCLASS_GENERAL</BonusClassType>
-			<ArtDefineTag>ART_DEF_BONUS_WINE</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_BONUS_GRAPES</ArtDefineTag>
 			<TechReveal>NONE</TechReveal>
-			<TechCityTrade>TECH_MONARCHY</TechCityTrade>
+			<TechCityTrade>TECH_AGRICULTURE</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
+			<!-- custom: now that this (grapes) is based on grapes not on wine anymore, it makes more sense to give food instead of gold, buffing wine (now grapes) at same that was/were bit weak anyways etc so wishable hopefully at least is what i want anyways etc for grapes i mean anyways etc -->
 			<YieldChanges>
-				<iYieldChange>0</iYieldChange>
-				<iYieldChange>0</iYieldChange>
 				<iYieldChange>1</iYieldChange>
+				<iYieldChange>0</iYieldChange>
+				<iYieldChange>0</iYieldChange>
 			</YieldChanges>
 			<iAITradeModifier>0</iAITradeModifier>
 			<iAIObjective>0</iAIObjective>

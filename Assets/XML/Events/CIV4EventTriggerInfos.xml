@@ -2911,7 +2911,6 @@
 				<ImprovementType>IMPROVEMENT_WORKSHOP</ImprovementType>
 				<ImprovementType>IMPROVEMENT_QUARRY</ImprovementType>
 				<ImprovementType>IMPROVEMENT_WELL</ImprovementType>
-				<ImprovementType>IMPROVEMENT_WINERY</ImprovementType>
 				<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
 				<ImprovementType>IMPROVEMENT_WATERMILL</ImprovementType>
 				<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
@@ -3721,7 +3720,6 @@
 				<ImprovementType>IMPROVEMENT_WORKSHOP</ImprovementType>
 				<ImprovementType>IMPROVEMENT_QUARRY</ImprovementType>
 				<ImprovementType>IMPROVEMENT_WELL</ImprovementType>
-				<ImprovementType>IMPROVEMENT_WINERY</ImprovementType>
 				<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
 				<ImprovementType>IMPROVEMENT_WATERMILL</ImprovementType>
 				<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>

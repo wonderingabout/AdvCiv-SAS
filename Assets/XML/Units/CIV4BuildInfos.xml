@@ -531,48 +531,6 @@
 			<Button>,Art/Interface/Buttons/Builds/BuildOffshorePlatform.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,4,9</Button>
 		</BuildInfo>
 		<BuildInfo>
-			<Type>BUILD_WINERY</Type>
-			<Description>TXT_KEY_BUILD_WINERY</Description>
-			<Help/>
-			<PrereqTech>TECH_MONARCHY</PrereqTech>
-			<iTime>500</iTime>
-			<iCost>0</iCost>
-			<bKill>0</bKill>
-			<ImprovementType>IMPROVEMENT_WINERY</ImprovementType>
-			<RouteType>NONE</RouteType>
-			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
-			<FeatureStructs>
-				<FeatureStruct>
-					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<PrereqTech>TECH_IRON_WORKING</PrereqTech>
-					<iTime>400</iTime>
-					<iProduction>0</iProduction>
-					<bRemove>1</bRemove>
-				</FeatureStruct>
-				<FeatureStruct>
-					<FeatureType>FEATURE_FOREST</FeatureType>
-					<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
-					<iTime>300</iTime>
-					<iProduction>30</iProduction>
-					<bRemove>1</bRemove>
-				</FeatureStruct>
-				<!-- kekm.9 -->
-				<FeatureStruct>
-					<FeatureType>FEATURE_FALLOUT</FeatureType>
-					<PrereqTech>TECH_ECOLOGY</PrereqTech>
-					<iTime>600</iTime>
-					<iProduction>0</iProduction>
-					<bRemove>1</bRemove>
-				</FeatureStruct>
-			</FeatureStructs>
-			<HotKey>KB_W</HotKey>
-			<bAltDown>0</bAltDown>
-			<bShiftDown>1</bShiftDown>
-			<bCtrlDown>0</bCtrlDown>
-			<iHotKeyPriority>1</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/Builds/BuildWinery.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,6,8</Button>
-		</BuildInfo>
-		<BuildInfo>
 			<Type>BUILD_COTTAGE</Type>
 			<Description>TXT_KEY_BUILD_COTTAGE</Description>
 			<Help/>

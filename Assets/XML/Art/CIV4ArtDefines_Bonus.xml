@@ -191,13 +191,18 @@ and then modified or not for AdvCiv-SAS anyways etc
 			<Button>,Art/Interface/Buttons/WorldBuilder/Sugar.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,14</Button>
 			<FontButtonIndex>29</FontButtonIndex>
 		</BonusArtInfo>
+		<!-- custom: (wine now renamed to) grapes (anyways etc), imported from realism invictus mod in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Realism Invictus\Assets\RI_37_Interface8.FPK" with dragon unpacker (only the .dds files for the button (since they seem to also put a higher resolution one than 64 x 64 anyways etc we/i anyways etc took it too just in case anyways etc))-->
+		<!-- custom: old base advciv button path was:
+		<Button>,Art/Interface/Buttons/WorldBuilder/Wine.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,3,16</Button>
+		Anyways etc
+		-->
 		<BonusArtInfo>
-			<Type>ART_DEF_BONUS_WINE</Type>
+			<Type>ART_DEF_BONUS_GRAPES</Type>
 			<fScale>1.0</fScale>
 			<fInterfaceScale>1.0</fInterfaceScale>
 			<NIF>Art/Terrain/Resources/Wine/Wine.nif</NIF>
 			<KFM>Art/Terrain/Resources/Wine/Wine.kfm</KFM>
-			<Button>,Art/Interface/Buttons/WorldBuilder/Wine.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,3,16</Button>
+			<Button>Art/AdvCiv_SAS/Bonus/Grapes/wine_x64.dds</Button>
 			<FontButtonIndex>30</FontButtonIndex>
 		</BonusArtInfo>
 		<BonusArtInfo>
