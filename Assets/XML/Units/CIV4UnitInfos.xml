@@ -15477,7 +15477,7 @@ then adjust maybe anyways):
 				<PrereqTech>NONE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
-			<BonusType>BONUS_IVORY</BonusType>
+			<BonusType>BONUS_ELEPHANTS</BonusType>
 			<PrereqBonuses/>
 			<ProductionTraits/>
 			<Flavors/>
@@ -15667,7 +15667,7 @@ then adjust maybe anyways):
 				<PrereqTech>NONE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
-			<BonusType>BONUS_IVORY</BonusType>
+			<BonusType>BONUS_ELEPHANTS</BonusType>
 			<PrereqBonuses/>
 			<ProductionTraits/>
 			<Flavors/>

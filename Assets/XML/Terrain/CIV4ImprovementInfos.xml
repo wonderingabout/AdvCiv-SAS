@@ -1127,7 +1127,7 @@
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
-					<BonusType>BONUS_IVORY</BonusType>
+					<BonusType>BONUS_ELEPHANTS</BonusType>
 					<bBonusMakesValid>1</bBonusMakesValid>
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>0</iDiscoverRand>

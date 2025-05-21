@@ -1500,11 +1500,11 @@
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
 		<BonusInfo>
-			<Type>BONUS_IVORY</Type>
-			<Description>TXT_KEY_BONUS_IVORY</Description>
-			<Civilopedia>TXT_KEY_BONUS_IVORY_PEDIA</Civilopedia>
+			<Type>BONUS_ELEPHANTS</Type>
+			<Description>TXT_KEY_BONUS_ELEPHANTS</Description>
+			<Civilopedia>TXT_KEY_BONUS_ELEPHANTS_PEDIA</Civilopedia>
 			<BonusClassType>BONUSCLASS_GENERAL</BonusClassType>
-			<ArtDefineTag>ART_DEF_BONUS_IVORY</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_BONUS_ELEPHANTS</ArtDefineTag>
 			<TechReveal>NONE</TechReveal>
 			<TechCityTrade>TECH_HUNTING</TechCityTrade>
 			<TechObsolete>TECH_INDUSTRIALISM</TechObsolete>

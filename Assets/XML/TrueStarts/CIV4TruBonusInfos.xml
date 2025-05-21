@@ -813,8 +813,8 @@
 			</EncouragedCivs>
 		</TruBonusInfo>
 		<TruBonusInfo>
-			<Type>TRU_IVORY</Type>
-			<BonusType>BONUS_IVORY</BonusType>
+			<Type>TRU_ELEPHANTS</Type>
+			<BonusType>BONUS_ELEPHANTS</BonusType>
 			<DiscouragedRegions>
 				<DiscouragedRegion>
 					<GeoRegion>ARTSTYLE_EUROPEAN</GeoRegion>

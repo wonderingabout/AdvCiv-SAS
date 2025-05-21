@@ -12181,7 +12181,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 				<BonusHappinessChange>
-					<BonusType>BONUS_IVORY</BonusType>
+					<BonusType>BONUS_ELEPHANTS</BonusType>
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 				<BonusHappinessChange>
@@ -12376,7 +12376,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 				<BonusHappinessChange>
-					<BonusType>BONUS_IVORY</BonusType>
+					<BonusType>BONUS_ELEPHANTS</BonusType>
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 				<BonusHappinessChange>
@@ -28158,7 +28158,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<BonusHappinessChanges/>
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
-					<BonusType>BONUS_IVORY</BonusType>
+					<BonusType>BONUS_ELEPHANTS</BonusType>
 					<iProductonModifier>100</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>

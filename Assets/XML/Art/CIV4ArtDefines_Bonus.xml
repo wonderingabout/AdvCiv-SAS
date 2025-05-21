@@ -142,7 +142,7 @@ and then modified or not for AdvCiv-SAS anyways etc
 			<FontButtonIndex>24</FontButtonIndex>
 		</BonusArtInfo>
 		<BonusArtInfo>
-			<Type>ART_DEF_BONUS_IVORY</Type>
+			<Type>ART_DEF_BONUS_ELEPHANTS</Type>
 			<fScale>1.0</fScale>
 			<fInterfaceScale>1.0</fInterfaceScale>
 			<NIF>Art/Terrain/Resources/Elephant/Elephant.nif</NIF>

@@ -18,11 +18,15 @@
 
 
 	<!-- custom: taken from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_Bonuses.xml (for languages we chose or didn't choose see AdvCiv-SAS core doc for details), description not changed otherwise as it correctly at least matching our new name so no change needed maybe fine as is or not or yes or other and or not and other or etc or other anyways etc -->
+	<!-- custom: similarly done (in order?) for(/to?) renaming(rename?) _IVORY to _ELEPHANTS anyways etc anyways etc anyways etc... -->
 	<TEXT>
 		<Tag>TXT_KEY_BONUS_GEMSTONES_PEDIA</Tag>
 		<English>[TAB]Gemstones, treasured throughout time for their beauty and value, have always been a sought-after commodity. Most gemstones, such as diamonds, are mined in various areas throughout the world, most notably Africa. Some of the most notable gem deposits, however, have been found in archeological digs. The ruins of ancient civilizations in the jungles of Central and South America have sometimes been found to hide large quantities of precious and semi-precious gems, as well as gold and other items of value. The discovery of such a site can lead to an increase in trade in the areas surrounding the dig, as both professional and amateur treasure hunters swarm to the region to seek their fortune.</English>
 	</TEXT>
-
+	<TEXT>
+		<Tag>TXT_KEY_BONUS_ELEPHANTS_PEDIA</Tag>
+		<English>[TAB]Elephants are the largest living land mammals. At birth it is common for an elephant calf to weigh 225 pounds! In the wild, elephants exhibit complex social behavior and strong family bonds. Social hierarchy in calf-cow groups is based on size and age, with the largest and oldest at the top and the smallest and youngest last. Adolescent males determine their own ranking order through jousting contests using head and tusks. Elephants communicate with very low and long ranging subsonic tones. [PARAGRAPH:1]Elephant taming began in the Indus valley around 4000 years ago. The first military application of elephants dates from around 1100 BC and is mentioned in several Sanskrit hymns. From the east, war elephants migrated to the Persian Empire where they stood against Alexander the Great at the battle of Gaugamela. Though they did not play a significant role in the battle, Alexander saw their usefulness and began incorporating them into his army. Later the use spread throughout Europe and elephants were used in such famous campaigns as the Macedonian wars and by Hannibal during the Second Punic War.</English>
+	</TEXT>
 
 
 	<!-- custom: adding/using rather/instead a modified version of the animal concept txt key, for the sevopedia unit ('s) history panel('s text), removing the H1, and adding info about how animals can't/cannot anyways etc anyways etc anyways etc be built by any civ, including barbarians if i am not mistaken, and how our new placeExclusiveCivs "Civlizations:" "All" line is not incorrect, just animals are not restricted to any specific civ, but due to some other reasons, while there is no such restriction, no civ can build any animal unit though, so we represent the xml accurately while also explaining it hopefully well or not or yes or and other or and not or yes or and other or and not but anyways etc.
