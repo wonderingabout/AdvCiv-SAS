@@ -1329,11 +1329,11 @@
 			</FeatureTerrainBooleans>
 		</BonusInfo>
 		<BonusInfo>
-			<Type>BONUS_GEMS</Type>
-			<Description>TXT_KEY_BONUS_GEMS</Description>
-			<Civilopedia>TXT_KEY_BONUS_GEMS_PEDIA</Civilopedia>
+			<Type>BONUS_GEMSTONES</Type>
+			<Description>TXT_KEY_BONUS_GEMSTONES</Description>
+			<Civilopedia>TXT_KEY_BONUS_GEMSTONES_PEDIA</Civilopedia>
 			<BonusClassType>BONUSCLASS_PRECIOUS</BonusClassType>
-			<ArtDefineTag>ART_DEF_BONUS_GEMS</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_BONUS_GEMSTONES</ArtDefineTag>
 			<TechReveal>NONE</TechReveal>
 			<TechCityTrade>TECH_MINING</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>

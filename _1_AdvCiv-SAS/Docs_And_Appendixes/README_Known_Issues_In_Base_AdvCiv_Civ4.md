@@ -188,6 +188,8 @@ So hopefully fine and solved now even though not sure and not guaranteed but may
 
 # 6 - (now worked around anyways etc) Too long XML code comments cause errors or/and game crashes
 
+Related to [example/issue 9](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#9---art-and-maybe-other-assets-too-or-not-anyways-etc-xml-assets-silently-causing-a-game-crash-during-initgame-loadstartup-instead-of-telling-us-which-asset-was-missing-no-error)
+
 Be careful of having too long XML code comments, they (seem to indeed but anyways etc) cause game crashes (or maybe errors too? Anyways etc) in some circumstances, i assume it is especially due to or/and caused by if it's not same but anyways etc nested code comments more specifically but anyways, since i don't know more, it is only speculation on my end but anyways etc, but moving these nested code comments outside of the XML did fix the early game crash issue that is reproductible.
 
 Something to keep in mind perhaps if i may say i mean anyways while doing XML code comments, that if they have to be long, move them outside of the XML tree entirely maybe, or at least outside the nested ones maybe, tweak this advice or opinion or feel or not feel or yes feel but maybe rather too view/thought as you see fit and/or want or not, hopefully helpful or not or and other or and not but in all cases maybe or not or yes anyways etc anyways etc anyways etc.
@@ -203,3 +205,176 @@ On windows 10 at least if not in other systems as well, at least in my machine b
 For example as in [these screenshots (google drive folder link anyways etc)](https://drive.google.com/drive/folders/1gyaLERKrDAUbiQeVWl4S7T7tPJB0soR3?usp=sharing), or to copy the err log (path from Notepad++, adjust with your windows username or/and equivalent configuration/version of this that fits/suits your system username or/and other settings anyways etc (C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonErr.log) anyways etc.
 
 If such issues happen, maybe restart the game and hopefully all fixed, ideally modify python files before game is launched to prevent that, unless you know what or/and why you are doing (it) or/and other (reason) or and not as you prefer or not or yes or and other or and not anyways etc anyways etc anyways etc
+
+# 9 - Art (and maybe other assets too or not anyways etc) XML assets silently causing a game crash during init/game load/startup instead of telling us which asset was missing (no error)
+
+Related to [example/issue 6](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#6---now-worked-around-anyways-etc-too-long-xml-code-comments-cause-errors-orand-game-crashes)
+
+For example, while i was renaming _GEMS to _GEMSTONES, everywhere (with VS Code global search), except one part i had forgotten:
+
+Like this (Results/status anyways etc shown below thanks to VS Code's global search's "Copy all" UI menu anyways etc):
+
+```
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Art\CIV4ArtDefines_Bonus.xml
+  118,23: 			<Type>ART_DEF_BONUS_GEMS</Type>
+
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Buildings\CIV4BuildingInfos.xml
+  6512,22: 					<BonusType>BONUS_GEMSTONES</BonusType>
+  6706,22: 					<BonusType>BONUS_GEMSTONES</BonusType>
+
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Events\CIV4EventTriggerInfos.xml
+  11024,21: 				<BonusType>BONUS_GEMSTONES</BonusType>
+
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\GameInfo\CIV4CorporationInfo.xml
+  236,21: 				<BonusType>BONUS_GEMSTONES</BonusType>
+
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Terrain\CIV4BonusInfos.xml
+  1332,15: 			<Type>BONUS_GEMSTONES</Type>
+  1333,30: 			<Description>TXT_KEY_BONUS_GEMSTONES</Description>
+  1334,30: 			<Civilopedia>TXT_KEY_BONUS_GEMSTONES_PEDIA</Civilopedia>
+  1336,31: 			<ArtDefineTag>ART_DEF_BONUS_GEMSTONES</ArtDefineTag>
+
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Terrain\CIV4ImprovementInfos.xml
+  482,22: 					<BonusType>BONUS_GEMSTONES</BonusType>
+
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\TrueStarts\CIV4TruBonusInfos.xml
+  678,13: 			<Type>TRU_GEMSTONES</Type>
+  679,20: 			<BonusType>BONUS_GEMSTONES</BonusType>
+
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Settings\CustomDomAdv\CustomDomAdv_ger.txt
+  2549,14: a(S'HAS_BONUS_GEMSTONES'
+  2706,10: a(S'BONUS_GEMSTONES'
+
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Settings\CustomDomAdv\CustomDomAdv_ita.txt
+  2293,14: a(S'HAS_BONUS_GEMSTONES'
+  2457,10: a(S'BONUS_GEMSTONES'
+
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Settings\CustomDomAdv\CustomDomAdv.txt
+  2549,14: a(S'HAS_BONUS_GEMSTONES'
+  2706,10: a(S'BONUS_GEMSTONES'
+
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Settings\CustomDomAdv\WS_CustomDomAdv.txt
+  2407,14: a(S'HAS_BONUS_GEMSTONES'
+  2572,10: a(S'BONUS_GEMSTONES'
+```
+
+Here as seen above, i had forgotten to rename `118,23: 			<Type>ART_DEF_BONUS_GEMS</Type>` to `118,23: 			<Type>ART_DEF_BONUS_GEMSTONES</Type>` as well, but instead of getting the usual error like in unitinfos xml or such from little or not little i experimented ith xml of civ4 in the past since doing this advciv-sas mod anyways etc, here we have a silent crash instead of an error, and inspecting the err log or dbg log of pytohn in civ4 shows us nothing, file is empty, the app init log (in C:\Users\PC\Documents\My Games\beyond the sword\Logs\init.log) is not too helpful either:
+
+```
+[38971.390] DBG: CIV Init
+[38971.390] VERSION: App: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Civ4BeyondSword.exe
+[38971.390] VERSION: Build: Thu May 29 04:28:49 2014
+[38971.390] VERSION: 3.1.9.0 (128100)
+[38971.718] VERSION: Mod Loaded: Mods\AdvCiv-SAS\
+[38971.734] DBG: FILE Cat Init
+[38972.234] DBG: Game Init
+[38972.234] DBG: Multiplayer Init BEGIN
+[38972.328] DBG: Multiplayer Init END
+[38972.328] DBG: Audio Init
+[38972.625] DBG: ArtFileMgr Init
+[38972.625] DBG: Python Init
+[38974.343] VERSION: CIV Version: 319
+[38974.343] VERSION: Minimum Version: 319
+[38974.343] VERSION: Save Version: 14223
+[38974.343] DBG: Input Init
+[38974.343] DBG: Engine Init
+[38974.421] DBG: Checking available screen resolution
+[38974.546] DBG: Validating screen resolution
+[38974.546] DBG: Creating rendererer
+[38974.797] DBG: Engine: renderer Initialized
+[38974.797] DBG: Engine: Shaders Initialized
+[38974.922] DBG: Engine: Scene Lights Initialized
+[38974.922] DBG: Music Start
+[38974.938] DBG: Font Init
+```
+
+But it seems last element we loaded successfully or (maybe? Anyways etc) crashed at while trying to load anyways etc was "Font"(s?)?? Could this be related to art assests or referring/being a reference/mention to(/of?) them perhaps or not?
+
+In all cases, unless i am mistaken or not too knowledgeable about this issue or this part of civ4 knowledge or experience or and other or and not anyways etc, this does not help us directly like as if for exmapel it told us error missing asset X at line etc asset not found or something.
+
+So it seems art xml assets need special attention especially in the case of errors, not as easy to handle, but fixing it now works:
+
+```
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Art\CIV4ArtDefines_Bonus.xml
+  118,23: 			<Type>ART_DEF_BONUS_GEMSTONES</Type>
+
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Buildings\CIV4BuildingInfos.xml
+  6512,22: 					<BonusType>BONUS_GEMSTONES</BonusType>
+  6706,22: 					<BonusType>BONUS_GEMSTONES</BonusType>
+
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Events\CIV4EventTriggerInfos.xml
+  11024,21: 				<BonusType>BONUS_GEMSTONES</BonusType>
+
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\GameInfo\CIV4CorporationInfo.xml
+  236,21: 				<BonusType>BONUS_GEMSTONES</BonusType>
+
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Terrain\CIV4BonusInfos.xml
+  1332,15: 			<Type>BONUS_GEMSTONES</Type>
+  1333,30: 			<Description>TXT_KEY_BONUS_GEMSTONES</Description>
+  1334,30: 			<Civilopedia>TXT_KEY_BONUS_GEMSTONES_PEDIA</Civilopedia>
+  1336,31: 			<ArtDefineTag>ART_DEF_BONUS_GEMSTONES</ArtDefineTag>
+
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Terrain\CIV4ImprovementInfos.xml
+  482,22: 					<BonusType>BONUS_GEMSTONES</BonusType>
+
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\TrueStarts\CIV4TruBonusInfos.xml
+  678,13: 			<Type>TRU_GEMSTONES</Type>
+  679,20: 			<BonusType>BONUS_GEMSTONES</BonusType>
+
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Settings\CustomDomAdv\CustomDomAdv_ger.txt
+  2549,14: a(S'HAS_BONUS_GEMSTONES'
+  2706,10: a(S'BONUS_GEMSTONES'
+
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Settings\CustomDomAdv\CustomDomAdv_ita.txt
+  2293,14: a(S'HAS_BONUS_GEMSTONES'
+  2457,10: a(S'BONUS_GEMSTONES'
+
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Settings\CustomDomAdv\CustomDomAdv.txt
+  2549,14: a(S'HAS_BONUS_GEMSTONES'
+  2706,10: a(S'BONUS_GEMSTONES'
+
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Settings\CustomDomAdv\WS_CustomDomAdv.txt
+  2407,14: a(S'HAS_BONUS_GEMSTONES'
+  2572,10: a(S'BONUS_GEMSTONES'
+```
+
+like this:   `118,23: 			<Type>ART_DEF_BONUS_GEMSTONES</Type>`, now works and game can start fine and all at least in main menu anyways etc.
+
+Something to keep in mind if i may say anyways etc if having we/i/you or and other or and not anyways etc have a crash after modifying art assets, but no idea why, it could be linked to this issue or something similar, ideally we'd get a nice error crash message and such, but comitting in smalle rchunks ideally and testing at each step occasionally or lot or not may help prevent or spot these, hopefully this message or rather anyways etc note here in this doc of known civ4 issues also helps me or and other or and not reading this or not or yes or etc or and other or and not anyways etc anyways etc anyways etc...
+
+Also for info init log after successfully load is like this after fixing it and successfully finally (even though was not long but as in/in terms of having success step now if i may say anyways etc anyways etc anyways etc or not or yes or and other or and not anyways etc) anyways etc:
+
+```
+[39838.765] DBG: CIV Init
+[39838.781] VERSION: App: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Civ4BeyondSword.exe
+[39838.781] VERSION: Build: Thu May 29 04:28:49 2014
+[39838.781] VERSION: 3.1.9.0 (128100)
+[39839.109] VERSION: Mod Loaded: Mods\AdvCiv-SAS\
+[39839.109] DBG: FILE Cat Init
+[39839.609] DBG: Game Init
+[39839.625] DBG: Multiplayer Init BEGIN
+[39839.734] DBG: Multiplayer Init END
+[39839.765] DBG: Audio Init
+[39840.078] DBG: ArtFileMgr Init
+[39840.078] DBG: Python Init
+[39841.812] VERSION: CIV Version: 319
+[39841.812] VERSION: Minimum Version: 319
+[39841.812] VERSION: Save Version: 14223
+[39841.812] DBG: Input Init
+[39841.812] DBG: Engine Init
+[39841.890] DBG: Checking available screen resolution
+[39842.015] DBG: Validating screen resolution
+[39842.015] DBG: Creating rendererer
+[39842.250] DBG: Engine: renderer Initialized
+[39842.250] DBG: Engine: Shaders Initialized
+[39842.375] DBG: Engine: Scene Lights Initialized
+[39842.375] DBG: Music Start
+[39842.391] DBG: Font Init
+[39842.406] DBG: Begin MenuManager
+[39842.406] DBG: Total Frame MS: 3681.0  FPS: 000  Min:000 Max:000 Avg:000  SampleFilter:10.000000
+ Time   :   Ave  :  Min% :  Max% : Num : Profile Name
+-----------------------------------------------------
+--------------------------------------------------
+```
+
+Anyways etc anyways etc anyways etc...

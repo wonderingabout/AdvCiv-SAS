@@ -30,10 +30,15 @@ Arabs
 - Harun al rashid? (RFC DOC? Or SOI?)
 - Saladin? (RFC DOC? Or SOI?)
 - Suleiman? (RFC DOC? Or SOI?)
+- Khawla bint al-Azwar? (https://historum.com/t/on-the-8th-of-march-8-great-arab-women-from-history.177192/) Great because she is an arab general and woman, and we have skin/animation for her if we implement here for example https://en.wikipedia.org/wiki/Khawla_bint_al-Azwar, but it seems not sure that she existed though so not sure we add her or not but anyways etc use Dihya al Kahina from HR? Anyways etc
+- or Arwa al-Sulayhi she seems like the real deal hehe, full power general and such and leader if i may say anyways etc..., (https://historum.com/t/on-the-8th-of-march-8-great-arab-women-from-history.177192/) (and) (https://en.wikipedia.org/wiki/Arwa_al-Sulayhi), and her reign seems historically more certain and solid, a bit deeper dive in https://cso-yemen.org/queen-arwa-of-yemen/#:~:text=Arwa%20implemented%20economic%20reforms%2C%20including,and%20religious%20tolerance%20in%20Yemen., so maybe her with use Dihya al Kahina from HR? Anyways etc
 
 Egypt
 - Cleopatra (add "VII"/7 in name too anyways etc) (ROM 291? or the one in many other mods but that i may want a bit less if not lot or other or not anyways etc?)
 - Nasser? (RFC DOC? Check if HR's version is same or not too anyways etc may or (may (i.e. not anyways etc...)) not add him though anyways etc anyways etc anyways etc)
+- Shajar al-Durr? (https://en.wikipedia.org/wiki/Shajar_al-Durr) use Dihya al Kahina from HR? Anyways etc
+- Zenobia? (https://historum.com/t/on-the-8th-of-march-8-great-arab-women-from-history.177192/) use Dihya al Kahina from HR? Anyways etc
+- or Mawiyya? (same) (and also https://en.wikipedia.org/wiki/Mawiyya) use Dihya al Kahina from HR? Anyways etc (or create assyrian empire if i am not mistaken? Or maybe add to Persian Empire or something other or not or other? Todo research if we/i etc add her anyways etc, Anyways etc)
 
 Persia
 - Xerxes? (NW?, or LOR?)

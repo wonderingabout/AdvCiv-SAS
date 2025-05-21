@@ -16,13 +16,16 @@ and then modified or not for AdvCiv-SAS anyways etc
 			<Button>,Art/Interface/Buttons/WorldBuilder/Aluminum.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,1,12</Button>
 			<FontButtonIndex>0</FontButtonIndex>
 		</BonusArtInfo>
+		<!-- custom: import coal button from HR mod, was in base advciv (/civ4 (too)? Anyways etc)('s(Anyways etc))) code:
+			<Button>,Art/Interface/Buttons/WorldBuilder/Coal.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,12</Button>
+		-->
 		<BonusArtInfo>
 			<Type>ART_DEF_BONUS_COAL</Type>
 			<fScale>1.0</fScale>
 			<fInterfaceScale>1.0</fInterfaceScale>
 			<NIF>Art/Terrain/Resources/Coal/Coal.nif</NIF>
 			<KFM>Art/Terrain/Resources/Coal/Coal.kfm</KFM>
-			<Button>,Art/Interface/Buttons/WorldBuilder/Coal.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,12</Button>
+			<Button>Art/AdvCiv_SAS/Bonus/Coal/Coal.dds</Button>
 			<FontButtonIndex>1</FontButtonIndex>
 		</BonusArtInfo>
 		<BonusArtInfo>
@@ -108,13 +111,16 @@ and then modified or not for AdvCiv-SAS anyways etc
 			<Button>,Art/Interface/Buttons/WorldBuilder/Fur.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,1,13</Button>
 			<FontButtonIndex>21</FontButtonIndex>
 		</BonusArtInfo>
+		<!-- custom: import gemstones button from HR mod, was in base advciv (/civ4 (too)? Anyways etc)('s(Anyways etc))) code:
+			<Button>,Art/Interface/Buttons/WorldBuilder/Gems.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,13</Button>
+		-->
 		<BonusArtInfo>
-			<Type>ART_DEF_BONUS_GEMS</Type>
+			<Type>ART_DEF_BONUS_GEMSTONES</Type>
 			<fScale>1.0</fScale>
 			<fInterfaceScale>1.0</fInterfaceScale>
 			<NIF>Art/Terrain/Resources/Gems/Gems.nif</NIF>
 			<KFM>Art/Terrain/Resources/Gems/Gems.kfm</KFM>
-			<Button>,Art/Interface/Buttons/WorldBuilder/Gems.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,13</Button>
+			<Button>Art/AdvCiv_SAS/Bonus/Gemstones/Gems.dds</Button>
 			<FontButtonIndex>22</FontButtonIndex>
 		</BonusArtInfo>
 		<BonusArtInfo>

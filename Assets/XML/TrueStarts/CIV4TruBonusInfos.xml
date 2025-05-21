@@ -675,8 +675,8 @@
 			</EncouragedCivs>
 		</TruBonusInfo>
 		<TruBonusInfo>
-			<Type>TRU_GEMS</Type>
-			<BonusType>BONUS_GEMS</BonusType>
+			<Type>TRU_GEMSTONES</Type>
+			<BonusType>BONUS_GEMSTONES</BonusType>
 			<!-- Don't bother with civs that most likely won't satisfy the
 				 placement reqs for Gems -->
 			<DiscouragedCivs>
