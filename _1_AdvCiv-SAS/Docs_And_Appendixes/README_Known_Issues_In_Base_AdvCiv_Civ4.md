@@ -186,7 +186,7 @@ Not sure what the issue was, would have liked to be notified of the error/corrup
 
 So hopefully fine and solved now even though not sure and not guaranteed but maybe is hopefully or maybe not, in all cases hopefully this info is helpful to me or and others or and not anyways etc anyways etc.
 
-# 6 - (now worked around anyways etc) Too long XML code comments cause errors or/and game crashes
+## 6 - (now worked around anyways etc) Too long XML code comments cause errors or/and game crashes
 
 Related to [example/issue 9](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#9---art-and-maybe-other-assets-too-or-not-anyways-etc-xml-assets-silently-causing-a-game-crash-during-initgame-loadstartup-instead-of-telling-us-which-asset-was-missing-no-error)
 
@@ -196,17 +196,17 @@ Something to keep in mind perhaps if i may say i mean anyways while doing XML co
 
 More details here too anyways etc in anyways etc anyways etc anyways etc: [AudioDefines-nested-comments-out-of-xml-file-to-avoid-crash.txt](/Assets/XML/Audio/AudioDefines-nested-comments-out-of-xml-file-to-avoid-crash.txt)
 
-# 7 - Screenshots on multi screen display (if playing civ4 with "windowed" and not fullscreen if i am not mistaken as well anyways etc) don't work if not taken in primary screen
+## 7 - Screenshots on multi screen display (if playing civ4 with "windowed" and not fullscreen if i am not mistaken as well anyways etc) don't work if not taken in primary screen
 
 On windows 10 at least if not in other systems as well, at least in my machine but anyways etc, since i play in windowed while debugging and such or/and other dev needs or not which is much more convenient but anyways etc, if i put the game window on my second (or any alternative/equivalent or not that may or not exist and that is not main screen anyways etc) screen, then pressing the - Print Screen - key consistently does not create a new screenshot in (repalce with your relevant user path) `C:\Users\PC\Documents\My Games\beyond the sword\ScreenShots\`, but putting the game window back to main screen, (then) the print screen key successfully creates a new screenshot (image) file, for example Civ4ScreenShot4272.JPG while writing this (could be any but anyways etc anyways etc anyways etc), hopefully helpful or not or yes or and other or and not anyways etc to fix the issue and being able to record screen(shots) again anyways etc.
 
-# 8 - Do not edit python files while running the game, even modifying unused/unreached code may cause weird errors
+## 8 - Do not edit python files while running the game, even modifying unused/unreached code may cause weird errors
 
 For example as in [these screenshots (google drive folder link anyways etc)](https://drive.google.com/drive/folders/1gyaLERKrDAUbiQeVWl4S7T7tPJB0soR3?usp=sharing), or to copy the err log (path from Notepad++, adjust with your windows username or/and equivalent configuration/version of this that fits/suits your system username or/and other settings anyways etc (C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonErr.log) anyways etc.
 
 If such issues happen, maybe restart the game and hopefully all fixed, ideally modify python files before game is launched to prevent that, unless you know what or/and why you are doing (it) or/and other (reason) or and not as you prefer or not or yes or and other or and not anyways etc anyways etc anyways etc
 
-# 9 - Art (and maybe other assets too or not anyways etc) XML assets silently causing a game crash during init/game load/startup instead of telling us which asset was missing (no error)
+## 9 - Art (and maybe other assets too or not anyways etc) XML assets silently causing a game crash during init/game load/startup instead of telling us which asset was missing (no error)
 
 Related to [example/issue 6](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#6---now-worked-around-anyways-etc-too-long-xml-code-comments-cause-errors-orand-game-crashes)
 
@@ -378,3 +378,17 @@ Also for info init log after successfully load is like this after fixing it and 
 ```
 
 Anyways etc anyways etc anyways etc...
+
+## 10 - some text characters in XML TXT_KEY tags are not displayed correctly ingame (as `?` or causing other arti(e?)facts maybe too indeed for example anyways etc), while some like `&` cause an XML error and asset failing to load entirely if i am not mistaken anyways etc
+
+Some characters are not displayed correctly and instead show as `?` or cause weird arte(i?)facts like being bold inconsistently or such, here are a few examples here in this [Google Drive folder link](https://drive.google.com/drive/folders/1LeTNL4kKHgQJdZ0mLNzHaOCKkenR9duh?usp=sharing).
+
+They genererally are language specific chars, for example some chars in `Phāṇita` or `Bhāvaprakāśa` or  maybe too (test to be sure if this point/issue i am raising is accurate or not, should be but may not be valid/updated anymroe if someone fixed it somehow or/and othe ror if i am mistaken or maybe not or yes or not or and other or and not anyways etc). Or some other examples like `खण्ड` or such anyways etc are likely to not display correctly or/and cause errors (check ingame or in docs or woemwhere where you can find such info or and other or and not as you prefer or and not or other or and not anyways etc anyways etc anyways etc).
+
+Some characters like the `&` seem to cause an XML error with a real error message and such, and asset failing to load entirely (revert to base civ4 one rather than our version of it), see screenshots for details in the drive link above for details.
+
+And some characters like `–` seem to cause the text to be weird and inconsistently bold (see screenshot(s) for example if provided indeed or not or yes or and other or and not anyways etc)
+
+The solution i use is to simplify these chars generally, for example rename `–` to `-`, or using `_` instead of `खण्ड` to signify it is a language char (some other approaches may work like romanizing, it is an example i went with most simple and accurate in my case/need anyways etc anyways etc anyways etc...), or rename for example `Phāṇita` to `Phanita`, or for example also `Dačice` to `Dacice` (again is an example do as you prefer or not or do or not or and other or and not anyways etc anyways etc anyways etc...)
+
+Adjust this advice/feedback as you see fit or not fit or not see or not adjust or not or yes or and other or and not, hopefully helpful or not or yes or and other or and not anyways etc anyways etc anyways etc...

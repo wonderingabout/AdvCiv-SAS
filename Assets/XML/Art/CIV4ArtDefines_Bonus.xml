@@ -151,8 +151,7 @@ and then modified or not for AdvCiv-SAS anyways etc
 			<Button>,Art/Interface/Buttons/WorldBuilder/Ivory.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,13</Button>
 			<FontButtonIndex>25</FontButtonIndex>
 		</BonusArtInfo>
-		<!-- custom: import silk button from HR mod -->
-		<!-- custom: old default/base advciv one was:
+		<!-- custom: import silk button from HR mod, old default/base advciv one was:
 			<Button>,Art/Interface/Buttons/WorldBuilder/Silk.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,3,14</Button>
 		-->
 		<BonusArtInfo>
@@ -182,13 +181,16 @@ and then modified or not for AdvCiv-SAS anyways etc
 			<Button>,Art/Interface/Buttons/WorldBuilder/Spices.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,14</Button>
 			<FontButtonIndex>28</FontButtonIndex>
 		</BonusArtInfo>
+		<!-- custom: import sugar button from HR mod, old default/base advciv one was:
+		<Button>,Art/Interface/Buttons/WorldBuilder/Sugar.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,14</Button>
+		-->
 		<BonusArtInfo>
 			<Type>ART_DEF_BONUS_SUGAR</Type>
 			<fScale>0.5</fScale>
 			<fInterfaceScale>1.3</fInterfaceScale>
 			<NIF>Art/Terrain/Resources/Sugar/Sugar.nif</NIF>
 			<KFM>Art/Terrain/Resources/Sugar/Sugar.kfm</KFM>
-			<Button>,Art/Interface/Buttons/WorldBuilder/Sugar.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,14</Button>
+			<Button>Art/AdvCiv_SAS/Bonus/Sugar/Sugar.dds</Button>
 			<FontButtonIndex>29</FontButtonIndex>
 		</BonusArtInfo>
 		<!-- custom: (wine now renamed to) grapes (anyways etc), imported from realism invictus mod in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Realism Invictus\Assets\RI_37_Interface8.FPK" with dragon unpacker (only the .dds files for the button (since they seem to also put a higher resolution one than 64 x 64 anyways etc we/i anyways etc took it too just in case anyways etc))-->
@@ -310,8 +312,7 @@ and then modified or not for AdvCiv-SAS anyways etc
 			<Button>,Art/Interface/Buttons/WorldBuilder/Sheep.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,14</Button>
 			<FontButtonIndex>18</FontButtonIndex>
 		</BonusArtInfo>
-		<!-- custom: import silk button from HR mod -->
-		<!-- custom: old default/base advciv one was:
+		<!-- custom: import silk button from HR mod, old default/base advciv one was:
 			<Button>,Art/Interface/Buttons/WorldBuilder/Wheat.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,16</Button>
 		-->
 		<BonusArtInfo>
