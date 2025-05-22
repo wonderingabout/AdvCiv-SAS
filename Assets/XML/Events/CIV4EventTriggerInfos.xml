@@ -1513,7 +1513,7 @@
 			<BonusesRequired>
 				<BonusType>BONUS_WHEAT</BonusType>
 				<BonusType>BONUS_RICE</BonusType>
-				<BonusType>BONUS_CORN</BonusType>
+				<BonusType>BONUS_MAIZE</BonusType>
 			</BonusesRequired>
 			<RoutesRequired>
 				<RouteType>ROUTE_ROAD</RouteType>
@@ -1608,7 +1608,7 @@
 			<BonusesRequired>
 				<BonusType>BONUS_WHEAT</BonusType>
 				<BonusType>BONUS_RICE</BonusType>
-				<BonusType>BONUS_CORN</BonusType>
+				<BonusType>BONUS_MAIZE</BonusType>
 			</BonusesRequired>
 			<RoutesRequired>
 				<RouteType>ROUTE_ROAD</RouteType>

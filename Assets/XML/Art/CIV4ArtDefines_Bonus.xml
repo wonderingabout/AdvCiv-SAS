@@ -233,7 +233,7 @@ and then modified or not for AdvCiv-SAS anyways etc
 			<FontButtonIndex>10</FontButtonIndex>
 		</BonusArtInfo>
 		<BonusArtInfo>
-			<Type>ART_DEF_BONUS_CORN</Type>
+			<Type>ART_DEF_BONUS_MAIZE</Type>
 			<fScale>1.0</fScale>
 			<fInterfaceScale>0.8</fInterfaceScale>
 			<NIF>Art/Terrain/Resources/Corn/Corn.nif</NIF>
@@ -310,13 +310,17 @@ and then modified or not for AdvCiv-SAS anyways etc
 			<Button>,Art/Interface/Buttons/WorldBuilder/Sheep.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,14</Button>
 			<FontButtonIndex>18</FontButtonIndex>
 		</BonusArtInfo>
+		<!-- custom: import silk button from HR mod -->
+		<!-- custom: old default/base advciv one was:
+			<Button>,Art/Interface/Buttons/WorldBuilder/Wheat.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,16</Button>
+		-->
 		<BonusArtInfo>
 			<Type>ART_DEF_BONUS_WHEAT</Type>
 			<fScale>1.0</fScale>
 			<fInterfaceScale>0.8</fInterfaceScale>
 			<NIF>Art/Terrain/Resources/Wheat/Wheat.nif</NIF>
 			<KFM>Art/Terrain/Resources/Wheat/Wheat.kfm</KFM>
-			<Button>,Art/Interface/Buttons/WorldBuilder/Wheat.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,16</Button>
+			<Button>Art/AdvCiv_SAS/Bonus/Wheat/Wheat.dds</Button>
 			<FontButtonIndex>19</FontButtonIndex>
 		</BonusArtInfo>
 		<BonusArtInfo>

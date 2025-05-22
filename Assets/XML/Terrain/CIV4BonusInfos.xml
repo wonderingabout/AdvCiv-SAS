@@ -713,11 +713,11 @@
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
 		<BonusInfo>
-			<Type>BONUS_CORN</Type>
-			<Description>TXT_KEY_BONUS_CORN</Description>
-			<Civilopedia>TXT_KEY_BONUS_CORN_PEDIA</Civilopedia>
+			<Type>BONUS_MAIZE</Type>
+			<Description>TXT_KEY_BONUS_MAIZE</Description>
+			<Civilopedia>TXT_KEY_BONUS_MAIZE_PEDIA</Civilopedia>
 			<BonusClassType>BONUSCLASS_GRAIN</BonusClassType>
-			<ArtDefineTag>ART_DEF_BONUS_CORN</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_BONUS_MAIZE</ArtDefineTag>
 			<TechReveal>NONE</TechReveal>
 			<TechCityTrade>TECH_AGRICULTURE</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>

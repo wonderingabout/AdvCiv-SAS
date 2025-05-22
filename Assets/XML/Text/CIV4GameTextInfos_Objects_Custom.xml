@@ -153,7 +153,11 @@
 		<Tag>TXT_KEY_BONUS_GRAPES</Tag>
 		<English>Grapes</English>
 	</TEXT>
-
+	<!-- custom: renamed _CORN to _MAIZE see pedia entry's code comment or/and docs for details if any more than this anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_BONUS_MAIZE</Tag>
+		<English>Maize</English>
+	</TEXT>
 
 
 	<!-- custom: renamed specialist "Great Prophet" (already was GREAT_PRIEST in code as i think is nice at least to me anyways etc, see after this bracket for details anyways etc: ) to "Great Priest", keeping everything else the same since all the code uses GREAT_PRIEST already, only need to change the name for AdvCiv-SAS as we want it, i am happy to go in the direction of civ4 code when i can and find it nice, not that it is a requirement to go in or against it(s direction but anyways etc as is or not anyways etc) ; and all the while not renaming the Great Prophet unit, a prophet is unique, but a priest or great priest could be many in history, when they join or are part of a city, hopefully clearer and makes more sense now hopefully, anyways etc, see the code comment (global search with VS Code if need anyways etc "K-Mod: was UNITAI_GREAT_MERCHANT") in (update if path is non-Steam for AdvCiv-SAS or the mod you use anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4UnitAIInfos.xml for details -->

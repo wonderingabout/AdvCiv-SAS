@@ -350,8 +350,8 @@
 			</EncouragedCivs>
 		</TruBonusInfo>
 		<TruBonusInfo>
-			<Type>TRU_CORN</Type>
-			<BonusType>BONUS_CORN</BonusType>
+			<Type>TRU_MAIZE</Type>
+			<BonusType>BONUS_MAIZE</BonusType>
 			<DiscouragedRegions>
 				<DiscouragedRegion>
 					<GeoRegion>ARTSTYLE_EUROPEAN</GeoRegion>

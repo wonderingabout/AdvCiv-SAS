@@ -20,9 +20,9 @@ There are also other additions, in particular written/coded by me wonderingabout
 
 A copy of the screenshots (may not be latest version of it) of how it looks ingame:
 
-<img src="../_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
-<img src="../_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
-<img src="../_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
+<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
+<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
+<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
 
 For more screenshot previews of new sevopedia entries or udpated ones (not exhaustive), you can visit the [README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks](/README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks) link (for details (too anyways etc)).
 
@@ -277,18 +277,18 @@ but gold not until metal casting.
 of the world, see [world map with civs](/_1_AdvCiv-SAS/Images_In_General/0.22_world_map_terrain_with_new_civs.png)
 (todo add link), for example The Kingdom Of Benin (Nigeria), or in weaker terrains
 (that are now buffed), for example Canada
-- Leaders have been changed: unless strongly desired, all civs have at max 2
+- (may not be accurate anymore todo among other possible changes to fix in this doc or not or and update or and not anyways etc, given as generla info hoepfulyl helpful ro tnot or and othe ror and not check seopedisa for latets ocntent todo fix or view this later or not for me (to do so or not (do so) anyways etc anyways etc anyways etc)) Leaders have been changed: unless strongly desired, all civs have at max 2
 leaders, should be plenty for a variety of gameplay, i don't want to clutter, prefer
-to go deep in strategy instead, for example Joan D'arc has been added, and Louis XIV
+to go deep in strategy instead, for example Joan Of Arc has been added, and Louis XIV
 and De Gaulle removed, generally i preferred to keep the stronger ones, Cleopatra
 added and Hatscheputt removed for example
-- Leader animations removed, since now some don't have, better if none have maybe,
+- (may not be accurate anymore todo among other possible changes to fix in this doc or not or and update or and not anyways etc, given as generla info hoepfulyl helpful ro tnot or and othe ror and not check seopedisa for latets ocntent todo fix or view this later or not for me (to do so or not (do so) anyways etc anyways etc anyways etc)) Leader animations removed, since now some don't have, better if none have maybe,
 instead i tried to put some nice images relatively as i thought would fit and i
 like, took quite a lot from existing mods
 - Some new ressources, for example camel and todo, some removed ressources, for
-example wine and todo
-- Renamed "Wine" (Bonus) to "Grapes". As part of renaming wine to grapes, additionally reworked grapes: now improved by IMPROVEMENT_FARM, not anymore by the old improvement_winery now removed. This matches historicality better if i may say and if it's a word anyways etc, as wine was consumed much before 4000 BC. Also, some wines are not made from grapes at all if i am not mistaken, and grapes can be eaten out of the wine usage. Updated bonus's description with a wikipedia based one as often if not always done when updating pedia entries of/in advciv-sas or and other mods using this mod's (i.e. this advciv-sas's code anyways etc). Also, the winery/happiness part of wine is transferred to the grocer building instead, now grapes gives happiness not health anymore. Similarly although not directly related, sugar now also gives happiness not health anymore through grocer. Hopefully buffes these mid game bonus effects while making these ressources more relevant as they were (a) bit (anyways etc) weak compared to say wheat or corn. See code comments for details or the ingame sevopedia entry of the grapes with also maybe or not or yes anyways etc latest updated info if anything changed since i wrote (am writing currently but anyways etc also wrote when viewing from later the new now maybe or not or yes anyways etc) but this should be the bulk of it and hopefully makes gameplay more accurate or/and interesting perhaps or/and enjoyable or not anyways etc. 
-- todo: space victory removed, it's too tedious to do, instead the USA is the
+example hit ressources and todo
+- Renamed "Wine" (Bonus) to "Grapes". As part of renaming wine to grapes, additionally reworked grapes: now improved by IMPROVEMENT_FARM, not anymore by the old improvement_winery now removed. This matches historicality better if i may say and if it's a word anyways etc, as wine was consumed much before 4000 BC. Also, some wines are not made from grapes at all if i am not mistaken, and grapes can be eaten out of the wine usage. Updated bonus's description with a wikipedia based one as often if not always done when updating pedia entries of/in advciv-sas or and other mods using this mod's (i.e. this advciv-sas's code anyways etc). Also, the winery/happiness part of wine is transferred to the grocer building instead, now grapes gives happiness not health anymore. Similarly although not directly related, sugar now also gives happiness not health anymore through grocer. Hopefully buffes these mid game bonus effects while making these ressources more relevant as they were (a) bit (anyways etc) weak compared to say wheat or maize. See code comments for details or the ingame sevopedia entry of the grapes with also maybe or not or yes anyways etc latest updated info if anything changed since i wrote (am writing currently but anyways etc also wrote when viewing from later the new now maybe or not or yes anyways etc) but this should be the bulk of it and hopefully makes gameplay more accurate or/and interesting perhaps or/and enjoyable or not anyways etc.
+- (may not be accurate anymore todo among other possible changes to fix in this doc or not or and update or and not anyways etc, given as generla info hoepfulyl helpful ro tnot or and othe ror and not check seopedisa for latets ocntent todo fix or view this later or not for me (to do so or not (do so) anyways etc anyways etc anyways etc)) todo: space victory removed, it's too tedious to do, instead the USA is the
 only civ who wins if they build the programme Appolo, make sure to keep them in
 check
 - some special units are changed: the USA's Navy Seal or some other units are
