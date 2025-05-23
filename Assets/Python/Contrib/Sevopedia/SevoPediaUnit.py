@@ -295,7 +295,9 @@ class SevoPediaUnit:
 
 		iPrereq = gc.getUnitInfo(self.iUnit).getPrereqReligion()
 		if (iPrereq >= 0):
-			screen.attachImageButton(panelName, "", gc.getReligionInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_HELP_RELIGION, iPrereq, -1, False)
+			# <!-- custom: fix base advciv bug, replace WidgetTypes.WIDGET_HELP_RELIGION with WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION as is done already by base advciv and successfully in sevopedia building, anyways etc -->
+			#screen.attachImageButton(panelName, "", gc.getReligionInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_HELP_RELIGION, iPrereq, -1, False)
+			screen.attachImageButton(panelName, "", gc.getReligionInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iPrereq, -1, False)
 
 		iPrereq = gc.getUnitInfo(self.iUnit).getPrereqBuilding()
 		if (iPrereq >= 0):
