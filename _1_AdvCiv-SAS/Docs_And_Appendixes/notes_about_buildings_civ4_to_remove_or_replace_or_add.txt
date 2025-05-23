@@ -1,0 +1,54 @@
+(may or not be exhaustive, in other words anyways etc to simplify bit or lot or not or and other or and not anyways etc) non-exhaustive:
+
+1) remove:
+buildings:
+- monasteries?
+- observatory
+- drydock
+- customs house?
+
+wonders:
+- rocknroll
+- space elevator
+- globe theatre?
+- west point?
+
+
+
+2) replace
+buildings:
+- french salon: french art gallery?
+- aztec sacrificial altar (courthouse): aztec sacrificial altar (monument)?
+- mt rushmore (national wonder): mt rushmore (world wonder)?
+- laboratory (superconductors): laboratory (scientific method or around it? Anyways etc)
+- russian research institute to (russian) ? Anyways etc
+- jewish/hebrew ('s civilization anyways etc): ?
+- ziggurat maybe rework or rebalance anyways etc (religious building now or more or and other ot and not? Anyways etc)
+
+wonders:
+- oxford university: University of al-Qarawiyyin (https://en.wikipedia.org/wiki/University_of_al-Qarawiyyin)
+- broadway: akihabara?
+- red cross: rework or remove anyways etc
+
+
+
+3) Add (see also notes_about_wonders_listing.txt):
+buildings:
+-
+
+wonders:
+- Venus of Laussel
+- Petra?
+- Great Sphinx of Giza?
+- Tower of Pisa? (NW, ) Anyways etc
+- temple of heaven?
+- theatre of diyonysus?
+- Machu Pichu?
+- Sun Tzu Art?
+- The Ancient Walls of Benin
+- Tomb of Queen Iden (who is (a) queen of the kingdom of Bening anyways etc), using tomb of emendil or tomb of cyrus asset? Anyways etc
+- theory of evolution? But more as a tech maybe rather? ANyways etc
+- Big Ben
+- brooklyn bridge?
+- Space program (base one except for the USA and Russia? Anyways etc, anyways etc)
+- Soviet space program?

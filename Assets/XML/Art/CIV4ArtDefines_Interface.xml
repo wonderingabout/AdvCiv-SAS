@@ -142,6 +142,7 @@
 			<Type>CURSORS_SELECTION_UNIT</Type>
 			<Path>Art/Interface/Cursors/SelectionCursor.nif</Path>
 		</InterfaceArtInfo>
+		<!-- custom: add our own .tga file here, default/base advciv one was: <Path>res/Fonts/GameFont.tga</Path>, the base .tga of advciv as of before we modified it at all is also backed up if need in (update to your mod path if not using the Steam version of the game civ4 or/and another path anyways etc) "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\res\Fonts\GameFont_backup_base_advciv_original.tga" (path copied with copy as path anyways etc) -->
 		<InterfaceArtInfo>
 			<Type>FONTS_GAMEFONT</Type>
 			<!-- keep here and unpakked -->
@@ -157,6 +158,7 @@
 			<!-- keep here and unpakked -->
 			<Path>res/Fonts/NumberFont-Sylfaen64px.tga</Path>
 		</InterfaceArtInfo>
+		<!-- custom: similarly, for the _75.tga, backup in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Res\Fonts\GameFont_75_backup_base_advciv_original.tga" anyways etc -->
 		<InterfaceArtInfo>
 			<Type>FONTS_SMALLFONT</Type>
 			<!-- keep here and unpakked -->
