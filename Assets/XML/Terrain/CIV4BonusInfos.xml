@@ -45,7 +45,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: adjust coal formula so it matches other strategic ressources more, was 100 / 0 -->
+			<!-- custom: adjust aluminium formula so it matches other strategic ressources more, was 100 / 0 -->
 			<iPlayer>50</iPlayer>
 			<iTilesPer>128</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -291,7 +291,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: make iron less prevalent same as horse so players would also fight harder for it, was 75 -->
+			<!-- custom: make iron less prevalent same as horse so players would also fight harder for it, was 75 / 128 -->
 			<!-- advc.129: was 100 -->
 			<iPlayer>50</iPlayer>
 			<!-- advc.129: was 256 -->
@@ -359,7 +359,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: match closer the stone spawning formula, also now harder to have so worth fighting more for in this case at least maybe for stone anyways etc anyways etc anyways etc, was 30 / 128 -->
+			<!-- custom: match closer the stone spawning formula or/and other strategic ressources or/and not anyways etc even if marble itself is not not directly startegic but more of a luxury strategic ressource/bonus at least in civ4 but hopefully applies well enough or is how i want to do it or not or yes or and other or and not anyways etc, was 30 / 128 -->
 			<!-- advc.129: was 50 -->
 			<iPlayer>50</iPlayer>
 			<!-- advc.129: was 0 -->
@@ -420,7 +420,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: make oil less prevalent so players would fight harder for it, was 150 -->
+			<!-- custom: make oil less prevalent so players would fight harder for it, was 150 / 512 -->
 			<iPlayer>50</iPlayer>
 			<iTilesPer>512</iTilesPer>
 			<iMinLandPercent>70</iMinLandPercent>
@@ -493,7 +493,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: make stone less prevalent so a bit more valuable and worth fighting for even more anyways etc, was 30 -->
+			<!-- custom: match other strategic ressources/bonuses formula, was 30 / 128 -->
 			<!-- advc.129: was 50 -->
 			<iPlayer>50</iPlayer>
 			<!-- advc.129: was 0 -->
@@ -1920,7 +1920,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 			<FeatureTerrainBooleans/>
 			<bUseLSystem>1</bUseLSystem>
 		</BonusInfo>
-		<!-- custom: reworked and adjusted partly according to wikiped or/and other source(s) or not or and what i wanted or not anyways etc or/a -->
+		<!-- custom: reworked and adjusted partly according to wikipedia or/and other source(s) or not or and what i wanted or not anyways etc or/a -->
 		<BonusInfo> <!-- custom: type: BONUS_WHALE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_WHALE</Type>
 			<Description>TXT_KEY_BONUS_WHALE</Description>
