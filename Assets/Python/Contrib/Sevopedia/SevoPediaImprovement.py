@@ -89,7 +89,7 @@ class SevoPediaImprovement:
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		# advc.004y: text key was TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_IMPROVEMENT_YIELD", ()), "", True, True, self.X_IMPROVEMENTS_PANE, self.Y_IMPROVEMENTS_PANE, self.W_IMPROVEMENTS_PANE, self.H_IMPROVEMENTS_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_BASE_TILE_YIELD_CHANGES", ()), "", True, True, self.X_IMPROVEMENTS_PANE, self.Y_IMPROVEMENTS_PANE, self.W_IMPROVEMENTS_PANE, self.H_IMPROVEMENTS_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		listName = self.top.getNextWidgetName()
 		screen.attachListBoxGFC(panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(listName, False)
@@ -215,7 +215,7 @@ class SevoPediaImprovement:
 	def placeBonusYield(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_BONUS_YIELDS", ()), "", True, True, self.X_BONUS_YIELDS_PANE, self.Y_BONUS_YIELDS_PANE, self.W_BONUS_YIELDS_PANE, self.H_BONUS_YIELDS_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
+		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_ON_BONUSES_EXTRA_TILE_YIELD_CHANGES", ()), "", True, True, self.X_BONUS_YIELDS_PANE, self.Y_BONUS_YIELDS_PANE, self.W_BONUS_YIELDS_PANE, self.H_BONUS_YIELDS_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
 		info = gc.getImprovementInfo(self.iImprovement)
 		for j in range(gc.getNumBonusInfos()):
 			bFirst = True

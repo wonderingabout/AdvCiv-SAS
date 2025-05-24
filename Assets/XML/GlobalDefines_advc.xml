@@ -297,9 +297,10 @@
 	human player too, also since now (some) ressources are hidden until
 	required tech and such, it may be a pleasant find to notice at
 	ressource reveal we had spawned just at the right spot maybe, was 100 -->
+	<!-- custom: i also want to try to increase this (further) more and see what happens (anyways etc), now that our terrain/map is more balanced as in less unfairly skewed towards starting cities or map having too many ressources in general (at least is the goal anyways etc), having a nice starter should feel nicer and be more pleasant, anyways etc, was 250 -->
 	<Define>
         <DefineName>SPI_TIME_LIMIT_PERCENT</DefineName>
-        <iDefineIntVal>250</iDefineIntVal>
+        <iDefineIntVal>1000</iDefineIntVal>
     </Define>
 
 	<!-- advc.137: 12 in BtS. Recommended: 10 to match the

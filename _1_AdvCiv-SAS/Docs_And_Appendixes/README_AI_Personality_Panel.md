@@ -11,9 +11,7 @@ AI attributes (at least i call them this way not sure it is their exact name but
 
 ## Sources about XML AI Attributes and their meaning
 
-Please read these docs (highly recommended) if you want to know more about AI attributes:
-- kujira's website (see also [translate to english using web browser trick/technique anyways etc](https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#iclosebordersattitudechange))
-- [modiki civfanatics website](https://modiki.civfanatics.com/index.php/Civ4LeaderHeadInfos)
+See [Modding_Ressources_(In_Bulk)/README.md's Sources about XML AI Attributes and their meaning](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/README.md#Sources)
 
 ## General Aim of the AI Attributes
 The ai attributes (simply) aim to and display:

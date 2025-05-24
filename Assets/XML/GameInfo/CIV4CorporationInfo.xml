@@ -50,7 +50,7 @@
 			<iMaintenance>100</iMaintenance>
 			<PrereqBonuses>
 				<BonusType>BONUS_CRAB</BonusType>
-				<BonusType>BONUS_CLAM</BonusType>
+				<BonusType>BONUS_MOLLUSCS</BonusType>
 				<BonusType>BONUS_FISH</BonusType>
 				<BonusType>BONUS_RICE</BonusType>
 			</PrereqBonuses>

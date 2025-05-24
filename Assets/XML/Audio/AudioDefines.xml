@@ -7618,7 +7618,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_COWS_RES_GRUNT</SoundID>
+			<SoundID>SND_CATTLE_RES_GRUNT</SoundID>
 			<Filename>Sounds/Units/CowsResGrunt</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -7632,14 +7632,14 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_IMPROV_COWS_RES_GRUNT</SoundID>
+			<SoundID>SND_IMPROV_CATTLE_RES_GRUNT</SoundID>
 			<Filename>Sounds/Resouces and Improvements/CowsResGrunt</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_IMPROV_COWS_RES_MOOING</SoundID>
+			<SoundID>SND_IMPROV_CATTLE_RES_MOOING</SoundID>
 			<Filename>Sounds/Resouces and Improvements/CowsResMooing</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>

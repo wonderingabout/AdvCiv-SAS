@@ -272,15 +272,16 @@
 						<iYieldChange>0</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
+				<!-- custom: +1 for the extra wine correlation indirectly (enhanced by other buildings so no need to boost it too much and is historically concordant to when wine commerce became more widespread if i am not mistaken from my memories of my research (even if little bit of it (i.e. of research) or not little bit or yes or not little bit anyways etc anyways etc indeed anyways etc anyways etc anyways etc...)), anyways etc -->
 				<BonusTypeStruct>
 					<BonusType>BONUS_GRAPES</BonusType>
 					<bBonusMakesValid>1</bBonusMakesValid>
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>0</iDiscoverRand>
 					<YieldChanges>
-						<iYieldChange>1</iYieldChange>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>2</iYieldChange>
+						<iYieldChange>0</iYieldChange>
+						<iYieldChange>3</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 			</BonusTypeStructs>
@@ -330,16 +331,17 @@
 			<bOutsideBorders>0</bOutsideBorders>
 			<TerrainMakesValids/>
 			<FeatureMakesValids/>
+			<!-- custom: currently fish is unfairly to me at least and undesirably too strong, other ressources/bonuses have other assets/qualities too, anyways etc -->
 			<BonusTypeStructs>
 				<BonusTypeStruct>
-					<BonusType>BONUS_CLAM</BonusType>
+					<BonusType>BONUS_MOLLUSCS</BonusType>
 					<bBonusMakesValid>1</bBonusMakesValid>
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>0</iDiscoverRand>
 					<YieldChanges>
 						<iYieldChange>2</iYieldChange>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>0</iYieldChange>
+						<iYieldChange>1</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
@@ -350,7 +352,7 @@
 					<YieldChanges>
 						<iYieldChange>2</iYieldChange>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>0</iYieldChange>
+						<iYieldChange>1</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
@@ -402,6 +404,7 @@
 			<bOutsideBorders>0</bOutsideBorders>
 			<TerrainMakesValids/>
 			<FeatureMakesValids/>
+			<!-- custom: not easy to capture, but after they are, give a lot of food, + useful for their oil or such, and finally a touristic attraction source of folk stories and such anyways etc, but since we gave it as base yield, not doing it again here else whales may be a bit too strong then -->
 			<BonusTypeStructs>
 				<BonusTypeStruct>
 					<BonusType>BONUS_WHALE</BonusType>
@@ -409,9 +412,9 @@
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>0</iDiscoverRand>
 					<YieldChanges>
-						<iYieldChange>0</iYieldChange>
-						<iYieldChange>1</iYieldChange>
 						<iYieldChange>2</iYieldChange>
+						<iYieldChange>1</iYieldChange>
+						<iYieldChange>0</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 			</BonusTypeStructs>
@@ -465,8 +468,8 @@
 					<iDiscoverRand>10000</iDiscoverRand>
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>1</iYieldChange>
-						<iYieldChange>1</iYieldChange>
+						<iYieldChange>2</iYieldChange>
+						<iYieldChange>3</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
@@ -477,7 +480,7 @@
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
 						<iYieldChange>1</iYieldChange>
-						<iYieldChange>0</iYieldChange>
+						<iYieldChange>1</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
@@ -496,21 +499,24 @@
 					<bBonusMakesValid>1</bBonusMakesValid>
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>10000</iDiscoverRand>
+					<!-- custom: remove negative yields as can be confusing and no strong reason to change the base yield, anyways etc -->
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>-1</iYieldChange>
-						<iYieldChange>5</iYieldChange>
+						<iYieldChange>0</iYieldChange>
+						<iYieldChange>4</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
+					<!-- custom: remove negative yields as can be confusing and no strong reason to change the base yield, anyways etc -->
 				<BonusTypeStruct>
 					<BonusType>BONUS_GOLD</BonusType>
 					<bBonusMakesValid>1</bBonusMakesValid>
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>10000</iDiscoverRand>
+					<!-- custom: for gold specifically, useful to craft items too and such anyways etc -->
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>-1</iYieldChange>
-						<iYieldChange>6</iYieldChange>
+						<iYieldChange>0</iYieldChange>
+						<iYieldChange>5</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
@@ -529,10 +535,11 @@
 					<bBonusMakesValid>1</bBonusMakesValid>
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>10000</iDiscoverRand>
+					<!-- custom: for silver specifically, useful to craft items too and such anyways etc, from a balance standpoint, since we can't make units with silver, buff it by giving gold (i.e. gpt (commerce) anyways etc) too instead anyways etc -->
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>-1</iYieldChange>
-						<iYieldChange>4</iYieldChange>
+						<iYieldChange>1</iYieldChange>
+						<iYieldChange>3</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
@@ -542,8 +549,8 @@
 					<iDiscoverRand>10000</iDiscoverRand>
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>0</iYieldChange>
-						<iYieldChange>3</iYieldChange>
+						<iYieldChange>2</iYieldChange>
+						<iYieldChange>1</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 			</BonusTypeStructs>
@@ -865,9 +872,9 @@
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>0</iDiscoverRand>
 					<YieldChanges>
+						<iYieldChange>1</iYieldChange>
+						<iYieldChange>0</iYieldChange>
 						<iYieldChange>2</iYieldChange>
-						<iYieldChange>0</iYieldChange>
-						<iYieldChange>0</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
@@ -877,8 +884,8 @@
 					<iDiscoverRand>0</iDiscoverRand>
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>0</iYieldChange>
-						<iYieldChange>4</iYieldChange>
+						<iYieldChange>1</iYieldChange>
+						<iYieldChange>3</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
@@ -889,7 +896,7 @@
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>5</iYieldChange>
+						<iYieldChange>4</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
@@ -899,7 +906,7 @@
 					<iDiscoverRand>0</iDiscoverRand>
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>0</iYieldChange>
+						<iYieldChange>1</iYieldChange>
 						<iYieldChange>3</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
@@ -922,7 +929,7 @@
 					<YieldChanges>
 						<iYieldChange>1</iYieldChange>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>1</iYieldChange>
+						<iYieldChange>2</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 			</BonusTypeStructs>
@@ -971,8 +978,8 @@
 					<iDiscoverRand>0</iDiscoverRand>
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>1</iYieldChange>
 						<iYieldChange>2</iYieldChange>
+						<iYieldChange>1</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
@@ -982,7 +989,7 @@
 					<iDiscoverRand>0</iDiscoverRand>
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>2</iYieldChange>
+						<iYieldChange>3</iYieldChange>
 						<iYieldChange>0</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
@@ -1035,13 +1042,13 @@
 			<FeatureMakesValids/>
 			<BonusTypeStructs>
 				<BonusTypeStruct>
-					<BonusType>BONUS_COW</BonusType>
+					<BonusType>BONUS_CATTLE</BonusType>
 					<bBonusMakesValid>1</bBonusMakesValid>
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>0</iDiscoverRand>
 					<YieldChanges>
-						<iYieldChange>1</iYieldChange>
 						<iYieldChange>2</iYieldChange>
+						<iYieldChange>1</iYieldChange>
 						<iYieldChange>0</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
@@ -1053,7 +1060,7 @@
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
 						<iYieldChange>2</iYieldChange>
-						<iYieldChange>1</iYieldChange>
+						<iYieldChange>2</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
@@ -1085,6 +1092,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
+		<!-- custom: venison/deer seems super healthy and nutritious, great because in tundra we want more food, increasing food output then: https://www.hunter-ed.com/blog/venison-vs-beef-which-is-healthier/ crossed checked quick here for example https://www.tasteofhome.com/article/ground-venison/ anyways etc -->
 		<ImprovementInfo>
 			<Type>IMPROVEMENT_CAMP</Type>
 			<Description>TXT_KEY_IMPROVEMENT_CAMP</Description>
@@ -1116,6 +1124,7 @@
 			<bOutsideBorders>0</bOutsideBorders>
 			<TerrainMakesValids/>
 			<FeatureMakesValids/>
+			<!-- custom: commerce of the horns, or its carrying trucks or such ability, or the fact that it's cheaper seemingly than beef or such, or such other causes or examples or not as long as we can buff deer and that indeed it seems nicely relevant anyways etc -->
 			<BonusTypeStructs>
 				<BonusTypeStruct>
 					<BonusType>BONUS_DEER</BonusType>
@@ -1123,9 +1132,9 @@
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>0</iDiscoverRand>
 					<YieldChanges>
-						<iYieldChange>2</iYieldChange>
+						<iYieldChange>3</iYieldChange>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>0</iYieldChange>
+						<iYieldChange>1</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
@@ -1135,7 +1144,7 @@
 					<iDiscoverRand>0</iDiscoverRand>
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>0</iYieldChange>
+						<iYieldChange>1</iYieldChange>
 						<iYieldChange>3</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
@@ -1146,7 +1155,7 @@
 					<iDiscoverRand>0</iDiscoverRand>
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>1</iYieldChange>
+						<iYieldChange>2</iYieldChange>
 						<iYieldChange>1</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
@@ -1197,7 +1206,7 @@
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
 						<iYieldChange>2</iYieldChange>
-						<iYieldChange>1</iYieldChange>
+						<iYieldChange>3</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 			</BonusTypeStructs>
@@ -1247,7 +1256,7 @@
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
 						<iYieldChange>2</iYieldChange>
-						<iYieldChange>1</iYieldChange>
+						<iYieldChange>3</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 			</BonusTypeStructs>

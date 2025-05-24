@@ -5,6 +5,9 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- Bonus Infos -->
+<!-- custom: this also helped to adjust the values in this file, for example but not only for/to understand latitudes in civ4 specifically anyways etc: http://civ4.wikidot.com/xml:civ4bonusinfos , this also https://gforestshade.github.io/kujira/post/civ4bonusinfos/#terrainbooleans and also among others or not anyways etc https://forums.civfanatics.com/threads/bonusinfos-xml-question.494920/ helped a lot or/and will help maybe hopefully or not or yes or etc or other or and not anyways etc for feature terrains anyways etc
+Note: for these adjustments, to match them with AdvCiv/our mod's real map, assuming the real Earth world's equator that is referred in real earth world as the latitude 0 if i am not mistaken, instead not as the latitutde 0 in civ4, but centering it around the center of the inhabitable world in a civ4 map rather (that has walkable land even at north or south edge sometimes or close to it quite often if i am not mistaken), so when (i) (anyways etc) (am) looking for the center of the world in civ, latitude 0 to me is, for example in this real earth world map https://www.google.com/search?q=world+map+latittude&sca_esv=685d635ce644e565&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=nIwwaIyYNtCgkdUPp4KniA8&ved=0ahUKEwiM1tPs7LmNAxVQUKQEHSfBCfEQ4dUDCBE&uact=5&oq=world+map+latittude&gs_lp=EgNpbWciE3dvcmxkIG1hcCBsYXRpdHR1ZGVI1wxQpwJY7wtwAXgAkAEAmAEjoAGnAqoBAjEwuAEDyAEA-AEBmAIHoAK3AcICDRAAGIAEGLEDGEMYigXCAgYQABgHGB7CAggQABgHGAoYHsICChAAGIAEGEMYigXCAgUQABiABMICBBAAGB7CAgYQABgKGB6YAwCIBgGSBwE3oAepIrIHATa4B7UBwgcDMC43yAcK&sclient=img#vhid=87Afx8YTgs-pqM&vssid=mosaic , grossly around the southern part of mexico area or the southern parth of arabian peninsula or the southern part of india grossly for example anyways etc anyways etc anyways etc... so around latitude 10 North in the real world is what i consider latitude 0 in civ4 equivalent when adjusting min max latitude if i do anyways etc, then for max latitude since in our real earth world there are not much if at all inhabitable landmasses near the edges unlike in civ4, then i am using 10 north to 70 (+ 80 difference from 10N to 80S in my custom naming which i don't know if is accurate or and the scientific one or and scientific enough but maybe is hopefully accurate or/and understandable enough at least to me or and maybe others or not anyways etc) south grossly for real world to it being 0 to 90 north in civ4 equivalent, and then 10 north to 90 north (+80 difference same but between 10N and 90N anyways etc), i don't know if doing so is accurate or/and relevant, hopefully is, but anyways etc anyways etc anyways etc in all cases anyways etc anyways etc anyways etc
+-->
 <!-- WARNING: It is not recommended that you remove Bonuses due to complications with the LSystem -->
 
 <!-- advc.129: Changed bonus class of Gold, Silver and Gems from "General"
@@ -12,7 +15,7 @@
 
 <Civ4BonusInfos xmlns="x-schema:CIV4TerrainSchema.xml">
 	<BonusInfos>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_ALUMINUM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_ALUMINUM</Type>
 			<Description>TXT_KEY_BONUS_ALUMINUM</Description>
 			<Civilopedia>TXT_KEY_BONUS_ALUMINUM_PEDIA</Civilopedia>
@@ -42,8 +45,9 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<iPlayer>100</iPlayer>
-			<iTilesPer>0</iTilesPer>
+			<!-- custom: adjust coal formula so it matches other strategic ressources more, was 100 / 0 -->
+			<iPlayer>50</iPlayer>
+			<iTilesPer>128</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>0</iUnique>
 			<iGroupRange>0</iGroupRange>
@@ -70,7 +74,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_COAL (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_COAL</Type>
 			<Description>TXT_KEY_BONUS_COAL</Description>
 			<Civilopedia>TXT_KEY_BONUS_COAL_PEDIA</Civilopedia>
@@ -99,8 +103,9 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<iPlayer>100</iPlayer>
-			<iTilesPer>0</iTilesPer>
+			<!-- custom: adjust coal formula so it matches other strategic ressources more, was 100 / 0 -->
+			<iPlayer>50</iPlayer>
+			<iTilesPer>128</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>4</iUnique>
 			<iGroupRange>0</iGroupRange>
@@ -123,7 +128,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_COPPER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_COPPER</Type>
 			<Description>TXT_KEY_BONUS_COPPER</Description>
 			<Civilopedia>TXT_KEY_BONUS_COPPER_PEDIA</Civilopedia>
@@ -189,7 +194,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_HORSE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_HORSE</Type>
 			<Description>TXT_KEY_BONUS_HORSE</Description>
 			<Civilopedia>TXT_KEY_BONUS_HORSE_PEDIA</Civilopedia>
@@ -198,30 +203,34 @@
 			<TechReveal>TECH_ANIMAL_HUSBANDRY</TechReveal>
 			<TechCityTrade>TECH_ANIMAL_HUSBANDRY</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
+			<!-- custom: now giving food like most if not all food strategic animals anyways etc, hammer is adjusted through their specific improvement (for example pasture, anyways etc) rather, anyways etc, was 0 / 1 / 0 -->
 			<YieldChanges>
-				<iYieldChange>0</iYieldChange>
 				<iYieldChange>1</iYieldChange>
+				<iYieldChange>0</iYieldChange>
 				<iYieldChange>0</iYieldChange>
 			</YieldChanges>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iAIObjective>0</iAIObjective>
+			<!-- custom: try to make horse extra important as an objective (not restricting trade if uneeded extra in possession ideally but not tested nor do i know too much about it anyways etc but hopefully maybe would work as intended maybe not guaranteed though anyways etc may or not anyways etc) if they don't have it, was  0 -->
+			<iAIObjective>10</iAIObjective>
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iPlacementOrder>1</iPlacementOrder>
 			<iConstAppearance>100</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
+			<!-- custom: adjusted according to very quick search/glance(s) in https://www.google.com/search?sca_esv=642680827a50424a&rlz=1C1GCEA_enFR1111FR1111&q=horse+world+map&udm=2&fbs=AIIjpHx4nJjfGojPVHhEACUHPiMQ_pbg5bWizQs3A_kIenjtcm7YBMd-acKwfINglfHLIEBS3uuGX7ss47YoPO_wBTDDjEnhAAMFdqu7_7Wnbrthcipt1FZgx-Ds9i3kT7LAua9LHD1K_U-I_N7EJCJlKSj7gP-cN0EaCn8iR1GAkszdJp66tDl_Aeh47HSxfppG_tOLjC_eNwt9-VBAZzdtPXHqzfpg8A&sa=X&ved=2ahUKEwjnyNzl2bmNAxU2UaQEHb9HNBAQtKgLegQIERAB&biw=2048&bih=1023&dpr=1.88#vhid=xvOqTuO9uw01DM&vssid=mosaic , was 9 / 68 -->
 			<!-- advc.129: was 0 -->
-			<iMinLatitude>9</iMinLatitude>
+			<iMinLatitude>0</iMinLatitude>
 			<!-- advc.129: was 90 -->
-			<iMaxLatitude>68</iMaxLatitude>
+			<iMaxLatitude>70</iMaxLatitude>
 			<Rands>
 				<iRandApp1>10</iRandApp1>
 				<iRandApp2>10</iRandApp2>
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
+			<!-- custom: reduce frequency of horse a bit, is also in anticipation of adding camel, or simply to make it less preponderant than/as other ressources as well anyways etc, was 75 / 128 -->
 			<!-- advc.129: was 100 -->
-			<iPlayer>75</iPlayer>
+			<iPlayer>50</iPlayer>
 			<!-- advc.129: was 256 -->
 			<iTilesPer>128</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -251,7 +260,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_IRON (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_IRON</Type>
 			<Description>TXT_KEY_BONUS_IRON</Description>
 			<Civilopedia>TXT_KEY_BONUS_IRON_PEDIA</Civilopedia>
@@ -267,7 +276,8 @@
 			</YieldChanges>
 			<!-- advc.036: was 10 -->
 			<iAITradeModifier>0</iAITradeModifier>
-			<iAIObjective>0</iAIObjective>
+			<!-- custom: try to make iron extra important as an objective (not restricting trade if uneeded extra in possession ideally but not tested nor do i know too much about it anyways etc but hopefully maybe would work as intended maybe not guaranteed though anyways etc may or not anyways etc) if they don't have it, was  0 -->
+			<iAIObjective>10</iAIObjective>
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iPlacementOrder>0</iPlacementOrder>
@@ -281,8 +291,9 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
+			<!-- custom: make iron less prevalent same as horse so players would also fight harder for it, was 75 -->
 			<!-- advc.129: was 100 -->
-			<iPlayer>75</iPlayer>
+			<iPlayer>50</iPlayer>
 			<!-- advc.129: was 256 -->
 			<iTilesPer>128</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -319,7 +330,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_MARBLE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_MARBLE</Type>
 			<Description>TXT_KEY_BONUS_MARBLE</Description>
 			<Civilopedia>TXT_KEY_BONUS_MARBLE_PEDIA</Civilopedia>
@@ -330,8 +341,8 @@
 			<TechObsolete>NONE</TechObsolete>
 			<YieldChanges>
 				<iYieldChange>0</iYieldChange>
-				<iYieldChange>1</iYieldChange>
 				<iYieldChange>0</iYieldChange>
+				<iYieldChange>1</iYieldChange>
 			</YieldChanges>
 			<iAITradeModifier>0</iAITradeModifier>
 			<iAIObjective>0</iAIObjective>
@@ -348,8 +359,9 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
+			<!-- custom: match closer the stone spawning formula, also now harder to have so worth fighting more for in this case at least maybe for stone anyways etc anyways etc anyways etc, was 30 / 128 -->
 			<!-- advc.129: was 50 -->
-			<iPlayer>30</iPlayer>
+			<iPlayer>50</iPlayer>
 			<!-- advc.129: was 0 -->
 			<iTilesPer>128</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -378,7 +390,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_OIL (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_OIL</Type>
 			<Description>TXT_KEY_BONUS_OIL</Description>
 			<Civilopedia>TXT_KEY_BONUS_OIL_PEDIA</Civilopedia>
@@ -408,7 +420,8 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<iPlayer>150</iPlayer>
+			<!-- custom: make oil less prevalent so players would fight harder for it, was 150 -->
+			<iPlayer>50</iPlayer>
 			<iTilesPer>512</iTilesPer>
 			<iMinLandPercent>70</iMinLandPercent>
 			<!-- advc.129: was 7 -->
@@ -451,7 +464,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_STONE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_STONE</Type>
 			<Description>TXT_KEY_BONUS_STONE</Description>
 			<Civilopedia>TXT_KEY_BONUS_STONE_PEDIA</Civilopedia>
@@ -480,8 +493,9 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
+			<!-- custom: make stone less prevalent so a bit more valuable and worth fighting for even more anyways etc, was 30 -->
 			<!-- advc.129: was 50 -->
-			<iPlayer>30</iPlayer>
+			<iPlayer>50</iPlayer>
 			<!-- advc.129: was 0 -->
 			<iTilesPer>128</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
@@ -506,7 +520,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_URANIUM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_URANIUM</Type>
 			<Description>TXT_KEY_BONUS_URANIUM</Description>
 			<Civilopedia>TXT_KEY_BONUS_URANIUM_PEDIA</Civilopedia>
@@ -536,8 +550,9 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<iPlayer>100</iPlayer>
-			<iTilesPer>0</iTilesPer>
+			<!-- custom: match other strategic ressources formula, was 100 / 0 -->
+			<iPlayer>50</iPlayer>
+			<iTilesPer>128</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>6</iUnique>
 			<iGroupRange>0</iGroupRange>
@@ -602,7 +617,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_BANANA (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_BANANA</Type>
 			<Description>TXT_KEY_BONUS_BANANA</Description>
 			<Civilopedia>TXT_KEY_BONUS_BANANA_PEDIA</Civilopedia>
@@ -624,8 +639,9 @@
 			<!-- advc.129: was 50 -->
 			<iConstAppearance>60</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
+			<!-- custom: here seems more accurate or/and relevant at least to me or/and for advciv-sas but at least to me anyways etc anyways etc anyways etc to reduce banana spawn a bit anyways etc, was 0 / 90 -->
 			<iMinLatitude>0</iMinLatitude>
-			<iMaxLatitude>90</iMaxLatitude>
+			<iMaxLatitude>70</iMaxLatitude>
 			<!-- advc.129: was 25, 25 -->
 			<Rands>
 				<iRandApp1>15</iRandApp1>
@@ -633,8 +649,9 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
+			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too anyways etc anyways etc anyways etc, was 0 / 16 -->
 			<iPlayer>0</iPlayer>
-			<iTilesPer>16</iTilesPer>
+			<iTilesPer>22</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>2</iUnique>
 			<iGroupRange>0</iGroupRange>
@@ -663,12 +680,12 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo>
-			<Type>BONUS_CLAM</Type>
-			<Description>TXT_KEY_BONUS_CLAM</Description>
-			<Civilopedia>TXT_KEY_BONUS_CLAM_PEDIA</Civilopedia>
+		<BonusInfo> <!-- custom: type: BONUS_MOLLUSCS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<Type>BONUS_MOLLUSCS</Type>
+			<Description>TXT_KEY_BONUS_MOLLUSCS</Description>
+			<Civilopedia>TXT_KEY_BONUS_MOLLUSCS_PEDIA</Civilopedia>
 			<BonusClassType>BONUSCLASS_GENERAL</BonusClassType>
-			<ArtDefineTag>ART_DEF_BONUS_CLAM</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_BONUS_MOLLUSCS</ArtDefineTag>
 			<TechReveal>NONE</TechReveal>
 			<TechCityTrade>NONE</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
@@ -684,8 +701,9 @@
 			<iPlacementOrder>6</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>10</iMinAreaSize>
+			<!-- custom: adjusted using as a base https://oceanconservancy.org/blog/2021/03/19/clams-mussels-oysters/ , and as part of renaming clam to the more general molluscs if i am not mistaken anyways etc, then now using as a base for molluscs now for example https://www.google.com/search?q=molluscs+world+map&sca_esv=685d635ce644e565&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=nmYwaNsujfiR1Q-jz5jJDQ&ved=0ahUKEwjb9cHOyLmNAxUNfKQEHaMnJtkQ4dUDCBE&uact=5&oq=molluscs+world+map&gs_lp=EgNpbWciEm1vbGx1c2NzIHdvcmxkIG1hcEiiFlAAWPAVcAF4AJABAJgBNaABgAOqAQIxMLgBA8gBAPgBAZgCBqAC0gHCAgYQABgHGB7CAg0QABiABBixAxhDGIoFwgIIEAAYBxgKGB7CAggQABgFGAcYHpgDAJIHATagB4cbsgcBNbgH0QHCBwUwLjUuMcgHCQ&sclient=img#vhid=_qbhSp5j1uBWbM&vssid=mosaic , was 0/50 -->
 			<iMinLatitude>0</iMinLatitude>
-			<iMaxLatitude>50</iMaxLatitude>
+			<iMaxLatitude>80</iMaxLatitude>
 			<Rands>
 				<iRandApp1>25</iRandApp1>
 				<iRandApp2>25</iRandApp2>
@@ -693,7 +711,8 @@
 				<iRandApp4>0</iRandApp4>
 			</Rands>
 			<iPlayer>0</iPlayer>
-			<iTilesPer>32</iTilesPer>
+			<!-- custom: buff water ressources, and molluscs should be more general and widespread than clam(s) alone is(are?) anyways etc, was 32 -->
+			<iTilesPer>24</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>1</iUnique>
 			<iGroupRange>0</iGroupRange>
@@ -712,7 +731,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_MAIZE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_MAIZE</Type>
 			<Description>TXT_KEY_BONUS_MAIZE</Description>
 			<Civilopedia>TXT_KEY_BONUS_MAIZE_PEDIA</Civilopedia>
@@ -741,8 +760,9 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
+			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too anyways etc anyways etc anyways etc, was 0 / 16 -->
 			<iPlayer>0</iPlayer>
-			<iTilesPer>16</iTilesPer>
+			<iTilesPer>22</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>0</iUnique>
 			<iGroupRange>0</iGroupRange>
@@ -762,12 +782,12 @@
 			<FeatureTerrainBooleans/>
 			<bUseLSystem>1</bUseLSystem>
 		</BonusInfo>
-		<BonusInfo>
-			<Type>BONUS_COW</Type>
-			<Description>TXT_KEY_BONUS_COW</Description>
-			<Civilopedia>TXT_KEY_BONUS_COW_PEDIA</Civilopedia>
+		<BonusInfo> <!-- custom: type: BONUS_CATTLE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<Type>BONUS_CATTLE</Type>
+			<Description>TXT_KEY_BONUS_CATTLE</Description>
+			<Civilopedia>TXT_KEY_BONUS_CATTLE_PEDIA</Civilopedia>
 			<BonusClassType>BONUSCLASS_LIVESTOCK</BonusClassType>
-			<ArtDefineTag>ART_DEF_BONUS_COW</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_BONUS_CATTLE</ArtDefineTag>
 			<TechReveal>NONE</TechReveal>
 			<TechCityTrade>TECH_ANIMAL_HUSBANDRY</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
@@ -783,17 +803,19 @@
 			<iPlacementOrder>4</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
+			<!-- custom: buff cow presence towards the edges when seems relevant or/and possible to do so, anyways etc, according to/using https://www.google.com/search?q=cow+world+map&sca_esv=04268fcd01117b60&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=5pswaO_-A9P5kdUP4fDG0AQ&ved=0ahUKEwjvic22-7mNAxXTfKQEHWG4EUoQ4dUDCBE&uact=5&oq=cow+world+map&gs_lp=EgNpbWciDWNvdyB3b3JsZCBtYXAyCBAAGBMYBxgeMggQABgTGAcYHjIHEAAYgAQYEzIKEAAYExgFGAcYHjIKEAAYExgFGAcYHjIKEAAYExgFGAcYHkiGA1AAWIYCcAB4AJABAJgBMqABgQGqAQEzuAEDyAEA-AEBmAIDoAKHAcICBhAAGAcYHsICCBAAGAcYChgemAMAkgcBM6AHxA-yBwEzuAeHAcIHAzAuM8gHBA&sclient=img#vhid=9hlMhu2993mhWM&vssid=mosaic , anyways etc, was 9 / 50 -->
 			<!-- advc.129: was 0 -->
-			<iMinLatitude>9</iMinLatitude>
-			<iMaxLatitude>50</iMaxLatitude>
+			<iMinLatitude>0</iMinLatitude>
+			<iMaxLatitude>65</iMaxLatitude>
 			<Rands>
 				<iRandApp1>25</iRandApp1>
 				<iRandApp2>25</iRandApp2>
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
+			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too anyways etc anyways etc anyways etc, was 0 / 16 -->
 			<iPlayer>0</iPlayer>
-			<iTilesPer>16</iTilesPer>
+			<iTilesPer>22</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>0</iUnique>
 			<iGroupRange>0</iGroupRange>
@@ -816,7 +838,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_CRAB (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_CRAB</Type>
 			<Description>TXT_KEY_BONUS_CRAB</Description>
 			<Civilopedia>TXT_KEY_BONUS_CRAB_PEDIA</Civilopedia>
@@ -837,9 +859,10 @@
 			<iPlacementOrder>6</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>10</iMinAreaSize>
+			<!-- custom: was 25 -->
 			<!-- advc.129: was 40 -->
-			<iMinLatitude>25</iMinLatitude>
-			<iMaxLatitude>90</iMaxLatitude>
+			<iMinLatitude>10</iMinLatitude>
+			<iMaxLatitude>80</iMaxLatitude>
 			<Rands>
 				<iRandApp1>25</iRandApp1>
 				<iRandApp2>25</iRandApp2>
@@ -847,7 +870,8 @@
 				<iRandApp4>0</iRandApp4>
 			</Rands>
 			<iPlayer>0</iPlayer>
-			<iTilesPer>32</iTilesPer>
+			<!-- custom: buff water ressources, less pronounced in less general ressources/bonsues (as fish and mollusc are for example) (if any other(s) such bonuses exist in civ4 in our civ4 mod advciv-sas at least anyways etc), was 32 -->
+			<iTilesPer>30</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>1</iUnique>
 			<iGroupRange>0</iGroupRange>
@@ -866,7 +890,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_DEER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_DEER</Type>
 			<Description>TXT_KEY_BONUS_DEER</Description>
 			<Civilopedia>TXT_KEY_BONUS_DEER_PEDIA</Civilopedia>
@@ -887,7 +911,8 @@
 			<iPlacementOrder>4</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
-			<iMinLatitude>30</iMinLatitude>
+			<!-- custom: adjusted according to very quick search in https://www.google.com/search?sca_esv=642680827a50424a&rlz=1C1GCEA_enFR1111FR1111&q=deer+world+map&udm=2&fbs=AIIjpHx4nJjfGojPVHhEACUHPiMQ_pbg5bWizQs3A_kIenjtcpTTqBUdyVgzq0c3_k8z34FKdUNCNiw5OX_lAsIf8VARnD9D5GX4da1rijxFZl6bQwFge1sId2k_KUaS3y2xIjhlPnpGKiJa1IRCtKpMP3kDHobIPV1kPLIRJvmUh7guUKzir7QVb-qVCgHxvp6hJaZuXmi70P5qniE11OO4djUFFIltjA&sa=X&ved=2ahUKEwjN4r-x2bmNAxV3QaQEHYYHI8sQtKgLegQIEhAB&biw=2048&bih=1023&dpr=1.88#vhid=EKEnB7XJ0KxTwM&vssid=mosaic anyways etc, and to buff specifically the edges of the map since seems possible or/and maybe rather relevant here at least for advciv-sas anyways etc, was 30 / 90 -->
+			<iMinLatitude>45</iMinLatitude>
 			<iMaxLatitude>90</iMaxLatitude>
 			<Rands>
 				<iRandApp1>25</iRandApp1>
@@ -895,8 +920,9 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
+			<!-- custom: since deer is the only tundra food animal bonus representative as of now (unlike other terrains or/and features that have many animal (bonuses) representatives anyways etc (for example or/and to compare anyways etc)) if i am not mistaken anyways etc, buffing it a bit more i.e. in this case allowing it/ making it appear a bit more often anyways etc, was 0 / 16 -->
 			<iPlayer>0</iPlayer>
-			<iTilesPer>16</iTilesPer>
+			<iTilesPer>12</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>2</iUnique>
 			<iGroupRange>0</iGroupRange>
@@ -925,7 +951,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_FISH (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_FISH</Type>
 			<Description>TXT_KEY_BONUS_FISH</Description>
 			<Civilopedia>TXT_KEY_BONUS_FISH_PEDIA</Civilopedia>
@@ -957,8 +983,9 @@
 				<iRandApp4>0</iRandApp4>
 			</Rands>
 			<iPlayer>0</iPlayer>
+			<!-- custom: buff water ressources, and fish as a general bonus/ressource should still be quite widespread, was 35 -->
 			<!-- advc.129: was 32 -->
-			<iTilesPer>35</iTilesPer>
+			<iTilesPer>24</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>1</iUnique>
 			<iGroupRange>0</iGroupRange>
@@ -981,7 +1008,8 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo>
+		<!-- custom: interesting read that summarizes quite well what i glanced through if i may say or/and if it's a word maybe rather in english anyways etc, https://www.january.ai/blog/pork-vs-beef , pork seems to be indeed healthier and leaner from what i understood of it (than beef for example), no strong reason to change it so keep pig as the king food in civ4, after deer now though see code comments at deer in bonusinfo and/or in improvementinfos too for details -->
+		<BonusInfo> <!-- custom: type: BONUS_PIG (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_PIG</Type>
 			<Description>TXT_KEY_BONUS_PIG</Description>
 			<Civilopedia>TXT_KEY_BONUS_PIG_PEDIA</Civilopedia>
@@ -1002,17 +1030,19 @@
 			<iPlacementOrder>4</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
+			<!-- custom: adjusted using https://www.google.com/search?q=all+pigs+natural+habitat+in+the+world+map&sca_esv=c2c2afdb17022264&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=1YIwaMzbC5qakdUPzfjw2Qc&ved=0ahUKEwiMmubC47mNAxUaTaQEHU08PHsQ4dUDCBE&uact=5&oq=all+pigs+natural+habitat+in+the+world+map&gs_lp=EgNpbWciKWFsbCBwaWdzIG5hdHVyYWwgaGFiaXRhdCBpbiB0aGUgd29ybGQgbWFwSLcZUNwFWPcYcAF4AJABAJgBI6AB0QOqAQIxNrgBA8gBAPgBAZgCAKACAJgDAIgGAZIHAKAH0AWyBwC4BwDCBwDIBwA&sclient=img#vhid=fAqsKwsbKGnyUM&vssid=mosaic , and to buff edges of the map, pig in a large sense (boar and such anyways etc), can probably be more widespread than that anyways etc, was 9 / 50 -->
 			<!-- advc.129: was 10 -->
-			<iMinLatitude>9</iMinLatitude>
-			<iMaxLatitude>50</iMaxLatitude>
+			<iMinLatitude>0</iMinLatitude>
+			<iMaxLatitude>70</iMaxLatitude>
 			<Rands>
 				<iRandApp1>25</iRandApp1>
 				<iRandApp2>25</iRandApp2>
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
+			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too anyways etc anyways etc anyways etc, was 0 / 16 -->
 			<iPlayer>0</iPlayer>
-			<iTilesPer>16</iTilesPer>
+			<iTilesPer>22</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>0</iUnique>
 			<iGroupRange>0</iGroupRange>
@@ -1041,7 +1071,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_RICE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_RICE</Type>
 			<Description>TXT_KEY_BONUS_RICE</Description>
 			<Civilopedia>TXT_KEY_BONUS_RICE_PEDIA</Civilopedia>
@@ -1062,16 +1092,18 @@
 			<iPlacementOrder>4</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
+			<!-- custom: adjusted according to https://www.google.com/search?sca_esv=d68d1b3088278740&rlz=1C1GCEA_enFR1111FR1111&q=rice+natural+world+map&udm=2&fbs=AIIjpHx4nJjfGojPVHhEACUHPiMQ_pbg5bWizQs3A_kIenjtci1AK0oIkDPIMLSzNdfCsScXRDO9E92u6oQy0ZUCTVtFdzRg-C6HN8C63vx8nYX9s-qoP0iE8VkwFQOGgctLLxMbKATUbgZLQyYfx64LEnfqULbDUPajcQia8TKaZuoNhizdrYogk8tOMhcjKRK_WJwA0yKkaZ6G3hJccOaKX8s1Ovvg5A&sa=X&ved=2ahUKEwjGs-bM97mNAxUhT6QEHXAwMxYQtKgLegQIERAB&biw=2048&bih=1023&dpr=1.88 , and to buff rice a bit if relevant here anyways etc and possible indeed about/for rice since it is quite weak indeed if i may say anyways etc if i am not mistaken too of it being how it (rice) works anyways etc, anyways etc, was 0 / 40 -->
 			<iMinLatitude>0</iMinLatitude>
-			<iMaxLatitude>40</iMaxLatitude>
+			<iMaxLatitude>55</iMaxLatitude>
 			<Rands>
 				<iRandApp1>25</iRandApp1>
 				<iRandApp2>25</iRandApp2>
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
+			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too anyways etc anyways etc anyways etc, was 0 / 16 -->
 			<iPlayer>0</iPlayer>
-			<iTilesPer>16</iTilesPer>
+			<iTilesPer>22</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>0</iUnique>
 			<iGroupRange>0</iGroupRange>
@@ -1100,7 +1132,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_SHEEP (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_SHEEP</Type>
 			<Description>TXT_KEY_BONUS_SHEEP</Description>
 			<Civilopedia>TXT_KEY_BONUS_SHEEP_PEDIA</Civilopedia>
@@ -1121,17 +1153,19 @@
 			<iPlacementOrder>4</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
+			<!-- custom: adjusted according to https://www.google.com/search?q=all+sheep+natural+habitat+in+the+world+map&sca_esv=c2c2afdb17022264&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=DIMwaN3ECd2okdUP257t0AU&ved=0ahUKEwjd-oDd47mNAxVdVKQEHVtPG1oQ4dUDCBE&uact=5&oq=all+sheep+natural+habitat+in+the+world+map&gs_lp=EgNpbWciKmFsbCBzaGVlcCBuYXR1cmFsIGhhYml0YXQgaW4gdGhlIHdvcmxkIG1hcEicD1C1BljLDnACeACQAQCYATGgAcABqgEBNrgBA8gBAPgBAZgCAKACAJgDAIgGAZIHAKAHjgKyBwC4BwDCBwDIBwA&sclient=img#vhid=UsBOuEc69S-vbM&vssid=mosaic , was 25 / 90 -->
 			<!-- advc.129: was 30 -->
-			<iMinLatitude>25</iMinLatitude>
-			<iMaxLatitude>90</iMaxLatitude>
+			<iMinLatitude>0</iMinLatitude>
+			<iMaxLatitude>60</iMaxLatitude>
 			<Rands>
 				<iRandApp1>25</iRandApp1>
 				<iRandApp2>25</iRandApp2>
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
+			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too anyways etc anyways etc anyways etc, was 0 / 16 -->
 			<iPlayer>0</iPlayer>
-			<iTilesPer>16</iTilesPer>
+			<iTilesPer>22</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>0</iUnique>
 			<iGroupRange>0</iGroupRange>
@@ -1154,7 +1188,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_WHEAT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_WHEAT</Type>
 			<Description>TXT_KEY_BONUS_WHEAT</Description>
 			<Civilopedia>TXT_KEY_BONUS_WHEAT_PEDIA</Civilopedia>
@@ -1183,8 +1217,9 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
+			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too anyways etc anyways etc anyways etc, was 0 / 16 -->
 			<iPlayer>0</iPlayer>
-			<iTilesPer>16</iTilesPer>
+			<iTilesPer>22</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>0</iUnique>
 			<iGroupRange>0</iGroupRange>
@@ -1204,7 +1239,7 @@
 			<FeatureTerrainBooleans/>
 			<bUseLSystem>0</bUseLSystem>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_DYE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_DYE</Type>
 			<Description>TXT_KEY_BONUS_DYE</Description>
 			<Civilopedia>TXT_KEY_BONUS_DYE_PEDIA</Civilopedia>
@@ -1233,7 +1268,8 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<iPlayer>100</iPlayer>
+			<!-- custom: make luxury ressources harder to find so they are worth more and fighting more for, anyways etc, was 100 / 0 -->
+			<iPlayer>35</iPlayer>
 			<iTilesPer>0</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>0</iUnique>
@@ -1258,7 +1294,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_FUR (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_FUR</Type>
 			<Description>TXT_KEY_BONUS_FUR</Description>
 			<Civilopedia>TXT_KEY_BONUS_FUR_PEDIA</Civilopedia>
@@ -1279,8 +1315,9 @@
 			<iPlacementOrder>5</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
+			<!-- custom: adjusted according to https://www.google.com/search?q=all+furs+natural+habitat+in+the+world+map&sca_esv=c2c2afdb17022264&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=vYMwaMTaB7Ti7M8P4KW_uQ0&ved=0ahUKEwiErbKx5LmNAxU0MfsDHeDSL9cQ4dUDCBE&uact=5&oq=all+furs+natural+habitat+in+the+world+map&gs_lp=EgNpbWciKWFsbCBmdXJzIG5hdHVyYWwgaGFiaXRhdCBpbiB0aGUgd29ybGQgbWFwSPITUNULWI8PcAN4AJABAJgBMqABkgGqAQE0uAEDyAEA-AEBmAIAoAIAmAMAiAYBkgcAoAe0AbIHALgHAMIHAMgHAA&sclient=img#vhid=K2fNe9ardOxFWM&vssid=mosaic , was 35 / 90 -->
 			<!-- advc.021b: was 0 -->
-			<iMinLatitude>35</iMinLatitude>
+			<iMinLatitude>45</iMinLatitude>
 			<iMaxLatitude>90</iMaxLatitude>
 			<Rands>
 				<iRandApp1>25</iRandApp1>
@@ -1288,7 +1325,8 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<iPlayer>100</iPlayer>
+			<!-- custom: make luxury ressources harder to find so they are worth more and fighting more for, anyways etc, was 100 / 0 -->
+			<iPlayer>35</iPlayer>
 			<iTilesPer>0</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>0</iUnique>
@@ -1328,7 +1366,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_GEMSTONES (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_GEMSTONES</Type>
 			<Description>TXT_KEY_BONUS_GEMSTONES</Description>
 			<Civilopedia>TXT_KEY_BONUS_GEMSTONES_PEDIA</Civilopedia>
@@ -1357,7 +1395,8 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<iPlayer>67</iPlayer>
+			<!-- custom: make luxury ressources harder to find so they are worth more and fighting more for, anyways etc, was 67 / 0 -->
+			<iPlayer>35</iPlayer>
 			<iTilesPer>0</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>0</iUnique>
@@ -1386,7 +1425,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_GOLD (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_GOLD</Type>
 			<Description>TXT_KEY_BONUS_GOLD</Description>
 			<Civilopedia>TXT_KEY_BONUS_GOLD_PEDIA</Civilopedia>
@@ -1415,8 +1454,9 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
+			<!-- custom: make strategic luxury ressources harder to find so they are worth more and fighting more for, anyways etc, was 78 / 0 -->
 			<!-- advc.129: was 100 -->
-			<iPlayer>78</iPlayer>
+			<iPlayer>35</iPlayer>
 			<iTilesPer>0</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>0</iUnique>
@@ -1450,7 +1490,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_INCENSE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_INCENSE</Type>
 			<Description>TXT_KEY_BONUS_INCENSE</Description>
 			<Civilopedia>TXT_KEY_BONUS_INCENSE_PEDIA</Civilopedia>
@@ -1459,10 +1499,11 @@
 			<TechReveal>NONE</TechReveal>
 			<TechCityTrade>TECH_CALENDAR</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
+			<!-- custom: incense increases productivity, like sugar and coffee example maybe even though i don't drink much if at all of the latter but which may or not be good or not for me at least, but i did drink and enjoy it in the past, just i don't feel the need or likingness to now, but is maybe a cool beverage but i am not in a good as in accurate or relevant (or not? Or yes? Or but anyways etc) maybe to say so anymore about coffee anyways etc anyways etc anyways etc... -->
 			<YieldChanges>
 				<iYieldChange>0</iYieldChange>
-				<iYieldChange>0</iYieldChange>
 				<iYieldChange>1</iYieldChange>
+				<iYieldChange>0</iYieldChange>
 			</YieldChanges>
 			<iAITradeModifier>0</iAITradeModifier>
 			<iAIObjective>0</iAIObjective>
@@ -1479,7 +1520,8 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<iPlayer>67</iPlayer>
+			<!-- custom: make luxury ressources harder to find so they are worth more and fighting more for, anyways etc, was 67 / 0 -->
+			<iPlayer>35</iPlayer>
 			<iTilesPer>0</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>0</iUnique>
@@ -1499,7 +1541,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_ELEPHANTS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_ELEPHANTS</Type>
 			<Description>TXT_KEY_BONUS_ELEPHANTS</Description>
 			<Civilopedia>TXT_KEY_BONUS_ELEPHANTS_PEDIA</Civilopedia>
@@ -1507,10 +1549,11 @@
 			<ArtDefineTag>ART_DEF_BONUS_ELEPHANTS</ArtDefineTag>
 			<TechReveal>NONE</TechReveal>
 			<TechCityTrade>TECH_HUNTING</TechCityTrade>
-			<TechObsolete>TECH_INDUSTRIALISM</TechObsolete>
+			<TechObsolete>TECH_ECOLOGY</TechObsolete>
+			<!-- custom: now giving food like most if not all food strategic animals anyways etc, hammer is adjusted through their specific improvement (for example pasture, anyways etc) rather, anyways etc, was 0 / 1 / 0 -->
 			<YieldChanges>
-				<iYieldChange>0</iYieldChange>
 				<iYieldChange>1</iYieldChange>
+				<iYieldChange>0</iYieldChange>
 				<iYieldChange>0</iYieldChange>
 			</YieldChanges>
 			<iAITradeModifier>0</iAITradeModifier>
@@ -1520,16 +1563,18 @@
 			<iPlacementOrder>5</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
-			<iMinLatitude>0</iMinLatitude>
-			<iMaxLatitude>40</iMaxLatitude>
+			<!-- custom: trying to make nothern and southern edges positions of the map as relevant and strong than central one for livestock bonuses, and if accurate and seemingly relevant here if i may say anyways etc, was 0 / 40 -->
+			<iMinLatitude>40</iMinLatitude>
+			<iMaxLatitude>90</iMaxLatitude>
 			<Rands>
 				<iRandApp1>25</iRandApp1>
 				<iRandApp2>25</iRandApp2>
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<iPlayer>100</iPlayer>
-			<iTilesPer>0</iTilesPer>
+			<!-- custom: elephants seemingly spawn way too often on a few map generated to see, reducing it significantly so players would fight harder for them and they'd be more valuable, also switch to a food strategic (for example horse like anyways etc) formula, was 100 / 0 -->
+			<iPlayer>50</iPlayer>
+			<iTilesPer>128</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>0</iUnique>
 			<!-- advc.129: was 1 -->
@@ -1565,7 +1610,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_SILK (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_SILK</Type>
 			<Description>TXT_KEY_BONUS_SILK</Description>
 			<Civilopedia>TXT_KEY_BONUS_SILK_PEDIA</Civilopedia>
@@ -1595,7 +1640,8 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<iPlayer>100</iPlayer>
+			<!-- custom: make luxury ressources harder to find so they are worth more and fighting more for, anyways etc, was 100 / 0 -->
+			<iPlayer>35</iPlayer>
 			<iTilesPer>0</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>0</iUnique>
@@ -1625,7 +1671,7 @@
 			</FeatureTerrainBooleans>
 			<bUseLSystem>1</bUseLSystem>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_SILVER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_SILVER</Type>
 			<Description>TXT_KEY_BONUS_SILVER</Description>
 			<Civilopedia>TXT_KEY_BONUS_SILVER_PEDIA</Civilopedia>
@@ -1636,8 +1682,8 @@
 			<TechObsolete>NONE</TechObsolete>
 			<YieldChanges>
 				<iYieldChange>0</iYieldChange>
-				<iYieldChange>0</iYieldChange>
 				<iYieldChange>1</iYieldChange>
+				<iYieldChange>0</iYieldChange>
 			</YieldChanges>
 			<iAITradeModifier>0</iAITradeModifier>
 			<iAIObjective>0</iAIObjective>
@@ -1654,8 +1700,9 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
+			<!-- custom: make strategic luxury ressources harder to find so they are worth more and fighting more for, anyways etc, was 78 / 0 -->
 			<!-- advc.129: was 67 -->
-			<iPlayer>78</iPlayer>
+			<iPlayer>35</iPlayer>
 			<iTilesPer>0</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>0</iUnique>
@@ -1692,7 +1739,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_SPICES (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_SPICES</Type>
 			<Description>TXT_KEY_BONUS_SPICES</Description>
 			<Civilopedia>TXT_KEY_BONUS_SPICES_PEDIA</Civilopedia>
@@ -1701,10 +1748,11 @@
 			<TechReveal>NONE</TechReveal>
 			<TechCityTrade>TECH_CALENDAR</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
+			<!-- custom: spices make us more productive perhaps, maybe a bit like sugar and coffee and incense anyways etc... -->
 			<YieldChanges>
 				<iYieldChange>0</iYieldChange>
-				<iYieldChange>0</iYieldChange>
 				<iYieldChange>1</iYieldChange>
+				<iYieldChange>0</iYieldChange>
 			</YieldChanges>
 			<iAITradeModifier>0</iAITradeModifier>
 			<iAIObjective>0</iAIObjective>
@@ -1714,6 +1762,7 @@
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
 			<iMinLatitude>0</iMinLatitude>
+			<!-- custom: spices as a more general concept for civ4 should be about everywhere, if i am not mistaken and for quick google glances, buffs also nothern and southern edge starts that have less ressources/bonuses overall -->
 			<!-- advc.129: was 60 -->
 			<iMaxLatitude>45</iMaxLatitude>
 			<Rands>
@@ -1722,7 +1771,8 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<iPlayer>100</iPlayer>
+			<!-- custom: make luxury ressources harder to find so they are worth more and fighting more for, anyways etc, was 100 / 0 -->
+			<iPlayer>35</iPlayer>
 			<iTilesPer>0</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>0</iUnique>
@@ -1755,7 +1805,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_SUGAR (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_SUGAR</Type>
 			<Description>TXT_KEY_BONUS_SUGAR</Description>
 			<Civilopedia>TXT_KEY_BONUS_SUGAR_PEDIA</Civilopedia>
@@ -1764,9 +1814,10 @@
 			<TechReveal>NONE</TechReveal>
 			<TechCityTrade>TECH_CALENDAR</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
+			<!-- custom: sugar increases productivity, kind of like coffeee and such maybe even though i don't drink them too much if at all but still quite nice maybe or maybe not but in all cases or not or etc anyways etc -->
 			<YieldChanges>
-				<iYieldChange>1</iYieldChange>
 				<iYieldChange>0</iYieldChange>
+				<iYieldChange>1</iYieldChange>
 				<iYieldChange>0</iYieldChange>
 			</YieldChanges>
 			<iAITradeModifier>0</iAITradeModifier>
@@ -1784,7 +1835,8 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<iPlayer>100</iPlayer>
+			<!-- custom: make luxury ressources harder to find so they are worth more and fighting more for, anyways etc, was 100 / 0 -->
+			<iPlayer>35</iPlayer>
 			<iTilesPer>0</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>0</iUnique>
@@ -1814,7 +1866,7 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_GRAPES (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_GRAPES</Type>
 			<Description>TXT_KEY_BONUS_GRAPES</Description>
 			<Civilopedia>TXT_KEY_BONUS_GRAPES_PEDIA</Civilopedia>
@@ -1836,16 +1888,19 @@
 			<iPlacementOrder>5</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>3</iMinAreaSize>
-			<iMinLatitude>20</iMinLatitude>
-			<iMaxLatitude>50</iMaxLatitude>
+			<!-- custom: adjusted according to https://www.google.com/search?q=all+grapes+natural+habitat+in+the+world+map&sca_esv=c2c2afdb17022264&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=aoQwaNLKG9XZ7M8P4aypwQM&ved=0ahUKEwjSp4WE5bmNAxXVLPsDHWFWKjgQ4dUDCBE&uact=5&oq=all+grapes+natural+habitat+in+the+world+map&gs_lp=EgNpbWciK2FsbCBncmFwZXMgbmF0dXJhbCBoYWJpdGF0IGluIHRoZSB3b3JsZCBtYXBItxlQ8AVYnxhwAngAkAEAmAE0oAHOAaoBATe4AQPIAQD4AQGYAgCgAgCYAwCIBgGSBwCgB7sCsgcAuAcAwgcAyAcA&sclient=img , was 20 / 50 -->
+			<iMinLatitude>0</iMinLatitude>
+			<!-- custom: buffing edge of the map a bit more too as seems relevant here too anyways etc -->
+			<iMaxLatitude>55</iMaxLatitude>
 			<Rands>
 				<iRandApp1>25</iRandApp1>
 				<iRandApp2>25</iRandApp2>
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<iPlayer>100</iPlayer>
-			<iTilesPer>0</iTilesPer>
+			<!-- custom: food ressources still spawn a bit too much, reducing their value a bit more so they'd be more valuable and players would fight harder for them or/and adjust ideally city placement based on this too anyways etc anyways etc anyways etc, also switch to food ressource like formula, was 100 / 0 -->
+			<iPlayer>0</iPlayer>
+			<iTilesPer>22</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>0</iUnique>
 			<iGroupRange>1</iGroupRange>
@@ -1865,28 +1920,32 @@
 			<FeatureTerrainBooleans/>
 			<bUseLSystem>1</bUseLSystem>
 		</BonusInfo>
-		<BonusInfo>
+		<!-- custom: reworked and adjusted partly according to wikiped or/and other source(s) or not or and what i wanted or not anyways etc or/a -->
+		<BonusInfo> <!-- custom: type: BONUS_WHALE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_WHALE</Type>
 			<Description>TXT_KEY_BONUS_WHALE</Description>
 			<Civilopedia>TXT_KEY_BONUS_WHALE_PEDIA</Civilopedia>
 			<BonusClassType>BONUSCLASS_GENERAL</BonusClassType>
 			<ArtDefineTag>ART_DEF_BONUS_WHALE</ArtDefineTag>
 			<TechReveal>NONE</TechReveal>
-			<TechCityTrade>NONE</TechCityTrade>
-			<TechObsolete>TECH_COMBUSTION</TechObsolete>
+			<TechCityTrade>TECH_SAILING</TechCityTrade>
+			<TechObsolete>TECH_ECOLOGY</TechObsolete>
+			<!-- custom: not so easy to capture without proper installations, but attracts folks as in people perhaps and folks as in stories perhaps anyways etc anyways etc anyways etc -->
 			<YieldChanges>
+				<iYieldChange>0</iYieldChange>
+				<iYieldChange>0</iYieldChange>
 				<iYieldChange>1</iYieldChange>
-				<iYieldChange>0</iYieldChange>
-				<iYieldChange>0</iYieldChange>
 			</YieldChanges>
 			<iAITradeModifier>0</iAITradeModifier>
 			<iAIObjective>0</iAIObjective>
+			<!-- custom: capturing and defeating such a huge animal is impressive, source of awe and fold stories perhaps as per the/a lore and/or such and/or other and/or not anyways etc, replace with this instead of health base yield change, to not make it (i.e. whales op, anyways etc and also be consistent with other changes (1 ressource/bonus per yield or the opposite rather anyways etc anyways etc anyways etc...)) -->
 			<iHealth>0</iHealth>
 			<iHappiness>1</iHappiness>
 			<iPlacementOrder>6</iPlacementOrder>
 			<iConstAppearance>50</iConstAppearance>
 			<iMinAreaSize>10</iMinAreaSize>
-			<iMinLatitude>50</iMinLatitude>
+			<!-- custom: whales seem to be about everywhere from/at quick glance (https://www.google.com/search?sca_esv=685d635ce644e565&rlz=1C1GCEA_enFR1111FR1111&q=whales+world+map&udm=2&fbs=ABzOT_BnMAgCWdhr5zilP5f1cnRvJ3SHQcDVxkdpDyHwlRhdNVOjEWzQMZQu8do521nGzcQgBp5tOxxfClTcp75NgQri0b8KncTgS81NVO6dQ1nU7PHYR-u9eJ1OtyHSItVdXIOv5zjT8TvPQJxoan_TZNn3v_MIzpNnqoB1UZj62hrYDAIm1EdLYtJOnT4QYj3A6ylt5nHWOO7chh5XeQK_4urorE6XLg&sa=X&ved=2ahUKEwjrgL_NyLmNAxW_TqQEHdzYBegQtKgLegQIFhAB&biw=2048&bih=1023&dpr=1.88#vhid=nAr4_WbajdaO-M&vssid=mosaic), buff minLatitude, was 50 -->
+			<iMinLatitude>0</iMinLatitude>
 			<iMaxLatitude>90</iMaxLatitude>
 			<Rands>
 				<iRandApp1>25</iRandApp1>
@@ -1894,8 +1953,10 @@
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<iPlayer>67</iPlayer>
-			<iTilesPer>0</iTilesPer>
+			<!-- custom: reducing iPlayer to 0 if need be to make it player-independent too if i am not mistaken and flat, always constant spanwing, anyways etc, was 67 -->
+			<iPlayer>0</iPlayer>
+			<!-- custom: buff water ressources, less pronounced in less general ressources/bonsues (as fish and mollusc are for example) (if any other(s) such bonuses exist in civ4 in our civ4 mod advciv-sas at least anyways etc), but since it was 0, using a higher than 0 value to not disable it if i am not mistaken according to/as said in (english verison rather translated web page using google chrome (for example is what i used anyways etc, see docs for details anyways etc) https://gforestshade.github.io/kujira/post/civ4bonusinfos/#itilesper, was 0 -->
+			<iTilesPer>26</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>1</iUnique>
 			<iGroupRange>0</iGroupRange>
@@ -1907,6 +1968,10 @@
 			<bNormalize>1</bNormalize>
 			<TerrainBooleans>
 				<TerrainBoolean>
+					<TerrainType>TERRAIN_COAST</TerrainType>
+					<bTerrain>1</bTerrain>
+				</TerrainBoolean>
+				<TerrainBoolean>
 					<TerrainType>TERRAIN_OCEAN</TerrainType>
 					<bTerrain>1</bTerrain>
 				</TerrainBoolean>
@@ -1914,7 +1979,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_DRAMA (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_DRAMA</Type>
 			<Description>TXT_KEY_BONUS_DRAMA</Description>
 			<Civilopedia>TXT_KEY_BONUS_DRAMA_PEDIA</Civilopedia>
@@ -1954,7 +2019,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_MUSIC (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_MUSIC</Type>
 			<Description>TXT_KEY_BONUS_MUSIC</Description>
 			<Civilopedia>TXT_KEY_BONUS_MUSIC_PEDIA</Civilopedia>
@@ -1994,7 +2059,7 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo>
+		<BonusInfo> <!-- custom: type: BONUS_MOVIES (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>BONUS_MOVIES</Type>
 			<Description>TXT_KEY_BONUS_MOVIES</Description>
 			<Civilopedia>TXT_KEY_BONUS_MOVIES_PEDIA</Civilopedia>

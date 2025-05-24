@@ -226,7 +226,7 @@ and then modified or not for AdvCiv-SAS anyways etc
 			<FontButtonIndex>9</FontButtonIndex>
 		</BonusArtInfo>
 		<BonusArtInfo>
-			<Type>ART_DEF_BONUS_CLAM</Type>
+			<Type>ART_DEF_BONUS_MOLLUSCS</Type>
 			<fScale>1.0</fScale>
 			<fInterfaceScale>1.0</fInterfaceScale>
 			<NIF>Art/Terrain/Resources/Clam/Clam.nif</NIF>
@@ -244,7 +244,7 @@ and then modified or not for AdvCiv-SAS anyways etc
 			<FontButtonIndex>11</FontButtonIndex>
 		</BonusArtInfo>
 		<BonusArtInfo>
-			<Type>ART_DEF_BONUS_COW</Type>
+			<Type>ART_DEF_BONUS_CATTLE</Type>
 			<fScale>1.0</fScale>
 			<fInterfaceScale>0.9</fInterfaceScale>
 			<NIF>Art/Terrain/Resources/Cow/Cow.nif</NIF>

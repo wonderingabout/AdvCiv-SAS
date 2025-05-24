@@ -139,8 +139,16 @@
 	more accurate it seems.
 	-->
 	<TEXT>
-		<Tag>TXT_KEY_BONUS_COW</Tag>
+		<Tag>TXT_KEY_BONUS_CATTLE</Tag>
 		<English>Cattle</English>
+	</TEXT>
+
+
+
+	<!-- custom: rename _CLAM to the more general _MOLLUSCS, see docs or/and code comments or/and other places if any (if there are (or not or yes or and other or and not anyways etc anyways etc anyways etc) for details -->
+	<TEXT>
+		<Tag>TXT_KEY_BONUS_MOLLUSCS</Tag>
+		<English>Molluscs</English>
 	</TEXT>
 
 

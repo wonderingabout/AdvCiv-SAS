@@ -166,6 +166,10 @@ class SevoPediaBonus:
 		screen.addListBoxGFC(panelName, "", self.X_STATS_PANE, self.Y_STATS_PANE, self.W_STATS_PANE, self.H_STATS_PANE, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(panelName, False)
 		
+		# <!-- custom: handle multiple potential yield changes anyways etc by separating the header from yield stats display anyways etc --> 
+		szTextHeader = u"<font=4><b>" + localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_BONUS_NATURAL_TILE_YIELD_CHANGES", ()) + "\n" + u"</b></font>"
+		screen.appendListBoxString(panelName, szTextHeader, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+
 		for k in range(YieldTypes.NUM_YIELD_TYPES):
 			iYieldChange = gc.getBonusInfo(self.iBonus).getYieldChange(k)
 			if (iYieldChange != 0):
@@ -178,7 +182,7 @@ class SevoPediaBonus:
 				szYield = (u"%s%i" % (sign, iYieldChange))
 				# <!-- custom: add information about the precise type of yield it is, which can be otherwise very confusing -->
 				szText1 = (u"%c  " % gc.getYieldInfo(k).getChar()) + szYield
-				szText2 = u"<font=4><b>" + localText.getText("TXT_KEY_PEDIA_BONUS_YIELDS_CUSTOM_PANEL_TEXT", ()) + "\n\n" + szText1 + u"</b></font>"
+				szText2 = u"<font=4><b>" + szText1 + "\n" + u"</b></font>"
 				screen.appendListBoxString(panelName, szText2, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 
@@ -196,7 +200,7 @@ class SevoPediaBonus:
 	def placeImprovements(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT_CUSTOM_NEW_FOR_RESSOURCES_IMPROVEMENTS", ()), "", True, True, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_BONUS_TOTAL_BASE_AND_EXTRA_IMPROVEMENTS_YIELD_CHANGES", ()), "", True, True, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS, PanelStyles.PANEL_STYLE_BLUE50)
 
 		
 		# Create a row container for horizontal layout

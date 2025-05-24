@@ -92,11 +92,7 @@
 
 	<!-- custom -->
 	<!--				TERRAINS CATEGORY				-->
-	<!-- custom: rename "Base Terrain" to "Terrains"
-	(also switching to the plural form, same as for
-	"Features" (no reason why not and why it was not
-	like that).
-	Maybe simpler is better here. -->
+	<!-- custom: rename "Base Terrain" to "Terrains" (also switching to the plural form, same as for "Features" (no reason why not and why it was not like that). Maybe simpler is better here. -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_TERRAIN</Tag>
 		<English>Terrains</English>
@@ -105,22 +101,9 @@
 
 	<!-- custom -->
 	<!--				FEATURES CATEGORY				-->
-	<!-- custom: remove mention of the "terrain"
-	in "terrain features" of the root sevopedia
-	category, i think it's confusing, and hinders
-	the (especially new(er)) player's ease of
-	grasping that terrains and features are 2
-	diferent things, there should be either
-	"terrains" or "features", i think it's
-	an easier way to approach these new "concepts"
-	of civ4.
-	Not necessary to remove it everywhere, the
-	sentences may become a bit weird too, but in
-	key visibility and isolated (not sentences),
-	it should be a no brainer i think.
-	I also don't trust these translations, so
-	putting the English version rather, maybe
-	easier this way or/and better long term.
+	<!-- custom: remove mention of the "terrain" in "terrain features" of the root sevopedia category, i think it's confusing, and hinders the (especially new(er)) player's ease of grasping that terrains and features are 2 diferent things, there should be either "terrains" or "features", i think it's an easier way to approach these new "concepts" of civ4.
+	Not necessary to remove it everywhere, the sentences may become a bit weird too, but in	key visibility and isolated (not sentences), it should be a no brainer i think.
+	I also don't trust these translations, so putting the English version rather, maybe	easier this way or/and better long term.
 	-->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_FEATURE</Tag>
@@ -129,38 +112,24 @@
 
 
 	<!-- custom -->
-	<!--				RESSOURCES CATEGORY				-->
-	<!-- custom: create a new TXT KEY for ressources natural
-	tile yields, making it extra clear what these
-	yields are:
+	<!--				RESSOURCES / BONUSES CATEGORY				-->
+	<!-- custom: create a new TXT KEY for ressources natural tile yields, making it extra clear what these yields are:
 	- they are not global (yield on tile only)
 	- they are bonus (and natural tile yield)
-	I think this part about ressources is very confusing too,
-	hopefully clearer now -->
+	I think this part about ressources is very confusing too, hopefully clearer now -->
 	<TEXT> 
-		<Tag>TXT_KEY_PEDIA_BONUS_YIELDS_CUSTOM_PANEL_TEXT</Tag>
-		<English>Natural Bonus Tile Yields</English>
+		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_BONUS_NATURAL_TILE_YIELD_CHANGES</Tag>
+		<English>Natural Tile Yield Change(s)</English>
 	</TEXT>
-	<!-- custom: also replace TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT
-	to something clearer at the same time, maybe helps.
-	Create a new TXT KEY specifically for the improvements
-	info of the ressources (bonus) category (before creating
-	this new txt key, the previous one was shared between
-	category title "Improvements", and	Ressources/"Improvements",
-	not possible to modify one without affecting the other
-	which is not optimal, so creating this new text key,
-	and updating the python files too to support it)
+	<!-- custom: also replace TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT to something clearer at the same time, maybe helps.
+	Create a new TXT KEY specifically for the improvements info of the ressources (bonus) category (before creating	this new txt key, the previous one was shared between category title "Improvements", and	Ressources/"Improvements", not possible to modify one without affecting the other which is not optimal, so creating this new text key, and updating the python files too to support it)
 	-->
-	<!-- custom: be careful, this applies to the ressources
-	category not the improvement category unlike what the
-	tile may (mis)lead to think -->
+	<!-- custom: be careful, this applies to the ressources category not the improvement category unlike what the tile may (mis)lead to think, clarified that this is the total (base + extra) bonus  -->
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT_CUSTOM_NEW_FOR_RESSOURCES_IMPROVEMENTS</Tag>
-		<English>Improvements Bonus Tile Yields</English>
+		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_BONUS_TOTAL_BASE_AND_EXTRA_IMPROVEMENTS_YIELD_CHANGES</Tag>
+		<English>Total (Base + extra) Improvement(s) Yield Change(s)</English>
 	</TEXT>
-	<!-- custom: create a new entry "Revealed By" specifically for
-	the sevopedia, the civilopedia still uses reveals due to how
-	the text "reveals" is displayed in the civilopedia rather -->
+	<!-- custom: create a new entry "Revealed By" specifically for the sevopedia, the civilopedia still uses reveals due to how	the text "reveals" is displayed in the civilopedia rather -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_BONUS_APPEARANCE_REVEALED_BY_CUSTOM</Tag>
 		<English>Revealed By</English>
@@ -169,12 +138,7 @@
 
 	<!-- custom -->
 	<!--				IMPROVEMENTS CATEGORY				-->
-	<!-- custom: keep this TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT
-	specifically for the Improvements category title (or/and
-	other places where it is used), we need a new TXT KEY
-	for the Ressources/"Improvements" now though, see
-	TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT_CUSTOM_NEW_FOR_RESSOURCES_IMPROVEMENTS
-	i created for that
+	<!-- custom: keep this TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT specifically for the Improvements category title (or/and other places where it is used), we need a new TXT KEY for the Ressources/"Improvements" now though, see TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT_CUSTOM_NEW_FOR_RESSOURCES_IMPROVEMENTS i created for that
 	-->
 	<!-- advc.004y: To replace TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT.
 	I've kept the FIS translations from there. -->
@@ -183,21 +147,16 @@
 		<!-- custom: <English>Improvements</English> -->
 		<English>Improv.</English>
 	</TEXT>
-	<!-- custom: using the singular form here as this is
-	only about our current (selected) improvement's
-	yields -->
+	<!-- custom: hopefully clearer formula of specifying it is about the base improvement tile yield(s) -->
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_IMPROVEMENT_YIELD</Tag>
-		<English>Improvement Bonus Tile Yields</English>
+		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_BASE_TILE_YIELD_CHANGES</Tag>
+		<English>Base Tile Yield Change(s)</English>
 	</TEXT>
-	<!-- custom: be careful, unlike what the txt key says, this
-	TXT_KEY_PEDIA_BONUS_YIELDS is applied to improvements category
-	not ressources category.
-	Also clarifying it to a more detailed/accurate name to
-	hopefully help the player, was "Bonus Yields" -->
+	<!-- custom: be careful, this is applied to improvements category not ressources category.
+	Also clarifying it to a more detailed/accurate name to hopefully help the player, was "Bonus Yields" -->
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_BONUS_YIELDS</Tag>
-		<English>On Ressources Extra Improvements Bonus Tile Yields</English>
+		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_ON_BONUSES_EXTRA_TILE_YIELD_CHANGES</Tag>
+		<English>On Bonus(es)/Ressource(s) Extra Tile Yield Change(s)</English>
 	</TEXT>
 	<!-- custom: "Food: +1F (with Irrigation)" becomes
 	now "+1F (with Irrigation)", remove the uneeded

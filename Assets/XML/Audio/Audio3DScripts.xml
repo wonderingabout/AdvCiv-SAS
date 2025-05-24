@@ -19989,8 +19989,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script3DSound>
 	<Script3DSound>
-		<ScriptID>AS3D_UN_COWS_RES_GRUNT</ScriptID>
-		<SoundID>SND_COWS_RES_GRUNT</SoundID>
+		<ScriptID>AS3D_UN_CATTLE_RES_GRUNT</ScriptID>
+		<SoundID>SND_CATTLE_RES_GRUNT</SoundID>
 		<SoundType>GAME_SFX</SoundType>
 		<iMinVolume>75</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -20076,8 +20076,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script3DSound>
 	<Script3DSound>
-		<ScriptID>AS3D_IMPROV_COWS_RES_GRUNT</ScriptID>
-		<SoundID>SND_IMPROV_COWS_RES_GRUNT</SoundID>
+		<ScriptID>AS3D_IMPROV_CATTLE_RES_GRUNT</ScriptID>
+		<SoundID>SND_IMPROV_CATTLE_RES_GRUNT</SoundID>
 		<SoundType>GAME_SFX</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -20105,8 +20105,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script3DSound>
 	<Script3DSound>
-		<ScriptID>AS3D_IMPROV_COWS_RES_MOOING</ScriptID>
-		<SoundID>SND_IMPROV_COWS_RES_MOOING</SoundID>
+		<ScriptID>AS3D_IMPROV_CATTLE_RES_MOOING</ScriptID>
+		<SoundID>SND_IMPROV_CATTLE_RES_MOOING</SoundID>
 		<SoundType>GAME_SFX</SoundType>
 		<iMinVolume>40</iMinVolume>
 		<iMaxVolume>60</iMaxVolume>

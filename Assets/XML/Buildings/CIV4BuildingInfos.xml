@@ -5278,6 +5278,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
+		<!-- custom: oldest harbor should be much sooner than tech compass, (for example https://en.wikipedia.org/wiki/Wadi_al-Jarf) also to buff water tiles that are too weak as of now anyways etc -->
 		<BuildingInfo> <!-- custom: class: harbor, type: harbor (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<BuildingClass>BUILDINGCLASS_HARBOR</BuildingClass>
 			<Type>BUILDING_HARBOR</Type>
@@ -5302,7 +5303,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_COMPASS</PrereqTech>
+			<PrereqTech>TECH_SAILING</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -5424,7 +5425,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<ConstructSound>AS2D_BUILD_DRYDOCK</ConstructSound>
 			<BonusHealthChanges>
 				<BonusHealthChange>
-					<BonusType>BONUS_CLAM</BonusType>
+					<BonusType>BONUS_MOLLUSCS</BonusType>
 					<iHealthChange>1</iHealthChange>
 				</BonusHealthChange>
 				<BonusHealthChange>
@@ -5433,6 +5434,10 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 				</BonusHealthChange>
 				<BonusHealthChange>
 					<BonusType>BONUS_FISH</BonusType>
+					<iHealthChange>1</iHealthChange>
+				</BonusHealthChange>
+				<BonusHealthChange>
+					<BonusType>BONUS_WHALE</BonusType>
 					<iHealthChange>1</iHealthChange>
 				</BonusHealthChange>
 			</BonusHealthChanges>
@@ -5458,191 +5463,6 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
 					<iFlavor>3</iFlavor>
-				</Flavor>
-			</Flavors>
-			<HotKey/>
-			<bAltDown>0</bAltDown>
-			<bShiftDown>0</bShiftDown>
-			<bCtrlDown>0</bCtrlDown>
-			<iHotKeyPriority>0</iHotKeyPriority>
-		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: harbor, type: carthage_cothon (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<BuildingClass>BUILDINGCLASS_HARBOR</BuildingClass>
-			<Type>BUILDING_CARTHAGE_COTHON</Type>
-			<SpecialBuildingType>NONE</SpecialBuildingType>
-			<Description>TXT_KEY_BUILDING_CARTHAGE_COTHON</Description>
-			<Civilopedia>TXT_KEY_BUILDING_CARTHAGE_COTHON_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_CARTHAGE_COTHON_STRATEGY</Strategy>
-			<Advisor>ADVISOR_ECONOMY</Advisor>
-			<ArtDefineTag>ART_DEF_BUILDING_CARTHAGE_COTHON</ArtDefineTag>
-			<MovieDefineTag>NONE</MovieDefineTag>
-			<HolyCity>NONE</HolyCity>
-			<ReligionType>NONE</ReligionType>
-			<StateReligion>NONE</StateReligion>
-			<bStateReligion>0</bStateReligion>
-			<PrereqReligion>NONE</PrereqReligion>
-			<PrereqCorporation>NONE</PrereqCorporation>
-			<FoundsCorporation>NONE</FoundsCorporation>
-			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
-			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
-			<VictoryPrereq>NONE</VictoryPrereq>
-			<!-- advc.126: was ERA_INDUSTRIAL -->
-			<FreeStartEra>NONE</FreeStartEra>
-			<MaxStartEra>NONE</MaxStartEra>
-			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_COMPASS</PrereqTech>
-			<TechTypes/>
-			<Bonus>NONE</Bonus>
-			<PrereqBonuses/>
-			<ProductionTraits>
-				<ProductionTrait>
-					<ProductionTraitType>TRAIT_EXPANSIVE</ProductionTraitType>
-					<iProductionTrait>100</iProductionTrait>
-				</ProductionTrait>
-			</ProductionTraits>
-			<HappinessTraits/>
-			<NoBonus>NONE</NoBonus>
-			<PowerBonus>NONE</PowerBonus>
-			<FreeBonus>NONE</FreeBonus>
-			<iNumFreeBonuses>0</iNumFreeBonuses>
-			<FreeBuilding>NONE</FreeBuilding>
-			<FreePromotion>NONE</FreePromotion>
-			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
-			<iHurryAngerModifier>0</iHurryAngerModifier>
-			<bBorderObstacle>0</bBorderObstacle>
-			<bTeamShare>0</bTeamShare>
-			<bWater>1</bWater>
-			<bRiver>0</bRiver>
-			<bPower>0</bPower>
-			<bDirtyPower>0</bDirtyPower>
-			<bAreaCleanPower>0</bAreaCleanPower>
-			<DiploVoteType>NONE</DiploVoteType>
-			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
-			<bCapital>0</bCapital>
-			<bGovernmentCenter>0</bGovernmentCenter>
-			<bGoldenAge>0</bGoldenAge>
-			<bAllowsNukes>0</bAllowsNukes>
-			<bMapCentering>0</bMapCentering>
-			<bNoUnhappiness>0</bNoUnhappiness>
-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
-			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
-			<bNeverCapture>0</bNeverCapture>
-			<bNukeImmune>0</bNukeImmune>
-			<bPrereqReligion>0</bPrereqReligion>
-			<bCenterInCity>0</bCenterInCity>
-			<iAIWeight>0</iAIWeight>
-			<iCost>100</iCost>
-			<iHurryCostModifier>0</iHurryCostModifier>
-			<iAdvancedStartCost>100</iAdvancedStartCost>
-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<iMinAreaSize>10</iMinAreaSize>
-			<iConquestProb>66</iConquestProb>
-			<iCitiesPrereq>0</iCitiesPrereq>
-			<iTeamsPrereq>0</iTeamsPrereq>
-			<iLevelPrereq>0</iLevelPrereq>
-			<iMinLatitude>0</iMinLatitude>
-			<iMaxLatitude>90</iMaxLatitude>
-			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
-			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
-			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
-			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
-			<iAnarchyModifier>0</iAnarchyModifier>
-			<iGoldenAgeModifier>0</iGoldenAgeModifier>
-			<iGlobalHurryModifier>0</iGlobalHurryModifier>
-			<iExperience>0</iExperience>
-			<iGlobalExperience>0</iGlobalExperience>
-			<iFoodKept>0</iFoodKept>
-			<iAirlift>0</iAirlift>
-			<iAirModifier>0</iAirModifier>
-			<iAirUnitCapacity>0</iAirUnitCapacity>
-			<iNukeModifier>0</iNukeModifier>
-			<iNukeExplosionRand>0</iNukeExplosionRand>
-			<iFreeSpecialist>0</iFreeSpecialist>
-			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
-			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
-			<iMaintenanceModifier>0</iMaintenanceModifier>
-			<iWarWearinessModifier>0</iWarWearinessModifier>
-			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
-			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
-			<iHealRateChange>0</iHealRateChange>
-			<iHealth>0</iHealth>
-			<iAreaHealth>0</iAreaHealth>
-			<iGlobalHealth>0</iGlobalHealth>
-			<iHappiness>0</iHappiness>
-			<iAreaHappiness>0</iAreaHappiness>
-			<iGlobalHappiness>0</iGlobalHappiness>
-			<iStateReligionHappiness>0</iStateReligionHappiness>
-			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
-			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
-			<iSpaceProductionModifier>0</iSpaceProductionModifier>
-			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
-			<iTradeRoutes>1</iTradeRoutes>
-			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
-			<iAreaTradeRoutes>0</iAreaTradeRoutes>
-			<iTradeRouteModifier>50</iTradeRouteModifier>
-			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
-			<iGlobalPopulationChange>0</iGlobalPopulationChange>
-			<iFreeTechs>0</iFreeTechs>
-			<iDefense>0</iDefense>
-			<iBombardDefense>0</iBombardDefense>
-			<iAllCityDefense>0</iAllCityDefense>
-			<iEspionageDefense>0</iEspionageDefense>
-			<iAsset>6</iAsset>
-			<iPower>0</iPower>
-			<fVisibilityPriority>1.0</fVisibilityPriority>
-			<SeaPlotYieldChanges/>
-			<RiverPlotYieldChanges/>
-			<GlobalSeaPlotYieldChanges/>
-			<YieldChanges/>
-			<CommerceChanges/>
-			<ObsoleteSafeCommerceChanges/>
-			<CommerceChangeDoubleTimes/>
-			<CommerceModifiers>
-				<iCommerce>10</iCommerce>
-				<iCommerce>0</iCommerce>
-				<iCommerce>0</iCommerce>
-			</CommerceModifiers>
-			<GlobalCommerceModifiers/>
-			<SpecialistExtraCommerces/>
-			<StateReligionCommerces/>
-			<CommerceHappinesses/>
-			<ReligionChanges/>
-			<SpecialistCounts/>
-			<FreeSpecialistCounts/>
-			<CommerceFlexibles/>
-			<CommerceChangeOriginalOwners/>
-			<ConstructSound>AS2D_BUILD_DRYDOCK</ConstructSound>
-			<BonusHealthChanges>
-				<BonusHealthChange>
-					<BonusType>BONUS_CLAM</BonusType>
-					<iHealthChange>1</iHealthChange>
-				</BonusHealthChange>
-				<BonusHealthChange>
-					<BonusType>BONUS_CRAB</BonusType>
-					<iHealthChange>1</iHealthChange>
-				</BonusHealthChange>
-				<BonusHealthChange>
-					<BonusType>BONUS_FISH</BonusType>
-					<iHealthChange>1</iHealthChange>
-				</BonusHealthChange>
-			</BonusHealthChanges>
-			<BonusHappinessChanges/>
-			<BonusProductionModifiers/>
-			<UnitCombatFreeExperiences/>
-			<DomainFreeExperiences/>
-			<DomainProductionModifiers/>
-			<BuildingHappinessChanges/>
-			<PrereqBuildingClasses/>
-			<BuildingClassNeededs/>
-			<SpecialistYieldChanges/>
-			<BonusYieldModifiers/>
-			<ImprovementFreeSpecialists/>
-			<Flavors>
-				<Flavor>
-					<FlavorType>FLAVOR_GOLD</FlavorType>
-					<iFlavor>10</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -5712,7 +5532,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>180</iCost>
+			<iCost>160</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -5808,8 +5628,12 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<ImprovementFreeSpecialists/>
 			<Flavors>
 				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>8</iFlavor>
+				</Flavor>
+				<Flavor>
 					<FlavorType>FLAVOR_GOLD</FlavorType>
-					<iFlavor>10</iFlavor>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -5879,7 +5703,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>180</iCost>
+			<iCost>160</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -5986,6 +5810,184 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
 					<iFlavor>5</iFlavor>
+				</Flavor>
+			</Flavors>
+			<HotKey/>
+			<bAltDown>0</bAltDown>
+			<bShiftDown>0</bShiftDown>
+			<bCtrlDown>0</bCtrlDown>
+			<iHotKeyPriority>0</iHotKeyPriority>
+		</BuildingInfo>
+		<!-- custom: oldest harbor should be much sooner than compass, (for example https://en.wikipedia.org/wiki/Wadi_al-Jarf) also to buff water tiles that are too weak as of now anyways etc, as a result, the carthage cothon is now based on customs house as it seems to appear later in history, and also be linked with trading somehow from the very little glances i had of it anyways etc: https://en.wikipedia.org/wiki/Cothon anyways etc but that are hopefully enough to assess this or not or yes or for my needs yes or not or yes or other or etc anyways etc -->
+		<BuildingInfo> <!-- custom: class: custom_house, type: carthage_cothon (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<BuildingClass>BUILDINGCLASS_CUSTOM_HOUSE</BuildingClass>
+			<Type>BUILDING_CARTHAGE_COTHON</Type>
+			<SpecialBuildingType>NONE</SpecialBuildingType>
+			<Description>TXT_KEY_BUILDING_CARTHAGE_COTHON</Description>
+			<Civilopedia>TXT_KEY_BUILDING_CARTHAGE_COTHON_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_CARTHAGE_COTHON_STRATEGY</Strategy>
+			<Advisor>ADVISOR_ECONOMY</Advisor>
+			<ArtDefineTag>ART_DEF_BUILDING_CARTHAGE_COTHON</ArtDefineTag>
+			<MovieDefineTag>NONE</MovieDefineTag>
+			<HolyCity>NONE</HolyCity>
+			<ReligionType>NONE</ReligionType>
+			<StateReligion>NONE</StateReligion>
+			<bStateReligion>0</bStateReligion>
+			<PrereqReligion>NONE</PrereqReligion>
+			<PrereqCorporation>NONE</PrereqCorporation>
+			<FoundsCorporation>NONE</FoundsCorporation>
+			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
+			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
+			<VictoryPrereq>NONE</VictoryPrereq>
+			<!-- advc.126: was ERA_INDUSTRIAL -->
+			<FreeStartEra>NONE</FreeStartEra>
+			<MaxStartEra>NONE</MaxStartEra>
+			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_COMPASS</PrereqTech>
+			<TechTypes/>
+			<Bonus>NONE</Bonus>
+			<PrereqBonuses/>
+			<ProductionTraits>
+				<ProductionTrait>
+					<ProductionTraitType>TRAIT_EXPANSIVE</ProductionTraitType>
+					<iProductionTrait>100</iProductionTrait>
+				</ProductionTrait>
+			</ProductionTraits>
+			<HappinessTraits/>
+			<NoBonus>NONE</NoBonus>
+			<PowerBonus>NONE</PowerBonus>
+			<FreeBonus>NONE</FreeBonus>
+			<iNumFreeBonuses>0</iNumFreeBonuses>
+			<FreeBuilding>NONE</FreeBuilding>
+			<FreePromotion>NONE</FreePromotion>
+			<CivicOption>NONE</CivicOption>
+			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
+			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+			<iHurryAngerModifier>0</iHurryAngerModifier>
+			<bBorderObstacle>0</bBorderObstacle>
+			<bTeamShare>0</bTeamShare>
+			<bWater>1</bWater>
+			<bRiver>0</bRiver>
+			<bPower>0</bPower>
+			<bDirtyPower>0</bDirtyPower>
+			<bAreaCleanPower>0</bAreaCleanPower>
+			<DiploVoteType>NONE</DiploVoteType>
+			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
+			<bCapital>0</bCapital>
+			<bGovernmentCenter>0</bGovernmentCenter>
+			<bGoldenAge>0</bGoldenAge>
+			<bAllowsNukes>0</bAllowsNukes>
+			<bMapCentering>0</bMapCentering>
+			<bNoUnhappiness>0</bNoUnhappiness>
+			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+			<bNeverCapture>0</bNeverCapture>
+			<bNukeImmune>0</bNukeImmune>
+			<bPrereqReligion>0</bPrereqReligion>
+			<bCenterInCity>0</bCenterInCity>
+			<iAIWeight>0</iAIWeight>
+			<iCost>130</iCost>
+			<iHurryCostModifier>0</iHurryCostModifier>
+			<iAdvancedStartCost>100</iAdvancedStartCost>
+			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+			<iMinAreaSize>10</iMinAreaSize>
+			<iConquestProb>66</iConquestProb>
+			<iCitiesPrereq>0</iCitiesPrereq>
+			<iTeamsPrereq>0</iTeamsPrereq>
+			<iLevelPrereq>0</iLevelPrereq>
+			<iMinLatitude>0</iMinLatitude>
+			<iMaxLatitude>90</iMaxLatitude>
+			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
+			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
+			<iAnarchyModifier>0</iAnarchyModifier>
+			<iGoldenAgeModifier>0</iGoldenAgeModifier>
+			<iGlobalHurryModifier>0</iGlobalHurryModifier>
+			<iExperience>0</iExperience>
+			<iGlobalExperience>0</iGlobalExperience>
+			<iFoodKept>0</iFoodKept>
+			<iAirlift>0</iAirlift>
+			<iAirModifier>0</iAirModifier>
+			<iAirUnitCapacity>0</iAirUnitCapacity>
+			<iNukeModifier>0</iNukeModifier>
+			<iNukeExplosionRand>0</iNukeExplosionRand>
+			<iFreeSpecialist>0</iFreeSpecialist>
+			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
+			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
+			<iMaintenanceModifier>0</iMaintenanceModifier>
+			<iWarWearinessModifier>0</iWarWearinessModifier>
+			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
+			<iHealRateChange>0</iHealRateChange>
+			<iHealth>0</iHealth>
+			<iAreaHealth>0</iAreaHealth>
+			<iGlobalHealth>0</iGlobalHealth>
+			<iHappiness>0</iHappiness>
+			<iAreaHappiness>0</iAreaHappiness>
+			<iGlobalHappiness>0</iGlobalHappiness>
+			<iStateReligionHappiness>0</iStateReligionHappiness>
+			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
+			<iSpaceProductionModifier>0</iSpaceProductionModifier>
+			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+			<iTradeRoutes>1</iTradeRoutes>
+			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+			<iTradeRouteModifier>100</iTradeRouteModifier>
+			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+			<iFreeTechs>0</iFreeTechs>
+			<iDefense>0</iDefense>
+			<iBombardDefense>0</iBombardDefense>
+			<iAllCityDefense>0</iAllCityDefense>
+			<iEspionageDefense>0</iEspionageDefense>
+			<iAsset>6</iAsset>
+			<iPower>0</iPower>
+			<fVisibilityPriority>1.0</fVisibilityPriority>
+			<SeaPlotYieldChanges/>
+			<RiverPlotYieldChanges/>
+			<GlobalSeaPlotYieldChanges/>
+			<YieldChanges/>
+			<CommerceChanges/>
+			<ObsoleteSafeCommerceChanges/>
+			<CommerceChangeDoubleTimes/>
+			<CommerceModifiers>
+				<iCommerce>10</iCommerce>
+				<iCommerce>0</iCommerce>
+				<iCommerce>0</iCommerce>
+			</CommerceModifiers>
+			<GlobalCommerceModifiers/>
+			<SpecialistExtraCommerces/>
+			<StateReligionCommerces/>
+			<CommerceHappinesses/>
+			<ReligionChanges/>
+			<SpecialistCounts/>
+			<FreeSpecialistCounts/>
+			<CommerceFlexibles/>
+			<CommerceChangeOriginalOwners/>
+			<ConstructSound>AS2D_BUILD_BANK</ConstructSound>
+			<BonusHealthChanges/>
+			<BonusHappinessChanges/>
+			<BonusProductionModifiers/>
+			<UnitCombatFreeExperiences/>
+			<DomainFreeExperiences/>
+			<DomainProductionModifiers/>
+			<BuildingHappinessChanges/>
+			<PrereqBuildingClasses/>
+			<BuildingClassNeededs>
+				<BuildingClassNeeded>
+					<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
+					<bNeededInCity>1</bNeededInCity>
+				</BuildingClassNeeded>
+			</BuildingClassNeededs>
+			<SpecialistYieldChanges/>
+			<BonusYieldModifiers/>
+			<ImprovementFreeSpecialists/>
+			<Flavors>
+				<Flavor>
+					<FlavorType>FLAVOR_GOLD</FlavorType>
+					<iFlavor>10</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -12188,10 +12190,6 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 					<BonusType>BONUS_SILK</BonusType>
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
-				<BonusHappinessChange>
-					<BonusType>BONUS_WHALE</BonusType>
-					<iHappinessChange>1</iHappinessChange>
-				</BonusHappinessChange>
 			</BonusHappinessChanges>
 			<BonusProductionModifiers/>
 			<UnitCombatFreeExperiences/>
@@ -12381,10 +12379,6 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 				</BonusHappinessChange>
 				<BonusHappinessChange>
 					<BonusType>BONUS_SILK</BonusType>
-					<iHappinessChange>1</iHappinessChange>
-				</BonusHappinessChange>
-				<BonusHappinessChange>
-					<BonusType>BONUS_WHALE</BonusType>
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 			</BonusHappinessChanges>
@@ -13280,7 +13274,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<ConstructSound>AS2D_BUILD_SUPERMARKET</ConstructSound>
 			<BonusHealthChanges>
 				<BonusHealthChange>
-					<BonusType>BONUS_COW</BonusType>
+					<BonusType>BONUS_CATTLE</BonusType>
 					<iHealthChange>1</iHealthChange>
 				</BonusHealthChange>
 				<BonusHealthChange>
@@ -13469,7 +13463,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<ConstructSound>AS2D_BUILD_GROCERY</ConstructSound>
 			<BonusHealthChanges>
 				<BonusHealthChange>
-					<BonusType>BONUS_COW</BonusType>
+					<BonusType>BONUS_CATTLE</BonusType>
 					<iHealthChange>1</iHealthChange>
 				</BonusHealthChange>
 				<BonusHealthChange>

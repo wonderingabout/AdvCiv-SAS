@@ -4248,7 +4248,7 @@
 				<ImprovementType>IMPROVEMENT_FISHING_BOATS</ImprovementType>
 			</ImprovementsRequired>
 			<BonusesRequired>
-				<BonusType>BONUS_CLAM</BonusType>
+				<BonusType>BONUS_MOLLUSCS</BonusType>
 			</BonusesRequired>
 			<RoutesRequired/>
 			<ReligionsRequired/>
@@ -5364,7 +5364,7 @@
 				<ImprovementType>IMPROVEMENT_PASTURE</ImprovementType>
 			</ImprovementsRequired>
 			<BonusesRequired>
-				<BonusType>BONUS_COW</BonusType>
+				<BonusType>BONUS_CATTLE</BonusType>
 			</BonusesRequired>
 			<RoutesRequired>
 				<RouteType>ROUTE_ROAD</RouteType>
@@ -10664,7 +10664,7 @@
 				<ImprovementType>IMPROVEMENT_PASTURE</ImprovementType>
 			</ImprovementsRequired>
 			<BonusesRequired>
-				<BonusType>BONUS_COW</BonusType>
+				<BonusType>BONUS_CATTLE</BonusType>
 			</BonusesRequired>
 			<RoutesRequired>
 				<RouteType>ROUTE_ROAD</RouteType>
@@ -16949,7 +16949,7 @@
 				<ImprovementType>NONE</ImprovementType>
 			</ImprovementsRequired>
 			<BonusesRequired>
-				<BonusType>BONUS_COW</BonusType>
+				<BonusType>BONUS_CATTLE</BonusType>
 				<BonusType>BONUS_PIG</BonusType>
 				<BonusType>BONUS_HORSE</BonusType>
 				<BonusType>BONUS_SHEEP</BonusType>
