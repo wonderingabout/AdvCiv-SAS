@@ -110,7 +110,7 @@
 			<Type>BUILD_WHALING_BOATS</Type>
 			<Description>TXT_KEY_BUILD_WHALING_BOATS</Description>
 			<Help/>
-			<PrereqTech>TECH_OPTICS</PrereqTech>
+			<PrereqTech>TECH_SAILING</PrereqTech>
 			<iTime>0</iTime>
 			<iCost>0</iCost>
 			<bKill>1</bKill>

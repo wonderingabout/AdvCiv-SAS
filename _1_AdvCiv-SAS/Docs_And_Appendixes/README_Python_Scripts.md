@@ -52,12 +52,12 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
 
 Example of cmd processing for Steam users (adjust paths and/or such cimilar things anyways if not steam user):
 
-![img1](/_1_AdvCiv-SAS/Images_In_General/python_success_generate_leaders_data.PNG)
+![img1](/_1_AdvCiv-SAS/Images_In_General/scripts/python_success_generate_leaders_data.PNG)
 
 Example of output for Steam users (adjust paths and/or such cimilar things anyways if not steam user) (click on the images below to view them full size):
 
-<img src="../Images_In_General/python_output_example_1_generate_leaders_data.PNG" width="250"></img>
-<img src="../Images_In_General/python_output_example_2_generate_leaders_data.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/python_output_example_1_generate_leaders_data.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/python_output_example_2_generate_leaders_data.PNG" width="250"></img>
 
 
 Finally, move (cut then paste) your output file leaders_data+timestamp.py to, for example for Steam users (adapt to your AdvCiv-SAS install path) here (where SevoPediaLeader.py is) (note: a [shortcut](/generate_leaders_data%20\(path%20where%20to%20paste%20\(Sevopedia\)%20-%20Steam%20shortcut.lnk) is provided for convenience for Steam users, since i use the Steam verison of AdvCiv-SAS, anyways):
@@ -66,15 +66,15 @@ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond
 
 Example for Steam users (adjust paths and/or such cimilar things anyways if not steam user) (click on the images below to view them full size):
 
-<img src="../Images_In_General/python_output_example_3_generate_leaders_data.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/python_output_example_3_generate_leaders_data.PNG" width="250"></img>
 
 Finally, delete the old existing file leaders_data.py and rename your new file from leaders_data+timestamp.py to leaders_data.py. Now your sevopedia entries for all and any leaders relating to the AI Personality feature in the sevopedia, including custom leaders you may have added or removed, is updated.
 
 Example for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size):
 
-<img src="../Images_In_General/python_output_example_4_generate_leaders_data.PNG" width="250"></img>
-<img src="../Images_In_General/python_output_example_5_generate_leaders_data.PNG" width="250"></img>
-<img src="../Images_In_General/python_output_example_6_generate_leaders_data.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/python_output_example_4_generate_leaders_data.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/python_output_example_5_generate_leaders_data.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/python_output_example_6_generate_leaders_data.PNG" width="250"></img>
 
 ### Additional case(s) where leaders_data.py needs to be regenerated/updated or where it is highly recommended
 
@@ -144,7 +144,7 @@ We also flatten these fileds as they are nested, and export all of that (decay r
 
 example of output of unit test and part of the logic
 
-<img src="../Images_In_General/test_fix_7_skip_etc.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/test_fix_7_skip_etc.PNG" width="250"></img>
 
 For more details, please view/read etc anyways [generate_leaders_data.py](/generate_leaders_data.py), and their implementation in [sevopedialeader.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py) and [ai-attributes-displayed-config.py](/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py) for details
 
@@ -201,8 +201,8 @@ In all cases, here is an example of output for Steam users (adjust paths and/or 
 
 Example for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size):
 
-<img src="../Images_In_General/xml-duplicate-checker-3.3 - 1.PNG" width="250"></img>
-<img src="../Images_In_General/xml-duplicate-checker-3.3 - 2.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/xml-duplicate-checker-3.3 - 1.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/xml-duplicate-checker-3.3 - 2.PNG" width="250"></img>
 
 ### Context of how/why i made this script (with chatgpt/becomingthrough, anyways)
 
@@ -216,7 +216,7 @@ Similarl(ly) to other scripts, usage is for example for Steam users (adjust path
 cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & python test_crazy_normalize_to_100.py
 ```
 
-<img src="../Images_In_General/test_normalize_to_100_example.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/test_crazy_normalize_to_100_example.PNG" width="250"></img>
 
 # leaders_data_to_csv.py
 
@@ -230,17 +230,17 @@ Similar(ly) to other scripts, usage is for example for Steam users (adjust paths
 cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & python flatten_leaders_data_to_csv.py
 ```
 
-<img src="../Images_In_General/csv_output_example__leader_data_script_1.PNG" width="250"></img>
-<img src="../Images_In_General/csv_output_example__leaders_data_2_cmd_view.PNG" width="250"></img>
-<img src="../Images_In_General/csv_output_example__leader_data_libre_office_view_1.PNG" width="250"></img>
-<img src="../Images_In_General/csv_output_example__leader_data_libre_office_view_2.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_output_example__leader_data_script_1.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_output_example__leaders_data_2_cmd_view.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_output_example__leader_data_libre_office_view_1.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_output_example__leader_data_libre_office_view_2.PNG" width="250"></img>
 
 See also some general info about it (such as the GitHub view of it that is quite nice i think but anyways etc) here in the [main README.md's specific flatten leaders_data to .csv section](/README.md#csv-leaders_data-flat-to-csv-conversion-and-its-view-on-github-for-example) for details
 
 For convenience and exhaustiveness, such display/view on the Github website is also provided here, but please/you can anyways etc (also) (anyways etc) visit the ((AdvCiv-SAS) Project's) main README.md's csv section linked above for details.
 
-<img src="../Images_In_General/csv_flat_leaders_data_view_example_on_github (1).PNG" width="150"></img>
-<img src="../Images_In_General/csv_flat_leaders_data_view_example_on_github (2).PNG" width="150"></img>
-<img src="../Images_In_General/csv_flat_leaders_data_view_example_on_github (3).PNG" width="150"></img>
+<img src="../Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (1).PNG" width="150"></img>
+<img src="../Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (2).PNG" width="150"></img>
+<img src="../Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (3).PNG" width="150"></img>
 
 Then you can sort it, enhance it, adjust row length and such, but the base idea is here, hopefully helpful, anyways.

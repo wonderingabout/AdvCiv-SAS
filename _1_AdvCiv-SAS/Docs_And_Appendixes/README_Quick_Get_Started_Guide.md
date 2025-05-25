@@ -11,29 +11,28 @@ todo cleanup extensive comments and move them to a longer changes guide notes
 
 Some of the changes in AdvCiv-SAS (coming from AdvCiv) are also listed in the
 Sevopedia Entry (non-exhaustive), please visit it there (the screenshot below
-(click to view it full size) may not be updated, it is to give a preview/general
+(click to view it full size) may not be updated, it is to give a general
 idea):
 
-<img src="./Images_In_General/0.610_sevopedia_advciv_sas_core_changes (1)" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.610_sevopedia_advciv_sas_core_changes (1)" width="250"></img>
 
-There are also other additions, in particular written/coded by me wonderingabout and ChatGPT which are documented (mostly by me (wonderingabout) though hehe anyways etc), such as the AI personality panel (featuring raw and AI attributes display and ranking for all leaders), very important addition to AdvCiv-SAS, hopefully useful in understanding how each and all AI leaders behave and relate to each other, please read (if interested etc anyways) the (more) extensive documentation of how it works in [README.md#advciv-sas-core-changes-from-advciv](/README.md#advciv-sas-core-changes-from-advciv), or directly in [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md) if you want (to look etc anyways) for the full page.
+See also [the main README.md's AdvCiv-SAS core changes section](/README.md#advciv-sas-core-changes-from-advciv) for details.
+
+There are also other additions, in particular written/coded by me wonderingabout, ChatGPT, and Claude AI, which are documented (mostly by me (wonderingabout) though hehe anyways etc), such as the AI personality panel (featuring raw and AI attributes display and ranking for all leaders), very important addition to AdvCiv-SAS, hopefully useful in understanding how each and all AI leaders behave and relate to each other, please read (if interested etc anyways) the (more) extensive documentation of how it works in [README.md#advciv-sas-core-changes-from-advciv](/README.md#advciv-sas-core-changes-from-advciv), or directly in [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md) if you want (to look etc anyways) for the full page.
 
 A copy of the screenshots (may not be latest version of it) of how it looks ingame:
 
-<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
-<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
-<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
 
-For more screenshot previews of new sevopedia entries or udpated ones (not exhaustive), you can visit the [README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks](/README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks) link (for details (too anyways etc)).
+For more screenshot samples of new sevopedia entries or udpated ones (not exhaustive), you can visit the [README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks](/README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks) link (for details (too anyways etc)).
 
-## Full exhaustive changes
+## Full exhaustive very long and exhaustive changes
 
-If you want to see the full very exhaustive code changes between AdvCiv current
-latest stable, for example 1.12 here, and AdvCiv-SAS, please visit this [pull
-request compare](https://github.com/wonderingabout/AdvCiv-SAS/pull/13).
+If you want to see the full very exhaustive code changes between AdvCiv current latest stable, for example 1.12 here, and AdvCiv-SAS, please visit this [pull request compare](https://github.com/wonderingabout/AdvCiv-SAS/pull/13).
 
-Be warned though it can be very lengthy, so read below if you
-want (some of the) main quick pointers rather.
+Be warned though it can be very lengthy, so read below if you want (some of the) main quick pointers rather.
 
 ## Main Changes quick starter guide
 
@@ -90,7 +89,7 @@ For a full view of all existing units, on top of viewing the "Unit Combat Types"
 you can also see the "Units Tree" for a better view of in the sevopedia ingame, or
 this version of the units tree i made that lists the unit combat types and era for
 it as well if it helps (may be a bit outdated though but should not be too much)
-[military tree map view](/_1_AdvCiv-SAS/Images_In_General/0.43%20military%20tree_modified.png).
+[military tree map view](/README.md#civs-and-units-you-can-expect-in-this-mod).
 
 - A consequence of this is also that now there will be hopefully no more weirdness of
 the axeman being good against lancer, now the relationships between types will be more
@@ -274,7 +273,7 @@ guilds i think todo)
 - some ressources are not revealed until a certain tech: sheep is always visible,
 but gold not until metal casting.
 - a few new civs added, mostly in snow/desert terrains, or underrepresented parts
-of the world, see [world map with civs](/_1_AdvCiv-SAS/Images_In_General/0.22_world_map_terrain_with_new_civs.png)
+of the world, see [world map with civs](/README.md#civs-and-units-you-can-expect-in-this-mod)
 (todo add link), for example The Kingdom Of Benin (Nigeria), or in weaker terrains
 (that are now buffed), for example Canada
 - (may not be accurate anymore todo among other possible changes to fix in this doc or not or and update or and not anyways etc, given as generla info hoepfulyl helpful ro tnot or and othe ror and not check seopedisa for latets ocntent todo fix or view this later or not for me (to do so or not (do so) anyways etc anyways etc anyways etc)) Leaders have been changed: unless strongly desired, all civs have at max 2
@@ -283,8 +282,7 @@ to go deep in strategy instead, for example Joan Of Arc has been added, and Loui
 and De Gaulle removed, generally i preferred to keep the stronger ones, Cleopatra
 added and Hatscheputt removed for example
 - (may not be accurate anymore todo among other possible changes to fix in this doc or not or and update or and not anyways etc, given as generla info hoepfulyl helpful ro tnot or and othe ror and not check seopedisa for latets ocntent todo fix or view this later or not for me (to do so or not (do so) anyways etc anyways etc anyways etc)) Leader animations removed, since now some don't have, better if none have maybe,
-instead i tried to put some nice images relatively as i thought would fit and i
-like, took quite a lot from existing mods
+instead i tried to put some nice images relatively as i thought would fit and i like, took quite a lot from existing mods
 - Some new ressources, for example camel and todo, some removed ressources, for
 example hit ressources and todo
 - Renamed "Wine" (Bonus) to "Grapes". As part of renaming wine to grapes, additionally reworked grapes: now improved by IMPROVEMENT_FARM, not anymore by the old improvement_winery now removed. This matches historicality better if i may say and if it's a word anyways etc, as wine was consumed much before 4000 BC. Also, some wines are not made from grapes at all if i am not mistaken, and grapes can be eaten out of the wine usage. Updated bonus's description with a wikipedia based one as often if not always done when updating pedia entries of/in advciv-sas or and other mods using this mod's (i.e. this advciv-sas's code anyways etc). Also, the winery/happiness part of wine is transferred to the grocer building instead, now grapes gives happiness not health anymore. Similarly although not directly related, sugar now also gives happiness not health anymore through grocer. Hopefully buffes these mid game bonus effects while making these ressources more relevant as they were (a) bit (anyways etc) weak compared to say wheat or maize. See code comments for details or the ingame sevopedia entry of the grapes with also maybe or not or yes anyways etc latest updated info if anything changed since i wrote (am writing currently but anyways etc also wrote when viewing from later the new now maybe or not or yes anyways etc) but this should be the bulk of it and hopefully makes gameplay more accurate or/and interesting perhaps or/and enjoyable or not anyways etc.

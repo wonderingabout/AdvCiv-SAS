@@ -11,7 +11,7 @@ AI attributes (at least i call them this way not sure it is their exact name but
 
 ## Sources about XML AI Attributes and their meaning
 
-See [Modding_Ressources_(In_Bulk)/README.md's Sources about XML AI Attributes and their meaning](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/README.md#Sources)
+See [Modding_Ressources/README.md's Sources about XML AI Attributes and their meaning](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#Sources)
 
 ## General Aim of the AI Attributes
 The ai attributes (simply) aim to and display:
@@ -20,21 +20,11 @@ The ai attributes (simply) aim to and display:
 
 Here is an example below of how it looks ingame in the sevopedia leader category:
 
-<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
-<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
-<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
-<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (4).JPG" width="250"></img>
-<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (6).JPG" width="250"></img>
-<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (7).JPG" width="250"></img>
-<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (9).JPG" width="250"></img>
-<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (10).JPG" width="250"></img>
-<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (11).JPG" width="250"></img>
-<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (12).JPG" width="250"></img>
-<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (13).JPG" width="250"></img>
-<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (14).JPG" width="250"></img>
-<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (15).JPG" width="250"></img>
-<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (16).JPG" width="250"></img>
-<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (17).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
+
+More screenshot samples in the [sevopedia reworks Google Drive folder](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing)
 
 ## Where and how to find the abbreviations (in label) (in the AI Personality Panel)'s meaning
 

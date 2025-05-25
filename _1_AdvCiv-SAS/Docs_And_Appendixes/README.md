@@ -8,4 +8,4 @@ If any mention of an appendix or extra appendix is made and you don't find it on
 
 ## Modding Ressources
 
-Please see: [Modding Ressources page of this git](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/)
+Please see: [Modding Ressources page of this git](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/)

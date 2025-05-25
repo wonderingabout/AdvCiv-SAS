@@ -7,7 +7,7 @@ Unfortunately, recently it seems OpenAI made file sharing, memory trimming, sess
 I have removed no longer relevant ones, hopefully this doc is still a bit helpful/relevant/updated
 
 ## General Advice
-- send small code chunks [for example this small(er) code sample/bit(s)/part(s)](/_2_Source_Files_That_Can_Be_Fed_To_ChatGPT/UWAI/UWAI_reminder_short_chat_compatible.txt) and in chat only (it seems it's not possible anymore to send any code now evne in .txt or any format i tried), also when code is too long it seems to confuse ChatGPT, even though it's alzheimer got worse now with what seems like the new backend changes indeed as chatgpt said to me, anyways.
+- send small code chunks [for example this small(er) code sample/bit(s)/part(s)](/_2_Source_File_examples_That_Can_Be_Fed_To_AIs/UWAI/UWAI-short-chat-compatible.txt) and in chat only (it seems it's not possible anymore to send any code now evne in .txt or any format i tried), also when code is too long it seems to confuse ChatGPT, even though it's alzheimer got worse now with what seems like the new backend changes indeed as chatgpt said to me, anyways.
 - reprovide context often during prompts, not necessariyl at each commit, but ideally often enough as its memory trims really fast
 - zip works well and is supported natively if i'm not mistaken, same for .txt
 - chatgpt is veyr good at doing charts comparisons, unit tests (using stub or real (for exampel xml or pasted in chat box, etc)), but chek to be sure if works well (for/+/-in) you(r) case
@@ -35,7 +35,7 @@ I have removed no longer relevant ones, hopefully this doc is still a bit helpfu
 
 For example you can feed it quite safely the debug data of a few leaders, should not overload it if i am not mistaken, anyways, for example as in the [-ai-attributes-cache-debug-output-example](/Assets/Python/Contrib/Sevopedia/-ai-attributes-cache-debug-output-example.txt)
 
-note: be careful if using too many at once, it works in chatbox of chatgpt, but greatly overloads (overwrites?) its context, may eb useful for other ais though if they can fit all leaders and receive .txt files like [all_leaders_ai_attributes (is all leaders trimmed leaders_data from debug)](/_2_Source_Files_That_Can_Be_Fed_To_ChatGPT/CIV4LeaderHeadInfos/all_leaders_debug_full_ai_attributes_from_in_leaders_data_json_form.txt)
+note: be careful if using too many at once, it works in chatbox of chatgpt, but greatly overloads (overwrites?) its context, may be useful for other ais though if they can fit all leaders and receive it as .html or .txt file format for example.
 
 etc.. as i coudl successfully feed these to chatgpt in chatbox message (no file sent the entire data that it could parse successfully for all leaders (not that it ignores defaults and barabarian, customizable too if you want to disable these or not or more or not anyways))
 

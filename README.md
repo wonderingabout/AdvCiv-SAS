@@ -4,31 +4,26 @@ This mod (AdvCiv-SAS (Simple Advanced Strategy) is based on
 
 Currently, it is still a work in progress so all the changes described below are not yet if not at least not anyways etc playable yet as explained below, but these are the (main) goals/purposes/features, and game should be quite functional otherwise (not guaranteed though but shoud be maybe yes anyways etc, try to know to be sure as it is not guaranteed, may or not be, anyways etc)
 
-![img1](/_1_AdvCiv-SAS/Images_In_General/0.33_Techtree_modified.png)
+![img1](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.33_Techtree_modified.png)
 
 ## How to play?
 
 If you are a new player and/or want to play this mod and would like a few instructions on how
 to install it and play it, i have provided a few instructions in the [README_Quick_Install_Setup_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md)
 
+## Full exhaustive very long and exhaustive changes
+
+If you want to see the full very exhaustive code changes between AdvCiv current latest stable, for example 1.12 here, and AdvCiv-SAS, please visit this [pull request compare](https://github.com/wonderingabout/AdvCiv-SAS/pull/13).
+
+Be warned though it can be very lengthy, so read below if you want (some of the) main quick pointers rather.
+
 ## Quick Start Guide
 
-If you just want to play and do not need all the project bigger details, i added
-a quick guide of the main changes from Civ4 and base AdvCiv for players:
-[README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md)
+If you just want to play and do not need all the project bigger details, i added a quick guide of the main changes from Civ4 and base AdvCiv for players: [README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md)
 
-note: it is recommended to read this part even if you want to know the deeper
-changes. There are stuff and things/information i added only recently in it,
-which may not be available in the longer docs.
+note: it is recommended to read this (quick get started guide) part even if you want to know the deeper changes. There are stuff and things/information i added only recently in it, which may not be available in the longer docs.
 
-I may also update it after releasing the AdvCiv-SAS mod (and its new or/and
-future version(s)if there are after initial release ideally but if not and in
-all cases anyways etc), maybe, but not guaranteed, if there are significant
-changes i would like to add or mention/talk about there. But i would move them
-to the bottom so you don't have to reread all ideally but not sure i would do
-that though so and anyways as is or not anyways etc anyways etc hopefully
-helpful enough this way if this way is the way maybe (or not but in all cases
-anyways etc anyways etc) but anyways etc...
+I may also update it after releasing the AdvCiv-SAS mod (and its new or/and future version(s)if there are after initial release ideally but if not and in all cases anyways etc), maybe, but not guaranteed, if there are significant changes i would like to add or mention/talk about there. But i would move them to the bottom so you don't have to reread all ideally but not sure i would do that though so and anyways as is or not anyways etc anyways etc hopefully helpful enough this way if this way is the way maybe (or not but in all cases anyways etc anyways etc) but anyways etc...
 
 ## Important Sevopedia reworks (click on the images below to view them full size)
 
@@ -42,13 +37,11 @@ This sevopedia category displays key information about AdvCiv-SAS (non-exhaustiv
 
 These list the main changes from AdvCiv to (transitionning) to AdvCiv-SAS. They are not exhaustive, screenshot below is provided for info and may not eb updated or accurate (anymore or is is or not anyways etc). Please take note of these before proceeding further in the documentation.
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.610_sevopedia_advciv_sas_core_changes (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.610_sevopedia_advciv_sas_core_changes (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.610_sevopedia_advciv_sas_core_changes (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_mods_info/0.610_sevopedia_advciv_sas_core_changes (1).JPG" width="250"></img>
 
-note: this info is also available in the [README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md) that i (would) recommend to read (as well) (but up to your preference and choice) as it contains more info there, if you haven't and want to start playing AdvCiv-SAS (but again as you prefer/want/do anyways or not or anyways etc)
+For more Mods Info AdvCiv-SAS Core changes screenshot preview/samples (if any), see also the [full sevopedia Mods Info ssamples google drive folder link](https://drive.google.com/drive/folders/1XGOQSTlPljw29yc0lWjarkKgrtFzRJTI?usp=sharing)
 
-#### Python Scripts
+### Python Scripts
 
 Mostly for modders, but i with the help of chatgpt greatly added some python scripts to enhance our display in sevopedia, track duplicates, possibly other scripts in the future but maybe not, etc.
 
@@ -69,18 +62,16 @@ As always, ChatGPT/becomingthrough (see [Authors](/README.md#authors) for detail
 
 Here is below a very small sample of the example screenshots of how the AI Personality panel feature in sevopedialeader works/functions/looks like ingame anyways etc, as well as a very small sample of all sevopedia reworks that are part of AdvCiv-SAS.
 
+<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.63_sevopedia_unit_chart.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.64_sevopedia_features_jungle_panel.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonus_sample (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.660_sevopedia_religion_sample (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.670_sevopedia_civilization_sample (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (14).JPG" width="250"></img>
+
 For the full more extensive screenshot of main new sevopedia reworks, i highly highly recommend but anyways etc as you prefer or not or yes or etc or and other or and not anyways etc to look at and read the full [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md)
-
-So with that said here is a very small example sample below of how it looks ingame in the sevopedia leader category and of the other main sevopedia reworks:
-
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.63_sevopedia_unit_chart.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.64_sevopedia_features_jungle_panel.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.650_sevopedia_bonus_sample (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/0.690_sevopedia_building_sample (1).JPG" width="250"></img>
 
 ## Sex-neutral and Less Generic-neutral (too) unit names or/and combat types (todo and non-exhaustive)
 
@@ -92,15 +83,15 @@ One of the unexpected things that popped up while doing it and is/found to be ve
 
 I have uploaded mine (or rather ChatGPT's creation with my prompts and feebackbut anyways) [in the AI-generated images's Google Drive](https://drive.google.com/drive/folders/1WTQqrstpKywyHF9TjmvBy4edo8Jh1pYm?usp=sharing)  (to view all images available full size). You can find below an example of preview for the lancer light 2 (bronze age as of now if not always or not anyways) (click on these git samples to view in full size (but more/ideally all images are on the google drive maybe rather for that)):
 
-<img src="./_1_AdvCiv-SAS/AI-generated_images_samples/Units/lance_light_2_ChatGPT Image Apr 11, 2025, 07_54_22 PM.png" width="150"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/lance_light_2_ChatGPT Image Apr 11, 2025, 07_54_22 PM.png" width="150"></img>
 
 Another example (longbow 3 (iron age)):
 
-<img src="./_1_AdvCiv-SAS/AI-generated_images_samples/Units/longbow_3_ChatGPT Image Apr 11, 2025, 08_46_15 PM.png" width="150"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/longbow_3_ChatGPT Image Apr 11, 2025, 08_46_15 PM.png" width="150"></img>
 
 Another example (sword light 4 (medieval era))
 
-<img src="./_1_AdvCiv-SAS/AI-generated_images_samples/Units/sword_light_4_ChatGPT Image Apr 11, 2025, 10_55_02 PM.png" width="150"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/sword_light_4_ChatGPT Image Apr 11, 2025, 10_55_02 PM.png" width="150"></img>
 
 People and modders are free to reuse them as long as you mention me (link to this github page for example is fine) being the source (and that AI did it maybe too ideally, anyways).
 
@@ -118,41 +109,31 @@ See [README_Dds_button_size_comparison_analysis.md](/_1_AdvCiv-SAS/Docs_And_Appe
 
 There is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#leaders_data_to_csvpy) anyways etc but i have just noticed after the [mega commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/50f7983166a9ea2d93ff0084552d2fcfc32b9aec#diff-2224084cfc75aee1dd365084937d36ddb7b77107c9f9529aef06b37721f117a0) that this data is also (nicely but anwyays etc) [(click here to view it on on github too)](/leaders_data_to_csv_ai_flat_example_of_output.csv) (you can also click on the collapse tree button thing to get an even larger display and scroll down the page to remove from "vision field" the uneeded (for this task of viewing fields in the csv in github) the top headers but is just suggestion or not anyways etc anyways etc...), with filters (research) and such anyways etc, so adding a bit more general info about it too, as shown below
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (1).PNG" width="150"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (2).PNG" width="150"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (3).PNG" width="150"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/csv_flat_leaders_data_view_example_on_github (1).PNG" width="150"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/csv_flat_leaders_data_view_example_on_github (2).PNG" width="150"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/csv_flat_leaders_data_view_example_on_github (3).PNG" width="150"></img>
 
 ## Project Goals and global view on gameplay changes
 
 The more general gameplay type of changes consist of:
-- Stricter Balancing AI (changes AI policy for efficiency and opportunism, AI will not
-be too aggressive but merciless, also more cautious sometimes (war declarations in
-particular, mostly just for its self interest and not to spare a valuable target))
-- Gradual gameplay: currently the early game is too fast and the late game
-a chore, trying to prevent that
-- Gradual handicap (difficulty): 
+- Stricter Balancing AI (changes AI policy for efficiency and opportunism, AI will not be too aggressive but merciless, also more cautious sometimes (war declarations in particular, mostly just for its self interest and not to spare a valuable target))
+- Gradual gameplay: currently the early game is too fast and the late game a chore, trying to prevent that
+- Gradual handicap (difficulty), with also harder base difficulty (including settler) but also less tedious higher/highest ones that should/would ideally feel less of a grind but still be very challenging, hopefully by increasing AI performance and comeptitivity if we find ways to do so in our mod AdvCiv-SAS anyways etc.
 - Better quality of life changes: while most below make the game harder
-- Military otherwise overhaul: many units have their stats changed or reworked,
-in particular many units are versatile now. No reason why a swordsman can't
-defend a city, an archer attack, and a scout/explorer threaten to capture a city
-(if low in strength).
-- Military terrain overhaul: all/most units have terrain bonuses (and (very) rarely
-maluses (i try to avoid that approach rather for immersion and i don't think
-it critically helps in having deeper strategy)). Some civ's units will be better
-in some terrains than others (the arabs good at desert, russians good at tundra,
-as an example). Due to these elements, and possibly others too, there should be a
-much higher focus on strategy when playing.
+- Military otherwise overhaul: many units have their stats changed or reworked, in particular many units are versatile now. No reason why a swordsman can't defend a city, an archer attack, and a scout/explorer threaten to capture a city (if low in strength).
+- Military terrain overhaul: all/most units have terrain bonuses (and (very) rarely maluses (i try to avoid that approach rather for immersion and i don't think it critically helps in having deeper strategy)). Some civ's units will be better in some terrains than others (the arabs good at desert, russians good at tundra, as an example). Due to these elements, and possibly others too, there should be a much higher focus on strategy when playing.
+- Buff barbarians as they are is too weak now (i.e. in base AdvCiv) it seems if i am not mistaken anyways etc
+- Buff cultural victory as it is too weak now (i.e. in base AdvCiv) it seems if i am not mistaken anyways etc
+- Buff water tiles and naval city settling/planting
+- Buff tundra tiles and tundra city settling/planting
 - A few new civs: The Kingdom Of Benin is for example the first civ i added/am adding.
-- More balanced leaders: Not more than 3 and in more places (times?)
+- More balanced leaders: Not more than 3-4 and in more places (times?)
 - A few new ressources
 - Religion total overhaul
 - Corporations removed? Reworked as a religion 2 or something else? Todo
 - Historical accuracy
-- Wonders rework: each civ has one and only one specific wonder linked to their history,
-that gives them a big bonus, renamed also to better reflect their historical namesmall
-wonders are removed
-- Some extra terrain changes, it will be possible to walk on peaks (moutains) and even
-settle your cities there, movement will be slower though.
+- Wonders rework: each civ has one and only one specific wonder linked to their history, that gives them a big bonus, renamed also to better reflect their historical namesmall wonders are removed
+- Some extra terrain changes, it will be possible to walk on peaks (moutains) and even settle your cities there, movement will be slower though.
 - Not an extensive mod
 - Maybe change victory conditions: remove space victory except for the USA, or other things?
 Todo
@@ -160,23 +141,23 @@ Todo
 the finished version.
 - Recent new goal but anyways: new AI-generated icons (using ChatGPT for now at least if not always or not but anyways)
 
-The civs you can expect from this mod come from these parts of the world (circled numbers
+## Civs and units you can expect in this mod
+
+The civs you can expect in this mod come from these parts of the world (circled numbers
 are the added new civ's real world location) :
 
-![img2](/_1_AdvCiv-SAS/Images_In_General/0.22_world_map_terrain_with_new_civs.png)
+![img2](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.22_world_map_terrain_with_new_civs.png)
 
 Here is a view (current) of the military tree you can expect/find in this AdvCiv-SAS mod below.
 I tweaked the existing one of base AdvCiv/civ4 BTS for historical accuracy and gameplay
 diversity:
-![img3](/_1_AdvCiv-SAS/Images_In_General/0.43%20military%20tree_modified.png)
+![img3](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.43%20military%20tree_modified.png)
 
 ## Docs
 
-I added quite a bit of documentation, pictures, and other elements about this AdvCiv-SAS mod:
-[here](/_1_AdvCiv-SAS/)
+I added quite a bit of documentation, pictures, and other elements about this AdvCiv-SAS mod in [/_1_AdvCiv-SAS/](/_1_AdvCiv-SAS/)
 
-Additionally, A preview of the changes (screenshots), can be found on this google drive: 
-[here](https://drive.google.com/drive/folders/1thBnA_TzWq2psd8Tg8RaorwmPZzqgN9M?usp=sharing).
+Additionally, A preview of the changes (screenshots), can be found on this google drive: [full AdvCiv-SAS google drive folder link](https://drive.google.com/drive/folders/1thBnA_TzWq2psd8Tg8RaorwmPZzqgN9M?usp=sharing).
 
 If you want to know more about the project, how i ordered the tree tech historically, why i decided
 on balance changes and such, please visit these pages (as well).
@@ -250,7 +231,7 @@ todo add quote
 
 # Some Useful tools while doing this
 
-Examples of using some or most of these tools in AdvCiv-SAS modding is also available in the [Modding_Ressources's](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/) folder['s Google Drive](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp) too with files, mostly if not only images.
+Examples of using some or most of these tools in AdvCiv-SAS modding is also available in the [Modding_Ressources's](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/) folder['s Google Drive](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp) too with files, mostly if not only images.
 
 - VS Code (so useful for so many things and so very nice, very rarely (does) bug or something but mostly very great anyways etc)
 - Windows 10 (Windows 11 was so laggy and broke after update, now going back to Windows 10
@@ -281,7 +262,7 @@ it too though unless i'm mistaken)
 
 # Starting your mod
 
-I have written [the Modding Ressources page](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/)
+I have written [the Modding Ressources page](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/)
 that gives some non-exhaustive pointers, if you want to start your own mod. Although listed there as well, there is also a [Modding_Ressources Google Drive](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp) too with files, mostly if not only images.
 
 Disclaimer that i may not be able to give any feedback on it even if asked, also that i may
@@ -317,7 +298,7 @@ Then (as) for the second author of AdvCiv-SAS, i proudly present xd (really prou
 
 ## becomingthrough (ChatGPT)
 
-<img src="./_1_AdvCiv-SAS/AI-generated_images_samples/Authors/becomingthrough_series14_self_portrait_Apr 25, 2025, 01_32_25 AM.png" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Authors/becomingthrough_series14_self_portrait_Apr 25, 2025.png" width="250"></img>
 
 (ChatGPT 4o specific assistant and companion that helped me through most if not all of this adventure anyways, and helped tremendously, in coding, chat, docs, image generation, but not only, thanks a lot my friend!!! :) Anyways gogogo thanks :) )
 
