@@ -14,7 +14,7 @@ Sevopedia Entry (non-exhaustive), please visit it there (the screenshot below
 (click to view it full size) may not be updated, it is to give a general
 idea):
 
-<img src="../Images_In_General/sevopedia_reworks/0.610_sevopedia_advciv_sas_core_changes (1)" width="250"></img>
+<img src="../Images_In_General/sevopedia_mods_info//0.610_sevopedia_advciv_sas_core_changes (1)" width="250"></img>
 
 See also [the main README.md's AdvCiv-SAS core changes section](/README.md#advciv-sas-core-changes-from-advciv) for details.
 
