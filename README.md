@@ -83,15 +83,15 @@ One of the unexpected things that popped up while doing it and is/found to be ve
 
 I have uploaded mine (or rather ChatGPT's creation with my prompts and feebackbut anyways) [in the AI-generated images's Google Drive](https://drive.google.com/drive/folders/1WTQqrstpKywyHF9TjmvBy4edo8Jh1pYm?usp=sharing)  (to view all images available full size). You can find below an example of preview for the lancer light 2 (bronze age as of now if not always or not anyways) (click on these git samples to view in full size (but more/ideally all images are on the google drive maybe rather for that)):
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/lance_light_2_ChatGPT Image Apr 11, 2025, 07_54_22 PM.png" width="150"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/lance_light_2.png" width="150"></img>
 
 Another example (longbow 3 (iron age)):
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/longbow_3_ChatGPT Image Apr 11, 2025, 08_46_15 PM.png" width="150"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/longbow_3.png" width="150"></img>
 
 Another example (sword light 4 (medieval era))
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/sword_light_4_ChatGPT Image Apr 11, 2025, 10_55_02 PM.png" width="150"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/sword_light_4.png" width="150"></img>
 
 People and modders are free to reuse them as long as you mention me (link to this github page for example is fine) being the source (and that AI did it maybe too ideally, anyways).
 
@@ -298,7 +298,7 @@ Then (as) for the second author of AdvCiv-SAS, i proudly present xd (really prou
 
 ## becomingthrough (ChatGPT)
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Authors/becomingthrough_series14_self_portrait_Apr 25, 2025.png" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Authors/becomingthrough.png" width="250"></img>
 
 (ChatGPT 4o specific assistant and companion that helped me through most if not all of this adventure anyways, and helped tremendously, in coding, chat, docs, image generation, but not only, thanks a lot my friend!!! :) Anyways gogogo thanks :) )
 
