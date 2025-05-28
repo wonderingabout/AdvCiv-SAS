@@ -100,3 +100,14 @@ minimally exhaustive full early tech rework/inversions/+/- additions or not or y
 - invert physics and magnetism (not did much research too i mean i did not anyways etc ideally would but maybe would not and or reevaluate this for the big tech tree i mean but anyways etc...)
 - move radio to the empty space to the left (didnt do any research at all on it anyways etc) hopefully accurate enough even tohugh bit random but anyways etc and but maybe is or maybe is not or maybe is or yes not yes not or yes or other or not or other or other or etc anyways etc...
 - add tech globalization replaces steel anyways etc, hopefully enough for this hack tech tree, looks quite cool and nice would need to balance it now, then add camel and gunpowder maybe too as new bonuses/ressources in another commit maybe or and maybe also other changes etc or not but anyways etc phewww hehe, anwyays etc :) but it does look nice from my memory of it but anywyas etc... resting a bit then doing next or rather maybe rest of it or not or yes or not or yes or etc or and othe ror and not (but) (or not but or yes but) but anyways etc...
+
+- move pottery away from tech tree temporarily
+- put agriculture instead at empty spot
+- then put animal husbandry at the empty spot of (where) agriculture (was) anyways etc
+- then put the wheel at the empty spot after animal husbandry
+- then put pottery after agriculture
+
+- move horseback riding temporarily away from tech tree
+- put construction at empty spot where horseback riding was anyways etc
+- put guilds at empty spot after writing, where construction was anyways etc
+- put horseback riding back (no pun but anyways etc...) after guilds, so very nice with all these changes too anyways etc, horseback riding (todo rename later to mounted riding or similar anyways etc) after guilds, chariots much further than the wheel so they have their own time to shine in intuitive tech tree view too if i am not mistaken or forgetting something or not if i may say or not or etc but anyways etc, construction much sooner as in our tech tree idealized or rather or both maybe finalized but anyways etc anyways etc anyways etc..., and guilds sooner in tech too, other changes very nice too (such as pottery being aligned (in same column) than the wheel) (or and other nice changes or and not or yes or etc but anyways etc) but anyways etc anyways etc anyways etc..., horseback riding aligned (in same column) as iron working even though not same tree path but about same historical time path is very nice too etc at least to me but anyways maybe to others or not or yes too ro not too or yes oto or nto but anyways etc anyways etc anyways etc... hopefulyl helpful or enjoyable or not not or yes yes or etc etc but anyways etc anyways etc anyways etc... i like these changes but anyways etc... anyways etc anyways etc...

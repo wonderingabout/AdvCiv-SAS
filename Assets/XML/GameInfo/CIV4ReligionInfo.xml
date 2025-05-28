@@ -26,7 +26,8 @@
 			<Description>TXT_KEY_RELIGION_PAGANISM</Description>
 			<Adjective>TXT_KEY_RELIGION_PAGANISM_ADJECTIVE</Adjective>
 			<Civilopedia>TXT_KEY_RELIGION_PAGANISM_PEDIA</Civilopedia>
-			<TechPrereq>TECH_MYSTICISM</TechPrereq>
+			<!-- custom: ideally we'd want it to be tech_mysticism assuming we have one or a few techs before it (i.e. before (tech_)mysticism (but anyways etc...) but anyways etc..), but using tech_polytheism instead so some civ can compete for it rather than a random one seemingly getting it at start if many start with mysticism if i am not mistaken anyways etc -->
+			<TechPrereq>TECH_POLYTHEISM</TechPrereq>
 			<FreeUnitClass>UNITCLASS_PAGAN_MISSIONARY</FreeUnitClass>
 			<iFreeUnits>1</iFreeUnits>
 			<iSpreadFactor>100</iSpreadFactor>

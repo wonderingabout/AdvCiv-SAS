@@ -772,7 +772,8 @@
 			<Civilopedia>TXT_KEY_CIVIC_SLAVERY_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_CIVIC_SLAVERY_STRATEGY</Strategy>
 			<Button>,Art/Interface/Buttons/Civics/Slavery.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,8,2</Button>
-			<TechPrereq>TECH_AGRICULTURE</TechPrereq>
+			<!-- custom: similarly than(/as? but anyways etc...) for religion_paganism (see there for details too anyways etc...), since we have no tech before tech_agriculture in our current tech tree, use a later tech instead, tech_the_wheel seems a quite good fit with the idea of ancient wheel tractign slaves like maybe in egypt and such intuitively as sad as may have been for them though but maybe accurate or intuitive and balanced for gameplaya s sad as it is or may have been rathe ror is too but anyways etc anyways etc anyways etc... -->
+			<TechPrereq>TECH_THE_WHEEL</TechPrereq>
 			<iAnarchyLength>1</iAnarchyLength>
 			<Upkeep>UPKEEP_MEDIUM</Upkeep>
 			<iAIWeight>0</iAIWeight>

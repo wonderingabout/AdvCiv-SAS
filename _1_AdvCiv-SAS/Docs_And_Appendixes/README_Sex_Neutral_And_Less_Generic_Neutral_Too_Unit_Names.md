@@ -12,7 +12,7 @@ This is a todo, so will not start listing sources, will do it in a proper notes 
 
 Making some of them more badass at the same time, i think see mostly if not only anyways [Less generic or inaccurate unit names or/and combat types (todo)](#less-generic-or-inaccurate-unit-names-orand-combat-types-todo)
 
-So far i am thinking of (non exhaustive, no source or explanation provided, it will be in docs else too tedious to do here anyways):
+So far i am thinking of (non-exhaustive, no source or explanation provided, it will be in docs else too tedious to do here anyways):
 
 - Swordsman: Swordsfighter (Light, Medium, Heavy)
 - Spearman: Lancer (Light, Medium, Heavy)
