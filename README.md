@@ -39,7 +39,7 @@ These list the main changes from AdvCiv to (transitionning) to AdvCiv-SAS. They 
 
 <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_mods_info/0.610_sevopedia_advciv_sas_core_changes (1).JPG" width="250"></img>
 
-For more Mods Info AdvCiv-SAS Core changes screenshot preview/samples (if any), see also the [full sevopedia Mods Info ssamples google drive folder link](https://drive.google.com/drive/folders/1XGOQSTlPljw29yc0lWjarkKgrtFzRJTI?usp=sharing)
+For more Mods Info AdvCiv-SAS Core changes screenshot preview/samples (if any), see also the [full sevopedia Mods Info samples google drive folder link](https://drive.google.com/drive/folders/1XGOQSTlPljw29yc0lWjarkKgrtFzRJTI?usp=sharing)
 
 ### Python Scripts
 

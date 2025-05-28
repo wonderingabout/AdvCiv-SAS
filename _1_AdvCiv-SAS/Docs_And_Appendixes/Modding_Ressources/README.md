@@ -119,6 +119,87 @@ Great people AIs:
 For unit AIs that are correct in the OP, I didn't write anything.
 "
 
+## Civ4 ProcessInfos XML info
+
+From: [modiki's website, wayback archive version latest i found anyways etc](https://web.archive.org/web/20230330010924/https://modiki.civfanatics.com/index.php?title=Civ4ProcessInfo) since was/is down the website as of/for now anyways etc
+
+adjusted for advciv-sas or not anyways etc:
+
+"
+Civ4ProcessInfo
+
+The Civ4ProcessInfo file defines what commerce types can be created from production in a city (by default, 100% of production to wealth, research, and culture). This can also be used to create an option to have a city build nothing (by setting all of the commerce types so that no production is applied to them).
+
+All tags must be opened and closed; the first is the "open", the second the "close" tag. If nothing goes inside a "list tag", then it should just be the opening tag with a "/" before the closing bracket. The following tables contain all available tags, as well as their purpose and accepted values.
+
+
+
+
+Contents
+1	Tags
+1.1	Headers
+1.2	Text
+1.3	Lists (Multi-line)
+1.4	Art
+2	Example
+
+Tags
+
+Headers
+
+These tags typically bracket other tags, sometimes the entire file, and are generally used to specify more than one piece of data.
+
+Tag Name						Description
+ProcessInfos					This tag surrounds all entries in the file
+ProcessInfo						Main bracket for each entry
+
+
+Text
+
+Tag Name						Description
+Type							How the process is referred to in other files
+Description						Text for the process in the game
+Strategy						Strategy text for the process in the game
+TechPrereq						Tech required to build the process in the city
+
+
+Lists (Multi-line)
+
+All List tags consist of an opening/closing tag, which is shown here, and then each entry within it is another tag with the same name as the parent tag, minus the "s" (i.e. singular, rather than plural).
+
+Tag Name						Description
+ProductionToCommerceModifiers	The percent of the city's production applied to each commerce type; top is gold, then research, then culture, then espionage <iProductionToCommerceModifier>100</iProductionToCommerceModifier>
+
+
+
+Art
+
+These tags are directly related to the rendering of art for the entry.
+
+Tag Name						Description
+Button							The button for the process in the city screen and city production popup
+
+
+Example
+
+In the following example of code, please note that there is a specific order of all of the tags. You must list the tags in this order for the game to properly interpret your file.
+
+```
+<ProcessInfo>
+ <Type>PROCESS_WEALTH</Type>
+ <Description>TXT_KEY_PROCESS_WEALTH</Description>
+ <Strategy>TXT_KEY_PROCESS_WEALTH_STRATEGY</Strategy>
+ <TechPrereq>TECH_CURRENCY</TechPrereq>
+ <ProductionToCommerceModifiers>
+  <iProductionToCommerceModifier>100</iProductionToCommerceModifier>
+  <iProductionToCommerceModifier>0</iProductionToCommerceModifier>
+  <iProductionToCommerceModifier>0</iProductionToCommerceModifier>
+ </ProductionToCommerceModifiers>
+ <Button>Art/Interface/Buttons/Process/ProcessWealth.dds</Button>
+</ProcessInfo>
+```
+"
+
 ## Copy of the tutorial on how to modify GameFonts.tga for FREE
 
 Note: you may want to read all this at least the end before you start doing it, in case you see something that makes you change your mind/choose another approach instead, but do as you prefer anyways etc.

@@ -389,6 +389,7 @@ gameplay, i would want the difficulty to be elsewhere, not in such tedious thing
 - voluntary vassals are permanent, think of their culture being absorbed by the empire,
 and them merging with the empire, becoming its citizens, so pay attention to that, and
 if you don't want it to happen to other rivals, plan your strategy based on that maybe
+- rebalanced great artist: nerf/reduce early bomb culture instant culture gain from 700 to 500 per era, and increase culture per turn for long term victory culture path or and other uses from 12 to 20 per turn anyways etc
 - unlike in AdvCiv, we love the king chance is restored, i think it's a cool mechanic
 and also pleasant for the player, maybe realistic too, so if it can happen all good
 (feels good in civ3 for example at least from/in my experience playing it)

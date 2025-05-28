@@ -549,4 +549,12 @@
 		<Tag>TXT_KEY_PROMOTION_MEDIC_AMBULATORY</Tag>
 		<English>Medic (Ambulatory)</English>
 	</TEXT>
+
+
+
+	<!-- custom: rename _UTOPIA to _COMMUNISM anyways etc anyways etc anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_COMMUNISM</Tag>
+		<English>Communism</English>
+	</TEXT>
 </Civ4GameText>

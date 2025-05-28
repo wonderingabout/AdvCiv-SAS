@@ -23011,9 +23011,10 @@ then adjust maybe anyways):
 			<iHurryMultiplier>0</iHurryMultiplier>
 			<iBaseTrade>0</iBaseTrade>
 			<iTradeMultiplier>0</iTradeMultiplier>
+			<!-- custom: increase/buff longterm great artist value for cultural victory path or make it worse more, nerf cultural bomb as well, was 700 -->
 			<!-- advc.251: Was 4000 in BtS, 800 in K-Mod and counted per era,
 				 starting at 0. Starting at 1 in AdvCiv. -->
-			<iGreatWorkCulture>700</iGreatWorkCulture>
+			<iGreatWorkCulture>500</iGreatWorkCulture>
 			<iEspionagePoints>0</iEspionagePoints>
 			<TerrainImpassables/>
 			<FeatureImpassables/>

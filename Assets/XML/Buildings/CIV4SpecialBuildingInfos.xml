@@ -7,21 +7,24 @@
 <!-- custom: file imported cleanly from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Buildings and modified or not for AdvCiv-SAS anyways etc -->
 <Civ4SpecialBuildingInfos xmlns="x-schema:CIV4BuildingsSchema.xml">
 	<SpecialBuildingInfos>
+		<!-- custom: move the tech prereq of bomb shelter from buildinginfos to specialbuildinginfos for consistency with other special buildings (may adjust if needed(ed) else keep as is anyways etc), was none -->
+		<!-- custom: also change the prereq, was electricity, should be later or/and at another more relevant tech maybe in tech though -->
 		<SpecialBuildingInfo>
 			<Type>SPECIALBUILDING_BOMB_SHELTER</Type>
 			<Description>TXT_KEY_SPECIALBUILDING_BOMB_SHELTER</Description>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<TechPrereq>NONE</TechPrereq>
+			<TechPrereq>TECH_ASSEMBLY_LINE</TechPrereq>
 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
 			<bValid>0</bValid>
 			<ProductionTraits/>
 			<Button>Art/Interface/Buttons/Buildings/BombShelters.dds</Button>
 		</SpecialBuildingInfo>
+		<!-- custom: temple prerequirement moved/changed to polytheism (requires masonry to add or not? Anyways etc) so they can be built earlier anyways etc -->
 		<SpecialBuildingInfo>
 			<Type>SPECIALBUILDING_TEMPLE</Type>
 			<Description>TXT_KEY_SPECIALBUILDING_TEMPLE</Description>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<TechPrereq>TECH_PRIESTHOOD</TechPrereq>
+			<TechPrereq>TECH_POLYTHEISM</TechPrereq>
 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
 			<bValid>1</bValid>
 			<ProductionTraits>
@@ -32,21 +35,23 @@
 			</ProductionTraits>
 			<Button>Art/Interface/Buttons/Buildings/Temple.dds</Button>
 		</SpecialBuildingInfo>
+		<!-- custom: cathedral tech requirement changed to priesthood same as the monastery, also so they can be built sooner now thta music position is changed in our tech tree anyways etc anyways etc anyways etc... Should not affect gameplay due to many temples still being required, but allowing it to be sooner if needed and player meets the conditions sooner or/and wants to pursue a cultural path sooner or/and other reasons or not or yes or and other or and not anyways etc, to also match the multiple pagan holy sites (/shrines ,in a general term way not civ4 building specific term way specifically,?) anyways etc throughout history anyways etc -->
 		<SpecialBuildingInfo>
 			<Type>SPECIALBUILDING_CATHEDRAL</Type>
 			<Description>TXT_KEY_SPECIALBUILDING_CATHEDRAL</Description>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<TechPrereq>TECH_MUSIC</TechPrereq>
+			<TechPrereq>TECH_PRIESTHOOD</TechPrereq>
 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
 			<bValid>1</bValid>
 			<ProductionTraits/>
 			<Button>Art/Interface/Buttons/Buildings/Cathedral.dds</Button>
 		</SpecialBuildingInfo>
+		<!-- custom: monastery tech requirement changed to priesthood (makes more sense with our new tech tree where meditation will be much later where it is too late to start build monasteries anyways etc) -->
 		<SpecialBuildingInfo>
 			<Type>SPECIALBUILDING_MONASTERY</Type>
 			<Description>TXT_KEY_SPECIALBUILDING_MONASTERY</Description>
 			<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
-			<TechPrereq>TECH_MEDITATION</TechPrereq>
+			<TechPrereq>TECH_PRIESTHOOD</TechPrereq>
 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
 			<bValid>1</bValid>
 			<ProductionTraits/>

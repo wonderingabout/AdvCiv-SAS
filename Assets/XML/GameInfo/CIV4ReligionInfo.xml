@@ -52,12 +52,13 @@
 			<MovieSound>AS2D_BUILD_PAGAN_MOVIE</MovieSound>
 			<Sound>AS2D_BUILD_PAGAN</Sound>
 		</ReligionInfo>
+		<!-- custom: change tech prerequirement of hinduism to TECH_PRIESTHOOD, historically more accurate in terms of year founded/started (around 4 000 BCE if i am not mistaken from the little or lot or not or yes or and other or and not i did (or did not or did or (not or yes or etc anyways etc) and other or and not on it anyways etc)), also as TECH_POLYTHEISM is too soon in our tech tree now (around 10 000 BCE) for that, anyways etc, was TECH_POLYTHEISM -->
 		<ReligionInfo>
 			<Type>RELIGION_HINDUISM</Type>
 			<Description>TXT_KEY_RELIGION_HINDUISM</Description>
 			<Adjective>TXT_KEY_RELIGION_HINDUISM_ADJECTIVE</Adjective>
 			<Civilopedia>TXT_KEY_RELIGION_HINDUISM_PEDIA</Civilopedia>
-			<TechPrereq>TECH_POLYTHEISM</TechPrereq>
+			<TechPrereq>TECH_PRIESTHOOD</TechPrereq>
 			<FreeUnitClass>UNITCLASS_HINDU_MISSIONARY</FreeUnitClass>
 			<iFreeUnits>0</iFreeUnits>
 			<iSpreadFactor>100</iSpreadFactor>

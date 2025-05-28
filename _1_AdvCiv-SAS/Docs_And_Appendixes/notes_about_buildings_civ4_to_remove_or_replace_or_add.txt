@@ -24,6 +24,7 @@ buildings:
 - russian research institute to (russian) ? Anyways etc
 - jewish/hebrew ('s civilization anyways etc): ?
 - ziggurat maybe rework or rebalance anyways etc (religious building now or more or and other ot and not? Anyways etc)
+- stonehedge replace with newgrange as linked with construction tech and religious history and monuments? https://en.wikipedia.org/wiki/Newgrange, or maybe not as stonehedge seems to have more details or/and improtance about it and its construction anyways etc
 
 wonders:
 - oxford university: University of al-Qarawiyyin (https://en.wikipedia.org/wiki/University_of_al-Qarawiyyin)
@@ -38,6 +39,13 @@ buildings:
 
 wonders:
 - Venus of Laussel
+- Ishtar Gate (art import from RFC DOC) (for the no barbarians effect of the great wall now moved later in history/tech tree or removed anyways etc)
+- Hollywood (art import from HR mod or other similar mods anyways etc
+)
+- Hanging gardens (art import from RFC DOC)
+- Tomb of Queen Iden (who is (a) queen of the kingdom of Bening anyways etc), using tomb of emendil or tomb of cyrus asset? 
+
+- Moai statues: now a world wonder or removed with reworked buffed or and changed effect anyways etc
 - Petra?
 - Great Sphinx of Giza?
 - Tower of Pisa? (NW, ) Anyways etc
@@ -46,7 +54,7 @@ wonders:
 - Machu Pichu?
 - Sun Tzu Art?
 - The Ancient Walls of Benin
-- Tomb of Queen Iden (who is (a) queen of the kingdom of Bening anyways etc), using tomb of emendil or tomb of cyrus asset? Anyways etc
+Anyways etc
 - theory of evolution? But more as a tech maybe rather? ANyways etc
 - Big Ben
 - brooklyn bridge?
