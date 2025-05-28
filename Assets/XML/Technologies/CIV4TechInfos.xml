@@ -4833,7 +4833,7 @@
 			<SoundMP>AS2D_TECH_MP_BRONZEWORK</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Bronze Working.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,9</Button>
 		</TechInfo>
-		<!-- custom: button import from COM mod, their/this/the atlas we imported from is now copied in our mod as well in button path below, thanks a lot anyways etc, as for button in our xml anyways etc, was:
+		<!-- custom: button import from HR mod in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\History Rewritten\Assets\Art\Interface\Buttons\TechTree\Warrior_Code.dds anyways etc, as for button in our xml anyways etc, was:
 		<Button>,Art/Interface/Buttons/TechTree/Horseback Riding.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,4</Button>
 		anyways etc...
 		-->
@@ -4915,7 +4915,7 @@
 			<Quote>TXT_KEY_TECH_MOUNTED_INFANTRY_QUOTE</Quote>
 			<Sound>AS2D_TECH_MOUNTED_INFANTRY</Sound>
 			<SoundMP>AS2D_TECH_MP_MOUNTED_INFANTRY</SoundMP>
-			<Button>,Art/Interface/Buttons/TechTree/Horseback Riding.dds,Art/AdvCiv_SAS/Atlases/COM_mod_mem_buildings_atlas.dds,8,3</Button>
+			<Button>Art/AdvCiv_SAS/Techs/Mounted_Infantry/Warrior_Code.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_IRON_WORKING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>TECH_IRON_WORKING</Type>
