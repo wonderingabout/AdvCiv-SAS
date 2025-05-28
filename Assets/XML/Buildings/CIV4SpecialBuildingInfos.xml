@@ -20,6 +20,7 @@
 			<Button>Art/Interface/Buttons/Buildings/BombShelters.dds</Button>
 		</SpecialBuildingInfo>
 		<!-- custom: temple prerequirement moved/changed to polytheism (requires masonry to add or not? Anyways etc) so they can be built earlier anyways etc -->
+		<!-- custom: same as for the generic cathedral and monastery, use building atlas button instead (still same button, coordinates changed as is another .dds now anyways etc), button was: <Button>Art/Interface/Buttons/Buildings/Temple.dds</Button> -->
 		<SpecialBuildingInfo>
 			<Type>SPECIALBUILDING_TEMPLE</Type>
 			<Description>TXT_KEY_SPECIALBUILDING_TEMPLE</Description>
@@ -33,9 +34,11 @@
 					<iProductionTrait>100</iProductionTrait>
 				</ProductionTrait>
 			</ProductionTraits>
-			<Button>Art/Interface/Buttons/Buildings/Temple.dds</Button>
+			<Button>,Art/Interface/Buttons/Buildings/Cathedral_Jewish.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,7</Button>
 		</SpecialBuildingInfo>
 		<!-- custom: cathedral tech requirement changed to priesthood same as the monastery, also so they can be built sooner now thta music position is changed in our tech tree anyways etc anyways etc anyways etc... Should not affect gameplay due to many temples still being required, but allowing it to be sooner if needed and player meets the conditions sooner or/and wants to pursue a cultural path sooner or/and other reasons or not or yes or and other or and not anyways etc, to also match the multiple pagan holy sites (/shrines ,in a general term way not civ4 building specific term way specifically,?) anyways etc throughout history anyways etc -->
+		<!-- custom: use button from the building atlas (still same image) for consistency with other generic special building buttons anyways etc, button was:
+		<Button>Art/Interface/Buttons/Buildings/Cathedral.dds</Button> -->
 		<SpecialBuildingInfo>
 			<Type>SPECIALBUILDING_CATHEDRAL</Type>
 			<Description>TXT_KEY_SPECIALBUILDING_CATHEDRAL</Description>
@@ -44,9 +47,11 @@
 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
 			<bValid>1</bValid>
 			<ProductionTraits/>
-			<Button>Art/Interface/Buttons/Buildings/Cathedral.dds</Button>
+			<Button>,Art/Interface/Buttons/Buildings/Cathedral_Jewish.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,8</Button>
 		</SpecialBuildingInfo>
 		<!-- custom: monastery tech requirement changed to priesthood (makes more sense with our new tech tree where meditation will be much later where it is too late to start build monasteries anyways etc) -->
+		<!-- custom: use this seemingly unused building atlas button anyways etc for the generic ((no religion on them) anyways etc) (base advciv's (civ4's too? Anyways etc)) monastery button, seems clearer to me than the hindu specific monastery button anyways etc, and like the generic temple and generic cathedral also having generic buttons, button was:
+		<Button>Art/Interface/Buttons/Buildings/Monastery_Hindu.dds</Button> -->
 		<SpecialBuildingInfo>
 			<Type>SPECIALBUILDING_MONASTERY</Type>
 			<Description>TXT_KEY_SPECIALBUILDING_MONASTERY</Description>
@@ -55,7 +60,7 @@
 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
 			<bValid>1</bValid>
 			<ProductionTraits/>
-			<Button>Art/Interface/Buttons/Buildings/Monastery_Hindu.dds</Button>
+			<Button>,Art/Interface/Buttons/Buildings/Cathedral_Jewish.dds,Art/Interface/Buttons/Buildings_Atlas.dds,7,11</Button>
 		</SpecialBuildingInfo>
 	</SpecialBuildingInfos>
 </Civ4SpecialBuildingInfos>

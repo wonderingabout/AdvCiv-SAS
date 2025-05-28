@@ -402,3 +402,9 @@ This is a small bug so just mentionning it, and perhaps it is even intended to b
 As this is debug-only, and to not cause further issues, only mentionning it for now and not fixing it, screenshots about this issue, may be useful someday or not but anyways etc
 
 A few screenshots of the current issue (screenshot previews below as long as links are valid anyways etc) in [this Google drive folder about this issue](https://drive.google.com/drive/folders/1lXQ8pyE0A6TJGqlnf4In3V7QuJ0lBhIR?usp=sharing)
+
+## 12 - (now fixed) Special building atlas inconsistently using (uses/was using rather anyways etc) the hindu specific anyways etc monastery button instead of a generic button like the (abstract? Anyways etc / generic) generic temple and generic cathedral were
+
+Hopefully clearer and more consistent now or not or yes or etc or and other or and not or yes or etc anyways etc
+
+A few screenshots of the current issue (screenshot previews below as long as links are valid anyways etc) in [this Google drive folder about this issue](https://drive.google.com/drive/folders/1LyGR9fEuI6HZLtn-R5qxgdlVFPVmhUAc?usp=sharing)
