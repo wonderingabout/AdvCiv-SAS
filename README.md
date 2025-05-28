@@ -41,18 +41,7 @@ These list the main changes from AdvCiv to (transitionning) to AdvCiv-SAS. They 
 
 For more Mods Info AdvCiv-SAS Core changes screenshot preview/samples (if any), see also the [full sevopedia Mods Info samples google drive folder link](https://drive.google.com/drive/folders/1XGOQSTlPljw29yc0lWjarkKgrtFzRJTI?usp=sharing)
 
-### Python Scripts
-
-Mostly for modders, but i with the help of chatgpt greatly added some python scripts to enhance our display in sevopedia, track duplicates, possibly other scripts in the future but maybe not, etc.
-
-Please read this [README_python_scripts.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md) for details.
-
-So far there is:
-- [generate_leaders_data.py and leaders_data data py module ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module)
-- [global XML duplication scanner ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#scan_xml_duplicates-py-script-and-logs_xml_scans)
-- [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py)
-
-#### AI Personality Panel in SevopediaLeader and other sevopedia reworks 
+### Sevopedia reworks (AI Personality Panel and other sevopedia reworks)
 
 About the AI Personality panel new AdvCiv-SAS feature, i have written quite the extensive documentation, even though it is quite broad, hopefully if you want to know more about the AI Personality Panel in AdvCiv-SAS (or/and other mods if they were to implement it (or/and in a similar way or not anyways)), you may find an hopefulyl or not etc anyways read here in the [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md)
 
@@ -68,14 +57,25 @@ Here is below a very small sample of the example screenshots of how the AI Perso
 <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonus_sample (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.660_sevopedia_religion_sample (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.670_sevopedia_civilization_sample (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (14).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (1).JPG" width="250"></img>
 
 For the full more extensive screenshot of main new sevopedia reworks, i highly highly recommend but anyways etc as you prefer or not or yes or etc or and other or and not anyways etc to look at and read the full [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md)
 
-#### csv: Leaders_data flat to csv conversion and its view on github for example
+### Python Scripts
 
-There is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#leaders_data_to_csvpy) anyways etc but i have just noticed after the [mega commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/50f7983166a9ea2d93ff0084552d2fcfc32b9aec#diff-2224084cfc75aee1dd365084937d36ddb7b77107c9f9529aef06b37721f117a0) that this data is also (nicely but anwyays etc) [(click here to view it on on github too)](/leaders_data_to_csv_ai_flat_example_of_output.csv) (you can also click on the collapse tree button thing to get an even larger display and scroll down the page to remove from "vision field" the uneeded (for this task of viewing fields in the csv in github) the top headers but is just suggestion or not anyways etc anyways etc...), with filters (research) and such anyways etc, so adding a bit more general info about it too, as shown below
+Mostly for modders, but i with the help of chatgpt greatly added some python scripts to enhance our display in sevopedia, track duplicates, possibly other scripts in the future but maybe not, etc.
+
+Please read this [README_python_scripts.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md) for details.
+
+So far there is:
+- [generate_leaders_data.py and leaders_data data py module ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module)
+- [global XML duplication scanner ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#scan_xml_duplicates-py-script-and-logs_xml_scans)
+- [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py)
+
+#### csv github view for the flatten_leaders_data_to_csv conversion script
+
+More specificially about the [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py) anyways etc, there is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#leaders_data_to_csvpy) anyways etc but i have just noticed after the [mega commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/50f7983166a9ea2d93ff0084552d2fcfc32b9aec#diff-2224084cfc75aee1dd365084937d36ddb7b77107c9f9529aef06b37721f117a0) that this data is also (nicely but anwyays etc) [(click here to view it on on github too)](/leaders_data_to_csv_ai_flat_example_of_output.csv) (you can also click on the collapse tree button thing to get an even larger display and scroll down the page to remove from "vision field" the uneeded (for this task of viewing fields in the csv in github) the top headers but is just suggestion or not anyways etc anyways etc...), with filters (research) and such anyways etc, so adding a bit more general info about it too, as shown below
 
 <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (1).PNG" width="150"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (2).PNG" width="150"></img>

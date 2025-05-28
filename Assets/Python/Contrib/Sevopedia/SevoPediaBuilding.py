@@ -15,7 +15,8 @@
 # - placeObsoleteWith in a similar manner than (for?) placeExclusiveCivs to show the button of the tech that obsoletes this currently selected building anyways etc anyways etc anyways etc...
 # - (and) placeReplace (but anyways etc anyways etc anyways etc...): based on the one in sevopediaunit that was based on another mod's code (see in sevopediaunit's code for details anyways etc anyways etc anyways etc...) and adjusted or not or yes or other etc anyways etc for and while adding it to sevopediabuilding, improvements (or not.. or yes, or other anyways etc) of which that have served to enhance the one in sevopediaunit back so all good maybe or not all good or all good or other or and not but anywyas etc... anyways etc anyways etc anyways etc..
 # - placeRequiredFor,
-# - placeFree
+# - placeFreePBBS,
+# - placeFreeWith,
 # - enhanced or beautified or tweaked or and other or and not some if not most or maybe even or not or maybe or and anyways etc all functions/methods of this py file, anyways etc.
 #  thanks a lot Claude AI! (and the other mod too ("!" too or ! too or maye rather !"" or "!" or rather ! or "!" too but anyways etc anyways etc anyways thanks too in short maybe anyways etc anywas etc anyways etc...) Anyways etc anyways etc anyways etc... -->
 # -->
@@ -87,24 +88,30 @@ class SevoPediaBuilding:
 		self.W_REQUIRES = self.W_TOTAL_EFFECTIVE_BUILDING_PANE
 		self.H_REQUIRES = 110
 
-		self.X_REQUIRED_FOR = self.X_BUILDING_PANE
-		self.Y_REQUIRED_FOR = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
-		self.W_REQUIRED_FOR = self.W_TOTAL_EFFECTIVE_BUILDING_PANE
-		self.H_REQUIRED_FOR = self.H_REQUIRES
-
 		self.W_OBSOLETE_WITH = 84
 
-		self.X_FREE = self.X_BUILDING_PANE
-		self.Y_FREE = self.Y_REQUIRED_FOR + self.H_REQUIRED_FOR + self.SMALL_MARGIN
-		self.W_FREE = self.W_TOTAL_EFFECTIVE_BUILDING_PANE - self.W_OBSOLETE_WITH - self.MEDIUM_MARGIN
-		self.H_FREE = self.H_REQUIRES
+		self.X_REQUIRED_FOR = self.X_BUILDING_PANE
+		self.Y_REQUIRED_FOR = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
+		self.W_REQUIRED_FOR = self.W_TOTAL_EFFECTIVE_BUILDING_PANE - self.W_OBSOLETE_WITH - self.MEDIUM_MARGIN
+		self.H_REQUIRED_FOR = self.H_REQUIRES
 
-		self.X_OBSOLETE_WITH = self.X_FREE + self.W_FREE + self.MEDIUM_MARGIN
-		self.Y_OBSOLETE_WITH = self.Y_FREE
-		self.H_OBSOLETE_WITH = self.H_REQUIRES
+		self.X_OBSOLETE_WITH = self.X_REQUIRED_FOR + self.W_REQUIRED_FOR + self.MEDIUM_MARGIN
+		self.Y_OBSOLETE_WITH = self.Y_REQUIRED_FOR
+		self.H_OBSOLETE_WITH = self.H_REQUIRED_FOR
+
+		self.W_FREE_WITH = 84
+
+		self.X_FREE_PBBS = self.X_BUILDING_PANE
+		self.Y_FREE_PBBS = self.Y_REQUIRED_FOR + self.H_REQUIRED_FOR + self.SMALL_MARGIN
+		self.W_FREE_PBBS = self.W_TOTAL_EFFECTIVE_BUILDING_PANE - self.W_FREE_WITH - self.MEDIUM_MARGIN
+		self.H_FREE_PBBS = self.H_REQUIRES
+
+		self.X_FREE_WITH = self.X_FREE_PBBS + self.W_FREE_PBBS + self.MEDIUM_MARGIN
+		self.Y_FREE_WITH = self.Y_FREE_PBBS
+		self.H_FREE_WITH = self.H_REQUIRES
 
 		self.X_SPECIAL = self.X_BUILDING_PANE
-		self.Y_SPECIAL = self.Y_FREE + self.H_FREE + self.SMALL_MARGIN
+		self.Y_SPECIAL = self.Y_FREE_PBBS + self.H_FREE_PBBS + self.SMALL_MARGIN
 		self.W_SPECIAL = self.W_TOTAL_EFFECTIVE_BUILDING_PANE
 		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
 
@@ -113,7 +120,7 @@ class SevoPediaBuilding:
 		self.X_BUILDING_ANIMATION = self.X_BUILDING_PANE + self.W_TOTAL_EFFECTIVE_BUILDING_PANE + self.MEDIUM_MARGIN
 		self.Y_BUILDING_ANIMATION = self.Y_BUILDING_PANE + self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
 		self.W_BUILDING_ANIMATION = self.W_TOTAL_EFFECTIVE_BUILDING_PANE
-		self.H_BUILDING_ANIMATION = self.H_BUILDING_PANE + self.SMALL_MARGIN + self.H_REQUIRES + self.SMALL_MARGIN + self.H_FREE - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
+		self.H_BUILDING_ANIMATION = self.H_BUILDING_PANE + self.SMALL_MARGIN + self.H_REQUIRES + self.SMALL_MARGIN + self.H_FREE_PBBS - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
 		
 		self.X_ROTATION_BUILDING_ANIMATION = -20
 		self.Z_ROTATION_BUILDING_ANIMATION = 30
@@ -145,8 +152,9 @@ class SevoPediaBuilding:
 		self.placeStats()
 		self.placeRequires()
 		self.placeRequiredFor()
-		self.placeFree()
 		self.placeObsoleteWith()
+		self.placeFreePBBS()
+		self.placeFreeWith()
 		self.placeSpecial()
 		self.placeBuildingAnimation()
 		self.placeReplace()
@@ -495,7 +503,7 @@ class SevoPediaBuilding:
 									WidgetTypes.WIDGET_GENERAL, -1, -1)
 					"""
 				else:
-					# <!-- custom: else our placeStats "custom: 7.1" already handles the display of the great people icon and the great people rate value (text too anyways etc) if i am not mistaken, so maybe we can ignore code below as well and clean it up in next commit or any time further i wish or and other or and not or and etc anyways etc, keeping as is for nwo until cleanup anyways etc. Also, if there is some special info like the great peiople unit name that is/would/were not (//to anyways etc) /be/ anyways etc any of the great people units (for example a settler if i am not mistaken that this is possible too from what i understood of what i read of Claude AI or online but maybe was claude AI's explanation anyways etc, then we still have the placeSpecial info not removed to cover us anyways etc (i chose to not remove it in the end as it has some sueful information like defenses obsoleting or not with exceptions, power being this or that, or/and other special or confusing well or well enough hopefully as they did if they enjoyed or not o wanted or not anyways etc, so cleaned from DLL placeSpecial messages only the obvious uneeded logic that clearly overlaps with the new panels we have (placeFree, placeRequiredFor, placeExclusiveCivs as was done (DLL cleanup of redundant messages) in sevopedia unit and now applied to sevopedia building, anyways etc.)) -->
+					# <!-- custom: else our placeStats "custom: 7.1" already handles the display of the great people icon and the great people rate value (text too anyways etc) if i am not mistaken, so maybe we can ignore code below as well and clean it up in next commit or any time further i wish or and other or and not or and etc anyways etc, keeping as is for nwo until cleanup anyways etc. Also, if there is some special info like the great peiople unit name that is/would/were not (//to anyways etc) /be/ anyways etc any of the great people units (for example a settler if i am not mistaken that this is possible too from what i understood of what i read of Claude AI or online but maybe was claude AI's explanation anyways etc, then we still have the placeSpecial info not removed to cover us anyways etc (i chose to not remove it in the end as it has some sueful information like defenses obsoleting or not with exceptions, power being this or that, or/and other special or confusing well or well enough hopefully as they did if they enjoyed or not o wanted or not anyways etc, so cleaned from DLL placeSpecial messages only the obvious uneeded logic that clearly overlaps with the new panels we have (placeFreePBBS, placeRequiredFor, placeExclusiveCivs as was done (DLL cleanup of redundant messages) in sevopedia unit and now applied to sevopedia building, anyways etc.)) -->
 					"""
 					# Just add text if no icon
 					textWidget = self.top.getNextWidgetName()
@@ -726,7 +734,7 @@ class SevoPediaBuilding:
 					#screen.attachLabel(panelName, "", " x" + str(iNumRequired))
 
 		# <!-- custom: display each relevant button's nums or/and txts if any, else if no button is found to display at all, display instead the no button found txtkey in all the panel.
-		# Note: easy copy paste x, y, w, h, coordinates from panel creation is faster and perhaps more reliable too if you want (optionally) or/and need it or/and choose it or not but anyways etc anyways etc anyways etc... And i say this specifically after having written this (comment(ed)-out) advice and making the mistake here for example as well as in some other places despite having applied it correctly in some (other other but anyways etc anyways etc anyways etc...) places (for example _free coordinates instead of _requires here but anyways etc anyways etc anyways etc...) anyways etc so now fixing it (!) if i may say but anyways etc anyways etc anyways etc..., (and)(but anyways etc anyways etc anyways etc...) so now applying this advice to me as well after noticing the numsOrTxts of the corresponding buttons are at wrong spot so hopefully helpful to me(!) (too but anyways etc anyways etc anyways etc...) if i may say but anyways etc anyways etc anyways etc... 
+		# Note: easy copy paste x, y, w, h, coordinates from panel creation is faster and perhaps more reliable too if you want (optionally) or/and need it or/and choose it or not but anyways etc anyways etc anyways etc... And i say this specifically after having written this (comment(ed)-out) advice and making the mistake here for example as well as in some other places despite having applied it correctly in some (other other but anyways etc anyways etc anyways etc...) places (for example _FREE_PBBS coordinates instead of _requires here but anyways etc anyways etc anyways etc...) anyways etc so now fixing it (!) if i may say but anyways etc anyways etc anyways etc..., (and)(but anyways etc anyways etc anyways etc...) so now applying this advice to me as well after noticing the numsOrTxts of the corresponding buttons are at wrong spot so hopefully helpful to me(!) (too but anyways etc anyways etc anyways etc...) if i may say but anyways etc anyways etc anyways etc... 
 		# -->
 		isButtonFound = (nCountOccurencesFound > 0)
 		txtKeyNoButtonFound = "TXT_KEY_PEDIA_REQUIRES_NO_BUTTON_FOUND"
@@ -780,12 +788,50 @@ class SevoPediaBuilding:
 
 
 
-	def placeFree(self):
+	def placeObsoleteWith(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		
 		# Create panel with proper styling
-		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_FREE_ITEMS", ()), "", False, True, self.X_FREE, self.Y_FREE, self.W_FREE, self.H_FREE, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_OBSOLETE", ()), "", False, True, self.X_OBSOLETE_WITH, self.Y_OBSOLETE_WITH, self.W_OBSOLETE_WITH, self.H_OBSOLETE_WITH, PanelStyles.PANEL_STYLE_BLUE50)
+		# <!-- custom: additionnal left side padding for the button(s) -->
+		screen.attachLabel(panelName, "", "  ")
+		
+		# Get the building info
+		buildingInfo = gc.getBuildingInfo(self.iBuilding)
+		
+		# Check if the building has an obsolete tech directly <!-- custom: (i assume is about the obsoletetech info in (adjust to your mod path) for example C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Buildings\CIV4BuildingInfos.xml) -->
+		iObsoleteTech = buildingInfo.getObsoleteTech()
+	
+		# If no direct obsolete tech, check if it's a special building type<!-- cus
+		# <!-- custom: (e.g. the jewish monastery appears as never obsolete from the direct obsolete tech check due to <ObsoleteTech>NONE</ObsoleteTech>, but it does get obsolete at scientific method though in <ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech> at (adjust with your mod path if different) for example C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Buildings\CIV4SpecialBuildingInfos.xml (now this file is/has been imported in AdvCiv-SAS as well in case we need to change it and to have all info we want and control it if i may say anyways etc anyways etc anyways etc...)) -->
+		if iObsoleteTech == -1:
+			iSpecialBuildingType = buildingInfo.getSpecialBuildingType()
+			if iSpecialBuildingType != -1:
+				# Get the special building info
+				specialBuildingInfo = gc.getSpecialBuildingInfo(iSpecialBuildingType)
+				# Check if the special building has an obsolete tech
+				iObsoleteTech = specialBuildingInfo.getObsoleteTech()
+
+		# <!-- custom: after having checked both directly for an obsolete tech, or indirectly through special buiding, now display button if any:
+		if iObsoleteTech != -1:
+			screen.attachImageButton(panelName, "", gc.getTechInfo(iObsoleteTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iObsoleteTech, -1, False)
+
+		else:
+			# <!-- custom: prettier display -->
+			# If there's no obsolete tech, display "Never" or "None"
+			#screen.attachLabel(panelName, "", CyTranslator().getText("TXT_KEY_PEDIA_NEVER_OBSOLETE", ()))
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_OBSOLETE_NO_BUTTON_FOUND"
+			self.displayPanelSTxtKeyNoButton(screen, txtKeyNoButtonFound, self.X_OBSOLETE_WITH, self.Y_OBSOLETE_WITH, self.W_OBSOLETE_WITH, self.H_OBSOLETE_WITH)
+
+
+
+	def placeFreePBBS(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		
+		# Create panel with proper styling
+		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_FREE_PBBS", ()), "", False, True, self.X_FREE_PBBS, self.Y_FREE_PBBS, self.W_FREE_PBBS, self.H_FREE_PBBS, PanelStyles.PANEL_STYLE_BLUE50)
 		# Additional left side padding for the button(s)
 		screen.attachLabel(panelName, "", "  ")
 		
@@ -804,7 +850,7 @@ class SevoPediaBuilding:
 			nCountOccurencesFound += 1
 			numFreeTxt = "All Un.C"
 			xSubstractedAdjustment = int(1.04 * buttonSize)
-			xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_FREE, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+			xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_FREE_PBBS, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
 
 			# <!-- custom: (but) attach button right now -->
 			screen.attachImageButton(panelName, "", gc.getPromotionInfo(iFreePromotion).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iFreePromotion, -1, False)
@@ -815,7 +861,7 @@ class SevoPediaBuilding:
 			nCountOccurencesFound += 1
 			numFreeTxt = "All Cs"
 			xSubstractedAdjustment = int(0.87 * buttonSize)
-			xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_FREE, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+			xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_FREE_PBBS, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
 
 			# Get the default building of this class for the current civilization
 			if self.top.iActivePlayer != -1:
@@ -865,7 +911,7 @@ class SevoPediaBuilding:
 			else:
 				raise ValueError("[FATAL] Unexpected iNumFreeBonuses=%d value out of bounds iNumFreeBonuses == -1 or iNumFreeBonuses >=1, please verify the code and iNumFreeBonuses are behaving as intended and adjust this sevopedia code or/and your mod code based on this as you want/prefer anyways etc. Note: for info str(FreeBonus) (for display in this error message anyways etc)=%s anyways etc." % (iNumFreeBonuses, str(iFreeBonus)))
 			
-			xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_FREE, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+			xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_FREE_PBBS, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
 
 			# <!-- custom: (but) attach button right now -->
 			screen.attachImageButton(panelName, "", gc.getBonusInfo(iFreeBonus).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iFreeBonus, -1, False)
@@ -878,14 +924,14 @@ class SevoPediaBuilding:
 				iSpecialistCount = buildingInfo.getFreeSpecialistCount(iSpecialist)
 				numFreeTxt = u"%s" % (iSpecialistCount)
 				xSubstractedAdjustment = int(xSubstractedAdjustmentNums * buttonSize)
-				xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_FREE, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+				xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_FREE_PBBS, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
 
 				# <!-- custom: (but) attach button right now -->
 				screen.attachImageButton(panelName, "", gc.getSpecialistInfo(iSpecialist).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, iSpecialist, -1, False)
 
 		isButtonFound = (nCountOccurencesFound > 0)
-		txtKeyNoButtonFound = "TXT_KEY_PEDIA_FREE_ITEMS_NO_BUTTON_FOUND"
-		self.displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, self.X_FREE, self.Y_FREE, self.W_FREE, self.H_FREE)
+		txtKeyNoButtonFound = "TXT_KEY_PEDIA_FREE_PBBS_NO_BUTTON_FOUND"
+		self.displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, self.X_FREE_PBBS, self.Y_FREE_PBBS, self.W_FREE_PBBS, self.H_FREE_PBBS)
 
 
 
@@ -905,7 +951,7 @@ class SevoPediaBuilding:
 
 		"""
 		"""
-		#<!-- custom: example of how to directly import a button path to write the button in sevopedia anyways etc... From Claude AI as well and works for the great prophet button successfully displayed in the sevopedia's placeFree panel for example anyways etc anyways etc anyways etc
+		#<!-- custom: example of how to directly import a button path to write the button in sevopedia anyways etc... From Claude AI as well and works for the great prophet button successfully displayed in the sevopedia's placeFreePBBS panel for example anyways etc anyways etc anyways etc
 		#powerButton = "Art/Interface/Buttons/Buildings/Power.dds"  # You might need to adjust this path
 		powerButton = ",Art/Interface/Buttons/Units/GreatProphet.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,1"
 		# etc...
@@ -921,41 +967,147 @@ class SevoPediaBuilding:
 
 
 
-	def placeObsoleteWith(self):
+	"""
+	<!-- custom: logic is as follows for the below placeFreeWith function/method anyways etc as prompted to Claude AI to me but anyways etc anyways etc anyways etc...:
+	example: barbarian specific granary is free with barbarian palace (barbarians only), so:
+
+	if currently selected building is:
+		* barbarian granary: we show in free with that the barbarian granary is free with the barbarian palace button
+		* generic granary: we show in free with that the generic granary is free with "None" if a barbarian specific palace exists, else if no barbarian palace exists then we show in free with that the generic granary is free with the barbarian palace
+		* other civ-specific granary (for example incan terrace): we show in free with that the terrace is free with "None", as the incans cannot have the barbarian palace, so they can never have the free granary, but if the incans could have a palace that has a free granary in it, then display this palace instead, else "None"
+	
+	-
+
+	Which Claude AI rephrased as such if helps too anyways etc:
+	Now the logic correctly handles your examples:
+	For your barbarian granary → barbarian palace example:
+
+		1. Barbarian Granary page: Shows barbarian palace (because barbarian granary is unique and barbarian palace provides it for free)
+		2. Generic Granary page: Shows "None" (because the granary class has unique versions like barbarian granary, so only generic providers would be shown, but barbarian palace is unique)
+		3. Incan Terrace page: Shows "None" (because terrace is unique to Incans, and barbarian palace is unique to barbarians, so Incans can't use barbarian palace)
+
+	The key logic changes:
+
+	hasUniqueVersions: Checks if the current building class has any civ-specific versions
+	For unique buildings: Only shows providers that the same civ can actually use
+	For generic buildings: If unique versions of this building exist, only shows generic providers; otherwise shows all providers
+	New helper functions: getBuildingCiv() and buildingClassHasUniqueVersions() to support the logic
+
+	This should now match your intended behavior exactly!
+
+	-
+
+	It seems to work as intended so adding this since is quite/very technical, in case is helpful too, anyways etc anyways etc anyways etc...
+	-->
+	"""
+
+
+	
+	def isBuildingUnique(self, iBuildingIndex):
+		"""Helper function to determine if a building is civ-specific (unique)"""
+		buildingInfo = gc.getBuildingInfo(iBuildingIndex)
+		buildingClassInfo = gc.getBuildingClassInfo(buildingInfo.getBuildingClassType())
+		
+		# A building is unique if it's not the default building for its class
+		defaultBuildingForClass = buildingClassInfo.getDefaultBuildingIndex()
+		return iBuildingIndex != defaultBuildingForClass
+
+
+
+	def getBuildingCiv(self, iBuildingIndex):
+		"""Helper function to get which civ a unique building belongs to"""
+		buildingInfo = gc.getBuildingInfo(iBuildingIndex)
+		buildingClassType = buildingInfo.getBuildingClassType()
+		
+		# Check all civs to see which one has this building as their unique version
+		for iCiv in range(gc.getNumCivilizationInfos()):
+			civInfo = gc.getCivilizationInfo(iCiv)
+			civBuildingForClass = civInfo.getCivilizationBuildings(buildingClassType)
+			if civBuildingForClass == iBuildingIndex:
+				return iCiv
+		return -1  # Should not happen for unique buildings
+
+
+
+	def buildingClassHasUniqueVersions(self, buildingClassType):
+		"""Helper function to check if a building class has any unique versions"""
+		buildingClassInfo = gc.getBuildingClassInfo(buildingClassType)
+		defaultBuilding = buildingClassInfo.getDefaultBuildingIndex()
+		
+		# Check if any civ has a different building for this class
+		for iCiv in range(gc.getNumCivilizationInfos()):
+			civInfo = gc.getCivilizationInfo(iCiv)
+			civBuildingForClass = civInfo.getCivilizationBuildings(buildingClassType)
+			if civBuildingForClass != defaultBuilding:
+				return True
+		return False
+
+
+
+	def placeFreeWith(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		
 		# Create panel with proper styling
-		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_OBSOLETE", ()), "", False, True, self.X_OBSOLETE_WITH, self.Y_OBSOLETE_WITH, self.W_OBSOLETE_WITH, self.H_OBSOLETE_WITH, PanelStyles.PANEL_STYLE_BLUE50)
-		# <!-- custom: additionnal left side padding for the button(s) -->
+		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_FREE_WITH", ()), "", False, True, self.X_FREE_WITH, self.Y_FREE_WITH, self.W_FREE_WITH, self.H_FREE_WITH, PanelStyles.PANEL_STYLE_BLUE50)
+		# <!-- custom: additional left side padding for the button(s) -->
 		screen.attachLabel(panelName, "", "  ")
 		
-		# Get the building info
-		buildingInfo = gc.getBuildingInfo(self.iBuilding)
+		# Get the current building info
+		currentBuildingInfo = gc.getBuildingInfo(self.iBuilding)
+		currentBuildingClass = currentBuildingInfo.getBuildingClassType()
 		
-		# Check if the building has an obsolete tech directly <!-- custom: (i assume is about the obsoletetech info in (adjust to your mod path) for example C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Buildings\CIV4BuildingInfos.xml) -->
-		iObsoleteTech = buildingInfo.getObsoleteTech()
-	
-		# If no direct obsolete tech, check if it's a special building type<!-- cus
-		# <!-- custom: (e.g. the jewish monastery appears as never obsolete from the direct obsolete tech check due to <ObsoleteTech>NONE</ObsoleteTech>, but it does get obsolete at scientific method though in <ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech> at (adjust with your mod path if different) for example C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Buildings\CIV4SpecialBuildingInfos.xml (now this file is/has been imported in AdvCiv-SAS as well in case we need to change it and to have all info we want and control it if i may say anyways etc anyways etc anyways etc...)) -->
-		if iObsoleteTech == -1:
-			iSpecialBuildingType = buildingInfo.getSpecialBuildingType()
-			if iSpecialBuildingType != -1:
-				# Get the special building info
-				specialBuildingInfo = gc.getSpecialBuildingInfo(iSpecialBuildingType)
-				# Check if the special building has an obsolete tech
-				iObsoleteTech = specialBuildingInfo.getObsoleteTech()
-
-		# <!-- custom: after having checked both directly for an obsolete tech, or indirectly through special buiding, now display button if any:
-		if iObsoleteTech != -1:
-			screen.attachImageButton(panelName, "", gc.getTechInfo(iObsoleteTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iObsoleteTech, -1, False)
-
+		# <!-- custom: handle no building found message -->
+		isButtonFound = False
+		
+		# Check if current building is civ-specific (unique)
+		currentIsUnique = self.isBuildingUnique(self.iBuilding)
+		if currentIsUnique:
+			currentCiv = self.getBuildingCiv(self.iBuilding)
 		else:
-			# <!-- custom: prettier display -->
-			# If there's no obsolete tech, display "Never" or "None"
-			#screen.attachLabel(panelName, "", CyTranslator().getText("TXT_KEY_PEDIA_NEVER_OBSOLETE", ()))
-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_OBSOLETE_NO_BUTTON_FOUND"
-			self.displayPanelSTxtKeyNoButton(screen, txtKeyNoButtonFound, self.X_OBSOLETE_WITH, self.Y_OBSOLETE_WITH, self.W_OBSOLETE_WITH, self.H_OBSOLETE_WITH)
+			currentCiv = -1
+		
+		# Check if there are any unique versions of the current building
+		hasUniqueVersions = self.buildingClassHasUniqueVersions(currentBuildingClass)
+
+		# Check all buildings to see which ones provide this building for free
+		for iBuildingLoop in range(gc.getNumBuildingInfos()):
+			buildingInfo = gc.getBuildingInfo(iBuildingLoop)
+			
+			# Check if this building provides our current building for free
+			freeBuildingClass = buildingInfo.getFreeBuildingClass()
+			if freeBuildingClass == currentBuildingClass:
+				providerIsUnique = self.isBuildingUnique(iBuildingLoop)
+				if providerIsUnique:
+					providerCiv = self.getBuildingCiv(iBuildingLoop)
+				else:
+					providerCiv = -1
+				
+				# Determine if we should show this provider based on the logic:
+				shouldShow = False
+				
+				if currentIsUnique:
+					# Current building is unique - only show providers that this civ can actually use
+					if not providerIsUnique or providerCiv == currentCiv:
+						shouldShow = True
+				else:
+					# Current building is generic
+					if hasUniqueVersions:
+						# Generic building has unique versions - only show generic providers
+						if not providerIsUnique:
+							shouldShow = True
+					else:
+						# No unique versions exist - show all providers
+						shouldShow = True
+				
+				if shouldShow:
+					isButtonFound = True
+					screen.attachImageButton(panelName, "", gc.getBuildingInfo(iBuildingLoop).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuildingLoop, -1, False)
+
+		if not isButtonFound:
+			# <!-- custom: prettier display when no buildings provide this one for free -->
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_FREE_WITH_NO_BUTTON_FOUND"
+			self.displayPanelSTxtKeyNoButton(screen, txtKeyNoButtonFound, self.X_FREE_WITH, self.Y_FREE_WITH, self.W_FREE_WITH, self.H_FREE_WITH)
 
 
 

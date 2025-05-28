@@ -1,6 +1,6 @@
 # README_Sevopedia_Reworks.md
 
-Below/here is a/the more detailed examples(/sample(s?)?) of the [/README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks](/README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks).
+Below/here is a/the more detailed examples(/sample(s?)?) of the [README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks).
 
 ## example 1: more AI Personality examples (in leaders category)
 
@@ -64,16 +64,16 @@ Finally and most importantly, as something similar as said in the paragraph just
 
 After having written these, combat information was added (which units is this unit strong against or weak against, in which plot types, city or not, terrains, features, etc if any more/other or not etc if not but or anyways etc anyways etc anyways etc..., free promotions, etc) largely with the help of Claude AI (see [Authors for details (Claude AI's section) in the main readme.me](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details), as well as other changes or not or yes or and other or and not anyways etc, see readme or code comments or code itself for details hopefully exhaustive and clear easy enough to read maybe ideally but in all caes or not or yes or and other or and not anyways etc.
 
-<img src="../Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample (2).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG" width="250"></img>
 
 For more sevopedia previous about this category or/and other sevopedia categories, see also the [full sevopedia samples google drive folder link](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing)
 
 ## example 8: building category
 
-Based on the sevopedia unit previous rework, and also with the help of Claude AI (see [Authors for details (Claude AI's section) in the main readme.me](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details) refactored, beautified, and enhanced sevopedia building as well, with a few new additions in particular such as placeFree, RequiredFor, a more exhaustive Requires as well, placeStats reworked (in particular great person buttons (icons) show now, commerce double times as well( for exampel that every 1000 year one building may give double culturee output (flat only if i am not mistaken i.e. +2 only if i am not mistaken anyways etc)), and % modifier as well (for example +25% culture, +25% espionage rate if i am not mistaken anyways etc, as well as using a grid for beautification anyways etc)), anew ObsoleteWith, see similarly code or other docs if they exist, maybe code comments too can help for details in [SevopediaBuilding.py](/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py) for details.
+Based on the sevopedia unit previous rework, and also with the help of Claude AI (see [Authors for details (Claude AI's section) in the main readme.me](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details) refactored, beautified, and enhanced sevopedia building as well, with a few new additions in particular such as placeFreePBBS, placeFreeWith, placeRequiredFor, a more exhaustive placeRequires as well, placeStats reworked (in particular great person buttons (icons) show now, commerce double times as well( for exampel that every 1000 year one building may give double culturee output (flat only if i am not mistaken i.e. +2 only if i am not mistaken anyways etc)), and % modifier as well (for example +25% culture, +25% espionage rate if i am not mistaken anyways etc, as well as using a grid for beautification anyways etc)), anew ObsoleteWith, see similarly code or other docs if they exist, maybe code comments too can help for details in [SevopediaBuilding.py](/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py) for details.
 
-<img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (6).JPG" width="250"></img>
-<img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (7).JPG" width="250"></img>
-<img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (14).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (1).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (2).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (3).JPG" width="250"></img>
 
 For more sevopedia previous about this category or/and other sevopedia categories, see also the [full sevopedia samples google drive folder link](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing)

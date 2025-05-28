@@ -45,15 +45,23 @@ hopefully more readable or exportable if need/want be now -->
 		<English>Replaces</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_FREE_ITEMS</Tag>
+		<Tag>TXT_KEY_PEDIA_FREE_PBBS</Tag>
 		<English>Free Promotion, Building, Bonus, Specialists</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FREE_WITH</Tag>
+		<English>Free W/</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FREE_WITH_NO_BUTTON_FOUND</Tag>
+		<English>None</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_FREE_PROMOTIONS</Tag>
 		<English>Free Promotions</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_FREE_ITEMS_NO_BUTTON_FOUND</Tag>
+		<Tag>TXT_KEY_PEDIA_FREE_PBBS_NO_BUTTON_FOUND</Tag>
 		<English>None</English>
 	</TEXT>
 	<TEXT>
