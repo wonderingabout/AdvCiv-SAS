@@ -395,7 +395,7 @@ The solution i use is to simplify these chars generally, for example rename `–
 
 Adjust this advice/feedback as you see fit or not fit or not see or not adjust or not or yes or and other or and not, hopefully helpful or not or yes or and other or and not anyways etc anyways etc anyways etc...
 
-## 11 - In Debug mode, in map view, unexplored tile by the active player (if i am not mistaken see below anyways etc) if improved, shows as red for example "with Road" or "with Pasture", even though a road is already there and text should be white instead or removed entirely if i am not mistaken anyways etc
+## 11 - In Debug mode, in map view, unexplored tile by the active player (if i am not mistaken see below anyways etc) if improved, shows as red for example "with Road" or "with Pasture", even though a road is already there and text should be white instead or removed entirely if i am not mistaken anyways etc ; and other weird debug mode display issue(s)
 
 This is a small bug so just mentionning it, and perhaps it is even intended to be this way, but ideally in debug mode (ctrl+z and "chipotle" anyways etc), an unexplored tile by the tile active player (if i am not mistaken about what an active player is or seems to be (the current player, at least our autoplayed on player anyways etc)), even if unexplored but anyways etc, if improved, should should its improvement requirement as white not red or simply remove the improvement (or road too if i am not mistaken? Anyways etc) line entirely (i assume DLL handles this like in sevopedia? Anyways etc)
 
@@ -403,8 +403,16 @@ As this is debug-only, and to not cause further issues, only mentionning it for 
 
 A few screenshots of the current issue (screenshot previews below as long as links are valid anyways etc) in [this Google drive folder about this issue](https://drive.google.com/drive/folders/1lXQ8pyE0A6TJGqlnf4In3V7QuJ0lBhIR?usp=sharing)
 
+Another weird display issue/bug in debug mode is for examples yields are not accurately accounted in some conditions, for example in screenshots 5465, 5466, 5467 of/in the drive link just above anyways etc, sheep plains natural yield should be 1 food of plains + 1 food natural yield change of sheep if i am not mistaken so 2 food, but is displayed as 1 food only for this tile with map reveal (ctrl+z debug mode anyways etc) vs 2 food accurately seemingly, without map reveal. I don't know what the exact issue is as i didn't investigate it, but still is an issue, just mentionning it here, may be helpful or not or yes or and other or and not, hopefully exhaustive too or not or yes or and other or and not as i wanted or not wanted or yes wanted or other or and not, but anyways etc anyways etc anyways etc...
+
 ## 12 - (now fixed) Special/generic building monastery's button inconsistently using (uses/was using rather anyways etc) the hindu specific anyways etc monastery button instead of a generic button like the (abstract? Anyways etc / generic) generic temple and generic cathedral were
 
 Hopefully clearer and more consistent now or not or yes or etc or and other or and not or yes or etc anyways etc
 
 A few screenshots of the current issue (screenshot previews below as long as links are valid anyways etc) in [this Google drive folder about this issue](https://drive.google.com/drive/folders/1LyGR9fEuI6HZLtn-R5qxgdlVFPVmhUAc?usp=sharing)
+
+## 13 - (now fixed/reworked) As an appendix to 12 - just before anyways etc, shrines now also appear in tech tree at their religion's tech requirement unlike in base advciv / civ4 too if i am not mistaken anyways etc
+
+Added a PrereqTech for shrines so we can display them in tech tree as well, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, anyways etc), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it or not or yes or etc or and other or and not but anyways etc, was NONE.
+
+A few screenshots of after the fix/rework (screenshot previews below as long as links are valid anyways etc) in [this Google drive folder about this issue/rework anyways etc](https://drive.google.com/drive/folders/1kIRImlhvrB7-65lYNXm46M28FvWOT3f7?usp=sharing)

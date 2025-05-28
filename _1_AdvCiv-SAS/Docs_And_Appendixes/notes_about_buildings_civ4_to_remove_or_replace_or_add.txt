@@ -39,7 +39,7 @@ buildings:
 
 wonders:
 - Venus of Laussel
-- Ishtar Gate (art import from RFC DOC) (for the no barbarians effect of the great wall now moved later in history/tech tree or removed anyways etc)
+- Ishtar Gate? But it seems that the great walls of china are older than i or was thought, in https://www.euronews.com/culture/2025/02/19/archaeologists-discover-oldest-section-of-chinas-great-wall-dating-back-nearly-3000-years, so maybe no need to change it if is this old anyways etc, good enough for advciv/civ4 / our mod too advciv-sas anyways etc, plus the art of no barbarians matches well, anyways etc ; as for ishtar gate i don't know if we'll implement it now, but art could be imported from RFC DOC if needed anyways etc
 - Hollywood (art import from HR mod or other similar mods anyways etc
 )
 - Hanging gardens (art import from RFC DOC)
