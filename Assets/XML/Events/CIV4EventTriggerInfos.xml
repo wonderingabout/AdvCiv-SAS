@@ -3380,7 +3380,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_WRITING</PrereqTech>
 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
@@ -3466,7 +3466,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_WRITING</PrereqTech>
 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
@@ -3638,7 +3638,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_WRITING</PrereqTech>
 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
@@ -3752,7 +3752,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_WRITING</PrereqTech>
 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
@@ -3838,7 +3838,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_WRITING</PrereqTech>
 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
@@ -8998,7 +8998,7 @@
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs>
-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs>
@@ -14156,7 +14156,7 @@
 				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
 				<ObsoleteTech>TECH_MATHEMATICS</ObsoleteTech>
 				<ObsoleteTech>TECH_ALPHABET</ObsoleteTech>
-				<ObsoleteTech>TECH_HORSEBACK_RIDING</ObsoleteTech>
+				<ObsoleteTech>TECH_MOUNTED_INFANTRY</ObsoleteTech>
 				<ObsoleteTech>TECH_IRON_WORKING</ObsoleteTech>
 				<ObsoleteTech>TECH_METAL_CASTING</ObsoleteTech>
 			</ObsoleteTechs>
@@ -14249,7 +14249,7 @@
 				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
 				<ObsoleteTech>TECH_MATHEMATICS</ObsoleteTech>
 				<ObsoleteTech>TECH_ALPHABET</ObsoleteTech>
-				<ObsoleteTech>TECH_HORSEBACK_RIDING</ObsoleteTech>
+				<ObsoleteTech>TECH_MOUNTED_INFANTRY</ObsoleteTech>
 				<ObsoleteTech>TECH_IRON_WORKING</ObsoleteTech>
 				<ObsoleteTech>TECH_METAL_CASTING</ObsoleteTech>
 			</ObsoleteTechs>
@@ -14854,7 +14854,7 @@
 			<OrPreReqs/>
 			<AndPreReqs>
 				<PrereqTech>TECH_GUILDS</PrereqTech>
-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
 			</AndPreReqs>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>

@@ -213,8 +213,7 @@ guaranteed though, but if need please refer to it if needed.
 
 # Credits
 
-- AdvCiv (the full name Advanced Civ does not yield much results about Civ 4 so i prefer the AdvCiv Name, maybe because of the space character, so i put a "-" instead in my/this mod): todo write, but mostly i am very thankful of AdvCiv, it's such a nice improvement from Civ4, and it's maintainer is very open to feedback at least in my
-exchanges/experiences during these times
+- AdvCiv (the full name Advanced Civ does not yield much results about Civ 4 so i prefer the AdvCiv Name, maybe because of the space character, so i put a "-" instead in my/this mod): todo write, but mostly i am very thankful of AdvCiv, it's such a nice improvement from Civ4, and it's maintainer is very open to feedback at least in my exchanges/experiences during these times
 - Cavemen2Cosmosn (also know as C2C): i took quite a lot of content from there, thanks
 - Realism Invictus (also know as RI): i took quite a bit content from there, thanks,
 - Fall from Heaven II (also know as FFH2): i took quite a bit of content from there, thanks
@@ -223,6 +222,7 @@ too too, thanks,
 - History Rewritten (also know as HR): i took quite a bit of content from there too, thanks,
 - Rise of Mankind (291) (i don't know their other name but maybe is fine to call them as is anyways etc (i also sometimes call them/their/this mod "ROM 291" (/ ROM 291) if accurate enough or some similar name i call them anyways etc)): a lot of very amazing code like religion leaders code, religion units code, many leaders, i don't know which exactly i'll take from, but very nice, thanks a lot! or to match other texts thanks too i mean anyways etc, thanks, anyways etc, thanks,
 - RFC Dawn Of Civilization (which i refer to as RFC DOC sometimes hopefully accurate anyways etc), while this mod is not my favourite somehow, i must admit they have some very nice content, in particular the Sevopedia categories i could take entirely for/in AdvCiv-SAS without barely any modification needed (for example the Sevopedia Terrain Page), thanks a lot!
+- Chronicles Of Mankind (which i may refer to as COM sometimes if not always or not anyways etc), thanks a lot, for example i took some buttons from one of their atlas (like for the riding tech renamed now anyways etc), thanks a lot! Anyways etc, thanks,
 - Doto mod (same name i think is short enough and cool as in abbreviated in a way i like enough or and other or and not anyways etc anyways etc anyways etc), which we took one or a few things from, for example the C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Doto\Assets\modules_old\ExtraBonus\ExtraBonus_CIV4BuildingInfos.xml infos which should or may help us that i added in our [CIV4BuildingInfos.xml](Assets/XML/Buildings/CIV4BuildingInfos.xml) with some additional code comments or not or and other or and not anyways etc, thanks too, anyways etc(,) anyways etc(...)(,) anyways etc.. anyways etc, thanks,
 - Firaxis's Civ4 game and Civ4 BTS: Civ4 allows to do a lot of things with just XML,
 which surprised me a lot in a way that pleased me. So far i have not touched the deeper code

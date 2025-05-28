@@ -197,7 +197,12 @@
 
 
 
-	<!-- custom: rename _UTOPIA to _COMMUNISM, this asset is a part that is extracted from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameTextInfos.xml -->
+	<!-- custom: rename _HORSEBACK_RIDING to _MOUNTED_INFANTRY, this asset is a part that is extracted from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameTextInfos.xml -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_MOUNTED_INFANTRY_QUOTE</Tag>
+		<English>"If you speak the truth, have a foot in the stirrup." - Turkish proverb</English>
+	</TEXT>
+	<!-- custom: rename _UTOPIA to _COMMUNISM, similarly extarcted anyways etc -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_COMMUNISM_QUOTE</Tag>
 		<English>"When I give food to the poor, they call me a saint. When I ask why the poor have no food, they call me a communist." - Dom Helder Camara</English>

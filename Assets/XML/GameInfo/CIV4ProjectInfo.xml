@@ -39,6 +39,10 @@
 			<CreateSound/>
 			<MovieDefineTag>ART_DEF_MOVIE_MANHATTAN_PROJECT</MovieDefineTag>
 		</ProjectInfo>
+		<!-- custom: button import from RFC DOC mod, their/this/the atlas we imported from is now copied in our mod as well in button path below, thanks a lot anyways etc, as for button in our xml anyways etc, was:
+		<Button>,Art/Interface/Buttons/Buildings/Internet.dds,Art/Interface/Buttons/Buildings_Atlas.dds,1,4</Button>
+		anyways etc...
+		-->
 		<ProjectInfo>
 			<Type>PROJECT_THE_INTERNET</Type>
 			<Description>TXT_KEY_PROJECT_THE_INTERNET</Description>
@@ -56,7 +60,7 @@
 			<EveryoneSpecialBuilding>NONE</EveryoneSpecialBuilding>
 			<bSpaceship>0</bSpaceship>
 			<bAllowsNukes>0</bAllowsNukes>
-			<Button>,Art/Interface/Buttons/Buildings/Internet.dds,Art/Interface/Buttons/Buildings_Atlas.dds,1,4</Button>
+			<Button>,Art/Interface/Buttons/Buildings/Internet.dds,Art/AdvCiv_SAS/Atlases/RFC_DOC_mod_buildings_atlas.dds,1,4</Button>
 			<PrereqProjects/>
 			<VictoryThresholds/>
 			<VictoryMinThresholds/>

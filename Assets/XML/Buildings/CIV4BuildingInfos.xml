@@ -2540,7 +2540,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
-			<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
+			<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -2707,7 +2707,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
-			<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
+			<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>

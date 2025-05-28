@@ -4833,12 +4833,16 @@
 			<SoundMP>AS2D_TECH_MP_BRONZEWORK</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Bronze Working.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,9</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_HORSEBACK_RIDING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<Type>TECH_HORSEBACK_RIDING</Type>
-			<Description>TXT_KEY_TECH_HORSEBACK_RIDING</Description>
-			<Civilopedia>TXT_KEY_TECH_HORSEBACK_RIDING_PEDIA</Civilopedia>
+		<!-- custom: button import from COM mod, their/this/the atlas we imported from is now copied in our mod as well in button path below, thanks a lot anyways etc, as for button in our xml anyways etc, was:
+		<Button>,Art/Interface/Buttons/TechTree/Horseback Riding.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,4</Button>
+		anyways etc...
+		-->
+		<TechInfo> <!-- custom: type: TECH_MOUNTED_INFANTRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<Type>TECH_MOUNTED_INFANTRY</Type>
+			<Description>TXT_KEY_TECH_MOUNTED_INFANTRY</Description>
+			<Civilopedia>TXT_KEY_TECH_MOUNTED_INFANTRY_PEDIA</Civilopedia>
 			<Help/>
-			<Strategy>TXT_KEY_TECH_HORSEBACK_RIDING_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<!-- advc.552: was 10 -->
@@ -4908,10 +4912,10 @@
 				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
-			<Quote>TXT_KEY_TECH_HORSEBACK_RIDING_QUOTE</Quote>
-			<Sound>AS2D_TECH_HORSERIDING</Sound>
-			<SoundMP>AS2D_TECH_MP_HORSERIDING</SoundMP>
-			<Button>,Art/Interface/Buttons/TechTree/Horseback Riding.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,4</Button>
+			<Quote>TXT_KEY_TECH_MOUNTED_INFANTRY_QUOTE</Quote>
+			<Sound>AS2D_TECH_MOUNTED_INFANTRY</Sound>
+			<SoundMP>AS2D_TECH_MP_MOUNTED_INFANTRY</SoundMP>
+			<Button>,Art/Interface/Buttons/TechTree/Horseback Riding.dds,Art/AdvCiv_SAS/Atlases/COM_mod_mem_buildings_atlas.dds,8,3</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_IRON_WORKING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>TECH_IRON_WORKING</Type>

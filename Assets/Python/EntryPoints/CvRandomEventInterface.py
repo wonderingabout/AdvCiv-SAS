@@ -1996,7 +1996,7 @@ def canTriggerUprising(playerId, techReqTag1, techReqTag2, counterUnitClassTag):
 
 def canTriggerTheHuns(argsList):
 	# advc.311: Moved into new function
-	return canTriggerUprising(argsList[0].ePlayer, 'TECH_HORSEBACK_RIDING', 'TECH_IRON_WORKING', 'UNITCLASS_SPEARMAN')
+	return canTriggerUprising(argsList[0].ePlayer, 'TECH_MOUNTED_INFANTRY', 'TECH_IRON_WORKING', 'UNITCLASS_SPEARMAN')
 
 def getHelpTheHuns1(argsList):
 	iEvent = argsList[0]

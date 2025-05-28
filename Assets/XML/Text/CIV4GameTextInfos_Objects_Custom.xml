@@ -552,6 +552,11 @@
 
 
 
+	<!-- custom: rename _HORSEBACK_RIDING to _MOUNTED_INFANTRY anyways etc anyways etc anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_MOUNTED_INFANTRY</Tag>
+		<English>Mounted Infantry</English>
+	</TEXT>
 	<!-- custom: rename _UTOPIA to _COMMUNISM anyways etc anyways etc anyways etc -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_COMMUNISM</Tag>
