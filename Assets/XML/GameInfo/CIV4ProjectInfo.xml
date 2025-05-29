@@ -39,7 +39,7 @@
 			<CreateSound/>
 			<MovieDefineTag>ART_DEF_MOVIE_MANHATTAN_PROJECT</MovieDefineTag>
 		</ProjectInfo>
-		<!-- custom: button import from RFC DOC mod, their/this/the atlas we imported from is now copied in our mod as well in button path below, thanks a lot anyways etc, as for button in our xml anyways etc, was:
+		<!-- custom: button import from RFC DOC mod (c:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Art\Interface\Buttons\Buildings\internet.dds), as for button in our xml anyways etc, was:
 		<Button>,Art/Interface/Buttons/Buildings/Internet.dds,Art/Interface/Buttons/Buildings_Atlas.dds,1,4</Button>
 		anyways etc...
 		-->
@@ -60,7 +60,7 @@
 			<EveryoneSpecialBuilding>NONE</EveryoneSpecialBuilding>
 			<bSpaceship>0</bSpaceship>
 			<bAllowsNukes>0</bAllowsNukes>
-			<Button>,Art/Interface/Buttons/Buildings/Internet.dds,Art/AdvCiv_SAS/Atlases/RFC_DOC_mod_buildings_atlas.dds,1,4</Button>
+			<Button>Art/AdvCiv_SAS/Projects/The_Internet/internet.dds</Button>
 			<PrereqProjects/>
 			<VictoryThresholds/>
 			<VictoryMinThresholds/>
