@@ -4,7 +4,23 @@ This mod (AdvCiv-SAS (Simple Advanced Strategy) is based on
 
 Currently, it is still a work in progress so all the changes described below are not yet if not at least not anyways etc playable yet as explained below, but these are the (main) goals/purposes/features, and game should be quite functional otherwise (not guaranteed though but shoud be maybe yes anyways etc, try to know to be sure as it is not guaranteed, may or not be, anyways etc)
 
-![img1](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.33_Techtree_modified.png)
+## Tech Tree
+
+Before going more in depth in the changes and how to play and/or such documentation or other topics, here is a view of the reworked tech tree in AdvCiv-SAS (currently unfinished) (click on the images to view them in full screen or/and bigger size)
+
+<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG" width="250"></img>
+
+For more details on how the tech tree was made, which historical timeline it follows, sources, more screenshots and such, upcoming changes if any more, or/and other information or not or etc, please visit [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md)
+
+## Docs
+
+About the mod AdvCiv-SAS in general, i added quite a bit of documentation, pictures, and other elements about this AdvCiv-SAS mod in [/_1_AdvCiv-SAS/](/_1_AdvCiv-SAS/)
+
+Additionally, A preview of the changes (screenshots), can be found on this google drive: [full AdvCiv-SAS google drive folder link](https://drive.google.com/drive/folders/1thBnA_TzWq2psd8Tg8RaorwmPZzqgN9M?usp=sharing).
+
+If you want to know more about the project, how i ordered the tree tech historically, why i decided on balance changes and such, please visit these pages (as well).
 
 ## How to play?
 
@@ -13,7 +29,7 @@ to install it and play it, i have provided a few instructions in the [README_Qui
 
 ## Full exhaustive very long and exhaustive changes
 
-If you want to see the full very exhaustive code changes between AdvCiv current latest stable, for example 1.12 here, and AdvCiv-SAS, please visit this [pull request compare](https://github.com/wonderingabout/AdvCiv-SAS/pull/13).
+If you want to see the full very exhaustive code changes between AdvCiv current latest stable, for example 1.12 here, and AdvCiv-SAS, please visit this [pull request compare](https://github.com/wonderingabout/AdvCiv-SAS/pull/13) (Note: you may also want to use a tool like VS Code or some other diff compare tool rather maybe and compare the folders entirely for example (between latest base AdvCiv and our mod AdvCiv-SAS which is based on it (i.e. based on latest base AdvCiv we (i.e. i but anyways etc) found at the time of developing this mod and updated to it) (anyways etc) for full comparison anyways etc)) for an easier comparison (as it is unlikely the GitHub PR link above can render such a diff in website, but added info for exhaustiveness or in case it helps, me too (i.e. for myself too if not at least for me, but anyways etc), anyways etc).
 
 Be warned though it can be very lengthy, so read below if you want (some of the) main quick pointers rather.
 
@@ -33,11 +49,14 @@ AdvCiv-SAS core changes coming from AdvCiv (thanks to [@f1rpo](https://github.co
 
 This sevopedia category displays key information about AdvCiv-SAS (non-exhaustive), make sure to read it ideally i mean. For example:
 
-#### AdvCiv-SAS core changes from AdvCiv
+#### Changes from one mod to another sevopedia items/pages
 
 These list the main changes from AdvCiv to (transitionning) to AdvCiv-SAS. They are not exhaustive, screenshot below is provided for info and may not eb updated or accurate (anymore or is is or not anyways etc). Please take note of these before proceeding further in the documentation.
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_mods_info/0.610_sevopedia_advciv_sas_core_changes (1).JPG" width="250"></img>
+Note that i also added a K-Mod to (base) AdvCiv changes doc as i wanted to list them as well in our (AdvCiv-SAS) (anyways etc) mod, but these are not exhaustive, hopefully helpful, please refer to [base AdvCiv's manual.pdf](/_0_Common_Docs/AdvCiv%20Base%20Doc/manual.pdf) at least this is our copy of it as of now, for updated version of the manual, please view [(base) AdvCiv's github](https://github.com/f1rpo/AdvCiv) in latest branch or whichever branch you find suitable for your need, or other related source(s) rather or maybe or not but anyways etc anyways etc...
+
+<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_mods_info/0.612_sevopedia_k-mod_to_advciv_changes (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_mods_info/0.613_sevopedia_advciv_sas_core_changes (1).JPG" width="250"></img>
 
 For more Mods Info AdvCiv-SAS Core changes screenshot preview/samples (if any), see also the [full sevopedia Mods Info samples google drive folder link](https://drive.google.com/drive/folders/1XGOQSTlPljw29yc0lWjarkKgrtFzRJTI?usp=sharing)
 
@@ -153,15 +172,6 @@ I tweaked the existing one of base AdvCiv/civ4 BTS for historical accuracy and g
 diversity:
 ![img3](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.43%20military%20tree_modified.png)
 
-## Docs
-
-I added quite a bit of documentation, pictures, and other elements about this AdvCiv-SAS mod in [/_1_AdvCiv-SAS/](/_1_AdvCiv-SAS/)
-
-Additionally, A preview of the changes (screenshots), can be found on this google drive: [full AdvCiv-SAS google drive folder link](https://drive.google.com/drive/folders/1thBnA_TzWq2psd8Tg8RaorwmPZzqgN9M?usp=sharing).
-
-If you want to know more about the project, how i ordered the tree tech historically, why i decided
-on balance changes and such, please visit these pages (as well).
-
 ## Known issues in base AdvCiv or/and Civ4
 
 See the [README_Known_Issues_In_Base_AdvCiv_Civ4.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md) for details
@@ -210,6 +220,8 @@ there too.)
 These rules changes entries may not be exhaustive or maybe would but hopefully will help,
 and i can gradually complete them as i see fit or learn, or based on feedback, not
 guaranteed though, but if need please refer to it if needed.
+
+See also [README.md#changes-from-one-mod-to-another-sevopedia-itemspages](/README.md#changes-from-one-mod-to-another-sevopedia-itemspages) for additional info
 
 # Credits
 

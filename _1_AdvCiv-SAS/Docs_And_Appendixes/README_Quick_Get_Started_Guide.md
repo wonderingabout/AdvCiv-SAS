@@ -14,11 +14,11 @@ Sevopedia Entry (non-exhaustive), please visit it there (the screenshot below
 (click to view it full size) may not be updated, it is to give a general
 idea):
 
-<img src="../Images_In_General/sevopedia_mods_info//0.610_sevopedia_advciv_sas_core_changes (1)" width="250"></img>
+<img src="../Images_In_General/sevopedia_mods_info/0.613_sevopedia_advciv_sas_core_changes (1).JPG" width="250"></img>
 
-See also [the main README.md's AdvCiv-SAS core changes section](/README.md#advciv-sas-core-changes-from-advciv) for details.
+See also the main [README.md#changes-from-one-mod-to-another-sevopedia-itemspages](/README.md#changes-from-one-mod-to-another-sevopedia-itemspages) for details.
 
-There are also other additions, in particular written/coded by me wonderingabout, ChatGPT, and Claude AI, which are documented (mostly by me (wonderingabout) though hehe anyways etc), such as the AI personality panel (featuring raw and AI attributes display and ranking for all leaders), very important addition to AdvCiv-SAS, hopefully useful in understanding how each and all AI leaders behave and relate to each other, please read (if interested etc anyways) the (more) extensive documentation of how it works in [README.md#advciv-sas-core-changes-from-advciv](/README.md#advciv-sas-core-changes-from-advciv), or directly in [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md) if you want (to look etc anyways) for the full page.
+There are also other additions, in particular written/coded by me wonderingabout, ChatGPT, and Claude AI, which are documented (mostly by me (wonderingabout) though hehe anyways etc), such as the AI personality panel (featuring raw and AI attributes display and ranking for all leaders), very important addition to AdvCiv-SAS, hopefully useful in understanding how each and all AI leaders behave and relate to each other, please read (if interested etc anyways) the (more) extensive documentation of how it works in [README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks), or directly in [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md) if you want (to look etc anyways) for the full page.
 
 A copy of the screenshots (may not be latest version of it) of how it looks ingame:
 
@@ -242,7 +242,7 @@ Sevopedia "Traits" entries to have the latest updated version of the traits effe
 - start map behaviour is affected, not so much terrain polishing (map script
 removing bad tiles such as jungle or snow or peak, they are now kept, but
 instead you have more starting vision to choose your spot, which should be
-realistic too because at 100 000 BCE (approximately) humans may have enough vision
+realistic too because at 50 000 BCE (approximately) humans may have enough vision
 of their surroundings to know where to live or adjust to it maybe (even though
 first city settling is not as realistic, but is for convenience, and could maybe
 be imagined as a nomadic settlment in the region maybe, still convenient so allowing
@@ -354,10 +354,7 @@ now maybe)
 - opportunistic and efficient AI: the AI will not be much more aggressive than
 AdvCiv, it will be more cautious to start wars, but will hesitate less when it
 (thinks it can) profit, so be careful and plan well
-- i intend this to be quite fast paced, game starts at -100 000 BC but it increments
-very fast (10 000 per turn, so around turn 40 at normal speed you should already be
-around 3000 BC), then the year number and gameplay pace does not slow as much (at
-least i tried to make it so, that each end game turn doesn't take ages)
+- i intend this AdvCiv-SAS mod to be quite fast paced anyways etc but still long enough to hopefully enjoy it (view docs for details if any more docs or details exist), game starts at -50 000 BC but it increments very fast (5 000 per turn then gradually less, so after a few dozen turns approximately at normal speed you should already be at the bronze age) (view docs or ingame for latest updated info anyways etc), see also for more details [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md). Then the year number and gameplay pace does not slow as much (at least i tried to make it so, that each end game turn doesn't take ages)
 - overall not too much clutter, i don't want too many things, but i want the things i
 have/add, to go (very) in depth in them rather, so quite lightweight and hopefully
 easy to digest and get used to it, but deep that you'd want to play it more, maybe, ideally

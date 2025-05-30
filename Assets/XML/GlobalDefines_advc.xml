@@ -1513,10 +1513,10 @@
 		<iDefineIntVal>1000</iDefineIntVal>
 	</Define>
 
-	<!-- custom:-->
+	<!-- custom: first tried -100 000 , now reduced to -50 000 since we have less early start games if i may say and/or if accurate but anyways etc, see also (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\GameInfo\CIV4GameSpeedInfo.xml for details, anyways etc -->
 	<Define>
 		<DefineName>START_YEAR</DefineName>
-		<iDefineIntVal>-100000</iDefineIntVal>
+		<iDefineIntVal>-50000</iDefineIntVal>
 	</Define>
 
 </Civ4Defines>
