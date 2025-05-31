@@ -16,7 +16,7 @@
 # - the place peak hill city terrains bonus features function/method in a similar manner,
 # - and the of this unit against modifiers
 # - as well as of other units modifiers (which would be/is against this (currently selected) unit this time anyways etc),
-# - as well as the placeFree (Promotions only as of now if not always or not or or and other or and not anyways etc)
+# - as well as the placeFreePromotions
 # thanks a lot Claude AI! Anyways etc anyways etc anyways etc... -->
 # -->
 
@@ -161,7 +161,7 @@ class SevoPediaUnit:
 		self.placePromotions()
 		self.placeRequires()
 		self.placeUpgradesTo()
-		self.placeFree()
+		self.placeFreePromotions()
 		self.placeModifiersOfThisUnitAgainstOtherUnitClassesCombatTypes()
 		self.placeModifiersOfOtherUnitClassesCombatTypesAgainstThisUnit()
 		self.placePeakHillCityTerrainsFeaturesModifiers()
@@ -374,7 +374,7 @@ class SevoPediaUnit:
 
 
 
-	def placeFree(self):
+	def placeFreePromotions(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		
@@ -405,7 +405,7 @@ class SevoPediaUnit:
 		# If there's no <!-- custom: item --> to display, display "Nothing" <!-- custom: or similar anyways etc -->
 		if not isButtonFound:
 			textName = self.top.getNextWidgetName()
-			szText = CyTranslator().getText("TXT_KEY_PEDIA_FREE_ITEMS_NO_BUTTON_FOUND", ())
+			szText = CyTranslator().getText("TXT_KEY_PEDIA_FREE_PROMOTIONS_NO_BUTTON_FOUND", ())
 			yCenterPanel = self.Y_FREE + (self.H_FREE / 2)
 			screen.addMultilineText(textName, szText, self.X_FREE + 7, yCenterPanel, self.W_FREE - 14, self.H_FREE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
@@ -817,10 +817,10 @@ class SevoPediaUnit:
 		# Use different text key depending on whether this is a unique or base unit
 		if self.iUnit != iBaseUnit:
 			# This is a unique unit that replaces a base unit
-			panelTxtKey = "TXT_KEY_PEDIA_REPLACES_CUSTOM"
+			panelTxtKey = "TXT_KEY_PEDIA_REPLACE_REPLACES_CUSTOM"
 		else:
 			# This is a base unit that can be replaced by unique units
-			panelTxtKey = "TXT_KEY_PEDIA_REPLACED_BY_CUSTOM"
+			panelTxtKey = "TXT_KEY_PEDIA_REPLACE_REPLACED_BY_CUSTOM"
 
 		# Create panel with proper styling
 		screen.addPanel(panel, CyTranslator().getText(panelTxtKey, ()), "", False, True, self.X_REPLACE, self.Y_REPLACE, self.W_REPLACE, self.H_REPLACE, PanelStyles.PANEL_STYLE_BLUE50)

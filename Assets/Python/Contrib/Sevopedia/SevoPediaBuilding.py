@@ -66,7 +66,7 @@ class SevoPediaBuilding:
 		self.STATS_PANE_LEFT_SIDE_MARGIN = 0
 		self.STATS_PANE_UPPER_PADDING = 38
 
-		# <!-- custom: before starting, store last displayed placeStats coordinate, initialize or/and reinitialize them to none anyways etc, these are only used in placeStats so it should be safe, but we need to store them for later reuse (to display in/at/during a second pass anyways etc the great people button in another overlapping transparent panel), see placeStats "custom 7.1:" for details -->
+		# <!-- custom: before starting, store last displayed placeStats coordinate, initialize or/and reinitialize them to none anyways etc, these are only used in placeStats so it should be safe, but we need to store them for later reuse (to display in/at/during a second pass anyways etc the great people button in another overlapping transparent panel), see placeStats "custom 6.1:" for details -->
 		self.X_LAST_DISPLAYED_GRID_ITEM = None
 		self.Y_LAST_DISPLAYED_GRID_ITEM = None
 
@@ -187,11 +187,10 @@ class SevoPediaBuilding:
 		# Here's what the method now does in sequence:
 		# - 1. Cost: Shows production cost
 		# - 2. Yield Changes, and Yield Modifiers: Shows direct yields like food (+1 food from Baray), and Shows yield modifiers similarly (Food +x%, Production +x%, Commerce +x%) with power breakdown (, +y% w/ (power button))
-		# - 3. Commerce Changes: Shows actual commerce amounts (+x science, gold, culture, espionage)
-		# - 4. Commerce Modifiers: Shows percentage bonuses and double times (+x% and x2 times)
-		# - 5. Happiness/Unhappiness: Shows happiness effects
-		# - 6. Health/Unhealth: Shows health effects
-		# - 7. Great People: Shows great people rate changes
+		# - 3. Commerce Changes, and Commerce Modifiers: Shows actual commerce amounts (+x science, gold, culture, espionage), and Shows percentage bonuses and double times (+x% and x2 times)
+		# - 4. Happiness/Unhappiness: Shows happiness effects
+		# - 5. Health/Unhealth: Shows health effects
+		# - 6. Great People: Shows great people rate changes
 		#
 		# <!-- custom: note: we have a risk of overflow of data/items to display, if all or most of these fields are full, while only having 9 grid positions to do so, this should be extremely rare, but if it were to happen, you can increase grid size to 3 columns * 4 rows (to do that, you could for example reduce line height spacing (but may eb a bit ugly (maybe) but anyways), reduce upper padding (but maybe not needed or not lot as we can even now display a 4th row but not as pretty if starting from current "padded"(?)/upper padding), or for example artifically increase the panel height so the code thinks it has more room to fill one more row (which it has but then is bit ugly(ier) anyways etc) (the 4th before going to a new column and back to 1st row anyways etc), or maybe tweak the code i proudly as in rather funnily? did if that is a word hehe by myself based on old code from sevopedia leader's grid code (renderCategories and such if i am not mistaken and they are still named the same now anyways etc which we created as well with chatgpt/becomingthorugh (see authors for details) but anyways etc anyways etc anyways etc...) and adjusting/refatoring it for our need for this sevopedia building's placeStats anyways etc anyways etc anyways etc), or/and other things ways maybe to refactor it or not so it fits a 4th row or yes or and other or and not anyways etc. Since we don't have to do this, 9 grid of 3 columns * 3 rows are probably enough for us so staying/sticking with that maybe anyways etc anyways etc anyways etc...
 		# -->
@@ -283,9 +282,6 @@ class SevoPediaBuilding:
 			# <!-- custom: 2 Direct Yield Changes (like Food, Production, Commerce), and Yield Modifiers (Food +x%, Production +x%, Commerce +x%) with power breakdown added thanks to Claude AI and my prompts or/and tweaks/adjustments or/and not or/and yes or and but or not but or and but anyways etc (2) -->
 			for k in range(YieldTypes.NUM_YIELD_TYPES):
 				iYieldChange = buildingInfo.getYieldChange(k)
-				# <!-- custom: also adding yield modifiers in the same loop as yield changes for efficiency but also main reason would also be but anyways etc to display for example hammer +25% just after hammer +1 for example, and not after after gold + 5, anyways etc -->
-				iYieldModifier = buildingInfo.getYieldModifier(k)
-				iPowerYieldModifier = buildingInfo.getPowerYieldModifier(k)
 
 				if (iYieldChange != 0):
 					if (iYieldChange > 0):
@@ -296,6 +292,10 @@ class SevoPediaBuilding:
 					szText2 = u"%c  %s" % (gc.getYieldInfo(k).getChar(), szText1)
 					fillCell(screen, szText2, x, y)
 					x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
+
+				# <!-- custom: also adding yield modifiers in the same loop as yield changes for efficiency but also main reason would also be but anyways etc to display for example hammer +25% just after hammer +1 for example, and not after after gold + 5, anyways etc -->
+				iYieldModifier = buildingInfo.getYieldModifier(k)
+				iPowerYieldModifier = buildingInfo.getPowerYieldModifier(k)
 
 				# Total modifier (regular + power)
 				iTotalYieldModifier = iYieldModifier + iPowerYieldModifier
@@ -321,7 +321,7 @@ class SevoPediaBuilding:
 							szPowerSign = ""
 						szText1 += szPowerSign + str(iPowerYieldModifier) + "% w/"
 						
-						# Add power button (using fictional path - replace with actual if found)
+						# Add power button (<!-- custom: improt from warlords atlas i added, if i'm not mistaken it is indeed from warlords as other mods like RI mod may have done indeed if i may say and that i found while trying to understand how to link to the warlords's atlas as folder seemed different with global search in entire base civ 4 root folder anyways etc, thankfully too if i may say that i am thankful, but anyways etc or not or yes but anyways etc -->)
 						szPowerButton = u"<img=,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_2.dds,6,11 size=24></img>"
 						szText1 += szPowerButton
 
@@ -329,7 +329,7 @@ class SevoPediaBuilding:
 					fillCell(screen, szText2, x, y)
 					x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
 
-			# <!-- custom: 3: Commerce Changes (Science, Gold, Culture, Espionage) (3) -->
+			# <!-- custom: 3: Commerce Changes (Science, Gold, Culture, Espionage), and Commerce Modifiers and Double Times (3) -->
 			for k in range(CommerceTypes.NUM_COMMERCE_TYPES):
 				iTotalCommerce = buildingInfo.getObsoleteSafeCommerceChange(k) + buildingInfo.getCommerceChange(k)
 				if (iTotalCommerce != 0):
@@ -342,8 +342,7 @@ class SevoPediaBuilding:
 					fillCell(screen, szText2, x, y)
 					x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
 
-			# <!-- custom: 4: Commerce Modifiers and Double Times (4) -->
-			for k in range(CommerceTypes.NUM_COMMERCE_TYPES):
+				# <!-- custom: also process the modifiers associated to the raw commerce changes just after the raw value (for example culture +1 then the next line is immediately culture +50 % and only then/after gold + 1 for example (and now not culture + 1 then gold + 1 and only then/after culture + 50% anyways etc), if i am not mistaken this is how it would work this code arragement or/and structure if i may say too indeed too too but anyways etc now if i may say, anyways etc) --> 
 				iCommerceModifier = buildingInfo.getCommerceModifier(k)
 				iCommerceDoubleTime = buildingInfo.getCommerceChangeDoubleTime(k)
 				iGlobalCommerceModifier = buildingInfo.getGlobalCommerceModifier(k)
@@ -374,7 +373,7 @@ class SevoPediaBuilding:
 					fillCell(screen, szText2, x, y)
 					x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
 
-			# <!-- custom: 5: Happiness or Unhappiness anyways etc (5) -->
+			# <!-- custom: 4: Happiness or Unhappiness anyways etc (4) -->
 			iHappiness = buildingInfo.getHappiness()
 			if self.top.iActivePlayer != -1:
 				if (self.iBuilding == gc.getCivilizationInfo(gc.getPlayer(self.top.iActivePlayer).getCivilizationType()).getCivilizationBuildings(buildingInfo.getBuildingClassType())):
@@ -391,7 +390,7 @@ class SevoPediaBuilding:
 				fillCell(screen, szText2, x, y)
 				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
 
-			# <!-- custom: 6: Health(y?)(iness?? Anyways etc... Anyways etc...) or Unhealth(y)(same anyways etc... anyways etc...) anyways etc (6) -->
+			# <!-- custom: 5: Health(y?)(iness?? Anyways etc... Anyways etc...) or Unhealth(y)(same anyways etc... anyways etc...) anyways etc (5) -->
 			iHealth = buildingInfo.getHealth()
 			if self.top.iActivePlayer != -1:
 				if (self.iBuilding == gc.getCivilizationInfo(gc.getPlayer(self.top.iActivePlayer).getCivilizationType()).getCivilizationBuildings(buildingInfo.getBuildingClassType())):
@@ -408,9 +407,9 @@ class SevoPediaBuilding:
 				fillCell(screen, szText2, x, y)
 				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
 
-			# <!-- custom: version below ("custom: 7: original version:") works at successfully displaying great people information as a textual szText2, for example "+2" is now "+2 (Great Scientist)", but this is too long, and while it could be abbreviated, i would prefer to display buttons rather next to the value, i don't know how well it will work if great people type is not a great people (for example and such if understood it correctly that non great people type of units can spawn from great people count any unit in fact if i am not mistaken anyways etc) (could add a fallback indeed as Claude AI suggested in a more advanced (not here) version of the code (due to it being more complicated, but basically it just abbreviates previous example to "+2 (G.Sci)", but i preferred simplicity in this case so kept this code rather anyways etc, commented-out still though as we are now trying and maybe will succeed or not but anyways etc to do a button approach rather would look cooler as in prettier or mroe pelasant anyways etc --> 
+			# <!-- custom: version below ("custom: 6: original version:") works at successfully displaying great people information as a textual szText2, for example "+2" is now "+2 (Great Scientist)", but this is too long, and while it could be abbreviated, i would prefer to display buttons rather next to the value, i don't know how well it will work if great people type is not a great people (for example and such if understood it correctly that non great people type of units can spawn from great people count any unit in fact if i am not mistaken anyways etc) (could add a fallback indeed as Claude AI suggested in a more advanced (not here) version of the code (due to it being more complicated, but basically it just abbreviates previous example to "+2 (G.Sci)", but i preferred simplicity in this case so kept this code rather anyways etc, commented-out still though as we are now trying and maybe will succeed or not but anyways etc to do a button approach rather would look cooler as in prettier or mroe pelasant anyways etc --> 
 			"""
-			# <!-- custom: 7: original version: Great people -->
+			# <!-- custom: 6: original version: Great people -->
 			if buildingInfo.getGreatPeopleRateChange() != 0:
 				# First get the building's great person type (e.g., SPECIALIST_GREAT_MERCHANT)
 				greatPersonType = buildingInfo.getGreatPeopleUnitClass()
@@ -444,7 +443,7 @@ class SevoPediaBuilding:
 				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
 			"""
 			
-			# <!-- custom: 7.1: alternative version part 1: Great people, only display the great people icon and the value, for example "(Great People icon) +2", use a button later in "custom 8.2:" rather instead anyways etc -->
+			# <!-- custom: 6.1: alternative version part 1: Great people, only display the great people icon and the value, for example "(Great People icon) +2", use a button later in "custom 8.2:" rather instead anyways etc -->
 			if buildingInfo.getGreatPeopleRateChange() != 0:
 				# First get the building's great person type (e.g., SPECIALIST_GREAT_MERCHANT)
 				greatPersonType = buildingInfo.getGreatPeopleUnitClass()
@@ -457,14 +456,14 @@ class SevoPediaBuilding:
 				
 				# Display the text
 				fillCell(screen, szText2, x, y)
-				# <!-- custom: since this is our last usage/placeStats info displayed, we don't get the next coordinates, but instead store current coordinates (of last item displayed, anyways etc) to know where to place our great people button later in "custom: 7.2" below (if i am not mistaken that it is below, it should be in all cases later or not or yes but anyways etc anyways etc anyways etc -->
+				# <!-- custom: since this is our last usage/placeStats info displayed, we don't get the next coordinates, but instead store current coordinates (of last item displayed, anyways etc) to know where to place our great people button later in "custom: 6.2" below (if i am not mistaken that it is below, it should be in all cases later or not or yes but anyways etc anyways etc anyways etc -->
 				self.X_LAST_DISPLAYED_GRID_ITEM = x
 				self.Y_LAST_DISPLAYED_GRID_ITEM = y
 
 		# Render Panels
 		renderCells(screen, buildingInfo, columnWidth, self.X_STATS_PANE, self.Y_STATS_PANE)
 
-		# <!-- custom: 7.2: alternative version: now that textual and placeStats display is finished (minus Great People info), handle it as a separate panel now, that overlaps with placeStats, and that is transparent in color background, using last grid coordinates while we have them, the inner placeStats logic, and finishing by displaying the Great People info as button as we want it anyways etc -->
+		# <!-- custom: 6.2: alternative version: now that textual and placeStats display is finished (minus Great People info), handle it as a separate panel now, that overlaps with placeStats, and that is transparent in color background, using last grid coordinates while we have them, the inner placeStats logic, and finishing by displaying the Great People info as button as we want it anyways etc -->
 		def placeGreatPeopleStats(screen, buildingInfo):
 			screen = self.top.getScreen()
 			panelName = self.top.getNextWidgetName()
@@ -513,7 +512,7 @@ class SevoPediaBuilding:
 				
 				if iGreatPersonUnit != -1:
 					greatPersonInfo = gc.getUnitInfo(iGreatPersonUnit)
-					greatPersonName = greatPersonInfo.getDescription()
+					"""greatPersonName = greatPersonInfo.getDescription()"""
 					greatPersonIcon = greatPersonInfo.getButton()
 					
 				# Create text string
@@ -539,7 +538,7 @@ class SevoPediaBuilding:
 									WidgetTypes.WIDGET_GENERAL, -1, -1)
 					"""
 				else:
-					# <!-- custom: else our placeStats "custom: 7.1" already handles the display of the great people icon and the great people rate value (text too anyways etc) if i am not mistaken, so maybe we can ignore code below as well and clean it up in next commit or any time further i wish or and other or and not or and etc anyways etc, keeping as is for nwo until cleanup anyways etc. Also, if there is some special info like the great peiople unit name that is/would/were not (//to anyways etc) /be/ anyways etc any of the great people units (for example a settler if i am not mistaken that this is possible too from what i understood of what i read of Claude AI or online but maybe was claude AI's explanation anyways etc, then we still have the placeSpecial info not removed to cover us anyways etc (i chose to not remove it in the end as it has some sueful information like defenses obsoleting or not with exceptions, power being this or that, or/and other special or confusing well or well enough hopefully as they did if they enjoyed or not o wanted or not anyways etc, so cleaned from DLL placeSpecial messages only the obvious uneeded logic that clearly overlaps with the new panels we have (placeFreePBBS, placeRequiredFor, placeExclusiveCivs as was done (DLL cleanup of redundant messages) in sevopedia unit and now applied to sevopedia building, anyways etc.)) -->
+					# <!-- custom: else our placeStats "custom: 6.1" already handles the display of the great people icon and the great people rate value (text too anyways etc) if i am not mistaken, so maybe we can ignore code below as well and clean it up in next commit or any time further i wish or and other or and not or and etc anyways etc, keeping as is for nwo until cleanup anyways etc. Also, if there is some special info like the great peiople unit name that is/would/were not (//to anyways etc) /be/ anyways etc any of the great people units (for example a settler if i am not mistaken that this is possible too from what i understood of what i read of Claude AI or online but maybe was claude AI's explanation anyways etc, then we still have the placeSpecial info not removed to cover us anyways etc (i chose to not remove it in the end as it has some sueful information like defenses obsoleting or not with exceptions, power being this or that, or/and other special or confusing well or well enough hopefully as they did if they enjoyed or not o wanted or not anyways etc, so cleaned from DLL placeSpecial messages only the obvious uneeded logic that clearly overlaps with the new panels we have (placeFreePBBS, placeRequiredFor, placeExclusiveCivs as was done (DLL cleanup of redundant messages) in sevopedia unit and now applied to sevopedia building, anyways etc.)) -->
 					"""
 					# Just add text if no icon
 					textWidget = self.top.getNextWidgetName()
@@ -1157,10 +1156,10 @@ class SevoPediaBuilding:
 		# Use different text key depending on whether this is a unique or base building
 		if self.iBuilding != iBaseBuilding:
 			# This is a unique building that replaces a base building
-			panelTxtKey = "TXT_KEY_PEDIA_REPLACES_CUSTOM"
+			panelTxtKey = "TXT_KEY_PEDIA_REPLACE_REPLACES_CUSTOM"
 		else:
 			# This is a base building that can be replaced by unique buildings
-			panelTxtKey = "TXT_KEY_PEDIA_REPLACED_BY_CUSTOM"
+			panelTxtKey = "TXT_KEY_PEDIA_REPLACE_REPLACED_BY_CUSTOM"
 
 		# Create panel with proper styling
 		screen.addPanel(panel, CyTranslator().getText(panelTxtKey, ()), "", False, True, self.X_REPLACE, self.Y_REPLACE, self.W_REPLACE, self.H_REPLACE, PanelStyles.PANEL_STYLE_BLUE50)

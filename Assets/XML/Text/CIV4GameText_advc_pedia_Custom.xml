@@ -41,12 +41,20 @@ hopefully more readable or exportable if need/want be now -->
 		<English>Never</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_REPLACES_CUSTOM</Tag>
+		<Tag>TXT_KEY_PEDIA_REPLACE_REPLACES_CUSTOM</Tag>
 		<English>Replaces</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_REPLACE_NO_BUTTON_FOUND</Tag>
+		<English>Nothing</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_FREE_PBBS</Tag>
 		<English>Free Promotion, Building, Bonus, Specialists</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FREE_PBBS_NO_BUTTON_FOUND</Tag>
+		<English>None</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_FREE_WITH</Tag>
@@ -61,7 +69,7 @@ hopefully more readable or exportable if need/want be now -->
 		<English>Free Promotions</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_FREE_PBBS_NO_BUTTON_FOUND</Tag>
+		<Tag>TXT_KEY_PEDIA_FREE_PROMOTIONS_NO_BUTTON_FOUND</Tag>
 		<English>None</English>
 	</TEXT>
 	<TEXT>
@@ -74,10 +82,6 @@ hopefully more readable or exportable if need/want be now -->
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_REQUIRED_FOR_NO_BUTTON_FOUND</Tag>
-		<English>Nothing</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_REPLACE_NO_BUTTON_FOUND</Tag>
 		<English>Nothing</English>
 	</TEXT>
 	<TEXT>
