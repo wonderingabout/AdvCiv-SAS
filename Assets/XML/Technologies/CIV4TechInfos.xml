@@ -2569,7 +2569,8 @@
 			<Quote>TXT_KEY_TECH_ALPHABET_QUOTE</Quote>
 			<Sound>AS2D_TECH_ALPHABET</Sound>
 			<SoundMP>AS2D_TECH_MP_ALPHABET</SoundMP>
-			<Button>,Art/Interface/Buttons/TechTree/Alphabet.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,1</Button>
+			<!-- custom: as this will be tech_naturalism if we rework it as intended or not or etc but anyways etc, changing button, old one was ,Art/Interface/Buttons/TechTree/Alphabet.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,1 anyways etc:  -->
+			<Button>,Art/Interface/Buttons/TechTree/Alphabet.dds,Art/Interface/Buttons/GodsOfOld_Atlas.dds,8,5</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_CALENDAR (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>TECH_CALENDAR</Type>
@@ -3457,7 +3458,8 @@
 			<Quote>TXT_KEY_TECH_PHYSICS_QUOTE</Quote>
 			<Sound>AS2D_TECH_PHYSICS</Sound>
 			<SoundMP>AS2D_TECH_MP_PHYSICS</SoundMP>
-			<Button>,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,6</Button>
+			<!-- custom: button changed as physics is earlier now, import from warlords's atlas, old button was in base advciv anyways etc: <Button>,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,6</Button> -->
+			<Button>,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,15</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_BIOLOGY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>TECH_BIOLOGY</Type>

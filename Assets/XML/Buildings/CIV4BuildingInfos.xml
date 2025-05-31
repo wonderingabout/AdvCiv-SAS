@@ -3253,7 +3253,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<bCenterInCity>0</bCenterInCity>
 			<!-- custom: the granary should be valuable to all players and war profiles (peaceful or warmonger alike could make great use of it, but do not overincrease it in case alternate strategies are better, trying this value then anyways etc), was 0 -->
 			<iAIWeight>25</iAIWeight>
-			<iCost>60</iCost>
+			<!-- custom: cost reduced to make gameplay more gradual, and this building more balanced with the slavery association, also as part of buffing slavery that is too weak see (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\GameInfo\CIV4HurryInfo.xml for details, anyways etc, also cost was a bit too high for such an early game building, as compared to say the monument, maybe this is more balanced now in that regard, may be adjusted or not more or less or none or and other or and not or etc later anyways etc, was 60 -->
+			<iCost>45</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -3273,7 +3274,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<iGlobalHurryModifier>0</iGlobalHurryModifier>
 			<iExperience>0</iExperience>
 			<iGlobalExperience>0</iGlobalExperience>
-			<iFoodKept>50</iFoodKept>
+			<!-- reducing this as the granary is a bit too op early, making it a cheaper more gradual building, see code comment at iCost of this building for details, also not affecting civ-specific version of the granary, at least not all of them if there are more, to give more of an advantage to these civs with their civ-specific costly in terms of investment if i may say that it is their only civ-specific building so it better be strong and worth it else rework it, but anyways etc anyways etc anyways etc..., was 50 -->
+			<iFoodKept>40</iFoodKept>
 			<iAirlift>0</iAirlift>
 			<iAirModifier>0</iAirModifier>
 			<iAirUnitCapacity>0</iAirUnitCapacity>
@@ -3679,19 +3681,19 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<RiverPlotYieldChanges/>
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
+			<!-- custom: also add production modifiers to make it even more of a production/growth type of building, anyways etc -->
+			<YieldModifiers>
+				<iYield>0</iYield>
+				<iYield>10</iYield>
+				<iYield>0</iYield>
+			</YieldModifiers>
 			<CommerceChanges/>
-			<!-- custom: was 0, 0, 1 -->
-			<ObsoleteSafeCommerceChanges>
-				<iCommerce>0</iCommerce>
-				<iCommerce>0</iCommerce>
-				<!-- advc.908b: was 2 -->
-				<iCommerce>2</iCommerce>
-			</ObsoleteSafeCommerceChanges>
-			<CommerceChangeDoubleTimes>
-				<iCommerce>0</iCommerce>
-				<iCommerce>0</iCommerce>
-				<iCommerce>1000</iCommerce>
-			</CommerceChangeDoubleTimes>
+			<!-- custom: reworked as part of the slavery+granary rework or/and rebalance(ing anyways etc), now the incan granary (terrace) is a production building, more in line with the pedia entry of it as well, and not a bad change i think as gaining culture should be reserved to cultural buildings, and extending borders so easily without a monument or such is a bit too op or a weird mix/hard to balance combo (either too weak or too strong no real middle margin, but in all cases i want to rework it as such now, anyways etc), maybe will turn out well, or not, or yes or etc, but anyways etc, was was 0, 0, 1 -->
+			<!-- custom: was 0, 0, 1 (note: as for the below advc comment of base advciv, it applies to the old <iCommerce>1</iCommerce> line now removed entirely as part of our rework in advciv-sas, anyways etc) -->
+			<!-- advc.908b: was 2 -->
+			<ObsoleteSafeCommerceChanges/>
+			<!-- custom: also remove culture double times and culture related things in xml now that this is not a cultural building anymore but a production/growth one, anyways etc -->
+			<CommerceChangeDoubleTimes/>
 			<CommerceModifiers/>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
@@ -3728,15 +3730,20 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: remove culture flavor entirely, increase flavor growth if i am not mistaken, as this is indeed an op building now in a balanced way if i may say maybe, but in all cases anyways etc, rework flavors more generally to match the new building's profile, anyways etc -->
 			<!-- advc.020: was 10 Growth; doesn't account for the +culture -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>10</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
 					<iFlavor>8</iFlavor>
 				</Flavor>
 				<Flavor>
-					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>3</iFlavor>
+					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+					<iFlavor>6</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>

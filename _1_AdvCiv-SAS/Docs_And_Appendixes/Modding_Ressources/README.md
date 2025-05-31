@@ -336,6 +336,59 @@ void CvDllTranslator::initializeTags(CvWString& szTagStartIcon, CvWString& szTag
 
 Anyways etc... (Anyways etc anyways etc...)
 
+## Insert an <img> in a text label in sevopedia
+
+Code sample provided by Claude AI in one of my prompts to add YieldChanges to placeStats in sevopedia building, but the code sample surprisingly and happily if i may say but anyways etc, or maybe rather plesantly or both or not but anyways etc works, so sharing it in case it helps others or me who rereads it or and need or want to reuse it some day, or not, or etc, but anyways etc.
+
+Output looks like this for example: [(google drive folder screenshots link)](https://drive.google.com/drive/folders/1ZY8gTziXBsHoCjjxYRJ4DoJwTf5VHvsy?usp=sharing)
+
+note: modified button path in code below to a button path known to exist in base advciv (civ4 too?), for example the jewish temple
+
+```
+			# <!-- custom: 2.1: Yield Modifiers (Food +x%, Production +x%, Commerce +x%) with power breakdown -->
+			for k in range(YieldTypes.NUM_YIELD_TYPES):
+				iYieldModifier = buildingInfo.getYieldModifier(k)
+				iPowerYieldModifier = buildingInfo.getPowerYieldModifier(k)
+				
+				# Total modifier (regular + power)
+				iTotalYieldModifier = iYieldModifier + iPowerYieldModifier
+				
+				if (iTotalYieldModifier != 0):
+					szText1 = ""
+					
+					# Base modifier part
+					if (iYieldModifier != 0):
+						if (iYieldModifier > 0):
+							szSign = "+"
+						else:
+							szSign = ""
+						szText1 = szSign + str(iYieldModifier) + "%"
+					
+					# Power modifier part (optional, only if exists)
+					if (iPowerYieldModifier != 0):
+						if (len(szText1) > 0):
+							szText1 += ", and "
+						if (iPowerYieldModifier > 0):
+							szPowerSign = "+"
+						else:
+							szPowerSign = ""
+						szText1 += szPowerSign + str(iPowerYieldModifier) + "% with "
+						
+						# Add power button (using fictional path - replace with actual if found)
+						szPowerButton = u"<img=Art/Interface/Buttons/Buildings/Temple_Jewish.dds size=16></img>"
+						szText1 += szPowerButton
+					
+					szText2 = u"%c  %s" % (gc.getYieldInfo(k).getChar(), szText1)
+					fillCell(screen, szText2, x, y)
+					x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
+```
+
+note 2: i have tested with a .jpg (source [Stonehedge wallpaper from https://www.wallpaperflare.com/ Current photo size: 4272 x 2848 px • Resolution:4K)](https://www.wallpaperflare.com/stonehenge-england-stone-henge-united-kingdom-grass-sky-wallpaper-ahjky/download) (drives me to quite nostalgic times, even though is in the past now, but anyways etc...) (`szPowerButton = u"<img=Art/AdvCiv_SAS/Wallpapers/Stonehedge/test.dds size=16></img>"`), also appended in the drive folder, but display doesn't work, however converting it to .dds (DXT1 with Paint.NET for example, full resolution) is now displayed accurately and successfully (.dds also appended in drive link mentionned above anyways etc))
+
+In the note 2 example but anyways etc, increasing size to for example 1024 also works, we get a very nice sevopedia background image hehe if i may say but anyways etc, i suspect using a lower resolution base image, perhaps 1080p, or 1440p may produce even better results (less pixelated one (based on the  [past .dds experiment/experience](/README.md#dds-button-size-comparison-analysis) where optimal size seemed to be a bit higher than max icon_size (256px on a 164px if i remember correctly and am not mistaken but anyways etc, so maybe here a 1440p native image may work best? But not sure and would need to test, and in all cases, (but) anyways etc) but anyways etc), perhaps using another DXT conversion too or not, but anyways etc)
+
+note 3: atlas linking buttons such as `szPowerButton = u"<img=,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,15 size=32></img>"` (as part of changing tech_physics 's button as part of our tech rework in advciv-sas but anyways etc...) also seems to work quite well, we see the button successfully even though a bit excentered if that is a word in english (not centered around the text), but hopefully good enough but anyways etc at least as proof of concept further if i may say but anyways etc, see the great person button code in place Stats of sevopedia building as well for a cleaner or rather more centered implementation, is just to show/test how it successfully works here but anyways etc ; also for our needs this seems to work very well (whoaaa!!!! If i may say indeed too, but anyways etc...), see screenshot(s) in drive link above for details anyways etc
+
 ## Files
 
 Please see the files (mostly if not only images) [in the Modding_Ressources Google Drive](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp)

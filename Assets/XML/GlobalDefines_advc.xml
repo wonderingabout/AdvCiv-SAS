@@ -1187,9 +1187,10 @@
 		 Barbarian creation also won't be affected by the adjustment.
 		 Changes to this parameter won't properly take effect in an ongoing game,
 		 will have to start a new one. -->
+	<!-- custom: i'd want handicap settings to be more reliable, if there is/i have a setting to rebalance, i'd rather do it there, so inverting this back to 0 if it was the value, not sure what this does or if it does what i intend/as intended (of me but anyways etc), but maybe it does if i may say i mean anyways etc, anyways etc, at least i want to do it this way or/and try it for handicap settings, anyways etc, was 1 -->
 	<Define>
 		<DefineName>RF_PLAYER_HANDICAP_ADJUSTMENT</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 
 	<!-- advc.550d: This modifier is applied to tech costs when playing

@@ -6,7 +6,7 @@ Currently, it is still a work in progress so all the changes described below are
 
 ## Tech Tree
 
-Before going more in depth in the changes and how to play and/or such documentation or other topics, here is a view of the reworked tech tree in AdvCiv-SAS (currently unfinished) (click on the images to view them in full screen or/and bigger size)
+Before going more in depth about/in the changes and how to play and/or such documentation or other topics, here is a view of the reworked tech tree in AdvCiv-SAS (currently unfinished) (click on the images to view them in full screen or/and bigger size)
 
 <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG" width="250"></img>
@@ -58,7 +58,7 @@ Note that i also added a K-Mod to (base) AdvCiv changes doc as i wanted to list 
 <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_mods_info/0.612_sevopedia_k-mod_to_advciv_changes (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_mods_info/0.613_sevopedia_advciv_sas_core_changes (1).JPG" width="250"></img>
 
-For more Mods Info AdvCiv-SAS Core changes screenshot preview/samples (if any), see also the [full sevopedia Mods Info samples google drive folder link](https://drive.google.com/drive/folders/1XGOQSTlPljw29yc0lWjarkKgrtFzRJTI?usp=sharing)
+For more Mods Info AdvCiv-SAS Core changes screenshot preview/samples (if any), see also the [full sevopedia Mods Info samples google drive folder link](https://drive.google.com/drive/folders/1XGOQSTlPljw29yc0lWjarkKgrtFzRJTI?usp=sharing). See also as well for more docs info about mod changes (todo move to a specific doc maybe or not or and other or and not or and etc anyways etc [README.md#more-details-on-previous-mods-changes-civ4-bts-k-mod](/README.md#more-details-on-previous-mods-changes-civ4-bts-k-mod)
 
 ### Sevopedia reworks (AI Personality Panel and other sevopedia reworks)
 

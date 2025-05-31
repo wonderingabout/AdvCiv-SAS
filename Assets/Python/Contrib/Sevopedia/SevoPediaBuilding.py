@@ -186,7 +186,7 @@ class SevoPediaBuilding:
 		# <!-- custom: refer to code below to know max element count, so far we have in our code (see below for how it is implemented anyways etc), taken from claude AI's message and adjusted (formatted or not anyways etc) or not anyways etc thanks claude hehe anyways etc -->
 		# Here's what the method now does in sequence:
 		# - 1. Cost: Shows production cost
-		# - 2. Yield Changes: Shows direct yields like food (+1 food from Baray)
+		# - 2. Yield Changes, and Yield Modifiers: Shows direct yields like food (+1 food from Baray), and Shows yield modifiers similarly (Food +x%, Production +x%, Commerce +x%) with power breakdown (, +y% w/ (power button))
 		# - 3. Commerce Changes: Shows actual commerce amounts (+x science, gold, culture, espionage)
 		# - 4. Commerce Modifiers: Shows percentage bonuses and double times (+x% and x2 times)
 		# - 5. Happiness/Unhappiness: Shows happiness effects
@@ -280,15 +280,51 @@ class SevoPediaBuilding:
 				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
 
 
-			# 2: <!-- custom: 2 Direct Yield Changes (like Food, Production, Commerce) (2) -->
+			# <!-- custom: 2 Direct Yield Changes (like Food, Production, Commerce), and Yield Modifiers (Food +x%, Production +x%, Commerce +x%) with power breakdown added thanks to Claude AI and my prompts or/and tweaks/adjustments or/and not or/and yes or and but or not but or and but anyways etc (2) -->
 			for k in range(YieldTypes.NUM_YIELD_TYPES):
 				iYieldChange = buildingInfo.getYieldChange(k)
+				# <!-- custom: also adding yield modifiers in the same loop as yield changes for efficiency but also main reason would also be but anyways etc to display for example hammer +25% just after hammer +1 for example, and not after after gold + 5, anyways etc -->
+				iYieldModifier = buildingInfo.getYieldModifier(k)
+				iPowerYieldModifier = buildingInfo.getPowerYieldModifier(k)
+
 				if (iYieldChange != 0):
 					if (iYieldChange > 0):
 						szSign = "+"
 					else:
 						szSign = ""
 					szText1 = szSign + str(iYieldChange)
+					szText2 = u"%c  %s" % (gc.getYieldInfo(k).getChar(), szText1)
+					fillCell(screen, szText2, x, y)
+					x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
+
+				# Total modifier (regular + power)
+				iTotalYieldModifier = iYieldModifier + iPowerYieldModifier
+				
+				if (iTotalYieldModifier != 0):
+					szText1 = ""
+					
+					# Base modifier part
+					if (iYieldModifier != 0):
+						if (iYieldModifier > 0):
+							szSign = "+"
+						else:
+							szSign = ""
+						szText1 = szSign + str(iYieldModifier) + "%"
+					
+					# Power modifier part (optional, only if exists)
+					if (iPowerYieldModifier != 0):
+						if (len(szText1) > 0):
+							szText1 += ", "
+						if (iPowerYieldModifier > 0):
+							szPowerSign = "+"
+						else:
+							szPowerSign = ""
+						szText1 += szPowerSign + str(iPowerYieldModifier) + "% w/"
+						
+						# Add power button (using fictional path - replace with actual if found)
+						szPowerButton = u"<img=,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_2.dds,6,11 size=24></img>"
+						szText1 += szPowerButton
+
 					szText2 = u"%c  %s" % (gc.getYieldInfo(k).getChar(), szText1)
 					fillCell(screen, szText2, x, y)
 					x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)

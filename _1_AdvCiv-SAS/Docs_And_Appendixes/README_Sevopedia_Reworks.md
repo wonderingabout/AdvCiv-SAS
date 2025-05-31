@@ -75,5 +75,7 @@ Based on the sevopedia unit previous rework, and also with the help of Claude AI
 <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (2).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (3).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (4).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (5).JPG" width="250"></img>
 
 For more sevopedia previous about this category or/and other sevopedia categories, see also the [full sevopedia samples google drive folder link](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing)
