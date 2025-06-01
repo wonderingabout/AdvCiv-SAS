@@ -26,6 +26,8 @@ import CvUtil
 import ScreenInput
 import SevoScreenEnums
 
+from _sevopedia_helpers import *
+
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
@@ -322,9 +324,12 @@ class SevoPediaBuilding:
 						szText1 += szPowerSign + str(iPowerYieldModifier) + "% w/"
 						
 						# Add power button
-						buttonPath = CyTranslator().getText("TXT_KEY_ICON_AS_BUTTON_POWER_BUTTON_PATH", ())
+						configButtonPathSTxtKey = "TXT_KEY_ICON_AS_BUTTON_POWER_BUTTON_PATH"
+						resolvedButtonPath = CyTranslator().getText(configButtonPathSTxtKey, ())
+						buttonHeader = "Power Button in Sevopedia Building's placeStats"
+						check_button_path_is_valid(buttonHeader, resolvedButtonPath, configButtonPathSTxtKey)
 						buttonSize = 24
-						szButtonText = u"<img=%s size=%s></img>" % (buttonPath, str(buttonSize))
+						szButtonText = u"<img=%s size=%s></img>" % (resolvedButtonPath, str(buttonSize))
 						szText1 += szButtonText
 
 					szText2 = u"%c  %s" % (gc.getYieldInfo(k).getChar(), szText1)

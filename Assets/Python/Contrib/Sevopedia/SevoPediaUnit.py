@@ -25,6 +25,8 @@ import CvUtil
 import ScreenInput
 import SevoScreenEnums
 
+from _sevopedia_helpers import *
+
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
@@ -666,9 +668,29 @@ class SevoPediaUnit:
 		# Special cases for Hills and City
 		hillsButton = ""
 		hillsDescription = CyTranslator().getText("TXT_KEY_TERRAIN_HILL", ())
-		# <!-- custom: add str() wrapper else (i.e. without it anyways etc) we get an error (it seems) (but anyways etc) anyways (i.e. not impliying it is necessary, but without it we get an error, may or may not be necessary, but in all cases anyways etc) etc -->
-		cityButtonPath = str(CyTranslator().getText("TXT_KEY_ICON_AS_BUTTON_CITIES_BUTTON_PATH", ()))
-		cityDescription = CyTranslator().getText("TXT_KEY_CONCEPT_CITIES", ())
+
+		citiesConfigButtonPathSTxtKey = "TXT_KEY_ICON_AS_BUTTON_CITIES_BUTTON_PATH"
+		"""
+		<!-- custom: add str() wrapper else (i.e. without it anyways etc) we get an error (it seems) (but anyways etc) anyways (i.e. not impliying it is necessary, but without it we get this error with this other kind of button writing code that does not use same logic as the add as <img> one of other buttons anyways etc (from err log anyways etc):
+		
+		Traceback (most recent call last):
+		  File "CvScreensInterface", line 429, in pediaJumpToUnit
+		  File "SevoPediaMain", line 338, in pediaJump
+		  File "SevoPediaUnit", line 169, in interfaceScreen
+		  File "SevoPediaUnit", line 784, in placePeakHillCityTerrainsFeaturesModifiers
+		ArgumentError: Python argument types in
+			CyGInterfaceScreen.attachImageButton(CyGInterfaceScreen, str, str, unicode, CvPythonExtensions.GenericButtonSizes, CvPythonExtensions.WidgetTypes, CvPythonExtensions.CivilopediaPageTypes, int, bool)
+		did not match C++ signature:
+			attachImageButton(class CyGInterfaceScreen {lvalue}, char const *, char const *, char const *, enum GenericButtonSizes, enum WidgetTypes, int, int, bool)
+		ERR: Python function pediaJumpToUnit failed, module CvScreensInterface
+		  
+		(adding the str) may or may not be necessary or an alternative solution to this may exist or not, but in all cases anyways etc) anyways etc, etc
+		-->
+		"""
+		citiesResolvedButtonPath = str(CyTranslator().getText(citiesConfigButtonPathSTxtKey, ()))
+		citiesButtonHeader = "Cities button in Sevopedia Unit's placePeakHillCityTerrainsFeaturesModifiers"
+		check_button_path_is_valid(citiesButtonHeader, citiesResolvedButtonPath, citiesConfigButtonPathSTxtKey)	
+		citiesDescription = CyTranslator().getText("TXT_KEY_CONCEPT_CITIES", ())
 		
 		# Try to find a hills button from the terrain infos
 		for i in range(gc.getNumTerrainInfos()):
@@ -703,9 +725,9 @@ class SevoPediaUnit:
 		if iCityAttack > 0 or iCityDefense > 0:
 			# Use Widget_Pedia_Description with the concept ID
 			if iCitiesConceptID != -1:
-				key = ("CITY", cityButtonPath, cityDescription, "CONCEPT", CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, iCitiesConceptID)
+				key = ("CITY", citiesResolvedButtonPath, citiesDescription, "CONCEPT", CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, iCitiesConceptID)
 			else:
-				key = ("CITY", cityButtonPath, cityDescription, "NONE", -1, -1)
+				key = ("CITY", citiesResolvedButtonPath, citiesDescription, "NONE", -1, -1)
 			combinedBonuses[key] = (iCityAttack, iCityDefense)
 		
 		# Terrain Attack/Defense bonuses

@@ -5,13 +5,6 @@ See also (adjust to your mod path if need(ed) anyways etc) C:\Program Files (x86
 -->
 <Civ4GameText>
 	<TEXT>
-		<Tag>TXT_KEY_ICON_AS_BUTTON_CITIES_BUTTON_PATH</Tag>
-		<English>,Art/Interface/Buttons/Units/Worker.dds,Art/Interface/Buttons/Charlemagne_Atlas.dds,4,2</English>
-	</TEXT>
-
-
-
-	<TEXT>
 		<Tag>TXT_KEY_ICON_AS_BUTTON_POWER_BUTTON_PATH</Tag>
 		<English>,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_2.dds,6,11</English>
 	</TEXT>

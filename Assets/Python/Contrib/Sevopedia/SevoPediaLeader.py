@@ -37,6 +37,8 @@ from ai_utils_shared_with_civ4 import *
 from ai_attributes_displayed_config import *
 # <!-- custom: deprecated now --> from ai_aggregates import *
 
+from _sevopedia_helpers import *
+
 # --- Global storage ---
 PARSED_XML_LEADERS_DATA = {}
 AI_VALUE_RANGES = {}
@@ -78,10 +80,9 @@ def check_icons_as_buttons_paths_are_valid():
 	- The TXT_KEY doesn't exist in any loaded Text/*.xml
 	- The icon fails to resolve and is replaced by Civ4's fallback "pink square" (which happens if the DDS path is also invalid, but we catch it at the TXT_KEY level here)
 	"""
-	for header, configButtonPath in DISPLAYED_AI_ATTRIBUTE_CATEGORY_BUTTON_PATH_TXT_KEYS.items():
-		resolvedXMLPath = CyTranslator().getText(configButtonPath, ())
-		if resolvedXMLPath == configButtonPath:
-			raise ValueError(u"[VALUE ERROR] Button path not found in XML (resolvedXMLPath=%s matches configButtonPath=%s in header=%s, which indicates button path provided in config most likely does not exist in the XML), please check button path provided in (or in - whichever filename it would have in the future -) ai_attributes_displayed_config.py exists in your mod path and also matches button path in (or in - whichever filename it would have in the future -) AdvCiv-SAS_IconsAsButtons.xml is valid and exists in your mod path." % (resolvedXMLPath, configButtonPath, header))
+	for buttonHeader, configButtonPathSTxtKey in DISPLAYED_AI_ATTRIBUTE_CATEGORY_BUTTON_PATH_TXT_KEYS.items():
+		resolvedButtonPath = CyTranslator().getText(configButtonPathSTxtKey, ())
+		check_button_path_is_valid(buttonHeader, resolvedButtonPath, configButtonPathSTxtKey)
 
 
 

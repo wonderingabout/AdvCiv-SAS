@@ -24,7 +24,7 @@ AI_HEADER_MISC_MODIFIERS = "Misc Modifiers"
 
 
 
-# <!-- custom: see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Text\AdvCiv-SAS_IconsAsButtons.xml for details or and other information or and in other places or and not or and other or and not anyways etc-->
+# <!-- custom: see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Text\AdvCiv-SAS_IconsAsButtons.xml or/and AdvCiv-SAS_Buttons_Hardcoded_Repertoire.xml for details or and other information or and in other places or and not or and other or and not anyways etc-->
 DISPLAYED_AI_ATTRIBUTE_CATEGORY_BUTTON_PATH_TXT_KEYS = {
 	AI_HEADER_AGGREGATED_CONTACT_OFFER_PROBABILITIES: "TXT_KEY_ICON_AS_BUTTON_DOVE_BUTTON_PATH",
 	AI_HEADER_AGGREGATED_CONTACT_DEMAND_PROBABILITIES: "TXT_KEY_ICON_AS_BUTTON_MEGAPHONE_BUTTON_PATH",
