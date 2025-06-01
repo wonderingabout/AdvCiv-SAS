@@ -559,31 +559,21 @@ class SevoPediaBuilding:
 
 
 
-	def displayPanelButtonsSNumsOrTxts(self, screen, xNumsOrTextsFound, buttonSize, yPanel, hPanel):
-		yPanelBottomPart = yPanel + int(0.8 * hPanel)
-		for xOccurenceFound, numFreeTxtOccurenceFound in xNumsOrTextsFound:
-			textName = self.top.getNextWidgetName()
-			szText = numFreeTxtOccurenceFound
-			screen.addMultilineText(textName, szText, xOccurenceFound, yPanelBottomPart, 2 * buttonSize, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
-
-
-	def displayPanelSTxtKeyNoButton(self, screen, txtKeyNoButtonFound, xPanel, yPanel, wPanel, hPanel):
-		yPanelCenter = yPanel + (hPanel / 2)
-		textName = self.top.getNextWidgetName()
-		szText = CyTranslator().getText(txtKeyNoButtonFound, ())
-		screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
-
-
 	def displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(self, screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, xPanel, yPanel, wPanel, hPanel):
 		# <!-- custom: now display(ing anyways etc) the corresponding num or text matching the button if any (button) anyways etc -->
 		if isButtonFound:
-			self.displayPanelButtonsSNumsOrTxts(screen, xNumsOrTextsFound, buttonSize, yPanel, hPanel)
+			yPanelBottomPart = yPanel + int(0.8 * hPanel)
+			for xOccurenceFound, numFreeTxtOccurenceFound in xNumsOrTextsFound:
+				textName = self.top.getNextWidgetName()
+				szText = numFreeTxtOccurenceFound
+				screen.addMultilineText(textName, szText, xOccurenceFound, yPanelBottomPart, 2 * buttonSize, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		# If no <!-- custom: button --> found, display a message
 		else:
-			self.displayPanelSTxtKeyNoButton(screen, txtKeyNoButtonFound, xPanel, yPanel, wPanel, hPanel)
+			yPanelCenter = yPanel + (hPanel / 2)
+			textName = self.top.getNextWidgetName()
+			szText = CyTranslator().getText(txtKeyNoButtonFound, ())
+			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -861,10 +851,11 @@ class SevoPediaBuilding:
 
 		else:
 			# <!-- custom: prettier display -->
-			# If there's no obsolete tech, display "Never" or "None"
 			#screen.attachLabel(panelName, "", CyTranslator().getText("TXT_KEY_PEDIA_NEVER_OBSOLETE", ()))
-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_OBSOLETE_NO_BUTTON_FOUND"
-			self.displayPanelSTxtKeyNoButton(screen, txtKeyNoButtonFound, self.X_OBSOLETE_WITH, self.Y_OBSOLETE_WITH, self.W_OBSOLETE_WITH, self.H_OBSOLETE_WITH)
+			yPanelCenter = self.Y_OBSOLETE_WITH + (self.H_OBSOLETE_WITH / 2)
+			textName = self.top.getNextWidgetName()
+			szText = CyTranslator().getText("TXT_KEY_PEDIA_OBSOLETE_NO_BUTTON_FOUND", ())
+			screen.addMultilineText(textName, szText, self.X_OBSOLETE_WITH + 7, yPanelCenter, self.W_OBSOLETE_WITH - 14, self.H_OBSOLETE_WITH - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -1152,8 +1143,10 @@ class SevoPediaBuilding:
 
 		if not isButtonFound:
 			# <!-- custom: prettier display when no buildings provide this one for free -->
-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_FREE_WITH_NO_BUTTON_FOUND"
-			self.displayPanelSTxtKeyNoButton(screen, txtKeyNoButtonFound, self.X_FREE_WITH, self.Y_FREE_WITH, self.W_FREE_WITH, self.H_FREE_WITH)
+			yPanelCenter = self.Y_FREE_WITH + (self.H_FREE_WITH / 2)
+			textName = self.top.getNextWidgetName()
+			szText = CyTranslator().getText("TXT_KEY_PEDIA_FREE_WITH_NO_BUTTON_FOUND", ())
+			screen.addMultilineText(textName, szText, self.X_FREE_WITH + 7, yPanelCenter, self.W_FREE_WITH - 14, self.H_FREE_WITH - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -1195,9 +1188,10 @@ class SevoPediaBuilding:
 						screen.attachImageButton(panel, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
 
 		if not isButtonFound:
-			## If there's no replace (replaced by or/nor replaces anyways etc), display "Nothing" or similar anyways etc
-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_REPLACE_NO_BUTTON_FOUND"
-			self.displayPanelSTxtKeyNoButton(screen, txtKeyNoButtonFound, self.X_REPLACE, self.Y_REPLACE, self.W_REPLACE, self.H_REPLACE)
+			yPanelCenter = self.Y_REPLACE + (self.H_REPLACE / 2)
+			textName = self.top.getNextWidgetName()
+			szText = CyTranslator().getText("TXT_KEY_PEDIA_REPLACE_NO_BUTTON_FOUND", ())
+			screen.addMultilineText(textName, szText, self.X_REPLACE + 7, yPanelCenter, self.W_REPLACE - 14, self.H_REPLACE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -1230,8 +1224,10 @@ class SevoPediaBuilding:
 		else:
 			# <!-- custom: prettier display -->
 			#screen.attachLabel(panelName, "", localText.getText("TXT_KEY_PEDIA_AVAILABLE_ALL_CIVS", ()))
-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_EXCLUSIVE_CIVS_NO_BUTTON_FOUND"
-			self.displayPanelSTxtKeyNoButton(screen, txtKeyNoButtonFound, self.X_EXCLUSIVE_CIVS, self.Y_EXCLUSIVE_CIVS, self.W_EXCLUSIVE_CIVS, self.H_EXCLUSIVE_CIVS)
+			yPanelCenter = self.Y_EXCLUSIVE_CIVS + (self.H_EXCLUSIVE_CIVS / 2)
+			textName = self.top.getNextWidgetName()
+			szText = CyTranslator().getText("TXT_KEY_PEDIA_EXCLUSIVE_CIVS_NO_BUTTON_FOUND", ())
+			screen.addMultilineText(textName, szText, self.X_EXCLUSIVE_CIVS + 7, yPanelCenter, self.W_EXCLUSIVE_CIVS - 14, self.H_EXCLUSIVE_CIVS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

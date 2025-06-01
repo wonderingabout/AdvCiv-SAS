@@ -413,31 +413,21 @@ class SevoPediaUnit:
 
 
 
-	def displayPanelButtonsSNumsOrTxts(self, screen, xNumsOrTextsFound, buttonSize, yPanel, hPanel):
-		yPanelBottomPart = yPanel + int(0.8 * hPanel)
-		for xOccurenceFound, numFreeTxtOccurenceFound in xNumsOrTextsFound:
-			textName = self.top.getNextWidgetName()
-			szText = numFreeTxtOccurenceFound
-			screen.addMultilineText(textName, szText, xOccurenceFound, yPanelBottomPart, 2 * buttonSize, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
-
-
-	def displayPanelSTxtKeyNoButton(self, screen, txtKeyNoButtonFound, xPanel, yPanel, wPanel, hPanel):
-		yPanelCenter = yPanel + (hPanel / 2)
-		textName = self.top.getNextWidgetName()
-		szText = CyTranslator().getText(txtKeyNoButtonFound, ())
-		screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
-
-
 	def displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(self, screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, xPanel, yPanel, wPanel, hPanel):
 		# <!-- custom: now display(ing anyways etc) the corresponding num or text matching the button if any (button) anyways etc -->
 		if isButtonFound:
-			self.displayPanelButtonsSNumsOrTxts(screen, xNumsOrTextsFound, buttonSize, yPanel, hPanel)
+			yPanelBottomPart = yPanel + int(0.8 * hPanel)
+			for xOccurenceFound, numFreeTxtOccurenceFound in xNumsOrTextsFound:
+				textName = self.top.getNextWidgetName()
+				szText = numFreeTxtOccurenceFound
+				screen.addMultilineText(textName, szText, xOccurenceFound, yPanelBottomPart, 2 * buttonSize, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		# If no <!-- custom: button --> found, display a message
 		else:
-			self.displayPanelSTxtKeyNoButton(screen, txtKeyNoButtonFound, xPanel, yPanel, wPanel, hPanel)
+			yPanelCenter = yPanel + (hPanel / 2)
+			textName = self.top.getNextWidgetName()
+			szText = CyTranslator().getText(txtKeyNoButtonFound, ())
+			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -756,11 +746,7 @@ class SevoPediaUnit:
 		# Display the bonus texts or "no bonuses" message
 		isButtonFound = (nCountOccurencesFound > 0)
 		txtKeyNoButtonFound = "TXT_KEY_PEDIA_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS_NO_BUTTON_FOUND"
-		self.displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(
-			screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize,
-			self.X_TERRAIN_FEATURE_CITY_BONUSES, self.Y_TERRAIN_FEATURE_CITY_BONUSES,
-			self.W_TERRAIN_FEATURE_CITY_BONUSES, self.H_TERRAIN_FEATURE_CITY_BONUSES
-		)
+		self.displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, self.X_TERRAIN_FEATURE_CITY_BONUSES, self.Y_TERRAIN_FEATURE_CITY_BONUSES, self.W_TERRAIN_FEATURE_CITY_BONUSES, self.H_TERRAIN_FEATURE_CITY_BONUSES)
 
 
 
