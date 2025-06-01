@@ -189,6 +189,17 @@
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Aqueduct.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,8,7</Button>
 		</BuildingArtInfo>
+		<!-- custom: button imported and modified or/and adjusted for advciv-sas or not but in all cases anyways etc, from https://fr.pinterest.com/pin/412290540863776580/, base aqueduct button it was based on was: <Button>,Art/Interface/Buttons/Buildings/Aqueduct.dds,Art/Interface/Buttons/Buildings_Atlas.dds,4,1</Button> anyways etc ; note: may take alternatively in the future or not the FFH2's asset ART_DEF_BUILDING_PUBLIC_BATHS 's button if need(ed) or and suits better or not or may not, but anyways etc... ; as for the art animation asset, imported from FFH2's ART_DEF_BUILDING_ADVENTURERS_GUILD (in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Fall from Heaven 2\Assets\Pak0.FPK" with dragon unpacker anyways etc) and modified/adjusted or not for advciv-sas anyways etc -->
+		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM</Type>
+			<LSystem>LSYSTEM_1x1</LSystem>
+			<bAnimated>0</bAnimated>
+			<fScale>0.4</fScale>
+			<fInterfaceScale>1.0</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_courtyard.nif</NIF>
+			<KFM/>
+			<Button>Art/AdvCiv_SAS/Buildings/Impluvium/Impluvium.dds</Button>
+		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_HOSPITAL</Type>
 			<LSystem>LSYSTEM_4x2</LSystem>

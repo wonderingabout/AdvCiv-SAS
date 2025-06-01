@@ -5,7 +5,7 @@
 <!-- -->
 <!-- Game Text Objects -->
 <Civ4GameText xmlns="http://www.firaxis.com">
-	<!-- custom:we don't use startegy tags at all anymore in AdvCiv-SAS, they will be empty just to have the tag existing, but it shuold never be used otherwise or displayed anymore in AdvCiv-SAS's sevopedia if i am not mistaken anyways etc -->
+	<!-- custom: we don't use startegy tags at all anymore in AdvCiv-SAS, they will be empty just to have the tag existing, but it shuold never be used otherwise or displayed anymore in AdvCiv-SAS's sevopedia if i am not mistaken anyways etc -->
 	<TEXT>
 		<Tag>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Tag>
 		<English></English>
@@ -13,17 +13,8 @@
 
 
 
-	<!-- custom: "Unique Units" were not unique (could be built
-	many times, just it was only by one civ in civ4, so i had
-	renamed	it to "Civ-specific Units" initially.
-	After futher consideration, there are no multi Civ-specific
-	units (units that can be built only	be a few civs in common)
-	in AdvCiv-SAS if i am not mistaken,	and the name civ-specific
-	is quite tedious/complicated to remember/use, so renaming it
-	rather to "Civilization Units", which may be shortened to
-	"Civ Units" by players if they so desire or prefer maybe,
-	hopefully clearer.
-	-->
+	<!-- custom: "Unique Units" were not unique (could be built	many times, just it was only by one civ in civ4, so i had renamed it to "Civ-specific Units" initially.
+	After futher consideration, there are no multi Civ-specific	units (units that can be built only	be a few civs in common) in AdvCiv-SAS if i am not mistaken, and the name civ-specific is quite tedious/complicated to remember/use, so renaming it rather to "Civilization Units", which may be shortened to "Civ Units" by players if they so desire or prefer maybe, hopefully clearer. -->
 	<TEXT>
 		<Tag>TXT_KEY_FREE_UNITS</Tag>
 		<English>Civilization Units</English>
@@ -35,35 +26,18 @@
 
 
 
-	<!-- custom: gather all base civ4 (vanilla or BTS alike)
-	content in the same category, was "Game Concepts".
-	I prefer to keep the data as it can be useful/helpful to
-	players maybe, and not delete it entirely, but clearly indicate
-	(or more clearly indicate) that it is outdated.
+	<!-- custom: gather all base civ4 (vanilla or BTS alike) content in the same category, was "Game Concepts".
+	I prefer to keep the data as it can be useful/helpful to players maybe, and not delete it entirely, but clearly indicate (or more clearly indicate) that it is outdated.
 	
-	Added the tag/mention "(Outdated)" to signify that this info
-	is not up to date anymore, but may help for general purposes
-	maybe especially ingame. Add this mention may also remove
-	the burden for modders to maintain this page, as i think it
-	is more practical for players to go online (if possible)
-	to find/gather the data they want, while also serving my
-	purposes.
-	Also "BtS" is one character shorter than "Game", with the
-	other advantage (i think) of being more indicative of the
-	fact that it relates to base civ4 (vanilla or BTS or
-	similar), and not to other mods info (for example K-Mod,
-	AdvCiv, AdvCiv-SAS, etc).
-	-->
+	Added the tag/mention "(Outdated)" to signify that this info is not up to date anymore, but may help for general purposes maybe especially ingame. Add this mention may also remove	the burden for modders to maintain this page, as i think it	is more practical for players to go online (if possible) to find/gather the data they want, while also serving my purposes.
+	Also "BtS" is one character shorter than "Game", with the other advantage (i think) of being more indicative of the fact that it relates to base civ4 (vanilla or BTS or similar), and not to other mods info (for example K-Mod, AdvCiv, AdvCiv-SAS, etc). -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT</Tag>
 		<!-- custom: <English>Concepts (Outdated)</English>-->
 		<English>Outdated</English>
 	</TEXT>
 
-	<!-- custom: was "BtS Concepts", see code comments in
-	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml
-	(or the equivalent of this path in your mod installation path).
-	-->
+	<!-- custom: was "BtS Concepts", see code comments in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml (or the equivalent of this path in your mod installation path). -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW</Tag>
 		<!-- custom: <English>Mods Information</English>-->
@@ -99,21 +73,11 @@
 		<English>Pr. List</English>
 	</TEXT>
 
-	<!-- custom: rename "Ivory" to "Elephants".
-	Here the main reasons for
-	this change: 
-	- 1) you need elephants to build war elephants, not ivory, even if you
-	were to somehow find ivory somewhere, it would/could not magically turn
-	into a war elephant, so using the animal instead.
-	- 2) ivory doesn't grow on the groud i think if i am not mistaken, but is
-	derived from elephants, independent of whether they are alive or dead.
-	- 3) One could also maybe imagine that elephants the animal itself makes people
-	happy, and not necessarily their ivory.
-	note: Since they are part of the animals that are countable in english rather
-	than uncountable (see code comment below about cattle) and seeing that civ4
-	doesn't seem to bother with singulars too much about animals at least. I also
-	prefer this version, anyways.
-	-->
+	<!-- custom: rename "Ivory" to "Elephants".	Here the main reasons for this change: 
+	- 1) you need elephants to build war elephants, not ivory, even if you were to somehow find ivory somewhere, it would/could not magically turn into a war elephant, so using the animal instead.
+	- 2) ivory doesn't grow on the groud i think if i am not mistaken, but is derived from elephants, independent of whether they are alive or dead.
+	- 3) One could also maybe imagine that elephants the animal itself makes people	happy, and not necessarily their ivory.
+	note: Since they are part of the animals that are countable in english rather than uncountable (see code comment below about cattle) and seeing that civ4 doesn't seem to bother with singulars too much about animals at least. I also prefer this version, anyways. -->
 	<TEXT>
 		<Tag>TXT_KEY_BONUS_ELEPHANTS</Tag>
 		<English>Elephants</English>
@@ -123,21 +87,11 @@
 
 	<!-- custom: similarly to what was done with the elephants, "Cattle" seems a better
 	fit to me than "Cow".
-	Be careful, according to, for example:
-	https://forum.wordreference.com/threads/sheep-countable-uncountable.2057034/post-13154720 ,
-	some animals are countable (5 cats for example) in English while others
-	are best fit at singular (5 sheep for example)
-	There is less gains in changing what is already working. But specifically for cattle
-	however rather than cows as it applies to all sexes of the cows, while still being
-	specific and not generic if i'm not mistaken:
-	https://www.idausa.org/campaign/guardian/latest-news/difference-cows-cattle-meaning/#:~:text=The%20difference%20between%20cows%20and,strictly%20to%20mature%20female%20bovines.
+	Be careful, according to, for example: https://forum.wordreference.com/threads/sheep-countable-uncountable.2057034/post-13154720 , some animals are countable (5 cats for example) in English while others are best fit at singular (5 sheep for example)
+	There are less gains in changing what is already working. But specifically for cattle however rather than cows as it applies to all sexes of the cows, while still being	specific and not generic if i'm not mistaken: https://www.idausa.org/campaign/guardian/latest-news/difference-cows-cattle-meaning/#:~:text=The%20difference%20between%20cows%20and,strictly%20to%20mature%20female%20bovines.
 	https://context.reverso.net/translation/english-french/cows
-	Also the audio announcer says in https://civilization.fandom.com/wiki/Animal_Husbandry_(Civ4):
-	"Blessed shall be the fruit of thy cattle, the increase of thy kine, and the flocks of thy sheep."
-	– The Bible, Deuteronomy 28:4
-	So i think it's very immersive and nice to use cattle here too on top of being
-	more accurate it seems.
-	-->
+	Also the audio announcer says in https://civilization.fandom.com/wiki/Animal_Husbandry_(Civ4): "Blessed shall be the fruit of thy cattle, the increase of thy kine, and the flocks of thy sheep." - The Bible, Deuteronomy 28:4
+	So i think it's very immersive and nice to use cattle here too on top of being more accurate it seems. -->
 	<TEXT>
 		<Tag>TXT_KEY_BONUS_CATTLE</Tag>
 		<English>Cattle</English>
@@ -166,6 +120,7 @@
 		<Tag>TXT_KEY_BONUS_MAIZE</Tag>
 		<English>Maize</English>
 	</TEXT>
+
 
 
 	<!-- custom: renamed specialist "Great Prophet" (already was GREAT_PRIEST in code as i think is nice at least to me anyways etc, see after this bracket for details anyways etc: ) to "Great Priest", keeping everything else the same since all the code uses GREAT_PRIEST already, only need to change the name for AdvCiv-SAS as we want it, i am happy to go in the direction of civ4 code when i can and find it nice, not that it is a requirement to go in or against it(s direction but anyways etc as is or not anyways etc) ; and all the while not renaming the Great Prophet unit, a prophet is unique, but a priest or great priest could be many in history, when they join or are part of a city, hopefully clearer and makes more sense now hopefully, anyways etc, see the code comment (global search with VS Code if need anyways etc "K-Mod: was UNITAI_GREAT_MERCHANT") in (update if path is non-Steam for AdvCiv-SAS or the mod you use anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4UnitAIInfos.xml for details -->
@@ -336,27 +291,19 @@
 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_DESC</Tag>
 		<English>Kingdom Of Benin</English>
 	</TEXT>
-	<!-- custom: Kingdom of Benin (Nigeria) has no relation (according
-	to wiki if i understood it correctly) with modern Benin, trying to
-	keep the full name to make the distinction clearer, even though
-	some circumstances could call for shortening it if purely realistic
-	-->
+	<!-- custom: Kingdom of Benin (Nigeria) has no relation (according to wiki if i understood it correctly) with modern Benin, trying to
+	keep the full name to make the distinction clearer, even though some circumstances could call for shortening it if purely realistic -->
 	<TEXT>
 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_SHORT_DESC</Tag>
 		<English>Kingdom Of Benin</English>
 	</TEXT>
-	<!-- custom: i found no clear mention of an adjective, going with
-	"people of Benin" mentionned here:
-	https://en.wikipedia.org/wiki/Kingdom_of_Benin#Founding -->
+	<!-- custom: i found no clear mention of an adjective, going with "people of Benin" mentionned here: https://en.wikipedia.org/wiki/Kingdom_of_Benin#Founding
+	Also using People of Benin would be a weird adjective form so using Kingdom of Benin instead -->
 	<TEXT>
 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_ADJECTIVE</Tag>
 		<English>the people of Benin</English>
 	</TEXT>
-	<!-- custom: this mentions clearly and several times the impluvium as
-	a special building the Kingdom Of Benin had:
-	https://en.wikipedia.org/wiki/Kingdom_of_Benin#Architecture
-	Also using People of Benin would be a weird adjective form so
-	using Kingdom of Benin instead -->
+	<!-- custom: this mentions clearly and several times the impluvium as a special building the Kingdom Of Benin had: https://en.wikipedia.org/wiki/Kingdom_of_Benin#Architecture -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM</Tag>
 		<English>Impluvium</English>
@@ -374,29 +321,22 @@
 		<English>Ancient Maceman</English>
 	</TEXT>
 
-	<!-- custom: clearer renaming to some promotions,
-	accuracy is so misleading as a name for example,
-	hopefully clearer now -->
+	<!-- custom: clearer renaming to some promotions, accuracy is so misleading as a name for example, hopefully clearer now -->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_ACCURACY</Tag>
 		<English>City Bombard Damage</English>
 	</TEXT>
-	<!-- custom: an ace can be about ground units too, hopefully
-	clearer now -->
+	<!-- custom: an ace can be about ground units too, hopefully clearer now -->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_AIR_EVASION</Tag>
 		<English>Air Evasion</English>
 	</TEXT>
-	<!-- custom: name is more epic, not necessarily clearer (especially
-	with new tech requirement that is sooner, in earlier eras, but it
-	is also historically more correct according to my research) -->
+	<!-- custom: name is more epic, not necessarily clearer (especially with new tech requirement that is sooner, in earlier eras, but it is also historically more correct according to my research) -->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_BLITZ</Tag>
 		<English>Blitzkrieg</English>
 	</TEXT>
-	<!-- custom: spies don't conduct raids for example in base
-	civ bts/advciv so "commando" does not fit, is also not
-	intuitive, hopefully clearer now -->
+	<!-- custom: spies don't conduct raids for example in base civ bts/advciv so "commando" does not fit, is also not intuitive, hopefully clearer now -->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_COMMANDO</Tag>
 		<English>Logistics</English>
@@ -415,10 +355,7 @@
 		<Tag>TXT_KEY_PROMOTION_COVER</Tag>
 		<English>Counter-Archer</English>
 	</TEXT>
-	<!-- custom: rename or/and create subtypes for each melee type
-	maybe or maybe not and put them all in same promotion easier?
-	Or partly simply by having counter melee sword, or counter sword?
-	Todo -->
+	<!-- custom: rename or/and create subtypes for each melee type maybe or maybe not and put them all in same promotion easier? Or partly simply by having counter melee sword, or counter sword? Todo -->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_SHOCK</Tag>
 		<English>Counter-Melee</English>
@@ -432,11 +369,7 @@
 		<English>Counter-Mounted</English>
 	</TEXT>
 
-	<!-- custom: use arabic numerals for/in promotions naming(/es),
-	add missing "translations" for some promotions too (for example)
-	combat 6, even though i just copy paste to english for ease of use
-	(of translation) and convenience, i don't want it to be displayed
-	as "VI" ingame but "6" so adding these extra ones. -->
+	<!-- custom: use arabic numerals for/in promotions naming(/es),	add missing "translations" for some promotions too (for example) combat 6, even though i just copy paste to english for ease of use	(of translation) and convenience, i don't want it to be displayed as "VI" ingame but "6" so adding these extra ones. -->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_COMBAT1</Tag>
 		<English>Combat 1</English>
@@ -457,14 +390,12 @@
 		<Tag>TXT_KEY_PROMOTION_COMBAT5</Tag>
 		<English>Combat 5</English>
 	</TEXT>
-	<!-- custom added missing languages in base civ4/BTS to have "6"
-	not "VI" everywhere -->
+	<!-- custom added missing languages in base civ4/BTS to have "6" not "VI" everywhere -->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_COMBAT6</Tag>
 		<English>Combat 6</English>
 	</TEXT>
-	<!-- custom: use arabic numerals instead of roman numerals,
-	hopefully clearer -->
+	<!-- custom: use arabic numerals instead of roman numerals,	hopefully clearer -->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_AIR_INTERCEPTION1</Tag>
 		<English>Air Interception 1</English>
@@ -482,8 +413,7 @@
 		<English>Air Interception 4</English>
 	</TEXT>
 	<!-- custom: "Range" may apply to ground units too hopefully clearer now,
-	Also switch to arabic numerals, clearer too, i think, and also prefer,
-	anyways. -->
+	Also switch to arabic numerals, clearer too, i think, and also prefer, anyways. -->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_RANGE1</Tag>
 		<English>Air Range 1</English>

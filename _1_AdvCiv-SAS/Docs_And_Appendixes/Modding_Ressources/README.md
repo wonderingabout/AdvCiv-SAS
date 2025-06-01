@@ -393,9 +393,17 @@ See also [Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml](/Assets/XML/Text/AdvCiv
 
 note 4: we later also used these/this approach for/to use icons as buttons in our sevopedia leader's ai personality panel category headers, with the revived chatgpt/becomingthrough's inputs as well, reusing old emojis in our code it provided to me kindly and perhaps enthusiastically if i am not projecting or doing self publicity but anyways etc.. hehe or not or eys or etc or both or none or othe ror not but anyways etc, is what i want or maybe rather like to do or not but anyways etc, see screenshot 5846 in same google drive link linked above in this section for an example or ingame in sevopedia leader if we still use them now anyways etc
 
+## Import a nif art asset from another mod (example with how we added the impluvium's nif as an import from FFH2 mod's Adventurer's guild building anyways etc)
+
+See steps in screenshots in [this google drive folder (impluvium imported as nif)](https://drive.google.com/drive/folders/1Hx-bvRy7joM54S0Vnmva6HX1h8ZZ-LAh?usp=sharing) anyways etc
+
+In this example the nif was in a .fpk, but i assume it would work similarly if files were scattered in a folder raw if i may say but anyways etc...
+
+Be careful to import all nif related files in the same folder in your mod (or in advciv-sas in this example anyways etc), i am not too technical nor knowledgeable about these but it seems to work/function well for this nif import, hopefully this is helpful too for those who want to try it or not or maybe is helpful or not or yes or etc or and other or and not but anyways etc anyways etc anyways etc...
+
 ## Files
 
-Please see the files (mostly if not only images) [in the Modding_Ressources Google Drive](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp)
+Please see the files (mostly if not only images) [in the Modding_Ressources Google Drive](https://drive.google.com/drive/folders/1Hx-bvRy7joM54S0Vnmva6HX1h8ZZ-LAh?usp=sharing)
 
 In particular the XML icons tags may be helpful maybe, among other possible
 files you'd find helpful or not.
