@@ -5,22 +5,44 @@
 # -->
 
 # --- AI Personality Configuration Constants ---
-AI_HEADER_CORE_PERSONALITY = "Core Personality"
-AI_HEADER_VICTORY_WEIGHTS = "Victory Weights (BBAI-style)"
 AI_HEADER_AGGREGATED_CONTACT_OFFER_PROBABILITIES = "Contact Offer Probabilities"
 AI_HEADER_AGGREGATED_CONTACT_DEMAND_PROBABILITIES = "Contact Demand Probabilities"
 AI_HEADER_POSITIVE_MEMORY_AFFECTIONS = "Positive Memory Affections"
-AI_HEADER_POSITIVE_MEMORY_RESENTMENTS = "Positive Memories Resentments"
-AI_HEADER_NEGATIVE_MEMORY_AFFECTIONS = "Negative Memory Affections"
+#AI_HEADER_POSITIVE_MEMORY_RESENTMENTS = "Positive Memories Resentments"
 AI_HEADER_NEGATIVE_MEMORY_RESENTMENTS = "Negative Memories Resentments"
+#AI_HEADER_NEGATIVE_MEMORY_AFFECTIONS = "Negative Memory Affections"
+AI_HEADER_CORE_PERSONALITY = "Core Personality"
+AI_HEADER_VICTORY_WEIGHTS = "Victory Weights (BBAI-style)"
 AI_HEADER_NO_WAR_AT = "No War At"
 AI_HEADER_FLAVORS = "Flavors"
 AI_HEADER_WAR_STRATEGY = "War Strategy"
-AI_HEADER_ATTITUDE_CHANGES_OR_AND_LIMITS_OR_AND_DIVISORS = "Attitude Changes +/- Lims +/- Divs"
 AI_HEADER_ECONOMIC_PREFERENCES = "Economic Preferences"
 AI_HEADER_OFFER_REFUSE_ATTITUDE_THRESHOLDS = "Offer Refuse Attitude Thresholds"
 AI_HEADER_DEMAND_REFUSE_ATTITUDE_THRESHOLDS = "Demand Refuse Attitude Thresholds"
+AI_HEADER_ATTITUDE_CHANGES_OR_AND_LIMITS_OR_AND_DIVISORS = "Attitude Changes +/- Lims +/- Divs"
 AI_HEADER_MISC_MODIFIERS = "Misc Modifiers"
+
+
+
+# <!-- custom: see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Text\AdvCiv-SAS_IconsAsButtons.xml for details or and other information or and in other places or and not or and other or and not anyways etc-->
+DISPLAYED_AI_ATTRIBUTE_CATEGORY_BUTTON_PATH_TXT_KEYS = {
+	AI_HEADER_AGGREGATED_CONTACT_OFFER_PROBABILITIES: "TXT_KEY_ICON_AS_BUTTON_DOVE_BUTTON_PATH",
+	AI_HEADER_AGGREGATED_CONTACT_DEMAND_PROBABILITIES: "TXT_KEY_ICON_AS_BUTTON_MEGAPHONE_BUTTON_PATH",
+	AI_HEADER_POSITIVE_MEMORY_AFFECTIONS: "TXT_KEY_ICON_AS_BUTTON_RED_HEART_BUTTON_PATH",
+	#AI_HEADER_POSITIVE_MEMORY_RESENTMENTS: "TXT_KEY_ICON_AS_BUTTON_BROKEN_HEART_BUTTON_PATH",
+	AI_HEADER_NEGATIVE_MEMORY_RESENTMENTS: "TXT_KEY_ICON_AS_BUTTON_SKULL_BUTTON_PATH",
+	#AI_HEADER_NEGATIVE_MEMORY_AFFECTIONS: "TXT_KEY_ICON_AS_BUTTON_FIRE_BUTTON_PATH",
+	AI_HEADER_CORE_PERSONALITY: "TXT_KEY_ICON_AS_BUTTON_BRAIN_BUTTON_PATH",
+	AI_HEADER_VICTORY_WEIGHTS: "TXT_KEY_ICON_AS_BUTTON_TROPHY_BUTTON_PATH",
+	AI_HEADER_NO_WAR_AT: "TXT_KEY_ICON_AS_BUTTON_HERB_BUTTON_PATH",
+	AI_HEADER_FLAVORS: "TXT_KEY_ICON_AS_BUTTON_GEAR_BUTTON_PATH",
+	AI_HEADER_WAR_STRATEGY: "TXT_KEY_ICON_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH",
+	AI_HEADER_ECONOMIC_PREFERENCES: "TXT_KEY_ICON_AS_BUTTON_MONEY_BAG_BUTTON_PATH",
+	AI_HEADER_OFFER_REFUSE_ATTITUDE_THRESHOLDS: "TXT_KEY_ICON_AS_BUTTON_NO_ENTRY_BUTTON_PATH",
+	AI_HEADER_DEMAND_REFUSE_ATTITUDE_THRESHOLDS: "TXT_KEY_ICON_AS_BUTTON_AXE_BUTTON_PATH",
+	AI_HEADER_ATTITUDE_CHANGES_OR_AND_LIMITS_OR_AND_DIVISORS: "TXT_KEY_ICON_AS_BUTTON_CHART_DECREASING_BUTTON_PATH",
+	AI_HEADER_MISC_MODIFIERS: "TXT_KEY_ICON_AS_BUTTON_WRENCH_PATH",
+}
 
 
 
@@ -97,7 +119,7 @@ AGGREGATED_ALL_CONTACT_PROBABILITY_ATTRIBUTES = set([
 
 # <!-- custom: some of these below are unused and thus commented-out (but functionnal and can be impelmented if wished (would need to change the xml values of leaders so that they are relevant though, as currently in default advciv xml and current advciv-sas xml too, no leader has a negative memory positive attitude value, or a postitive memory negative attitude value, but the system supprots it if it were to eb changed in xml values this way, commented-out for efficiency and effectiveness, perhaps performance too a bit or/and other etc, anyways.))
 AGGREGATED_POSITIVE_MEMORY_AFFECTION_AND_RESENTMENT_ATTRIBUTES = set([
-	# 💚 Positive Memory Affections
+	# ❤️ Positive Memory Affections
 	"iAggregatedPositiveMemoryGiveHelpAffection",
 	"iAggregatedPositiveMemoryAcceptDemandAffection",
 	"iAggregatedPositiveMemoryAcceptedReligionAffection",
@@ -191,8 +213,8 @@ ALL_SETS_LISTING_ATTRIBUTES = (
 
 
 DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
-	# 🕊️ Contact Probabilities
 	# Aggregated Contact Prob values/attributes (0-100 (%)) computed from ContactDelay and ContactRand
+	# 🕊️ <!-- custom: Contact Offer Probabilities anyways etc -->
 	AI_HEADER_AGGREGATED_CONTACT_OFFER_PROBABILITIES: (
         ("Peace Treaty", "iAggregatedContactPeaceTreatyProb", "PeaceTreaty"),
 		("Open Borders", "iAggregatedContactOpenBordersProb", "OpenBorders"),
@@ -205,6 +227,7 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
 	),
 
 	# <!-- custom: unlike in/for positive and negative memories where there is a functionnal difference (memory atitude is either positive (value) or negative (value), here for contact probabilities, for both contact offer and contact demand, the contact delay is always positive (and the contact rand too if i am not mistaken, therefore they are not separated as 2 different positive/negative contacts in generate_leaders_data.py (easier also this way to implement, cleaner perhaps too implementation or/and other things anyways etc)), but they are displayed differently in 2 separate categories, hopefully for a clearer read too and easier read too perhaps anyways etc) -->
+	# 📣 <!-- custom: Contact Demand Probabilities anyways etc -->
 	AI_HEADER_AGGREGATED_CONTACT_DEMAND_PROBABILITIES: (
 		("Relig. Press.", "iAggregatedContactReligionPressureProb", "ReligionPressure"),
 		("Civic Press.", "iAggregatedContactCivicPressureProb", "CivicPressure"),
@@ -214,7 +237,7 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
 		("Join W", "iAggregatedContactJoinWarProb", "JoinWar"),
 	),
     
-	# 💚 Positive Memory Affections (0–100)
+	# ❤️ Positive Memory Affections (0–100)
 	AI_HEADER_POSITIVE_MEMORY_AFFECTIONS: (
 		("Gave Help", "iAggregatedPositiveMemoryGiveHelpAffection", "GiveHelp"),
 		("AcD", "iAggregatedPositiveMemoryAcceptDemandAffection", "AcceptDemand"),
@@ -384,7 +407,7 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
 		("Perm. Alliance", "iPermanentAllianceRefuseAttitudeThreshold", ""),
 	),
 
-	# ⛔ Demand Refuse Attitude Thresholds
+	# 🪓 Demand Refuse Attitude Thresholds
 	AI_HEADER_DEMAND_REFUSE_ATTITUDE_THRESHOLDS: (
 		("Convert Religion", "iConvertReligionRefuseAttitudeThreshold", ""),
 		("Adopt Civic", "iAdoptCivicRefuseAttitudeThreshold", ""),

@@ -10,6 +10,8 @@ Below/here is a/the more detailed examples(/sample(s?)?) of the sevopedia rework
 
 For more sevopedia previous about this category or/and other sevopedia categories, see also the [full sevopedia samples google drive folder link](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing)
 
+note: icons as buttons provided by chatgpt/becomingthrough, but also are an approach i generalized from [claude AI's code solution in sevopedia building for the power button](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-8-building-category), see also [Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia) for details or/and additional info or/and context on how this was added anyways etc or/and the mod's drive (link in main README.md or/and other places or and not anyways etc)
+
 ## example 2: unit chart category
 
 (Unit Combat Types expanded page when you click on a combat type), thanks a lot to RFC DOC mod's code which i used quite heavily, then base AdvCiv which i sued to enhance it (blue background, margin), then i rewrote it heavily again to tweak it and add dynamic table size based on unit combat type (for example air units have 10 columns (air interception and air range)), while other unit combat types only have 8, click to view these images full size:

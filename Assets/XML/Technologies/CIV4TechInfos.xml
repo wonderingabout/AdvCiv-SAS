@@ -284,7 +284,8 @@
 			<Quote>TXT_KEY_TECH_PRIESTHOOD_QUOTE</Quote>
 			<Sound>AS2D_TECH_PRIESTHOOD</Sound>
 			<SoundMP>AS2D_TECH_MP_PRIESTHOOD</SoundMP>
-			<Button>,Art/Interface/Buttons/TechTree/Priesthood.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,11</Button>
+			<!-- custom: old button was <Button>,Art/Interface/Buttons/TechTree/Priesthood.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,11</Button> -->
+			<Button>,Art/Interface/Buttons/TechTree/Priesthood.dds,Art/Interface/Buttons/GodsOfOld_Atlas.dds,8,6</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_MONOTHEISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>TECH_MONOTHEISM</Type>

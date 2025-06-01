@@ -186,7 +186,7 @@ class SevoPediaBuilding:
 		# <!-- custom: refer to code below to know max element count, so far we have in our code (see below for how it is implemented anyways etc), taken from claude AI's message and adjusted (formatted or not anyways etc) or not anyways etc thanks claude hehe anyways etc -->
 		# Here's what the method now does in sequence:
 		# - 1. Cost: Shows production cost
-		# - 2. Yield Changes, and Yield Modifiers: Shows direct yields like food (+1 food from Baray), and Shows yield modifiers similarly (Food +x%, Production +x%, Commerce +x%) with power breakdown (, +y% w/ (power button))
+		# - 2. Yield Changes, and Yield Modifiers: Shows direct yields like food (+1 food from Baray), and Shows yield modifiers similarly (Food +x%, Production +x%, Gold +x%) with power breakdown (, +y% w/ (power button))
 		# - 3. Commerce Changes, and Commerce Modifiers: Shows actual commerce amounts (+x science, gold, culture, espionage), and Shows percentage bonuses and double times (+x% and x2 times)
 		# - 4. Happiness/Unhappiness: Shows happiness effects
 		# - 5. Health/Unhealth: Shows health effects
@@ -279,7 +279,7 @@ class SevoPediaBuilding:
 				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
 
 
-			# <!-- custom: 2 Direct Yield Changes (like Food, Production, Commerce), and Yield Modifiers (Food +x%, Production +x%, Commerce +x%) with power breakdown added thanks to Claude AI and my prompts or/and tweaks/adjustments or/and not or/and yes or and but or not but or and but anyways etc (2) -->
+			# <!-- custom: 2 Direct Yield Changes (like Food, Production, Gold), and Yield Modifiers (Food +x%, Production +x%, Gold +x%) with power breakdown added thanks to Claude AI and my prompts or/and tweaks/adjustments or/and not or/and yes or and but or not but or and but anyways etc (2) -->
 			for k in range(YieldTypes.NUM_YIELD_TYPES):
 				iYieldChange = buildingInfo.getYieldChange(k)
 
@@ -321,9 +321,11 @@ class SevoPediaBuilding:
 							szPowerSign = ""
 						szText1 += szPowerSign + str(iPowerYieldModifier) + "% w/"
 						
-						# Add power button (<!-- custom: improt from warlords atlas i added, if i'm not mistaken it is indeed from warlords as other mods like RI mod may have done indeed if i may say and that i found while trying to understand how to link to the warlords's atlas as folder seemed different with global search in entire base civ 4 root folder anyways etc, thankfully too if i may say that i am thankful, but anyways etc or not or yes but anyways etc -->)
-						szPowerButton = u"<img=,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_2.dds,6,11 size=24></img>"
-						szText1 += szPowerButton
+						# Add power button
+						buttonPath = CyTranslator().getText("TXT_KEY_ICON_AS_BUTTON_POWER_BUTTON_PATH", ())
+						buttonSize = 24
+						szButtonText = u"<img=%s size=%s></img>" % (buttonPath, str(buttonSize))
+						szText1 += szButtonText
 
 					szText2 = u"%c  %s" % (gc.getYieldInfo(k).getChar(), szText1)
 					fillCell(screen, szText2, x, y)
@@ -443,11 +445,8 @@ class SevoPediaBuilding:
 				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
 			"""
 			
-			# <!-- custom: 6.1: alternative version part 1: Great people, only display the great people icon and the value, for example "(Great People icon) +2", use a button later in "custom 8.2:" rather instead anyways etc -->
+			# <!-- custom: 6.1: alternative version part 1: Great people, only display the great people button and the value, for example "(Great People button) +2", use a button later in "custom 8.2:" rather instead anyways etc -->
 			if buildingInfo.getGreatPeopleRateChange() != 0:
-				# First get the building's great person type (e.g., SPECIALIST_GREAT_MERCHANT)
-				greatPersonType = buildingInfo.getGreatPeopleUnitClass()
-
 				# Create the text with the great person rate change
 				szText = CyTranslator().getText("TXT_KEY_PEDIA_GREAT_PEOPLE_CUSTOM", (buildingInfo.getGreatPeopleRateChange(),))
 				
@@ -482,11 +481,11 @@ class SevoPediaBuilding:
 			# === PANEL SETUP ===
 			setupPanel(screen, panelName, greatPersonPanelTxtKey, PanelStyles.PANEL_STYLE_EMPTY)
 
-			# Get great person information
+			#  First get the building's great person type (e.g., SPECIALIST_GREAT_MERCHANT)
 			greatPersonType = buildingInfo.getGreatPeopleUnitClass()
-			greatPersonName = ""
+			#greatPersonName = ""
 			#greatPersonAbbrev = ""
-			greatPersonIcon = None
+			greatPersonButton = None
 
 			"""
 			# Create abbreviated name
@@ -513,40 +512,40 @@ class SevoPediaBuilding:
 				if iGreatPersonUnit != -1:
 					greatPersonInfo = gc.getUnitInfo(iGreatPersonUnit)
 					"""greatPersonName = greatPersonInfo.getDescription()"""
-					greatPersonIcon = greatPersonInfo.getButton()
+					greatPersonButton = greatPersonInfo.getButton()
 					
 				# Create text string
 				gpRateText = CyTranslator().getText(greatPersonPanelTxtKey, (buildingInfo.getGreatPeopleRateChange(),))
 
-				# This approach uses a separate panel with both an icon and text
-				if greatPersonIcon:
-					iconWidget = self.top.getNextWidgetName()
-					screen.addDDSGFC(iconWidget, greatPersonIcon, 
+				# This approach uses a separate panel with both an button and text
+				if greatPersonButton:
+					buttonWidget = self.top.getNextWidgetName()
+					screen.addDDSGFC(buttonWidget, greatPersonButton, 
 									self.X_LAST_DISPLAYED_GRID_ITEM + buttonXOffset,  # X position 
 									self.Y_LAST_DISPLAYED_GRID_ITEM + buttonYOffset,  # Y position
-									buttonW, buttonH,  # Width and height of icon
+									buttonW, buttonH,  # Width and height of button
 									WidgetTypes.WIDGET_GENERAL, -1, -1)
 					
 					"""
-					# Add text next to the icon
+					# Add text next to the button
 					textWidget = self.top.getNextWidgetName()
 					screen.setLabelAt(textWidget, panelName, u"<font=3>%s</font>" % gpRateText, 
 									CvUtil.FONT_LEFT_JUSTIFY, 
-									50,  # X offset within panel (after icon)
+									50,  # X offset within panel (after button)
 									10,  # Y offset within panel
 									0, FontTypes.SMALL_FONT, 
 									WidgetTypes.WIDGET_GENERAL, -1, -1)
 					"""
 				else:
-					# <!-- custom: else our placeStats "custom: 6.1" already handles the display of the great people icon and the great people rate value (text too anyways etc) if i am not mistaken, so maybe we can ignore code below as well and clean it up in next commit or any time further i wish or and other or and not or and etc anyways etc, keeping as is for nwo until cleanup anyways etc. Also, if there is some special info like the great peiople unit name that is/would/were not (//to anyways etc) /be/ anyways etc any of the great people units (for example a settler if i am not mistaken that this is possible too from what i understood of what i read of Claude AI or online but maybe was claude AI's explanation anyways etc, then we still have the placeSpecial info not removed to cover us anyways etc (i chose to not remove it in the end as it has some sueful information like defenses obsoleting or not with exceptions, power being this or that, or/and other special or confusing well or well enough hopefully as they did if they enjoyed or not o wanted or not anyways etc, so cleaned from DLL placeSpecial messages only the obvious uneeded logic that clearly overlaps with the new panels we have (placeFreePBBS, placeRequiredFor, placeExclusiveCivs as was done (DLL cleanup of redundant messages) in sevopedia unit and now applied to sevopedia building, anyways etc.)) -->
+					# <!-- custom: else our placeStats "custom: 6.1" already handles the display of the great people button and the great people rate value (text too anyways etc) if i am not mistaken, so maybe we can ignore code below as well and clean it up in next commit or any time further i wish or and other or and not or and etc anyways etc, keeping as is for nwo until cleanup anyways etc. Also, if there is some special info like the great peiople unit name that is/would/were not (//to anyways etc) /be/ anyways etc any of the great people units (for example a settler if i am not mistaken that this is possible too from what i understood of what i read of Claude AI or online but maybe was claude AI's explanation anyways etc, then we still have the placeSpecial info not removed to cover us anyways etc (i chose to not remove it in the end as it has some sueful information like defenses obsoleting or not with exceptions, power being this or that, or/and other special or confusing well or well enough hopefully as they did if they enjoyed or not o wanted or not anyways etc, so cleaned from DLL placeSpecial messages only the obvious uneeded logic that clearly overlaps with the new panels we have (placeFreePBBS, placeRequiredFor, placeExclusiveCivs as was done (DLL cleanup of redundant messages) in sevopedia unit and now applied to sevopedia building, anyways etc.)) -->
 					"""
-					# Just add text if no icon
+					# Just add text if no button
 					textWidget = self.top.getNextWidgetName()
 					textWithSymbol = u"%c  %s" % (CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR), gpRateText)
 					screen.setLabelAt(textWidget, panelName, u"<font=3>%s</font>" % textWithSymbol, 
 									CvUtil.FONT_LEFT_JUSTIFY, 
 									self.X_LAST_DISPLAYED_GRID_ITEM + buttonXOffset - 10,  # X position <-- !custom: as text is smaller than button, the x offset can be a bit smaller most likely, to use space more efficiently, did not tets but hoepfulyl should work well and not grind/eat away at our left "+2" (great people value example anyways etc), else shift back to the right as needed (by increasing this extra negative offset i added (- 10 in this example may not eb accurate or updated anyways etc)  anyways etc) --> 
-									self.Y_LAST_DISPLAYED_GRID_ITEM,  # Y position <!-- custom: no need for special centering effect then if i am not mistaken, did not test text display if no icon is found but maybe works well or well enough hopefully anyways etc -->
+									self.Y_LAST_DISPLAYED_GRID_ITEM,  # Y position <!-- custom: no need for special centering effect then if i am not mistaken, did not test text display if no button is found but maybe works well or well enough hopefully anyways etc -->
 									0, FontTypes.SMALL_FONT, 
 									WidgetTypes.WIDGET_GENERAL, -1, -1)
 					"""

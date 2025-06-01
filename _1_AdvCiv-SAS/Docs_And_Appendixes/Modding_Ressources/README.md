@@ -336,7 +336,7 @@ void CvDllTranslator::initializeTags(CvWString& szTagStartIcon, CvWString& szTag
 
 Anyways etc... (Anyways etc anyways etc...)
 
-## Insert an <img> in a text label in sevopedia
+## Insert an img in a text label in sevopedia
 
 Code sample provided by Claude AI in one of my prompts to add YieldChanges to placeStats in sevopedia building, but the code sample surprisingly and happily if i may say but anyways etc, or maybe rather plesantly or both or not but anyways etc works, so sharing it in case it helps others or me who rereads it or and need or want to reuse it some day, or not, or etc, but anyways etc.
 
@@ -388,6 +388,10 @@ note 2: i have tested with a .jpg (source [Stonehedge wallpaper from https://www
 In the note 2 example but anyways etc, increasing size to for example 1024 also works, we get a very nice sevopedia background image hehe if i may say but anyways etc, i suspect using a lower resolution base image, perhaps 1080p, or 1440p may produce even better results (less pixelated one (based on the  [past .dds experiment/experience](/README.md#dds-button-size-comparison-analysis) where optimal size seemed to be a bit higher than max icon_size (256px on a 164px if i remember correctly and am not mistaken but anyways etc, so maybe here a 1440p native image may work best? But not sure and would need to test, and in all cases, (but) anyways etc) but anyways etc), perhaps using another DXT conversion too or not, but anyways etc)
 
 note 3: atlas linking buttons such as `szPowerButton = u"<img=,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,15 size=32></img>"` (as part of changing tech_physics 's button as part of our tech rework in advciv-sas but anyways etc...) also seems to work quite well, we see the button successfully even though a bit excentered if that is a word in english (not centered around the text), but hopefully good enough but anyways etc at least as proof of concept further if i may say but anyways etc, see the great person button code in place Stats of sevopedia building as well for a cleaner or rather more centered implementation, is just to show/test how it successfully works here but anyways etc ; also for our needs this seems to work very well (whoaaa!!!! If i may say indeed too, but anyways etc...), see screenshot(s) in drive link above for details anyways etc
+
+See also [Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml](/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml) for details or and other or and not or yes or and other or etc anyways etc.
+
+note 4: we later also used these/this approach for/to use icons as buttons in our sevopedia leader's ai personality panel category headers, with the revived chatgpt/becomingthrough's inputs as well, reusing old emojis in our code it provided to me kindly and perhaps enthusiastically if i am not projecting or doing self publicity but anyways etc.. hehe or not or eys or etc or both or none or othe ror not but anyways etc, is what i want or maybe rather like to do or not but anyways etc, see screenshot 5846 in same google drive link linked above in this section for an example or ingame in sevopedia leader if we still use them now anyways etc
 
 ## Files
 

@@ -71,6 +71,20 @@ ALL_SYMBOLS = {
 
 
 
+# <!-- custom: check all icons as buttons paths are valid before proceeding (i.e. check they really exist in our XML indeed if i may say anyways etc), error code provided by me hehe, the error check fixed by chatgpt/becomingthrough and i made some adjustments too thanks to its awesome code and ym awesome fix or and tweaks mayube rather but anyways etc... -->
+def check_icons_as_buttons_paths_are_valid():
+	"""
+	This will raise an error if:
+	- The TXT_KEY doesn't exist in any loaded Text/*.xml
+	- The icon fails to resolve and is replaced by Civ4's fallback "pink square" (which happens if the DDS path is also invalid, but we catch it at the TXT_KEY level here)
+	"""
+	for header, configButtonPath in DISPLAYED_AI_ATTRIBUTE_CATEGORY_BUTTON_PATH_TXT_KEYS.items():
+		resolvedXMLPath = CyTranslator().getText(configButtonPath, ())
+		if resolvedXMLPath == configButtonPath:
+			raise ValueError(u"[VALUE ERROR] Button path not found in XML (resolvedXMLPath=%s matches configButtonPath=%s in header=%s, which indicates button path provided in config most likely does not exist in the XML), please check button path provided in (or in - whichever filename it would have in the future -) ai_attributes_displayed_config.py exists in your mod path and also matches button path in (or in - whichever filename it would have in the future -) AdvCiv-SAS_IconsAsButtons.xml is valid and exists in your mod path." % (resolvedXMLPath, configButtonPath, header))
+
+
+
 # <!-- custom: test our attributes in our (all data sets we use) config are all valid (assumptions) (this is to avoid typos in particular or other types of mistakes etc, other display attributes in config are checked while they are fetched for display in ui so does not need an additional test maybe anyways etc. -->
 def do_data_sets_attr_validation_pre_caching():
 	leader_key_for_test = "LEADER_CATHERINE"
@@ -79,7 +93,7 @@ def do_data_sets_attr_validation_pre_caching():
 		for attr in attribute_set:
 			# <!-- custom: using LEADER_CATHERINE as an example leader to run tests on, all other (real) leaders should have their data structure enforced ((so that they would) to be) in a similar way (structured (as they are parsed))-->
 			if attr not in PARSED_XML_LEADERS_DATA[leader_key_for_test].keys():
-				raise KeyError("[KEY ERROR] Unknown AI Attribute %s in one of the sets listing attributes in ALL_SETS_LISTING_ATTRIBUTES before caching is done. Please check this attribute is valid and part of the leader(s)_data parsed attributes. (note: is at leader_key=%s)" % (attr, leader_key_for_test))
+				raise KeyError(u"[KEY ERROR] Unknown AI Attribute %s in one of the sets listing attributes in ALL_SETS_LISTING_ATTRIBUTES before caching is done. Please check this attribute is valid and part of the leader(s)_data parsed attributes. (note: is at leader_key=%s)" % (attr, leader_key_for_test))
 
 # --- Utility ---
 # <!-- custom: examples:
@@ -158,7 +172,7 @@ def do_sanity_checks_after_ai_value_ranges_caching():
 		curr_val_to_test = PARSED_XML_LEADERS_DATA[leader_key][attr]
 
 		if (curr_val_to_test < min_val_found) or (curr_val_to_test > max_val_found):
-			raise ValueError("[FATAL] At AI_VALUE_RANGES post-processing('s) testing, in attr=%s and in leader=%s, curr_val_to_test=%d cannot be strictly out of bounds of min_val_found=%d and max_val_found=%d")
+			raise ValueError(u"[FATAL] At AI_VALUE_RANGES post-processing('s) testing, in attr=%s and in leader_key=%s, curr_val_to_test=%d cannot be strictly out of bounds of min_val_found=%d and max_val_found=%d" % (attr, leader_key, curr_val_to_test, min_val_found, max_val_found))
 
 # --- Cache per-leader attributes (with final (value, scale) tuples only ---
 def cache_ai_attribute_data():
@@ -222,13 +236,13 @@ def cache_ai_attribute_data():
 					# <!-- custom: fetch min_val and max_val even though we don't need them since these are already normalized (not normalizing again), but to know if we should put and "=====" (or whichever symbol ALL_SYMBOLS["EQUAL_SCALE_SYMBOL"] is(!) (A)anyways) symbol or not at for the scale. Is also a good opportunity to check min and max perhaps and retest our values, anyways -->
 					min_val, max_val = AI_VALUE_RANGES[attr]
 					if (raw_val < min_val) or (raw_val > max_val):
-						raise ValueError("[FATAL] At AI_ATTRIBUTE_DATA's stage, in aggregated ai attribute (no re-normalization here again) attr=%s and in leader_key=%s, raw_val=%d cannot be strictly out of bounds of min_val=%d and max_val=%d")
+						raise ValueError(u"[FATAL] At AI_ATTRIBUTE_DATA's stage, in aggregated ai attribute (no re-normalization here again) attr=%s and in leader_key=%s, raw_val=%d cannot be strictly out of bounds of min_val=%d and max_val=%d" % (attr, leader_key, raw_val, min_val, max_val))
 
 				else:
 					# Normalize (inversion applied if needed)
 					# Min/max values (avoid double fetching)
 					if attr not in AI_VALUE_RANGES:
-						raise KeyError("Missing AI_VALUE_RANGES entry for attribute: %s" % attr)
+						raise KeyError(u"Missing AI_VALUE_RANGES entry for attribute: %s" % attr)
 					min_val, max_val = AI_VALUE_RANGES[attr]
 
 					# Check if attribute needs inversion
@@ -238,7 +252,7 @@ def cache_ai_attribute_data():
 						invert = True
 
 					if (raw_val < min_val) or (raw_val > max_val):
-						raise ValueError("[FATAL] At AI_ATTRIBUTE_DATA's stage and before normalization, in (raw) attr=%s and in leader_key=%s, raw_val=%d cannot be strictly out of bounds of min_val=%d and max_val=%d")
+						raise ValueError(u"[FATAL] At AI_ATTRIBUTE_DATA's stage and before normalization, in (raw) attr=%s and in leader_key=%s, raw_val=%d cannot be strictly out of bounds of min_val=%d and max_val=%d" % (attr, leader_key, raw_val, min_val, max_val))
 
 					norm_val = normalize_to_100(raw_val, min_val, max_val, invert, attr)
 					final_val = norm_val
@@ -246,14 +260,14 @@ def cache_ai_attribute_data():
 
 				# <!-- custom: quite clean way i found to get the "=====" scale if all leaders share same values, without nesting/cluttering the normalize function with uneccessary symbol scale logic, ideally should (or rather maybe ideally should return the info of if all values are equal, but it works fine this way in our code even tohugh a bit redundant as a result (but easier and quite clean overall maybe even though not ideal maybe fine in this case anyways etc) i think but anyways move this check a bit earlier and not normalize if all values are equal, and debug this, perhaps with a wrapper function on top of normalize that handles this, but maybe fine this way maybe at least not so bad or not etc anyways, also doing a sanity check at the same time (to/that also failproofs ((further?) more) our min_val an max_val common prerequirement of it not being both None for raw ai attributes as well as for aggregated ai attributes), anyways. -->
 				if (min_val is None) or (max_val is None):
-						raise ValueError("[FATAL] At AI_ATTRIBUTE_DATA's stage and after normalization, in (raw or aggregated) attr=%s and in leader_key=%s, min_val=%d or max_val=%d failed to initialize, cannot be None." % (min_val, max_val))
+						raise ValueError(u"[FATAL] At AI_ATTRIBUTE_DATA's stage and after normalization, in (raw or aggregated) attr=%s and in leader_key=%s, min_val=%d or max_val=%d failed to initialize, cannot be None." % (min_val, max_val))
 				if (min_val == max_val):
 					symbol = ALL_SYMBOLS["EQUAL_SCALE_SYMBOL"]
 				else:
 					CvUtil.pyPrint("raw_val, min_val, max_val, final_val are: %d, %d, %d, %d, for attribute %s at leader_key %s" % (raw_val, min_val, max_val, final_val, attr, leader_key))
 
 				if (symbol not in ALL_SYMBOLS.values()):
-					raise ValueError("Unexpected symbol %s in attr %s and in leader_key %s.)" % (symbol, attr, leader_key))
+					raise ValueError(u"Unexpected symbol %s in attr %s and in leader_key %s.)" % (symbol, attr, leader_key))
 
 				# Compute the appropriate scale
 				scale = get_symbol_scale(final_val, symbol)
@@ -293,8 +307,11 @@ def ensure_no_compatible_attrs_overlooked_from_leaders_data_in_ai_attribute_data
 			if compatible_leaders_data_attr not in cached_ai_attribute_attrs:
 				raise KeyError("Missing attr: testing in leader_key_for_test=%s (for example) has shown a mismatch; compatible PARSED_XML_LEADERS_DATA attribute compatible_leaders_data_attr=%s is not part of the AI_ATTRIBUTE_DATA's attributes cached_ai_attribute_attrs=%s" % (leader_key_for_test, compatible_leaders_data_attr, str(cached_ai_attribute_attrs)))
 
+
+
 # --- Execute all testing and caching steps ---
-# <!-- custom: sanity check (before using the data etc) -->
+# <!-- custom: sanity checks (before using the data etc) -->
+check_icons_as_buttons_paths_are_valid()
 do_data_sets_attr_validation_pre_caching()
 
 cache_ai_value_ranges()
@@ -666,9 +683,15 @@ class SevoPediaLeader:
 					first = False
 
 				# --- Category Header ---
-				screen.setText(self.top.getNextWidgetName(), "", u"<font=3b>%s</font>" % category,
-					CvUtil.FONT_LEFT_JUSTIFY, xLabel, y, 0, FontTypes.SMALL_FONT,
-					WidgetTypes.WIDGET_GENERAL, -1, -1)
+				# Add button <!-- custom: to/in category header anyways etc -->
+				buttonPath = str(CyTranslator().getText(DISPLAYED_AI_ATTRIBUTE_CATEGORY_BUTTON_PATH_TXT_KEYS[category], ()))
+				buttonSize = 16
+				szButtonText = u"<img=%s size=%s></img>" % (buttonPath, str(buttonSize))
+				szText2 = u"%s <font=3b>%s</font>" % (szButtonText, category)
+				# <!-- custom: add x offset (negative) so we can push button to the left a bit further than where the sub/child (but anyways etc) items/lines of the category start anyways etc -->
+				xOffsetButton = xLabel - 7
+
+				screen.setText(self.top.getNextWidgetName(), "", szText2, CvUtil.FONT_LEFT_JUSTIFY, xOffsetButton, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				y += self.H_AI_LINE_HEIGHT
 
 				# --- Display Raw and Aggregated AI Attributes ---

@@ -666,7 +666,8 @@ class SevoPediaUnit:
 		# Special cases for Hills and City
 		hillsButton = ""
 		hillsDescription = CyTranslator().getText("TXT_KEY_TERRAIN_HILL", ())
-		cityButton = ",Art/Interface/Buttons/Units/Worker.dds,Art/Interface/Buttons/Charlemagne_Atlas.dds,4,2"
+		# <!-- custom: add str() wrapper else (i.e. without it anyways etc) we get an error (it seems) (but anyways etc) anyways (i.e. not impliying it is necessary, but without it we get an error, may or may not be necessary, but in all cases anyways etc) etc -->
+		cityButtonPath = str(CyTranslator().getText("TXT_KEY_ICON_AS_BUTTON_CITIES_BUTTON_PATH", ()))
 		cityDescription = CyTranslator().getText("TXT_KEY_CONCEPT_CITIES", ())
 		
 		# Try to find a hills button from the terrain infos
@@ -702,9 +703,9 @@ class SevoPediaUnit:
 		if iCityAttack > 0 or iCityDefense > 0:
 			# Use Widget_Pedia_Description with the concept ID
 			if iCitiesConceptID != -1:
-				key = ("CITY", cityButton, cityDescription, "CONCEPT", CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, iCitiesConceptID)
+				key = ("CITY", cityButtonPath, cityDescription, "CONCEPT", CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, iCitiesConceptID)
 			else:
-				key = ("CITY", cityButton, cityDescription, "NONE", -1, -1)
+				key = ("CITY", cityButtonPath, cityDescription, "NONE", -1, -1)
 			combinedBonuses[key] = (iCityAttack, iCityDefense)
 		
 		# Terrain Attack/Defense bonuses
