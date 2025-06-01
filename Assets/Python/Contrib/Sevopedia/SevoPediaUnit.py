@@ -413,54 +413,6 @@ class SevoPediaUnit:
 
 
 
-	# Use your exact helper functions as provided
-	def getXOccurenceFound(self, xPanel, nCountOccurencesFound, buttonSize, xSubstractedAdjustment):
-		# <!-- custom: all buttons are spaced, except the first one that depends on panel left side padding, so do a - 1 to account for that -->
-		if (nCountOccurencesFound < 1):
-			raise ValueError("[FATAL] nCountOccurencesFound=%d cannot be < 1, make sure you first increment nCountOccurencesFound at first occurence found before calling this getXOccurenceFound method anyways etc." % nCountOccurencesFound)
-		return xPanel + self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING + (nCountOccurencesFound * buttonSize) + ((nCountOccurencesFound - 1) * self.HYPOTHESIZED_INTER_BUTTON_SPACING) - xSubstractedAdjustment
-
-
-
-	def getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(self, numTxt, addedOffset, buttonSize):
-		buttonSizeDoubleSize = 2 * buttonSize
-		if (addedOffset > buttonSizeDoubleSize):
-			raise ValueError(u"[FATAL] Offset %d too high, cannot be higher than 2 * buttonsize = 2 * %d = %d, please make sure offset is set as intended, and update your code or this method raising the error depending on what you/need want anyways etc." % (addedOffset, buttonSize, buttonSizeDoubleSize))
-		
-		# <!-- custom: examples of offset:
-		# - if addedOffset is 0.00, returns same value
-		# - if addedOffset is 0.10, returns value + 0.10, for example 0.55 + 0.10 = 0.65 returned anyways etc 
-		# -->
-
-		lenNumTxt = len(numTxt)
-		# <!-- custom: be careful the '%' char in for example "+50%" does not appear in str debug, but it is counted in str length, and does however also appear though in the UI in sevopedia leader py, so adjusting this code based on these results
-		# xxxxxxxxx3xxxxxxx+7
-		# xxxxxxxxx5xxxxxxx-120
-		# xxxxxxxxx6xxxxxxx+1254
-		# xxxxxxxxx4xxxxxxx+50
-		# -->
-		if lenNumTxt < 0:
-			raise ValueError(u"[FATAL] Unhandled negative length at numTxt=%s, lenNumTxt=%d" % (numTxt, lenNumTxt))
-		if lenNumTxt < 3:
-			return 0.72 + addedOffset
-		elif lenNumTxt == 3:
-			# <!-- custom: example "+5"(%), "-8"(%), etc -->
-			return 0.79 + addedOffset
-		elif lenNumTxt == 4:
-			# <!-- custom: example "+50"(%), "-35"(%), etc -->
-			return 0.85 + addedOffset
-		elif lenNumTxt == 5:
-			# <!-- custom: example "+100"(%), "-120"(%), etc -->
-			return 0.92 + addedOffset
-		elif lenNumTxt == 6:
-			# <!-- custom: example "+1000"(%), "-3798"(%), etc -->
-			return 1.01 + addedOffset
-		else:
-			# <!-- custom: example "+10000"(%) or longer, "-37982"(%) or longer, etc -->
-			return 1.09 + addedOffset
-
-
-
 	def displayPanelButtonsSNumsOrTxts(self, screen, xNumsOrTextsFound, buttonSize, yPanel, hPanel):
 		yPanelBottomPart = yPanel + int(0.8 * hPanel)
 		for xOccurenceFound, numFreeTxtOccurenceFound in xNumsOrTextsFound:
@@ -512,9 +464,10 @@ class SevoPediaUnit:
 				nCountOccurencesFound += 1
 				numTxt = u"A%+d%%" % (iMod)  # Use %+d to always show the sign (+ or -)
 				addedOffset = 0
-				xSubstractedAdjustmentNumTxt = self.getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
+				xSubstractedAdjustmentNumTxt = getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
 				xSubstractedAdjustment = int(xSubstractedAdjustmentNumTxt * buttonSize)
-				xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
+				xPanel = self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS
+				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
 				
 				# Get the default unit of this class for the current civilization
 				if self.top.iActivePlayer != -1:
@@ -533,9 +486,10 @@ class SevoPediaUnit:
 				nCountOccurencesFound += 1
 				numTxt = u"D%+d%%" % (iMod)  # Use %+d to always show the sign (+ or -)
 				addedOffset = 0
-				xSubstractedAdjustmentNumTxt = self.getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
+				xSubstractedAdjustmentNumTxt = getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
 				xSubstractedAdjustment = int(xSubstractedAdjustmentNumTxt * buttonSize)
-				xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
+				xPanel = self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS
+				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
 				
 				# Get the default unit of this class for the current civilization
 				if self.top.iActivePlayer != -1:
@@ -554,9 +508,10 @@ class SevoPediaUnit:
 				nCountOccurencesFound += 1
 				numTxt = u"%+d%%" % (iMod)  # Use %+d to always show the sign (+ or -)
 				addedOffset = 0
-				xSubstractedAdjustmentNumTxt = self.getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
+				xSubstractedAdjustmentNumTxt = getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
 				xSubstractedAdjustment = int(xSubstractedAdjustmentNumTxt * buttonSize)
-				xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
+				xPanel = self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS
+				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
 				
 				# Display the combat type button
 				screen.attachImageButton(panelName, "", gc.getUnitCombatInfo(i).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, i, -1, False)
@@ -594,9 +549,10 @@ class SevoPediaUnit:
 				nCountOccurencesFound += 1
 				numTxt = u"A%+d%%" % (iMod)  # Use %+d to always show the sign (+ or -)
 				addedOffset = 0
-				xSubstractedAdjustmentNumTxt = self.getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
+				xSubstractedAdjustmentNumTxt = getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
 				xSubstractedAdjustment = int(xSubstractedAdjustmentNumTxt * buttonSize)
-				xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_OF_OTHER_UNITS_MODIFIERS, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
+				xPanel = self.X_OF_OTHER_UNITS_MODIFIERS
+				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
 				
 				# Display the specific unit button
 				screen.attachImageButton(panelName, "", otherUnitInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, i, -1, False)
@@ -610,9 +566,10 @@ class SevoPediaUnit:
 				nCountOccurencesFound += 1
 				numTxt = u"D%+d%%" % (iMod)  # Use %+d to always show the sign (+ or -)
 				addedOffset = 0
-				xSubstractedAdjustmentNumTxt = self.getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
+				xSubstractedAdjustmentNumTxt = getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
 				xSubstractedAdjustment = int(xSubstractedAdjustmentNumTxt * buttonSize)
-				xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_OF_OTHER_UNITS_MODIFIERS, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
+				xPanel = self.X_OF_OTHER_UNITS_MODIFIERS
+				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
 				
 				# Display the specific unit button
 				screen.attachImageButton(panelName, "", otherUnitInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, i, -1, False)
@@ -628,9 +585,10 @@ class SevoPediaUnit:
 					nCountOccurencesFound += 1
 					numTxt = u"%+d%%" % (iMod)  # Use %+d to always show the sign (+ or -)
 					addedOffset = 0
-					xSubstractedAdjustmentNumTxt = self.getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
+					xSubstractedAdjustmentNumTxt = getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
 					xSubstractedAdjustment = int(xSubstractedAdjustmentNumTxt * buttonSize)
-					xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_OF_OTHER_UNITS_MODIFIERS, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
+					xPanel = self.X_OF_OTHER_UNITS_MODIFIERS
+					xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
 					
 					# Display the specific unit button
 					screen.attachImageButton(panelName, "", otherUnitInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, i, -1, False)
@@ -673,16 +631,10 @@ class SevoPediaUnit:
 		"""
 		<!-- custom: add str() wrapper else (i.e. without it anyways etc) we get an error (it seems) (but anyways etc) anyways (i.e. not impliying it is necessary, but without it we get this error with this other kind of button writing code that does not use same logic as the add as <img> one of other buttons anyways etc (from err log anyways etc):
 		
-		Traceback (most recent call last):
-		  File "CvScreensInterface", line 429, in pediaJumpToUnit
-		  File "SevoPediaMain", line 338, in pediaJump
-		  File "SevoPediaUnit", line 169, in interfaceScreen
-		  File "SevoPediaUnit", line 784, in placePeakHillCityTerrainsFeaturesModifiers
 		ArgumentError: Python argument types in
 			CyGInterfaceScreen.attachImageButton(CyGInterfaceScreen, str, str, unicode, CvPythonExtensions.GenericButtonSizes, CvPythonExtensions.WidgetTypes, CvPythonExtensions.CivilopediaPageTypes, int, bool)
 		did not match C++ signature:
 			attachImageButton(class CyGInterfaceScreen {lvalue}, char const *, char const *, char const *, enum GenericButtonSizes, enum WidgetTypes, int, int, bool)
-		ERR: Python function pediaJumpToUnit failed, module CvScreensInterface
 		  
 		(adding the str) may or may not be necessary or an alternative solution to this may exist or not, but in all cases anyways etc) anyways etc, etc
 		-->
@@ -769,14 +721,12 @@ class SevoPediaUnit:
 			
 			# Calculate text position offset
 			addedOffset = -0.07
-			xSubstractedAdjustmentNumTxt = self.getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
+			xSubstractedAdjustmentNumTxt = getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
 			xSubstractedAdjustment = int(xSubstractedAdjustmentNumTxt * buttonSize)
 			
 			# Add text position to our list
-			xNumsOrTextsFound.append((
-				self.getXOccurenceFound(self.X_TERRAIN_FEATURE_CITY_BONUSES, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), 
-				numTxt
-			))
+			xPanel = self.X_TERRAIN_FEATURE_CITY_BONUSES
+			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
 			
 			# Determine widget type based on the jumpType
 			widgetType = WidgetTypes.WIDGET_GENERAL
