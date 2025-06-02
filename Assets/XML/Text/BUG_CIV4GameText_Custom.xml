@@ -644,9 +644,7 @@
 		<Italian>Sentinella</Italian>
 		<Spanish>Vigilar</Spanish>
 	</TEXT>
-	<!-- custom: "intercept" -> "air intercept" inside the
-	tag (text) only, not changing tag name itself unless really
-	needed -->
+	<!-- custom: "intercept" -> "air intercept" inside the tag (text) only, not changing tag name itself unless really needed -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_INTERCEPT</Tag>
 		<English>Air Intercept</English>

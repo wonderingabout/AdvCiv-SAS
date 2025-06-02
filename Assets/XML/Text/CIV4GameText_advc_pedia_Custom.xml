@@ -135,9 +135,7 @@ hopefully more readable or exportable if need/want be now -->
 
 
 
-	<!-- custom: from Age of Empires wiki, did not find much info online so using
-	this (see copyright at root of project if needed):
-	https://ageofempires.fandom.com/wiki/Clubman
+	<!-- custom: from Age of Empires wiki, did not find much info online so using this (see copyright at root of project if needed): https://ageofempires.fandom.com/wiki/Clubman
 	Slightly edited too to fit AdvCiv-SAS -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_WARRIOR_PEDIA</Tag>

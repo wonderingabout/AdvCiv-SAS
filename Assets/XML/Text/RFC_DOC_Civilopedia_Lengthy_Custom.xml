@@ -17,12 +17,9 @@ and modified for our needs if needed. -->
 		<Tag>TXT_KEY_TERRAIN_GRASS_PEDIA</Tag>
 		<English>[TAB]Grasslands are areas where the vegetation is dominated by grasses (Poaceae) and other herbaceous (non-woody) plants (forbs). However, sedge (Cyperaceae) and rush (Juncaceae) families can also be found. Grasslands occur naturally on all continents except Antarctica. In temperate latitudes, such as northwest Europe and the Great Plains and California in North America, native grasslands are dominated by perennial bunch grass species, whereas in warmer climates annual species form a greater component of the vegetation.</English>
 	</TEXT>
-    <!-- custom: they (RFC DOC's sevopedia entry of Terrain_Ice) duplicated the ice water
-    entry it seems, however now we are in the page of TERRAIN_SNOW (Ice (Terrain)).
-	More info on TXT KEYs if that helps: https://gforestshade.github.io/kujira/post/keyichiran/
+    <!-- custom: they (RFC DOC's sevopedia entry of Terrain_Ice) duplicated the ice water entry it seems, however now we are in the page of TERRAIN_SNOW (Ice (Terrain)). More info on TXT KEYs if that helps: https://gforestshade.github.io/kujira/post/keyichiran/
 	Adding another description instead
-    Taken from: https://en.wikipedia.org/wiki/Ice_sheet
-    -->
+    Taken from: https://en.wikipedia.org/wiki/Ice_sheet -->
 	<TEXT>
 		<Tag>TXT_KEY_TERRAIN_ICE_PEDIA</Tag>
 		<English>[TAB]Note: This refers to the Ice Sheet (Terrain). If you wanted to see the [LINK=FEATURE_ICE]Ice Cap (Feature)[\LINK], please visit that page of the Sevopedia rather.[PARAGRAPH:2][TAB]In glaciology, an ice sheet, also known as a continental glacier, is a mass of glacial ice that covers surrounding terrain and is greater than 50,000 km2 (19,000 sq mi). The only current ice sheets are the Antarctic ice sheet and the Greenland ice sheet. Ice sheets are bigger than ice shelves or alpine glaciers. Masses of ice covering less than 50,000 km2 are termed an ice cap. An ice cap will typically feed a series of glaciers around its periphery.[PARAGRAPH:1]In previous geologic time spans (glacial periods) there were other ice sheets. During the Last Glacial Period at Last Glacial Maximum, the Laurentide Ice Sheet covered much of North America. In the same period, the Weichselian ice sheet covered Northern Europe and the Patagonian Ice Sheet covered southern South America.</English>

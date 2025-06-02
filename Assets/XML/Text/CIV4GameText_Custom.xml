@@ -2,10 +2,7 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by lcollins (Firaxis Games) -->
 <!-- custom: custom GameText xml type of assets for AdvCiv-SAS -->
 <Civ4GameText xmlns="http://www.firaxis.com">
-	<!-- custom: i have accidentally noticed that having an empty "header" tag removes it
-	entirely while also and still giving the flexibility to add it again later (but you('d)
-	need to adjust self.H_AI_UPPER_PADDING in SevoPediaLeader.py to accodomodate that, see
-	the specific implementation and code comments there for details)-->
+	<!-- custom: i have accidentally noticed that having an empty "header" tag removes it entirely while also and still giving the flexibility to add it again later (but you('d) need to adjust self.H_AI_UPPER_PADDING in SevoPediaLeader.py to accodomodate that, see the specific implementation and code comments there for details)-->
 	<TEXT>
 		<Tag>TXT_KEY_AI_PERSONALITY_RIGHT_PANEL</Tag>
 		<English></English>
@@ -60,16 +57,11 @@
 	</TEXT>
 
 
-	<!-- custom: do not rename the tag itself as we would have to recompile
-	and may break compatibility with other mods, we mostly (just or not)
-	wanted to rename the tag of promotioninfo itself that is much more used
-	and prone to confusing those who read it maybe, at least me, anyways.
-	We may also have to change it in a lot more places that we would want
-	to or need to, for other promotions with a similar case of renaming.
+	<!-- custom: do not rename the tag itself as we would have to recompile and may break compatibility with other mods, we mostly (just or not)
+	wanted to rename the tag of promotioninfo itself that is much more used and prone to confusing those who read it maybe, at least me, anyways.
+	We may also have to change it in a lot more places that we would want to or need to, for other promotions with a similar case of renaming.
 	
-	So focus mostly/only on the most import change, which is here is to add
-	"Air" explicitly in the text to clarify	it is about air units, may or not
-	do similarly for such other or similar or not texts.
+	So focus mostly/only on the most import change, which is here is to add "Air" explicitly in the text to clarify	it is about air units, may or not do similarly for such other or similar or not texts.
 	-->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_EVASION_TEXT</Tag>

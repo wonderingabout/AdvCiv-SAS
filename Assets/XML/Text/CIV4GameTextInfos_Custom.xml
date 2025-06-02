@@ -100,19 +100,13 @@
     -->
 	<!-- advc.004y: Like TXT_KEY_MAIN_MENU_CIVILOPEDIA (CIV4GameTextInfos.xml),
 		 but all capitalized. -->
-	<!-- custom: rename civilopedia to sevopedia, better if players get used to
-	the actual name, hopefully the "pedia" part of it should/would be clear
-	enough to indicate that it is the same as the civilopedia. -->
+	<!-- custom: rename civilopedia to sevopedia, better if players get used to the actual name, hopefully the "pedia" part of it should/would be clear enough to indicate that it is the same as the civilopedia. -->
 	<TEXT>
 		<Tag>TXT_KEY_CIVILOPEDIA_TITLE</Tag>
 		<English>SEVOPEDIA</English>
 	</TEXT>
 
-	<!-- custom: all below in this group modified to remove the	extra
-	redundant/uneeded for example "STRENGTH: " in "STRENGTH: 5" now
-	displaying (only) as "5" much clearer and cleaner i think this way,
-	making a separate tag in case the original one is relevant somewhere
-	else, anyways etc -->
+	<!-- custom: all below in this group modified to remove the	extra redundant/uneeded for example "STRENGTH: " in "STRENGTH: 5" now displaying (only) as "5" much clearer and cleaner i think this way, making a separate tag in case the original one is relevant somewhere else, anyways etc -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_COST_CUSTOM</Tag>
 		<English>%d1_Num</English>
@@ -136,15 +130,11 @@
 		<Tag>TXT_KEY_PEDIA_RANGE_UNLIMITED_CUSTOM</Tag>
 		<English>unlimited</English>
 	</TEXT>
-	<!-- custom: removed TXT_KEY_PEDIA_IMMOBILE, we don't seem to use it anywhere
-	in advciv (nor even civ4 actually), and since we don't use it anymore in
-	sevopedia unit now (hide the field rather entirely anyways etc, may as well
-	remove it now, anyways etc) -->
+	<!-- custom: removed TXT_KEY_PEDIA_IMMOBILE, we don't seem to use it anywhere in advciv (nor even civ4 actually), and since we don't use it anymore in sevopedia unit now (hide the field rather entirely anyways etc, may as well remove it now, anyways etc) -->
 
 
 
-	<!-- custom: in sevopediabuilding and perhaps in other places that use our custom
-	tag, "Happy: 5" (for example) is now "5" anyways etc -->
+	<!-- custom: in sevopediabuilding and perhaps in other places that use our custom tag, "Happy: 5" (for example) is now "5" anyways etc -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_HAPPY_CUSTOM</Tag>
 		<English>%D1</English>
@@ -168,20 +158,13 @@
 
 
 
-	<!-- custom: rename "We fear you are becoming too advanced." (WFYABTA)
-	to "We fear you are trading more than us" (WFYATMTU), the former is
-	misleading as a player can receive it even if lagging behind in techs
-	and trying to trade, from what i understand/read/remember in the past
-	it is actually related to how much a player trades regardless of tech
-	progress, hopefully clearer now. -->
+	<!-- custom: rename "We fear you are becoming too advanced." (WFYABTA) to "We fear you are trading more than us" (WFYATMTU), the former is misleading as a player can receive it even if lagging behind in techs and trying to trade, from what i understand/read/remember in the past it is actually related to how much a player trades regardless of tech progress, hopefully clearer now. -->
 	<TEXT>
 		<Tag>TXT_KEY_DENIAL_TECH_WHORE</Tag>
 		<English>"We fear you are trading more than us."</English>
 	</TEXT>
 
-	<!-- custom: do not change the tag name unless we need to,
-	we mostly only want to change the content (text here) inside
-	the tag -->
+	<!-- custom: do not change the tag name unless we need to, we mostly only want to change the content (text here) inside the tag -->
 	<TEXT>
 		<Tag>TXT_KEY_MISSION_INTERCEPT</Tag>
 		<English>Air Intercept</English>

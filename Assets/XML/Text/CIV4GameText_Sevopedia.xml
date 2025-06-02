@@ -25,31 +25,14 @@
 		<Spanish>Contenido</Spanish>
 	</TEXT>
 
-	<!-- custom: rename "Unit Upgrades" to "Units Tree",
-	clearer and consistent with "Promotion Upgrades Tree",
-	while also short enough to fit well enough in the
-	sevopedia panel.
-	Also note that this/it is not necessarily about
-	upgrading units but showing them, even though
-	upgrading them may be the end result, but still,
-	this should not be a wrong way to present things,
-	regarding how this is just a tree that displays
-	units and how they relate to each other (think
-	of it as looking back maybe for example, not
-	necessarily upgrade only, or also looking at per
-	era units in a vertical way for example (in
-	AdvCiv-SAS the tech tree would be designed in such
-	a way that each era has one	type of unit, and each
-	unit is aligned vertically (in the column
-	corresponding to) where it starts, maybe this can
-	 help this be more intuitive too) -->
+	<!-- custom: rename "Unit Upgrades" to "Units Tree", clearer and consistent with "Promotion Upgrades Tree", while also short enough to fit well enough in the sevopedia panel.
+	Also note that this/it is not necessarily about upgrading units but showing them, even though upgrading them may be the end result, but still, this should not be a wrong way to present things, regarding how this is just a tree that displays units and how they relate to each other (think of it as looking back maybe for example, not necessarily upgrade only, or also looking at per era units in a vertical way for example (in AdvCiv-SAS the tech tree would be designed in such a way that each era has one type of unit, and each unit is aligned vertically (in the column corresponding to) where it starts, maybe this can help this be more intuitive too) -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT_UPGRADES</Tag>
 		<!-- custom: <English>Units Tree</English> -->
 		<English>Un. Tree</English>
 	</TEXT>
-	<!-- custom: use the plural here too:
-	"Promotion Tree" -> "Promotions Tree" -->
+	<!-- custom: use the plural here too: "Promotion Tree" -> "Promotions Tree" -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_PROMOTION_TREE</Tag>
 		<!-- custom: <English>Promotions Tree</English> -->
@@ -73,8 +56,7 @@
 		 it. Concetti di BTS, es. Conceptos BtS)
 		 because I'm replacing this key in CIV4GameText_advc_pedia.xml. -->
 
-	<!-- custom: rename "Unique Buildings" to "Civilization Buildings",
-	hopefully clearer -->
+	<!-- custom: rename "Unique Buildings" to "Civilization Buildings", hopefully clearer -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIQUE_BUILDINGS</Tag>
 		<English>Civilization Buildings</English>
@@ -90,7 +72,7 @@
 	</TEXT>
 
 
-	<!-- custom -->
+	<!-- custom: -->
 	<!--				TERRAINS CATEGORY				-->
 	<!-- custom: rename "Base Terrain" to "Terrains" (also switching to the plural form, same as for "Features" (no reason why not and why it was not like that). Maybe simpler is better here. -->
 	<TEXT>
@@ -99,7 +81,7 @@
 	</TEXT>
 
 
-	<!-- custom -->
+	<!-- custom: -->
 	<!--				FEATURES CATEGORY				-->
 	<!-- custom: remove mention of the "terrain" in "terrain features" of the root sevopedia category, i think it's confusing, and hinders the (especially new(er)) player's ease of grasping that terrains and features are 2 diferent things, there should be either "terrains" or "features", i think it's an easier way to approach these new "concepts" of civ4.
 	Not necessary to remove it everywhere, the sentences may become a bit weird too, but in	key visibility and isolated (not sentences), it should be a no brainer i think.
@@ -111,7 +93,7 @@
 	</TEXT>
 
 
-	<!-- custom -->
+	<!-- custom: -->
 	<!--				RESSOURCES / BONUSES CATEGORY				-->
 	<!-- custom: create a new TXT KEY for ressources natural tile yields, making it extra clear what these yields are:
 	- they are not global (yield on tile only)
@@ -136,7 +118,7 @@
 	</TEXT>
 
 
-	<!-- custom -->
+	<!-- custom: -->
 	<!--				IMPROVEMENTS CATEGORY				-->
 	<!-- custom: keep this TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT specifically for the Improvements category title (or/and other places where it is used), we need a new TXT KEY for the Ressources/"Improvements" now though, see TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT_CUSTOM_NEW_FOR_RESSOURCES_IMPROVEMENTS i created for that
 	-->
@@ -158,10 +140,7 @@
 		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_ON_BONUSES_EXTRA_TILE_YIELD_CHANGES</Tag>
 		<English>On Bonus(es)/Ressource(s) Extra Tile Yield Change(s)</English>
 	</TEXT>
-	<!-- custom: "Food: +1F (with Irrigation)" becomes
-	now "+1F (with Irrigation)", remove the uneeded
-	"%s1: " too now, see placeYield in SevoPediaImprovement.py
-	for	details -->
+	<!-- custom: "Food: +1F (with Irrigation)" becomes now "+1F (with Irrigation)", remove the uneeded "%s1: " too now, see placeYield in SevoPediaImprovement.py for details -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_IRRIGATED_YIELD</Tag>
 		<!-- %s1 = TXT_KEY_IMPROVEMENT -->
@@ -171,10 +150,7 @@
 		<Italian>%D2%F3 (con irrigazione)</Italian>
 		<Spanish>%D2 %F3 (con riego)</Spanish>
 	</TEXT>
-	<!-- custom: for the german translation the	text was/
-	looks(ed) weird so i applied the english one instead
-	"Production: +1H (on Hills)" is now "+1H (on Hills)"
-	-->
+	<!-- custom: for the german translation the	text was/looks(ed) weird so i applied the english one instead "Production: +1H (on Hills)" is now "+1H (on Hills)" -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_HILLS_YIELD</Tag>
 		<!-- %s1 = TXT_KEY_IMPROVEMENT -->
@@ -183,8 +159,7 @@
 		<Italian>%D2%F3 (sulle colline)</Italian>
 		<Spanish>%D2 %F3 (en colinas)</Spanish>
 	</TEXT>
-	<!-- custom: similarly (done) as for for/in
-	TXT_KEY_PEDIA_HILLS_YIELD -->
+	<!-- custom: similarly (done) as for for/in TXT_KEY_PEDIA_HILLS_YIELD -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_RIVER_YIELD</Tag>
 		<!-- %s1 = TXT_KEY_IMPROVEMENT -->
@@ -193,8 +168,7 @@
 		<Italian>%D2%F3 (vicino a un fiume)</Italian>
 		<Spanish>%D2 %F3 (junto a un r&#237;o)</Spanish>
 	</TEXT>
-	<!-- custom: similarly (done) as for for/in
-	TXT_KEY_PEDIA_HILLS_YIELD -->
+	<!-- custom: similarly (done) as for for/in TXT_KEY_PEDIA_HILLS_YIELD -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_TECH_YIELD</Tag>
 		<!-- %s1 = TXT_KEY_IMPROVEMENT  %s4 = TXT_KEY_BONUS -->
@@ -203,8 +177,7 @@
 		<Italian>%D2%F3 (con [LINK=literal]%s4[\LINK])</Italian>
 		<Spanish>%D2 %F3 (con [LINK=literal]%s4[\LINK])</Spanish>
 	</TEXT>
-	<!-- custom: similarly (done) as for for/in
-	TXT_KEY_PEDIA_HILLS_YIELD -->
+	<!-- custom: similarly (done) as for for/in TXT_KEY_PEDIA_HILLS_YIELD -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_ROUTE_YIELD</Tag>
 		<English>%D2%F3 (with [LINK=CONCEPT_MOVEMENT]%s4[\LINK])</English>

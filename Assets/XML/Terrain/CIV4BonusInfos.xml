@@ -359,7 +359,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
-			<!-- custom: match closer the stone spawning formula or/and other strategic ressources or/and not anyways etc even if marble itself is not not directly startegic but more of a luxury strategic ressource/bonus at least in civ4 but hopefully applies well enough or is how i want to do it or not or yes or and other or and not anyways etc, was 30 / 128 -->
+			<!-- custom: match closer the stone spawning formula or/and other strategic ressources or/and not anyways etc even if marble itself is not not directly strategic but more of a luxury strategic ressource/bonus at least in civ4 but hopefully applies well enough or is how i want to do it or not or yes or and other or and not anyways etc, was 30 / 128 -->
 			<!-- advc.129: was 50 -->
 			<iPlayer>50</iPlayer>
 			<!-- advc.129: was 0 -->

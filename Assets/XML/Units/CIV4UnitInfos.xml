@@ -8420,7 +8420,7 @@ then adjust maybe anyways):
 			<FeatureNatives/>
 		    <!-- custom: unlike the reworked pikemen, the holy roman special unit seems
 			to good in most if not all terrains, so removing the penalties that the reworked
-			pikemen have. May affect city attack/defense/planting startegy. -->
+			pikemen have. May affect city attack/defense/planting strategy. -->
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_GRASS</TerrainType>

@@ -8,9 +8,7 @@
 C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Text\CIV4GameText_Objects_BTS.xml
 -->
 <Civ4GameText xmlns="http://www.firaxis.com">
-    <!-- custom: use civ4 dev language unless we have
-	a reason not, harmonizes terminlogy hopefully
-	while being clearer for players. -->
+    <!-- custom: use civ4 dev language unless we have a reason not, harmonizes terminlogy hopefully while being clearer for players. -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT_COMBAT</Tag>
 		<!-- <English>Unit Combat Types</English> -->
@@ -32,14 +30,11 @@ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond
 		<English>Air (Fighter)</English>
 	</TEXT>
 
-	<!-- custom: disambiguate Ice Terrain vs Ice Feature, hopefully clearer with
-	these 2 separate terms, see RFC DOC custom's XML files,
 
+
+	<!-- custom: disambiguate Ice Terrain vs Ice Feature, hopefully clearer with these 2 separate terms, see RFC DOC custom's XML files,
 	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Text\RFC_DOC_Civilopedia_Lengthy_Custom.xml
-
-	at the TXT_KEY_TERRAIN_ICE_PEDIA and TXT_KEY_FEATURE_ICE_PEDIA entries (code comments)
-	for details.
-	-->
+	at the TXT_KEY_TERRAIN_ICE_PEDIA and TXT_KEY_FEATURE_ICE_PEDIA entries (code comments) for details. -->
 	<TEXT>
 		<Tag>TXT_KEY_TERRAIN_ICE</Tag>
 		<English>Ice Sheet</English>

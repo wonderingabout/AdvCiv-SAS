@@ -276,10 +276,7 @@
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
-			<!-- custom: avoid per unit bonuses, tedious and not versatile enough,
-			plus not necessarily the "best" way to buff, considering i find
-			protective weak, buffing it in another (or other) way(s) and removing
-			freepromotioncombats effects entirely -->
+			<!-- custom: avoid per unit bonuses, tedious and not versatile enough, plus not necessarily the "best" way to buff, considering i find protective weak, buffing it in another (or other) way(s) and removing freepromotioncombats effects entirely -->
 			<FreePromotionUnitCombats/>
 		</TraitInfo>
 		<TraitInfo>

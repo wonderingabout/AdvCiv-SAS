@@ -52,7 +52,7 @@ versatile, which i think is realistic. For example, scouts and explorers can
 attack, even workers should be able to defend cities (even though very weak),
 but this is still in development. These changes intend to make it more
 immersive, balanced in case some units are op while others are not and too weak,
-and more challenging, as startegy will play a bigger role, with more ways to be
+and more challenging, as strategy will play a bigger role, with more ways to be
 punished if doing mistakes.
 - Terrain Overhaul: now all military units all have terrain specific defenses and
 bonuses. This is a very different experience than civ4 or base advciv, as good as

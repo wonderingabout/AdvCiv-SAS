@@ -100,7 +100,7 @@ Rename the tag									Original untouched; you're free to localize your version
 
 
 
-	<!-- custom: rename "BtS Rules Changes" to	"0_BtS Rules Changes (Outdated)", really important to not confuse the user/player about how this data is unrelated to us, but they may still want to access it, espcially if they are in knowledge of that/aware of	that, as they prefer maybe or not etc but etc anyways" -->
+	<!-- custom: rename "BtS Rules Changes" to "0_BtS Rules Changes (Outdated)", really important to not confuse the user/player about how this data is unrelated to us, but they may still want to access it, espcially if they are in knowledge of that/aware of that, as they prefer maybe or not etc but etc anyways" -->
 	<!-- advc.002b: Shortening "Beyond the Sword" to "BtS" so that the page
 		 names can be displayed despite the increased font size.
 		 Originally in CIV4GameText_BTS.xml and CIV4GameText_Objects_BTS.xml. -->

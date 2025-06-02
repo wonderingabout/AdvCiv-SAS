@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Jon Shafer (Firaxis Games) --><!-- Sid Meier's Civilization 4 --><!-- Copyright Firaxis Games 2005 --><!-- --><!-- Promotion Infos -->
 <!--
-custom: for <UnitCombats> please alphabetical/sevopedia listing order,
-else it gets messy really quickly
-
-full order to take from for quick editing or/and copy/paste:
+custom: for <UnitCombats> please alphabetical/sevopedia listing order, else it gets messy really quickly full order to take from for quick editing or/and copy/paste:
 
 			<UnitCombats>
 				<UnitCombat>
@@ -1264,7 +1261,7 @@ full order to take from for quick editing or/and copy/paste:
 			<PromotionPrereqOr1>NONE</PromotionPrereqOr1>
 			<!-- advc.200: PROMOTION_DRILL2 in K-Mod; reverted -->
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
-			<!--custom: -->
+			<!-- custom: -->
 			<TechPrereq>TECH_CONSTRUCTION</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
