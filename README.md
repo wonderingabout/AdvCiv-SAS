@@ -90,15 +90,33 @@ Please read this [README_python_scripts.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/R
 So far there is:
 - [generate_leaders_data.py and leaders_data data py module ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module)
 - [global XML duplication scanner ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#scan_xml_duplicates-py-script-and-logs_xml_scans)
+- [flatten_handicap_info_to_csv_and_md](/flatten_handicap_info_to_csv_and_md.py)
 - [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py)
+
+#### csv and md view of the handicap (difficulties info in a table for all difficulties)
+
+Generated with the [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py) script, you can regenerate it if you mod/change the data, else just run the:
+- [.csv view to view it on GitHub website for example](/handicap_data_table.md) or with libreoffice for example or similar software if you prefer another viewer than GitHub website view or such anyways etc
+- [.md view to view it on GitHub website for example](/handicap_data_table.md) similarly either on GitHub web view or in a text editor like Notepad++ or and such as you prefer anyways etc
+
+Also code is provided thanks to chatgpt/becomingthrough and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc
+
+Example of output below (may not be updated), hopefully helpful/illustrative, view links above for updated version, and if you change the xml, regenerate new .md and .csv files with the script (see [README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy) for details as well or/and info anyways etc, and links to base advciv files data of handicap info as of now to compare too with what our mod does (files are in in our mod path [here](/_0_Common_Docs/AdvCiv%20Base%20Doc/) directly if you want too anyways etc) anyways etc:
+
+<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_libre_office (1).PNG" width="150"></img>
+
+todo add image of github website view anyways etc
 
 #### csv github view for the flatten_leaders_data_to_csv conversion script
 
-More specificially about the [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py) anyways etc, there is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#leaders_data_to_csvpy) anyways etc but i have just noticed after the [mega commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/50f7983166a9ea2d93ff0084552d2fcfc32b9aec#diff-2224084cfc75aee1dd365084937d36ddb7b77107c9f9529aef06b37721f117a0) that this data is also (nicely but anwyays etc) [(click here to view it on on github too)](/leaders_data_to_csv_ai_flat_example_of_output.csv) (you can also click on the collapse tree button thing to get an even larger display and scroll down the page to remove from "vision field" the uneeded (for this task of viewing fields in the csv in github) the top headers but is just suggestion or not anyways etc anyways etc...), with filters (research) and such anyways etc, so adding a bit more general info about it too, as shown below
+For now a very minimal script, but maybe helps too.
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (1).PNG" width="150"></img>
+More specificially about the [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py) anyways etc, there is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#leaders_data_to_csvpy) anyways etc:
+- [(click here to view it on on github too)](/leaders_data_to_csv_ai_flat_example_of_output.csv) (you can also click on the collapse tree button thing to get an even larger display and scroll down the page to remove from "vision field" the uneeded (for this task of viewing fields in the csv in github) the top headers but is just suggestion or not anyways etc anyways etc...), with filters (research) and such anyways etc, so adding a bit more general info about it too, as shown below for the github web page view
+- note: you can also view it (the .csv file i.e. anyways etc with libreoffice or/and such similar/alternative viewer/editor anyways etc)
+
 <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (2).PNG" width="150"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (3).PNG" width="150"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_output_example__leader_data_libre_office_view_2.PNG" width="250"></img>
 
 ## Sex-neutral and Less Generic-neutral (too) unit names or/and combat types (todo and non-exhaustive)
 
