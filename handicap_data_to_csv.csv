@@ -6,7 +6,7 @@ iAIBarbarianBonus,-30,-25,0,0,0,0,0,0,0
 iAICivicUpkeepPercent,100,100,100,100,95,90,85,80,75
 iAIConstructPercent,120,115,105,100,95,95,90,80,75
 iAICreatePercent,110,105,100,100,95,90,85,80,75
-iAIDeclareWarProb,25,50,75,100,100,100,100,100,100
+iAIDeclareWarProb,60,80,100,100,100,110,120,130,140
 iAIGPThresholdPercent,125,120,110,100,100,95,90,85,80
 iAIGrowthPercent,125,120,110,100,100,95,90,85,80
 iAIHandicapIncrementTurns,0,0,0,0,100,50,33,25,20
@@ -33,7 +33,7 @@ iBarbarianBonus,-30,-25,0,0,0,0,0,0,0
 iBarbarianCityAttackBonus,,,,,0,0,0,0,0
 iBarbarianCityCreationProb,5,10,15,20,25,30,35,40,45
 iBarbarianCityCreationTurnsElapsed,60,55,50,45,40,35,30,25,25
-iBarbarianCreationTurnsElapsed,48,44,40,36,32,28,24,20,16
+iBarbarianCreationTurnsElapsed,45,42,39,36,33,30,27,24,16
 iBarbarianDefenders,2,2,2,3,3,3,4,4,5
 iBaseGrowthThresholdPercent,80,95,100,100,100,100,110,120,130
 iBuildTimePercent,100,100,100,100,100,100,110,115,120
@@ -78,41 +78,41 @@ Goodies,G_0,G_1,G_2,G_3,G_4,G_5,G_6,G_7,G_8
 
 
 
-,[LEGEND]
-,AIFT_0,AIFT_1,AIFT_2,AIFT_3,AIFT_4,AIFT_5,AIFT_6,AIFT_7,AIFT_8
-,Pottery,Pottery,Pottery,Pottery,Pottery,Pottery,Pottery,Pottery,Pottery
-,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.
-,Currency,Currency,Currency,Currency,Currency,Currency,Currency,Currency,Currency
-,Compass,Compass,Compass,Compass,Compass,Compass,Compass,Compass,Compass
-,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry
-,Laser,Laser,Laser,Laser,Laser,Laser,Laser,Laser,Laser
-,-,-,-,Monarchy,Monarchy,Monarchy,Monarchy,Monarchy,Monarchy
-,-,-,-,-,-,Drama,Drama,Drama,Drama
-,-,-,-,-,-,Industr.,Industr.,Industr.,Industr.
-,-,-,-,-,-,-,Fishing,Fishing,Fishing
-,-,-,-,-,-,-,-,Animal H.,Animal H.
-,-,-,-,-,-,-,-,-,Mysticism
-,-,-,-,-,-,-,-,-,Optics
-,-,-,-,-,-,-,-,-,Biology
-,FT_0,-------,-------,-------,-------,-------,-------,-------,-------
-,The Wheel,-,-,-,-,-,-,-,-
-,Agriculture,-,-,-,-,-,-,-,-
-,Hunting,-,-,-,-,-,-,-,-
-,Mining,-,-,-,-,-,-,-,-
-,Pottery,-,-,-,-,-,-,-,-
-,Animal H.,-,-,-,-,-,-,-,-
-,Bronze W.,-,-,-,-,-,-,-,-
-,Iron W.,-,-,-,-,-,-,-,-
-,G_0,G_1,G_2,G_3,G_4,G_5,G_6,G_7,G_8
-,High Gold,High Gold,High Gold,High Gold,High Gold,High Gold,-,-,-
-,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold
-,Map,Map,Map,Map,Map,Map,Map,Map,Map
-,Settler,Settler,-,-,-,-,-,-,-
-,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior
-,Scout,Scout,Scout,Scout,Scout,Scout,Scout,Scout,Scout
-,Worker,Worker,Worker,-,-,-,-,-,-
-,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.
-,Healing,Healing,Healing,Healing,Healing,Healing,Healing,Healing,Healing
-,Tech,Tech,Tech,Tech,Tech,Tech,Tech,Tech,Tech
-,-,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak
-,-,-,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong
+,[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND]
+AIFT_0,AIFT_1,AIFT_2,AIFT_3,AIFT_4,AIFT_5,AIFT_6,AIFT_7,AIFT_8,
+Pottery,Pottery,Pottery,Pottery,Pottery,Pottery,Pottery,Pottery,Pottery,
+Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.,
+Currency,Currency,Currency,Currency,Currency,Currency,Currency,Currency,Currency,
+Compass,Compass,Compass,Compass,Compass,Compass,Compass,Compass,Compass,
+Chemistry,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry,
+Laser,Laser,Laser,Laser,Laser,Laser,Laser,Laser,Laser,
+-,-,-,Monarchy,Monarchy,Monarchy,Monarchy,Monarchy,Monarchy,
+-,-,-,-,-,Drama,Drama,Drama,Drama,
+-,-,-,-,-,Industr.,Industr.,Industr.,Industr.,
+-,-,-,-,-,-,Fishing,Fishing,Fishing,
+-,-,-,-,-,-,-,Animal H.,Animal H.,
+-,-,-,-,-,-,-,-,Mysticism,
+-,-,-,-,-,-,-,-,Optics,
+-,-,-,-,-,-,-,-,Biology,
+FT_0,-------,-------,-------,-------,-------,-------,-------,-------,
+The Wheel,-,-,-,-,-,-,-,-,
+Agriculture,-,-,-,-,-,-,-,-,
+Hunting,-,-,-,-,-,-,-,-,
+Mining,-,-,-,-,-,-,-,-,
+Pottery,-,-,-,-,-,-,-,-,
+Animal H.,-,-,-,-,-,-,-,-,
+Bronze W.,-,-,-,-,-,-,-,-,
+Iron W.,-,-,-,-,-,-,-,-,
+G_0,G_1,G_2,G_3,G_4,G_5,G_6,G_7,G_8,
+High Gold,High Gold,High Gold,High Gold,High Gold,High Gold,-,-,-,
+Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,
+Map,Map,Map,Map,Map,Map,Map,Map,Map,
+Settler,Settler,-,-,-,-,-,-,-,
+Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,
+Scout,Scout,Scout,Scout,Scout,Scout,Scout,Scout,Scout,
+Worker,Worker,Worker,-,-,-,-,-,-,
+Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,
+Healing,Healing,Healing,Healing,Healing,Healing,Healing,Healing,Healing,
+Tech,Tech,Tech,Tech,Tech,Tech,Tech,Tech,Tech,
+-,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,
+-,-,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,

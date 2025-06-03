@@ -238,8 +238,8 @@ Example of usage:
 
 As for output, see below for examples of .csv and .md outputs, the files we get are for example like this (screenshots may not be updated, view latest files provided in your mod path, or/and regnerate them again yourself with the script especially if you modify the xml of handicap info since then to show your changes in the .csv and .md files)
 
-- [.csv view to view it on GitHub website for example](/handicap_data_table.md) or with libreoffice for example or similar software if you prefer another viewer than GitHub website view or such anyways etc
-- [.md view to view it on GitHub website for example](/handicap_data_table.md) similarly either on GitHub web view or in a text editor like Notepad++ or and such as you prefer anyways etc
+- [.csv view to view it on GitHub website for example](/handicap_data_to_csv.csv) or with libreoffice for example or similar software if you prefer another viewer than GitHub website view or such anyways etc
+- [.md view to view it on GitHub website for example](/handicap_data_table.md) similarly either on GitHub web view or in a .md previewer like VS Code for example or and such as you prefer anyways etc
 
 note: you can remove the timestamp too if not needed anymore (year and time and such info in filename anyways etc) or/and if needed or wnted by you or and other or and not or do or not anyways etc
 
@@ -252,16 +252,19 @@ libre office view example (may not be updated, view on github instead as explain
 
 ## md
 
-Currently less advanced version of this (with the legend, but maybe displays quite well), todo add screenshots
+Currently less advanced version of this (with the legend, but maybe displays quite well),
+
+<img src="../Images_In_General/scripts/csv_md_handicap_github_view_example.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_md_handicap_vs_code_preview_example.PNG" width="250"></img>
 
 ## note: base AdvCiv handicap data too to compare with our mod's changes anyways etc
 
 base advciv latest as of now, see more recnt data or/and regenerate it yourself similarly if changes happen not included in our current file
 
-Usage is similarly (after having a copy of the script in base advciv folder) for example (adjust to your mod path if non-Steam or/and such other mod path anyways etc)
+Usage is similarly (running it from base advciv mod folder with the advciv-sas py script though if i am not mistaken anyways etc) for example (adjust to your mod path if non-Steam or/and such other mod paths anyways etc)
 
 ```
-cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\ & python flatten_handicap_info_to_csv_and_md.py
+cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\ & python ..\AdvCiv-SAS\flatten_handicap_info_to_csv_and_md.py
 ```
 
 - [.csv (base advciv)](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_data_to_csv_base_advciv.csv) or with libreoffice for example or similar software if you prefer another viewer than GitHub website view or such anyways etc

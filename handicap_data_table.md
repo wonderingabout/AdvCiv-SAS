@@ -7,7 +7,7 @@
 | iAICivicUpkeepPercent | 100 | 100 | 100 | 100 | 95 | 90 | 85 | 80 | 75 |
 | iAIConstructPercent | 120 | 115 | 105 | 100 | 95 | 95 | 90 | 80 | 75 |
 | iAICreatePercent | 110 | 105 | 100 | 100 | 95 | 90 | 85 | 80 | 75 |
-| iAIDeclareWarProb | 25 | 50 | 75 | 100 | 100 | 100 | 100 | 100 | 100 |
+| iAIDeclareWarProb | 60 | 80 | 100 | 100 | 100 | 110 | 120 | 130 | 140 |
 | iAIGPThresholdPercent | 125 | 120 | 110 | 100 | 100 | 95 | 90 | 85 | 80 |
 | iAIGrowthPercent | 125 | 120 | 110 | 100 | 100 | 95 | 90 | 85 | 80 |
 | iAIHandicapIncrementTurns | 0 | 0 | 0 | 0 | 100 | 50 | 33 | 25 | 20 |
@@ -34,7 +34,7 @@
 | iBarbarianCityAttackBonus |  |  |  |  | 0 | 0 | 0 | 0 | 0 |
 | iBarbarianCityCreationProb | 5 | 10 | 15 | 20 | 25 | 30 | 35 | 40 | 45 |
 | iBarbarianCityCreationTurnsElapsed | 60 | 55 | 50 | 45 | 40 | 35 | 30 | 25 | 25 |
-| iBarbarianCreationTurnsElapsed | 48 | 44 | 40 | 36 | 32 | 28 | 24 | 20 | 16 |
+| iBarbarianCreationTurnsElapsed | 45 | 42 | 39 | 36 | 33 | 30 | 27 | 24 | 16 |
 | iBarbarianDefenders | 2 | 2 | 2 | 3 | 3 | 3 | 4 | 4 | 5 |
 | iBaseGrowthThresholdPercent | 80 | 95 | 100 | 100 | 100 | 100 | 110 | 120 | 130 |
 | iBuildTimePercent | 100 | 100 | 100 | 100 | 100 | 100 | 110 | 115 | 120 |

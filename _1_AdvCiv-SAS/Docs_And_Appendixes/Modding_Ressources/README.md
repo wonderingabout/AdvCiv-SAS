@@ -55,6 +55,47 @@ When doing a global search with VS Code for anything, as long as this manual.txt
 
 Not necessarily for all docs, or may if you want, but sure is very convenient, hopefully helpful tip or maybe not but in all cases etc anyways.
 
+#### advciv id changes manual.txt results
+
+note: about the below example, a global search on "HandicapIncrementTurns" directly rather may be more useful (see civ4handicapinfo xml 's code comment(s) for details), but this shows how to navigate if i may say but anyways etc the manual.txt and global search features for example how to use them, may not be the best example but hopefully works-functions-suits quite well here but anyways etc...
+
+VS Code's (for example) global search can be useful in particular but not only, for example, to try to understand what advciv id changes do.
+
+For example while trying to tweak difficulty settings after having added our new script of handicap info display as explained in [/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties), i was trying, for example in this case but anyways etc, to understand what this unknown (to me at least but anyways etc) `iAIHandicapIncrementTurns` field does, no info in usual websites like kujira or and such anyways etc
+
+Output is as follows for a search on "251" and right click "copy" on the global search results (part of them that are in manual.txt i mean anyways etc):
+
+```
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv Base Doc\manual.txt
+  172,273: To balance out the remaining changes (especially to Free Speech), the threshold for Legendary city culture gets reduced on the low and medium difficulty levels. (On Monarch, the threshold begins to increase, matching the increasing tech costs relevant for Space victory.) 251
+  252,229:     • No impact of global research on inflation; instead, adjusted tech costs based on difficulty and the years-per-turn progression for a more historically accurate tech pace, and Immortal and Deity games now start on turn 10. 251, 910
+  297,419:     • On Emperor difficulty and above, some of the AI discounts have been reduced, but human civs face increased production costs, research costs, city growth thresholds and Great Person thresholds. The AI also starts with fewer freebies, in particular, without Agriculture on Immortal and Deity and without a second free Settler on Deity. Progres­sive AI bonuses are now based on the game turn instead of the AI era. 251/ 250e
+  2243,1: 251 shows the start turn on the Settings tab when it isn't turn 0.
+  4821,1: 251, 910: Tech cost adjustments.
+  6489,132: Rationale	An extra defender everywhere is a big production sink now that AI production discounts have been reduced (through change 251), especially in the early game. That forum post probably describes an AI enemy in the Classical era; so I could address that situation (to an extent) by adding the extra defender already in the Classical era on Deity. However, I don't really think that this would make the AI more difficult to beat overall as it's not all that often possible to sneak up on the AI through the territory of a third civ that the AI isn't afraid of. It's also a pretty clever stratagem that I don't mind being rewarded a bit. (The reward isn't going to be that great because the conquered cities won't be connected to the player's core territory.)
+  6802,10: See also	251 reduces the AI work rate bonuses from the difficulty setting.
+  7811,10: See also	251 adjusts the culture level thresholds to the game difficulty level.
+  9721,1: 251 increases tech costs for the above-average difficulty levels.
+  9913,1: 251 may show the game start turn.
+  9980,1: 251: Removes the culture rate modifier that K-Mod adds to Colosseum. And is concerned with the balancing Culture and Space victory.
+  10199,221: The AI advantages that are the same for all difficulty settings, namely the discounts on unit supply and upgrade cost, are unaffected by the AI game progress modifier (per-era modifier in BtS, per game turn since change 251).	The per-era modifier increases most of the AI advantages with each passing era. 
+  10203,10: See also	251 exempts all AI gold costs from game progress adjustments.
+  10221,266: See also	I guess changes to map sizes (137, 165), starting positions (027) and AI behavior have made it considerably more difficult to establish at least four decent cities in the early game. Converting AI worker speed increases into a human worker speed decrease (251) may also have had the (unintended) effect of hampering the early development of human civs more than that of AI civs.
+  10224,41: See also	The Deity research rate set by 251 is adjusted to this change.
+  10230,1: 251	Pacing adjustments for difficulty levels
+  10343,5: See 251 about Marathon culture level thresholds.
+  10359,1: 251 uncouples AI unit expenses from the progressive per-era modifier, meaning that AI unit expenses don't depend on the difficulty level in AdvCiv (always halved).
+  10449,10: See also	251 shows the game start turn on the Settings tab if it isn't turn 0.
+  10556,55: See also	To match the increased production costs that 251 imposes on the civs.
+  11371,10: See also	251 increases some expenses for the medium difficulty levels and reduced the number of free wins against Barbarians.
+  11854,89: See also	200 reverts the K-Mod changes to Colosseum (25% culture, +20 production cost); 251 lowers the Legendary culture threshold instead.
+  11878,10: See also	251 adjusts the AI research speed based on difficulty.
+```
+
+While there is some unrelated info of it/about it, some results may also help us also (in (trying to?)?) understand(ing) (but anyways etc) what this 251 id change, or maybe rather for our need specifically if i may say but anyways etc what the `iAIHandicapIncrementTurns` tag/field does, but anyways etc.
+
+One of the main points of this is also to show a manual.txt is much easier to navigate and search on that the .pdf version of it, with VS Code global search or even with a normal text editor or such when simply looking for fast (access but anyways etc) info rather than detailed and nicely displayed one but anyways etc anyways etc anyways etc...
+
 ### Sources about XML AI Attributes and their meaning
 
 Please read these docs (highly recommended) if you want to know more about AI attributes:

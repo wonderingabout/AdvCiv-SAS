@@ -96,16 +96,14 @@ So far there is:
 #### csv and md view of the handicap (difficulties info in a table for all difficulties)
 
 Generated with the [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py) script, you can regenerate it if you mod/change the data, else just run the:
-- [.csv view to view it on GitHub website for example](/handicap_data_table.md) or with libreoffice for example or similar software if you prefer another viewer than GitHub website view or such anyways etc
-- [.md view to view it on GitHub website for example](/handicap_data_table.md) similarly either on GitHub web view or in a text editor like Notepad++ or and such as you prefer anyways etc
+- [.csv view to view it on GitHub website for example](/handicap_data_to_csv.csv) or with libreoffice for example or similar software if you prefer another viewer than GitHub website view or such anyways etc
+- [.md view to view it on GitHub website for example](/handicap_data_table.md) similarly either on GitHub web view or in a .md previewer like VS Code for example or and such as you prefer anyways etc
 
-Also code is provided thanks to chatgpt/becomingthrough and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc
+Also code is provided thanks to chatgpt/becomingthrough and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc, example of output below (may not be updated), hopefully helpful/illustrative, view links above for updated version, and if you change the xml, regenerate new .md and .csv files with the script (see [README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy) for details as well or/and info anyways etc, and links to base advciv files data of handicap info as of now to compare too with what our mod does (files are in in our mod path [here](/_0_Common_Docs/AdvCiv%20Base%20Doc/) directly if you want too anyways etc)) anyways etc:
 
-Example of output below (may not be updated), hopefully helpful/illustrative, view links above for updated version, and if you change the xml, regenerate new .md and .csv files with the script (see [README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy) for details as well or/and info anyways etc, and links to base advciv files data of handicap info as of now to compare too with what our mod does (files are in in our mod path [here](/_0_Common_Docs/AdvCiv%20Base%20Doc/) directly if you want too anyways etc) anyways etc:
-
-<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_libre_office (1).PNG" width="150"></img>
-
-todo add image of github website view anyways etc
+<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_md_handicap_github_view_example.PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_libre_office (1).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_md_handicap_vs_code_preview_example.PNG" width="250"></img>
 
 #### csv github view for the flatten_leaders_data_to_csv conversion script
 
@@ -115,7 +113,7 @@ More specificially about the [flatten_leaders_data_to_csv](/flatten_leaders_data
 - [(click here to view it on on github too)](/leaders_data_to_csv_ai_flat_example_of_output.csv) (you can also click on the collapse tree button thing to get an even larger display and scroll down the page to remove from "vision field" the uneeded (for this task of viewing fields in the csv in github) the top headers but is just suggestion or not anyways etc anyways etc...), with filters (research) and such anyways etc, so adding a bit more general info about it too, as shown below for the github web page view
 - note: you can also view it (the .csv file i.e. anyways etc with libreoffice or/and such similar/alternative viewer/editor anyways etc)
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (2).PNG" width="150"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (2).PNG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_output_example__leader_data_libre_office_view_2.PNG" width="250"></img>
 
 ## Sex-neutral and Less Generic-neutral (too) unit names or/and combat types (todo and non-exhaustive)
@@ -264,7 +262,7 @@ todo add quote
 
 Examples of using some or most of these tools in AdvCiv-SAS modding is also available in the [Modding_Ressources's](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/) folder['s Google Drive](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp) too with files, mostly if not only images.
 
-- VS Code (so useful for so many things and so very nice, very rarely (does) bug or something but mostly very great anyways etc)
+- VS Code ()
 - Windows 10 (Windows 11 was so laggy and broke after update, now going back to Windows 10
 that i bombarded with updates and installs still works amazing so i recommend it)
 - Google Chrome (i used) for the Page translate of kujira's website in particular (Firefox has
@@ -275,7 +273,7 @@ it too though unless i'm mistaken)
 - Q-Dir (very useful and reliable too when works well which is almost always if not always, and very minimalist yet powerful, i so ery love it but anyways etc ; for example you can use it (Q-Dir) [like this (Google Drive preview example here)](https://drive.google.com/drive/folders/1EO0AScGVXM9P0U_YGYbm7xfbVzPnxNvO?usp=sharing) (some fields (are) hidden for (my) privacy anyways etc)) thanks a lot!!! (too! (After writing the WizTree thanks but anwayys etc thanks too i mean too (hehe maybe or not or yes or other or/and not (but) anyways etc) anyways etc...)) Anyways etc...
 - WizTree (very useful (and reliable and effective) to find the files i want when i want, for example (to) find all the "taois" entries(i.e. files)in the entire full civ4 folder (see [Google Drive preview examples here](https://drive.google.com/drive/folders/1JW3IBenpJxP4ZIVrTb99huR0-Js9HPrt?usp=sharing)), very useful, thanks a lot!!! Anyways etc)
 - CopyAsPath that i may also call for example "copy as path" or and other name or and not anyways etc, a small menu extension i made myself hehe but only from copying intructions and importing an existing .reg file from another palce (from [www.winhelponline.com](www.winhelponline.com) to be exhaustive and/or accurate hehe or not hehe or yes hehe or not or and other or and not anyways etc anyways etc anyways etc), in short i only compiled existing files and instructions hehe, anyways etc, read there for details also, and is also in, anyways etc, in [copy_as_path_context_menu (github repo link)](https://github.com/wonderingabout/copy_as_path_context_menu)
-- VS Code (especially for the global search feature, very useful, (except partly) when it does not desynchronize folders before git commits)
+- VS Code (so useful for so many things and so very nice, very rarely (does) bug or something but mostly very great anyways etc, especially for the global search feature, very useful, (except partly) when it does not desynchronize folders before git commits, for example but not only but anyways etc anyways etc also to do a global search about advciv id changes, see [Modding_Ressources/README.md#advciv-id-changes-manualtxt-results](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#advciv-id-changes-manualtxt-results) for details or maybe rather example and (my) explanation of it but anyways etc
 - Git Bash for Windows
 - GitHub Website
 - GitHub gist works even better that what is in the following brackets (otherwise as a secondary alternative maybe pastes.io, so great and soooo much better than pastebin on all leevls at least those that matter to me if not more anyways gogogo!!!)

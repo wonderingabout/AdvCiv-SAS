@@ -150,7 +150,8 @@ def get_legend_key(field_name, value):
 for row in rows:
 	for difficulty in difficulty_types:
 		value = row.get(difficulty, "")
-		if len(value) > 20 and row["Field"] in ("Goodies", "FreeTechs", "AIFreeTechs"):
+		# This ensures all values (even single items) in the specified fields are always substituted with a legend key, no matter the length.
+		if row["Field"] in ("Goodies", "FreeTechs", "AIFreeTechs"):
 			row[difficulty] = get_legend_key(row["Field"], value)
 
 # --- Step 7: Write CSV with right-shifted legend ---
@@ -251,9 +252,19 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
 	# This writes each line as a true row, with each AIFT value in its own column — and will render properly in Excel or any spreadsheet.
 	legend_csv = csv.writer(f)
 	f.write("\n\n")
-	legend_csv.writerow([""] + ["[LEGEND]"])  # Shift header one column to the right
+
+	NUM_COLUMNS = len(columns)
+
+	# Write a fully padded [LEGEND] header row
+	# Determine where actual legend columns begin (e.g., skip the 'Field' column)
+	legend_header_row = [""] + ["[LEGEND]"] * (NUM_COLUMNS - 1)
+	legend_csv.writerow(legend_header_row)
+
+	# Write padded legend rows
 	for line in legend_lines:
-		legend_csv.writerow([""] + line.split("\t"))  # Prepend empty cell to each line <!-- custom: to move the entire display of the legend one column to the right if i am not mistaken anyways etc -->
+		parts = line.split("\t") # Prepend empty cell to each line <!-- custom: to move the entire display of the legend one column to the right if i am not mistaken anyways etc -->
+		padded = parts + [""] * (NUM_COLUMNS - len(parts))
+		legend_csv.writerow(padded)
 
 print("✔ Export complete with legend references.")
 print(f"→ Output CSV saved as: {csv_filename}")

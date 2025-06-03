@@ -3,6 +3,60 @@
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
+<!-- custom: see base advciv docs (i added .csv and .md versions of the handicap table listing/showing all handicap values in one table anyways etc) for old advciv values,
+as for our new mod (advciv-sas here or and other or and not new mod values, you can also view them in the .md table and or .csv table as well for an easier to read display perhaps anyways etc)
+
+As for iAIPerEraModifier translated to english with chrome anyways etc from https://gforestshade.github.io/kujira/post/civ4handicapinfo/#iaipereramodifier:
+
+<iAIPerEraModifier>
+Game-wide settings
+When the overall game difficulty is this difficulty,
+the AI ​​players will receive a (multiplicative) n% modifier to the following costs for each era they advance:
+
+Unit Production Cost
+Building Production Cost
+Project Production Costs
+Unit Maintenance Cost
+Unit Supply Cost
+inflation
+Anti-war sentiment
+公民維持費
+Population growth efficiency
+Upgrade fee
+For example, when the Emperor AI (setting value: -5) is in the Renaissance era (the fourth era),
+all the costs above will be modified by -20%.
+The costs of world wonders, world projects, and world units are also affected by this attribute.
+
+Value: Integer
+
+Example: (various costs are reduced by 5% each time an era advances)
+<iAIPerEraModifier>-5</iAIPerEraModifier>
+
+
+
+However, it doesnt seem to exist in base advciv xml and thus not in our advciv-sas, and if i am not mistaken maybe but anyways etc, is/seems to maybe have been replaced by this in base advciv now: iAIHandicapIncrementTurns
+
+A global search about this tag/field anyways etc shows this result in (adjust to your mod path anyways etc C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGame.cpp) :
+
+// advc.251:
+int CvGame::AIHandicapAdjustment() const
+{
+	int iIncrementTurns = GC.getInfo(getHandicapType()).getAIHandicapIncrementTurns();
+	if (iIncrementTurns == 0)
+		return 0;
+	/*	Flip sign b/c we're dealing with cost modifiers that are supposed to decrease.
+		Only if a negative AIHandicapIncrement is set in XML, the modifiers are
+		supposed to increase. */
+	return (-getGameTurn() * 100) / (iIncrementTurns * getSpeedPercent());
+}
+
+Based on this, i assume or and try to or and understand but anyways etc that the higher this (new) (which i am still thankful for hehe but anyways etc anyways etc anyways etc...) (but anyways etc) iAIHandicapIncrementTurns value is, the more the divider is big(ger? but anyways etc( ...))/high, and thus the absolute value returned lower ;
+as for the value itself the cost reduction will be seemingly higher the more the game turn is high from what i understand of it if i am not mistaken in my understanding of it but anyways etc, while a higher iAIHandicapIncrementTurns will cause cost reduction to be lower.
+
+So in other words, if i am not mistaken, but anyways etc ( ...), this adjusts for highest difficulties where AIs have massive boosts and tones these down a bit to a softer formula or something or maybe rather a smoother slower game pace from AIs at higher(st) difficulties (but anyways etc ( ...)), at least i am guessing it does this, i could or not be mistaken but anyways etc, what we'll do for advciv-sas is try to make the game more gradual, but also AIs stronger without (it) being a grind but anyways etc, so we'll none ideally or close to none cost reduction, except from natural (if i may say but anyways etc...) or something adjustments as part of cities growing or such, but not sure we'll/'d handled it in such a way or how we'd do (i have an idea but will see how to adjust or reconsider as in recontemplate if i may say but anyways etc how i'd want AIs at higher difficulties relate to human players in terms of challenge (i want it higher) and no grind (i want less grind, competent AI, but ideally and if not possible too i mean but anyways etc, forgot my sentence but anyways etc, in short, but anyways etc or not short indeed but anyways etc..., make difficulties more gradual and AI competitive where it does not have a huge unfair advantage ideally hard or painful to overcome but is consistently stronger more efficient or feels like so without being too ahead in tech or such like wonders or such, will see how handled and if possible ideally or not or yes or etc but that is/would be the goal indeed but not sure or yes or not but in all cases anyways etc...
+
+So for now not changing it, may be adjusted in the future ideally indeed or may not be will see or may, but in all cases anyways etc...
+-->
 <!-- Handicap Infos -->
 <Civ4HandicapInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
 	<HandicapInfos>
@@ -68,7 +122,7 @@
 			<iUnownedWaterTilesPerBarbarianUnit>750</iUnownedWaterTilesPerBarbarianUnit>
 			<iUnownedTilesPerBarbarianCity>160</iUnownedTilesPerBarbarianCity>
 			<!-- advc.300: was 50 -->
-			<iBarbarianCreationTurnsElapsed>48</iBarbarianCreationTurnsElapsed>
+			<iBarbarianCreationTurnsElapsed>45</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 55 -->
 			<iBarbarianCityCreationTurnsElapsed>60</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>5</iBarbarianCityCreationProb>
@@ -87,7 +141,7 @@
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
 			<iBarbarianDefenders>2</iBarbarianDefenders>
-			<iAIDeclareWarProb>25</iAIDeclareWarProb>
+			<iAIDeclareWarProb>60</iAIDeclareWarProb>
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<!-- advc.251 (start) -->
 			<!-- was 160 -->
@@ -276,7 +330,7 @@
 			<iUnownedWaterTilesPerBarbarianUnit>600</iUnownedWaterTilesPerBarbarianUnit>
 			<iUnownedTilesPerBarbarianCity>150</iUnownedTilesPerBarbarianCity>
 			<!-- advc.300: was 45 -->
-			<iBarbarianCreationTurnsElapsed>44</iBarbarianCreationTurnsElapsed>
+			<iBarbarianCreationTurnsElapsed>42</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 50 -->
 			<iBarbarianCityCreationTurnsElapsed>55</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>10</iBarbarianCityCreationProb>
@@ -294,7 +348,7 @@
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
 			<iBarbarianDefenders>2</iBarbarianDefenders>
-			<iAIDeclareWarProb>50</iAIDeclareWarProb>
+			<iAIDeclareWarProb>80</iAIDeclareWarProb>
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<!-- advc.251 (start) -->
 			<!-- was 130 -->
@@ -449,7 +503,7 @@
 			<iUnownedTilesPerBarbarianUnit>66</iUnownedTilesPerBarbarianUnit>
 			<iUnownedWaterTilesPerBarbarianUnit>550</iUnownedWaterTilesPerBarbarianUnit>
 			<iUnownedTilesPerBarbarianCity>140</iUnownedTilesPerBarbarianCity>
-			<iBarbarianCreationTurnsElapsed>40</iBarbarianCreationTurnsElapsed>
+			<iBarbarianCreationTurnsElapsed>39</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 45 -->
 			<iBarbarianCityCreationTurnsElapsed>50</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>15</iBarbarianCityCreationProb>
@@ -467,7 +521,7 @@
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
 			<iBarbarianDefenders>2</iBarbarianDefenders>
-			<iAIDeclareWarProb>75</iAIDeclareWarProb>
+			<iAIDeclareWarProb>100</iAIDeclareWarProb>
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<iAIGrowthPercent>110</iAIGrowthPercent>
 			<!-- advc.251 -->
@@ -801,7 +855,7 @@
 			<iUnownedWaterTilesPerBarbarianUnit>450</iUnownedWaterTilesPerBarbarianUnit>
 			<iUnownedTilesPerBarbarianCity>120</iUnownedTilesPerBarbarianCity>
 			<!-- advc.300: was 30 -->
-			<iBarbarianCreationTurnsElapsed>32</iBarbarianCreationTurnsElapsed>
+			<iBarbarianCreationTurnsElapsed>33</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 35 -->
 			<iBarbarianCityCreationTurnsElapsed>40</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>25</iBarbarianCityCreationProb>
@@ -989,7 +1043,7 @@
 			<iUnownedWaterTilesPerBarbarianUnit>400</iUnownedWaterTilesPerBarbarianUnit>
 			<iUnownedTilesPerBarbarianCity>110</iUnownedTilesPerBarbarianCity>
 			<!-- advc.300: was 25 -->
-			<iBarbarianCreationTurnsElapsed>28</iBarbarianCreationTurnsElapsed>
+			<iBarbarianCreationTurnsElapsed>30</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 30 -->
 			<iBarbarianCityCreationTurnsElapsed>35</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>30</iBarbarianCityCreationProb>
@@ -1017,7 +1071,7 @@
 			warriors are now more likely to be defenders, was 0 -->
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
 			<iBarbarianDefenders>3</iBarbarianDefenders>
-			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+			<iAIDeclareWarProb>110</iAIDeclareWarProb>
 			<!-- advc.251: was 20 -->
 			<iAIWorkRateModifier>10</iAIWorkRateModifier>
 			<iAIGrowthPercent>95</iAIGrowthPercent>
@@ -1191,7 +1245,7 @@
 			<iUnownedWaterTilesPerBarbarianUnit>350</iUnownedWaterTilesPerBarbarianUnit>
 			<iUnownedTilesPerBarbarianCity>100</iUnownedTilesPerBarbarianCity>
 			<!-- advc.300: was 20 -->
-			<iBarbarianCreationTurnsElapsed>24</iBarbarianCreationTurnsElapsed>
+			<iBarbarianCreationTurnsElapsed>27</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 25 -->
 			<iBarbarianCityCreationTurnsElapsed>30</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>35</iBarbarianCityCreationProb>
@@ -1219,7 +1273,7 @@
 			warriors are now more likely to be defenders, was 0 -->
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
 			<iBarbarianDefenders>4</iBarbarianDefenders>
-			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+			<iAIDeclareWarProb>120</iAIDeclareWarProb>
 			<!-- advc.251: was 50 -->
 			<iAIWorkRateModifier>15</iAIWorkRateModifier>
 			<iAIGrowthPercent>90</iAIGrowthPercent>
@@ -1406,7 +1460,7 @@
 			<iUnownedWaterTilesPerBarbarianUnit>300</iUnownedWaterTilesPerBarbarianUnit>
 			<iUnownedTilesPerBarbarianCity>90</iUnownedTilesPerBarbarianCity>
 			<!-- advc.300: was 15 -->
-			<iBarbarianCreationTurnsElapsed>20</iBarbarianCreationTurnsElapsed>
+			<iBarbarianCreationTurnsElapsed>24</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 20 -->
 			<iBarbarianCityCreationTurnsElapsed>25</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>40</iBarbarianCityCreationProb>
@@ -1436,7 +1490,7 @@
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
 			<!-- advc.250e: was 4 -->
 			<iBarbarianDefenders>4</iBarbarianDefenders>
-			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+			<iAIDeclareWarProb>130</iAIDeclareWarProb>
 			<!-- advc.251: was 75 -->
 			<iAIWorkRateModifier>20</iAIWorkRateModifier>
 			<iAIGrowthPercent>85</iAIGrowthPercent>
@@ -1658,7 +1712,7 @@
 			<iAIStartingWorkerUnits>1</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
 			<iBarbarianDefenders>5</iBarbarianDefenders>
-			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+			<iAIDeclareWarProb>140</iAIDeclareWarProb>
 			<!-- advc.251: was 100 -->
 			<iAIWorkRateModifier>25</iAIWorkRateModifier>
 			<iAIGrowthPercent>80</iAIGrowthPercent>
