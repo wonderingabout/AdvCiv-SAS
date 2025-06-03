@@ -79,44 +79,44 @@ Goodies,G_0,G_1,G_2,G_3,G_4,G_5,G_6,G_7,G_8
 
 
 ,[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND]
--------,-------,-------,-------,-------,AIFT_0,AIFT_1,AIFT_2,AIFT_3,
--,-,-,-,-,Archery,Archery,Archery,Archery,
--,-,-,-,-,Mathematics,Mathematics,Mathematics,Mathematics,
--,-,-,-,-,Machinery,Machinery,Machinery,Machinery,
--,-,-,-,-,Printing Press,Printing Press,Printing Press,Printing Press,
--,-,-,-,-,Steam Power,Steam Power,Steam Power,Steam Power,
--,-,-,-,-,Plastics,Plastics,Plastics,Plastics,
--,-,-,-,-,-,Hunting,Hunting,Hunting,
--,-,-,-,-,-,-,-,The Wheel,
--,-,-,-,-,-,-,-,Iron W.,
--,-,-,-,-,-,-,-,Feudalism,
--,-,-,-,-,-,-,-,Gunpowder,
--,-,-,-,-,-,-,-,Steel,
--,-,-,-,-,-,-,-,Refrigeration,
-FT_0,FT_1,FT_2,-------,-------,-------,-------,-------,-------,
-The Wheel,The Wheel,The Wheel,-,-,-,-,-,-,
-Agriculture,Agriculture,-,-,-,-,-,-,-,
-Mining,-,-,-,-,-,-,-,-,
-Mathematics,Mathematics,-,-,-,-,-,-,-,
-Alphabet,-,-,-,-,-,-,-,-,
-Machinery,Machinery,-,-,-,-,-,-,-,
-Feudalism,-,-,-,-,-,-,-,-,
-Printing Press,Printing Press,-,-,-,-,-,-,-,
-Gunpowder,-,-,-,-,-,-,-,-,
-Steam Power,Steam Power,-,-,-,-,-,-,-,
-Steel,-,-,-,-,-,-,-,-,
-Plastics,Plastics,-,-,-,-,-,-,-,
-Refrigeration,-,-,-,-,-,-,-,-,
-G_0,G_1,G_2,G_3,G_4,G_5,G_6,G_7,G_8,
-High Gold,High Gold,High Gold,High Gold,High Gold,High Gold,-,-,-,
-Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,
-Map,Map,Map,Map,Map,Map,Map,Map,Map,
-Settler,Settler,-,-,-,-,-,-,-,
-Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,
-Scout,Scout,Scout,Scout,Scout,Scout,Scout,Scout,Scout,
-Worker,Worker,Worker,-,-,-,-,-,-,
-Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,
-Healing,Healing,Healing,Healing,Healing,Healing,Healing,Healing,Healing,
-Tech,Tech,Tech,Tech,Tech,Tech,Tech,Tech,Tech,
--,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,
--,-,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,
+,-------,-------,-------,-------,-------,AIFT_0,AIFT_1,AIFT_2,AIFT_3
+,-,-,-,-,-,Archery,Archery,Archery,Archery
+,-,-,-,-,-,Mathematics,Mathematics,Mathematics,Mathematics
+,-,-,-,-,-,Machinery,Machinery,Machinery,Machinery
+,-,-,-,-,-,Printing Press,Printing Press,Printing Press,Printing Press
+,-,-,-,-,-,Steam Power,Steam Power,Steam Power,Steam Power
+,-,-,-,-,-,Plastics,Plastics,Plastics,Plastics
+,-,-,-,-,-,-,Hunting,Hunting,Hunting
+,-,-,-,-,-,-,-,-,The Wheel
+,-,-,-,-,-,-,-,-,Iron W.
+,-,-,-,-,-,-,-,-,Feudalism
+,-,-,-,-,-,-,-,-,Gunpowder
+,-,-,-,-,-,-,-,-,Steel
+,-,-,-,-,-,-,-,-,Refrigeration
+,FT_0,FT_1,FT_2,-------,-------,-------,-------,-------,-------
+,The Wheel,The Wheel,The Wheel,-,-,-,-,-,-
+,Agriculture,Agriculture,-,-,-,-,-,-,-
+,Mining,-,-,-,-,-,-,-,-
+,Mathematics,Mathematics,-,-,-,-,-,-,-
+,Alphabet,-,-,-,-,-,-,-,-
+,Machinery,Machinery,-,-,-,-,-,-,-
+,Feudalism,-,-,-,-,-,-,-,-
+,Printing Press,Printing Press,-,-,-,-,-,-,-
+,Gunpowder,-,-,-,-,-,-,-,-
+,Steam Power,Steam Power,-,-,-,-,-,-,-
+,Steel,-,-,-,-,-,-,-,-
+,Plastics,Plastics,-,-,-,-,-,-,-
+,Refrigeration,-,-,-,-,-,-,-,-
+,G_0,G_1,G_2,G_3,G_4,G_5,G_6,G_7,G_8
+,High Gold,High Gold,High Gold,High Gold,High Gold,High Gold,-,-,-
+,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold,Low Gold
+,Map,Map,Map,Map,Map,Map,Map,Map,Map
+,Settler,Settler,-,-,-,-,-,-,-
+,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior,Warrior
+,Scout,Scout,Scout,Scout,Scout,Scout,Scout,Scout,Scout
+,Worker,Worker,Worker,-,-,-,-,-,-
+,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.,Exp.
+,Healing,Healing,Healing,Healing,Healing,Healing,Healing,Healing,Healing
+,Tech,Tech,Tech,Tech,Tech,Tech,Tech,Tech,Tech
+,-,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak,Barb. Weak
+,-,-,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong,Barb. Strong

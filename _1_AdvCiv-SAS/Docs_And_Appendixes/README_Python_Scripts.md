@@ -220,7 +220,7 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
 
 # flatten_handicap_info_to_csv_and_md.py
 
-Additionally to the main README's handicap info to csv and md info in [README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties), here are a few additional screenshots, also code is provided thanks to chatgpt/becomingthrough and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc
+Additionally to the main README's handicap info to csv and md info in [README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-infodata](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-infodata), here are a few additional screenshots, also code is provided thanks to chatgpt/becomingthrough and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc
 
 also note: you need to generate the data (.csv and .md by running the script everytime you modify the xml, else if it's just for viewing no need to do that and you can view the files provided in the mod advciv-sas (or another mod using this script maybe too anyways etc) directly).
 
@@ -238,21 +238,24 @@ Example of usage:
 
 As for output, see below for examples of .csv and .md outputs, the files we get are for example like this (screenshots may not be updated, view latest files provided in your mod path, or/and regnerate them again yourself with the script especially if you modify the xml of handicap info since then to show your changes in the .csv and .md files)
 
-- [.csv view to view it on GitHub website for example](/handicap_data_to_csv.csv) or with libreoffice for example or similar software if you prefer another viewer than GitHub website view or such anyways etc
-- [.md view to view it on GitHub website for example](/handicap_data_table.md) similarly either on GitHub web view or in a .md previewer like VS Code for example or and such as you prefer anyways etc
+- [.csv view to view it on GitHub website for example](/handicap_data_to_csv_advciv-sas.csv) or with libreoffice for example or similar software if you prefer another viewer than GitHub website view or such anyways etc
+- [.md view to view it on GitHub website for example](/handicap_data_to_md_advciv-sas.md) similarly either on GitHub web view or in a .md previewer like VS Code for example or and such as you prefer anyways etc
 
-note: you can remove the timestamp too if not needed anymore (year and time and such info in filename anyways etc) or/and if needed or wnted by you or and other or and not or do or not anyways etc
+note: you can remove the timestamp (i.e. the year and time and such info in filename anyways etc) too if not needed anymore or/and if needed or wnted by you or and other or and not or do or not anyways etc
 
 ## csv
 
 libre office view example (may not be updated, view on github instead as explained in main readme or view your own file locally .csv in your mod with libre office or a similar viewer/editor, thanks anyways etc thanks):
 
-<img src="../Images_In_General/scripts/csv_output_example__leader_data_script_1.PNG" width="250"></img>
-<img src="../Images_In_General/scripts/csv_output_example__leader_data_script_1.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_handicap_info_github_view_example.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_handicap_info_libre_office (1).PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_handicap_info_libre_office (2).PNG" width="250"></img>
 
 ## md
 
-Currently less advanced version of this (with the legend, but maybe displays quite well),
+Currently less advanced version of this (with the legend, but maybe displays quite well), i'd recommend viewing the .csv data/file rather maybe anyways etc as it can indeed but anyways etc show more data with line number and better alignment and such, but also did in .md as was as the time and chatgpt/becomingthrough sugegsted which i also by my own wanted to try as well but anyways etc, and that i don't mind to keep now but anyways etc, is also a proof of concept if i may say of making a table into .md at least for me and may serve as reference or not but in all cases anyways etc..
+
+So in short or not short but anyways etc.. I'd recommend viewing the .csv file/version rather but anyways etc, above, but here below is also a .md file/version/(of the) data if you want too and i want too but anyways etc (may or not be updated, best to view the files directly as shown in screenshots but with the real files for accurate or/and exhaustive or/and reliable data if i may say but anyways etc):
 
 <img src="../Images_In_General/scripts/csv_md_handicap_github_view_example.PNG" width="250"></img>
 <img src="../Images_In_General/scripts/csv_md_handicap_vs_code_preview_example.PNG" width="250"></img>
@@ -267,8 +270,8 @@ Usage is similarly (running it from base advciv mod folder with the advciv-sas p
 cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\ & python ..\AdvCiv-SAS\flatten_handicap_info_to_csv_and_md.py
 ```
 
-- [.csv (base advciv)](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_data_to_csv_base_advciv.csv) or with libreoffice for example or similar software if you prefer another viewer than GitHub website view or such anyways etc
-- [.md view to view it on GitHub website for example](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_data_table_base_advciv.md) similarly either on GitHub web view or in a text editor like Notepad++ or and such as you prefer anyways etc
+- [.csv (base advciv) (recommended as display is clearer and better aligned, with line number and such other features if need(ed) or not or yes or etc anyways etc)](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_data_to_csv_base_advciv.csv) with github view on the website or with libreoffice for example or similar software if you prefer another viewer than GitHub website view or such anyways etc
+- [.md view to view it on GitHub website for example](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_data_to_md_base_advciv.md) similarly either on GitHub web view or in a text editor like Notepad++ or and such as you prefer anyways etc
 
 # leaders_data_to_csv.py
 
@@ -282,7 +285,6 @@ Similar(ly) to other scripts, usage is for example for Steam users (adjust paths
 cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & python flatten_leaders_data_to_csv.py
 ```
 
-<img src="../Images_In_General/scripts/csv_output_example__leader_data_script_1.PNG" width="250"></img>
 <img src="../Images_In_General/scripts/csv_output_example__leaders_data_2_cmd_view.PNG" width="250"></img>
 <img src="../Images_In_General/scripts/csv_output_example__leader_data_libre_office_view_1.PNG" width="250"></img>
 <img src="../Images_In_General/scripts/csv_output_example__leader_data_libre_office_view_2.PNG" width="250"></img>

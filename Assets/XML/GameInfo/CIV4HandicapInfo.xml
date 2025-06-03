@@ -137,10 +137,10 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- custom: to help discover the game, give a free explorer unit, was 0-->
 			<iStartingExploreUnits>1</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
-			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
-			<iBarbarianDefenders>2</iBarbarianDefenders>
+			<iBarbarianDefenders>1</iBarbarianDefenders>
 			<iAIDeclareWarProb>60</iAIDeclareWarProb>
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<!-- advc.251 (start) -->
@@ -151,19 +151,19 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- custom: increase AI costs to make the game last longer maybe, was 90 -->
 			<iAIResearchPercent>95</iAIResearchPercent>
 			<!-- was 6x 160 -->
-			<iAITrainPercent>125</iAITrainPercent>
-			<iAIWorldTrainPercent>125</iAIWorldTrainPercent>
-			<iAIConstructPercent>120</iAIConstructPercent>
-			<iAIWorldConstructPercent>125</iAIWorldConstructPercent>
-			<iAICreatePercent>110</iAICreatePercent>
-			<iAIWorldCreatePercent>125</iAIWorldCreatePercent>
+			<iAITrainPercent>109</iAITrainPercent>
+			<iAIWorldTrainPercent>106</iAIWorldTrainPercent>
+			<iAIConstructPercent>106</iAIConstructPercent>
+			<iAIWorldConstructPercent>106</iAIWorldConstructPercent>
+			<iAICreatePercent>106</iAICreatePercent>
+			<iAIWorldCreatePercent>106</iAIWorldCreatePercent>
 			<!-- advc.251 (end) -->
 			<iAICivicUpkeepPercent>100</iAICivicUpkeepPercent>
-			<iAIUnitCostPercent>100</iAIUnitCostPercent>
+			<iAIUnitCostPercent>109</iAIUnitCostPercent>
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
 			<iAIInflationPercent>100</iAIInflationPercent>
-			<iAIWarWearinessPercent>100</iAIWarWearinessPercent>
+			<iAIWarWearinessPercent>112</iAIWarWearinessPercent>
 			<!-- advc.251: renamed -->
 			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 100 -->
@@ -344,10 +344,10 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
-			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
-			<iBarbarianDefenders>2</iBarbarianDefenders>
+			<iBarbarianDefenders>1</iBarbarianDefenders>
 			<iAIDeclareWarProb>80</iAIDeclareWarProb>
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<!-- advc.251 (start) -->
@@ -356,19 +356,19 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIGPThresholdPercent>120</iAIGPThresholdPercent>
 			<iAIResearchPercent>100</iAIResearchPercent>
 			<!-- was 6x 130 -->
-			<iAITrainPercent>120</iAITrainPercent>
-			<iAIWorldTrainPercent>120</iAIWorldTrainPercent>
-			<iAIConstructPercent>115</iAIConstructPercent>
-			<iAIWorldConstructPercent>120</iAIWorldConstructPercent>
-			<iAICreatePercent>105</iAICreatePercent>
-			<iAIWorldCreatePercent>120</iAIWorldCreatePercent>
+			<iAITrainPercent>106</iAITrainPercent>
+			<iAIWorldTrainPercent>104</iAIWorldTrainPercent>
+			<iAIConstructPercent>104</iAIConstructPercent>
+			<iAIWorldConstructPercent>104</iAIWorldConstructPercent>
+			<iAICreatePercent>104</iAICreatePercent>
+			<iAIWorldCreatePercent>104</iAIWorldCreatePercent>
 			<!-- advc.251 (end) -->
 			<iAICivicUpkeepPercent>100</iAICivicUpkeepPercent>
-			<iAIUnitCostPercent>100</iAIUnitCostPercent>
+			<iAIUnitCostPercent>106</iAIUnitCostPercent>
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
 			<iAIInflationPercent>90</iAIInflationPercent>
-			<iAIWarWearinessPercent>90</iAIWarWearinessPercent>
+			<iAIWarWearinessPercent>108</iAIWarWearinessPercent>
 			<!-- advc.251: renamed -->
 			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 100 -->
@@ -517,7 +517,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
-			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
 			<iBarbarianDefenders>2</iBarbarianDefenders>
@@ -528,18 +528,18 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIGPThresholdPercent>110</iAIGPThresholdPercent>
 			<!-- advc.251 -->
 			<iAIResearchPercent>100</iAIResearchPercent>
-			<iAITrainPercent>110</iAITrainPercent>
-			<iAIWorldTrainPercent>110</iAIWorldTrainPercent>
-			<iAIConstructPercent>105</iAIConstructPercent>
-			<iAIWorldConstructPercent>110</iAIWorldConstructPercent>
-			<iAICreatePercent>100</iAICreatePercent>
-			<iAIWorldCreatePercent>110</iAIWorldCreatePercent>
+			<iAITrainPercent>103</iAITrainPercent>
+			<iAIWorldTrainPercent>102</iAIWorldTrainPercent>
+			<iAIConstructPercent>102</iAIConstructPercent>
+			<iAIWorldConstructPercent>102</iAIWorldConstructPercent>
+			<iAICreatePercent>102</iAICreatePercent>
+			<iAIWorldCreatePercent>102</iAIWorldCreatePercent>
 			<iAICivicUpkeepPercent>100</iAICivicUpkeepPercent>
-			<iAIUnitCostPercent>100</iAIUnitCostPercent>
+			<iAIUnitCostPercent>103</iAIUnitCostPercent>
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
 			<iAIInflationPercent>80</iAIInflationPercent>
-			<iAIWarWearinessPercent>80</iAIWarWearinessPercent>
+			<iAIWarWearinessPercent>104</iAIWarWearinessPercent>
 			<!-- advc.251: renamed -->
 			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 100 -->
@@ -691,10 +691,10 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
-			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
-			<iBarbarianDefenders>3</iBarbarianDefenders>
+			<iBarbarianDefenders>2</iBarbarianDefenders>
 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<iAIGrowthPercent>100</iAIGrowthPercent>
@@ -713,7 +713,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
 			<iAIInflationPercent>80</iAIInflationPercent>
-			<iAIWarWearinessPercent>80</iAIWarWearinessPercent>
+			<iAIWarWearinessPercent>100</iAIWarWearinessPercent>
 			<!-- advc.251: renamed -->
 			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
 			<iAIAdvancedStartPercent>100</iAIAdvancedStartPercent>
@@ -876,33 +876,33 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
 			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
 			was 0 -->
-			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>3</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
 			warriors are now more likely to be defenders, was 0 -->
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
-			<iBarbarianDefenders>3</iBarbarianDefenders>
+			<iBarbarianDefenders>2</iBarbarianDefenders>
 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
 			<!-- advc.251: was 10 -->
-			<iAIWorkRateModifier>5</iAIWorkRateModifier>
+			<iAIWorkRateModifier>6</iAIWorkRateModifier>
 			<iAIGrowthPercent>100</iAIGrowthPercent>
 			<!-- advc.251 -->
 			<iAIGPThresholdPercent>100</iAIGPThresholdPercent>
 			<!-- advc.251 -->
 			<!-- custom: try to make the game last longer by increasing AI costs a bit, was 103 -->
-			<iAIResearchPercent>108</iAIResearchPercent>
-			<iAITrainPercent>95</iAITrainPercent>
-			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
-			<iAIConstructPercent>95</iAIConstructPercent>
-			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
-			<iAICreatePercent>95</iAICreatePercent>
-			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
+			<iAIResearchPercent>104</iAIResearchPercent>
+			<iAITrainPercent>97</iAITrainPercent>
+			<iAIWorldTrainPercent>98</iAIWorldTrainPercent>
+			<iAIConstructPercent>98</iAIConstructPercent>
+			<iAIWorldConstructPercent>98</iAIWorldConstructPercent>
+			<iAICreatePercent>98</iAICreatePercent>
+			<iAIWorldCreatePercent>98</iAIWorldCreatePercent>
 			<iAICivicUpkeepPercent>95</iAICivicUpkeepPercent>
-			<iAIUnitCostPercent>95</iAIUnitCostPercent>
+			<iAIUnitCostPercent>97</iAIUnitCostPercent>
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
 			<iAIInflationPercent>80</iAIInflationPercent>
-			<iAIWarWearinessPercent>80</iAIWarWearinessPercent>
+			<iAIWarWearinessPercent>96</iAIWarWearinessPercent>
 			<!-- advc.251: Renamed; was 1 per era. -->
 			<iAIHandicapIncrementTurns>100</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 110 -->
@@ -1065,7 +1065,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
 			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
 			was 1 -->
-			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>3</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
 			warriors are now more likely to be defenders, was 0 -->
@@ -1073,30 +1073,30 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iBarbarianDefenders>3</iBarbarianDefenders>
 			<iAIDeclareWarProb>110</iAIDeclareWarProb>
 			<!-- advc.251: was 20 -->
-			<iAIWorkRateModifier>10</iAIWorkRateModifier>
+			<iAIWorkRateModifier>12</iAIWorkRateModifier>
 			<iAIGrowthPercent>95</iAIGrowthPercent>
 			<!-- advc.251 (start) -->
 			<iAIGPThresholdPercent>95</iAIGPThresholdPercent>
 			<!-- custom: increase this slightly so the game is slightly longer paced, was 110-->
-			<iAIResearchPercent>112</iAIResearchPercent>
+			<iAIResearchPercent>108</iAIResearchPercent>
 			<!-- was 90 -->
-			<iAITrainPercent>95</iAITrainPercent>
+			<iAITrainPercent>94</iAITrainPercent>
 			<!-- was 100 -->
-			<iAIWorldTrainPercent>95</iAIWorldTrainPercent>
+			<iAIWorldTrainPercent>96</iAIWorldTrainPercent>
 			<!-- was 90 -->
-			<iAIConstructPercent>95</iAIConstructPercent>
+			<iAIConstructPercent>96</iAIConstructPercent>
 			<!-- was 100 -->
-			<iAIWorldConstructPercent>95</iAIWorldConstructPercent>
-			<iAICreatePercent>90</iAICreatePercent>
+			<iAIWorldConstructPercent>96</iAIWorldConstructPercent>
+			<iAICreatePercent>96</iAICreatePercent>
 			<!-- was 100 -->
-			<iAIWorldCreatePercent>95</iAIWorldCreatePercent>
+			<iAIWorldCreatePercent>96</iAIWorldCreatePercent>
 			<!-- advc.251 (end) -->
 			<iAICivicUpkeepPercent>90</iAICivicUpkeepPercent>
-			<iAIUnitCostPercent>90</iAIUnitCostPercent>
+			<iAIUnitCostPercent>94</iAIUnitCostPercent>
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
 			<iAIInflationPercent>80</iAIInflationPercent>
-			<iAIWarWearinessPercent>75</iAIWarWearinessPercent>
+			<iAIWarWearinessPercent>92</iAIWarWearinessPercent>
 			<!-- advc.251: Renamed; was 2 per era. -->
 			<iAIHandicapIncrementTurns>50</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 120 -->
@@ -1266,40 +1266,40 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
 			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
 			was 2 -->
-			<iAIStartingDefenseUnits>5</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<!-- advc.250e: was 1 -->
 			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
 			warriors are now more likely to be defenders, was 0 -->
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
-			<iBarbarianDefenders>4</iBarbarianDefenders>
+			<iBarbarianDefenders>3</iBarbarianDefenders>
 			<iAIDeclareWarProb>120</iAIDeclareWarProb>
 			<!-- advc.251: was 50 -->
-			<iAIWorkRateModifier>15</iAIWorkRateModifier>
+			<iAIWorkRateModifier>18</iAIWorkRateModifier>
 			<iAIGrowthPercent>90</iAIGrowthPercent>
 			<!-- advc.251 (start) -->
 			<iAIGPThresholdPercent>90</iAIGPThresholdPercent>
 			<!-- Higher tech costs for the AI -->
 			<!-- custom: increase this slightly so the game is slightly longer paced, was 115-->
-			<iAIResearchPercent>116</iAIResearchPercent>
+			<iAIResearchPercent>112</iAIResearchPercent>
 			<!-- was 85 -->
-			<iAITrainPercent>95</iAITrainPercent>
+			<iAITrainPercent>91</iAITrainPercent>
 			<!-- was 100 -->
-			<iAIWorldTrainPercent>95</iAIWorldTrainPercent>
+			<iAIWorldTrainPercent>94</iAIWorldTrainPercent>
 			<!-- was 85 -->
-			<iAIConstructPercent>90</iAIConstructPercent>
+			<iAIConstructPercent>94</iAIConstructPercent>
 			<!-- was 100 -->
-			<iAIWorldConstructPercent>95</iAIWorldConstructPercent>
-			<iAICreatePercent>85</iAICreatePercent>
+			<iAIWorldConstructPercent>94</iAIWorldConstructPercent>
+			<iAICreatePercent>94</iAICreatePercent>
 			<!-- was 100 -->
-			<iAIWorldCreatePercent>95</iAIWorldCreatePercent>
+			<iAIWorldCreatePercent>94</iAIWorldCreatePercent>
 			<!-- advc.251 (end) -->
 			<iAICivicUpkeepPercent>85</iAICivicUpkeepPercent>
-			<iAIUnitCostPercent>85</iAIUnitCostPercent>
+			<iAIUnitCostPercent>91</iAIUnitCostPercent>
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
 			<iAIInflationPercent>80</iAIInflationPercent>
-			<iAIWarWearinessPercent>70</iAIWarWearinessPercent>
+			<iAIWarWearinessPercent>88</iAIWarWearinessPercent>
 			<!-- advc.251: Renamed; was 3 per era. -->
 			<iAIHandicapIncrementTurns>33</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 135 -->
@@ -1482,39 +1482,39 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
 			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
 			was 2 -->
-			<iAIStartingDefenseUnits>5</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>1</iAIStartingWorkerUnits>
 			<!-- advc.250e: was 1 -->
 			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
 			warriors are now more likely to be defenders, was 0 -->
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
 			<!-- advc.250e: was 4 -->
-			<iBarbarianDefenders>4</iBarbarianDefenders>
+			<iBarbarianDefenders>3</iBarbarianDefenders>
 			<iAIDeclareWarProb>130</iAIDeclareWarProb>
 			<!-- advc.251: was 75 -->
-			<iAIWorkRateModifier>20</iAIWorkRateModifier>
+			<iAIWorkRateModifier>24</iAIWorkRateModifier>
 			<iAIGrowthPercent>85</iAIGrowthPercent>
 			<!-- advc.251 (start) -->
 			<iAIGPThresholdPercent>85</iAIGPThresholdPercent>
 			<!-- Higher tech costs for the AI -->
-			<iAIResearchPercent>120</iAIResearchPercent>
+			<iAIResearchPercent>116</iAIResearchPercent>
 			<!-- was 80 -->
-			<iAITrainPercent>90</iAITrainPercent>
+			<iAITrainPercent>88</iAITrainPercent>
 			<!-- was 100 -->
-			<iAIWorldTrainPercent>90</iAIWorldTrainPercent>
-			<iAIConstructPercent>80</iAIConstructPercent>
+			<iAIWorldTrainPercent>92</iAIWorldTrainPercent>
+			<iAIConstructPercent>92</iAIConstructPercent>
 			<!-- was 100 -->
-			<iAIWorldConstructPercent>90</iAIWorldConstructPercent>
-			<iAICreatePercent>80</iAICreatePercent>
+			<iAIWorldConstructPercent>92</iAIWorldConstructPercent>
+			<iAICreatePercent>92</iAICreatePercent>
 			<!-- was 100 -->
-			<iAIWorldCreatePercent>90</iAIWorldCreatePercent>
+			<iAIWorldCreatePercent>92</iAIWorldCreatePercent>
 			<!-- advc.251 (end) -->
 			<iAICivicUpkeepPercent>80</iAICivicUpkeepPercent>
-			<iAIUnitCostPercent>80</iAIUnitCostPercent>
+			<iAIUnitCostPercent>88</iAIUnitCostPercent>
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
 			<iAIInflationPercent>80</iAIInflationPercent>
-			<iAIWarWearinessPercent>60</iAIWarWearinessPercent>
+			<iAIWarWearinessPercent>84</iAIWarWearinessPercent>
 			<!-- advc.251: Renamed; was 4 per era. -->
 			<iAIHandicapIncrementTurns>25</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 150 -->
@@ -1708,39 +1708,39 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
 			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
 			was 3 -->
-			<iAIStartingDefenseUnits>6</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>5</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>1</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
-			<iBarbarianDefenders>5</iBarbarianDefenders>
+			<iBarbarianDefenders>4</iBarbarianDefenders>
 			<iAIDeclareWarProb>140</iAIDeclareWarProb>
 			<!-- advc.251: was 100 -->
-			<iAIWorkRateModifier>25</iAIWorkRateModifier>
+			<iAIWorkRateModifier>30</iAIWorkRateModifier>
 			<iAIGrowthPercent>80</iAIGrowthPercent>
 			<!-- advc.251 (start) -->
 			<iAIGPThresholdPercent>80</iAIGPThresholdPercent>
 			<!-- Higher tech costs for the AI -->
-			<iAIResearchPercent>124</iAIResearchPercent>
+			<iAIResearchPercent>120</iAIResearchPercent>
 			<!-- was 60 -->
 			<iAITrainPercent>85</iAITrainPercent>
 			<!-- was 100-->
-			<iAIWorldTrainPercent>85</iAIWorldTrainPercent>
+			<iAIWorldTrainPercent>90</iAIWorldTrainPercent>
 			<!-- was 60 -->
-			<iAIConstructPercent>75</iAIConstructPercent>
+			<iAIConstructPercent>90</iAIConstructPercent>
 			<!-- was 100 -->
-			<iAIWorldConstructPercent>85</iAIWorldConstructPercent>
+			<iAIWorldConstructPercent>90</iAIWorldConstructPercent>
 			<!-- was 60 -->
-			<iAICreatePercent>75</iAICreatePercent>
+			<iAICreatePercent>90</iAICreatePercent>
 			<!-- was 100 -->
-			<iAIWorldCreatePercent>85</iAIWorldCreatePercent>
+			<iAIWorldCreatePercent>90</iAIWorldCreatePercent>
 			<!-- was 60 -->
 			<iAICivicUpkeepPercent>75</iAICivicUpkeepPercent>
 			<!-- was 60 -->
-			<iAIUnitCostPercent>75</iAIUnitCostPercent>
+			<iAIUnitCostPercent>85</iAIUnitCostPercent>
 			<!-- advc.251 (end) -->
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
 			<iAIInflationPercent>80</iAIInflationPercent>
-			<iAIWarWearinessPercent>50</iAIWarWearinessPercent>
+			<iAIWarWearinessPercent>80</iAIWarWearinessPercent>
 			<!-- advc.251: Renamed; was 5 per era. -->
 			<iAIHandicapIncrementTurns>20</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 170 -->

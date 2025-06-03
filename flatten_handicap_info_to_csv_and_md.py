@@ -1,14 +1,28 @@
-# --- Convert CIV4HandicapInfo.xml to a row-wise CSV with difficulty columns ---
+# --- Convert CIV4HandicapInfo.xml to CSV and Markdown with Legends ---
+#
+# This script extracts and formats all game difficulty settings from CIV4HandicapInfo.xml.
+# It transforms XML fields into a column-aligned CSV table and a Markdown summary,
+# replacing multi-entry lists (e.g. <FreeTechs>) with unique short legend keys (e.g. FT_0),
+# and writing an aligned legend block showing actual entries.
+# The CSV includes a right-shifted, tabular [LEGEND] block for spreadsheet use.
+# The Markdown version is GitHub-friendly and includes both tables and legend mappings.
+#
+# Features:
+# - Enum beautification (e.g. HANDICAP_NOBLE → Noble)
+# - Comma-separated list flattening for <Goodies>, <FreeTechs>, <AIFreeTechs>
+# - Short key assignment (FT_, G_, AIFT_) with index
+# - Consistent horizontal alignment across difficulty columns
+# - Modular formatting of legends (aligned by row, not by raw string) <!-- custom: for
+# the CSV version we export anyways etc -->
+# - Markdown export with proper table and readable legend
+#
 # This script is part of the AdvCiv-SAS mod project.
 # (c) 2025 wonderingabout & becomingthrough
 
-import os
 import csv
 import xml.etree.ElementTree as ET
 from datetime import datetime
 import re
-import io
-from pathlib import Path
 
 # --- Step 1: Setup paths ---
 XML_PATH = r"Assets\XML\GameInfo\CIV4HandicapInfo.xml"
@@ -166,17 +180,6 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
 		writer.writerow(shortened_row)
 
 	def format_vertical_legend_block(legend_dict):
-		aift_keys_ordered = []
-		for row in rows:
-			if row["Field"] != "AIFreeTechs":
-				continue
-			for difficulty in difficulty_types:
-				ref = row.get(difficulty, "")
-				if ref.startswith("AIFT_"):
-					aift_keys_ordered.append(ref if ref in legend_dict else None)
-				else:
-					aift_keys_ordered.append(None)
-
 		def extract_ordered_unique(keys_ordered, prefix):
 			unique = []
 			seen = set()
@@ -208,7 +211,14 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
 
 		lines = []
 
-		# AIFT
+		# AIFT (same style as FT/G)
+		aift_keys_ordered = []
+		for row in rows:
+			if row["Field"] == "AIFreeTechs":
+				for difficulty in difficulty_types:
+					ref = row.get(difficulty, "")
+					aift_keys_ordered.append(ref if ref in legend_dict else None if not ref else None)
+
 		aift_unique = extract_ordered_unique(aift_keys_ordered, "AIFT_")
 		aift_headers, aift_columns = build_columns(aift_keys_ordered, aift_unique, "AIFT_")
 		lines.append('\t'.join(aift_headers))
@@ -257,20 +267,25 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
 
 	# Write a fully padded [LEGEND] header row
 	# Determine where actual legend columns begin (e.g., skip the 'Field' column)
+	# <!-- custom: shift the entire display of the "[LEGEND]" items's line one column to the right ( [""] ) if i am not mistaken anyways etc -->
 	legend_header_row = [""] + ["[LEGEND]"] * (NUM_COLUMNS - 1)
 	legend_csv.writerow(legend_header_row)
 
 	# Write padded legend rows
 	for line in legend_lines:
-		parts = line.split("\t") # Prepend empty cell to each line <!-- custom: to move the entire display of the legend one column to the right if i am not mistaken anyways etc -->
-		padded = parts + [""] * (NUM_COLUMNS - len(parts))
-		legend_csv.writerow(padded)
+		# Shift all contents one column to the right (like the LEGEND header)
+		parts = [""] + line.split("\t")
+
+		# Pad to exactly NUM_COLUMNS columns
+		parts += [""] * (NUM_COLUMNS - len(parts))
+
+		legend_csv.writerow(parts)
 
 print("✔ Export complete with legend references.")
 print(f"→ Output CSV saved as: {csv_filename}")
 
 # --- Step 8: Write Markdown table ---
-md_filename = f"handicap_data_table_{timestamp}.md"
+md_filename = f"handicap_data_to_md_{timestamp}.md"
 with open(md_filename, "w", encoding="utf-8") as md:
 	# Header
 	md.write("| Field | " + " | ".join(columns[1:]) + " |\n")

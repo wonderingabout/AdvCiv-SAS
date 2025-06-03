@@ -30,11 +30,11 @@ For more screenshot samples of new sevopedia entries or udpated ones (not exhaus
 
 ## Handicap info tables .csv and .md and info about the .py script that can regenerate them if need and how
 
-To follow/understand smoother difficulties (called handicap in civ4 if i am not mistaken but anyways etc), i have also added a table view of the differences between difficulties/handicap settings, please see [/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties) for details
+To follow/understand smoother difficulties (called handicap in civ4 if i am not mistaken but anyways etc), i have also added a table view of the differences between difficulties/handicap settings, please see [README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-infodata](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-infodata) for details
 
 Example output (non-exhaustive, also screenshot may not be updated, best to see link above i would say but anyways etc for details if interested but anyways etc):
 
-<img src="../Images_In_General/scripts/csv_md_handicap_github_view_example.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_handicap_info_github_view_example.PNG" width="250"></img>
 <img src="../Images_In_General/scripts/csv_md_handicap_vs_code_preview_example.PNG" width="250"></img>
 
 ## Full exhaustive very long and exhaustive changes
