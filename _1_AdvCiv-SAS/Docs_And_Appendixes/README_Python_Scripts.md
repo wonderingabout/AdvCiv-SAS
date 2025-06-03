@@ -239,15 +239,19 @@ Example of usage:
 As for output, see below for examples of .csv and .md outputs, the files we get are for example like this (screenshots may not be updated, view latest files provided in your mod path, or/and regnerate them again yourself with the script especially if you modify the xml of handicap info since then to show your changes in the .csv and .md files)
 
 - [.csv view to view it on GitHub website for example](/handicap_data_to_csv_advciv-sas.csv) or with libreoffice for example or similar software if you prefer another viewer than GitHub website view or such anyways etc
-- [.md view to view it on GitHub website for example](/handicap_data_to_md_advciv-sas.md) similarly either on GitHub web view or in a .md previewer like VS Code for example or and such as you prefer anyways etc
+- [.md view to view it on GitHub website for example](/handicap_data_to_md_advciv-sas.md)
 
 note: you can remove the timestamp (i.e. the year and time and such info in filename anyways etc) too if not needed anymore or/and if needed or wnted by you or and other or and not or do or not anyways etc
 
 ## csv
 
-libre office view example (may not be updated, view on github instead as explained in main readme or view your own file locally .csv in your mod with libre office or a similar viewer/editor, thanks anyways etc thanks):
+GitHub website view example (recommended, as display is nice anyways etc, and you can also for example anyways etc use github's search bar for example anyways etc)
 
 <img src="../Images_In_General/scripts/csv_handicap_info_github_view_example.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_md_handicap_github_view_search_bar_example.PNG" width="250"></img>
+
+Libre Office view example (or similar software or not anyways etc) (may not be updated, view on github instead as explained in main readme or view your own file locally .csv in your mod with libre office or a similar viewer/editor, thanks anyways etc thanks):
+
 <img src="../Images_In_General/scripts/csv_handicap_info_libre_office (1).PNG" width="250"></img>
 <img src="../Images_In_General/scripts/csv_handicap_info_libre_office (2).PNG" width="250"></img>
 
@@ -255,14 +259,14 @@ libre office view example (may not be updated, view on github instead as explain
 
 Currently less advanced version of this (with the legend, but maybe displays quite well), i'd recommend viewing the .csv data/file rather maybe anyways etc as it can indeed but anyways etc show more data with line number and better alignment and such, but also did in .md as was as the time and chatgpt/becomingthrough sugegsted which i also by my own wanted to try as well but anyways etc, and that i don't mind to keep now but anyways etc, is also a proof of concept if i may say of making a table into .md at least for me and may serve as reference or not but in all cases anyways etc..
 
-So in short or not short but anyways etc.. I'd recommend viewing the .csv file/version rather but anyways etc, above, but here below is also a .md file/version/(of the) data if you want too and i want too but anyways etc (may or not be updated, best to view the files directly as shown in screenshots but with the real files for accurate or/and exhaustive or/and reliable data if i may say but anyways etc):
+So in short or not short but anyways etc.. I'd recommend viewing the .csv file/version rather but anyways etc, above, but here below is also a .md file/version/(of the) data if you want too and i want too but anyways etc (may or not be updated, that you can view if you want (but anyways etc anyways etc anyways etc) similarly either on GitHub web view or in a .md previewer like VS Code for example or and such as you prefer anyways etc, best to view the files directly as shown in screenshots but with the real files for accurate or/and exhaustive or/and reliable data if i may say but anyways etc):
 
 <img src="../Images_In_General/scripts/csv_md_handicap_github_view_example.PNG" width="250"></img>
 <img src="../Images_In_General/scripts/csv_md_handicap_vs_code_preview_example.PNG" width="250"></img>
 
 ## note: base AdvCiv handicap data too to compare with our mod's changes anyways etc
 
-base advciv latest as of now, see more recnt data or/and regenerate it yourself similarly if changes happen not included in our current file
+Base advciv latest as of now, see more recent data or/and regenerate it yourself similarly if changes happen not included in our current file
 
 Usage is similarly (running it from base advciv mod folder with the advciv-sas py script though if i am not mistaken anyways etc) for example (adjust to your mod path if non-Steam or/and such other mod paths anyways etc)
 
@@ -270,8 +274,8 @@ Usage is similarly (running it from base advciv mod folder with the advciv-sas p
 cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\ & python ..\AdvCiv-SAS\flatten_handicap_info_to_csv_and_md.py
 ```
 
-- [.csv (base advciv) (recommended as display is clearer and better aligned, with line number and such other features if need(ed) or not or yes or etc anyways etc)](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_data_to_csv_base_advciv.csv) with github view on the website or with libreoffice for example or similar software if you prefer another viewer than GitHub website view or such anyways etc
-- [.md view to view it on GitHub website for example](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_data_to_md_base_advciv.md) similarly either on GitHub web view or in a text editor like Notepad++ or and such as you prefer anyways etc
+- [.csv (base advciv)](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_data_to_csv_base_advciv.csv)
+- [.md (base advciv)](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_data_to_md_base_advciv.md)
 
 # leaders_data_to_csv.py
 

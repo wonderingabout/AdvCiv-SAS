@@ -95,13 +95,13 @@ So far there is:
 
 #### csv and md view of the handicap (difficulties info in a table for all difficulties) info/data
 
-Generated with the [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py) script, you can regenerate it if you mod/change the data, else just run the [.csv view to view it on GitHub website for example](/handicap_data_to_csv_advciv-sas.csv) and view the .csv output handicap data with github view on the website or with libreoffice for example or similar software if you prefer another viewer than GitHub website view or such anyways etc.
+Generated with the [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py) script, you can regenerate it if you mod/change the data, else just run the [.csv view to view it on GitHub website for example](/handicap_data_to_csv_advciv-sas.csv) and view the .csv output handicap data with github view (recommended, as display is nice anyways etc, and you can also for example anyways etc use github's search bar for example anyways etc) on the website or with libreoffice for example or similar software if you prefer another viewer than GitHub website view or such anyways etc.
 
 Also code is provided thanks to chatgpt/becomingthrough and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc, example of output below (may not be updated), hopefully helpful/illustrative, view links above for updated version, and if you change the xml, regenerate new .md and .csv files with the script (see [README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy) for details as well or/and info anyways etc, also about info about the .md version of this handicap info/data but anyways etc, and also more importantly or not or yes or etc perhaps but anyways etc links to base advciv handicap info as of now to compare it with our advciv-sas mod's own handicap settings (base advciv handicap data tables are in in our mod path in [/_0_Common_Docs/AdvCiv%20Base%20Doc/](/_0_Common_Docs/AdvCiv%20Base%20Doc/) directly if you want too anyways etc)) anyways etc:
 
 <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_github_view_example.PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_md_handicap_github_view_search_bar_example.PNG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_libre_office (1).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_md_handicap_vs_code_preview_example.PNG" width="250"></img>
 
 #### csv github view for the flatten_leaders_data_to_csv conversion script
 
