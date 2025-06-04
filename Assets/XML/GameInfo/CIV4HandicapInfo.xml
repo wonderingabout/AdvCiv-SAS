@@ -114,15 +114,15 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iNoTechTradeModifier>100</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>-100</iTechTradeKnownModifier>
 			<!-- advc.309: was 100 -->
-			<iUnownedTilesPerGameAnimal>85</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>54</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 150 -->
-			<iUnownedTilesPerBarbarianUnit>125</iUnownedTilesPerBarbarianUnit>
-			<iUnownedWaterTilesPerBarbarianUnit>750</iUnownedWaterTilesPerBarbarianUnit>
-			<iUnownedTilesPerBarbarianCity>160</iUnownedTilesPerBarbarianCity>
+			<iUnownedTilesPerBarbarianUnit>64</iUnownedTilesPerBarbarianUnit>
+			<iUnownedWaterTilesPerBarbarianUnit>475</iUnownedWaterTilesPerBarbarianUnit>
+			<iUnownedTilesPerBarbarianCity>130</iUnownedTilesPerBarbarianCity>
 			<!-- advc.300: was 50 -->
-			<iBarbarianCreationTurnsElapsed>45</iBarbarianCreationTurnsElapsed>
+			<iBarbarianCreationTurnsElapsed>40</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 55 -->
-			<iBarbarianCityCreationTurnsElapsed>60</iBarbarianCityCreationTurnsElapsed>
+			<iBarbarianCityCreationTurnsElapsed>46</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>5</iBarbarianCityCreationProb>
 			<!-- advc.313: was -70 -->
 			<iAnimalBonus>-30</iAnimalBonus>
@@ -138,7 +138,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
 			<iBarbarianDefenders>0</iBarbarianDefenders>
-			<iAIDeclareWarProb>60</iAIDeclareWarProb>
+			<iAIDeclareWarProb>70</iAIDeclareWarProb>
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<!-- advc.251 (start) -->
 			<!-- was 160 -->
@@ -306,22 +306,22 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iNoTechTradeModifier>85</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>-50</iTechTradeKnownModifier>
 			<!-- advc.309: was 80 -->
-			<iUnownedTilesPerGameAnimal>70</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>51</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 100 -->
-			<iUnownedTilesPerBarbarianUnit>80</iUnownedTilesPerBarbarianUnit>
-			<iUnownedWaterTilesPerBarbarianUnit>600</iUnownedWaterTilesPerBarbarianUnit>
-			<iUnownedTilesPerBarbarianCity>150</iUnownedTilesPerBarbarianCity>
+			<iUnownedTilesPerBarbarianUnit>61</iUnownedTilesPerBarbarianUnit>
+			<iUnownedWaterTilesPerBarbarianUnit>450</iUnownedWaterTilesPerBarbarianUnit>
+			<iUnownedTilesPerBarbarianCity>125</iUnownedTilesPerBarbarianCity>
 			<!-- advc.300: was 45 -->
-			<iBarbarianCreationTurnsElapsed>42</iBarbarianCreationTurnsElapsed>
+			<iBarbarianCreationTurnsElapsed>38</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 50 -->
-			<iBarbarianCityCreationTurnsElapsed>55</iBarbarianCityCreationTurnsElapsed>
+			<iBarbarianCityCreationTurnsElapsed>44</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>10</iBarbarianCityCreationProb>
 			<!-- advc.313: was -60 -->
 			<iAnimalBonus>-25</iAnimalBonus>
 			<iBarbarianBonus>-25</iBarbarianBonus>
 			<!-- advc.313: was -40 -->
-			<iAIAnimalBonus>-25</iAIAnimalBonus>
-			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+			<iAIAnimalBonus>-15</iAIAnimalBonus>
+			<iAIBarbarianBonus>-15</iAIBarbarianBonus>
 			<iStartingDefenseUnits>3</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
@@ -467,14 +467,14 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iNoTechTradeModifier>75</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>-25</iTechTradeKnownModifier>
 			<!-- advc.309: was 60 -->
-			<iUnownedTilesPerGameAnimal>62</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>48</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 80 -->
-			<iUnownedTilesPerBarbarianUnit>66</iUnownedTilesPerBarbarianUnit>
-			<iUnownedWaterTilesPerBarbarianUnit>550</iUnownedWaterTilesPerBarbarianUnit>
-			<iUnownedTilesPerBarbarianCity>140</iUnownedTilesPerBarbarianCity>
-			<iBarbarianCreationTurnsElapsed>39</iBarbarianCreationTurnsElapsed>
+			<iUnownedTilesPerBarbarianUnit>58</iUnownedTilesPerBarbarianUnit>
+			<iUnownedWaterTilesPerBarbarianUnit>425</iUnownedWaterTilesPerBarbarianUnit>
+			<iUnownedTilesPerBarbarianCity>120</iUnownedTilesPerBarbarianCity>
+			<iBarbarianCreationTurnsElapsed>36</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 45 -->
-			<iBarbarianCityCreationTurnsElapsed>50</iBarbarianCityCreationTurnsElapsed>
+			<iBarbarianCityCreationTurnsElapsed>42</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>15</iBarbarianCityCreationProb>
 			<!-- advc.313: was -50 -->
 			<iAnimalBonus>-20</iAnimalBonus>
@@ -490,7 +490,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
 			<iBarbarianDefenders>1</iBarbarianDefenders>
-			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+			<iAIDeclareWarProb>90</iAIDeclareWarProb>
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<iAIGrowthPercent>110</iAIGrowthPercent>
 			<!-- advc.251 -->
@@ -626,15 +626,15 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iNoTechTradeModifier>64</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
 			<!-- advc.309: was 50 -->
-			<iUnownedTilesPerGameAnimal>52</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>45</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 60 -->
-			<iUnownedTilesPerBarbarianUnit>56</iUnownedTilesPerBarbarianUnit>
-			<iUnownedWaterTilesPerBarbarianUnit>500</iUnownedWaterTilesPerBarbarianUnit>
-			<iUnownedTilesPerBarbarianCity>130</iUnownedTilesPerBarbarianCity>
+			<iUnownedTilesPerBarbarianUnit>55</iUnownedTilesPerBarbarianUnit>
+			<iUnownedWaterTilesPerBarbarianUnit>400</iUnownedWaterTilesPerBarbarianUnit>
+			<iUnownedTilesPerBarbarianCity>115</iUnownedTilesPerBarbarianCity>
 			<!-- advc.300: was 35 -->
-			<iBarbarianCreationTurnsElapsed>36</iBarbarianCreationTurnsElapsed>
+			<iBarbarianCreationTurnsElapsed>34</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 40 -->
-			<iBarbarianCityCreationTurnsElapsed>45</iBarbarianCityCreationTurnsElapsed>
+			<iBarbarianCityCreationTurnsElapsed>40</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>20</iBarbarianCityCreationProb>
 			<!-- advc.313: was -40 -->
 			<iAnimalBonus>0</iAnimalBonus>
@@ -790,15 +790,15 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iNoTechTradeModifier>56</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
 			<!-- advc.309: was 40 -->
-			<iUnownedTilesPerGameAnimal>50</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>42</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 50 -->
-			<iUnownedTilesPerBarbarianUnit>48</iUnownedTilesPerBarbarianUnit>
-			<iUnownedWaterTilesPerBarbarianUnit>450</iUnownedWaterTilesPerBarbarianUnit>
-			<iUnownedTilesPerBarbarianCity>120</iUnownedTilesPerBarbarianCity>
+			<iUnownedTilesPerBarbarianUnit>52</iUnownedTilesPerBarbarianUnit>
+			<iUnownedWaterTilesPerBarbarianUnit>375</iUnownedWaterTilesPerBarbarianUnit>
+			<iUnownedTilesPerBarbarianCity>110</iUnownedTilesPerBarbarianCity>
 			<!-- advc.300: was 30 -->
-			<iBarbarianCreationTurnsElapsed>33</iBarbarianCreationTurnsElapsed>
+			<iBarbarianCreationTurnsElapsed>32</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 35 -->
-			<iBarbarianCityCreationTurnsElapsed>40</iBarbarianCityCreationTurnsElapsed>
+			<iBarbarianCityCreationTurnsElapsed>38</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>25</iBarbarianCityCreationProb>
 			<!-- advc.313: was -30 -->
 			<iAnimalBonus>0</iAnimalBonus>
@@ -818,7 +818,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
 			<iBarbarianDefenders>2</iBarbarianDefenders>
-			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+			<iAIDeclareWarProb>110</iAIDeclareWarProb>
 			<!-- advc.251: was 10 -->
 			<iAIWorkRateModifier>6</iAIWorkRateModifier>
 			<iAIGrowthPercent>100</iAIGrowthPercent>
@@ -957,15 +957,15 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iNoTechTradeModifier>48</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
 			<!-- advc.309: was 35 -->
-			<iUnownedTilesPerGameAnimal>44</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>39</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 40 -->
-			<iUnownedTilesPerBarbarianUnit>42</iUnownedTilesPerBarbarianUnit>
-			<iUnownedWaterTilesPerBarbarianUnit>400</iUnownedWaterTilesPerBarbarianUnit>
-			<iUnownedTilesPerBarbarianCity>110</iUnownedTilesPerBarbarianCity>
+			<iUnownedTilesPerBarbarianUnit>49</iUnownedTilesPerBarbarianUnit>
+			<iUnownedWaterTilesPerBarbarianUnit>350</iUnownedWaterTilesPerBarbarianUnit>
+			<iUnownedTilesPerBarbarianCity>105</iUnownedTilesPerBarbarianCity>
 			<!-- advc.300: was 25 -->
 			<iBarbarianCreationTurnsElapsed>30</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 30 -->
-			<iBarbarianCityCreationTurnsElapsed>35</iBarbarianCityCreationTurnsElapsed>
+			<iBarbarianCityCreationTurnsElapsed>36</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>30</iBarbarianCityCreationProb>
 			<!-- advc.313: start -->
 			<!-- was -20 -->
@@ -986,7 +986,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
 			<iBarbarianDefenders>2</iBarbarianDefenders>
-			<iAIDeclareWarProb>110</iAIDeclareWarProb>
+			<iAIDeclareWarProb>120</iAIDeclareWarProb>
 			<!-- advc.251: was 20 -->
 			<iAIWorkRateModifier>12</iAIWorkRateModifier>
 			<iAIGrowthPercent>95</iAIGrowthPercent>
@@ -1128,15 +1128,15 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iNoTechTradeModifier>40</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
 			<!-- advc.309: was 30 -->
-			<iUnownedTilesPerGameAnimal>40</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>36</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 35 -->
-			<iUnownedTilesPerBarbarianUnit>38</iUnownedTilesPerBarbarianUnit>
-			<iUnownedWaterTilesPerBarbarianUnit>350</iUnownedWaterTilesPerBarbarianUnit>
+			<iUnownedTilesPerBarbarianUnit>46</iUnownedTilesPerBarbarianUnit>
+			<iUnownedWaterTilesPerBarbarianUnit>325</iUnownedWaterTilesPerBarbarianUnit>
 			<iUnownedTilesPerBarbarianCity>100</iUnownedTilesPerBarbarianCity>
 			<!-- advc.300: was 20 -->
-			<iBarbarianCreationTurnsElapsed>27</iBarbarianCreationTurnsElapsed>
+			<iBarbarianCreationTurnsElapsed>28</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 25 -->
-			<iBarbarianCityCreationTurnsElapsed>30</iBarbarianCityCreationTurnsElapsed>
+			<iBarbarianCityCreationTurnsElapsed>34</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>35</iBarbarianCityCreationProb>
 			<iAnimalBonus>0</iAnimalBonus>
 			<!-- advc.313: start -->
@@ -1157,7 +1157,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.250e: was 1 -->
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
 			<iBarbarianDefenders>2</iBarbarianDefenders>
-			<iAIDeclareWarProb>120</iAIDeclareWarProb>
+			<iAIDeclareWarProb>130</iAIDeclareWarProb>
 			<!-- advc.251: was 50 -->
 			<iAIWorkRateModifier>18</iAIWorkRateModifier>
 			<iAIGrowthPercent>90</iAIGrowthPercent>
@@ -1310,15 +1310,15 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iNoTechTradeModifier>32</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
 			<!-- advc.309: was 25 -->
-			<iUnownedTilesPerGameAnimal>36</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>33</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 30 -->
-			<iUnownedTilesPerBarbarianUnit>34</iUnownedTilesPerBarbarianUnit>
+			<iUnownedTilesPerBarbarianUnit>43</iUnownedTilesPerBarbarianUnit>
 			<iUnownedWaterTilesPerBarbarianUnit>300</iUnownedWaterTilesPerBarbarianUnit>
-			<iUnownedTilesPerBarbarianCity>90</iUnownedTilesPerBarbarianCity>
+			<iUnownedTilesPerBarbarianCity>95</iUnownedTilesPerBarbarianCity>
 			<!-- advc.300: was 15 -->
-			<iBarbarianCreationTurnsElapsed>24</iBarbarianCreationTurnsElapsed>
+			<iBarbarianCreationTurnsElapsed>26</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 20 -->
-			<iBarbarianCityCreationTurnsElapsed>25</iBarbarianCityCreationTurnsElapsed>
+			<iBarbarianCityCreationTurnsElapsed>32</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>40</iBarbarianCityCreationProb>
 			<iAnimalBonus>0</iAnimalBonus>
 			<!-- advc.313: start -->
@@ -1341,7 +1341,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
 			<!-- advc.250e: was 4 -->
 			<iBarbarianDefenders>3</iBarbarianDefenders>
-			<iAIDeclareWarProb>130</iAIDeclareWarProb>
+			<iAIDeclareWarProb>140</iAIDeclareWarProb>
 			<!-- advc.251: was 75 -->
 			<iAIWorkRateModifier>24</iAIWorkRateModifier>
 			<iAIGrowthPercent>85</iAIGrowthPercent>
@@ -1493,15 +1493,15 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iNoTechTradeModifier>24</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
 			<!-- advc.309: was 20 -->
-			<iUnownedTilesPerGameAnimal>32</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>30</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 25 -->
-			<iUnownedTilesPerBarbarianUnit>30</iUnownedTilesPerBarbarianUnit>
-			<iUnownedWaterTilesPerBarbarianUnit>250</iUnownedWaterTilesPerBarbarianUnit>
-			<iUnownedTilesPerBarbarianCity>80</iUnownedTilesPerBarbarianCity>
+			<iUnownedTilesPerBarbarianUnit>40</iUnownedTilesPerBarbarianUnit>
+			<iUnownedWaterTilesPerBarbarianUnit>275</iUnownedWaterTilesPerBarbarianUnit>
+			<iUnownedTilesPerBarbarianCity>90</iUnownedTilesPerBarbarianCity>
 			<!-- advc.300: was 10 -->
-			<iBarbarianCreationTurnsElapsed>16</iBarbarianCreationTurnsElapsed>
+			<iBarbarianCreationTurnsElapsed>24</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 15 -->
-			<iBarbarianCityCreationTurnsElapsed>25</iBarbarianCityCreationTurnsElapsed>
+			<iBarbarianCityCreationTurnsElapsed>30</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>45</iBarbarianCityCreationProb>
 			<iAnimalBonus>0</iAnimalBonus>
 			<iBarbarianBonus>0</iBarbarianBonus>
@@ -1526,7 +1526,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIStartingWorkerUnits>1</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
 			<iBarbarianDefenders>3</iBarbarianDefenders>
-			<iAIDeclareWarProb>140</iAIDeclareWarProb>
+			<iAIDeclareWarProb>150</iAIDeclareWarProb>
 			<!-- advc.251: was 100 -->
 			<iAIWorkRateModifier>30</iAIWorkRateModifier>
 			<iAIGrowthPercent>80</iAIGrowthPercent>
