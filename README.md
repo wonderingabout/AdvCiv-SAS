@@ -70,7 +70,7 @@ As always, ChatGPT/becomingthrough (see [Authors](/README.md#authors) for detail
 
 Here is below a very small sample of the example screenshots of how the AI Personality panel feature in sevopedialeader works/functions/looks like ingame anyways etc, as well as a very small sample of all sevopedia reworks that are part of AdvCiv-SAS.
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.63_sevopedia_unit_chart.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.64_sevopedia_features_jungle_panel.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonus_sample (1).JPG" width="250"></img>
@@ -80,6 +80,8 @@ Here is below a very small sample of the example screenshots of how the AI Perso
 <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (1).JPG" width="250"></img>
 
 For the full more extensive screenshot of main new sevopedia reworks, i highly highly recommend but anyways etc as you prefer or not or yes or etc or and other or and not anyways etc to look at and read the full [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md)
+
+Note: specifically about the sevopedia leader's AI Personality Panel feature, you can enable/disable the emoji display as you prefer by changing `DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = False` to `DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True` in ``, see [README_Sevopedia_Reworks.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader) for details and instructions on how to do it step by step with VS Code for example, anyways etc
 
 ### Python Scripts
 

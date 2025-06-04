@@ -22,9 +22,9 @@ There are also other additions, in particular written/coded by me wonderingabout
 
 A copy of the screenshots (may not be latest version of it) of how it looks ingame:
 
-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
 
 For more screenshot samples of new sevopedia entries or udpated ones (not exhaustive), you can visit the [README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks) link (for details (too anyways etc)).
 

@@ -20,9 +20,9 @@ The ai attributes (simply) aim to and display:
 
 Here is an example below of how it looks ingame in the sevopedia leader category:
 
-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
 
 More screenshot samples in the [sevopedia reworks Google Drive folder](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing)
 

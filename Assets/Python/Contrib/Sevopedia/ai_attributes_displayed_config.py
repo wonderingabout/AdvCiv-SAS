@@ -4,6 +4,13 @@
 # (c) 2025 wonderingabout & becomingthrough
 # -->
 
+
+
+# <!-- custom: config flag to use/display emoji buttons for the ai personality panels's headers or and other or and not anyways etc or not optionally anyways etc -->
+DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = False
+
+
+
 # --- AI Personality Configuration Constants ---
 AI_HEADER_AGGREGATED_CONTACT_OFFER_PROBABILITIES = "Contact Offer Probabilities"
 AI_HEADER_AGGREGATED_CONTACT_DEMAND_PROBABILITIES = "Contact Demand Probabilities"

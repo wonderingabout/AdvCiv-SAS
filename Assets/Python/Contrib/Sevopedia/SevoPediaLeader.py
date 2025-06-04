@@ -684,13 +684,17 @@ class SevoPediaLeader:
 					first = False
 
 				# --- Category Header ---
-				# Add button <!-- custom: to/in category header anyways etc -->
-				buttonPath = str(CyTranslator().getText(DISPLAYED_AI_ATTRIBUTE_CATEGORY_BUTTON_PATH_TXT_KEYS[category], ()))
-				buttonSize = 16
-				szButtonText = u"<img=%s size=%s></img>" % (buttonPath, str(buttonSize))
-				szText2 = u"%s <font=3b>%s</font>" % (szButtonText, category)
-				# <!-- custom: add x offset (negative) so we can push button to the left a bit further than where the sub/child (but anyways etc) items/lines of the category start anyways etc -->
-				xOffsetButton = xLabel - 7
+				if DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS:
+				# Add button <!-- custom: to/in category header anyways etc-->
+					buttonPath = str(CyTranslator().getText(DISPLAYED_AI_ATTRIBUTE_CATEGORY_BUTTON_PATH_TXT_KEYS[category], ()))
+					buttonSize = 16
+					szButtonText = u"<img=%s size=%s></img>" % (buttonPath, str(buttonSize))
+					szText2 = u"%s <font=3b>%s</font>" % (szButtonText, category)
+					# <!-- custom: add x offset (negative) so we can push button to the left a bit further than where the sub/child (but anyways etc) items/lines of the category start anyways etc -->
+					xOffsetButton = xLabel - 7
+				else:
+					szText2 = u"<font=3b>%s</font>" % category
+					xOffsetButton = xLabel
 
 				screen.setText(self.top.getNextWidgetName(), "", szText2, CvUtil.FONT_LEFT_JUSTIFY, xOffsetButton, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				y += self.H_AI_LINE_HEIGHT

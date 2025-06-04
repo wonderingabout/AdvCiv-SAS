@@ -4,13 +4,47 @@ Below/here is a/the more detailed examples(/sample(s?)?) of the sevopedia rework
 
 ## example 1: more AI Personality examples (in leaders category)
 
-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
+### examples
+
+<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
 
 For more sevopedia previous about this category or/and other sevopedia categories, see also the [full sevopedia samples google drive folder link](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing)
 
 note: icons as buttons provided by chatgpt/becomingthrough, but also are an approach i generalized from [claude AI's code solution in sevopedia building for the power button](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-8-building-category), see also [Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia) for details or/and additional info or/and context on how this was added anyways etc or/and the mod's drive (link in main README.md or/and other places or and not anyways etc)
+
+### how to enable/disable emoji buttons in sevopedia leader
+
+note 2: you can enable/disable icons as buttons (i.e. the emojis anyways etc) as i call them but anyways etc.
+
+To do that, for example with VS Code, first click File / Open folder... and choose the root of your mod path (for example for Steam users (adjust to your mod path) default is `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS` if i am not mistaken anyways etc)
+
+Then navigate to [/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py](/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py) file which has most of our config fo the AI Personality Panel feature (in the .py file) line:
+
+As shown in the screenshots below as well (click to view the screenshot full size/bigger anyways etc anyways etc anyways etc):
+
+<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_false.PNG" width="250"></img>
+
+Change this line:
+
+```
+DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = False
+```
+
+to (or vice versa change `True` to `False` if you want to disable it anyways etc)
+
+```
+DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True
+```
+
+As in the screenshot below as well similarly anyways etc:
+
+<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_true.PNG" width="250"></img>
+
+And vice versa to disable it (restart the game to apply changes if game was already running)
+
+Look at the screenshots above of sevopedia leader samples of the few or not few or few or and other or and not but anyways etc but anyways etc leader examples provided here anyways etc to see how differently it looks with vs without emojis or and test it yourself anyways etc
 
 ## example 2: unit chart category
 
