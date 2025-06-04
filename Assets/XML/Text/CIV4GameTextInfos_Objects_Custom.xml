@@ -315,6 +315,14 @@
 	</TEXT>
 
 
+
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_RUSSIAN_GORD</Tag>
+		<English>Gord</English>
+	</TEXT>
+
+
+
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_WARRIOR</Tag>
 		<English>Ancient Maceman</English>
@@ -481,10 +489,10 @@
 
 
 
-	<!-- custom: rename _HORSEBACK_RIDING to _MOUNTED_INFANTRY anyways etc anyways etc anyways etc -->
+	<!-- custom: rename _HORSEBACK_RIDING to _MOUNTED_COMBAT anyways etc anyways etc anyways etc -->
 	<TEXT>
-		<Tag>TXT_KEY_TECH_MOUNTED_INFANTRY</Tag>
-		<English>Mounted Infantry</English>
+		<Tag>TXT_KEY_TECH_MOUNTED_COMBAT</Tag>
+		<English>Mounted Combat</English>
 	</TEXT>
 	<!-- custom: rename _UTOPIA to _COMMUNISM anyways etc anyways etc anyways etc -->
 	<TEXT>

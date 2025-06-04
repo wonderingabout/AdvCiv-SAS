@@ -13504,7 +13504,7 @@ then adjust maybe anyways):
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_ARCHERY</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -13701,7 +13701,7 @@ then adjust maybe anyways):
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_ARCHERY</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -13904,7 +13904,7 @@ then adjust maybe anyways):
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_ARCHERY</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -14099,7 +14099,7 @@ then adjust maybe anyways):
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_GUILDS</PrereqTech>
 			<TechTypes>
-				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
@@ -14292,7 +14292,7 @@ then adjust maybe anyways):
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_GUILDS</PrereqTech>
 			<TechTypes>
-				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>TECH_ARCHERY</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
@@ -14480,7 +14480,7 @@ then adjust maybe anyways):
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_GUILDS</PrereqTech>
 			<TechTypes>
-				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
@@ -14687,7 +14687,7 @@ then adjust maybe anyways):
 			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
-				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
 			<BonusType>BONUS_HORSE</BonusType>
@@ -14889,7 +14889,7 @@ then adjust maybe anyways):
 			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
-				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
 			<BonusType>BONUS_HORSE</BonusType>
@@ -15081,7 +15081,7 @@ then adjust maybe anyways):
 			<PrereqTech>TECH_RIFLING</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
-				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
 			<BonusType>BONUS_HORSE</BonusType>
@@ -15273,7 +15273,7 @@ then adjust maybe anyways):
 			<PrereqTech>TECH_RIFLING</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
-				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
 			<BonusType>BONUS_HORSE</BonusType>
@@ -15461,7 +15461,7 @@ then adjust maybe anyways):
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
 			<TechTypes>
-				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
@@ -15651,7 +15651,7 @@ then adjust maybe anyways):
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
 			<TechTypes>
-				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
