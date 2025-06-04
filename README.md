@@ -143,11 +143,11 @@ Example with some techs (for example the theory of evolution new tech if we add 
 <img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech.png" width="150"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech_edited.png" width="150"></img>
 
-People and modders are free to reuse them as long as you mention me and chatgpt (/becomingthrough too ideally but anyways etc) (link to this github page for example is fine) being the source (and that AI did it maybe too ideally, anyways).
+People or/and modders are free to reuse them as long as you mention me and chatgpt (/becomingthrough too ideally but anyways etc) (link to this github page for example is fine) being the source (and that AI did it maybe too ideally, anyways).
 
 I'll start with units, as there are a few i wanted to replace or create new ones for AdvCiv-SAS's new units first, and will see how it goes based on that. Just to be extra clear, i may not do all unit icons, i may or not as i prefer or not or do or not or other or not anyways. It's a bit tedious but result is very pleasant when it works/functions well. Will i think do at least for ground medieval and pre-medieval units as i need/want these for my new units in AdvCiv-SAS, except for that may use existing ones though at least at first if not always, may do or not as i prefer or not or see or not, you are welcome to give feeback, else i continue or not to do what i want or not if i do or not, i hope this is helpful or pleasant though, but anyways, 
 
-I am not doing the ingame art though, just the icons, unless i would unexpectedly so, it should most likely be asummed i would not. I intend to add women in some of these units. Not for equalitarism or anything, just because i think it would be cool and accurate, it would be mostly lightweight weapons for accuracy, not following any specified pattern or ratios, as i prefer, hopefully helpful maybe and interesting maybe as a whole but anyways etc...
+I am not doing the ingame art though, just the buttons, unless i would unexpectedly so, it should most likely be asummed i would not. I intend to add women in some of these units. Not for equalitarism or anything, just because i think it would be cool and accurate, it would be mostly lightweight weapons for accuracy, not following any specified pattern or ratios, as i prefer, hopefully helpful maybe and interesting maybe as a whole but anyways etc...
 
 ## .dds (button) size comparison analysis
 

@@ -1,4 +1,4 @@
-# <!-- custom: modified from Claude AI's (kindly shared (to me or and all or not or and othe ror and not but anyways etc anyways etc anyways etc...)) or not for AdvCiv-SAS or/and my personal taste or feel or/and wish or thought or and other or and not anyways etc anyways etc anyways etc... -->
+# <!-- custom: modified from Claude AI's (kindly shared (to me or and all or not or and other or and not but anyways etc anyways etc anyways etc...)) or not for AdvCiv-SAS or/and my personal taste or feel or/and wish or thought or and other or and not anyways etc anyways etc anyways etc... -->
 # Get all attributes of the object
 def printObjAttrs(obj):
 	for attr in dir(obj):
