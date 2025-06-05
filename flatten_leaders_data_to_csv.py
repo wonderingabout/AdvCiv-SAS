@@ -11,6 +11,7 @@ from collections import defaultdict
 # --- Step 1: Setup timestamped output ---
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 csv_filename = f"leaders_data_to_csv_{timestamp}.csv"
+md_filename = f"leaders_data_to_csv_legend_{timestamp}.md"
 
 # --- Step 2: Define excluded fields ---
 EXCLUDED_FIELDS = {
@@ -162,3 +163,14 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
 
 print("✔ Export complete.")
 print(f"→ Output CSV saved as: {csv_filename}")
+
+# --- Step 7: Write legend to .md file ---
+with open(md_filename, "w", encoding="utf-8") as md:
+	md.write("# Leader Data Abbreviations Legend\n\n")
+	for abbr in sorted(abbrev_map.values()):
+		# Reverse lookup
+		original_field = next((k for k, v in abbrev_map.items() if v == abbr), None)
+		if original_field and abbr != "Leader":
+			md.write(f"- **{abbr}**: `{original_field}`\n")
+
+print(f"→ Legend saved as: {md_filename}")
