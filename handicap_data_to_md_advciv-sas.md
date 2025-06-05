@@ -17,8 +17,8 @@
 | iAIStartingExploreUnits | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 1 | 1 |
 | iAIStartingUnitMultiplier | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 | iAIStartingWorkerUnits | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 |
-| iAITrainPercent | 109 | 106 | 103 | 100 | 97 | 94 | 91 | 88 | 85 |
-| iAIUnitCostPercent | 109 | 106 | 103 | 100 | 97 | 94 | 91 | 88 | 85 |
+| iAITrainPercent | 118 | 112 | 106 | 100 | 94 | 88 | 82 | 76 | 70 |
+| iAIUnitCostPercent | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 |
 | iAIUnitSupplyPercent | 50 | 50 | 50 | 50 | 50 | 50 | 50 | 50 | 50 |
 | iAIUnitUpgradePercent | 50 | 50 | 50 | 50 | 50 | 50 | 50 | 50 | 50 |
 | iAIWarWearinessPercent | 112 | 108 | 104 | 100 | 96 | 92 | 88 | 84 | 80 |
@@ -37,7 +37,7 @@
 | iBarbarianCreationTurnsElapsed | 40 | 38 | 36 | 34 | 32 | 30 | 28 | 26 | 24 |
 | iBarbarianDefenders | 0 | 0 | 1 | 1 | 2 | 2 | 2 | 3 | 3 |
 | iBaseGrowthThresholdPercent | 80 | 95 | 100 | 100 | 100 | 100 | 110 | 120 | 130 |
-| iBuildTimePercent | 100 | 100 | 100 | 100 | 100 | 100 | 110 | 115 | 120 |
+| iBuildTimePercent | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 |
 | iCivicUpkeepPercent | 60 | 70 | 80 | 90 | 95 | 100 | 100 | 100 | 100 |
 | iColonyMaintenancePercent | 60 | 80 | 90 | 100 | 105 | 110 | 115 | 120 | 130 |
 | iConstructPercent | 85 | 95 | 100 | 100 | 100 | 100 | 105 | 110 | 115 |
@@ -63,11 +63,11 @@
 | iSeaBarbarianExtraMoves |  |  |  |  |  |  |  |  | 0 |
 | iStartingDefenseUnits | 3 | 3 | 2 | 2 | 1 | 1 | 1 | 1 | 1 |
 | iStartingExploreUnits | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| iStartingLocPercent | 10 | 20 | 35 | 49 | 55 | 65 | 75 | 85 | 95 |
+| iStartingLocPercent | 11 | 22 | 33 | 44 | 55 | 66 | 77 | 88 | 99 |
 | iStartingWorkerUnits | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 | iTechTradeKnownModifier | -100 | -50 | -25 | 0 | 0 | 0 | 0 | 0 | 0 |
-| iTrainPercent | 80 | 95 | 100 | 100 | 100 | 100 | 110 | 120 | 130 |
-| iUnitCostPercent | 36 | 44 | 52 | 60 | 68 | 76 | 84 | 92 | 100 |
+| iTrainPercent | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 |
+| iUnitCostPercent | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 |
 | iUnownedTilesPerBarbarianCity | 130 | 125 | 120 | 115 | 110 | 105 | 100 | 95 | 90 |
 | iUnownedTilesPerBarbarianUnit | 64 | 61 | 58 | 55 | 52 | 49 | 46 | 43 | 40 |
 | iUnownedTilesPerGameAnimal | 54 | 51 | 48 | 45 | 42 | 39 | 36 | 33 | 30 |

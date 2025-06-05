@@ -684,9 +684,9 @@ class SevoPediaLeader:
 					first = False
 
 				# --- Category Header ---
-				if DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS:
+				if IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS:
 				# Add button <!-- custom: to/in category header anyways etc-->
-					buttonPath = str(CyTranslator().getText(DISPLAYED_AI_ATTRIBUTE_CATEGORY_BUTTON_PATH_TXT_KEYS[category], ()))
+					buttonPath = CyTranslator().getText(DISPLAYED_AI_ATTRIBUTE_CATEGORY_BUTTON_PATH_TXT_KEYS[category], ())
 					buttonSize = 16
 					szButtonText = u"<img=%s size=%s></img>" % (buttonPath, str(buttonSize))
 					szText2 = u"%s <font=3b>%s</font>" % (szButtonText, category)

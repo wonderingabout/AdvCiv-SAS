@@ -361,15 +361,7 @@ before pottery, and currency before mathematics. Hopefully should be quite fast
 to adjust ideally, it is really the same techs for most at historical points
 - gradual gameplay: slower early game, faster late game (less of a chore too
 now maybe)
-- some units can be built at different times, also for historical accuracy
-- otherwise simple gameplay, i don't like clutter
-- opportunistic and efficient AI: the AI will not be much more aggressive than
-AdvCiv, it will be more cautious to start wars, but will hesitate less when it
-(thinks it can) profit, so be careful and plan well
-- i intend this AdvCiv-SAS mod to be quite fast paced anyways etc but still long enough to hopefully enjoy it (view docs for details if any more docs or details exist), game starts at -50 000 BC but it increments very fast (5 000 per turn then gradually less, so after a few dozen turns approximately at normal speed you should already be at the bronze age) (view docs or ingame for latest updated info anyways etc), see also for more details [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md). Then the year number and gameplay pace does not slow as much (at least i tried to make it so, that each end game turn doesn't take ages)
-- overall not too much clutter, i don't want too many things, but i want the things i
-have/add, to go (very) in depth in them rather, so quite lightweight and hopefully
-easy to digest and get used to it, but deep that you'd want to play it more, maybe, ideally
+- Handicap (i.e. difficulty) settings are now gradually harder, lower/lowest handicap being harder, and highest difficulties being less of a grind and hard in their own ways at least in theory, see docs for details and status update on these or/and xml for details.
 - AIs get no free techs now, todo, they should perform well enough, and receive other
 types of bonuses, that they don't need techs for free, it won't feel anymore like they
 are playing a different kind of game hopefully, also less of a grind at higher difficulties
@@ -378,9 +370,17 @@ are playing a different kind of game hopefully, also less of a grind at higher d
 want them to be placeholders anymore), and harder ones less of a grind (ideally),
 consider starting at a low difficulty to adjust first if not sure or to get used to
 the gameplay
-- costs of tech and units are always the same unlike in AdvCiv, maybe it helps if
-you want to go from one difficulty to the other, a unit or tech is always same price,
-so you can reuse some strategies more easily maybe or quicker adjust
+- costs of tech and units (todo and iTrainPercent) are always the same for the human player at all handicap/difficulties settings unlike in base AdvCiv, now only AI costs (and iAITrainPercent) vary across difficulties anyways etc, maybe it helps for example for calculations and such to have a fixed unit or tech (todo) price at all difficulties if you want to go from one difficulty to the other, a unit or tech is always same price for the human player, so you can reuse some strategies more easily maybe or quicker adjust
+- there are some exceptions to this, for example iUnitCostPercent and iAIUnitCostPercent (maintenance in gold per turn for the units if i am not mistaken anyways etc) are now in advciv-sas the same for all players, this is to allow for a fairer gameplay and more reliable at all difficulties, difficulty is adjusted indirectly or and through other parameters/settings to make game more or less hard(er?) accross difficulties, but i wanted the unit maintenance (gold per turn ) cost especially to be closer at all difficulties, now exactly the same, see xml or handicap data table (see above at head of this doc for link to the table of all difficulties). Note: when it comes to military hammer cost, it still varies accross difficulties for AI players, but should feel closer now while hopefully still a challenging challenge iff i may say repeatedly but anyways etc, similar reasoning for tech beaker/i.e. flat gold cost (i('d?) (anyways etc)) need to balance them though now if i want and if not already done after writing this anyways etc, please check docs xml or better or additionally maybe too anyways etc maybe also the handicap data table (link at head of this doc anyways etc) 
+- i intend this AdvCiv-SAS mod to be quite fast paced anyways etc but still long enough to hopefully enjoy it (view docs for details if any more docs or details exist), game starts at -50 000 BC but it increments very fast (5 000 per turn then gradually less, so after a few dozen turns approximately at normal speed you should already be at the bronze age) (view docs or ingame for latest updated info anyways etc), see also for more details [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md). Then the year number and gameplay pace does not slow as much (at least i tried to make it so, that each end game turn doesn't take ages)
+- some units can be built at different times, also for historical accuracy
+- otherwise simple gameplay, i don't like clutter
+- opportunistic and efficient AI: the AI will not be much more aggressive than
+AdvCiv, it will be more cautious to start wars, but will hesitate less when it
+(thinks it can) profit, so be careful and plan well
+- overall not too much clutter, i don't want too many things, but i want the things i
+have/add, to go (very) in depth in them rather, so quite lightweight and hopefully
+easy to digest and get used to it, but deep that you'd want to play it more, maybe, ideally
 - todo animals can be captured?
 - some convenience and quality of life changes: for example WFYABTA ("We fear you are
 becoming too advanced" is now renamed as "We fear you are trading more than us", but

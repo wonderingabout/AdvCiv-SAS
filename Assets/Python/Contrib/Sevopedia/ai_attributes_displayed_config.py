@@ -7,7 +7,7 @@
 
 
 # <!-- custom: config flag to use/display emoji buttons for the ai personality panels's headers or and other or and not anyways etc or not optionally anyways etc -->
-DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = False
+IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True
 
 
 

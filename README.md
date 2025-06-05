@@ -81,7 +81,7 @@ Here is below a very small sample of the example screenshots of how the AI Perso
 
 For the full more extensive screenshot of main new sevopedia reworks, i highly highly recommend but anyways etc as you prefer or not or yes or etc or and other or and not anyways etc to look at and read the full [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md)
 
-Note: specifically about the sevopedia leader's AI Personality Panel feature, you can enable/disable the emoji display as you prefer by changing `DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = False` to `DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True` in ``, see [README_Sevopedia_Reworks.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader) for details and instructions on how to do it step by step with VS Code for example, anyways etc
+Note: specifically about the sevopedia leader's AI Personality Panel feature, you can enable/disable the emoji display as you prefer by changing `IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = False` to/from `IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True`, see [README_Sevopedia_Reworks.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader) for details and instructions on how to do it step by step with VS Code for example, anyways etc
 
 ### Python Scripts
 
@@ -111,7 +111,8 @@ For now a very minimal script, but maybe helps too.
 
 More specificially about the [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py) anyways etc, there is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#leaders_data_to_csvpy) anyways etc:
 - [(click here to view it on on github too)](/leaders_data_to_csv_ai_flat_example_of_output.csv) (you can also click on the collapse tree button thing to get an even larger display and scroll down the page to remove from "vision field" the uneeded (for this task of viewing fields in the csv in github) the top headers but is just suggestion or not anyways etc anyways etc...), with filters (research) and such anyways etc, so adding a bit more general info about it too, as shown below for the github web page view
-- note: you can also view it (the .csv file i.e. anyways etc with libreoffice or/and such similar/alternative viewer/editor anyways etc)
+
+note: you can also view it (the .csv file i.e. anyways etc with libreoffice or/and such similar/alternative viewer/editor anyways etc)
 
 <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (2).PNG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_output_example__leader_data_libre_office_view_2.PNG" width="250"></img>

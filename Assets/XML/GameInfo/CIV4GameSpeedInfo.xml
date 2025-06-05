@@ -7,7 +7,7 @@
 <!-- NOTE: If you remove any of these you need to update GameInfo/CultureLevelInfos.xml. Also you will need to update the GlobalDefines.xml if you remove GAMESPEED_STANDARD -->
 <Civ4GameSpeedInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
 	<GameSpeedInfos>
-		<GameSpeedInfo>
+		<GameSpeedInfo> <!-- custom: GAMESPEED_MARATHON (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
 			<Type>GAMESPEED_MARATHON</Type>
 			<Description>TXT_KEY_GAMESPEED_MARATHON</Description>
 			<Help>TXT_KEY_GAMESPEED_MARATHON_HELP</Help>
@@ -177,7 +177,7 @@
 				</GameTurnInfo>
 			</GameTurnInfos>
 		</GameSpeedInfo-->
-		<GameSpeedInfo>
+		<GameSpeedInfo> <!-- custom: GAMESPEED_EPIC (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
 			<Type>GAMESPEED_EPIC</Type>
 			<Description>TXT_KEY_GAMESPEED_EPIC</Description>
 			<Help>TXT_KEY_GAMESPEED_EPIC_HELP</Help>
@@ -260,7 +260,7 @@
 				</GameTurnInfo>
 			</GameTurnInfos>
 		</GameSpeedInfo>
-		<GameSpeedInfo>
+		<GameSpeedInfo> <!-- custom: GAMESPEED_NORMAL (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
 			<Type>GAMESPEED_NORMAL</Type>
 			<Description>TXT_KEY_GAMESPEED_NORMAL</Description>
 			<Help>TXT_KEY_GAMESPEED_NORMAL_HELP</Help>
@@ -367,7 +367,7 @@
 				</GameTurnInfo>
 			</GameTurnInfos>
 		</GameSpeedInfo>
-		<GameSpeedInfo>
+		<GameSpeedInfo> <!-- custom: GAMESPEED_QUICK (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
 			<Type>GAMESPEED_QUICK</Type>
 			<Description>TXT_KEY_GAMESPEED_QUICK</Description>
 			<Help>TXT_KEY_GAMESPEED_QUICK_HELP</Help>

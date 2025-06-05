@@ -29,13 +29,13 @@ As shown in the screenshots below as well (click to view the screenshot full siz
 Change this line:
 
 ```
-DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = False
+IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = False
 ```
 
-to (or vice versa change `True` to `False` if you want to disable it anyways etc)
+to (or vice versa change it from `True` to `False` if you want to disable it anyways etc)
 
 ```
-DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True
+IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True
 ```
 
 As in the screenshot below as well similarly anyways etc:

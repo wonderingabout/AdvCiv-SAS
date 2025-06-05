@@ -70,7 +70,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iFreeWinsVsBarbs>3</iFreeWinsVsBarbs>
 			<!-- advc.309: was 25 -->
 			<iAnimalAttackProb>30</iAnimalAttackProb>
-			<iStartingLocPercent>10</iStartingLocPercent>
+			<iStartingLocPercent>11</iStartingLocPercent>
 			<!-- advc.250c: was 150 -->
 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
 			<iGold>0</iGold>
@@ -78,14 +78,14 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- was 24 -->
 			<iFreeUnits>20</iFreeUnits>
 			<!-- was 20 -->
-			<iUnitCostPercent>36</iUnitCostPercent>
+			<iUnitCostPercent>100</iUnitCostPercent>
 			<iBuildTimePercent>100</iBuildTimePercent>
 			<iBaseGrowthThresholdPercent>80</iBaseGrowthThresholdPercent>
 			<iGPThresholdPercent>80</iGPThresholdPercent>
 			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<!-- was 60 -->
 			<iResearchPercent>68</iResearchPercent>
-			<iTrainPercent>80</iTrainPercent>
+			<iTrainPercent>100</iTrainPercent>
 			<!-- was 80 (let's steer beginners away a bit from just playing SimCity) -->
 			<iConstructPercent>85</iConstructPercent>
 			<iCreatePercent>70</iCreatePercent>
@@ -147,7 +147,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- Lower tech costs for the AI -->
 			<iAIResearchPercent>95</iAIResearchPercent>
 			<!-- was 6x 160 -->
-			<iAITrainPercent>109</iAITrainPercent>
+			<iAITrainPercent>118</iAITrainPercent>
 			<iAIWorldTrainPercent>106</iAIWorldTrainPercent>
 			<iAIConstructPercent>106</iAIConstructPercent>
 			<iAIWorldConstructPercent>106</iAIWorldConstructPercent>
@@ -155,7 +155,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIWorldCreatePercent>106</iAIWorldCreatePercent>
 			<!-- advc.251 (end) -->
 			<iAICivicUpkeepPercent>100</iAICivicUpkeepPercent>
-			<iAIUnitCostPercent>109</iAIUnitCostPercent>
+			<iAIUnitCostPercent>100</iAIUnitCostPercent>
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
 			<iAIInflationPercent>100</iAIInflationPercent>
@@ -265,7 +265,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.251: was 4 -->
 			<iFreeWinsVsBarbs>2</iFreeWinsVsBarbs>
 			<iAnimalAttackProb>50</iAnimalAttackProb>
-			<iStartingLocPercent>20</iStartingLocPercent>
+			<iStartingLocPercent>22</iStartingLocPercent>
 			<!-- advc.250c: was 130 -->
 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
 			<iGold>0</iGold>
@@ -273,14 +273,14 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- was 18 -->
 			<iFreeUnits>15</iFreeUnits>
 			<!-- was 30 -->
-			<iUnitCostPercent>44</iUnitCostPercent>
+			<iUnitCostPercent>100</iUnitCostPercent>
 			<iBuildTimePercent>100</iBuildTimePercent>
 			<iBaseGrowthThresholdPercent>95</iBaseGrowthThresholdPercent>
 			<iGPThresholdPercent>95</iGPThresholdPercent>
 			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<!-- was 75 -->
 			<iResearchPercent>73</iResearchPercent>
-			<iTrainPercent>95</iTrainPercent>
+			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>95</iConstructPercent>
 			<iCreatePercent>80</iCreatePercent>
 			<!-- was 55 -->
@@ -338,7 +338,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIGPThresholdPercent>120</iAIGPThresholdPercent>
 			<iAIResearchPercent>100</iAIResearchPercent>
 			<!-- was 6x 130 -->
-			<iAITrainPercent>106</iAITrainPercent>
+			<iAITrainPercent>112</iAITrainPercent>
 			<iAIWorldTrainPercent>104</iAIWorldTrainPercent>
 			<iAIConstructPercent>104</iAIConstructPercent>
 			<iAIWorldConstructPercent>104</iAIWorldConstructPercent>
@@ -346,7 +346,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIWorldCreatePercent>104</iAIWorldCreatePercent>
 			<!-- advc.251 (end) -->
 			<iAICivicUpkeepPercent>100</iAICivicUpkeepPercent>
-			<iAIUnitCostPercent>106</iAIUnitCostPercent>
+			<iAIUnitCostPercent>100</iAIUnitCostPercent>
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
 			<iAIInflationPercent>90</iAIInflationPercent>
@@ -426,7 +426,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.309: was 75 -->
 			<iAnimalAttackProb>60</iAnimalAttackProb>
 			<!-- advc.108b: was 30 -->
-			<iStartingLocPercent>35</iStartingLocPercent>
+			<iStartingLocPercent>33</iStartingLocPercent>
 			<!-- advc.250c: was 110 -->
 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
 			<iGold>0</iGold>
@@ -434,7 +434,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- was 12 -->
 			<iFreeUnits>10</iFreeUnits>
 			<!-- was 40 -->
-			<iUnitCostPercent>52</iUnitCostPercent>
+			<iUnitCostPercent>100</iUnitCostPercent>
 			<iBuildTimePercent>100</iBuildTimePercent>
 			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
 			<iGPThresholdPercent>100</iGPThresholdPercent>
@@ -497,14 +497,14 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIGPThresholdPercent>110</iAIGPThresholdPercent>
 			<!-- advc.251 -->
 			<iAIResearchPercent>100</iAIResearchPercent>
-			<iAITrainPercent>103</iAITrainPercent>
+			<iAITrainPercent>106</iAITrainPercent>
 			<iAIWorldTrainPercent>102</iAIWorldTrainPercent>
 			<iAIConstructPercent>102</iAIConstructPercent>
 			<iAIWorldConstructPercent>102</iAIWorldConstructPercent>
 			<iAICreatePercent>102</iAICreatePercent>
 			<iAIWorldCreatePercent>102</iAIWorldCreatePercent>
 			<iAICivicUpkeepPercent>100</iAICivicUpkeepPercent>
-			<iAIUnitCostPercent>103</iAIUnitCostPercent>
+			<iAIUnitCostPercent>100</iAIUnitCostPercent>
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
 			<iAIInflationPercent>80</iAIInflationPercent>
@@ -584,14 +584,14 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.309: was 85 -->
 			<iAnimalAttackProb>70</iAnimalAttackProb>
 			<!-- advc.108b: was 40 -->
-			<iStartingLocPercent>49</iStartingLocPercent>
+			<iStartingLocPercent>44</iStartingLocPercent>
 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
 			<iGold>0</iGold>
 			<!-- advc.251 (start) -->
 			<!-- was 8 -->
 			<iFreeUnits>7</iFreeUnits>
 			<!-- was 50 -->
-			<iUnitCostPercent>60</iUnitCostPercent>
+			<iUnitCostPercent>100</iUnitCostPercent>
 			<iBuildTimePercent>100</iBuildTimePercent>
 			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
 			<iGPThresholdPercent>100</iGPThresholdPercent>
@@ -757,7 +757,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- was 6 -->
 			<iFreeUnits>5</iFreeUnits>
 			<!-- was 60 -->
-			<iUnitCostPercent>68</iUnitCostPercent>
+			<iUnitCostPercent>100</iUnitCostPercent>
 			<iBuildTimePercent>100</iBuildTimePercent>
 			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
 			<iGPThresholdPercent>100</iGPThresholdPercent>
@@ -826,14 +826,14 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIGPThresholdPercent>100</iAIGPThresholdPercent>
 			<!-- advc.251 -->
 			<iAIResearchPercent>104</iAIResearchPercent>
-			<iAITrainPercent>97</iAITrainPercent>
+			<iAITrainPercent>94</iAITrainPercent>
 			<iAIWorldTrainPercent>98</iAIWorldTrainPercent>
 			<iAIConstructPercent>98</iAIConstructPercent>
 			<iAIWorldConstructPercent>98</iAIWorldConstructPercent>
 			<iAICreatePercent>98</iAICreatePercent>
 			<iAIWorldCreatePercent>98</iAIWorldCreatePercent>
 			<iAICivicUpkeepPercent>95</iAICivicUpkeepPercent>
-			<iAIUnitCostPercent>97</iAIUnitCostPercent>
+			<iAIUnitCostPercent>100</iAIUnitCostPercent>
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
 			<iAIInflationPercent>80</iAIInflationPercent>
@@ -915,14 +915,14 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.309: was 90 -->
 			<iAnimalAttackProb>70</iAnimalAttackProb>
 			<!-- advc.108b: was 60 -->
-			<iStartingLocPercent>65</iStartingLocPercent>
+			<iStartingLocPercent>66</iStartingLocPercent>
 			<!-- advc.250c: was 90 -->
 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
 			<iGold>0</iGold>
 			<iFreeUnits>4</iFreeUnits>
 			<!-- advc.251 (start) -->
 			<!-- was 70 -->
-			<iUnitCostPercent>76</iUnitCostPercent>
+			<iUnitCostPercent>100</iUnitCostPercent>
 			<iBuildTimePercent>100</iBuildTimePercent>
 			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
 			<iGPThresholdPercent>100</iGPThresholdPercent>
@@ -994,7 +994,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIGPThresholdPercent>95</iAIGPThresholdPercent>
 			<iAIResearchPercent>108</iAIResearchPercent>
 			<!-- was 90 -->
-			<iAITrainPercent>94</iAITrainPercent>
+			<iAITrainPercent>88</iAITrainPercent>
 			<!-- was 100 -->
 			<iAIWorldTrainPercent>96</iAIWorldTrainPercent>
 			<!-- was 90 -->
@@ -1006,7 +1006,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIWorldCreatePercent>96</iAIWorldCreatePercent>
 			<!-- advc.251 (end) -->
 			<iAICivicUpkeepPercent>90</iAICivicUpkeepPercent>
-			<iAIUnitCostPercent>94</iAIUnitCostPercent>
+			<iAIUnitCostPercent>100</iAIUnitCostPercent>
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
 			<iAIInflationPercent>80</iAIInflationPercent>
@@ -1091,20 +1091,21 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.309: was 90 -->
 			<iAnimalAttackProb>70</iAnimalAttackProb>
 			<!-- advc.108b: was 70 -->
-			<iStartingLocPercent>75</iStartingLocPercent>
+			<iStartingLocPercent>77</iStartingLocPercent>
 			<!-- advc.250c: was 85 -->
 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
 			<iGold>0</iGold>
 			<iFreeUnits>3</iFreeUnits>
 			<!-- advc.251 (start) -->
 			<!-- was 80 -->
-			<iUnitCostPercent>84</iUnitCostPercent>
-			<iBuildTimePercent>110</iBuildTimePercent>
+			<iUnitCostPercent>100</iUnitCostPercent>
+			<!-- custom: not immediately clear to me what this does looking at .cpp code from little or not little i udnerstand of it but anyways etc (getBuildTimePercent()), but i'll make it the same across all difficulties, and adjust if needed other handicap settings so that handicap are more reliable, i'd prefer it this way if i am not mistaken in my udnerstanding or non-not udnerstanding or understanding still bit of but anyways etc anyways etc anyways etc.., was 110 -->
+			<iBuildTimePercent>100</iBuildTimePercent>
 			<iBaseGrowthThresholdPercent>110</iBaseGrowthThresholdPercent>
 			<iGPThresholdPercent>110</iGPThresholdPercent>
 			<iCultureLevelPercent>112</iCultureLevelPercent>
 			<iResearchPercent>128</iResearchPercent>
-			<iTrainPercent>110</iTrainPercent>
+			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>105</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
 			<!-- advc.251 (end) -->
@@ -1166,7 +1167,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- Higher tech costs for the AI -->
 			<iAIResearchPercent>112</iAIResearchPercent>
 			<!-- was 85 -->
-			<iAITrainPercent>91</iAITrainPercent>
+			<iAITrainPercent>82</iAITrainPercent>
 			<!-- was 100 -->
 			<iAIWorldTrainPercent>94</iAIWorldTrainPercent>
 			<!-- was 85 -->
@@ -1178,7 +1179,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIWorldCreatePercent>94</iAIWorldCreatePercent>
 			<!-- advc.251 (end) -->
 			<iAICivicUpkeepPercent>85</iAICivicUpkeepPercent>
-			<iAIUnitCostPercent>91</iAIUnitCostPercent>
+			<iAIUnitCostPercent>100</iAIUnitCostPercent>
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
 			<iAIInflationPercent>80</iAIInflationPercent>
@@ -1271,21 +1272,21 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.309: was 90 -->
 			<iAnimalAttackProb>70</iAnimalAttackProb>
 			<!-- advc.108b: was 80 -->
-			<iStartingLocPercent>85</iStartingLocPercent>
+			<iStartingLocPercent>88</iStartingLocPercent>
 			<!-- advc.250c: was 80 -->
 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
 			<iGold>0</iGold>
 			<iFreeUnits>2</iFreeUnits>
 			<!-- advc.251 (start) -->
 			<!-- was 90 -->
-			<iUnitCostPercent>92</iUnitCostPercent>
-			<iBuildTimePercent>115</iBuildTimePercent>
+			<iUnitCostPercent>100</iUnitCostPercent>
+			<iBuildTimePercent>100</iBuildTimePercent>
 			<iBaseGrowthThresholdPercent>120</iBaseGrowthThresholdPercent>
 			<iGPThresholdPercent>120</iGPThresholdPercent>
 			<iCultureLevelPercent>118</iCultureLevelPercent>
 			<!-- was 125 -->
 			<iResearchPercent>133</iResearchPercent>
-			<iTrainPercent>120</iTrainPercent>
+			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>110</iConstructPercent>
 			<iCreatePercent>110</iCreatePercent>
 			<!-- advc.251 (end) -->
@@ -1350,7 +1351,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- Higher tech costs for the AI -->
 			<iAIResearchPercent>116</iAIResearchPercent>
 			<!-- was 80 -->
-			<iAITrainPercent>88</iAITrainPercent>
+			<iAITrainPercent>76</iAITrainPercent>
 			<!-- was 100 -->
 			<iAIWorldTrainPercent>92</iAIWorldTrainPercent>
 			<iAIConstructPercent>92</iAIConstructPercent>
@@ -1361,7 +1362,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIWorldCreatePercent>92</iAIWorldCreatePercent>
 			<!-- advc.251 (end) -->
 			<iAICivicUpkeepPercent>80</iAICivicUpkeepPercent>
-			<iAIUnitCostPercent>88</iAIUnitCostPercent>
+			<iAIUnitCostPercent>100</iAIUnitCostPercent>
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
 			<iAIInflationPercent>80</iAIInflationPercent>
@@ -1455,20 +1456,20 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.309: was 90 -->
 			<iAnimalAttackProb>70</iAnimalAttackProb>
 			<!-- advc.108b: was 90 -->
-			<iStartingLocPercent>95</iStartingLocPercent>
+			<iStartingLocPercent>99</iStartingLocPercent>
 			<!-- advc.250c: was 75 -->
 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
 			<iGold>0</iGold>
 			<iFreeUnits>1</iFreeUnits>
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<!-- advc.251 (start) -->
-			<iBuildTimePercent>120</iBuildTimePercent>
+			<iBuildTimePercent>100</iBuildTimePercent>
 			<iBaseGrowthThresholdPercent>130</iBaseGrowthThresholdPercent>
 			<iGPThresholdPercent>130</iGPThresholdPercent>
 			<iCultureLevelPercent>129</iCultureLevelPercent>
 			<!-- advc.251: was 130 -->
 			<iResearchPercent>140</iResearchPercent>
-			<iTrainPercent>130</iTrainPercent>
+			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>115</iConstructPercent>
 			<iCreatePercent>120</iCreatePercent>
 			<!-- advc.251 (end) -->
@@ -1535,7 +1536,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- Higher tech costs for the AI -->
 			<iAIResearchPercent>120</iAIResearchPercent>
 			<!-- was 60 -->
-			<iAITrainPercent>85</iAITrainPercent>
+			<iAITrainPercent>70</iAITrainPercent>
 			<!-- was 100-->
 			<iAIWorldTrainPercent>90</iAIWorldTrainPercent>
 			<!-- was 60 -->
@@ -1549,7 +1550,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- was 60 -->
 			<iAICivicUpkeepPercent>75</iAICivicUpkeepPercent>
 			<!-- was 60 -->
-			<iAIUnitCostPercent>85</iAIUnitCostPercent>
+			<iAIUnitCostPercent>100</iAIUnitCostPercent>
 			<!-- advc.251 (end) -->
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
