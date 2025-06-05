@@ -5,6 +5,8 @@
 import csv
 from datetime import datetime
 from Assets.Python.Contrib.Sevopedia.leaders_data import PARSED_XML_LEADERS_DATA
+import ast
+from collections import defaultdict
 
 # --- Step 1: Setup timestamped output ---
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -61,6 +63,37 @@ numeric_fields = list(dict.fromkeys(numeric_fields))
 non_numeric_fields = list(dict.fromkeys(non_numeric_fields))
 columns = ["Leader"] + numeric_fields + non_numeric_fields
 
+legend_column_name = "[LEGEND]"
+columns = ["Leader"] + numeric_fields + non_numeric_fields + [legend_column_name]
+
+# --- Abbreviate headers ---
+def make_abbreviation(field):
+	# Strip 'i' if present (as per your convention)
+	base = field[1:] if field.startswith("i") else field
+	return ''.join(c for c in base if c.isupper())
+
+abbrev_map = {"Leader": "Leader"}
+abbrev_count = defaultdict(int)
+
+# Generate abbreviation for legend column too (like other fields)
+legend_abbr = legend_column_name.strip("[]").replace(" ", "_").upper()
+abbrev_map[legend_column_name] = legend_abbr
+
+for field in columns:
+	if field == "Leader":
+		continue
+	base_abbr = make_abbreviation(field)
+	count = abbrev_count[base_abbr]
+	if count == 0:
+		abbr = base_abbr
+	else:
+		if count < 10:
+			abbr = f"{base_abbr}{count}"
+		else:
+			abbr = f"{base_abbr}{chr(ord('a') + (count - 10))}"
+	abbrev_map[field] = abbr
+	abbrev_count[base_abbr] += 1
+
 # --- Step 5: Assemble cleaned, sorted rows ---
 def strip_leader_prefix(leader_id):
 	return leader_id.replace("LEADER_", "")
@@ -84,7 +117,6 @@ for leader_id in PARSED_XML_LEADERS_DATA:
 			val = strip_enum_prefix(val, "RELIGION_")
 		elif col == "ImprovementWeightModifiers":
 			try:
-				import ast
 				mod_list = ast.literal_eval(val)
 				if isinstance(mod_list, list):
 					formatted = [
@@ -98,7 +130,6 @@ for leader_id in PARSED_XML_LEADERS_DATA:
 				val = val  # fallback silently
 		elif col == "Traits":
 			try:
-				import ast
 				trait_list = ast.literal_eval(val)
 				if isinstance(trait_list, list):
 					formatted = [
@@ -110,7 +141,6 @@ for leader_id in PARSED_XML_LEADERS_DATA:
 				val = val
 		elif col == "UnitAIWeightModifiers":
 			try:
-				import ast
 				unit_ai_list = ast.literal_eval(val)
 				if isinstance(unit_ai_list, list):
 					formatted = [
@@ -130,9 +160,27 @@ rows.sort(key=lambda r: r["Leader"])
 
 # --- Step 6: Write CSV ---
 with open(csv_filename, "w", newline="", encoding="utf-8") as f:
-	writer = csv.DictWriter(f, fieldnames=columns)
+	abbreviated_fields = [abbrev_map[col] for col in columns]
+	writer = csv.DictWriter(f, fieldnames=abbreviated_fields)
 	writer.writeheader()
-	writer.writerows(rows)
+	for row in rows:
+		abbreviated_row = {abbrev_map[k]: v for k, v in row.items()}
+		abbreviated_row[abbrev_map[legend_column_name]] = ""  # Leave legend blank
+		writer.writerow(abbreviated_row)
+	
+	# Write vertical legend entries under the [LEGEND] column
+	reverse_abbrev_map = {
+		v: k for k, v in abbrev_map.items()
+		if k != "Leader" and k != legend_column_name
+	}
+
+	# Empty row template with all keys
+	empty_row = {abbrev_map[col]: "" for col in columns}
+
+	for abbr in sorted(reverse_abbrev_map):
+		legend_row = empty_row.copy()
+		legend_row[abbrev_map[legend_column_name]] = f"{abbr}: {reverse_abbrev_map[abbr]}"
+		writer.writerow(legend_row)
 
 print("✔ Export complete.")
 print(f"→ Output CSV saved as: {csv_filename}")

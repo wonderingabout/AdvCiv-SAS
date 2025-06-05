@@ -305,12 +305,8 @@ output example with libre office:
 <img src="../Images_In_General/scripts/csv_output_example__leader_data_libre_office_view_1.PNG" width="250"></img>
 <img src="../Images_In_General/scripts/csv_output_example__leader_data_libre_office_view_2.PNG" width="250"></img>
 
-output example with libre office:
-
 See also some general info about it (such as the GitHub view of it that is quite nice i think but anyways etc) here in the [README.md#csv-github-view-for-the-flatten_leaders_data_to_csv-conversion-script](/README.md#csv-github-view-for-the-flatten_leaders_data_to_csv-conversion-script) for details
 
 For convenience and exhaustiveness, such display/view on the Github website is also provided here, but please/you can anyways etc (also) (anyways etc) visit the ((AdvCiv-SAS) Project's) main README.md's csv section linked above for details.
-
-
 
 Then you can sort it, enhance it, adjust row length and such, but the base idea is here, hopefully helpful, anyways.
