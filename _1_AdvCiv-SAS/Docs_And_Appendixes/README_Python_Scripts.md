@@ -293,21 +293,22 @@ Similar(ly) to other scripts, we fetch directly from XML though unlike [flatten_
 cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & python flatten_leaders_data_to_csv.py
 ```
 
-<img src="../Images_In_General/scripts/csv_output_example__leaders_data_2_cmd_view.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_leaders_data_cmd_usage_example.PNG" width="250"></img>
 
 note: legend is here [/leaders_data_to_csv_legend_advciv-sas.md](/leaders_data_to_csv_legend_advciv-sas.md)
 
 output example with github web viewer (recommended):
 
-<img src="../Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (1).PNG" width="150"></img>
-<img src="../Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (3).PNG" width="150"></img>
-<img src="../Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG" width="150"></img>
+<img src="../Images_In_General/scripts/csv_leaders_data_github_view (1).PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_leaders_data_github_view (2).PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_leaders_data_github_view (3).PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG" width="250"></img>
 
 output example with libre office:
 
 <img src="../Images_In_General/scripts/csv_leaders_data_libre_office (1).PNG" width="250"></img>
 <img src="../Images_In_General/scripts/csv_leaders_data_libre_office (2).PNG" width="250"></img>
-<img src="../Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG" width="150"></img>
+<img src="../Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG" width="250"></img>
 
 See also some general info about it (such as the GitHub view of it that is quite nice i think but anyways etc) here in the [README.md#csv-github-view-for-the-flatten_leaders_data_to_csv-conversion-script](/README.md#csv-github-view-for-the-flatten_leaders_data_to_csv-conversion-script) for details
 
