@@ -301,11 +301,13 @@ output example with github web viewer (recommended):
 
 <img src="../Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (1).PNG" width="150"></img>
 <img src="../Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (3).PNG" width="150"></img>
+<img src="../Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG" width="150"></img>
 
 output example with libre office:
 
 <img src="../Images_In_General/scripts/csv_output_example__leader_data_libre_office_view_1.PNG" width="250"></img>
 <img src="../Images_In_General/scripts/csv_output_example__leader_data_libre_office_view_2.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG" width="150"></img>
 
 See also some general info about it (such as the GitHub view of it that is quite nice i think but anyways etc) here in the [README.md#csv-github-view-for-the-flatten_leaders_data_to_csv-conversion-script](/README.md#csv-github-view-for-the-flatten_leaders_data_to_csv-conversion-script) for details
 

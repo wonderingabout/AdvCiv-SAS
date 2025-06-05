@@ -32,7 +32,7 @@ def flatten_leaders_data(leaders_data):
 		flat_data[key] = str(value) if isinstance(value, (dict, list)) else value
 	return flat_data
 
-# --- Step 4: Collect relevant fields ---
+# --- Step 4.1: Collect relevant fields ---
 all_columns = set()
 flattened_leader_data = {}
 
@@ -64,29 +64,44 @@ numeric_fields = list(dict.fromkeys(numeric_fields))
 non_numeric_fields = list(dict.fromkeys(non_numeric_fields))
 columns = ["Leader"] + numeric_fields + non_numeric_fields
 
-# --- Abbreviate headers ---
-def make_abbreviation(field):
-	# Strip 'i' if present (as per your convention)
-	base = field[1:] if field.startswith("i") else field
-	return ''.join(c for c in base if c.isupper())
-
+# --- <!-- custom: Step 4.2: anyways etc --> Abbreviate headers ---
 abbrev_map = {"Leader": "Leader"}
 abbrev_count = defaultdict(int)
+abbrev_usage = defaultdict(list)
+
+# Step 4.2.1: Collect how many fields want to use each base abbreviation
+def make_abbreviation(field):
+	# Strip 'i' prefix for consistency (e.g., iFavoriteCivic → FavoriteCivic)
+	base = field[1:] if field.startswith("i") else field
+	# Abbreviation = all uppercase letters (e.g., FavoriteCivic → FC)
+	return ''.join(c for c in base if c.isupper())
 
 for field in columns:
 	if field == "Leader":
 		continue
-	base_abbr = make_abbreviation(field)
-	count = abbrev_count[base_abbr]
-	if count == 0:
-		abbr = base_abbr
+	if field in numeric_fields:
+		base_abbr = make_abbreviation(field)
+		abbrev_usage[base_abbr].append(field)
 	else:
-		if count < 10:
-			abbr = f"{base_abbr}{count}"
-		else:
-			abbr = f"{base_abbr}{chr(ord('a') + (count - 10))}"
-	abbrev_map[field] = abbr
-	abbrev_count[base_abbr] += 1
+		# Non-numeric fields are not abbreviated
+		abbrev_map[field] = field
+
+# Step 4.2.2: Assign abbreviations with forced 0 suffix if needed
+for base_abbr, fields in abbrev_usage.items():
+	if len(fields) == 1:
+		# No duplicates — use plain base abbreviation <!-- custom: for example FC if i am not mistaken, anyways etc -->
+		abbrev_map[fields[0]] = base_abbr
+	else:
+		# Multiple fields — assign FC0, FC1, ..., FCa, FCb, ...
+		for i, field in enumerate(fields):
+			if i < 10:
+				abbr = f"{base_abbr}{i}"
+			else:
+				# After 10, switch to letters: a = 10, b = 11, ..., z = 35
+				# <!-- custom: small letter "a" also to differentiate it from an actual abbreviated capital letter "A" for example, so "FC" would be a real abbreviation of say "Favourite Civic" while "Fc" would be the 12th occurence of the "F" abbreviation for example "Freebies" (imaginary field if i may say or not or yes or and other or and not or etc anyways etc anyways etc anyways etc...) -->
+				abbr = f"{base_abbr}{chr(ord('a') + (i - 10))}"
+			abbrev_map[field] = abbr
+
 
 # --- Step 5: Assemble cleaned, sorted rows ---
 def strip_leader_prefix(leader_id):

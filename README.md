@@ -114,7 +114,7 @@ note: legend is here [/leaders_data_to_csv_legend_advciv-sas.md](/leaders_data_t
 
 <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (1).PNG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (3).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_output_example__leader_data_libre_office_view_2.PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG" width="250"></img>
 
 ## Sex-neutral and Less Generic-neutral (too) unit names or/and combat types (todo and non-exhaustive)
 
