@@ -222,7 +222,7 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
 
 Additionally to the main README's handicap info to csv and md info in [README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-infodata](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-infodata), here are a few additional screenshots, also code is provided thanks to chatgpt/becomingthrough and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc
 
-also note: you need to generate the data (.csv and .md by running the script everytime you modify the xml, else if it's just for viewing no need to do that and you can view the files provided in the mod advciv-sas (or another mod using this script maybe too anyways etc) directly).
+also note: you need to generate the data (.csv and .md (you'd need to uncomment the .md generating block/aprt of the script to do that as we commented it out in/for  advciv-sas as we don't use it since the .csv is more than enough and better if i may say more performant for our needs in advciv-sas if i may say but anyways etc) by running the script everytime you modify the xml, else if it's just for viewing no need to do that and you can view the files provided in the mod advciv-sas (or another mod using this script maybe too anyways etc) directly).
 
 Usage is similarly as (for) other scripts in this readme pythons scripts, for example for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size):
 
@@ -239,7 +239,7 @@ Example of usage:
 As for output, see below for examples of .csv and .md outputs, the files we get are for example like this (screenshots may not be updated, view latest files provided in your mod path, or/and regnerate them again yourself with the script especially if you modify the xml of handicap info since then to show your changes in the .csv and .md files)
 
 - [.csv view to view it on GitHub website for example](/handicap_data_to_csv_advciv-sas.csv) or with libreoffice for example or similar software if you prefer another viewer than GitHub website view or such anyways etc
-- [.md view to view it on GitHub website for example](/handicap_data_to_md_advciv-sas.md)
+- [.md  view to view it on GitHub website for example](/handicap_data_to_md_advciv-sas.md) (note: you'd need to uncomment the .md generating part of the script if you want to use/have the .md version of the handicap data, see above for a bit or lot or other or etc or anyways etc details as well anyways etc)
 
 note: you can remove the timestamp (i.e. the year and time and such info in filename anyways etc) too if not needed anymore or/and if needed or wnted by you or and other or and not or do or not anyways etc
 
@@ -275,7 +275,7 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
 ```
 
 - [.csv (base advciv)](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_data_to_csv_base_advciv.csv)
-- [.md (base advciv)](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_data_to_md_base_advciv.md)
+- [.md (base advciv)](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_data_to_md_base_advciv.md) (note: you'd need to uncomment the .md generating part of the script if you want to use/have the .md version of the handicap data, see above for a bit or lot or other or etc or anyways etc details as well anyways etc)
 
 # leaders_data_to_csv.py
 

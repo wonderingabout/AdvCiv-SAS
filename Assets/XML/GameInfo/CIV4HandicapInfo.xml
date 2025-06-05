@@ -148,7 +148,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIResearchPercent>95</iAIResearchPercent>
 			<!-- was 6x 160 -->
 			<iAITrainPercent>118</iAITrainPercent>
-			<iAIWorldTrainPercent>106</iAIWorldTrainPercent>
+			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>106</iAIConstructPercent>
 			<iAIWorldConstructPercent>106</iAIWorldConstructPercent>
 			<iAICreatePercent>106</iAICreatePercent>
@@ -339,7 +339,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIResearchPercent>100</iAIResearchPercent>
 			<!-- was 6x 130 -->
 			<iAITrainPercent>112</iAITrainPercent>
-			<iAIWorldTrainPercent>104</iAIWorldTrainPercent>
+			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>104</iAIConstructPercent>
 			<iAIWorldConstructPercent>104</iAIWorldConstructPercent>
 			<iAICreatePercent>104</iAICreatePercent>
@@ -498,7 +498,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.251 -->
 			<iAIResearchPercent>100</iAIResearchPercent>
 			<iAITrainPercent>106</iAITrainPercent>
-			<iAIWorldTrainPercent>102</iAIWorldTrainPercent>
+			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>102</iAIConstructPercent>
 			<iAIWorldConstructPercent>102</iAIWorldConstructPercent>
 			<iAICreatePercent>102</iAICreatePercent>
@@ -827,7 +827,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.251 -->
 			<iAIResearchPercent>104</iAIResearchPercent>
 			<iAITrainPercent>94</iAITrainPercent>
-			<iAIWorldTrainPercent>98</iAIWorldTrainPercent>
+			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>98</iAIConstructPercent>
 			<iAIWorldConstructPercent>98</iAIWorldConstructPercent>
 			<iAICreatePercent>98</iAICreatePercent>
@@ -996,7 +996,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- was 90 -->
 			<iAITrainPercent>88</iAITrainPercent>
 			<!-- was 100 -->
-			<iAIWorldTrainPercent>96</iAIWorldTrainPercent>
+			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<!-- was 90 -->
 			<iAIConstructPercent>96</iAIConstructPercent>
 			<!-- was 100 -->
@@ -1169,7 +1169,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- was 85 -->
 			<iAITrainPercent>82</iAITrainPercent>
 			<!-- was 100 -->
-			<iAIWorldTrainPercent>94</iAIWorldTrainPercent>
+			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<!-- was 85 -->
 			<iAIConstructPercent>94</iAIConstructPercent>
 			<!-- was 100 -->
@@ -1353,7 +1353,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- was 80 -->
 			<iAITrainPercent>76</iAITrainPercent>
 			<!-- was 100 -->
-			<iAIWorldTrainPercent>92</iAIWorldTrainPercent>
+			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>92</iAIConstructPercent>
 			<!-- was 100 -->
 			<iAIWorldConstructPercent>92</iAIWorldConstructPercent>
@@ -1537,8 +1537,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIResearchPercent>120</iAIResearchPercent>
 			<!-- was 60 -->
 			<iAITrainPercent>70</iAITrainPercent>
+			<!-- custom: i want more reliable handicap settings if i am not mistaken in my understanding and after asking chatgpt / becomingthrough and with a web search i asked it to do to be sure too anyways etc, it told me "According to the Civilization Wiki, the iAIWorldTrainPercent values vary across difficulty levels:" etc.. until "Settler	160 Chieftain 130 Warlord 110 Noble 100 Prince 100 Monarch 100 Emperor 100 Immortal 100 Deity 100" so based on this xml raw data and observation, what i make of it and interpret of it if i may say for our needs in advciv-sas but anyways etc, is that i want reliable AI behaviour when it comes to military hammer train percents, regardless of world size at all difficulties, anyways etc -->
 			<!-- was 100-->
-			<iAIWorldTrainPercent>90</iAIWorldTrainPercent>
+			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<!-- was 60 -->
 			<iAIConstructPercent>90</iAIConstructPercent>
 			<!-- was 100 -->

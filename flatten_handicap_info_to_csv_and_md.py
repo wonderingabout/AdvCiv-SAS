@@ -284,6 +284,8 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
 print("✔ Export complete with legend references.")
 print(f"→ Output CSV saved as: {csv_filename}")
 
+# <!-- custom: commented-out md file as we don't use it in advciv-sas, uncomment if you want to use it anyways etc -->
+"""
 # --- Step 8: Write Markdown table ---
 md_filename = f"handicap_data_to_md_{timestamp}.md"
 with open(md_filename, "w", encoding="utf-8") as md:
@@ -307,3 +309,4 @@ with open(md_filename, "w", encoding="utf-8") as md:
 
 print("✔ Markdown export complete.")
 print(f"→ Output Markdown saved as: {md_filename}")
+"""

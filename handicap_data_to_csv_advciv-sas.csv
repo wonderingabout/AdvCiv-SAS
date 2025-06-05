@@ -24,7 +24,7 @@ iAIWarWearinessPercent,112,108,104,100,96,92,88,84,80
 iAIWorkRateModifier,0,0,0,0,6,12,18,24,30
 iAIWorldConstructPercent,106,104,102,100,98,96,94,92,90
 iAIWorldCreatePercent,106,104,102,100,98,96,94,92,90
-iAIWorldTrainPercent,106,104,102,100,98,96,94,92,90
+iAIWorldTrainPercent,100,100,100,100,100,100,100,100,100
 iAdvancedStartPointsMod,100,100,100,100,100,100,100,100,100
 iAnimalAttackProb,30,50,60,70,70,70,70,70,70
 iAnimalBonus,-30,-25,-20,0,0,0,0,0,0
