@@ -63,9 +63,6 @@ numeric_fields = list(dict.fromkeys(numeric_fields))
 non_numeric_fields = list(dict.fromkeys(non_numeric_fields))
 columns = ["Leader"] + numeric_fields + non_numeric_fields
 
-legend_column_name = "[LEGEND]"
-columns = ["Leader"] + numeric_fields + non_numeric_fields + [legend_column_name]
-
 # --- Abbreviate headers ---
 def make_abbreviation(field):
 	# Strip 'i' if present (as per your convention)
@@ -74,10 +71,6 @@ def make_abbreviation(field):
 
 abbrev_map = {"Leader": "Leader"}
 abbrev_count = defaultdict(int)
-
-# Generate abbreviation for legend column too (like other fields)
-legend_abbr = legend_column_name.strip("[]").replace(" ", "_").upper()
-abbrev_map[legend_column_name] = legend_abbr
 
 for field in columns:
 	if field == "Leader":
@@ -165,22 +158,7 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
 	writer.writeheader()
 	for row in rows:
 		abbreviated_row = {abbrev_map[k]: v for k, v in row.items()}
-		abbreviated_row[abbrev_map[legend_column_name]] = ""  # Leave legend blank
 		writer.writerow(abbreviated_row)
-	
-	# Write vertical legend entries under the [LEGEND] column
-	reverse_abbrev_map = {
-		v: k for k, v in abbrev_map.items()
-		if k != "Leader" and k != legend_column_name
-	}
-
-	# Empty row template with all keys
-	empty_row = {abbrev_map[col]: "" for col in columns}
-
-	for abbr in sorted(reverse_abbrev_map):
-		legend_row = empty_row.copy()
-		legend_row[abbrev_map[legend_column_name]] = f"{abbr}: {reverse_abbrev_map[abbr]}"
-		writer.writerow(legend_row)
 
 print("✔ Export complete.")
 print(f"→ Output CSV saved as: {csv_filename}")
