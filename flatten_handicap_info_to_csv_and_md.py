@@ -27,7 +27,7 @@ import re
 # --- Step 1: Setup paths ---
 XML_PATH = r"Assets\XML\GameInfo\CIV4HandicapInfo.xml"
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-csv_filename = f"handicap_data_to_csv_{timestamp}.csv"
+csv_filename = f"handicap_info_to_csv_{timestamp}.csv"
 
 # --- Step 2: Parse XML ---
 tree = ET.parse(XML_PATH)
@@ -287,7 +287,7 @@ print(f"→ Output CSV saved as: {csv_filename}")
 # <!-- custom: commented-out md file as we don't use it in advciv-sas, uncomment if you want to use it anyways etc -->
 """
 # --- Step 8: Write Markdown table ---
-md_filename = f"handicap_data_to_md_{timestamp}.md"
+md_filename = f"handicap_info_to_md_{timestamp}.md"
 with open(md_filename, "w", encoding="utf-8") as md:
 	# Header
 	md.write("| Field | " + " | ".join(columns[1:]) + " |\n")

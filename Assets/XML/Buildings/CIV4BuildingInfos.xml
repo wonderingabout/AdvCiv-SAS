@@ -2729,7 +2729,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
-			<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
+			<!-- custom: change to a more sensical at least to me if i may say but anyways etc tech obsolete time ; non(-directly at elast but anyways etc) military units could still benefit from the exp even after tanks or such, but it could also be said other units are now very used to fghting against them so no relative exp bonus even though is bit far-fetched, maybe makes sense for this mostly fi not only military building to nerf it when tanks are discovered or around it when its military units don't make sense anymore anyways etc, was TECH_ADVANCED_FLIGHT -->
+			<ObsoleteTech>TECH_INDUSTRIALISM</ObsoleteTech>
 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -2897,7 +2898,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
-			<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
+			<!-- custom: especially for the mongol civ-specific stable, we need to nerf the bonuses for when tanks arrive/are available (now) i mean but anyways etc, was TECH_ADVANCED_FLIGHT -->
+			<ObsoleteTech>TECH_INDUSTRIALISM</ObsoleteTech>
 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>

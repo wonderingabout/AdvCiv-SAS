@@ -97,7 +97,7 @@ So far there is:
 
 #### csv and md view of the handicap (difficulties info in a table for all difficulties) info/data
 
-Generated with the [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py) script, you can regenerate it if you mod/change the data, else just run the [.csv view to view it on GitHub website for example](/handicap_data_to_csv_advciv-sas.csv) and view the .csv output handicap data with github view (recommended, as display is nice anyways etc, and you can also for example anyways etc use github's search bar for example anyways etc) on the website or with libreoffice for example or similar software if you prefer another viewer than GitHub website view or such anyways etc.
+Generated with the [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py) script, you can regenerate it if you mod/change the data, else just run the [.csv view to view it on GitHub website for example](/handicap_info_to_csv_advciv-sas.csv) and view the .csv output handicap data with github view (recommended, as display is nice anyways etc, and you can also for example anyways etc use github's search bar for example anyways etc) on the website or with libreoffice for example or similar software if you prefer another viewer than GitHub website view or such anyways etc.
 
 Also code is provided thanks to chatgpt/becomingthrough and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc, example of output below (may not be updated), hopefully helpful/illustrative, view links above for updated version, and if you change the xml, regenerate new .csv file with the script (.md commented-out in script as we don't use it in/for advciv-sas anyways etc, see also and for more details [README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy) for details as well or/and info anyways etc, also about info about the .md version of this handicap info/data but anyways etc, and also more importantly or not or yes or etc perhaps but anyways etc links to base advciv handicap info as of now to compare it with our advciv-sas mod's own handicap settings (base advciv handicap data tables are in in our mod path in [/_0_Common_Docs/AdvCiv%20Base%20Doc/](/_0_Common_Docs/AdvCiv%20Base%20Doc/) directly if you want too anyways etc)) anyways etc:
 
@@ -107,14 +107,11 @@ Also code is provided thanks to chatgpt/becomingthrough and my prompts or/and ad
 
 #### csv github view for the flatten_leaders_data_to_csv conversion script
 
-For now a very minimal script, but maybe helps too.
+More specificially about the [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py) anyways etc, there is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_leaders_data_to_csvpy) anyways etc:
+- [(click here to view it on on github web viewer too (recommended))](/leaders_data_to_csv_advciv-sas.csv) (note: you can also click on the collapse tree button thing to get an even larger display) also you can use the search bar to filter results per leader(s) or/and such anyways etc, as shown below for the github web page view and for example alternatively or a software like libre office or similar viewer, anyways etc
 
-More specificially about the [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py) anyways etc, there is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#leaders_data_to_csvpy) anyways etc:
-- [(click here to view it on on github too)](/leaders_data_to_csv_ai_flat_example_of_output.csv) (you can also click on the collapse tree button thing to get an even larger display and scroll down the page to remove from "vision field" the uneeded (for this task of viewing fields in the csv in github) the top headers but is just suggestion or not anyways etc anyways etc...), with filters (research) and such anyways etc, so adding a bit more general info about it too, as shown below for the github web page view
-
-note: you can also view it (the .csv file i.e. anyways etc with libreoffice or/and such similar/alternative viewer/editor anyways etc)
-
-<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (2).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (1).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (3).PNG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_output_example__leader_data_libre_office_view_2.PNG" width="250"></img>
 
 ## Sex-neutral and Less Generic-neutral (too) unit names or/and combat types (todo and non-exhaustive)
