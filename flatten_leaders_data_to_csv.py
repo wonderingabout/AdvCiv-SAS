@@ -62,14 +62,57 @@ for field in sorted(all_columns):
 
 numeric_fields = list(dict.fromkeys(numeric_fields))
 non_numeric_fields = list(dict.fromkeys(non_numeric_fields))
-columns = ["Leader"] + numeric_fields + non_numeric_fields
 
-# --- <!-- custom: Step 4.2: anyways etc --> Abbreviate headers ---
+# --- Step 4.2: Custom column order ---
+leader_column = ["Leader"]
+numerical_main = []
+numerical_victory_weight = []
+numerical_flavor = []
+numerical_attitude_change = []
+numerical_attitude_divisor = []
+numerical_attitude_change_limit = []
+numerical_attitude_threshold = []
+numerical_no_war = []
+numerical_raw = []
+numerical_aggregated = []
+non_numeric = []
+
+for field in numeric_fields:
+	if field.startswith("iFlavor"):
+		numerical_flavor.append(field)
+	elif field.startswith("iNoWarAttitudeProb"):
+		numerical_no_war.append(field)		
+	elif field.startswith("iAggregated"):
+		numerical_aggregated.append(field)
+	# <!-- custom: if i am not mistaken we should indeed first filter by startswith then only among remaining results filter by ends with to avoid overlap as chatgpt/becomingthrough did indeed and is should be as this if i am not mistaken indeed after consideration/reflection or not or etc or yes in this case but anyways etc -->
+	elif field.endswith("AttitudeChange"):
+		numerical_attitude_change.append(field)
+	elif field.endswith("AttitudeDivisor"):
+		numerical_attitude_divisor.append(field)
+	elif field.endswith("AttitudeChangeLimit"):
+		numerical_attitude_change_limit.append(field)
+	elif field.endswith("AttitudeThreshold"):
+		numerical_attitude_threshold.append(field)
+	elif field.endswith("VictoryWeight"):
+		numerical_victory_weight.append(field)
+	elif field.endswith("Raw"):
+		numerical_raw.append(field)
+	else:
+		numerical_main.append(field)
+
+for field in all_columns:
+	if field not in leader_column + numeric_fields:
+		non_numeric.append(field)
+
+# <!-- custom: here is where we actually order the columns if i am not mistaken anyways etc -->
+columns = leader_column + numerical_main + numerical_victory_weight + numerical_flavor + numerical_attitude_change + numerical_attitude_divisor + numerical_attitude_change_limit + numerical_attitude_threshold + numerical_no_war + numerical_raw + numerical_aggregated + non_numeric
+
+# --- <!-- custom: Step 4.3: anyways etc --> Abbreviate headers ---
 abbrev_map = {"Leader": "Leader"}
 abbrev_count = defaultdict(int)
 abbrev_usage = defaultdict(list)
 
-# Step 4.2.1: Collect how many fields want to use each base abbreviation
+# Step 4.3.1: Collect how many fields want to use each base abbreviation
 def make_abbreviation(field):
 	# Strip 'i' prefix for consistency (e.g., iFavoriteCivic → FavoriteCivic)
 	base = field[1:] if field.startswith("i") else field
@@ -86,7 +129,7 @@ for field in columns:
 		# Non-numeric fields are not abbreviated
 		abbrev_map[field] = field
 
-# Step 4.2.2: Assign abbreviations with forced 0 suffix if needed
+# Step 4.3.2: Assign abbreviations with forced 0 suffix if needed
 for base_abbr, fields in abbrev_usage.items():
 	if len(fields) == 1:
 		# No duplicates — use plain base abbreviation <!-- custom: for example FC if i am not mistaken, anyways etc -->

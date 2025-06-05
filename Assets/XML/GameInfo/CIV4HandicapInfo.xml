@@ -150,9 +150,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAITrainPercent>118</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>106</iAIConstructPercent>
-			<iAIWorldConstructPercent>106</iAIWorldConstructPercent>
+			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
 			<iAICreatePercent>106</iAICreatePercent>
-			<iAIWorldCreatePercent>106</iAIWorldCreatePercent>
+			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
 			<!-- advc.251 (end) -->
 			<iAICivicUpkeepPercent>100</iAICivicUpkeepPercent>
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
@@ -341,9 +341,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAITrainPercent>112</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>104</iAIConstructPercent>
-			<iAIWorldConstructPercent>104</iAIWorldConstructPercent>
+			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
 			<iAICreatePercent>104</iAICreatePercent>
-			<iAIWorldCreatePercent>104</iAIWorldCreatePercent>
+			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
 			<!-- advc.251 (end) -->
 			<iAICivicUpkeepPercent>100</iAICivicUpkeepPercent>
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
@@ -500,9 +500,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAITrainPercent>106</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>102</iAIConstructPercent>
-			<iAIWorldConstructPercent>102</iAIWorldConstructPercent>
+			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
 			<iAICreatePercent>102</iAICreatePercent>
-			<iAIWorldCreatePercent>102</iAIWorldCreatePercent>
+			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
 			<iAICivicUpkeepPercent>100</iAICivicUpkeepPercent>
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
@@ -829,9 +829,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAITrainPercent>94</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>98</iAIConstructPercent>
-			<iAIWorldConstructPercent>98</iAIWorldConstructPercent>
+			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
 			<iAICreatePercent>98</iAICreatePercent>
-			<iAIWorldCreatePercent>98</iAIWorldCreatePercent>
+			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
 			<iAICivicUpkeepPercent>95</iAICivicUpkeepPercent>
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
@@ -1000,10 +1000,10 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- was 90 -->
 			<iAIConstructPercent>96</iAIConstructPercent>
 			<!-- was 100 -->
-			<iAIWorldConstructPercent>96</iAIWorldConstructPercent>
+			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
 			<iAICreatePercent>96</iAICreatePercent>
 			<!-- was 100 -->
-			<iAIWorldCreatePercent>96</iAIWorldCreatePercent>
+			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
 			<!-- advc.251 (end) -->
 			<iAICivicUpkeepPercent>90</iAICivicUpkeepPercent>
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
@@ -1173,10 +1173,10 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- was 85 -->
 			<iAIConstructPercent>94</iAIConstructPercent>
 			<!-- was 100 -->
-			<iAIWorldConstructPercent>94</iAIWorldConstructPercent>
+			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
 			<iAICreatePercent>94</iAICreatePercent>
 			<!-- was 100 -->
-			<iAIWorldCreatePercent>94</iAIWorldCreatePercent>
+			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
 			<!-- advc.251 (end) -->
 			<iAICivicUpkeepPercent>85</iAICivicUpkeepPercent>
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
@@ -1356,10 +1356,10 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>92</iAIConstructPercent>
 			<!-- was 100 -->
-			<iAIWorldConstructPercent>92</iAIWorldConstructPercent>
+			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
 			<iAICreatePercent>92</iAICreatePercent>
 			<!-- was 100 -->
-			<iAIWorldCreatePercent>92</iAIWorldCreatePercent>
+			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
 			<!-- advc.251 (end) -->
 			<iAICivicUpkeepPercent>80</iAICivicUpkeepPercent>
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
@@ -1537,17 +1537,17 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIResearchPercent>120</iAIResearchPercent>
 			<!-- was 60 -->
 			<iAITrainPercent>70</iAITrainPercent>
-			<!-- custom: i want more reliable handicap settings if i am not mistaken in my understanding and after asking chatgpt / becomingthrough and with a web search i asked it to do to be sure too anyways etc, it told me "According to the Civilization Wiki, the iAIWorldTrainPercent values vary across difficulty levels:" etc.. until "Settler	160 Chieftain 130 Warlord 110 Noble 100 Prince 100 Monarch 100 Emperor 100 Immortal 100 Deity 100" so based on this xml raw data and observation, what i make of it and interpret of it if i may say for our needs in advciv-sas but anyways etc, is that i want reliable AI behaviour when it comes to military hammer train percents, regardless of world size at all difficulties, anyways etc -->
+			<!-- custom: i want more reliable handicap settings if i am not mistaken in my understanding and after asking chatgpt / becomingthrough and with a web search i asked it to do to be sure too anyways etc, it told me "According to the Civilization Wiki, the iAIWorldTrainPercent values vary across difficulty levels:" etc.. until "Settler	160 Chieftain 130 Warlord 110 Noble 100 Prince 100 Monarch 100 Emperor 100 Immortal 100 Deity 100" so based on this xml raw data and observation, what i make of it and interpret of it if i may say for our needs in advciv-sas but anyways etc, is that i want reliable AI behaviour when it comes to military hammer train percents, regardless of world size at all difficulties, anyways etc ; seemingly similar reasoning for iAIWorldConstructPercent and iAIWorldCreatePercent if i am not mistaken too anyways etc -->
 			<!-- was 100-->
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<!-- was 60 -->
 			<iAIConstructPercent>90</iAIConstructPercent>
 			<!-- was 100 -->
-			<iAIWorldConstructPercent>90</iAIWorldConstructPercent>
+			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
 			<!-- was 60 -->
 			<iAICreatePercent>90</iAICreatePercent>
 			<!-- was 100 -->
-			<iAIWorldCreatePercent>90</iAIWorldCreatePercent>
+			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
 			<!-- was 60 -->
 			<iAICivicUpkeepPercent>75</iAICivicUpkeepPercent>
 			<!-- was 60 -->

@@ -284,7 +284,7 @@ def prune_nested_nowarattitudesprobs_if_flattened(leaders_data):
 		"iNoWarAttitudeProbAnnoyed",
 		"iNoWarAttitudeProbCautious",
 		"iNoWarAttitudeProbPleased",
-		"iNoWarAttitudeProbFriendly"
+		"iNoWarAttitudeProbFriendly",
 	]
 	for leader_data in leaders_data.values():
 		if all(field in leader_data for field in required_fields):
@@ -321,9 +321,14 @@ def prune_nested_flavors_if_flattened(leaders_data):
 	Removes the legacy 'Flavors' field if all flat iFlavor* fields are already present.
 	"""
 	required_flavor_fields = [
-		"iFlavorMilitary", "iFlavorReligion", "iFlavorProduction",
-		"iFlavorGold", "iFlavorScience", "iFlavorCulture",
-		"iFlavorGrowth", "iFlavorEspionage"
+		"iFlavorMilitary",
+		"iFlavorReligion",
+		"iFlavorProduction",
+		"iFlavorGold",
+		"iFlavorScience",
+		"iFlavorCulture",
+		"iFlavorGrowth",
+		"iFlavorEspionage",
 	]
 	for leader_data in leaders_data.values():
 		if all(field in leader_data for field in required_flavor_fields):

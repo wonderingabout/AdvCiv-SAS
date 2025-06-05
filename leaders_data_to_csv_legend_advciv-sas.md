@@ -154,6 +154,7 @@
 - **FS**: `iFlavorScience`
 - **FavoriteCivic**: `FavoriteCivic`
 - **FavoriteReligion**: `FavoriteReligion`
+- **Flavors**: `Flavors`
 - **HBRAT0**: `iHappinessBonusRefuseAttitudeThreshold`
 - **HBRAT1**: `iHealthBonusRefuseAttitudeThreshold`
 - **ImprovementWeightModifiers**: `ImprovementWeightModifiers`

@@ -52,11 +52,11 @@ In cmd, for example for Steam users (adapt to your AdvCiv-SAS install path), go 
 cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & python generate_leaders_data.py
 ```
 
-Example of cmd processing for Steam users (adjust paths and/or such cimilar things anyways if not steam user):
+Example of cmd processing for Steam users (adjust paths and/or such similar things anyways if not steam user):
 
 ![img1](/_1_AdvCiv-SAS/Images_In_General/scripts/python_success_generate_leaders_data.PNG)
 
-Example of output for Steam users (adjust paths and/or such cimilar things anyways if not steam user) (click on the images below to view them full size):
+Example of output for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size):
 
 <img src="../Images_In_General/scripts/python_output_example_1_generate_leaders_data.PNG" width="250"></img>
 <img src="../Images_In_General/scripts/python_output_example_2_generate_leaders_data.PNG" width="250"></img>
@@ -66,7 +66,7 @@ Finally, move (cut then paste) your output file leaders_data+timestamp.py to, fo
 
 C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\
 
-Example for Steam users (adjust paths and/or such cimilar things anyways if not steam user) (click on the images below to view them full size):
+Example for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size):
 
 <img src="../Images_In_General/scripts/python_output_example_3_generate_leaders_data.PNG" width="250"></img>
 
@@ -305,8 +305,8 @@ output example with github web viewer (recommended):
 
 output example with libre office:
 
-<img src="../Images_In_General/scripts/csv_output_example__leader_data_libre_office_view_1.PNG" width="250"></img>
-<img src="../Images_In_General/scripts/csv_output_example__leader_data_libre_office_view_2.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_leaders_data_libre_office (1).PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_leaders_data_libre_office (2).PNG" width="250"></img>
 <img src="../Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG" width="150"></img>
 
 See also some general info about it (such as the GitHub view of it that is quite nice i think but anyways etc) here in the [README.md#csv-github-view-for-the-flatten_leaders_data_to_csv-conversion-script](/README.md#csv-github-view-for-the-flatten_leaders_data_to_csv-conversion-script) for details
