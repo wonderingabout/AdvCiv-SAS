@@ -139,6 +139,16 @@ REFUSE_ATTITUDE_FIELDS = {
 	"NoGiveHelpAttitudeThreshold",
 }
 
+# --- Required Nested Fields ---
+NESTED_FIELDS_TO_SPECIFICALLY_PARSE = (
+	"Flavors",
+	"NoWarAttitudeProbs",
+	"ContactRands",
+	"ContactDelays",
+	"MemoryAttitudePercents",
+	"MemoryDecays",
+)
+
 FLAVOR_FIELDS = (
 	("FLAVOR_MILITARY", "iFlavorMilitary"),
 	("FLAVOR_RELIGION", "iFlavorReligion"),
@@ -291,9 +301,11 @@ def prune_nested_nowarattitudesprobs_if_flattened(leaders_data):
 			leader_data.pop("NoWarAttitudeProbs", None)
 
 def parse_flavors_inline(child, leader_data, leader_key):
+	# Always initialize all iFlavor* = 0
 	for _, field in FLAVOR_FIELDS:
 		leader_data[field] = 0
 	seen_flavors = set()
+
 	for entry in child:
 		subfields = {sub.tag.split("}", 1)[1]: sub.text.strip() for sub in entry if sub.text}
 		flavor = subfields.get("FlavorType")
@@ -309,12 +321,6 @@ def parse_flavors_inline(child, leader_data, leader_key):
 					except ValueError:
 						print(f"[WARNING] Non-integer Flavor for {leader_key} flavor {flavor}: '{value}'")
 						leader_data[field_name] = 0
-
-	# If all flavors are 0, remove them
-	if all(leader_data[field] == 0 for _, field in FLAVOR_FIELDS):
-		for _, field in FLAVOR_FIELDS:
-			leader_data.pop(field, None)
-		leader_data.pop("Flavors", None)
 
 def prune_nested_flavors_if_flattened(leaders_data):
 	"""
@@ -1026,13 +1032,28 @@ def parse_leader(leader, leader_type, leader_data, seen_tags):
 	for child in leader:
 		tag = child.tag.split("}", 1)[1] if "}" in child.tag else child.tag
 		text = child.text.strip() if child.text else ""
-		if seen_tags is not None:
-			if tag in seen_tags:
-				raise KeyError(f"[KEY ERROR] Duplicate tag <{tag}> in leader {leader_type}")
-			seen_tags.add(tag)
+		if tag in seen_tags:
+			raise KeyError(f"[KEY ERROR] Duplicate tag <{tag}> in leader {leader_type}")
+		seen_tags.add(tag)
 		expected = infer_type(tag)
 
-		if len(child) == 0:
+		# <!-- custom: nested fields first so that <Flavors/> for example which is a valid field (all flavor set to 0 if i am not mistaken, unlike non-existing Flavors field at all which should if i am not mistaken and as we want if i may say at least me but anyways etc raises an error below) is handled as 0 0 0 0 0 (etc for each flavor) rather than going through the len(child) == 0 where no parsing of flavors happen at all since Flavors is a nested field we don't want to handle as such (i.e. that we don't want to handle it as a flat, non-nested XML field, anyways etc), so we handle the exceptions first if i may say but anyways etc then the general case(s) seems safer or/and more reliable or/and accurate as chatgpt/becomingthrough did and explained to me as well as thanks to my promtps and own reflection and such if i may say but anyways etc... -->
+		# --- always handle known nested tags first — even if empty
+		if tag == "NoWarAttitudeProbs":
+			parse_nowar_probs_inline(child, leader_data, leader_type)
+		elif tag == "Flavors":
+			parse_flavors_inline(child, leader_data, leader_type)
+		elif tag == "ContactRands":
+			leader_data["ContactRands"] = parse_contact_rands_inline(child)
+		elif tag == "ContactDelays":
+			leader_data["ContactDelays"] = parse_contact_delays_inline(child)
+		elif tag == "MemoryAttitudePercents":
+			leader_data["MemoryAttitudePercents"] = parse_memory_attitudes_inline(child)
+		elif tag == "MemoryDecays":
+			leader_data["MemoryDecays"] = parse_memory_decays_inline(child)
+
+		# <!-- custom: only then (i.e. only after specifically to parse nested (i.e. only those in NESTED_FIELDS_TO_SPECIFICALLY_PARSE anyways etc) do we handle --> scalar fields <!-- custom: anyways etc... -->
+		elif len(child) == 0:
 			if tag in REFUSE_ATTITUDE_FIELDS:
 				parse_refuse_attitude_thresholds(tag, text, leader, leader_data)
 			elif expected == int:
@@ -1046,23 +1067,18 @@ def parse_leader(leader, leader_type, leader_data, seen_tags):
 					errors.append(f"[TYPE WARNING] Leader {leader_type}: Expected string for <{tag}>, got numeric '{text}'")
 				leader_data[tag] = text
 
-		# <!-- custom: nested fields if i'm not mistaken anwyays etc -->
+		# <!-- custom: nested fields not handled in a specific way (i.e. those not in NESTED_FIELDS_TO_SPECIFICALLY_PARSE anyways etc) --> like <Traits>, <UnitAIWeightModifiers>, etc. <!-- custom: (just parse all as a JSON-like object, we don't use these fields in the AI Personality Panel i mean anyways etc so this is fine just to have their data as well in our leaders_data to be exhaustive if i am not mistaken in doing so or want to or not or and seems accurate to me maybe rather or not or yes or and other or and not but anwyays etc -->
+		# These are allowed and will be treated as list-of-dicts if present
 		else:
-			if tag == "NoWarAttitudeProbs":
-				parse_nowar_probs_inline(child, leader_data, leader_type)
-			elif tag == "Flavors":
-				parse_flavors_inline(child, leader_data, leader_type)
-			elif tag == "ContactRands":
-				leader_data["ContactRands"] = parse_contact_rands_inline(child)
-			elif tag == "ContactDelays":
-				leader_data["ContactDelays"] = parse_contact_delays_inline(child)
-			elif tag == "MemoryAttitudePercents":
-				leader_data["MemoryAttitudePercents"] = parse_memory_attitudes_inline(child)
-			elif tag == "MemoryDecays":
-				leader_data["MemoryDecays"] = parse_memory_decays_inline(child)
-			else:
-				sub_entries = [{sub.tag.split("}", 1)[1]: sub.text.strip() for sub in subentry if sub.text} for subentry in child]
-				leader_data[tag] = sub_entries
+			sub_entries = [
+				{sub.tag.split("}", 1)[1]: sub.text.strip() for sub in subentry if sub.text} for subentry in child
+			]
+			leader_data[tag] = sub_entries
+
+	# <!-- custom: for example <Flavors/> such as in LEADER_DEFAULTS is fine as in base advciv's xml at least as of now anyways (we'll fill it with 0 0 0 0 0 0 later as part of aprsing as we do with other subnested fields such as other missing flavor like flavor gold missing in leader alexander for example so we put iFlavorGold 0 which is fine, just extend(ing but anyways etc) this logic to all flavor sub fields missing while <Flavors/> itself exists, all fine), but if the field <Flavors/> or <Flavors> is entirely missing from the leader's XML, throw an error instead, same for all fields we parse for our leaders anyways etc if i am not mistaken is how we should do and handle it but anyways etc at least can if i am not mistaken but anyways etc, i tested this code and it successfully throws an error if <Flavors/> is removed entirely in LEADER_DEFAULTS, but/and not as we want too if <Flavors/> exists but is empty, as we want too, so reliable code to have as well as part of our safer more secure parsing if i may say at least for nested fields to specifically parse if not more or not or yes or and other or and not anyways etc -->
+	for required_tag in NESTED_FIELDS_TO_SPECIFICALLY_PARSE:
+		if required_tag not in seen_tags:
+			raise ValueError(f"[FATAL] Missing required nested tag <{required_tag}> in leader {leader_type}. Expected at least <{required_tag}/>.")
 
 # <!-- custom: before parsing any leader is done, make sure our normalize_to_100 shifting works as expected -->
 test_expected_shifting_pre_normalize_to_100()
@@ -1074,9 +1090,9 @@ for leader in root.findall(".//civ4:LeaderHeadInfo", ns):
 		continue
 	
 	leader_type = type_tag.text
-	seen_tags = None
+	seen_tags_leader_defaults = set()
 
-	parse_leader(leader, leader_type, leader_defaults_data, seen_tags)
+	parse_leader(leader, leader_type, leader_defaults_data, seen_tags_leader_defaults)
 
 if "LEADER_DEFAULTS" in leader_defaults_data:
 	raise ValueError("[INFO] Nested defaults ['LEADER_DEFAULTS']")
@@ -1089,9 +1105,9 @@ for leader in root.findall(".//civ4:LeaderHeadInfo", ns):
 
 	leader_type = type_tag.text
 	leader_data = {}
-	seen_tags = set()
+	seen_tags_leader = set()
 
-	parse_leader(leader, leader_type, leader_data, seen_tags)
+	parse_leader(leader, leader_type, leader_data, seen_tags_leader)
 	inject_defaults(leader_defaults_data, leader_data)
 
 	# Save leader
@@ -1166,33 +1182,43 @@ def check_errors_and_tests():
 	parsed_sample = {k: v for k, v in leaders_data.items() if k in sample_leaders}
 
 	def compare_leaders(expected, actual):
-		mismatches = []
+		grouped_mismatches = {}  # leader -> list of mismatches
+
 		for leader, expected_data in expected.items():
 			actual_data = actual.get(leader)
 			if actual_data is None:
-				mismatches.append(f"Leader '{leader}' missing in parsed data.")
+				grouped_mismatches.setdefault(leader, []).append(
+					f"[{leader}] Leader is missing in parsed data."
+				)
 				continue
+
 			# Check for field mismatches
 			for key, expected_value in expected_data.items():
 				actual_value = actual_data.get(key, "<MISSING>")
 				if actual_value != expected_value:
-					mismatches.append(
-						f"[{leader}] Field '{key}' mismatch: expected '{expected_value}', got '{actual_value}'"
+					grouped_mismatches.setdefault(leader, []).append(
+						f"Field '{key}' mismatch: expected '{expected_value}', got '{actual_value}'"
 					)
+
 			# Check for unexpected extra fields
 			for key in actual_data.keys():
 				if key not in expected_data:
-					mismatches.append(
-						f"[{leader}] Unexpected extra field '{key}' present in parsed data (value: '{actual_data[key]}')"
+					grouped_mismatches.setdefault(leader, []).append(
+						f"Unexpected extra field '{key}' present in parsed data (value: '{actual_data[key]}')"
 					)
-		return mismatches
 
-	mismatches = compare_leaders(expected_sample, parsed_sample)
+		return grouped_mismatches
 
-	if mismatches:
+	grouped_mismatches = compare_leaders(expected_sample, parsed_sample)
+
+	if grouped_mismatches:
 		print("[TEST FAILED] Parsed sample does not match expected!")
-		for mismatch in mismatches:
-			print(mismatch)
+
+		for leader, problems in grouped_mismatches.items():
+			print(f"\n--- Mismatches for {leader} ---")
+			for issue in problems:
+				print(f"- {issue}")
+
 		raise SystemExit("[EXIT] Leader sample test failed. File not written.")
 	else:
 		print("[TEST PASSED] Parsed sample matches expected sample!")

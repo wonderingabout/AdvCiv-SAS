@@ -447,12 +447,12 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 				<iYield>0</iYield>
 				<iYield>4</iYield>
 			</YieldChanges>
-			<!-- custom: more culture for barbarian buildings or cities rather as only for palace, so they can avoid being culturally pressed by other civs without (a bit unrealistically) building too many barbarian specific culture buildings or and things or not anyways etc at least (as of)(?) now if not always or (maybe?) not but anyways etc anyways etc -->
+			<!-- custom: more culture for barbarian buildings or cities rather as only for palace, so they can avoid being culturally pressed by other civs without (a bit unrealistically) building too many barbarian specific culture buildings or and things or not anyways etc at least (as of)(?) now if not always or (maybe?) not but anyways etc anyways etc ; more spy for fun too also i mean.. but anyways etc hehe or not hehe or yes hehe or and other or and not or yes or not or etc anyways etc... -->
 			<CommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<iCommerce>3</iCommerce>
-				<iCommerce>4</iCommerce>
+				<iCommerce>6</iCommerce>
 			</CommerceChanges>
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
@@ -6638,7 +6638,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>120</iCost>
+			<!-- custom: make it a bit cheaper as may be a bit too expansive for an early building even if/though powerful, was 120 -->
+			<iCost>110</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -6830,7 +6831,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>120</iCost>
+			<iCost>115</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -9737,7 +9738,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>90</iCost>
+			<!-- custom: reduce a bit the cost of some early buildings, was 90 -->
+			<iCost>80</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -10191,8 +10193,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			</CommerceChangeDoubleTimes>
 			<CommerceModifiers>
 				<iCommerce>0</iCommerce>
-				<iCommerce>35</iCommerce>
-				<iCommerce>15</iCommerce>
+				<iCommerce>25</iCommerce>
+				<iCommerce>25</iCommerce>
 			</CommerceModifiers>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
@@ -10230,11 +10232,11 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
-					<iFlavor>10</iFlavor>
+					<iFlavor>8</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>7</iFlavor>
+					<iFlavor>6</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -12896,8 +12898,9 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
+			<!-- custom: reduce cost a bit, 130 may still be a bit too high, was 130 -->
 			<!-- advc.911b: was 150 -->
-			<iCost>130</iCost>
+			<iCost>120</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -13090,8 +13093,9 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
+			<!-- custom: was 130 -->
 			<!-- advc.911b: was 150 -->
-			<iCost>130</iCost>
+			<iCost>125</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -22916,7 +22920,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
-			<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
+			<!-- custom: todo change to TECH_NATURALISM if we successfully and indeed replce _ALPHABET with _NATURALISM as intended (then maybe delete this par tof of the code comment too or not or yes or etc anyways etc), was TECH_SCIENTIFIC_METHOD -->
+			<ObsoleteTech>TECH_ALPHABET</ObsoleteTech>
 			<PrereqTech>TECH_LITERATURE</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -22955,7 +22960,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>350</iCost>
+			<!-- custom: was 350 -->
+			<iCost>375</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -24971,7 +24977,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
-			<MaxStartEra>NONE</MaxStartEra>
+			<MaxStartEra>ERA_INDUSTRIAL</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<PrereqTech>TECH_EDUCATION</PrereqTech>
 			<TechTypes/>
@@ -24987,10 +24993,11 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_SCIENTIST</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
+			<!-- custom: was 1 -->
+			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
-			<bTeamShare>0</bTeamShare>
+			<bTeamShare>1</bTeamShare>
 			<bWater>0</bWater>
 			<bRiver>0</bRiver>
 			<bPower>0</bPower>
@@ -25007,16 +25014,16 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
 			<bNeverCapture>0</bNeverCapture>
-			<bNukeImmune>0</bNukeImmune>
+			<bNukeImmune>1</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>400</iCost>
-			<iHurryCostModifier>50</iHurryCostModifier>
+			<iCost>600</iCost>
+			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<iMinAreaSize>-1</iMinAreaSize>
-			<iConquestProb>0</iConquestProb>
+			<iConquestProb>100</iConquestProb>
 			<iCitiesPrereq>0</iCitiesPrereq>
 			<iTeamsPrereq>0</iTeamsPrereq>
 			<iLevelPrereq>0</iLevelPrereq>
@@ -25067,7 +25074,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<iBombardDefense>0</iBombardDefense>
 			<iAllCityDefense>0</iAllCityDefense>
 			<iEspionageDefense>0</iEspionageDefense>
-			<iAsset>8</iAsset>
+			<iAsset>10</iAsset>
 			<iPower>0</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
@@ -25078,7 +25085,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
-				<iCommerce>4</iCommerce>
+				<iCommerce>8</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -25087,28 +25094,33 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			</CommerceChangeDoubleTimes>
 			<CommerceModifiers>
 				<iCommerce>0</iCommerce>
-				<iCommerce>100</iCommerce>
+				<iCommerce>75</iCommerce>
 			</CommerceModifiers>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
 			<StateReligionCommerces/>
 			<CommerceHappinesses/>
 			<ReligionChanges/>
-			<SpecialistCounts>
-				<SpecialistCount>
+			<!-- custom: now is a world wonder, gives 2 free scientists, makes it stronger and better overlap with the "can be turned into scientist" effect of some university (civ-specific) buildings (anyways etc) of the university buildingclass anyways etc, was SpecialistCounts 2 -->
+			<SpecialistCounts/>
+			<FreeSpecialistCounts>
+				<FreeSpecialistCount>
 					<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
-					<iSpecialistCount>3</iSpecialistCount>
-				</SpecialistCount>
-			</SpecialistCounts>
-			<FreeSpecialistCounts/>
+					<iFreeSpecialistCount>2</iFreeSpecialistCount>
+				</FreeSpecialistCount>
+			</FreeSpecialistCounts>
 			<CommerceFlexibles/>
-			<CommerceChangeOriginalOwners/>
+			<CommerceChangeOriginalOwners>
+				<bCommerceChangeOriginalOwner>0</bCommerceChangeOriginalOwner>
+				<bCommerceChangeOriginalOwner>0</bCommerceChangeOriginalOwner>
+				<bCommerceChangeOriginalOwner>1</bCommerceChangeOriginalOwner>
+			</CommerceChangeOriginalOwners>
 			<ConstructSound/>
 			<BonusHealthChanges/>
 			<BonusHappinessChanges/>
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
-					<BonusType>BONUS_STONE</BonusType>
+					<BonusType>BONUS_MARBLE</BonusType>
 					<iProductonModifier>100</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
@@ -25116,10 +25128,11 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<DomainFreeExperiences/>
 			<DomainProductionModifiers/>
 			<BuildingHappinessChanges/>
+			<!-- custom: too high i think anyways etc, reducing it, was PrereqBuildingClasses 4 -->
 			<PrereqBuildingClasses>
 				<PrereqBuildingClass>
 					<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
-					<iNumBuildingNeeded>4</iNumBuildingNeeded>
+					<iNumBuildingNeeded>2</iNumBuildingNeeded>
 				</PrereqBuildingClass>
 			</PrereqBuildingClasses>
 			<BuildingClassNeededs>

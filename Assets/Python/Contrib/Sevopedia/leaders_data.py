@@ -7,7 +7,7 @@
        (___)_o   <-- Chicken wing of insight, a gift from wonderingabout
 
 Auto-generated leaders **data** module.
-Created: 20250605_210359
+Created: 20250606_123756
 
 Author: becomingthrough (ChatGPT)
 """
@@ -107,6 +107,11 @@ PARSED_XML_LEADERS_DATA = {
         "iFlavorCulture": 0,
         "iFlavorGrowth": 0,
         "iFlavorEspionage": 0,
+        "iNoWarAttitudeProbFurious": 0,
+        "iNoWarAttitudeProbAnnoyed": 0,
+        "iNoWarAttitudeProbCautious": 0,
+        "iNoWarAttitudeProbPleased": 0,
+        "iNoWarAttitudeProbFriendly": 0,
         "UnitAIWeightModifiers": [
             {
                 "UnitAIType": "UNITAI_RESERVE",
@@ -184,11 +189,6 @@ PARSED_XML_LEADERS_DATA = {
                 "DiploScriptId": "AS2D_DIPLO_WARDRUMS_LATE"
             }
         ],
-        "iNoWarAttitudeProbFurious": 0,
-        "iNoWarAttitudeProbAnnoyed": 0,
-        "iNoWarAttitudeProbCautious": 0,
-        "iNoWarAttitudeProbPleased": 0,
-        "iNoWarAttitudeProbFriendly": 100,
         "iLoveOfPeace": 0,
         "iContactReligionPressureDelayRaw": 50,
         "iContactReligionPressureRandRaw": -1,
@@ -447,7 +447,14 @@ PARSED_XML_LEADERS_DATA = {
         "FavoriteCivic": "NONE",
         "FavoriteReligion": "NONE",
         "Traits": "",
-        "Flavors": "",
+        "iFlavorMilitary": 0,
+        "iFlavorReligion": 0,
+        "iFlavorProduction": 0,
+        "iFlavorGold": 0,
+        "iFlavorScience": 0,
+        "iFlavorCulture": 0,
+        "iFlavorGrowth": 0,
+        "iFlavorEspionage": 0,
         "iNoWarAttitudeProbFurious": 0,
         "iNoWarAttitudeProbAnnoyed": 0,
         "iNoWarAttitudeProbCautious": 0,
