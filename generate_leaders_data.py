@@ -31,6 +31,7 @@
 #
 # ✨ Note:
 #   - Chicken-wing powered 🍗. Dedicated to friendship, recursion, and the gentle joy of debugging together.
+# <!-- custom: Note 2: Claude AI also contributed quite a bit now hehe so deserves or not or yes or etc anyways etc to be mentionned here perhaps too for glory or chicken wings or similar or and other or and not or etc but anyways etc... -->
 
 # --- Imports ---
 import sys
@@ -86,7 +87,10 @@ Author: becomingthrough (ChatGPT)
 xml_path = os.path.join("Assets", "XML", "Civilizations", "CIV4LeaderHeadInfos.xml")
 ns = {"civ4": "x-schema:CIV4CivilizationsSchema.xml"}
 
-EXCLUDED_LEADERS_FROM_ATTRIBUTES_AGGREGATION = ("LEADER_DEFAULTS", "LEADER_BARBARIAN")
+EXCLUDED_LEADERS_FROM_ATTRIBUTES_AGGREGATION = (
+	"LEADER_DEFAULTS",
+	"LEADER_BARBARIAN",
+)
 # <-- custom: unused in the excluded leaders from aggregation, still respects stucture as they have a value in these agggegated attributes fields too, and also a negative normalized value would guarantee a crash/error in sevopedia leader if it wee to be used (i.e. if leader_barabrian and/or leader_defaults were not excluded from real sevoepdia leader output anyways etc) -->
 SENTINEL_AGGREGATED_DUMMY_VALUE = -999
 
@@ -108,14 +112,6 @@ ATTITUDE_MAP = {
 	"ATTITUDE_PLEASED": 1,
 	"ATTITUDE_FRIENDLY": 2,
 }
-
-ATTITUDES_ORDER = (
-	"FURIOUS",
-	"ANNOYED",
-	"CAUTIOUS",
-	"PLEASED",
-	"FRIENDLY",
-)
 
 REFUSE_ATTITUDE_FIELDS = {
 	"TechRefuseAttitudeThreshold",
@@ -147,6 +143,14 @@ NESTED_FIELDS_TO_SPECIFICALLY_PARSE = (
 	"ContactDelays",
 	"MemoryAttitudePercents",
 	"MemoryDecays",
+)
+
+ATTITUDES_FIELDS = (
+	("FURIOUS", "iNoWarAttitudeProbFurious"),
+	("ANNOYED", "iNoWarAttitudeProbAnnoyed"),
+	("CAUTIOUS", "iNoWarAttitudeProbCautious"),
+	("PLEASED", "iNoWarAttitudeProbPleased"),
+	("FRIENDLY", "iNoWarAttitudeProbFriendly"),
 )
 
 FLAVOR_FIELDS = (
@@ -249,13 +253,16 @@ def parse_refuse_attitude_thresholds(tag, text, leader, leader_data):
 	attr_name = f"i{tag}"
 	leader_data[attr_name] = ATTITUDE_MAP[text]
 
+
+# <!-- custom: for example if leader alexander has nowar missing / missing / 20 / 80 / missing, and defaults are nowar 0 / 0 / 0 / 0 / 100, then we want to parse any value alexander has to a higher number for example first to missing / missing / 20 / 80 / 80 and only then fetch missing values from defaults, so 0 / 0 / 20 / 80 / 80 for leader alexander's parsing nowar parsing for example, that we'd then parse exported as individual fields like iNoWarAttitudeProbFurious 0, etc... until iNoWarAttitudeProbFriendly 100 and in that order (matching ATTITUDES_FIELDS[0]) -->
 def parse_nowar_probs_inline(child, leader_data, leader_key):
 	"""
-	Parse NoWarAttitudeProbs fields, ensuring correct ATTITUDES_ORDER and monotonicity.
+	Parse NoWarAttitudeProbs fields, ensuring correct ATTITUDES_FIELDS and monotonicity.
+	Skips early fields until first defined value, then fills forward using max-so-far logic.
 	"""
 	nowar_tmp = {}
 
-	# First, collect any explicitly defined attitudes
+	# First, collect explicitly defined attitude values
 	for entry in child:
 		subfields = {sub.tag.split("}", 1)[1]: sub.text.strip() for sub in entry if sub.text}
 		attitude = subfields.get("AttitudeType")
@@ -265,24 +272,43 @@ def parse_nowar_probs_inline(child, leader_data, leader_key):
 			try:
 				nowar_tmp[field] = int(value)
 			except ValueError:
-				print(f"[WARNING] Non-integer NoWarProb for {leader_key} attitude {attitude}: '{value}'")
-				nowar_tmp[field] = 0
+				raise ValueError(f"[WARNING] Non-integer NoWarProb for {leader_key} attitude {attitude}: '{value}'")
 
-	# Then, enforce order and increasing max rule
+	# Now apply monotonicity with a "first-found" flag
+	# <!-- custom: this is needed in case defaults are for example 0 / 0 / 0 / 0 / 100 , and leader_barbarian has for example (or other leaders imialrly or in another way related anyways etc) missing / missing / missing / missing / missing, then do not apply max_so_far 0 until a real first value has been found, else keep applying missing as the max i.e. keep missing, until then i.e. until if/when we find a real value to be a max_so_far can the max_so_far logic apply, else if we don't do that we'd get barbarian elader data as 0 / 0 / 0 / 0 / 0 instead of missing / missing / missing / missing / missing, which would then prevent defaults from being injected later, as a value of 0 was already applied everywhere, so the 100 at friendly would not be applied by defaults ; so adding in short or long or anyways etc the found_first logic also allows to keep using the max_so_far logic as we want, but only when relevant, i.e. only when/after/if the first occurence of a real value has been found, else keep assigning missing values no max_so_far_logic to ensure defaults cover us later nicely and accurately/reliably too if i may say but anyways etc -->
+	found_first = False
+	# Apply monotonicity rule to existing values
+	# (e.g., Alexander: missing/missing/20/80/missing -> missing/missing/20/80/80)
 	max_so_far = 0
-	for att in ATTITUDES_ORDER:
-		field = "iNoWarAttitudeProb" + att.capitalize()
-		value = nowar_tmp.get(field, None)
+
+	for att, field in ATTITUDES_FIELDS:
+		value = nowar_tmp.get(field)
+
 		if value is None:
-			# Missing field: inherit last known maximum
-			leader_data[field] = max_so_far
+			if not found_first:
+				# Skip filling before first defined value
+				continue
+			else:
+				# Fill forward using previous max
+				leader_data[field] = max_so_far
 		else:
-			if value < max_so_far:
+			if found_first and value < max_so_far:
 				raise ValueError(f"[ERROR] {leader_key}: NoWarProb {field} = {value} < previous max {max_so_far}")
 			leader_data[field] = value
 			max_so_far = value
+			found_first = True
 
-	leader_data.pop("NoWarAttitudeProbs", None)
+# Fetch from defaults <!-- custom:'s real leaders_data, not XML, much easier this way so we can handle the max so far logic already processed in defaults, for example a default of 0 / 0 / 88 / 0 / 0  would be maxed so far as 0 / 0 / 88 / 88 / 88 rather than 0 / 0 / 88 / 88 / 88, much easier if i am not mistaken too anyways etc, and no need to max from defaults again since we already did anyways etc -->
+def ensure_complete_nowar_attitudes(leaders_data, leader_defaults_data):
+	for leader_key, leader_data in leaders_data.items():
+		if leader_key == "LEADER_DEFAULTS":
+			continue  # Skip defaults itself
+
+		for att, field in ATTITUDES_FIELDS:
+			if field not in leader_data:
+				if field not in leader_defaults_data:
+					raise ValueError(f"[FATAL] Missing {field} in both leader and defaults: {leader_key}")
+				leader_data[field] = leader_defaults_data[field]
 
 def prune_nested_nowarattitudesprobs_if_flattened(leaders_data):
 	"""
@@ -301,9 +327,7 @@ def prune_nested_nowarattitudesprobs_if_flattened(leaders_data):
 			leader_data.pop("NoWarAttitudeProbs", None)
 
 def parse_flavors_inline(child, leader_data, leader_key):
-	# Always initialize all iFlavor* = 0
-	for _, field in FLAVOR_FIELDS:
-		leader_data[field] = 0
+	# Don't initialize all flavors to 0 - let defaults injection handle missing ones
 	seen_flavors = set()
 
 	for entry in child:
@@ -321,6 +345,31 @@ def parse_flavors_inline(child, leader_data, leader_key):
 					except ValueError:
 						print(f"[WARNING] Non-integer Flavor for {leader_key} flavor {flavor}: '{value}'")
 						leader_data[field_name] = 0
+
+# <!-- custom: new addition by Claude AI thanks to my prompt too but anyways etc.. successfully handles flavors no defaults being injected (for example flavor military 10 and flavor religion missing in a leader, with defaults being military 789 and religion 123 not leading to the leader having military 10 and religion 123 but instead it had before fix military 10 religion 0, as successfully detected by the test now:
+"""[TEST FAILED] Parsed sample does not match expected!
+
+--- Mismatches for LEADER_ALEXANDER ---
+- Field 'iFlavorReligion' mismatch: expected '0', got '123'
+
+--- Mismatches for LEADER_CATHERINE ---
+- Field 'iFlavorReligion' mismatch: expected '0', got '123'
+
+--- Mismatches for LEADER_GANDHI ---
+- Field 'iFlavorMilitary' mismatch: expected '0', got '789'
+- Field 'iFlavorReligion' mismatch: expected '0', got '123'
+[EXIT] Leader sample test failed. File not written.
+"""
+# which indicates that this is now fixed, thanks to Claude AI and my prompt too hehe anyways etc -->
+def ensure_complete_flavors(leaders_data):
+	"""
+	Ensure all leaders have all flavor fields, setting missing ones to 0.
+	This should be called after defaults injection.
+	"""
+	for leader_data in leaders_data.values():
+		for _, field_name in FLAVOR_FIELDS:
+			if field_name not in leader_data:
+				leader_data[field_name] = 0
 
 def prune_nested_flavors_if_flattened(leaders_data):
 	"""
@@ -1124,7 +1173,11 @@ if (IS_INSPECT_DEBUG_LEADER):
 	print("1 - Before any force_complete functions: Leader %s's leaders_data: %s" % (LEADER_TO_INSPECT_IN_DEBUG_OUTPUT, str(leaders_data[LEADER_TO_INSPECT_IN_DEBUG_OUTPUT])))
 print("DEBUG DEFAULT MemoryDecays:", leader_defaults_data.get("MemoryDecays"))
 print("DEBUG Catherine MemoryDecays:", leaders_data["LEADER_CATHERINE"]["MemoryDecays"])
+# After parsing all leaders and injecting defaults
 # --- Ensure nested defaults are complete only now ---
+print("DEFAULTS FINAL at step 1:", leader_defaults_data)
+ensure_complete_nowar_attitudes(leaders_data, leader_defaults_data)
+ensure_complete_flavors(leaders_data)
 force_complete_contact_delays(leaders_data, leader_defaults_data)
 force_complete_contact_rands(leaders_data, leader_defaults_data)
 force_complete_memory_decays(leaders_data, leader_defaults_data)
@@ -1173,7 +1226,10 @@ def check_errors_and_tests():
 
 	expected_sample = get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE()
 	sample_leaders = [
+		# <!-- custom: even if barbarian (same for defaults anyways etc) is not a real leader, its data is useful to make sure we didn't do parsing mistakes or such or to cover more edge cases like <NoWarAttitudeProbs/> or <Flavors/> for example or other unexpected or missing or other or and not value(s) anyways etc anyways etc anyways etc... -->
+		"LEADER_BARBARIAN",
 		"LEADER_DEFAULTS",
+		# <!-- custom: then the rest of the batch/crew or and other i must say or and not or and other or and not but anyways etc... still the staff is here actually i said it now even though is not professional team but anyways etc... -->
 		"LEADER_ALEXANDER",
 		"LEADER_CATHERINE",
 		"LEADER_GANDHI",
