@@ -23,13 +23,13 @@ hopefully more readable or exportable if need/want be now -->
 
 
 
-	<!-- custom: code (TXT_KEYs anyways etc) for our new placeExclusiveCivs, placeObsoletesWith, and placeReplace methods added in sevopediaunit thanks to Claude AI's code and explanations and my prompts and (very small or not but all or not anyways etc) adjustments anyways etc -->
+	<!-- custom: code (TXT_KEYs anyways etc) for our new placeCivilizations, placeObsoletesWith, and placeReplace methods added in sevopediaunit thanks to Claude AI's code and explanations and my prompts and (very small or not but all or not anyways etc) adjustments anyways etc -->
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_EXCLUSIVE_CIVS</Tag>
-		<English>Civilizations</English>
+		<Tag>TXT_KEY_PEDIA_CIVILIZATIONS</Tag>
+		<English>Civs</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_EXCLUSIVE_CIVS_NO_BUTTON_FOUND</Tag>
+		<Tag>TXT_KEY_PEDIA_CIVILIZATIONS_NO_BUTTON_FOUND</Tag>
 		<English>All</English>
 	</TEXT>
 	<TEXT>

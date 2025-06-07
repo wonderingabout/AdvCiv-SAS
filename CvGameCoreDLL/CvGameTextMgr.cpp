@@ -9660,7 +9660,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 	/* <!-- custom: similarly to what/how was done for eDefaultBuilding if i am not mistaken anyways etc anyways etc anyways etc where our other(s? anyways etc anyways etc anyways etc) "custom:" code comment(s?) are(/is? anyways etc anyways etc anyways etc), it seems we don't use this eDefaultUnit anywhere else in our/this DLL code anymore, and another eDefaultUnit is redefined where eDefaultUnit is used if i am not mistaken so commenting-out this definition as well anyways etc anyways etc anyways etc -->
 	UnitTypes const eDefaultUnit = kUnitClass.getDefaultUnit();
 
-	<!-- custom: now that we have the new placeExclusiveCivs added by Claude AI and my prompt and adjustments or not or yes of the already working code or and other or and not anyways etc, we (also but anyways etc...) don't the old TXT_KEY_UNIQUE_UNIT ("No civilization unit for the Babylonian Empire" (or similar with "unique unit" before i had renamed it for AdvCiv-SAS) for example anyways etc) panel -->
+	<!-- custom: now that we have the new placeCivilizations added by Claude AI and my prompt and adjustments or not or yes of the already working code or and other or and not anyways etc, we (also but anyways etc...) don't the old TXT_KEY_UNIQUE_UNIT ("No civilization unit for the Babylonian Empire" (or similar with "unique unit" before i had renamed it for AdvCiv-SAS) for example anyways etc) panel -->
 	if (eDefaultUnit != NO_UNIT && eDefaultUnit != eUnit)
 	{
 		
@@ -10348,7 +10348,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
 		}
 	}
 
-	/* <!-- custom: similarly to how was done in sevopedia unit, now that we have, in sevopedia building anyways etc, the placeExclusiveCivs and placeReplace functions/methods, we don't need want this old logic anymore, displaying it elsewhere in hopefully nicer or/and more helpful or maybe not or yes or etc but anyways etc anyways etc anyways etc... -->
+	/* <!-- custom: similarly to how was done in sevopedia unit, now that we have, in sevopedia building anyways etc, the placeCivilizations and placeReplace functions/methods, we don't need want this old logic anymore, displaying it elsewhere in hopefully nicer or/and more helpful or maybe not or yes or etc but anyways etc anyways etc anyways etc... -->
 	// <!-- custom: also it seems all the other place(s) that used this eDefaultBuilding are(/is anyways etc) now all commented-out by (all) (where) our "custom:" code comment('s comment-out block(s) are), and the other eDefaultBuilding still used in the code are redefined if i am not mistaken so we can probably safely comment-out this whole block rather if i am not mistaken anyways etc anyways etc anyways etc -->
 	// test for unique building
 	BuildingTypes eDefaultBuilding = GC.getInfo(eBuildingClass).getDefaultBuilding();

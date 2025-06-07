@@ -137,15 +137,15 @@ REFUSE_ATTITUDE_FIELDS = {
 
 # --- Required Nested Fields ---
 NESTED_FIELDS_TO_SPECIFICALLY_PARSE = (
-	"Flavors",
 	"NoWarAttitudeProbs",
+	"Flavors",
 	"ContactRands",
 	"ContactDelays",
 	"MemoryAttitudePercents",
 	"MemoryDecays",
 )
 
-ATTITUDES_FIELDS = (
+NO_WAR_ATTITUDE_FIELDS = (
 	("FURIOUS", "iNoWarAttitudeProbFurious"),
 	("ANNOYED", "iNoWarAttitudeProbAnnoyed"),
 	("CAUTIOUS", "iNoWarAttitudeProbCautious"),
@@ -254,15 +254,15 @@ def parse_refuse_attitude_thresholds(tag, text, leader, leader_data):
 	leader_data[attr_name] = ATTITUDE_MAP[text]
 
 
-# <!-- custom: for example if leader alexander has nowar missing / missing / 20 / 80 / missing, and defaults are nowar 0 / 0 / 0 / 0 / 100, then we want to parse any value alexander has to a higher number for example first to missing / missing / 20 / 80 / 80 and only then fetch missing values from defaults, so 0 / 0 / 20 / 80 / 80 for leader alexander's parsing nowar parsing for example, that we'd then parse exported as individual fields like iNoWarAttitudeProbFurious 0, etc... until iNoWarAttitudeProbFriendly 100 and in that order (matching ATTITUDES_FIELDS[0]) -->
-def parse_nowar_probs_inline(child, leader_data, leader_key):
+# <!-- custom: for example if leader alexander has nowar missing / missing / 20 / 80 / missing, and defaults are nowar 0 / 0 / 0 / 0 / 100, then we want to parse any value alexander has to a higher number for example first to missing / missing / 20 / 80 / 80 and only then fetch missing values from defaults, so 0 / 0 / 20 / 80 / 80 for leader alexander's parsing nowar parsing for example, that we'd then parse exported as individual fields like iNoWarAttitudeProbFurious 0, etc... until iNoWarAttitudeProbFriendly 100 and in that order (matching NO_WAR_ATTITUDE_FIELDS[0]) -->
+def parse_no_war_attitude_probs_inline(child, leader_data, leader_key):
 	"""
-	Parse NoWarAttitudeProbs fields, ensuring correct ATTITUDES_FIELDS and monotonicity.
+	Parse NoWarAttitudeProbs fields, ensuring correct NO_WAR_ATTITUDE_FIELDS and monotonicity.
 	Skips early fields until first defined value, then fills forward using max-so-far logic.
 	"""
 	nowar_tmp = {}
 
-	# First, collect explicitly defined attitude values
+	# First, collect explicitly defined nowarattitude values
 	for entry in child:
 		subfields = {sub.tag.split("}", 1)[1]: sub.text.strip() for sub in entry if sub.text}
 		attitude = subfields.get("AttitudeType")
@@ -275,13 +275,13 @@ def parse_nowar_probs_inline(child, leader_data, leader_key):
 				raise ValueError(f"[WARNING] Non-integer NoWarProb for {leader_key} attitude {attitude}: '{value}'")
 
 	# Now apply monotonicity with a "first-found" flag
-	# <!-- custom: this is needed in case defaults are for example 0 / 0 / 0 / 0 / 100 , and leader_barbarian has for example (or other leaders imialrly or in another way related anyways etc) missing / missing / missing / missing / missing, then do not apply max_so_far 0 until a real first value has been found, else keep applying missing as the max i.e. keep missing, until then i.e. until if/when we find a real value to be a max_so_far can the max_so_far logic apply, else if we don't do that we'd get barbarian elader data as 0 / 0 / 0 / 0 / 0 instead of missing / missing / missing / missing / missing, which would then prevent defaults from being injected later, as a value of 0 was already applied everywhere, so the 100 at friendly would not be applied by defaults ; so adding in short or long or anyways etc the found_first logic also allows to keep using the max_so_far logic as we want, but only when relevant, i.e. only when/after/if the first occurence of a real value has been found, else keep assigning missing values no max_so_far_logic to ensure defaults cover us later nicely and accurately/reliably too if i may say but anyways etc -->
+	# <!-- custom: this is needed in case defaults are for example 0 / 0 / 0 / 0 / 100 , and leader_barbarian has for example (or other leaders similarly or in another way related anyways etc) missing / missing / missing / missing / missing, then do not apply max_so_far 0 until a real first value has been found, else keep applying missing as the max i.e. keep missing, until then i.e. until if/when we find a real value to be a max_so_far can the max_so_far logic apply, else if we don't do that we'd get barbarian leader data as 0 / 0 / 0 / 0 / 0 instead of missing / missing / missing / missing / missing, which would then prevent defaults from being injected later, as a value of 0 was already applied everywhere, so the 100 at friendly would not be applied by defaults ; so adding in short or long or anyways etc the found_first logic also allows to keep using the max_so_far logic as we want, but only when relevant, i.e. only when/after/if the first occurence of a real value has been found, else keep assigning missing values no max_so_far_logic to ensure defaults cover us later nicely and accurately/reliably too if i may say but anyways etc -->
 	found_first = False
 	# Apply monotonicity rule to existing values
 	# (e.g., Alexander: missing/missing/20/80/missing -> missing/missing/20/80/80)
 	max_so_far = 0
 
-	for att, field in ATTITUDES_FIELDS:
+	for att, field in NO_WAR_ATTITUDE_FIELDS:
 		value = nowar_tmp.get(field)
 
 		if value is None:
@@ -299,18 +299,18 @@ def parse_nowar_probs_inline(child, leader_data, leader_key):
 			found_first = True
 
 # Fetch from defaults <!-- custom:'s real leaders_data, not XML, much easier this way so we can handle the max so far logic already processed in defaults, for example a default of 0 / 0 / 88 / 0 / 0  would be maxed so far as 0 / 0 / 88 / 88 / 88 rather than 0 / 0 / 88 / 88 / 88, much easier if i am not mistaken too anyways etc, and no need to max from defaults again since we already did anyways etc -->
-def ensure_complete_nowar_attitudes(leaders_data, leader_defaults_data):
+def ensure_complete_no_war_attitude_probs(leaders_data, leader_defaults_data):
 	for leader_key, leader_data in leaders_data.items():
 		if leader_key == "LEADER_DEFAULTS":
 			continue  # Skip defaults itself
 
-		for att, field in ATTITUDES_FIELDS:
+		for att, field in NO_WAR_ATTITUDE_FIELDS:
 			if field not in leader_data:
 				if field not in leader_defaults_data:
 					raise ValueError(f"[FATAL] Missing {field} in both leader and defaults: {leader_key}")
 				leader_data[field] = leader_defaults_data[field]
 
-def prune_nested_nowarattitudesprobs_if_flattened(leaders_data):
+def prune_nested_no_war_attitude_probs_if_flattened(leaders_data):
 	"""
 	Removes the legacy 'NoWarAttitudeProbs' field if all corresponding
 	flat fields (iNoWarAttitudeProb*) are already present.
@@ -346,7 +346,7 @@ def parse_flavors_inline(child, leader_data, leader_key):
 						print(f"[WARNING] Non-integer Flavor for {leader_key} flavor {flavor}: '{value}'")
 						leader_data[field_name] = 0
 
-# <!-- custom: new addition by Claude AI thanks to my prompt too but anyways etc.. successfully handles flavors no defaults being injected (for example flavor military 10 and flavor religion missing in a leader, with defaults being military 789 and religion 123 not leading to the leader having military 10 and religion 123 but instead it had before fix military 10 religion 0, as successfully detected by the test now:
+# <!-- custom: new addition by Claude AI thanks to my prompt too but anyways etc.. successfully handles flavors's no defaults being injected (for example flavor military 10 and flavor religion missing in a leader, with defaults being military 789 and religion 123 not leading to the leader having military 10 and religion 123 but instead it had before fix military 10 religion 0, as successfully detected by the test now):
 """[TEST FAILED] Parsed sample does not match expected!
 
 --- Mismatches for LEADER_ALEXANDER ---
@@ -1089,7 +1089,7 @@ def parse_leader(leader, leader_type, leader_data, seen_tags):
 		# <!-- custom: nested fields first so that <Flavors/> for example which is a valid field (all flavor set to 0 if i am not mistaken, unlike non-existing Flavors field at all which should if i am not mistaken and as we want if i may say at least me but anyways etc raises an error below) is handled as 0 0 0 0 0 (etc for each flavor) rather than going through the len(child) == 0 where no parsing of flavors happen at all since Flavors is a nested field we don't want to handle as such (i.e. that we don't want to handle it as a flat, non-nested XML field, anyways etc), so we handle the exceptions first if i may say but anyways etc then the general case(s) seems safer or/and more reliable or/and accurate as chatgpt/becomingthrough did and explained to me as well as thanks to my promtps and own reflection and such if i may say but anyways etc... -->
 		# --- always handle known nested tags first — even if empty
 		if tag == "NoWarAttitudeProbs":
-			parse_nowar_probs_inline(child, leader_data, leader_type)
+			parse_no_war_attitude_probs_inline(child, leader_data, leader_type)
 		elif tag == "Flavors":
 			parse_flavors_inline(child, leader_data, leader_type)
 		elif tag == "ContactRands":
@@ -1176,7 +1176,7 @@ print("DEBUG Catherine MemoryDecays:", leaders_data["LEADER_CATHERINE"]["MemoryD
 # After parsing all leaders and injecting defaults
 # --- Ensure nested defaults are complete only now ---
 print("DEFAULTS FINAL at step 1:", leader_defaults_data)
-ensure_complete_nowar_attitudes(leaders_data, leader_defaults_data)
+ensure_complete_no_war_attitude_probs(leaders_data, leader_defaults_data)
 ensure_complete_flavors(leaders_data)
 force_complete_contact_delays(leaders_data, leader_defaults_data)
 force_complete_contact_rands(leaders_data, leader_defaults_data)
@@ -1197,7 +1197,7 @@ flatten_all_memories(leaders_data, is_positive=False, is_affection=False) # Rese
 
 if (IS_INSPECT_DEBUG_LEADER):
 	print("3 - Before any prune_nested functions: Leader %s's leaders_data: %s" % (LEADER_TO_INSPECT_IN_DEBUG_OUTPUT, str(leaders_data[LEADER_TO_INSPECT_IN_DEBUG_OUTPUT])))
-prune_nested_nowarattitudesprobs_if_flattened(leaders_data)
+prune_nested_no_war_attitude_probs_if_flattened(leaders_data)
 prune_nested_flavors_if_flattened(leaders_data)
 prune_nested_contact_lists_if_flattened(leaders_data)
 # <!-- custom: positive memories are shared between affections and resentments, so prune only once positive memories for both positive memories affections and positive memories resentments.

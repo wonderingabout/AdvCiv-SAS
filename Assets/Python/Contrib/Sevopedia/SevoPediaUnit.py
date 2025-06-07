@@ -12,7 +12,7 @@
 # - placeReplace (renamed from placeReplacements of: ) in particular, is imported from RFC DOC mod:
 # C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaUnit.py
 # which may have then been modified or not for AdvCiv-SAS or/and enhanced or/and tweaked or/and adjusted anyways etc (see also sevopediabuilding (+/- 's code comments as you prefer or not or want or do or not or other or etc anyways etc) for details even though it was done later, it also served to adjust it or not anyways etc)
-# - placeExclusiveCivs: added entirely (i only tweaked the coordinates to suit/match where i want(ed?) it anyways etc) by Claude AI from my prompt anyways etc, now we have buttons for the civ(s) that can build a unit, and no button at all if all civs can build the currently selected unit (to not clutter the display needlessly with all civs buttons and is also clearer to know immediately that all can build it with the panel being empty),
+# - placeCivilizations: added entirely (i only tweaked the coordinates to suit/match where i want(ed?) it anyways etc) by Claude AI from my prompt anyways etc, now we have buttons for the civ(s) that can build a unit, and no button at all if all civs can build the currently selected unit (to not clutter the display needlessly with all civs buttons and is also clearer to know immediately that all can build it with the panel being empty),
 # - the place peak hill city terrains bonus features function/method in a similar manner,
 # - and the of this unit against modifiers
 # - as well as of other units modifiers (which would be/is against this (currently selected) unit this time anyways etc),
@@ -136,15 +136,17 @@ class SevoPediaUnit:
 		self.Z_ROTATION_UNIT_ANIMATION = 30
 		self.SCALE_ANIMATION = 1.0
 
+		self.W_CIVILIZATIONS = 84
+
 		self.X_REPLACE = self.X_UNIT_ANIMATION
 		self.Y_REPLACE = self.Y_UNIT_ANIMATION + self.H_UNIT_ANIMATION + self.SMALL_MARGIN
-		self.W_REPLACE = ((self.W_UNIT_ANIMATION - self.MEDIUM_MARGIN) / 2)
+		self.W_REPLACE = self.W_UNIT_ANIMATION - self.MEDIUM_MARGIN - self.W_CIVILIZATIONS
 		self.H_REPLACE = self.H_REQUIRES
 
-		self.X_EXCLUSIVE_CIVS = self.X_UNIT_ANIMATION + self.W_REPLACE + self.MEDIUM_MARGIN
-		self.Y_EXCLUSIVE_CIVS = self.Y_REPLACE
-		self.W_EXCLUSIVE_CIVS = self.W_REPLACE
-		self.H_EXCLUSIVE_CIVS = self.H_REPLACE
+		self.X_CIVILIZATIONS = self.X_UNIT_ANIMATION + self.W_REPLACE + self.MEDIUM_MARGIN
+		self.Y_CIVILIZATIONS = self.Y_REPLACE
+
+		self.H_CIVILIZATIONS = self.H_REPLACE
 
 		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
 
@@ -170,7 +172,7 @@ class SevoPediaUnit:
 		self.placeSpecial()
 		self.placeUnitAnimation()
 		self.placeReplace()
-		self.placeExclusiveCivs()
+		self.placeCivilizations()
 		self.placeHistory()
 
 
@@ -812,12 +814,13 @@ class SevoPediaUnit:
 
 
 
-	def placeExclusiveCivs(self):
+	# <!-- custom: note: this sevopediaunit's below placeCivilizations function/method can handle several civs if i am not mistaken, see sevopedia building's placeCivilizations's code comment for details -->
+	def placeCivilizations(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		
 		# Create panel with proper styling
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_EXCLUSIVE_CIVS", ()), "", False, True, self.X_EXCLUSIVE_CIVS, self.Y_EXCLUSIVE_CIVS, self.W_EXCLUSIVE_CIVS, self.H_EXCLUSIVE_CIVS, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_CIVILIZATIONS", ()), "", False, True, self.X_CIVILIZATIONS, self.Y_CIVILIZATIONS, self.W_CIVILIZATIONS, self.H_CIVILIZATIONS, PanelStyles.PANEL_STYLE_BLUE50)
 		# <!-- custom: additionnal left side padding for the button(s) -->
 		screen.attachLabel(panelName, "", "  ")
 		
@@ -840,11 +843,11 @@ class SevoPediaUnit:
 		# If this is the default unit, show "Available to all civilizations"
 		else:
 			# <!-- custom: prettier display -->
-			#screen.attachLabel(panelName, "", localText.getText("TXT_KEY_PEDIA_EXCLUSIVE_CIVS_NO_BUTTON_FOUND", ()))
+			#screen.attachLabel(panelName, "", localText.getText("TXT_KEY_PEDIA_CIVILIZATIONS_NO_BUTTON_FOUND", ()))
 			textName = self.top.getNextWidgetName()
-			szText = localText.getText("TXT_KEY_PEDIA_EXCLUSIVE_CIVS_NO_BUTTON_FOUND", ())
-			yCenterPanel = self.Y_EXCLUSIVE_CIVS + (self.H_EXCLUSIVE_CIVS / 2)
-			screen.addMultilineText(textName, szText, self.X_EXCLUSIVE_CIVS + 7, yCenterPanel, self.W_EXCLUSIVE_CIVS - 14, self.H_EXCLUSIVE_CIVS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			szText = localText.getText("TXT_KEY_PEDIA_CIVILIZATIONS_NO_BUTTON_FOUND", ())
+			yCenterPanel = self.Y_CIVILIZATIONS + (self.H_CIVILIZATIONS / 2)
+			screen.addMultilineText(textName, szText, self.X_CIVILIZATIONS + 7, yCenterPanel, self.W_CIVILIZATIONS - 14, self.H_CIVILIZATIONS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

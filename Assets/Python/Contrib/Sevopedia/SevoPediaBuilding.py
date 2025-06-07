@@ -11,8 +11,8 @@
 # <!-- custom: refactoring (of the below (and in too but anyways etc anyways etc)) is based on the sevopediaunit refactoring with small alterations/changes or/and not to fit/suit the sevopedia building code/features (also refactoring it (i.e: the sevopediabuilding code anyways etc) allowed to further polish and tweak and refactor or/and fix or not or and other or and not anyways etc the sevopediaunit code so very nice or not nice or nice but not necessary or is or is not maybe or not (is) or yes (is not) but anyways etc anyways etc anyways etc...) done before that/this one anyways etc anyways etc, please/you can look there if you want more code comments and clarifications about the changes anyways etc anyways etc anyways etc)
 # -->
 # <!-- custom: new, added thanks to Claude AI's code and my prompts anyways etc or and other things or and not anyways etc, and adjusted and tweaked or and modified in general or not general ways or not anyways etc for AdvCiv-SAS:
-# - placeExclusiveCivs: now we have buttons for the civ(s) that can build a unit, and no button at all if all civs can build the currently selected unit (to not clutter the display needlessly with all civs buttons and is also clearer to know immediately that all can build it with the panel being empty),
-# - placeObsoleteWith in a similar manner than (for?) placeExclusiveCivs to show the button of the tech that obsoletes this currently selected building anyways etc anyways etc anyways etc...
+# - placeCivilizations: (renamed from Claude AI's if i am not mistaken anyways etc ('s anyways etc) original name to this function placeExclusiveCivs) now we have buttons for the civ(s) that can build a unit, and no button at all if all civs can build the currently selected unit (to not clutter the display needlessly with all civs buttons and is also clearer to know immediately that all can build it with the panel being empty),
+# - placeObsoleteWith in a similar manner than (for?) placeCivilizations to show the button of the tech that obsoletes this currently selected building anyways etc anyways etc anyways etc...
 # - (and) placeReplace (but anyways etc anyways etc anyways etc...): based on the one in sevopediaunit that was based on another mod's code (see in sevopediaunit's code for details anyways etc anyways etc anyways etc...) and adjusted or not or yes or other etc anyways etc for and while adding it to sevopediabuilding, improvements (or not.. or yes, or other anyways etc) of which that have served to enhance the one in sevopediaunit back so all good maybe or not all good or all good or other or and not but anywyas etc... anyways etc anyways etc anyways etc..
 # - placeRequiredFor,
 # - placeFreePBBS,
@@ -128,20 +128,21 @@ class SevoPediaBuilding:
 		self.Z_ROTATION_BUILDING_ANIMATION = 30
 		self.SCALE_ANIMATION = 0.7
 
+		self.W_CIVILIZATIONS = 84
+
 		self.X_REPLACE = self.X_BUILDING_ANIMATION
 		self.Y_REPLACE = self.Y_BUILDING_ANIMATION + self.H_BUILDING_ANIMATION + self.SMALL_MARGIN
-		self.W_REPLACE = ((self.W_BUILDING_ANIMATION - self.MEDIUM_MARGIN) / 2)
+		self.W_REPLACE = self.W_BUILDING_ANIMATION - self.MEDIUM_MARGIN - self.W_CIVILIZATIONS
 		self.H_REPLACE = self.H_REQUIRES
 
-		self.X_EXCLUSIVE_CIVS = self.X_BUILDING_ANIMATION + self.W_REPLACE + self.MEDIUM_MARGIN
-		self.Y_EXCLUSIVE_CIVS = self.Y_REPLACE
-		self.W_EXCLUSIVE_CIVS = self.W_REPLACE
-		self.H_EXCLUSIVE_CIVS = self.H_REPLACE
+		self.X_CIVILIZATIONS = self.X_BUILDING_ANIMATION + self.W_REPLACE + self.MEDIUM_MARGIN
+		self.Y_CIVILIZATIONS = self.Y_REPLACE
+		self.H_CIVILIZATIONS = self.H_REPLACE
 
 		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
 
 		self.X_HISTORY = self.X_BUILDING_ANIMATION
-		self.Y_HISTORY = self.Y_EXCLUSIVE_CIVS + self.H_EXCLUSIVE_CIVS + self.SMALL_MARGIN
+		self.Y_HISTORY = self.Y_CIVILIZATIONS + self.H_CIVILIZATIONS + self.SMALL_MARGIN
 		self.W_HISTORY = self.W_BUILDING_ANIMATION
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
@@ -160,7 +161,7 @@ class SevoPediaBuilding:
 		self.placeSpecial()
 		self.placeBuildingAnimation()
 		self.placeReplace()
-		self.placeExclusiveCivs()
+		self.placeCivilizations()
 		self.placeHistory()
 
 
@@ -542,7 +543,7 @@ class SevoPediaBuilding:
 									WidgetTypes.WIDGET_GENERAL, -1, -1)
 					"""
 				else:
-					# <!-- custom: else our placeStats "custom: 6.1" already handles the display of the great people button and the great people rate value (text too anyways etc) if i am not mistaken, so maybe we can ignore code below as well and clean it up in next commit or any time further i wish or and other or and not or and etc anyways etc, keeping as is for nwo until cleanup anyways etc. Also, if there is some special info like the great peiople unit name that is/would/were not (//to anyways etc) /be/ anyways etc any of the great people units (for example a settler if i am not mistaken that this is possible too from what i understood of what i read of Claude AI or online but maybe was claude AI's explanation anyways etc, then we still have the placeSpecial info not removed to cover us anyways etc (i chose to not remove it in the end as it has some sueful information like defenses obsoleting or not with exceptions, power being this or that, or/and other special or confusing well or well enough hopefully as they did if they enjoyed or not o wanted or not anyways etc, so cleaned from DLL placeSpecial messages only the obvious uneeded logic that clearly overlaps with the new panels we have (placeFreePBBS, placeRequiredFor, placeExclusiveCivs as was done (DLL cleanup of redundant messages) in sevopedia unit and now applied to sevopedia building, anyways etc.)) -->
+					# <!-- custom: else our placeStats "custom: 6.1" already handles the display of the great people button and the great people rate value (text too anyways etc) if i am not mistaken, so maybe we can ignore code below as well and clean it up in next commit or any time further i wish or and other or and not or and etc anyways etc, keeping as is for nwo until cleanup anyways etc. Also, if there is some special info like the great peiople unit name that is/would/were not (//to anyways etc) /be/ anyways etc any of the great people units (for example a settler if i am not mistaken that this is possible too from what i understood of what i read of Claude AI or online but maybe was claude AI's explanation anyways etc, then we still have the placeSpecial info not removed to cover us anyways etc (i chose to not remove it in the end as it has some sueful information like defenses obsoleting or not with exceptions, power being this or that, or/and other special or confusing well or well enough hopefully as they did if they enjoyed or not o wanted or not anyways etc, so cleaned from DLL placeSpecial messages only the obvious uneeded logic that clearly overlaps with the new panels we have (placeFreePBBS, placeRequiredFor, placeCivilizations as was done (DLL cleanup of redundant messages) in sevopedia unit and now applied to sevopedia building, anyways etc.)) -->
 					"""
 					# Just add text if no button
 					textWidget = self.top.getNextWidgetName()
@@ -1195,12 +1196,13 @@ class SevoPediaBuilding:
 
 
 
-	def placeExclusiveCivs(self):
+	# <!-- custom: if i am not mistaken this handles several civs sharing a special building/unit, see screenshot 3068 in the drive for example where the building mall as a test anyways etc is shared between both civilization American empire and Mali empire for example or/and for details or/and other source or maybe rather too as well test it yourself or not if need(ed) or other or etc anyways etc ; we reduced width to 84px or some smaller width value because it is unlikely we use this feature in advciv-sas (simpler if one civ has one civ-specific unit and civ-specific building unique to them, but it is in theory possible like other mods do if i am not mistaken to share them across several civs, hence the name "civs" even though width is so small (i assume it would scroll if more than oen button too so display is not lost or not or yes or other or etc anyways etc --> 
+	def placeCivilizations(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 
 		# Create panel with proper styling
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_EXCLUSIVE_CIVS", ()), "", False, True, self.X_EXCLUSIVE_CIVS, self.Y_EXCLUSIVE_CIVS, self.W_EXCLUSIVE_CIVS, self.H_EXCLUSIVE_CIVS, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_CIVILIZATIONS", ()), "", False, True, self.X_CIVILIZATIONS, self.Y_CIVILIZATIONS, self.W_CIVILIZATIONS, self.H_CIVILIZATIONS, PanelStyles.PANEL_STYLE_BLUE50)
 		# <!-- custom: additionnal left side padding for the button(s) -->
 		screen.attachLabel(panelName, "", "  ")
 		
@@ -1224,10 +1226,10 @@ class SevoPediaBuilding:
 		else:
 			# <!-- custom: prettier display -->
 			#screen.attachLabel(panelName, "", localText.getText("TXT_KEY_PEDIA_AVAILABLE_ALL_CIVS", ()))
-			yPanelCenter = self.Y_EXCLUSIVE_CIVS + (self.H_EXCLUSIVE_CIVS / 2)
+			yPanelCenter = self.Y_CIVILIZATIONS + (self.H_CIVILIZATIONS / 2)
 			textName = self.top.getNextWidgetName()
-			szText = CyTranslator().getText("TXT_KEY_PEDIA_EXCLUSIVE_CIVS_NO_BUTTON_FOUND", ())
-			screen.addMultilineText(textName, szText, self.X_EXCLUSIVE_CIVS + 7, yPanelCenter, self.W_EXCLUSIVE_CIVS - 14, self.H_EXCLUSIVE_CIVS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			szText = CyTranslator().getText("TXT_KEY_PEDIA_CIVILIZATIONS_NO_BUTTON_FOUND", ())
+			screen.addMultilineText(textName, szText, self.X_CIVILIZATIONS + 7, yPanelCenter, self.W_CIVILIZATIONS - 14, self.H_CIVILIZATIONS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
