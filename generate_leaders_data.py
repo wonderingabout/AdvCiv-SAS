@@ -1295,7 +1295,7 @@ if not ARGV_NO_TESTING:
 	check_errors_and_tests()
 
 else:
-	print("[WARNING] Skipping leader data testing due to --notesting flag.")
+	print("[WARNING] Skipping leaders_data testing due to --notesting flag.")
 
 # --- Output to file ---
 def output_to_file():

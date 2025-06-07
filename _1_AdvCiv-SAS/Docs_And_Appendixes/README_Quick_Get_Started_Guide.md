@@ -288,12 +288,12 @@ but gold not until metal casting.
 of the world, see [world map with civs](/README.md#civs-and-units-you-can-expect-in-this-mod)
 (todo add link), for example The Kingdom Of Benin (Nigeria), or in weaker terrains
 (that are now buffed), for example Canada
-- (may not be accurate anymore todo among other possible changes to fix in this doc or not or and update or and not anyways etc, given as generla info hoepfulyl helpful ro tnot or and other or and not check seopedisa for latets ocntent todo fix or view this later or not for me (to do so or not (do so) anyways etc anyways etc anyways etc)) Leaders have been changed: unless strongly desired, all civs have at max 2
+- (may not be accurate anymore todo among other possible changes to fix in this doc or not or and update or and not anyways etc, given as generla info hopefully helpful ro tnot or and other or and not check seopedisa for latets ocntent todo fix or view this later or not for me (to do so or not (do so) anyways etc anyways etc anyways etc)) Leaders have been changed: unless strongly desired, all civs have at max 2
 leaders, should be plenty for a variety of gameplay, i don't want to clutter, prefer
 to go deep in strategy instead, for example Joan Of Arc has been added, and Louis XIV
 and De Gaulle removed, generally i preferred to keep the stronger ones, Cleopatra
 added and Hatscheputt removed for example
-- (may not be accurate anymore todo among other possible changes to fix in this doc or not or and update or and not anyways etc, given as generla info hoepfulyl helpful ro tnot or and other or and not check seopedisa for latets ocntent todo fix or view this later or not for me (to do so or not (do so) anyways etc anyways etc anyways etc)) Leader animations removed, since now some don't have, better if none have maybe,
+- (may not be accurate anymore todo among other possible changes to fix in this doc or not or and update or and not anyways etc, given as generla info hopefully helpful ro tnot or and other or and not check seopedisa for latets ocntent todo fix or view this later or not for me (to do so or not (do so) anyways etc anyways etc anyways etc)) Leader animations removed, since now some don't have, better if none have maybe,
 instead i tried to put some nice images relatively as i thought would fit and i like, took quite a lot from existing mods
 - Some new ressources, for example camel and todo, some removed ressources, for
 example hit ressources and todo

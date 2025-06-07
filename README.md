@@ -51,7 +51,7 @@ This sevopedia category displays key information about AdvCiv-SAS (non-exhaustiv
 
 #### Changes from one mod to another sevopedia items/pages
 
-These list the main changes from AdvCiv to (transitionning) to AdvCiv-SAS. They are not exhaustive, screenshot below is provided for info and may not eb updated or accurate (anymore or is is or not anyways etc). Please take note of these before proceeding further in the documentation.
+These list the main changes from AdvCiv to (transitionning) to AdvCiv-SAS. They are not exhaustive, screenshot below is provided for info and may not be updated or accurate (anymore or is is or not anyways etc). Please take note of these before proceeding further in the documentation.
 
 Note that i also added a K-Mod to (base) AdvCiv changes doc as i wanted to list them as well in our (AdvCiv-SAS) (anyways etc) mod, but these are not exhaustive, hopefully helpful, please refer to [base AdvCiv's manual.pdf](/_0_Common_Docs/AdvCiv%20Base%20Doc/manual.pdf) at least this is our copy of it as of now, for updated version of the manual, please view [(base) AdvCiv's github](https://github.com/f1rpo/AdvCiv) in latest branch or whichever branch you find suitable for your need, or other related source(s) rather or maybe or not but anyways etc anyways etc...
 

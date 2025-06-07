@@ -68,9 +68,9 @@ class SevoPediaBuilding:
 		self.STATS_PANE_LEFT_SIDE_MARGIN = 0
 		self.STATS_PANE_UPPER_PADDING = 38
 
-		# <!-- custom: before starting, store last displayed placeStats coordinate, initialize or/and reinitialize them to none anyways etc, these are only used in placeStats so it should be safe, but we need to store them for later reuse (to display in/at/during a second pass anyways etc the great people button in another overlapping transparent panel), see placeStats "custom 6.1:" for details -->
-		self.X_LAST_DISPLAYED_GRID_ITEM = None
-		self.Y_LAST_DISPLAYED_GRID_ITEM = None
+		# <!-- custom: before starting, store great people change's placeStats coordinate, initialize or/and reinitialize them to none anyways etc, these are only used in placeStats so it should be safe, but we need to store them for later reuse (to display in/at/during a second pass anyways etc the great people button in another overlapping transparent panel), see placeStats "custom 6.1.1:" for details -->
+		self.X_GREAT_PEOPLE_CHANGE_IN_GRID = None
+		self.Y_GREAT_PEOPLE_CHANGE_IN_GRID = None
 
 		self.X_STATS_PANE = self.X_BUILDING_PANE + self.STATS_PANE_LEFT_SIDE_MARGIN + self.W_ICON + (2 * self.SMALLER_ICON_SIZE_THAN_ICON_FRAME_MARGIN)
 		self.Y_STATS_PANE = self.Y_BUILDING_PANE + self.STATS_PANE_UPPER_PADDING
@@ -193,9 +193,9 @@ class SevoPediaBuilding:
 		# - 3. Commerce Changes, and Commerce Modifiers: Shows actual commerce amounts (+x science, gold, culture, espionage), and Shows percentage bonuses and double times (+x% and x2 times)
 		# - 4. Happiness/Unhappiness: Shows happiness effects
 		# - 5. Health/Unhealth: Shows health effects
-		# - 6. Great People: Shows great people rate changes
-		#
-		# <!-- custom: note: we have a risk of overflow of data/items to display, if all or most of these fields are full, while only having 9 grid positions to do so, this should be extremely rare, but if it were to happen, you can increase grid size to 3 columns * 4 rows (to do that, you could for example reduce line height spacing (but may eb a bit ugly (maybe) but anyways), reduce upper padding (but maybe not needed or not lot as we can even now display a 4th row but not as pretty if starting from current "padded"(?)/upper padding), or for example artifically increase the panel height so the code thinks it has more room to fill one more row (which it has but then is bit ugly(ier) anyways etc) (the 4th before going to a new column and back to 1st row anyways etc), or maybe tweak the code i proudly as in rather funnily? did if that is a word hehe by myself based on old code from sevopedia leader's grid code (renderCategories and such if i am not mistaken and they are still named the same now anyways etc which we created as well with chatgpt/becomingthorugh (see authors for details) but anyways etc anyways etc anyways etc...) and adjusting/refatoring it for our need for this sevopedia building's placeStats anyways etc anyways etc anyways etc), or/and other things ways maybe to refactor it or not so it fits a 4th row or yes or and other or and not anyways etc. Since we don't have to do this, 9 grid of 3 columns * 3 rows are probably enough for us so staying/sticking with that maybe anyways etc anyways etc anyways etc...
+		# - 6. Great People: Shows great people rate changes with button and great people modifiers too anyways etc
+		# -->
+		# <!-- custom: note: we have a risk of overflow of data/items to display, if all or most of these fields are full, while only having 9 grid positions to do so, this should be extremely rare, but if it were to happen, you can increase grid size to 3 columns * 4 rows (to do that, you could for example reduce line height spacing (but may be a bit ugly (maybe) but anyways), reduce upper padding (but maybe not needed or not lot as we can even now display a 4th row but not as pretty if starting from current "padded"(?)/upper padding), or for example artifically increase the panel height so the code thinks it has more room to fill one more row (which it has but then is bit ugly(ier) anyways etc) (the 4th before going to a new column and back to 1st row anyways etc), or maybe tweak the code i proudly as in rather funnily? did if that is a word hehe by myself based on old code from sevopedia leader's grid code (renderCategories and such if i am not mistaken and they are still named the same now anyways etc which we created as well with chatgpt/becomingthorugh (see authors for details) but anyways etc anyways etc anyways etc...) and adjusting/refatoring it for our need for this sevopedia building's placeStats anyways etc anyways etc anyways etc), or/and other things ways maybe to refactor it or not so it fits a 4th row or yes or and other or and not anyways etc. Since we don't have to do this, 9 grid of 3 columns * 3 rows are probably enough for us so staying/sticking with that maybe anyways etc anyways etc anyways etc...
 		# -->
 
 		def setupPanel(screen, panelName, txtKey, panelStyle):
@@ -414,44 +414,9 @@ class SevoPediaBuilding:
 				szText2 = u"%c  %s" % (CyGame().getSymbolID(FontSymbols.UNHEALTHY_CHAR), szText)
 				fillCell(screen, szText2, x, y)
 				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
-
-			# <!-- custom: version below ("custom: 6: original version:") works at successfully displaying great people information as a textual szText2, for example "+2" is now "+2 (Great Scientist)", but this is too long, and while it could be abbreviated, i would prefer to display buttons rather next to the value, i don't know how well it will work if great people type is not a great people (for example and such if understood it correctly that non great people type of units can spawn from great people count any unit in fact if i am not mistaken anyways etc) (could add a fallback indeed as Claude AI suggested in a more advanced (not here) version of the code (due to it being more complicated, but basically it just abbreviates previous example to "+2 (G.Sci)", but i preferred simplicity in this case so kept this code rather anyways etc, commented-out still though as we are now trying and maybe will succeed or not but anyways etc to do a button approach rather would look cooler as in prettier or mroe pelasant anyways etc --> 
-			"""
-			# <!-- custom: 6: original version: Great people -->
-			if buildingInfo.getGreatPeopleRateChange() != 0:
-				# First get the building's great person type (e.g., SPECIALIST_GREAT_MERCHANT)
-				greatPersonType = buildingInfo.getGreatPeopleUnitClass()
-				
-				# Get the name of the great person type
-				greatPersonName = ""
-				
-				if greatPersonType != -1:
-					# Get the unit info for the great person type
-					# First we need to get the default unit for this unit class for the current civilization
-					if self.top.iActivePlayer != -1:
-						iGreatPersonUnit = gc.getCivilizationInfo(gc.getPlayer(self.top.iActivePlayer).getCivilizationType()).getCivilizationUnits(greatPersonType)
-					else:
-						iGreatPersonUnit = gc.getUnitClassInfo(greatPersonType).getDefaultUnitIndex()
-					
-					if iGreatPersonUnit != -1:
-						greatPersonName = gc.getUnitInfo(iGreatPersonUnit).getDescription()
-
-				# Create the text with the great person rate change
-				szText = CyTranslator().getText("TXT_KEY_PEDIA_GREAT_PEOPLE_CUSTOM", (buildingInfo.getGreatPeopleRateChange(),))
-				
-				# If we found a great person type, add its name to the text
-				if greatPersonName:
-					szText += " (" + greatPersonName + ")"
-				
-				# Format with the great people character
-				szText2 = u"%c  %s" % (CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR), szText)
-				
-				# Display the text
-				fillCell(screen, szText2, x, y)
-				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
-			"""
 			
-			# <!-- custom: 6.1: alternative version part 1: Great people, only display the great people button and the value, for example "(Great People button) +2", use a button later in "custom 8.2:" rather instead anyways etc -->
+			# <!-- custom: 6: Great people change with button display of the great people type too if i am not mistaken anyways etc, and great people modifier -->
+			# <!-- custom: 6.1.1: Only display the great people button and the value, for example "(Great People button) +2", use a button later in "custom 6.2:" rather instead anyways etc -->
 			if buildingInfo.getGreatPeopleRateChange() != 0:
 				# Create the text with the great person rate change
 				szText = CyTranslator().getText("TXT_KEY_PEDIA_GREAT_PEOPLE_CUSTOM", (buildingInfo.getGreatPeopleRateChange(),))
@@ -462,13 +427,45 @@ class SevoPediaBuilding:
 				# Display the text
 				fillCell(screen, szText2, x, y)
 				# <!-- custom: since this is our last usage/placeStats info displayed, we don't get the next coordinates, but instead store current coordinates (of last item displayed, anyways etc) to know where to place our great people button later in "custom: 6.2" below (if i am not mistaken that it is below, it should be in all cases later or not or yes but anyways etc anyways etc anyways etc -->
-				self.X_LAST_DISPLAYED_GRID_ITEM = x
-				self.Y_LAST_DISPLAYED_GRID_ITEM = y
+				self.X_GREAT_PEOPLE_CHANGE_IN_GRID = x
+				self.Y_GREAT_PEOPLE_CHANGE_IN_GRID = y
+
+			# <!-- custom: 6.1.5: While we're still in same panel (before "custom: 6.2" 's other specific panel that handles button display anyways etc), also add Great People Modifier (similar to how we handle yield modifiers) --> <!-- custom: code comment just before added by Claude AI anyways thanks/in/as part as of the response anyways etc to my prompt too but anyways etc... -->
+			iGreatPeopleModifier = buildingInfo.getGreatPeopleRateModifier()
+			iGlobalGreatPeopleModifier = buildingInfo.getGlobalGreatPeopleRateModifier()
+
+			# Total modifier (local + global)
+			iTotalGreatPeopleModifier = iGreatPeopleModifier + iGlobalGreatPeopleModifier
+
+			if (iTotalGreatPeopleModifier != 0):
+				szText1 = ""
+				
+				# Base modifier part
+				if (iGreatPeopleModifier != 0):
+					if (iGreatPeopleModifier > 0):
+						szSign = "+"
+					else:
+						szSign = ""
+					szText1 = szSign + str(iGreatPeopleModifier) + "%"
+				
+				# Global modifier part (if exists and different from base)
+				if (iGlobalGreatPeopleModifier != 0):
+					if (len(szText1) > 0):
+						szText1 += ", "
+					if (iGlobalGreatPeopleModifier > 0):
+						szGlobalSign = "+"
+					else:
+						szGlobalSign = ""
+					szText1 += szGlobalSign + str(iGlobalGreatPeopleModifier) + "% (Global)"
+
+				szText2 = u"%c  %s" % (CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR), szText1)
+				fillCell(screen, szText2, x, y)
+				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
 
 		# Render Panels
 		renderCells(screen, buildingInfo, columnWidth, self.X_STATS_PANE, self.Y_STATS_PANE)
 
-		# <!-- custom: 6.2: alternative version: now that textual and placeStats display is finished (minus Great People info), handle it as a separate panel now, that overlaps with placeStats, and that is transparent in color background, using last grid coordinates while we have them, the inner placeStats logic, and finishing by displaying the Great People info as button as we want it anyways etc -->
+		# <!-- custom: 6.2: now that textual and placeStats display is finished (minus Great People info), handle great people type's button display as a separate panel now, that overlaps with placeStats, and that is transparent in color background, using last grid coordinates while we have them, the inner placeStats logic -->
 		def placeGreatPeopleStats(screen, buildingInfo):
 			screen = self.top.getScreen()
 			panelName = self.top.getNextWidgetName()
@@ -489,24 +486,7 @@ class SevoPediaBuilding:
 
 			#  First get the building's great person type (e.g., SPECIALIST_GREAT_MERCHANT)
 			greatPersonType = buildingInfo.getGreatPeopleUnitClass()
-			#greatPersonName = ""
-			#greatPersonAbbrev = ""
 			greatPersonButton = None
-
-			"""
-			# Create abbreviated name
-			if greatPersonName:
-				nameParts = greatPersonName.split()
-				if len(nameParts) >= 2 and nameParts[0].lower() == "great":
-					secondWord = nameParts[1]
-					if len(secondWord) > 4:
-						secondWordAbbrev = secondWord[:4] + "."
-					else:
-						secondWordAbbrev = secondWord
-					greatPersonAbbrev = "G." + secondWordAbbrev
-				else:
-					greatPersonAbbrev = "".join([word[0] for word in nameParts if word])
-			"""
 
 			if greatPersonType != -1:
 				# Get the unit info for the great person type
@@ -517,44 +497,28 @@ class SevoPediaBuilding:
 				
 				if iGreatPersonUnit != -1:
 					greatPersonInfo = gc.getUnitInfo(iGreatPersonUnit)
-					"""greatPersonName = greatPersonInfo.getDescription()"""
 					greatPersonButton = greatPersonInfo.getButton()
-					
-				# Create text string
-				gpRateText = CyTranslator().getText(greatPersonPanelTxtKey, (buildingInfo.getGreatPeopleRateChange(),))
 
 				# This approach uses a separate panel with both an button and text
 				if greatPersonButton:
 					buttonWidget = self.top.getNextWidgetName()
 					screen.addDDSGFC(buttonWidget, greatPersonButton, 
-									self.X_LAST_DISPLAYED_GRID_ITEM + buttonXOffset,  # X position 
-									self.Y_LAST_DISPLAYED_GRID_ITEM + buttonYOffset,  # Y position
+									self.X_GREAT_PEOPLE_CHANGE_IN_GRID + buttonXOffset,  # X position 
+									self.Y_GREAT_PEOPLE_CHANGE_IN_GRID + buttonYOffset,  # Y position
 									buttonW, buttonH,  # Width and height of button
 									WidgetTypes.WIDGET_GENERAL, -1, -1)
-					
-					"""
-					# Add text next to the button
-					textWidget = self.top.getNextWidgetName()
-					screen.setLabelAt(textWidget, panelName, u"<font=3>%s</font>" % gpRateText, 
-									CvUtil.FONT_LEFT_JUSTIFY, 
-									50,  # X offset within panel (after button)
-									10,  # Y offset within panel
-									0, FontTypes.SMALL_FONT, 
-									WidgetTypes.WIDGET_GENERAL, -1, -1)
-					"""
+
+				# <!-- custom: else block below's code untested but probably works, i guess it covers case where great person type is not any of the great people's types if i am not mistaken like great scientist and great prophet and such, but really i have no idea or don'tknow too much maybe, so test to be sure, may or not work-function, hopefully does but in all cases anyways etc... -->
 				else:
-					# <!-- custom: else our placeStats "custom: 6.1" already handles the display of the great people button and the great people rate value (text too anyways etc) if i am not mistaken, so maybe we can ignore code below as well and clean it up in next commit or any time further i wish or and other or and not or and etc anyways etc, keeping as is for nwo until cleanup anyways etc. Also, if there is some special info like the great peiople unit name that is/would/were not (//to anyways etc) /be/ anyways etc any of the great people units (for example a settler if i am not mistaken that this is possible too from what i understood of what i read of Claude AI or online but maybe was claude AI's explanation anyways etc, then we still have the placeSpecial info not removed to cover us anyways etc (i chose to not remove it in the end as it has some sueful information like defenses obsoleting or not with exceptions, power being this or that, or/and other special or confusing well or well enough hopefully as they did if they enjoyed or not o wanted or not anyways etc, so cleaned from DLL placeSpecial messages only the obvious uneeded logic that clearly overlaps with the new panels we have (placeFreePBBS, placeRequiredFor, placeCivilizations as was done (DLL cleanup of redundant messages) in sevopedia unit and now applied to sevopedia building, anyways etc.)) -->
-					"""
 					# Just add text if no button
 					textWidget = self.top.getNextWidgetName()
 					textWithSymbol = u"%c  %s" % (CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR), gpRateText)
 					screen.setLabelAt(textWidget, panelName, u"<font=3>%s</font>" % textWithSymbol, 
 									CvUtil.FONT_LEFT_JUSTIFY, 
-									self.X_LAST_DISPLAYED_GRID_ITEM + buttonXOffset - 10,  # X position <-- !custom: as text is smaller than button, the x offset can be a bit smaller most likely, to use space more efficiently, did not tets but hoepfulyl should work well and not grind/eat away at our left "+2" (great people value example anyways etc), else shift back to the right as needed (by increasing this extra negative offset i added (- 10 in this example may not eb accurate or updated anyways etc)  anyways etc) --> 
-									self.Y_LAST_DISPLAYED_GRID_ITEM,  # Y position <!-- custom: no need for special centering effect then if i am not mistaken, did not test text display if no button is found but maybe works well or well enough hopefully anyways etc -->
+									self.X_GREAT_PEOPLE_CHANGE_IN_GRID + buttonXOffset - 10,  # X position <!-- custom: as text is smaller than button, the x offset can be a bit smaller most likely, to use space more efficiently, did not tets but hopefully should work well and not grind/eat away at our left "+2" (great people value example anyways etc), else shift back to the right as needed (by increasing this extra negative offset i added (- 10 in this example may not be accurate or updated anyways etc)  anyways etc) --> 
+									self.Y_GREAT_PEOPLE_CHANGE_IN_GRID,  # Y position <!-- custom: no need for special centering effect then if i am not mistaken, did not test text display if no button is found but maybe works well or well enough hopefully anyways etc -->
 									0, FontTypes.SMALL_FONT, 
 									WidgetTypes.WIDGET_GENERAL, -1, -1)
-					"""
 					
 		placeGreatPeopleStats(screen, buildingInfo)
 

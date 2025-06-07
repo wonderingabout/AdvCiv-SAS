@@ -95,7 +95,7 @@ ATTRIBUTES_TO_INVERT = set([
 	#
 	"iNoTechTradeThreshold",
 	#
-	# <--! custom: inverted according to: https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#declarewarthemrefuseattitudethreshold and https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#stoptradingthemrefuseattitudethreshold (and) https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#nogivehelpattitudethreshold (and) https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#demandtributeattitudethreshold (translate page/website to english with web browser etc) ; need to be below not above this value -->
+	# <!-- custom: inverted according to: https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#declarewarthemrefuseattitudethreshold and https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#stoptradingthemrefuseattitudethreshold (and) https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#nogivehelpattitudethreshold (and) https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#demandtributeattitudethreshold (translate page/website to english with web browser etc) ; need to be below not above this value -->
 	"iNoGiveHelpAttitudeThreshold",
 	"iDeclareWarThemRefuseAttitudeThreshold",
 	"iStopTradingThemRefuseAttitudeThreshold",
@@ -124,7 +124,7 @@ AGGREGATED_ALL_CONTACT_PROBABILITY_ATTRIBUTES = set([
 	"iAggregatedContactTradeMapProb",
 ])
 
-# <!-- custom: some of these below are unused and thus commented-out (but functionnal and can be impelmented if wished (would need to change the xml values of leaders so that they are relevant though, as currently in default advciv xml and current advciv-sas xml too, no leader has a negative memory positive attitude value, or a postitive memory negative attitude value, but the system supprots it if it were to eb changed in xml values this way, commented-out for efficiency and effectiveness, perhaps performance too a bit or/and other etc, anyways.))
+# <!-- custom: some of these below are unused and thus commented-out (but functionnal and can be impelmented if wished (would need to change the xml values of leaders so that they are relevant though, as currently in default advciv xml and current advciv-sas xml too, no leader has a negative memory positive attitude value, or a postitive memory negative attitude value, but the system supprots it if it were to be changed in xml values this way, commented-out for efficiency and effectiveness, perhaps performance too a bit or/and other etc, anyways.))
 AGGREGATED_POSITIVE_MEMORY_AFFECTION_AND_RESENTMENT_ATTRIBUTES = set([
 	# ❤️ Positive Memory Affections
 	"iAggregatedPositiveMemoryGiveHelpAffection",

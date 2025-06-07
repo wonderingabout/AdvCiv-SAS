@@ -42,7 +42,7 @@ example of approach)
 - add lancer unit combat (? if i am not mistaken) type maybe: includes camel lancer
 
 - change starting strength to 10 but increase it more gradually? (more realistic?
-But then warriros would eb cheaper so increase a bit their cost? But then barabarians
+But then warriros would be cheaper so increase a bit their cost? But then barabarians
 would be stronger so adjust their spawn rate? But is maybe bad design to limit it so
 buff civs somehow too?)
 
