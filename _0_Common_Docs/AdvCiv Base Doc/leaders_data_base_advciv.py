@@ -7,7 +7,7 @@
        (___)_o   <-- Chicken wing of insight, a gift from wonderingabout
 
 Auto-generated leaders **data** module.
-Created: 20250607_142918
+Created: 20250607_135951
 
 Author: becomingthrough (ChatGPT)
 """
@@ -31,8 +31,8 @@ PARSED_XML_LEADERS_DATA = {
         "iMaxGoldPerTurnTradePercent": 0,
         "iCultureVictoryWeight": 0,
         "iSpaceVictoryWeight": 0,
-        "iConquestVictoryWeight": 70,
-        "iDominationVictoryWeight": 30,
+        "iConquestVictoryWeight": 0,
+        "iDominationVictoryWeight": 0,
         "iDiplomacyVictoryWeight": 0,
         "iMaxWarRand": 0,
         "iMaxWarNearbyPowerRatio": 0,
@@ -45,13 +45,13 @@ PARSED_XML_LEADERS_DATA = {
         "iDeclareWarTradeRand": 0,
         "iDemandRebukedSneakProb": 0,
         "iDemandRebukedWarProb": 0,
-        "iRazeCityProb": 75,
-        "iBuildUnitProb": 70,
-        "iBaseAttackOddsChange": 1,
-        "iAttackOddsChangeRand": 16,
-        "iWorseRankDifferenceAttitudeChange": -2,
+        "iRazeCityProb": 10,
+        "iBuildUnitProb": 50,
+        "iBaseAttackOddsChange": 2,
+        "iAttackOddsChangeRand": 21,
+        "iWorseRankDifferenceAttitudeChange": 0,
         "iBetterRankDifferenceAttitudeChange": 0,
-        "iCloseBordersAttitudeChange": -2,
+        "iCloseBordersAttitudeChange": 0,
         "iLostWarAttitudeChange": 0,
         "iAtWarAttitudeDivisor": 0,
         "iAtWarAttitudeChangeLimit": 0,
@@ -99,21 +99,7 @@ PARSED_XML_LEADERS_DATA = {
         "FavoriteCivic": "NONE",
         "FavoriteReligion": "NONE",
         "Traits": "",
-        "iFlavorMilitary": 10,
-        "UnitAIWeightModifiers": [
-            {
-                "UnitAIType": "UNITAI_RESERVE",
-                "iWeightModifier": "75"
-            },
-            {
-                "UnitAIType": "UNITAI_ATTACK_CITY",
-                "iWeightModifier": "75"
-            },
-            {
-                "UnitAIType": "UNITAI_WORKER",
-                "iWeightModifier": "75"
-            }
-        ],
+        "UnitAIWeightModifiers": "",
         "ImprovementWeightModifiers": "",
         "DiplomacyIntroMusicPeace": "",
         "DiplomacyMusicPeace": [
@@ -183,6 +169,7 @@ PARSED_XML_LEADERS_DATA = {
         "iNoWarAttitudeProbPleased": 0,
         "iNoWarAttitudeProbFriendly": 100,
         "iLoveOfPeace": 0,
+        "iFlavorMilitary": 0,
         "iFlavorReligion": 0,
         "iFlavorProduction": 0,
         "iFlavorGold": 0,
@@ -789,7 +776,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 20,
         "FavoriteCivic": "CIVIC_VASSALAGE",
-        "FavoriteReligion": "RELIGION_PAGANISM",
+        "FavoriteReligion": "NONE",
         "Traits": [
             {
                 "TraitType": "TRAIT_PHILOSOPHICAL",
@@ -1480,7 +1467,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 20,
         "FavoriteCivic": "CIVIC_REPRESENTATION",
-        "FavoriteReligion": "RELIGION_PAGANISM",
+        "FavoriteReligion": "NONE",
         "Traits": [
             {
                 "TraitType": "TRAIT_IMPERIALIST",
@@ -2147,7 +2134,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 10,
         "FavoriteCivic": "CIVIC_UNIVERSAL_SUFFRAGE",
-        "FavoriteReligion": "RELIGION_PAGANISM",
+        "FavoriteReligion": "NONE",
         "Traits": [
             {
                 "TraitType": "TRAIT_CHARISMATIC",
@@ -3458,7 +3445,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_NATIONHOOD",
-        "FavoriteReligion": "NONE",
+        "FavoriteReligion": "RELIGION_CHRISTIANITY",
         "Traits": [
             {
                 "TraitType": "TRAIT_CHARISMATIC",
@@ -4134,7 +4121,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_FREE_RELIGION",
-        "FavoriteReligion": "RELIGION_PAGANISM",
+        "FavoriteReligion": "NONE",
         "Traits": [
             {
                 "TraitType": "TRAIT_ORGANIZED",
@@ -5141,7 +5128,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": -1,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_UNIVERSAL_SUFFRAGE",
-        "FavoriteReligion": "NONE",
+        "FavoriteReligion": "RELIGION_CHRISTIANITY",
         "Traits": [
             {
                 "TraitType": "TRAIT_PHILOSOPHICAL",
@@ -5494,7 +5481,7 @@ PARSED_XML_LEADERS_DATA = {
         "iNoWarAttitudeProbFurious": 20,
         "iNoWarAttitudeProbAnnoyed": 50,
         "iNoWarAttitudeProbCautious": 85,
-        "iNoWarAttitudeProbPleased": 110,
+        "iNoWarAttitudeProbPleased": 115,
         "iNoWarAttitudeProbFriendly": 115,
         "UnitAIWeightModifiers": "",
         "ImprovementWeightModifiers": [
@@ -5808,7 +5795,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 50,
         "FavoriteCivic": "CIVIC_POLICE_STATE",
-        "FavoriteReligion": "RELIGION_DAOISM",
+        "FavoriteReligion": "NONE",
         "Traits": [
             {
                 "TraitType": "TRAIT_AGGRESSIVE",
@@ -6153,7 +6140,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_HEREDITARY_RULE",
-        "FavoriteReligion": "RELIGION_PAGANISM",
+        "FavoriteReligion": "NONE",
         "Traits": [
             {
                 "TraitType": "TRAIT_PROTECTIVE",
@@ -6478,7 +6465,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_BUREAUCRACY",
-        "FavoriteReligion": "RELIGION_PAGANISM",
+        "FavoriteReligion": "NONE",
         "Traits": [
             {
                 "TraitType": "TRAIT_ORGANIZED",
@@ -6803,7 +6790,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_FREE_MARKET",
-        "FavoriteReligion": "RELIGION_PAGANISM",
+        "FavoriteReligion": "NONE",
         "Traits": [
             {
                 "TraitType": "TRAIT_FINANCIAL",
@@ -7132,7 +7119,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 0,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_ORGANIZED_RELIGION",
-        "FavoriteReligion": "RELIGION_PAGANISM",
+        "FavoriteReligion": "NONE",
         "Traits": [
             {
                 "TraitType": "TRAIT_SPIRITUAL",
@@ -7490,7 +7477,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 0,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_HEREDITARY_RULE",
-        "FavoriteReligion": "RELIGION_PAGANISM",
+        "FavoriteReligion": "NONE",
         "Traits": [
             {
                 "TraitType": "TRAIT_INDUSTRIOUS",
@@ -8527,7 +8514,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 20,
         "FavoriteCivic": "CIVIC_REPRESENTATION",
-        "FavoriteReligion": "RELIGION_PAGANISM",
+        "FavoriteReligion": "NONE",
         "Traits": [
             {
                 "TraitType": "TRAIT_ORGANIZED",
@@ -9540,7 +9527,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_EMANCIPATION",
-        "FavoriteReligion": "NONE",
+        "FavoriteReligion": "RELIGION_CHRISTIANITY",
         "Traits": [
             {
                 "TraitType": "TRAIT_PHILOSOPHICAL",
@@ -10466,11 +10453,11 @@ PARSED_XML_LEADERS_DATA = {
         "iAggregatedNegativeMemoryCancelledVassalAgreementResentment": 50,
         "iAggregatedNegativeMemoryDeclaredWarRecentResentment": 50
     },
-    "LEADER_MAO_ZEDONG": {
-        "Type": "LEADER_MAO_ZEDONG",
-        "Description": "TXT_KEY_LEADER_MAO_ZEDONG",
-        "Civilopedia": "TXT_KEY_LEADER_MAO_ZEDONG_PEDIA",
-        "ArtDefineTag": "ART_DEF_LEADER_MAO_ZEDONG",
+    "LEADER_CHINESE_LEADER": {
+        "Type": "LEADER_CHINESE_LEADER",
+        "Description": "TXT_KEY_LEADER_CHINESE_LEADER",
+        "Civilopedia": "TXT_KEY_LEADER_CHINESE_LEADER_PEDIA",
+        "ArtDefineTag": "ART_DEF_LEADER_CHINESE_LEADER",
         "iWonderConstructRand": 10,
         "iBaseAttitude": 0,
         "iBasePeaceWeight": 1,
@@ -11124,11 +11111,11 @@ PARSED_XML_LEADERS_DATA = {
         "iAggregatedNegativeMemoryCancelledVassalAgreementResentment": 50,
         "iAggregatedNegativeMemoryDeclaredWarRecentResentment": 50
     },
-    "LEADER_MOCTEZUMA": {
-        "Type": "LEADER_MOCTEZUMA",
-        "Description": "TXT_KEY_LEADER_MOCTEZUMA",
-        "Civilopedia": "TXT_KEY_LEADER_MOCTEZUMA_PEDIA",
-        "ArtDefineTag": "ART_DEF_LEADER_MOCTEZUMA",
+    "LEADER_MONTEZUMA": {
+        "Type": "LEADER_MONTEZUMA",
+        "Description": "TXT_KEY_LEADER_MONTEZUMA",
+        "Civilopedia": "TXT_KEY_LEADER_MONTEZUMA_PEDIA",
+        "ArtDefineTag": "ART_DEF_LEADER_MONTEZUMA",
         "iWonderConstructRand": 0,
         "iBaseAttitude": -1,
         "iBasePeaceWeight": 0,
@@ -11180,7 +11167,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_POLICE_STATE",
-        "FavoriteReligion": "RELIGION_PAGANISM",
+        "FavoriteReligion": "NONE",
         "Traits": [
             {
                 "TraitType": "TRAIT_AGGRESSIVE",
@@ -11211,61 +11198,61 @@ PARSED_XML_LEADERS_DATA = {
         "DiplomacyIntroMusicPeace": [
             {
                 "EraType": "ERA_ANCIENT",
-                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_EARLY_INTRO"
+                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_EARLY_INTRO"
             },
             {
                 "EraType": "ERA_CLASSICAL",
-                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_EARLY_INTRO"
+                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_EARLY_INTRO"
             },
             {
                 "EraType": "ERA_MEDIEVAL",
-                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_MIDDLE_INTRO"
+                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_MIDDLE_INTRO"
             },
             {
                 "EraType": "ERA_RENAISSANCE",
-                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_MIDDLE_INTRO"
+                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_MIDDLE_INTRO"
             },
             {
                 "EraType": "ERA_INDUSTRIAL",
-                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_LATE_INTRO"
+                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_LATE_INTRO"
             },
             {
                 "EraType": "ERA_MODERN",
-                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_LATE_INTRO"
+                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_LATE_INTRO"
             },
             {
                 "EraType": "ERA_FUTURE",
-                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_LATE_INTRO"
+                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_LATE_INTRO"
             }
         ],
         "DiplomacyMusicPeace": [
             {
                 "EraType": "ERA_ANCIENT",
-                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_EARLY_LP"
+                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_EARLY_LP"
             },
             {
                 "EraType": "ERA_CLASSICAL",
-                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_EARLY_LP"
+                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_EARLY_LP"
             },
             {
                 "EraType": "ERA_MEDIEVAL",
-                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_MIDDLE_LP"
+                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_MIDDLE_LP"
             },
             {
                 "EraType": "ERA_RENAISSANCE",
-                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_MIDDLE_LP"
+                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_MIDDLE_LP"
             },
             {
                 "EraType": "ERA_INDUSTRIAL",
-                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_LATE_LP"
+                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_LATE_LP"
             },
             {
                 "EraType": "ERA_MODERN",
-                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_LATE_LP"
+                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_LATE_LP"
             },
             {
                 "EraType": "ERA_FUTURE",
-                "DiploScriptId": "AS2D_DIPLO_MOCTEZUMA_LATE_LP"
+                "DiploScriptId": "AS2D_DIPLO_MONTEZUMA_LATE_LP"
             }
         ],
         "DiplomacyIntroMusicWar": "",
@@ -11869,7 +11856,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_HEREDITARY_RULE",
-        "FavoriteReligion": "RELIGION_PAGANISM",
+        "FavoriteReligion": "NONE",
         "Traits": [
             {
                 "TraitType": "TRAIT_FINANCIAL",
@@ -12200,7 +12187,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_REPRESENTATION",
-        "FavoriteReligion": "RELIGION_PAGANISM",
+        "FavoriteReligion": "NONE",
         "Traits": [
             {
                 "TraitType": "TRAIT_PHILOSOPHICAL",
@@ -12895,7 +12882,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_BUREAUCRACY",
-        "FavoriteReligion": "RELIGION_DAOISM",
+        "FavoriteReligion": "RELIGION_TAOISM",
         "Traits": [
             {
                 "TraitType": "TRAIT_INDUSTRIOUS",
@@ -13228,7 +13215,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_HEREDITARY_RULE",
-        "FavoriteReligion": "RELIGION_PAGANISM",
+        "FavoriteReligion": "NONE",
         "Traits": [
             {
                 "TraitType": "TRAIT_FINANCIAL",
@@ -13561,7 +13548,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_ORGANIZED_RELIGION",
-        "FavoriteReligion": "RELIGION_PAGANISM",
+        "FavoriteReligion": "NONE",
         "Traits": [
             {
                 "TraitType": "TRAIT_SPIRITUAL",
@@ -14614,7 +14601,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 20,
         "FavoriteCivic": "CIVIC_POLICE_STATE",
-        "FavoriteReligion": "RELIGION_PAGANISM",
+        "FavoriteReligion": "NONE",
         "Traits": [
             {
                 "TraitType": "TRAIT_AGGRESSIVE",
@@ -14938,7 +14925,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 1,
         "iVassalPowerModifier": 50,
         "FavoriteCivic": "CIVIC_ENVIRONMENTALISM",
-        "FavoriteReligion": "RELIGION_PAGANISM",
+        "FavoriteReligion": "NONE",
         "Traits": [
             {
                 "TraitType": "TRAIT_PHILOSOPHICAL",
@@ -16946,7 +16933,7 @@ PARSED_XML_LEADERS_DATA = {
         "iVassalRefuseAttitudeThreshold": 0,
         "iVassalPowerModifier": 0,
         "FavoriteCivic": "CIVIC_CASTE_SYSTEM",
-        "FavoriteReligion": "RELIGION_BUDDHISM",
+        "FavoriteReligion": "RELIGION_CONFUCIANISM",
         "Traits": [
             {
                 "TraitType": "TRAIT_FINANCIAL",
@@ -17966,331 +17953,6 @@ PARSED_XML_LEADERS_DATA = {
             },
             {
                 "TraitType": "TRAIT_ORGANIZED",
-                "bTrait": "1"
-            }
-        ],
-        "iFlavorReligion": 2,
-        "iFlavorGrowth": 5,
-        "iNoWarAttitudeProbAnnoyed": 10,
-        "iNoWarAttitudeProbCautious": 50,
-        "iNoWarAttitudeProbPleased": 90,
-        "iNoWarAttitudeProbFriendly": 90,
-        "UnitAIWeightModifiers": [
-            {
-                "UnitAIType": "UNITAI_RESERVE",
-                "iWeightModifier": "25"
-            }
-        ],
-        "ImprovementWeightModifiers": [
-            {
-                "ImprovementType": "IMPROVEMENT_FARM",
-                "iWeightModifier": "20"
-            }
-        ],
-        "DiplomacyIntroMusicPeace": "",
-        "DiplomacyMusicPeace": [
-            {
-                "EraType": "ERA_ANCIENT",
-                "DiploScriptId": "AS2D_DIPLO_ZARA_YAQOB_EARLY"
-            },
-            {
-                "EraType": "ERA_CLASSICAL",
-                "DiploScriptId": "AS2D_DIPLO_ZARA_YAQOB_EARLY"
-            },
-            {
-                "EraType": "ERA_MEDIEVAL",
-                "DiploScriptId": "AS2D_DIPLO_ZARA_YAQOB_MIDDLE"
-            },
-            {
-                "EraType": "ERA_RENAISSANCE",
-                "DiploScriptId": "AS2D_DIPLO_ZARA_YAQOB_MIDDLE"
-            },
-            {
-                "EraType": "ERA_INDUSTRIAL",
-                "DiploScriptId": "AS2D_DIPLO_ZARA_YAQOB_LATE"
-            },
-            {
-                "EraType": "ERA_MODERN",
-                "DiploScriptId": "AS2D_DIPLO_ZARA_YAQOB_LATE"
-            },
-            {
-                "EraType": "ERA_FUTURE",
-                "DiploScriptId": "AS2D_DIPLO_ZARA_YAQOB_LATE"
-            }
-        ],
-        "DiplomacyIntroMusicWar": "",
-        "DiplomacyMusicWar": "",
-        "iPeaceWeightRand": 3,
-        "iMaxGoldPerTurnTradePercent": 10,
-        "iDeclareWarTradeRand": 40,
-        "iAttackOddsChangeRand": 8,
-        "iLostWarAttitudeChange": -1,
-        "iAtWarAttitudeDivisor": -5,
-        "iAtWarAttitudeChangeLimit": 5,
-        "iAtPeaceAttitudeDivisor": 60,
-        "iAtPeaceAttitudeChangeLimit": 1,
-        "iSameReligionAttitudeChange": 1,
-        "iSameReligionAttitudeDivisor": 10,
-        "iDifferentReligionAttitudeChange": -1,
-        "iDifferentReligionAttitudeDivisor": -15,
-        "iBonusTradeAttitudeDivisor": 50,
-        "iBonusTradeAttitudeChangeLimit": 2,
-        "iOpenBordersAttitudeDivisor": 25,
-        "iOpenBordersAttitudeChangeLimit": 2,
-        "iDefensivePactAttitudeDivisor": 12,
-        "iDefensivePactAttitudeChangeLimit": 2,
-        "iShareWarAttitudeChange": 1,
-        "iShareWarAttitudeDivisor": 8,
-        "iFavoriteCivicAttitudeChange": 1,
-        "iFavoriteCivicAttitudeDivisor": 10,
-        "iDemandTributeAttitudeThreshold": 0,
-        "iNoGiveHelpAttitudeThreshold": 0,
-        "iDefensivePactRefuseAttitudeThreshold": 1,
-        "iPermanentAllianceRefuseAttitudeThreshold": 1,
-        "iFreedomAppreciation": 10,
-        "iNoWarAttitudeProbFurious": 0,
-        "iLoveOfPeace": 0,
-        "iFlavorMilitary": 0,
-        "iFlavorProduction": 0,
-        "iFlavorGold": 0,
-        "iFlavorScience": 0,
-        "iFlavorCulture": 0,
-        "iFlavorEspionage": 0,
-        "iContactReligionPressureDelayRaw": 50,
-        "iContactReligionPressureRandRaw": 100,
-        "iContactCivicPressureDelayRaw": 50,
-        "iContactCivicPressureRandRaw": 250,
-        "iContactJoinWarDelayRaw": 20,
-        "iContactJoinWarRandRaw": 20,
-        "iContactStopTradingDelayRaw": 20,
-        "iContactStopTradingRandRaw": 50,
-        "iContactGiveHelpDelayRaw": 50,
-        "iContactGiveHelpRandRaw": 50,
-        "iContactAskForHelpDelayRaw": 50,
-        "iContactAskForHelpRandRaw": 50,
-        "iContactDemandTributeDelayRaw": 50,
-        "iContactDemandTributeRandRaw": 500,
-        "iContactTradeTechDelayRaw": 30,
-        "iContactTradeTechRandRaw": 1,
-        "iContactTradeBonusDelayRaw": 20,
-        "iContactTradeBonusRandRaw": 1,
-        "iContactPeaceTreatyDelayRaw": 15,
-        "iContactPeaceTreatyRandRaw": 15,
-        "iContactOpenBordersDelayRaw": 40,
-        "iContactOpenBordersRandRaw": 10,
-        "iContactDefensivePactDelayRaw": 20,
-        "iContactDefensivePactRandRaw": 80,
-        "iContactPermanentAllianceDelayRaw": 20,
-        "iContactPermanentAllianceRandRaw": 80,
-        "iContactTradeMapDelayRaw": 50,
-        "iContactTradeMapRandRaw": 20,
-        "iAggregatedContactReligionPressureProb": 95,
-        "iAggregatedContactCivicPressureProb": 91,
-        "iAggregatedContactJoinWarProb": 0,
-        "iAggregatedContactStopTradingProb": 50,
-        "iAggregatedContactGiveHelpProb": 99,
-        "iAggregatedContactAskForHelpProb": 97,
-        "iAggregatedContactDemandTributeProb": 78,
-        "iAggregatedContactTradeTechProb": 100,
-        "iAggregatedContactTradeBonusProb": 100,
-        "iAggregatedContactPeaceTreatyProb": 50,
-        "iAggregatedContactOpenBordersProb": 50,
-        "iAggregatedContactDefensivePactProb": 50,
-        "iAggregatedContactPermanentAllianceProb": 50,
-        "iAggregatedContactTradeMapProb": 50,
-        "iPositiveMemoryAttitudeGiveHelpRaw": 100,
-        "iPositiveMemoryDecayGiveHelpRaw": 150,
-        "iPositiveMemoryAttitudeAcceptDemandRaw": 100,
-        "iPositiveMemoryDecayAcceptDemandRaw": 30,
-        "iPositiveMemoryAttitudeAcceptedReligionRaw": 100,
-        "iPositiveMemoryDecayAcceptedReligionRaw": 100,
-        "iPositiveMemoryAttitudeAcceptedCivicRaw": 100,
-        "iPositiveMemoryDecayAcceptedCivicRaw": 100,
-        "iPositiveMemoryAttitudeAcceptedJoinWarRaw": 100,
-        "iPositiveMemoryDecayAcceptedJoinWarRaw": 100,
-        "iPositiveMemoryAttitudeAcceptedStopTradingRaw": 50,
-        "iPositiveMemoryDecayAcceptedStopTradingRaw": 50,
-        "iPositiveMemoryAttitudeVotedForUsRaw": 200,
-        "iPositiveMemoryDecayVotedForUsRaw": 10,
-        "iPositiveMemoryAttitudeEventGoodToUsRaw": 100,
-        "iPositiveMemoryDecayEventGoodToUsRaw": 50,
-        "iPositiveMemoryAttitudeLiberatedCitiesRaw": 150,
-        "iPositiveMemoryDecayLiberatedCitiesRaw": 150,
-        "iPositiveMemoryAttitudeIndependenceRaw": 100,
-        "iPositiveMemoryDecayIndependenceRaw": 30,
-        "iPositiveMemoryAttitudeTradedTechToUsRaw": 8,
-        "iPositiveMemoryDecayTradedTechToUsRaw": 25,
-        "iAggregatedPositiveMemoryGiveHelpAffection": 50,
-        "iAggregatedPositiveMemoryAcceptDemandAffection": 50,
-        "iAggregatedPositiveMemoryAcceptedReligionAffection": 50,
-        "iAggregatedPositiveMemoryAcceptedCivicAffection": 50,
-        "iAggregatedPositiveMemoryAcceptedJoinWarAffection": 50,
-        "iAggregatedPositiveMemoryAcceptedStopTradingAffection": 50,
-        "iAggregatedPositiveMemoryVotedForUsAffection": 50,
-        "iAggregatedPositiveMemoryEventGoodToUsAffection": 50,
-        "iAggregatedPositiveMemoryLiberatedCitiesAffection": 50,
-        "iAggregatedPositiveMemoryIndependenceAffection": 50,
-        "iAggregatedPositiveMemoryTradedTechToUsAffection": 20,
-        "iAggregatedPositiveMemoryGiveHelpResentment": 50,
-        "iAggregatedPositiveMemoryAcceptDemandResentment": 50,
-        "iAggregatedPositiveMemoryAcceptedReligionResentment": 50,
-        "iAggregatedPositiveMemoryAcceptedCivicResentment": 50,
-        "iAggregatedPositiveMemoryAcceptedJoinWarResentment": 50,
-        "iAggregatedPositiveMemoryAcceptedStopTradingResentment": 50,
-        "iAggregatedPositiveMemoryVotedForUsResentment": 50,
-        "iAggregatedPositiveMemoryEventGoodToUsResentment": 50,
-        "iAggregatedPositiveMemoryLiberatedCitiesResentment": 50,
-        "iAggregatedPositiveMemoryIndependenceResentment": 50,
-        "iAggregatedPositiveMemoryTradedTechToUsResentment": 50,
-        "iNegativeMemoryAttitudeDeclaredWarRaw": -300,
-        "iNegativeMemoryDecayDeclaredWarRaw": 150,
-        "iNegativeMemoryAttitudeDeclaredWarOnFriendRaw": -100,
-        "iNegativeMemoryDecayDeclaredWarOnFriendRaw": 120,
-        "iNegativeMemoryAttitudeHiredWarAllyRaw": -200,
-        "iNegativeMemoryDecayHiredWarAllyRaw": 75,
-        "iNegativeMemoryAttitudeNukedUsRaw": -200,
-        "iNegativeMemoryDecayNukedUsRaw": 120,
-        "iNegativeMemoryAttitudeNukedFriendRaw": -100,
-        "iNegativeMemoryDecayNukedFriendRaw": 80,
-        "iNegativeMemoryAttitudeRazedCityRaw": -250,
-        "iNegativeMemoryDecayRazedCityRaw": 75,
-        "iNegativeMemoryAttitudeRazedHolyCityRaw": -200,
-        "iNegativeMemoryDecayRazedHolyCityRaw": 150,
-        "iNegativeMemoryAttitudeSpyCaughtRaw": -100,
-        "iNegativeMemoryDecaySpyCaughtRaw": 40,
-        "iNegativeMemoryAttitudeRefusedHelpRaw": -100,
-        "iNegativeMemoryDecayRefusedHelpRaw": 100,
-        "iNegativeMemoryAttitudeRejectedDemandRaw": -100,
-        "iNegativeMemoryDecayRejectedDemandRaw": 90,
-        "iNegativeMemoryAttitudeDeniedReligionRaw": -100,
-        "iNegativeMemoryDecayDeniedReligionRaw": 50,
-        "iNegativeMemoryAttitudeDeniedCivicRaw": -100,
-        "iNegativeMemoryDecayDeniedCivicRaw": 50,
-        "iNegativeMemoryAttitudeDeniedJoinWarRaw": -100,
-        "iNegativeMemoryDecayDeniedJoinWarRaw": 100,
-        "iNegativeMemoryAttitudeDeniedStopTradingRaw": -100,
-        "iNegativeMemoryDecayDeniedStopTradingRaw": 50,
-        "iNegativeMemoryAttitudeStoppedTradingRaw": -100,
-        "iNegativeMemoryDecayStoppedTradingRaw": 60,
-        "iNegativeMemoryAttitudeHiredTradeEmbargoRaw": -100,
-        "iNegativeMemoryDecayHiredTradeEmbargoRaw": 60,
-        "iNegativeMemoryAttitudeMadeDemandRaw": -100,
-        "iNegativeMemoryDecayMadeDemandRaw": 30,
-        "iNegativeMemoryAttitudeVotedAgainstUsRaw": -200,
-        "iNegativeMemoryDecayVotedAgainstUsRaw": 10,
-        "iNegativeMemoryAttitudeEventBadToUsRaw": -100,
-        "iNegativeMemoryDecayEventBadToUsRaw": 50,
-        "iNegativeMemoryAttitudeCancelledVassalAgreementRaw": 0,
-        "iNegativeMemoryDecayCancelledVassalAgreementRaw": 10,
-        "iNegativeMemoryAttitudeDeclaredWarRecentRaw": 0,
-        "iNegativeMemoryDecayDeclaredWarRecentRaw": 11,
-        "iAggregatedNegativeMemoryDeclaredWarAffection": 50,
-        "iAggregatedNegativeMemoryDeclaredWarOnFriendAffection": 50,
-        "iAggregatedNegativeMemoryHiredWarAllyAffection": 50,
-        "iAggregatedNegativeMemoryNukedUsAffection": 50,
-        "iAggregatedNegativeMemoryNukedFriendAffection": 50,
-        "iAggregatedNegativeMemoryRazedCityAffection": 50,
-        "iAggregatedNegativeMemoryRazedHolyCityAffection": 50,
-        "iAggregatedNegativeMemorySpyCaughtAffection": 50,
-        "iAggregatedNegativeMemoryRefusedHelpAffection": 50,
-        "iAggregatedNegativeMemoryRejectedDemandAffection": 50,
-        "iAggregatedNegativeMemoryDeniedReligionAffection": 50,
-        "iAggregatedNegativeMemoryDeniedCivicAffection": 50,
-        "iAggregatedNegativeMemoryDeniedJoinWarAffection": 50,
-        "iAggregatedNegativeMemoryDeniedStopTradingAffection": 50,
-        "iAggregatedNegativeMemoryStoppedTradingAffection": 50,
-        "iAggregatedNegativeMemoryHiredTradeEmbargoAffection": 50,
-        "iAggregatedNegativeMemoryMadeDemandAffection": 50,
-        "iAggregatedNegativeMemoryVotedAgainstUsAffection": 50,
-        "iAggregatedNegativeMemoryEventBadToUsAffection": 50,
-        "iAggregatedNegativeMemoryCancelledVassalAgreementAffection": 50,
-        "iAggregatedNegativeMemoryDeclaredWarRecentAffection": 50,
-        "iAggregatedNegativeMemoryDeclaredWarResentment": 50,
-        "iAggregatedNegativeMemoryDeclaredWarOnFriendResentment": 0,
-        "iAggregatedNegativeMemoryHiredWarAllyResentment": 50,
-        "iAggregatedNegativeMemoryNukedUsResentment": 50,
-        "iAggregatedNegativeMemoryNukedFriendResentment": 0,
-        "iAggregatedNegativeMemoryRazedCityResentment": 50,
-        "iAggregatedNegativeMemoryRazedHolyCityResentment": 50,
-        "iAggregatedNegativeMemorySpyCaughtResentment": 0,
-        "iAggregatedNegativeMemoryRefusedHelpResentment": 50,
-        "iAggregatedNegativeMemoryRejectedDemandResentment": 50,
-        "iAggregatedNegativeMemoryDeniedReligionResentment": 50,
-        "iAggregatedNegativeMemoryDeniedCivicResentment": 50,
-        "iAggregatedNegativeMemoryDeniedJoinWarResentment": 50,
-        "iAggregatedNegativeMemoryDeniedStopTradingResentment": 50,
-        "iAggregatedNegativeMemoryStoppedTradingResentment": 100,
-        "iAggregatedNegativeMemoryHiredTradeEmbargoResentment": 50,
-        "iAggregatedNegativeMemoryMadeDemandResentment": 0,
-        "iAggregatedNegativeMemoryVotedAgainstUsResentment": 100,
-        "iAggregatedNegativeMemoryEventBadToUsResentment": 50,
-        "iAggregatedNegativeMemoryCancelledVassalAgreementResentment": 50,
-        "iAggregatedNegativeMemoryDeclaredWarRecentResentment": 50
-    },
-    "LEADER_OGISO_IGODO": {
-        "Type": "LEADER_OGISO_IGODO",
-        "Description": "TXT_KEY_LEADER_OGISO_IGODO",
-        "Civilopedia": "TXT_KEY_LEADER_OGISO_IGODO_PEDIA",
-        "ArtDefineTag": "ART_DEF_LEADER_OGISO_IGODO",
-        "iWonderConstructRand": 20,
-        "iBaseAttitude": 2,
-        "iBasePeaceWeight": 6,
-        "iWarmongerRespect": 1,
-        "iEspionageWeight": 100,
-        "iRefuseToTalkWarThreshold": 8,
-        "iNoTechTradeThreshold": 10,
-        "iTechTradeKnownPercent": 30,
-        "iMaxGoldTradePercent": 10,
-        "iCultureVictoryWeight": 50,
-        "iSpaceVictoryWeight": 35,
-        "iConquestVictoryWeight": 15,
-        "iDominationVictoryWeight": 15,
-        "iDiplomacyVictoryWeight": 35,
-        "iMaxWarRand": 200,
-        "iMaxWarNearbyPowerRatio": 100,
-        "iMaxWarDistantPowerRatio": 50,
-        "iMaxWarMinAdjacentLandPercent": 2,
-        "iLimitedWarRand": 100,
-        "iLimitedWarPowerRatio": 110,
-        "iDogpileWarRand": 50,
-        "iMakePeaceRand": 10,
-        "iDemandRebukedSneakProb": 50,
-        "iDemandRebukedWarProb": 10,
-        "iRazeCityProb": 5,
-        "iBuildUnitProb": 30,
-        "iBaseAttackOddsChange": 2,
-        "iWorseRankDifferenceAttitudeChange": -1,
-        "iBetterRankDifferenceAttitudeChange": 2,
-        "iCloseBordersAttitudeChange": -2,
-        "iSameReligionAttitudeChangeLimit": 6,
-        "iDifferentReligionAttitudeChangeLimit": -2,
-        "iShareWarAttitudeChangeLimit": 3,
-        "iFavoriteCivicAttitudeChangeLimit": 3,
-        "iTechRefuseAttitudeThreshold": -2,
-        "iCityRefuseAttitudeThreshold": 0,
-        "iNativeCityRefuseAttitudeThreshold": 0,
-        "iStrategicBonusRefuseAttitudeThreshold": -1,
-        "iHappinessBonusRefuseAttitudeThreshold": -2,
-        "iHealthBonusRefuseAttitudeThreshold": -2,
-        "iMapRefuseAttitudeThreshold": -1,
-        "iDeclareWarRefuseAttitudeThreshold": -1,
-        "iDeclareWarThemRefuseAttitudeThreshold": 1,
-        "iStopTradingRefuseAttitudeThreshold": 0,
-        "iStopTradingThemRefuseAttitudeThreshold": 0,
-        "iAdoptCivicRefuseAttitudeThreshold": -1,
-        "iConvertReligionRefuseAttitudeThreshold": 1,
-        "iOpenBordersRefuseAttitudeThreshold": -1,
-        "iVassalRefuseAttitudeThreshold": 0,
-        "iVassalPowerModifier": 0,
-        "FavoriteCivic": "CIVIC_HEREDITARY_RULE",
-        "FavoriteReligion": "RELIGION_PAGANISM",
-        "Traits": [
-            {
-                "TraitType": "TRAIT_PROTECTIVE",
-                "bTrait": "1"
-            },
-            {
-                "TraitType": "TRAIT_FINANCIAL",
                 "bTrait": "1"
             }
         ],

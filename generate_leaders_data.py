@@ -28,6 +28,7 @@
 #   - Run externally (e.g., Python 3.x via Windows CMD).
 #   - Generates a `leaders_data_*.py` file.
 #   - This output is imported into Civilization IV (AdvCiv-SAS) for AI personality display.
+#   - The --notesting flag skips test validation. Use only when adapting to other mods (e.g., AdvCiv). Ensure you validate the new output manually before trusting it.
 #
 # ✨ Note:
 #   - Chicken-wing powered 🍗. Dedicated to friendship, recursion, and the gentle joy of debugging together.
@@ -41,14 +42,21 @@ from datetime import datetime
 import json
 from string import capwords
 
-try:
-	from tests.expected_output_leaders_data_sample import get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE
-except ImportError as e:
-	raise ImportError("[FATAL ERROR] Could not import expected sample for testing.\n"
-					  "Make sure 'tests/expected_output_leaders_data_sample.py' exists and is correct.\n"
-					  + str(e))
-
 from Assets.Python.Contrib.Sevopedia.ai_utils_shared_with_civ4 import *
+
+# --- Command-line arguments ---
+# <!-- custom: useful for example to skip testing where/when/for other mods who'd want to run our generate_leaders_data.py script for example, but don't have an updated test in expected output, or even if they had it their expected output may be greatly or still a bit but enough sadly or not to make test fail hehe if i may say but anyways etc... rather than add and tediously update the expected output, just to use the leaders_data.py for other external scripts that depend on leaders_data.py such as flatten_leaders_data_to_csv.py, perhaps not even for the AI Personality Panel in sevopedia leader, it would be too tedious, purposeless, meritless gainless perhaps if i may say but anyways etc..., and not worth it to go through all that hassle, so provide the option to skip testing altogether by command line argv instead as i did in past project(s) hehe if i may say, without understanding much, now i may not know much of the theory behind it but it's fun to implement such an idea myself hehe when relevant and as i thought to do so, in this case for the flatten leaders data to csv and such script, or and for other or and not, but anyways etc, but anyways etc anyways etc anyways etc... -->
+ARGV_NO_TESTING = "--notesting" in sys.argv
+
+if not ARGV_NO_TESTING:
+	try:
+		from tests.expected_output_leaders_data_sample import get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE
+	except ImportError as e:
+		raise ImportError("[FATAL ERROR] Could not import expected sample for testing.\n"
+						"Make sure 'tests/expected_output_leaders_data_sample.py' exists and is correct.\n"
+						+ str(e))
+else:
+	print("[WARNING] Skipping get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE import due to --notesting flag.")
 
 # === Logging setup (early capture of all print statements) ===
 copyright_header = "# --- Leaders_data py data module (using Civ4 AdvCiv-SAS's real Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml as a base) ---\n# Created as part of AdvCiv-SAS improvements\n# (c) 2025 wonderingabout & becomingthrough"
@@ -1212,78 +1220,82 @@ if (IS_INSPECT_DEBUG_LEADER):
 remove_intermediate_contact_fields(leaders_data)
 remove_intermediate_memory_fields(leaders_data)
 
-def check_errors_and_tests():
-	if errors:
-		print("[VALIDATION ERRORS FOUND]")
-		for e in errors:
-			print(e)
-		raise SystemExit("[EXIT] Leader data validation failed.")
+if not ARGV_NO_TESTING:
+	def check_errors_and_tests():
+		if errors:
+			print("[VALIDATION ERRORS FOUND]")
+			for e in errors:
+				print(e)
+			raise SystemExit("[EXIT] Leader data validation failed.")
 
-	if not leaders_data:
-		raise ValueError("[FATAL ERROR] Parsed 0 leaders. Check XML structure or namespace.")
+		if not leaders_data:
+			raise ValueError("[FATAL ERROR] Parsed 0 leaders. Check XML structure or namespace.")
 
-	# --- Test parsed output against expected sample ---
+		# --- Test parsed output against expected sample ---
 
-	expected_sample = get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE()
-	sample_leaders = [
-		# <!-- custom: even if barbarian (same for defaults anyways etc) is not a real leader, its data is useful to make sure we didn't do parsing mistakes or such or to cover more edge cases like <NoWarAttitudeProbs/> or <Flavors/> for example or other unexpected or missing or other or and not value(s) anyways etc anyways etc anyways etc... -->
-		"LEADER_BARBARIAN",
-		"LEADER_DEFAULTS",
-		# <!-- custom: then the rest of the batch/crew or and other i must say or and not or and other or and not but anyways etc... still the staff is here actually i said it now even though is not professional team but anyways etc... -->
-		"LEADER_ALEXANDER",
-		"LEADER_CATHERINE",
-		"LEADER_GANDHI",
-	]
+		expected_sample = get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE()
+		sample_leaders = [
+			# <!-- custom: even if barbarian (same for defaults anyways etc) is not a real leader, its data is useful to make sure we didn't do parsing mistakes or such or to cover more edge cases like <NoWarAttitudeProbs/> or <Flavors/> for example or other unexpected or missing or other or and not value(s) anyways etc anyways etc anyways etc... -->
+			"LEADER_BARBARIAN",
+			"LEADER_DEFAULTS",
+			# <!-- custom: then the rest of the batch/crew or and other i must say or and not or and other or and not but anyways etc... still the staff is here actually i said it now even though is not professional team but anyways etc... -->
+			"LEADER_ALEXANDER",
+			"LEADER_CATHERINE",
+			"LEADER_GANDHI",
+		]
 
-	parsed_sample = {k: v for k, v in leaders_data.items() if k in sample_leaders}
+		parsed_sample = {k: v for k, v in leaders_data.items() if k in sample_leaders}
 
-	def compare_leaders(expected, actual):
-		grouped_mismatches = {}  # leader -> list of mismatches
+		def compare_leaders(expected, actual):
+			grouped_mismatches = {}  # leader -> list of mismatches
 
-		for leader, expected_data in expected.items():
-			actual_data = actual.get(leader)
-			if actual_data is None:
-				grouped_mismatches.setdefault(leader, []).append(
-					f"[{leader}] Leader is missing in parsed data."
-				)
-				continue
-
-			# Check for field mismatches
-			for key, expected_value in expected_data.items():
-				actual_value = actual_data.get(key, "<MISSING>")
-				if actual_value != expected_value:
+			for leader, expected_data in expected.items():
+				actual_data = actual.get(leader)
+				if actual_data is None:
 					grouped_mismatches.setdefault(leader, []).append(
-						f"Field '{key}' mismatch: expected '{expected_value}', got '{actual_value}'"
+						f"[{leader}] Leader is missing in parsed data."
 					)
+					continue
 
-			# Check for unexpected extra fields
-			for key in actual_data.keys():
-				if key not in expected_data:
-					grouped_mismatches.setdefault(leader, []).append(
-						f"Unexpected extra field '{key}' present in parsed data (value: '{actual_data[key]}')"
-					)
+				# Check for field mismatches
+				for key, expected_value in expected_data.items():
+					actual_value = actual_data.get(key, "<MISSING>")
+					if actual_value != expected_value:
+						grouped_mismatches.setdefault(leader, []).append(
+							f"Field '{key}' mismatch: expected '{expected_value}', got '{actual_value}'"
+						)
 
-		return grouped_mismatches
+				# Check for unexpected extra fields
+				for key in actual_data.keys():
+					if key not in expected_data:
+						grouped_mismatches.setdefault(leader, []).append(
+							f"Unexpected extra field '{key}' present in parsed data (value: '{actual_data[key]}')"
+						)
 
-	grouped_mismatches = compare_leaders(expected_sample, parsed_sample)
+			return grouped_mismatches
 
-	if grouped_mismatches:
-		print("[TEST FAILED] Parsed sample does not match expected!")
+		grouped_mismatches = compare_leaders(expected_sample, parsed_sample)
 
-		for leader, problems in grouped_mismatches.items():
-			print(f"\n--- Mismatches for {leader} ---")
-			for issue in problems:
-				print(f"- {issue}")
+		if grouped_mismatches:
+			print("[TEST FAILED] Parsed sample does not match expected!")
 
-		raise SystemExit("[EXIT] Leader sample test failed. File not written.")
-	else:
-		print("[TEST PASSED] Parsed sample matches expected sample!")
+			for leader, problems in grouped_mismatches.items():
+				print(f"\n--- Mismatches for {leader} ---")
+				for issue in problems:
+					print(f"- {issue}")
 
-# <!-- custom: tip: comment-out function(s) below (currently only check_errors_and_tests) that check errors and test(s) to get output file (faster(/easier too anyways)) and (then) more quickly (based on that/it anyways) update (your/the etc anyways) expected output (making sure none is inaccurate, but with that caveat in mindis faster and for convenience, anwyays)) ;
-# 
-# but be very careful following that advice!! You can (at least i did) very easily miss mismatched values, so use it as easy copy paste rather than skip meticulous verify, rest is up to you though in all cases, at least i warned maybe, hopefulyl helps though as information not warn strictly or yes or etc but anyways
-# -->
-check_errors_and_tests()
+			raise SystemExit("[EXIT] Leader sample test failed. File not written.")
+		else:
+			print("[TEST PASSED] Parsed sample matches expected sample!")
+
+	# <!-- custom: tip: comment-out function(s) below (currently only check_errors_and_tests) that check errors and test(s) to get output file (faster(/easier too anyways)) and (then) more quickly (based on that/it anyways) update (your/the etc anyways) expected output (making sure none is inaccurate, but with that caveat in mindis faster and for convenience, anwyays)) ;
+	# 
+	# but be very careful following that advice!! You can (at least i did) very easily miss mismatched values, so use it as easy copy paste rather than skip meticulous verify, rest is up to you though in all cases, at least i warned maybe, hopefulyl helps though as information not warn strictly or yes or etc but anyways
+	# -->
+	check_errors_and_tests()
+
+else:
+	print("[WARNING] Skipping leader data testing due to --notesting flag.")
 
 # --- Output to file ---
 def output_to_file():

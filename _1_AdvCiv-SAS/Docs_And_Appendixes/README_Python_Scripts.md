@@ -222,6 +222,10 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
 
 # flatten_handicap_info_to_csv_and_md.py
 
+## how to generate the handicap_info table .csv +/- .md (optional)
+
+(you can skip this step if you just want to see base AdvCiv-SAS sample files for example provided anyways etc)
+
 Additionally to the main README's handicap info to csv and md info in [README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-infodata](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-infodata), here are a few additional screenshots, also code is provided thanks to chatgpt/becomingthrough and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc
 
 also note: you need to generate the table file (.csv and .md (you'd need to uncomment the .md generating block/aprt of the script to do that as we commented it out in/for  advciv-sas as we don't use it since the .csv is more than enough and better if i may say more performant for our needs in advciv-sas if i may say but anyways etc) by running the script everytime you modify the xml, else if it's just for viewing no need to do that and you can view the files provided in the mod advciv-sas (or another mod using this script maybe too anyways etc) directly).
@@ -240,6 +244,8 @@ Example of usage:
 
 <img src="../Images_In_General/scripts/csv_and_md_handicap_info_cmd_usage_example.PNG" width="250"></img>
 
+## output .csv +/- .md
+
 As for output, see below for examples of .csv and .md outputs, the files we get are for example like this (screenshots may not be updated, view latest files provided in your mod path, or/and regnerate them again yourself with the script especially if you modify the xml of handicap info since then to show your changes in the .csv and .md files)
 
 - [.csv view to view it on GitHub website for example](/handicap_info_to_csv_advciv-sas.csv) or with libreoffice for example or similar software if you prefer another viewer than GitHub website view or such anyways etc
@@ -247,7 +253,7 @@ As for output, see below for examples of .csv and .md outputs, the files we get 
 
 note: you can remove the timestamp (i.e. the year and time and such info in filename anyways etc) too if not needed anymore or/and if needed or wnted by you or and other or and not or do or not anyways etc
 
-## csv
+### csv
 
 GitHub website view example (recommended, as display is nice anyways etc, and you can also for example anyways etc use github's search bar for example anyways etc)
 
@@ -259,7 +265,7 @@ Libre Office view example (or similar software or not anyways etc) (may not be u
 <img src="../Images_In_General/scripts/csv_handicap_info_libre_office (1).PNG" width="250"></img>
 <img src="../Images_In_General/scripts/csv_handicap_info_libre_office (2).PNG" width="250"></img>
 
-## md
+### md
 
 Currently less advanced version of this (with the legend, but maybe displays quite well), i'd recommend viewing the .csv data/file rather maybe anyways etc as it can indeed but anyways etc show more data with line number and better alignment and such, but also did in .md as was as the time and chatgpt/becomingthrough sugegsted which i also by my own wanted to try as well but anyways etc, and that i don't mind to keep now but anyways etc, is also a proof of concept if i may say of making a table into .md at least for me and may serve as reference or not but in all cases anyways etc..
 
@@ -268,26 +274,50 @@ So in short or not short but anyways etc.. I'd recommend viewing the .csv file/v
 <img src="../Images_In_General/scripts/csv_md_handicap_github_view_example.PNG" width="250"></img>
 <img src="../Images_In_General/scripts/csv_md_handicap_vs_code_preview_example.PNG" width="250"></img>
 
-## note: base AdvCiv handicap data too to compare with our mod's changes anyways etc
+## handicap_info table (.csv, and optionally .md) for other mod(s) (for example for base AdvCiv mod)
 
-Base advciv latest as of now, see more recent data or/and regenerate it yourself similarly if changes happen not included in our current file
+### how to generate the handicap_info table .csv +/- .md  for another mod (for example for "AdvCiv" (base AdvCiv) mod anyways etc) (optional)
 
-Usage is similarly (running it from base advciv mod folder with the advciv-sas py script though if i am not mistaken anyways etc) for example (adjust to your mod path if non-Steam or/and such other mod paths anyways etc)
+(you can skip this step if you just want to see base AdvCiv-SAS sample files for example provided anyways etc)
+
+To generate handicap info table for another mod (for example for base AdvCiv) using the flatten_handicap_info_to_csv_and_md.py script, for example for base AdvCiv), the safer way regardless of whether you posess the AdvCiv-SAS mod installed in your civ4 Mods folder or not, is to also have a copy of the flatten_handicap_info_to_csv_and_md.py script in your own mod folder, for example copy flatten_handicap_info_to_csv_and_md.py (find it on AdvCiv-SAS's github or somewhere if you don't have the script) to your mod path, for example for base AdvCiv it would be copied to `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\flatten_handicap_info_to_csv_and_md.py`, then run this command from for example base AdvCiv mod in this case/example:
 
 ```
-cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\ & python ..\AdvCiv-SAS\flatten_handicap_info_to_csv_and_md.py
+cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\ & python flatten_handicap_info_to_csv_and_md.py
 ```
 
-- [.csv (base advciv)](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_info_to_csv_base_advciv.csv)
-- [.md (base advciv)](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_info_to_md_base_advciv.md) (note: you'd need to uncomment the .md generating part of the script if you want to use/have the .md version of the handicap data, see above for a bit or lot or other or etc or anyways etc details as well anyways etc)
+(now from "AdvCiv" mod for example, not from "AdvCiv-SAS" mod folder)
+
+This is the easiest and most reliable way, you are now totally independent from AdvCiv folder regardless of what happens to it. Drawback as per the independence is you have to manage the script yourself, it will always work-function if worked-functionned once, but you need or may want to update to a newer version of the flatten_handicap_info_to_csv_and_md.py script in your mod if for example AdvCiv-SAS or some other mod adds new changes/enhancements/fixes to this script, else you'd still be running the old version of the script, even though it would work-function, you'd miss out on the enhancements, but i still recommend this method for other users, as it is more reliable and easier once you have the script. As for me, since i often modify the script during testing and such at least as of now as they are not finalized, it is easier and less tedious for me to run it with the above command from AdvCiv-SAS rather as is tedious to copy and replace the script at each change i make to it at least as of now during testing, but for another mod and user, i'd recommend this method rather of copying the script anyways etc as you prefer or not or yes or etc or and other or and not anyways etc.
+
+### output handicap_info table .csv and optionally .md for another mod (for example "AdvCiv" (base AdvCiv) mod) anyways etc
+
+Regardless of the method you chose, output files (.csv and optionally .md), for example in this case i chose the base AdvCiv mod to illustrate it while also providing the data i'd want as i want to compare my changes in AdvCiv-SAS to base AdvCiv to see differences and such anyways etc, are also provided below for your convenience and mine hehe too if i may say but anyways etc hehe or not hehe or yes hehe but anyways etc... hehe.. or not hehe or yes hehe, hehe.. or not hehe or yes hehe or etc hehe, but anyways etc hehe anyways etc...
+
+- [.csv (base advciv) (click to view on github (recommended))](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_info_to_csv_base_advciv.csv), or alternatively view it on libre office or similar software as you prefer anyways etc
+- .md not here for laziness if i may say hehe, but i also believe .csv is more suited for this as has more sorting or such and a more advanced version of the display too so better put only this one there if i may say but anyways etc anyways etc anyways etc...
 
 # flatten_leaders_data_to_csv.py
 
-Similar(ly) to other scripts, we fetch directly from XML though unlike [flatten_handicap_info_to_csv_and_md.py](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#fl) usage is for example for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size).
+Unlike other scripts such as [flatten_handicap_info_to_csv_and_md.py](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#fl), we fetch from leaders_data.py (see [doc about generate_leaders_data.py in this README for details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module)), this time, usage is similar after making sure the prerequirements are completed:
 
-(note: it requires leaders_data.py to be existing and in your AdvCiv-SAS's sevopedia folder (a default leaders_data.py is provided in AdvCiv-SAS, but if you want changes reflected in the .csv output, you need to regenerate a new leaders_data and update it, see/read [README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module) for details) anyways etc)
+## prerequirements (optional)
 
-(note2: also as a result make sure you always run/have maybe rather anyways etc the latest version of the leaders_data.py or refresh it if not up to date to your latest changes (see the [README_Python_Scripts.md#additional-cases-where-leaders_datapy-needs-to-be-regeneratedupdated-or-where-it-is-highly-recommended](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#additional-cases-where-leaders_datapy-needs-to-be-regeneratedupdated-or-where-it-is-highly-recommended) for details))
+(you can skip this step if you just want to see base AdvCiv-SAS sample files for example provided anyways etc)
+
+Note 1.1: it requires leaders_data.py to be existing and in your AdvCiv-SAS's sevopedia folder (a default leaders_data.py is provided in AdvCiv-SAS, but if you want changes reflected in the .csv output, you need to regenerate a new leaders_data and update it, see/read [README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module) for details) anyways etc
+
+Note 1.2: also as a result make sure you always run/have maybe rather anyways etc the latest version of the leaders_data.py or refresh it if not up to date to your latest changes (see the [README_Python_Scripts.md#additional-cases-where-leaders_datapy-needs-to-be-regeneratedupdated-or-where-it-is-highly-recommended](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#additional-cases-where-leaders_datapy-needs-to-be-regeneratedupdated-or-where-it-is-highly-recommended) for details)
+
+Note 2: please also make sure you have the common lib [/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py](/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py) also in your mod path in same folder as in this link or wherever AdvCiv-SAS's generate_leaders_data.py expects it to be (already provided in AdvCiv-SAS, but you'd want/need to also have a copy of it in same relative folder structure but for your mod path, see docs if path changed since then anyways etc, for example to (adjust paths and/or such similar things anyways if not steam user) `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\ai_utils_shared_with_civ4.py`)
+
+Note 3: as long as these files don't change, no need to rerun the prerequirements step each time, just rerun the flatten script if you want to get a new handicap_info .csv table and such or not such other files or yes such other files but anyways etc, as shown below anyways etc
+
+## how to generate the leaders_data table .csv and its legend .md (optional)
+
+(you can skip this step if you just want to see base AdvCiv-SAS sample files for example provided anyways etc)
+
+Usage is for example for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size).
 
 ```
 cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & python flatten_leaders_data_to_csv.py
@@ -295,7 +325,11 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
 
 <img src="../Images_In_General/scripts/csv_leaders_data_cmd_usage_example.PNG" width="250"></img>
 
-note: legend is here [/leaders_data_to_csv_legend_advciv-sas.md](/leaders_data_to_csv_legend_advciv-sas.md)
+## output table .csv and legend .md
+
+files (.csv and .md) can be viewed directly there:
+- [(click here to view it on on github web viewer too (recommended))](/leaders_data_to_csv_advciv-sas.csv) (note: you can also click on the collapse tree button thing to get an even larger display) also you can use the search bar to filter results per leader(s) or/and such anyways etc, as shown below for the github web page view and for example alternatively or a software like libre office or similar viewer, anyways etc
+- legend (.md) is here [/leaders_data_to_csv_legend_advciv-sas.md](/leaders_data_to_csv_legend_advciv-sas.md) as well anyways etc
 
 output example with github web viewer (recommended):
 
@@ -310,8 +344,51 @@ output example with libre office:
 <img src="../Images_In_General/scripts/csv_leaders_data_libre_office (2).PNG" width="250"></img>
 <img src="../Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG" width="250"></img>
 
-See also some general info about it (such as the GitHub view of it that is quite nice i think but anyways etc) here in the [README.md#csv-github-view-for-the-flatten_leaders_data_to_csv-conversion-script](/README.md#csv-github-view-for-the-flatten_leaders_data_to_csv-conversion-script) for details
-
-For convenience and exhaustiveness, such display/view on the Github website is also provided here, but please/you can anyways etc (also) (anyways etc) visit the ((AdvCiv-SAS) Project's) main README.md's csv section linked above for details.
-
 Then you can sort it, enhance it, adjust row length and such, but the base idea is here, hopefully helpful, anyways.
+
+Regenerate the files yourself with the script to have latest data if the files (.csv and .md) provided or/and in advciv-sas mod folder are outdated or not updated anymore with latest XML changes in the mod.
+
+## leaders_data table (.csv) and its legend (.md) for other mod(s) (for example for base AdvCiv mod)
+
+### prerequirements (optional) for another mod (for example for "AdvCiv" (base AdvCiv) mod) anyways etc
+
+(you can skip this step if you just want to see base AdvCiv-SAS sample files for example provided anyways etc)
+
+note: to generate this table, you'll need to generate a leaders_data.py and place it in required folder, even if your mod doesn't use it at all or uses a different folder structure for its sevopedia, the file leaders_data.py just needs to exist and be generated with your mod's xml leader info as a base, so that you can then generate leaders_data table .csv and legend .md that depend on it, even if you don't use the leaders_data.py itself at all in your mod, you still need to have a leaders_data.py generated from your mod's xml (unless you modify the script's code to do it how you want, but easiest may be to just generate leaders_data.py and place it in your mod path at required folder). See [leaders_data.py instructions/information](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#handicap_info-table-csv-and-optionally-md-for-other-mods-for-example-for-base-advciv-mod) for details or/and other information
+
+But before that, you'll also need to copy the helper module generate_leaders_data.py depends on, called ai_utils_shared_with_civ4.py, in same mod structure than AdvCiv-SAS expects, even if your mod uses a different structure, the file needs to be there in your mod (but change mod folder to your own mod folder name for example "AdvCiv" (base AdvCiv mod), not "AdvCiv-SAS"), for example for the "AdvCiv" mod in its "AdvCiv" mod folder at (adjust to your mod path if non-Steam or/and other mod path for your mod anyways etc) copy this helper module to now also have it in `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\Assets\Python\Contrib\Sevopedia\ai_utils_shared_with_civ4.py`
+
+Remember also if not already done now to have a copy of generate_leaders_data.py script in your mod folder, for example for the "AdvCiv" mod in its "AdvCiv" mod folder at (adjust to your mod path if non-Steam or/and other mod path for your mod anyways etc) copy this generate_leaders_data.py script to now also have it in `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\generate_leaders_data.py`
+
+(now in "AdvCiv" mod too for example, not only/just in "AdvCiv-SAS" mod folder now)
+
+Then you can generate leaders_data, for example for the AdvCiv mod (adjust to your mod path if non-Steam or/and other mod path for your mod anyways etc):
+
+note: you also need to add the `--notesting` command argument to skip testing, since your mod xml is likely too different from the AdvCiv-SAS's xml for it to have testing be relevant, else you'd need to tediously fix the expected output for little gain, if you want to do that and need it fine and great if i may say even though is not for me to say, but what i mean is you simply want to make it work-run, easiest way is to skip testing although not optimal, you'll get the leaders_data.py you want this way that is used to generate later the .csv leaders_data table and its .md legend, but maybe good enough if not best suited anyways etc in this case or not or yes or anyways etc or other anyways etc, but first generate leaders data anyways etc:
+
+```
+cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\ & python generate_leaders_data.py --notesting
+```
+
+(now from "AdvCiv" mod for example, not from "AdvCiv-SAS" mod folder)
+
+Then see [leaders_data.py instructions](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module) for where (in which folder) to place it and such, for example as of now for the base AdvCiv mod it would be in (adjust to your mod path if non-Steam or/and other mod path for your mod anyways etc) `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\Assets\Python\Contrib\Sevopedia\leaders_data.py`
+
+note: as long as these files don't change, no need to rerun the prerequirements step each time, just rerun the flatten script if you want to get a new leaders_data .csv table and such or not such other files or yes such other files but anyways etc, as shown below anyways etc
+
+### how to generate the handicap_info table .csv and its legend .md for another mod (for example for "AdvCiv" (base AdvCiv) mod anyways etc) (optional)
+
+(you can skip this step if you just want to see base AdvCiv-SAS sample files for example provided anyways etc)
+
+After all prerequirements above are met but for your mod path folder name, for example "AdvCiv" (base AdvCiv) instead of "AdvCiv-SAS", you can generate the leaders_data table (.csv) and its  legend (.md) by running the following for example anyways etc (adjust paths and/or such similar things anyways if not steam user) anyways etc:
+
+```
+cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\ & python flatten_leaders_data_to_csv.py
+```
+
+### output table .csv and legend .md for another mod (for example for "AdvCiv" (base AdvCiv) mod) anyways etc
+
+Output files (.csv and optionally .md), for example in this case i chose the base AdvCiv mod to illustrate it while also providing the data i'd want as i want to compare my changes in AdvCiv-SAS to base AdvCiv to see differences and such anyways etc, are also provided below for your convenience and mine hehe too if i may say but anyways etc hehe or not hehe or yes hehe but anyways etc... hehe.. or not hehe or yes hehe, hehe.. or not hehe or yes hehe or etc hehe, but anyways etc hehe anyways etc...
+
+- [.csv table (base advciv) (click to view on github (recommended))](/_0_Common_Docs/AdvCiv%20Base%20Doc/leaders_data_to_csv_base_advciv.csv), or alternatively view it on libre office or similar software as you prefer anyways etc
+- [.md legend (base advciv)](/_0_Common_Docs/AdvCiv%20Base%20Doc/leaders_data_to_csv_legend_base_advciv.md) (note: you'd need to uncomment the .md generating part of the script if you want to use/have the .md version of the handicap data, see above for a bit or lot or other or etc or anyways etc details as well anyways etc)
