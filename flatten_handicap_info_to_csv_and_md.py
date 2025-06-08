@@ -13,7 +13,7 @@
 #
 # 1. <Goodies>:
 #    - All GOODY_* entries (e.g. GOODY_LOW_GOLD, GOODY_SCOUT) are flattened into explicit fields.
-#    - Output field names use their original enum name (e.g. "GOODY_LOW_GOLD").
+#    - Output field names preserve their original enum prefix and name (e.g. "GOODY_LOW_GOLD").
 #    - In the CSV, each goody field is labeled with "(*)" and followed by a footnote explaining the x-in-20 hut chance system.
 #
 # 2. <FreeTechs> and <AIFreeTechs>:
@@ -25,7 +25,8 @@
 # - Legends shifted one column to the right for better spreadsheet readability
 # - Enum beautification for difficulty names (e.g. HANDICAP_IMMORTAL → Immortal)
 # - Consistent sorting and field placement, including manual repositioning of goodies and nested fields
-# - Final footnote explaining hut behavior for goodies, placed after the [LEGEND] block
+# - A final explanatory footnote on hut behavior is added as a fully right-shifted row after the [LEGEND] block,
+#   consistent with spreadsheet alignment.
 #
 # Markdown export is present but disabled by default.
 
@@ -127,7 +128,7 @@ for handicap_info in handicap_infos.findall('ns:HandicapInfo', namespace):
 				if goody in goody_counts:
 					goody_counts[goody] += 1
 
-			# Flatten into individual fields like iGoodyLowGold
+			# Flatten into individual fields
 			for gt in ALL_GOODY_TYPES:
 				field_name = gt  # Just use the original full enum name
 				handicap_dict[field_name] = str(goody_counts[gt])
@@ -170,21 +171,14 @@ ANCHOR_FIELD = "iUnownedWaterTilesPerBarbarianUnit"
 before = []
 goody_rows = []
 nested = []
-after_anchor = False
 
 for row in rows:
 	if row["Field"] in GOODY_FIELDS:
 		goody_rows.append(row)
 	elif row["Field"] in NESTED_FIELDS:
 		nested.append(row)
-	elif row["Field"] == ANCHOR_FIELD:
-		before.append(row)
-		after_anchor = True
 	else:
-		if after_anchor:
-			before.append(row)
-		else:
-			before.append(row)
+		before.append(row)
 
 # Reinsert in proper order
 new_rows = []
