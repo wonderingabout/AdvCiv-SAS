@@ -258,7 +258,7 @@ note: you can remove the timestamp (i.e. the year and time and such info in file
 GitHub website view example (recommended, as display is nice anyways etc, and you can also for example anyways etc use github's search bar for example anyways etc)
 
 <img src="../Images_In_General/scripts/csv_handicap_info_github_view_example.PNG" width="250"></img>
-<img src="../Images_In_General/scripts/csv_md_handicap_github_view_search_bar_example.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_handicap_github_view_search_bar_example.PNG" width="250"></img>
 
 Libre Office view example (or similar software or not anyways etc) (may not be updated, view on github instead as explained in main readme or view your own file locally .csv in your mod with libre office or a similar viewer/editor, thanks anyways etc thanks):
 
@@ -280,7 +280,9 @@ So in short or not short but anyways etc.. I'd recommend viewing the .csv file/v
 
 (you can skip this step if you just want to see base AdvCiv-SAS sample files for example provided anyways etc)
 
-To generate handicap info table for another mod (for example for base AdvCiv) using the flatten_handicap_info_to_csv_and_md.py script, for example for base AdvCiv), the safer way regardless of whether you posess the AdvCiv-SAS mod installed in your civ4 Mods folder or not, is to also have a copy of the flatten_handicap_info_to_csv_and_md.py script in your own mod folder, for example copy flatten_handicap_info_to_csv_and_md.py (find it on AdvCiv-SAS's github or somewhere if you don't have the script) to your mod path, for example for base AdvCiv it would be copied to `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\flatten_handicap_info_to_csv_and_md.py`, then run this command from for example base AdvCiv mod in this case/example:
+To generate handicap info table for another mod (for example for base AdvCiv) using the flatten_handicap_info_to_csv_and_md.py script, for example for base AdvCiv), copy the flatten_handicap_info_to_csv_and_md.py script from the AdvCiv-SAS folder to your mod folder, for example copy flatten_handicap_info_to_csv_and_md.py (find it on AdvCiv-SAS's github or somewhere if you don't have the script) to for example for base AdvCiv to (adjust paths and/or such similar things anyways if not steam user) `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\flatten_handicap_info_to_csv_and_md.py`
+
+Then run this command from for example base AdvCiv mod in this case/example (adjust paths and/or such similar things anyways if not steam user):
 
 ```
 cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\ & python flatten_handicap_info_to_csv_and_md.py
@@ -288,11 +290,9 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
 
 (now from "AdvCiv" mod for example, not from "AdvCiv-SAS" mod folder)
 
-This is the easiest and most reliable way, you are now totally independent from AdvCiv folder regardless of what happens to it. Drawback as per the independence is you have to manage the script yourself, it will always work-function if worked-functionned once, but you need or may want to update to a newer version of the flatten_handicap_info_to_csv_and_md.py script in your mod if for example AdvCiv-SAS or some other mod adds new changes/enhancements/fixes to this script, else you'd still be running the old version of the script, even though it would work-function, you'd miss out on the enhancements, but i still recommend this method for other users, as it is more reliable and easier once you have the script. As for me, since i often modify the script during testing and such at least as of now as they are not finalized, it is easier and less tedious for me to run it with the above command from AdvCiv-SAS rather as is tedious to copy and replace the script at each change i make to it at least as of now during testing, but for another mod and user, i'd recommend this method rather of copying the script anyways etc as you prefer or not or yes or etc or and other or and not anyways etc.
-
 ### output handicap_info table .csv and optionally .md for another mod (for example "AdvCiv" (base AdvCiv) mod) anyways etc
 
-Regardless of the method you chose, output files (.csv and optionally .md), for example in this case i chose the base AdvCiv mod to illustrate it while also providing the data i'd want as i want to compare my changes in AdvCiv-SAS to base AdvCiv to see differences and such anyways etc, are also provided below for your convenience and mine hehe too if i may say but anyways etc hehe or not hehe or yes hehe but anyways etc... hehe.. or not hehe or yes hehe, hehe.. or not hehe or yes hehe or etc hehe, but anyways etc hehe anyways etc...
+Output files (.csv and optionally .md), for example in this case i chose the base AdvCiv mod to illustrate it while also providing the data i'd want as i want to compare my changes in AdvCiv-SAS to base AdvCiv to see differences and such anyways etc, are also provided below for your convenience and mine hehe too if i may say but anyways etc hehe or not hehe or yes hehe but anyways etc... hehe.. or not hehe or yes hehe, hehe.. or not hehe or yes hehe or etc hehe, but anyways etc hehe anyways etc...
 
 - [.csv (base advciv) (click to view on github (recommended))](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_info_to_csv_base_advciv.csv), or alternatively view it on libre office or similar software as you prefer anyways etc
 - .md not here for laziness if i may say hehe, but i also believe .csv is more suited for this as has more sorting or such and a more advanced version of the display too so better put only this one there if i may say but anyways etc anyways etc anyways etc...
@@ -327,7 +327,7 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
 
 ## output table .csv and legend .md
 
-files (.csv and .md) can be viewed directly there:
+Output files (.csv and .md) can be viewed directly there:
 - [(click here to view it on on github web viewer too (recommended))](/leaders_data_to_csv_advciv-sas.csv) (note: you can also click on the collapse tree button thing to get an even larger display) also you can use the search bar to filter results per leader(s) or/and such anyways etc, as shown below for the github web page view and for example alternatively or a software like libre office or similar viewer, anyways etc
 - legend (.md) is here [/leaders_data_to_csv_legend_advciv-sas.md](/leaders_data_to_csv_legend_advciv-sas.md) as well anyways etc
 

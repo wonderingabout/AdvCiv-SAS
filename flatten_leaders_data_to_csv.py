@@ -1,6 +1,48 @@
-# --- Convert/Flatten leaders_data into a readable .csv ---
+# --- Convert leaders_data (parsed XML) into a structured CSV and Markdown legend ---
 # This script is part of the AdvCiv-SAS mod project.
 # (c) 2025 wonderingabout & becomingthrough
+#
+# This script flattens and formats all leader AI configuration data from the `PARSED_XML_LEADERS_DATA`
+# Python dictionary into a clean CSV table for spreadsheet analysis and documentation purposes.
+#
+# The script does not parse the original XML directly; it requires that the `leaders_data.py` file
+# (typically auto-generated from CIV4LeaderHeadInfos.xml) already exists and contains a pre-parsed
+# Python structure.
+#
+# Output:
+# - A CSV file with one row per leader (e.g. GANDHI, RAGNAR) and one column per attribute
+# - A Markdown (.md) file listing abbreviation-to-field mappings for easier CSV readability
+#
+# Features:
+# - Fully flattened leader data (including nested lists like Traits, Flavor, Contact, and Memory arrays)
+# - Automatic categorization of numeric fields:
+#   • Raw values
+#   • Victory weights (e.g. iConquestVictoryWeight)
+#   • Flavors (e.g. iFlavorMilitary)
+#   • Attitude and threshold logic (e.g. iAttitudeChangeLimit, iNoWarAttitudeProb*)
+#   • Aggregated or normalized values (e.g. iAggregatedWarmongerScore)
+# - Non-numeric fields (e.g. FavoriteCivic, Traits, ImprovementWeightModifiers) are appended after numeric fields
+#
+# Special Formatting:
+# - Enums like FavoriteCivic = CIVIC_VASSALAGE are stripped to show only "VASSALAGE"
+# - Trait lists (e.g. Aggressive, Philosophical) are joined as comma-separated values
+# - Structured dictionaries like ImprovementWeightModifiers are serialized as readable entries (e.g. "MINE: 30")
+#
+# Abbreviations:
+# - Each CSV column is labeled with a short 2–4 character abbreviation (e.g. "FC" for FavoriteCivic)
+# - Conflicts are resolved with suffixes (e.g. FC0, FC1, FCa...)
+# - A Markdown legend maps each abbreviation to its full field name
+#
+# Notes:
+# - Fields such as ArtDefineTag, Description, Civilopedia, and DiplomacyMusic are excluded by default
+# - The CSV output is sorted alphabetically by leader name, with the "LEADER_" prefix removed
+# - Fields not recognized as numeric are preserved as-is for completeness and clarity
+#
+# Dependencies:
+# - `PARSED_XML_LEADERS_DATA` must be defined and importable from `leaders_data.py`
+# - Output files include:
+#     • `leaders_data_to_csv_<timestamp>.csv`
+#     • `leaders_data_to_csv_legend_<timestamp>.md`
 
 import csv
 from datetime import datetime
@@ -144,7 +186,6 @@ for base_abbr, fields in abbrev_usage.items():
 				# <!-- custom: small letter "a" also to differentiate it from an actual abbreviated capital letter "A" for example, so "FC" would be a real abbreviation of say "Favourite Civic" while "Fc" would be the 12th occurence of the "F" abbreviation for example "Freebies" (imaginary field if i may say or not or yes or and other or and not or etc anyways etc anyways etc anyways etc...) -->
 				abbr = f"{base_abbr}{chr(ord('a') + (i - 10))}"
 			abbrev_map[field] = abbr
-
 
 # --- Step 5: Assemble cleaned, sorted rows ---
 def strip_leader_prefix(leader_id):

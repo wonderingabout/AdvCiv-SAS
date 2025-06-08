@@ -261,7 +261,6 @@ def parse_refuse_attitude_thresholds(tag, text, leader, leader_data):
 	attr_name = f"i{tag}"
 	leader_data[attr_name] = ATTITUDE_MAP[text]
 
-
 # <!-- custom: for example if leader alexander has nowar missing / missing / 20 / 80 / missing, and defaults are nowar 0 / 0 / 0 / 0 / 100, then we want to parse any value alexander has to a higher number for example first to missing / missing / 20 / 80 / 80 and only then fetch missing values from defaults, so 0 / 0 / 20 / 80 / 80 for leader alexander's parsing nowar parsing for example, that we'd then parse exported as individual fields like iNoWarAttitudeProbFurious 0, etc... until iNoWarAttitudeProbFriendly 100 and in that order (matching NO_WAR_ATTITUDE_FIELDS[0]) -->
 def parse_no_war_attitude_probs_inline(child, leader_data, leader_key):
 	"""
@@ -414,7 +413,6 @@ def parse_contact_delays_inline(parent_node):
 		else:
 			raise ValueError(f"[MISSING] ContactDelay is missing field(s): {contact_type=} {delay_val=}")
 	return results
-
 
 def parse_contact_rands_inline(parent_node):
 	results = []
