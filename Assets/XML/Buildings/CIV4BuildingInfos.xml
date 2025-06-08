@@ -4267,7 +4267,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
 			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
 			<iHealRateChange>0</iHealRateChange>
-			<iHealth>2</iHealth>
+			<iHealth>1</iHealth>
 			<iAreaHealth>0</iAreaHealth>
 			<iGlobalHealth>0</iGlobalHealth>
 			<iHappiness>0</iHappiness>
@@ -4296,7 +4296,11 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
 			<GlobalSeaPlotYieldChanges/>
-			<YieldChanges/>
+			<YieldChanges>
+				<iYield>1</iYield>
+				<iYield>0</iYield>
+				<iYield>0</iYield>
+			</YieldChanges>
 			<CommerceChanges/>
 			<ObsoleteSafeCommerceChanges/>
 			<CommerceChangeDoubleTimes/>
@@ -4810,7 +4814,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<RiverPlotYieldChanges/>
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges>
-				<iYield>2</iYield>
+				<iYield>1</iYield>
 				<iYield>0</iYield>
 				<iYield>0</iYield>
 			</YieldChanges>
