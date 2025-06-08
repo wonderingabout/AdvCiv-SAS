@@ -442,6 +442,8 @@ In this example the nif was in a .fpk, but i assume it would work similarly if f
 
 Be careful to import all nif related files in the same folder in your mod (or in advciv-sas in this example anyways etc), i am not too technical nor knowledgeable about these but it seems to work/function well for this nif import, hopefully this is helpful too for those who want to try it or not or maybe is helpful or not or yes or etc or and other or and not but anyways etc anyways etc anyways etc...
 
+Note: be careful, in some mods/cases anyways etc the assets such as nif may be scattered across several different fkps, like in ri mod smokehouse1 's nif, scattered accross RI_37_Structures2.FPK (iroquoislh.nif and asian_building.dds) and RI_37_Structures9.FPK (asian_building_shadow.dds) so need to gather them all in one folder if not doing an FPK approach (we don't do FPKs in AdvCiv-SAS at least as of now, anyways etc, see screenshots in the drive link above for details/example anyways etc)
+
 ## Files
 
 Please see the files (mostly if not only images) [in the Modding_Ressources Google Drive](https://drive.google.com/drive/folders/1Hx-bvRy7joM54S0Vnmva6HX1h8ZZ-LAh?usp=sharing)

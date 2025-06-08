@@ -480,7 +480,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>4</iGridX>
-			<iGridY>9</iGridY>
+			<iGridY>7</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -729,7 +729,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>9</iGridX>
-			<iGridY>12</iGridY>
+			<iGridY>10</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -2768,7 +2768,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>7</iGridX>
-			<iGridY>9</iGridY>
+			<iGridY>7</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -3227,10 +3227,13 @@
 					<iFlavor>5</iFlavor>
 				</Flavor>
 			</Flavors>
-			<OrPreReqs/>
+			<OrPreReqs>
+				<PrereqTech>TECH_MEDITATION</PrereqTech>
+				<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
+			</OrPreReqs>
+			<!-- custom: astronomy quite strongly liinked to india's history if i am not mistaken anywyas etc in https://en.wikipedia.org/wiki/Indian_astronomy, approximate it by tech_meditation that happens in the late classical time now in our reworked tech tree if i am not mistaken anyways etc (even though is still todo as of now but anyways etc), heliocentrism also linked to aristarchus 's (greek astronomer around 250 BCE if i am not mistaken from this quick search anyways etc https://en.wikipedia.org/wiki/Heliocentrism), is also quite good from a balance standpoint to make these techs more useful than the usual education scientific method of our new tech tree reworked anyways etc -->
 			<AndPreReqs>
-				<PrereqTech>TECH_CALENDAR</PrereqTech>
-				<PrereqTech>TECH_OPTICS</PrereqTech>
+				<PrereqTech>TECH_COMPASS</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_ASTRONOMY_QUOTE</Quote>
 			<Sound>AS2D_TECH_ASTRONOMY</Sound>
@@ -3574,8 +3577,8 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>5</iGridX>
-			<iGridY>7</iGridY>
+			<iGridX>9</iGridX>
+			<iGridY>12</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>

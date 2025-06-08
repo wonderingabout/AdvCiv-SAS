@@ -158,6 +158,17 @@
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Granary.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,5,4</Button>
 		</BuildingArtInfo>
+		<!-- custom: german_longhouse art animation import from the RI mod (seemingly scattered accross RI_37_Structures2.FPK (iroquoislh.nif and asian_building.dds) and RI_37_Structures9.FPK (asian_building_shadow.dds) so had to import both and gather them all in one advciv-sas folder if i'm not mistaken anyways etc) see modding ressources example nif import info for details (screenshots and such for example mainly but anyways etc) anyways etc ; as for the button, import from RI mod's longhouse.dds in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Realism Invictus\Assets\RI_37_Interface1.FPK and a part of the smokehouse1 structure's nif files (here only asian_building_shadow.dds it seems if i am not mistaken anyways etc) was scattered in RI_37_Structures9.FPK as well anyways etc, and modified/adjusted or not for AdvCiv-SAS anyways etc -->
+		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_GERMAN_LONGHOUSE</Type>
+			<LSystem>LSYSTEM_2x1</LSystem>
+			<bAnimated>0</bAnimated>
+			<fScale>0.5</fScale>
+			<fInterfaceScale>4.0</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Buildings/Longhouse/nif/IroquoisLH.nif</NIF>
+			<KFM/>
+			<Button>Art/AdvCiv_SAS/Buildings/Longhouse/longhouse.dds</Button>
+		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_AQUEDUCT</Type>
 			<!-- the actual art for this aqueduct is controlled by ArtDefines_Misc.xml : ART_AQUEDUCT_SEGMENT/ART_AQUEDUCT_WALL/ART_AQUEDUCT_ENDPOINT -->
@@ -321,16 +332,6 @@
 			<Button>,Art/Interface/Buttons/Buildings/Factory.dds,Art/Interface/Buttons/Buildings_Atlas.dds,7,2</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_GERMAN_ASSEMBLY_PLANT</Type>
-			<LSystem>LSYSTEM_3x3</LSystem>
-			<bAnimated>0</bAnimated>
-			<fScale>1.8</fScale>
-			<fInterfaceScale>0.5</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/German_Assembly_Plant/German_Assembly_Plant.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/Factory.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,6,2</Button>
-		</BuildingArtInfo>
-		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_COAL_PLANT</Type>
 			<LSystem>LSYSTEM_3x2</LSystem>
 			<bAnimated>0</bAnimated>
@@ -449,16 +450,6 @@
 			<NIF>Art/Structures/Buildings/Seowan/Seowan.nif</NIF>
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/University.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,4</Button>
-		</BuildingArtInfo>
-		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_OBSERVATORY</Type>
-			<LSystem>LSYSTEM_1x1</LSystem>
-			<bAnimated>0</bAnimated>
-			<fScale>1.33</fScale>
-			<fInterfaceScale>0.83</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Observatory/Observatory.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/Observatory.dds,Art/Interface/Buttons/Buildings_Atlas.dds,2,5</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_FRENCH_SALON</Type>

@@ -209,28 +209,27 @@
 
 
 	<TEXT>
-		<Tag>TXT_KEY_BUILDING_PALACE_BARBARIAN</Tag>
+		<Tag>TXT_KEY_BUILDING_BARBARIAN_PALACE</Tag>
 		<English>Palace (Barbarian)</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_BUILDING_BARRACKS_BARBARIAN</Tag>
+		<Tag>TXT_KEY_BUILDING_BARBARIAN_BARRACKS</Tag>
 		<English>Barracks (Barbarian)</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_BUILDING_GRANARY_BARBARIAN</Tag>
+		<Tag>TXT_KEY_BUILDING_BARBARIAN_GRANARY</Tag>
 		<English>Granary (Barbarian)</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_BUILDING_LIGHTHOUSE_BARBARIAN</Tag>
+		<Tag>TXT_KEY_BUILDING_BARBARIAN_LIGHTHOUSE</Tag>
 		<English>Lighthouse (Barbarian)</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_BUILDING_WALLS_BARBARIAN</Tag>
+		<Tag>TXT_KEY_BUILDING_BARBARIAN_WALLS</Tag>
 		<English>Walls (Barbarian)</English>
 	</TEXT>
-
 	<TEXT>
-		<Tag>TXT_KEY_BUILDING_CASTLE_BARBARIAN</Tag>
+		<Tag>TXT_KEY_BUILDING_BARBARIAN_CASTLE</Tag>
 		<English>Castle (Barbarian)</English>
 	</TEXT>
 
@@ -319,6 +318,10 @@
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_RUSSIAN_GORD</Tag>
 		<English>Gord</English>
+	</TEXT>
+		<TEXT>
+		<Tag>TXT_KEY_BUILDING_GERMAN_LONGHOUSE</Tag>
+		<English>Longhouse</English>
 	</TEXT>
 
 

@@ -273,9 +273,6 @@ I am not sure which i should take, but since there are redundancies i guess i sh
 		<ArtRef Name="building:BUILDING_GROCER">
 			<Scale>2.3</Scale>
 		</ArtRef>
-		<ArtRef Name="building:BUILDING_OBSERVATORY">
-			<Scale>1.33</Scale>
-		</ArtRef>
 		<ArtRef Name="building:BUILDING_HEROIC_EPIC">
 			<Scale>1.4</Scale>
 		</ArtRef>
@@ -1280,9 +1277,6 @@ I am not sure which i should take, but since there are redundancies i guess i sh
 			<Scale>1.2</Scale>
 		</ArtRef>
 		<ArtRef Name="building:BUILDING_MILITARY_ACADEMY">
-			<Scale>2.0</Scale>
-		</ArtRef>
-		<ArtRef Name="building:BUILDING_GERMAN_ASSEMBLY_PLANT">
 			<Scale>2.0</Scale>
 		</ArtRef>
 		<ArtRef Name="building:BUILDING_CHICHEN_ITZA">

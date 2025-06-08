@@ -1342,7 +1342,7 @@
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_AGRICULTURE</TechType>
+					<TechType>TECH_FISHING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -1547,8 +1547,8 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_FACTORY</BuildingClassType>
-					<BuildingType>BUILDING_GERMAN_ASSEMBLY_PLANT</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_GRANARY</BuildingClassType>
+					<BuildingType>BUILDING_GERMAN_LONGHOUSE</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
@@ -1571,7 +1571,7 @@
 			</FreeBuildingClasses>
 			<FreeTechs>
 				<FreeTech>
-					<TechType>TECH_HUNTING</TechType>
+					<TechType>TECH_POTTERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -3711,11 +3711,11 @@
 			</FreeBuildingClasses>
 			<FreeTechs>
 				<FreeTech>
-					<TechType>TECH_AGRICULTURE</TechType>
+					<TechType>TECH_MYSTICISM</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_THE_WHEEL</TechType>
+					<TechType>TECH_POTTERY</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</FreeTechs>
@@ -4165,27 +4165,27 @@
 				<!-- custom: (for barbarians) see code comment at FreeBuildingClasses for details -->
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
-					<BuildingType>BUILDING_PALACE_BARBARIAN</BuildingType>
+					<BuildingType>BUILDING_BARBARIAN_PALACE</BuildingType>
 				</Building>
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_BARRACKS</BuildingClassType>
-					<BuildingType>BUILDING_BARRACKS_BARBARIAN</BuildingType>
+					<BuildingType>BUILDING_BARBARIAN_BARRACKS</BuildingType>
 				</Building>
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_GRANARY</BuildingClassType>
-					<BuildingType>BUILDING_GRANARY_BARBARIAN</BuildingType>
+					<BuildingType>BUILDING_BARBARIAN_GRANARY</BuildingType>
 				</Building>
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_LIGHTHOUSE</BuildingClassType>
-					<BuildingType>BUILDING_LIGHTHOUSE_BARBARIAN</BuildingType>
+					<BuildingType>BUILDING_BARBARIAN_LIGHTHOUSE</BuildingType>
 				</Building>
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_WALLS</BuildingClassType>
-					<BuildingType>BUILDING_WALLS_BARBARIAN</BuildingType>
+					<BuildingType>BUILDING_BARBARIAN_WALLS</BuildingType>
 				</Building>
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_CASTLE</BuildingClassType>
-					<BuildingType>BUILDING_CASTLE_BARBARIAN</BuildingType>
+					<BuildingType>BUILDING_BARBARIAN_CASTLE</BuildingType>
 				</Building>
 				<!-- custom: inefficient to build an aqueduct for barbarians and not very realistic, let (barbarian) palace provide health directly, more efficient this wayso they can focus more on producing units anyways etc
 				Same for forge, provide military only small (relatively anyways etc) production bonus instead
@@ -4321,10 +4321,6 @@
 				</Building>
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_OBSERVATORY</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
 				<Building>

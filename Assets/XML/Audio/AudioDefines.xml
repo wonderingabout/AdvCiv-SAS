@@ -3460,13 +3460,6 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_BUILD_OBSERVATORY</SoundID>
-			<Filename>Sounds/Buildings/Observatory</Filename>
-			<LoadType>DYNAMIC_RES</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
 			<SoundID>SND_BUILD_THEATRE</SoundID>
 			<Filename>Sounds/Buildings/Theatre</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>

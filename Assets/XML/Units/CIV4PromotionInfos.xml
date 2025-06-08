@@ -1436,7 +1436,7 @@ custom: for <UnitCombats> please alphabetical/sevopedia listing order, else it g
 			<PromotionPrereq>NONE</PromotionPrereq>
 			<PromotionPrereqOr1>NONE</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
-			<TechPrereq>TECH_MEDICINE</TechPrereq>
+			<TechPrereq>TECH_POTTERY</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
 			<iBlitz>0</iBlitz>
@@ -1527,7 +1527,7 @@ custom: for <UnitCombats> please alphabetical/sevopedia listing order, else it g
 			<PromotionPrereq>PROMOTION_MEDIC1</PromotionPrereq>
 			<PromotionPrereqOr1>NONE</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
-			<TechPrereq>TECH_MEDICINE</TechPrereq>
+			<TechPrereq>TECH_WRITING</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
 			<iBlitz>0</iBlitz>
