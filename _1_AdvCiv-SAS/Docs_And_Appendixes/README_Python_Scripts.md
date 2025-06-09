@@ -253,23 +253,26 @@ As for output, see below for examples of .csv and .md outputs, the files we get 
 
 note: you can remove the timestamp (i.e. the year and time and such info in filename anyways etc) too if not needed anymore or/and if needed or wnted by you or and other or and not or do or not anyways etc
 
-### csv
+### output table .csv and its .md legend anyways etc
 
 GitHub website view example (recommended, as display is nice anyways etc, and you can also for example anyways etc use github's search bar for example anyways etc)
 
 <img src="../Images_In_General/scripts/csv_handicap_info_github_view_example.PNG" width="250"></img>
 <img src="../Images_In_General/scripts/csv_handicap_github_view_search_bar_example.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_handicap_info_md_legend_github_view.PNG" width="250"></img>
 
-Libre Office view example (or similar software or not anyways etc) (may not be updated, view on github instead as explained in main readme or view your own file locally .csv in your mod with libre office or a similar viewer/editor, thanks anyways etc thanks):
+Libre Office view example (or similar software or not anyways etc) (may not be updated, view on github instead as explained in main readme or view your own file locally .csv in your mod with libre office or a similar viewer/editor, thanks anyways etc thanks) with the .md legend view example (on github (view) in this case as well) anyways etc):
 
 <img src="../Images_In_General/scripts/csv_handicap_info_libre_office (1).PNG" width="250"></img>
 <img src="../Images_In_General/scripts/csv_handicap_info_libre_office (2).PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_handicap_info_md_legend_github_view.PNG" width="250"></img>
 
-### md
+### about the table .md version of the table anyways etc
 
 Currently less advanced version of this (with the legend, but maybe displays quite well), i'd recommend viewing the .csv data/file rather maybe anyways etc as it can indeed but anyways etc show more data with line number and better alignment and such, but also did in .md as was as the time and chatgpt/becomingthrough sugegsted which i also by my own wanted to try as well but anyways etc, and that i don't mind to keep now but anyways etc, is also a proof of concept if i may say of making a table into .md at least for me and may serve as reference or not but in all cases anyways etc..
 
-So in short or not short but anyways etc.. I'd recommend viewing the .csv file/version rather but anyways etc, above, but here below is also a .md file/version/(of the) data if you want too and i want too but anyways etc (may or not be updated, that you can view if you want (but anyways etc anyways etc anyways etc) similarly either on GitHub web view or in a .md previewer like VS Code for example or and such as you prefer anyways etc, best to view the files directly as shown in screenshots but with the real files for accurate or/and exhaustive or/and reliable data if i may say but anyways etc):
+Currently commeneted-out as the .csv table view is plenty and also more advanced for our need, but if you'd want to know what it looks like at least as of now if i am not mistaken anyways etc, is as below for example anyways etc, shown with github web view (before table .md file was removed from the advciv-sas mod folder and coudl sitll be viewed thus in github web view anyways etc) and VS Code .md preview for example alternatively for example anyways etc, i'd still recommend the table .csv version rather (with its .md legend if need but anyways etc) but this is to show how these would display too if you want to see them anyways etc:
+
 
 <img src="../Images_In_General/scripts/csv_md_handicap_github_view_example.PNG" width="250"></img>
 <img src="../Images_In_General/scripts/csv_md_handicap_vs_code_preview_example.PNG" width="250"></img>
