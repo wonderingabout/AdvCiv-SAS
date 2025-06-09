@@ -309,3 +309,8 @@ class SevoPediaUnitChart:
 			szCostNum = u"%d" % UnitInfo.getProductionCost()
 
 		screen.setTableInt(table, iCol, iRow, u"<font=3>" + szCostNum + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+
+
+	def handleInput (self, inputClass):
+		return 0

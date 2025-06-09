@@ -118,4 +118,5 @@ FreeTechs,FT_0,FT_1,FT_2,,,,,,
 ,Steel,-,-,-,-,-,-,-,-
 ,Plastics,Plastics,-,-,-,-,-,-,-
 ,Refrigeration,-,-,-,-,-,-,-,-
-,,,,,,,,,,"(*): This element is listed under the heading ""Goodies (20)"" in the XML file. It indicates the chance (x-in-20) of a ""goody hut"" yielding this result when ""popped"" by the player. (source: https://civilization.fandom.com/wiki/Difficulty_level_(Civ4)?utm_source=chatgpt.com)"
+,,,,,,,,,,
+[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],"(*): This element is listed under the heading ""Goodies (20)"" in the XML file. It indicates the chance (x-in-20) of a ""goody hut"" yielding this result when ""popped"" by the player. (source: https://civilization.fandom.com/wiki/Difficulty_level_(Civ4)?utm_source=chatgpt.com)"

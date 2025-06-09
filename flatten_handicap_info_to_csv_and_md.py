@@ -326,9 +326,14 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
 
 		legend_csv.writerow(parts)
 
+	# <!-- custom: add an empty row for prettiness if i may say before the footnote row but anyways etc -->
+	empty_row_pre_footnote_row = ([""] * (NUM_COLUMNS + 1))
+	legend_csv.writerow(empty_row_pre_footnote_row)
+
 	# Add extra footnote/comment row after the legend
 	footnote_text = '(*): This element is listed under the heading "Goodies (20)" in the XML file. It indicates the chance (x-in-20) of a "goody hut" yielding this result when "popped" by the player. (source: https://civilization.fandom.com/wiki/Difficulty_level_(Civ4)?utm_source=chatgpt.com)'
-	footnote_row = ([""] * NUM_COLUMNS) + [footnote_text]
+	# <!-- custom: do not leave previous columns in same line empty of the footnote/legend (of (*) but anyways etc...) row, else we get the "We can make this file beautiful and searchable if this error is corrected: It looks like row 113 should actually have 10 columns, instead of 11 in line 112." in github web view, even though displays nicely in libre office for example though but anyways etc anyways etc anyways etc... hopefully helpful and fixed this way in the github web view but anyways etc anyways etc anyways etc... -->
+	footnote_row = (["[LEGEND]"] * NUM_COLUMNS) + [footnote_text]
 	legend_csv.writerow(footnote_row)
 
 print("✔ Export complete with legend references.")
