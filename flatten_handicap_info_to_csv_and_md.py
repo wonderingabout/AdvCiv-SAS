@@ -3,33 +3,33 @@
 # (c) 2025 wonderingabout & becomingthrough
 #
 # This script extracts and formats all game difficulty settings from CIV4HandicapInfo.xml
-# into a structured, spreadsheet-friendly CSV table, suitable for data analysis or mod balancing.
+# into structured, spreadsheet-friendly output files suitable for data analysis or mod balancing.
 #
-# It parses each <HandicapInfo> entry and outputs:
-# - One row per numeric or structured field (e.g. iAIBarbarianBonus, iTrainPercent)
+# It parses each <HandicapInfo> entry and produces:
+# - A CSV file with one row per numeric or structured field (e.g. iAIBarbarianBonus, iTrainPercent)
 # - One column per difficulty (e.g. Settler → Deity), with beautified headers (e.g. "HANDICAP_PRINCE" → "Prince")
 #
 # Special handling is applied to:
 #
 # 1. <Goodies>:
 #    - All GOODY_* entries (e.g. GOODY_LOW_GOLD, GOODY_SCOUT) are flattened into explicit fields.
-#    - Output field names preserve their original enum prefix and name (e.g. "GOODY_LOW_GOLD").
-#    - In the CSV, each goody field is labeled with "(*)" and followed by a footnote explaining the x-in-20 hut chance system.
+#    - Output field names preserve their original enum format (e.g. "GOODY_TECH").
+#    - In the CSV, each goody field is labeled with "(*)", and its behavior is explained in a separate Markdown footnote file.
 #
 # 2. <FreeTechs> and <AIFreeTechs>:
 #    - These are parsed as comma-separated strings per difficulty.
-#    - Their long values are replaced with short legend keys (e.g. FT_0), and a visual [LEGEND] block shows full mappings.
+#    - Long values are replaced by short legend keys (e.g. FT_0, AIFT_0) for compact display.
+#    - A separate right-shifted [LEGEND] section shows the full mappings across difficulties.
 #
-# Output Features:
-# - Fully aligned columns and rows across all difficulties
-# - Legends shifted one column to the right for better spreadsheet readability
-# - Enum beautification for difficulty names (e.g. HANDICAP_IMMORTAL → Immortal)
-# - Consistent sorting and field placement, including manual repositioning of goodies and nested fields
-# - A final explanatory footnote on hut behavior is added as a fully right-shifted row after the [LEGEND] block,
-#   consistent with spreadsheet alignment.
+# Output Files:
+# - CSV table of all difficulty settings (main output)
+# - Markdown legend file (footnotes + abbreviation keys), designed for GitHub compatibility
+# - Optional Markdown table output (disabled in AdvCiv-SAS but preserved for reference)
 #
-# Markdown export is present but disabled by default.
-
+# Other Features:
+# - Beautification of difficulty level names (e.g. HANDICAP_IMMORTAL → Immortal)
+# - Manual repositioning of nested fields (e.g. GoodyTypes, FreeTechs) after a fixed anchor
+# - Consistent column widths, right-shifted legends, and zero malformed rows for clean GitHub rendering
 
 import csv
 import xml.etree.ElementTree as ET
@@ -39,7 +39,10 @@ import re
 # --- Step 1: Setup paths ---
 XML_PATH = r"Assets\XML\GameInfo\CIV4HandicapInfo.xml"
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-csv_filename = f"handicap_info_to_csv_{timestamp}.csv"
+table_csv_filename = f"handicap_info_to_csv_{timestamp}.csv"
+# <!-- custom: md version of the table disabled by default as less advanced and suited for our needs in advciv-sas, kept there if need(ed?) but anyways etc -->
+#table_md_filename = f"handicap_info_to_md_{timestamp}.md"
+legend_md_filename = f"handicap_info_legend_{timestamp}.md"
 
 # --- Step 2: Parse XML ---
 tree = ET.parse(XML_PATH)
@@ -82,14 +85,26 @@ ALL_GOODY_TYPES = (
 	"GOODY_BARBARIANS_STRONG",
 )
 
+ABBREV_MAP = {
+	"AIFreeTechs": "AIFT_",
+	"FreeTechs":"FT_",
+}
+
+ABBREV_REPLACEMENTS = {
+	"Animal Husbandry": "Animal H.",
+	"Bronze Working": "Bronze W.",
+	"Iron Working": "Iron W.",
+	"Industrialism": "Industr.",
+}
+
 def beautify_enum_name(raw_name):
 	"""
-	Convert raw enum strings like 'TECH_THE_WHEEL', 'GOODY_LOW_GOLD',
+	Convert raw enum strings like 'TECH_THE_WHEEL',
 	'HANDICAP_NOBLE' into human-readable display forms like:
-	'The Wheel', 'Low Gold', 'Noble'
+	'The Wheel', 'Noble'
 	"""
 	# Remove known Civ4 enum prefixes
-	for prefix in ('TECH_', 'GOODY_', 'HANDICAP_'):
+	for prefix in ('TECH_', 'HANDICAP_'):
 		if raw_name.startswith(prefix):
 			raw_name = raw_name[len(prefix):]
 			break
@@ -97,18 +112,8 @@ def beautify_enum_name(raw_name):
 	# Underscore to space, then title case
 	return re.sub(r'_', ' ', raw_name).title()
 
-def shorten_legend_name(name):
-	replacements = {
-		"Barbarians Weak": "Barb. Weak",
-		"Barbarians Strong": "Barb. Strong",
-		"Experience": "Exp.",
-		#
-		"Animal Husbandry": "Animal H.",
-		"Bronze Working": "Bronze W.",
-		"Iron Working": "Iron W.",
-		"Industrialism": "Industr.",
-	}
-	return replacements.get(name, name)
+def shorten_legend_name(name, abbrev_replacements):
+	return abbrev_replacements.get(name, name)
 
 for handicap_info in handicap_infos.findall('ns:HandicapInfo', namespace):
 	handicap_dict = {}
@@ -204,15 +209,10 @@ legend_counter = {}
 def get_legend_key(field_name, value):
 	if not value.strip():
 		return ""
-	short_prefix = {
-		"AIFreeTechs": "AIFT_",
-		"FreeTechs": "FT_",
-		"Goodies": "G_"
-	}.get(field_name, field_name[:3].upper() + "_")  # fallback to e.g., iAI → IAI_
 
-	count = legend_counter.get(short_prefix, 0)
-	legend_key = f"{short_prefix}{count}"
-	legend_counter[short_prefix] = count + 1
+	count = legend_counter.get(ABBREV_MAP[field_name], 0)
+	legend_key = f"{ABBREV_MAP[field_name]}{count}"
+	legend_counter[ABBREV_MAP[field_name]] = count + 1
 	legend[legend_key] = value
 	return legend_key
 
@@ -224,7 +224,7 @@ for row in rows:
 			row[difficulty] = get_legend_key(row["Field"], value)
 
 # --- Step 7: Write CSV with right-shifted legend ---
-with open(csv_filename, "w", newline="", encoding="utf-8") as f:
+with open(table_csv_filename, "w", newline="", encoding="utf-8") as f:
 	writer = csv.DictWriter(f, fieldnames=columns)
 	writer.writeheader()
 
@@ -246,7 +246,7 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
 				if not k or k not in legend_dict:
 					continue
 				for v in legend_dict[k].split(','):
-					name = shorten_legend_name(beautify_enum_name(v.strip()))
+					name = shorten_legend_name(beautify_enum_name(v.strip()), ABBREV_REPLACEMENTS)
 					if name not in seen:
 						unique.append(name)
 						seen.add(name)
@@ -258,7 +258,7 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
 				if k and k in legend_dict:
 					headers.append(f"{prefix}{counter}")
 					values = {
-						shorten_legend_name(beautify_enum_name(v.strip()))
+						shorten_legend_name(beautify_enum_name(v.strip()), ABBREV_REPLACEMENTS)
 						for v in legend_dict[k].split(',')
 					}
 					columns.append([v if v in values else "-" for v in unique])
@@ -270,7 +270,7 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
 
 		lines = []
 
-		# AIFT (same style as FT/G)
+		# AIFT (same style as FT)
 		aift_keys_ordered = []
 		for row in rows:
 			if row["Field"] == "AIFreeTechs":
@@ -278,8 +278,8 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
 					ref = row.get(difficulty, "")
 					aift_keys_ordered.append(ref if ref in legend_dict else None if not ref else None)
 
-		aift_unique = extract_ordered_unique(aift_keys_ordered, "AIFT_")
-		aift_headers, aift_columns = build_columns(aift_keys_ordered, aift_unique, "AIFT_")
+		aift_unique = extract_ordered_unique(aift_keys_ordered, ABBREV_MAP["AIFreeTechs"])
+		aift_headers, aift_columns = build_columns(aift_keys_ordered, aift_unique, ABBREV_MAP["AIFreeTechs"])
 		lines.append('\t'.join(aift_headers))
 		for row in zip(*aift_columns):
 			lines.append('\t'.join(row))
@@ -292,8 +292,8 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
 					ref = row.get(difficulty, "")
 					ft_keys_ordered.append(ref if ref in legend_dict else None if not ref else None)
 
-		ft_unique = extract_ordered_unique(ft_keys_ordered, "FT_")
-		ft_headers, ft_columns = build_columns(ft_keys_ordered, ft_unique, "FT_")
+		ft_unique = extract_ordered_unique(ft_keys_ordered, ABBREV_MAP["FreeTechs"])
+		ft_headers, ft_columns = build_columns(ft_keys_ordered, ft_unique, ABBREV_MAP["FreeTechs"])
 		lines.append('\t'.join(ft_headers))
 		for row in zip(*ft_columns):
 			lines.append('\t'.join(row))
@@ -326,24 +326,36 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
 
 		legend_csv.writerow(parts)
 
-	# <!-- custom: add an empty row for prettiness if i may say before the footnote row but anyways etc -->
-	empty_row_pre_footnote_row = ([""] * (NUM_COLUMNS + 1))
-	legend_csv.writerow(empty_row_pre_footnote_row)
-
-	# Add extra footnote/comment row after the legend
-	footnote_text = '(*): This element is listed under the heading "Goodies (20)" in the XML file. It indicates the chance (x-in-20) of a "goody hut" yielding this result when "popped" by the player. (source: https://civilization.fandom.com/wiki/Difficulty_level_(Civ4)?utm_source=chatgpt.com)'
-	# <!-- custom: do not leave previous columns in same line empty of the footnote/legend (of (*) but anyways etc...) row, else we get the "We can make this file beautiful and searchable if this error is corrected: It looks like row 113 should actually have 10 columns, instead of 11 in line 112." in github web view, even though displays nicely in libre office for example though but anyways etc anyways etc anyways etc... hopefully helpful and fixed this way in the github web view but anyways etc anyways etc anyways etc... -->
-	footnote_row = (["[LEGEND]"] * NUM_COLUMNS) + [footnote_text]
-	legend_csv.writerow(footnote_row)
-
 print("✔ Export complete with legend references.")
-print(f"→ Output CSV saved as: {csv_filename}")
+print(f"→ Output CSV saved as: {table_csv_filename}")
 
-# <!-- custom: commented-out md file as we don't use it in advciv-sas, uncomment if you want to use it anyways etc -->
+
+# <!-- custom: do not leave previous columns in same line empty of the footnote/legend (of (*) but anyways etc...) row, else we get the "We can make this file beautiful and searchable if this error is corrected: It looks like row 113 should actually have 10 columns, instead of 11 in line 112." in github web view, even though displays nicely in libre office for example though but anyways etc anyways etc anyways etc... hopefully helpful and fixed this way in the github web view but anyways etc anyways etc anyways etc..., easiest way to cleanly solve this seems to move the footnote to a separate legend file, plus we can add other info there if need(ed?) anyways etc -->
+# Save footnote to a separate file for GitHub-safe display
+with open(legend_md_filename, "w", encoding="utf-8") as md:
+	md.write("# Handicap Info Legend Notes\n\n")
+
+	md.write("## Goodies Footnote\n\n")
+	md.write("> (*): This element is listed under the heading **\"Goodies (20)\"** in the XML file.\n")
+	md.write("> It indicates the chance (x-in-20) of a goody hut yielding this result when \"popped\" by the player.\n")
+	md.write("> Source: [Civ4 Difficulty Wiki](https://civilization.fandom.com/wiki/Difficulty_level_(Civ4)?utm_source=chatgpt.com)\n\n")
+
+	md.write("## Abbreviation Keys\n\n")
+	# Reverse map: short_prefix → original_field
+	reverse_abbrev_map = {
+		v: k for k, v in ABBREV_MAP.items()
+	}
+
+	for abbr in sorted(reverse_abbrev_map.keys()):
+		original_field = reverse_abbrev_map[abbr]
+		md.write(f"- **{abbr}**: `{original_field}`\n")
+
+print(f"→ Legend saved as: {legend_md_filename}")
+
+# <!-- custom: commented-out table to .md file as we don't use it in advciv-sas, uncomment if you want to use it anyways etc -->
 """
 # --- Step 8: Write Markdown table ---
-md_filename = f"handicap_info_to_md_{timestamp}.md"
-with open(md_filename, "w", encoding="utf-8") as md:
+with open(table_md_filename, "w", encoding="utf-8") as md:
 	# Header
 	md.write("| Field | " + " | ".join(columns[1:]) + " |\n")
 	md.write("|" + "------|" * len(columns) + "\n")
@@ -363,5 +375,5 @@ with open(md_filename, "w", encoding="utf-8") as md:
 		md.write(f"| {key} | {value} |\n")
 
 print("✔ Markdown export complete.")
-print(f"→ Output Markdown saved as: {md_filename}")
+print(f"→ Output Markdown saved as: {table_md_filename}")
 """
