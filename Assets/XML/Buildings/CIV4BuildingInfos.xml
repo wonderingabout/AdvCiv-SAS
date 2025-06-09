@@ -5220,7 +5220,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_SAILING</PrereqTech>
+			<PrereqTech>TECH_OPTICS</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -5390,7 +5390,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_SAILING</PrereqTech>
+			<PrereqTech>TECH_OPTICS</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -5570,7 +5570,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_SAILING</PrereqTech>
+			<PrereqTech>TECH_OPTICS</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -10667,7 +10667,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_SUPERCONDUCTORS</PrereqTech>
+			<!-- custom: reduce tech to TECH_REFRIGERATION so we have it sooner anyways etc and it is more relevant while the game lasts anyways etc especially considering its science effect would be pointless if there are no more not anymore any tech to research but anyways etc... , was TECH_SUPERCONDUCTORS -->
+			<PrereqTech>TECH_REFRIGERATION</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -10705,7 +10706,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>250</iCost>
+			<!-- custom: reduce cost a bit, was 250 -->
+			<iCost>240</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -10748,7 +10750,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<iStateReligionHappiness>0</iStateReligionHappiness>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
-			<iSpaceProductionModifier>50</iSpaceProductionModifier>
+			<!-- custom: remove space race effect, make it a purely scientific building now as the laboratory is now reworked, see xml of the building or and code comments or and docs for details anyways etc, was 50 -->
+			<iSpaceProductionModifier>0</iSpaceProductionModifier>
 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
 			<iTradeRoutes>0</iTradeRoutes>
 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
@@ -10780,13 +10783,20 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<StateReligionCommerces/>
 			<CommerceHappinesses/>
 			<ReligionChanges/>
+			<!-- custom: increase scientist "can turn x citizen" anyways etc "into" anyways etc, was 1 -->
 			<SpecialistCounts>
 				<SpecialistCount>
 					<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
-					<iSpecialistCount>1</iSpecialistCount>
+					<iSpecialistCount>2</iSpecialistCount>
 				</SpecialistCount>
 			</SpecialistCounts>
-			<FreeSpecialistCounts/>
+			<!-- custom: reworked laboratory, gives a free scientist now, was 0 / empty anyways etc -->
+			<FreeSpecialistCounts>
+				<FreeSpecialistCount>
+					<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
+					<iFreeSpecialistCount>1</iFreeSpecialistCount>
+				</FreeSpecialistCount>
+			</FreeSpecialistCounts>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
 			<ConstructSound>AS2D_BUILD_LABORATORY</ConstructSound>
@@ -10808,16 +10818,13 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: was science 10 and production 5, now that we removed space victory, no need to keep the production effect, science effect is a bit stronger now too so increase it too, anyways etc -->
 			<!-- advc.020: Was 10 Science; Space victory is also sth. that
 				 suits Production flavor. -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
-					<iFlavor>8</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>5</iFlavor>
+					<iFlavor>10</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -22981,11 +22988,14 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
 			<!-- advc.310: Was Corporation -->
 			<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
+			<!-- custom: interestingly i got the independent idea to move the great lighthouse to sailing with masonry too since was there, clearer to put on water, so putting back to sailing with masonry anyways etc -->
 			<!-- advc.310: Was Sailing with Masonry as addl. prereq.
 				 This is redundant b/c Lighthouse already implies Sailing.
 			 -->
-			<PrereqTech>TECH_MASONRY</PrereqTech>
-			<TechTypes/>
+			<PrereqTech>TECH_SAILING</PrereqTech>
+			<TechTypes>
+				<PrereqTech>TECH_MASONRY</PrereqTech>
+			</TechTypes>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -23083,7 +23093,11 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<iAsset>9</iAsset>
 			<iPower>0</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
-			<SeaPlotYieldChanges/>
+			<!-- custom: buff specifically the city where it is built, should be fine since water tiles are so weak currently, and is consistent with its lore or maybe rather intutively what a lighthouse building would do anyways etc, at least is how i'd want to do it too, anyways etc -->
+			<SeaPlotYieldChanges>
+				<iYield>0</iYield>
+				<iYield>1</iYield>
+			</SeaPlotYieldChanges>
 			<RiverPlotYieldChanges/>
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
@@ -23124,13 +23138,14 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<PrereqBuildingClasses/>
 			<BuildingClassNeededs>
 				<BuildingClassNeeded>
-					<BuildingClassType>BUILDINGCLASS_LIGHTHOUSE</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
 					<bNeededInCity>1</bNeededInCity>
 				</BuildingClassNeeded>
 			</BuildingClassNeededs>
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: increase gold flavor a bit especially with the new effect, was flavor growth 2 and gold 7 anyways etc -->
 			<!-- advc.020: Was 10 Growth. Fits with Lighthouse, but the actual
 				 ability isn't for tall civs. +TR is a Gold ability. -->
 			<Flavors>
@@ -23140,7 +23155,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GOLD</FlavorType>
-					<iFlavor>7</iFlavor>
+					<iFlavor>8</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>

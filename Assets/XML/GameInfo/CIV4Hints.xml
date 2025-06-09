@@ -4,6 +4,11 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- Hints Infos -->
+<!-- custom: removed this in the 2 places it was anyways in this xml file if i am not mistaken indeed but anyways etc anyways etc as caravel is now removed in advciv-sas anyways etc:
+		<HintInfo>
+			<Description>TXT_KEY_HINT_73</Description>
+		</HintInfo>
+-->
 <Civ4Hints xmlns="x-schema:CIV4GameInfoSchema.xml">
 	<HintInfos>
 		<HintInfo>
@@ -424,9 +429,6 @@
 			<Description>TXT_KEY_HINT_72</Description>
 		</HintInfo>
 		<HintInfo>
-			<Description>TXT_KEY_HINT_73</Description>
-		</HintInfo>
-		<HintInfo>
 			<Description>TXT_KEY_BUG_HINT_INTERFACE_4</Description>
 		</HintInfo>
 <!-- K-Mod hints -->
@@ -572,9 +574,6 @@
 		</HintInfo>
 		<HintInfo>
 			<Description>TXT_KEY_HINT_16</Description>
-		</HintInfo>
-		<HintInfo>
-			<Description>TXT_KEY_HINT_73</Description>
 		</HintInfo>
 		<HintInfo>
 			<Description>TXT_KEY_HINT_46</Description>

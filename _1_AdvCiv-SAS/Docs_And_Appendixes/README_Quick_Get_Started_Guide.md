@@ -172,15 +172,9 @@ the jaguar warrior)
 rifleman has a new graphic art but the concept of a rifleman remains in itself
 (may be rebalanced or not though like the other units though)
 - some units have been removed: sometimes for gameplay reasons: for example the
-caravel has been removed because too close to the galleon and i want only one
-class (for example a caravel, a galleon, a worker, etc.) of unit per era
-- also not very sensical to me that somehow these boats can travel incognito or freely
-in borders without being attacked. May move this ability to privateers maybe todo
-but not sure; or the stealth bomber to simplify gameplay especially the endgame,
-there are stronger bombers at each era, just not stealth, or for example the panzer
-has been removed for a sooner, more likely to be useful civ unit: the teutonic (foot)
-knight. This ability has been removed from most units where i felt/thought it
-didn't make sense, such as submarines or/and other units.
+nuclear_submarine is not relevant enough and does not actually hold nuclear weapons, only is nuclear powered if i am not mistaken, but effect is not strong enough to justify the hassle so just remove them anyways etc, also ideally i'd want only and/or mostly only one class (for example a a galleon, a worker, a swordsman, etc.) of unit per era
+- removed some units, such as the caravel: was not very sensical / nonsensical to me at least anyways etc that openly nation-specific and announced caravels could freely travel in outer borders even if borders are not open (and send annoying spies and such) without declaring war while doing so, so now this ability is now specific only to the privateer, that is also now buffed, see sevopedia for latest values and effects anyways etc
+- similarly for the stealth bomber, may remove it as well to simplify gameplay especially the endgame, there are stronger bombers at each era, just not stealth, or for example the panzer has been removed for a sooner, more likely to be useful civ unit: the teutonic (foot) knight. This ability has been removed from most units where i felt/thought it didn't make sense, such as submarines or/and other units.
 - some units have been removed: sometimes for historical accuracy or flavor one
 could say maybe reasons: for example the phalanx civ unit of the greek empire
 is now the hoplite phalanx (a lancer heavy combat type, not based on the axeman

@@ -4482,13 +4482,6 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_BUILD_CARAVEL</SoundID>
-			<Filename>Sounds/Units/BuildCaravel</Filename>
-			<LoadType>DYNAMIC_RES</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
 			<SoundID>SND_BUILD_CAVALRY</SoundID>
 			<Filename>Sounds/Units/BuildCavalry</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>

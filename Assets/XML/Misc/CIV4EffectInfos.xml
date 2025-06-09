@@ -820,14 +820,6 @@
 			<bIsProjectile>0</bIsProjectile>
 		</EffectInfo>
 		<EffectInfo>
-			<Type>EFFECT_SHIP_CARAVEL_DEATH</Type>
-			<Description>Large death explosion for Caravel</Description>
-			<fScale>0.15</fScale>
-			<fUpdateRate>1.2</fUpdateRate>
-			<Path>Art/Effects/ShipExplosion/fx_ship_destruction_explosion.nif</Path>
-			<bIsProjectile>0</bIsProjectile>
-		</EffectInfo>
-		<EffectInfo>
 			<Type>EFFECT_SHIP_GALLEON_DEATH</Type>
 			<Description>Large death explosion for Galleon</Description>
 			<fScale>0.3</fScale>
@@ -1064,22 +1056,6 @@
 			<Description>Small Gunpowdery hit explosion for water-vehicles</Description>
 			<fScale>0.5</fScale>
 			<fUpdateRate>1.0</fUpdateRate>
-			<Path>Art/Effects/ShipExplosion_gunpowder_hit/fx_ship_gunpowder_small_explosion.nif</Path>
-			<bIsProjectile>0</bIsProjectile>
-		</EffectInfo>
-		<EffectInfo>
-			<Type>EFFECT_CARAVEL_HIT01</Type>
-			<Description>Small Gunpowdery hit explosion for Caravel Version 1</Description>
-			<fScale>0.5</fScale>
-			<fUpdateRate>1.5</fUpdateRate>
-			<Path>Art/Effects/ShipExplosion_gunpowder_hit/fx_ship_gunpowder_small_explosion.nif</Path>
-			<bIsProjectile>0</bIsProjectile>
-		</EffectInfo>
-		<EffectInfo>
-			<Type>EFFECT_CARAVEL_HIT02</Type>
-			<Description>Small Gunpowdery hit explosion for Caravel Version 2</Description>
-			<fScale>0.55</fScale>
-			<fUpdateRate>1.4</fUpdateRate>
 			<Path>Art/Effects/ShipExplosion_gunpowder_hit/fx_ship_gunpowder_small_explosion.nif</Path>
 			<bIsProjectile>0</bIsProjectile>
 		</EffectInfo>
@@ -1526,22 +1502,6 @@
 			<fScale>0.2</fScale>
 			<fUpdateRate>1.0</fUpdateRate>
 			<Path>Art/Effects/weapon_cannonfire/fx_weapon_cannonfire_03.nif</Path>
-			<bIsProjectile>0</bIsProjectile>
-		</EffectInfo>
-		<EffectInfo>
-			<Type>EFFECT_WEAPON_CARAVEL_CANNON_01</Type>
-			<Description>Caravel Cannon Fire Version 1</Description>
-			<fScale>0.2</fScale>
-			<fUpdateRate>2.5</fUpdateRate>
-			<Path>Art/Effects/weapon_cannonfire/fx_weapon_cannonfire_01.nif</Path>
-			<bIsProjectile>0</bIsProjectile>
-		</EffectInfo>
-		<EffectInfo>
-			<Type>EFFECT_WEAPON_CARAVEL_CANNON_02</Type>
-			<Description>Caravel Cannon Fire Version 2</Description>
-			<fScale>0.16</fScale>
-			<fUpdateRate>2.5</fUpdateRate>
-			<Path>Art/Effects/weapon_cannonfire/fx_weapon_cannonfire_02.nif</Path>
 			<bIsProjectile>0</bIsProjectile>
 		</EffectInfo>
 		<EffectInfo>
@@ -2048,14 +2008,6 @@
 			<fScale>1.0</fScale>
 			<fUpdateRate>2.0</fUpdateRate>
 			<Path>Art/Effects/water_splash_plume/fx_water_plume01.nif</Path>
-			<bIsProjectile>0</bIsProjectile>
-		</EffectInfo>
-		<EffectInfo>
-			<Type>EFFECT_CARAVEL_SINKING_FROTH</Type>
-			<Description>Caravel Sinking_Froth</Description>
-			<fScale>0.20</fScale>
-			<fUpdateRate>2.2</fUpdateRate>
-			<Path>Art/Effects/water_ship_sinking_froth/fx_water_ship_sinking_froth.nif</Path>
 			<bIsProjectile>0</bIsProjectile>
 		</EffectInfo>
 		<EffectInfo>

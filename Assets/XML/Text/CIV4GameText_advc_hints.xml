@@ -22,15 +22,17 @@
 	<German>(AdvCiv) Keine Sorge, wenn Ihre kapitulierten Vasallen bei Gegnern unbeliebt sind - das kann f�r eine Kriegserkl�rung nicht ausschlaggebend sein. Das gilt aber nicht f�r  Vasallen, die sich Ihnen friedlich angeschlossen haben!</German>
 </TEXT>
 
+<!-- custom: caravel removed, disable this hint as well (commented-out anyways etc) -->
 <!-- advc.008c: In BtS, this was a lengthy explanation about how to found a
 	 corporation. I had previously edited it a bit for brevity. See K-Mod
 	 hints.xml in AdvCiv 0.92 for that version of the hint.
 	 advc.114, advc.115b: -->
-<TEXT>
+<!-- <TEXT>
 	<Tag>TXT_KEY_HINT_73</Tag>
 	<English>(AdvCiv) When your Caravels discover an unclaimed continent, consider sending an Explorer: At that point of the game, Tribal Villages can yield substantial amounts of gold and other goodies.</English>
 	<German>(AdvCiv) Wenn Ihre Karavellen einen unerforschten Kontinent entdecken, kann es sich lohnen, mit einem Kundschafter nach Stammesd�rfern zu suchen. So sp�t im Spiel k�nnen diese betr�chtliche Goldsummen und andere Goodies ergeben.</German>
 </TEXT>
+-->
 
 <!-- "If you find a valuable resource that is too far away for you to use,
 	 it may still be smart to keep a unit on top of it, if only to find

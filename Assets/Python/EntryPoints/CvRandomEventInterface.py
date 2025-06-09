@@ -70,9 +70,12 @@ def canTriggerBlessedSea(argsList):
 
 	player = gc.getPlayer(kTriggeredData.ePlayer)
 	if player.getUnitClassCount(CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_GALLEY')) == 0:
-		if player.getUnitClassCount(CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_CARAVEL')) == 0:
-			if player.getUnitClassCount(CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_GALLEON')) == 0:
-				return false
+		# <!-- custom: caravel removed, comment-out this line and unindent following block anyways etc -->
+		#if player.getUnitClassCount(CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_CARAVEL')) == 0:
+		#	if player.getUnitClassCount(CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_GALLEON')) == 0:
+		#		return false
+		if player.getUnitClassCount(CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_GALLEON')) == 0:
+			return false
 			
 	return true
 
@@ -2256,7 +2259,9 @@ def getHelpHarbormaster1(argsList):
 	kTriggeredData = argsList[1]
 		
 	iHarborsRequired = worldSizeTarget()
-	iCaravelsRequired = iHarborsRequired / 2 + 1
+	# <!-- custom: caravel removed, put a dummy value instead just so the code works-functions hopefully not too bad this way but anyways etc... -->
+	#iCaravelsRequired = iHarborsRequired / 2 + 1
+	iCaravelsRequired = 0
 
 	szHelp = localText.getText("TXT_KEY_EVENT_HARBORMASTER_HELP", (iHarborsRequired, iCaravelsRequired))
 
@@ -2296,10 +2301,11 @@ def canTriggerHarbormasterDone(argsList):
 	if iHarborsRequired > player.getBuildingClassCount(iHarbor):
 		return false
 
-	iCaravel = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_CARAVEL')
-	iCaravelsRequired = iHarborsRequired / 2 + 1
-	if iCaravelsRequired > player.getUnitClassCount(iCaravel):
-		return false
+	# <!-- custom: caravel removed, comment-out this block anyways etc -->
+	#iCaravel = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_CARAVEL')
+	#iCaravelsRequired = iHarborsRequired / 2 + 1
+	#if iCaravelsRequired > player.getUnitClassCount(iCaravel):
+	#	return false
 	
 	return true
 	

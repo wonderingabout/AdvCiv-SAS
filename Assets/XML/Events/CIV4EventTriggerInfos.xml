@@ -13255,10 +13255,10 @@
 			<MinDifficulty>NONE</MinDifficulty>
 			<iAngry>0</iAngry>
 			<iUnhealthy>0</iUnhealthy>
+			<!-- custom: caravel removed, remove UNITCLASS_CARAVEL from here too i mean anyways etc -->
 			<UnitsRequired>
 				<UnitClass>UNITCLASS_GALLEY</UnitClass>
 				<UnitClass>UNITCLASS_TRIREME</UnitClass>
-				<UnitClass>UNITCLASS_CARAVEL</UnitClass>
 				<UnitClass>UNITCLASS_GALLEON</UnitClass>
 				<UnitClass>UNITCLASS_PRIVATEER</UnitClass>
 				<UnitClass>UNITCLASS_FRIGATE</UnitClass>
