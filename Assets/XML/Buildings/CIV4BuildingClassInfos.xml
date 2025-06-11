@@ -1139,15 +1139,15 @@
 			<VictoryThresholds/>
 		</BuildingClassInfo>
 		<BuildingClassInfo>
-			<Type>BUILDINGCLASS_SISTINE_CHAPEL</Type>
-			<Description>TXT_KEY_BUILDING_SISTINE_CHAPEL</Description>
+			<Type>BUILDINGCLASS_NATYA_SHASTRA</Type>
+			<Description>TXT_KEY_BUILDING_NATYA_SHASTRA</Description>
 			<iMaxGlobalInstances>1</iMaxGlobalInstances>
 			<iMaxTeamInstances>-1</iMaxTeamInstances>
 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
 			<iExtraPlayerInstances>0</iExtraPlayerInstances>
 			<bNoLimit>0</bNoLimit>
 			<bMonument>0</bMonument>
-			<DefaultBuilding>BUILDING_SISTINE_CHAPEL</DefaultBuilding>
+			<DefaultBuilding>BUILDING_NATYA_SHASTRA</DefaultBuilding>
 			<VictoryThresholds/>
 		</BuildingClassInfo>
 		<BuildingClassInfo>

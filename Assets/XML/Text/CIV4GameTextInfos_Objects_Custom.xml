@@ -251,6 +251,11 @@
 		<Tag>TXT_KEY_BUILDING_EGYPTIAN_OBELISK</Tag>
 		<English>Obelisk</English>
 	</TEXT>
+	<!-- custom: similarly rename NATIONAL_SECURITY that had nothing like a national wonder or anything related if am not mistaken maybe or not or yes but anyways etc to hopefully less confusing or not or yes or and other or and not anyways etc SECURITY_BUREAU anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_SECURITY_BUREAU</Tag>
+		<English>Security Bureau</English>
+	</TEXT>
 
 
 
@@ -264,11 +269,12 @@
 		<Tag>TXT_KEY_BUILDING_THREE_GORGES_DAM</Tag>
 		<English>The Three Gorges Dam</English>
 	</TEXT>
-	<!-- custom: similarly rename NATIONAL_SECURITY that had nothing like a national wonder or anything related if am not mistaken maybe or not or yes but anyways etc to hopefully less confusing or not or yes or and other or and not anyways etc SECURITY_BUREAU anyways etc -->
+	<!-- custom: replace and rework SISTINE_CHAPEL with NATYA_SHASTRA as there are too many christian world wonders (all at same tech too TECH_THEOLOGY after reordering them for accuracy which is not ideal that they are now and too many i would say at same tech in this case but anyways etc even though is accurate as we want but too many at same tech spread it more and more civilizations too this way are included maybe too but anyways etc anyways etc in this case anyways etc) and we need/want a music tech wonder anyways etc -->
 	<TEXT>
-		<Tag>TXT_KEY_BUILDING_SECURITY_BUREAU</Tag>
-		<English>Security Bureau</English>
+		<Tag>TXT_KEY_BUILDING_NATYA_SHASTRA</Tag>
+		<English>Natya Shastra</English>
 	</TEXT>
+
 
 
 	<!-- custom: rename to more accurate naming from "Chinese_Leader" (wtf??? but anyways etc) to "Mao Zedong" as he is accurately named in several (most in fact parts of the code), hopefully clearer now or/and more sensical or/and consistent or maybe not or yes or and other or and not, (but) anyways etc... -->

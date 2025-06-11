@@ -607,30 +607,6 @@
 		</Spanish>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_BUILDING_SISTINE_CHAPEL</Tag>
-		<English>Sistine Chapel</English>
-		<French>
-			<Text>Chapelle Sixtine</Text>
-			<Gender>Female</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Sixtinische Kapelle</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Cappella Sistina</Text>
-			<Gender>Female</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Capilla Sixtina:Capillas Sixtinas</Text>
-			<Gender>Female</Gender>
-			<Plural>0:1</Plural>
-		</Spanish>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_BUILDING_SPIRAL_MINARET</Tag>
 		<English>Spiral Minaret</English>
 		<French>

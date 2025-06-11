@@ -721,10 +721,6 @@ I am not sure which i should take, but since there are redundancies i guess i sh
 			<Attribute Class="Rotation">0,180</Attribute>
 			<Scale>2.3</Scale>
 		</ArtRef>
-		<ArtRef Name="building:BUILDING_SISTINE_CHAPEL">
-			<Attribute Class="Rotation">90,270</Attribute>
-			<Scale>1.1</Scale>
-		</ArtRef>
 		<ArtRef Name="building:BUILDING_BANK">
 			<Attribute Class="Rotation">90,180,270</Attribute>
 			<Attribute Class="Scalar">fCurvatureBias:68</Attribute>
@@ -1264,6 +1260,9 @@ I am not sure which i should take, but since there are redundancies i guess i sh
 		<ArtRef Name="building:BUILDING_WEST_POINT">
 			<Attribute Class="Rotation">90,270</Attribute>
 			<Scale>1.75</Scale>
+		</ArtRef>
+		<ArtRef Name="building:BUILDING_NATYA_SHASTRA">
+			<Scale>0.17</Scale>
 		</ArtRef>
 	</LNode>
 	<LNode Name="Leaf_3x3">

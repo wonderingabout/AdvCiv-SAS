@@ -1263,15 +1263,16 @@
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/ChichenItza.dds,Art/Interface/Buttons/Buildings_Atlas.dds,4,8</Button>
 		</BuildingArtInfo>
+		<!-- custom: nif import from RI mod's ART_DEF_BUILDING_INDIA_TEMPLE (vedic_temple) using PakBuild (see main readme.md 's "some useful tools" section or some similar name it may or not have for details and screenshot examples about it anyways etc) ; button import similarly from RI mod's ART_DEF_BUILDING_INDIAN_SRENI anyways etc -->
 		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_SISTINE_CHAPEL</Type>
+			<Type>ART_DEF_BUILDING_NATYA_SHASTRA</Type>
 			<LSystem>LSYSTEM_1x2</LSystem>
 			<bAnimated>0</bAnimated>
 			<fScale>1.1</fScale>
 			<fInterfaceScale>0.73</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/SistineChapel/SistineChapel.nif</NIF>
+			<NIF>Art/AdvCiv_SAS/Buildings/Natya_Shastra/nif/door.nif</NIF>
 			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/SistineChapel.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,6</Button>
+			<Button>Art/AdvCiv_SAS/Buildings/Natya_Shastra/indian sreni.dds</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_SPIRAL_MINARET</Type>
