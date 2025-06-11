@@ -2255,12 +2255,12 @@
 			<SoundMP>SND_TECH_MP_AESTHETICS</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,2,16</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_SAILING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<Type>TECH_SAILING</Type>
-			<Description>TXT_KEY_TECH_SAILING</Description>
-			<Civilopedia>TXT_KEY_TECH_SAILING_PEDIA</Civilopedia>
+		<TechInfo> <!-- custom: type: TECH_SEAFARING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<Type>TECH_SEAFARING</Type>
+			<Description>TXT_KEY_TECH_SEAFARING</Description>
+			<Civilopedia>TXT_KEY_TECH_SEAFARING_PEDIA</Civilopedia>
 			<Help/>
-			<Strategy>TXT_KEY_TECH_SAILING_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<!-- advc.131b -->
 			<!-- custom: if AIs want to get an early lighthouse or/and moai or/and galleys, it may not be so useless in some contexts
@@ -2338,10 +2338,11 @@
 				<PrereqTech>TECH_FISHING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
-			<Quote>TXT_KEY_TECH_SAILING_QUOTE</Quote>
-			<Sound>AS2D_TECH_SAILING</Sound>
-			<SoundMP>AS2D_TECH_MP_SAILING</SoundMP>
-			<Button>,Art/Interface/Buttons/TechTree/Sailing.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,7</Button>
+			<Quote>TXT_KEY_TECH_SEAFARING_QUOTE</Quote>
+			<Sound>AS2D_TECH_SEAFARING</Sound>
+			<SoundMP>AS2D_TECH_MP_SEAFARING</SoundMP>
+			<!-- custom: button import from c2c mod's TECH_BOAT_BUILDING in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Caveman2Cosmos\Assets\C2C2.FPK ; old button was <Button>,Art/Interface/Buttons/TechTree/Sailing.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,7</Button> anyways etc -->
+			<Button>Art/AdvCiv_SAS/Techs/Seafaring/boatbuilding.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_WRITING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>TECH_WRITING</Type>
@@ -2601,7 +2602,7 @@
 			<bDisable>0</bDisable>
 			<bGoodyTech>1</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
-			<bMapCentering>1</bMapCentering>
+			<bMapCentering>0</bMapCentering>
 			<bMapVisible>0</bMapVisible>
 			<bMapTrading>0</bMapTrading>
 			<bTechTrading>0</bTechTrading>
@@ -2646,7 +2647,7 @@
 				<PrereqTech>TECH_MATHEMATICS</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_SAILING</PrereqTech>
+				<PrereqTech>TECH_SEAFARING</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_CALENDAR_QUOTE</Quote>
 			<Sound>AS2D_TECH_CALENDAR</Sound>
@@ -2829,7 +2830,7 @@
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
 			<bMapCentering>0</bMapCentering>
 			<bMapVisible>0</bMapVisible>
-			<bMapTrading>1</bMapTrading>
+			<bMapTrading>0</bMapTrading>
 			<bTechTrading>0</bTechTrading>
 			<bGoldTrading>0</bGoldTrading>
 			<bOpenBordersTrading>0</bOpenBordersTrading>
@@ -3233,7 +3234,7 @@
 			</OrPreReqs>
 			<!-- custom: astronomy quite strongly liinked to india's history if i am not mistaken anywyas etc in https://en.wikipedia.org/wiki/Indian_astronomy, approximate it by tech_meditation that happens in the late classical time now in our reworked tech tree if i am not mistaken anyways etc (even though is still todo as of now but anyways etc), heliocentrism also linked to aristarchus 's (greek astronomer around 250 BCE if i am not mistaken from this quick search anyways etc https://en.wikipedia.org/wiki/Heliocentrism), is also quite good from a balance standpoint to make these techs more useful than the usual education scientific method of our new tech tree reworked anyways etc -->
 			<AndPreReqs>
-				<PrereqTech>TECH_COMPASS</PrereqTech>
+				<PrereqTech>TECH_NAVIGATION</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_ASTRONOMY_QUOTE</Quote>
 			<Sound>AS2D_TECH_ASTRONOMY</Sound>
@@ -3609,7 +3610,7 @@
 				<PrereqTech>TECH_BIOLOGY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_OPTICS</PrereqTech>
+				<PrereqTech>TECH_SAILING</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_MEDICINE_QUOTE</Quote>
 			<Sound>AS2D_TECH_MEDICINE</Sound>
@@ -5082,12 +5083,12 @@
 			<SoundMP>AS2D_TECH_MP_METALCAST</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Metal Casting.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,5</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_COMPASS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<Type>TECH_COMPASS</Type>
-			<Description>TXT_KEY_TECH_COMPASS</Description>
-			<Civilopedia>TXT_KEY_TECH_COMPASS_PEDIA</Civilopedia>
+		<TechInfo> <!-- custom: type: TECH_NAVIGATION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<Type>TECH_NAVIGATION</Type>
+			<Description>TXT_KEY_TECH_NAVIGATION</Description>
+			<Civilopedia>TXT_KEY_TECH_NAVIGATION_PEDIA</Civilopedia>
 			<Help/>
-			<Strategy>TXT_KEY_TECH_COMPASS_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
@@ -5109,9 +5110,11 @@
 			<bDisable>0</bDisable>
 			<bGoodyTech>1</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
-			<bMapCentering>0</bMapCentering>
+			<!-- custom: was 0 -->
+			<bMapCentering>1</bMapCentering>
 			<bMapVisible>0</bMapVisible>
-			<bMapTrading>0</bMapTrading>
+			<!-- custom: was 0 -->
+			<bMapTrading>1</bMapTrading>
 			<bTechTrading>0</bTechTrading>
 			<bGoldTrading>0</bGoldTrading>
 			<bOpenBordersTrading>0</bOpenBordersTrading>
@@ -5122,7 +5125,7 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>7</iGridX>
+			<iGridX>6</iGridX>
 			<iGridY>1</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
@@ -5150,12 +5153,13 @@
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_SAILING</PrereqTech>
+				<PrereqTech>TECH_SEAFARING</PrereqTech>
 			</AndPreReqs>
-			<Quote>TXT_KEY_TECH_COMPASS_QUOTE</Quote>
-			<Sound>AS2D_TECH_COMPASS</Sound>
-			<SoundMP>AS2D_TECH_MP_COMPASS</SoundMP>
-			<Button>,Art/Interface/Buttons/TechTree/Compass.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,2</Button>
+			<Quote>TXT_KEY_TECH_NAVIGATION_QUOTE</Quote>
+			<Sound>AS2D_TECH_NAVIGATION</Sound>
+			<SoundMP>AS2D_TECH_MP_NAVIGATION</SoundMP>
+			<!-- custom: button import from FFH2 mod's TECH_CARTOGRAPHY in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Fall from Heaven 2\Assets\Pak0.FPK ; old button was <Button>,Art/Interface/Buttons/TechTree/Compass.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,2</Button> anyways etc -->
+			<Button>Art/AdvCiv_SAS/Techs/Navigation/cartography.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_CONSTRUCTION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>TECH_CONSTRUCTION</Type>
@@ -5394,12 +5398,12 @@
 			<SoundMP>AS2D_TECH_MP_ENGINEERING</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Engineering.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,3</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_OPTICS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<Type>TECH_OPTICS</Type>
-			<Description>TXT_KEY_TECH_OPTICS</Description>
-			<Civilopedia>TXT_KEY_TECH_OPTICS_PEDIA</Civilopedia>
+		<TechInfo> <!-- custom: type: TECH_SAILING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<Type>TECH_SAILING</Type>
+			<Description>TXT_KEY_TECH_SAILING</Description>
+			<Civilopedia>TXT_KEY_TECH_SAILING_PEDIA</Civilopedia>
 			<Help/>
-			<Strategy>TXT_KEY_TECH_OPTICS_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
@@ -5435,7 +5439,7 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>5</iGridX>
+			<iGridX>4</iGridX>
 			<iGridY>1</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
@@ -5460,15 +5464,16 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_COMPASS</PrereqTech>
+				<PrereqTech>TECH_NAVIGATION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_MACHINERY</PrereqTech>
 			</AndPreReqs>
-			<Quote>TXT_KEY_TECH_OPTICS_QUOTE</Quote>
-			<Sound>AS2D_TECH_OPTICS</Sound>
-			<SoundMP>AS2D_TECH_MP_OPTICS</SoundMP>
-			<Button>,Art/Interface/Buttons/TechTree/Optics.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,6</Button>
+			<Quote>TXT_KEY_TECH_SAILING_QUOTE</Quote>
+			<Sound>AS2D_TECH_SAILING</Sound>
+			<SoundMP>AS2D_TECH_MP_SAILING</SoundMP>
+			<!-- custom: button import from HR mod's TECH_SEAFARING, old button was <Button>,Art/Interface/Buttons/TechTree/Optics.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,6</Button> anyways etc -->
+			<Button>Art/AdvCiv_SAS/Techs/Sailing/Sailing.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_GUNPOWDER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>TECH_GUNPOWDER</Type>

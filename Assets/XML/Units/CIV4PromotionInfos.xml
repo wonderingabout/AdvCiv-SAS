@@ -4263,7 +4263,8 @@ custom: for <UnitCombats> please alphabetical/sevopedia listing order, else it g
 			<PromotionPrereq>NONE</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_FLANKING1</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
-			<TechPrereq>NONE</TechPrereq>
+			<!-- custom: was NONE -->
+			<TechPrereq>TECH_SAILING</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
 			<iBlitz>0</iBlitz>
@@ -4330,7 +4331,8 @@ custom: for <UnitCombats> please alphabetical/sevopedia listing order, else it g
 			<PromotionPrereq>PROMOTION_FLANKING1</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_NAVIGATION1</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
-			<TechPrereq>NONE</TechPrereq>
+			<!-- custom: was NONE -->
+			<TechPrereq>TECH_NAVIGATION</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
 			<iBlitz>0</iBlitz>

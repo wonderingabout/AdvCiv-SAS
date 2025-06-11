@@ -10,3 +10,12 @@
 
 - **AIFT_**: `AIFreeTechs`
 - **FT_**: `FreeTechs`
+
+## Abbreviated Tech Names
+
+The following technology names were shortened for compactness in the table view:
+
+- **Animal H.** → `Animal Husbandry`
+- **Bronze W.** → `Bronze Working`
+- **Industr.** → `Industrialism`
+- **Iron W.** → `Iron Working`

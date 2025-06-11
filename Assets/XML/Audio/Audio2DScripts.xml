@@ -12300,8 +12300,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_SAILING</ScriptID>
-		<SoundID>SND_TECH_SAILING</SoundID>
+		<ScriptID>AS2D_TECH_SEAFARING</ScriptID>
+		<SoundID>SND_TECH_SEAFARING</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -13197,8 +13197,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_COMPASS</ScriptID>
-		<SoundID>SND_TECH_COMPASS</SoundID>
+		<ScriptID>AS2D_TECH_NAVIGATION</ScriptID>
+		<SoundID>SND_TECH_NAVIGATION</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -13243,8 +13243,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_OPTICS</ScriptID>
-		<SoundID>SND_TECH_OPTICS</SoundID>
+		<ScriptID>AS2D_TECH_SAILING</ScriptID>
+		<SoundID>SND_TECH_SAILING</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -14416,8 +14416,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_MP_SAILING</ScriptID>
-		<SoundID>SND_TECH_MP_SAILING</SoundID>
+		<ScriptID>AS2D_TECH_MP_SEAFARING</ScriptID>
+		<SoundID>SND_TECH_MP_SEAFARING</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -15313,8 +15313,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_MP_COMPASS</ScriptID>
-		<SoundID>SND_TECH_MP_COMPASS</SoundID>
+		<ScriptID>AS2D_TECH_MP_NAVIGATION</ScriptID>
+		<SoundID>SND_TECH_MP_NAVIGATION</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -15359,8 +15359,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_MP_OPTICS</ScriptID>
-		<SoundID>SND_TECH_MP_OPTICS</SoundID>
+		<ScriptID>AS2D_TECH_MP_SAILING</ScriptID>
+		<SoundID>SND_TECH_MP_SAILING</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>

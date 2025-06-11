@@ -3175,14 +3175,6 @@
 		<Italian>"Non sopravvive la specie pi&#249; forte, ma quella pi&#249; adatta al cambiamento." - Charles Darwin</Italian>
 		<Spanish>"No sobrevive la especie m&#225;s fuerte, sino la m&#225;s adaptable al cambio." - Charles Darwin</Spanish>
 	</TEXT>
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_TECH_COMPASS_QUOTE</Tag>
-		<English>"The wisest men follow their own direction." - ascribed to Euripides</English>
-		<French>"L'homme avis&#233; suit sa propre direction." - Euripide</French>
-		<German>"Ein weiser Mann folgt nur sich selbst." - Euripides (zugeschrieben)</German>
-		<Italian>"Gli uomini pi&#249; saggi conoscono la direzione in cui andare." - Euripide</Italian>
-		<Spanish>"Los hombres m&#225;s sabios siguen su propio rumbo." - Eur&#237;pides</Spanish>
-	</TEXT>
 	<!-- Earliest known source appears to be Wendell Berry. "Native American
 		 song" smells like a romanticization. -->
 	<TEXT> <!-- redefine -->

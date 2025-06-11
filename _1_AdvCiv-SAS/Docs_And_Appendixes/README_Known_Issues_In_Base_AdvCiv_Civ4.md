@@ -416,3 +416,47 @@ A few screenshots of the current issue (screenshot previews below as long as lin
 Added a PrereqTech for shrines so we can display them in tech tree as well, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, anyways etc), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it or not or yes or etc or and other or and not but anyways etc, was NONE.
 
 A few screenshots of after the fix/rework (screenshot previews below as long as links are valid anyways etc) in [this Google drive folder about this issue/rework anyways etc](https://drive.google.com/drive/folders/1kIRImlhvrB7-65lYNXm46M28FvWOT3f7?usp=sharing)
+
+## 14 - (now removed/fixed if it is a fix anyways etc) duplicate ArtRef Name="building:BUILDING_LIGHTHOUSE" and same for ArtRef Name="building:BUILDING_HARBOR" and ArtRef Name="building:BUILDING_CARTHAGE_COTHON" in CIV4CityLSystem.xml anyways etc
+
+in (adjust to your mod path anyways etc) `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Buildings\CIV4CityLSystem.xml`
+
+removed this:
+
+```
+		<ArtRef Name="building:BUILDING_LIGHTHOUSE">
+			<Attribute Class="Era">ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL,ERA_RENAISSANCE</Attribute>
+			<Attribute Class="Scalar">bNoWaterTest:1</Attribute>
+			<!-- this bypasses water testing -->
+			<Attribute Class="Scalar">szSpecialLayout:Water</Attribute>
+			<Scale>1.5</Scale>
+		</ArtRef>
+```
+
+in:
+
+```
+		<ArtRef Name="building:BUILDING_LIGHTHOUSE">
+			<Attribute Class="Era">ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL,ERA_RENAISSANCE</Attribute>
+			<Attribute Class="Scalar">bNoWaterTest:1</Attribute>
+			<!-- this bypasses water testing -->
+			<Attribute Class="Scalar">szSpecialLayout:Water</Attribute>
+			<Scale>1.5</Scale>
+		</ArtRef>
+		<ArtRef Name="building:BUILDING_LIGHTHOUSE">
+			<Attribute Class="Scalar">szNIF:Art/Structures/Buildings/Lighthouse/LighthouseModern.nif</Attribute>
+			<Attribute Class="Era">ERA_INDUSTRIAL,ERA_MODERN,ERA_FUTURE</Attribute>
+			<Attribute Class="Scalar">bNoWaterTest:1</Attribute>
+			<!-- this bypasses water testing -->
+			<Attribute Class="Scalar">szSpecialLayout:Water</Attribute>
+			<Scale>1.5</Scale>
+		</ArtRef>
+```
+
+seems like a duplicate, should be safe to remove, but marking it down here if i may say as i don't know a lot about these and to be safe, should be safe to do so though but is for exhaustiveness too perhaps, but anyways etc anyways etc anyways etc...
+
+also note as in code comment of it anyways etc edited or not or yes or anyways etc to fit quite well in this .md readme anyways etc: "<!-- custom: remove seemingly duplicate `<ArtRef Name="building:BUILDING_LIGHTHOUSE">` (removed 1st occurence to be safe that it is not the one used in the game, the 2nd one seems more exhaustive too from the little i can see of it but anyways etc) anyways etc -->
+
+did similarly for the `<ArtRef Name="building:BUILDING_HARBOR">` and `<ArtRef Name="building:BUILDING_CARTHAGE_COTHON">` seemingly duplicated too anyways etc
+
+see some screenshot(s) about this issue in this [google drive folder link](https://drive.google.com/drive/folders/1vP6L16r3PJ0qpwzqOfeycuaTRDKZbNCr?usp=sharing) anyways etc

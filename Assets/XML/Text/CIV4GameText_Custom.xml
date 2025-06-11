@@ -235,4 +235,32 @@
 		<Tag>TXT_KEY_CITY_NAME_ITAKETE_CUSTOM</Tag>
 		<English>Itakete</English>
 	</TEXT>
+
+
+
+	<!-- custom: rename _HORSEBACK_RIDING to _MOUNTED_COMBAT, this asset is a part that is extracted from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameTextInfos.xml -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_MOUNTED_COMBAT_QUOTE</Tag>
+		<English>"If you speak the truth, have a foot in the stirrup." - Turkish proverb</English>
+	</TEXT>
+	<!-- custom: rename _UTOPIA to _COMMUNISM, similarly extarcted anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_COMMUNISM_QUOTE</Tag>
+		<English>"When I give food to the poor, they call me a saint. When I ask why the poor have no food, they call me a communist." - Dom Helder Camara</English>
+	</TEXT>
+	<!-- custom: rename TECH_SAILING to TECH_SEAFARING, use old tech_optics's quote instead, anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_SEAFARING_QUOTE</Tag>
+		<English>"One doesn't discover new lands without losing sight of the shore." - Andre Gide</English>
+	</TEXT>
+	<!-- custom: rename TECH_OPTICS to TECH_SAILING, use old tech_sailing's quote instead, anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_SAILING_QUOTE</Tag>
+		<English>"You can't direct the wind, but you can adjust your sails." - Unknown</English>
+	</TEXT>
+	<!-- custom: rename TECH_COMPASS to TECH_NAVIGATION anyways etc -->
+	<TEXT> <!-- redefine -->
+		<Tag>TXT_KEY_TECH_NAVIGATION_QUOTE</Tag>
+		<English>"The wisest men follow their own direction." - ascribed to Euripides</English>
+	</TEXT>
 </Civ4GameText>

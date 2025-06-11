@@ -489,7 +489,7 @@
 				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
 				also may be more versatile than printing press, was PRINTING_PRESS-->
 				<FreeTech>
-					<TechType>TECH_COMPASS</TechType>
+					<TechType>TECH_NAVIGATION</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
@@ -668,7 +668,7 @@
 				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
 				also may be more versatile than printing press, was PRINTING_PRESS-->
 				<FreeTech>
-					<TechType>TECH_COMPASS</TechType>
+					<TechType>TECH_NAVIGATION</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
@@ -1010,7 +1010,7 @@
 				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
 				also may be more versatile than printing press, was PRINTING_PRESS-->
 				<FreeTech>
-					<TechType>TECH_COMPASS</TechType>
+					<TechType>TECH_NAVIGATION</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -1224,7 +1224,7 @@
 				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
 				also may be more versatile than printing press, was PRINTING_PRESS-->
 				<FreeTech>
-					<TechType>TECH_COMPASS</TechType>
+					<TechType>TECH_NAVIGATION</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -1447,7 +1447,7 @@
 				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
 				also may be more versatile than printing press, was PRINTING_PRESS-->
 				<FreeTech>
-					<TechType>TECH_COMPASS</TechType>
+					<TechType>TECH_NAVIGATION</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -1689,7 +1689,7 @@
 				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
 				also may be more versatile than printing press, was PRINTING_PRESS-->
 				<FreeTech>
-					<TechType>TECH_COMPASS</TechType>
+					<TechType>TECH_NAVIGATION</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -1698,7 +1698,7 @@
 				</FreeTech>
 				<!-- custom: optics should be more versatile than gunpowder, was TECH_GUNPOWDER -->
 				<FreeTech>
-					<TechType>TECH_OPTICS</TechType>
+					<TechType>TECH_SAILING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<!-- custom: removed tech TECH_GUNPOWDER to give the human player more time/momentum to catch up maybe -->

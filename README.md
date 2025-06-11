@@ -257,7 +257,7 @@ See also [README.md#changes-from-one-mod-to-another-sevopedia-itemspages](/READM
 # Credits
 
 - AdvCiv (the full name Advanced Civ does not yield much results about Civ 4 so i prefer the AdvCiv Name, maybe because of the space character, so i put a "-" instead in my/this mod): todo write, but mostly i am very thankful of AdvCiv, it's such a nice improvement from Civ4, and it's maintainer is very open to feedback at least in my exchanges/experiences during these times
-- Cavemen2Cosmosn (also know as C2C): i took quite a lot of content from there, thanks
+- Cavemen2Cosmos (also know as C2C): i took quite a lot of content from there, such as the advciv-sas's tech_seafaring (based on c2c mod's tech_boat building's) button (i.e. image of the tech ingame anyways etc), thanks
 - Realism Invictus (also know as RI): i took quite a bit content from there, thanks,
 - Fall from Heaven II (also know as FFH2): i took quite a bit of content from there, thanks
 too too, thanks,

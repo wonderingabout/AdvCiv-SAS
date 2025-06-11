@@ -243,7 +243,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_COMPASS</TechType>
+					<TechType>TECH_NAVIGATION</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -402,7 +402,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_COMPASS</TechType>
+					<TechType>TECH_NAVIGATION</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -560,7 +560,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_COMPASS</TechType>
+					<TechType>TECH_NAVIGATION</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -725,7 +725,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_COMPASS</TechType>
+					<TechType>TECH_NAVIGATION</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -890,7 +890,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_COMPASS</TechType>
+					<TechType>TECH_NAVIGATION</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -1060,7 +1060,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_COMPASS</TechType>
+					<TechType>TECH_NAVIGATION</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -1241,7 +1241,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_COMPASS</TechType>
+					<TechType>TECH_NAVIGATION</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -1425,7 +1425,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
-					<TechType>TECH_COMPASS</TechType>
+					<TechType>TECH_NAVIGATION</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -1652,7 +1652,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
 				also may be more versatile than printing press, was PRINTING_PRESS-->
 				<FreeTech>
-					<TechType>TECH_COMPASS</TechType>
+					<TechType>TECH_NAVIGATION</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<FreeTech>
@@ -1661,7 +1661,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 				</FreeTech>
 				<!-- custom: optics should be more versatile than gunpowder, was TECH_GUNPOWDER -->
 				<FreeTech>
-					<TechType>TECH_OPTICS</TechType>
+					<TechType>TECH_SAILING</TechType>
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 				<!-- custom: removed tech TECH_GUNPOWDER to give the human player more time/momentum to catch up maybe -->

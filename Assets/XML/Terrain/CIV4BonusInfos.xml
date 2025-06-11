@@ -1928,7 +1928,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 			<BonusClassType>BONUSCLASS_GENERAL</BonusClassType>
 			<ArtDefineTag>ART_DEF_BONUS_WHALE</ArtDefineTag>
 			<TechReveal>NONE</TechReveal>
-			<TechCityTrade>TECH_SAILING</TechCityTrade>
+			<TechCityTrade>TECH_SEAFARING</TechCityTrade>
 			<TechObsolete>TECH_ECOLOGY</TechObsolete>
 			<!-- custom: not so easy to capture without proper installations, but attracts folks as in people perhaps and folks as in stories perhaps anyways etc anyways etc anyways etc -->
 			<YieldChanges>

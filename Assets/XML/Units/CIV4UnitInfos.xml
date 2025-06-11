@@ -2095,7 +2095,8 @@ then adjust maybe anyways):
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_COMPASS</PrereqTech>
+			<!-- custom: was TECH_NAVIGATION -->
+			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -18362,6 +18363,7 @@ then adjust maybe anyways):
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
+			<!-- custom: was TECH_SEAFARING -->
 			<PrereqTech>TECH_SAILING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
@@ -18561,9 +18563,10 @@ then adjust maybe anyways):
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_METAL_CASTING</PrereqTech>
+			<!-- custom: was TECH_METAL_CASTING -->
+			<PrereqTech>TECH_NAVIGATION</PrereqTech>
 			<TechTypes>
-				<PrereqTech>TECH_SAILING</PrereqTech>
+				<PrereqTech>TECH_SEAFARING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>

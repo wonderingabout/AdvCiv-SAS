@@ -18,8 +18,9 @@
 #
 # 2. <FreeTechs> and <AIFreeTechs>:
 #    - These are parsed as comma-separated strings per difficulty.
-#    - Long values are replaced by short legend keys (e.g. FT_0, AIFT_0) for compact display.
-#    - A separate right-shifted [LEGEND] section shows the full mappings across difficulties.
+#    - Long values are replaced by short legend keys (e.g. FT_0, AIFT_0), defined in `ABBREV_FREE_TECHS_HEADER_NAMES`.
+#    - Technology names inside the legend are optionally shortened via `ABBREV_TECH_NAMES` (e.g. "Animal Husbandry" → "Animal H.").
+#    - A right-shifted [LEGEND] block in the CSV aligns the mappings compactly.
 #
 # Output Files:
 # - CSV table of all difficulty settings (main output)
@@ -85,12 +86,12 @@ ALL_GOODY_TYPES = (
 	"GOODY_BARBARIANS_STRONG",
 )
 
-ABBREV_MAP = {
+ABBREV_FREE_TECHS_HEADER_NAMES = {
 	"AIFreeTechs": "AIFT_",
 	"FreeTechs":"FT_",
 }
 
-ABBREV_REPLACEMENTS = {
+ABBREV_TECH_NAMES = {
 	"Animal Husbandry": "Animal H.",
 	"Bronze Working": "Bronze W.",
 	"Iron Working": "Iron W.",
@@ -112,8 +113,8 @@ def beautify_enum_name(raw_name):
 	# Underscore to space, then title case
 	return re.sub(r'_', ' ', raw_name).title()
 
-def shorten_legend_name(name, abbrev_replacements):
-	return abbrev_replacements.get(name, name)
+def shorten_legend_name(name, abbrev_tech_names):
+	return abbrev_tech_names.get(name, name)
 
 for handicap_info in handicap_infos.findall('ns:HandicapInfo', namespace):
 	handicap_dict = {}
@@ -210,9 +211,9 @@ def get_legend_key(field_name, value):
 	if not value.strip():
 		return ""
 
-	count = legend_counter.get(ABBREV_MAP[field_name], 0)
-	legend_key = f"{ABBREV_MAP[field_name]}{count}"
-	legend_counter[ABBREV_MAP[field_name]] = count + 1
+	count = legend_counter.get(ABBREV_FREE_TECHS_HEADER_NAMES[field_name], 0)
+	legend_key = f"{ABBREV_FREE_TECHS_HEADER_NAMES[field_name]}{count}"
+	legend_counter[ABBREV_FREE_TECHS_HEADER_NAMES[field_name]] = count + 1
 	legend[legend_key] = value
 	return legend_key
 
@@ -246,7 +247,7 @@ with open(table_csv_filename, "w", newline="", encoding="utf-8") as f:
 				if not k or k not in legend_dict:
 					continue
 				for v in legend_dict[k].split(','):
-					name = shorten_legend_name(beautify_enum_name(v.strip()), ABBREV_REPLACEMENTS)
+					name = shorten_legend_name(beautify_enum_name(v.strip()), ABBREV_TECH_NAMES)
 					if name not in seen:
 						unique.append(name)
 						seen.add(name)
@@ -258,7 +259,7 @@ with open(table_csv_filename, "w", newline="", encoding="utf-8") as f:
 				if k and k in legend_dict:
 					headers.append(f"{prefix}{counter}")
 					values = {
-						shorten_legend_name(beautify_enum_name(v.strip()), ABBREV_REPLACEMENTS)
+						shorten_legend_name(beautify_enum_name(v.strip()), ABBREV_TECH_NAMES)
 						for v in legend_dict[k].split(',')
 					}
 					columns.append([v if v in values else "-" for v in unique])
@@ -270,7 +271,7 @@ with open(table_csv_filename, "w", newline="", encoding="utf-8") as f:
 
 		lines = []
 
-		# AIFT (same style as FT)
+		# AIFT
 		aift_keys_ordered = []
 		for row in rows:
 			if row["Field"] == "AIFreeTechs":
@@ -278,13 +279,13 @@ with open(table_csv_filename, "w", newline="", encoding="utf-8") as f:
 					ref = row.get(difficulty, "")
 					aift_keys_ordered.append(ref if ref in legend_dict else None if not ref else None)
 
-		aift_unique = extract_ordered_unique(aift_keys_ordered, ABBREV_MAP["AIFreeTechs"])
-		aift_headers, aift_columns = build_columns(aift_keys_ordered, aift_unique, ABBREV_MAP["AIFreeTechs"])
+		aift_unique = extract_ordered_unique(aift_keys_ordered, ABBREV_FREE_TECHS_HEADER_NAMES["AIFreeTechs"])
+		aift_headers, aift_columns = build_columns(aift_keys_ordered, aift_unique, ABBREV_FREE_TECHS_HEADER_NAMES["AIFreeTechs"])
 		lines.append('\t'.join(aift_headers))
 		for row in zip(*aift_columns):
 			lines.append('\t'.join(row))
 
-		# FT
+		# FT (same style as AIFT)
 		ft_keys_ordered = []
 		for row in rows:
 			if row["Field"] == "FreeTechs":
@@ -292,8 +293,8 @@ with open(table_csv_filename, "w", newline="", encoding="utf-8") as f:
 					ref = row.get(difficulty, "")
 					ft_keys_ordered.append(ref if ref in legend_dict else None if not ref else None)
 
-		ft_unique = extract_ordered_unique(ft_keys_ordered, ABBREV_MAP["FreeTechs"])
-		ft_headers, ft_columns = build_columns(ft_keys_ordered, ft_unique, ABBREV_MAP["FreeTechs"])
+		ft_unique = extract_ordered_unique(ft_keys_ordered, ABBREV_FREE_TECHS_HEADER_NAMES["FreeTechs"])
+		ft_headers, ft_columns = build_columns(ft_keys_ordered, ft_unique, ABBREV_FREE_TECHS_HEADER_NAMES["FreeTechs"])
 		lines.append('\t'.join(ft_headers))
 		for row in zip(*ft_columns):
 			lines.append('\t'.join(row))
@@ -341,14 +342,14 @@ with open(legend_md_filename, "w", encoding="utf-8") as md:
 	md.write("> Source: [Civ4 Difficulty Wiki](https://civilization.fandom.com/wiki/Difficulty_level_(Civ4)?utm_source=chatgpt.com)\n\n")
 
 	md.write("## Abbreviation Keys\n\n")
-	# Reverse map: short_prefix → original_field
-	reverse_abbrev_map = {
-		v: k for k, v in ABBREV_MAP.items()
-	}
+	reverse_abbrev_free_techs_header_names = {v: k for k, v in ABBREV_FREE_TECHS_HEADER_NAMES.items()}
+	for abbr in sorted(reverse_abbrev_free_techs_header_names.keys()):
+		md.write(f"- **{abbr}**: `{reverse_abbrev_free_techs_header_names[abbr]}`\n")
 
-	for abbr in sorted(reverse_abbrev_map.keys()):
-		original_field = reverse_abbrev_map[abbr]
-		md.write(f"- **{abbr}**: `{original_field}`\n")
+	md.write("\n## Abbreviated Tech Names\n\n")
+	md.write("The following technology names were shortened for compactness in the table view:\n\n")
+	for full, short in sorted(ABBREV_TECH_NAMES.items(), key=lambda x: x[1]):
+		md.write(f"- **{short}** → `{full}`\n")
 
 print(f"→ Legend saved as: {legend_md_filename}")
 

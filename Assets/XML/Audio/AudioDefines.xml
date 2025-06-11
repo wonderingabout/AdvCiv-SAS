@@ -8759,7 +8759,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_COMPASS</SoundID>
+			<SoundID>SND_TECH_NAVIGATION</SoundID>
 			<Filename>Sounds/Tech/Tech_Compass</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -8773,7 +8773,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_OPTICS</SoundID>
+			<SoundID>SND_TECH_SEAFARING</SoundID>
 			<Filename>Sounds/Tech/Tech_Optics</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -9403,7 +9403,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_COMPASS</SoundID>
+			<SoundID>SND_TECH_MP_NAVIGATION</SoundID>
 			<Filename>Sounds/Tech/Tech_MP_Compass</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -9417,7 +9417,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_OPTICS</SoundID>
+			<SoundID>SND_TECH_MP_SEAFARING</SoundID>
 			<Filename>Sounds/Tech/Tech_MP_Optics</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>

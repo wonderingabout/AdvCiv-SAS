@@ -695,7 +695,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<!-- advc.008a: was ERA_INDUSTRIAL -->
 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_DIVINE_RIGHT</PrereqTech>
+			<!-- custom: was TECH_DIVINE_RIGHT -->
+			<PrereqTech>TECH_FEUDALISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -5196,15 +5197,16 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: lighthouse, type: lighthouse (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<BuildingClass>BUILDINGCLASS_LIGHTHOUSE</BuildingClass>
-			<Type>BUILDING_LIGHTHOUSE</Type>
+		<!-- custom: harbor reworked, now is a building before the lighthouse and buffed too if i am not mistaken anyways etc anyways etc, relatively to how old lighthouse was anyways etc ; oldest harbor should be much sooner than tech compass, (for example https://en.wikipedia.org/wiki/Wadi_al-Jarf) also to buff water tiles that are too weak as of now anyways etc -->
+		<BuildingInfo> <!-- custom: class: harbor, type: harbor (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<BuildingClass>BUILDINGCLASS_HARBOR</BuildingClass>
+			<Type>BUILDING_HARBOR</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
-			<Description>TXT_KEY_BUILDING_LIGHTHOUSE</Description>
-			<Civilopedia>TXT_KEY_BUILDING_LIGHTHOUSE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_LIGHTHOUSE_STRATEGY</Strategy>
-			<Advisor>ADVISOR_GROWTH</Advisor>
-			<ArtDefineTag>ART_DEF_BUILDING_LIGHTHOUSE</ArtDefineTag>
+			<Description>TXT_KEY_BUILDING_HARBOR</Description>
+			<Civilopedia>TXT_KEY_BUILDING_HARBOR_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_HARBOR_STRATEGY</Strategy>
+			<Advisor>ADVISOR_ECONOMY</Advisor>
+			<ArtDefineTag>ART_DEF_BUILDING_HARBOR</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
 			<HolyCity>NONE</HolyCity>
 			<ReligionType>NONE</ReligionType>
@@ -5216,17 +5218,18 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
 			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
 			<VictoryPrereq>NONE</VictoryPrereq>
-			<!-- advc.126: was ERA_MEDIEVAL -->
+			<!-- advc.126: was ERA_INDUSTRIAL -->
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_OPTICS</PrereqTech>
+			<!-- custom: now at sailing anyways etc, was TECH_SAILING -->
+			<PrereqTech>TECH_SEAFARING</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits>
 				<ProductionTrait>
-					<ProductionTraitType>TRAIT_ORGANIZED</ProductionTraitType>
+					<ProductionTraitType>TRAIT_EXPANSIVE</ProductionTraitType>
 					<iProductionTrait>100</iProductionTrait>
 				</ProductionTrait>
 			</ProductionTraits>
@@ -5263,7 +5266,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>60</iCost>
+			<!-- custom: reduce cost to match old lighthouse or around it, as it is its replacement as the first naval building now if i am not mistaken too but or not but but anyways etc anyways etc..., was 80 -->
+			<iCost>55</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -5311,6 +5315,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<iTradeRoutes>0</iTradeRoutes>
 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
 			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+			<!-- custom: give this effect to the reworked lighthouse, focus on immediate short-term but lasting anyways etc utility for the reworked harbour/harbor anyways etc, was 50 -->
 			<iTradeRouteModifier>0</iTradeRouteModifier>
 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
@@ -5322,6 +5327,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<iAsset>3</iAsset>
 			<iPower>0</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
+			<!-- custom: get this effect from the old lighthouse before its rework, anyways etc, was empty anyways etc -->
 			<SeaPlotYieldChanges>
 				<iYield>1</iYield>
 			</SeaPlotYieldChanges>
@@ -5341,8 +5347,26 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeSpecialistCounts/>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
-			<ConstructSound>AS2D_BUILD_LIGHTHOUSE</ConstructSound>
-			<BonusHealthChanges/>
+			<ConstructSound>AS2D_BUILD_DRYDOCK</ConstructSound>
+			<!-- custom: also add whale to buff it, should be historically (quite if not lot but anyways etc anyways etc) accurate anyways etc -->
+			<BonusHealthChanges>
+				<BonusHealthChange>
+					<BonusType>BONUS_MOLLUSCS</BonusType>
+					<iHealthChange>1</iHealthChange>
+				</BonusHealthChange>
+				<BonusHealthChange>
+					<BonusType>BONUS_CRAB</BonusType>
+					<iHealthChange>1</iHealthChange>
+				</BonusHealthChange>
+				<BonusHealthChange>
+					<BonusType>BONUS_FISH</BonusType>
+					<iHealthChange>1</iHealthChange>
+				</BonusHealthChange>
+				<BonusHealthChange>
+					<BonusType>BONUS_WHALE</BonusType>
+					<iHealthChange>1</iHealthChange>
+				</BonusHealthChange>
+			</BonusHealthChanges>
 			<BonusHappinessChanges/>
 			<BonusProductionModifiers/>
 			<UnitCombatFreeExperiences/>
@@ -5354,10 +5378,18 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: adjust flavors to match reworked harbor effects, is mostly a food/health building so give a lot of growth (wording that i thought of independently without reading the one below too interestingly or not or yes or etc or and other or and not, but anyways etc) if i may say relatively i mean but anyways etc ; also give 2 gold flavor as/to give the reworked lighthouse that depends on the harbor now a prebuilt condition faster (so we can build the lighthouse, now a gold based building (see there for details or and updated values anyways etc) anyways etc), was gold 8 and growth 3 anyways etc -->
+			<!-- advc.020: was 10 Gold; should have a little Growth too
+				 (and Cothon should perhaps have a bit more Gold flavor than
+				 the normal Harbor) -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>10</iFlavor>
+					<iFlavor>6</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GOLD</FlavorType>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -5366,15 +5398,15 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: lighthouse, type: viking_trading_post (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<BuildingClass>BUILDINGCLASS_LIGHTHOUSE</BuildingClass>
-			<Type>BUILDING_VIKING_TRADING_POST</Type>
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HARBOR, type: BUILDING_BARBARIAN_HARBOR (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<BuildingClass>BUILDINGCLASS_HARBOR</BuildingClass>
+			<Type>BUILDING_BARBARIAN_HARBOR</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
-			<Description>TXT_KEY_BUILDING_VIKING_TRADING_POST</Description>
-			<Civilopedia>TXT_KEY_BUILDING_VIKING_TRADING_POST_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_VIKING_TRADING_POST_STRATEGY</Strategy>
-			<Advisor>ADVISOR_GROWTH</Advisor>
-			<ArtDefineTag>ART_DEF_BUILDING_VIKING_TRADING_POST</ArtDefineTag>
+			<Description>TXT_KEY_BUILDING_BARBARIAN_HARBOR</Description>
+			<Civilopedia>TXT_KEY_BUILDING_GENERIC_BARBARIAN_CUSTOM_SEE_FOR_DETAILS_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+			<Advisor>ADVISOR_ECONOMY</Advisor>
+			<ArtDefineTag>ART_DEF_BUILDING_HARBOR</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
 			<HolyCity>NONE</HolyCity>
 			<ReligionType>NONE</ReligionType>
@@ -5386,17 +5418,18 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
 			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
 			<VictoryPrereq>NONE</VictoryPrereq>
-			<!-- advc.126: was ERA_MEDIEVAL -->
+			<!-- advc.126: was ERA_INDUSTRIAL -->
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_OPTICS</PrereqTech>
+			<!-- custom: now at sailing anyways etc, was TECH_SAILING -->
+			<PrereqTech>TECH_SEAFARING</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits>
 				<ProductionTrait>
-					<ProductionTraitType>TRAIT_ORGANIZED</ProductionTraitType>
+					<ProductionTraitType>TRAIT_EXPANSIVE</ProductionTraitType>
 					<iProductionTrait>100</iProductionTrait>
 				</ProductionTrait>
 			</ProductionTraits>
@@ -5406,186 +5439,6 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeBonus>NONE</FreeBonus>
 			<iNumFreeBonuses>0</iNumFreeBonuses>
 			<FreeBuilding>NONE</FreeBuilding>
-			<FreePromotion>PROMOTION_NAVIGATION1</FreePromotion>
-			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
-			<iHurryAngerModifier>0</iHurryAngerModifier>
-			<bBorderObstacle>0</bBorderObstacle>
-			<bTeamShare>0</bTeamShare>
-			<bWater>1</bWater>
-			<bRiver>0</bRiver>
-			<bPower>0</bPower>
-			<bDirtyPower>0</bDirtyPower>
-			<bAreaCleanPower>0</bAreaCleanPower>
-			<DiploVoteType>NONE</DiploVoteType>
-			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
-			<bCapital>0</bCapital>
-			<bGovernmentCenter>0</bGovernmentCenter>
-			<bGoldenAge>0</bGoldenAge>
-			<bAllowsNukes>0</bAllowsNukes>
-			<bMapCentering>0</bMapCentering>
-			<bNoUnhappiness>0</bNoUnhappiness>
-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
-			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
-			<bNeverCapture>0</bNeverCapture>
-			<bNukeImmune>0</bNukeImmune>
-			<bPrereqReligion>0</bPrereqReligion>
-			<bCenterInCity>0</bCenterInCity>
-			<iAIWeight>0</iAIWeight>
-			<iCost>60</iCost>
-			<iHurryCostModifier>0</iHurryCostModifier>
-			<iAdvancedStartCost>100</iAdvancedStartCost>
-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<iMinAreaSize>10</iMinAreaSize>
-			<iConquestProb>66</iConquestProb>
-			<iCitiesPrereq>0</iCitiesPrereq>
-			<iTeamsPrereq>0</iTeamsPrereq>
-			<iLevelPrereq>0</iLevelPrereq>
-			<iMinLatitude>0</iMinLatitude>
-			<iMaxLatitude>90</iMaxLatitude>
-			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
-			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
-			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
-			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
-			<iAnarchyModifier>0</iAnarchyModifier>
-			<iGoldenAgeModifier>0</iGoldenAgeModifier>
-			<iGlobalHurryModifier>0</iGlobalHurryModifier>
-			<iExperience>0</iExperience>
-			<iGlobalExperience>0</iGlobalExperience>
-			<iFoodKept>0</iFoodKept>
-			<iAirlift>0</iAirlift>
-			<iAirModifier>0</iAirModifier>
-			<iAirUnitCapacity>0</iAirUnitCapacity>
-			<iNukeModifier>0</iNukeModifier>
-			<iNukeExplosionRand>0</iNukeExplosionRand>
-			<iFreeSpecialist>0</iFreeSpecialist>
-			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
-			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
-			<iMaintenanceModifier>0</iMaintenanceModifier>
-			<iWarWearinessModifier>0</iWarWearinessModifier>
-			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
-			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
-			<iHealRateChange>0</iHealRateChange>
-			<iHealth>0</iHealth>
-			<iAreaHealth>0</iAreaHealth>
-			<iGlobalHealth>0</iGlobalHealth>
-			<iHappiness>0</iHappiness>
-			<iAreaHappiness>0</iAreaHappiness>
-			<iGlobalHappiness>0</iGlobalHappiness>
-			<iStateReligionHappiness>0</iStateReligionHappiness>
-			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
-			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
-			<iSpaceProductionModifier>0</iSpaceProductionModifier>
-			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
-			<iTradeRoutes>0</iTradeRoutes>
-			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
-			<iAreaTradeRoutes>0</iAreaTradeRoutes>
-			<iTradeRouteModifier>0</iTradeRouteModifier>
-			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
-			<iGlobalPopulationChange>0</iGlobalPopulationChange>
-			<iFreeTechs>0</iFreeTechs>
-			<iDefense>0</iDefense>
-			<iBombardDefense>0</iBombardDefense>
-			<iAllCityDefense>0</iAllCityDefense>
-			<iEspionageDefense>0</iEspionageDefense>
-			<iAsset>3</iAsset>
-			<!-- advc.131c: was 1 -->
-			<iPower>0</iPower>
-			<fVisibilityPriority>1.0</fVisibilityPriority>
-			<SeaPlotYieldChanges>
-				<iYield>1</iYield>
-			</SeaPlotYieldChanges>
-			<RiverPlotYieldChanges/>
-			<GlobalSeaPlotYieldChanges/>
-			<YieldChanges/>
-			<CommerceChanges/>
-			<ObsoleteSafeCommerceChanges/>
-			<CommerceChangeDoubleTimes/>
-			<CommerceModifiers>
-				<iCommerce>15</iCommerce>
-				<iCommerce>0</iCommerce>
-				<iCommerce>0</iCommerce>
-			</CommerceModifiers>
-			<GlobalCommerceModifiers/>
-			<SpecialistExtraCommerces/>
-			<StateReligionCommerces/>
-			<CommerceHappinesses/>
-			<ReligionChanges/>
-			<SpecialistCounts/>
-			<FreeSpecialistCounts/>
-			<CommerceFlexibles/>
-			<CommerceChangeOriginalOwners/>
-			<ConstructSound>AS2D_BUILD_LIGHTHOUSE</ConstructSound>
-			<BonusHealthChanges/>
-			<BonusHappinessChanges/>
-			<BonusProductionModifiers/>
-			<UnitCombatFreeExperiences/>
-			<DomainFreeExperiences/>
-			<DomainProductionModifiers/>
-			<BuildingHappinessChanges/>
-			<PrereqBuildingClasses/>
-			<BuildingClassNeededs/>
-			<SpecialistYieldChanges/>
-			<BonusYieldModifiers/>
-			<ImprovementFreeSpecialists/>
-			<!-- advc.020: was 10 Growth; doesn't account for the free promo -->
-			<Flavors>
-				<Flavor>
-					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>9</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>3</iFlavor>
-				</Flavor>
-			</Flavors>
-			<HotKey/>
-			<bAltDown>0</bAltDown>
-			<bShiftDown>0</bShiftDown>
-			<bCtrlDown>0</bCtrlDown>
-			<iHotKeyPriority>0</iHotKeyPriority>
-		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: lighthouse, type: BARBARIAN_LIGHTHOUSE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<BuildingClass>BUILDINGCLASS_LIGHTHOUSE</BuildingClass>
-			<Type>BUILDING_BARBARIAN_LIGHTHOUSE</Type>
-			<SpecialBuildingType>NONE</SpecialBuildingType>
-			<Description>TXT_KEY_BUILDING_BARBARIAN_LIGHTHOUSE</Description>
-			<Civilopedia>TXT_KEY_BUILDING_GENERIC_BARBARIAN_CUSTOM_SEE_FOR_DETAILS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_LIGHTHOUSE_STRATEGY</Strategy>
-			<Advisor>ADVISOR_GROWTH</Advisor>
-			<ArtDefineTag>ART_DEF_BUILDING_LIGHTHOUSE</ArtDefineTag>
-			<MovieDefineTag>NONE</MovieDefineTag>
-			<HolyCity>NONE</HolyCity>
-			<ReligionType>NONE</ReligionType>
-			<StateReligion>NONE</StateReligion>
-			<bStateReligion>0</bStateReligion>
-			<PrereqReligion>NONE</PrereqReligion>
-			<PrereqCorporation>NONE</PrereqCorporation>
-			<FoundsCorporation>NONE</FoundsCorporation>
-			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
-			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
-			<VictoryPrereq>NONE</VictoryPrereq>
-			<!-- advc.126: was ERA_MEDIEVAL -->
-			<FreeStartEra>NONE</FreeStartEra>
-			<MaxStartEra>NONE</MaxStartEra>
-			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_OPTICS</PrereqTech>
-			<TechTypes/>
-			<Bonus>NONE</Bonus>
-			<PrereqBonuses/>
-			<ProductionTraits>
-				<ProductionTrait>
-					<ProductionTraitType>TRAIT_ORGANIZED</ProductionTraitType>
-					<iProductionTrait>100</iProductionTrait>
-				</ProductionTrait>
-			</ProductionTraits>
-			<HappinessTraits/>
-			<NoBonus>NONE</NoBonus>
-			<PowerBonus>NONE</PowerBonus>
-			<FreeBonus>NONE</FreeBonus>
-			<iNumFreeBonuses>0</iNumFreeBonuses>
-			<FreeBuilding>BUILDINGCLASS_PALACE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
 			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
@@ -5612,7 +5465,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<bNukeImmune>0</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
-			<!-- custom: (trying to) make sure they (barbarians) build it fast (enough(, anyways etc)) -->
+			<!-- custom: (trying to) make sure they (barbarians) build it fast (enough(, anyways etc)) so reducing cost and increase iAIWeight as much as possible or that i think is necessary at least or and ideal but anyways etc -->
 			<iAIWeight>100</iAIWeight>
 			<iCost>1</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
@@ -5662,6 +5515,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<iTradeRoutes>0</iTradeRoutes>
 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
 			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+			<!-- custom: give this effect to the reworked lighthouse, focus on immediate short-term but lasting anyways etc utility for the reworked harbour/harbor anyways etc, was 50 -->
 			<iTradeRouteModifier>0</iTradeRouteModifier>
 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
@@ -5673,6 +5527,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<iAsset>3</iAsset>
 			<iPower>0</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
+			<!-- custom: get this effect from the old lighthouse before its rework, anyways etc, was empty anyways etc -->
 			<SeaPlotYieldChanges>
 				<iYield>1</iYield>
 			</SeaPlotYieldChanges>
@@ -5692,8 +5547,26 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeSpecialistCounts/>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
-			<ConstructSound>AS2D_BUILD_LIGHTHOUSE</ConstructSound>
-			<BonusHealthChanges/>
+			<ConstructSound>AS2D_BUILD_DRYDOCK</ConstructSound>
+			<!-- custom: also add whale to buff it, should be historically (quite if not lot but anyways etc anyways etc) accurate anyways etc -->
+			<BonusHealthChanges>
+				<BonusHealthChange>
+					<BonusType>BONUS_MOLLUSCS</BonusType>
+					<iHealthChange>1</iHealthChange>
+				</BonusHealthChange>
+				<BonusHealthChange>
+					<BonusType>BONUS_CRAB</BonusType>
+					<iHealthChange>1</iHealthChange>
+				</BonusHealthChange>
+				<BonusHealthChange>
+					<BonusType>BONUS_FISH</BonusType>
+					<iHealthChange>1</iHealthChange>
+				</BonusHealthChange>
+				<BonusHealthChange>
+					<BonusType>BONUS_WHALE</BonusType>
+					<iHealthChange>1</iHealthChange>
+				</BonusHealthChange>
+			</BonusHealthChanges>
 			<BonusHappinessChanges/>
 			<BonusProductionModifiers/>
 			<UnitCombatFreeExperiences/>
@@ -5705,10 +5578,18 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: adjust flavors to match reworked harbor effects, is mostly a food/health building so give a lot of growth (wording that i thought of independently without reading the one below too interestingly or not or yes or etc or and other or and not, but anyways etc) if i may say relatively i mean but anyways etc ; also give 2 gold flavor as/to give the reworked lighthouse that depends on the harbor now a prebuilt condition faster (so we can build the lighthouse, now a gold based building (see there for details or and updated values anyways etc) anyways etc), was gold 8 and growth 3 anyways etc -->
+			<!-- advc.020: was 10 Gold; should have a little Growth too
+				 (and Cothon should perhaps have a bit more Gold flavor than
+				 the normal Harbor) -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>10</iFlavor>
+					<iFlavor>6</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GOLD</FlavorType>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -5717,16 +5598,15 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<!-- custom: oldest harbor should be much sooner than tech compass, (for example https://en.wikipedia.org/wiki/Wadi_al-Jarf) also to buff water tiles that are too weak as of now anyways etc -->
-		<BuildingInfo> <!-- custom: class: harbor, type: harbor (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<BuildingClass>BUILDINGCLASS_HARBOR</BuildingClass>
-			<Type>BUILDING_HARBOR</Type>
+		<BuildingInfo> <!-- custom: class: lighthouse, type: lighthouse (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<BuildingClass>BUILDINGCLASS_LIGHTHOUSE</BuildingClass>
+			<Type>BUILDING_LIGHTHOUSE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
-			<Description>TXT_KEY_BUILDING_HARBOR</Description>
-			<Civilopedia>TXT_KEY_BUILDING_HARBOR_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_HARBOR_STRATEGY</Strategy>
-			<Advisor>ADVISOR_ECONOMY</Advisor>
-			<ArtDefineTag>ART_DEF_BUILDING_HARBOR</ArtDefineTag>
+			<Description>TXT_KEY_BUILDING_LIGHTHOUSE</Description>
+			<Civilopedia>TXT_KEY_BUILDING_LIGHTHOUSE_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_LIGHTHOUSE_STRATEGY</Strategy>
+			<Advisor>ADVISOR_GROWTH</Advisor>
+			<ArtDefineTag>ART_DEF_BUILDING_LIGHTHOUSE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
 			<HolyCity>NONE</HolyCity>
 			<ReligionType>NONE</ReligionType>
@@ -5738,17 +5618,18 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
 			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
 			<VictoryPrereq>NONE</VictoryPrereq>
-			<!-- advc.126: was ERA_INDUSTRIAL -->
+			<!-- advc.126: was ERA_MEDIEVAL -->
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<!-- custom: was TECH_SEAFARING -->
 			<PrereqTech>TECH_SAILING</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits>
 				<ProductionTrait>
-					<ProductionTraitType>TRAIT_EXPANSIVE</ProductionTraitType>
+					<ProductionTraitType>TRAIT_ORGANIZED</ProductionTraitType>
 					<iProductionTrait>100</iProductionTrait>
 				</ProductionTrait>
 			</ProductionTraits>
@@ -5785,7 +5666,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>80</iCost>
+			<!-- custom: was 60 -->
+			<iCost>75</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -5833,6 +5715,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<iTradeRoutes>0</iTradeRoutes>
 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
 			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+			<!-- custom: was 0 -->
 			<iTradeRouteModifier>50</iTradeRouteModifier>
 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
@@ -5844,7 +5727,12 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<iAsset>4</iAsset>
 			<iPower>0</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
-			<SeaPlotYieldChanges/>
+			<!-- custom: also give water tiles gold per tile so they scale better in the middle game, plus should be more balanced than strong trade routes, as you/the player would need to allocate citizens and work these tiles else no bonus, hopefully more balanced and also stronger water tiles this way that scale gradually with the game without being OP ideally, anyways etc -->
+			<SeaPlotYieldChanges>
+				<iYield>0</iYield>
+				<iYield>0</iYield>
+				<iYield>1</iYield>
+			</SeaPlotYieldChanges>
 			<RiverPlotYieldChanges/>
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
@@ -5861,25 +5749,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeSpecialistCounts/>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
-			<ConstructSound>AS2D_BUILD_DRYDOCK</ConstructSound>
-			<BonusHealthChanges>
-				<BonusHealthChange>
-					<BonusType>BONUS_MOLLUSCS</BonusType>
-					<iHealthChange>1</iHealthChange>
-				</BonusHealthChange>
-				<BonusHealthChange>
-					<BonusType>BONUS_CRAB</BonusType>
-					<iHealthChange>1</iHealthChange>
-				</BonusHealthChange>
-				<BonusHealthChange>
-					<BonusType>BONUS_FISH</BonusType>
-					<iHealthChange>1</iHealthChange>
-				</BonusHealthChange>
-				<BonusHealthChange>
-					<BonusType>BONUS_WHALE</BonusType>
-					<iHealthChange>1</iHealthChange>
-				</BonusHealthChange>
-			</BonusHealthChanges>
+			<ConstructSound>AS2D_BUILD_LIGHTHOUSE</ConstructSound>
+			<BonusHealthChanges/>
 			<BonusHappinessChanges/>
 			<BonusProductionModifiers/>
 			<UnitCombatFreeExperiences/>
@@ -5887,21 +5758,784 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<DomainProductionModifiers/>
 			<BuildingHappinessChanges/>
 			<PrereqBuildingClasses/>
-			<BuildingClassNeededs/>
+			<!-- custom: similarly to the great_lighthouse, add this previous water building requirement, after all lighthouses were built on top of a harbor if i am not mistaken anyways etc would need to check that on wikipedia or such to be sure, but the general idea i have / would have i mean is to make lighthouse stronger but also with more/stronger requirements anyways etc, was empty -->
+			<BuildingClassNeededs>
+				<BuildingClassNeeded>
+					<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
+					<bNeededInCity>1</bNeededInCity>
+				</BuildingClassNeeded>
+			</BuildingClassNeededs>
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- advc.020: was 10 Gold; should have a little Growth too
-				 (and Cothon should perhaps have a bit more Gold flavor than
-				 the normal Harbor) -->
+			<!-- custom: just like how the reworked harbor is now the food/health building, the reworked lighthouse is now the gold building anyways etc, adjust flavors as such anyways etc ; also add production flavor quite small or not but anyways etc as this building is a prereq for the new port building that gives quite a lot of production on water tiles anyways etc, and also is quite similar to how the harbor normal building also has a quite small or not but anyways etc gold flavor hopefully makes sense this way too even though not obligated, but is as it is or not or yes or etc or and other or and not or yes or etc anyways etc anyways etc... , was growth 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GOLD</FlavorType>
-					<iFlavor>8</iFlavor>
+					<iFlavor>7</iFlavor>
 				</Flavor>
 				<Flavor>
-					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
 					<iFlavor>3</iFlavor>
+				</Flavor>
+			</Flavors>
+			<HotKey/>
+			<bAltDown>0</bAltDown>
+			<bShiftDown>0</bShiftDown>
+			<bCtrlDown>0</bCtrlDown>
+			<iHotKeyPriority>0</iHotKeyPriority>
+		</BuildingInfo>
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_LIGHTHOUSE, type: BARBARIAN_LIGHTHOUSE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<BuildingClass>BUILDINGCLASS_LIGHTHOUSE</BuildingClass>
+			<Type>BUILDING_BARBARIAN_LIGHTHOUSE</Type>
+			<SpecialBuildingType>NONE</SpecialBuildingType>
+			<Description>TXT_KEY_BUILDING_BARBARIAN_LIGHTHOUSE</Description>
+			<Civilopedia>TXT_KEY_BUILDING_GENERIC_BARBARIAN_CUSTOM_SEE_FOR_DETAILS_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_LIGHTHOUSE_STRATEGY</Strategy>
+			<Advisor>ADVISOR_GROWTH</Advisor>
+			<ArtDefineTag>ART_DEF_BUILDING_LIGHTHOUSE</ArtDefineTag>
+			<MovieDefineTag>NONE</MovieDefineTag>
+			<HolyCity>NONE</HolyCity>
+			<ReligionType>NONE</ReligionType>
+			<StateReligion>NONE</StateReligion>
+			<bStateReligion>0</bStateReligion>
+			<PrereqReligion>NONE</PrereqReligion>
+			<PrereqCorporation>NONE</PrereqCorporation>
+			<FoundsCorporation>NONE</FoundsCorporation>
+			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
+			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
+			<VictoryPrereq>NONE</VictoryPrereq>
+			<!-- advc.126: was ERA_MEDIEVAL -->
+			<FreeStartEra>NONE</FreeStartEra>
+			<MaxStartEra>NONE</MaxStartEra>
+			<ObsoleteTech>NONE</ObsoleteTech>
+			<!-- custom: was TECH_SEAFARING -->
+			<PrereqTech>TECH_SAILING</PrereqTech>
+			<TechTypes/>
+			<Bonus>NONE</Bonus>
+			<PrereqBonuses/>
+			<ProductionTraits>
+				<ProductionTrait>
+					<ProductionTraitType>TRAIT_ORGANIZED</ProductionTraitType>
+					<iProductionTrait>100</iProductionTrait>
+				</ProductionTrait>
+			</ProductionTraits>
+			<HappinessTraits/>
+			<NoBonus>NONE</NoBonus>
+			<PowerBonus>NONE</PowerBonus>
+			<FreeBonus>NONE</FreeBonus>
+			<iNumFreeBonuses>0</iNumFreeBonuses>
+			<FreeBuilding>BUILDINGCLASS_PALACE</FreeBuilding>
+			<FreePromotion>NONE</FreePromotion>
+			<CivicOption>NONE</CivicOption>
+			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
+			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+			<iHurryAngerModifier>0</iHurryAngerModifier>
+			<bBorderObstacle>0</bBorderObstacle>
+			<bTeamShare>0</bTeamShare>
+			<bWater>1</bWater>
+			<bRiver>0</bRiver>
+			<bPower>0</bPower>
+			<bDirtyPower>0</bDirtyPower>
+			<bAreaCleanPower>0</bAreaCleanPower>
+			<DiploVoteType>NONE</DiploVoteType>
+			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
+			<bCapital>0</bCapital>
+			<bGovernmentCenter>0</bGovernmentCenter>
+			<bGoldenAge>0</bGoldenAge>
+			<bAllowsNukes>0</bAllowsNukes>
+			<bMapCentering>0</bMapCentering>
+			<bNoUnhappiness>0</bNoUnhappiness>
+			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+			<bNeverCapture>0</bNeverCapture>
+			<bNukeImmune>0</bNukeImmune>
+			<bPrereqReligion>0</bPrereqReligion>
+			<bCenterInCity>0</bCenterInCity>
+			<!-- custom: (trying to) make sure they (barbarians) build it fast enough so cheap cost as cheap as possible or and relevant as i found it anyways etc, but no iAIWeight as the building is not critical to have for barbarians i mean unlike the now reworked harbor, anyways etc -->
+			<iAIWeight>0</iAIWeight>
+			<iCost>1</iCost>
+			<iHurryCostModifier>0</iHurryCostModifier>
+			<iAdvancedStartCost>100</iAdvancedStartCost>
+			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+			<iMinAreaSize>10</iMinAreaSize>
+			<iConquestProb>66</iConquestProb>
+			<iCitiesPrereq>0</iCitiesPrereq>
+			<iTeamsPrereq>0</iTeamsPrereq>
+			<iLevelPrereq>0</iLevelPrereq>
+			<iMinLatitude>0</iMinLatitude>
+			<iMaxLatitude>90</iMaxLatitude>
+			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
+			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
+			<iAnarchyModifier>0</iAnarchyModifier>
+			<iGoldenAgeModifier>0</iGoldenAgeModifier>
+			<iGlobalHurryModifier>0</iGlobalHurryModifier>
+			<iExperience>0</iExperience>
+			<iGlobalExperience>0</iGlobalExperience>
+			<iFoodKept>0</iFoodKept>
+			<iAirlift>0</iAirlift>
+			<iAirModifier>0</iAirModifier>
+			<iAirUnitCapacity>0</iAirUnitCapacity>
+			<iNukeModifier>0</iNukeModifier>
+			<iNukeExplosionRand>0</iNukeExplosionRand>
+			<iFreeSpecialist>0</iFreeSpecialist>
+			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
+			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
+			<iMaintenanceModifier>0</iMaintenanceModifier>
+			<iWarWearinessModifier>0</iWarWearinessModifier>
+			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
+			<iHealRateChange>0</iHealRateChange>
+			<iHealth>0</iHealth>
+			<iAreaHealth>0</iAreaHealth>
+			<iGlobalHealth>0</iGlobalHealth>
+			<iHappiness>0</iHappiness>
+			<iAreaHappiness>0</iAreaHappiness>
+			<iGlobalHappiness>0</iGlobalHappiness>
+			<iStateReligionHappiness>0</iStateReligionHappiness>
+			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
+			<iSpaceProductionModifier>0</iSpaceProductionModifier>
+			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+			<iTradeRoutes>0</iTradeRoutes>
+			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+			<!-- custom: was 0 -->
+			<iTradeRouteModifier>50</iTradeRouteModifier>
+			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+			<iFreeTechs>0</iFreeTechs>
+			<iDefense>0</iDefense>
+			<iBombardDefense>0</iBombardDefense>
+			<iAllCityDefense>0</iAllCityDefense>
+			<iEspionageDefense>0</iEspionageDefense>
+			<iAsset>3</iAsset>
+			<iPower>0</iPower>
+			<fVisibilityPriority>1.0</fVisibilityPriority>
+			<!-- custom: also give water tiles gold per tile so they scale better in the middle game, plus should be more balanced than strong trade routes, as you/the player would need to allocate citizens and work these tiles else no bonus, hopefully more balanced and also stronger water tiles this way that scale gradually with the game without being OP ideally, anyways etc -->
+			<SeaPlotYieldChanges>
+				<iYield>0</iYield>
+				<iYield>0</iYield>
+				<iYield>1</iYield>
+			</SeaPlotYieldChanges>
+			<RiverPlotYieldChanges/>
+			<GlobalSeaPlotYieldChanges/>
+			<YieldChanges/>
+			<CommerceChanges/>
+			<ObsoleteSafeCommerceChanges/>
+			<CommerceChangeDoubleTimes/>
+			<CommerceModifiers/>
+			<GlobalCommerceModifiers/>
+			<SpecialistExtraCommerces/>
+			<StateReligionCommerces/>
+			<CommerceHappinesses/>
+			<ReligionChanges/>
+			<SpecialistCounts/>
+			<FreeSpecialistCounts/>
+			<CommerceFlexibles/>
+			<CommerceChangeOriginalOwners/>
+			<ConstructSound>AS2D_BUILD_LIGHTHOUSE</ConstructSound>
+			<BonusHealthChanges/>
+			<BonusHappinessChanges/>
+			<BonusProductionModifiers/>
+			<UnitCombatFreeExperiences/>
+			<DomainFreeExperiences/>
+			<DomainProductionModifiers/>
+			<BuildingHappinessChanges/>
+			<PrereqBuildingClasses/>
+			<!-- custom: similarly to the great_lighthouse, add this previous water building requirement, after all lighthouses were built on top of a harbor if i am not mistaken anyways etc would need to check that on wikipedia or such to be sure, but the general idea i have / would have i mean is to make lighthouse stronger but also with more/stronger requirements anyways etc, was empty -->
+			<BuildingClassNeededs>
+				<BuildingClassNeeded>
+					<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
+					<bNeededInCity>1</bNeededInCity>
+				</BuildingClassNeeded>
+			</BuildingClassNeededs>
+			<SpecialistYieldChanges/>
+			<BonusYieldModifiers/>
+			<ImprovementFreeSpecialists/>
+			<!-- custom: was growth 10 -->
+			<Flavors>
+				<Flavor>
+					<FlavorType>FLAVOR_GOLD</FlavorType>
+					<iFlavor>7</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+			</Flavors>
+			<HotKey/>
+			<bAltDown>0</bAltDown>
+			<bShiftDown>0</bShiftDown>
+			<bCtrlDown>0</bCtrlDown>
+			<iHotKeyPriority>0</iHotKeyPriority>
+		</BuildingInfo>
+		<!-- custom: new production, water building, based on old moai_statues 's effect but as a normal building now anyways etc -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PORT, type: BUILDING_PORT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<BuildingClass>BUILDINGCLASS_PORT</BuildingClass>
+			<Type>BUILDING_PORT</Type>
+			<SpecialBuildingType>NONE</SpecialBuildingType>
+			<Description>TXT_KEY_BUILDING_PORT</Description>
+			<Civilopedia>TXT_KEY_BUILDING_PORT_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+			<Advisor>ADVISOR_GROWTH</Advisor>
+			<ArtDefineTag>ART_DEF_BUILDING_PORT</ArtDefineTag>
+			<MovieDefineTag>NONE</MovieDefineTag>
+			<HolyCity>NONE</HolyCity>
+			<ReligionType>NONE</ReligionType>
+			<StateReligion>NONE</StateReligion>
+			<bStateReligion>0</bStateReligion>
+			<PrereqReligion>NONE</PrereqReligion>
+			<PrereqCorporation>NONE</PrereqCorporation>
+			<FoundsCorporation>NONE</FoundsCorporation>
+			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
+			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
+			<VictoryPrereq>NONE</VictoryPrereq>
+			<FreeStartEra>NONE</FreeStartEra>
+			<MaxStartEra>NONE</MaxStartEra>
+			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_NAVIGATION</PrereqTech>
+			<TechTypes/>
+			<Bonus>NONE</Bonus>
+			<PrereqBonuses/>
+			<ProductionTraits>
+				<ProductionTrait>
+					<ProductionTraitType>TRAIT_INDUSTRIOUS</ProductionTraitType>
+					<iProductionTrait>100</iProductionTrait>
+				</ProductionTrait>
+			</ProductionTraits>
+			<HappinessTraits/>
+			<NoBonus>NONE</NoBonus>
+			<PowerBonus>NONE</PowerBonus>
+			<FreeBonus>NONE</FreeBonus>
+			<iNumFreeBonuses>0</iNumFreeBonuses>
+			<FreeBuilding>NONE</FreeBuilding>
+			<FreePromotion>NONE</FreePromotion>
+			<CivicOption>NONE</CivicOption>
+			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
+			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+			<iHurryAngerModifier>0</iHurryAngerModifier>
+			<bBorderObstacle>0</bBorderObstacle>
+			<bTeamShare>0</bTeamShare>
+			<bWater>1</bWater>
+			<bRiver>0</bRiver>
+			<bPower>0</bPower>
+			<bDirtyPower>0</bDirtyPower>
+			<bAreaCleanPower>0</bAreaCleanPower>
+			<DiploVoteType>NONE</DiploVoteType>
+			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
+			<bCapital>0</bCapital>
+			<bGovernmentCenter>0</bGovernmentCenter>
+			<bGoldenAge>0</bGoldenAge>
+			<bAllowsNukes>0</bAllowsNukes>
+			<bMapCentering>0</bMapCentering>
+			<bNoUnhappiness>0</bNoUnhappiness>
+			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+			<bNeverCapture>0</bNeverCapture>
+			<bNukeImmune>0</bNukeImmune>
+			<bPrereqReligion>0</bPrereqReligion>
+			<bCenterInCity>0</bCenterInCity>
+			<iAIWeight>0</iAIWeight>
+			<iCost>150</iCost>
+			<iHurryCostModifier>0</iHurryCostModifier>
+			<iAdvancedStartCost>100</iAdvancedStartCost>
+			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+			<iMinAreaSize>10</iMinAreaSize>
+			<iConquestProb>66</iConquestProb>
+			<iCitiesPrereq>0</iCitiesPrereq>
+			<iTeamsPrereq>0</iTeamsPrereq>
+			<iLevelPrereq>0</iLevelPrereq>
+			<iMinLatitude>0</iMinLatitude>
+			<iMaxLatitude>90</iMaxLatitude>
+			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
+			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
+			<iAnarchyModifier>0</iAnarchyModifier>
+			<iGoldenAgeModifier>0</iGoldenAgeModifier>
+			<iGlobalHurryModifier>0</iGlobalHurryModifier>
+			<iExperience>0</iExperience>
+			<iGlobalExperience>0</iGlobalExperience>
+			<iFoodKept>0</iFoodKept>
+			<iAirlift>0</iAirlift>
+			<iAirModifier>0</iAirModifier>
+			<iAirUnitCapacity>0</iAirUnitCapacity>
+			<iNukeModifier>0</iNukeModifier>
+			<iNukeExplosionRand>0</iNukeExplosionRand>
+			<iFreeSpecialist>0</iFreeSpecialist>
+			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
+			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
+			<iMaintenanceModifier>0</iMaintenanceModifier>
+			<iWarWearinessModifier>0</iWarWearinessModifier>
+			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
+			<iHealRateChange>0</iHealRateChange>
+			<iHealth>0</iHealth>
+			<iAreaHealth>0</iAreaHealth>
+			<iGlobalHealth>0</iGlobalHealth>
+			<iHappiness>0</iHappiness>
+			<iAreaHappiness>0</iAreaHappiness>
+			<iGlobalHappiness>0</iGlobalHappiness>
+			<iStateReligionHappiness>0</iStateReligionHappiness>
+			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
+			<iSpaceProductionModifier>0</iSpaceProductionModifier>
+			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+			<iTradeRoutes>0</iTradeRoutes>
+			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+			<iTradeRouteModifier>25</iTradeRouteModifier>
+			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+			<iFreeTechs>0</iFreeTechs>
+			<iDefense>0</iDefense>
+			<iBombardDefense>0</iBombardDefense>
+			<iAllCityDefense>0</iAllCityDefense>
+			<iEspionageDefense>0</iEspionageDefense>
+			<iAsset>4</iAsset>
+			<iPower>0</iPower>
+			<fVisibilityPriority>1.0</fVisibilityPriority>
+			<!-- custom: also give water tiles production per tile so they scale better in the middle game, plus should be more balanced than strong trade routes, as you/the player would need to allocate citizens and work these tiles else no bonus, hopefully more balanced and also stronger water tiles this way that scale gradually with the game without being OP ideally, anyways etc -->
+			<SeaPlotYieldChanges>
+				<iYield>0</iYield>
+				<iYield>1</iYield>
+				<iYield>0</iYield>
+			</SeaPlotYieldChanges>
+			<RiverPlotYieldChanges/>
+			<GlobalSeaPlotYieldChanges/>
+			<YieldChanges/>
+			<CommerceChanges/>
+			<ObsoleteSafeCommerceChanges/>
+			<CommerceChangeDoubleTimes/>
+			<CommerceModifiers/>
+			<GlobalCommerceModifiers/>
+			<SpecialistExtraCommerces/>
+			<StateReligionCommerces/>
+			<CommerceHappinesses/>
+			<ReligionChanges/>
+			<SpecialistCounts/>
+			<FreeSpecialistCounts/>
+			<CommerceFlexibles/>
+			<CommerceChangeOriginalOwners/>
+			<!-- custom: todo change this if want audio effects per building not urgent but would be nice to try anyways etc -->
+			<ConstructSound>AS2D_BUILD_DRYDOCK</ConstructSound>
+			<BonusHealthChanges/>
+			<BonusHappinessChanges/>
+			<BonusProductionModifiers/>
+			<UnitCombatFreeExperiences/>
+			<DomainFreeExperiences/>
+			<DomainProductionModifiers/>
+			<BuildingHappinessChanges/>
+			<PrereqBuildingClasses/>
+			<!-- custom: similarly to the reworked normal lighthouse building anyways etc, add this previous water building requirement, the general idea i have / would have i mean is to make water buildings generally stronger but also with more/stronger requirements anyways etc -->
+			<BuildingClassNeededs>
+				<BuildingClassNeeded>
+					<BuildingClassType>BUILDINGCLASS_LIGHTHOUSE</BuildingClassType>
+					<bNeededInCity>1</bNeededInCity>
+				</BuildingClassNeeded>
+			</BuildingClassNeededs>
+			<SpecialistYieldChanges/>
+			<BonusYieldModifiers/>
+			<ImprovementFreeSpecialists/>
+			<!-- custom: just like how the reworked harbor is now the food/health building, and the reworked lighthouse is now the gold building anyways etc, the port new building is the water production building anyways etc ; also give a quite small or not small or and anyways etc so it is linked to the next gold water building anyways etc -->
+			<Flavors>
+				<Flavor>
+					<FlavorType>FLAVOR_GOLD</FlavorType>
+					<iFlavor>2</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+					<iFlavor>8</iFlavor>
+				</Flavor>
+			</Flavors>
+			<HotKey/>
+			<bAltDown>0</bAltDown>
+			<bShiftDown>0</bShiftDown>
+			<bCtrlDown>0</bCtrlDown>
+			<iHotKeyPriority>0</iHotKeyPriority>
+		</BuildingInfo>
+		<!-- custom: new production, water building, based on old moai_statues 's effect but as a normal building now anyways etc -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PORT, type: BUILDING_CARTHAGE_COTHON (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<BuildingClass>BUILDINGCLASS_PORT</BuildingClass>
+			<Type>BUILDING_CARTHAGE_COTHON</Type>
+			<SpecialBuildingType>NONE</SpecialBuildingType>
+			<Description>TXT_KEY_BUILDING_CARTHAGE_COTHON</Description>
+			<Civilopedia>TXT_KEY_BUILDING_CARTHAGE_COTHON_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+			<Advisor>ADVISOR_GROWTH</Advisor>
+			<ArtDefineTag>ART_DEF_BUILDING_CARTHAGE_COTHON</ArtDefineTag>
+			<MovieDefineTag>NONE</MovieDefineTag>
+			<HolyCity>NONE</HolyCity>
+			<ReligionType>NONE</ReligionType>
+			<StateReligion>NONE</StateReligion>
+			<bStateReligion>0</bStateReligion>
+			<PrereqReligion>NONE</PrereqReligion>
+			<PrereqCorporation>NONE</PrereqCorporation>
+			<FoundsCorporation>NONE</FoundsCorporation>
+			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
+			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
+			<VictoryPrereq>NONE</VictoryPrereq>
+			<FreeStartEra>NONE</FreeStartEra>
+			<MaxStartEra>NONE</MaxStartEra>
+			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_NAVIGATION</PrereqTech>
+			<TechTypes/>
+			<Bonus>NONE</Bonus>
+			<PrereqBonuses/>
+			<ProductionTraits>
+				<ProductionTrait>
+					<ProductionTraitType>TRAIT_INDUSTRIOUS</ProductionTraitType>
+					<iProductionTrait>100</iProductionTrait>
+				</ProductionTrait>
+			</ProductionTraits>
+			<HappinessTraits/>
+			<NoBonus>NONE</NoBonus>
+			<PowerBonus>NONE</PowerBonus>
+			<FreeBonus>NONE</FreeBonus>
+			<iNumFreeBonuses>0</iNumFreeBonuses>
+			<FreeBuilding>NONE</FreeBuilding>
+			<FreePromotion>NONE</FreePromotion>
+			<CivicOption>NONE</CivicOption>
+			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
+			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+			<iHurryAngerModifier>0</iHurryAngerModifier>
+			<bBorderObstacle>0</bBorderObstacle>
+			<bTeamShare>0</bTeamShare>
+			<bWater>1</bWater>
+			<bRiver>0</bRiver>
+			<bPower>0</bPower>
+			<bDirtyPower>0</bDirtyPower>
+			<bAreaCleanPower>0</bAreaCleanPower>
+			<DiploVoteType>NONE</DiploVoteType>
+			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
+			<bCapital>0</bCapital>
+			<bGovernmentCenter>0</bGovernmentCenter>
+			<bGoldenAge>0</bGoldenAge>
+			<bAllowsNukes>0</bAllowsNukes>
+			<bMapCentering>0</bMapCentering>
+			<bNoUnhappiness>0</bNoUnhappiness>
+			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+			<bNeverCapture>0</bNeverCapture>
+			<bNukeImmune>0</bNukeImmune>
+			<bPrereqReligion>0</bPrereqReligion>
+			<bCenterInCity>0</bCenterInCity>
+			<iAIWeight>0</iAIWeight>
+			<!-- custom: do not make it more expensive than the generic class building as is a shared requirement for a world wonder, would make this civ-specific building weaker anyways etc -->
+			<iCost>150</iCost>
+			<iHurryCostModifier>0</iHurryCostModifier>
+			<iAdvancedStartCost>100</iAdvancedStartCost>
+			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+			<iMinAreaSize>10</iMinAreaSize>
+			<iConquestProb>66</iConquestProb>
+			<iCitiesPrereq>0</iCitiesPrereq>
+			<iTeamsPrereq>0</iTeamsPrereq>
+			<iLevelPrereq>0</iLevelPrereq>
+			<iMinLatitude>0</iMinLatitude>
+			<iMaxLatitude>90</iMaxLatitude>
+			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
+			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
+			<iAnarchyModifier>0</iAnarchyModifier>
+			<iGoldenAgeModifier>0</iGoldenAgeModifier>
+			<iGlobalHurryModifier>0</iGlobalHurryModifier>
+			<iExperience>0</iExperience>
+			<iGlobalExperience>0</iGlobalExperience>
+			<iFoodKept>0</iFoodKept>
+			<iAirlift>0</iAirlift>
+			<iAirModifier>0</iAirModifier>
+			<iAirUnitCapacity>0</iAirUnitCapacity>
+			<iNukeModifier>0</iNukeModifier>
+			<iNukeExplosionRand>0</iNukeExplosionRand>
+			<iFreeSpecialist>0</iFreeSpecialist>
+			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
+			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
+			<iMaintenanceModifier>0</iMaintenanceModifier>
+			<iWarWearinessModifier>0</iWarWearinessModifier>
+			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
+			<iHealRateChange>0</iHealRateChange>
+			<iHealth>0</iHealth>
+			<iAreaHealth>0</iAreaHealth>
+			<iGlobalHealth>0</iGlobalHealth>
+			<iHappiness>0</iHappiness>
+			<iAreaHappiness>0</iAreaHappiness>
+			<iGlobalHappiness>0</iGlobalHappiness>
+			<iStateReligionHappiness>0</iStateReligionHappiness>
+			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
+			<iSpaceProductionModifier>0</iSpaceProductionModifier>
+			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+			<iTradeRoutes>0</iTradeRoutes>
+			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+			<iTradeRouteModifier>25</iTradeRouteModifier>
+			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+			<iFreeTechs>0</iFreeTechs>
+			<iDefense>0</iDefense>
+			<iBombardDefense>0</iBombardDefense>
+			<iAllCityDefense>0</iAllCityDefense>
+			<iEspionageDefense>0</iEspionageDefense>
+			<iAsset>4</iAsset>
+			<iPower>0</iPower>
+			<fVisibilityPriority>1.0</fVisibilityPriority>
+			<!-- custom: also give water tiles production per tile so they scale better in the middle game, plus should be more balanced than strong trade routes, as you/the player would need to allocate citizens and work these tiles else no bonus, hopefully more balanced and also stronger water tiles this way that scale gradually with the game without being OP ideally, anyways etc -->
+			<SeaPlotYieldChanges>
+				<iYield>0</iYield>
+				<iYield>1</iYield>
+				<iYield>0</iYield>
+			</SeaPlotYieldChanges>
+			<RiverPlotYieldChanges/>
+			<GlobalSeaPlotYieldChanges/>
+			<YieldChanges/>
+			<CommerceChanges/>
+			<ObsoleteSafeCommerceChanges/>
+			<CommerceChangeDoubleTimes/>
+			<CommerceModifiers/>
+			<GlobalCommerceModifiers/>
+			<SpecialistExtraCommerces/>
+			<StateReligionCommerces/>
+			<CommerceHappinesses/>
+			<ReligionChanges/>
+			<!-- custom: similarly than for FreeSpecialistCounts below too, also give "can turn x citizens into" type of effect too and matching other buildings as well, to also i mean make the cothon more of a trading building anyways etc -->
+			<SpecialistCounts>
+				<SpecialistCount>
+					<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
+					<iSpecialistCount>2</iSpecialistCount>
+				</SpecialistCount>
+			</SpecialistCounts>
+			<!-- custom: since the gold per (water) tile but anyways etc is already used by the viking_trading_post but anyways etc, give a free merchant instead -->
+			<FreeSpecialistCounts>
+				<FreeSpecialistCount>
+					<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
+					<iFreeSpecialistCount>1</iFreeSpecialistCount>
+				</FreeSpecialistCount>
+			</FreeSpecialistCounts>
+			<CommerceFlexibles/>
+			<CommerceChangeOriginalOwners/>
+			<!-- custom: todo change this if want audio effects per building not urgent but would be nice to try anyways etc -->
+			<ConstructSound>AS2D_BUILD_DRYDOCK</ConstructSound>
+			<BonusHealthChanges/>
+			<BonusHappinessChanges/>
+			<BonusProductionModifiers/>
+			<UnitCombatFreeExperiences/>
+			<DomainFreeExperiences/>
+			<DomainProductionModifiers/>
+			<BuildingHappinessChanges/>
+			<PrereqBuildingClasses/>
+			<!-- custom: similarly to the reworked normal lighthouse building anyways etc, add this previous water building requirement, the general idea i have / would have i mean is to make water buildings generally stronger but also with more/stronger requirements anyways etc -->
+			<BuildingClassNeededs>
+				<BuildingClassNeeded>
+					<BuildingClassType>BUILDINGCLASS_LIGHTHOUSE</BuildingClassType>
+					<bNeededInCity>1</bNeededInCity>
+				</BuildingClassNeeded>
+			</BuildingClassNeededs>
+			<SpecialistYieldChanges/>
+			<BonusYieldModifiers/>
+			<ImprovementFreeSpecialists/>
+			<!-- custom: just like how the reworked harbor is now the food/health building, and the reworked lighthouse is now the gold building anyways etc, the port new building is the water production building anyways etc ; also give a quite small or not small or and anyways etc so it is linked to the next gold water building anyways etc -->
+			<Flavors>
+				<Flavor>
+					<FlavorType>FLAVOR_GOLD</FlavorType>
+					<iFlavor>4</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+					<iFlavor>8</iFlavor>
+				</Flavor>
+			</Flavors>
+			<HotKey/>
+			<bAltDown>0</bAltDown>
+			<bShiftDown>0</bShiftDown>
+			<bCtrlDown>0</bCtrlDown>
+			<iHotKeyPriority>0</iHotKeyPriority>
+		</BuildingInfo>
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PORT, type: BUILDING_VIKING_TRADING_POST (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<BuildingClass>BUILDINGCLASS_PORT</BuildingClass>
+			<Type>BUILDING_VIKING_TRADING_POST</Type>
+			<SpecialBuildingType>NONE</SpecialBuildingType>
+			<Description>TXT_KEY_BUILDING_VIKING_TRADING_POST</Description>
+			<Civilopedia>TXT_KEY_BUILDING_VIKING_TRADING_POST_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_VIKING_TRADING_POST_STRATEGY</Strategy>
+			<Advisor>ADVISOR_GROWTH</Advisor>
+			<ArtDefineTag>ART_DEF_BUILDING_VIKING_TRADING_POST</ArtDefineTag>
+			<MovieDefineTag>NONE</MovieDefineTag>
+			<HolyCity>NONE</HolyCity>
+			<ReligionType>NONE</ReligionType>
+			<StateReligion>NONE</StateReligion>
+			<bStateReligion>0</bStateReligion>
+			<PrereqReligion>NONE</PrereqReligion>
+			<PrereqCorporation>NONE</PrereqCorporation>
+			<FoundsCorporation>NONE</FoundsCorporation>
+			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
+			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
+			<VictoryPrereq>NONE</VictoryPrereq>
+			<FreeStartEra>NONE</FreeStartEra>
+			<MaxStartEra>NONE</MaxStartEra>
+			<ObsoleteTech>NONE</ObsoleteTech>
+			<PrereqTech>TECH_NAVIGATION</PrereqTech>
+			<TechTypes/>
+			<Bonus>NONE</Bonus>
+			<PrereqBonuses/>
+			<ProductionTraits>
+				<ProductionTrait>
+					<ProductionTraitType>TRAIT_INDUSTRIOUS</ProductionTraitType>
+					<iProductionTrait>100</iProductionTrait>
+				</ProductionTrait>
+			</ProductionTraits>
+			<HappinessTraits/>
+			<NoBonus>NONE</NoBonus>
+			<PowerBonus>NONE</PowerBonus>
+			<FreeBonus>NONE</FreeBonus>
+			<iNumFreeBonuses>0</iNumFreeBonuses>
+			<FreeBuilding>NONE</FreeBuilding>
+			<FreePromotion>NONE</FreePromotion>
+			<CivicOption>NONE</CivicOption>
+			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
+			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+			<iHurryAngerModifier>0</iHurryAngerModifier>
+			<bBorderObstacle>0</bBorderObstacle>
+			<bTeamShare>0</bTeamShare>
+			<bWater>1</bWater>
+			<bRiver>0</bRiver>
+			<bPower>0</bPower>
+			<bDirtyPower>0</bDirtyPower>
+			<bAreaCleanPower>0</bAreaCleanPower>
+			<DiploVoteType>NONE</DiploVoteType>
+			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
+			<bCapital>0</bCapital>
+			<bGovernmentCenter>0</bGovernmentCenter>
+			<bGoldenAge>0</bGoldenAge>
+			<bAllowsNukes>0</bAllowsNukes>
+			<bMapCentering>0</bMapCentering>
+			<bNoUnhappiness>0</bNoUnhappiness>
+			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+			<bNeverCapture>0</bNeverCapture>
+			<bNukeImmune>0</bNukeImmune>
+			<bPrereqReligion>0</bPrereqReligion>
+			<bCenterInCity>0</bCenterInCity>
+			<iAIWeight>0</iAIWeight>
+			<iCost>150</iCost>
+			<iHurryCostModifier>0</iHurryCostModifier>
+			<iAdvancedStartCost>100</iAdvancedStartCost>
+			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+			<iMinAreaSize>10</iMinAreaSize>
+			<iConquestProb>66</iConquestProb>
+			<iCitiesPrereq>0</iCitiesPrereq>
+			<iTeamsPrereq>0</iTeamsPrereq>
+			<iLevelPrereq>0</iLevelPrereq>
+			<iMinLatitude>0</iMinLatitude>
+			<iMaxLatitude>90</iMaxLatitude>
+			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
+			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
+			<iAnarchyModifier>0</iAnarchyModifier>
+			<iGoldenAgeModifier>0</iGoldenAgeModifier>
+			<iGlobalHurryModifier>0</iGlobalHurryModifier>
+			<iExperience>0</iExperience>
+			<iGlobalExperience>0</iGlobalExperience>
+			<iFoodKept>0</iFoodKept>
+			<iAirlift>0</iAirlift>
+			<iAirModifier>0</iAirModifier>
+			<iAirUnitCapacity>0</iAirUnitCapacity>
+			<iNukeModifier>0</iNukeModifier>
+			<iNukeExplosionRand>0</iNukeExplosionRand>
+			<iFreeSpecialist>0</iFreeSpecialist>
+			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
+			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
+			<iMaintenanceModifier>0</iMaintenanceModifier>
+			<iWarWearinessModifier>0</iWarWearinessModifier>
+			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
+			<iHealRateChange>0</iHealRateChange>
+			<iHealth>0</iHealth>
+			<iAreaHealth>0</iAreaHealth>
+			<iGlobalHealth>0</iGlobalHealth>
+			<iHappiness>0</iHappiness>
+			<iAreaHappiness>0</iAreaHappiness>
+			<iGlobalHappiness>0</iGlobalHappiness>
+			<iStateReligionHappiness>0</iStateReligionHappiness>
+			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+			<!-- custom: also add military production modifiers to make it more of a military type of building, anyways etc, was 0 -->
+			<iMilitaryProductionModifier>10</iMilitaryProductionModifier>
+			<iSpaceProductionModifier>0</iSpaceProductionModifier>
+			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+			<iTradeRoutes>0</iTradeRoutes>
+			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+			<iTradeRouteModifier>25</iTradeRouteModifier>
+			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+			<iFreeTechs>0</iFreeTechs>
+			<iDefense>0</iDefense>
+			<iBombardDefense>0</iBombardDefense>
+			<iAllCityDefense>0</iAllCityDefense>
+			<iEspionageDefense>0</iEspionageDefense>
+			<iAsset>4</iAsset>
+			<iPower>0</iPower>
+			<fVisibilityPriority>1.0</fVisibilityPriority>
+			<!-- custom: also give water tiles production per tile so they scale better in the middle game, plus should be more balanced than strong trade routes, as you/the player would need to allocate citizens and work these tiles else no bonus, hopefully more balanced and also stronger water tiles this way that scale gradually with the game without being OP ideally, anyways etc ; as for the viking trading post add gold per tile as the vikings were traders too if i am not mistaken anyways etc, should be balanced since tiles need to be allocated else no bonus to gold and such but anyways etc hopefully balanced anyways etc anyways etc anyways etc -->
+			<SeaPlotYieldChanges>
+				<iYield>0</iYield>
+				<iYield>1</iYield>
+				<iYield>1</iYield>
+			</SeaPlotYieldChanges>
+			<RiverPlotYieldChanges/>
+			<GlobalSeaPlotYieldChanges/>
+			<YieldChanges/>
+			<CommerceChanges/>
+			<ObsoleteSafeCommerceChanges/>
+			<CommerceChangeDoubleTimes/>
+			<CommerceModifiers/>
+			<GlobalCommerceModifiers/>
+			<SpecialistExtraCommerces/>
+			<StateReligionCommerces/>
+			<CommerceHappinesses/>
+			<ReligionChanges/>
+			<SpecialistCounts/>
+			<FreeSpecialistCounts/>
+			<CommerceFlexibles/>
+			<CommerceChangeOriginalOwners/>
+			<!-- custom: todo change this if want audio effects per building not urgent but would be nice to try anyways etc -->
+			<ConstructSound>AS2D_BUILD_DRYDOCK</ConstructSound>
+			<BonusHealthChanges/>
+			<BonusHappinessChanges/>
+			<BonusProductionModifiers/>
+			<UnitCombatFreeExperiences/>
+			<DomainFreeExperiences/>
+			<DomainProductionModifiers/>
+			<BuildingHappinessChanges/>
+			<PrereqBuildingClasses/>
+			<!-- custom: similarly to the reworked normal lighthouse building anyways etc, add this previous water building requirement, the general idea i have / would have i mean is to make water buildings generally stronger but also with more/stronger requirements anyways etc -->
+			<BuildingClassNeededs>
+				<BuildingClassNeeded>
+					<BuildingClassType>BUILDINGCLASS_LIGHTHOUSE</BuildingClassType>
+					<bNeededInCity>1</bNeededInCity>
+				</BuildingClassNeeded>
+			</BuildingClassNeededs>
+			<SpecialistYieldChanges/>
+			<BonusYieldModifiers/>
+			<ImprovementFreeSpecialists/>
+			<!-- custom: just like how the reworked harbor is now the food/health building, and the reworked lighthouse is now the gold building anyways etc, the port new building is the water production building anyways etc ; also give a quite small or not small or and anyways etc so it is linked to the next gold water building anyways etc -->
+			<Flavors>
+				<Flavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GOLD</FlavorType>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+					<iFlavor>8</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -5933,7 +6567,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_ECONOMICS</PrereqTech>
+			<!-- custom: change to sooner tech where relevant, maybe historically more accurate too according to https://en.wikipedia.org/wiki/Custom_House,_City_of_London and to make it coincide with the age of exploration of the american continent having a water building around there would be nice anyways etc, anyways etc, was TECH_ECONOMICS -->
+			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -6020,7 +6655,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
 			<iAreaTradeRoutes>0</iAreaTradeRoutes>
 			<iTradeRouteModifier>0</iTradeRouteModifier>
-			<iForeignTradeRouteModifier>100</iForeignTradeRouteModifier>
+			<!-- custom: was 100 -->
+			<iForeignTradeRouteModifier>150</iForeignTradeRouteModifier>
 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
 			<iFreeTechs>0</iFreeTechs>
 			<iDefense>0</iDefense>
@@ -6043,7 +6679,13 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<StateReligionCommerces/>
 			<CommerceHappinesses/>
 			<ReligionChanges/>
-			<SpecialistCounts/>
+			<!-- custom: also give "can turn x citizens into" type of effect too and matching other buildings as well, to also i mean make the cothon more of a trading building anyways etc -->
+			<SpecialistCounts>
+				<SpecialistCount>
+					<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
+					<iSpecialistCount>2</iSpecialistCount>
+				</SpecialistCount>
+			</SpecialistCounts>
 			<FreeSpecialistCounts/>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
@@ -6065,14 +6707,11 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: was flavor gold 10, reduce it to lower value than feitoria and lower in general as should not give that much gold even though quite cool/nice/high is not i mean is bit redundant building not mandatory or something i mean anyways etc -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>8</iFlavor>
-				</Flavor>
-				<Flavor>
 					<FlavorType>FLAVOR_GOLD</FlavorType>
-					<iFlavor>2</iFlavor>
+					<iFlavor>5</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -6104,7 +6743,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_ECONOMICS</PrereqTech>
+			<!-- custom: was TECH_ECONOMICS -->
+			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -6191,7 +6831,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
 			<iAreaTradeRoutes>0</iAreaTradeRoutes>
 			<iTradeRouteModifier>0</iTradeRouteModifier>
-			<iForeignTradeRouteModifier>100</iForeignTradeRouteModifier>
+			<!-- custom: was 100 -->
+			<iForeignTradeRouteModifier>250</iForeignTradeRouteModifier>
 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
 			<iFreeTechs>0</iFreeTechs>
 			<iDefense>0</iDefense>
@@ -6218,7 +6859,13 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<StateReligionCommerces/>
 			<CommerceHappinesses/>
 			<ReligionChanges/>
-			<SpecialistCounts/>
+			<!-- custom: also give "can turn x citizens into" type of effect too and matching other buildings as well, to also i mean make the cothon more of a trading building anyways etc -->
+			<SpecialistCounts>
+				<SpecialistCount>
+					<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
+					<iSpecialistCount>2</iSpecialistCount>
+				</SpecialistCount>
+			</SpecialistCounts>
 			<FreeSpecialistCounts/>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
@@ -6240,193 +6887,12 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: i don't know why there is production, even from reading the 020 manual in the nice manual.txt i added too but that i am thankful for too if i may say or not too or yes too but anyways etc, i don't understand at least doesn't seem clear to me what the indirect effects of having production here would do, since i don't understand it, might as well remove it, ideally should just keep it as is, but it shouldn't make too much of a difference, i don't know too well if at all how flavors work, but maybe this is a safe or quite safe change, anyways etc, trying it and see if doesn't break anything or is not too determinant may keep as is unless i find a better explanation or reason(ing? But anyways etc) to keep but anyways etc, was flavor gold 8 production 5 -->
 			<!-- advc.020: was 10 Gold; the +production isn't accounted for -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GOLD</FlavorType>
-					<iFlavor>8</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>5</iFlavor>
-				</Flavor>
-			</Flavors>
-			<HotKey/>
-			<bAltDown>0</bAltDown>
-			<bShiftDown>0</bShiftDown>
-			<bCtrlDown>0</bCtrlDown>
-			<iHotKeyPriority>0</iHotKeyPriority>
-		</BuildingInfo>
-		<!-- custom: oldest harbor should be much sooner than compass, (for example https://en.wikipedia.org/wiki/Wadi_al-Jarf) also to buff water tiles that are too weak as of now anyways etc, as a result, the carthage cothon is now based on customs house as it seems to appear later in history, and also be linked with trading somehow from the very little glances i had of it anyways etc: https://en.wikipedia.org/wiki/Cothon anyways etc but that are hopefully enough to assess this or not or yes or for my needs yes or not or yes or other or etc anyways etc -->
-		<BuildingInfo> <!-- custom: class: custom_house, type: carthage_cothon (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<BuildingClass>BUILDINGCLASS_CUSTOM_HOUSE</BuildingClass>
-			<Type>BUILDING_CARTHAGE_COTHON</Type>
-			<SpecialBuildingType>NONE</SpecialBuildingType>
-			<Description>TXT_KEY_BUILDING_CARTHAGE_COTHON</Description>
-			<Civilopedia>TXT_KEY_BUILDING_CARTHAGE_COTHON_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_CARTHAGE_COTHON_STRATEGY</Strategy>
-			<Advisor>ADVISOR_ECONOMY</Advisor>
-			<ArtDefineTag>ART_DEF_BUILDING_CARTHAGE_COTHON</ArtDefineTag>
-			<MovieDefineTag>NONE</MovieDefineTag>
-			<HolyCity>NONE</HolyCity>
-			<ReligionType>NONE</ReligionType>
-			<StateReligion>NONE</StateReligion>
-			<bStateReligion>0</bStateReligion>
-			<PrereqReligion>NONE</PrereqReligion>
-			<PrereqCorporation>NONE</PrereqCorporation>
-			<FoundsCorporation>NONE</FoundsCorporation>
-			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
-			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
-			<VictoryPrereq>NONE</VictoryPrereq>
-			<!-- advc.126: was ERA_INDUSTRIAL -->
-			<FreeStartEra>NONE</FreeStartEra>
-			<MaxStartEra>NONE</MaxStartEra>
-			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_COMPASS</PrereqTech>
-			<TechTypes/>
-			<Bonus>NONE</Bonus>
-			<PrereqBonuses/>
-			<ProductionTraits>
-				<ProductionTrait>
-					<ProductionTraitType>TRAIT_EXPANSIVE</ProductionTraitType>
-					<iProductionTrait>100</iProductionTrait>
-				</ProductionTrait>
-			</ProductionTraits>
-			<HappinessTraits/>
-			<NoBonus>NONE</NoBonus>
-			<PowerBonus>NONE</PowerBonus>
-			<FreeBonus>NONE</FreeBonus>
-			<iNumFreeBonuses>0</iNumFreeBonuses>
-			<FreeBuilding>NONE</FreeBuilding>
-			<FreePromotion>NONE</FreePromotion>
-			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
-			<iHurryAngerModifier>0</iHurryAngerModifier>
-			<bBorderObstacle>0</bBorderObstacle>
-			<bTeamShare>0</bTeamShare>
-			<bWater>1</bWater>
-			<bRiver>0</bRiver>
-			<bPower>0</bPower>
-			<bDirtyPower>0</bDirtyPower>
-			<bAreaCleanPower>0</bAreaCleanPower>
-			<DiploVoteType>NONE</DiploVoteType>
-			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
-			<bCapital>0</bCapital>
-			<bGovernmentCenter>0</bGovernmentCenter>
-			<bGoldenAge>0</bGoldenAge>
-			<bAllowsNukes>0</bAllowsNukes>
-			<bMapCentering>0</bMapCentering>
-			<bNoUnhappiness>0</bNoUnhappiness>
-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
-			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
-			<bNeverCapture>0</bNeverCapture>
-			<bNukeImmune>0</bNukeImmune>
-			<bPrereqReligion>0</bPrereqReligion>
-			<bCenterInCity>0</bCenterInCity>
-			<iAIWeight>0</iAIWeight>
-			<iCost>130</iCost>
-			<iHurryCostModifier>0</iHurryCostModifier>
-			<iAdvancedStartCost>100</iAdvancedStartCost>
-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<iMinAreaSize>10</iMinAreaSize>
-			<iConquestProb>66</iConquestProb>
-			<iCitiesPrereq>0</iCitiesPrereq>
-			<iTeamsPrereq>0</iTeamsPrereq>
-			<iLevelPrereq>0</iLevelPrereq>
-			<iMinLatitude>0</iMinLatitude>
-			<iMaxLatitude>90</iMaxLatitude>
-			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
-			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
-			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
-			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
-			<iAnarchyModifier>0</iAnarchyModifier>
-			<iGoldenAgeModifier>0</iGoldenAgeModifier>
-			<iGlobalHurryModifier>0</iGlobalHurryModifier>
-			<iExperience>0</iExperience>
-			<iGlobalExperience>0</iGlobalExperience>
-			<iFoodKept>0</iFoodKept>
-			<iAirlift>0</iAirlift>
-			<iAirModifier>0</iAirModifier>
-			<iAirUnitCapacity>0</iAirUnitCapacity>
-			<iNukeModifier>0</iNukeModifier>
-			<iNukeExplosionRand>0</iNukeExplosionRand>
-			<iFreeSpecialist>0</iFreeSpecialist>
-			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
-			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
-			<iMaintenanceModifier>0</iMaintenanceModifier>
-			<iWarWearinessModifier>0</iWarWearinessModifier>
-			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
-			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
-			<iHealRateChange>0</iHealRateChange>
-			<iHealth>0</iHealth>
-			<iAreaHealth>0</iAreaHealth>
-			<iGlobalHealth>0</iGlobalHealth>
-			<iHappiness>0</iHappiness>
-			<iAreaHappiness>0</iAreaHappiness>
-			<iGlobalHappiness>0</iGlobalHappiness>
-			<iStateReligionHappiness>0</iStateReligionHappiness>
-			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
-			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
-			<iSpaceProductionModifier>0</iSpaceProductionModifier>
-			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
-			<iTradeRoutes>1</iTradeRoutes>
-			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
-			<iAreaTradeRoutes>0</iAreaTradeRoutes>
-			<iTradeRouteModifier>100</iTradeRouteModifier>
-			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
-			<iGlobalPopulationChange>0</iGlobalPopulationChange>
-			<iFreeTechs>0</iFreeTechs>
-			<iDefense>0</iDefense>
-			<iBombardDefense>0</iBombardDefense>
-			<iAllCityDefense>0</iAllCityDefense>
-			<iEspionageDefense>0</iEspionageDefense>
-			<iAsset>6</iAsset>
-			<iPower>0</iPower>
-			<fVisibilityPriority>1.0</fVisibilityPriority>
-			<SeaPlotYieldChanges/>
-			<RiverPlotYieldChanges/>
-			<GlobalSeaPlotYieldChanges/>
-			<YieldChanges/>
-			<CommerceChanges/>
-			<ObsoleteSafeCommerceChanges/>
-			<CommerceChangeDoubleTimes/>
-			<CommerceModifiers>
-				<iCommerce>10</iCommerce>
-				<iCommerce>0</iCommerce>
-				<iCommerce>0</iCommerce>
-			</CommerceModifiers>
-			<GlobalCommerceModifiers/>
-			<SpecialistExtraCommerces/>
-			<StateReligionCommerces/>
-			<CommerceHappinesses/>
-			<ReligionChanges/>
-			<SpecialistCounts/>
-			<FreeSpecialistCounts/>
-			<CommerceFlexibles/>
-			<CommerceChangeOriginalOwners/>
-			<ConstructSound>AS2D_BUILD_BANK</ConstructSound>
-			<BonusHealthChanges/>
-			<BonusHappinessChanges/>
-			<BonusProductionModifiers/>
-			<UnitCombatFreeExperiences/>
-			<DomainFreeExperiences/>
-			<DomainProductionModifiers/>
-			<BuildingHappinessChanges/>
-			<PrereqBuildingClasses/>
-			<BuildingClassNeededs>
-				<BuildingClassNeeded>
-					<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
-					<bNeededInCity>1</bNeededInCity>
-				</BuildingClassNeeded>
-			</BuildingClassNeededs>
-			<SpecialistYieldChanges/>
-			<BonusYieldModifiers/>
-			<ImprovementFreeSpecialists/>
-			<Flavors>
-				<Flavor>
-					<FlavorType>FLAVOR_GOLD</FlavorType>
-					<iFlavor>10</iFlavor>
+					<iFlavor>9</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -7052,7 +7518,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>115</iCost>
+			<!-- custom: do not make it more expensive than the generic forge class building as is a shared requirement for the colossus world wonder, would make this civ-specific building weaker anyways etc -->
+			<iCost>110</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -7206,7 +7673,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeStartEra>ERA_FUTURE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
+			<!-- custom: make them available sooner while they are still relevant and i mean as early as possible before game ends in this case anyways etc, and historically (more at least but anyways etc) accurate but anyways etc but anyways etc anyways etc, was TECH_ASSEMBLY_LINE -->
+			<PrereqTech>TECH_COMBUSTION</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -21188,7 +21656,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_NATIONALISM</PrereqTech>
+			<!-- custom: was TECH_NATIONALISM -->
+			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -21359,7 +21828,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_CORPORATION</PrereqTech>
+			<!-- custom: was TECH_CORPORATION -->
+			<PrereqTech>TECH_ECONOMICS</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -22992,7 +23462,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<!-- advc.310: Was Sailing with Masonry as addl. prereq.
 				 This is redundant b/c Lighthouse already implies Sailing.
 			 -->
-			<PrereqTech>TECH_SAILING</PrereqTech>
+			<PrereqTech>TECH_SEAFARING</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_MASONRY</PrereqTech>
 			</TechTypes>
@@ -23032,8 +23502,9 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
+			<!-- custom: increase cost a bit as effect is a bit stronger now, was 250 -->
 			<!-- advc.310: was 300 in K-Mod, 200 in BtS -->
-			<iCost>250</iCost>
+			<iCost>275</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -23079,7 +23550,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<iSpaceProductionModifier>0</iSpaceProductionModifier>
 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
 			<iTradeRoutes>0</iTradeRoutes>
-			<iCoastalTradeRoutes>2</iCoastalTradeRoutes>
+			<!-- custom: reduce this, instead give gold per tile, was 2 -->
+			<iCoastalTradeRoutes>1</iCoastalTradeRoutes>
 			<iAreaTradeRoutes>0</iAreaTradeRoutes>
 			<iTradeRouteModifier>0</iTradeRouteModifier>
 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
@@ -23093,20 +23565,22 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<iAsset>9</iAsset>
 			<iPower>0</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
-			<!-- custom: buff specifically the city where it is built, should be fine since water tiles are so weak currently, and is consistent with its lore or maybe rather intutively what a lighthouse building would do anyways etc, at least is how i'd want to do it too, anyways etc -->
-			<SeaPlotYieldChanges>
+			<SeaPlotYieldChanges/>
+			<RiverPlotYieldChanges/>
+			<!-- custom: give global gold per tile should scale better and be stronger too hopefully without being OP anyways etc, kind of like how the reworked lighthouse (normal) building does anyways etc but in all cities, -->
+			<GlobalSeaPlotYieldChanges>
+				<iYield>0</iYield>
 				<iYield>0</iYield>
 				<iYield>1</iYield>
-			</SeaPlotYieldChanges>
-			<RiverPlotYieldChanges/>
-			<GlobalSeaPlotYieldChanges/>
+			</GlobalSeaPlotYieldChanges>
 			<YieldChanges/>
 			<CommerceChanges/>
+			<!-- custom: was 5 -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<!-- K-Mod: was 6 -->
-				<iCommerce>5</iCommerce>
+				<iCommerce>6</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -23371,8 +23845,9 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
+			<!-- custom: obsolete it a bit sooner so it is not abused to produce tons of gun units very cheap, plus metal_casting is now sooner in our mod than even bronze_working if i may say as is historically more accurate anyways etc, so hopefully the colossus building / world wonder stays relevant longer overall or at least long enough in the early to early mid game anyways etc, where production capacity increases by other means and cities are more developped and such not requiring as much of an early hammer boost, that may also be a bit op with say 100 hammer per turn in a city anyways etc, anyways was TECH_CHEMISTRY -->
 			<!-- advc.310: Was Astronomy -->
-			<ObsoleteTech>TECH_CHEMISTRY</ObsoleteTech>
+			<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			<PrereqTech>TECH_METAL_CASTING</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -23386,7 +23861,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>UNITCLASS_GREAT_MERCHANT</GreatPeopleUnitClass>
+			<!-- custom: was UNITCLASS_GREAT_MERCHANT -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_ENGINEER</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
@@ -23411,7 +23887,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>250</iCost>
+			<!-- custom: increase cost, was 250 -->  
+			<iCost>325</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -23473,12 +23950,15 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
-			<GlobalSeaPlotYieldChanges>
-				<iYield>0</iYield>
-				<iYield>0</iYield>
-				<iYield>1</iYield>
-			</GlobalSeaPlotYieldChanges>
+			<!-- custom: remove old water tiles effect now in the great_lighthouse, give hammer instead in this city only anyways etc -->
+			<GlobalSeaPlotYieldChanges/>
+			<!-- custom: add production modifiers to make it ea production type of building, anyways etc, was empty anyways etc -->
 			<YieldChanges/>
+			<YieldModifiers>
+				<iYield>0</iYield>
+				<iYield>50</iYield>
+				<iYield>0</iYield>
+			</YieldModifiers>
 			<CommerceChanges/>
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
@@ -23528,9 +24008,10 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: adjust flavor to new building type/profile now a production building anyways etc, was flavor gold 10 -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_GOLD</FlavorType>
+					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
 					<iFlavor>10</iFlavor>
 				</Flavor>
 			</Flavors>
@@ -23563,7 +24044,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_ANCIENT</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_PRIESTHOOD</PrereqTech>
+			<!-- custom: was TECH_PRIESTHOOD -->
+			<PrereqTech>TECH_CALENDAR</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -23743,7 +24225,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
 			<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
-			<PrereqTech>TECH_AESTHETICS</PrereqTech>
+			<!-- custom: was TECH_AESTHETICS -->
+			<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
 			</TechTypes>
@@ -24309,7 +24792,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
 			<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
-			<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
+			<!-- custom: was TECH_CODE_OF_LAWS -->
+			<PrereqTech>TECH_ENGINEERING</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -24490,7 +24974,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_MUSIC</PrereqTech>
+			<!-- custom: was TECH_MUSIC -->
+			<PrereqTech>TECH_THEOLOGY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -24896,6 +25381,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
 			<bNeverCapture>0</bNeverCapture>
+			<!-- custom, now a world wonder, add this too like other world wonders if i am not mistaken anyways etc, was 0 -->
 			<bNukeImmune>1</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
@@ -24905,6 +25391,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<iMinAreaSize>-1</iMinAreaSize>
+			<!-- custom: now a world wonder, increase to 100 too if i am not mistaken anyways etc, was 0 -->
 			<iConquestProb>100</iConquestProb>
 			<iCitiesPrereq>0</iCitiesPrereq>
 			<iTeamsPrereq>0</iTeamsPrereq>
@@ -25061,7 +25548,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_ENGINEERING</PrereqTech>
+			<!-- custom: was TECH_ENGINEERING -->
+			<PrereqTech>TECH_THEOLOGY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -25241,7 +25729,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_INDUSTRIAL</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_NATIONALISM</PrereqTech>
+			<!-- custom: was TECH_NATIONALISM -->
+			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -27393,7 +27882,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
 			<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
-			<PrereqTech>TECH_POLYTHEISM</PrereqTech>
+			<!-- custom: was TECH_POLYTHEISM -->
+			<PrereqTech>TECH_PRIESTHOOD</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -27583,8 +28073,10 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
-			<ObsoleteTech>TECH_COMPUTERS</ObsoleteTech>
-			<PrereqTech>TECH_PAPER</PrereqTech>
+			<!-- custom: was TECH_COMPUTERS -->
+			<ObsoleteTech>NONE</ObsoleteTech>
+			<!-- custom: was TECH_PAPER -->
+			<PrereqTech>TECH_DIVINE_RIGHT</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -27622,7 +28114,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>550</iCost>
+			<!-- custom: was 550 -->
+			<iCost>600</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -27727,8 +28220,19 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<DomainFreeExperiences/>
 			<DomainProductionModifiers/>
 			<BuildingHappinessChanges/>
-			<PrereqBuildingClasses/>
-			<BuildingClassNeededs/>
+			<!-- custom: similarly to university_of_oxford, requires now a few religious buildings in all the empire (and in city too anyways etc) to be built anyways etc, at least is what ideally i would want if i may say but anyways etc, however unfortunately monasteries are not merged under the same class if i am not mistaken so i can't sadly require x monasteries, require a library instead (and reduce number a bit but anyways etc), ideally to todo rework but then could different religion monasteries coexist in a city though, so using/asking for libraries which is good too i mean but instead if i may say but anyways etc anyways etc, was empty -->
+			<PrereqBuildingClasses>
+				<PrereqBuildingClass>
+					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
+					<iNumBuildingNeeded>3</iNumBuildingNeeded>
+				</PrereqBuildingClass>
+			</PrereqBuildingClasses>
+			<BuildingClassNeededs>
+				<BuildingClassNeeded>
+					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
+					<bNeededInCity>1</bNeededInCity>
+				</BuildingClassNeeded>
+			</BuildingClassNeededs>
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
@@ -27974,7 +28478,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<!-- advc.008a: was ERA_ANCIENT -->
 			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_AESTHETICS</PrereqTech>
+			<!-- custom: was TECH_AESTHETICS -->
+			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -28162,7 +28667,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_CALENDAR</PrereqTech>
+			<!-- custom: was TECH_CALENDAR -->
+			<PrereqTech>TECH_AESTHETICS</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -28527,7 +29033,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<!-- advc.008a: was ERA_RENAISSANCE -->
 			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_AESTHETICS</PrereqTech>
+			<!-- custom: was TECH_AESTHETICS -->
+			<PrereqTech>TECH_MEDITATION</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_MEDITATION</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -28698,6 +29205,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
+		<!-- custom: now reworked moai_statues, is a world wonder available much later with a stronger effect global to all cities anyways etc, hopefully historically accurate as they were built much later if i am not mistaken too anyways and after checking more seems really an accurate time around pre-(age of (anyways etc))exploration astronomy etc in https://en.wikipedia.org/wiki/Moai#History anyways etc -->
 		<BuildingInfo> <!-- custom: class: moai_statues, type: moai_statues (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<BuildingClass>BUILDINGCLASS_MOAI_STATUES</BuildingClass>
 			<Type>BUILDING_MOAI_STATUES</Type>
@@ -28721,7 +29229,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_ANCIENT</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_SAILING</PrereqTech>
+			<!-- custom: was TECH_SEAFARING -->
+			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -28735,7 +29244,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
+			<!-- custom: now a world wonder, increase effect, anyways etc... , was 1 -->
+			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>0</bTeamShare>
@@ -28759,12 +29269,14 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>250</iCost>
+			<!-- custom: was 250 -->
+			<iCost>550</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<iMinAreaSize>10</iMinAreaSize>
-			<iConquestProb>0</iConquestProb>
+			<!-- custom: now a world wonder, increase to 100 too if i am not mistaken anyways etc, was 0 -->
+			<iConquestProb>100</iConquestProb>
 			<iCitiesPrereq>0</iCitiesPrereq>
 			<iTeamsPrereq>0</iTeamsPrereq>
 			<iLevelPrereq>0</iLevelPrereq>
@@ -28819,18 +29331,22 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<!-- advc.131c: was 10 -->
 			<iPower>0</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
-			<SeaPlotYieldChanges>
+			<!-- custom: remove local/city-only effect ((of) SeaPlotYieldChanges if i am not mistaken too but or not but but anyways etc) anyways etc -->
+			<SeaPlotYieldChanges/>
+			<RiverPlotYieldChanges/>
+			<!-- custom: make the effect stronger, now applies to all cities, on top of the building-only effect of the port anyways etc, was empty -->
+			<GlobalSeaPlotYieldChanges>
 				<iYield>0</iYield>
 				<iYield>1</iYield>
-			</SeaPlotYieldChanges>
-			<RiverPlotYieldChanges/>
-			<GlobalSeaPlotYieldChanges/>
+				<iYield>0</iYield>
+			</GlobalSeaPlotYieldChanges>
 			<YieldChanges/>
 			<CommerceChanges/>
+			<!-- custom: now a world wonder, increase commercechanges, was 0 / 0 / 4 -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
-				<iCommerce>4</iCommerce>
+				<iCommerce>8</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -28869,10 +29385,11 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: was production 8 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>8</iFlavor>
+					<iFlavor>10</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>

@@ -87,7 +87,7 @@ class TechPrefs:
 ##			for pTech in self.lTechsByFlavor[iFlavor]:
 ##				print "%2d-%2d: %s" % (pTech.getFlavorValue(iFlavor), pTech.iTech, pTech.getName())
 		
-##		pOptics = self.getTech(gc.getInfoTypeForString("TECH_OPTICS"))
+##		pOptics = self.getTech(gc.getInfoTypeForString("TECH_SAILING"))
 ##		print pOptics
 ##		pAstronomy = self.getTech(gc.getInfoTypeForString("TECH_ASTRONOMY"))
 ##		print pAstronomy

@@ -53,17 +53,17 @@
 		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT</Tag>
 		<English>Un. List</English>
 	</TEXT>
-		<TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_SPECIALIST</Tag>
 		<!-- custom: <English>Specialists</English>-->
 		<English>People</English>
 	</TEXT>
-		<TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_BONUS</Tag>
 		<!-- custom: <English>Resources</English>-->
 		<English>Bonus</English>
 	</TEXT>
-		<TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_CIV</Tag>
 		<!-- custom: <English>Civilizations</English>-->
 		<English>Civs</English>
@@ -221,6 +221,10 @@
 		<English>Granary (Barbarian)</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_BUILDING_BARBARIAN_HARBOR</Tag>
+		<English>Harbor (Barbarian)</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_BUILDING_BARBARIAN_LIGHTHOUSE</Tag>
 		<English>Lighthouse (Barbarian)</English>
 	</TEXT>
@@ -319,9 +323,13 @@
 		<Tag>TXT_KEY_BUILDING_RUSSIAN_GORD</Tag>
 		<English>Gord</English>
 	</TEXT>
-		<TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_BUILDING_GERMAN_LONGHOUSE</Tag>
 		<English>Longhouse</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PORT</Tag>
+		<English>Port</English>
 	</TEXT>
 
 
@@ -448,7 +456,7 @@
 		<Tag>TXT_KEY_PROMOTION_BARRAGE4</Tag>
 		<English>Collateral Damage 4</English>
 	</TEXT>
-		<TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_BARRAGE5</Tag>
 		<English>Collateral Damage 5</English>
 	</TEXT>
@@ -501,5 +509,20 @@
 	<TEXT>
 		<Tag>TXT_KEY_TECH_COMMUNISM</Tag>
 		<English>Communism</English>
+	</TEXT>
+	<!-- custom: rename _SAILING to _SEAFARING anyways etc anyways etc anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_SEAFARING</Tag>
+		<English>Seafaring</English>
+	</TEXT>
+	<!-- custom: rename _OPTICS to _SAILING anyways etc anyways etc anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_SAILING</Tag>
+		<English>Sailing</English>
+	</TEXT>
+	<!-- custom: rename _COMPASS to _NAVIGATION anyways etc anyways etc anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_NAVIGATION</Tag>
+		<English>Navigation</English>
 	</TEXT>
 </Civ4GameText>

@@ -1423,13 +1423,7 @@ I am not sure which i should take, but since there are redundancies i guess i sh
 			<Rotate>45</Rotate>
 			<!-- this needs to be the negative of the CITY_TWIST value in detail manager; note that this uses degrees but DetailManager uses radians. Sorry. -->
 		</ArtRef>
-		<ArtRef Name="building:BUILDING_LIGHTHOUSE">
-			<Attribute Class="Era">ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL,ERA_RENAISSANCE</Attribute>
-			<Attribute Class="Scalar">bNoWaterTest:1</Attribute>
-			<!-- this bypasses water testing -->
-			<Attribute Class="Scalar">szSpecialLayout:Water</Attribute>
-			<Scale>1.5</Scale>
-		</ArtRef>
+		<!-- custom: remove seemingly duplicate <ArtRef Name="building:BUILDING_LIGHTHOUSE"> (removed 1st occurence to be safe that it is not the one used in the game, the 2nd one seems more exhaustive too from the little i can see of it but anyways etc) anyways etc -->
 		<ArtRef Name="building:BUILDING_LIGHTHOUSE">
 			<Attribute Class="Scalar">szNIF:Art/Structures/Buildings/Lighthouse/LighthouseModern.nif</Attribute>
 			<Attribute Class="Era">ERA_INDUSTRIAL,ERA_MODERN,ERA_FUTURE</Attribute>
@@ -1450,26 +1444,7 @@ I am not sure which i should take, but since there are redundancies i guess i sh
 			<Attribute Class="Scalar">szSpecialLayout:Water</Attribute>
 			<Scale>1.25</Scale>
 		</ArtRef>
-		<ArtRef Name="building:BUILDING_HARBOR">
-			<Attribute Class="Era">ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL,ERA_RENAISSANCE</Attribute>
-			<Attribute Class="Scalar">bNoWaterTest:1</Attribute>
-			<!-- this bypasses water testing -->
-			<Attribute Class="Scalar">szSpecialLayout:Coast</Attribute>
-			<Attribute Class="Scalar">bHasNoShadow:1</Attribute>
-			<Attribute Class="Scalar">bUseCostAligner:1</Attribute>
-			<Attribute Class="Scalar">fAlignerBoxSize:25</Attribute>
-			<Attribute Class="Scalar">fPushX:0</Attribute>
-			<!-- To debug the placement of the alignpoints, uncomment this next line
-			<Attribute Class="Scalar">fAlignerOverride:0.0</Attribute>
-			-->
-			<Attribute Class="ScalarList">lAlignerPointsX: -0.40, -0.60, -0.20, 1.00, 1.0</Attribute>
-			<Attribute Class="ScalarList">lAlignerPointsY: 1.50, 0.2, -1.50, -.50, 1.1</Attribute>
-			<Attribute Class="ScalarList">lAlignerPointsWet: 0, 0, 0, 1, 1</Attribute>
-			<Attribute Class="ScalarList">lAlignerPointsWeight: .33, .33, .33, .5, .5</Attribute>
-			<Attribute Class="Scalar">bForceWaterHeight:1</Attribute>
-			<Rotate>-60</Rotate>
-			<Scale>2.5</Scale>
-		</ArtRef>
+		<!-- custom: remove seemingly duplicate too similarly anyways etc 1st occurence <ArtRef Name="building:BUILDING_HARBOR"> -->
 		<ArtRef Name="building:BUILDING_HARBOR">
 			<Attribute Class="Scalar">szNIF:Art/Structures/Buildings/Harbor/HarborModern.nif</Attribute>
 			<Attribute Class="Era">ERA_INDUSTRIAL,ERA_MODERN,ERA_FUTURE</Attribute>
@@ -1510,26 +1485,7 @@ I am not sure which i should take, but since there are redundancies i guess i sh
 			<Rotate>-60</Rotate>
 			<Scale>2.5</Scale>
 		</ArtRef>
-		<ArtRef Name="building:BUILDING_CARTHAGE_COTHON">
-			<Attribute Class="Era">ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL,ERA_RENAISSANCE</Attribute>
-			<Attribute Class="Scalar">bNoWaterTest:1</Attribute>
-			<!-- this bypasses water testing -->
-			<Attribute Class="Scalar">szSpecialLayout:Coast</Attribute>
-			<Attribute Class="Scalar">bHasNoShadow:1</Attribute>
-			<Attribute Class="Scalar">bUseCostAligner:1</Attribute>
-			<Attribute Class="Scalar">fAlignerBoxSize:25</Attribute>
-			<Attribute Class="Scalar">fPushX:0</Attribute>
-			<!-- To debug the placement of the alignpoints, uncomment this next line
-			<Attribute Class="Scalar">fAlignerOverride:0.0</Attribute>
-			-->
-			<Attribute Class="ScalarList">lAlignerPointsX:		-0.40,	-0.60,	-0.20,	1.00,	1.0</Attribute>
-			<Attribute Class="ScalarList">lAlignerPointsY:		1.50,	0.2,	-1.50,	-.50,	1.1</Attribute>
-			<Attribute Class="ScalarList">lAlignerPointsWet:	0,		0,		0,		1,		1</Attribute>
-			<Attribute Class="ScalarList">lAlignerPointsWeight:	.33,	.33,	.33,	.5,		.5</Attribute>
-			<Attribute Class="Scalar">bForceWaterHeight:1</Attribute>
-			<Rotate>-60</Rotate>
-			<Scale>2.5</Scale>
-		</ArtRef>
+		<!-- custom: remove seemingly duplicate too similarly anyways etc 1st occurence <ArtRef Name="building:BUILDING_CARTHAGE_COTHON"> -->
 		<ArtRef Name="building:BUILDING_CARTHAGE_COTHON">
 			<Attribute Class="Scalar">szNIF:Art/Structures/Buildings/Harbor/HarborModern.nif</Attribute>
 			<Attribute Class="Era">ERA_INDUSTRIAL,ERA_MODERN,ERA_FUTURE</Attribute>

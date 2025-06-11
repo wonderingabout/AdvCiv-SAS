@@ -7095,7 +7095,7 @@
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs>
-				<PrereqTech>TECH_SAILING</PrereqTech>
+				<PrereqTech>TECH_SEAFARING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs/>
@@ -11387,7 +11387,7 @@
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs>
-				<PrereqTech>TECH_COMPASS</PrereqTech>
+				<PrereqTech>TECH_NAVIGATION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs>
@@ -14507,7 +14507,7 @@
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs/>
 			<AndPreReqs>
-				<PrereqTech>TECH_SAILING</PrereqTech>
+				<PrereqTech>TECH_SEAFARING</PrereqTech>
 				<PrereqTech>TECH_METAL_CASTING</PrereqTech>
 			</AndPreReqs>
 			<ObsoleteTechs>
