@@ -461,14 +461,6 @@ class SevoPediaLeader:
 
 
 
-		print("xxxx")
-		printObjAttrs(gc.getLeaderHeadInfo(self.iLeader))
-		print("yyyy")
-		debugPrintLeaderHeadInfoFlavorNowarattitudeprobATContactMemoryBBAIvictoryweights(self.iLeader, gc)
-		print("zzzz")
-
-
-
 	# <!-- custom: imported from RFC DOC and modified or/and not for AdvCiv-SAS, anyways, -->
 	def placeFavorites(self):
 		screen = self.top.getScreen()

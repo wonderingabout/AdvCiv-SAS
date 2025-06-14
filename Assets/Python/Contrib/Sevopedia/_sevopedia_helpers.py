@@ -26,7 +26,7 @@ def debugPrintLeaderHeadInfoFlavorNowarattitudeprobATContactMemoryBBAIvictorywei
         value = gc.getLeaderHeadInfo(iLeader).getFlavorValue(i)
         print("Flavor %d (%s): %d" % (i, name, value))
 
-    print("\n==== NOWARATTITUDEPROB ====")
+    print("\n==== NOWARATTITUDEPROBS ====")
     # <!-- custom: stop at 4 because there are only 5 attitudes (0 furious to 4 friendly anyways etc is a total of 5 values anyways etc), and trying to access the 6th non-existent in this case anyways etc value returns this error if i am not mistaken anyways etc:
     # AttributeError: 'NoneType' object has no attribute 'getDescription'
     # ERR: Python function pediaJumpToLeader failed, module CvScreensInterface
@@ -37,16 +37,9 @@ def debugPrintLeaderHeadInfoFlavorNowarattitudeprobATContactMemoryBBAIvictorywei
         print("NoWarAttitudeProb %d (%s): %d" % (i, name, value))
 
     # <!-- custom: there are "AttitudeThreshold" and "RefuseAttitudeThreshold", handle the most common case, they seem to all be about refusing something or not being able to do it if threshold is not met if i am not mistaken, handle them as such, anyways etc -->
-    print("\n==== ATTITUDE THRESHOLDS ====")
+    print("\n==== ATTITUDETHRESHOLDS ====")
     """
-    <!-- custom: if i am not mistaken, based and comparing xml with debug values for leader_gandhi and leader_ragnar (for the furious value in(with? But anyways etc) leader_ragnar anyways etc), here is the table conversion map if i am not mistaken anyways etc of attitude to num if i am not mistaken anyways etc below but anyways etc anyways etc anyways etc
-
-    none: -1
-    furious: 0
-    annoyed: 1
-    cautious: 2
-    pleased: 3
-    friendly: 4
+    <!-- custom: if i am not mistaken, based and comparing xml with debug values for leader_gandhi and leader_ragnar (for the furious value in(with? But anyways etc) leader_ragnar anyways etc), here is the table conversion map if i am not mistaken anyways etc of attitude to num if i am not mistaken anyways etc below but anyways etc anyways etc anyways etc: none: -1, furious: 0, annoyed: 1, cautious: 2, pleased: 3, friendly: 4
 
     Overall very similar to our leaders_data map, with none being last/lowest/most forgiving value (less than furious) if i am not mistaken and as we successfully guessed in generate_leaders_data.py anyways etc, and friendly being the highest, so we can use this map of the dll directly without needing to parse atittude str to num for our compare/rank(ing? But anyways etc) of leaders in AI personality panel directly very nice else we could have done too but very nice they did too in base advciv +/- in civ 4 too or and other inbetween mods if was not already there or not thanks all or nto and me too hehe or not or yes or not or all or and etc anyways etc thanks anyways etc, i am happy to use these and thankful too if i am may say even though i mostly thought intuitively thought happy but i am thankful too if i think of it maybe but happy inside if i may say anyways ec but anyways etc outside too maybe or not or yes in this case or and other or and not but anyways etc -->
     """

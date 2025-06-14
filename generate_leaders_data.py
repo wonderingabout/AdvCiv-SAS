@@ -1383,7 +1383,7 @@ if not ARGV_NO_TESTING:
 		else:
 			print("[TEST PASSED] Parsed sample matches expected sample!")
 
-	# <!-- custom: tip: use the command-line argument --notesting to get output file (faster(/easier too anyways)) and (then) more quickly (based on that/it anyways) update (your/the etc anyways) expected output (making sure none is inaccurate, but with that caveat in minds faster and for convenience, anwyays)) ;
+	# <!-- custom: tip: use the command-line argument --notesting to get output file (faster(/easier too anyways)) and (then) more quickly (based on that/it anyways) update (your/the etc anyways) expected output (making sure none is inaccurate, but with that caveat in mind is faster and for convenience, anwyays)) ;
 	# 
 	# but be very careful following that advice!! You can (at least i did) very easily miss mismatched values, so use it as easy copy paste rather than skip meticulous verify, rest is up to you though in all cases, at least i warned maybe, hopefully helps though as information not warn strictly or yes or etc but anyways -->
 	check_errors_and_tests()

@@ -1368,7 +1368,7 @@ def doWiningMonks2(argsList):
 	kTriggeredData = argsList[1]
 
 	plot = gc.getMap().plot(kTriggeredData.iPlotX, kTriggeredData.iPlotY)
-	BONUS_CAMEL
+
 	if not plot.isNone():
 		plot.setImprovementType(CvUtil.findInfoTypeNum(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_FARM'))
 	
