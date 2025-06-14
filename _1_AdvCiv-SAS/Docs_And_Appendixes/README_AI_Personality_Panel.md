@@ -76,7 +76,7 @@ And since our mod AdvCiv-SAS is based on AdvCiv, we don't use it by extension, a
 ## Currently if not always unfinished todo or(/and?) not or etc anyways
 
 Currently, again as me now writing this doc, there are a few attirbutes missing from the table, such as:
-- Attitude changes +/- limits +/- divisors (may aggregate them too for easier read), or/and move some of them in (other categories (liek "core peronsality, etc))
+- Attitude changes +/- limits +/- divisors (may aggregate them too for easier read), or/and move some of them in (other categories (like "core personality, etc))
 - improvements (would be nice if i could (we? with chatgpt/becomginthrough)) anyways etc also display leader preferences for which improvements (such values exist in xml), for example some leaders prefer mines, others farms etc, with their scale and before that normalized score too (plus raw value in label too ideally) woudl be even nicer, but there ar emany improvements, wouuld need to find a way to comapct the view, perhaps only showing values > 0.
 - unitais (which ai leaders build for example more ai settle units, or more ai sea explore units for example if i'm not mistaken, etc.) with scales and normalized score(s) (before that) and ranking (as thus if that is a word/expression anyways etc anywyas) would be very nice too, perhaps in a compact way like for improvements, especially if some room is freed somewhere in the panel (or writing under the panel xd.. works too maybe indeed, but etc anyways etc anyways...)
 

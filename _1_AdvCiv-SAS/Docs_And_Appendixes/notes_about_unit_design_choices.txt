@@ -321,7 +321,7 @@ sam so each would have their purpose and a player would not just spam mechanical
 - also about the mechanized infantry, seems to be much sooner than robotics https://en.wikipedia.org/wiki/Mechanized_infantry#History around 1950s or sooner or later depending which is considered a baseline of a sophisticated
 enough or functionnal enough one. I don't know a lot and barely looked at the topic only quick,
 still seems to me tech should be "advanced" earlier in history than robotics, so put it at industrialism tech,
-but may and most liekly would adjust this or other prerequirements, or maybe not, based on how i reorder the tech tree, still is good data (points) to know (about)
+but may and most likely would adjust this or other prerequirements, or maybe not, based on how i reorder the tech tree, still is good data (points) to know (about)
 
 - adjusting the tank to be oldest (than mechanized infantry) too, based on very quick look seems to be
 https://en.wikipedia.org/wiki/History_of_the_tank 1916 approximately if not sooner, very interesting to see how it is

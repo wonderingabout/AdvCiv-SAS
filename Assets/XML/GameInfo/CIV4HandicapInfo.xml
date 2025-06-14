@@ -147,7 +147,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- Lower tech costs for the AI -->
 			<iAIResearchPercent>95</iAIResearchPercent>
 			<!-- was 6x 160 -->
-			<iAITrainPercent>118</iAITrainPercent>
+			<iAITrainPercent>121</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>106</iAIConstructPercent>
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
@@ -338,7 +338,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIGPThresholdPercent>120</iAIGPThresholdPercent>
 			<iAIResearchPercent>100</iAIResearchPercent>
 			<!-- was 6x 130 -->
-			<iAITrainPercent>112</iAITrainPercent>
+			<iAITrainPercent>114</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>104</iAIConstructPercent>
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
@@ -497,7 +497,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIGPThresholdPercent>110</iAIGPThresholdPercent>
 			<!-- advc.251 -->
 			<iAIResearchPercent>100</iAIResearchPercent>
-			<iAITrainPercent>106</iAITrainPercent>
+			<iAITrainPercent>107</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>102</iAIConstructPercent>
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
@@ -826,7 +826,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIGPThresholdPercent>100</iAIGPThresholdPercent>
 			<!-- advc.251 -->
 			<iAIResearchPercent>104</iAIResearchPercent>
-			<iAITrainPercent>94</iAITrainPercent>
+			<iAITrainPercent>93</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>98</iAIConstructPercent>
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
@@ -994,7 +994,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIGPThresholdPercent>95</iAIGPThresholdPercent>
 			<iAIResearchPercent>108</iAIResearchPercent>
 			<!-- was 90 -->
-			<iAITrainPercent>88</iAITrainPercent>
+			<iAITrainPercent>86</iAITrainPercent>
 			<!-- was 100 -->
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<!-- was 90 -->
@@ -1167,7 +1167,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- Higher tech costs for the AI -->
 			<iAIResearchPercent>112</iAIResearchPercent>
 			<!-- was 85 -->
-			<iAITrainPercent>82</iAITrainPercent>
+			<iAITrainPercent>79</iAITrainPercent>
 			<!-- was 100 -->
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<!-- was 85 -->
@@ -1351,7 +1351,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- Higher tech costs for the AI -->
 			<iAIResearchPercent>116</iAIResearchPercent>
 			<!-- was 80 -->
-			<iAITrainPercent>76</iAITrainPercent>
+			<iAITrainPercent>72</iAITrainPercent>
 			<!-- was 100 -->
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>92</iAIConstructPercent>
@@ -1536,7 +1536,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- Higher tech costs for the AI -->
 			<iAIResearchPercent>120</iAIResearchPercent>
 			<!-- was 60 -->
-			<iAITrainPercent>70</iAITrainPercent>
+			<iAITrainPercent>65</iAITrainPercent>
 			<!-- custom: i want more reliable handicap settings if i am not mistaken in my understanding and after asking chatgpt / becomingthrough and with a web search i asked it to do to be sure too anyways etc, it told me "According to the Civilization Wiki, the iAIWorldTrainPercent values vary across difficulty levels:" etc.. until "Settler	160 Chieftain 130 Warlord 110 Noble 100 Prince 100 Monarch 100 Emperor 100 Immortal 100 Deity 100" so based on this xml raw data and observation, what i make of it and interpret of it if i may say for our needs in advciv-sas but anyways etc, is that i want reliable AI behaviour when it comes to military hammer train percents, regardless of world size at all difficulties, anyways etc ; seemingly similar reasoning for iAIWorldConstructPercent and iAIWorldCreatePercent if i am not mistaken too anyways etc -->
 			<!-- was 100-->
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>

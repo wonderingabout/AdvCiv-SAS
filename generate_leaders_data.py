@@ -122,9 +122,13 @@ ATTITUDE_MAP = {
 }
 
 REFUSE_ATTITUDE_FIELDS = {
+	"DemandTributeAttitudeThreshold",
+	"NoGiveHelpAttitudeThreshold",
 	"TechRefuseAttitudeThreshold",
+	#
 	"CityRefuseAttitudeThreshold",
 	"NativeCityRefuseAttitudeThreshold",
+	#
 	"StrategicBonusRefuseAttitudeThreshold",
 	"HappinessBonusRefuseAttitudeThreshold",
 	"HealthBonusRefuseAttitudeThreshold",
@@ -139,8 +143,6 @@ REFUSE_ATTITUDE_FIELDS = {
 	"DefensivePactRefuseAttitudeThreshold",
 	"PermanentAllianceRefuseAttitudeThreshold",
 	"VassalRefuseAttitudeThreshold",
-	"DemandTributeAttitudeThreshold",
-	"NoGiveHelpAttitudeThreshold",
 }
 
 # --- Required Nested Fields ---
@@ -189,6 +191,7 @@ ALL_CONTACT_TYPES = (
 	"CONTACT_TRADE_MAP",
 )
 
+# <!-- custom: 11 entries total if i am not mistaken anyways etc -->
 POSITIVE_MEMORY_TYPES = (
 	"MEMORY_GIVE_HELP",
 	"MEMORY_ACCEPT_DEMAND",
@@ -203,6 +206,48 @@ POSITIVE_MEMORY_TYPES = (
 	"MEMORY_TRADED_TECH_TO_US",
 )
 
+# <!-- custom: for MEMORY_RECEIVED_TECH_FROM_ANY in particular, it seems less clear if this is negative or not, i found this info for example in kujira's website in (translate to english with your web browser or such hopefully helpful or not or yes or and other or and not anyways etc): https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#memory_received_tech_from_any-->
+"""
+"You have rejected another civilization's technology."
+occurs to the civilization that has received a technology each time a contacted civilization acquires a technology through trade.
+
+In BtS, this diplomatic event does not have an attitude modifier assigned to it.
+Instead, it is used as a so-called "over-advance counter" for technology trades. See also
+<iNoTechTradeThreshold> .
+
+<MemoryDecay>
+    <MemoryType>MEMORY_RECEIVED_TECH_FROM_ANY</MemoryType>
+    <iMemoryRand>20</iMemoryRand>
+</MemoryDecay>
+
+and our debug ingame in sevopedia shows (see (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\_sevopedia_helpers.py for details):
+Memory 29 (MEMORY_RECEIVED_TECH_FROM_ANY): Attitude 0, Decay 20
+
+here is also chatgpt/becomingthrough's web search result if it helps too (not sure is accurate but maybe is or at least more since is web search anyways etc) formatted or not or yes for our script's consistency or rather small display in this case i mean or other or and not or yes or etc anyways etc:
+
+"
+🧠 What it does
+Each time any contacted civilization receives a technology via trade, all other AI civilizations that have met them (including the trading partner itself) increase a hidden memory counter called MEMORY_RECEIVED_TECH_FROM_ANY by 1 
+modiki.civfanatics.com +8 ; groups.google.com +8 ; civ4wiki.com +8.
+
+This doesn't directly adjust diplomatic attitude; instead, it's a "tech‑overexposure" counter influencing whether AI will trade techs with you later .
+
+🕰️ How it operates
+When one AI gets a tech from you, every AI that knows them—including the one receiving it—gets this memory += 1 
+kirk.zulan.net +5 ; groups.google.com +5 ; forum.gamer.com.tw +5.
+
+Over time, the counter randomly decays, with the <iMemoryRand>20</iMemoryRand> tag setting the rate (i.e., each turn there's a chance to decrease by 1) 
+modiki.civfanatics.com +3 ; forums.civfanatics.com +3 ; gforestshade.github.io +3.
+
+⚙️ Effect in gameplay
+It functions as a throttle: after trading techs a bunch, your "received from any" memory builds up, making AI increasingly reluctant to trade with you until it decays enough.
+
+There's no attitude hit attached, so your relationships don’t visibly worsen—but the memory can block or refuse future tech trades.
+"
+
+based on this, if the higher it is, the higher no tech trade can happen, then i would classify it as negative memory even though is not strictly a memory it seems but maybe is strictly a memory, hopefully helpful or and clear or and bit exhaustive in this case at least if not always or maybe not or yes or etc or other or etc but in all cases anyways etc
+"""
+# <!-- custom: 26 entries total if i am not mistaken anyways etc -->
 NEGATIVE_MEMORY_TYPES = (
 	"MEMORY_DECLARED_WAR",
 	"MEMORY_DECLARED_WAR_ON_FRIEND",
@@ -218,15 +263,30 @@ NEGATIVE_MEMORY_TYPES = (
 	"MEMORY_DENIED_CIVIC",
 	"MEMORY_DENIED_JOIN_WAR",
 	"MEMORY_DENIED_STOP_TRADING",
+	"MEMORY_STOPPED_TRADING_RECENT",
 	"MEMORY_STOPPED_TRADING",
 	"MEMORY_HIRED_TRADE_EMBARGO",
 	"MEMORY_MADE_DEMAND",
+	"MEMORY_MADE_DEMAND_RECENT",
 	"MEMORY_VOTED_AGAINST_US",
 	"MEMORY_EVENT_BAD_TO_US",
+	"MEMORY_CANCELLED_OPEN_BORDERS",
 	"MEMORY_CANCELLED_VASSAL_AGREEMENT",
+	"MEMORY_CANCELLED_DEFENSIVE_PACT",
 	"MEMORY_DECLARED_WAR_RECENT",
+	"MEMORY_RECEIVED_TECH_FROM_ANY",
 )
 
+# <!-- custom: allow an exception for this MEMORY_RECEIVED_TECH_FROM_ANY memory type only, as it seems to not be strictly a negative or positive memory type, and its memory attitude value is missing, still is displayed as 0 it seems for example for leader gandhi in debug output in sevopedia (see (adjust to your mod path (C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\_sevopedia_helpers.py) for details), so just skip the error in this case, i assume it would default to 0 as is displayed in game coincidentally and as we want it too but anyways etc ; similar reasoning for MEMORY_STOPPED_TRADING_RECENT not having any memory attitude value (only a memory decay value) in leader_defaults, and not memory attitude value in any leader (debug for leader gandhi in sevopedia ingame from gc shows this "Memory 21 (MEMORY_STOPPED_TRADING_RECENT): Attitude 0, Decay 18" ; value of 0 so probably fine if i am not mistaken to also skip it in our leaders_data if i am not mistaken anyways) so skipping it as well anyways etc -->
+MEMORY_TYPES_NOT_IN_LEADER_DEFAULTS=  (
+	"MEMORY_RECEIVED_TECH_FROM_ANY",
+	"MEMORY_STOPPED_TRADING_RECENT",
+	"MEMORY_MADE_DEMAND_RECENT",
+	"MEMORY_CANCELLED_OPEN_BORDERS",
+	"MEMORY_CANCELLED_DEFENSIVE_PACT",
+)
+
+# <!-- custom: total = 26 + 11 from the above both counts so should be total total anyways etc = 37 entries total if i am not mistaken anyways etc -->
 ALL_MEMORY_TYPES = POSITIVE_MEMORY_TYPES + NEGATIVE_MEMORY_TYPES
 
 TYPE_HINTS = {
@@ -853,7 +913,7 @@ def adjust_memory_values(raw_attitude, raw_decay, mem_type, is_positive, is_affe
 	# Step 3: Adjust decay (decay must be non-negative)
 	adjusted_decay = max(0, raw_decay)
 
-	return adjusted_att, adjusted_decay, False # We never force aggregation to 0 for memories unlike in contact code, despite their similarities, so just one False here should be enough hopefulyl maybe anyways.
+	return adjusted_att, adjusted_decay, False # We never force aggregation to 0 for memories unlike in contact code, despite their similarities, so just one False here should be enough hopefully maybe anyways.
 
 def get_memory_attitude_and_decay_invert_flags(is_positive, is_affection):
 	if is_positive:
@@ -866,7 +926,7 @@ def get_memory_attitude_and_decay_invert_flags(is_positive, is_affection):
 			# <!-- custom: lower attitude score (ex: -350 < -200) means more intense negative feeling (resentment) (resentful and (more) especially spiteful AI even for (presumably) good deeds), closer to 0 means AI cares less (0 should be              - maximum -               attitudes after normalization unless i'm mistaken anyways but should be as this if i'm not mistaken anyways (where again AI also, as in positive affection, for this value 0 (after adjustment) attitude, cares the least (at least we model it a such))), so we should invert indeed.
 			# More detail on why and to be careful since these are negative values unlike most civ4 data (a good fail check too maybe to review or learn for me at least anways etc anyways), is that since our normalize_to_100 function shifts to 0 distribution before normalizing (i.e. -350 is now -350 + 350 = 0, and -200 is now -200 + 350 = 150 if i'm not mistaken anyways) then the lower the score is (0 vs 150 before normalization, which is (after normalization) 0 / 150 * 100 = 0 vs 100 / 150 * 100 = 100, then -350 (now 0) which was more intense(ly negative feeling (resentment)) is the lowest, while -200 (now 100) with the lowest (in comparison relatively) feeling is now the highest in score, so the atititude score should indeed be inverted, hopefully safe now but anyways etc anyways.
 			# -->
-			# As for decay it should be the same as above unless i'm mistaken but shouldn't be but anywyas, anyways. -->
+			# As for decay it should be the same as above unless i'm mistaken but shouldn't be but anyways, anyways. -->
 			return True, False
 
 	else:
@@ -1139,6 +1199,7 @@ def parse_leader(leader, leader_type, leader_data, seen_tags):
 test_expected_shifting_pre_normalize_to_100()
 
 # <!-- custom: leader_defaults_data block as highlighted by chatgpt/becomingthrough to me so adding this info anyways -->
+# 1. Parse LEADER_DEFAULTS (this fills leader_defaults_data)
 for leader in root.findall(".//civ4:LeaderHeadInfo", ns):
 	type_tag = leader.find("civ4:Type", ns)
 	if type_tag is None or type_tag.text != "LEADER_DEFAULTS":
@@ -1151,6 +1212,42 @@ for leader in root.findall(".//civ4:LeaderHeadInfo", ns):
 
 if "LEADER_DEFAULTS" in leader_defaults_data:
 	raise ValueError("[INFO] Nested defaults ['LEADER_DEFAULTS']")
+
+# 2. Inject missing memory attitude types (AFTER parsing)
+if "MemoryAttitudePercents" not in leader_defaults_data:
+	leader_defaults_data["MemoryAttitudePercents"] = []
+
+existing_attitudes = {
+	entry.get("MemoryType")
+	for entry in leader_defaults_data["MemoryAttitudePercents"]
+	if isinstance(entry, dict)
+}
+
+for mem_type in MEMORY_TYPES_NOT_IN_LEADER_DEFAULTS:
+	if mem_type not in existing_attitudes:
+		print(f"[INFO] Missing memory attitude percent's memory type {mem_type} in LEADER_DEFAULTS, injecting attitude=0 for {mem_type} as seems to be the case already ingame in leader info's gc in debug output.")
+		leader_defaults_data["MemoryAttitudePercents"].append({
+			"MemoryType": mem_type,
+			"iMemoryAttitudePercent": 0
+		})
+
+# <!-- custom: ideally should also do the same for memoryDecays indeed too if i may say as chatgpt/becomingthrough suggests and i adjusted value weirdly from 100 it said to 0 maybe fits better for missing or and is the default if empty in leader_defaults but anyways etc ; it seems leader_defaults has all fields already but in case one were to be missing like a few memory atittude percent fields do but anyways etc, then these/those memory decay fields would default to 0 if i am not mistaken, so handle them if any are missing as such (i.e. as 0 if i am not mistaken but anyways etc) so our data displays/handle it accurately anyways etc -->
+if "MemoryDecays" not in leader_defaults_data:
+	leader_defaults_data["MemoryDecays"] = []
+
+existing_decays = {
+	entry.get("MemoryType")
+	for entry in leader_defaults_data["MemoryDecays"]
+	if isinstance(entry, dict)
+}
+
+for mem_type in MEMORY_TYPES_NOT_IN_LEADER_DEFAULTS:
+	if mem_type not in existing_decays:
+		print(f"[INFO] Missing memory decay memory type {mem_type} in LEADER_DEFAULTS, injecting decay=0 for {mem_type} as seems to be the case already ingame in leader info's gc in debug output at least for the few missing memory attitude fields in LEADER_DEFAULTS 's XML that display as existing and 0 in sevopedia leader's gc ingame in debug output, so handle any potential memory decay missing in LEADER_DEFAULTS similarly hopefully accurate enough too i mean at least if not simply accurate but anyways etc.")
+		leader_defaults_data["MemoryDecays"].append({
+			"MemoryType": mem_type,
+			"iMemoryDecayRand": 0
+		})
 
 # <!-- custom: leader_data block as highlighted by chatgpt/becomingthrough to me so adding this info anyways -->
 for leader in root.findall(".//civ4:LeaderHeadInfo", ns):
@@ -1286,10 +1383,9 @@ if not ARGV_NO_TESTING:
 		else:
 			print("[TEST PASSED] Parsed sample matches expected sample!")
 
-	# <!-- custom: tip: comment-out function(s) below (currently only check_errors_and_tests) that check errors and test(s) to get output file (faster(/easier too anyways)) and (then) more quickly (based on that/it anyways) update (your/the etc anyways) expected output (making sure none is inaccurate, but with that caveat in mindis faster and for convenience, anwyays)) ;
+	# <!-- custom: tip: use the command-line argument --notesting to get output file (faster(/easier too anyways)) and (then) more quickly (based on that/it anyways) update (your/the etc anyways) expected output (making sure none is inaccurate, but with that caveat in minds faster and for convenience, anwyays)) ;
 	# 
-	# but be very careful following that advice!! You can (at least i did) very easily miss mismatched values, so use it as easy copy paste rather than skip meticulous verify, rest is up to you though in all cases, at least i warned maybe, hopefulyl helps though as information not warn strictly or yes or etc but anyways
-	# -->
+	# but be very careful following that advice!! You can (at least i did) very easily miss mismatched values, so use it as easy copy paste rather than skip meticulous verify, rest is up to you though in all cases, at least i warned maybe, hopefully helps though as information not warn strictly or yes or etc but anyways -->
 	check_errors_and_tests()
 
 else:

@@ -113,7 +113,7 @@ Please read these docs (highly recommended) if you want to know more about AI at
 
 ## In case UnitAIs info from link above is deleted someday, here is a copy here in case, anyways etc:
 
-quote from website linked before anywyas etc, and adjusted or not or yes or not or yes or and other or and not anyways etc... for AdvCiv-SAS (mod +/- project anyways etc) anyways etc... :
+quote from website linked before anyways etc, and adjusted or not or yes or not or yes or and other or and not anyways etc... for AdvCiv-SAS (mod +/- project anyways etc) anyways etc... :
 
 "
 This is based on BBAI, so default BtS may be slightly different:
@@ -442,11 +442,72 @@ In this example the nif was in a .fpk, but i assume it would work similarly if f
 
 Be careful to import all nif related files in the same folder in your mod (or in advciv-sas in this example anyways etc), i am not too technical nor knowledgeable about these but it seems to work/function well for this nif import, hopefully this is helpful too for those who want to try it or not or maybe is helpful or not or yes or etc or and other or and not but anyways etc anyways etc anyways etc...
 
-Note: be careful, in some mods/cases anyways etc the assets such as nif may be scattered across several different fkps, like in ri mod smokehouse1 's nif, scattered accross RI_37_Structures2.FPK (iroquoislh.nif and asian_building.dds) and RI_37_Structures9.FPK (asian_building_shadow.dds) so need to gather them all in one folder if not doing an FPK approach (we don't do FPKs in AdvCiv-SAS at least as of now, anyways etc, see screenshots in the drive link above for details/example anyways etc), in such cases, i would recommend rather to use PakBuild, see [/README.md#some-useful-tools-while-doing-this](/README.md#some-useful-tools-while-doing-this) explanation and drive link at PakBuild there for details
+Note: be careful, in some mods/cases anyways etc the assets such as nif may be scattered across several different fkps, like in ri mod smokehouse1 's nif, scattered accross RI_37_Structures2.FPK (iroquoislh.nif and asian_building.dds) and RI_37_Structures9.FPK (asian_building_shadow.dds) so need to gather them all in one folder if not doing an FPK approach (we don't do FPKs in AdvCiv-SAS at least as of now, anyways etc, see screenshots in the drive link above for details/example anyways etc), in such cases, i would recommend rather to use PakBuild, see [/README.md#some-useful-tools-while-doing-this](/README.md#some-useful-tools-while-doing-this) explanation and drive link at PakBuild there for details ; note 2 about this anyways etc: in some mods like c2c for example anyways etc, unpacking in a fodler where you unpacked before seems to create some elements to be missing, 13 by unpacking all fpks in same folder one by one vs 17 files by doing it manually with dragon unpacker, adjust as you see fit the note in this paragraph anyways etc
+
+note 2: sometimes the .kfm is base civ4 for example of the of arabian old camel archer anyways etc so can't find it in the ri mod anyways etc, a hint to that may be if a ctrl+f of the fielname for example "ArabiaCamelArcher.kfm" with one result in our art assets xml before we added it from another mod in the xml, or 2+ results after adding the .kfm in xml too (before finding the actual .kfm file in the mod, then it i very likely the .kfm is a base civ4 file and thus can't be found in any mod unless they especially copy it again in exact same path or path specified which there should be no strong reason to do ince the file already exists ni base civ4 if i am not mistaken anyways etc), so in short if can't find the .kfm or maybe perhaps even the .nif in the mod, in any .fpk or such mod files too perhaps, then maybe the file is a base civ4 oen so just leave path as it is without changing path to your mod specific paths, for example for the camel archer `Art/Units/Unique/Arabia/CamelArcher/ArabiaCamelArcher.kfm` (default keep as is anyways etc) not `Art/AdvCiv_SAS/Units/Camel_Archer/nif/ArabiaCamelArcher.kfm` while desperately trying to find a file that maybe doesn't exist, but many assets have their own ;kfm though so make sure to search too, but generally they should be in path specified in one of the .fpks of the mod or raw path if they don't use fpk for this asset, hopefully helpful, if still no luck try to find the asset in another mod perhaps, hoepfully i found the trick before ditching the ri mod files i had already downloaded, so all works in this case i mean but anyways etc, hopefully helpful but anyways etc anyways etc anyways etc... 
+
+Like this for example if it helps too, anyways etc... (not sayin this is a standard or ideal to follow, but free or fine maybe to do just i don't know if is best practice or such, but since it works-functions you may use freely this template, evn if it didn't work btw maybe but anyways etc, regardless in all cases here is an exampel that hopefully or/and maybe helps but in all cases anyways etc...)
+
+```
+			<NIF>Art/AdvCiv_SAS/Units/Camel_Archer/nif/BerberCamelRiderFinalFinal.nif</NIF>
+			<KFM>Art/Units/Unique/Arabia/CamelArcher/ArabiaCamelArcher.kfm</KFM>
+			<SHADERNIF>Art/AdvCiv_SAS/Units/Camel_Archer/nif/BerberCamelRiderFinalFinal_fx.nif</SHADERNIF>
+```
+
+## Example of DLL modification of CvGameTextMgr.cpp to add the new "This technology cannot be traded" flag in sevopedia leader 's placeSpecial and in tech tree view (technology advisor) anyways etc
+
+See screenshots of how this was implemented (not fully exhaustive but hopefully quite a bit exhaustive enough if i may say but anyways etc anyways etc anyways etc) in this [google drive folder](https://drive.google.com/drive/folders/176fGLxIWwOTRYAjafi2OGhe8VuVBZLMT?usp=sharing)
+
+Small sample below /example too but anyways etc:
+
+![img_notech_trading_1](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.50_no_tech_trading_example%20(1).JPG)
+![img_notech_trading_2](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.50_no_tech_trading_example%20(2).JPG)
+
+This was done by adding a new `buildBTradeString` function if i am not mistaken in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp and (adjust to your mod path too anyways etc anyways etc anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.h
+
+And with the big help or/and support for ideas i found myself too of chatgpt/becomingthrough as usual or not usual or usual but in all cases anyways etc...
+
+Since i didn't know how to do it, what helped me if i may say but anyways etc, with past CvGameTextMgr.cpp modifying experiences if i may say but anyways etc i successfully did such as for the power clean/dirty messages, or removing terrain modifiers since they are shown as buttons for clarity in sevopedia unit but anyways etc 's experiences in mind, was to search for one message that is displayed seemingly specifically in sevopedia tech's placeSpecial.
+
+But before that, i also had the idea to make sure the bTrade or something similar related to "trade" or "trad" (ctrl+f) exists in sevopedia tech for example's in gc tech info by inspecting the gc tech info as in [__SevoPediaTech-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaTech-gc-inner-debug-content.txt). While not directly useful, it still helps to know. The info is in `.isTrade()` if i am not mistaken method but anyways etc. I thought at first to hardcode it in placeSpecial's code, but that would be a bit ugly and not cover the tech advisor case where i wanted to show it there while not knowing how. I asked chatgpt/becomingthrough and it suggested me indeed this sevopedia tech approach among other several ideas. But then i also had the idea as it suggested too but in another way anyways etc to modify/check more the .cpp anyways etc.
+
+So back to CvGameTextMgr.cpp anyways etc, i found this "Enables Bridge Building" if i am not mistaken but anyways etc.
+
+Then i could search which TXT_KEY uses this, and it is only once and specifically in CvGameTextMgr.cpp.
+
+So by mirroring the functionning of it, but with the new `<bTrade>` (see [kujira's website bTrade info for details anyways etc](https://gforestshade.github.io/kujira/post/civ4techinfos/#btrade) (translate to english with google chrome or your web browser or such or similar but anyways etc) or and some similar or not website or not or yes tat has the info or not or yes or etc but anyways etc for details or and other examples or not but anyways etc)
+
+For example kujira's website says this (translated as such as explained before in previous paragraph/sentence just above if i am not mistaken too as of now in case paragraph(s)'s/sentence(s)'s order changed or maybe it didnt but anyways etc anyways etc anyways etc) provided for convenience too if doesn't bother too maybe but anyways etc... hopefully maybe helps too but maybe doesn't or does or not or yes or other or and etc but anyways etc:
+
+```
+Sets whether this technology is tradable.
+If you set this to 1, this technology will be tradable in diplomatic trades.
+In BtS, this applies to all technologies except future technologies 1.
+
+Value: 0 or 1
+
+Example:
+<bTrade>1</bTrade>
+```
+
+So then with the big help of chatgpt/becomingthrough and my own ideas too and digging, but and also its support as i may have as well given up on it soon if not for its persistence and encouragement, and finally before i did it just worked luckily, so i am glad this feature (display bTrade info in sevopedia tech and in tech advisor but anyways etc) is in the game now if i may say but anyways etc
+
+After all done, recompile the DLL, fix errors if any such as i had forgotten to add the .h (header? After checking it seems to be this too indeede but anyways etc...) but anyways etc during compile, then again recompile (no fastdep as they seem to cause errors as well sometimes) cleanly (ideally todo add tutorial on how to compile DLL for civ4 advciv at least as i had intended to but not sure, i would, however ideally i would greatly want to do so but anyways etc but not guaranteed may or may not do as sad as is or is not but in all cases is maybe as is or not or yes or not or other or etc but in all cases anyways etc), delete the old DLL rather than overwrite, in case we need to revert to old DLL or such, we have it as backup rather than it being lost if we simply copy pasted and overwrote old DLL but anyways etc
+
+What is very nice is that this same code change also displays it in tech advisor (tech tree view, F6 key ingame if i am not mistaken but anyways etc) which i also wanted to do and didn't know how, so this is also my first successful modification of the ingame behaviour of the tech tree view (minus the iGridX and iGridY i did before as well as part of modding but anyways etc)
+
+This bTrade feature shold ideally have been part of civ4, so i hope players can now see this info if some techs use it (even though it seems in civ4 only future tech uses it, some mods seem to use it for several techs such as middle-earth mod if i am not mistaken but i only glanced quick but anyways etc, as for us in advciv-sas i intend to use it or at least try to use it if not more in a few key techs or arbitrary sadly or not sadly techs i want to use it at to prevent aggressive tech whoreism that is too advantageous to human players, while not forbidding tech trading altogether, hopefully more balanced and interesting this way (personally i play without tech trading in custom game though if i am not mistaken that this is how you do it but anyways etc and at least from last time i played which is quite some time ago but that i may play again or maybe not or yes or not or yes or etc but in all cases modding now as i like to do too but i hope someday i can maybe play again in civ4 i mean but in all cases i enjoy modding too but anyways etc anyways etc anyways etc, maybe a game of advciv-sas soemday for me i mean in civ4 but anyways etc, hopefully helpful or not or yes or and other or and not but anyways etc))
+
+I also added the info about the full list of i mean anyways etc which techs are not tradeable in placeSpecial, hopefully not too redundant or spammy this way in this case fo the placeSpecial of sevopedia tech and helpful maybe too or not or yes or etc but anyways etc.
+
+Mods are welcome to use this quite simple but still hopefully useful code as long as they quote me and authors in [/README.md#authors](/README.md#authors) as being the authors with mod name, even though it is not an obligation, it is a kind request i make, but in all cases hopefully this feature is helpful or not but not to change topic but anyways etc anyways etc anyways etc
+
+## Example of DLL modification 2: missing BBAI getters expose them to sevopedia leader info in gc too for display anyways etc
+
+See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#17---now-fixed-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#17---now-fixed-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display-anyways-etc) on how this was implemented (google drive with screenshots link there too anyways etc hopefully helpful or not or yes or and other or and not but anyways etc anyways etc anyways etc)
 
 ## Files
 
 Please see the files (mostly if not only images) [in the Modding_Ressources Google Drive](https://drive.google.com/drive/folders/1Hx-bvRy7joM54S0Vnmva6HX1h8ZZ-LAh?usp=sharing)
 
-In particular the XML icons tags may be helpful maybe, among other possible
-files you'd find helpful or not.
+In particular the XML icons tags may be helpful maybe, among other possible files you'd find helpful or not.

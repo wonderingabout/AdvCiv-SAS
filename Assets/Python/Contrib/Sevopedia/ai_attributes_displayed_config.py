@@ -177,6 +177,11 @@ AGGREGATED_NEGATIVE_MEMORY_RESENTMENT_AND_AFFECTION_ATTRIBUTES = set([
 	"iAggregatedNegativeMemoryEventBadToUsResentment",
 	"iAggregatedNegativeMemoryCancelledVassalAgreementResentment",
 	"iAggregatedNegativeMemoryDeclaredWarRecentResentment",
+	"iAggregatedNegativeMemoryReceivedTechFromAnyResentment",
+	"iAggregatedNegativeMemoryStoppedTradingRecentResentment",
+	"iAggregatedNegativeMemoryMadeDemandRecentResentment",
+	"iAggregatedNegativeMemoryCancelledOpenBordersResentment",
+	"iAggregatedNegativeMemoryCancelledDefensivePactResentment",
 
 	# 🔥 Negative Memory Affections
 	#"iAggregatedNegativeMemoryDeclaredWarAffection",
@@ -200,6 +205,11 @@ AGGREGATED_NEGATIVE_MEMORY_RESENTMENT_AND_AFFECTION_ATTRIBUTES = set([
 	#"iAggregatedNegativeMemoryEventBadToUsAffection",
 	#"iAggregatedNegativeMemoryCancelledVassalAgreementAffection",
 	#"iAggregatedNegativeMemoryDeclaredWarRecentAffection",
+	# "iAggregatedNegativeMemoryReceivedTechFromAnyAffection",
+	# "iAggregatedNegativeMemoryStoppedTradingRecentAffection",
+	# "iAggregatedNegativeMemoryMadeDemandRecentAffection",
+	# "iAggregatedNegativeMemoryCancelledOpenBordersAffection",
+	# "iAggregatedNegativeMemoryCancelledDefensivePactAffection",
 ])
 
 def is_attr_aggregated(attr):
@@ -225,9 +235,9 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
 	AI_HEADER_AGGREGATED_CONTACT_OFFER_PROBABILITIES: (
         ("Peace Treaty", "iAggregatedContactPeaceTreatyProb", "PeaceTreaty"),
 		("Open Borders", "iAggregatedContactOpenBordersProb", "OpenBorders"),
+		("Tr Map", "iAggregatedContactTradeMapProb", "TradeMap"),
 		("Tr Tech", "iAggregatedContactTradeTechProb", "TradeTech"),
 		("Tr Bonus", "iAggregatedContactTradeBonusProb", "TradeBonus"),
-        ("Tr Map", "iAggregatedContactTradeMapProb", "TradeMap"),
 		("GiveWkHelp", "iAggregatedContactGiveHelpProb", "GiveHelp"), # <!-- custom: "Give (the) Weak(er player(s)) Help" if i am not mistaken and understood it correctly according to modiki or/and kujira's website description and my understanding of it anyways etc  (is a repetition of understanding twice i (maybe) understand... (3 times now but) anyways etc... -->
 		("Defensive Pact", "iAggregatedContactDefensivePactProb", "DefensivePact"),
 		("Perm. Alliance", "iAggregatedContactPermanentAllianceProb", "PermanentAlliance"),
@@ -297,6 +307,12 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
 		#("Event Bad", "iAggregatedNegativeMemoryEventBadToUsAffection", "EventBadToUs"),
 		#("CancelledVassal", "iAggregatedNegativeMemoryCancelledVassalAgreementAffection", "CancelledVassalAgreement"),
 		#("Recent W", "iAggregatedNegativeMemoryDeclaredWarRecentAffection", "DeclaredWarRecent"),
+		#("Recent Tech", "iAggregatedNegativeMemoryReceivedTechFromAnyAffection", "ReceivedTechFromAny"),
+		## <!-- custom: hiding this one as we don't have enough space in the table, not ideal but hopefully good enough at least in this case if not always or not or yes or other or etc but anyways etc -->
+		##("RecentStoppedTr", "iAggregatedNegativeMemoryStoppedTradingRecentAffection", "StoppedTradingRecent"),
+		#("Recent MadeD", "iAggregatedNegativeMemoryMadeDemandRecentAffection", "MadeDemandRecent"),
+		#("Cancelled OB", "iAggregatedNegativeMemoryCancelledOpenBordersAffection", "CancelledOpenBorders"),
+		#("Cancelled DP", "iAggregatedNegativeMemoryCancelledDefensivePactAffection", "CancelledDefensivePact"),
 	#),
 
 	# 💀 Negative Memories Resentments (0–100)
@@ -322,6 +338,12 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
 		("Event Bad", "iAggregatedNegativeMemoryEventBadToUsResentment", "EventBadToUs"),
 		("CancelledVassal", "iAggregatedNegativeMemoryCancelledVassalAgreementResentment", "CancelledVassalAgreement"),
 		("Recent W", "iAggregatedNegativeMemoryDeclaredWarRecentResentment", "DeclaredWarRecent"),
+		("Recent Tech Any", "iAggregatedNegativeMemoryReceivedTechFromAnyResentment", "ReceivedTechFromAny"),
+		# <!-- custom: hiding this one as we don't have enough space in the table, not ideal but hopefully good enough at least in this case if not always or not or yes or other or etc but anyways etc -->
+		#("RecentStoppedTr", "iAggregatedNegativeMemoryStoppedTradingRecentResentment", "StoppedTradingRecent"),
+		("Recent MadeD", "iAggregatedNegativeMemoryMadeDemandRecentResentment", "MadeDemandRecent"),
+		("Cancelled OB", "iAggregatedNegativeMemoryCancelledOpenBordersResentment", "CancelledOpenBorders"),
+		("Cancelled DP", "iAggregatedNegativeMemoryCancelledDefensivePactResentment", "CancelledDefensivePact"),
 	),
 
 	# 🧠 Core Personality Attributes
@@ -333,8 +355,10 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
 		("Better Rank AC", "iBetterRankDifferenceAttitudeChange", ""),
 		("Warmonger Resp", "iWarmongerRespect", ""),
 		("CloseBordersSpark", "iCloseBordersAttitudeChange", ""),
-        ("Espionage Weig", "iEspionageWeight", ""),
-
+		# <!-- custom: table is a bit too tight, so move these ACL here rather, not ideal but hoepfulyl good enough at least in this case but anyways etc anyways etc -->
+		("Same Religion ACL", "iSameReligionAttitudeChangeLimit", ""),
+		("Diff.Religion ACL", "iDifferentReligionAttitudeChangeLimit", ""),
+		("Favorite Civic ACL", "iFavoriteCivicAttitudeChangeLimit", ""),
 	),
 
 	# 🏆 Victory Preferences (BBAI-style)
@@ -381,7 +405,6 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
 		("Risky Aggr", "iBaseAttackOddsChange", ""),
         ("Risky Aggr Rand+", "iAttackOddsChangeRand", ""),
 		("Raz C %", "iRazeCityProb", ""),
-        ("Build Unit %", "iBuildUnitProb", ""),
 		("TribRef SneakW%", "iDemandRebukedSneakProb", ""),
 		("TribRef W%", "iDemandRebukedWarProb", ""),
 		("Dogpile Likely", "iDogpileWarRand", ""),
@@ -399,19 +422,25 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
 		("Max GPT Tr%", "iMaxGoldPerTurnTradePercent", ""),
 		("NoTechYetRdy%", "iTechTradeKnownPercent", ""),
 		("NoTech2AdvTrT", "iNoTechTradeThreshold", ""),
+		# <!-- custom: move this one here (buildunitprob anyways etc) here too as table is otherwise full the war startegy one overfills in this case / about this i mean at least or not least or yes least or other or etc anyways etc but anyways etc anyways etc anyways etc, still buildunitprob should fit quite well as is linked to eocnomic behaviour as chatgpt/becomingthrough said this word before economic behaviour i mean(,) but anyways etc economic preferences is cool too is the one i preferred ultimately in this case at least but anyways etc anyways etc anyways etc(,) if i may say how much units are built vs buildings and wonders so may be even desirable but or and in all cases anyways etc anyways etc anyways etc -->
+		("Build Unit %", "iBuildUnitProb", ""),
 		("Wonder C.R", "iWonderConstructRand", ""),
+		# <!-- custom: move this one (espionage anyways etc) here, was in core personality, not ideal but maybe good enough perhaps even desirable as spy rate is linked to gold too in civ4 if i am not mistaken with the slider and such but anyways etc anyways etc anyways etc -->
+		("Espionage Weig", "iEspionageWeight", ""),
 	),
     
 	# ⛔ Offer Refuse Attitude Thresholds
 	AI_HEADER_OFFER_REFUSE_ATTITUDE_THRESHOLDS: (
-		("Tech", "iTechRefuseAttitudeThreshold", ""),
 		("Open Borders", "iOpenBordersRefuseAttitudeThreshold", ""),
+		("Map", "iMapRefuseAttitudeThreshold", ""),
+		("Tech", "iTechRefuseAttitudeThreshold", ""),
 		("Strategic Bonus", "iStrategicBonusRefuseAttitudeThreshold", ""),
 		("Happiness Bonus", "iHappinessBonusRefuseAttitudeThreshold", ""),
 		("Health Bonus", "iHealthBonusRefuseAttitudeThreshold", ""),
 		("PrideNoHelp", "iNoGiveHelpAttitudeThreshold", ""),
 		("Defensive Pact", "iDefensivePactRefuseAttitudeThreshold", ""),
-		("Perm. Alliance", "iPermanentAllianceRefuseAttitudeThreshold", ""),
+		# <!-- custom: hide this iPermanentAllianceRefuseAttitudeThreshold as the table is otherwise full and can't display all data, this field is constant across all leaders at leaders as of now so hopefully the lesser harm even though not ideal to not display this one in this case i mean but anyways etc anyways etc anyways etc -->
+		#("Perm. Alliance", "iPermanentAllianceRefuseAttitudeThreshold", ""),
 	),
 
 	# 🪓 Demand Refuse Attitude Thresholds
@@ -431,9 +460,6 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
 	# 📉 ACs +/- Limits
 	# <!-- custom: see the code comment at iShareWarAttitudeChangeLimit in this ai_attributes_displayed_config.py file for details -->
 	AI_HEADER_ATTITUDE_CHANGES_OR_AND_LIMITS_OR_AND_DIVISORS: (
-		("Same Religion ACL", "iSameReligionAttitudeChangeLimit", ""),
-		("Diff.Religion ACL", "iDifferentReligionAttitudeChangeLimit", ""),
-		("Favorite Civic ACL", "iFavoriteCivicAttitudeChangeLimit", ""),
 		# <!-- custom: separating values that change among leaders for those that don't, not ideal and not exhaustive but hopefully helpful maybe or not anwyays etc, see the code comment at iShareWarAttitudeChangeLimit in this ai_attributes_displayed_config.py file for details  -->
 		("Same Religion AC", "iSameReligionAttitudeChange", ""),
 		("Same Religion AD", "iSameReligionAttitudeDivisor", ""),

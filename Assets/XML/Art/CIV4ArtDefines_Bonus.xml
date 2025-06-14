@@ -25,7 +25,7 @@ and then modified or not for AdvCiv-SAS anyways etc
 			<fInterfaceScale>1.0</fInterfaceScale>
 			<NIF>Art/Terrain/Resources/Coal/Coal.nif</NIF>
 			<KFM>Art/Terrain/Resources/Coal/Coal.kfm</KFM>
-			<Button>Art/AdvCiv_SAS/Bonus/Coal/Coal.dds</Button>
+			<Button>Art/AdvCiv_sas/Bonuses/Coal/Coal.dds</Button>
 			<FontButtonIndex>1</FontButtonIndex>
 		</BonusArtInfo>
 		<BonusArtInfo>
@@ -120,7 +120,7 @@ and then modified or not for AdvCiv-SAS anyways etc
 			<fInterfaceScale>1.0</fInterfaceScale>
 			<NIF>Art/Terrain/Resources/Gems/Gems.nif</NIF>
 			<KFM>Art/Terrain/Resources/Gems/Gems.kfm</KFM>
-			<Button>Art/AdvCiv_SAS/Bonus/Gemstones/Gems.dds</Button>
+			<Button>Art/AdvCiv_sas/Bonuses/Gemstones/Gems.dds</Button>
 			<FontButtonIndex>22</FontButtonIndex>
 		</BonusArtInfo>
 		<BonusArtInfo>
@@ -160,7 +160,7 @@ and then modified or not for AdvCiv-SAS anyways etc
 			<fInterfaceScale>0.8</fInterfaceScale>
 			<NIF>Art/Terrain/Resources/Silk/Silk.nif</NIF>
 			<KFM/>
-			<Button>Art/AdvCiv_SAS/Bonus/Silk/Silk.dds</Button>
+			<Button>Art/AdvCiv_sas/Bonuses/Silk/Silk.dds</Button>
 			<FontButtonIndex>26</FontButtonIndex>
 		</BonusArtInfo>
 		<BonusArtInfo>
@@ -190,7 +190,7 @@ and then modified or not for AdvCiv-SAS anyways etc
 			<fInterfaceScale>1.3</fInterfaceScale>
 			<NIF>Art/Terrain/Resources/Sugar/Sugar.nif</NIF>
 			<KFM>Art/Terrain/Resources/Sugar/Sugar.kfm</KFM>
-			<Button>Art/AdvCiv_SAS/Bonus/Sugar/Sugar.dds</Button>
+			<Button>Art/AdvCiv_sas/Bonuses/Sugar/Sugar.dds</Button>
 			<FontButtonIndex>29</FontButtonIndex>
 		</BonusArtInfo>
 		<!-- custom: (wine now renamed to) grapes (anyways etc), imported from realism invictus mod in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Realism Invictus\Assets\RI_37_Interface8.FPK" with dragon unpacker (only the .dds files for the button (since they seem to also put a higher resolution one than 64 x 64 anyways etc we/i anyways etc took it too just in case anyways etc))-->
@@ -204,7 +204,7 @@ and then modified or not for AdvCiv-SAS anyways etc
 			<fInterfaceScale>1.0</fInterfaceScale>
 			<NIF>Art/Terrain/Resources/Wine/Wine.nif</NIF>
 			<KFM>Art/Terrain/Resources/Wine/Wine.kfm</KFM>
-			<Button>Art/AdvCiv_SAS/Bonus/Grapes/wine_x64.dds</Button>
+			<Button>Art/AdvCiv_sas/Bonuses/Grapes/wine_x64.dds</Button>
 			<FontButtonIndex>30</FontButtonIndex>
 		</BonusArtInfo>
 		<BonusArtInfo>
@@ -321,7 +321,7 @@ and then modified or not for AdvCiv-SAS anyways etc
 			<fInterfaceScale>0.8</fInterfaceScale>
 			<NIF>Art/Terrain/Resources/Wheat/Wheat.nif</NIF>
 			<KFM>Art/Terrain/Resources/Wheat/Wheat.kfm</KFM>
-			<Button>Art/AdvCiv_SAS/Bonus/Wheat/Wheat.dds</Button>
+			<Button>Art/AdvCiv_sas/Bonuses/Wheat/Wheat.dds</Button>
 			<FontButtonIndex>19</FontButtonIndex>
 		</BonusArtInfo>
 		<BonusArtInfo>
@@ -342,13 +342,15 @@ and then modified or not for AdvCiv-SAS anyways etc
 			<Button>,Art/Interface/Buttons/WorldBuilder/Music.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,16</Button>
 			<FontButtonIndex>33</FontButtonIndex>
 		</BonusArtInfo>
+		<!-- custom: replace BONUS_MOVIES with BONUS_CAMEL, nif and button import from rfc doc mod's ART_DEF_BONUS_CAMEL and adjusted or not or yes or etc anyways etc for advciv-sas anyways etc -->
 		<BonusArtInfo>
-			<Type>ART_DEF_BONUS_MOVIES</Type>
-			<fScale>1.0</fScale>
+			<Type>ART_DEF_BONUS_CAMEL</Type>
+			<fScale>1.2</fScale>
 			<fInterfaceScale>1.0</fInterfaceScale>
-			<NIF>Art/Terrain/Resources/Wheat/Wheat.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/WorldBuilder/Movies.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,15</Button>
+			<NIF>Art/AdvCiv_sas/Bonuses/Camel/nif/Camel.nif</NIF>
+			<KFM>Art/Terrain/Resources/Deer/Deer.kfm</KFM>
+			<SHADERNIF>Art/AdvCiv_sas/Bonuses/Camel/nif/Camel.nif</SHADERNIF>
+			<Button>Art/AdvCiv_sas/Bonuses/Camel/Camel_button.dds</Button>
 			<FontButtonIndex>34</FontButtonIndex>
 		</BonusArtInfo>
 		<BonusArtInfo>

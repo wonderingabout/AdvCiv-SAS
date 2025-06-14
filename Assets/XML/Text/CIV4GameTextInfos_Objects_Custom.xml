@@ -345,6 +345,29 @@
 		<English>Ancient Maceman</English>
 	</TEXT>
 
+
+
+	<!-- custom: add new camel units anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_CAMEL_ARCHER</Tag>
+		<English>Camel Archer</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_CAMEL_KNIGHT</Tag>
+		<English>Camel Knight</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_CAMEL_CUIRASSIER</Tag>
+		<English>Camel Cuirassier</English>
+	</TEXT>
+	<!-- custom: rename old civ-specific arab unit anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_ARABIA_CAMELARCHER</Tag>
+		<English>Arabian Camel Archer</English>
+	</TEXT>
+
+
+
 	<!-- custom: clearer renaming to some promotions, accuracy is so misleading as a name for example, hopefully clearer now -->
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_ACCURACY</Tag>

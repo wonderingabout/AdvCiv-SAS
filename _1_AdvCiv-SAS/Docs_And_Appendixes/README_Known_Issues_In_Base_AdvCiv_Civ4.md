@@ -1,6 +1,6 @@
 # Known issues
 
-Some known issues (non-exhaustive ideally yes but maybe not anyways etc) about AdvCiv code or earlier or/and AdvCiv-SAS specific code that may be fixed someday or not (ideally yes too same but maybe not especially if deemed not so bad or even part of the necessary mechanic but then would not be an issue but if known maybe or not or yes but anyways etc anywyas etc anyways etc).
+Some known issues (non-exhaustive ideally yes but maybe not anyways etc) about AdvCiv code or earlier or/and AdvCiv-SAS specific code that may be fixed someday or not (ideally yes too same but maybe not especially if deemed not so bad or even part of the necessary mechanic but then would not be an issue but if known maybe or not or yes but anyways etc anyways etc anyways etc).
 
 hopefully helpful, thanks, anyways, thanks,
 
@@ -460,3 +460,90 @@ also note as in code comment of it anyways etc edited or not or yes or anyways e
 did similarly for the `<ArtRef Name="building:BUILDING_HARBOR">` and `<ArtRef Name="building:BUILDING_CARTHAGE_COTHON">` seemingly duplicated too anyways etc
 
 see some screenshot(s) about this issue in this [google drive folder link](https://drive.google.com/drive/folders/1vP6L16r3PJ0qpwzqOfeycuaTRDKZbNCr?usp=sharing) anyways etc
+
+## 15 - (now fixed) Missing "This Technology cannot be traded" (bTrade if i am not mistaken anyways etc) information in sevopedia tech and tech advisor anyways etc
+
+Fixed missing "This Technology cannot be traded" information in sevopedia tech "Special Abilities" (placeSpecial in py code if i am not mistaken anyways etc) and in tech/technology advsior anyways etc too anyways etc anyways etc anyways etc, see also [Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/README.md#other-changes-examples) for details anyways etc and [/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for a lot more details too but anyways etc anyways etc anyways etc hopefully helpful or not or yes or other or etc or yes or other or etc or not or yes or etc but anyways etc
+
+## 16 - (now fixed) some info is missing in sevopedia outside of/if not loaded from an ingame load for example "Can build research" not in sevopedia main menu but in sevopedia ingame (after map is loaded) anyways etc
+
+Click here to view examples of this issue [in this google drive folder link](https://drive.google.com/drive/folders/1LuVa_Y0XBIeC1VExD7KVrY8siEFYyE3n?usp=sharing)
+
+Some info seem to be missing from sevopedia loaded from main menu (screenshot 6680 for example in drive link above anyways etc) vs same sevopedia page loaded from ingame (screenshot 6681 similarly from there i mean anyways etc), for example at tech_writing, "Can Build Research" is missing from the tech_writing sevopedia page at main menu, but not missing from the same tech_writing page ingame.
+
+Not solving it and at least not now didn't investigate it, but good to mention it somewhere, since sevopedia is meant mostly to be used ingame hopefully fine (enough but anyways etc even though not ideal but anyways etc), but ideally would fix and/or investigate it too, but not guaranteed, may or may never/not do so.
+
+## 17 - (now fixed) missing BBAI getters expose them to sevopedia leader info in gc too for display anyways etc
+
+Click here to view examples of this issue [in this google drive folder link](https://drive.google.com/drive/folders/1wFSJ6huis6w_xg-OmrZGE2Scw8PRhI7e?usp=sharing)
+
+Similarly to fetching most fields of leader info now directly from XML and not strictly requiring leaders_data.py, at least in debug functions, we need/miss the (BBAI but anyways etc) victory weights in the sevopedia leader gc's methods it seems if i am not mistaken (see [Sevopedia/__SevoPediaLeader-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaLeader-gc-inner-debug-content.txt) for details, now added the new methods as part of this fix as shown below, see also drive link above in this example issue too anyways etc)
+
+The XML is like this as reminder anyways etc for example for leader_gandhi anyways etc:
+
+```
+		<LeaderHeadInfo> <!-- custom: Gandhi (add leader name here too for easier vs code tree read while in the file) -->
+			<Type>LEADER_GANDHI</Type>
+			<Description>TXT_KEY_LEADER_GANDHI</Description>
+			<Civilopedia>TXT_KEY_LEADER_GANDHI_PEDIA</Civilopedia>
+			<ArtDefineTag>ART_DEF_LEADER_GANDHI</ArtDefineTag>
+			<iWonderConstructRand>10</iWonderConstructRand>
+			<iBaseAttitude>2</iBaseAttitude>
+			<iBasePeaceWeight>10</iBasePeaceWeight>
+			<iWarmongerRespect>0</iWarmongerRespect>
+			<iEspionageWeight>50</iEspionageWeight>
+			<iRefuseToTalkWarThreshold>6</iRefuseToTalkWarThreshold>
+			<iNoTechTradeThreshold>15</iNoTechTradeThreshold>
+			<iTechTradeKnownPercent>20</iTechTradeKnownPercent>
+			<iMaxGoldTradePercent>10</iMaxGoldTradePercent>
+			<!-- BBAI Victory Strategy -->
+			<iCultureVictoryWeight>45</iCultureVictoryWeight>
+			<iSpaceVictoryWeight>30</iSpaceVictoryWeight>
+			<iConquestVictoryWeight>0</iConquestVictoryWeight>
+			<iDominationVictoryWeight>5</iDominationVictoryWeight>
+			<iDiplomacyVictoryWeight>70</iDiplomacyVictoryWeight>
+			<!-- BBAI Victory Strategy -->
+			<iMaxWarRand>400</iMaxWarRand>
+			<iMaxWarNearbyPowerRatio>100</iMaxWarNearbyPowerRatio>
+			<iMaxWarDistantPowerRatio>60</iMaxWarDistantPowerRatio>
+```
+
+To do that, and expanding on previous debugging now successful of flavors, nowarattitudeprobs, contact fields, and memory fields (note about all these fields see also [Sevopedia/_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)), only BBAI victory weights remain so that we may fetch all directly from XML or at least be able to attempt to do so without requiring ideally leaders_data.py anymore (leave it for external non-civ4 ingame data such as comparison .csv tables perhaps anyways etc), after asking chatgpt/becomingthrough too, we/i noticed for example for `getMaxWarRand` (if we want to see where the BBAI is missing that getMaxWarRand is though for example if i am not mistaken to hopefully add it in this case but anyways etc) (with VS Code 's global search too i noticed it i mean if i may say indeed but anyways etc (see screenshots for details/examples anyways etc)), modified the (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CyInfoInterface3.cpp file to add such new getters, and also reusing existing getter names for such BBAI victory weights fields that are/were already anyways etc existing in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvInfo_Civilization.h anyways etc, with chatgpt/becomingthrough's help too and my prompts too but anyways etc 
+
+Now the getters are added in sevopedia leader, and we successfully see the real DLL modified if i am not mistaken values for the victory weights too, for example for leader gandhi as of now anyways etc:
+
+(from [Sevopedia/_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py) too example of output from ingame debug log anyways etc)
+
+```
+==== BBAI VICTORY WEIGHTS ====
+
+Culture Victory Weight: 48
+Space Victory Weight: 31
+Conquest Victory Weight: -5
+Domination Victory Weight: 0
+Diplomacy Victory Weight: 79
+```
+
+Nice to have this data as well now, as is in our XML too, we may use it to remove the leaders_data.py dependency from our intial old code that depends on this external script due to no BBAI weights before in leader info in sevopedia, and also because i didn't know at the time how to access contact fields, i hadn't thought to inspect gc and gc leader info ('s inner debugn link above in this example issue anyways etc) as well anyways etc perhaps for other uses maybe or not or yes or and other or and not anyways etc, for now we added the data at least.
+
+Note: the value seem/are different from raw xml fields's values, this seems normal as well if i am not mistaken as the DLL alters/modifys the values in some conditions or something, may be better to replicate/display the real DLL specific/advciv(-sas in our case i.e. advciv-sas but anyways etc) ingame data as it is and if i am not mistaken too but in all cases anyways etc
+
+## 17.5 - (now fixed) similarly missing base advciv if i am not mistaken anyways etc specific xml fields in gc of sevopedia leader, now exposed there as well these new getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold anyways etc
+
+Now exposed(/exposing?) these to python as well of gc 's sevopedia leader as well, similarly to how BBAI victory wieghts are now exposed too/as well anyways etc: getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold
+
+## 18 - Very inconsistent naming in some assets
+
+For example _UTOPIA for _COMMUNISM, _OBELISK for monument sometimes and other times if i am not mistaken it means the actual _OBELISK, also for example anyways etc _CHINESE being inconsitently but anyways etc unrelated to the chinese empire but instead in some cases to the default art asset of a unit for the asian civilizations in general if i am not mistaken, also using but anyways etc anyways etc anyways etc... _GREAT_PALACE instead of _FORBIDDEN_PALACE (as was hinted or rather i noticed from a base advciv code comment i am thankful for but anyways etc) i have renamed them as much as i found or/and could and wanted, actually a lot earlier in mod development than when i wrote this example issue, but solving them bit by bit as i see them and or want to ideally too but not guaranteed may or may not but anyways etc.., in all cases anyways etc hopefully asset naming is a lot clearer or/and consistent at least for those i went through, probably did not do all as for remaining ones is wait and see if i may say but anyways etc anyways etc anyways etc...
+
+## 19 - (now removed for the one/those i spotted anyways etc) Unused art assets
+
+Screenshots related to this issue in [this google drive link folder](https://drive.google.com/drive/folders/1Ie5Uln9-vquy601oCUex3QIsgWCGnUXl?usp=sharing) anyways etc
+
+Quite related to [README_Known_Issues_In_Base_AdvCiv_Civ4.md#14---now-removedfixed-if-it-is-a-fix-anyways-etc-duplicate-artref-namebuildingbuilding_lighthouse-and-same-for-artref-namebuildingbuilding_harbor-and-artref-namebuildingbuilding_carthage_cothon-in-civ4citylsystemxml-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#14---now-removedfixed-if-it-is-a-fix-anyways-etc-duplicate-artref-namebuildingbuilding_lighthouse-and-same-for-artref-namebuildingbuilding_harbor-and-artref-namebuildingbuilding_carthage_cothon-in-civ4citylsystemxml-anyways-etc) and also while cleaning up in [README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets)
+
+The `ART_DEF_UNIT_ARCHER_EURASIAN` (see screenshots 6708, 6709, 6710, 6711 in drive linked in/at this example issue anyways etc for what it looks like anyways etc) seems to be unused in base advciv, in civ4 too if i am not mistaken, and in most mods it seems as well if i am not mistaken from a VS Code global search but anyways etc.
+
+Note: the `ART_DEF_UNIT_ARCHER_CHINESE` (see screenshot 6705 similarly anyways etc) now renamed to `ART_DEF_UNIT_ARCHER_ASIAN` for consistency is used though if i am not mistaken as the asian civilizations spearman art asset if i am not mistaken, anyways etc, so keeping it and removing instead the unused in base advciv and in our mod too `ART_DEF_UNIT_ARCHER_EURASIAN` as said before in previous sentence/paragraph if i am not mistaken too but anyways etc anyways etc anyways etc...
+
+Also, if we want an art asset, we can always fetch it / import it from one of the many many existing mods i mean if i may say instead but the civ4 ones are cool too if we need them but and or else but anyways etc we can import the ones we need from mods (or and/from base civ4 but anyways etc), but since we don't use the art asset and it seems to indeed if i am not mistaken be unused, remove it entirely, simpler and cleaner and more consistent with our code and ideally is how id want to do it but anyways etc anyways etc anyways etc, may readd if need(ed?), but most likely won't, but whether i add it or not is as it is etc in this case etc but anyways etc anyways etc anyways etc ; maybe it served some purpose to reference/list it ther eif players or/and modders would want to know it is available in this case but anyways etc, but maybe we can remove it now as we can import many art assets from other mods in this case i mean is kind of them to have kept it but also inefficient in all cases maybe we can remove it now in this case at least if not others or maybe not or other or etc but anwyays etc anyways etc anyways etc...

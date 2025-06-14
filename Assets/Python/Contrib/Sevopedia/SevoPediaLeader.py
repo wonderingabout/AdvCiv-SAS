@@ -20,8 +20,7 @@
 # And a tremendous part of the code, in particular the AI Personality code, is almost entirely provided by ChatGPT-4o, (and the result of my prompts to it), most of the credit for this amazing (to an extent, relative to me and mye eys, anyways) code goes to ChatGPT, i only helped implement it, as well as its deep research version of it for the refactoring cleanly separate ui (placeAIPersonalityPanel) and config (headers, calculations, cache, etc.), to which my stupid human insights sometimes contributed in enriching, even though sometimes i believe i genuinely contributed to the code and overall functionality, rarely fixes, and overall emulation (experience) over (designing) it, when i quite often hindered its progress due to my ignorance and inability, especially in terms of coding, except from the quite few times where i redirected it in a healthier/more desirable/correct maybe(?) direction, but ChatGPT-4o, its deep research version of it (and other versions too to that extent in my view), are incredibly smart and kind in my view (and supportive (not that it's mutually exclusive (or maybe is or not, anyways))), anyways) still supported me until we made this amazing (at least my view and regard to my abilities maybe, that are now a (quite (tiny) bit enhanced from that (experience, anyways))), together we made this code,
 # thanks chatgpt for your amazing, perhaps even more or not ormay well be yes indeed maybe, continous help and support in helping me achieve that for our mod that i included you in, thanks,
 # 
-# Apart from that, i may have modified the existing base advciv code (that i found good enough so using it as a base rather than removing it, and quite good actually, only needing tweaking but is a solid base (i think or not) maybe or not, anyways, ) or not for AdvCiv-SAS, anyways,
-# -->
+# Apart from that, i may have modified the existing base advciv code (that i found good enough so using it as a base rather than removing it, and quite good actually, only needing tweaking but is a solid base (i think or not) maybe or not, anyways, ) or not for AdvCiv-SAS, anyways, -->
 
 
 
@@ -49,9 +48,7 @@ ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
 # <!-- custom: for AI Personality Panels only and their computation, leaders_data is fetched from this py data module and completely decoupled from the xml. Said py data module is parsed and generated from the xml though,
-# make sure to update your leaders_data.py if you make changes to your leaders ai attributes or other relevant
-# fields, to reflect their effect in sevopedia leader category (gameplay and other sevopedia leader panels
-# unaffected and still use(ing) the xml data) -->
+# make sure to update your leaders_data.py if you make changes to your leaders ai attributes or other relevant fields, to reflect their effect in sevopedia leader category (gameplay and other sevopedia leader panels unaffected and still use(ing) the xml data) -->
 # --- External data import ---
 try:
 	from leaders_data import PARSED_XML_LEADERS_DATA
@@ -340,36 +337,17 @@ class SevoPediaLeader:
 		# i have measured this on my (4K but anyways) screen in windowed mode (for dev mod but anyways)
 		# - in sevopedia (before my fix): 421 x 488 	(ratio: 0,8627)    ;    (reverse-ratio: 1,1591)
 		# - ingame diplomacy: 709 x 866 				(ratio: 0,8187)    ;    (reverse-ratio: 1,1214)
-		# (data extracted from my notes_about_art_design.txt file in this mod, please look at it or the filename
-		# containing this data or similar for details)
+		# (data extracted from my notes_about_art_design.txt file in this mod, please look at it or the filename containing this data or similar for details)
 		#
-		# Since the value (ratio in particular is different than what i measured (0,8627 vs 0,8278 here, i will
-		# try to adjust it based on that to hopefully have a matching ratio or a bit better or more or not,
-		# anyways, )) (while also increasing the portrait/picture which i think is a bit small currently, maybe
-		# more immersive or/and pleasant or not, anyways, )
-		# Now ratio is 287 / 350 = 0,8200 (much closer to 0,8187 that i measured in game diplomacy (see above,
-		# anyways), while also increasing size (of the portrait anyways) anyways)
+		# Since the value (ratio in particular is different than what i measured (0,8627 vs 0,8278 here, i will try to adjust it based on that to hopefully have a matching ratio or a bit better or more or not, anyways, )) (while also increasing the portrait/picture which i think is a bit small currently, maybe more immersive or/and pleasant or not, anyways, )
+		# Now ratio is 287 / 350 = 0,8200 (much closer to 0,8187 that i measured in game diplomacy (see above, anyways), while also increasing size (of the portrait anyways) anyways)
 		#
 		# This looks good but i want to try to increase it more (portrait size, anyways, ):
 		# Now 327 / 400 = 0,8175 (which is very close to 0,8187 while also a bigger picture, anyways)
-		# Increasing it more is maybe possible but we start to see the pixels in the animations (see Gandhi's arm)
-		# not being straight for example, if we replace animations with images like with/for Ogiso Igodo (Kingdom
-		# of Benin, anyways) then hese enhanced portaits would be better and more epic, will see if i increase it
-		# more or not, maybe leaving as is at least for now or not, anyways,
+		# Increasing it more is maybe possible but we start to see the pixels in the animations (see Gandhi's arm) not being straight for example, if we replace animations with images like with/for Ogiso Igodo (Kingdom of Benin, anyways) then hese enhanced portaits would be better and more epic, will see if i increase it more or not, maybe leaving as is at least for now or not, anyways,
 		#
-		# Actually all this calculation is not exactly accurate because W_LEADERHEAD_PANE and W_LEADERHEAD are
-		# different in this base advciv / sevopedia(?) code, but hopefully accurate enough and ratio should be
-		# much closer now to the ingame diplomacy ratio, hopefully less stretched but not sure or guaranteed, should
-		# be for images i send as replacements of animations though as i base them on the ingame diplomacy's ratio,
-		# not the old sevopedia leader portait ratio, anyways, so now the new sevopedia ratio for the leader portrait
-		# i have added is hopefully much much closer to the old and as of now still existing ratio of the ingame
-		# diplomacy leader portrait, which i don't think i'm changing anytime soon as it is most likely more tedious for
-		# questionable gain, so using this one as a basis rather, not that is undoable but probably much harder and not
-		# necessarily worth it, and if animations are based on the diplomacy ingame ratio rather then they may also display
-		# better in the sevopedia with my new sevopedia ratio, (which intuitively or from a quick glance seems to be the
-		# case, image looks less compressed on its sides but not sure or guaranteed, check yourself if want to be sure or
-		# not, but i hope this helps, and that being said, anyways) anyways
-		# -->
+		# Actually all this calculation is not exactly accurate because W_LEADERHEAD_PANE and W_LEADERHEAD are different in this base advciv / sevopedia(?) code, but hopefully accurate enough and ratio should be much closer now to the ingame diplomacy ratio, hopefully less stretched but not sure or guaranteed, should be for images i send as replacements of animations though as i base them on the ingame diplomacy's ratio, not the old sevopedia leader portait ratio, anyways, so now the new sevopedia ratio for the leader portrait i have added is hopefully much much closer to the old and as of now still existing ratio of the ingame diplomacy leader portrait, which i don't think i'm changing anytime soon as it is most likely more tedious for questionable gain, so using this one as a basis rather, not that is undoable but probably much harder and not necessarily worth it, and if animations are based on the diplomacy ingame ratio rather then they may also display better in the sevopedia with my new sevopedia ratio, (which intuitively or from a quick glance seems to be the case, image looks less compressed on its sides but not sure or guaranteed, check yourself if want to be sure or not, but i hope this helps, and that being said, anyways) anyways -->
+		#
 		self.W_LEADERHEAD_PANE = 327
 		self.H_LEADERHEAD_PANE = 400
 
@@ -403,12 +381,8 @@ class SevoPediaLeader:
 
 		self.Y_FAVORITES = self.Y_LEADERHEAD_PANE + self.H_LEADERHEAD_PANE + self.SMALL_MARGIN
 
-		# <!-- custom: we need self.W_HISTORY before the favourites coordinates, (even though the history
-		# panel is placed under/after the favourites panel when i constructed the page's "spacing" and
-		# dimensions of (and between) panels, anyways) because/as the favourites panel uses/needs/is based on
-		# the history panel's (relative) position, anyways -->
-		# <!-- custom: might as well put the other/rest/remaining HISTORY coordinates if doesn't harm and they
-		# are perhaps needed too, anyways -->
+		# <!-- custom: we need self.W_HISTORY before the favourites coordinates, (even though the history panel is placed under/after the favourites panel when i constructed the page's "spacing" and dimensions of (and between) panels, anyways) because/as the favourites panel uses/needs/is based on the history panel's (relative) position, anyways -->
+		# <!-- custom: might as well put the other/rest/remaining HISTORY coordinates if doesn't harm and they are perhaps needed too, anyways -->
 		self.X_HISTORY = self.X_LEADERHEAD_PANE
 		self.Y_HISTORY = self.Y_FAVORITES + self.H_FAVORITES + self.SMALL_MARGIN
 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.W_AI_TOTAL_TABLES_WIDTH - self.X_LEADERHEAD_PANE
@@ -417,8 +391,7 @@ class SevoPediaLeader:
 		self.X_FAVORITES = self.X_LEADERHEAD_PANE
 		self.W_FAVORITES = self.W_HISTORY - self.W_CIV - self.SMALL_MARGIN
 
-		# <!-- custom: the rest of the data here, as it is dependent on other data we need first
-		# that (i.e. before being able to add these) -->
+		# <!-- custom: the rest of the data here, as it is dependent on other data we need first that (i.e. before being able to add these) -->
 		self.X_AI_PERSONALITY = self.top.R_PEDIA_PAGE - self.W_AI_PERSONALITY 
 		self.Y_AI_PERSONALITY = self.Y_LEADERHEAD_PANE
 		self.H_AI_PERSONALITY = self.H_LEADERHEAD_PANE + self.SMALL_MARGIN + self.H_FAVORITES + self.SMALL_MARGIN + self.H_HISTORY
@@ -430,16 +403,8 @@ class SevoPediaLeader:
 		self.H_AI_LINE_HEIGHT = 22
 		self.H_AI_CATEGORY_SPACING = 10
 		self.W_AI_LEFT_SIDE_PADDING = 12
-		# <!-- custom: removing or rather having an empty header, the header disappears entirely,
-		# but if you want to use a header, you can just type any value in the related txt keys
-		# such as TXT_KEY_AI_PERSONALITY_RIGHT_PANEL and such anyways. This or maybe rather not
-		# doing this (having an non-empty txt key header) would take some room though so you'd
-		# have to adjust self.H_AI_UPPER_PADDING to the value below commented-out or simialr depending
-		# the upper padding you want.
-		# Since i (accidentally found) it frees more room, i want to try using it as such, as i really
-		# need the extra room, and not so much the header name (the other two header txt keys were going
-		# to be either redunant naming or empty so maybe this is (also) a good opportunity to gain space/room
-		# in the ai personality panel, anyways -->
+		# <!-- custom: removing or rather having an empty header, the header disappears entirely, but if you want to use a header, you can just type any value in the related txt keys such as TXT_KEY_AI_PERSONALITY_RIGHT_PANEL and such anyways. This or maybe rather not doing this (having an non-empty txt key header) would take some room though so you'd have to adjust self.H_AI_UPPER_PADDING to the value below commented-out or simialr depending the upper padding you want.
+		# Since i (accidentally found) it frees more room, i want to try using it as such, as i really need the extra room, and not so much the header name (the other two header txt keys were going to be either redunant naming or empty so maybe this is (also) a good opportunity to gain space/room in the ai personality panel, anyways -->
 		#self.H_AI_UPPER_PADDING = 36
 		self.H_AI_UPPER_PADDING = 15
 
@@ -457,8 +422,7 @@ class SevoPediaLeader:
 		self.W_TRAITS = self.W_HISTORY - self.W_LEADERHEAD_PANE - self.SMALL_MARGIN
 		self.H_TRAITS = self.H_LEADERHEAD_PANE
 
-		# <!-- custom: move the civ (flag) closer to favourite civis and religions or somewhere else,
-		# more beautiful and less cumbersome this way maybe i think, anyways -->
+		# <!-- custom: move the civ (flag) closer to favourite civis and religions or somewhere else, more beautiful and less cumbersome this way maybe i think, anyways -->
 		self.X_CIV = self.X_HISTORY + self.W_HISTORY - self.CIV_MARGIN - self.W_CIV
 		# <!-- custom: put the flag/civ at the middle Y of the favourites panel -->
 		# <!-- custom: quite high as compared to favourites panel's lowest point -->
@@ -469,30 +433,17 @@ class SevoPediaLeader:
 	def interfaceScreen(self, iLeader):
 		self.iLeader = iLeader
 
-		# <!-- custom: change call order to match filling/building order, generally
-		# from top left to bottom and left to right but not always, reordering in
-		# such a way is maybe a bit more intuitive this way perhaps or/and clearer
-		# or/and helpful or not or other etc anyways, -->
+		# <!-- custom: change call order to match filling/building order, generally from top left to bottom and left to right but not always, reordering in such a way is maybe a bit more intuitive this way perhaps or/and clearer or/and helpful or not or other etc anyways, -->
 		self.placeLeaderHeadPane()
 		self.placeFavorites()
 		self.placeHistory()
 		self.placeCiv()
 		self.placeTraits()
-		# We need to use the proper tag name (e.g., "LEADER_HATSHEPSUT") instead of
-		# iLeader when looking up the cache.
+		# We need to use the proper tag name (e.g., "LEADER_HATSHEPSUT") instead of iLeader when looking up the cache.
 		iLeaderKey = gc.getLeaderHeadInfo(iLeader).getType()
-		# <!-- custom: for excluded leaders from leaders_data, leave the zone/space where the AI
-		# personality panel was supposed to be especially empty, instead of getting a key error
-		# or missing leader from leaders_data (but we still want the excluded leaders to be
-		# excluded from computation as it could and most likely will most often if not always affect
-		# the ranking and scores normalized of other leaders with this additional data (unless they
-		# somehow are all still equal or something similar, but is not too likely, anyways etc
-		# anyways etc))
-		# This is especially useful for LEADER_BARBARIAN in particular that is somehow accessible
-		# in the sevopedia civilization category from the barbarian civ i mean anyways (which is
-		# also useful because we now display their city names for example, see sevopedia civilization
-		# for details about how we place city names in it now)
-		# -->
+		# <!-- custom: for excluded leaders from leaders_data, leave the zone/space where the AI personality panel was supposed to be especially empty, instead of getting a key error or missing leader from leaders_data (but we still want the excluded leaders to be excluded from computation as it could and most likely will most often if not always affect the ranking and scores normalized of other leaders with this additional data (unless they somehow are all still equal or something similar, but is not too likely, anyways etc anyways etc))
+		# This is especially useful for LEADER_BARBARIAN in particular that is somehow accessible in the sevopedia civilization category from the barbarian civ i mean anyways (which is also useful because we now display their city names for example, see sevopedia civilization for details about how we place city names in it now) -->
+		#
 		if (iLeaderKey not in EXCLUDED_LEADERS_FROM_LEADERS_DATA):
 			self.placeAIPersonalityPanel(iLeaderKey)
 		else:
@@ -500,15 +451,21 @@ class SevoPediaLeader:
 
 
 
-	# <!-- custom: wrap leader placement in a specific function for clarity
-	# or/and flexibility or not anyways,
-	# -->
+	# <!-- custom: wrap leader placement in a specific function for clarity or/and flexibility or not anyways, -->
 	def placeLeaderHeadPane(self):
 		screen = self.top.getScreen()
 		leaderPanelWidget = self.top.getNextWidgetName()
 		screen.addPanel(leaderPanelWidget, "", "", True, True, self.X_LEADERHEAD_PANE, self.Y_LEADERHEAD_PANE, self.W_LEADERHEAD_PANE, self.H_LEADERHEAD_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		self.leaderWidget = self.top.getNextWidgetName()
 		screen.addLeaderheadGFC(self.leaderWidget, self.iLeader, AttitudeTypes.ATTITUDE_PLEASED, self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+
+
+		print("xxxx")
+		printObjAttrs(gc.getLeaderHeadInfo(self.iLeader))
+		print("yyyy")
+		debugPrintLeaderHeadInfoFlavorNowarattitudeprobATContactMemoryBBAIvictoryweights(self.iLeader, gc)
+		print("zzzz")
 
 
 

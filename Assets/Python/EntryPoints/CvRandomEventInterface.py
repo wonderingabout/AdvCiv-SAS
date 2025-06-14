@@ -1368,7 +1368,7 @@ def doWiningMonks2(argsList):
 	kTriggeredData = argsList[1]
 
 	plot = gc.getMap().plot(kTriggeredData.iPlotX, kTriggeredData.iPlotY)
-	
+	BONUS_CAMEL
 	if not plot.isNone():
 		plot.setImprovementType(CvUtil.findInfoTypeNum(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_FARM'))
 	
@@ -1386,43 +1386,11 @@ def getHelpWiningMonks2(argsList):
 
 ######## INDEPENDENTFILMS ###########
 
-def canTriggerIndependentFilms(argsList):
+# <!-- custom: similarly remove old bonus_movies related canTriggerIndependentFilms entirely if i am not mistaken too anyways etc -->
 
-	kTriggeredData = argsList[0]
-	player = gc.getPlayer(kTriggeredData.ePlayer)
+# <!-- custom: similarly remove old bonus_movies related doIndependentFilms entirely if i am not mistaken too anyways etc -->
 
-	for i in range(gc.getNumBuildingInfos()):
-		if gc.getBuildingInfo(i).getFreeBonus() == CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_MOVIES'):
-			if player.countNumBuildings(i) > 0:
-				return false
-				
-	return true
-
-def doIndependentFilms(argsList):
-	iEvent = argsList[0]
-	kTriggeredData = argsList[1]
-	
-	player = gc.getPlayer(kTriggeredData.ePlayer)
-	city = player.getCity(kTriggeredData.iCityId)
-
-	iBonus = CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_MOVIES')
-
-	city.changeFreeBonus(iBonus, 1)
-	
-	return 1
-
-def getHelpIndependentFilms(argsList):
-	iEvent = argsList[0]
-	kTriggeredData = argsList[1]
-	
-	player = gc.getPlayer(kTriggeredData.ePlayer)
-	city = player.getCity(kTriggeredData.iCityId)
-
-	iBonus = CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_MOVIES')
-	
-	szHelp = localText.getText("TXT_KEY_EVENT_INDEPENDENTFILMS_HELP_1", ( 1, gc.getBonusInfo(iBonus).getChar(), city.getNameKey()))
-
-	return szHelp
+# <!-- custom: BONUS_MOVIES removed and replaced with BONUS_CAMEL, so removing old getHelpIndependentFilms movies related code entirely anyways etc -->
 
 ######## ANCIENT OLYMPICS ###########
 
@@ -3363,8 +3331,11 @@ def canTriggerNobleKnightsDone(argsList):
 	
 	iNumUnits = worldSizeTarget() + 1
 	iUnitClassType = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_KNIGHT')
+	iUnitCamelClassType = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_CAMEL_KNIGHT')
 
-	if player.getUnitClassCount(iUnitClassType) < iNumUnits:
+	# <!-- custom: add camel (knight) units to this event anyways etc -->
+	#if player.getUnitClassCount(iUnitClassType) < iNumUnits:
+	if (player.getUnitClassCount(iUnitClassType) < iNumUnits) and (player.getUnitClassCount(iUnitCamelClassType) < iNumUnits):
 		return false
 			
 	trigger = gc.getEventTriggerInfo(kTriggeredData.eTrigger)

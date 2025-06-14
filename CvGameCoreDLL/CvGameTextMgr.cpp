@@ -8114,6 +8114,10 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
 	//	Enables bridge building...
 	buildBridgeString(szBuffer, eTech, true, bPlayerContext);
 
+	// <!-- custom: new addition, add the "This tech cannot be traded" or similar for a tech if i am not mistaken too anyways etc
+	//	Tech cannot be traded (<bTrade> in XML if i am not mistaken in tech info 's xml i mean anyways etc)... -->
+	buildBTradeString(szBuffer, eTech, true, bPlayerContext);
+
 	//	Can spread irrigation...
 	buildIrrigationString(szBuffer, eTech, true, bPlayerContext);
 
@@ -15327,6 +15331,19 @@ void CvGameTextMgr::buildBridgeString(CvWStringBuffer &szBuffer,
 		if (bList)
 			szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_MISC_ENABLES_BRIDGE_BUILDING"));
+	}
+}
+
+// <!-- custom: add the <bTrade> tech info xml flag if i am not mistaken in sevopedia tech's placeSpecial anyways etc -->
+void CvGameTextMgr::buildBTradeString(CvWStringBuffer &szBuffer,
+	TechTypes eTech, bool bList, bool bPlayerContext)
+{
+	if (!GC.getTechInfo(eTech).isTrade() &&
+		(!bPlayerContext || !GET_TEAM(getActiveTeam()).isHasTech(eTech)))
+	{
+		if (bList)
+			szBuffer.append(NEWLINE);
+		szBuffer.append(gDLL->getText("TXT_KEY_MISC_TECH_CANNOT_BE_TRADED"));
 	}
 }
 

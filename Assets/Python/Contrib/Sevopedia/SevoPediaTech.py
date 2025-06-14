@@ -228,12 +228,25 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 
 
+	# <!-- custom: add non-tradeable (<bTrade> if i am not mistaken anyways etc) tech list at the end of placeSpecial, addition from/of chatgpt/becomingthrough thanks to my prompt too but anyways etc -->
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()), "", True, False, self.X_SPECIAL_PANE, self.Y_SPECIAL_PANE, self.W_SPECIAL_PANE, self.H_SPECIAL_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		listName = self.top.getNextWidgetName()
+
 		szSpecialText = CyGameTextMgr().getTechHelp(self.iTech, True, False, False, False, -1)[1:]
+
+		# Append a global list of untradeable techs
+		untradeableTechs = []
+		for iTech in range(gc.getNumTechInfos()):
+			if not gc.getTechInfo(iTech).isTrade():
+				untradeableTechs.append(CyTranslator().getText("[ICON_BULLET] ", ()) + gc.getTechInfo(iTech).getDescription())
+
+		if untradeableTechs:
+			szSpecialText += u"\n\n" + localText.getText("TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER", ())
+			szSpecialText += u"\n" + u"\n".join(untradeableTechs)
+
 		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL_PANE+5, self.Y_SPECIAL_PANE+30, self.W_SPECIAL_PANE-35, self.H_SPECIAL_PANE-10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
@@ -241,40 +254,26 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 	def placeBackground(self): # advc.004y: renamed from "placeQuote"
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need
-		# the redundant background
-		# -->
+		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need the redundant background -->
 		# advc.004y: Label added for this panel
 		#screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_QUOTE_PANE, self.Y_QUOTE_PANE, self.W_QUOTE_PANE, self.H_QUOTE_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.addPanel(panelName, "", "", True, True, self.X_QUOTE_PANE, self.Y_QUOTE_PANE, self.W_QUOTE_PANE, self.H_QUOTE_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		# <advc.004y> Show strategy help too (like for civics)
 		szText = u""
-		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY
-		# in SevoPediaBuilding.py (refer to this file for details),
-		# removing (hiding) the entry entirely from the sevopedia.
-		# -->
+		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY in SevoPediaBuilding.py (refer to this file for details), removing (hiding) the entry entirely from the sevopedia ; and same reasoning as for/in SevopediaUnit.py, i don't need the redundant background line -->
 		#if len(gc.getTechInfo(self.iTech).getStrategy()) > 0:
 		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
 		#	szText += gc.getTechInfo(self.iTech).getStrategy()
 		#	szText += u"\n\n"
 		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
-		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need
-		# the redundant background
-		# -->
-		# <!-- custom: add this instead only: -->
-		#szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
 		# </advc.004y>
 		szText += gc.getTechInfo(self.iTech).getQuote()
 		szText += u"\n\n" + gc.getTechInfo(self.iTech).getCivilopedia()
 		szQuoteTextWidget = self.top.getNextWidgetName()
-		# <!-- custom: i prefer the fancier design, find it way more beautiful
-		# too, restoring it and adding/restoring/modifying padding at the same
-		# time
-		# -->
-		#screen.addMultilineText(szQuoteTextWidget, szText, self.X_QUOTE_PANE + 15, self.Y_QUOTE_PANE + 15, self.W_QUOTE_PANE - (15 * 2), self.H_QUOTE_PANE - (15 * 2), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.addMultilineText(szQuoteTextWidget, szText, self.X_QUOTE_PANE + 9, self.Y_QUOTE_PANE + 12, self.W_QUOTE_PANE - (15 * 2), self.H_QUOTE_PANE - (15 * 2), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		# <!-- custom: i prefer the fancier design, find it way more beautiful too, restoring it ; as for padding adjust/modify it a bit too anyways etc, was self.X_QUOTE_PANE + 9, self.Y_QUOTE_PANE + 12 -->
 		# <advc.004y> Now that the quote isn't on top anymore, we can keep it simple:
 		#screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(szQuoteTextWidget, szText, self.X_QUOTE_PANE + 9, self.Y_QUOTE_PANE + 12, self.W_QUOTE_PANE - (15 * 2), self.H_QUOTE_PANE - (15 * 2), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

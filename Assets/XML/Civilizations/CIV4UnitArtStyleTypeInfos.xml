@@ -22,9 +22,9 @@
 				<StyleUnit>
 					<UnitType>UNIT_CHARIOT</UnitType>
 					<UnitMeshGroup>
-						<EarlyArtDefineTag>ART_DEF_UNIT_CHARIOT_CHINESE</EarlyArtDefineTag>
-						<LateArtDefineTag>ART_DEF_UNIT_CHARIOT_CHINESE</LateArtDefineTag>
-						<MiddleArtDefineTag>ART_DEF_UNIT_CHARIOT_CHINESE</MiddleArtDefineTag>
+						<EarlyArtDefineTag>ART_DEF_UNIT_CHARIOT_ASIAN</EarlyArtDefineTag>
+						<LateArtDefineTag>ART_DEF_UNIT_CHARIOT_ASIAN</LateArtDefineTag>
+						<MiddleArtDefineTag>ART_DEF_UNIT_CHARIOT_ASIAN</MiddleArtDefineTag>
 					</UnitMeshGroup>
 				</StyleUnit>
 				<StyleUnit>
@@ -64,17 +64,17 @@
 				<StyleUnit>
 					<UnitType>UNIT_SPEARMAN</UnitType>
 					<UnitMeshGroup>
-						<EarlyArtDefineTag>ART_DEF_UNIT_SPEARMAN_EURASIAN</EarlyArtDefineTag>
-						<LateArtDefineTag>ART_DEF_UNIT_SPEARMAN_EURASIAN</LateArtDefineTag>
-						<MiddleArtDefineTag>ART_DEF_UNIT_SPEARMAN_EURASIAN</MiddleArtDefineTag>
+						<EarlyArtDefineTag>ART_DEF_UNIT_SPEARMAN_ASIAN</EarlyArtDefineTag>
+						<LateArtDefineTag>ART_DEF_UNIT_SPEARMAN_ASIAN</LateArtDefineTag>
+						<MiddleArtDefineTag>ART_DEF_UNIT_SPEARMAN_ASIAN</MiddleArtDefineTag>
 					</UnitMeshGroup>
 				</StyleUnit>
 				<StyleUnit>
 					<UnitType>UNIT_SWORDSMAN</UnitType>
 					<UnitMeshGroup>
-						<EarlyArtDefineTag>ART_DEF_UNIT_SWORDSMAN_CHINESE</EarlyArtDefineTag>
-						<LateArtDefineTag>ART_DEF_UNIT_SWORDSMAN_CHINESE</LateArtDefineTag>
-						<MiddleArtDefineTag>ART_DEF_UNIT_SWORDSMAN_CHINESE</MiddleArtDefineTag>
+						<EarlyArtDefineTag>ART_DEF_UNIT_SWORDSMAN_ASIAN</EarlyArtDefineTag>
+						<LateArtDefineTag>ART_DEF_UNIT_SWORDSMAN_ASIAN</LateArtDefineTag>
+						<MiddleArtDefineTag>ART_DEF_UNIT_SWORDSMAN_ASIAN</MiddleArtDefineTag>
 					</UnitMeshGroup>
 				</StyleUnit>
 				<StyleUnit>

@@ -6849,4 +6849,16 @@
 		<Spanish>(aumentado por no practicar %s2_ReligionOrCivic)</Spanish>
 	</TEXT>
 
+
+
+	<!-- custom: add (new anyways etc anyways etc...) the <bTrade> tech info xml flag if i am not mistaken in sevopedia tech's placeSpecial, see also (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp for details or additional info if there is any there anyways etc anyways etc hopefully helpful or not or yes or etc anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_MISC_TECH_CANNOT_BE_TRADED</Tag>
+		<English>[ICON_BULLET]This technology cannot be traded.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER</Tag>
+		<English>As a reminder, the following technologies cannot be traded:</English>
+	</TEXT>
+
 </Civ4GameText>

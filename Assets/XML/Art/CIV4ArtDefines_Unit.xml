@@ -470,30 +470,6 @@
 			</AudioRunSounds>
 		</UnitArtInfo>
 		<UnitArtInfo>
-			<Type>ART_DEF_UNIT_INCAN_QUECHUA</Type>
-			<Button>,Art/Interface/Buttons/Units/Quechua.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,4</Button>
-			<fScale>0.44</fScale>
-			<fInterfaceScale>1.0</fInterfaceScale>
-			<bActAsLand>0</bActAsLand>
-			<bActAsAir>0</bActAsAir>
-			<NIF>Art/Units/Unique/Inca/Quechua/IncanQuechua.nif</NIF>
-			<KFM>Art/Units/Unique/Inca/Quechua/IncanQuechua.kfm</KFM>
-			<SHADERNIF>Art/Units/Unique/Inca/Quechua/IncanQuechua_FX.nif</SHADERNIF>
-			<ShadowDef>
-				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
-				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
-				<fShadowScale>1.0</fShadowScale>
-			</ShadowDef>
-			<fBattleDistance>0.35</fBattleDistance>
-			<fRangedDeathTime>0.31</fRangedDeathTime>
-			<bActAsRanged>0</bActAsRanged>
-			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
-			<AudioRunSounds>
-				<AudioRunTypeLoop/>
-				<AudioRunTypeEnd/>
-			</AudioRunSounds>
-		</UnitArtInfo>
-		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_SWORDSMAN</Type>
 			<Button>,Art/Interface/Buttons/Units/Swordsman.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,5</Button>
 			<fScale>0.44</fScale>
@@ -1469,6 +1445,31 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
+		<!-- custom: now CAMEL_ARCHER is a generic unit not civ-specific to any civ (all civs can built it anyways etc), art nif import from ri mod's ART_DEF_UNIT_ARABIA_CAMELARCHER (asset files in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Realism Invictus\Assets\RI_37_Units_Arabia.FPK" anyways etc... button from PakBuild i had extracted since i found it here no need to search again in all fpks one by one anyways etc. Note: the XML is unfortunately or not unfortunately but anyways etc in all cases if i may say maybe or not or yes or etc anyways etc incredibly messy as i said before or now rather maybe in readme and such but anyways etc, at least i found the assets i need/want) (note: the .kfm is base civ4 one of arabian old camel archer anyways etc so can't find it in the ri mod anyways etc) -->
+		<UnitArtInfo>
+			<Type>ART_DEF_UNIT_CAMEL_ARCHER</Type>
+			<Button>Art/AdvCiv_SAS/Units/Camel_Archer/camel_archer.dds</Button>
+			<fScale>0.39</fScale>
+			<fInterfaceScale>0.8</fInterfaceScale>
+			<bActAsLand>0</bActAsLand>
+			<bActAsAir>0</bActAsAir>
+			<NIF>Art/AdvCiv_SAS/Units/Camel_Archer/nif/BerberCamelRiderFinalFinal.nif</NIF>
+			<KFM>Art/Units/Unique/Arabia/CamelArcher/ArabiaCamelArcher.kfm</KFM>
+			<SHADERNIF>Art/AdvCiv_SAS/Units/Camel_Archer/nif/BerberCamelRiderFinalFinal_fx.nif</SHADERNIF>
+			<ShadowDef>
+				<ShadowNIF>Art/Units/01_UnitShadows/HorseShadow.nif</ShadowNIF>
+				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+				<fShadowScale>1.0</fShadowScale>
+			</ShadowDef>
+			<fBattleDistance>0.35</fBattleDistance>
+			<fRangedDeathTime>0.31</fRangedDeathTime>
+			<bActAsRanged>0</bActAsRanged>
+			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+			<AudioRunSounds>
+				<AudioRunTypeLoop/>
+				<AudioRunTypeEnd/>
+			</AudioRunSounds>
+		</UnitArtInfo>
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_KNIGHT</Type>
 			<Button>,Art/Interface/Buttons/Units/Knight.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,8,1</Button>
@@ -1513,6 +1514,31 @@
 			<bActAsRanged>0</bActAsRanged>
 			<!-- BBAI: was ..._BUILD_UNIT -->
 			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+			<AudioRunSounds>
+				<AudioRunTypeLoop/>
+				<AudioRunTypeEnd/>
+			</AudioRunSounds>
+		</UnitArtInfo>
+		<!-- custom: new unit CAMEL_KNIGHT based on the KNIGHT camel version of it anyways etc, art import from RFC DOC mod's ART_DEF_UNIT_CAMEL_RIDER (is in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Units.fpk" anyways etc) with their very very nice and very very tidy and ordered and works-functions at first try FPK!!!! Thanks a lot!!! I had issues with other mods assets scattered across several fpks or and hardcoded paths in nif not worth debugging at least not quick, this one all in one fpk so nice and tidy thanks a lot, anyways etc -->
+		<UnitArtInfo>
+			<Type>ART_DEF_UNIT_CAMEL_KNIGHT</Type>
+			<Button>Art/AdvCiv_SAS/Units/Camel_Knight/CamelRider.dds</Button>
+			<fScale>0.39</fScale>
+			<fInterfaceScale>0.8</fInterfaceScale>
+			<bActAsLand>0</bActAsLand>
+			<bActAsAir>0</bActAsAir>
+			<NIF>Art/AdvCiv_SAS/Units/Camel_Knight/nif/CamelLancer.nif</NIF>
+			<KFM>Art/AdvCiv_SAS/Units/Camel_Knight/nif/CamelLancer.kfm</KFM>
+			<SHADERNIF>Art/AdvCiv_SAS/Units/Camel_Knight/nif/CamelLancer.nif</SHADERNIF>
+			<ShadowDef>
+				<ShadowNIF>Art/Units/01_UnitShadows/HorseShadow.nif</ShadowNIF>
+				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+				<fShadowScale>1.0</fShadowScale>
+			</ShadowDef>
+			<fBattleDistance>0.35</fBattleDistance>
+			<fRangedDeathTime>0.31</fRangedDeathTime>
+			<bActAsRanged>0</bActAsRanged>
+			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
 			<AudioRunSounds>
 				<AudioRunTypeLoop/>
 				<AudioRunTypeEnd/>
@@ -1580,6 +1606,32 @@
 			<ShadowDef>
 				<ShadowNIF>Art/Units/01_UnitShadows/HorseShadow.nif</ShadowNIF>
 				<ShadowAttachNode>HorseBip Spine1</ShadowAttachNode>
+				<fShadowScale>1.0</fShadowScale>
+			</ShadowDef>
+			<fBattleDistance>0.35</fBattleDistance>
+			<fRangedDeathTime>0.31</fRangedDeathTime>
+			<bActAsRanged>0</bActAsRanged>
+			<!-- BBAI: was ..._UNIQUE_UNIT -->
+			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+			<AudioRunSounds>
+				<AudioRunTypeLoop/>
+				<AudioRunTypeEnd/>
+			</AudioRunSounds>
+		</UnitArtInfo>
+		<!-- custom: new unit CAMEL_CUIRASSIER based on the cuirassier camel version of it anyways etc, art import similarly from the very nice FPK "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Units.fpk" of RFC DOC 's mod, of/from the art asset ART_DEF_UNIT_CAMEL_GUNNER too anyways etc and adjusted or not or yes or other or and other or etc or and etc anyways etc for advciv-sas anyways etc -->
+		<UnitArtInfo>
+			<Type>ART_DEF_UNIT_CAMEL_CUIRASSIER</Type>
+			<Button>Art/AdvCiv_SAS/Units/Camel_Cuirassier/camelgunner_btn.dds</Button>
+			<fScale>0.39</fScale>
+			<fInterfaceScale>0.8</fInterfaceScale>
+			<bActAsLand>0</bActAsLand>
+			<bActAsAir>0</bActAsAir>
+			<NIF>Art/AdvCiv_SAS/Units/Camel_Cuirassier/nif/camelgunner.nif</NIF>
+			<KFM>Art/AdvCiv_SAS/Units/Camel_Cuirassier/nif/camelgunner.kfm</KFM>
+			<SHADERNIF>Art/AdvCiv_SAS/Units/Camel_Cuirassier/nif/camelgunner.nif</SHADERNIF>
+			<ShadowDef>
+				<ShadowNIF>Art/Units/01_UnitShadows/HorseShadow.nif</ShadowNIF>
+				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
 				<fShadowScale>1.0</fShadowScale>
 			</ShadowDef>
 			<fBattleDistance>0.35</fBattleDistance>
@@ -3378,7 +3430,57 @@
 			</AudioRunSounds>
 		</UnitArtInfo>
 		<UnitArtInfo>
-			<Type>ART_DEF_UNIT_CELTIC_BARBARIAN</Type>
+			<Type>ART_DEF_UNIT_INCAN_QUECHUA</Type>
+			<Button>,Art/Interface/Buttons/Units/Quechua.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,4</Button>
+			<fScale>0.44</fScale>
+			<fInterfaceScale>1.0</fInterfaceScale>
+			<bActAsLand>0</bActAsLand>
+			<bActAsAir>0</bActAsAir>
+			<NIF>Art/Units/Unique/Inca/Quechua/IncanQuechua.nif</NIF>
+			<KFM>Art/Units/Unique/Inca/Quechua/IncanQuechua.kfm</KFM>
+			<SHADERNIF>Art/Units/Unique/Inca/Quechua/IncanQuechua_FX.nif</SHADERNIF>
+			<ShadowDef>
+				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
+				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+				<fShadowScale>1.0</fShadowScale>
+			</ShadowDef>
+			<fBattleDistance>0.35</fBattleDistance>
+			<fRangedDeathTime>0.31</fRangedDeathTime>
+			<bActAsRanged>0</bActAsRanged>
+			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+			<AudioRunSounds>
+				<AudioRunTypeLoop/>
+				<AudioRunTypeEnd/>
+			</AudioRunSounds>
+		</UnitArtInfo>
+		<!-- custom: art import from HR mod's todo continue but anyways etc anyways etc anyways etc -->
+		<UnitArtInfo>
+			<Type>ART_DEF_UNIT_PERSIA_IMMORTAL</Type>
+			<Button>,Art/Interface/Buttons/Units/Immortal.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,3,2</Button>
+			<fScale>0.42</fScale>
+			<fInterfaceScale>0.9</fInterfaceScale>
+			<bActAsLand>0</bActAsLand>
+			<bActAsAir>0</bActAsAir>
+			<NIF>Art/Units/Unique/Persia/Immortal/PersianImmortal.nif</NIF>
+			<KFM>Art/Units/Unique/Persia/Immortal/PersianImmortal.kfm</KFM>
+			<SHADERNIF>Art/Units/Unique/Persia/Immortal/PersianImmortal_FX.nif</SHADERNIF>
+			<ShadowDef>
+				<ShadowNIF>Art/Units/01_UnitShadows/HorseShadow.nif</ShadowNIF>
+				<ShadowAttachNode>HorseBip Spine1</ShadowAttachNode>
+				<fShadowScale>1.0</fShadowScale>
+			</ShadowDef>
+			<fBattleDistance>0.35</fBattleDistance>
+			<fRangedDeathTime>0.31</fRangedDeathTime>
+			<bActAsRanged>0</bActAsRanged>
+			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+			<AudioRunSounds>
+				<AudioRunTypeLoop/>
+				<AudioRunTypeEnd/>
+			</AudioRunSounds>
+		</UnitArtInfo>
+		<!-- custom: rename CELTIC_BARBARIAN to CELTIC_GALLIC_WARRIOR anyways etc -->
+		<UnitArtInfo>
+			<Type>ART_DEF_UNIT_CELTIC_GALLIC_WARRIOR</Type>
 			<Button>,Art/Interface/Buttons/Units/Swordsman.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,10</Button>
 			<fScale>0.44</fScale>
 			<fInterfaceScale>1.0</fInterfaceScale>
@@ -3795,8 +3897,9 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
+		<!-- custom: rename ART_DEF_UNIT_ARCHER_CHINESE to ART_DEF_UNIT_ARCHER_ASIAN anyways etc -->
 		<UnitArtInfo>
-			<Type>ART_DEF_UNIT_ARCHER_CHINESE</Type>
+			<Type>ART_DEF_UNIT_ARCHER_ASIAN</Type>
 			<Button>,Art/Interface/Buttons/Units/Archer.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,1</Button>
 			<fScale>0.44</fScale>
 			<fInterfaceScale>1.0</fInterfaceScale>
@@ -3843,8 +3946,9 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
+		<!-- custom: rename ART_DEF_UNIT_SWORDSMAN_CHINESE to ART_DEF_UNIT_SWORDSMAN_ASIAN anyways etc -->
 		<UnitArtInfo>
-			<Type>ART_DEF_UNIT_SWORDSMAN_CHINESE</Type>
+			<Type>ART_DEF_UNIT_SWORDSMAN_ASIAN</Type>
 			<Button>,Art/Interface/Buttons/Units/Swordsman.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,5</Button>
 			<fScale>0.44</fScale>
 			<fInterfaceScale>1.0</fInterfaceScale>
@@ -3867,8 +3971,9 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
+		<!-- custom: rename ART_DEF_UNIT_CHARIOT_CHINESE to ART_DEF_UNIT_CHARIOT_ASIAN anyways etc -->
 		<UnitArtInfo>
-			<Type>ART_DEF_UNIT_CHARIOT_CHINESE</Type>
+			<Type>ART_DEF_UNIT_CHARIOT_ASIAN</Type>
 			<Button>,Art/Interface/Buttons/Units/Chariot.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,7</Button>
 			<fScale>0.35</fScale>
 			<fInterfaceScale>0.9</fInterfaceScale>
@@ -3965,32 +4070,9 @@
 			<SelectionSound>AS3D_UN_OCEAN_END1</SelectionSound>
 			<ActionSound>AS3D_UN_OCEAN_END1</ActionSound>
 		</UnitArtInfo>
+		<!-- custom: the ART_DEF_UNIT_ARCHER_EURASIAN seems to be unused in base advciv (+/- civ4 too?) remove it entirely and use the already existing and used in base advciv ART_DEF_UNIT_ARCHER_CHINESE now renamed to ART_DEF_UNIT_ARCHER_ASIAN for consistency and or such or not such or yes such or etc but anyways etc anyways etc anyways etc, see also (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_1_AdvCiv-SAS\Docs_And_Appendixes\README_Known_Issues_In_Base_AdvCiv_Civ4.md for details currently at issue number 18 (numbering may change, refer to this readme if filename didnt change too i mean anyways etc if i may say too i mean but anyways etc anyways etc anyways etc...) ; (not skipping line in case it breaks art assets code, see known issues as well for examples about such behaviours but anyways etc  if i am not mistaken too but anyways etc anyways etc) ; also rename ART_DEF_UNIT_SPEARMAN_EURASIAN to ART_DEF_UNIT_SPEARMAN_ASIAN anyways etc -->
 		<UnitArtInfo>
-			<Type>ART_DEF_UNIT_ARCHER_EURASIAN</Type>
-			<Button>,Art/Interface/Buttons/Units/Archer.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,1</Button>
-			<fScale>0.44</fScale>
-			<fInterfaceScale>1.0</fInterfaceScale>
-			<bActAsLand>0</bActAsLand>
-			<bActAsAir>0</bActAsAir>
-			<NIF>Art/Units/Archer_Eurasian/Archer_Eurasian.nif</NIF>
-			<KFM>Art/Units/Archer_Eurasian/Archer_Eurasian.kfm</KFM>
-			<SHADERNIF>Art/Units/Archer_Eurasian/Archer_Eurasian_FX.nif</SHADERNIF>
-			<ShadowDef>
-				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
-				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
-				<fShadowScale>0.85</fShadowScale>
-			</ShadowDef>
-			<fBattleDistance>0.35</fBattleDistance>
-			<fRangedDeathTime>0.31</fRangedDeathTime>
-			<bActAsRanged>1</bActAsRanged>
-			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
-			<AudioRunSounds>
-				<AudioRunTypeLoop/>
-				<AudioRunTypeEnd/>
-			</AudioRunSounds>
-		</UnitArtInfo>
-		<UnitArtInfo>
-			<Type>ART_DEF_UNIT_SPEARMAN_EURASIAN</Type>
+			<Type>ART_DEF_UNIT_SPEARMAN_ASIAN</Type>
 			<Button>,Art/Interface/Buttons/Units/Spearman.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,6</Button>
 			<fScale>0.44</fScale>
 			<fInterfaceScale>1.0</fInterfaceScale>

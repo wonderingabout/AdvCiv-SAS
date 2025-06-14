@@ -59,7 +59,8 @@
 			<Description>TXT_KEY_RELIGION_HINDUISM</Description>
 			<Adjective>TXT_KEY_RELIGION_HINDUISM_ADJECTIVE</Adjective>
 			<Civilopedia>TXT_KEY_RELIGION_HINDUISM_PEDIA</Civilopedia>
-			<TechPrereq>TECH_PRIESTHOOD</TechPrereq>
+			<!-- custom: move RELIGION_HINDUISM to TECH_MONARCHY, more balanced for gameplay reasons (not all relgiions one after the other, is an alternative path, plus form a quick search hinduism seems to have originated from the indus valley civilization for example in https://home.csulb.edu/~cwallis/100/worldreligions/hinduism.html#:~:text=The%20birthplace%20of%20Hinduism%20is,between%202300%20to%202000%20BC. anyways etc), so maybe and hopefully makes sense at least enough ideally lot and is pleasant ideally too this way even though not obligated but would be nice if but not obligated abotu hinduism i mean anyways etc anyways etc, was TECH_POLYTHEISM -->
+			<TechPrereq>TECH_MONARCHY</TechPrereq>
 			<FreeUnitClass>UNITCLASS_HINDU_MISSIONARY</FreeUnitClass>
 			<iFreeUnits>0</iFreeUnits>
 			<iSpreadFactor>100</iSpreadFactor>

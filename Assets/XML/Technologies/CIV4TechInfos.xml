@@ -403,7 +403,13 @@
 			<iGridX>3</iGridX>
 			<iGridY>9</iGridY>
 			<DomainExtraMoves/>
-			<CommerceFlexible/>
+			<!-- custom: was empty -->
+			<CommerceFlexible>
+				<bFlexible>0</bFlexible>
+				<bFlexible>0</bFlexible>
+				<bFlexible>0</bFlexible>
+				<bFlexible>1</bFlexible>
+			</CommerceFlexible>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
 			<Flavors>
@@ -2371,14 +2377,16 @@
 			<iAsset>8</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>1</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
 			<bMapCentering>0</bMapCentering>
 			<bMapVisible>0</bMapVisible>
 			<bMapTrading>0</bMapTrading>
-			<bTechTrading>0</bTechTrading>
+			<!-- custom: was 0 -->
+			<bTechTrading>1</bTechTrading>
 			<bGoldTrading>0</bGoldTrading>
 			<bOpenBordersTrading>1</bOpenBordersTrading>
 			<bDefensivePactTrading>0</bDefensivePactTrading>
@@ -2528,7 +2536,8 @@
 			<bMapCentering>0</bMapCentering>
 			<bMapVisible>0</bMapVisible>
 			<bMapTrading>0</bMapTrading>
-			<bTechTrading>1</bTechTrading>
+			<!-- custom: was 1 -->
+			<bTechTrading>0</bTechTrading>
 			<bGoldTrading>0</bGoldTrading>
 			<bOpenBordersTrading>0</bOpenBordersTrading>
 			<bDefensivePactTrading>0</bDefensivePactTrading>
@@ -2541,13 +2550,9 @@
 			<iGridX>11</iGridX>
 			<iGridY>10</iGridY>
 			<DomainExtraMoves/>
+			<!-- custom: was 0 / 0 / 0 / 1 -->
 			<!-- advc.120g -->
-			<CommerceFlexible>
-				<bFlexible>0</bFlexible>
-				<bFlexible>0</bFlexible>
-				<bFlexible>0</bFlexible>
-				<bFlexible>1</bFlexible>
-			</CommerceFlexible>
+			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
 			<Flavors>
@@ -3232,7 +3237,7 @@
 				<PrereqTech>TECH_MEDITATION</PrereqTech>
 				<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
 			</OrPreReqs>
-			<!-- custom: astronomy quite strongly liinked to india's history if i am not mistaken anywyas etc in https://en.wikipedia.org/wiki/Indian_astronomy, approximate it by tech_meditation that happens in the late classical time now in our reworked tech tree if i am not mistaken anyways etc (even though is still todo as of now but anyways etc), heliocentrism also linked to aristarchus 's (greek astronomer around 250 BCE if i am not mistaken from this quick search anyways etc https://en.wikipedia.org/wiki/Heliocentrism), is also quite good from a balance standpoint to make these techs more useful than the usual education scientific method of our new tech tree reworked anyways etc -->
+			<!-- custom: astronomy quite strongly liinked to india's history if i am not mistaken anyways etc in https://en.wikipedia.org/wiki/Indian_astronomy, approximate it by tech_meditation that happens in the late classical time now in our reworked tech tree if i am not mistaken anyways etc (even though is still todo as of now but anyways etc), heliocentrism also linked to aristarchus 's (greek astronomer around 250 BCE if i am not mistaken from this quick search anyways etc https://en.wikipedia.org/wiki/Heliocentrism), is also quite good from a balance standpoint to make these techs more useful than the usual education scientific method of our new tech tree reworked anyways etc -->
 			<AndPreReqs>
 				<PrereqTech>TECH_NAVIGATION</PrereqTech>
 			</AndPreReqs>

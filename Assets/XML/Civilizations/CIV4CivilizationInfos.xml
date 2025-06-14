@@ -198,7 +198,7 @@
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_KNIGHT</UnitClassType>
+					<UnitClassType>UNITCLASS_CAMEL_KNIGHT</UnitClassType>
 					<UnitType>UNIT_ARABIA_CAMELARCHER</UnitType>
 				</Unit>
 			</Units>

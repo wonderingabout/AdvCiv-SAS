@@ -363,7 +363,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<bAreaCleanPower>0</bAreaCleanPower>
 			<DiploVoteType>NONE</DiploVoteType>
 			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
-			<!-- custom: trying to make barbarians more like city states or autonomous empires, also considering their later start, hopefulyl copensates it a bit and allows for different mechanics (i.e. gameplays i mean anyways etc) for them, hopefully (more?) interesting for human players this way too (at least maybe me or not or yes or an other or and not anyways etc) anyways etc -->
+			<!-- custom: trying to make barbarians more like city states or autonomous empires, also considering their later start, hopefully copensates it a bit and allows for different mechanics (i.e. gameplays i mean anyways etc) for them, hopefully (more?) interesting for human players this way too (at least maybe me or not or yes or an other or and not anyways etc) anyways etc -->
 			<bCapital>0</bCapital>
 			<bGovernmentCenter>1</bGovernmentCenter>
 			<bGoldenAge>0</bGoldenAge>
@@ -3405,7 +3405,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general or not anywyas etc -->
+			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general or not anyways etc -->
 			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -3598,7 +3598,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general or not anywyas etc -->
+			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general or not anyways etc -->
 			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -3789,7 +3789,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general or not anywyas etc -->
+			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general or not anyways etc -->
 			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -3991,7 +3991,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general or not anywyas etc -->
+			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general or not anyways etc -->
 			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -12661,7 +12661,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>175</iCost>
+			<!-- custom: was 175 -->
+			<iCost>225</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -12698,7 +12699,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<iHealth>0</iHealth>
 			<iAreaHealth>0</iAreaHealth>
 			<iGlobalHealth>0</iGlobalHealth>
-			<iHappiness>0</iHappiness>
+			<!-- custom: was 0 -->
+			<iHappiness>1</iHappiness>
 			<iAreaHappiness>0</iAreaHappiness>
 			<iGlobalHappiness>0</iGlobalHappiness>
 			<iStateReligionHappiness>0</iStateReligionHappiness>
@@ -12727,10 +12729,11 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<CommerceChanges/>
 			<ObsoleteSafeCommerceChanges/>
 			<CommerceChangeDoubleTimes/>
+			<!-- custom: was 0 / 0 / 50 -->
 			<CommerceModifiers>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
-				<iCommerce>50</iCommerce>
+				<iCommerce>25</iCommerce>
 			</CommerceModifiers>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
@@ -12747,25 +12750,18 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 					<iSpecialistCount>2</iSpecialistCount>
 				</SpecialistCount>
 			</SpecialistCounts>
-			<FreeSpecialistCounts/>
+			<!-- custom: rework broadcast_tower, (and also anyways etc) gives a free artist now anyways etc, also remove hit bonuses too else(where) in the xml anyways etc, was empty -->
+			<FreeSpecialistCounts>
+				<FreeSpecialistCount>
+					<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+					<iFreeSpecialistCount>1</iFreeSpecialistCount>
+				</FreeSpecialistCount>
+			</FreeSpecialistCounts>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
 			<ConstructSound>AS2D_BUILD_BROADCASTTOWER</ConstructSound>
 			<BonusHealthChanges/>
-			<BonusHappinessChanges>
-				<BonusHappinessChange>
-					<BonusType>BONUS_DRAMA</BonusType>
-					<iHappinessChange>1</iHappinessChange>
-				</BonusHappinessChange>
-				<BonusHappinessChange>
-					<BonusType>BONUS_MUSIC</BonusType>
-					<iHappinessChange>1</iHappinessChange>
-				</BonusHappinessChange>
-				<BonusHappinessChange>
-					<BonusType>BONUS_MOVIES</BonusType>
-					<iHappinessChange>1</iHappinessChange>
-				</BonusHappinessChange>
-			</BonusHappinessChanges>
+			<BonusHappinessChanges/>
 			<BonusProductionModifiers/>
 			<UnitCombatFreeExperiences/>
 			<DomainFreeExperiences/>
@@ -14215,8 +14211,9 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<CommerceChanges/>
 			<ObsoleteSafeCommerceChanges/>
 			<CommerceChangeDoubleTimes/>
+			<!-- custom: was 20 -->
 			<CommerceModifiers>
-				<iCommerce>20</iCommerce>
+				<iCommerce>50</iCommerce>
 			</CommerceModifiers>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
@@ -14246,20 +14243,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 					<iHealthChange>1</iHealthChange>
 				</BonusHealthChange>
 			</BonusHealthChanges>
-			<BonusHappinessChanges>
-				<BonusHappinessChange>
-					<BonusType>BONUS_DRAMA</BonusType>
-					<iHappinessChange>1</iHappinessChange>
-				</BonusHappinessChange>
-				<BonusHappinessChange>
-					<BonusType>BONUS_MUSIC</BonusType>
-					<iHappinessChange>1</iHappinessChange>
-				</BonusHappinessChange>
-				<BonusHappinessChange>
-					<BonusType>BONUS_MOVIES</BonusType>
-					<iHappinessChange>1</iHappinessChange>
-				</BonusHappinessChange>
-			</BonusHappinessChanges>
+			<!-- custom: remove hit bonuses/ressources from building_american_mall too, rework building instead by giving more gold which may be fine for a building so late in the game as compensation if i/one or not may say or not but anyways etc and other changes or not (and but anyways etc) in this case but anyways etc anyways etc -->
+			<BonusHappinessChanges/>
 			<BonusProductionModifiers/>
 			<UnitCombatFreeExperiences/>
 			<DomainFreeExperiences/>
@@ -23264,7 +23249,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
-			<!-- custom: todo change to TECH_NATURALISM if we successfully and indeed replce _ALPHABET with _NATURALISM as intended (then maybe delete this par tof of the code comment too or not or yes or etc anyways etc), was TECH_SCIENTIFIC_METHOD -->
+			<!-- custom: todo change to TECH_NATURALISM if we successfully and indeed replace _ALPHABET with _NATURALISM as intended (then maybe delete this par tof of the code comment too or not or yes or etc anyways etc), was TECH_SCIENTIFIC_METHOD -->
 			<ObsoleteTech>TECH_ALPHABET</ObsoleteTech>
 			<PrereqTech>TECH_LITERATURE</PrereqTech>
 			<TechTypes/>
@@ -26865,13 +26850,15 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<HappinessTraits/>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
-			<FreeBonus>BONUS_MOVIES</FreeBonus>
+			<!-- custom: was BONUS_MOVIES -->
+			<FreeBonus>NONE</FreeBonus>
 			<iNumFreeBonuses>-1</iNumFreeBonuses>
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
+			<!-- custom: was 2 -->
+			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>1</bTeamShare>
@@ -26895,7 +26882,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>1000</iCost>
+			<!-- custom: was 1000 -->
+			<iCost>1200</iCost>
 			<iHurryCostModifier>200</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -26961,10 +26949,11 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<CommerceChanges/>
 			<ObsoleteSafeCommerceChanges/>
 			<CommerceChangeDoubleTimes/>
+			<!-- custom: buff/rework hollywood, remove hit ressources/bonuses, give more culture instead or and other changes anyways etc, was 0 / 0 / 50 -->
 			<CommerceModifiers>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
-				<iCommerce>50</iCommerce>
+				<iCommerce>100</iCommerce>
 			</CommerceModifiers>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
@@ -26992,15 +26981,12 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: was flavor growth 4 and culture 8 anyways etc -->
 			<!-- advc.020: was 10 Growth; cf. Broadway -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>4</iFlavor>
-				</Flavor>
-				<Flavor>
 					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>8</iFlavor>
+					<iFlavor>10</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>

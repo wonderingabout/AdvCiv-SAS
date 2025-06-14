@@ -11756,10 +11756,12 @@
 			<AdditionalEvents/>
 			<EventTimes/>
 			<ClearEvents/>
-			<PythonCallback>doIndependentFilms</PythonCallback>
+			<!-- custom: was <PythonCallback>doIndependentFilms</PythonCallback> -->
+			<PythonCallback/>
 			<PythonExpireCheck/>
 			<PythonCanDo/>
-			<PythonHelp>getHelpIndependentFilms</PythonHelp>
+			<!-- custom: BONUS_MOVIES removed and replaced with BONUS_CAMEL, so so disabling this old movies related code anyways etc, was <PythonHelp>getHelpIndependentFilms</PythonHelp> -->
+			<PythonHelp/>
 			<Button>,Art/Interface/Buttons/Process/Blank.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,8,5</Button>
 			<iAIValue>1000</iAIValue>
 		</EventInfo>
@@ -23003,9 +23005,14 @@
 			<UnitPromotion/>
 			<UnitName/>
 			<UnitCombatPromotions/>
+			<!-- custom: add camel units as a separate class in this event too anyways etc -->
 			<UnitClassPromotions>
 				<UnitClassPromotion>
 					<UnitClass>UNITCLASS_KNIGHT</UnitClass>
+					<UnitPromotion>PROMOTION_FLANKING1</UnitPromotion>
+				</UnitClassPromotion>
+				<UnitClassPromotion>
+					<UnitClass>UNITCLASS_CAMEL_KNIGHT</UnitClass>
 					<UnitPromotion>PROMOTION_FLANKING1</UnitPromotion>
 				</UnitClassPromotion>
 			</UnitClassPromotions>

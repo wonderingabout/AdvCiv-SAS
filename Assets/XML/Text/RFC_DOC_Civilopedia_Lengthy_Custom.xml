@@ -65,4 +65,11 @@ and modified for our needs if needed. -->
 		<Tag>TXT_KEY_FEATURE_OASIS_PEDIA</Tag>
 		<English>[TAB]In geography, an oasis is an isolated area of vegetation in a desert, typically surrounding a spring or similar water source. Oases also provide habitat for animals and even humans if the area is big enough. The location of oases has been of critical importance for trade and transportation routes in desert areas. Caravans must travel via oases so that supplies of water and food can be replenished. Thus, political or military control of an oasis has in many cases meant control of trade on a particular route. For example, the oases of Awjila, Ghadames and Kufra, situated in modern-day Libya, have at various times been vital to both North-South and East-West trade in the Sahara. The word oasis came into English via Greek oasis, borrowed directly from Egyptian or Demotic. It was not borrowed from Coptic, as is sometimes suggested; the Greek word is attested several centuries before Coptic existed as a written language.</English>
 	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_BONUS_CAMEL_PEDIA</Tag>
+		<English>[TAB]A camel is an even-toed ungulate within the genus Camelus, bearing distinctive fatty deposits known as humps on its back. There are two species of camels: the dromedary or Arabian camel has a single hump, and the bactrian has two humps. Dromedaries are native to the dry desert areas of West Asia, and Bactrian camels are native to Central and East Asia. Both species are domesticated.[NEWLINE][NEWLINE][TAB]Camels provide milk and meat, and are working animals. Their hair is also used as a source material for woven goods, ranging from Bedouin tents to garments. They are well-suited to long desert journeys and can carry a great deal of cargo, allowing substantial trade over desert regions since ancient times. Camels have been used in wars throughout Africa, the Middle East and India, both as mounts and freight animals, instead of horses and mules.</English>
+	</TEXT>
 </Civ4GameText>

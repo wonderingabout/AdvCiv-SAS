@@ -613,7 +613,7 @@
 			<ImprovementType>NONE</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_CHOP</EntityEvent>
-			<!-- custom: move to an earlier tech and buff remove_jungle, now at same time as remove_forest, plus is necessary to make it sooner due to our tech_tree starting sooner in history or rather bronze working is quite late, maybe stone tools are enough or something to carve tree paths (i did not check though but anyways etc hopefully accurate enough or relevant enough for our needs and game and mod in advciv-sas hopefulyl fits well anyways etc anyways etc anyways etc...), was TECH_IRON_WORKING -->
+			<!-- custom: move to an earlier tech and buff remove_jungle, now at same time as remove_forest, plus is necessary to make it sooner due to our tech_tree starting sooner in history or rather bronze working is quite late, maybe stone tools are enough or something to carve tree paths (i did not check though but anyways etc hopefully accurate enough or relevant enough for our needs and game and mod in advciv-sas hopefully fits well anyways etc anyways etc anyways etc...), was TECH_IRON_WORKING -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
