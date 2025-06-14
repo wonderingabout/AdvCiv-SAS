@@ -710,7 +710,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 				<iRandApp4>0</iRandApp4>
 			</Rands>
 			<iPlayer>0</iPlayer>
-			<!-- custom: buff water ressources, and molluscs should be more general and widespread than clam(s) alone is(are?) anyways etc, was 32 -->
+			<!-- custom: buff water ressources, and molluscs should be more general and widespread than clam(s) alone is(are?) anyways etc, was 0 / 32 -->
 			<iTilesPer>24</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>1</iUnique>
@@ -869,8 +869,8 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
+			<!-- custom: buff water ressources, less pronounced in less general ressources/bonsues (as fish and mollusc are for example) (if any other(s) such bonuses exist in civ4 in our civ4 mod advciv-sas at least anyways etc), was 0 / 32 -->
 			<iPlayer>0</iPlayer>
-			<!-- custom: buff water ressources, less pronounced in less general ressources/bonsues (as fish and mollusc are for example) (if any other(s) such bonuses exist in civ4 in our civ4 mod advciv-sas at least anyways etc), was 32 -->
 			<iTilesPer>30</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>1</iUnique>
@@ -983,10 +983,10 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 				<iRandApp3>0</iRandApp3>
 				<iRandApp4>0</iRandApp4>
 			</Rands>
+			<!-- custom: buff water ressources, and fish as a general bonus/ressource should still be quite widespread ; 0 / 24 may still be a tiny bit too high possibly, reduce to 0 / 25 anyways etc, was originally 0 / 35 if i am not mistaken in base advciv code at least as of now anyways etc -->
 			<iPlayer>0</iPlayer>
-			<!-- custom: buff water ressources, and fish as a general bonus/ressource should still be quite widespread, was 35 -->
 			<!-- advc.129: was 32 -->
-			<iTilesPer>24</iTilesPer>
+			<iTilesPer>25</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>1</iUnique>
 			<iGroupRange>0</iGroupRange>
@@ -1957,9 +1957,9 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 				<iRandApp4>0</iRandApp4>
 			</Rands>
 			<!-- custom: reducing iPlayer to 0 if need be to make it player-independent too if i am not mistaken and flat, always constant spanwing, anyways etc, was 67 -->
+			<!-- custom: buff water ressources, less pronounced in less general ressources/bonsues (as fish and mollusc are for example) (if any other(s) such bonuses exist in civ4 in our civ4 mod advciv-sas at least anyways etc), but since it was 0, using a higher than 0 value to not disable it if i am not mistaken according to/as said in (english verison rather translated web page using google chrome (for example is what i used anyways etc, see docs for details anyways etc) https://gforestshade.github.io/kujira/post/civ4bonusinfos/#itilesper, was 67 / 0 ; after tweaking it to 0 / 26 seems still a bit too high in frequency, whale appears a bit too often anyways etc, reduce it a bit now from 0 / 26 anyways etc to value(s) below anyways etc anyways etc anyways etc -->
 			<iPlayer>0</iPlayer>
-			<!-- custom: buff water ressources, less pronounced in less general ressources/bonsues (as fish and mollusc are for example) (if any other(s) such bonuses exist in civ4 in our civ4 mod advciv-sas at least anyways etc), but since it was 0, using a higher than 0 value to not disable it if i am not mistaken according to/as said in (english verison rather translated web page using google chrome (for example is what i used anyways etc, see docs for details anyways etc) https://gforestshade.github.io/kujira/post/civ4bonusinfos/#itilesper, was 0 -->
-			<iTilesPer>26</iTilesPer>
+			<iTilesPer>28</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>1</iUnique>
 			<iGroupRange>0</iGroupRange>
