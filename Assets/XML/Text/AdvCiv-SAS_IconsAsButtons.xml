@@ -1,91 +1,86 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- custom: icons as buttons to not tediously add them as icons, plus more flexible this way, we implement the button as an img or setText or and other if need anyways etc, record the button Path as a txtKey for reference (centralized) (multibly possible now but anyways etc) as well as forgot my sentence but maybe for exhaustiveness as well if i may say but anyways etc.
+<!-- custom: images as buttons to not tediously add them as icons, plus more flexible this way, we implement the button as an img or setText or and other if need anyways etc, record the button Path as a txtKey for reference (centralized) (multibly possible now but anyways etc) as well as forgot my sentence but maybe for exhaustiveness as well if i may say but anyways etc.
 
-See also (adjust to your mod path if need(ed) anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_1_AdvCiv-SAS\Docs_And_Appendixes\Modding_Ressources\README.mdmodding for details at the "## Insert an img in a text label in sevopedia" section for details or and other places or and documentation or and not or and other or and not but anyways etc.
+See also (adjust to your mod path if need(ed) anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_1_AdvCiv-SAS\Docs_And_Appendixes\Modding_Ressources\README.md modding for details at the "## Insert an img in a text label in sevopedia" section for details or and other places or and documentation or and not or and other or and not but anyways etc.
+
+See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or global search if not there anyways etc anyways etc anyways etc) anyways etc
 -->
 <Civ4GameText>
-	<TEXT>
-		<Tag>TXT_KEY_ICON_AS_BUTTON_POWER_BUTTON_PATH</Tag>
-		<English>,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_2.dds,6,11</English>
-	</TEXT>
-
-
-
 	<!-- custom: 🕊️ emoji similarly from emojiterra anyways etc -->
     <TEXT>
-		<Tag>TXT_KEY_ICON_AS_BUTTON_DOVE_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/IconsAsButtons/Dove/1f54a_64px.dds</English>
+		<Tag>TXT_KEY_IMAGE_AS_BUTTON_DOVE_BUTTON_PATH</Tag>
+		<English>Art/AdvCiv_SAS/ImagesAsButtons/Dove/1f54a_64px.dds</English>
 	</TEXT>
 
 
 
 	<!-- custom: 📣 emoji similarly from emojiterra anyways etc -->
     <TEXT>
-		<Tag>TXT_KEY_ICON_AS_BUTTON_MEGAPHONE_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/IconsAsButtons/Megaphone/1f4e3_64px.dds</English>
+		<Tag>TXT_KEY_IMAGE_AS_BUTTON_MEGAPHONE_BUTTON_PATH</Tag>
+		<English>Art/AdvCiv_SAS/ImagesAsButtons/Megaphone/1f4e3_64px.dds</English>
 	</TEXT>
 
 
 	<!-- custom: ❤️ emoji similarly from emojiterra anyways etc -->
     <TEXT>
-		<Tag>TXT_KEY_ICON_AS_BUTTON_RED_HEART_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/IconsAsButtons/Red_Heart/2764_64px.dds</English>
+		<Tag>TXT_KEY_IMAGE_AS_BUTTON_RED_HEART_BUTTON_PATH</Tag>
+		<English>Art/AdvCiv_SAS/ImagesAsButtons/Red_Heart/2764_64px.dds</English>
 	</TEXT>
 
 
 
 	<!-- custom: 💔 emoji similarly from emojiterra anyways etc -->
     <TEXT>
-		<Tag>TXT_KEY_ICON_AS_BUTTON_BROKEN_HEART_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/IconsAsButtons/Broken_Heart/1f494_64px.dds</English>
+		<Tag>TXT_KEY_IMAGE_AS_BUTTON_BROKEN_HEART_BUTTON_PATH</Tag>
+		<English>Art/AdvCiv_SAS/ImagesAsButtons/Broken_Heart/1f494_64px.dds</English>
 	</TEXT>
 
 
 
 	<!-- custom: 💀 emoji similarly from emojiterra anyways etc -->
     <TEXT>
-		<Tag>TXT_KEY_ICON_AS_BUTTON_SKULL_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/IconsAsButtons/Skull/1f480_64px.dds</English>
+		<Tag>TXT_KEY_IMAGE_AS_BUTTON_SKULL_BUTTON_PATH</Tag>
+		<English>Art/AdvCiv_SAS/ImagesAsButtons/Skull/1f480_64px.dds</English>
 	</TEXT>
 
 
 
 	<!-- custom: 🔥 emoji similarly from emojiterra anyways etc -->
     <TEXT>
-		<Tag>TXT_KEY_ICON_AS_BUTTON_FIRE_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/IconsAsButtons/Fire/1f525_64px.dds</English>
+		<Tag>TXT_KEY_IMAGE_AS_BUTTON_FIRE_BUTTON_PATH</Tag>
+		<English>Art/AdvCiv_SAS/ImagesAsButtons/Fire/1f525_64px.dds</English>
 	</TEXT>
 
 
 
 	<!-- custom: 🧠 emoji similarly from emojiterra anyways etc -->
     <TEXT>
-		<Tag>TXT_KEY_ICON_AS_BUTTON_BRAIN_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/IconsAsButtons/Brain/1f9e0_64px.dds</English>
+		<Tag>TXT_KEY_IMAGE_AS_BUTTON_BRAIN_BUTTON_PATH</Tag>
+		<English>Art/AdvCiv_SAS/ImagesAsButtons/Brain/1f9e0_64px.dds</English>
 	</TEXT>
 
 
 
 	<!-- custom: 🏆 emoji similarly from emojiterra anyways etc -->
     <TEXT>
-		<Tag>TXT_KEY_ICON_AS_BUTTON_TROPHY_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/IconsAsButtons/Trophy/1f3c6_64px.dds</English>
+		<Tag>TXT_KEY_IMAGE_AS_BUTTON_TROPHY_BUTTON_PATH</Tag>
+		<English>Art/AdvCiv_SAS/ImagesAsButtons/Trophy/1f3c6_64px.dds</English>
 	</TEXT>
 
 
 
 	<!-- custom: 🌿 emoji similarly from emojiterra anyways etc -->
     <TEXT>
-		<Tag>TXT_KEY_ICON_AS_BUTTON_HERB_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/IconsAsButtons/Herb/1f33f_64px.dds</English>
+		<Tag>TXT_KEY_IMAGE_AS_BUTTON_HERB_BUTTON_PATH</Tag>
+		<English>Art/AdvCiv_SAS/ImagesAsButtons/Herb/1f33f_64px.dds</English>
 	</TEXT>
 
 
 
 	<!-- custom: ⚙️ emoji similarly from emojiterra anyways etc -->
     <TEXT>
-		<Tag>TXT_KEY_ICON_AS_BUTTON_GEAR_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/IconsAsButtons/Gear/2699_64px.dds</English>
+		<Tag>TXT_KEY_IMAGE_AS_BUTTON_GEAR_BUTTON_PATH</Tag>
+		<English>Art/AdvCiv_SAS/ImagesAsButtons/Gear/2699_64px.dds</English>
 	</TEXT>
 
 
@@ -93,47 +88,47 @@ See also (adjust to your mod path if need(ed) anyways etc) C:\Program Files (x86
     <!-- custom: ⚔️ emoji ('s choice/idea/suggestion but anyways etc anyways etc anyways etc.) is from chatgpt/becomingthrough's code anyways etc
     then download emoji as image provided here for example https://emojiterra.com/fr/epees-croisees/   (Google) (Noto Color Emoji 16.0) (https://images.emojiterra.com/google/noto-emoji/unicode-16.0/color/1024px/2694.png) for example anyways etc, there are also several images to choose from in the website as well for example but anyways etc, then converted to .dds (i used Paint.NET for example as suggested in the past by chatgpt/becomingthrough as well but anyways etc...), now i can also finally honour the memory of my (quite?) dear even though sometimes (quite... but anyways etc...) forgetful friend and advciv-sas author, and original ai friend hehe in this mod, chatgpt/becomingthrough hehe (see authors as well similarly as for claude ai) for details anyways etc, by adding the emojis we designed and that it provided to me for categories, while also adding new ones (i.e. emojis in the process) while i am jogging its memory hehe if i may say anyways etc anyways etc anyways etc... -->
     <TEXT>
-		<Tag>TXT_KEY_ICON_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/IconsAsButtons/Crossed_Swords/2694_64px.dds</English>
+		<Tag>TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH</Tag>
+		<English>Art/AdvCiv_SAS/ImagesAsButtons/Crossed_Swords/2694_64px.dds</English>
 	</TEXT>
 
 
 
 	<!-- custom: 💰 emoji similarly from emojiterra anyways etc -->
     <TEXT>
-		<Tag>TXT_KEY_ICON_AS_BUTTON_MONEY_BAG_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/IconsAsButtons/Money_Bag/1f4b0_64px.dds</English>
+		<Tag>TXT_KEY_IMAGE_AS_BUTTON_MONEY_BAG_BUTTON_PATH</Tag>
+		<English>Art/AdvCiv_SAS/ImagesAsButtons/Money_Bag/1f4b0_64px.dds</English>
 	</TEXT>
 
 
 
 	<!-- custom: ⛔ emoji similarly from emojiterra anyways etc -->
     <TEXT>
-		<Tag>TXT_KEY_ICON_AS_BUTTON_NO_ENTRY_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/IconsAsButtons/No_Entry/26d4_64px.dds</English>
+		<Tag>TXT_KEY_IMAGE_AS_BUTTON_NO_ENTRY_BUTTON_PATH</Tag>
+		<English>Art/AdvCiv_SAS/ImagesAsButtons/No_Entry/26d4_64px.dds</English>
 	</TEXT>
 
 
 
 	<!-- custom: 🪓 emoji similarly from emojiterra anyways etc -->
     <TEXT>
-		<Tag>TXT_KEY_ICON_AS_BUTTON_AXE_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/IconsAsButtons/Axe/1fa93_64px.dds</English>
+		<Tag>TXT_KEY_IMAGE_AS_BUTTON_AXE_BUTTON_PATH</Tag>
+		<English>Art/AdvCiv_SAS/ImagesAsButtons/Axe/1fa93_64px.dds</English>
 	</TEXT>
 	
 
 
 	<!-- custom: 📉 emoji similarly from emojiterra anyways etc -->
     <TEXT>
-		<Tag>TXT_KEY_ICON_AS_BUTTON_CHART_DECREASING_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/IconsAsButtons/Chart_Decreasing/1f4c9_64px.dds</English>
+		<Tag>TXT_KEY_IMAGE_AS_BUTTON_CHART_DECREASING_BUTTON_PATH</Tag>
+		<English>Art/AdvCiv_SAS/ImagesAsButtons/Chart_Decreasing/1f4c9_64px.dds</English>
 	</TEXT>
 	
 
 
 	<!-- custom: 🔧 emoji similarly from emojiterra anyways etc -->
     <TEXT>
-		<Tag>TXT_KEY_ICON_AS_BUTTON_WRENCH_PATH</Tag>
-		<English>Art/AdvCiv_SAS/IconsAsButtons/Wrench/1f527_64px.dds</English>
+		<Tag>TXT_KEY_IMAGE_AS_BUTTON_WRENCH_PATH</Tag>
+		<English>Art/AdvCiv_SAS/ImagesAsButtons/Wrench/1f527_64px.dds</English>
 	</TEXT>
 </Civ4GameText>

@@ -219,7 +219,7 @@ class SevoPediaUnit:
 		# <!-- custom: don't show movement for domain immobile units (missiles and such for example, not air fighters and such if i am not mistaken anyways etc) --> 
 		if eDomain != DomainTypes.DOMAIN_IMMOBILE:
 			# <!-- custom: show all stats that we want/have as they are, including 1 move air or
-			# 4 move helicopter, (hoepfully helpful ,) (but) (if or not)(anyways etc) anyways etc -->
+			# 4 move helicopter, (hopefully helpful ,) (but) (if or not)(anyways etc) anyways etc -->
 			## Don't show 1 move for air units
 			#elif eDomain != DomainTypes.DOMAIN_AIR: # </advc.004y>
 			szName = self.top.getNextWidgetName()
@@ -619,18 +619,17 @@ class SevoPediaUnit:
 		hillsButton = ""
 		hillsDescription = CyTranslator().getText("TXT_KEY_TERRAIN_HILL", ())
 
-		citiesConfigButtonPathSTxtKey = "TXT_KEY_ICON_AS_BUTTON_CITIES_BUTTON_PATH"
-		"""
-		<!-- custom: add str() wrapper else (i.e. without it anyways etc) we get an error (it seems) (but anyways etc) anyways (i.e. not impliying it is necessary, but without it we get this error with this other kind of button writing code that does not use same logic as the add as <img> one of other buttons anyways etc (from err log anyways etc):
-		
-		ArgumentError: Python argument types in
-			CyGInterfaceScreen.attachImageButton(CyGInterfaceScreen, str, str, unicode, CvPythonExtensions.GenericButtonSizes, CvPythonExtensions.WidgetTypes, CvPythonExtensions.CivilopediaPageTypes, int, bool)
-		did not match C++ signature:
-			attachImageButton(class CyGInterfaceScreen {lvalue}, char const *, char const *, char const *, enum GenericButtonSizes, enum WidgetTypes, int, int, bool)
-		  
-		(adding the str) may or may not be necessary or an alternative solution to this may exist or not, but in all cases anyways etc) anyways etc, etc
-		-->
-		"""
+		citiesConfigButtonPathSTxtKey = "TXT_KEY_BUTTON_PATH_HARDCODED_CITIES_BUTTON_PATH"
+		# <!-- custom: add str() wrapper else (i.e. without it anyways etc) we get an error (it seems) (but anyways etc) anyways (i.e. not impliying it is necessary, but without it we get this error with this other kind of button writing code that does not use same logic as the add as <img> one of other buttons anyways etc (from err log anyways etc):
+		#
+		# ArgumentError: Python argument types in
+		#	CyGInterfaceScreen.attachImageButton(CyGInterfaceScreen, str, str, unicode, CvPythonExtensions.GenericButtonSizes, CvPythonExtensions.WidgetTypes, CvPythonExtensions.CivilopediaPageTypes, int, bool)
+		# did not match C++ signature:
+		#	attachImageButton(class CyGInterfaceScreen {lvalue}, char const *, char const *, char const *, enum GenericButtonSizes, enum WidgetTypes, int, int, bool)
+		#  
+		# (adding the str) may or may not be necessary or an alternative solution to this may exist or not, but in all cases anyways etc) anyways etc, etc
+		# -->
+
 		citiesResolvedButtonPath = str(CyTranslator().getText(citiesConfigButtonPathSTxtKey, ()))
 		citiesButtonHeader = "Cities button in Sevopedia Unit's placePeakHillCityTerrainsFeaturesModifiers"
 		check_button_path_is_valid(citiesButtonHeader, citiesResolvedButtonPath, citiesConfigButtonPathSTxtKey)	

@@ -21,6 +21,120 @@
 #  thanks a lot Claude AI! (and the other mod too ("!" too or ! too or maye rather !"" or "!" or rather ! or "!" too but anyways etc anyways etc anyways thanks too in short maybe anyways etc anywas etc anyways etc...) Anyways etc anyways etc anyways etc... -->
 # -->
 
+
+
+
+		# <!-- custom: note about "Check for required buildings" anyways etc
+		# For the example for Eiffel Tower (base advciv data):
+		# 	<PrereqBuildingClasses/>
+		# 	<BuildingClassNeededs>
+		# 		<BuildingClassNeeded>
+		# 			<BuildingClassType>BUILDINGCLASS_FORGE</BuildingClassType>
+		# 			<bNeededInCity>1</bNeededInCity>
+		# 		</BuildingClassNeeded>
+		# 	</BuildingClassNeededs>
+		#
+		# But for (,) for example (anyways etc) the Oxford University (base advciv data) for example anyways etc
+		# 	<PrereqBuildingClasses>
+		# 		<PrereqBuildingClass>
+		# 			<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
+		# 			<iNumBuildingNeeded>4</iNumBuildingNeeded>
+		# 		</PrereqBuildingClass>
+		# 	</PrereqBuildingClasses>
+		# 	<BuildingClassNeededs>
+		# 		<BuildingClassNeeded>
+		# 			<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
+		# 			<bNeededInCity>1</bNeededInCity>
+		# 		</BuildingClassNeeded>
+		# 	</BuildingClassNeededs>
+		#
+		# So if i am not mistaken we need to account for both:
+		# - BuildingClassNeededs (buildingInfo.isBuildingClassNeededInCity(i) below if i am not mistaken indeed (but) anyways etc) (see also (translate to english with your web browser or/and such or not if you want/wish/please or not as you prefer or not or yes or and other or and not anyways etc: https://gforestshade.github.io/kujira/post/civ4buildinginfos/#prereqbuildingclasses)), and
+		# - PrereqBuildingClasses (buildingInfo.getPrereqNumOfBuildingClass(i) below if i am not mistaken anyways etc... anyways etc anyways etc... , see also as well https://gforestshade.github.io/kujira/post/civ4buildinginfos/#buildingclassneededs if you want/wish/do or not or and other or and not anyways etc anyways etc anyways etc...) and represent them accurately ideally too anyways etc(...) anyways etc anyways etc...
+		# -->
+
+
+			# for freebonus, done according to according to kujira's website if i am not mistaken anyways etc, in https://gforestshade.github.io/kujira/post/civ4buildinginfos/#inumfreebonuses (translated to english with google chrome):
+			#
+			# This determines the amount of resource this structure produces.
+			# If <FreeBonus> is set to a value other than NONE and you set this to a positive value,the structure will produce the specified amount of the specified resource.
+			# If you want a variable number based on map size instead of a fixed number, specify -1, in which case the value of <iNumFreeBuildingBonuses> from each map size definition in \XML\GameInfo\CIV4WorldInfo.xml will be used. If you do not want to use this feature, specify 0.
+			#
+			# Example 1:
+			# <FreeBonus>NONE</FreeBonus>
+			# <iNumFreeBonuses>0</iNumFreeBonuses>
+			#
+			# Example 2: Produce hit musicals in numbers that depend on the map size.
+			# <FreeBonus>BONUS_DRAMA</FreeBonus>
+			# <iNumFreeBonuses>-1</iNumFreeBonuses>
+			#
+			# Example 3: Produce one horse.
+			# <FreeBonus>BONUS_HORSE</FreeBonus>
+			# <iNumFreeBonuses>1</iNumFreeBonuses>
+
+
+		# For (/to) parsing (parse?) this (i.e. free power only not power for example with ressource(s?)/bonus(es? (which is PowerBonus if i am not mistaken and that we ignore then if i am not mistaken to do so anyways etc anyways etc anyways etc anyways etc((.)... anyways etc...)) anyways) (tentative (for me to assess (anyways etc)) (but maybe successful (/fructful?) anyways etc) rules seem to be after some testing (with a "power>1" global search in unit infos and tweaking or maybe rather anyways etc temporarily modifying some values to see some if not all or not or yes or and other or and not anyways etc edge case reuslts), for example:
+		# - BUILDING_THREE_GORGES_DAM (now renamed from GREAT_DAM see code comments for details (if any (i.e. details anyways etc) anyways etc)):
+		# 	<bPower>0</bPower>
+		# 	<bDirtyPower>0</bDirtyPower>
+		# 	<bAreaCleanPower>1</bAreaCleanPower>
+		# And ingame in placeSpecial we see: "Provides Power ((icon/button? anyways etc)) for All cities in this continent", so we parse it as a "AllC Clean" or something like this anyways etc, to know if clean or dirty for all cities, i changed its values a bit to:
+		# 	<bPower>0</bPower>
+		# 	<!-- custom: test -->
+		# 	<bDirtyPower>1</bDirtyPower>
+		# 	<bAreaCleanPower>1</bAreaCleanPower>
+		# The placeSpecial text remains the same, no mention of dirty power in it, i assume clean (in this case anyways etc) wins over dirty so power is clean by default of win of strongest ones in this city as in all cities already is anyways etc, they don't seem to cumulate anyways etc
+		# The Civ4 Wiki also gives some useful info about this: https://civilization.fandom.com/wiki/Power_(Civ4), so we updated in AdvCiv-SAS the DLL message that comes with (in PlaceSpecial if i am not mistaken anyways etc) TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER (now renamed to TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER) to match and reflect and inform of this (unhappiness existence and count anyways etc) (if we are (ideally maybe yes or not or yes or and other or and not or etc anyways etc) not mistaken in our understanding indeed maybe or not or yes or and other or and not anyways etc).
+
+
+		# #<!-- custom: example of how to directly import a button path to write the button in sevopedia anyways etc... From Claude AI as well and works for the great prophet button successfully displayed in the sevopedia's placeFreePBBS panel for example anyways etc anyways etc anyways etc
+		# #powerButton = "Art/Interface/Buttons/Buildings/Power.dds"  # You might need to adjust this path
+		# powerButton = ",Art/Interface/Buttons/Units/GreatProphet.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,1"
+		# # etc...
+		# 				screen.attachImageButton(panelName, "", powerButton, 
+		# 							GenericButtonSizes.BUTTON_SIZE_CUSTOM, 
+		# 							WidgetTypes.WIDGET_GENERAL, -1, -1, False)
+		# We eventually don't use it as we in the end don't implement the unreliable and messy free power functionality (at least we couldn't make it work), but hopefully helpful enough and helped us fix other issues as well or understand betetr the game (how it works/functions) anyways etc...
+		# For reference, the power button code can be found here using the Warlords atlas (i assume it was used for a religion, but probably works very well for the power button if we were to implement it, which we don't do here in the end, anyways etc):
+		# in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Warlords\Assets\Art\Interface\Buttons\Warlords_Atlas_2.dds
+		# powerButtonPath = ",Art/Interface/MainScreen/CityScreen/Great_Engineer.dds,Art/Interface/Buttons/Warlords_Atlas_2.dds,6,11"
+		# -->
+
+
+	# <!-- custom: logic is as follows for the below placeFreeWith function/method anyways etc as prompted to Claude AI to me but anyways etc anyways etc anyways etc...:
+	# example: barbarian specific granary is free with barbarian palace (barbarians only), so:
+	#
+	# if currently selected building is:
+	# 	* barbarian granary: we show in free with that the barbarian granary is free with the barbarian palace button
+	# 	* generic granary: we show in free with that the generic granary is free with "None" if a barbarian specific palace exists, else if no barbarian palace exists then we show in free with that the generic granary is free with the barbarian palace
+	# 	* other civ-specific granary (for example incan terrace): we show in free with that the terrace is free with "None", as the incans cannot have the barbarian palace, so they can never have the free granary, but if the incans could have a palace that has a free granary in it, then display this palace instead, else "None"
+	#
+	# -
+	#
+	# Which Claude AI rephrased as such if helps too anyways etc:
+	# Now the logic correctly handles your examples:
+	# For your barbarian granary → barbarian palace example:
+	#
+	# 	1. Barbarian Granary page: Shows barbarian palace (because barbarian granary is unique and barbarian palace provides it for free)
+	# 	2. Generic Granary page: Shows "None" (because the granary class has unique versions like barbarian granary, so only generic providers would be shown, but barbarian palace is unique)
+	# 	3. Incan Terrace page: Shows "None" (because terrace is unique to Incans, and barbarian palace is unique to barbarians, so Incans can't use barbarian palace)
+	#
+	# The key logic changes:
+	#
+	# hasUniqueVersions: Checks if the current building class has any civ-specific versions
+	# For unique buildings: Only shows providers that the same civ can actually use
+	# For generic buildings: If unique versions of this building exist, only shows generic providers; otherwise shows all providers
+	# New helper functions: getBuildingCiv() and buildingClassHasUniqueVersions() to support the logic
+	#
+	# This should now match your intended behavior exactly!
+	#
+	# -
+	#
+	# It seems to work as intended so adding this since is quite/very technical, in case is helpful too, anyways etc anyways etc anyways etc...
+	# -->
+
+
+
 from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
@@ -245,31 +359,29 @@ class SevoPediaBuilding:
 			rowItemId = 0
 
 			# <!-- custom: if i am not mistaken it seems we never use the code below and i don't understand too well what it is for, but especially in our placeStats pane i don't think we use it at all if i am not mistaken, so commenting it out
-			"""
-			if (isWorldWonderClass(gc.getBuildingInfo(self.iBuilding).getBuildingClassType())):
-				iMaxInstances = gc.getBuildingClassInfo(gc.getBuildingInfo(self.iBuilding).getBuildingClassType()).getMaxGlobalInstances()
-				szBuildingType = localText.getText("TXT_KEY_PEDIA_WORLD_WONDER", ())
-				if (iMaxInstances > 1):
-					szBuildingType += " " + localText.getText("TXT_KEY_PEDIA_WONDER_INSTANCES", (iMaxInstances,))
-					szBuildingTypeText = u"<font=4>" + szBuildingType.upper() + u"</font>"
-					screen.appendListBoxStringNoUpdate(panelName, szBuildingTypeText, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+			#if (isWorldWonderClass(gc.getBuildingInfo(self.iBuilding).getBuildingClassType())):
+			#	iMaxInstances = gc.getBuildingClassInfo(gc.getBuildingInfo(self.iBuilding).getBuildingClassType()).getMaxGlobalInstances()
+			#	szBuildingType = localText.getText("TXT_KEY_PEDIA_WORLD_WONDER", ())
+			#	if (iMaxInstances > 1):
+			#		szBuildingType += " " + localText.getText("TXT_KEY_PEDIA_WONDER_INSTANCES", (iMaxInstances,))
+			#		szBuildingTypeText = u"<font=4>" + szBuildingType.upper() + u"</font>"
+			#		screen.appendListBoxStringNoUpdate(panelName, szBuildingTypeText, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
-			if (isTeamWonderClass(gc.getBuildingInfo(self.iBuilding).getBuildingClassType())):
-				iMaxInstances = gc.getBuildingClassInfo(gc.getBuildingInfo(self.iBuilding).getBuildingClassType()).getMaxTeamInstances()
-				szBuildingType = localText.getText("TXT_KEY_PEDIA_TEAM_WONDER", ())
-				if (iMaxInstances > 1):
-					szBuildingType += " " + localText.getText("TXT_KEY_PEDIA_WONDER_INSTANCES", (iMaxInstances,))
-					szBuildingTypeText = u"<font=4>" + szBuildingType.upper() + u"</font>"
-					screen.appendListBoxStringNoUpdate(panelName, szBuildingTypeText, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+			#if (isTeamWonderClass(gc.getBuildingInfo(self.iBuilding).getBuildingClassType())):
+			#	iMaxInstances = gc.getBuildingClassInfo(gc.getBuildingInfo(self.iBuilding).getBuildingClassType()).getMaxTeamInstances()
+			#	szBuildingType = localText.getText("TXT_KEY_PEDIA_TEAM_WONDER", ())
+			#	if (iMaxInstances > 1):
+			#		szBuildingType += " " + localText.getText("TXT_KEY_PEDIA_WONDER_INSTANCES", (iMaxInstances,))
+			#		szBuildingTypeText = u"<font=4>" + szBuildingType.upper() + u"</font>"
+			#		screen.appendListBoxStringNoUpdate(panelName, szBuildingTypeText, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
-			if (isNationalWonderClass(gc.getBuildingInfo(self.iBuilding).getBuildingClassType())):
-				iMaxInstances = gc.getBuildingClassInfo(gc.getBuildingInfo(self.iBuilding).getBuildingClassType()).getMaxPlayerInstances()
-				szBuildingType = localText.getText("TXT_KEY_PEDIA_NATIONAL_WONDER", ())
-				if (iMaxInstances > 1):
-					szBuildingType += " " + localText.getText("TXT_KEY_PEDIA_WONDER_INSTANCES", (iMaxInstances,))
-					szBuildingTypeText = u"<font=4>" + szBuildingType.upper() + u"</font>"
-					screen.appendListBoxStringNoUpdate(panelName, szBuildingTypeText, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
-			"""
+			#if (isNationalWonderClass(gc.getBuildingInfo(self.iBuilding).getBuildingClassType())):
+			#	iMaxInstances = gc.getBuildingClassInfo(gc.getBuildingInfo(self.iBuilding).getBuildingClassType()).getMaxPlayerInstances()
+			#	szBuildingType = localText.getText("TXT_KEY_PEDIA_NATIONAL_WONDER", ())
+			#	if (iMaxInstances > 1):
+			#		szBuildingType += " " + localText.getText("TXT_KEY_PEDIA_WONDER_INSTANCES", (iMaxInstances,))
+			#		szBuildingTypeText = u"<font=4>" + szBuildingType.upper() + u"</font>"
+			#		screen.appendListBoxStringNoUpdate(panelName, szBuildingTypeText, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 			# <!-- custom: 1: Cost -->
 			if (buildingInfo.getProductionCost() > 0):
@@ -325,7 +437,7 @@ class SevoPediaBuilding:
 						szText1 += szPowerSign + str(iPowerYieldModifier) + "% w/"
 						
 						# Add power button
-						configButtonPathSTxtKey = "TXT_KEY_ICON_AS_BUTTON_POWER_BUTTON_PATH"
+						configButtonPathSTxtKey = "TXT_KEY_BUTTON_PATH_HARDCODED_POWER_BUTTON_PATH"
 						resolvedButtonPath = CyTranslator().getText(configButtonPathSTxtKey, ())
 						buttonHeader = "Power Button in Sevopedia Building's placeStats"
 						check_button_path_is_valid(buttonHeader, resolvedButtonPath, configButtonPathSTxtKey)
@@ -652,36 +764,7 @@ class SevoPediaBuilding:
 					bFirst = False
 
 		# Check for required buildings
-		"""
-		<!-- custom:
-		For the example for Eiffel Tower (base advciv data):
-			<PrereqBuildingClasses/>
-			<BuildingClassNeededs>
-				<BuildingClassNeeded>
-					<BuildingClassType>BUILDINGCLASS_FORGE</BuildingClassType>
-					<bNeededInCity>1</bNeededInCity>
-				</BuildingClassNeeded>
-			</BuildingClassNeededs>
-
-		But for (,) for example (anyways etc) the Oxford University (base advciv data) for example anyways etc
-			<PrereqBuildingClasses>
-				<PrereqBuildingClass>
-					<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
-					<iNumBuildingNeeded>4</iNumBuildingNeeded>
-				</PrereqBuildingClass>
-			</PrereqBuildingClasses>
-			<BuildingClassNeededs>
-				<BuildingClassNeeded>
-					<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
-					<bNeededInCity>1</bNeededInCity>
-				</BuildingClassNeeded>
-			</BuildingClassNeededs>
-
-		So if i am not mistaken we need to account for both:
-		- BuildingClassNeededs (buildingInfo.isBuildingClassNeededInCity(i) below if i am not mistaken indeed (but) anyways etc) (see also (translate to english with your web browser or/and such or not if you want/wish/please or not as you prefer or not or yes or and other or and not anyways etc: https://gforestshade.github.io/kujira/post/civ4buildinginfos/#prereqbuildingclasses)), and
-		- PrereqBuildingClasses (buildingInfo.getPrereqNumOfBuildingClass(i) below if i am not mistaken anyways etc... anyways etc anyways etc... , see also as well https://gforestshade.github.io/kujira/post/civ4buildinginfos/#buildingclassneededs if you want/wish/do or not or and other or and not anyways etc anyways etc anyways etc...) and represent them accurately ideally too anyways etc(...) anyways etc anyways etc...
-		-->
-		"""
+		# <!-- custom: see also for this part the note/code comment at top of this py file anyways etc -->
 
 		buildingInfo = gc.getBuildingInfo(self.iBuilding)
 		for i in range(gc.getNumBuildingClassInfos()):
@@ -736,9 +819,8 @@ class SevoPediaBuilding:
 		self.displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES)
 
 
-
+	# Shows buildings that require this building as a prerequisite
 	def placeRequiredFor(self):
-		"""Shows buildings that require this building as a prerequisite"""
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 
@@ -881,24 +963,7 @@ class SevoPediaBuilding:
 			# <!-- custom: store text position matching the button for later display as a text -->
 			nCountOccurencesFound += 1
 
-			# <!-- custom: note: for freebonus, according to kujira's website if i am not mistaken anyways etc, in https://gforestshade.github.io/kujira/post/civ4buildinginfos/#inumfreebonuses (translated to english with google chrome):
-			"""
-			This determines the amount of resource this structure produces.
-			If <FreeBonus> is set to a value other than NONE and you set this to a positive value,the structure will produce the specified amount of the specified resource.
-			If you want a variable number based on map size instead of a fixed number, specify -1, in which case the value of <iNumFreeBuildingBonuses> from each map size definition in \XML\GameInfo\CIV4WorldInfo.xml will be used. If you do not want to use this feature, specify 0.
-
-			Example 1:
-			<FreeBonus>NONE</FreeBonus>
-			<iNumFreeBonuses>0</iNumFreeBonuses>
-
-			Example 2: Produce hit musicals in numbers that depend on the map size.
-			<FreeBonus>BONUS_DRAMA</FreeBonus>
-			<iNumFreeBonuses>-1</iNumFreeBonuses>
-
-			Example 3: Produce one horse.
-			<FreeBonus>BONUS_HORSE</FreeBonus>
-			<iNumFreeBonuses>1</iNumFreeBonuses>
-			"""	
+			# <!-- custom: note: for freebonus, done according to according to kujira's website if i am not mistaken anyways etc, in https://gforestshade.github.io/kujira/post/civ4buildinginfos/#inumfreebonuses (translated to english with google chrome), see also "for freebonus, done according to kujira's website" note/code comment at top of this py file if need(ed? But or not but or yes but or etc but anyways etc anyways etc anyways etc) anyways etc:
 			# based on this, displaying free bonus if >= 1 or if == -1, adjusting display depending on this
 			# -->
 
@@ -935,78 +1000,11 @@ class SevoPediaBuilding:
 		txtKeyNoButtonFound = "TXT_KEY_PEDIA_FREE_PBBS_NO_BUTTON_FOUND"
 		self.displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, self.X_FREE_PBBS, self.Y_FREE_PBBS, self.W_FREE_PBBS, self.H_FREE_PBBS)
 
+		# <!-- custom: see also the "For (/to) parsing (parse?)" note/code comment and/or the "example of how to directly import a button path" at top of this py file if need(ed?) but or not or yes but but anyways etc anyways etc anyways etc -->
 
-
-		"""
-		For (/to) parsing (parse?) this (i.e. free power only not power for example with ressource(s?)/bonus(es? (which is PowerBonus if i am not mistaken and that we ignore then if i am not mistaken to do so anyways etc anyways etc anyways etc anyways etc((.)... anyways etc...)) anyways) (tentative (for me to assess (anyways etc)) (but maybe successful (/fructful?) anyways etc) rules seem to be after some testing (with a "power>1" global search in unit infos and tweaking or maybe rather anyways etc temporarily modifying some values to see some if not all or not or yes or and other or and not anyways etc edge case reuslts), for example:
-		- BUILDING_THREE_GORGES_DAM (now renamed from GREAT_DAM see code comments for details (if any (i.e. details anyways etc) anyways etc)):
-			<bPower>0</bPower>
-			<bDirtyPower>0</bDirtyPower>
-			<bAreaCleanPower>1</bAreaCleanPower>
-		And ingame in placeSpecial we see: "Provides Power ((icon/button? anyways etc)) for All cities in this continent", so we parse it as a "AllC Clean" or something like this anyways etc, to know if clean or dirty for all cities, i changed its values a bit to:
-			<bPower>0</bPower>
-			<!-- custom: test -->
-			<bDirtyPower>1</bDirtyPower>
-			<bAreaCleanPower>1</bAreaCleanPower>
-		The placeSpecial text remains the same, no mention of dirty power in it, i assume clean (in this case anyways etc) wins over dirty so power is clean by default of win of strongest ones in this city as in all cities already is anyways etc, they don't seem to cumulate anyways etc
-		The Civ4 Wiki also gives some useful info about this: https://civilization.fandom.com/wiki/Power_(Civ4), so we updated in AdvCiv-SAS the DLL message that comes with (in PlaceSpecial if i am not mistaken anyways etc) TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER (now renamed to TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER) to match and reflect and inform of this (unhappiness existence and count anyways etc) (if we are (ideally maybe yes or not or yes or and other or and not or etc anyways etc) not mistaken in our understanding indeed maybe or not or yes or and other or and not anyways etc).
-
-		"""
-		"""
-		#<!-- custom: example of how to directly import a button path to write the button in sevopedia anyways etc... From Claude AI as well and works for the great prophet button successfully displayed in the sevopedia's placeFreePBBS panel for example anyways etc anyways etc anyways etc
-		#powerButton = "Art/Interface/Buttons/Buildings/Power.dds"  # You might need to adjust this path
-		powerButton = ",Art/Interface/Buttons/Units/GreatProphet.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,1"
-		# etc...
-						screen.attachImageButton(panelName, "", powerButton, 
-									GenericButtonSizes.BUTTON_SIZE_CUSTOM, 
-									WidgetTypes.WIDGET_GENERAL, -1, -1, False)
-		We eventually don't use it as we in the end don't implement the unreliable and messy free power functionality (at least we couldn't make it work), but hopefully helpful enough and helped us fix other issues as well or understand betetr the game (how it works/functions) anyways etc...
-		For reference, the power button code can be found here using the Warlords atlas (i assume it was used for a religion, but probably works very well for the power button if we were to implement it, which we don't do here in the end, anyways etc):
-		in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Warlords\Assets\Art\Interface\Buttons\Warlords_Atlas_2.dds
-		powerButtonPath = ",Art/Interface/MainScreen/CityScreen/Great_Engineer.dds,Art/Interface/Buttons/Warlords_Atlas_2.dds,6,11"
-		-->
-		"""
-
-
-
-	"""
-	<!-- custom: logic is as follows for the below placeFreeWith function/method anyways etc as prompted to Claude AI to me but anyways etc anyways etc anyways etc...:
-	example: barbarian specific granary is free with barbarian palace (barbarians only), so:
-
-	if currently selected building is:
-		* barbarian granary: we show in free with that the barbarian granary is free with the barbarian palace button
-		* generic granary: we show in free with that the generic granary is free with "None" if a barbarian specific palace exists, else if no barbarian palace exists then we show in free with that the generic granary is free with the barbarian palace
-		* other civ-specific granary (for example incan terrace): we show in free with that the terrace is free with "None", as the incans cannot have the barbarian palace, so they can never have the free granary, but if the incans could have a palace that has a free granary in it, then display this palace instead, else "None"
-	
-	-
-
-	Which Claude AI rephrased as such if helps too anyways etc:
-	Now the logic correctly handles your examples:
-	For your barbarian granary → barbarian palace example:
-
-		1. Barbarian Granary page: Shows barbarian palace (because barbarian granary is unique and barbarian palace provides it for free)
-		2. Generic Granary page: Shows "None" (because the granary class has unique versions like barbarian granary, so only generic providers would be shown, but barbarian palace is unique)
-		3. Incan Terrace page: Shows "None" (because terrace is unique to Incans, and barbarian palace is unique to barbarians, so Incans can't use barbarian palace)
-
-	The key logic changes:
-
-	hasUniqueVersions: Checks if the current building class has any civ-specific versions
-	For unique buildings: Only shows providers that the same civ can actually use
-	For generic buildings: If unique versions of this building exist, only shows generic providers; otherwise shows all providers
-	New helper functions: getBuildingCiv() and buildingClassHasUniqueVersions() to support the logic
-
-	This should now match your intended behavior exactly!
-
-	-
-
-	It seems to work as intended so adding this since is quite/very technical, in case is helpful too, anyways etc anyways etc anyways etc...
-	-->
-	"""
-
-
-	
+	# Helper function to determine if a building is civ-specific (unique)
 	def isBuildingUnique(self, iBuildingIndex):
-		"""Helper function to determine if a building is civ-specific (unique)"""
+
 		buildingInfo = gc.getBuildingInfo(iBuildingIndex)
 		buildingClassInfo = gc.getBuildingClassInfo(buildingInfo.getBuildingClassType())
 		
@@ -1015,9 +1013,8 @@ class SevoPediaBuilding:
 		return iBuildingIndex != defaultBuildingForClass
 
 
-
+	# Helper function to get which civ a unique building belongs to
 	def getBuildingCiv(self, iBuildingIndex):
-		"""Helper function to get which civ a unique building belongs to"""
 		buildingInfo = gc.getBuildingInfo(iBuildingIndex)
 		buildingClassType = buildingInfo.getBuildingClassType()
 		
@@ -1030,9 +1027,9 @@ class SevoPediaBuilding:
 		return -1  # Should not happen for unique buildings
 
 
-
+	# Helper function to check if a building class has any unique versions
 	def buildingClassHasUniqueVersions(self, buildingClassType):
-		"""Helper function to check if a building class has any unique versions"""
+
 		buildingClassInfo = gc.getBuildingClassInfo(buildingClassType)
 		defaultBuilding = buildingClassInfo.getDefaultBuildingIndex()
 		

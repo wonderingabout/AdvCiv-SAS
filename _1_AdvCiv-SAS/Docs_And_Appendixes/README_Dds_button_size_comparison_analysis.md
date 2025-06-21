@@ -43,7 +43,7 @@ The lines are for example like this, as one may expect (at least for the button 
 		</UnitArtInfo>
 ```
 
-The results, minus the small and ideally not too altering + 2 to icon size i made mistake or maybe not small or yes but anyways etc, that i would ideally redo cleanly but a bit tedious, and hoepfully interpretable if that is a word as in similar enough or maybe rather accurate enough or and other or and not anyways etc, is that:
+The results, minus the small and ideally not too altering + 2 to icon size i made mistake or maybe not small or yes but anyways etc, that i would ideally redo cleanly but a bit tedious, and hopefully interpretable if that is a word as in similar enough or maybe rather accurate enough or and other or and not anyways etc, is that:
 - 1024 seems too pixelated on this 164px icon unit pane's frame
 - gradually as i reduce size to 512, then 256, quality seems to improve, file size is also much smaller which is nice if high enough and best looking
 - then at size 164 which should be a 1:1 ratio with the pane (minus my small mistake that ohpefully didn't alter it too much) anyways etc, it seems that image is a bit blurrier and less nice(ly?) if that is a word looking than 256 x 256 dds one, so 256 seems better and best so far for .dds size on this

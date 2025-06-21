@@ -40,7 +40,6 @@ import os
 import xml.etree.ElementTree as ET
 from datetime import datetime
 import json
-from string import capwords
 
 from Assets.Python.Contrib.Sevopedia.ai_utils_shared_with_civ4 import *
 
@@ -57,6 +56,17 @@ if not ARGV_NO_TESTING:
 						+ str(e))
 else:
 	print("[WARNING] Skipping get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE import due to --notesting flag.")
+
+EXPECTED_OUTPUT_LEADERS_TO_TEST = (
+	# <!-- custom: even if barbarian (same for defaults anyways etc) is not a real leader, its data is useful to make sure we didn't do parsing mistakes or such or to cover more edge cases like <NoWarAttitudeProbs/> or <Flavors/> for example or other unexpected or missing or other or and not value(s) anyways etc anyways etc anyways etc... -->
+	"LEADER_BARBARIAN",
+	"LEADER_DEFAULTS",
+	# <!-- custom: then the rest of the batch/crew or and other i must say or and not or and other or and not but anyways etc... still the staff is here actually i said it now even though is not professional team but anyways etc... -->
+	"LEADER_ALEXANDER",
+	"LEADER_CATHERINE",
+	"LEADER_GANDHI",
+	"LEADER_TOKUGAWA",
+)
 
 # === Logging setup (early capture of all print statements) ===
 copyright_header = "# --- Leaders_data py data module (using Civ4 AdvCiv-SAS's real Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml as a base) ---\n# Created as part of AdvCiv-SAS improvements\n# (c) 2025 wonderingabout & becomingthrough"
@@ -95,16 +105,15 @@ Author: becomingthrough (ChatGPT)
 xml_path = os.path.join("Assets", "XML", "Civilizations", "CIV4LeaderHeadInfos.xml")
 ns = {"civ4": "x-schema:CIV4CivilizationsSchema.xml"}
 
-EXCLUDED_LEADERS_FROM_ATTRIBUTES_AGGREGATION = (
-	"LEADER_DEFAULTS",
-	"LEADER_BARBARIAN",
-)
+EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS = get_excluded_leader_types_from_calculations()
+
 # <-- custom: unused in the excluded leaders from aggregation, still respects stucture as they have a value in these agggegated attributes fields too, and also a negative normalized value would guarantee a crash/error in sevopedia leader if it wee to be used (i.e. if leader_barabrian and/or leader_defaults were not excluded from real sevoepdia leader output anyways etc) -->
 SENTINEL_AGGREGATED_DUMMY_VALUE = -999
 
 # set to False if you want to turn it off
 DEBUG_CONTACT_FLATTENING = False  
 DEBUG_MEMORY_FLATTENING = False
+B_WARN = True
 # <!-- custom: reference point to debug as she has many memory attirbutes for example but not all unless i'm mistaken anyways etc -->
 IS_INSPECT_DEBUG_LEADER = True
 LEADER_TO_INSPECT_IN_DEBUG_OUTPUT = "LEADER_CATHERINE"
@@ -112,23 +121,25 @@ LEADER_TO_INSPECT_IN_DEBUG_OUTPUT = "LEADER_CATHERINE"
 # --- Mappings ---
 
 ATTITUDE_MAP = {
-	# <!-- custom: according to https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#%e5%a4%96%e4%ba%a4%e7%a8%ae%e5%88%a5%e3%81%94%e3%81%a8%e3%81%ae%e5%bf%85%e8%a6%81%e6%85%8b%e5%ba%a6 (translate (website) to english using your web browser or/and other etc) and my revised judgment, "none" attitude type is actually more permissive than furious, meaning even if (ai) leader is furious, as long as (ai) lader is at least furious (meaning effectively always), they will allow or maybe rather not refuse(?) such behaviour or maybe trade rather anyways etc, so it ("none" anyways etc) is scored (i scored it) here as -3 not 3 anymore as i had done before anyways etc. -->
-	"NONE": -3,
-	"ATTITUDE_FURIOUS": -2,
-	"ATTITUDE_ANNOYED": -1,
-	"ATTITUDE_CAUTIOUS": 0,
-	"ATTITUDE_PLEASED": 1,
-	"ATTITUDE_FRIENDLY": 2,
+	# <!-- custom: according to https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#%e5%a4%96%e4%ba%a4%e7%a8%ae%e5%88%a5%e3%81%94%e3%81%a8%e3%81%ae%e5%bf%85%e8%a6%81%e6%85%8b%e5%ba%a6 (translate (website) to english using your web browser or/and other etc) and my revised judgment, "none" attitude type is actually more permissive than furious, meaning even if (ai) leader is furious, as long as (ai) lader is at least furious (meaning effectively always), they will allow or maybe rather not refuse(?) such behaviour or maybe trade rather anyways etc, as for actual values, now that we have in sevopedia leader a parsing directly from xml field for all attitude threshold fields (see sevopedia_helpers or sevopedialeader py file code comments or and similar doc for details anyways etc), match closer DLL behaviour or rather numbers anyways etc by going from -1 (none) to 4 (friendly) (unlike what i had done from -3 to 2 which would work-function well too anyways etc but more consistent this way perhaps but anyways etc anyways etc anyways etc -->
+	"NONE": -1,
+	"ATTITUDE_FURIOUS": 0,
+	"ATTITUDE_ANNOYED": 1,
+	"ATTITUDE_CAUTIOUS": 2,
+	"ATTITUDE_PLEASED": 3,
+	"ATTITUDE_FRIENDLY": 4,
+	# <!-- custom: disabled field in generate_leaders_data as XML does not have a higher than friendly attitude unlike DLL that seems to ingame alter some values to 5 like map attitude thing anyways etc if i am not mistaken anyways etc trading map or such thing indeed from my memory but anyways etc
+	# "ALWAYS??": 5,
 }
 
 REFUSE_ATTITUDE_FIELDS = {
 	"DemandTributeAttitudeThreshold",
 	"NoGiveHelpAttitudeThreshold",
 	"TechRefuseAttitudeThreshold",
-	#
+	# <!-- custom: base advciv specific new or similar kind of non-civ4 supported attitude threshold fields if i am not mistaken (didn't check, anyways etc) -->
 	"CityRefuseAttitudeThreshold",
 	"NativeCityRefuseAttitudeThreshold",
-	#
+	# <!-- custom: end of base advciv new addition if i am not mistaken (didnt check same code comment i mean similarly but or not but anyways etc -->
 	"StrategicBonusRefuseAttitudeThreshold",
 	"HappinessBonusRefuseAttitudeThreshold",
 	"HealthBonusRefuseAttitudeThreshold",
@@ -155,23 +166,23 @@ NESTED_FIELDS_TO_SPECIFICALLY_PARSE = (
 	"MemoryDecays",
 )
 
-NO_WAR_ATTITUDE_FIELDS = (
-	("FURIOUS", "iNoWarAttitudeProbFurious"),
-	("ANNOYED", "iNoWarAttitudeProbAnnoyed"),
-	("CAUTIOUS", "iNoWarAttitudeProbCautious"),
-	("PLEASED", "iNoWarAttitudeProbPleased"),
-	("FRIENDLY", "iNoWarAttitudeProbFriendly"),
+NO_WAR_ATTITUDE_TYPES = (
+	"ATTITUDE_FURIOUS",
+	"ATTITUDE_ANNOYED",
+	"ATTITUDE_CAUTIOUS",
+	"ATTITUDE_PLEASED",
+	"ATTITUDE_FRIENDLY",
 )
 
-FLAVOR_FIELDS = (
-	("FLAVOR_MILITARY", "iFlavorMilitary"),
-	("FLAVOR_RELIGION", "iFlavorReligion"),
-	("FLAVOR_PRODUCTION", "iFlavorProduction"),
-	("FLAVOR_GOLD", "iFlavorGold"),
-	("FLAVOR_SCIENCE", "iFlavorScience"),
-	("FLAVOR_CULTURE", "iFlavorCulture"),
-	("FLAVOR_GROWTH", "iFlavorGrowth"),
-	("FLAVOR_ESPIONAGE", "iFlavorEspionage"),
+FLAVOR_TYPES = (
+	"FLAVOR_MILITARY",
+	"FLAVOR_RELIGION",
+	"FLAVOR_PRODUCTION",
+	"FLAVOR_GOLD",
+	"FLAVOR_SCIENCE",
+	"FLAVOR_CULTURE",
+	"FLAVOR_GROWTH",
+	"FLAVOR_ESPIONAGE",
 )
 
 ALL_CONTACT_TYPES = (
@@ -191,103 +202,18 @@ ALL_CONTACT_TYPES = (
 	"CONTACT_TRADE_MAP",
 )
 
-# <!-- custom: 11 entries total if i am not mistaken anyways etc -->
-POSITIVE_MEMORY_TYPES = (
-	"MEMORY_GIVE_HELP",
-	"MEMORY_ACCEPT_DEMAND",
-	"MEMORY_ACCEPTED_RELIGION",
-	"MEMORY_ACCEPTED_CIVIC",
-	"MEMORY_ACCEPTED_JOIN_WAR",
-	"MEMORY_ACCEPTED_STOP_TRADING",
-	"MEMORY_VOTED_FOR_US",
-	"MEMORY_EVENT_GOOD_TO_US",
-	"MEMORY_LIBERATED_CITIES",
-	"MEMORY_INDEPENDENCE",
-	"MEMORY_TRADED_TECH_TO_US",
-)
+POSITIVE_MEMORY_TYPES = tuple(get_positive_memory_indexes_to_types().values())
+NEGATIVE_MEMORY_TYPES = tuple(get_negative_memory_indexes_to_types().values())
+ALL_MEMORY_TYPES = tuple(POSITIVE_MEMORY_TYPES + NEGATIVE_MEMORY_TYPES)
 
-# <!-- custom: for MEMORY_RECEIVED_TECH_FROM_ANY in particular, it seems less clear if this is negative or not, i found this info for example in kujira's website in (translate to english with your web browser or such hopefully helpful or not or yes or and other or and not anyways etc): https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#memory_received_tech_from_any-->
-"""
-"You have rejected another civilization's technology."
-occurs to the civilization that has received a technology each time a contacted civilization acquires a technology through trade.
-
-In BtS, this diplomatic event does not have an attitude modifier assigned to it.
-Instead, it is used as a so-called "over-advance counter" for technology trades. See also
-<iNoTechTradeThreshold> .
-
-<MemoryDecay>
-    <MemoryType>MEMORY_RECEIVED_TECH_FROM_ANY</MemoryType>
-    <iMemoryRand>20</iMemoryRand>
-</MemoryDecay>
-
-and our debug ingame in sevopedia shows (see (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\_sevopedia_helpers.py for details):
-Memory 29 (MEMORY_RECEIVED_TECH_FROM_ANY): Attitude 0, Decay 20
-
-here is also chatgpt/becomingthrough's web search result if it helps too (not sure is accurate but maybe is or at least more since is web search anyways etc) formatted or not or yes for our script's consistency or rather small display in this case i mean or other or and not or yes or etc anyways etc:
-
-"
-🧠 What it does
-Each time any contacted civilization receives a technology via trade, all other AI civilizations that have met them (including the trading partner itself) increase a hidden memory counter called MEMORY_RECEIVED_TECH_FROM_ANY by 1 
-modiki.civfanatics.com +8 ; groups.google.com +8 ; civ4wiki.com +8.
-
-This doesn't directly adjust diplomatic attitude; instead, it's a "tech‑overexposure" counter influencing whether AI will trade techs with you later .
-
-🕰️ How it operates
-When one AI gets a tech from you, every AI that knows them—including the one receiving it—gets this memory += 1 
-kirk.zulan.net +5 ; groups.google.com +5 ; forum.gamer.com.tw +5.
-
-Over time, the counter randomly decays, with the <iMemoryRand>20</iMemoryRand> tag setting the rate (i.e., each turn there's a chance to decrease by 1) 
-modiki.civfanatics.com +3 ; forums.civfanatics.com +3 ; gforestshade.github.io +3.
-
-⚙️ Effect in gameplay
-It functions as a throttle: after trading techs a bunch, your "received from any" memory builds up, making AI increasingly reluctant to trade with you until it decays enough.
-
-There's no attitude hit attached, so your relationships don’t visibly worsen—but the memory can block or refuse future tech trades.
-"
-
-based on this, if the higher it is, the higher no tech trade can happen, then i would classify it as negative memory even though is not strictly a memory it seems but maybe is strictly a memory, hopefully helpful or and clear or and bit exhaustive in this case at least if not always or maybe not or yes or etc or other or etc but in all cases anyways etc
-"""
-# <!-- custom: 26 entries total if i am not mistaken anyways etc -->
-NEGATIVE_MEMORY_TYPES = (
-	"MEMORY_DECLARED_WAR",
-	"MEMORY_DECLARED_WAR_ON_FRIEND",
-	"MEMORY_HIRED_WAR_ALLY",
-	"MEMORY_NUKED_US",
-	"MEMORY_NUKED_FRIEND",
-	"MEMORY_RAZED_CITY",
-	"MEMORY_RAZED_HOLY_CITY",
-	"MEMORY_SPY_CAUGHT",
-	"MEMORY_REFUSED_HELP",
-	"MEMORY_REJECTED_DEMAND",
-	"MEMORY_DENIED_RELIGION",
-	"MEMORY_DENIED_CIVIC",
-	"MEMORY_DENIED_JOIN_WAR",
-	"MEMORY_DENIED_STOP_TRADING",
-	"MEMORY_STOPPED_TRADING_RECENT",
-	"MEMORY_STOPPED_TRADING",
-	"MEMORY_HIRED_TRADE_EMBARGO",
-	"MEMORY_MADE_DEMAND",
-	"MEMORY_MADE_DEMAND_RECENT",
-	"MEMORY_VOTED_AGAINST_US",
-	"MEMORY_EVENT_BAD_TO_US",
-	"MEMORY_CANCELLED_OPEN_BORDERS",
-	"MEMORY_CANCELLED_VASSAL_AGREEMENT",
-	"MEMORY_CANCELLED_DEFENSIVE_PACT",
-	"MEMORY_DECLARED_WAR_RECENT",
-	"MEMORY_RECEIVED_TECH_FROM_ANY",
-)
-
-# <!-- custom: allow an exception for this MEMORY_RECEIVED_TECH_FROM_ANY memory type only, as it seems to not be strictly a negative or positive memory type, and its memory attitude value is missing, still is displayed as 0 it seems for example for leader gandhi in debug output in sevopedia (see (adjust to your mod path (C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\_sevopedia_helpers.py) for details), so just skip the error in this case, i assume it would default to 0 as is displayed in game coincidentally and as we want it too but anyways etc ; similar reasoning for MEMORY_STOPPED_TRADING_RECENT not having any memory attitude value (only a memory decay value) in leader_defaults, and not memory attitude value in any leader (debug for leader gandhi in sevopedia ingame from gc shows this "Memory 21 (MEMORY_STOPPED_TRADING_RECENT): Attitude 0, Decay 18" ; value of 0 so probably fine if i am not mistaken to also skip it in our leaders_data if i am not mistaken anyways) so skipping it as well anyways etc -->
-MEMORY_TYPES_NOT_IN_LEADER_DEFAULTS=  (
+# <!-- custom: allow an exception for this MEMORY_RECEIVED_TECH_FROM_ANY memory type only, as it seems to not be strictly a negative or positive memory type, and its memory attitude percent value is missing, still is displayed as 0 it seems for example for leader gandhi in debug output in sevopedia (see (adjust to your mod path (C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\_sevopedia_helpers.py) for details), so just skip the error in this case, i assume it would default to 0 as is displayed in game coincidentally and as we want it too but anyways etc ; similar reasoning for MEMORY_STOPPED_TRADING_RECENT not having any memory attitude percent value (only a memory decay value) in leader_defaults, and not memory attitude percent value in any leader (debug for leader gandhi in sevopedia ingame from gc shows this "Memory 21 (MEMORY_STOPPED_TRADING_RECENT): Attitude 0, Decay 18" ; value of 0 so probably fine if i am not mistaken to also skip it in our leaders_data if i am not mistaken anyways) so skipping it as well anyways etc -->
+MEMORY_TYPES_NOT_IN_LEADER_DEFAULTS = (
 	"MEMORY_RECEIVED_TECH_FROM_ANY",
 	"MEMORY_STOPPED_TRADING_RECENT",
 	"MEMORY_MADE_DEMAND_RECENT",
 	"MEMORY_CANCELLED_OPEN_BORDERS",
 	"MEMORY_CANCELLED_DEFENSIVE_PACT",
 )
-
-# <!-- custom: total = 26 + 11 from the above both counts so should be total total anyways etc = 37 entries total if i am not mistaken anyways etc -->
-ALL_MEMORY_TYPES = POSITIVE_MEMORY_TYPES + NEGATIVE_MEMORY_TYPES
 
 TYPE_HINTS = {
 	"Type": str,
@@ -321,10 +247,10 @@ def parse_refuse_attitude_thresholds(tag, text, leader, leader_data):
 	attr_name = f"i{tag}"
 	leader_data[attr_name] = ATTITUDE_MAP[text]
 
-# <!-- custom: for example if leader alexander has nowar missing / missing / 20 / 80 / missing, and defaults are nowar 0 / 0 / 0 / 0 / 100, then we want to parse any value alexander has to a higher number for example first to missing / missing / 20 / 80 / 80 and only then fetch missing values from defaults, so 0 / 0 / 20 / 80 / 80 for leader alexander's parsing nowar parsing for example, that we'd then parse exported as individual fields like iNoWarAttitudeProbFurious 0, etc... until iNoWarAttitudeProbFriendly 100 and in that order (matching NO_WAR_ATTITUDE_FIELDS[0]) -->
-def parse_no_war_attitude_probs_inline(child, leader_data, leader_key):
+# <!-- custom: for example if leader alexander has nowar missing / missing / 20 / 80 / missing, and defaults are nowar 0 / 0 / 0 / 0 / 100, then we want to parse any value alexander has to a higher number for example first to missing / missing / 20 / 80 / 80 and only then fetch missing values from defaults, so 0 / 0 / 20 / 80 / 80 for leader alexander's parsing nowar parsing for example, that we'd then parse exported as individual fields like iNoWarAttitudeProbFurious 0, etc... until iNoWarAttitudeProbFriendly 100 and in that order (matching NO_WAR_ATTITUDE_TYPES) -->
+def parse_no_war_attitude_probs_inline(child, leader_data, leader_type):
 	"""
-	Parse NoWarAttitudeProbs fields, ensuring correct NO_WAR_ATTITUDE_FIELDS and monotonicity.
+	Parse NoWarAttitudeProbs fields, ensuring correct nowarattitudeprob fields and monotonicity.
 	Skips early fields until first defined value, then fills forward using max-so-far logic.
 	"""
 	nowar_tmp = {}
@@ -332,14 +258,15 @@ def parse_no_war_attitude_probs_inline(child, leader_data, leader_key):
 	# First, collect explicitly defined nowarattitude values
 	for entry in child:
 		subfields = {sub.tag.split("}", 1)[1]: sub.text.strip() for sub in entry if sub.text}
-		attitude = subfields.get("AttitudeType")
+		attitude_type = subfields.get("AttitudeType")
 		value = subfields.get("iNoWarProb")
-		if attitude and value:
-			field = "iNoWarAttitudeProb" + attitude.replace("ATTITUDE_", "").capitalize()
+		if attitude_type and value:
+			short_name = get_pascal_case_suffix(attitude_type)
+			field = f"iNoWarAttitudeProb{short_name}"
 			try:
 				nowar_tmp[field] = int(value)
 			except ValueError:
-				raise ValueError(f"[WARNING] Non-integer NoWarProb for {leader_key} attitude {attitude}: '{value}'")
+				raise ValueError(f"[WARNING] Non-integer NoWarProb for {leader_type} attitude_type {attitude_type}: '{value}'")
 
 	# Now apply monotonicity with a "first-found" flag
 	# <!-- custom: this is needed in case defaults are for example 0 / 0 / 0 / 0 / 100 , and leader_barbarian has for example (or other leaders similarly or in another way related anyways etc) missing / missing / missing / missing / missing, then do not apply max_so_far 0 until a real first value has been found, else keep applying missing as the max i.e. keep missing, until then i.e. until if/when we find a real value to be a max_so_far can the max_so_far logic apply, else if we don't do that we'd get barbarian leader data as 0 / 0 / 0 / 0 / 0 instead of missing / missing / missing / missing / missing, which would then prevent defaults from being injected later, as a value of 0 was already applied everywhere, so the 100 at friendly would not be applied by defaults ; so adding in short or long or anyways etc the found_first logic also allows to keep using the max_so_far logic as we want, but only when relevant, i.e. only when/after/if the first occurence of a real value has been found, else keep assigning missing values no max_so_far_logic to ensure defaults cover us later nicely and accurately/reliably too if i may say but anyways etc -->
@@ -348,8 +275,10 @@ def parse_no_war_attitude_probs_inline(child, leader_data, leader_key):
 	# (e.g., Alexander: missing/missing/20/80/missing -> missing/missing/20/80/80)
 	max_so_far = 0
 
-	for att, field in NO_WAR_ATTITUDE_FIELDS:
-		value = nowar_tmp.get(field)
+	for attitude_type in NO_WAR_ATTITUDE_TYPES:
+		short_name = get_pascal_case_suffix(attitude_type)
+		field_name = f"iNoWarAttitudeProb{short_name}"
+		value = nowar_tmp.get(field_name)
 
 		if value is None:
 			if not found_first:
@@ -357,43 +286,40 @@ def parse_no_war_attitude_probs_inline(child, leader_data, leader_key):
 				continue
 			else:
 				# Fill forward using previous max
-				leader_data[field] = max_so_far
+				leader_data[field_name] = max_so_far
 		else:
 			if found_first and value < max_so_far:
-				raise ValueError(f"[ERROR] {leader_key}: NoWarProb {field} = {value} < previous max {max_so_far}")
-			leader_data[field] = value
+				raise ValueError(f"[ERROR] {leader_type}: NoWarProb {field_name} = {value} < previous max {max_so_far}")
+			leader_data[field_name] = value
 			max_so_far = value
 			found_first = True
 
 # Fetch from defaults <!-- custom:'s real leaders_data, not XML, much easier this way so we can handle the max so far logic already processed in defaults, for example a default of 0 / 0 / 88 / 0 / 0  would be maxed so far as 0 / 0 / 88 / 88 / 88 rather than 0 / 0 / 88 / 88 / 88, much easier if i am not mistaken too anyways etc, and no need to max from defaults again since we already did anyways etc -->
 def ensure_complete_no_war_attitude_probs(leaders_data, leader_defaults_data):
-	for leader_key, leader_data in leaders_data.items():
-		if leader_key == "LEADER_DEFAULTS":
+	for leader_type, leader_data in leaders_data.items():
+		if leader_type == "LEADER_DEFAULTS":
 			continue  # Skip defaults itself
 
-		for att, field in NO_WAR_ATTITUDE_FIELDS:
-			if field not in leader_data:
-				if field not in leader_defaults_data:
-					raise ValueError(f"[FATAL] Missing {field} in both leader and defaults: {leader_key}")
-				leader_data[field] = leader_defaults_data[field]
+		for attitude_type in NO_WAR_ATTITUDE_TYPES:
+			short_name = get_pascal_case_suffix(attitude_type)
+			field_name = f"iNoWarAttitudeProb{short_name}"
+			if field_name not in leader_data:
+				if field_name not in leader_defaults_data:
+					raise ValueError(f"[FATAL] Missing {field_name} in both leader and defaults: {leader_type}")
+				leader_data[field_name] = leader_defaults_data[field_name]
 
 def prune_nested_no_war_attitude_probs_if_flattened(leaders_data):
 	"""
 	Removes the legacy 'NoWarAttitudeProbs' field if all corresponding
 	flat fields (iNoWarAttitudeProb*) are already present.
 	"""
-	required_fields = [
-		"iNoWarAttitudeProbFurious",
-		"iNoWarAttitudeProbAnnoyed",
-		"iNoWarAttitudeProbCautious",
-		"iNoWarAttitudeProbPleased",
-		"iNoWarAttitudeProbFriendly",
-	]
+	required_no_war_attitude_prob_fields = tuple(f"iNoWarAttitudeProb{get_pascal_case_suffix(attitude_type)}" for attitude_type in NO_WAR_ATTITUDE_TYPES)
+
 	for leader_data in leaders_data.values():
-		if all(field in leader_data for field in required_fields):
+		if all(field in leader_data for field in required_no_war_attitude_prob_fields):
 			leader_data.pop("NoWarAttitudeProbs", None)
 
-def parse_flavors_inline(child, leader_data, leader_key):
+def parse_flavors_inline(child, leader_data, leader_type):
 	# Don't initialize all flavors to 0 - let defaults injection handle missing ones
 	seen_flavors = set()
 
@@ -403,14 +329,16 @@ def parse_flavors_inline(child, leader_data, leader_key):
 		value = subfields.get("iFlavor")
 		if flavor and value:
 			if flavor in seen_flavors:
-				print(f"[WARNING] Duplicate FlavorType '{flavor}' for leader {leader_key}")
+				print(f"[WARNING] Duplicate FlavorType '{flavor}' for leader {leader_type}")
 			seen_flavors.add(flavor)
-			for flavor_key, field_name in FLAVOR_FIELDS:
-				if flavor == flavor_key:
+			for flavor_type in FLAVOR_TYPES:
+				short_name = get_pascal_case_suffix(flavor_type)
+				field_name = f"iFlavor{short_name}"
+				if flavor == flavor_type:
 					try:
 						leader_data[field_name] = int(value)
 					except ValueError:
-						print(f"[WARNING] Non-integer Flavor for {leader_key} flavor {flavor}: '{value}'")
+						print(f"[WARNING] Non-integer Flavor for {leader_type} flavor {flavor}: '{value}'")
 						leader_data[field_name] = 0
 
 # <!-- custom: new addition by Claude AI thanks to my prompt too but anyways etc.. successfully handles flavors's no defaults being injected (for example flavor military 10 and flavor religion missing in a leader, with defaults being military 789 and religion 123 not leading to the leader having military 10 and religion 123 but instead it had before fix military 10 religion 0, as successfully detected by the test now):
@@ -434,7 +362,9 @@ def ensure_complete_flavors(leaders_data):
 	This should be called after defaults injection.
 	"""
 	for leader_data in leaders_data.values():
-		for _, field_name in FLAVOR_FIELDS:
+		for flavor_type in FLAVOR_TYPES:
+			short_name = get_pascal_case_suffix(flavor_type)
+			field_name = f"iFlavor{short_name}"
 			if field_name not in leader_data:
 				leader_data[field_name] = 0
 
@@ -442,38 +372,13 @@ def prune_nested_flavors_if_flattened(leaders_data):
 	"""
 	Removes the legacy 'Flavors' field if all flat iFlavor* fields are already present.
 	"""
-	required_flavor_fields = [
-		"iFlavorMilitary",
-		"iFlavorReligion",
-		"iFlavorProduction",
-		"iFlavorGold",
-		"iFlavorScience",
-		"iFlavorCulture",
-		"iFlavorGrowth",
-		"iFlavorEspionage",
-	]
+	required_flavor_fields = tuple(f"iFlavor{get_pascal_case_suffix(flavor_type)}" for flavor_type in FLAVOR_TYPES)
+
 	for leader_data in leaders_data.values():
 		if all(field in leader_data for field in required_flavor_fields):
 			leader_data.pop("Flavors", None)
 
-# === Robust Contact Delay/Rand Parser ===
-def parse_contact_delays_inline(parent_node):
-	results = []
-	for entry in parent_node.findall("civ4:ContactDelay", ns):
-		contact_type = entry.findtext("civ4:ContactType", default="", namespaces=ns).strip()
-		delay_val = entry.findtext("civ4:iContactDelay", default="", namespaces=ns).strip()
-		if contact_type and delay_val:
-			try:
-				results.append({
-					"ContactType": contact_type,
-					"iContactDelay": int(delay_val)
-				})
-			except ValueError:
-				raise ValueError(f"[TYPE ERROR] ContactDelay has invalid iContactDelay='{delay_val}' for {contact_type}")
-		else:
-			raise ValueError(f"[MISSING] ContactDelay is missing field(s): {contact_type=} {delay_val=}")
-	return results
-
+# === Robust Contact Rand/Delay Parser ===
 def parse_contact_rands_inline(parent_node):
 	results = []
 	for entry in parent_node.findall("civ4:ContactRand", ns):
@@ -491,21 +396,38 @@ def parse_contact_rands_inline(parent_node):
 			raise ValueError(f"[MISSING] ContactRand is missing field(s): {contact_type=} {rand_val=}")
 	return results
 
-def parse_memory_attitudes_inline(parent_node):
+def parse_contact_delays_inline(parent_node):
+	results = []
+	for entry in parent_node.findall("civ4:ContactDelay", ns):
+		contact_type = entry.findtext("civ4:ContactType", default="", namespaces=ns).strip()
+		delay_val = entry.findtext("civ4:iContactDelay", default="", namespaces=ns).strip()
+		if contact_type and delay_val:
+			try:
+				results.append({
+					"ContactType": contact_type,
+					"iContactDelay": int(delay_val)
+				})
+			except ValueError:
+				raise ValueError(f"[TYPE ERROR] ContactDelay has invalid iContactDelay='{delay_val}' for {contact_type}")
+		else:
+			raise ValueError(f"[MISSING] ContactDelay is missing field(s): {contact_type=} {delay_val=}")
+	return results
+
+def parse_memory_attitude_percents_inline(parent_node):
 	results = []
 	for entry in parent_node.findall("civ4:MemoryAttitudePercent", ns):
 		mem_type = entry.findtext("civ4:MemoryType", default="", namespaces=ns).strip()
-		attitude_val = entry.findtext("civ4:iMemoryAttitudePercent", default="", namespaces=ns).strip()
-		if mem_type and attitude_val:
+		attitude_percent_val = entry.findtext("civ4:iMemoryAttitudePercent", default="", namespaces=ns).strip()
+		if mem_type and attitude_percent_val:
 			try:
 				results.append({
 					"MemoryType": mem_type,
-					"iMemoryAttitudePercent": int(attitude_val)
+					"iMemoryAttitudePercent": int(attitude_percent_val)
 				})
 			except ValueError:
-				errors.append(f"[TYPE ERROR] MemoryAttitudePercent has invalid iMemoryAttitudePercent='{attitude_val}' for {mem_type}")
+				errors.append(f"[TYPE ERROR] MemoryAttitudePercent has invalid iMemoryAttitudePercent='{attitude_percent_val}' for {mem_type}")
 		else:
-			errors.append(f"[MISSING] MemoryAttitudePercent is missing field(s): {mem_type=} {attitude_val=}")
+			errors.append(f"[MISSING] MemoryAttitudePercent is missing field(s): {mem_type=} {attitude_percent_val=}")
 	return results
 
 def parse_memory_decays_inline(parent_node):
@@ -525,26 +447,6 @@ def parse_memory_decays_inline(parent_node):
 			errors.append(f"[MISSING] MemoryDecay is missing field(s): {mem_type=} {mem_decay=}")
 	return results
 
-def force_complete_contact_delays(leaders_data, leader_defaults_data):
-    leader_defaults_data_ = {e["ContactType"]: e.copy() for e in leader_defaults_data.get("ContactDelays", [])}
-
-    for contact_type in ALL_CONTACT_TYPES:
-        if contact_type not in leader_defaults_data_:
-            raise ValueError(f"[FATAL] LEADER_DEFAULTS is missing ContactDelay for {contact_type}.")
-
-    for leader_type, leader_data in leaders_data.items():
-        if leader_type == "LEADER_DEFAULTS":
-            continue
-
-        custom_entries = {e["ContactType"]: e.copy() for e in leader_data.get("ContactDelays", [])}
-        merged = {
-            ct: custom_entries.get(ct, leader_defaults_data_[ct])
-            for ct in ALL_CONTACT_TYPES
-        }
-        leader_data["ContactDelays"] = list(merged.values())
-
-    return leaders_data
-
 def force_complete_contact_rands(leaders_data, leader_defaults_data):
     leader_defaults_data_ = {e["ContactType"]: e.copy() for e in leader_defaults_data.get("ContactRands", [])}
 
@@ -562,6 +464,26 @@ def force_complete_contact_rands(leaders_data, leader_defaults_data):
             for ct in ALL_CONTACT_TYPES
         }
         leader_data["ContactRands"] = list(merged.values())
+
+    return leaders_data
+
+def force_complete_contact_delays(leaders_data, leader_defaults_data):
+    leader_defaults_data_ = {e["ContactType"]: e.copy() for e in leader_defaults_data.get("ContactDelays", [])}
+
+    for contact_type in ALL_CONTACT_TYPES:
+        if contact_type not in leader_defaults_data_:
+            raise ValueError(f"[FATAL] LEADER_DEFAULTS is missing ContactDelay for {contact_type}.")
+
+    for leader_type, leader_data in leaders_data.items():
+        if leader_type == "LEADER_DEFAULTS":
+            continue
+
+        custom_entries = {e["ContactType"]: e.copy() for e in leader_data.get("ContactDelays", [])}
+        merged = {
+            ct: custom_entries.get(ct, leader_defaults_data_[ct])
+            for ct in ALL_CONTACT_TYPES
+        }
+        leader_data["ContactDelays"] = list(merged.values())
 
     return leaders_data
 
@@ -598,8 +520,8 @@ def force_complete_memory_decays(leaders_data, leader_defaults_data):
 
 	return leaders_data
 
-def force_complete_memory_attitudes(leaders_data, leader_defaults_data):
-	print("DEBUG: leader_defaults_data MemoryAttitudes (flat):", leader_defaults_data.get("MemoryAttitudePercents"))
+def force_complete_memory_attitude_percents(leaders_data, leader_defaults_data):
+	print("[DEBUG]: leader_defaults_data MemoryAttitudePercents (flat):", leader_defaults_data.get("MemoryAttitudePercents"))
 
 	leader_defaults_data_ = {
 		e["MemoryType"]: e.copy()
@@ -609,7 +531,7 @@ def force_complete_memory_attitudes(leaders_data, leader_defaults_data):
 	# 🚨 Hard fail if any expected memory type is missing from defaults
 	for mem_type in ALL_MEMORY_TYPES:
 		if mem_type not in leader_defaults_data_:
-			raise ValueError(f"[FATAL] LEADER_DEFAULTS is missing MemoryAttitude for {mem_type}. This is required to prevent placeholder data.")
+			raise ValueError(f"[FATAL] LEADER_DEFAULTS is missing MemoryAttitudePercent for {mem_type}. This is required to prevent placeholder data.")
 
 	for leader_type, leader_data in leaders_data.items():
 		if leader_type == "LEADER_DEFAULTS":
@@ -631,187 +553,131 @@ def force_complete_memory_attitudes(leaders_data, leader_defaults_data):
 
 	return leaders_data
 
-def contact_to_camel(contact_type):
-        return capwords(contact_type.replace("CONTACT_", "").replace("_", " ")).replace(" ", "")
-
-def adjust_contact_values(contact_delay_raw, contact_rand_raw):
-	"""
-	Adjusts contact delay and contact rand values according to standard rules.
-	Returns: (adjusted_delay, adjusted_rand, aggregated_prob_forced_zero_flag)
-	"""
-	if contact_delay_raw < 0:
-		# <!-- custom: detail: if delay < 0 (rand is meaningless/irrelevant but we still store it (for exhaustiveness and ui display of raw value anyways)), delay is infinite, probability of contact is 0 -->
-		adjusted_delay = 999  # Infinite delay
-
-		if contact_rand_raw <= 0:
-			adjusted_rand = 0
-		else:
-			adjusted_rand = contact_rand_raw
-		return adjusted_delay, adjusted_rand, True  # Forced 0 aggregation
-	else:
-		# <!-- custom: the higher the delay the worse/lower the contact prob (example gandhi's data/values vs montezuma so we (should i think anyways) invert both)-->
-		adjusted_delay = contact_delay_raw
-
-		if contact_rand_raw <= 0:
-			# <!-- custom: (and else,) if rand is <=0, AI has a compatible delay but still never engages due to rand, so probability of contact is still 0. Only outside of these edge cases can the contact probabiltiy be computed if i'm not mistaken, else should be 0 as in this code block/check if i'm not mistaken anyways. -->
-			# Can try, but refuses to ever engage → Aggregated ContactProb = 0
-			adjusted_rand = 0
-			return adjusted_delay, adjusted_rand, True
-
-		else:
-			# <!-- custom: (and else,), if both delay and rand are compatible with havig a scaling and acutal contact probability (that we can compute too maybe here indeed anyways etc), then (to compute this we propose this formula that) the higher the delay the worse/lower the contact prob, and the higher the rand the worse/lower the contact prob (example gandhi's data/values vs montezuma so we (should i think anyways) invert both)-->
-			adjusted_rand = contact_rand_raw
-			return adjusted_delay, adjusted_rand, False  # Normal aggregation
-
-def fetch_contact_min_max(contact_type, leaders_data):
-	"""
-	Fetch the min and max for delay and rand fields for a specific contact_type.
-	Returns: (min_delay, max_delay, min_rand, max_rand)
-	"""
-	delay_field = f"iContact{contact_type.replace('_', '').title()}DelayRaw"
-	rand_field = f"iContact{contact_type.replace('_', '').title()}RandRaw"
-
-	all_delays = []
-	all_rands = []
-
-	for leader_type in VALID_LEADERS_FOR_AGGREGATED_ATTRIBUTES:
-		leader_data = leaders_data[leader_type]
-		if delay_field in leader_data:
-			d = leader_data[delay_field]
-			if isinstance(d, int) and d >= 0:
-				all_delays.append(d)
-		if rand_field in leader_data:
-			r = leader_data[rand_field]
-			if isinstance(r, int) and r >= 0:
-				all_rands.append(r)
-
-	if all_delays and all_rands:
-		return (min(all_delays), max(all_delays), min(all_rands), max(all_rands))
-	else:
-		raise ValueError(f"[FATAL] Memory min/max values missing for {delay_field} or/and {rand_field}. Likely cause: default memory flattening was skipped.")
-
 def flatten_all_contacts(leaders_data):
-	debug_log = []
-	aggregated_score_raw_by_type = {suffix: [] for suffix in ALL_CONTACT_TYPES}
+	aggregated_contact_score_raw_from_adjusted_values_by_type = {suffix: [] for suffix in ALL_CONTACT_TYPES}
 
 	# First pass: extract raw values and compute adjusted values (for scoring + min/max)
-	for leader_type, leader_data in leaders_data.items():
-		contact_delays = leader_data["ContactDelays"]
-		contact_rands = leader_data["ContactRands"]
+	for leader_type_1, leader_data_1 in leaders_data.items():
+		contact_rands_1 = leader_data_1["ContactRands"]
+		contact_delays_1 = leader_data_1["ContactDelays"]
 
-		if not contact_delays or not contact_rands:
-			raise ValueError(f"Missing ContactDelays or/and ContactRands for {leader_type} during flattening")
+		if not contact_rands_1 or not contact_delays_1:
+			raise ValueError(f"Missing ContactRands or/and ContactDelays for {leader_type_1} during flattening")
 
-		for contact_type in ALL_CONTACT_TYPES:
-			full_contact_type = f"{contact_type}"
-			short_name = contact_to_camel(contact_type)
+		for contact_type_1 in ALL_CONTACT_TYPES:
+			short_name_1 = get_pascal_case_suffix(contact_type_1)
 
-			contact_delay_raw = None
-			contact_rand_raw = None
+			contact_rand_raw_1 = None
+			contact_delay_raw_1 = None
 
 			# Strict fetch with no fallbacks
-			for entry in contact_delays:
-				if entry.get("ContactType") == full_contact_type:
-					val = entry.get("iContactDelay")
-					if val is None:
-						raise ValueError(f"[FATAL] Missing iContactDelay for {full_contact_type} in {leader_type}")
-					contact_delay_raw = int(val)
+			for entry_1 in contact_rands_1:
+				if entry_1.get("ContactType") == contact_type_1:
+					val_1 = entry_1.get("iContactRand")
+					if val_1 is None:
+						raise ValueError(f"[FATAL] Missing iContactRand for {contact_type_1} in {leader_type_1}")
+					contact_rand_raw_1 = int(val_1)
 					break
 
-			for entry in contact_rands:
-				if entry.get("ContactType") == full_contact_type:
-					val = entry.get("iContactRand")
-					if val is None:
-						raise ValueError(f"[FATAL] Missing iContactRand for {full_contact_type} in {leader_type}")
-					contact_rand_raw = int(val)
+			for entry_1 in contact_delays_1:
+				if entry_1.get("ContactType") == contact_type_1:
+					val_1 = entry_1.get("iContactDelay")
+					if val_1 is None:
+						raise ValueError(f"[FATAL] Missing iContactDelay for {contact_type_1} in {leader_type_1}")
+					contact_delay_raw_1 = int(val_1)
 					break
 
-			if contact_delay_raw is None or contact_rand_raw is None:
-				raise ValueError(f"[FATAL] Contact delay/rand missing for {full_contact_type} in {leader_type}. Did you run force_complete_contact_rands/delays() first?")
+			if contact_rand_raw_1 is None or contact_delay_raw_1 is None:
+				raise ValueError(f"[FATAL] Contact rand/delay missing for {contact_type_1} in {leader_type_1}. Did you run force_complete_contact_rands/delays() first?")
 
 			# Store raw for UI
-			leader_data[f"iContact{short_name}DelayRaw"] = contact_delay_raw
-			leader_data[f"iContact{short_name}RandRaw"] = contact_rand_raw
+			leader_data_1[f"iContactRand{short_name_1}"] = contact_rand_raw_1
+			leader_data_1[f"iContactDelay{short_name_1}"] = contact_delay_raw_1
 
 			# Adjust for logic + scoring
-			adjusted_delay, adjusted_rand, forced_zero = adjust_contact_values(contact_delay_raw, contact_rand_raw)
-			leader_data[f"iContact{short_name}DelayAdjusted"] = adjusted_delay
-			leader_data[f"iContact{short_name}RandAdjusted"] = adjusted_rand
-			leader_data[f"bContact{short_name}ForceZero"] = forced_zero
+			rand_adjusted_1, delay_adjusted_1, force_zero_adjusted_values_1 = get_adjusted_contact_values(contact_rand_raw_1, contact_delay_raw_1, DEBUG_CONTACT_FLATTENING, contact_type_1)
+			leader_data_1[f"iAdjustedContactRand{short_name_1}"] = rand_adjusted_1
+			leader_data_1[f"iAdjustedContactDelay{short_name_1}"] = delay_adjusted_1
+			leader_data_1[f"bForceZeroContact{short_name_1}"] = force_zero_adjusted_values_1
 
-	# Precompute min/max from adjusted values only
-	contact_min_max = {}
-	for contact_type in ALL_CONTACT_TYPES:
-		short_name = contact_to_camel(contact_type)
-		delay_field = f"iContact{short_name}DelayAdjusted"
-		rand_field = f"iContact{short_name}RandAdjusted"
+	# Second pass: Precompute min/max from adjusted values only
+	contact_min_max_2 = {}
+	for contact_type_2 in ALL_CONTACT_TYPES:
+		short_name_2 = get_pascal_case_suffix(contact_type_2)
+		rand_field_2 = f"iAdjustedContactRand{short_name_2}"
+		delay_field_2 = f"iAdjustedContactDelay{short_name_2}"
 
-		all_delays = []
-		all_rands = []
+		all_delays_2 = []
+		all_rands_2 = []
 
-		for leader_type in VALID_LEADERS_FOR_AGGREGATED_ATTRIBUTES:
-			leader_data = leaders_data[leader_type]
-			d = leader_data.get(delay_field)
-			r = leader_data.get(rand_field)
-			if isinstance(d, int):
-				all_delays.append(d)
-			if isinstance(r, int):
-				all_rands.append(r)
+		for leader_type_2 in VALID_LEADERS_FOR_AGGREGATED_ATTRIBUTES:
+			leader_data_2 = leaders_data[leader_type_2]
+			r_2 = leader_data_2.get(rand_field_2)
+			d_2 = leader_data_2.get(delay_field_2)
+			if isinstance(r_2, int):
+				all_rands_2.append(r_2)
+			if isinstance(d_2, int):
+				all_delays_2.append(d_2)
 
-		if all_delays and all_rands:
-			contact_min_max[contact_type] = (min(all_delays), max(all_delays), min(all_rands), max(all_rands))
+		if all_rands_2 and all_delays_2:
+			contact_min_max_2[contact_type_2] = (min(all_rands_2), max(all_rands_2), min(all_delays_2), max(all_delays_2))
 		else:
-			contact_min_max[contact_type] = (0, 0, 0, 0)
+			#contact_min_max_2[contact_type] = (0, 0, 0, 0)
+			raise ValueError(f"[FATAL] Contact min/max values missing for {rand_field_2} or/and {delay_field_2}. Likely cause: default contact flattening was skipped.")
 
-	# Second pass: compute raw aggregate scores
-	for leader_type, leader_data in leaders_data.items():
-		if leader_type in EXCLUDED_LEADERS_FROM_ATTRIBUTES_AGGREGATION:
-			for contact_type in ALL_CONTACT_TYPES:
-				short_name = contact_to_camel(contact_type)
-				leader_data[f"iAggregatedContact{short_name}Prob"] = SENTINEL_AGGREGATED_DUMMY_VALUE
-			continue
+	# Third pass: compute raw aggregate scores
+	b_invert_rand_3, b_invert_delay_3 = get_contact_rand_and_decay_invert_flags()
 
-		for contact_type in ALL_CONTACT_TYPES:
-			short_name = contact_to_camel(contact_type)
-			delay = leader_data[f"iContact{short_name}DelayAdjusted"]
-			rand = leader_data[f"iContact{short_name}RandAdjusted"]
-			forced_zero = leader_data[f"bContact{short_name}ForceZero"]
-			min_delay, max_delay, min_rand, max_rand = contact_min_max[contact_type]
+	for contact_type_3 in ALL_CONTACT_TYPES:
+		short_name_3 = get_pascal_case_suffix(contact_type_3)
+		aggregated_field_name_3 = f"iAggregatedContactProb{short_name_3}"
+		aggregated_raw_field_name_3 = f"iAggregatedRawContactProb{short_name_3}"
 
-			delay_norm_score = normalize_to_100(delay, min_delay, max_delay, invert=True, attr_name="delay")
-			rand_norm_score = normalize_to_100(rand, min_rand, max_rand, invert=True, attr_name="rand")
+		# <!-- custom: here we reuse contact_min_max defined at step _2, this is not a mistake if i am not mistaken i mean without pun or anythig but anyways etc anyways etc anyways etc hopefully helpful or not or yes or etc or and other or and not or yes or etc anyways etc -->
+		min_rand_3, max_rand_3, min_delay_3, max_delay_3 = contact_min_max_2[contact_type_3]
 
-			if forced_zero:
-				aggregated_score_raw = 0
-			else:
-				aggregated_score_raw = 0.7 * delay_norm_score + 0.3 * rand_norm_score
+		for leader_type_3, leader_data_3 in leaders_data.items():
+			if leader_type_3 in EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS:
+				leader_data_3[aggregated_field_name_3] = SENTINEL_AGGREGATED_DUMMY_VALUE
+				continue
 
-			leader_data[f"iAggregatedContact{short_name}ProbRaw"] = aggregated_score_raw
-			aggregated_score_raw_by_type[contact_type].append(aggregated_score_raw)
+			rand_3 = leader_data_3[f"iAdjustedContactRand{short_name_3}"]
+			delay_3 = leader_data_3[f"iAdjustedContactDelay{short_name_3}"]
+			force_zero_adjusted_values_3 = leader_data_3[f"bForceZeroContact{short_name_3}"]
+			adjusted_value_rand_norm_score_3 = normalize_to_100(rand_3, min_rand_3, max_rand_3, B_WARN, b_invert_rand_3, "rand")
+			adjusted_value_delay_norm_score_3 = normalize_to_100(delay_3, min_delay_3, max_delay_3, B_WARN, b_invert_delay_3, "delay")
+			aggregated_raw_contact_score_from_adjusted_values_3 = get_aggregated_raw_contact_score_from_adjusted_values(adjusted_value_rand_norm_score_3, adjusted_value_delay_norm_score_3, force_zero_adjusted_values_3)
+
+			# <!-- custom: raw aggregated key will be removed later after normalization of aggregated memory fields anyways etc -->
+			leader_data_3[aggregated_raw_field_name_3] = aggregated_raw_contact_score_from_adjusted_values_3
+			aggregated_contact_score_raw_from_adjusted_values_by_type[contact_type_3].append(aggregated_raw_contact_score_from_adjusted_values_3)
 
 			if DEBUG_CONTACT_FLATTENING:
-				debug_log.append(
-					f"[DEBUG] {leader_type} {contact_type}: raw=({delay},{rand}), adj=({delay},{rand}), "
-					f"norm=({delay_norm_score},{rand_norm_score}), score={aggregated_score_raw:.2f}"
-				)
+				print(f"[DEBUG] {leader_type_3} {contact_type_3}: adj_3=({rand_3},{delay_3}), norm_3=({adjusted_value_rand_norm_score_3},{adjusted_value_delay_norm_score_3}), force zero_3 = {force_zero_adjusted_values_3}, aggregated raw_3={aggregated_raw_contact_score_from_adjusted_values_3}")
 
-	# Third pass: normalize final scores
-	for contact_type in ALL_CONTACT_TYPES:
-		short_name = contact_to_camel(contact_type)
-		scores = aggregated_score_raw_by_type[contact_type]
-		if not scores:
-			continue
-		min_score = min(scores)
-		max_score = max(scores)
+	# Fourth pass: normalize final scores
+	# This pass *must* occur after all leaders have been assigned raw scores in Pass 3.
+	# We gather all raw scores to compute min/max, and then normalize final values.
+	for contact_type_4 in ALL_CONTACT_TYPES:
+		short_name_4 = get_pascal_case_suffix(contact_type_4)
+		aggregated_field_name_4 = f"iAggregatedContactProb{short_name_4}"
+		aggregated_raw_field_name_4 = f"iAggregatedRawContactProb{short_name_4}"
 
-		for leader_type in VALID_LEADERS_FOR_AGGREGATED_ATTRIBUTES:
-			raw = leaders_data[leader_type].get(f"iAggregatedContact{short_name}ProbRaw")
-			norm = normalize_to_100(raw, min_score, max_score, invert=False, attr_name=f"iAggregatedContact{short_name}Prob")
-			leaders_data[leader_type][f"iAggregatedContact{short_name}Prob"] = norm
-			del leaders_data[leader_type][f"iAggregatedContact{short_name}ProbRaw"]
+		scores_4 = aggregated_contact_score_raw_from_adjusted_values_by_type[contact_type_4]
+		if not scores_4:
+			raise ValueError(f"[FATAL] No raw scores collected for {contact_type_4} during normalization pass. Likely Pass 3 bug. Scores is scores_4={str(scores_4)}")
+		min_score_4 = min(scores_4)
+		max_score_4 = max(scores_4)
+		b_invert_aggregated_contact_prob_fields_4 = False
+
+		for leader_type_4 in VALID_LEADERS_FOR_AGGREGATED_ATTRIBUTES:
+			raw_4 = leaders_data[leader_type_4].get(aggregated_raw_field_name_4)
+			norm_4 = normalize_to_100(raw_4, min_score_4, max_score_4, B_WARN, b_invert_aggregated_contact_prob_fields_4, aggregated_field_name_4)
+			leaders_data[leader_type_4][aggregated_field_name_4] = norm_4
+			del leaders_data[leader_type_4][aggregated_raw_field_name_4]
 
 	if DEBUG_CONTACT_FLATTENING:
-		print("\n".join(debug_log))
+		print("[DEBUG] Finished flatten_all_contacts")
 
 def prune_nested_contact_lists_if_flattened(leaders_data):
 	"""
@@ -819,9 +685,9 @@ def prune_nested_contact_lists_if_flattened(leaders_data):
 	"""
 	for leader_data in leaders_data.values():
 		has_all_flat = all(
-			f"iContact{contact_to_camel(contact)}DelayRaw" in leader_data and
-			f"iContact{contact_to_camel(contact)}RandRaw" in leader_data
-			for contact in ALL_CONTACT_TYPES
+			f"iContactRand{get_pascal_case_suffix(contact_type)}" in leader_data and
+			f"iContactDelay{get_pascal_case_suffix(contact_type)}" in leader_data
+			for contact_type in ALL_CONTACT_TYPES
 		)
 		if has_all_flat:
 			leader_data.pop("ContactRands", None)
@@ -834,52 +700,23 @@ def remove_intermediate_contact_fields(leaders_data):
 	"""
 	# --- Contact fields ---
 	for contact_type in ALL_CONTACT_TYPES:
-		short_name = contact_to_camel(contact_type)
+		short_name = get_pascal_case_suffix(contact_type)
 		for field_template in [
-			"iContact{suffix}DelayAdjusted",
-			"iContact{suffix}RandAdjusted",
-			"bContact{suffix}ForceZero"
+			"iAdjustedContactRand{short_name}",
+			"iAdjustedContactDelay{short_name}",
+			"bForceZeroContact{short_name}"
 		]:
-			field_name = field_template.format(suffix=short_name)
+			field_name = field_template.format(short_name=short_name)
 			for leader_data in leaders_data.values():
 				leader_data.pop(field_name, None)
 
-def memory_to_camel(mem_type):
-        return capwords(mem_type.replace("MEMORY_", "").replace("_", " ")).replace(" ", "")
-
-def fetch_memory_min_max(mem_type, leaders_data, is_positive):
+# <!-- custom: this is not in ai_utils_shared_with_civ4.py as for the sevopedia leader part of fetching, we get already adjusted values from the DLL (unlike what is a bit different for the contact code where we get already DLL adjusted values anyways etc -->
+def get_pre_adjusted_raw_memory_values(raw_attitude_percent, raw_decay, mem_type, is_positive):
 	"""
-	Fetch the min and max for a specific memory type's attitude and decay values.
-	Returns: (min_attitude, max_attitude, min_decay, max_decay)
-	"""
-	mem_suffix = memory_to_camel(mem_type)
-	att_field = f"iPositiveMemoryAttitude{mem_suffix}Raw" if is_positive else f"iNegativeMemoryAttitude{mem_suffix}Raw"
-	dec_field = f"iPositiveMemoryDecay{mem_suffix}Raw" if is_positive else f"iNegativeMemoryDecay{mem_suffix}Raw"
-
-	all_attitudes = []
-	all_decays = []
-
-	for leader_type in VALID_LEADERS_FOR_AGGREGATED_ATTRIBUTES:
-		leader_data = leaders_data.get(leader_type, {})
-		att = leader_data.get(att_field)
-		dec = leader_data.get(dec_field)
-
-		if isinstance(att, int):
-			all_attitudes.append(att)
-		if isinstance(dec, int):
-			all_decays.append(dec)
-
-	if all_attitudes and all_decays:
-		return (min(all_attitudes), max(all_attitudes), min(all_decays), max(all_decays))
-	else:
-		raise ValueError(f"[FATAL] Missing attitude or decay values for {mem_type}. Flattening may have failed.")
-
-def adjust_memory_values(raw_attitude, raw_decay, mem_type, is_positive, is_affection):
-	"""
-	Adjusts memory attitude and decay values according to standard rules.
+	Adjusts memory attitude percent and decay values according to standard rules.
 	Returns: (adjusted_attitude, adjusted_decay)
 	"""
-	# Step 1: Adjust attitude (with DLL-specific logic)
+	# Adjust attitude (with DLL-specific logic)
 	# <!-- custom: For(/if memory type is MEMORY_TRADED_TECH_TO_US), we need to first adjust the raw value as per this comment to keep accuracy of positive distribution and not hide some low value negative numbers in particular, for example (0.8 * (-2)) + 4 = -1.6 + 4 = 2.4 which is positive so needs to be ranked relatively to other positive memories as such.
 	#
 	# DLL comment:
@@ -893,196 +730,173 @@ def adjust_memory_values(raw_attitude, raw_decay, mem_type, is_positive, is_affe
 	# As for us in this xml py parser, we can almost always just follow distribution regardless of how its value is transofrmed by the DLL, like in other memory types or attributes where we don't need to care even if the DLL (were to) (or) does some (possible transformations) as long as they don't shift the negative distribution / positive distribution of first value's start/initial point. In such cases, we don't need to strictly replicate the DLL's math and can just rank the XML values, but in this case the negative point (and first positive point value is shifted so we need to include more values and faithfully account for it)
 	# -->
 	if is_positive and mem_type == "MEMORY_TRADED_TECH_TO_US":
-
-		adjusted_att = 0.8 * raw_attitude + 4
+		pre_adjusted_raw_att = int(round(0.8 * raw_attitude_percent + 4))
+		pre_adjusted_raw_decay = raw_decay
+		return pre_adjusted_raw_att, pre_adjusted_raw_decay
 	else:
-		adjusted_att = raw_attitude
+		pre_adjusted_raw_att = raw_attitude_percent
+		pre_adjusted_raw_decay = raw_decay
+		return pre_adjusted_raw_att, pre_adjusted_raw_decay
 
-	# Step 2: Clamp invalid affection/resentment signs to 0
-	if is_affection:
-		# Affection must be non-negative
-		if adjusted_att < 0:
-			print(f"[WARNING] Affection memory {mem_type} has negative adjusted attitude: {adjusted_att}. Rounded to 0.")
-			adjusted_att = 0
-	else:
-		# Resentment must be non-positive
-		if adjusted_att > 0:
-			print(f"[WARNING] Resentment memory {mem_type} has positive adjusted attitude: {adjusted_att}. Rounded to 0.")
-			adjusted_att = 0
-
-	# Step 3: Adjust decay (decay must be non-negative)
-	adjusted_decay = max(0, raw_decay)
-
-	return adjusted_att, adjusted_decay, False # We never force aggregation to 0 for memories unlike in contact code, despite their similarities, so just one False here should be enough hopefully maybe anyways.
-
-def get_memory_attitude_and_decay_invert_flags(is_positive, is_affection):
-	if is_positive:
-		if is_affection:
-			# <!-- custom: higher attitude score (ex: + 350 > + 200) means more intense positive feeling (affection), closer to 0 means AI cares less (0 should be              - minimum -               atitudes after normalization unless i'm mistaken anyways but should be as this if i'm not mistaken anyways (where again AI cares the least)), so we don't invert.
-			# -->
-			# As for decay it should remain the same as it seems to just be some time unit or span (always positive if i'm not mistaken? At least after checking seems so in advciv data and in our mod AdvCiv-SAS at least so far, anyways) if i am not mistaken but this is just an assumption that could be accurate or not but that i think is (accurate), anyways -->
-			return False, False
-		else:
-			# <!-- custom: lower attitude score (ex: -350 < -200) means more intense negative feeling (resentment) (resentful and (more) especially spiteful AI even for (presumably) good deeds), closer to 0 means AI cares less (0 should be              - maximum -               attitudes after normalization unless i'm mistaken anyways but should be as this if i'm not mistaken anyways (where again AI also, as in positive affection, for this value 0 (after adjustment) attitude, cares the least (at least we model it a such))), so we should invert indeed.
-			# More detail on why and to be careful since these are negative values unlike most civ4 data (a good fail check too maybe to review or learn for me at least anways etc anyways), is that since our normalize_to_100 function shifts to 0 distribution before normalizing (i.e. -350 is now -350 + 350 = 0, and -200 is now -200 + 350 = 150 if i'm not mistaken anyways) then the lower the score is (0 vs 150 before normalization, which is (after normalization) 0 / 150 * 100 = 0 vs 100 / 150 * 100 = 100, then -350 (now 0) which was more intense(ly negative feeling (resentment)) is the lowest, while -200 (now 100) with the lowest (in comparison relatively) feeling is now the highest in score, so the atititude score should indeed be inverted, hopefully safe now but anyways etc anyways.
-			# -->
-			# As for decay it should be the same as above unless i'm mistaken but shouldn't be but anyways, anyways. -->
-			return True, False
-
-	else:
-		if is_affection:
-			# <!-- custom: similarly but in negative memories, higher attitude score (ex: + 350 > + 200) means more affection for them (more and more masochistic or similar AI anyways.. which i don't dislike but anyways... Not necessarily especialyl like but anyways (either/too)(or why not?) but anyways...), so we don't invert. -->
-			return False, False
-		else:
-			# # <!-- custom: similarly but in negative memories, lower attitude score (ex: -350 < -200) means more intense negative feeling (resentment) (resentful and (more) especially spiteful AI but this time in an (seemingly) expected way if (conventionally) harm(ful behaviour or other thing or similar anyways etc thing anyways etc) is done to it), closer to 0 means AI cares less (0 should be              - maximum -               attitudes after normalization unless i'm mistaken anyways but should be as this if i'm not mistaken anyways), so we invert.. -->
-			return True, False
+def get_positive_or_negative_memory_types(is_positive):
+	return (POSITIVE_MEMORY_TYPES if is_positive else NEGATIVE_MEMORY_TYPES)
 
 def flatten_all_memories(leaders_data, is_positive, is_affection):
 	"""
-	Refactored version: Flattens and computes normalized aggregated memory scores
-	using a strict raw → adjust → minmax → normalize → aggregated pipeline.
-
-	NOTE: This function requires that all leaders (including LEADER_DEFAULTS) have fully populated MemoryAttitudePercents and MemoryDecays fields, either from XML or via force-complete patching.
-	If any field is missing, the function will raise an error instead of assuming (0,0) placeholders.
+	Flatten and normalize memory attitude/decay values into aggregated scores,
+	following the same 3-pass pattern used by flatten_all_contacts().
+	Handles all memory types (positive/negative x affection/resentment).
 	"""
-	if "LEADER_DEFAULTS" not in leaders_data or "MemoryAttitudePercents" not in leaders_data["LEADER_DEFAULTS"] or "MemoryDecays" not in leaders_data["LEADER_DEFAULTS"]:
-		raise RuntimeError("[FATAL] LEADER_DEFAULTS missing or not parsed. Cannot proceed without default memory values.")
 
-	debug_log = []
-	memory_types = POSITIVE_MEMORY_TYPES if is_positive else NEGATIVE_MEMORY_TYPES
-	aggregated_raw_by_type = {mem_type: [] for mem_type in memory_types}
-	suffix_prefix = "Positive" if is_positive else "Negative"
-	affect_type = "Affection" if is_affection else "Resentment"
+	# Select memory types
+	memory_types = get_positive_or_negative_memory_types(is_positive)
+	aggregated_raw_scores_by_type = {mem_type: [] for mem_type in memory_types}
 
-	# Step 1: Extract raw values and compute adjusted ones
-	for leader_type, leader_data in leaders_data.items():
-		for mem_type in memory_types:
-			mem_suffix = memory_to_camel(mem_type)
-			att_key_raw = f"i{suffix_prefix}MemoryAttitude{mem_suffix}Raw"
-			dec_key_raw = f"i{suffix_prefix}MemoryDecay{mem_suffix}Raw"
-			att_key_adj = f"i{suffix_prefix}MemoryAttitude{mem_suffix}Adjusted"
-			dec_key_adj = f"i{suffix_prefix}MemoryDecay{mem_suffix}Adjusted"
-			zero_flag_key = f"b{suffix_prefix}Memory{mem_suffix}ForceZero"
+	positive_negative = get_positive_negative(is_positive)
+	affection_resentment = get_affection_resentment(is_affection)
 
-			# Fetch from nested structures with strict validation (no placeholders)
-			attitude_raw = None
-			decay_raw = None
+	# === PASS 1: Extract raw values and compute adjusted ===
+	for leader_type_1, leader_data_1 in leaders_data.items():
+		attitudes_1 = leader_data_1.get("MemoryAttitudePercents")
+		decays_1 = leader_data_1.get("MemoryDecays")
 
-			# Search for attitude
-			for entry in leader_data["MemoryAttitudePercents"]:
-				if entry.get("MemoryType") == mem_type:
-					val = entry.get("iMemoryAttitudePercent")
-					if val is None:
-						raise ValueError(f"[FATAL] Missing iMemoryAttitudePercent for {mem_type} in {leader_type}")
-					attitude_raw = int(val)
-					break  # Only use first match
+		if not attitudes_1 or not decays_1:
+			raise ValueError(f"[FATAL] Missing memory attitude/decay fields for {leader_type_1}")
 
-			# Search for decay
-			for entry in leader_data["MemoryDecays"]:
-				if entry.get("MemoryType") == mem_type:
-					val = entry.get("iMemoryDecay")
-					if val is None:
-						raise ValueError(f"[FATAL] Missing iMemoryDecay for {mem_type} in {leader_type}")
-					decay_raw = int(val)
+		for mem_type_1 in memory_types:
+			short_name_1 = get_pascal_case_suffix(mem_type_1)
+
+			attitude_percent_raw_1 = None
+			decay_raw_1 = None
+
+			# Strict fetch with no fallbacks
+			for entry_1 in attitudes_1:
+				if entry_1.get("MemoryType") == mem_type_1:
+					val_1 = entry_1.get("iMemoryAttitudePercent")
+					if val_1 is None:
+						raise ValueError(f"[FATAL] Missing iMemoryAttitudePercent for {mem_type_1} in {leader_type_1}")
+					attitude_percent_raw_1 = int(val_1)
 					break
 
-			if attitude_raw is None or decay_raw is None:
-				raise ValueError(f"[FATAL] Missing {mem_type} attitude_raw or/and decay_raw field in {leader_type}. Run force_complete_memory_attitudes/decays() first.")
+			for entry_1 in decays_1:
+				if entry_1.get("MemoryType") == mem_type_1:
+					val_1 = entry_1.get("iMemoryDecay")
+					if val_1 is None:
+						raise ValueError(f"[FATAL] Missing iMemoryDecay for {mem_type_1} in {leader_type_1}")
+					decay_raw_1 = int(val_1)
+					break
 
-			# Store raw for UI
-			leader_data[att_key_raw] = attitude_raw
-			leader_data[dec_key_raw] = decay_raw
+			if attitude_percent_raw_1 is None or decay_raw_1 is None:
+				raise ValueError(f"[FATAL] Memory attitude percent / decay missing for {mem_type_1} in {leader_type_1}. Did you run force_complete_memory_attitudes/decays() first?")
 
-			# Adjust for logic + scoring
-			att_adj, dec_adj, force_zero = adjust_memory_values(attitude_raw, decay_raw, mem_type, is_positive, is_affection)
-			leader_data[att_key_adj] = att_adj
-			leader_data[dec_key_adj] = dec_adj
-			leader_data[zero_flag_key] = force_zero
+			# <!-- custom: since we display same raw attitude percent and decay fields values in UI regardless of positive/negative memory affection/resentment (raw aggregated values then the normalized aggregated values are is displayed anyways etc) aggregation, no need to store multiple versions (i.e. positive/negative and affection/resentment) of these raw attitude percent and decay fields, store only one kind for all of these 4 possible combination cases (positive-affection, positive-resentment, negative-affection, negative-resentment anyways etc) same as in XML fields structuration too for raw attitude percents and decays anyways etc anyways etc anyways etc, i.e. for example only for example iMemoryAttitudePercentDeclaredWar (no positive-negative, no affection-resentment) for raw attitude_percent and decay fields same as in XML anyways etc -->
+			# Save raw for UI
+			parsed_name_attitude_percent_1 = f"iMemoryAttitudePercent{short_name_1}"
+			if parsed_name_attitude_percent_1 not in leader_data_1:
+				leader_data_1[parsed_name_attitude_percent_1] = attitude_percent_raw_1
 
-	# Step 2: Compute min/max from adjusted values
-	memory_min_max = {}
-	for mem_type in memory_types:
-		mem_suffix = memory_to_camel(mem_type)
-		att_key_adj = f"i{suffix_prefix}MemoryAttitude{mem_suffix}Adjusted"
-		dec_key_adj = f"i{suffix_prefix}MemoryDecay{mem_suffix}Adjusted"
-		all_attitudes = []
-		all_decays = []
-		for leader_type in VALID_LEADERS_FOR_AGGREGATED_ATTRIBUTES:
-			leader_data = leaders_data[leader_type]
-			a = leader_data.get(att_key_adj)
-			d = leader_data.get(dec_key_adj)
-			if isinstance(a, (int, float)):
-				all_attitudes.append(a)
-			if isinstance(d, (int, float)):
-				all_decays.append(d)
-		if all_attitudes and all_decays:
-			memory_min_max[mem_type] = (min(all_attitudes), max(all_attitudes), min(all_decays), max(all_decays))
+			parsed_name_decay_1 = f"iMemoryDecay{short_name_1}"
+			if parsed_name_decay_1 not in leader_data_1:
+				leader_data_1[parsed_name_decay_1] = decay_raw_1
+
+			# <!-- custom: pre adjust values (for memory fields specifically unlike contact fields anyways etc), clearer to separate it this way and so we can reuse the common adjust logic both in generate_leaders_data.py and sevopedia leader too anyways etc -->
+			pre_adjusted_raw_attitude_percent_1, pre_adjusted_raw_decay_1 = get_pre_adjusted_raw_memory_values(attitude_percent_raw_1, decay_raw_1, mem_type_1, is_positive)
+			# Adjust values
+			attitude_percent_adjusted_1, decay_adjusted_1, force_zero_adjusted_affection_or_resentment_1 = get_adjusted_memory_values(pre_adjusted_raw_attitude_percent_1, pre_adjusted_raw_decay_1, is_affection, DEBUG_MEMORY_FLATTENING, mem_type_1)
+			# <!-- custom: adjustment depends only on is_affection, not dependent on is_positive regardless of its value, so no need to store the 4 combinations, store only 2 (i.e. only positive and negative (i.e. all anyways etc) adjusted memory affections, and similarly positive and negative (i.e. all anyways etc) memory decays) out of the 4 positive-negative and affection-resentment combination for adjusted raw fields anyways etc, same for force zero (field, even though it is temporary too (i.e. that we don't store permanently nor display but is used as part of computations anyways etc)) anyways etc -->
+			leader_data_1[f"iAdjustedMemoryAttitudePercent{short_name_1}{affection_resentment}"] = attitude_percent_adjusted_1
+			leader_data_1[f"iAdjustedMemoryDecay{short_name_1}{affection_resentment}"] = decay_adjusted_1
+			leader_data_1[f"bForceZeroMemory{short_name_1}{affection_resentment}"] = force_zero_adjusted_affection_or_resentment_1
+
+	# === PASS 2: Compute min/max ===
+	memory_min_max_2 = {}
+	for mem_type_2 in memory_types:
+		short_name_2 = get_pascal_case_suffix(mem_type_2)
+		attitude_percent_field_2 = f"iAdjustedMemoryAttitudePercent{short_name_2}{affection_resentment}"
+		decay_field_2 = f"iAdjustedMemoryDecay{short_name_2}{affection_resentment}"
+		all_att_2, all_dec_2 = [], []
+
+		for leader_type_2 in VALID_LEADERS_FOR_AGGREGATED_ATTRIBUTES:
+			leader_data_2 = leaders_data[leader_type_2]
+			a_2 = leader_data_2.get(attitude_percent_field_2)
+			d_2 = leader_data_2.get(decay_field_2)
+			if isinstance(a_2, (int, float)):
+				all_att_2.append(a_2)
+			if isinstance(d_2, (int, float)):
+				all_dec_2.append(d_2)
+
+		if all_att_2 and all_dec_2:
+			memory_min_max_2[mem_type_2] = (min(all_att_2), max(all_att_2), min(all_dec_2), max(all_dec_2))
 		else:
-			memory_min_max[mem_type] = (0, 0, 0, 0)
+			#memory_min_max_2[mem_type_2] = (0, 0, 0, 0)
+			raise ValueError(f"[FATAL] Memory min/max values missing for {attitude_percent_field_2} or/and {decay_field_2}. Likely cause: default memory flattening was skipped.")
 
-	# Step 3: Score and store unnormalized aggregated attributes
-	for leader_type, leader_data in leaders_data.items():
-		if leader_type in EXCLUDED_LEADERS_FROM_ATTRIBUTES_AGGREGATION:
-			for mem_type in memory_types:
-				mem_suffix = memory_to_camel(mem_type)
-				final_key = f"iAggregated{suffix_prefix}Memory{mem_suffix}{affect_type}"
-				leader_data[final_key] = SENTINEL_AGGREGATED_DUMMY_VALUE
-			continue
+	# === PASS 3: Compute raw + normalize ===
+	b_invert_attitude_percent_3, b_invert_decay_3 = get_memory_attitude_percent_and_decay_invert_flags(is_positive, is_affection)
 
-		for mem_type in memory_types:
-			mem_suffix = memory_to_camel(mem_type)
-			att_adj = leader_data[f"i{suffix_prefix}MemoryAttitude{mem_suffix}Adjusted"]
-			dec_adj = leader_data[f"i{suffix_prefix}MemoryDecay{mem_suffix}Adjusted"]
-			force_zero = leader_data[f"b{suffix_prefix}Memory{mem_suffix}ForceZero"]
-			min_att, max_att, min_dec, max_dec = memory_min_max[mem_type]
+	for mem_type_3 in memory_types:
+		short_name_3 = get_pascal_case_suffix(mem_type_3)
+		aggregated_field_name_3 = f"iAggregated{positive_negative}Memory{short_name_3}{affection_resentment}"
+		aggregated_raw_field_name_3 = f"iAggregatedRaw{positive_negative}Memory{short_name_3}{affection_resentment}"
 
-			is_inverted_att, is_inverted_dec = get_memory_attitude_and_decay_invert_flags(is_positive, is_affection)
+		# <!-- custom: note: is not a mistake, (re)access memory_min_max_2 (defined at pass _2) anyways etc in this case i mean at least anyways etc but anyways etc anyways etc -->
+		min_att_3, max_att_3, min_dec_3, max_dec_3 = memory_min_max_2[mem_type_3]
 
-			norm_att = normalize_to_100(att_adj, min_att, max_att, is_inverted_att, attr_name=f"{mem_type}_att")
-			norm_dec = normalize_to_100(dec_adj, min_dec, max_dec, is_inverted_dec, attr_name=f"{mem_type}_dec")
-			combined = 0 if force_zero else 0.7 * norm_att + 0.3 * norm_dec
+		for leader_type_3, leader_data_3 in leaders_data.items():
+			if leader_type_3 in EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS:
+				leader_data_3[aggregated_field_name_3] = SENTINEL_AGGREGATED_DUMMY_VALUE
+				continue
 
-			raw_key = f"iAggregated{suffix_prefix}Memory{mem_suffix}{affect_type}Raw"
-			leader_data[raw_key] = combined
-			aggregated_raw_by_type[mem_type].append(combined)
+			attitude_percent_adjusted_3 = leader_data_3[f"iAdjustedMemoryAttitudePercent{short_name_3}{affection_resentment}"]
+			decay_adjusted_3 = leader_data_3[f"iAdjustedMemoryDecay{short_name_3}{affection_resentment}"]
+			force_zero_adjusted_affection_or_resentment_3 = leader_data_3[f"bForceZeroMemory{short_name_3}{affection_resentment}"]
+
+			attitude_percent_adjusted_norm_3 = normalize_to_100(attitude_percent_adjusted_3, min_att_3, max_att_3, B_WARN, b_invert_attitude_percent_3, "att")
+			decay_adjusted_norm_3 = normalize_to_100(decay_adjusted_3, min_dec_3, max_dec_3, B_WARN, b_invert_decay_3, "dec")
+			aggregated_raw_memory_score_from_adjusted_values_3 = get_aggregated_raw_positive_or_negative_memory_affection_or_resentment_score_from_adjusted_values(attitude_percent_adjusted_norm_3, decay_adjusted_norm_3, force_zero_adjusted_affection_or_resentment_3)
+
+			# <!-- custom: raw aggregated key will be removed later after normalization of aggregated memory fields anyways etc -->
+			leader_data_3[aggregated_raw_field_name_3] = aggregated_raw_memory_score_from_adjusted_values_3
+			aggregated_raw_scores_by_type[mem_type_3].append(aggregated_raw_memory_score_from_adjusted_values_3)
 
 			if DEBUG_MEMORY_FLATTENING:
-				debug_log.append(
-					f"[DEBUG] {leader_type} {mem_type}: att_raw={att_adj}, dec_raw={dec_adj}, norm_att={norm_att:.1f}, norm_dec={norm_dec:.1f}, raw_combined={combined:.2f}"
-				)
+				print(f"[DEBUG] {leader_type} {mem_type_3}: adj_3=({attitude_percent_adjusted_3},{decay_adjusted_3}), norm_3=({attitude_percent_adjusted_norm_3},{decay_adjusted_norm_3}), force zero_3 = {force_zero_adjusted_affection_or_resentment_3}, is_affection={is_affection}, aggregated raw_3={aggregated_raw_memory_score_from_adjusted_values_3}")
 
-	# Step 4: Normalize final scores
-	for mem_type in memory_types:
-		mem_suffix = memory_to_camel(mem_type)
-		final_key = f"iAggregated{suffix_prefix}Memory{mem_suffix}{affect_type}"
-		raw_key = f"{final_key}Raw"
-		scores = aggregated_raw_by_type[mem_type]
-		if not scores:
-			continue
-		min_score = min(scores)
-		max_score = max(scores)
+	# === PASS 4: Normalize final ===
+	# This pass *must* occur after all leaders have been assigned raw scores in Pass 3.
+	# We gather all raw scores to compute min/max, and then normalize final values.
+	for mem_type_4 in memory_types:
+		short_name_4 = get_pascal_case_suffix(mem_type_4)
+		aggregated_field_name_4 = f"iAggregated{positive_negative}Memory{short_name_4}{affection_resentment}"
+		aggregated_raw_field_name_4 = f"iAggregatedRaw{positive_negative}Memory{short_name_4}{affection_resentment}"
 
-		for leader_type in VALID_LEADERS_FOR_AGGREGATED_ATTRIBUTES:
-			raw = leaders_data[leader_type].get(raw_key)
-			norm = normalize_to_100(raw, min_score, max_score, invert=False, attr_name=final_key)
-			leaders_data[leader_type][final_key] = norm
-			del leaders_data[leader_type][raw_key]
+		scores_4 = aggregated_raw_scores_by_type[mem_type_4]
+		if not scores_4:
+			raise ValueError(f"[FATAL] No raw scores collected for {mem_type_4} during normalization pass. Likely Pass 3 bug. Scores is scores={str(scores_4)}")
+		min_score_4 = min(scores_4)
+		max_score_4 = max(scores_4)
+		b_invert_aggregated_memory_fields_4 = False
+
+		for leader_4 in VALID_LEADERS_FOR_AGGREGATED_ATTRIBUTES:
+			raw_4 = leaders_data[leader_4].get(aggregated_raw_field_name_4)
+			norm_4 = normalize_to_100(raw_4, min_score_4, max_score_4, B_WARN, b_invert_aggregated_memory_fields_4, aggregated_field_name_4)
+			leaders_data[leader_4][aggregated_field_name_4] = norm_4
+			if aggregated_raw_field_name_4 in leaders_data[leader_4]:
+				del leaders_data[leader_4][aggregated_raw_field_name_4]
 
 	if DEBUG_MEMORY_FLATTENING:
-		print("\n".join(debug_log))
+		print("[DEBUG] Finished flatten_all_memories")
 
-def prune_nested_memory_lists_if_flattened(leaders_data, is_positive):
+def prune_nested_memory_lists_if_flattened(leaders_data):
 	"""
 	Removes 'MemoryAttitudePercents' and 'MemoryDecays' if all memory fields have been flattened.
 	"""
-	memory_types = POSITIVE_MEMORY_TYPES if is_positive else NEGATIVE_MEMORY_TYPES
-	suffix_prefix = "Positive" if is_positive else "Negative"
-
+	# <!-- custom: we parse only 1 of the 4 combinations possible of possible of positive-negative memory affection-resentment, same as in XML structure, so just called or rather named it anyways etc for example imemoryAttitudePercentDeclaredWar (no positive-negative, no affection-resentment) for raw attitude_percent and decay fields same as in XML anyways etc ; so here there is only one kind of parsed name field to check before pruning nested old parsed fields if i may say anyways etc -->
 	for leader_data in leaders_data.values():
 		has_all_flat = all(
-			f"i{suffix_prefix}MemoryAttitude{memory_to_camel(mem_type)}Raw" in leader_data and
-			f"i{suffix_prefix}MemoryDecay{memory_to_camel(mem_type)}Raw" in leader_data
-			for mem_type in memory_types
+			f"iMemoryAttitudePercent{get_pascal_case_suffix(mem_type)}" in leader_data and
+			f"iMemoryDecay{get_pascal_case_suffix(mem_type)}" in leader_data
+			for mem_type in ALL_MEMORY_TYPES
 		)
 		if has_all_flat:
 			leader_data.pop("MemoryAttitudePercents", None)
@@ -1092,19 +906,34 @@ def remove_intermediate_memory_fields(leaders_data):
 	"""
 	Safer version: Remove known memory and contact Adjusted / ForceZero fields
 	after flattening, *only for fields we know we added*, using memory/contact types.
+
+	Note:
+	- This function only deletes intermediate fields like:
+	  - iAdjustedMemoryAttitudePercentSpyCaughtAffection
+	  - iAdjustedMemoryDecayDeclaredWarResentment
+	  - bForceZeroMemorySpyCaughtAffection
+	- It does **not** delete final aggregate fields like:
+	  - iAggregatedPositiveMemorySpyCaughtAffection
+	  - iAggregatedNegativeMemoryDeclaredWarResentment
+
+	Why?
+	- Because the final aggregate scores are meant to be displayed in the Sevopedia UI.
+	- These `Positive` and `Negative` variants are the *output* of the flattening process, not intermediate data.
+
+	Therefore, <!-- custom: anyways etc `Positive` or `Negative` are also --> intentionally not part of the cleanup pattern. <!-- custom: as adjusted positive memory fields or adjusted negative memory fields don't exist if i am not mistaken, all memory types (i.e. positive or negative) are adjusted the same way, only do they vary based on is_affection hence we only clean affection and resentment versions of the adjusted temporary data we used to calculate raw aggregated positive and negative memory affections and resentments if i am not mistaken indeed most likely maybe but maybe i am not (i.e. maybe i am not mistaken anyways etc) hopefully helpful or not too or yes too helpful i mean but anyways etc anyways etc anyways etc -->
 	"""
+	# <!-- custom: in short if i am not mistaken anyways etc here 2 of 4 combinations to clean for adjusted fields, so alll (positive and negative) affections, and all (positive and negative) resentments anyways etc, so loop overall all memory types not just positive or negative ones only/restricetedly anyways etc -->
 	# --- Memory fields ---
-	for is_positive in [True, False]:
-		suffix_prefix = "Positive" if is_positive else "Negative"
-		memory_types = POSITIVE_MEMORY_TYPES if is_positive else NEGATIVE_MEMORY_TYPES
-		for mem_type in memory_types:
-			mem_suffix = memory_to_camel(mem_type)
+	for is_affection in (True, False):
+		affection_resentment = get_affection_resentment(is_affection)
+		for mem_type in ALL_MEMORY_TYPES:
+			short_name = get_pascal_case_suffix(mem_type)
 			for field_template in [
-				"i{prefix}MemoryAttitude{suffix}Adjusted",
-				"i{prefix}MemoryDecay{suffix}Adjusted",
-				"b{prefix}Memory{suffix}ForceZero"
+				"iAdjustedMemoryAttitudePercent{short_name}{affection_resentment}",
+				"iAdjustedMemoryDecay{short_name}{affection_resentment}",
+				"bForceZeroMemory{short_name}{affection_resentment}"
 			]:
-				field_name = field_template.format(prefix=suffix_prefix, suffix=mem_suffix)
+				field_name = field_template.format(affection_resentment=affection_resentment, short_name=short_name)
 				for leader_data in leaders_data.values():
 					leader_data.pop(field_name, None)
 
@@ -1163,7 +992,7 @@ def parse_leader(leader, leader_type, leader_data, seen_tags):
 		elif tag == "ContactDelays":
 			leader_data["ContactDelays"] = parse_contact_delays_inline(child)
 		elif tag == "MemoryAttitudePercents":
-			leader_data["MemoryAttitudePercents"] = parse_memory_attitudes_inline(child)
+			leader_data["MemoryAttitudePercents"] = parse_memory_attitude_percents_inline(child)
 		elif tag == "MemoryDecays":
 			leader_data["MemoryDecays"] = parse_memory_decays_inline(child)
 
@@ -1213,7 +1042,7 @@ for leader in root.findall(".//civ4:LeaderHeadInfo", ns):
 if "LEADER_DEFAULTS" in leader_defaults_data:
 	raise ValueError("[INFO] Nested defaults ['LEADER_DEFAULTS']")
 
-# 2. Inject missing memory attitude types (AFTER parsing)
+# 2. Inject missing memory attitude percent (AFTER parsing)
 if "MemoryAttitudePercents" not in leader_defaults_data:
 	leader_defaults_data["MemoryAttitudePercents"] = []
 
@@ -1243,7 +1072,7 @@ existing_decays = {
 
 for mem_type in MEMORY_TYPES_NOT_IN_LEADER_DEFAULTS:
 	if mem_type not in existing_decays:
-		print(f"[INFO] Missing memory decay memory type {mem_type} in LEADER_DEFAULTS, injecting decay=0 for {mem_type} as seems to be the case already ingame in leader info's gc in debug output at least for the few missing memory attitude fields in LEADER_DEFAULTS 's XML that display as existing and 0 in sevopedia leader's gc ingame in debug output, so handle any potential memory decay missing in LEADER_DEFAULTS similarly hopefully accurate enough too i mean at least if not simply accurate but anyways etc.")
+		print(f"[INFO] Missing memory decay memory type {mem_type} in LEADER_DEFAULTS, injecting decay=0 for {mem_type} as seems to be the case already ingame in leader info's gc in debug output at least for the few missing memory attitude percent fields in LEADER_DEFAULTS 's XML that display as existing and 0 in sevopedia leader's gc ingame in debug output, so handle any potential memory decay missing in LEADER_DEFAULTS similarly hopefully accurate enough too i mean at least if not simply accurate but anyways etc.")
 		leader_defaults_data["MemoryDecays"].append({
 			"MemoryType": mem_type,
 			"iMemoryDecayRand": 0
@@ -1269,7 +1098,7 @@ for leader in root.findall(".//civ4:LeaderHeadInfo", ns):
 # --- Create a list of valid leaders (exclude dummy leaders for aggregated attributes) ---
 VALID_LEADERS_FOR_AGGREGATED_ATTRIBUTES = [
     k for k in leaders_data
-    if k not in EXCLUDED_LEADERS_FROM_ATTRIBUTES_AGGREGATION
+    if k not in EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS
 ]
 
 if (IS_INSPECT_DEBUG_LEADER):
@@ -1281,20 +1110,19 @@ print("DEBUG Catherine MemoryDecays:", leaders_data["LEADER_CATHERINE"]["MemoryD
 print("DEFAULTS FINAL at step 1:", leader_defaults_data)
 ensure_complete_no_war_attitude_probs(leaders_data, leader_defaults_data)
 ensure_complete_flavors(leaders_data)
-force_complete_contact_delays(leaders_data, leader_defaults_data)
 force_complete_contact_rands(leaders_data, leader_defaults_data)
+force_complete_contact_delays(leaders_data, leader_defaults_data)
 force_complete_memory_decays(leaders_data, leader_defaults_data)
-force_complete_memory_attitudes(leaders_data, leader_defaults_data)
+force_complete_memory_attitude_percents(leaders_data, leader_defaults_data)
 
 if (IS_INSPECT_DEBUG_LEADER):
 	print("2 - Before any flatten_all functions: Leader %s's leaders_data: %s" % (LEADER_TO_INSPECT_IN_DEBUG_OUTPUT, str(leaders_data[LEADER_TO_INSPECT_IN_DEBUG_OUTPUT])))
 # --- Now flatten all contacts nicely <!-- custom: then prune list too anwyays etc --> ---
 flatten_all_contacts(leaders_data)
-# --- Add Positive Memory Affection aggregate ---
-flatten_all_memories(leaders_data, is_positive=True, is_affection=True)   # Affection from positive memories
-flatten_all_memories(leaders_data, is_positive=True, is_affection=False)  # Resentment from positive memories
-flatten_all_memories(leaders_data, is_positive=False, is_affection=True)  # Affection from negative memories (rare?)
-flatten_all_memories(leaders_data, is_positive=False, is_affection=False) # Resentment from negative memories
+# --- Add Positive <!-- custom: and negative --> Memory Affection <!-- custom: and resentment aggregates --> ---
+for is_positive in (True, False):
+	for is_affection in (True, False):
+		flatten_all_memories(leaders_data, is_positive, is_affection)
 
 # === Final Cleanup ===
 
@@ -1303,10 +1131,7 @@ if (IS_INSPECT_DEBUG_LEADER):
 prune_nested_no_war_attitude_probs_if_flattened(leaders_data)
 prune_nested_flavors_if_flattened(leaders_data)
 prune_nested_contact_lists_if_flattened(leaders_data)
-# <!-- custom: positive memories are shared between affections and resentments, so prune only once positive memories for both positive memories affections and positive memories resentments.
-# Same and similar reasoning for negative memories -->
-prune_nested_memory_lists_if_flattened(leaders_data, is_positive=True)
-prune_nested_memory_lists_if_flattened(leaders_data, is_positive=False)
+prune_nested_memory_lists_if_flattened(leaders_data)
 
 # <!-- custom: safer to do the cleanup only after all parsing is done if i am not mistaken, to make sure data is not used in other places before that if i'm not mistaken and based on my understanding of chatgpt's answer and response and suggestion to me etc anyways -->
 # --- Cleanup remaining unused legacy fields if not already done ---
@@ -1329,17 +1154,8 @@ if not ARGV_NO_TESTING:
 		# --- Test parsed output against expected sample ---
 
 		expected_sample = get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE()
-		sample_leaders = [
-			# <!-- custom: even if barbarian (same for defaults anyways etc) is not a real leader, its data is useful to make sure we didn't do parsing mistakes or such or to cover more edge cases like <NoWarAttitudeProbs/> or <Flavors/> for example or other unexpected or missing or other or and not value(s) anyways etc anyways etc anyways etc... -->
-			"LEADER_BARBARIAN",
-			"LEADER_DEFAULTS",
-			# <!-- custom: then the rest of the batch/crew or and other i must say or and not or and other or and not but anyways etc... still the staff is here actually i said it now even though is not professional team but anyways etc... -->
-			"LEADER_ALEXANDER",
-			"LEADER_CATHERINE",
-			"LEADER_GANDHI",
-		]
 
-		parsed_sample = {k: v for k, v in leaders_data.items() if k in sample_leaders}
+		parsed_sample = {k: v for k, v in leaders_data.items() if k in EXPECTED_OUTPUT_LEADERS_TO_TEST}
 
 		def compare_leaders(expected, actual):
 			grouped_mismatches = {}  # leader -> list of mismatches

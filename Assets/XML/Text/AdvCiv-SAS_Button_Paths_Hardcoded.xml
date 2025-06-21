@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- custom: one or a few anyways etc buttons we use in a hardcoded way (for example the cities (terrain modifiers) button in sevopedia unit) that do not fit in AdvCiv-SAS_ImagesAsButtons.xml as these are not imagesAsButtons (no button as Txt) but real ingame buttons so that we can access them all more easily anyways etc if they are in one of a few specific anyways etc related anyways etc files anyways if need(ed?) but or not but or yes but or and etc but anyways etc anyways etc anyways etc -->
+<Civ4GameText>
+	<TEXT>
+		<Tag>TXT_KEY_BUTTON_PATH_HARDCODED_POWER_BUTTON_PATH</Tag>
+		<English>,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_2.dds,6,11</English>
+	</TEXT>
+
+
+	
+	<TEXT>
+		<Tag>TXT_KEY_BUTTON_PATH_HARDCODED_CITIES_BUTTON_PATH</Tag>
+		<English>,Art/Interface/Buttons/Units/Worker.dds,Art/Interface/Buttons/Charlemagne_Atlas.dds,4,2</English>
+	</TEXT>
+</Civ4GameText>

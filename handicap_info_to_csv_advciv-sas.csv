@@ -16,7 +16,7 @@ iAIStartingDefenseUnits,1,1,1,2,2,3,3,4,4
 iAIStartingExploreUnits,0,0,0,0,1,1,1,1,1
 iAIStartingUnitMultiplier,0,0,0,0,0,0,0,0,0
 iAIStartingWorkerUnits,0,0,0,0,0,0,0,1,1
-iAITrainPercent,121,114,107,100,93,86,79,72,65
+iAITrainPercent,124,116,108,100,92,84,76,68,60
 iAIUnitCostPercent,100,100,100,100,100,100,100,100,100
 iAIUnitSupplyPercent,50,50,50,50,50,50,50,50,50
 iAIUnitUpgradePercent,50,50,50,50,50,50,50,50,50

@@ -8749,7 +8749,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_BUREAUCRACY</FavoriteCivic>
-			<FavoriteReligion>RELIGION_DAOISM</FavoriteReligion> <!-- custom: not much info from quick read only a very tiny indirect reference to "taoism" (not daoism in eng sources it seems but anyways etc) in a wiki external source, so may or not be related but hopefully accurate enough anyways etc (Han adopted confucianism (from my quick read/understanding) but i was/am not sure daoism was the previous "religion"(?) (dominant) or if it was traditional chinese religion or/and some form of paganism they seem to mention too in qin dynasty wikis but as i don't know a lot and there is no direct contradiction keeping as is hoepfully nad maybe (or not but anyways... etc) accurate enough anyways etc) -->
+			<FavoriteReligion>RELIGION_DAOISM</FavoriteReligion> <!-- custom: not much info from quick read only a very tiny indirect reference to "taoism" (not daoism in eng sources it seems but anyways etc) in a wiki external source, so may or not be related but hopefully accurate enough anyways etc (Han adopted confucianism (from my quick read/understanding) but i was/am not sure daoism was the previous "religion"(?) (dominant) or if it was traditional chinese religion or/and some form of paganism they seem to mention too in qin dynasty wikis but as i don't know a lot and there is no direct contradiction keeping as is hopefully nad maybe (or not but anyways... etc) accurate enough anyways etc) -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_INDUSTRIOUS</TraitType>

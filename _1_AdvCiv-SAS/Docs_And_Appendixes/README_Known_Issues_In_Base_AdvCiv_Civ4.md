@@ -136,7 +136,7 @@ So i had the idea to generalize this approach to find if we don't have other suc
 
 Since there are false positives, i am not sure how to interpret it, but hopefully useful enopugh, so adding this script here, and funcitonal enough (skim through results you known false for example maybe i mean, anyways)
 
-Results are very good, if you have good eyes or are veyr patient or/and know where and what to look at or/and other things or not anyways, we successfulyl spot it specifically (Gandhi's seemingly('s?) mistake/typo/bug)
+Results are very good, if you have good eyes or are veyr patient or/and know where and what to look at or/and other things or not anyways, we successfully spot it specifically (Gandhi's seemingly('s?) mistake/typo/bug)
 
 A few screenshots of the issue (screenshot previews below as long as links are valid anyways etc) in [this Google drive folder about this issue](https://drive.google.com/drive/folders/1WNHP4fQQ1Dbm4JnXx9YDedCnLzrOO8ey?usp=sharing)
 
@@ -547,3 +547,57 @@ The `ART_DEF_UNIT_ARCHER_EURASIAN` (see screenshots 6708, 6709, 6710, 6711 in dr
 Note: the `ART_DEF_UNIT_ARCHER_CHINESE` (see screenshot 6705 similarly anyways etc) now renamed to `ART_DEF_UNIT_ARCHER_ASIAN` for consistency is used though if i am not mistaken as the asian civilizations spearman art asset if i am not mistaken, anyways etc, so keeping it and removing instead the unused in base advciv and in our mod too `ART_DEF_UNIT_ARCHER_EURASIAN` as said before in previous sentence/paragraph if i am not mistaken too but anyways etc anyways etc anyways etc...
 
 Also, if we want an art asset, we can always fetch it / import it from one of the many many existing mods i mean if i may say instead but the civ4 ones are cool too if we need them but and or else but anyways etc we can import the ones we need from mods (or and/from base civ4 but anyways etc), but since we don't use the art asset and it seems to indeed if i am not mistaken be unused, remove it entirely, simpler and cleaner and more consistent with our code and ideally is how id want to do it but anyways etc anyways etc anyways etc, may readd if need(ed?), but most likely won't, but whether i add it or not is as it is etc in this case etc but anyways etc anyways etc anyways etc ; maybe it served some purpose to reference/list it ther eif players or/and modders would want to know it is available in this case but anyways etc, but maybe we can remove it now as we can import many art assets from other mods in this case i mean is kind of them to have kept it but also inefficient in all cases maybe we can remove it now in this case at least if not others or maybe not or other or etc but anwyays etc anyways etc anyways etc...
+
+# 20 - Negative and incosistent DLL ajusted nowarattitudeprobs for some leaders, like leader_alexander that/who anyways etc has nowarattitude prob furious of -2 lower than furious 0 and lower than cautious 14
+
+Screenshots about this issue can be viewed in this [google drive folder link]() anyways etc
+
+Some leaders like Alexander (III the g(G? of just g but anyways etc...)reat but anyways etc...) for example have a value for noWarAttitudeProb Furious of -2 DLL ajusted, which is lower than furious and doesnt seem to make sense.
+
+Alexander's XML is like this:
+
+```
+			<NoWarAttitudeProbs>
+				<NoWarAttitudeProb>
+					<AttitudeType>ATTITUDE_CAUTIOUS</AttitudeType>
+					<iNoWarProb>20</iNoWarProb>
+				</NoWarAttitudeProb>
+				<NoWarAttitudeProb>
+					<AttitudeType>ATTITUDE_PLEASED</AttitudeType>
+					<iNoWarProb>80</iNoWarProb>
+				</NoWarAttitudeProb>
+			</NoWarAttitudeProbs>
+```
+
+Since furious and annoyed are missing, they should fall back to defaults (i.e. LEADER_DEFAULTS 's value if i am not mistaken anyways etc) if i am not mistaken, which is as follows at least as of now anyways etc:
+
+```
+			<NoWarAttitudeProbs>
+				<NoWarAttitudeProb>
+					<AttitudeType>ATTITUDE_FURIOUS</AttitudeType>
+					<iNoWarProb>0</iNoWarProb>
+				</NoWarAttitudeProb>
+				<NoWarAttitudeProb>
+					<AttitudeType>ATTITUDE_ANNOYED</AttitudeType>
+					<iNoWarProb>0</iNoWarProb>
+				</NoWarAttitudeProb>
+				<NoWarAttitudeProb>
+					<AttitudeType>ATTITUDE_CAUTIOUS</AttitudeType>
+					<iNoWarProb>0</iNoWarProb>
+				</NoWarAttitudeProb>
+				<NoWarAttitudeProb>
+					<AttitudeType>ATTITUDE_PLEASED</AttitudeType>
+					<iNoWarProb>0</iNoWarProb>
+				</NoWarAttitudeProb>
+				<NoWarAttitudeProb>
+					<AttitudeType>ATTITUDE_FRIENDLY</AttitudeType>
+					<iNoWarProb>100</iNoWarProb>
+				</NoWarAttitudeProb>
+			</NoWarAttitudeProbs>
+```
+
+Based on this, since furious and annoyed is an identical value in leader_defaults anyways etc, why isn't it ideally both 0 (for furiosu and annoyed) in alexander for example, or alternatively both -2 (less ideal i think but i dont know, as attitude should floor at 0 ideally if i may say and if i am not mistaken in my understanding anyways etc), but at least not inconsistently be lower at annoyed (here -2) than at furious (here 0).
+
+Not sure i would fix it (i would have to dig how first) nor how it would influence game, but if want to look again at this issue it is here.
+
+I don't know what the influence of the negative sign is, as otherwise 2 vs 0 should be quite minimal, but not sure is jsut my opinion/feel/thought which i don't know about much in this case, but the negative sign difference is more annoying, and ideally there would be a nice gradation i eman gradually increasing in english if i may say but anyways etc anyways etc anyways etc, hopefully helpful to have compiled this data as i wanted in the way i wanted even though bit tedious xd to be fair i eman anwyyas etc not gonna lie, but is quite cool to have compiled it too now is my feel if i may say for me, but anyways etc.

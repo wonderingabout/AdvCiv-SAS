@@ -1,6 +1,6 @@
 # Sex-neutral and Less Generic-neutral (too) unit names or/and combat types (todo and non-exhaustive)
 
-As this will be expanded later, moving this part of the README to a specific file or/and also to not clutter main README.md anyways etc, hoepfully helpful or not or maybe yes or not or yes or and other or and not anyways etc.
+As this will be expanded later, moving this part of the README to a specific file or/and also to not clutter main README.md anyways etc, hopefully helpful or not or maybe yes or not or yes or and other or and not anyways etc.
 
 ## Sex-neutral unit names or/and combat types (todo and non-exhaustive)
 

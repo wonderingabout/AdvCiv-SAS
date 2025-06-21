@@ -3,6 +3,8 @@
 
 from Assets.Python.Contrib.Sevopedia.ai_utils_shared_with_civ4 import normalize_to_100
 
+B_WARN = True
+
 def progress_bar(score, width=10):
 	"""
 	Returns a simple ASCII progress bar for a score (0–100).
@@ -39,7 +41,7 @@ def run_tests():
 
 	for (name, value, min_val, max_val, invert) in test_cases:
 		try:
-			final_score = normalize_to_100(value, min_val, max_val, invert, attr_name=name)
+			final_score = normalize_to_100(value, min_val, max_val, B_WARN, invert, attr_name=name)
 			print("[PASS] %s: value=%d, min=%d, max=%d, invert=%s -> score=%d" % (name, value, min_val, max_val, invert, final_score))
 			print(progress_bar(final_score))
 		except Exception as e:

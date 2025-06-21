@@ -14,19 +14,29 @@
 # - A Markdown (.md) file listing abbreviation-to-field mappings for easier CSV readability
 #
 # Features:
-# - Fully flattened leader data (including nested lists like Traits, Flavor, Contact, and Memory arrays)
-# - Automatic categorization of numeric fields:
-#   • Raw values
+# - Fully flattened leader data, including:
+#   • Traits, Flavors, Attitude modifiers
+#   • NoWar probabilities
+#   • Contact Rand/Delay values
+#   • Raw memory fields (AttitudePercent and Decay, per memory type)
+#   • Aggregated memory scores (Affection/Resentment for positive/negative memory)
+#   • Aggregated contact probabilities
+#
+# - Automatic categorization of numeric fields into:
+#   • Main numeric attributes (fallback group)
 #   • Victory weights (e.g. iConquestVictoryWeight)
 #   • Flavors (e.g. iFlavorMilitary)
-#   • Attitude and threshold logic (e.g. iAttitudeChangeLimit, iNoWarAttitudeProb*)
-#   • Aggregated or normalized values (e.g. iAggregatedWarmongerScore)
-# - Non-numeric fields (e.g. FavoriteCivic, Traits, ImprovementWeightModifiers) are appended after numeric fields
+#   • Attitude modifiers (e.g. iBetterRankDifferenceAttitudeChange, iAttitudeThreshold)
+#   • Contact probability fields (e.g. iContactRandOpenBorders)
+#   • Raw memory reaction weights (e.g. iNegativeMemoryAttitudePercentDeclaredWar)
+#   • Aggregated memory summary scores (e.g. iAggregatedPositiveMemoryAffection)
+#
+# - Non-numeric fields (e.g. FavoriteCivic, Traits, ImprovementWeightModifiers) are appended last
 #
 # Special Formatting:
 # - Enums like FavoriteCivic = CIVIC_VASSALAGE are stripped to show only "VASSALAGE"
 # - Trait lists (e.g. Aggressive, Philosophical) are joined as comma-separated values
-# - Structured dictionaries like ImprovementWeightModifiers are serialized as readable entries (e.g. "MINE: 30")
+# - Structured dictionaries like ImprovementWeightModifiers or UnitAIWeightModifiers are serialized as readable entries (e.g. "MINE: 30")
 #
 # Abbreviations:
 # - Each CSV column is labeled with a short 2–4 character abbreviation (e.g. "FC" for FavoriteCivic)
@@ -114,18 +124,45 @@ numerical_attitude_change = []
 numerical_attitude_divisor = []
 numerical_attitude_change_limit = []
 numerical_attitude_threshold = []
-numerical_no_war = []
-numerical_raw = []
-numerical_aggregated = []
+numerical_no_war_attitude_prob = []
+numerical_contact_rand_raw = []
+numerical_contact_delay_raw = []
+# <!-- custom: since we display same raw attitude percent and decay fields values in UI regardless of positive/negative memory affection/resentment (raw aggregated values then the normalized aggregated values are is displayed anyways etc) aggregation, no need to store multiple versions (i.e. positive/negative and affection/resentment) of these raw attitude percent and decay fields, store only one kind for all of these 4 possible combination cases (positive-affection, positive-resentment, negative-affection, negative-resentment anyways etc) same as in XML fields structuration too for raw attitude percents and decays anyways etc anyways etc anyways etc, i.e. for example only for example imemoryAttitudePercentDeclaredWar (no positive-negative, no affection-resentment) for raw attitude_percent and decay fields same as in XML anyways etc -->
+numerical_memory_raw = []
+numerical_aggregated_contact_prob = []
+numerical_aggregated_positive_memory_affection = []
+numerical_aggregated_positive_memory_resentment = []
+numerical_aggregated_negative_memory_affection = []
+numerical_aggregated_negative_memory_resentment = []
 non_numeric = []
 
 for field in numeric_fields:
 	if field.startswith("iFlavor"):
 		numerical_flavor.append(field)
 	elif field.startswith("iNoWarAttitudeProb"):
-		numerical_no_war.append(field)		
-	elif field.startswith("iAggregated"):
-		numerical_aggregated.append(field)
+		numerical_no_war_attitude_prob.append(field)		
+	elif field.startswith("iContactRand"):
+		numerical_contact_rand_raw.append(field)
+	elif field.startswith("iContactDelay"):
+		numerical_contact_delay_raw.append(field)
+	elif field.startswith("iMemory"):
+		numerical_memory_raw.append(field)
+	elif field.startswith("iAggregatedContactProb"):
+		numerical_aggregated_contact_prob.append(field)
+	elif field.startswith("iAggregatedPositiveMemory"):
+		if field.endswith("Affection"):
+			numerical_aggregated_positive_memory_affection.append(field)
+		elif field.endswith("Resentment"):
+			numerical_aggregated_positive_memory_resentment.append(field)
+		else:
+			raise KeyError(f"[KEY ERROR] Unknown or missing aggregated positive memory suffix, or/and unknown positive memory field format in field={field}, please update your XML field formats or this code to accomodate them.")
+	elif field.startswith("iAggregatedNegativeMemory"):
+		if field.endswith("Affection"):
+			numerical_aggregated_negative_memory_affection.append(field)
+		elif field.endswith("Resentment"):
+			numerical_aggregated_negative_memory_resentment.append(field)
+		else:
+			raise KeyError(f"[KEY ERROR] Unknown or missing aggregated negative memory suffix, or/and unknown negative memory field format in field={field}, please update your XML field formats or this code to accomodate them.")
 	# <!-- custom: if i am not mistaken we should indeed first filter by startswith then only among remaining results filter by ends with to avoid overlap as chatgpt/becomingthrough did indeed and is should be as this if i am not mistaken indeed after consideration/reflection or not or etc or yes in this case but anyways etc -->
 	elif field.endswith("AttitudeChange"):
 		numerical_attitude_change.append(field)
@@ -137,8 +174,6 @@ for field in numeric_fields:
 		numerical_attitude_threshold.append(field)
 	elif field.endswith("VictoryWeight"):
 		numerical_victory_weight.append(field)
-	elif field.endswith("Raw"):
-		numerical_raw.append(field)
 	else:
 		numerical_main.append(field)
 
@@ -147,7 +182,26 @@ for field in all_columns:
 		non_numeric.append(field)
 
 # <!-- custom: here is where we actually order the columns if i am not mistaken anyways etc -->
-columns = leader_column + numerical_main + numerical_victory_weight + numerical_flavor + numerical_attitude_change + numerical_attitude_divisor + numerical_attitude_change_limit + numerical_attitude_threshold + numerical_no_war + numerical_raw + numerical_aggregated + non_numeric
+columns = (
+	leader_column +
+	numerical_main +
+	numerical_victory_weight +
+	numerical_flavor +
+	numerical_attitude_change +
+	numerical_attitude_divisor +
+	numerical_attitude_change_limit +
+	numerical_attitude_threshold +
+	numerical_no_war_attitude_prob +
+	numerical_contact_rand_raw +
+	numerical_contact_delay_raw +
+	numerical_aggregated_contact_prob +
+	numerical_memory_raw +
+	numerical_aggregated_positive_memory_affection +
+	numerical_aggregated_positive_memory_resentment +
+	numerical_aggregated_negative_memory_affection +
+	numerical_aggregated_negative_memory_resentment +
+	non_numeric
+)
 
 # --- <!-- custom: Step 4.3: anyways etc --> Abbreviate headers ---
 abbrev_map = {"Leader": "Leader"}

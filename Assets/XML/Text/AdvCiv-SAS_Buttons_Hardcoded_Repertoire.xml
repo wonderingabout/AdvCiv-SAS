@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- custom: one or a few anyways etc buttons we use in a hardcoded way (for example the cities (terrain modifiers) button in sevopedia unit) that do not fit in AdvCiv-SAS_IconsAsButtons.xml as these are not iconsAsButtons (no button as Txt) but real ingame buttons (clickable and such), just they are hardcodedly added anyways etc, may be good to keep a repertoire of these as well and centralize or/and unify our code handling of buttons hardcoded and icons as buttons with same template/frame if these are indeed the accurate words (but) but anyways etc anyways etc anyways etc. -->
-<Civ4GameText>
-	<TEXT>
-		<Tag>TXT_KEY_ICON_AS_BUTTON_CITIES_BUTTON_PATH</Tag>
-		<English>,Art/Interface/Buttons/Units/Worker.dds,Art/Interface/Buttons/Charlemagne_Atlas.dds,4,2</English>
-	</TEXT>
-</Civ4GameText>

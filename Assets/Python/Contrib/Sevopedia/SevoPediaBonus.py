@@ -426,8 +426,8 @@ class SevoPediaBonus:
 
 
 
+	# Places the tech that obsoletes this bonus resource in the Sevopedia.
 	def placeObsoleteWith(self):
-		""" Places the tech that obsoletes this bonus resource in the Sevopedia. """
 		screen = self.top.getScreen()
 		
 		# Get the current bonus
