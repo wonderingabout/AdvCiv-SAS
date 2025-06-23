@@ -56,9 +56,11 @@
 
 import csv
 from datetime import datetime
-from Assets.Python.Contrib.Sevopedia.leaders_data import PARSED_XML_LEADERS_DATA
 import ast
 from collections import defaultdict
+
+# <!-- custom: this flatten_leaders_data_to_csv.py script requires leaders_data.py to be in same folder than this flatten_leaders_data_to_csv.py script anyways etc -->
+from leaders_data import *
 
 # --- Step 1: Setup timestamped output ---
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
