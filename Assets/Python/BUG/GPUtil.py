@@ -116,9 +116,8 @@ def getUnitIcon(iUnit):
 # Getting Progress
 
 def getDisplayCity():
-	"""
-	Returns the city to display in the progress bar.
-	"""
+	# Returns the city to display in the progress bar.
+	#
 	pHeadSelectedCity = CyInterface().getHeadSelectedCity()
 	if (pHeadSelectedCity and pHeadSelectedCity.getTeam() == gc.getGame().getActiveTeam()):
 		city = pHeadSelectedCity

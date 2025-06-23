@@ -383,7 +383,8 @@
 			<iAsset>16</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>1</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -717,7 +718,8 @@
 			<iAsset>24</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -937,7 +939,8 @@
 			<iAsset>24</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -1102,7 +1105,8 @@
 			<iAsset>24</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -1177,7 +1181,8 @@
 			<iAsset>32</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -1260,7 +1265,8 @@
 			<iAsset>32</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -1404,11 +1410,13 @@
 			<iTradeRoutes>0</iTradeRoutes>
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
-			<iFirstFreeTechs>1</iFirstFreeTechs>
+			<!-- custom: was 1 -->
+			<iFirstFreeTechs>0</iFirstFreeTechs>
 			<iAsset>32</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -1638,7 +1646,7 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>15</iGridX>
+			<iGridX>14</iGridX>
 			<iGridY>7</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
@@ -1777,7 +1785,8 @@
 			<iAsset>48</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -1794,8 +1803,8 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>17</iGridX>
-			<iGridY>9</iGridY>
+			<iGridX>16</iGridX>
+			<iGridY>10</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -2454,7 +2463,8 @@
 			<iAsset>16</iAsset>
 			<iPower>6</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>1</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -2529,7 +2539,8 @@
 			<iAsset>16</iAsset>
 			<iPower>4</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -2825,11 +2836,13 @@
 			<iTradeRoutes>0</iTradeRoutes>
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
-			<iFirstFreeTechs>0</iFirstFreeTechs>
+			<!-- custom: would make more sense for this when it is changed to TECH_THEORY_OF_EVOLUTION, currently TECH_LIBERALISM is bloated and toos trong already if i am not mistaken, giving theory of evolution some purpsoe while also making sense in terms of gameplay, searching it means fallign behind in military path so i hope it can be worth it this way to choose this alternative path anyways etc and for versatile startegy too anyways etc, was 0 -->
+			<iFirstFreeTechs>1</iFirstFreeTechs>
 			<iAsset>24</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -3788,7 +3801,8 @@
 			<iAsset>40</iAsset>
 			<iPower>8</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -4076,7 +4090,8 @@
 			<iAsset>48</iAsset>
 			<iPower>5</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -4795,7 +4810,8 @@
 			<iAsset>8</iAsset>
 			<iPower>8</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>1</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -4872,7 +4888,8 @@
 			<iAsset>8</iAsset>
 			<iPower>10</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>1</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -4953,7 +4970,8 @@
 			<iAsset>16</iAsset>
 			<iPower>10</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>1</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -5503,7 +5521,8 @@
 			<iAsset>32</iAsset>
 			<iPower>12</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -5649,7 +5668,8 @@
 			<iAsset>32</iAsset>
 			<iPower>12</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -5714,7 +5734,8 @@
 			<iAsset>32</iAsset>
 			<iPower>12</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -5935,7 +5956,8 @@
 			<iAsset>40</iAsset>
 			<iPower>8</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -6153,7 +6175,8 @@
 			<iAsset>40</iAsset>
 			<iPower>10</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -6245,8 +6268,8 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>16</iGridX>
-			<iGridY>9</iGridY>
+			<iGridX>14</iGridX>
+			<iGridY>2</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -6582,7 +6605,8 @@
 			<iAsset>48</iAsset>
 			<iPower>10</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<!-- custom: was 1 -->
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>

@@ -93,105 +93,92 @@ MY_GAMES_FOLDER = "My Games"
 
 
 def isMac():
-	"""
-	Returns True if running on a Mac operating system.
-	"""
+	# Returns True if running on a Mac operating system.
+	#
 	return sys.platform == 'darwin'
 
 
 ## Mod Info, Folder and Path Accessors
 
 def getModName():
-	"""
-	Returns the name of the mod as specified in CvModName.
-	
-	See the file "Assets/Python/Contrib/CvModName.py" for more information.
-	"""
+	# Returns the name of the mod as specified in CvModName.
+	#	
+	# See the file "Assets/Python/Contrib/CvModName.py" for more information.
+	#
 	initModName()
 	return _modName
 
 def isMod():
-	"""
-	Returns True if running as a mod, False otherwise.
-	"""
+	# Returns True if running as a mod, False otherwise.
+	#
 	initModFolder()
 	return _isMod
 
 def isNoCustomAssets():
-	"""
-	Returns True if the NoCustomAssets setting is 1 in the mod's INI file, 
-	False if 0 or when not running as a mod.
-	"""
+	# Returns True if the NoCustomAssets setting is 1 in the mod's INI file, 
+	# False if 0 or when not running as a mod.
+	#
 	initNoCustomAssetsSetting()
 	return _noCustomAssets
 
 def getModDir():
-	"""
-	Returns the full path of the mod directory if running as a mod.
-	
-	Can be overridden using a CvModFolder module, but this shouldn't be necessary
-	as the folder's name is acquired from BTS itself.
-	"""
+	# Returns the full path of the mod directory if running as a mod.
+	#
+	# Can be overridden using a CvModFolder module, but this shouldn't be necessary
+	# as the folder's name is acquired from BTS itself.
+	#
 	initModFolder()
 	return _modDir
 
 def getModFolder():
-	"""
-	Returns the name of the mod directory if running as a mod.
-	"""
+	# Returns the name of the mod directory if running as a mod.
+	#
 	initModFolder()
 	return _modFolder
 
 def getUserDir():
-	"""
-	Returns the full path of the user's Documents/My Games directory.
-	"""
-	#See the file "Info/CvAltRoot.py" for more information. # advc: That doesn't exist
-
+	# Returns the full path of the user's Documents/My Games directory.
+	#
+	# #See the file "Info/CvAltRoot.py" for more information. # advc: That doesn't exist
+	#
 	initRootFolder()
 	return _userDir
 
 def getRootDir():
-	"""
-	Returns the full path of the directory containing the file "CivilizationIV.ini".
-	"""
-	#See the file "Info/CvAltRoot.py" for more information. # advc
-
+	# Returns the full path of the directory containing the file "CivilizationIV.ini".
+	#
+	# #See the file "Info/CvAltRoot.py" for more information. # advc
+	#
 	initRootFolder()
 	return _rootDir
 
 def getDataDir():
-	"""
-	Returns the full path of the directory containing the mod's data files: user settings, help files, etc.
-	"""
+	# Returns the full path of the directory containing the mod's data files: user settings, help files, etc.
+	#
 	initDataFolder()
 	return _dataDir
 
 def getSettingsDir():
-	"""
-	Returns the full path of the directory containing the mod's user settings.
-	"""
+	# Returns the full path of the directory containing the mod's user settings.
+	#
 	initDataFolder()
 	return _settingsDir
 
 def getInfoDir():
-	"""
-	Returns the full path of the directory containing the mod's informational files: readme, help files, etc.
-	"""
+	# Returns the full path of the directory containing the mod's informational files: readme, help files, etc.
+	#
 	initDataFolder()
 	return _infoDir
 
 def getAppDir():
-	"""
-	Returns the full path of the directory containing the "Civ4BeyondSword.exe" application.
-	"""
+	# Returns the full path of the directory containing the "Civ4BeyondSword.exe" application.
+	#
 	initAppFolder()
 	return _appDir
 
 def getAppFolder():
-	"""
-	Returns the name of the directory containing the "Civ4BeyondSword.exe" application.
-	"""
+	# Returns the name of the directory containing the "Civ4BeyondSword.exe" application.
+	#
 	initAppFolder()
 	return _appFolder
 
@@ -199,9 +186,8 @@ def getAppFolder():
 ## Finding and Creating Files and Directories
 
 def findAssetFile(name, subdir=None):
-	"""
-	Returns the full path to the named asset file by searching the paths above.
-	"""
+	# Returns the full path to the named asset file by searching the paths above.
+	#
 	initSearchPaths()
 	for dir in _assetFileSearchPaths:
 		path = getFilePath(dir, name, subdir)
@@ -214,80 +200,69 @@ def findAssetFile(name, subdir=None):
 	return None
 
 def findDataFile(name, subdir=None):
-	"""
-	Returns the full path to the named data file.
-	"""
+	# Returns the full path to the named data file.
+	# 
 	return getFilePath(getDataDir(), name, subdir)
 
 def findSettingsFile(name, subdir=None):
-	"""
-	Locates and returns the path to the named configuration file or None if not found.
-	"""
+	# Locates and returns the path to the named configuration file or None if not found.
+	#
 	return getFilePath(getSettingsDir(), name, subdir)
 
 def findIniFile(name, subdir=None):
-	"""
-	Locates and returns the path to the named configuration file or None if not found.
-	
-	Deprecated: Use findSettingsFile() instead.
-	"""
+	# Locates and returns the path to the named configuration file or None if not found.
+	#
+	# Deprecated: Use findSettingsFile() instead.
+	#
 	return findSettingsFile(name, subdir)
 
 def findMainModIniFile():
-	"""
-	Locates and returns the path to the configuration file named for the mod or None if not found.
-	"""
+	# Locates and returns the path to the configuration file named for the mod or None if not found.
+	#
 	if getModName():
 		return findSettingsFile(getModName() + ".ini")
 	BugUtil.warn("BugPath - mod name not set")
 	return None
 
 def findInfoFile(name, subdir=None):
-	"""
-	Locates and returns the path to the named informational file or None if not found.
-	"""
+	# Locates and returns the path to the named informational file or None if not found.
+	#
 	return getFilePath(getInfoDir(), name, subdir)
 
 def createDataFile(name, subdir=None):
-	"""
-	Returns the path to the named data file.
-	"""
+	# Returns the path to the named data file.
+	#
 	return createFile(getDataDir(), name, subdir)
 
 def createSettingsFile(name, subdir=None):
-	"""
-	Returns the path to the named configuration file.
-	"""
+	# Returns the path to the named configuration file.
+	#
 	return createFile(getSettingsDir(), name, subdir)
 
 def createIniFile(name, subdir=None):
-	"""
-	Returns the path to the named configuration file.
-	
-	Deprecated: Use createSettingsFile() instead.
-	"""
+	# Returns the path to the named configuration file.
+	#
+	# Deprecated: Use createSettingsFile() instead.
+	#
 	return createSettingsFile(name, subdir)
 
 def createInfoFile(name, subdir=None):
-	"""
-	Returns the path to the named informational file.
-	"""
+	# Returns the path to the named informational file.
+	#
 	return createFile(getInfoDir(), name, subdir)
 
 
 def findDir(name):
-	"""
-	Locates the named directory in dataDir.
-	"""
+	# Locates the named directory in dataDir.
+	#
 	path = join(getDataDir(), name)
 	if isdir(path):
 		return path
 	return None
 
 def makeDir(name):
-	"""
-	Creates a new directory in the dataDir folder.
-	"""
+	# Creates a new directory in the dataDir folder.
+	#
 	path = join(getDataDir(), name)
 	if path and not isdir(path):
 		try:
@@ -299,18 +274,16 @@ def makeDir(name):
 	return path
 
 def findOrMakeDir(name):
-	"""
-	Locates or creates the specified directory and returns the path to it.
-	"""
+	# Locates or creates the specified directory and returns the path to it.
+	#
 	return findDir(name) or makeDir(name)
 
 
 ## Initialization
 
 def init():
-	"""
-	Initializes the entire module.
-	"""
+	# Initializes the entire module.
+	#
 	BugUtil.debug("BugPath - initializing...")
 	initAppFolder()
 	initModName()
@@ -327,9 +300,8 @@ _appDir = None
 _appFolder = "Beyond the Sword"
 _appFolderInitDone = False
 def initAppFolder():
-	"""
-	Locates the directory that contains the BTS application.
-	"""
+	# Locates the directory that contains the BTS application.
+	#
 	global _appFolderInitDone
 	if _appFolderInitDone:
 		return
@@ -358,9 +330,8 @@ def initAppFolder():
 _modName = None
 _modNameInitDone = False
 def initModName():
-	"""
-	Pulls the modName attribute from the CvModName module.
-	"""
+	# Pulls the modName attribute from the CvModName module.
+	#
 	global _modNameInitDone
 	if _modNameInitDone:
 		return
@@ -383,9 +354,8 @@ _modDir = None
 _modFolder = None
 _modFolderInitDone = False
 def initModFolder():
-	"""
-	Checks if BUG is running as a mod and sets the folder and name if so.
-	"""
+	# Checks if BUG is running as a mod and sets the folder and name if so.
+	#
 	global _modFolderInitDone
 	if _modFolderInitDone:
 		return
@@ -440,9 +410,8 @@ def setModDir(dir):
 _noCustomAssets = False
 _noCustomAssetsSettingInitDone = False
 def initNoCustomAssetsSetting():
-	"""
-	Checks if the NoCustomAssets setting is enabled when running as a mod.
-	"""
+	# Checks if the NoCustomAssets setting is enabled when running as a mod.
+	#
 	global _noCustomAssetsSettingInitDone
 	if _noCustomAssetsSettingInitDone:
 		return
@@ -471,9 +440,8 @@ _userDir = None
 _rootDir = None
 _rootFolderInitDone = False
 def initRootFolder():
-	"""
-	Finds the directory that contains the CivilizationIV.ini file and the user's documents directory.
-	"""
+	# Finds the directory that contains the CivilizationIV.ini file and the user's documents directory.
+	#
 	global _rootFolderInitDone
 	if _rootFolderInitDone:
 		return
@@ -576,9 +544,8 @@ _settingsDir = None
 _infoDir = None
 _dataFolderInitDone = False
 def initDataFolder():
-	"""
-	Finds the first directory that contains a folder named SETTINGS_FOLDER.
-	"""
+	# Finds the first directory that contains a folder named SETTINGS_FOLDER.
+	#
 	global _dataFolderInitDone
 	if _dataFolderInitDone:
 		return
@@ -657,9 +624,8 @@ def setDataDir(dir):
 _assetFileSearchPaths = []
 _searchPathsInitDone = False
 def initSearchPaths():
-	"""
-	Adds the CustomAssets, mod Assets and BTS Assets directories to a list of search paths.
-	"""
+	# Adds the CustomAssets, mod Assets and BTS Assets directories to a list of search paths.
+	#
 	global _searchPathsInitDone
 	if _searchPathsInitDone:
 		return
@@ -682,9 +648,8 @@ def initSearchPaths():
 	_searchPathsInitDone = True
 
 def addAssetFileSearchPath(path):
-	"""
-	Adds the given path to the search list if it is a directory.
-	"""
+	# Adds the given path to the search list if it is a directory.
+	#
 	if isdir(path):
 		_assetFileSearchPaths.append(path)
 
@@ -692,9 +657,8 @@ def addAssetFileSearchPath(path):
 ## None-Safe Path/Directory/File Functions
 
 def getFilePath(root, name, subdir=None):
-	"""
-	Returns the full path to the named file, or None if it doesn't exist.
-	"""
+	# Returns the full path to the named file, or None if it doesn't exist.
+	#
 	if not root:
 		BugUtil.warn("Invalid root directory looking for '%s'", name)
 	if subdir:
@@ -707,9 +671,8 @@ def getFilePath(root, name, subdir=None):
 	return None
 
 def createFile(root, name, subdir=None):
-	"""
-	Returns the path to a new file to be created.
-	"""
+	# Returns the path to a new file to be created.
+	#
 	if subdir:
 		return join(root, subdir, name)
 	else:

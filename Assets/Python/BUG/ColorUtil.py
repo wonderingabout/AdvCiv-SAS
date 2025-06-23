@@ -50,38 +50,40 @@ def getColorTypes():
 	return COLOR_TYPES
 
 def getColorDisplayNames():
-	"""Returns a tuple of the color display names from the color names above."""
+	# Returns a tuple of the color display names from the color names above.
 	return COLOR_DISPLAY_NAMES
 
 
 def typeToIndex(type):
-	"""Returns the index of the color from its info type, None if not found."""
+	# Returns the index of the color from its info type, None if not found.
 	try:
 		return COLORS_BY_TYPE[type][COLOR_INDEX_IDX]
 	except KeyError:
 		return None
 
 def indexToType(index):
-	"""Returns the info type of the color from its index, None if not found."""
+	# Returns the info type of the color from its index, None if not found.
 	return COLORS[index][COLOR_TYPE_IDX]
 
 
 def keyToIndex(key):
-	"""Returns the index of the color from its key, None if not found."""
+	# Returns the index of the color from its key, None if not found.
+	#
 	try:
 		return COLORS_BY_KEY[key][COLOR_INDEX_IDX]
 	except KeyError:
 		return None
 
 def indexToKey(index):
-	"""Returns the key of the color from its index, None if not found."""
+	# Returns the key of the color from its index, None if not found.
+	#
 	return COLORS[index][COLOR_KEY_IDX]
 
 
 def keyToType(key):
-	"""Returns the info type of the color from its key, -1 if not found.
-	This works for any valid color -- not just those in the list.
-	"""
+	# Returns the info type of the color from its key, -1 if not found.
+	# This works for any valid color -- not just those in the list.
+	#
 	if key in TYPES_BY_KEY:
 		return TYPES_BY_KEY[key]
 	if key in COLORS_BY_KEY:

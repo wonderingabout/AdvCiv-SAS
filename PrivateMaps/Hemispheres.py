@@ -502,19 +502,19 @@ class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		print "Done"
 		return self.wholeworldPlotTypes
 
-'''
-Regional Variables Key:
-
-iWaterPercent,
-iRegionWidth, iRegionHeight,
-iRegionWestX, iRegionSouthY,
-iRegionGrain, iRegionHillsGrain,
-iRegionPlotFlags, iRegionTerrainFlags,
-iRegionFracXExp, iRegionFracYExp,
-bShift, iStrip,
-rift_grain, has_center_rift,
-invert_heights
-'''
+#
+# Regional Variables Key:
+#
+# iWaterPercent,
+# iRegionWidth, iRegionHeight,
+# iRegionWestX, iRegionSouthY,
+# iRegionGrain, iRegionHillsGrain,
+# iRegionPlotFlags, iRegionTerrainFlags,
+# iRegionFracXExp, iRegionFracYExp,
+# bShift, iStrip,
+# rift_grain, has_center_rift,
+# invert_heights
+#
 
 def generatePlotTypes():
 	NiTextOut("Setting Plot Types (Python Custom Continents) ...")

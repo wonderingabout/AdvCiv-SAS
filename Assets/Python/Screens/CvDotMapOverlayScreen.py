@@ -19,9 +19,8 @@ gc = CyGlobalContext()
 g_DotMap = None
 
 class CvDotMapOverlayScreen:
-	"""
-	Screen for the dot map of the strategy overlay.
-	"""
+	# Screen for the dot map of the strategy overlay.
+	#
 	def __init__(self, screenID):
 		self.screenID = screenID
 		self.SCREEN_NAME = "DotMapOverlayScreen"
@@ -70,41 +69,36 @@ class CvDotMapOverlayScreen:
 	# Initialization Functions
 	#-------------------------------------------------------------------------------
 	def initVars(self):
-		"""
-		Initializes the variables for the screen.
-		"""
+		# Initializes the variables for the screen.
+		#
 		global g_DotMap
 		g_DotMap = CvStrategyOverlay.getDotMap()
 		for index in range(len(CvStrategyOverlay.COLOR_KEYS)):
 			self.COLOR_WIDGET_IDS.append(self.COLOR_WIDGET_PREFIX + str(index))
 
 	def isOpen(self):
-		"""
-		Returns True if the screen is open.
-		"""
+		# Returns True if the screen is open.
+		#
 		return self.getScreen().isActive()
 	#-------------------------------------------------------------------------------
 	# Required civ4 functions
 	#-------------------------------------------------------------------------------
 	def getScreen(self):
-		"""
-		Returns the CyGInterfaceScreen object for this screen.
-		"""
+		# Returns the CyGInterfaceScreen object for this screen.
+		#
 		return CyGInterfaceScreen(self.SCREEN_NAME, self.screenID)
 
 	def hideScreen(self):
-		"""
-		Hides the screen.
-		"""
+		# Hides the screen.
+		#
 		g_DotMap.unhighlightCity()
 		CyInterface().setInterfaceMode(InterfaceModeTypes.INTERFACEMODE_SELECTION)
 		screen = self.getScreen()
 		screen.hideScreen()
 
 	def update(self, fDelta):
-		"""
-		Called each update cycle, checks for mouse button clicks when screen is up.
-		"""
+		# Called each update cycle, checks for mouse button clicks when screen is up.
+		#
 		if CyInterface().isLeftMouseDown():
 			if not self.bLeftMouseDown:
 				self.onLeftMouseDown()
@@ -119,9 +113,8 @@ class CvDotMapOverlayScreen:
 			self.bRightMouseDown = False
 
 	def handleInput(self, inputClass):
-		"""
-		Handles widget input.
-		"""
+		# Handles widget input.
+		#
 		BugUtil.debugInput(inputClass)
 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and inputClass.getFunctionName() == self.COLOR_WIDGET_PREFIX:
 			self.onColorButton(inputClass.getID())
@@ -129,9 +122,8 @@ class CvDotMapOverlayScreen:
 		return 0
 
 	def interfaceScreen(self):
-		"""
-		Initializes and shows the screen.
-		"""
+		# Initializes and shows the screen.
+		#
 		screen = self.getScreen()
 		if screen.isActive():
 			return
@@ -148,9 +140,8 @@ class CvDotMapOverlayScreen:
 	#   Widget Adding/Updating Functions
 	#-------------------------------------------------------------------------------
 	def createColorPanel(self):
-		"""
-	    Creates the color selection panel.
-		"""
+	    # Creates the color selection panel.
+	    #
 		screen = self.getScreen()
 		count = len(CvStrategyOverlay.COLOR_KEYS)
 		width = CvStrategyOverlay.PALETTE_WIDTH
@@ -178,9 +169,8 @@ class CvDotMapOverlayScreen:
 			screen.setBarPercentage(szBar, 0, 100.0)
 
 	def selectColor(self, index):
-		"""
-		Updates the selected color and layer given the button index.
-		"""
+		# Updates the selected color and layer given the button index.
+		#
 		self.currentColor = gc.getInfoTypeForString(CvStrategyOverlay.COLOR_KEYS[index])  # index
 		self.currentLayer = index + self.FIRST_CROSS_LAYER
 
@@ -188,17 +178,15 @@ class CvDotMapOverlayScreen:
 	#   Input handlers
 	#-------------------------------------------------------------------------------
 	def onColorButton(self, color):
-		"""
-		Called on Color Button input.
-		"""
+		# Called on Color Button input.
+		#
 		g_DotMap.unhighlightCity()
 		self.selectColor(color)
 		g_DotMap.highlightCity(self.currentPoint, self.currentColor)
 	
 	def onLeftMouseDown(self):
-		"""
-		Called on left mouse click on the main ui.
-		"""
+		# Called on left mouse click on the main ui.
+		#
 		if self.currentPoint is not None:
 			g_DotMap.unhighlightCity()
 			grid = 6
@@ -207,19 +195,17 @@ class CvDotMapOverlayScreen:
 			self.resetInterfaceMode()
 
 	def onRightMouseDown(self):
-		"""
-		Called on right mouse click on the main ui.
-		"""
+		# Called on right mouse click on the main ui.
+		#
 		if self.currentPoint is not None:
 			g_DotMap.unhighlightCity()
 			g_DotMap.removeCityAt(self.currentPoint)
 			self.resetInterfaceMode()
 
 	def onMouseOverPlot(self, argsList=None):
-		"""
-		Called from CvOverlayScreenUtils when mousing over a plot when the screen is active.
-		Updates the current plot and its x/y location.
-		"""
+		# Called from CvOverlayScreenUtils when mousing over a plot when the screen is active.
+		# Updates the current plot and its x/y location.
+		#
 		plot = CyInterface().getMouseOverPlot()
 		x = plot.getX()
 		y = plot.getY()

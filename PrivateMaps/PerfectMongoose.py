@@ -3231,19 +3231,19 @@ def canHaveOasis(x, y, tData, fOasis):
 	# <advc> Checking these conditions already at this point should get us closer to the target frequency for oases
 	if not CyMap().plot(x, y).canHaveFeature(fOasis):
 		return False # </advc>
-	'''
-	for direction in range(1, 5):
-		xx, yy = GetNeighbor(x, y, direction)
-		ii = GetIndex(xx, yy)
-		if ii >= 0 and tData[ii] != mc.DESERT:
-			return False
-		for yy in range(y - 2, y + 3):
-			for xx in range(x - 2, x + 3):
-				xx, yy = CoordsFromIndex(ii, mc.width) # advc.001
-				surrPlot = CyMap().plot(xx, yy)
-				if surrPlot != 0 and surrPlot.getFeatureType() == fOasis:
-					return False
-	'''
+	#
+	# for direction in range(1, 5):
+	# 	xx, yy = GetNeighbor(x, y, direction)
+	# 	ii = GetIndex(xx, yy)
+	# 	if ii >= 0 and tData[ii] != mc.DESERT:
+	# 		return False
+	# 	for yy in range(y - 2, y + 3):
+	# 		for xx in range(x - 2, x + 3):
+	# 			xx, yy = CoordsFromIndex(ii, mc.width) # advc.001
+	# 			surrPlot = CyMap().plot(xx, yy)
+	# 			if surrPlot != 0 and surrPlot.getFeatureType() == fOasis:
+	# 				return False
+	#
 	# <advc> Use a single loop again, as in v3.2.
 	adjNonDesertCount = 0
 	for direction in range(1, 9):
@@ -3424,31 +3424,31 @@ class TerrainMap:
 		# advc: Disable this. Had no b/c of bugs, but it's still bad with the
 		# bugs fixed. Certain patterns should arguably be broken up probabi-
 		# listically, but that'll require more thought.
-		'''
-		for y in range(mc.height):
-			for x in range(mc.width):
-				i = em.GetIndex(x, y)
-				# advc.001: Fix missing index (from Totestra)
-				if self.pData[i] == mc.HILLS:
-					allHills = True
-					for direction in range(1, 9):
-						xx, yy = GetNeighbor(x, y, direction)
-						ii = em.GetIndex(xx, yy)
-						if ii >= 0 and self.pData[ii] != mc.HILLS:
-							allHills = False
-					if allHills:
-						self.pData[i] = mc.LAND
-				# advc.001: Fix missing index (from Totestra)
-				if self.pData[i] == mc.PEAK:
-					allPeaks = True
-					for direction in range(1, 9):
-						xx, yy = GetNeighbor(x, y, direction)
-						ii = em.GetIndex(xx, yy)
-						if ii >= 0 and self.pData[ii] != mc.PEAK:
-							allPeaks = False
-					if allPeaks:
-						self.pData[i] = mc.HILLS
-		'''
+		#
+		# for y in range(mc.height):
+		# 	for x in range(mc.width):
+		# 		i = em.GetIndex(x, y)
+		# 		# advc.001: Fix missing index (from Totestra)
+		# 		if self.pData[i] == mc.HILLS:
+		# 			allHills = True
+		# 			for direction in range(1, 9):
+		# 				xx, yy = GetNeighbor(x, y, direction)
+		# 				ii = em.GetIndex(xx, yy)
+		# 				if ii >= 0 and self.pData[ii] != mc.HILLS:
+		# 					allHills = False
+		# 			if allHills:
+		# 				self.pData[i] = mc.LAND
+		# 		# advc.001: Fix missing index (from Totestra)
+		# 		if self.pData[i] == mc.PEAK:
+		# 			allPeaks = True
+		# 			for direction in range(1, 9):
+		# 				xx, yy = GetNeighbor(x, y, direction)
+		# 				ii = em.GetIndex(xx, yy)
+		# 				if ii >= 0 and self.pData[ii] != mc.PEAK:
+		# 					allPeaks = False
+		# 			if allPeaks:
+		# 				self.pData[i] = mc.HILLS
+		#
 
 	def GenerateTerrainMap(self):
 		print "----------------------"
@@ -3498,14 +3498,14 @@ class TerrainMap:
 					if latitude >= mc.taigaMinLatitude:
 						polarTiles.append(cm.TemperatureMap.data[i])
 					# </advc>
-				'''
-				if self.pData[i] == mc.WATER:
-					waterTiles.append(em.data[i])
-					waterLength += 1
-				elif self.pData[i] != mc.PEAK:
-					landTiles.append(cm.TemperatureMap.data[i])
-					landLength += 1
-				'''
+				#
+				# if self.pData[i] == mc.WATER:
+				# 	waterTiles.append(em.data[i])
+				# 	waterLength += 1
+				# elif self.pData[i] != mc.PEAK:
+				# 	landTiles.append(cm.TemperatureMap.data[i])
+				# 	landLength += 1
+				#
 		# <advc> Apply only the 'temperate' percentages to all land tiles
 		snowTemp = FindValueFromPercent(landTiles, landLength, mc.TemperateSnowPercent, False)
 		self.tundraTemp = FindValueFromPercent(landTiles, landLength, mc.TemperateTundraPercent, False)
@@ -3596,12 +3596,12 @@ class PangaeaBreaker:
 		if mc.AllowPangaeas:
 			#print "Pangaeas are allowed on this map and will not be suppressed."
 			return
-		''' # advc: Should be OK now (will at most throw a couple of small ones)
-		gc = CyGlobalContext()
-		if gc.getMap().getWorldSize() < 3:
-			print "This map is too small for meteors to work properly, so they will not be used."
-			return
-		'''
+		# # advc: Should be OK now (will at most throw a couple of small ones)
+		# gc = CyGlobalContext()
+		# if gc.getMap().getWorldSize() < 3:
+		# 	print "This map is too small for meteors to work properly, so they will not be used."
+		# 	return
+		#
 		if mc.LandmassGenerator == 2:
 			em = e2
 		else:
@@ -4875,40 +4875,40 @@ class StartingPlotFinder:
 			regionMap = AreaMap(mc.width, mc.height, True, True)
 			regionMap.defineAreas(isDeepWaterMatch)
 			#LM - Set up a map that divides areas by Peaks so we can prevent starting locations from being walled-off in small pockets.
-			''' # advc.030: Won't be needed
-			if gc.getGame().getStartEra() < 3:
-				self.peakMap = AreaMap(mc.width, mc.height, True, True)
-				self.peakMap.defineAreas(isPeakWaterMatch)
-			'''
+			# # advc.030: Won't be needed
+			# if gc.getGame().getStartEra() < 3:
+			# 	self.peakMap = AreaMap(mc.width, mc.height, True, True)
+			# 	self.peakMap.defineAreas(isPeakWaterMatch)
+			#
 			self.startingAreaList = list()
-			'''
-			if mc.SeaLevel == 0:
-				if mc.OldWorldStarts:
-					iWorldSizeFactor = 3
-				else:
-					iWorldSizeFactor = 5
-			elif mc.SeaLevel == 1:
-				if mc.OldWorldStarts:
-					iWorldSizeFactor = 3.5
-				else:
-					iWorldSizeFactor = 6
-			elif mc.SeaLevel == 2:
-				if mc.OldWorldStarts:
-					iWorldSizeFactor = 2.5
-				else:
-					iWorldSizeFactor = 4
-			elif mc.SeaLevel == 3:
-				if mc.OldWorldStarts:
-					iWorldSizeFactor = 4
-				else:
-					iWorldSizeFactor = 7
-			else:
-				if mc.OldWorldStarts:
-					iWorldSizeFactor = 2
-				else:
-					iWorldSizeFactor = 3
-			iWorldSizeFactor *= gc.getMap().getWorldSize()
-			'''
+			#
+			# if mc.SeaLevel == 0:
+			# 	if mc.OldWorldStarts:
+			# 		iWorldSizeFactor = 3
+			# 	else:
+			# 		iWorldSizeFactor = 5
+			# elif mc.SeaLevel == 1:
+			# 	if mc.OldWorldStarts:
+			# 		iWorldSizeFactor = 3.5
+			# 	else:
+			# 		iWorldSizeFactor = 6
+			# elif mc.SeaLevel == 2:
+			# 	if mc.OldWorldStarts:
+			# 		iWorldSizeFactor = 2.5
+			# 	else:
+			# 		iWorldSizeFactor = 4
+			# elif mc.SeaLevel == 3:
+			# 	if mc.OldWorldStarts:
+			# 		iWorldSizeFactor = 4
+			# 	else:
+			# 		iWorldSizeFactor = 7
+			# else:
+			# 	if mc.OldWorldStarts:
+			# 		iWorldSizeFactor = 2
+			# 	else:
+			# 		iWorldSizeFactor = 3
+			# iWorldSizeFactor *= gc.getMap().getWorldSize()
+			#
 			# <advc> Less impact for the Old World Starts option; apart from that, pretty much as above.
 			iWorldSizeFactor = math.sqrt(CyMap().getLandPlots()) / 1.67
 			if mc.OldWorldStarts:
@@ -5043,30 +5043,30 @@ class StartingPlotFinder:
 			if len(shuffledPlayers) > 0:
 				raise ValueError, "Some players not placed in starting plot finder!"
 			#Now set up for normalization
-			''' # advc: AdvCiv DLL handles normalization
-			self.plotList = list()
-			for startingArea in self.startingAreaList:
-				for i in range(len(startingArea.plotList)):
-					self.plotList.append(startingArea.plotList[i])
-			#Remove bad features. (Jungle in the case of standard game)
-			#also ensure minimum hills
-			for i in range(len(self.plotList)):
-				if not self.plotList[i].vacant:
-					self.ensureMinimumHills(self.plotList[i].x, self.plotList[i].y)
-			#find the best totalValue
-			self.plotList.sort(lambda x, y:cmp(x.totalValue, y.totalValue))
-			self.plotList.reverse()
-			bestTotalValue = self.plotList[0].totalValue
-			for i in range(len(self.plotList)):
-				if not self.plotList[i].vacant:
-					currentTotalValue = self.plotList[i].totalValue
-					percentLacking = 1.0 - (float(currentTotalValue) / float(bestTotalValue))
-					if percentLacking > 0:
-						bonuses = min(5, int(percentLacking / 0.2))
-						self.boostCityPlotValue(self.plotList[i].x, self.plotList[i].y, bonuses, self.plotList[i].isCoast())
-			#add bonuses due to player difficulty settings
-			self.addHandicapBonus()
-			'''
+			# # advc: AdvCiv DLL handles normalization
+			# self.plotList = list()
+			# for startingArea in self.startingAreaList:
+			# 	for i in range(len(startingArea.plotList)):
+			# 		self.plotList.append(startingArea.plotList[i])
+			# #Remove bad features. (Jungle in the case of standard game)
+			# #also ensure minimum hills
+			# for i in range(len(self.plotList)):
+			# 	if not self.plotList[i].vacant:
+			# 		self.ensureMinimumHills(self.plotList[i].x, self.plotList[i].y)
+			# #find the best totalValue
+			# self.plotList.sort(lambda x, y:cmp(x.totalValue, y.totalValue))
+			# self.plotList.reverse()
+			# bestTotalValue = self.plotList[0].totalValue
+			# for i in range(len(self.plotList)):
+			# 	if not self.plotList[i].vacant:
+			# 		currentTotalValue = self.plotList[i].totalValue
+			# 		percentLacking = 1.0 - (float(currentTotalValue) / float(bestTotalValue))
+			# 		if percentLacking > 0:
+			# 			bonuses = min(5, int(percentLacking / 0.2))
+			# 			self.boostCityPlotValue(self.plotList[i].x, self.plotList[i].y, bonuses, self.plotList[i].isCoast())
+			# #add bonuses due to player difficulty settings
+			# self.addHandicapBonus()
+			#
 		except Exception, e:
 			# advc: Removed "due to a rarely occurring bug" - could be any error, and not necessarily that rare. Added info about the exception. That said, for debugging, it may be better not to catch (and re-raise) the exception here because this obscures the specific origin.
 			errorPopUp("PerfectWorld's starting plot finder has failed; this map likely has unfair starting locations. You may wish to quit this game and generate a new map." + "\n\nAn exception of type " + e.__class__.__name__ + " occurred. Arguments:\n" + str(e.args))
@@ -5772,11 +5772,11 @@ class StartingArea:
 
 					#LM - Prevent starting locations from being walled-off in small pockets.
 					# advc.030: No need; in AdvCiv, peaks always separate areas.
-					'''
-					# advc.001: Map unavailable in later eras (I think)
-					if gc.getGame().getStartEra() < 3 and sf.peakMap.getAreaByID(sf.peakMap.data[GetIndex(x, y)]).size < sf.iMinIslandSize:
-						value = 0
-					'''
+					#
+					# # advc.001: Map unavailable in later eras (I think)
+					# if gc.getGame().getStartEra() < 3 and sf.peakMap.getAreaByID(sf.peakMap.data[GetIndex(x, y)]).size < sf.iMinIslandSize:
+					# 	value = 0
+					#
 					#LM - Invalid locations are given a value of -1, which is blocked. Highly undesirable but technically valid locations are given a value of 0
 					#which is also blocked, with any landmass overflows now handled above. I've left the values separate anyway though, in case they're ever used.
 					if value > 0:
@@ -6117,24 +6117,24 @@ def getNumCustomMapOptions():
 
 def getCustomMapOptionName(argsList):
 	optionID = argsList[0]
-	'''
-	if optionID == 0:
-		return "Sea Level:"
-	if optionID == 1:
-		return "Landmasses:"
-	if optionID == 2:
-		return "Mountains:"
-	if optionID == 3:
-		return "Climate:"
-	if optionID == 4:
-		return "Rivers:"
-	if optionID == 5:
-		return "Pangaeas:"
-	if optionID == 6:
-		return "World Wrap:"
-	if optionID == 7:
-		return "Start:"
-	'''
+	#
+	# if optionID == 0:
+	# 	return "Sea Level:"
+	# if optionID == 1:
+	# 	return "Landmasses:"
+	# if optionID == 2:
+	# 	return "Mountains:"
+	# if optionID == 3:
+	# 	return "Climate:"
+	# if optionID == 4:
+	# 	return "Rivers:"
+	# if optionID == 5:
+	# 	return "Pangaeas:"
+	# if optionID == 6:
+	# 	return "World Wrap:"
+	# if optionID == 7:
+	# 	return "Start:"
+	#
 	# <advc> Reorder and use existing translations
 	[optionID] = argsList
 	option_names = {
@@ -6155,25 +6155,25 @@ def getNumCustomMapOptionValues(argsList):
 		}
 	return option_values[optionID]
 	# </advc>
-	'''
-	if optionID == 0:
-		return 5
-	if optionID == 1:
-		return 3
-	if optionID == 2:
-		return 2
-	if optionID == 3:
-		return 2
-	if optionID == 4:
-		return 2
-	if optionID == 5:
-		return 2
-	if optionID == 6:
-		return 3
-	if optionID == 7:
-		return 2
-	return 0
-	'''
+	#
+	# if optionID == 0:
+	# 	return 5
+	# if optionID == 1:
+	# 	return 3
+	# if optionID == 2:
+	# 	return 2
+	# if optionID == 3:
+	# 	return 2
+	# if optionID == 4:
+	# 	return 2
+	# if optionID == 5:
+	# 	return 2
+	# if optionID == 6:
+	# 	return 3
+	# if optionID == 7:
+	# 	return 2
+	# return 0
+	#
 
 def getCustomMapOptionDescAt(argsList):
 	# <advc>
@@ -6200,61 +6200,61 @@ def getCustomMapOptionDescAt(argsList):
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
 	# </advc>
-	'''
-	optionID    = argsList[0]
-	selectionID = argsList[1]
-	if optionID == 0:
-		if selectionID == 0:
-			return "Normal"
-		elif selectionID == 1:
-			return "Low Tide"
-		elif selectionID == 2:
-			return "High Tide"
-		elif selectionID == 3:
-			return "Land Ho!"
-		else:
-			return "Water World"
-	elif optionID == 1:
-		if selectionID == 0:
-			return "PerfectWorld 3"
-		elif selectionID == 1:
-			return "PerfectWorld 3 (Hex Grid)"
-		else:
-			return "PerfectWorld 2"
-	elif optionID == 2:
-		if selectionID == 0:
-			return "Neighbor Slope"
-		else:
-			return "Absolute Height"
-	elif optionID == 3:
-		if selectionID == 0:
-			return "PerfectWorld 3"
-		else:
-			return "PerfectWorld 2"
-	elif optionID == 4:
-		if selectionID == 0:
-			return "Default SDK"
-		else:
-			return "PerfectWorld 2"
-	elif optionID == 5:
-		if selectionID == 0:
-			return "Break"
-		else:
-			return "Allow"
-	elif optionID == 6:
-		if selectionID == 0:
-			return "Cylindrical"
-		elif selectionID == 1:
-			return "Toroidal"
-		else:
-			return "Flat"
-	elif optionID == 7:
-		if selectionID == 0:
-			return "Everywhere"
-		else:
-			return "Old World Only"
-	return u""
-	'''
+	#
+	# optionID    = argsList[0]
+	# selectionID = argsList[1]
+	# if optionID == 0:
+	# 	if selectionID == 0:
+	# 		return "Normal"
+	# 	elif selectionID == 1:
+	# 		return "Low Tide"
+	# 	elif selectionID == 2:
+	# 		return "High Tide"
+	# 	elif selectionID == 3:
+	# 		return "Land Ho!"
+	# 	else:
+	# 		return "Water World"
+	# elif optionID == 1:
+	# 	if selectionID == 0:
+	# 		return "PerfectWorld 3"
+	# 	elif selectionID == 1:
+	# 		return "PerfectWorld 3 (Hex Grid)"
+	# 	else:
+	# 		return "PerfectWorld 2"
+	# elif optionID == 2:
+	# 	if selectionID == 0:
+	# 		return "Neighbor Slope"
+	# 	else:
+	# 		return "Absolute Height"
+	# elif optionID == 3:
+	# 	if selectionID == 0:
+	# 		return "PerfectWorld 3"
+	# 	else:
+	# 		return "PerfectWorld 2"
+	# elif optionID == 4:
+	# 	if selectionID == 0:
+	# 		return "Default SDK"
+	# 	else:
+	# 		return "PerfectWorld 2"
+	# elif optionID == 5:
+	# 	if selectionID == 0:
+	# 		return "Break"
+	# 	else:
+	# 		return "Allow"
+	# elif optionID == 6:
+	# 	if selectionID == 0:
+	# 		return "Cylindrical"
+	# 	elif selectionID == 1:
+	# 		return "Toroidal"
+	# 	else:
+	# 		return "Flat"
+	# elif optionID == 7:
+	# 	if selectionID == 0:
+	# 		return "Everywhere"
+	# 	else:
+	# 		return "Old World Only"
+	# return u""
+	#
 
 # <advc> Make cylindrical the middle choice b/c that's what the standard map scripts do
 def getCustomMapOptionDefault(argsList):
@@ -6272,26 +6272,26 @@ def isRandomCustomMapOption(argsList):
 	return False
 
 
-''' # advc: Re-enable all the normalization functions in the DLL. Extra rivers and lakes had already been re-enabled by v3.3.
-#This doesn't work with my river system so it is disabled. Some civs
-#might start without a river.
-def normalizeAddRiver():
-	return
-def normalizeAddLakes():
-	return
-def normalizeAddGoodTerrain():
-	return
-def normalizeRemoveBadTerrain():
-	return
-def normalizeRemoveBadFeatures():
-	return
-def normalizeAddFoodBonuses():
-	return
-def normalizeAddExtras():
-	return
-def normalizeRemovePeaks():
-	return
-'''
+# # advc: Re-enable all the normalization functions in the DLL. Extra rivers and lakes had already been re-enabled by v3.3.
+# #This doesn't work with my river system so it is disabled. Some civs
+# #might start without a river.
+# def normalizeAddRiver():
+# 	return
+# def normalizeAddLakes():
+# 	return
+# def normalizeAddGoodTerrain():
+# 	return
+# def normalizeRemoveBadTerrain():
+# 	return
+# def normalizeRemoveBadFeatures():
+# 	return
+# def normalizeAddFoodBonuses():
+# 	return
+# def normalizeAddExtras():
+# 	return
+# def normalizeRemovePeaks():
+# 	return
+#
 
 def isAdvancedMap():
 	return False
@@ -6309,21 +6309,21 @@ def getTopLatitude():
 def getBottomLatitude():
 	return mc.bottomLatitude # advc.001: was -90
 
-''' # advc: Use the defaults, which are smaller, combined with more arable land.
-def getGridSize(argsList):
-	grid_sizes = {
-		WorldSizeTypes.WORLDSIZE_DUEL:					(12,  8),
-		WorldSizeTypes.WORLDSIZE_TINY:					(15, 10),
-		WorldSizeTypes.WORLDSIZE_SMALL:					(18, 12),
-		WorldSizeTypes.WORLDSIZE_STANDARD:				(24, 16),
-		WorldSizeTypes.WORLDSIZE_LARGE:					(30, 20),
-		WorldSizeTypes.WORLDSIZE_HUGE:					(36, 24)
-	}
-	if (argsList[0] == -1): # (-1,) is passed to function on loads
-			return []
-	[eWorldSize] = argsList
-	return grid_sizes[eWorldSize]
-'''
+# # advc: Use the defaults, which are smaller, combined with more arable land.
+# def getGridSize(argsList):
+# 	grid_sizes = {
+# 		WorldSizeTypes.WORLDSIZE_DUEL:					(12,  8),
+# 		WorldSizeTypes.WORLDSIZE_TINY:					(15, 10),
+# 		WorldSizeTypes.WORLDSIZE_SMALL:					(18, 12),
+# 		WorldSizeTypes.WORLDSIZE_STANDARD:				(24, 16),
+# 		WorldSizeTypes.WORLDSIZE_LARGE:					(30, 20),
+# 		WorldSizeTypes.WORLDSIZE_HUGE:					(36, 24)
+# 	}
+# 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+# 			return []
+# 	[eWorldSize] = argsList
+# 	return grid_sizes[eWorldSize]
+#
 
 
 def generatePlotTypes():
@@ -6376,37 +6376,37 @@ def generatePlotTypes():
 	tm.GenerateTerrainMap()
 	rm.GenerateRiverMap()
 	km.GenerateContinentMap()
-	'''
-	land   = 0.0
-	flat   = 0.0
-	snow   = 0.0
-	tundra = 0.0
-	desert = 0.0
-	plains = 0.0
-	grass  = 0.0
-	for i in range(em.length):
-		if tm.pData[i] != mc.WATER:
-			land += 1.0
-			if tm.pData[i] != mc.PEAK:
-				flat += 1.0
-				if tm.tData[i]   == mc.SNOW:
-					snow   += 1.0
-				elif tm.tData[i] == mc.TUNDRA:
-					tundra += 1.0
-				elif tm.tData[i] == mc.DESERT:
-					desert += 1.0
-				elif tm.tData[i] == mc.PLAINS:
-					plains += 1.0
-				elif tm.tData[i] == mc.GRASS:
-					grass  += 1.0
-	print("Land   Percentage = ", str(land   / float(em.length)))
-	print("Land Count = ", str(land), "; Flat Count = ", str(flat))
-	print("Snow   Percentage = ", str(snow   / flat))
-	print("Tundra Percentage = ", str(tundra / flat))
-	print("Desert Percentage = ", str(desert / flat))
-	print("Plains Percentage = ", str(plains / flat))
-	print("Grass  Percentage = ", str(grass  / flat))
-	'''
+	#
+	# land   = 0.0
+	# flat   = 0.0
+	# snow   = 0.0
+	# tundra = 0.0
+	# desert = 0.0
+	# plains = 0.0
+	# grass  = 0.0
+	# for i in range(em.length):
+	# 	if tm.pData[i] != mc.WATER:
+	# 		land += 1.0
+	# 		if tm.pData[i] != mc.PEAK:
+	# 			flat += 1.0
+	# 			if tm.tData[i]   == mc.SNOW:
+	# 				snow   += 1.0
+	# 			elif tm.tData[i] == mc.TUNDRA:
+	# 				tundra += 1.0
+	# 			elif tm.tData[i] == mc.DESERT:
+	# 				desert += 1.0
+	# 			elif tm.tData[i] == mc.PLAINS:
+	# 				plains += 1.0
+	# 			elif tm.tData[i] == mc.GRASS:
+	# 				grass  += 1.0
+	# print("Land   Percentage = ", str(land   / float(em.length)))
+	# print("Land Count = ", str(land), "; Flat Count = ", str(flat))
+	# print("Snow   Percentage = ", str(snow   / flat))
+	# print("Tundra Percentage = ", str(tundra / flat))
+	# print("Desert Percentage = ", str(desert / flat))
+	# print("Plains Percentage = ", str(plains / flat))
+	# print("Grass  Percentage = ", str(grass  / flat))
+	#
 	plotTypes = [PlotTypes.PLOT_OCEAN] * em.length
 	for i in range(em.length):
 		mapLoc = tm.pData[i]
@@ -6480,12 +6480,12 @@ def placeRiversInPlot(x, y):
 		plot.setNOfRiver(True, CardinalDirectionTypes.CARDINALDIRECTION_WEST)
 
 
-'''
-This function examines a lake area and removes ugly surrounding rivers. Any
-river that is flowing away from the lake, or alongside the lake will be
-removed. This function also returns a list of riverID's that flow into the
-lake.
-'''
+
+# This function examines a lake area and removes ugly surrounding rivers. Any
+# river that is flowing away from the lake, or alongside the lake will be
+# removed. This function also returns a list of riverID's that flow into the
+# lake.
+#
 def cleanUpLake(x, y):
 	gc = CyGlobalContext()
 	mmap = gc.getMap()
@@ -6545,12 +6545,12 @@ def cleanUpLake(x, y):
 	return riversIntoLake
 
 
-'''
-This function replaces rivers to update the river crossings after a lake or
-channel is placed at X,Y. There had been a long standing problem where water tiles
-added after a river were causing graphical glitches and incorrect river rules
-due to not updating the river crossings.
-'''
+
+# This function replaces rivers to update the river crossings after a lake or
+# channel is placed at X,Y. There had been a long standing problem where water tiles
+# added after a river were causing graphical glitches and incorrect river rules
+# due to not updating the river crossings.
+#
 def replaceRivers(x, y):
 	gc = CyGlobalContext()
 	mmap = gc.getMap()
@@ -6598,11 +6598,11 @@ def replaceRivers(x, y):
 	#Southeast plot is not relevant
 
 
-'''
-It looks bad to have a lake, fed by a river, sitting right next to the coast.
-This function tries to minimize that occurance by replacing it with a
-natural harbor, which looks much better.
-'''
+
+# It looks bad to have a lake, fed by a river, sitting right next to the coast.
+# This function tries to minimize that occurance by replacing it with a
+# natural harbor, which looks much better.
+#
 def makeHarbor(x, y, oceanMap):
 	oceanID = oceanMap.getOceanID()
 	i = oceanMap.getIndex(x, y)
@@ -6749,14 +6749,14 @@ def addRivers():
 	if mc.RiverGenerator != 0:
 		return
 	# <advc> Cut from addLakes
-	''' # We no longer let the DLL place rivers first; no need to clear them.
-	for y in range(mc.height):
-		for x in range(mc.width):
-			plot = CyMap().plot(x, y)
-			plot.setRiverID(-1)
-			plot.setNOfRiver(False, CardinalDirectionTypes.NO_CARDINALDIRECTION)
-			plot.setWOfRiver(False, CardinalDirectionTypes.NO_CARDINALDIRECTION)
-	'''
+	# # We no longer let the DLL place rivers first; no need to clear them.
+	# for y in range(mc.height):
+	# 	for x in range(mc.width):
+	# 		plot = CyMap().plot(x, y)
+	# 		plot.setRiverID(-1)
+	# 		plot.setNOfRiver(False, CardinalDirectionTypes.NO_CARDINALDIRECTION)
+	# 		plot.setWOfRiver(False, CardinalDirectionTypes.NO_CARDINALDIRECTION)
+	#
 	for y in range(mc.height):
 		for x in range(mc.width):
 			placeRiversInPlot(x, y) # </advc>
@@ -6944,25 +6944,25 @@ def createIce():
 	# advc: Adjust to top latitude
 	iceTemp = iceTemp * mc.topLatitude / 90
 	iceTemp *= 0.9 # advc: There's also a bit too much ice in general
-	'''
-	worldSize = gc.getMap().getWorldSize()
-	if worldSize == 0:
-		thickness = 3  #/ 8  = 0.375
-	elif worldSize == 1:
-		thickness = 4  #/ 10 = 0.4
-	elif worldSize == 2:
-		thickness = 5  #/ 12 = 0.4167
-	elif worldSize == 3:
-		thickness = 6  #/ 16 = 0.375
-	elif worldSize == 4:
-		thickness = 8  #/ 20 = 0.4
-	elif worldSize == 5:
-		thickness = 10 #/ 24 = 0.4167
-	elif worldSize == 6:
-		thickness = 11 #/ 28 = 0.393
-	else:
-		thickness = 14 #/ 36 = 0.389
-	'''
+	#
+	# worldSize = gc.getMap().getWorldSize()
+	# if worldSize == 0:
+	# 	thickness = 3  #/ 8  = 0.375
+	# elif worldSize == 1:
+	# 	thickness = 4  #/ 10 = 0.4
+	# elif worldSize == 2:
+	# 	thickness = 5  #/ 12 = 0.4167
+	# elif worldSize == 3:
+	# 	thickness = 6  #/ 16 = 0.375
+	# elif worldSize == 4:
+	# 	thickness = 8  #/ 20 = 0.4
+	# elif worldSize == 5:
+	# 	thickness = 10 #/ 24 = 0.4167
+	# elif worldSize == 6:
+	# 	thickness = 11 #/ 28 = 0.393
+	# else:
+	# 	thickness = 14 #/ 36 = 0.389
+	#
 	# advc: Simpler, and doesn't need to be adjusted to getGridSize. Divisor 10.0 would be (pretty much) equivalent to the above, but I don't want it to be as thick as that.
 	thickness = int(round((mc.height / 12.5) * mc.topLatitude / 90))
 	if mc.WrapY:

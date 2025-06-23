@@ -18,28 +18,24 @@ from CvMapGeneratorUtil import BonusBalancer
 balancer = BonusBalancer()
 
 
-'''
-MULTILAYERED FRACTAL NOTES
-
-The MultilayeredFractal class was created for use with this script.
-
-I worked to make it adaptable to other scripts, though, and eventually it
-migrated in to the MapUtil file along with the other primary map classes.
-
-- Bob Thomas   July 13, 2005
-
-
-TERRA NOTES
-
-Terra turns out to be our largest size map. This is the only map script
-in the original release of Civ4 where the grids are this large!
-
-This script is also the one that got me started in to map scripting. I had 
-this idea early in the development cycle and just kept pestering until Soren 
-turned me loose on it, finally. Once I got going, I just kept on going!
-
-- Bob Thomas   September 20, 2005
-'''
+#
+# MULTILAYERED FRACTAL NOTES
+#
+# The MultilayeredFractal class was created for use with this script.
+#
+# I worked to make it adaptable to other scripts, though, and eventually it migrated in to the MapUtil file along with the other primary map classes.
+#
+# - Bob Thomas   July 13, 2005
+#
+#
+# TERRA NOTES
+#
+# Terra turns out to be our largest size map. This is the only map script in the original release of Civ4 where the grids are this large!
+#
+# This script is also the one that got me started in to map scripting. I had this idea early in the development cycle and just kept pestering until Soren turned me loose on it, finally. Once I got going, I just kept on going!
+#
+# - Bob Thomas   September 20, 2005
+#
 
 #def getGridSize(argsList):
 #	"Enlarge the grids! According to Soren, Earth-type maps are usually huge anyway."
@@ -537,19 +533,19 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		# All regions have been processed. Plot Type generation completed.
 		return self.wholeworldPlotTypes
 
-'''
-Regional Variables Key:
-
-iWaterPercent,
-iRegionWidth, iRegionHeight,
-iRegionWestX, iRegionSouthY,
-iRegionGrain, iRegionHillsGrain,
-iRegionPlotFlags, iRegionTerrainFlags,
-iRegionFracXExp, iRegionFracYExp,
-bShift, iStrip,
-rift_grain, has_center_rift,
-invert_heights
-'''
+#
+# Regional Variables Key:
+#
+# iWaterPercent,
+# iRegionWidth, iRegionHeight,
+# iRegionWestX, iRegionSouthY,
+# iRegionGrain, iRegionHillsGrain,
+# iRegionPlotFlags, iRegionTerrainFlags,
+# iRegionFracXExp, iRegionFracYExp,
+# bShift, iStrip,
+# rift_grain, has_center_rift,
+# invert_heights
+#
 
 def generatePlotTypes():
 	NiTextOut("Setting Plot Types (Python Terra) ...")

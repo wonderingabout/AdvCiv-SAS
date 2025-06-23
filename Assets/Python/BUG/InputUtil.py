@@ -80,11 +80,10 @@ def keyToCode(key):
 
 
 def stringToKeystroke(key):
-	"""
-	Returns a Keystroke created from the given string.
-	
-	It can contain modifiers (alt, control, shift) separated from the key with spaces.
-	"""
+	# Returns a Keystroke created from the given string.
+	#
+	# It can contain modifiers (alt, control, shift) separated from the key with spaces.
+	#
 	if not isinstance(key, types.StringTypes):
 		raise BugUtil.ConfigError("key must be a string")
 	keys = key.split()
@@ -118,11 +117,10 @@ def stringToKeystroke(key):
 	return Keystroke(input, *modifiers)
 
 def stringToKeystrokes(keys):
-	"""
-	Returns a list of Keystrokes created from the given string.
-	
-	Individual keystrokes must be separated by a vertical bar (|).
-	"""
+	# Returns a list of Keystrokes created from the given string.
+	#
+	# Individual keystrokes must be separated by a vertical bar (|).
+	#
 	result = []
 	for key in keys.split("|"):
 		result.append(stringToKeystroke(key))
@@ -130,10 +128,10 @@ def stringToKeystrokes(keys):
 
 
 class Keystroke:
-	"""
-	Holds the information necessary to recognize a single keystroke,
-	including modifiers: alt, control, and shift.
-	"""
+	#
+	# Holds the information necessary to recognize a single keystroke,
+	# including modifiers: alt, control, and shift.
+	#
 	def __init__(self, keyOrCode, alt=False, control=False, shift=False):
 		if isinstance(keyOrCode, int):
 			self.code = keyOrCode

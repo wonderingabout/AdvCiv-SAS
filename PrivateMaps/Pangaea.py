@@ -19,23 +19,23 @@ from CvMapGeneratorUtil import BonusBalancer
 
 balancer = BonusBalancer()
 
-'''
-def getGridSize(argsList):
-	# Reduce grid sizes by one level.
-	grid_sizes = {
-		WorldSizeTypes.WORLDSIZE_DUEL:		(8,5),
-		WorldSizeTypes.WORLDSIZE_TINY:		(10,6),
-		WorldSizeTypes.WORLDSIZE_SMALL:		(13,8),
-		WorldSizeTypes.WORLDSIZE_STANDARD:	(16,10),
-		WorldSizeTypes.WORLDSIZE_LARGE:		(21,13),
-		WorldSizeTypes.WORLDSIZE_HUGE:		(26,16)
-	}
+#
+# def getGridSize(argsList):
+# 	# Reduce grid sizes by one level.
+# 	grid_sizes = {
+# 		WorldSizeTypes.WORLDSIZE_DUEL:		(8,5),
+# 		WorldSizeTypes.WORLDSIZE_TINY:		(10,6),
+# 		WorldSizeTypes.WORLDSIZE_SMALL:		(13,8),
+# 		WorldSizeTypes.WORLDSIZE_STANDARD:	(16,10),
+# 		WorldSizeTypes.WORLDSIZE_LARGE:		(21,13),
+# 		WorldSizeTypes.WORLDSIZE_HUGE:		(26,16)
+# 	}
 
-	if (argsList[0] == -1): # (-1,) is passed to function on loads
-		return []
-	[eWorldSize] = argsList
-	return grid_sizes[eWorldSize]
-'''
+# 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+# 		return []
+# 	[eWorldSize] = argsList
+# 	return grid_sizes[eWorldSize]
+#
 # advc.165: Adjust, don't overwrite the defaults.
 def getNumPlotsPercent(argsList):
 	[iWorldSize] = argsList
@@ -415,19 +415,19 @@ class PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		# All regions have been processed. Plot Type generation completed.
 		return self.wholeworldPlotTypes
 
-'''
-Regional Variables Key:
-
-iWaterPercent,
-iRegionWidth, iRegionHeight,
-iRegionWestX, iRegionSouthY,
-iRegionGrain, iRegionHillsGrain,
-iRegionPlotFlags, iRegionTerrainFlags,
-iRegionFracXExp, iRegionFracYExp,
-bStrip, strip,
-rift_grain, has_center_rift,
-invert_heights
-'''
+#
+# Regional Variables Key:
+#
+# iWaterPercent,
+# iRegionWidth, iRegionHeight,
+# iRegionWestX, iRegionSouthY,
+# iRegionGrain, iRegionHillsGrain,
+# iRegionPlotFlags, iRegionTerrainFlags,
+# iRegionFracXExp, iRegionFracYExp,
+# bStrip, strip,
+# rift_grain, has_center_rift,
+# invert_heights
+#
 
 def generatePlotTypes():
 	NiTextOut("Setting Plot Types (Python Pangaea) ...")

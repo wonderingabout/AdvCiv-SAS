@@ -250,9 +250,8 @@ class BuildUnitName(AbstractBuildUnitName):
 		return
 
 	def onCityBuilt(self, argsList):
-		"""
-		If this is the first city founded, apply naming to each unit without a name.
-		"""
+		# If this is the first city founded, apply naming to each unit without a name.
+		#
 		pCity = argsList[0]
 		pPlayer = gc.getPlayer(pCity.getOwner())
 		if not (pCity.isCapital() 
@@ -272,9 +271,8 @@ class BuildUnitName(AbstractBuildUnitName):
 					pUnit.setName(zsUnitName)
 
 	def onGoodyReceived(self, argsList):
-		"""
-		Name free units from goody huts.
-		"""
+		# Name free units from goody huts.
+		#
 		iPlayer, pPlot, pUnit, iGoodyType = argsList
 		goody = gc.getGoodyInfo(iGoodyType)
 		if goody.getUnitClassType() != -1:

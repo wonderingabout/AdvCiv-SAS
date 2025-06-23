@@ -125,12 +125,12 @@ def showForeignAdvisorScreen(argsList):
 # BUG - Finance Advisor - start
 ##	
 # K-Mod, 18/dec/10, karadoc
-# I've disabled this option. We always use the 'economics advisor' now.	
-# (but the way I've done it is a kludge)
+# I've disabled this option. We always use the 'economics advisor' now.	(but the way I've done it is a kludge)
 ##
 financeAdvisor = None
 def createFinanceAdvisor():
-	"""Creates the correct Finance Advisor based on an option."""
+	# Creates the correct Finance Advisor based on an option.
+	#
 	global financeAdvisor
 	if financeAdvisor is None:
 		import EconomicsAdvisor
@@ -151,7 +151,8 @@ def showFinanceAdvisor():
 # BUG - CustDomAdv - start
 domesticAdvisor = None
 def createDomesticAdvisor():
-	"""Creates the correct Domestic Advisor based on an option."""
+	# Creates the correct Domestic Advisor based on an option.
+	#
 	global domesticAdvisor
 	if domesticAdvisor is None:
 		if (CustDomAdvOpt.isEnabled()):
@@ -171,7 +172,8 @@ def showDomesticAdvisor(argsList=None):
 # BUG - Military Advisor - start
 militaryAdvisor = None
 def createMilitaryAdvisor():
-	"""Creates the correct Military Advisor based on an option."""
+	# Creates the correct Military Advisor based on an option.
+	#
 	global militaryAdvisor
 	if militaryAdvisor is None:
 		if (AdvisorOpt.isBUG_MA()):
@@ -252,7 +254,8 @@ def showDebugInfoScreen():
 # BUG - Tech Splash Screen - start
 techSplashScreen = None
 def createTechSplash():
-	"""Creates the correct Tech Splash Screen based on an option."""
+	# Creates the correct Tech Splash Screen based on an option.
+	#
 	global techSplashScreen
 	if techSplashScreen is None:
 		if (TechWindowOpt.isDetailedView()):
@@ -288,7 +291,8 @@ def showVictoryScreen():
 pediaMainScreen = None
 bUsingSevopedia = False
 def createCivilopedia():
-	"""Creates the correct Civilopedia based on an option."""
+	# Creates the correct Civilopedia based on an option.
+	#
 	global pediaMainScreen
 	global bUsingSevopedia
 	if pediaMainScreen is None:
@@ -912,7 +916,8 @@ def mouseOverPlot (argsList):
 		worldBuilderScreen.mouseOverPlot(argsList)
 
 def handleInput (argsList):
-	' handle input is called when a screen is up '
+	# handle input is called when a screen is up
+	#
 	inputClass = PyScreenInput.ScreenInput(argsList)
 	
 	# allows overides for mods
@@ -1144,13 +1149,8 @@ def featAccomplishedOnFocusCallback(argsList):
 	bOption2 = argsList[6]
 	
 	CyInterface().playGeneralSound("AS2D_FEAT_ACCOMPLISHED")
-	# <!-- custom: implementing our new unit combat types, for example archery units:
-	# archers bow short, archers bow long, archers crossbow
-	# i am not sure exactly what this code does except play a sound and why it does
-	# to some unit combat types and not others, but for now for simplicity and such
-	# i am just going to change the combat type here too.
-	# Adding the crossbows too, i don't know if this is safe considering they were not
-	# added before, but testing to see what happens, maybe it works. (?) -->
+	# <!-- custom: implementing our new unit combat types, for example archery units: archers bow short, archers bow long, archers crossbow
+	# i am not sure exactly what this code does except play a sound and why it does to some unit combat types and not others, but for now for simplicity and such i am just going to change the combat type here too. Adding the crossbows too, i don't know if this is safe considering they were not added before, but testing to see what happens, maybe it works. (?) -->
 	#if ((iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER) and (iData1 <= FeatTypes.FEAT_FOOD_CONNECTED)):
 	#	CyInterface().lookAtCityOffset(iData2)
 	if (( (iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT) or (iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_LONG) or (iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_CROSSBOW) ) and (iData1 <= FeatTypes.FEAT_FOOD_CONNECTED)):

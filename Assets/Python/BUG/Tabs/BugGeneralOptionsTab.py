@@ -86,13 +86,13 @@ class BugGeneralOptionsTab(BugOptionsTab.BugOptionsTab):
 		# advc.154:
 		self.addTextDropdown(screen, panel, panel, "MainInterface__UnitCyclingButtons", True)
 		# (I don't think we need these options after all)
-		'''
-		# <advc.004k>
-		left, right = self.addTwoColumnLayout(screen, panel, "CommandCols")
-		self.addCheckbox(screen, left, "MainInterface__SeaPatrol")
-		self.addCheckbox(screen, right, "MainInterface__AutoExplore")
-		# </advc.004k>
-		'''
+		#
+		# # <advc.004k>
+		# left, right = self.addTwoColumnLayout(screen, panel, "CommandCols")
+		# self.addCheckbox(screen, left, "MainInterface__SeaPatrol")
+		# self.addCheckbox(screen, right, "MainInterface__AutoExplore")
+		# # </advc.004k>
+		#
 		# advc.002m:
 		self.addTextDropdown(screen, panel, panel, "MainInterface__NukeMissionTime", True)
 

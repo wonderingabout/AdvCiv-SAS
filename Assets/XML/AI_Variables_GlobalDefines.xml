@@ -1,66 +1,40 @@
 <?xml version="1.0"?>
-
+<!-- custom: ideally todo: note for performance of load times if i am not mistaken and from asking chatgpt/becomingthrough anyways etc, one comment-out per line, no comment line without a comment-out at its own line (for example no (comment begin) line1 line2 line3 etc... line 50 (comment end) but instead (comment being) line1 (comment end) (comment being) line 2 (comment end) (comment being) line 3 (comment end) etc... (comment being) line 50 (comment end)anyways etc) -->
+<!-- custom: maybe most likely would be much faster if i ask chatgpt becomginthrough to do it, todo later maybe not guaranteed though anyways etc todo or/and continue anyways etc -->
+<!-- [advc.104x] This file used to be called BBAI_AI_Variables_GlobalDefines.xml; now also contains UWAI parameters. -->
+<!---->
+<!-- UWAI breaks down the computation of AI war utility into a sum of 28 "aspects", most of which are either in favor of war (added to the total war utility) or against war (subtracted). There are a few mixed aspects that could either increase or decrease war utility. Each aspect corresponds to one particular motivation for or against war. Through this file, a weight is assigned to each aspect. This weight is interpreted as a percentage by which the aspect utility is multiplied. The default (recommended) weights are all 100. This doesn't imply though that all aspects contribute equally by default; the weights are only a final adjustment to the (hardcoded) formulas.-->
+<!-- A weight of e.g. 50 halves the default impact of an aspect, 200 doubles it. 0 means that the aspect is entirely disregarded. A negative weight (not recommended) turns a pro-war aspect into an anti-war aspect or vice versa. In the descriptions below, "we" refers to the AI civ that is considering war. [advc.104x] -->
 <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
-	<!-- [advc.104x] This file used to be called BBAI_AI_Variables_
-		 GlobalDefines.xml; now also contains UWAI parameters.
-
-		 UWAI breaks down the computation of AI war utility into a sum of
-		 28 "aspects", most of which are either in favor of war (added to the
-		 total war utility) or against war (subtracted). There are a few mixed
-		 aspects that could either increase or decrease war utility.
-		 Each aspect corresponds to one particular motivation for or against war.
-		 Through this file, a weight is assigned to each aspect. This weight is
-		 interpreted as a percentage by which the aspect utility is multiplied.
-		 The default (recommended) weights are all 100. This doesn't imply though
-		 that all aspects contribute equally by default; the weights are only a
-		 final adjustment to the (hardcoded) formulas.
-		 A weight of e.g. 50 halves the default impact of an aspect, 200
-		 doubles it. 0 means that the aspect is entirely disregarded. A
-		 negative weight (not recommended) turns a pro-war aspect into an
-		 anti-war aspect or vice versa.
-		 In the descriptions below, "we" refers to the AI civ that is
-		 considering war. -->
 	<Define>
 		<!-- The cities we expect to conquer as economic assets. -->
 		<DefineName>UWAI_WEIGHT_GREED_FOR_ASSETS</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- The economic value of accepted capitulations. 
-			 (Not: Getting closer to a Conquest victory; that's handled under
-			  MILITARY_VICTORY.) -->
+		<!-- The economic value of accepted capitulations. (Not: Getting closer to a Conquest victory; that's handled under MILITARY_VICTORY.) -->
 		<DefineName>UWAI_WEIGHT_GREED_FOR_VASSALS</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- By eliminating a civ early in the game, some of the unsettled land
-			 near it can be settled and exploited. Lebensraum if you will (and
-			 in Civ, it actually works).  -->
+		<!-- By eliminating a civ early in the game, some of the unsettled land near it can be settled and exploited. Lebensraum if you will (and in Civ, it actually works).  -->
 		<DefineName>UWAI_WEIGHT_GREED_FOR_SPACE</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- Just the value of expected reparations really. Sponsored war is
-			 covered by HIRED_HAND. -->
+		<!-- Just the value of expected reparations really. Sponsored war is covered by HIRED_HAND. -->
 		<DefineName>UWAI_WEIGHT_GREED_FOR_CASH</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<Define>
 		<!-- The satisfaction of seeing our (worst) enemies devastated. -->
-		<!-- custom: seeing worst enemy defeated should not matter as much as seeing
-		ourselves grow maybe, decreasing this a bit so hopefully AI is a bit more
-		effective, was 100 -->
+		<!-- custom: seeing worst enemy defeated should not matter as much as seeing ourselves grow maybe, decreasing this a bit so hopefully AI is a bit more effective, was 100 -->
 		<DefineName>UWAI_WEIGHT_LOATHING</DefineName>
 		<iDefineIntVal>70</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- The prospect of a speedy military victory incites us to wage war.
-			 This covers Domination, Conquest and Diplomatic victory; Diplo
-			 victory also factors into ILL_WILL. -->
-		<!-- custom: slightly increase war propension if we are likely to win, but
-		not increasing it a lot, as there is a risk too of going too soon to war
-		(exposure to other rivals, risk if war fails, slower economy short term,
-		was 100)-->
+		<!-- The prospect of a speedy military victory incites us to wage war. This covers Domination, Conquest and Diplomatic victory; Diplo victory also factors into ILL_WILL. -->
+		<!-- custom: slightly increase war propension if we are likely to win, but not increasing it a lot, as there is a risk too of going too soon to war (exposure to other rivals, risk if war fails, slower economy short term, was 100)-->
 		<DefineName>UWAI_WEIGHT_MILITARY_VICTORY</DefineName>
 		<iDefineIntVal>105</iDefineIntVal>
 	</Define>
@@ -331,39 +305,12 @@
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
     <Define>
-		<!-- When computing per-civ power values (which play an important role
-			 in decisions on war and peace), the power value of each individual
-			 unit is raised to the power of (i.e. exponentiated by)
-			 POWER_CORRECTION. For example, if POWER_CORRECTION is 200%, per-unit
-			 power values are squared. POWER_CORRECTION = 100% is the BtS behavior;
-			 power values then typically equal unit strength, e.g. two Warriors
-			 are as good as one Spearman. When squaring, one Spearman is as
-			 good as four Warriors. (That seems too much.) Recommended:
-			 166%; one Spearman then corresponds to 3.15 Warriors. -->
-		<!-- advc.159: A fraction (3/4) of this value is also used for some
-			 tactical decisions outside the UWAI component. -->
-		<!-- custom: Extra checking the AdvCiv's value:
-		2^1.66 = 3.160 and 4^1.66 = 9.987 , so one spearman is as strong, corrected,
-		as 9.987 / 3.160 = 3.160 (too) warriors, about same as AdvCiv's value
-		((very) slightly different due to rounding so 3.15 becomes 3.16), so my math
-		is hopefully correct.
-
-		Now changing it to a maybe more fit for my purpose value or how i think
-		it may fit better the game:
-		2^1.59 = 3.010 strength corrected and 4^1.59 = 9.063
-		approximately so a spearman (basing myself on base BTS/AdvCiv strength
-		for example) is closer to 3	(9.063 / 3.010 = 3.011, to be more exact
-		warriors now, so maybe this is good enough odds to consider attacking
-		with the 3 warriors now?
-		May also help AI stacks	not stare at each other too long and start city
-		attacks sooner?
-		
-		Increased it to 160 to be safer (than 159), so one warrior is
-		2^1.6 = 3.031 corrected strength now and one spearman is 4^1.6 = 9.190
-		corrected strength now,	and so one spearman	is now as worth as
-		9.190 / 3.031 = 3.032 warriors, which is maybe a bit safer,
-		was 166
-		-->
+		<!-- When computing per-civ power values (which play an important role in decisions on war and peace), the power value of each individual unit is raised to the power of (i.e. exponentiated by) POWER_CORRECTION. For example, if POWER_CORRECTION is 200%, per-unit power values are squared. POWER_CORRECTION = 100% is the BtS behavior; power values then typically equal unit strength, e.g. two Warriors are as good as one Spearman. When squaring, one Spearman is as good as four Warriors. (That seems too much.) Recommended: 166%; one Spearman then corresponds to 3.15 Warriors. -->
+		<!-- advc.159: A fraction (3/4) of this value is also used for some tactical decisions outside the UWAI component. -->
+		<!-- custom: Extra checking the AdvCiv's value: 2^1.66 = 3.160 and 4^1.66 = 9.987 , so one spearman is as strong, corrected, as 9.987 / 3.160 = 3.160 (too) warriors, about same as AdvCiv's value ((very) slightly different due to rounding so 3.15 becomes 3.16), so my math is hopefully correct.-->
+		<!-- custom: Now changing it to a maybe more fit for my purpose value or how i think it may fit better the game: 2^1.59 = 3.010 strength corrected and 4^1.59 = 9.063 approximately so a spearman (basing myself on base BTS/AdvCiv strength for example) is closer to 3 (9.063 / 3.010 = 3.011, to be more exact warriors now, so maybe this is good enough odds to consider attacking
+		with the 3 warriors now? May also help AI stacks not stare at each other too long and start city attacks sooner? -->
+		<!-- custom: Increased it to 160 to be safer (than 159), so one warrior is 2^1.6 = 3.031 corrected strength now and one spearman is 4^1.6 = 9.190 corrected strength now, and so one spearman is now as worth as 9.190 / 3.031 = 3.032 warriors, which is maybe a bit safer, was 166 -->
         <DefineName>POWER_CORRECTION</DefineName>
 		<iDefineIntVal>160</iDefineIntVal>
     </Define>
@@ -374,96 +321,47 @@
 	<!-- by jdog5000 / karadoc -->
 	<!-- -->
 	<Define> <!-- redefine -->
-		<!-- War success value of capturing a city.  BBAI: 25, BtS 10
-		advc.130r: Reduce a little. Caveat: Should be careful about
-		changing this value, it's used as a baseline in many places. -->
+		<!-- War success value of capturing a city.  BBAI: 25, BtS 10 advc.130r: Reduce a little. Caveat: Should be careful about changing this value, it's used as a baseline in many places. -->
 		<DefineName>WAR_SUCCESS_CITY_CAPTURING</DefineName>
 		<iDefineIntVal>22</iDefineIntVal>
 	</Define>
+	<!-- Ratio of enemy power to team power for AI to consider running TURTLE (all out defense, no offensive forays) strategy. Equal power would be 100. BBAI default: 250 -->
+	<!-- custom: try turtling sooner to avoid a too late to defend situation. I would want to reduce further this value but would need more changes, as in some cases AI turtles too much early just because one player that is sometimes far from them produces (way) more units than the other players. Maybe this creates a vicious loop where the "angry" unit pomper (think moctezuma/khmer/boudica AI in the early game maybe as an example maybe) sees that they have now less and (in their perception) not enough units (more) than the other rivals, so they produce more, inducing the other players to produce more etc. To prevent that, i am putting the value higher than i would want to, at 160 currently. -->
+	<!-- custom: Ideally if higher than 110 power ratio the AI should start to turtle, else it's a big gamble to bet on not being attacked (for what reason would they hold back on that?), especially with my changes that aim at making the AI more pragmatic and opportunistic, to increase its strength and realism too maybe, so that i can enjoy the game more and hopefully others if they try these changes i made and want a similar type of gameplay (else they may tweak or not it as they see fit maybe)), was 250 -->
 	<Define>
-		<!-- Ratio of enemy power to team power for AI to consider
-		running TURTLE (all out defense, no offensive forays) strategy.
-		Equal power would be 100.  BBAI default: 250 -->
-		<!-- custom: try turtling sooner to avoid a too late to defend
-		situation. I would want to reduce further this value but would
-		need more changes, as in some cases AI turtles too much early
-		just because one player that is	sometimes far from them produces
-		(way) more units than the other players. Maybe this creates a
-		vicious loop where the "angry" unit pomper (think moctezuma/
-		khmer/boudica AI in the early game maybe as an example maybe)
-		sees that they have now less and (in their perception) not
-		enough units (more) than the otherrivals, so they produce
-		more, inducing the other players to	produce more etc.
-		To prevent that, i am putting the value higher than i would
-		want to, at	160	currently.
-		Ideally	if higher than 110 power ratio the AI should start
-		to turtle, else it's a big	gamble to bet on not being attacked
-		(for what reason would they hold back on that?), especially with
-		my changes that aim at making the AI more pragmatic and
-		opportunistic, to increase its strength and realism too maybe,
-		so that i can enjoy the game more and hopefully others
-		if they try these changes i made and want a similar type of
-		gameplay (else they	may tweak or not it as they see fit maybe)),
-		was 250
-		-->
 		<DefineName>BBAI_TURTLE_ENEMY_POWER_RATIO</DefineName>
 		<iDefineIntVal>160</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- Minimum stack strength ratio at which AI will attack enemy
-		city it is next to, higher means less suicide.
-		BTS default: 120, BBAI: 125, now: 123 -->
-		<!-- custom: many times AI troops are too long to start an
-		attack and keep staring at	each other, facilitate a bit more
-		the AI attack to start, was 123 -->
+		<!-- Minimum stack strength ratio at which AI will attack enemy city it is next to, higher means less suicide. BTS default: 120, BBAI: 125, now: 123 -->
+		<!-- custom: many times AI troops are too long to start an attack and keep staring at each other, facilitate a bit more the AI attack to start, was 123 -->
 		<DefineName>BBAI_ATTACK_CITY_STACK_RATIO</DefineName>
 		<iDefineIntVal>122</iDefineIntVal>
 	</Define>
 	<!-- advc.003j: Obsoleted by K-Mod code (CvUnitAI::AI_bombardCity) -->
-	<!-- Minimum attack odds of best attacker for AI to skip bombarding 
-	a city and just attack.  BBAI default: 12 -->
+	<!-- Minimum attack odds of best attacker for AI to skip bombarding a city and just attack. BBAI default: 12 -->
 	<!--Define>
 		<DefineName>BBAI_SKIP_BOMBARD_BEST_ATTACK_ODDS</DefineName>
 		<iDefineIntVal>10</iDefineIntVal>
 	</Define-->
 	<Define>
-		<!-- Base ratio of stack strengths for AI considering skipping
-		bombard	and just attacking enemy city. This ratio is reduced by
-		the AI's best attacker odds and how long it will take to bombard
-		the city.
-		Lower means AI will more readily skip bombarding.
-		BBAI default: 300 -->
+		<!-- Base ratio of stack strengths for AI considering skipping bombard and just attacking enemy city. This ratio is reduced by the AI's best attacker odds and how long it will take to bombard
+		the city. Lower means AI will more readily skip bombarding. BBAI default: 300 -->
 		<!-- advc.114c: Was 260 in K-Mod, now 250. -->
-		<!-- custom: speed up a bit the early conquest, later in the
-		game having	a good pace/tempo and short war should also be
-		valuable for the AI, would give less time to build more defenders
-		while city is bombarded too so maybe it balances itself out this
-		way -->
+		<!-- custom: speed up a bit the early conquest, later in the game having a good pace/tempo and short war should also be valuable for the AI, would give less time to build more defenders while city is bombarded too so maybe it balances itself out this way -->
 		<DefineName>BBAI_SKIP_BOMBARD_BASE_STACK_RATIO</DefineName>
 		<iDefineIntVal>240</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- Minimum stack strength ratio for AI to skip bombarding city
-		and	just attack, higher is more conservative.  BBAI default: 150 -->
+		<!-- Minimum stack strength ratio for AI to skip bombarding city and	just attack, higher is more conservative.  BBAI default: 150 -->
 		<!-- advc.114c: Was 140 in K-Mod, now 137. -->
-		<!-- custom: similar as for skip_bombard_base_stack_ratio, to
-		facilitate a bit more early attack, with in mind the possible
-		benefits of doing so too, was 137 -->
+		<!-- custom: similar as for skip_bombard_base_stack_ratio, to facilitate a bit more early attack, with in mind the possible benefits of doing so too, was 137 -->
 		<DefineName>BBAI_SKIP_BOMBARD_MIN_STACK_RATIO</DefineName>
 		<iDefineIntVal>135</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- Minimum city site value that the AI will consider settling.
-		default: 600. (K-Mod) -->
-		<!-- custom: at first i thought some cities are not good enough
-		but AI still settles them and cripples itself, hopefully this
-		improves that while not hurting AI growth too much, but it didn't
-		seem to do too much especially if increased too much. A very low
-		value (around 300 for example) seemed to be mostly ignored too
-		(except AI had more cities that were a bit too crammed.
-		Trying other values, it seems 550 somehow, i don't know why, but
-		consistently provides better city spots to the AI, would need
-		more testing to make sure., was 600 -->
+		<!-- Minimum city site value that the AI will consider settling. default: 600. (K-Mod) -->
+		<!-- custom: at first i thought some cities are not good enough but AI still settles them and cripples itself, hopefully this improves that while not hurting AI growth too much, but it didn't seem to do too much especially if increased too much. A very low value (around 300 for example) seemed to be mostly ignored too (except AI had more cities that were a bit too crammed. Trying other values, it seems 550 somehow, i don't know why, but consistently provides better city spots to the AI, would need more testing to make sure., was 600 -->
 		<!-- custom: trying to increase this (again anyways etc) to see what happens, was 550 -->
 		<DefineName>BBAI_MINIMUM_FOUND_VALUE</DefineName>
 		<iDefineIntVal>580</iDefineIntVal>

@@ -1,12 +1,16 @@
 # Sid Meier's Civilization 4
 # Copyright Firaxis Games 2005
-
+#
 #
 # Sevopedia 2.3
 #   sevotastic.blogspot.com
 #   sevotastic@yahoo.com
 #
 # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+#
+# <!-- custom: uses new buildBTradeString function in CvGameTextMgr.cpp to display in placeSpecial the "This technology cannot be traded" bullet point, see modding ressources readme at (adjust to your mod path anywyas etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_1_AdvCiv-SAS\Docs_And_Appendixes\Modding_Ressources\README.md (or whichever path it may be anyways etc if changed path or modifications i did or may have done additionally or kept as is but anyways etc), hopefully helpful or not or yes or etc or and other or and not anyways etc. There is a google drive link and screenshots for steps (most anyways etc) of how i did it if you'd want to try it or do it and see how i did myself hopefully helpful or/and enjoyable or/and plesant or not or yes or and other or and not but or not but or yes but but anyways etc.
+#
+# Without the DLL modification, i assume it would still run fine if i am not mistaken, just you would not have the bullet point at the tech, for example Future tech, that it cannot be traded in placeSpecial, but only the summary at the end of the list of all non tradeable tech that uses the already existing in base advciv if i am not mistaken anyways etc gc.getTechInfo(iTech).isTrade() if i am not mistaken, but which info of (this tech is not tradeable) is in base advciv not displayed in the placeSpecial bullet of the currently selected tech unless you modify DLL as explained before anyways etc. -->
 #
 
 from CvPythonExtensions import *
@@ -247,7 +251,8 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			szSpecialText += u"\n\n" + localText.getText("TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER", ())
 			szSpecialText += u"\n" + u"\n".join(untradeableTechs)
 
-		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL_PANE+5, self.Y_SPECIAL_PANE+30, self.W_SPECIAL_PANE-35, self.H_SPECIAL_PANE-10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		# <!-- custom: seems to overfill a bit actually quite a bit xd after rechecking but anyways etc, reduce height, was self.H_SPECIAL_PANE-10 -->
+		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL_PANE + 5, self.Y_SPECIAL_PANE + 30, self.W_SPECIAL_PANE - 35, self.H_SPECIAL_PANE - 35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

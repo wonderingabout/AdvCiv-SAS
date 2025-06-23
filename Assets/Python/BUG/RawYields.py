@@ -69,7 +69,8 @@ VALUE_COLUMN = 1
 TOTAL_COLUMN = 2
 
 def getViewAndType(iView):
-	"""Returns the view boolean and YieldTypes enum given the give number 0-3."""
+	# Returns the view boolean and YieldTypes enum given the give number 0-3.
+	#
 	if iView == 0:
 		return (False, YieldTypes.YIELD_FOOD)
 	elif iView in (1, 2, 3):
@@ -81,7 +82,8 @@ def getViewAndType(iView):
 class Tracker:
 	
 	def __init__(self):
-		"""Creates a table to hold all of the tracked values for each yield type."""
+		# Creates a table to hold all of the tracked values for each yield type.
+		#
 		self.values = {}
 		for eYield in range(YieldTypes.NUM_YIELD_TYPES):
 			self.values[eYield] = {}
@@ -94,7 +96,8 @@ class Tracker:
 		return self.values[eYield][eType]
 	
 	def _addYield(self, eYield, eType, iValue):
-		"""Adds the given yield value to the given type in the table."""
+		# Adds the given yield value to the given type in the table.
+		#
 		self.values[eYield][eType] += iValue
 	
 	
@@ -108,17 +111,17 @@ class Tracker:
 		self._addYield(YieldTypes.YIELD_COMMERCE, FOREIGN_TRADE, iValue)
 	
 	def processCity(self, pCity):
-		"""
-		Calculates the yields for the given city's tiles, specialists, corporations and multipliers.
-		The building and trade yields are calculated by CvMainInterface.
-		"""
+		# Calculates the yields for the given city's tiles, specialists, corporations and multipliers.
+		# The building and trade yields are calculated by CvMainInterface.
+		#
 		self.calculateTiles(pCity)
 		self.calculateSpecialists(pCity)
 		self.calculateCorporations(pCity)
 		self.calculateModifiers(pCity)
 	
 	def calculateTiles(self, pCity):
-		"""Calculates the yields for all tiles of the given CyCity."""
+		# Calculates the yields for all tiles of the given CyCity.
+		#
 		for i in range(gc.getNUM_CITY_PLOTS()):
 			pPlot = pCity.getCityIndexPlot(i)
 			if pPlot and not pPlot.isNone() and pPlot.hasYield():
@@ -177,7 +180,8 @@ class Tracker:
 	
 	
 	def fillTable(self, screen, table, eYield, eTileType):
-		"""Fills the given GFC table control with the chosen yield values."""
+		# Fills the given GFC table control with the chosen yield values.
+		#
 		self.iRow = 0
 		# Tiles
 		iTotal = self.getYield(eYield, eTileType)
@@ -231,10 +235,9 @@ class Tracker:
 		#self.appendTable(screen, table, True, BugUtil.getPlainText("TXT_KEY_CONCEPT_TOTAL"), eYield, iTotal)
 	
 	def appendTable(self, screen, table, bTotal, heading, eYield, iValue, bFraction=False):
-		"""
-		Appends the given yield value to the table control.
-		If bTotal is True, the heading is colored yellow and there's no + sign on the value.
-		"""
+		# Appends the given yield value to the table control.
+		# If bTotal is True, the heading is colored yellow and there's no + sign on the value.
+		#
 		cYield = gc.getYieldInfo(eYield).getChar()
 		screen.appendTableRow(table)
 		if bTotal:
@@ -256,9 +259,8 @@ class Tracker:
 		self.iRow += 1
 
 	def appendTableTotal(self, screen, table, eYield, iValue):
-		"""
-		Appends the given yield total to the table control's 3rd running total column.
-		"""
+		# Appends the given yield total to the table control's 3rd running total column.
+		#
 		if self.iRow > 0:
 			cYield = gc.getYieldInfo(eYield).getChar()
 			value = u"<color=205,180,55,255>%d</color>" % iValue

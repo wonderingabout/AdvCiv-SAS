@@ -128,105 +128,90 @@ TRADE_FORMATS = {}
 ## Trading Partners
 
 def canTrade(playerOrID, withPlayerOrID):
-	"""
-	Returns True if <player> can open the trade window with <withPlayer>.
-	"""
+	# Returns True if <player> can open the trade window with <withPlayer>.
+	#
 	return DiplomacyUtil.canContact(playerOrID, withPlayerOrID) and DiplomacyUtil.isWillingToTalk(withPlayerOrID, playerOrID)
 
 def getTechTradePartners(playerOrID):
-	"""
-	Returns a list of CyPlayers that can trade technologies with <player>.
-	"""
+	# Returns a list of CyPlayers that can trade technologies with <player>.
+	#
 	if not GameUtil.isTechTrading():
 		return ()
 	return getTradePartnersByTeam(playerOrID, lambda fromTeam, toTeam: fromTeam.isTechTrading() or toTeam.isTechTrading())
 
 def getBonusTradePartners(playerOrID):
-	"""
-	Returns a list of CyPlayers that can trade bonuses with <player>.
-	"""
+	# Returns a list of CyPlayers that can trade bonuses with <player>.
+	#
 	return getTradePartnersByPlayer(playerOrID, lambda fromPlayer, toPlayer: fromPlayer.canTradeNetworkWith(toPlayer.getID()))
 
 def getGoldTradePartners(playerOrID):
-	"""
-	Returns a list of CyPlayers that can trade gold with <player>.
-	"""
+	# Returns a list of CyPlayers that can trade gold with <player>.
+	#
 	return getTradePartnersByTeam(playerOrID, lambda fromTeam, toTeam: fromTeam.isGoldTrading() or toTeam.isGoldTrading())
 
 def getMapTradePartners(playerOrID):
-	"""
-	Returns a list of CyPlayers that can trade maps with <player>.
-	"""
+	# Returns a list of CyPlayers that can trade maps with <player>.
+	#
 	return getTradePartnersByTeam(playerOrID, lambda fromTeam, toTeam: fromTeam.isMapTrading() or toTeam.isMapTrading())
 
 
 def getOpenBordersTradePartners(playerOrID):
-	"""
-	Returns a list of CyPlayers that can sign an Open Borders agreement with <player>.
-	"""
+	# Returns a list of CyPlayers that can sign an Open Borders agreement with <player>.
+	#
 	return getTradePartnersByTeam(playerOrID, canSignOpenBorders)
 
 def canSignOpenBorders(fromTeam, toTeam):
-	"""
-	Returns True if the two CyTeams can sign an Open Borders agreement.
-	"""
+	# Returns True if the two CyTeams can sign an Open Borders agreement.
+	#
 	if fromTeam.isOpenBorders(toTeam.getID()) or toTeam.isOpenBorders(fromTeam.getID()):
 		return False
 	return fromTeam.isOpenBordersTrading() or toTeam.isOpenBordersTrading()
 
 def getDefensivePactTradePartners(playerOrID):
-	"""
-	Returns a list of CyPlayers that can sign a Defensive Pact with <player>.
-	"""
+	# Returns a list of CyPlayers that can sign a Defensive Pact with <player>.
+	#
 	return getTradePartnersByTeam(playerOrID, canSignDefensivePact)
 
 def canSignDefensivePact(fromTeam, toTeam):
-	"""
-	Returns True if the two CyTeams can sign a Defensive Pact.
-	"""
+	# Returns True if the two CyTeams can sign a Defensive Pact.
+	#
 	if fromTeam.isDefensivePact(toTeam.getID()) or toTeam.isDefensivePact(fromTeam.getID()):
 		return False
 	return fromTeam.isDefensivePactTrading() or toTeam.isDefensivePactTrading()
 
 def getPermanentAllianceTradePartners(playerOrID):
-	"""
-	Returns a list of CyPlayers that can sign a Permanent Alliance with <player>.
-	"""
+	# Returns a list of CyPlayers that can sign a Permanent Alliance with <player>.
+	#
 	return getTradePartnersByTeam(playerOrID, canSignPermanentAlliance)
 
 def canSignPermanentAlliance(fromTeam, toTeam):
-	"""
-	Returns True if the two CyTeams can sign a Permanent Alliance.
-	"""
+	# Returns True if the two CyTeams can sign a Permanent Alliance.
+	#
 	if fromTeam.getID() == toTeam.getID():
 		return False
 	return fromTeam.isPermanentAllianceTrading() or toTeam.isPermanentAllianceTrading()
 
 
 def getPeaceTradePartners(playerOrID):
-	"""
-	Returns a list of CyPlayers that can sign a peace treaty with <player>.
-	"""
+	# Returns a list of CyPlayers that can sign a peace treaty with <player>.
+	#
 	return getTradePartnersByTeam(playerOrID, lambda fromTeam, toTeam: toTeam.isAtWar(fromTeam.getID()))
 
 def getVassalTradePartners(playerOrID):
-	"""
-	Returns a list of CyPlayers that can become a vassal of <player>.
-	"""
+	# Returns a list of CyPlayers that can become a vassal of <player>.
+	#
 	return getTradePartnersByTeam(playerOrID, canAcceptVassal, False)
 
 def getCapitulationTradePartners(playerOrID):
-	"""
-	Returns a list of CyPlayers that can capitulate to <player>.
-	"""
+	# Returns a list of CyPlayers that can capitulate to <player>.
+	#
 	return getTradePartnersByTeam(playerOrID, canAcceptVassal, True)
 
 def canAcceptVassal(masterTeam, vassalTeam, bAtWar):
-	"""
-	Returns True if <vassalTeam> can become a vassal of <masterTeam>.
-	
-	Pass True for <bAtWar> to test for capitulation and False to test for peaceful vassalage.
-	"""
+	# Returns True if <vassalTeam> can become a vassal of <masterTeam>.
+	#
+	# Pass True for <bAtWar> to test for capitulation and False to test for peaceful vassalage.
+	#
 	if masterTeam.getID() == vassalTeam.getID():
 		return False
 	if masterTeam.isAVassal() or vassalTeam.isAVassal():
@@ -238,20 +223,18 @@ def canAcceptVassal(masterTeam, vassalTeam, bAtWar):
 
 
 def tradeParters(playerOrID):
-	"""
-	Iterates over all of <player>'s possible trade partners, yielding each CyPlayer in turn.
-	"""
+	# Iterates over all of <player>'s possible trade partners, yielding each CyPlayer in turn.
+	#
 	player = PlayerUtil.getPlayer(playerOrID)
 	for partner in PlayerUtil.players(alive=True, barbarian=False, minor=False):
 		if canTrade(player, partner):
 			yield partner
 
 def getTradePartnersByPlayer(playerOrID, testFunction, *args):
-	"""
-	Returns a list of CyPlayers that can trade with <player>.
-	
-	<testFunction> is passed two CyPlayers plus <args> for each viable pairing and should return a boolean value.
-	"""
+	# Returns a list of CyPlayers that can trade with <player>.
+	#
+	# <testFunction> is passed two CyPlayers plus <args> for each viable pairing and should return a boolean value.
+	#
 	player = PlayerUtil.getPlayer(playerOrID)
 	partners = []
 	for partner in tradeParters(player):
@@ -260,11 +243,10 @@ def getTradePartnersByPlayer(playerOrID, testFunction, *args):
 	return partners
 
 def getTradePartnersByTeam(playerOrID, testFunction, *args):
-	"""
-	Returns a list of CyPlayers that can trade with <player>.
-	
-	<testFunction> is passed two CyTeams plus <args> for each viable pairing and should return a boolean value.
-	"""
+	# Returns a list of CyPlayers that can trade with <player>.
+	#
+	# <testFunction> is passed two CyTeams plus <args> for each viable pairing and should return a boolean value.
+	#
 	player = PlayerUtil.getPlayer(playerOrID)
 	team = PlayerUtil.getTeam(player.getTeam())
 	partners = []
@@ -277,9 +259,8 @@ def getTradePartnersByTeam(playerOrID, testFunction, *args):
 ## Trade Items
 
 def getDesiredBonuses(playerOrID):
-	"""
-	Returns a set of bonus IDs that <player> can receive in trade.
-	"""
+	# Returns a set of bonus IDs that <player> can receive in trade.
+	#
 	player, team = PlayerUtil.getPlayerAndTeam(playerOrID)
 	bonuses = set()
 	for eBonus in range(gc.getNumBonusInfos()):
@@ -290,11 +271,10 @@ def getDesiredBonuses(playerOrID):
 	return bonuses | getCorporationBonuses(player)
 
 def getCorporationBonuses(playerOrID):
-	"""
-	Returns the set of bonus IDs that <player> can receive due to their corporations.
-	
-	Takes into account anything (e.g. civics) that alters <player>'s ability to run corporations.
-	"""
+	# Returns the set of bonus IDs that <player> can receive due to their corporations.
+	#
+	# Takes into account anything (e.g. civics) that alters <player>'s ability to run corporations.
+	#
 	player = PlayerUtil.getPlayer(playerOrID)
 	bonuses = set()
 	for eCorp, inputs in CORP_BONUSES.iteritems():
@@ -303,9 +283,8 @@ def getCorporationBonuses(playerOrID):
 	return bonuses
 
 def initCorporationBonuses():
-	"""
-	Initializes the CORP_BONUSES dictionary that maps each corporation ID to the set of bonus IDs it uses.
-	"""
+	# Initializes the CORP_BONUSES dictionary that maps each corporation ID to the set of bonus IDs it uses.
+	#
 	for eCorp in range(gc.getNumCorporationInfos()):
 		corp = gc.getCorporationInfo(eCorp)
 		bonuses = set()
@@ -316,9 +295,8 @@ def initCorporationBonuses():
 		CORP_BONUSES[eCorp] = bonuses
 
 def getSurplusBonuses(playerOrID, minimum=1):
-	"""
-	Returns a list of bonus IDs of which <player> has at least <minimum> available to export.
-	"""
+	# Returns a list of bonus IDs of which <player> has at least <minimum> available to export.
+	#
 	player = PlayerUtil.getPlayer(playerOrID)
 	available = []
 	for eBonus in range(gc.getNumBonusInfos()):
@@ -327,11 +305,10 @@ def getSurplusBonuses(playerOrID, minimum=1):
 	return available
 
 def getTradeableBonuses(fromPlayerOrID, toPlayerOrID):
-	"""
-	Returns two sets of bonus IDs that <fromPlayer> will and won't trade to <toPlayer>.
-	
-	Assumes that the two players can trade bonuses.
-	"""
+	# Returns two sets of bonus IDs that <fromPlayer> will and won't trade to <toPlayer>.
+	#
+	# Assumes that the two players can trade bonuses.
+	#
 	fromPlayer = PlayerUtil.getPlayer(fromPlayerOrID)
 	eToPlayer = PlayerUtil.getPlayerID(toPlayerOrID)
 	#fromPlayerIsHuman = fromPlayer.isHuman() # advc.306: Now unused
@@ -353,31 +330,27 @@ def getTradeableBonuses(fromPlayerOrID, toPlayerOrID):
 ## Trade Routes
 
 def isFractionalTrade():
-	"""
-	Returns True of BULL is active with Fractional Trade Routes.
-	"""
+	# Returns True of BULL is active with Fractional Trade Routes.
+	#
 	return FRACTIONAL_TRADE
 
 def getTradeProfitFunc():
-	"""
-	Returns the CyCity function to use to calculate the trade route profit for a single route.
-	"""
+	# Returns the CyCity function to use to calculate the trade route profit for a single route.
+	#
 	return TRADE_PROFIT_FUNC
 
 def calculateTradeRouteYield(city, route, yieldType):
-	"""
-	Returns the total <yieldType> for the <route>th trade route in <city>.
-	
-	If Fractional Trade Routes is active, the value returned is fractional (times 100).
-	"""
+	# Returns the total <yieldType> for the <route>th trade route in <city>.
+	#
+	# If Fractional Trade Routes is active, the value returned is fractional (times 100).
+	#
 	return city.calculateTradeYield(yieldType, TRADE_PROFIT_FUNC(city, city.getTradeCity(route)))
 
 def calculateTotalTradeRouteYield(city, yieldType):
-	"""
-	Returns the total <yieldType> for all trade routes in <city>.
-	
-	If Fractional Trade Routes is active, the total is rounded down and returned as a regular number.
-	"""
+	# Returns the total <yieldType> for all trade routes in <city>.
+	#
+	# If Fractional Trade Routes is active, the total is rounded down and returned as a regular number.
+	#
 	trade = 0
 	for route in range(city.getTradeRoutes()):
 		trade += calculateTradeRouteYield(city, route, yieldType)
@@ -388,13 +361,12 @@ def calculateTotalTradeRouteYield(city, yieldType):
 	return city.calculateTradeYield(yieldType, TRADE_PROFIT_FUNC(city, city.getTradeCity(route)))
 
 def calculateTradeRoutes(playerOrID, withPlayerOrID=None):
-	"""
-	Returns the domestic and foreign trade route yields and counts for <playerOrID>:
-	domestic yield, domestic count, foreign yield, and foreign count.
-	
-	If <withPlayerOrID> is given, only counts trade routes to their cities.
-	If Fractional Trade Routes is active, the value returned is fractional (times 100).
-	"""
+	# Returns the domestic and foreign trade route yields and counts for <playerOrID>:
+	# domestic yield, domestic count, foreign yield, and foreign count.
+	#
+	# If <withPlayerOrID> is given, only counts trade routes to their cities.
+	# If Fractional Trade Routes is active, the value returned is fractional (times 100).
+	#
 	domesticTrade = domesticCount = foreignTrade = foreignCount = 0
 	# advc.001: Bugfixes merged from Dawn of Civilization
 	eTeam = PlayerUtil.getPlayerTeamID(playerOrID) # (was getPlayerTeam)
@@ -425,11 +397,10 @@ def calculateTradeRoutes(playerOrID, withPlayerOrID=None):
 	return domesticTrade, domesticCount, foreignTrade, foreignCount
 
 def initFractionalTrade():
-	"""
-	Sets the global fractional trade constants by testing for the function it adds.
-	
-	Fractional Trade is an optional compile-time feature of BULL.
-	"""
+	# Sets the global fractional trade constants by testing for the function it adds.
+	#
+	# Fractional Trade is an optional compile-time feature of BULL.
+	#
 	global FRACTIONAL_TRADE, TRADE_PROFIT_FUNC
 	try:
 		TRADE_PROFIT_FUNC = CyCity.calculateTradeProfitTimes100
@@ -443,11 +414,10 @@ def initFractionalTrade():
 ## Trade Class
 
 class Trade(object):
-	"""
-	Encapsulates the player IDs and TradeData for a new or proposed trade.
-	
-	Implements the same interface as the DealUtil.Deal class.
-	"""
+	# Encapsulates the player IDs and TradeData for a new or proposed trade.
+	#
+	# Implements the same interface as the DealUtil.Deal class.
+	#
 	def __init__(self, ePlayer, eOtherPlayer):
 		self.ePlayer = ePlayer
 		self.eOtherPlayer = eOtherPlayer
@@ -514,10 +484,10 @@ class Trade(object):
 ## TradeData Formatting
 
 def format(player, trade):
-	"""Returns a single string containing all of the trade items separated by commas.
-	
-	player can be either an ID or CyPlayer and is needed when a city is being traded.
-	"""
+	# Returns a single string containing all of the trade items separated by commas.
+	#
+	# player can be either an ID or CyPlayer and is needed when a city is being traded.
+	#
 	if isinstance(trade, list) or isinstance(trade, tuple) or isinstance(trade, set):
 		return ", ".join([format(player, t) for t in trade])
 	elif trade.ItemType in TRADE_FORMATS:
@@ -546,22 +516,26 @@ def initTradeableItems():
 	addAppendingTrade("religion", TradeableItems.TRADE_RELIGION, "TXT_KEY_TRADE_CONVERT", getTradeReligion)
 
 def addPlainTrade(name, type, key):
-	"""Creates a trade using an unparameterized XML <text> tag."""
+	# Creates a trade using an unparameterized XML <text> tag.
+	#
 	return addTrade(type, PlainTradeFormat(name, type, key))
 
 def addSimpleTrade(name, type, key):
-	"""Creates a trade using an XML <text> tag with a int placeholder for iData."""
+	# Creates a trade using an XML <text> tag with a int placeholder for iData.
+	#
 	return addTrade(type, SimpleTradeFormat(name, type, key))
 
 def addAppendingTrade(name, type, key, argsFunction, text="%s"):
-	"""Creates a trade using an XML <text> tag with a single appended string placeholder."""
+	# Creates a trade using an XML <text> tag with a single appended string placeholder.
+	#
 	format = addTrade(type, AppendingTradeFormat(name, type, key, text))
 	if argsFunction is not None:
 		format.getParameters = lambda player, trade: argsFunction(player, trade)
 	return format
 
 def addComplexTrade(name, type, argsFunction, textFunction=None):
-	"""Creates a trade using an XML <text> tag with any number of placeholders."""
+	# Creates a trade using an XML <text> tag with any number of placeholders.
+	#
 	format = addTrade(type, ComplexTradeFormat(name, type))
 	if argsFunction is not None:
 		format.getParameters = lambda player, trade: argsFunction(player, trade)
@@ -651,9 +625,8 @@ class ComplexTradeFormat(BaseTradeFormat):
 ## Initialization
 
 def init():
-	"""
-	Performs one-time initialization after the game starts up.
-	"""
+	# Performs one-time initialization after the game starts up.
+	#
 	initCorporationBonuses()
 	initFractionalTrade()
 	initTradeableItems()

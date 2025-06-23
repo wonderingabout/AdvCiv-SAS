@@ -33,9 +33,8 @@ def scheduleSvnCheck():
 		checkForSvnUpdates()
 
 def checkForSvnUpdates():
-	"""
-	Uses the SVN options in the Core module to check for updates.
-	"""
+	# Uses the SVN options in the Core module to check for updates.
+	#
 #	global g_checkingForUpdates, g_checkPending
 #	if g_checkPending:
 #		return

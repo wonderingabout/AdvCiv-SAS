@@ -126,27 +126,23 @@ UNIT_MISSIONARY = -1
 ## Religions
 
 def getNumReligions():
-	"""
-	Returns the number of religions.
-	"""
+	# Returns the number of religions.
+	#
 	return NUM_RELIGIONS
 
 def isValid(iReligion):
-	"""
-	Returns True if <iReligion> is a valid religion (not None or NO_RELIGION).
-	"""
+	# Returns True if <iReligion> is a valid religion (not None or NO_RELIGION).
+	#
 	return iReligion > -1 and iReligion < NUM_RELIGIONS
 
 def getAllReligions():
-	"""
-	Returns a tuple containing all valid religion IDs (0, 1, ..., NUM_RELIGIONS-1).
-	"""
+	# Returns a tuple containing all valid religion IDs (0, 1, ..., NUM_RELIGIONS-1).
+	#
 	return ALL_RELIGIONS
 
 def getFoundedReligions():
-	"""
-	Returns a list of religion IDs that have been founded.
-	"""
+	# Returns a list of religion IDs that have been founded.
+	#
 	religions = []
 	game = gc.getGame()
 	for iReligion in ALL_RELIGIONS:
@@ -158,21 +154,18 @@ def getFoundedReligions():
 ## Buildings
 
 def getNumBuildingTypes():
-	"""
-	Returns the number of religious building types.
-	"""
+	# Returns the number of religious building types.
+	#
 	return NUM_BUILDING_TYPES
 
 def getBuildingTypes():
-	"""
-	Returns the BuildingTypes in order.
-	"""
+	# Returns the BuildingTypes in order.
+	#
 	return BUILDINGS
 
 def getBuildingType(index):
-	"""
-	Returns the <index>th BuildingType.
-	"""
+	# Returns the <index>th BuildingType.
+	#
 	try:
 		return BUILDINGS[index]
 	except IndexError:
@@ -180,9 +173,8 @@ def getBuildingType(index):
 		return None
 
 def getBuildings(iReligion):
-	"""
-	Returns the list of building info types for <iReligion>.
-	"""
+	# Returns the list of building info types for <iReligion>.
+	#
 	try:
 		return BUILDINGS_BY_RELIGION[iReligion]
 	except IndexError:
@@ -190,9 +182,8 @@ def getBuildings(iReligion):
 		return [-1] * NUM_BUILDING_TYPES
 
 def getBuilding(iReligion, index):
-	"""
-	Returns the single <index>th building info type for <iReligion>.
-	"""
+	# Returns the single <index>th building info type for <iReligion>.
+	#
 	try:
 		return BUILDINGS_BY_RELIGION[iReligion][index]
 	except IndexError:
@@ -201,67 +192,58 @@ def getBuilding(iReligion, index):
 
 
 def getBuildingReligion(info):
-	"""
-	Returns the religion <info> is tied to.
-	
-	All four building types have iReligionType set to the religion, 
-	but the Shrine doesn't have the religion as a prereq.
-	No other buildings have iReligionType, so this should be safe.
-	"""
+	# Returns the religion <info> is tied to.
+	#
+	# All four building types have iReligionType set to the religion, 
+	# but the Shrine doesn't have the religion as a prereq.
+	# No other buildings have iReligionType, so this should be safe.
+	#
 	return info.getReligionType()
 
 def isTemple(info, iReligion):
-	"""
-	Returns True if <info> is the Temple for <iReligion>.
-	"""
+	# Returns True if <info> is the Temple for <iReligion>.
+	#
 	return info.getHappiness() > 0
 
 def isCathedral(info, iReligion):
-	"""
-	Returns True if <info> is the Cathedral for <iReligion>.
-	"""
+	# Returns True if <info> is the Cathedral for <iReligion>.
+	#
 	return info.getCommerceModifier(CommerceTypes.COMMERCE_CULTURE) > 0
 
 def isMonastery(info, iReligion):
-	"""
-	Returns True if <info> is the Monastery for <iReligion>.
-	"""
+	# Returns True if <info> is the Monastery for <iReligion>.
+	#
 	return info.getCommerceModifier(CommerceTypes.COMMERCE_RESEARCH) > 0
 
 def isShrine(info, iReligion):
-	"""
-	Returns True if <info> is the Shrine for <iReligion>.
-	"""
+	# Returns True if <info> is the Shrine for <iReligion>.
+	#
 	return info.getGlobalReligionCommerce() != -1
 
 # MOD: Add a tester function for each new religious building type you define
 #      You tie these to a description and icon in init()
 
 #def isInquisitionOffice(info, iReligion):
-#	"""
 #	Returns True if <info> is the Inquisition Office for <iReligion>.
-#	"""
+#	#
 #	return info.isInquisitionOffice()
 
 
 ## Units
 
 def getNumUnitTypes():
-	"""
-	Returns the number of religious unit types.
-	"""
+	# Returns the number of religious unit types.
+	#
 	return NUM_UNIT_TYPES
 
 def getUnitTypes():
-	"""
-	Returns the UnitTypes in order.
-	"""
+	# Returns the UnitTypes in order.
+	#
 	return UNITS
 
 def getUnitType(index):
-	"""
-	Returns the <index>th UnitType.
-	"""
+	# Returns the <index>th UnitType.
+	#
 	try:
 		return UNITS[index]
 	except IndexError:
@@ -269,9 +251,8 @@ def getUnitType(index):
 		return None
 
 def getUnits(iReligion):
-	"""
-	Returns the list of unit info types for <iReligion>.
-	"""
+	# Returns the list of unit info types for <iReligion>.
+	#
 	try:
 		return UNITS_BY_RELIGION[iReligion]
 	except IndexError:
@@ -279,9 +260,8 @@ def getUnits(iReligion):
 		return [-1] * NUM_UNIT_TYPES
 
 def getUnit(iReligion, index):
-	"""
-	Returns the single <index>th unit info type for <iReligion>.
-	"""
+	# Returns the single <index>th unit info type for <iReligion>.
+	#
 	try:
 		return UNITS_BY_RELIGION[iReligion][index]
 	except IndexError:
@@ -290,35 +270,31 @@ def getUnit(iReligion, index):
 
 
 def getUnitReligion(info):
-	"""
-	Returns the religion <info> is tied to.
-	
-	<ReligionType> is not set for any units, but luckily only missionaries have <PrereqReligion>.
-	"""
+	# Returns the religion <info> is tied to.
+	#
+	# <ReligionType> is not set for any units, but luckily only missionaries have <PrereqReligion>.
+	#
 	return info.getPrereqReligion()
 
 def isMissionary(info, iReligion):
-	"""
-	Returns True if <info> is the Missionary for <iReligion>.
-	"""
+	# Returns True if <info> is the Missionary for <iReligion>.
+	#
 	return info.getReligionSpreads(iReligion)
 
 # MOD: Add a tester function for each new religious unit type you define
 #      You tie these to a description and icon in init()
 
 #def isInquisitor(info, iReligion):
-#	"""
 #	Returns True if <info> is the Inquisitor for <iReligion>.
-#	"""
+#	#
 #	return info.getReligionRemoves(iReligion)
 
 
 ## Cities
 
 def getCityReligions(city):
-	"""
-	Returns a list of religion IDs that are present in <city>.
-	"""
+	# Returns a list of religion IDs that are present in <city>.
+	#
 	religions = []
 	for eReligion in range(NUM_RELIGIONS):
 		if city.isHasReligion(eReligion):
@@ -326,9 +302,8 @@ def getCityReligions(city):
 	return religions
 
 def getCityHolyReligions(city):
-	"""
-	Returns a list of religion IDs for which <city> is the holy city.
-	"""
+	# Returns a list of religion IDs for which <city> is the holy city.
+	#
 	religions = []
 	for eReligion in range(NUM_RELIGIONS):
 		if city.isHolyCityByType(eReligion):
@@ -339,9 +314,8 @@ def getCityHolyReligions(city):
 ## Players
 
 def getPlayerReligions(player):
-	"""
-	Returns a list of religion IDs that are present in at least one of <player>'s cities.
-	"""
+	# Returns a list of religion IDs that are present in at least one of <player>'s cities.
+	#
 	religions = []
 	for eReligion in range(NUM_RELIGIONS):
 		if player.getHasReligionCount(eReligion) > 0:
@@ -349,9 +323,8 @@ def getPlayerReligions(player):
 	return religions
 
 def getPlayerHolyReligions(player):
-	"""
-	Returns a list of religion IDs for which <player> owns the holy city.
-	"""
+	# Returns a list of religion IDs for which <player> owns the holy city.
+	#
 	religions = []
 	for eReligion in range(NUM_RELIGIONS):
 		if player.hasHolyCity(eReligion):
@@ -420,29 +393,26 @@ class Type:
 		self.icon = icon
 		self.testFunc = testFunc
 	def matches(self, info, iReligion):
-		"""
-		Returns True if <info> matches the type of this object for <iReligion> by calling the test function.
-		"""
+		# Returns True if <info> matches the type of this object for <iReligion> by calling the test function.
+		#
 		return self.testFunc(info, iReligion)
 
 class BuildingType(Type):
 	def __init__(self, description, icon, testFunc):
-		"""
-		Defines a new religious building type.
-		
-		description - display string such as "Temple" (may contain spaces)
-		icon - string holding the icon (font glyph)
-		testFunc - function that returns True if the given CvBuildingInfo matches the type
-		"""
+		# Defines a new religious building type.
+		#
+		# description - display string such as "Temple" (may contain spaces)
+		# icon - string holding the icon (font glyph)
+		# testFunc - function that returns True if the given CvBuildingInfo matches the type
+		#
 		Type.__init__(self, "BUILDING", description, icon, testFunc)
 
 class UnitType(Type):
 	def __init__(self, description, icon, testFunc):
-		"""
-		Defines a new religious unit type.
-		
-		description - display string such as "Missionary" (may contain spaces)
-		icon - string holding the icon (font glyph)
-		testFunc - function that returns True if the given CvUnitInfo matches the type
-		"""
+		# Defines a new religious unit type.
+		#
+		# description - display string such as "Missionary" (may contain spaces)
+		# icon - string holding the icon (font glyph)
+		# testFunc - function that returns True if the given CvUnitInfo matches the type
+		#
 		Type.__init__(self, "UNIT", description, icon, testFunc)

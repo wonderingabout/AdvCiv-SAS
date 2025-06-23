@@ -20,9 +20,9 @@ g_options = BugOptions.getOptions()
 ## Class
 
 class BugOptionsTab:
-	"""
-	Provides an API for building a single tab on the BUG Options Screen by placing UI controls.
-	"""
+	#
+	# Provides an API for building a single tab on the BUG Options Screen by placing UI controls.
+	#
 	
 	def __init__(self, name, title):
 		self.name = name

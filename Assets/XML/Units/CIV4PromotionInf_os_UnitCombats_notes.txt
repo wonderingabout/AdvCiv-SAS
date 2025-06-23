@@ -1,0 +1,59 @@
+<!--
+custom: for <UnitCombats> please alphabetical/sevopedia listing order, else it gets messy really quickly full order to take from for quick editing or/and copy/paste:
+
+			<UnitCombats>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_LONG</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_ARCHER_CROSSBOW</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+			</UnitCombats>
+
+-->

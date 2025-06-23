@@ -20,9 +20,8 @@ gc = CyGlobalContext()
 # Base grouping classes
 
 class Grouper:
-	"""
-	Holds all Grouping definitions.
-	"""
+	# Holds all Grouping definitions.
+	#
 	def __init__(self):
 		self.groupings = []
 		self.groupingsByKey = {}
@@ -57,12 +56,11 @@ class Grouper:
 		return self.groupingsByKey.iteritems()
 
 class Grouping:
-	"""
-	Applies a formula to place units into groups.
-	
-	key: used for sorting groupings; must be in the range [0, 999] inclusive
-	title: used to display the group
-	"""
+	# Applies a formula to place units into groups.
+	#
+	# key: used for sorting groupings; must be in the range [0, 999] inclusive
+	# title: used to display the group
+	#
 	def __init__(self, key, title):
 		self.index = None
 		self.key = key
@@ -79,12 +77,11 @@ class Grouping:
 		return None
 
 class Group:
-	"""
-	Represents a single group value within a grouping.
-	
-	key: used for sorting groups; must be in the range [0, 999] inclusive
-	title: used to display the group
-	"""
+	# Represents a single group value within a grouping.
+	#
+	# key: used for sorting groups; must be in the range [0, 999] inclusive
+	# title: used to display the group
+	#
 	def __init__(self, grouping, key, title):
 		self.grouping = grouping
 		self.key = key
@@ -100,10 +97,9 @@ class Group:
 # Grouping definitions
 
 class UnitTypeGrouping(Grouping):
-	"""
-	Groups units by their unit type.
-	Ex: Warrior, Maceman, Panzer
-	"""
+	# Groups units by their unit type.
+	# Ex: Warrior, Maceman, Panzer
+	#
 	def __init__(self):
 		Grouping.__init__(self, "type", "TXT_KEY_UNIT_GROUPER_TYPE_GROUPING")
 		
@@ -116,10 +112,9 @@ class UnitTypeGrouping(Grouping):
 		return (unit.getUnitType(),)
 
 class UnitCombatGrouping(Grouping):
-	"""
-	Groups units by their combat type.
-	Ex: None, Melee, Gunpowder, Naval
-	"""
+	# Groups units by their combat type.
+	# Ex: None, Melee, Gunpowder, Naval
+	#
 	def __init__(self):
 		Grouping.__init__(self, "combat", "TXT_KEY_UNIT_GROUPER_COMBAT_GROUPING")
 		self.NONE = 0
@@ -134,10 +129,9 @@ class UnitCombatGrouping(Grouping):
 		return (gc.getUnitInfo(unit.getUnitType()).getUnitCombatType() + 1,)
 
 class LevelGrouping(Grouping):
-	"""
-	Groups units by their level, 1 to MAX_LEVEL (50).
-	Units over level MAX_LEVEL are put into the MAX_LEVEL group.
-	"""
+	# Groups units by their level, 1 to MAX_LEVEL (50).
+	# Units over level MAX_LEVEL are put into the MAX_LEVEL group.
+	#
 	def __init__(self):
 		Grouping.__init__(self, "level", "TXT_KEY_UNIT_GROUPER_LEVEL_GROUPING")
 		
@@ -150,10 +144,9 @@ class LevelGrouping(Grouping):
 		return (max(0, min(unit.getLevel(), self.MAX_LEVEL)),)
 
 class PromotionGrouping(Grouping):
-	"""
-	Groups units by their promotions.
-	Ex: Combat 1, Cover, Tactics
-	"""
+	# Groups units by their promotions.
+	# Ex: Combat 1, Cover, Tactics
+	#
 	def __init__(self):
 		Grouping.__init__(self, "promo", "TXT_KEY_UNIT_GROUPER_PROMOTION_GROUPING")
 		
@@ -176,10 +169,9 @@ class PromotionGrouping(Grouping):
 		return promos
 
 class LocationGrouping(Grouping):
-	"""
-	Groups units by their location on the map.
-	Ex: Domestic City, Friendly City, Enemy Territory
-	"""
+	# Groups units by their location on the map.
+	# Ex: Domestic City, Friendly City, Enemy Territory
+	#
 	def __init__(self):
 		Grouping.__init__(self, "loc", "TXT_KEY_UNIT_GROUPER_LOCATION_GROUPING")
 		(
@@ -236,10 +228,9 @@ class LocationGrouping(Grouping):
 					return (self.FRIENDLY_TERRITORY,)
 
 class OrderGrouping(Grouping):
-	"""
-	Groups units by their current order/action.
-	Ex: Fortify, Go To, Blockade
-	"""
+	# Groups units by their current order/action.
+	# Ex: Fortify, Go To, Blockade
+	#
 	def __init__(self):
 		Grouping.__init__(self, "order", "TXT_KEY_UNIT_GROUPER_ORDER_GROUPING")
 		(
@@ -304,9 +295,8 @@ class StandardGrouper(Grouper):
 # Classes for tracking stats about groups and units
 
 class GrouperStats:
-	"""
-	Holds stats for a set of groupings.
-	"""
+	# Holds stats for a set of groupings.
+	#
 	def __init__(self, grouper):
 		self.grouper = grouper
 		self.groupings = {}
@@ -333,9 +323,8 @@ class GrouperStats:
 		return self.groupings.itervalues()
 
 class GroupingStats:
-	"""
-	Holds stats for a grouping.
-	"""
+	# Holds stats for a grouping.
+	#
 	def __init__(self, grouping):
 		self.grouping = grouping
 		self.groups = {}
@@ -355,9 +344,8 @@ class GroupingStats:
 		return self.groups.itervalues()
 
 class GroupStats:
-	"""
-	Holds stats for a group of units.
-	"""
+	# Holds stats for a group of units.
+	#
 	def __init__(self, group):
 		self.group = group
 		self.units = set()
@@ -375,9 +363,8 @@ class GroupStats:
 		return self.size() == 0
 
 class UnitStats:
-	"""
-	Holds stats about a single unit.
-	"""
+	# Holds stats about a single unit.
+	#
 	def __init__(self, playerId, unitId, unit):
 		self.key = (playerId, unitId)
 		self.unit = unit

@@ -128,7 +128,8 @@ class TechPrefs:
 		return None
 
 	def removeTech(self, iTech):
-		"""Removes the given tech, usually because it has been researched."""
+		# Removes the given tech, usually because it has been researched.
+		#
 		if (iTech in self.mTechs):
 			pTech = self.mTechs[iTech]
 			del self.mTechs[iTech]
@@ -138,7 +139,8 @@ class TechPrefs:
 			pTech.removeFromTree()
 
 	def removeKnownTechs(self):
-		"""Removes the techs known to the current team."""
+		# Removes the techs known to the current team.
+		#
 		pTeam = gc.getTeam(gc.getActivePlayer().getTeam())
 		for iTech in range(self.NUM_TECHS):
 			if (pTeam.isHasTech(iTech)):
@@ -146,7 +148,8 @@ class TechPrefs:
 
 
 	def getResearchableTechs(self):
-		"""Returns a set of all techs that can be researched now."""
+		# Returns a set of all techs that can be researched now.
+		#
 		sCan = set()
 		for pTech in self.mTechs.values():
 			if (pTech.canResearch()):
@@ -154,7 +157,8 @@ class TechPrefs:
 		return sCan
 
 	def getResearchableWithTechs(self, sTechs):
-		"""Returns a set of all techs that can be researched once the given techs have been researched."""
+		# Returns a set of all techs that can be researched once the given techs have been researched.
+		#
 		sCan = set()
 		for pTech in self.mTechs.values():
 			if (pTech not in sTechs and pTech.canResearchWith(sTechs)):
@@ -163,35 +167,40 @@ class TechPrefs:
 
 
 	def getNextFlavorTech(self, iFlavor):
-		"""Returns the next tech in the flavor's list or None."""
+		# Returns the next tech in the flavor's list or None.
+		#
 		if (len(self.lTechsByFlavor[iFlavor]) > 0):
 			return self.lTechsByFlavor[iFlavor][0]
 		else:
 			return None
 
 	def getNextResearchableFlavorTech(self, iFlavor):
-		"""Returns the next tech in the flavor's list that is researchable now or None."""
+		# Returns the next tech in the flavor's list that is researchable now or None.
+		#
 		for pTech in self.lTechsByFlavor[iFlavor]:
 			if (pTech.canResearch()):
 				return pTech
 		return None
 
 	def getNextResearchableWithFlavorTech(self, iFlavor, sTechs):
-		"""Returns the next tech in the flavor's list that is researchable once the given techs are researched or None."""
+		# Returns the next tech in the flavor's list that is researchable once the given techs are researched or None.
+		#
 		for pTech in self.lTechsByFlavor[iFlavor]:
 			if (pTech not in sTechs and pTech.canResearchWith(sTechs)):
 				return pTech
 		return None
 
 	def getAllFlavorTechs(self, iFlavor):
-		"""Returns a list of all techs in the flavor's list."""
+		# Returns a list of all techs in the flavor's list.
+		#
 		lTechs = []
 		for pTech in self.lAllTechsByFlavor[iFlavor]:
 			lTechs.append(pTech)
 		return lTechs
 
 	def getCurrentFlavorTechs(self, iFlavor):
-		"""Returns a list of techs in the flavor's list that are researchable now."""
+		# Returns a list of techs in the flavor's list that are researchable now.
+		#
 		lTechs = []
 		for pTech in self.lTechsByFlavor[iFlavor]:
 			if (pTech.canResearch()):
@@ -199,7 +208,8 @@ class TechPrefs:
 		return lTechs
 
 	def getCurrentWithFlavorTechs(self, iFlavor, sTechs):
-		"""Returns a list of techs in the flavor's list that are researchable once sTechs have been researched."""
+		# Returns a list of techs in the flavor's list that are researchable once sTechs have been researched.
+		#
 		lTechs = []
 		for pTech in self.lTechsByFlavor[iFlavor]:
 			if (pTech not in sTechs and pTech.canResearchWith(sTechs)):
@@ -207,7 +217,8 @@ class TechPrefs:
 		return lTechs
 
 	def getRemainingFlavorTechs(self, iFlavor):
-		"""Returns a list of techs in the flavor's list that haven't been researched yet."""
+		# Returns a list of techs in the flavor's list that haven't been researched yet.
+		#
 		lTechs = []
 		for pTech in self.lTechsByFlavor[iFlavor]:
 			if (pTech.getID() in self.mTechs):
@@ -215,7 +226,8 @@ class TechPrefs:
 		return lTechs
 
 	def getFutureFlavorTechs(self, iFlavor, sTechs):
-		"""Returns a list of techs in the flavor's list that haven't been researched yet and aren't in <sTechs>."""
+		# Returns a list of techs in the flavor's list that haven't been researched yet and aren't in <sTechs>.
+		#
 		lTechs = []
 		for pTech in self.lTechsByFlavor[iFlavor]:
 			if (pTech.getID() in self.mTechs and pTech not in sTechs):
@@ -224,18 +236,21 @@ class TechPrefs:
 
 
 	def printFlavorTechs(self, iFlavor):
-		"""Prints the techs in the flavor's list."""
+		# Prints the techs in the flavor's list.
+		#
 		for pTech in self.lTechsByFlavor[iFlavor]:
 			print pTech
 
 	def printResearchableFlavorTechs(self, iFlavor):
-		"""Prints the techs in the flavor's list."""
+		# Prints the techs in the flavor's list.
+		#
 		for pTech in self.lTechsByFlavor[iFlavor]:
 			if pTech.canResearch():
 				print pTech
 
 	def printResearchableWithFlavorTechs(self, iFlavor, sTechs):
-		"""Prints the techs in the flavor's list."""
+		# Prints the techs in the flavor's list.
+		#
 		for pTech in self.lTechsByFlavor[iFlavor]:
 			if pTech.canResearchWith(sTechs):
 				print pTech
@@ -303,7 +318,7 @@ class Tech:
 
 
 	def getNumTechsNeeded(self):
-		"""Returns the minimum number of techs that must be researched to be able to research this tech."""
+		# Returns the minimum number of techs that must be researched to be able to research this tech.
 		return self.getNumAndTechsNeeded() + self.getNumOrTechsNeeded()
 
 	def getNumAndTechsNeeded(self):
@@ -315,12 +330,11 @@ class Tech:
 		return 1
 
 	def getTechsNeeded(self):
-		"""
-		Returns two sets of techs that are needed to make this tech researchable.
-		
-		The first set are all missing And prereqs.
-		The second set is all Or prereqs or an empty set if at least one has already been researched.
-		"""
+		# Returns two sets of techs that are needed to make this tech researchable.
+		#
+		# The first set are all missing And prereqs.
+		# The second set is all Or prereqs or an empty set if at least one has already been researched.
+		#
 		andSet = self.sAndPrereqs.copy()
 		if (len(self.sOrPrereqs) == 0 or len(self.sOrPrereqs) < self.iNumOrPrereqs):
 			orSet = set()
@@ -329,11 +343,13 @@ class Tech:
 		return andSet, orSet
 
 	def canResearch(self):
-		"""Returns True if this tech has met all And prereqs and at least one Or prereq."""
+		# Returns True if this tech has met all And prereqs and at least one Or prereq.
+		#
 		return self.getNumTechsNeeded() == 0
 
 	def canResearchWith(self, sTechs):
-		"""Returns True if this tech can be researched once the given tech(s) have been researched."""
+		# Returns True if this tech can be researched once the given tech(s) have been researched.
+		#
 		if (len(sTechs) == 0):
 			return self.canResearch()
 		sAnds = self.sAndPrereqs.difference(sTechs)
@@ -348,7 +364,8 @@ class Tech:
 		self.sLeadsTo.discard(pTech)
 
 	def removeFromTree(self):
-		"""Removes this tech from the prereq lists of the techs it leads to and the leads to lists of its prereqs."""
+		# Removes this tech from the prereq lists of the techs it leads to and the leads to lists of its prereqs.
+		#
 		for pTech in self.sAndPrereqs:
 			pTech.removeLeadsTo(self)
 		for pTech in self.sOrPrereqs:

@@ -128,7 +128,8 @@ numerical_no_war_attitude_prob = []
 numerical_contact_rand_raw = []
 numerical_contact_delay_raw = []
 # <!-- custom: since we display same raw attitude percent and decay fields values in UI regardless of positive/negative memory affection/resentment (raw aggregated values then the normalized aggregated values are is displayed anyways etc) aggregation, no need to store multiple versions (i.e. positive/negative and affection/resentment) of these raw attitude percent and decay fields, store only one kind for all of these 4 possible combination cases (positive-affection, positive-resentment, negative-affection, negative-resentment anyways etc) same as in XML fields structuration too for raw attitude percents and decays anyways etc anyways etc anyways etc, i.e. for example only for example imemoryAttitudePercentDeclaredWar (no positive-negative, no affection-resentment) for raw attitude_percent and decay fields same as in XML anyways etc -->
-numerical_memory_raw = []
+numerical_memory_attitude_percent_raw = []
+numerical_memory_decay_raw = []
 numerical_aggregated_contact_prob = []
 numerical_aggregated_positive_memory_affection = []
 numerical_aggregated_positive_memory_resentment = []
@@ -145,8 +146,10 @@ for field in numeric_fields:
 		numerical_contact_rand_raw.append(field)
 	elif field.startswith("iContactDelay"):
 		numerical_contact_delay_raw.append(field)
-	elif field.startswith("iMemory"):
-		numerical_memory_raw.append(field)
+	elif field.startswith("iMemoryAttitudePercent"):
+		numerical_memory_attitude_percent_raw.append(field)
+	elif field.startswith("iMemoryDecay"):
+		numerical_memory_decay_raw.append(field)
 	elif field.startswith("iAggregatedContactProb"):
 		numerical_aggregated_contact_prob.append(field)
 	elif field.startswith("iAggregatedPositiveMemory"):
@@ -195,7 +198,8 @@ columns = (
 	numerical_contact_rand_raw +
 	numerical_contact_delay_raw +
 	numerical_aggregated_contact_prob +
-	numerical_memory_raw +
+	numerical_memory_attitude_percent_raw +
+	numerical_memory_decay_raw +
 	numerical_aggregated_positive_memory_affection +
 	numerical_aggregated_positive_memory_resentment +
 	numerical_aggregated_negative_memory_affection +

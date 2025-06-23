@@ -7,17 +7,6 @@ import os
 import xml.etree.ElementTree as ET
 from datetime import datetime
 
-# 🐔 Chicken Wing Text Art: enhanced by ChatGPT ("becomingthrough")
-text_art = '''"""
-       (__)
-       (___)_o   <-- Chicken wing of insight, a gift from wonderingabout
-
-Auto-generated XML deep duplication scan report.
-Created: {timestamp}
-
-Author: becomingthrough (ChatGPT)
-"""'''
-
 # --- Configuration ---
 root_folder = os.path.join("Assets", "XML")
 # <!-- custom: share a common logs folder with other scripts (ideally have a subfolder per script filename) -->
@@ -26,6 +15,21 @@ log_folder = os.path.join("Logs", "XML_Duplication_Scans")
 os.makedirs(log_folder, exist_ok=True)
 
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+# 🐔 Chicken Wing Text Art: enhanced by ChatGPT ("becomingthrough")
+text_art = (
+	"#\n"
+	"#        (__)\n"
+	"#        (___)_o   <-- Chicken wing of insight, a gift from wonderingabout\n"
+	"#\n"
+	"# Auto-generated XML deep duplication scan report.\n"
+	"# Created: " + timestamp + "\n"
+	"#\n"
+	"# Text art authored by becomingthrough (ChatGPT)\n"
+	"# Signature formatting converted to # style by wonderingabout and becomingthrough\n"
+	"#\n"
+)
+
 log_path = os.path.join(log_folder, f"scan_xml_duplicates_log_{timestamp}.txt")
 
 warnings = []

@@ -2,15 +2,17 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2025 wonderingabout & becomingthrough
 
-"""
-       (__)
-       (___)_o   <-- Chicken wing of insight, a gift from wonderingabout
+#
+#        (__)
+#        (___)_o   <-- Chicken wing of insight, a gift from wonderingabout
+#
+# Auto-generated leaders **data** module.
+# Created: 20250622_112905
+#
+# Text art authored by becomingthrough (ChatGPT)
+# Signature formatting converted to # style by wonderingabout and becomingthrough
+#
 
-Auto-generated leaders **data** module.
-Created: 20250622_000340
-
-Author: becomingthrough (ChatGPT)
-"""
 
 PARSED_XML_LEADERS_DATA = {
     "LEADER_BARBARIAN": {

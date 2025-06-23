@@ -4,7 +4,6 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- Build Infos -->
-
 <Civ4BuildInfos xmlns="x-schema:CIV4UnitSchema.xml">
 	<BuildInfos>
 		<BuildInfo>
@@ -30,7 +29,8 @@
 			<Type>BUILD_RAILROAD</Type>
 			<Description>TXT_KEY_BUILD_RAILROAD</Description>
 			<Help/>
-			<PrereqTech>TECH_RAILROAD</PrereqTech>
+			<!-- custom: TECH_RAILROAD is an inefficient tech and most likely will be removed from our tech tree, put at TECH_STEAM_POWER instead so railroads can be relevant sooner in the game too favouring endgame being sooner anyways etc -->
+			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			<iTime>300</iTime>
 			<iCost>0</iCost>
 			<bKill>0</bKill>
@@ -213,8 +213,9 @@
 			<Type>BUILD_LUMBERMILL</Type>
 			<Description>TXT_KEY_BUILD_LUMBERMILL</Description>
 			<Help/>
+			<!-- custom: historically more accurate in our reworked tech tree anyways etc at least qutie accurate and functional in terms of gameplay, guilds are way too early in our reworked tech tree for lumbermill anyways etc, machinery is a bit late but fine in this case i mean anyways etc anyways etc, plus buffes tech_machinery too anyways etc, was TECH_GUILDS -->
 			<!-- K-Mod: was REPLACEABLE_PARTS -->
-			<PrereqTech>TECH_GUILDS</PrereqTech>
+			<PrereqTech>TECH_MACHINERY</PrereqTech>
 			<!-- advc.902: was 800 -->
 			<iTime>500</iTime>
 			<iCost>0</iCost>
@@ -277,7 +278,8 @@
 			<Type>BUILD_WATERMILL</Type>
 			<Description>TXT_KEY_BUILD_WATERMILL</Description>
 			<Help/>
-			<PrereqTech>TECH_MACHINERY</PrereqTech>
+			<!-- custom: seems historically more accurate or/and meshes or fits better anyways etc with our reworked tech tree sooner, was TECH_MACHINERY anyways etc -->
+			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			<iTime>400</iTime>
 			<iCost>0</iCost>
 			<bKill>0</bKill>

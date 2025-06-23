@@ -4,114 +4,6 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- Unit Infos -->
-<!-- custom: multiply iPower by:
-- 10 for standard military units for example (ancient maceman
-(warrior)), i don't know if this takes into account promotions and
-other multipliers such as natural base stats, but maybe this helps the
-problem of suicidal war declarations in particular, idea i got from
-realism invictus's commit https://sourceforge.net/p/civ4mods/code/5464/
-(name/description) (without actually looking at their code, but i can
-take it from there), for example
-10 strength x 10 multiplier = 100 iPower for the ancient maceman
-- 7 for cover military units or (more) specialized defenders, for
-example for the archer, they will not directly attack cities, even
-if they may participate in the assault but a bit of a threat, for ex
-6 strength x 7 multiplier = 42 iPower
-- 5 for animals: not used currently but if some players were to control
-animals, these animals may ont be able to (be) use(d in) advanced
-strategy(ies) maybe, but their raw power, usually higher than of
-humans, should not be ignored for example for the lion
-15 strength x 5 = 75 iPower
-- 5 for support military too: for example the explorer has good enough
-stats to attack in some cases, but more often than not is not a threat
-against regular military at all, so for example would be
-6 strength x 5 = 30 iPower
-- 2 for support units (worker if i give them strength), for example
-an ancient worker
-3 strength x 2 = 6 iPower, not entirely useless (may delay city
-capture or very rarely fight animals, but mostly not a threat)
-- 1 (much less) for naval units, for example x1; indeed they
-can barely have any major influence on land warfare, and their
-strength may be misleading, for the calculation for example
-3 strength (early sailboat) x 1 = 1 iPower
-10 strength (early frigate) x 1 = 10 iPower
-
-As for iAsset, as this should not directly affect combat tactics
-or choices (i think), increase it just by strength count, so that
-it scales accurately, for example for the ancient maceman:
-10 stregth = iAsset value of 10
-for example for the archer
-6 strength = iAsset value of 6
-
-
-For ground units (taken from the archer unit):
-
-UnitAIs and NotUnitAIs all alphabetical order (for quick copy paste
-then adjust maybe anyways):
-(gradually add more MnitAIs/NotUnitAIs here)
-
-
-
-			<UnitAIs>
-				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-			</UnitAIs>
-			<NotUnitAIs>
-				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK_CITY_LEMMING</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_EXPLORE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_PARADROP</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_SPY</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-			</NotUnitAIs>
--->
-
-
-
 <Civ4UnitInfos xmlns="x-schema:CIV4UnitSchema.xml">
 	<UnitInfos>
 		<UnitInfo> <!-- custom: class: UNITCLASS_LION, type: UNIT_LION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
@@ -9328,8 +9220,13 @@ then adjust maybe anyways):
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_RIFLING</PrereqTech>
-			<TechTypes/>
+			<!-- custom: rifleman units moved later in tech tree as per our reworked tech tree, seems more balanced this way giving early gun (+/- monted anyways etc) units, as well as indirectly old melee or non-gun (+/- mounted) units some time to still be relevant, perhaps more historically accurate too even though i didn't check in detail but checked bit for other units anyways etc, was TECH_RIFLING with techTypes empty anyways etc -->
+			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
+			<TechTypes>
+				<PrereqTech>TECH_RIFLING</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+			</TechTypes>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -9522,8 +9419,13 @@ then adjust maybe anyways):
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_RIFLING</PrereqTech>
-			<TechTypes/>
+			<!-- custom: rifleman units moved later in tech tree as per our reworked tech tree, seems more balanced this way giving early gun (+/- monted anyways etc) units, as well as indirectly old melee or non-gun (+/- mounted) units some time to still be relevant, perhaps more historically accurate too even though i didn't check in detail but checked bit for other units anyways etc, was TECH_RIFLING with techTypes empty anyways etc -->
+			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
+			<TechTypes>
+				<PrereqTech>TECH_RIFLING</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+			</TechTypes>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -9903,7 +9805,8 @@ then adjust maybe anyways):
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
+			<!-- custom: move the anti tank to TECH_ARTILLERY so the tech is stronger, while TECH_ASSEMBLY_LINE that is OP is weaker, plus from very quick glances of it it seems they launch rockets/bazookas/rpgs and such from very little i know or guess of it anyways etc, so fits more and quite well tech_artillery rather maybe, and the tech is so empty too hopefully more balanced this way as well anyways etc, as a result tanks would be a bit stronger so maybe buff anti tank a bit or not or other or maybe not or maybe or maybe not or other anyways etc anyways etc, was TECH_ASSEMBLY_LINE -->
+			<PrereqTech>TECH_ARTILLERY</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -11037,9 +10940,10 @@ then adjust maybe anyways):
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_FLIGHT</PrereqTech>
+			<!-- custom: tech requirements reworked, was flight + tech types fascism and rifling anyways etc -->
+			<PrereqTech>TECH_ADVANCED_FLIGHT</PrereqTech>
 			<TechTypes>
-				<PrereqTech>TECH_FASCISM</PrereqTech>
+				<PrereqTech>TECH_FLIGHT</PrereqTech>
 				<PrereqTech>TECH_RIFLING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
@@ -15514,7 +15418,7 @@ then adjust maybe anyways):
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+			<PrereqTech>TECH_RIFLING</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
@@ -15720,7 +15624,7 @@ then adjust maybe anyways):
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+			<PrereqTech>TECH_RIFLING</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
@@ -15923,7 +15827,7 @@ then adjust maybe anyways):
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+			<PrereqTech>TECH_RIFLING</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
@@ -16115,9 +16019,9 @@ then adjust maybe anyways):
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_RIFLING</PrereqTech>
+			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
 			<TechTypes>
-				<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+				<PrereqTech>TECH_RIFLING</PrereqTech>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
@@ -16307,9 +16211,9 @@ then adjust maybe anyways):
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_RIFLING</PrereqTech>
+			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
 			<TechTypes>
-				<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+				<PrereqTech>TECH_RIFLING</PrereqTech>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
@@ -17888,7 +17792,8 @@ then adjust maybe anyways):
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_STEEL</PrereqTech>
+			<!-- custom: moved here as per tech rework anyways etc, also buffs physics tech which is quite weak otherwise at least as of now anyways etc, is a counter to main military gun path too strategically so interesting perhaps from gameplay standpoint to not overcrowd one tech and having alternate (or alternative? but anyways etc) strategies if one may say anyways etc, was TECH_STEEL -->
+			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
 			<TechTypes/>
 			<BonusType>BONUS_IRON</BonusType>
 			<PrereqBonuses/>
@@ -18447,10 +18352,11 @@ then adjust maybe anyways):
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
+			<!-- custom: move later in our reworked tech tree anyways etc, was TECH_ASSEMBLY_LINE -->
+			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
 			<TechTypes>
-				<PrereqTech>NONE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>TECH_ARTILLERY</PrereqTech>
+				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
 			<BonusType>BONUS_OIL</BonusType>
@@ -21177,7 +21083,8 @@ then adjust maybe anyways):
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
+			<!-- custom: move it sooner in tech, seems historically accurate from tiny bits i read of the sevopedia description (declines during world war 2, so build it sooner anyways etc), plus tech_industrialism is bloated and too strong anyways etc, was TECH_INDUSTRIALISM -->
+			<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses>
@@ -22480,12 +22387,9 @@ then adjust maybe anyways):
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_RADIO</PrereqTech>
-			<TechTypes>
-				<PrereqTech>TECH_FLIGHT</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-			</TechTypes>
+			<!-- custom: now requires only tech_flight, removed tech_radio, doesn't seem critically necessary historically and in terms of timeline from very quick glances of/about it and vs first fighters (again didn't look in depth), from gameplay standpoint they can be used sooner and tech_flight is now stronger, while tech_radio is now weaker as the main path anyways etc -->
+			<PrereqTech>TECH_FLIGHT</PrereqTech>
+			<TechTypes/>
 			<BonusType>BONUS_OIL</BonusType>
 			<PrereqBonuses/>
 			<ProductionTraits/>

@@ -87,23 +87,23 @@
 ##
 ## Author: EmperorFool
 
-"""
-Options holds all of the options in a map from string ID to Option and the
-INI file facades in a map from string ID to IniFile.
 
-Each IniOption belongs to an IniFile and has a section and key within it.
+# Options holds all of the options in a map from string ID to Option and the
+# INI file facades in a map from string ID to IniFile.
+#
+# Each IniOption belongs to an IniFile and has a section and key within it.
+#
+# Each IniFile has a file name and provides getters for the options it stores.
+#
+# Each file can have multiple sections.
+#
+#   import BugOptions
+#   g_options = BugOptions.getOptions()
+#   if g_options.getReminder().isEnabled(): ...
+#     or
+#   if g_options.Autolog.LogBuildCompleted: ...
+#
 
-Each IniFile has a file name and provides getters for the options it stores.
-
-Each file can have multiple sections.
-
-  import BugOptions
-  g_options = BugOptions.getOptions()
-  if g_options.getReminder().isEnabled(): ...
-    or
-  if g_options.Autolog.LogBuildCompleted: ...
-
-"""
 
 from CvPythonExtensions import *
 import BugConfig
@@ -124,24 +124,25 @@ RE_DLL_MSG_TAG = re.compile(r"\[DLLMSG\]")
 RE_DLL_CAPTURE_VERSION_MESSAGE = re.compile(r"\[DLL[= ]([0-9]+)\](.*)\[/DLL\]", re.DOTALL)
 
 class Options(object):
-	"""Manages maps of Options and IniFiles, each indexed by a unique string ID."""
-	
+	# Manages maps of Options and IniFiles, each indexed by a unique string ID.
+	#	
 	def __init__(self):
-		"""Initializes empty dictionaries of Options and IniFiles."""
+		# Initializes empty dictionaries of Options and IniFiles.
+		#
 		#self.mods = {}
 		self.files = {}
 		self.options = {}
 		self.loaded = True
 	
 	def getFile(self, id):
-		"""Returns the IniFile with the given ID."""
+		# Returns the IniFile with the given ID.
 		if (id in self.files):
 			return self.files[id]
 		else:
 			raise BugUtil.ConfigError("Missing file: %s", id)
 	
 	def addFile(self, file):
-		"""Adds the given IniFile to the dictionary."""
+		# Adds the given IniFile to the dictionary.
 		if file.id in self.files:
 			BugUtil.error("BugOptions - duplicate INI file: %s", file.id)
 		else:
@@ -152,34 +153,36 @@ class Options(object):
 		return self.loaded
 	
 	def read(self):
-		"""Reads each IniFile."""
+		# Reads each IniFile.
+		#
 		for file in self.files.itervalues():
 			file.read()
 		self.loaded = True
 	
 	def write(self):
-		"""Writes each IniFile that is dirty."""
+		# Writes each IniFile that is dirty.
+		#
 		if self.isLoaded():
 			for file in self.files.itervalues():
 				file.write()
 	
 
 	def findOption(self, id):
-		"""Returns the Option with the given ID or returns None of not found."""
+		# Returns the Option with the given ID or returns None of not found.
 		if (id in self.options):
 			return self.options[id]
 		else:
 			return None
 
 	def getOption(self, id):
-		"""Returns the Option with the given ID or raises an error if not found."""
+		# Returns the Option with the given ID or raises an error if not found.
 		if (id in self.options):
 			return self.options[id]
 		else:
 			raise BugUtil.ConfigError("Missing option: %s", id)
 
 	def addOption(self, option):
-		"""Adds an Option to the dictionary if its ID doesn't clash."""
+		# Adds an Option to the dictionary if its ID doesn't clash.
 		if option.id in self.options:
 			BugUtil.error("BugOptions - duplicate option %s", option.id)
 		else:
@@ -187,18 +190,18 @@ class Options(object):
 			BugUtil.debug("BugOptions - added option %s", str(option))
 
 	def clearAllTranslations(self):
-		"""Clears the translations of all options in response to the user choosing a language."""
+		# Clears the translations of all options in response to the user choosing a language.
 		for option in self.options.itervalues():
 			option.clearTranslation()
 	
 	def resetOptions(self):
-		"""Resets all options to their default values."""
+		# Resets all options to their default values.
 		for option in self.options.itervalues():
 			option.resetValue()
 	
 	
 	def createFileGetter(self, file):
-		"""Creates a getter for the given IniFile."""
+		# Creates a getter for the given IniFile.
 		def get():
 			return file
 		getter = "get" + file.id
@@ -234,7 +237,7 @@ def write():
 	
 
 class IniFile(object):
-	"""Controls reading/writing an INI file and getting/setting Option values."""
+	# Controls reading/writing an INI file and getting/setting Option values.
 	
 	def __init__(self, id, name):
 		self.id = id
@@ -371,7 +374,8 @@ class IniFile(object):
 		return self.setValue(section, key, float(value))
 
 	def setValue(self, section, key, value):
-		"""Sets the value if it is different and returns True, else returns False."""
+		# Sets the value if it is different and returns True, else returns False.
+		#
 		if value is not None and self.isLoaded():
 			sect = self.getSection(section)
 			if key in sect:
@@ -410,8 +414,8 @@ TYPE_MAP = { "boolean": lambda x: bool(isinstance(x, types.StringTypes) and x.lo
 			 "color": str }
 
 class AbstractOption(object):
-	"""Provides a basic interface and minimal abstract implementation for an option."""
-
+	# Provides a basic interface and minimal abstract implementation for an option.
+	#
 	def __init__(self, mod, id, andId=None, dll=None):
 		self.mod = mod
 		self.id = id
@@ -502,7 +506,8 @@ class AbstractOption(object):
 	
 
 	def createAccessorPair(self, getter=None, setter=None):
-		"""Creates a pair of plain accessors (getter and setter) for this Option."""
+		# Creates a pair of plain accessors (getter and setter) for this Option.
+		#
 		self.createGetter(getter)
 		self.createSetter(setter)
 	
@@ -653,9 +658,9 @@ class AbstractOption(object):
 		return False
 	
 	def getColor(self, *args):
-		"""Returns the value as a color type (int) if this is a color or string option,
-		the actual value if an int, or -1 otherwise.
-		"""
+		# Returns the value as a color type (int) if this is a color or string option,
+		# the actual value if an int, or -1 otherwise.
+		#
 		if self.isColor() or self.isString():
 			return ColorUtil.keyToType(self.getValue(*args))
 		elif self.isInt():
@@ -663,10 +668,10 @@ class AbstractOption(object):
 		return -1
 	
 	def setValue(self, value, *args):
-		"""Sets the value and calls onChanged() if different.
-		
-		Sets it to the default if value is None.
-		"""
+		# Sets the value and calls onChanged() if different.
+		#		
+		# Sets it to the default if value is None.
+		#
 		if value is None:
 			value = self.getDefault()
 			BugUtil.debug("AbstractOption - setting %s to its default %s", self.getID(), value)
@@ -687,21 +692,21 @@ class AbstractOption(object):
 
 
 class BaseOption(AbstractOption):
-	
-	"""
-	Holds the metadata for a single option.
-	- An ID which is used to access the option. This must be unique for all options.
-	- A section and key used to store it in an INI file.
-	- A default value used when no value is found in the INI file.
-	- A title and tooltip (hover text) used to display it in the Options Screen.
-	  Both are now stored in an external XML file and accessed using its ID.
-	- A Civ4 dirty-bit that is set when the option is changed. This allows changing
-	  the option to force certain aspects of the interface to redraw themselves.
-	"""
+	#
+	# Holds the metadata for a single option.
+	# - An ID which is used to access the option. This must be unique for all options.
+	# - A section and key used to store it in an INI file.
+	# - A default value used when no value is found in the INI file.
+	# - A title and tooltip (hover text) used to display it in the Options Screen.
+	#   Both are now stored in an external XML file and accessed using its ID.
+	# - A Civ4 dirty-bit that is set when the option is changed. This allows changing
+	#   the option to force certain aspects of the interface to redraw themselves.
+	#
 
 	def __init__(self, mod, id, type, default=None, andId=None, dll=None, 
 				 title=None, tooltip=None, dirty=None):
-		"""Sets the important fields of the new Option."""
+		# Sets the important fields of the new Option.
+		#
 		super(BaseOption, self).__init__(mod, id, andId, dll)
 		
 		if type in TYPE_REPLACE:
@@ -794,7 +799,8 @@ class BaseOption(AbstractOption):
 			self.addDirtyBit(obj)
 	
 	def addDirtyBit(self, bit):
-		"""Adds a dirty function to the list."""
+		# Adds a dirty function to the list.
+		#
 		if self.dirtyBits is None:
 			self.dirtyBits = []
 		if isinstance(bit, types.StringTypes):
@@ -804,14 +810,16 @@ class BaseOption(AbstractOption):
 			self.dirtyBits.append(bit)
 	
 	def addDirtyFunction(self, function):
-		"""Adds a dirty function to the list."""
+		# Adds a dirty function to the list.
+		#
 		if self.dirtyFunctions is None:
 			self.dirtyFunctions = [function]
 		else:
 			self.dirtyFunctions.append(function)
 	
 	def doDirties(self, *args):
-		"""Sets the dirty bits and calls the dirty functions."""
+		# Sets the dirty bits and calls the dirty functions.
+		#
 		self.applyDirtyBits(*args)
 		self.callDirtyFunctions(*args)
 	
@@ -839,10 +847,10 @@ LIST_TYPE_DEFAULT_TYPE = { "string": "int",
 						   "color": "color" }
 
 class BaseListOption(BaseOption):
-	"""
-	Adds a list of possible values to a single option and a display format to use
-	when creating the dropdown listbox in the Options Screen.
-	"""
+	#
+	# Adds a list of possible values to a single option and a display format to use
+	# when creating the dropdown listbox in the Options Screen.
+	#
 
 	def __init__(self, mod, id, type=None, default=None, andId=None, dll=None, 
 				 listType="string", values=None, format=None, 
@@ -939,7 +947,7 @@ class BaseListOption(BaseOption):
 		self.createSetter(name, value)
 	
 	def createComparers(self):
-		"""Creates all of the getters assigned to individual BaseListOption indices."""
+		# Creates all of the getters assigned to individual BaseListOption indices.
 		if self.getters:
 			for name, values in self.getters.iteritems():
 				# Munge values based on type or create different comparator functions
@@ -1022,12 +1030,12 @@ class BaseListOption(BaseOption):
 ## ------ UNSAVED OPTIONS -----------------------------------------------------
 
 class UnsavedMixin(object):
-	"""
-	Stores its value in memory only, never reading it from or writing it to disk.
-	"""
+
+	# Stores its value in memory only, never reading it from or writing it to disk.
+
 
 	def __init__(self, value):
-		"""Sets the value to the one passed in, typically the default value."""
+		# Sets the value to the one passed in, typically the default value.
 		self.value = value
 	
 	def getRawValue(self, *args):
@@ -1069,12 +1077,13 @@ TYPE_SETTER_MAP = { "boolean": IniFile.setBoolean,
 					"color": IniFile.setString }
 
 class IniMixin(object):
-	"""
-	Stores its value in an INI file.
-	"""
+	#
+	# Stores its value in an INI file.
+	#
 
 	def __init__(self, file, section, key):
-		"""Stores the parameters for use with IniFile for accessing the value."""
+		# Stores the parameters for use with IniFile for accessing the value.
+		#
 		self.file = file
 		self.section = section
 		self.key = key
@@ -1111,7 +1120,8 @@ class IniMixin(object):
 			return TYPE_GETTER_MAP[self.type](self.file, self.section, self.key, self.default)
 	
 	def _setValue(self, value, *args):
-		"""Sets the actual value in the INI file."""
+		# Sets the actual value in the INI file.
+		#
 		BugUtil.debug("BugOptions - setting %s to %r", self.getID(), value)
 		if args:
 			return TYPE_SETTER_MAP[self.type](self.file, self.section, self.key % args, value)
@@ -1137,11 +1147,11 @@ class IniListOption(IniMixin, BaseListOption):
 ## ------ LINKED OPTIONS ------------------------------------------------------
 
 class LinkedOption(AbstractOption):
-	
-	"""Facade to an actual Option."""
-
+	#	
+	# Facade to an actual Option.
+	#
 	def __init__(self, mod, id, option):
-		"""Sets the important fields of the new LinkedOption."""
+		# Sets the important fields of the new LinkedOption.
 		super(LinkedOption, self).__init__(mod, id)
 		self.option = option
 	
@@ -1186,11 +1196,11 @@ class LinkedOption(AbstractOption):
 
 
 class LinkedListOption(LinkedOption):
-	
-	"""Facade to an actual ListOption."""
-
+	#
+	# Facade to an actual ListOption.
+	#
 	def __init__(self, mod, id, option):
-		"""Sets the important fields of the new LinkedListOption."""
+		# Sets the important fields of the new LinkedListOption.
 		super(LinkedOption, self).__init__(mod, id, option)
 	
 	def getListType(self):
@@ -1256,18 +1266,16 @@ class LinkedListOption(LinkedOption):
 MOD_OPTION_SEP = "__"
 
 def qualify(modId, optionId):
-	"""
-	Returns a fully qualified option ID by inserting the mod's ID if necessary.
-	"""
+	# Returns a fully qualified option ID by inserting the mod's ID if necessary.
+	#
 	if optionId is not None and modId is not None:
 		if optionId.find(MOD_OPTION_SEP) == -1:
 			return modId + MOD_OPTION_SEP + optionId
 	return optionId
 
 def unqualify(optionId):
-	"""
-	Returns an unqualified option ID by removing the mod's ID if necessary.
-	"""
+	# Returns an unqualified option ID by removing the mod's ID if necessary.
+	#
 	if optionId is not None:
 		pos = optionId.find(MOD_OPTION_SEP)
 		if pos >= 0:

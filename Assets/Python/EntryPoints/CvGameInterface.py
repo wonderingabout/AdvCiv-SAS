@@ -1,9 +1,7 @@
 ## Sid Meier's Civilization 4
 ## Copyright Firaxis Games 2005
 # WARNING - The DLL specifically calls the functions as they are named
-# advc.003y: I've copied this file from BtS only to add the missing
-# cannotSpreadReligion function. For adding new Python callbacks,
-# BUG\BugGameUtils.py (or BugEventManager.py) should be used instead.
+# advc.003y: I've copied this file from BtS only to add the missing cannotSpreadReligion function. For adding new Python callbacks, BUG\BugGameUtils.py (or BugEventManager.py) should be used instead.
 
 import CvUtil
 import CvGameUtils

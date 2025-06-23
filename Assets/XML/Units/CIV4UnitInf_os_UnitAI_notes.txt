@@ -1,0 +1,78 @@
+<!-- custom: multiply iPower by:
+- 10 for standard military units for example (ancient maceman (warrior)), i don't know if this takes into account promotions and other multipliers such as natural base stats, but maybe this helps the problem of suicidal war declarations in particular, idea i got from realism invictus's commit https://sourceforge.net/p/civ4mods/code/5464/  (name/description) (without actually looking at their code, but i can take it from there), for example 10 strength x 10 multiplier = 100 iPower for the ancient maceman
+- 7 for cover military units or (more) specialized defenders, for example for the archer, they will not directly attack cities, even if they may participate in the assault but a bit of a threat, for example 6 strength x 7 multiplier = 42 iPower - 5 for animals: not used currently but if some players were to control animals, these animals may ont be able to (be) use(d in) advanced strategy(ies) maybe, but their raw power, usually higher than of humans, should not be ignored for example for the lion 15 strength x 5 = 75 iPower
+- 5 for support military too: for example the explorer has good enough stats to attack in some cases, but more often than not is not a threat against regular military at all, so for example would be 6 strength x 5 = 30 iPower
+- 2 for support units (worker if i give them strength), for example an ancient worker 3 strength x 2 = 6 iPower, not entirely useless (may delay city
+capture or very rarely fight animals, but mostly not a threat)
+- 1 (much less) for naval units, for example x1; indeed they can barely have any major influence on land warfare, and their strength may be misleading, for the calculation for example 3 strength (early sailboat) x 1 = 1 iPower 10 strength (early frigate) x 1 = 10 iPower
+
+As for iAsset, as this should not directly affect combat tactics or choices (i think), increase it just by strength count, so that it scales accurately ;
+for example for the ancient maceman:
+10 stregth = iAsset value of 10
+for example for the archer
+6 strength = iAsset value of 6
+
+For ground units (taken from the archer unit):
+
+UnitAIs and NotUnitAIs all alphabetical order (for quick copy paste then adjust maybe anyways):
+(gradually add more MnitAIs/NotUnitAIs here)
+
+
+
+			<UnitAIs>
+				<UnitAI>
+					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+			</UnitAIs>
+			<NotUnitAIs>
+				<UnitAI>
+					<UnitAIType>UNITAI_ATTACK_CITY_LEMMING</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_EXPLORE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_PARADROP</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_SPY</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+			</NotUnitAIs>
+-->

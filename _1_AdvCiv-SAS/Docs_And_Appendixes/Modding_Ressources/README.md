@@ -35,17 +35,17 @@ rather maybe. Hopefully this data i provided is also helpful though.
 
 ## A few useful tips
 
-### full git log
+### full git log with anonymized email
 
 Always keep a .txt copy of the full git log of the/your entire project, very useful when doing a global search (for example with VS Code), you can gain while doing so precious information about some features you want to know more about.
 
-You can create such an exhaustive git log with, for example in git bash for windows, for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size):
+You can create such an exhaustive git log automatically in one command, plus also anonymizing the email with a `<hidden>` instead for all authors, as provided to me by chatgpt/becomingthrough, for example in git bash for windows, for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size):
 
 ```
-cd "C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS/" && git --no-pager log > git_log_repository_full.txt
+cd "C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS/" && git log --pretty=format:"commit %H%nAuthor: %an <hidden>%nDate:   %ad%n%n%B" --date=iso > git_log_anonymized_email.txt
 ```
 
-For example for AdvCiv-SAS, i put this file (that i ideally should/try to update every while) in this folder [for example](/_0_Common_Docs/git_log_repository_full.txt) (but any place (you want) should do (fine) as long as it is in your mod (anywhere inside it maybe anyways)).
+For example for AdvCiv-SAS, i put this file (that i ideally should/try to update every while) in this folder for example [/_0_Common_Docs/git_log_anonymized_email.txt](/_0_Common_Docs/git_log_anonymized_email.txt) (but any place (you want) should do (fine) as long as it is in your mod (anywhere inside it maybe anyways)).
 
 ### manual(s) and docs in .txt
 
@@ -454,7 +454,7 @@ Like this for example if it helps too, anyways etc... (not sayin this is a stand
 			<SHADERNIF>Art/AdvCiv_SAS/Units/Camel_Archer/nif/BerberCamelRiderFinalFinal_fx.nif</SHADERNIF>
 ```
 
-## Example of DLL modification of CvGameTextMgr.cpp to add the new "This technology cannot be traded" flag in sevopedia leader 's placeSpecial and in tech tree view (technology advisor) anyways etc
+## Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded" flag in sevopedia leader 's placeSpecial and in tech tree view (technology advisor) anyways etc
 
 See screenshots of how this was implemented (not fully exhaustive but hopefully quite a bit exhaustive enough if i may say but anyways etc anyways etc anyways etc) in this [google drive folder](https://drive.google.com/drive/folders/176fGLxIWwOTRYAjafi2OGhe8VuVBZLMT?usp=sharing)
 
@@ -490,13 +490,15 @@ Example:
 <bTrade>1</bTrade>
 ```
 
-So then with the big help of chatgpt/becomingthrough and my own ideas too and digging, but and also its support as i may have as well given up on it soon if not for its persistence and encouragement, and finally before i did it just worked luckily, so i am glad this feature (display bTrade info in sevopedia tech and in tech advisor but anyways etc) is in the game now if i may say but anyways etc
+So then with the big help of chatgpt/becomingthrough and my own ideas too and digging, but and also its support as i may have as well given up on it soon if not for its persistence and encouragement, and finally before i did it just worked luckily, so i am glad this feature (display bTrade info in sevopedia tech and in tech advisor but anyways etc) is in the game now if i may say but anyways etc.
+
+I also modified related files to the .cpp file(s), such as .h file(s) (see screenshots for details as i didn't recheck since then hence the plural singular but from my memory they should only be a very few/low number of files but adding this to be safe and cause bit lazy if i may say to recheck but hopefulyl helpful or not or yes or etc or and other or and not but anyways etc...).
 
 After all done, recompile the DLL, fix errors if any such as i had forgotten to add the .h (header? After checking it seems to be this too indeede but anyways etc...) but anyways etc during compile, then again recompile (no fastdep as they seem to cause errors as well sometimes) cleanly (ideally todo add tutorial on how to compile DLL for civ4 advciv at least as i had intended to but not sure, i would, however ideally i would greatly want to do so but anyways etc but not guaranteed may or may not do as sad as is or is not but in all cases is maybe as is or not or yes or not or other or etc but in all cases anyways etc), delete the old DLL rather than overwrite, in case we need to revert to old DLL or such, we have it as backup rather than it being lost if we simply copy pasted and overwrote old DLL but anyways etc
 
 What is very nice is that this same code change also displays it in tech advisor (tech tree view, F6 key ingame if i am not mistaken but anyways etc) which i also wanted to do and didn't know how, so this is also my first successful modification of the ingame behaviour of the tech tree view (minus the iGridX and iGridY i did before as well as part of modding but anyways etc)
 
-This bTrade feature shold ideally have been part of civ4, so i hope players can now see this info if some techs use it (even though it seems in civ4 only future tech uses it, some mods seem to use it for several techs such as middle-earth mod if i am not mistaken but i only glanced quick but anyways etc, as for us in advciv-sas i intend to use it or at least try to use it if not more in a few key techs or arbitrary sadly or not sadly techs i want to use it at to prevent aggressive tech whoreism that is too advantageous to human players, while not forbidding tech trading altogether, hopefully more balanced and interesting this way (personally i play without tech trading in custom game though if i am not mistaken that this is how you do it but anyways etc and at least from last time i played which is quite some time ago but that i may play again or maybe not or yes or not or yes or etc but in all cases modding now as i like to do too but i hope someday i can maybe play again in civ4 i mean but in all cases i enjoy modding too but anyways etc anyways etc anyways etc, maybe a game of advciv-sas soemday for me i mean in civ4 but anyways etc, hopefully helpful or not or yes or and other or and not but anyways etc))
+This bTrade feature being displayed in placeSpecial should ideally have been part of civ4, so i hope players can now see this info if some techs use it (even though it seems in civ4 only future tech uses it, some mods seem to use it for several techs such as middle-earth mod if i am not mistaken but i only glanced quick but anyways etc, as for us in advciv-sas i intend to use it or at least try to use it if not more in a few key techs or arbitrary sadly or not sadly techs i want to use it at to prevent aggressive tech whoreism that is too advantageous to human players, while not forbidding tech trading altogether, hopefully more balanced and interesting this way (personally i play without tech trading in custom game though if i am not mistaken that this is how you do it but anyways etc and at least from last time i played which is quite some time ago but that i may play again or maybe not or yes or not or yes or etc but in all cases modding now as i like to do too but i hope someday i can maybe play again in civ4 i mean but in all cases i enjoy modding too but anyways etc anyways etc anyways etc, maybe a game of advciv-sas soemday for me i mean in civ4 but anyways etc, hopefully helpful or not or yes or and other or and not but anyways etc))
 
 I also added the info about the full list of i mean anyways etc which techs are not tradeable in placeSpecial, hopefully not too redundant or spammy this way in this case fo the placeSpecial of sevopedia tech and helpful maybe too or not or yes or etc but anyways etc.
 

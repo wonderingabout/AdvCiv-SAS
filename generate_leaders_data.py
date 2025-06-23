@@ -90,15 +90,18 @@ sys.stdout = TeeLogger(log_path)
 print(f"[LOGGING ENABLED] Output redirected to: {log_path}")
 
 # 🐔 Chicken Wing Text Art: enhanced by ChatGPT ("becomingthrough")
-text_art = '''"""
-       (__)
-       (___)_o   <-- Chicken wing of insight, a gift from wonderingabout
-
-Auto-generated leaders **data** module.
-Created: {timestamp}
-
-Author: becomingthrough (ChatGPT)
-"""'''
+text_art = (
+	"#\n"
+	"#        (__)\n"
+	"#        (___)_o   <-- Chicken wing of insight, a gift from wonderingabout\n"
+	"#\n"
+	"# Auto-generated leaders **data** module.\n"
+	"# Created: " + timestamp + "\n"
+	"#\n"
+	"# Text art authored by becomingthrough (ChatGPT)\n"
+	"# Signature formatting converted to # style by wonderingabout and becomingthrough\n"
+	"#\n"
+)
 
 # --- Configuration ---
 
@@ -249,10 +252,8 @@ def parse_refuse_attitude_thresholds(tag, text, leader, leader_data):
 
 # <!-- custom: for example if leader alexander has nowar missing / missing / 20 / 80 / missing, and defaults are nowar 0 / 0 / 0 / 0 / 100, then we want to parse any value alexander has to a higher number for example first to missing / missing / 20 / 80 / 80 and only then fetch missing values from defaults, so 0 / 0 / 20 / 80 / 80 for leader alexander's parsing nowar parsing for example, that we'd then parse exported as individual fields like iNoWarAttitudeProbFurious 0, etc... until iNoWarAttitudeProbFriendly 100 and in that order (matching NO_WAR_ATTITUDE_TYPES) -->
 def parse_no_war_attitude_probs_inline(child, leader_data, leader_type):
-	"""
-	Parse NoWarAttitudeProbs fields, ensuring correct nowarattitudeprob fields and monotonicity.
-	Skips early fields until first defined value, then fills forward using max-so-far logic.
-	"""
+	# Parse NoWarAttitudeProbs fields, ensuring correct nowarattitudeprob fields and monotonicity.
+	# Skips early fields until first defined value, then fills forward using max-so-far logic.
 	nowar_tmp = {}
 
 	# First, collect explicitly defined nowarattitude values
@@ -309,10 +310,9 @@ def ensure_complete_no_war_attitude_probs(leaders_data, leader_defaults_data):
 				leader_data[field_name] = leader_defaults_data[field_name]
 
 def prune_nested_no_war_attitude_probs_if_flattened(leaders_data):
-	"""
-	Removes the legacy 'NoWarAttitudeProbs' field if all corresponding
-	flat fields (iNoWarAttitudeProb*) are already present.
-	"""
+	# Removes the legacy 'NoWarAttitudeProbs' field if all corresponding
+	# flat fields (iNoWarAttitudeProb*) are already present.
+
 	required_no_war_attitude_prob_fields = tuple(f"iNoWarAttitudeProb{get_pascal_case_suffix(attitude_type)}" for attitude_type in NO_WAR_ATTITUDE_TYPES)
 
 	for leader_data in leaders_data.values():
@@ -342,25 +342,24 @@ def parse_flavors_inline(child, leader_data, leader_type):
 						leader_data[field_name] = 0
 
 # <!-- custom: new addition by Claude AI thanks to my prompt too but anyways etc.. successfully handles flavors's no defaults being injected (for example flavor military 10 and flavor religion missing in a leader, with defaults being military 789 and religion 123 not leading to the leader having military 10 and religion 123 but instead it had before fix military 10 religion 0, as successfully detected by the test now):
-"""[TEST FAILED] Parsed sample does not match expected!
-
---- Mismatches for LEADER_ALEXANDER ---
-- Field 'iFlavorReligion' mismatch: expected '0', got '123'
-
---- Mismatches for LEADER_CATHERINE ---
-- Field 'iFlavorReligion' mismatch: expected '0', got '123'
-
---- Mismatches for LEADER_GANDHI ---
-- Field 'iFlavorMilitary' mismatch: expected '0', got '789'
-- Field 'iFlavorReligion' mismatch: expected '0', got '123'
-[EXIT] Leader sample test failed. File not written.
-"""
+# [TEST FAILED] Parsed sample does not match expected!
+#
+# --- Mismatches for LEADER_ALEXANDER ---
+# - Field 'iFlavorReligion' mismatch: expected '0', got '123'
+#
+# --- Mismatches for LEADER_CATHERINE ---
+# - Field 'iFlavorReligion' mismatch: expected '0', got '123'
+#
+# --- Mismatches for LEADER_GANDHI ---
+# - Field 'iFlavorMilitary' mismatch: expected '0', got '789'
+# - Field 'iFlavorReligion' mismatch: expected '0', got '123'
+# [EXIT] Leader sample test failed. File not written.
+#
 # which indicates that this is now fixed, thanks to Claude AI and my prompt too hehe anyways etc -->
 def ensure_complete_flavors(leaders_data):
-	"""
-	Ensure all leaders have all flavor fields, setting missing ones to 0.
-	This should be called after defaults injection.
-	"""
+	# Ensure all leaders have all flavor fields, setting missing ones to 0.
+	# This should be called after defaults injection.
+
 	for leader_data in leaders_data.values():
 		for flavor_type in FLAVOR_TYPES:
 			short_name = get_pascal_case_suffix(flavor_type)
@@ -369,9 +368,8 @@ def ensure_complete_flavors(leaders_data):
 				leader_data[field_name] = 0
 
 def prune_nested_flavors_if_flattened(leaders_data):
-	"""
-	Removes the legacy 'Flavors' field if all flat iFlavor* fields are already present.
-	"""
+	# Removes the legacy 'Flavors' field if all flat iFlavor* fields are already present.
+
 	required_flavor_fields = tuple(f"iFlavor{get_pascal_case_suffix(flavor_type)}" for flavor_type in FLAVOR_TYPES)
 
 	for leader_data in leaders_data.values():
@@ -680,9 +678,8 @@ def flatten_all_contacts(leaders_data):
 		print("[DEBUG] Finished flatten_all_contacts")
 
 def prune_nested_contact_lists_if_flattened(leaders_data):
-	"""
-	Removes 'ContactRands' and 'ContactDelays' if all contact types have been flattened.
-	"""
+	# Removes 'ContactRands' and 'ContactDelays' if all contact types have been flattened.
+
 	for leader_data in leaders_data.values():
 		has_all_flat = all(
 			f"iContactRand{get_pascal_case_suffix(contact_type)}" in leader_data and
@@ -694,10 +691,9 @@ def prune_nested_contact_lists_if_flattened(leaders_data):
 			leader_data.pop("ContactDelays", None)
 
 def remove_intermediate_contact_fields(leaders_data):
-	"""
-	Safer version: Remove known memory and contact Adjusted / ForceZero fields
-	after flattening, *only for fields we know we added*, using memory/contact types.
-	"""
+	# Safer version: Remove known memory and contact Adjusted / ForceZero fields
+	# after flattening, *only for fields we know we added*, using memory/contact types.
+
 	# --- Contact fields ---
 	for contact_type in ALL_CONTACT_TYPES:
 		short_name = get_pascal_case_suffix(contact_type)
@@ -712,10 +708,9 @@ def remove_intermediate_contact_fields(leaders_data):
 
 # <!-- custom: this is not in ai_utils_shared_with_civ4.py as for the sevopedia leader part of fetching, we get already adjusted values from the DLL (unlike what is a bit different for the contact code where we get already DLL adjusted values anyways etc -->
 def get_pre_adjusted_raw_memory_values(raw_attitude_percent, raw_decay, mem_type, is_positive):
-	"""
-	Adjusts memory attitude percent and decay values according to standard rules.
-	Returns: (adjusted_attitude, adjusted_decay)
-	"""
+	# Adjusts memory attitude percent and decay values according to standard rules.
+	# Returns: (adjusted_attitude, adjusted_decay)
+
 	# Adjust attitude (with DLL-specific logic)
 	# <!-- custom: For(/if memory type is MEMORY_TRADED_TECH_TO_US), we need to first adjust the raw value as per this comment to keep accuracy of positive distribution and not hide some low value negative numbers in particular, for example (0.8 * (-2)) + 4 = -1.6 + 4 = 2.4 which is positive so needs to be ranked relatively to other positive memories as such.
 	#
@@ -742,11 +737,9 @@ def get_positive_or_negative_memory_types(is_positive):
 	return (POSITIVE_MEMORY_TYPES if is_positive else NEGATIVE_MEMORY_TYPES)
 
 def flatten_all_memories(leaders_data, is_positive, is_affection):
-	"""
-	Flatten and normalize memory attitude/decay values into aggregated scores,
-	following the same 3-pass pattern used by flatten_all_contacts().
-	Handles all memory types (positive/negative x affection/resentment).
-	"""
+	# Flatten and normalize memory attitude/decay values into aggregated scores,
+	# following the same 3-pass pattern used by flatten_all_contacts().
+	# Handles all memory types (positive/negative x affection/resentment).
 
 	# Select memory types
 	memory_types = get_positive_or_negative_memory_types(is_positive)
@@ -888,9 +881,8 @@ def flatten_all_memories(leaders_data, is_positive, is_affection):
 		print("[DEBUG] Finished flatten_all_memories")
 
 def prune_nested_memory_lists_if_flattened(leaders_data):
-	"""
-	Removes 'MemoryAttitudePercents' and 'MemoryDecays' if all memory fields have been flattened.
-	"""
+	# Removes 'MemoryAttitudePercents' and 'MemoryDecays' if all memory fields have been flattened.
+
 	# <!-- custom: we parse only 1 of the 4 combinations possible of possible of positive-negative memory affection-resentment, same as in XML structure, so just called or rather named it anyways etc for example imemoryAttitudePercentDeclaredWar (no positive-negative, no affection-resentment) for raw attitude_percent and decay fields same as in XML anyways etc ; so here there is only one kind of parsed name field to check before pruning nested old parsed fields if i may say anyways etc -->
 	for leader_data in leaders_data.values():
 		has_all_flat = all(
@@ -903,25 +895,24 @@ def prune_nested_memory_lists_if_flattened(leaders_data):
 			leader_data.pop("MemoryDecays", None)
 
 def remove_intermediate_memory_fields(leaders_data):
-	"""
-	Safer version: Remove known memory and contact Adjusted / ForceZero fields
-	after flattening, *only for fields we know we added*, using memory/contact types.
+	# Safer version: Remove known memory and contact Adjusted / ForceZero fields
+	# after flattening, *only for fields we know we added*, using memory/contact types.
+	#
+	# Note:
+	# - This function only deletes intermediate fields like:
+	#   - iAdjustedMemoryAttitudePercentSpyCaughtAffection
+	#   - iAdjustedMemoryDecayDeclaredWarResentment
+	#   - bForceZeroMemorySpyCaughtAffection
+	# - It does **not** delete final aggregate fields like:
+	#   - iAggregatedPositiveMemorySpyCaughtAffection
+	#   - iAggregatedNegativeMemoryDeclaredWarResentment
+	#
+	# Why?
+	# - Because the final aggregate scores are meant to be displayed in the Sevopedia UI.
+	# - These `Positive` and `Negative` variants are the *output* of the flattening process, not intermediate data.
+	#
+	# Therefore, <!-- custom: anyways etc `Positive` or `Negative` are also --> intentionally not part of the cleanup pattern. <!-- custom: as adjusted positive memory fields or adjusted negative memory fields don't exist if i am not mistaken, all memory types (i.e. positive or negative) are adjusted the same way, only do they vary based on is_affection hence we only clean affection and resentment versions of the adjusted temporary data we used to calculate raw aggregated positive and negative memory affections and resentments if i am not mistaken indeed most likely maybe but maybe i am not (i.e. maybe i am not mistaken anyways etc) hopefully helpful or not too or yes too helpful i mean but anyways etc anyways etc anyways etc -->
 
-	Note:
-	- This function only deletes intermediate fields like:
-	  - iAdjustedMemoryAttitudePercentSpyCaughtAffection
-	  - iAdjustedMemoryDecayDeclaredWarResentment
-	  - bForceZeroMemorySpyCaughtAffection
-	- It does **not** delete final aggregate fields like:
-	  - iAggregatedPositiveMemorySpyCaughtAffection
-	  - iAggregatedNegativeMemoryDeclaredWarResentment
-
-	Why?
-	- Because the final aggregate scores are meant to be displayed in the Sevopedia UI.
-	- These `Positive` and `Negative` variants are the *output* of the flattening process, not intermediate data.
-
-	Therefore, <!-- custom: anyways etc `Positive` or `Negative` are also --> intentionally not part of the cleanup pattern. <!-- custom: as adjusted positive memory fields or adjusted negative memory fields don't exist if i am not mistaken, all memory types (i.e. positive or negative) are adjusted the same way, only do they vary based on is_affection hence we only clean affection and resentment versions of the adjusted temporary data we used to calculate raw aggregated positive and negative memory affections and resentments if i am not mistaken indeed most likely maybe but maybe i am not (i.e. maybe i am not mistaken anyways etc) hopefully helpful or not too or yes too helpful i mean but anyways etc anyways etc anyways etc -->
-	"""
 	# <!-- custom: in short if i am not mistaken anyways etc here 2 of 4 combinations to clean for adjusted fields, so alll (positive and negative) affections, and all (positive and negative) resentments anyways etc, so loop overall all memory types not just positive or negative ones only/restricetedly anyways etc -->
 	# --- Memory fields ---
 	for is_affection in (True, False):

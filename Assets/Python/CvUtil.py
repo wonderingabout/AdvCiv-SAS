@@ -73,10 +73,9 @@ BUG_FIRST_EVENT = 5050
 g_nextEventID = BUG_FIRST_EVENT
 g_bugEvents = {}
 def getNewEventID(name=None, silent=True):
-	"""
-	Defines a new event and returns its unique ID to be passed to BugEventManager.beginEvent(id).
-	If name is given, it is stored in a map for lookup by ID later for debugging.
-	"""
+	# Defines a new event and returns its unique ID to be passed to BugEventManager.beginEvent(id).
+	# If name is given, it is stored in a map for lookup by ID later for debugging.
+
 	global g_nextEventID
 	id = g_nextEventID
 	g_nextEventID += 1
@@ -97,9 +96,8 @@ def addSilentEvent(id):
 BUG_FIRST_SCREEN = 1000
 g_nextScreenID = BUG_FIRST_SCREEN
 def getNewScreenID():
-	"""
-	Returns the next unique screen ID to be used with CyGInterfaceScreen.
-	"""
+	# Returns the next unique screen ID to be used with CyGInterfaceScreen.
+
 	global g_nextScreenID
 	id = g_nextScreenID
 	g_nextScreenID += 1
@@ -112,19 +110,21 @@ FONT_RIGHT_JUSTIFY=1<<1
 FONT_LEFT_JUSTIFY=1<<0
 
 def convertToUnicode(s):
-	"if the string is non unicode, convert it to unicode by decoding it using 8859-1, latin_1"
+	# if the string is non unicode, convert it to unicode by decoding it using 8859-1, latin_1
+	#
 	if (isinstance(s, str)):
 		return s.decode("latin_1")
 	return s
 	
 def convertToStr(s):
-	"if the string is unicode, convert it to str by encoding it using 8859-1, latin_1"
+	# if the string is unicode, convert it to str by encoding it using 8859-1, latin_1
+	#
 	if (isinstance(s, unicode)):
 		return s.encode("latin_1")
 	return s
 
 class RedirectDebug:
-	"""Send Debug Messages to Civ Engine"""
+	# Send Debug Messages to Civ Engine
 	def __init__(self):
 		self.m_PythonMgr = CyPythonMgr()
 	def write(self, stuff):
@@ -135,7 +135,7 @@ class RedirectDebug:
 			self.m_PythonMgr.debugMsg(stuff)
 		
 class RedirectError:
-	"""Send Error Messages to Civ Engine"""
+	# Send Error Messages to Civ Engine
 	def __init__(self):
 		self.m_PythonMgr = CyPythonMgr()
 	def write(self, stuff):

@@ -364,9 +364,7 @@ class AStar:
 #####################################################################
 # Class : AStarMoveArea
 #####################################################################
-# class provides functions to create a list of plots a unit can move 
-# within its left moves. It also provides some functions to display
-# and clear the this area.
+# class provides functions to create a list of plots a unit can move within its left moves. It also provides some functions to display and clear the this area.
 # Main function to be used from outsiede are : 
 # 	highlightMoveArea()		: calculates and highlights the area the can move to and computes the plot colors
 #	dehighlightMoveArea()	: clears the display of that area

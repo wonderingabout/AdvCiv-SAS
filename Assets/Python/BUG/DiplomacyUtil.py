@@ -42,15 +42,14 @@ g_eventManager = None
 ## Contacting Rivals
 
 def canContact(playerOrID, toPlayerOrID):
-	"""
-	Returns True if <player> can attempt to contact <toPlayer> given game settings, 
-	initial contact, and war-time situation without regard to willingness to talk.
-	
-	- They must not be the same player
-	- <toPlayer> must be alive, not minor, and not a barbarian
-	- Their teams must have met
-	- If they are at war, they must be able to sign a peace deal (no Always War or Permanent War/Peace options)
-	"""
+	# Returns True if <player> can attempt to contact <toPlayer> given game settings, 
+	# initial contact, and war-time situation without regard to willingness to talk.
+	#
+	# - They must not be the same player
+	# - <toPlayer> must be alive, not minor, and not a barbarian
+	# - Their teams must have met
+	# - If they are at war, they must be able to sign a peace deal (no Always War or Permanent War/Peace options)
+	#
 	playerID, player = PlayerUtil.getPlayerAndID(playerOrID)
 	toPlayerID, toPlayer = PlayerUtil.getPlayerAndID(toPlayerOrID)
 	if playerID == toPlayerID:
@@ -64,16 +63,15 @@ def canContact(playerOrID, toPlayerOrID):
 	return True
 
 def isWillingToTalk(playerOrID, toPlayerOrID):
-	"""
-	Returns True if <player> is willing to talk to <toPlayer>.
-	
-	- Every player is willing to talk to themselves
-	- All human players are willing to talk
-	- Uses BUG DLL if present, otherwise scans attitude hover text
-	  for "Refuses to Talk!!!" in the current language
-	
-	Note: This function does not check if the two players can make contact.
-	"""
+	# Returns True if <player> is willing to talk to <toPlayer>.
+	#
+	# - Every player is willing to talk to themselves
+	# - All human players are willing to talk
+	# - Uses BUG DLL if present, otherwise scans attitude hover text
+	#   for "Refuses to Talk!!!" in the current language
+	#
+	# Note: This function does not check if the two players can make contact.
+	#
 	playerID, player = PlayerUtil.getPlayerAndID(playerOrID)
 	toPlayerID = PlayerUtil.getPlayerID(toPlayerOrID)
 	# if playerID == toPlayerID or player.isHuman():
@@ -96,7 +94,8 @@ def isWillingToTalk(playerOrID, toPlayerOrID):
 ## Event Initialization
 
 def addEvents(eventManager):
-	"""Adds the diplomacy events to BugEventManager."""
+	# Adds the diplomacy events to BugEventManager.
+	#
 	global g_eventManager
 	g_eventManager = eventManager
 	

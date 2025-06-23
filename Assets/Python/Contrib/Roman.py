@@ -32,8 +32,8 @@ RomanNumberMap = (('M', 1000),
 
 # Makes the Number into RomsnNumber
 def toRoman(Number):
-    """convert integer to Roman numeral"""
-
+    # convert integer to Roman numeral
+    #
     if not (0 < Number < 10000):
         raise OutOfRangeError, "number out of range (must be 1..9999)"
     

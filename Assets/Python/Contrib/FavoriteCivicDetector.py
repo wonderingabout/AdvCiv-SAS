@@ -34,20 +34,20 @@ gDetectionNecessary = False
 
 # Module-level access functions
 def isDetectionNecessary ():
-	""" Do we need to bother going through all this fuss?
-
-	It should only be necessary when playing under Random Personalities.
-	initHelpers() actually sets the global Boolean; this just returns it.
-	"""
+	# Do we need to bother going through all this fuss?
+	#
+	# It should only be necessary when playing under Random Personalities.
+	# initHelpers() actually sets the global Boolean; this just returns it.
+	#
 	return gDetectionNecessary
 
 def getFavoriteCivicInfo (iPlayer):
-	""" Returns the FavoriteCivic object for the given player. 
-
-	If we aren't detecting favorite civic info, creates and returns a new object 
-	with the correct data. If the player ID isn't valid or there was some other 
-	problem, None is returned.
-	"""
+	# Returns the FavoriteCivic object for the given player. 
+	#
+	# If we aren't detecting favorite civic info, creates and returns a new object 
+	# with the correct data. If the player ID isn't valid or there was some other 
+	# problem, None is returned.
+	#
 	favorite = None
 	if gDetectionNecessary:
 		if iPlayer in gFavoriteByPlayer:
@@ -61,7 +61,8 @@ def getFavoriteCivicInfo (iPlayer):
 	return favorite
 
 def doUpdate ():
-	""" Goes through the current diplomacy situation to determine potential favorite civics for each civ. """
+	# Goes through the current diplomacy situation to determine potential favorite civics for each civ.
+	#
 	# advc.009b: None check added
 	if gDetectionNecessary and not gFavoriteByPlayer is None:
 		BugUtil.debug("FavoriteCivicDetector.doUpdate() START")
@@ -139,7 +140,8 @@ def doUpdate ():
 		#dump()
 
 def initData ():
-	""" Initialize the internal civic-tracking data structure, clearing all previous data. """
+	# Initialize the internal civic-tracking data structure, clearing all previous data.
+	#
 	if gDetectionNecessary:
 		BugUtil.debug("FavoriteCivicDetector.initData() initializing gFavoriteByPlayer")
 		global gFavoriteByPlayer
@@ -148,19 +150,19 @@ def initData ():
 			gFavoriteByPlayer[iPlayer] = FavoriteCivic(iPlayer)
 
 def initHelpers ():
-	""" Initialize the helper data structures, clearing all previous data. 
-
-	Because most of the functions in this module always start out checking
-	whether detection is necessary, this is stored in a global Boolean which
-	is set here based on game options and then directly accessed everywhere
-	else; it can be also accessed outside the module via an accessor function.
-
-	The other helper which is setup here is a dict of civics keyed on their
-	category. This is useful because the civic detection algorithms often
-	need to exclude either an entire category or all but one civic in a
-	given category. This data structure allows us to simply iterate over a 
-	specific category instead of having to iterate over all civics each time.
-	"""
+	# Initialize the helper data structures, clearing all previous data. 
+	#
+	# Because most of the functions in this module always start out checking
+	# whether detection is necessary, this is stored in a global Boolean which
+	# is set here based on game options and then directly accessed everywhere
+	# else; it can be also accessed outside the module via an accessor function.
+	#
+	# The other helper which is setup here is a dict of civics keyed on their
+	# category. This is useful because the civic detection algorithms often
+	# need to exclude either an entire category or all but one civic in a
+	# given category. This data structure allows us to simply iterate over a 
+	# specific category instead of having to iterate over all civics each time.
+	#
 	global gDetectionNecessary
 	#gDetectionNecessary = gc.getGame().isOption(GameOptionTypes.GAMEOPTION_RANDOM_PERSONALITIES)
 	# <advc.130n>
@@ -184,7 +186,8 @@ def initHelpers ():
 			gCivicsByCategory[gc.getCivicInfo(eCivic).getCivicOptionType()].add(eCivic)
 
 def dump (*args):
-	""" Outputs data for all given player(s); if no players are specified, dumps for everyone. """
+	# Outputs data for all given player(s); if no players are specified, dumps for everyone.
+	#
 	if gDetectionNecessary:
 		if not args:
 			args = range(gc.getMAX_PLAYERS())
@@ -202,24 +205,26 @@ def dump (*args):
 
 NO_CIVIC = -1
 class FavoriteCivic:
-	""" The class that handles internal data management of the favorite civics.
-
-	On initialization, the set of possible civics is empty to conserve space; we
-	only begin tracking civics and therefore explicitly listing possibilities once
-	the active player has met the other player and some knowledge has been gained.
-
-	This means there is some special handling on methods such as isPossible() to 
-	show all civics as possible even though the internal data structure is empty.
-	"""
+	# The class that handles internal data management of the favorite civics.
+	#
+	# On initialization, the set of possible civics is empty to conserve space; we
+	# only begin tracking civics and therefore explicitly listing possibilities once
+	# the active player has met the other player and some knowledge has been gained.
+	#
+	# This means there is some special handling on methods such as isPossible() to 
+	# show all civics as possible even though the internal data structure is empty.
+	#
 
 	def __init__(self, iPlayer):
-		""" Class initialization. Parameter is this player's id. """
+		# Class initialization. Parameter is this player's id.
+		#
 		self.iPlayer = iPlayer
 		self.eFavorite = NO_CIVIC
 		self.possibles = None
 
 	def initPossibles(self):
-		""" Initializes set of possible favorites and removes starter civics. """
+		# Initializes set of possible favorites and removes starter civics.
+		#
 		self.possibles = set(range(gc.getNumCivicInfos()))
 		pPlayer = gc.getPlayer(self.iPlayer)
 		if ( pPlayer and (not pPlayer.isNone()) and pPlayer.isAlive() and (not pPlayer.isHuman())
@@ -230,23 +235,28 @@ class FavoriteCivic:
 				self.possibles.remove(pCiv.getCivilizationInitialCivics(eCategory))
 
 	def isInitialState(self):
-		""" Returns True if this structure is unchanged from initialization. """
+		# Returns True if this structure is unchanged from initialization.
+		#
 		return (self.eFavorite == NO_CIVIC and self.possibles == None)
 
 	def isKnown(self):
-		""" Do we know this player's favorite civic? """
+		# Do we know this player's favorite civic?
+		#
 		return (self.eFavorite != NO_CIVIC)
 
 	def getPlayer(self):
-		""" Returns ID number for this player. """
+		# Returns ID number for this player.
+		#
 		return self.iPlayer
 
 	def getFavorite(self):
-		""" Returns ID of favorite for this player or NO_CIVIC if not yet known. """
+		# Returns ID of favorite for this player or NO_CIVIC if not yet known.
+		#
 		return self.eFavorite
 
 	def setFavorite(self, eCivic):
-		""" Explicitly sets favorite for this player to given civic. """
+		# Explicitly sets favorite for this player to given civic.
+		#
 		#BugUtil.debug("FavoriteCivic.setFavorite() attempting to set player %d favorite civic to %d (%s)"
 		#			  % (self.iPlayer, eCivic, gc.getCivicInfo(eCivic).getText()))
 		if (eCivic != NO_CIVIC):
@@ -254,21 +264,22 @@ class FavoriteCivic:
 			self.possibles = None
 
 	def isPossible(self, eCivic):
-		""" Returns True if given civic might be this player's favorite. """
+		# Returns True if given civic might be this player's favorite.
+		#
 		if self.isKnown():
 			return (self.eFavorite == eCivic)
 		elif self.isInitialState():
 			return True
 		# <advc> Future-proofing for leaders with 0 FavoriteCivicAttitudeChange.
-		# This is not sufficient - the algorithm will still rule out civics that
-		# can't be ruled out, but should at least not crash this way.
+		# This is not sufficient - the algorithm will still rule out civics that can't be ruled out, but should at least not crash this way.
 		elif self.possibles is None:
 			return False # </advc>
 		else:
 			return (eCivic in self.possibles)
 
 	def removePossible(self, eCivic):
-		""" Removes given civic from the possibilities for this player. """
+		# Removes given civic from the possibilities for this player.
+		#
 		if self.isInitialState():
 			self.initPossibles()
 		if self.isPossible(eCivic):
@@ -279,7 +290,8 @@ class FavoriteCivic:
 				self.possibles = None
 
 	def getPossibles(self):
-		""" Returns tuple of ids for all possible favorite civics for this player. """
+		# Returns tuple of ids for all possible favorite civics for this player.
+		#
 		if self.isKnown():
 			return (self.eFavorite,)
 		elif self.isInitialState():
@@ -288,7 +300,8 @@ class FavoriteCivic:
 			return tuple(self.possibles)
 
 	def getNumPossibles(self):
-		""" Returns number of possible favorite civics for this player. """
+		# Returns number of possible favorite civics for this player.
+		#
 		if (self.isKnown()):
 			return 1
 		elif self.isInitialState():
@@ -297,7 +310,8 @@ class FavoriteCivic:
 			return len(self.possibles)
 
 	def __str__ (self):
-		""" String representation of class instance. """
+		# String representation of class instance.
+		#
 		szReturnText = "FavoriteCivic { iPlayer = %d, " % (self.iPlayer)
 		szText = "UNKNOWN"
 		if self.isKnown():
@@ -317,7 +331,8 @@ class FavoriteCivicDetector:
 		eventManager.addEventHandler("CivicDemanded", self.onCivicDemanded)
 		
 	def onBeginActivePlayerTurn(self, argsList):
-		""" Called when the active player can start making their moves. """
+		# Called when the active player can start making their moves.
+		#
 		if gDetectionNecessary:
 			iActivePlayer = argsList[0]
 			iTurn = argsList[1]
@@ -327,14 +342,16 @@ class FavoriteCivicDetector:
 			BugUtil.debug("FavoriteCivicDetectorEvent.onBeginActivePlayerTurn() Update Complete.")
 
 	def onGameStart(self, argsList):
-		""" Called when a new game is started """
+		# Called when a new game is started
+		#
 		#BugUtil.debug("FavoriteCivicDetectorEvent.onGameStart()")
 		initHelpers()
 		if gDetectionNecessary:
 			initData()
 
 	def onLoadGame(self, argsList):
-		""" Called when a game is loaded """
+		# Called when a game is loaded
+		#
 		#BugUtil.debug("FavoriteCivicDetectorEvent.onLoadGame()")
 		initHelpers()
 		if gDetectionNecessary:
@@ -349,7 +366,8 @@ class FavoriteCivicDetector:
 				initData()
 
 	def onPreSave(self, argsList):
-		""" Called before a game is actually saved """
+		# Called before a game is actually saved
+		#
 		#BugUtil.debug("FavoriteCivicDetectorEvent.onPreSave()")
 		if gDetectionNecessary:
 			if (gFavoriteByPlayer):
@@ -360,16 +378,13 @@ class FavoriteCivicDetector:
 						break
 				if (bNeedToSave):
 					#SdToolKit.sdSetGlobal(SD_MOD_ID, SD_VAR_ID, gFavoriteByPlayer)
-					# advc.001: This is not working correctly. Since advc.130n
-					# makes civic detection unnecessary, I'm not going to hunt
-					# for the bug. If the BtS rules are restored, then it'll still
-					# be better to fail silently than to show a Python error
-					# each time that the game is (auto-)saved.
+					# advc.001: This is not working correctly. Since advc.130n makes civic detection unnecessary, I'm not going to hunt for the bug. If the BtS rules are restored, then it'll still be better to fail silently than to show a Python error each time that the game is (auto-)saved.
 					pass
 					#BugUtil.debug("Data Saved to sdtoolkit")
 
 	def onCivicDemanded(self, argsList):
-		""" Called when AI demands you switch to their favorite civic. """
+		# Called when AI demands you switch to their favorite civic.
+		#
 		ePlayer, eTargetPlayer, eCivic = argsList
 		#BugUtil.debug("FavoriteCivicDetectorEvent.onCivicDemanded(ePlayer = %d, eTargetPlayer = %d, eCivic = %d)"
 		#			  % (ePlayer, eTargetPlayer, eCivic))

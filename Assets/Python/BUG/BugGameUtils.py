@@ -263,9 +263,8 @@ class Dispatcher:
 		self._addListener(name, self._bind(utils, func), log)
 	
 	def _addModuleUtils(self, utils, override=False, log=None):
-		"""
-		Registers all of the handler and listener functions in <utils> that match existing callbacks.
-		"""
+		# Registers all of the handler and listener functions in <utils> that match existing callbacks.
+		#
 		BugUtil.debug("BugGameUtils - registering %s", utils.__name__)
 		for name, func in utils.__dict__.iteritems():
 			if not name.startswith("_") and isinstance(func, types.FunctionType):
@@ -278,9 +277,8 @@ class Dispatcher:
 						self._addHandler(name, func, override, log)
 	
 	def _addClassUtils(self, utils, override=False, log=None):
-		"""
-		Registers all of the handler and listener functions in <utils> that match existing callbacks.
-		"""
+		# Registers all of the handler and listener functions in <utils> that match existing callbacks.
+		#
 		clazz = utils.__class__
 		BugUtil.debug("BugGameUtils - registering %s.%s", clazz.__module__, clazz.__name__)
 		for name, func in clazz.__dict__.iteritems():

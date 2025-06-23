@@ -6,72 +6,7 @@
 <!-- Basic Infos -->
 <!-- custom: file imported from:
 C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\BasicInfos\CIV4BasicInfos.xml
-then modified to:
-
-My goals doing this are:
-- rename "Concepts" to "Mods Info"
-- rename "Game Concepts" to "Concepts (Outdated)"
-- move all entries that are in "Mods Info (Outdated)"
-(except BtS rules changes) to "Concepts (Outdated)"
-
-Purpose:
-- gather all Civ4 old data together (vanilla + BTS)
-- use a new category for all mods rules changes (not balance changes
-except if already written such as in bts rules changes)
-
-I had figured out most of it, but could not make it work, so i asked
-@f1rpo which gave me a very detailed answer that helped me solve this.
-
-Credit goes to @f1rpo, current maintainer of AdvCiv, to have explained
-to me (see below for the explanation quoted, that i added here with
-@f1rpo's accord) in thorough detail how to achieve that, which helped
-a lot. I had given to @f1rpo slightly different names for the categories
-than the one i provided here at the "rename" bullet points above, but
-the explanation should be mostly (almost entirely in fact) the same
-(minus these name differences).
-
-Beginning of quote:
-"
-Apparently,
-TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW
-is the name of the "BtS Concepts" category. So that can be changed to "Mods information" in CIV4GameText_advc_pedia.xml or can be moved to a different game text file and changed there. (The original definition is in CIV4GameText_Objects_BTS.xml.) The "Game Concepts" text key is TXT_KEY_PEDIA_CATEGORY_CONCEPT in CIV4GameTextInfos_Objects.xml (base game); can be re-defined to "BtS Concepts". Regarding the placement of concepts in categories, Sevopedia has these functions:
-Spoiler : 
-Python:
-	def getNewConceptInfo(self, id):
-		info = gc.getNewConceptInfo(id)
-		if not self.isShortcutInfo(info) and not self.isTraitInfo(info):
-			return info
-		return None
-
-	def isTraitInfo(self, info):
-		return info.getType().find("_TRAIT_") != -1
-
-	def isShortcutInfo(self, info):
-		return info.getType().find("SHORTCUTS") != -1
-So, if it has "_TRAIT_" or "SHORTCUTS" in its type string, it's not a BtS Concept. Everything else in BasicInfos\Civ4NewConceptInfos.xml is a BtS Concept. The pre-BtS Concepts are taken from CIV4BasicInfos.xml (the BtS version of that file). Those ConceptInfo or NewConceptInfo elements specify one text key each for the heading and for the exposition:
-XML:
-<ConceptInfo>
-	<Type>CONCEPT_ANIMALS</Type>
-	<Description>TXT_KEY_CONCEPT_ANIMALS</Description>
-	<Civilopedia>TXT_KEY_CONCEPT_ANIMALS_PEDIA</Civilopedia>
-</ConceptInfo>
-So, to move the BtS Concepts into Game Concepts, one could copy Civ4BasicInfos.xml from BtS into the mod, cut-and-paste all the non-trait, non-shortcut NewConceptInfo elements from Civ4NewConceptInfos.xml into CIV4BasicInfos.xml and change them from NewConceptInfo to ConceptInfo. And then create NewConceptInfo elements in Civ4NewConceptInfos.xml for the content you want in there, e.g.
-XML:
-		<NewConceptInfo>
-			<Type>CONCEPT_KMOD_RULES</Type>
-			<Description>TXT_KEY_KMOD_RULES</Description>
-			<Civilopedia>TXT_KEY_KMOD_RULES_PEDIA</Civilopedia>
-		</NewConceptInfo>
-(Could be named anything, I think; just so long as it doesn't say "trait" or "shortcut".) Plus the corresponding text key definitions in a game text file. All just in theory. Might even work if Sevopedia is disabled via the BUG menu. Ignoring that possibility, there are probably more surgical ways to achieve what you want through changes in SevoPediaMain.py. But you'd need to change a bunch of (small) functions there, not just the three I included above.
-"
-End of quote.
-
-Additionally from @f1rpo's quote, i also did not need to rename
-TXT KEY types nor any data so that it would include "_TRAIT_"
-or "SHORTCUTS" in it.
-I don't know if i did all steps correctly, but at least it works
-now.
--->
+then modified to have "Mods Info" and "Outdated" instead of the old concept sevopedia categories if i am not mistaken anyways etc, see (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInf_os.txt for details anyways etc) -->
 <Civ4BasicInfos xmlns="x-schema:CIV4BasicInfoSchema.xml">
 	<ConceptInfos>
 		<!-- custom: moved these concepts away from:

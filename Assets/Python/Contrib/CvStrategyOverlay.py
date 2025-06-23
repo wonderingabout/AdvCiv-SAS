@@ -110,9 +110,8 @@ def onEnabledOptionChanged(option, value):
 ## Base Strategy Layer Class
 
 class StrategyLayer(object):
-	"""
-	Provides common functionality for all of the strategy layers.
-	"""
+	# Provides common functionality for all of the strategy layers.
+	#
 	def __init__(self, id):
 		self.MOD_SAVE_ID = "StrategyOverlay"
 		self.INVISIBLE_COLOR = NiColorA(0, 0, 0, 0)
@@ -124,9 +123,8 @@ class StrategyLayer(object):
 		self.reset()
 	
 	def reset(self):
-		"""
-		Resets the data to a blank state and clears the dirty flag.
-		"""
+		# Resets the data to a blank state and clears the dirty flag.
+		#
 		self.dirty = False
 		# <advc.004> Force-show upon reset - now that the dot map can be toggled
 		# only through its key combo (and not through a BUG options checkbox).
@@ -134,15 +132,13 @@ class StrategyLayer(object):
 			StratLayerOpt.setShowDotMap(True) # </advc.004>
 	
 	def read(self):
-		"""
-		Reads the data from the game and clears the dirty flag.
-		"""
+		# Reads the data from the game and clears the dirty flag.
+		#
 		self.dirty = False
 	
 	def write(self):
-		"""
-		Writes the data to the game and clears the dirty flag.
-		"""
+		# Writes the data to the game and clears the dirty flag.
+		#
 		self.dirty = False
 	
 	def toggleVisibility(self):
@@ -200,9 +196,8 @@ X, Y = 0, 1    # used in point tuples instead of creating a new class
 g_DotMap = None
 
 class City:
-	"""
-	Holds the data for a single dot-mapped city.
-	"""
+	# Holds the data for a single dot-mapped city.
+	#
 	def __init__(self, point, color, layer):
 		self.point = point
 		self.color = color
@@ -255,9 +250,8 @@ def onDotMapOptionChanged(option, value):
 	getDotMap().optionChanged(option, value)
 
 class DotMapLayer(StrategyLayer):
-	"""
-	Draws city crosses of different colors so the user can create a dot-map.
-	"""
+	# Draws city crosses of different colors so the user can create a dot-map.
+	#
 	def __init__(self):
 		super(DotMapLayer, self).__init__(DOTMAP_LAYER)
 		global g_DotMap
@@ -301,9 +295,8 @@ class DotMapLayer(StrategyLayer):
 			self.reset()
 	
 	def updateData(self, data):
-		"""
-		Upgrade previous data formats to latest format.
-		"""
+		# Upgrade previous data formats to latest format.
+		#
 		if len(data) == 0:
 			# empty, don't care
 			return data
@@ -382,33 +375,29 @@ class DotMapLayer(StrategyLayer):
 		return None
 	
 	def iterCities(self, ePlayer):
-		"""
-		Iterates over the player's cities.
-		"""
+		# Iterates over the player's cities.
+		#
 		if self.hasCities(ePlayer):
 			for city in self.getCities(ePlayer).itervalues():
 				yield city
 	
 	
 	def addCityAt(self, point, color, layer):
-		"""
-		Sends a message to add a city for the active player at the given point.
-		"""
+		# Sends a message to add a city for the active player at the given point.
+		#
 		CyMessageControl().sendModNetMessage(MSG_ADD_CITY, PlayerUtil.getActivePlayerID(), point[X] * 1000 + point[Y], color, layer)
 	
 	def addCityMessage(self, ePlayer, xy, color, layer):
-		"""
-		Processes a message to add a city.
-		"""
+		# Processes a message to add a city.
+		#
 		x = xy / 1000
 		y = xy % 1000
 		city = City((x, y), color, layer)
 		self.addCity(ePlayer, city)
 	
 	def addCity(self, ePlayer, city):
-		"""
-		Adds the city to the data set and draws its dot and cross.
-		"""
+		# Adds the city to the data set and draws its dot and cross.
+		#
 		if self.hasCity(ePlayer, city.point):
 			oldCity = self.getCity(ePlayer, city.point)
 			if city == oldCity:
@@ -423,9 +412,8 @@ class DotMapLayer(StrategyLayer):
 	
 	
 	def removeCityAt(self, point):
-		"""
-		Sends a message to remove the active player's city at the given point.
-		"""
+		# Sends a message to remove the active player's city at the given point.
+		#
 		ePlayer = PlayerUtil.getActivePlayerID()
 		if self.hasCity(ePlayer, point):
 			CyMessageControl().sendModNetMessage(MSG_REMOVE_CITY, ePlayer, point[X] * 1000 + point[Y], -1, -1)
@@ -433,17 +421,15 @@ class DotMapLayer(StrategyLayer):
 			self.freeze()
 	
 	def removeCityMessage(self, ePlayer, xy):
-		"""
-		Processes a message to remove a city.
-		"""
+		# Processes a message to remove a city.
+		#
 		x = xy / 1000
 		y = xy % 1000
 		self.removeCity(ePlayer, self.getCity(ePlayer, (x, y)))
 		
 	def removeCity(self, ePlayer, city):
-		"""
-		Removes the city from the data set and erases its dot and cross.
-		"""
+		# Removes the city from the data set and erases its dot and cross.
+		#
 		if city:
 			BugUtil.debug("DotMap - removing city %s", city)
 			del self.getCities(ePlayer)[city.point]
@@ -456,14 +442,13 @@ class DotMapLayer(StrategyLayer):
 	
 	
 	def highlightCity(self, point, color):
-		"""
-		Highlights the given city location by drawing it using the given color on the highlight layer.
-		Unhighlights the currently highlighted city if there is one.
-		
-		If there is no city there (N), the new city is drawn (C).
-		If the city is on the same layer (S), nothing is done (N). --> WC
-		If the city is on a different layer (D), the city's layer is redrawn without it (W) and the new city is drawn (C).
-		"""
+		# Highlights the given city location by drawing it using the given color on the highlight layer.
+		# Unhighlights the currently highlighted city if there is one.
+		#
+		# If there is no city there (N), the new city is drawn (C).
+		# If the city is on the same layer (S), nothing is done (N). --> WC
+		# If the city is on a different layer (D), the city's layer is redrawn without it (W) and the new city is drawn (C).
+		#
 		city = City(point, color, self.HIGHLIGHT_CROSS_LAYER)
 		if self.highlightedCity:
 			if self.highlightedCity == city:
@@ -479,13 +464,12 @@ class DotMapLayer(StrategyLayer):
 		self.drawCross(city, self.HIGHLIGHT_CROSS_ALPHA)
 
 	def unhighlightCity(self):
-		"""
-		Removes the highlight from the existing city location if there is one.
-		
-		If there is no city there (N), the current layer is redrawn (L) and the dot is erased (d).
-		If the city is on the same layer (S), nothing is done (N). --> LC
-		If the city is on a different layer (D), the current layer is redrawn (L) and the city is drawn (C).
-		"""
+		# Removes the highlight from the existing city location if there is one.
+		#
+		# If there is no city there (N), the current layer is redrawn (L) and the dot is erased (d).
+		# If the city is on the same layer (S), nothing is done (N). --> LC
+		# If the city is on a different layer (D), the current layer is redrawn (L) and the city is drawn (C).
+		#
 		if self.highlightedCity:
 			point = self.highlightedCity.point
 			self.clearHighlightCrossLayer()
@@ -497,30 +481,26 @@ class DotMapLayer(StrategyLayer):
 	
 	
 	def redrawCities(self):
-		"""
-		Erases all city layers and draws all of the cities.
-		"""
+		# Erases all city layers and draws all of the cities.
+		#
 		self.clearCityLayers()
 		self.drawCities()
 	
 	def redrawCrosses(self, layer, skip=None):
-		"""
-		Erases the given layer and draws all city crosses in that layer.
-		"""
+		# Erases the given layer and draws all city crosses in that layer.
+		#
 		self.clearCrossLayer(layer)
 		self.drawCrosses(layer, skip)
 	
 	def redrawDots(self):
-		"""
-		Erases and redraws all city dots as they are all in the same layer.
-		"""
+		# Erases and redraws all city dots as they are all in the same layer.
+		#
 		self.clearDotLayer()
 		self.drawDots()
 	
 	def drawCities(self, skip=None):
-		"""
-		Draws all of the cities except skip, if given.
-		"""
+		# Draws all of the cities except skip, if given.
+		#
 		crossAlpha = self.CROSS_ALPHA
 		dotAlpha = self.DOT_ALPHA
 		for city in self.iterCities(PlayerUtil.getActivePlayerID()):
@@ -528,9 +508,8 @@ class DotMapLayer(StrategyLayer):
 				self.drawCity(city, crossAlpha, dotAlpha)
 	
 	def drawCrosses(self, layer=None, skip=None):
-		"""
-		Draws the cross for every city in the given layer.
-		"""
+		# Draws the cross for every city in the given layer.
+		#
 		crossAlpha = self.CROSS_ALPHA
 		for city in self.iterCities(PlayerUtil.getActivePlayerID()):
 			if not city.isAt(skip):
@@ -538,25 +517,22 @@ class DotMapLayer(StrategyLayer):
 					self.drawCross(city, crossAlpha)
 	
 	def drawDots(self, skip=None):
-		"""
-		Draws the dot for every city.
-		"""
+		# Draws the dot for every city.
+		#
 		dotAlpha = self.DOT_ALPHA
 		for city in self.iterCities(PlayerUtil.getActivePlayerID()):
 			if not city.isAt(skip):
 				self.drawDot(city, dotAlpha)
 	
 	def drawCity(self, city, crossAlpha, dotAlpha):
-		"""
-		Draws the cross and dot for a single city.
-		"""
+		# Draws the cross and dot for a single city.
+		#
 		self.drawCross(city, crossAlpha)
 		self.drawDot(city, dotAlpha)
 	
 	def drawCross(self, city, alpha):
-		"""
-		Draws the cross for a single city.
-		"""
+		# Draws the cross for a single city.
+		#
 		x, y = city.point
 		color = gc.getColorInfo(city.color).getType()
 		layer = city.layer
@@ -564,9 +540,8 @@ class DotMapLayer(StrategyLayer):
 			CyEngine().fillAreaBorderPlotAlt(x + dx, y + dy, layer, color, alpha)
 	
 	def drawDot(self, city, alpha):
-		"""
-		Draws the dot for a single city.
-		"""
+		# Draws the dot for a single city.
+		#
 		if self.DRAW_DOTS:
 			x, y = city.point
 			colorInfo = gc.getColorInfo(city.color)
@@ -577,9 +552,8 @@ class DotMapLayer(StrategyLayer):
 				CyEngine().addColoredPlotAlt(x, y, self.DOT_STYLE, self.DOT_LAYER, colorInfo.getType(), alpha)
 	
 	def eraseDot(self, city, alpha):
-		"""
-		Erases the dot for a single city.
-		"""
+		# Erases the dot for a single city.
+		#
 		if self.DRAW_DOTS:
 			x, y = city.point
 			if BugPath.isMac():
@@ -588,30 +562,26 @@ class DotMapLayer(StrategyLayer):
 				CyEngine().addColoredPlotAlt(x, y, self.NO_DOT_STYLE, self.DOT_LAYER, "COLOR_BLACK", alpha)
 	
 	def clearCityLayers(self):
-		"""
-		Erases all city crosses and dots.
-		"""
+		# Erases all city crosses and dots.
+		#
 		self.clearHighlightCrossLayer()
 		for index in range(self.NUM_CROSS_LAYERS):
 			self.clearCrossLayer(index + self.FIRST_CROSS_LAYER)
 		self.clearDotLayer()
 
 	def clearHighlightCrossLayer(self):
-		"""
-		Clears the indexed border layer.
-		"""
+		# Clears the indexed border layer.
+		#
 		self.clearCrossLayer(self.HIGHLIGHT_CROSS_LAYER)
 
 	def clearCrossLayer(self, layer):
-		"""
-		Clears the indexed border layer.
-		"""
+		# Clears the indexed border layer.
+		#
 		CyEngine().clearAreaBorderPlots(layer)
 
 	def clearDotLayer(self):
-		"""
-		Clears all the dots from screen.
-		"""
+		# Clears all the dots from screen.
+		#
 		CyEngine().clearColoredPlots(self.DOT_LAYER)
 	
 	def percentToAlpha(self, percent):
@@ -627,9 +597,8 @@ class DotMapLayer(StrategyLayer):
 		self.DOT_STYLE = min(self.MAX_DOT_STYLE, max(0, StratLayerOpt.getDotMapDotIcon()))
 	
 	def optionChanged(self, option, value):
-		"""
-		Redraws the layer if it is currently visible.
-		"""
+		# Redraws the layer if it is currently visible.
+		#
 		self.unhighlightCity()
 		self.readOptions()
 		if self.visible:

@@ -151,8 +151,7 @@ class AIAutoPlay :
 
 		if( game.getAIAutoPlay() == 1 and iPlayer > game.getActivePlayer() and gc.getActivePlayer().isAlive() ) :
 			# Forces isHuman checks to come through positive for everything after human players turn
-			# <advc.127> Commented out; return instead. (The setAIAutoPlay
-			# call might be superfluous in any case.)
+			# <advc.127> Commented out; return instead. (The setAIAutoPlay call might be superfluous in any case.)
 			#self.checkPlayer()
 			#game.setAIAutoPlay(0)
 			return # </advc.127>

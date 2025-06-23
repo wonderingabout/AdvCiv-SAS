@@ -16,12 +16,11 @@ import BugPath
 import BugUtil
 
 def launch(argsList=None):
-	"""
-	Opens the mod's help file or web page externally if it can be found or displays an error alert.
-	
-	On Windows this opens the compiled HTML help file (CHM).
-	On Mac this opens a browser window to the online help file.
-	"""
+	# Opens the mod's help file or web page externally if it can be found or displays an error alert.
+	#	
+	# On Windows this opens the compiled HTML help file (CHM).
+	# On Mac this opens a browser window to the online help file.
+	#
 	if BugPath.isMac():
 		sLang = ["ENG", "ENG", "DEU", "ITA", "ENG"]
 		url = "http://civ4bug.sourceforge.net/BUGModHelp/%s/index.htm" % sLang[CyGame().getCurrentLanguage()]
@@ -49,15 +48,12 @@ def launch(argsList=None):
 	return False
 
 def showLaunchMessage():
-	"""
-	Shows an "opening..." alert message in the event log.
-	"""
+	# Shows an "opening..." alert message in the event log.
 	BugUtil.alert(BugUtil.getPlainText("TXT_KEY_BUG_HELP_OPENING"))
 
 def showErrorAlert(title, body):
-	"""
-	Opens a popup window showing the given error message.
-	"""
+	# Opens a popup window showing the given error message.
+	#
 	popup = PyPopup.PyPopup()
 	popup.setHeaderString(title)
 	popup.setBodyString(body)

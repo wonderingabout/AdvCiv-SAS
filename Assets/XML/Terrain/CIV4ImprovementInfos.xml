@@ -691,9 +691,10 @@
 			</FeatureMakesValids>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
+			<!-- custom: seems more historically accurate and meshes quite well with our reworked tech tree to buff it at tech_steam_power instead, see also BUILD_LUMBERMILL code comment as well for additional info anyways etc if any are there anyways etc, was TECH_REPLACEABLE_PARTS -->
 			<TechYieldChanges>
 				<TechYieldChange>
-					<PrereqTech>TECH_REPLACEABLE_PARTS</PrereqTech>
+					<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 					<TechYields>
 						<iYield>0</iYield>
 						<iYield>1</iYield>
@@ -751,9 +752,10 @@
 			<FeatureMakesValids/>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
+			<!-- custom: seems more historically accurate or/and anyways etc making sense for our reworked tech tree of our mod advciv-sas anyways etc at least anyways etc if not others or not or yes or not or yes or other or etc anyways etc, was TECH_REPLACEABLE_PARTS -->
 			<TechYieldChanges>
 				<TechYieldChange>
-					<PrereqTech>TECH_REPLACEABLE_PARTS</PrereqTech>
+					<PrereqTech>TECH_PHYSICS</PrereqTech>
 					<TechYields>
 						<iYield>0</iYield>
 						<iYield>1</iYield>
@@ -811,9 +813,10 @@
 			<FeatureMakesValids/>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
+			<!-- custom: TechYieldChange prereq tech, sems more accurate and buffes them too, while making middle game sooner and more relevant if i may say anyways etc, was TECH_REPLACEABLE_PARTS -->
 			<TechYieldChanges>
 				<TechYieldChange>
-					<PrereqTech>TECH_REPLACEABLE_PARTS</PrereqTech>
+					<PrereqTech>TECH_MACHINERY</PrereqTech>
 					<TechYields>
 						<iYield>0</iYield>
 						<iYield>1</iYield>

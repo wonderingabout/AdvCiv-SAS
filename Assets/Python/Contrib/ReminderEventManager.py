@@ -188,17 +188,15 @@ class ReminderEventManager:
 		g_eventMgr.beginEvent(STORE_EVENT_ID)
 	
 	def onSwitchHotSeatPlayer(self, argsList):
-		"""
-		Clears the end turn text so hot seat players don't see each other's reminders.
-		"""
+		# Clears the end turn text so hot seat players don't see each other's reminders.
+		#
 		ePlayer = argsList[0]
 		global g_turnReminderTexts
 		g_turnReminderTexts = None
 
 	def onBeginActivePlayerTurn(self, argsList):
-		"""
-		Display the active player's reminders.
-		"""
+		# Display the active player's reminders.
+		#
 		iGameTurn = argsList[0]
 		global g_turnReminderTexts
 		g_turnReminderTexts = None
@@ -206,30 +204,26 @@ class ReminderEventManager:
 			g_eventMgr.beginEvent(RECALL_EVENT_ID)
 
 	def onEndGameTurn(self, argsList):
-		"""
-		Clears reminders up to and including the turn that just ended for all players.
-		"""
+		# Clears reminders up to and including the turn that just ended for all players.
+		#
 		iGameTurn = argsList[0]
 		self.reminders.clearBefore(iGameTurn + 1)
 
 	def onEndTurnReady(self, argsList):
-		"""
-		Display reminders set to repeat this turn.
-		"""
+		# Display reminders set to repeat this turn.
+		#
 		iGameTurn = argsList[0]
 		if (ReminderOpt.isEnabled()):
 			g_eventMgr.beginEvent(RECALL_AGAIN_EVENT_ID)
 
 	def onGameStart(self, argsList):
-		"""
-		Clear all reminders.
-		"""
+		# Clear all reminders.
+		#
 		self.clearReminders()
 
 	def onLoadGame(self, argsList):
-		"""
-		Load saved reminders.
-		"""
+		# Load saved reminders.
+		#
 		self.clearReminders()
 		queues = SdToolKit.sdGetGlobal(SD_MOD_ID, SD_QUEUES_ID)
 		if queues:
@@ -243,9 +237,8 @@ class ReminderEventManager:
 				SdToolKit.sdDelGlobal(SD_MOD_ID, SD_QUEUE_ID)
 
 	def onPreSave(self, argsList):
-		"""
-		Save reminders.
-		"""
+		# Save reminders.
+		#
 		if self.reminders.isEmpty():
 			SdToolKit.sdDelGlobal(SD_MOD_ID, SD_QUEUES_ID)
 		else:

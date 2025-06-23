@@ -45,32 +45,31 @@ def testW():
 	print t.rev()
 
 def getLocalRevision(path):
-	"""
-	Parses and returns the revision number from a local SVN working copy.
-	
-	It is read from the 'entries' file as long as the file has format 7 or higher.
-	A BugError exception is raised if the file isn't found or it has an incorrect
-	format or revision number format.
-	
-	Based on 
-	  http://svn.collab.net/repos/svn/trunk/tools/client-side/change-svn-wc-format.py
-	
-	See http://svn.collab.net/repos/svn/trunk/subversion/libsvn_wc/README
-	'The entries file' for a description of the entries file format.
-	
-	In summary, the first line is the format number followed by an entry for
-	the directory itself (no name). Each entry is separated by a form feed 0x0c
-	and a line feed 0x0a, and each entry contains lines terminated by 0x0a.
-	Subsequent empty lines at the end of an entry may be omitted.
-	
-	The first few lines of each entry that we care about are
-	
-	  - name		  empty for first entry (a.k.a. this_dir)
-	  - kind		  file or dir
-	  - revision	  0 for entries not yet in repository
-	  - url
-	  - repository
-	"""
+	# Parses and returns the revision number from a local SVN working copy.
+	#
+	# It is read from the 'entries' file as long as the file has format 7 or higher.
+	# A BugError exception is raised if the file isn't found or it has an incorrect
+	# format or revision number format.
+	#
+	# Based on 
+	#   http://svn.collab.net/repos/svn/trunk/tools/client-side/change-svn-wc-format.py
+	#
+	# See http://svn.collab.net/repos/svn/trunk/subversion/libsvn_wc/README
+	# 'The entries file' for a description of the entries file format.
+	#
+	# In summary, the first line is the format number followed by an entry for
+	# the directory itself (no name). Each entry is separated by a form feed 0x0c
+	# and a line feed 0x0a, and each entry contains lines terminated by 0x0a.
+	# Subsequent empty lines at the end of an entry may be omitted.
+	#
+	# The first few lines of each entry that we care about are
+	#
+	#   - name		  empty for first entry (a.k.a. this_dir)
+	#   - kind		  file or dir
+	#   - revision	  0 for entries not yet in repository
+	#   - url
+	#   - repository
+	#
 	path = os.path.join(path, ".svn", "entries")
 	try:
 		BugUtil.debug("SvnUtil.getLocalRevision - opening '%s'", path)
@@ -110,14 +109,13 @@ def getLocalRevision(path):
 		raise BugUtil.BugError("failed to read SVN entries file")
 
 def getRemoteRevision(url, callback=None):
-	"""
-	Retrieves the latest revision for a remote repository directory.
-	
-	If callback is given, a background thread is used and the callback is called
-	after the revision is retrieved or an error occurs. If the operation is successful,
-	the revision number (an int) is passed to the callback; otherwise the exception
-	caught is passed.
-	"""
+	# Retrieves the latest revision for a remote repository directory.
+	#
+	# If callback is given, a background thread is used and the callback is called
+	# after the revision is retrieved or an error occurs. If the operation is successful,
+	# the revision number (an int) is passed to the callback; otherwise the exception
+	# caught is passed.
+	#
 	if callback is None:
 		return _getRemoteRevision(url)
 	else:
@@ -159,16 +157,15 @@ class RemoteRevisionThread(threading.Thread):
 			self._callback(self._error)
 
 def _getRemoteRevision(url):
-	"""
-	Parses and returns the revision number from a remote SVN repository.
-	
-	The URL must be correctly escaped (+ for space, etc).
-	A BugError exception is raised if the URL can't be connected to or it doesn't
-	have the expected format.
-	
-	This function looks specifically for the string 'Revision: ####' anywhere
-	in the first MAX_READ_LINES
-	"""
+	# Parses and returns the revision number from a remote SVN repository.
+	#
+	# The URL must be correctly escaped (+ for space, etc).
+	# A BugError exception is raised if the URL can't be connected to or it doesn't
+	# have the expected format.
+	#
+	# This function looks specifically for the string 'Revision: ####' anywhere
+	# in the first MAX_READ_LINES
+	#
 	try:
 		timer = BugUtil.Timer("SvnUtil.getRevision")
 		try:

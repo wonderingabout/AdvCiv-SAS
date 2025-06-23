@@ -470,14 +470,13 @@ class CvMainInterface:
 		return self.numPlotListButtonsPerRow() * self.numPlotListRows()
 
 	def initState (self, screen=None):
-		"""
-		Initialize screen instance (self.foo) and global variables.
-
-		This function is called before drawing the screen (from interfaceScreen() below)
-		and anytime the Python modules are reloaded (from CvEventInterface).
-
-		THIS FUNCTION MUST NOT ALTER THE SCREEN -- screen.foo()
-		"""
+		# Initialize screen instance (self.foo) and global variables.
+		#
+		# This function is called before drawing the screen (from interfaceScreen() below)
+		# and anytime the Python modules are reloaded (from CvEventInterface).
+		#
+		# THIS FUNCTION MUST NOT ALTER THE SCREEN -- screen.foo()
+		#
 		if screen is None:
 			screen = CyGInterfaceScreen("MainInterface", CvScreenEnums.MAIN_INTERFACE)
 		self.xResolution = screen.getXResolution()
@@ -492,10 +491,7 @@ class CvMainInterface:
 			yRatio = math.pow(self.yResolution / 768.0, 0.4)
 			if xRatio > 1 and yRatio > 1:
 				fHorizontalScaleFactor = min(xRatio, yRatio)
-				# More is gained imo by vertical scaling; in part, due to change advc.137,
-				# which changes the minimap aspect ratio, but the original HUD also seems
-				# quite stretched horizontally. Apart from the main map height, vertical
-				# scaling happens at the expense of the sidebar height on the city screen.
+				# More is gained imo by vertical scaling; in part, due to change advc.137, which changes the minimap aspect ratio, but the original HUD also seems quite stretched horizontally. Apart from the main map height, vertical scaling happens at the expense of the sidebar height on the city screen.
 				fVerticalScaleFactor = max(yRatio,
 						min(fHorizontalScaleFactor * 1.05, max(xRatio, yRatio)))
 				fSquareButtonScaleFactor = ((2 * min(fHorizontalScaleFactor,
@@ -1176,15 +1172,15 @@ class CvMainInterface:
 				0, 0,
 				gRect("MiniMapPanel").x() - gRect("LowerRightCorner").x(), RectLayout.MAX)
 		# Sadly, these itty-bitty styled buttons aren't scalable.
-		'''
-		iBtnUnitW = BTNSZ(11)
-		iSmallBtnW = 2 * iBtnUnitW
-		iMediumBtnW = 3 * iBtnUnitW
-		iLargeBtnW = 3 * iSmallBtnW
-		iSmallBtnH = BTNSZ(24)
-		iMediumBtnH = BTNSZ(28)
-		iLargeBtnH = BTNSZ(30)
-		'''
+		#
+		# iBtnUnitW = BTNSZ(11)
+		# iSmallBtnW = 2 * iBtnUnitW
+		# iMediumBtnW = 3 * iBtnUnitW
+		# iLargeBtnW = 3 * iSmallBtnW
+		# iSmallBtnH = BTNSZ(24)
+		# iMediumBtnH = BTNSZ(28)
+		# iLargeBtnH = BTNSZ(30)
+		#
 		iSmallBtnW = 22
 		iSmallBtnH = 24
 		iHighBtnH = 27
@@ -1447,12 +1443,11 @@ class CvMainInterface:
 							iBtnSize / 4)
 
 	def interfaceScreen (self):
-		"""
-		Draw all of the screen elements.
-		This function is called once after starting or loading a game.
-		THIS FUNCTION MUST NOT CREATE ANY INSTANCE OR GLOBAL VARIABLES.
-		It may alter existing ones created in __init__() or initState(), however.
-		"""
+		# Draw all of the screen elements.
+		# This function is called once after starting or loading a game.
+		# THIS FUNCTION MUST NOT CREATE ANY INSTANCE OR GLOBAL VARIABLES.
+		# It may alter existing ones created in __init__() or initState(), however.
+		#
 		if (CyGame().isPitbossHost()):
 			return
 
@@ -2533,9 +2528,8 @@ class CvMainInterface:
 # BUG - Min/Max Sliders - end
 
 	def resetEndTurnObjects(self): # BUG helper
-		"""
-		Clears the end turn text and hides it and the button.
-		"""
+		# Clears the end turn text and hides it and the button.
+		#
 		screen = CyGInterfaceScreen("MainInterface", CvScreenEnums.MAIN_INTERFACE)
 		screen.setEndTurnState("EndTurnText", u"")
 		screen.hideEndTurn("EndTurnText")
@@ -2579,8 +2573,7 @@ class CvMainInterface:
 			self.updateGreatPersonBar(screen)
 # BUG - Great Person Bar - end
 		#CyInterface().shouldDisplayFlag() and
-		# <advc.004y> Don't check shouldDisplayFlag for the Civilopedia button,
-		# but do check if the city screen is up.
+		# <advc.004y> Don't check shouldDisplayFlag for the Civilopedia button, but do check if the city screen is up.
 		if (CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_SHOW and
 				not CyInterface().isCityScreenUp()):
 			screen.show("InterfaceHelpButton")
@@ -3467,14 +3460,14 @@ class CvMainInterface:
 					for i in actions:
 						# <advc.004k>
 						# (I don't think these options are needed after all)
-						'''
-						if (gc.getActionInfo(i).getMissionType() == MissionTypes.MISSION_SEAPATROL and
-								not MainOpt.isShowSeaPatrol()):
-							continue
-						if (gc.getActionInfo(i).getAutomateType() == AutomateTypes.AUTOMATE_EXPLORE and
-								not MainOpt.isShowAutoExplore()):
-							continue
-						'''
+						#
+						# if (gc.getActionInfo(i).getMissionType() == MissionTypes.MISSION_SEAPATROL and
+						# 		not MainOpt.isShowSeaPatrol()):
+						# 	continue
+						# if (gc.getActionInfo(i).getAutomateType() == AutomateTypes.AUTOMATE_EXPLORE and
+						# 		not MainOpt.isShowAutoExplore()):
+						# 	continue
+						#
 						# Show grouping commands before promotions, upgrades
 						if (not bGroupButtonsDone and
 								(gc.getActionInfo(i).getCommandType() == CommandTypes.COMMAND_PROMOTION or
@@ -3741,12 +3734,12 @@ class CvMainInterface:
 				szIndex = str(iSpecialist * 100 + j)
 				szName = "CitizenButton" + szIndex
 				# advc: Redundant I think
-				'''
-				self.addCheckBox(szName,
-							gc.getSpecialistInfo(iSpecialist).getTexture(), "",
-							ButtonStyles.BUTTON_STYLE_LABEL,
-							WidgetTypes.WIDGET_CITIZEN, iSpecialist, j)
-				'''
+				#
+				# self.addCheckBox(szName,
+				# 			gc.getSpecialistInfo(iSpecialist).getTexture(), "",
+				# 			ButtonStyles.BUTTON_STYLE_LABEL,
+				# 			WidgetTypes.WIDGET_CITIZEN, iSpecialist, j)
+				#
 				screen.show(szName)
 				szName = "CitizenButtonHighlight" + szIndex
 				self.addDDS(szName, "BUTTON_HILITE_SQUARE",
@@ -4372,11 +4365,10 @@ class CvMainInterface:
 				iEraColor = ClockOpt.getEraColor(gc.getEraInfo(iEra).getType())
 		# advc.067: End of moved code
 		if (ClockOpt.isEnabled()):
-			"""
-			Format: Time - GameTurn/Total Percent - GA (TurnsLeft) Date
-
-			Ex: 10:37 - 220/660 33% - GA (3) 1925
-			"""
+			# Format: Time - GameTurn/Total Percent - GA (TurnsLeft) Date
+			#
+			# Ex: 10:37 - 220/660 33% - GA (3) 1925
+			#
 			if (g_bShowTimeTextAlt):
 				bShowTime = ClockOpt.isShowAltTime()
 				bShowGameTurn = ClockOpt.isShowAltGameTurn()
@@ -4433,12 +4425,11 @@ class CvMainInterface:
 					szDateGA = localText.changeTextColor(szDateGA, iEraColor)
 				g_szTimeText += szDateGA
 		else:
-			"""
-			Original Clock
-			Format: Time - 'Turn' GameTurn - GA (TurnsLeft) Date
-
-			Ex: 10:37 - Turn 220 - GA (3) 1925
-			"""
+			# Original Clock
+			# Format: Time - 'Turn' GameTurn - GA (TurnsLeft) Date
+			#
+			# Ex: 10:37 - Turn 220 - GA (3) 1925
+			#
 			g_szTimeText = localText.getText("TXT_KEY_TIME_TURN",
 					(CyGame().getGameTurn(),)) + u" - "
 			# <advc.067> Based on NJAGC code above
@@ -4795,31 +4786,31 @@ class CvMainInterface:
 				if (CityScreenOpt.isShowWhipAssist() and
 						pHeadSelectedCity.canHurry(HURRY_WHIP, False)):
 					iHurryPop = pHeadSelectedCity.hurryPopulation(HURRY_WHIP)
-					'''
-					iOverflow = pHeadSelectedCity.hurryProduction(HURRY_WHIP) - pHeadSelectedCity.productionLeft()
-					if CityScreenOpt.isWhipAssistOverflowCountCurrentProduction():
-						iOverflow += pHeadSelectedCity.getCurrentProductionDifference(False, True)
-					iMaxOverflow = max(pHeadSelectedCity.getProductionNeeded(),
-							pHeadSelectedCity.getCurrentProductionDifference(False, False))
-					iLost = max(0, iOverflow - iMaxOverflow)
-					iOverflow = min(iOverflow, iMaxOverflow)
-					iItemModifier = pHeadSelectedCity.getProductionModifier()
-					iBaseModifier = pHeadSelectedCity.getBaseYieldRateModifier(YieldTypes.YIELD_PRODUCTION, 0)
-					iTotalModifier = pHeadSelectedCity.getBaseYieldRateModifier(YieldTypes.YIELD_PRODUCTION, iItemModifier)
-					iLost *= iBaseModifier
-					iLost /= max(1, iTotalModifier)
-					iOverflow = (iBaseModifier * iOverflow) / max(1, iTotalModifier)
-					if iLost > 0:
-						if pHeadSelectedCity.isProductionUnit():
-							iGoldPercent = gc.getDefineINT("MAXED_UNIT_GOLD_PERCENT")
-						elif pHeadSelectedCity.isProductionBuilding():
-							iGoldPercent = gc.getDefineINT("MAXED_BUILDING_GOLD_PERCENT")
-						elif pHeadSelectedCity.isProductionProject():
-							iGoldPercent = gc.getDefineINT("MAXED_PROJECT_GOLD_PERCENT")
-						else:
-							iGoldPercent = 0
-						iOverflowGold = iLost * iGoldPercent / 100
-					'''
+					#
+					# iOverflow = pHeadSelectedCity.hurryProduction(HURRY_WHIP) - pHeadSelectedCity.productionLeft()
+					# if CityScreenOpt.isWhipAssistOverflowCountCurrentProduction():
+					# 	iOverflow += pHeadSelectedCity.getCurrentProductionDifference(False, True)
+					# iMaxOverflow = max(pHeadSelectedCity.getProductionNeeded(),
+					# 		pHeadSelectedCity.getCurrentProductionDifference(False, False))
+					# iLost = max(0, iOverflow - iMaxOverflow)
+					# iOverflow = min(iOverflow, iMaxOverflow)
+					# iItemModifier = pHeadSelectedCity.getProductionModifier()
+					# iBaseModifier = pHeadSelectedCity.getBaseYieldRateModifier(YieldTypes.YIELD_PRODUCTION, 0)
+					# iTotalModifier = pHeadSelectedCity.getBaseYieldRateModifier(YieldTypes.YIELD_PRODUCTION, iItemModifier)
+					# iLost *= iBaseModifier
+					# iLost /= max(1, iTotalModifier)
+					# iOverflow = (iBaseModifier * iOverflow) / max(1, iTotalModifier)
+					# if iLost > 0:
+					# 	if pHeadSelectedCity.isProductionUnit():
+					# 		iGoldPercent = gc.getDefineINT("MAXED_UNIT_GOLD_PERCENT")
+					# 	elif pHeadSelectedCity.isProductionBuilding():
+					# 		iGoldPercent = gc.getDefineINT("MAXED_BUILDING_GOLD_PERCENT")
+					# 	elif pHeadSelectedCity.isProductionProject():
+					# 		iGoldPercent = gc.getDefineINT("MAXED_PROJECT_GOLD_PERCENT")
+					# 	else:
+					# 		iGoldPercent = 0
+					# 	iOverflowGold = iLost * iGoldPercent / 100
+					#
 					# <advc.064> Replacing the above by calling C++ code that does almost the same thing
 					bCountCurrentOverflow = CityScreenOpt.isWhipAssistOverflowCountCurrentProduction()
 					iOverflow = pHeadSelectedCity.getHurryOverflow(
@@ -5120,19 +5111,17 @@ class CvMainInterface:
 			if pHeadSelectedCity.getNumBuilding(iBuilding) > 0:
 				aCityBldgs.append(iBuilding)
 		# I don't know ... This will result in a different order in every city.
-		# Something chronological based on tech reqs (but also taking special care
-		# of wonders and free buildings) should work better than the XML ordering
-		# - tbd.?
-		'''
-		aCityBldgs = sorted(aCityBldgs, key=lambda iBuilding:
-				# AdvCiv returns -32768 for free buildings. Let's just treat
-				# all strange year numbers as 10000, which will move them
-				# to the end of the list. The and/or is a hack for a
-				# conditional expression (properly added in Python 2.5).
-				(abs(pHeadSelectedCity.getBuildingOriginalTime(iBuilding)) >= 10000 and 10000
-				or pHeadSelectedCity.getBuildingOriginalTime(iBuilding))
-				+ iBuilding) # id as tiebreaker
-		'''
+		# Something chronological based on tech reqs (but also taking special care of wonders and free buildings) should work better than the XML ordering - tbd.?
+		#
+		# aCityBldgs = sorted(aCityBldgs, key=lambda iBuilding:
+		# 		# AdvCiv returns -32768 for free buildings. Let's just treat
+		# 		# all strange year numbers as 10000, which will move them
+		# 		# to the end of the list. The and/or is a hack for a
+		# 		# conditional expression (properly added in Python 2.5).
+		# 		(abs(pHeadSelectedCity.getBuildingOriginalTime(iBuilding)) >= 10000 and 10000
+		# 		or pHeadSelectedCity.getBuildingOriginalTime(iBuilding))
+		# 		+ iBuilding) # id as tiebreaker
+		#
 		# Let's at least put free and obsolete buildings at the end
 		aCityBldgs = sorted(aCityBldgs, key=lambda iBuilding:
 				iBuilding 
@@ -5469,37 +5458,37 @@ class CvMainInterface:
 				iReligion = aReligions[i]
 				# <advc> Commented out all code that only adds to szBuffer
 				# b/c that string is never used. (Already unused in Vanilla Civ 4.)
-				'''
-				if (pHeadSelectedCity.isHolyCityByType(iReligion)):
-					szTempBuffer = u"%c" %(gc.getReligionInfo(iReligion).getHolyCityChar())
-					# < 47 Religions Mod Start >
-					# This is now done below since the Holy City Overlay has to be added
-					# after the Religion Icon and can not be shown before its added
-					#szName = "ReligionHolyCityDDS" + str(iReligion)
-					#screen.show(szName)
-					# < 47 Religions Mod Start >
-				else:
-					szTempBuffer = u"%c" %(gc.getReligionInfo(iReligion).getChar())
-				szBuffer = szBuffer + szTempBuffer
-				for iCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES):
-					iRate = pHeadSelectedCity.getReligionCommerceByReligion(iCommerce, iReligion)
-					if iRate != 0:
-						if iRate > 0:
-							szTempBuffer = u",%s%d%c" %("+", iRate, gc.getCommerceInfo(iCommerce).getChar())
-							szBuffer = szBuffer + szTempBuffer
-						else:
-							szTempBuffer = u",%s%d%c" %("", iRate, gc.getCommerceInfo(iCommerce).getChar())
-							szBuffer = szBuffer + szTempBuffer
-				iHappiness = pHeadSelectedCity.getReligionHappiness(iReligion)
-				if iHappiness != 0:
-					if iHappiness > 0:
-						szTempBuffer = u",+%d%c" %(iHappiness, CyGame().getSymbolID(FontSymbols.HAPPY_CHAR))
-						szBuffer = szBuffer + szTempBuffer
-					else:
-						szTempBuffer = u",+%d%c" %(-(iHappiness), CyGame().getSymbolID(FontSymbols.UNHAPPY_CHAR))
-						szBuffer = szBuffer + szTempBuffer
-				szBuffer = szBuffer + " "
-				'''
+				#
+				# if (pHeadSelectedCity.isHolyCityByType(iReligion)):
+				# 	szTempBuffer = u"%c" %(gc.getReligionInfo(iReligion).getHolyCityChar())
+				# 	# < 47 Religions Mod Start >
+				# 	# This is now done below since the Holy City Overlay has to be added
+				# 	# after the Religion Icon and can not be shown before its added
+				# 	#szName = "ReligionHolyCityDDS" + str(iReligion)
+				# 	#screen.show(szName)
+				# 	# < 47 Religions Mod Start >
+				# else:
+				# 	szTempBuffer = u"%c" %(gc.getReligionInfo(iReligion).getChar())
+				# szBuffer = szBuffer + szTempBuffer
+				# for iCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES):
+				# 	iRate = pHeadSelectedCity.getReligionCommerceByReligion(iCommerce, iReligion)
+				# 	if iRate != 0:
+				# 		if iRate > 0:
+				# 			szTempBuffer = u",%s%d%c" %("+", iRate, gc.getCommerceInfo(iCommerce).getChar())
+				# 			szBuffer = szBuffer + szTempBuffer
+				# 		else:
+				# 			szTempBuffer = u",%s%d%c" %("", iRate, gc.getCommerceInfo(iCommerce).getChar())
+				# 			szBuffer = szBuffer + szTempBuffer
+				# iHappiness = pHeadSelectedCity.getReligionHappiness(iReligion)
+				# if iHappiness != 0:
+				# 	if iHappiness > 0:
+				# 		szTempBuffer = u",+%d%c" %(iHappiness, CyGame().getSymbolID(FontSymbols.HAPPY_CHAR))
+				# 		szBuffer = szBuffer + szTempBuffer
+				# 	else:
+				# 		szTempBuffer = u",+%d%c" %(-(iHappiness), CyGame().getSymbolID(FontSymbols.UNHAPPY_CHAR))
+				# 		szBuffer = szBuffer + szTempBuffer
+				# szBuffer = szBuffer + " "
+				#
 				szButton = gc.getReligionInfo(iReligion).getButton()
 				szName = "ReligionDDS" + str(iReligion)
 				lReligion = lReligions.next()
@@ -5531,29 +5520,29 @@ class CvMainInterface:
 						szName = "ReligionHolyCityDDS" + str(iReligion)
 						screen.show(szName)
 					# </advc> szBuffer code commented out (see advc comment above)
-					'''
-					else:
-						szTempBuffer = u"%c" %(gc.getReligionInfo(iReligion).getChar())
-					szBuffer = szBuffer + szTempBuffer
-					for iCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES):
-						iRate = pHeadSelectedCity.getReligionCommerceByReligion(iCommerce, iReligion)
-						if iRate != 0:
-							if iRate > 0:
-								szTempBuffer = u",%s%d%c" %("+", iRate, gc.getCommerceInfo(iCommerce).getChar())
-								szBuffer = szBuffer + szTempBuffer
-							else:
-								szTempBuffer = u",%s%d%c" %("", iRate, gc.getCommerceInfo(iCommerce).getChar())
-								szBuffer = szBuffer + szTempBuffer
-					iHappiness = pHeadSelectedCity.getReligionHappiness(iReligion)
-					if (iHappiness != 0):
-						if (iHappiness > 0):
-							szTempBuffer = u",+%d%c" %(iHappiness, CyGame().getSymbolID(FontSymbols.HAPPY_CHAR))
-							szBuffer = szBuffer + szTempBuffer
-						else:
-							szTempBuffer = u",+%d%c" %(-(iHappiness), CyGame().getSymbolID(FontSymbols.UNHAPPY_CHAR))
-							szBuffer = szBuffer + szTempBuffer
-					szBuffer = szBuffer + " "
-					'''
+					#
+					# else:
+					# 	szTempBuffer = u"%c" %(gc.getReligionInfo(iReligion).getChar())
+					# szBuffer = szBuffer + szTempBuffer
+					# for iCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES):
+					# 	iRate = pHeadSelectedCity.getReligionCommerceByReligion(iCommerce, iReligion)
+					# 	if iRate != 0:
+					# 		if iRate > 0:
+					# 			szTempBuffer = u",%s%d%c" %("+", iRate, gc.getCommerceInfo(iCommerce).getChar())
+					# 			szBuffer = szBuffer + szTempBuffer
+					# 		else:
+					# 			szTempBuffer = u",%s%d%c" %("", iRate, gc.getCommerceInfo(iCommerce).getChar())
+					# 			szBuffer = szBuffer + szTempBuffer
+					# iHappiness = pHeadSelectedCity.getReligionHappiness(iReligion)
+					# if (iHappiness != 0):
+					# 	if (iHappiness > 0):
+					# 		szTempBuffer = u",+%d%c" %(iHappiness, CyGame().getSymbolID(FontSymbols.HAPPY_CHAR))
+					# 		szBuffer = szBuffer + szTempBuffer
+					# 	else:
+					# 		szTempBuffer = u",+%d%c" %(-(iHappiness), CyGame().getSymbolID(FontSymbols.UNHAPPY_CHAR))
+					# 		szBuffer = szBuffer + szTempBuffer
+					# szBuffer = szBuffer + " "
+					#
 					szButton = gc.getReligionInfo(iReligion).getButton()
 				else:
 					bEnable = False
@@ -5599,34 +5588,34 @@ class CvMainInterface:
 				# </advc.092>
 				iCorp = aCorporations[i]
 				# advc: szBuffer code commented out (see advc comment above)
-				'''
-				if pHeadSelectedCity.isHeadquartersByType(iCorp):
-					szTempBuffer = u"%c" %(gc.getCorporationInfo(iCorp).getHeadquarterChar())
-					szName = "CorporationHeadquarterDDS" + str(iCorp)
-					screen.show(szName)
-				else:
-					szTempBuffer = u"%c" %(gc.getCorporationInfo(iCorp).getChar())
-				szBuffer = szBuffer + szTempBuffer
-				for iYield in range(YieldTypes.NUM_YIELD_TYPES):
-					iRate = pHeadSelectedCity.getCorporationYieldByCorporation(iYield, iCorp)
-					if iRate != 0:
-						if iRate > 0:
-							szTempBuffer = u",%s%d%c" %("+", iRate, gc.getYieldInfo(iYield).getChar())
-							szBuffer = szBuffer + szTempBuffer
-						else:
-							szTempBuffer = u",%s%d%c" %("", iRate, gc.getYieldInfo(iYield).getChar())
-							szBuffer = szBuffer + szTempBuffer
-				for iCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES):
-					iRate = pHeadSelectedCity.getCorporationCommerceByCorporation(iCommerce, iCorp)
-					if iRate != 0:
-						if iRate > 0:
-							szTempBuffer = u",%s%d%c" %("+", iRate, gc.getCommerceInfo(iCommerce).getChar())
-							szBuffer = szBuffer + szTempBuffer
-						else:
-							szTempBuffer = u",%s%d%c" %("", iRate, gc.getCommerceInfo(iCommerce).getChar())
-							szBuffer = szBuffer + szTempBuffer
-				szBuffer += " "
-				'''
+				#
+				# if pHeadSelectedCity.isHeadquartersByType(iCorp):
+				# 	szTempBuffer = u"%c" %(gc.getCorporationInfo(iCorp).getHeadquarterChar())
+				# 	szName = "CorporationHeadquarterDDS" + str(iCorp)
+				# 	screen.show(szName)
+				# else:
+				# 	szTempBuffer = u"%c" %(gc.getCorporationInfo(iCorp).getChar())
+				# szBuffer = szBuffer + szTempBuffer
+				# for iYield in range(YieldTypes.NUM_YIELD_TYPES):
+				# 	iRate = pHeadSelectedCity.getCorporationYieldByCorporation(iYield, iCorp)
+				# 	if iRate != 0:
+				# 		if iRate > 0:
+				# 			szTempBuffer = u",%s%d%c" %("+", iRate, gc.getYieldInfo(iYield).getChar())
+				# 			szBuffer = szBuffer + szTempBuffer
+				# 		else:
+				# 			szTempBuffer = u",%s%d%c" %("", iRate, gc.getYieldInfo(iYield).getChar())
+				# 			szBuffer = szBuffer + szTempBuffer
+				# for iCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES):
+				# 	iRate = pHeadSelectedCity.getCorporationCommerceByCorporation(iCommerce, iCorp)
+				# 	if iRate != 0:
+				# 		if iRate > 0:
+				# 			szTempBuffer = u",%s%d%c" %("+", iRate, gc.getCommerceInfo(iCommerce).getChar())
+				# 			szBuffer = szBuffer + szTempBuffer
+				# 		else:
+				# 			szTempBuffer = u",%s%d%c" %("", iRate, gc.getCommerceInfo(iCommerce).getChar())
+				# 			szBuffer = szBuffer + szTempBuffer
+				# szBuffer += " "
+				#
 				szButton = gc.getCorporationInfo(iCorp).getButton()
 				szName = "CorporationDDS" + str(iCorp)
 				gSetRectangle(szName, lCorp)
@@ -5655,30 +5644,30 @@ class CvMainInterface:
 						szName = "CorporationHeadquarterDDS" + str(iCorp)
 						screen.show(szName)
 					# </advc> szBuffer code commented out (see advc comment above)
-					'''
-					else:
-						szTempBuffer = u"%c" %(gc.getCorporationInfo(iCorp).getChar())
-					szBuffer = szBuffer + szTempBuffer
-					for iYield in range(YieldTypes.NUM_YIELD_TYPES):
-						iRate = pHeadSelectedCity.getCorporationYieldByCorporation(iYield, iCorp)
-						if iRate != 0:
-							if iRate > 0:
-								szTempBuffer = u",%s%d%c" %("+", iRate, gc.getYieldInfo(iYield).getChar())
-								szBuffer = szBuffer + szTempBuffer
-							else:
-								szTempBuffer = u",%s%d%c" %("", iRate, gc.getYieldInfo(iYield).getChar())
-								szBuffer = szBuffer + szTempBuffer
-					for iCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES):
-						iRate = pHeadSelectedCity.getCorporationCommerceByCorporation(iCommerce, iCorp)
-						if iRate != 0:
-							if iRate > 0:
-								szTempBuffer = u",%s%d%c" %("+", iRate, gc.getCommerceInfo(iCommerce).getChar())
-								szBuffer = szBuffer + szTempBuffer
-							else:
-								szTempBuffer = u",%s%d%c" %("", iRate, gc.getCommerceInfo(iCommerce).getChar())
-								szBuffer = szBuffer + szTempBuffer
-					szBuffer += " "
-					'''
+					#
+					# else:
+					# 	szTempBuffer = u"%c" %(gc.getCorporationInfo(iCorp).getChar())
+					# szBuffer = szBuffer + szTempBuffer
+					# for iYield in range(YieldTypes.NUM_YIELD_TYPES):
+					# 	iRate = pHeadSelectedCity.getCorporationYieldByCorporation(iYield, iCorp)
+					# 	if iRate != 0:
+					# 		if iRate > 0:
+					# 			szTempBuffer = u",%s%d%c" %("+", iRate, gc.getYieldInfo(iYield).getChar())
+					# 			szBuffer = szBuffer + szTempBuffer
+					# 		else:
+					# 			szTempBuffer = u",%s%d%c" %("", iRate, gc.getYieldInfo(iYield).getChar())
+					# 			szBuffer = szBuffer + szTempBuffer
+					# for iCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES):
+					# 	iRate = pHeadSelectedCity.getCorporationCommerceByCorporation(iCommerce, iCorp)
+					# 	if iRate != 0:
+					# 		if iRate > 0:
+					# 			szTempBuffer = u",%s%d%c" %("+", iRate, gc.getCommerceInfo(iCommerce).getChar())
+					# 			szBuffer = szBuffer + szTempBuffer
+					# 		else:
+					# 			szTempBuffer = u",%s%d%c" %("", iRate, gc.getCommerceInfo(iCommerce).getChar())
+					# 			szBuffer = szBuffer + szTempBuffer
+					# szBuffer += " "
+					#
 					szButton = gc.getCorporationInfo(iCorp).getButton()
 				else:
 					bEnable = False
@@ -6781,17 +6770,17 @@ class CvMainInterface:
 	#def setResearchButtonPosition(self, szButtonID, iCount)
 
 	# advc: Unused; already unused in Civ4 v1.0.
-	'''
-	def setScoreTextPosition(self, szButtonID, iWhichLine):
-		screen = self.screen
-		yResolution = screen.getYResolution()
-		if (CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_SHOW):
-			yCoord = yResolution - 180
-		else:
-			yCoord = yResolution - 88
-		screen.moveItem(szButtonID,
-				996, yCoord - (iWhichLine * 18), -0.3)
-	'''
+	#
+	# def setScoreTextPosition(self, szButtonID, iWhichLine):
+	# 	screen = self.screen
+	# 	yResolution = screen.getYResolution()
+	# 	if (CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_SHOW):
+	# 		yCoord = yResolution - 180
+	# 	else:
+	# 		yCoord = yResolution - 88
+	# 	screen.moveItem(szButtonID,
+	# 			996, yCoord - (iWhichLine * 18), -0.3)
+	#
 
 	# Will build the globeview UI
 	# advc.004z: Returns True iff the current layer has options

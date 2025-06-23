@@ -94,7 +94,7 @@
 		# 				screen.attachImageButton(panelName, "", powerButton, 
 		# 							GenericButtonSizes.BUTTON_SIZE_CUSTOM, 
 		# 							WidgetTypes.WIDGET_GENERAL, -1, -1, False)
-		# We eventually don't use it as we in the end don't implement the unreliable and messy free power functionality (at least we couldn't make it work), but hopefully helpful enough and helped us fix other issues as well or understand betetr the game (how it works/functions) anyways etc...
+		# We eventually don't use it as we in the end don't implement the unreliable and messy free power functionality (at least we couldn't make it work), but hopefully helpful enough and helped us fix other issues as well or understand better the game (how it works/functions) anyways etc...
 		# For reference, the power button code can be found here using the Warlords atlas (i assume it was used for a religion, but probably works very well for the power button if we were to implement it, which we don't do here in the end, anyways etc):
 		# in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Warlords\Assets\Art\Interface\Buttons\Warlords_Atlas_2.dds
 		# powerButtonPath = ",Art/Interface/MainScreen/CityScreen/Great_Engineer.dds,Art/Interface/Buttons/Warlords_Atlas_2.dds,6,11"

@@ -48,10 +48,9 @@ olderUnits = dict()
 newerUnits = dict()
 
 def init():
-	"""
-	Segregates units into two sets: those that require resources and those that don't.
-	Creates a map of units from ID to the set of tech prerequisites.
-	"""
+	# Segregates units into two sets: those that require resources and those that don't.
+	# Creates a map of units from ID to the set of tech prerequisites.
+	#
 	global NUM_UNITS, NUM_CLASSES
 	NUM_UNITS = gc.getNumUnitInfos()
 	NUM_CLASSES = gc.getNumUnitClassInfos()
@@ -112,35 +111,37 @@ def init():
 	initOrders()
 
 def unitInfos():
-	"""Iterates through all CvUnitInfos."""
+	# Iterates through all CvUnitInfos.
+	#
 	for eUnit in range(NUM_UNITS):
 		yield gc.getUnitInfo(eUnit)
 
 def unitClassInfos():
-	"""Iterates through all CvUnitClassInfos."""
+	# Iterates through all CvUnitClassInfos.
+	#
 	for eClass in range(NUM_CLASSES):
 		yield gc.getUnitClassInfo(eClass)
 
 def isGeneric(eUnit):
-	"""Returns True if the given unit is generic and valid."""
+	# Returns True if the given unit is generic and valid.
+	#
 	return eUnit in genericUnits
 
 def isUnique(eUnit):
-	"""Returns True if the given unit is unique and valid."""
+	# Returns True if the given unit is unique and valid.
+	#
 	return eUnit not in genericUnits and eUnit != -1
 
 def getGeneric(eUnit):
-	"""
-	Returns the generic unit counterpart to the given unique unit or the same
-	unit if it's not unique.
-	"""
+	# Returns the generic unit counterpart to the given unique unit or the same
+	# unit if it's not unique.
+	#
 	return genericUnitIDs[eUnit]
 
 def getGenerics(units):
-	"""
-	Returns a set of the generic units which are counterparts to the unique units
-	in the given set. Generic units in the set are not returned.
-	"""
+	# Returns a set of the generic units which are counterparts to the unique units
+	# in the given set. Generic units in the set are not returned.
+	#
 	generics = set()
 	for eUnit in units:
 		eGenericUnit = genericUnitIDs[eUnit]
@@ -149,15 +150,18 @@ def getGenerics(units):
 	return generics
 
 def getGenericUpgrades(eUnit):
-	"""Returns the set of all generic units to which eUnit can upgrade."""
+	# Returns the set of all generic units to which eUnit can upgrade.
+	#
 	return genericUpgradeUnits[eUnit]
 
 def getUpgrades(eUnit):
-	"""Returns the set of all units to which eUnit can upgrade."""
+	# Returns the set of all units to which eUnit can upgrade.
+	#
 	return upgradeUnits[eUnit]
 
 def getOlderUnits(eUnit):
-	"""Returns the set of all units from which eUnit can upgrade."""
+	# Returns the set of all units from which eUnit can upgrade.
+	#
 	if eUnit in olderUnits:
 		return olderUnits[eUnit]
 	unitInfo = gc.getUnitInfo(eUnit)
@@ -173,7 +177,7 @@ def getOlderUnits(eUnit):
 	return units
 
 def getNewerUnits(eUnit):
-	"""Returns the set of all units to which eUnit can upgrade."""
+	# Returns the set of all units to which eUnit can upgrade.
 	if eUnit in newerUnits:
 		return newerUnits[eUnit]
 	unitInfo = gc.getUnitInfo(eUnit)
@@ -195,27 +199,24 @@ def getNewerUnits(eUnit):
 	return newer
 
 def isUnitOrUpgradeInSet(eUnit, units):
-	"""
-	Returns True if eUnit is in the given set of units or can be upgraded
-	to at least one unit in it.
-	"""
+	# Returns True if eUnit is in the given set of units or can be upgraded
+	# to at least one unit in it.
+	#
 	return eUnit in units or len(getNewerUnits(eUnit) & units) > 0
 
 def areUpgradesInSet(eUnit, units):
-	"""
-	Returns True if every immediate upgrade of eUnit is in the given set.
-	
-	This ignores transitive upgrades (Warrior doesn't check for Macemen).
-	
-	Need to take UUs into consideration.
-	"""
+	# Returns True if every immediate upgrade of eUnit is in the given set.
+	#
+	# This ignores transitive upgrades (Warrior doesn't check for Macemen).
+	#
+	# Need to take UUs into consideration.
+	#
 	upgrades = getUpgrades(eUnit)
 	return upgrades <= units
 
 def replaceUniqueUnits(units):
-	"""
-	Replaces unique units with their generic counterparts in the given set.
-	"""
+	# Replaces unique units with their generic counterparts in the given set.
+	#
 	uniques = set()
 	generics = set()
 	for eUnit in units:
@@ -226,13 +227,12 @@ def replaceUniqueUnits(units):
 	units += generics
 
 def findObsoleteUnits(units):
-	"""
-	Returns a set containing the units whose immediate upgrades are all in the set,
-	taking unique units into consideration.
-	
-	For example, if the set contains Maceman and Redcoat, neither is returned,
-	but if it contains Grenadier as well, Maceman is returned.
-	"""
+	# Returns a set containing the units whose immediate upgrades are all in the set,
+	# taking unique units into consideration.
+	#
+	# For example, if the set contains Maceman and Redcoat, neither is returned,
+	# but if it contains Grenadier as well, Maceman is returned.
+	#
 	#result = units.copy()
 	generics = getGenerics(units)
 	obsoletes = set()
@@ -271,9 +271,8 @@ def getKnowableUnits(playerOrID):
 	return units
 
 def getTrainableUnits(playerOrID, knowableUnits, checkCities=True, military=None):
-	"""
-	Returns the set of all units the player can train, including obsolete ones.
-	"""
+	# Returns the set of all units the player can train, including obsolete ones.
+	#
 	game = CyGame()
 	player, team = PlayerUtil.getPlayerAndTeam(playerOrID)
 	civInfo = gc.getCivilizationInfo(player.getCivilizationType())
@@ -474,22 +473,21 @@ def cityHasBonusesForUnit(unitInfo, city):
 	return True
 
 def getCanTrainUnits(playerOrID, askingPlayerOrID=None, military=None):
-	"""
-	Returns the set of all units the player can train.
-	
-	Searches all of the player's cities to find which units can be trained.
-	
-	If askingPlayerOrID is given, only cities they have seen are checked, and
-	only units whose prerequisite techs they know or can research are returned.
-	Also, if the two players' trade networks are not connected, units that
-	require resources to train are returned in a second set.
-	
-	If military is provided, only military or civilian units are checked
-	depending on its value, True or False, respectively.
-	
-	*** OBSOLETE ***
-	
-	"""
+	# Returns the set of all units the player can train.
+	#
+	# Searches all of the player's cities to find which units can be trained.
+	#
+	# If askingPlayerOrID is given, only cities they have seen are checked, and
+	# only units whose prerequisite techs they know or can research are returned.
+	# Also, if the two players' trade networks are not connected, units that
+	# require resources to train are returned in a second set.
+	#
+	# If military is provided, only military or civilian units are checked
+	# depending on its value, True or False, respectively.
+	#
+	# *** OBSOLETE ***
+	#
+	#
 	player, team = PlayerUtil.getPlayerAndTeam(playerOrID)
 	askingPlayer = PlayerUtil.getPlayer(askingPlayerOrID)
 	if askingPlayer:
@@ -616,9 +614,8 @@ def getOrder(unit):
 	return ORDER_NONE
 
 def initOrders():
-	"""
-	Adds orders added by BULL.
-	"""
+	# Adds orders added by BULL.
+	#
 	try:
 		ORDERS_BY_ACTIVITY[ActivityTypes.ACTIVITY_SENTRY_WHILE_HEAL] = ORDER_HEAL
 		ORDERS_BY_ACTIVITY[ActivityTypes.ACTIVITY_SENTRY_LAND_UNITS] = ORDER_SENTRY

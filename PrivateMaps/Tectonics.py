@@ -185,21 +185,21 @@ def generateTerrainTypes():
 	return terrainTypes
 
 # advc: Obsolete (probably since v3.7)
-'''
-def addFeatures():
-	NiTextOut("Adding Features (from Python Continents) ...")
-	# advc.021a: was ...==5
-	if (CyMap().getCustomMapOption(0) == 6):         #  "Mediterranean"
-		featuregen = NoIceFeatureGenerator()
-	else:
-		featuregen = FeatureGenerator()
-	featuregen.addFeatures()
-	return 0
-
-class NoIceFeatureGenerator(FeatureGenerator):
-	def addIceAtPlot(self, pPlot, iX, iY, lat):
-		return
-'''
+#
+# def addFeatures():
+# 	NiTextOut("Adding Features (from Python Continents) ...")
+# 	# advc.021a: was ...==5
+# 	if (CyMap().getCustomMapOption(0) == 6):         #  "Mediterranean"
+# 		featuregen = NoIceFeatureGenerator()
+# 	else:
+# 		featuregen = FeatureGenerator()
+# 	featuregen.addFeatures()
+# 	return 0
+#
+# class NoIceFeatureGenerator(FeatureGenerator):
+# 	def addIceAtPlot(self, pPlot, iX, iY, lat):
+# 		return
+#
 
 class voronoiMap:
 	def __init__(self,landPlates,seaPlates,hotspotsF):

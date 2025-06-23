@@ -1,7 +1,6 @@
 ## CvBUGMilitaryAdvisor
 ##
-## Allows grouping units by several factors and adds a Situation Report page
-## showing Threat Index, Strategic Advantages and Vassal/DP/PA status of each rival.
+## Allows grouping units by several factors and adds a Situation Report page showing Threat Index, Strategic Advantages and Vassal/DP/PA status of each rival.
 ##
 ## TODO:
 ##

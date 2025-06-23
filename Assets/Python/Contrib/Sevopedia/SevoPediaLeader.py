@@ -61,24 +61,24 @@ localText = CyTranslator()
 IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True
 
 # <!-- custom: increase hard drive life span by 0.1% by disabling this / setting it to False, maybe (disclaiemr: i am not responsible is just i mean about the actual real percentage meant as a joke / comedy thing but anyways etc but is maybe also true that disabling debug may avoid reducing hard drive life span even if a bit, as we write quite a lot of debug at each sevopedia load, however it is not guaranteed and i am not responsible anyways etc, so i mean anyways etc do as you see fit use at your own risk code is there if you want to know what it does with also a(/some) debug sample(s) (non-exhaustive but hopefully quite plenty if i may say and is not gramatically wrong but anyways etc hopefully clear enough or/and helpful or not or yes or other or etc but anyways etc what it means i mean but anyways etc...) in SevopediaLead_derExamplesOfOutputs as of now if filename is still relevant later after writign this code comment but anyways etc, is just harmless text writing but writing a lot may hurt ssd or whichever hard drive especially most importantly by repeated use over a long time period of playing civ4 restarting game many times and such you use so i disabled it for my need now that system seems to wor-function fine anyways etc, available there if needed anyways etc, for my own hard drive too-->
-IS_DEBUG = False
+IS_DEBUG_LEADER = False
 
 # <!-- custom: we already warn once if min == max at/in get_leader_info_minimums_and_maximums, no need to warn again and again i mean at each normalization anyways etc, so set B_WARN to false if i am not mistaken in my understanding anyways etc -->
 B_WARN = False
 
-if IS_DEBUG:
+if IS_DEBUG_LEADER:
 	print("[DEBUG] Leaders index to type is: %s" % str(get_leaders_index_to_type_map(gc)))
 
 # <!-- custom: note: LEADER_DEFAULTS doesn't seem to exist at all in the DLL if i am not mistaken, so no need to mention it here (also may cause errors in our code as we can't even refer to its index to exclude it to begin with since such a leader index doesn't seem to exist at all in gc/DLL if i am not mistaken so handle that edge case of LEADER_DEFAULTS specifically i mean anyways etc) unlike in generate_leaders_data.py for external to civ4 script usage (such as generating charts .csv, etc.), as for civ4 use only mention LEADER_BARBARIAN and similar existing leaders even if they are excluded, but not LEADER_DEFAULTS and any other DLL seemingly removed leader index as well if any other exist (as of now LEADER_DEFAULTS seems to be the only one if i am not mistaken but is to be exhaustive anyways etc -->
 EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS = get_leader_indexes_from_leader_types(get_dll_existing_excluded_leader_types(), gc)
 
-if IS_DEBUG:
+if IS_DEBUG_LEADER:
 	print("[DEBUG] EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS=%s" % str(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS))
 
-def check_required_newly_exposed_python_getters_exist():
+def check_required_newly_exposed_python_getters_gc_leader_exist():
 	# <!-- custom: note: to use the AI personality feature in another mod, you need to modify the DLL to expose python BBAI getters and at if i am not mistaken base advciv's getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold as of now, see README.md fixes section or/and in particular known issues readme of advciv-sas (ctrl+f "expose" or "getter" or "bbai" or something similar) if the info is still there on these readmes anwyays etc, as of now it contains info with google drive link and screenshots on how to do it yourself, adding raise error to make user or/and modder aware of this if they are missing anyways etc, see also sevopedia_helpers py file debug output code comments for details too ifi may say anwyays etc anyways etc anyways etc... ; raise an error if any of these are missing to raise awareness if i may say on these... hehe or not hehe or yes hehe but in all cases hehe or etc anyways etc... hehe or not or yes hehe but anyways etc... hehe (this is getting quite funny hehe or ont or yes hehe but in all cases anyways etc... hopefully helpful or not or yes all this code comment i mea maybe this joke or soemthign too ro not or yes or other or etc but anyways etc anyways etc anyways etc...) -->
 
-	REQUIRED_TO_NEWLY_BE_EXPOSED_TO_PYTHON_GETTERS = (
+	REQUIRED_TO_NEWLY_BE_EXPOSED_TO_PYTHON_GETTERS_GC_LEADER = (
 		# <!-- custom: BBAI victory weights newly exposed victorily by me and chatgpt becomingthrough but anyways etc anyways etc anyways etc... hehe but or not but or yes but anyways etc... but if you want to do it too see readme links with gogole drive sscreenshots if links or/and screenshots and such are still there anyways etc -->
 		"getCultureVictoryWeight",
 		"getSpaceVictoryWeight",
@@ -95,7 +95,7 @@ def check_required_newly_exposed_python_getters_exist():
 			continue
 
 		missing = []
-		for getter in REQUIRED_TO_NEWLY_BE_EXPOSED_TO_PYTHON_GETTERS:
+		for getter in REQUIRED_TO_NEWLY_BE_EXPOSED_TO_PYTHON_GETTERS_GC_LEADER:
 			if not hasattr(gc.getLeaderHeadInfo(iLeader), getter):
 				missing.append(getter)
 
@@ -103,11 +103,11 @@ def check_required_newly_exposed_python_getters_exist():
 			raise RuntimeError(u"[FATAL] Your mod DLL does not expose the following required Python getters:\n%s\n\nMissing for example from leader: %s (iLeader=%d). Please expose them in .cpp files and build the DLL again (and replace old DLL with new one anyways etc) (or check if this getter matches an existing XML field in your mod and possibly adjust this code based on this if intended as such that this/these getter(s) triggering this error is/are missing anyways etc). See README.md or AdvCiv-SAS documentation for help if help is there too still (some info is there as of now with google drive link and screenshots on how to do it or ask in a forum or such hopefully helpful but anyways etc)." % (", ".join(missing), iLeader))
 		
 		# success: only check first real leader
-		if IS_DEBUG:
+		if IS_DEBUG_LEADER:
 			print("[DEBUG] Getter check passed for iLeader=%d. All required Python getters are present." % iLeader)
 		break  # ✅ success: no need to check further
 
-check_required_newly_exposed_python_getters_exist()
+check_required_newly_exposed_python_getters_gc_leader_exist()
 
 
 
@@ -120,7 +120,7 @@ NUM_ATTITUDE_TYPES_ASSESSED = 5
 # <!-- custom: make sure our normalize function behaves-works-functions as intended before we use it anyways etc so our code is reliable anyways etc anyways etc anyways etc in this case at least or always or not or etc but anyways etc anyways etc anyways etc -->
 test_expected_shifting_pre_normalize_to_100()
 
-if IS_DEBUG:
+if IS_DEBUG_LEADER:
 	print("[DEBUG] test_expected_shifting_pre_normalize_to_100 passed.")
 
 
@@ -128,7 +128,7 @@ def computeAndStoreMinMaxOfOneKey(key, value, leader_info_minimums, leader_info_
 	if not leader_info_minimums.has_key(key):
 		leader_info_minimums[key] = value
 		leader_info_maximums[key] = value
-		if IS_DEBUG:
+		if IS_DEBUG_LEADER:
 			print("[DEBUG] Set initial min/max for key=%s → %s" % (key, value))
 	else:
 		prev_min = leader_info_minimums[key]
@@ -136,12 +136,12 @@ def computeAndStoreMinMaxOfOneKey(key, value, leader_info_minimums, leader_info_
 
 		if value < prev_min:
 			leader_info_minimums[key] = value
-			if IS_DEBUG:
+			if IS_DEBUG_LEADER:
 				print("[DEBUG] New min for %s: %s → %s" % (key, prev_min, value))
 
 		if value > prev_max:
 			leader_info_maximums[key] = value
-			if IS_DEBUG:
+			if IS_DEBUG_LEADER:
 				print("[DEBUG] New max for %s: %s → %s" % (key, prev_max, value))
 
 
@@ -188,7 +188,7 @@ def compute_and_store_leaders_info_aggregated_raw_contact_probs(leaders_info_agg
 			leaders_temp_aggregated_contact_probs[iLeader][parsed_name_1_rand] = value_1_rand_raw
 			leaders_temp_aggregated_contact_probs[iLeader][parsed_name_1_delay] = value_1_delay_raw
 
-			adjusted_value_1_rand, adjusted_value_1_delay, force_zero_adjusted_values = get_adjusted_contact_values(value_1_rand_raw, value_1_delay_raw, IS_DEBUG, contact_type_1)
+			adjusted_value_1_rand, adjusted_value_1_delay, force_zero_adjusted_values = get_adjusted_contact_values(value_1_rand_raw, value_1_delay_raw, IS_DEBUG_LEADER, contact_type_1)
 			parsed_name_1_adjusted_rand = "iAdjustedContactRand%s" % suffix_1 # → iAdjustedContactRandJoinWar
 			parsed_name_1_adjusted_delay = "iAdjustedContactDelay%s" % suffix_1 # → iAdjustedContactDelayJoinWar
 			parsed_name_1_force_zero_adjusted_values = "bForceZeroContact%s" % suffix_1 # → bForceZeroContactJoinWar
@@ -196,7 +196,7 @@ def compute_and_store_leaders_info_aggregated_raw_contact_probs(leaders_info_agg
 			leaders_temp_aggregated_contact_probs[iLeader][parsed_name_1_adjusted_delay] = adjusted_value_1_delay
 			leaders_temp_aggregated_contact_probs[iLeader][parsed_name_1_force_zero_adjusted_values] = force_zero_adjusted_values
 
-	if IS_DEBUG:
+	if IS_DEBUG_LEADER:
 		print("[DEBUG] First pass of compute_and_store_leaders_info_aggregated_raw_contact_probs passed/success, leaders_temp_aggregated_contact_probs=%s\n\n" % str(leaders_temp_aggregated_contact_probs))
 
 	# Second pass: Precompute min/max from adjusted values only <!-- custom: among all leaders anyways etc -->
@@ -216,7 +216,7 @@ def compute_and_store_leaders_info_aggregated_raw_contact_probs(leaders_info_agg
 			computeAndStoreMinMaxOfOneKey(parsed_name_2_adjusted_rand, adjusted_value_2_rand, leader_info_minimums_adjusted_values_only_contact_fields, leader_info_maximums_adjusted_values_only_contact_fields)
 			computeAndStoreMinMaxOfOneKey(parsed_name_2_adjusted_delay, adjusted_value_2_delay, leader_info_minimums_adjusted_values_only_contact_fields, leader_info_maximums_adjusted_values_only_contact_fields)
 
-	if IS_DEBUG:
+	if IS_DEBUG_LEADER:
 		print("[DEBUG] Second pass of compute_and_store_leaders_info_aggregated_raw_contact_probs passed/success, leaders_temp_aggregated_contact_probs=%s\n\nleader_info_minimums_adjusted_values_only_contact_fields=%s\n\nleader_info_maximums_adjusted_values_only_contact_fields=%s\n\n" % (str(leaders_temp_aggregated_contact_probs), str(leader_info_minimums_adjusted_values_only_contact_fields), str(leader_info_maximums_adjusted_values_only_contact_fields)))
 
 	# Third pass: compute raw aggregate scores
@@ -256,7 +256,7 @@ def compute_and_store_leaders_info_aggregated_raw_contact_probs(leaders_info_agg
 			parsed_name_3_aggregated_raw_contact_prob = "iAggregatedRawContactProb%s" % suffix_3 # → iAggregatedRawContactProbJoinWar
 			leaders_info_aggregated_raw_contact_probs[iLeader][parsed_name_3_aggregated_raw_contact_prob] = aggregated_raw_contact_score_from_adjusted_values
 
-	if IS_DEBUG:
+	if IS_DEBUG_LEADER:
 		print("[DEBUG] Third pass of compute_and_store_leaders_info_aggregated_raw_contact_probs passed/success, leaders_temp_aggregated_contact_probs=%s\n\nleader_info_minimums_adjusted_values_only_contact_fields=%s\n\nleader_info_maximums_adjusted_values_only_contact_fields=%s\n\nleaders_info_aggregated_raw_contact_probs=%s\n\n" % (str(leaders_temp_aggregated_contact_probs), str(leader_info_minimums_adjusted_values_only_contact_fields), str(leader_info_maximums_adjusted_values_only_contact_fields), str(leaders_info_aggregated_raw_contact_probs)))
 
 	# Fourth pass: normalize final scores <!-- custom: is done later in the code anyways etc -->
@@ -290,7 +290,7 @@ def compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_a
 	positive_negative = get_positive_negative(is_positive)
 	affection_resentment = get_affection_resentment(is_affection)
 
-	if IS_DEBUG:
+	if IS_DEBUG_LEADER:
 		print("[DEBUG] '0th' pass (preparation) (at is_positive=%s and is_affection=%s) of compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments passed/success, positive_or_negative_memory_indexes=%s, positive_negative=%s, affection_resentment=%s" % (str(is_positive), str(is_affection), str(positive_or_negative_memory_indexes), positive_negative, affection_resentment))
 
 	# <!-- custom: temporary storage to compute positive and negative raw aggregated affections and resentments, iLeader: { key: value } -->
@@ -330,7 +330,7 @@ def compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_a
 				leaders_temp_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_1_decay] = value_1_decay_raw
 
 			# <!-- custom: code comment from generate_leaders_data.py that is relevant here anyways etc so adding it anyways etc slightly modified (the code comment i mean anyways etc) for sevopedia leader anyways etc : adjusted positive memory fields or adjusted negative memory fields don't exist if i am not mistaken, all memory types (i.e. positive or negative) are adjusted the same way, only do they vary based on is_affection hence we only use affection and resentment versions of the adjusted temporary values to calculate the raw aggregated positive and negative memory affections and resentments if i am not mistaken indeed most likely maybe but maybe i am not (i.e. maybe i am not mistaken anyways etc) hopefully helpful or not too or yes too helpful i mean but anyways etc anyways etc anyways etc -->
-			adjusted_value_1_attitude_percent_affection_or_resentment, adjusted_value_1_decay_affection_or_resentment, force_zero_adjusted_affection_or_resentment = get_adjusted_memory_values(value_1_attitude_percent_raw, value_1_decay_raw, is_affection, IS_DEBUG, mem_type_1)
+			adjusted_value_1_attitude_percent_affection_or_resentment, adjusted_value_1_decay_affection_or_resentment, force_zero_adjusted_affection_or_resentment = get_adjusted_memory_values(value_1_attitude_percent_raw, value_1_decay_raw, is_affection, IS_DEBUG_LEADER, mem_type_1)
 			parsed_name_1_adjusted_attitude_percent_affection_or_resentment = "iAdjustedMemoryAttitudePercent%s%s" % (suffix_1, affection_resentment) # → iAdjustedMemoryAttitudePercentDeclaredWarAffection or iAdjustedMemoryAttitudePercentDeclaredWarResentment
 			parsed_name_1_adjusted_decay_affection_or_resentment = "iAdjustedMemoryDecay%s%s" % (suffix_1, affection_resentment) # → iAdjustedMemoryDecayDeclaredWarAffection or iAdjustedMemoryDecayDeclaredWarResentment
 			parsed_name_1_force_zero_adjusted_affection_or_resentment = "bForceZeroMemory%s%s" % (suffix_1, affection_resentment) # → bForceZeroMemoryMemoryDecayDeclaredWarAffection or bForceZeroMemoryMemoryDecayDeclaredWarResentment
@@ -338,7 +338,7 @@ def compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_a
 			leaders_temp_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_1_adjusted_decay_affection_or_resentment] = adjusted_value_1_decay_affection_or_resentment
 			leaders_temp_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_1_force_zero_adjusted_affection_or_resentment] = force_zero_adjusted_affection_or_resentment
 
-	if IS_DEBUG:
+	if IS_DEBUG_LEADER:
 		print("[DEBUG] First pass (at is_positive=%s and is_affection=%s) of compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments passed/success, leaders_temp_positive_and_negative_memory_affections_and_resentments=%s\n\n" % (str(is_positive), str(is_affection), str(leaders_temp_positive_and_negative_memory_affections_and_resentments)))
 
 	# Second pass: Precompute min/max from adjusted values only <!-- custom: among all leaders anyways etc -->
@@ -358,7 +358,7 @@ def compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_a
 			computeAndStoreMinMaxOfOneKey(parsed_name_2_adjusted_attitude_percent_affection_or_resentment, adjusted_value_2_attitude_percent_affection_or_resentment, leader_info_minimums_adjusted_values_only_memory_fields, leader_info_maximums_adjusted_values_only_memory_fields)
 			computeAndStoreMinMaxOfOneKey(parsed_name_2_adjusted_decay_affection_or_resentment, adjusted_value_2_decay_affection_or_resentment, leader_info_minimums_adjusted_values_only_memory_fields, leader_info_maximums_adjusted_values_only_memory_fields)
 
-	if IS_DEBUG:
+	if IS_DEBUG_LEADER:
 		print("[DEBUG] Second pass (at is_positive=%s and is_affection=%s) of compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments passed/success, leaders_temp_positive_and_negative_memory_affections_and_resentments=%s\n\nleader_info_minimums_adjusted_values_only_memory_fields=%s\n\nleader_info_maximums_adjusted_values_only_memory_fields=%s\n\n" % (str(is_positive), str(is_affection), str(leaders_temp_positive_and_negative_memory_affections_and_resentments), str(leader_info_minimums_adjusted_values_only_memory_fields), str(leader_info_maximums_adjusted_values_only_memory_fields)))
 
 	# Third pass: compute raw aggregate scores
@@ -397,7 +397,7 @@ def compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_a
 			parsed_name_3_aggregated_raw_positive_or_negative_memory_affection_or_resentment = "iAggregatedRaw%sMemory%s%s" % (positive_negative, suffix_3, affection_resentment) # → iAggregatedRawPositiveMemoryDeclaredWarAffection or iAggregatedRawPositiveMemoryDeclaredWarResentment or iAggregatedRawNegativeMemoryDeclaredWarAffection or iAggregatedRawNegativeMemoryDeclaredWarResentment
 			leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_3_aggregated_raw_positive_or_negative_memory_affection_or_resentment] = aggregated_raw_positive_or_negative_memory_affection_or_resentment_score_from_adjusted_values
 
-	if IS_DEBUG:
+	if IS_DEBUG_LEADER:
 		print("[DEBUG] Third pass of compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments passed/success, leaders_temp_positive_and_negative_memory_affections_and_resentments=%s\n\nleader_info_minimums_adjusted_values_only_memory_fields=%s\n\nleader_info_maximums_adjusted_values_only_memory_fields=%s\n\nleaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments=%s\n\n" % (str(leaders_temp_positive_and_negative_memory_affections_and_resentments), str(leader_info_minimums_adjusted_values_only_memory_fields), str(leader_info_maximums_adjusted_values_only_memory_fields), str(leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments)))
 
 	# Fourth <!-- custom: actually third in sevopedia leader but named as such for consistency with generate_leaders_data.py pass numbering anyways etc --> pass: normalize final scores <!-- custom: is done later in the code anyways etc -->
@@ -632,10 +632,10 @@ def get_leader_info_minimums_and_maximums(fields_with_direct_getters, fields_att
 
 		# <!-- custom: also warn once if min == max for each field/key and now while it is computationally (at module load) inexpensive to do so anyways etc, do not rewarn at each leader computation nor later at init or and such anyways etc -->
 		if leader_info_minimums[key] == leader_info_maximums[key]:
-			if IS_DEBUG:
+			if IS_DEBUG_LEADER:
 				print("[WARNING] Key=%s has an identical min and max value (%d). Warning only once at module load so we don't have/want/need to redo it later at the normalization stage, fix/change the XML leader info value(s) of some leader(s) so that min and max among all leaders are different if desired, or keep as is if intended/desired that leaders behave the same for this key." % (key, leader_info_minimums[key]))
 	
-	if IS_DEBUG:
+	if IS_DEBUG_LEADER:
 		print("[DEBUG] At end of the function get_leader_info_minimums_and_maximums, we return for the minimums leader_info_minimums=%s" % leader_info_minimums)
 		print("[DEBUG] At end of the function get_leader_info_minimums_and_maximums, we return for the maximums leader_info_maximums=%s" % leader_info_maximums)
 
@@ -747,7 +747,7 @@ def compute_and_store_leaders_info_cached(leaders_info_aggregated_raw_contact_pr
 		if (min_value == max_value):
 			symbol = all_symbols["EQUAL_SCALE_SYMBOL"]
 
-		if IS_DEBUG:
+		if IS_DEBUG_LEADER:
 			print("[DEBUG] raw_value=%d, min_value=%d, max_value=%d, norm_value=%d, for cache_key=%s, b_invert=%s at iLeader=%d" % (raw_value, min_value, max_value, norm_value, cache_key, b_invert, iLeader))
 
 		if not label:
@@ -760,7 +760,7 @@ def compute_and_store_leaders_info_cached(leaders_info_aggregated_raw_contact_pr
 		# Store final as <!-- custom: a tuple after all parsing/caching is finished for this leader for faster/better performance than dict or such other storage if i am not mistaken anyways etc --> for future display at UI code anyways etc
 		leader_info_cached_tuple = (label, norm_value, scale)
 		leader_info_cached[cache_key] = leader_info_cached_tuple
-		if IS_DEBUG:
+		if IS_DEBUG_LEADER:
 			print(u"[DEBUG] Leader info cached tuple for iLeader=%d is leader_info_cached_tuple=%s" % (iLeader, str(leader_info_cached_tuple)))
 
 	for iLeader in range(gc.getNumLeaderHeadInfos()):
@@ -920,7 +920,7 @@ def compute_and_store_leaders_info_cached(leaders_info_aggregated_raw_contact_pr
 
 		# <!-- custom: store final complete leader_info_cached (i.e. store a leader_info_cached for each iLeader anyways etc) in LEADERS_INFO_CACHED -->
 		LEADERS_INFO_CACHED[iLeader] = leader_info_cached
-		if IS_DEBUG:
+		if IS_DEBUG_LEADER:
 			print(u"[DEBUG] Leader info cached for iLeader=%d is leader_info_cached=%s" % (iLeader, str(leader_info_cached)))
 
 compute_and_store_leaders_info_cached(leaders_info_aggregated_raw_contact_probs, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, fields_with_direct_getters, fields_attitude_thresholds, leader_info_minimums, leader_info_maximums)
@@ -1442,7 +1442,7 @@ class SevoPediaLeader:
 		if (iLeader not in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS):
 			self.placeAIPersonalityPanel(iLeader)
 		else:
-			if IS_DEBUG:
+			if IS_DEBUG_LEADER:
 				print("[DEBUG] Leader index iLeader=%d in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS=%s is skipped, leave the place where AI Personality panel was supposed to be entirely empty so we don't get a missing key in leaders_info_cached Error, while signifying clearly enough hopefully that the excluded leader currently selected doesn't have an item in leaders_info_cached and AI Personality Panel at all/is not part of it." % (iLeader, str(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS)))
 
 

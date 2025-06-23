@@ -374,7 +374,8 @@ class CvDomesticAdvisor:
 				screen.hide("SpecialistText" + str(i))
 				
 	def updateSpecialists(self):
-		""" Function which shows the specialists."""
+		# Function which shows the specialists.
+		#
 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
 
 		if (CyInterface().isOneCitySelected()):

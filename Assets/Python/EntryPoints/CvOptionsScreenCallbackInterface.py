@@ -7,9 +7,9 @@ import string
 localText = CyTranslator()
 UserProfile = CyUserProfile()
 
-#"""
+#
 #OPTIONS SCREEN CALLBACK INTERFACE - Any time something is changed in the Options Screen the result is determined here
-#"""
+#
 # advc.076: Copied this file from BtS to add some more restart popups
 
 def saveProfile():
@@ -48,13 +48,15 @@ def isNumber(s):
 	return True
 
 def DummyCallback( argsList ):
-	"This is the callback function for controls which shouldn't do anything when modified (editboxes, mainly)"
+	# This is the callback function for controls which shouldn't do anything when modified (editboxes, mainly)
+	#
 	return
 	
 ######################################## GAME OPTIONS ########################################
 	
 def handleGameOptionsClicked ( argsList ): 
-	"Handles checkbox clicked input"
+	# Handles checkbox clicked input
+	#
 	bValue, szName = argsList
 	
 	iGameOption = int(szName[szName.find("_")+1:])
@@ -62,7 +64,8 @@ def handleGameOptionsClicked ( argsList ):
 	return 1
 	
 def handleLanguagesDropdownBoxInput ( argsList ):
-	"Handles Languages Dropdown Box input"
+	# Handles Languages Dropdown Box input
+	#
 	iValue, szName = argsList
 	
 	CyGame().setCurrentLanguage(iValue)
@@ -75,7 +78,8 @@ def handleLanguagesDropdownBoxInput ( argsList ):
 	return 1
 	
 def handleGameReset ( argsList ):
-	"Resets these options"
+	# Resets these options
+	#
 	szName = argsList
 	#UserProfile.resetOptions(TabGroupTypes.TABGROUP_GAME)
 	#refresh()
@@ -88,7 +92,8 @@ def handleGameReset ( argsList ):
 ######################################## GRAPHIC OPTIONS ########################################
 	
 def handleGraphicOptionsClicked ( argsList ): 
-	"Handles checkbox clicked input"
+	# Handles checkbox clicked input
+	#
 	bValue, szName = argsList
 	iGraphicOption = int(szName[szName.find("_")+1:])
 	
@@ -102,7 +107,8 @@ def handleGraphicOptionsClicked ( argsList ):
 	return 1
 	
 def handleGraphicsLevelDropdownBoxInput ( argsList ):
-	"Handles Graphics Level Dropdown Box input"
+	# Handles Graphics Level Dropdown Box input
+	#
 	iValue, szName = argsList
 	
 	UserProfile.setGraphicsLevel(iValue)
@@ -112,7 +118,8 @@ def handleGraphicsLevelDropdownBoxInput ( argsList ):
 	return 1
 	
 def handleRenderQualityDropdownBoxInput ( argsList ):
-	"Handles Render Quality Dropdown Box input"
+	# Handles Render Quality Dropdown Box input
+	#
 	iValue, szName = argsList
 	
 	UserProfile.setRenderQualityLevel(iValue)
@@ -120,7 +127,8 @@ def handleRenderQualityDropdownBoxInput ( argsList ):
 	return 1
 	
 def handleGlobeViewDropdownBoxInput ( argsList ):
-	"Handles Globe View Dropdown Box input"
+	# Handles Globe View Dropdown Box input
+	#
 	iValue, szName = argsList
 	
 	UserProfile.setGlobeViewRenderLevel(iValue)
@@ -128,7 +136,8 @@ def handleGlobeViewDropdownBoxInput ( argsList ):
 	return 1
 		
 def handleMovieDropdownBoxInput ( argsList ):
-	"Handles Movie Dropdown Box input"
+	# Handles Movie Dropdown Box input
+	#
 	iValue, szName = argsList
 	
 	UserProfile.setMovieQualityLevel(iValue)
@@ -136,7 +145,8 @@ def handleMovieDropdownBoxInput ( argsList ):
 	return 1
 		
 def handleMainMenuDropdownBoxInput ( argsList ):
-	"Handles Main Menu Dropdown Box input"
+	# Handles Main Menu Dropdown Box input
+	#
 	iValue, szName = argsList
 	
 	UserProfile.setMainMenu(iValue)
@@ -146,7 +156,8 @@ def handleMainMenuDropdownBoxInput ( argsList ):
 	return 1
 		
 def handleResolutionDropdownInput ( argsList ):
-	"Handles Resolution Dropdown Box input"
+	# Handles Resolution Dropdown Box input
+	#
 	iValue, szName = argsList
 	
 	UserProfile.setResolution(iValue)
@@ -154,14 +165,16 @@ def handleResolutionDropdownInput ( argsList ):
 	return 1
 	
 def handleAntiAliasingDropdownInput ( argsList ):
-	"Handles Anti-Aliasing Dropdown Box input"
+	# Handles Anti-Aliasing Dropdown Box input
+	#
 	iValue, szName = argsList
 	
 	UserProfile.setAntiAliasing(iValue)
 	return 1
 	
 def handleGraphicsReset ( argsList ):
-	"Resets these options"
+	# Resets these options
+	#
 	szName = argsList
 	
 	#UserProfile.resetOptions(TabGroupTypes.TABGROUP_GRAPHICS)
@@ -175,11 +188,12 @@ def handleGraphicsReset ( argsList ):
 ######################################## AUDIO OPTIONS ########################################
 	
 def handleVolumeSlidersInput ( argsList ):
-	"Handles Volume slider input"
+	# Handles Volume slider input
+	#
 	iValue, szName = argsList
 	iVolumeType = int(szName[szName.find("_")+1:])
 	
- 	iMax = UserProfile.getVolumeStops()
+	iMax = UserProfile.getVolumeStops()
 	
 	if (iVolumeType == 0):		# Master Volume
 		UserProfile.setMasterVolume(iMax - iValue)
@@ -197,7 +211,8 @@ def handleVolumeSlidersInput ( argsList ):
 	return 1
 	
 def handleVolumeCheckboxesInput ( argsList ): 
-	"Handles checkbox clicked input"
+	# Handles checkbox clicked input
+	#
 	bValue, szName = argsList
 	iVolumeType = int(szName[szName.find("_")+1:])
 	
@@ -217,7 +232,8 @@ def handleVolumeCheckboxesInput ( argsList ):
 	return 1
 	
 def handleCustomMusicPathCheckboxInput ( argsList ): 
-	"Handles Custom Music Path text changed input"
+	# Handles Custom Music Path text changed input
+	#
 	bValue, szName = argsList
 	
 	if (bValue):
@@ -228,14 +244,16 @@ def handleCustomMusicPathCheckboxInput ( argsList ):
 	return 1
 	
 def handleCustomMusicPathButtonInput ( argsList ):
-	"Handles Custom Music Path Browse Button clicked input"
+	# Handles Custom Music Path Browse Button clicked input
+	#
 	szName = argsList
 	
 	UserProfile.musicPathDialogBox()
 	return 1
 	
 def handleSpeakerConfigDropdownInput ( argsList ):
-	"Handles Speaker Config Dropdown Box input"
+	# Handles Speaker Config Dropdown Box input
+	#
 	iValue, szName = argsList
 	szSpeakerConfigName = UserProfile.getSpeakerConfigFromList(iValue)
 	
@@ -245,42 +263,48 @@ def handleSpeakerConfigDropdownInput ( argsList ):
 	return 1
 	
 def handleVoiceCheckboxInput ( argsList ): 
-	"Handles voice checkbox clicked input"
+	# Handles voice checkbox clicked input
+	#
 	bValue, szName = argsList
 	UserProfile.setUseVoice(bValue)
 	return 1
 	
 def handleCaptureDeviceDropdownInput ( argsList ): 
-	"Handles Capture Device Config Dropdown Box input"
+	# Handles Capture Device Config Dropdown Box input
+	#
 	iValue, szName = argsList
 	UserProfile.setCaptureDevice(iValue)
 	return 1
 	
 def handleCaptureVolumeSliderInput ( argsList ):
-	"Handles Capture Volume slider input"
+	# Handles Capture Volume slider input
+	#
 	iValue, szName = argsList
- 	iMax = UserProfile.getMaxPlaybackVolume()
+	iMax = UserProfile.getMaxPlaybackVolume()
 	
 	UserProfile.setCaptureVolume(iValue)
 	return 1
 	
 def handlePlaybackDeviceDropdownInput ( argsList ): 
-	"Handles Playback Device Dropdown Box input"
+	# Handles Playback Device Dropdown Box input
+	#
 	iValue, szName = argsList
 	UserProfile.setPlaybackDevice(iValue)
 	return 1
 	
 def handlePlaybackVolumeSliderInput ( argsList ):
-	"Handles Playback Volume slider input"
+	# Handles Playback Volume slider input
+	#
 	iValue, szName = argsList
- 	iMax = UserProfile.getMaxPlaybackVolume()
- 
+	iMax = UserProfile.getMaxPlaybackVolume()
+
 # 	UserProfile.setPlaybackVolume(iMax - iValue)
- 	UserProfile.setPlaybackVolume(iValue)
+	UserProfile.setPlaybackVolume(iValue)
 	return 1
 	
 def handleAudioReset ( argsList ):
-	"Resets these options"
+	# Resets these options
+	#
 	szName = argsList
 	
 	UserProfile.resetOptions(TabGroupTypes.TABGROUP_AUDIO)
@@ -293,14 +317,16 @@ def handleAudioReset ( argsList ):
 ######################################## NETWORK OPTIONS ########################################
 
 def handleBroadbandSelected ( argsList ):
-	"Handles bandwidth selection"
+	# Handles bandwidth selection
+	#
 	bSelected, szName = argsList
 	if (bSelected):
 		CyGame().setModem(False)
 	return 1
 	
 def handleModemSelected ( argsList ):
-	"Handles bandwidth selection"
+	# Handles bandwidth selection
+	#
 	bSelected, szName = argsList
 	if (bSelected):
 		CyGame().setModem(True)
@@ -309,38 +335,42 @@ def handleModemSelected ( argsList ):
 ######################################## CLOCK OPTIONS ########################################
 	
 def handleClockOnCheckboxInput ( argsList ):
-	"Handles Clock On/Off checkbox clicked input"
+	# Handles Clock On/Off checkbox clicked input
+	#
 	bValue, szName = argsList
 	
 	UserProfile.setClockOn(bValue)
 	return 1
 	
 def handle24HourClockCheckboxInput ( argsList ):
-	"Handles 24 Hour Clock On/Off checkbox clicked input"
+	# Handles 24 Hour Clock On/Off checkbox clicked input
+	#
 	bValue, szName = argsList
 	
 	UserProfile.set24Hours(bValue)
 	return 1
 	
 def handleAlarmOnCheckboxInput ( argsList ):
-	"Handles Alarm On/Off checkbox clicked input"
+	# Handles Alarm On/Off checkbox clicked input
+	#
 	bValue, szName = argsList
 	
 	iHour = getOptionsScreen().getAlarmHour()
 	iMin = getOptionsScreen().getAlarmMin()
 	
 	if (isNumber(iHour) and iHour != "" and isNumber(iMin) and iMin != "" ):
-	    
-	    iHour = int(iHour)
-	    iMin = int(iMin)
-	    
-	    if (iHour > 0 or iMin > 0):
-		    toggleAlarm(bValue, iHour, iMin)
+		
+		iHour = int(iHour)
+		iMin = int(iMin)
+		
+		if (iHour > 0 or iMin > 0):
+			toggleAlarm(bValue, iHour, iMin)
 	
 	return 1
 	
 def handleOtherReset ( argsList ):
-	"Resets these options"
+	# Resets these options
+	#
 	szName = argsList
 	
 	UserProfile.resetOptions(TabGroupTypes.TABGROUP_CLOCK)
@@ -352,8 +382,8 @@ def handleOtherReset ( argsList ):
 ######################################## PROFILES ########################################
 	
 def handleProfilesDropdownInput ( argsList ):
-	"Handles Profiles tab dropdown box input"
-	
+	# Handles Profiles tab dropdown box input
+	#
 	iValue, szName = argsList
 	saveProfile()
 		
@@ -365,7 +395,8 @@ def handleProfilesDropdownInput ( argsList ):
 	return bSuccess
 	
 def handleNewProfileButtonInput ( argsList ):
-	"Handles New Profile Button clicked input"
+	# Handles New Profile Button clicked input
+	#
 	szName = argsList
 		
 	szNewProfileName = getOptionsScreen().getProfileEditCtrlText()
@@ -389,7 +420,8 @@ def handleNewProfileButtonInput ( argsList ):
 	return 1
 	
 def handleDeleteProfileButtonInput ( argsList ):
-	"Handles Delete Profile Button clicked input"
+	# Handles Delete Profile Button clicked input
+	#
 	szName = argsList
 	
 	szProfileName =CvUtil.convertToStr(getOptionsScreen().getProfileEditCtrlText())
@@ -485,7 +517,8 @@ def loadProfile(szProfile):
 		return 0
 		
 def handleExitButtonInput ( argsList ):
-	"Exits the screen"
+	# Exits the screen
+	#
 	szName = argsList
 	
 	saveProfile()

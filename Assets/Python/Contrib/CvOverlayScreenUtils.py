@@ -24,22 +24,19 @@ keys = None
 overlayScreen = CvDotMapOverlayScreen.CvDotMapOverlayScreen(STRATEGY_OVERLAY_SCREEN)
 
 def showOverlayScreen():
-	"""
-	Shows the Overlay Screen from CvDotMapOverlayScreen.py
-	"""
+	# Shows the Overlay Screen from CvDotMapOverlayScreen.py
+	#
 	overlayScreen.interfaceScreen()
 
 def hideOverlayScreen():
-	"""
-	Hides the Overlay Screen from CvDotMapOverlayScreen.py
-	"""
+	# Hides the Overlay Screen from CvDotMapOverlayScreen.py
+	#
 	overlayScreen.hideScreen()
 
 
 #def beginAddSignEvent(argsList):
-#	"""
 #	Starts the popup for the OverlayAddSign Event
-#	"""
+#
 #	localTxt = CyTranslator()
 #	artMgr = CyArtFileMgr()
 #	hdrTxt = localTxt.getText("TXT_KEY_STRATOVERLAY_ADDSIGN_TITLE",())
@@ -55,9 +52,8 @@ def hideOverlayScreen():
 #	popup.launch(True, PopupStates.POPUPSTATE_IMMEDIATE)
 
 #def applyAddSignEvent(playerID, userData, popupReturn):
-#	"""
 #	Applys the popup for OverlayAddSign Event
-#	"""
+#
 #	signText = popupReturn.getEditBoxString(GROUP_SIGNTXT)
 #	signText = CvUtil.convertToStr(signText)
 #	x,y = userData
@@ -72,10 +68,9 @@ def hideOverlayScreen():
 
 
 class CvOverlayScreenUtils:
-	"""
-	Derived CvScreenUtils class for custom handling of mod screens
-	@cvar HandleInputMap: Maps the screen's enum to its class for passing off input handlers for widget events
-	"""
+	# Derived CvScreenUtils class for custom handling of mod screens
+	# @cvar HandleInputMap: Maps the screen's enum to its class for passing off input handlers for widget events
+	#
 
 	HandleInputMap = {
 		STRATEGY_OVERLAY_SCREEN : overlayScreen, # Pass off input to the overlay screen for it to handle
@@ -102,22 +97,20 @@ class CvOverlayScreenUtils:
 		return 0
 
 	def update(self, argsList):
-		"""
-		Updates a screen
-
-		@param argsList: First item is the screen's enum value, second one is passed to the screens update method
-		@return: 0 to let the event keep going, 1 to consume it
-		"""
+		# Updates a screen
+		#
+		# @param argsList: First item is the screen's enum value, second one is passed to the screens update method
+		# @return: 0 to let the event keep going, 1 to consume it
+		#
 		screenEnum = argsList[0]
 		if (screenEnum == STRATEGY_OVERLAY_SCREEN):
 			overlayScreen.update(argsList)
 		return 0
 
 	def handleInput (self, argsList):
-		"""
-		Called when a screen is up
-		Gets the active screen from the HandleInputMap Dictionary and calls the handle input on that screen
-		"""
+		# Called when a screen is up
+		# Gets the active screen from the HandleInputMap Dictionary and calls the handle input on that screen
+		#
 		screenEnum, inputClass = argsList
 		if (self.HandleInputMap and inputClass and self.HandleInputMap.has_key(screenEnum)):
 			# get the screen that is active from the HandleInputMap Dictionary
@@ -165,9 +158,8 @@ ICON_TYPES = {
 g_bEventDefined = False
 
 class OverlaySign:
-	"""
-	Holds a overlay signs data
-	"""
+	# Holds a overlay signs data
+	#
 	def __init__(self,x,y,text=""):
 		self.plotX = x
 		self.plotY = y
@@ -182,15 +174,13 @@ class OverlaySign:
 			g_bEventDefined = True
 
 	def addText(self, text):
-		"""
-		Adds text to the sign
-		"""
+		# Adds text to the sign
+		#
 		self.text += text
 
 	def addIcon(self,iconIndex,iconType):
-		"""
-		Adds an icon to the end of the signs string
-		"""
+		# Adds an icon to the end of the signs string
+		#
 		game = gc.getGame()
 		for iconIndex in ICON_TYPES:
 			if iconType == iconIndex:
@@ -198,27 +188,23 @@ class OverlaySign:
 				function(iconIndex)
 
 	def addBonusIcon(self, bonusIndex):
-		"""
-		Adds a bonus icon to the signs string
-		"""
+		# Adds a bonus icon to the signs string
+		#
 		self.text += u"%c" % gc.getBonusInfo(bonusIndex).getChar()
 
 	def addSymbolIcon(self, symbolIndex):
-		"""
-		Adds a symbol icon to the sign
-		"""
+		# Adds a symbol icon to the sign
+		#
 		self.text += u"%c" % gc.getGame().getSymbolID(symbolIndex)
 
 	def addCommerceIcon(self, commerceIndex):
-		"""
-		Adds a Commerce Icon to the sign
-		"""
+		# Adds a Commerce Icon to the sign
+		#
 		self.text += u"%c" % gc.getCommerceInfo(commerceIndex).getChar()
 
 	def addSign(self):
-		"""
-		Puts sign down on game interface
-		"""
+		# Puts sign down on game interface
+		#
 		if not self.isAdded:
 			if gc.getMap().plot(self.plotX,self.plotY):
 				self.plot = gc.getMap().plot(self.plotX,self.plotY)
@@ -231,9 +217,8 @@ class OverlaySign:
 			BugUtil.debug("Tried to add sign already added to interface")
 
 	def removeSign(self):
-		"""
-		Removes sign from the interface
-		"""
+		# Removes sign from the interface
+		#
 		if self.isAdded:
 			CyEngine().removeSign(self.plot, self.playerType)
 			self.isAdded = False

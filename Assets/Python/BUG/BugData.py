@@ -42,32 +42,27 @@ import cPickle as pickle
 ## Data Access
 
 def hasTable(*keys):
-	"""
-	Returns True if the chain of key(s) leads to a table, False otherwise.
-	"""
+	# Returns True if the chain of key(s) leads to a table, False otherwise.
+
 	return getGameData().hasTable(*keys)
 
 def findTable(*keys):
-	"""
-	If the key(s) lead to an existing table, it is returned. Otherwise None is returned.
-	
-	This function will not create any new tables. You must check the return value for None
-	or you will get an exception.
-	"""
+	# If the key(s) lead to an existing table, it is returned. Otherwise None is returned.
+	#
+	# This function will not create any new tables. You must check the return value for None or you will get an exception.
+	#
 	return getGameData().findTable(*keys)
 
 def getTable(*keys):
-	"""
-	Returns the table at the end of the chain of key(s), creating any missing tables along the way.
-	
-	This function always returns a valid table.
-	"""
+	# Returns the table at the end of the chain of key(s), creating any missing tables along the way.
+	#
+	# This function always returns a valid table.
+	#
 	return getGameData().getTable(*keys)
 
 def deleteTable(*keys):
-	"""
-	If the chain of key(s) leads to a table, it is deleted and True is returned; otherwise False is returned.
-	"""
+	# If the chain of key(s) leads to a table, it is deleted and True is returned; otherwise False is returned.
+	#
 	return getGameData().delTable(*keys)
 
 

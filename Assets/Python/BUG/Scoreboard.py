@@ -94,9 +94,8 @@ VASSAL_PREFIX = None
 VASSAL_POSTFIX = None
 
 def init():
-	"""
-	Initializes the strings used to display the scoreboard.
-	"""
+	# Initializes the strings used to display the scoreboard.
+	#
 	global columns
 	
 	# Used keys:
@@ -156,7 +155,8 @@ def smallSymbol(symbol):
 	return smallText(FontUtil.getChar(symbol))
 
 def onDealCanceled(argsList):
-	"""Sets the scoreboard dirty bit so it will redraw."""
+	# Sets the scoreboard dirty bit so it will redraw.
+	#
 	CyInterface().setDirty(InterfaceDirtyBits.Score_DIRTY_BIT, True)
 
 
@@ -189,9 +189,8 @@ class Column:
 
 
 class Scoreboard:
-	"""
-	Holds and builds the ScoreCards.
-	"""
+	# Holds and builds the ScoreCards.
+	#
 	
 	def __init__(self):
 		self._activePlayer = gc.getGame().getActivePlayer()
@@ -361,10 +360,9 @@ class Scoreboard:
 		
 		
 	def assignRanks(self):
-		"""
-		Assigns a rank from 1 to N based on score.
-		As the player scores are currently reversed, this is done in reverse order.
-		"""
+		# Assigns a rank from 1 to N based on score.
+		# As the player scores are currently reversed, this is done in reverse order.
+		#
 		rank = 0
 		scores = list(self._playerScores)
 		scores.reverse()
@@ -380,7 +378,8 @@ class Scoreboard:
 			teamScores.gatherVassals()
 		
 	def sort(self):
-		"""Sorts the list by pulling any vassals up below their masters."""
+		# Sorts the list by pulling any vassals up below their masters.
+		#
 		if ScoreOpt.isGroupVassals():
 			self._playerScores.sort(lambda x, y: cmp(x.sortKey(), y.sortKey()))
 			self._playerScores.reverse()
@@ -390,7 +389,8 @@ class Scoreboard:
 		
 	def hide(self, screen,
 			bUnhide = False): # advc.085
-		"""Hides the text from the screen before building the scoreboard."""
+		# Hides the text from the screen before building the scoreboard.
+		#
 		#screen.hide( "ScoreBackground" ) # advc.004z: Handled by CvMainInterface now
 		for p in range( gc.getMAX_CIV_PLAYERS() ):
 			name = "ScoreText%d" %( p ) # the part that flashes? holds the score and name
@@ -447,7 +447,8 @@ class Scoreboard:
 	
 		
 	def draw(self, screen):
-		"""Sorts and draws the scoreboard right-to-left, bottom-to-top."""
+		# Sorts and draws the scoreboard right-to-left, bottom-to-top.
+		#
 		timer = BugUtil.Timer("scores")
 		self.hide(screen)
 		self.assignRanks()

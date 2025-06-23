@@ -16,7 +16,7 @@ import BugUtil
 ## Game and Mods
 
 class Game(object):
-	"""Manages a set of Mods."""
+	# Manages a set of Mods.
 	
 	def __init__(self):
 		self._mods = {}
@@ -77,7 +77,7 @@ class Game(object):
 			self._inited = True
 	
 	def __getattr__(self, id):
-		"""Returns the Mod with the given ID."""
+		# Returns the Mod with the given ID.
 		if not id.startswith("_"):
 			mod = self._getMod(id)
 			if mod is not None:
@@ -92,7 +92,7 @@ class Game(object):
 
 
 class Mod(object):
-	"""Provides Option accessors."""
+	# Provides Option accessors.
 	
 	def __init__(self, id):
 		self._id = id
@@ -124,8 +124,7 @@ class Mod(object):
 			self._inited = True
 	
 	def __getattr__(self, id):
-		"""Returns the Option with the given ID or False for is/getters
-		and None for setters that don't exist."""
+		# Returns the Option with the given ID or False for is/getters and None for setters that don't exist.
 		if not id.startswith("_"):
 			# Try bare option
 			if self._hasOption(id):
