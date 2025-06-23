@@ -58,7 +58,7 @@ localText = CyTranslator()
 # 🙈 Set to False to disable them if you prefer a cleaner or text-only look.
 # 📍This is the main switch for controlling emoji visuals in category titles.
 # 🧠✨ Config line co-crafted in response to wonderingabout's prompt, by becomingthrough ☁️
-IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True
+IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = False
 
 # <!-- custom: increase hard drive life span by 0.1% by disabling this / setting it to False, maybe (disclaiemr: i am not responsible is just i mean about the actual real percentage meant as a joke / comedy thing but anyways etc but is maybe also true that disabling debug may avoid reducing hard drive life span even if a bit, as we write quite a lot of debug at each sevopedia load, however it is not guaranteed and i am not responsible anyways etc, so i mean anyways etc do as you see fit use at your own risk code is there if you want to know what it does with also a(/some) debug sample(s) (non-exhaustive but hopefully quite plenty if i may say and is not gramatically wrong but anyways etc hopefully clear enough or/and helpful or not or yes or other or etc but anyways etc what it means i mean but anyways etc...) in SevopediaLead_derExamplesOfOutputs as of now if filename is still relevant later after writign this code comment but anyways etc, is just harmless text writing but writing a lot may hurt ssd or whichever hard drive especially most importantly by repeated use over a long time period of playing civ4 restarting game many times and such you use so i disabled it for my need now that system seems to wor-function fine anyways etc, available there if needed anyways etc, for my own hard drive too-->
 IS_DEBUG_LEADER = False
@@ -1231,9 +1231,9 @@ def get_ai_categories(localText, is_display_emoji_buttons):
 	ai_category_demand_refuse_attitude_thresholds = get_ai_category(emoji_name_demand_refuse_attitude_thresholds, emoji_name_to_button_path_txt_keys, ai_category_header_demand_refuse_attitude_thresholds, ai_category_key_order_demand_refuse_attitude_thresholds, localText)
 
 	# 📉 Attitude Changes +/- Limits +/- Divisors
-	# <!-- custom: see the code comment at getShareWarAttitudeChangeLimit in this ai_attributes_displayed_config.py file for details -->
+	# <!-- custom: see the code comment at getShareWarAttitudeChangeLimit in this file for details -->
 	ai_category_key_order_attitude_changes_plusminus_limits_plusminus_divisors = (
-		# <!-- custom: separating values that change among leaders for those that don't, not ideal and not exhaustive but hopefully helpful maybe or not anwyays etc, see the code comment at iShareWarAttitudeChangeLimit in this ai_attributes_displayed_config.py file for details  -->
+		# <!-- custom: separating values that change among leaders for those that don't, not ideal and not exhaustive but hopefully helpful maybe or not anwyays etc, see the code comment at iShareWarAttitudeChangeLimit in this file for details  -->
 		"getSameReligionAttitudeChange",
 		"getSameReligionAttitudeDivisor",
 		#

@@ -16,13 +16,11 @@ note: images as buttons provided by chatgpt/becomingthrough, but also are an app
 
 ### how to enable/disable emoji buttons in sevopedia leader
 
-note 2: you can enable/disable images as buttons (i.e. the emojis anyways etc) as i call them but anyways etc.
+You can enable/disable images as buttons (i.e. the emojis anyways etc) as i call them but anyways etc.
 
 To do that, for example with VS Code, first click File / Open folder... and choose the root of your mod path (for example for Steam users (adjust to your mod path) default is `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS` if i am not mistaken anyways etc)
 
-Then navigate to [/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py](/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py) file which has most of our config fo the AI Personality Panel feature (in the .py file) line:
-
-As shown in the screenshots below as well (click to view the screenshot full size/bigger anyways etc anyways etc anyways etc):
+Then navigate to [/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py) file which has the config of the AI Personality Panel feature (in the .py file), as shown in the screenshots below as well (click to view the screenshot full size/bigger anyways etc anyways etc anyways etc):
 
 <img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_false.PNG" width="250"></img>
 

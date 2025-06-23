@@ -117,7 +117,8 @@ non_numeric_fields = list(dict.fromkeys(non_numeric_fields))
 
 # --- Step 4.2: Custom column order ---
 leader_column = ["Leader"]
-numerical_main = []
+numerical_generic = []
+numerical_remaining_if_any = []
 numerical_victory_weight = []
 numerical_flavor = []
 numerical_attitude_change = []
@@ -138,7 +139,10 @@ numerical_aggregated_negative_memory_resentment = []
 non_numeric = []
 
 for field in numeric_fields:
-	if field.startswith("iFlavor"):
+	# <!-- custom: some fields such as "MaxWarRand" in leaders_data.py are parsed (in generate_leaders_data.py anyways etc) with a "get" prefix (for example "getMaxWarRand") instead of an "i" (not "iMaxWarRand" like the XML but as said before is "getMaxWarRand" anyways etc) prefix in leaders_data.py for consistency with the not interacting with but using same key names independently anyways etc sevopedia leader AI personality panel code but or not but or yes but but anyways etc anyways etc anyways etc), see generate_leaders_data.py generic and attitude threshold for example (at least as of now these are the only fields we parse with a "get" prefix anyways etc) field parsing code or/and code comments for details anyways etc ; here we want to display attitude thresholds in columns one next to the other too/as well i mean so separate them from generic getter fields anyways etc) -->
+	if field.startswith("get") and (not field.endswith("AttitudeThreshold")):
+		numerical_generic.append(field)
+	elif field.startswith("iFlavor"):
 		numerical_flavor.append(field)
 	elif field.startswith("iNoWarAttitudeProb"):
 		numerical_no_war_attitude_prob.append(field)		
@@ -178,7 +182,7 @@ for field in numeric_fields:
 	elif field.endswith("VictoryWeight"):
 		numerical_victory_weight.append(field)
 	else:
-		numerical_main.append(field)
+		numerical_remaining_if_any.append(field)
 
 for field in all_columns:
 	if field not in leader_column + numeric_fields:
@@ -187,7 +191,8 @@ for field in all_columns:
 # <!-- custom: here is where we actually order the columns if i am not mistaken anyways etc -->
 columns = (
 	leader_column +
-	numerical_main +
+	numerical_generic +
+	numerical_remaining_if_any +
 	numerical_victory_weight +
 	numerical_flavor +
 	numerical_attitude_change +

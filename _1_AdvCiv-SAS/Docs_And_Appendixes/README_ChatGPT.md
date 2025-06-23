@@ -29,7 +29,7 @@ I have removed no longer relevant ones, hopefully this doc is still a bit helpfu
 
 ## Some extra advice
 
-- with the new leaders data feature and its ingame implementation, you can very easily feed it to ChatGPT to run analyses, for the entire leaders, it has been trimmed from/of(?) music and such, for example:
+- with the new leaders data py data module we now have, you can very easily feed it to ChatGPT to run analyses, for the entire leaders, it has been trimmed from/of(?) music and such, for example:
 
 ### for raw ai attributes per leader, for example:
 
