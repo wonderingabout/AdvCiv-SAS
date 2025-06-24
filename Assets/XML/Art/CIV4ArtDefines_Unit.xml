@@ -517,6 +517,31 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
+		<!-- custom: rename CELTIC_BARBARIAN to CELTIC_GALLIC_WARRIOR anyways etc -->
+		<UnitArtInfo>
+			<Type>ART_DEF_UNIT_CELTIC_GALLIC_WARRIOR</Type>
+			<Button>,Art/Interface/Buttons/Units/Swordsman.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,10</Button>
+			<fScale>0.44</fScale>
+			<fInterfaceScale>1.0</fInterfaceScale>
+			<bActAsLand>0</bActAsLand>
+			<bActAsAir>0</bActAsAir>
+			<NIF>Art/Units/Celtic_Warrior/Celtic_Warrior.nif</NIF>
+			<KFM>Art/Units/Celtic_Warrior/Celtic_Warrior.kfm</KFM>
+			<SHADERNIF>Art/Units/Celtic_Warrior/Celtic_Warrior_FX.nif</SHADERNIF>
+			<ShadowDef>
+				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
+				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+				<fShadowScale>1.0</fShadowScale>
+			</ShadowDef>
+			<fBattleDistance>0.35</fBattleDistance>
+			<fRangedDeathTime>0.31</fRangedDeathTime>
+			<bActAsRanged>0</bActAsRanged>
+			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+			<AudioRunSounds>
+				<AudioRunTypeLoop/>
+				<AudioRunTypeEnd/>
+			</AudioRunSounds>
+		</UnitArtInfo>
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_ROME_PRAETORIAN</Type>
 			<Button>,Art/Interface/Buttons/Units/Praetorian.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,6,6</Button>
@@ -527,6 +552,31 @@
 			<NIF>Art/Units/Unique/Roman/Praetorian/Praetorian.nif</NIF>
 			<KFM>Art/Units/Unique/Roman/Praetorian/Praetorian.kfm</KFM>
 			<SHADERNIF>Art/Units/Unique/Roman/Praetorian/Praetorian_FX.nif</SHADERNIF>
+			<ShadowDef>
+				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
+				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+				<fShadowScale>1.0</fShadowScale>
+			</ShadowDef>
+			<fBattleDistance>0.35</fBattleDistance>
+			<fRangedDeathTime>0.31</fRangedDeathTime>
+			<bActAsRanged>0</bActAsRanged>
+			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+			<AudioRunSounds>
+				<AudioRunTypeLoop/>
+				<AudioRunTypeEnd/>
+			</AudioRunSounds>
+		</UnitArtInfo>
+		<!-- custom: immortal reworked now based on the swordsman at least as of now anyways etc ; art import from RFC DOC mod's very very nice really i mean anyways etc fpk, art def based on RFC DOC's ART_DEF_UNIT_PERSIAN_IMMORTAL in particular anyways etc ; kfm is base civ4 one's if i am not mistaken anyways etc -->
+		<UnitArtInfo>
+			<Type>ART_DEF_UNIT_PERSIA_IMMORTAL</Type>
+			<Button>Art/AdvCiv_SAS/Units/Persia_Immortal/button_immortal.dds</Button>
+			<fScale>0.44</fScale>
+			<fInterfaceScale>1.0</fInterfaceScale>
+			<bActAsLand>0</bActAsLand>
+			<bActAsAir>0</bActAsAir>
+			<NIF>Art/AdvCiv_SAS/Units/Persia_Immortal/nif/PersianImmortalArmoredDark.nif</NIF>
+			<KFM>Art/Units/Charlemagne_HeavySpearman/HeavySpearman.kfm</KFM>
+			<SHADERNIF>Art/AdvCiv_SAS/Units/Persia_Immortal/nif/PersianImmortalArmoredDark.nif</SHADERNIF>
 			<ShadowDef>
 				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
 				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
@@ -1374,30 +1424,6 @@
 			</AudioRunSounds>
 		</UnitArtInfo>
 		<UnitArtInfo>
-			<Type>ART_DEF_UNIT_PERSIA_IMMORTAL</Type>
-			<Button>,Art/Interface/Buttons/Units/Immortal.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,3,2</Button>
-			<fScale>0.42</fScale>
-			<fInterfaceScale>0.9</fInterfaceScale>
-			<bActAsLand>0</bActAsLand>
-			<bActAsAir>0</bActAsAir>
-			<NIF>Art/Units/Unique/Persia/Immortal/PersianImmortal.nif</NIF>
-			<KFM>Art/Units/Unique/Persia/Immortal/PersianImmortal.kfm</KFM>
-			<SHADERNIF>Art/Units/Unique/Persia/Immortal/PersianImmortal_FX.nif</SHADERNIF>
-			<ShadowDef>
-				<ShadowNIF>Art/Units/01_UnitShadows/HorseShadow.nif</ShadowNIF>
-				<ShadowAttachNode>HorseBip Spine1</ShadowAttachNode>
-				<fShadowScale>1.0</fShadowScale>
-			</ShadowDef>
-			<fBattleDistance>0.35</fBattleDistance>
-			<fRangedDeathTime>0.31</fRangedDeathTime>
-			<bActAsRanged>0</bActAsRanged>
-			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
-			<AudioRunSounds>
-				<AudioRunTypeLoop/>
-				<AudioRunTypeEnd/>
-			</AudioRunSounds>
-		</UnitArtInfo>
-		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_HORSE_ARCHER</Type>
 			<Button>,Art/Interface/Buttons/Units/HorseArcher.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,7</Button>
 			<fScale>0.42</fScale>
@@ -1545,7 +1571,7 @@
 			</AudioRunSounds>
 		</UnitArtInfo>
 		<UnitArtInfo>
-			<Type>ART_DEF_UNIT_ARABIA_CAMELARCHER</Type>
+			<Type>ART_DEF_UNIT_ARABIA_HAJJAN</Type>
 			<Button>,Art/Interface/Buttons/Units/CamelArcher.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,8</Button>
 			<!-- advc.002j: was 0.39 -->
 			<fScale>0.38</fScale>
@@ -3439,56 +3465,6 @@
 			<NIF>Art/Units/Unique/Inca/Quechua/IncanQuechua.nif</NIF>
 			<KFM>Art/Units/Unique/Inca/Quechua/IncanQuechua.kfm</KFM>
 			<SHADERNIF>Art/Units/Unique/Inca/Quechua/IncanQuechua_FX.nif</SHADERNIF>
-			<ShadowDef>
-				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
-				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
-				<fShadowScale>1.0</fShadowScale>
-			</ShadowDef>
-			<fBattleDistance>0.35</fBattleDistance>
-			<fRangedDeathTime>0.31</fRangedDeathTime>
-			<bActAsRanged>0</bActAsRanged>
-			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
-			<AudioRunSounds>
-				<AudioRunTypeLoop/>
-				<AudioRunTypeEnd/>
-			</AudioRunSounds>
-		</UnitArtInfo>
-		<!-- custom: art import from HR mod's todo continue but anyways etc anyways etc anyways etc -->
-		<UnitArtInfo>
-			<Type>ART_DEF_UNIT_PERSIA_IMMORTAL</Type>
-			<Button>,Art/Interface/Buttons/Units/Immortal.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,3,2</Button>
-			<fScale>0.42</fScale>
-			<fInterfaceScale>0.9</fInterfaceScale>
-			<bActAsLand>0</bActAsLand>
-			<bActAsAir>0</bActAsAir>
-			<NIF>Art/Units/Unique/Persia/Immortal/PersianImmortal.nif</NIF>
-			<KFM>Art/Units/Unique/Persia/Immortal/PersianImmortal.kfm</KFM>
-			<SHADERNIF>Art/Units/Unique/Persia/Immortal/PersianImmortal_FX.nif</SHADERNIF>
-			<ShadowDef>
-				<ShadowNIF>Art/Units/01_UnitShadows/HorseShadow.nif</ShadowNIF>
-				<ShadowAttachNode>HorseBip Spine1</ShadowAttachNode>
-				<fShadowScale>1.0</fShadowScale>
-			</ShadowDef>
-			<fBattleDistance>0.35</fBattleDistance>
-			<fRangedDeathTime>0.31</fRangedDeathTime>
-			<bActAsRanged>0</bActAsRanged>
-			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
-			<AudioRunSounds>
-				<AudioRunTypeLoop/>
-				<AudioRunTypeEnd/>
-			</AudioRunSounds>
-		</UnitArtInfo>
-		<!-- custom: rename CELTIC_BARBARIAN to CELTIC_GALLIC_WARRIOR anyways etc -->
-		<UnitArtInfo>
-			<Type>ART_DEF_UNIT_CELTIC_GALLIC_WARRIOR</Type>
-			<Button>,Art/Interface/Buttons/Units/Swordsman.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,10</Button>
-			<fScale>0.44</fScale>
-			<fInterfaceScale>1.0</fInterfaceScale>
-			<bActAsLand>0</bActAsLand>
-			<bActAsAir>0</bActAsAir>
-			<NIF>Art/Units/Celtic_Warrior/Celtic_Warrior.nif</NIF>
-			<KFM>Art/Units/Celtic_Warrior/Celtic_Warrior.kfm</KFM>
-			<SHADERNIF>Art/Units/Celtic_Warrior/Celtic_Warrior_FX.nif</SHADERNIF>
 			<ShadowDef>
 				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
 				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>

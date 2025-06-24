@@ -360,10 +360,21 @@
 		<Tag>TXT_KEY_UNIT_CAMEL_CUIRASSIER</Tag>
 		<English>Camel Cuirassier</English>
 	</TEXT>
-	<!-- custom: rename old civ-specific arab unit anyways etc -->
+
+
+
+	<!-- custom: rename "ARABIA_CAMELARCHER" to "ARABIA_HAJJAN" -->
 	<TEXT>
-		<Tag>TXT_KEY_UNIT_ARABIA_CAMELARCHER</Tag>
-		<English>Arabian Camel Archer</English>
+		<Tag>TXT_KEY_UNIT_ARABIA_HAJJAN</Tag>
+		<English>Hajjan</English>
+	</TEXT>
+
+
+
+	<!-- custom: rename "_PERIA_IMMORTAL" to "_PERSIA_IMMORTAL" -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_PERSIA_IMMORTAL</Tag>
+		<English>Immortal</English>
 	</TEXT>
 
 

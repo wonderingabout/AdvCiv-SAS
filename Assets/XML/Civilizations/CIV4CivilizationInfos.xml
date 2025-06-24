@@ -199,7 +199,7 @@
 			<Units>
 				<Unit>
 					<UnitClassType>UNITCLASS_CAMEL_KNIGHT</UnitClassType>
-					<UnitType>UNIT_ARABIA_CAMELARCHER</UnitType>
+					<UnitType>UNIT_ARABIA_HAJJAN</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>
@@ -3131,7 +3131,7 @@
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_CHARIOT</UnitClassType>
+					<UnitClassType>UNITCLASS_SWORDSMAN</UnitClassType>
 					<UnitType>UNIT_PERSIA_IMMORTAL</UnitType>
 				</Unit>
 			</Units>

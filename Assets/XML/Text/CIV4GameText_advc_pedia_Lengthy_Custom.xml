@@ -190,6 +190,21 @@
 
 
 
+	<!-- custom: rename "ARABIA_CAMELARCHER" to "ARABIA_HAJJAN", entry from (adust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_Units.xml 's TXT_KEY_UNIT_ARABIA_CAMELARCHER_PEDIA anyways etc and adjusted/enhanced on for AdvCiv-SAS anyways etc; as for the unit name, one of the sources for example anyways etc: https://en.wiktionary.org/wiki/hajjan but with a more distinctive name anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_ARABIA_HAJJAN_PEDIA</Tag>
+		<English>[TAB]In the Arabian Peninsula, cavalrymen ride on either horse or camel. While horses are somewhat easier to train than camels, camels are the obvious choice for forces operating in the deep desert. Arab tribesmen such as the Bedouin have always been fearsome warriors, and their prowess with bow and arrow (and later, rifle) from atop a mount has become the stuff of legend.[PARAGRAPH:1]In the arabic language, hajjan (plural hajjans or hajjaneh) is a synonym of cameleer, a camel-mounted soldier.</English>
+	</TEXT>
+
+
+
+	<!-- custom: rename "_PERIA_IMMORTAL" to "_PERSIA_IMMORTAL", and/plus anyways etc unit reworked, now based on the swordsman at least as of now anyways etc, entry from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_Units.xml -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_PERSIA_IMMORTAL_PEDIA</Tag>
+		<English>[TAB]The Immortals were a strong corps deployed by the Persian Empire in the fifth century BC. Gifted soldiers, they drew their moniker from the fact that regardless of the casualties sustained in battle, the unit was restored to full strength, no matter the cost. Equipped with bow and spear, the front rank would advance upon the enemy while rear ranks rained arrows to ease the assault.</English>
+	</TEXT>
+
+
 
 	<!-- custom: taken from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_BTS.xml and then modified for AdvCiv-SAS -->
 	<!-- custom: description from: https://en.wikipedia.org/wiki/Paganism and https://en.wikipedia.org/wiki/Polytheism -->
