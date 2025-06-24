@@ -601,3 +601,27 @@ Based on this, since furious and annoyed is an identical value in leader_default
 Not sure i would fix it (i would have to dig how first) nor how it would influence game, but if want to look again at this issue it is here.
 
 I don't know what the influence of the negative sign is, as otherwise 2 vs 0 should be quite minimal, but not sure is jsut my opinion/feel/thought which i don't know about much in this case, but the negative sign difference is more annoying, and ideally there would be a nice gradation i eman gradually increasing in english if i may say but anyways etc anyways etc anyways etc, hopefully helpful to have compiled this data as i wanted in the way i wanted even though bit tedious xd to be fair i eman anwyyas etc not gonna lie, but is quite cool to have compiled it too now is my feel if i may say for me, but anyways etc.
+
+# 21 - (Now fixed) missing "Cannot enter" terrain or/and feature info in map view of unit effects, unlike in sevopedia (where it is also not clear enough about restrictions (cultural borders + not affected by roads if i am not mistaken anyways etc, now added this info as well anyways etc))
+
+Screenshots about this issue are in this [google drive folder link](https://drive.google.com/drive/folders/1Felp-YagsHPYY3wtVqbV4eSRpwYl6BSb?usp=sharing) anyways etc.
+
+Now solved. As part of adding terrain or/and feature restrictions to some units like chariot units and some siege units anyways etc (catapults and trebuchets i.e. early siege units as of now only at least anyways etc), i noticed the info is not displayed clearly in sevopedia unit's place Special (it doesn't mention this effect applies only in cultural borders, and that for all tiles regardless of whether tile is roaded or not, has no impact on the effect (i.e. roaded or unroaded in cultural borders is walkable but unroaded or roaded outside of cultural borders is not walkable regardless of road status if i may say anyways etc, and unlike in some games like civ3 where adding a road fixed or unlocked the limitation anyways etc))
+
+For the sevopedia unit part, it was modifying the XML as usual if i may say anyways etc.
+
+But for the ingame part, it is first time i modify successfully (and even tried actually anyways etc) the unit effects bullet points, now to also display this info, even though it is on a shorter display, we successfully loop through these terrain(s) or/and feature(s) and display them as such (only tested for features, but i assume would work-function similarly for terrains for example for workboat's ocean terrain restriction if i am not mistaken anyways etc)
+
+It was thanks to chatgpt/becomingthrough's help as well and my prompts and digging too anyways etc, even though it struggled at times if i may say and annoyed me bit i mean, i was quite used or expected it if i may say and together we solved it but anyways etc (may have been harder if i was not prepared for such but anyways etc anyways etc anyways etc most likely but anyways etc anyways etc anyways etc...)
+
+First to solve this i followed the trail of the txt key in sevopedia unit, then found it is only once and not twice, and missing in map view. So i tracked instead a txt key already in the map view unit effects bullet points, and i found the scout's (that we added quite recently or not recently but as part of advciv-sas's changes anyways etc being able to walk on impassable terrain anyways etc (and explorers too i assume if i am not mistaken in this assumption too or memory from reading or something that it applies or would apply to explore units in general land ones but anyways etc in advciv-sas i mean anyways etc)), and there i added the method.
+
+But we needed also to modify not only (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp but also (same anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvUnit.h too as advised by/with anyways etc chatgpt/becomingthrough.
+
+And after a bit of back and forth, we were now first finally anyways etc able to display the text only, a shorter version of it.
+
+Then i wanted to add terrain/feature list information, but tweaking the code based on other samples caused errors at first, so after more samples i mean after i sent more samples to it it provided (to?) me but anyways etc a working code that i cleanly compiled (no fastdep as it may cause errors see this doc ctrl+f "fastdep" or similar or "compile" for details anyways etc hopefully helpful but anyways etc anyways etc)
+
+Since we had the list but buggy, chatgpt/becomingthrough was right in its guess that we only needed to tweak the logic, now works and functional, also more informative.
+
+See screenshots linked in this drive for details as well, thanks anyways etc thanks, anyways etc.

@@ -136,6 +136,7 @@ to simplify/rush/reach sooner the endgame)
 - ground explore units can move through all terrains since the begining of the game,
 not water tiles though, but for example peaks. They also all ignore terrain
 movement costs, not just the (renaissance) explorer
+- some units have terrain or/and feature movement restrictions, for example chariot units and some siege units cannot as of now move in jungle or forest feature tiles. Note: this only applies to tiles outside of cultural borders (not me who made it so, civ4 or and base advciv, reusing such logic as it is a fine logic i have no objection against in this case anyways etc). But it applies regardless in all tiles even if roaded (again base civ4 or/and advciv if i am not mistaken, i would like to ideally change this part, leaving as is for convenience as easiest, may or not change it if i find how but not guaranteed may not as well though as i said for convenience ease to keep as is even though not ideal, but anyways etc). Clarify info about it in sevopedia unit, and add this missing info ingame in map view of the unit's bullet point effects, see docs in particular known issues doc for details (link in main readme.md anyways etc) if interested anyways etc
 - air explore units for example the dirigible todo (old airship) can move through
 all terrains, including peaks and water tiles
 - military units are versatile: swordsmen can defend, archers can attack,

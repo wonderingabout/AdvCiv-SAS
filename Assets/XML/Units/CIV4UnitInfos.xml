@@ -1657,11 +1657,8 @@
 			<!-- advc.315a: Replaced with OnlyAttackAnimals -->
 			<bOnlyDefensive>0</bOnlyDefensive>
 			<!-- advc.315a -->
-			<!-- custom: minor rework, allow the scout to attack (or
-			defend against) all rivals units and cities, but it should
-			be disincentivized enough for players due its low strength
-			and not much bonuses especially in city	attack-defense,
-			still better than nothing -->
+			<!-- custom: minor rework, allow the scout to attack (or defend against) all rivals units and cities, but it should
+			be disincentivized enough for players due its low strength and not much bonuses especially in city	attack-defense, still better than nothing -->
 			<bOnlyAttackAnimals>0</bOnlyAttackAnimals>
 			<!-- advc.315b -->
 			<bOnlyAttackBarbarians>0</bOnlyAttackBarbarians>
@@ -1712,8 +1709,7 @@
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
-			<!-- custom: making	extra sure scouts are not used/confused
-			by the AI as attackers or even defenders. -->
+			<!-- custom: making	extra sure scouts are not used/confused by the AI as attackers or even defenders. -->
 			<NotUnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
@@ -12878,7 +12874,17 @@
 			<iGreatWorkCulture>0</iGreatWorkCulture>
 			<iEspionagePoints>0</iEspionagePoints>
 			<TerrainImpassables/>
-			<FeatureImpassables/>
+			<!-- custom: same as in civ3, also as they are wheeled it makes sense they'd have a hard time in forest and such/similar anyways etc ; changed according to/as in for example in (translate to english with web browser right click or such/similar thing anyways etc) https://gforestshade.github.io/kujira/post/civ4unitinfos/#featureimpassables anyways etc ; note: only applies to tiles outside of cultural borders if i am not mistaken and as base civ4 or and base advciv do if i am not mistaken too anyways etc -->
+			<FeatureImpassables>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+			</FeatureImpassables>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
 			<iCombat>4</iCombat>
@@ -13068,7 +13074,17 @@
 			<iGreatWorkCulture>0</iGreatWorkCulture>
 			<iEspionagePoints>0</iEspionagePoints>
 			<TerrainImpassables/>
-			<FeatureImpassables/>
+			<!-- custom: same as in civ3, also as they are wheeled it makes sense they'd have a hard time in forest and such/similar anyways etc ; changed according to/as in for example in (translate to english with web browser right click or such/similar thing anyways etc) https://gforestshade.github.io/kujira/post/civ4unitinfos/#featureimpassables anyways etc ; note: only applies to tiles outside of cultural borders if i am not mistaken and as base civ4 or and base advciv do if i am not mistaken too anyways etc -->
+			<FeatureImpassables>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+			</FeatureImpassables>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
 			<iCombat>5</iCombat>
@@ -13263,7 +13279,17 @@
 			<iGreatWorkCulture>0</iGreatWorkCulture>
 			<iEspionagePoints>0</iEspionagePoints>
 			<TerrainImpassables/>
-			<FeatureImpassables/>
+			<!-- custom: same as in civ3, also as they are wheeled it makes sense they'd have a hard time in forest and such/similar anyways etc ; changed according to/as in for example in (translate to english with web browser right click or such/similar thing anyways etc) https://gforestshade.github.io/kujira/post/civ4unitinfos/#featureimpassables anyways etc ; note: only applies to tiles outside of cultural borders if i am not mistaken and as base civ4 or and base advciv do if i am not mistaken too anyways etc -->
+			<FeatureImpassables>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+			</FeatureImpassables>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
 			<iCombat>4</iCombat>
@@ -17227,7 +17253,17 @@
 			<iGreatWorkCulture>0</iGreatWorkCulture>
 			<iEspionagePoints>0</iEspionagePoints>
 			<TerrainImpassables/>
-			<FeatureImpassables/>
+			<!-- custom: same as in civ3, also as they are wheeled it makes sense they'd have a hard time in forest and such/similar anyways etc ; changed according to/as in for example in (translate to english with web browser right click or such/similar thing anyways etc) https://gforestshade.github.io/kujira/post/civ4unitinfos/#featureimpassables anyways etc ; note: only applies to tiles outside of cultural borders if i am not mistaken and as base civ4 or and base advciv do if i am not mistaken too anyways etc -->
+			<FeatureImpassables>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+			</FeatureImpassables>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
 			<iCombat>5</iCombat>
@@ -17432,7 +17468,17 @@
 			<iGreatWorkCulture>0</iGreatWorkCulture>
 			<iEspionagePoints>0</iEspionagePoints>
 			<TerrainImpassables/>
-			<FeatureImpassables/>
+			<!-- custom: same as in civ3, also as they are wheeled it makes sense they'd have a hard time in forest and such/similar anyways etc ; changed according to/as in for example in (translate to english with web browser right click or such/similar thing anyways etc) https://gforestshade.github.io/kujira/post/civ4unitinfos/#featureimpassables anyways etc ; note: only applies to tiles outside of cultural borders if i am not mistaken and as base civ4 or and base advciv do if i am not mistaken too anyways etc -->
+			<FeatureImpassables>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+			</FeatureImpassables>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
 			<iCombat>5</iCombat>
@@ -17638,7 +17684,17 @@
 			<iGreatWorkCulture>0</iGreatWorkCulture>
 			<iEspionagePoints>0</iEspionagePoints>
 			<TerrainImpassables/>
-			<FeatureImpassables/>
+			<!-- custom: same as in civ3, also as they are wheeled it makes sense they'd have a hard time in forest and such/similar anyways etc ; changed according to/as in for example in (translate to english with web browser right click or such/similar thing anyways etc) https://gforestshade.github.io/kujira/post/civ4unitinfos/#featureimpassables anyways etc ; note: only applies to tiles outside of cultural borders if i am not mistaken and as base civ4 or and base advciv do if i am not mistaken too anyways etc -->
+			<FeatureImpassables>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+			</FeatureImpassables>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
 			<iCombat>4</iCombat>

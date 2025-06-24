@@ -77,6 +77,19 @@
 
 
 
+	<!-- custom: add info that it applies only outside of cultural borders if i am not mistaken anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_CANNOT_ENTER</Tag>
+		<English>[ICON_BULLET]Cannot Enter (only applies to tiles outside of cultural borders. But applies regardless in all tiles even if tile is roaded):</English>
+	</TEXT>
+	<!-- custom: short version ingame in map view -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_CANNOT_ENTER_SHORT_MAP_VIEW</Tag>
+		<English>[ICON_BULLET]Cannot Enter (see sevopedia):</English>
+	</TEXT>
+
+
+
     <!-- custom: rename Civilopedia to Sevopedia 
     imported from: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameTextInfos.xml
     and then modified for AdvCiv-SAS

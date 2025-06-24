@@ -708,6 +708,44 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
 			}
 		}
 
+		// <!-- custom: add impassable info ingame in unit effects bullet points in map view if i am not mistaken anyways etc, with 2 separate bullet points for terrain(s) and feature(s) impassables anyways etc, code provided by chatgpt/becomingthrough with my prompts and inputs and code sample i sent or and other or and not or yes or etc anyways etc -->
+		if (pUnit->isAnyTerrainImpassable())
+		{
+			szString.append(NEWLINE);
+			szString.append(gDLL->getText("TXT_KEY_UNIT_CANNOT_ENTER_SHORT_MAP_VIEW"));
+
+			CvWString szTempBuffer;
+			szTempBuffer.append(L" ");
+			bool bFirst = true;
+			FOR_EACH_ENUM(Terrain)
+			{
+				if (pUnit->getTerrainImpassable(eLoopTerrain))
+				{
+					setListHelp(szString, szTempBuffer,
+						GC.getInfo(eLoopTerrain).getDescription(), L", ", bFirst);
+				}
+			}
+			szString.append(szTempBuffer); // append the built terrain list
+		}
+		if (pUnit->isAnyFeatureImpassable())
+		{
+			szString.append(NEWLINE);
+			szString.append(gDLL->getText("TXT_KEY_UNIT_CANNOT_ENTER_SHORT_MAP_VIEW").GetCString());
+
+			CvWString szTempBuffer;
+			szTempBuffer.append(L" ");
+			bool bFirst = true;
+			FOR_EACH_ENUM(Feature)
+			{
+				if (pUnit->getFeatureImpassable(eLoopFeature))
+				{
+					setListHelp(szString, szTempBuffer,
+						GC.getInfo(eLoopFeature).getDescription(), L", ", bFirst);
+				}
+			}
+			szString.append(szTempBuffer); // append the built feature list
+		}
+
 		if (pUnit->canMoveImpassable())
 		{
 			szString.append(NEWLINE);
@@ -9002,6 +9040,28 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 					GC.getInfo(u.getSpecialCargo()).getTextKeyWide()));
 		}
 	}
+	if (u.isInvisible())
+	{
+		szBuffer.append(NEWLINE);
+		szBuffer.append(gDLL->getText("TXT_KEY_UNIT_INVISIBLE_ALL"));
+	}
+	else if (u.getInvisibleType() != NO_INVISIBLE)
+	{
+		szBuffer.append(NEWLINE);
+		szBuffer.append(gDLL->getText("TXT_KEY_UNIT_INVISIBLE_MOST"));
+	}
+
+	for (int i = 0; i < u.getNumSeeInvisibleTypes(); i++)
+	{
+		if (bCivilopediaText || u.getSeeInvisibleType(i) != u.getInvisibleType())
+		{
+			szBuffer.append(NEWLINE);
+			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_SEE_INVISIBLE",
+					GC.getInfo((InvisibleTypes)u.getSeeInvisibleType(i)).getTextKeyWide()));
+		}
+	}
+
+	// <!-- custom: move these impassable blocks near the other and following anyways etc canMoveImpassable() block anyways etc -->
 	{
 		bool bFirst = true;
 		szTempBuffer.Format(L"%s%s ", NEWLINE,
@@ -9053,26 +9113,6 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 					bFirst = false;
 				}
 			}
-		}
-	}
-	if (u.isInvisible())
-	{
-		szBuffer.append(NEWLINE);
-		szBuffer.append(gDLL->getText("TXT_KEY_UNIT_INVISIBLE_ALL"));
-	}
-	else if (u.getInvisibleType() != NO_INVISIBLE)
-	{
-		szBuffer.append(NEWLINE);
-		szBuffer.append(gDLL->getText("TXT_KEY_UNIT_INVISIBLE_MOST"));
-	}
-
-	for (int i = 0; i < u.getNumSeeInvisibleTypes(); i++)
-	{
-		if (bCivilopediaText || u.getSeeInvisibleType(i) != u.getInvisibleType())
-		{
-			szBuffer.append(NEWLINE);
-			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_SEE_INVISIBLE",
-					GC.getInfo((InvisibleTypes)u.getSeeInvisibleType(i)).getTextKeyWide()));
 		}
 	}
 
