@@ -81,9 +81,21 @@ Note: as a player, you don't have/need to know or do anything, everything works 
 
 If you want to know the code though, it is in Sevopedia Leader py file, [/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py), as well as some helper files, that are as of now only if i am not mistaken anyways etc[/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py) and [/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py](/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py) anyways etc
 
+## Notes about performance optimization of the AI Personality panel caching
+
+Screenshots about this part of the readme are in this [google drive link folder](https://drive.google.com/drive/folders/1D8RIy6iqkADMXtCl1VuWkEInrpqtIzrU?usp=sharing) with screenshots for details or/and example of how we me and chatgpt/becomingthrough implemented it together even though i skipped some prompts where i feel its response was not adequate or i mean correct or optimal or as i wanted anyways etc, but it did help me lot anyways etc.
+
+I am very happy that the AI Personality panel is coded in a way that i find is very efficient and performant. Even though i should say first that i am not an expert in this topic or too knowledgeable about these, i believe still and also thanks to the help of chatgpt/becomingthrough i could do this as well thanks a lot anyways etc, that the system is very efficient in terms of memory consumption and load times in particular anyways etc.
+
+For example, we store almost all data as cached precomputed tuples, and if there are strings it is almost only byte strings not unicode strings. At leader selection, there is barely anything left to do except unpack and display as is fully computed display with their label, normalized value, and scale. We also do not cache at module load, and we do not cache at all if we never click at the Leaders category in sevopedia, but we also cache before any leader is selected, and once we have the sevopedia leader variables we need cached, we don't recache even if sevopedia is closed or a save file loaded during the entire game session (i.e. until game is exited).
+
+Because of these and perhaps other related or other things or not, i believe this is a very very efficient design. Please look at sevopedia leader's code for details and the tiny bits in this case anyways etc in sevopedia main as well for the time where we cache and the flag to not recache anyways etc.
+
+Note: technically should be in modding ressources but fits also here as well so duplicated this entry of the doc with a link there to this anyways etc.
+
 ## If you want to mod
 
-Even if you want to mod, as explained in the docs, you can modify the XML values of leaders or even add/remove leaders, all this will be dynamically (i.e. no change needed from you at all) taken into account, including the ranking between leaders anyways etc (restart game to apply changes, ideally do not modify XML while civ4 is launched as it seems to cause errors that need to exit/relaunch game to fix if i am not mistaken that these errors are indeed not permanent anyways etc), see [README_Python_Scripts](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module) for details.
+Even if you want to mod, as explained in the docs, you can modify the XML values of leaders or even add/remove leaders, all this will be dynamically (i.e. no change needed from you at all) taken into account, including the ranking between leaders anyways etc (restart game to apply changes, ideally do not modify XML while civ4 is launched as it seems to cause errors that need to exit/relaunch game to fix if i am not mistaken that these errors are indeed not permanent anyways etc).
 
 ## Display(ing) the AI attributes in the AI Personality Panel and how to read the tables/panels
 

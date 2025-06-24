@@ -79,7 +79,9 @@ Here is below a very small sample of the example screenshots of how the AI Perso
 
 For the full more extensive screenshot of main new sevopedia reworks, i highly highly recommend but anyways etc as you prefer or not or yes or etc or and other or and not anyways etc to look at and read the full [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md)
 
-Note: specifically about the sevopedia leader's AI Personality Panel feature, you can enable/disable the emoji display as you prefer by changing `IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = False` to/from `IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True`, see [README_Sevopedia_Reworks.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader) for details and instructions on how to do it step by step with VS Code for example, anyways etc
+Note 1.1: specifically about the sevopedia leader's AI Personality Panel feature, its performance should be very very efficient and optimized, see for details [/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)
+
+Note 1.2 : specifically about the sevopedia leader's AI Personality Panel feature, you can enable/disable the emoji display as you prefer by changing `IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = False` to/from `IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True`, see [README_Sevopedia_Reworks.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader) for details and instructions on how to do it step by step with VS Code for example, anyways etc
 
 ### Other changes example(s)
 
