@@ -1553,8 +1553,8 @@
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_TANK</UnitClassType>
-					<UnitType>UNIT_GERMAN_PANZER</UnitType>
+					<UnitClassType>UNITCLASS_CUIRASSIER</UnitClassType>
+					<UnitType>UNIT_GERMAN_HUSSAR</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>

@@ -940,14 +940,6 @@
 			<bIsProjectile>0</bIsProjectile>
 		</EffectInfo>
 		<EffectInfo>
-			<Type>EFFECT_PANZER_DEATH_EXPLOSION</Type>
-			<Description>Large Explosion for the death of a tank</Description>
-			<fScale>0.1</fScale>
-			<fUpdateRate>1.0</fUpdateRate>
-			<Path>Art/Effects/Unit_Explosion_Oil/fx_UNIT_oil_death_explosion.nif</Path>
-			<bIsProjectile>0</bIsProjectile>
-		</EffectInfo>
-		<EffectInfo>
 			<Type>EFFECT_ARTILLERY_HIT_SMALL01</Type>
 			<Description>Variation 01 for Artillery</Description>
 			<fScale>0.25</fScale>
@@ -1639,14 +1631,6 @@
 			<fUpdateRate>1.0</fUpdateRate>
 			<Path>Art/Units/Submarine/SubmarineTorpedo.nif</Path>
 			<bIsProjectile>1</bIsProjectile>
-		</EffectInfo>
-		<EffectInfo>
-			<Type>EFFECT_WEAPON_PANZER_FIRE</Type>
-			<Description>Panzer Tank Cannon Fire </Description>
-			<fScale>.05</fScale>
-			<fUpdateRate>2.5</fUpdateRate>
-			<Path>Art/Effects/weapon_cannonfire_modern/fx_weapon_cannonfire_modern.nif</Path>
-			<bIsProjectile>0</bIsProjectile>
 		</EffectInfo>
 		<EffectInfo>
 			<Type>EFFECT_WEAPON_CANNON_FIRE</Type>

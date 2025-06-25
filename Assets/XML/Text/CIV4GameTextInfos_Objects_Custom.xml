@@ -371,6 +371,13 @@
 
 
 
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_GERMAN_HUSSAR</Tag>
+		<English>Hussar</English>
+	</TEXT>
+
+
+
 	<!-- custom: rename "_PERIA_IMMORTAL" to "_PERSIA_IMMORTAL" -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_PERSIA_IMMORTAL</Tag>

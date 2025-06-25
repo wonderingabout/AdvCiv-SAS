@@ -1361,6 +1361,31 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
+		<!-- custom: kingdom of benin's disciplined crossbowman (civ-specific unit as of now anyways etc) 's button from HR mod's isikhulu (unique unit as per HR naming but anyways etc anyways etc anyways etc), nif from ri mod's ART_DEF_UNIT_CROSSBOWMAN_FILIPINO (crossbowman (tagalog)) anyways etc ; kfm is base civ4 one as often seems to be the case if i am not mistaken and if i am not mistaken too but anyways etc anyways etc anyways etc -->
+		<UnitArtInfo>
+			<Type>ART_DEF_UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN</Type>
+			<Button>Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/button_isikhulu.dds</Button>
+			<fScale>0.44</fScale>
+			<fInterfaceScale>1.1</fInterfaceScale>
+			<bActAsLand>0</bActAsLand>
+			<bActAsAir>0</bActAsAir>
+			<NIF>Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/FilipinoCrossbowman2.nif</NIF>
+			<KFM>Art/Units/Crossbowman/Crossbowman.kfm</KFM>
+			<SHADERNIF>Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/FilipinoCrossbowman2.nif</SHADERNIF>
+			<ShadowDef>
+				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
+				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+				<fShadowScale>1.0</fShadowScale>
+			</ShadowDef>
+			<fBattleDistance>0.35</fBattleDistance>
+			<fRangedDeathTime>0.31</fRangedDeathTime>
+			<bActAsRanged>1</bActAsRanged>
+			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+			<AudioRunSounds>
+				<AudioRunTypeLoop/>
+				<AudioRunTypeEnd/>
+			</AudioRunSounds>
+		</UnitArtInfo>
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_CHARIOT</Type>
 			<Button>,Art/Interface/Buttons/Units/Chariot.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,7</Button>
@@ -1471,10 +1496,10 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: now CAMEL_ARCHER is a generic unit not civ-specific to any civ (all civs can built it anyways etc), art nif import from ri mod's ART_DEF_UNIT_ARABIA_CAMELARCHER (asset files in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Realism Invictus\Assets\RI_37_Units_Arabia.FPK" anyways etc... button from PakBuild i had extracted since i found it here no need to search again in all fpks one by one anyways etc. Note: the XML is unfortunately or not unfortunately but anyways etc in all cases if i may say maybe or not or yes or etc anyways etc incredibly messy as i said before or now rather maybe in readme and such but anyways etc, at least i found the assets i need/want) (note: the .kfm is base civ4 one of arabian old camel archer anyways etc so can't find it in the ri mod anyways etc) -->
+		<!-- custom: now CAMEL_ARCHER is a generic unit not civ-specific to any civ (all civs can built it anyways etc), art nif import from ri mod's ART_DEF_UNIT_ARABIA_CAMELARCHER (asset files in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Realism Invictus\Assets\RI_37_Units_Arabia.FPK" anyways etc... button is now the base civ4 camel archer's one for clarity/consistency with the other camel generic (i.e. non-civ-specific unit) buttons anyways etc, and instead arabian civ-specific unit has a new button instead see there for details anyways etc. (note: the .kfm is base civ4 one of arabian old camel archer anyways etc so can't find it in the ri mod anyways etc) -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_CAMEL_ARCHER</Type>
-			<Button>Art/AdvCiv_SAS/Units/Camel_Archer/camel_archer.dds</Button>
+			<Button>,Art/Interface/Buttons/Units/CamelArcher.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,8</Button>
 			<fScale>0.39</fScale>
 			<fInterfaceScale>0.8</fInterfaceScale>
 			<bActAsLand>0</bActAsLand>
@@ -1570,9 +1595,10 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
+		<!-- custom: button import from ri mod (quickly found thanks to pakbuild all unpacked in one folder anyways etc anyways etc anyways etc) -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_ARABIA_HAJJAN</Type>
-			<Button>,Art/Interface/Buttons/Units/CamelArcher.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,8</Button>
+			<Button>Art/AdvCiv_SAS/Units/Arabia_Hajjan/medium_cavalry_arabia (camel archer).dds</Button>
 			<!-- advc.002j: was 0.39 -->
 			<fScale>0.38</fScale>
 			<fInterfaceScale>0.8</fInterfaceScale>
@@ -1590,6 +1616,31 @@
 			<fRangedDeathTime>0.31</fRangedDeathTime>
 			<bActAsRanged>1</bActAsRanged>
 			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+			<AudioRunSounds>
+				<AudioRunTypeLoop/>
+				<AudioRunTypeEnd/>
+			</AudioRunSounds>
+		</UnitArtInfo>
+		<UnitArtInfo>
+			<Type>ART_DEF_UNIT_CUIRASSIER</Type>
+			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,3,11</Button>
+			<fScale>0.42</fScale>
+			<fInterfaceScale>1.0</fInterfaceScale>
+			<bActAsLand>0</bActAsLand>
+			<bActAsAir>0</bActAsAir>
+			<NIF>Art/Units/Cuirassier/Cuirassier.nif</NIF>
+			<KFM>Art/Units/Cuirassier/Cuirassier.kfm</KFM>
+			<SHADERNIF>Art/Units/Cuirassier/Cuirassier_FX.nif</SHADERNIF>
+			<ShadowDef>
+				<ShadowNIF>Art/Units/01_UnitShadows/HorseShadow.nif</ShadowNIF>
+				<ShadowAttachNode>HorseBip Spine1</ShadowAttachNode>
+				<fShadowScale>1.0</fShadowScale>
+			</ShadowDef>
+			<fBattleDistance>0.35</fBattleDistance>
+			<fRangedDeathTime>0.31</fRangedDeathTime>
+			<bActAsRanged>0</bActAsRanged>
+			<!-- BBAI: was ..._UNIQUE_UNIT -->
+			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
 			<AudioRunSounds>
 				<AudioRunTypeLoop/>
 				<AudioRunTypeEnd/>
@@ -1619,19 +1670,20 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
+		<!-- custom: "GERMAN_PANZER" removed and replaced with the "GERMAN_HUSSAR", art import from RFC DOC mod's very very nice fpk really anyways etc, art based originally on base advciv's +/- civ4 art def of the cuirassier as the old panzer one seems to have many at least some extra fields we may not need for the hussar so basing on the base cuirassier instead even for art def, then importing/basing the hussar one on RFC DOC mod's one (ART_DEF_UNIT_HUSSAR) as well on top of it if i may say anyways etc, some assets liek kfm or such being base civ4 ones if i am not mistaken anyways etc -->
 		<UnitArtInfo>
-			<Type>ART_DEF_UNIT_CUIRASSIER</Type>
-			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,3,11</Button>
+			<Type>ART_DEF_UNIT_GERMAN_HUSSAR</Type>
+			<Button>Art/AdvCiv_SAS/Units/German_Hussar/Hussar.dds</Button>
 			<fScale>0.42</fScale>
 			<fInterfaceScale>1.0</fInterfaceScale>
 			<bActAsLand>0</bActAsLand>
 			<bActAsAir>0</bActAsAir>
-			<NIF>Art/Units/Cuirassier/Cuirassier.nif</NIF>
-			<KFM>Art/Units/Cuirassier/Cuirassier.kfm</KFM>
-			<SHADERNIF>Art/Units/Cuirassier/Cuirassier_FX.nif</SHADERNIF>
+			<NIF>Art/AdvCiv_SAS/Units/German_Hussar/nif/hussar.nif</NIF>
+			<KFM>Art/Units/Unique/Russia/Cossack/RussianCossack.kfm</KFM>
+			<SHADERNIF>Art/AdvCiv_SAS/Units/German_Hussar/nif/hussar.nif</SHADERNIF>
 			<ShadowDef>
 				<ShadowNIF>Art/Units/01_UnitShadows/HorseShadow.nif</ShadowNIF>
-				<ShadowAttachNode>HorseBip Spine1</ShadowAttachNode>
+				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
 				<fShadowScale>1.0</fShadowScale>
 			</ShadowDef>
 			<fBattleDistance>0.35</fBattleDistance>
@@ -1796,41 +1848,6 @@
 			<fRangedDeathTime>0.12</fRangedDeathTime>
 			<bActAsRanged>1</bActAsRanged>
 			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
-			<AudioRunSounds>
-				<AudioRunTypeLoop>LOOPSTEP_TANK</AudioRunTypeLoop>
-				<AudioRunTypeEnd>ENDSTEP_TANK</AudioRunTypeEnd>
-			</AudioRunSounds>
-			<SelectionSound>AS3D_UN_TANK_FORT</SelectionSound>
-			<ActionSound>AS3D_UN_TANK_FORT</ActionSound>
-		</UnitArtInfo>
-		<UnitArtInfo>
-			<Type>ART_DEF_UNIT_GERMAN_PANZER</Type>
-			<Button>,Art/Interface/Buttons/Units/Panzer.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,3,11</Button>
-			<fScale>0.47</fScale>
-			<fInterfaceScale>0.9</fInterfaceScale>
-			<bActAsLand>0</bActAsLand>
-			<bActAsAir>0</bActAsAir>
-			<NIF>Art/Units/Unique/German/Panzer/Panzer.nif</NIF>
-			<KFM>Art/Units/Unique/German/Panzer/Panzer.kfm</KFM>
-			<SHADERNIF>Art/Units/Unique/German/Panzer/Panzer_FX.nif</SHADERNIF>
-			<ShadowDef>
-				<ShadowNIF>Art/Units/01_UnitShadows/PanzerShadow.nif</ShadowNIF>
-				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
-				<fShadowScale>1.0</fShadowScale>
-			</ShadowDef>
-			<iDamageStates>4</iDamageStates>
-			<TrailDefinition>
-				<Texture>Art/Shared/tanktread.dds</Texture>
-				<fWidth>0.7</fWidth>
-				<fLength>180.0</fLength>
-				<fTaper>0.0</fTaper>
-				<fFadeStartTime>0.2</fFadeStartTime>
-				<fFadeFalloff>0.35</fFadeFalloff>
-			</TrailDefinition>
-			<fBattleDistance>0.5</fBattleDistance>
-			<fRangedDeathTime>0.12</fRangedDeathTime>
-			<bActAsRanged>1</bActAsRanged>
-			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
 			<AudioRunSounds>
 				<AudioRunTypeLoop>LOOPSTEP_TANK</AudioRunTypeLoop>
 				<AudioRunTypeEnd>ENDSTEP_TANK</AudioRunTypeEnd>
