@@ -1,4 +1,3 @@
-# pylance: ignore reportMissingImports, reportUndefinedVariable, reportMissingModuleSource
 # Sid Meier's Civilization 4
 # Copyright Firaxis Games 2005
 #
@@ -35,6 +34,7 @@
 # 2) UI: nothing remains only displayign it, nothign left to compute, a bit of tuple direct unpacking without any check if i am not mistaken, so display is very fast despite the quite big data if i may say but anyways etc anyways etc anyways etc.
 #
 # Apart from that, i may have modified the existing base advciv code (that i found good enough so using it as a base rather than removing it, and quite good actually, only needing tweaking but is a solid base (i think or not) maybe or not, anyways, ) or not for AdvCiv-SAS, anyways, -->
+
 
 
 # -*- coding: utf-8 -*-
@@ -1439,7 +1439,7 @@ class SevoPediaLeader:
 
 	def interfaceScreen(self, iLeader):
 		self.iLeader = iLeader
-		printObjAttrs(gc.getLeaderHeadInfo(self.iLeader))
+
 		# <!-- custom: change call order to match filling/building order, generally from top left to bottom and left to right but not always, reordering in such a way is maybe a bit more intuitive this way perhaps or/and clearer or/and helpful or not or other etc anyways, -->
 		self.placeLeaderHeadPane()
 		self.placeFavorites()

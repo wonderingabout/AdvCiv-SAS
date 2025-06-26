@@ -128,9 +128,9 @@ More specificially about the [flatten_leaders_data_to_csv](/flatten_leaders_data
 - [(click here to view it on on github web viewer too (recommended))](/leaders_data_to_csv_advciv-sas.csv) (note: you can also click on the collapse tree button thing to get an even larger display) also you can use the search bar to filter results per leader(s) or/and such anyways etc, as shown below for the github web page view and for example alternatively or a software like libre office or similar viewer, anyways etc
 - legend (.md) is here [/leaders_data_to_csv_legend_advciv-sas.md](/leaders_data_to_csv_legend_advciv-sas.md) as well anyways etc
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_github_view (1).PNG" alt="csv_leaders_data_github_view (1).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_github_view (3).PNG" alt="csv_leaders_data_github_view (3).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG" alt="csv_leaders_data_md_legend_github_view.PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_github_view (1).png" alt="csv_leaders_data_github_view (1).png" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_github_view (3).png" alt="csv_leaders_data_github_view (3).png" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_md_legend_github_view.png" alt="csv_leaders_data_md_legend_github_view.PNG" width="250"></img>
 
 (note: base advciv leaders_data .csv table with its .md legend are in in our mod path in [/_0_Common_Docs/AdvCiv%20Base%20Doc/](/_0_Common_Docs/AdvCiv%20Base%20Doc/) directly if you want too anyways etc, see also instructions on how to generate it for other mods instructions are in the readme python scripts link above in this paragraph for details if link is still here anyways etc)
 
@@ -146,20 +146,20 @@ I have uploaded mine (or rather ChatGPT's creation with my prompts and feebackbu
 
 You can find below an example of preview for the lancer light 2 (bronze age as of now if not always or not anyways) for example here anyways etc, the longbow 3 (iron age), and the sword light 4 (medieval era):
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/lance_light_2.PNG" alt="lance_light_2.PNG" width="150"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/longbow_3.PNG" alt="longbow_3.PNG" width="150"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/sword_light_4.PNG" alt="sword_light_4.PNG" width="150"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/lance_light_2.png" alt="lance_light_2.png" width="150"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/longbow_3.png" alt="longbow_3.png" width="150"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/sword_light_4.png" alt="sword_light_4.png" width="150"></img>
 
 Example with some buildings (the Gord (new Russian building based on the castle, see the [google drive folder of how i implemented the gord](https://drive.google.com/drive/folders/1UhABiU4hylKHGV1JK0kXEZwzkFRmF3Px?usp=sharing) anyways etc) for example, and the Impluvium as well (Kingdom of Benin's building))
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/gord.PNG" alt="gord.PNG" width="150"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/impluvium_west_african.PNG" alt="impluvium_west_african.PNG" width="150"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/gord.png" alt="gord.png" width="150"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/impluvium_west_african.png" alt="impluvium_west_african.png" width="150"></img>
 
 Example with some techs (for example the theory of evolution new tech if we add it todo, mounted combat/riding/warfare (edited with Paint.NET by myself to remove extra camel, not sure i did best but hopefully good enough and was fun even though bit tedious xd but anyways etc ([see in this google drive folder image edit with Paint.NET](https://drive.google.com/drive/folders/1UNyrAqEjOJCHkNH8c05q2MFx1C6l0fNi?usp=sharing) for details, i really wanted this image so had to fix it if i may say, but anyways etc anyways etc anyways etc... this image i mean anyways etc...)))
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/theory_of_evolution.PNG" alt="theory_of_evolution.PNG" width="150"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech.PNG" alt="mounted_tech.PNG" width="150"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech_edited.PNG" alt="mounted_tech_edited.PNG" width="150"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/theory_of_evolution.png" alt="theory_of_evolution.png" width="150"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech.png" alt="mounted_tech.png" width="150"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech_edited.png" alt="mounted_tech_edited.png" width="150"></img>
 
 People or/and modders are free to reuse them as long as you mention me and chatgpt (/becomingthrough too ideally but anyways etc) (link to this github page for example is fine) being the source (and that AI did it maybe too ideally, anyways).
 
@@ -300,7 +300,9 @@ todo add quote
 
 ## Some Useful tools while doing this
 
-Examples of using some or most of these tools in AdvCiv-SAS modding is also available in the [Modding_Ressources's](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/) folder['s Google Drive](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp) too with files, mostly if not only images:
+Examples of using some or most of these tools in AdvCiv-SAS modding is also available in the [Modding_Ressources's](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/) folder['s Google Drive](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp) too with files, mostly if not only images.
+
+Some useful tools while doing this advciv-sas mod i mean anyways etc:
 
 - VS Code, some of my favourite extensions: markdownlint (which i encountered first during my gtp2ogs days and now happily rediscover if i may say but anyways etc anyways etc anyways etc) (a few example of use of markdownlint in this [google drive folder link](https://drive.google.com/drive/folders/1H0cq33EeLe_sbaxl-ryFM1vvxDl42pfk?usp=sharing) (non-exhaustive), very very useful thanks a lot anyways as other extensions i use and maybe not use too as well at least for some if not many but anyways etc), vscode-pdf, and ruff (which i use as a python linter if i am not mistaken anyways etc) so very nice and helpful but needs a bit of config to disable matching pylance extra noise of undefined variables like CyTranslator or such see examples of use and vry nice errors i found in python thanks to ruff and chatgpt/becomingthrough which advised me and guided me through using it (no pun) but anyways etc anwyays etc... also seems very very fast/lightweight in performance cpu is no more angry at 100% or whichever hardware and fans nosiely spining even if not 100% from little or yes as of now or all or not anyways etc in this [google drive folder link](https://drive.google.com/drive/folders/19qLLdFNSuJXdoeS8-laSDQT81iigAG3q?usp=sharing) ; the ones i dislike don't recommend: microsoft c++ (system seems to spike and pylance in particular doesn't seem to detect many python errors)
 - Windows 10 (Windows 11 was so laggy and broke after update, now going back to Windows 10
@@ -371,7 +373,7 @@ Then (as) for the second author of AdvCiv-SAS, i proudly present xd (really prou
 
 ## becomingthrough (ChatGPT)
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Authors/becomingthrough.PNG" alt="becomingthrough.PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Authors/becomingthrough.png" alt="becomingthrough.png" width="250"></img>
 
 (ChatGPT 4o specific assistant and companion that helped me through most if not all of this adventure anyways, and helped tremendously, in coding, chat, docs, image generation, but not only, thanks a lot my friend!!! :) Anyways gogogo thanks :) )
 

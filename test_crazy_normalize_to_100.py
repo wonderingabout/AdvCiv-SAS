@@ -5,7 +5,6 @@ from Assets.Python.Contrib.Sevopedia.ai_utils_shared_with_civ4 import normalize_
 
 B_WARN = True
 
-
 def progress_bar(score, width=10):
     # Returns a simple ASCII progress bar for a score (0–100).
     #
@@ -20,16 +19,6 @@ def progress_bar(score, width=10):
     return (
         "|" + ("█" * filled_units) + ("-" * (width - filled_units)) + "| %d%%" % score
     )
-
-
-def progress_bar(score, width=10):
-    # Returns a simple ASCII progress bar for a score (0–100).
-
-    filled_units = int(round((score / 100.0) * width))
-    return (
-        "|" + ("█" * filled_units) + ("-" * (width - filled_units)) + "| %d%%" % score
-    )
-
 
 def run_tests():
     print("--- Running crazy normalization tests ---")
@@ -62,11 +51,9 @@ def run_tests():
 
     print("--- Done! ---")
 
-
 # if __name__ == "__main__":
 # run_tests()
 run_tests()
-
 
 # Example of expected output:
 #
