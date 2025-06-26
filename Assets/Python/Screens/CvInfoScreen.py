@@ -5,12 +5,12 @@
 
 # This file has been edited for K-Mod in various places. Some changes marked, some not. (deletions generally not marked)
 
+# <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
 from CvPythonExtensions import *
-import CvScreenEnums
 import CvUtil
-import ScreenInput
+#import ScreenInput
+#import CvScreenEnums
 
-import string
 #import time
 import math
 
@@ -2439,15 +2439,15 @@ class CvInfoScreen:
 				screen.setText(self.szSpecialTitleWidget, "", szSpecialTitle, CvUtil.FONT_LEFT_JUSTIFY, self.X_SPECIAL_TITLE, self.Y_SPECIAL_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 				panelName = self.getNextWidgetName()
-				screen.addPanel( panelName, "", "", true, true,
-						 self.X_SPECIAL_PANE, self.Y_SPECIAL_PANE, self.W_SPECIAL_PANE, self.H_SPECIAL_PANE, PanelStyles.PANEL_STYLE_IN)
+				screen.addPanel( panelName, "", "", true, true, self.X_SPECIAL_PANE, self.Y_SPECIAL_PANE, self.W_SPECIAL_PANE, self.H_SPECIAL_PANE, PanelStyles.PANEL_STYLE_IN)
 
 				listName = self.getNextWidgetName()
 				screen.attachListBoxGFC( panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY )
 				screen.enableSelect(listName, False)
 
 				szSpecialText = CyGameTextMgr().getProjectHelp(self.iWonderID, True, None)
-				splitText = string.split( szSpecialText, "\n" )
+				# <!-- custom: use native code instead similarly, no need to import string module to split a string anyways etc anyways etc anyways etc... simialrly anyways etc anyways etc anyways etc... -->
+				splitText = szSpecialText.split("\n")
 				for special in splitText:
 					if len( special ) != 0:
 						screen.appendListBoxString( listName, special, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
@@ -2540,15 +2540,17 @@ class CvInfoScreen:
 				screen.setText(self.szSpecialTitleWidget, "", szSpecialTitle, CvUtil.FONT_LEFT_JUSTIFY, self.X_SPECIAL_TITLE, self.Y_SPECIAL_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 				panelName = self.getNextWidgetName()
-				screen.addPanel( panelName, "", "", true, true,#localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ())
-						 self.X_SPECIAL_PANE, self.Y_SPECIAL_PANE, self.W_SPECIAL_PANE, self.H_SPECIAL_PANE, PanelStyles.PANEL_STYLE_IN)
+				# <!-- custom: comment out properly then use one liner anyways etc -->
+				#screen.addPanel( panelName, "", "", true, true,#localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ())
+				#		 self.X_SPECIAL_PANE, self.Y_SPECIAL_PANE, self.W_SPECIAL_PANE, self.H_SPECIAL_PANE, PanelStyles.PANEL_STYLE_IN)
+				screen.addPanel( panelName, "", "", true, true, self.X_SPECIAL_PANE, self.Y_SPECIAL_PANE, self.W_SPECIAL_PANE, self.H_SPECIAL_PANE, PanelStyles.PANEL_STYLE_IN)
 
 				listName = self.getNextWidgetName()
 				screen.attachListBoxGFC( panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY )
 				screen.enableSelect(listName, False)
 
 				szSpecialText = CyGameTextMgr().getBuildingHelp(self.iWonderID, True, False, False, None)
-				splitText = string.split( szSpecialText, "\n" )
+				splitText = szSpecialText.split("\n")
 				for special in splitText:
 					if len( special ) != 0:
 						screen.appendListBoxString( listName, special, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )

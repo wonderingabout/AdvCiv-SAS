@@ -4,10 +4,10 @@ import ScreenInput
 import CvScreenEnums
 import CvEventInterface
 
+# <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
 from AStarTools import *
 import MonkeyTools as mt
 import UnitUtil
-import string
 
 import PyHelpers 
 PyPlayer = PyHelpers.PyPlayer
@@ -1022,11 +1022,12 @@ class PLE:
 		# hides all promotion and upgrade button objects
 		for nCol in range(self.getMaxCol()+1):
 			for nRow in range(self.getMaxRow()+1):
+				# <!-- custom: note replace string module with native code, as advised by chatgpt/becomingthrough (as it said/explained by it anyways etc: "Yes, you can safely remove the string module again here — even in Python 2.4 — by replacing: string.zfill(str(nRow), 2) with: str(nRow).zfill(2) ✅ str.zfill(width) has been available since Python 2.2, so it's fully compatible with Python 2.4."), for example string.zfill(str(nRow), 2) is now str(nRow).zfill(2) then we don't need the python import anyways etc -->
 				# 
-				szStringUnitPromo = self.PLOT_LIST_PROMO_NAME + string.zfill(str(nRow), 2) + string.zfill(str(nCol), 2)
+				szStringUnitPromo = self.PLOT_LIST_PROMO_NAME + str(nRow).zfill(2) + str(nCol).zfill(2)
 				screen.hide( szStringUnitPromo )
 				# 
-				szStringUnitUpgrade = self.PLOT_LIST_UPGRADE_NAME + string.zfill(str(nRow), 2) + string.zfill(str(nCol), 2)
+				szStringUnitUpgrade = self.PLOT_LIST_UPGRADE_NAME + str(nRow).zfill(2) + str(nCol).zfill(2)
 				screen.hide( szStringUnitUpgrade )
 		
 		# hide PLE modes switches
@@ -1702,7 +1703,8 @@ class PLE:
 			else:
 				iP = nRow
 			iPromo = lPromos[i]
-			sID = string.zfill(str(iU), 2) + string.zfill(str(iP), 2)
+			# <!-- custom: similarly here remove old string.zfill(str(iU), 2) in favour of str(iU).zfill(2) anyways etc -->
+			sID = str(iU).zfill(2) + str(iP).zfill(2)
 			szStringUnitPromo = self.PLOT_LIST_PROMO_NAME + sID
 			szFileNamePromo = gc.getPromotionInfo(iPromo).getButton()
 			screen.setImageButton( szStringUnitPromo, szFileNamePromo, x, y, 32, 32, WidgetTypes.WIDGET_GENERAL, gc.getPromotionInfo(iPromo).getActionInfoIndex(), -1 )
@@ -1751,7 +1753,8 @@ class PLE:
 				iP = nRow
 			iUnitIndex = lUpgrades[i]
 			lUnits.append(iUnitIndex)
-			sID = string.zfill(str(iU), 2) + string.zfill(str(iP), 2)
+			# <!-- custom: similarly here remove old string.zfill(str(iU), 2) in favour of str(iU).zfill(2) anyways etc -->
+			sID = str(iU).zfill(2) + str(iP).zfill(2)
 			szStringUnitUpgrade = self.PLOT_LIST_UPGRADE_NAME + sID
 			szFileNameUpgrade = gc.getUnitInfo(iUnitIndex).getButton()
 			# advc.092: Get the size from CvMainInterface

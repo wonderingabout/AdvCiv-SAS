@@ -2,9 +2,9 @@
 ## Copyright Firaxis Games 2005
 from CvPythonExtensions import *
 import CvUtil
-import ScreenInput
+# <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
+#import ScreenInput
 import CvScreenEnums
-import string
 
 # globals
 gc = CyGlobalContext()

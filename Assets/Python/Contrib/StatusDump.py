@@ -3,7 +3,8 @@
 import codecs
 import os
 import os.path
-import string
+# <!-- custom: remove or comment out unused imports -->
+#import string
 import BugCore
 import BugOptions
 import BugPath

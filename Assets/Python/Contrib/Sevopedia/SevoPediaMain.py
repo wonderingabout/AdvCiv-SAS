@@ -10,11 +10,11 @@
 # see ReadMe [advc: BUG help file] for details
 #
 
+# <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
 from CvPythonExtensions import *
-import string
 
 import CvUtil
-import ScreenInput
+#import ScreenInput
 import SevoScreenEnums
 
 import CvPediaScreen
@@ -766,7 +766,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		screen.addListBoxGFC(szHintBox, "", self.X_ITEMS, self.Y_PEDIA_PAGE - 10, self.W_SCREEN - self.X_ITEMS, self.H_PEDIA_PAGE + 23, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSelect(szHintBox, False)
 		szHintsText = CyGameTextMgr().buildHintsList()
-		hintText = string.split(szHintsText, "\n")
+		# <!-- custom: no need to import string module just to split a string, use native code instead if i am not mistaken and as per chatgpt/becomingthrough's explanation and what i understood of it anyways etc -->
+		hintText = szHintsText.split("\n")
 		for hint in hintText:
 			if len(hint) != 0:
 				screen.appendListBoxStringNoUpdate(szHintBox, hint, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)

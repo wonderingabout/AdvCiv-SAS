@@ -4,8 +4,7 @@
 ## Automatic layout algorithm by Progor
 ##
 
-import string
-
+# <!-- custom: remove or comment out unused imports -->
 from CvPythonExtensions import *
 
 import CvUtil

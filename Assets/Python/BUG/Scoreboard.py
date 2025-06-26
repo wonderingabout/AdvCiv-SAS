@@ -18,7 +18,7 @@ import DealUtil
 import FontUtil
 import CvUtil
 import re
-import string
+# <!-- custom: remove or comment out unused imports -->
 import MonkeyTools # advc.085: For checking Ctrl key
 import LayoutDict # advc.092
 import CvScreensInterface # advc.092
@@ -507,7 +507,9 @@ class Scoreboard:
 			if k == '-':
 				spacing = 0
 				continue
-			if k[0] in string.digits or k[0] == '-':
+			# <!-- custom: no need to import string just to have the string of numbers, as explained to me by chatgpt/becomingthrough, use a string directly instead anyways etc, was as below anyways etc-->
+			#if k[0] in string.digits or k[0] == '-':
+			if k[0] in "0123456789" or k[0] == '-':
 				spacing = int(k)
 				continue
 			if (not columnsByKey.has_key(k)):

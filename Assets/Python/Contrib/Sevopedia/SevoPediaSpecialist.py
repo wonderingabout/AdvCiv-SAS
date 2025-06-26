@@ -11,9 +11,9 @@
 
 from CvPythonExtensions import *
 import CvUtil
-import ScreenInput
-import SevoScreenEnums
-import string
+# <!-- custom: remove or comment out unused imports -->
+#import ScreenInput
+#import SevoScreenEnums
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -69,7 +69,7 @@ class SevoPediaSpecialist:
 		screen.attachListBoxGFC(panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(listName, False)
 		szSpecialText = CyGameTextMgr().getSpecialistHelp(self.iSpecialist, True)
-		splitText = string.split(szSpecialText, "\n")
+		splitText = szSpecialText.split("\n")
 		for special in splitText:
 			if len(special) != 0:
 				screen.appendListBoxString(listName, special, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)

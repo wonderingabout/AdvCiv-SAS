@@ -10,10 +10,8 @@ import BugCore
 import BugUtil
 import CvModName
 import TradeUtil
-import string
+# <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
 import BugFile
-
-import BugUtil
 
 gc = CyGlobalContext()
 PyPlayer = PyHelpers.PyPlayer

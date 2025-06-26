@@ -4,11 +4,10 @@
 
 from CvPythonExtensions import *
 import CvUtil
-import ScreenInput
-import SevoScreenEnums
-import string
-
-import TraitUtil
+# <!-- custom: remove or comment out unused imports -->
+#import ScreenInput
+#import SevoScreenEnums
+#import TraitUtil
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()

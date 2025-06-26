@@ -43,7 +43,6 @@ import CvUtil
 # <!-- custom: seems safe to remove as not accessed, commenting-out just in case -->
 #import ScreenInput
 #import SevoScreenEnums
-#import random
 
 from ai_utils_shared_with_civ4 import *
 from _sevopedia_helpers import *

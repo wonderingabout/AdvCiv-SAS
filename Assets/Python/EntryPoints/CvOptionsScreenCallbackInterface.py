@@ -1,8 +1,8 @@
+# <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
 from CvPythonExtensions import *
 import CvScreensInterface
 import Popup as PyPopup
 import CvUtil
-import string
 
 localText = CyTranslator()
 UserProfile = CyUserProfile()
@@ -42,7 +42,8 @@ def restartPopup(bForceShowing = False):
 def isNumber(s):
 	
 	for l in s:
-		if l not in string.digits:
+		# <!-- custom: use native code instead of string.digits, remove string module entirely too similarly as in other parts of the code when relevant and if i am not mistaken and as per chatgpt/becomingthrough's explanation first too i mean and my understanding of it too i mean anyways etc -->
+		if l not in "0123456789":
 			return False
 			
 	return True

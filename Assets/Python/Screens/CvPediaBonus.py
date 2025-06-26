@@ -2,9 +2,10 @@
 ## Copyright Firaxis Games 2005
 from CvPythonExtensions import *
 import CvUtil
-import ScreenInput
+
+# <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
+#import ScreenInput
 import CvScreenEnums
-import string
 
 # globals
 gc = CyGlobalContext()
@@ -202,6 +203,7 @@ class CvPediaBonus:
 		
 		# original code
 		#szSpecialText = CyGameTextMgr().getBonusHelp(self.iBonus, True)
+		# <!-- custom: note, if you want to uncomment this code that was commented out before this current comment anyways etc, use native code no need to use string module just to split a string simialrly as in other parts of the code where i made the change as per chatgpt/becomingthrough's advice answer to my prompt too anyways etc anyways etc anyways etc -->
 		#splitText = string.split( szSpecialText, "\n" )
 		#for special in splitText:
 		#	if len( special ) != 0:

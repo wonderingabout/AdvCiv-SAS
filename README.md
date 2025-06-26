@@ -128,9 +128,9 @@ More specificially about the [flatten_leaders_data_to_csv](/flatten_leaders_data
 - [(click here to view it on on github web viewer too (recommended))](/leaders_data_to_csv_advciv-sas.csv) (note: you can also click on the collapse tree button thing to get an even larger display) also you can use the search bar to filter results per leader(s) or/and such anyways etc, as shown below for the github web page view and for example alternatively or a software like libre office or similar viewer, anyways etc
 - legend (.md) is here [/leaders_data_to_csv_legend_advciv-sas.md](/leaders_data_to_csv_legend_advciv-sas.md) as well anyways etc
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_github_view (1).png" alt="csv_leaders_data_github_view (1).png" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_github_view (3).png" alt="csv_leaders_data_github_view (3).png" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_md_legend_github_view.png" alt="csv_leaders_data_md_legend_github_view.PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_github_view (1).PNG" alt="csv_leaders_data_github_view (1).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_github_view (3).PNG" alt="csv_leaders_data_github_view (3).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG" alt="csv_leaders_data_md_legend_github_view.PNG" width="250"></img>
 
 (note: base advciv leaders_data .csv table with its .md legend are in in our mod path in [/_0_Common_Docs/AdvCiv%20Base%20Doc/](/_0_Common_Docs/AdvCiv%20Base%20Doc/) directly if you want too anyways etc, see also instructions on how to generate it for other mods instructions are in the readme python scripts link above in this paragraph for details if link is still here anyways etc)
 
