@@ -54,7 +54,7 @@ class SevoPediaUnit:
 		if (self.ICON_SIZE > self.ICON_FRAME_SIZE):
 			raise ValueError(u"[FATAL] self.ICON_SIZE=%d cannot be bigger/higher than self.ICON_FRAME_SIZE=%d, self.ICON_SIZE must fit within the frame, please adjust self.ICON_SIZE or/and self.ICON_FRAME_SIZE so that 0 < self.ICON_SIZE < self.ICON_FRAME_SIZE" % (self.ICON_SIZE, self.ICON_FRAME_SIZE))
 		if (self.ICON_FRAME_SIZE > self.MAX_ICON_FRAME_SIZE):
-			raise ValueError(u"[FATAL] Out of bounds self.ICON_FRAME_SIZE=%d, must be lower than  cannot be bigger/higher than self.MAX_ICON_FRAME_SIZE, please reduce self.ICON_FRAME_SIZE so that 0 < self.ICON_FRAME_SIZE < self.MAX_ICON_FRAME_SIZE" % (self.ICON_FRAME_SIZE, self.MAX_ICON_FRAME_SIZE))
+			raise ValueError(u"[FATAL] Out of bounds self.ICON_FRAME_SIZE=%d, must be lower than  cannot be bigger/higher than self.MAX_ICON_FRAME_SIZE=%d, please reduce self.ICON_FRAME_SIZE so that 0 < self.ICON_FRAME_SIZE < self.MAX_ICON_FRAME_SIZE" % (self.ICON_FRAME_SIZE, self.MAX_ICON_FRAME_SIZE))
 
 		self.W_ICON = self.ICON_SIZE
 		self.H_ICON = self.ICON_SIZE
@@ -319,13 +319,11 @@ class SevoPediaUnit:
 					projectsRequired.append(iProject)
 		# Special hardcoded case for nukes and Manhattan Project since they might not be linked via XML
 		if unitInfo.getNukeRange() > 0:  # If this is a nuclear unit (like ICBM)
-			nukeProjectFound = False
 			for iProject in range(gc.getNumProjectInfos()):
 				projectInfo = gc.getProjectInfo(iProject)
 				if "MANHATTAN_PROJECT" in projectInfo.getType():
 					if iProject not in projectsRequired:
 						projectsRequired.append(iProject)
-					nukeProjectFound = True
 					break
 		# Display all project requirements with "OR" text between them
 		bFirst = True

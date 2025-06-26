@@ -41,7 +41,7 @@ Always keep a .txt copy of the full git log of the/your entire project, very use
 
 You can create such an exhaustive git log automatically in one command, plus also anonymizing the email with a `<hidden>` instead for all authors, as provided to me by chatgpt/becomingthrough, for example in git bash for windows, for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size):
 
-```
+```cmd
 cd "C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS/" && git log --pretty=format:"commit %H%nAuthor: %an <hidden>%nDate:   %ad%n%n%B" --date=iso > git_log_anonymized_email.txt
 ```
 
@@ -65,7 +65,7 @@ For example while trying to tweak difficulty settings after having added our new
 
 Output is as follows for a search on "251" and right click "copy" on the global search results (part of them that are in manual.txt i mean anyways etc):
 
-```
+```log
 C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv Base Doc\manual.txt
   172,273: To balance out the remaining changes (especially to Free Speech), the threshold for Legendary city culture gets reduced on the low and medium difficulty levels. (On Monarch, the threshold begins to increase, matching the increasing tech costs relevant for Space victory.) 251
   252,229:     • No impact of global research on inflation; instead, adjusted tech costs based on difficulty and the years-per-turn progression for a more historically accurate tech pace, and Immortal and Deity games now start on turn 10. 251, 910
@@ -99,23 +99,25 @@ One of the main points of this is also to show a manual.txt is much easier to na
 ### Sources about XML AI Attributes and their meaning
 
 Please read these docs (highly recommended) if you want to know more about AI attributes:
+
 - [kujira's website](https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#iclosebordersattitudechange) or for example list of unitAIs [kujira](https://gforestshade.github.io/kujira/post/keyichiran/#%E3%83%A6%E3%83%8B%E3%83%83%E3%83%88) and
 [cfc forum with what they do (may be accurate or not anyways)](https://forums.civfanatics.com/threads/list-of-unitais-and-what-they-do.353919/post-8910602), see also [translate to english using web browser trick/technique for/in kujira's website anyways etc](https://github.com/wonderingabout/kujira)
 - [modiki civfanatics website](https://modiki.civfanatics.com/index.php/Civ4LeaderHeadInfos) or [modiki's website too](https://modiki.civfanatics.com/index.php/Civ4TraitInfos) for example anyways etc
 - [wikidot website for example for bonusinfos](http://civ4.wikidot.com/xml:civ4bonusinfos)
 
 ## A few useful other links
+
 - many links in the main README.md first for example maybe indeed or not or yes or and other or and not etc anyways etc... in the [main README.md 's page link](/README.md)
 - todo: tutorial on how to compile the DLL and/or files for Advciv (but should not be needed if you only modify XML files if i am not mistaken)
 - [Python Class Reference (civ4bug.sourceforge.net)](https://civ4bug.sourceforge.net/PythonAPI/) List of all or many(?) python class detailed info, can be useful for example it helped me implement the Sevopedia religion's (working and finalized at least as of now anyways etc) right panel version of leaders panel, telling [claude AI (see Claude AI's section of the Authors part of the readme.md for details)](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) to adjust its code for the `screen.addMultiListControlGFC` to display leaders in a multi line button panel, see Sevopedia religion's code and code coomments for details. I have also made a copy of it (this website's content that is very elpful if i or and maybe others or not or other or etc anwyas etc use it or not anyways etc) here in advciv-sas or the current mod you're using showing this/these doc(s), in the file [civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt](/_0_Common_Docs/CIV4BUG%20Sourceforge%20net%20All%20Classes%20Doc/civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt), may help us also for global search (with vs code for example is what we/i i mean use anyways etc  thanks to thosete person(s) who taught me about it anyways etc) if need or and other uses or and not maybe anyways etc.
-- inspecting an object, see for example, not sure is best way to do it and i am no expert in it, but i did solve it hehe if i may say but anyways... etc.., just one way i randomly or persistently found that solved the issue of displaying/finding required building method, if it can help you too maybe anyways etc, here it is: `printObjAttrs` in [_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py) and [__SevoPediaBuilding-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-inner-debug-content.txt) for example, and also [__SevoPediaUnit-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaUnit-gc-inner-debug-content.txt) which helped me adjust Claude AI's (see [Claude AI's part of the authors section of this README.md below for details](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) code of the new placeTerrainFeatureCity or similarly named sevopedia unit function/method anyways etc, not using the inaccurate methods Claude AI provided, at least in advciv and advciv-sas by extension since we use same code as in advciv anyways etc, `getHillsAttackPercent()` and `getHillsDefensePercent()` but instead the real at least as appears in our insect of the unitinfo anyways etc as linked just above in same bulelt point if i am not mistaken indeed if i may say anyways etc with `getHillsAttackModifier()` and `getHillsDefenseModifier()` of an otherwise very great code that worked at first try!!! (see also [this screenshot (1) (google drive image link)](https://drive.google.com/file/d/1oE0tG3VjCY7a5ABwlV0MYDhA3ox3Sbe4/view?usp=sharing) and [this screenshot (2) (google drive image link)](https://drive.google.com/file/d/1Yn7dIxzDpuJ2f8wbpXmhn2W0qZ42ADOe/view?usp=sharing) for example of how i solved it if helpful or interesitng or enjyoabel or pelasant or fun or any other else or not or othr or not or yes or and other or and not anyways etc anyways etc anyways etc) And finally shwoed us hills and peaks too so we can expand on it and try to find how to show them in sevoepdia terrain category now :o anyways etc, thanks a lot Claude AI and thanks to me too or and other or and not anways etc , hopefully helpful or not or yes or and other or and not anyways etc anyways etc anyways etc 
+- inspecting an object, see for example, not sure is best way to do it and i am no expert in it, but i did solve it hehe if i may say but anyways... etc.., just one way i randomly or persistently found that solved the issue of displaying/finding required building method, if it can help you too maybe anyways etc, here it is: `printObjAttrs` in [_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py) and [__SevoPediaBuilding-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaBuilding-gc-inner-debug-content.txt) for example, and also [__SevoPediaUnit-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaUnit-gc-inner-debug-content.txt) which helped me adjust Claude AI's (see [Claude AI's part of the authors section of this README.md below for details](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) code of the new placeTerrainFeatureCity or similarly named sevopedia unit function/method anyways etc, not using the inaccurate methods Claude AI provided, at least in advciv and advciv-sas by extension since we use same code as in advciv anyways etc, `getHillsAttackPercent()` and `getHillsDefensePercent()` but instead the real at least as appears in our insect of the unitinfo anyways etc as linked just above in same bulelt point if i am not mistaken indeed if i may say anyways etc with `getHillsAttackModifier()` and `getHillsDefenseModifier()` of an otherwise very great code that worked at first try!!! (see also [this screenshot (1) (google drive image link)](https://drive.google.com/file/d/1oE0tG3VjCY7a5ABwlV0MYDhA3ox3Sbe4/view?usp=sharing) and [this screenshot (2) (google drive image link)](https://drive.google.com/file/d/1Yn7dIxzDpuJ2f8wbpXmhn2W0qZ42ADOe/view?usp=sharing) for example of how i solved it if helpful or interesitng or enjyoabel or pelasant or fun or any other else or not or othr or not or yes or and other or and not anyways etc anyways etc anyways etc) And finally shwoed us hills and peaks too so we can expand on it and try to find how to show them in sevoepdia terrain category now :o anyways etc, thanks a lot Claude AI and thanks to me too or and other or and not anways etc , hopefully helpful or not or yes or and other or and not anyways etc anyways etc anyways etc
 - todo add links if i have/want(/do) more to add
 
-## In case UnitAIs info from link above is deleted someday, here is a copy here in case, anyways etc:
+## In case UnitAIs info from link above is deleted someday, here is a copy here in case, anyways etc
 
 quote from website linked before anyways etc, and adjusted or not or yes or not or yes or and other or and not anyways etc... for AdvCiv-SAS (mod +/- project anyways etc) anyways etc... :
 
-"
+```text
 This is based on BBAI, so default BtS may be slightly different:
 
 - UNITAI_ATTACK: General purpose; unit prioritizes joining an attack stack, but also may wander off on search and destroy/explore, sit in a city and defend it, etc.
@@ -158,7 +160,7 @@ Great people AIs:
 
 
 For unit AIs that are correct in the OP, I didn't write anything.
-"
+```
 
 ## Civ4 ProcessInfos XML info
 
@@ -166,7 +168,7 @@ From: [modiki's website, wayback archive version latest i found anyways etc](htt
 
 adjusted for advciv-sas or not anyways etc:
 
-"
+```text
 Civ4ProcessInfo
 
 The Civ4ProcessInfo file defines what commerce types can be created from production in a city (by default, 100% of production to wealth, research, and culture). This can also be used to create an option to have a city build nothing (by setting all of the commerce types so that no production is applied to them).
@@ -225,7 +227,6 @@ Example
 
 In the following example of code, please note that there is a specific order of all of the tags. You must list the tags in this order for the game to properly interpret your file.
 
-```
 <ProcessInfo>
  <Type>PROCESS_WEALTH</Type>
  <Description>TXT_KEY_PROCESS_WEALTH</Description>
@@ -239,7 +240,6 @@ In the following example of code, please note that there is a specific order of 
  <Button>Art/Interface/Buttons/Process/ProcessWealth.dds</Button>
 </ProcessInfo>
 ```
-"
 
 ## Copy of the tutorial on how to modify GameFonts.tga for FREE
 
@@ -249,7 +249,7 @@ Source: [CFC forum link](https://forums.civfanatics.com/threads/how-to-modify-ga
 
 In case it is deleted, i have made a copy here which is as follows adjsuted or not or and other or and not anyways etc for AdvCiv-SAS (formatting the github readme or and other or and not anyways etc):
 
-"
+```text
 Tutorial: Editing GameFonts.tga for Free
 
 
@@ -289,7 +289,7 @@ Free Windows Applications Mentioned in this Tutorial
 
 Cheers,
 Eusebius
-"
+```
 
 I am not responsible if it is not updated anymore or inaccurate, but i hope it can be helpful hopefully or maybe not (is not helpful anyways etc) but in all cases is what i wanted to do (to write it here) anyways etc anyways etc anyways etc.
 
@@ -305,7 +305,7 @@ from: `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV
 
 As follows:
 
-```
+```cpp
 #include "CvGameCoreDLL.h"
 #include "CvDllTranslator.h"
 #include "CvGame.h"
@@ -385,7 +385,7 @@ Output looks like this for example: [(google drive folder screenshots link)](htt
 
 note: modified button path in code below to a button path known to exist in base advciv (civ4 too?), for example the jewish temple
 
-```
+```python
 			# <!-- custom: 2.1: Yield Modifiers (Food +x%, Production +x%, Commerce +x%) with power breakdown -->
 			for k in range(YieldTypes.NUM_YIELD_TYPES):
 				iYieldModifier = buildingInfo.getYieldModifier(k)
@@ -444,11 +444,11 @@ Be careful to import all nif related files in the same folder in your mod (or in
 
 Note: be careful, in some mods/cases anyways etc the assets such as nif may be scattered across several different fkps, like in ri mod smokehouse1 's nif, scattered accross RI_37_Structures2.FPK (iroquoislh.nif and asian_building.dds) and RI_37_Structures9.FPK (asian_building_shadow.dds) so need to gather them all in one folder if not doing an FPK approach (we don't do FPKs in AdvCiv-SAS at least as of now, anyways etc, see screenshots in the drive link above for details/example anyways etc), in such cases, i would recommend rather to use PakBuild, see [/README.md#some-useful-tools-while-doing-this](/README.md#some-useful-tools-while-doing-this) explanation and drive link at PakBuild there for details ; note 2 about this anyways etc: in some mods like c2c for example anyways etc, unpacking in a fodler where you unpacked before seems to create some elements to be missing, 13 by unpacking all fpks in same folder one by one vs 17 files by doing it manually with dragon unpacker, adjust as you see fit the note in this paragraph anyways etc
 
-note 2: sometimes the .kfm is base civ4 for example of the of arabian old camel archer anyways etc so can't find it in the ri mod anyways etc, a hint to that may be if a ctrl+f of the fielname for example "ArabiaCamelArcher.kfm" with one result in our art assets xml before we added it from another mod in the xml, or 2+ results after adding the .kfm in xml too (before finding the actual .kfm file in the mod, then it i very likely the .kfm is a base civ4 file and thus can't be found in any mod unless they especially copy it again in exact same path or path specified which there should be no strong reason to do ince the file already exists ni base civ4 if i am not mistaken anyways etc), so in short if can't find the .kfm or maybe perhaps even the .nif in the mod, in any .fpk or such mod files too perhaps, then maybe the file is a base civ4 oen so just leave path as it is without changing path to your mod specific paths, for example for the camel archer `Art/Units/Unique/Arabia/CamelArcher/ArabiaCamelArcher.kfm` (default keep as is anyways etc) not `Art/AdvCiv_SAS/Units/Camel_Archer/nif/ArabiaCamelArcher.kfm` while desperately trying to find a file that maybe doesn't exist, but many assets have their own ;kfm though so make sure to search too, but generally they should be in path specified in one of the .fpks of the mod or raw path if they don't use fpk for this asset, hopefully helpful, if still no luck try to find the asset in another mod perhaps, hopefully i found the trick before ditching the ri mod files i had already downloaded, so all works in this case i mean but anyways etc, hopefully helpful but anyways etc anyways etc anyways etc... 
+note 2: sometimes the .kfm is base civ4 for example of the of arabian old camel archer anyways etc so can't find it in the ri mod anyways etc, a hint to that may be if a ctrl+f of the fielname for example "ArabiaCamelArcher.kfm" with one result in our art assets xml before we added it from another mod in the xml, or 2+ results after adding the .kfm in xml too (before finding the actual .kfm file in the mod, then it i very likely the .kfm is a base civ4 file and thus can't be found in any mod unless they especially copy it again in exact same path or path specified which there should be no strong reason to do ince the file already exists ni base civ4 if i am not mistaken anyways etc), so in short if can't find the .kfm or maybe perhaps even the .nif in the mod, in any .fpk or such mod files too perhaps, then maybe the file is a base civ4 oen so just leave path as it is without changing path to your mod specific paths, for example for the camel archer `Art/Units/Unique/Arabia/CamelArcher/ArabiaCamelArcher.kfm` (default keep as is anyways etc) not `Art/AdvCiv_SAS/Units/Camel_Archer/nif/ArabiaCamelArcher.kfm` while desperately trying to find a file that maybe doesn't exist, but many assets have their own ;kfm though so make sure to search too, but generally they should be in path specified in one of the .fpks of the mod or raw path if they don't use fpk for this asset, hopefully helpful, if still no luck try to find the asset in another mod perhaps, hopefully i found the trick before ditching the ri mod files i had already downloaded, so all works in this case i mean but anyways etc, hopefully helpful but anyways etc anyways etc anyways etc...
 
-Like this for example if it helps too, anyways etc... (not sayin this is a standard or ideal to follow, but free or fine maybe to do just i don't know if is best practice or such, but since it works-functions you may use freely this template, evn if it didn't work btw maybe but anyways etc, regardless in all cases here is an exampel that hopefully or/and maybe helps but in all cases anyways etc...)
+Like this for example if it helps too, anyways etc... (not sayin this is a standard or ideal to follow, but free or fine maybe to do just i don't know if is best practice or such, but since it works-functions you may use freely this template, evn if it didn't work btw maybe but anyways etc, regardless in all cases here is an example that hopefully or/and maybe helps but in all cases anyways etc...)
 
-```
+```xml
 			<NIF>Art/AdvCiv_SAS/Units/Camel_Archer/nif/BerberCamelRiderFinalFinal.nif</NIF>
 			<KFM>Art/Units/Unique/Arabia/CamelArcher/ArabiaCamelArcher.kfm</KFM>
 			<SHADERNIF>Art/AdvCiv_SAS/Units/Camel_Archer/nif/BerberCamelRiderFinalFinal_fx.nif</SHADERNIF>
@@ -479,7 +479,7 @@ So by mirroring the functionning of it, but with the new `<bTrade>` (see [kujira
 
 For example kujira's website says this (translated as such as explained before in previous paragraph/sentence just above if i am not mistaken too as of now in case paragraph(s)'s/sentence(s)'s order changed or maybe it didnt but anyways etc anyways etc anyways etc) provided for convenience too if doesn't bother too maybe but anyways etc... hopefully maybe helps too but maybe doesn't or does or not or yes or other or and etc but anyways etc:
 
-```
+```text
 Sets whether this technology is tradable.
 If you set this to 1, this technology will be tradable in diplomatic trades.
 In BtS, this applies to all technologies except future technologies 1.

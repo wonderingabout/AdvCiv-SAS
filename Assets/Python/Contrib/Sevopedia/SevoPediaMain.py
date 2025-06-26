@@ -241,7 +241,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		return CyGInterfaceScreen(self.PEDIA_MAIN_SCREEN, SevoScreenEnums.PEDIA_MAIN)
 
 	def createScreen(self, screen):
-		if screen.isActive(): return
+		if screen.isActive():
+			return
 		BugUtil.debug("Creating screen")
 		self.iCategory = -1
 		self.tab = None
@@ -349,7 +350,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		return self.tab == self.TAB_INDEX
 	
 	def showIndex(self):
-		if self.isIndexShowing(): return
+		if self.isIndexShowing():
+			return
 		self.deleteAllWidgets()
 		self.deleteListWidgets()
 		screen = self.getScreen()
@@ -643,11 +645,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		#gc.getInfoTypeForString("CIVILIZATION_MINOR")
 		r = []
 		for descr,i in civList:
-			info = gc.getCivilizationInfo(i)
 			# <!-- custom: reveal minor nation, i want all information
 			# available in the sevopedia. May also be useful for other
 			# mods.
 			# -->
+			#info = gc.getCivilizationInfo(i)
 			#if not info.isPlayable():
 			#	iCapitalBuildingClass = gc.getDefineINT("CAPITAL_BUILDINGCLASS")
 			#	if (iCapitalBuildingClass >= 0 and

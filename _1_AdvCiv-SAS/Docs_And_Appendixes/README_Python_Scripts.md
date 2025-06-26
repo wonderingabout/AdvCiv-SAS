@@ -22,7 +22,7 @@ note 2: this flatten_handicap_info_to_csv_and_md.py has "info" in its filename a
 
 Usage is similarly as (for) other scripts in this readme pythons scripts, for example for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size):
 
-```
+```text
 cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & python flatten_handicap_info_to_csv_and_md.py
 ```
 
@@ -30,7 +30,7 @@ The script requires to be at the root of your mod path (as in below path example
 
 Example of usage:
 
-<img src="../Images_In_General/scripts/csv_and_md_handicap_info_cmd_usage_example.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_and_md_handicap_info_cmd_usage_example.PNG" alt="csv_and_md_handicap_info_cmd_usage_example.PNG" width="250"></img>
 
 ### output .csv +/- .md
 
@@ -45,15 +45,15 @@ note: you can remove the timestamp (i.e. the year and time and such info in file
 
 GitHub website view example (recommended, as display is nice anyways etc, and you can also for example anyways etc use github's search bar for example anyways etc)
 
-<img src="../Images_In_General/scripts/csv_handicap_info_github_view_example.PNG" width="250"></img>
-<img src="../Images_In_General/scripts/csv_handicap_github_view_search_bar_example.PNG" width="250"></img>
-<img src="../Images_In_General/scripts/csv_handicap_info_md_legend_github_view.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_handicap_info_github_view_example.PNG" alt="csv_handicap_info_github_view_example.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_handicap_github_view_search_bar_example.PNG" alt="csv_handicap_github_view_search_bar_example.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_handicap_info_md_legend_github_view.PNG" alt="csv_handicap_info_md_legend_github_view.PNG" width="250"></img>
 
 Libre Office view example (or similar software or not anyways etc) (may not be updated, view on github instead as explained in main readme or view your own file locally .csv in your mod with libre office or a similar viewer/editor, thanks anyways etc thanks) with the .md legend view example (on github (view) in this case as well) anyways etc):
 
-<img src="../Images_In_General/scripts/csv_handicap_info_libre_office (1).PNG" width="250"></img>
-<img src="../Images_In_General/scripts/csv_handicap_info_libre_office (2).PNG" width="250"></img>
-<img src="../Images_In_General/scripts/csv_handicap_info_md_legend_github_view.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_handicap_info_libre_office (1).PNG" alt="csv_handicap_info_libre_office (1).PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_handicap_info_libre_office (2).PNG" alt="csv_handicap_info_libre_office (2).PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_handicap_info_md_legend_github_view.PNG" alt="csv_handicap_info_md_legend_github_view.PNG" width="250"></img>
 
 #### about the table .md version of the table anyways etc
 
@@ -61,9 +61,8 @@ Currently less advanced version of this (with the legend, but maybe displays qui
 
 Currently commeneted-out as the .csv table view is plenty and also more advanced for our need, but if you'd want to know what it looks like at least as of now if i am not mistaken anyways etc, is as below for example anyways etc, shown with github web view (before table .md file was removed from the advciv-sas mod folder and coudl sitll be viewed thus in github web view anyways etc) and VS Code .md preview for example alternatively for example anyways etc, i'd still recommend the table .csv version rather (with its .md legend if need but anyways etc) but this is to show how these would display too if you want to see them anyways etc:
 
-
-<img src="../Images_In_General/scripts/csv_md_handicap_github_view_example.PNG" width="250"></img>
-<img src="../Images_In_General/scripts/csv_md_handicap_vs_code_preview_example.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_md_handicap_github_view_example.PNG" alt="csv_md_handicap_github_view_example.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_md_handicap_vs_code_preview_example.PNG" alt="csv_md_handicap_vs_code_preview_example.PNG" width="250"></img>
 
 ### handicap_info table for other mod(s) (for example for base AdvCiv mod)
 
@@ -75,7 +74,7 @@ To generate handicap info table for another mod (for example for base AdvCiv) us
 
 Then run this command from for example base AdvCiv mod in this case/example (adjust paths and/or such similar things anyways if not steam user):
 
-```
+```text
 cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\ & python flatten_handicap_info_to_csv_and_md.py
 ```
 
@@ -91,8 +90,6 @@ Output files (.csv and optionally .md), for example in this case i chose the bas
 
 ## generate_leaders_data.py script and leaders_data.py module
 
-### Description
-
 This parses all XML fields for all leaders (load LEADER_DEFAULTS if missing), including LEADER_DEFAULTS and LEADER_BARBARIAN for exhaustiveness (which are for information later exlcuded from the display and calculation in AI Personality feature, see [README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks) for details), and generates an output leaders_data.py file with a timestamp (this file acts as a data module of all leder's information).
 
 While generating it, it also checks for missing fields in the xml, or int to string or string to int or other types conversions (maybe not encessarily all, but gives a general idea and safety check anyways)
@@ -107,7 +104,7 @@ note: unlike other scripts such as flatten_handicap_info_to_csv_and_md.py that h
 
 ### Usage / Instructions (from chatgpt and me too anyways)
 
-1) Install Python 3 (if needed): Go to https://www.python.org/downloads/, install Python 3+ (any modern version will do).
+1) Install Python 3 (if needed): Go to [https://www.python.org/downloads/](https://www.python.org/downloads/), install Python 3+ (any modern version will do).
 
 2) Run the script, either double click, or launch it via cmd or any terminal you prefer (this way you can see success confirmation message, as well as error messages).
 
@@ -121,7 +118,7 @@ generate_leaders_data.py must be at the root folder of the mod, for example if y
 
 In cmd, for example for Steam users (adapt to your AdvCiv-SAS install path), go to your root AdvCiv-SAS first, and then while in AdvCiv-SAS root folder run the script:
 
-```
+```text
 cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & python generate_leaders_data.py
 ```
 
@@ -131,8 +128,8 @@ Example of cmd processing for Steam users (adjust paths and/or such similar thin
 
 Example of output for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size):
 
-<img src="../Images_In_General/scripts/python_output_example_1_generate_leaders_data.PNG" width="250"></img>
-<img src="../Images_In_General/scripts/python_output_example_2_generate_leaders_data.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/python_output_example_1_generate_leaders_data.PNG" alt="python_output_example_1_generate_leaders_data.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/python_output_example_2_generate_leaders_data.PNG" alt="python_output_example_2_generate_leaders_data.PNG" width="250"></img>
 
 Finally, delete the old existing file leaders_data.py if any and rename your new file from leaders_data+timestamp.py to leaders_data.py. Now your flatten_leaders_data.py script can use this latest leaders_data.py if you want to regenerate the leaders comparison of all leaders with latest xml changes you made now also in leaders_data.py you just generated successfully anyways etc, including custom leaders you may have added or removed.
 
@@ -166,7 +163,7 @@ note: you also need to add the `--notesting` command argument to skip testing, s
 
 For example for the AdvCiv mod (adjust to your mod path if non-Steam or/and other mod path for your mod anyways etc):
 
-```
+```text
 cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\ & python generate_leaders_data.py --notesting
 ```
 
@@ -198,7 +195,7 @@ Rest is written by me wonderingabout hehe anyways etc gogogo anyways.
 
 We parse attitudes using this formula (see [generate_leaders_data.py](/generate_leaders_data.py) for details):
 
-```
+```python
 ATTITUDE_MAP = {
 	# <!-- custom: according to https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#%e5%a4%96%e4%ba%a4%e7%a8%ae%e5%88%a5%e3%81%94%e3%81%a8%e3%81%ae%e5%bf%85%e8%a6%81%e6%85%8b%e5%ba%a6 (translate (website) to english using your web browser or/and other etc) and my revised judgment, "none" attitude type is actually more permissive than furious, meaning even if (ai) leader is furious, as long as (ai) lader is at least furious (meaning effectively always), they will allow or maybe rather not refuse(?) such behaviour or maybe trade rather anyways etc, as for actual values, now that we have in sevopedia leader a parsing directly from xml field for all attitude threshold fields (see sevopedia_helpers or sevopedialeader py file code comments or and similar doc for details anyways etc), match closer DLL behaviour or rather numbers anyways etc by going from -1 (none) to 4 (friendly) (unlike what i had done from -3 to 2 which would work-function well too anyways etc but more consistent this way perhaps but anyways etc anyways etc anyways etc -->
 	"NONE": -1,
@@ -216,7 +213,6 @@ ATTITUDE_MAP = {
 
 Instead of keeping the nested structure, each possible attitude (Furious, Annoyed, Cautious, Pleased, Friendly) is extracted into a separate field like iNoWarAttitudeProbFurious, iNoWarAttitudeProbAnnoyed, and so on. Missing fields default to 0 to ensure consistent behavior across all leaders.
 
-
 #### Flavors
 
 The nested `<Flavors>` block is also unpacked into simple fields, such as iFlavorMilitary, iFlavorReligion, iFlavorProduction, iFlavorGold, iFlavorScience, iFlavorCulture, iFlavorGrowth, and iFlavorEspionage. These represent the AI "focuses" of a leader. If a leader does not specify a flavor, the corresponding value defaults to 0.
@@ -231,6 +227,7 @@ These changes do not affect gameplay: they are purely for better modder and play
 #### Contact Delays, Contact Rands, and Contact Probs
 
 We first normalize:
+
 - contact delays by applying a MAIN_WEIGHT (number between 0 and 1, see updated value in [/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py](/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py) at least as of now value is there anyways etc), applying inversions if need be (and hopefully we were not mistaken in doing so if was needed or (we) thought it was etc anyways) (i prefer to redirect to the real doc or code rather here anyways [generate_leaders_data.py](/generate_leaders_data.py)), faster for me and clearer/more accurate hopefully anyways etc)
 - contact rands by applying a SECONDARY_WEIGHT (number between 0 and 1, total of main + secondary weights being equal to 1 at least aimed to be so anyways etc), see updated value similarly in [/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py](/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py) weight on them, applying inversions if need be (and hopefully we were not mistaken in doing so if was needed or (we) thought it was etc anyways) (i prefer to redirect to the real doc or code rather here anyways [generate_leaders_data.py](/generate_leaders_data.py)), faster for me and clearer/more accurate hopefully anyways etc)
 
@@ -240,7 +237,7 @@ We also flatten these fileds as they are nested, and export all of that (decay r
 
 example of output of unit test and part of the logic
 
-<img src="../Images_In_General/scripts/test_fix_7_skip_etc.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/test_fix_7_skip_etc.PNG" alt="test_fix_7_skip_etc.PNG" width="250"></img>
 
 #### Positive/Negative Memory affections/resentments
 
@@ -249,6 +246,7 @@ Similarly to how contact probs are processed, Positive/Negative Memory affection
 Difference is we use memory attitude percents things anyways and memory decays (things too maybe etc anyways) instead of contact delays and rands, as well as a different formula, but the idea is generally the same.
 
 So similarly, we first normalize positive and negative memory affections and resentments, using:
+
 - MAIN_WEIGHT (number between 0 and 1, see updated value in [/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py](/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py) at least as of now value is there anyways etc) weight on memory attitude percents (invert if need/thought needed to be anyways etc hopefully not mistaken anyways etc)
 - SECONDARY_WEIGHT (number between 0 and 1, total of main + secondary weights being equal to 1 at least aimed to be so anyways etc), see updated value similarly in [/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py](/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py) anyways etc, on memory decays (invert if need/thought needed to be anyways etc hopefully not mistaken anyways etc)
 
@@ -285,30 +283,31 @@ Note 3: as long as these files don't change, no need to rerun the prerequirement
 
 Usage is for example for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size).
 
-```
+```text
 cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & python flatten_leaders_data_to_csv.py
 ```
 
-<img src="../Images_In_General/scripts/csv_leaders_data_cmd_usage_example.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_leaders_data_cmd_usage_example.PNG" alt="csv_leaders_data_cmd_usage_example.PNG" width="250"></img>
 
 ### output table .csv and legend .md
 
 Output files (.csv and .md) can be viewed directly there:
+
 - [(click here to view the table .csv on on github web viewer too (recommended))](/leaders_data_to_csv_advciv-sas.csv) (note: you can also click on the collapse tree button thing to get an even larger display) also you can use the search bar to filter results per leader(s) or/and such anyways etc, as shown below for the github web page view and for example alternatively or a software like libre office or similar viewer, anyways etc
 - legend (.md) is here [/leaders_data_to_csv_legend_advciv-sas.md](/leaders_data_to_csv_legend_advciv-sas.md) as well anyways etc
 
 output example with github web viewer (recommended):
 
-<img src="../Images_In_General/scripts/csv_leaders_data_github_view (1).PNG" width="250"></img>
-<img src="../Images_In_General/scripts/csv_leaders_data_github_view (2).PNG" width="250"></img>
-<img src="../Images_In_General/scripts/csv_leaders_data_github_view (3).PNG" width="250"></img>
-<img src="../Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_leaders_data_github_view (1).PNG" alt="csv_leaders_data_github_view (1).PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_leaders_data_github_view (2).PNG" alt="csv_leaders_data_github_view (2).PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_leaders_data_github_view (3).PNG" alt="csv_leaders_data_github_view (3).PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG" alt="csv_leaders_data_md_legend_github_view.PNG" width="250"></img>
 
 output example with libre office:
 
-<img src="../Images_In_General/scripts/csv_leaders_data_libre_office (1).PNG" width="250"></img>
-<img src="../Images_In_General/scripts/csv_leaders_data_libre_office (2).PNG" width="250"></img>
-<img src="../Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_leaders_data_libre_office (1).PNG" alt="csv_leaders_data_libre_office (1).PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_leaders_data_libre_office (2).PNG" alt="csv_leaders_data_libre_office (2).PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_leaders_data_md_legend_github_view.PNG" alt="csv_leaders_data_md_legend_github_view.PNG" width="250"></img>
 
 Then you can sort it, enhance it, adjust row length and such, but the base idea is here, hopefully helpful, anyways.
 
@@ -328,7 +327,7 @@ See and follow the steps or/and explanations anyways etc at [/_1_AdvCiv-SAS/Docs
 
 After all prerequirements above are met but for your mod path folder name, for example "AdvCiv" (base AdvCiv) instead of "AdvCiv-SAS", you can generate the leaders_data table (.csv) and its  legend (.md) by running the following for example anyways etc (adjust paths and/or such similar things anyways if not steam user) anyways etc:
 
-```
+```text
 cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\ & python flatten_leaders_data_to_csv.py
 ```
 
@@ -341,8 +340,6 @@ Output files (.csv and optionally .md), for example in this case i chose the bas
 
 ## scan_xml_duplicates py script and Logs_XML_Scans
 
-### Description
-
 Execute it very similarly as the generate_leaders.py script, this scan_xml_duplicates py script ; this script however scans the entire Assets/XML/ folder (all files) blindly looking for duplicates.
 
 It is not perfect but should be very helpful in spotting these. (Things to improve, line numbering, better filtering of false positives, etc if you have other ideas or other, etc anyways etc.)
@@ -351,7 +348,7 @@ It is not perfect but should be very helpful in spotting these. (Things to impro
 
 In cmd, for example for Steam users (adapt to your AdvCiv-SAS install path), go to your root AdvCiv-SAS first, and then while in AdvCiv-SAS root folder run the script:
 
-```
+```text
 cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & python scan_xml_duplicates-3.3.py
 ```
 
@@ -365,14 +362,14 @@ Here is an [example of output file](/scan_xml_duplicates-log_example_of_output.t
 
 (Note: files are in .gitignore if you use git, else dont mind this specific remark, anyways)
 
-Line numbers don't print perfectly ("duplicated" you could say hehe.. (but) anyways), but info should be otherwise helpful hopefully ; also some duplicates are intended and expected if i am not mistaken and part of the game architecture, such as the iCommerce ones if i understood ChatGPT's explanation correctly and based on my own memories's understanding anyways, and TXT_KEY_HINT_* where * is anything  for example, maybe for publicity and purposely repeated, according to ChatGPT/becomingthorugh anyways too and seems to make sense, if i am not msitaken and understand it and it's explanation correctly too
+Line numbers don't print perfectly ("duplicated" you could say hehe.. (but) anyways), but info should be otherwise helpful hopefully ; also some duplicates are intended and expected if i am not mistaken and part of the game architecture, such as the iCommerce ones if i understood ChatGPT's explanation correctly and based on my own memories's understanding anyways, and TXT_KEY_HINT_`*` where `*` is anything for example, maybe for publicity and purposely repeated, according to ChatGPT/becomingthorugh anyways too and seems to make sense, if i am not msitaken and understand it and it's explanation correctly too
 
 In all cases, here is an example of output for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size) :
 
 Example for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size):
 
-<img src="../Images_In_General/scripts/xml-duplicate-checker-3.3 - 1.PNG" width="250"></img>
-<img src="../Images_In_General/scripts/xml-duplicate-checker-3.3 - 2.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/xml-duplicate-checker-3.3 - 1.PNG" alt="xml-duplicate-checker-3.3 - 1.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/xml-duplicate-checker-3.3 - 2.PNG" alt="xml-duplicate-checker-3.3 - 2.PNG" width="250"></img>
 
 ### Context of how/why i made this script (with chatgpt/becomingthrough, anyways)
 
@@ -382,8 +379,8 @@ See the [README_Known_Issues_In_Base_AdvCiv_Civ4.md#2---now-fixed-gandhis-base-l
 
 Similarl(ly) to other scripts, usage is for example for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size):
 
-```
+```text
 cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & python test_crazy_normalize_to_100.py
 ```
 
-<img src="../Images_In_General/scripts/test_crazy_normalize_to_100_example.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/test_crazy_normalize_to_100_example.PNG" alt="test_crazy_normalize_to_100_example.PNG" width="250"></img>

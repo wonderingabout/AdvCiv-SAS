@@ -1,3 +1,4 @@
+# pylance: ignore reportMissingImports, reportUndefinedVariable, reportMissingModuleSource
 # Sid Meier's Civilization 4
 # Copyright Firaxis Games 2005
 #
@@ -34,7 +35,6 @@
 # 2) UI: nothing remains only displayign it, nothign left to compute, a bit of tuple direct unpacking without any check if i am not mistaken, so display is very fast despite the quite big data if i may say but anyways etc anyways etc anyways etc.
 #
 # Apart from that, i may have modified the existing base advciv code (that i found good enough so using it as a base rather than removing it, and quite good actually, only needing tweaking but is a solid base (i think or not) maybe or not, anyways, ) or not for AdvCiv-SAS, anyways, -->
-
 
 
 # -*- coding: utf-8 -*-
@@ -84,7 +84,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 		# <!-- custom: note: to use the AI personality feature in another mod, you need to modify the DLL to expose python BBAI getters and at if i am not mistaken base advciv's getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold as of now, see README.md fixes section or/and in particular known issues readme of advciv-sas (ctrl+f "expose" or "getter" or "bbai" or something similar) if the info is still there on these readmes anwyays etc, as of now it contains info with google drive link and screenshots on how to do it yourself, adding raise error to make user or/and modder aware of this if they are missing anyways etc, see also sevopedia_helpers py file debug output code comments for details too ifi may say anwyays etc anyways etc anyways etc... ; raise an error if any of these are missing to raise awareness if i may say on these... hehe or not hehe or yes hehe but in all cases hehe or etc anyways etc... hehe or not or yes hehe but anyways etc... hehe (this is getting quite funny hehe or ont or yes hehe but in all cases anyways etc... hopefully helpful or not or yes all this code comment i mea maybe this joke or soemthign too ro not or yes or other or etc but anyways etc anyways etc anyways etc...) -->
 
 		REQUIRED_TO_NEWLY_BE_EXPOSED_TO_PYTHON_GETTERS_GC_LEADER = (
-			# <!-- custom: BBAI victory weights newly exposed victorily by me and chatgpt becomingthrough but anyways etc anyways etc anyways etc... hehe but or not but or yes but anyways etc... but if you want to do it too see readme links with gogole drive sscreenshots if links or/and screenshots and such are still there anyways etc -->
+			# <!-- custom: BBAI victory weights newly exposed victorily by me and chatgpt becomingthrough but anyways etc anyways etc anyways etc... hehe but or not but or yes but anyways etc... but if you want to do it too see readme links with google drive sscreenshots if links or/and screenshots and such are still there anyways etc -->
 			"getCultureVictoryWeight",
 			"getSpaceVictoryWeight",
 			"getConquestVictoryWeight",
@@ -105,7 +105,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 					missing.append(getter)
 
 			if missing:
-				raise RuntimeError(u"[FATAL] Your mod DLL does not expose the following required Python getters:\n%s\n\nMissing for example from leader: %s (iLeader=%d). Please expose them in .cpp files and build the DLL again (and replace old DLL with new one anyways etc) (or check if this getter matches an existing XML field in your mod and possibly adjust this code based on this if intended as such that this/these getter(s) triggering this error is/are missing anyways etc). See README.md or AdvCiv-SAS documentation for help if help is there too still (some info is there as of now with google drive link and screenshots on how to do it or ask in a forum or such hopefully helpful but anyways etc)." % (", ".join(missing), iLeader))
+				raise RuntimeError(u"[FATAL] Your mod DLL does not expose the following required Python getters:\n%s\n\nMissing for example from iLeader=%d). Please expose them in .cpp files and build the DLL again (and replace old DLL with new one anyways etc) (or check if this getter matches an existing XML field in your mod and possibly adjust this code based on this if intended as such that this/these getter(s) triggering this error is/are missing anyways etc). See README.md or AdvCiv-SAS documentation for help if help is there too still (some info is there as of now with google drive link and screenshots on how to do it or ask in a forum or such hopefully helpful but anyways etc)." % (", ".join(missing), iLeader))
 			
 			# success: only check first real leader
 			if IS_DEBUG_LEADER:
@@ -1439,7 +1439,7 @@ class SevoPediaLeader:
 
 	def interfaceScreen(self, iLeader):
 		self.iLeader = iLeader
-
+		printObjAttrs(gc.getLeaderHeadInfo(self.iLeader))
 		# <!-- custom: change call order to match filling/building order, generally from top left to bottom and left to right but not always, reordering in such a way is maybe a bit more intuitive this way perhaps or/and clearer or/and helpful or not or other etc anyways, -->
 		self.placeLeaderHeadPane()
 		self.placeFavorites()

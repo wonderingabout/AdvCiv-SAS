@@ -86,9 +86,11 @@ def scan_element(element, path, file_name, tag_positions):
 				if is_trivial_duplicate(identity_field or tag, identity_value):
 					continue
 
-				message = (f"[DUPLICATE] File: {file_name} | Path: {path} | "
-						   f"Tag: <{tag}> | Line: {line} | "
-						   f"Field: {identity_field or 'TEXT'} | Value: '{identity_value}'")
+				message = (
+					f"[DUPLICATE] File: {file_name} | Path: {path} | "
+					f"Tag: <{tag}> | Line: {line} | "
+					f"Field: {identity_field or 'TEXT'} | Value: '{identity_value}'"
+				)
 				print(message)
 				warnings.append(message)
 				total_duplicates += 1

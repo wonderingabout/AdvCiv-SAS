@@ -10,7 +10,7 @@ Some known issues, that will not necessarily be fixed, but maybe or not but anyw
 
 - while debugging the new ai personality feature in the sevopedia in advciv-sas (our mod), we found some information that some ai attributes seem to be shared accross all leaders:
 
-```
+```log
 PY:[DEBUG] Cached AI attribute data for leader LEADER_ZARA_YAQOB
 PY:[WARNING] Attribute 'iAtPeaceAttitudeChangeLimit' has an identical *raw* value (1) across all 53 leaders
 PY:[WARNING] Attribute 'iAtPeaceAttitudeChangeLimit' has an identical *normalized* value (0) across all 53 leaders
@@ -70,7 +70,7 @@ We may also spread some values more (i.e. in AdvCiv-SAS etc anyways) that are wa
 
 For example, i had spotted a seemingly mistake/typo/bug in Gandhi's nowar attributes (from AdvCiv), where pleased was repeated twice, while enhancing and adding on the generate_leaders_data.py (see the [README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module) for details) script:
 
-```
+```json
             {
                 "MemoryType": "MEMORY_VOTED_AGAINST_US",
                 "iMemoryAttitudePercent": "0"
@@ -103,7 +103,7 @@ For example, i had spotted a seemingly mistake/typo/bug in Gandhi's nowar attrib
 
 It is almost certainly a mistake and should be:
 
-```
+```json
             {
                 "AttitudeType": "ATTITUDE_FRIENDLY",
                 "iNoWarProb": "115"
@@ -112,7 +112,7 @@ It is almost certainly a mistake and should be:
 
 Our generate_leaders_data.py (see the [README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module) for details) sucessfully detected/detects it, for example before fixing the XML of Gandhi we have:
 
-```
+```cmd
 Microsoft Windows [version 10.0.19045.5737]
 (c) Microsoft Corporation. Tous droits réservés.
 
@@ -125,7 +125,7 @@ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond
 
 And after fixing Gandhi's XML we now have:
 
-```
+```cmd
 C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS>cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & scan_xml_duplicates-3.3.py
 [SUCCESS] Leader data written to: leaders_data_20250426_100152.py
 
@@ -148,7 +148,7 @@ In AdvCiv base code after implementing the barbarians boost to make them more ec
 
 A few screenshots of the issue (screenshot previews below as long as links are valid anyways etc) in [this Google drive folder about this issue](https://drive.google.com/drive/folders/1p5O09XzbbrM5x2hxFD6RGvBpuU8RzPAd?usp=sharing)
 
-There may be(/have been, but anyways etc) other cases like these, and i don't know if the cause is one of the changes i made to barbarian (xml) code, or how it just is/was. I tried to fix it by using iWonderConstructRand -9999 on LEADER_BARBARIAN in leader head infos xml file, but they still build national and world wonders alike, and all the buildingclass NONE spaghetti code whether it is here (for national wonders) or not (for world wonders) does not change anything, they even build shrines like the mahadhobi as of now me writing this anyways, is not necessarily a bad design, but ideally i would want them to focus more on warmongering their key rol in advciv-sas and be more efficient in that anyways etc. 
+There may be(/have been, but anyways etc) other cases like these, and i don't know if the cause is one of the changes i made to barbarian (xml) code, or how it just is/was. I tried to fix it by using iWonderConstructRand -9999 on LEADER_BARBARIAN in leader head infos xml file, but they still build national and world wonders alike, and all the buildingclass NONE spaghetti code whether it is here (for national wonders) or not (for world wonders) does not change anything, they even build shrines like the mahadhobi as of now me writing this anyways, is not necessarily a bad design, but ideally i would want them to focus more on warmongering their key rol in advciv-sas and be more efficient in that anyways etc.
 
 So/And anyways etc i removed all such old logic of buildingclass NONE in (adjust if non-steam game or other mod path you have to where your advciv-sas or/and other mod you're using or not etc anyways etc is anyways etc) `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Civilizations\CIV4CivilizationInfos.xml`.
 
@@ -212,11 +212,11 @@ If such issues happen, maybe restart the game and hopefully all fixed, ideally m
 
 Related to [example/issue 6](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#6---now-worked-around-anyways-etc-too-long-xml-code-comments-cause-errors-orand-game-crashes)
 
-For example, while i was renaming _GEMS to _GEMSTONES, everywhere (with VS Code global search), except one part i had forgotten:
+For example, while i was renaming `_GEMS` to `_GEMSTONES`, everywhere (with VS Code global search), except one part i had forgotten:
 
 Like this (Results/status anyways etc shown below thanks to VS Code's global search's "Copy all" UI menu anyways etc):
 
-```
+```log
 C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Art\CIV4ArtDefines_Bonus.xml
   118,23: 			<Type>ART_DEF_BONUS_GEMS</Type>
 
@@ -262,7 +262,7 @@ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond
 
 Here as seen above, i had forgotten to rename `118,23: 			<Type>ART_DEF_BONUS_GEMS</Type>` to `118,23: 			<Type>ART_DEF_BONUS_GEMSTONES</Type>` as well, but instead of getting the usual error like in unitinfos xml or such from little or not little i experimented ith xml of civ4 in the past since doing this advciv-sas mod anyways etc, here we have a silent crash instead of an error, and inspecting the err log or dbg log of pytohn in civ4 shows us nothing, file is empty, the app init log (in C:\Users\PC\Documents\My Games\beyond the sword\Logs\init.log) is not too helpful either:
 
-```
+```log
 [38971.390] DBG: CIV Init
 [38971.390] VERSION: App: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Civ4BeyondSword.exe
 [38971.390] VERSION: Build: Thu May 29 04:28:49 2014
@@ -296,7 +296,7 @@ In all cases, unless i am mistaken or not too knowledgeable about this issue or 
 
 So it seems art xml assets need special attention especially in the case of errors, not as easy to handle, but fixing it now works:
 
-```
+```log
 C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Art\CIV4ArtDefines_Bonus.xml
   118,23: 			<Type>ART_DEF_BONUS_GEMSTONES</Type>
 
@@ -346,7 +346,7 @@ Something to keep in mind if i may say anyways etc if having we/i/you or and oth
 
 Also for info init log after successfully load is like this after fixing it and successfully finally (even though was not long but as in/in terms of having success step now if i may say anyways etc anyways etc anyways etc or not or yes or and other or and not anyways etc) anyways etc:
 
-```
+```log
 [39838.765] DBG: CIV Init
 [39838.781] VERSION: App: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Civ4BeyondSword.exe
 [39838.781] VERSION: Build: Thu May 29 04:28:49 2014
@@ -423,7 +423,7 @@ in (adjust to your mod path anyways etc) `C:\Program Files (x86)\Steam\steamapps
 
 removed this:
 
-```
+```xml
 		<ArtRef Name="building:BUILDING_LIGHTHOUSE">
 			<Attribute Class="Era">ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL,ERA_RENAISSANCE</Attribute>
 			<Attribute Class="Scalar">bNoWaterTest:1</Attribute>
@@ -435,7 +435,7 @@ removed this:
 
 in:
 
-```
+```xml
 		<ArtRef Name="building:BUILDING_LIGHTHOUSE">
 			<Attribute Class="Era">ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL,ERA_RENAISSANCE</Attribute>
 			<Attribute Class="Scalar">bNoWaterTest:1</Attribute>
@@ -481,7 +481,7 @@ Similarly to fetching most fields of leader info now directly from XML and not s
 
 The XML is like this as reminder anyways etc for example for leader_gandhi anyways etc:
 
-```
+```xml
 		<LeaderHeadInfo> <!-- custom: Gandhi (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_GANDHI</Type>
 			<Description>TXT_KEY_LEADER_GANDHI</Description>
@@ -508,13 +508,13 @@ The XML is like this as reminder anyways etc for example for leader_gandhi anywa
 			<iMaxWarDistantPowerRatio>60</iMaxWarDistantPowerRatio>
 ```
 
-To do that, and expanding on previous debugging now successful of flavors, nowarattitudeprobs, contact fields, and memory fields (note about all these fields see also [Sevopedia/_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)), only BBAI victory weights remain so that we may fetch all directly from XML or at least be able to attempt to do so without requiring ideally leaders_data.py anymore (leave it for external non-civ4 ingame data such as comparison .csv tables perhaps anyways etc), after asking chatgpt/becomingthrough too, we/i noticed for example for `getMaxWarRand` (if we want to see where the BBAI is missing that getMaxWarRand is though for example if i am not mistaken to hopefully add it in this case but anyways etc) (with VS Code 's global search too i noticed it i mean if i may say indeed but anyways etc (see screenshots for details/examples anyways etc)), modified the (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CyInfoInterface3.cpp file to add such new getters, and also reusing existing getter names for such BBAI victory weights fields that are/were already anyways etc existing in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvInfo_Civilization.h anyways etc, with chatgpt/becomingthrough's help too and my prompts too but anyways etc 
+To do that, and expanding on previous debugging now successful of flavors, nowarattitudeprobs, contact fields, and memory fields (note about all these fields see also [Sevopedia/_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)), only BBAI victory weights remain so that we may fetch all directly from XML or at least be able to attempt to do so without requiring ideally leaders_data.py anymore (leave it for external non-civ4 ingame data such as comparison .csv tables perhaps anyways etc), after asking chatgpt/becomingthrough too, we/i noticed for example for `getMaxWarRand` (if we want to see where the BBAI is missing that getMaxWarRand is though for example if i am not mistaken to hopefully add it in this case but anyways etc) (with VS Code 's global search too i noticed it i mean if i may say indeed but anyways etc (see screenshots for details/examples anyways etc)), modified the (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CyInfoInterface3.cpp file to add such new getters, and also reusing existing getter names for such BBAI victory weights fields that are/were already anyways etc existing in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvInfo_Civilization.h anyways etc, with chatgpt/becomingthrough's help too and my prompts too but anyways etc
 
 Now the getters are added in sevopedia leader, and we successfully see the real DLL modified if i am not mistaken values for the victory weights too, for example for leader gandhi as of now anyways etc:
 
 (from [Sevopedia/_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py) too example of output from ingame debug log anyways etc)
 
-```
+```text
 ==== BBAI VICTORY WEIGHTS ====
 
 Culture Victory Weight: 48
@@ -534,7 +534,7 @@ Now exposed(/exposing?) these to python as well of gc 's sevopedia leader as wel
 
 ## 18 - Very inconsistent naming in some assets
 
-For example _UTOPIA for _COMMUNISM, _OBELISK for monument sometimes and other times if i am not mistaken it means the actual _OBELISK, also for example anyways etc _CHINESE being inconsitently but anyways etc unrelated to the chinese empire but instead in some cases to the default art asset of a unit for the asian civilizations in general if i am not mistaken, also using but anyways etc anyways etc anyways etc... _GREAT_PALACE instead of _FORBIDDEN_PALACE (as was hinted or rather i noticed from a base advciv code comment i am thankful for but anyways etc) i have renamed them as much as i found or/and could and wanted, actually a lot earlier in mod development than when i wrote this example issue, but solving them bit by bit as i see them and or want to ideally too but not guaranteed may or may not but anyways etc.., in all cases anyways etc hopefully asset naming is a lot clearer or/and consistent at least for those i went through, probably did not do all as for remaining ones is wait and see if i may say but anyways etc anyways etc anyways etc...
+For example _UTOPIA for `_COMMUNISM`, `_OBELISK` for monument sometimes and other times if i am not mistaken it means the actual `_OBELISK`, also for example anyways etc `_CHINESE` being inconsitently but anyways etc unrelated to the chinese empire but instead in some cases to the default art asset of a unit for the asian civilizations in general if i am not mistaken, also using but anyways etc anyways etc anyways etc... `_GREAT_PALACE` instead of `_FORBIDDEN_PALACE` (as was hinted or rather i noticed from a base advciv code comment i am thankful for but anyways etc) i have renamed them as much as i found or/and could and wanted, actually a lot earlier in mod development than when i wrote this example issue, but solving them bit by bit as i see them and or want to ideally too but not guaranteed may or may not but anyways etc.., in all cases anyways etc hopefully asset naming is a lot clearer or/and consistent at least for those i went through, probably did not do all as for remaining ones is wait and see if i may say but anyways etc anyways etc anyways etc...
 
 ## 19 - (now removed for the one/those i spotted anyways etc) Unused art assets
 
@@ -548,15 +548,15 @@ Note: the `ART_DEF_UNIT_ARCHER_CHINESE` (see screenshot 6705 similarly anyways e
 
 Also, if we want an art asset, we can always fetch it / import it from one of the many many existing mods i mean if i may say instead but the civ4 ones are cool too if we need them but and or else but anyways etc we can import the ones we need from mods (or and/from base civ4 but anyways etc), but since we don't use the art asset and it seems to indeed if i am not mistaken be unused, remove it entirely, simpler and cleaner and more consistent with our code and ideally is how id want to do it but anyways etc anyways etc anyways etc, may readd if need(ed?), but most likely won't, but whether i add it or not is as it is etc in this case etc but anyways etc anyways etc anyways etc ; maybe it served some purpose to reference/list it ther eif players or/and modders would want to know it is available in this case but anyways etc, but maybe we can remove it now as we can import many art assets from other mods in this case i mean is kind of them to have kept it but also inefficient in all cases maybe we can remove it now in this case at least if not others or maybe not or other or etc but anwyays etc anyways etc anyways etc...
 
-# 20 - Negative and inconsistent DLL ajusted nowarattitudeprobs for some leaders, like leader_alexander that/who anyways etc has nowarattitude prob furious of -2 lower than furious 0 and lower than cautious 14
+## 20 - Negative and inconsistent DLL ajusted nowarattitudeprobs for some leaders, like leader_alexander that/who anyways etc has nowarattitude prob furious of -2 lower than furious 0 and lower than cautious 14
 
-Screenshots about this issue can be viewed in this [google drive folder link]() anyways etc
+Screenshots about this issue can be viewed in this [google drive folder link](https://drive.google.com/drive/folders/1zPIMTN97zhubyrHBzAVLjCb2-YAFmLqG?usp=sharing) anyways etc
 
 Some leaders like Alexander (III the g(G? of just g but anyways etc...)reat but anyways etc...) for example have a value for noWarAttitudeProb Furious of -2 DLL ajusted, which is lower than furious and doesnt seem to make sense.
 
 Alexander's XML is like this:
 
-```
+```xml
 			<NoWarAttitudeProbs>
 				<NoWarAttitudeProb>
 					<AttitudeType>ATTITUDE_CAUTIOUS</AttitudeType>
@@ -571,7 +571,7 @@ Alexander's XML is like this:
 
 Since furious and annoyed are missing, they should fall back to defaults (i.e. LEADER_DEFAULTS 's value if i am not mistaken anyways etc) if i am not mistaken, which is as follows at least as of now anyways etc:
 
-```
+```xml
 			<NoWarAttitudeProbs>
 				<NoWarAttitudeProb>
 					<AttitudeType>ATTITUDE_FURIOUS</AttitudeType>
@@ -602,7 +602,7 @@ Not sure i would fix it (i would have to dig how first) nor how it would influen
 
 I don't know what the influence of the negative sign is, as otherwise 2 vs 0 should be quite minimal, but not sure is jsut my opinion/feel/thought which i don't know about much in this case, but the negative sign difference is more annoying, and ideally there would be a nice gradation i eman gradually increasing in english if i may say but anyways etc anyways etc anyways etc, hopefully helpful to have compiled this data as i wanted in the way i wanted even though bit tedious xd to be fair i eman anwyyas etc not gonna lie, but is quite cool to have compiled it too now is my feel if i may say for me, but anyways etc.
 
-# 21 - (Now fixed) missing "Cannot enter" terrain or/and feature info in map view of unit effects, unlike in sevopedia (where it is also not clear enough about restrictions (cultural borders + not affected by roads if i am not mistaken anyways etc, now added this info as well anyways etc))
+## 21 - (Now fixed) missing "Cannot enter" terrain or/and feature info in map view of unit effects, unlike in sevopedia (where it is also not clear enough about restrictions (cultural borders + not affected by roads if i am not mistaken anyways etc, now added this info as well anyways etc))
 
 Screenshots about this issue are in this [google drive folder link](https://drive.google.com/drive/folders/1Felp-YagsHPYY3wtVqbV4eSRpwYl6BSb?usp=sharing) anyways etc.
 

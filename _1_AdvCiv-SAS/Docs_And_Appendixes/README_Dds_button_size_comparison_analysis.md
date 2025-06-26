@@ -1,6 +1,6 @@
 # README_Dds_button_size_comparison_analysis.md
 
-### (Trying to find) O(o anyways etc)ptimal .dds button size for a 164px (+ 2(px?) due to small(anyways etc...) mistake anyways etc) icon frame in sevopedia unit's unit pane('s icon frame)
+## (Trying to find) O(o anyways etc)ptimal .dds button size for a 164px (+ 2(px?) due to small(anyways etc...) mistake anyways etc) icon frame in sevopedia unit's unit pane('s icon frame)
 
 Trying to implement the new AI-generated images of ChatGPT/becomingthrough (see [Authors](/README.md#authors) for details), and while doing the Sevopedia Building todo add link (some time) after (anyways etc) the [sevopedia unit rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-7-unit-list-category) i first tried to assess the size at which they display optimally.
 
@@ -16,7 +16,7 @@ So i have converted it to various sizes with Paint.NET from .png to .dds, always
 
 The lines are for example like this, as one may expect (at least for the button path for the little or not little i know of it anyways etc anyways etc anyways etc) maybe anyways etc, but centralized in a similar or maybe rather same folder anyways etc, for clearer reuse, import, export, path linking and or such or and not or and other or and not anyways etc:
 
-```
+```xml
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_ARCHER</Type>
 			<Button>Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_84.dds</Button>
@@ -44,6 +44,7 @@ The lines are for example like this, as one may expect (at least for the button 
 ```
 
 The results, minus the small and ideally not too altering + 2 to icon size i made mistake or maybe not small or yes but anyways etc, that i would ideally redo cleanly but a bit tedious, and hopefully interpretable if that is a word as in similar enough or maybe rather accurate enough or and other or and not anyways etc, is that:
+
 - 1024 seems too pixelated on this 164px icon unit pane's frame
 - gradually as i reduce size to 512, then 256, quality seems to improve, file size is also much smaller which is nice if high enough and best looking
 - then at size 164 which should be a 1:1 ratio with the pane (minus my small mistake that ohpefully didn't alter it too much) anyways etc, it seems that image is a bit blurrier and less nice(ly?) if that is a word looking than 256 x 256 dds one, so 256 seems better and best so far for .dds size on this

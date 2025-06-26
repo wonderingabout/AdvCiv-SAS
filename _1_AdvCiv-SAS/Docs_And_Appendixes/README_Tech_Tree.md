@@ -4,10 +4,10 @@ Below are the details on how the tech tree was made in/for AdvCiv-SAS as well as
 
 ## Current Tech Tree ingame
 
-<img src="../Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG" width="250"></img>
-<img src="../Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG" width="250"></img>
-<img src="../Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG" width="250"></img>
-<img src="../Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG" width="250"></img>
+<img src="../Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG" alt="0.34_Techtree_ingame (1).JPG" width="250"></img>
+<img src="../Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG" alt="0.34_Techtree_ingame (2).JPG" width="250"></img>
+<img src="../Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG" alt="0.34_Techtree_ingame (3).JPG" width="250"></img>
+<img src="../Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG" alt="0.34_Techtree_ingame (4).JPG" width="250"></img>
 
 ## Additional info about the tech tree anyways etc
 

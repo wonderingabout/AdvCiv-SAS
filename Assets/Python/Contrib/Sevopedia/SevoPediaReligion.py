@@ -61,7 +61,7 @@ class SevoPediaReligion:
 		if (self.ICON_SIZE > self.ICON_FRAME_SIZE):
 			raise ValueError(u"[FATAL] self.ICON_SIZE=%d cannot be bigger/higher than self.ICON_FRAME_SIZE=%d, self.ICON_SIZE must fit within the frame, please adjust self.ICON_SIZE or/and self.ICON_FRAME_SIZE so that 0 < self.ICON_SIZE < self.ICON_FRAME_SIZE" % (self.ICON_SIZE, self.ICON_FRAME_SIZE))
 		if (self.ICON_FRAME_SIZE > self.MAX_ICON_FRAME_SIZE):
-			raise ValueError(u"[FATAL] Out of bounds self.ICON_FRAME_SIZE=%d, must be lower than  cannot be bigger/higher than self.MAX_ICON_FRAME_SIZE, please reduce self.ICON_FRAME_SIZE so that 0 < self.ICON_FRAME_SIZE < self.MAX_ICON_FRAME_SIZE" % (self.ICON_FRAME_SIZE, self.MAX_ICON_FRAME_SIZE))
+			raise ValueError(u"[FATAL] Out of bounds self.ICON_FRAME_SIZE=%d, must be lower than  cannot be bigger/higher than self.MAX_ICON_FRAME_SIZE=%d, please reduce self.ICON_FRAME_SIZE so that 0 < self.ICON_FRAME_SIZE < self.MAX_ICON_FRAME_SIZE" % (self.ICON_FRAME_SIZE, self.MAX_ICON_FRAME_SIZE))
 
 		self.W_ICON = self.ICON_SIZE
 		self.H_ICON = self.ICON_SIZE
@@ -146,7 +146,7 @@ class SevoPediaReligion:
 			iPrereq = gc.getBuildingInfo(iBuilding).getPrereqReligion()
 			iPrereq2 = gc.getBuildingInfo(iBuilding).getReligionType()
 			iPrereq3 = gc.getBuildingInfo(iBuilding).getStateReligion()
-			iPrereq4 = gc.getBuildingInfo(iBuilding).getGlobalReligionCommerce()
+			#iPrereq4 = gc.getBuildingInfo(iBuilding).getGlobalReligionCommerce()
 			if (iPrereq == self.iReligion or iPrereq2 == self.iReligion or iPrereq3 == self.iReligion):
 				screen.attachImageButton(panelName, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
 #			elif (iPrereq == self.iReligion and iPrereq4 > 0):
@@ -230,7 +230,7 @@ class SevoPediaReligion:
 								BUTTON_SIZE, BUTTON_SIZE, 
 								TableStyles.TABLE_STYLE_STANDARD)
 
-	    # Find all leaders who have this religion as favorite, <!-- custom: and --> add <!-- custom: them --> all to the list <!-- custom: anyways etc (not catch them all... or maybe.. or not or yes, anyways etc... xd anyways etc...) -->
+		# Find all leaders who have this religion as favorite, <!-- custom: and --> add <!-- custom: them --> all to the list <!-- custom: anyways etc (not catch them all... or maybe.. or not or yes, anyways etc... xd anyways etc...) -->
 		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
 			LeaderInfo = gc.getLeaderHeadInfo(iLeader)
 			if LeaderInfo.getFavoriteReligion() == self.iReligion:

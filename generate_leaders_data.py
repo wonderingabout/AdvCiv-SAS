@@ -1070,13 +1070,13 @@ def parse_leader(leader, leader_type, leader_data, seen_tags):
 				parse_generic_renamed_fields(tag, text, leader, leader_data)
 			elif tag in REFUSE_ATTITUDE_FIELDS:
 				parse_refuse_attitude_thresholds(tag, text, leader, leader_data)
-			elif expected == int:
+			elif expected is int:
 				try:
 					leader_data[tag] = int(text)
 				except ValueError:
 					errors.append(f"[TYPE ERROR] Leader {leader_type}: Expected int for <{tag}>, got '{text}'")
 					leader_data[tag] = text
-			elif expected == str:
+			elif expected is str:
 				if text.isdigit():
 					errors.append(f"[TYPE WARNING] Leader {leader_type}: Expected string for <{tag}>, got numeric '{text}'")
 				leader_data[tag] = text

@@ -1,0 +1,30 @@
+// <!-- custom: vs code settings for advciv-sas, it seems specifically for settings.json comments are allowed so no (need to anyways etc use anyways etc) .jsonc and using instead .json so we can add comments too if i am not mistaken and according to chatgpt/becomingthough (who also provided parts if not lot or most of code below which i tweaked or/and added on too anyways etc anyways etc anyways etc) -->
+{
+    // Disable strict type checking (we don’t need it for Civ4 modding)
+    "python.analysis.typeCheckingMode": "off",
+    // Suppress unresolved import / undefined variable errors from Civ4 DLL bindings
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportMissingImports": "none", // e.g. CvPythonExtensions
+        "reportMissingModuleSource": "none", // e.g. .pyd/.so stubs
+        "reportUndefinedVariable": "none", // e.g. CyGame, CyMap
+        "reportUnusedImport": "none", // sometimes noisy
+        "reportUnusedVariable": "none" // let Ruff handle these
+    },
+    // <!-- custom: even though pylance is not ideal it seems as quite slow sometimes and doesn't detect some imports if i am not mistaken too anyways etc, still much faster than jedi for example which i tested quick anyways etc, and it is still useful to navigate code so add it, minus all noise if i may say of import errors, so we can also see all linter of ruff (see ruff.toml for details anyways etc) as of now anyways etc very nice messages anyways etc and also other real code erros so we can fix them easier too anyways etc -->
+    // Ensure we’re using Pylance (optional if already default)
+    "python.languageServer": "Pylance",
+    // <!-- custom: these seem to be default enabled by vs code, keep them as is -->
+    "files.associations": {
+        "cctype": "cpp",
+        "clocale": "cpp",
+        "cmath": "cpp",
+        "cstdarg": "cpp",
+        "cstddef": "cpp",
+        "cstdio": "cpp",
+        "cstdlib": "cpp",
+        "cstring": "cpp",
+        "ctime": "cpp",
+        "cwchar": "cpp",
+        "cwctype": "cpp"
+    }
+}

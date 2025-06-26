@@ -2,6 +2,8 @@
 # <!-- custom: be careful/make sure to launch this at interfaceScreen level or later, else at __init__ this/the output is still empty, so run this later to have the actual tech info output -->
 # Get all attributes of the object
 def printObjAttrs(obj):
+	print ("[DEBUG] Begining of show obj inner fields if i am not mistaken anyways etc.")
+	
 	for attr in dir(obj):
 		try:
 			# Try to get the attribute
@@ -12,8 +14,10 @@ def printObjAttrs(obj):
 				print(u"%s\n" % attr)
 			else:
 				print(u"%s = %s\n" % (attr, attr_value))
-		except:
+		except Exception:
 			print(u"%s - Error accessing\n" % attr)
+	
+	print ("[DEBUG] End of show show obj inner fields if i am not mistaken anyways etc.")
 
 
 

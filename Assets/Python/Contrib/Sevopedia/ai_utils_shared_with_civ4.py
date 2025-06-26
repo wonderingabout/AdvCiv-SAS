@@ -234,7 +234,7 @@ def normalize_to_100(value, min_val, max_val, B_WARN, invert, attr_name):
 	shifted_min, shifted_value, shifted_max = get_shifted_values(min_val, value, max_val)
 
 	if (shifted_value is None):
-		raise ValueError("[FATAL] In attr_name=%s, shifted_value=%s has not been initialized properly and is still None: shifted_min=%d, shifted_value=%d, shifted_max=%d, min_val=%d, value=%d, max_val=%d" % (attr_name, shifted_min, shifted_value, shifted_max, min_val, value, max_val))
+		raise ValueError("[FATAL] In attr_name=%s, shifted_value=%s has not been initialized properly and is still None: shifted_min=%d, shifted_value=%d, shifted_max=%d, min_val=%d, value=%d, max_val=%d" % (attr_name, shifted_value, shifted_min, shifted_value, shifted_max, min_val, value, max_val))
 
 	# --- Normalize ---
 	if shifted_min != 0:
