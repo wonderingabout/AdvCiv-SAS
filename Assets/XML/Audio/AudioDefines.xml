@@ -4454,7 +4454,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_BUILD_ARABIAN_CAMEL_ARCHER</SoundID>
+			<SoundID>SND_BUILD_CAMEL_ARCHER</SoundID>
 			<Filename>Sounds/Units/BuildArabianCamelArcher</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>

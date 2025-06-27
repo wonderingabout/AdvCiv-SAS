@@ -213,6 +213,14 @@
 
 
 
+	<!-- custom: based on removed the old "NETHERLANDS_OOSTINDIEVAARDER", the dutch civ-specific unit is now the "DUTCH_SWIFT_WORKER", the idea is an agricultural-like unit based on https://en.wikipedia.org/wiki/Netherlands#Agriculture_and_natural_resources, see xml code comment at unit info for details, anyways etc anyways etc anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_DUTCH_SWIFT_WORKER_PEDIA</Tag>
+		<English>[TAB]The Dutch agricultural sector is highly mechanised, and has a strong focus on international exports. It employs about 4% of the Dutch labour force but produces large surpluses in the food-processing industry and accounts for 21% of the Dutch total export value. The Dutch rank first in the European Union and second worldwide in value of agricultural exports, behind only the United States, with agricultural exports earning €80.7 billion in 2014, up from €75.4 billion in 2012. In 2019 agricultural exports were worth €94.5 billion. In an effort to reduce agricultural pollution, the Dutch government is imposing strict limits on the productivity of the farming sector, triggering Dutch farmers' protests.[PARAGRAPH:1]One-third of the world's exports of chilis, tomatoes, and cucumbers go through the country. The Netherlands exports one-fifteenth of the world's apples. A significant portion of Dutch agricultural exports consists of fresh-cut plants, flowers, and flower bulbs, with the Netherlands exporting two-thirds of the world's total.</English>
+	</TEXT>
+
+
+
 	<!-- custom: rename "_PERIA_IMMORTAL" to "_PERSIA_IMMORTAL", and/plus anyways etc unit reworked, now based on the swordsman at least as of now anyways etc, entry from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_Units.xml -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_PERSIA_IMMORTAL_PEDIA</Tag>

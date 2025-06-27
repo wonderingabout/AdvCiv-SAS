@@ -2891,11 +2891,12 @@
 					<BuildingType>BUILDING_NETHERLANDS_DIKE</BuildingType>
 				</Building>
 			</Buildings>
+			<!-- custom: east indiaman of class frigate now replaced with DUTCH_SWIFT_WORKER of class worker anyways etc -->
 			<Units>
 				<Unit>
 					<!-- advc.905b: was GALLEON -->
-					<UnitClassType>UNITCLASS_FRIGATE</UnitClassType>
-					<UnitType>UNIT_NETHERLANDS_OOSTINDIEVAARDER</UnitType>
+					<UnitClassType>UNITCLASS_WORKER</UnitClassType>
+					<UnitType>UNIT_DUTCH_SWIFT_WORKER</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>

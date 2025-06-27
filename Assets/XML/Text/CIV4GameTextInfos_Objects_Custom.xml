@@ -378,6 +378,13 @@
 
 
 
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_DUTCH_SWIFT_WORKER</Tag>
+		<English>Swift Worker</English>
+	</TEXT>
+
+
+
 	<!-- custom: rename "_PERIA_IMMORTAL" to "_PERSIA_IMMORTAL" -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_PERSIA_IMMORTAL</Tag>
