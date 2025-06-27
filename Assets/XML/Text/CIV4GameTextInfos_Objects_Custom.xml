@@ -347,6 +347,14 @@
 
 
 
+	<!-- custom: rename "_PERIA_IMMORTAL" to "_PERSIA_IMMORTAL" -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_PERSIA_IMMORTAL</Tag>
+		<English>Immortal</English>
+	</TEXT>
+
+
+
 	<!-- custom: add new camel units anyways etc -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_CAMEL_ARCHER</Tag>
@@ -379,16 +387,15 @@
 
 
 	<TEXT>
-		<Tag>TXT_KEY_UNIT_DUTCH_SWIFT_WORKER</Tag>
-		<English>Swift Worker</English>
+		<Tag>TXT_KEY_UNIT_USA_PATRIOT</Tag>
+		<English>Patriot</English>
 	</TEXT>
 
 
 
-	<!-- custom: rename "_PERIA_IMMORTAL" to "_PERSIA_IMMORTAL" -->
 	<TEXT>
-		<Tag>TXT_KEY_UNIT_PERSIA_IMMORTAL</Tag>
-		<English>Immortal</English>
+		<Tag>TXT_KEY_UNIT_DUTCH_SWIFT_WORKER</Tag>
+		<English>Swift Worker</English>
 	</TEXT>
 
 

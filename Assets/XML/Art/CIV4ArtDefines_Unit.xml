@@ -177,12 +177,11 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
-		<!-- custom: east indiaman removed, so "NETHERLANDS_OOSTINDIEVAARDER" is replaced with "DUTCH_SWIFT_WORKER", art import from ri mod's  ART_DEF_UNIT_WORKER_ANCIENT_EUROPE_WEST (art of the Worker (Dutch) in ri mod anyways etc if i am not mistaken anyways etc) and based on this import art then adjusted or not for advciv-sas anyways etc taking base advciv's ART_DEF_UNIT_WORKER as a base anyways etc, kfm is base civ4 or/and advciv one if i am not mistaken anyways etc -->
+		<!-- custom: east indiaman removed, so "NETHERLANDS_OOSTINDIEVAARDER" is replaced with "DUTCH_SWIFT_WORKER", art import from ri mod's  ART_DEF_UNIT_WORKER_ANCIENT_EUROPE_WEST (art of the Worker (Dutch) in ri mod anyways etc if i am not mistaken anyways etc) and based on this import art then adjusted or not for advciv-sas anyways etc taking base advciv's ART_DEF_UNIT_WORKER as a base anyways etc, kfm is base civ4 or/and advciv one if i am not mistaken anyways etc ; also it seems netherlands/dutch people are really big as in tall in their height even though i don't like too much to admit but seems true https://en.wikipedia.org/wiki/Average_human_height_by_country, so following closer ri mod's original size of this unit, also reminds me of a famous dutch goalkeeper in a soccer game xd i played looooong ago but anyways etc... but is to be accurate maybe but in all cases anyways etc anyways etc anyways etc... if i am not mistaken too that this is how the scale work as bigger is better in this case i mean at least but anyways etc anyways etc anyways etc really as i don't know how it works-function in civ4 but i assume it does so, i could test some randomly high value at least soemday but leaving as is but or not as i prefer but anyways etc anyways etc anyways etc... -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_DUTCH_SWIFT_WORKER</Type>
 			<Button>Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/worker_celt.dds</Button>
-			<!-- advc.002j: was 0.44 -->
-			<fScale>0.43</fScale>
+			<fScale>0.44</fScale>
 			<fInterfaceScale>1.0</fInterfaceScale>
 			<bActAsLand>0</bActAsLand>
 			<bActAsAir>0</bActAsAir>
@@ -1032,6 +1031,31 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
+		<!-- custom: art import based on ri mod's ART_DEF_UNIT_FUSILIER_AMERICA_EARLY (Line infantry (continental army) in ri mod at least as of now if i am not mistaken, and btw their naming is very very weird and inconsistent between unit name and asset name in ri mod, and their fpks are shit scattered even though is not the most for this unit where all nifs and such/related files anyways etc were nicely all in one fpk but often it's shit big big big shit scattered in many files despite the quality or and quantity of having many art assets but anyways etc, PakBuild helps in some cases if/as i have merged all ri mod's commonly used fpks (for example interface and such) in one windows folder much easier to browse but else is big big shit anyways etc, despite their art being really good though if i may say, but anyways etc), taking the base advciv's rifleman art def as a base anyways etc, kfm is base civ4 one if i am not mistaken anyways etc, also i take back what i said sadly it's even worse, the unit didn't have the missing brownbesstexture.dds in folder li_fus_early_america despite the nif expecting it in nifskope so had to use dragonchecker in the units america and luckily find it anyways etc very veyr bad packaging, please do all files per unit in one folder ideally so it is easily exportable to another mod or such for example if needed even if redundant is better to have portability i think but anyways etc, but thankfully fixed now no more purple gun btu the real one art anyways etc... and helped me add a tutorial abotu ti evne though ideally there would be no issue was easy enough to solve in this case thnaks to harder time with camel unit in the past when i didn't know how and c2c mod even thogh unrelated had dependencies in nifskope to outside paths if i am not mistaken and it was a huge mess but anyways etc hopefully this tutorial part also helps in modding ressources but anyways etc anyways etc anyways etc... -->
+		<UnitArtInfo>
+			<Type>ART_DEF_UNIT_USA_PATRIOT</Type>
+			<Button>Art/AdvCiv_SAS/Units/USA_Patriot/fusilier_american.dds</Button>
+			<fScale>0.44</fScale>
+			<fInterfaceScale>1.0</fInterfaceScale>
+			<bActAsLand>0</bActAsLand>
+			<bActAsAir>0</bActAsAir>
+			<NIF>Art/AdvCiv_SAS/Units/USA_Patriot/nif/rifleman.nif</NIF>
+			<KFM>Art/Units/Unique/England/Redcoat/RedCoat.kfm</KFM>
+			<SHADERNIF>Art/AdvCiv_SAS/Units/USA_Patriot/nif/rifleman_fx.nif</SHADERNIF>
+			<ShadowDef>
+				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
+				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+				<fShadowScale>1.0</fShadowScale>
+			</ShadowDef>
+			<fBattleDistance>0.35</fBattleDistance>
+			<fRangedDeathTime>0.05</fRangedDeathTime>
+			<bActAsRanged>1</bActAsRanged>
+			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+			<AudioRunSounds>
+				<AudioRunTypeLoop/>
+				<AudioRunTypeEnd/>
+			</AudioRunSounds>
+		</UnitArtInfo>
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_GRENADIER</Type>
 			<Button>,Art/Interface/Buttons/Units/Grenadier.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,6</Button>
@@ -1147,30 +1171,6 @@
 			<fRangedDeathTime>0.05</fRangedDeathTime>
 			<bActAsRanged>1</bActAsRanged>
 			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
-			<AudioRunSounds>
-				<AudioRunTypeLoop/>
-				<AudioRunTypeEnd/>
-			</AudioRunSounds>
-		</UnitArtInfo>
-		<UnitArtInfo>
-			<Type>ART_DEF_UNIT_AMERICAN_NAVY_SEAL</Type>
-			<Button>,Art/Interface/Buttons/Units/Navy_Seal.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,7</Button>
-			<fScale>0.44</fScale>
-			<fInterfaceScale>1.0</fInterfaceScale>
-			<bActAsLand>0</bActAsLand>
-			<bActAsAir>0</bActAsAir>
-			<NIF>Art/Units/Unique/America/NavySEAL/NavySeal.nif</NIF>
-			<KFM>Art/Units/Unique/America/NavySEAL/NavySeal.kfm</KFM>
-			<SHADERNIF>Art/Units/Unique/America/NavySEAL/NavySeal_FX.nif</SHADERNIF>
-			<ShadowDef>
-				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
-				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
-				<fShadowScale>1.0</fShadowScale>
-			</ShadowDef>
-			<fBattleDistance>0.35</fBattleDistance>
-			<fRangedDeathTime>0.05</fRangedDeathTime>
-			<bActAsRanged>1</bActAsRanged>
-			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
 			<AudioRunSounds>
 				<AudioRunTypeLoop/>
 				<AudioRunTypeEnd/>

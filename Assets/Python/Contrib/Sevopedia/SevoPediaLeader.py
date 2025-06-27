@@ -1018,87 +1018,95 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 		# <!-- custom: some of these 4 combinations of positive or negative memory affections or resentments below are unused and thus commented-out ((but functionnal although i did not retest so stilluntested since rewrite of sevopedia leadr to use xml leader info directly not old leaders_data.py but anyways etc) and can be implemented if wished (would need to change the xml values of leaders so that they are relevant though, as currently in default advciv xml and current advciv-sas xml too, no leader has a negative memory positive attitude value, or a postitive memory negative attitude value, but the system supprots it if it were to be changed in xml values this way, commented-out for efficiency and effectiveness, perhaps performance too a bit or/and other etc, anyways.))
 
-		def get_ai_category_key_order_positive_memory_affections_or_resentments(is_affection):
-			affection_resentment = get_affection_resentment(is_affection)
-
+		def get_ai_category_key_order_positive_memory_affections_or_resentments(positive_negative, affection_resentment):
 			ai_category_key_order_positive_memories = (
-				"iAggregatedPositiveMemoryGiveHelp%s" % affection_resentment,
-				"iAggregatedPositiveMemoryAcceptDemand%s" % affection_resentment,
-				"iAggregatedPositiveMemoryAcceptedReligion%s" % affection_resentment,
-				"iAggregatedPositiveMemoryAcceptedCivic%s" % affection_resentment,
-				"iAggregatedPositiveMemoryAcceptedJoinWar%s" % affection_resentment,
-				"iAggregatedPositiveMemoryAcceptedStopTrading%s" % affection_resentment,
-				"iAggregatedPositiveMemoryVotedForUs%s" % affection_resentment,
-				"iAggregatedPositiveMemoryEventGoodToUs%s" % affection_resentment,
-				"iAggregatedPositiveMemoryLiberatedCities%s" % affection_resentment,
-				"iAggregatedPositiveMemoryIndependence%s" % affection_resentment,
-				"iAggregatedPositiveMemoryTradedTechToUs%s" % affection_resentment,
+				"iAggregated%sMemoryGiveHelp%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryAcceptDemand%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryAcceptedReligion%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryAcceptedCivic%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryAcceptedJoinWar%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryAcceptedStopTrading%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryVotedForUs%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryEventGoodToUs%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryLiberatedCities%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryIndependence%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryTradedTechToUs%s" % (positive_negative, affection_resentment),
 			)
 
 			return ai_category_key_order_positive_memories
 
 		# ❤️ Positive Memory Affections (0-100)
+		is_positive = True
 		is_affection = True
-		ai_category_key_order_positive_memory_affections = get_ai_category_key_order_positive_memory_affections_or_resentments(is_affection)
+		positive_negative = get_positive_negative(is_positive)
+		affection_resentment = get_affection_resentment(is_affection)
+		ai_category_key_order_positive_memory_affections = get_ai_category_key_order_positive_memory_affections_or_resentments(positive_negative, affection_resentment)
 		emoji_name_positive_memory_affections = "RedHeart"
-		ai_category_header_positive_memory_affections = "Positive Memory Affections"
+		ai_category_header_positive_memory_affections = "%s Memory %ss" % (positive_negative, affection_resentment)
 		ai_category_positive_memory_affections = get_ai_category(emoji_name_positive_memory_affections, emoji_name_to_button_path_txt_keys, ai_category_header_positive_memory_affections, ai_category_key_order_positive_memory_affections, localText)
 
 
 		# 💔 Positive Memory Resentments (0-100)
+		# is_positive = True
 		# is_affection = False
-		# ai_category_key_order_positive_memory_resentments = get_ai_category_key_order_positive_memory_affections_or_resentments(is_affection)
+		# positive_negative = get_positive_negative(is_positive)
+		# affection_resentment = get_affection_resentment(is_affection)
+		# ai_category_key_order_positive_memory_resentments = get_ai_category_key_order_positive_memory_affections_or_resentments(positive_negative, affection_resentment)
 		# emoji_name_positive_memory_resentments = "BrokenHeart"
-		# ai_category_header_positive_memory_resentments = "Positive Memory Resentments"
+		# ai_category_header_positive_memory_resentments = "%s Memory %ss" % (positive_negative, affection_resentment)
 		# ai_category_positive_memory_resentments = get_ai_category(emoji_name_positive_memory_resentments, emoji_name_to_button_path_txt_keys, ai_category_header_positive_memory_resentments, ai_category_key_order_positive_memory_resentments, localText)
 
-		def get_ai_category_key_order_negative_memory_affections_or_resentments(is_affection):
-			affection_resentment = get_affection_resentment(is_affection)
-
+		def get_ai_category_key_order_negative_memory_affections_or_resentments(positive_negative, affection_resentment):
 			ai_category_key_order_negative_memories = (
-				"iAggregatedNegativeMemoryDeclaredWar%s" % affection_resentment,
-				"iAggregatedNegativeMemoryDeclaredWarOnFriend%s" % affection_resentment,
-				"iAggregatedNegativeMemoryHiredWarAlly%s" % affection_resentment,
-				"iAggregatedNegativeMemoryNukedUs%s" % affection_resentment,
-				"iAggregatedNegativeMemoryNukedFriend%s" % affection_resentment,
-				"iAggregatedNegativeMemoryRazedCity%s" % affection_resentment,
-				"iAggregatedNegativeMemoryRazedHolyCity%s" % affection_resentment,
-				"iAggregatedNegativeMemorySpyCaught%s" % affection_resentment,
-				"iAggregatedNegativeMemoryRefusedHelp%s" % affection_resentment,
-				"iAggregatedNegativeMemoryRejectedDemand%s" % affection_resentment,
-				"iAggregatedNegativeMemoryDeniedReligion%s" % affection_resentment,
-				"iAggregatedNegativeMemoryDeniedCivic%s" % affection_resentment,
-				"iAggregatedNegativeMemoryDeniedJoinWar%s" % affection_resentment,
-				"iAggregatedNegativeMemoryDeniedStopTrading%s" % affection_resentment,
-				"iAggregatedNegativeMemoryStoppedTrading%s" % affection_resentment,
-				"iAggregatedNegativeMemoryHiredTradeEmbargo%s" % affection_resentment,
-				"iAggregatedNegativeMemoryMadeDemand%s" % affection_resentment,
-				"iAggregatedNegativeMemoryVotedAgainstUs%s" % affection_resentment,
-				"iAggregatedNegativeMemoryEventBadToUs%s" % affection_resentment,
-				"iAggregatedNegativeMemoryCancelledVassalAgreement%s" % affection_resentment,
-				"iAggregatedNegativeMemoryDeclaredWarRecent%s" % affection_resentment,
-				"iAggregatedNegativeMemoryReceivedTechFromAny%s" % affection_resentment,
+				"iAggregated%sMemoryDeclaredWar%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryDeclaredWarOnFriend%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryHiredWarAlly%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryNukedUs%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryNukedFriend%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryRazedCity%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryRazedHolyCity%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemorySpyCaught%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryRefusedHelp%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryRejectedDemand%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryDeniedReligion%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryDeniedCivic%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryDeniedJoinWar%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryDeniedStopTrading%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryStoppedTrading%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryHiredTradeEmbargo%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryMadeDemand%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryVotedAgainstUs%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryEventBadToUs%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryCancelledVassalAgreement%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryDeclaredWarRecent%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryReceivedTechFromAny%s" % (positive_negative, affection_resentment),
 				# <!-- custom: hiding this one as we don't have enough space in the table, not ideal but hopefully good enough at least in this case if not always or not or yes or other or etc but anyways etc -->
-				# "iAggregatedNegativeMemoryStoppedTradingRecent%s" % affection_resentment,
-				"iAggregatedNegativeMemoryMadeDemandRecent%s" % affection_resentment,
-				"iAggregatedNegativeMemoryCancelledOpenBorders%s" % affection_resentment,
-				"iAggregatedNegativeMemoryCancelledDefensivePact%s" % affection_resentment,
+				# "iAggregated%sMemoryStoppedTradingRecent%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryMadeDemandRecent%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryCancelledOpenBorders%s" % (positive_negative, affection_resentment),
+				"iAggregated%sMemoryCancelledDefensivePact%s" % (positive_negative, affection_resentment),
 			)
 
 			return ai_category_key_order_negative_memories
 
 		# 💀 Negative Memory Resentments (0-100)
+		is_positive = False
 		is_affection = False
-		ai_category_key_order_negative_memory_resentments = get_ai_category_key_order_negative_memory_affections_or_resentments(is_affection)
+		positive_negative = get_positive_negative(is_positive)
+		affection_resentment = get_affection_resentment(is_affection)
+		ai_category_key_order_negative_memory_resentments = get_ai_category_key_order_negative_memory_affections_or_resentments(positive_negative, affection_resentment)
 		emoji_name_negative_memory_resentments = "Skull"
-		ai_category_header_negative_memory_resentments = "Negative Memory Resentments"
+		ai_category_header_negative_memory_resentments = "%s Memory %ss" % (positive_negative, affection_resentment)
 		ai_category_negative_memory_resentments = get_ai_category(emoji_name_negative_memory_resentments, emoji_name_to_button_path_txt_keys, ai_category_header_negative_memory_resentments, ai_category_key_order_negative_memory_resentments, localText)
 
 		# 🔥 Negative Memory Affections (0-100)
+		# is_positive = False
 		# is_affection = True
-		# ai_category_key_order_negative_memory_affections = get_ai_category_key_order_negative_memory_affections_or_resentments(is_affection)
+		# positive_negative = get_positive_negative(is_positive)
+		# affection_resentment = get_affection_resentment(is_affection)
+		# ai_category_key_order_negative_memory_affections = get_ai_category_key_order_negative_memory_affections_or_resentments(positive_negative, affection_resentment)
 		# emoji_name_negative_memory_affections = "Fire"
-		# ai_category_header_negative_memory_affections = "Negative Memory Affections"
+		# ai_category_header_negative_memory_affections = "%s Memory %ss" % (positive_negative, affection_resentment)
 		# ai_category_negative_memory_affections = get_ai_category(emoji_name_negative_memory_affections, emoji_name_to_button_path_txt_keys, ai_category_header_negative_memory_affections, ai_category_key_order_negative_memory_affections, localText)
 
 		# 🧠 Core Personality

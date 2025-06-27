@@ -1,37 +1,20 @@
 # Coding Help for AdvCiv / AdvCiv-SAS
 
-This is a non-exhaustive page containing some ressources i found
-helpful.
+This is a non-exhaustive page containing some ressources i found helpful.
 
 ## Disclaimer and general information
 
-I don't know a lot about XML, C++, or Python, and (only) got
-familiar with these languages recently as i started developping
-for Civ4 this AdvCiv-SAS mod.
+I don't know a lot about XML, C++, or Python, and (only) got familiar with these languages recently as i started developping for Civ4 this AdvCiv-SAS mod.
 
 I did have previous knowledge though.
 
-I cannot be assumed or expected to be available or responsible
-to provide any coding help or feedback (i'd prefer to have my
-peace of mind rather, even though i may occasionnaly or more
-often, but not guaranteed and maybe not if i don't want or
-do so or any other reason or not, but i might or might not, just
-this is a fair warning/caution point about that, anyways),
-however i hope these few ressources i have accumulated may help
-those who wish to start their own mod.
+I cannot be assumed or expected to be available or responsible to provide any coding help or feedback (i'd prefer to have my peace of mind rather, even though i may occasionnaly or more often, but not guaranteed and maybe not if i don't want or do so or any other reason or not, but i might or might not, just this is a fair warning/caution point about that, anyways), however i hope these few ressources i have accumulated may help those who wish to start their own mod.
 
-I can also not be held responsible for any damage resulting of
-following these instructions, whether these are followed correctly
-or incorrectly. I am only providing them as general information, and
-while i hope it helps, you are responsible for checking it, verifying
-it, and using it, and any consequence that may happen as a result.
-Hopefully you'll find them helpful though, but in case not or
-something happens, this is just to protect myself and talk to you
-in all fairness.
+I can also not be held responsible for any damage resulting of following these instructions, whether these are followed correctly or incorrectly. I am only providing them as general information, and while i hope it helps, you are responsible for checking it, verifying it, and using it, and any consequence that may happen as a result.
 
-Else or additionally, you may find more help asking your question(s) directly on
-[CivFanaticsCenter's Civ4 Forum](https://forums.civfanatics.com/categories/civilization-iv.143/)
-rather maybe. Hopefully this data i provided is also helpful though.
+Hopefully you'll find them helpful though, but in case not or something happens, this is just to protect myself and talk to you in all fairness.
+
+Else or additionally, you may find more help asking your question(s) directly on [CivFanaticsCenter's Civ4 Forum](https://forums.civfanatics.com/categories/civilization-iv.143/) rather maybe. Hopefully this data i provided is also helpful though.
 
 ## A few useful tips
 
@@ -453,6 +436,8 @@ Like this for example if it helps too, anyways etc... (not sayin this is a stand
 			<KFM>Art/Units/Unique/Arabia/CamelArcher/ArabiaCamelArcher.kfm</KFM>
 			<SHADERNIF>Art/AdvCiv_SAS/Units/Camel_Archer/nif/BerberCamelRiderFinalFinal_fx.nif</SHADERNIF>
 ```
+
+note3: in some cases it's even harder than that as the nif expects some assets not in the other mod where you're importing it from's folder anyways etc, so with nifskope (see screenshots in drive link in this section of the readme anyways etc), for example for the usa_patriot of/in advciv-sas anyways etc, open the trees and such until you find one or many of the assets the nif requires, in this case it was just brownbesstexture.dds, that was not in ri mod's li_fus_early_america if i am not mistaken anyways etc where the remaining and what i expected to be all but anyways etc unit's art were. So to solve this, i did a search with dragon unpacker in the .fpk of civilization america where i took this unit from, and luckily for us anyways etc this brownbesstexture.dds was there, so i extracted, added it, verified path in nif is relative to current folder as was and not in some other folder parent or child anyways etc to ours, and since all was good by adding this .dds as well in Mods\AdvCiv-SAS\Assets\Art\AdvCiv_SAS\Units\USA_Patriot\nif\ then finally the gun was not purple again of missing art but was the real gun same as in ri mod yohoo!! If i may say but anyways etc. Since it was not luckily too hard to solve unlike harder times i had for example with c2c camel units with many missing assets or and with a path outside of the unit's folder if i remember correctly, i thought it was a good time to add this example to the tutorial since easier and such and i could solve it, while also remembering chatgpt/becomingthrough's instructions at the time for c2c even though i didn't succeed at it at the time now solved with the usa patriot that has a nice brown gun in the game (or white in nifskope as in empty if i am not mistaken in this case but anyways etc) i mean but anyways etc anyways etc anyways etc... hopefulyl helpful, see drive screenshots as well for examples of how i solved it in main steps hopefully helpful anyways etc
 
 ## Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded" flag in sevopedia leader 's placeSpecial and in tech tree view (technology advisor) anyways etc
 
