@@ -213,7 +213,7 @@ class CvMilitaryAdvisor:
 		#self.Y_EXIT = 726
 		#self.H_SCREEN = screen.getYResolution()
 			
-		screen.setRenderInterfaceOnly(True);
+		screen.setRenderInterfaceOnly(True)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
 
 		self.iActivePlayer = CyGame().getActivePlayer()

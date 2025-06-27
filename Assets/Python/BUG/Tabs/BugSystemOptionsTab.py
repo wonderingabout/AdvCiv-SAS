@@ -29,8 +29,7 @@ class BugSystemOptionsTab(BugOptionsTab.BugOptionsTab):
 		self.addCheckbox(screen, center, "MainInterface__ModNameInReplays") # advc.106i
 		screen.setLayoutFlag(right, "LAYOUT_RIGHT")
 		screen.setLayoutFlag(right, "LAYOUT_SIZE_HPREFERREDEXPANDING")
-		self.addLabel(screen, right, "Version", 
-					  CvModName.getDisplayNameAndVersion() + " (" + CvModName.getCivNameAndVersion() + ")")
+		self.addLabel(screen, right, "Version", CvModName.getDisplayNameAndVersion() + " (" + CvModName.getCivNameAndVersion() + ")")
 		
 #		screen.attachHSeparator(column, column + "Sep1")		
 #		self.addLabel(screen, column, "Subversion", "Subversion (SVN):")

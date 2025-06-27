@@ -120,7 +120,8 @@ class SevoPediaTrait:
 						bSkip = False
 					else:
 						# some other trait
-						if bFound: break
+						if bFound:
+							break
 						bSkip = True
 				else:
 					if not bSkip:

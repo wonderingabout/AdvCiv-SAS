@@ -12,8 +12,10 @@ import math
 gc = CyGlobalContext()
 
 #Define exeptions
-class RomanError(Exception): pass
-class OutOfRangeError(RomanError): pass
+class RomanError(Exception):
+    pass
+class OutOfRangeError(RomanError):
+    pass
 
 #make a list of Roman numbers
 RomanNumberMap = (('M', 1000),

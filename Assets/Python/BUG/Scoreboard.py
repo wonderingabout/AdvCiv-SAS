@@ -748,7 +748,7 @@ class TeamScores:
 							playerScore.set(MASTER, MASTER_ICON)
 					self._scoreboard._anyHas[MASTER] = True
 			# K-Mod (to fix a problem when a human player becomes the vassal of an unmet team)
-			if self._master == None:
+			if self._master is None:
 				self._isVassal = False
 			# K-Mod end
 

@@ -266,20 +266,22 @@ class PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				mainSouthLat += 0.175
 				# Define potential subcontinent slots (regional definitions).
 				# List values: [westLon, southLat, vertRange, horzRange, southShift]
-				scValues = [[0.05, 0.375, 0.2, 0.0, 0],
-				            [0.55, 0.375, 0.2, 0.0, 0],
-				            [0.1, 0.225, 0.0, 0.15, 0],
-				            [0.3, 0.225, 0.0, 0.15, 0]
-				            ]
+				scValues = [
+					[0.05, 0.375, 0.2, 0.0, 0],
+					[0.55, 0.375, 0.2, 0.0, 0],
+					[0.1, 0.225, 0.0, 0.15, 0],
+					[0.3, 0.225, 0.0, 0.15, 0]
+				]
 			else:
 				mainNorthLat -= 0.175
 				mainSouthLat -= 0.175
 				# List values: [westLon, southLat, vertRange, horzRange, southShift]
-				scValues = [[0.05, 0.025, 0.2, 0.0, 0],
-				            [0.55, 0.025, 0.2, 0.0, 0],
-				            [0.1, 0.375, 0.0, 0.15, 0],
-				            [0.3, 0.375, 0.0, 0.15, 0]
-				            ]
+				scValues = [
+					[0.05, 0.025, 0.2, 0.0, 0],
+					[0.55, 0.025, 0.2, 0.0, 0],
+					[0.1, 0.375, 0.0, 0.15, 0],
+					[0.3, 0.375, 0.0, 0.15, 0]
+				]
 		elif pangaea_type == 1: # Pressed Equatorial
 			# Define potential subcontinent slots (regional definitions).
 			equRoll = self.dice.get(4, "Subcontinents - Pangaea PYTHON")

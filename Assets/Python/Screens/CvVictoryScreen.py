@@ -2,7 +2,8 @@
 ## Copyright Firaxis Games 2005
 from CvPythonExtensions import *
 import CvUtil
-import ScreenInput
+# <!-- custom: remove or comment out unused imports -->
+#import ScreenInput
 import PyHelpers
 import time
 
@@ -157,7 +158,7 @@ class CvVictoryScreen:
 		screen = self.getScreen()
 		if screen.isActive():
 			return
-		screen.setRenderInterfaceOnly(True);
+		screen.setRenderInterfaceOnly(True)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
 
 		self.iActivePlayer = CyGame().getActivePlayer()
@@ -337,8 +338,10 @@ class CvVictoryScreen:
 	def showMembersScreen(self):
 		if AdvisorOpt.isMembers():
 			iRelVote, iRelVoteIdx, iUNVote, iUNVoteIdx  = self.getVoteAvailable()
-			if  iRelVote == -1: self.VoteBody = 2 # AP Not active
-			elif iUNVote == -1: self.VoteBody = 1 # UN Not active
+			if  iRelVote == -1:
+				self.VoteBody = 2 # AP Not active
+			elif iUNVote == -1:
+				self.VoteBody = 1 # UN Not active
 
 			if self.VoteBody == 1:
 				iVoteBody = iRelVote
@@ -386,7 +389,8 @@ class CvVictoryScreen:
 	def showMembersScreen_BUG(self, iRelVote, iUNVote, iActiveVote, iVoteIdx):
 		self.deleteAllWidgets()
 
-		if (iRelVote == -1 and iUNVote == -1): return  # neither AP or UN are active
+		if (iRelVote == -1 and iUNVote == -1):
+			return  # neither AP or UN are active
 
 		activePlayer = gc.getPlayer(self.iActivePlayer)
 		iActiveTeam = activePlayer.getTeam()
@@ -452,24 +456,28 @@ class CvVictoryScreen:
 		# set up the vote selection texts
 		iX = self.X_EXIT
 		sText = gc.getVoteSourceInfo(iActiveVote).getSecretaryGeneralText()
-		if self.VoteType == 1: sText = BugUtil.colorText(sText, "COLOR_YELLOW")
+		if self.VoteType == 1:
+			sText = BugUtil.colorText(sText, "COLOR_YELLOW")
 		screen.setText(self.Vote_Pope_ID, "", sText, CvUtil.FONT_RIGHT_JUSTIFY, iX, self.Vote_Y, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		iX -= 10 + CyInterface().determineWidth(sText)
 		sText = localText.getText("TXT_KEY_BUG_VICTORY_DIPLOMATIC", ())
-		if self.VoteType == 2: sText = BugUtil.colorText(sText, "COLOR_YELLOW")
+		if self.VoteType == 2:
+			sText = BugUtil.colorText(sText, "COLOR_YELLOW")
 		screen.setText(self.Vote_DipVic_ID, "", sText, CvUtil.FONT_RIGHT_JUSTIFY, iX, self.Vote_Y, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		if (iRelVote != -1
 		and iUNVote != -1):  # both AP and UN are active
 			iX = self.Vote_X
 			sText = gc.getVoteSourceInfo(iRelVote).getDescription()
-			if iActiveVote == iRelVote: sText = BugUtil.colorText(sText, "COLOR_YELLOW")
+			if iActiveVote == iRelVote:
+				sText = BugUtil.colorText(sText, "COLOR_YELLOW")
 			screen.setText(self.Vote_AP_ID, "", sText, CvUtil.FONT_LEFT_JUSTIFY, iX, self.Vote_Y, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 			iX += 10 + CyInterface().determineWidth(sText)
 			sText = gc.getVoteSourceInfo(iUNVote).getDescription()
-			if iActiveVote == iUNVote: sText = BugUtil.colorText(sText, "COLOR_YELLOW")
+			if iActiveVote == iUNVote:
+				sText = BugUtil.colorText(sText, "COLOR_YELLOW")
 			screen.setText(self.Vote_UN_ID, "", sText, CvUtil.FONT_LEFT_JUSTIFY, iX, self.Vote_Y, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		else:
 			screen.hide(self.Vote_AP_ID)
@@ -1105,7 +1113,7 @@ class CvVictoryScreen:
 				# <advc.135d> Based on code in CvGame::setStartTurnYear
 				iDefaultEndTurn = 0
 				for i in range(gc.getGameSpeedInfo(g.getGameSpeedType()).getNumTurnIncrements()):
-					iDefaultEndTurn += gc.getGameSpeedInfo(g.getGameSpeedType()).getGameTurnInfo(i).iNumGameTurnsPerIncrement;
+					iDefaultEndTurn += gc.getGameSpeedInfo(g.getGameSpeedType()).getGameTurnInfo(i).iNumGameTurnsPerIncrement
 				if g.getMaxTurns() != iDefaultEndTurn:
 				# </advc.135d>
 					szMaxTurns = u"%s %d" % (localText.getText("TXT_KEY_TURN_LIMIT_TAG", ()), g.getMaxTurns())
@@ -1772,15 +1780,20 @@ class CvVictoryScreen:
 		iPCand2 = self.getPlayerOnTeam(iCand2)
 
 		# * player votes for its own team if it can
-		if iPTeam == iCand1: return 1
-		if iPTeam == iCand2: return 2
+		if iPTeam == iCand1:
+			return 1
+		if iPTeam == iCand2:
+			return 2
 
 		# if player is human, votes for self or abstains
-		if iPlayer == self.iActivePlayer: return -1
+		if iPlayer == self.iActivePlayer:
+			return -1
 
 		# * AI votes for its master, if it is a vassal
-		if gc.getTeam(iPTeam).isVassal(iCand1): return 1
-		if gc.getTeam(iPTeam).isVassal(iCand2): return 2
+		if gc.getTeam(iPTeam).isVassal(iCand1):
+			return 1
+		if gc.getTeam(iPTeam).isVassal(iCand2):
+			return 2
 
 		# get player category (friendly) to candidates
 		iC1Cat = AttitudeUtil.getAttitudeCategory(iPlayer, iPCand1)

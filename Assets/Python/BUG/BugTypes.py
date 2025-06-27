@@ -84,7 +84,7 @@ def normalize(type):
 		return None
 	try:
 		return NORMALIZED_TYPES[type.lower()]
-	except:
+	except Exception:
 		raise BugUtil.ConfigError("Invalid type %s", type)
 
 
@@ -175,13 +175,13 @@ def to(type, value, noneIsDefault=True, emptyIsDefault=True):
 				return CONVERT_FROM_STRING[normalize(type)](value.replace("\r\n", " "))
 			except KeyError:
 				raise BugUtil.ConfigError("Invalid type %s", type)
-			except:
+			except Exception:
 				raise BugUtil.ConfigError("Invalid %s: %s", type, value)
 	else:
 		if value:
 			try:
 				return eval(value)
-			except:
+			except Exception:
 				raise BugUtil.ConfigError("Invalid expression %s", value)
 		else:
 			return None

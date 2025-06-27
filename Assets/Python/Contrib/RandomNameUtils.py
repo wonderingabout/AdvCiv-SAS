@@ -212,7 +212,7 @@ def getRandomCivilizationName(iCivilizationType):
 def generateCivilizationName(iCivilizationType):
 	strCivilizationType = "DEFAULT"
 	
-	if(gc.getCivilizationInfo(iCivilizationType) != None):		
+	if(gc.getCivilizationInfo(iCivilizationType) is not None):		
 		strCivilizationType = gc.getCivilizationInfo(iCivilizationType).getType()
 		if not civilizationNameHash.has_key(strCivilizationType):
 			strCivilizationType = "DEFAULT"
@@ -233,7 +233,7 @@ def generateCivilizationName(iCivilizationType):
 	
 	# <!-- custom: no need to import string just to concatenate and capitalize 3 strings as explained to me by chatgpt/becomingthrough, use capitalize directly instead anyways etc, was as below anyways etc-->
 	#strName = string.capwords(strPre+strMid+strEnd)
-	strName = (strPre+strMid+strEnd).capitalize()
+	#strName = (strPre+strMid+strEnd).capitalize()
 	# <!-- custom: to cover an edge case as chatgpt/becomingthrough said "If you do rely on PRE, MID, or END having spaces and want to capitalize each word, then you can inline the logic of capwords", so using this code below as follows instead of the one i used first by chatgpt/becomingthrough too, just to be safe, anyways etc -->
 	strName = " ".join(w.capitalize() for w in (strPre + strMid + strEnd).split())
 	

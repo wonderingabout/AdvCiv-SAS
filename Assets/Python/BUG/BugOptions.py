@@ -393,25 +393,33 @@ class IniFile(object):
 
 
 NONE_TYPE = "none"
-TYPE_REPLACE = { "bool": "boolean",
-			 	 "bit": "boolean",
-			 	 "str": "string",
-				 "integer": "int",
-				 "long": "int",
-				 "number": "int",
-				 "real": "float",
-				 "double": "float",
-				 "decimal": "float" }
-TYPE_DEFAULT = { "boolean": False,
-			 	 "string": "",
-				 "int": 0,
-				 "float": 0.0,
-				 "color": "COLOR_WHITE" }
-TYPE_MAP = { "boolean": lambda x: bool(isinstance(x, types.StringTypes) and x.lower() in ('true', 't', 'yes', 'y', 'on', '1')) or bool(isinstance(x, bool) and x) or bool(isinstance(x, int) and x),
-			 "string": str,
-			 "int": int,
-			 "float": float,
-			 "color": str }
+TYPE_REPLACE = {
+	"bool": "boolean",
+	"bit": "boolean",
+	"str": "string",
+	"integer": "int",
+	"long": "int",
+	"number": "int",
+	"real": "float",
+	"double": "float",
+	"decimal": "float",
+}
+
+TYPE_DEFAULT = {
+	"boolean": False,
+	"string": "",
+	"int": 0,
+	"float": 0.0,
+	"color": "COLOR_WHITE",
+}
+
+TYPE_MAP = {
+	"boolean": lambda x: bool(isinstance(x, types.StringTypes) and x.lower() in ('true', 't', 'yes', 'y', 'on', '1')) or bool(isinstance(x, bool) and x) or bool(isinstance(x, int) and x),
+	"string": str,
+	"int": int,
+	"float": float,
+	"color": str,
+}
 
 class AbstractOption(object):
 	# Provides a basic interface and minimal abstract implementation for an option.
@@ -703,8 +711,7 @@ class BaseOption(AbstractOption):
 	#   the option to force certain aspects of the interface to redraw themselves.
 	#
 
-	def __init__(self, mod, id, type, default=None, andId=None, dll=None, 
-				 title=None, tooltip=None, dirty=None):
+	def __init__(self, mod, id, type, default=None, andId=None, dll=None, title=None, tooltip=None, dirty=None):
 		# Sets the important fields of the new Option.
 		#
 		super(BaseOption, self).__init__(mod, id, andId, dll)
@@ -804,8 +811,7 @@ class BaseOption(AbstractOption):
 		if self.dirtyBits is None:
 			self.dirtyBits = []
 		if isinstance(bit, types.StringTypes):
-			self.dirtyBits.extend(map(lambda b: getattr(InterfaceDirtyBits, b + "_DIRTY_BIT"), 
-									  bit.replace(",", " ").split()))
+			self.dirtyBits.extend(map(lambda b: getattr(InterfaceDirtyBits, b + "_DIRTY_BIT"), bit.replace(",", " ").split()))
 		else:
 			self.dirtyBits.append(bit)
 	
@@ -837,14 +843,20 @@ class BaseOption(AbstractOption):
 
 
 LIST_TYPES = ("string", "int", "float", "color")
-TYPE_DEFAULT_LIST_TYPE = { "int": "int",
-						   "float": "float",
-						   "string": "color",
-						   "color": "color" }
-LIST_TYPE_DEFAULT_TYPE = { "string": "int", 
-						   "int": "int", 
-						   "float": "float", 
-						   "color": "color" }
+
+TYPE_DEFAULT_LIST_TYPE = {
+	"int": "int",
+	"float": "float",
+	"string": "color",
+	"color": "color",
+}
+
+LIST_TYPE_DEFAULT_TYPE = {
+	"string": "int",
+	"int": "int",
+	"float": "float",
+	"color": "color",
+}
 
 class BaseListOption(BaseOption):
 	#
@@ -852,9 +864,7 @@ class BaseListOption(BaseOption):
 	# when creating the dropdown listbox in the Options Screen.
 	#
 
-	def __init__(self, mod, id, type=None, default=None, andId=None, dll=None, 
-				 listType="string", values=None, format=None, 
-				 title=None, tooltip=None, dirty=None):
+	def __init__(self, mod, id, type=None, default=None, andId=None, dll=None, listType="string", values=None, format=None, title=None, tooltip=None, dirty=None):
 		if listType and listType not in LIST_TYPES:
 			raise BugUtil.ConfigError("Invalid option list type: %s", listType)
 		if not type:
@@ -1049,16 +1059,13 @@ class UnsavedMixin(object):
 
 class UnsavedOption(UnsavedMixin, BaseOption):
 	
-	def __init__(self, mod, id, type, default=None, andId=None, dll=None, 
-				 title=None, tooltip=None, dirty=None):
+	def __init__(self, mod, id, type, default=None, andId=None, dll=None, title=None, tooltip=None, dirty=None):
 		BaseOption.__init__(self, mod, id, type, default, andId, dll, title, tooltip, dirty)
 		UnsavedMixin.__init__(self, self.default)
 
 class UnsavedListOption(UnsavedMixin, BaseListOption):
 	
-	def __init__(self, mod, id, type=None, default=None, andId=None, dll=None, 
-				 listType="string", values=None, format=None, 
-				 title=None, tooltip=None, dirty=None):
+	def __init__(self, mod, id, type=None, default=None, andId=None, dll=None, listType="string", values=None, format=None, title=None, tooltip=None, dirty=None):
 		BaseListOption.__init__(self, mod, id, type, default, andId, dll, listType, values, format, title, tooltip, dirty)
 		UnsavedMixin.__init__(self, self.default)
 
@@ -1130,16 +1137,13 @@ class IniMixin(object):
 
 class IniOption(IniMixin, BaseOption):
 	
-	def __init__(self, mod, id, file, section, key, type, default=None, andId=None, dll=None, 
-				 title=None, tooltip=None, dirty=None):
+	def __init__(self, mod, id, file, section, key, type, default=None, andId=None, dll=None, title=None, tooltip=None, dirty=None):
 		BaseOption.__init__(self, mod, id, type, default, andId, dll, title, tooltip, dirty)
 		IniMixin.__init__(self, file, section, key)
 
 class IniListOption(IniMixin, BaseListOption):
 	
-	def __init__(self, mod, id, file, section, key, type=None, default=None, andId=None, dll=None, 
-				 listType="string", values=None, format=None, 
-				 title=None, tooltip=None, dirty=None):
+	def __init__(self, mod, id, file, section, key, type=None, default=None, andId=None, dll=None, listType="string", values=None, format=None, title=None, tooltip=None, dirty=None):
 		BaseListOption.__init__(self, mod, id, type, default, andId, dll, listType, values, format, title, tooltip, dirty)
 		IniMixin.__init__(self, file, section, key)
 

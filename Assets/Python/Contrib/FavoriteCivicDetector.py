@@ -54,25 +54,24 @@ def getFavoriteCivicInfo (iPlayer):
 			favorite = gFavoriteByPlayer[iPlayer]
 	else:
 		pPlayer = gc.getPlayer(iPlayer)
-		if ( pPlayer and (not pPlayer.isNone()) and pPlayer.isAlive() and (not pPlayer.isHuman())
-			 and (not pPlayer.isBarbarian()) and (not pPlayer.isMinorCiv()) ):
+		if (pPlayer and (not pPlayer.isNone()) and pPlayer.isAlive() and (not pPlayer.isHuman()) and (not pPlayer.isBarbarian()) and (not pPlayer.isMinorCiv())):
 			favorite = FavoriteCivic(iPlayer)
 			favorite.setFavorite(gc.getLeaderHeadInfo(pPlayer.getPersonalityType()).getFavoriteCivic())
 	return favorite
 
 def doUpdate ():
+	# <!-- custom: follow ruff rule E714 similarly, not "not x is none" but instead "x is not none" if i am not mistaken in my understanding of it anyways etc -->
 	# Goes through the current diplomacy situation to determine potential favorite civics for each civ.
 	#
 	# advc.009b: None check added
-	if gDetectionNecessary and not gFavoriteByPlayer is None:
+	if gDetectionNecessary and gFavoriteByPlayer is not None:
 		BugUtil.debug("FavoriteCivicDetector.doUpdate() START")
 		pActivePlayer = gc.getActivePlayer()
 		pActiveTeam = gc.getTeam(pActivePlayer.getTeam())
 		for iPlayer in range(gc.getMAX_PLAYERS()):
 			pPlayer = gc.getPlayer(iPlayer)
 			# Player we are updating must be a valid, living, non-human, full-fledged civ.
-			if ( pPlayer and (not pPlayer.isNone()) and pPlayer.isAlive() and (not pPlayer.isHuman())
-				 and (not pPlayer.isBarbarian()) and (not pPlayer.isMinorCiv()) ):
+			if (pPlayer and (not pPlayer.isNone()) and pPlayer.isAlive() and (not pPlayer.isHuman()) and (not pPlayer.isBarbarian()) and (not pPlayer.isMinorCiv())):
 				BugUtil.debug("Updating Info for Player %d (%s)" % (iPlayer, pPlayer.getName()))
 				iTeam = pPlayer.getTeam()
 				pTeam = gc.getTeam(iTeam)
@@ -98,9 +97,7 @@ def doUpdate ():
 					for iOtherPlayer in range(gc.getMAX_PLAYERS()):
 						pOtherPlayer = gc.getPlayer(iOtherPlayer)
 						# Test attitude against other valid, living, full-fledged civs; these can be human
-						if ( pOtherPlayer and (iOtherPlayer != iPlayer) 
-							 and (not pOtherPlayer.isNone()) and pOtherPlayer.isAlive() 
-							 and (not pOtherPlayer.isBarbarian()) and (not pOtherPlayer.isMinorCiv()) ):
+						if (pOtherPlayer and (iOtherPlayer != iPlayer) and (not pOtherPlayer.isNone()) and pOtherPlayer.isAlive() and (not pOtherPlayer.isBarbarian()) and (not pOtherPlayer.isMinorCiv())):
 							BugUtil.debug(" -- Testing against Player %d (%s)" % (iOtherPlayer, pOtherPlayer.getName()))
 							iOtherTeam = pOtherPlayer.getTeam()
 							if ( (not pActiveTeam.isHasMet(iOtherTeam)) or (not pTeam.isHasMet(iOtherTeam)) ):
@@ -112,29 +109,23 @@ def doUpdate ():
 								eCivic = pPlayer.getCivics(eCategory)
 								if (eCivic == pOtherPlayer.getCivics(eCategory)):
 									if bFoundPossibleFavorite:
-										BugUtil.debug("     -- Players share civic %d (%s) and %s is giving the diplo modifier." 
-													  % (eCivic, gc.getCivicInfo(eCivic).getText(), pPlayer.getName()))
-										BugUtil.debug("         -- This is the only possible favorite in category %d (%s)." 
-													  % (eCategory, gc.getCivicOptionInfo(eCategory).getText()))
+										BugUtil.debug("     -- Players share civic %d (%s) and %s is giving the diplo modifier." % (eCivic, gc.getCivicInfo(eCivic).getText(), pPlayer.getName()))
+										BugUtil.debug("         -- This is the only possible favorite in category %d (%s)." % (eCategory, gc.getCivicOptionInfo(eCategory).getText()))
 										for eOtherCivic in gCivicsByCategory[eCategory]:
 											if (eOtherCivic != eCivic):
 												favorite.removePossible(eOtherCivic)
 									else:
-										BugUtil.debug("     -- Players share civic %d (%s) but %s is NOT giving the diplo modifier." 
-													  % (eCivic, gc.getCivicInfo(eCivic).getText(), pPlayer.getName()))
+										BugUtil.debug("     -- Players share civic %d (%s) but %s is NOT giving the diplo modifier." % (eCivic, gc.getCivicInfo(eCivic).getText(), pPlayer.getName()))
 										BugUtil.debug("         -- This one must be ruled out as a possible favorite.")
 										favorite.removePossible(eCivic)
 								else:
 									if bFoundPossibleFavorite:
-										BugUtil.debug("     -- Players do NOT share civic %d (%s) but %s is giving the diplo modifier." 
-													  % (eCivic, gc.getCivicInfo(eCivic).getText(), pPlayer.getName()))
-										BugUtil.debug("         -- All civics in category %d (%s) must be ruled out." 
-													  % (eCategory, gc.getCivicOptionInfo(eCategory).getText()))
+										BugUtil.debug("     -- Players do NOT share civic %d (%s) but %s is giving the diplo modifier." % (eCivic, gc.getCivicInfo(eCivic).getText(), pPlayer.getName()))
+										BugUtil.debug("         -- All civics in category %d (%s) must be ruled out." % (eCategory, gc.getCivicOptionInfo(eCategory).getText()))
 										for eOtherCivic in gCivicsByCategory[eCategory]:
 											favorite.removePossible(eOtherCivic)
 									else:
-										BugUtil.debug("     -- Players do NOT share civic %d (%s) and %s is NOT giving the diplo modifier." 
-													  % (eCivic, gc.getCivicInfo(eCivic).getText(), pPlayer.getName()))
+										BugUtil.debug("     -- Players do NOT share civic %d (%s) and %s is NOT giving the diplo modifier." % (eCivic, gc.getCivicInfo(eCivic).getText(), pPlayer.getName()))
 										BugUtil.debug("         -- This doesn't tell us anything new.") 
 				BugUtil.debug(" -- Finished update for %s: %s" % (pPlayer.getName(), str(favorite)))
 		#dump()
@@ -194,8 +185,7 @@ def dump (*args):
 		BugUtil.debug("FavoriteCivicDetector.dump() Dumping data for players %s." % (str(args)))
 		for iPlayer in args:
 			pPlayer = gc.getPlayer(iPlayer)
-			if ( pPlayer and (not pPlayer.isNone()) and pPlayer.isAlive() and (not pPlayer.isHuman())
-				 and (not pPlayer.isBarbarian()) and (not pPlayer.isMinorCiv()) ):
+			if (pPlayer and (not pPlayer.isNone()) and pPlayer.isAlive() and (not pPlayer.isHuman()) and (not pPlayer.isBarbarian()) and (not pPlayer.isMinorCiv())):
 				if (iPlayer in gFavoriteByPlayer):
 					BugUtil.debug(str(gFavoriteByPlayer[iPlayer]))
 				else:
@@ -227,8 +217,7 @@ class FavoriteCivic:
 		#
 		self.possibles = set(range(gc.getNumCivicInfos()))
 		pPlayer = gc.getPlayer(self.iPlayer)
-		if ( pPlayer and (not pPlayer.isNone()) and pPlayer.isAlive() and (not pPlayer.isHuman())
-				 and (not pPlayer.isBarbarian()) and (not pPlayer.isMinorCiv()) ):
+		if (pPlayer and (not pPlayer.isNone()) and pPlayer.isAlive() and (not pPlayer.isHuman()) and (not pPlayer.isBarbarian()) and (not pPlayer.isMinorCiv())):
 			# Initially rule out all "starter" civics
 			pCiv = gc.getCivilizationInfo(pPlayer.getCivilizationType())
 			for eCategory in range(gc.getNumCivicOptionInfos()):
@@ -237,7 +226,7 @@ class FavoriteCivic:
 	def isInitialState(self):
 		# Returns True if this structure is unchanged from initialization.
 		#
-		return (self.eFavorite == NO_CIVIC and self.possibles == None)
+		return (self.eFavorite == NO_CIVIC and (self.possibles is None))
 
 	def isKnown(self):
 		# Do we know this player's favorite civic?

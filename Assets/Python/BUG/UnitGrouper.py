@@ -156,8 +156,7 @@ class PromotionGrouping(Grouping):
 		for i in range(gc.getNumPromotionInfos()):
 			info = gc.getPromotionInfo(i)
 			if info:
-				self._addGroup(Group(self, i + 1, '<img=%s size=16></img> %s' % 
-												  (info.getButton(), info.getDescription())))
+				self._addGroup(Group(self, i + 1, '<img=%s size=16></img> %s' % (info.getButton(), info.getDescription())))
 	
 	def calcGroupKeys(self, unit, player, team):
 		promos = []

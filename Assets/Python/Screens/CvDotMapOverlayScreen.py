@@ -140,8 +140,8 @@ class CvDotMapOverlayScreen:
 	#   Widget Adding/Updating Functions
 	#-------------------------------------------------------------------------------
 	def createColorPanel(self):
-	    # Creates the color selection panel.
-	    #
+		# Creates the color selection panel.
+		#
 		screen = self.getScreen()
 		count = len(CvStrategyOverlay.COLOR_KEYS)
 		width = CvStrategyOverlay.PALETTE_WIDTH

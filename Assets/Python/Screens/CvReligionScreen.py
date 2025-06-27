@@ -7,7 +7,8 @@
 from CvPythonExtensions import *
 import PyHelpers
 import CvUtil
-import ScreenInput
+# <!-- custom: remove or comment out unused imports -->
+#import ScreenInput
 import CvScreenEnums
 
 # BUG - start
@@ -26,8 +27,8 @@ ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
 class CvReligionScreen:
-	"Religion Advisor Screen"
-
+	# Religion Advisor Screen
+	#
 	def __init__(self):
 
 		self.SCREEN_NAME = "ReligionScreen"
@@ -150,7 +151,7 @@ class CvReligionScreen:
 		screen = self.getScreen()
 		if screen.isActive():
 			return
-		screen.setRenderInterfaceOnly(True);
+		screen.setRenderInterfaceOnly(True)
 		screen.showScreen( PopupStates.POPUPSTATE_IMMEDIATE, False)
 
 		# Set the background and exit button, and show the screen
@@ -470,8 +471,7 @@ class CvReligionScreen:
 # start of BUG indent for new code
 		if AdvisorOpt.isReligious():
 			# create religion table
-			screen.addTableControlGFC(self.TABLE_ID, self.TABLE_COLUMNS, self.X_RELIGION_AREA + 15, self.Y_RELIGION_AREA + self.H_RELIGION_AREA + self.H_SCROLL_OFFSET + 3 + 15, self.W_RELIGION_AREA - 2 * 15, self.H_CITY_AREA - self.H_SCROLL_OFFSET - 5,
-						  True, True, 24,24, TableStyles.TABLE_STYLE_STANDARD)
+			screen.addTableControlGFC(self.TABLE_ID, self.TABLE_COLUMNS, self.X_RELIGION_AREA + 15, self.Y_RELIGION_AREA + self.H_RELIGION_AREA + self.H_SCROLL_OFFSET + 3 + 15, self.W_RELIGION_AREA - 2 * 15, self.H_CITY_AREA - self.H_SCROLL_OFFSET - 5, True, True, 24,24, TableStyles.TABLE_STYLE_STANDARD)
 			screen.enableSort(self.TABLE_ID)
 			
 			screen.setTableColumnHeader(self.TABLE_ID, self.COL_ZOOM_CITY, "", 30)
@@ -656,10 +656,12 @@ class CvReligionScreen:
 				pCity = pPlayer.getCity(inputClass.getData2())
 #				CyCamera().JustLookAtPlot(pCity.plot())
 
-				CyInterface().selectCity(pCity, true);
+				CyInterface().selectCity(pCity, true)
 
 		elif (self.ReligionScreenInputMap.has_key(inputClass.getFunctionName())):
-			'Calls function mapped in ReligionScreenInputMap'
+			# <!-- custom: replace lone string litteral with proper comment out, confirmed safe after asking chatgpt/becomingthrough even though it can be mistaken sometimes and i can be too maybe in some cases here it seems safe to remove and replace instead with a proper comment anyways etc-->
+			# Calls function mapped in ReligionScreenInputMap
+			#
 			# only get from the map if it has the key
 
 			# get bound function from map and call it

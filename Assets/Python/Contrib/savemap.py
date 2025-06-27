@@ -96,13 +96,13 @@ def savemap(argsList=None):
 				startingPlots.append(pIndex)
 				civs.append(int(player.getCivilizationType()))
 				civsDesc.append(civInfo.getType())
-			elif(player.getCapitalCity().plot() != None):
+			elif(player.getCapitalCity().plot() is not None):
 				pPlot = player.getCapitalCity().plot()
 				pIndex = map.plotNum(pPlot.getX(), pPlot.getY()) + (extraWidth * pPlot.getY())
 				startingPlots.append(pIndex)
 				civs.append(int(player.getCivilizationType()))
 				civsDesc.append(civInfo.getType())
-			elif((player.getCapitalCity().plot() == None) and (player.getNumCities() > 0)):
+			elif((player.getCapitalCity().plot() is None) and (player.getNumCities() > 0)):
 				pPlot = player.getCity(0).plot()
 				pIndex = map.plotNum(pPlot.getX(), pPlot.getY()) + (extraWidth * pPlot.getY())
 				startingPlots.append(pIndex)
@@ -179,7 +179,7 @@ def savemap(argsList=None):
 			pathStr = pathname + goodName + ".py"
 			try:
 				f = open(pathStr)
-			except:
+			except Exception:
 				# File doesn't exist yet: good (or pathname is inaccessible; we'll see about that)
 				break
 			BugUtil.debug("savemap: File '%s' already exists", pathStr)
@@ -191,7 +191,7 @@ def savemap(argsList=None):
 			f.close()
 		try:
 			f = open(pathStr, 'w')
-		except:
+		except Exception:
 			BugUtil.debug("savemap: Cannot open path '%s' for writing", pathStr)
 			customAssets = True
 			continue

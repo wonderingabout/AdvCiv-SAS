@@ -114,8 +114,8 @@ class ProgressBar:
 		while True:
 			iX = self.w * (iCurr + iFirst + i * iRate) / iTotal
 
-			if (iX > self.w
-			or  abs(iX - iXPrev) < 5): break
+			if (iX > self.w or abs(iX - iXPrev) < 5):
+				break
 
 			self._drawline(screen, self.id, iX, self.m_y1, iX, self.m_y2, self.color, bDouble)
 			if self.marks == TICK_MARKS:
@@ -134,8 +134,8 @@ class ProgressBar:
 			iX = self.w * (iTotal - i * iRate) / iTotal
 #			BugUtil.debug("tick marks: %i %i %i %i %i %i", iCurr, iTotal, iFirst, iRate, iX, iMin)
 
-			if (iX < iMin
-			or  abs(iX - iXPrev) < 5): break
+			if (iX < iMin or abs(iX - iXPrev) < 5):
+				break
 
 			self._drawline(screen, self.id, iX, self.m_y1, iX, self.m_y2, self.color, bDouble)
 			if self.marks == TICK_MARKS:

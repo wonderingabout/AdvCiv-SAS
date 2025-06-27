@@ -338,7 +338,7 @@ class Callback:
 				return handler()
 			else:
 				return handler(argsList)
-		except:
+		except Exception:
 			BugUtil.trace("Error in %s callback handler %s", handler.__module__, self.name)
 	
 	def callListener(self, listener, argsList, result):
@@ -349,25 +349,29 @@ class Callback:
 				value = listener(argsList, result)
 			if value is not None:
 				BugUtil.warn("BugGameUtils - %s - ignoring %s listener's return value %r", self.name, listener.__module__, value)
-		except:
+		except Exception:
 			BugUtil.trace("Error in %s callback listener %s", listener.__module__, self.name)
 	
 	def __call__(self, argsList=None):
 		for handler in self.handlers:
-			if self.log: BugUtil.debug("BugGameUtils - %s - dispatching to %s handler", self.name, handler.__module__)
+			if self.log:
+				BugUtil.debug("BugGameUtils - %s - dispatching to %s handler", self.name, handler.__module__)
 			result = self.callHandler(handler, argsList)
 			if result is not None and result != self.default:
 				break
 		else:
 			if self.default is not None:
-				if self.log: BugUtil.debug("BugGameUtils - %s - using default %s", self.name, self.default)
+				if self.log:
+					BugUtil.debug("BugGameUtils - %s - using default %s", self.name, self.default)
 				result = self.default
 			else:
-				if self.log: BugUtil.debug("BugGameUtils - %s - dispatching to base handler", self.name)
+				if self.log:
+					BugUtil.debug("BugGameUtils - %s - dispatching to base handler", self.name)
 				result = self.callHandler(self.baseHandler, argsList)
 		if result is not None:
 			for listener in self.listeners:
-				if self.log: BugUtil.debug("BugGameUtils - %s - calling %s listener", self.name, listener.__module__)
+				if self.log:
+					BugUtil.debug("BugGameUtils - %s - calling %s listener", self.name, listener.__module__)
 				self.callListener(listener, argsList, result)
 		else:
 			BugUtil.error("BugGameUtils - %s - no handler returned a value", self.name)

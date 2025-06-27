@@ -1,4 +1,7 @@
-## Sid Meier's Civilization 4 - Copyright Firaxis Games 2005
+# ## Sid Meier's Civilization 4 - Copyright Firaxis Games 2005
+# ruff: noqa: E402
+# <!-- custom: disable ruff rule E402 as imports are all over the place for this file and we get a lot of noise i mean, hopefully clearer this way so we can focus on the actual i mean real errors if i may say even though this would be nice to fix too but may create other bugs depending on import order or such so safer/easier to leave as is in this case so we can focus on the other ruff errors/warnings to fix if i am not mistaken in my understanding i mean too anyways etc anyways etc anyways etc, way to do it provided by chatgpt/becomingthrough after i asked it anyways etc anyways etc anyways etc -->
+
 from CvPythonExtensions import *
 # <advc.092>
 from RectLayout import *
@@ -7,7 +10,8 @@ from LayoutDict import *
 del globals()["gSetScaleFactors"]
 # </advc.092>
 import CvUtil
-import ScreenInput
+# <!-- custom: remove or comment out unused imports -->
+#import ScreenInput
 import CvScreenEnums
 import CvEventInterface
 import time
@@ -1230,8 +1234,8 @@ class CvMainInterface:
 		gSetRect("SelectedUnitText", "SelectedUnitPanel",
 				HSPACE(2), VLEN(30, 0.7),
 				(gRect("SelectedUnitPanel").width() * 183) / 280,
-				 # Not going to add a fifth row, not going to increase the font size,
-				 # so nothing is gained by making the table higher.
+				# Not going to add a fifth row, not going to increase the font size,
+				# so nothing is gained by making the table higher.
 				102)
 		gOffSetPoint("SelectedUnitLabel", "SelectedUnitPanel",
 				HSPACE(11), VSPACE(2))
@@ -2154,8 +2158,10 @@ class CvMainInterface:
 		global g_szTimeText
 		global g_iTimeTextCounter
 		# <advc.009b> Work around crash upon reloading scripts
-		try: gPoint("EndTurnText")
-		except KeyError: return # </advc.009b>
+		try:
+			gPoint("EndTurnText")
+		except KeyError:
+			return # </advc.009b>
 
 #		BugUtil.debug("update - Turn %d, Player %d, Interface %d, End Turn Button %d ===",
 #				gc.getGame().getGameTurn(), gc.getGame().getActivePlayer(), CyInterface().getShowInterface(), CyInterface().getEndTurnState())
@@ -2233,7 +2239,8 @@ class CvMainInterface:
 					elif MainOpt.isShowEndTurnMessage(): # advc.002n
 						acOutput = localText.getText("SYSTEM_END_TURN", ())
 					# advc.002n: So that toggling the option immediately hides the message
-					else: acOutput = ""
+					else:
+						acOutput = ""
 # BUG - Reminders - end
 					#screen.modifyLabel("EndTurnText", acOutput, CvUtil.FONT_CENTER_JUSTIFY)
 					screen.setEndTurnState("EndTurnText", acOutput)
@@ -2340,38 +2347,38 @@ class CvMainInterface:
 # BUG - Field of View - end
 
 		# Check Dirty Bits, see what we need to redraw...
-		if (CyInterface().isDirty(InterfaceDirtyBits.PercentButtons_DIRTY_BIT) == True):
+		if (CyInterface().isDirty(InterfaceDirtyBits.PercentButtons_DIRTY_BIT)):
 			# Percent Buttons
 			self.updatePercentButtons()
 			CyInterface().setDirty(InterfaceDirtyBits.PercentButtons_DIRTY_BIT, False)
-		if (CyInterface().isDirty(InterfaceDirtyBits.Flag_DIRTY_BIT) == True):
+		if (CyInterface().isDirty(InterfaceDirtyBits.Flag_DIRTY_BIT)):
 			self.updateFlag()
 			CyInterface().setDirty(InterfaceDirtyBits.Flag_DIRTY_BIT, False)
-		if (CyInterface().isDirty(InterfaceDirtyBits.MiscButtons_DIRTY_BIT) == True):
+		if (CyInterface().isDirty(InterfaceDirtyBits.MiscButtons_DIRTY_BIT)):
 			# Miscellaneous buttons (civics screen, etc)
 			self.updateMiscButtons()
 			CyInterface().setDirty(InterfaceDirtyBits.MiscButtons_DIRTY_BIT, False)
-		if (CyInterface().isDirty(InterfaceDirtyBits.InfoPane_DIRTY_BIT) == True):
+		if (CyInterface().isDirty(InterfaceDirtyBits.InfoPane_DIRTY_BIT)):
 			# Info Pane Dirty Bit
 			# This must come before updatePlotListButtons so that
 			# the entity widget appears in front of the stats
 			self.updateInfoPaneStrings()
 			CyInterface().setDirty(InterfaceDirtyBits.InfoPane_DIRTY_BIT, False)
-		if (CyInterface().isDirty(InterfaceDirtyBits.PlotListButtons_DIRTY_BIT) == True):
+		if (CyInterface().isDirty(InterfaceDirtyBits.PlotListButtons_DIRTY_BIT)):
 #			BugUtil.debug("dirty PlotListButtons end - %s %s %s", self.bVanCurrentlyShowing, self.bPLECurrentlyShowing, self.bBUGCurrentlyShowing)
 			# Plot List Buttons Dirty
 			self.updatePlotListButtons()
 			CyInterface().setDirty(InterfaceDirtyBits.PlotListButtons_DIRTY_BIT, False)
 #			BugUtil.debug("dirty PlotListButtons start - %s %s %s", self.bVanCurrentlyShowing, self.bPLECurrentlyShowing, self.bBUGCurrentlyShowing)
-		if (CyInterface().isDirty(InterfaceDirtyBits.SelectionButtons_DIRTY_BIT) == True):
+		if (CyInterface().isDirty(InterfaceDirtyBits.SelectionButtons_DIRTY_BIT)):
 			# Selection Buttons Dirty
 			self.updateSelectionButtons()
 			CyInterface().setDirty(InterfaceDirtyBits.SelectionButtons_DIRTY_BIT, False)
-		if (CyInterface().isDirty(InterfaceDirtyBits.ResearchButtons_DIRTY_BIT) == True):
+		if (CyInterface().isDirty(InterfaceDirtyBits.ResearchButtons_DIRTY_BIT)):
 			# Research Buttons Dirty
 			self.updateResearchButtons()
 			CyInterface().setDirty(InterfaceDirtyBits.ResearchButtons_DIRTY_BIT, False)
-		if (CyInterface().isDirty(InterfaceDirtyBits.CitizenButtons_DIRTY_BIT) == True):
+		if (CyInterface().isDirty(InterfaceDirtyBits.CitizenButtons_DIRTY_BIT)):
 			# Citizen Buttons Dirty
 
 # BUG - city specialist - start
@@ -2393,21 +2400,21 @@ class CvMainInterface:
 # BUG - city specialist - end
 
 			CyInterface().setDirty(InterfaceDirtyBits.CitizenButtons_DIRTY_BIT, False)
-		if (CyInterface().isDirty(InterfaceDirtyBits.GameData_DIRTY_BIT) == True):
+		if (CyInterface().isDirty(InterfaceDirtyBits.GameData_DIRTY_BIT)):
 			# Game Data Strings Dirty
 			self.updateGameDataStrings()
 			CyInterface().setDirty(InterfaceDirtyBits.GameData_DIRTY_BIT, False)
-		if (CyInterface().isDirty(InterfaceDirtyBits.Help_DIRTY_BIT) == True):
+		if (CyInterface().isDirty(InterfaceDirtyBits.Help_DIRTY_BIT)):
 			# Help Dirty bit
 			self.updateHelpStrings()
 			CyInterface().setDirty(InterfaceDirtyBits.Help_DIRTY_BIT, False)
-		if (CyInterface().isDirty(InterfaceDirtyBits.CityScreen_DIRTY_BIT) == True):
+		if (CyInterface().isDirty(InterfaceDirtyBits.CityScreen_DIRTY_BIT)):
 			# Selection Data Dirty Bit
 			self.updateCityScreen()
 			CyInterface().setDirty(InterfaceDirtyBits.Domestic_Advisor_DIRTY_BIT, True)
 			CyInterface().setDirty(InterfaceDirtyBits.CityScreen_DIRTY_BIT, False)
 		bScoreStringsUpdated = False # advc.004z
-		if (CyInterface().isDirty(InterfaceDirtyBits.Score_DIRTY_BIT) == True or
+		if ((CyInterface().isDirty(InterfaceDirtyBits.Score_DIRTY_BIT)) or
 				CyInterface().checkFlashUpdate()):
 			# Scores!
 			self.updateScoreStrings()
@@ -2419,7 +2426,7 @@ class CvMainInterface:
 				gAlignedScoreboard.hide(screen, True)
 			CyInterface().setDirty(InterfaceDirtyBits.ScoreHelp_DIRTY_BIT, False)
 		# </advc.085>
-		if (CyInterface().isDirty(InterfaceDirtyBits.GlobeInfo_DIRTY_BIT) == True):
+		if (CyInterface().isDirty(InterfaceDirtyBits.GlobeInfo_DIRTY_BIT)):
 			# Globeview and Globelayer buttons
 			CyInterface().setDirty(InterfaceDirtyBits.GlobeInfo_DIRTY_BIT, False)
 			#self.updateGlobeviewButtons()
@@ -2904,7 +2911,7 @@ class CvMainInterface:
 			if (CyInterface().isCitySelection()):
 				iOrders = CyInterface().getNumOrdersQueued()
 				for i in range(iOrders):
-					if (bHandled == False):
+					if (not bHandled):
 						eOrderNodeType = CyInterface().getOrderNodeType(i)
 						if (eOrderNodeType == OrderTypes.ORDER_TRAIN):
 							self.addUnitGraphic("InterfaceUnitModel",
@@ -3000,7 +3007,7 @@ class CvMainInterface:
 		BugUtil.debug("updatePlotListButtons_Orig - column %i, offset %i", CyInterface().getPlotListColumn(), CyInterface().getPlotListOffset())
 		if (pPlot and
 				CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_HIDE_ALL and
-				CyEngine().isGlobeviewUp() == False):
+				(not CyEngine().isGlobeviewUp())):
 
 			iVisibleUnits = CyInterface().getNumVisibleUnits()
 			iCount = -(CyInterface().getPlotListColumn())
@@ -3152,7 +3159,7 @@ class CvMainInterface:
 #		and CyEngine().isGlobeviewUp() == False):
 		if (not pPlot or
 				CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_HIDE_ALL or
-				CyEngine().isGlobeviewUp() == True):
+				(CyEngine().isGlobeviewUp())):
 			self.BupPanel.clearUnits()
 			self.BupPanel.Hide()
 			return 0
@@ -4087,7 +4094,7 @@ class CvMainInterface:
 					self.setLabel(szString, "Background", szOutText,
 							CvUtil.FONT_LEFT_JUSTIFY, FontTypes.SMALL_FONT, -0.1)
 					screen.show(szString)
-				iCount += 1;
+				iCount += 1
 		self.updateTimeText()
 		self.setLabel("TimeText", "Background", g_szTimeText,
 				CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.GAME_FONT, -0.3)
@@ -5177,7 +5184,7 @@ class CvMainInterface:
 								gc.getBuildingInfo(iBuilding).getBuildingClassType(), iYield))
 						if iChange == 0:
 							continue
-						if (bFirst == False):
+						if (not bFirst):
 							szRightBuffer = szRightBuffer + ", "
 						else:
 							bFirst = False
@@ -5374,7 +5381,7 @@ class CvMainInterface:
 							WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, -1)
 				iRightCount = iRightCount + 1
 				bHandled = True
-			if iHealth != 0 and bHandled == False:
+			if iHealth != 0 and (not bHandled):
 				if iHealth > 0:
 					szTempBuffer = szFontStart + (u"%d%c</font>" %(iHealth,
 							CyGame().getSymbolID(FontSymbols.HEALTHY_CHAR)))
@@ -5581,7 +5588,7 @@ class CvMainInterface:
 				# Find next free spot
 				for lCorpRow in aCorpRows:
 					lCorp = lCorpRow.next()
-					if not lCorp is None:
+					if lCorp is not None:
 						break
 				if lCorp is None:
 					break

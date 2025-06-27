@@ -119,8 +119,8 @@ class autologInstance:
 
 		## determine type of message
 		zStyle = AutologOpt.getFormatStyle()
-		if (zStyle < 0
-		or zStyle > 3): zStyle=0
+		if (zStyle < 0 or zStyle > 3):
+			zStyle=0
 
 		if zStyle == 0: # no formatting so do nothing
 			zMsg = zMsg

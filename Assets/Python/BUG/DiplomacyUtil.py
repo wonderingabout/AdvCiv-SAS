@@ -149,10 +149,7 @@ def addEvents(eventManager):
 
 
 class DiploEvent:
-	def __init__(self, comment, event, handler=None, 
-				 sendFromPlayer=True, sendToPlayer=True, 
-				 sendData=False, sendArgs=False, argFunc=None, 
-				 sendTrade=False, tradeType=None):
+	def __init__(self, comment, event, handler=None, sendFromPlayer=True, sendToPlayer=True, sendData=False, sendArgs=False, argFunc=None, sendTrade=False, tradeType=None):
 		self.comment = comment
 		self.eComment = gc.getInfoTypeForString(comment)
 		if self.eComment == -1:

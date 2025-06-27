@@ -22,9 +22,9 @@ localText = CyTranslator()
 sBupStringBase = "BUGUnitPlotString"
 #cBupCellSize = 34
 # advc.092: Obtain this from CvMainInterface instead
-from CvScreensInterface import mainInterface
+from CvScreensInterface import mainInterface  # noqa: E402
 cBupCellSpacing = 3
-from LayoutDict import HSPACE, BTNSZ, gRect # advc.092
+from LayoutDict import HSPACE, BTNSZ, gRect # advc.092  # noqa: E402
 
 class BupPanel:
 	def __init__(self, screen, #xRes, yRes, iMulti, # advc.092

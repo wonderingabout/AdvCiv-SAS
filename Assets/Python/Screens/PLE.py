@@ -1,10 +1,10 @@
 from CvPythonExtensions import *
 import CvUtil
-import ScreenInput
-import CvScreenEnums
-import CvEventInterface
-
 # <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
+#import ScreenInput
+import CvScreenEnums
+import CvEventInterface  # noqa: F401
+
 from AStarTools import *
 import MonkeyTools as mt
 import UnitUtil
@@ -12,8 +12,8 @@ import UnitUtil
 import PyHelpers 
 PyPlayer = PyHelpers.PyPlayer
 
-import BugUtil
-import BugCore
+import BugUtil  # noqa: E402
+import BugCore  # noqa: E402
 PleOpt = BugCore.game.PLE
 
 # globals
@@ -27,8 +27,8 @@ localText = CyTranslator()
 #iMultiListXR = 332
 # <advc.092> Don't repeat those constants here (nor others throughout this module),
 # get them from CvMainInterface and the global layout data instead.
-import CvScreensInterface
-from LayoutDict import * # </advc.092>
+import CvScreensInterface  # noqa: E402
+from LayoutDict import * # </advc.092>  # noqa: E402
 
 class PLE:
 	def __init__(self):
@@ -71,21 +71,27 @@ class PLE:
 		self.PLE_MODE_MULTILINE		= "PLE_MODE_MULTILINE1"
 		self.PLE_MODE_STACK_VERT	= "PLE_MODE_STACK_VERT1"
 		self.PLE_MODE_STACK_HORIZ	= "PLE_MODE_STACK_HORIZ1"
-		self.PLE_VIEW_MODES = (self.PLE_MODE_STANDARD, 
-							   self.PLE_MODE_MULTILINE,
-							   # advc.069: Switched the order of the last two
-							   self.PLE_MODE_STACK_HORIZ,
-							   self.PLE_MODE_STACK_VERT)
+		self.PLE_VIEW_MODES = (
+			self.PLE_MODE_STANDARD, 
+			self.PLE_MODE_MULTILINE,
+			# advc.069: Switched the order of the last two
+			self.PLE_MODE_STACK_HORIZ,
+			self.PLE_MODE_STACK_VERT
+		)
 		# advc.069: Switched the order as above
-		self.PLE_VIEW_MODE_CYCLE = {self.PLE_MODE_STANDARD : self.PLE_MODE_MULTILINE,
-									self.PLE_MODE_MULTILINE : self.PLE_MODE_STACK_HORIZ,
-									self.PLE_MODE_STACK_HORIZ : self.PLE_MODE_STACK_VERT,
-									self.PLE_MODE_STACK_VERT : self.PLE_MODE_STANDARD }
+		self.PLE_VIEW_MODE_CYCLE = {
+			self.PLE_MODE_STANDARD :self.PLE_MODE_MULTILINE,
+			self.PLE_MODE_MULTILINE : self.PLE_MODE_STACK_HORIZ,
+			self.PLE_MODE_STACK_HORIZ : self.PLE_MODE_STACK_VERT,
+			self.PLE_MODE_STACK_VERT : self.PLE_MODE_STANDARD
+		}
 		# advc.069: Switched the order as above
-		self.PLE_VIEW_MODE_ART = {self.PLE_MODE_STANDARD : "PLE_MODE_STANDARD",
-								  self.PLE_MODE_MULTILINE : "PLE_MODE_MULTILINE",
-								  self.PLE_MODE_STACK_HORIZ : "PLE_MODE_STACK_HORIZ",
-								  self.PLE_MODE_STACK_VERT : "PLE_MODE_STACK_VERT"}
+		self.PLE_VIEW_MODE_ART = {
+			self.PLE_MODE_STANDARD : "PLE_MODE_STANDARD",
+			self.PLE_MODE_MULTILINE : "PLE_MODE_MULTILINE",
+			self.PLE_MODE_STACK_HORIZ : "PLE_MODE_STACK_HORIZ",
+			self.PLE_MODE_STACK_VERT : "PLE_MODE_STACK_VERT"
+		}
 
 		self.PLE_RESET_FILTERS		= "PLE_RESET_FILTERS1"
 		self.PLE_FILTER_NOTWOUND	= "PLE_FILTER_NOTWOUND1"
@@ -106,10 +112,12 @@ class PLE:
 		self.PLE_GRP_GROUPS			= "PLE_GRP_GROUPS1"
 		self.PLE_GRP_PROMO			= "PLE_GRP_PROMO1"
 		self.PLE_GRP_UPGRADE		= "PLE_GRP_UPGRADE1"
-		self.PLE_GROUP_MODES = ( self.PLE_GRP_UNITTYPE, 
-								 self.PLE_GRP_GROUPS,
-								 self.PLE_GRP_PROMO,
-								 self.PLE_GRP_UPGRADE )
+		self.PLE_GROUP_MODES = (
+			self.PLE_GRP_UNITTYPE, 
+			self.PLE_GRP_GROUPS,
+			self.PLE_GRP_PROMO,
+			self.PLE_GRP_UPGRADE
+		)
 
 		self.UNIT_INFO_PANE			= "PLE_UNIT_INFO_PANE_ID"
 		self.UNIT_INFO_TEXT			= "PLE_UNIT_INFO_TEXT_ID"
@@ -242,10 +250,10 @@ class PLE:
 			# mt.debug("Sel Unit:"+str(id))
 			if (id in self.dPLEUnitInfo):
 				lActUnitInfo = self.getPLEUnitInfo( pHeadSelectedUnit )
-				if (lActUnitInfo <> self.dPLEUnitInfo[ id ]):
+				if (lActUnitInfo != self.dPLEUnitInfo[ id ]):
 					self.setPLEUnitList(True)
 					# mt.debug("update unload:"+str(self.iLoopCnt))
-		except:
+		except Exception:
 			# mt.debug("Sel Unit: <fail>")
 			pass
 
@@ -263,7 +271,7 @@ class PLE:
 		# hide all buttons
 		self.hidePlotListButtonPLEObjects(screen)
 
-		if ( self.pActPlot and CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_HIDE_ALL and CyEngine().isGlobeviewUp() == False):
+		if ( self.pActPlot and CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_HIDE_ALL and (not CyEngine().isGlobeviewUp())):
 
 			nRow = 0
 			nCol = 0
@@ -1817,7 +1825,7 @@ class PLE:
 		# unit level 
 		iLevel = pUnit.getLevel()
 		iMaxLevel = mt.GetPossiblePromotions(pUnit.experienceNeeded(), pUnit.getExperience())
-		if iMaxLevel <> iLevel:
+		if iMaxLevel != iLevel:
 			# actual / available (= number of possible promotions)
 			szLevel = u"<font=2>" + localText.getText("INTERFACE_PANE_LEVEL", ()) + u"%i / %i" % (iLevel, (iMaxLevel+iLevel)) + u"</font>\n"
 		else:
@@ -1918,7 +1926,7 @@ class PLE:
 		pUnit = self.listPLEButtons[id][0]
 		try:
 			iUnitType = pUnit.getUnitType()
-		except:
+		except Exception:
 			return
 
 		pUnitTypeInfo = gc.getUnitInfo(iUnitType)
@@ -2010,7 +2018,7 @@ class PLE:
 		iLevel = pUnit.getLevel()
 		iMaxLevel = mt.GetPossiblePromotions(pUnit.experienceNeeded(), pUnit.getExperience())
 		if (iMaxLevel > 0) or (iLevel > 1):
-			if iMaxLevel <> iLevel:
+			if iMaxLevel != iLevel:
 				szLevel = u"<font=2>" + localText.getText("INTERFACE_PANE_LEVEL", ()) + u" %i / %i" % (iLevel, (iMaxLevel+iLevel)) + u"</font>\n"
 			else:
 				szLevel = u"<font=2>" + localText.getText("INTERFACE_PANE_LEVEL", ()) + u" %i" % iLevel + u"</font>\n"

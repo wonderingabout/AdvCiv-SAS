@@ -539,7 +539,8 @@ class AutoLogEvent(AbstractAutoLogEvent):
 
 #		print eOwner, eMission, iNumUnits, listUnitIds
 
-		if self.WdlDefender == None: return
+		if self.WdlDefender is None:
+			return
 
 		if (AutologOpt.isLogCombat()
 		and gc.getPlayer(eOwner).getTeam() == gc.getActivePlayer().getTeam()):
@@ -1078,7 +1079,7 @@ class AutoLogEvent(AbstractAutoLogEvent):
 	
 	def onDealCanceled(self, argsList):
 		eOfferPlayer, eTargetPlayer, pTrade = argsList
-		if AutologOpt.isLogTradeOffer() and pTrade != None:
+		if AutologOpt.isLogTradeOffer() and pTrade is not None:
 			pTargetPlayer = gc.getPlayer(eTargetPlayer)
 			pOfferPlayer = gc.getPlayer(eOfferPlayer)
 			szOfferItems = ""

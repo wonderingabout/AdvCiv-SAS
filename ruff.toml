@@ -4,6 +4,7 @@
 select = ["E", "F"]           # Run errors (E) and pyflakes warnings (F)
 
 # Ignore specific false-positive or mod-specific rules:
+# <!-- custom: note some rules are false positives it seems as ruff seems to not support python 2.4 specifically or at all which is python we use in civ4 if i am not mistaken anyways etc, so ignoring some rules even though they are not always put in the ignore list here at least as of now, in case they are validly flagged in some other files, could do per line whitelist to the rules but is bit tedious, ideally would but leaving as is especially since it seems funcitonnal anyways etc, focusing first on files we use most like sevopedia or such for example anyways etc -->
 # F403: 'from module import *' used; can't track undefined names
 # F405: Name may be undefined, or defined from star imports
 # E501: Line too long (we allow longer lines in Civ4 UI scripts)

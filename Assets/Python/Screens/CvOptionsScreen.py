@@ -140,7 +140,7 @@ class CvOptionsScreen:
 				
 			# Volume Slider
 			szWidgetName = "VolumeSlider_" + str(iWidgetNum)
-   			self.getTabControl().setValue(szWidgetName, iInitialVal)
+			self.getTabControl().setValue(szWidgetName, iInitialVal)
 			
 			# Volume Checkbox
 			szWidgetName = "VolumeNoSoundCheckbox_" + str(iWidgetNum)
@@ -150,13 +150,13 @@ class CvOptionsScreen:
 		self.getTabControl().setValue("CaptureDeviceDropdownBox", UserProfile.getCaptureDeviceIndex() )
 		# Voice Capture Slider
 #   		self.getTabControl().setValue("CaptureVolumeSlider", UserProfile.getMaxCaptureVolume() - UserProfile.getCaptureVolume())
-   		self.getTabControl().setValue("CaptureVolumeSlider", UserProfile.getCaptureVolume())
+		self.getTabControl().setValue("CaptureVolumeSlider", UserProfile.getCaptureVolume())
 		
 		# Voice Playback Dropdown
 		self.getTabControl().setValue("PlaybackDeviceDropdownBox", UserProfile.getPlaybackDeviceIndex() )
 		# Voice Playback Slider
 #   		self.getTabControl().setValue("PlaybackVolumeSlider", UserProfile.getMaxPlaybackVolume() - UserProfile.getPlaybackVolume())
-   		self.getTabControl().setValue("PlaybackVolumeSlider", UserProfile.getPlaybackVolume())
+		self.getTabControl().setValue("PlaybackVolumeSlider", UserProfile.getPlaybackVolume())
 		
 		# Voice Chatting Checkbox
 		self.getTabControl().setValue("VoiceChatCheckbox", UserProfile.useVoice())
@@ -222,10 +222,10 @@ class CvOptionsScreen:
 		#################### PROFILE ####################
 		
 		# Broadband Radio Button
-   		self.getTabControl().setValue("BroadbandSelection", not gc.getGame().isModem())
+		self.getTabControl().setValue("BroadbandSelection", not gc.getGame().isModem())
 		
 		# Modem Checkbox
-   		self.getTabControl().setValue("ModemSelection", gc.getGame().isModem())
+		self.getTabControl().setValue("ModemSelection", gc.getGame().isModem())
 		
 		# <advc.076> Update button tooltips b/c profile name may have changed
 		# Tbd.: A function updateTooltips to get rid of duplicate code and hardcoded widget names
@@ -619,7 +619,7 @@ class CvOptionsScreen:
 
 		for iOptionLoop in range(GraphicOptionTypes.NUM_GRAPHICOPTION_TYPES):
 			# <advc.076> They're all placed individually, so this loop does nothing unless someone adds new graphics options. (There's no room left, so let's hope not.)
-			if not iOptionLoop in self.graphicOptionsDone:
+			if iOptionLoop not in self.graphicOptionsDone:
 				# Code moved into subroutine
 				self.attachGraphicsOption(tab, vbox, iOptionLoop) # </advc.076>
 			

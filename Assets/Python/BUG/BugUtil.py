@@ -317,27 +317,27 @@ INPUT_CODES = {
 	NotifyCode.NOTIFY_MOUSEWHEELDOWN        : "Mouse Wheel Down", 
 	NotifyCode.NOTIFY_MOUSEWHEELUP          : "Mouse Wheel Up", 
 	NotifyCode.NOTIFY_CURSOR_MOVE_ON        : "Mouse Enter", 
- 	NotifyCode.NOTIFY_CURSOR_MOVE_OFF       : "Mouse Leave", 
-    NotifyCode.NOTIFY_CLICKED               : "Click",
-    NotifyCode.NOTIFY_DBL_CLICKED           : "Double Click",
-    
+	NotifyCode.NOTIFY_CURSOR_MOVE_OFF       : "Mouse Leave", 
+	NotifyCode.NOTIFY_CLICKED               : "Click",
+	NotifyCode.NOTIFY_DBL_CLICKED           : "Double Click",
+	
 	NotifyCode.NOTIFY_CHARACTER             : "Character", 
-    
-    NotifyCode.NOTIFY_TABLE_HEADER_SELECTED : "Table Header Select",
-    NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED : "List Select",
-    NotifyCode.NOTIFY_SCROLL_DOWN           : "Scroll Down",
-    NotifyCode.NOTIFY_SCROLL_UP             : "Scroll Up",
-    
-    NotifyCode.NOTIFY_NEW_HORIZONTAL_STOP   : "New Horizontal Stop",
-    NotifyCode.NOTIFY_NEW_VERTICAL_STOP     : "New Vertical Stop",
-    NotifyCode.NOTIFY_SLIDER_NEWSTOP        : "Slider New Stop",
-    
-    NotifyCode.NOTIFY_FOCUS                 : "Focus",
-    NotifyCode.NOTIFY_UNFOCUS               : "Unfocus",
-    
-    NotifyCode.NOTIFY_LINKEXECUTE           : "Link Execute",
-    NotifyCode.NOTIFY_FLYOUT_ITEM_SELECTED  : "Flyout Item Selected",
-    NotifyCode.NOTIFY_MOVIE_DONE            : "Movie Done",
+	
+	NotifyCode.NOTIFY_TABLE_HEADER_SELECTED : "Table Header Select",
+	NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED : "List Select",
+	NotifyCode.NOTIFY_SCROLL_DOWN           : "Scroll Down",
+	NotifyCode.NOTIFY_SCROLL_UP             : "Scroll Up",
+	
+	NotifyCode.NOTIFY_NEW_HORIZONTAL_STOP   : "New Horizontal Stop",
+	NotifyCode.NOTIFY_NEW_VERTICAL_STOP     : "New Vertical Stop",
+	NotifyCode.NOTIFY_SLIDER_NEWSTOP        : "Slider New Stop",
+	
+	NotifyCode.NOTIFY_FOCUS                 : "Focus",
+	NotifyCode.NOTIFY_UNFOCUS               : "Unfocus",
+	
+	NotifyCode.NOTIFY_LINKEXECUTE           : "Link Execute",
+	NotifyCode.NOTIFY_FLYOUT_ITEM_SELECTED  : "Flyout Item Selected",
+	NotifyCode.NOTIFY_MOVIE_DONE            : "Movie Done",
 }
 
 def debugInput(inputClass, flags=False):
@@ -592,11 +592,9 @@ class Function:
 	
 	def __repr__(self):
 		if self.args or self.kwargs:
-			return "<func %s.%s (%r, %r)>" % \
-		   	   	   (self.__module__, self.__name__, self.args, self.kwargs)
+			return "<func %s.%s (%r, %r)>" % (self.__module__, self.__name__, self.args, self.kwargs)
 		else:
-			return "<func %s.%s>" % \
-		   	   	   (self.__module__, self.__name__)
+			return "<func %s.%s>" % (self.__module__, self.__name__)
 
 def lookupModule(module, log=True):
 	if log:
@@ -726,7 +724,7 @@ def fixSets(namespace):
 	#
 	try:
 		set
-	except:
+	except Exception:
 		import sets
 		namespace["set"] = sets.Set
 		namespace["frozenset"] = sets.ImmutableSet
@@ -820,5 +818,5 @@ def isNoEspionage():
 	#
 	try:
 		return gc.getGame().isOption(GameOptionTypes.GAMEOPTION_NO_ESPIONAGE)
-	except:
+	except Exception:
 		return False

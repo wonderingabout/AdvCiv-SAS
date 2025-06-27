@@ -165,15 +165,15 @@ class UnitPlot:
 		self.pCurrUnit = UnitDisplay(pUnit)
 
 		# Unit Plot
-		if self.pCurrUnit == None:
-			if self.pPrevUnit != None:
+		if self.pCurrUnit is None:
+			if self.pPrevUnit is not None:
 				# current unit is blank, previous unit was not blank
 				_erasePromo()
 			#else:
 				# current unit is blank, previous unit was blank
 				# nothing to do
 		else:
-			if self.pPrevUnit != None:
+			if self.pPrevUnit is not None:
 				# current unit is not blank, previous unit was not blank
 				_updatePromo()
 			else:
@@ -197,7 +197,7 @@ class UnitPlot:
 
 	def _drawPromo():
 		# test if you really want to show it
-		if self.pPrevUnit == None:
+		if self.pPrevUnit is None:
 			if self.pCurrUnit.bPromo:
 				_showPromo()
 		else:
@@ -207,7 +207,7 @@ class UnitPlot:
 
 	def _erasePromo():
 		# test if you really want to hide it
-		if self.pCurrUnit == None:
+		if self.pCurrUnit is None:
 			if self.pPrevUnit.bPromo:
 				_hidePromo()
 		else:

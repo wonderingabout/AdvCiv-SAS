@@ -376,7 +376,7 @@ class SevoPediaBonus:
 		screen.attachListBoxGFC( panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY )
 		screen.enableSelect(listName, False)
 		szSpecialText = CyGameTextMgr().getBonusHelp(self.iBonus, True)
-		# <!-- custom: remove string import as advised by chatgpt/becomingthrough after i asked it i mean anyways etc, use native python instead-->
+		# <!-- custom: remove string import as advised by chatgpt/becomingthrough after i asked it i mean anyways etc, use native python instead -->
 		splitText = szSpecialText.split("\n")
 		for special in splitText:
 			if len( special ) != 0:

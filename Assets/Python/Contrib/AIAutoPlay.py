@@ -354,8 +354,9 @@ class AIAutoPlay :
 				# advc: CvRandom::reseed isn't exposed to Python, but init does the same thing.
 				gc.getGame().getSorenRand().init(seed)
 		# </BM1>
-		if( self.numTurns > 0 ) :
-			if( self.LOG_DEBUG ) : CyInterface().addImmediateMessage("Fully automating for %d turns"%(self.numTurns),"")
+		if (self.numTurns > 0):
+			if (self.LOG_DEBUG):
+				CyInterface().addImmediateMessage("Fully automating for %d turns"%(self.numTurns),"")
 			game.setAIAutoPlay(self.numTurns)
 	# Erik <BM1>
 	def onAutoPlayComplete(self, argsList):
@@ -373,7 +374,7 @@ class AIAutoPlay :
 ########################## Utility functions ###########################################
 			
 def doRefortify( iPlayer ) :
-	 #pyPlayer = PyPlayer( iPlayer )
+	#pyPlayer = PyPlayer( iPlayer )
 	pPlayer = gc.getPlayer(iPlayer)
 	
 	CvUtil.pyPrint( "Refortifying units for player %d"%(iPlayer))

@@ -516,7 +516,7 @@ def cityAdvise(pCity, iPlayer):
 		
 		if (gc.getGame().getGameTurn() % 40 == pCity.getGameTurnFounded() % 40):
 			#if (not pCity.getID() in g_listNoLiberateCities):
-			if (gc.getGame().getGameTurn() - pCity.getGameTurnFounded() > 10 and not pCity.getID() in g_listNoLiberateCities): # K-Mod
+			if (gc.getGame().getGameTurn() - pCity.getGameTurnFounded() > 10 and pCity.getID() not in g_listNoLiberateCities): # K-Mod
 				eLiberationPlayer = pCity.getLiberationPlayer(false)
 				if (eLiberationPlayer != -1):
 					# UNOFFICIAL_PATCH begin

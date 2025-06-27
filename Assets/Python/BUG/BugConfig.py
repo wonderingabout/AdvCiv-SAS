@@ -85,7 +85,7 @@ class ConfigParser(xmllib.XMLParser):
 		except BugUtil.ConfigError:
 			BugUtil.trace("BugConfig - failure parsing %s at line %d", path, self.lineno)
 			raise
-		except:
+		except Exception:
 			BugUtil.trace("BugConfig - failure parsing %s at line %d", path, self.lineno)
 			raise
 	
@@ -99,7 +99,7 @@ class ConfigParser(xmllib.XMLParser):
 			#BugUtil.debug("BugConfig - %s", self.format(tag, attrs))
 			self._handler, self._element = self._handler.startChild(self._element, tag, attrs)
 			self._stack.append((self._handler, self._element))
-		except:
+		except Exception:
 			BugUtil.trace("BugConfig - failure parsing %s at line %d" % (self._path, self.lineno))
 	
 	def unknown_endtag(self, tag):
@@ -113,7 +113,7 @@ class ConfigParser(xmllib.XMLParser):
 				self._handler = None
 				self._element = None
 				handler.end(element)
-		except:
+		except Exception:
 			BugUtil.trace("BugConfig - failure parsing %s at line %d" % (self._path, self.lineno))
 	
 	def handle_data(self, data):

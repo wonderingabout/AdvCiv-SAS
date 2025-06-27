@@ -386,7 +386,8 @@ class UnitUpgradesGraph:
 								if (medB == -1 and medA >= y):
 									self.swap(mGraph, x, y-1, y)
 									doneB = False
-							if (doneB == False):
+							# <!-- custom: do not use "==" when comparing to False as per ruff rule and chatgpt/becomingthrough's answer to it and my prompt etc similarly too anyways etc -->
+							if not doneB:
 								doneA = False
 						doneB = False
 						while (not doneB):
@@ -416,7 +417,7 @@ class UnitUpgradesGraph:
 								if (crossesFlipped < crosses):
 									self.swap(mGraph, x, y-1, y)
 									doneB = False
-							if (doneB == False):
+							if not doneB:
 								doneA = False
 						
 						#this is a fix for median float->int conversions throwing off the list
@@ -444,7 +445,7 @@ class UnitUpgradesGraph:
 						
 		#one final step: sort the graphs with the biggest one at top
 		done = False
-		while (done == False):
+		while not done:
 			done = True
 			for i in range(1, len(self.mGraphs)):
 				if (len(self.mGraphs[i-1].graph) < len(self.mGraphs[i].graph)):
@@ -538,7 +539,7 @@ class UnitUpgradesGraph:
 					yF = temp
 				screen.addDDSGFCAt(self.pediaScreen.getNextWidgetName(), self.upgradesList, line, xF, yF, xT-xF, yT-yF, WidgetTypes.WIDGET_GENERAL, -1, -1, False)
 		
-		if (dummyTo == False):
+		if not dummyTo:
 			screen.addDDSGFCAt( self.pediaScreen.getNextWidgetName(), self.upgradesList, LINE_ARROW, xTo, yTo - 6, 12, 12, WidgetTypes.WIDGET_GENERAL, -1, -1, False )
 		return
 

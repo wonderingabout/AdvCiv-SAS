@@ -157,7 +157,7 @@ def isWidgetVersion(version, widget, bugWidget):
 	if isVersion(version):
 		try:
 			return widget == getattr(WidgetTypes, bugWidget)
-		except:
+		except Exception:
 			pass
 	return False
 
@@ -179,13 +179,13 @@ def getOptionSTRING(argsList):
 def castOptionValue(func, id, default):
 	try:
 		return func(BugOptions.getOption(id).getValue())
-	except:
+	except Exception:
 		return default
 
 # <advc.003d>
 def getUserDirStr():
 	r = BugPath.getUserDir()
-	if r == None:
+	if r is None:
 		return ""
 	return str(r)
 # </advc.003d>
@@ -204,7 +204,7 @@ def init():
 				BugInit.addInit("setIsBug", setIsBug)
 			else:
 				BugUtil.debug("BugDll - setIsBug() not found")
-	except:
+	except Exception:
 		BugUtil.debug("BugDll - BULL not present")
 
 def setIsBug():

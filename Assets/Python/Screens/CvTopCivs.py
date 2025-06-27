@@ -16,8 +16,8 @@ localText = CyTranslator()
 NUM_CIVILIZATIONS = 8
 
 class CvTopCivs:
-	"The Greatest Civilizations screen"
-	
+	# The Greatest Civilizations screen
+	#
 	def __init__(self):
 		
 		self.X_SCREEN = 0#205
@@ -61,8 +61,8 @@ class CvTopCivs:
 		self.H_EXIT = 30
 
 	def showScreen(self):
-			  
-		'Use a popup to display the opening text'
+		# Use a popup to display the opening text
+		#
 		if ( CyGame().isPitbossHost() ):
 			return
 
@@ -70,12 +70,13 @@ class CvTopCivs:
 		self.TITLE_TEXT = u"<font=3>" + localText.getText("TXT_KEY_TOPCIVS_TITLE", ()).upper() + u"</font>"
 		self.EXIT_TEXT = localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()
 		# advc.038: Moved up
-		self.TypeList =    [	localText.getText("TXT_KEY_TOPCIVS_WEALTH", ()),
-					localText.getText("TXT_KEY_TOPCIVS_POWER", ()),
-					localText.getText("TXT_KEY_TOPCIVS_TECH", ()),
-					localText.getText("TXT_KEY_TOPCIVS_CULTURE", ()),
-					localText.getText("TXT_KEY_TOPCIVS_SIZE", ()),
-				    ]
+		self.TypeList = [
+			localText.getText("TXT_KEY_TOPCIVS_WEALTH", ()),
+			localText.getText("TXT_KEY_TOPCIVS_POWER", ()),
+			localText.getText("TXT_KEY_TOPCIVS_TECH", ()),
+			localText.getText("TXT_KEY_TOPCIVS_CULTURE", ()),
+			localText.getText("TXT_KEY_TOPCIVS_SIZE", ()),
+		]
 		# <advc.038>
 		randIndex = gc.getGame().getSorenRandNum(len(self.TypeList), "advc.038")
 		if(randIndex == 0): # Wealth: Herodotus, Thucydides
@@ -101,24 +102,25 @@ class CvTopCivs:
 					#localText.getText("TXT_KEY_TOPCIVS_HISTORIAN9", ()),
 					#localText.getText("TXT_KEY_TOPCIVS_HISTORIAN10", ()),
 					#localText.getText("TXT_KEY_TOPCIVS_HISTORIAN11", ())
-				    #]
+					#]
 				
-		self.RankList =     [	localText.getText("TXT_KEY_TOPCIVS_RANK1", ()),
-					localText.getText("TXT_KEY_TOPCIVS_RANK2", ()),
-					localText.getText("TXT_KEY_TOPCIVS_RANK3", ()),
-					localText.getText("TXT_KEY_TOPCIVS_RANK4", ()),
-					localText.getText("TXT_KEY_TOPCIVS_RANK5", ()),
-					localText.getText("TXT_KEY_TOPCIVS_RANK6", ()),
-					localText.getText("TXT_KEY_TOPCIVS_RANK7", ()),
-					localText.getText("TXT_KEY_TOPCIVS_RANK8", ())
-				    ]
+		self.RankList = [
+			localText.getText("TXT_KEY_TOPCIVS_RANK1", ()),
+			localText.getText("TXT_KEY_TOPCIVS_RANK2", ()),
+			localText.getText("TXT_KEY_TOPCIVS_RANK3", ()),
+			localText.getText("TXT_KEY_TOPCIVS_RANK4", ()),
+			localText.getText("TXT_KEY_TOPCIVS_RANK5", ()),
+			localText.getText("TXT_KEY_TOPCIVS_RANK6", ()),
+			localText.getText("TXT_KEY_TOPCIVS_RANK7", ()),
+			localText.getText("TXT_KEY_TOPCIVS_RANK8", ())
+		]
 
 		#self.TypeList =    [	localText.getText("TXT_KEY_TOPCIVS_WEALTH", ()),
 					#localText.getText("TXT_KEY_TOPCIVS_POWER", ()),
 					#localText.getText("TXT_KEY_TOPCIVS_TECH", ()),
 					#localText.getText("TXT_KEY_TOPCIVS_CULTURE", ()),
 					#localText.getText("TXT_KEY_TOPCIVS_SIZE", ()),
-				    #]
+					#]
 
 		# Randomly choose what category and what historian will be used
 		#szTypeRand = random.choice(self.TypeList)
@@ -284,7 +286,7 @@ class CvTopCivs:
 				self.showScreen()
 
 	#####################################################################################################################################
-	      
+
 	def handleInput( self, inputClass ):
 		self.screen = CyGInterfaceScreen( "CvTopCivs", CvScreenEnums.TOP_CIVS )		
 

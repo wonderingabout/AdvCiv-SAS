@@ -66,25 +66,24 @@ import BugUtil
 import FontUtil
 import GameUtil
 
+# <!-- custom: add imports at top of file to fix ruff warning E402 anyways etc -->
+import math
+# Needed to save changes
+import pickle
+# Needed to check for non-numbers (specially search function)
+import re
+#
+import time
+
 # BUG - Mac Support - start
 BugUtil.fixSets(globals())
 # BUG - Mac Support - end
-
-import math
 
 PyPlayer = PyHelpers.PyPlayer
 
 CityScreenOpt = BugCore.game.CityScreen
 AdvisorOpt = BugCore.game.CustDomAdv
 MainOpt = BugCore.game.MainInterface
-
-# Needed to save changes
-import pickle
-
-# Needed to check for non-numbers (specially search function)
-import re
-
-import time
 
 gc = CyGlobalContext()
 
@@ -641,7 +640,7 @@ class CvCustomizableDomesticAdvisor:
 			self.COLUMNS_INDEX[column[0]] = i
 			self.HEADER_DICT[column[0]] = eval(column[8], globals(), locals())
 					
-		if self.SPECIALIST_ICON_DICT == None:
+		if self.SPECIALIST_ICON_DICT is None:
 			# Specialist Icon Information (Must be here, because C++ functions aren't
 			# available upon startup of CIV)
 			self.SPECIALIST_ICON_DICT = {
@@ -654,7 +653,7 @@ class CvCustomizableDomesticAdvisor:
 				6 : self.espionageIcon, # Engineer
 				}
 
-		if self.AUTOMATION_ICON_DICT == None:
+		if self.AUTOMATION_ICON_DICT is None:
 			# Automation Information (Must be here, because C++ functions aren't
 			# available upon startup of CIV)
 			self.AUTOMATION_ICON_DICT = {
@@ -666,7 +665,7 @@ class CvCustomizableDomesticAdvisor:
 				5 : self.redfoodIcon, # Emphasize Avoid Growth
 				}
 
-		if self.COLOR_DICT == None:
+		if self.COLOR_DICT is None:
 			# Colors to highlight with for each type of number (Must be here,
 			#  because C++ functions aren't available upon startup of CIV)
 			self.COLOR_DICT = {
@@ -676,7 +675,7 @@ class CvCustomizableDomesticAdvisor:
 				}
 
 # BUG - Production Grouping - start
-		if self.PROD_COLOR_DICT == None:
+		if self.PROD_COLOR_DICT is None:
 			# Colors to use for color-coding of production items.
 			# ["DEFAULT"] is used if color-coding is off.
 			self.PROD_COLOR_DICT = {
@@ -2105,7 +2104,7 @@ class CvCustomizableDomesticAdvisor:
 				color = self.COLOR_DICT[szCompareType]
 
 				# If the dictionary has the key...
-				if (clDict != None and clDict.has_key(szKey)):
+				if (clDict is not None and clDict.has_key(szKey)):
 					if (szKey in self.COMPARISON_REVERSED):
 						# ...and the comparison is appropriate...
 						if ((szCompareType == "PROBLEM" and int(nValue) >= clDict[szKey] or szCompareType == "NEUTRAL" and int(nValue) == clDict[szKey] or szCompareType == "GREAT" and int(nValue) <= clDict[szKey])):
@@ -2291,9 +2290,7 @@ class CvCustomizableDomesticAdvisor:
 						screen.setTableColumnHeader (page, value + 1, "", iColW)
 						szName = "BLDG_BTN_%d" % building
 						x = iBuildingButtonX + (iColW - self.BUILDING_BUTTON_X_SIZE) / 2
-						screen.setImageButton (szName, buildingInfo.getButton(), 
-											   x, iBuildingButtonY, self.BUILDING_BUTTON_X_SIZE, self.BUILDING_BUTTON_Y_SIZE, 
-											   WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, building, -1)
+						screen.setImageButton (szName, buildingInfo.getButton(), x, iBuildingButtonY, self.BUILDING_BUTTON_X_SIZE, self.BUILDING_BUTTON_Y_SIZE, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, building, -1)
 					else:
 						screen.setTableColumnHeader (page, value + 1, szFontTagOpen + self.HEADER_DICT[key] + szFontTagClose, iColW )
 
@@ -2316,7 +2313,7 @@ class CvCustomizableDomesticAdvisor:
 						funcTableWrite = screen.setTableText
 						justify = CvUtil.FONT_CENTER_JUSTIFY
 					else:
-						return;
+						return
 
 					colorFunc = self.ColorCityValues
 					# <advc.186b> Attach examine text to the city name column (if present) - rather than to the zoom button.
@@ -2419,7 +2416,7 @@ class CvCustomizableDomesticAdvisor:
 				if (inputClass.getMouseX() == 0):
 					screen.hideScreen()
 					
-					CyInterface().selectCity(gc.getPlayer(inputClass.getData1()).getCity(inputClass.getData2()), true);
+					CyInterface().selectCity(gc.getPlayer(inputClass.getData1()).getCity(inputClass.getData2()), true)
 					
 					popupInfo = CyPopupInfo()
 					popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON_SCREEN)
@@ -2457,7 +2454,7 @@ class CvCustomizableDomesticAdvisor:
 				screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
 				screen.hideScreen()
 				
-				CyInterface().selectCity(gc.getPlayer(inputClass.getData1()).getCity(inputClass.getData2()), true);
+				CyInterface().selectCity(gc.getPlayer(inputClass.getData1()).getCity(inputClass.getData2()), true)
 				
 				popupInfo = CyPopupInfo()
 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON_SCREEN)
@@ -2490,7 +2487,7 @@ class CvCustomizableDomesticAdvisor:
 	def update(self, fDelta):
 		# Update the Advisor.
 		#
-		if (CyInterface().isDirty(InterfaceDirtyBits.Domestic_Advisor_DIRTY_BIT) == True):
+		if (CyInterface().isDirty(InterfaceDirtyBits.Domestic_Advisor_DIRTY_BIT)):
 			CyInterface().setDirty(InterfaceDirtyBits.Domestic_Advisor_DIRTY_BIT, False)
 			
 			self.drawContents(self.currentPage)
@@ -2669,7 +2666,7 @@ class CvCustomizableDomesticAdvisor:
 		screen = self.getScreen()
 		# Unselect before selecting, so that the selected rows are forced onscreen.
 		for i in range(len(self.PAGES[self.currentPageNum]["columns"])):
-			if not screen.getTableText(self.CUSTOMIZE_PAGE, 1, i) in self.customizingSelection:
+			if screen.getTableText(self.CUSTOMIZE_PAGE, 1, i) not in self.customizingSelection:
 				screen.selectRow(self.CUSTOMIZE_PAGE, i, False)
 		for i in range(len(self.PAGES[self.currentPageNum]["columns"])):
 			if screen.getTableText(self.CUSTOMIZE_PAGE, 1, i) in self.customizingSelection:

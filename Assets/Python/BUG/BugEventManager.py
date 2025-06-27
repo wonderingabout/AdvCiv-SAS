@@ -213,7 +213,7 @@ class BugEventManager(CvEventManager.CvEventManager):
 		if noLogEvents is not None:
 			try:
 				"gameUpdate" in noLogEvents
-			except:
+			except Exception:
 				raise BugUtil.ConfigError("noLogEvents must be tuple, list or set")
 			else:
 				self.noLogEvents = noLogEvents
@@ -360,7 +360,7 @@ class BugEventManager(CvEventManager.CvEventManager):
 			for eventHandler in self.EventHandlerMap[eventType]:
 				try:
 					eventHandler(argsList)
-				except:
+				except Exception:
 					BugUtil.trace("Error in %s event handler %s", eventType, eventHandler)
 
 	def _handleConsumableEvent(self, eventType, argsList):
@@ -376,7 +376,7 @@ class BugEventManager(CvEventManager.CvEventManager):
 					result = eventHandler(argsList)
 					if (result > 0):
 						return result
-				except:
+				except Exception:
 					BugUtil.trace("Error in %s event handler %s", eventType, eventHandler)
 		return 0
 
@@ -397,7 +397,7 @@ class BugEventManager(CvEventManager.CvEventManager):
 			for eventHandler in self.EventHandlerMap[eventType]:
 				try:
 					result += eventHandler(argsList)
-				except:
+				except Exception:
 					BugUtil.trace("Error in %s event handler %s", eventType, eventHandler)
 		return result
 

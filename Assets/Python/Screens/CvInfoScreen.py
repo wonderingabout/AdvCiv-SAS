@@ -13,6 +13,7 @@ import CvUtil
 
 #import time
 import math
+import copy # advc.091
 
 from PyHelpers import PyPlayer
 
@@ -26,7 +27,6 @@ import BugUtil
 AdvisorOpt = BugCore.game.Advisors
 ScoreOpt = BugCore.game.Scores
 #BUG: Change Graphs - end
-import copy # advc.091
 
 # globals
 gc = CyGlobalContext()
@@ -419,7 +419,7 @@ class CvInfoScreen:
 		width_list = []
 		for i in self.PAGE_NAME_LIST:
 			width_list.append(CyInterface().determineWidth(localText.getText(i, ()).upper()) + 20)
-		total_width = sum(width_list) + CyInterface().determineWidth(localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()) + 20;
+		total_width = sum(width_list) + CyInterface().determineWidth(localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()) + 20
 
 		for i in width_list:
 			self.PAGE_LINK_WIDTH.append((self.X_EXIT * i + total_width/2) / total_width)
@@ -586,7 +586,7 @@ class CvInfoScreen:
 #BUG Timer
 		self.timer = BugUtil.Timer("InfoScreen")
 
-		self.initText();
+		self.initText()
 
 		self.iStartTurn = 0
 		for iI in range(gc.getGameSpeedInfo(gc.getGame().getGameSpeedType()).getNumTurnIncrements()):
@@ -1275,7 +1275,8 @@ class CvInfoScreen:
 		if AdvisorOpt.isGraphs():
 			for p in aiLegendPlayers:
 				szPlayerName = self.getPlayerName(p)
-				if not gc.getPlayer(p).isAlive(): szPlayerName += " [" + self.BUG_LEGEND_DEAD + "]"
+				if not gc.getPlayer(p).isAlive():
+					szPlayerName += " [" + self.BUG_LEGEND_DEAD + "]"
 				if iW_LEGEND < self.X_LEGEND_TEXT + CyInterface().determineWidth(szPlayerName) + 10:
 					iW_LEGEND = self.X_LEGEND_TEXT + CyInterface().determineWidth(szPlayerName) + 10
 			for p in self.aiPlayersMetNAEspionage:
@@ -1283,7 +1284,8 @@ class CvInfoScreen:
 				if bIgnoreEspionage and self.showTotalScoreGraph(p):
 					continue # </advc.091>
 				szPlayerName = self.getPlayerName(p)
-				if not gc.getPlayer(p).isAlive(): szPlayerName += " [" + self.BUG_LEGEND_DEAD + "]"
+				if not gc.getPlayer(p).isAlive():
+					szPlayerName += " [" + self.BUG_LEGEND_DEAD + "]"
 				if iW_LEGEND < self.X_LEGEND_TEXT + CyInterface().determineWidth(szPlayerName) + 10:
 					iW_LEGEND = self.X_LEGEND_TEXT + CyInterface().determineWidth(szPlayerName) + 10
 		iLegendRows = self.iNumPlayersMet + self.iNumPlayersMetNAEspionage # advc.091
@@ -1344,8 +1346,7 @@ class CvInfoScreen:
 
 #BUG: Change Graphs - start
 			if AdvisorOpt.isGraphs():
-				screen.setText(self.sPlayerTextWidget[p], "", u"<font=2>" + str + u"</font>", CvUtil.FONT_LEFT_JUSTIFY,
-							   self.X_LEGEND + self.X_LEGEND_TEXT, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setText(self.sPlayerTextWidget[p], "", u"<font=2>" + str + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + self.X_LEGEND_TEXT, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			else:
 				screen.setLabel(self.sPlayerTextWidget[p], "", u"<font=2>" + str + u"</font>", CvUtil.FONT_LEFT_JUSTIFY,
 								self.X_LEGEND + self.X_LEGEND_TEXT, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
@@ -1502,7 +1503,8 @@ class CvInfoScreen:
 			if self.bAlwaysShowBestWorstNameIfMet:
 				return (szPlayerName,"?")
 			return ("","?")
-		if self.bShowBestKnown and not self.bRevealAll and not aiGroup is None:
+		# <!-- custom: as per ruff rule E714 and chatgpt/becomingthrough's reply to my prompt and such and me too for sending it but anyways etc anyways etc anwyays etc ; do not use "and not aiGroup is None" instead use "aiGroup is not None" anyways etc -->
+		if self.bShowBestKnown and not self.bRevealAll and aiGroup is not None:
 			# Make sure player name isn't too long (I use the same code in CvOptionsScreen)
 			iCharLimit = 18
 			if len(szPlayerName) > iCharLimit:
@@ -2031,7 +2033,7 @@ class CvInfoScreen:
 				screen.addPlotGraphicGFC(self.szCityAnimWidgets[iWidgetLoop], self.X_CITY_ANIMATION, self.Y_ROWS_CITIES[iWidgetLoop] + self.Y_CITY_ANIMATION_BUFFER - self.H_CITY_ANIMATION / 2, self.W_CITY_ANIMATION, self.H_CITY_ANIMATION, pPlot, iDistance, false, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# Draw Wonder icons
-		self.drawCityWonderIcons();
+		self.drawCityWonderIcons()
 
 		return
 
@@ -2365,8 +2367,7 @@ class CvInfoScreen:
 
 		# Stats Panel
 		panelName = self.getNextWidgetName()
-		screen.addPanel( panelName, "", "", true, true,
-				 self.X_STATS_PANE, self.Y_STATS_PANE, self.W_STATS_PANE, self.H_STATS_PANE, PanelStyles.PANEL_STYLE_IN )
+		screen.addPanel( panelName, "", "", true, true, self.X_STATS_PANE, self.Y_STATS_PANE, self.W_STATS_PANE, self.H_STATS_PANE, PanelStyles.PANEL_STYLE_IN )
 
 ############################################### DISPLAY SINGLE WONDER ###############################################
 
@@ -2429,8 +2430,7 @@ class CvInfoScreen:
 				iIconX = self.X_PROJECT_ICON - self.W_PROJECT_ICON / 2
 				iIconY = self.Y_PROJECT_ICON - self.W_PROJECT_ICON / 2
 
-				screen.addDDSGFC(self.getNextWidgetName(), gc.getProjectInfo(self.iWonderID).getButton(),
-						 iIconX, iIconY, self.W_PROJECT_ICON, self.W_PROJECT_ICON, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				screen.addDDSGFC(self.getNextWidgetName(), gc.getProjectInfo(self.iWonderID).getButton(), iIconX, iIconY, self.W_PROJECT_ICON, self.W_PROJECT_ICON, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 				# Special Abilities ListBox
 
@@ -2840,8 +2840,7 @@ class CvInfoScreen:
 		self.szWondersTable = self.getNextWidgetName()
 
 		screen = self.getScreen()
-		screen.addTableControlGFC(self.szWondersTable, 5, self.X_WONDERS_CHART, self.Y_WONDERS_CHART, self.W_WONDERS_CHART, self.H_WONDERS_CHART,
-					  True, True, 24,24, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addTableControlGFC(self.szWondersTable, 5, self.X_WONDERS_CHART, self.Y_WONDERS_CHART, self.W_WONDERS_CHART, self.H_WONDERS_CHART, True, True, 24,24, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSort(self.szWondersTable)
 
 		zoomArt = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
@@ -3064,8 +3063,7 @@ class CvInfoScreen:
 
 		# Add Panel
 		szTopPanelWidget = self.getNextWidgetName()
-		screen.addPanel( szTopPanelWidget, u"", u"", True, False, self.X_STATS_TOP_PANEL, self.Y_STATS_TOP_PANEL, self.W_STATS_TOP_PANEL, self.H_STATS_TOP_PANEL,
-				 PanelStyles.PANEL_STYLE_DAWNTOP )
+		screen.addPanel( szTopPanelWidget, u"", u"", True, False, self.X_STATS_TOP_PANEL, self.Y_STATS_TOP_PANEL, self.W_STATS_TOP_PANEL, self.H_STATS_TOP_PANEL, PanelStyles.PANEL_STYLE_DAWNTOP )
 
 		# Leaderhead graphic
 		#player = gc.getPlayer(gc.getGame().getActivePlayer())
@@ -3077,13 +3075,11 @@ class CvInfoScreen:
 		# Leader Name
 		self.szLeaderNameWidget = self.getNextWidgetName()
 		szText = u"<font=4b>" + gc.getPlayer(self.iActivePlayer).getName() + u"</font>"
-		screen.setText(self.szLeaderNameWidget, "", szText, CvUtil.FONT_LEFT_JUSTIFY,
-				   self.X_LEADER_NAME, self.Y_LEADER_NAME, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setText(self.szLeaderNameWidget, "", szText, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEADER_NAME, self.Y_LEADER_NAME, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# Create Table
 		szTopChart = self.getNextWidgetName()
-		screen.addTableControlGFC(szTopChart, self.iNumTopChartCols, self.X_STATS_TOP_CHART, self.Y_STATS_TOP_CHART, self.W_STATS_TOP_CHART, self.H_STATS_TOP_CHART,
-					  False, True, 32,32, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addTableControlGFC(szTopChart, self.iNumTopChartCols, self.X_STATS_TOP_CHART, self.Y_STATS_TOP_CHART, self.W_STATS_TOP_CHART, self.H_STATS_TOP_CHART, False, True, 32,32, TableStyles.TABLE_STYLE_STANDARD)
 
 		# Add Columns
 		screen.setTableColumnHeader(szTopChart, 0, "", self.STATS_TOP_CHART_W_COL_0)
@@ -3155,21 +3151,18 @@ class CvInfoScreen:
 
 		# Create Tables
 		szUnitsTable = self.getNextWidgetName()
-		screen.addTableControlGFC(szUnitsTable, self.iNumUnitStatsChartCols, self.X_STATS_BOTTOM_CHART, self.Y_STATS_BOTTOM_CHART, self.W_STATS_BOTTOM_CHART_UNITS, self.H_STATS_BOTTOM_CHART,
-					  True, True, 32,32, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addTableControlGFC(szUnitsTable, self.iNumUnitStatsChartCols, self.X_STATS_BOTTOM_CHART, self.Y_STATS_BOTTOM_CHART, self.W_STATS_BOTTOM_CHART_UNITS, self.H_STATS_BOTTOM_CHART, True, True, 32,32, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSort(szUnitsTable)
 
 		szBuildingsTable = self.getNextWidgetName()
-		screen.addTableControlGFC(szBuildingsTable, self.iNumBuildingStatsChartCols, self.X_STATS_BOTTOM_CHART + self.W_STATS_BOTTOM_CHART_UNITS, self.Y_STATS_BOTTOM_CHART, self.W_STATS_BOTTOM_CHART_BUILDINGS, self.H_STATS_BOTTOM_CHART,
-					  True, True, 32,32, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addTableControlGFC(szBuildingsTable, self.iNumBuildingStatsChartCols, self.X_STATS_BOTTOM_CHART + self.W_STATS_BOTTOM_CHART_UNITS, self.Y_STATS_BOTTOM_CHART, self.W_STATS_BOTTOM_CHART_BUILDINGS, self.H_STATS_BOTTOM_CHART, True, True, 32,32, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSort(szBuildingsTable)
 
 #BUG: improvements - start
 		#if AdvisorOpt.isShowImprovements():
 		if True: # advc.004
 			szImprovementsTable = self.getNextWidgetName()
-			screen.addTableControlGFC(szImprovementsTable, self.iNumImprovementStatsChartCols, self.X_STATS_BOTTOM_CHART + self.W_STATS_BOTTOM_CHART_UNITS + self.W_STATS_BOTTOM_CHART_BUILDINGS, self.Y_STATS_BOTTOM_CHART, self.W_STATS_BOTTOM_CHART_IMPROVEMENTS, self.H_STATS_BOTTOM_CHART,
-						  True, True, 32,32, TableStyles.TABLE_STYLE_STANDARD)
+			screen.addTableControlGFC(szImprovementsTable, self.iNumImprovementStatsChartCols, self.X_STATS_BOTTOM_CHART + self.W_STATS_BOTTOM_CHART_UNITS + self.W_STATS_BOTTOM_CHART_BUILDINGS, self.Y_STATS_BOTTOM_CHART, self.W_STATS_BOTTOM_CHART_IMPROVEMENTS, self.H_STATS_BOTTOM_CHART, True, True, 32,32, TableStyles.TABLE_STYLE_STANDARD)
 			screen.enableSort(szImprovementsTable)
 #BUG: improvements - end
 

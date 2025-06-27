@@ -368,7 +368,7 @@ def initModFolder():
 		replay = CyReplayInfo()
 		replay.createInfo(0)
 		modDir = replay.getModName().replace('\\', r'/')
-	except:
+	except Exception:
 		BugUtil.trace("replay not ready")
 	else:
 		if modDir and len(modDir) > 2:
@@ -428,7 +428,7 @@ def initNoCustomAssetsSetting():
 				from configobj import ConfigObj
 				config = ConfigObj(join(getModDir(), getModFolder() + ".ini"), encoding='utf_8')
 				_noCustomAssets = config["CONFIG"].as_bool("NoCustomAssets")
-			except:
+			except Exception:
 				BugUtil.trace("BugPath - failed to parse mod INI file for NoCustomAssets")
 		BugUtil.info("BugPath - NoCustomAssets is %s", _noCustomAssets)
 	_noCustomAssetsSettingInitDone = True
@@ -492,7 +492,7 @@ def initRootFolder():
 		for version, key, subkey in MY_DOCUMENTS_FOLDER_REG_KEYS:
 			try:
 				myDocuments = getRegValue(_winreg.HKEY_CURRENT_USER, key, subkey)
-			except:
+			except Exception:
 				pass
 			else:
 				if setUserDir(join(myDocuments, MY_GAMES_FOLDER)):
@@ -553,7 +553,7 @@ def initDataFolder():
 
 	# K-Mod. If it doesn't already exist, create the folder in the user directory.
 	dir = join(getRootDir(), getModName(), SETTINGS_FOLDER)
-	if dir != None:
+	if dir is not None:
 		if not isdir(dir):
 			# copy the default settings from the K-Mod folder.
 			default_dir = join(getModDir(), SETTINGS_FOLDER)
@@ -567,7 +567,7 @@ def initDataFolder():
 						pass
 					# sucks.
 					shutil.copytree(default_dir, dir)
-				except:
+				except Exception:
 					BugUtil.trace("Failed to copy settings")
 		if not isdir(dir):
 			# Second attempt: create the directory manually
@@ -715,11 +715,11 @@ def isfile(path):
 def safeDebugPath(message, path):
 	try:
 		BugUtil.debug(message, path)
-	except:
+	except Exception:
 		pass
 
 def safeInfoPath(message, path):
 	try:
 		BugUtil.info(message, path)
-	except:
+	except Exception:
 		pass

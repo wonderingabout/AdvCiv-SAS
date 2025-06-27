@@ -251,7 +251,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		screen = self.getScreen()
 		if screen.isActive():
 			return
-		screen.setRenderInterfaceOnly(True);
+		screen.setRenderInterfaceOnly(True)
 		screen.showScreen( PopupStates.POPUPSTATE_IMMEDIATE, False)
 	
 		self.iActiveLeader = CyGame().getActivePlayer()
@@ -358,7 +358,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 			width_list = []
 			for i in self.ORDER_LIST:
 				width_list.append(CyInterface().determineWidth(localText.getText(self.TXT_KEY_DICT[i], ()).upper()) + 20)
-			total_width = sum(width_list) + CyInterface().determineWidth(localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()) + 20;
+			total_width = sum(width_list) + CyInterface().determineWidth(localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()) + 20
 
 			for i in width_list:
 				self.LABEL_WIDTH_LIST.append((self.X_EXIT * i + total_width/2) / total_width)
@@ -592,18 +592,20 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		else:
 			fcHeaderText = BugUtil.getPlainText("TXT_KEY_PEDIA_FAV_CIVIC")
 		
-		for headerText in (BugUtil.getPlainText("TXT_KEY_FOREIGN_ADVISOR_ABBR_LEADER"),
-						   BugUtil.getPlainText("TXT_KEY_FOREIGN_ADVISOR_ABBR_ATTITUDE"),
-						   u"%c" %(CyGame().getSymbolID(FontSymbols.RELIGION_CHAR)), 
-						   u"%c" %(CyGame().getSymbolID(FontSymbols.TRADE_CHAR)),
-						   u"%c%c" %(CyGame().getSymbolID(FontSymbols.TRADE_CHAR),gc.getYieldInfo(YieldTypes.YIELD_COMMERCE).getChar()),
-						   BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_GOVERNMENT"),
-						   BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_LEGAL"),
-						   BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_LABOR"),
-						   BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_ECONOMY"),
-						   BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_RELIGION"),
-						   "",
-						   fcHeaderText):
+		for headerText in (
+			BugUtil.getPlainText("TXT_KEY_FOREIGN_ADVISOR_ABBR_LEADER"),
+			BugUtil.getPlainText("TXT_KEY_FOREIGN_ADVISOR_ABBR_ATTITUDE"),
+			u"%c" %(CyGame().getSymbolID(FontSymbols.RELIGION_CHAR)), 
+			u"%c" %(CyGame().getSymbolID(FontSymbols.TRADE_CHAR)),
+			u"%c%c" %(CyGame().getSymbolID(FontSymbols.TRADE_CHAR),gc.getYieldInfo(YieldTypes.YIELD_COMMERCE).getChar()),
+			BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_GOVERNMENT"),
+			BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_LEGAL"),
+			BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_LABOR"),
+			BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_ECONOMY"),
+			BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_RELIGION"),
+			"",
+			fcHeaderText
+		):
 			itemName = self.getNextWidgetName()
 			screen.attachTextGFC(headerPanelName, itemName, headerText, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			screen.setHitTest(itemName, HitTestTypes.HITTEST_NOHIT)
@@ -680,7 +682,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 				szAttStr = "<font=2>" + objAttitude.getText(True, True, False, False) + "</font>"
 			else:
 				szAttStr = ""
-			 # advc.004: BULL widget help enabled
+			# advc.004: BULL widget help enabled
 			screen.attachTextGFC(infoPanelName, itemName, szAttStr, FontTypes.GAME_FONT, WidgetTypes.WIDGET_LEADERHEAD_RELATIONS, iLoopPlayer, self.iActiveLeader)
 			# Disable the widget if this is active player since it's a blank string.
 			if bIsActivePlayer:
@@ -712,7 +714,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 				szPlayerReligion = "<font=2>" + szPlayerReligion + "</font>"
 			else:
 				szPlayerReligion = ""
-			 # advc.004: BULL widget help enabled
+			# advc.004: BULL widget help enabled
 			screen.attachTextGFC(infoPanelName, itemName, szPlayerReligion, FontTypes.GAME_FONT, WidgetTypes.WIDGET_LEADERHEAD_RELATIONS, iLoopPlayer, self.iActiveLeader)
 			# Disable the widget if this is active player since we don't have diplo info.
 			if bIsActivePlayer:
@@ -730,7 +732,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 				szTradeYield = u"-"
 				szTradeRoutes = u"-"
 			itemName = self.getNextWidgetName()
-			 # advc.004: BULL widget help enabled (2x)
+			# advc.004: BULL widget help enabled (2x)
 			screen.attachTextGFC(infoPanelName, itemName, szTradeRoutes, FontTypes.GAME_FONT, WidgetTypes.WIDGET_TRADE_ROUTES, self.iActiveLeader, iLoopPlayer)
 			itemName = self.getNextWidgetName()
 			screen.attachTextGFC(infoPanelName, itemName, szTradeYield, FontTypes.GAME_FONT, WidgetTypes.WIDGET_TRADE_ROUTES, self.iActiveLeader, iLoopPlayer)
@@ -780,7 +782,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 						else:
 							szDiplo = ""
 						itemName = self.getNextWidgetName()
-						 # advc.004: BULL widget help enabled
+						# advc.004: BULL widget help enabled
 						screen.attachTextGFC(infoPanelName, itemName, szDiplo, FontTypes.GAME_FONT, WidgetTypes.WIDGET_LEADERHEAD_RELATIONS, iLoopPlayer, self.iActiveLeader)
 						#screen.setHitTest(itemName, HitTestTypes.HITTEST_NOHIT)
 
@@ -848,11 +850,13 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 				self.nCount += 1
 		# advc.066: Was (self.W_SCREEN - 20) /... I don't think there are margins to account for here.
 		self.X_Spread = self.W_SCREEN / self.nCount
-		if self.X_Spread < 57: self.X_Spread = 57 # advc.066: Lower bound was 58
+		if self.X_Spread < 57:
+			self.X_Spread = 57 # advc.066: Lower bound was 58
 		# advc.066: Was (self.H_SCREEN - 50) /...
 		self.Y_Spread = (self.mainPanelHeight + 105) / (self.nCount + 2)
 		self.Y_Text_Offset = (self.Y_Spread - 36) / 2
-		if self.Y_Text_Offset < 0: self.Y_Text_Offset = 0
+		if self.Y_Text_Offset < 0:
+			self.Y_Text_Offset = 0
 
 	def drawGlanceHeader (self, screen, panelName):
 		nCount = 1
@@ -1046,8 +1050,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 			self.SURPLUS_TABLE_Y = self.SURPLUS_ICONS_Y + (self.RESOURCE_ICON_SIZE - self.TABLE_CONTROL_HEIGHT) / 2 + 8
 		else:
 			self.SURPLUS_TABLE_X = self.SURPLUS_ICONS_X + 5
-			SURPLUS_VERTICAL_SPACING = ( self.RES_SURPLUS_HEIGHT - self.RESOURCE_ICON_SIZE - self.TABLE_CONTROL_HEIGHT 
-									   - self.TITLE_HEIGHT ) / 2 + 3
+			SURPLUS_VERTICAL_SPACING = ( self.RES_SURPLUS_HEIGHT - self.RESOURCE_ICON_SIZE - self.TABLE_CONTROL_HEIGHT - self.TITLE_HEIGHT ) / 2 + 3
 			self.SURPLUS_ICONS_Y = self.SURPLUS_Y + SURPLUS_VERTICAL_SPACING + self.TITLE_HEIGHT
 			self.SURPLUS_TABLE_Y = self.SURPLUS_ICONS_Y + self.RESOURCE_ICON_SIZE
 		
@@ -1204,7 +1207,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 				for iBonus in importFromPlayer:
 					if iBonus in listSurplus:
 						importSurplusFromPlayer.append(iBonus)
-					else: rest.append(iBonus)
+					else:
+						rest.append(iBonus)
 				importSorted = importSurplusFromPlayer + rest
 				for iLoopBonus in importSorted:
 					# Cut and pasted from the "bonuses" loop above, but using the BONUS_TRADE widget from BULL.
@@ -1290,9 +1294,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		TECH_PANEL_HEIGHT = self.H_SCREEN - 2 * self.TECH_TOP_BOTTOM_SPACE
 
 		self.tradePanel = self.getNextWidgetName()
-		screen.addPanel( self.tradePanel, "", "", True, True
-					   , TECH_PANEL_X, TECH_PANEL_Y, TECH_PANEL_WIDTH, TECH_PANEL_HEIGHT
-					   , PanelStyles.PANEL_STYLE_MAIN )
+		screen.addPanel( self.tradePanel, "", "", True, True, TECH_PANEL_X, TECH_PANEL_Y, TECH_PANEL_WIDTH, TECH_PANEL_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
 
 		self.techIconGrid.createGrid()
 
@@ -1313,8 +1315,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 				if not activePlayer.canSeeTech(iLoopPlayer):
 					message = localText.getText("TXT_KEY_FOREIGN_ADVISOR_NO_TECH_TRADING", ())
 				self.techIconGrid.appendRow(currentPlayer.getName(), message)
-				self.techIconGrid.addIcon( currentRow, iTechColLeader, gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton()
-										 , 64, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader )
+				self.techIconGrid.addIcon( currentRow, iTechColLeader, gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton(), 64, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader )
 
 # BUG - AI status - start
 				zsStatus = ""

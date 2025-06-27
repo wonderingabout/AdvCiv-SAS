@@ -11,10 +11,11 @@ DebugLogging = False
 gc = CyGlobalContext()
 
 class CvDiplomacy:
-	"Code used by Civ Diplomacy interface"
-	
+	# Code used by Civ Diplomacy interface
+	#
 	def __init__(self):
-		"constructor - set up class vars, AI and User strings"
+		# constructor - set up class vars, AI and User strings
+		#
 		if DebugLogging:
 			print "Launching Diplomacy"
 		
@@ -27,7 +28,8 @@ class CvDiplomacy:
 		DebugLogging = bDebugLogging
 	
 	def determineResponses (self, eComment):
-		"Will determine the user responses given an AI comment"
+		# Will determine the user responses given an AI comment
+		#
 		if DebugLogging:
 			print "CvDiplomacy.determineResponses: %s" %(eComment,)
 		
@@ -66,7 +68,7 @@ class CvDiplomacy:
 
 			# Give the option to exit
 			self.addUserComment("USER_DIPLOCOMMENT_EXIT", -1, -1)
-			self.diploScreen.endTrade();
+			self.diploScreen.endTrade()
 
 		# If the AI is offering a city oo
 		# If the AI is giving help
@@ -267,9 +269,7 @@ class CvDiplomacy:
 				self.addUserComment("USER_DIPLOCOMMENT_TARGET", -1, -1)
 
 			# K-Mod. Allow masters to tell their vassals to prepare for war
-			if (gc.getTeam(gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam()).getAtWarCount(true) == 0 and
-			    (gc.getTeam(gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam()).isVassal(gc.getGame().getActiveTeam()) or
-			     gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam() == gc.getGame().getActiveTeam())):
+			if (gc.getTeam(gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam()).getAtWarCount(true) == 0 and (gc.getTeam(gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam()).isVassal(gc.getGame().getActiveTeam()) or gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam() == gc.getGame().getActiveTeam())):
 				if (gc.getTeam(gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam()).getAnyWarPlanCount(true) > 0):
 					self.addUserComment("USER_DIPLOCOMMENT_WARPLAN_CANCEL", -1, -1)
 				else:
@@ -352,15 +352,17 @@ class CvDiplomacy:
 
 			# Exit potential
 			self.addUserComment("USER_DIPLOCOMMENT_EXIT", -1, -1)
-			self.diploScreen.endTrade();
+			self.diploScreen.endTrade()
 
 	def addUserComment(self, eComment, iData1, iData2, *args):
-		" Helper for adding User Comments "
+		# Helper for adding User Comments
+		#
 		iComment = self.getCommentID( eComment )
 		self.diploScreen.addUserComment( iComment, iData1, iData2, self.getDiplomacyComment(iComment), args)
 		
 	def setAIComment (self, eComment, *args):
-		" Handles the determining the AI comments"
+		# Handles the determining the AI comments
+		#
 		AIString = self.getDiplomacyComment(eComment)
 
 		if DebugLogging:
@@ -376,59 +378,72 @@ class CvDiplomacy:
 
 	def performHeadAction( self, eComment ):
 	
-		if ( eComment == self.getCommentID("AI_DIPLOCOMMENT_NO_PEACE") or
-		     eComment == self.getCommentID("AI_DIPLOCOMMENT_REJECT") or
-		     eComment == self.getCommentID("AI_DIPLOCOMMENT_NO_DEAL") or
-		     eComment == self.getCommentID("AI_DIPLOCOMMENT_CANCEL_DEAL") or
-		     eComment == self.getCommentID("AI_DIPLOCOMMENT_REJECT_ASK") or
-			 eComment == self.getCommentID("AI_DIPLOCOMMENT_WORST_ENEMY_TRADING") or # K-Mod. (not really "disagreeing" so much as expressing discouragement)
-		     eComment == self.getCommentID("AI_DIPLOCOMMENT_REJECT_DEMAND") ):
+		if (
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_NO_PEACE") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_REJECT") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_NO_DEAL") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_CANCEL_DEAL") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_REJECT_ASK") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_WORST_ENEMY_TRADING") or # K-Mod. (not really "disagreeing" so much as expressing discouragement)
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_REJECT_DEMAND")
+		):
 			self.diploScreen.performHeadAction( LeaderheadAction.LEADERANIM_DISAGREE ) 
-		elif ( eComment == self.getCommentID("AI_DIPLOCOMMENT_ACCEPT") or
-		       eComment == self.getCommentID("AI_DIPLOCOMMENT_TRY_THIS_DEAL") ):
+		elif (
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_ACCEPT") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_TRY_THIS_DEAL")
+		):
 			self.diploScreen.performHeadAction( LeaderheadAction.LEADERANIM_AGREE ) 
-		elif ( eComment == self.getCommentID("AI_DIPLOCOMMENT_FIRST_CONTACT") or
-		       eComment == self.getCommentID("AI_DIPLOCOMMENT_GREETINGS") or
-		       eComment == self.getCommentID("AI_DIPLOCOMMENT_WORST_ENEMY") or
-		       eComment == self.getCommentID("AI_DIPLOCOMMENT_UNIT_BRAG") or
-		       eComment == self.getCommentID("AI_DIPLOCOMMENT_NUKES") or
-		       eComment == self.getCommentID("AI_DIPLOCOMMENT_OFFER_PEACE") or
-		       eComment == self.getCommentID("AI_DIPLOCOMMENT_OFFER_VASSAL") or
-		       eComment == self.getCommentID("AI_DIPLOCOMMENT_OFFER_CITY") or
-		       eComment == self.getCommentID("AI_DIPLOCOMMENT_OFFER_DEAL") or
-		       eComment == self.getCommentID("AI_DIPLOCOMMENT_GIVE_HELP") or
-		       eComment == self.getCommentID("AI_DIPLOCOMMENT_RELIGION_PRESSURE") or
-		       eComment == self.getCommentID("AI_DIPLOCOMMENT_CIVIC_PRESSURE") or
-		       eComment == self.getCommentID("AI_DIPLOCOMMENT_JOIN_WAR") or
-		       eComment == self.getCommentID("AI_DIPLOCOMMENT_STOP_TRADING") or
-		       eComment == self.getCommentID("AI_DIPLOCOMMENT_ASK_FOR_HELP") or
-		       eComment == self.getCommentID("AI_DIPLOCOMMENT_DEMAND_TRIBUTE") ):
+		elif (
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_FIRST_CONTACT") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_GREETINGS") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_WORST_ENEMY") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_UNIT_BRAG") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_NUKES") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_OFFER_PEACE") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_OFFER_VASSAL") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_OFFER_CITY") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_OFFER_DEAL") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_GIVE_HELP") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_RELIGION_PRESSURE") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_CIVIC_PRESSURE") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_JOIN_WAR") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_STOP_TRADING") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_ASK_FOR_HELP") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_DEMAND_TRIBUTE")
+		):
 			self.diploScreen.performHeadAction( LeaderheadAction.LEADERANIM_GREETING ) 
-		elif ( eComment == self.getCommentID("AI_DIPLOCOMMENT_ATTITUDE_PLAYER_FURIOUS") or
-		       #eComment == self.getCommentID("AI_DIPLOCOMMENT_WORST_ENEMY_TRADING") or # (moved by K-mod)
-		       eComment == self.getCommentID("AI_DIPLOCOMMENT_HELP_REFUSED") or
-		       eComment == self.getCommentID("AI_DIPLOCOMMENT_DEMAND_REJECTED") or
-		       eComment == self.getCommentID("AI_DIPLOCOMMENT_RELIGION_DENIED") or
-		       eComment == self.getCommentID("AI_DIPLOCOMMENT_CIVIC_DENIED") or
-		       eComment == self.getCommentID("AI_DIPLOCOMMENT_JOIN_DENIED") or
-		       eComment == self.getCommentID("AI_DIPLOCOMMENT_STOP_DENIED") ):
+		elif (
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_ATTITUDE_PLAYER_FURIOUS") or
+			#eComment == self.getCommentID("AI_DIPLOCOMMENT_WORST_ENEMY_TRADING") or # (moved by K-mod)
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_HELP_REFUSED") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_DEMAND_REJECTED") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_RELIGION_DENIED") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_CIVIC_DENIED") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_JOIN_DENIED") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_STOP_DENIED")
+		):
 			self.diploScreen.performHeadAction( LeaderheadAction.LEADERANIM_FURIOUS ) 
 		elif ( eComment == self.getCommentID("AI_DIPLOCOMMENT_ATTITUDE_PLAYER_ANNOYED") ):
 			self.diploScreen.performHeadAction( LeaderheadAction.LEADERANIM_ANNOYED ) 
 		elif ( eComment == self.getCommentID("AI_DIPLOCOMMENT_ATTITUDE_PLAYER_CAUTIOUS") ):
 			self.diploScreen.performHeadAction( LeaderheadAction.LEADERANIM_CAUTIOUS ) 
-		elif ( eComment == self.getCommentID("AI_DIPLOCOMMENT_ATTITUDE_PLAYER_PLEASED") or
-		       eComment == self.getCommentID("AI_DIPLOCOMMENT_SORRY") ):
+		elif (
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_ATTITUDE_PLAYER_PLEASED") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_SORRY")
+		):
 			self.diploScreen.performHeadAction( LeaderheadAction.LEADERANIM_PLEASED ) 
-		elif ( eComment == self.getCommentID("AI_DIPLOCOMMENT_ATTITUDE_PLAYER_FRIENDLY") or
-		       eComment == self.getCommentID("AI_DIPLOCOMMENT_GLAD") or
-		       eComment == self.getCommentID("AI_DIPLOCOMMENT_THANKS") ):
+		elif (
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_ATTITUDE_PLAYER_FRIENDLY") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_GLAD") or
+			eComment == self.getCommentID("AI_DIPLOCOMMENT_THANKS")
+		):
 			self.diploScreen.performHeadAction( LeaderheadAction.LEADERANIM_FRIENDLY ) 
 	
 		return
 
 	def getDiplomacyComment (self, eComment):
-		"Function to get the user String"
+		# Function to get the user String
+		#
 		debugString = "CvDiplomacy.getDiplomacyComment: %s" %(eComment,)
 		eComment = int(eComment)
 		if DebugLogging:
@@ -458,14 +473,16 @@ class CvDiplomacy:
 		return self.iLastResponseID
 
 	def isUsed(self, var, i, num):
-		"returns true if any element in the var list is true"
+		# returns true if any element in the var list is true
+		#
 		for j in range(num):
 			if (var(i, j)):
 				return true
 		return false
 		
 	def filterUserResponse(self, diploInfo):
-		"pick the user's response from a CvDiplomacyTextInfo, based on response conditions"
+		# pick the user's response from a CvDiplomacyTextInfo, based on response conditions
+		#
 		if (self.diploScreen.getWhoTradingWith() == -1):
 			return ""
 			
@@ -773,9 +790,9 @@ class CvDiplomacy:
 		
 		return
 
-	def isComment(self, eComment, strComment,
-			bStartsWith = False): # advc.062
-		'bool - comment matching'
+	def isComment(self, eComment, strComment, bStartsWith = False): # advc.062
+		# bool - comment matching
+		#
 		strType = gc.getDiplomacyInfo(eComment).getType()
 		# <advc.062>
 		if bStartsWith:
@@ -785,7 +802,8 @@ class CvDiplomacy:
 		
 	
 	def getCommentID(self, strComment):
-		'int - ID for DiploCommentType'
+		# int - ID for DiploCommentType
+		#
 		for i in range(gc.getNumDiplomacyInfos()):
 			if ( gc.getDiplomacyInfo(i).getType() == strComment ):
 				return i

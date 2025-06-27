@@ -29,7 +29,7 @@ def launch(argsList=None):
 			showLaunchMessage()
 			webbrowser.open(url, new=1, autoraise=1)
 			return True
-		except:
+		except Exception:
 			showErrorAlert(BugUtil.getPlainText("TXT_KEY_BUG_HELP_CANNOT_OPEN_BROWSER_TITLE"), 
 					BugUtil.getText("TXT_KEY_BUG_HELP_CANNOT_OPEN_BROWSER_BODY", (url,)))		
 	else: # advc.009: There is no FRA and ESP translation

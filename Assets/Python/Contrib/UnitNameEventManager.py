@@ -217,8 +217,7 @@ class BuildUnitName(AbstractBuildUnitName):
 
 		#BUGPrint("onUnitBuild-A")
 
-		if (pUnit == None
-		or pUnit.isNone()):
+		if (pUnit is None or pUnit.isNone()):
 			return
 
 		#BUGPrint("onUnitBuild-B %s %s %s" % (iPlayer, CyGame().getActivePlayer(), UnitNamingOpt.isEnabled()))
@@ -372,11 +371,16 @@ class UnitReName(object):
 		while zsName.find("^cnt") != -1:
 #			determine what I am counting across
 			zsSDKey = self.getCounter(zsName)
-			if zsSDKey == "UNIT":		zsSDKey = zsSDKey + zsUnit
-			elif zsSDKey == "COMBAT":	zsSDKey = zsSDKey + zsUnitCombat
-			elif zsSDKey == "CITY":		zsSDKey = zsSDKey + zsCity
-			elif zsSDKey == "UNITCITY": zsSDKey = zsSDKey + zsUnit + zsCity
-			elif zsSDKey == "DOMAIN":	zsSDKey = zsSDKey + zsUnitDomain
+			if zsSDKey == "UNIT":
+				zsSDKey = zsSDKey + zsUnit
+			elif zsSDKey == "COMBAT":
+				zsSDKey = zsSDKey + zsUnitCombat
+			elif zsSDKey == "CITY":
+				zsSDKey = zsSDKey + zsCity
+			elif zsSDKey == "UNITCITY":
+				zsSDKey = zsSDKey + zsUnit + zsCity
+			elif zsSDKey == "DOMAIN":
+				zsSDKey = zsSDKey + zsUnitDomain
 	
 			#BUGPrint("UnitNameEM-E [" + zsSDKey + "]")
 	
@@ -455,14 +459,13 @@ class UnitReName(object):
 	def getUnitCombat(self, pUnit):
 
 # Return immediately if the unit passed in is invalid
-		if (pUnit == None
-		or pUnit.isNone()):
+		if (pUnit is None or pUnit.isNone()):
 			return "UNITCOMBAT_None"
 
 		iUnitCombat = pUnit.getUnitCombatType()
 		infoUnitCombat = gc.getUnitCombatInfo(iUnitCombat)
 
-		if (infoUnitCombat == None):
+		if (infoUnitCombat is None):
 			return "UNITCOMBAT_None"
 
 		return infoUnitCombat.getType()
@@ -491,12 +494,18 @@ class UnitReName(object):
 
 		#BUGPrint("UnitNameEM-E1 [" + conv  + "|" + str(ziStart)  + "|" + str(ziEnd)  + "|" + zsValue + "]")
 
-		if zsValue == "a": return "ALL"
-		if zsValue == "u": return "UNIT"
-		if zsValue == "c": return "CITY"
-		if zsValue == "t": return "UNITCITY"
-		if zsValue == "b": return "COMBAT"
-		if zsValue == "d": return "DOMAIN"
+		if zsValue == "a":
+			return "ALL"
+		if zsValue == "u":
+			return "UNIT"
+		if zsValue == "c":
+			return "CITY"
+		if zsValue == "t":
+			return "UNITCITY"
+		if zsValue == "b":
+			return "COMBAT"
+		if zsValue == "d":
+			return "DOMAIN"
 		return zsValue
 
 	def getTotal1(self, conv):
@@ -512,16 +521,19 @@ class UnitReName(object):
 		ziStart = conv.find("[",ziStart + 1)
 		ziEnd = conv.find(":",ziStart)
 		ziLow = int(conv[ziStart + 1:ziEnd])
-		if (ziLow < 1): ziLow = 1
+		if (ziLow < 1):
+			ziLow = 1
 
 #		locate and extract the 'high' value
 		ziStart = ziEnd
 		ziEnd = conv.find("]",ziStart)
 		ziHigh = int(conv[ziStart + 1:ziEnd])
-		if (ziHigh < 1): ziHigh = 1
+		if (ziHigh < 1):
+			ziHigh = 1
 
 #		check that the user isn't an idiot
-		if (ziLow > ziHigh): return ziLow
+		if (ziLow > ziHigh):
+			return ziLow
 
 #		return the value
 		return random.randint(ziLow, ziHigh)
@@ -541,7 +553,8 @@ class UnitReName(object):
 		ziEnd = conv.find("]",ziStart)
 		ziValue = int(conv[ziStart + 1:ziEnd])
 
-		if (ziValue < 1): ziValue = 1
+		if (ziValue < 1):
+			ziValue = 1
 		return ziValue
 
 
@@ -568,13 +581,15 @@ class UnitReName(object):
 	def swapCountCode(self, conv, searchStr, iCnt):
 
 #		return if iCnt is negative (this means that the code is not in the unitnameconv)
-		if iCnt < 0: return conv
+		if iCnt < 0:
+			return conv
 
 		#BUGPrint("UnitNameEM-SCC [" + conv + "] [" + searchStr + "] [" + str(iCnt) + "]")
 
 		zsCntCode = self.getCountCode(conv, searchStr)
 
-		if zsCntCode == "": return conv
+		if zsCntCode == "":
+			return conv
 
 		#BUGPrint("UnitNameEM-SCC [" + zsCntCode + "]")
 

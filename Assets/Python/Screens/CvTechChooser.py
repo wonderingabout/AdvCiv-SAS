@@ -2,7 +2,8 @@
 ## Copyright Firaxis Games 2005
 from CvPythonExtensions import *
 import CvUtil
-import ScreenInput
+# <!-- custom: remove or comment out unused imports -->
+#import ScreenInput
 import CvScreenEnums
 import CvScreensInterface
 
@@ -22,12 +23,12 @@ ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
 # BUG - GP Tech Prefs - start
-import TechPrefs
-import BugCore
+import TechPrefs  # noqa: E402
+import BugCore  # noqa: E402
 BugOpt = BugCore.game.Advisors
 ClockOpt = BugCore.game.NJAGC
 
-import BugUtil
+import BugUtil  # noqa: E402
 
 PREF_ICON_SIZE = 24
 #PREF_ICON_TOP = 168
@@ -37,12 +38,17 @@ PREF_ICON_LEFT = 40 # was a bit farther left (10)
 # </advc.004a>
 FLAVORS = [ TechPrefs.FLAVOR_PRODUCTION, TechPrefs.FLAVOR_GOLD, TechPrefs.FLAVOR_SCIENCE,
 			TechPrefs.FLAVOR_CULTURE, TechPrefs.FLAVOR_RELIGION ]
-UNIT_CLASSES = [ "UNITCLASS_GREAT_ENGINEER", "UNITCLASS_GREAT_MERCHANT", "UNITCLASS_GREAT_SCIENTIST",
-				 "UNITCLASS_GREAT_ARTIST", "UNITCLASS_GREAT_PROPHET" ]
+UNIT_CLASSES = [
+	"UNITCLASS_GREAT_ENGINEER",
+	"UNITCLASS_GREAT_MERCHANT",
+	"UNITCLASS_GREAT_SCIENTIST",
+	"UNITCLASS_GREAT_ARTIST",
+	"UNITCLASS_GREAT_PROPHET"
+]
 # BUG - GP Tech Prefs - end
 
 # BUG - 3.19 No Espionage - start
-import GameUtil
+import GameUtil  # noqa: E402
 # BUG - 3.19 No Espionage - end
 
 # BUG - Mac Support - start
@@ -661,7 +667,7 @@ class CvTechChooser:
 		k = 0
 
 		# Map Trading
-		if ( gc.getTechInfo(i).isMapTrading() == True ):
+		if (gc.getTechInfo(i).isMapTrading()):
 			szMapTradeButton = self.getNextWidgetName("MapTrade")
 			screen.addDDSGFCAt( szMapTradeButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_MAPTRADING").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_MAP_TRADE, i, -1, False )
 			fX += X_INCREMENT
@@ -761,7 +767,7 @@ class CvTechChooser:
 
 		# Improvements
 		for j in range(gc.getNumBuildInfos()):
-			bTechFound = 0;
+			bTechFound = 0
 
 			if (gc.getBuildInfo(j).getTechPrereq() == -1):
 				bTechFound = 0
@@ -864,7 +870,7 @@ class CvTechChooser:
 			bFound = False
 			for k in range( YieldTypes.NUM_YIELD_TYPES ):
 				if (gc.getImprovementInfo(j).getTechYieldChanges(i, k)):
-					if ( bFound == False ):
+					if (not bFound):
 						szYieldChange = self.getNextWidgetName("YieldChangeButton")
 						screen.addDDSGFCAt( szYieldChange, szTechRecord, gc.getImprovementInfo(j).getButton(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_YIELD_CHANGE, i, j, False )
 						fX += X_INCREMENT

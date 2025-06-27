@@ -46,7 +46,7 @@ def init(paletteWidth=3, paletteColors=None):
 			for index in range(200):
 				info = gc.getColorInfo(index)
 				COLOR_KEYS.append(info.getType())
-		except:
+		except Exception:
 			pass
 	
 	# create layers

@@ -504,8 +504,7 @@ def getCanTrainUnits(playerOrID, askingPlayerOrID=None, military=None):
 			eUnit = classInfo.getDefaultUnitIndex()
 		unitInfo = gc.getUnitInfo(eUnit)
 		if unitInfo:
-			if ((military == True and unitInfo.getUnitCombatType() <= 0)
-			or (military == False and unitInfo.getUnitCombatType() > 0)):
+			if ((military and unitInfo.getUnitCombatType() <= 0) or ((not military) and unitInfo.getUnitCombatType() > 0)):
 				BugUtil.debug("skipping (non-)military %s", unitInfo.getDescription())
 				continue
 			if askingPlayer:
@@ -621,5 +620,6 @@ def initOrders():
 		ORDERS_BY_ACTIVITY[ActivityTypes.ACTIVITY_SENTRY_LAND_UNITS] = ORDER_SENTRY
 		ORDERS_BY_ACTIVITY[ActivityTypes.ACTIVITY_SENTRY_NAVAL_UNITS] = ORDER_SENTRY
 		MOVE_TO_MISSIONS.append(MissionTypes.MISSION_MOVE_TO_SENTRY)
-	except:
+	# <!-- custom: do not use bare exceptions as per ruff rule E722 similarly anyways etc, was "except:" -->
+	except Exception:
 		pass

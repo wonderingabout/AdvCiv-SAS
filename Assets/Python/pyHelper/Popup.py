@@ -199,7 +199,7 @@ class PyPopup:
 		
 	def addTableCellText( self, iRow, iCol, strText, iGroup = 0):
 		"adds text to a Cell"
-		if strText == 0 or strText == False or strText == 'None':
+		if strText == 0 or not strText or strText == 'None':
 			self.addTableBlank( iRow, iCol, iGroup )
 			return
 		self.popup.addTableCellText( iRow, iCol, unicode(strText), iGroup )		

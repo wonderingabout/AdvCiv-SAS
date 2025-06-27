@@ -15,9 +15,19 @@ import BugUtil
 gc = CyGlobalContext()
 
 # tuple of interesting color names to be selectable from dropdowns
-COLOR_KEYS = ( "COLOR_RED", "COLOR_YELLOW", "COLOR_CYAN", "COLOR_GREEN", 
-			   "COLOR_BLUE", "COLOR_MAGENTA", "COLOR_WHITE", "COLOR_LIGHT_GREY", 
-			   "COLOR_GREY", "COLOR_DARK_GREY", "COLOR_BLACK" )
+COLOR_KEYS = (
+	"COLOR_RED",
+	"COLOR_YELLOW",
+	"COLOR_CYAN",
+	"COLOR_GREEN",
+	"COLOR_BLUE",
+	"COLOR_MAGENTA",
+	"COLOR_WHITE",
+	"COLOR_LIGHT_GREY",
+	"COLOR_GREY",
+	"COLOR_DARK_GREY",
+	"COLOR_BLACK"
+)
 
 COLOR_INDEX_IDX = 0
 COLOR_TYPE_IDX = 1

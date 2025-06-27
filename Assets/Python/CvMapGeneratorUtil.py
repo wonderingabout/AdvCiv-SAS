@@ -77,14 +77,14 @@ class ExplicitFractal:
 
 class FractalWorld:
 	def __init__(self,
-				 # <advc.137> Don't use those defaults b/c they're hardcoded in the EXE
-				 # (as 7 and 6 respectively).
-				 # Instead, let the DLL decide. Note that Oasis and RandomScriptMap
-				 # still use the EXE's defaults. Well, the DLL will check for those
-				 # defaults and may overwrite them, so it doesn't ultimately matter.
-				 fracXExp=-1,#CyFractal.FracVals.DEFAULT_FRAC_X_EXP
-				 fracYExp=-1):#CyFractal.FracVals.DEFAULT_FRAC_Y_EXP
-				 # </advc.137>
+	# <advc.137> Don't use those defaults b/c they're hardcoded in the EXE
+	# (as 7 and 6 respectively).
+	# Instead, let the DLL decide. Note that Oasis and RandomScriptMap
+	# still use the EXE's defaults. Well, the DLL will check for those
+	# defaults and may overwrite them, so it doesn't ultimately matter.
+	fracXExp=-1,#CyFractal.FracVals.DEFAULT_FRAC_X_EXP
+	fracYExp=-1):#CyFractal.FracVals.DEFAULT_FRAC_Y_EXP
+	# </advc.137>
 		self.gc = CyGlobalContext()
 		self.map = self.gc.getMap()
 		self.iNumPlotsX = self.map.getGridWidth()
@@ -320,10 +320,10 @@ cardinal_directions = (1,0), (0,1), (-1,0), (0, -1)
 	
 class HintedWorld(FractalWorld):
 	def __init__(self, w=16, h=8,
-				 # advc.137 (note): Changing these to -1 would break Inland_Sea
-				 fracXExp=CyFractal.FracVals.DEFAULT_FRAC_X_EXP,
-				 fracYExp=CyFractal.FracVals.DEFAULT_FRAC_Y_EXP):
-				 # </advc.137>
+	# advc.137 (note): Changing these to -1 would break Inland_Sea
+	fracXExp=CyFractal.FracVals.DEFAULT_FRAC_X_EXP,
+	fracYExp=CyFractal.FracVals.DEFAULT_FRAC_Y_EXP):
+	# </advc.137>
 		FractalWorld.__init__(self, fracXExp, fracYExp)
 		
 		self.plotsPerBlockX = self.iNumPlotsX/w
@@ -486,8 +486,10 @@ class HintedWorld(FractalWorld):
 		scores = [0]*self.w
 		for x in range(self.w):
 			for y in range(self.h):
-				if self.getValue(x, y) >= 192: scores[x] += 1
-				if self.getValue(x-1, y) >= 192: scores[x] += 1
+				if self.getValue(x, y) >= 192:
+					scores[x] += 1
+				if self.getValue(x-1, y) >= 192:
+					scores[x] += 1
 		best_split, best_score = argmin(scores)
 		return best_split
 	
@@ -495,8 +497,10 @@ class HintedWorld(FractalWorld):
 		scores = [0]*self.h
 		for x in range(self.w):
 			for y in range(self.h):
-				if self.getValue(x, y) >= 192: scores[y] += 1
-				if self.getValue(x, y-1) >= 192: scores[y] += 1
+				if self.getValue(x, y) >= 192:
+					scores[y] += 1
+				if self.getValue(x, y-1) >= 192:
+					scores[y] += 1
 		best_split, best_score = argmin(scores)
 		return best_split
 	
@@ -572,7 +576,8 @@ class HintedWorld(FractalWorld):
 		plotOrder = CvUtil.shuffle(len(plots), self.mapRand)
 		for plotIndex in plotOrder:
 			tryx, tryy = plots[plotIndex]
-			if self.isValid(tryx, tryy): return tryx, tryy
+			if self.isValid(tryx, tryy):
+				return tryx, tryy
 		
 		return -1, -1
 		
@@ -739,10 +744,10 @@ def printMap(data, w, h, markerx=-1, markery=-1):
 
 class MultilayeredFractal:
 	def __init__(self,
-				 # <advc.137>
-				 fracXExp=-1,#CyFractal.FracVals.DEFAULT_FRAC_X_EXP
-				 fracYExp=-1):#CyFractal.FracVals.DEFAULT_FRAC_Y_EXP
-				 # </advc.137>
+	# <advc.137>
+	fracXExp=-1,#CyFractal.FracVals.DEFAULT_FRAC_X_EXP
+	fracYExp=-1):#CyFractal.FracVals.DEFAULT_FRAC_Y_EXP
+	# </advc.137>
 		self.gc = CyGlobalContext()
 		self.map = self.gc.getMap()
 		self.iW = self.map.getGridWidth()
@@ -862,14 +867,14 @@ class MultilayeredFractal:
 		return landWeights
 
 	def generatePlotsInRegion(self, iWaterPercent, 
-							  iRegionWidth, iRegionHeight, 
-							  iRegionWestX, iRegionSouthY, 
-							  iRegionGrain, iRegionHillsGrain, 
-							  iRegionPlotFlags, iRegionTerrainFlags, 
-							  iRegionFracXExp = -1, iRegionFracYExp = -1, 
-							  bShift = True, iStrip = 15, 
-							  rift_grain = -1, has_center_rift = False, 
-							  invert_heights = False):
+	iRegionWidth, iRegionHeight, 
+	iRegionWestX, iRegionSouthY, 
+	iRegionGrain, iRegionHillsGrain, 
+	iRegionPlotFlags, iRegionTerrainFlags, 
+	iRegionFracXExp = -1, iRegionFracYExp = -1, 
+	bShift = True, iStrip = 15, 
+	rift_grain = -1, has_center_rift = False, 
+	invert_heights = False):
 		# This is the code to generate each fractal.
 		# Determine and pass in the appropriate arguments from the controlling function.
 		#
@@ -902,7 +907,8 @@ class MultilayeredFractal:
 			for y in range(iRegionHeight):
 				i = y*iRegionWidth + x
 				val = regionContinentsFrac.getHeight(x,y)
-				if val <= iWaterThreshold: pass
+				if val <= iWaterThreshold:
+					pass
 				else:
 					hillVal = regionHillsFrac.getHeight(x,y)
 					if ((hillVal >= iHillsBottom1 and hillVal <= iHillsTop1) or (hillVal >= iHillsBottom2 and hillVal <= iHillsTop2)):
@@ -949,7 +955,8 @@ class MultilayeredFractal:
 			wholeworldX = x + iWestX
 			for y in range(iRegionHeight):
 				i = y*iRegionWidth + x
-				if self.plotTypes[i] == PlotTypes.PLOT_OCEAN: continue
+				if self.plotTypes[i] == PlotTypes.PLOT_OCEAN:
+					continue
 				wholeworldY = y + iSouthY
 				iWorld = wholeworldY*self.iW + wholeworldX
 				self.wholeworldPlotTypes[iWorld] = self.plotTypes[i]
@@ -1023,16 +1030,17 @@ class MultilayeredFractal:
 		regiononeWater = 70
 
 		# With all of your parameters set, pass them in to the plot generator.
-		self.generatePlotsInRegion(regiononeWater,
-								   regiononeWidth, regiononeHeight,
-								   regiononeWestX, regiononeSouthY,
-								   regiononeGrain, iGrainOne,
-								   self.iFlags, self.iTerrainFlags,
-								   -1, -1,
-								   True, 15,
-								   2, False,
-								   False
-								   )
+		self.generatePlotsInRegion(
+			regiononeWater,
+			regiononeWidth, regiononeHeight,
+			regiononeWestX, regiononeSouthY,
+			regiononeGrain, iGrainOne,
+			self.iFlags, self.iTerrainFlags,
+			-1, -1,
+			True, 15,
+			2, False,
+			False
+		)
 
 		# Define additional regions.
 		# Regions can overlap or add on to other existing regions.
@@ -1049,24 +1057,31 @@ class MultilayeredFractal:
 		# Clever use of dice rolls can inject some randomization in to definitions.
 		scShape = self.dice.get(3, "Large Subcontinent Shape - Map_Script_Name PYTHON")
 		if scShape == 2: # Massive subcontinent!
-			scWater = 55; scGrain = 1; scRift = 2
+			scWater = 55
+			scGrain = 1
+			scRift = 2
 		elif scShape == 1: # Standard subcontinent.
-			scWater = 66; scGrain = 2; scRift = 2
+			scWater = 66
+			scGrain = 2
+			scRift = 2
 		else: # scShape == 0, Archipelago subcontinent.
-			scWater = 77; scGrain = archGrain; scRift = -1
+			scWater = 77
+			scGrain = archGrain
+			scRift = -1
 
 		# Each regional fractal needs its own uniquely defined parameters.
 		# With proper settings, there's almost no limit to what can be done.
-		self.generatePlotsInRegion(scWater,
-								   scLargeWidth, scLargeHeight,
-								   scWestX, scSouthY,
-								   scGrain, iGrainOne,
-								   self.iRoundFlags, self.iTerrainFlags, 
-								   6, 6,
-								   False, 9,
-								   scRift, False,
-								   False
-								   )
+		self.generatePlotsInRegion(
+			scWater,
+			scLargeWidth, scLargeHeight,
+			scWestX, scSouthY,
+			scGrain, iGrainOne,
+			self.iRoundFlags, self.iTerrainFlags, 
+			6, 6,
+			False, 9,
+			scRift, False,
+			False
+		)
 
 		# Once all your of your fractal regions (and other regions! You do not have
 		# to make every region a fractal-based region) have been processed, and
@@ -1094,11 +1109,11 @@ class TerrainGenerator:
 	# Note that all percentages are approximate, as values have to be roughened to achieve a natural look.
 	#
 	def __init__(self, iDesertPercent=32, iPlainsPercent=18,
-				 # advc.tsl: Increased tundra latitude by 0.04 and snow by 0.08. This is done with the noise added (or subtracted) by TerrainGenerator in mind.
-				 fSnowLatitude=0.78, fTundraLatitude=0.64,
-				 fGrassLatitude=0.1,
-				 fDesertBottomLatitude=0.2, fDesertTopLatitude=0.5,
-				 fracXExp=-1, fracYExp=-1, grain_amount=4):
+	# advc.tsl: Increased tundra latitude by 0.04 and snow by 0.08. This is done with the noise added (or subtracted) by TerrainGenerator in mind.
+	fSnowLatitude=0.78, fTundraLatitude=0.64,
+	fGrassLatitude=0.1,
+	fDesertBottomLatitude=0.2, fDesertTopLatitude=0.5,
+	fracXExp=-1, fracYExp=-1, grain_amount=4):
 		
 		self.gc = CyGlobalContext()
 		self.map = CyMap()
@@ -1118,8 +1133,10 @@ class TerrainGenerator:
 		self.mapRand = self.gc.getGame().getMapRand()
 		
 		self.iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
-		if self.map.isWrapX(): self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
-		if self.map.isWrapY(): self.iFlags += CyFractal.FracVals.FRAC_WRAP_Y
+		if self.map.isWrapX():
+			self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
+		if self.map.isWrapY():
+			self.iFlags += CyFractal.FracVals.FRAC_WRAP_Y
 
 		self.deserts=CyFractal()
 		# <advc.129c>
@@ -1319,8 +1336,8 @@ class TerrainGenerator:
 class FeatureGenerator:
 	# advc.108: Default iForestPercent lowered from 60 - to compensate for fewer forests placed during normalization. (Smaller percentage leads to more forests.)
 	def __init__(self, iJunglePercent=80, iForestPercent=57,
-				 jungle_grain=5, forest_grain=6, 
-				 fracXExp=-1, fracYExp=-1):
+	jungle_grain=5, forest_grain=6, 
+	fracXExp=-1, fracYExp=-1):
 		
 		self.gc = CyGlobalContext()
 		self.map = CyMap()
@@ -1329,8 +1346,10 @@ class FeatureGenerator:
 		self.forests = CyFractal()
 		
 		self.iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
-		if self.map.isWrapX(): self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
-		if self.map.isWrapY(): self.iFlags += CyFractal.FracVals.FRAC_WRAP_Y
+		if self.map.isWrapX():
+			self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
+		if self.map.isWrapY():
+			self.iFlags += CyFractal.FracVals.FRAC_WRAP_Y
 
 		self.iGridW = self.map.getGridWidth()
 		self.iGridH = self.map.getGridHeight()

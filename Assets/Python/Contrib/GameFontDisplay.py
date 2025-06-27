@@ -1,6 +1,7 @@
 from CvPythonExtensions import *
 import CvUtil
-import ScreenInput
+# <!-- custom: remove or comment out seemingly unused ScreenInput import or and other or and not anyways etc -->
+#import ScreenInput
 import CvScreenEnums
 gc = CyGlobalContext()
 
@@ -44,14 +45,14 @@ class GameFontDisplay:
 
 			infoPointer = self.getInfoPointerFromGameFont(iID)
 
-			if infoPointer != None:
+			if infoPointer is not None:
 				if isinstance(infoPointer, str):
 					screen.setTableInt(szTableName, 4, iLine , "<font=2>" + infoPointer + "<font/>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 				else:
 					szButton = infoPointer.getButton()
 					if szButton != "" and szButton != "Art/Interface/Buttons/Buildings/BombShelters.dds":
 						screen.setTableRowHeight(szTableName, iLine, iButtonSize)
-						screen.setTableText(szTableName, 3, iLine, "", szButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY);
+						screen.setTableText(szTableName, 3, iLine, "", szButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					screen.setTableInt(szTableName, 4, iLine , "<font=2>" + infoPointer.getType() + "<font/>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 

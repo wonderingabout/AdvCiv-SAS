@@ -136,8 +136,7 @@ class CvDawnOfMan:
 		if not isLaterEraStart: # advc.250c: No free tech
 			screen.addMultilineText( "HeaderText2", localText.getText("TXT_KEY_FREE_TECHS", ()) + ":", self.X_STATS_TEXT, self.Y_STATS_TEXT+15, self.W_STATS_TEXT, self.H_STATS_TEXT, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-			screen.addPanel( "HeaderText3", "", "", false, true,
-				 self.X_STATS_TEXT, self.Y_STATS_TEXT+30, self.W_TECH, self.H_TECH, PanelStyles.PANEL_STYLE_EMPTY )
+			screen.addPanel( "HeaderText3", "", "", false, true, self.X_STATS_TEXT, self.Y_STATS_TEXT+30, self.W_TECH, self.H_TECH, PanelStyles.PANEL_STYLE_EMPTY )
 		
 			for iTech in range(gc.getNumTechInfos()):
 				if (gc.getCivilizationInfo(self.player.getCivilizationType()).isCivilizationFreeTechs(iTech)):
@@ -161,7 +160,7 @@ class CvDawnOfMan:
 		bodyString = ""
 		# <advc.704>
 		if riseFall:
-			len = gc.getGame().getChapterEnd(rfChapter) - gc.getGame().getChapterStart(rfChapter) + 1;
+			len = gc.getGame().getChapterEnd(rfChapter) - gc.getGame().getChapterStart(rfChapter) + 1
 			bodyString2 = localText.getText("TXT_KEY_RF_DOM_FOUND", (len, self.player.getCivilizationAdjectiveKey()))
 			chapterNumber = rfChapter + 1 # Start at 1
 			chp = localText.getText("TXT_KEY_RF_CHAPTER", ())

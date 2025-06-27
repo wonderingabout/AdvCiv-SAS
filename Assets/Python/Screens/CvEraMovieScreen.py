@@ -41,15 +41,14 @@ class CvEraMovieScreen:
 		screen.addPanel("EraMoviePanel", "", "", true, true, 0, 0, self.W_SCREEN, self.H_SCREEN, PanelStyles.PANEL_STYLE_MAIN)
 
 		screen.showWindowBackground(True)
-		screen.setRenderInterfaceOnly(False);
+		screen.setRenderInterfaceOnly(False)
 		screen.setSound("AS2D_NEW_ERA")
 		screen.showScreen(PopupStates.POPUPSTATE_MINIMIZED, False)
 
 		# Header...
 		szHeader = localText.getText("TXT_KEY_ERA_SPLASH_SCREEN", (gc.getEraInfo(iEra).getTextKey(), ))
 		szHeaderId = "EraTitleHeader" + str(iEra)
-		screen.setText(szHeaderId, "Background", szHeader, CvUtil.FONT_CENTER_JUSTIFY,
-			       self.W_SCREEN / 2, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setText(szHeaderId, "Background", szHeader, CvUtil.FONT_CENTER_JUSTIFY, self.W_SCREEN / 2, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		screen.setButtonGFC("EraExit" + str(iEra), localText.getText("TXT_KEY_MAIN_MENU_OK", ()), "", self.X_EXIT, self.Y_EXIT, self.W_EXIT, self.H_EXIT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
 

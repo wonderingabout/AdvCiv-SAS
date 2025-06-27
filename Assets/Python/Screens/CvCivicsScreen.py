@@ -81,16 +81,16 @@ class CvCivicsScreen:
 		self.m_paeDisplayCivics = []
 		self.m_paeOriginalCivics = []
 		for i in range (gc.getNumCivicOptionInfos()):
-			self.m_paeCurrentCivics.append(activePlayer.getCivics(i));
-			self.m_paeDisplayCivics.append(activePlayer.getCivics(i));
-			self.m_paeOriginalCivics.append(activePlayer.getCivics(i));
+			self.m_paeCurrentCivics.append(activePlayer.getCivics(i))
+			self.m_paeDisplayCivics.append(activePlayer.getCivics(i))
+			self.m_paeOriginalCivics.append(activePlayer.getCivics(i))
 
 	def interfaceScreen (self):
 
 		screen = self.getScreen()
 		if screen.isActive():
 			return
-		screen.setRenderInterfaceOnly(True);
+		screen.setRenderInterfaceOnly(True)
 		screen.showScreen( PopupStates.POPUPSTATE_IMMEDIATE, False)
 
 		# <advc.002b> Moved from __init__
@@ -340,7 +340,7 @@ class CvCivicsScreen:
 			screen.hide(self.CANCEL_NAME)
 
 		# Anarchy
-		iTurns = activePlayer.getCivicAnarchyLength(self.m_paeDisplayCivics);
+		iTurns = activePlayer.getCivicAnarchyLength(self.m_paeDisplayCivics)
 		
 		if (activePlayer.canRevolution(0)):
 			szText = localText.getText("TXT_KEY_ANARCHY_TURNS", (iTurns, ))

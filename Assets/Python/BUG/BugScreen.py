@@ -193,20 +193,19 @@ class BugScreen:
 		self.screen.showWindowBackground(False)
 
 		# Title
-		self.screen.setLabel(self.Title.widget_id, self.widget_id + "TopPanel", self.Title.getLabel(), CvUtil.FONT_CENTER_JUSTIFY,
-							 self.Title.X, self.Title.Y, self.Title.Z, FontTypes.TITLE_FONT, self.Title.WidgetType, -1, -1)
+		self.screen.setLabel(self.Title.widget_id, self.widget_id + "TopPanel", self.Title.getLabel(), CvUtil.FONT_CENTER_JUSTIFY, self.Title.X, self.Title.Y, self.Title.Z, FontTypes.TITLE_FONT, self.Title.WidgetType, -1, -1)
 
 	def drawActiveTab(self):
 		for tab in self.tabs:
 			if tab.active:
-				if not tab.DrawProc == None:
+				if tab.DrawProc is not None:
 					tab.DrawProc ()
 				break
 
 	def refreshActiveTab(self):
 		for tab in self.tabs:
 			if tab.active:
-				if not tab.RefreshProc == None:
+				if tab.RefreshProc is not None:
 					tab.RefreshProc ()
 				break
 

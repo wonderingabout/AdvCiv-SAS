@@ -75,7 +75,7 @@ class BugPleOptionsTab(BugOptionsTab.BugOptionsTab):
 		
 		# advc.069: Highlighter moved to center column (was right column)
 		self.addSpacer(screen, center, "PLE_Move_Highlighter", 1)
- 		self.addCheckbox(screen, center, "PLE__Move_Highlighter")
+		self.addCheckbox(screen, center, "PLE__Move_Highlighter")
 		
 		# advc.069: To make the PLE_STYLE option in the center column stand out
 		self.addSpacer(screen, right, "PLE_Right_Top")

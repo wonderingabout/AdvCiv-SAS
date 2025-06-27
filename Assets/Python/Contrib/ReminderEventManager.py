@@ -46,7 +46,7 @@ def netAddReminder(args):
 	playerID, turn, message = args
 	g_reminders.push(playerID, Reminder(turn, message))
 # expose to DLL
-import CvAppInterface
+import CvAppInterface  # noqa: E402
 CvAppInterface.netAddReminder = netAddReminder
 
 # Shortcut - Create Reminder
@@ -153,8 +153,7 @@ class ReminderEventManager:
 						g_turnReminderTexts += ", "
 					g_turnReminderTexts += self.reminder.message
 				if (ReminderOpt.isShowMessage()):
-					CyInterface().addMessage(PlayerUtil.getActivePlayerID(), True, 10, self.reminder.message, 
-											 None, 0, None, ColorTypes(8), 0, 0, False, False)
+					CyInterface().addMessage(PlayerUtil.getActivePlayerID(), True, 10, self.reminder.message, None, 0, None, ColorTypes(8), 0, 0, False, False)
 				if (ReminderOpt.isShowPopup()):
 					popup = PyPopup.PyPopup(eventId, EventContextTypes.EVENTCONTEXT_SELF)
 					popup.setHeaderString(self.reminder.message)

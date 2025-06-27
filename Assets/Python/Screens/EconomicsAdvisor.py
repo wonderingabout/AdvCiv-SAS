@@ -3,7 +3,8 @@
 from CvPythonExtensions import *
 import PyHelpers
 import CvUtil
-import ScreenInput
+# <!-- custom: remove or comment out unused imports -->
+#import ScreenInput
 import CvScreenEnums
 #import BugDll # advc.004: now unused
 import BugUtil
@@ -77,7 +78,7 @@ class EconomicsAdvisor:
 		screen = self.getScreen()
 		if screen.isActive():
 			return
-		screen.setRenderInterfaceOnly(True);
+		screen.setRenderInterfaceOnly(True)
 		screen.showScreen( PopupStates.POPUPSTATE_IMMEDIATE, False)
 	
 		# Set the background and exit button, and show the screen
@@ -712,7 +713,7 @@ class EconomicsAdvisor:
 		return 0
 
 	def update(self, fDelta):
-		if (CyInterface().isDirty(InterfaceDirtyBits.Financial_Screen_DIRTY_BIT) == True):
+		if (CyInterface().isDirty(InterfaceDirtyBits.Financial_Screen_DIRTY_BIT)):
 			CyInterface().setDirty(InterfaceDirtyBits.Financial_Screen_DIRTY_BIT, False)
 			self.drawContents()
 		return

@@ -63,7 +63,7 @@ def enabledOptionChanged (pIniObject, bNewValue):
 	global g_bShowSigns
 	if g_bShowSigns != bNewValue:
 		g_bShowSigns = bNewValue
-		if gSavedSigns == None:
+		if gSavedSigns is None:
 			initData()
 		gSavedSigns.processSigns(g_bShowSigns)
 	return True
@@ -76,7 +76,7 @@ def addSign (pPlot, ePlayer, szCaption):
 	if not pPlot or pPlot.isNone():
 		BugUtil.warn("EventSigns.addSign() was passed an invalid plot: %s" % (str(pPlot)))
 		return False
-	if gSavedSigns == None:
+	if gSavedSigns is None:
 		BugUtil.warn("EventSigns.addSign() gSavedSigns is not initialized!")
 		return False
 	gSavedSigns.storeSign(pPlot, ePlayer, szCaption)
@@ -136,10 +136,12 @@ def placeLandmark(pPlot, sEventType, iFood, iProd, iComm, bIsSign, iSignOwner):
 	# Note that iSignOwner is unused if bIsSign is False since everyone can see landmarks.
 	#
 	# Bail out early if EventSigns are disabled
-	if not EventSignsOpt.isEnabled(): return False
+	if not EventSignsOpt.isEnabled():
+		return False
 	
 	# Bail out if there are no yield changes
-	if iFood == 0 and iProd == 0 and iComm == 0: return False
+	if iFood == 0 and iProd == 0 and iComm == 0:
+		return False
 
 	# This next bit is unused; see the docstring at the start of that function for why.
 	#clearSignsAndLandmarks(pPlot)
@@ -276,7 +278,8 @@ class MapSigns:
 		if not thisKey:
 			BugUtil.warn("MapSigns.storeSign() could not determine valid keyname for Plot %s." % (str(pPlot)))
 			return False
-		if not thisKey in self.plotDict:
+		# <!-- custom: fix ruff rule as per chatgpt/becomingthrough's recommendation/answer and my prompt too anyways etc and own idea of it and how to solve it based on ruff warning message E713 in this case i mean anyways etc, do not use "if not key in x", use instead "if key not in x" anyways etc -->
+		if thisKey not in self.plotDict:
 			self.plotDict[thisKey] = PlotSigns(pPlot)
 		self.plotDict[thisKey].setSign(ePlayer, szCaption)
 
@@ -301,7 +304,8 @@ class MapSigns:
 			BugUtil.debug("MapSigns.displaySign() could not show sign; no caption found for player %d on plot %s" % (ePlayer, str(thisKey)))
 			return False
 		if ePlayer == -1:
-			BugUtil.debug("MapSigns.displaySign() landmark (%s) shown on plot %s" % (szCaption, ePlayer, str(thisKey)))
+			# <!-- custom: fixing ruff rule F507 (2 placeholders but 3 subsitutions by adding full debug instead to be safe as i don't know for sure or easily +/- reliably which are which so putting full debug just in case in this case anyways etc -->
+			BugUtil.debug("MapSigns.displaySign() landmark shown on plot. (szCaption=%s, ePlayer=%d, str(thisKey)=%s)" % (szCaption, ePlayer, str(thisKey)))
 			engine.addLandmark(pPlot, szCaption.encode('latin_1'))
 		else:
 			pPlayer = gc.getPlayer(ePlayer)
@@ -325,7 +329,7 @@ class MapSigns:
 			BugUtil.warn("MapSigns.hideSign() was passed an invalid plot: %s" % (str(pPlot)))
 			return False
 		thisKey = self.__getKey(pPlot)
-		if gCurrentSigns == None:
+		if gCurrentSigns is None:
 			BugUtil.debug("MapSigns.hideSign() finds no current signs so there's nothing to hide.")
 			return False
 		if self.hasPlotSigns(pPlot):
@@ -364,7 +368,7 @@ class MapSigns:
 		#
 		BugUtil.debug("MapSigns.processSigns() starting. bShow = %s and g_bShowSigns = %s" % (str(bShow), str(g_bShowSigns)))
 		updateCurrentSigns()
-		if bShow == None:
+		if bShow is None:
 			bShow = g_bShowSigns
 		for pSign in self.plotDict.itervalues():
 			pPlot = pSign.getPlot()

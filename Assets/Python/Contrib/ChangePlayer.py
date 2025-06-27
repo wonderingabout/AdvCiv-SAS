@@ -108,7 +108,8 @@ def changeCivPopup( ) :
 ##				leaderName = leaderName.split('/')[-2]  # hack to get to just name
 ##				leaderName = leaderName.replace('_',' ')
 ##				leaderName = leaderName.title()
-		#if( LOG_DEBUG ) : CvUtil.pyPrint( "   CP : Leadername %s"%(leaderName) )
+		#if (LOG_DEBUG):
+		#	CvUtil.pyPrint( "   CP : Leadername %s"%(leaderName) )
 
 		popup.addPullDownString( "%s"%(leaderName), i, 3 )
 
@@ -142,9 +143,12 @@ def changeCivHandler( playerID, netUserData, popupReturn ) :
 	# advc.127c: Team choice removed from popup
 	#teamIdx = popupReturn.getSelectedPullDownValue( 4 )
 
-	if( LOG_DEBUG ) : CvUtil.pyPrint( "   CP : You have selected player %d, the %s, on team %d"%(playerIdx, gc.getPlayer(playerIdx).getCivilizationDescription(0), gc.getPlayer(playerIdx).getTeam()) )
+	if (LOG_DEBUG):
+		CvUtil.pyPrint( "   CP : You have selected player %d, the %s, on team %d"%(playerIdx, gc.getPlayer(playerIdx).getCivilizationDescription(0), gc.getPlayer(playerIdx).getTeam()) )
+	# <!-- custom: formatted even the comment out xd because why not and cleaner at least the one i spotted just here if not others or not or yes or not guarantetd my or may not or and other or and not or other or etc anyways etc -->
 	# advc.127c: Commented out
-	#if( LOG_DEBUG ) : CvUtil.pyPrint( "   CP : New team idx is %d"%(teamIdx) )
+	#if(LOG_DEBUG):
+	#	CvUtil.pyPrint( "   CP : New team idx is %d"%(teamIdx) )
 
 	#player = gc.getPlayer(playerIdx)
 	#game.changePlayer( playerIdx, newCivType, newLeaderType, teamIdx, player.isHuman(), True )
@@ -154,10 +158,12 @@ def changeCivHandler( playerID, netUserData, popupReturn ) :
 
 	if( success ) :
 		CyInterface().addImmediateMessage("Player %d has been changed"%(playerIdx),"")
-		if( LOG_DEBUG ) : CvUtil.pyPrint( "   CP : Player change completed" )
+		if (LOG_DEBUG):
+			CvUtil.pyPrint( "   CP : Player change completed" )
 	else :
 		CyInterface().addImmediateMessage("An error occured in changeCiv.","")
-		if( LOG_DEBUG ) : CvUtil.pyPrint( "   CP : Error on changeCiv" )
+		if (LOG_DEBUG):
+			CvUtil.pyPrint( "   CP : Error on changeCiv" )
 		return
 	
 def updateGraphicsHandler( playerID, netUserData, popupReturn ) :
@@ -227,23 +233,29 @@ def changeHumanHandler( playerID, netUserData, popupReturn ) :
 	oldPlayer = gc.getPlayer(oldHumanIdx)
 
 	if( newHumanIdx == oldHumanIdx ) :
-		if( LOG_DEBUG ) : CvUtil.pyPrint( "   CP : You have selected the same civ, no change")
+		if (LOG_DEBUG):
+			CvUtil.pyPrint( "   CP : You have selected the same civ, no change")
 		CyInterface().addImmediateMessage("You retain control of the %s"%(oldPlayer.getCivilizationDescription(0)),"")
 		return
 
 
-	if( LOG_DEBUG ) : CvUtil.pyPrint( "   CP : You have selected player %d, the %s"%(newHumanIdx, newPlayer.getCivilizationDescription(0)) )
+	if (LOG_DEBUG):
+		CvUtil.pyPrint( "   CP : You have selected player %d, the %s"%(newHumanIdx, newPlayer.getCivilizationDescription(0)) )
 
 	success = changeHuman( newHumanIdx, oldHumanIdx )
 
 	if( success ) :
-		if( LOG_DEBUG ) : CvUtil.pyPrint( "   CP : Number of human players is now %d"%(game.getNumHumanPlayers()) )
-		if( LOG_DEBUG ) : CvUtil.pyPrint( "   CP : Active player is now %d"%(game.getActivePlayer()) )
+		if (LOG_DEBUG):
+			CvUtil.pyPrint( "   CP : Number of human players is now %d"%(game.getNumHumanPlayers()) )
+		if (LOG_DEBUG):
+			CvUtil.pyPrint( "   CP : Active player is now %d"%(game.getActivePlayer()) )
 ##			for i in range(0,gc.getMAX_CIV_PLAYERS()) :
-##				if( LOG_DEBUG ) : CvUtil.pyPrint( "   CP : Player %d is human %d"%(i,gc.getPlayer(i).isHuman()))
+##				if (LOG_DEBUG):
+##					CvUtil.pyPrint( "   CP : Player %d is human %d"%(i,gc.getPlayer(i).isHuman()))
 		CyInterface().addImmediateMessage("You now control the %s"%(newPlayer.getCivilizationDescription(0)),"")
 	else :
-		if( LOG_DEBUG ) : CvUtil.pyPrint( "   CP : Error occured, number of human players is now %d"%(game.getNumHumanPlayers()) )
+		if (LOG_DEBUG):
+			CvUtil.pyPrint( "   CP : Error occured, number of human players is now %d"%(game.getNumHumanPlayers()) )
 		CyInterface().addImmediateMessage("An error occured in changeHuman ...","")
 
 ########################## Player modification functions ###########################################
@@ -298,7 +310,7 @@ def changeHuman( newHumanIdx, oldHumanIdx ) :
 ########################## Utility functions ###########################################
 			
 def doRefortify( iPlayer ) :
-	 #pyPlayer = PyPlayer( iPlayer )
+	#pyPlayer = PyPlayer( iPlayer )
 	pPlayer = gc.getPlayer(iPlayer)
 	
 	CvUtil.pyPrint( "Refortifying units for player %d"%(iPlayer))

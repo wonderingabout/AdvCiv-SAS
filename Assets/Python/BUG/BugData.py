@@ -145,7 +145,7 @@ class Table(object):
 		try:
 			del self.data[key]
 			self.dirty = True
-		except:
+		except Exception:
 			pass
 	
 	def hasValue(self, key):

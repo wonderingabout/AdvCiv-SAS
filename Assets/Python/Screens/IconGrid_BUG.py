@@ -1,6 +1,7 @@
 from CvPythonExtensions import *
 import CvUtil
-import ScreenInput
+# <!-- custom: remove or comment out unused imports -->
+#import ScreenInput
 import CvScreenEnums
 import BugUtil
 import math
@@ -270,15 +271,15 @@ class IconGrid_BUG:
 	def appendRow(self, sRowHeader, sMessage, iFont=3):
 		self.data.append(RowData(sRowHeader, sMessage, iFont, len(self.columns)))
 
- 	def addIcon(self, iRowIndex, iColumnIndex, sImage, iSize, widgetType, iData1, iData2=-1, bEnabled=True):
- 		self.data[iRowIndex].addIcon(iColumnIndex, sImage, iSize, widgetType, iData1, iData2, bEnabled)
+	def addIcon(self, iRowIndex, iColumnIndex, sImage, iSize, widgetType, iData1, iData2=-1, bEnabled=True):
+		self.data[iRowIndex].addIcon(iColumnIndex, sImage, iSize, widgetType, iData1, iData2, bEnabled)
 	# <advc.ctr>
 	def addText(self, iRowIndex, iColumnIndex, text, widgetType = WidgetTypes.WIDGET_GENERAL, iData1 = -1, iData2 = -1):
- 		self.data[iRowIndex].addText(iColumnIndex, text, widgetType, iData1, iData2)
+		self.data[iRowIndex].addText(iColumnIndex, text, widgetType, iData1, iData2)
 	# </advc.ctr>
 	# advc: Pass along params for help widget
- 	def setText(self, iRowIndex, iColumnIndex, sText, iFont=3, widgetType = WidgetTypes.WIDGET_GENERAL, iData1 = -1, iData2 = -1):
- 		self.data[iRowIndex].setText(iColumnIndex, sText, iFont, widgetType, iData1, iData2)
+	def setText(self, iRowIndex, iColumnIndex, sText, iFont=3, widgetType = WidgetTypes.WIDGET_GENERAL, iData1 = -1, iData2 = -1):
+		self.data[iRowIndex].setText(iColumnIndex, sText, iFont, widgetType, iData1, iData2)
 
 	def addStackedBar(self, iRowIndex, iColumnIndex, fValue, sColor, sText, iFont=3):
 #		BugUtil.debug("addStackedbar %i %i %s %s %i" % (iColumnIndex, fValue, sColor, sText, iFont))
@@ -381,7 +382,7 @@ class IconGrid_BUG:
 						bDataFound = True
 						try:
 							iconData = rowData.cells[startIndex + offset].icons[0]
-						except:
+						except Exception:
 							bDataFound = False
 
 						szIcon_ID = self.rowName + str(rowIndex) + "_" + str(startIndex + offset)
@@ -443,7 +444,7 @@ class IconGrid_BUG:
 						try:
 #							BugUtil.debug("Stacked Bar try")
 							stackedbarData = rowData.cells[startIndex + offset].stackedbar[0]
-						except:
+						except Exception:
 							bDataFound = False
 
 #						BugUtil.debug("Stacked Bar data found? %s" % (bDataFound))
@@ -489,7 +490,7 @@ class IconGrid_BUG:
 					bDataFound = True
 					try:
 						iconData = rowData.cells[startIndex + offset].icons[0]
-					except:
+					except Exception:
 						bDataFound = False
 
 					if bDataFound:
@@ -536,7 +537,7 @@ class IconGrid_BUG:
 					bDataFound = True
 					try:
 						stackedbarData = rowData.cells[startIndex + offset].stackedbar[0]
-					except:
+					except Exception:
 						bDataFound = False
 
 					if bDataFound:		
@@ -562,10 +563,7 @@ class IconGrid_BUG:
 						szTxt_ID = self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "T"
 						if stackedbarData.text != "":
 							text = "<font=%i>%s</font>" % (stackedbarData.font, stackedbarData.text)
-							self.screen.setLabel (szTxt_ID, "",
-												  text, CvUtil.FONT_CENTER_JUSTIFY,
-												  currentX + 6 + width / 2, textY - iSBarOffset_Y,
-												  -0.1, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+							self.screen.setLabel (szTxt_ID, "", text, CvUtil.FONT_CENTER_JUSTIFY, currentX + 6 + width / 2, textY - iSBarOffset_Y, -0.1, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 						else:
 							self.screen.deleteWidget(szTxt_ID)
 
@@ -685,38 +683,14 @@ class IconGrid_BUG:
 		self.scrollBottomArrow = self.getNextWidgetName()
 		x = self.xStart + self.width - self.scrollArrowSize
 		y = self.firstRowY
-		self.screen.setImageButton( self.scrollTopArrow
-								  , ArtFileMgr.getInterfaceArtInfo("SCROLL_TOP_ARROW").getPath()
-								  , x, y
-								  , self.scrollArrowSize, self.scrollArrowSize
-								  , WidgetTypes.WIDGET_GENERAL, self.SCROLL_TOP, -1 )
-		self.screen.setImageButton( self.pageUpArrow
-								  , ArtFileMgr.getInterfaceArtInfo("SCROLL_PAGE_UP_ARROW").getPath()
-								  , x, y + self.scrollArrowSize + 4
-								  , self.scrollArrowSize, self.scrollArrowSize
-								  , WidgetTypes.WIDGET_GENERAL, self.SCROLL_PAGE_UP, -1 )
-		self.screen.setImageButton( self.scrollUpArrow
-								  , ArtFileMgr.getInterfaceArtInfo("SCROLL_UP_ARROW").getPath()
-								  , x, y + 2 * (self.scrollArrowSize + 4)
-								  , self.scrollArrowSize, self.scrollArrowSize
-								  , WidgetTypes.WIDGET_GENERAL, self.SCROLL_UP, -1 )
+		self.screen.setImageButton( self.scrollTopArrow, ArtFileMgr.getInterfaceArtInfo("SCROLL_TOP_ARROW").getPath(), x, y, self.scrollArrowSize, self.scrollArrowSize, WidgetTypes.WIDGET_GENERAL, self.SCROLL_TOP, -1 )
+		self.screen.setImageButton( self.pageUpArrow, ArtFileMgr.getInterfaceArtInfo("SCROLL_PAGE_UP_ARROW").getPath(), x, y + self.scrollArrowSize + 4, self.scrollArrowSize, self.scrollArrowSize, WidgetTypes.WIDGET_GENERAL, self.SCROLL_PAGE_UP, -1 )
+		self.screen.setImageButton( self.scrollUpArrow, ArtFileMgr.getInterfaceArtInfo("SCROLL_UP_ARROW").getPath(), x, y + 2 * (self.scrollArrowSize + 4), self.scrollArrowSize, self.scrollArrowSize, WidgetTypes.WIDGET_GENERAL, self.SCROLL_UP, -1 )
 		
 		y = self.yStart + self.height - self.scrollArrowSize
-		self.screen.setImageButton( self.scrollDownArrow
-								  , ArtFileMgr.getInterfaceArtInfo("SCROLL_DOWN_ARROW").getPath()
-								  , x, y - 2 * (self.scrollArrowSize + 4)
-								  , self.scrollArrowSize, self.scrollArrowSize
-								  , WidgetTypes.WIDGET_GENERAL, self.SCROLL_DOWN, -1 )
-		self.screen.setImageButton( self.pageDownArrow
-								  , ArtFileMgr.getInterfaceArtInfo("SCROLL_PAGE_DOWN_ARROW").getPath()
-								  , x, y - (self.scrollArrowSize + 4)
-								  , self.scrollArrowSize, self.scrollArrowSize
-								  , WidgetTypes.WIDGET_GENERAL, self.SCROLL_PAGE_DOWN, -1 )
-		self.screen.setImageButton( self.scrollBottomArrow
-								  , ArtFileMgr.getInterfaceArtInfo("SCROLL_BOTTOM_ARROW").getPath()
-								  , x, y
-								  , self.scrollArrowSize, self.scrollArrowSize
-								  , WidgetTypes.WIDGET_GENERAL, self.SCROLL_BOTTOM, -1 )
+		self.screen.setImageButton( self.scrollDownArrow, ArtFileMgr.getInterfaceArtInfo("SCROLL_DOWN_ARROW").getPath(), x, y - 2 * (self.scrollArrowSize + 4), self.scrollArrowSize, self.scrollArrowSize, WidgetTypes.WIDGET_GENERAL, self.SCROLL_DOWN, -1 )
+		self.screen.setImageButton( self.pageDownArrow, ArtFileMgr.getInterfaceArtInfo("SCROLL_PAGE_DOWN_ARROW").getPath(), x, y - (self.scrollArrowSize + 4), self.scrollArrowSize, self.scrollArrowSize, WidgetTypes.WIDGET_GENERAL, self.SCROLL_PAGE_DOWN, -1 )
+		self.screen.setImageButton( self.scrollBottomArrow, ArtFileMgr.getInterfaceArtInfo("SCROLL_BOTTOM_ARROW").getPath(), x, y, self.scrollArrowSize, self.scrollArrowSize, WidgetTypes.WIDGET_GENERAL, self.SCROLL_BOTTOM, -1 )
 
 	def addGroups(self):
 		self.groupPanelName = self.getNextWidgetName()
@@ -769,9 +743,7 @@ class IconGrid_BUG:
 		headerX = self.xStart
 		if (len(self.columnGroups) > 0 and self.columnGroups[0].label != ""):
 			headerX += self.groupBorder
-		self.screen.addTableControlGFC( self.headerName, len(self.columns)
-									  , headerX, self.headerY, self.width - self.scrollArrowSize, self.headerHeight
-									  , False, False, 16, 16, TableStyles.TABLE_STYLE_EMPTY )
+		self.screen.addTableControlGFC( self.headerName, len(self.columns), headerX, self.headerY, self.width - self.scrollArrowSize, self.headerHeight, False, False, 16, 16, TableStyles.TABLE_STYLE_EMPTY )
 		startIndex = 0
 		for groupIndex in range(len(self.columnGroups)):
 			colGroup = self.columnGroups[groupIndex]
@@ -795,8 +767,7 @@ class IconGrid_BUG:
 
 				self.screen.setTableColumnHeader( self.headerName, startIndex + offset, "", headerWidth )
 				text = "<font=%i>%s</font>" % (self.headerFont[startIndex + offset], self.header[startIndex + offset])
-				self.screen.setTableText(self.headerName, startIndex + offset, 0,
-										 text, "", WidgetTypes.WIDGET_GENERAL, -1, -1, 0 )
+				self.screen.setTableText(self.headerName, startIndex + offset, 0, text, "", WidgetTypes.WIDGET_GENERAL, -1, -1, 0 )
 			startIndex += colGroup.length
 		
 		for offset in range(len(self.columns) - startIndex):
@@ -811,8 +782,7 @@ class IconGrid_BUG:
 
 			self.screen.setTableColumnHeader( self.headerName, startIndex + offset, "", headerWidth )
 			text = "<font=%i>%s</font>" % (self.headerFont[startIndex + offset], self.header[startIndex + offset])
-			self.screen.setTableText(self.headerName, startIndex + offset, 0,
-									 text, "", WidgetTypes.WIDGET_GENERAL, -1, -1, 0 )
+			self.screen.setTableText(self.headerName, startIndex + offset, 0, text, "", WidgetTypes.WIDGET_GENERAL, -1, -1, 0 )
 
 	def addRow(self, rowIndex):
 		if (self.showRowBorder):
@@ -842,9 +812,7 @@ class IconGrid_BUG:
 				if self.columns[startIndex + offset] == GRID_ICON_COLUMN:
 					currentX += self.iconColWidth + self.colSpace
 				elif self.columns[startIndex + offset] == GRID_MULTI_LIST_COLUMN:
-					self.screen.addMultiListControlGFC( self.rowName + str(rowIndex) + "_" + str(startIndex + offset), ""
-													  , currentX, listY, self.multiListColWidth, self.rowHeight
-													  , 1, self.iconSize, self.iconSize, TableStyles.TABLE_STYLE_EMPTY )
+					self.screen.addMultiListControlGFC( self.rowName + str(rowIndex) + "_" + str(startIndex + offset), "", currentX, listY, self.multiListColWidth, self.rowHeight, 1, self.iconSize, self.iconSize, TableStyles.TABLE_STYLE_EMPTY )
 					currentX += self.multiListColWidth + self.colSpace
 				elif self.columns[startIndex + offset] == GRID_TEXT_COLUMN or self.columns[startIndex + offset] == GRID_MULTI_TEXT_COLUMN: # advc.ctr
 					currentX += self.textColWidth[startIndex + offset] + self.colSpace
@@ -859,9 +827,7 @@ class IconGrid_BUG:
 			if self.columns[startIndex + offset] == GRID_ICON_COLUMN:
 				currentX += self.iconColWidth + self.colSpace
 			elif self.columns[startIndex + offset] == GRID_MULTI_LIST_COLUMN:
-				self.screen.addMultiListControlGFC( self.rowName + str(rowIndex) + "_" + str(startIndex + offset), ""
-												  , currentX, listY, self.multiListColWidth, self.rowHeight
-												  , 1, self.iconSize, self.iconSize, TableStyles.TABLE_STYLE_EMPTY )
+				self.screen.addMultiListControlGFC( self.rowName + str(rowIndex) + "_" + str(startIndex + offset), "", currentX, listY, self.multiListColWidth, self.rowHeight, 1, self.iconSize, self.iconSize, TableStyles.TABLE_STYLE_EMPTY )
 				currentX += self.multiListColWidth + self.colSpace
 			elif self.columns[startIndex + offset] == GRID_TEXT_COLUMN or self.columns[startIndex + offset] == GRID_MULTI_TEXT_COLUMN: # advc.ctr
 				currentX += self.textColWidth[startIndex + offset] + self.colSpace

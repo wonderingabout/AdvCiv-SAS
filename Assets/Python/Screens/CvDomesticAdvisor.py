@@ -2,18 +2,15 @@
 ## Copyright Firaxis Games 2005
 from CvPythonExtensions import *
 import CvUtil
-import ScreenInput
+# <!-- custom: remove or comment out unused imports -->
+#import ScreenInput
 import CvScreenEnums
 
 #	IMPORTANT INFORMATION
 #	
-#	All widget names MUST be unique when creating screens.  If you create
-#	a widget named 'Hello', and then try to create another named 'Hello', it
-#	will modify the first hello.
+#	All widget names MUST be unique when creating screens.  If you create a widget named 'Hello', and then try to create another named 'Hello', it will modify the first hello.
 #
-#	Also, when attaching widgets, 'Background' is a reserve word meant for
-#	the background widget.  Do NOT use 'Background' to name any widget, but
-#	when attaching to the background, please use the 'Background' keyword.
+#	Also, when attaching widgets, 'Background' is a reserve word meant for the background widget.  Do NOT use 'Background' to name any widget, but when attaching to the background, please use the 'Background' keyword.
 
 #  Thanks to Lee Reeves, AKA Taelis on civfanatics.com
 #  Thanks to Solver
@@ -25,7 +22,8 @@ ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
 class CvDomesticAdvisor:
-	"Domestic Advisor Screen"
+	# Domestic Advisor Screen
+	#
 	def __init__(self):
 		self.listSelectedCities = []
 		
@@ -199,7 +197,7 @@ class CvDomesticAdvisor:
 
 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
 
-		screen.setTableText( "CityListBackground", 0, i, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath(), WidgetTypes.WIDGET_ZOOM_CITY, pLoopCity.getOwner(), pLoopCity.getID(), CvUtil.FONT_LEFT_JUSTIFY);
+		screen.setTableText( "CityListBackground", 0, i, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath(), WidgetTypes.WIDGET_ZOOM_CITY, pLoopCity.getOwner(), pLoopCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
 
 		# <advc.193>
 		if self.nTableWidth / float(self.nNormalizedTableWidth) > 1.36:
@@ -411,7 +409,8 @@ class CvDomesticAdvisor:
 				
 	# Will handle the input for this screen...
 	def handleInput (self, inputClass):
-		' Calls function mapped in DomesticAdvisorInputMap'
+		# Calls function mapped in DomesticAdvisorInputMap
+		#
 		# only get from the map if it has the key
 		
 		if ( inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED ):
@@ -419,7 +418,7 @@ class CvDomesticAdvisor:
 				screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
 				screen.hideScreen()
 				
-				CyInterface().selectCity(gc.getPlayer(inputClass.getData1()).getCity(inputClass.getData2()), true);
+				CyInterface().selectCity(gc.getPlayer(inputClass.getData1()).getCity(inputClass.getData2()), true)
 				
 				popupInfo = CyPopupInfo()
 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON_SCREEN)
@@ -445,7 +444,7 @@ class CvDomesticAdvisor:
 				self.listSelectedCities.append(screen.getTableText("CityListBackground", 2, i))
 								
 	def update(self, fDelta):
-		if (CyInterface().isDirty(InterfaceDirtyBits.Domestic_Advisor_DIRTY_BIT) == True):
+		if (CyInterface().isDirty(InterfaceDirtyBits.Domestic_Advisor_DIRTY_BIT)):
 			CyInterface().setDirty(InterfaceDirtyBits.Domestic_Advisor_DIRTY_BIT, False)
 			
 			screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )

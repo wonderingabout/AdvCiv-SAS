@@ -103,8 +103,7 @@ def init (colors=DEFAULT_COLORS, modifiers=None):
 
 def hasAttitude (nPlayer, nTarget):
 	# Returns True if nTarget can see nPlayer's attitude toward them.
-	return (nPlayer != -1 and nTarget != -1 and nPlayer != nTarget
-	        and gc.getTeam(gc.getPlayer(nPlayer).getTeam()).isHasMet(gc.getPlayer(nTarget).getTeam()))
+	return (nPlayer != -1 and nTarget != -1 and nPlayer != nTarget and gc.getTeam(gc.getPlayer(nPlayer).getTeam()).isHasMet(gc.getPlayer(nTarget).getTeam()))
 
 def getAttitudeString (nPlayer, nTarget):
 	# Returns the full hover text with attitude modifiers nPlayer has toward nTarget.
@@ -135,7 +134,8 @@ def getAttitudeIcon (nPlayer, nTarget):
 def getAttitudeCount (nPlayer, nTarget):
 	# Returns the total attitude modifiers nPlayer has toward nTarget.
 	sAttStr = getAttitudeString(nPlayer, nTarget)
-	if sAttStr == None:
+	# <!-- custom: use "is" not "==" when checking none as per ruff rule and chatgpt/becomingthrough's answer and my idea too anyways etc -->
+	if sAttStr is None:
 		#return
 		return 0 # advc.001 (from Inthegrave's mod, fixed by Toffer)
 	nAtt = 0
@@ -151,7 +151,7 @@ def getAttitudeText (nPlayer, nTarget, bNumber, bSmily, bWorstEnemy, bWarPeace, 
 	# Returns a string describing the attitude nPlayer has toward nTarget.
 	#
 	nAttitude = getAttitudeCount (nPlayer, nTarget)
-	if nAttitude == None:
+	if nAttitude is None:
 		return None
 	
 	szText = []
@@ -263,9 +263,7 @@ class Attitude:
 	def __str__ (self):
 		# String representation of class instance.
 		#
-		return (u"Attitude { 'iThisPlayer': %d, 'iTargetPlayer': %d, 'iAttitudeSum': %d, 'eAttitudeType': %d, 'bHasActiveMetBoth': %s,\n 'iAttitudeModifiers': %s,\n 'sAttitudeString': %s }" 
-				% (self.iThisPlayer, self.iTargetPlayer, self.iAttitudeSum, self.eAttitudeType,
-				   self.bHasActiveMetBoth, str(self.iAttitudeModifiers), self.sAttitudeString))
+		return (u"Attitude { 'iThisPlayer': %d, 'iTargetPlayer': %d, 'iAttitudeSum': %d, 'eAttitudeType': %d, 'bHasActiveMetBoth': %s,\n 'iAttitudeModifiers': %s,\n 'sAttitudeString': %s }" % (self.iThisPlayer, self.iTargetPlayer, self.iAttitudeSum, self.eAttitudeType, self.bHasActiveMetBoth, str(self.iAttitudeModifiers), self.sAttitudeString))
 
 	def hasModifier (self, sKey):
 		# Does the attitude contain given modifier?

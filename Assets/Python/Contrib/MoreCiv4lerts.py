@@ -192,7 +192,8 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
 		if not gc.getPlayer(self.iOwner).isHuman():
 			return # </advc.127>
 		iPlayer = city.getOwner()
-		if (not self.getCheckForDomVictory()): return
+		if (not self.getCheckForDomVictory()):
+			return
 		if (iPlayer == self.iOwner): # advc.135b
 			self.CheckForAlerts(iPlayer, PyPlayer(iPlayer).getTeam(), False)
 
@@ -229,7 +230,8 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
 
 	def OnCityRazed(self, argsList):
 		city, iPlayer = argsList
-		if (not self.getCheckForDomVictory()): return
+		if (not self.getCheckForDomVictory()):
+			return
 		# <advc.127>
 		if not gc.getPlayer(self.iOwner).isHuman():
 			return # </advc.127>
@@ -242,7 +244,8 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
 		if not gc.getPlayer(self.iOwner).isHuman():
 			return # </advc.127>
 		iPlayer = city.getOwner()
-		if (not self.getCheckForDomVictory()): return
+		if (not self.getCheckForDomVictory()):
+			return
 		if (iPlayer == self.iOwner): # advc.135b
 			self.CheckForAlerts(iPlayer, PyPlayer(iPlayer).getTeam(), False)
 
@@ -284,12 +287,18 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
 								message = localText.getText("TXT_KEY_MORECIV4LERTS_CITY_TO_EXPAND",(city.getName(),))
 								icon = "Art/Interface/Buttons/General/Warning_popup.dds"
 								self._addMessageAtCity(loopPlayer, message, icon, city)
-							else: pass
-						else: pass #expand check
-					else: pass #message check
-				else: pass #end city loop
-			else: pass #end activePlayer loop
-		else: pass # end expansion check / pop count
+							else:
+								pass
+						else:
+							pass #expand check
+					else:
+						pass #message check
+				else:
+					pass #end city loop
+			else:
+				pass #end activePlayer loop
+		else:
+			pass # end expansion check / pop count
 
 		# Check Domination Limit
 		if (self.getCheckForDomVictory() and gc.getGame().isVictoryValid(DomVictory)):
@@ -308,31 +317,31 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
 					popPercent = 0.0
 					NextpopPercent = 0.0
 
-				if (totalPop > 1 and (currentTurn <> self.lastDomLimitMsgTurn or (ourPop + popGrowthCount) <> self.lastPopCount)):
+				# <!-- custom: replace "<>" with "!=" as per pylance error "Operator "<>" is not supported in Python 3; use "!=" instead" and askign chatgpt/becomingthrough thanks to my prompt too to be sur ei mean anwyays etc thanks to chatgpt/becomingthrough and me and those who read this or nto or and all or not or yes or anyways etc anyways etc anyways etc -->
+				if (totalPop > 1 and (currentTurn != self.lastDomLimitMsgTurn or (ourPop + popGrowthCount) != self.lastPopCount)):
 					self.lastPopCount = ourPop + popGrowthCount
 					if (popPercent >= VictoryPopPercent):
-						message = localText.getText("TXT_KEY_MORECIV4LERTS_POP_EXCEEDS_LIMIT",
-						   		(ourPop, (u"%.2f%%" % popPercent), LimitPop, (u"%.2f%%" % VictoryPopPercent)))
+						message = localText.getText("TXT_KEY_MORECIV4LERTS_POP_EXCEEDS_LIMIT", (ourPop, (u"%.2f%%" % popPercent), LimitPop, (u"%.2f%%" % VictoryPopPercent)))
 						self._addMessageNoIcon(iActivePlayer, message)
 
 					elif (popGrowthCount > 0 and NextpopPercent >= VictoryPopPercent):
-						message = localText.getText("TXT_KEY_MORECIV4LERTS_POP_GROWTH_EXCEEDS_LIMIT",
-						   		(ourPop, popGrowthCount, (u"%.2f%%" % NextpopPercent), LimitPop, (u"%.2f%%" % VictoryPopPercent)))
+						message = localText.getText("TXT_KEY_MORECIV4LERTS_POP_GROWTH_EXCEEDS_LIMIT", (ourPop, popGrowthCount, (u"%.2f%%" % NextpopPercent), LimitPop, (u"%.2f%%" % VictoryPopPercent)))
 						self._addMessageNoIcon(iActivePlayer, message)
 
 					elif (popGrowthCount > 0 and (VictoryPopPercent - NextpopPercent < self.getPopThreshold())):
-						message = localText.getText("TXT_KEY_MORECIV4LERTS_POP_GROWTH_CLOSE_TO_LIMIT",
-						   		(ourPop, popGrowthCount, (u"%.2f%%" % NextpopPercent), LimitPop, (u"%.2f%%" % VictoryPopPercent)))
+						message = localText.getText("TXT_KEY_MORECIV4LERTS_POP_GROWTH_CLOSE_TO_LIMIT", (ourPop, popGrowthCount, (u"%.2f%%" % NextpopPercent), LimitPop, (u"%.2f%%" % VictoryPopPercent)))
 						self._addMessageNoIcon(iActivePlayer, message)
 
 ## .005 			elif (VictoryPopPercent - popPercent < self.getPopThreshold()):
 					elif (popGrowthCount > 0 and (VictoryPopPercent - popPercent < self.getPopThreshold())):
-						message = localText.getText("TXT_KEY_MORECIV4LERTS_POP_CLOSE_TO_LIMIT",
-						   		(ourPop, (u"%.2f%%" % popPercent), LimitPop, (u"%.2f%%" % VictoryPopPercent)))
+						message = localText.getText("TXT_KEY_MORECIV4LERTS_POP_CLOSE_TO_LIMIT", (ourPop, (u"%.2f%%" % popPercent), LimitPop, (u"%.2f%%" % VictoryPopPercent)))
 						self._addMessageNoIcon(iActivePlayer, message)
-					else: pass #end elif
-				else: pass #end totalPop if
-			else: pass #end pop limit if
+					else:
+						pass #end elif
+				else:
+					pass #end totalPop if
+			else:
+				pass #end pop limit if
 
 			# Land Limit
 			if (self.getCheckForDomLandVictory()):
@@ -345,7 +354,7 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
 					landPercent = (ourLand * 100.0) / totalLand
 				else:
 					landPercent = 0.0
-				if (currentTurn <> self.lastDomLimitMsgTurn or ourLand <> self.lastLandCount):
+				if (currentTurn != self.lastDomLimitMsgTurn or ourLand != self.lastLandCount):
 					self.lastLandCount = ourLand
 					if (landPercent > VictoryLandPercent):
 						message = localText.getText("TXT_KEY_MORECIV4LERTS_LAND_EXCEEDS_LIMIT",
@@ -355,10 +364,14 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
 						message = localText.getText("TXT_KEY_MORECIV4LERTS_LAND_CLOSE_TO_LIMIT",
 								(ourLand, (u"%.2f%%" % landPercent), LimitLand, (u"%.2f%%" % VictoryLandPercent)))
 						self._addMessageNoIcon(iActivePlayer, message)
-					else: pass #end elif
-				else: pass #end currentTurn if
-			else: pass #end land limit if
-		else: pass #end dom limt if
+					else:
+						pass #end elif
+				else:
+					pass #end currentTurn if
+			else:
+				pass #end land limit if
+		else:
+			pass #end dom limt if
 	
 		#save turn num
 		if (self.getCheckForDomVictory()):
@@ -395,12 +408,14 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
 												(gc.getPlayer(iLoopPlayer).getName(), szRemovedTechs))
 					self._addMessageNoIcon(iActivePlayer, message)
 				
-			else: pass #end activePlayer loop
+			else:
+				pass #end activePlayer loop
 
 			#save curr trades for next time
 			self.PrevAvailTechTrades = techsByPlayer
 
-		else: pass #end new trades if
+		else:
+			pass #end new trades if
 		
 		# bonus trades
 		if (BeginTurn and self.getCheckForBonuses()):

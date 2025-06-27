@@ -19,8 +19,8 @@ FOREIGN_ACTIVE_TRADE_SCREEN = 3
 NUM_FOREIGN_SCREENS = 4
 
 class CvForeignAdvisor:
-	"Foreign Advisor Screen"
-
+	# Foreign Advisor Screen
+	#
 	def __init__(self):
 		self.iScreen = -1
 		self.nWidgetCount = 0
@@ -95,7 +95,7 @@ class CvForeignAdvisor:
 		screen = self.getScreen()
 		if screen.isActive():
 			return
-		screen.setRenderInterfaceOnly(True);
+		screen.setRenderInterfaceOnly(True)
 		screen.showScreen( PopupStates.POPUPSTATE_IMMEDIATE, False)
 	
 		self.iActiveLeader = CyGame().getActivePlayer()
@@ -697,7 +697,7 @@ class CvForeignAdvisor:
 				elif (inputClass.getFlags() & MouseFlags.MOUSE_RBUTTONUP):
 					if (self.iActiveLeader != inputClass.getData1()):
 						self.getScreen().hideScreen()
-			 
+
 		elif (inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED):
 			if (inputClass.getFunctionName() + str(inputClass.getID()) == self.getWidgetName(self.DEBUG_DROPDOWN_ID)):
 				szName = self.getWidgetName(self.DEBUG_DROPDOWN_ID)
@@ -711,8 +711,7 @@ class CvForeignAdvisor:
 		return 0
 
 	def update(self, fDelta):
-		if (CyInterface().isDirty(InterfaceDirtyBits.Foreign_Screen_DIRTY_BIT) == True):
+		if (CyInterface().isDirty(InterfaceDirtyBits.Foreign_Screen_DIRTY_BIT)):
 			CyInterface().setDirty(InterfaceDirtyBits.Foreign_Screen_DIRTY_BIT, False)
 			self.drawContents(False)
 		return
-

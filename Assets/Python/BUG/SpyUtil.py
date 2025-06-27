@@ -22,12 +22,12 @@ g_values = None
 # gets the total spending over the prior turn by playerOrID
 # limits the spending to players known to 'ActiveplayerOrID' if provided
 def getSpending(playerOrID, ActiveplayerOrID=None):
-	if ActiveplayerOrID != None:
+	if ActiveplayerOrID is not None:
 		pActiveTeam = PlayerUtil.getPlayerTeam(ActiveplayerOrID)
 
 	iTotal = 0
 	for targetTeam in PlayerUtil.teams(True, None, False):
-		if (ActiveplayerOrID == None
+		if (ActiveplayerOrID is not None
 		or pActiveTeam.isHasMet(targetTeam.getID())):
 			iTotal += getDifferenceByTeam(PlayerUtil.getPlayerTeam(playerOrID), targetTeam.getID())
 	return iTotal

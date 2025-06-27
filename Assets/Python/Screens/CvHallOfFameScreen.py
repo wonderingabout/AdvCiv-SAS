@@ -8,7 +8,8 @@
 from CvPythonExtensions import *
 import BugUtil
 import CvUtil
-import ScreenInput
+# <!-- custom: remove or comment out unused imports -->
+#import ScreenInput
 from CvScreenEnums import *
 import CvReplayScreen
 import CvScreensInterface
@@ -24,8 +25,8 @@ SORT_BY_FINISH_DATE = 1
 SORT_BY_GAME_SCORE = 2
 
 class CvHallOfFameScreen:
-	"Top scores and more"
-
+	# Top scores and more
+	#
 	def __init__(self, screenId):
 		self.screenId = screenId
 		self.SCREEN_NAME = "HallOfFameScreen"
@@ -82,7 +83,7 @@ class CvHallOfFameScreen:
 		screen = self.getScreen()
 		if screen.isActive():
 			return
-		screen.setRenderInterfaceOnly(True);
+		screen.setRenderInterfaceOnly(True)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
 		screen.setAlwaysShown(True)
 	
@@ -252,7 +253,7 @@ class CvHallOfFameScreen:
 		screen.deleteWidget(self.TABLE_ID)
 		# K-Mod end
 		
-		screen.addTableControlGFC(self.TABLE_ID, 10, 2, 2 * self.DROPDOWN_SPACING_Y + self.DROPDOWN_Y, 1018, 545, True, True, 16, 16, TableStyles.TABLE_STYLE_STANDARD);
+		screen.addTableControlGFC(self.TABLE_ID, 10, 2, 2 * self.DROPDOWN_SPACING_Y + self.DROPDOWN_Y, 1018, 545, True, True, 16, 16, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSelect(self.TABLE_ID, False)
 		screen.enableSort(self.TABLE_ID)
 		# <advc.106i> Don't show replay button column when game has just ended;
