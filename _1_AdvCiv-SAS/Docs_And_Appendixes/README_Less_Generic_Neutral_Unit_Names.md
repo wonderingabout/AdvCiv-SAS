@@ -1,4 +1,4 @@
-# Less Generic-neutral unit names or/and combat types (todo and non-exhaustive)
+# Less Generic-neutral unit names or/and combat types and note about woman units
 
 As this will be expanded later, moving this part of the README to a specific file or/and also to not clutter main README.md anyways etc, hopefully helpful or not or maybe yes or not or yes or and other or and not anyways etc.
 
@@ -37,4 +37,10 @@ Maybe will add new units that are knight units, more expensive and stronger vers
 
 Not exhaustive or maybe is or not but or/and todo, anyways
 
-May also apply to civ units or/and Buildings or not will see or not etc or not, anyways,
+May also apply to civ units or/and Buildings or not will see or not etc or not, anyways
+
+## Note about women units anyways etc
+
+I intend to add women in some of these units at least if the opportunity arises and it seems relvant and/or accurate anyways etc. Not for equalitarism or anything, just because i think it would be cool and accurate, it would be mostly lightweight weapons for accuracy as women are generally more agile, (some) bow units and maybe some light melee/sword units for example maybe, not following any specified pattern or ratios, as i prefer. Doing any more than this would be forcing my narrative and not being historically accurate, as let's be real, the tremendous majority of warfare from little or quite little or lot or bit or etc anyways etc has been fought by men/male soldiers anyways etc for better or worse (dying xd is not fun.. but anyways etc, especially for someone else as is sadly often the case in wars (forced and such anyways etc, very cruel world but anyways etc)).
+
+If there is a good opportunity i find/deem if i may say worth anyways etc to add for example a woman unit where relevant, i would love to, but it can't be expected to be general rule in advciv-sas anyways etc.
