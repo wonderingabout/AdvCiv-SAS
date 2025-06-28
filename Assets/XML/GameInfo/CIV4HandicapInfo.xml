@@ -150,8 +150,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- custom: adjusted based on this line "For GP and growth thresholds, I've added GPThresholdPercent and BaseGrowthThresholdPercent (for all civs) and AIGPThresholdPercent (for AI civs)." (from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv Base Doc\manual.txt) anyways etc -->
 			<iAIGPThresholdPercent>115</iAIGPThresholdPercent>
 			<!-- custom: reworked tech costs, see deity code comment of <iResearchPercent> for details at least as of now the code comment is there i mean anyways etc -->
-			<!-- Lower tech costs for the AI -->
-			<iAIResearchPercent>95</iAIResearchPercent>
+			<iAIResearchPercent>127</iAIResearchPercent>
 			<!-- was 6x 160 -->
 			<iAITrainPercent>124</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
@@ -194,73 +193,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 				<GoodyType>GOODY_TECH</GoodyType>
 				<GoodyType>GOODY_TECH</GoodyType>
 			</Goodies>
-			<FreeTechs>
-				<FreeTech>
-					<TechType>TECH_THE_WHEEL</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_AGRICULTURE</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_HUNTING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-					<FreeTech>
-					<TechType>TECH_MINING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-					<FreeTech>
-					<TechType>TECH_POTTERY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-					<FreeTech>
-					<TechType>TECH_ANIMAL_HUSBANDRY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-					<FreeTech>
-					<TechType>TECH_BRONZE_WORKING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-					<FreeTech>
-					<TechType>TECH_IRON_WORKING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-			</FreeTechs>
-			<!-- custom: make this difficulty slightly harder than it was, should be quite easier than the higher one but not that much easier,
-			hopefully difficulty is more gradual with this now.
-			Also, giving the AI techs increase their efficiency and how fast/smooth their economies develop, so even at lower difficulties
-			it may make sense/be helpful, the handicap research percentages can be adjusted accordingly to desired difficulty, while still
-			often giving AIs free techs to increase their efficiency.
-			Noble is now same challenge as prince but with much less research penalties (and a few other type of penalties less too), which
-			should be a big enough leap to still be relevant, leaving lower than noble difficulties be advantageous to the human player.-->
-			<AIFreeTechs>
-				<FreeTech>
-					<TechType>TECH_POTTERY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_BRONZE_WORKING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_CURRENCY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_NAVIGATION</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_CHEMISTRY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_LASER</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-			</AIFreeTechs>
+			<!-- custom: remove Free Techs and AI Free Techs at all difficulties, hopefully this gives extra versatility in the game and AI tech path choices, reduce AI tech costs or whatever it is called to compensate anyways etc -->
+			<FreeTechs/>
+			<AIFreeTechs/>
 			<!-- advc.250a -->
 			<iDifficulty>10</iDifficulty>
 		</HandicapInfo>
@@ -342,7 +277,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- was 130 -->
 			<iAIGrowthPercent>110</iAIGrowthPercent>
 			<iAIGPThresholdPercent>110</iAIGPThresholdPercent>
-			<iAIResearchPercent>100</iAIResearchPercent>
+			<iAIResearchPercent>118</iAIResearchPercent>
 			<!-- was 6x 130 -->
 			<iAITrainPercent>116</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
@@ -387,39 +322,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
 			</Goodies>
 			<FreeTechs/>
-			<!-- custom: make this difficulty slightly harder than it was, should be quite easier than the higher one but not that much easier,
-			hopefully difficulty is more gradual with this now.
-			Also, giving the AI techs increase their efficiency and how fast/smooth their economies develop, so even at lower difficulties
-			it may make sense/be helpful, the handicap research percentages can be adjusted accordingly to desired difficulty, while still
-			often giving AIs free techs to increase their efficiency.
-			Noble is now same challenge as prince but with much less research penalties (and a few other type of penalties less too), which
-			should be a big enough leap to still be relevant, leaving lower than noble difficulties be advantageous to the human player.-->
-			<AIFreeTechs>
-				<FreeTech>
-					<TechType>TECH_POTTERY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_BRONZE_WORKING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_CURRENCY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_NAVIGATION</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_CHEMISTRY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_LASER</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-			</AIFreeTechs>
+			<AIFreeTechs/>
 			<!-- advc.250a -->
 			<iDifficulty>20</iDifficulty>
 		</HandicapInfo>
@@ -501,7 +404,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.251 -->
 			<iAIGPThresholdPercent>105</iAIGPThresholdPercent>
 			<!-- advc.251 -->
-			<iAIResearchPercent>100</iAIResearchPercent>
+			<iAIResearchPercent>109</iAIResearchPercent>
 			<iAITrainPercent>108</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>106</iAIConstructPercent>
@@ -544,39 +447,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
 			</Goodies>
 			<FreeTechs/>
-			<!-- custom: make this difficulty slightly harder than it was, should be quite easier than the higher one but not that much easier,
-			hopefully difficulty is more gradual with this now.
-			Also, giving the AI techs increase their efficiency and how fast/smooth their economies develop, so even at lower difficulties
-			it may make sense/be helpful, the handicap research percentages can be adjusted accordingly to desired difficulty, while still
-			often giving AIs free techs to increase their efficiency.
-			Noble is now same challenge as prince but with much less research penalties (and a few other type of penalties less too), which
-			should be a big enough leap to still be relevant, leaving lower than noble difficulties be advantageous to the human player.-->
-			<AIFreeTechs>
-				<FreeTech>
-					<TechType>TECH_POTTERY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_BRONZE_WORKING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_CURRENCY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_NAVIGATION</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_CHEMISTRY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_LASER</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-			</AIFreeTechs>
+			<AIFreeTechs/>
 			<!-- advc.250a -->
 			<iDifficulty>30</iDifficulty>
 		</HandicapInfo>
@@ -705,43 +576,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
 			</Goodies>
 			<FreeTechs/>
-			<!-- custom: make noble slightly harder than it was, should be quite easier than prince but not that much easier, hopefully
-			difficulty is more gradual with this now.
-			Also, giving the AI techs increase their efficiency and how fast/smooth their economies develop, so even at lower difficulties
-			it may make sense/be helpful, the handicap research percentages can be adjusted accordingly to desired difficulty, while still
-			often giving AIs free techs to increase their efficiency.
-			Noble is now same challenge as prince but with much less research penalties (and a few other type of penalties less too), which
-			should be a big enough leap to still be relevant, leaving lower than noble difficulties be advantageous to the human player.-->
-			<AIFreeTechs>
-				<FreeTech>
-					<TechType>TECH_POTTERY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_BRONZE_WORKING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_CURRENCY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_MONARCHY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_NAVIGATION</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_CHEMISTRY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_LASER</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-			</AIFreeTechs>
+			<AIFreeTechs/>
 			<!-- advc.250a -->
 			<iDifficulty>40</iDifficulty>
 		</HandicapInfo>
@@ -830,7 +665,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.251 -->
 			<iAIGPThresholdPercent>95</iAIGPThresholdPercent>
 			<!-- advc.251 -->
-			<iAIResearchPercent>92</iAIResearchPercent>
+			<iAIResearchPercent>91</iAIResearchPercent>
 			<iAITrainPercent>92</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>94</iAIConstructPercent>
@@ -875,38 +710,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
 			</Goodies>
 			<FreeTechs/>
-			<!-- custom: make prince slightly harder than it was, should be quite easier than monarch but not that much easier, hopefully
-			difficulty is more gradual with this now -->
-			<AIFreeTechs>
-				<FreeTech>
-					<TechType>TECH_POTTERY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_BRONZE_WORKING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_CURRENCY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_MONARCHY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_NAVIGATION</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_CHEMISTRY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_LASER</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-			</AIFreeTechs>
+			<AIFreeTechs/>
 			<!-- advc.250a -->
 			<iDifficulty>50</iDifficulty>
 		</HandicapInfo>
@@ -997,7 +801,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIGrowthPercent>90</iAIGrowthPercent>
 			<!-- advc.251 (start) -->
 			<iAIGPThresholdPercent>90</iAIGPThresholdPercent>
-			<iAIResearchPercent>84</iAIResearchPercent>
+			<iAIResearchPercent>82</iAIResearchPercent>
 			<!-- was 90 -->
 			<iAITrainPercent>84</iAITrainPercent>
 			<!-- was 100 -->
@@ -1047,44 +851,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
 			</Goodies>
 			<FreeTechs/>
-			<AIFreeTechs>
-				<FreeTech>
-					<TechType>TECH_POTTERY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_BRONZE_WORKING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_CURRENCY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_MONARCHY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_NAVIGATION</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_DRAMA</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_CHEMISTRY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_INDUSTRIALISM</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_LASER</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-			</AIFreeTechs>
+			<AIFreeTechs/>
 			<!-- advc.250a -->
 			<iDifficulty>60</iDifficulty>
 		</HandicapInfo>
@@ -1170,7 +937,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.251 (start) -->
 			<iAIGPThresholdPercent>85</iAIGPThresholdPercent>
 			<!-- Higher tech costs for the AI -->
-			<iAIResearchPercent>76</iAIResearchPercent>
+			<iAIResearchPercent>73</iAIResearchPercent>
 			<!-- was 85 -->
 			<iAITrainPercent>76</iAITrainPercent>
 			<!-- was 100 -->
@@ -1221,51 +988,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 				<!--GoodyType>GOODY_BARBARIANS_STRONG</GoodyType-->
 			</Goodies>
 			<FreeTechs/>
-			<AIFreeTechs>
-				<!-- custom: also add fishing to help/speed up early AI growth (they would also not spend time thus on such techs), if it
-				helps delaying the time when AI stockpiles units it should also be good for their economy (plus getting sea food bonuses sooner
-				maybe too) -->
-				<FreeTech>
-					<TechType>TECH_FISHING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_POTTERY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_BRONZE_WORKING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_CURRENCY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_MONARCHY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_NAVIGATION</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_DRAMA</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_CHEMISTRY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_INDUSTRIALISM</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_LASER</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-			</AIFreeTechs>
+			<AIFreeTechs/>
 			<!-- advc.250a -->
 			<iDifficulty>70</iDifficulty>
 		</HandicapInfo>
@@ -1354,7 +1077,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.251 (start) -->
 			<iAIGPThresholdPercent>80</iAIGPThresholdPercent>
 			<!-- Higher tech costs for the AI -->
-			<iAIResearchPercent>68</iAIResearchPercent>
+			<iAIResearchPercent>64</iAIResearchPercent>
 			<!-- was 80 -->
 			<iAITrainPercent>68</iAITrainPercent>
 			<!-- was 100 -->
@@ -1403,53 +1126,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 				<!--GoodyType>GOODY_BARBARIANS_STRONG</GoodyType-->
 			</Goodies>
 			<FreeTechs/>
-			<AIFreeTechs>
-				<!-- advc.250e -->
-				<FreeTech>
-					<TechType>TECH_FISHING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_POTTERY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_ANIMAL_HUSBANDRY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_BRONZE_WORKING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_CURRENCY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_MONARCHY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_NAVIGATION</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_DRAMA</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_CHEMISTRY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_INDUSTRIALISM</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_LASER</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-			</AIFreeTechs>
+			<AIFreeTechs/>
 			<!-- advc.250a -->
 			<iDifficulty>80</iDifficulty>
 		</HandicapInfo>
@@ -1540,7 +1217,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.251 (start) -->
 			<iAIGPThresholdPercent>75</iAIGPThresholdPercent>
 			<!-- Higher tech costs for the AI -->
-			<iAIResearchPercent>60</iAIResearchPercent>
+			<iAIResearchPercent>55</iAIResearchPercent>
 			<!-- was 60 -->
 			<iAITrainPercent>60</iAITrainPercent>
 			<!-- custom: i want more reliable handicap settings if i am not mistaken in my understanding and after asking chatgpt / becomingthrough and with a web search i asked it to do to be sure too anyways etc, it told me "According to the Civilization Wiki, the iAIWorldTrainPercent values vary across difficulty levels:" etc.. until "Settler	160 Chieftain 130 Warlord 110 Noble 100 Prince 100 Monarch 100 Emperor 100 Immortal 100 Deity 100" so based on this xml raw data and observation, what i make of it and interpret of it if i may say for our needs in advciv-sas but anyways etc, is that i want reliable AI behaviour when it comes to military hammer train percents, regardless of world size at all difficulties, anyways etc ; seemingly similar reasoning for iAIWorldConstructPercent and iAIWorldCreatePercent if i am not mistaken too anyways etc -->
@@ -1595,103 +1272,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 				<!--GoodyType>GOODY_BARBARIANS_STRONG</GoodyType-->
 			</Goodies>
 			<FreeTechs/>
-			<AIFreeTechs>
-				<!-- custom: the wheel doesn't seem such a critical tech to have, gives the human player a bit more
-				breathing room if the AI has less early techs too, was TECH_THE_WHEEL -->
-				<!-- advc.250e -->
-				<!--FreeTech>
-					<TechType>TECH_AGRICULTURE</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech-->
-				<!-- custom: removed TECH_HUNTING too, although it is a good tech, it is not urgent to get it, plus AIs start with a free scout
-				anyway, hopefully that delays the time when AIs start to get archers too, making them favour the more versatile warriors, or 
-				economy early. I don't know if scouts can exist without hunting, need to test if this does not break anything. -->
-				<!-- custom: also add fishing to help/speed up early AI growth (they would also not spend time thus on such techs), if it
-				helps delaying the time when AI stockpiles units it should also be good for their economy (plus getting sea food bonuses sooner
-				maybe too)-->
-				<FreeTech>
-					<TechType>TECH_FISHING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_MYSTICISM</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
-				If AI wants to turtle later in the game, archers may be more relevant then.
-				Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.-->
-				<!--<FreeTech>
-					<TechType>TECH_ARCHERY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>-->
-				<!-- custom: instead of archery, give them a tech that helps them expand more early -->
-				<FreeTech>
-					<TechType>TECH_POTTERY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: give a bunch of smaller (bronze working and animal husbandry) key or very optional techs rather than a few big ones.
-				It may make the early game more gradual while still having the human not waste as much time on less rewarding techs.
-				, was IRON_WORKING-->
-				<FreeTech>
-					<TechType>TECH_ANIMAL_HUSBANDRY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_BRONZE_WORKING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: replace mathematics with currency, more likely to be useful for the weaker player(s)'s economy (trade of ressources,
-				extra trade routes, trade of gold and gold per turn, etc.), but also later than mathematics so gives the stronger 
-				player(s) more breathing room to catch up until then, while making sure the weaker player(s) does not carelessly neglect to get this tech.,
-				was TECH_MATHEMATICS -->
-				<FreeTech>
-					<TechType>TECH_CURRENCY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: monarchy should help the AI more early with new regime, wine happiness (and trade possibility maybe too?),
-				and possibility also to research feudalism sooner, machinery may not be so useful for the AI early even if it costs more,
-				was TECH_MACHINERY-->
-				<FreeTech>
-					<TechType>TECH_MONARCHY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
-				also may be more versatile than printing press, was PRINTING_PRESS-->
-				<FreeTech>
-					<TechType>TECH_NAVIGATION</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_DRAMA</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: optics should be more versatile than gunpowder, was TECH_GUNPOWDER -->
-				<FreeTech>
-					<TechType>TECH_SAILING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: removed tech TECH_GUNPOWDER to give the human player more time/momentum to catch up maybe -->
-				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
-				<FreeTech>
-					<TechType>TECH_CHEMISTRY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: industrialism should be more useful to the player than plastics, was TECH_PLASTICS -->
-				<FreeTech>
-					<TechType>TECH_INDUSTRIALISM</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: biology should be more useful to the player than refrigeration, was TECH_REFRIGERATION -->
-				<FreeTech>
-					<TechType>TECH_BIOLOGY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: add laser to make AIs still quite competitive in the late game maybe -->
-				<FreeTech>
-					<TechType>TECH_LASER</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-			</AIFreeTechs>
+			<AIFreeTechs/>
 			<!-- custom: adjusted slightly based on/with knowledge of the code sample in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\UWAIAgent.cpp as well as chatgpt's explanation of it anyways etc, our handicap settings are more gradual than in base advciv, not sure it makes a difference but go for gradual values between handicap settings anyways etc, also start from a higher base line difficulty since our settings in advciv-sas are slightly harder anyways etc, was 85 -->
 			<!-- advc.250a -->
 			<iDifficulty>90</iDifficulty>

@@ -3,16 +3,16 @@ iAIAdvancedStartPercent,67,75,90,100,125,145,175,210,270
 iAIAnimalBonus,-30,-15,-20,0,0,0,0,0,0
 iAIAttitudeChangePercent,30,30,30,30,40,50,60,70,90
 iAIBarbarianBonus,-30,-15,0,0,0,0,0,0,0
-iAICivicUpkeepPercent,100,100,100,100,95,90,85,80,75
-iAIConstructPercent,106,104,102,100,98,96,94,92,90
-iAICreatePercent,106,104,102,100,98,96,94,92,90
+iAICivicUpkeepPercent,118,112,106,100,94,88,82,76,70
+iAIConstructPercent,118,112,106,100,94,88,82,76,70
+iAICreatePercent,106,104,102,100,97,94,91,88,85
 iAIDeclareWarProb,70,80,90,100,110,120,130,140,150
-iAIGPThresholdPercent,125,120,110,100,100,95,90,85,80
-iAIGrowthPercent,125,120,110,100,100,95,90,85,80
+iAIGPThresholdPercent,115,110,105,100,95,90,85,80,75
+iAIGrowthPercent,115,110,105,100,95,90,85,80,75
 iAIHandicapIncrementTurns,0,0,0,0,100,50,33,25,20
-iAIInflationPercent,100,90,80,80,80,80,80,80,80
-iAIResearchPercent,95,100,100,100,104,108,112,116,120
-iAIStartingDefenseUnits,1,1,1,2,2,3,3,4,4
+iAIInflationPercent,115,110,105,100,95,90,85,80,75
+iAIResearchPercent,127,118,109,100,91,82,73,64,55
+iAIStartingDefenseUnits,1,1,1,2,2,2,3,3,3
 iAIStartingExploreUnits,0,0,0,0,1,1,1,1,1
 iAIStartingUnitMultiplier,0,0,0,0,0,0,0,0,0
 iAIStartingWorkerUnits,0,0,0,0,0,0,0,1,1
@@ -20,56 +20,56 @@ iAITrainPercent,124,116,108,100,92,84,76,68,60
 iAIUnitCostPercent,100,100,100,100,100,100,100,100,100
 iAIUnitSupplyPercent,50,50,50,50,50,50,50,50,50
 iAIUnitUpgradePercent,50,50,50,50,50,50,50,50,50
-iAIWarWearinessPercent,112,108,104,100,96,92,88,84,80
-iAIWorkRateModifier,0,0,0,0,6,12,18,24,30
+iAIWarWearinessPercent,118,112,106,100,94,88,82,76,70
+iAIWorkRateModifier,0,0,0,0,10,20,30,40,50
 iAIWorldConstructPercent,100,100,100,100,100,100,100,100,100
 iAIWorldCreatePercent,100,100,100,100,100,100,100,100,100
 iAIWorldTrainPercent,100,100,100,100,100,100,100,100,100
 iAdvancedStartPointsMod,100,100,100,100,100,100,100,100,100
-iAnimalAttackProb,30,50,60,70,70,70,70,70,70
-iAnimalBonus,-30,-25,-20,0,0,0,0,0,0
-iAttitudeChange,2,1,0,0,0,0,0,0,0
-iBarbarianBonus,-30,-25,0,0,0,0,0,0,0
+iAnimalAttackProb,10,20,30,40,50,60,70,80,90
+iAnimalBonus,-30,-20,-10,0,0,0,0,0,0
+iAttitudeChange,2,1,1,0,0,0,0,0,0
+iBarbarianBonus,-30,-15,0,0,0,0,0,0,0
 iBarbarianCityAttackBonus,,,,,0,0,0,0,0
 iBarbarianCityCreationProb,5,10,15,20,25,30,35,40,45
 iBarbarianCityCreationTurnsElapsed,46,44,42,40,38,36,34,32,30
 iBarbarianCreationTurnsElapsed,40,38,36,34,32,30,28,26,24
-iBarbarianDefenders,0,0,1,1,2,2,2,3,3
-iBaseGrowthThresholdPercent,80,95,100,100,100,100,110,120,130
+iBarbarianDefenders,1,1,1,2,2,2,2,3,3
+iBaseGrowthThresholdPercent,85,90,95,100,105,110,115,120,125
 iBuildTimePercent,100,100,100,100,100,100,100,100,100
-iCivicUpkeepPercent,60,70,80,90,95,100,100,100,100
-iColonyMaintenancePercent,60,80,90,100,105,110,115,120,130
-iConstructPercent,85,95,100,100,100,100,105,110,115
-iCorporationMaintenancePercent,60,80,90,100,105,110,115,120,130
-iCreatePercent,70,80,90,100,100,100,100,110,120
-iCultureLevelPercent,100,100,100,100,100,106,112,118,129
-iDifficulty,0,10,20,30,40,50,60,70,85
-iDistanceMaintenancePercent,50,60,70,80,85,90,95,100,100
-iForeignCultureStrength,10,15,20,25,29,32,35,38,40
-iFreeUnits,20,15,10,7,5,4,3,2,1
-iFreeWinsVsBarbs,3,2,1,0,0,0,0,0,0
-iGPThresholdPercent,80,95,100,100,100,100,110,120,130
+iCivicUpkeepPercent,100,100,100,100,100,100,100,100,100
+iColonyMaintenancePercent,85,90,95,100,105,110,115,120,130
+iConstructPercent,100,100,100,100,100,100,100,100,100
+iCorporationMaintenancePercent,85,90,95,100,105,110,115,120,130
+iCreatePercent,100,100,100,100,100,100,100,100,100
+iCultureLevelPercent,100,100,100,100,100,100,100,100,100
+iDifficulty,10,20,30,40,50,60,70,80,90
+iDistanceMaintenancePercent,50,65,70,75,80,85,90,95,100
+iForeignCultureStrength,11,14,17,20,23,26,29,32,35
+iFreeUnits,20,8,7,6,5,4,3,2,1
+iFreeWinsVsBarbs,2,1,0,0,0,0,0,0,0
+iGPThresholdPercent,85,90,95,100,105,110,115,120,125
 iGold,0,0,0,0,0,0,0,0,0
 iHappyBonus,5,5,4,4,4,4,4,4,4
 iHealthBonus,3,3,2,2,2,2,2,2,2
-iInflationPercent,60,70,80,90,95,100,100,100,100
+iInflationPercent,100,100,100,100,100,100,100,100,100
 iMaxColonyMaintenance,200,200,200,200,200,200,200,200,200
 iMaxNumCitiesMaintenance,4000,4000,5000,5000,6000,6000,7000,7000,8000
-iNoTechTradeModifier,100,85,75,64,56,48,40,32,24
-iNumCitiesMaintenancePercent,45,55,65,75,80,85,90,95,100
-iResearchPercent,68,73,85,95,114,120,128,133,140
+iNoTechTradeModifier,80,72,66,60,54,48,42,36,30
+iNumCitiesMaintenancePercent,60,65,70,75,80,85,90,95,100
+iResearchPercent,100,100,100,100,100,100,100,100,100
 iSeaBarbarianBonus,,,,,,,,,0
 iSeaBarbarianExtraMoves,,,,,,,,,0
-iStartingDefenseUnits,3,3,2,2,1,1,1,1,1
-iStartingExploreUnits,1,0,0,0,0,0,0,0,0
+iStartingDefenseUnits,3,2,2,2,1,1,1,1,1
+iStartingExploreUnits,1,1,1,0,0,0,0,0,0
 iStartingLocPercent,11,22,33,44,55,66,77,88,99
 iStartingWorkerUnits,0,0,0,0,0,0,0,0,0
-iTechTradeKnownModifier,-100,-50,-25,0,0,0,0,0,0
+iTechTradeKnownModifier,-30,-20,-10,0,0,0,0,0,0
 iTrainPercent,100,100,100,100,100,100,100,100,100
 iUnitCostPercent,100,100,100,100,100,100,100,100,100
 iUnownedTilesPerBarbarianCity,130,125,120,115,110,105,100,95,90
 iUnownedTilesPerBarbarianUnit,64,61,58,55,52,49,46,43,40
-iUnownedTilesPerGameAnimal,54,51,48,45,42,39,36,33,30
+iUnownedTilesPerGameAnimal,54,49,46,43,40,37,34,31,28
 iUnownedWaterTilesPerBarbarianUnit,475,450,425,400,375,350,325,300,275
 GOODY_BARBARIANS_STRONG (*),0,0,1,1,1,1,2,3,4
 GOODY_BARBARIANS_WEAK (*),0,1,1,2,3,4,3,3,3
@@ -83,34 +83,12 @@ GOODY_SETTLER (*),1,1,0,0,0,0,0,0,0
 GOODY_TECH (*),4,4,4,4,4,3,3,3,3
 GOODY_WARRIOR (*),2,2,2,2,2,2,1,1,1
 GOODY_WORKER (*),2,2,1,0,0,0,0,0,0
-AIFreeTechs,AIFT_0,AIFT_1,AIFT_2,AIFT_3,AIFT_4,AIFT_5,AIFT_6,AIFT_7,AIFT_8
-FreeTechs,FT_0,,,,,,,,
+AIFreeTechs,,,,,,,,,
+FreeTechs,,,,,,,,,
 
 
 
 
 ,[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND]
-,AIFT_0,AIFT_1,AIFT_2,AIFT_3,AIFT_4,AIFT_5,AIFT_6,AIFT_7,AIFT_8
-,Pottery,Pottery,Pottery,Pottery,Pottery,Pottery,Pottery,Pottery,Pottery
-,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.,Bronze W.
-,Currency,Currency,Currency,Currency,Currency,Currency,Currency,Currency,Currency
-,Navigation,Navigation,Navigation,Navigation,Navigation,Navigation,Navigation,Navigation,Navigation
-,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry,Chemistry
-,Laser,Laser,Laser,Laser,Laser,Laser,Laser,Laser,Laser
-,-,-,-,Monarchy,Monarchy,Monarchy,Monarchy,Monarchy,Monarchy
-,-,-,-,-,-,Drama,Drama,Drama,Drama
-,-,-,-,-,-,Industr.,Industr.,Industr.,Industr.
-,-,-,-,-,-,-,Fishing,Fishing,Fishing
-,-,-,-,-,-,-,-,Animal H.,Animal H.
-,-,-,-,-,-,-,-,-,Mysticism
-,-,-,-,-,-,-,-,-,Sailing
-,-,-,-,-,-,-,-,-,Biology
-,FT_0,-------,-------,-------,-------,-------,-------,-------,-------
-,The Wheel,-,-,-,-,-,-,-,-
-,Agriculture,-,-,-,-,-,-,-,-
-,Hunting,-,-,-,-,-,-,-,-
-,Mining,-,-,-,-,-,-,-,-
-,Pottery,-,-,-,-,-,-,-,-
-,Animal H.,-,-,-,-,-,-,-,-
-,Bronze W.,-,-,-,-,-,-,-,-
-,Iron W.,-,-,-,-,-,-,-,-
+,-------,-------,-------,-------,-------,-------,-------,-------,-------
+,-------,-------,-------,-------,-------,-------,-------,-------,-------
