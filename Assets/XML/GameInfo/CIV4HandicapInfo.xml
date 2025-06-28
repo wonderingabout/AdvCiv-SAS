@@ -67,9 +67,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<Description>TXT_KEY_HANDICAP_SETTLER</Description>
 			<Help>TXT_KEY_HANDICAP_SETTLER_HELP</Help>
 			<!-- advc.251: was 5 -->
-			<iFreeWinsVsBarbs>3</iFreeWinsVsBarbs>
+			<iFreeWinsVsBarbs>2</iFreeWinsVsBarbs>
 			<!-- advc.309: was 25 -->
-			<iAnimalAttackProb>30</iAnimalAttackProb>
+			<iAnimalAttackProb>10</iAnimalAttackProb>
 			<iStartingLocPercent>11</iStartingLocPercent>
 			<!-- advc.250c: was 150 -->
 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
@@ -80,39 +80,43 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- was 20 -->
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<iBuildTimePercent>100</iBuildTimePercent>
-			<iBaseGrowthThresholdPercent>80</iBaseGrowthThresholdPercent>
-			<iGPThresholdPercent>80</iGPThresholdPercent>
+			<!-- custom: see code comment at iAIGPThresholdPercent for details anyways etc -->
+			<iBaseGrowthThresholdPercent>85</iBaseGrowthThresholdPercent>
+			<!-- custom: see code comment at iAIGPThresholdPercent for details anyways etc -->
+			<iGPThresholdPercent>85</iGPThresholdPercent>
+			<!-- custom: make culture levels the same at all difficulties for human players, this is not where the difficulty should be i think if i am not mistaken in my assessment/guess anyways etc, plsu tedious to manage count points for players who do, not an interesting mechanic i find, anyways etc -->
 			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<!-- was 60 -->
-			<iResearchPercent>68</iResearchPercent>
+			<iResearchPercent>100</iResearchPercent>
 			<iTrainPercent>100</iTrainPercent>
+			<!-- custom: make costs the same at all difficulty for human players, only AI costs vary similarly than/as in/for techs or such anyways etc -->
 			<!-- was 80 (let's steer beginners away a bit from just playing SimCity) -->
-			<iConstructPercent>85</iConstructPercent>
-			<iCreatePercent>70</iCreatePercent>
+			<iConstructPercent>100</iConstructPercent>
+			<iCreatePercent>100</iCreatePercent>
 			<!-- was 45 -->
 			<iDistanceMaintenancePercent>50</iDistanceMaintenancePercent>
 			<!-- was 40 -->
-			<iNumCitiesMaintenancePercent>45</iNumCitiesMaintenancePercent>
+			<iNumCitiesMaintenancePercent>60</iNumCitiesMaintenancePercent>
 			<!-- advc.251 (end) -->
 			<!-- advc.exp.1: Essentially disabled this upper bound. Can re-enable
 				 it by setting it back to the original value of 4. -->
 			<iMaxNumCitiesMaintenance>4000</iMaxNumCitiesMaintenance>
-			<iColonyMaintenancePercent>60</iColonyMaintenancePercent>
+			<iColonyMaintenancePercent>85</iColonyMaintenancePercent>
 			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
-			<iCorporationMaintenancePercent>60</iCorporationMaintenancePercent>
+			<iCorporationMaintenancePercent>85</iCorporationMaintenancePercent>
 			<!-- advc.251: was 50 -->
-			<iCivicUpkeepPercent>60</iCivicUpkeepPercent>
-			<iInflationPercent>60</iInflationPercent>
+			<iCivicUpkeepPercent>100</iCivicUpkeepPercent>
+			<iInflationPercent>100</iInflationPercent>
 			<!-- advc.101 -->
-			<iForeignCultureStrength>10</iForeignCultureStrength>
+			<iForeignCultureStrength>11</iForeignCultureStrength>
 			<!-- advc.251: was 4 -->
 			<iHealthBonus>3</iHealthBonus>
 			<!-- advc.251: was 6 -->
 			<iHappyBonus>5</iHappyBonus>
 			<!-- advc.148: was 2 -->
 			<iAttitudeChange>2</iAttitudeChange>
-			<iNoTechTradeModifier>100</iNoTechTradeModifier>
-			<iTechTradeKnownModifier>-100</iTechTradeKnownModifier>
+			<iNoTechTradeModifier>80</iNoTechTradeModifier>
+			<iTechTradeKnownModifier>-30</iTechTradeKnownModifier>
 			<!-- advc.309: was 100 -->
 			<iUnownedTilesPerGameAnimal>54</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 150 -->
@@ -137,29 +141,31 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
-			<iBarbarianDefenders>0</iBarbarianDefenders>
+			<iBarbarianDefenders>1</iBarbarianDefenders>
 			<iAIDeclareWarProb>70</iAIDeclareWarProb>
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<!-- advc.251 (start) -->
 			<!-- was 160 -->
-			<iAIGrowthPercent>125</iAIGrowthPercent>
-			<iAIGPThresholdPercent>125</iAIGPThresholdPercent>
+			<iAIGrowthPercent>115</iAIGrowthPercent>
+			<!-- custom: adjusted based on this line "For GP and growth thresholds, I've added GPThresholdPercent and BaseGrowthThresholdPercent (for all civs) and AIGPThresholdPercent (for AI civs)." (from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv Base Doc\manual.txt) anyways etc -->
+			<iAIGPThresholdPercent>115</iAIGPThresholdPercent>
+			<!-- custom: reworked tech costs, see deity code comment of <iResearchPercent> for details at least as of now the code comment is there i mean anyways etc -->
 			<!-- Lower tech costs for the AI -->
 			<iAIResearchPercent>95</iAIResearchPercent>
 			<!-- was 6x 160 -->
 			<iAITrainPercent>124</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
-			<iAIConstructPercent>106</iAIConstructPercent>
+			<iAIConstructPercent>118</iAIConstructPercent>
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
 			<iAICreatePercent>106</iAICreatePercent>
 			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
 			<!-- advc.251 (end) -->
-			<iAICivicUpkeepPercent>100</iAICivicUpkeepPercent>
+			<iAICivicUpkeepPercent>118</iAICivicUpkeepPercent>
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
-			<iAIInflationPercent>100</iAIInflationPercent>
-			<iAIWarWearinessPercent>112</iAIWarWearinessPercent>
+			<iAIInflationPercent>115</iAIInflationPercent>
+			<iAIWarWearinessPercent>118</iAIWarWearinessPercent>
 			<!-- advc.251: renamed -->
 			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 100 -->
@@ -256,57 +262,57 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 				</FreeTech>
 			</AIFreeTechs>
 			<!-- advc.250a -->
-			<iDifficulty>0</iDifficulty>
+			<iDifficulty>10</iDifficulty>
 		</HandicapInfo>
 		<HandicapInfo> <!-- custom: chieftain (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
 			<Type>HANDICAP_CHIEFTAIN</Type>
 			<Description>TXT_KEY_HANDICAP_CHIEFTAIN</Description>
 			<Help>TXT_KEY_HANDICAP_CHIEFTAIN_HELP</Help>
 			<!-- advc.251: was 4 -->
-			<iFreeWinsVsBarbs>2</iFreeWinsVsBarbs>
-			<iAnimalAttackProb>50</iAnimalAttackProb>
+			<iFreeWinsVsBarbs>1</iFreeWinsVsBarbs>
+			<iAnimalAttackProb>20</iAnimalAttackProb>
 			<iStartingLocPercent>22</iStartingLocPercent>
 			<!-- advc.250c: was 130 -->
 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
 			<iGold>0</iGold>
 			<!-- advc.251 (start) -->
 			<!-- was 18 -->
-			<iFreeUnits>15</iFreeUnits>
+			<iFreeUnits>8</iFreeUnits>
 			<!-- was 30 -->
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<iBuildTimePercent>100</iBuildTimePercent>
-			<iBaseGrowthThresholdPercent>95</iBaseGrowthThresholdPercent>
-			<iGPThresholdPercent>95</iGPThresholdPercent>
+			<iBaseGrowthThresholdPercent>90</iBaseGrowthThresholdPercent>
+			<iGPThresholdPercent>90</iGPThresholdPercent>
 			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<!-- was 75 -->
-			<iResearchPercent>73</iResearchPercent>
+			<iResearchPercent>100</iResearchPercent>
 			<iTrainPercent>100</iTrainPercent>
-			<iConstructPercent>95</iConstructPercent>
-			<iCreatePercent>80</iCreatePercent>
+			<iConstructPercent>100</iConstructPercent>
+			<iCreatePercent>100</iCreatePercent>
 			<!-- was 55 -->
-			<iDistanceMaintenancePercent>60</iDistanceMaintenancePercent>
+			<iDistanceMaintenancePercent>65</iDistanceMaintenancePercent>
 			<!-- was 50 -->
-			<iNumCitiesMaintenancePercent>55</iNumCitiesMaintenancePercent>
+			<iNumCitiesMaintenancePercent>65</iNumCitiesMaintenancePercent>
 			<!-- advc.251 (end) -->
 			<!-- advc.exp.1: was 4 -->
 			<iMaxNumCitiesMaintenance>4000</iMaxNumCitiesMaintenance>
-			<iColonyMaintenancePercent>80</iColonyMaintenancePercent>
+			<iColonyMaintenancePercent>90</iColonyMaintenancePercent>
 			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
-			<iCorporationMaintenancePercent>80</iCorporationMaintenancePercent>
+			<iCorporationMaintenancePercent>90</iCorporationMaintenancePercent>
 			<!-- advc.251: was 60 -->
-			<iCivicUpkeepPercent>70</iCivicUpkeepPercent>
-			<iInflationPercent>70</iInflationPercent>
+			<iCivicUpkeepPercent>100</iCivicUpkeepPercent>
+			<iInflationPercent>100</iInflationPercent>
 			<!-- advc.101 -->
-			<iForeignCultureStrength>15</iForeignCultureStrength>
+			<iForeignCultureStrength>14</iForeignCultureStrength>
 			<iHealthBonus>3</iHealthBonus>
 			<iHappyBonus>5</iHappyBonus>
 			<!-- advc.148: was 1 -->
 			<iAttitudeChange>1</iAttitudeChange>
 			<!-- advc.251: was 90 -->
-			<iNoTechTradeModifier>85</iNoTechTradeModifier>
-			<iTechTradeKnownModifier>-50</iTechTradeKnownModifier>
+			<iNoTechTradeModifier>72</iNoTechTradeModifier>
+			<iTechTradeKnownModifier>-20</iTechTradeKnownModifier>
 			<!-- advc.309: was 80 -->
-			<iUnownedTilesPerGameAnimal>51</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>49</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 100 -->
 			<iUnownedTilesPerBarbarianUnit>61</iUnownedTilesPerBarbarianUnit>
 			<iUnownedWaterTilesPerBarbarianUnit>450</iUnownedWaterTilesPerBarbarianUnit>
@@ -317,40 +323,40 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iBarbarianCityCreationTurnsElapsed>44</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>10</iBarbarianCityCreationProb>
 			<!-- advc.313: was -60 -->
-			<iAnimalBonus>-25</iAnimalBonus>
-			<iBarbarianBonus>-25</iBarbarianBonus>
+			<iAnimalBonus>-20</iAnimalBonus>
+			<iBarbarianBonus>-15</iBarbarianBonus>
 			<!-- advc.313: was -40 -->
 			<iAIAnimalBonus>-15</iAIAnimalBonus>
 			<iAIBarbarianBonus>-15</iAIBarbarianBonus>
-			<iStartingDefenseUnits>3</iStartingDefenseUnits>
+			<iStartingDefenseUnits>2</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
-			<iStartingExploreUnits>0</iStartingExploreUnits>
+			<iStartingExploreUnits>1</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
 			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
-			<iBarbarianDefenders>0</iBarbarianDefenders>
+			<iBarbarianDefenders>1</iBarbarianDefenders>
 			<iAIDeclareWarProb>80</iAIDeclareWarProb>
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<!-- advc.251 (start) -->
 			<!-- was 130 -->
-			<iAIGrowthPercent>120</iAIGrowthPercent>
-			<iAIGPThresholdPercent>120</iAIGPThresholdPercent>
+			<iAIGrowthPercent>110</iAIGrowthPercent>
+			<iAIGPThresholdPercent>110</iAIGPThresholdPercent>
 			<iAIResearchPercent>100</iAIResearchPercent>
 			<!-- was 6x 130 -->
 			<iAITrainPercent>116</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
-			<iAIConstructPercent>104</iAIConstructPercent>
+			<iAIConstructPercent>112</iAIConstructPercent>
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
 			<iAICreatePercent>104</iAICreatePercent>
 			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
 			<!-- advc.251 (end) -->
-			<iAICivicUpkeepPercent>100</iAICivicUpkeepPercent>
+			<iAICivicUpkeepPercent>112</iAICivicUpkeepPercent>
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
-			<iAIInflationPercent>90</iAIInflationPercent>
-			<iAIWarWearinessPercent>108</iAIWarWearinessPercent>
+			<iAIInflationPercent>110</iAIInflationPercent>
+			<iAIWarWearinessPercent>112</iAIWarWearinessPercent>
 			<!-- advc.251: renamed -->
 			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 100 -->
@@ -415,16 +421,16 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 				</FreeTech>
 			</AIFreeTechs>
 			<!-- advc.250a -->
-			<iDifficulty>10</iDifficulty>
+			<iDifficulty>20</iDifficulty>
 		</HandicapInfo>
 		<HandicapInfo> <!-- custom: warlord (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
 			<Type>HANDICAP_WARLORD</Type>
 			<Description>TXT_KEY_HANDICAP_WARLORD</Description>
 			<Help>TXT_KEY_HANDICAP_WARLORD_HELP</Help>
 			<!-- advc.251: was 3 -->
-			<iFreeWinsVsBarbs>1</iFreeWinsVsBarbs>
+			<iFreeWinsVsBarbs>0</iFreeWinsVsBarbs>
 			<!-- advc.309: was 75 -->
-			<iAnimalAttackProb>60</iAnimalAttackProb>
+			<iAnimalAttackProb>30</iAnimalAttackProb>
 			<!-- advc.108b: was 30 -->
 			<iStartingLocPercent>33</iStartingLocPercent>
 			<!-- advc.250c: was 110 -->
@@ -432,42 +438,41 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iGold>0</iGold>
 			<!-- advc.251 (start) -->
 			<!-- was 12 -->
-			<iFreeUnits>10</iFreeUnits>
+			<iFreeUnits>7</iFreeUnits>
 			<!-- was 40 -->
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<iBuildTimePercent>100</iBuildTimePercent>
-			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
-			<iGPThresholdPercent>100</iGPThresholdPercent>
+			<iBaseGrowthThresholdPercent>95</iBaseGrowthThresholdPercent>
+			<iGPThresholdPercent>95</iGPThresholdPercent>
 			<iCultureLevelPercent>100</iCultureLevelPercent>
-			<!-- bonus: reduce this a bit as AI still has a few free techs now, was 90 -->
-			<iResearchPercent>85</iResearchPercent>
+			<iResearchPercent>100</iResearchPercent>
 			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>100</iConstructPercent>
-			<iCreatePercent>90</iCreatePercent>
+			<iCreatePercent>100</iCreatePercent>
 			<!-- was 65 -->
 			<iDistanceMaintenancePercent>70</iDistanceMaintenancePercent>
 			<!-- was 60 -->
-			<iNumCitiesMaintenancePercent>65</iNumCitiesMaintenancePercent>
+			<iNumCitiesMaintenancePercent>70</iNumCitiesMaintenancePercent>
 			<!-- advc.251 (end) -->
 			<!-- advc.exp.1: was 5 -->
 			<iMaxNumCitiesMaintenance>5000</iMaxNumCitiesMaintenance>
-			<iColonyMaintenancePercent>90</iColonyMaintenancePercent>
+			<iColonyMaintenancePercent>95</iColonyMaintenancePercent>
 			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
-			<iCorporationMaintenancePercent>90</iCorporationMaintenancePercent>
+			<iCorporationMaintenancePercent>95</iCorporationMaintenancePercent>
 			<!-- advc.251: was 70 -->
-			<iCivicUpkeepPercent>80</iCivicUpkeepPercent>
-			<iInflationPercent>80</iInflationPercent>
+			<iCivicUpkeepPercent>100</iCivicUpkeepPercent>
+			<iInflationPercent>100</iInflationPercent>
 			<!-- advc.101 -->
-			<iForeignCultureStrength>20</iForeignCultureStrength>
+			<iForeignCultureStrength>17</iForeignCultureStrength>
 			<iHealthBonus>2</iHealthBonus>
 			<iHappyBonus>4</iHappyBonus>
 			<!-- advc.148: was 0 -->
-			<iAttitudeChange>0</iAttitudeChange>
+			<iAttitudeChange>1</iAttitudeChange>
 			<!-- advc.251: was 80 -->
-			<iNoTechTradeModifier>75</iNoTechTradeModifier>
-			<iTechTradeKnownModifier>-25</iTechTradeKnownModifier>
+			<iNoTechTradeModifier>66</iNoTechTradeModifier>
+			<iTechTradeKnownModifier>-10</iTechTradeKnownModifier>
 			<!-- advc.309: was 60 -->
-			<iUnownedTilesPerGameAnimal>48</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>46</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 80 -->
 			<iUnownedTilesPerBarbarianUnit>58</iUnownedTilesPerBarbarianUnit>
 			<iUnownedWaterTilesPerBarbarianUnit>425</iUnownedWaterTilesPerBarbarianUnit>
@@ -477,14 +482,14 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iBarbarianCityCreationTurnsElapsed>42</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>15</iBarbarianCityCreationProb>
 			<!-- advc.313: was -50 -->
-			<iAnimalBonus>-20</iAnimalBonus>
+			<iAnimalBonus>-10</iAnimalBonus>
 			<iBarbarianBonus>0</iBarbarianBonus>
 			<!-- advc.313: was -40 -->
 			<iAIAnimalBonus>-20</iAIAnimalBonus>
 			<iAIBarbarianBonus>0</iAIBarbarianBonus>
 			<iStartingDefenseUnits>2</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
-			<iStartingExploreUnits>0</iStartingExploreUnits>
+			<iStartingExploreUnits>1</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
 			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
@@ -492,23 +497,23 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iBarbarianDefenders>1</iBarbarianDefenders>
 			<iAIDeclareWarProb>90</iAIDeclareWarProb>
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
-			<iAIGrowthPercent>110</iAIGrowthPercent>
+			<iAIGrowthPercent>105</iAIGrowthPercent>
 			<!-- advc.251 -->
-			<iAIGPThresholdPercent>110</iAIGPThresholdPercent>
+			<iAIGPThresholdPercent>105</iAIGPThresholdPercent>
 			<!-- advc.251 -->
 			<iAIResearchPercent>100</iAIResearchPercent>
 			<iAITrainPercent>108</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
-			<iAIConstructPercent>102</iAIConstructPercent>
+			<iAIConstructPercent>106</iAIConstructPercent>
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
 			<iAICreatePercent>102</iAICreatePercent>
 			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
-			<iAICivicUpkeepPercent>100</iAICivicUpkeepPercent>
+			<iAICivicUpkeepPercent>106</iAICivicUpkeepPercent>
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
-			<iAIInflationPercent>80</iAIInflationPercent>
-			<iAIWarWearinessPercent>104</iAIWarWearinessPercent>
+			<iAIInflationPercent>105</iAIInflationPercent>
+			<iAIWarWearinessPercent>106</iAIWarWearinessPercent>
 			<!-- advc.251: renamed -->
 			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 100 -->
@@ -573,7 +578,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 				</FreeTech>
 			</AIFreeTechs>
 			<!-- advc.250a -->
-			<iDifficulty>20</iDifficulty>
+			<iDifficulty>30</iDifficulty>
 		</HandicapInfo>
 		<HandicapInfo> <!-- custom: noble (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
 			<Type>HANDICAP_NOBLE</Type>
@@ -582,14 +587,14 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.251: was 2 -->
 			<iFreeWinsVsBarbs>0</iFreeWinsVsBarbs>
 			<!-- advc.309: was 85 -->
-			<iAnimalAttackProb>70</iAnimalAttackProb>
+			<iAnimalAttackProb>40</iAnimalAttackProb>
 			<!-- advc.108b: was 40 -->
 			<iStartingLocPercent>44</iStartingLocPercent>
 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
 			<iGold>0</iGold>
 			<!-- advc.251 (start) -->
 			<!-- was 8 -->
-			<iFreeUnits>7</iFreeUnits>
+			<iFreeUnits>6</iFreeUnits>
 			<!-- was 50 -->
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<iBuildTimePercent>100</iBuildTimePercent>
@@ -599,12 +604,12 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.251: Was 100. Note that this doesn't mean that humans
 				 have an advantage over the AI; ResearchPercent on Noble
 				 applies to all civs. -->
-			<iResearchPercent>95</iResearchPercent>
+			<iResearchPercent>100</iResearchPercent>
 			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
 			<!-- was 75 -->
-			<iDistanceMaintenancePercent>80</iDistanceMaintenancePercent>
+			<iDistanceMaintenancePercent>75</iDistanceMaintenancePercent>
 			<!-- was 70 -->
 			<iNumCitiesMaintenancePercent>75</iNumCitiesMaintenancePercent>
 			<!-- advc.251 (end) -->
@@ -614,19 +619,19 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
 			<iCorporationMaintenancePercent>100</iCorporationMaintenancePercent>
 			<!-- advc.251: was 80 -->
-			<iCivicUpkeepPercent>90</iCivicUpkeepPercent>
-			<iInflationPercent>90</iInflationPercent>
+			<iCivicUpkeepPercent>100</iCivicUpkeepPercent>
+			<iInflationPercent>100</iInflationPercent>
 			<!-- advc.101 -->
-			<iForeignCultureStrength>25</iForeignCultureStrength>
+			<iForeignCultureStrength>20</iForeignCultureStrength>
 			<iHealthBonus>2</iHealthBonus>
 			<iHappyBonus>4</iHappyBonus>
 			<!-- advc.148: was -1 -->
 			<iAttitudeChange>0</iAttitudeChange>
 			<!-- advc.251: was 70 -->
-			<iNoTechTradeModifier>64</iNoTechTradeModifier>
+			<iNoTechTradeModifier>60</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
 			<!-- advc.309: was 50 -->
-			<iUnownedTilesPerGameAnimal>45</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>43</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 60 -->
 			<iUnownedTilesPerBarbarianUnit>55</iUnownedTilesPerBarbarianUnit>
 			<iUnownedWaterTilesPerBarbarianUnit>400</iUnownedWaterTilesPerBarbarianUnit>
@@ -650,7 +655,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
-			<iBarbarianDefenders>1</iBarbarianDefenders>
+			<iBarbarianDefenders>2</iBarbarianDefenders>
 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<iAIGrowthPercent>100</iAIGrowthPercent>
@@ -668,7 +673,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
-			<iAIInflationPercent>80</iAIInflationPercent>
+			<iAIInflationPercent>100</iAIInflationPercent>
 			<iAIWarWearinessPercent>100</iAIWarWearinessPercent>
 			<!-- advc.251: renamed -->
 			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
@@ -738,7 +743,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 				</FreeTech>
 			</AIFreeTechs>
 			<!-- advc.250a -->
-			<iDifficulty>30</iDifficulty>
+			<iDifficulty>40</iDifficulty>
 		</HandicapInfo>
 		<HandicapInfo> <!-- custom: prince (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
 			<Type>HANDICAP_PRINCE</Type>
@@ -747,7 +752,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.251: was 1 -->
 			<iFreeWinsVsBarbs>0</iFreeWinsVsBarbs>
 			<!-- advc.309: was 90 -->
-			<iAnimalAttackProb>70</iAnimalAttackProb>
+			<iAnimalAttackProb>50</iAnimalAttackProb>
 			<!-- advc.108b: was 50 -->
 			<iStartingLocPercent>55</iStartingLocPercent>
 			<!-- advc.250c: was 95 -->
@@ -759,16 +764,16 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- was 60 -->
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<iBuildTimePercent>100</iBuildTimePercent>
-			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
-			<iGPThresholdPercent>100</iGPThresholdPercent>
+			<iBaseGrowthThresholdPercent>105</iBaseGrowthThresholdPercent>
+			<iGPThresholdPercent>105</iGPThresholdPercent>
 			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<!-- was 110 -->
-			<iResearchPercent>114</iResearchPercent>
+			<iResearchPercent>100</iResearchPercent>
 			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
 			<!-- advc.251 (end) -->
-			<iDistanceMaintenancePercent>85</iDistanceMaintenancePercent>
+			<iDistanceMaintenancePercent>80</iDistanceMaintenancePercent>
 			<iNumCitiesMaintenancePercent>80</iNumCitiesMaintenancePercent>
 			<!-- advc.exp.1: was 6 -->
 			<iMaxNumCitiesMaintenance>6000</iMaxNumCitiesMaintenance>
@@ -778,19 +783,19 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.251: was 110 -->
 			<iCorporationMaintenancePercent>105</iCorporationMaintenancePercent>
 			<!-- advc.251: was 90 -->
-			<iCivicUpkeepPercent>95</iCivicUpkeepPercent>
-			<iInflationPercent>95</iInflationPercent>
+			<iCivicUpkeepPercent>100</iCivicUpkeepPercent>
+			<iInflationPercent>100</iInflationPercent>
 			<!-- advc.101 -->
-			<iForeignCultureStrength>29</iForeignCultureStrength>
+			<iForeignCultureStrength>23</iForeignCultureStrength>
 			<iHealthBonus>2</iHealthBonus>
 			<iHappyBonus>4</iHappyBonus>
 			<!-- advc.148: was -1 -->
 			<iAttitudeChange>0</iAttitudeChange>
 			<!-- advc.251: was 60 -->
-			<iNoTechTradeModifier>56</iNoTechTradeModifier>
+			<iNoTechTradeModifier>54</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
 			<!-- advc.309: was 40 -->
-			<iUnownedTilesPerGameAnimal>42</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>40</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 50 -->
 			<iUnownedTilesPerBarbarianUnit>52</iUnownedTilesPerBarbarianUnit>
 			<iUnownedWaterTilesPerBarbarianUnit>375</iUnownedWaterTilesPerBarbarianUnit>
@@ -820,24 +825,24 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iBarbarianDefenders>2</iBarbarianDefenders>
 			<iAIDeclareWarProb>110</iAIDeclareWarProb>
 			<!-- advc.251: was 10 -->
-			<iAIWorkRateModifier>6</iAIWorkRateModifier>
-			<iAIGrowthPercent>100</iAIGrowthPercent>
+			<iAIWorkRateModifier>10</iAIWorkRateModifier>
+			<iAIGrowthPercent>95</iAIGrowthPercent>
 			<!-- advc.251 -->
-			<iAIGPThresholdPercent>100</iAIGPThresholdPercent>
+			<iAIGPThresholdPercent>95</iAIGPThresholdPercent>
 			<!-- advc.251 -->
-			<iAIResearchPercent>104</iAIResearchPercent>
+			<iAIResearchPercent>92</iAIResearchPercent>
 			<iAITrainPercent>92</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
-			<iAIConstructPercent>98</iAIConstructPercent>
+			<iAIConstructPercent>94</iAIConstructPercent>
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
-			<iAICreatePercent>98</iAICreatePercent>
+			<iAICreatePercent>97</iAICreatePercent>
 			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
-			<iAICivicUpkeepPercent>95</iAICivicUpkeepPercent>
+			<iAICivicUpkeepPercent>94</iAICivicUpkeepPercent>
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
-			<iAIInflationPercent>80</iAIInflationPercent>
-			<iAIWarWearinessPercent>96</iAIWarWearinessPercent>
+			<iAIInflationPercent>95</iAIInflationPercent>
+			<iAIWarWearinessPercent>94</iAIWarWearinessPercent>
 			<!-- advc.251: Renamed; was 1 per era. -->
 			<iAIHandicapIncrementTurns>100</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 110 -->
@@ -903,7 +908,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 				</FreeTech>
 			</AIFreeTechs>
 			<!-- advc.250a -->
-			<iDifficulty>40</iDifficulty>
+			<iDifficulty>50</iDifficulty>
 		</HandicapInfo>
 		<!-- advc.126: Added free tech for later eras to
 			 all handicaps below. -->
@@ -913,7 +918,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<Help>TXT_KEY_HANDICAP_MONARCH_HELP</Help>
 			<iFreeWinsVsBarbs>0</iFreeWinsVsBarbs>
 			<!-- advc.309: was 90 -->
-			<iAnimalAttackProb>70</iAnimalAttackProb>
+			<iAnimalAttackProb>60</iAnimalAttackProb>
 			<!-- advc.108b: was 60 -->
 			<iStartingLocPercent>66</iStartingLocPercent>
 			<!-- advc.250c: was 90 -->
@@ -924,18 +929,18 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- was 70 -->
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<iBuildTimePercent>100</iBuildTimePercent>
-			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
-			<iGPThresholdPercent>100</iGPThresholdPercent>
-			<iCultureLevelPercent>106</iCultureLevelPercent>
+			<iBaseGrowthThresholdPercent>110</iBaseGrowthThresholdPercent>
+			<iGPThresholdPercent>110</iGPThresholdPercent>
+			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<!-- was 120 -->
-			<iResearchPercent>120</iResearchPercent>
+			<iResearchPercent>100</iResearchPercent>
 			<!-- advc.251 (end) -->
 			<!-- advc.251 (start) -->
 			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
 			<!-- advc.251 (end) -->
-			<iDistanceMaintenancePercent>90</iDistanceMaintenancePercent>
+			<iDistanceMaintenancePercent>85</iDistanceMaintenancePercent>
 			<iNumCitiesMaintenancePercent>85</iNumCitiesMaintenancePercent>
 			<!-- advc.exp.1: was 6 -->
 			<iMaxNumCitiesMaintenance>6000</iMaxNumCitiesMaintenance>
@@ -948,7 +953,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iCivicUpkeepPercent>100</iCivicUpkeepPercent>
 			<iInflationPercent>100</iInflationPercent>
 			<!-- advc.101 -->
-			<iForeignCultureStrength>32</iForeignCultureStrength>
+			<iForeignCultureStrength>26</iForeignCultureStrength>
 			<iHealthBonus>2</iHealthBonus>
 			<iHappyBonus>4</iHappyBonus>
 			<!-- advc.148: was -1 -->
@@ -957,7 +962,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iNoTechTradeModifier>48</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
 			<!-- advc.309: was 35 -->
-			<iUnownedTilesPerGameAnimal>39</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>37</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 40 -->
 			<iUnownedTilesPerBarbarianUnit>49</iUnownedTilesPerBarbarianUnit>
 			<iUnownedWaterTilesPerBarbarianUnit>350</iUnownedWaterTilesPerBarbarianUnit>
@@ -982,35 +987,35 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
-			<iAIStartingDefenseUnits>3</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
 			<iBarbarianDefenders>2</iBarbarianDefenders>
 			<iAIDeclareWarProb>120</iAIDeclareWarProb>
 			<!-- advc.251: was 20 -->
-			<iAIWorkRateModifier>12</iAIWorkRateModifier>
-			<iAIGrowthPercent>95</iAIGrowthPercent>
+			<iAIWorkRateModifier>20</iAIWorkRateModifier>
+			<iAIGrowthPercent>90</iAIGrowthPercent>
 			<!-- advc.251 (start) -->
-			<iAIGPThresholdPercent>95</iAIGPThresholdPercent>
-			<iAIResearchPercent>108</iAIResearchPercent>
+			<iAIGPThresholdPercent>90</iAIGPThresholdPercent>
+			<iAIResearchPercent>84</iAIResearchPercent>
 			<!-- was 90 -->
 			<iAITrainPercent>84</iAITrainPercent>
 			<!-- was 100 -->
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<!-- was 90 -->
-			<iAIConstructPercent>96</iAIConstructPercent>
+			<iAIConstructPercent>88</iAIConstructPercent>
 			<!-- was 100 -->
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
-			<iAICreatePercent>96</iAICreatePercent>
+			<iAICreatePercent>94</iAICreatePercent>
 			<!-- was 100 -->
 			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
 			<!-- advc.251 (end) -->
-			<iAICivicUpkeepPercent>90</iAICivicUpkeepPercent>
+			<iAICivicUpkeepPercent>88</iAICivicUpkeepPercent>
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
-			<iAIInflationPercent>80</iAIInflationPercent>
-			<iAIWarWearinessPercent>92</iAIWarWearinessPercent>
+			<iAIInflationPercent>90</iAIInflationPercent>
+			<iAIWarWearinessPercent>88</iAIWarWearinessPercent>
 			<!-- advc.251: Renamed; was 2 per era. -->
 			<iAIHandicapIncrementTurns>50</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 120 -->
@@ -1081,7 +1086,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 				</FreeTech>
 			</AIFreeTechs>
 			<!-- advc.250a -->
-			<iDifficulty>50</iDifficulty>
+			<iDifficulty>60</iDifficulty>
 		</HandicapInfo>
 		<HandicapInfo> <!-- custom: emperor (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
 			<Type>HANDICAP_EMPEROR</Type>
@@ -1101,15 +1106,15 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<!-- custom: not immediately clear to me what this does looking at .cpp code from little or not little i udnerstand of it but anyways etc (getBuildTimePercent()), but i'll make it the same across all difficulties, and adjust if needed other handicap settings so that handicap are more reliable, i'd prefer it this way if i am not mistaken in my udnerstanding or non-not udnerstanding or understanding still bit of but anyways etc anyways etc anyways etc.., was 110 -->
 			<iBuildTimePercent>100</iBuildTimePercent>
-			<iBaseGrowthThresholdPercent>110</iBaseGrowthThresholdPercent>
-			<iGPThresholdPercent>110</iGPThresholdPercent>
-			<iCultureLevelPercent>112</iCultureLevelPercent>
-			<iResearchPercent>128</iResearchPercent>
+			<iBaseGrowthThresholdPercent>115</iBaseGrowthThresholdPercent>
+			<iGPThresholdPercent>115</iGPThresholdPercent>
+			<iCultureLevelPercent>100</iCultureLevelPercent>
+			<iResearchPercent>100</iResearchPercent>
 			<iTrainPercent>100</iTrainPercent>
-			<iConstructPercent>105</iConstructPercent>
+			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
 			<!-- advc.251 (end) -->
-			<iDistanceMaintenancePercent>95</iDistanceMaintenancePercent>
+			<iDistanceMaintenancePercent>90</iDistanceMaintenancePercent>
 			<iNumCitiesMaintenancePercent>90</iNumCitiesMaintenancePercent>
 			<!-- advc.exp.1: was 7 -->
 			<iMaxNumCitiesMaintenance>7000</iMaxNumCitiesMaintenance>
@@ -1121,15 +1126,15 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iCivicUpkeepPercent>100</iCivicUpkeepPercent>
 			<iInflationPercent>100</iInflationPercent>
 			<!-- advc.101 -->
-			<iForeignCultureStrength>35</iForeignCultureStrength>
+			<iForeignCultureStrength>29</iForeignCultureStrength>
 			<iHealthBonus>2</iHealthBonus>
 			<iHappyBonus>4</iHappyBonus>
 			<!-- advc.148: was -1 -->
 			<iAttitudeChange>0</iAttitudeChange>
-			<iNoTechTradeModifier>40</iNoTechTradeModifier>
+			<iNoTechTradeModifier>42</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
 			<!-- advc.309: was 30 -->
-			<iUnownedTilesPerGameAnimal>36</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>34</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 35 -->
 			<iUnownedTilesPerBarbarianUnit>46</iUnownedTilesPerBarbarianUnit>
 			<iUnownedWaterTilesPerBarbarianUnit>325</iUnownedWaterTilesPerBarbarianUnit>
@@ -1160,30 +1165,30 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iBarbarianDefenders>2</iBarbarianDefenders>
 			<iAIDeclareWarProb>130</iAIDeclareWarProb>
 			<!-- advc.251: was 50 -->
-			<iAIWorkRateModifier>18</iAIWorkRateModifier>
-			<iAIGrowthPercent>90</iAIGrowthPercent>
+			<iAIWorkRateModifier>30</iAIWorkRateModifier>
+			<iAIGrowthPercent>85</iAIGrowthPercent>
 			<!-- advc.251 (start) -->
-			<iAIGPThresholdPercent>90</iAIGPThresholdPercent>
+			<iAIGPThresholdPercent>85</iAIGPThresholdPercent>
 			<!-- Higher tech costs for the AI -->
-			<iAIResearchPercent>112</iAIResearchPercent>
+			<iAIResearchPercent>76</iAIResearchPercent>
 			<!-- was 85 -->
 			<iAITrainPercent>76</iAITrainPercent>
 			<!-- was 100 -->
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<!-- was 85 -->
-			<iAIConstructPercent>94</iAIConstructPercent>
+			<iAIConstructPercent>82</iAIConstructPercent>
 			<!-- was 100 -->
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
-			<iAICreatePercent>94</iAICreatePercent>
+			<iAICreatePercent>91</iAICreatePercent>
 			<!-- was 100 -->
 			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
 			<!-- advc.251 (end) -->
-			<iAICivicUpkeepPercent>85</iAICivicUpkeepPercent>
+			<iAICivicUpkeepPercent>82</iAICivicUpkeepPercent>
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
-			<iAIInflationPercent>80</iAIInflationPercent>
-			<iAIWarWearinessPercent>88</iAIWarWearinessPercent>
+			<iAIInflationPercent>85</iAIInflationPercent>
+			<iAIWarWearinessPercent>82</iAIWarWearinessPercent>
 			<!-- advc.251: Renamed; was 3 per era. -->
 			<iAIHandicapIncrementTurns>33</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 135 -->
@@ -1262,7 +1267,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 				</FreeTech>
 			</AIFreeTechs>
 			<!-- advc.250a -->
-			<iDifficulty>60</iDifficulty>
+			<iDifficulty>70</iDifficulty>
 		</HandicapInfo>
 		<HandicapInfo> <!-- custom: immortal (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
 			<Type>HANDICAP_IMMORTAL</Type>
@@ -1270,7 +1275,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<Help>TXT_KEY_HANDICAP_IMMORTAL_HELP</Help>
 			<iFreeWinsVsBarbs>0</iFreeWinsVsBarbs>
 			<!-- advc.309: was 90 -->
-			<iAnimalAttackProb>70</iAnimalAttackProb>
+			<iAnimalAttackProb>80</iAnimalAttackProb>
 			<!-- advc.108b: was 80 -->
 			<iStartingLocPercent>88</iStartingLocPercent>
 			<!-- advc.250c: was 80 -->
@@ -1283,14 +1288,14 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iBuildTimePercent>100</iBuildTimePercent>
 			<iBaseGrowthThresholdPercent>120</iBaseGrowthThresholdPercent>
 			<iGPThresholdPercent>120</iGPThresholdPercent>
-			<iCultureLevelPercent>118</iCultureLevelPercent>
+			<iCultureLevelPercent>100</iCultureLevelPercent>
 			<!-- was 125 -->
-			<iResearchPercent>133</iResearchPercent>
+			<iResearchPercent>100</iResearchPercent>
 			<iTrainPercent>100</iTrainPercent>
-			<iConstructPercent>110</iConstructPercent>
-			<iCreatePercent>110</iCreatePercent>
+			<iConstructPercent>100</iConstructPercent>
+			<iCreatePercent>100</iCreatePercent>
 			<!-- advc.251 (end) -->
-			<iDistanceMaintenancePercent>100</iDistanceMaintenancePercent>
+			<iDistanceMaintenancePercent>95</iDistanceMaintenancePercent>
 			<iNumCitiesMaintenancePercent>95</iNumCitiesMaintenancePercent>
 			<!-- advc.exp.1: was 7 -->
 			<iMaxNumCitiesMaintenance>7000</iMaxNumCitiesMaintenance>
@@ -1302,16 +1307,16 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iCivicUpkeepPercent>100</iCivicUpkeepPercent>
 			<iInflationPercent>100</iInflationPercent>
 			<!-- advc.101 -->
-			<iForeignCultureStrength>38</iForeignCultureStrength>
+			<iForeignCultureStrength>32</iForeignCultureStrength>
 			<iHealthBonus>2</iHealthBonus>
 			<iHappyBonus>4</iHappyBonus>
 			<!-- advc.148: was -1 -->
 			<iAttitudeChange>0</iAttitudeChange>
 			<!-- advc.251: was 30 -->
-			<iNoTechTradeModifier>32</iNoTechTradeModifier>
+			<iNoTechTradeModifier>36</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
 			<!-- advc.309: was 25 -->
-			<iUnownedTilesPerGameAnimal>33</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>31</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 30 -->
 			<iUnownedTilesPerBarbarianUnit>43</iUnownedTilesPerBarbarianUnit>
 			<iUnownedWaterTilesPerBarbarianUnit>300</iUnownedWaterTilesPerBarbarianUnit>
@@ -1336,7 +1341,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
 			<!-- advc.250e: was 3 -->
-			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>3</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>1</iAIStartingWorkerUnits>
 			<!-- advc.250e: was 1 -->
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
@@ -1344,29 +1349,29 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iBarbarianDefenders>3</iBarbarianDefenders>
 			<iAIDeclareWarProb>140</iAIDeclareWarProb>
 			<!-- advc.251: was 75 -->
-			<iAIWorkRateModifier>24</iAIWorkRateModifier>
-			<iAIGrowthPercent>85</iAIGrowthPercent>
+			<iAIWorkRateModifier>40</iAIWorkRateModifier>
+			<iAIGrowthPercent>80</iAIGrowthPercent>
 			<!-- advc.251 (start) -->
-			<iAIGPThresholdPercent>85</iAIGPThresholdPercent>
+			<iAIGPThresholdPercent>80</iAIGPThresholdPercent>
 			<!-- Higher tech costs for the AI -->
-			<iAIResearchPercent>116</iAIResearchPercent>
+			<iAIResearchPercent>68</iAIResearchPercent>
 			<!-- was 80 -->
 			<iAITrainPercent>68</iAITrainPercent>
 			<!-- was 100 -->
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
-			<iAIConstructPercent>92</iAIConstructPercent>
+			<iAIConstructPercent>76</iAIConstructPercent>
 			<!-- was 100 -->
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
-			<iAICreatePercent>92</iAICreatePercent>
+			<iAICreatePercent>88</iAICreatePercent>
 			<!-- was 100 -->
 			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
 			<!-- advc.251 (end) -->
-			<iAICivicUpkeepPercent>80</iAICivicUpkeepPercent>
+			<iAICivicUpkeepPercent>76</iAICivicUpkeepPercent>
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
 			<iAIInflationPercent>80</iAIInflationPercent>
-			<iAIWarWearinessPercent>84</iAIWarWearinessPercent>
+			<iAIWarWearinessPercent>76</iAIWarWearinessPercent>
 			<!-- advc.251: Renamed; was 4 per era. -->
 			<iAIHandicapIncrementTurns>25</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 150 -->
@@ -1446,7 +1451,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 				</FreeTech>
 			</AIFreeTechs>
 			<!-- advc.250a -->
-			<iDifficulty>70</iDifficulty>
+			<iDifficulty>80</iDifficulty>
 		</HandicapInfo>
 		<HandicapInfo> <!-- custom: deity (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
 			<Type>HANDICAP_DEITY</Type>
@@ -1454,7 +1459,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<Help>TXT_KEY_HANDICAP_DEITY_HELP</Help>
 			<iFreeWinsVsBarbs>0</iFreeWinsVsBarbs>
 			<!-- advc.309: was 90 -->
-			<iAnimalAttackProb>70</iAnimalAttackProb>
+			<iAnimalAttackProb>90</iAnimalAttackProb>
 			<!-- advc.108b: was 90 -->
 			<iStartingLocPercent>99</iStartingLocPercent>
 			<!-- advc.250c: was 75 -->
@@ -1464,14 +1469,15 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<!-- advc.251 (start) -->
 			<iBuildTimePercent>100</iBuildTimePercent>
-			<iBaseGrowthThresholdPercent>130</iBaseGrowthThresholdPercent>
-			<iGPThresholdPercent>130</iGPThresholdPercent>
-			<iCultureLevelPercent>129</iCultureLevelPercent>
+			<iBaseGrowthThresholdPercent>125</iBaseGrowthThresholdPercent>
+			<iGPThresholdPercent>125</iGPThresholdPercent>
+			<iCultureLevelPercent>100</iCultureLevelPercent>
+			<!-- custom: now research percent is 100 at all difficulties/handicap settings for human players, only AI percent varies for conveninence/clarity and consistency anyways etc -->
 			<!-- advc.251: was 130 -->
-			<iResearchPercent>140</iResearchPercent>
+			<iResearchPercent>100</iResearchPercent>
 			<iTrainPercent>100</iTrainPercent>
-			<iConstructPercent>115</iConstructPercent>
-			<iCreatePercent>120</iCreatePercent>
+			<iConstructPercent>100</iConstructPercent>
+			<iCreatePercent>100</iCreatePercent>
 			<!-- advc.251 (end) -->
 			<iDistanceMaintenancePercent>100</iDistanceMaintenancePercent>
 			<iNumCitiesMaintenancePercent>100</iNumCitiesMaintenancePercent>
@@ -1485,16 +1491,16 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iCivicUpkeepPercent>100</iCivicUpkeepPercent>
 			<iInflationPercent>100</iInflationPercent>
 			<!-- advc.101 -->
-			<iForeignCultureStrength>40</iForeignCultureStrength>
+			<iForeignCultureStrength>35</iForeignCultureStrength>
 			<iHealthBonus>2</iHealthBonus>
 			<iHappyBonus>4</iHappyBonus>
 			<!-- advc.148: was -1 -->
 			<iAttitudeChange>0</iAttitudeChange>
 			<!-- advc.251: was 20 -->
-			<iNoTechTradeModifier>24</iNoTechTradeModifier>
+			<iNoTechTradeModifier>30</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
 			<!-- advc.309: was 20 -->
-			<iUnownedTilesPerGameAnimal>30</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>28</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 25 -->
 			<iUnownedTilesPerBarbarianUnit>40</iUnownedTilesPerBarbarianUnit>
 			<iUnownedWaterTilesPerBarbarianUnit>275</iUnownedWaterTilesPerBarbarianUnit>
@@ -1523,40 +1529,40 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.250e: was 1 -->
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
 			<!-- advc.250e: was 4 -->
-			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>3</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>1</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
 			<iBarbarianDefenders>3</iBarbarianDefenders>
 			<iAIDeclareWarProb>150</iAIDeclareWarProb>
 			<!-- advc.251: was 100 -->
-			<iAIWorkRateModifier>30</iAIWorkRateModifier>
-			<iAIGrowthPercent>80</iAIGrowthPercent>
+			<iAIWorkRateModifier>50</iAIWorkRateModifier>
+			<iAIGrowthPercent>75</iAIGrowthPercent>
 			<!-- advc.251 (start) -->
-			<iAIGPThresholdPercent>80</iAIGPThresholdPercent>
+			<iAIGPThresholdPercent>75</iAIGPThresholdPercent>
 			<!-- Higher tech costs for the AI -->
-			<iAIResearchPercent>120</iAIResearchPercent>
+			<iAIResearchPercent>60</iAIResearchPercent>
 			<!-- was 60 -->
 			<iAITrainPercent>60</iAITrainPercent>
 			<!-- custom: i want more reliable handicap settings if i am not mistaken in my understanding and after asking chatgpt / becomingthrough and with a web search i asked it to do to be sure too anyways etc, it told me "According to the Civilization Wiki, the iAIWorldTrainPercent values vary across difficulty levels:" etc.. until "Settler	160 Chieftain 130 Warlord 110 Noble 100 Prince 100 Monarch 100 Emperor 100 Immortal 100 Deity 100" so based on this xml raw data and observation, what i make of it and interpret of it if i may say for our needs in advciv-sas but anyways etc, is that i want reliable AI behaviour when it comes to military hammer train percents, regardless of world size at all difficulties, anyways etc ; seemingly similar reasoning for iAIWorldConstructPercent and iAIWorldCreatePercent if i am not mistaken too anyways etc -->
 			<!-- was 100-->
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<!-- was 60 -->
-			<iAIConstructPercent>90</iAIConstructPercent>
+			<iAIConstructPercent>70</iAIConstructPercent>
 			<!-- was 100 -->
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
 			<!-- was 60 -->
-			<iAICreatePercent>90</iAICreatePercent>
+			<iAICreatePercent>85</iAICreatePercent>
 			<!-- was 100 -->
 			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
 			<!-- was 60 -->
-			<iAICivicUpkeepPercent>75</iAICivicUpkeepPercent>
+			<iAICivicUpkeepPercent>70</iAICivicUpkeepPercent>
 			<!-- was 60 -->
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
 			<!-- advc.251 (end) -->
 			<iAIUnitSupplyPercent>50</iAIUnitSupplyPercent>
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
-			<iAIInflationPercent>80</iAIInflationPercent>
-			<iAIWarWearinessPercent>80</iAIWarWearinessPercent>
+			<iAIInflationPercent>75</iAIInflationPercent>
+			<iAIWarWearinessPercent>70</iAIWarWearinessPercent>
 			<!-- advc.251: Renamed; was 5 per era. -->
 			<iAIHandicapIncrementTurns>20</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 170 -->
@@ -1686,8 +1692,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 					<bFreeTech>1</bFreeTech>
 				</FreeTech>
 			</AIFreeTechs>
+			<!-- custom: adjusted slightly based on/with knowledge of the code sample in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\UWAIAgent.cpp as well as chatgpt's explanation of it anyways etc, our handicap settings are more gradual than in base advciv, not sure it makes a difference but go for gradual values between handicap settings anyways etc, also start from a higher base line difficulty since our settings in advciv-sas are slightly harder anyways etc, was 85 -->
 			<!-- advc.250a -->
-			<iDifficulty>85</iDifficulty>
+			<iDifficulty>90</iDifficulty>
 		</HandicapInfo>
 	</HandicapInfos>
 </Civ4HandicapInfo>
