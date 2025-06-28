@@ -13430,7 +13430,7 @@
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>6</iFlavor>
+					<iFlavor>7</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GOLD</FlavorType>
@@ -13954,7 +13954,7 @@
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>8</iFlavor>
+					<iFlavor>7</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GOLD</FlavorType>
@@ -14147,10 +14147,15 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: adjust flavors, was flavor growth 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>10</iFlavor>
+					<iFlavor>8</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GOLD</FlavorType>
+					<iFlavor>8</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
