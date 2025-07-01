@@ -4,6 +4,10 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- Unit Infos -->
+<!-- custom: to avoid or reduce fake/suicidal AI war declarations, reduce iPower for some units anyways etc if i am not mistaken anyways etc:
+- like and in particular naval units as warfare happens mostly on land and even if AI has 10 frigates, it will not win against 2 crossbows or even warriors for example if i am not mistaken anyways etc
+- also adjust the estimated power of some land units like warrior, animals, etc as part of rebalancing them
+see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Units\CIV4UnitInf_os_UnitAI_and_notes.txt for details anyways etc -->
 <Civ4UnitInfos xmlns="x-schema:CIV4UnitSchema.xml">
 	<UnitInfos>
 		<UnitInfo> <!-- custom: class: UNITCLASS_LION, type: UNIT_LION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
@@ -110,7 +114,8 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<iCombat>15</iCombat>
+			<!-- custom: was 2-->
+			<iCombat>4</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -162,8 +167,9 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>15</iAsset>
-			<iPower>75</iPower>
+			<iAsset>1</iAsset>
+			<!-- custom: was 1 -->
+			<iPower>4</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -289,7 +295,8 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<iCombat>20</iCombat>
+			<!-- custom: was 3 -->
+			<iCombat>5</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -333,8 +340,9 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>20</iAsset>
-			<iPower>100</iPower>
+			<iAsset>1</iAsset>
+			<!-- custom: was 1 -->
+			<iPower>5</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -460,7 +468,8 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<iCombat>14</iCombat>
+			<!-- custom: was 2 -->
+			<iCombat>3</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -504,8 +513,9 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>14</iAsset>
-			<iPower>70</iPower>
+			<iAsset>1</iAsset>
+			<!-- custom: was 1 -->
+			<iPower>3</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -631,7 +641,8 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<iCombat>12</iCombat>
+			<!-- custom: was 1 -->
+			<iCombat>3</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -684,8 +695,9 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>12</iAsset>
-			<iPower>60</iPower>
+			<iAsset>1</iAsset>
+			<!-- custom: was 3 -->
+			<iPower>3</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -855,7 +867,8 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>25</iAsset>
+			<!-- custom: was 4 -->
+			<iAsset>20</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>4</iGroupSize>
@@ -1111,7 +1124,8 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>20</iAsset>
+			<!-- custom: was 2 -->
+			<iAsset>10</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>2</iGroupSize>
@@ -1362,7 +1376,8 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>30</iAsset>
+			<!-- custom: was 2 -->
+			<iAsset>10</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>2</iGroupSize>
@@ -1612,7 +1627,8 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>20</iAsset>
+			<!-- custom: was 2 -->
+			<iAsset>10</iAsset>
 			<iPower>0</iPower>
 			<!-- custom: only one artdefinetag same as for the indian fast worker (no mid or late art change for the dutch swift worker at least as of now anyways etc if not always or not or yes or etc but in all cases anyways etc anyways etc anyways etc) -->
 			<UnitMeshGroups>
@@ -1863,7 +1879,8 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>20</iAsset>
+			<!-- custom: was 2 -->
+			<iAsset>10</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>2</iGroupSize>
@@ -2082,8 +2099,9 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>15</iAsset>
-			<iPower>20</iPower>
+			<iAsset>1</iAsset>
+			<!-- custom: was 0 -->
+			<iPower>1</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>2</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -2306,8 +2324,9 @@
 			<!-- advc.315c: was 0 -->
 			<iCultureGarrison>3</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>35</iAsset>
-			<iPower>30</iPower>
+			<iAsset>3</iAsset>
+			<!-- custom: was 2 -->
+			<iPower>3</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>2</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -2496,7 +2515,8 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>15</iAsset>
+			<!-- custom: was 2 -->
+			<iAsset>6</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -2668,7 +2688,7 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>30</iAsset>
+			<iAsset>3</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -2835,7 +2855,7 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>30</iAsset>
+			<iAsset>3</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -3002,7 +3022,7 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>30</iAsset>
+			<iAsset>3</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -3169,7 +3189,7 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>30</iAsset>
+			<iAsset>3</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -3336,7 +3356,7 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>30</iAsset>
+			<iAsset>3</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -3503,7 +3523,7 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>30</iAsset>
+			<iAsset>3</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -3670,7 +3690,7 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>30</iAsset>
+			<iAsset>3</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -3838,7 +3858,8 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>30</iAsset>
+			<!-- custom: was 3 -->
+			<iAsset>3</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -4005,7 +4026,8 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>30</iAsset>
+			<!-- custom: was 3 -->
+			<iAsset>3</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -4172,7 +4194,8 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>30</iAsset>
+			<!-- custom: was 3 -->
+			<iAsset>3</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -4339,7 +4362,8 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>30</iAsset>
+			<!-- custom: was 3 -->
+			<iAsset>3</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -4506,7 +4530,8 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>30</iAsset>
+			<!-- custom: was 3 -->
+			<iAsset>3</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -4673,7 +4698,8 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>30</iAsset>
+			<!-- custom: was 3 -->
+			<iAsset>3</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -4840,7 +4866,8 @@
 			<iConscription>0</iConscription>
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>30</iAsset>
+			<!-- custom: was 3 -->
+			<iAsset>3</iAsset>
 			<iPower>0</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -4963,7 +4990,8 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>25</iCost>
+			<!-- custom: was 15 -->
+			<iCost>20</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -4987,7 +5015,8 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<iCombat>10</iCombat>
+			<!-- custom: was 2 -->
+			<iCombat>3</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -4997,12 +5026,15 @@
 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
 			<iInterceptionProbability>0</iInterceptionProbability>
 			<iEvasionProbability>0</iEvasionProbability>
+			<!-- custom: was 0 -->
 			<iWithdrawalProb>5</iWithdrawalProb>
 			<iCollateralDamage>0</iCollateralDamage>
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>
+			<!-- custom: was 25 -->
 			<iCityDefense>10</iCityDefense>
+			<!-- custom: was 0 -->
 			<iAnimalCombat>50</iAnimalCombat>
 			<iHillsAttack>0</iHillsAttack>
 			<iHillsDefense>0</iHillsDefense>
@@ -5026,8 +5058,9 @@
 			<iConscription>1</iConscription>
 			<iCultureGarrison>3</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>10</iAsset>
-			<iPower>100</iPower>
+			<iAsset>1</iAsset>
+			<!-- custom: was 2 -->
+			<iPower>3</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -5391,8 +5424,9 @@
 			<iCultureGarrison>5</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>2</iAsset>
+			<!-- custom: was 5 -->
 			<!-- advc.104e: was 6 -->
-			<iPower>5</iPower>
+			<iPower>6</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -6197,14 +6231,7 @@
 			<iCultureGarrison>4</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>2</iAsset>
-			<!-- advc.104: Was 6; not unjustified, but confuses the AI
-			     when it comes to identifying the typical early defensive
-				 unit - at power 6, Axeman offers more power per
-				 production than Archer, even when factoring in the latter's
-				 defensive bonus and potential garrison promotions.
-				 The extra powerful Phalanx and Vulture remain at 6;
-				 reduced the weaker and cheaper Dog Soldier to 5 (6 is
-				 way off in that case). -->
+			<!-- advc.104: Was 6; not unjustified, but confuses the AI when it comes to identifying the typical early defensive unit - at power 6, Axeman offers more power per production than Archer, even when factoring in the latter's defensive bonus and potential garrison promotions. The extra powerful Phalanx and Vulture remain at 6; reduced the weaker and cheaper Dog Soldier to 5 (6 is way off in that case). -->
 			<iPower>5</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
@@ -7153,14 +7180,17 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
+			<!-- custom: was 8 -->
 			<iCombat>8</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
 			<iXPValueAttack>4</iXPValueAttack>
 			<iXPValueDefense>2</iXPValueDefense>
-			<iFirstStrikes>2</iFirstStrikes>
-			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+			<!-- custom: was 2 -->
+			<iFirstStrikes>0</iFirstStrikes>
+			<!-- custom: was 0 -->
+			<iChanceFirstStrikes>1</iChanceFirstStrikes>
 			<iInterceptionProbability>0</iInterceptionProbability>
 			<iEvasionProbability>0</iEvasionProbability>
 			<iWithdrawalProb>0</iWithdrawalProb>
@@ -7198,6 +7228,7 @@
 			<iCultureGarrison>6</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>2</iAsset>
+			<!-- custom: was 8 -->
 			<iPower>9</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
@@ -7216,9 +7247,10 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
+			<!-- custom: was PROMOTION_DRILL1 -->
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_DRILL1</PromotionType>
+					<PromotionType>PROMOTION_COMBAT1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -7872,7 +7904,8 @@
 			<iCultureGarrison>4</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>2</iAsset>
-			<iPower>4</iPower>
+			<!-- custom: was 4 -->
+			<iPower>5</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -8457,11 +8490,11 @@
 			</TechTypes>
 			<BonusType>BONUS_IRON</BonusType>
 			<PrereqBonuses/>
-
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>60</iCost>
+			<!-- custom: was 60 -->
+			<iCost>65</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -8485,6 +8518,7 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
+			<!-- custom: was 6 -->
 			<iCombat>6</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
@@ -8552,7 +8586,8 @@
 			<iCultureGarrison>6</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>2</iAsset>
-			<iPower>6</iPower>
+			<!-- custom: was 6 -->
+			<iPower>7</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -8715,7 +8750,8 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<iCombat>6</iCombat>
+			<!-- custom: was 6 -->
+			<iCombat>7</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -8790,7 +8826,8 @@
 			<iCultureGarrison>6</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>2</iAsset>
-			<iPower>6</iPower>
+			<!-- custom: was 6 -->
+			<iPower>7</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -11835,13 +11872,13 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<iCombat>6</iCombat>
+			<iCombat>3</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
 			<iXPValueAttack>4</iXPValueAttack>
 			<iXPValueDefense>2</iXPValueDefense>
-			<iFirstStrikes>2</iFirstStrikes>
+			<iFirstStrikes>1</iFirstStrikes>
 			<iChanceFirstStrikes>1</iChanceFirstStrikes>
 			<iInterceptionProbability>0</iInterceptionProbability>
 			<iEvasionProbability>0</iEvasionProbability>
@@ -11893,7 +11930,8 @@
 			<iCultureGarrison>4</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>1</iAsset>
-			<iPower>3</iPower>
+			<!-- custom: was 3 -->
+			<iPower>5</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>2</fMaxSpeed>
@@ -12038,7 +12076,8 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>25</iCost>
+			<!-- custom: was 25 -->
+			<iCost>30</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -12068,20 +12107,21 @@
 			<iAirCombatLimit>0</iAirCombatLimit>
 			<iXPValueAttack>4</iXPValueAttack>
 			<iXPValueDefense>2</iXPValueDefense>
+			<!-- custom: was 0 -->
 			<!-- advc.907d: was 1 -->
-			<iFirstStrikes>0</iFirstStrikes>
+			<iFirstStrikes>1</iFirstStrikes>
 			<iChanceFirstStrikes>1</iChanceFirstStrikes>
 			<iInterceptionProbability>0</iInterceptionProbability>
 			<iEvasionProbability>0</iEvasionProbability>
-			<iWithdrawalProb>0</iWithdrawalProb>
-			<iCollateralDamage>0</iCollateralDamage>
+			<iWithdrawalProb>25</iWithdrawalProb>
+			<iCollateralDamage>30</iCollateralDamage>
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
-			<iCityAttack>0</iCityAttack>
-			<iCityDefense>10</iCityDefense>
+			<iCityAttack>20</iCityAttack>
+			<iCityDefense>50</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
 			<iHillsAttack>0</iHillsAttack>
-			<iHillsDefense>0</iHillsDefense>
+			<iHillsDefense>25</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
 			<!-- custom: skirmisher (useful for ctrl+f too maybe etc)-->
@@ -12132,7 +12172,7 @@
 			<iCultureGarrison>4</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>1</iAsset>
-			<iPower>4</iPower>
+			<iPower>6</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -12461,6 +12501,7 @@
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
+			<!-- custom: test add counter and city_counter quite simialrly anyways etc if i am not mistaken anyways etc anyways etc as the crossbow to make the longbowman slightly more versatile now that it is reworked anyways etc -->
 			<UnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
@@ -12468,6 +12509,14 @@
 				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
@@ -12482,14 +12531,6 @@
 				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 				<UnitAI>
@@ -12520,7 +12561,8 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>50</iCost>
+			<!-- custom: was 50 -->
+			<iCost>45</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -12544,6 +12586,7 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
+			<!-- custom: was 6 -->
 			<iCombat>6</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
@@ -12551,13 +12594,16 @@
 			<iXPValueAttack>4</iXPValueAttack>
 			<iXPValueDefense>2</iXPValueDefense>
 			<iFirstStrikes>1</iFirstStrikes>
-			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+			<!-- custom: was 0 -->
+			<iChanceFirstStrikes>1</iChanceFirstStrikes>
 			<iInterceptionProbability>0</iInterceptionProbability>
 			<iEvasionProbability>0</iEvasionProbability>
-			<iWithdrawalProb>0</iWithdrawalProb>
+			<!-- custom: was 0 -->
+			<iWithdrawalProb>25</iWithdrawalProb>
 			<iCollateralDamage>0</iCollateralDamage>
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+			<!-- custom: was 0 -->
 			<iCityAttack>0</iCityAttack>
 			<iCityDefense>25</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
@@ -12584,7 +12630,8 @@
 			<iCultureGarrison>6</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>2</iAsset>
-			<iPower>6</iPower>
+			<!-- custom: was 6 -->
+			<iPower>5</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -17524,17 +17571,18 @@
 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
+				<!-- custom: try to make siege units focus on the city attack part and less on the surrounding tiles attack so they don't get baited at least ideally not as much anyways etc -->
 				<UnitAI>
-					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
+					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: tentative change to avoid catapults suicides/getting baited during enemy invasion -->
+				<!-- custom: tentative change to avoid siege units suicides/getting baited during enemy invasion -->
 				<UnitAI>
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
-			<!-- custom: tentative change to avoid catapults suicides/getting baited during enemy invasion -->
+			<!-- custom: tentative change to avoid siege units suicides/getting baited during enemy invasion -->
 			<NotUnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
@@ -17739,17 +17787,18 @@
 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
+				<!-- custom: try to make siege units focus on the city attack part and less on the surrounding tiles attack so they don't get baited at least ideally not as much anyways etc -->
 				<UnitAI>
-					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
+					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: tentative change to avoid catapults suicides/getting baited during enemy invasion -->
+				<!-- custom: tentative change to avoid siege units suicides/getting baited during enemy invasion -->
 				<UnitAI>
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
-			<!-- custom: tentative change to avoid catapults suicides/getting baited during enemy invasion -->
+			<!-- custom: tentative change to avoid siege units suicides/getting baited during enemy invasion -->
 			<NotUnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
@@ -17959,12 +18008,18 @@
 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: tentative change to avoid trebuchets suicides/getting baited during enemy invasion -->
+				<!-- custom: try to make siege units focus on the city attack part and less on the surrounding tiles attack so they don't get baited at least ideally not as much anyways etc -->
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<!-- custom: tentative change to avoid siege units suicides/getting baited during enemy invasion -->
 				<UnitAI>
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
+			<!-- custom: tentative change to avoid siege units suicides/getting baited during enemy invasion -->
 			<NotUnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
@@ -17974,7 +18029,6 @@
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: tentative change to avoid trebuchets suicides/getting baited during enemy invasion -->
 				<UnitAI>
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
@@ -19412,7 +19466,8 @@
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>2</iAsset>
-			<iPower>2</iPower>
+			<!-- custom: reduce iPower of naval units to minimal value to avoid suicidal or fake/misestmated if it is a word anyways etc war declarations, as warfare happens mostly on land and strength and win factor should be there if i'm not mistaken anyways etc, was 2 -->
+			<iPower>1</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
 				<fMaxSpeed>2.25</fMaxSpeed>
@@ -19618,7 +19673,8 @@
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>2</iAsset>
-			<iPower>3</iPower>
+			<!-- custom: was 3 -->
+			<iPower>1</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
 				<fMaxSpeed>2.25</fMaxSpeed>
@@ -19808,7 +19864,8 @@
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>3</iAsset>
-			<iPower>4</iPower>
+			<!-- custom: was 4 -->
+			<iPower>1</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
 				<fMaxSpeed>2.25</fMaxSpeed>
@@ -19999,7 +20056,8 @@
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>3</iAsset>
-			<iPower>4</iPower>
+			<!-- custom: was 3 -->
+			<iPower>2</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
 				<fMaxSpeed>2.25</fMaxSpeed>
@@ -20191,7 +20249,8 @@
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>3</iAsset>
-			<iPower>6</iPower>
+			<!-- custom: was 6 -->
+			<iPower>2</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
 				<fMaxSpeed>2.25</fMaxSpeed>
@@ -20386,7 +20445,8 @@
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>3</iAsset>
-			<iPower>8</iPower>
+			<!-- custom: was 2 -->
+			<iPower>2</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
 				<fMaxSpeed>2.25</fMaxSpeed>
@@ -20588,8 +20648,9 @@
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>3</iAsset>
+			<!-- custom: was 11 -->
 			<!-- advc.905b: was 10 -->
-			<iPower>11</iPower>
+			<iPower>3</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
 				<fMaxSpeed>2.25</fMaxSpeed>
@@ -20787,7 +20848,8 @@
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>3</iAsset>
-			<iPower>12</iPower>
+			<!-- custom: was 12 -->
+			<iPower>3</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
 				<fMaxSpeed>2.25</fMaxSpeed>
@@ -20927,8 +20989,9 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
+			<!-- custom: was 14 -->
 			<!-- advc.905b: was 16 -->
-			<iCombat>14</iCombat>
+			<iCombat>8</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -20969,7 +21032,8 @@
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>3</iAsset>
-			<iPower>16</iPower>
+			<!-- custom: was 16 -->
+			<iPower>2</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
 				<fMaxSpeed>2.25</fMaxSpeed>
@@ -21090,7 +21154,8 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>200</iCost>
+			<!-- custom: was 200 -->
+			<iCost>180</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -21114,7 +21179,8 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<iCombat>30</iCombat>
+			<!-- custom: was 30 -->
+			<iCombat>22</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -21154,7 +21220,8 @@
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>5</iAsset>
-			<iPower>30</iPower>
+			<!-- custom: was 30 -->
+			<iPower>7</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
 				<fMaxSpeed>2.25</fMaxSpeed>
@@ -21265,7 +21332,7 @@
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: move it sooner in tech, seems historically accurate from tiny bits i read of the sevopedia description (declines during world war 2, so build it sooner anyways etc), plus tech_industrialism is bloated and too strong anyways etc, was TECH_INDUSTRIALISM -->
-			<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
+			<PrereqTech>TECH_STEEL</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses>
@@ -21277,8 +21344,9 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
+			<!-- custom: was 250 -->
 			<!-- advc.906: was 225 -->
-			<iCost>250</iCost>
+			<iCost>220</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -21302,7 +21370,8 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<iCombat>40</iCombat>
+			<!-- custom: was 40 -->
+			<iCombat>30</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -21342,7 +21411,8 @@
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>5</iAsset>
-			<iPower>40</iPower>
+			<!-- custom: was 40 -->
+			<iPower>8</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
 				<fMaxSpeed>2.25</fMaxSpeed>
@@ -21446,7 +21516,8 @@
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_ROBOTICS</PrereqTech>
+			<!-- custom: was TECH_ROBOTICS -->
+			<PrereqTech>TECH_ROCKETRY</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses>
@@ -21458,7 +21529,8 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>260</iCost>
+			<!-- custom: was 260 -->
+			<iCost>250</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -21482,7 +21554,8 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<iCombat>40</iCombat>
+			<!-- custom: was 40 -->
+			<iCombat>26</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -21522,8 +21595,9 @@
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>6</iAsset>
+			<!-- custom: was 42 -->
 			<!-- BBAI: was 14 -->
-			<iPower>42</iPower>
+			<iPower>9</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
 				<fMaxSpeed>2.25</fMaxSpeed>
@@ -21632,9 +21706,9 @@
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- advc.906: was ROCKETRY plus RADIO and COMBUSTION -->
-			<PrereqTech>TECH_RADIO</PrereqTech>
+			<PrereqTech>TECH_STEEL</PrereqTech>
 			<TechTypes>
-				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>TECH_RADIO</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
@@ -21649,8 +21723,9 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
+			<!-- custom: was 160 -->
 			<!-- advc.906: was 200 -->
-			<iCost>160</iCost>
+			<iCost>200</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -21729,7 +21804,7 @@
 			<!-- advc.906: was 5 -->
 			<iAsset>4</iAsset>
 			<!-- advc.906: was 30 -->
-			<iPower>28</iPower>
+			<iPower>7</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
 				<fMaxSpeed>2.25</fMaxSpeed>
@@ -21838,7 +21913,8 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>175</iCost>
+			<!-- custom: was 175 -->
+			<iCost>180</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -21902,7 +21978,8 @@
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>5</iAsset>
-			<iPower>16</iPower>
+			<!-- custom: was 16 -->
+			<iPower>6</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
 				<fMaxSpeed>2.25</fMaxSpeed>
@@ -22047,7 +22124,8 @@
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_PHYSICS</PrereqTech>
+			<!-- custom: was TECH_PHYSICS -->
+			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>

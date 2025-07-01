@@ -18,7 +18,8 @@
 # - as well as of other units modifiers (which would be/is against this (currently selected) unit this time anyways etc),
 # - as well as the placeFreePromotions
 # thanks a lot Claude AI! Anyways etc anyways etc anyways etc... -->
-# -->
+
+
 
 from CvPythonExtensions import *
 import CvUtil
@@ -595,10 +596,7 @@ class SevoPediaUnit:
 		panelName = self.top.getNextWidgetName()
 		
 		# Create panel with proper styling
-		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS", ()), "", False, True, 
-					self.X_TERRAIN_FEATURE_CITY_BONUSES, self.Y_TERRAIN_FEATURE_CITY_BONUSES, 
-					self.W_TERRAIN_FEATURE_CITY_BONUSES, self.H_TERRAIN_FEATURE_CITY_BONUSES, 
-					PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS", ()), "", False, True, self.X_TERRAIN_FEATURE_CITY_BONUSES, self.Y_TERRAIN_FEATURE_CITY_BONUSES, self.W_TERRAIN_FEATURE_CITY_BONUSES, self.H_TERRAIN_FEATURE_CITY_BONUSES, PanelStyles.PANEL_STYLE_BLUE50)
 		
 		# Additional left side padding for the button(s)
 		screen.attachLabel(panelName, "", "  ")
@@ -626,8 +624,7 @@ class SevoPediaUnit:
 		# did not match C++ signature:
 		#	attachImageButton(class CyGInterfaceScreen {lvalue}, char const *, char const *, char const *, enum GenericButtonSizes, enum WidgetTypes, int, int, bool)
 		#  
-		# (adding the str) may or may not be necessary or an alternative solution to this may exist or not, but in all cases anyways etc) anyways etc, etc
-		# -->
+		# (adding the str) may or may not be necessary or an alternative solution to this may exist or not, but in all cases anyways etc) anyways etc, etc -->
 
 		citiesResolvedButtonPath = str(CyTranslator().getText(citiesConfigButtonPathSTxtKey, ()))
 		citiesButtonHeader = "Cities button in Sevopedia Unit's placePeakHillCityTerrainsFeaturesModifiers"
@@ -723,25 +720,20 @@ class SevoPediaUnit:
 			
 			if jumpType == "TERRAIN":
 				widgetType = WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN
-				screen.attachImageButton(panelName, "", buttonArt, GenericButtonSizes.BUTTON_SIZE_CUSTOM, 
-									widgetType, widgetID1, -1, False)
+				screen.attachImageButton(panelName, "", buttonArt, GenericButtonSizes.BUTTON_SIZE_CUSTOM, widgetType, widgetID1, -1, False)
 			elif jumpType == "FEATURE":
 				widgetType = WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE
-				screen.attachImageButton(panelName, "", buttonArt, GenericButtonSizes.BUTTON_SIZE_CUSTOM, 
-									widgetType, widgetID1, -1, False)
+				screen.attachImageButton(panelName, "", buttonArt, GenericButtonSizes.BUTTON_SIZE_CUSTOM, widgetType, widgetID1, -1, False)
 			elif jumpType == "HILLS":
 				widgetType = WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN
-				screen.attachImageButton(panelName, "", buttonArt, GenericButtonSizes.BUTTON_SIZE_CUSTOM, 
-									widgetType, widgetID1, -1, False)
+				screen.attachImageButton(panelName, "", buttonArt, GenericButtonSizes.BUTTON_SIZE_CUSTOM, widgetType, widgetID1, -1, False)
 			elif jumpType == "CONCEPT":
 				# For concepts, use WIDGET_PEDIA_DESCRIPTION with proper page type and ID
 				widgetType = WidgetTypes.WIDGET_PEDIA_DESCRIPTION
-				screen.attachImageButton(panelName, "", buttonArt, GenericButtonSizes.BUTTON_SIZE_CUSTOM, 
-									widgetType, widgetID1, widgetID2, False)
+				screen.attachImageButton(panelName, "", buttonArt, GenericButtonSizes.BUTTON_SIZE_CUSTOM, widgetType, widgetID1, widgetID2, False)
 			else:
 				# Default to WIDGET_GENERAL with no click action
-				screen.attachImageButton(panelName, "", buttonArt, GenericButtonSizes.BUTTON_SIZE_CUSTOM, 
-									widgetType, -1, -1, False)
+				screen.attachImageButton(panelName, "", buttonArt, GenericButtonSizes.BUTTON_SIZE_CUSTOM, widgetType, -1, -1, False)
 		
 		# Display the bonus texts or "no bonuses" message
 		isButtonFound = (nCountOccurencesFound > 0)
@@ -857,22 +849,15 @@ class SevoPediaUnit:
 		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
 		textName = self.top.getNextWidgetName()
 		szText = u""
-		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY
-		# in SevoPediaBuilding.py (refer to this file for details),
-		# removing (hiding) the entry entirely from the sevopedia.
-		# -->
+		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY in SevoPediaBuilding.py (refer to this file for details), removing (hiding) the entry entirely from the sevopedia. -->
 		#if len(gc.getUnitInfo(self.iUnit).getStrategy()) > 0:
 		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
 		#	szText += gc.getUnitInfo(self.iUnit).getStrategy()
 		#	szText += u"\n\n"
-		# <!-- custom: i don't need the background: tag either, a box being there
-		# is explicit enough, clearer, prettier, and more efficient i think.
-		# -->
+		# <!-- custom: i don't need the background: tag either, a box being there is explicit enough, clearer, prettier, and more efficient i think. -->
 		#szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
 		szText += gc.getUnitInfo(self.iUnit).getCivilopedia()
-		# <!-- custom: fix height too low, does not display properly the concept texts
-		# (for example any religious missionary unit)
-		# -->
+		# <!-- custom: fix height too low, does not display properly the concept texts (for example any religious missionary unit) -->
 		#screen.addMultilineText(textName, szText, self.X_HISTORY + 15, self.Y_HISTORY + 40, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		#screen.addMultilineText(textName, szText, self.X_HISTORY + 7 , self.Y_HISTORY + 10, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25 + 41, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 30, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)

@@ -959,23 +959,13 @@
 			<VictoryThresholds/>
 		</BuildingClassInfo>
 		<BuildingClassInfo>
-			<Type>BUILDINGCLASS_WEST_POINT</Type>
-			<Description>TXT_KEY_BUILDING_WEST_POINT</Description>
-			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
-			<iMaxTeamInstances>-1</iMaxTeamInstances>
-			<iMaxPlayerInstances>1</iMaxPlayerInstances>
-			<iExtraPlayerInstances>0</iExtraPlayerInstances>
-			<bNoLimit>0</bNoLimit>
-			<bMonument>0</bMonument>
-			<DefaultBuilding>BUILDING_WEST_POINT</DefaultBuilding>
-			<VictoryThresholds/>
-		</BuildingClassInfo>
-		<BuildingClassInfo>
 			<Type>BUILDINGCLASS_MT_RUSHMORE</Type>
 			<Description>TXT_KEY_BUILDING_MT_RUSHMORE</Description>
-			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+			<!-- custom: was -1 -->
+			<iMaxGlobalInstances>1</iMaxGlobalInstances>
 			<iMaxTeamInstances>-1</iMaxTeamInstances>
-			<iMaxPlayerInstances>1</iMaxPlayerInstances>
+			<!-- custom: was 1 -->
+			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
 			<iExtraPlayerInstances>0</iExtraPlayerInstances>
 			<bNoLimit>0</bNoLimit>
 			<bMonument>0</bMonument>
@@ -985,9 +975,11 @@
 		<BuildingClassInfo>
 			<Type>BUILDINGCLASS_RED_CROSS</Type>
 			<Description>TXT_KEY_BUILDING_RED_CROSS</Description>
-			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+			<!-- custom: was -1 -->
+			<iMaxGlobalInstances>1</iMaxGlobalInstances>
 			<iMaxTeamInstances>-1</iMaxTeamInstances>
-			<iMaxPlayerInstances>1</iMaxPlayerInstances>
+			<!-- custom: was 1 -->
+			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
 			<iExtraPlayerInstances>0</iExtraPlayerInstances>
 			<bNoLimit>0</bNoLimit>
 			<bMonument>0</bMonument>
@@ -1295,23 +1287,12 @@
 			<VictoryThresholds/>
 		</BuildingClassInfo>
 		<BuildingClassInfo>
-			<Type>BUILDINGCLASS_SPACE_ELEVATOR</Type>
-			<Description>TXT_KEY_BUILDING_SPACE_ELEVATOR</Description>
-			<iMaxGlobalInstances>1</iMaxGlobalInstances>
-			<iMaxTeamInstances>-1</iMaxTeamInstances>
-			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
-			<iExtraPlayerInstances>0</iExtraPlayerInstances>
-			<bNoLimit>0</bNoLimit>
-			<bMonument>0</bMonument>
-			<DefaultBuilding>BUILDING_SPACE_ELEVATOR</DefaultBuilding>
-			<VictoryThresholds/>
-		</BuildingClassInfo>
-		<BuildingClassInfo>
 			<Type>BUILDINGCLASS_MILITARY_ACADEMY</Type>
 			<Description>TXT_KEY_BUILDING_MILITARY_ACADEMY</Description>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
 			<iMaxTeamInstances>-1</iMaxTeamInstances>
-			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+			<!-- custom: was -1 -->
+			<iMaxPlayerInstances>1</iMaxPlayerInstances>
 			<iExtraPlayerInstances>0</iExtraPlayerInstances>
 			<bNoLimit>0</bNoLimit>
 			<bMonument>0</bMonument>

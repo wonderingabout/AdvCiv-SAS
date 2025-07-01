@@ -1,12 +1,12 @@
-To install and play this mod AdvCiv-SAS, you can follow these steps:
-
 # Install Civilization 4 Beyond the Sword (skip if already done)
+
+To install and play this mod AdvCiv-SAS, you can follow the steps in this document/readme.
 
 (skip if already done)
 
 First you need to install (or have it installed already ) Civilization 4 Beyond the Sword.
 
-# Download (or clone from git if you know how and prefer) this mod AdvCiv-SAS
+## Download (or clone from git if you know how and prefer) this mod AdvCiv-SAS
 
 Then download (or clone from git if you know how as you prefer) this AdvCiv-SAS
 mod. Extract the archive in the Mods folder of BTS/BTS (be careful twice BTS), for example,
@@ -16,7 +16,7 @@ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond
 
 If you don't use Steam you can still play this mod, you'll just have to change the path to where civ4 was installed (and might have less DRMs at the same time so may be even better as you prefer)
 
-# Place a shortcut on your desktop
+## Place a shortcut on your desktop
 
 Finally, add a shortcut to your desktop which link is, for example for Steam:
 
@@ -31,9 +31,10 @@ extract it in same Mods folder but with a different folder name, for example you
 even AdvCiv alongside AdvCiv-SAS as long they are in different folders, they are totally indepedent, the settings or files
 of one will not override or affect the other mods, thanks to the very awesome design of Civ 4, thanks!
 
-Where to download more mods, for example (but you may already know if you downloaded this, still, or if not, maybe this can help you too) :
-- CivFanatics Center (also known as CFC) 's forums -> Civ 4 forum -> Modpacks forum (is a forum of a forum called a forum(?)) : [here](https://forums.civfanatics.com/forums/civ4-modpacks.171/)
-- ModDB (but does not have as much mods i think, AdvCiv (base mod) is not listed for example (which is the most interesting of the AdvCiv mods i think, except my awesome mod maybe as interesting maybe as AdvCiv, but i hope i can contribute there maybe)): https://www.moddb.com/games/civilization-iv/mods
+Where to download more mods, for example (but you may already know if you downloaded this, still, or if not, maybe this can help you too):
+
+- CivFanatics Center (also known as CFC) 's forums -> Civ 4 forum -> Modpacks forum (is a forum of a forum called a forum(?)): [civfanatics website civ4 modpacks forum](https://forums.civfanatics.com/forums/civ4-modpacks.171/)
+- ModDB (but does not have as much mods i think, AdvCiv (base mod) is not listed for example (which is the most interesting of the AdvCiv mods i think, except my awesome mod maybe as interesting maybe as AdvCiv, but i hope i can contribute there maybe)): [ModDB website](https://www.moddb.com/games/civilization-iv/mods)
 
 note 2:
 If you want to know me there (on CFC forum), i am [civ4-advciv-oracle-bug (link to my CFC forum profile)](https://forums.civfanatics.com/members/civ4-advciv-oracle-bug.346029/) where you can see my posts and such.
@@ -41,7 +42,7 @@ If you want to know me there (on CFC forum), i am [civ4-advciv-oracle-bug (link 
 But i say it just for exhaustiveness, even though i am (quite) friendly i think, i prefer to stay alone and relax and do my own
 things, so i might get stressed if you contact me.. Still, if this project would help you reader or even those who don't read, i may be quite happy of it, especially as i contribute(d) to it
 
-# Configure your game
+## Configure your game
 
 Recommended, change your config as you prefer, see this page for details todo
 

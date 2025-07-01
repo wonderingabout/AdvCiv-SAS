@@ -1,0 +1,13 @@
+# More exhaustive military
+
+Unlikely to be implemented as such because actually too tedious not only in terms of implementing it i mean but also mostly in terms of gameplay, it is most likely better as in in terms of gameplay and AI efficiency and reliability and balance (since AI upgrade units cheaper even though it can be changed anyways etc), to have a clean and simple straighforward military tree.
+
+Still i had made this one before, and have also found some info like which buttons (image of the unit ingame (not its animation but the sort of icon even though icons in civ4 are something different i mean (the smaller textual images anyways etc))), so here is the military tree that was originally planned in AdvCiv-SAS. While making it, i had tweaked the existing one of base AdvCiv/civ4 BTS for historical accuracy and gameplay diversity.
+
+![img_military_tree_1](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.43%20military%20tree_modified.png)
+
+Drawbacks of not implementing it is some inconsistencies like the new advciv-sas i mean immortal (imported from other mods but implemented in our own way in advciv-sas and unlike in base advciv and civ4 i mean anyways etc i mean too anyways etc anyways etc anyways etc) having a spear despite being a swordsman, because there are no classical/iron age spearmen, ideally something i would change but military upgrade costs would skyrocket xd if i may say even though stillodl era but for all eras too anyways etc, plus i am not sure such an exhaustive design is better as in more enjoyable and or relevant in terms of gameplay, especially considering how fast the tech tree moves, so units would change too often, most likely better or/and how i'd want it in base advciv/civ4, or something closer to it anyways etc.
+
+But we did some additions like camel units, bow combat types, maybe will add more or quite a lot more units or maybe not not guaranteed, may or may not anyways etc.
+
+The info is there if helpful anyways etc anyways etc anyways etc.

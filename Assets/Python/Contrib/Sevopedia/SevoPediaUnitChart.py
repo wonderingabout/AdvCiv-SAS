@@ -4,8 +4,9 @@
 # 
 # parts of this code have also been imported from base advciv:
 # https://github.com/f1rpo/AdvCiv/blob/master/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
-# and modified or not for AdvCiv-SAS
-# -->
+# and modified or not for AdvCiv-SAS -->
+
+
 
 from CvPythonExtensions import *
 import CvUtil
@@ -38,20 +39,13 @@ class SevoPediaUnitChart:
 		self.placeUnitTable()
 
 
-	# <!-- custom: i did not know about this ChatGPT told me about this or made
-	# me understand it and solve it, so adding this explanation in case it helps
+
+	# <!-- custom: i did not know about this ChatGPT told me about this or made me understand it and solve it, so adding this explanation in case it helps
 	# others or/and me:
-	# in python, here for placeUnitTable function, when we call it using
-	# self.placeUnitTable(), self is passed automatically as an argument so no need
+	# in python, here for placeUnitTable function, when we call it using self.placeUnitTable(), self is passed automatically as an argument so no need
 	# to write it (else there would be 2 arguments) at function.
-	# However, in function definition, self is not known, so it needs to be defined
-	# as a parameter. This is why there is an apparent mismatch in the number of
-	# parameters vs arguments in placeUnitTable(self) vs self.placeUnitTable(), but
-	# this is how it should be done else it does not work.
-	# Thanks to ChatGPT for pointing me quite strongly to the right direction until
-	# i could solve it myself after tries and such and understand ChatGPT's
-	# explanation too now, and thanks to me for doing it too, anyways, adding this
-	# here in case it helps me or/and others. -->
+	# However, in function definition, self is not known, so it needs to be defined as a parameter. This is why there is an apparent mismatch in the number of parameters vs arguments in placeUnitTable(self) vs self.placeUnitTable(), but this is how it should be done else it does not work.
+	# Thanks to ChatGPT for pointing me quite strongly to the right direction until i could solve it myself after tries and such and understand ChatGPT's explanation too now, and thanks to me for doing it too, anyways, adding this here in case it helps me or/and others. -->
 	def placeUnitTable(self):
 		screen = self.top.getScreen()
 		table = self.top.getNextWidgetName()
@@ -65,27 +59,18 @@ class SevoPediaUnitChart:
 		
 		self.W_TABLE = ( self.W_NAME + ((self.N_COLUMNS - 1) * self.W_NUM) ) + (2 * self.MARGIN)
 
-		# <!-- custom: blue is more readable than standard i find, imported
-		# from base AdvCiv and modified with a similar kind of purpose
-		# -->
+		# <!-- custom: blue is more readable than standard i find, imported from base AdvCiv and modified with a similar kind of purpose -->
 		#screen.addTableControlGFC(table, self.N_COLUMNS, self.X_TABLE, self.Y_TABLE, self.W_TABLE, self.H_TABLE, True, False, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
 		#screen.setStyle(table, "Table_StandardCiv_Style")
 		#screen.enableSort(table)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, self.X_TABLE, self.Y_TABLE, self.W_TABLE, self.H_TABLE, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, self.X_TABLE + self.MARGIN, self.Y_TABLE + self.MARGIN, self.W_TABLE - (self.MARGIN * 2), self.H_TABLE - (self.MARGIN * 2), PanelStyles.PANEL_STYLE_BLUE50)
 		table = self.top.getNextWidgetName()
-		screen.addTableControlGFC(table,
-							self.N_COLUMNS,
-							self.X_TABLE + self.MARGIN,
-							self.Y_TABLE + self.MARGIN + 5,
-							self.W_TABLE - (self.MARGIN * 2),
-							self.H_TABLE - (self.MARGIN * 2) - 5,
-							True,
-							False,
-							32,
-							32,
-							TableStyles.TABLE_STYLE_EMPTY
-		)
+		tableX = self.X_TABLE + self.MARGIN
+		tableY = self.Y_TABLE + self.MARGIN + 5
+		tableW = self.W_TABLE - (self.MARGIN * 2)
+		tableH = self.H_TABLE - (self.MARGIN * 2) - 5
+		screen.addTableControlGFC(table, self.N_COLUMNS, tableX, tableY, tableW, tableH, True, False, 32, 32, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSort(table)
 
 		szName = gc.getUnitCombatInfo(self.iGroup).getDescription()
@@ -95,12 +80,7 @@ class SevoPediaUnitChart:
 		#szMove = "Moves"
 		szMove = u"%c" % CyGame().getSymbolID(FontSymbols.MOVES_CHAR)
 
-		# <!-- custom: display more potentially useful information,
-		# useful in AdvCiv-SAS and/or maybe other mods as well,
-		# also so that i don't have to maintain it everytime i make
-		# a micro (or big) change, more versatile and flexible this
-		# way too.
-		# -->
+		# <!-- custom: display more potentially useful information, useful in AdvCiv-SAS and/or maybe other mods as well, also so that i don't have to maintain it everytime i make a micro (or big) change, more versatile and flexible this way too. -->
 		#if self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR') or self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_NAVAL') or self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_SIEGE'):
 			# <!-- custom: imported and modified from base advciv in a similar way -->
 			#szSpecial = "Bombard"
@@ -114,7 +94,6 @@ class SevoPediaUnitChart:
 		szAirEvasion = u"Air Evasion"
 
 		szCost = u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()
-
 
 		# <!-- custom: trick (to center the headers text too) taught to me by ChatGPT, quoting it:
 		# "
@@ -135,8 +114,7 @@ class SevoPediaUnitChart:
 		# If you're okay with digging into the SDK or custom DLL builds (like AdvCiv or BUG), it’s technically possible to modify the table rendering to expose alignment options for headers. But this is definitely a bigger job — the manual padding is the easiest trick.
 		# "
 		# May also serve for future reference maybe, anyways, thanks a lot ChatGPT, and to those who advised me or told me
-		# about how i could use it, in particular for civ4, or/and or things to thank for or not, anyways,
-		#  -->
+		# about how i could use it, in particular for civ4, or/and or things to thank for or not, anyways, -->
 
 		if isAirCombatType:
 			szAirIntercept = u"Air Intercept"
@@ -224,8 +202,7 @@ class SevoPediaUnitChart:
 		# First Strikes
 		if UnitInfo.getFirstStrikes() > 0:
 			szFirstStrikesNum = u"%d" % UnitInfo.getFirstStrikes()
-		# <!-- custom: keeping this beautification as it is a lot more
-		# useful/readable than having tons of 0s, anyways -->
+		# <!-- custom: keeping this beautification as it is a lot more useful/readable than having tons of 0s, anyways -->
 		else:
 			szFirstStrikesNum = u""
 

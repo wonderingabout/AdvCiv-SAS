@@ -265,6 +265,15 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 
 	def pediaJump(self, iCategory, iItem, bRemoveFwdList, bIsLink):
+		# <!-- custom: before fallback fix: trying to debug tech advisor obsolete bonus elephant none error in sevopedia bonus redirect vs no problem displaying the obsolete building at correct item in sevopedia building: this debug line seems to show selected item in tech advisor, for example for obsolete building spiral minaret "[DEBUG] Before 0: iItem=135, self.iItem=-1, item self.iItemIndex=-1" vs for obsolete bonus elephants "[DEBUG] Before 0: iItem=-1, self.iItem=135, item self.iItemIndex=36" -->
+		#print("[DEBUG] Before 0: iItem=%d, self.iItem=%d, item self.iItemIndex=%d" % (iItem, self.iItem, self.iItemIndex))
+
+		# <!-- custom: after having debugged everything, add fallback logic to cover obsolete bonuses selected in tech advisor as None when redirected to sevopedia bonus, as advised by chatgpt ; match obsolete building debug at the before 0 step anyways etc ; note: we have the real iItem in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Screens\CvTechChooser.py as highlighted by claude ai and noticed as well by chatgpt anyways etc, but i don't know how to pass it here accurately / safely or at all -->
+		if (iItem == -1):
+			iItem = 1
+			self.iItemIndex = -1
+			print("[DEBUG] Fallback: If iItem is -1 for example when selecting obsolete bonus in tech advisor, (vs no error when selecting obsolete buildings in tech advisor), then fallback to a most likely safe iItem instead so we can show sevopedia bonus page instead (iItem=%d, self.iItem=%d, item self.iItemIndex=%d)" % (iItem, self.iItem, self.iItemIndex))
+
 		bAddToHistory = False
 		if (not self.pediaHistory):
 			bAddToHistory = True
@@ -288,6 +297,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			#self.iCategory = iItem
 			return
 
+		# <!-- custom: before fallback fix: this handles National and World Wonder separate categories, not related to None error when clicking on obsolete bonuses in tech advisor i mean anyways etc anyways etc -->
 		if (iCategory == SevoScreenEnums.PEDIA_BUILDINGS):
 			iCategory += self.pediaBuilding.getBuildingType(iItem)
 		elif (iCategory == SevoScreenEnums.PEDIA_BTS_CONCEPTS):
@@ -297,13 +307,21 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		screen.setSelectedListBoxStringGFC(self.CATEGORY_LIST_ID, iCategory - (SevoScreenEnums.PEDIA_MAIN + 1))
 		if (iCategory not in (SevoScreenEnums.PEDIA_UNIT_UPGRADES, SevoScreenEnums.PEDIA_PROMOTION_TREE, SevoScreenEnums.PEDIA_HINTS)):
 			screen.enableSelect(self.ITEM_LIST_ID, True)
+			# <!-- custom: before fallback fix: trying to debug tech advisor obsolete bonus elephant none error in sevopedia bonus redirect vs no problem displaying the obsolete building at correct item in sevopedia building: example of output with obsolete building spiral minaret in tech advisor i.e. tech tree view anyways etc is "Before: iItem=135, self.iItem=-1, item self.iItemIndex=-1" ; vs for obsolete bonus elephants "[DEBUG] Before: iItem=-1, self.iItem=-1, item self.iItemIndex=-1" -->
+			#print("[DEBUG] Before: iItem=%d, self.iItem=%d, item self.iItemIndex=%d" % (iItem, self.iItem, self.iItemIndex))
+
 			if (self.iItemIndex != -1):
 				BugUtil.debug("Deselecting item %d" % self.iItemIndex)
 				screen.selectRow(self.ITEM_LIST_ID, self.iItemIndex, False)
 			BugUtil.debug("Selecting item %d" % iItem)
 			self.iItem = iItem
+
+			# <!-- custom: before fallback fix: trying to debug tech advisor obsolete bonus elephant none error in sevopedia bonus redirect vs no problem displaying the obsolete building at correct item in sevopedia building: example of output with obsolete building spiral minaret in tech advisor i.e. tech tree view anyways etc is "After: iItem=135, self.iItem=135, item self.iItemIndex=-1" ; vs for obsolete bonus elephants "[DEBUG] After: iItem=-1, self.iItem=-1, item self.iItemIndex=-1" -->
+			#print("[DEBUG] After: iItem=%d, self.iItem=%d, item self.iItemIndex=%d" % (iItem, self.iItem, self.iItemIndex))
 			for i, item in enumerate(self.list):
 				if (item[1] == iItem):
+					# <!-- custom: trying to debug tech advisor obsolete bonus elephant none error in sevopedia bonus redirect vs no problem displaying the obsolete building at correct item in sevopedia building: example of output with obsolete building spiral minaret in tech advisor i.e. tech tree view anyways etc is "After 2: iItem=135, self.iItem=135, item self.iItemIndex=-1" ; vs for obsolete bonus elephants nothing at all -->
+					#print("[DEBUG] After 2: iItem=%d, self.iItem=%d, item self.iItemIndex=%d" % (iItem, self.iItem, self.iItemIndex))
 					BugUtil.debug("Selecting %dth item %d" % (i, iItem))
 					#screen.setSelectedListBoxStringGFC(self.ITEM_LIST_ID, i)
 					screen.selectRow(self.ITEM_LIST_ID, i, True)

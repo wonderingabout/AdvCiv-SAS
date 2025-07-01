@@ -21,7 +21,8 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 			<Civilopedia>TXT_KEY_BONUS_ALUMINUM_PEDIA</Civilopedia>
 			<BonusClassType>BONUSCLASS_MODERN</BonusClassType>
 			<ArtDefineTag>ART_DEF_BONUS_ALUMINUM</ArtDefineTag>
-			<TechReveal>TECH_INDUSTRIALISM</TechReveal>
+			<!-- custom: was TECH_INDUSTRIALISM -->
+			<TechReveal>TECH_CORPORATION</TechReveal>
 			<TechCityTrade>TECH_MINING</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
 			<YieldChanges>
@@ -395,7 +396,8 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 			<Civilopedia>TXT_KEY_BONUS_OIL_PEDIA</Civilopedia>
 			<BonusClassType>BONUSCLASS_MODERN</BonusClassType>
 			<ArtDefineTag>ART_DEF_BONUS_OIL</ArtDefineTag>
-			<TechReveal>TECH_SCIENTIFIC_METHOD</TechReveal>
+			<!-- custom: was TECH_SCIENTIFIC_METHOD -->
+			<TechReveal>TECH_COMBUSTION</TechReveal>
 			<TechCityTrade>TECH_COMBUSTION</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
 			<YieldChanges>
@@ -525,7 +527,8 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 			<Civilopedia>TXT_KEY_BONUS_URANIUM_PEDIA</Civilopedia>
 			<BonusClassType>BONUSCLASS_MODERN</BonusClassType>
 			<ArtDefineTag>ART_DEF_BONUS_URANIUM</ArtDefineTag>
-			<TechReveal>TECH_PHYSICS</TechReveal>
+			<!-- custom: was TECH_PHYSICS -->
+			<TechReveal>TECH_RADIO</TechReveal>
 			<TechCityTrade>TECH_FISSION</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
 			<YieldChanges>

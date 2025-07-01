@@ -17,8 +17,9 @@
 # <!-- custom: part of the code here (placeBuilding and placeUnit in particular, but not exhaustive or maybe exhaustive
 # or not, anyways, is imported from Rise of Mankind (291) mod:
 # C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Rise of Mankind\
-# which may be modified or not for AdvCiv-SAS
-# -->
+# which may be modified or not for AdvCiv-SAS-->
+
+
 
 from CvPythonExtensions import *
 import CvUtil
@@ -199,16 +200,13 @@ class SevoPediaReligion:
 	#			lRect.x(), lRect.y(), lRect.width(), lRect.height(),
 	#			4, iButtonSize, iButtonSize, # numLists, defaultWidth, defaultHeight
 	#			TableStyles.TABLE_STYLE_STANDARD)
-	# if it helps us adapt/use the addMultiListControlGFC method, anyways etc
-	# -->
+	# if it helps us adapt/use the addMultiListControlGFC method, anyways etc -->
 	def placeLeaders(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 
 		# Create panel with proper styling
-		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_CATEGORY_LEADER", ()), "", False, True, 
-						self.X_LEADERS, self.Y_LEADERS, self.W_LEADERS, self.H_LEADERS, 
-						PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_CATEGORY_LEADER", ()), "", False, True, self.X_LEADERS, self.Y_LEADERS, self.W_LEADERS, self.H_LEADERS, PanelStyles.PANEL_STYLE_BLUE50)
 		
 		# Create MultiList for leaders
 		rowListName = self.top.getNextWidgetName()
@@ -221,23 +219,22 @@ class SevoPediaReligion:
 		# Create the MultiList control
 		# Per documentation, the numLists parameter (7th) is actually number of columns
 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
-		screen.addMultiListControlGFC(rowListName, "", 
-								self.X_LEADERS + PADDING_X, 
-								self.Y_LEADERS + PADDING_Y, 
-								self.W_LEADERS - (PADDING_X * 2), 
-								self.H_LEADERS - (PADDING_Y + 10), 
-								1,  # Using 1 for auto-calculation of buttons per row
-								BUTTON_SIZE, BUTTON_SIZE, 
-								TableStyles.TABLE_STYLE_STANDARD)
+		multiItemX = self.X_LEADERS + PADDING_X
+		multiItemY = self.Y_LEADERS + PADDING_Y
+		multiItemW = self.W_LEADERS - (PADDING_X * 2)
+		multiItemH = self.H_LEADERS - (PADDING_Y + 10)
+		# Using 1 for auto-calculation of buttons per row
+		buttonCalculate = 1
+		screen.addMultiListControlGFC(rowListName, "", multiItemX, multiItemY, multiItemW, multiItemH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		# Find all leaders who have this religion as favorite, <!-- custom: and --> add <!-- custom: them --> all to the list <!-- custom: anyways etc (not catch them all... or maybe.. or not or yes, anyways etc... xd anyways etc...) -->
 		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
 			LeaderInfo = gc.getLeaderHeadInfo(iLeader)
 			if LeaderInfo.getFavoriteReligion() == self.iReligion:
 				LeaderInfo = gc.getLeaderHeadInfo(iLeader)
-				screen.appendMultiListButton(rowListName, LeaderInfo.getButton(), 
-										0,  # Column index (always 0 when numLists=1)
-										WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, 1, False)
+				# Column index (always 0 when numLists=1)
+				columnIndex = 0
+				screen.appendMultiListButton(rowListName, LeaderInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, 1, False)
 
 
 

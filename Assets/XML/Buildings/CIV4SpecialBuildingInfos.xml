@@ -13,7 +13,8 @@
 			<Type>SPECIALBUILDING_BOMB_SHELTER</Type>
 			<Description>TXT_KEY_SPECIALBUILDING_BOMB_SHELTER</Description>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<TechPrereq>TECH_ASSEMBLY_LINE</TechPrereq>
+			<!-- custom: seems strictly related to nukes unlike the bunker, and not at all to tech_assembly_line which is bloated and op if i am not mistaken anyways etc, while tech_fission has some room we could use i mean more balanced if feasable in this case i mean anyways etc, was TECH_ASSEMBLY_LINE -->
+			<TechPrereq>TECH_FISSION</TechPrereq>
 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
 			<bValid>0</bValid>
 			<ProductionTraits/>
@@ -55,7 +56,8 @@
 		<SpecialBuildingInfo>
 			<Type>SPECIALBUILDING_MONASTERY</Type>
 			<Description>TXT_KEY_SPECIALBUILDING_MONASTERY</Description>
-			<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
+			<!-- custom: reworked monasteries, also for betetr or worse religion is still relevant in modern era (i am not a big fan of it but each do as they please maybe as long as they don't harm or maybe too ideally not annoy me as well but anyways etc..., even though it is for me to handle, at least don't act in an actively harmful way to me maybe if i may say maybe indeed but anyways etc) ; also remove scientific effect which doesn't make sense for a religious building, in fact it should be the opposite effect, religion makes dumber and further away from science for betetr or worse (i am not a fan too but society (perhaps societies if i may say but anyways etc) function as such so there must be a reason or reasons i mean in this case anyways etc anyways etc anyways etc), so no reason to obsolete this building anymore which is easier to handle/follow/grasp/manage if i may say anyways etc in terms of gameplay and modding as well at least for me maybe for others or not or yes or other but anyways etc, was TECH_SCIENTIFIC_METHOD -->
+			<ObsoleteTech>NONE</ObsoleteTech>
 			<TechPrereq>TECH_PRIESTHOOD</TechPrereq>
 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
 			<bValid>1</bValid>

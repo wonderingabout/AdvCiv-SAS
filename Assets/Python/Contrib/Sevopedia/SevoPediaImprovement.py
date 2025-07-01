@@ -94,17 +94,10 @@ class SevoPediaImprovement:
 		screen.attachListBoxGFC(panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(listName, False)
 
-		# <!-- custom: changes based on the same idea applied
-		# in SevoPediaBonus.py 's placeStats function as it is
-		# similar
+		# <!-- custom: changes based on the same idea applied in SevoPediaBonus.py 's placeStats function as it is similar
 		#szYield += (u"%s: %s%i%c" % (gc.getYieldInfo(k).getDescription(), sign, iYieldChange, gc.getYieldInfo(k).getChar()))
-		# <!-- custom: line removed that seemed safe to do
-		# see diff with earlier code for comparison if needed
-		# -->
-		# <!-- custom: this part is for yields that do not
-		# require any additional tech than the one required
-		# to gain access to the ressources (for example
-		# + 2 hammer with mine, + 4 commerce with town)
+		# <!-- custom: line removed that seemed safe to do see diff with earlier code for comparison if needed -->
+		# <!-- custom: this part is for yields that do not require any additional tech than the one required to gain access to the ressources (for example + 2 hammer with mine, + 4 commerce with town)
 		for k in range(YieldTypes.NUM_YIELD_TYPES):
 			iYieldChange = gc.getImprovementInfo(self.iImprovement).getYieldChange(k)
 			if (iYieldChange != 0):
@@ -113,43 +106,27 @@ class SevoPediaImprovement:
 					sign = "+"
 				else:
 					sign = ""
-				# <!-- custom: change here, also add a
-				# larger font, especially now that we have
-				# more room with less text now
-				# -->
+				# <!-- custom: change here, also add a larger font, especially now that we have more room with less text now -->
 				#szYield += (u"%s: %s%i%c" % (gc.getYieldInfo(k).getDescription(), sign, iYieldChange, gc.getYieldInfo(k).getChar()))
 				szYield += (u"<font=4>%s%i%c</font>" % (sign, iYieldChange, gc.getYieldInfo(k).getChar()))
 				screen.appendListBoxString(listName, szYield, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-		# <!-- custom: this part is for yields that require irrigation
-		# (for example farm + 1 food)
-		# -->
+		# <!-- custom: this part is for yields that require irrigation (for example farm + 1 food) -->
 		for k in range(YieldTypes.NUM_YIELD_TYPES):
 			iYieldChange = gc.getImprovementInfo(self.iImprovement).getIrrigatedYieldChange(k)
 			if (iYieldChange != 0):
 				# <!-- custom: change here -->
 				#szYield = localText.getText("TXT_KEY_PEDIA_IRRIGATED_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar()))
-				# note: even though we don't use the %s1
-				# field anymore, the parameter is needed for
-				# localText.getText else the display shows
-				# something weird, so since we don't use it,
-				# just leave a "" instead, as long as there
-				# is something even if empty should be fine
-				# -->		
+				# note: even though we don't use the %s1 field anymore, the parameter is needed for localText.getText else the display shows something weird, so since we don't use it, just leave a "" instead, as long as there is something even if empty should be fine -->		
 				szYield = localText.getText("TXT_KEY_PEDIA_IRRIGATED_YIELD", ("", iYieldChange, gc.getYieldInfo(k).getChar()))
 				szText = u"<font=4>" + szYield + u"</font>"
 				screen.appendListBoxString(listName, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-		# <!-- custom: (it seems) no improvement of the
-		# sevopedia in base bts/advciv uses this part.
-		# Doing a global search (with vs code) in root
-		# civ4 folder, i found this:
+		# <!-- custom: (it seems) no improvement of the sevopedia in base bts/advciv uses this part.
+		# Doing a global search (with vs code) in root civ4 folder, i found this:
 		# TXT_KEY_PEDIA_HILLS_YIELD
 		# <English>%s1: %D2%F3 (on Hills)</English>
-		# we don't currently have hills specific improvement
-		# bonuses, but may be useful if someone were to
-		# reuse these sevopedia changes i did
-		# -->
+		# we don't currently have hills specific improvement bonuses, but may be useful if someone were to reuse these sevopedia changes i did -->
 		for k in range(YieldTypes.NUM_YIELD_TYPES):
 			iYieldChange = gc.getImprovementInfo(self.iImprovement).getHillsYieldChange(k)
 			if (iYieldChange != 0):
@@ -157,9 +134,7 @@ class SevoPediaImprovement:
 				szText = u"<font=4>" + szYield + u"</font>"
 				screen.appendListBoxString(listName, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-		# <!-- custom: similarly (done) as for for/in
-		# TXT_KEY_PEDIA_HILLS_YIELD
-		# -->
+		# <!-- custom: similarly (done) as for for/in TXT_KEY_PEDIA_HILLS_YIELD -->
 		for k in range(YieldTypes.NUM_YIELD_TYPES):
 			szYield = u""
 			iYieldChange = gc.getImprovementInfo(self.iImprovement).getRiverSideYieldChange(k)
@@ -168,12 +143,7 @@ class SevoPediaImprovement:
 				szText = u"<font=4>" + szYield + u"</font>"
 				screen.appendListBoxString(listName, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-		# <!-- custom: this part is for yields that require
-		# an additional tech than the one required to gain
-		# access to the ressources (for example + 1 hammer
-		# with mine (requires railroad), + 1 commerce with
-		# town (requires printing press))
-		# -->
+		# <!-- custom: this part is for yields that require an additional tech than the one required to gain access to the ressources (for example + 1 hammer with mine (requires railroad), + 1 commerce with town (requires printing press)) -->
 		for iTech in range(gc.getNumTechInfos()):
 			for k in range(YieldTypes.NUM_YIELD_TYPES):
 				szYield = u""
@@ -183,9 +153,7 @@ class SevoPediaImprovement:
 					szText = u"<font=4>" + szYield + u"</font>"
 					screen.appendListBoxString(listName, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-		# <!-- custom: similarly (done) as for for/in
-		# TXT_KEY_PEDIA_HILLS_YIELD
-		# -->
+		# <!-- custom: similarly (done) as for for/in TXT_KEY_PEDIA_HILLS_YIELD -->
 		for iCivic in range(gc.getNumCivicInfos()):
 			for k in range(YieldTypes.NUM_YIELD_TYPES):
 				szYield = u""
@@ -195,16 +163,12 @@ class SevoPediaImprovement:
 					szText = u"<font=4>" + szYield + u"</font>"
 					screen.appendListBoxString(listName, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-		#<!-- custom: similarly (done) as for for/in
-		# TXT_KEY_PEDIA_HILLS_YIELD
-		# -->
+		#<!-- custom: similarly (done) as for for/in TXT_KEY_PEDIA_HILLS_YIELD -->
 		for iRoute in range(gc.getNumRouteInfos()):
 			for k in range(YieldTypes.NUM_YIELD_TYPES):
 				iYieldChange = gc.getImprovementInfo(self.iImprovement).getRouteYieldChanges(iRoute, k)
 				if (iYieldChange != 0):									
-					# <!-- custom: remove newline, isn't
-					# necessary unless i'm mistaken
-					# -->
+					# <!-- custom: remove newline, isn't necessary unless i'm mistaken -->
 					#szYield += localText.getText("TXT_KEY_PEDIA_ROUTE_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar(), gc.getRouteInfo(iRoute).getTextKey())) + u"\n"
 					szYield += localText.getText("TXT_KEY_PEDIA_ROUTE_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar(), gc.getRouteInfo(iRoute).getTextKey()))
 					szText = u"<font=4>" + szYield + u"</font>"

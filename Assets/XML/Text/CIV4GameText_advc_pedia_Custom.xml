@@ -141,10 +141,6 @@ hopefully more readable or exportable if need/want be now -->
 		<Tag>TXT_KEY_UNIT_WARRIOR_PEDIA</Tag>
 		<English>[TAB]Sometimes called the "clubman" (as it wields a wooden club), the Ancient Maceman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</English>
 	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_UNIT_MODERN_ARMOR</Tag>
-		<English>Robotic Tank</English>
-	</TEXT>
 
 
 

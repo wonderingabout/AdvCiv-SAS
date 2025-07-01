@@ -8,8 +8,7 @@
 #
 # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
 #
-# <!-- custom: refactoring (of the below (and in too but anyways etc anyways etc)) is based on the sevopediaunit refactoring with small alterations/changes or/and not to fit/suit the sevopedia building code/features (also refactoring it (i.e: the sevopediabuilding code anyways etc) allowed to further polish and tweak and refactor or/and fix or not or and other or and not anyways etc the sevopediaunit code so very nice or not nice or nice but not necessary or is or is not maybe or not (is) or yes (is not) but anyways etc anyways etc anyways etc...) done before that/this one anyways etc anyways etc, please/you can look there if you want more code comments and clarifications about the changes anyways etc anyways etc anyways etc)
-# -->
+# <!-- custom: refactoring (of the below (and in too but anyways etc anyways etc)) is based on the sevopediaunit refactoring with small alterations/changes or/and not to fit/suit the sevopedia building code/features (also refactoring it (i.e: the sevopediabuilding code anyways etc) allowed to further polish and tweak and refactor or/and fix or not or and other or and not anyways etc the sevopediaunit code so very nice or not nice or nice but not necessary or is or is not maybe or not (is) or yes (is not) but anyways etc anyways etc anyways etc...) done before that/this one anyways etc anyways etc, please/you can look there if you want more code comments and clarifications about the changes anyways etc anyways etc anyways etc) -->
 # <!-- custom: new, added thanks to Claude AI's code and my prompts anyways etc or and other things or and not anyways etc, and adjusted and tweaked or and modified in general or not general ways or not anyways etc for AdvCiv-SAS:
 # - placeCivilizations: (renamed from Claude AI's if i am not mistaken anyways etc ('s anyways etc) original name to this function placeExclusiveCivs) now we have buttons for the civ(s) that can build a unit, and no button at all if all civs can build the currently selected unit (to not clutter the display needlessly with all civs buttons and is also clearer to know immediately that all can build it with the panel being empty),
 # - placeObsoleteWith in a similar manner than (for?) placeCivilizations to show the button of the tech that obsoletes this currently selected building anyways etc anyways etc anyways etc...
@@ -19,8 +18,6 @@
 # - placeFreeWith,
 # - enhanced or beautified or tweaked or and other or and not some if not most or maybe even or not or maybe or and anyways etc all functions/methods of this py file, anyways etc.
 #  thanks a lot Claude AI! (and the other mod too ("!" too or ! too or maye rather !"" or "!" or rather ! or "!" too but anyways etc anyways etc anyways thanks too in short maybe anyways etc anywas etc anyways etc...) Anyways etc anyways etc anyways etc... -->
-# -->
-
 
 
 
@@ -54,7 +51,8 @@
 		# -->
 
 
-			# for freebonus, done according to according to kujira's website if i am not mistaken anyways etc, in https://gforestshade.github.io/kujira/post/civ4buildinginfos/#inumfreebonuses (translated to english with google chrome):
+
+			# <!-- custom: for freebonus, done according to according to kujira's website if i am not mistaken anyways etc, in https://gforestshade.github.io/kujira/post/civ4buildinginfos/#inumfreebonuses (translated to english with google chrome):
 			#
 			# This determines the amount of resource this structure produces.
 			# If <FreeBonus> is set to a value other than NONE and you set this to a positive value,the structure will produce the specified amount of the specified resource.
@@ -71,9 +69,11 @@
 			# Example 3: Produce one horse.
 			# <FreeBonus>BONUS_HORSE</FreeBonus>
 			# <iNumFreeBonuses>1</iNumFreeBonuses>
+			# -->
 
 
-		# For (/to) parsing (parse?) this (i.e. free power only not power for example with ressource(s?)/bonus(es? (which is PowerBonus if i am not mistaken and that we ignore then if i am not mistaken to do so anyways etc anyways etc anyways etc anyways etc((.)... anyways etc...)) anyways) (tentative (for me to assess (anyways etc)) (but maybe successful (/fructful?) anyways etc) rules seem to be after some testing (with a "power>1" global search in unit infos and tweaking or maybe rather anyways etc temporarily modifying some values to see some if not all or not or yes or and other or and not anyways etc edge case reuslts), for example:
+
+		# <!-- custom: For (/to) parsing (parse?) this (i.e. free power only not power for example with ressource(s?)/bonus(es? (which is PowerBonus if i am not mistaken and that we ignore then if i am not mistaken to do so anyways etc anyways etc anyways etc anyways etc((.)... anyways etc...)) anyways) (tentative (for me to assess (anyways etc)) (but maybe successful (/fructful?) anyways etc) rules seem to be after some testing (with a "power>1" global search in unit infos and tweaking or maybe rather anyways etc temporarily modifying some values to see some if not all or not or yes or and other or and not anyways etc edge case reuslts), for example:
 		# - BUILDING_THREE_GORGES_DAM (now renamed from GREAT_DAM see code comments for details (if any (i.e. details anyways etc) anyways etc)):
 		# 	<bPower>0</bPower>
 		# 	<bDirtyPower>0</bDirtyPower>
@@ -84,7 +84,8 @@
 		# 	<bDirtyPower>1</bDirtyPower>
 		# 	<bAreaCleanPower>1</bAreaCleanPower>
 		# The placeSpecial text remains the same, no mention of dirty power in it, i assume clean (in this case anyways etc) wins over dirty so power is clean by default of win of strongest ones in this city as in all cities already is anyways etc, they don't seem to cumulate anyways etc
-		# The Civ4 Wiki also gives some useful info about this: https://civilization.fandom.com/wiki/Power_(Civ4), so we updated in AdvCiv-SAS the DLL message that comes with (in PlaceSpecial if i am not mistaken anyways etc) TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER (now renamed to TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER) to match and reflect and inform of this (unhappiness existence and count anyways etc) (if we are (ideally maybe yes or not or yes or and other or and not or etc anyways etc) not mistaken in our understanding indeed maybe or not or yes or and other or and not anyways etc).
+		# The Civ4 Wiki also gives some useful info about this: https://civilization.fandom.com/wiki/Power_(Civ4), so we updated in AdvCiv-SAS the DLL message that comes with (in PlaceSpecial if i am not mistaken anyways etc) TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER (now renamed to TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER) to match and reflect and inform of this (unhappiness existence and count anyways etc) (if we are (ideally maybe yes or not or yes or and other or and not or etc anyways etc) not mistaken in our understanding indeed maybe or not or yes or and other or and not anyways etc). -->
+
 
 
 		# #<!-- custom: example of how to directly import a button path to write the button in sevopedia anyways etc... From Claude AI as well and works for the great prophet button successfully displayed in the sevopedia's placeFreePBBS panel for example anyways etc anyways etc anyways etc
@@ -99,6 +100,7 @@
 		# in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Warlords\Assets\Art\Interface\Buttons\Warlords_Atlas_2.dds
 		# powerButtonPath = ",Art/Interface/MainScreen/CityScreen/Great_Engineer.dds,Art/Interface/Buttons/Warlords_Atlas_2.dds,6,11"
 		# -->
+
 
 
 	# <!-- custom: logic is as follows for the below placeFreeWith function/method anyways etc as prompted to Claude AI to me but anyways etc anyways etc anyways etc...:
@@ -130,8 +132,7 @@
 	#
 	# -
 	#
-	# It seems to work as intended so adding this since is quite/very technical, in case is helpful too, anyways etc anyways etc anyways etc...
-	# -->
+	# It seems to work as intended so adding this since is quite/very technical, in case is helpful too, anyways etc anyways etc anyways etc... -->
 
 
 
@@ -183,16 +184,16 @@ class SevoPediaBuilding:
 		self.STATS_PANE_LEFT_SIDE_MARGIN = 0
 		self.STATS_PANE_UPPER_PADDING = 38
 
-		# <!-- custom: before starting, store great people change's placeStats coordinate, initialize or/and reinitialize them to none anyways etc, these are only used in placeStats so it should be safe, but we need to store them for later reuse (to display in/at/during a second pass anyways etc the great people button in another overlapping transparent panel), see placeStats "custom 6.1.1:" for details -->
-		self.X_GREAT_PEOPLE_CHANGE_IN_GRID = None
-		self.Y_GREAT_PEOPLE_CHANGE_IN_GRID = None
-
 		self.X_STATS_PANE = self.X_BUILDING_PANE + self.STATS_PANE_LEFT_SIDE_MARGIN + self.W_ICON + (2 * self.SMALLER_ICON_SIZE_THAN_ICON_FRAME_MARGIN)
 		self.Y_STATS_PANE = self.Y_BUILDING_PANE + self.STATS_PANE_UPPER_PADDING
 		self.W_STATS_PANE = self.W_BUILDING_PANE - self.W_ICON - (2 * self.SMALLER_ICON_SIZE_THAN_ICON_FRAME_MARGIN) - self.STATS_PANE_LEFT_SIDE_MARGIN
 		self.H_STATS_PANE = self.H_BUILDING_PANE - self.STATS_PANE_UPPER_PADDING
 
 		self.H_STATS_PANE_LINE_HEIGHT = 38
+
+		# <!-- custom: before starting, store great people change's placeStats coordinate, initialize or/and reinitialize them to none anyways etc, these are only used in placeStats so it should be safe, but we need to store them for later reuse in "custom: 6.1.2" (to display in/at/during a second pass anyways etc the great people button in another overlapping transparent panel), see placeStats "custom: 6.1.1:" for details -->
+		self.X_FLAT_GREAT_PERSON = None
+		self.Y_FLAT_GREAT_PERSON = None
 
 		# <!-- custom: see sevopediaunit's self.W_TOTAL_EFFECTIVE_UNIT_PANE for differences in implementation anyways etc -->
 		self.W_TOTAL_EFFECTIVE_BUILDING_PANE = self.W_BUILDING_PANE
@@ -310,22 +311,10 @@ class SevoPediaBuilding:
 		# - 5. Health/Unhealth: Shows health effects
 		# - 6. Great People: Shows great people rate changes with button and great people modifiers too anyways etc
 		# -->
-		# <!-- custom: note: we have a risk of overflow of data/items to display, if all or most of these fields are full, while only having 9 grid positions to do so, this should be extremely rare, but if it were to happen, you can increase grid size to 3 columns * 4 rows (to do that, you could for example reduce line height spacing (but may be a bit ugly (maybe) but anyways), reduce upper padding (but maybe not needed or not lot as we can even now display a 4th row but not as pretty if starting from current "padded"(?)/upper padding), or for example artifically increase the panel height so the code thinks it has more room to fill one more row (which it has but then is bit ugly(ier) anyways etc) (the 4th before going to a new column and back to 1st row anyways etc), or maybe tweak the code i proudly as in rather funnily? did if that is a word hehe by myself based on old code from sevopedia leader's grid code (renderCategories and such if i am not mistaken and they are still named the same now anyways etc which we created as well with chatgpt/becomingthorugh (see authors for details) but anyways etc anyways etc anyways etc...) and adjusting/refatoring it for our need for this sevopedia building's placeStats anyways etc anyways etc anyways etc), or/and other things ways maybe to refactor it or not so it fits a 4th row or yes or and other or and not anyways etc. Since we don't have to do this, 9 grid of 3 columns * 3 rows are probably enough for us so staying/sticking with that maybe anyways etc anyways etc anyways etc...
-		# -->
+		# <!-- custom: note: we have a risk of overflow of data/items to display, if all or most of these fields are full, while only having 9 grid positions to do so, this should be extremely rare, but if it were to happen, you can increase grid size to 3 columns * 4 rows (to do that, you could for example reduce line height spacing (but may be a bit ugly (maybe) but anyways), reduce upper padding (but maybe not needed or not lot as we can even now display a 4th row but not as pretty if starting from current "padded"(?)/upper padding), or for example artifically increase the panel height so the code thinks it has more room to fill one more row (which it has but then is bit ugly(ier) anyways etc) (the 4th before going to a new column and back to 1st row anyways etc), or maybe tweak the code i proudly as in rather funnily? did if that is a word hehe by myself based on old code from sevopedia leader's grid code (renderCategories and such if i am not mistaken and they are still named the same now anyways etc which we created as well with chatgpt/becomingthorugh (see authors for details) but anyways etc anyways etc anyways etc...) and adjusting/refatoring it for our need for this sevopedia building's placeStats anyways etc anyways etc anyways etc), or/and other things ways maybe to refactor it or not so it fits a 4th row or yes or and other or and not anyways etc. Since we don't have to do this, 9 grid of 3 columns * 3 rows are probably enough for us so staying/sticking with that maybe anyways etc anyways etc anyways etc... -->
 
 		def setupPanel(screen, panelName, txtKey, panelStyle):
-			screen.addPanel(
-				panelName,
-				localText.getText(txtKey, ()),
-				"",
-				True,
-				True,
-				self.X_STATS_PANE,
-				self.Y_STATS_PANE,
-				self.W_STATS_PANE,
-				self.H_STATS_PANE,
-				panelStyle,
-			)
+			screen.addPanel(panelName,localText.getText(txtKey, ()), "", True, True, self.X_STATS_PANE, self.Y_STATS_PANE, self.W_STATS_PANE, self.H_STATS_PANE, panelStyle,)
 
 		# === PANEL SETUP ===
 		# <!-- custom: blue panel style PanelStyles.PANEL_STYLE_BLUE50 is/can be anyways etc useful for debugging, otherwise we don't need a blue on blue color, prefer transparent ("EMPTY" if i am not mistaken anyways etc), anyways etc -->
@@ -333,10 +322,7 @@ class SevoPediaBuilding:
 
 		def fillCell(screen, label, xLabel, y):
 			labelText = u"<font=4>%s</font>" % label
-
-			screen.setText(self.top.getNextWidgetName(), "", labelText,
-				CvUtil.FONT_LEFT_JUSTIFY, xLabel, y, 0, FontTypes.SMALL_FONT,
-				WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setText(self.top.getNextWidgetName(), "", labelText, CvUtil.FONT_LEFT_JUSTIFY, xLabel, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		def getNextItemCoordinates(x, y, rowItemId, columnWidth):
 			anticipatedNextRowId = rowItemId + 1
@@ -529,7 +515,8 @@ class SevoPediaBuilding:
 				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
 			
 			# <!-- custom: 6: Great people change with button display of the great people type too if i am not mistaken anyways etc, and great people modifier -->
-			# <!-- custom: 6.1.1: Only display the great people button and the value, for example "(Great People button) +2", use a button later in "custom 6.2:" rather instead anyways etc -->
+			
+			# <!-- custom: 6.1.1: Only display the great people button and the flat value, for example "(Great People button) +2", use a button later in "custom 6.1.2:" rather instead anyways etc ; modifiers are handled as a separate item as +50% great person for example is not specific to any great person type unlike for example +2 great artist, so it would not make sense to put +50% where the button is anyways etc, plus easier to handle button position with our current button positioning code too anyways etc -->
 			if buildingInfo.getGreatPeopleRateChange() != 0:
 				# Create the text with the great person rate change
 				szText = CyTranslator().getText("TXT_KEY_PEDIA_GREAT_PEOPLE_CUSTOM", (buildingInfo.getGreatPeopleRateChange(),))
@@ -539,11 +526,13 @@ class SevoPediaBuilding:
 				
 				# Display the text
 				fillCell(screen, szText2, x, y)
-				# <!-- custom: since this is our last usage/placeStats info displayed, we don't get the next coordinates, but instead store current coordinates (of last item displayed, anyways etc) to know where to place our great people button later in "custom: 6.2" below (if i am not mistaken that it is below, it should be in all cases later or not or yes but anyways etc anyways etc anyways etc -->
-				self.X_GREAT_PEOPLE_CHANGE_IN_GRID = x
-				self.Y_GREAT_PEOPLE_CHANGE_IN_GRID = y
+				# <!-- custom: since this is our last usage/placeStats info displayed, we don't get the next coordinates, but instead store current coordinates (of last item displayed, anyways etc) to know where to place our great people button later in "custom: 6.1.2" anyways etc -->
+				self.X_FLAT_GREAT_PERSON = x
+				self.Y_FLAT_GREAT_PERSON = y
+				# <!-- custom: now that we have stored the flat great person coordinates to place our great person button later, we can get the next coordinates for custom 6.2 (great person modifier)-->
+				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
 
-			# <!-- custom: 6.1.5: While we're still in same panel (before "custom: 6.2" 's other specific panel that handles button display anyways etc), also add Great People Modifier (similar to how we handle yield modifiers) --> <!-- custom: code comment just before added by Claude AI anyways thanks/in/as part as of the response anyways etc to my prompt too but anyways etc... -->
+			# <!-- custom: 6.2: while we're still in same panel, but as a separate grid item than the flat great person one, also add Great People Modifier (similar to how we handle yield modifiers) anyways etc -->
 			iGreatPeopleModifier = buildingInfo.getGreatPeopleRateModifier()
 			iGlobalGreatPeopleModifier = buildingInfo.getGlobalGreatPeopleRateModifier()
 
@@ -578,8 +567,8 @@ class SevoPediaBuilding:
 		# Render Panels
 		renderCells(screen, buildingInfo, columnWidth, self.X_STATS_PANE, self.Y_STATS_PANE)
 
-		# <!-- custom: 6.2: now that textual and placeStats display is finished (minus Great People info), handle great people type's button display as a separate panel now, that overlaps with placeStats, and that is transparent in color background, using last grid coordinates while we have them, the inner placeStats logic -->
-		def placeGreatPeopleStats(screen, buildingInfo):
+		# <!-- custom: 6.1.2: now that textual and placeStats display is finished (minus Great People info), go back to custom 6.1 step to now handle its second part which is adding the button. Handle great people type's button display as a separate panel now, that overlaps with placeStats, and that is transparent in color background, using the flat great person coordinates we previously stored in self.X_FLAT_GREAT_PERSON and self.Y_FLAT_GREAT_PERSON anyways etc -->
+		def placeFlatGreatPeopleButton(screen, buildingInfo):
 			screen = self.top.getScreen()
 			panelName = self.top.getNextWidgetName()
 			greatPersonPanelTxtKey = ""
@@ -615,25 +604,23 @@ class SevoPediaBuilding:
 				# This approach uses a separate panel with both an button and text
 				if greatPersonButton:
 					buttonWidget = self.top.getNextWidgetName()
-					screen.addDDSGFC(buttonWidget, greatPersonButton, 
-									self.X_GREAT_PEOPLE_CHANGE_IN_GRID + buttonXOffset,  # X position 
-									self.Y_GREAT_PEOPLE_CHANGE_IN_GRID + buttonYOffset,  # Y position
-									buttonW, buttonH,  # Width and height of button
-									WidgetTypes.WIDGET_GENERAL, -1, -1)
+					buttonX = self.X_FLAT_GREAT_PERSON + buttonXOffset
+					buttonY = self.Y_FLAT_GREAT_PERSON + buttonYOffset
+					screen.addDDSGFC(buttonWidget, greatPersonButton, buttonX, buttonY, buttonW, buttonH, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 				# <!-- custom: else block below's code untested but probably works, i guess it covers case where great person type is not any of the great people's types if i am not mistaken like great scientist and great prophet and such, but really i have no idea or don'tknow too much maybe, so test to be sure, may or not work-function, hopefully does but in all cases anyways etc... -->
 				else:
 					# Just add text if no button
 					textWidget = self.top.getNextWidgetName()
+					# X position <!-- custom: as text is smaller than button, the x offset can be a bit smaller most likely, to use space more efficiently, did not tets but hopefully should work well and not grind/eat away at our left "+2" (great people value example anyways etc), else shift back to the right as needed (by increasing this extra negative offset i added (- 10 in this example may not be accurate or updated anyways etc)  anyways etc) --> 
+					textX = self.X_FLAT_GREAT_PERSON + buttonXOffset - 10
+					# Y position <!-- custom: no need for special centering effect then if i am not mistaken, did not test text display if no button is found but maybe works well or well enough hopefully anyways etc -->
+					textY = self.Y_FLAT_GREAT_PERSON
 					textWithSymbol = u"%c  %s" % (CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR), gpRateText)
-					screen.setLabelAt(textWidget, panelName, u"<font=3>%s</font>" % textWithSymbol, 
-									CvUtil.FONT_LEFT_JUSTIFY, 
-									self.X_GREAT_PEOPLE_CHANGE_IN_GRID + buttonXOffset - 10,  # X position <!-- custom: as text is smaller than button, the x offset can be a bit smaller most likely, to use space more efficiently, did not tets but hopefully should work well and not grind/eat away at our left "+2" (great people value example anyways etc), else shift back to the right as needed (by increasing this extra negative offset i added (- 10 in this example may not be accurate or updated anyways etc)  anyways etc) --> 
-									self.Y_GREAT_PEOPLE_CHANGE_IN_GRID,  # Y position <!-- custom: no need for special centering effect then if i am not mistaken, did not test text display if no button is found but maybe works well or well enough hopefully anyways etc -->
-									0, FontTypes.SMALL_FONT, 
-									WidgetTypes.WIDGET_GENERAL, -1, -1)
+					textWithFont = u"<font=3>%s</font>" % textWithSymbol
+					screen.setLabelAt(textWidget, panelName, textWithFont, CvUtil.FONT_LEFT_JUSTIFY, textX, textY, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 					
-		placeGreatPeopleStats(screen, buildingInfo)
+		placeFlatGreatPeopleButton(screen, buildingInfo)
 
 
 
@@ -660,7 +647,7 @@ class SevoPediaBuilding:
 		panelName = self.top.getNextWidgetName()
 
 		# Create panel with proper styling
-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_REQUIRES", ()), "", False, True, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES, PanelStyles.PANEL_STYLE_BLUE50 )
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_REQUIRES", ()), "", False, True, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES, PanelStyles.PANEL_STYLE_BLUE50)
 		# <!-- custom: additionnal left side padding for the button(s) -->
 		screen.attachLabel(panelName, "", "  ")
 
@@ -702,7 +689,7 @@ class SevoPediaBuilding:
 				xPanel = self.X_REQUIRES
 				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
 
-				screen.attachImageButton( panelName, "", gc.getBonusInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iPrereq, -1, False )
+				screen.attachImageButton(panelName, "", gc.getBonusInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iPrereq, -1, False)
 
 		iCorporation = gc.getBuildingInfo(self.iBuilding).getFoundsCorporation()
 		bFirst = True
@@ -720,7 +707,7 @@ class SevoPediaBuilding:
 					xPanel = self.X_REQUIRES
 					xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
 
-					screen.attachImageButton( panelName, "", gc.getBonusInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iPrereq, -1, False )
+					screen.attachImageButton(panelName, "", gc.getBonusInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iPrereq, -1, False)
 
 		iPrereq = gc.getBuildingInfo(self.iBuilding).getPrereqReligion()
 		if (iPrereq >= 0):
@@ -730,7 +717,7 @@ class SevoPediaBuilding:
 			xPanel = self.X_REQUIRES
 			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
 
-			screen.attachImageButton( panelName, "", gc.getReligionInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iPrereq, -1, False )
+			screen.attachImageButton(panelName, "", gc.getReligionInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iPrereq, -1, False)
 
 		# Check for project requirements - New code for Manhattan Project and other projects
 		buildingInfo = gc.getBuildingInfo(self.iBuilding)
@@ -754,8 +741,7 @@ class SevoPediaBuilding:
 					# Add "OR" text between projects
 					if not bFirst:
 						# <!-- custom: workaround as our code doesn't handle inconsistent occurence size (a button is 64px currently if not always or not anyways etc, but a label "or" would be smaller than 64px, messing the txtNums alignment of subsequent buttons (if any anyways etc), so to not rewrite all our code or tweak it too deeply, maybe this alternative solution is/can be quite elegant too instead, of putting the "or" label rather as a txtNum just between the buttons, and belonging to the new 2nd button we are adding (no "or" if first project so maybe more sensical or intuitive this way even though is still a hack but maybe not so bad or not or yes or and other or and not anyways etc anyways etc anyways etc...), not having thus to rewrite our otherwise working/functionning(functionnal?) code, anyways etc anyways etc anyways etc...
-						# (Also) S(s)ince our next button is a project, if we were to use this "or", it is fine to be a bit more aggressive with the adjustment and place the txtNum right inbetween both buttons, as no txtNum will be left or right of this txtNum directly in contact with it and colliding or being merged in unintended way, so i quite like this elegant solution :) hehe if i may say, but anyways etc anyways etc anyways etc...
-						#  -->
+						# (Also) S(s)ince our next button is a project, if we were to use this "or", it is fine to be a bit more aggressive with the adjustment and place the txtNum right inbetween both buttons, as no txtNum will be left or right of this txtNum directly in contact with it and colliding or being merged in unintended way, so i quite like this elegant solution :) hehe if i may say, but anyways etc anyways etc anyways etc... -->
 						#screen.attachLabel(panelName, "", localText.getText("TXT_KEY_OR", ()))
 						numFreeTxt = localText.getText("TXT_KEY_OR", ())
 						xSubstractedAdjustment = int(1.27 * buttonSize)
@@ -813,11 +799,11 @@ class SevoPediaBuilding:
 					#screen.attachLabel(panelName, "", " x" + str(iNumRequired))
 
 		# <!-- custom: display each relevant button's nums or/and txts if any, else if no button is found to display at all, display instead the no button found txtkey in all the panel.
-		# Note: easy copy paste x, y, w, h, coordinates from panel creation is faster and perhaps more reliable too if you want (optionally) or/and need it or/and choose it or not but anyways etc anyways etc anyways etc... And i say this specifically after having written this (comment(ed)-out) advice and making the mistake here for example as well as in some other places despite having applied it correctly in some (other other but anyways etc anyways etc anyways etc...) places (for example _FREE_PBBS coordinates instead of _requires here but anyways etc anyways etc anyways etc...) anyways etc so now fixing it (!) if i may say but anyways etc anyways etc anyways etc..., (and)(but anyways etc anyways etc anyways etc...) so now applying this advice to me as well after noticing the numsOrTxts of the corresponding buttons are at wrong spot so hopefully helpful to me(!) (too but anyways etc anyways etc anyways etc...) if i may say but anyways etc anyways etc anyways etc... 
-		# -->
+		# Note: easy copy paste x, y, w, h, coordinates from panel creation is faster and perhaps more reliable too if you want (optionally) or/and need it or/and choose it or not but anyways etc anyways etc anyways etc... And i say this specifically after having written this (comment(ed)-out) advice and making the mistake here for example as well as in some other places despite having applied it correctly in some (other other but anyways etc anyways etc anyways etc...) places (for example _FREE_PBBS coordinates instead of _requires here but anyways etc anyways etc anyways etc...) anyways etc so now fixing it (!) if i may say but anyways etc anyways etc anyways etc..., (and)(but anyways etc anyways etc anyways etc...) so now applying this advice to me as well after noticing the numsOrTxts of the corresponding buttons are at wrong spot so hopefully helpful to me(!) (too but anyways etc anyways etc anyways etc...) if i may say but anyways etc anyways etc anyways etc... -->
 		isButtonFound = (nCountOccurencesFound > 0)
 		txtKeyNoButtonFound = "TXT_KEY_PEDIA_REQUIRES_NO_BUTTON_FOUND"
 		self.displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES)
+
 
 
 	# Shows buildings that require this building as a prerequisite

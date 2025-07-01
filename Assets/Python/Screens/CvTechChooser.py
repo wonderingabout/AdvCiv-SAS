@@ -494,6 +494,12 @@ class CvTechChooser:
 
 			if (eLoopBuilding != -1):
 				if (gc.getBuildingInfo(eLoopBuilding).getObsoleteTech() == i):
+					# <!-- custom: add debug lines after asking claude ai to investigate the obsolete bonuses redirect having none instead of the clicked on bonus i mean anyways etc, example of output: "[DEBUG]: Adding obsolete building - ID: 109, eLoopBuilding=151, Type: BUILDING_GREAT_WALL, Button: ,Art/Interface/Buttons/Buildings/SpaceElevator.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,2,5" anyways etc -->
+					# Debug: Print what we're about to add
+					#buildingType = gc.getBuildingInfo(eLoopBuilding).getType()
+					#buildingButton = gc.getBuildingInfo(eLoopBuilding).getButton()
+					#print("[DEBUG]: Adding obsolete building - ID: %d, eLoopBuilding=%d, Type: %s, Button: %s" % (j, eLoopBuilding, buildingType, buildingButton))
+
 					# Add obsolete picture here...
 					szObsoleteButton = self.getNextWidgetName("Obsolete")
 					szObsoleteX = self.getNextWidgetName("ObsoleteX")
@@ -507,6 +513,12 @@ class CvTechChooser:
 		# Obsolete Bonuses...
 		for j in range(gc.getNumBonusInfos()):
 			if (gc.getBonusInfo(j).getTechObsolete() == i):
+				# <!-- custom: add debug lines after asking claude ai to investigate the obsolete bonuses redirect having none instead of the clicked on bonus i mean anyways etc, example of output: "[DEBUG]: Adding obsolete bonus - ID: 25, Type: BONUS_ELEPHANTS, Button: ,Art/Interface/Buttons/WorldBuilder/Ivory.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,13" anyways etc -->
+				# Debug: Print what we're about to add
+				#bonusType = gc.getBonusInfo(j).getType()
+				#bonusButton = gc.getBonusInfo(j).getButton()
+				#print("[DEBUG]: Adding obsolete bonus - ID: %d, Type: %s, Button: %s" % (j, bonusType, bonusButton))
+
 				# Add obsolete picture here...
 				szObsoleteButton = self.getNextWidgetName("ObsoleteBonus")
 				szObsoleteX = self.getNextWidgetName("ObsoleteXBonus")

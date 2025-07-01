@@ -247,9 +247,7 @@ class SevoPediaBonus:
 				
 				# Attach the button to the column
 				buttonName = self.top.getNextWidgetName()
-				screen.attachImageButton(colPanelName, buttonName, gc.getImprovementInfo(j).getButton(), 
-									GenericButtonSizes.BUTTON_SIZE_CUSTOM, 
-									WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, j, 1, False)
+				screen.attachImageButton(colPanelName, buttonName, gc.getImprovementInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, j, 1, False)
 				
 				# Attach the yield label below the button
 				yieldLabelName = self.top.getNextWidgetName()
@@ -317,7 +315,7 @@ class SevoPediaBonus:
 		panelName = self.top.getNextWidgetName()
 		# advc.004y: txt key was TXT_KEY_PEDIA_CATEGORY_BUILDING
 		# <!-- custom: note: Now the buildings panel is larger as the units panel (is) (anyways etc), useful for ressources like marble that could not fit all -->
-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_CATEGORY_BUILDING_PROJECT", ()), "", False, True, self.X_BUILDINGS_AND_PROJECTS, self.Y_BUILDINGS_AND_PROJECTS, self.W_BUILDINGS_AND_PROJECTS, self.H_BUILDINGS_AND_PROJECTS, PanelStyles.PANEL_STYLE_BLUE50 )
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_CATEGORY_BUILDING_PROJECT", ()), "", False, True, self.X_BUILDINGS_AND_PROJECTS, self.Y_BUILDINGS_AND_PROJECTS, self.W_BUILDINGS_AND_PROJECTS, self.H_BUILDINGS_AND_PROJECTS, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panelName, "", "  ")
 		# <!-- custom: placeAllows is now renamed to placeUnits -->
 		# advc.905b: Moved this loop from placeAllows, which only deals with units now.

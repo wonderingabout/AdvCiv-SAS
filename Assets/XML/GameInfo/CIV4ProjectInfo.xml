@@ -53,7 +53,8 @@
 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
 			<iMaxGlobalInstances>1</iMaxGlobalInstances>
 			<iMaxTeamInstances>-1</iMaxTeamInstances>
-			<iCost>2000</iCost>
+			<!-- custom: was 2000 -->
+			<iCost>1100</iCost>
 			<iNukeInterception>0</iNukeInterception>
 			<iTechShare>2</iTechShare>
 			<EveryoneSpecialUnit>NONE</EveryoneSpecialUnit>
@@ -69,7 +70,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_COPPER</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<CreateSound/>
@@ -81,7 +82,8 @@
 			<Civilopedia>TXT_KEY_PROJECT_SDI_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_PROJECT_SDI_STRATEGY</Strategy>
 			<VictoryPrereq>NONE</VictoryPrereq>
-			<TechPrereq>TECH_LASER</TechPrereq>
+			<!-- custom: was TECH_LASER -->
+			<TechPrereq>TECH_SATELLITES</TechPrereq>
 			<AnyonePrereqProject>PROJECT_MANHATTAN_PROJECT</AnyonePrereqProject>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
 			<iMaxTeamInstances>1</iMaxTeamInstances>
@@ -190,7 +192,8 @@
 			<Civilopedia>TXT_KEY_PROJECT_SS_LIFE_SUPPORT_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_PROJECT_SPACE_SHIP_STRATEGY</Strategy>
 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
-			<TechPrereq>TECH_ECOLOGY</TechPrereq>
+			<!-- custom: was TECH_ECOLOGY -->
+			<TechPrereq>TECH_PLASTICS</TechPrereq>
 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
 			<iMaxTeamInstances>1</iMaxTeamInstances>

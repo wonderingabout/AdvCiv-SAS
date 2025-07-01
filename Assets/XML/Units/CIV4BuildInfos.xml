@@ -518,7 +518,8 @@
 			<Type>BUILD_OFFSHORE_PLATFORM</Type>
 			<Description>TXT_KEY_BUILD_OFFSHORE_PLATFORM</Description>
 			<Help/>
-			<PrereqTech>TECH_PLASTICS</PrereqTech>
+			<!-- custom: was TECH_PLASTICS -->
+			<PrereqTech>TECH_STEEL</PrereqTech>
 			<iTime>0</iTime>
 			<iCost>0</iCost>
 			<bKill>1</bKill>
@@ -660,6 +661,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildChopDown.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,7,8</Button>
 		</BuildInfo>
+		<!-- custom: changed to TECH_FISSION according to https://forums.civfanatics.com/threads/can-you-scrub-fallout-in-real-life-like-in-civ.558302/ anwyays etc, see also code comment at TXT_KEY_TECH_ECOLOGY_PEDIA for details or and other alternative compelementary info or related details or context if i may say i mean anyways etc -->
 		<BuildInfo>
 			<Type>BUILD_SCRUB_FALLOUT</Type>
 			<Description>TXT_KEY_BUILD_SCRUB_FALLOUT</Description>
@@ -671,10 +673,11 @@
 			<ImprovementType>NONE</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_IRRIGATE</EntityEvent>
+			<!-- custom: was TECH_ECOLOGY -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_FALLOUT</FeatureType>
-					<PrereqTech>TECH_ECOLOGY</PrereqTech>
+					<PrereqTech>TECH_FISSION</PrereqTech>
 					<iTime>600</iTime>
 					<iProduction>0</iProduction>
 					<bRemove>1</bRemove>

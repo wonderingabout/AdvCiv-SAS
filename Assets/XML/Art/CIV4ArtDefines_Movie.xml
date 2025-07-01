@@ -106,10 +106,6 @@ and then modified for AdvCiv-SAS
 			<Path>Art/Movies/Wonders/SistineChapel.bik</Path>
 		</MovieArtInfo>
 		<MovieArtInfo>
-			<Type>ART_DEF_MOVIE_SPACE_ELEVATOR</Type>
-			<Path>Art/Movies/Wonders/SpaceElevator.bik</Path>
-		</MovieArtInfo>
-		<MovieArtInfo>
 			<Type>ART_DEF_MOVIE_SPIRAL_MINARET</Type>
 			<Path>Art/Movies/Wonders/SpiralMinaret.bik</Path>
 		</MovieArtInfo>

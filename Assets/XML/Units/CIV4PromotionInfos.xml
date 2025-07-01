@@ -1291,8 +1291,8 @@
 			<!-- advc.164: was PROMOTION_DRILL3 in K-Mod -->
 			<PromotionPrereqOr1>PROMOTION_CITY_RAIDER1</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_COMBAT1</PromotionPrereqOr2>
-			<!-- custom: reduce tech prerequirement, was TECH_MILITARY_SCIENCE -->
-			<TechPrereq>TECH_ENGINEERING</TechPrereq>
+			<!-- custom: reduce tech prerequirement, seems to have been used in classical era if not sooner from quick search about it i mean  or longer in past or both or none or and other ro and not or other anyways etc anyways etc anyways etc, was TECH_MILITARY_SCIENCE -->
+			<TechPrereq>TECH_CONSTITUTION</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
 			<!-- advc.164: No change to the value. 1 means 1 extra attack now;
@@ -4854,7 +4854,7 @@
 			<PromotionPrereq>PROMOTION_COMBAT1</PromotionPrereq>
 			<PromotionPrereqOr1>NONE</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
-			<TechPrereq>TECH_FLIGHT</TechPrereq>
+			<TechPrereq>NONE</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
 			<iBlitz>0</iBlitz>
@@ -4925,7 +4925,7 @@
 			<PromotionPrereq>PROMOTION_AIR_RANGE1</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_COMBAT2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
-			<TechPrereq>TECH_FLIGHT</TechPrereq>
+			<TechPrereq>TECH_ADVANCED_FLIGHT</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
 			<iBlitz>0</iBlitz>
@@ -4999,7 +4999,7 @@
 			<PromotionPrereq>NONE</PromotionPrereq>
 			<PromotionPrereqOr1>NONE</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
-			<TechPrereq>TECH_FLIGHT</TechPrereq>
+			<TechPrereq>NONE</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
 			<iBlitz>0</iBlitz>
@@ -5074,7 +5074,7 @@
 			<PromotionPrereq>PROMOTION_AIR_INTERCEPTION1</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_COMBAT1</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
-			<TechPrereq>TECH_FLIGHT</TechPrereq>
+			<TechPrereq>NONE</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
 			<iBlitz>0</iBlitz>
@@ -5142,7 +5142,7 @@
 			<PromotionPrereq>PROMOTION_AIR_INTERCEPTION2</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_COMBAT2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
-			<TechPrereq>TECH_FLIGHT</TechPrereq>
+			<TechPrereq>TECH_ADVANCED_FLIGHT</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
 			<iBlitz>0</iBlitz>
@@ -5212,7 +5212,7 @@
 			<PromotionPrereq>PROMOTION_AIR_INTERCEPTION3</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_COMBAT3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
-			<TechPrereq>TECH_FLIGHT</TechPrereq>
+			<TechPrereq>TECH_ADVANCED_FLIGHT</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
 			<iBlitz>0</iBlitz>

@@ -343,52 +343,8 @@
 		</Spanish>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_BUILDING_WEST_POINT</Tag>
-		<English>West Point</English>
-		<French>
-			<Text>West Point</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>West Point</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>West Point</Text>
-			<Gender>Female</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Academia de West Point:Academias de West Point</Text>
-			<Gender>Female</Gender>
-			<Plural>0:1</Plural>
-		</Spanish>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_BUILDING_MT_RUSHMORE</Tag>
 		<English>Mt. Rushmore</English>
-		<French>
-			<Text>Mont Rushmore</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Mount Rushmore</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Monte Rushmore</Text>
-			<Gender>Male</Gender>
-			<Plural>1</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Monte Rushmore:Montes Rushmore</Text>
-			<Gender>Male</Gender>
-			<Plural>0:1</Plural>
-		</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_RED_CROSS</Tag>
@@ -657,26 +613,6 @@
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_KREMLIN</Tag>
 		<English>Kremlin</English>
-		<French>
-			<Text>Kremlin</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Kreml</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Cremlino</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Kremlin:Kremlin</Text>
-			<Gender>Male</Gender>
-			<Plural>0:1</Plural>
-		</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_EIFFEL_TOWER</Tag>
@@ -770,14 +706,6 @@
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_HOLLYWOOD_NA</Tag>
-		<English>.</English>
-		<French>.</French>
-		<German>.</German>
-		<Italian>.</Italian>
-		<Spanish>.</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUILDING_WEST_POINT_NA</Tag>
 		<English>.</English>
 		<French>.</French>
 		<German>.</German>
@@ -960,30 +888,6 @@
 			<Text>Naciones Unidas:Naciones Unidas</Text>
 			<Gender>Female</Gender>
 			<Plural>1:1</Plural>
-		</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUILDING_SPACE_ELEVATOR</Tag>
-		<English>Space Elevator</English>
-		<French>
-			<Text>Ascenseur spatial</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Weltraumlift</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Ascensore Spaziale</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Ascensor Espacial:los Ascensores Espaciales</Text>
-			<Gender>Male</Gender>
-			<Plural>0:1</Plural>
 		</Spanish>
 	</TEXT>
 	<!-- Projects -->

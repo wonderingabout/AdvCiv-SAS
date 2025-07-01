@@ -1878,8 +1878,8 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>18</iGridX>
-			<iGridY>7</iGridY>
+			<iGridX>15</iGridX>
+			<iGridY>12</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -2831,7 +2831,8 @@
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MEDIEVAL</Era>
-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+			<!-- custom: maybe a bit OP with the other tech effects but this rewards non military paths more relatively anyways etc, and the tech is quite bare otherwise so maybe hopefully fine/balanced more balanced perhaps this way too as theory_of_evolution (todo after we rename and rework this tech to theory_of_evolution anyways etc) would be a bit too weak otherwise anyways etc, was NONE -->
+			<FirstFreeUnitClass>UNITCLASS_GREAT_SCIENTIST</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
@@ -3525,7 +3526,8 @@
 			<bVassalTrading>0</bVassalTrading>
 			<bBridgeBuilding>0</bBridgeBuilding>
 			<bIrrigation>0</bIrrigation>
-			<bIgnoreIrrigation>1</bIgnoreIrrigation>
+			<!-- custom: was 1 -->
+			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>12</iGridX>
 			<iGridY>12</iGridY>
@@ -3653,7 +3655,8 @@
 			<Era>ERA_INDUSTRIAL</Era>
 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
-			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+			<!-- custom: tech_electricity is strong already as the main military path, favour/reward other techs instead in this case anyways etc relatively more anyways etc, was 0 -->
+			<iWorkerSpeedModifier>50</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
@@ -3822,7 +3825,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>16</iGridX>
-			<iGridY>7</iGridY>
+			<iGridY>5</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -3970,7 +3973,7 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>18</iGridX>
+			<iGridX>16</iGridX>
 			<iGridY>1</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
@@ -4038,7 +4041,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>17</iGridX>
-			<iGridY>5</iGridY>
+			<iGridY>7</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -4111,7 +4114,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>18</iGridX>
-			<iGridY>5</iGridY>
+			<iGridY>7</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -4247,7 +4250,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>19</iGridX>
-			<iGridY>13</iGridY>
+			<iGridY>12</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -4318,8 +4321,8 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>19</iGridX>
-			<iGridY>8</iGridY>
+			<iGridX>18</iGridX>
+			<iGridY>10</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -4385,7 +4388,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>20</iGridX>
-			<iGridY>8</iGridY>
+			<iGridY>5</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -5386,7 +5389,8 @@
 			<bVassalTrading>0</bVassalTrading>
 			<bBridgeBuilding>0</bBridgeBuilding>
 			<bIrrigation>0</bIrrigation>
-			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+			<!-- custom: not sure if strictly accurate, but from very quick glance it seems signficant progress(es? But anyways etc) were made in irrigation technology around 0 AD/BC? anyways etc +/- 1000 years, so maybe tech_engineering fits, as i really want this irrigation ignore thing to be available sooner, before game ends, and seems quite relevant to do so at this tech for example anyways etc -->
+			<bIgnoreIrrigation>1</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>7</iGridX>
 			<iGridY>5</iGridY>
@@ -5800,7 +5804,8 @@
 			<Era>ERA_INDUSTRIAL</Era>
 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
-			<iWorkerSpeedModifier>50</iWorkerSpeedModifier>
+			<!-- custom: was 50 -->
+			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
@@ -5904,9 +5909,14 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>16</iGridX>
-			<iGridY>13</iGridY>
-			<DomainExtraMoves/>
+			<iGridX>15</iGridX>
+			<iGridY>3</iGridY>
+			<DomainExtraMoves>
+				<DomainExtraMove>
+					<DomainType>DOMAIN_SEA</DomainType>
+					<iExtraMoves>1</iExtraMoves>
+				</DomainExtraMove>
+			</DomainExtraMoves>
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
@@ -5977,7 +5987,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>15</iGridX>
-			<iGridY>5</iGridY>
+			<iGridY>7</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -6047,8 +6057,8 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>15</iGridX>
-			<iGridY>12</iGridY>
+			<iGridX>19</iGridX>
+			<iGridY>5</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -6126,8 +6136,8 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>15</iGridX>
-			<iGridY>3</iGridY>
+			<iGridX>14</iGridX>
+			<iGridY>5</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -6196,7 +6206,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>16</iGridX>
-			<iGridY>5</iGridY>
+			<iGridY>7</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -6341,12 +6351,8 @@
 			<bWaterWork>0</bWaterWork>
 			<iGridX>14</iGridX>
 			<iGridY>12</iGridY>
-			<DomainExtraMoves>
-				<DomainExtraMove>
-					<DomainType>DOMAIN_SEA</DomainType>
-					<iExtraMoves>1</iExtraMoves>
-				</DomainExtraMove>
-			</DomainExtraMoves>
+			<!-- custom: was DOMAIN_SEA 1 -->
+			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
@@ -6417,7 +6423,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>18</iGridX>
-			<iGridY>13</iGridY>
+			<iGridY>5</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -6483,7 +6489,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>17</iGridX>
-			<iGridY>11</iGridY>
+			<iGridY>12</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -6557,7 +6563,7 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>18</iGridX>
+			<iGridX>19</iGridX>
 			<iGridY>3</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
@@ -6695,7 +6701,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>17</iGridX>
-			<iGridY>3</iGridY>
+			<iGridY>1</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -6739,7 +6745,8 @@
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MODERN</Era>
-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+			<!-- custom: was NONE -->
+			<FirstFreeUnitClass>UNITCLASS_GREAT_ENGINEER</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
@@ -6766,8 +6773,8 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>19</iGridX>
-			<iGridY>11</iGridY>
+			<iGridX>18</iGridX>
+			<iGridY>12</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -6840,7 +6847,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>20</iGridX>
-			<iGridY>13</iGridY>
+			<iGridY>11</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>

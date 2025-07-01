@@ -7709,20 +7709,6 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_IMPROV_SPACE_ELEVATOR_UP</SoundID>
-			<Filename>Sounds/Resouces and Improvements/SpaceElevatorUp</Filename>
-			<LoadType>DYNAMIC_RES</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
-			<SoundID>SND_IMPROV_SPACE_ELEVATOR_DOWN</SoundID>
-			<Filename>Sounds/Resouces and Improvements/SpaceElevatorDown</Filename>
-			<LoadType>DYNAMIC_RES</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
 			<SoundID>SND_IMPROV_OIL_UNWORKED</SoundID>
 			<Filename>Sounds/Resouces and Improvements/OilUnworked</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>

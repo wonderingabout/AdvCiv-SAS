@@ -1030,9 +1030,6 @@ I am not sure which i should take, but since there are redundancies i guess i sh
 		<ArtRef Name="building:BUILDING_DAOIST_SHRINE">
 			<Scale>1.2</Scale>
 		</ArtRef>
-		<ArtRef Name="building:BUILDING_SPACE_ELEVATOR">
-			<Scale>0.85</Scale>
-		</ArtRef>
 		<ArtRef Name="building:BUILDING_BUDDHIST_TEMPLE">
 			<Scale>2.5</Scale>
 		</ArtRef>
@@ -1256,10 +1253,6 @@ I am not sure which i should take, but since there are redundancies i guess i sh
 		<ArtRef Name="building:BUILDING_NOTRE_DAME">
 			<Attribute Class="Rotation">90,270</Attribute>
 			<Scale>1.33</Scale>
-		</ArtRef>
-		<ArtRef Name="building:BUILDING_WEST_POINT">
-			<Attribute Class="Rotation">90,270</Attribute>
-			<Scale>1.75</Scale>
 		</ArtRef>
 		<ArtRef Name="building:BUILDING_NATYA_SHASTRA">
 			<Scale>0.17</Scale>

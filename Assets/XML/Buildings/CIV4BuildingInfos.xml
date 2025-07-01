@@ -3,6 +3,10 @@
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
 <!-- custom: see in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv Base Doc\BuildingInfos_AdvCiv_Doto.txt building infos very useful or/and helpful if needed anyways etc xml fields and their meaning, took it from the Doto mod, see there for details anyways etc -->
+<!-- custom: adjust the iPower (as in unit info) of some buildings to better reflect their strength equivalent:
+- increase iPower of/for anyways etc buildings that are underestimated as well, such as the castle if i am not mistaken anyways etc
+- reduce iPower of/for some buildings that are overrated and not so impactful militarily, especially and mostly naval buildings as they shoudln't eb too and as impactful as land buildings in real warfare same reasoning/similarly as in unit info anyways etc 
+-->
 <!-- Building Infos -->
 <Civ4BuildingInfos xmlns="x-schema:CIV4BuildingsSchema.xml">
 	<BuildingInfos>
@@ -374,7 +378,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>NONE</PrereqTech>
+			<!-- custom: clearer if appears in tech tree (tech advisor i mean anyways etc) as well anyways etc, was NONE -->
+			<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -412,13 +417,15 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>200</iCost>
+			<!-- custom: was 200 -->
+			<iCost>220</iCost>
 			<iHurryCostModifier>50</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<iMinAreaSize>-1</iMinAreaSize>
 			<iConquestProb>0</iConquestProb>
-			<iCitiesPrereq>8</iCitiesPrereq>
+			<!-- custom: was 8 which i think is may too high, considering the courthouse requirement already that is quite expensive, having 5 cities is enough and i mean anyways etc costly enough too anyways, 8 makes it too unlikely to be built in too many games if i am not mistaken anyways etc, chatgpt helped me find it as i couldn't quickly do and wasn't sure the field to modify num cities requried for this building was here anyways etc thanks chatgpt anyways etc -->
+			<iCitiesPrereq>5</iCitiesPrereq>
 			<iTeamsPrereq>0</iTeamsPrereq>
 			<iLevelPrereq>0</iLevelPrereq>
 			<iMinLatitude>0</iMinLatitude>
@@ -504,10 +511,11 @@
 			<DomainFreeExperiences/>
 			<DomainProductionModifiers/>
 			<BuildingHappinessChanges/>
+			<!-- custom: relax courthouse requirement a bit anyways etc, quite unlikely a player woudl generally have so many cities, even if the player somehow has, unlikely all have courthouses too at least in early-mid game anyways etc, so relax it a bit i mean anyways etc, was BUILDINGCLASS_COURTHOUSE 4 -->
 			<PrereqBuildingClasses>
 				<PrereqBuildingClass>
 					<BuildingClassType>BUILDINGCLASS_COURTHOUSE</BuildingClassType>
-					<iNumBuildingNeeded>4</iNumBuildingNeeded>
+					<iNumBuildingNeeded>3</iNumBuildingNeeded>
 				</PrereqBuildingClass>
 			</PrereqBuildingClasses>
 			<BuildingClassNeededs>
@@ -519,198 +527,16 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: great spy great person is low enough it can be ignored and probably better to ignore it in this case at least i mean anyways etc, as for flavors in base advciv, were/was flavor military 5??? Fixed to growth gold based formula as seems much more accurate (didn't read the adv manual id though in case it has info but this still seems much more accurate like this with these udpated flavors i/we i.e. i anywyas etc now anyways etc added in advciv-sas anyways etc -->
 			<Flavors>
 				<!-- advc.020: Was 10 Gold, 2 Espionage -->
 				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>5</iFlavor>
-				</Flavor>
-			</Flavors>
-			<HotKey/>
-			<bAltDown>0</bAltDown>
-			<bShiftDown>0</bShiftDown>
-			<bCtrlDown>0</bCtrlDown>
-			<iHotKeyPriority>0</iHotKeyPriority>
-		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: versailles, type: versailles (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<BuildingClass>BUILDINGCLASS_VERSAILLES</BuildingClass>
-			<Type>BUILDING_VERSAILLES</Type>
-			<SpecialBuildingType>NONE</SpecialBuildingType>
-			<Description>TXT_KEY_BUILDING_VERSAILLES</Description>
-			<Civilopedia>TXT_KEY_BUILDING_VERSAILLES_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_VERSAILLES_STRATEGY</Strategy>
-			<Advisor>ADVISOR_ECONOMY</Advisor>
-			<ArtDefineTag>ART_DEF_BUILDING_VERSAILLES</ArtDefineTag>
-			<MovieDefineTag>ART_DEF_MOVIE_VERSAILLES</MovieDefineTag>
-			<HolyCity>NONE</HolyCity>
-			<ReligionType>NONE</ReligionType>
-			<StateReligion>NONE</StateReligion>
-			<bStateReligion>0</bStateReligion>
-			<PrereqReligion>NONE</PrereqReligion>
-			<PrereqCorporation>NONE</PrereqCorporation>
-			<FoundsCorporation>NONE</FoundsCorporation>
-			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
-			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
-			<VictoryPrereq>NONE</VictoryPrereq>
-			<FreeStartEra>NONE</FreeStartEra>
-			<!-- advc.008a: was ERA_INDUSTRIAL -->
-			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
-			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: was TECH_DIVINE_RIGHT -->
-			<PrereqTech>TECH_FEUDALISM</PrereqTech>
-			<TechTypes/>
-			<Bonus>NONE</Bonus>
-			<PrereqBonuses/>
-			<ProductionTraits/>
-			<HappinessTraits/>
-			<NoBonus>NONE</NoBonus>
-			<PowerBonus>NONE</PowerBonus>
-			<FreeBonus>NONE</FreeBonus>
-			<iNumFreeBonuses>0</iNumFreeBonuses>
-			<FreeBuilding>NONE</FreeBuilding>
-			<FreePromotion>NONE</FreePromotion>
-			<CivicOption>NONE</CivicOption>
-			<!-- advc.310: was MERCHANT -->
-			<GreatPeopleUnitClass>UNITCLASS_GREAT_SPY</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
-			<iHurryAngerModifier>0</iHurryAngerModifier>
-			<bBorderObstacle>0</bBorderObstacle>
-			<bTeamShare>1</bTeamShare>
-			<bWater>0</bWater>
-			<bRiver>0</bRiver>
-			<bPower>0</bPower>
-			<bDirtyPower>0</bDirtyPower>
-			<bAreaCleanPower>0</bAreaCleanPower>
-			<DiploVoteType>NONE</DiploVoteType>
-			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
-			<bCapital>0</bCapital>
-			<bGovernmentCenter>1</bGovernmentCenter>
-			<bGoldenAge>0</bGoldenAge>
-			<bAllowsNukes>0</bAllowsNukes>
-			<bMapCentering>0</bMapCentering>
-			<bNoUnhappiness>0</bNoUnhappiness>
-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
-			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
-			<bNeverCapture>0</bNeverCapture>
-			<bNukeImmune>1</bNukeImmune>
-			<bPrereqReligion>0</bPrereqReligion>
-			<bCenterInCity>0</bCenterInCity>
-			<iAIWeight>0</iAIWeight>
-			<iCost>800</iCost>
-			<iHurryCostModifier>100</iHurryCostModifier>
-			<iAdvancedStartCost>-1</iAdvancedStartCost>
-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<iMinAreaSize>-1</iMinAreaSize>
-			<iConquestProb>100</iConquestProb>
-			<iCitiesPrereq>0</iCitiesPrereq>
-			<iTeamsPrereq>0</iTeamsPrereq>
-			<iLevelPrereq>0</iLevelPrereq>
-			<iMinLatitude>0</iMinLatitude>
-			<iMaxLatitude>90</iMaxLatitude>
-			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
-			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
-			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
-			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
-			<iAnarchyModifier>0</iAnarchyModifier>
-			<iGoldenAgeModifier>0</iGoldenAgeModifier>
-			<iGlobalHurryModifier>0</iGlobalHurryModifier>
-			<iExperience>0</iExperience>
-			<iGlobalExperience>0</iGlobalExperience>
-			<iFoodKept>0</iFoodKept>
-			<iAirlift>0</iAirlift>
-			<iAirModifier>0</iAirModifier>
-			<iAirUnitCapacity>0</iAirUnitCapacity>
-			<iNukeModifier>0</iNukeModifier>
-			<iNukeExplosionRand>0</iNukeExplosionRand>
-			<iFreeSpecialist>0</iFreeSpecialist>
-			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
-			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
-			<iMaintenanceModifier>0</iMaintenanceModifier>
-			<iWarWearinessModifier>0</iWarWearinessModifier>
-			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
-			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
-			<iHealRateChange>0</iHealRateChange>
-			<iHealth>0</iHealth>
-			<iAreaHealth>0</iAreaHealth>
-			<iGlobalHealth>0</iGlobalHealth>
-			<iHappiness>0</iHappiness>
-			<iAreaHappiness>0</iAreaHappiness>
-			<iGlobalHappiness>0</iGlobalHappiness>
-			<iStateReligionHappiness>0</iStateReligionHappiness>
-			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
-			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
-			<iSpaceProductionModifier>0</iSpaceProductionModifier>
-			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
-			<iTradeRoutes>0</iTradeRoutes>
-			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
-			<iAreaTradeRoutes>0</iAreaTradeRoutes>
-			<iTradeRouteModifier>0</iTradeRouteModifier>
-			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
-			<iGlobalPopulationChange>0</iGlobalPopulationChange>
-			<iFreeTechs>0</iFreeTechs>
-			<iDefense>0</iDefense>
-			<iBombardDefense>0</iBombardDefense>
-			<iAllCityDefense>0</iAllCityDefense>
-			<iEspionageDefense>0</iEspionageDefense>
-			<iAsset>16</iAsset>
-			<iPower>0</iPower>
-			<fVisibilityPriority>1.0</fVisibilityPriority>
-			<SeaPlotYieldChanges/>
-			<RiverPlotYieldChanges/>
-			<GlobalSeaPlotYieldChanges/>
-			<YieldChanges/>
-			<CommerceChanges/>
-			<ObsoleteSafeCommerceChanges>
-				<iCommerce>0</iCommerce>
-				<iCommerce>0</iCommerce>
-				<iCommerce>10</iCommerce>
-			</ObsoleteSafeCommerceChanges>
-			<CommerceChangeDoubleTimes>
-				<iCommerce>0</iCommerce>
-				<iCommerce>0</iCommerce>
-				<iCommerce>1000</iCommerce>
-			</CommerceChangeDoubleTimes>
-			<CommerceModifiers/>
-			<GlobalCommerceModifiers/>
-			<SpecialistExtraCommerces/>
-			<StateReligionCommerces/>
-			<CommerceHappinesses/>
-			<ReligionChanges/>
-			<SpecialistCounts/>
-			<FreeSpecialistCounts/>
-			<CommerceFlexibles/>
-			<CommerceChangeOriginalOwners>
-				<bCommerceChangeOriginalOwner>0</bCommerceChangeOriginalOwner>
-				<bCommerceChangeOriginalOwner>0</bCommerceChangeOriginalOwner>
-				<bCommerceChangeOriginalOwner>1</bCommerceChangeOriginalOwner>
-			</CommerceChangeOriginalOwners>
-			<ConstructSound/>
-			<BonusHealthChanges/>
-			<BonusHappinessChanges/>
-			<BonusProductionModifiers>
-				<BonusProductionModifier>
-					<BonusType>BONUS_MARBLE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
-				</BonusProductionModifier>
-			</BonusProductionModifiers>
-			<UnitCombatFreeExperiences/>
-			<DomainFreeExperiences/>
-			<DomainProductionModifiers/>
-			<BuildingHappinessChanges/>
-			<PrereqBuildingClasses/>
-			<BuildingClassNeededs/>
-			<SpecialistYieldChanges/>
-			<BonusYieldModifiers/>
-			<ImprovementFreeSpecialists/>
-			<!-- advc.020: was 10 Gold -->
-			<Flavors>
-				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
 					<iFlavor>4</iFlavor>
 				</Flavor>
 				<Flavor>
-					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>4</iFlavor>
+					<FlavorType>FLAVOR_GOLD</FlavorType>
+					<iFlavor>6</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -841,7 +667,8 @@
 			<iAllCityDefense>0</iAllCityDefense>
 			<iEspionageDefense>0</iEspionageDefense>
 			<iAsset>1</iAsset>
-			<iPower>2</iPower>
+			<!-- custom: some military buildings like walls give quite a bit more of military power than stated here, the equivalent of a few more units in fact, was 2 -->
+			<iPower>7</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
@@ -1018,7 +845,7 @@
 			<iAllCityDefense>0</iAllCityDefense>
 			<iEspionageDefense>0</iEspionageDefense>
 			<iAsset>1</iAsset>
-			<iPower>3</iPower>
+			<iPower>8</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
@@ -1201,7 +1028,7 @@
 			<iAllCityDefense>0</iAllCityDefense>
 			<iEspionageDefense>0</iEspionageDefense>
 			<iAsset>1</iAsset>
-			<iPower>2</iPower>
+			<iPower>7</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
@@ -1380,8 +1207,9 @@
 			<iAllCityDefense>0</iAllCityDefense>
 			<iEspionageDefense>0</iEspionageDefense>
 			<iAsset>2</iAsset>
+			<!-- custom: the castle is a very strong building, the equivalent of several more units, was 5 -->
 			<!-- advc.131c: was 2 -->
-			<iPower>5</iPower>
+			<iPower>18</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
@@ -1575,8 +1403,9 @@
 			<iAllCityDefense>0</iAllCityDefense>
 			<iEspionageDefense>0</iEspionageDefense>
 			<iAsset>2</iAsset>
+			<!-- custom: was 6 -->
 			<!-- advc.131c: was 3 -->
-			<iPower>6</iPower>
+			<iPower>21</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
@@ -1617,10 +1446,11 @@
 					<iProductonModifier>100</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
+			<!-- custom: was 5 -->
 			<UnitCombatFreeExperiences>
 				<UnitCombatFreeExperience>
 					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
-					<iExperience>5</iExperience>
+					<iExperience>4</iExperience>
 				</UnitCombatFreeExperience>
 			</UnitCombatFreeExperiences>
 			<DomainFreeExperiences/>
@@ -1779,8 +1609,9 @@
 			<iAllCityDefense>0</iAllCityDefense>
 			<iEspionageDefense>0</iEspionageDefense>
 			<iAsset>2</iAsset>
+			<!-- custom: was 5 -->
 			<!-- advc.131c: was 2 -->
-			<iPower>5</iPower>
+			<iPower>22</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
@@ -1974,8 +1805,9 @@
 			<iAllCityDefense>0</iAllCityDefense>
 			<iEspionageDefense>0</iEspionageDefense>
 			<iAsset>2</iAsset>
+			<!-- custom: was 5 -->
 			<!-- advc.131c: was 2 -->
-			<iPower>5</iPower>
+			<iPower>18</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
@@ -2592,8 +2424,8 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
-			<!-- custom: change to a more sensical at least to me if i may say but anyways etc tech obsolete time ; non(-directly at elast but anyways etc) military units could still benefit from the exp even after tanks or such, but it could also be said other units are now very used to fghting against them so no relative exp bonus even though is bit far-fetched, maybe makes sense for this mostly fi not only military building to nerf it when tanks are discovered or around it when its military units don't make sense anymore anyways etc, was TECH_ADVANCED_FLIGHT -->
-			<ObsoleteTech>TECH_INDUSTRIALISM</ObsoleteTech>
+			<!-- custom: no reason to go out of our way to make the stable i.e. this building anyways etc obsolete, it will naturally be unpopular with time in this case anyways etc, plus if a mod wanted to add mounted civilian units or maybe us in advciv-sas but unlikely who knows one never knows i mean even though unlikely anywyas etc, but the general idea i mean is that it may still serve some purpose to have a stable, and if there are no more horse or other mounted units, then the building is useless anyway, and if there are some even if civ is backwards or such other purpose like alternate tech path or mod added mod mod like they say anyways etc civilian unit, still why not? So put none instead anyways etc (very questioable base civ4 +/- obsolete tech too, unless horses or camels were flying... like in some religions believe it or not that are surprisingly popular and not obsolete, one where it is claimed a river or sea was cut in half with a normal wooden stick but no one has a poof of it somehow, but nevermind this as this is a code space i don't know if i should apologize (as this is what i wanted to say too but anyways etc) but to go back on point here is main reasoning, anyways etc), was TECH_ADVANCED_FLIGHT -->
+			<ObsoleteTech>NONE</ObsoleteTech>
 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -2689,7 +2521,8 @@
 			<iAllCityDefense>0</iAllCityDefense>
 			<iEspionageDefense>0</iEspionageDefense>
 			<iAsset>2</iAsset>
-			<iPower>2</iPower>
+			<!-- custom: was 2 -->
+			<iPower>4</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
@@ -2761,8 +2594,8 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
-			<!-- custom: especially for the mongol civ-specific stable, we need to nerf the bonuses for when tanks arrive/are available (now) i mean but anyways etc, was TECH_ADVANCED_FLIGHT -->
-			<ObsoleteTech>TECH_INDUSTRIALISM</ObsoleteTech>
+			<!-- custom: see code comment at BUILDING_STABLE for details if i am not mistaken, anyways etc, was TECH_ADVANCED_FLIGHT -->
+			<ObsoleteTech>NONE</ObsoleteTech>
 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -2859,7 +2692,8 @@
 			<iAllCityDefense>0</iAllCityDefense>
 			<iEspionageDefense>0</iEspionageDefense>
 			<iAsset>2</iAsset>
-			<iPower>4</iPower>
+			<!-- custom: was 4 -->
+			<iPower>6</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
@@ -4795,7 +4629,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>200</iCost>
+			<!-- custom: was 200 -->
+			<iCost>120</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -4828,8 +4663,10 @@
 			<iWarWearinessModifier>0</iWarWearinessModifier>
 			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
 			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
-			<iHealRateChange>10</iHealRateChange>
-			<iHealth>3</iHealth>
+			<!-- custom: was 10 -->
+			<iHealRateChange>15</iHealRateChange>
+			<!-- custom: was 3 -->
+			<iHealth>1</iHealth>
 			<iAreaHealth>0</iAreaHealth>
 			<iGlobalHealth>0</iGlobalHealth>
 			<iHappiness>0</iHappiness>
@@ -4852,7 +4689,8 @@
 			<iAllCityDefense>0</iAllCityDefense>
 			<iEspionageDefense>0</iEspionageDefense>
 			<iAsset>5</iAsset>
-			<iPower>0</iPower>
+			<!-- custom: was 0 -->
+			<iPower>2</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
@@ -4884,11 +4722,16 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: add flavor military but not too high else leaders would build this instead of units if i am not mistaken anyways etc, was flavor growth 8 -->
 			<!-- advc.020: was 10 Growth; cf. Aqueduct -->
 			<Flavors>
 				<Flavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<iFlavor>2</iFlavor>
+				</Flavor>
+				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>8</iFlavor>
+					<iFlavor>4</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -4921,6 +4764,7 @@
 			<FreeStartEra>ERA_FUTURE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<!-- custom: see also TXT_KEY_BUILDING_RECYCLING_CENTER_PEDIA for details or related info anyways etc  -->
 			<PrereqTech>TECH_ECOLOGY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -5591,7 +5435,7 @@
 			<iAsset>4</iAsset>
 			<iPower>0</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
-			<!-- custom: also give water tiles gold per tile so they scale better in the middle game, plus should be more balanced than strong trade routes, as you/the player would need to allocate citizens and work these tiles else no bonus, hopefully more balanced and also stronger water tiles this way that scale gradually with the game without being OP ideally, anyways etc -->
+			<!-- custom: also give water tiles gold per tile so they scale better in the middle game, plus should be more balanced than strong trade routes, as you/the player would need to allocate citizens and work these tiles else no bonus, hopefully more balanced and also stronger water tiles this way that scale gradually with the game without being OP ideally, anyways etc, was empty -->
 			<SeaPlotYieldChanges>
 				<iYield>0</iYield>
 				<iYield>0</iYield>
@@ -5778,7 +5622,7 @@
 			<iAsset>3</iAsset>
 			<iPower>0</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
-			<!-- custom: also give water tiles gold per tile so they scale better in the middle game, plus should be more balanced than strong trade routes, as you/the player would need to allocate citizens and work these tiles else no bonus, hopefully more balanced and also stronger water tiles this way that scale gradually with the game without being OP ideally, anyways etc -->
+			<!-- custom: also give water tiles gold per tile so they scale better in the middle game, plus should be more balanced than strong trade routes, as you/the player would need to allocate citizens and work these tiles else no bonus, hopefully more balanced and also stronger water tiles this way that scale gradually with the game without being OP ideally, anyways etc, was empty -->
 			<SeaPlotYieldChanges>
 				<iYield>0</iYield>
 				<iYield>0</iYield>
@@ -6520,7 +6364,7 @@
 			<iAreaTradeRoutes>0</iAreaTradeRoutes>
 			<iTradeRouteModifier>0</iTradeRouteModifier>
 			<!-- custom: was 100 -->
-			<iForeignTradeRouteModifier>150</iForeignTradeRouteModifier>
+			<iForeignTradeRouteModifier>50</iForeignTradeRouteModifier>
 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
 			<iFreeTechs>0</iFreeTechs>
 			<iDefense>0</iDefense>
@@ -6530,7 +6374,12 @@
 			<iAsset>4</iAsset>
 			<iPower>0</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
-			<SeaPlotYieldChanges/>
+			<!-- custom: also give water tiles gold per tile so they scale better in the middle game, plus should be more balanced than strong trade routes, as you/the player would need to allocate citizens and work these tiles else no bonus, hopefully more balanced and also stronger water tiles this way that scale gradually with the game without being OP ideally, anyways etc, was empty -->
+			<SeaPlotYieldChanges>
+				<iYield>0</iYield>
+				<iYield>0</iYield>
+				<iYield>1</iYield>
+			</SeaPlotYieldChanges>
 			<RiverPlotYieldChanges/>
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
@@ -6547,10 +6396,16 @@
 			<SpecialistCounts>
 				<SpecialistCount>
 					<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
-					<iSpecialistCount>2</iSpecialistCount>
+					<iSpecialistCount>1</iSpecialistCount>
 				</SpecialistCount>
 			</SpecialistCounts>
-			<FreeSpecialistCounts/>
+			<!-- custom: was empty -->
+			<FreeSpecialistCounts>
+				<FreeSpecialistCount>
+					<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
+					<iFreeSpecialistCount>1</iFreeSpecialistCount>
+				</FreeSpecialistCount>
+			</FreeSpecialistCounts>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
 			<ConstructSound>AS2D_BUILD_BANK</ConstructSound>
@@ -6696,7 +6551,7 @@
 			<iAreaTradeRoutes>0</iAreaTradeRoutes>
 			<iTradeRouteModifier>0</iTradeRouteModifier>
 			<!-- custom: was 100 -->
-			<iForeignTradeRouteModifier>250</iForeignTradeRouteModifier>
+			<iForeignTradeRouteModifier>50</iForeignTradeRouteModifier>
 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
 			<iFreeTechs>0</iFreeTechs>
 			<iDefense>0</iDefense>
@@ -6706,6 +6561,7 @@
 			<iAsset>4</iAsset>
 			<iPower>0</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
+			<!-- custom: also give water tiles gold per tile so they scale better in the middle game, plus should be more balanced than strong trade routes, as you/the player would need to allocate citizens and work these tiles else no bonus, hopefully more balanced and also stronger water tiles this way that scale gradually with the game without being OP ideally, anyways etc, was empty -->
 			<SeaPlotYieldChanges>
 				<iYield>0</iYield>
 				<iYield>0</iYield>
@@ -6717,7 +6573,12 @@
 			<CommerceChanges/>
 			<ObsoleteSafeCommerceChanges/>
 			<CommerceChangeDoubleTimes/>
-			<CommerceModifiers/>
+			<!-- custom: was empty -->
+			<CommerceModifiers>
+				<iCommerce>10</iCommerce>
+				<iCommerce>0</iCommerce>
+				<iCommerce>0</iCommerce>
+			</CommerceModifiers>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
 			<StateReligionCommerces/>
@@ -6727,7 +6588,7 @@
 			<SpecialistCounts>
 				<SpecialistCount>
 					<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
-					<iSpecialistCount>2</iSpecialistCount>
+					<iSpecialistCount>1</iSpecialistCount>
 				</SpecialistCount>
 			</SpecialistCounts>
 			<FreeSpecialistCounts/>
@@ -6891,7 +6752,8 @@
 			<iAllCityDefense>0</iAllCityDefense>
 			<iEspionageDefense>0</iEspionageDefense>
 			<iAsset>1</iAsset>
-			<iPower>2</iPower>
+			<!-- custom: de prioritize naval units in warfare power estimation, so same for their building anyways etc, was 2 -->
+			<iPower>1</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
@@ -7070,8 +6932,9 @@
 			<iAllCityDefense>0</iAllCityDefense>
 			<iEspionageDefense>0</iEspionageDefense>
 			<iAsset>5</iAsset>
+			<!-- custom: just having an airport cannot be so strong militarily, avoid suicidal declarations, was 15 -->
 			<!-- advc.131c: was 0 -->
-			<iPower>15</iPower>
+			<iPower>5</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
@@ -7192,8 +7055,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: make it a bit cheaper as may be a bit too expansive for an early building even if/though powerful, was 120 -->
-			<iCost>110</iCost>
+			<!-- custom: was 120 -->
+			<iCost>100</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -7386,7 +7249,7 @@
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: do not make it more expensive than the generic forge class building as is a shared requirement for the colossus world wonder, would make this civ-specific building weaker anyways etc -->
-			<iCost>110</iCost>
+			<iCost>100</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -7541,7 +7404,7 @@
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: make them available sooner while they are still relevant and i mean as early as possible before game ends in this case anyways etc, and historically (more at least but anyways etc) accurate but anyways etc but anyways etc anyways etc, was TECH_ASSEMBLY_LINE -->
-			<PrereqTech>TECH_COMBUSTION</PrereqTech>
+			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -7733,7 +7596,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
+			<!-- custom: make it available sooner so it can be built sooner, also main reason too is it's more accurate this way if i am not mistaken from quite quick glance at wikipedia or and such, also a bit more like in civ3 if i remember it correctly but or not but or yes but but anyways etc ; also i find it interesting as a gameplay mechanic that coal plant has higher pollution but can be built sooner, changes the strategy around wonders and units in late game too anyways etc maybe too hopefully interesting if i may say or not or yes or other anyways etc anyways etc anyways etc but anyways etc this way but anyways etc, was TECH_ASSEMBLY_LINE -->
+			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -8074,7 +7938,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_PLASTICS</PrereqTech>
+			<!-- custom: they were relevant sooner in tech/history if i am not mistaken from quite quick in this case anyways etc glances/searches on wikipedia or and such anyways etc anyways etc anyways etc, plus to make them buildable sooner too anyways etc anyways etc anyways etc, was TECH_PLASTICS -->
+			<PrereqTech>TECH_STEEL</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -9242,7 +9107,8 @@
 			<iAllCityDefense>0</iAllCityDefense>
 			<iEspionageDefense>0</iEspionageDefense>
 			<iAsset>2</iAsset>
-			<iPower>1</iPower>
+			<!-- custom: was 1 -->
+			<iPower>0</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
@@ -9425,7 +9291,8 @@
 			<iAllCityDefense>0</iAllCityDefense>
 			<iEspionageDefense>0</iEspionageDefense>
 			<iAsset>2</iAsset>
-			<iPower>1</iPower>
+			<!-- custom: was 1 -->
+			<iPower>2</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
@@ -9710,7 +9577,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_COMBUSTION</PrereqTech>
+			<!-- custom: was TECH_COMBUSTION -->
+			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -12718,9 +12586,9 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: reduced a bit among other things or not anyways etc, was 130 -->
+			<!-- custom: was 130 -->
 			<!-- advc.911b: was 150 -->
-			<iCost>120</iCost>
+			<iCost>110</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -12910,9 +12778,9 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: reduced further among other things(/changes (made)) or not or yes or and other or and not anyways etc, was 130 -->
+			<!-- custom: was 130 -->
 			<!-- advc.911b: was 150 -->
-			<iCost>120</iCost>
+			<iCost>110</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -14713,14 +14581,15 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: adjust flavors, was flavor espionage 10 miltary 6 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
-					<iFlavor>10</iFlavor>
+					<iFlavor>8</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>6</iFlavor>
+					<iFlavor>3</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -14903,6 +14772,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: adjust flavors, was flavor espionage 8 miltary 5 growth 3 -->
 			<!-- advc.020: was 10 Espionage, 6 Military; the happiness is good
 				 for Growth -->
 			<Flavors>
@@ -14912,11 +14782,11 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>5</iFlavor>
+					<iFlavor>3</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>3</iFlavor>
+					<iFlavor>4</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -15852,8 +15722,9 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
+			<!-- custom: was 300 -->
 			<!-- advc.201: K-Mod had reduced this to 240 -->
-			<iCost>300</iCost>
+			<iCost>220</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -15950,7 +15821,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_COPPER</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -16020,8 +15891,9 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+			<!-- custom: was NONE (and 0 for rate change too below anyways etc) -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
+			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>0</bTeamShare>
@@ -16045,7 +15917,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>60</iCost>
+			<!-- custom: was 60 -->
+			<iCost>80</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -16109,8 +15982,10 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
+			<!-- custom: was 0 / 0 / 2 / empty anyways etc -->
 			<!-- was 1 culture in K-Mod; reverted -->
 			<ObsoleteSafeCommerceChanges>
+				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<iCommerce>2</iCommerce>
@@ -16120,10 +15995,8 @@
 				<iCommerce>0</iCommerce>
 				<iCommerce>1000</iCommerce>
 			</CommerceChangeDoubleTimes>
-			<CommerceModifiers>
-				<iCommerce>0</iCommerce>
-				<iCommerce>10</iCommerce>
-			</CommerceModifiers>
+			<!-- custom: was 0 / 10 -->
+			<CommerceModifiers/>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
 			<StateReligionCommerces/>
@@ -16146,10 +16019,23 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: update flavors based on new reworked monastery effect, as for military effect keep(ing but anyways etc anyways etc anyways etc) flavor low as military leaders would build too many monasteries instead of how they should prioritize building military units to fulfill their role in this case if i may say at least in terms of gameplay but anyways etc anyways etc anyways etc, also the military effect is not too strong so maybe fine to have a reduced military flavor i mean anyways etc, was flavor religion 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
 					<iFlavor>10</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<iFlavor>1</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>1</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -16196,7 +16082,8 @@
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
+			<!-- custom: was 1 -->
+			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>0</bTeamShare>
@@ -16590,8 +16477,9 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
+			<!-- custom: was 300 -->
 			<!-- advc.201: K-Mod had reduced this to 240 -->
-			<iCost>300</iCost>
+			<iCost>220</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -16688,7 +16576,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_MARBLE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -16758,8 +16646,9 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+			<!-- custom: was NONE (and 0 for rate change too below anyways etc) -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
+			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>0</bTeamShare>
@@ -16783,7 +16672,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>60</iCost>
+			<!-- custom: was 60 -->
+			<iCost>80</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -16847,8 +16737,10 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
+			<!-- custom: was 0 / 0 / 2 / empty anyways etc -->
 			<!-- was 1 culture in K-Mod; reverted -->
 			<ObsoleteSafeCommerceChanges>
+				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<iCommerce>2</iCommerce>
@@ -16858,10 +16750,8 @@
 				<iCommerce>0</iCommerce>
 				<iCommerce>1000</iCommerce>
 			</CommerceChangeDoubleTimes>
-			<CommerceModifiers>
-				<iCommerce>0</iCommerce>
-				<iCommerce>10</iCommerce>
-			</CommerceModifiers>
+			<!-- custom: was 0 / 10 -->
+			<CommerceModifiers/>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
 			<StateReligionCommerces/>
@@ -16884,10 +16774,23 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: update flavors based on new reworked monastery effect, as for military effect keep(ing but anyways etc anyways etc anyways etc) flavor low as military leaders would build too many monasteries instead of how they should prioritize building military units to fulfill their role in this case if i may say at least in terms of gameplay but anyways etc anyways etc anyways etc, also the military effect is not too strong so maybe fine to have a reduced military flavor i mean anyways etc, was flavor religion 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
 					<iFlavor>10</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<iFlavor>1</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>1</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -16934,7 +16837,8 @@
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
+			<!-- custom: was 1 -->
+			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>0</bTeamShare>
@@ -17328,8 +17232,9 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
+			<!-- custom: was 300 -->
 			<!-- advc.201: K-Mod had reduced this to 240 -->
-			<iCost>300</iCost>
+			<iCost>220</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -17426,7 +17331,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_STONE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -17496,8 +17401,9 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+			<!-- custom: was NONE (and 0 for rate change too below anyways etc) -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
+			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>0</bTeamShare>
@@ -17521,7 +17427,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>60</iCost>
+			<!-- custom: was 60 -->
+			<iCost>80</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -17585,10 +17492,12 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
+			<!-- custom: was 0 / 0 / 2 / empty anyways etc -->
+			<!-- advc.200: K-Mod had decreased this to 1. -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
-				<!-- advc.200: K-Mod had decreased this to 1. -->
+				<iCommerce>0</iCommerce>
 				<iCommerce>2</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
@@ -17596,10 +17505,8 @@
 				<iCommerce>0</iCommerce>
 				<iCommerce>1000</iCommerce>
 			</CommerceChangeDoubleTimes>
-			<CommerceModifiers>
-				<iCommerce>0</iCommerce>
-				<iCommerce>10</iCommerce>
-			</CommerceModifiers>
+			<!-- custom: was 0 / 10 -->
+			<CommerceModifiers/>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
 			<StateReligionCommerces/>
@@ -17622,10 +17529,23 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: update flavors based on new reworked monastery effect, as for military effect keep(ing but anyways etc anyways etc anyways etc) flavor low as military leaders would build too many monasteries instead of how they should prioritize building military units to fulfill their role in this case if i may say at least in terms of gameplay but anyways etc anyways etc anyways etc, also the military effect is not too strong so maybe fine to have a reduced military flavor i mean anyways etc, was flavor religion 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
 					<iFlavor>10</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<iFlavor>1</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>1</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -17672,7 +17592,8 @@
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
+			<!-- custom: was 1 -->
+			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>0</bTeamShare>
@@ -17886,6 +17807,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
+			<!-- custom: was 60 -->
 			<iCost>80</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
@@ -18066,8 +17988,9 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
+			<!-- custom: was 300 -->
 			<!-- advc.201: K-Mod had reduced this to 240 -->
-			<iCost>300</iCost>
+			<iCost>220</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -18164,7 +18087,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_COPPER</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -18234,8 +18157,9 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+			<!-- custom: was NONE (and 0 for rate change too below anyways etc) -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
+			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>0</bTeamShare>
@@ -18259,7 +18183,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>60</iCost>
+			<!-- custom: was 60 -->
+			<iCost>80</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -18323,8 +18248,10 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
+			<!-- custom: was 0 / 0 / 2 / empty anyways etc -->
 			<!-- was 1 culture in K-Mod; reverted -->
 			<ObsoleteSafeCommerceChanges>
+				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<iCommerce>2</iCommerce>
@@ -18334,10 +18261,8 @@
 				<iCommerce>0</iCommerce>
 				<iCommerce>1000</iCommerce>
 			</CommerceChangeDoubleTimes>
-			<CommerceModifiers>
-				<iCommerce>0</iCommerce>
-				<iCommerce>10</iCommerce>
-			</CommerceModifiers>
+			<!-- custom: was 0 / 10 -->
+			<CommerceModifiers/>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
 			<StateReligionCommerces/>
@@ -18360,10 +18285,23 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: update flavors based on new reworked monastery effect, as for military effect keep(ing but anyways etc anyways etc anyways etc) flavor low as military leaders would build too many monasteries instead of how they should prioritize building military units to fulfill their role in this case if i may say at least in terms of gameplay but anyways etc anyways etc anyways etc, also the military effect is not too strong so maybe fine to have a reduced military flavor i mean anyways etc, was flavor religion 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
 					<iFlavor>10</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<iFlavor>1</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>1</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -18410,7 +18348,8 @@
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
+			<!-- custom: was 1 -->
+			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>0</bTeamShare>
@@ -18804,8 +18743,9 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
+			<!-- custom: was 300 -->
 			<!-- advc.201: K-Mod had reduced this to 240 -->
-			<iCost>300</iCost>
+			<iCost>220</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -18902,7 +18842,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_COPPER</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -18972,8 +18912,9 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+			<!-- custom: was NONE (and 0 for rate change too below anyways etc) -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
+			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>0</bTeamShare>
@@ -18997,7 +18938,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>60</iCost>
+			<!-- custom: was 60 -->
+			<iCost>80</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -19061,8 +19003,10 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
+			<!-- custom: was 0 / 0 / 2 / empty anyways etc -->
 			<!-- was 1 culture in K-Mod; reverted -->
 			<ObsoleteSafeCommerceChanges>
+				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<iCommerce>2</iCommerce>
@@ -19072,10 +19016,8 @@
 				<iCommerce>0</iCommerce>
 				<iCommerce>1000</iCommerce>
 			</CommerceChangeDoubleTimes>
-			<CommerceModifiers>
-				<iCommerce>0</iCommerce>
-				<iCommerce>10</iCommerce>
-			</CommerceModifiers>
+			<!-- custom: was 0 / 10 -->
+			<CommerceModifiers/>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
 			<StateReligionCommerces/>
@@ -19098,10 +19040,23 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: update flavors based on new reworked monastery effect, as for military effect keep(ing but anyways etc anyways etc anyways etc) flavor low as military leaders would build too many monasteries instead of how they should prioritize building military units to fulfill their role in this case if i may say at least in terms of gameplay but anyways etc anyways etc anyways etc, also the military effect is not too strong so maybe fine to have a reduced military flavor i mean anyways etc, was flavor religion 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
 					<iFlavor>10</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<iFlavor>1</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>1</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -19148,7 +19103,8 @@
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
+			<!-- custom: was 1 -->
+			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>0</bTeamShare>
@@ -19542,8 +19498,9 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
+			<!-- custom: was 300 -->
 			<!-- advc.201: K-Mod had reduced this to 240 -->
-			<iCost>300</iCost>
+			<iCost>220</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -19640,7 +19597,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_STONE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -19710,8 +19667,9 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+			<!-- custom: was NONE (and 0 for rate change too below anyways etc) -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
+			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>0</bTeamShare>
@@ -19735,7 +19693,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>60</iCost>
+			<!-- custom: was 60 -->
+			<iCost>80</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -19799,8 +19758,10 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
+			<!-- custom: was 0 / 0 / 2 / empty anyways etc -->
 			<!-- was 1 culture in K-Mod; reverted -->
 			<ObsoleteSafeCommerceChanges>
+				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<iCommerce>2</iCommerce>
@@ -19810,10 +19771,8 @@
 				<iCommerce>0</iCommerce>
 				<iCommerce>1000</iCommerce>
 			</CommerceChangeDoubleTimes>
-			<CommerceModifiers>
-				<iCommerce>0</iCommerce>
-				<iCommerce>10</iCommerce>
-			</CommerceModifiers>
+			<!-- custom: was 0 / 10 -->
+			<CommerceModifiers/>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
 			<StateReligionCommerces/>
@@ -19836,10 +19795,23 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: update flavors based on new reworked monastery effect, as for military effect keep(ing but anyways etc anyways etc anyways etc) flavor low as military leaders would build too many monasteries instead of how they should prioritize building military units to fulfill their role in this case if i may say at least in terms of gameplay but anyways etc anyways etc anyways etc, also the military effect is not too strong so maybe fine to have a reduced military flavor i mean anyways etc, was flavor religion 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
 					<iFlavor>10</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<iFlavor>1</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>1</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -19886,7 +19858,8 @@
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
+			<!-- custom: was 1 -->
+			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>0</bTeamShare>
@@ -20280,8 +20253,9 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
+			<!-- custom: was 300 -->
 			<!-- advc.201: K-Mod had reduced this to 240 -->
-			<iCost>300</iCost>
+			<iCost>220</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -20378,7 +20352,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_MARBLE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -20448,8 +20422,9 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+			<!-- custom: was NONE (and 0 for rate change too below anyways etc) -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
+			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>0</bTeamShare>
@@ -20473,7 +20448,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>60</iCost>
+			<!-- custom: was 60 -->
+			<iCost>80</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -20537,8 +20513,10 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
+			<!-- custom: was 0 / 0 / 2 / empty anyways etc -->
 			<!-- was 1 culture in K-Mod; reverted -->
 			<ObsoleteSafeCommerceChanges>
+				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<iCommerce>2</iCommerce>
@@ -20548,10 +20526,8 @@
 				<iCommerce>0</iCommerce>
 				<iCommerce>1000</iCommerce>
 			</CommerceChangeDoubleTimes>
-			<CommerceModifiers>
-				<iCommerce>0</iCommerce>
-				<iCommerce>10</iCommerce>
-			</CommerceModifiers>
+			<!-- custom: was 0 / 10 -->
+			<CommerceModifiers/>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
 			<StateReligionCommerces/>
@@ -20574,10 +20550,23 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: update flavors based on new reworked monastery effect, as for military effect keep(ing but anyways etc anyways etc anyways etc) flavor low as military leaders would build too many monasteries instead of how they should prioritize building military units to fulfill their role in this case if i may say at least in terms of gameplay but anyways etc anyways etc anyways etc, also the military effect is not too strong so maybe fine to have a reduced military flavor i mean anyways etc, was flavor religion 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
 					<iFlavor>10</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<iFlavor>1</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>1</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -20624,7 +20613,8 @@
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
+			<!-- custom: was 1 -->
+			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>0</bTeamShare>
@@ -20895,7 +20885,8 @@
 			<iAllCityDefense>0</iAllCityDefense>
 			<iEspionageDefense>0</iEspionageDefense>
 			<iAsset>8</iAsset>
-			<iPower>8</iPower>
+			<!-- custom: was 8 -->
+			<iPower>20</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
@@ -21203,7 +21194,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>300</iCost>
+			<!-- custom: was 300 -->
+			<iCost>280</iCost>
 			<iHurryCostModifier>50</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -21283,13 +21275,15 @@
 			<StateReligionCommerces/>
 			<CommerceHappinesses/>
 			<ReligionChanges/>
-			<SpecialistCounts>
-				<SpecialistCount>
-					<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
-					<iSpecialistCount>3</iSpecialistCount>
-				</SpecialistCount>
-			</SpecialistCounts>
-			<FreeSpecialistCounts/>
+			<!-- custom: was SPECIALIST_ARTIST 3 -->
+			<SpecialistCounts/>
+			<!-- custom: was empty -->
+			<FreeSpecialistCounts>
+				<FreeSpecialistCount>
+					<SpecialistType>SPECIALIST_GREAT_ARTIST</SpecialistType>
+					<iFreeSpecialistCount>1</iFreeSpecialistCount>
+				</FreeSpecialistCount>
+			</FreeSpecialistCounts>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
 			<ConstructSound/>
@@ -21300,10 +21294,11 @@
 			<DomainFreeExperiences/>
 			<DomainProductionModifiers/>
 			<BuildingHappinessChanges/>
+			<!-- custom: a bit too high, reduce it a bit anyways etc, was 4 -->
 			<PrereqBuildingClasses>
 				<PrereqBuildingClass>
 					<BuildingClassType>BUILDINGCLASS_THEATRE</BuildingClassType>
-					<iNumBuildingNeeded>4</iNumBuildingNeeded>
+					<iNumBuildingNeeded>3</iNumBuildingNeeded>
 				</PrereqBuildingClass>
 			</PrereqBuildingClasses>
 			<BuildingClassNeededs>
@@ -21315,20 +21310,17 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: military effect of no anger is too low for the building to be considered by military leaning eladers i think i mean, better not use it here so they can focus on building units or/and more relevant militarily i mean anywyas etc buildings, was flavors growth 5, culture 4, military 2 -->
 			<!-- advc.020: Was 10 Growth, but also useful militarily and for
 				 culture. -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>5</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_CULTURE</FlavorType>
 					<iFlavor>4</iFlavor>
 				</Flavor>
 				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>2</iFlavor>
+					<FlavorType>FLAVOR_CULTURE</FlavorType>
+					<iFlavor>7</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -21568,7 +21560,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>300</iCost>
+			<!-- custom: was 300 -->
+			<iCost>220</iCost>
 			<iHurryCostModifier>50</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -21634,10 +21627,11 @@
 			<CommerceChanges/>
 			<ObsoleteSafeCommerceChanges/>
 			<CommerceChangeDoubleTimes/>
+			<!-- custom: was 0 / 0 / 100 -->
 			<CommerceModifiers>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
-				<iCommerce>100</iCommerce>
+				<iCommerce>50</iCommerce>
 			</CommerceModifiers>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
@@ -21654,7 +21648,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_MARBLE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -22054,174 +22048,6 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: west_point, type: west_point (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<BuildingClass>BUILDINGCLASS_WEST_POINT</BuildingClass>
-			<Type>BUILDING_WEST_POINT</Type>
-			<SpecialBuildingType>NONE</SpecialBuildingType>
-			<Description>TXT_KEY_BUILDING_WEST_POINT</Description>
-			<Civilopedia>TXT_KEY_BUILDING_WEST_POINT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_WEST_POINT_STRATEGY</Strategy>
-			<Advisor>ADVISOR_MILITARY</Advisor>
-			<ArtDefineTag>ART_DEF_BUILDING_WEST_POINT</ArtDefineTag>
-			<MovieDefineTag>NONE</MovieDefineTag>
-			<HolyCity>NONE</HolyCity>
-			<ReligionType>NONE</ReligionType>
-			<StateReligion>NONE</StateReligion>
-			<bStateReligion>0</bStateReligion>
-			<PrereqReligion>NONE</PrereqReligion>
-			<PrereqCorporation>NONE</PrereqCorporation>
-			<FoundsCorporation>NONE</FoundsCorporation>
-			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
-			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
-			<VictoryPrereq>NONE</VictoryPrereq>
-			<FreeStartEra>NONE</FreeStartEra>
-			<MaxStartEra>NONE</MaxStartEra>
-			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
-			<TechTypes/>
-			<Bonus>NONE</Bonus>
-			<PrereqBonuses/>
-			<ProductionTraits/>
-			<HappinessTraits/>
-			<NoBonus>NONE</NoBonus>
-			<PowerBonus>NONE</PowerBonus>
-			<FreeBonus>NONE</FreeBonus>
-			<iNumFreeBonuses>0</iNumFreeBonuses>
-			<FreeBuilding>NONE</FreeBuilding>
-			<FreePromotion>NONE</FreePromotion>
-			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>UNITCLASS_GREAT_SPY</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
-			<iHurryAngerModifier>0</iHurryAngerModifier>
-			<bBorderObstacle>0</bBorderObstacle>
-			<bTeamShare>0</bTeamShare>
-			<bWater>0</bWater>
-			<bRiver>0</bRiver>
-			<bPower>0</bPower>
-			<bDirtyPower>0</bDirtyPower>
-			<bAreaCleanPower>0</bAreaCleanPower>
-			<DiploVoteType>NONE</DiploVoteType>
-			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
-			<bCapital>0</bCapital>
-			<bGovernmentCenter>0</bGovernmentCenter>
-			<bGoldenAge>0</bGoldenAge>
-			<bAllowsNukes>0</bAllowsNukes>
-			<bMapCentering>0</bMapCentering>
-			<bNoUnhappiness>0</bNoUnhappiness>
-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
-			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
-			<bNeverCapture>0</bNeverCapture>
-			<bNukeImmune>0</bNukeImmune>
-			<bPrereqReligion>0</bPrereqReligion>
-			<bCenterInCity>0</bCenterInCity>
-			<iAIWeight>0</iAIWeight>
-			<iCost>800</iCost>
-			<iHurryCostModifier>100</iHurryCostModifier>
-			<iAdvancedStartCost>-1</iAdvancedStartCost>
-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<iMinAreaSize>-1</iMinAreaSize>
-			<iConquestProb>0</iConquestProb>
-			<iCitiesPrereq>0</iCitiesPrereq>
-			<iTeamsPrereq>0</iTeamsPrereq>
-			<iLevelPrereq>6</iLevelPrereq>
-			<iMinLatitude>0</iMinLatitude>
-			<iMaxLatitude>90</iMaxLatitude>
-			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
-			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
-			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
-			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
-			<iAnarchyModifier>0</iAnarchyModifier>
-			<iGoldenAgeModifier>0</iGoldenAgeModifier>
-			<iGlobalHurryModifier>0</iGlobalHurryModifier>
-			<iExperience>4</iExperience>
-			<iGlobalExperience>0</iGlobalExperience>
-			<iFoodKept>0</iFoodKept>
-			<iAirlift>0</iAirlift>
-			<iAirModifier>0</iAirModifier>
-			<iAirUnitCapacity>0</iAirUnitCapacity>
-			<iNukeModifier>0</iNukeModifier>
-			<iNukeExplosionRand>0</iNukeExplosionRand>
-			<iFreeSpecialist>0</iFreeSpecialist>
-			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
-			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
-			<iMaintenanceModifier>0</iMaintenanceModifier>
-			<iWarWearinessModifier>0</iWarWearinessModifier>
-			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
-			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
-			<iHealRateChange>0</iHealRateChange>
-			<iHealth>0</iHealth>
-			<iAreaHealth>0</iAreaHealth>
-			<iGlobalHealth>0</iGlobalHealth>
-			<iHappiness>0</iHappiness>
-			<iAreaHappiness>0</iAreaHappiness>
-			<iGlobalHappiness>0</iGlobalHappiness>
-			<iStateReligionHappiness>0</iStateReligionHappiness>
-			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
-			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
-			<iSpaceProductionModifier>0</iSpaceProductionModifier>
-			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
-			<iTradeRoutes>0</iTradeRoutes>
-			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
-			<iAreaTradeRoutes>0</iAreaTradeRoutes>
-			<iTradeRouteModifier>0</iTradeRouteModifier>
-			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
-			<iGlobalPopulationChange>0</iGlobalPopulationChange>
-			<iFreeTechs>0</iFreeTechs>
-			<iDefense>0</iDefense>
-			<iBombardDefense>0</iBombardDefense>
-			<iAllCityDefense>0</iAllCityDefense>
-			<iEspionageDefense>0</iEspionageDefense>
-			<iAsset>8</iAsset>
-			<iPower>8</iPower>
-			<fVisibilityPriority>1.0</fVisibilityPriority>
-			<SeaPlotYieldChanges/>
-			<RiverPlotYieldChanges/>
-			<GlobalSeaPlotYieldChanges/>
-			<YieldChanges/>
-			<CommerceChanges/>
-			<ObsoleteSafeCommerceChanges/>
-			<CommerceChangeDoubleTimes/>
-			<CommerceModifiers/>
-			<GlobalCommerceModifiers/>
-			<SpecialistExtraCommerces/>
-			<StateReligionCommerces/>
-			<CommerceHappinesses/>
-			<ReligionChanges/>
-			<SpecialistCounts/>
-			<FreeSpecialistCounts/>
-			<CommerceFlexibles/>
-			<CommerceChangeOriginalOwners/>
-			<ConstructSound/>
-			<BonusHealthChanges/>
-			<BonusHappinessChanges/>
-			<BonusProductionModifiers>
-				<BonusProductionModifier>
-					<BonusType>BONUS_STONE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
-				</BonusProductionModifier>
-			</BonusProductionModifiers>
-			<UnitCombatFreeExperiences/>
-			<DomainFreeExperiences/>
-			<DomainProductionModifiers/>
-			<BuildingHappinessChanges/>
-			<PrereqBuildingClasses/>
-			<BuildingClassNeededs/>
-			<SpecialistYieldChanges/>
-			<BonusYieldModifiers/>
-			<ImprovementFreeSpecialists/>
-			<!-- advc.020: Was 10 Military, 2 Espionage -->
-			<Flavors>
-				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>10</iFlavor>
-				</Flavor>
-			</Flavors>
-			<HotKey/>
-			<bAltDown>0</bAltDown>
-			<bShiftDown>0</bShiftDown>
-			<bCtrlDown>0</bCtrlDown>
-			<iHotKeyPriority>0</iHotKeyPriority>
-		</BuildingInfo>
 		<BuildingInfo> <!-- custom: class: mt_rushmore, type: mt_rushmore (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<BuildingClass>BUILDINGCLASS_MT_RUSHMORE</BuildingClass>
 			<Type>BUILDING_MT_RUSHMORE</Type>
@@ -22258,8 +22084,10 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
+			<!-- custom: was UNITCLASS_GREAT_ARTIST -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_SPY</GreatPeopleUnitClass>
+			<!-- custom: was 1 -->
+			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>0</bTeamShare>
@@ -22279,23 +22107,27 @@
 			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
 			<bNeverCapture>0</bNeverCapture>
-			<bNukeImmune>0</bNukeImmune>
+			<!-- custom: was 0 -->
+			<bNukeImmune>1</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>500</iCost>
+			<!-- custom: was 500 -->
+			<iCost>725</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<iMinAreaSize>-1</iMinAreaSize>
-			<iConquestProb>0</iConquestProb>
+			<!-- custom: was 0 -->
+			<iConquestProb>100</iConquestProb>
 			<iCitiesPrereq>0</iCitiesPrereq>
 			<iTeamsPrereq>0</iTeamsPrereq>
 			<iLevelPrereq>0</iLevelPrereq>
 			<iMinLatitude>0</iMinLatitude>
 			<iMaxLatitude>90</iMaxLatitude>
 			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
-			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+			<!-- custom: was 0 -->
+			<iGreatGeneralRateModifier>200</iGreatGeneralRateModifier>
 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
 			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
 			<iAnarchyModifier>0</iAnarchyModifier>
@@ -22314,7 +22146,8 @@
 			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
 			<iMaintenanceModifier>0</iMaintenanceModifier>
 			<iWarWearinessModifier>0</iWarWearinessModifier>
-			<iGlobalWarWearinessModifier>-25</iGlobalWarWearinessModifier>
+			<!-- custom: now using a positive value (i.e. negative as in bad for the player anyways etc, but with another positive effect to match/compensate it anyways etc, may be interesting for police/military states that already have too much war weariness and want to trade it off for something else anyways etc, historically this would be because now indigenous people having their mountain stolen may be expected to retaliate so more war on horizon anyways etc), was - 25 -->
+			<iGlobalWarWearinessModifier>50</iGlobalWarWearinessModifier>
 			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
 			<iHealRateChange>0</iHealRateChange>
 			<iHealth>0</iHealth>
@@ -22325,7 +22158,8 @@
 			<iGlobalHappiness>0</iGlobalHappiness>
 			<iStateReligionHappiness>0</iStateReligionHappiness>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
-			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
+			<!-- custom: was 0 -->
+			<iMilitaryProductionModifier>10</iMilitaryProductionModifier>
 			<iSpaceProductionModifier>0</iSpaceProductionModifier>
 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
 			<iTradeRoutes>0</iTradeRoutes>
@@ -22340,17 +22174,19 @@
 			<iAllCityDefense>0</iAllCityDefense>
 			<iEspionageDefense>0</iEspionageDefense>
 			<iAsset>8</iAsset>
-			<iPower>4</iPower>
+			<!-- custom: was 4 -->
+			<iPower>8</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
+			<!-- custom: was 0 / 0 / 4 -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
-				<iCommerce>4</iCommerce>
+				<iCommerce>8</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -22373,7 +22209,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_STONE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -22385,10 +22221,15 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: can't put too high military flavor else military leaders would stop building units if i am not mistaken anyways etc, was flavors military 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>10</iFlavor>
+					<iFlavor>6</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -22420,7 +22261,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_MEDICINE</PrereqTech>
+			<!-- custom: was TECH_MEDICINE -->
+			<PrereqTech>TECH_BIOLOGY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -22431,10 +22273,11 @@
 			<FreeBonus>NONE</FreeBonus>
 			<iNumFreeBonuses>0</iNumFreeBonuses>
 			<FreeBuilding>NONE</FreeBuilding>
-			<FreePromotion>PROMOTION_MEDIC1</FreePromotion>
+			<FreePromotion>PROMOTION_MEDIC3</FreePromotion>
 			<CivicOption>NONE</CivicOption>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_SCIENTIST</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
+			<!-- custom: was 1 -->
+			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>0</bTeamShare>
@@ -22458,7 +22301,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>600</iCost>
+			<!-- custom: was 600 -->
+			<iCost>650</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -22494,7 +22338,8 @@
 			<iHealRateChange>0</iHealRateChange>
 			<iHealth>0</iHealth>
 			<iAreaHealth>0</iAreaHealth>
-			<iGlobalHealth>0</iGlobalHealth>
+			<!-- custom: was 0 -->
+			<iGlobalHealth>3</iGlobalHealth>
 			<iHappiness>0</iHappiness>
 			<iAreaHappiness>0</iAreaHappiness>
 			<iGlobalHappiness>0</iGlobalHappiness>
@@ -22515,16 +22360,22 @@
 			<iAllCityDefense>0</iAllCityDefense>
 			<iEspionageDefense>0</iEspionageDefense>
 			<iAsset>8</iAsset>
+			<!-- custom: having medic barely changes military outcoms if i am not mistaken anyways etc, was 15 -->
 			<!-- advc.131c: was 4 -->
-			<iPower>15</iPower>
+			<iPower>2</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
+			<!-- custom: was empty -->
 			<!-- advc.201: Was 2 culture, doubling after 1000 years. -->
-			<ObsoleteSafeCommerceChanges/>
+			<ObsoleteSafeCommerceChanges>
+				<iCommerce>0</iCommerce>
+				<iCommerce>0</iCommerce>
+				<iCommerce>8</iCommerce>
+			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes/>
 			<CommerceModifiers/>
 			<GlobalCommerceModifiers/>
@@ -22544,31 +22395,33 @@
 			<DomainFreeExperiences/>
 			<DomainProductionModifiers/>
 			<BuildingHappinessChanges/>
+			<!-- custom: was BUILDINGCLASS_HOSPITAL 4 -->
 			<PrereqBuildingClasses>
 				<PrereqBuildingClass>
 					<BuildingClassType>BUILDINGCLASS_HOSPITAL</BuildingClassType>
-					<iNumBuildingNeeded>4</iNumBuildingNeeded>
+					<iNumBuildingNeeded>2</iNumBuildingNeeded>
 				</PrereqBuildingClass>
 			</PrereqBuildingClasses>
-			<BuildingClassNeededs>
-				<BuildingClassNeeded>
-					<BuildingClassType>BUILDINGCLASS_HOSPITAL</BuildingClassType>
-					<bNeededInCity>1</bNeededInCity>
-				</BuildingClassNeeded>
-			</BuildingClassNeededs>
+			<!-- custom: was BUILDINGCLASS_HOSPITAL 1 -->
+			<BuildingClassNeededs/>
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: do not give too high military flavor else military leaders would build it instead of units, also the effect is not too strong for military leaders as well, especially considering the cost as also said/highlighted anyways etc in base advciv comment below, but make it not 0 as is slightly good for military leaders as well but not too much or mandatory if i may say and if i am not mistaken i mean but anyways etc ; also add small science flavor considering great person type and value of modifier i mean if i am not mistaken now that this is a world wonder but anyways etc, was flavors military 6 growth 3 -->
 			<!-- advc.020: No flavor in BtS. Mostly a military thing, though
 				 Growth has an easier time with the prereq. Hospitals. -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>6</iFlavor>
+					<iFlavor>2</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>3</iFlavor>
+					<iFlavor>8</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -22781,7 +22634,8 @@
 			<iNumFreeBonuses>0</iNumFreeBonuses>
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
-			<CivicOption>CIVICOPTION_GOVERNMENT</CivicOption>
+			<!-- custom: CIVICOPTION_GOVERNMENT -->
+			<CivicOption>NONE</CivicOption>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_ENGINEER</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
@@ -22807,7 +22661,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>500</iCost>
+			<iCost>175</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -22822,8 +22676,10 @@
 			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
 			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
-			<iAnarchyModifier>0</iAnarchyModifier>
-			<iGoldenAgeModifier>0</iGoldenAgeModifier>
+			<!-- custom: was 0 -->
+			<iAnarchyModifier>-100</iAnarchyModifier>
+			<!-- custom: was 0 -->
+			<iGoldenAgeModifier>50</iGoldenAgeModifier>
 			<iGlobalHurryModifier>0</iGlobalHurryModifier>
 			<iExperience>0</iExperience>
 			<iGlobalExperience>0</iGlobalExperience>
@@ -22902,7 +22758,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_STONE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -22914,17 +22770,26 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: was flavors production 6 growth 4 -->
 			<!-- advc.020: No flavor in BtS. One of the unlocked civics is good
 				 for Growth, the others somewhat for production (also goes well
 				 together with production bonuses b/c it's so expensive).- -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>6</iFlavor>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GOLD</FlavorType>
+					<iFlavor>4</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+					<iFlavor>3</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>4</iFlavor>
+					<iFlavor>5</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -22995,7 +22860,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>120</iCost>
+			<!-- custom: was 120 -->
+			<iCost>125</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -23090,7 +22956,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_STONE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -23138,8 +23004,8 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
-			<!-- custom: todo change to TECH_NATURALISM if we successfully and indeed replace _ALPHABET with _NATURALISM as intended (then maybe delete this par tof of the code comment too or not or yes or etc anyways etc), was TECH_SCIENTIFIC_METHOD -->
-			<ObsoleteTech>TECH_ALPHABET</ObsoleteTech>
+			<!-- custom: was TECH_SCIENTIFIC_METHOD -->
+			<ObsoleteTech>NONE</ObsoleteTech>
 			<PrereqTech>TECH_LITERATURE</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -23179,7 +23045,7 @@
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 350 -->
-			<iCost>375</iCost>
+			<iCost>275</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -23243,11 +23109,12 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
+			<!-- custom: was 0 / 0 / 8 -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<!-- advc.201: K-Mod had reduced this to 6 -->
-				<iCommerce>8</iCommerce>
+				<iCommerce>6</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -23256,17 +23123,18 @@
 			</CommerceChangeDoubleTimes>
 			<CommerceModifiers/>
 			<GlobalCommerceModifiers/>
-			<SpecialistExtraCommerces/>
+			<!-- custom: was empty -->
+			<SpecialistExtraCommerces>
+				<iCommerce>0</iCommerce>
+				<iCommerce>1</iCommerce>
+				<iCommerce>0</iCommerce>
+			</SpecialistExtraCommerces>
 			<StateReligionCommerces/>
 			<CommerceHappinesses/>
 			<ReligionChanges/>
 			<SpecialistCounts/>
-			<FreeSpecialistCounts>
-				<FreeSpecialistCount>
-					<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
-					<iFreeSpecialistCount>2</iFreeSpecialistCount>
-				</FreeSpecialistCount>
-			</FreeSpecialistCounts>
+			<!-- custom: was SPECIALIST_SCIENTIST 2 -->
+			<FreeSpecialistCounts/>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners>
 				<bCommerceChangeOriginalOwner>0</bCommerceChangeOriginalOwner>
@@ -23279,7 +23147,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_MARBLE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -23376,9 +23244,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: increase cost a bit as effect is a bit stronger now, was 250 -->
 			<!-- advc.310: was 300 in K-Mod, 200 in BtS -->
-			<iCost>275</iCost>
+			<iCost>175</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -23493,7 +23360,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: increase gold flavor a bit especially with the new effect, was flavor growth 2 and gold 7 anyways etc -->
+			<!-- custom: will not always be built or too strong if civ/player doesn't have too much coastal cities or/an AI doesn't use them well so don't put too high flavor anyways etc, was flavor growth 2 and gold 7 anyways etc -->
 			<!-- advc.020: Was 10 Growth. Fits with Lighthouse, but the actual
 				 ability isn't for tall civs. +TR is a Gold ability. -->
 			<Flavors>
@@ -23503,7 +23370,7 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GOLD</FlavorType>
-					<iFlavor>8</iFlavor>
+					<iFlavor>6</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -23548,7 +23415,8 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>UNITCLASS_GREAT_ENGINEER</GreatPeopleUnitClass>
+			<!-- custom: was UNITCLASS_GREAT_ENGINEER -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
@@ -23573,7 +23441,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>300</iCost>
+			<iCost>350</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -23635,7 +23503,12 @@
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
 			<GlobalSeaPlotYieldChanges/>
-			<YieldChanges/>
+			<!-- custom: was empty -->
+			<YieldChanges>
+				<iYield>1</iYield>
+				<iYield>0</iYield>
+				<iYield>0</iYield>
+			</YieldChanges>
 			<CommerceChanges/>
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
@@ -23668,7 +23541,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_STONE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -23719,9 +23592,9 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
-			<!-- custom: obsolete it a bit sooner so it is not abused to produce tons of gun units very cheap, plus metal_casting is now sooner in our mod than even bronze_working if i may say as is historically more accurate anyways etc, so hopefully the colossus building / world wonder stays relevant longer overall or at least long enough in the early to early mid game anyways etc, where production capacity increases by other means and cities are more developped and such not requiring as much of an early hammer boost, that may also be a bit op with say 100 hammer per turn in a city anyways etc, anyways was TECH_CHEMISTRY -->
+			<!-- custom: was TECH_CHEMISTRY -->
 			<!-- advc.310: Was Astronomy -->
-			<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
+			<ObsoleteTech>TECH_DEMOCRACY</ObsoleteTech>
 			<PrereqTech>TECH_METAL_CASTING</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -23734,7 +23607,8 @@
 			<iNumFreeBonuses>0</iNumFreeBonuses>
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
-			<CivicOption>NONE</CivicOption>
+			<!-- custom: was NONE -->
+			<CivicOption>CIVICOPTION_GOVERNMENT</CivicOption>
 			<!-- custom: was UNITCLASS_GREAT_MERCHANT -->
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_ENGINEER</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
@@ -23761,8 +23635,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: increase cost, was 250 -->  
-			<iCost>325</iCost>
+			<!-- custom: was 250 -->
+			<iCost>225</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -23824,15 +23698,10 @@
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
-			<!-- custom: remove old water tiles effect now in the great_lighthouse, give hammer instead in this city only anyways etc -->
+			<!-- custom: remove old water tiles effect now in the great_lighthouse, give (an)other+/-s anyways etc effect+/-s instead anyways etc -->
 			<GlobalSeaPlotYieldChanges/>
-			<!-- custom: add production modifiers to make it ea production type of building, anyways etc, was empty anyways etc -->
 			<YieldChanges/>
-			<YieldModifiers>
-				<iYield>0</iYield>
-				<iYield>50</iYield>
-				<iYield>0</iYield>
-			</YieldModifiers>
+			<YieldModifiers/>
 			<CommerceChanges/>
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
@@ -23865,7 +23734,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_COPPER</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -23882,11 +23751,35 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: adjust flavor to new building type/profile now a production building anyways etc, was flavor gold 10 -->
+			<!-- custom: adjust flavor to new building type/profile now a production building anyways etc, cannot put a too high military flavor else military leaders would build it instead of units if i am not mistaken anyways etc, was flavor gold 10 -->
 			<Flavors>
 				<Flavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<iFlavor>5</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>4</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GOLD</FlavorType>
+					<iFlavor>4</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+					<iFlavor>4</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_CULTURE</FlavorType>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>10</iFlavor>
+					<iFlavor>2</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -23957,7 +23850,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>150</iCost>
+			<!-- custom: was 150 -->
+			<iCost>175</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -24052,7 +23946,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_MARBLE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -24098,7 +23992,8 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
-			<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
+			<!-- custom: nerf its effect a bit and make it never obsolete, should be more balanced and interesting if i may say anyways etc building/effect anyways etc, was TECH_SCIENTIFIC_METHOD -->
+			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: was TECH_AESTHETICS -->
 			<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
 			<TechTypes>
@@ -24115,7 +24010,8 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
+			<!-- custom: seems more consistent with its history, perhaps a bit stronger in terms of gameplay if i am not mistaken anyways etc, was UNITCLASS_GREAT_ARTIST -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
@@ -24140,7 +24036,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>400</iCost>
+			<iCost>325</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -24204,11 +24100,12 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
+			<!-- custom: was 0 / 0 / 8 -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<!-- K-Mod: was 10 -->
-				<iCommerce>8</iCommerce>
+				<iCommerce>6</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -24232,10 +24129,11 @@
 			<ConstructSound>AS2D_BUILD_PARTHENON</ConstructSound>
 			<BonusHealthChanges/>
 			<BonusHappinessChanges/>
+			<!-- custom: greatly reduce bonusproductionmodifiers for wonders as this is broken, same for all wonders anyways etc -->
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_MARBLE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -24247,16 +24145,17 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: was flavor culture 5 growth 4 -->
 			<!-- advc.020: No flavor in BtS. Provides a fair amount of culture.
 				 GPP is a Culture and Growth thing. -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>5</iFlavor>
+					<FlavorType>FLAVOR_RELIGION</FlavorType>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>4</iFlavor>
+					<iFlavor>8</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -24287,8 +24186,10 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
-			<ObsoleteTech>TECH_COMPUTERS</ObsoleteTech>
-			<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
+			<!-- custom: similar reasoning than angkor_wat, see code comment there for details anyways etc, was TECH_COMPUTERS -->
+			<ObsoleteTech>NONE</ObsoleteTech>
+			<!-- custom: was TECH_PHILOSOPHY -->
+			<PrereqTech>TECH_AESTHETICS</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -24326,7 +24227,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>500</iCost>
+			<iCost>425</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -24410,7 +24311,7 @@
 			<SpecialistCounts>
 				<SpecialistCount>
 					<SpecialistType>SPECIALIST_PRIEST</SpecialistType>
-					<iSpecialistCount>3</iSpecialistCount>
+					<iSpecialistCount>2</iSpecialistCount>
 				</SpecialistCount>
 			</SpecialistCounts>
 			<FreeSpecialistCounts/>
@@ -24426,7 +24327,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_STONE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -24438,19 +24339,29 @@
 			<SpecialistYieldChanges>
 				<SpecialistYieldChange>
 					<SpecialistType>SPECIALIST_PRIEST</SpecialistType>
+					<!-- custom: was 0 / 1 / 0 -->
 					<YieldChanges>
 						<iYield>0</iYield>
 						<iYield>1</iYield>
-						<iYield>0</iYield>
+						<iYield>1</iYield>
 					</YieldChanges>
 				</SpecialistYieldChange>
 			</SpecialistYieldChanges>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: was flavor religion 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
-					<iFlavor>10</iFlavor>
+					<iFlavor>5</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GOLD</FlavorType>
+					<iFlavor>3</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -24524,8 +24435,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: was 500 -->
-			<iCost>600</iCost>
+			<iCost>500</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -24622,7 +24532,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_MARBLE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -24692,7 +24602,8 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
+			<!-- custom: was UNITCLASS_GREAT_PROPHET -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_ENGINEER</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
@@ -24717,7 +24628,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>500</iCost>
+			<iCost>425</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -24771,21 +24682,24 @@
 			<iFreeTechs>0</iFreeTechs>
 			<iDefense>0</iDefense>
 			<iBombardDefense>0</iBombardDefense>
-			<iAllCityDefense>25</iAllCityDefense>
+			<!-- custom: was 25 -->
+			<iAllCityDefense>50</iAllCityDefense>
 			<iEspionageDefense>0</iEspionageDefense>
 			<iAsset>12</iAsset>
-			<iPower>8</iPower>
+			<!-- custom: was 8 -->
+			<iPower>35</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
+			<!-- custom: was 0 / 0 / 6 -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<!-- advc.201: K-Mod had reduced this to 5 -->
-				<iCommerce>6</iCommerce>
+				<iCommerce>8</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -24812,7 +24726,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_STONE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -24824,11 +24738,24 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: not all military leaders should prioritize defense, in fatc they should focus on offense and building units rather, so not puting flavor military here, but useful for leaders who want to defend against them, so putting other relevant or few flavors instead oppsoite to it anyways etc, was flavor production 5 -->
 			<!-- advc.020: was 10 Production; cf. Hagia Sophia -->
 			<Flavors>
 				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GOLD</FlavorType>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>5</iFlavor>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -24899,8 +24826,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: cost reduced, was 600 -->
-			<iCost>425</iCost>
+			<!-- custom: was 600 -->
+			<iCost>325</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -25012,7 +24939,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_MARBLE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -25063,7 +24990,8 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
-			<ObsoleteTech>TECH_COMPUTERS</ObsoleteTech>
+			<!-- custom: religion is still relevant in modern era for better or worse is what i'd want to say but i really don't know... i mean i don't have a positive view of religion in general but this is a code space so don't mind this i mean if i may say my bad or not as i wanted to say but anyways etc..., was TECH_COMPUTERS -->
+			<ObsoleteTech>NONE</ObsoleteTech>
 			<PrereqTech>TECH_DIVINE_RIGHT</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -25078,7 +25006,7 @@
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
+			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>1</bTeamShare>
@@ -25102,7 +25030,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>550</iCost>
+			<iCost>525</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -25199,7 +25127,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_STONE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -25211,10 +25139,11 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: not reliable enough to add the gold flavor i.e. a gold flavored leader could have 0 religious building so building would be useless if i am not mistaken anyways etc, was flavor religion 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
-					<iFlavor>10</iFlavor>
+					<iFlavor>8</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -25261,7 +25190,7 @@
 			<CivicOption>NONE</CivicOption>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_SCIENTIST</GreatPeopleUnitClass>
 			<!-- custom: was 1 -->
-			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
+			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>1</bTeamShare>
@@ -25286,7 +25215,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>650</iCost>
+			<iCost>575</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -25390,7 +25319,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_MARBLE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -25464,7 +25393,8 @@
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
+			<!-- custom: was 2 -->
+			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>1</bTeamShare>
@@ -25488,7 +25418,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>600</iCost>
+			<iCost>500</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -25592,7 +25522,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_STONE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -25661,7 +25591,7 @@
 			<MaxStartEra>ERA_INDUSTRIAL</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: was TECH_NATIONALISM -->
-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+			<PrereqTech>TECH_CONSTITUTION</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -25674,8 +25604,10 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
+			<!-- custom: was UNITCLASS_GREAT_ARTIST -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_ENGINEER</GreatPeopleUnitClass>
+			<!-- custom: was 2 -->
+			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>1</bTeamShare>
@@ -25699,7 +25631,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>700</iCost>
+			<!-- custom: was 700 -->
+			<iCost>500</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -25730,7 +25663,8 @@
 			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
 			<iMaintenanceModifier>0</iMaintenanceModifier>
 			<iWarWearinessModifier>0</iWarWearinessModifier>
-			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+			<!-- custom: was 0 -->
+			<iGlobalWarWearinessModifier>-25</iGlobalWarWearinessModifier>
 			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
 			<iHealRateChange>0</iHealRateChange>
 			<iHealth>0</iHealth>
@@ -25763,11 +25697,12 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
+			<!-- custom: was 10 -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<!-- advc.201: K-Mod had reduced this to 8 -->
-				<iCommerce>10</iCommerce>
+				<iCommerce>8</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -25794,7 +25729,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_MARBLE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -25806,15 +25741,16 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: was flavors production 5 culture 4 growth 3 -->
 			<!-- advc.020: Was 10 Growth, but the usefulness of a Golden Age is
 				 all over the place. -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>5</iFlavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<iFlavor>7</iFlavor>
 				</Flavor>
 				<Flavor>
-					<FlavorType>FLAVOR_CULTURE</FlavorType>
+					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
 					<iFlavor>4</iFlavor>
 				</Flavor>
 				<Flavor>
@@ -25850,7 +25786,8 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
-			<ObsoleteTech>TECH_FIBER_OPTICS</ObsoleteTech>
+			<!-- custom: see also code comment TXT_KEY_BUILDING_KREMLIN_PEDIA for extra or related or similar i mean information or salty as in upset opinion of me about base civ4 +/- advciv if it came from advciv but seems to be base civ4 but advciv didn't change it but takes time but still but anyways etc i changed it anyways etc ; was TECH_FIBER_OPTICS -->
+			<ObsoleteTech>NONE</ObsoleteTech>
 			<PrereqTech>TECH_COMMUNISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -25865,7 +25802,8 @@
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_SPY</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
+			<!-- custom: was 2 -->
+			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>1</bTeamShare>
@@ -25889,7 +25827,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>800</iCost>
+			<iCost>675</iCost>
 			<iHurryCostModifier>200</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -25906,7 +25844,8 @@
 			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
 			<iAnarchyModifier>0</iAnarchyModifier>
 			<iGoldenAgeModifier>0</iGoldenAgeModifier>
-			<iGlobalHurryModifier>-33</iGlobalHurryModifier>
+			<!-- custom: was -33 -->
+			<iGlobalHurryModifier>0</iGlobalHurryModifier>
 			<iExperience>0</iExperience>
 			<iGlobalExperience>0</iGlobalExperience>
 			<iFoodKept>0</iFoodKept>
@@ -25956,7 +25895,12 @@
 			<!-- advc.200: was 4 culture; reverted -->
 			<ObsoleteSafeCommerceChanges/>
 			<CommerceChangeDoubleTimes/>
-			<CommerceModifiers/>
+			<CommerceModifiers>
+				<iCommerce>0</iCommerce>
+				<iCommerce>0</iCommerce>
+				<iCommerce>0</iCommerce>
+				<iCommerce>100</iCommerce>
+			</CommerceModifiers>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
 			<StateReligionCommerces/>
@@ -25981,7 +25925,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_STONE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -25993,14 +25937,11 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: was flavors military 8 espionage 5 -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>8</iFlavor>
-				</Flavor>
-				<Flavor>
 					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
-					<iFlavor>5</iFlavor>
+					<iFlavor>10</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -26074,7 +26015,7 @@
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: now sooner and reworked so adjust(ing for this building/wonder but anyways etc anyways etc) cost anyways etc, was 1250 -->
-			<iCost>850</iCost>
+			<iCost>700</iCost>
 			<iHurryCostModifier>200</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -26138,18 +26079,15 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
-			<ObsoleteSafeCommerceChanges>
-				<iCommerce>0</iCommerce>
-				<iCommerce>0</iCommerce>
-				<iCommerce>10</iCommerce>
-			</ObsoleteSafeCommerceChanges>
+			<!-- custom: was 0 / 0 / 10 -->
+			<ObsoleteSafeCommerceChanges/>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<iCommerce>1000</iCommerce>
 			</CommerceChangeDoubleTimes>
 			<CommerceModifiers>
-				<iCommerce>20</iCommerce>
+				<iCommerce>25</iCommerce>
 				<iCommerce>0</iCommerce>
 				<iCommerce>50</iCommerce>
 			</CommerceModifiers>
@@ -26159,12 +26097,7 @@
 			<CommerceHappinesses/>
 			<ReligionChanges/>
 			<SpecialistCounts/>
-			<FreeSpecialistCounts>
-				<FreeSpecialistCount>
-					<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
-					<iFreeSpecialistCount>1</iFreeSpecialistCount>
-				</FreeSpecialistCount>
-			</FreeSpecialistCounts>
+			<FreeSpecialistCounts/>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners>
 				<bCommerceChangeOriginalOwner>0</bCommerceChangeOriginalOwner>
@@ -26174,8 +26107,12 @@
 			<ConstructSound/>
 			<BonusHealthChanges/>
 			<BonusHappinessChanges/>
-			<!-- custom: remove iron BonusProductionModifier, need to properly build it else is too op anyways etc -->
-			<BonusProductionModifiers/>
+			<BonusProductionModifiers>
+				<BonusProductionModifier>
+					<BonusType>BONUS_IRON</BonusType>
+					<iProductonModifier>25</iProductonModifier>
+				</BonusProductionModifier>
+			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
 			<DomainFreeExperiences/>
 			<DomainProductionModifiers/>
@@ -26190,6 +26127,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: was flavors culture 8 growth 4 -->
 			<!-- advc.020: was 10 Culture, but also useful for Growth -->
 			<Flavors>
 				<Flavor>
@@ -26198,6 +26136,10 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GOLD</FlavorType>
+					<iFlavor>5</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
 					<iFlavor>4</iFlavor>
 				</Flavor>
 			</Flavors>
@@ -26244,7 +26186,7 @@
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_MERCHANT</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
+			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>1</bTeamShare>
@@ -26268,7 +26210,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>1500</iCost>
+			<!-- custom: was 1500!!! Anyways etc -->
+			<iCost>650</iCost>
 			<iHurryCostModifier>200</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -26335,7 +26278,7 @@
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
-				<iCommerce>6</iCommerce>
+				<iCommerce>8</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -26349,7 +26292,13 @@
 			<CommerceHappinesses/>
 			<ReligionChanges/>
 			<SpecialistCounts/>
-			<FreeSpecialistCounts/>
+			<!-- custom: buff the building as was bit weak anyways etc, was empty -->
+			<FreeSpecialistCounts>
+				<FreeSpecialistCount>
+					<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
+					<iFreeSpecialistCount>1</iFreeSpecialistCount>
+				</FreeSpecialistCount>
+			</FreeSpecialistCounts>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners>
 				<bCommerceChangeOriginalOwner>0</bCommerceChangeOriginalOwner>
@@ -26362,7 +26311,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_COPPER</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -26379,17 +26328,18 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: was flavors production 6 growth 2 -->
 			<!-- advc.020: was 10 Growth. GPP are generally good with much
 				 food, but this one is better for wide civs. It's also really
 				 expensive, and Production could use some more wonders. -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
 					<iFlavor>6</iFlavor>
 				</Flavor>
 				<Flavor>
-					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>2</iFlavor>
+					<FlavorType>FLAVOR_GOLD</FlavorType>
+					<iFlavor>4</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -26421,7 +26371,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
+			<!-- custom: was TECH_ELECTRICITY -->
+			<PrereqTech>TECH_ALPHABET</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -26435,7 +26386,7 @@
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
+			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>1</bTeamShare>
@@ -26459,7 +26410,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>800</iCost>
+			<iCost>700</iCost>
 			<iHurryCostModifier>200</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -26536,7 +26487,13 @@
 			<CommerceHappinesses/>
 			<ReligionChanges/>
 			<SpecialistCounts/>
-			<FreeSpecialistCounts/>
+			<!-- custom: was empty -->
+			<FreeSpecialistCounts>
+				<FreeSpecialistCount>
+					<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+					<iFreeSpecialistCount>1</iFreeSpecialistCount>
+				</FreeSpecialistCount>
+			</FreeSpecialistCounts>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners>
 				<bCommerceChangeOriginalOwner>0</bCommerceChangeOriginalOwner>
@@ -26556,16 +26513,17 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: was flavors growth 4 culture 8 -->
 			<!-- advc.020: Was 10 Growth, but can be important for an (AI)
 				 culture victory. -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>4</iFlavor>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>8</iFlavor>
+					<iFlavor>10</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -26611,7 +26569,7 @@
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
+			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>1</bTeamShare>
@@ -26635,7 +26593,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>800</iCost>
+			<iCost>725</iCost>
 			<iHurryCostModifier>200</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -26707,7 +26665,12 @@
 				<iCommerce>50</iCommerce>
 			</CommerceModifiers>
 			<GlobalCommerceModifiers/>
-			<SpecialistExtraCommerces/>
+			<!-- custom: was empty -->
+			<SpecialistExtraCommerces>
+				<iCommerce>0</iCommerce>
+				<iCommerce>0</iCommerce>
+				<iCommerce>2</iCommerce>
+			</SpecialistExtraCommerces>
 			<StateReligionCommerces/>
 			<CommerceHappinesses/>
 			<ReligionChanges/>
@@ -26732,15 +26695,16 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: was flavors growth 4 culture 8 -->
 			<!-- advc.020: was 10 Growth; cf. Broadway -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>4</iFlavor>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>8</iFlavor>
+					<iFlavor>10</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -26813,7 +26777,7 @@
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 1000 -->
-			<iCost>1200</iCost>
+			<iCost>800</iCost>
 			<iHurryCostModifier>200</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -26877,14 +26841,14 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
-			<ObsoleteSafeCommerceChanges/>
+			<!-- custom: give a lot of flat culture per turn instead, useful/valuable for end game anyways etc -->
+			<ObsoleteSafeCommerceChanges>
+				<iCommerce>0</iCommerce>
+				<iCommerce>0</iCommerce>
+				<iCommerce>50</iCommerce>
+			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes/>
-			<!-- custom: buff/rework hollywood, remove hit ressources/bonuses, give more culture instead or and other changes anyways etc, was 0 / 0 / 50 -->
-			<CommerceModifiers>
-				<iCommerce>0</iCommerce>
-				<iCommerce>0</iCommerce>
-				<iCommerce>100</iCommerce>
-			</CommerceModifiers>
+			<CommerceModifiers/>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
 			<StateReligionCommerces/>
@@ -26948,7 +26912,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_PLASTICS</PrereqTech>
+			<!-- custom: make it available sooner so it is built before endgame anyways etc, was TECH_PLASTICS -->
+			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -26962,7 +26927,7 @@
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_ENGINEER</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
+			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>1</bTeamShare>
@@ -26986,7 +26951,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>1750</iCost>
+			<!-- custom: was 1750 -->
+			<iCost>900</iCost>
 			<iHurryCostModifier>200</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -27124,8 +27090,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: so it can be built sooner and seems quite accurate too, also tech assembly line is too strong and bloated while nationalism is empty anyways etc, was TECH_ASSEMBLY_LINE -->
-			<PrereqTech>TECH_NATIONALISM</PrereqTech>
+			<!-- custom: so it can be built sooner and seems quite accurate too, also tech assembly line is too strong and bloated while this other tech has more space to use anyways etc would be more balanced and make it/this tech stronger as well anyways etc, was TECH_ASSEMBLY_LINE -->
+			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -27139,7 +27105,7 @@
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_SPY</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
+			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>1</bTeamShare>
@@ -27163,7 +27129,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>1250</iCost>
+			<!-- custom: was 1250 -->
+			<iCost>700</iCost>
 			<iHurryCostModifier>200</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -27182,7 +27149,8 @@
 			<iGoldenAgeModifier>0</iGoldenAgeModifier>
 			<iGlobalHurryModifier>0</iGlobalHurryModifier>
 			<iExperience>0</iExperience>
-			<iGlobalExperience>2</iGlobalExperience>
+			<!-- custom: was 2 -->
+			<iGlobalExperience>3</iGlobalExperience>
 			<iFoodKept>0</iFoodKept>
 			<iAirlift>0</iAirlift>
 			<iAirModifier>0</iAirModifier>
@@ -27205,7 +27173,7 @@
 			<iGlobalHappiness>0</iGlobalHappiness>
 			<iStateReligionHappiness>0</iStateReligionHappiness>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
-			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
+			<iMilitaryProductionModifier>10</iMilitaryProductionModifier>
 			<iSpaceProductionModifier>0</iSpaceProductionModifier>
 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
 			<iTradeRoutes>0</iTradeRoutes>
@@ -27220,8 +27188,9 @@
 			<iAllCityDefense>0</iAllCityDefense>
 			<iEspionageDefense>0</iEspionageDefense>
 			<iAsset>20</iAsset>
+			<!-- custom: was 30??? this is not a strong building at all militarily, at least building it does not immediately and drastically tip the scale of power if i am not mistaken anyways etc -->
 			<!-- advc.131c: was 0 -->
-			<iPower>30</iPower>
+			<iPower>5</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
@@ -27308,7 +27277,7 @@
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_MERCHANT</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
+			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>1</bTeamShare>
@@ -27436,188 +27405,6 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: space_elevator, type: space_elevator (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<BuildingClass>BUILDINGCLASS_SPACE_ELEVATOR</BuildingClass>
-			<Type>BUILDING_SPACE_ELEVATOR</Type>
-			<SpecialBuildingType>NONE</SpecialBuildingType>
-			<Description>TXT_KEY_BUILDING_SPACE_ELEVATOR</Description>
-			<Civilopedia>TXT_KEY_BUILDING_SPACE_ELEVATOR_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_SPACE_ELEVATOR_STRATEGY</Strategy>
-			<Advisor>ADVISOR_GROWTH</Advisor>
-			<ArtDefineTag>ART_DEF_BUILDING_SPACE_ELEVATOR</ArtDefineTag>
-			<MovieDefineTag>ART_DEF_MOVIE_SPACE_ELEVATOR</MovieDefineTag>
-			<HolyCity>NONE</HolyCity>
-			<ReligionType>NONE</ReligionType>
-			<StateReligion>NONE</StateReligion>
-			<bStateReligion>0</bStateReligion>
-			<PrereqReligion>NONE</PrereqReligion>
-			<PrereqCorporation>NONE</PrereqCorporation>
-			<FoundsCorporation>NONE</FoundsCorporation>
-			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
-			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
-			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
-			<FreeStartEra>NONE</FreeStartEra>
-			<MaxStartEra>NONE</MaxStartEra>
-			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_ROBOTICS</PrereqTech>
-			<TechTypes>
-				<PrereqTech>TECH_SATELLITES</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-			</TechTypes>
-			<Bonus>NONE</Bonus>
-			<PrereqBonuses/>
-			<ProductionTraits/>
-			<HappinessTraits/>
-			<NoBonus>NONE</NoBonus>
-			<PowerBonus>NONE</PowerBonus>
-			<FreeBonus>NONE</FreeBonus>
-			<iNumFreeBonuses>0</iNumFreeBonuses>
-			<FreeBuilding>NONE</FreeBuilding>
-			<FreePromotion>NONE</FreePromotion>
-			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>UNITCLASS_GREAT_SCIENTIST</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
-			<iHurryAngerModifier>0</iHurryAngerModifier>
-			<bBorderObstacle>0</bBorderObstacle>
-			<bTeamShare>1</bTeamShare>
-			<bWater>0</bWater>
-			<bRiver>0</bRiver>
-			<bPower>0</bPower>
-			<bDirtyPower>0</bDirtyPower>
-			<bAreaCleanPower>0</bAreaCleanPower>
-			<DiploVoteType>NONE</DiploVoteType>
-			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
-			<bCapital>0</bCapital>
-			<bGovernmentCenter>0</bGovernmentCenter>
-			<bGoldenAge>0</bGoldenAge>
-			<bAllowsNukes>0</bAllowsNukes>
-			<bMapCentering>0</bMapCentering>
-			<bNoUnhappiness>0</bNoUnhappiness>
-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
-			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
-			<bNeverCapture>0</bNeverCapture>
-			<bNukeImmune>1</bNukeImmune>
-			<bPrereqReligion>0</bPrereqReligion>
-			<bCenterInCity>0</bCenterInCity>
-			<iAIWeight>0</iAIWeight>
-			<iCost>2000</iCost>
-			<iHurryCostModifier>300</iHurryCostModifier>
-			<iAdvancedStartCost>-1</iAdvancedStartCost>
-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<iMinAreaSize>-1</iMinAreaSize>
-			<iConquestProb>100</iConquestProb>
-			<iCitiesPrereq>0</iCitiesPrereq>
-			<iTeamsPrereq>0</iTeamsPrereq>
-			<iLevelPrereq>0</iLevelPrereq>
-			<iMinLatitude>0</iMinLatitude>
-			<iMaxLatitude>30</iMaxLatitude>
-			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
-			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
-			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
-			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
-			<iAnarchyModifier>0</iAnarchyModifier>
-			<iGoldenAgeModifier>0</iGoldenAgeModifier>
-			<iGlobalHurryModifier>0</iGlobalHurryModifier>
-			<iExperience>0</iExperience>
-			<iGlobalExperience>0</iGlobalExperience>
-			<iFoodKept>0</iFoodKept>
-			<iAirlift>0</iAirlift>
-			<iAirModifier>0</iAirModifier>
-			<iAirUnitCapacity>0</iAirUnitCapacity>
-			<iNukeModifier>0</iNukeModifier>
-			<iNukeExplosionRand>0</iNukeExplosionRand>
-			<iFreeSpecialist>0</iFreeSpecialist>
-			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
-			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
-			<iMaintenanceModifier>0</iMaintenanceModifier>
-			<iWarWearinessModifier>0</iWarWearinessModifier>
-			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
-			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
-			<iHealRateChange>0</iHealRateChange>
-			<iHealth>0</iHealth>
-			<iAreaHealth>0</iAreaHealth>
-			<iGlobalHealth>0</iGlobalHealth>
-			<iHappiness>0</iHappiness>
-			<iAreaHappiness>0</iAreaHappiness>
-			<iGlobalHappiness>0</iGlobalHappiness>
-			<iStateReligionHappiness>0</iStateReligionHappiness>
-			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
-			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
-			<iSpaceProductionModifier>0</iSpaceProductionModifier>
-			<!-- K-Mod: was 50 -->
-			<iGlobalSpaceProductionModifier>100</iGlobalSpaceProductionModifier>
-			<iTradeRoutes>0</iTradeRoutes>
-			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
-			<iAreaTradeRoutes>0</iAreaTradeRoutes>
-			<iTradeRouteModifier>0</iTradeRouteModifier>
-			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
-			<iGlobalPopulationChange>0</iGlobalPopulationChange>
-			<iFreeTechs>0</iFreeTechs>
-			<iDefense>0</iDefense>
-			<iBombardDefense>0</iBombardDefense>
-			<iAllCityDefense>0</iAllCityDefense>
-			<iEspionageDefense>0</iEspionageDefense>
-			<iAsset>20</iAsset>
-			<iPower>0</iPower>
-			<fVisibilityPriority>1.0</fVisibilityPriority>
-			<SeaPlotYieldChanges/>
-			<RiverPlotYieldChanges/>
-			<GlobalSeaPlotYieldChanges/>
-			<YieldChanges/>
-			<CommerceChanges/>
-			<ObsoleteSafeCommerceChanges/>
-			<CommerceChangeDoubleTimes/>
-			<CommerceModifiers/>
-			<GlobalCommerceModifiers/>
-			<SpecialistExtraCommerces/>
-			<StateReligionCommerces/>
-			<CommerceHappinesses/>
-			<ReligionChanges/>
-			<SpecialistCounts/>
-			<FreeSpecialistCounts/>
-			<CommerceFlexibles/>
-			<CommerceChangeOriginalOwners>
-				<bCommerceChangeOriginalOwner>0</bCommerceChangeOriginalOwner>
-				<bCommerceChangeOriginalOwner>0</bCommerceChangeOriginalOwner>
-				<bCommerceChangeOriginalOwner>1</bCommerceChangeOriginalOwner>
-			</CommerceChangeOriginalOwners>
-			<ConstructSound/>
-			<BonusHealthChanges/>
-			<BonusHappinessChanges/>
-			<BonusProductionModifiers>
-				<BonusProductionModifier>
-					<BonusType>BONUS_ALUMINUM</BonusType>
-					<iProductonModifier>100</iProductonModifier>
-				</BonusProductionModifier>
-			</BonusProductionModifiers>
-			<UnitCombatFreeExperiences/>
-			<DomainFreeExperiences/>
-			<DomainProductionModifiers/>
-			<BuildingHappinessChanges/>
-			<PrereqBuildingClasses/>
-			<BuildingClassNeededs/>
-			<SpecialistYieldChanges/>
-			<BonusYieldModifiers/>
-			<ImprovementFreeSpecialists/>
-			<!-- advc.020: Was 10 Science, but Space victory also suits
-				 Production. -->
-			<Flavors>
-				<Flavor>
-					<FlavorType>FLAVOR_SCIENCE</FlavorType>
-					<iFlavor>7</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>7</iFlavor>
-				</Flavor>
-			</Flavors>
-			<HotKey/>
-			<bAltDown>0</bAltDown>
-			<bShiftDown>0</bShiftDown>
-			<bCtrlDown>0</bCtrlDown>
-			<iHotKeyPriority>0</iHotKeyPriority>
-		</BuildingInfo>
 		<BuildingInfo> <!-- custom: class: military_academy, type: military_academy (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<BuildingClass>BUILDINGCLASS_MILITARY_ACADEMY</BuildingClass>
 			<Type>BUILDING_MILITARY_ACADEMY</Type>
@@ -27641,7 +27428,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
+			<!-- custom: was TECH_MILITARY_SCIENCE -->
+			<PrereqTech>TECH_CONSTITUTION</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -27654,8 +27442,9 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_SPY</GreatPeopleUnitClass>
+			<!-- custom: was 0 -->
+			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>0</bTeamShare>
@@ -27685,14 +27474,16 @@
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<iMinAreaSize>-1</iMinAreaSize>
-			<iConquestProb>100</iConquestProb>
+			<!-- custom: was 100 -->
+			<iConquestProb>0</iConquestProb>
 			<iCitiesPrereq>0</iCitiesPrereq>
 			<iTeamsPrereq>0</iTeamsPrereq>
 			<iLevelPrereq>0</iLevelPrereq>
 			<iMinLatitude>0</iMinLatitude>
 			<iMaxLatitude>90</iMaxLatitude>
 			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
-			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+			<!-- custom: was 0 -->
+			<iGreatGeneralRateModifier>50</iGreatGeneralRateModifier>
 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
 			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
 			<iAnarchyModifier>0</iAnarchyModifier>
@@ -27722,7 +27513,8 @@
 			<iGlobalHappiness>0</iGlobalHappiness>
 			<iStateReligionHappiness>0</iStateReligionHappiness>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
-			<iMilitaryProductionModifier>50</iMilitaryProductionModifier>
+			<!-- custom: was 50 -->
+			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
 			<iSpaceProductionModifier>0</iSpaceProductionModifier>
 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
 			<iTradeRoutes>0</iTradeRoutes>
@@ -27737,19 +27529,16 @@
 			<iAllCityDefense>0</iAllCityDefense>
 			<iEspionageDefense>0</iEspionageDefense>
 			<iAsset>6</iAsset>
-			<iPower>6</iPower>
+			<!-- custom: was 6 -->
+			<iPower>3</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
-			<ObsoleteSafeCommerceChanges>
-				<iCommerce>0</iCommerce>
-				<iCommerce>0</iCommerce>
-				<!-- K-Mod: was 3 -->
-				<iCommerce>2</iCommerce>
-			</ObsoleteSafeCommerceChanges>
+			<!-- custom: was 0 / 0 / 2 -->
+			<ObsoleteSafeCommerceChanges/>
 			<CommerceChangeDoubleTimes/>
 			<CommerceModifiers/>
 			<GlobalCommerceModifiers/>
@@ -27825,9 +27614,11 @@
 			<FreeBonus>NONE</FreeBonus>
 			<iNumFreeBonuses>0</iNumFreeBonuses>
 			<FreeBuilding>NONE</FreeBuilding>
-			<FreePromotion>NONE</FreePromotion>
+			<!-- custom: was NONE -->
+			<FreePromotion>PROMOTION_MEDIC_AMBULATORY</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>UNITCLASS_GREAT_MERCHANT</GreatPeopleUnitClass>
+			<!-- custom: was UNITCLASS_GREAT_MERCHANT -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
@@ -27852,7 +27643,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>350</iCost>
+			<iCost>225</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -27888,19 +27679,22 @@
 			<iHealRateChange>0</iHealRateChange>
 			<iHealth>0</iHealth>
 			<iAreaHealth>0</iAreaHealth>
-			<iGlobalHealth>0</iGlobalHealth>
+			<!-- custom: was 0 -->
+			<iGlobalHealth>1</iGlobalHealth>
 			<iHappiness>0</iHappiness>
 			<iAreaHappiness>0</iAreaHappiness>
 			<iGlobalHappiness>0</iGlobalHappiness>
 			<iStateReligionHappiness>0</iStateReligionHappiness>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
-			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
+			<!-- custom: was 0 -->
+			<iMilitaryProductionModifier>10</iMilitaryProductionModifier>
 			<iSpaceProductionModifier>0</iSpaceProductionModifier>
 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
 			<iTradeRoutes>0</iTradeRoutes>
 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
 			<iAreaTradeRoutes>0</iAreaTradeRoutes>
-			<iTradeRouteModifier>100</iTradeRouteModifier>
+			<!-- custom: was 100 -->
+			<iTradeRouteModifier>0</iTradeRouteModifier>
 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
 			<iFreeTechs>0</iFreeTechs>
@@ -27916,11 +27710,12 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
+			<!-- custom:, was 0 / 0 / 7 -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<!-- advc.201: Was 8 in BtS, 6 in K-Mod. -->
-				<iCommerce>7</iCommerce>
+				<iCommerce>6</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -27952,7 +27747,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_MARBLE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -27964,16 +27759,21 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: was flavors gold 8 religion 5 -->
 			<!-- advc.020: Was 10 Gold. Add some Religion for the free Priest
 				 (not covered by the flavor-based evaluation of GPP) -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_GOLD</FlavorType>
-					<iFlavor>8</iFlavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<iFlavor>5</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
 					<iFlavor>5</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -28021,7 +27821,8 @@
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_SCIENTIST</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
+			<!-- custom: was 2 -->
+			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>1</bTeamShare>
@@ -28046,7 +27847,7 @@
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 550 -->
-			<iCost>600</iCost>
+			<iCost>525</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -28124,9 +27925,10 @@
 			<CommerceModifiers/>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
+			<!-- custom: was 0 / 2 -->
 			<StateReligionCommerces>
 				<iCommerce>0</iCommerce>
-				<iCommerce>2</iCommerce>
+				<iCommerce>3</iCommerce>
 			</StateReligionCommerces>
 			<CommerceHappinesses/>
 			<ReligionChanges/>
@@ -28144,7 +27946,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_STONE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -28167,10 +27969,11 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: see code comment at flavor of spiral minaret adding only flavor religion anyways etc, was flavor religion 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
-					<iFlavor>10</iFlavor>
+					<iFlavor>8</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -28202,8 +28005,9 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<!-- advc.310: was ERA_ANCIENT -->
 			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
+			<!-- custom: was TECH_CORPORATION -->
 			<!-- advc.310: Was NONE -->
-			<ObsoleteTech>TECH_CORPORATION</ObsoleteTech>
+			<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			<PrereqTech>TECH_MASONRY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -28217,8 +28021,9 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
+			<!-- custom: was UNITCLASS_GREAT_MERCHANT -->
 			<!-- advc.310: Was Spy -->
-			<GreatPeopleUnitClass>UNITCLASS_GREAT_MERCHANT</GreatPeopleUnitClass>
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_ENGINEER</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>1</bBorderObstacle>
@@ -28247,8 +28052,9 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
+			<!-- custom: was 300 -->
 			<!-- advc.310: Was 150 -->
-			<iCost>300</iCost>
+			<iCost>175</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -28261,7 +28067,8 @@
 			<iMaxLatitude>90</iMaxLatitude>
 			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
 			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
-			<iDomesticGreatGeneralRateModifier>100</iDomesticGreatGeneralRateModifier>
+			<!-- custom: was 100 -->
+			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
 			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
 			<iAnarchyModifier>0</iAnarchyModifier>
 			<iGoldenAgeModifier>0</iGoldenAgeModifier>
@@ -28295,8 +28102,9 @@
 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
 			<iTradeRoutes>0</iTradeRoutes>
 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+			<!-- custom: was 1 -->
 			<!-- advc.310 -->
-			<iAreaTradeRoutes>1</iAreaTradeRoutes>
+			<iAreaTradeRoutes>0</iAreaTradeRoutes>
 			<iTradeRouteModifier>0</iTradeRouteModifier>
 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
@@ -28307,19 +28115,21 @@
 			<iEspionageDefense>0</iEspionageDefense>
 			<!-- advc.310: Was 5; now a more potent building. -->
 			<iAsset>9</iAsset>
+			<!-- custom: indrectly stronger due to not having barbarians attack, but increasing it too much may make AI avoid to attack a vulnerable/killable target in this case if i am not mistaken anywyas etc, was 5 -->
 			<!-- advc.131c: was 10 -->
-			<iPower>5</iPower>
+			<iPower>8</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
+			<!-- custom: was 0 / 0 / 4 -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<!-- advc.310: was 2 -->
-				<iCommerce>4</iCommerce>
+				<iCommerce>6</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -28346,7 +28156,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_STONE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -28366,17 +28176,18 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: no flavor military too as military leaders need to focus on offense not defense, see chichen itza code comment as well if i am not mistaken, and i seem to have read this or something similar in a base advciv code comment too or somewhere if i am not mistaken so not sure so maybe this gave me the idea now again or i got it independently or both or other anyways etc but anyways etc, was flavor gold 5 growth 4 -->
 			<!-- advc.310, advc.020: Was 8 Military. Extra trades routes get
 				 Gold flavor. A bit of Growth because the prereq. Walls have
 				that flavor. -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GOLD</FlavorType>
-					<iFlavor>5</iFlavor>
+					<iFlavor>3</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>4</iFlavor>
+					<iFlavor>3</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -28423,7 +28234,8 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
+			<!-- custom: was UNITCLASS_GREAT_ARTIST -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_ENGINEER</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
@@ -28448,7 +28260,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>300</iCost>
+			<iCost>275</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -28480,7 +28292,8 @@
 			<iMaintenanceModifier>0</iMaintenanceModifier>
 			<iWarWearinessModifier>0</iWarWearinessModifier>
 			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
-			<iEnemyWarWearinessModifier>100</iEnemyWarWearinessModifier>
+			<!-- custom: was 100 -->
+			<iEnemyWarWearinessModifier>50</iEnemyWarWearinessModifier>
 			<iHealRateChange>0</iHealRateChange>
 			<iHealth>0</iHealth>
 			<iAreaHealth>0</iAreaHealth>
@@ -28505,18 +28318,20 @@
 			<iAllCityDefense>0</iAllCityDefense>
 			<iEspionageDefense>0</iEspionageDefense>
 			<iAsset>8</iAsset>
-			<iPower>4</iPower>
+			<!-- custom: war weariness doesn't increase so much overall strength, was 4 -->
+			<iPower>2</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
+			<!-- custom: was 0 / 0 / 8 -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<!-- K-Mod: was 10 -->
-				<iCommerce>8</iCommerce>
+				<iCommerce>6</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -28540,33 +28355,31 @@
 			<ConstructSound/>
 			<BonusHealthChanges/>
 			<BonusHappinessChanges/>
+			<!-- custom: BONUS_ELEPHANTS is a military ressource/bonus already so has its own / enough use anyways etc, use gold then instead as per the lore https://en.wikipedia.org/wiki/Statue_of_Zeus_at_Olympia too anyways etc -->
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
-					<BonusType>BONUS_ELEPHANTS</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<BonusType>BONUS_GOLD</BonusType>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
 			<DomainFreeExperiences/>
 			<DomainProductionModifiers/>
 			<BuildingHappinessChanges/>
-			<PrereqBuildingClasses>
-				<PrereqBuildingClass>
-					<BuildingClassType>BUILDINGCLASS_MONUMENT</BuildingClassType>
-					<iNumBuildingNeeded>2</iNumBuildingNeeded>
-				</PrereqBuildingClass>
-			</PrereqBuildingClasses>
+			<!-- custom: was BUILDINGCLASS_MONUMENT 2 -->
+			<PrereqBuildingClasses/>
 			<BuildingClassNeededs/>
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: use similar reasoning as in base advciv comment below if i am not mistaken i mean as well as for chichen itza and great wall too if i am not mistaken anyways etc, but do not put any flavor at all as military leaders would produce less units, and gold or religion or culture or such or growth or science or other would not be defended more because ennemies have more war weariness so don't put any flavor here anyways etc, except for the production great person related effect anyways etc, was flavor culture 6 -->
 			<!-- advc.020: Was 8 Military. Make it Culture b/c of the culture
 				 bonus. The defensive ability (if it actually did sth.) would
 				 also work well for a peaceable, Culture-flavored leader. -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>6</iFlavor>
+					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -28611,7 +28424,8 @@
 			<iNumFreeBonuses>0</iNumFreeBonuses>
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
-			<CivicOption>NONE</CivicOption>
+			<!-- custom: was NONE -->
+			<CivicOption>CIVICOPTION_ECONOMY</CivicOption>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
@@ -28637,7 +28451,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>450</iCost>
+			<iCost>425</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -28653,7 +28467,8 @@
 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
 			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
 			<iAnarchyModifier>0</iAnarchyModifier>
-			<iGoldenAgeModifier>50</iGoldenAgeModifier>
+			<!-- custom: was 50 -->
+			<iGoldenAgeModifier>0</iGoldenAgeModifier>
 			<iGlobalHurryModifier>0</iGlobalHurryModifier>
 			<iExperience>0</iExperience>
 			<iGlobalExperience>0</iGlobalExperience>
@@ -28732,7 +28547,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_MARBLE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -28744,19 +28559,16 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: production effect too small to be given safely to AIs, they may not go for specific civic that gives it anyways etc, was flavors production 5 culture 4 growth 3 -->
 			<!-- advc.020: No flavor in BtS; cf. Taj Mahal. -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>5</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>4</iFlavor>
+					<FlavorType>FLAVOR_GOLD</FlavorType>
+					<iFlavor>10</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>3</iFlavor>
+					<iFlavor>5</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -28793,12 +28605,8 @@
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
-			<ProductionTraits>
-				<ProductionTrait>
-					<ProductionTraitType>TRAIT_SPIRITUAL</ProductionTraitType>
-					<iProductionTrait>100</iProductionTrait>
-				</ProductionTrait>
-			</ProductionTraits>
+			<!-- custom: was TRAIT_SPIRITUAL 100 -->
+			<ProductionTraits/>
 			<HappinessTraits/>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
@@ -28807,8 +28615,9 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>UNITCLASS_GREAT_ENGINEER</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
+			<!-- custom: was UNITCLASS_GREAT_ENGINEER -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
+			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>1</bTeamShare>
@@ -28833,7 +28642,7 @@
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: now sooner, adjust cost, anyways etc, was 1000 -->
-			<iCost>700</iCost>
+			<iCost>650</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -28848,7 +28657,8 @@
 			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
 			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
-			<iAnarchyModifier>-100</iAnarchyModifier>
+			<!-- custom: was -100 -->
+			<iAnarchyModifier>0</iAnarchyModifier>
 			<iGoldenAgeModifier>0</iGoldenAgeModifier>
 			<iGlobalHurryModifier>0</iGlobalHurryModifier>
 			<iExperience>0</iExperience>
@@ -28890,7 +28700,8 @@
 			<iAllCityDefense>0</iAllCityDefense>
 			<iEspionageDefense>0</iEspionageDefense>
 			<iAsset>5</iAsset>
-			<iPower>10</iPower>
+			<!-- custom: was 10 -->
+			<iPower>0</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
@@ -28915,7 +28726,13 @@
 			<CommerceHappinesses/>
 			<ReligionChanges/>
 			<SpecialistCounts/>
-			<FreeSpecialistCounts/>
+			<!-- custom: was empty -->
+			<FreeSpecialistCounts>
+				<FreeSpecialistCount>
+					<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+					<iFreeSpecialistCount>1</iFreeSpecialistCount>
+				</FreeSpecialistCount>
+			</FreeSpecialistCounts>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners>
 				<bCommerceChangeOriginalOwner>0</bCommerceChangeOriginalOwner>
@@ -28932,10 +28749,42 @@
 			<BuildingHappinessChanges/>
 			<PrereqBuildingClasses/>
 			<BuildingClassNeededs/>
-			<SpecialistYieldChanges/>
+			<!-- custom: was empty -->
+			<SpecialistYieldChanges>
+				<SpecialistYieldChange>
+					<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+					<YieldChanges>
+						<iYield>0</iYield>
+						<iYield>2</iYield>
+						<iYield>1</iYield>
+					</YieldChanges>
+				</SpecialistYieldChange>
+			</SpecialistYieldChanges>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<Flavors/>
+			<!-- custom: was empty -->
+			<Flavors>
+				<Flavor>
+					<FlavorType>FLAVOR_CULTURE</FlavorType>
+					<iFlavor>10</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+					<iFlavor>5</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GOLD</FlavorType>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>2</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_RELIGION</FlavorType>
+					<iFlavor>2</iFlavor>
+				</Flavor>
+			</Flavors>
 			<HotKey/>
 			<bAltDown>0</bAltDown>
 			<bShiftDown>0</bShiftDown>
@@ -28983,7 +28832,8 @@
 			<iNumFreeBonuses>0</iNumFreeBonuses>
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
-			<CivicOption>CIVICOPTION_RELIGION</CivicOption>
+			<!-- custom: was CIVICOPTION_RELIGION -->
+			<CivicOption>CIVICOPTION_LEGAL</CivicOption>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
@@ -29009,7 +28859,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>450</iCost>
+			<iCost>425</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -29104,7 +28954,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_GOLD</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -29116,20 +28966,29 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: can't give this a too high military flavor anyways etc else military leaders would build it instead of building units, still it's strong enough with the early drafting to have military laders consider it if i'm not mistaken anyways etc but not too strong flavor else they would not build units anymore if i am not mistaken anyways etc, was flavors science 5 growth 2 culture 2 -->
 			<!-- advc.020: Was 10 Religion, but mainly unlocks Free Religion
 				 (Science), and possibly Pacifism (Growth, Culture). -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_SCIENCE</FlavorType>
-					<iFlavor>5</iFlavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<iFlavor>3</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>2</iFlavor>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GOLD</FlavorType>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+					<iFlavor>4</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>2</iFlavor>
+					<iFlavor>7</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -29178,7 +29037,7 @@
 			<CivicOption>NONE</CivicOption>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
 			<!-- custom: now a world wonder, increase effect, anyways etc... , was 1 -->
-			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
+			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>0</bTeamShare>
@@ -29203,7 +29062,7 @@
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 250 -->
-			<iCost>550</iCost>
+			<iCost>575</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -29306,7 +29165,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_STONE</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<UnitCombatFreeExperiences/>
@@ -29323,6 +29182,215 @@
 				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
 					<iFlavor>10</iFlavor>
+				</Flavor>
+			</Flavors>
+			<HotKey/>
+			<bAltDown>0</bAltDown>
+			<bShiftDown>0</bShiftDown>
+			<bCtrlDown>0</bCtrlDown>
+			<iHotKeyPriority>0</iHotKeyPriority>
+		</BuildingInfo>
+		<BuildingInfo> <!-- custom: class: versailles, type: versailles (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<BuildingClass>BUILDINGCLASS_VERSAILLES</BuildingClass>
+			<Type>BUILDING_VERSAILLES</Type>
+			<SpecialBuildingType>NONE</SpecialBuildingType>
+			<Description>TXT_KEY_BUILDING_VERSAILLES</Description>
+			<Civilopedia>TXT_KEY_BUILDING_VERSAILLES_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_VERSAILLES_STRATEGY</Strategy>
+			<Advisor>ADVISOR_ECONOMY</Advisor>
+			<ArtDefineTag>ART_DEF_BUILDING_VERSAILLES</ArtDefineTag>
+			<MovieDefineTag>ART_DEF_MOVIE_VERSAILLES</MovieDefineTag>
+			<HolyCity>NONE</HolyCity>
+			<ReligionType>NONE</ReligionType>
+			<StateReligion>NONE</StateReligion>
+			<bStateReligion>0</bStateReligion>
+			<PrereqReligion>NONE</PrereqReligion>
+			<PrereqCorporation>NONE</PrereqCorporation>
+			<FoundsCorporation>NONE</FoundsCorporation>
+			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
+			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
+			<VictoryPrereq>NONE</VictoryPrereq>
+			<FreeStartEra>NONE</FreeStartEra>
+			<!-- advc.008a: was ERA_INDUSTRIAL -->
+			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
+			<ObsoleteTech>NONE</ObsoleteTech>
+			<!-- custom: was TECH_DIVINE_RIGHT -->
+			<PrereqTech>TECH_FEUDALISM</PrereqTech>
+			<TechTypes/>
+			<Bonus>NONE</Bonus>
+			<PrereqBonuses/>
+			<ProductionTraits/>
+			<HappinessTraits/>
+			<NoBonus>NONE</NoBonus>
+			<PowerBonus>NONE</PowerBonus>
+			<FreeBonus>NONE</FreeBonus>
+			<iNumFreeBonuses>0</iNumFreeBonuses>
+			<FreeBuilding>NONE</FreeBuilding>
+			<FreePromotion>NONE</FreePromotion>
+			<CivicOption>NONE</CivicOption>
+			<!-- advc.310: was MERCHANT -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_SPY</GreatPeopleUnitClass>
+			<!-- custom: was 2 -->
+			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
+			<iHurryAngerModifier>0</iHurryAngerModifier>
+			<bBorderObstacle>0</bBorderObstacle>
+			<bTeamShare>1</bTeamShare>
+			<bWater>0</bWater>
+			<bRiver>0</bRiver>
+			<bPower>0</bPower>
+			<bDirtyPower>0</bDirtyPower>
+			<bAreaCleanPower>0</bAreaCleanPower>
+			<DiploVoteType>NONE</DiploVoteType>
+			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
+			<bCapital>0</bCapital>
+			<!-- custom: avoid redundant effect with forbidden_palace / forbidden palace before we renamed asset name i mean anyways etc in advciv-sas i mean too but anyways etc, give another(other) effect(s) anyways etc anyways etc, was 1 -->
+			<bGovernmentCenter>0</bGovernmentCenter>
+			<!-- custom: was 0 -->
+			<bGoldenAge>1</bGoldenAge>
+			<bAllowsNukes>0</bAllowsNukes>
+			<bMapCentering>0</bMapCentering>
+			<bNoUnhappiness>0</bNoUnhappiness>
+			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+			<bNeverCapture>0</bNeverCapture>
+			<bNukeImmune>1</bNukeImmune>
+			<bPrereqReligion>0</bPrereqReligion>
+			<bCenterInCity>0</bCenterInCity>
+			<iAIWeight>0</iAIWeight>
+			<!-- custom: was 800 -->
+			<iCost>525</iCost>
+			<iHurryCostModifier>100</iHurryCostModifier>
+			<iAdvancedStartCost>-1</iAdvancedStartCost>
+			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+			<iMinAreaSize>-1</iMinAreaSize>
+			<iConquestProb>100</iConquestProb>
+			<iCitiesPrereq>0</iCitiesPrereq>
+			<iTeamsPrereq>0</iTeamsPrereq>
+			<iLevelPrereq>0</iLevelPrereq>
+			<iMinLatitude>0</iMinLatitude>
+			<iMaxLatitude>90</iMaxLatitude>
+			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
+			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
+			<!-- custom: was 0 -->
+			<iAnarchyModifier>-100</iAnarchyModifier>
+			<iGoldenAgeModifier>0</iGoldenAgeModifier>
+			<iGlobalHurryModifier>0</iGlobalHurryModifier>
+			<iExperience>0</iExperience>
+			<iGlobalExperience>0</iGlobalExperience>
+			<iFoodKept>0</iFoodKept>
+			<iAirlift>0</iAirlift>
+			<iAirModifier>0</iAirModifier>
+			<iAirUnitCapacity>0</iAirUnitCapacity>
+			<iNukeModifier>0</iNukeModifier>
+			<iNukeExplosionRand>0</iNukeExplosionRand>
+			<iFreeSpecialist>0</iFreeSpecialist>
+			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
+			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
+			<!-- custom: was 0 -->
+			<iMaintenanceModifier>-50</iMaintenanceModifier>
+			<iWarWearinessModifier>0</iWarWearinessModifier>
+			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
+			<iHealRateChange>0</iHealRateChange>
+			<iHealth>0</iHealth>
+			<iAreaHealth>0</iAreaHealth>
+			<iGlobalHealth>0</iGlobalHealth>
+			<iHappiness>0</iHappiness>
+			<iAreaHappiness>0</iAreaHappiness>
+			<iGlobalHappiness>0</iGlobalHappiness>
+			<iStateReligionHappiness>0</iStateReligionHappiness>
+			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
+			<iSpaceProductionModifier>0</iSpaceProductionModifier>
+			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+			<iTradeRoutes>0</iTradeRoutes>
+			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+			<iTradeRouteModifier>0</iTradeRouteModifier>
+			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+			<iFreeTechs>0</iFreeTechs>
+			<iDefense>0</iDefense>
+			<iBombardDefense>0</iBombardDefense>
+			<iAllCityDefense>0</iAllCityDefense>
+			<iEspionageDefense>0</iEspionageDefense>
+			<iAsset>16</iAsset>
+			<iPower>0</iPower>
+			<fVisibilityPriority>1.0</fVisibilityPriority>
+			<SeaPlotYieldChanges/>
+			<RiverPlotYieldChanges/>
+			<GlobalSeaPlotYieldChanges/>
+			<YieldChanges/>
+			<CommerceChanges/>
+			<!-- custom: was 0 / 0 / 10 -->
+			<ObsoleteSafeCommerceChanges>
+				<iCommerce>0</iCommerce>
+				<iCommerce>0</iCommerce>
+				<iCommerce>8</iCommerce>
+			</ObsoleteSafeCommerceChanges>
+			<CommerceChangeDoubleTimes>
+				<iCommerce>0</iCommerce>
+				<iCommerce>0</iCommerce>
+				<iCommerce>1000</iCommerce>
+			</CommerceChangeDoubleTimes>
+			<CommerceModifiers/>
+			<GlobalCommerceModifiers/>
+			<SpecialistExtraCommerces/>
+			<StateReligionCommerces/>
+			<CommerceHappinesses/>
+			<ReligionChanges/>
+			<SpecialistCounts/>
+			<!-- custom: was empty -->
+			<FreeSpecialistCounts>
+				<FreeSpecialistCount>
+					<SpecialistType>SPECIALIST_SPY</SpecialistType>
+					<iFreeSpecialistCount>1</iFreeSpecialistCount>
+				</FreeSpecialistCount>
+			</FreeSpecialistCounts>
+			<CommerceFlexibles/>
+			<CommerceChangeOriginalOwners>
+				<bCommerceChangeOriginalOwner>0</bCommerceChangeOriginalOwner>
+				<bCommerceChangeOriginalOwner>0</bCommerceChangeOriginalOwner>
+				<bCommerceChangeOriginalOwner>1</bCommerceChangeOriginalOwner>
+			</CommerceChangeOriginalOwners>
+			<ConstructSound/>
+			<BonusHealthChanges/>
+			<BonusHappinessChanges/>
+			<BonusProductionModifiers>
+				<BonusProductionModifier>
+					<BonusType>BONUS_MARBLE</BonusType>
+					<iProductonModifier>25</iProductonModifier>
+				</BonusProductionModifier>
+			</BonusProductionModifiers>
+			<UnitCombatFreeExperiences/>
+			<DomainFreeExperiences/>
+			<DomainProductionModifiers/>
+			<BuildingHappinessChanges/>
+			<PrereqBuildingClasses/>
+			<BuildingClassNeededs/>
+			<SpecialistYieldChanges/>
+			<BonusYieldModifiers/>
+			<ImprovementFreeSpecialists/>
+			<!-- custom: was flavors military 4 culture 4 -->
+			<!-- advc.020: was 10 Gold -->
+			<Flavors>
+				<Flavor>
+					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+					<iFlavor>6</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GOLD</FlavorType>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+					<iFlavor>2</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>4</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -29354,7 +29422,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_MEDICINE</PrereqTech>
+			<!-- custom: was TECH_MEDICINE -->
+			<PrereqTech>TECH_ECOLOGY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_CORPORATION</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -29884,8 +29953,9 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<!-- custom: was TECH_STEEL -->
 			<!-- K-Mod: was COMBUSTION -->
-			<PrereqTech>TECH_STEEL</PrereqTech>
+			<PrereqTech>TECH_RADIO</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_CORPORATION</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -30061,7 +30131,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_RAILROAD</PrereqTech>
+			<!-- custom: tech_railroad now removed or todo to be removed if i am not mistaken and (if i anyways etc) will not change this plan i mean anyways etc, was TECH_RAILROAD -->
+			<PrereqTech>TECH_STEEL</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_CORPORATION</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -30237,12 +30308,9 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_ROCKETRY</PrereqTech>
-			<TechTypes>
-				<PrereqTech>TECH_CORPORATION</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-			</TechTypes>
+			<!-- custom: was TECH_ROCKETRY and techtypes TECH_CORPORATION -->
+			<PrereqTech>TECH_CORPORATION</PrereqTech>
+			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -30413,10 +30481,11 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
+			<!-- custom: was TECH_CORPORATION only anyways etc -->
 			<!-- K-Mod: was MASS_MEDIA and CORPORATION -->
-			<PrereqTech>TECH_CORPORATION</PrereqTech>
+			<PrereqTech>TECH_REPLACEABLE_PARTS</PrereqTech>
 			<TechTypes>
-				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>TECH_CORPORATION</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
@@ -30629,8 +30698,9 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
+			<!-- custom: was 350 -->
 			<!-- advc.179: was 400 -->
-			<iCost>350</iCost>
+			<iCost>340</iCost>
 			<iHurryCostModifier>300</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>3</iAdvancedStartCostIncrease>

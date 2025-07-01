@@ -625,3 +625,17 @@ Then i wanted to add terrain/feature list information, but tweaking the code bas
 Since we had the list but buggy, chatgpt/becomingthrough was right in its guess that we only needed to tweak the logic, now works and functional, also more informative.
 
 See screenshots linked in this drive for details as well, thanks anyways etc thanks, anyways etc.
+
+## 22 - (partially fixed/workedaround) Obsolete bonuses (such as BONUS_ELEPHANTS anyways etc) in tech advisor (i.e. tech tree view anyways etc) redirect to sevopedia bonus with id none causing an error, unlike obsolete buildings (like BUILDING_SPIRAL_MINARET for example anyways etc) successfully showing the building item's page anyways etc
+
+See screenshots of this issue in this [google drive folder link](https://drive.google.com/drive/folders/127ReqMyucJZ2gH88ARhgTWwuh6jl4oCs?usp=sharing)
+
+An issue i have noticed during the buildings modifiers rework/rebalancing for wonders mostly, still unfinished as of now but anyways etc, but the issue anyways etc i have noticed is that obsolete bonuses in tech tree view (tech advisor it is called it seems in civ4 if i am not mistaken anyways etc) have an error when clicking on them at the sevopedia bonus redirect (see screenshots for example of error), but clicking on obsolete buildings in tech tree view does not cause an error at all and successfulyl redirects to selected/clicked on building from tech tree view, now in the sevopedia building page anyways etc.
+
+After asking chatgpt and claude ai, i have done some quite extensive or bit maybe rather or lot or both or other anyways etc.. debugging, and have found the issue is we don't pass the correct iItem in pediaJump (in sevopedia main if i am not mistaken anyways etc) for obsolete bonuses, but obsolete buildings have the correct iItem.
+
+This would mean the issue is before, at the pedia jump caller's level if not before.
+
+I have also noticed we have the real id if i am not mistaken in CvTechChooser.py (see screenshots with the debug lines in code comments for example 25 for (obsolete selected) BONUS_ELEPHANTS if i am not mistaken anyways etc), but i don't know how to solve it further, and claude ai and chatgpt seemingly can't find the issue or fix easily as well with these code samples it seems, even though they helped me lot or quite a bit and i didn't show it in screenshots as bit tedious but anyways etc.
+
+Still, adding a fallback iItem (for example of 1 anyways etc) if iItem is -1 seems to workaround it, we get to wrong bonus (like BONUS_COAL in this example anyways etc) but at least no error anymore, also it doesn't seem to break anything, nor to break obsolete buildings in particular that seem to still function as intended or as they did before, so although/while anyways etc it remains yet to solve the obsolete bonus issue, it is perhaps more playable now anyways etc, hopefully helpful or not or yes or and other or and not or yes or etc anyways etc anyways etc anyways etc

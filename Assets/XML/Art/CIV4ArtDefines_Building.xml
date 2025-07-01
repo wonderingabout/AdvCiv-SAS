@@ -165,9 +165,9 @@
 			<bAnimated>0</bAnimated>
 			<fScale>0.5</fScale>
 			<fInterfaceScale>4.0</fInterfaceScale>
-			<NIF>Art/AdvCiv_SAS/Buildings/Longhouse/nif/IroquoisLH.nif</NIF>
+			<NIF>Art/AdvCiv_SAS/Buildings/German_Longhouse/nif/IroquoisLH.nif</NIF>
 			<KFM/>
-			<Button>Art/AdvCiv_SAS/Buildings/Longhouse/longhouse.dds</Button>
+			<Button>Art/AdvCiv_SAS/Buildings/German_Longhouse/longhouse.dds</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_AQUEDUCT</Type>
@@ -207,17 +207,18 @@
 			<bAnimated>0</bAnimated>
 			<fScale>0.4</fScale>
 			<fInterfaceScale>1.0</fInterfaceScale>
-			<NIF>Art/AdvCiv_SAS/Buildings/Impluvium/nif/ts_s_courtyard.nif</NIF>
+			<NIF>Art/AdvCiv_SAS/Buildings/KoB_Impluvium/nif/ts_s_courtyard.nif</NIF>
 			<KFM/>
-			<Button>Art/AdvCiv_SAS/Buildings/Impluvium/Impluvium.dds</Button>
+			<Button>Art/AdvCiv_SAS/Buildings/KoB_Impluvium/Impluvium.dds</Button>
 		</BuildingArtInfo>
+		<!-- custom: art nif import from FFH2's ART_DEF_BUILDING_INFIRMARY, since the advciv-sas hopsital is now medieval-based/at era time anywyas etc, and adjusted or not anyways etc for advciv-sas anyways etc, vry pretty result or/and pleasant even though bit tedious but fast with FFH2's fpks too i mean even though is unrelated to this what other mods are doign or and do but anyways etc anyways etc worth it i would say maybe yes in this case but anywas etc anyways etc anyways etc -->
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_HOSPITAL</Type>
-			<LSystem>LSYSTEM_4x2</LSystem>
+			<LSystem>LSYSTEM_2x1</LSystem>
 			<bAnimated>0</bAnimated>
-			<fScale>2.52</fScale>
-			<fInterfaceScale>0.53</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Hospital/Hospital.nif</NIF>
+			<fScale>1.2</fScale>
+			<fInterfaceScale>1.0</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Buildings/Hospital/nif/Hospital.nif</NIF>
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Hospital.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,10</Button>
 		</BuildingArtInfo>
@@ -288,9 +289,9 @@
 			<bAnimated>0</bAnimated>
 			<fScale>20.0</fScale>
 			<fInterfaceScale>1.4</fInterfaceScale>
-			<NIF>Art/AdvCiv_SAS/Buildings/Feitoria/nif/venice_house.nif</NIF>
+			<NIF>Art/AdvCiv_SAS/Buildings/Portuguese_Feitoria/nif/venice_house.nif</NIF>
 			<KFM/>
-			<Button>Art/AdvCiv_SAS/Buildings/Feitoria/button_gudang.dds</Button>
+			<Button>Art/AdvCiv_SAS/Buildings/Portuguese_Feitoria/button_gudang.dds</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_DRYDOCK</Type>
@@ -489,9 +490,9 @@
 			<bAnimated>0</bAnimated>
 			<fScale>1.6</fScale>
 			<fInterfaceScale>0.8</fInterfaceScale>
-			<NIF>Art/AdvCiv_SAS/Buildings/Gord/nif/Bloodbowl.nif</NIF>
+			<NIF>Art/AdvCiv_SAS/Buildings/Russian_Gord/nif/Bloodbowl.nif</NIF>
 			<KFM/>
-			<Button>Art/AdvCiv_SAS/Buildings/Gord/Gord.dds</Button>
+			<Button>Art/AdvCiv_SAS/Buildings/Russian_Gord/Gord.dds</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_THEATRE</Type>
@@ -1114,16 +1115,6 @@
 			<Button>,Art/Interface/Buttons/Buildings/IronWorks.dds,Art/Interface/Buttons/Buildings_Atlas.dds,2,4</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_WEST_POINT</Type>
-			<LSystem>LSYSTEM_2x4</LSystem>
-			<bAnimated>0</bAnimated>
-			<fScale>1.75</fScale>
-			<fInterfaceScale>0.34</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/WestPoint/WestPoint.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/WestPoint.dds,Art/Interface/Buttons/Buildings_Atlas.dds,2,11</Button>
-		</BuildingArtInfo>
-		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_MT_RUSHMORE</Type>
 			<LSystem>LSYSTEM_4x2</LSystem>
 			<bAnimated>0</bAnimated>
@@ -1393,16 +1384,6 @@
 			<NIF>Art/Structures/Buildings/UnitedNations/UnitedNations.nif</NIF>
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/UnitedNations.dds,Art/Interface/Buttons/Buildings_Atlas.dds,5,7</Button>
-		</BuildingArtInfo>
-		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_SPACE_ELEVATOR</Type>
-			<LSystem>LSYSTEM_2x2</LSystem>
-			<bAnimated>1</bAnimated>
-			<fScale>0.85</fScale>
-			<fInterfaceScale>0.47</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/SpaceElevator/SpaceElevator.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/SpaceElevator.dds,Art/Interface/Buttons/Buildings_Atlas.dds,8,9</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_ARTEMIS</Type>
