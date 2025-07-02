@@ -529,7 +529,7 @@ class SevoPediaBuilding:
 				# <!-- custom: since this is our last usage/placeStats info displayed, we don't get the next coordinates, but instead store current coordinates (of last item displayed, anyways etc) to know where to place our great people button later in "custom: 6.1.2" anyways etc -->
 				self.X_FLAT_GREAT_PERSON = x
 				self.Y_FLAT_GREAT_PERSON = y
-				# <!-- custom: now that we have stored the flat great person coordinates to place our great person button later, we can get the next coordinates for custom 6.2 (great person modifier)-->
+				# <!-- custom: now that we have stored the flat great person coordinates to place our great person button later, we can get the next coordinates for "custom: 6.2" (great person modifier), we will complete "custom: 6.1.2" (ie. 2nd step of 6.1 anyways etc) later after 6.2 if that makes sense hopefully helpful or not or yes or and other or and not or yes anyways etc anyways etc anyways etc -->
 				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
 
 			# <!-- custom: 6.2: while we're still in same panel, but as a separate grid item than the flat great person one, also add Great People Modifier (similar to how we handle yield modifiers) anyways etc -->

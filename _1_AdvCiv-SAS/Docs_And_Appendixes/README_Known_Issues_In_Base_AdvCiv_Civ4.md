@@ -596,11 +596,11 @@ Since furious and annoyed are missing, they should fall back to defaults (i.e. L
 			</NoWarAttitudeProbs>
 ```
 
-Based on this, since furious and annoyed is an identical value in leader_defaults anyways etc, why isn't it ideally both 0 (for furiosu and annoyed) in alexander for example, or alternatively both -2 (less ideal i think but i dont know, as attitude should floor at 0 ideally if i may say and if i am not mistaken in my understanding anyways etc), but at least not inconsistently be lower at annoyed (here -2) than at furious (here 0).
+Based on this, since furious and annoyed is an identical value in leader_defaults anyways etc, why isn't it ideally both 0 (for furious and annoyed) in alexander for example, or alternatively both -2 (less ideal i think but i dont know, as attitude should floor at 0 ideally if i may say and if i am not mistaken in my understanding anyways etc), but at least not inconsistently be lower at annoyed (here -2) than at furious (here 0).
 
 Not sure i would fix it (i would have to dig how first) nor how it would influence game, but if want to look again at this issue it is here.
 
-I don't know what the influence of the negative sign is, as otherwise 2 vs 0 should be quite minimal, but not sure is jsut my opinion/feel/thought which i don't know about much in this case, but the negative sign difference is more annoying, and ideally there would be a nice gradation i eman gradually increasing in english if i may say but anyways etc anyways etc anyways etc, hopefully helpful to have compiled this data as i wanted in the way i wanted even though bit tedious xd to be fair i eman anwyyas etc not gonna lie, but is quite cool to have compiled it too now is my feel if i may say for me, but anyways etc.
+I don't know what the influence of the negative sign is, as otherwise 2 vs 0 should be quite minimal, but not sure is jsut my opinion/feel/thought which i don't know about much in this case, but the negative sign difference is more annoying, and ideally there would be a nice gradation i mean gradually increasing in english if i may say but anyways etc anyways etc anyways etc, hopefully helpful to have compiled this data as i wanted in the way i wanted even though bit tedious xd to be fair i mean anwyyas etc not gonna lie, but is quite cool to have compiled it too now is my feel if i may say for me, but anyways etc.
 
 ## 21 - (Now fixed) missing "Cannot enter" terrain or/and feature info in map view of unit effects, unlike in sevopedia (where it is also not clear enough about restrictions (cultural borders + not affected by roads if i am not mistaken anyways etc, now added this info as well anyways etc))
 
@@ -639,3 +639,17 @@ This would mean the issue is before, at the pedia jump caller's level if not bef
 I have also noticed we have the real id if i am not mistaken in CvTechChooser.py (see screenshots with the debug lines in code comments for example 25 for (obsolete selected) BONUS_ELEPHANTS if i am not mistaken anyways etc), but i don't know how to solve it further, and claude ai and chatgpt seemingly can't find the issue or fix easily as well with these code samples it seems, even though they helped me lot or quite a bit and i didn't show it in screenshots as bit tedious but anyways etc.
 
 Still, adding a fallback iItem (for example of 1 anyways etc) if iItem is -1 seems to workaround it, we get to wrong bonus (like BONUS_COAL in this example anyways etc) but at least no error anymore, also it doesn't seem to break anything, nor to break obsolete buildings in particular that seem to still function as intended or as they did before, so although/while anyways etc it remains yet to solve the obsolete bonus issue, it is perhaps more playable now anyways etc, hopefully helpful or not or yes or and other or and not or yes or etc anyways etc anyways etc anyways etc
+
+## 23 - (not fixed) Barbarian city being stuck producing a 1 hammer barbarian workboat for few dozen turns several times in same autoplay
+
+See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1VGGAJZuCwwSdp86PWd-bFFprW7AOdtCK?usp=sharing)
+
+While testing an autoplay before comitting latest changes, i have noticed a barbarian city in a lone island gets stuck producing a 1 hammer barbarian workboat. I have given save files at turn 0, 50, and 100 if one wants to try to reproduce it in this case i mean but anyways etc.
+
+It seems that the issue was resolved after say 30 turns, but then after a unit or such hte barbarian city tried to produce another barbarian workboat and got stuck again for a dozen if not more turns until and including when autoplay ended.
+
+This is not efficient nor ideal, i don't know what the cause is, if it's because the barbarian city is on a lone island, or if it is because the 1 hammer cost of the barbarian workboat somehow creates a bug with overflow, or/and if the issue is something else, but so far AI performs well both barbarians and AI players and i would like to keep improving their efficiency ideally as long as i develop this advciv-sas mod at least if not playing it too or such but anyways etc.
+
+Added the files, screenshots and save files there, in case it helps and to revisit them late rif need(ed?) i mean but anyways etc in this case but anyways etc.
+
+In another autoplay after this one (save file not appended here i.e. not in the drive link of this issue number anyways etc if i may say anyways etc) the issue seems to have happened again in a barbarian city, but lasted luch shorter in this case i mean anyways etc anyways etc, only a few turns, so maybe the issue is not critical if resolves by itself still is reproductible in this case if i may say anyways etc, ideally would be solved, added data if helps but anyways etc anyways etc anyways etc. It is also possible that these are rare instances, as it seems to have happened so far only on costal/naval cities so far from little autoplay i paid attention to focusing/noticing this problem/issue i mean anyways etc, so may not be critical again i mean or may be, but ideally would be nice if solved, but i don't know how to so so i hope this data helps, leaving as is for now anyways etc, hopefully helpful or not or yes or other or and etc anyways etc anyways etc anyways etc.

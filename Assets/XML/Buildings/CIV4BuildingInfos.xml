@@ -424,8 +424,8 @@
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<iMinAreaSize>-1</iMinAreaSize>
 			<iConquestProb>0</iConquestProb>
-			<!-- custom: was 8 which i think is may too high, considering the courthouse requirement already that is quite expensive, having 5 cities is enough and i mean anyways etc costly enough too anyways, 8 makes it too unlikely to be built in too many games if i am not mistaken anyways etc, chatgpt helped me find it as i couldn't quickly do and wasn't sure the field to modify num cities requried for this building was here anyways etc thanks chatgpt anyways etc -->
-			<iCitiesPrereq>5</iCitiesPrereq>
+			<!-- custom: was 8 which i think is may too high, considering the courthouse requirement already that is quite expensive, having 6 cities is enough and i mean anyways etc costly enough too anyways, 8 makes it too unlikely to be built in too many games if i am not mistaken anyways etc, chatgpt helped me find it as i couldn't quickly do and wasn't sure the field to modify num cities requried for this building was here anyways etc thanks chatgpt anyways etc ; also 6 is a number at which it is relevant enough to build it (so AIs in particular do not build it and lose on efficiency if uneeded or not too worth anyways etc and build something else instead) while not being too restrictive for players, including AI players but also human players who want to build it too i mean anyways etc, was 8 -->
+			<iCitiesPrereq>6</iCitiesPrereq>
 			<iTeamsPrereq>0</iTeamsPrereq>
 			<iLevelPrereq>0</iLevelPrereq>
 			<iMinLatitude>0</iMinLatitude>
@@ -527,7 +527,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: great spy great person is low enough it can be ignored and probably better to ignore it in this case at least i mean anyways etc, as for flavors in base advciv, were/was flavor military 5??? Fixed to growth gold based formula as seems much more accurate (didn't read the adv manual id though in case it has info but this still seems much more accurate like this with these udpated flavors i/we i.e. i anywyas etc now anyways etc added in advciv-sas anyways etc -->
+			<!-- custom: great spy great person is low enough it can be ignored and probably better to ignore it in this case at least i mean anyways etc, as for flavors in base advciv, were/was flavor military 5??? Fixed to growth gold based formula as seems much more accurate (didn't read the adv manual id though in case it has info but this still seems much more accurate like this with these udpated flavors i/we i.e. i anyways etc now anyways etc added in advciv-sas anyways etc -->
 			<Flavors>
 				<!-- advc.020: Was 10 Gold, 2 Espionage -->
 				<Flavor>
@@ -574,7 +574,13 @@
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>
-			<HappinessTraits/>
+			<!-- custom: replace with happiness instead, more balanced this way, and just because someone is protective is a bit far fetched to give such a high production bonus especially on castles and such, happiness may be stronger too mid and late game anyways etc -->
+			<HappinessTraits>
+				<HappinessTrait>
+					<HappinessTraitType>TRAIT_PROTECTIVE</HappinessTraitType>
+					<iHappinessTrait>1</iHappinessTrait>
+				</HappinessTrait>
+			</HappinessTraits>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>
@@ -752,7 +758,12 @@
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>
-			<HappinessTraits/>
+			<HappinessTraits>
+				<HappinessTrait>
+					<HappinessTraitType>TRAIT_PROTECTIVE</HappinessTraitType>
+					<iHappinessTrait>1</iHappinessTrait>
+				</HappinessTrait>
+			</HappinessTraits>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>
@@ -935,7 +946,12 @@
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>
-			<HappinessTraits/>
+			<HappinessTraits>
+				<HappinessTrait>
+					<HappinessTraitType>TRAIT_PROTECTIVE</HappinessTraitType>
+					<iHappinessTrait>1</iHappinessTrait>
+				</HappinessTrait>
+			</HappinessTraits>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>
@@ -1114,7 +1130,12 @@
 			<PrereqBonuses/>
 			<!-- custom: remove trait specfic production bonuses, at least for the protective trait buildings, bonuses were too lousy (or/and weak) and perhaps inaccurate, how can a castle be built faster (just) by being protective? Give stronger global benefits instead, may also make the game more strategic, the bigger problem is maybe or not bbigger or yes bigger or other or not or etc anyways etc more importantly that the castle would be otherwise too op for the protective trait players anyways etc -->
 			<ProductionTraits/>
-			<HappinessTraits/>
+			<HappinessTraits>
+				<HappinessTrait>
+					<HappinessTraitType>TRAIT_PROTECTIVE</HappinessTraitType>
+					<iHappinessTrait>1</iHappinessTrait>
+				</HappinessTrait>
+			</HappinessTraits>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>
@@ -1310,7 +1331,12 @@
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>
-			<HappinessTraits/>
+			<HappinessTraits>
+				<HappinessTrait>
+					<HappinessTraitType>TRAIT_PROTECTIVE</HappinessTraitType>
+					<iHappinessTrait>1</iHappinessTrait>
+				</HappinessTrait>
+			</HappinessTraits>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>
@@ -1515,7 +1541,12 @@
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>
-			<HappinessTraits/>
+			<HappinessTraits>
+				<HappinessTrait>
+					<HappinessTraitType>TRAIT_PROTECTIVE</HappinessTraitType>
+					<iHappinessTrait>1</iHappinessTrait>
+				</HappinessTrait>
+			</HappinessTraits>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>
@@ -1712,7 +1743,12 @@
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>
-			<HappinessTraits/>
+			<HappinessTraits>
+				<HappinessTrait>
+					<HappinessTraitType>TRAIT_PROTECTIVE</HappinessTraitType>
+					<iHappinessTrait>1</iHappinessTrait>
+				</HappinessTrait>
+			</HappinessTraits>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>
@@ -2424,7 +2460,7 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
-			<!-- custom: no reason to go out of our way to make the stable i.e. this building anyways etc obsolete, it will naturally be unpopular with time in this case anyways etc, plus if a mod wanted to add mounted civilian units or maybe us in advciv-sas but unlikely who knows one never knows i mean even though unlikely anywyas etc, but the general idea i mean is that it may still serve some purpose to have a stable, and if there are no more horse or other mounted units, then the building is useless anyway, and if there are some even if civ is backwards or such other purpose like alternate tech path or mod added mod mod like they say anyways etc civilian unit, still why not? So put none instead anyways etc (very questioable base civ4 +/- obsolete tech too, unless horses or camels were flying... like in some religions believe it or not that are surprisingly popular and not obsolete, one where it is claimed a river or sea was cut in half with a normal wooden stick but no one has a poof of it somehow, but nevermind this as this is a code space i don't know if i should apologize (as this is what i wanted to say too but anyways etc) but to go back on point here is main reasoning, anyways etc), was TECH_ADVANCED_FLIGHT -->
+			<!-- custom: no reason to go out of our way to make the stable i.e. this building anyways etc obsolete, it will naturally be unpopular with time in this case anyways etc, plus if a mod wanted to add mounted civilian units or maybe us in advciv-sas but unlikely who knows one never knows i mean even though unlikely anyways etc, but the general idea i mean is that it may still serve some purpose to have a stable, and if there are no more horse or other mounted units, then the building is useless anyway, and if there are some even if civ is backwards or such other purpose like alternate tech path or mod added mod mod like they say anyways etc civilian unit, still why not? So put none instead anyways etc (very questioable base civ4 +/- obsolete tech too, unless horses or camels were flying... like in some religions believe it or not that are surprisingly popular and not obsolete, one where it is claimed a river or sea was cut in half with a normal wooden stick but no one has a poof of it somehow, but nevermind this as this is a code space i don't know if i should apologize (as this is what i wanted to say too but anyways etc) but to go back on point here is main reasoning, anyways etc), was TECH_ADVANCED_FLIGHT -->
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			<TechTypes/>
@@ -4066,8 +4102,12 @@
 			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_ENGINEERING</PrereqTech>
-			<TechTypes/>
+			<PrereqTech>TECH_MATHEMATICS</PrereqTech>
+			<TechTypes>
+				<PrereqTech>TECH_MASONRY</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+			</TechTypes>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -4234,8 +4274,12 @@
 			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_ENGINEERING</PrereqTech>
-			<TechTypes/>
+			<PrereqTech>TECH_MATHEMATICS</PrereqTech>
+			<TechTypes>
+				<PrereqTech>TECH_MASONRY</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+			</TechTypes>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -4411,8 +4455,12 @@
 			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_ENGINEERING</PrereqTech>
-			<TechTypes/>
+			<PrereqTech>TECH_MATHEMATICS</PrereqTech>
+			<TechTypes>
+				<PrereqTech>TECH_MASONRY</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+			</TechTypes>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -21310,7 +21358,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: military effect of no anger is too low for the building to be considered by military leaning eladers i think i mean, better not use it here so they can focus on building units or/and more relevant militarily i mean anywyas etc buildings, was flavors growth 5, culture 4, military 2 -->
+			<!-- custom: military effect of no anger is too low for the building to be considered by military leaning eladers i think i mean, better not use it here so they can focus on building units or/and more relevant militarily i mean anyways etc buildings, was flavors growth 5, culture 4, military 2 -->
 			<!-- advc.020: Was 10 Growth, but also useful militarily and for
 				 culture. -->
 			<Flavors>
@@ -28115,7 +28163,7 @@
 			<iEspionageDefense>0</iEspionageDefense>
 			<!-- advc.310: Was 5; now a more potent building. -->
 			<iAsset>9</iAsset>
-			<!-- custom: indrectly stronger due to not having barbarians attack, but increasing it too much may make AI avoid to attack a vulnerable/killable target in this case if i am not mistaken anywyas etc, was 5 -->
+			<!-- custom: indrectly stronger due to not having barbarians attack, but increasing it too much may make AI avoid to attack a vulnerable/killable target in this case if i am not mistaken anyways etc, was 5 -->
 			<!-- advc.131c: was 10 -->
 			<iPower>8</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
@@ -30309,8 +30357,12 @@
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: was TECH_ROCKETRY and techtypes TECH_CORPORATION -->
-			<PrereqTech>TECH_CORPORATION</PrereqTech>
-			<TechTypes/>
+			<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
+			<TechTypes>
+				<PrereqTech>TECH_CORPORATION</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+			</TechTypes>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>

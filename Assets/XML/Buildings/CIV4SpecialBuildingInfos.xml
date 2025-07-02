@@ -29,12 +29,8 @@
 			<TechPrereq>TECH_POLYTHEISM</TechPrereq>
 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
 			<bValid>1</bValid>
-			<ProductionTraits>
-				<ProductionTrait>
-					<ProductionTraitType>TRAIT_SPIRITUAL</ProductionTraitType>
-					<iProductionTrait>100</iProductionTrait>
-				</ProductionTrait>
-			</ProductionTraits>
+			<!-- custom: was TRAIT_SPIRITUAL 100 -->
+			<ProductionTraits/>
 			<Button>,Art/Interface/Buttons/Buildings/Cathedral_Jewish.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,7</Button>
 		</SpecialBuildingInfo>
 		<!-- custom: cathedral tech requirement changed to priesthood same as the monastery, also so they can be built sooner now thta music position is changed in our tech tree anyways etc anyways etc anyways etc... Should not affect gameplay due to many temples still being required, but allowing it to be sooner if needed and player meets the conditions sooner or/and wants to pursue a cultural path sooner or/and other reasons or not or yes or and other or and not anyways etc, to also match the multiple pagan holy sites (/shrines ,in a general term way not civ4 building specific term way specifically,?) anyways etc throughout history anyways etc -->
@@ -61,7 +57,13 @@
 			<TechPrereq>TECH_PRIESTHOOD</TechPrereq>
 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
 			<bValid>1</bValid>
-			<ProductionTraits/>
+			<!-- custom: makes it more interesting to think of them as being willing to meditate rather than going to a generic religious office maybe at least i'd want to represent it as such in advciv-sas anyways etc -->
+			<ProductionTraits>
+				<ProductionTrait>
+					<ProductionTraitType>TRAIT_SPIRITUAL</ProductionTraitType>
+					<iProductionTrait>100</iProductionTrait>
+				</ProductionTrait>
+			</ProductionTraits>
 			<Button>,Art/Interface/Buttons/Buildings/Cathedral_Jewish.dds,Art/Interface/Buttons/Buildings_Atlas.dds,7,11</Button>
 		</SpecialBuildingInfo>
 	</SpecialBuildingInfos>

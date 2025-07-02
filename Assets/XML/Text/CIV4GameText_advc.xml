@@ -1345,81 +1345,51 @@
 		<Italian>Nuova estrazione casuale per ricarica</Italian>
 		<Spanish>Nueva "seed" aleatoria al volver a cargar</Spanish>
 	</TEXT>
-	
+
+
+
+	<!-- custom: rewrite difficulty/handicap descriptions/help texts anyways etc to match new/reworked advciv-sas gradual handicap settings, which are in particular much harder at settler, gradually harder until deity, and as of now there are no free techs and ai free techs anymore in advciv-sas and is intended to stand so as of now at least anyways etc -->
 	<!-- advc.137: Originally in Civ4GameText_Help.xml. Changed only English and
 		 German. -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_HANDICAP_SETTLER_HELP</Tag>
-		<English>The easiest level. To help you against your AI opponents, your technologies are much cheaper than theirs, your expenses are greatly reduced and your citizens stay happy and healthy longer. You also receive some additional technologies at the start of the game. The AI players are easy to please (also among themselves), reluctant to start wars and receive production and city growth penalties. Few Barbarians and wild animals appear and the civilizations are guaranteed to win the first few encounters with them.</English>
-		<French>C'est le niveau de difficult&#233; le plus facile et le choix id&#233;al pour votre premi&#232;re partie ou pour essayer une nouvelle strat&#233;gie. Au niveau Chef tribal, les barbares et les animaux sauvages sont moins agressifs, vos citoyens restent heureux et en bonne sant&#233; plus longtemps et de nombreux bonus de production sont pr&#233;vus pour vous aider.</French>
-		<German>Die einfachste Schwierigkeitsstufe. Als Hilfestellung gegenüber der KI erhalten Sie Rabatte auf alle Technologien, zahlen stark reduzierte Ausgaben und Ihre Bürger bleiben länger zufrieden und gesund. Außerdem erhalten Sie zusätzliche Gratis-Technologien zu Beginn des Spiels. Die KI-Spieler sind kooperativ (auch untereinander), zögern lange, ehe sie einen Krieg beginnen, und erhalten Mali auf Produktion und Wachstum. Nur wenige Barbaren und wilde Tiere erscheinen und sind kaum eine Bedrohung für Ihre Krieger.</German>
-		<Italian>Il livello di difficolt&#224; pi&#249; semplice e il modo migliore per iniziare la tua prima partita oppure se desideri provare una nuova strategia. Giocando al livello Colono, i Barbari e gli animali selvaggi saranno meno aggressivi, i tuoi cittadini saranno pi&#249; felici, godranno di buona salute pi&#249; a lungo e potrai contare su molti bonus produttivi.</Italian>
-		<Spanish>El nivel de dificultad m&#225;s f&#225;cil y una manera excelente de empezar con vuestra primera partida o probar una estrategia nueva.  Como Colono, ver&#233;is que los b&#225;rbaros y animales salvajes son menos agresivos, que los ciudadanos est&#225;n m&#225;s felices y sanos y que habr&#225; muchas bonificaciones a la producci&#243;n para ayudaros.</Spanish>
+		<English>Significantly harder than base AdvCiv settings. This handicap setting still grants some advantages (such as in AI tech costs, build costs, unit costs, overall economy values, etc. ; while the player's costs remain the same at all handicap settings unlike in base AdvCiv, for convenience of math and such), but AI should be expected to be quite merciless otherwise. There are no free techs nor AI free techs anymore in AdvCiv-SAS as of now at least in any handicap setting. Some exceptions may be the starting point that is worst at lower handicap settings to best in highest handicap settings, for the player, to compensate the overall difficulty. See the .csv (locally or on github) that compares all handicap settings and is updated as of now for details.</English>
 	</TEXT>
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_HANDICAP_CHIEFTAIN_HELP</Tag>
-		<English>An easy level. The research, growth and production advantages you receive over the AI players are quite a bit lower than on Settler difficulty, but still sizable. As on Settler, the game tries to assign one of the best starting locations to you. The AI players are mostly cooperative, but not entirely unlikely to start wars and somewhat reluctant to trade technologies (to anyone). Barbarians appear already fairly frequently, but are still easily defeated.</English>
-		<French>C'est un niveau de difficult&#233; relativement facile et un bon choix pour essayer une nouvelle strat&#233;gie. Les barbares et les animaux sauvages sont plus agressifs et vous ne disposez d'aucun bonus.</French>
-		<German>Eine einfache Schwierigkeitsstufe. Die Vorteile, die Sie bei Forschung, Wachstum und Produktion gegenüber den KI-Spielern erhalten, sind deutlich geringer als auf "Siedler"-Schwierigkeit, aber immer noch beträchtlich. Die KI-Spieler sind i. W. umgänglich, halten sich aber beim Handel mit Technologien etwas zurück und Kriegserklärungen sind nicht ganz unwahrscheinlich. Barbaren treten bereits recht zahlreich auf, sind aber immer noch leicht zu besiegen.</German>
-		<Italian>Un livello di difficolt&#224; abbastanza basso, utile per provare una nuova strategia. I barbari e gli animali selvaggi sono pi&#249; forti e aggressivi, inoltre non otterrai molti bonus.</Italian>
-		<Spanish>Un nivel de dificultad relativamente bajo, bueno para probar nuevas estrategias.  Los b&#225;rbaros y animales salvajes son m&#225;s fuertes y agresivos y no se reciben tantas bonificaciones.</Spanish>
+		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. This handicap setting still grants some advantages but a bit less now, AI attitude should overall be the same or not too much harder otherwise.</English>
 	</TEXT>
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_HANDICAP_WARLORD_HELP</Tag>
-		<English>A bit easier than medium. As on Chieftain difficulty, various player advantages (research, growth, production) apply, but they're mostly just 10% discounts for you or 10% penalties for the AI players. Health and happiness already work the same way as on all the higher levels. The AI is only slightly more cooperative than on Noble difficulty. Unlike on the lower levels, tribal villages can't yield Settlers.</English>
-		<French>Les Seigneurs de guerre rencontreront davantage de difficult&#233;s. Vos adversaires sont plus coriaces et agressifs. Surveillez vos arri&#232;res !</French>
-		<German>Eine mittlere bis leichte Schwierigkeitsstufe. Wie auf "Häuptling" erhalten Sie zwar diverse Vorteile gegenüber den KI-Spielern (Forschung, Wachstum, Produktion), aber das sind in der Regel nur noch 10%-Rabatte für Sie oder 10%-Aufschläge für die KI. Zufriedenheit und Gesundheit werden schon genau so streng behandelt wie auf den höheren Schwierigkeitsstufen. Die KI ist etwas kooperativer als auf "Adliger". Anders als auf den niedrigeren Stufen können Stammesdörfer keine Siedler liefern.</German>
-		<Italian>I guerrieri hanno una vita un po' pi&#249; difficile: i tuoi avversari sono meno permissivi e pi&#249; aggressivi. Fai attenzione!</Italian>
-		<Spanish>Los Caudillos lo tienen un poco m&#225;s crudo.  Los oponentes son menos clementes y m&#225;s peligrosos. &#161;Mucho cuidado!</Spanish>
+		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. This handicap setting still grants some advantages but even less now. Warfare should start to feel even or if not should be close to it, vs barbarians but also other players.</English>
 	</TEXT>
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_HANDICAP_NOBLE_HELP</Tag>
-		<English>This level puts you and the AI players on equal footing. Caveat: Regardless of the difficulty setting, humans receive some special treatment by the AI players in diplomacy, and the AI players receive a few advantages to help them defend their cities, mainly a discount on unit upgrade costs. The higher difficulty levels do not make the AI any smarter.</English>
-		<French>Les R&#233;gents doivent faire face &#224; leurs nombreuses responsabilit&#233;s. Il s'agit donc d'un niveau de difficult&#233; tr&#232;s &#233;quilibr&#233; et id&#233;al comme point de d&#233;part pour les v&#233;t&#233;rans de Civilization.</French>
-		<German>Auf dieser Schwierigkeitsstufe spielen Sie und Ihre KI-Gegner weitgehend nach gleichen Regeln, allerdings mit einigen Ausnahmen, die auf allen Schwierigkeitsstufen gelten: So erfahren menschliche Spieler in Handel und Diplomatie in manchen Fällen eine Sonderbehandlung, und die KI-Spieler erhalten einige Vorteile (vor allem einen Rabatt bei der Modernisierung von Einheiten), die es ihnen erleichtern, ihre Städte zu verteidigen.</German>
-		<Italian>I Nobili devono saper bilanciare le loro grandi responsabilit&#224; e, per questo motivo, questo &#232; il livello pi&#249; equilibrato. I veterani di Civilization lo troveranno il livello ideale per iniziare.</Italian>
-		<Spanish>Los Nobles tienen que equilibrar sus diversas responsabilidades, as&#237; que &#233;ste es el nivel m&#225;s equilibrado.  Los veteranos del Civi comprobar&#225;n que este nivel es un punto estupendo por el que empezar. </Spanish>
+		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. This is mostly an even game setting with other players, even though barbarians are still getting stronger.</English>
 	</TEXT>
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_HANDICAP_PRINCE_HELP</Tag>
-		<English>This is the median difficulty level. The AI players receive subtle bonuses on research, growth and production, just 5% initially, and increasing by 1 percentage point every 100 turns, whereas your costs for technologies and expenses are 10% higher. Barbarians keep getting more numerous with every difficulty level, and, on Prince, your combat bonus against Barbarians is only 5%.</English>
-		<French>En tant que Prince, vous devrez prouver que vous avez du sang royal. Avec un handicap contre l'I.A., dont la production et la recherche sont bien plus rapides que les v&#244;tres. Il faudra tr&#232;s bien jouer pour remporter la victoire.</French>
-		<German>Diese Schwierigkeitsstufe liegt genau in der Mitte. Die KI-Spieler erhalten kleine Boni (5%) auf Forschung, Wachstum und Produktion, die sich mit jedem Zeitalter ein klein wenig erhöhen. Dagegen sind Ihre Technologiekosten und Ausgaben etwas erhöht, i. W. um 10%. Barbaren werden mit dieser (und jeder weiteren) Stufe noch zahlreicher, und Ihr Kampfbonus gegen Barbaren beträgt nur noch 5%.</German>
-		<Italian>Come Principe, dovrai saper dimostrare di essere di vera stirpe reale. Quest'ultima pu&#242; produrre e fare ricerche pi&#249; velocemente di te, pertanto dovrai giocare con maggior impegno per poter vincere.</Italian>
-		<Spanish>Como Pr&#237;ncipe, tendr&#233;is que demostrar que ten&#233;is sangre real de verdad.  La IA producir&#225; e investigar&#225; algo m&#225;s deprisa que vos, por lo que tendr&#233;is que jugar mucho mejor para lograr la victoria.</Spanish>
+		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. This handicap setting has significant penalties. Barbarians are also getting stronger. I would again recommend to see the .csv (locally or on github) that compares all handicap settings and is updated as of now for details.</English>
 	</TEXT>
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_HANDICAP_MONARCH_HELP</Tag>
-		<English>A challenging level. Some of the AI advantages are higher than on Prince (by another 5 percentage points) and increase every 50 turns. The AI players start the game with Archery, which makes early attacks against the AI much harder than on Prince. You should also expect the Barbarians to adopt Archery before long.</English>
-		<French>Pour les Monarques, les d&#233;fis qui se pr&#233;sentent sont d'une toute autre ampleur. L'entretien est plus cher, la recherche plus lente, votre peuple plus exigeant et vos adversaires I.A. tout simplement plus intelligents.</French>
-		<German>Eine anspruchsvolle Schwierigkeitsstufe. Die KI-Vorteile sind höher als auf "Prinz" (um weitere 5 Prozentpunkte) und steigen im Laufe der Zeitalter merklich. Die KI-Spieler beherrschen von Anfang an das Bogenschießen; dadurch ist es deutlich schwieriger als auf "Prinz", die KI im frühen Spiel anzugreifen. Sie müssen auch damit rechnen, dass die Barbaren sich das Bogenschießen recht bald aneignen.</German>
-		<Italian>Per i Monarchi, la sfida comincia a farsi impegnativa. Il costo di mantenimento &#232; superiore, la ricerca pi&#249; lenta, la gente pi&#249; difficile da accontentare e gli avversari computerizzati pi&#249; scaltri.</Italian>
-		<Spanish>Para los Monarcas, el reto empieza a ponerse serio en este nivel.  El mantenimiento es m&#225;s alto, la investigaci&#243;n, m&#225;s lenta, vuestro pueblo es m&#225;s dif&#237;cil de complacer y los oponentes que lleva el ordenador son m&#225;s astutos.</Spanish>
+		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. The penalties increase in this handicap setting. Economy and overall game plan needs to be really efficient and going forward on higher handicap settings to compensate AI advantages. Barbarians are also getting stronger.</English>
 	</TEXT>
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_HANDICAP_EMPEROR_HELP</Tag>
-		<English>A hard level, but beatable without resorting to any dirty tricks. Human production costs begin to increase on this level, making it difficult to match the AI militarily. The AI players start with Hunting and a free Scout and two Archers, so don't be surprised if you find few unexplored tribal villages.</English>
-		<French>Vous vous sentez l'&#226;me d'un empereur ? Si tel est le cas, vous devrez le prouver en terrassant des ennemis rapides et agressifs et en r&#233;gnant sur une population de plus en plus difficile &#224; motiver et &#224; satisfaire. C'est un vrai d&#233;fi pour les experts de Civilization.</French>
-		<German>Eine schwierige Stufe, aber auch ohne unfaire Mittel machbar. Ab dieser Stufe steigen für menschliche Spieler die Produktionskosten, deswegen kann es schwierig sein, militärisch mitzuhalten. Die KI-Spieler beginnen das Spiel mit je einem Kundschafter und zwei Bogenschützen; wundern Sie sich also nicht, wenn kaum Stammesdörfer für Sie übrigbleiben.</German>
-		<Italian>Sei pronto per diventare Imperatore? Se s&#236;, dovrai affrontare con coraggio gli avversari, rapidi e aggressivi, e allo stesso tempo cercare di soddisfare la tua popolazione, pi&#249; difficile da compiacere e motivare. Una vera sfida per gli esperti di Civilization.</Italian>
-		<Spanish>&#191;Est&#225;is listo para ser emperador?  De ser as&#237;, tendr&#233;is que demostrar vuestra val&#237;a derrotando a adversarios m&#225;s r&#225;pidos y agresivos a la vez que cuid&#225;is de una poblaci&#243;n m&#225;s dif&#237;cil de motivar y complacer. Esto es una prueba de verdad para los expertos en Civilization.</Spanish>
+		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. Efficiency and strategy may need to further be refined to be competitive at this handicap setting that has quite strong penalties. Barbarians are also getting stronger and may start to feel like being on a rampage if not at previous handicap settings, but this affects all players.</English>
 	</TEXT>
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_HANDICAP_IMMORTAL_HELP</Tag>
-		<English>Very hard. Apart from receiving high ongoing bonuses, the AI players start the game with a Worker, a Scout, two Archers and, in total, up to four technologies. The game starts on turn 10 in order to match this big head start.</English>
-		<French>Peu nombreux sont ceux qui peuvent revendiquer une place parmi les Immortels. C'est l&#224; un d&#233;fi que seuls les plus exp&#233;riment&#233;s sauront relever.</French>
-		<German>Sehr schwierig. Zusätzlich zu hohen andauernden Boni erhalten die KI-Spieler zu Spielbeginn einen Bautrupp, einen Kundschafter, zwei Bogenschützen und - insgesamt - bis zu vier Technologien.</German>
-		<Italian>Solo in pochi possono appartenere alla schiera degli Immortali. Una prova molto impegnativa, anche per i pi&#249; esperti.</Italian>
-		<Spanish>Solo unos cuantos pueden contarse entre las filas de los inmortales.  Esto resulta una prueba demoledora para todos, excepto para los m&#225;s experimentados.</Spanish>
+		<English>Should be significantly harder than base AdvCiv settings and gradually harder than previous one, but hopefully less of a grind. Penalties are consistently and gradually as well higher than in previous handicap settings, and same for barbarians settings, even though these affect all players as well. No drastic changes otherwise. Note: unlike in base AdvCiv, INCREASE_START_TURN is disabled, as there are no free techs nor ai free techs, so this means all players start at turn 1 at this handicap setting if i am not mistaken.</English>
 	</TEXT>
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_HANDICAP_DEITY_HELP</Tag>
-		<English>Extremely hard. The human penalties (30%) and progressive AI bonuses make it so that the AI players get e.g. units at half the human cost toward the end of the game. With the AdvCiv mod, hopefully Immortal is hard enough for nearly everyone. Note, however, that AdvCiv removes the second free Settler that the Deity AI players receive in the original game.</English>
-		<French>L'ultime &#233;preuve, r&#233;serv&#233;e aux meilleurs joueurs. Serez-vous &#224; la hauteur ?</French>
-		<German>Extrem schwierig. Die Mali für menschliche Spieler (30%) und die fortschreitenden Boni der KI führen dazu, dass die KI-Spieler gegen Ende des Spiels z.B. nur noch halb so viel Produktion für eine Einheit aufwenden müssen wie die Menschen. Mit der AdvCiv-Mod sollte "Unsterblicher" für fast jeden schwierig genug sein. Allerdings ist, im Gegensatz zum Originalspiel, kein zweiter Siedler mehr unter den Starteinheiten der KI.</German>
-		<Italian>La prova definitiva per i migliori giocatori di Civilization. Ce la farai?</Italian>
-		<Spanish>La prueba definitiva, solo para los mejores jugadores del Civi. &#191;Podr&#225; superarla alguien?</Spanish>
+		<English>Should be significantly harder than base AdvCiv settings and gradually harder than previous one, but hopefully less of a grind. Should be very challenging still but gradually so ideally. If this is still too easy, i may add another or 2 other handicap settings gradually harder than this one based on player feedback even though this is not guaranteed and i don't know entirely how but may be worthwile for deity players wanting a higher challenge. Note: unlike in base AdvCiv, INCREASE_START_TURN is disabled similarly so all players start at turn 1 at this handicap setting if i am not mistaken as well.</English>
 	</TEXT>
+
+
+
 	<!-- From Civ4GameText_Misc1.xml (because Marathon speed was added by
 		 patch 1.52). advc.252: Multipliers adjusted. -->
 	<TEXT> <!-- redefine -->

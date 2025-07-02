@@ -826,9 +826,10 @@
 	<!-- Used instead of the value above when the Raging Barbarians option
 		 is enabled. Recommended: Somewhat higher, say 7 points, than
 		 BARB_PEAK_PERCENT so that the early game doesn't become too tense. -->
+	<!-- custom: if i understand this correct based on code comment just above anyways etc, this should be a bit above but not too much than BARB_PEAK_PERCENT, was 63 -->
 	<Define>
         <DefineName>BARB_RAGE_PEAK_PERCENT</DefineName>
-        <iDefineIntVal>63</iDefineIntVal>
+        <iDefineIntVal>12</iDefineIntVal>
     </Define>
 
 	<!-- [advc.300]
@@ -905,9 +906,10 @@
 		 The BtS routine for protecting noncombatants isn't affected by
 		 this. Set to 0 or less for BtS behavior: combat units never
 		 evacuate. -->
+	<!-- custom: try to make them evacuate slightly sooner if i understood this correctly, but not too much sooner i mean, as there is a good chance attacker would lose out too much, or/and be dissuaded to attack due to high losses even if city is capturable, so do not evacuate cities that have a chance to survive high enough, but do not stay and die needlessly when the outcome is quite clear so AI has a comeback chance later maybe anyways etc, so reduce it a bit to evacuate sooner but not too much to not over evacuate i mean anyways etc, maybe also rather from a realism standpoint they may fight and die rather than evacuate but i find this idea stupid, better flee than die is more startegic in this case at least anyways etc, so reduce it a bit but not too much more as originally planned anyways in this case etc, was 150 -->
     <Define>
         <DefineName>AI_EVACUATION_THRESH</DefineName>
-        <iDefineIntVal>150</iDefineIntVal>
+        <iDefineIntVal>138</iDefineIntVal>
     </Define>
 
 	<!-- [advc.136b]
@@ -969,9 +971,10 @@
 		 If set to 0 or less, the turn number is only determined by the
 		 start era (0 in Ancient era) as in BtS.
 		 Recommended: 1 -->
+	<!-- custom: no freebies for the human player, hard is hard, if too hard adjust handicap settings directly rather, either by palying at lower difficulty or reducing the handicap settings if deity or immortal or such are really too hard and out of reach, i would want game to be balanced and reliable at all difficulties, plus we don't have free techs anymore in advciv-sas, so maybe these restrictions apply less now and are less relevant, in all cases i'd want reliable settings so disable this anyways etc, was 1 -->
 	<Define>
 		<DefineName>INCREASE_START_TURN</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 
 	<!-- [advc.250b] These two parameters only apply if SPaH is enabled,
@@ -1042,9 +1045,10 @@
 		 0 or less means that MADE_DEMAND_RECENT remains unchanged (but won't
 		 fully restore the BtS behavior).
 		 Recommended: 8 (for an expected 80 turns of rejection) -->
+	<!-- custom: this is interesting, but it would make sense for AI to be more bitter of haing being declared war on despite the tribute being paid to the human player, increase this more anyways etc ; but if they are just weaker it is just their fault maybe and they can blame only themselves as sad and unfair it is for being treated as such, so maybe do not increase it too much as it may be a bit unrealistic to best preserve the AI's interests anyways etc, was 8 -->
 	<Define>
 		<DefineName>WAR_DESPITE_TRIBUTE_MEMORY</DefineName>
-		<iDefineIntVal>8</iDefineIntVal>
+		<iDefineIntVal>10</iDefineIntVal>
 	</Define>
 
 	<!-- [advc.023] The per-turn probability of decrementing the occupation
@@ -1075,17 +1079,19 @@
 	<!-- [advc.025] Culture that spreads from a capitulated vassal to its
 		 master is multiplied by this percentage. 100 for BtS behavior
 		 (normal spread); recommended: 50. -->
+	<!-- custom: gain less culture from capitulation, after all it's more like the loser civ is assimilated than merging (even though some exchange may happen, mostly they'd have to give up their cultural habits in favor of the empire/winner's one if i am not mistaken too to be part of their empire anyways etc), plus it would be too easy of a way to gain culture through military/conquest if i am not mistaken too anyways etc, but no need to make it too drastic either as some culture is most likely transfered as well if i am not mistaken anyways etc, was 50 -->
 	<Define>
 		<DefineName>CAPITULATED_TO_MASTER_CULTURE_PERCENT</DefineName>
-		<iDefineIntVal>50</iDefineIntVal>
+		<iDefineIntVal>40</iDefineIntVal>
 	</Define>
 
 	<!-- [advc.026] When the AI offers a trade to a human player, it's willing
 		 to offer AI_OFFER_EXTRA_GOLD_PERCENT% more gold (lump sum or per turn)
 		 than it normally would. 0 for BtS behavior; recommended: 25. -->
+	<!-- custom: no need to give too much to the human player if it doesn't agree to its terms, but give some leeway too in case there is a good deal for the AI especially longterm effects and such but anyways etc, was 25 -->
 	<Define>
 		<DefineName>AI_OFFER_EXTRA_GOLD_PERCENT</DefineName>
-		<iDefineIntVal>25</iDefineIntVal>
+		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
 
 	<!-- advc.ctr: To receive a city through trade, a civ needs to have at
@@ -1199,7 +1205,7 @@
 		 tech costs are taken times 100% - 23% = 77%. This multiplier gets
 		 further adjusted to the tech era and map size. Use 0 for BtS
 		 behavior (tech costs unaffected by the "No Tech Trading" option). -->
-	<!-- custom: try a slightly slower game pace at no tech trading, may make sense / fit well or not too bad hopefully or not or yes or etc anyways etc with the other tech changes in tech tree, tech costs, research percents in handicap etc, or is as i want it too or and or and etc, but anyways etc anyways etc anyways etc... -->
+	<!-- custom: try a slightly slower game pace at no tech trading, may make sense / fit well or not too bad hopefully or not or yes or etc anyways etc with the other tech changes in tech tree, tech costs, research percents in handicap etc, or is as i want it too or and or and etc, but anyways etc anyways etc anyways etc..., was -23 -->
 	<Define>
 		<DefineName>TECH_COST_NOTRADE_MODIFIER</DefineName>
 		<iDefineIntVal>-20</iDefineIntVal>
@@ -1276,9 +1282,10 @@
 		 Recommended: 0, at least in games with more than 10 civs. War trades
 		 are offered only for a couple of turns most of the time, so an alert
 		 about the trade becoming available should be sufficient. -->
+	<!-- custom: this info is interesting to know i think, enable it, anyways etc, was 0 -->
 	<Define>
 		<DefineName>ALERT_ON_NO_LONGER_WAR_TRADE</DefineName>
-		<iDefineIntVal>0</iDefineIntVal>
+		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 
 	<!-- advc.120f: When a spy switches the civics or religion of a target civ,
@@ -1303,9 +1310,10 @@
 		 percentage points. Recommended: -10 to penalize researching the same
 		 tech; use 0 for BtS behavior.
 		 Related: TECH_COST_EXTRA_TEAM_MEMBER_MODIFIER (50) -->
+	<!-- custom: no reason to penalize research if they research the same tech, in fact it could probably and most liekly be reduced due to synergies and cooperation in this case anyways etc, but to simplify it, use/restore the 0 value in Bts behavior if not mistaken from reading base advciv code comment i am still thankful that was there and informative though but anyways etc, was -10 -->
 	<Define>
 		<DefineName>RESEARCH_MODIFIER_EXTRA_TEAM_MEMBER</DefineName>
-		<iDefineIntVal>-10</iDefineIntVal>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 
 	<!-- advc.082: If set to 1, hover text when about to attack says to
@@ -1413,9 +1421,10 @@
 		 advc.tsl: Also affects the True Starts game option.
 		 Recommended: 20, meaning that e.g. Rome is 1.2 times as likely
 		 to be chosen than Mali and America is 1.4 times as likely as Mali. -->
+	<!-- custom: this is something i especially wanted to disable but didn't know or find or search how, i would want each civ to have an equal chance not each leader, so for example france or rome would be as likely as kingdom of benin or any one leader civ i mean as well anyways etc, this avoids playing against always and always the same leaders and never others barely or almost, at least hopefully more balanced as such now anyways etc, was 20 -->
 	<Define>
 		<DefineName>PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT</DefineName>
-		<iDefineIntVal>20</iDefineIntVal>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 
 	<!-- advc.045: A value of 1 means that 3D models of all buildings in
@@ -1453,16 +1462,18 @@
 		 Set to 0 to disable the "sanitization" of starting sites,
 		 i.e. changes to bonus resources and other characteristics of tiles
 		 surrounding the starting sites. Recommended: 1 -->
+	<!-- custom: i would prefer the map to be as it is and balance the game otherwise if too hard rather than clean up or clean up too hard the map, even though i don't play with this option as well is how i want to do in advciv-sas hopefully fine or interesting or relevant as such with the other sanitize or related changes in other global defines or such settings in advciv-sas if i am not mistaken too anyways etcbut anyways etc, was 1 -->
 	<Define>
 		<DefineName>TRUE_STARTS_SANITIZE</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- Same as above, but applies to scenarios instead of map scripts.
 		 Note that the True Starts option doesn't apply at all to
 		 scenarios with pre-placed cities. -->
+	<!-- custom: same too anyways etc hehe but or not but or yes but but anyways etc anyways etc anyways etc, was 1 -->
 	<Define>
 		<DefineName>TRUE_STARTS_SANITIZE_SCENARIOS</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 
 	<!-- advc.010: Probability of capturing a unit that has a Capture Unit Class
@@ -1479,9 +1490,10 @@
 	<!-- Replaces the base chance above on the turn that war has been declared
 		 on a captured unit's owner. Use 100 for BtS behavior. Recommended: 0,
 		 to discourage surprise attacks against workers. -->
+	<!-- custom: do not discourage attack, suprise attack and profit are important components of war, would help make the AI but also the human player rewarded for more efficient and opportunistic strategies, maybe more realistic this way too for better or worse but no reason to explicitly prevent it, this is a fine and realistic mechanic i would say part of the natural way a war happens, do not discourage it, at least in advciv-sas anyways etc, was 0 -->
 	<Define>
 		<DefineName>DOW_UNIT_CAPTURE_CHANCE</DefineName>
-		<iDefineIntVal>0</iDefineIntVal>
+		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 
 	<!-- advc.048c: Set to 1 (recommended) to include the attacker's combat odds

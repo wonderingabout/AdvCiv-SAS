@@ -32,73 +32,78 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
     #           
     # then resume/start in this case or resume but in all cases anyways etc anyways etc anyways etc at these below anyways etc anyways etc anyways etc...: -->
 
+    print("\n\n[DEBUG] For iLeader=%d (leader type %s), leader head info debugged as such:" % (iLeader, get_leader_type_from_leader_index(iLeader, gc)))
+
+    # <!-- custom: more computationally efficient to store closest pointer since we have many/multiple calls to make anyways etc if i am not mistaken as chatgpt had done before and i was too dumb or rather maybe uninformed to understand/know, anyways etc, even if difference is minimal or not, and even if we don't use this except when debugging, no reason to not implement it as well. I (had) wanted for method call for clarity, but if this is more efficient better do it as so then maybe anyways etc if i am not mistaken anyways etc. -->
+    info = gc.getLeaderHeadInfo(iLeader)
+
     # <!-- custom: try to follow XML order as much as possible and to be sure we have all fields too anyways etc -->
     print("\n\n==== FIRST XML FIELDS PART 1 (from XML order) ====")
-    print("iWonderConstructRand: %d" % gc.getLeaderHeadInfo(iLeader).getWonderConstructRand())
-    print("iBaseAttitude: %d" % gc.getLeaderHeadInfo(iLeader).getBaseAttitude())
-    print("iBasePeaceWeight: %d" % gc.getLeaderHeadInfo(iLeader).getBasePeaceWeight())
-    print("iPeaceWeightRand: %d" % gc.getLeaderHeadInfo(iLeader).getPeaceWeightRand())
-    print("iWarmongerRespect: %d" % gc.getLeaderHeadInfo(iLeader).getWarmongerRespect())
-    print("iEspionageWeight: %d" % gc.getLeaderHeadInfo(iLeader).getEspionageWeight())
-    print("iRefuseToTalkWarThreshold: %d" % gc.getLeaderHeadInfo(iLeader).getRefuseToTalkWarThreshold())
-    print("iNoTechTradeThreshold: %d" % gc.getLeaderHeadInfo(iLeader).getNoTechTradeThreshold())
-    print("iTechTradeKnownPercent: %d" % gc.getLeaderHeadInfo(iLeader).getTechTradeKnownPercent())
-    print("iMaxGoldTradePercent: %d" % gc.getLeaderHeadInfo(iLeader).getMaxGoldTradePercent())
-    print("iMaxGoldPerTurnTradePercent: %d" % gc.getLeaderHeadInfo(iLeader).getMaxGoldPerTurnTradePercent())
+    print("iWonderConstructRand: %d" % info.getWonderConstructRand())
+    print("iBaseAttitude: %d" % info.getBaseAttitude())
+    print("iBasePeaceWeight: %d" % info.getBasePeaceWeight())
+    print("iPeaceWeightRand: %d" % info.getPeaceWeightRand())
+    print("iWarmongerRespect: %d" % info.getWarmongerRespect())
+    print("iEspionageWeight: %d" % info.getEspionageWeight())
+    print("iRefuseToTalkWarThreshold: %d" % info.getRefuseToTalkWarThreshold())
+    print("iNoTechTradeThreshold: %d" % info.getNoTechTradeThreshold())
+    print("iTechTradeKnownPercent: %d" % info.getTechTradeKnownPercent())
+    print("iMaxGoldTradePercent: %d" % info.getMaxGoldTradePercent())
+    print("iMaxGoldPerTurnTradePercent: %d" % info.getMaxGoldPerTurnTradePercent())
 
     # <!-- custom: also add BBAI Victory weights now that we have exposed them / expose them to python as well, see todo docs for details and todo add .cpp code comment fielname anways etc-->
     print("\n\n==== BBAI VICTORY WEIGHTS ====")
-    print("Culture Victory Weight: %d" % gc.getLeaderHeadInfo(iLeader).getCultureVictoryWeight())
-    print("Space Victory Weight: %d" % gc.getLeaderHeadInfo(iLeader).getSpaceVictoryWeight())
-    print("Conquest Victory Weight: %d" % gc.getLeaderHeadInfo(iLeader).getConquestVictoryWeight())
-    print("Domination Victory Weight: %d" % gc.getLeaderHeadInfo(iLeader).getDominationVictoryWeight())
-    print("Diplomacy Victory Weight: %d" % gc.getLeaderHeadInfo(iLeader).getDiplomacyVictoryWeight())
+    print("Culture Victory Weight: %d" % info.getCultureVictoryWeight())
+    print("Space Victory Weight: %d" % info.getSpaceVictoryWeight())
+    print("Conquest Victory Weight: %d" % info.getConquestVictoryWeight())
+    print("Domination Victory Weight: %d" % info.getDominationVictoryWeight())
+    print("Diplomacy Victory Weight: %d" % info.getDiplomacyVictoryWeight())
 
     # <!-- custom: then war fields continue anyways etc as per XML order anyways etc -->
     print("\n\n==== WAR XML FIELDS (from XML order) ====")
-    print("iMaxWarRand: %d" % gc.getLeaderHeadInfo(iLeader).getMaxWarRand())
-    print("iMaxWarNearbyPowerRatio: %d" % gc.getLeaderHeadInfo(iLeader).getMaxWarNearbyPowerRatio())
-    print("iMaxWarDistantPowerRatio: %d" % gc.getLeaderHeadInfo(iLeader).getMaxWarDistantPowerRatio())
-    print("iMaxWarMinAdjacentLandPercent: %d" % gc.getLeaderHeadInfo(iLeader).getMaxWarMinAdjacentLandPercent())
-    print("iLimitedWarRand: %d" % gc.getLeaderHeadInfo(iLeader).getLimitedWarRand())
-    print("iLimitedWarPowerRatio: %d" % gc.getLeaderHeadInfo(iLeader).getLimitedWarPowerRatio())
-    print("iDogpileWarRand: %d" % gc.getLeaderHeadInfo(iLeader).getDogpileWarRand())
-    print("iMakePeaceRand: %d" % gc.getLeaderHeadInfo(iLeader).getMakePeaceRand())
-    print("iDeclareWarTradeRand: %d" % gc.getLeaderHeadInfo(iLeader).getDeclareWarTradeRand())
-    print("iDemandRebukedSneakProb: %d" % gc.getLeaderHeadInfo(iLeader).getDemandRebukedSneakProb())
-    print("iDemandRebukedWarProb: %d" % gc.getLeaderHeadInfo(iLeader).getDemandRebukedWarProb())
-    print("iRazeCityProb: %d" % gc.getLeaderHeadInfo(iLeader).getRazeCityProb())
-    print("iBuildUnitProb: %d" % gc.getLeaderHeadInfo(iLeader).getBuildUnitProb())
+    print("iMaxWarRand: %d" % info.getMaxWarRand())
+    print("iMaxWarNearbyPowerRatio: %d" % info.getMaxWarNearbyPowerRatio())
+    print("iMaxWarDistantPowerRatio: %d" % info.getMaxWarDistantPowerRatio())
+    print("iMaxWarMinAdjacentLandPercent: %d" % info.getMaxWarMinAdjacentLandPercent())
+    print("iLimitedWarRand: %d" % info.getLimitedWarRand())
+    print("iLimitedWarPowerRatio: %d" % info.getLimitedWarPowerRatio())
+    print("iDogpileWarRand: %d" % info.getDogpileWarRand())
+    print("iMakePeaceRand: %d" % info.getMakePeaceRand())
+    print("iDeclareWarTradeRand: %d" % info.getDeclareWarTradeRand())
+    print("iDemandRebukedSneakProb: %d" % info.getDemandRebukedSneakProb())
+    print("iDemandRebukedWarProb: %d" % info.getDemandRebukedWarProb())
+    print("iRazeCityProb: %d" % info.getRazeCityProb())
+    print("iBuildUnitProb: %d" % info.getBuildUnitProb())
 
     print("\n\n==== ATTITUDE MODIFIER FIELDS (from XML order) ====")
-    print("iBaseAttackOddsChange: %d" % gc.getLeaderHeadInfo(iLeader).getBaseAttackOddsChange())
-    print("iAttackOddsChangeRand: %d" % gc.getLeaderHeadInfo(iLeader).getAttackOddsChangeRand())
-    print("iWorseRankDifferenceAttitudeChange: %d" % gc.getLeaderHeadInfo(iLeader).getWorseRankDifferenceAttitudeChange())
-    print("iBetterRankDifferenceAttitudeChange: %d" % gc.getLeaderHeadInfo(iLeader).getBetterRankDifferenceAttitudeChange())
-    print("iCloseBordersAttitudeChange: %d" % gc.getLeaderHeadInfo(iLeader).getCloseBordersAttitudeChange())
-    print("iLostWarAttitudeChange: %d" % gc.getLeaderHeadInfo(iLeader).getLostWarAttitudeChange())
-    print("iAtWarAttitudeDivisor: %d" % gc.getLeaderHeadInfo(iLeader).getAtWarAttitudeDivisor())
-    print("iAtWarAttitudeChangeLimit: %d" % gc.getLeaderHeadInfo(iLeader).getAtWarAttitudeChangeLimit())
-    print("iAtPeaceAttitudeDivisor: %d" % gc.getLeaderHeadInfo(iLeader).getAtPeaceAttitudeDivisor())
-    print("iAtPeaceAttitudeChangeLimit: %d" % gc.getLeaderHeadInfo(iLeader).getAtPeaceAttitudeChangeLimit())
-    print("iSameReligionAttitudeChange: %d" % gc.getLeaderHeadInfo(iLeader).getSameReligionAttitudeChange())
-    print("iSameReligionAttitudeDivisor: %d" % gc.getLeaderHeadInfo(iLeader).getSameReligionAttitudeDivisor())
-    print("iSameReligionAttitudeChangeLimit: %d" % gc.getLeaderHeadInfo(iLeader).getSameReligionAttitudeChangeLimit())
-    print("iDifferentReligionAttitudeChange: %d" % gc.getLeaderHeadInfo(iLeader).getDifferentReligionAttitudeChange())
-    print("iDifferentReligionAttitudeDivisor: %d" % gc.getLeaderHeadInfo(iLeader).getDifferentReligionAttitudeDivisor())
-    print("iDifferentReligionAttitudeChangeLimit: %d" % gc.getLeaderHeadInfo(iLeader).getDifferentReligionAttitudeChangeLimit())
-    print("iBonusTradeAttitudeDivisor: %d" % gc.getLeaderHeadInfo(iLeader).getBonusTradeAttitudeDivisor())
-    print("iBonusTradeAttitudeChangeLimit: %d" % gc.getLeaderHeadInfo(iLeader).getBonusTradeAttitudeChangeLimit())
-    print("iOpenBordersAttitudeDivisor: %d" % gc.getLeaderHeadInfo(iLeader).getOpenBordersAttitudeDivisor())
-    print("iOpenBordersAttitudeChangeLimit: %d" % gc.getLeaderHeadInfo(iLeader).getOpenBordersAttitudeChangeLimit())
-    print("iDefensivePactAttitudeDivisor: %d" % gc.getLeaderHeadInfo(iLeader).getDefensivePactAttitudeDivisor())
-    print("iDefensivePactAttitudeChangeLimit: %d" % gc.getLeaderHeadInfo(iLeader).getDefensivePactAttitudeChangeLimit())
-    print("iShareWarAttitudeChange: %d" % gc.getLeaderHeadInfo(iLeader).getShareWarAttitudeChange())
-    print("iShareWarAttitudeDivisor: %d" % gc.getLeaderHeadInfo(iLeader).getShareWarAttitudeDivisor())
-    print("iShareWarAttitudeChangeLimit: %d" % gc.getLeaderHeadInfo(iLeader).getShareWarAttitudeChangeLimit())
-    print("iFavoriteCivicAttitudeChange: %d" % gc.getLeaderHeadInfo(iLeader).getFavoriteCivicAttitudeChange())
-    print("iFavoriteCivicAttitudeDivisor: %d" % gc.getLeaderHeadInfo(iLeader).getFavoriteCivicAttitudeDivisor())
-    print("iFavoriteCivicAttitudeChangeLimit: %d" % gc.getLeaderHeadInfo(iLeader).getFavoriteCivicAttitudeChangeLimit())
+    print("iBaseAttackOddsChange: %d" % info.getBaseAttackOddsChange())
+    print("iAttackOddsChangeRand: %d" % info.getAttackOddsChangeRand())
+    print("iWorseRankDifferenceAttitudeChange: %d" % info.getWorseRankDifferenceAttitudeChange())
+    print("iBetterRankDifferenceAttitudeChange: %d" % info.getBetterRankDifferenceAttitudeChange())
+    print("iCloseBordersAttitudeChange: %d" % info.getCloseBordersAttitudeChange())
+    print("iLostWarAttitudeChange: %d" % info.getLostWarAttitudeChange())
+    print("iAtWarAttitudeDivisor: %d" % info.getAtWarAttitudeDivisor())
+    print("iAtWarAttitudeChangeLimit: %d" % info.getAtWarAttitudeChangeLimit())
+    print("iAtPeaceAttitudeDivisor: %d" % info.getAtPeaceAttitudeDivisor())
+    print("iAtPeaceAttitudeChangeLimit: %d" % info.getAtPeaceAttitudeChangeLimit())
+    print("iSameReligionAttitudeChange: %d" % info.getSameReligionAttitudeChange())
+    print("iSameReligionAttitudeDivisor: %d" % info.getSameReligionAttitudeDivisor())
+    print("iSameReligionAttitudeChangeLimit: %d" % info.getSameReligionAttitudeChangeLimit())
+    print("iDifferentReligionAttitudeChange: %d" % info.getDifferentReligionAttitudeChange())
+    print("iDifferentReligionAttitudeDivisor: %d" % info.getDifferentReligionAttitudeDivisor())
+    print("iDifferentReligionAttitudeChangeLimit: %d" % info.getDifferentReligionAttitudeChangeLimit())
+    print("iBonusTradeAttitudeDivisor: %d" % info.getBonusTradeAttitudeDivisor())
+    print("iBonusTradeAttitudeChangeLimit: %d" % info.getBonusTradeAttitudeChangeLimit())
+    print("iOpenBordersAttitudeDivisor: %d" % info.getOpenBordersAttitudeDivisor())
+    print("iOpenBordersAttitudeChangeLimit: %d" % info.getOpenBordersAttitudeChangeLimit())
+    print("iDefensivePactAttitudeDivisor: %d" % info.getDefensivePactAttitudeDivisor())
+    print("iDefensivePactAttitudeChangeLimit: %d" % info.getDefensivePactAttitudeChangeLimit())
+    print("iShareWarAttitudeChange: %d" % info.getShareWarAttitudeChange())
+    print("iShareWarAttitudeDivisor: %d" % info.getShareWarAttitudeDivisor())
+    print("iShareWarAttitudeChangeLimit: %d" % info.getShareWarAttitudeChangeLimit())
+    print("iFavoriteCivicAttitudeChange: %d" % info.getFavoriteCivicAttitudeChange())
+    print("iFavoriteCivicAttitudeDivisor: %d" % info.getFavoriteCivicAttitudeDivisor())
+    print("iFavoriteCivicAttitudeChangeLimit: %d" % info.getFavoriteCivicAttitudeChangeLimit())
 
     # <!-- custom: there are "AttitudeThreshold" and "RefuseAttitudeThreshold", handle the most common case, they seem to all be about refusing something or not being able to do it if threshold is not met if i am not mistaken, handle them as such, anyways etc -->
     print("\n\n==== ATTITUDE THRESHOLDS ====")
@@ -137,15 +142,15 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
         5: "ALWAYS??" # <!-- custom: comment-out to reproduce the error anyways etc, added this value also as this seems like a purposeful valid DLL behaviour if i may say anyways etc, see above for explanation or/and of my understanding of it hopefully helpful or ont or yes or etc or and other or and not anyways etc-->
     }
 
-    for attr in dir(gc.getLeaderHeadInfo(iLeader)):
+    for attr in dir(info):
         if attr.startswith("get") and attr.endswith("AttitudeThreshold"):
-            value = getattr(gc.getLeaderHeadInfo(iLeader), attr)()
+            value = getattr(info, attr)()
             attitude_to_str = DLL_ATTITUDE_MAP[value]
             print("%s: %d (%s)" % (attr, value, attitude_to_str))
 
     print("\n\n==== VASSAL AND FREEDOM FIELDS (from XML order) ====")
-    print("iVassalPowerModifier: %d" % gc.getLeaderHeadInfo(iLeader).getVassalPowerModifier())
-    print("iFreedomAppreciation: %d" % gc.getLeaderHeadInfo(iLeader).getFreedomAppreciation())
+    print("iVassalPowerModifier: %d" % info.getVassalPowerModifier())
+    print("iFreedomAppreciation: %d" % info.getFreedomAppreciation())
 
     # <!-- custom: then we skip these (for example in/from LEADER_DEFAULTS anyways etc):
     #
@@ -159,7 +164,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
     # <!-- custom: for flavor fields, unlike nowar (ctrl+f "attitude"), contact (ctrl+f "contact"), and memory (ctrl+f "memory") fields, it seems there are 2 occurences of methods that have "flavor" in their name if i am not mistaken (see (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\__SevoPediaBuilding-gc-debug-content.txt anyways etc for details), so no need to specify a number of values to loop over as in below code if i am not mistaken, anyways etc -->
     for i in range(gc.getNumFlavorTypes()):
         name = gc.getFlavorTypes(i)
-        value = gc.getLeaderHeadInfo(iLeader).getFlavorValue(i)
+        value = info.getFlavorValue(i)
         print("Flavor %d (%s): %d" % (i, name, value))
 
     print("\n\n==== CONTACTS ====")
@@ -167,8 +172,8 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
     NUM_CONTACT_TYPES_ASSESSED = 14
     for i in range(NUM_CONTACT_TYPES_ASSESSED):
         name = gc.getContactTypes(i)
-        value_rand = gc.getLeaderHeadInfo(iLeader).getContactRand(i)
-        value_delay = gc.getLeaderHeadInfo(iLeader).getContactDelay(i)
+        value_rand = info.getContactRand(i)
+        value_delay = info.getContactDelay(i)
         print("Contact %d (%s): Rand %d, Delay %d" % (i, name, value_rand, value_delay))
 
     print("\n\n==== MEMORY ====")
@@ -180,8 +185,8 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
     NUM_MEMORY_TYPES_ASSESSED = 37
     for i in range(NUM_MEMORY_TYPES_ASSESSED):
         name = gc.getMemoryInfo(i).getType()
-        value_attitude_percent = gc.getLeaderHeadInfo(iLeader).getMemoryAttitudePercent(i)
-        value_decay = gc.getLeaderHeadInfo(iLeader).getMemoryDecayRand(i)
+        value_attitude_percent = info.getMemoryAttitudePercent(i)
+        value_decay = info.getMemoryDecayRand(i)
         print("Memory %d (%s): AttitudePercent %d, Decay %d" % (i, name, value_attitude_percent, value_decay))
 
     print("\n\n==== NOWARATTITUDEPROBS ====")
@@ -192,7 +197,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
     NUM_ATTITUDE_TYPES_ASSESSED = 5
     for i in range(NUM_ATTITUDE_TYPES_ASSESSED):
         name = gc.getAttitudeInfo(i).getDescription()
-        value = gc.getLeaderHeadInfo(iLeader).getNoWarAttitudeProb(i)
+        value = info.getNoWarAttitudeProb(i)
         print("NoWarAttitudeProb %d (%s): %d" % (i, name, value))
 
     # <!-- custom: then skip all remaining fields, for example in LEADER_DEFAULTS 's XML, anyways etc:
@@ -327,6 +332,10 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
     # and we have reached end of a leader info's xml if i am not mistaken, hopefully we parsed all we needed or maybe not hopefully or yes hopefully or not or yes or etc but anyways etc... hopefully we have all (we need) or not or yes or etc or and other or and not or yes or etc anyways etc -->
 
     # <!-- custom: example of output with lineskip/extra newlines removed anyways etc for concision anyways etc, for example for Gandhi anyways etc -->
+
+
+
+    # [DEBUG] For iLeader=15 (leader type LEADER_GANDHI), leader head info debugged as such:
 
 
 

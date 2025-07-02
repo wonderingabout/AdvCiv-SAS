@@ -22,7 +22,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 			<BonusClassType>BONUSCLASS_MODERN</BonusClassType>
 			<ArtDefineTag>ART_DEF_BONUS_ALUMINUM</ArtDefineTag>
 			<!-- custom: was TECH_INDUSTRIALISM -->
-			<TechReveal>TECH_CORPORATION</TechReveal>
+			<TechReveal>TECH_ASSEMBLY_LINE</TechReveal>
 			<TechCityTrade>TECH_MINING</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
 			<YieldChanges>

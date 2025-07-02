@@ -27,7 +27,7 @@
 #
 # 1) Precompute (once at module load before any leader is selected at all)
 #	 - Exclude leaders (typically barbarian, as for defaults DLL has excluded it entirely from idnexes it seems in abse advciv and since we use similar if not identical code since we didn't modify  this part thanks for making it anyways etc, no need to handle leader_defaults it seems anyways etc)
-#	 - Compute raw aggregated fields (contact probs, and positive and negative memory affections and resentments): they ar enow flat fields like any other field, ready to be processed then stored anyways etc.
+#	 - Compute raw aggregated fields (contact probs, and positive and negative memory affections and resentments): they are now flat fields like any other field, ready to be processed then stored anyways etc.
 # 	 - Store minmax of all fields we want to parse, like Base peace weight, max war rand, sometimes flattening fields liek flavors that are initially nested in XML, now stored for exmapel as iFlavorMilitary or iFlavorReligion if i am not mistaken too for example anyways etc flat fields anyways etc, also including raw aggregated fields like iAggregatedContactProbReligionPressure for example, and similarly for raw aggregated positive and negative memory affections and resentments anyways etc
 #	 - Cache in LEADERS_INFO_CACHED tuples of as of now at least if not always or not but anyways etc (label (with raw value display in the label too so no need to fetch it later again at UI just to display it in label, faster performance this way if i am not mistaken too, also from using tuples or and such rather than dicts but anyways etc), normalized value for display, and scale precomputed to enhance performance as well as advised by chatgpt/becomignthorugh or maybe it was me or both but i think it was it but anyways etc in all cases thanks to it and me too or and other or and not anwyays etc....)
 #	 - Categories precomputing as well as tuples as well anyways etc: the ai_category_header that handles also emoji buttons in header label too anyways etc (which is anyways etc) optionally displayed based on/if config flag is set to True, including also in the ai_category tuple the x_offset for each category (a bit redundant but so we don't need to check it again, could optimize it further but also allows for more cusotmization later if needed maybe evne though is a qutie weak argument if i may say but anyways etc, still fine as is maybe anyways etc, the main point is this x_offset is toif needed to accomodate these emoji buttons as text anyways etc ; and then also packign all categories with an inter category order within their main "categories" tuple (as of now right, middle, left, since we have 3 tables in the AI personality panel feature as of now anyways etc)
@@ -76,6 +76,7 @@ if IS_DEBUG_LEADER:
 
 
 
+# <!-- custom: note: collapse this below function with VS Code or similar to easily see right at next lines (at least as of now anyways etc) viewed the class SevoPediaLeader code anyways etc -->
 # <!-- custom: read at end of this function at the return's code comment of when and why we call the sevopedia cache precomputing as a function from sevopedia main anyways etc -->
 def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession():
 
@@ -1446,6 +1447,8 @@ class SevoPediaLeader:
 
 	def interfaceScreen(self, iLeader):
 		self.iLeader = iLeader
+
+		debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc)
 
 		# <!-- custom: change call order to match filling/building order, generally from top left to bottom and left to right but not always, reordering in such a way is maybe a bit more intuitive this way perhaps or/and clearer or/and helpful or not or other etc anyways, -->
 		self.placeLeaderHeadPane()

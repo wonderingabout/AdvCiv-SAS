@@ -1053,12 +1053,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
-			<ProductionTraits>
-				<ProductionTrait>
-					<ProductionTraitType>TRAIT_EXPANSIVE</ProductionTraitType>
-					<iProductionTrait>25</iProductionTrait>
-				</ProductionTrait>
-			</ProductionTraits>
+			<!-- custom: no need to have this effect now that expansive trait is much stronger, would be bit op and perhaps overlapping/uneeded with new food based expansive trait effect at least as of now anyways etc, this is perhaps also more versatile with some civ-specific workers whom leader may or not have the expansive trait, so both more versatile and powerful to rely on the stronger trait buffed food based effect rather than selective/specific if i may say anyways etc old trait-based production unit modifier (i.e. in ProductionTraits anyways etc) anyways etc, was TRAIT_EXPANSIVE 25 -->
+			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
 			<iCost>50</iCost>
@@ -1304,12 +1300,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
-			<ProductionTraits>
-				<ProductionTrait>
-					<ProductionTraitType>TRAIT_EXPANSIVE</ProductionTraitType>
-					<iProductionTrait>25</iProductionTrait>
-				</ProductionTrait>
-			</ProductionTraits>
+			<!-- custom: no need to have this effect now that expansive trait is much stronger, would be bit op and perhaps overlapping/uneeded with new food based expansive trait effect at least as of now anyways etc, this is perhaps also more versatile with some civ-specific workers whom leader may or not have the expansive trait, so both more versatile and powerful to rely on the stronger trait buffed food based effect rather than selective/specific if i may say anyways etc old trait-based production unit modifier (i.e. in ProductionTraits anyways etc) anyways etc, was TRAIT_EXPANSIVE 25 -->
+			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
 			<iCost>50</iCost>
@@ -1555,12 +1547,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
-			<ProductionTraits>
-				<ProductionTrait>
-					<ProductionTraitType>TRAIT_EXPANSIVE</ProductionTraitType>
-					<iProductionTrait>25</iProductionTrait>
-				</ProductionTrait>
-			</ProductionTraits>
+			<!-- custom: no need to have this effect now that expansive trait is much stronger, would be bit op and perhaps overlapping/uneeded with new food based expansive trait effect at least as of now anyways etc, this is perhaps also more versatile with some civ-specific workers whom leader may or not have the expansive trait, so both more versatile and powerful to rely on the stronger trait buffed food based effect rather than selective/specific if i may say anyways etc old trait-based production unit modifier (i.e. in ProductionTraits anyways etc) anyways etc, was TRAIT_EXPANSIVE 25 -->
+			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
 			<iCost>50</iCost>
@@ -1806,12 +1794,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
-			<ProductionTraits>
-				<ProductionTrait>
-					<ProductionTraitType>TRAIT_EXPANSIVE</ProductionTraitType>
-					<iProductionTrait>25</iProductionTrait>
-				</ProductionTrait>
-			</ProductionTraits>
+			<!-- custom: no need to have this effect now that expansive trait is much stronger, would be bit op and perhaps overlapping/uneeded with new food based expansive trait effect at least as of now anyways etc, this is perhaps also more versatile with some civ-specific workers whom leader may or not have the expansive trait, so both more versatile and powerful to rely on the stronger trait buffed food based effect rather than selective/specific if i may say anyways etc old trait-based production unit modifier (i.e. in ProductionTraits anyways etc) anyways etc, was TRAIT_EXPANSIVE 25 -->
+			<ProductionTraits/>
 			<Flavors/>
 			<!-- custom: (trying to) make sure they (barbarians) can build it fast (enough(, anyways etc)) and in high quantity (enough (too) anyways etc( anyways etc...)), see CIV4BuildingInfos.xml for details -->
 			<iAIWeight>75</iAIWeight>
@@ -2452,7 +2436,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</Flavor>
 			</Flavors>
 			<iAIWeight>0</iAIWeight>
-			<iCost>20</iCost>
+			<!-- custom: was 40 -->
+			<iCost>30</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -5360,6 +5345,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
+			<!-- custom: note: trying to cost quite low as it is as of now anyways etc as it synergizes quite well if not very well with their sacrifice/slaving profile, so give them a bunch of averely stronger cheaper units rather than a few elite ones even though may be more accurate historically to do so though if i am not mistaken from my memory of it (see code comment at freepromotions for tiny bit in this case i mean anyways etc more info about this i mean anyways etc), so keeping as is 35 as of now at least if not always or not but anyways etc -->
 			<iCost>35</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -5424,9 +5410,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iCultureGarrison>5</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>2</iAsset>
-			<!-- custom: was 5 -->
 			<!-- advc.104e: was 6 -->
-			<iPower>6</iPower>
+			<iPower>5</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -5444,13 +5429,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
+			<!-- custom: if i am not mistaken from my memory i mean, i seem to i mean anyways etc remember that the jaguars are elite forces valued in society, since the unit is so weak, may be fine to buff it as such anyways etc, in terms of civ4 if i may say these new promotions, city-oriented, may fit quite well their aggressive profile of the trait i mean if i am not mistaken anyways etc, was PROMOTION_WOODSMAN1 -->
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_LEADERSHIP</PromotionType>
+					<PromotionType>PROMOTION_CITY_RAIDER1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 				<FreePromotion>
-					<PromotionType>PROMOTION_COMBAT1</PromotionType>
+					<PromotionType>PROMOTION_CITY_GARRISON1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -10193,7 +10179,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: according to the wikipedia description anyways etc, it seems or it says from what i understand/remake of it that unlike loyalists, patriots had the confidence and belief to actually rebell and that independence would come and acted as such, unlike loyalists that lacked such confidence, see wikipedia link at top of unit info of this unit 's code comment or somewhere around it or about this unit in xml or/and a related to this unit code comment or similar other place(s if any other or not but anyways etc) anywyas etc -->
+			<!-- custom: according to the wikipedia description anyways etc, it seems or it says from what i understand/remake of it that unlike loyalists, patriots had the confidence and belief to actually rebell and that independence would come and acted as such, unlike loyalists that lacked such confidence, see wikipedia link at top of unit info of this unit 's code comment or somewhere around it or about this unit in xml or/and a related to this unit code comment or similar other place(s if any other or not but anyways etc) anyways etc -->
 			<FreePromotions>
 				<FreePromotion>
 					<PromotionType>PROMOTION_DRILL1</PromotionType>
@@ -21142,7 +21128,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_COMBUSTION</PrereqTech>
+			<!-- custom: was TECH_COMBUSTION -->
+			<PrereqTech>TECH_STEEL</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses>

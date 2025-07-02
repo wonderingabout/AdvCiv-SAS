@@ -2,6 +2,8 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2025 wonderingabout & becomingthrough
 
+
+
 def get_excluded_leader_types_from_calculations():
 	return (
 		"LEADER_DEFAULTS",
@@ -256,14 +258,30 @@ def normalize_to_100(value, min_val, max_val, B_WARN, invert, attr_name):
 
 
 
+def get_positive_negative(is_positive):
+	if (is_positive):
+		return "Positive"
+	else:
+		return "Negative"
+
+
+
+def get_affection_resentment(is_affection):
+	if (is_affection):
+		return "Affection"
+	else:
+		return "Resentment"
+
+
+
 def get_pascal_case_suffix(enumType):
 	# Converts an enum constant like 'MEMORY_DECLARED_WAR' or 'CONTACT_STOP_TRADING' into a PascalCase suffix like 'DeclaredWar' or 'StopTrading'.
-
+	#
 	# This version automatically removes the first prefix (e.g., 'MEMORY_' or 'CONTACT_') instead of requiring it to be passed as a parameter.
-
+	#
 	# Args:
 	# 	enumType (str): An enum string with an uppercase prefix (e.g., 'MEMORY_', 'CONTACT_').
-
+	#
 	# Returns:
 	# 	str: PascalCase string of the remaining part (e.g., 'DeclaredWar').
 
@@ -362,22 +380,6 @@ def get_aggregated_raw_contact_score_from_adjusted_values(adjusted_value_rand_no
 		raw_aggregated = MAIN_WEIGHT * adjusted_value_rand_norm_score + SECONDARY_WEIGHT * adjusted_value_delay_norm_score
 		# <!-- custom: no reason to strictly round the raw values since they will be normalized later anyways which would/should be an int if i am not mistaken and as of now the raw aggregated contact prob is only stored before that at min max storage stage (before their normalization as said before in this sentence anyways etc anyways etc anyways etc), but no reason not to, since most if not indeed all fields are int, and it is an approximation (aggregation) to begin with, values close enough like 78.123456 vs 78.234567 could be considered to be the same 78 for example in my understanding anyways etc, so round them now even though makes data a bit more inaccurate, hopefully still very significant and reliable, perhaps even desirable but in all cases anyways etc anyways etc anyways etc ... -->
 		return int(round(raw_aggregated))
-
-
-
-def get_positive_negative(is_positive):
-	if (is_positive):
-		return "Positive"
-	else:
-		return "Negative"
-
-
-
-def get_affection_resentment(is_affection):
-	if (is_affection):
-		return "Affection"
-	else:
-		return "Resentment"
 
 
 

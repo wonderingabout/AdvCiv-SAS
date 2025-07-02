@@ -142,6 +142,7 @@ non_numeric = []
 
 for field in numeric_fields:
 	# <!-- custom: some fields such as "MaxWarRand" in leaders_data.py are parsed (in generate_leaders_data.py anyways etc) with a "get" prefix (for example "getMaxWarRand") instead of an "i" (not "iMaxWarRand" like the XML but as said before is "getMaxWarRand" anyways etc) prefix in leaders_data.py for consistency with the not interacting with but using same key names independently anyways etc sevopedia leader AI personality panel code but or not but or yes but but anyways etc anyways etc anyways etc), see generate_leaders_data.py generic and attitude threshold for example (at least as of now these are the only fields we parse with a "get" prefix anyways etc) field parsing code or/and code comments for details anyways etc ; here we want to display attitude thresholds in columns one next to the other too/as well i mean so separate them from generic getter fields anyways etc) -->
+	# <!-- custom: if i am not mistaken we should indeed first filter by startswith then only among remaining results filter by ends with to avoid overlap as chatgpt/becomingthrough did indeed and is should be as this if i am not mistaken indeed after consideration/reflection or not or etc or yes in this case but anyways etc -->
 	if field.startswith("get") and (not field.endswith("AttitudeThreshold")):
 		numerical_generic.append(field)
 	elif field.startswith("iFlavor"):
@@ -172,7 +173,8 @@ for field in numeric_fields:
 			numerical_aggregated_negative_memory_resentment.append(field)
 		else:
 			raise KeyError(f"[KEY ERROR] Unknown or missing aggregated negative memory suffix, or/and unknown negative memory field format in field={field}, please update your XML field formats or this code to accomodate them.")
-	# <!-- custom: if i am not mistaken we should indeed first filter by startswith then only among remaining results filter by ends with to avoid overlap as chatgpt/becomingthrough did indeed and is should be as this if i am not mistaken indeed after consideration/reflection or not or etc or yes in this case but anyways etc -->
+
+	# <!-- custom: if i am not mistaken only after the startswith fields (except startswith fields (for example "iAggregatedPositiveMemory") that can be subfiltered with another inner startswith or endswith (for example subfiltered with an endswith("Affection") anyways etc) or anything else too if i am not mistaken anyways etc) do we do the endswith fields anyways etc -->
 	elif field.endswith("AttitudeChange"):
 		numerical_attitude_change.append(field)
 	elif field.endswith("AttitudeDivisor"):

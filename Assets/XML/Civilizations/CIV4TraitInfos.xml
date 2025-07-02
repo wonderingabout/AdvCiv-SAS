@@ -19,8 +19,9 @@
 			<iMaxAnarchy>-1</iMaxAnarchy>
 			<iUpkeepModifier>0</iUpkeepModifier>
 			<iLevelExperienceModifier>0</iLevelExperienceModifier>
+			<!-- custom: was 80 -->
 			<!-- advc.908c: was 100 -->
-			<iGreatPeopleRateModifier>80</iGreatPeopleRateModifier>
+			<iGreatPeopleRateModifier>100</iGreatPeopleRateModifier>
 			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
 			<iMaxGlobalBuildingProductionModifier>0</iMaxGlobalBuildingProductionModifier>
@@ -44,7 +45,8 @@
 			<iUpkeepModifier>0</iUpkeepModifier>
 			<iLevelExperienceModifier>0</iLevelExperienceModifier>
 			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
-			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+			<!-- custom: was 0 -->
+			<iGreatGeneralRateModifier>100</iGreatGeneralRateModifier>
 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
 			<iMaxGlobalBuildingProductionModifier>0</iMaxGlobalBuildingProductionModifier>
 			<iMaxTeamBuildingProductionModifier>0</iMaxTeamBuildingProductionModifier>
@@ -53,9 +55,10 @@
 			<TradeYieldModifiers/>
 			<CommerceChanges/>
 			<CommerceModifiers/>
+			<!-- custom: was PROMOTION_COMBAT1 -->
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_COMBAT1</PromotionType>
+					<PromotionType>PROMOTION_LEADERSHIP</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -80,7 +83,8 @@
 			<iMaxAnarchy>0</iMaxAnarchy>
 			<iUpkeepModifier>0</iUpkeepModifier>
 			<iLevelExperienceModifier>0</iLevelExperienceModifier>
-			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+			<!-- custom: was 0 -->
+			<iGreatPeopleRateModifier>25</iGreatPeopleRateModifier>
 			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
 			<iMaxGlobalBuildingProductionModifier>0</iMaxGlobalBuildingProductionModifier>
@@ -89,7 +93,13 @@
 			<ExtraYieldThresholds/>
 			<TradeYieldModifiers/>
 			<CommerceChanges/>
-			<CommerceModifiers/>
+			<!-- custom: was empty -->
+			<CommerceModifiers>
+				<iCommerce>0</iCommerce>
+				<iCommerce>25</iCommerce>
+				<iCommerce>0</iCommerce>
+				<iCommerce>0</iCommerce>
+			</CommerceModifiers>
 			<FreePromotions/>
 			<FreePromotionUnitCombats/>
 		</TraitInfo>
@@ -98,7 +108,8 @@
 			<Description>TXT_KEY_TRAIT_EXPANSIVE</Description>
 			<ShortDescription>TXT_KEY_TRAIT_EXPANSIVE_SHORT</ShortDescription>
 			<Civilopedia>TXT_KEY_TRAIT_EXPANSIVE_PEDIA</Civilopedia>
-			<iHealth>2</iHealth>
+			<!-- custom: was 2 -->
+			<iHealth>1</iHealth>
 			<iHappiness>0</iHappiness>
 			<iMaxAnarchy>-1</iMaxAnarchy>
 			<iUpkeepModifier>0</iUpkeepModifier>
@@ -110,7 +121,12 @@
 			<iMaxTeamBuildingProductionModifier>0</iMaxTeamBuildingProductionModifier>
 			<iMaxPlayerBuildingProductionModifier>0</iMaxPlayerBuildingProductionModifier>
 			<ExtraYieldThresholds/>
-			<TradeYieldModifiers/>
+			<!-- custom: try a food based multiplier, i don't know how op it would be or the exact math or rather example of values,  but seems interesting and goes well with the growth type and food type/profil i mean of the expansive trait so trying it as such anyways etc, see also this topic/forum https://forums.civfanatics.com/threads/modifying-traits-tradeyieldmodifiers.264979/post-8045016 if helps i mean there is a screenshot and such discussion about this if i am not mistaken hopefully helpful or not or yes or other but anyways etc, was empty -->
+			<TradeYieldModifiers>
+				<iYield>25</iYield>
+				<iYield>0</iYield>
+				<iYield>0</iYield>
+			</TradeYieldModifiers>
 			<CommerceChanges/>
 			<CommerceModifiers/>
 			<FreePromotions/>
@@ -129,10 +145,18 @@
 			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
 			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
-			<iMaxGlobalBuildingProductionModifier>50</iMaxGlobalBuildingProductionModifier>
-			<iMaxTeamBuildingProductionModifier>50</iMaxTeamBuildingProductionModifier>
-			<iMaxPlayerBuildingProductionModifier>50</iMaxPlayerBuildingProductionModifier>
-			<ExtraYieldThresholds/>
+			<!-- custom: was 50 50 50 which was ridiculous, give another effect to this trait rather in unit info xml anyways etc, was 50 50 50 -->
+			<iMaxGlobalBuildingProductionModifier>0</iMaxGlobalBuildingProductionModifier>
+			<iMaxTeamBuildingProductionModifier>0</iMaxTeamBuildingProductionModifier>
+			<iMaxPlayerBuildingProductionModifier>0</iMaxPlayerBuildingProductionModifier>
+			<!-- custom: see also the reworked financial trait effect at least as of now i mean anyways etc, was empty -->
+			<ExtraYieldThresholds>
+				<iExtraYieldThreshold>0</iExtraYieldThreshold>
+				<iExtraYieldThreshold>2</iExtraYieldThreshold>
+				<iExtraYieldThreshold>0</iExtraYieldThreshold>
+			</ExtraYieldThresholds>
+			<!-- custom: was missing, adding it for consistency and also because i had changed this effect originally anyways etc -->
+			<ExtraYieldNaturalThresholds/>
 			<TradeYieldModifiers/>
 			<CommerceChanges/>
 			<CommerceModifiers/>
@@ -165,7 +189,13 @@
 				<!-- advc.908b: was 2 -->
 				<iCommerce>1</iCommerce>
 			</CommerceChanges>
-			<CommerceModifiers/>
+			<!-- custom: was empty anyways etc -->
+			<CommerceModifiers>
+				<iCommerce>0</iCommerce>
+				<iCommerce>0</iCommerce>
+				<iCommerce>25</iCommerce>
+				<iCommerce>0</iCommerce>
+			</CommerceModifiers>
 			<FreePromotions/>
 			<FreePromotionUnitCombats/>
 		</TraitInfo>
@@ -185,15 +215,17 @@
 			<iMaxGlobalBuildingProductionModifier>0</iMaxGlobalBuildingProductionModifier>
 			<iMaxTeamBuildingProductionModifier>0</iMaxTeamBuildingProductionModifier>
 			<iMaxPlayerBuildingProductionModifier>0</iMaxPlayerBuildingProductionModifier>
+			<!-- custom: considering how op the other reworked traits are now, this effect is fine as well i mean anyways etc, was empty -->
 			<!-- advc.908a: Replace the original extra commerce threshold of 2
 				 with a "natural" (see comment in schema file or see manual
 				 or game text) commerce threshold of 3.  -->
-			<ExtraYieldThresholds/>
-			<ExtraYieldNaturalThresholds>
-				<iExtraYieldNaturalThreshold>0</iExtraYieldNaturalThreshold>
-				<iExtraYieldNaturalThreshold>0</iExtraYieldNaturalThreshold>
-				<iExtraYieldNaturalThreshold>3</iExtraYieldNaturalThreshold>
-			</ExtraYieldNaturalThresholds>
+			<ExtraYieldThresholds>
+				<iExtraYieldThreshold>0</iExtraYieldThreshold>
+				<iExtraYieldThreshold>0</iExtraYieldThreshold>
+				<iExtraYieldThreshold>2</iExtraYieldThreshold>
+			</ExtraYieldThresholds>
+			<!-- custom: was 0 / 0 / 3 -->
+			<ExtraYieldNaturalThresholds/>
 			<TradeYieldModifiers/>
 			<CommerceChanges/>
 			<CommerceModifiers/>
@@ -208,7 +240,8 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iMaxAnarchy>-1</iMaxAnarchy>
-			<iUpkeepModifier>-50</iUpkeepModifier>
+			<!-- custom: was -50 -->
+			<iUpkeepModifier>-75</iUpkeepModifier>
 			<iLevelExperienceModifier>0</iLevelExperienceModifier>
 			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
 			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
@@ -230,11 +263,13 @@
 			<Civilopedia>TXT_KEY_TRAIT_CHARISMATIC_PEDIA</Civilopedia>
 			<iHealth>0</iHealth>
 			<iHappiness>1</iHappiness>
-			<iMaxAnarchy>-1</iMaxAnarchy>
+			<!-- custom: was -1 -->
+			<iMaxAnarchy>0</iMaxAnarchy>
 			<iUpkeepModifier>0</iUpkeepModifier>
+			<!-- custom: was -25 -->
 			<iLevelExperienceModifier>-25</iLevelExperienceModifier>
 			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
-			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+			<iGreatGeneralRateModifier>50</iGreatGeneralRateModifier>
 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
 			<iMaxGlobalBuildingProductionModifier>0</iMaxGlobalBuildingProductionModifier>
 			<iMaxTeamBuildingProductionModifier>0</iMaxTeamBuildingProductionModifier>
@@ -257,7 +292,7 @@
 			<iUpkeepModifier>0</iUpkeepModifier>
 			<iLevelExperienceModifier>0</iLevelExperienceModifier>
 			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
-			<iGreatGeneralRateModifier>25</iGreatGeneralRateModifier>
+			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
 			<iMaxGlobalBuildingProductionModifier>0</iMaxGlobalBuildingProductionModifier>
 			<iMaxTeamBuildingProductionModifier>0</iMaxTeamBuildingProductionModifier>
@@ -265,18 +300,20 @@
 			<ExtraYieldThresholds/>
 			<TradeYieldModifiers/>
 			<CommerceChanges/>
-			<CommerceModifiers/>
+			<!-- custom: based on (translate to english using web browser or such anyways etc) https://gforestshade.github.io/kujira/post/civ4traitinfos/#commercemodifiers and adjusted or not for advciv-sas anyways etc, was empty -->
+			<CommerceModifiers>
+				<iCommerce>0</iCommerce>
+				<iCommerce>0</iCommerce>
+				<iCommerce>0</iCommerce>
+				<iCommerce>25</iCommerce>
+			</CommerceModifiers>
 			<FreePromotions>
 				<FreePromotion>
 					<PromotionType>PROMOTION_CITY_GARRISON1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
-				<FreePromotion>
-					<PromotionType>PROMOTION_CITY_GARRISON2</PromotionType>
-					<bFreePromotion>1</bFreePromotion>
-				</FreePromotion>
 			</FreePromotions>
-			<!-- custom: avoid per unit bonuses, tedious and not versatile enough, plus not necessarily the "best" way to buff, considering i find protective weak, buffing it in another (or other) way(s) and removing freepromotioncombats effects entirely -->
+			<!-- custom: generally avoid per unit bonuses, tedious and not versatile enough, plus not necessarily the "best" way to buff, considering i find protective weak, buffing it in another (or other) way(s) and removing freepromotioncombats effects entirely -->
 			<FreePromotionUnitCombats/>
 		</TraitInfo>
 		<TraitInfo>
@@ -290,13 +327,19 @@
 			<iUpkeepModifier>0</iUpkeepModifier>
 			<iLevelExperienceModifier>0</iLevelExperienceModifier>
 			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
-			<iGreatGeneralRateModifier>100</iGreatGeneralRateModifier>
+			<!-- custom: was 100 -->
+			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
 			<iMaxGlobalBuildingProductionModifier>0</iMaxGlobalBuildingProductionModifier>
 			<iMaxTeamBuildingProductionModifier>0</iMaxTeamBuildingProductionModifier>
 			<iMaxPlayerBuildingProductionModifier>0</iMaxPlayerBuildingProductionModifier>
 			<ExtraYieldThresholds/>
-			<TradeYieldModifiers/>
+			<!-- custom: change from (translate to english with web browser or such anyways etc) https://gforestshade.github.io/kujira/post/civ4traitinfos/#tradeyieldmodifiers adjusted or not for advciv-sas anyways etc, was empty -->
+			<TradeYieldModifiers>
+				<iYield>10</iYield>
+				<iYield>20</iYield>
+				<iYield>30</iYield>
+			</TradeYieldModifiers>
 			<CommerceChanges/>
 			<CommerceModifiers/>
 			<FreePromotions/>
