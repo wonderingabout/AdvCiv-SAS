@@ -288,10 +288,10 @@
 				<PrereqTech>TECH_ARCHERY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
+			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it with a substitute instead, TECH_ECOLOGY in this case anyways etc -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
-				<ObsoleteTech>TECH_STEEL</ObsoleteTech>
-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
+				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
 				<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>1</bRecurring>
@@ -6073,10 +6073,10 @@
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs/>
 			<AndPreReqs/>
+			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, remove it from this event anyways etc -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
-				<ObsoleteTech>TECH_STEEL</ObsoleteTech>
-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
+				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
 				<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
@@ -7540,8 +7540,9 @@
 				<Event>EVENT_ANCIENTOLYMPICS_2</Event>
 			</PrereqEvents>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
+			<!-- custom: replace with a more relevant tech tree tech as TECH_SCIENTIFIC_METHOD has been moved in tech tree anyways etc -->
 			<OrPreReqs>
-				<PrereqTech>TECH_SCIENTIFIC_METHOD</PrereqTech>
+				<PrereqTech>TECH_LIBERALISM</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs/>
@@ -8054,10 +8055,11 @@
 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
+			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace with a substitute, here TECH_MILITARY_SCIENCE anyways etc -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
-				<ObsoleteTech>TECH_STEEL</ObsoleteTech>
-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
+				<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
+				<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -8230,7 +8232,7 @@
 			<AndPreReqs/>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
+				<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
 				<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
@@ -8311,9 +8313,10 @@
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs/>
+			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it with a substitute here TECH_CHEMISTRY -->
 			<AndPreReqs>
 				<PrereqTech>TECH_RIFLING</PrereqTech>
-				<PrereqTech>TECH_STEEL</PrereqTech>
+				<PrereqTech>TECH_CHEMISTRY</PrereqTech>
 			</AndPreReqs>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_RADIO</ObsoleteTech>
@@ -8573,10 +8576,10 @@
 				<PrereqTech>TECH_ENGINEERING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
+			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it wth a substitute here TECH_MILITARY_SCIENCE, also remove TECH_SCIENTIFIC_METHOD here and ideally in places where it is not relevant anymore with reworked tech tree anyways etc -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
-				<ObsoleteTech>TECH_STEEL</ObsoleteTech>
-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
+				<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
 				<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
@@ -9097,10 +9100,10 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
+			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, remove it from this event anyways etc, also remove TECH_SCIENTIFIC_METHOD as it has been moved in tech tree anyways etc, use another closer or/and more relevant tech in our reworked tech tree anyways etc -->
 			<OrPreReqs>
 				<PrereqTech>TECH_STEAM_POWER</PrereqTech>
-				<PrereqTech>TECH_STEEL</PrereqTech>
-				<PrereqTech>TECH_SCIENTIFIC_METHOD</PrereqTech>
+				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
 				<PrereqTech>TECH_ARTILLERY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
@@ -9897,7 +9900,6 @@
 				<PrereqTech>TECH_METAL_CASTING</PrereqTech>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 				<PrereqTech>TECH_MONARCHY</PrereqTech>
-				<PrereqTech>TECH_ALPHABET</PrereqTech>
 				<PrereqTech>TECH_MATHEMATICS</PrereqTech>
 				<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
 				<PrereqTech>TECH_AESTHETICS</PrereqTech>
@@ -10428,8 +10430,9 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
+			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, remove it from this event anyways etc, but since it was the only tech, use TECH_COMBUSTION as a substitute anyways etc -->
 			<OrPreReqs>
-				<PrereqTech>TECH_STEEL</PrereqTech>
+				<PrereqTech>TECH_COMBUSTION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs/>
@@ -10769,8 +10772,9 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
+			<!-- custom: use a closer tech instead in our reworked tech tree anyways etc, was TECH_SCIENTIFIC_METHOD -->
 			<OrPreReqs>
-				<PrereqTech>TECH_SCIENTIFIC_METHOD</PrereqTech>
+				<PrereqTech>TECH_ECONOMICS</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs/>
@@ -11391,10 +11395,10 @@
 				<PrereqTech>TECH_NAVIGATION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
+			<!-- custom: note: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, still relevant here so replaced here as well if i am not mistaken anyways -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
-				<ObsoleteTech>TECH_STEEL</ObsoleteTech>
-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
+				<ObsoleteTech>TECH_MARINE_TECHNOLOGY</ObsoleteTech>
 				<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
@@ -11482,10 +11486,10 @@
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs/>
 			<AndPreReqs/>
+			<!-- custom: note: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, still relevant here so replaced here as well if i am not mistaken anyways -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
-				<ObsoleteTech>TECH_STEEL</ObsoleteTech>
-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
+				<ObsoleteTech>TECH_MARINE_TECHNOLOGY</ObsoleteTech>
 				<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
@@ -12606,10 +12610,10 @@
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs/>
 			<AndPreReqs/>
+			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it with a substitue that seems relevant in tech position at least if i may say anyways etc in our reworked tech tree if not in theme too or not or yes or other or etc but anyways etc -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
-				<ObsoleteTech>TECH_STEEL</ObsoleteTech>
-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
+				<ObsoleteTech>TECH_BIOLOGY</ObsoleteTech>
 				<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
@@ -14150,13 +14154,13 @@
 				<PrereqTech>TECH_THE_WHEEL</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
+			<!-- custom: remove TECH_ALPHABET as it has been removed from our tech tree (replaced in fact with TECH_NATURALISM but it is much later so tech requirements would not apply similarly to the previous TECH_ALPHABET so replace with a substitute or remove entirely TECH_ALPHABET anyways etc) -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_MONARCHY</ObsoleteTech>
 				<ObsoleteTech>TECH_LITERATURE</ObsoleteTech>
 				<ObsoleteTech>TECH_CODE_OF_LAWS</ObsoleteTech>
 				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
 				<ObsoleteTech>TECH_MATHEMATICS</ObsoleteTech>
-				<ObsoleteTech>TECH_ALPHABET</ObsoleteTech>
 				<ObsoleteTech>TECH_MOUNTED_COMBAT</ObsoleteTech>
 				<ObsoleteTech>TECH_IRON_WORKING</ObsoleteTech>
 				<ObsoleteTech>TECH_METAL_CASTING</ObsoleteTech>
@@ -14249,7 +14253,6 @@
 				<ObsoleteTech>TECH_CODE_OF_LAWS</ObsoleteTech>
 				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
 				<ObsoleteTech>TECH_MATHEMATICS</ObsoleteTech>
-				<ObsoleteTech>TECH_ALPHABET</ObsoleteTech>
 				<ObsoleteTech>TECH_MOUNTED_COMBAT</ObsoleteTech>
 				<ObsoleteTech>TECH_IRON_WORKING</ObsoleteTech>
 				<ObsoleteTech>TECH_METAL_CASTING</ObsoleteTech>
@@ -15938,8 +15941,9 @@
 			<AndPreReqs>
 				<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
 			</AndPreReqs>
+			<!-- custom: replace TECH_SCIENTIFIC_METHOD now that it has a reworked position in tech tree anyways etc with TECH_THEORY_OF_EVOLUTION -->
 			<ObsoleteTechs>
-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
+				<ObsoleteTech>TECH_THEORY_OF_EVOLUTION</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -16532,8 +16536,9 @@
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs/>
+			<!-- custom: TECH_PAPER replaced with TECH_THEORY_OF_EVOLUTION anyways etc, use another relevant tech or/and around this tech time of previous tech if i am not mistaken instead in our reworked tech tree anyways etc anyways etc anyways etc -->
 			<AndPreReqs>
-				<PrereqTech>TECH_PAPER</PrereqTech>
+				<PrereqTech>TECH_FEUDALISM</PrereqTech>
 			</AndPreReqs>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_MASS_MEDIA</ObsoleteTech>

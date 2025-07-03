@@ -519,7 +519,7 @@
 			<Description>TXT_KEY_BUILD_OFFSHORE_PLATFORM</Description>
 			<Help/>
 			<!-- custom: was TECH_PLASTICS -->
-			<PrereqTech>TECH_STEEL</PrereqTech>
+			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
 			<iTime>0</iTime>
 			<iCost>0</iCost>
 			<bKill>1</bKill>

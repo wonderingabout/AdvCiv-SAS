@@ -263,4 +263,24 @@
 		<Tag>TXT_KEY_TECH_NAVIGATION_QUOTE</Tag>
 		<English>"The wisest men follow their own direction." - ascribed to Euripides</English>
 	</TEXT>
+	<!-- custom: replace _ALPHABET with _NATURALISM anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_NATURALISM_QUOTE</Tag>
+		<English>"Words have the power to both destroy and heal. When words are both true and kind, they can change our world." - ascribed to the Buddha</English>
+	</TEXT>
+	<!-- custom: rename TECH_STEEL to TECH_MARINE_TECHNOLOGY anyways etc -->
+	<TEXT> <!-- redefine -->
+		<Tag>TXT_KEY_TECH_MARINE_TECHNOLOGY_QUOTE</Tag>
+		<English>"Before that steam drill shall beat me down, I'll die with my hammer in my hand." - from "John Henry, the Steel-Driving Man"</English>
+	</TEXT>
+	<!-- custom: replace TECH_PAPER with TECH_THEORY_OF_EVOLUTION, also use the base advciv +/- civ4's TECH_FIBER_OPTICS's quote and audio if i am not mistaken anyways etc -->
+	<TEXT> <!-- redefine -->
+		<Tag>TXT_KEY_TECH_THEORY_OF_EVOLUTION_QUOTE</Tag>
+		<English>"There is a single light of science, and to brighten it anywhere is to brighten it everywhere." - Isaac Asimov</English>
+	</TEXT>
+	<!-- custom: replace _REPLACE_PARTS and _REPLACEABLE_PARTS with _GAME_THEORY, also use the base advciv +/- civ4's TECH_RAILROAD's quote and audio if i am not mistaken anyways etc -->
+	<TEXT> <!-- redefine -->
+		<Tag>TXT_KEY_TECH_GAME_THEORY_QUOTE</Tag>
+		<English>"I fooled you, I fooled you, I got pig iron, I got pig iron, I got all pig iron." - Lonnie Donegan, "Rock Island Line"</English>
+	</TEXT>
 </Civ4GameText>

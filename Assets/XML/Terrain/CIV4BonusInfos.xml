@@ -1555,7 +1555,8 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 			<ArtDefineTag>ART_DEF_BONUS_ELEPHANTS</ArtDefineTag>
 			<TechReveal>NONE</TechReveal>
 			<TechCityTrade>TECH_HUNTING</TechCityTrade>
-			<TechObsolete>TECH_ECOLOGY</TechObsolete>
+			<!-- custom: was TECH_INDUSTRIALISM -->
+			<TechObsolete>TECH_MASS_MEDIA</TechObsolete>
 			<!-- custom: now giving food like most if not all food strategic animals anyways etc, hammer is adjusted through their specific improvement (for example pasture, anyways etc) rather, anyways etc, was 0 / 1 / 0 -->
 			<YieldChanges>
 				<iYieldChange>1</iYieldChange>
@@ -1935,7 +1936,8 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 			<ArtDefineTag>ART_DEF_BONUS_WHALE</ArtDefineTag>
 			<TechReveal>NONE</TechReveal>
 			<TechCityTrade>TECH_SEAFARING</TechCityTrade>
-			<TechObsolete>TECH_ECOLOGY</TechObsolete>
+			<!-- custom: was TECH_COMBUSTION -->
+			<TechObsolete>TECH_MASS_MEDIA</TechObsolete>
 			<!-- custom: not so easy to capture without proper installations, but attracts folks as in people perhaps and folks as in stories perhaps anyways etc anyways etc anyways etc -->
 			<YieldChanges>
 				<iYieldChange>0</iYieldChange>

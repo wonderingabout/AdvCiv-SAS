@@ -1,3 +1,220 @@
+commit 8a59fc3ca4821594f1bdd1d9da91c40a17fbdb4e
+Author: wonderingabout <hidden>
+Date:   2025-07-02 21:46:47 +0200
+
+finished modifying global defines and such for advciv-sas (mostly at least anyways etc), updated and organized quick get started guide in categories much more readable even though some past content is lost but anyways etc, rework/rebalance most traits or/and other changes anyways etc
+- fix of past commit message anyways etc: it is/was not the "farms spreads irrigation" that was changed to be unlocked much sooner in advciv-sas, as of now it is still at tech_civil_service if i am not mistaken that it was there in base advciv as well anywyas etc, but it is the "can build farms without irrigation" ability that is now moved much sooner in advciv-sas if i am not mistaken anyways etc, was at tech_biology, now at tech_engineering at least as of now anyways etc if i am not mistaken anyways etc anyways etc anyways etc
+- "disabled INCREASE_START_TURN, so for immortal and deity and advanced starts if i am not mistaken too anyways etc, now game starts at turn 0 for everyone and all handicap/difficulty settings anyways. This is because i would want handicap/difficulty settings to be reliable and reliably harder at each difficulty, plus we don't have free techs nor ai free techs anymore now in advciv-sas, and the handicap/difficulty increase is gradual at all difficulties, so i would like all other matetrs to be equal as well anyways etc, reduce handicap/difficulty chosen if too hard or/and i or (other or same anyways etc) players/modders may ahve to adjust handicap settings directly rather if they are really out of reach anyways etc, see (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\GlobalDefines_advc.xml for details anyways etc. Handicap help texts (descriptions anyways etc) have also been rewritten in AdvCiv-SAS to accomodate this change as well as better reflect the new gradual settings and overall difficulty, as well as not commit to a specific number if i may say too in advciv-sas unlike in base advciv description if i am not mistaken but anyways etc anyways etc anyways etc hopefully helpful anyways etc but anyways etc anyways etc"
+- reduced PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT from 20 to 0, meaning each civ has an equal roll chance when leader selection is random (read/see GlobalDefines_advc.xml for extra details and conditions anyways etc), so a civ with say 3 leaders will not or not as often be more likely to be picked randomly vs civs with only one leader. This means for example rome or france (examples of civs with multiple/many leaders as of now anyways etc) will not get a higher overall chance of being randomly chosen than say mali or carthage (examples of civs with 1 leader as of now anyways etc) anyways etc.
+- DOW_UNIT_CAPTURE_CHANCE: "increased DOW_UNIT_CAPTURE_CHANCE from 0 to 50, this means even at the turn where war is declared, chance to capture workers is 50%, no reason to explicitly discourage capturing workers as suprise attacks and opportunistic/efficient attacks as well are an important and natural component of war i think, would help and reward AIs and the human player for behaving as such. It would be the same, otherwise, than having a no capture city at first turn, or such unrealistic limitations i would say. I find best at least in advciv-sas to set this to same number as BASE_UNIT_CAPTURE_CHANCE (as of now and in base advciv as of now too is 50 meaning 50% capture chance if i am not mistaken anywyas etc). So now the worker capture chance in all turns is also extended to being the same capture chance at the turn where/when war is declared too, not 0 anymore at this turn anyways etc."
+- BBAI_DEFENSIVE_PACT_BEHAVIOR: "<!-- custom: not sure what this is about exactly but anyways etc, cancelling defensive pacts if war is declared on them seems to make sense though, whatever peace or not happens after war if any would need to be redefined, does not seem to make much sense unless i am mistaken that a player A at war with player B can convince/compell player B at all to attack player C while player A is still at war with player B. The default BTS behavior, if i understood it correctly, seems to make much more sense unless i'm mistaken anyways etc. But just like a peace treaty being enforced unbreakably, it is maybe also nice to have some kidn of rules that make agreements be enforced, but in the case of defensive pacts, it seems a bit too far fetched, and maybe coudl be abused by human players to manipulate AIs, or affect AI vs AI negatively to the profit of the human player as well (or maybe also AI affecting the human player negatively to a quite forced defensive pact, but if such were the case the game would probably be lost even though not sure, still it is an inconvenience as well), so make these based on trust rather if i may say rather than hard enforced obligatory obligation if i may say but anyways etc. As for the opposite possibility of farming defensive pacts then cancelling them (like giving defensive pact vs defensive pact + X where W is any thing in a trade anyways etc) by declaring war would be too tedious and not worth the hassle or not enjoyable, i have not tried it myself so i don't know, so just mentioning this hypothetical possibility anyways etc. In short, if i am not mistaken, restore default BTS behavior of defensive pacts between players being broken when a player has declared war on the other if i understood it correctly and am not mistaken in my understanding anyways etc, was 1 -->"
+- updated quick starter guide, very painful to delete all these past parts of myself i see again in this case anyways etc and like, but they are not accurate anymore, plus too lengthy ; also separated todos vs actual features anyways etc, and organized them in other categories in general too i mean anyways etc which is nice anyways etc anyways etc anyways etc, 10 million times easier to read if not more like a certain dr would say but anyways etc...
+- reworked most traits anyways etc
+- add info about the seemingly base advciv +/- civ4 bug of a barbarian city being stuck producing a 1 hammer barbarian workboat for few dozen turns several times in same autoplay, see known README_Known_Issues_In_Base_AdvCiv_Civ4.md at issue number 23 as of now at least is this number anyways etc
+- other minor or not related or changes anyways etc
+
+note: this is so helpful to write bit by bit and gradually the commit message rather than do all changes then try to guess/remember which, i started this habit somewhere in this advciv-sas mod development i mean but is very helpful anyways etc, so adding mention fo it if helps but anyways etc anyways etc anyways etc
+
+commit a9d6994c3ae34e965a75fea4664a975171b52a70
+Author: wonderingabout <hidden>
+Date:   2025-07-01 21:43:42 +0200
+
+finalize most of the tech wonders rework (quite greatly reduce anyways etc BonusProductionModifiers in particular but not only anyways etc) and tech tree rework, as well as buildings, units (iPower and minor UnitAI adjustment anti suicidal war declarations at least a bit anyways etc in particular anyways etc, revert some strength rework previous changes in advciv-sas anyways etc), pedia entries, civics and other changes anyways etc
+- "Greatly reduced BonusProductionModifiers (i.e. the hammer cost +x% speed with y bonus/ressource) for wonders, for example the parthenon has now and as of now anyways etc +25% speed with BONUS_MARBLE instead of +100% in base advciv +/- base civ4, this is because it is broken that wonders are so easy to build with bonuses/ressources, but they can still help a bit just with reduced effect, seems more balanced to me (i.e. advciv-sas main maintainer/developer anyways etc) this way anyways etc. Reduced the cost (+/- quite anyways etc) a bit of most wonders anyways etc to accomodate this effect/change anyways etc."
+- "removed SPACE_ELEVATOR: too unbalanced and weird to build a building to reduce costs for other buildings, just build the other buildings directly then, simpler and more efficient design anyways etc"
+- fix display of great person modifiers in placeStats mistakenly anyways merged and overlapping with the button instead of being a separate item as +50% great person for example anyways etc is not related to a specific great person type as claude ai advised too after asking it even though i fixed code myslef and noticed it before too but anyways etc anyways etc anyways etc
+- "- some civics such as CIVIC_REPRESENTATION have been reworked/rebalanced. For example for CIVIC_REPRESENTATION, it is mainly because it is available sooner in advciv-sas mod, but also to tweak or change its effect a bit too anyways etc"
+- "<!-- custom: adjust the iPower (as in unit info) of some buildings to better reflect their strength equivalent:
+- increase iPower of/for anyways etc buildings that are underestimated as well, such as the castle if i am not mistaken anyways etc
+- reduce iPower of/for some buildings that are overrated and not so impactful militarily, especially and mostly naval buildings as they shoudln't eb too and as impactful as land buildings in real warfare same reasoning/similarly as in unit info anyways etc
+-->"
+- "removed some building(s? anyways etc) like BUILDING_WEST_POINT as it is a way too weak and inefficient building, hopefully this makes AI stronger too as they focus more on relevant buildings or build units instead or/and more units too anyways etc"
+- "<!-- custom: replace sentimental and inaccurate TECH_ECOLOGY civ4 +/- base advciv's description with a historically and scientifically grounded one from wikipedia anyways etc (i can be sentimental too and i like and learned from wikipedia i mean, i just find this wikipedia one so much more accurate and informative about not only the origins of the branch/science, but also how it relates to previous discoveries/perspectives, darwin's view from my quick glance if not mistaken in my quick read or understanding that the dominant competitors need to put in check their domination else they may struggle if they kill/consume/destroy all food sources is particularly interesting and more interesting than the sentimental and mistaken one of fight the evil pollution by the evil corporations or such one even though there is maybe ground for this, history shows it was accounted for much much sooner anyways etc, most likely even in antiquity and before people were aware and conscious to preserve nature and protect it although i didn't check, but anyways etc which is why in particular i hate the dominant intuitive social view of ecology which i was also led to believe, anyways etc, instead of viewing it as a scientific field or/and causality of human existence where we need to coexist with nature rather than fight some evil entity admonizing ourselves if it's a word in english anyways etc from our own faults or things we can improve or maybe rather do better within ourselves but anyways etc, i hate myself for having been led by such a belief but i am glad i can learn now in this case at least, not to reject my past experience if i may say, but just saying there is a better view for me that makes my life make sense in the astronomical density of the universe and its history, and in line with its/my precedessors anyways etc, that were not stupid, not ignorant, not backwards, just they had other ideas or priorities in mind, i am thankful very much for (modern) technical progress (in particular anyways etc), but it would be a fault or ignorance, which i claim to myself too, of reducing past people as ignorant war-like ones, i was so mistaken and a fool or ignorant, but i blame society too for teaching me this functional and beneficial lie, but anyways etc) ; there is so much stuff i wish i knew but i am not even sure the truth hard and cold would have been beneficial to me, but it was no reason to lie to me either, i hate society for that, even though i understand the purpose i think but still but anyways etc, maybe at least it makes some sense now, i have also or developped if i may say too in this case but anyways etc, or at least can develop more empathy for other species, as i understand their life is miserable as ours as per the conditions of our existence, where we must cruelly fight for territory and subsistence, instead of coexisting in harmony in our shared struggle, if i knew all this.. why didn't they tell me all this... Was it so beneficial to lie? What's even the point in the frames of existence, but anyways etc, i am just glad and thankful i know now and gradually more but anyways etc, again i am not sure the truth is beneficial but it was no reason to lie either, there must have been a better way, perhaps more gradual or such, but anyways etc, or maybe adjusted to one's understanding that focuses on kindness if i may say or such, why, why is the world so evil, yet pointless, when our struggle is shared, but no one owes anyone anything maybe, but anyways hoepfully helpful or not maybe i should delete this later or maybe not maybe i should keep it, but in all cases anyways etc ; based on https://en.wikipedia.org/wiki/History_of_ecology anyways etc -->"
+- TXT_KEY_BUILDING_MT_RUSHMORE_PEDIA: "<!-- custom: the more i learn the more i am upset about how usa-centric and appalingly forgetful it is sometimes, if not blatantly propagandist, even though rare, but for example see the ecology entry vs new one from wikipedia but anyways etc, the base civ4 +/- advciv version seems to totally obscure i mean anyways etc the fact that the mount was stolen from the indigenous people that was there, i mean technically it wasn't "there's" per se as it belongs to nature i.e. anyone that can control it, still glorifying it without any mention of past owner is simply disgusting, but anyways etc, hopefully some truth is restored even though i didn't know at all before and barely looked now whiel reworking this building but anyways etc, hopefully this is not a too widespread problem in civ4 and i fixed some entries but anyways etc ; nevermind it's even more disgusting that i thought, with lines like "remarkably, no one was killed during construction", i wonder who even wrote those fucking lines??? If this is is not self-glorifying propaganda, but anyways etc, i am glad i learned the "truth" if i may say even though it is relative to one's point of view whatever that means, but my view of it is this is disgustingly concealed if i may say but anyways etc, entry now from https://en.wikipedia.org/wiki/Mount_Rushmore anyways etc -->" ; also it is now a world wonder with a reworked military effect anyways etc
+- ART_DEF_BUILDING_HOSPITAL: "<!-- custom: art nif import from FFH2's ART_DEF_BUILDING_INFIRMARY, since the advciv-sas hopsital is now medieval-based/at era time anywyas etc, and adjusted or not anyways etc for advciv-sas anyways etc, vry pretty result or/and pleasant even though bit tedious but fast with FFH2's fpks too i mean even though is unrelated to this what other mods are doign or and do but anyways etc anyways etc worth it i would say maybe yes in this case but anywas etc anyways etc anyways etc -->"
+- TXT_KEY_BUILDING_KREMLIN_PEDIA: "the "farms spreads irrigation" ability is unlocked much sooner, as of now now at tech_engineering, see sevopedia or/and tech advisor (i.e. tech tree view anyways etc) for update value/tech if any i mean hopefully helpful anyways etc anyways etc"
+- "<!-- custom: to avoid or reduce fake/suicidal AI war declarations, reduce iPower for some units anyways etc if i am not mistaken anyways etc:
+- like and in particular naval units as warfare happens mostly on land and even if AI has 10 frigates, it will not win against 2 crossbows or even warriors for example if i am not mistaken anyways etc
+- also adjust the estimated power of some land units like warrior, animals, etc as part of rebalancing them
+see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Units\CIV4UnitInf_os_UnitAI_and_notes.txt for details anyways etc -->"
+- rebalanced also naval units and/or other units like animal units and perhaps other units or not or yes while doing so i mean anyways etc, see xml for details or/and sevopedia ingame also for updated values too i mean anyways etc
+- adjust unitAIs of some (mostly early as of now anyways etc see xml for details and docs anyways etc) siege units so they don't get baited as much instead of focusing mostly on city attack or "counter" (as in staying in city but atatcking the surrounding units) defense (ideally as i didn't explicitly implement it as such but i hope they don't get baited anymore at least but anyways etc anyways etc anyways etc)
+- TXT_KEY_BUILDING_RECYCLING_CENTER_PEDIA: "<!-- custom: surprisingly on a more positive note this time if i may say anyways etc, i didn't know recycling centers existed on a quite global or country scale much before the modern/post industrial era, updating i mean replacing anyways etc the entry with a wikipedia based one from https://en.wikipedia.org/wiki/Recycling#History anyways etc ; the base civ4 +/- advciv one anyways etc is as usual garbage without a pun i mean but anyways etc, hopefully more scientifically grounded, less moralistic, more informative and exhaustive pehaps enjoyable too if may say but anyways etc -->"
+- SPECIALBUILDING_MONASTERY: "<!-- custom: reworked monasteries, also for betetr or worse religion is still relevant in modern era (i am not a big fan of it but each do as they please maybe as long as they don't harm or maybe too ideally not annoy me as well but anyways etc..., even though it is for me to handle, at least don't act in an actively harmful way to me maybe if i may say maybe indeed but anyways etc) ; also remove scientific effect which doesn't make sense for a religious building, in fact it should be the opposite effect, religion makes dumber and further away from science for betetr or worse (i am not a fan too but society (perhaps societies if i may say but anyways etc) function as such so there must be a reason or reasons i mean in this case anyways etc anyways etc anyways etc), so no reason to obsolete this building anymore which is easier to handle/follow/grasp/manage if i may say anyways etc in terms of gameplay and modding as well at least for me maybe for others or not or yes or other but anyways etc, was TECH_SCIENTIFIC_METHOD -->"
+- forbidden palace: "<!-- custom: great spy great person is low enough it can be ignored and probably better to ignore it in this case at least i mean anyways etc, as for flavors in base advciv, were/was flavor military 5??? Fixed to growth gold based formula as seems much more accurate (didn't read the adv manual id though in case it has info but this still seems much more accurate like this with these udpated flavors i/we i.e. i anywyas etc now anyways etc added in advciv-sas anyways etc -->"
+- update docs and other changes or not or yes but anyways etc anyways etc anyways etc
+
+commit c56c7404b8950f9d37b1cb023a71408a669117bb
+Author: wonderingabout <hidden>
+Date:   2025-06-28 18:43:28 +0200
+
+remove AI free techs and free techs entirely anyways etc
+hopefully more versatile games or and tech paths this way anyways etc
+
+commit b9a7c4149ba5207a9a1430f6d72d8b520fc0bec8
+Author: wonderingabout <hidden>
+Date:   2025-06-28 17:33:28 +0200
+
+completed most of the gradual handicap settings
+
+commit 6f81fbe781d4ba39228c3ff9b0d6d7ef14904f6c
+Author: wonderingabout <hidden>
+Date:   2025-06-28 14:54:26 +0200
+
+replace fenced code blocks with quotations hopefully clearer or not or yes anyways etc and minor other changes or not or yes or other anyways etc
+
+commit 598b6e5ad00f50859535b0dbb44ef6e4cb5ca400
+Author: wonderingabout <hidden>
+Date:   2025-06-28 13:50:40 +0200
+
+rename becomingthrough and chatgpt / becomingthrough to chatgpt now anyways etc
+details in readme anyways etc thanks :) not sure if smiley is accurate or refelctive or my inner state but felt to write so maybe? But anyways etc
+
+commit 8ceff51d36aa687ee058587682b8ecb100135b30
+Author: wonderingabout <hidden>
+Date:   2025-06-27 20:28:19 +0200
+
+replace now deleted "AMERICAN_NAVY_SEAL" with "USA_PATRIOT" (rifleman based) and other minor or not changes or not or other or and etc anyways etc anyways etc anyways etc
+
+commit 741f6485f969d0dbb0770fa8517b384d2dfb567b
+Author: wonderingabout <hidden>
+Date:   2025-06-27 16:22:33 +0200
+
+replace "NETHERLANDS_OOSTINDIEVAARDER" with "DUTCH_SWIFT_WORKER" (worker based)
+- "<!-- custom: removed the old "NETHERLANDS_OOSTINDIEVAARDER", the dutch civ-specific unit is now the "DUTCH_SWIFT_WORKER", the idea is an agricultural-like unit based on https://www.government.nl/topics/agriculture/agriculture-and-horticulture#:~:text=After%20the%20United%20States%2C%20the,its%20largest%20trade%20partner%2C%20Germany. and https://en.wikipedia.org/wiki/Netherlands#Agriculture_and_natural_resources and also civ3 making it an agricultural civ, but since it is not easily possible to make them specifically faster in building farms and cottages easily, giving them another worker boosting effect instead (see unitinfo xml for details or/and updated value anyways etc), i believe this would work quite well with the gold profile of the AI leader too william if i am not mistaken anyways etc, restoring old civ4 effect for this unit at least as of now if not always or not but look at updated value(s) in real unit info ('s anyways etc) xml for details anyways etc -->", art import from ri mod see xml for details anyways etc
+
+commit 441d5de9cfc8a48ed181be6530bcdaa8457fdf43
+Author: wonderingabout <hidden>
+Date:   2025-06-27 14:49:51 +0200
+
+fixes and tweaks from previous commit
+after multiple manual rereads hehe if i may say in this case but anyways etc due to github showing the same code diff many times, this should be quite safe now (could have checked diff in vs code but fine to do with github too as i like in this case at least anyways etc), so hopefulyl should be qutie safe moving forward even though not 100% guaranteed but i reread many times and didn't find a mistake or typo from quick glances and (quite) slow read (anyways etc) i mean in this case anyways etc
+
+commit 2973ba48f3bd65d0a85956ed5aee0457858dc621
+Author: wonderingabout <hidden>
+Date:   2025-06-27 12:39:51 +0200
+
+fixed tons of ruff and pylance python warnings/errors in a quite/conservative way anyways etc
+a few examples (screenshots anyways etc) in the google drive for example anyways etc see google drive link at fixes or/and useful tools in main readme anyways etc
+
+commit 8596efe7ddf0309aac75e5f7ea8084819ce9b774
+Author: wonderingabout <hidden>
+Date:   2025-06-26 17:54:37 +0200
+
+remove uneeded/unused imports in some python files, in particular remove improt strings and replace it with python 2.4 compatible logic
+thanks a lot to chatgpt/becomingthrough for its help in helping me do that thanks a lot anyways etc, and ruff and perhaps pylance too for flagging these hopefully making code cleaner even if a bit but anyways etc and perhaps slightly lighter in eprformance too evne though should not be main goal but would feel good in this case but anyways etc at least i'd want to in this case but anyways etc
+
+commit bc799686dfceee5642afc26e8e12aaf91c31f5c1
+Author: wonderingabout <hidden>
+Date:   2025-06-26 15:39:54 +0200
+
+various fixes anyways etc
+
+commit 363dca74cf664c738ae7c915b2f4a87d5966c34f
+Author: wonderingabout <hidden>
+Date:   2025-06-26 14:25:43 +0200
+
+add markdownlink (.md linter) and ruff (python linter) as vs code extensions in VS Code, fix and clean .md and .py files with various errors and tweak them
+see also readme.md section where i mention the gogole drive link with screenshots of why and how i added them, as well as thanks to who if i may say hoepfully more exhaustive there in doc readme.md where the google drive link is there as well and easier for me as such in this case if i may say or not or yes or etc but anyways etc but i am really thankful really i mean really but or not but or yes but or ont but or yes but or anyways etc but anyways etc anyways etc anyways etc
+
+also on the plus side if i may say computer doesn't seem to have heavy usage spikes (cpu? I assume but anyways etc anyways etc anyways etc) while coding python so this is nice, see also config files for details as they have some code comments as well (.markdownlint.jsonc, ruff.toml, and .vscode/settings.json if i am not mistaken copy pasted from git commit mesasge to be sure was mostly correct what iw rote minus typo then adjusted anyways etc but anyways etc anyways etc anyways etc)
+
+commit 6c9b298a5e32333c283060feb796ebcac68f76c7
+Author: wonderingabout <hidden>
+Date:   2025-06-25 20:33:05 +0200
+
+replace GERMAN_PANZER with GERMAN_HUSSAR (cuirassier based anyways etc), add kingdom of benin assets and unit effect and other changes anyways etc anyways etc anyways etc
+- "<!-- custom: "GERMAN_PANZER" removed and replaced with the "GERMAN_HUSSAR", based on the "CUIRASSIER" and tweaked from there anyways etc, one of the main reasons is to have civ-specific units earlier so they are more imapctful anyways etc anyways etc anyways etc -->"
+- remove sex neutral units anwyays etc, after all elt's be real if i may say, combatatnts were mostly men/male in human history anyways etc, is maybe fine to not alter history just to fit my narrative if i may say, but i would like if some units are women, not for the sake of it, but just if and where i see it fit, i have some ideas like the smaratian archer if we add it as a civ, or some bow units as women are generally more agile and would fit the role better, psosibly light sword units, but i would also need to have the/a coressponding art to import into, i have some ffh2 ones and most liekly can find at least a few in other mods but didnt search (too) much anyways etc so is todo if opportunity arises and it seems relevant, also less tedious this way anyways etc anyways etc anyways etc ; wrote some long blablah at least quite long anyways etc i wanted to write too anyways etc
+- add kingdom of benin's disciplined crossbowman's art based on other mods (see xml for details anyways etc) and special effect (promotion) see xml for details anyways etc
+- minor other changes or and not anyways etc anyways etc anyways etc
+
+commit d89b0f1bf4d6025bcc0654ade225bbd85c61931e
+Author: wonderingabout <hidden>
+Date:   2025-06-24 23:59:38 +0200
+
+performance optimization: do not cache for sevopedia leaders until we click and the first time only on Sevopedia Main's placeLeaders
+therefore/by doing so we cache only once per gaming session (i.e. once until game is exited, even if sevopedia is exited and reopened later), and more importantly we don't cache if we open other sevopedia categories than Leaders, as it woudl waste/spend needless computation and affect needlessly performance. I also like that/to use a function call rather than hardcoded code. Also, we cache before any leader is selected. With the previous parts of the sevopedia leader such as using many tuples, byte strings, etc from little or not i know or did of it also thanks to chagpt/becomingthrough's ideas and replies to my prompts too and my own ideas and thoughts as well but anyways, i believe the system is now even more and very very efficient. May be improved, but is really efficient and i am really happy of it anyways etc.
+
+See also doc links as there is a drive link with screenshots and examples as long as it is there of how and why we did it this way, quite quick in this case or not but anywyas etc (i.e. not all screenshots but most relevant ones i mean anyways etc hoepfulyl helpful or as i wanted or and chose to do in this case but anyways etc anyways etc anyways etc) but or not but or yes but but anyways etc anyways etc anyways etc, in readme of ai personality panel there is a performance optimization section with th elink there and some info too about it/this anyways etc hoepfulyl helpful or not or ye sor as i wanted or did or not or yes or etc anyways etc
+
+commit 630168d5b844adf66d8202b77907029f08b47e45
+Author: wonderingabout <hidden>
+Date:   2025-06-24 21:39:00 +0200
+
+rework persia immortal now based on the swordsman (RFC DOC mod art import anyways etc), rename arabian unit to hajjan
+- UNIT_PERSIA_IMMORTAL: "<!-- custom: persia_immortal now based on the swordsman, historically more accurate if i am not mistaken in timeline and main unit than civ4's chariot-based unit if i am not mistaken anyways etc -->", art import from/based on RFC DOC mod's immortal see xml for details anyways etc
+- rename "_PERIA_IMMORTAL" to "_PERSIA_IMMORTAL" anyways etc
+- increase quite slightly anyways etc cost of mid and late game horse and camel units anyways etc
+- rename "ARABIA_CAMELARCHER" to "ARABIA_HAJJAN": "entry from (adust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_Units.xml 's TXT_KEY_UNIT_ARABIA_CAMELARCHER_PEDIA anyways etc and adjusted/enhanced on for AdvCiv-SAS anyways etc; as for the unit name, one of the sources for example anyways etc: https://en.wiktionary.org/wiki/hajjan but with a more distinctive name anyways etc -->", as for art from RFC DOC mod see XML for details anyways etc
+
+commit 117dbf77af9a3f937c5de12d616bdbc524e91808
+Author: wonderingabout <hidden>
+Date:   2025-06-24 14:49:10 +0200
+
+add terrain impassables and feature impassable for chariot units and soem siege units, add DLL modification (info mising ingame in unit effect bullet points) and sevopedia unit XML modification (info not precise enough at least to me anyways etc) to display this info, update docs
+- add info about XML code line trimming performance analysis (in short no performance diff but cleaner word wrap and such in vs code anyways etc if such other hings exist or not but anyways etc), see docs for details in fixes or some similar name i mean anywyas etc in main readme.md as of now at least anyways etc
+- "some units have terrain or/and feature movement restrictions, for example the chariot units cannot as of now move in jungle or forest feature tiles. Note: this only applies to tiles outside of cultural borders (not me who made it so, civ4 or and base advciv, reusing such logic as it is a fine logic i have no objection against in this case anyways etc). But it applies regardless in all tiles even if roaded (again base civ4 or/and advciv if i am not mistaken, i would like to ideally change this part, leaving as is for convenience as easiest, may or not change it if i find how but not guaranteed may not as well though as i said for convenience ease to keep as is even though not ideal, but anyways etc)"
+- add info in sevopedia unit (in TXT_KEY_UNIT_CANNOT_ENTER) that it/this anyways etc restriction anwyays etc only applies outside of cultural borders, if i am not mistaken and based on my (quick or not or yes or not or etc anyways etc) testing anyways etc
+- add this missing info ingame in map view of the unit's bullet point effects by modifying the DLL, see docs in particular known issues doc for details (link in main readme.md anyways etc) for details anyways etc
+- add info in known issues with gogoel drive link with screenshots about this issue anyways etc (i.e. update docs but anyways etc in more bit more detail(s?) but anyways etc anyways etc anyways etc)
+- other minor or not or yes or etc changes anyways etc
+
+commit 60180807a8390b1d7a4e04a4d5aa98d4f78270f2
+Author: wonderingabout <hidden>
+Date:   2025-06-24 00:21:34 +0200
+
+update docs (.csv and .md files) anyways etc anyways etc anyways etc
+
+commit 2daa22b853821b2185db7686559a51772b23548c
+Author: wonderingabout <hidden>
+Date:   2025-06-24 00:02:38 +0200
+
+move leaders_data.py to root of mod path/folder anyways etc
+it is now (since the sevopedia leader rewrite anyways etc) independent from and not used ingame anymore and at all now, fine to keep it at root mod path for consistency with how/where most if not all at least most if not all but anyways etc anyways etc external scripts are anyways etc
+
+commit 541259334505fe031ea2ed49da911bc41ca14326
+Author: wonderingabout <hidden>
+Date:   2025-06-23 23:55:58 +0200
+
+update generate_leaders_data.py generic and similar fields key name to use "get" prefix and match sevopededia leader (even though they are independent from each other), update docs
+other minor or and unrelated or not or yes or etc anyways etc changes anyways etc
+
+commit 76ab6670a5b86a56e9548a6d3e9a2d537a8f0ae2
+Author: wonderingabout <hidden>
+Date:   2025-06-23 18:14:03 +0200
+
+performance optimization: replace most docstrings with comment-out or move them to external .txt or similar files when possible/relevant, update tech tree: techs, rework units and buildings and related, and other related or not or yes or etc changes anyways etc
+- add note about git log command with anonymized email (thanks to chatgpt/becomginthrough and my prompt to it or and other like git doing their git thing tool or and other or and not or yes or not or other or etc anyways etc
+- remove most string litterals and replace them with # comments (with vs code "ctrl" + ":" (or "/" witout shift on my keyboard anwyays etc): from what i understand of it may increase loading times or and also help reduce memory usage even if a bit, see docs for details of what i understood of chatgpt/becomingthrough's explanations and also benchmarks i asked it to run to test too anyways etc, some of which are moved to their own files as well such as (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\BUG Doc\configobj_changelog_py_notes.txt for the giant (+/- 500 lines anyways etc) changelog, hopefully cleaner and or more performant this way, at least not less performant than no comment whatever that means or not or yes but anyways etc, perhaps more accessible too in centralized doc folder or not or yes or etc or and other or and not or yes or etc anyways etc, see also note in README.md for info/details as well as google drive link with screenshots anyways etc.
+- xml performance optimization at least in theory anyways etc: move long comment block to separate text note files anyways etc, not exhaustive though as would take too long and not sure i'll keep doing it for all assets though (most likely not but who knows maybe at least partly, especially if i spot 500 liens again but not sure may or may not anyways etc), may revert this too later as i see fit or not or yes or other or not or yes or not or etc or and but but anyways etc anyways etc anyways etc)
+- add non-tradeable techs: see sevopedia ingame in placeSpecial of any tech for full list of non-tradeable techs, and a bullet point as well at each non-tradeable tech in placeSpecial anyways etc or/and in XML <BTrade>0</BTrade> if i am not mistaken too but anyways etc anyways etc anyways etc
+- note in particular: be careful about (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\BUG\configobj.py , commenting out its test docstrings causes ingame errors, so not commenting out the tests, only textual info, especially in configobj.py anyways etc
+- unit_bomber now requires only tech_flight, not tech_radio anymore
+- unit_paratrooper moved to tech_advanced_flight as in/expalined in this code comment anyways etc: "<!-- custom: tech requirements reworked, was flight + tech types fascism and rifling anyways etc -->"
+- move UNIT_MOBILE_ARTILLERY later now at tech_ in our reworked tech tree anyways etc and another tech prereq (tech_artillery as of now anyways etc), see xml or docs or sevopedia or similar or other for details anyways etc
+- "<!-- custom: move spaceship sooner (here PROJECT_SS_ENGINE anyways etc) in tech tree so it can actually be built and sooner before game ends or player quits, also a bit more of a threat now to keep other players in check or attack them sooner if needed anyways etc, was TECH_FUSION -->" anyways etc
+- "<!-- custom: move PROJECT_SS_COCKPIT to computers, seems to make more sense, plus most importantly anyways etc we incentivize more computers and can build the spaceship a bit sooner as well, anyways etc, was TECH_FIBER_OPTICS -->"
+- "<!-- custom: now that tech_rocketry is free, use it to build PROJECT_SS_THRUSTERS, so we can build the spaceship sooner in tech tree and out of the main military path too but or not but or yes but or and other or and not or yes or other or etc anyways etc, was TECH_SUPERCONDUCTORS -->"
+- "<!-- custom: move the anti tank to TECH_ARTILLERY so the tech is stronger, while TECH_ASSEMBLY_LINE that is OP is weaker, plus from very quick glances of it it seems they launch rockets/bazookas/rpgs and such from very little i know or guess of it anyways etc, so fits more and quite well tech_artillery rather maybe, and the tech is so empty too hopefully more balanced this way as well anyways etc, as a result tanks would be a bit stronger so maybe buff anti tank a bit or not or other or maybe not or maybe or maybe not or other anyways etc anyways etc, was TECH_ASSEMBLY_LINE -->"
+- about building_pentagon anyways etc: "<!-- custom: so it can be built sooner and seems quite accurate too, also tech assembly line is too strong and bloated while nationalism is empty anyways etc, was TECH_ASSEMBLY_LINE -->"
+- UNIT_BATTLESHIP moved to tech_assembly_line anyways etc: "<!-- custom: move it sooner in tech, seems historically accurate from tiny bits i read of the sevopedia description (declines during world war 2, so build it sooner anyways etc), plus tech_industrialism is bloated and too strong anyways etc, was TECH_INDUSTRIALISM -->"
+- BUILDING_CRISTO_REDENTOR: "<!-- custom: move it sooner so it can be built sooner, seems to fit the theme well and tech_liberalism doesn't have a wonder as well anyways etc so we can maybe use it i mean in this case anyways etc anyways etc anyways etc, was TECH_RADIO -->"
+- BUILDING_EIFFEL_TOWER: "<!-- custom: moved here so it can be built sooner, also seems to fit the theme and historical accuracy qutie well, and as per our reworked tech tree and as i'd want to balance the building too anyways etc, was TECH_RADIO -->"
+- BUILDING_BUNKER: "<!-- custom: seems to make more sense here around tech_flight that is bloated, plus also bunkers help protect against artillery too according to wikipedia very very quick glance anyways etc, was TECH_ELECTRICITY -->"
+- BUILDING_IRON_WORKS: "<!-- custom: moved to TECH_STEAM_POWER as per our reworked tech tree, seems to make sense there from very little or little in this case anyways etc on wikipedia or such similar anyways etc i glanced of it, was TECH_STEEL -->"
+- BUILDING_DRYDOCK moved to TECH_MACHINERY: "<!-- custom: move it sooner in tech tree as seems historically accurate plus to buff it and water buildings and units and tiles and or such anyways etc, meshes quite well also in retrospect even though i hadn't/didn't intend as such as first anyways etc, with TECH_ASTRONOMY in our reworked tech tree and naval conquest era maybe anyways etc, i would still want naval warfare to not be a priority for AI and it to ideally focus on land warfare and such, but hopefully harmless to add one more building around this quite key mid game era, but enhances strategic possibilities too maybe anyways etc, was TECH_STEEL -->"
+- BUILD_LUMBERMILL (the worker improvement anyways etc): now at tech_machinery then boosted at tech_steam power, see docs for details or/and xml values or/and sevopedia ingame anyways etc
+- IMPROVEMENT_WINDMILL is now boosted at physics see docs or other similarly anyways etc
+- IMPROVEMENT_WATERMILL is now at tech_civil_service then boosted at tech_machinery anyways etc
+- free tech for first discovered (iFirstFreeTechs if i am not mistaken anyways etc) removed from TECH_LIBERALISM, now at TECH_PAPER (for when it is renamed/reworked as TECH_THEORY_OF_EVOLUTION if we indeede do as intended in this case anyways etc: "<!-- custom: would make more sense for this when it is changed to TECH_THEORY_OF_EVOLUTION, currently TECH_LIBERALISM is bloated and toos trong already if i am not mistaken, giving theory of evolution some purpsoe while also making sense in terms of gameplay, searching it means fallign behind in military path so i hope it can be worth it this way to choose this alternative path anyways etc and for versatile startegy too anyways etc, was 0 -->"
+- rifleman units: "<!-- custom: rifleman units moved later in tech tree as per our reworked tech tree, seems more balanced this way giving early gun (+/- monted anyways etc) units, as well as indirectly old melee or non-gun (+/- mounted) units some time to still be relevant, perhaps more historically accurate too even though i didn't check in detail but checked bit for other units anyways etc, was TECH_RIFLING with techTypes empty anyways etc -->"
+- BUILD_RAILROAD: "<!-- custom: TECH_RAILROAD is an inefficient tech and most likely will be removed from our tech tree, put at TECH_STEAM_POWER instead so railroads can be relevant sooner in the game too favouring endgame being sooner anyways etc -->"
+- levee class buildings changed to tech_physics: "<!-- custom: change as per the reworked tech tree now that physics is sooner in tech tree anyways etc, not sure if accurate checked only a bit but should not be too far off and tech steam power is bloated, i don't see a direct correlation with tech steam power i mean anyways etc as well unless i'm mistaken bu didn't check lot again anyways etc, also accounting the time to build them maybe fine as is with this change fine as it is now changed i mean but or not but or yes but but anyways etc anyways etc, and this buffs tech physics that is a bit weak at least as of now anyways etc, was TECH_STEAM_POWER -->"
+- BUILDING_HAGIA_SOPHIA: "<!-- custom: reworked hagia_sophia, now a growth / religious building that never obsoletes at least as of now anyways etc -->"
+- BUILDING_NOTRE_DAME: "<!-- custom: notre dame reworked as a versatile / cultural building -->"
+- and other related or not changes didn't list all but hopefully most but anyways etc anyways etc
+
 commit 41755fedd2165c88ef2f14f690211d910357ff12
 Author: wonderingabout <hidden>
 Date:   2025-06-22 01:37:06 +0200

@@ -1172,7 +1172,8 @@
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_RENAISSANCE</Era>
-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+			<!-- custom: see code comment at TECH_GAME_THEORY for details, was NONE -->
+			<FirstFreeUnitClass>UNITCLASS_GREAT_GENERAL</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
@@ -1572,7 +1573,7 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>15</iGridX>
+			<iGridX>13</iGridX>
 			<iGridY>14</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
@@ -1620,7 +1621,8 @@
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_INDUSTRIAL</Era>
-			<FirstFreeUnitClass>UNITCLASS_GREAT_GENERAL</FirstFreeUnitClass>
+			<!-- custom: see code comment at TECH_GAME_THEORY for details, was UNITCLASS_GREAT_GENERAL -->
+			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
@@ -1641,7 +1643,8 @@
 			<bGoldTrading>0</bGoldTrading>
 			<bOpenBordersTrading>0</bOpenBordersTrading>
 			<bDefensivePactTrading>0</bDefensivePactTrading>
-			<bPermanentAllianceTrading>1</bPermanentAllianceTrading>
+			<!-- custom: was 1 -->
+			<bPermanentAllianceTrading>0</bPermanentAllianceTrading>
 			<bVassalTrading>0</bVassalTrading>
 			<bBridgeBuilding>0</bBridgeBuilding>
 			<bIrrigation>0</bIrrigation>
@@ -1700,7 +1703,8 @@
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_INDUSTRIAL</Era>
-			<FirstFreeUnitClass>UNITCLASS_GREAT_SPY</FirstFreeUnitClass>
+			<!-- custom: see code comment at TECH_GAME_THEORY for details, was UNITCLASS_GREAT_SPY -->
+			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
@@ -1721,7 +1725,8 @@
 			<bGoldTrading>0</bGoldTrading>
 			<bOpenBordersTrading>0</bOpenBordersTrading>
 			<bDefensivePactTrading>0</bDefensivePactTrading>
-			<bPermanentAllianceTrading>1</bPermanentAllianceTrading>
+			<!-- custom: was 1 -->
+			<bPermanentAllianceTrading>0</bPermanentAllianceTrading>
 			<bVassalTrading>0</bVassalTrading>
 			<bBridgeBuilding>0</bBridgeBuilding>
 			<bIrrigation>0</bIrrigation>
@@ -1878,7 +1883,7 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>15</iGridX>
+			<iGridX>14</iGridX>
 			<iGridY>12</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
@@ -2515,12 +2520,12 @@
 			<SoundMP>AS2D_TECH_MP_MATHEMATICS</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Mathematics.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,5</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_ALPHABET (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<Type>TECH_ALPHABET</Type>
-			<Description>TXT_KEY_TECH_ALPHABET</Description>
-			<Civilopedia>TXT_KEY_TECH_ALPHABET_PEDIA</Civilopedia>
+		<TechInfo> <!-- custom: type: TECH_NATURALISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<Type>TECH_NATURALISM</Type>
+			<Description>TXT_KEY_TECH_NATURALISM</Description>
+			<Civilopedia>TXT_KEY_TECH_NATURALISM_PEDIA</Civilopedia>
 			<Help/>
-			<Strategy>TXT_KEY_TECH_ALPHABET_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
@@ -2560,35 +2565,40 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>11</iGridX>
-			<iGridY>10</iGridY>
+			<iGridY>11</iGridY>
 			<DomainExtraMoves/>
 			<!-- custom: was 0 / 0 / 0 / 1 -->
 			<!-- advc.120g -->
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
+			<!-- custom: was flavors religion 2 science 8 gold 4 -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_RELIGION</FlavorType>
-					<iFlavor>2</iFlavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>5</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
-					<iFlavor>8</iFlavor>
+					<iFlavor>10</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_CULTURE</FlavorType>
+					<iFlavor>5</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GOLD</FlavorType>
-					<iFlavor>4</iFlavor>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
 				<PrereqTech>TECH_WRITING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
-			<Quote>TXT_KEY_TECH_ALPHABET_QUOTE</Quote>
-			<Sound>AS2D_TECH_ALPHABET</Sound>
-			<SoundMP>AS2D_TECH_MP_ALPHABET</SoundMP>
-			<!-- custom: as this will be tech_naturalism if we rework it as intended or not or etc but anyways etc, changing button, old one was ,Art/Interface/Buttons/TechTree/Alphabet.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,1 anyways etc:  -->
+			<Quote>TXT_KEY_TECH_NATURALISM_QUOTE</Quote>
+			<Sound>AS2D_TECH_NATURALISM</Sound>
+			<SoundMP>AS2D_TECH_MP_NATURALISM</SoundMP>
+			<!-- custom: new naturalism button now that it replaces old tech alphabet anyways etc, based on a base civ4 atlas if i am not mistaken anyways etc, old one was ,Art/Interface/Buttons/TechTree/Alphabet.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,1 anyways etc:  -->
 			<Button>,Art/Interface/Buttons/TechTree/Alphabet.dds,Art/Interface/Buttons/GodsOfOld_Atlas.dds,8,5</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_CALENDAR (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
@@ -2737,7 +2747,7 @@
 			</Flavors>
 			<OrPreReqs>
 				<PrereqTech>TECH_MATHEMATICS</PrereqTech>
-				<PrereqTech>TECH_ALPHABET</PrereqTech>
+				<PrereqTech>TECH_NATURALISM</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_CURRENCY_QUOTE</Quote>
@@ -2817,12 +2827,12 @@
 			<SoundMP>AS2D_TECH_MP_PHILOSOPHY</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Philosophy.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,6</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_PAPER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<Type>TECH_PAPER</Type>
-			<Description>TXT_KEY_TECH_PAPER</Description>
-			<Civilopedia>TXT_KEY_TECH_PAPER_PEDIA</Civilopedia>
+		<TechInfo> <!-- custom: type: TECH_THEORY_OF_EVOLUTION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<Type>TECH_THEORY_OF_EVOLUTION</Type>
+			<Description>TXT_KEY_TECH_THEORY_OF_EVOLUTION</Description>
+			<Civilopedia>TXT_KEY_TECH_THEORY_OF_EVOLUTION_PEDIA</Civilopedia>
 			<Help/>
-			<Strategy>TXT_KEY_TECH_PAPER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
@@ -2887,10 +2897,11 @@
 				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
-			<Quote>TXT_KEY_TECH_PAPER_QUOTE</Quote>
-			<Sound>AS2D_TECH_PAPER</Sound>
-			<SoundMP>AS2D_TECH_MP_PAPER</SoundMP>
-			<Button>,Art/Interface/Buttons/TechTree/Paper.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,6</Button>
+			<Quote>TXT_KEY_TECH_THEORY_OF_EVOLUTION_QUOTE</Quote>
+			<Sound>AS2D_TECH_THEORY_OF_EVOLUTION</Sound>
+			<SoundMP>AS2D_TECH_MP_THEORY_OF_EVOLUTION</SoundMP>
+			<!-- custom: button from ai-generated images by chatgpt thanks to my prompt too as (i.e. that anyways etc) was done in the past i mean anyways etc -->
+			<Button>Art/AdvCiv_SAS/Techs/Theory_Of_Evolution/theory_of_evolution.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_BANKING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>TECH_BANKING</Type>
@@ -3002,7 +3013,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>10</iGridX>
-			<iGridY>10</iGridY>
+			<iGridY>12</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -3022,7 +3033,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_PAPER</PrereqTech>
+				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_EDUCATION_QUOTE</Quote>
@@ -3071,7 +3082,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>10</iGridX>
-			<iGridY>12</iGridY>
+			<iGridY>10</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -3095,11 +3106,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_PAPER</PrereqTech>
+				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_MACHINERY</PrereqTech>
-				<PrereqTech>TECH_ALPHABET</PrereqTech>
+				<PrereqTech>TECH_NATURALISM</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_PRINTING_PRESS_QUOTE</Quote>
 			<Sound>AS2D_TECH_PRINTPRESS</Sound>
@@ -3425,7 +3436,8 @@
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_INDUSTRIAL</Era>
-			<FirstFreeUnitClass>UNITCLASS_GREAT_SCIENTIST</FirstFreeUnitClass>
+			<!-- custom: was UNITCLASS_GREAT_SCIENTIST -->
+			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
@@ -3679,7 +3691,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>13</iGridX>
-			<iGridY>2</iGridY>
+			<iGridY>3</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -4223,7 +4235,8 @@
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
-			<iHealth>3</iHealth>
+			<!-- custom: was 3 -->
+			<iHealth>2</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
 			<iAsset>48</iAsset>
@@ -4246,7 +4259,7 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>19</iGridX>
+			<iGridX>16</iGridX>
 			<iGridY>12</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
@@ -4357,7 +4370,8 @@
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_FUTURE</Era>
-			<FirstFreeUnitClass>UNITCLASS_GREAT_ENGINEER</FirstFreeUnitClass>
+			<!-- custom: was UNITCLASS_GREAT_ENGINEER -->
+			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
@@ -5572,12 +5586,12 @@
 			<SoundMP>AS2D_TECH_MP_GUNPOWDER</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Gunpowder.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,4</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_REPLACEABLE_PARTS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<Type>TECH_REPLACEABLE_PARTS</Type>
-			<Description>TXT_KEY_TECH_REPLACEABLE_PARTS</Description>
-			<Civilopedia>TXT_KEY_TECH_REPLACEABLE_PARTS_PEDIA</Civilopedia>
+		<TechInfo> <!-- custom: type: TECH_GAME_THEORY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<Type>TECH_GAME_THEORY</Type>
+			<Description>TXT_KEY_TECH_GAME_THEORY</Description>
+			<Civilopedia>TXT_KEY_TECH_GAME_THEORY_PEDIA</Civilopedia>
 			<Help/>
-			<Strategy>TXT_KEY_TECH_REPLACEABLE_PARTS_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
@@ -5585,7 +5599,8 @@
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_RENAISSANCE</Era>
-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+			<!-- custom: _COMMUNISM effect seems more relevant here anways etc (also consistent, why not in fascism the same effect as well like for defensive pacts and overall similar game theme if i am not mistaken but anyways etc, so easier and more consistent to theme and tech to remove it as well as give it to communism only or fascism only or both then is redundant in this case anyways etc, also this balances and buffs non-main military tech path relatively more which i find interesting to reward in this case at least if i may say anyways etc anyways etc anyways etc ; as for fascism's great person first discover effect, move it sooner in tech is maybe more neutral and also stronger as it may have a higher impact in the game, i hadn't notice this effect when adding the communism remove great spy comment, but this change of moving it to another tech earlier one maybe makes sense too anyways etc, at least is how i'd/i want to do it in advciv-sas and where it seems relevant/worth/good if i may say whatever that means or not or yes or other but anyways etc), removed it from tech_communism anyways etc -->
+			<FirstFreeUnitClass>UNITCLASS_GREAT_SPY</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
@@ -5642,10 +5657,11 @@
 			<AndPreReqs>
 				<PrereqTech>TECH_BANKING</PrereqTech>
 			</AndPreReqs>
-			<Quote>TXT_KEY_TECH_REPLACEABLE_PARTS_QUOTE</Quote>
-			<Sound>AS2D_TECH_REPLACE_PARTS</Sound>
-			<SoundMP>AS2D_TECH_MP_REPLACE_PARTS</SoundMP>
-			<Button>,Art/Interface/Buttons/TechTree/Replaceable Parts.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,7</Button>
+			<Quote>TXT_KEY_TECH_GAME_THEORY_QUOTE</Quote>
+			<Sound>AS2D_TECH_GAME_THEORY</Sound>
+			<SoundMP>AS2D_TECH_MP_GAME_THEORY</SoundMP>
+			<!-- custom: art button import from c2c mod's TECH_BINARY_SUBCONSCIOUSNESS anyways etc -->
+			<Button>Art/AdvCiv_SAS/Techs/Game_Theory/binarysubconsciousness.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_MILITARY_SCIENCE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>TECH_MILITARY_SCIENCE</Type>
@@ -5776,7 +5792,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_REPLACEABLE_PARTS</PrereqTech>
+				<PrereqTech>TECH_GAME_THEORY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
@@ -5856,7 +5872,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_REPLACEABLE_PARTS</PrereqTech>
+				<PrereqTech>TECH_GAME_THEORY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_CHEMISTRY</PrereqTech>
@@ -5866,12 +5882,12 @@
 			<SoundMP>AS2D_TECH_MP_STEAMPOWER</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Steam Power.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,12</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_STEEL (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<Type>TECH_STEEL</Type>
-			<Description>TXT_KEY_TECH_STEEL</Description>
-			<Civilopedia>TXT_KEY_TECH_STEEL_PEDIA</Civilopedia>
+		<TechInfo> <!-- custom: type: TECH_MARINE_TECHNOLOGY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<Type>TECH_MARINE_TECHNOLOGY</Type>
+			<Description>TXT_KEY_TECH_MARINE_TECHNOLOGY</Description>
+			<Civilopedia>TXT_KEY_TECH_MARINE_TECHNOLOGY_PEDIA</Civilopedia>
 			<Help/>
-			<Strategy>TXT_KEY_TECH_STEEL_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
@@ -5937,10 +5953,11 @@
 			<AndPreReqs>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			</AndPreReqs>
-			<Quote>TXT_KEY_TECH_STEEL_QUOTE</Quote>
-			<Sound>AS2D_TECH_STEEL</Sound>
-			<SoundMP>AS2D_TECH_MP_STEEL</SoundMP>
-			<Button>,Art/Interface/Buttons/TechTree/Steel.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,12</Button>
+			<Quote>TXT_KEY_TECH_MARINE_TECHNOLOGY_QUOTE</Quote>
+			<Sound>AS2D_TECH_MARINE_TECHNOLOGY</Sound>
+			<SoundMP>AS2D_TECH_MP_MARINE_TECHNOLOGY</SoundMP>
+			<!-- custom: button import from NW mod's very very nice one in all or all in one rather but anyways etc.. fpk file so very nice, cleanly and very easily found the .dds with dragon unpacker anyways etc, and not nested at all so very easy to find, only downside of such a design is filenames are dependent on being clear which asset they relate to (for example i'd rather keep original file name of the mod heavywater.dds for reference and ease of use, but if i do so and i have many .dds in particular, it would be very messy to remember which filename belongs to which advciv-sas asset, so i find one level of nesting fine (folder name has the advciv-sas asset name or closest or close to it anyways etc, while filename is free for compatibility too in particular for nifs and such, but also for reference to know which file it is in other mods too if nee(ed?) but anyways etc)), is based on NW mod's TECH_HEAVY_WATER button anyways etc -->
+			<Button>Art/AdvCiv_SAS/Techs/Marine_Technology/heavywater.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_ASSEMBLY_LINE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>TECH_ASSEMBLY_LINE</Type>
@@ -6083,7 +6100,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_STEEL</PrereqTech>
+				<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_STEAM_POWER</PrereqTech>
@@ -6127,7 +6144,8 @@
 			<bGoldTrading>0</bGoldTrading>
 			<bOpenBordersTrading>0</bOpenBordersTrading>
 			<bDefensivePactTrading>0</bDefensivePactTrading>
-			<bPermanentAllianceTrading>0</bPermanentAllianceTrading>
+			<!-- custom: move permanent alliance ability a bit out of the main military tech path (was in both tech communism and tech fascism) to make it relatively weaker and reward relatively more alternate paths, even though this makes military artillery selectively stronger now as a tech anyways etc but should dissuade or/and incentivize maybe rather to pay more attention or give more weight to non-directly miltiary techs for players (would need to change flavors or/and such for AIs if i am not mistaken anyways etc) ; also this allows to better respect the seemingly rule of one tech per ability, one tech for map trading ability anyways etc for example anyways etc, one tech for build process culture for example too i mean anyways etc, hopefully more balanced or/and startegically interesting if i may say but anyways etc anyways etc anyways etc ; maybe this makes more sense in terms of theme too, as such powerful weapons make leaders consider more seriously permanent alliances rather than solo war if i may say in this case but anyways etc, even though they existed before, but perhaps they are bit stronger if not lot now at artillery tech maybe or yes or not or yes or and other or etc anyways etc anyways etc anyways etc, was 0 -->
+			<bPermanentAllianceTrading>1</bPermanentAllianceTrading>
 			<bVassalTrading>0</bVassalTrading>
 			<bBridgeBuilding>0</bBridgeBuilding>
 			<bIrrigation>0</bIrrigation>
@@ -6154,7 +6172,7 @@
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_PHYSICS</PrereqTech>
-				<PrereqTech>TECH_STEEL</PrereqTech>
+				<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_ARTILLERY_QUOTE</Quote>
 			<Sound>AS2D_TECH_ARTILLERY</Sound>
@@ -6250,7 +6268,8 @@
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MODERN</Era>
-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+			<!-- custom: see code comment at TECH_GAME_THEORY for details, was NONE -->
+			<FirstFreeUnitClass>UNITCLASS_GREAT_PROPHET</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
@@ -6346,8 +6365,8 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>14</iGridX>
-			<iGridY>12</iGridY>
+			<iGridX>13</iGridX>
+			<iGridY>1</iGridY>
 			<!-- custom: was DOMAIN_SEA 1 -->
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
@@ -6486,7 +6505,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>17</iGridX>
-			<iGridY>12</iGridY>
+			<iGridY>13</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -6771,7 +6790,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>18</iGridX>
-			<iGridY>12</iGridY>
+			<iGridY>13</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>

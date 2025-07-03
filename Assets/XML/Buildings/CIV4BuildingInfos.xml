@@ -6697,7 +6697,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: move it sooner in tech tree as seems historically accurate plus to buff it and water buildings and units and tiles and or such anyways etc, meshes quite well also in retrospect even though i hadn't/didn't intend as such as first anyways etc, with TECH_ASTRONOMY in our reworked tech tree and naval conquest era maybe anyways etc, i would still want naval warfare to not be a priority for AI and it to ideally focus on land warfare and such, but hopefully harmless to add one more building around this quite key mid game era, but enhances strategic possibilities too maybe anyways etc, was TECH_STEEL -->
+			<!-- custom: move it sooner in tech tree as seems historically accurate plus to buff it and water buildings and units and tiles and or such anyways etc, meshes quite well also in retrospect even though i hadn't/didn't intend as such as first anyways etc, with TECH_ASTRONOMY in our reworked tech tree and naval conquest era maybe anyways etc, i would still want naval warfare to not be a priority for AI and it to ideally focus on land warfare and such, but hopefully harmless to add one more building around this quite key mid game era, but enhances strategic possibilities too maybe anyways etc, was TECH_MARINE_TECHNOLOGY -->
 			<PrereqTech>TECH_MACHINERY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -7987,7 +7987,7 @@
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: they were relevant sooner in tech/history if i am not mistaken from quite quick in this case anyways etc glances/searches on wikipedia or and such anyways etc anyways etc anyways etc, plus to make them buildable sooner too anyways etc anyways etc anyways etc, was TECH_PLASTICS -->
-			<PrereqTech>TECH_STEEL</PrereqTech>
+			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -12401,7 +12401,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_MASS_MEDIA</PrereqTech>
+			<!-- custom: was TECH_MASS_MEDIA -->
+			<PrereqTech>TECH_RADIO</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -12445,7 +12446,7 @@
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 175 -->
-			<iCost>225</iCost>
+			<iCost>200</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -12521,18 +12522,16 @@
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
 			<StateReligionCommerces/>
+			<!-- custom: was 0 / 0 / 10 -->
 			<CommerceHappinesses>
-				<iCommerce>0</iCommerce>
-				<iCommerce>0</iCommerce>
+				<iCommerce>3</iCommerce>
+				<iCommerce>4</iCommerce>
+				<iCommerce>10</iCommerce>
 				<iCommerce>10</iCommerce>
 			</CommerceHappinesses>
 			<ReligionChanges/>
-			<SpecialistCounts>
-				<SpecialistCount>
-					<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
-					<iSpecialistCount>2</iSpecialistCount>
-				</SpecialistCount>
-			</SpecialistCounts>
+			<!-- custom: was SPECIALIST_ARTIST 2 -->
+			<SpecialistCounts/>
 			<!-- custom: rework broadcast_tower, (and also anyways etc) gives a free artist now anyways etc, also remove hit bonuses too else(where) in the xml anyways etc, was empty -->
 			<FreeSpecialistCounts>
 				<FreeSpecialistCount>
@@ -12555,11 +12554,20 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: building reworked as a hybrid broadcasting building if i may say anyways etc, adjust flavors to match these changes, was flavors culture 9 growth 5 -->
 			<!-- advc.020: was 10 Culture, but also helpful for Growth -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>9</iFlavor>
+					<iFlavor>7</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+					<iFlavor>5</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
@@ -21570,7 +21578,7 @@
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: TECH_NATURALISM (if we rework it indeed as such anyways etc) seems more accurate or and is very bare and makes sens emroe in terms of gameplay in our reworked tech tree, plsu can be built a bit sooner and is nice to have a cultural building at this tech +/- era anyways etc at least in terms of civ4 gameplay in our mod advciv-sas or and other or and not, also boosting culture path and wonders by building them sooner indirectly but anyways etc anyways etc, was TECH_NATIONALISM -->
-			<PrereqTech>TECH_ALPHABET</PrereqTech>
+			<PrereqTech>TECH_NATURALISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -21923,7 +21931,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: moved to TECH_STEAM_POWER as per our reworked tech tree, seems to make sense there from very little or little in this case anyways etc on wikipedia or such similar anyways etc i glanced of it, was TECH_STEEL -->
+			<!-- custom: moved to TECH_STEAM_POWER as per our reworked tech tree, seems to make sense there from very little or little in this case anyways etc on wikipedia or such similar anyways etc i glanced of it, was TECH_MARINE_TECHNOLOGY -->
 			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -26420,7 +26428,7 @@
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: was TECH_ELECTRICITY -->
-			<PrereqTech>TECH_ALPHABET</PrereqTech>
+			<PrereqTech>TECH_NATURALISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -27854,7 +27862,7 @@
 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
 			<!-- custom: was TECH_COMPUTERS -->
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: was TECH_PAPER -->
+			<!-- custom: was TECH_THEORY_OF_EVOLUTION -->
 			<PrereqTech>TECH_DIVINE_RIGHT</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -29665,7 +29673,8 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>UNITCLASS_GREAT_MERCHANT</GreatPeopleUnitClass>
+			<!-- custom: was UNITCLASS_GREAT_MERCHANT -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
@@ -30001,7 +30010,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: was TECH_STEEL -->
+			<!-- custom: was TECH_MARINE_TECHNOLOGY -->
 			<!-- K-Mod: was COMBUSTION -->
 			<PrereqTech>TECH_RADIO</PrereqTech>
 			<TechTypes>
@@ -30020,7 +30029,8 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>UNITCLASS_GREAT_ENGINEER</GreatPeopleUnitClass>
+			<!-- custom: was UNITCLASS_GREAT_ENGINEER -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
@@ -30180,7 +30190,7 @@
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: tech_railroad now removed or todo to be removed if i am not mistaken and (if i anyways etc) will not change this plan i mean anyways etc, was TECH_RAILROAD -->
-			<PrereqTech>TECH_STEEL</PrereqTech>
+			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_CORPORATION</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -30374,7 +30384,8 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>UNITCLASS_GREAT_SCIENTIST</GreatPeopleUnitClass>
+			<!-- custom: was UNITCLASS_GREAT_SCIENTIST -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_GENERAL</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
@@ -30535,7 +30546,7 @@
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: was TECH_CORPORATION only anyways etc -->
 			<!-- K-Mod: was MASS_MEDIA and CORPORATION -->
-			<PrereqTech>TECH_REPLACEABLE_PARTS</PrereqTech>
+			<PrereqTech>TECH_GAME_THEORY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_CORPORATION</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -30552,7 +30563,8 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
+			<!-- custom: have greater variety in great person type, one great person type per corporation type without overlap anyways etc, was UNITCLASS_GREAT_ARTIST -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_SPY</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
@@ -30688,7 +30700,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: corporation_8, type: corporation_8 (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_APOSTOLIC_PALACE, type: BUILDING_APOSTOLIC_PALACE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<BuildingClass>BUILDINGCLASS_APOSTOLIC_PALACE</BuildingClass>
 			<Type>BUILDING_APOSTOLIC_PALACE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>

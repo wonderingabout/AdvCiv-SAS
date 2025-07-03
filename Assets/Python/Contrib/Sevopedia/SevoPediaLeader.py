@@ -1448,8 +1448,6 @@ class SevoPediaLeader:
 	def interfaceScreen(self, iLeader):
 		self.iLeader = iLeader
 
-		debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc)
-
 		# <!-- custom: change call order to match filling/building order, generally from top left to bottom and left to right but not always, reordering in such a way is maybe a bit more intuitive this way perhaps or/and clearer or/and helpful or not or other etc anyways, -->
 		self.placeLeaderHeadPane()
 		self.placeFavorites()

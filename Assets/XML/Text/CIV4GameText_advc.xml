@@ -3080,14 +3080,6 @@
 		<Spanish>"El inter&#233;s compuesto es la fuerza m&#225;s poderosa de la galaxia." - Albert Einstein</Spanish>
 	</TEXT>
 	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_TECH_ALPHABET_QUOTE</Tag>
-		<English>"Words have the power to both destroy and heal. When words are both true and kind, they can change our world." - ascribed to the Buddha</English>
-		<French>"Les mots ont le pouvoir de d&#233;truire et de soigner. Lorsqu'ils sont justes et g&#233;n&#233;reux, ils peuvent changer le monde." - Bouddha</French>
-		<German>"Worte haben die Kraft zu zerst&#246;ren oder zu heilen. Wenn Worte wahr und zugleich g&#252;tig sind, k&#246;nnen sie unsere Welt ver&#228;ndern." - Buddha (zugeschrieben)</German>
-		<Italian>"Le parole hanno il potere di distruggere e di creare. Quando le parole sono sincere e gentili, possono cambiare il mondo." - Budda</Italian>
-		<Spanish>"Las palabras tienen el poder de destruir y sanar. Cuando las palabras son buenas y sinceras tienen el poder de cambiar el mundo." - Buda</Spanish>
-	</TEXT>
-	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_TECH_PHILOSOPHY_QUOTE</Tag>
 		<English>"I have gained this by philosophy: that I do without being commanded what others do only from fear of the law." - ascribed to Aristotle</English>
 		<French>"La philosophie m'a appris ceci : ce que je fais sans que l'on me l'ordonne, les autres le font par crainte de la loi." - Aristote</French>

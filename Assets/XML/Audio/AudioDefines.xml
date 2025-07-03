@@ -8493,8 +8493,8 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_ALPHABET</SoundID>
-			<Filename>Sounds/Tech/Tech_Alphabet</Filename>
+			<SoundID>SND_TECH_NATURALISM</SoundID>
+			<Filename>Sounds/Tech/Tech_NATURALISM</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8523,13 +8523,6 @@
 		<SoundData>
 			<SoundID>SND_TECH_PHILOSOPHY</SoundID>
 			<Filename>Sounds/Tech/Tech_Philosophy</Filename>
-			<LoadType>DYNAMIC_RES</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
-			<SoundID>SND_TECH_PAPER</SoundID>
-			<Filename>Sounds/Tech/Tech_Paper</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8648,6 +8641,13 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_FIBER_OPTICS</SoundID>
+			<Filename>Sounds/Tech/Tech_FiberOptics</Filename>
+			<LoadType>DYNAMIC_RES</LoadType>
+			<bIsCompressed>1</bIsCompressed>
+			<bInGeneric>1</bInGeneric>
+		</SoundData>
+		<SoundData>
+			<SoundID>SND_TECH_THEORY_OF_EVOLUTION</SoundID>
 			<Filename>Sounds/Tech/Tech_FiberOptics</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -8773,13 +8773,6 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_REPLACE_PARTS</SoundID>
-			<Filename>Sounds/Tech/Tech_ReplaceableParts</Filename>
-			<LoadType>DYNAMIC_RES</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
 			<SoundID>SND_TECH_RIFLING</SoundID>
 			<Filename>Sounds/Tech/Tech_Rifling</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
@@ -8794,7 +8787,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_STEEL</SoundID>
+			<SoundID>SND_TECH_MARINE_TECHNOLOGY</SoundID>
 			<Filename>Sounds/Tech/Tech_Steel</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -8802,6 +8795,13 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_RAILROAD</SoundID>
+			<Filename>Sounds/Tech/Tech_Railroad</Filename>
+			<LoadType>DYNAMIC_RES</LoadType>
+			<bIsCompressed>1</bIsCompressed>
+			<bInGeneric>1</bInGeneric>
+		</SoundData>
+		<SoundData>
+			<SoundID>SND_TECH_GAME_THEORY</SoundID>
 			<Filename>Sounds/Tech/Tech_Railroad</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -9137,8 +9137,8 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_ALPHABET</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Alphabet</Filename>
+			<SoundID>SND_TECH_MP_NATURALISM</SoundID>
+			<Filename>Sounds/Tech/Tech_MP_NATURALISM</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9167,13 +9167,6 @@
 		<SoundData>
 			<SoundID>SND_TECH_MP_PHILOSOPHY</SoundID>
 			<Filename>Sounds/Tech/Tech_MP_Philosophy</Filename>
-			<LoadType>DYNAMIC_RES</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
-			<SoundID>SND_TECH_MP_PAPER</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Paper</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9292,6 +9285,13 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_FIBER_OPTICS</SoundID>
+			<Filename>Sounds/Tech/Tech_MP_FiberOptics</Filename>
+			<LoadType>DYNAMIC_RES</LoadType>
+			<bIsCompressed>1</bIsCompressed>
+			<bInGeneric>1</bInGeneric>
+		</SoundData>
+		<SoundData>
+			<SoundID>SND_TECH_MP_THEORY_OF_EVOLUTION</SoundID>
 			<Filename>Sounds/Tech/Tech_MP_FiberOptics</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -9417,13 +9417,6 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_REPLACE_PARTS</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_ReplaceableParts</Filename>
-			<LoadType>DYNAMIC_RES</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
 			<SoundID>SND_TECH_MP_RIFLING</SoundID>
 			<Filename>Sounds/Tech/Tech_MP_Rifling</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
@@ -9438,7 +9431,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_STEEL</SoundID>
+			<SoundID>SND_TECH_MP_MARINE_TECHNOLOGY</SoundID>
 			<Filename>Sounds/Tech/Tech_MP_Steel</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -9446,6 +9439,13 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_RAILROAD</SoundID>
+			<Filename>Sounds/Tech/Tech_MP_Railroad</Filename>
+			<LoadType>DYNAMIC_RES</LoadType>
+			<bIsCompressed>1</bIsCompressed>
+			<bInGeneric>1</bInGeneric>
+		</SoundData>
+		<SoundData>
+			<SoundID>SND_TECH_MP_GAME_THEORY</SoundID>
 			<Filename>Sounds/Tech/Tech_MP_Railroad</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>

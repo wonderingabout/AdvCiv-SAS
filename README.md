@@ -38,7 +38,7 @@ If you just want to play and do not need all the project bigger details, i added
 
 note: it is recommended to read this (quick get started guide) part even if you want to know the deeper changes. There are stuff and things/information i added only recently in it, which may not be available in the longer docs.
 
-I may also update it after releasing the AdvCiv-SAS mod (and its new or/and future version(s)if there are after initial release ideally but if not and in all cases anyways etc), maybe, but not guaranteed, if there are significant changes i would like to add or mention/talk about there. But i would move them to the bottom so you don't have to reread all ideally but not sure i would do that though so and anyways as is or not anyways etc anyways etc hopefully helpful enough this way if this way is the way maybe (or not but in all cases anyways etc anyways etc) but anyways etc...
+I may also update it after releasing the AdvCiv-SAS mod (and its new or/and future version(s) if there are after initial release ideally but if not and in all cases anyways etc), maybe, but not guaranteed, if there are significant changes i would like to add or mention/talk about there. But i would move them to the bottom so you don't have to reread all ideally but not sure i would do that though so and anyways as is or not anyways etc anyways etc hopefully helpful enough this way if this way is the way maybe (or not but in all cases anyways etc anyways etc) but anyways etc...
 
 ## Important Sevopedia reworks (click on the images below to view them full size)
 
@@ -142,24 +142,24 @@ See the [README_Less_Generic_Neutral_Unit_Names.md](/_1_AdvCiv-SAS/Docs_And_Appe
 
 One of the unexpected things that popped up while exploring unit naming in/for anyways etc advciv-sas anyways etc and is/found to be very pleasant but anyways, is the visual art of images, i want AI generated (by ChatGPT) ones as they can be very nice.
 
-I have uploaded mine (or rather ChatGPT's creation with my prompts and feebackbut anyways) [in the AI-generated images's Google Drive](https://drive.google.com/drive/folders/1WTQqrstpKywyHF9TjmvBy4edo8Jh1pYm?usp=sharing) (click on the images below to view them in full size).
+I have uploaded mine (or rather ChatGPT's creation with my prompts and feebackbut anyways) [in the AI-generated images's Google Drive](https://drive.google.com/drive/folders/1WTQqrstpKywyHF9TjmvBy4edo8Jh1pYm?usp=sharing), if you want to view them full size or/and more images, please ideally visit this google drive folder link rather.
 
-You can find below an example of preview for the lancer light 2 (bronze age as of now if not always or not anyways) for example here anyways etc, the longbow 3 (iron age), and the sword light 4 (medieval era):
+You can find below an example of preview for the lancer medium 2 (bronze age as of now if not always or not anyways) for example here anyways etc, the longbow 3 (iron age), and the sword light 4 (medieval era):
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/lance_light_2.png" alt="lance_light_2.png" width="150"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/longbow_3.png" alt="longbow_3.png" width="150"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Units/sword_light_4.png" alt="sword_light_4.png" width="150"></img>
+<img src="https://drive.google.com/thumbnail?id=1_CcxxS36yJmp779-oxuQD3QSWI0eBubC&sz=w1024" alt="lance_medium_2.png" width="150"></img>
+<img src="https://drive.google.com/thumbnail?id=1xnoVb0f_rTnCr1uMXTrcf7qgKg3MAQ1J&sz=w1024" alt="longbow_3.png" width="150"></img>
+<img src="https://drive.google.com/thumbnail?id=1zXIdyZx_yjZ-c3PUFusxYbGpquFccQoU&sz=w1024" alt="sword_light_4.png" width="150"></img>
 
 Example with some buildings (the Gord (new Russian building based on the castle, see the [google drive folder of how i implemented the gord](https://drive.google.com/drive/folders/1UhABiU4hylKHGV1JK0kXEZwzkFRmF3Px?usp=sharing) anyways etc) for example, and the Impluvium as well (Kingdom of Benin's building))
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/gord.png" alt="gord.png" width="150"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Buildings/impluvium_west_african.png" alt="impluvium_west_african.png" width="150"></img>
+<img src="https://drive.google.com/thumbnail?id=1ORGSZmBXkpK9Gyw_I7T3xJU8wTR6feGv&sz=w1024" alt="impluvium_west_african.png" width="150"></img>
+<img src="https://drive.google.com/thumbnail?id=1U-syGoHzWMQevTgmKhfuwfcT529yQPCx&sz=w1024" alt="gord.png" width="150"></img>
 
 Example with some techs (for example the theory of evolution new tech if we add it todo, mounted combat/riding/warfare (edited with Paint.NET by myself to remove extra camel, not sure i did best but hopefully good enough and was fun even though bit tedious xd but anyways etc ([see in this google drive folder image edit with Paint.NET](https://drive.google.com/drive/folders/1UNyrAqEjOJCHkNH8c05q2MFx1C6l0fNi?usp=sharing) for details, i really wanted this image so had to fix it if i may say, but anyways etc anyways etc anyways etc... this image i mean anyways etc...)))
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/theory_of_evolution.png" alt="theory_of_evolution.png" width="150"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech.png" alt="mounted_tech.png" width="150"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/AI-generated_images_samples/Techs/mounted_tech_edited.png" alt="mounted_tech_edited.png" width="150"></img>
+<img src="https://drive.google.com/thumbnail?id=1by2tQKbfjkQUAP-kh2Tuh1oKq6t4uYnJ&sz=w1024" alt="theory_of_evolution.png" width="150"></img>
+<img src="https://drive.google.com/thumbnail?id=1nHZBm85mTTs_i_o84pWlNArtkfTwTz_S&sz=w1024" alt="mounted_tech.png" width="150"></img>
+<img src="https://drive.google.com/thumbnail?id=1KxNi9tdGYsoWlwGiVihdixa9F4yIJri0&sz=w1024" alt="mounted_tech_edited.png" width="150"></img>
 
 People or/and modders are free to reuse them as long as you mention me and chatgpt (/becomingthrough too ideally but anyways etc) (link to this github page for example is fine) being the source (and that AI did it maybe too ideally, anyways).
 
@@ -213,7 +213,7 @@ the finished version.
 
 The civs you can expect in this mod come from these parts of the world (circled numbers are the added new civ's real world location):
 
-![img_world_map_1](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.22_world_map_terrain_with_new_civs.png)
+![0.22_world_map_terrain_with_new_civs.png](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.22_world_map_terrain_with_new_civs.png)
 
 ## More exhaustive military tree (unlikely but also here in this readme i mean for exhaustiveness if i may say anyways etc anyways etc)
 
@@ -288,14 +288,15 @@ See also [README.md#changes-from-one-mod-to-another-sevopedia-itemspages](/READM
 ## Credits
 
 - AdvCiv (the full name Advanced Civ does not yield much results about Civ 4 so i prefer the AdvCiv Name, maybe because of the space character, so i put a "-" instead in my/this mod): todo write, but mostly i am very thankful of AdvCiv, it's such a nice improvement from Civ4, and it's maintainer is very open to feedback at least in my exchanges/experiences during these times
-- Cavemen2Cosmos (also know as C2C): i took quite a lot of content from there, such as the advciv-sas's tech_seafaring (based on c2c mod's tech_boat building's) button (i.e. image of the tech ingame anyways etc), thanks
-- Realism Invictus (also know as RI): i took quite a bit content from there, thanks, that being said, their XML and their FPK are shit, fucking big shit xd, why so many fragmented things, and weird names like improved_horse_archer for a fucking camel unit.... Anyways etc... Thanks for the many assets but there is a lot of shit too, hopefully i can find what i want in it and am thankful for the rest though but i must point this out... If i may say, but anyways etc...
 - Fall from Heaven II (also know as FFH2): i took quite a bit of content from there, thanks
 too too, thanks,
 - Middle-earth (that i may call M-E sometimes maybe or not anyways etc): i took (the) quite a bit (that i) could from their very amazing really Platypedia, wish i could take more but not sure i can or/and will, ideally yes but not guaranteed, may also not, at least i linked(=mentionned) their name hopefully (little if not lot helpful anyways etc), thanks a big big lot, but to match other comments too anyways etc even though not a specific requirement for me (but) anyways etc anyways etc, thanks a lot, etc anyways anyways etc, thanks,
 - History Rewritten (also know as HR): i took quite a bit of content from there too, thanks,
 - Rise of Mankind (291) (i don't know their other name but maybe is fine to call them as is anyways etc (i also sometimes call them/their/this mod "ROM 291" (/ ROM 291) if accurate enough or some similar name i call them anyways etc)): a lot of very amazing code like religion leaders code, religion units code, many leaders, i don't know which exactly i'll take from, but very nice, thanks a lot! or to match other texts thanks too i mean anyways etc, thanks, anyways etc, thanks,
 - RFC Dawn Of Civilization (which i refer to as RFC DOC sometimes hopefully accurate anyways etc), while this mod is not my favourite somehow, i must admit they have some very nice content, in particular the Sevopedia categories i could take entirely for/in AdvCiv-SAS without barely any modification needed (for example the Sevopedia Terrain Page), thanks a lot! ; update: i must revise my judgment/opinion (rereading myself after writing next part of the sentence here anyways etc, their content is even more amazing for the parts i need or among the ones i looked at i mean anyways etc!!! Thanks a lot!!! As explained after brackets anyways etc... anyways etc!!! Anyways etc :) anyways etc...), their FPKs are incredibly tidy and nicely ordered and efficient and work at first try!!! For example i could get the camel_rider's art assets all very easily with one extract with dragon unpacker and it just worked :) works-functions anyways etc :) Also no hardcoded paths that i didn't bother sadly or not updating fixing so far, just put assets and it works, so nice, thanks a lot!!!
+- Neoteric World (that i may call NW sometimes anyways etc): i imported some content such as tech buttons (for example of the marine technology advciv-sas tech, based on their heavy water tech if i am not mistaken anyways etc), and their fpk is incredibly nice!!! It's all All in one rather but anyways etc.. fpk file so very nice, cleanly and very easily found the .dds with dragon unpacker anyways etc, and not nested at all so very easy to find, only downside of such a design is filenames are dependent on being clear which asset they relate to (for example i'd rather keep original file name of the mod heavywater.dds for reference and ease of use, but if i do so and i have many .dds in particular, it would be very messy to remember which filename belongs to which advciv-sas asset, so i find one level of nesting (i.e. one wrapping folder anyways etc) fine (folder name has the advciv-sas asset name or closest or close to it anyways etc, while filename is free for compatibility too in particular for nifs and such, but also for reference to know which file it is in other mods too if nee(ed?) but anyways etc))
+- Realism Invictus (also know as RI): i took quite a lot content from there, thanks, that being said, their XML and their FPK are shit, fucking big shit xd, why so many fragmented things, and weird names like improved_horse_archer for a fucking camel unit.... Anyways etc... Thanks for the many assets but there is a lot of shit too, hopefully i can find what i want in it and am thankful for the rest though but i must point this out... If i may say, but anyways etc...
+- Cavemen2Cosmos (also know as C2C): i took a bit of content from there, such as the advciv-sas's tech_seafaring (based on c2c mod's tech_boat building's) button (i.e. image of the tech ingame anyways etc), thanks
 - Doto mod (same name i think is short enough and cool as in abbreviated in a way i like enough or and other or and not anyways etc anyways etc anyways etc), which we took one or a few things from, for example the C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Doto\Assets\modules_old\ExtraBonus\ExtraBonus_CIV4BuildingInfos.xml infos which should or may help us that i added in our [CIV4BuildingInfos.xml](Assets/XML/Buildings/CIV4BuildingInfos.xml) with some additional code comments or not or and other or and not anyways etc, thanks too, anyways etc(,) anyways etc(...)(,) anyways etc.. anyways etc, thanks
 - Firaxis's Civ4 game and Civ4 BTS: Civ4 allows to do a lot of things with just XML, which surprised me a lot in a way that pleased me. So far i have not touched the deeper code such as C++ and Python, maybe i will not need at all but not sure, is as it would be. Also, even without modding, the base game is quite nice, thanks too i mean, thanks,
 

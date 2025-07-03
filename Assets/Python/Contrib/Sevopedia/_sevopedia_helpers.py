@@ -21,6 +21,98 @@ def printObjAttrs(obj):
 
 
 
+def get_leaders_index_to_type_map(gc):
+	# Returns a dictionary mapping each leader index (int) to its string type (e.g., "LEADER_GANDHI").
+	# Excluded leaders (like BARBARIAN) must be filtered by caller if needed.
+
+	leaders_indexes_to_types = {}
+	for iLeader in range(gc.getNumLeaderHeadInfos()):
+		leader_type = gc.getLeaderHeadInfo(iLeader).getType()
+		leaders_indexes_to_types[iLeader] = leader_type
+	return leaders_indexes_to_types
+
+
+
+def get_dll_existing_excluded_leader_types():
+# <!-- custom: note: LEADER_DEFAULTS doesn't seem to exist at all in the DLL if i am not mistaken, so no need to mention it here (also may cause errors in our code as we can't even refer to its index to exclude it to begin with since such a leader index doesn't seem to exist at all in gc/DLL if i am not mistaken so handle that edge case of LEADER_DEFAULTS specifically i mean anyways etc) unlike in generate_leaders_data.py for external to civ4 script usage (such as generating charts .csv, etc.), as for civ4 use only mention LEADER_BARBARIAN and similar existing leaders even if they are excluded, but not LEADER_DEFAULTS and any other DLL seemingly removed leader index as well if any other exist (as of now LEADER_DEFAULTS seems to be the only one if i am not mistaken but is to be exhaustive anyways etc -->
+    return (
+        "LEADER_BARBARIAN",
+    )
+
+
+
+def get_leader_index_from_type(leader_type, gc):
+	# Given a leader_type string (e.g. "LEADER_ALEXANDER"), return its iLeader index.
+	# Raises ValueError if not found. Compatible with Python 2.4 and Civ4 DLL.
+	# <!-- custom: note: LEADER_DEFAULTS doesn't seem to have a leader index at all, so don't use it for this function -->
+
+	for iLeader in range(gc.getNumLeaderHeadInfos()):
+		current_leader_type = gc.getLeaderHeadInfo(iLeader).getType()
+		if current_leader_type == leader_type:
+			return iLeader
+
+	raise ValueError("[FATAL] leader_type=%s not found in gc.getLeaderHeadInfo list. Note: this can also happen but not only in particular with LEADER_DEFAULTS, which does not seem to have a leader index at all in gc of base advciv code if i am not mistaken, that we use as well in our/this mod very similarly if not identically but anyways etc, so make sure to adress the edge case of LEADER_DEFAULTS in another way to not get caught/stuck in this edge case error message in particular, possibly for other leaders as well, anyways etc." % leader_type)
+
+
+
+def get_leader_indexes_from_leader_types(leader_types, gc):
+    # Given a list/tuple of leader types (e.g. ('LEADER_BARBARIAN', <!-- custom:, but also 'LEADER_ASOKA', etc, any leader if i am not mistaken anyways etc -->)), return a tuple of corresponding leader indexes (iLeader) (e.g. <!-- custom: (0, 2, etc.) -->).
+
+    leader_indexes_list = []
+
+    for leader_type in leader_types:
+        leader_index = get_leader_index_from_type(leader_type, gc)
+        leader_indexes_list.append(leader_index)
+    
+    leader_indexes_tuple = tuple(leader_indexes_list)
+
+    return leader_indexes_tuple
+
+
+
+def get_leader_type_from_leader_index(iLeader, gc):
+	# Given an iLeader index (e.g. 1), return the leader_type string (e.g. "LEADER_ALEXANDER").
+	# Raises IndexError if the index is out of bounds.
+	# Compatible with Python 2.4 and Civ4 DLL.
+	# <!-- custom: some entries like LEADER_DEFAULTS may not exist at any valid iLeader index and must be handled elsewhere -->
+
+	if iLeader < 0 or iLeader >= gc.getNumLeaderHeadInfos():
+		raise IndexError("[FATAL] iLeader=%d is out of bounds for gc.getNumLeaderHeadInfos()=%d. This might indicate a misindexed value or mod bug." % (iLeader, gc.getNumLeaderHeadInfos()))
+
+	return gc.getLeaderHeadInfo(iLeader).getType()
+
+
+
+def check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(excluded_leaders_indexes_from_calculations, leaders_dict, leaders_dict_name, gc):
+	leaders_dict_keys = leaders_dict.keys()
+
+	for excluded_leader_index in excluded_leaders_indexes_from_calculations:
+		if (excluded_leader_index in leaders_dict_keys):
+			excluded_leader_type = get_leader_type_from_leader_index(excluded_leader_index, gc)
+			raise KeyError("[FATAL] During sanity checks testing, excluded_leader_index=%d (excluded_leader_type=%s), was assessed to not be properly excluded from the calculations and its corresponding leader_index is still part of the leaders_dict_keys=%s, please make sure this excluded leader is not part of the leaders_dict_name=%s." % (excluded_leader_index, excluded_leader_type, str(leaders_dict_keys), leaders_dict_name))
+
+
+
+def check_leaders_dict_only_has_leader_index_keys(leaders_dict, leaders_dict_name):
+	for key in leaders_dict.keys():
+		if not isinstance(key, int):
+			key_name = repr(key)
+			key_type_name = str(type(key))
+			raise TypeError("[FATAL] In leaders_dict_name=%s, key=%s is not an integer index (key_name=%s). Only integer iLeader indexes should be used as keys. Please ensure that key_type_name=%s uses iLeader (e.g. 0, 1, 2...) as keys, not leader_type strings." % (leaders_dict_name, key, key_name, key_type_name))
+
+
+
+def check_overlapping_keys_between_dicts(d1, d2):
+	# Raises ValueError if any key exists in both d1 and d2.
+	overlap = []
+	for k in d1:
+		if k in d2:
+			overlap.append(k)
+	if overlap:
+		raise ValueError("Overlapping keys between dictionaries: %s" % str(overlap))
+
+
+
 # <!-- custom: working-functioning anyways etc (see output example below after function code anyways etc) debug for leader info (fetches xml), thanks a lot to chatgpt / becomingthrough thanks to which and with my prompt too it was super fast hehe to add all after debugging the bit harder flavor, nowarattitudeprob, contact, memory, and bbai fields in debug, the rest are super fast now and thanks for all and in your help in these too hehe chatgpt / becomingthrough an thanks to me to myself too for my pormpts or and such and for all or not for all or yes for all or etc anyways etc anyways etc anyways etc -->
 def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
     # <!-- custom: first skip these/the fields below we don't use/need in our AI personality panel anyways etc anyways etc anyways etc for example in LEADER_DEFAULTS even though said in code sample too but to be exhaustive or not or yes or and other or and not or other or yes or other or etc or as i want or yes or not or yes or other or etc anyways etc:
@@ -529,98 +621,6 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
     # NoWarAttitudeProb 3 (Pleased): 114
     # NoWarAttitudeProb 4 (Friendly): 118
     # -->
-
-
-
-def get_leaders_index_to_type_map(gc):
-	# Returns a dictionary mapping each leader index (int) to its string type (e.g., "LEADER_GANDHI").
-	# Excluded leaders (like BARBARIAN) must be filtered by caller if needed.
-
-	leaders_indexes_to_types = {}
-	for iLeader in range(gc.getNumLeaderHeadInfos()):
-		leader_type = gc.getLeaderHeadInfo(iLeader).getType()
-		leaders_indexes_to_types[iLeader] = leader_type
-	return leaders_indexes_to_types
-
-
-
-def get_dll_existing_excluded_leader_types():
-# <!-- custom: note: LEADER_DEFAULTS doesn't seem to exist at all in the DLL if i am not mistaken, so no need to mention it here (also may cause errors in our code as we can't even refer to its index to exclude it to begin with since such a leader index doesn't seem to exist at all in gc/DLL if i am not mistaken so handle that edge case of LEADER_DEFAULTS specifically i mean anyways etc) unlike in generate_leaders_data.py for external to civ4 script usage (such as generating charts .csv, etc.), as for civ4 use only mention LEADER_BARBARIAN and similar existing leaders even if they are excluded, but not LEADER_DEFAULTS and any other DLL seemingly removed leader index as well if any other exist (as of now LEADER_DEFAULTS seems to be the only one if i am not mistaken but is to be exhaustive anyways etc -->
-    return (
-        "LEADER_BARBARIAN",
-    )
-
-
-
-def get_leader_index_from_type(leader_type, gc):
-	# Given a leader_type string (e.g. "LEADER_ALEXANDER"), return its iLeader index.
-	# Raises ValueError if not found. Compatible with Python 2.4 and Civ4 DLL.
-	# <!-- custom: note: LEADER_DEFAULTS doesn't seem to have a leader index at all, so don't use it for this function -->
-
-	for iLeader in range(gc.getNumLeaderHeadInfos()):
-		current_leader_type = gc.getLeaderHeadInfo(iLeader).getType()
-		if current_leader_type == leader_type:
-			return iLeader
-
-	raise ValueError("[FATAL] leader_type=%s not found in gc.getLeaderHeadInfo list. Note: this can also happen but not only in particular with LEADER_DEFAULTS, which does not seem to have a leader index at all in gc of base advciv code if i am not mistaken, that we use as well in our/this mod very similarly if not identically but anyways etc, so make sure to adress the edge case of LEADER_DEFAULTS in another way to not get caught/stuck in this edge case error message in particular, possibly for other leaders as well, anyways etc." % leader_type)
-
-
-
-def get_leader_indexes_from_leader_types(leader_types, gc):
-    # Given a list/tuple of leader types (e.g. ('LEADER_BARBARIAN', <!-- custom:, but also 'LEADER_ASOKA', etc, any leader if i am not mistaken anyways etc -->)), return a tuple of corresponding leader indexes (iLeader) (e.g. <!-- custom: (0, 2, etc.) -->).
-
-    leader_indexes_list = []
-
-    for leader_type in leader_types:
-        leader_index = get_leader_index_from_type(leader_type, gc)
-        leader_indexes_list.append(leader_index)
-    
-    leader_indexes_tuple = tuple(leader_indexes_list)
-
-    return leader_indexes_tuple
-
-
-
-def get_leader_type_from_leader_index(iLeader, gc):
-	# Given an iLeader index (e.g. 1), return the leader_type string (e.g. "LEADER_ALEXANDER").
-	# Raises IndexError if the index is out of bounds.
-	# Compatible with Python 2.4 and Civ4 DLL.
-	# <!-- custom: some entries like LEADER_DEFAULTS may not exist at any valid iLeader index and must be handled elsewhere -->
-
-	if iLeader < 0 or iLeader >= gc.getNumLeaderHeadInfos():
-		raise IndexError("[FATAL] iLeader=%d is out of bounds for gc.getNumLeaderHeadInfos()=%d. This might indicate a misindexed value or mod bug." % (iLeader, gc.getNumLeaderHeadInfos()))
-
-	return gc.getLeaderHeadInfo(iLeader).getType()
-
-
-
-def check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(excluded_leaders_indexes_from_calculations, leaders_dict, leaders_dict_name, gc):
-	leaders_dict_keys = leaders_dict.keys()
-
-	for excluded_leader_index in excluded_leaders_indexes_from_calculations:
-		if (excluded_leader_index in leaders_dict_keys):
-			excluded_leader_type = get_leader_type_from_leader_index(excluded_leader_index, gc)
-			raise KeyError("[FATAL] During sanity checks testing, excluded_leader_index=%d (excluded_leader_type=%s), was assessed to not be properly excluded from the calculations and its corresponding leader_index is still part of the leaders_dict_keys=%s, please make sure this excluded leader is not part of the leaders_dict_name=%s." % (excluded_leader_index, excluded_leader_type, str(leaders_dict_keys), leaders_dict_name))
-
-
-
-def check_leaders_dict_only_has_leader_index_keys(leaders_dict, leaders_dict_name):
-	for key in leaders_dict.keys():
-		if not isinstance(key, int):
-			key_name = repr(key)
-			key_type_name = str(type(key))
-			raise TypeError("[FATAL] In leaders_dict_name=%s, key=%s is not an integer index (key_name=%s). Only integer iLeader indexes should be used as keys. Please ensure that key_type_name=%s uses iLeader (e.g. 0, 1, 2...) as keys, not leader_type strings." % (leaders_dict_name, key, key_name, key_type_name))
-
-
-
-def check_overlapping_keys_between_dicts(d1, d2):
-	# Raises ValueError if any key exists in both d1 and d2.
-	overlap = []
-	for k in d1:
-		if k in d2:
-			overlap.append(k)
-	if overlap:
-		raise ValueError("Overlapping keys between dictionaries: %s" % str(overlap))
 
 
 

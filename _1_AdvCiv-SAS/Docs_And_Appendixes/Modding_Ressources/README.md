@@ -18,7 +18,23 @@ Else or additionally, you may find more help asking your question(s) directly on
 
 ## A few useful tips
 
-### full git log with anonymized email
+### google drive image link in html tag if i am not mistaken anyways etc
+
+Was not easy to find how, but [this stackoverflow answer](https://stackoverflow.com/a/52067077) shows how to do it successfully, ai-generated images as of now in our advciv-sas mod anyways etc use this successfully as well anyways etc, see also the implementation in the main README.md at [README.md#ai-generated-images](/README.md#ai-generated-images) for example of how it is done successfully at least as of now if it helps anyways etc.
+
+To get the id from the url, what i did and that works as of now anyways etc is to click on the image in the drive folder containing the image, then the sandwich menu whatever they call it xd anyways etc, then "open in new window", then the following url such (for example in `https://drive.google.com/file/d/1_CcxxS36yJmp779-oxuQD3QSWI0eBubC/view` has the id `1_CcxxS36yJmp779-oxuQD3QSWI0eBubC` that i can insert in the src field following the stackoverflow answer instructions/example linked and that as of now seems to work-function fine for all the images we inserted in the git readme as such anyways etc. (note: i didn't add too many images as it would be tedious to manage in the drive vs git, but for non-essential ones and especially heavy ones atleast in advciv-sas i mean anwyays etc anyways etc, moved them to the drive or fetched them for there directly if already there anwyays etc)
+
+Was not easy to find how at least to me anyways etc so i am glad i found how anyways etc and so i mean anyways etc i hope these instructions help i mean at least as of now, anyways etc anyways etc anyways etc.
+
+### write git commit message gradually as you do changes before committing them, and keep notes of ideas anyways etc
+
+I have noticed while developing this advciv-sas mod at some point it is is so helpful to write bit by bit and gradually the commit message rather than do all changes then try to guess/remember which. Not necessarily listing all changes, but the main ones or most relevant or important ones in importance i mean (redundant to say important importance but anyways etc) as bullet points or such as you prefer anyways etc.
+
+Personally i do so in Notepad++ where i also store notes of ideas of things to add or not for example if i may say anyways etc. I may often not look at it for a long time, and spend bit of time then sorting the ideas and organizing them or not but is very helpful so i would recommend this as well as part or and on top of in this case anyways etc writing commit message notes in a .txt, i'd also recommend writing your ideas in another or same .txt if tidy or readable to you or some similar or as you prefer solution/idea anyways etc.
+
+I started this habit somewhere in this advciv-sas mod development i mean but is very helpful anyways etc, so adding mention of it if helps but anyways etc anyways etc anyways etc.
+
+### full git log with anonymized email in a .txt
 
 Always keep a .txt copy of the full git log of the/your entire project, very useful when doing a global search (for example with VS Code), you can gain while doing so precious information about some features you want to know more about.
 
@@ -29,6 +45,8 @@ cd "C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Be
 ```
 
 For example for AdvCiv-SAS, i put this file (that i ideally should/try to update every while) in this folder for example [/_0_Common_Docs/git_log_anonymized_email.txt](/_0_Common_Docs/git_log_anonymized_email.txt) (but any place (you want) should do (fine) as long as it is in your mod (anywhere inside it maybe anyways)).
+
+note: it should be possible to create erase in one command the old git log but for now at least anyways etc i prefer to manually copy paste, even though risk is low thanks to git commit versioning and having a github backup or such other files or not anyways etc, still for now doing as such but this command may be optimized/enhanced perhaps rather by having it copy it there directly and overwrite old file, which should be quite safe considering it is a rarely used and not actively written on file only a log if i may say as chatgpt would recommend to me about other topics or files when evaluating safety of a change or/and discuss it suggest it with me in this case i mean but anyways etc if i may say or talking about it with it but anyways etc.
 
 ### manual(s) and docs in .txt
 
@@ -445,8 +463,8 @@ See screenshots of how this was implemented (not fully exhaustive but hopefully 
 
 Small sample below /example too but anyways etc:
 
-![img_notech_trading_1](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.50_no_tech_trading_example%20(1).JPG)
-![img_notech_trading_2](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.50_no_tech_trading_example%20(2).JPG)
+![0.50_no_tech_trading_example (1).JPG](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.50_no_tech_trading_example%20(1).JPG)
+![0.50_no_tech_trading_example (2).JPG](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.50_no_tech_trading_example%20(2).JPG)
 
 This was done by adding a new `buildBTradeString` function if i am not mistaken in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp and (adjust to your mod path too anyways etc anyways etc anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.h
 

@@ -586,4 +586,24 @@
 		<Tag>TXT_KEY_TECH_NAVIGATION</Tag>
 		<English>Navigation</English>
 	</TEXT>
+	<!-- custom: replace _ALPHABET with _NATURALISM anyways etc anyways etc anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_NATURALISM</Tag>
+		<English>Naturalism</English>
+	</TEXT>
+	<!-- custom: rename _STEEL to _MARINE_TECHNOLOGY anyways etc anyways etc anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_MARINE_TECHNOLOGY</Tag>
+		<English>Marine Technology</English>
+	</TEXT>
+	<!-- custom: replace TECH_PAPER with TECH_THEORY_OF_EVOLUTION anyways etc anyways etc anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_THEORY_OF_EVOLUTION</Tag>
+		<English>Theory of Evolution</English>
+	</TEXT>
+	<!-- custom: replace _REPLACE_PARTS and _REPLACEABLE_PARTS with _GAME_THEORY anyways etc anyways etc anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_GAME_THEORY</Tag>
+		<English>Game Theory</English>
+	</TEXT>
 </Civ4GameText>

@@ -124,7 +124,7 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
 
 Example of cmd processing for Steam users (adjust paths and/or such similar things anyways if not steam user):
 
-![img1](/_1_AdvCiv-SAS/Images_In_General/scripts/python_success_generate_leaders_data.PNG)
+![python_success_generate_leaders_data.PNG](/_1_AdvCiv-SAS/Images_In_General/scripts/python_success_generate_leaders_data.PNG)
 
 Example of output for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size):
 
