@@ -414,13 +414,13 @@
 			<DefaultUnit>UNIT_CAMEL_ARCHER</DefaultUnit>
 		</UnitClassInfo>
 		<UnitClassInfo>
-			<Type>UNITCLASS_KNIGHT</Type>
-			<Description>TXT_KEY_UNIT_KNIGHT</Description>
+			<Type>UNITCLASS_HORSE_KNIGHT</Type>
+			<Description>TXT_KEY_UNIT_HORSE_KNIGHT</Description>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
 			<iMaxTeamInstances>-1</iMaxTeamInstances>
 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
 			<iInstanceCostModifier>0</iInstanceCostModifier>
-			<DefaultUnit>UNIT_KNIGHT</DefaultUnit>
+			<DefaultUnit>UNIT_HORSE_KNIGHT</DefaultUnit>
 		</UnitClassInfo>
 		<UnitClassInfo>
 			<Type>UNITCLASS_CAMEL_KNIGHT</Type>
@@ -432,13 +432,13 @@
 			<DefaultUnit>UNIT_CAMEL_KNIGHT</DefaultUnit>
 		</UnitClassInfo>
 		<UnitClassInfo>
-			<Type>UNITCLASS_CUIRASSIER</Type>
-			<Description>TXT_KEY_UNIT_CUIRASSIER</Description>
+			<Type>UNITCLASS_HORSE_CUIRASSIER</Type>
+			<Description>TXT_KEY_UNIT_HORSE_CUIRASSIER</Description>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
 			<iMaxTeamInstances>-1</iMaxTeamInstances>
 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
 			<iInstanceCostModifier>0</iInstanceCostModifier>
-			<DefaultUnit>UNIT_CUIRASSIER</DefaultUnit>
+			<DefaultUnit>UNIT_HORSE_CUIRASSIER</DefaultUnit>
 		</UnitClassInfo>
 		<UnitClassInfo>
 			<Type>UNITCLASS_CAMEL_CUIRASSIER</Type>

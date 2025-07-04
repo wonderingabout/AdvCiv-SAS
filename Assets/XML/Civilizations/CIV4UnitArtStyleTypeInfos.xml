@@ -28,11 +28,11 @@
 					</UnitMeshGroup>
 				</StyleUnit>
 				<StyleUnit>
-					<UnitType>UNIT_KNIGHT</UnitType>
+					<UnitType>UNIT_HORSE_KNIGHT</UnitType>
 					<UnitMeshGroup>
-						<EarlyArtDefineTag>ART_DEF_UNIT_KNIGHT_ASIAN</EarlyArtDefineTag>
-						<LateArtDefineTag>ART_DEF_UNIT_KNIGHT_ASIAN</LateArtDefineTag>
-						<MiddleArtDefineTag>ART_DEF_UNIT_KNIGHT_ASIAN</MiddleArtDefineTag>
+						<EarlyArtDefineTag>ART_DEF_UNIT_HORSE_KNIGHT_ASIAN</EarlyArtDefineTag>
+						<LateArtDefineTag>ART_DEF_UNIT_HORSE_KNIGHT_ASIAN</LateArtDefineTag>
+						<MiddleArtDefineTag>ART_DEF_UNIT_HORSE_KNIGHT_ASIAN</MiddleArtDefineTag>
 					</UnitMeshGroup>
 				</StyleUnit>
 				<StyleUnit>
@@ -99,11 +99,11 @@
 			<Type>UNIT_ARTSTYLE_EUROPEAN</Type>
 			<StyleUnits>
 				<StyleUnit>
-					<UnitType>UNIT_KNIGHT</UnitType>
+					<UnitType>UNIT_HORSE_KNIGHT</UnitType>
 					<UnitMeshGroup>
-						<EarlyArtDefineTag>ART_DEF_UNIT_KNIGHT_EUROPEAN</EarlyArtDefineTag>
-						<LateArtDefineTag>ART_DEF_UNIT_KNIGHT_EUROPEAN</LateArtDefineTag>
-						<MiddleArtDefineTag>ART_DEF_UNIT_KNIGHT_EUROPEAN</MiddleArtDefineTag>
+						<EarlyArtDefineTag>ART_DEF_UNIT_HORSE_KNIGHT_EUROPEAN</EarlyArtDefineTag>
+						<LateArtDefineTag>ART_DEF_UNIT_HORSE_KNIGHT_EUROPEAN</LateArtDefineTag>
+						<MiddleArtDefineTag>ART_DEF_UNIT_HORSE_KNIGHT_EUROPEAN</MiddleArtDefineTag>
 					</UnitMeshGroup>
 				</StyleUnit>
 				<StyleUnit>
@@ -231,11 +231,11 @@
 					</UnitMeshGroup>
 				</StyleUnit>
 				<StyleUnit>
-					<UnitType>UNIT_KNIGHT</UnitType>
+					<UnitType>UNIT_HORSE_KNIGHT</UnitType>
 					<UnitMeshGroup>
-						<EarlyArtDefineTag>ART_DEF_UNIT_KNIGHT_MIDDLE_EAST</EarlyArtDefineTag>
-						<LateArtDefineTag>ART_DEF_UNIT_KNIGHT_MIDDLE_EAST</LateArtDefineTag>
-						<MiddleArtDefineTag>ART_DEF_UNIT_KNIGHT_MIDDLE_EAST</MiddleArtDefineTag>
+						<EarlyArtDefineTag>ART_DEF_UNIT_HORSE_KNIGHT_MIDDLE_EAST</EarlyArtDefineTag>
+						<LateArtDefineTag>ART_DEF_UNIT_HORSE_KNIGHT_MIDDLE_EAST</LateArtDefineTag>
+						<MiddleArtDefineTag>ART_DEF_UNIT_HORSE_KNIGHT_MIDDLE_EAST</MiddleArtDefineTag>
 					</UnitMeshGroup>
 				</StyleUnit>
 				<StyleUnit>
@@ -302,11 +302,11 @@
 			<Type>UNIT_ARTSTYLE_SOUTH_AMERICA</Type>
 			<StyleUnits>
 				<StyleUnit>
-					<UnitType>UNIT_KNIGHT</UnitType>
+					<UnitType>UNIT_HORSE_KNIGHT</UnitType>
 					<UnitMeshGroup>
-						<EarlyArtDefineTag>ART_DEF_UNIT_KNIGHT_SOUTH_AMERICA</EarlyArtDefineTag>
-						<LateArtDefineTag>ART_DEF_UNIT_KNIGHT_SOUTH_AMERICA</LateArtDefineTag>
-						<MiddleArtDefineTag>ART_DEF_UNIT_KNIGHT_SOUTH_AMERICA</MiddleArtDefineTag>
+						<EarlyArtDefineTag>ART_DEF_UNIT_HORSE_KNIGHT_SOUTH_AMERICA</EarlyArtDefineTag>
+						<LateArtDefineTag>ART_DEF_UNIT_HORSE_KNIGHT_SOUTH_AMERICA</LateArtDefineTag>
+						<MiddleArtDefineTag>ART_DEF_UNIT_HORSE_KNIGHT_SOUTH_AMERICA</MiddleArtDefineTag>
 					</UnitMeshGroup>
 				</StyleUnit>
 				<StyleUnit>

@@ -5021,9 +5021,10 @@
 			<bNukeImmune>0</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
-			<iAIWeight>0</iAIWeight>
-			<!-- custom: reduce cost to match old lighthouse or around it, as it is its replacement as the first naval building now if i am not mistaken too but or not but but anyways etc anyways etc..., was 80 -->
-			<iCost>55</iCost>
+			<!-- custom: increase weight a lot as this is a cheap and powerful building, required to build workboats now, make sure AIs build it fast enough, may be slightly less efficient if AI already has enough land food or yield in land tiles, but overall more efficient to do so i think anyways etc -->
+			<iAIWeight>50</iAIWeight>
+			<!-- custom: reduce cost to match old lighthouse or around it, as it is its replacement as the first naval building now if i am not mistaken too but or not but but anyways etc anyways etc..., also this building is now prerequired for building workboats (see barbarian_workboat code comment for details), so make it cheap enough, which makes sense also as its effect althugh quite good is much weaker than of a granary that is cheap as well, plus would allow to build workboats faster and cheaper as well anyways etc, this also overall relatively buffs water tiles while still i mean not being op i think anyways etc, was 80 -->
+			<iCost>40</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -5141,7 +5142,7 @@
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>6</iFlavor>
+					<iFlavor>7</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GOLD</FlavorType>
@@ -5221,7 +5222,7 @@
 			<bNukeImmune>0</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
-			<!-- custom: (trying to) make sure they (barbarians) build it fast (enough(, anyways etc)) so reducing cost and increase iAIWeight as much as possible or that i think is necessary at least or and ideal but anyways etc -->
+			<!-- custom: (trying to) make sure they (barbarians) build it fast (enough(, anyways etc)) so reducing cost and increase iAIWeight as much as possible or that i think is necessary at least or and ideal but anyways etc, this is especially true for the barbarian_harbor as it is necessary to produce workboats, if the city needs water bonuses's food yields in particular anyways etc, see code comments at barbarian_workboat and at the building_harbor for details anyways etc -->
 			<iAIWeight>100</iAIWeight>
 			<iCost>1</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
@@ -5341,7 +5342,7 @@
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>6</iFlavor>
+					<iFlavor>7</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GOLD</FlavorType>

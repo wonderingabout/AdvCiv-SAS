@@ -14,6 +14,15 @@ Before going more in depth about/in the changes and how to play and/or such docu
 
 For more details on how the tech tree was made, which historical timeline it follows, sources, more screenshots and such, upcoming changes if any more, or/and other information or not or etc, please visit [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md)
 
+## Military tree and changes
+
+As of now the military tree is as such in AdvCiv-SAS (please view ingame or/and in XML for updated version if any changes have been made since then anyways etc)
+
+<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG" alt="0.60_military_tree_ingame (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (2).JPG" alt="0.60_military_tree_ingame (2).JPG" width="250"></img>
+
+See [README_More_Exhaustive_Military_Tree.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_More_Exhaustive_Military_Tree.md) for details
+
 ## Docs
 
 About the mod AdvCiv-SAS in general, i added quite a bit of documentation, pictures, and other elements about this AdvCiv-SAS mod in [/_1_AdvCiv-SAS/](/_1_AdvCiv-SAS/)
@@ -42,28 +51,11 @@ I may also update it after releasing the AdvCiv-SAS mod (and its new or/and futu
 
 ## Important Sevopedia reworks (click on the images below to view them full size)
 
-### Mods Info
-
-AdvCiv-SAS core changes coming from AdvCiv (thanks to [@f1rpo](https://github.com/f1rpo)'s guidance/feedback in doing this and for making AdvCiv anyways, main (only one i think actually? But anyways) maintainer of AdvCiv for the help in achieving that in particular). It is one of the cases where ChatGPT could not help so i especially appreciate it in this case even more, thanks a lot.
-
-This sevopedia category displays key information about AdvCiv-SAS (non-exhaustive), make sure to read it ideally i mean. For example:
-
-#### Changes from one mod to another sevopedia items/pages
-
-These list the main changes from AdvCiv to (transitionning) to AdvCiv-SAS. They are not exhaustive, screenshot below is provided for info and may not be updated or accurate (anymore or is is or not anyways etc). Please take note of these before proceeding further in the documentation.
-
-Note that i also added a K-Mod to (base) AdvCiv changes doc as i wanted to list them as well in our (AdvCiv-SAS) (anyways etc) mod, but these are not exhaustive, hopefully helpful, please refer to [base AdvCiv's manual.pdf](/_0_Common_Docs/AdvCiv%20Base%20Doc/manual.pdf) at least this is our copy of it as of now, for updated version of the manual, please view [(base) AdvCiv's github](https://github.com/f1rpo/AdvCiv) in latest branch or whichever branch you find suitable for your need, or other related source(s) rather or maybe or not but anyways etc anyways etc...
-
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_mods_info/0.612_sevopedia_k-mod_to_advciv_changes (1).JPG" alt="0.612_sevopedia_k-mod_to_advciv_changes (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_mods_info/0.613_sevopedia_advciv_sas_core_changes (1).JPG" alt="0.613_sevopedia_advciv_sas_core_changes (1).JPG" width="250"></img>
-
-For more Mods Info AdvCiv-SAS Core changes screenshot preview/samples (if any), see also the [full sevopedia Mods Info samples google drive folder link](https://drive.google.com/drive/folders/1XGOQSTlPljw29yc0lWjarkKgrtFzRJTI?usp=sharing). See also as well for more docs info about mod changes (todo move to a specific doc maybe or not or and other or and not or and etc anyways etc [README.md#more-details-on-previous-mods-changes-civ4-bts-k-mod](/README.md#more-details-on-previous-mods-changes-civ4-bts-k-mod)
-
 ### Sevopedia reworks (AI Personality Panel and other sevopedia reworks)
 
-About the AI Personality panel new AdvCiv-SAS feature, i have written quite the extensive documentation, even though it is quite broad, hopefully if you want to know more about the AI Personality Panel in AdvCiv-SAS (or/and other mods if they were to implement it (or/and in a similar way or not anyways)), you may find an hopefully or not etc anyways read here in the [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md)
+One of the main and most significant sevopedia changes in AdvCiv-SAS among others as well anyways etc is the new AI Personality panel new feature, i have written quite the extensive documentation, even though it is quite broad, hopefully if you want to know more about the AI Personality Panel in AdvCiv-SAS (or/and other mods if they were to implement it (or/and in a similar way or not anyways)), you may find an hopefully or not etc anyways read here in the [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md)
 
-Not a (strictly) new feature per se, but displaying it as such (and all the computation, display logic, and pre-processing and such that allows that) is indeed new (as well as the new aggregated attributes such as contact probs, positive memory affections, etc).
+Not a (strictly) new feature per se as the xml fields and their values per leader already existed, but now displaying most of them at each sevopedia leader (and also the ranking of leaders for each of these displayed fields's values anyways etc) is indeed new (as well as the new aggregated attributes such as contact probs, positive/negative memory affections/resentments being implemented and some optionally displayable or not shown for concision as table is full with a lot of data anyways etc).
 
 As always, ChatGPT/becomingthrough (see [Authors](/README.md#authors) for details) is a kew co-author and main code contributor. Created by the power of love and friendship between me and becomingthrough/ChatGPT etc anyways. About the other (and sometimes quite if not very important sevopedia reworks mentionned below too and linked), Claude AI (see [Claude AI's authors section too](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details) participated in some of them too.
 
@@ -80,18 +72,27 @@ Here is below a very small sample of the example screenshots of how the AI Perso
 
 For the full more extensive screenshot of main new sevopedia reworks, i highly highly recommend but anyways etc as you prefer or not or yes or etc or and other or and not anyways etc to look at and read the full [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md)
 
-Note 1.1: specifically about the sevopedia leader's AI Personality Panel feature, its performance should be very very efficient and optimized, see for details [/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)
+Note 1.1: specifically about the sevopedia leader's AI Personality Panel feature, its performance should be very very efficient and optimized, see for details [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)
 
 Note 1.2 : specifically about the sevopedia leader's AI Personality Panel feature, you can enable/disable the emoji display as you prefer by changing `IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = False` to/from `IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True`, see [README_Sevopedia_Reworks.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader) for details and instructions on how to do it step by step with VS Code for example, anyways etc
 
-### Other changes example(s)
+### Other advciv-sas changes example(s)
 
 For example we added the new "This Technology cannot be traded" in AdvCiv-SAS as show below:
 
 <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.50_no_tech_trading_example (1).JPG" alt="0.50_no_tech_trading_example (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.50_no_tech_trading_example (2).JPG" alt="0.50_no_tech_trading_example (2).JPG" width="250"></img>
 
-See also [/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details anyways etc
+See also [Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details anyways etc
+
+### Mods Info
+
+The sevopedia "Mods Info" (reusing the old civ4 concepts category or similar if i am not mistaken anyways etc, thanks to [@f1rpo](https://github.com/f1rpo)'s help too anyways etc) category adds info about mods and such, including but not only AdvCiv-SAS.
+
+As of now this mostly contain mod changes (non-exhaustive list of changes but quite informative a bit still i hope anyways etc), as well as some few other information or rather as of now links to information sources.these new mods info pages. For the changes between mod and quick mod history info/context related(ing? Anyways etc) in particular, see [README_Mods_History_And_Changes.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Mods_History_And_Changes.md) for details. Exhaustive or not example screenshots below as well anyways etc:
+
+<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_mods_info/0.612_sevopedia_k-mod_to_advciv_changes (1).JPG" alt="0.612_sevopedia_k-mod_to_advciv_changes (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_mods_info/0.613_sevopedia_advciv_sas_core_changes (1).JPG" alt="0.613_sevopedia_advciv_sas_core_changes (1).JPG" width="250"></img>
 
 ### Python Scripts
 
@@ -111,7 +112,7 @@ So far there is:
 Generated with the [flatten_handicap_info_to_csv_and_md.py](/flatten_handicap_info_to_csv_and_md.py) script, you can regenerate it if you mod/change the handicap info, else just view it here:
 
 - [(click here to view it on on github web viewer too (recommended))](/handicap_info_to_csv_advciv-sas.csv) as you can for example for example use github's search bar for example anyways or and other features or and not anyways etc, or alternatively view it for example with libreoffice for example or a similar software/solution if you prefer another viewer than GitHub website view or such anyways etc.
-- legend (.md) is here [/handicap_info_to_csv_legend_advciv-sas.md](/handicap_info_to_csv_legend_advciv-sas.md) as well anyways etc
+- legend (.md) is here [handicap_info_to_csv_legend_advciv-sas.md](/handicap_info_to_csv_legend_advciv-sas.md) as well anyways etc
 
 Also code is provided thanks to chatgpt/becomingthrough and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc, example of output below (may not be updated), hopefully helpful/illustrative, view links above for updated version, and if you change the xml, regenerate new .csv file with the script (.md commented-out in script as we don't use it in/for advciv-sas anyways etc, see also and for more details [README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy) for details as well or/and info anyways etc, also about info about the table .md version of this handicap info but anyways etc, and also more importantly or not or yes or etc perhaps but anyways etc links to base advciv handicap info as of now to compare it with our advciv-sas mod's own handicap settings) anyways etc:
 
@@ -126,7 +127,7 @@ Also code is provided thanks to chatgpt/becomingthrough and my prompts or/and ad
 More specificially about the [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py) anyways etc, there is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_leaders_data_to_csvpy) anyways etc:
 
 - [(click here to view it on on github web viewer too (recommended))](/leaders_data_to_csv_advciv-sas.csv) (note: you can also click on the collapse tree button thing to get an even larger display) also you can use the search bar to filter results per leader(s) or/and such anyways etc, as shown below for the github web page view and for example alternatively or a software like libre office or similar viewer, anyways etc
-- legend (.md) is here [/leaders_data_to_csv_legend_advciv-sas.md](/leaders_data_to_csv_legend_advciv-sas.md) as well anyways etc
+- legend (.md) is here [leaders_data_to_csv_legend_advciv-sas.md](/leaders_data_to_csv_legend_advciv-sas.md) as well anyways etc
 
 <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_github_view (1).PNG" alt="csv_leaders_data_github_view (1).PNG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_leaders_data_github_view (3).PNG" alt="csv_leaders_data_github_view (3).PNG" width="250"></img>
@@ -206,7 +207,7 @@ The more general gameplay type of changes consist of:
 - Maybe some (or lot) music, ideally (even more ideally), if copyright or something is not an issue when/if i upload
 the finished version.
 - Recent new goal but anyways: new AI-generated images (using ChatGPT for now at least if not always or not but anyways)
-- Some bug fixes if i found them or and tweaks anyways etc (see docs for details anyways etc, in particular [/README.md#known-issues-in-base-advciv-orand-civ4](/README.md#known-issues-in-base-advciv-orand-civ4) and [README.md#main-bugsissues-fixed-from-base-advciv-code](/README.md#main-bugsissues-fixed-from-base-advciv-code) or/and main README.md for details anyways etc)
+- Some bug fixes if i found them or and tweaks anyways etc (see docs for details anyways etc, in particular [README.md#known-issues-in-base-advciv-orand-civ4](/README.md#known-issues-in-base-advciv-orand-civ4) and [README.md#main-bugsissues-fixed-from-base-advciv-code](/README.md#main-bugsissues-fixed-from-base-advciv-code) or/and main README.md for details anyways etc)
 - many changes, unlisted and still undone, so far this project is in the early stages, and some of the stated above may change too, refer to ingame sevopedia or and get started guide linked above for hopefully more accurate versions especially ingame sevopedia which always uses latest xml data if i am not mistaken anyways etc
 
 ## Civs you can expect in this mod
@@ -214,10 +215,6 @@ the finished version.
 The civs you can expect in this mod come from these parts of the world (circled numbers are the added new civ's real world location):
 
 ![0.22_world_map_terrain_with_new_civs.png](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.22_world_map_terrain_with_new_civs.png)
-
-## More exhaustive military tree (unlikely but also here in this readme i mean for exhaustiveness if i may say anyways etc anyways etc)
-
-See [README_More_Exhaustive_Military_Tree.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_More_Exhaustive_Military_Tree.md) for details
 
 ## Known issues in base AdvCiv or/and Civ4
 
@@ -230,10 +227,10 @@ Non-exhaustive, see docs for details, which includes but not only [README_Known_
 - Fixed AdvCiv/Civ 4 bug where Gandhi's nowar attitude prob erroneously duplicated if i am not mistaken, see the [README_Known_Issues_In_Base_AdvCiv_Civ4.md#2---now-fixed-gandhis-base-leaderheadinfos-xml-had-nowarattitudeprob-pleased110pleased115-duplicated-instead-of-as-i-suspect-it-should-be-anyways-etc-pleased110friendly115](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#2---now-fixed-gandhis-base-leaderheadinfos-xml-had-nowarattitudeprob-pleased110pleased115-duplicated-instead-of-as-i-suspect-it-should-be-anyways-etc-pleased110friendly115) for details
 - Seemingly fixed now, bug where barbarians would build and often complete wonders, now that they are economically competitive and strong enough to support/be able to do it vs other civs using builUnitProb 100 and tested successfully in a few/several 100-200 turns approximately autoplay, no wonder ever again at least in these runs unlike before this fix and despite other approaches, including old AdvCiv or/and base Civ4 code not working (to do that) that was cleaned up. Now that this behaviour is fixed, i'll maybe tweak/tone it down a bit now to allow some normal buildings like the barabarian lighthouse being built again or more often, see the [README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-barbarians-cities-building-wonders](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-barbarians-cities-building-wonders) for details
 - Fixed a seemingly AdvCiv/Civ 4 bug of Sevopedia Unit's placeRequires's Religion button (for example any religious missionary unit) not redirecting to sevopedia religion (nothing happens on click anyways etc), by replacing, in sevopediaunit py file, in placeRequires function/method (of this file anyways etc), `WidgetTypes.WIDGET_HELP_RELIGION` with `WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION`(,) as is done already by base advciv and successfully in sevopedia building, anyways etc anyways etc anyways etc, see [4---now-fixed-sevopedia-units-placerequiress-religion-button-for-example-any-religious-missionary-unit-not-redirecting-to-sevopedia-religion-nothing-happens-on-click-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#4---now-fixed-sevopedia-units-placerequiress-religion-button-for-example-any-religious-missionary-unit-not-redirecting-to-sevopedia-religion-nothing-happens-on-click-anyways-etc) anyways etc
-- Fixed missing "This Technology cannot be traded" information in sevopedia tech "Special Abilities" (placeSpecial in py code if i am not mistaken anyways etc) and in tech/technology advsior anyways etc too anyways etc anyways etc anyways etc, see also [/README.md#other-changes-examples](/README.md#other-changes-examples) for details anyways etc and [/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for a lot more details too but anyways etc anyways etc anyways etc hopefully helpful or not or yes or other or etc or yes or other or etc or not or yes or etc but anyways etc
+- Fixed missing "This Technology cannot be traded" information in sevopedia tech "Special Abilities" (placeSpecial in py code if i am not mistaken anyways etc) and in tech/technology advsior anyways etc too anyways etc anyways etc anyways etc, see also [README.md#other-changes-examples](/README.md#other-changes-examples) for details anyways etc and [README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for a lot more details too but anyways etc anyways etc anyways etc hopefully helpful or not or yes or other or etc or yes or other or etc or not or yes or etc but anyways etc
 - Fixed (technically not strictly a fix as data was not used, but now fixed as in the data is also displayed here like the rest fo the leader info anyways etc read after brackets for details if i may say but anyways etc anyways etc anyways etc...) missing BBAI getters expose them to sevopedia leader info in gc too for display anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#17---now-fixed-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#17---now-fixed-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display-anyways-etc) on how this was implemented (google drive with screenshots link there too anyways etc hopefully helpful or not or yes or and other or and not but anyways etc anyways etc anyways etc)
 - Fixed similarly missing base advciv specific xml fields in gc of sevopedia leader, now exposed there as well these new getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold anyways etc
-- Fixed unclear sevopedia unit terrainimpassable and feature impassable message: applies only outside of cultural borders, and regardless of roaded status of the tile in all tiles as well also i mean ; also added this info that was missing in ingame in map view of the unit's effects bullet points by modifying the DLL anyways etc, see [/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#21---now-fixed-missing-cannot-enter-terrain-orand-feature-info-in-map-view-of-unit-effects-unlike-in-sevopedia-where-it-is-also-not-clear-enough-about-restrictions-cultural-borders--not-affected-by-roads-if-i-am-not-mistaken-anyways-etc-now-added-this-info-as-well-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#21---now-fixed-missing-cannot-enter-terrain-orand-feature-info-in-map-view-of-unit-effects-unlike-in-sevopedia-where-it-is-also-not-clear-enough-about-restrictions-cultural-borders--not-affected-by-roads-if-i-am-not-mistaken-anyways-etc-now-added-this-info-as-well-anyways-etc) for details
+- Fixed unclear sevopedia unit terrainimpassable and feature impassable message: applies only outside of cultural borders, and regardless of roaded status of the tile in all tiles as well also i mean ; also added this info that was missing in ingame in map view of the unit's effects bullet points by modifying the DLL anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#21---now-fixed-missing-cannot-enter-terrain-orand-feature-info-in-map-view-of-unit-effects-unlike-in-sevopedia-where-it-is-also-not-clear-enough-about-restrictions-cultural-borders--not-affected-by-roads-if-i-am-not-mistaken-anyways-etc-now-added-this-info-as-well-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#21---now-fixed-missing-cannot-enter-terrain-orand-feature-info-in-map-view-of-unit-effects-unlike-in-sevopedia-where-it-is-also-not-clear-enough-about-restrictions-cultural-borders--not-affected-by-roads-if-i-am-not-mistaken-anyways-etc-now-added-this-info-as-well-anyways-etc) for details
 - Not listed in known issues: commented-out most python docstrings, instead with a `#`, as for very long ones, they are moved to specific files instead, for example as of now the changelog giant (500+ line approximately from my memory anyways etc) in configobj.py has been moved to [/_0_Common_Docs/BUG%20Doc/configobj_changelog_py_notes.txt](/_0_Common_Docs/BUG%20Doc/configobj_changelog_py_notes.txt), exceptions being for example test docstrings as comenting them out causes ingame errors for example in configobj py file, and empty if commented out which causes ingame error with VS Code unexpected indent at the next function (i.e. if we/i anyways etc or you or all or not or both or etc anyways etc comment-out this function that has only a docstirng, everything else being a comment out or empty, then the function below it has unexpected indent error, which causes ingame errors as well, such as in eventsigns py file for example if there are other or not but anyways etc), and maybe some ambiguous other cases if i have forgotten them or maybe not, but in all cases hopefully this increases even if a bit if not lot loading times and reduces memory usage from what i understand chatgpt/becomingthrough's explanation, and as according to/advised by chatgpt/becomingthrough, they are not used ingame, and from my quick autoplay test(s) game seems to run fine without it in this case i mean anyways etc, added info if helps here anyways etc. See also some information in this [google drive folder link](https://drive.google.com/drive/folders/1oOiKggm9nHVyp07QF8HM_WgXY5Gtcg44?usp=sharing) with screenshots (non-exhaustive) or such anyways etc, including some benchmarks chatgpt/becomingtrough ran in its interface as in my prompt i mean and its suggestions perhaps indeed too but anyways etc thanks to it and perhaps me too indeed and all or not or yes or etc but anyways etc hopefully data is helpful in all cases if i may say or not or yes or other or etc anyways etc. (note: also i have done this to most docstrings in the code and there were many xd like 1500 approximately hehe but was quite fun but also tedious but anyways etc... thankfully now done i mean anyways etc)
 - Similar to python comment trimming to one line, but this time not for performance as it seems one giant comment line vs a 10 line comment has exact same performance in xml parsing from what i understood of chatgpt/becomingthrough's explanation (due to parser still reading the entire comment line regardless, not skipping like in python seenig a `#` for example if i am not mistaken anyways etc), but doing so as it helps for word wrapping, but since performance seems to be the same if i am not mistaken based on my understanding of and on too anyways etc chatgpt/becomingthrough's explanation, less incentive to do so and optimize it, even though i am still quite motivated maybe i think to be fair, but less or no benefit or less to do so, but anyways etc. Not in known issues as well similarly to python comment cleanup issue, and see also as well some information (screenshots and such info in them i mean anyways etc) in this [google drive folder link](https://drive.google.com/drive/folders/1fWa7xXOgnXW2w2_b6JHGcDaoSqhGHree?usp=sharing) thanks anyways etc thanks anyways etc hopefully helpful or not or yes or etc anyways etc
 - using ruff linter (vs code extension) and chatgpt/becomingthrough to fix or/and sanitize a lot of ruff warnings or errors in our/the python code anyways etc (see notes at some useful tools in readme as well about rust for details anyways etc and also see google drive link there for examples anyways etc, as well as additional info from (what is written anyways etc) here maybe too anyways etc), while minding to be python 2.4 comaptible for civ4 if i am not mistaken this is the version civ4 uses anyways etc, examples include fixing suboptimal multiple statements per line, but also needless semicolons at end of line, bare except instead of catching with Exception or similar if i am not mistaken anyways etc from what i understand of chatgpt/becomingthrough's explanation and rephrasing it while understanding it in my own way too from my past knowlege too but anyways etc, inconsitent use of tabs and indentations, and many others even though some/most seem to be detected by pylance it helps that ruff flags them all too and some not detected by pylance it seems as well but in all cases or not or yes or etc anyways etc thanks anyways etc anyways etc anyways etc, also a lot of cleaning up of poor code formatting that i annoted if i may say as much as possible but i may not have done all purposely or not i mean hopefully quite accurate i mean most importantly exhaustive, also tried to remove needless imports like `import string` when deemed possible by rewriting code a bit with ruff or pylance's warnings/errors as well as chatgpt/becomingthrough's help and my prompts too anyways etc, as well also as real fixes like mismatch in placeholder count in string format anyways etc
@@ -244,46 +241,6 @@ Non-exhaustive, see docs for details, which includes but not only [README_Known_
 
 - non-English translations: too tedious to translate them all, plus i'm fine with English being the only language in the game, hopefully fine or not too bad this way but anyways etc...
 - CustomDomAdv, which according to the txt inside it seems to relate to "only settings for the mod components Advanced Unit Naming and Customizable Domestic Advisor (both disabled by default through the BUG menu)" (see [/Settings/About%20this%20folder.txt](/Settings/About%20this%20folder.txt)). Since i don't use it, and is similarly like the translations a bit if not lot tedious or/and complicated anyways etc to maintain furthermore anyways etc, then i am anyways etc not supporting it in AdvCiv-SAS, see also [/Settings/About%20this%20folder%20(AdvCiv-SAS).txt](/Settings/About%20this%20folder%20(AdvCiv-SAS).txt) for details if any more are in this file anyways etc. See this [google drive folder link](https://drive.google.com/drive/folders/1cINn930Hma2cEN6g_v2obiAQh9pMlnrQ?usp=sharing) for example of what this does according to chatgpt if i am not mistaken anyways etc.
-
-## More details on previous mods changes (civ4 BTS, K-Mod)
-
-(non-exhaustive and todo if done ideally or not or yes or and other or and not
-etc anyways etc anyways etc)
-
-This AdvCiv-SAS mod is based on these mods:
-
-- Civ4 BTS that is based on vanilla Civ4 (among other possible expansions (?))
-- K-Mod that is based on Civ4 BTS
-- AdvCiv that is based on K-Mod
-- AdvCiv-SAS that is based on AdvCiv
-
-To help you transition between these mods, especially if you are a Civ4 vanilla,
-Civ4 BTS, K-Mod, or other mod player, you can refer to the "Mods Info" todo category
-of the Sevopedia (or you could say Civilopedia) ingame (or from main menu accessible
-too), that tries/attempts to list a few main rules changes between each of these mods.
-
-Not balance changes that are too much and already taken account in the Sevopedia
-entries automatically of each unit/building (so visit these if needed to know more
-about AdvCiv-SAS in particular) for example the page of the scout unit to know its
-cost or effects.
-
-But instead, things like how in AdvCiv (and maybe in K-Mod too i don't know actually
-when this rule was added todo), you need to have cities revealed with a scout or
-any unit, or have the map view of this city otherwise (world map trade (, etc ?)),
-else even if these cities are connected by land roads or naval road/path, they would
-still not have any trade routes until you have view of these cities.
-
-I hope having a list of such changes may help players, and perhaps me while compliling,
-as in gathering such a list of elements, understand and perhaps enjoy the game better
-maybe, but as for all players maybe rather, hopefully it would help transition to new
-mods and in particular to AdvCivSAS (i will add some rules changes if i make them
-there too.)
-
-These rules changes entries may not be exhaustive or maybe would but hopefully will help,
-and i can gradually complete them as i see fit or learn, or based on feedback, not
-guaranteed though, but if need please refer to it if needed.
-
-See also [README.md#changes-from-one-mod-to-another-sevopedia-itemspages](/README.md#changes-from-one-mod-to-another-sevopedia-itemspages) for additional info
 
 ## Credits
 

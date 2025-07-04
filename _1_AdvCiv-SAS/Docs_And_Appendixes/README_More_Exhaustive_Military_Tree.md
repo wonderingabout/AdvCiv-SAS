@@ -1,6 +1,17 @@
-# More exhaustive military
+# More exhaustive military tree
 
 If any images below in this readme mention a google drive link, you can access it from main readme's entire google drive folder link, or for convenience access directly closest google drive folder at least as of now here in [Misc 0.x file images google drive folder link](https://drive.google.com/drive/folders/1-s26vjr5m9J9vPTIH-kSwpgkoqjmMjl2?usp=sharing) anyways etc.
+
+## Military tree as of now
+
+As said in main readme.md in relevant section there as well anyways etc, as of now the military tree is as such in AdvCiv-SAS (please view ingame or/and in XML for updated version if any changes have been made since then anyways etc)
+
+<img src="../Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG" alt="0.60_military_tree_ingame (1).JPG" width="250"></img>
+<img src="../Images_In_General/misc_0.x/0.60_military_tree_ingame (2).JPG" alt="0.60_military_tree_ingame (2).JPG" width="250"></img>
+
+Significant changes have been made to upgrade paths, unit costs, stats and such, some units were removed and a few new were added (mostly to replace some removed ones, sometimes as an entirely new unit (as of now only for the kingdom of benin's civ-specific unit (the disciplined crossbow as of now at least if not always or not anyways etc))), please view docs, in particular [README_Quick_Get_Started_Guide.md#military-non-exhaustive-see-sevopedia-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#military-non-exhaustive-see-sevopedia-orand-xml-for-details) or/and sevopedia ingame or/and other relevant places if any more are there or somewhere or maybe not but hopefulyl helpful i mean anyways etc anyways etc anyways etc.
+
+## Info about a more advanced prototype military tree
 
 Unlikely to be implemented as such because actually too tedious not only in terms of implementing it i mean but also mostly in terms of gameplay, it is most likely better as in in terms of gameplay and AI efficiency and reliability and balance (since AI upgrade units cheaper even though it can be changed anyways etc), to have a clean and simple straighforward military tree.
 

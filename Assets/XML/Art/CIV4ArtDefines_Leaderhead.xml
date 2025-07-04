@@ -463,7 +463,7 @@
 		</LeaderheadArtInfo>
 		-->
 
-		<!-- custom: example from history rewritten mod, where we took meader_ewuare (kingdom
+		<!-- custom: example from history rewritten mod, where we took leader_ewuare (kingdom
 		of benin)'s animation and such all art assets after our initial static image approach,
 		to use the many available one, while keeping consistency with the existing concept in
 		civ4 of images being animated which is quite nice, and since we have so many animations
@@ -496,10 +496,10 @@
 		<LeaderheadArtInfo>
 			<Type>ART_DEF_LEADER_OGISO_IGODO</Type>
 			<Button>Art/AdvCiv_SAS/LeaderHeads/Ogiso_Igodo/Button_Ewuare.dds</Button>
-			<NIF>Art/AdvCiv_SAS/LeaderHeads/Ogiso_Igodo/shaka.nif</NIF>
-			<KFM>Art/AdvCiv_SAS/LeaderHeads/Ogiso_Igodo/shaka.kfm</KFM>
-			<NoShaderNIF>Art/AdvCiv_SAS/LeaderHeads/Ogiso_Igodo/shaka.nif</NoShaderNIF>
-			<BackgroundKFM>Art/AdvCiv_SAS/LeaderHeads/Ogiso_Igodo/Shaka_BG.kfm</BackgroundKFM>
+			<NIF>Art/AdvCiv_SAS/LeaderHeads/Ogiso_Igodo/nif/shaka.nif</NIF>
+			<KFM>Art/AdvCiv_SAS/LeaderHeads/Ogiso_Igodo/nif/shaka.kfm</KFM>
+			<NoShaderNIF>Art/AdvCiv_SAS/LeaderHeads/Ogiso_Igodo/nif/shaka.nif</NoShaderNIF>
+			<BackgroundKFM>Art/AdvCiv_SAS/LeaderHeads/Ogiso_Igodo/nif/Shaka_BG.kfm</BackgroundKFM>
 		</LeaderheadArtInfo>
 	</LeaderheadArtInfos>
 </Civ4ArtDefines>

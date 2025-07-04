@@ -3330,12 +3330,12 @@ def canTriggerNobleKnightsDone(argsList):
 	player = gc.getPlayer(kTriggeredData.ePlayer)
 	
 	iNumUnits = worldSizeTarget() + 1
-	iUnitClassType = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_KNIGHT')
+	iUnitHorseClassType = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_HORSE_KNIGHT')
 	iUnitCamelClassType = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_CAMEL_KNIGHT')
 
-	# <!-- custom: add camel (knight) units to this event anyways etc -->
-	#if player.getUnitClassCount(iUnitClassType) < iNumUnits:
-	if (player.getUnitClassCount(iUnitClassType) < iNumUnits) and (player.getUnitClassCount(iUnitCamelClassType) < iNumUnits):
+	# <!-- custom: add camel knight units to this event anyways etc -->
+	#if player.getUnitClassCount(iUnitHorseClassType) < iNumUnits:
+	if (player.getUnitClassCount(iUnitHorseClassType) < iNumUnits) and (player.getUnitClassCount(iUnitCamelClassType) < iNumUnits):
 		return false
 			
 	trigger = gc.getEventTriggerInfo(kTriggeredData.eTrigger)

@@ -23008,7 +23008,7 @@
 			<!-- custom: add camel units as a separate class in this event too anyways etc -->
 			<UnitClassPromotions>
 				<UnitClassPromotion>
-					<UnitClass>UNITCLASS_KNIGHT</UnitClass>
+					<UnitClass>UNITCLASS_HORSE_KNIGHT</UnitClass>
 					<UnitPromotion>PROMOTION_FLANKING1</UnitPromotion>
 				</UnitClassPromotion>
 				<UnitClassPromotion>

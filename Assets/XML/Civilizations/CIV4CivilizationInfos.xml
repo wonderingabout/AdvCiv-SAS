@@ -516,7 +516,7 @@
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_KNIGHT</UnitClassType>
+					<UnitClassType>UNITCLASS_HORSE_KNIGHT</UnitClassType>
 					<UnitType>UNIT_BYZANTINE_CATAPHRACT</UnitType>
 				</Unit>
 			</Units>
@@ -1553,7 +1553,7 @@
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_CUIRASSIER</UnitClassType>
+					<UnitClassType>UNITCLASS_HORSE_CUIRASSIER</UnitClassType>
 					<UnitType>UNIT_GERMAN_HUSSAR</UnitType>
 				</Unit>
 			</Units>
@@ -3591,7 +3591,7 @@
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_CUIRASSIER</UnitClassType>
+					<UnitClassType>UNITCLASS_HORSE_CUIRASSIER</UnitClassType>
 					<UnitType>UNIT_SPANISH_CONQUISTADOR</UnitType>
 				</Unit>
 			</Units>

@@ -347,6 +347,19 @@
 
 
 
+	<!-- custom: rename "UNIT_KNIGHT" to "UNIT_HORSE_KNIGHT" so it is distinct from camel knights and from the generic/general(?) concept of a knight that could be a land foot or anything maybe too (magician? Xd.. But anyways etc...) unit if i am not mistaken too but anyways etc... -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_HORSE_KNIGHT</Tag>
+		<English>Horse Knight</English>
+	</TEXT>
+	<!-- custom: similarly rename "UNIT_CUIRASSIER" to "UNIT_HORSE_CUIRASSIER" too as there are camel cuirassiers too now anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_HORSE_CUIRASSIER</Tag>
+		<English>Horse Cuirassier</English>
+	</TEXT>
+
+
+
 	<!-- custom: rename "_PERIA_IMMORTAL" to "_PERSIA_IMMORTAL" -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_PERSIA_IMMORTAL</Tag>

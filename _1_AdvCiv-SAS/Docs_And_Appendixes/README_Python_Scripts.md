@@ -85,7 +85,7 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
 Output files (.csv and optionally .md), for example in this case i chose the base AdvCiv mod to illustrate it while also providing the data i'd want as i want to compare my changes in AdvCiv-SAS to base AdvCiv to see differences and such anyways etc, are also provided below for your convenience and mine hehe too if i may say but anyways etc hehe or not hehe or yes hehe but anyways etc... hehe.. or not hehe or yes hehe, hehe.. or not hehe or yes hehe or etc hehe, but anyways etc hehe anyways etc...
 
 - [(base advciv) (click to view the table .csv on github (recommended))](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_info_to_csv_base_advciv.csv), or alternatively view it on libre office or similar software as you prefer anyways etc
-- legend (.md) is here [/handicap_info_to_csv_legend_advciv-sas.md](/handicap_info_to_csv_legend_advciv-sas.md) as well anyways etc
+- legend (.md) is here [handicap_info_to_csv_legend_advciv-sas.md](/handicap_info_to_csv_legend_advciv-sas.md) as well anyways etc
 - note: table .md not here for laziness if i may say hehe, but i also believe .csv is more suited for this as has more sorting or such and a more advanced version of the display too so better put only this one there if i may say but anyways etc anyways etc anyways etc...
 
 ## generate_leaders_data.py script and leaders_data.py module
@@ -294,7 +294,7 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
 Output files (.csv and .md) can be viewed directly there:
 
 - [(click here to view the table .csv on on github web viewer too (recommended))](/leaders_data_to_csv_advciv-sas.csv) (note: you can also click on the collapse tree button thing to get an even larger display) also you can use the search bar to filter results per leader(s) or/and such anyways etc, as shown below for the github web page view and for example alternatively or a software like libre office or similar viewer, anyways etc
-- legend (.md) is here [/leaders_data_to_csv_legend_advciv-sas.md](/leaders_data_to_csv_legend_advciv-sas.md) as well anyways etc
+- legend (.md) is here [leaders_data_to_csv_legend_advciv-sas.md](/leaders_data_to_csv_legend_advciv-sas.md) as well anyways etc
 
 output example with github web viewer (recommended):
 
@@ -319,7 +319,7 @@ Regenerate the files yourself with the script to have latest data if the files (
 
 (you can skip this step if you just want to see base AdvCiv sample .csv and .md files for example provided in the AdvCiv-SAS mod at least as of now anyways etc as well as an example of output as well anyways etc)
 
-See and follow the steps or/and explanations anyways etc at [/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#using-generate_leaders_datapy-in-another-mod-for-example-base-advciv-mod-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#using-generate_leaders_datapy-in-another-mod-for-example-base-advciv-mod-anyways-etc) anyways etc
+See and follow the steps or/and explanations anyways etc at [README_Python_Scripts.md#using-generate_leaders_datapy-in-another-mod-for-example-base-advciv-mod-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#using-generate_leaders_datapy-in-another-mod-for-example-base-advciv-mod-anyways-etc) anyways etc
 
 #### how to generate the handicap_info table .csv and its legend .md for another mod (for example for "AdvCiv" (base AdvCiv) mod anyways etc) (optional)
 
