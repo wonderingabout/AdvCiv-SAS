@@ -12,15 +12,15 @@
 # Special handling is applied to:
 #
 # 1. <Goodies>:
-#    - All GOODY_* entries (e.g. GOODY_LOW_GOLD, GOODY_SCOUT) are flattened into explicit fields.
-#    - Output field names preserve their original enum format (e.g. "GOODY_TECH").
-#    - In the CSV, each goody field is labeled with "(*)", and its behavior is explained in a separate Markdown footnote file.
+#	- All GOODY_* entries (e.g. GOODY_LOW_GOLD, GOODY_SCOUT) are flattened into explicit fields.
+#	- Output field names preserve their original enum format (e.g. "GOODY_TECH").
+#	- In the CSV, each goody field is labeled with "(*)", and its behavior is explained in a separate Markdown footnote file.
 #
 # 2. <FreeTechs> and <AIFreeTechs>:
-#    - These are parsed as comma-separated strings per difficulty.
-#    - Long values are replaced by short legend keys (e.g. FT_0, AIFT_0), defined in `ABBREV_FREE_TECHS_HEADER_NAMES`.
-#    - Technology names inside the legend are optionally shortened via `ABBREV_TECH_NAMES` (e.g. "Animal Husbandry" → "Animal H.").
-#    - A right-shifted [LEGEND] block in the CSV aligns the mappings compactly.
+#	- These are parsed as comma-separated strings per difficulty.
+#	- Long values are replaced by short legend keys (e.g. FT_0, AIFT_0), defined in `ABBREV_FREE_TECHS_HEADER_NAMES`.
+#	- Technology names inside the legend are optionally shortened via `ABBREV_TECH_NAMES` (e.g. "Animal Husbandry" → "Animal H.").
+#	- A right-shifted [LEGEND] block in the CSV aligns the mappings compactly.
 #
 # Output Files:
 # - CSV table of all difficulty settings (main output)

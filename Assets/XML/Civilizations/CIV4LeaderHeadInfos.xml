@@ -913,7 +913,8 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>35</iBuildUnitProb>
+			<!-- custom: was 35 -->
+			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -1355,7 +1356,8 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>25</iBuildUnitProb>
+			<!-- custom: was 25 -->
+			<iBuildUnitProb>30</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
@@ -1778,7 +1780,8 @@
 			<iDemandRebukedSneakProb>30</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>40</iDemandRebukedWarProb>
 			<iRazeCityProb>20</iRazeCityProb>
-			<iBuildUnitProb>30</iBuildUnitProb>
+			<!-- custom: was 30 -->
+			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -1982,7 +1985,8 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>40</iDemandRebukedWarProb>
 			<iRazeCityProb>50</iRazeCityProb>
-			<iBuildUnitProb>30</iBuildUnitProb>
+			<!-- custom: was 30 -->
+			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -2034,9 +2038,10 @@
 				</Flavor>
 			</Flavors>
 			<ContactRands>
+				<!-- custom: was 250 -->
 				<ContactRand>
 					<ContactType>CONTACT_RELIGION_PRESSURE</ContactType>
-					<iContactRand>250</iContactRand>
+					<iContactRand>500</iContactRand>
 				</ContactRand>
 				<ContactRand>
 					<ContactType>CONTACT_CIVIC_PRESSURE</ContactType>
@@ -2187,7 +2192,8 @@
 			<iDemandRebukedSneakProb>80</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>25</iBuildUnitProb>
+			<!-- custom: was 25 -->
+			<iBuildUnitProb>30</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -3674,6 +3680,236 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
+		<!-- custom: basing Ewuare on Cyrus as recommended by chatgpt (very summarized of reasoning why by chatgpt anyways etc: "	Balanced conqueror, empire-builder, tolerant, mythic, Imperialistic core trait") after i asked it (and before that fed it our entire pedia entry plus asked to do a web search and such or not such or yes such or not such but anyways etc anyways etc anyways etc) i mean anyways etc, and tweaking from there (tell it chatgpt to tell me how much % to add to each field, for example +10%, -25% with reasoning why, based on this data anyways etc), and adjusting as i see fit as well if i don't agree or/and see it slightly differently from little or not little lot or not i read about ewuare or some aspects of his life (like the name buying story xd which was very nice even though a bit cruel and unfair to not kill the parent instead of the son that was innocent but then he'd feel bitter still maybe then kill both? I don't know, but i liked this part of the story i mean if i may say but anyways etc, or some other solution or not or yes or other or not or other but anyways etc) i mean anyways etc, and also using our AI personality panel to see how ewuare ranks as well so we don't overdo or underdo when tweaking fields or and such or and other or and not anyways etc, also being careful of inversions seeing a few ai personality values of (other (another) leaders(leader) i mean or and such for example anyways) etc, if i may say but or not but or yes but anyways etc anyways etc anyways etc-->
+		<LeaderHeadInfo> <!-- custom: Ewuare (add leader name here too for easier vs code tree read while in the file) -->
+			<Type>LEADER_EWUARE</Type>
+			<Description>TXT_KEY_LEADER_EWUARE</Description>
+			<Civilopedia>TXT_KEY_LEADER_EWUARE_PEDIA</Civilopedia>
+			<ArtDefineTag>ART_DEF_LEADER_EWUARE</ArtDefineTag>
+			<iWonderConstructRand>40</iWonderConstructRand>
+			<iBaseAttitude>1</iBaseAttitude>
+			<iBasePeaceWeight>4</iBasePeaceWeight>
+			<iWarmongerRespect>1</iWarmongerRespect>
+			<iEspionageWeight>70</iEspionageWeight>
+			<iRefuseToTalkWarThreshold>7</iRefuseToTalkWarThreshold>
+			<iNoTechTradeThreshold>15</iNoTechTradeThreshold>
+			<iTechTradeKnownPercent>23</iTechTradeKnownPercent>
+			<iMaxGoldTradePercent>16</iMaxGoldTradePercent>
+			<!-- BBAI Victory Strategy -->
+			<iCultureVictoryWeight>30</iCultureVictoryWeight>
+			<iSpaceVictoryWeight>0</iSpaceVictoryWeight>
+			<iConquestVictoryWeight>32</iConquestVictoryWeight>
+			<iDominationVictoryWeight>48</iDominationVictoryWeight>
+			<iDiplomacyVictoryWeight>35</iDiplomacyVictoryWeight>
+			<!-- BBAI Victory Strategy -->
+			<iMaxWarRand>150</iMaxWarRand>
+			<iMaxWarNearbyPowerRatio>110</iMaxWarNearbyPowerRatio>
+			<iMaxWarDistantPowerRatio>70</iMaxWarDistantPowerRatio>
+			<iMaxWarMinAdjacentLandPercent>1</iMaxWarMinAdjacentLandPercent>
+			<iLimitedWarRand>160</iLimitedWarRand>
+			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+			<iDogpileWarRand>125</iDogpileWarRand>
+			<iMakePeaceRand>20</iMakePeaceRand>
+			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
+			<!-- custom: seems especially vengeful, (which i like but anyways etc...), especially with the name buying of ewuare story i mean from wikipedia (in pedia entry too if i am not mistaken) from quite little in this case i know about him but anways etc, was 0 in cyrus among other uncommented changes in ewuare's xml i mean too but anyways etc anyways etc anyways etc -->
+			<iDemandRebukedWarProb>50</iDemandRebukedWarProb>
+			<iRazeCityProb>0</iRazeCityProb>
+			<iBuildUnitProb>35</iBuildUnitProb>
+			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
+			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
+			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
+			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
+			<iSameReligionAttitudeChangeLimit>4</iSameReligionAttitudeChangeLimit>
+			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
+			<iDifferentReligionAttitudeChangeLimit>0</iDifferentReligionAttitudeChangeLimit>
+			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+			<iFavoriteCivicAttitudeChangeLimit>2</iFavoriteCivicAttitudeChangeLimit>
+			<TechRefuseAttitudeThreshold>ATTITUDE_FURIOUS</TechRefuseAttitudeThreshold>
+			<!-- advc.ctr: start -->
+			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
+			<NativeCityRefuseAttitudeThreshold>ATTITUDE_PLEASED</NativeCityRefuseAttitudeThreshold>
+			<!-- advc.ctr: end -->
+			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</StrategicBonusRefuseAttitudeThreshold>
+			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
+			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+			<MapRefuseAttitudeThreshold>ATTITUDE_ANNOYED</MapRefuseAttitudeThreshold>
+			<DeclareWarRefuseAttitudeThreshold>ATTITUDE_PLEASED</DeclareWarRefuseAttitudeThreshold>
+			<DeclareWarThemRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</DeclareWarThemRefuseAttitudeThreshold>
+			<StopTradingRefuseAttitudeThreshold>ATTITUDE_PLEASED</StopTradingRefuseAttitudeThreshold>
+			<StopTradingThemRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StopTradingThemRefuseAttitudeThreshold>
+			<AdoptCivicRefuseAttitudeThreshold>ATTITUDE_PLEASED</AdoptCivicRefuseAttitudeThreshold>
+			<ConvertReligionRefuseAttitudeThreshold>ATTITUDE_PLEASED</ConvertReligionRefuseAttitudeThreshold>
+			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_FURIOUS</OpenBordersRefuseAttitudeThreshold>
+			<DefensivePactRefuseAttitudeThreshold>ATTITUDE_PLEASED</DefensivePactRefuseAttitudeThreshold>
+			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
+			<iVassalPowerModifier>20</iVassalPowerModifier>
+			<!-- custom: Kingdom of Benin was a hereditary monarchy according to: https://en.wikipedia.org/wiki/Kingdom_of_Benin#Burials -->
+			<FavoriteCivic>CIVIC_HEREDITARY_RULE</FavoriteCivic>
+			<!-- custom: they seem to lean more towards paganism than christianity even though both seem ot be part of the kingdom of benin i mean anyways, etc, see notes for details -->
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
+			<!-- custom: traits decided if i may say anyways etc from chatgpt's breakdown(breakthrough? Anyways etc) and my understanding and discussion with it and feeding it our pedia entry of ewuare as well anyways etc -->
+			<Traits>
+				<Trait>
+					<TraitType>TRAIT_IMPERIALIST</TraitType>
+					<bTrait>1</bTrait>
+				</Trait>
+				<Trait>
+					<TraitType>TRAIT_SPIRITUAL</TraitType>
+					<bTrait>1</bTrait>
+				</Trait>
+			</Traits>
+			<Flavors>
+				<Flavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<iFlavor>5</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_RELIGION</FlavorType>
+					<iFlavor>2</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+			</Flavors>
+			<ContactRands>
+				<ContactRand>
+					<ContactType>CONTACT_RELIGION_PRESSURE</ContactType>
+					<iContactRand>500</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_CIVIC_PRESSURE</ContactType>
+					<iContactRand>1000</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_JOIN_WAR</ContactType>
+					<iContactRand>20</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_STOP_TRADING</ContactType>
+					<iContactRand>50</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_GIVE_HELP</ContactType>
+					<iContactRand>50</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_ASK_FOR_HELP</ContactType>
+					<iContactRand>100</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_DEMAND_TRIBUTE</ContactType>
+					<iContactRand>125</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+					<iContactRand>20</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_TRADE_TECH</ContactType>
+					<iContactRand>2</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_TRADE_BONUS</ContactType>
+					<iContactRand>2</iContactRand>
+				</ContactRand>
+			</ContactRands>
+			<ContactDelays>
+				<ContactDelay>
+					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+					<iContactDelay>10</iContactDelay>
+				</ContactDelay>
+			</ContactDelays>
+			<MemoryDecays/>
+			<MemoryAttitudePercents>
+				<MemoryAttitudePercent>
+					<MemoryType>MEMORY_TRADED_TECH_TO_US</MemoryType>
+					<iMemoryAttitudePercent>5</iMemoryAttitudePercent>
+				</MemoryAttitudePercent>
+			</MemoryAttitudePercents>
+			<NoWarAttitudeProbs>
+				<NoWarAttitudeProb>
+					<AttitudeType>ATTITUDE_ANNOYED</AttitudeType>
+					<iNoWarProb>10</iNoWarProb>
+				</NoWarAttitudeProb>
+				<NoWarAttitudeProb>
+					<AttitudeType>ATTITUDE_CAUTIOUS</AttitudeType>
+					<iNoWarProb>60</iNoWarProb>
+				</NoWarAttitudeProb>
+				<NoWarAttitudeProb>
+					<AttitudeType>ATTITUDE_PLEASED</AttitudeType>
+					<iNoWarProb>90</iNoWarProb>
+				</NoWarAttitudeProb>
+			</NoWarAttitudeProbs>
+			<!-- advc.005a: was Attack 100 -->
+			<UnitAIWeightModifiers>
+				<UnitAIWeightModifier>
+					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+					<iWeightModifier>60</iWeightModifier>
+				</UnitAIWeightModifier>
+			</UnitAIWeightModifiers>
+			<!-- custom: add workshop as per chatgpt's recommendation after it did a web search plus i mean anyways etc feeding it our pedia entry that is wiki based anyways etc if it remembered it quite accurately since the quite many prompts we did but anyways etc if i may say but anyways etc, among other uncommented xml changes anyways etc -->
+			<ImprovementWeightModifiers>
+				<ImprovementWeightModifier>
+					<ImprovementType>IMPROVEMENT_TOWN</ImprovementType>
+					<iWeightModifier>25</iWeightModifier>
+				</ImprovementWeightModifier>
+				<ImprovementWeightModifier>
+					<ImprovementType>IMPROVEMENT_FARM</ImprovementType>
+					<iWeightModifier>15</iWeightModifier>
+				</ImprovementWeightModifier>
+				<ImprovementWeightModifier>
+					<ImprovementType>IMPROVEMENT_WORKSHOP</ImprovementType>
+					<iWeightModifier>10</iWeightModifier>
+				</ImprovementWeightModifier>
+			</ImprovementWeightModifiers>
+			<DiplomacyIntroMusicPeace>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_INDUSTRIAL</EraType>
+					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_INTRO</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_MODERN</EraType>
+					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_INTRO</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_FUTURE</EraType>
+					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_INTRO</DiploScriptId>
+				</DiploMusicPeaceEra>
+			</DiplomacyIntroMusicPeace>
+			<DiplomacyMusicPeace>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_ANCIENT</EraType>
+					<DiploScriptId>AS2D_DIPLO_CYRUS_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_CLASSICAL</EraType>
+					<DiploScriptId>AS2D_DIPLO_CYRUS_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_MEDIEVAL</EraType>
+					<DiploScriptId>AS2D_DIPLO_CYRUS_MIDDLE</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_RENAISSANCE</EraType>
+					<DiploScriptId>AS2D_DIPLO_CYRUS_MIDDLE</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_INDUSTRIAL</EraType>
+					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_LP</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_MODERN</EraType>
+					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_LP</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_FUTURE</EraType>
+					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_LP</DiploScriptId>
+				</DiploMusicPeaceEra>
+			</DiplomacyMusicPeace>
+			<DiplomacyIntroMusicWar/>
+			<DiplomacyMusicWar/>
+		</LeaderHeadInfo>
 		<LeaderHeadInfo> <!-- custom: Frederick (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_FREDERICK</Type>
 			<Description>TXT_KEY_LEADER_FREDERICK</Description>
@@ -3754,9 +3990,10 @@
 				</Flavor>
 			</Flavors>
 			<ContactRands>
+				<!-- custom: was 250 -->
 				<ContactRand>
 					<ContactType>CONTACT_RELIGION_PRESSURE</ContactType>
-					<iContactRand>250</iContactRand>
+					<iContactRand>500</iContactRand>
 				</ContactRand>
 				<ContactRand>
 					<ContactType>CONTACT_CIVIC_PRESSURE</ContactType>
@@ -4178,7 +4415,8 @@
 			<iDemandRebukedSneakProb>20</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>50</iDemandRebukedWarProb>
 			<iRazeCityProb>75</iRazeCityProb>
-			<iBuildUnitProb>35</iBuildUnitProb>
+			<!-- custom: was 35 -->
+			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>2</iBetterRankDifferenceAttitudeChange>
@@ -5462,7 +5700,8 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>25</iRazeCityProb>
-			<iBuildUnitProb>25</iBuildUnitProb>
+			<!-- custom: was 25 -->
+			<iBuildUnitProb>30</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
@@ -5908,7 +6147,8 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>30</iBuildUnitProb>
+			<!-- custom: increase julius caesar war tendency/profile a bit, asking chatgpt it seems that he has such a profile from little or not or quite bit or not i know about him, chatgpt also says augustus caesar would be a bit less anyways etc, it does seem they don't wage war enough anyways etc in base advciv at least (+/- civ4?) but anyways etc, so increasing it quite a bit if not cautiosuly but quite decisively more if i may say but anyways etc... to see and maybe accurate, also asked it to double check no web search on search and try to balance it with other leaders, this value of 40 seems a better fit anwyays etc, was 30 -->
+			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -6113,7 +6353,8 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>5</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>35</iBuildUnitProb>
+			<!-- custom: was 35 -->
+			<iBuildUnitProb>30</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -6324,7 +6565,8 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>25</iRazeCityProb>
-			<iBuildUnitProb>25</iBuildUnitProb>
+			<!-- custom: was 25 -->
+			<iBuildUnitProb>30</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>3</iBetterRankDifferenceAttitudeChange>
@@ -7008,7 +7250,8 @@
 			<iDemandRebukedSneakProb>20</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>5</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>25</iBuildUnitProb>
+			<!-- custom: was 25 -->
+			<iBuildUnitProb>20</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>4</iBetterRankDifferenceAttitudeChange>
@@ -7211,7 +7454,8 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>5</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>25</iBuildUnitProb>
+			<!-- custom: was 25 -->
+			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -8027,216 +8271,6 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<!-- custom: basing Ogiso Igodo on Zara Yaqob and tweaking from there, seems the profile that fits the best or quite best (growth type and financial, fairly peaceful, but also good at defense and a bit military if need (mostly defense if i understood it correctly or read enough)
-		Will tweak later most things, first comitting and/or testing to see if it works
-		Will also change Zara Yaqob's assets later,	first testing to see if it works -->
-		<LeaderHeadInfo> <!-- custom: Ogiso Igodo (add leader name here too for easier vs code tree read while in the file) -->
-			<Type>LEADER_OGISO_IGODO</Type>
-			<Description>TXT_KEY_LEADER_OGISO_IGODO</Description>
-			<Civilopedia>TXT_KEY_LEADER_OGISO_IGODO_PEDIA</Civilopedia>
-			<ArtDefineTag>ART_DEF_LEADER_OGISO_IGODO</ArtDefineTag>
-			<iWonderConstructRand>20</iWonderConstructRand>
-			<iBaseAttitude>2</iBaseAttitude>
-			<iBasePeaceWeight>6</iBasePeaceWeight>
-			<iWarmongerRespect>1</iWarmongerRespect>
-			<iEspionageWeight>100</iEspionageWeight>
-			<iRefuseToTalkWarThreshold>8</iRefuseToTalkWarThreshold>
-			<iNoTechTradeThreshold>10</iNoTechTradeThreshold>
-			<iTechTradeKnownPercent>30</iTechTradeKnownPercent>
-			<iMaxGoldTradePercent>10</iMaxGoldTradePercent>
-			<!-- BBAI Victory Strategy -->
-			<iCultureVictoryWeight>50</iCultureVictoryWeight>
-			<iSpaceVictoryWeight>35</iSpaceVictoryWeight>
-			<iConquestVictoryWeight>15</iConquestVictoryWeight>
-			<iDominationVictoryWeight>15</iDominationVictoryWeight>
-			<iDiplomacyVictoryWeight>35</iDiplomacyVictoryWeight>
-			<!-- BBAI Victory Strategy -->
-			<iMaxWarRand>200</iMaxWarRand>
-			<iMaxWarNearbyPowerRatio>100</iMaxWarNearbyPowerRatio>
-			<iMaxWarDistantPowerRatio>50</iMaxWarDistantPowerRatio>
-			<iMaxWarMinAdjacentLandPercent>2</iMaxWarMinAdjacentLandPercent>
-			<iLimitedWarRand>100</iLimitedWarRand>
-			<iLimitedWarPowerRatio>110</iLimitedWarPowerRatio>
-			<iDogpileWarRand>50</iDogpileWarRand>
-			<iMakePeaceRand>10</iMakePeaceRand>
-			<iDemandRebukedSneakProb>50</iDemandRebukedSneakProb>
-			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
-			<iRazeCityProb>5</iRazeCityProb>
-			<iBuildUnitProb>30</iBuildUnitProb>
-			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
-			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
-			<iBetterRankDifferenceAttitudeChange>2</iBetterRankDifferenceAttitudeChange>
-			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
-			<!-- advc.148: was 7 -->
-			<iSameReligionAttitudeChangeLimit>6</iSameReligionAttitudeChangeLimit>
-			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
-			<iDifferentReligionAttitudeChangeLimit>-2</iDifferentReligionAttitudeChangeLimit>
-			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
-			<!-- advc.148: was 4 -->
-			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
-			<TechRefuseAttitudeThreshold>ATTITUDE_FURIOUS</TechRefuseAttitudeThreshold>
-			<!-- advc.ctr: start -->
-			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
-			<NativeCityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</NativeCityRefuseAttitudeThreshold>
-			<!-- advc.ctr: end -->
-			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</StrategicBonusRefuseAttitudeThreshold>
-			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
-			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
-			<MapRefuseAttitudeThreshold>ATTITUDE_ANNOYED</MapRefuseAttitudeThreshold>
-			<DeclareWarRefuseAttitudeThreshold>ATTITUDE_ANNOYED</DeclareWarRefuseAttitudeThreshold>
-			<DeclareWarThemRefuseAttitudeThreshold>ATTITUDE_PLEASED</DeclareWarThemRefuseAttitudeThreshold>
-			<StopTradingRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StopTradingRefuseAttitudeThreshold>
-			<StopTradingThemRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StopTradingThemRefuseAttitudeThreshold>
-			<AdoptCivicRefuseAttitudeThreshold>ATTITUDE_ANNOYED</AdoptCivicRefuseAttitudeThreshold>
-			<ConvertReligionRefuseAttitudeThreshold>ATTITUDE_PLEASED</ConvertReligionRefuseAttitudeThreshold>
-			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_ANNOYED</OpenBordersRefuseAttitudeThreshold>
-			<VassalRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</VassalRefuseAttitudeThreshold>
-			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<!-- custom: Kingdom of Benin was a hereditary monarchy according to: https://en.wikipedia.org/wiki/Kingdom_of_Benin#Burials -->
-			<FavoriteCivic>CIVIC_HEREDITARY_RULE</FavoriteCivic>
-			<!-- custom: they seem to lean more towards paganism than christianity even though both seem ot be part of the kingdom of benin i mean anyways, etc, see notes for details -->
-			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
-			<Traits>
-				<Trait>
-					<TraitType>TRAIT_PROTECTIVE</TraitType>
-					<bTrait>1</bTrait>
-				</Trait>
-				<Trait>
-					<TraitType>TRAIT_FINANCIAL</TraitType>
-					<bTrait>1</bTrait>
-				</Trait>
-			</Traits>
-			<Flavors>
-				<Flavor>
-					<FlavorType>FLAVOR_RELIGION</FlavorType>
-					<iFlavor>2</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>5</iFlavor>
-				</Flavor>
-			</Flavors>
-			<ContactRands>
-				<ContactRand>
-					<ContactType>CONTACT_RELIGION_PRESSURE</ContactType>
-					<iContactRand>100</iContactRand>
-				</ContactRand>
-				<ContactRand>
-					<ContactType>CONTACT_CIVIC_PRESSURE</ContactType>
-					<iContactRand>250</iContactRand>
-				</ContactRand>
-				<ContactRand>
-					<ContactType>CONTACT_JOIN_WAR</ContactType>
-					<iContactRand>20</iContactRand>
-				</ContactRand>
-				<ContactRand>
-					<ContactType>CONTACT_STOP_TRADING</ContactType>
-					<iContactRand>50</iContactRand>
-				</ContactRand>
-				<ContactRand>
-					<ContactType>CONTACT_GIVE_HELP</ContactType>
-					<iContactRand>50</iContactRand>
-				</ContactRand>
-				<ContactRand>
-					<ContactType>CONTACT_ASK_FOR_HELP</ContactType>
-					<iContactRand>50</iContactRand>
-				</ContactRand>
-				<ContactRand>
-					<ContactType>CONTACT_DEMAND_TRIBUTE</ContactType>
-					<iContactRand>500</iContactRand>
-				</ContactRand>
-				<ContactRand>
-					<!-- advc.134a: was 20 -->
-					<ContactType>CONTACT_PEACE_TREATY</ContactType>
-					<iContactRand>15</iContactRand>
-				</ContactRand>
-				<ContactRand>
-					<ContactType>CONTACT_TRADE_TECH</ContactType>
-					<iContactRand>1</iContactRand>
-				</ContactRand>
-				<ContactRand>
-					<ContactType>CONTACT_TRADE_BONUS</ContactType>
-					<iContactRand>1</iContactRand>
-				</ContactRand>
-			</ContactRands>
-			<ContactDelays>
-				<ContactDelay>
-					<!-- advc.134a: was 10 -->
-					<ContactType>CONTACT_PEACE_TREATY</ContactType>
-					<iContactDelay>15</iContactDelay>
-				</ContactDelay>
-			</ContactDelays>
-			<MemoryDecays/>
-			<MemoryAttitudePercents>
-				<!-- advc.001g: Was duplicated; one said 10, the other 5. -->
-				<MemoryAttitudePercent>
-					<MemoryType>MEMORY_TRADED_TECH_TO_US</MemoryType>
-					<iMemoryAttitudePercent>8</iMemoryAttitudePercent>
-				</MemoryAttitudePercent>
-			</MemoryAttitudePercents>
-			<NoWarAttitudeProbs>
-				<NoWarAttitudeProb>
-					<AttitudeType>ATTITUDE_ANNOYED</AttitudeType>
-					<iNoWarProb>10</iNoWarProb>
-				</NoWarAttitudeProb>
-				<NoWarAttitudeProb>
-					<AttitudeType>ATTITUDE_CAUTIOUS</AttitudeType>
-					<iNoWarProb>50</iNoWarProb>
-				</NoWarAttitudeProb>
-				<NoWarAttitudeProb>
-					<AttitudeType>ATTITUDE_PLEASED</AttitudeType>
-					<iNoWarProb>90</iNoWarProb>
-				</NoWarAttitudeProb>
-			</NoWarAttitudeProbs>
-			<!-- advc.005a: Was City Defense 100. Use Reserve 25 when nothing
-				 else comes to mind. -->
-			<UnitAIWeightModifiers>
-				<UnitAIWeightModifier>
-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
-					<iWeightModifier>25</iWeightModifier>
-				</UnitAIWeightModifier>
-			</UnitAIWeightModifiers>
-			<!-- advc.005a: Was none. Can't think of a second one. -->
-			<ImprovementWeightModifiers>
-				<ImprovementWeightModifier>
-					<ImprovementType>IMPROVEMENT_FARM</ImprovementType>
-					<iWeightModifier>20</iWeightModifier>
-				</ImprovementWeightModifier>
-			</ImprovementWeightModifiers>
-			<DiplomacyIntroMusicPeace/>
-			<DiplomacyMusicPeace>
-				<DiploMusicPeaceEra>
-					<EraType>ERA_ANCIENT</EraType>
-					<DiploScriptId>AS2D_DIPLO_ZARA_YAQOB_EARLY</DiploScriptId>
-				</DiploMusicPeaceEra>
-				<DiploMusicPeaceEra>
-					<EraType>ERA_CLASSICAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_ZARA_YAQOB_EARLY</DiploScriptId>
-				</DiploMusicPeaceEra>
-				<DiploMusicPeaceEra>
-					<EraType>ERA_MEDIEVAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_ZARA_YAQOB_MIDDLE</DiploScriptId>
-				</DiploMusicPeaceEra>
-				<DiploMusicPeaceEra>
-					<EraType>ERA_RENAISSANCE</EraType>
-					<DiploScriptId>AS2D_DIPLO_ZARA_YAQOB_MIDDLE</DiploScriptId>
-				</DiploMusicPeaceEra>
-				<DiploMusicPeaceEra>
-					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_ZARA_YAQOB_LATE</DiploScriptId>
-				</DiploMusicPeaceEra>
-				<DiploMusicPeaceEra>
-					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_ZARA_YAQOB_LATE</DiploScriptId>
-				</DiploMusicPeaceEra>
-				<DiploMusicPeaceEra>
-					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_ZARA_YAQOB_LATE</DiploScriptId>
-				</DiploMusicPeaceEra>
-			</DiplomacyMusicPeace>
-			<DiplomacyIntroMusicWar/>
-			<DiplomacyMusicWar/>
-		</LeaderHeadInfo>
 		<LeaderHeadInfo> <!-- custom: Pacal (2) (add leader name here too for easier vs code tree read while in the file) -->
 			<Type>LEADER_PACAL</Type>
 			<Description>TXT_KEY_LEADER_PACAL</Description>
@@ -8929,7 +8963,8 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>20</iBuildUnitProb>
+			<!-- custom: was 20 -->
+			<iBuildUnitProb>30</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -10245,7 +10280,8 @@
 			<iDemandRebukedSneakProb>20</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>20</iRazeCityProb>
-			<iBuildUnitProb>35</iBuildUnitProb>
+			<!-- custom: was 35 -->
+			<iBuildUnitProb>30</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -10450,7 +10486,8 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>25</iRazeCityProb>
-			<iBuildUnitProb>30</iBuildUnitProb>
+			<!-- custom: was 30 -->
+			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-3</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -11132,7 +11169,8 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>25</iRazeCityProb>
-			<iBuildUnitProb>30</iBuildUnitProb>
+			<!-- custom: was 30 -->
+			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
@@ -12025,7 +12063,8 @@
 			<iDemandRebukedSneakProb>50</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>25</iBuildUnitProb>
+			<!-- custom: was 25 -->
+			<iBuildUnitProb>20</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<!-- advc.130c: Swapped the values for WorseRank and
 				 BetterRank -->
@@ -12233,7 +12272,8 @@
 			<iDemandRebukedSneakProb>50</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>5</iRazeCityProb>
-			<iBuildUnitProb>30</iBuildUnitProb>
+			<!-- custom: was 30 -->
+			<iBuildUnitProb>25</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>2</iBetterRankDifferenceAttitudeChange>

@@ -1,6 +1,6 @@
 leaders added partially or totally/entirely but not (yet) xml balanced or finished implementing buttons or txt keys or other assets and such anyways etc:
 
-- ogiso igodo (kingdom of benin)
+- Ewuare (kingdom of benin)
 
 as for all existing leaders in civ4:
 - todo rebalance their religious attitude change or and similar xml fields especially for presumably areligious leaders like frederick or brennus maybe as said in notes_about_religious_design.txt or/and in other places or/and not anyways etc anyways etc anyways etc.

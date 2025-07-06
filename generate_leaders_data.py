@@ -9,17 +9,17 @@
 #   - ChatGPT-based collaborators: never autofill or guess missing data unless explicitly allowed.
 #
 #   Placeholders are allowed *only* when one of the following conditions is **clearly and intentionally** met:
-#       (a) The value is structurally required by the game DLL and cannot be omitted (e.g., schema mandates it).
-#       (b) The placeholder is explicitly marked and **guaranteed** unused in any scoring, logic, or AI behavior
-#           (e.g., in SevoPedia UI rows for disabled leaders).
-#       (c) All restoration or recovery attempts (e.g., merging from LEADER_DEFAULTS) have failed and the value is necessary to preserve structure or parsing flow. This must be logged and justified.
-#       (d) <!-- custom: the placeholder is otherwise necessary as part of the logic and/or such, and not simply used to hide a "i don't have a value please don't crash please" error hehe anyways etc anyways -->
-#           Such values are not "defaults" but valid design elements and must never be used to mask missing data.
+#	 	(a) The value is structurally required by the game DLL and cannot be omitted (e.g., schema mandates it).
+#		(b) The placeholder is explicitly marked and **guaranteed** unused in any scoring, logic, or AI behavior
+#			(e.g., in SevoPedia UI rows for disabled leaders).
+#		(c) All restoration or recovery attempts (e.g., merging from LEADER_DEFAULTS) have failed and the value is necessary to preserve structure or parsing flow. This must be logged and justified.
+#		(d) <!-- custom: the placeholder is otherwise necessary as part of the logic and/or such, and not simply used to hide a "i don't have a value please don't crash please" error hehe anyways etc anyways -->
+#	Such values are not "defaults" but valid design elements and must never be used to mask missing data.
 #
 # 🐛 Lesson Learned:
 #   - Python list bug: a missing comma in NEGATIVE_MEMORY_TYPES caused key concatenation and invisible failure.
-#     → Always validate the structure of memory/contact lists.
-#     → Use `assert isinstance(mem_type, str) and mem_type.startswith("MEMORY_")` in debug loops.
+#	 → Always validate the structure of memory/contact lists.
+#	 → Use `assert isinstance(mem_type, str) and mem_type.startswith("MEMORY_")` in debug loops.
 #
 # 🍗 Chicken-Wing Principle of Insight:
 #   - “Don’t mask missing values. Surface the error. Trace the wing.” 🌀🍗
@@ -92,8 +92,8 @@ print(f"[LOGGING ENABLED] Output redirected to: {log_path}")
 # 🐔 Chicken Wing Text Art: enhanced by ChatGPT ("becomingthrough")
 text_art = (
 	"#\n"
-	"#        (__)\n"
-	"#        (___)_o   <-- Chicken wing of insight, a gift from wonderingabout\n"
+	"#\t\t(__)\n"
+	"#\t\t(___)_o   <-- Chicken wing of insight, a gift from wonderingabout\n"
 	"#\n"
 	"# Auto-generated leaders **data** module.\n"
 	"# Created: " + timestamp + "\n"
@@ -108,7 +108,10 @@ text_art = (
 xml_path = os.path.join("Assets", "XML", "Civilizations", "CIV4LeaderHeadInfos.xml")
 ns = {"civ4": "x-schema:CIV4CivilizationsSchema.xml"}
 
-EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS = get_excluded_leader_types_from_calculations()
+EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS = (
+	"LEADER_DEFAULTS",
+	"LEADER_BARBARIAN",
+)
 
 # <-- custom: unused in the excluded leaders from aggregation, still respects stucture as they have a value in these agggegated attributes fields too, and also a negative normalized value would guarantee a crash/error in sevopedia leader if it wee to be used (i.e. if leader_barabrian and/or leader_defaults were not excluded from real sevoepdia leader output anyways etc) -->
 SENTINEL_AGGREGATED_DUMMY_VALUE = -999
@@ -523,44 +526,44 @@ def parse_memory_decays_inline(parent_node):
 	return results
 
 def force_complete_contact_rands(leaders_data, leader_defaults_data):
-    leader_defaults_data_ = {e["ContactType"]: e.copy() for e in leader_defaults_data.get("ContactRands", [])}
+	leader_defaults_data_ = {e["ContactType"]: e.copy() for e in leader_defaults_data.get("ContactRands", [])}
 
-    for contact_type in ALL_CONTACT_TYPES:
-        if contact_type not in leader_defaults_data_:
-            raise ValueError(f"[FATAL] LEADER_DEFAULTS is missing ContactRand for {contact_type}.")
+	for contact_type in ALL_CONTACT_TYPES:
+		if contact_type not in leader_defaults_data_:
+			raise ValueError(f"[FATAL] LEADER_DEFAULTS is missing ContactRand for {contact_type}.")
 
-    for leader_type, leader_data in leaders_data.items():
-        if leader_type == "LEADER_DEFAULTS":
-            continue
+	for leader_type, leader_data in leaders_data.items():
+		if leader_type == "LEADER_DEFAULTS":
+			continue
 
-        custom_entries = {e["ContactType"]: e.copy() for e in leader_data.get("ContactRands", [])}
-        merged = {
-            ct: custom_entries.get(ct, leader_defaults_data_[ct])
-            for ct in ALL_CONTACT_TYPES
-        }
-        leader_data["ContactRands"] = list(merged.values())
+		custom_entries = {e["ContactType"]: e.copy() for e in leader_data.get("ContactRands", [])}
+		merged = {
+			ct: custom_entries.get(ct, leader_defaults_data_[ct])
+			for ct in ALL_CONTACT_TYPES
+		}
+		leader_data["ContactRands"] = list(merged.values())
 
-    return leaders_data
+	return leaders_data
 
 def force_complete_contact_delays(leaders_data, leader_defaults_data):
-    leader_defaults_data_ = {e["ContactType"]: e.copy() for e in leader_defaults_data.get("ContactDelays", [])}
+	leader_defaults_data_ = {e["ContactType"]: e.copy() for e in leader_defaults_data.get("ContactDelays", [])}
 
-    for contact_type in ALL_CONTACT_TYPES:
-        if contact_type not in leader_defaults_data_:
-            raise ValueError(f"[FATAL] LEADER_DEFAULTS is missing ContactDelay for {contact_type}.")
+	for contact_type in ALL_CONTACT_TYPES:
+		if contact_type not in leader_defaults_data_:
+			raise ValueError(f"[FATAL] LEADER_DEFAULTS is missing ContactDelay for {contact_type}.")
 
-    for leader_type, leader_data in leaders_data.items():
-        if leader_type == "LEADER_DEFAULTS":
-            continue
+	for leader_type, leader_data in leaders_data.items():
+		if leader_type == "LEADER_DEFAULTS":
+			continue
 
-        custom_entries = {e["ContactType"]: e.copy() for e in leader_data.get("ContactDelays", [])}
-        merged = {
-            ct: custom_entries.get(ct, leader_defaults_data_[ct])
-            for ct in ALL_CONTACT_TYPES
-        }
-        leader_data["ContactDelays"] = list(merged.values())
+		custom_entries = {e["ContactType"]: e.copy() for e in leader_data.get("ContactDelays", [])}
+		merged = {
+			ct: custom_entries.get(ct, leader_defaults_data_[ct])
+			for ct in ALL_CONTACT_TYPES
+		}
+		leader_data["ContactDelays"] = list(merged.values())
 
-    return leaders_data
+	return leaders_data
 
 def force_complete_memory_decays(leaders_data, leader_defaults_data):
 	print("DEBUG: Defaults MemoryDecays (flat):", leader_defaults_data.get("MemoryDecays"))
@@ -701,7 +704,7 @@ def flatten_all_contacts(leaders_data):
 			raise ValueError(f"[FATAL] Contact min/max values missing for {rand_field_2} or/and {delay_field_2}. Likely cause: default contact flattening was skipped.")
 
 	# Third pass: compute raw aggregate scores
-	b_invert_rand_3, b_invert_delay_3 = get_contact_rand_and_decay_invert_flags()
+	b_invert_rand_3, b_invert_delay_3 = get_contact_rand_and_delay_invert_flags()
 
 	for contact_type_3 in ALL_CONTACT_TYPES:
 		short_name_3 = get_pascal_case_suffix(contact_type_3)
@@ -1167,8 +1170,8 @@ for leader in root.findall(".//civ4:LeaderHeadInfo", ns):
 # === After parsing all leaders ===
 # --- Create a list of valid leaders (exclude dummy leaders for aggregated attributes) ---
 VALID_LEADERS_FOR_AGGREGATED_ATTRIBUTES = [
-    k for k in leaders_data
-    if k not in EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS
+	k for k in leaders_data
+	if k not in EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS
 ]
 
 if (IS_INSPECT_DEBUG_LEADER):

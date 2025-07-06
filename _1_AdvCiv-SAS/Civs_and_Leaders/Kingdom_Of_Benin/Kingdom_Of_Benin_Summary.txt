@@ -4,7 +4,7 @@ Kingdom of Benin (Nigeria)
 note: has nothing in common with modern benin, do not confuse
 https://en.wikipedia.org/wiki/Kingdom_of_Benin 
 
-- character: Ogiso Igodo (900 AD)
+- character: Ogiso Igodo (900 AD) (note: later replaced this leader with Ewuare (see xml for details anyways etc))
 - favourite civic: slavery, hereditary rule
 - favourite religion: paganism
 - starting techs: dead's mourning, fire (slavery (agriculture) and paganism

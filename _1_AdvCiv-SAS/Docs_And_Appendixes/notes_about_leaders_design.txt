@@ -1,5 +1,3 @@
-- ogiso igodo (benin kingdom): todo
-
 - joan of arc (france): see specific doc of Joan of arc for details
 
 - change greek leaders based on this: https://en.wikipedia.org/wiki/Great_Greeks

@@ -71,6 +71,46 @@ that in the label in sevopedia leader ingame "T.W Likely" refers to the field's 
 
 Be careful because AIs such as ChatGPT tend to invent what they don't know, so even though they often have a very good "broad" understanding of a topic, when delving in the (obscure or not anwyays etc) specifics, they may err, especially if you lead them astray with your (or mine in my case anyways etc) imprecision or lack of knowledge or understanding, so i would suggest to refer to these websites rather for technical info, even though they may be wrong sometimes and myself too, and ChatGPT is still great i think hehe, but this is a caveat i kindly if i may say give hehe anyways.
 
+### how to enable/disable emoji buttons in sevopedia leader
+
+You can enable/disable images as buttons (i.e. the emojis anyways etc) as i call them but anyways etc.
+
+To do that, for example with VS Code, first click File / Open folder... and choose the root of your mod path (for example for Steam users (adjust to your mod path) default is `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS` if i am not mistaken anyways etc)
+
+Then navigate to [/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py) file which has the config of the AI Personality Panel feature (in the .py file), as shown in the screenshots below as well (click to view the screenshot full size/bigger anyways etc anyways etc anyways etc):
+
+<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_false.PNG" alt="0.621_sevopedia_leader_emoji_config_py_flag_false.PNG" width="250"></img>
+
+Change this line:
+
+```python
+IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = False
+```
+
+to (or vice versa change it from `True` to `False` if you want to disable it anyways etc)
+
+```python
+IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True
+```
+
+As in the screenshot below as well similarly anyways etc:
+
+<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_true.PNG" alt="0.621_sevopedia_leader_emoji_config_py_flag_true.PNG" width="250"></img>
+
+And vice versa to disable it (restart the game to apply changes if game was already running)
+
+Here is how it would look like without emojis for example anyways etc:
+
+<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_example.JPG" alt="0.621_sevopedia_leader_emoji_config_py_flag_example.JPG" width="250"></img>
+
+### how to show keys or suffixes instead of abbreviated custom labels
+
+Similarly to how was done for emoji images, there is also an `IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD` config flag in sevopedia leader you can set to `True` or `False` depending on whether you want to show only key names or suffix names (shrunk if too long to fit table length, for example `MaxWarRand` (shrunk if too long anyways etc)) instead of abbreviated custom labels such as `T.W. Likely` for example anyways etc ; useful for calibrating or if you'd prefer to display it as such.
+
+Here is an example below of it would look like with this set to `True` hopefully helpful or not or yes or and other or and not anyways etc:
+
+<img src="../Images_In_General/sevopedia_reworks/0.622_sevopedia_leader_labels_as_keys_or_suffixes.JPG" alt="0.622_sevopedia_leader_labels_as_keys_or_suffixes.JPG" width="250"></img>
+
 ## Normalization (to 100 in AdvCiv-SAS anyways) and leader(s) score/ranking
 
 To go back to how ai attributes (raw and aggregated) are computed and displayed, then ranking (or before computing them depending on the calculation formula) is done among leaders, and leaders are sorted from best to worse performing for this attribute, sometimes inversing ranking depending on correlation between distribution and performance for this ai attribute (if lower score is better we invert, if higher score is better we don't invert), for example:

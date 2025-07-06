@@ -290,10 +290,10 @@
 
 
 
-	<!-- custom: add Civ Kingdom Of Benin with their leader Ogiso Igodo -->
+	<!-- custom: add Civ Kingdom Of Benin with their leader Ewuare -->
 	<TEXT>
-		<Tag>TXT_KEY_LEADER_OGISO_IGODO</Tag>
-		<English>Ogiso Igodo</English>
+		<Tag>TXT_KEY_LEADER_EWUARE</Tag>
+		<English>Ewuare</English>
 	</TEXT>
 	<!-- custom: https://en.wikipedia.org/wiki/Kingdom_of_Benin -->
 	<TEXT>

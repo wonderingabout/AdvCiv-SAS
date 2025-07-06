@@ -1053,8 +1053,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
-			<!-- custom: no need to have this effect now that expansive trait is much stronger, would be bit op and perhaps overlapping/uneeded with new food based expansive trait effect at least as of now anyways etc, this is perhaps also more versatile with some civ-specific workers whom leader may or not have the expansive trait, so both more versatile and powerful to rely on the stronger trait buffed food based effect rather than selective/specific if i may say anyways etc old trait-based production unit modifier (i.e. in ProductionTraits anyways etc) anyways etc, was TRAIT_EXPANSIVE 25 -->
-			<ProductionTraits/>
+			<!-- custom: removed the wonder effect from industrious as was too op and unreliable, give a buffed version of the base advciv trait +/- civ4 anyways etc for worker type of units instead anyways etc, was TRAIT_EXPANSIVE 25 -->
+			<ProductionTraits>
+				<ProductionTrait>
+					<ProductionTraitType>TRAIT_INDUSTRIOUS</ProductionTraitType>
+					<iProductionTrait>50</iProductionTrait>
+				</ProductionTrait>
+			</ProductionTraits>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
 			<iCost>50</iCost>
@@ -1300,8 +1305,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
-			<!-- custom: no need to have this effect now that expansive trait is much stronger, would be bit op and perhaps overlapping/uneeded with new food based expansive trait effect at least as of now anyways etc, this is perhaps also more versatile with some civ-specific workers whom leader may or not have the expansive trait, so both more versatile and powerful to rely on the stronger trait buffed food based effect rather than selective/specific if i may say anyways etc old trait-based production unit modifier (i.e. in ProductionTraits anyways etc) anyways etc, was TRAIT_EXPANSIVE 25 -->
-			<ProductionTraits/>
+			<!-- custom: removed the wonder effect from industrious as was too op and unreliable, give a buffed version of the base advciv trait +/- civ4 anyways etc for worker type of units instead anyways etc, was TRAIT_EXPANSIVE 25 -->
+			<ProductionTraits>
+				<ProductionTrait>
+					<ProductionTraitType>TRAIT_INDUSTRIOUS</ProductionTraitType>
+					<iProductionTrait>50</iProductionTrait>
+				</ProductionTrait>
+			</ProductionTraits>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
 			<iCost>50</iCost>
@@ -1547,8 +1557,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
-			<!-- custom: no need to have this effect now that expansive trait is much stronger, would be bit op and perhaps overlapping/uneeded with new food based expansive trait effect at least as of now anyways etc, this is perhaps also more versatile with some civ-specific workers whom leader may or not have the expansive trait, so both more versatile and powerful to rely on the stronger trait buffed food based effect rather than selective/specific if i may say anyways etc old trait-based production unit modifier (i.e. in ProductionTraits anyways etc) anyways etc, was TRAIT_EXPANSIVE 25 -->
-			<ProductionTraits/>
+			<!-- custom: removed the wonder effect from industrious as was too op and unreliable, give a buffed version of the base advciv trait +/- civ4 anyways etc for worker type of units instead anyways etc, was TRAIT_EXPANSIVE 25 -->
+			<ProductionTraits>
+				<ProductionTrait>
+					<ProductionTraitType>TRAIT_INDUSTRIOUS</ProductionTraitType>
+					<iProductionTrait>50</iProductionTrait>
+				</ProductionTrait>
+			</ProductionTraits>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
 			<iCost>50</iCost>
@@ -1794,8 +1809,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
-			<!-- custom: no need to have this effect now that expansive trait is much stronger, would be bit op and perhaps overlapping/uneeded with new food based expansive trait effect at least as of now anyways etc, this is perhaps also more versatile with some civ-specific workers whom leader may or not have the expansive trait, so both more versatile and powerful to rely on the stronger trait buffed food based effect rather than selective/specific if i may say anyways etc old trait-based production unit modifier (i.e. in ProductionTraits anyways etc) anyways etc, was TRAIT_EXPANSIVE 25 -->
-			<ProductionTraits/>
+			<!-- custom: removed the wonder effect from industrious as was too op and unreliable, give a buffed version of the base advciv trait +/- civ4 anyways etc for worker type of units instead anyways etc, was TRAIT_EXPANSIVE 25 -->
+			<ProductionTraits>
+				<ProductionTrait>
+					<ProductionTraitType>TRAIT_INDUSTRIOUS</ProductionTraitType>
+					<iProductionTrait>50</iProductionTrait>
+				</ProductionTrait>
+			</ProductionTraits>
 			<Flavors/>
 			<!-- custom: (trying to) make sure they (barbarians) can build it fast (enough(, anyways etc)) and in high quantity (enough (too) anyways etc( anyways etc...)), see CIV4BuildingInfos.xml for details -->
 			<iAIWeight>75</iAIWeight>
@@ -5219,24 +5239,24 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<TerrainDefenses/>
 			<!-- custom: axes could be useful in navigating or fighting in the woods maybe. -->
 			<FeatureAttacks>
-			    <FeatureAttack>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureAttack>10</iFeatureAttack>
-    			</FeatureAttack>
 				<FeatureAttack>
-        			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureAttack>10</iFeatureAttack>
-    			</FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>10</iFeatureAttack>
+				</FeatureAttack>
+				<FeatureAttack>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureAttack>10</iFeatureAttack>
+				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
-			    <FeatureDefense>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureDefense>10</iFeatureDefense>
-    			</FeatureDefense>
 				<FeatureDefense>
-        			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureDefense>10</iFeatureDefense>
-    			</FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>10</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>10</iFeatureDefense>
+				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
@@ -7595,24 +7615,24 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<TerrainAttacks/>
 			<TerrainDefenses/>
 			<FeatureAttacks>
-			    <FeatureAttack>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureAttack>10</iFeatureAttack>
-    			</FeatureAttack>
 				<FeatureAttack>
-        			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureAttack>10</iFeatureAttack>
-    			</FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>10</iFeatureAttack>
+				</FeatureAttack>
+				<FeatureAttack>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureAttack>10</iFeatureAttack>
+				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
-			    <FeatureDefense>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureDefense>10</iFeatureDefense>
-    			</FeatureDefense>
 				<FeatureDefense>
-        			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureDefense>10</iFeatureDefense>
-    			</FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>10</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>10</iFeatureDefense>
+				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
@@ -7836,24 +7856,24 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			</TerrainDefenses>
 			<!-- custom: spearmen could have some range advantage fighting in the woods maybe. -->
 			<FeatureAttacks>
-			    <FeatureAttack>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureAttack>10</iFeatureAttack>
-    			</FeatureAttack>
 				<FeatureAttack>
-        			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureAttack>10</iFeatureAttack>
-    			</FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>10</iFeatureAttack>
+				</FeatureAttack>
+				<FeatureAttack>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureAttack>10</iFeatureAttack>
+				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
-			    <FeatureDefense>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureDefense>10</iFeatureDefense>
-    			</FeatureDefense>
 				<FeatureDefense>
-        			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureDefense>10</iFeatureDefense>
-    			</FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>10</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>10</iFeatureDefense>
+				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
@@ -8059,24 +8079,24 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<TerrainDefenses/>
 			<!-- custom: spearmen could have some range advantage fighting in the woods maybe. -->
 			<FeatureAttacks>
-			    <FeatureAttack>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureAttack>10</iFeatureAttack>
-    			</FeatureAttack>
 				<FeatureAttack>
-        			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureAttack>10</iFeatureAttack>
-    			</FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>10</iFeatureAttack>
+				</FeatureAttack>
+				<FeatureAttack>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureAttack>10</iFeatureAttack>
+				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
-			    <FeatureDefense>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureDefense>10</iFeatureDefense>
-    			</FeatureDefense>
 				<FeatureDefense>
-        			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureDefense>10</iFeatureDefense>
-    			</FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>10</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>10</iFeatureDefense>
+				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
@@ -8301,24 +8321,24 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</TerrainDefense>
 			</TerrainDefenses>
 			<FeatureAttacks>
-			    <FeatureAttack>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureAttack>10</iFeatureAttack>
-    			</FeatureAttack>
 				<FeatureAttack>
-        			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureAttack>10</iFeatureAttack>
-    			</FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>10</iFeatureAttack>
+				</FeatureAttack>
+				<FeatureAttack>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureAttack>10</iFeatureAttack>
+				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
-			    <FeatureDefense>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureDefense>10</iFeatureDefense>
-    			</FeatureDefense>
 				<FeatureDefense>
-        			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureDefense>10</iFeatureDefense>
-    			</FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>10</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>10</iFeatureDefense>
+				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
@@ -8517,24 +8537,24 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<TerrainAttacks/>
 			<TerrainDefenses/>
 			<FeatureAttacks>
-			    <FeatureAttack>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureAttack>-15</iFeatureAttack>
-    			</FeatureAttack>
 				<FeatureAttack>
-        			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureAttack>-20</iFeatureAttack>
-    			</FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>-15</iFeatureAttack>
+				</FeatureAttack>
+				<FeatureAttack>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureAttack>-20</iFeatureAttack>
+				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
-			    <FeatureDefense>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureDefense>-15</iFeatureDefense>
-    			</FeatureDefense>
 				<FeatureDefense>
-        			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureDefense>-20</iFeatureDefense>
-    			</FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>-15</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>-20</iFeatureDefense>
+				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
@@ -8750,7 +8770,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHillsDefense>25</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-		    <!-- custom: unlike the reworked pikemen, the holy roman special unit seems
+			<!-- custom: unlike the reworked pikemen, the holy roman special unit seems
 			to good in most if not all terrains, so removing the penalties that the reworked
 			pikemen have. May affect city attack/defense/planting strategy. -->
 			<TerrainAttacks>
@@ -9024,24 +9044,24 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<TerrainAttacks/>
 			<TerrainDefenses/>
 			<FeatureAttacks>
-			    <FeatureAttack>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureAttack>25</iFeatureAttack>
-    			</FeatureAttack>
 				<FeatureAttack>
-        			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureAttack>25</iFeatureAttack>
-    			</FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>25</iFeatureAttack>
+				</FeatureAttack>
+				<FeatureAttack>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureAttack>25</iFeatureAttack>
+				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
-			    <FeatureDefense>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureDefense>25</iFeatureDefense>
-    			</FeatureDefense>
 				<FeatureDefense>
-        			<FeatureType>FEATURE_JUNGLE</FeatureType>
-        			<iFeatureDefense>25</iFeatureDefense>
-    			</FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>25</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>25</iFeatureDefense>
+				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
@@ -9274,16 +9294,16 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</TerrainDefense>
 			</TerrainDefenses>
 			<FeatureAttacks>
-			    <FeatureAttack>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureAttack>10</iFeatureAttack>
-    			</FeatureAttack>
+				<FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>10</iFeatureAttack>
+				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
-			    <FeatureDefense>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureDefense>10</iFeatureDefense>
-    			</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>10</iFeatureDefense>
+				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
@@ -9511,16 +9531,16 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</TerrainDefense>
 			</TerrainDefenses>
 			<FeatureAttacks>
-			    <FeatureAttack>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureAttack>10</iFeatureAttack>
-    			</FeatureAttack>
+				<FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>10</iFeatureAttack>
+				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
-			    <FeatureDefense>
-        			<FeatureType>FEATURE_FOREST</FeatureType>
-        			<iFeatureDefense>10</iFeatureDefense>
-    			</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>10</iFeatureDefense>
+				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
@@ -19031,7 +19051,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
-			<ProductionTraits/>
+			<!-- custom: removed the wonder effect from industrious as was too op and unreliable, also give the worker production trait effect similarly to supporting industrious type of units anyways etc, was empty -->
+			<ProductionTraits>
+				<ProductionTrait>
+					<ProductionTraitType>TRAIT_INDUSTRIOUS</ProductionTraitType>
+					<iProductionTrait>50</iProductionTrait>
+				</ProductionTrait>
+			</ProductionTraits>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: cost reduced now that it depends on a harbor being built in the city already, was 30 -->
@@ -19226,7 +19252,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
-			<ProductionTraits/>
+			<!-- custom: removed the wonder effect from industrious as was too op and unreliable, also give the worker production trait effect to supporting industrious type of units anyways etc, was empty -->
+			<ProductionTraits>
+				<ProductionTrait>
+					<ProductionTraitType>TRAIT_INDUSTRIOUS</ProductionTraitType>
+					<iProductionTrait>50</iProductionTrait>
+				</ProductionTrait>
+			</ProductionTraits>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
 			<iCost>1</iCost>

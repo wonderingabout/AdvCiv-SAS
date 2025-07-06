@@ -4,14 +4,6 @@
 
 
 
-def get_excluded_leader_types_from_calculations():
-	return (
-		"LEADER_DEFAULTS",
-		"LEADER_BARBARIAN",
-	)
-
-
-
 # <!-- custom: indexes based on real ingame sevopedia leader debug output, see sevopedia_helpers py file code comments for details -->
 # <!-- custom: 11 entries total if i am not mistaken anyways etc -->
 def get_positive_memory_indexes_to_types():
@@ -296,7 +288,7 @@ def get_pascal_case_suffix(enumType):
 def get_adjusted_contact_values(contact_rand_raw, contact_delay_raw, is_debug, contact_type):
 	# Adjusts contact rand and contact delay values according to standard rules.
 	# Returns: (adjusted_rand, adjusted_delay, aggregated_prob_force_zero_flag)
-
+	#
 	force_zero_adjusted_values = None
 
 	if contact_delay_raw < 0:
@@ -309,16 +301,15 @@ def get_adjusted_contact_values(contact_rand_raw, contact_delay_raw, is_debug, c
 			adjusted_rand = 0
 			force_zero_adjusted_values = True # Forced 0 aggregation
 			if is_debug:
-				print(u"[INFO] In contact contact_type=%s Delay < 0, adjusted delay is considered infinite, so Rand is irrelevant, as regardless of its value we would force aggregate to zero. But for exhaustiveness anyways etc, adjusting the rand as well, here to 0 since Rand <= 0. Values of these are contact_delay_raw=%d, adjusted_delay=%d, contact_rand_raw=%d, adjusted_rand=%d, force_zero_adjusted_values=%s." % (contact_type, contact_delay_raw, adjusted_delay, str(force_zero_adjusted_values), contact_rand_raw, adjusted_rand))
+				print(u"[INFO] In contact contact_type=%s Delay < 0, adjusted delay is considered infinite, so Rand is irrelevant, as regardless of its value we would force aggregate to zero. But for exhaustiveness anyways etc, adjusting the rand as well, here to 0 since Rand <= 0. Values of these are contact_delay_raw=%d, adjusted_delay=%d, contact_rand_raw=%d, adjusted_rand=%d, force_zero_adjusted_values=%s." % (contact_type, contact_delay_raw, adjusted_delay, contact_rand_raw, adjusted_rand, str(force_zero_adjusted_values)))
 
 			return adjusted_rand, adjusted_delay, force_zero_adjusted_values
-
 			
 		else:
 			adjusted_rand = contact_rand_raw
 			force_zero_adjusted_values = True # Forced 0 aggregation
 			if is_debug:
-				print(u"[INFO] In contact contact_type=%s Delay < 0, adjusted delay is considered infinite, so Rand is irrelevant, as regardless of its value we would force aggregate to zero. But for exhaustiveness anyways etc, adjusting the rand as well, here to a real value equal to raw rand value, as Rand > 0 which is valid even though delay makes it eventually irrelevant and we still force aggregate in the end for this contact. Values of these are contact_delay_raw=%d, adjusted_delay=%d, contact_rand_raw=%d, adjusted_rand=%d, force_zero_adjusted_values=%s." % (contact_type, contact_delay_raw, adjusted_delay, str(force_zero_adjusted_values), contact_rand_raw, adjusted_rand))
+				print(u"[INFO] In contact contact_type=%s Delay < 0, adjusted delay is considered infinite, so Rand is irrelevant, as regardless of its value we would force aggregate to zero. But for exhaustiveness anyways etc, adjusting the rand as well, here to a real value equal to raw rand value, as Rand > 0 which is valid even though delay makes it eventually irrelevant and we still force aggregate in the end for this contact. Values of these are contact_delay_raw=%d, adjusted_delay=%d, contact_rand_raw=%d, adjusted_rand=%d, force_zero_adjusted_values=%s." % (contact_type, contact_delay_raw, adjusted_delay, contact_rand_raw, adjusted_rand, str(force_zero_adjusted_values)))
 		
 		return adjusted_rand, adjusted_delay, force_zero_adjusted_values
 
@@ -334,7 +325,7 @@ def get_adjusted_contact_values(contact_rand_raw, contact_delay_raw, is_debug, c
 			adjusted_rand = 0
 			force_zero_adjusted_values = True # Forced 0 aggregation
 			if is_debug:
-				print(u"[INFO] In contact contact_type=%s Delay >=0 which is valid: adjusted delay is equal to delay raw. As for forced aggregation value, Rand <= 0, so AI has a compatible delay but still never engages due to rand if i (advciv-sas mod maker anyways etc based on trying to understand how the base advciv or similar or before behaves anyways etc) am not mistaken anyways etc, and so if i am not mistaken too anyways etc probability of contact is still 0 if i am not mistaken in my understanding. So we still force aggregate to 0 for this contact. Values of these are contact_delay_raw=%d, adjusted_delay=%d, contact_rand_raw=%d, adjusted_rand=%d, force_zero_adjusted_values=%s." % (contact_type, contact_delay_raw, adjusted_delay, str(force_zero_adjusted_values), contact_rand_raw, adjusted_rand))
+				print(u"[INFO] In contact contact_type=%s Delay >=0 which is valid: adjusted delay is equal to delay raw. As for forced aggregation value, Rand <= 0, so AI has a compatible delay but still never engages due to rand if i (advciv-sas mod maker anyways etc based on trying to understand how the base advciv or similar or before behaves anyways etc) am not mistaken anyways etc, and so if i am not mistaken too anyways etc probability of contact is still 0 if i am not mistaken in my understanding. So we still force aggregate to 0 for this contact. Values of these are contact_delay_raw=%d, adjusted_delay=%d, contact_rand_raw=%d, adjusted_rand=%d, force_zero_adjusted_values=%s." % (contact_type, contact_delay_raw, adjusted_delay, contact_rand_raw, adjusted_rand, str(force_zero_adjusted_values)))
 
 			return adjusted_rand, adjusted_delay, force_zero_adjusted_values
 
@@ -343,13 +334,13 @@ def get_adjusted_contact_values(contact_rand_raw, contact_delay_raw, is_debug, c
 			adjusted_rand = contact_rand_raw
 			force_zero_adjusted_values = False # Normal aggregation
 			if is_debug:
-				print(u"[INFO] In contact contact_type=%s Delay >=0 which is valid: adjusted delay is equal to delay raw. As for forced aggregation value, Rand > 0 which is valid, so probability of contact is highest when rand is low, and decreases the higher rand is. For example a rand of 5 gives 1/5 i.e. better odds whatever the actual value is than say 1000 which would be 1 / 1000 or some transformed value that would indicate or lead to a much lower contact chance if i (advciv-sas mod maker anyways etc based on trying to understand how the base advciv or similar or before behaves anyways etc) anyways etc am not mistaken in my understanding anyways etc. So we do not force aggregate to 0 for this contact. Values of these are contact_delay_raw=%d, adjusted_delay=%d, contact_rand_raw=%d, adjusted_rand=%d, force_zero_adjusted_values=%s." % (contact_type, contact_delay_raw, adjusted_delay, str(force_zero_adjusted_values), contact_rand_raw, adjusted_rand))
+				print(u"[INFO] In contact contact_type=%s Delay >=0 which is valid: adjusted delay is equal to delay raw. As for forced aggregation value, Rand > 0 which is valid, so probability of contact is highest when rand is low, and decreases the higher rand is. For example a rand of 5 gives 1/5 i.e. better odds whatever the actual value is than say 1000 which would be 1 / 1000 or some transformed value that would indicate or lead to a much lower contact chance if i (advciv-sas mod maker anyways etc based on trying to understand how the base advciv or similar or before behaves anyways etc) anyways etc am not mistaken in my understanding anyways etc. So we do not force aggregate to 0 for this contact. Values of these are contact_delay_raw=%d, adjusted_delay=%d, contact_rand_raw=%d, adjusted_rand=%d, force_zero_adjusted_values=%s." % (contact_type, contact_delay_raw, adjusted_delay, contact_rand_raw, adjusted_rand, str(force_zero_adjusted_values)))
 			
 			return adjusted_rand, adjusted_delay, force_zero_adjusted_values
 
 
 
-def get_contact_rand_and_decay_invert_flags():
+def get_contact_rand_and_delay_invert_flags():
 	# <!-- custom: the higher the contact rand (say 200 > 50 anyways etc), the lower the 1/n = 1/200 vs 1/50 chance if i am not mistaken of contact event / prob from my memory of the terminology if i may say or words used in kujira about memory fields or such but anyways etc, so we invert -->
 	b_invert_contact_rands = True
 	# <!-- custom: also, the higher the delay (say 100 > 5 (turns? If i am not mistaken too but anyways etc)), the longer until next contact, so the lower the contact event / prob, so we invert anyways etc delays too if i may say or not or yes or etc anyways etc -->
@@ -413,12 +404,12 @@ def get_adjusted_memory_values(raw_attitude_percent, raw_decay, is_affection, is
 def get_memory_attitude_percent_and_decay_invert_flags(is_positive, is_affection):
 	if is_positive:
 		if is_affection:
-			# <!-- custom: higher attitude score (ex: + 350 > + 200) means more intense positive feeling (affection), closer to 0 means AI cares less (0 should be              - minimum -               atitudes after normalization unless i'm mistaken anyways but should be as this if i'm not mistaken anyways (where again AI cares the least)), so we don't invert.
+			# <!-- custom: higher attitude score (ex: + 350 > + 200) means more intense positive feeling (affection), closer to 0 means AI cares less (0 should be		- minimum -		attitudes after normalization unless i'm mistaken anyways but should be as this if i'm not mistaken anyways (where again AI cares the least)), so we don't invert.
 			# -->
 			# As for decay it should remain the same as it seems to just be some time unit or span (always positive if i'm not mistaken? At least after checking seems so in advciv data and in our mod AdvCiv-SAS at least so far, anyways) if i am not mistaken but this is just an assumption that could be accurate or not but that i think is (accurate), anyways -->
 			return False, False
 		else:
-			# <!-- custom: lower attitude score (ex: -350 < -200) means more intense negative feeling (resentment) (resentful and (more) especially spiteful AI even for (presumably) good deeds), closer to 0 means AI cares less (0 should be              - maximum -               attitudes after normalization unless i'm mistaken anyways but should be as this if i'm not mistaken anyways (where again AI also, as in positive affection, for this value 0 (after adjustment) attitude, cares the least (at least we model it a such))), so we should invert indeed.
+			# <!-- custom: lower attitude score (ex: -350 < -200) means more intense negative feeling (resentment) (resentful and (more) especially spiteful AI even for (presumably) good deeds), closer to 0 means AI cares less (0 should be		- maximum -		attitudes after normalization unless i'm mistaken anyways but should be as this if i'm not mistaken anyways (where again AI also, as in positive affection, for this value 0 (after adjustment) attitude, cares the least (at least we model it a such))), so we should invert indeed.
 			# More detail on why and to be careful since these are negative values unlike most civ4 data (a good fail check too maybe to review or learn for me at least anways etc anyways), is that since our normalize_to_100 function shifts to 0 distribution before normalizing (i.e. -350 is now -350 + 350 = 0, and -200 is now -200 + 350 = 150 if i'm not mistaken anyways) then the lower the score is (0 vs 150 before normalization, which is (after normalization) 0 / 150 * 100 = 0 vs 100 / 150 * 100 = 100, then -350 (now 0) which was more intense(ly negative feeling (resentment)) is the lowest, while -200 (now 100) with the lowest (in comparison relatively) feeling is now the highest in score, so the atititude score should indeed be inverted, hopefully safe now but anyways etc anyways.
 			# -->
 			# As for decay it should be the same as above unless i'm mistaken but shouldn't be but anyways, anyways. -->
@@ -429,7 +420,7 @@ def get_memory_attitude_percent_and_decay_invert_flags(is_positive, is_affection
 			# <!-- custom: similarly but in negative memories, higher attitude score (ex: + 350 > + 200) means more affection for them (more and more masochistic or similar AI anyways.. which i don't dislike but anyways... Not necessarily especialyl like but anyways (either/too)(or why not?) but anyways...), so we don't invert. -->
 			return False, False
 		else:
-			# # <!-- custom: similarly but in negative memories, lower attitude score (ex: -350 < -200) means more intense negative feeling (resentment) (resentful and (more) especially spiteful AI but this time in an (seemingly) expected way if (conventionally) harm(ful behaviour or other thing or similar anyways etc thing anyways etc) is done to it), closer to 0 means AI cares less (0 should be              - maximum -               attitudes after normalization unless i'm mistaken anyways but should be as this if i'm not mistaken anyways), so we invert.. -->
+			# # <!-- custom: similarly but in negative memories, lower attitude score (ex: -350 < -200) means more intense negative feeling (resentment) (resentful and (more) especially spiteful AI but this time in an (seemingly) expected way if (conventionally) harm(ful behaviour or other thing or similar anyways etc thing anyways etc) is done to it), closer to 0 means AI cares less (0 should be		- maximum -		attitudes after normalization unless i'm mistaken anyways but should be as this if i'm not mistaken anyways), so we invert.. -->
 			return True, False
 
 
@@ -449,10 +440,7 @@ def get_aggregated_raw_positive_or_negative_memory_affection_or_resentment_score
 		# --- Sanity check: weights must sum to exactly 1.0 ---
 		weight_sum = MAIN_WEIGHT + SECONDARY_WEIGHT
 		if not abs(weight_sum - 1.0) < 1e-6:
-			raise ValueError(
-				u"[VALUE ERROR] Weights must sum to 1.0: got MAIN = %f, SECONDARY = %f (sum = %f)"
-				% (MAIN_WEIGHT, SECONDARY_WEIGHT, weight_sum)
-			)
+			raise ValueError(u"[VALUE ERROR] Weights must sum to 1.0: got MAIN = %f, SECONDARY = %f (sum = %f)"% (MAIN_WEIGHT, SECONDARY_WEIGHT, weight_sum))
 
 		# --- Aggregate score: round for consistency, since we later normalize as int 0–100 anyway ---
 		raw_aggregated = MAIN_WEIGHT * adjusted_value_attitude_percent_norm_score + SECONDARY_WEIGHT * adjusted_value_decay_norm_score

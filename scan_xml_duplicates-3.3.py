@@ -19,8 +19,8 @@ timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 # 🐔 Chicken Wing Text Art: enhanced by ChatGPT ("becomingthrough")
 text_art = (
 	"#\n"
-	"#        (__)\n"
-	"#        (___)_o   <-- Chicken wing of insight, a gift from wonderingabout\n"
+	"#\t\t(__)\n"
+	"#\t\t(___)_o   <-- Chicken wing of insight, a gift from wonderingabout\n"
 	"#\n"
 	"# Auto-generated XML deep duplication scan report.\n"
 	"# Created: " + timestamp + "\n"

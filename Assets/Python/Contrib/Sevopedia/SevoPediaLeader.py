@@ -59,6 +59,9 @@ localText = CyTranslator()
 # 🧠✨ Config line co-crafted in response to wonderingabout's prompt, by becomingthrough ☁️
 IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True
 
+# <!-- custom: use this to show instead of abbreviated or custom named labels the key or suffixes instead (shrinked if too long), for example "MaxWarRand", instead of abbreviated custom labels, for example "T.W. Likely", useful when balancing/calibrating leaders xml in particular so no need to remember what each label refers to i mean anyways etc, remember if i may say anyways etc to disable when testing is finished, or use this setting permanently if you prefer i mean or and other or and not or other or etc anyways etc ; may also be useful if you prefer this setting to stay this way even outside of testing/modding i mean but as part of playing games and such i mean anyways etc, then no need to disable it if i may say anyways etc anyways etc anyways etc -->
+IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD = False
+
 # <!-- custom: increase hard drive life span by 0.1% by disabling this / setting it to False, maybe (disclaimer: i am not responsible is just i mean about the actual real percentage meant as a joke / comedy thing but anyways etc but is maybe also true that disabling debug may avoid reducing hard drive life span even if a bit, as we write quite a lot of debug at each sevopedia load, however it is not guaranteed and i am not responsible anyways etc, so i mean anyways etc do as you see fit use at your own risk code is there if you want to know what it does with also a(/some) debug sample(s) (non-exhaustive but hopefully quite plenty if i may say and is not gramatically wrong but anyways etc hopefully clear enough or/and helpful or not or yes or other or etc but anyways etc what it means i mean but anyways etc...) in SevopediaLead_derExamplesOfOutputs as of now if filename is still relevant later after writign this code comment but anyways etc, is just harmless text writing but writing a lot may hurt ssd or whichever hard drive especially most importantly by repeated use over a long time period of playing civ4 restarting game many times and such you use so i disabled it for my need now that system seems to wor-function fine anyways etc, available there if needed anyways etc, for my own hard drive too-->
 IS_DEBUG_LEADER = False
 
@@ -69,7 +72,15 @@ if IS_DEBUG_LEADER:
 	print("[DEBUG] Leaders index to type is: %s" % str(get_leaders_index_to_type_map(gc)))
 
 # <!-- custom: note: LEADER_DEFAULTS doesn't seem to exist at all in the DLL if i am not mistaken, so no need to mention it here (also may cause errors in our code as we can't even refer to its index to exclude it to begin with since such a leader index doesn't seem to exist at all in gc/DLL if i am not mistaken so handle that edge case of LEADER_DEFAULTS specifically i mean anyways etc) unlike in generate_leaders_data.py for external to civ4 script usage (such as generating charts .csv, etc.), as for civ4 use only mention LEADER_BARBARIAN and similar existing leaders even if they are excluded, but not LEADER_DEFAULTS and any other DLL seemingly removed leader index as well if any other exist (as of now LEADER_DEFAULTS seems to be the only one if i am not mistaken but is to be exhaustive anyways etc -->
-EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS = get_leader_indexes_from_leader_types(get_dll_existing_excluded_leader_types(), gc)
+EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS = (
+	"LEADER_BARBARIAN",
+)
+
+EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS = get_leader_indexes_from_leader_types(EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS, gc)
+
+
+
+# <!-- custom: more consistently and reliably exclude leaders by having a ready list of such leaders we can call -->
 
 if IS_DEBUG_LEADER:
 	print("[DEBUG] EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS=%s" % str(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS))
@@ -79,6 +90,8 @@ if IS_DEBUG_LEADER:
 # <!-- custom: note: collapse this below function with VS Code or similar to easily see right at next lines (at least as of now anyways etc) viewed the class SevoPediaLeader code anyways etc -->
 # <!-- custom: read at end of this function at the return's code comment of when and why we call the sevopedia cache precomputing as a function from sevopedia main anyways etc -->
 def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession():
+
+
 
 	def check_required_newly_exposed_python_getters_gc_leader_exist():
 		# <!-- custom: note: to use the AI personality feature in another mod, you need to modify the DLL to expose python BBAI getters and at if i am not mistaken base advciv's getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold as of now, see README.md fixes section or/and in particular known issues readme of advciv-sas (ctrl+f "expose" or "getter" or "bbai" or something similar) if the info is still there on these readmes anwyays etc, as of now it contains info with google drive link and screenshots on how to do it yourself, adding raise error to make user or/and modder aware of this if they are missing anyways etc, see also sevopedia_helpers py file debug output code comments for details too ifi may say anwyays etc anyways etc anyways etc... ; raise an error if any of these are missing to raise awareness if i may say on these... hehe or not hehe or yes hehe but in all cases hehe or etc anyways etc... hehe or not or yes hehe but anyways etc... hehe (this is getting quite funny hehe or ont or yes hehe but in all cases anyways etc... hopefully helpful or not or yes all this code comment i mea maybe this joke or soemthign too ro not or yes or other or etc but anyways etc anyways etc anyways etc...) -->
@@ -134,7 +147,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 			leader_info_minimums[key] = value
 			leader_info_maximums[key] = value
 			if IS_DEBUG_LEADER:
-				print("[DEBUG] Set initial min/max for key=%s → %s" % (key, value))
+				print("[DEBUG] Set initial min/max for key=%s → %d" % (key, value))
 		else:
 			prev_min = leader_info_minimums[key]
 			prev_max = leader_info_maximums[key]
@@ -142,12 +155,12 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 			if value < prev_min:
 				leader_info_minimums[key] = value
 				if IS_DEBUG_LEADER:
-					print("[DEBUG] New min for %s: %s → %s" % (key, prev_min, value))
+					print("[DEBUG] New min for %s: %d → %d" % (key, prev_min, value))
 
 			if value > prev_max:
 				leader_info_maximums[key] = value
 				if IS_DEBUG_LEADER:
-					print("[DEBUG] New max for %s: %s → %s" % (key, prev_max, value))
+					print("[DEBUG] New max for %s: %d → %d" % (key, prev_max, value))
 
 
 
@@ -225,7 +238,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 			print("[DEBUG] Second pass of compute_and_store_leaders_info_aggregated_raw_contact_probs passed/success, leaders_temp_aggregated_contact_probs=%s\n\nleader_info_minimums_adjusted_values_only_contact_fields=%s\n\nleader_info_maximums_adjusted_values_only_contact_fields=%s\n\n" % (str(leaders_temp_aggregated_contact_probs), str(leader_info_minimums_adjusted_values_only_contact_fields), str(leader_info_maximums_adjusted_values_only_contact_fields)))
 
 		# Third pass: compute raw aggregate scores
-		b_invert_contact_rands, b_invert_contact_delays = get_contact_rand_and_decay_invert_flags()
+		b_invert_contact_rands, b_invert_contact_delays = get_contact_rand_and_delay_invert_flags()
 
 		for iLeader in range(gc.getNumLeaderHeadInfos()):
 			if iLeader in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS:
@@ -423,10 +436,29 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 
 
-	check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS, leaders_info_aggregated_raw_contact_probs, "leaders_info_aggregated_raw_contact_probs", gc)
+	def check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(excluded_leaders_indexes_from_calculations, leaders_dict, leaders_dict_name):
+		leaders_dict_keys = leaders_dict.keys()
+
+		for excluded_leader_index in excluded_leaders_indexes_from_calculations:
+			if (excluded_leader_index in leaders_dict_keys):
+				excluded_leader_type = get_leader_type_from_leader_index(excluded_leader_index, gc)
+				raise KeyError("[FATAL] During sanity checks testing, excluded_leader_index=%d (excluded_leader_type=%s), was assessed to not be properly excluded from the calculations and its corresponding leader_index is still part of the leaders_dict_keys=%s, please make sure this excluded leader is not part of the leaders_dict_name=%s." % (excluded_leader_index, excluded_leader_type, str(leaders_dict_keys), leaders_dict_name))
+
+
+
+	def check_leaders_dict_only_has_leader_index_keys(leaders_dict, leaders_dict_name):
+		for key in leaders_dict.keys():
+			if not isinstance(key, int):
+				key_name = repr(key)
+				key_type_name = str(type(key))
+				raise TypeError("[FATAL] In leaders_dict_name=%s, key=%s is not an integer index (key_name=%s). Only integer iLeader indexes should be used as keys. Please ensure that key_type_name=%s uses iLeader (e.g. 0, 1, 2...) as keys, not leader_type strings." % (leaders_dict_name, key, key_name, key_type_name))
+
+
+
+	check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS, leaders_info_aggregated_raw_contact_probs, "leaders_info_aggregated_raw_contact_probs")
 	check_leaders_dict_only_has_leader_index_keys(leaders_info_aggregated_raw_contact_probs, "leaders_info_aggregated_raw_contact_probs")
 
-	check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, "leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments", gc)
+	check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, "leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments")
 	check_leaders_dict_only_has_leader_index_keys(leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, "leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments")
 
 
@@ -539,7 +571,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 
 
-	# <!-- custom: store only the fields we want to display in the AI personality panel not the other / not all XML fields, see sevopedia helpers py file and debugPrintLeaderHeadInfoFieldsToFetch and or its example of output for details anyways etc -->
+	# <!-- custom: store only the fields we want to display in the AI personality panel not the other / not all XML fields, see sevopedia debuggers py file and debugPrintLeaderHeadInfoFieldsToFetch and or its example of output for details anyways etc -->
 	fields_with_direct_getters, fields_attitude_thresholds = get_fields_directly_parsed()
 
 
@@ -641,8 +673,8 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 					print("[WARNING] Key=%s has an identical min and max value (%d). Warning only once at module load so we don't have/want/need to redo it later at the normalization stage, fix/change the XML leader info value(s) of some leader(s) so that min and max among all leaders are different if desired, or keep as is if intended/desired that leaders behave the same for this key." % (key, leader_info_minimums[key]))
 		
 		if IS_DEBUG_LEADER:
-			print("[DEBUG] At end of the function get_leader_info_minimums_and_maximums, we return for the minimums leader_info_minimums=%s" % leader_info_minimums)
-			print("[DEBUG] At end of the function get_leader_info_minimums_and_maximums, we return for the maximums leader_info_maximums=%s" % leader_info_maximums)
+			print("[DEBUG] At end of the function get_leader_info_minimums_and_maximums, we return for the minimums leader_info_minimums=%s" % str(leader_info_minimums))
+			print("[DEBUG] At end of the function get_leader_info_minimums_and_maximums, we return for the maximums leader_info_maximums=%s" % str(leader_info_maximums))
 
 		return (leader_info_minimums, leader_info_maximums)
 
@@ -738,12 +770,73 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 		positive_and_negative_memory_index_labels.update(positive_memory_index_labels)
 		positive_and_negative_memory_index_labels.update(negative_memory_index_labels)
 
-		# --- Utility ---
-		# <!-- custom: examples:
-		# - with symbol "+" and value 64 (/100), returns "++++++" if i'm not mistaken anyways
-		# - with symbol "#" and value 39 (/100), returns "###" if i'm not mistaken anyways
-		# -->
+		def get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix, tail_to_trim, abbreviated_tail, label_raw, max_length):
+			# <!-- custom: for example for "SameReligionAttitudeChangeLimit" (note: "get" front already stripped), "ACL", "(39)", 15: -->
+
+			# <!-- custom: first trim the tail in key_or_suffix if any, for example "SameReligionAttitudeChangeLimit" → "SameReligion" -->
+			if tail_to_trim:
+				key_or_suffix_with_tail_trimmed = key_or_suffix[:-len(tail_to_trim)]
+			else:
+				key_or_suffix_with_tail_trimmed = key_or_suffix
+
+			# <!-- custom: check if this result is longer than would allow to fit "ACL" + " " + "(39)" as compared to what max_length would allow in total in the final label, and if all good trim it as such i.e. trim enough of the key_or_suffix_with_tail_trimmed until it allows to fit total_tail_length within max_length, for example:
+			# - "SameReligion" has a length of 12
+			# - "ACL" + " " + "(39)" has a total_tail_length of 3 + 1 + 4 = 8
+			# - max_length is 15
+			# So there will be max_length - total_tail_length = 15 - 8 = 7 chars remaining for the key_or_suffix_with_tail_trimmed, trim anything beyond that anyways etc, so the key_or_suffix_with_tail_trimmed is now only for example "SameReligion" → "SameRel" -->
+			total_tail_length = len(abbreviated_tail) + len(" ") + len(label_raw)
+			room_for_first = max_length - total_tail_length
+			if room_for_first <= 0:
+				raise ValueError(u"[ERROR] Unexpected label_raw=%s + ' ' + abbreviated_tail=%s total_tail_length=%d, too long to fit key_or_suffix_with_tail_trimmed=%s within max_length = %d in the final label. This should not happen, please make sure abbreviated_tail + ' ' + label_raw are short enough relative to max_length, or/and that max_length is high enough." % (label_raw, abbreviated_tail, total_tail_length, key_or_suffix_with_tail_trimmed, max_length))
+			# <!-- custom: minimum 1 to accomodate for the " " space character anyways etc -->
+			key_or_suffix_with_tail_trimmed_further_trimmed = key_or_suffix_with_tail_trimmed[:max(1, room_for_first)]
+
+			# <!-- custom: finally append ' ' + the abbreviated tail as intended, for example "SameRel" → "SameRelACL (39)" -->
+			key_or_suffix_with_abbreviated_tail = key_or_suffix_with_tail_trimmed_further_trimmed + abbreviated_tail + " " + label_raw
+			
+			return key_or_suffix_with_abbreviated_tail
+
+		def get_labels_as_keys_or_suffixes_max_length_label(key_or_suffix, label_raw, max_length):
+			# Returns key_or_suffix + label_raw, trimmed so total length ≤ max_length.
+			#
+			# <!-- custom: examples of output from chagpt as well and some added by me anyways etc as well too i mean anyways etc anyways etc thanks anyways etc and my prompt too anyways etc: -->
+			# "getMaxWarRand", " (50)", 18 → "MaxWarRand (50)"
+			# "DemandWar", " (50/510)", 18 → "Demand (50/510)"
+			# "LongLongKeyNameHere", " (9)", 14 → "LongLongKe (9)"
+			# "getConquestVictoryWeight", " (39)", 19 → "Conquest (39)"
+			# "getSameReligionAttitudeChangeLimit", " (39)", 15 → "SameRelACL (39)"
+
+			# <!-- custom: first strip front and/or tail, for example "getSameReligionAttitudeChangeLimit" → "SameReligion"
+			if key_or_suffix.startswith("get"):
+				# <!-- custom: strip this front part ("get") first anyways etc-->
+				key_or_suffix_without_front = key_or_suffix[len("get"):]
+
+				if key_or_suffix_without_front.endswith("VictoryWeight"):
+					# <!-- custom: just strip tail (i.e. without appending any abbreviated_tail as a replacement if i am not mistaken anyways etc) -->
+					return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "VictoryWeight", "", label_raw, max_length)
+				elif key_or_suffix_without_front.endswith("RefuseAttitudeThreshold"):
+					# <!-- custom: no need for a "RAT" abbreviated_tail as would clutter and they are all in same category at least as of now if not always or not or yes or etc anyways etc ; so opt for a more compact label instead if i may say i mean anyways etc anyways etc -->
+					return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "RefuseAttitudeThreshold", "", label_raw, max_length)
+				elif key_or_suffix_without_front.endswith("AttitudeThreshold"):
+					# <!-- custom: the "AT" vs "RAT" here is informative though i think for the few fields that have it i think so display it i think i mean anyways etc -->
+					return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeThreshold", "AT", label_raw, max_length)
+				elif key_or_suffix_without_front.endswith("AttitudeChangeLimit"):
+					return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeChangeLimit", "ACL", label_raw, max_length)
+				elif key_or_suffix_without_front.endswith("AttitudeChangeDivisor"):
+					return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeChangeDivisor", "ACD", label_raw, max_length)
+				elif key_or_suffix_without_front.endswith("AttitudeChange"):
+					return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeChange", "AC", label_raw, max_length)
+				else:
+					return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "", "", label_raw, max_length)
+			# <!-- custom: no front nor tail, just trim key_or_suffix to fit label_raw within max_length -->
+			else:
+				return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix, "", "", label_raw, max_length)
+
 		def get_symbol_scale(score, symbol):
+			# <!-- custom: examples:
+			# - with symbol "+" and value 64 (/100), returns "++++++" if i'm not mistaken anyways
+			# - with symbol "#" and value 39 (/100), returns "###" if i'm not mistaken anyways
+			# -->
 			return symbol * (score // 10)
 
 		def compute_and_store_leader_info_cached_tuple(raw_value, min_value, max_value, b_invert, symbol, cache_key, label, leader_info_cached):
@@ -753,7 +846,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 				symbol = all_symbols["EQUAL_SCALE_SYMBOL"]
 
 			if IS_DEBUG_LEADER:
-				print("[DEBUG] raw_value=%d, min_value=%d, max_value=%d, norm_value=%d, for cache_key=%s, b_invert=%s at iLeader=%d" % (raw_value, min_value, max_value, norm_value, cache_key, b_invert, iLeader))
+				print("[DEBUG] raw_value=%d, min_value=%d, max_value=%d, norm_value=%d, for cache_key=%s, b_invert=%s at iLeader=%d" % (raw_value, min_value, max_value, norm_value, cache_key, str(b_invert), iLeader))
 
 			if not label:
 				raise ValueError(u"Unexpected label=%s tested false as a boolean in cache_key=%s at iLeader=%d, please check label is not empty or missing or some other kind of invalid format" % (str(label), cache_key, iLeader))
@@ -775,38 +868,52 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 			leader_info_cached = {}
 
 			# <!-- custom: note: later in the code at UI stage or somewhere after the whole compute_and_store_leaders_info_cached caching function anyways etc, to access the tuple line to display in the table for non-agrgegated and perhaps some other ai attributes or not anyways etc, we may use for some attributes the getter name as a key but we don't call it, it is just more conveninent to store it this way as this is consistent with existing getter name and we didn't flatten field/attribute since it was not nested xml so no need to use another key name than one that starts with "get" for this field/attribute anyways etc, it is still a flat one, so do at load for example for iLeader = 5 dynamically while in the UI loop per attribute/key if i am not mistaken anyways etc LEADERS_INFO_CACHED[5]["getBaseAttitude"] to access the tuple to display, while for some other attributes/fields anyways etc we may use an "i" type of key name such as for some nested fields like flavors for example anyways etc LEADERS_INFO_CACHED[5]["iFlavorMilitary"] since we flatten them as such if i am not mistaken anyways etc, vs also for some other nested fields like aggregated attributes for example similarly (if other kind of fields exist, as of now not but is to be exhaustive or as it is or and other or and not but anyways etc) instead we may do for example anyways etc LEADERS_INFO_CACHED[5]["iAggregatedNegativeMemoryHiredTradeEmbargoResentment"] (not using a "get" getter name for the key here either, but these are all key names regardless of "i" or "get" or other name/prefix in key name to access in LEADERS_INFO_CACHED if i am not mistaken anyways etc that we don't call like getters even if there is a "get", but only use as key names anyways etc), hopefully clearer or/and helps maybe ideally or nto or yes or etc understand or see how it works-functions but or not but or yes but but anyways etc anyways etc anyways etc, i find it quite plesant design this way, but anyways etc -->
+
 			symbol_generics = all_symbols["RAW_SCALE_SYMBOL"]
 			for getter_name_generic, (label_generic, b_invert_generic) in fields_with_direct_getters.items():
 				raw_value_generic = getattr(gc.getLeaderHeadInfo(iLeader), getter_name_generic)()
+				# <!-- custom: also add raw value to label like "Military (12)" for example for flavors instead of just "Military" (so we have both raw value in label as well as normalized value in the 2nd column of each of the AI personality panel tables anyways etc (i.e. before the scale (e.g. "++++" or similar anyways etc column of each of the AI personality panel tables too anyways etc-->
+				label_raw_generic = "(%d)" % raw_value_generic
+				if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
+					label_with_raw_value_generic = get_labels_as_keys_or_suffixes_max_length_label(getter_name_generic, label_raw_generic, 18)
+				else:
+					label_with_raw_value_generic = "%s %s" % (label_generic, label_raw_generic)
 				min_value_generic = leader_info_minimums[getter_name_generic]
 				max_value_generic = leader_info_maximums[getter_name_generic]
-				# <!-- custom: also add raw value to label like "Military (12)" for example for flavors instead of just "Military" (so we have both raw value in label as well as normalized value in the 2nd column of each of the AI personality panel tables anyways etc (i.e. before the scale (e.g. "++++" or similar anyways etc column of each of the AI personality panel tables too anyways etc-->
-				label_with_raw_value_generic = "%s (%d)" % (label_generic, raw_value_generic)
 				compute_and_store_leader_info_cached_tuple(raw_value_generic, min_value_generic, max_value_generic, b_invert_generic, symbol_generics, getter_name_generic, label_with_raw_value_generic, leader_info_cached)
 
 			symbol_attitude_thresholds = all_symbols["RAW_SCALE_SYMBOL"]
 			for getter_name_attitude_threshold, (label_attitude_threshold, b_invert_attitude_threshold) in fields_attitude_thresholds.items():
 				raw_value_attitude_threshold = getattr(gc.getLeaderHeadInfo(iLeader), getter_name_attitude_threshold)()
+				label_raw_attitude_threshold = "(%d)" % raw_value_attitude_threshold
+				if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
+					label_with_raw_value_attitude_threshold = get_labels_as_keys_or_suffixes_max_length_label(getter_name_attitude_threshold, label_raw_attitude_threshold, 18)
+				else:
+					label_with_raw_value_attitude_threshold = "%s %s" % (label_attitude_threshold, label_raw_attitude_threshold)
 				min_value_attitude_threshold = leader_info_minimums[getter_name_attitude_threshold]
 				max_value_attitude_threshold = leader_info_maximums[getter_name_attitude_threshold]
-				label_with_raw_value_attitude_threshold = "%s (%d)" % (label_attitude_threshold, raw_value_attitude_threshold)
 				compute_and_store_leader_info_cached_tuple(raw_value_attitude_threshold, min_value_attitude_threshold, max_value_attitude_threshold, b_invert_attitude_threshold, symbol_attitude_thresholds, getter_name_attitude_threshold, label_with_raw_value_attitude_threshold, leader_info_cached)
 
 			b_invert_flavors = False
 			symbol_flavors = all_symbols["RAW_SCALE_SYMBOL"]
 			for i in range(gc.getNumFlavorTypes()):
-				raw_value_flavor = gc.getLeaderHeadInfo(iLeader).getFlavorValue(i)
 				flavor_type = gc.getFlavorTypes(i)  # e.g. "FLAVOR_MILITARY"
-				suffix = get_pascal_case_suffix(flavor_type) # → <!-- custom: "Military" anyways etc -->
+				suffix = get_pascal_case_suffix(flavor_type) # → "Military"
 				parsed_name_flavor = "iFlavor%s" % suffix  # → iFlavorMilitary
-				min_value_attitude_flavor = leader_info_minimums[parsed_name_flavor]
-				max_value_attitude_flavor = leader_info_maximums[parsed_name_flavor]
-				label_flavor = suffix # <!-- custom: → "Military" -->
-				label_with_raw_value_flavor = "%s (%d)" % (label_flavor, raw_value_flavor)
-				compute_and_store_leader_info_cached_tuple(raw_value_flavor, min_value_attitude_flavor, max_value_attitude_flavor, b_invert_flavors, symbol_flavors, parsed_name_flavor, label_with_raw_value_flavor, leader_info_cached)
+				label_flavor = suffix
+				raw_value_flavor = gc.getLeaderHeadInfo(iLeader).getFlavorValue(i)
+				label_raw_flavor = "(%d)" % raw_value_flavor
+				if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
+					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
+					label_with_raw_value_flavor = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_flavor, 19)
+				else:
+					label_with_raw_value_flavor = "%s %s" % (label_flavor, label_raw_flavor)
+				min_value_flavor = leader_info_minimums[parsed_name_flavor]
+				max_value_flavor = leader_info_maximums[parsed_name_flavor]
+				compute_and_store_leader_info_cached_tuple(raw_value_flavor, min_value_flavor, max_value_flavor, b_invert_flavors, symbol_flavors, parsed_name_flavor, label_with_raw_value_flavor, leader_info_cached)
 
 			# <!-- custom: for contact fields, normalize the aggregated contact probs, do not normalize the rands nor the delays (would be redundant, as we don't display them with scale symbols or such, just the raw value in label is enough anyways etc) ; to export raw fields (rand and delay if i am not mistaken anyways etc, uncomment the related rand and delay lines below (untested but probably works-functions else tweak bit anyways etc) to export them to UI if want to display them (then you'd need to uncomment or add if missing them anyways etc in UI categories too anyways etc)) -->
-			# b_invert_contact_rands, b_invert_contact_delays = get_contact_rand_and_decay_invert_flags()
+			# b_invert_contact_rands, b_invert_contact_delays = get_contact_rand_and_delay_invert_flags()
 			# symbol_contact_rands_delays = all_symbols["RAW_SCALE_SYMBOL"]
 
 			b_invert_4_aggregated_contact_probs = False
@@ -816,43 +923,62 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 				suffix = get_pascal_case_suffix(contact_type) # → "JoinWar"
 				label_contact = contact_index_labels[i]
 
-				# raw_value_rand = gc.getLeaderHeadInfo(iLeader).getContactRand(i)
 				# parsed_name_rand = "iContactRand%s" % suffix # → iContactRandJoinWar
+				# raw_value_rand = gc.getLeaderHeadInfo(iLeader).getContactRand(i)
+				# label_raw_rand = "(%d)" % raw_value_rand
+				# if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
+				# 	# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
+				# 	label_with_raw_value_rand = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_rand, 19)
+				# else:
+				# 	label_with_raw_value_rand = "%s %s" % (label_contact, label_raw_rand)
 				# min_value_rand = leader_info_minimums[parsed_name_rand]
 				# max_value_rand = leader_info_maximums[parsed_name_rand]
-				# label_with_raw_value_rand = "%s (%d)" % (label_contact, raw_value_rand)
 				# compute_and_store_leader_info_cached_tuple(raw_value_rand, min_value_rand, max_value_rand, b_invert_contact_rands, symbol_contact_rands_delays, parsed_name_rand, label_with_raw_value_rand, leader_info_cached)
 
-				# raw_value_delay = gc.getLeaderHeadInfo(iLeader).getContactDelay(i)
 				# parsed_name_delay = "iContactDelay%s" % suffix # → iContactDelayJoinWar
+				# raw_value_delay = gc.getLeaderHeadInfo(iLeader).getContactDelay(i)
 				# min_value_delay = leader_info_minimums[parsed_name_delay]
 				# max_value_delay = leader_info_maximums[parsed_name_delay]
-				# label_with_raw_value_delay = "%s (%d)" % (label_contact, raw_value_delay)
+				# label_raw_delay = "(%d)" % raw_value_delay
+				# if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
+				# 	# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
+				# 	label_with_raw_value_delay = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_delay, 19)
+				# else:
+				# 	label_with_raw_value_delay = "%s %s" % (label_contact, label_raw_delay)
 				# compute_and_store_leader_info_cached_tuple(raw_value_delay, min_value_delay, max_value_delay, b_invert_contact_delays, symbol_contact_rands_delays, parsed_name_delay, label_with_raw_value_delay, leader_info_cached)
-
 
 				# <!-- custom: then back to aggregated contact fields, the ones that we display at least as of now anyways etc , --> Fourth <!-- custom: actually third in sevopedia leader but named as such for consistency with generate_leaders_data.py pass numbering anyways etc --> pass: normalize final scores
 				# <!-- custom: now transform the raw aggregated prob into a normalized aggregated prob that we store and export for UI display anyways etc -->
 				parsed_name_4_aggregated_raw_contact_prob = "iAggregatedRawContactProb%s" % suffix # → iAggregatedRawContactProbJoinWar
-				raw_value_4_aggregated_contact_prob = leaders_info_aggregated_raw_contact_probs[iLeader][parsed_name_4_aggregated_raw_contact_prob]
-				# <!-- custom: be careful/note anyways etc, min and max value are stored under the raw aggregated value and thus key, not the normalized aggregated one, use raw aggregated key to access them in leader_info minimums and same for maximums (normalized key does not exist yet, would get an error, anyways etc) -->
-				min_value_4_aggregated_raw_contact_prob = leader_info_minimums[parsed_name_4_aggregated_raw_contact_prob]
-				max_value_4_aggregated_raw_contact_prob = leader_info_maximums[parsed_name_4_aggregated_raw_contact_prob]
+
+				# <!-- custom: be careful/note anyways etc: the normalized aggregated value is not stored in cache with the old pre-normalization key/parsed_name, so we remove "raw" here in key/parsed_name anyways etc since aggregated value is normalized now, so use for caching the new key/parsed_name that does not have "raw" in key for aggregated fields at least for aggregated contact probs caching anyways etc -->
+				parsed_name_4_aggregated_contact_prob = "iAggregatedContactProb%s" % suffix # → iAggregatedContactProbJoinWar
 
 				# <!-- custom: generate the label before normalizing, and so we also have the label as well for later display after normalization done anyways etc in/at UI anyways etc -->
 				raw_value_rand = gc.getLeaderHeadInfo(iLeader).getContactRand(i)
 				raw_value_delay = gc.getLeaderHeadInfo(iLeader).getContactDelay(i)
-				label_aggregated_contact_prob = "%s (%d/%d)" % (label_contact, raw_value_rand, raw_value_delay)
+				# <!-- custom: do not display the raw aggregated prob here, but instead the raw rand and raw delay -->
+				label_raw_rand_and_raw_delay = "(%d/%d)" % (raw_value_rand, raw_value_delay)
+				if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
+					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
+					label_with_raw_value_rand_and_raw_value_delay = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_rand_and_raw_delay, 19)
+				else:
+					label_with_raw_value_rand_and_raw_value_delay = "%s %s" % (label_contact, label_raw_rand_and_raw_delay)
 
-				# <!-- custom: be careful/note anyways etc: the normalized aggregated value is not stored in cache with the old pre-normalization key/parsed_name, so we remove "raw" here in key/parsed_name anyways etc since aggregated value is normalized now, so use for caching the new key/parsed_name that does not have "raw" in key for aggregated fields at least for aggregated contact probs caching anyways etc -->
-				parsed_name_4_aggregated_contact_prob = "iAggregatedContactProb%s" % suffix # → iAggregatedContactProbJoinWar
-				compute_and_store_leader_info_cached_tuple(raw_value_4_aggregated_contact_prob, min_value_4_aggregated_raw_contact_prob, max_value_4_aggregated_raw_contact_prob, b_invert_4_aggregated_contact_probs, symbol_aggregated_contact_probs, parsed_name_4_aggregated_contact_prob, label_aggregated_contact_prob, leader_info_cached)
+				# <!-- custom: be careful/note anyways etc, min and max value are stored under the raw aggregated value and thus key, not the normalized aggregated one, use raw aggregated key to access them in leader_info minimums and same for maximums (normalized key does not exist yet, would get an error, anyways etc), similar reasoning to retrieve the previously stored raw aggregated value in leaders_info_aggregated_raw_contact_probs as well if i am not mistaken anyways etc -->
+				raw_value_4_aggregated_contact_prob = leaders_info_aggregated_raw_contact_probs[iLeader][parsed_name_4_aggregated_raw_contact_prob]
+				min_value_4_aggregated_raw_contact_prob = leader_info_minimums[parsed_name_4_aggregated_raw_contact_prob]
+				max_value_4_aggregated_raw_contact_prob = leader_info_maximums[parsed_name_4_aggregated_raw_contact_prob]
+
+				compute_and_store_leader_info_cached_tuple(raw_value_4_aggregated_contact_prob, min_value_4_aggregated_raw_contact_prob, max_value_4_aggregated_raw_contact_prob, b_invert_4_aggregated_contact_probs, symbol_aggregated_contact_probs, parsed_name_4_aggregated_contact_prob, label_with_raw_value_rand_and_raw_value_delay, leader_info_cached)
 
 			# <!-- custom: similarly for memory fields, we don't need the raw attitude_percent and decay since they are already in label and we don't display them normalized otherwise either (or neither? But anyways etc...) anyways etc, so normalize only aggregated positive and negative memory affections and resentments, but more specifically also, we don't display positive memory resentments and negative memory affections due to table being too small for these all but anyways etc and/but also our XML being otherwise quite straightforward at least as of now if not always or not, as positive memories all have a positive attitude_percent if i'm not mistaken and same or similarly rather anyways etc negative memories all have a negative atittude_percent, so positive memory resentments and negative memory affections would just perfectly overlap and be redundant with positive memory affections and negative memory resentments, so don't display them in our mod advciv-sas at least as of now if not most likely always in advciv-sas or maybe not but most likely anyways etc. But the feature is there if some mods want to display it, and i think it's very cool to have masochistic (negative memory affections) and/or bitterly ungrateful (positive memory resentments), so code comment code samples or rather maybe lines anyways etc if you want to support it in your mod, remember to also add these fields (parsed_name (parsed names for all fields actually but anyways etc)) in UI categories too and order them as you see fit if you'd want that, which i think is very cool and wish i did and could do, but table is already too full, and i dont have such a crazy in a way i like hehe leader as of yet (or yet? Simply? But anyways etc...) if not always or maybe not but most likely in this case i mean anyways etc, but in all cases, regardless of which, uncomment if you want to add positive memory resentments and negative memory resentments, same also for raw memory attitude_percents and decays not displayed as well since they are in label of aggregated field and we don't otherwise need them, anyways etc -->
-
+			# b_invert_memory_attitude_percents, b_invert_memory_decays = get_memory_attitude_percent_and_decay_invert_flags(is_positive, is_affection)
 			#symbol_memory_attitude_percents_decays = all_symbols["RAW_SCALE_SYMBOL"]
+
 			b_invert_4_positive_and_negative_memory_affections_and_resentments = False
 			symbol_aggregated_positive_and_negative_memory_affections_and_resentments = all_symbols["AGGREGATED_SCALE_SYMBOL"]
+
 
 			for is_positive in (True, False):
 				for is_affection in (True, False):
@@ -866,12 +992,10 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 					positive_negative = get_positive_negative(is_positive)
 					affection_resentment = get_affection_resentment(is_affection)
 
-					# b_invert_attitude_percents, b_invert_decays = get_memory_attitude_percent_and_decay_invert_flags(is_positive, is_affection)
-
 					for i in positive_or_negative_memory_indexes:
 						memory_type = gc.getMemoryInfo(i).getType() # e.g. "MEMORY_DECLARED_WAR"
 						suffix = get_pascal_case_suffix(memory_type) # → "DeclaredWar"
-						label_positive_or_negative_memory_affection_or_resentment = positive_and_negative_memory_index_labels[i]
+						label_memory = positive_and_negative_memory_index_labels[i]
 
 						# <!-- custom: for positive and negative memory affection and resentment fields, normalize the aggregated positive and negative memory affections and resentments, do not normalize the atittude percents nor the decays (would be redundant similarly as for contact fields anyways etc) (also export of these raw fields (attitude percents and decays is untested as we don't need them at least untested as of now i mean but anyways etc simialrly to contact field, may or not function, i assume it would or with minimal tweaks or fixes if any are needed, plus would need to add UI logic or ordering to display them rather if want in another mod for example, unlikely we would in advciv-sas as redundant with aggregated fields as said before in this code comment too i mean anyways etc anyways etc even though not 100% sure sure but most likely anyways etc)) -->
 
@@ -879,48 +1003,71 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 						# parsed_name_attitude_percent = "iMemoryAttitudePercent%s" % suffix # → iMemoryAttitudePercentDeclaredWar
 						# if parsed_name_attitude_percent not in leader_info_cached:
 						# 	raw_value_attitude_percent = gc.getLeaderHeadInfo(iLeader).getMemoryAttitudePercent(i)
-						#   min_value_attitude_percent = leader_info_minimums[parsed_name_attitude_percent]
-						#   max_value_attitude_percent = leader_info_maximums[parsed_name_attitude_percent]
-						#   label_positive_or_negative_memory_with_raw_value_attitude_percent = "%s (%d)" % (label_positive_or_negative_memory, raw_value_attitude_percent)
-						# 	compute_and_store_leader_info_cached_tuple(raw_value_attitude_percent, min_value_attitude_percent, max_value_attitude_percent, b_invert_attitude_percents, symbol_memory_attitude_percents_decays, parsed_name_attitude_percent, label_positive_or_negative_memory_with_raw_value_attitude_percent, leader_info_cached)
-						#
+						# 	label_raw_attitude_percent = "(%d)" % raw_value_attitude_percent
+						# 	if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
+						# 		# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
+						# 		label_with_raw_value_attitude_percent = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_attitude_percent, 19)
+						# 	else:
+						# 		label_with_raw_value_attitude_percent = "%s %s" % (label_memory, label_raw_attitude_percent)
+						# 	min_value_attitude_percent = leader_info_minimums[parsed_name_attitude_percent]
+						# 	max_value_attitude_percent = leader_info_maximums[parsed_name_attitude_percent]
+						# 	compute_and_store_leader_info_cached_tuple(raw_value_attitude_percent, min_value_attitude_percent, max_value_attitude_percent, b_invert_memory_attitude_percents, symbol_memory_attitude_percents_decays, parsed_name_attitude_percent, label_with_raw_value_attitude_percent, leader_info_cached)
+
 						# parsed_name_decay = "iMemoryDecay%s" % suffix # → iMemoryDecayDeclaredWar
 						# if parsed_name_decay not in leader_info_cached:
 						# 	raw_value_decay = gc.getLeaderHeadInfo(iLeader).getMemoryDecayRand(i)
-						#   min_value_decay = leader_info_minimums[parsed_name_decay]
-						#   max_value_decay = leader_info_maximums[parsed_name_decay]
-						#   label_positive_or_negative_memory_with_raw_value_decay = "%s (%d)" % (label_positive_or_negative_memory, raw_value_decay)
-						# 	compute_and_store_leader_info_cached_tuple(raw_value_decay, min_value_decay, max_value_decay, b_invert_decays, symbol_memory_attitude_percents_decays, parsed_name_decay, label_positive_or_negative_memory_with_raw_value_decay, leader_info_cached)
-
+						# 	label_raw_decay = "(%d)" % raw_value_decay
+						# 	if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
+						# 		# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
+						# 		label_with_raw_value_decay = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_decay, 19)
+						# 	else:
+						# 		label_with_raw_value_decay = "%s %s" % (label_memory, label_raw_decay)
+						# 	min_value_decay = leader_info_minimums[parsed_name_decay]
+						# 	max_value_decay = leader_info_maximums[parsed_name_decay]
+						# 	compute_and_store_leader_info_cached_tuple(raw_value_decay, min_value_decay, max_value_decay, b_invert_memory_decays, symbol_memory_attitude_percents_decays, parsed_name_decay, label_with_raw_value_decay, leader_info_cached)
 
 						# <!-- custom: then back to aggregated positive and negative memory affection and resentment fields, the ones that we display at least as of now anyways etc , --> Fourth <!-- custom: actually third in sevopedia leader but named as such for consistency with generate_leaders_data.py pass numbering anyways etc --> pass: normalize final scores
 						# <!-- custom: now transform the raw aggregated prob into a normalized aggregated prob that we store and export for UI display anyways etc -->
 						# <!-- custom: note: unlike for min max exports (compute and store i mean anyways etc) of raw, we can do positive and negative memory affections and resentments aggregated normalization at same time without having to relooping/having to anyways etc reloop over positive_or_negative_memory_indexes as the raw aggregated prob is now a flat field at this normalization stage, that is already available for all leaders, so we can normalize it directly and independently from the raw memory attitude percents and decays if i am not mistaken in my understanding anyways etc, see also min max code of memory fields at step 1 step 2 or similar code comments for details if i am not mistaken too but anyways etc anyways etc anyways etc -->
 						parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment = "iAggregatedRaw%sMemory%s%s" % (positive_negative, suffix, affection_resentment) # → iAggregatedRawPositiveMemoryDeclaredWarAffection or iAggregatedRawPositiveMemoryDeclaredWarResentment or iAggregatedRawNegativeMemoryDeclaredWarAffection or iAggregatedRawNegativeMemoryDeclaredWarResentment
-						raw_value_4_aggregated_positive_or_negative_memory_affection_or_resentment = leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
-						# <!-- custom: be careful/note anyways etc, min and max value are stored under the raw aggregated value and thus key, not the normalized aggregated one, use raw aggregated key to access them in leader_info minimums and same for maximums (normalized key does not exist yet, would get an error, anyways etc) -->
-						min_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment = leader_info_minimums[parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
-						max_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment = leader_info_maximums[parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
+
+						# <!-- custom: be careful/note anyways etc: the normalized aggregated value is not stored in cache with the old pre-normalization key/parsed_name, so we remove "raw" here in key/parsed_name anyways etc since aggregated value is normalized now, so use for caching the new key/parsed_name that does not have "raw" in key for aggregated fields at least for aggregated positive and negative memory affections and resentments caching anyways etc -->
+						parsed_name_4_aggregated_positive_or_negative_memory_affection_or_resentment = "iAggregated%sMemory%s%s" % (positive_negative, suffix, affection_resentment) # → iAggregatedPositiveMemoryDeclaredWarAffection or iAggregatedPositiveMemoryDeclaredWarResentment or iAggregatedNegativeMemoryDeclaredWarAffection or iAggregatedNegativeMemoryDeclaredWarResentment
+
 
 						# <!-- custom: generate the label before normalizing, and so we also have the label as well for later display after normalization done anyways etc in/at UI anyways etc -->
 						raw_value_4_attitude_percent = gc.getLeaderHeadInfo(iLeader).getMemoryAttitudePercent(i)
 						raw_value_4_decay = gc.getLeaderHeadInfo(iLeader).getMemoryDecayRand(i)
-						label_aggregated_positive_or_negative_memory_affection_or_resentment = "%s (%d/%d)" % (label_positive_or_negative_memory_affection_or_resentment, raw_value_4_attitude_percent, raw_value_4_decay)
+						label_raw_attitude_percent_and_raw_decay = "(%d/%d)" % (raw_value_4_attitude_percent, raw_value_4_decay)
+						if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
+							# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
+							label_with_raw_value_rand_and_raw_value_delay = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_attitude_percent_and_raw_decay, 19)
+						else:
+							label_with_raw_value_rand_and_raw_value_delay = "%s %s" % (label_memory, label_raw_attitude_percent_and_raw_decay)
 
-						# <!-- custom: be careful/note anyways etc: the normalized aggregated value is not stored in cache with the old pre-normalization key/parsed_name, so we remove "raw" here in key/parsed_name anyways etc since aggregated value is normalized now, so use for caching the new key/parsed_name that does not have "raw" in key for aggregated fields at least for aggregated positive and negative memory affections and resentments caching anyways etc -->
-						parsed_name_4_aggregated_positive_or_negative_memory_affection_or_resentment = "iAggregated%sMemory%s%s" % (positive_negative, suffix, affection_resentment) # → iAggregatedPositiveMemoryDeclaredWarAffection or iAggregatedPositiveMemoryDeclaredWarResentment or iAggregatedNegativeMemoryDeclaredWarAffection or iAggregatedNegativeMemoryDeclaredWarResentment
-						compute_and_store_leader_info_cached_tuple(raw_value_4_aggregated_positive_or_negative_memory_affection_or_resentment, min_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment, max_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment, b_invert_4_positive_and_negative_memory_affections_and_resentments, symbol_aggregated_positive_and_negative_memory_affections_and_resentments, parsed_name_4_aggregated_positive_or_negative_memory_affection_or_resentment, label_aggregated_positive_or_negative_memory_affection_or_resentment, leader_info_cached)
+						# <!-- custom: be careful/note anyways etc, min and max value are stored under the raw aggregated value and thus key, not the normalized aggregated one, use raw aggregated key to access them in leader_info minimums and same for maximums (normalized key does not exist yet, would get an error, anyways etc), similar reasoning to retrieve the previously stored raw aggregated value in leaders_info_aggregated_raw_contact_probs as well if i am not mistaken anyways etc -->
+						raw_value_4_aggregated_positive_or_negative_memory_affection_or_resentment = leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
+						min_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment = leader_info_minimums[parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
+						max_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment = leader_info_maximums[parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
+
+						compute_and_store_leader_info_cached_tuple(raw_value_4_aggregated_positive_or_negative_memory_affection_or_resentment, min_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment, max_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment, b_invert_4_positive_and_negative_memory_affections_and_resentments, symbol_aggregated_positive_and_negative_memory_affections_and_resentments, parsed_name_4_aggregated_positive_or_negative_memory_affection_or_resentment, label_with_raw_value_rand_and_raw_value_delay, leader_info_cached)
 
 			b_invert_no_war_attitude_probs = False
 			symbol_no_war_attitude_probs = all_symbols["RAW_SCALE_SYMBOL"]
 			for i in range(NUM_ATTITUDE_TYPES_ASSESSED):
 				attitude_type = gc.getAttitudeInfo(i).getType()  # e.g. "ATTITUDE_FURIOUS"
-				label_no_war_attitude_prob = get_pascal_case_suffix(attitude_type)  # → "Furious"
-				parsed_name_no_war_attitude_prob = "iNoWarAttitudeProb%s" % label_no_war_attitude_prob  # → iNoWarAttitudeProbFurious
+				suffix = get_pascal_case_suffix(attitude_type)  # → "Furious"
+				parsed_name_no_war_attitude_prob = "iNoWarAttitudeProb%s" % suffix  # → iNoWarAttitudeProbFurious
+				label_no_war_attitude_prob = suffix
 				raw_value_no_war_attitude_prob = gc.getLeaderHeadInfo(iLeader).getNoWarAttitudeProb(i)
+				label_raw_no_war_attitude_prob = "(%d)" % raw_value_no_war_attitude_prob
+				if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
+					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
+					label_with_raw_value_no_war_attitude_prob = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_no_war_attitude_prob, 19)
+				else:
+					label_with_raw_value_no_war_attitude_prob = "%s %s" % (label_no_war_attitude_prob, label_raw_no_war_attitude_prob)
 				min_value_no_war_attitude_prob = leader_info_minimums[parsed_name_no_war_attitude_prob]
 				max_value_no_war_attitude_prob = leader_info_maximums[parsed_name_no_war_attitude_prob]
-				label_with_raw_value_no_war_attitude_prob = "%s (%d)" % (label_no_war_attitude_prob, raw_value_no_war_attitude_prob)
 				compute_and_store_leader_info_cached_tuple(raw_value_no_war_attitude_prob, min_value_no_war_attitude_prob, max_value_no_war_attitude_prob, b_invert_no_war_attitude_probs, symbol_no_war_attitude_probs, parsed_name_no_war_attitude_prob, label_with_raw_value_no_war_attitude_prob, leader_info_cached)
 
 			# <!-- custom: store final complete leader_info_cached (i.e. store a leader_info_cached for each iLeader anyways etc) in LEADERS_INFO_CACHED -->
@@ -940,7 +1087,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 
 
-	check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS, LEADERS_INFO_CACHED, "LEADERS_INFO_CACHED", gc)
+	check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS, LEADERS_INFO_CACHED, "LEADERS_INFO_CACHED")
 	check_leaders_dict_only_has_leader_index_keys(LEADERS_INFO_CACHED, "LEADERS_INFO_CACHED")
 
 
@@ -969,14 +1116,14 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 		def get_ai_category(emoji_name, emoji_name_to_button_path_txt_keys, ai_category_header, ai_category_key_order, localText):
 			# <!-- custom: tuple structure of an ai_category anyways etc -->
-			# (    
-			#      ai_category_header_line,
-			#      ai_category_x_offset,
-			#      (    
-			#           key1,
-			#           key2,
-			#           etc...
-			#      ),
+			# (
+			#		ai_category_header_line,
+			#		ai_category_x_offset,
+			#		(
+			#			key1,
+			#			key2,
+			#			etc...
+			#		),
 			# )
 			ai_category_header_line, x_offset = get_ai_category_header_line_with_or_without_button_and_x_offset(emoji_name, emoji_name_to_button_path_txt_keys, ai_category_header, localText)
 
@@ -1359,7 +1506,7 @@ class SevoPediaLeader:
 		#
 		# This looks good but i want to try to increase it more (portrait size, anyways, ):
 		# Now 327 / 400 = 0,8175 (which is very close to 0,8187 while also a bigger picture, anyways)
-		# Increasing it more is maybe possible but we start to see the pixels in the animations (see Gandhi's arm) not being straight for example, if we replace animations with images like with/for Ogiso Igodo (Kingdom of Benin, anyways) then hese enhanced portaits would be better and more epic, will see if i increase it more or not, maybe leaving as is at least for now or not, anyways,
+		# Increasing it more is maybe possible but we start to see the pixels in the animations (see Gandhi's arm) not being straight for example, if we replace animations with images like with/for Ewuare (Kingdom of Benin, anyways) then hese enhanced portaits would be better and more epic, will see if i increase it more or not, maybe leaving as is at least for now or not, anyways,
 		#
 		# Actually all this calculation is not exactly accurate because W_LEADERHEAD_PANE and W_LEADERHEAD are different in this base advciv / sevopedia(?) code, but hopefully accurate enough and ratio should be much closer now to the ingame diplomacy ratio, hopefully less stretched but not sure or guaranteed, should be for images i send as replacements of animations though as i base them on the ingame diplomacy's ratio, not the old sevopedia leader portait ratio, anyways, so now the new sevopedia ratio for the leader portrait i have added is hopefully much much closer to the old and as of now still existing ratio of the ingame diplomacy leader portrait, which i don't think i'm changing anytime soon as it is most likely more tedious for questionable gain, so using this one as a basis rather, not that is undoable but probably much harder and not necessarily worth it, and if animations are based on the diplomacy ingame ratio rather then they may also display better in the sevopedia with my new sevopedia ratio, (which intuitively or from a quick glance seems to be the case, image looks less compressed on its sides but not sure or guaranteed, check yourself if want to be sure or not, but i hope this helps, and that being said, anyways) anyways -->
 		#
@@ -1374,8 +1521,7 @@ class SevoPediaLeader:
 
 		self.SMALL_MARGIN = 10
 		self.MEDIUM_MARGIN = 20
-		# <!-- custom: we also need this information sooner, move it here with the more absolute
-		# dimensions of some elements
+		# <!-- custom: we also need this information sooner, move it here with the more absolute dimensions of some elements
 		self.W_CIV = 64
 		self.H_CIV = 64
 		self.CIV_MARGIN = 0

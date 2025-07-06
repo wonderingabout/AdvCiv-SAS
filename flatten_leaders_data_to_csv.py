@@ -51,8 +51,8 @@
 # Dependencies:
 # - `PARSED_XML_LEADERS_DATA` must be defined and importable from `leaders_data.py`
 # - Output files include:
-#     • `leaders_data_to_csv_<timestamp>.csv`
-#     • `leaders_data_to_csv_legend_<timestamp>.md`
+#	• `leaders_data_to_csv_<timestamp>.csv`
+#	• `leaders_data_to_csv_legend_<timestamp>.md`
 
 import csv
 from datetime import datetime

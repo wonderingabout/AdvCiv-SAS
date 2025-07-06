@@ -117,40 +117,40 @@ todo: All altars give +1 happy (maybe it makes it more worthwhile the quite high
 they would have, but not sure if i want these to be that expansive, may want to speed up
 the game a bit instead? But want it to be gradual too so will need need to test)
 Additionally
-    - Hindu monastery: +2 free priests in city (never obsolete)
-    - Pagan altar: slavery -100% anger in ancient eras, obsolete at scientific method
-    (a bit too soon for neopaganism but maybe fine, also maybe is a balance change by
-    not overbuffing slavery later in the game which may also be a bit unrealistic)?
-    - Jewish altar: slavery sacrifice cost -50% (obsolete at scientific method, maybe
-    we understand now they are living creatures so the illusion of the free sacrifice
-    is off?)
-    - Buddhist monastery: +2 free merchants in city (never obsolete)
-    - 
-    - 
+	- Hindu monastery: +2 free priests in city (never obsolete)
+	- Pagan altar: slavery -100% anger in ancient eras, obsolete at scientific method
+	(a bit too soon for neopaganism but maybe fine, also maybe is a balance change by
+	not overbuffing slavery later in the game which may also be a bit unrealistic)?
+	- Jewish altar: slavery sacrifice cost -50% (obsolete at scientific method, maybe
+	we understand now they are living creatures so the illusion of the free sacrifice
+	is off?)
+	- Buddhist monastery: +2 free merchants in city (never obsolete)
+	- 
+	- 
 
 - corporations reworked:
 todo: but if doing it with cathedrals instead, reduce temple limit to 1?
 Cathedrals are much better to prevent snowballing, they are a good incentive
 to build temples first too, would need to test, but having the new religion
 icon of corporations would be nice
-    - Hindu modern day: Hammer +50% (in city) (since they don't need to worship as much
-    at least in public, their productivity increases maybe?, requires hinduism,
-    requires scientific method, requires hindu monastery (for same reasons to
-    make it worth more to stick to their religion despite diplomacy cost if rival
-    has another one))
-    - Neopagan altar: something about peace? Culture + 100% (in city), (requires paganism
-    religion, requires scientific method tech; also requires pagan altar building
-    (maybe would make it more worthwhile to stick to their religion even if
-    diplomatic costs, may help AIs who stay too long in their religion too?)?)
-    - Neo Buddhist movements: Science +50% (in city) (they are more sceptic and
-    reject previous buddhist teachings from what i've read quite quick i
-    mean)
-    - Zionism: new military units free promotions City Raider 1 + 2 + 3,
-    requires judaism, requires nationalism, requires jewish altar
+	- Hindu modern day: Hammer +50% (in city) (since they don't need to worship as much
+	at least in public, their productivity increases maybe?, requires hinduism,
+	requires scientific method, requires hindu monastery (for same reasons to
+	make it worth more to stick to their religion despite diplomacy cost if rival
+	has another one))
+	- Neopagan altar: something about peace? Culture + 100% (in city), (requires paganism
+	religion, requires scientific method tech; also requires pagan altar building
+	(maybe would make it more worthwhile to stick to their religion even if
+	diplomatic costs, may help AIs who stay too long in their religion too?)?)
+	- Neo Buddhist movements: Science +50% (in city) (they are more sceptic and
+	reject previous buddhist teachings from what i've read quite quick i
+	mean)
+	- Zionism: new military units free promotions City Raider 1 + 2 + 3,
+	requires judaism, requires nationalism, requires jewish altar
 
-    - Jihad: new military units free promotions Flanking 1 + 2 + free promotion Ambush,
-    requires islam, requires nationalism, requires todo: first islamic
-    type of altar building
+	- Jihad: new military units free promotions Flanking 1 + 2 + free promotion Ambush,
+	requires islam, requires nationalism, requires todo: first islamic
+	type of altar building
 
 todo: modify it so all(?, or most?) units can use Ambush promotion, and maybe all
 units use all promotions?
