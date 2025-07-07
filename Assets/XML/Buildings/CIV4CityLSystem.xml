@@ -1043,15 +1043,13 @@ I am not sure which i should take, but since there are redundancies i guess i sh
 			<Rotate>45</Rotate>
 			<Scale>2.9</Scale>
 		</ArtRef>
+		<!-- custom: removed building:BUILDING_PAGAN_CATHEDRAL entirely from this file as i don't know where the 2x3 would fit in this file, hopefully works fine if i am not mistaken in my hope or guess in this guess but anyways etc, added for mention/reference if need further but if works-functions fine then is for info anyways etc -->
 		<ArtRef Name="building:BUILDING_PAGAN_TEMPLE">
 			<Rotate>45</Rotate>
 			<Scale>2.5</Scale>
 		</ArtRef>
 		<ArtRef Name="building:BUILDING_DAOIST_TEMPLE">
 			<Scale>2.75</Scale>
-		</ArtRef>
-		<ArtRef Name="building:BUILDING_PAGAN_MONASTERY">
-			<Scale>2.5</Scale>
 		</ArtRef>
 		<ArtRef Name="building:BUILDING_DAOIST_MONASTERY">
 			<Scale>2.5</Scale>
@@ -1132,10 +1130,6 @@ I am not sure which i should take, but since there are redundancies i guess i sh
 			<Attribute Class="Rotation">90,270</Attribute>
 			<Scale>2.09</Scale>
 		</ArtRef>
-		<ArtRef Name="building:BUILDING_PAGAN_CATHEDRAL">
-			<Attribute Class="Rotation">90,180</Attribute>
-			<Scale>2.0</Scale>
-		</ArtRef>
 		<ArtRef Name="building:BUILDING_MARKET">
 			<Attribute Class="Rotation">0,180</Attribute>
 			<Scale>1.0</Scale>
@@ -1181,10 +1175,6 @@ I am not sure which i should take, but since there are redundancies i guess i sh
 		</ArtRef>
 		<ArtRef Name="building:BUILDING_BUDDHIST_SHRINE">
 			<Attribute Class="Rotation">0,180</Attribute>
-		</ArtRef>
-		<ArtRef Name="building:BUILDING_PAGAN_SHRINE">
-			<Attribute Class="Rotation">0,180</Attribute>
-			<Scale>1.0</Scale>
 		</ArtRef>
 		<ArtRef Name="building:BUILDING_THEATRE">
 			<Attribute Class="Rotation">0,180</Attribute>
@@ -1328,6 +1318,12 @@ I am not sure which i should take, but since there are redundancies i guess i sh
 		</ArtRef>
 		<ArtRef Name="building:BUILDING_SPANISH_CITADEL">
 			<Scale>1.2</Scale>
+		</ArtRef>
+		<ArtRef Name="building:BUILDING_PAGAN_MONASTERY">
+			<Scale>2.5</Scale>
+		</ArtRef>
+		<ArtRef Name="building:BUILDING_PAGAN_SHRINE">
+			<Scale>1.0</Scale>
 		</ArtRef>
 	</LNode>
 	<LNode Name="Leaf_4x4">

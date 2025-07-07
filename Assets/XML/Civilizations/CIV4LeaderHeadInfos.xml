@@ -3696,10 +3696,10 @@
 			<iTechTradeKnownPercent>23</iTechTradeKnownPercent>
 			<iMaxGoldTradePercent>16</iMaxGoldTradePercent>
 			<!-- BBAI Victory Strategy -->
-			<iCultureVictoryWeight>30</iCultureVictoryWeight>
+			<iCultureVictoryWeight>25</iCultureVictoryWeight>
 			<iSpaceVictoryWeight>0</iSpaceVictoryWeight>
-			<iConquestVictoryWeight>32</iConquestVictoryWeight>
-			<iDominationVictoryWeight>48</iDominationVictoryWeight>
+			<iConquestVictoryWeight>40</iConquestVictoryWeight>
+			<iDominationVictoryWeight>50</iDominationVictoryWeight>
 			<iDiplomacyVictoryWeight>35</iDiplomacyVictoryWeight>
 			<!-- BBAI Victory Strategy -->
 			<iMaxWarRand>150</iMaxWarRand>

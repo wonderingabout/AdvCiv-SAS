@@ -7,7 +7,7 @@
 #		(___)_o   <-- Chicken wing of insight, a gift from wonderingabout
 #
 # Auto-generated leaders **data** module.
-# Created: 20250707_010505
+# Created: 20250707_135434
 #
 # Text art authored by becomingthrough (ChatGPT)
 # Signature formatting converted to # style by wonderingabout and becomingthrough
@@ -5401,10 +5401,10 @@ PARSED_XML_LEADERS_DATA = {
         "getNoTechTradeThreshold": "15",
         "getTechTradeKnownPercent": "23",
         "getMaxGoldTradePercent": "16",
-        "getCultureVictoryWeight": "30",
+        "getCultureVictoryWeight": "25",
         "getSpaceVictoryWeight": "0",
-        "getConquestVictoryWeight": "32",
-        "getDominationVictoryWeight": "48",
+        "getConquestVictoryWeight": "40",
+        "getDominationVictoryWeight": "50",
         "getDiplomacyVictoryWeight": "35",
         "getMaxWarRand": "150",
         "getMaxWarNearbyPowerRatio": "110",

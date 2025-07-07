@@ -964,45 +964,46 @@
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Shrine_Buddhist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,13</Button>
 		</BuildingArtInfo>
+		<!-- custom: art import for the pagan (i.e. religious anyways etc anyways etc anyways etc) buildings from RFC DOC mod zoroastrian buildings's art assets such as ART_DEF_BUILDING_ZOROASTRIAN_TEMPLE and adjusted or not for advciv-sas anyways etc -->
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_PAGAN_TEMPLE</Type>
 			<LSystem>LSYSTEM_2x2</LSystem>
-			<bAnimated>1</bAnimated>
-			<fScale>2.5</fScale>
-			<fInterfaceScale>0.92</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Temple/confucian/confucian_temple.nif</NIF>
+			<bAnimated>0</bAnimated>
+			<fScale>0.75</fScale>
+			<fInterfaceScale>0.5</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Buildings/Pagan_Temple/nif/FireTemple.nif</NIF>
 			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/Temple_Confuscianist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,4,12</Button>
+			<Button>Art/AdvCiv_SAS/Buildings/Pagan_Temple/zoroastrian_temple_button.dds</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_PAGAN_CATHEDRAL</Type>
-			<LSystem>LSYSTEM_2x3</LSystem>
+			<LSystem>LSYSTEM_3x2</LSystem>
 			<bAnimated>0</bAnimated>
-			<fScale>1.8</fScale>
-			<fInterfaceScale>0.6</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Cathedrals/confucian_cathedral.nif</NIF>
+			<fScale>2.0</fScale>
+			<fInterfaceScale>0.4</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Buildings/Pagan_Cathedral/nif/SurakhanyTemple.nif</NIF>
 			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/Cathedral_Confuscianist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,1,12</Button>
+			<Button>Art/AdvCiv_SAS/Buildings/Pagan_Cathedral/zoroastrian_atashbehram_button.dds</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_PAGAN_MONASTERY</Type>
-			<LSystem>LSYSTEM_2x2</LSystem>
-			<bAnimated>1</bAnimated>
-			<fScale>2.5</fScale>
-			<fInterfaceScale>0.56</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Monastery/Confucian/confucian_monastery.nif</NIF>
+			<LSystem>LSYSTEM_3x3</LSystem>
+			<bAnimated>0</bAnimated>
+			<fScale>2.75</fScale>
+			<fInterfaceScale>0.6</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Buildings/Pagan_Monastery/nif/ZoroMonastery.nif</NIF>
 			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/Monastery_Confuscianist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,2,12</Button>
+			<Button>Art/AdvCiv_SAS/Buildings/Pagan_Monastery/zoroastrian_monastery_button.dds</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_PAGAN_SHRINE</Type>
-			<LSystem>LSYSTEM_3x2</LSystem>
+			<LSystem>LSYSTEM_3x3</LSystem>
 			<bAnimated>0</bAnimated>
-			<fScale>1.0</fScale>
-			<fInterfaceScale>0.8</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Shrine/confuscian_shrine.nif</NIF>
+			<fScale>1.85</fScale>
+			<fInterfaceScale>0.5</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Buildings/Pagan_Shrine/nif/FirouzabadTemple.nif</NIF>
 			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/Shrine_Confuscianist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,12</Button>
+			<Button>Art/AdvCiv_SAS/Buildings/Pagan_Shrine/adurfarnbag_button.dds</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_DAOIST_TEMPLE</Type>

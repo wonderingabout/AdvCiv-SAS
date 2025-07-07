@@ -2841,8 +2841,7 @@
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MEDIEVAL</Era>
-			<!-- custom: maybe a bit OP with the other tech effects but this rewards non military paths more relatively anyways etc, and the tech is quite bare otherwise so maybe hopefully fine/balanced more balanced perhaps this way too as theory_of_evolution (todo after we rename and rework this tech to theory_of_evolution anyways etc) would be a bit too weak otherwise anyways etc, was NONE -->
-			<FirstFreeUnitClass>UNITCLASS_GREAT_SCIENTIST</FirstFreeUnitClass>
+			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
@@ -6338,7 +6337,8 @@
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MODERN</Era>
-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+			<!-- custom: this rewards non military paths more relatively anyways etc, and the tech is quite bare otherwise so maybe hopefully fine/balanced and makes quite i mean makes sense in terms of lore or theme so hopefully fine as such at least i want to do so in advciv-sas but anyways etc, was NONE -->
+			<FirstFreeUnitClass>UNITCLASS_GREAT_SCIENTIST</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
