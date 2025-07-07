@@ -29,6 +29,38 @@ Here is an example below of how it looks ingame in the sevopedia leader category
 
 More screenshot samples in the [sevopedia reworks Google Drive folder](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing)
 
+### how to enable/disable emoji buttons in sevopedia leader
+
+You can enable/disable images as buttons (i.e. the emojis anyways etc) as i call them but anyways etc.
+
+To do that, for example with VS Code, first click File / Open folder... and choose the root of your mod path (for example for Steam users (adjust to your mod path) default is `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS` if i am not mistaken anyways etc)
+
+Then navigate to [/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py) file which has the config of the AI Personality Panel feature (in the .py file), as shown in the screenshots below as well (click to view the screenshot full size/bigger anyways etc anyways etc anyways etc):
+
+<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_false.PNG" alt="0.621_sevopedia_leader_emoji_config_py_flag_false.PNG" width="250"></img>
+
+Change this line:
+
+```python
+IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = False
+```
+
+to (or vice versa change it from `True` to `False` if you want to disable it anyways etc)
+
+```python
+IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True
+```
+
+As in the screenshot below as well similarly anyways etc:
+
+<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_true.PNG" alt="0.621_sevopedia_leader_emoji_config_py_flag_true.PNG" width="250"></img>
+
+And vice versa to disable it (restart the game to apply changes if game was already running)
+
+Here is how it would look like without emojis for example anyways etc:
+
+<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_example.JPG" alt="0.621_sevopedia_leader_emoji_config_py_flag_example.JPG" width="250"></img>
+
 ## Where and how to find the abbreviations (in label) (in the AI Personality Panel)'s meaning
 
 note: to understand/find the meaning of abbreviations used in the ai panel, the best way would be (i think) to look directly in the code (use vs code for example in [/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py)), find lines like these (or ctrl+f an abbreviation you don't understand):
@@ -70,38 +102,6 @@ A code block like this means for example that for the line:
 that in the label in sevopedia leader ingame "T.W Likely" refers to the field's getter name "getMaxWarRand", but to get info on what this field does, remove the "get" or some similar prefix to be safe, then search online what "MaxWarRand" means and does in civ4, for example go on the 2 sources mentionned [in README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks) (kujira's and modiki's websites (for example)), then you'll hopefully find more info about what they do that should be quite if not very reliable anyways.
 
 Be careful because AIs such as ChatGPT tend to invent what they don't know, so even though they often have a very good "broad" understanding of a topic, when delving in the (obscure or not anwyays etc) specifics, they may err, especially if you lead them astray with your (or mine in my case anyways etc) imprecision or lack of knowledge or understanding, so i would suggest to refer to these websites rather for technical info, even though they may be wrong sometimes and myself too, and ChatGPT is still great i think hehe, but this is a caveat i kindly if i may say give hehe anyways.
-
-### how to enable/disable emoji buttons in sevopedia leader
-
-You can enable/disable images as buttons (i.e. the emojis anyways etc) as i call them but anyways etc.
-
-To do that, for example with VS Code, first click File / Open folder... and choose the root of your mod path (for example for Steam users (adjust to your mod path) default is `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS` if i am not mistaken anyways etc)
-
-Then navigate to [/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py) file which has the config of the AI Personality Panel feature (in the .py file), as shown in the screenshots below as well (click to view the screenshot full size/bigger anyways etc anyways etc anyways etc):
-
-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_false.PNG" alt="0.621_sevopedia_leader_emoji_config_py_flag_false.PNG" width="250"></img>
-
-Change this line:
-
-```python
-IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = False
-```
-
-to (or vice versa change it from `True` to `False` if you want to disable it anyways etc)
-
-```python
-IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True
-```
-
-As in the screenshot below as well similarly anyways etc:
-
-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_true.PNG" alt="0.621_sevopedia_leader_emoji_config_py_flag_true.PNG" width="250"></img>
-
-And vice versa to disable it (restart the game to apply changes if game was already running)
-
-Here is how it would look like without emojis for example anyways etc:
-
-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_example.JPG" alt="0.621_sevopedia_leader_emoji_config_py_flag_example.JPG" width="250"></img>
 
 ### how to show keys or suffixes instead of abbreviated custom labels
 

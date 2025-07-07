@@ -422,16 +422,17 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
+		<!-- custom: art import from rfc doc mod's very very nice fpk (unliek in some other mods... see in readme for details xd if i may say but anyways etc... which helped me in other ways but still their of other mods fpk and unliek for example in mods liek rfc doc, so in these other mods than rfc doc mod for exampel anyways etc, were shit, big big shit, despite their other good things, so i am thankful some mods if i may or at least maybe rather i can use rfc doc mod's or some other nicely one fpk for all or similar design cleanly ordered and named assets and such anyways etc) ART_DEF_UNIT_ZOROASTRIAN_MISSIONARY and adjusted or not for advciv-sas anyways etc -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_PAGAN_MISSIONARY</Type>
-			<Button>,Art/Interface/Buttons/Units/Missionary_Confucian.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,3,3</Button>
+			<Button>Art/AdvCiv_SAS/Units/Pagan_Missionary/Button_Magi.dds</Button>
 			<fScale>0.46</fScale>
 			<fInterfaceScale>1.0</fInterfaceScale>
 			<bActAsLand>0</bActAsLand>
 			<bActAsAir>0</bActAsAir>
-			<NIF>Art/Units/Missionary/Confucian/Confucian_missionary.nif</NIF>
-			<KFM>Art/Units/Missionary/Confucian/Confucian_missionary.kfm</KFM>
-			<SHADERNIF>Art/Units/Missionary/Confucian/Confucian_Missionary_FX.nif</SHADERNIF>
+			<NIF>Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet.nif</NIF>
+			<KFM>Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet.kfm</KFM>
+			<SHADERNIF>Art/AdvCiv_SAS/Units/Pagan_Missionary/nif/greatprophet.nif</SHADERNIF>
 			<ShadowDef>
 				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
 				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
