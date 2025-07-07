@@ -712,6 +712,15 @@
 			<DefaultUnit>UNIT_BOMBER</DefaultUnit>
 		</UnitClassInfo>
 		<UnitClassInfo>
+			<Type>UNITCLASS_STEALTH_BOMBER</Type>
+			<Description>TXT_KEY_UNIT_STEALTH_BOMBER</Description>
+			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+			<iMaxTeamInstances>-1</iMaxTeamInstances>
+			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+			<iInstanceCostModifier>0</iInstanceCostModifier>
+			<DefaultUnit>UNIT_STEALTH_BOMBER</DefaultUnit>
+		</UnitClassInfo>
+		<UnitClassInfo>
 			<Type>UNITCLASS_GUIDED_MISSILE</Type>
 			<Description>TXT_KEY_UNIT_GUIDED_MISSILE</Description>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>

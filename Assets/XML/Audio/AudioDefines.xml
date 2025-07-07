@@ -4783,6 +4783,13 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
+			<SoundID>SND_BUILD_STEALTH_BOMBER</SoundID>
+			<Filename>Sounds/Units/BuildStealthBomber</Filename>
+			<LoadType>DYNAMIC_RES</LoadType>
+			<bIsCompressed>1</bIsCompressed>
+			<bInGeneric>1</bInGeneric>
+		</SoundData>
+		<SoundData>
 			<SoundID>SND_FOOT_DIRT</SoundID>
 			<Filename>Sounds/Units/FootDirt</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>

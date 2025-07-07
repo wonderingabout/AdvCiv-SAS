@@ -1771,7 +1771,7 @@
 	<!-- These two French names were too long for the best/ worst columns -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_LEADER_ALEXANDER</Tag>
-		<English>Alexander III The Great</English>
+		<English>Alexander III</English>
 	</TEXT>
 	<!-- custom: was Tokugawa -->
 	<TEXT> <!-- redefine -->

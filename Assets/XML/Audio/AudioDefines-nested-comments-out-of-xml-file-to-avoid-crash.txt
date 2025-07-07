@@ -55,4 +55,4 @@ so moving these (code comments anyways etc) below in this now .txt file anyways 
 
 
 
-now fixed, at least game starts normally, becarefully of too long (in line or/and char count i don't know which but anyways etc) xml comment in nested fields perhaps anyways etc
+now fixed, at least game starts normally, be careful of too long (in line or/and char count i don't know which but anyways etc) xml comment in nested fields perhaps anyways etc
