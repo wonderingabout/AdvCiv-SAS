@@ -288,29 +288,31 @@
 			<iVictoryDelayPercent>100</iVictoryDelayPercent>
 			<!-- advc.910: Changed all of the turn counts -->
 			<!-- custom:
-			currently commented out as we start in -50 000 now in our new simplified tech tree rework anyways etc
-			For from -100 000 to -50 000	;	Month increment: 12 * 10 000 years = 120 000 months		;	Turns: 5
-
 
 			then resumes/starts here now anyways etc:
-			For from -50 000  to -30 000	;	Month increment: 12 * 5 000  years = 60 000  months		;	Turns: 4
-			For from -30 000  to -20 000	;	Month increment: 12 * 2 500  years = 30 000  months		;	Turns: 4
-			For from -20 000  to -15 000	;	Month increment: 12 * 1 000  years = 12 000  months		;	Turns: 5
-			For from -15 000  to -12 000	;	Month increment: 12 * 750    years = 9 000   months		;	Turns: 4
-			For from -12 000  to -8 000		;	Month increment: 12 * 500    years = 6 000   months		;	Turns: 6
-			For from  -8 000  to -5 000		;	Month increment: 12 * 250    years = 3 000   months		;	Turns: 12
-			For from  -5 000  to -3 000		;	Month increment: 12 * 100    years = 1 200   months		;	Turns: 20
-			For from  -3 000  to -2 100		;	Month increment: 12 * 75     years = 900     months		;	Turns: 12
-			For from  -2 100  to -1 500		;	Month increment: 12 * 50     years = 600     months		;	Turns: 12
-
+			For from -50 000  to  -30 000	;	Month increment: 12 * 5 000  years = 60 000  months		;	Turns: 4
+			For from -30 000  to  -20 000	;	Month increment: 12 * 2 500  years = 30 000  months		;	Turns: 4
+			For from -20 000  to  -15 000	;	Month increment: 12 * 1 000  years = 12 000  months		;	Turns: 5
+			For from -15 000  to  -12 000	;	Month increment: 12 * 750    years = 9 000   months		;	Turns: 4
+			For from -12 000  to  -7 500	;	Month increment: 12 * 500    years = 6 000   months		;	Turns: 9
+			For from  -7 500  to  -4 500	;	Month increment: 12 * 250    years = 3 000   months		;	Turns: 12
+			For from  -4 500  to  -3 000	;	Month increment: 12 * 125    years = 1 500   months		;	Turns: 12
+														- end of turn 50 -
+			For from  -3 000  to  -2 200	;	Month increment: 12 * 50     years = 600     months		;	Turns: 16
+			For from  -2 200  to  -1 480	;	Month increment: 12 * 40     years = 480     months		;	Turns: 18
+			For from  -1 480  to  -1 000	;	Month increment: 12 * 30     years = 360     months		;	Turns: 16
+														- end of turn 100 -
+			For from  -1 000  to  500		;	Month increment: 12 * 30     years = 360     months		;	Turns: 50
+														- end of turn 150 -
+			For from  500     to  1300		;	Month increment: 12 * 20     years = 240     months		;	Turns: 40
+			For from  1300    to  1400		;	Month increment: 12 * 10     years = 120     months		;	Turns: 10
+														- end of turn 200 -
+			For from  1400    to  1840		;	Month increment: 12 * 10     years = 120     months		;	Turns: 44
+			For from  1840    to  1870		;	Month increment: 12 * 5      years = 60      months		;	Turns: 6
+														- end of turn 250 -
+			note: as per base advciv code comment below, we end in an even (not odd if i may say no pun (at least didn't intend directly (nor indirectly if i may say but anwyays etc...) but anyways etc...) number, as of now 1870, then we bridge on base advciv timeline going forward which should be quite accurate if i may say maybe (but i didn't check anyways etc))
 			-->
 			<GameTurnInfos>
-				<!-- custom: currently commented out as we start in -50 000 now in our new simplified tech tree rework anyways etc
-				<GameTurnInfo>
-					<iMonthIncrement>120000</iMonthIncrement>
-					<iTurnsPerIncrement>5</iTurnsPerIncrement>
-				</GameTurnInfo>
-				-->
 				<GameTurnInfo>
 					<iMonthIncrement>60000</iMonthIncrement>
 					<iTurnsPerIncrement>4</iTurnsPerIncrement>
@@ -329,30 +331,55 @@
 				</GameTurnInfo>
 				<GameTurnInfo>
 					<iMonthIncrement>6000</iMonthIncrement>
-					<iTurnsPerIncrement>6</iTurnsPerIncrement>
+					<iTurnsPerIncrement>9</iTurnsPerIncrement>
 				</GameTurnInfo>
 				<GameTurnInfo>
 					<iMonthIncrement>3000</iMonthIncrement>
 					<iTurnsPerIncrement>12</iTurnsPerIncrement>
 				</GameTurnInfo>
 				<GameTurnInfo>
-					<iMonthIncrement>1200</iMonthIncrement>
-					<iTurnsPerIncrement>20</iTurnsPerIncrement>
-				</GameTurnInfo>
-				<GameTurnInfo>
-					<iMonthIncrement>900</iMonthIncrement>
+					<iMonthIncrement>1500</iMonthIncrement>
 					<iTurnsPerIncrement>12</iTurnsPerIncrement>
 				</GameTurnInfo>
 				<GameTurnInfo>
 					<iMonthIncrement>600</iMonthIncrement>
-					<iTurnsPerIncrement>12</iTurnsPerIncrement>
+					<iTurnsPerIncrement>16</iTurnsPerIncrement>
+				</GameTurnInfo>
+				<GameTurnInfo>
+					<iMonthIncrement>480</iMonthIncrement>
+					<iTurnsPerIncrement>18</iTurnsPerIncrement>
+				</GameTurnInfo>
+				<GameTurnInfo>
+					<iMonthIncrement>360</iMonthIncrement>
+					<iTurnsPerIncrement>16</iTurnsPerIncrement>
+				</GameTurnInfo>
+				<GameTurnInfo>
+					<iMonthIncrement>360</iMonthIncrement>
+					<iTurnsPerIncrement>50</iTurnsPerIncrement>
+				</GameTurnInfo>
+				<GameTurnInfo>
+					<iMonthIncrement>240</iMonthIncrement>
+					<iTurnsPerIncrement>40</iTurnsPerIncrement>
+				</GameTurnInfo>
+				<GameTurnInfo>
+					<iMonthIncrement>120</iMonthIncrement>
+					<iTurnsPerIncrement>10</iTurnsPerIncrement>
+				</GameTurnInfo>
+				<GameTurnInfo>
+					<iMonthIncrement>120</iMonthIncrement>
+					<iTurnsPerIncrement>44</iTurnsPerIncrement>
 				</GameTurnInfo>
 				<GameTurnInfo>
 					<iMonthIncrement>60</iMonthIncrement>
+					<iTurnsPerIncrement>6</iTurnsPerIncrement>
+				</GameTurnInfo>
+				<!-- custom: comment out this since we covered this time of history if i'm not mistaken anwyays etc, but keep to base advciv comment as is informative or/and useful if i may say anyways etc-->
+				<!--<GameTurnInfo>-->
+				<!--	<iMonthIncrement>60</iMonthIncrement>-->
 					<!-- Avoid an odd number here - otherwise all the year numbers
 						 in the next period (2 years per turn) will be odd. -->
-					<iTurnsPerIncrement>26</iTurnsPerIncrement>
-				</GameTurnInfo>
+				<!--	<iTurnsPerIncrement>26</iTurnsPerIncrement>-->
+				<!--</GameTurnInfo>-->
 				<GameTurnInfo>
 					<iMonthIncrement>24</iMonthIncrement>
 					<iTurnsPerIncrement>82</iTurnsPerIncrement>

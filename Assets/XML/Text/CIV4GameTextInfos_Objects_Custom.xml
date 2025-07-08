@@ -269,7 +269,7 @@
 		<Tag>TXT_KEY_BUILDING_THREE_GORGES_DAM</Tag>
 		<English>The Three Gorges Dam</English>
 	</TEXT>
-	<!-- custom: replace and rework SISTINE_CHAPEL with NATYA_SHASTRA as there are too many christian world wonders (all at same tech too TECH_THEOLOGY after reordering them for accuracy which is not ideal that they are now and too many i would say at same tech in this case but anyways etc even though is accurate as we want but too many at same tech spread it more and more civilizations too this way are included maybe too but anyways etc anyways etc in this case anyways etc) and we need/want a music tech wonder anyways etc -->
+	<!-- custom: replace and rework SISTINE_CHAPEL with NATYA_SHASTRA as there are too many christian world wonders (all at same tech too TECH_POSTAXIAL_RELIGION after reordering them for accuracy which is not ideal that they are now and too many i would say at same tech in this case but anyways etc even though is accurate as we want but too many at same tech spread it more and more civilizations too this way are included maybe too but anyways etc anyways etc in this case anyways etc) and we need/want a music tech wonder anyways etc -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_NATYA_SHASTRA</Tag>
 		<English>Natya Shastra</English>
@@ -578,6 +578,16 @@
 	<TEXT>
 		<Tag>TXT_KEY_TECH_MOUNTED_COMBAT</Tag>
 		<English>Mounted Combat</English>
+	</TEXT>
+	<!-- custom: rename "THEOLOGY" to "POSTAXIAL_RELIGION" -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_POSTAXIAL_RELIGION</Tag>
+		<English>Postaxial Religion</English>
+	</TEXT>
+	<!-- custom: rename "DIVINE_RIGHT" to "LATER_ABRAHAMISM" -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_LATER_ABRAHAMISM</Tag>
+		<English>Later Abrahamism</English>
 	</TEXT>
 	<!-- custom: rename _UTOPIA to _COMMUNISM anyways etc anyways etc anyways etc -->
 	<TEXT>

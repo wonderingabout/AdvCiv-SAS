@@ -557,7 +557,7 @@
 				<ObsoleteTech>TECH_MUSIC</ObsoleteTech>
 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
-				<ObsoleteTech>TECH_THEOLOGY</ObsoleteTech>
+				<ObsoleteTech>TECH_POSTAXIAL_RELIGION</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -3550,7 +3550,7 @@
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs>
-				<PrereqTech>TECH_THEOLOGY</PrereqTech>
+				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
 				<PrereqTech>TECH_LITERATURE</PrereqTech>
 				<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
 				<PrereqTech>TECH_MACHINERY</PrereqTech>
@@ -7459,7 +7459,7 @@
 				<ObsoleteTech>TECH_MUSIC</ObsoleteTech>
 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
-				<ObsoleteTech>TECH_THEOLOGY</ObsoleteTech>
+				<ObsoleteTech>TECH_POSTAXIAL_RELIGION</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -7972,7 +7972,7 @@
 				<ObsoleteTech>TECH_MUSIC</ObsoleteTech>
 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
-				<ObsoleteTech>TECH_THEOLOGY</ObsoleteTech>
+				<ObsoleteTech>TECH_POSTAXIAL_RELIGION</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -9903,7 +9903,7 @@
 				<PrereqTech>TECH_MATHEMATICS</PrereqTech>
 				<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
 				<PrereqTech>TECH_AESTHETICS</PrereqTech>
-				<PrereqTech>TECH_THEOLOGY</PrereqTech>
+				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs>
@@ -13563,7 +13563,7 @@
 				<PrereqTech>TECH_MUSIC</PrereqTech>
 				<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
 				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
-				<PrereqTech>TECH_THEOLOGY</PrereqTech>
+				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs/>
@@ -14342,7 +14342,7 @@
 				<ObsoleteTech>TECH_MUSIC</ObsoleteTech>
 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
-				<ObsoleteTech>TECH_THEOLOGY</ObsoleteTech>
+				<ObsoleteTech>TECH_POSTAXIAL_RELIGION</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -14432,7 +14432,7 @@
 				<ObsoleteTech>TECH_MUSIC</ObsoleteTech>
 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
-				<ObsoleteTech>TECH_THEOLOGY</ObsoleteTech>
+				<ObsoleteTech>TECH_POSTAXIAL_RELIGION</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>

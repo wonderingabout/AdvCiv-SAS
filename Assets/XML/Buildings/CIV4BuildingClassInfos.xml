@@ -887,9 +887,11 @@
 		<BuildingClassInfo>
 			<Type>BUILDINGCLASS_GLOBE_THEATRE</Type>
 			<Description>TXT_KEY_BUILDING_GLOBE_THEATRE</Description>
-			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+			<!-- custom: was -1 -->
+			<iMaxGlobalInstances>1</iMaxGlobalInstances>
 			<iMaxTeamInstances>-1</iMaxTeamInstances>
-			<iMaxPlayerInstances>1</iMaxPlayerInstances>
+			<!-- custom: was 1 -->
+			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
 			<iExtraPlayerInstances>0</iExtraPlayerInstances>
 			<bNoLimit>0</bNoLimit>
 			<bMonument>0</bMonument>

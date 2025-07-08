@@ -243,6 +243,16 @@
 		<Tag>TXT_KEY_TECH_MOUNTED_COMBAT_QUOTE</Tag>
 		<English>"If you speak the truth, have a foot in the stirrup." - Turkish proverb</English>
 	</TEXT>
+	<!-- custom: rename "THEOLOGY" to "POSTAXIAL_RELIGION" -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_POSTAXIAL_RELIGION_QUOTE</Tag>
+		<English>"Two cities have been formed by two loves: the earthly by the love of self; the heavenly by the love of God." - St. Augustine</English>
+	</TEXT>
+	<!-- custom: rename "DIVINE_RIGHT" to "LATER_ABRAHAMISM" -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_LATER_ABRAHAMISM_QUOTE</Tag>
+		<English>"I am the state." - ascribed to Louis XIV</English>
+	</TEXT>
 	<!-- custom: rename _UTOPIA to _COMMUNISM, similarly extarcted anyways etc -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_COMMUNISM_QUOTE</Tag>

@@ -3095,14 +3095,6 @@
 		<Italian>"Mettiti al lavoro di buona lena." - Esopo</Italian>
 		<Spanish>"Arrima el hombro a la rueda." - Esopo</Spanish>
 	</TEXT>
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_TECH_DIVINE_RIGHT_QUOTE</Tag>
-		<English>"I am the state." - ascribed to Louis XIV</English>
-		<French>"L'Etat, c'est moi." - Louis XIV</French>
-		<German>"Der Staat bin ich." - Ludwig XIV. (zugeschrieben)</German>
-		<Italian>"Lo stato sono io." - Luigi XIV</Italian>
-		<Spanish>"El Estado soy yo." - Luis XIV</Spanish>
-	</TEXT>
 	<!-- Not originally by Herodotus -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_TECH_MONARCHY_QUOTE</Tag>

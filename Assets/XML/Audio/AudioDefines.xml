@@ -8346,7 +8346,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_THEOLOGY</SoundID>
+			<SoundID>SND_TECH_POSTAXIAL_RELIGION</SoundID>
 			<Filename>Sounds/Tech/Tech_Theology</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -8374,7 +8374,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_DIVINE_RIGHT</SoundID>
+			<SoundID>SND_TECH_LATER_ABRAHAMISM</SoundID>
 			<Filename>Sounds/Tech/Tech_DivineRight</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -8990,7 +8990,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_THEOLOGY</SoundID>
+			<SoundID>SND_TECH_MP_POSTAXIAL_RELIGION</SoundID>
 			<Filename>Sounds/Tech/Tech_MP_Theology</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -9018,7 +9018,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_DIVINE_RIGHT</SoundID>
+			<SoundID>SND_TECH_MP_LATER_ABRAHAMISM</SoundID>
 			<Filename>Sounds/Tech/Tech_MP_DivineRight</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>

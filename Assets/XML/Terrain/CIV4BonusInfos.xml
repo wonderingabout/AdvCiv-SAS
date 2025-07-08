@@ -8,6 +8,7 @@
 <!-- custom: this also helped to adjust the values in this file, for example but not only for/to understand latitudes in civ4 specifically anyways etc: http://civ4.wikidot.com/xml:civ4bonusinfos , this also https://gforestshade.github.io/kujira/post/civ4bonusinfos/#terrainbooleans and also among others or not anyways etc https://forums.civfanatics.com/threads/bonusinfos-xml-question.494920/ helped a lot or/and will help maybe hopefully or not or yes or etc or other or and not anyways etc for feature terrains anyways etc
 Note: for these adjustments, to match them with AdvCiv/our mod's real map, assuming the real Earth world's equator that is referred in real earth world as the latitude 0 if i am not mistaken, instead not as the latitutde 0 in civ4, but centering it around the center of the inhabitable world in a civ4 map rather (that has walkable land even at north or south edge sometimes or close to it quite often if i am not mistaken), so when (i) (anyways etc) (am) looking for the center of the world in civ, latitude 0 to me is, for example in this real earth world map https://www.google.com/search?q=world+map+latittude&sca_esv=685d635ce644e565&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=nIwwaIyYNtCgkdUPp4KniA8&ved=0ahUKEwiM1tPs7LmNAxVQUKQEHSfBCfEQ4dUDCBE&uact=5&oq=world+map+latittude&gs_lp=EgNpbWciE3dvcmxkIG1hcCBsYXRpdHR1ZGVI1wxQpwJY7wtwAXgAkAEAmAEjoAGnAqoBAjEwuAEDyAEA-AEBmAIHoAK3AcICDRAAGIAEGLEDGEMYigXCAgYQABgHGB7CAggQABgHGAoYHsICChAAGIAEGEMYigXCAgUQABiABMICBBAAGB7CAgYQABgKGB6YAwCIBgGSBwE3oAepIrIHATa4B7UBwgcDMC43yAcK&sclient=img#vhid=87Afx8YTgs-pqM&vssid=mosaic , grossly around the southern part of mexico area or the southern parth of arabian peninsula or the southern part of india grossly for example anyways etc anyways etc anyways etc... so around latitude 10 North in the real world is what i consider latitude 0 in civ4 equivalent when adjusting min max latitude if i do anyways etc, then for max latitude since in our real earth world there are not much if at all inhabitable landmasses near the edges unlike in civ4, then i am using 10 north to 70 (+ 80 difference from 10N to 80S in my custom naming which i don't know if is accurate or and the scientific one or and scientific enough but maybe is hopefully accurate or/and understandable enough at least to me or and maybe others or not anyways etc) south grossly for real world to it being 0 to 90 north in civ4 equivalent, and then 10 north to 90 north (+80 difference same but between 10N and 90N anyways etc), i don't know if doing so is accurate or/and relevant, hopefully is, but anyways etc anyways etc anyways etc in all cases anyways etc anyways etc anyways etc
 -->
+<!-- custom: due to the preexisting warning below anyways etc, disabling bonuses we don't need/want rather than removing them altogether, so they are available at latest tech, do not give any effect, and do not relate to any other asset, hopefully closest to removing them (functionally anyways etc) without removing them, the assets affected by this change are rebalanced with another effect instead or/and left as is if deemed fine to do so i mean anyways etc. As for why they are removed, it is tedious (at leats to me if i may say anyways etc) or i think it would be since i didn't play much if at all with them, i also don't find it very realistic that art bonuses would have a strong impact on politics and international trade, so disabled for efficiency and no tediousness at least less but anyways etc. -->
 <!-- WARNING: It is not recommended that you remove Bonuses due to complications with the LSystem -->
 
 <!-- advc.129: Changed bonus class of Gold, Silver and Gems from "General"
@@ -1991,16 +1992,19 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 			<Type>BONUS_DRAMA</Type>
 			<Description>TXT_KEY_BONUS_DRAMA</Description>
 			<Civilopedia>TXT_KEY_BONUS_DRAMA_PEDIA</Civilopedia>
-			<BonusClassType>BONUSCLASS_GENERAL</BonusClassType>
+			<!-- custom: bonus functionally disabled, see top code comment for details, anyways etc -->
+			<BonusClassType>BONUSCLASS_DISABLED</BonusClassType>
 			<ArtDefineTag>ART_DEF_BONUS_DRAMA</ArtDefineTag>
-			<TechReveal>NONE</TechReveal>
-			<TechCityTrade>NONE</TechCityTrade>
-			<TechObsolete>NONE</TechObsolete>
+			<!-- custom: was NONE NONE NONE -->
+			<TechReveal>TECH_FUTURE_TECH</TechReveal>
+			<TechCityTrade>TECH_FUTURE_TECH</TechCityTrade>
+			<TechObsolete>TECH_FUTURE_TECH</TechObsolete>
 			<YieldChanges/>
 			<iAITradeModifier>0</iAITradeModifier>
 			<iAIObjective>0</iAIObjective>
 			<iHealth>0</iHealth>
-			<iHappiness>1</iHappiness>
+			<!-- custom: was 1 -->
+			<iHappiness>0</iHappiness>
 			<iPlacementOrder>-1</iPlacementOrder>
 			<iConstAppearance>0</iConstAppearance>
 			<iMinAreaSize>-1</iMinAreaSize>
@@ -2031,16 +2035,19 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 			<Type>BONUS_MUSIC</Type>
 			<Description>TXT_KEY_BONUS_MUSIC</Description>
 			<Civilopedia>TXT_KEY_BONUS_MUSIC_PEDIA</Civilopedia>
-			<BonusClassType>BONUSCLASS_GENERAL</BonusClassType>
+			<!-- custom: bonus functionally disabled, see top code comment for details, anyways etc -->
+			<BonusClassType>BONUSCLASS_DISABLED</BonusClassType>
 			<ArtDefineTag>ART_DEF_BONUS_MUSIC</ArtDefineTag>
-			<TechReveal>NONE</TechReveal>
-			<TechCityTrade>NONE</TechCityTrade>
-			<TechObsolete>NONE</TechObsolete>
+			<!-- custom: was NONE NONE NONE -->
+			<TechReveal>TECH_FUTURE_TECH</TechReveal>
+			<TechCityTrade>TECH_FUTURE_TECH</TechCityTrade>
+			<TechObsolete>TECH_FUTURE_TECH</TechObsolete>
 			<YieldChanges/>
 			<iAITradeModifier>0</iAITradeModifier>
 			<iAIObjective>0</iAIObjective>
 			<iHealth>0</iHealth>
-			<iHappiness>1</iHappiness>
+			<!-- custom: was 1 -->
+			<iHappiness>0</iHappiness>
 			<iPlacementOrder>-1</iPlacementOrder>
 			<iConstAppearance>0</iConstAppearance>
 			<iMinAreaSize>-1</iMinAreaSize>
