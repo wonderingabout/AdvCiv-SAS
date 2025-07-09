@@ -2129,7 +2129,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 				<FreePromotion>
-					<PromotionType>PROMOTION_FLANKING1</PromotionType>
+					<PromotionType>PROMOTION_RETREAT1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -2358,11 +2358,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 				<FreePromotion>
-					<PromotionType>PROMOTION_FLANKING1</PromotionType>
+					<PromotionType>PROMOTION_RETREAT1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 				<FreePromotion>
-					<PromotionType>PROMOTION_FLANKING2</PromotionType>
+					<PromotionType>PROMOTION_RETREAT2</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -6443,7 +6443,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_GUERILLA1</PromotionType>
+					<PromotionType>PROMOTION_HILLS_MASTER1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -7240,7 +7240,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: was PROMOTION_DRILL1 -->
+			<!-- custom: was PROMOTION_FIRST_STRIKE1 -->
 			<FreePromotions>
 				<FreePromotion>
 					<PromotionType>PROMOTION_COMBAT1</PromotionType>
@@ -7920,7 +7920,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_MOBILITY</PromotionType>
+					<PromotionType>PROMOTION_MOBILITY_COST</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -9099,7 +9099,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_FLANKING1</PromotionType>
+					<PromotionType>PROMOTION_RETREAT1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -9340,7 +9340,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_FLANKING1</PromotionType>
+					<PromotionType>PROMOTION_RETREAT1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -9583,7 +9583,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_FLANKING1</PromotionType>
+					<PromotionType>PROMOTION_RETREAT1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -9799,7 +9799,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_FLANKING1</PromotionType>
+					<PromotionType>PROMOTION_RETREAT1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -11132,11 +11132,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_DRILL1</PromotionType>
+					<PromotionType>PROMOTION_FIRST_STRIKE1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 				<FreePromotion>
-					<PromotionType>PROMOTION_DRILL2</PromotionType>
+					<PromotionType>PROMOTION_FIRST_STRIKE2</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -11744,7 +11744,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<!-- custom: according to the wikipedia description anyways etc, it seems or it says from what i understand/remake of it that unlike loyalists, patriots had the confidence and belief to actually rebell and that independence would come and acted as such, unlike loyalists that lacked such confidence, see wikipedia link at top of unit info of this unit 's code comment or somewhere around it or about this unit in xml or/and a related to this unit code comment or similar other place(s if any other or not but anyways etc) anyways etc -->
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_DRILL1</PromotionType>
+					<PromotionType>PROMOTION_FIRST_STRIKE1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -14075,7 +14075,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_FLANKING1</PromotionType>
+					<PromotionType>PROMOTION_RETREAT1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -15718,7 +15718,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<!-- custom: according to quick read somewhere anyways etc, it seems camel units would scare horse units resulting in a stalemate, it also seems they are generally more useful and efficient units than horse units at least in the desert, trying to give promotions that show/reflect this (and in this case specifically for the arabian camel unit else we would need to balance horse units similarly or give them some other kind of boost or rework anyways etc) while being balanced and as i want it too for advciv-sas but or not but or yes but anyways etc but or not but or etc anyways etc anyways etc anyways etc -->
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_DRILL1</PromotionType>
+					<PromotionType>PROMOTION_FIRST_STRIKE1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -16339,7 +16339,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<!-- custom: they seem at least originally a lighter/harass unit type, give them greater mobility with this promotion i mean anyways etc -->
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_FLANKING1</PromotionType>
+					<PromotionType>PROMOTION_RETREAT1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>

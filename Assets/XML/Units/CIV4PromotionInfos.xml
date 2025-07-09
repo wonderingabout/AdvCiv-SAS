@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?><!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Jon Shafer (Firaxis Games) --><!-- Sid Meier's Civilization 4 --><!-- Copyright Firaxis Games 2005 --><!-- --><!-- Promotion Infos -->
 <Civ4PromotionInfos xmlns="x-schema:CIV4UnitSchema.xml">
 	<PromotionInfos>
+
+
+
 		<PromotionInfo>
 			<Type>PROMOTION_COMBAT1</Type>
 			<Description>TXT_KEY_PROMOTION_COMBAT1</Description>
@@ -656,6 +659,7 @@
 		</PromotionInfo>
 
 
+
 		<PromotionInfo>
 			<Type>PROMOTION_COUNTER_ARCHER</Type>
 			<Description>TXT_KEY_PROMOTION_COVER</Description>
@@ -663,7 +667,7 @@
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_COMBAT1</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_DRILL1</PromotionPrereqOr2>
+			<PromotionPrereqOr2>PROMOTION_FIRST_STRIKE1</PromotionPrereqOr2>
 			<TechPrereq>NONE</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
@@ -759,7 +763,7 @@
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_COMBAT1</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_DRILL1</PromotionPrereqOr2>
+			<PromotionPrereqOr2>PROMOTION_FIRST_STRIKE1</PromotionPrereqOr2>
 			<TechPrereq>TECH_GUNPOWDER</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
@@ -847,7 +851,7 @@
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_COMBAT1</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_DRILL1</PromotionPrereqOr2>
+			<PromotionPrereqOr2>PROMOTION_FIRST_STRIKE1</PromotionPrereqOr2>
 			<TechPrereq>NONE</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
@@ -939,7 +943,7 @@
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_COMBAT2</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_DRILL2</PromotionPrereqOr2>
+			<PromotionPrereqOr2>PROMOTION_FIRST_STRIKE2</PromotionPrereqOr2>
 			<TechPrereq>NONE</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
@@ -1023,7 +1027,7 @@
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_COMBAT1</PromotionPrereqOr1>
-			<!-- advc.200: PROMOTION_DRILL1 in K-Mod; reverted -->
+			<!-- advc.200: PROMOTION_FIRST_STRIKE1 in K-Mod; reverted -->
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
 			<TechPrereq>NONE</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
@@ -1108,7 +1112,7 @@
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_COMBAT2</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_DRILL2</PromotionPrereqOr2>
+			<PromotionPrereqOr2>PROMOTION_FIRST_STRIKE2</PromotionPrereqOr2>
 			<TechPrereq>NONE</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
@@ -1200,7 +1204,7 @@
 			<!-- custom: -->
 			<PromotionPrereq>NONE</PromotionPrereq>
 			<PromotionPrereqOr1>NONE</PromotionPrereqOr1>
-			<!-- advc.200: PROMOTION_DRILL2 in K-Mod; reverted -->
+			<!-- advc.200: PROMOTION_FIRST_STRIKE2 in K-Mod; reverted -->
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
 			<!-- custom: -->
 			<TechPrereq>TECH_CONSTRUCTION</TechPrereq>
@@ -1287,8 +1291,8 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<!-- custom: -->
-			<PromotionPrereq>PROMOTION_DRILL1</PromotionPrereq>
-			<!-- advc.164: was PROMOTION_DRILL3 in K-Mod -->
+			<PromotionPrereq>PROMOTION_FIRST_STRIKE1</PromotionPrereq>
+			<!-- advc.164: was PROMOTION_FIRST_STRIKE3 in K-Mod -->
 			<PromotionPrereqOr1>PROMOTION_CITY_RAIDER1</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_COMBAT1</PromotionPrereqOr2>
 			<!-- custom: reduce tech prerequirement, seems to have been used in classical era if not sooner from quick search about it i mean  or longer in past or both or none or and other ro and not or other anyways etc anyways etc anyways etc, was TECH_MILITARY_SCIENCE -->
@@ -1829,8 +1833,8 @@
 
 
 		<PromotionInfo>
-			<Type>PROMOTION_GUERILLA1</Type>
-			<Description>TXT_KEY_PROMOTION_GUERILLA1</Description>
+			<Type>PROMOTION_HILLS_MASTER1</Type>
+			<Description>TXT_KEY_PROMOTION_HILLS_MASTER1</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
@@ -1913,12 +1917,12 @@
 			<Button>,Art/Interface/Buttons/Promotions/Guerilla1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,5,5</Button>
 		</PromotionInfo>
 		<PromotionInfo>
-			<Type>PROMOTION_GUERILLA2</Type>
-			<Description>TXT_KEY_PROMOTION_GUERILLA2</Description>
+			<Type>PROMOTION_HILLS_MASTER2</Type>
+			<Description>TXT_KEY_PROMOTION_HILLS_MASTER2</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
-			<PromotionPrereqOr1>PROMOTION_GUERILLA1</PromotionPrereqOr1>
+			<PromotionPrereqOr1>PROMOTION_HILLS_MASTER1</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
 			<TechPrereq>NONE</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
@@ -1993,12 +1997,12 @@
 			<Button>,Art/Interface/Buttons/Promotions/Guerilla2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,6,5</Button>
 		</PromotionInfo>
 		<PromotionInfo>
-			<Type>PROMOTION_GUERILLA3</Type>
-			<Description>TXT_KEY_PROMOTION_GUERILLA3</Description>
+			<Type>PROMOTION_HILLS_MASTER3</Type>
+			<Description>TXT_KEY_PROMOTION_HILLS_MASTER3</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
-			<PromotionPrereqOr1>PROMOTION_GUERILLA2</PromotionPrereqOr1>
+			<PromotionPrereqOr1>PROMOTION_HILLS_MASTER2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
 			<TechPrereq>NONE</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
@@ -2016,7 +2020,8 @@
 			<iAirRangeChange>0</iAirRangeChange>
 			<iInterceptChange>0</iInterceptChange>
 			<iEvasionChange>0</iEvasionChange>
-			<iWithdrawalChange>50</iWithdrawalChange>
+			<!-- custom: was 50 -->
+			<iWithdrawalChange>0</iWithdrawalChange>
 			<iCargoChange>0</iCargoChange>
 			<iCollateralDamageChange>0</iCollateralDamageChange>
 			<iBombardRateChange>0</iBombardRateChange>
@@ -2030,7 +2035,8 @@
 			<iCombatPercent>0</iCombatPercent>
 			<iCityAttack>0</iCityAttack>
 			<iCityDefense>0</iCityDefense>
-			<iHillsAttack>25</iHillsAttack>
+			<!-- custom: was 25 -->
+			<iHillsAttack>50</iHillsAttack>
 			<iHillsDefense>0</iHillsDefense>
 			<iKamikazePercent>0</iKamikazePercent>
 			<iRevoltProtection>0</iRevoltProtection>
@@ -2415,7 +2421,8 @@
 			<iSameTileHealChange>0</iSameTileHealChange>
 			<iAdjacentTileHealChange>0</iAdjacentTileHealChange>
 			<iCombatPercent>0</iCombatPercent>
-			<iCityAttack>20</iCityAttack>
+			<!-- custom: was 20 -->
+			<iCityAttack>25</iCityAttack>
 			<iCityDefense>0</iCityDefense>
 			<iHillsAttack>0</iHillsAttack>
 			<iHillsDefense>0</iHillsDefense>
@@ -2565,7 +2572,8 @@
 			<iSameTileHealChange>0</iSameTileHealChange>
 			<iAdjacentTileHealChange>0</iAdjacentTileHealChange>
 			<iCombatPercent>0</iCombatPercent>
-			<iCityAttack>30</iCityAttack>
+			<!-- custom: was 30 -->
+			<iCityAttack>25</iCityAttack>
 			<iCityDefense>0</iCityDefense>
 			<iHillsAttack>0</iHillsAttack>
 			<iHillsDefense>0</iHillsDefense>
@@ -2579,12 +2587,8 @@
 			<TerrainDefenses/>
 			<FeatureAttacks/>
 			<FeatureDefenses/>
-			<UnitCombatMods>
-				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
-					<iUnitCombatMod>10</iUnitCombatMod>
-				</UnitCombatMod>
-			</UnitCombatMods>
+			<!-- custom: was UNITCOMBAT_GUN 10 -->
+			<UnitCombatMods/>
 			<DomainMods/>
 			<TerrainDoubleMoves/>
 			<FeatureDoubleMoves/>
@@ -3384,8 +3388,8 @@
 
 
 		<PromotionInfo>
-			<Type>PROMOTION_DRILL1</Type>
-			<Description>TXT_KEY_PROMOTION_DRILL1</Description>
+			<Type>PROMOTION_FIRST_STRIKE1</Type>
+			<Description>TXT_KEY_PROMOTION_FIRST_STRIKE1</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
@@ -3425,8 +3429,9 @@
 			<iHillsDefense>0</iHillsDefense>
 			<iKamikazePercent>0</iKamikazePercent>
 			<iRevoltProtection>0</iRevoltProtection>
+			<!-- custom: was 15 -->
 			<!-- K-Mod: was 0 -->
-			<iCollateralDamageProtection>15</iCollateralDamageProtection>
+			<iCollateralDamageProtection>0</iCollateralDamageProtection>
 			<iPillageChange>0</iPillageChange>
 			<iUpgradeDiscount>0</iUpgradeDiscount>
 			<iExperiencePercent>0</iExperiencePercent>
@@ -3484,12 +3489,12 @@
 			<Button>,Art/Interface/Buttons/Promotions/Drill1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,3</Button>
 		</PromotionInfo>
 		<PromotionInfo>
-			<Type>PROMOTION_DRILL2</Type>
-			<Description>TXT_KEY_PROMOTION_DRILL2</Description>
+			<Type>PROMOTION_FIRST_STRIKE2</Type>
+			<Description>TXT_KEY_PROMOTION_FIRST_STRIKE2</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
-			<PromotionPrereqOr1>PROMOTION_DRILL1</PromotionPrereqOr1>
+			<PromotionPrereqOr1>PROMOTION_FIRST_STRIKE1</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
 			<TechPrereq>NONE</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
@@ -3525,8 +3530,9 @@
 			<iHillsDefense>0</iHillsDefense>
 			<iKamikazePercent>0</iKamikazePercent>
 			<iRevoltProtection>0</iRevoltProtection>
+			<!-- custom: was 15 -->
 			<!-- K-Mod: was 20 -->
-			<iCollateralDamageProtection>15</iCollateralDamageProtection>
+			<iCollateralDamageProtection>0</iCollateralDamageProtection>
 			<iPillageChange>0</iPillageChange>
 			<iUpgradeDiscount>0</iUpgradeDiscount>
 			<iExperiencePercent>0</iExperiencePercent>
@@ -3584,12 +3590,12 @@
 			<Button>,Art/Interface/Buttons/Promotions/Drill2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,3,3</Button>
 		</PromotionInfo>
 		<PromotionInfo>
-			<Type>PROMOTION_DRILL3</Type>
-			<Description>TXT_KEY_PROMOTION_DRILL3</Description>
+			<Type>PROMOTION_FIRST_STRIKE3</Type>
+			<Description>TXT_KEY_PROMOTION_FIRST_STRIKE3</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
-			<PromotionPrereqOr1>PROMOTION_DRILL2</PromotionPrereqOr1>
+			<PromotionPrereqOr1>PROMOTION_FIRST_STRIKE2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
 			<TechPrereq>NONE</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
@@ -3625,8 +3631,9 @@
 			<iHillsDefense>0</iHillsDefense>
 			<iKamikazePercent>0</iKamikazePercent>
 			<iRevoltProtection>0</iRevoltProtection>
+			<!-- custom: as 15 -->
 			<!-- K-Mod: was 20 -->
-			<iCollateralDamageProtection>15</iCollateralDamageProtection>
+			<iCollateralDamageProtection>25</iCollateralDamageProtection>
 			<iPillageChange>0</iPillageChange>
 			<iUpgradeDiscount>0</iUpgradeDiscount>
 			<iExperiencePercent>0</iExperiencePercent>
@@ -3684,12 +3691,12 @@
 			<Button>,Art/Interface/Buttons/Promotions/Drill3.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,3</Button>
 		</PromotionInfo>
 		<PromotionInfo>
-			<Type>PROMOTION_DRILL4</Type>
-			<Description>TXT_KEY_PROMOTION_DRILL4</Description>
+			<Type>PROMOTION_FIRST_STRIKE4</Type>
+			<Description>TXT_KEY_PROMOTION_FIRST_STRIKE4</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
-			<PromotionPrereqOr1>PROMOTION_DRILL3</PromotionPrereqOr1>
+			<PromotionPrereqOr1>PROMOTION_FIRST_STRIKE3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
 			<TechPrereq>NONE</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
@@ -3725,8 +3732,9 @@
 			<iHillsDefense>0</iHillsDefense>
 			<iKamikazePercent>0</iKamikazePercent>
 			<iRevoltProtection>0</iRevoltProtection>
+			<!-- custom: was 15 -->
 			<!-- K-Mod: was 20 -->
-			<iCollateralDamageProtection>15</iCollateralDamageProtection>
+			<iCollateralDamageProtection>25</iCollateralDamageProtection>
 			<iPillageChange>0</iPillageChange>
 			<iUpgradeDiscount>0</iUpgradeDiscount>
 			<iExperiencePercent>0</iExperiencePercent>
@@ -3734,12 +3742,8 @@
 			<TerrainDefenses/>
 			<FeatureAttacks/>
 			<FeatureDefenses/>
-			<UnitCombatMods>
-				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
-					<iUnitCombatMod>10</iUnitCombatMod>
-				</UnitCombatMod>
-			</UnitCombatMods>
+			<!-- custom: was UNITCOMBAT_MOUNTED 10 -->
+			<UnitCombatMods/>
 			<DomainMods/>
 			<TerrainDoubleMoves/>
 			<FeatureDoubleMoves/>
@@ -3866,8 +3870,8 @@
 
 
 		<PromotionInfo>
-			<Type>PROMOTION_FLANKING1</Type>
-			<Description>TXT_KEY_PROMOTION_FLANKING1</Description>
+			<Type>PROMOTION_RETREAT1</Type>
+			<Description>TXT_KEY_PROMOTION_RETREAT1</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
@@ -3957,12 +3961,12 @@
 			<Button>,Art/Interface/Buttons/Promotions/Flanking1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,6,3</Button>
 		</PromotionInfo>
 		<PromotionInfo>
-			<Type>PROMOTION_FLANKING2</Type>
-			<Description>TXT_KEY_PROMOTION_FLANKING2</Description>
+			<Type>PROMOTION_RETREAT2</Type>
+			<Description>TXT_KEY_PROMOTION_RETREAT2</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
-			<PromotionPrereqOr1>PROMOTION_FLANKING1</PromotionPrereqOr1>
+			<PromotionPrereqOr1>PROMOTION_RETREAT1</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_AMPHIBIOUS</PromotionPrereqOr2>
 			<TechPrereq>NONE</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
@@ -4044,9 +4048,9 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
-			<PromotionPrereqOr1>PROMOTION_FLANKING1</PromotionPrereqOr1>
+			<PromotionPrereqOr1>PROMOTION_RETREAT1</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_COMBAT3</PromotionPrereqOr2>
-			<!-- was PROMOTION_DRILL3 in K-Mod; reverted -->
+			<!-- was PROMOTION_FIRST_STRIKE3 in K-Mod; reverted -->
 			<PromotionPrereqOr3>NONE</PromotionPrereqOr3>
 			<TechPrereq>NONE</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
@@ -4123,86 +4127,12 @@
 
 
 		<PromotionInfo>
-			<Type>PROMOTION_MOBILITY</Type>
-			<Description>TXT_KEY_PROMOTION_MOBILITY</Description>
+			<Type>PROMOTION_NAVIGATOR1</Type>
+			<Description>TXT_KEY_PROMOTION_NAVIGATOR1</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
-			<PromotionPrereqOr1>PROMOTION_FLANKING2</PromotionPrereqOr1>
-			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
-			<TechPrereq>NONE</TechPrereq>
-			<StateReligionPrereq>NONE</StateReligionPrereq>
-			<bLeader>0</bLeader>
-			<iBlitz>0</iBlitz>
-			<bAmphib>0</bAmphib>
-			<bRiver>0</bRiver>
-			<bEnemyRoute>0</bEnemyRoute>
-			<bAlwaysHeal>0</bAlwaysHeal>
-			<bHillsDoubleMove>0</bHillsDoubleMove>
-			<bImmuneToFirstStrikes>0</bImmuneToFirstStrikes>
-			<iVisibilityChange>0</iVisibilityChange>
-			<iMovesChange>0</iMovesChange>
-			<iMoveDiscountChange>1</iMoveDiscountChange>
-			<iAirRangeChange>0</iAirRangeChange>
-			<iInterceptChange>0</iInterceptChange>
-			<iEvasionChange>0</iEvasionChange>
-			<iWithdrawalChange>0</iWithdrawalChange>
-			<iCargoChange>0</iCargoChange>
-			<iCollateralDamageChange>0</iCollateralDamageChange>
-			<iBombardRateChange>0</iBombardRateChange>
-			<iFirstStrikesChange>0</iFirstStrikesChange>
-			<iChanceFirstStrikesChange>0</iChanceFirstStrikesChange>
-			<iEnemyHealChange>0</iEnemyHealChange>
-			<iNeutralHealChange>0</iNeutralHealChange>
-			<iFriendlyHealChange>0</iFriendlyHealChange>
-			<iSameTileHealChange>0</iSameTileHealChange>
-			<iAdjacentTileHealChange>0</iAdjacentTileHealChange>
-			<iCombatPercent>0</iCombatPercent>
-			<iCityAttack>0</iCityAttack>
-			<iCityDefense>0</iCityDefense>
-			<iHillsAttack>0</iHillsAttack>
-			<iHillsDefense>0</iHillsDefense>
-			<iKamikazePercent>0</iKamikazePercent>
-			<iRevoltProtection>0</iRevoltProtection>
-			<iCollateralDamageProtection>0</iCollateralDamageProtection>
-			<iPillageChange>0</iPillageChange>
-			<iUpgradeDiscount>0</iUpgradeDiscount>
-			<iExperiencePercent>0</iExperiencePercent>
-			<TerrainAttacks/>
-			<TerrainDefenses/>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
-			<UnitCombatMods/>
-			<DomainMods/>
-			<TerrainDoubleMoves/>
-			<FeatureDoubleMoves/>
-			<UnitCombats>
-				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
-					<bUnitCombat>1</bUnitCombat>
-				</UnitCombat>
-				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
-					<bUnitCombat>1</bUnitCombat>
-				</UnitCombat>
-			</UnitCombats>
-			<HotKey/>
-			<bAltDown>0</bAltDown>
-			<bShiftDown>0</bShiftDown>
-			<bCtrlDown>0</bCtrlDown>
-			<iHotKeyPriority>0</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/Promotions/Mobility1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,5,4</Button>
-		</PromotionInfo>
-
-
-
-		<PromotionInfo>
-			<Type>PROMOTION_NAVIGATION1</Type>
-			<Description>TXT_KEY_PROMOTION_NAVIGATION1</Description>
-			<Sound>AS2D_IF_LEVELUP</Sound>
-			<LayerAnimationPath>NONE</LayerAnimationPath>
-			<PromotionPrereq>NONE</PromotionPrereq>
-			<PromotionPrereqOr1>PROMOTION_FLANKING1</PromotionPrereqOr1>
+			<PromotionPrereqOr1>PROMOTION_RETREAT1</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
 			<!-- custom: was NONE -->
 			<TechPrereq>TECH_SAILING</TechPrereq>
@@ -4265,12 +4195,12 @@
 			<Button>,Art/Interface/Buttons/Promotions/Navigation1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,7,4</Button>
 		</PromotionInfo>
 		<PromotionInfo>
-			<Type>PROMOTION_NAVIGATION2</Type>
-			<Description>TXT_KEY_PROMOTION_NAVIGATION2</Description>
+			<Type>PROMOTION_NAVIGATOR2</Type>
+			<Description>TXT_KEY_PROMOTION_NAVIGATOR2</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
-			<PromotionPrereq>PROMOTION_FLANKING1</PromotionPrereq>
-			<PromotionPrereqOr1>PROMOTION_NAVIGATION1</PromotionPrereqOr1>
+			<PromotionPrereq>PROMOTION_RETREAT1</PromotionPrereq>
+			<PromotionPrereqOr1>PROMOTION_NAVIGATOR1</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
 			<!-- custom: was NONE -->
 			<TechPrereq>TECH_NAVIGATION</TechPrereq>
@@ -4548,7 +4478,7 @@
 			<PromotionPrereq>NONE</PromotionPrereq>
 			<!-- custom: reduce prerequirement, was PROMOTION_COMBAT4-->
 			<PromotionPrereqOr1>PROMOTION_COMBAT1</PromotionPrereqOr1>
-			<!-- advc.200: was PROMOTION_DRILL4 in K-Mod; reverted -->
+			<!-- advc.200: was PROMOTION_FIRST_STRIKE4 in K-Mod; reverted -->
 			<!-- custom: extend eligible prerequired promotions, was NONE -->
 			<PromotionPrereqOr2>PROMOTION_CITY_RAIDER1</PromotionPrereqOr2>
 			<!-- custom: no reason to go so far in tech tree to require it,
@@ -4637,12 +4567,12 @@
 
 
 		<PromotionInfo>
-			<Type>PROMOTION_TACTICS</Type>
-			<Description>TXT_KEY_PROMOTION_TACTICS</Description>
+			<Type>PROMOTION_MOBILITY_COST</Type>
+			<Description>TXT_KEY_PROMOTION_MOBILITY_COST</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
-			<PromotionPrereq>PROMOTION_LEADER</PromotionPrereq>
-			<PromotionPrereqOr1>NONE</PromotionPrereqOr1>
+			<PromotionPrereq>NONE</PromotionPrereq>
+			<PromotionPrereqOr1>PROMOTION_RETREAT2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
 			<TechPrereq>NONE</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
@@ -4656,11 +4586,11 @@
 			<bImmuneToFirstStrikes>0</bImmuneToFirstStrikes>
 			<iVisibilityChange>0</iVisibilityChange>
 			<iMovesChange>0</iMovesChange>
-			<iMoveDiscountChange>0</iMoveDiscountChange>
+			<iMoveDiscountChange>1</iMoveDiscountChange>
 			<iAirRangeChange>0</iAirRangeChange>
 			<iInterceptChange>0</iInterceptChange>
 			<iEvasionChange>0</iEvasionChange>
-			<iWithdrawalChange>30</iWithdrawalChange>
+			<iWithdrawalChange>0</iWithdrawalChange>
 			<iCargoChange>0</iCargoChange>
 			<iCollateralDamageChange>0</iCollateralDamageChange>
 			<iBombardRateChange>0</iBombardRateChange>
@@ -4692,39 +4622,11 @@
 			<FeatureDoubleMoves/>
 			<UnitCombats>
 				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_LONG</UnitCombatType>
-					<bUnitCombat>1</bUnitCombat>
-				</UnitCombat>
-				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
-					<bUnitCombat>1</bUnitCombat>
-				</UnitCombat>
-				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_ARCHER_CROSSBOW</UnitCombatType>
-					<bUnitCombat>1</bUnitCombat>
-				</UnitCombat>
-				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
-					<bUnitCombat>1</bUnitCombat>
-				</UnitCombat>
-				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
-					<bUnitCombat>1</bUnitCombat>
-				</UnitCombat>
-				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
-					<bUnitCombat>1</bUnitCombat>
-				</UnitCombat>
-				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
-					<bUnitCombat>1</bUnitCombat>
-				</UnitCombat>
-				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 			</UnitCombats>
@@ -4733,14 +4635,14 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/Promotions/Combat5.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,6,16</Button>
+			<Button>,Art/Interface/Buttons/Promotions/Mobility1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,5,4</Button>
 		</PromotionInfo>
 
 
 
 		<PromotionInfo>
-			<Type>PROMOTION_MORALE</Type>
-			<Description>TXT_KEY_PROMOTION_MORALE</Description>
+			<Type>PROMOTION_MOBILITY_RANGE</Type>
+			<Description>TXT_KEY_PROMOTION_MOBILITY_RANGE</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>PROMOTION_LEADER</PromotionPrereq>

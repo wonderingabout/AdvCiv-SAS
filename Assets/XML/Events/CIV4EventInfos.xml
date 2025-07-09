@@ -9835,7 +9835,7 @@
 			<UnitCombatPromotions>
 				<UnitCombatPromotion>
 					<UnitCombat>UNITCOMBAT_MOUNTED</UnitCombat>
-					<UnitPromotion>PROMOTION_FLANKING1</UnitPromotion>
+					<UnitPromotion>PROMOTION_RETREAT1</UnitPromotion>
 				</UnitCombatPromotion>
 			</UnitCombatPromotions>
 			<UnitClassPromotions/>
@@ -12968,7 +12968,7 @@
 			<UnitClassPromotions>
 				<UnitClassPromotion>
 					<UnitClass>UNITCLASS_CARRIER</UnitClass>
-					<UnitPromotion>PROMOTION_DRILL3</UnitPromotion>
+					<UnitPromotion>PROMOTION_FIRST_STRIKE3</UnitPromotion>
 				</UnitClassPromotion>
 			</UnitClassPromotions>
 			<BuildingClass>NONE</BuildingClass>
@@ -16704,7 +16704,7 @@
 			<UnitCombatPromotions>
 				<UnitCombatPromotion>
 					<UnitCombat>UNITCOMBAT_NAVAL</UnitCombat>
-					<UnitPromotion>PROMOTION_NAVIGATION1</UnitPromotion>
+					<UnitPromotion>PROMOTION_NAVIGATOR1</UnitPromotion>
 				</UnitCombatPromotion>
 			</UnitCombatPromotions>
 			<UnitClassPromotions/>
@@ -21382,7 +21382,7 @@
 			<UnitCombatPromotions>
 				<UnitCombatPromotion>
 					<UnitCombat>UNITCOMBAT_GUN</UnitCombat>
-					<UnitPromotion>PROMOTION_DRILL1</UnitPromotion>
+					<UnitPromotion>PROMOTION_FIRST_STRIKE1</UnitPromotion>
 				</UnitCombatPromotion>
 			</UnitCombatPromotions>
 			<UnitClassPromotions/>
@@ -22227,7 +22227,7 @@
 			<UnitCombatPromotions>
 				<UnitCombatPromotion>
 					<UnitCombat>UNITCOMBAT_MELEE</UnitCombat>
-					<UnitPromotion>PROMOTION_DRILL1</UnitPromotion>
+					<UnitPromotion>PROMOTION_FIRST_STRIKE1</UnitPromotion>
 				</UnitCombatPromotion>
 			</UnitCombatPromotions>
 			<UnitClassPromotions/>
@@ -23009,11 +23009,11 @@
 			<UnitClassPromotions>
 				<UnitClassPromotion>
 					<UnitClass>UNITCLASS_HORSE_KNIGHT</UnitClass>
-					<UnitPromotion>PROMOTION_FLANKING1</UnitPromotion>
+					<UnitPromotion>PROMOTION_RETREAT1</UnitPromotion>
 				</UnitClassPromotion>
 				<UnitClassPromotion>
 					<UnitClass>UNITCLASS_CAMEL_KNIGHT</UnitClass>
-					<UnitPromotion>PROMOTION_FLANKING1</UnitPromotion>
+					<UnitPromotion>PROMOTION_RETREAT1</UnitPromotion>
 				</UnitClassPromotion>
 			</UnitClassPromotions>
 			<BuildingClass>NONE</BuildingClass>

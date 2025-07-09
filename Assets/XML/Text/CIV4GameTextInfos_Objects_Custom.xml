@@ -535,6 +535,8 @@
 		<English>Collateral Damage 5</English>
 	</TEXT>
 
+
+
 	<!-- custom: new/modified unit combat types -->
 	<TEXT>
 		<Tag>TXT_KEY_UNITCOMBAT_ARCHER_BOW_SHORT</Tag>
@@ -548,6 +550,8 @@
 		<Tag>TXT_KEY_UNITCOMBAT_ARCHER_CROSSBOW</Tag>
 		<English>Archers (Crossbow)</English>
 	</TEXT>
+
+
 
 
 	<TEXT>
@@ -570,6 +574,118 @@
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_MEDIC_AMBULATORY</Tag>
 		<English>Medic (Ambulatory)</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_HILLS_MASTER1</Tag>
+		<English>Hills Master 1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_HILLS_MASTER2</Tag>
+		<English>Hills Master 2</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_HILLS_MASTER3</Tag>
+		<English>Hills Master 3</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_RETREAT1</Tag>
+		<English>Retreat 1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_RETREAT2</Tag>
+		<English>Retreat 2</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_NAVIGATOR1</Tag>
+		<English>Navigator 1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_NAVIGATOR2</Tag>
+		<English>Navigator 2</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_WOODSMAN1</Tag>
+		<English>Woodsman 1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_WOODSMAN2</Tag>
+		<English>Woodsman 2</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_WOODSMAN3</Tag>
+		<English>Woodsman 3</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_FIRST_STRIKE1</Tag>
+		<English>First Strike 1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_FIRST_STRIKE2</Tag>
+		<English>First Strike 2</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_FIRST_STRIKE3</Tag>
+		<English>First Strike 3</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_FIRST_STRIKE4</Tag>
+		<English>First Strike 4</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_MOBILITY_RANGE</Tag>
+		<English>Mobility (Range)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_MOBILITY_COST</Tag>
+		<English>Mobility (Cost)</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_CITYRAIDER1</Tag>
+		<English>City Raider 1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_CITYRAIDER2</Tag>
+		<English>City Raider 2</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_CITYRAIDER3</Tag>
+		<English>City Raider 3</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_GARRISON1</Tag>
+		<English>City Garrison 1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_GARRISON2</Tag>
+		<English>City Garrison 2</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_GARRISON3</Tag>
+		<English>City Garrison 3</English>
 	</TEXT>
 
 
