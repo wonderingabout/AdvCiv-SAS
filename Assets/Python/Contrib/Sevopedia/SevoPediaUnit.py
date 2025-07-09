@@ -169,13 +169,12 @@ class SevoPediaUnit:
 		self.placeUpgradesTo()
 		self.placeFreePromotions()
 		self.placeModifiersOfThisUnitAgainstOtherUnitClassesCombatTypes()
-		self.placeModifiersOfOtherUnitClassesCombatTypesAgainstThisUnit()
 		self.placePeakHillCityTerrainsFeaturesModifiers()
-		self.placeSpecial()
 		self.placeUnitAnimation()
 		self.placeReplace()
 		self.placeCivilizations()
-		self.placeHistory()
+		# <!--  custom: moved self.placeSpecial() and self.placeHistory() calls after and from inside self.placeModifiersOfOtherUnitClassesCombatTypesAgainstThisUnit so that we make sure the height and Y position of their respective panels are adjusted if needed depending on how much self.placeModifiersOfOtherUnitClassesCombatTypesAgainstThisUnit needs for all its units (shrink/size down height + Y postion) them if self.placeModifiersOfOtherUnitClassesCombatTypesAgainstThisUnit needs more, else keep default, anyways etc) -->
+		self.placeModifiersOfOtherUnitClassesCombatTypesAgainstThisUnit()
 
 
 
@@ -448,35 +447,19 @@ class SevoPediaUnit:
 
 		# Get the unit info
 		unitInfo = gc.getUnitInfo(self.iUnit)
+		iUnitCombatType = unitInfo.getUnitCombatType()
 
-		# Check for UnitClassAttackMods
+		# Check for UnitClassAttackMods <!-- custom: and UnitClassDefenseMods after this refactor with claude ai all in one go but anyways etc -->
 		for i in range(gc.getNumUnitClassInfos()):
-			iMod = unitInfo.getUnitClassAttackModifier(i)
-			if iMod != 0:
+			# Check class-based modifiers (attack and defense)
+			iModAttack = unitInfo.getUnitClassAttackModifier(i)
+			iModDefense = unitInfo.getUnitClassDefenseModifier(i)
+
+			# Handle class modifiers with x/y format
+			numTxt = get_numTxt_attack_defense_modifiers(iModAttack, iModDefense)
+
+			if iModAttack != 0 or iModDefense != 0:
 				nCountOccurencesFound += 1
-				numTxt = u"A%+d%%" % (iMod)  # Use %+d to always show the sign (+ or -)
-				addedOffset = 0
-				xSubstractedAdjustmentNumTxt = getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
-				xSubstractedAdjustment = int(xSubstractedAdjustmentNumTxt * buttonSize)
-				xPanel = self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS
-				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
-				
-				# Get the default unit of this class for the current civilization
-				if self.top.iActivePlayer != -1:
-					iDefaultUnit = gc.getCivilizationInfo(gc.getPlayer(self.top.iActivePlayer).getCivilizationType()).getCivilizationUnits(i)
-				else:
-					iDefaultUnit = gc.getUnitClassInfo(i).getDefaultUnitIndex()
-				
-				# If a valid unit exists, display its button
-				if iDefaultUnit != -1:
-					screen.attachImageButton(panelName, "", gc.getUnitInfo(iDefaultUnit).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iDefaultUnit, -1, False)
-		
-		# Check for UnitClassDefenseMods
-		for i in range(gc.getNumUnitClassInfos()):
-			iMod = unitInfo.getUnitClassDefenseModifier(i)
-			if iMod != 0:
-				nCountOccurencesFound += 1
-				numTxt = u"D%+d%%" % (iMod)  # Use %+d to always show the sign (+ or -)
 				addedOffset = 0
 				xSubstractedAdjustmentNumTxt = getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
 				xSubstractedAdjustment = int(xSubstractedAdjustmentNumTxt * buttonSize)
@@ -494,19 +477,23 @@ class SevoPediaUnit:
 					screen.attachImageButton(panelName, "", gc.getUnitInfo(iDefaultUnit).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iDefaultUnit, -1, False)
 		
 		# Check for UnitCombatMods
-		for i in range(gc.getNumUnitCombatInfos()):
-			iMod = unitInfo.getUnitCombatModifier(i)
-			if iMod != 0:			
-				nCountOccurencesFound += 1
-				numTxt = u"%+d%%" % (iMod)  # Use %+d to always show the sign (+ or -)
-				addedOffset = 0
-				xSubstractedAdjustmentNumTxt = getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
-				xSubstractedAdjustment = int(xSubstractedAdjustmentNumTxt * buttonSize)
-				xPanel = self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS
-				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
-				
-				# Display the combat type button
-				screen.attachImageButton(panelName, "", gc.getUnitCombatInfo(i).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, i, -1, False)
+		# <!-- custom: we need to do this in a separate loop according to chatgpt as "i is a UnitClass index ; gc.getUnitCombatInfo(i) expects a UnitCombatTypes index" and indeed i don't know if this is the cause but we got an error when trying to refactor too aggressively with claude ai i mean but anyways etc the code (ignorantly perhaps of me but good to try or not or yes but anyways etc), so making sure i mean to have a separate loop for combat type modifiers if i am not mistaken in understanding this anyways etc -->
+		# Check for unit combat types that this unit belongs to
+		if iUnitCombatType != -1:  # Make sure this unit has a combat type
+			# Loop through all units to find those with UnitCombatMods against this combat type
+			for i in range(gc.getNumUnitCombatInfos()):
+				iModCombat = unitInfo.getUnitCombatModifier(i)
+				if iModCombat != 0:
+					nCountOccurencesFound += 1
+					numTxt = u"%+d%%" % (iModCombat)  # Use %+d to always show the sign (+ or -)
+					addedOffset = 0
+					xSubstractedAdjustmentNumTxt = getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
+					xSubstractedAdjustment = int(xSubstractedAdjustmentNumTxt * buttonSize)
+					xPanel = self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS
+					xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
+					
+					# Display the combat type button
+					screen.attachImageButton(panelName, "", gc.getUnitCombatInfo(i).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, i, -1, False)
 		
 		isButtonFound = (nCountOccurencesFound > 0)
 		txtKeyNoButtonFound = "TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS_NO_BUTTON_FOUND"
@@ -532,14 +519,19 @@ class SevoPediaUnit:
 		iUnitClass = unitInfo.getUnitClassType()
 		iUnitCombatType = unitInfo.getUnitCombatType()
 		
-		# Loop through all unit types to find those with UnitClassAttackMods against our unit class
+		# Loop through all unit types to find those with UnitClassAttackMods or UnitClassDefenseMods against our unit class
 		for i in range(gc.getNumUnitInfos()):
 			otherUnitInfo = gc.getUnitInfo(i)
-			iMod = otherUnitInfo.getUnitClassAttackModifier(iUnitClass)
-			
-			if iMod != 0:
+
+			# Check class-based modifiers (attack and defense)
+			iModAttack = otherUnitInfo.getUnitClassAttackModifier(iUnitClass)
+			iModDefense = otherUnitInfo.getUnitClassDefenseModifier(iUnitClass)
+
+			# Handle class modifiers with x/y format
+			numTxt = get_numTxt_attack_defense_modifiers(iModAttack, iModDefense)
+
+			if iModAttack != 0 or iModDefense != 0:
 				nCountOccurencesFound += 1
-				numTxt = u"A%+d%%" % (iMod)  # Use %+d to always show the sign (+ or -)
 				addedOffset = 0
 				xSubstractedAdjustmentNumTxt = getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
 				xSubstractedAdjustment = int(xSubstractedAdjustmentNumTxt * buttonSize)
@@ -548,34 +540,19 @@ class SevoPediaUnit:
 				
 				# Display the specific unit button
 				screen.attachImageButton(panelName, "", otherUnitInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, i, -1, False)
-		
-		# Loop through all unit types to find those with UnitClassDefenseMods against our unit class
-		for i in range(gc.getNumUnitInfos()):
-			otherUnitInfo = gc.getUnitInfo(i)
-			iMod = otherUnitInfo.getUnitClassDefenseModifier(iUnitClass)
-			
-			if iMod != 0:
-				nCountOccurencesFound += 1
-				numTxt = u"D%+d%%" % (iMod)  # Use %+d to always show the sign (+ or -)
-				addedOffset = 0
-				xSubstractedAdjustmentNumTxt = getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
-				xSubstractedAdjustment = int(xSubstractedAdjustmentNumTxt * buttonSize)
-				xPanel = self.X_OF_OTHER_UNITS_MODIFIERS
-				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
-				
-				# Display the specific unit button
-				screen.attachImageButton(panelName, "", otherUnitInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, i, -1, False)
+
+				# <!-- custom: avoid duplicate, if unit has an attack modifier, no need to check if it also has a defense modifier as well, we have displayed it already, don't redisplay it if i am not mistaken, anyways etc -->
 		
 		# Check for unit combat types that this unit belongs to
 		if iUnitCombatType != -1:  # Make sure this unit has a combat type
 			# Loop through all units to find those with UnitCombatMods against this combat type
 			for i in range(gc.getNumUnitInfos()):
 				otherUnitInfo = gc.getUnitInfo(i)
-				iMod = otherUnitInfo.getUnitCombatModifier(iUnitCombatType)
+				iModCombat = otherUnitInfo.getUnitCombatModifier(iUnitCombatType)
 				
-				if iMod != 0:
+				if iModCombat != 0:
 					nCountOccurencesFound += 1
-					numTxt = u"%+d%%" % (iMod)  # Use %+d to always show the sign (+ or -)
+					numTxt = u"%+d%%" % (iModCombat)  # Use %+d to always show the sign (+ or -)
 					addedOffset = 0
 					xSubstractedAdjustmentNumTxt = getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
 					xSubstractedAdjustment = int(xSubstractedAdjustmentNumTxt * buttonSize)
@@ -589,6 +566,9 @@ class SevoPediaUnit:
 		txtKeyNoButtonFound = "TXT_KEY_PEDIA_OF_OTHER_UNITS_MODIFIERS_AGAINST_THIS_UNIT_NO_BUTTON_FOUND"
 		self.displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, self.X_OF_OTHER_UNITS_MODIFIERS, self.Y_OF_OTHER_UNITS_MODIFIERS, self.W_OF_OTHER_UNITS_MODIFIERS, self.H_OF_OTHER_UNITS_MODIFIERS)
 
+		# <!-- custom: after all is done, call self.placeSpecial and self.placeHistory from here inside this function i mean anyways etc so that we have adjusted values for their corresponding H and Y positions after placeModifiersOfOtherUnitClassesCombatTypesAgainstThisUnit has finished displaying its content and has also updated these H and Y positions if needed anyways etc, we make sure to not call the below functions too early if i may say this way as well anyways etc -->
+		self.placeSpecial()
+		self.placeHistory()
 
 
 	def placePeakHillCityTerrainsFeaturesModifiers(self):
@@ -625,7 +605,6 @@ class SevoPediaUnit:
 		#	attachImageButton(class CyGInterfaceScreen {lvalue}, char const *, char const *, char const *, enum GenericButtonSizes, enum WidgetTypes, int, int, bool)
 		#  
 		# (adding the str) may or may not be necessary or an alternative solution to this may exist or not, but in all cases anyways etc) anyways etc, etc -->
-
 		citiesResolvedButtonPath = str(CyTranslator().getText(citiesConfigButtonPathSTxtKey, ()))
 		citiesButtonHeader = "Cities button in Sevopedia Unit's placePeakHillCityTerrainsFeaturesModifiers"
 		check_button_path_is_valid(citiesButtonHeader, citiesResolvedButtonPath, citiesConfigButtonPathSTxtKey)	
@@ -698,13 +677,7 @@ class SevoPediaUnit:
 			nCountOccurencesFound += 1
 			
 			# Create the combined bonus text
-			numTxt = ""
-			if attackBonus > 0 and defenseBonus > 0:
-				numTxt = "%+d/%+d" % (attackBonus, defenseBonus)
-			elif attackBonus > 0:
-				numTxt = "%+d/__" % attackBonus
-			elif defenseBonus > 0:
-				numTxt = "__/%+d" % defenseBonus
+			numTxt = get_numTxt_attack_defense_modifiers(attackBonus, defenseBonus)
 			
 			# Calculate text position offset
 			addedOffset = -0.07

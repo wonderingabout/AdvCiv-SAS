@@ -109,6 +109,26 @@ def check_images_as_buttons_paths_are_valid(txtKeyDict, localText):
 
 
 
+def get_numTxt_attack_defense_modifiers(iModAttack, iModDefense):
+	numTxt = None
+
+	# Handle class modifiers with x/y format
+	# Use %+d to always show the sign (+ or -)
+	if iModAttack != 0 or iModDefense != 0:
+		if iModAttack != 0 and iModDefense != 0:
+			# Both attack and defense: x/y format
+			return u"%+d/%+d" % (iModAttack, iModDefense)
+		elif iModAttack != 0:
+			# Only attack: x/* format
+			return u"%+d/_" % (iModAttack)
+		elif iModDefense != 0:
+			# Only defense: */y format
+			return u"_/%+d" % (iModDefense)
+	
+	return numTxt
+
+
+
 def getXOccurenceFound(xPanel, leftPadding, interButtonSpacing, nCountOccurencesFound, buttonSize, xSubstractedAdjustment):
 	# <!-- custom: all buttons are spaced, except the first one that depends on panel left side padding, so do a - 1 to account for that -->
 	if (nCountOccurencesFound < 1):
