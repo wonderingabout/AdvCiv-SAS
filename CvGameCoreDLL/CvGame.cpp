@@ -7731,10 +7731,14 @@ UnitTypes CvGame::randomBarbarianUnit(UnitAITypes eUnitAI, CvPlot const& kPlot)
 		if (eAndTech == NO_TECH)
 			iUnitEra = -1;
 		// Mounted units only in open terrain
-		static UnitCombatTypes const eMounted = (UnitCombatTypes)
-				GC.getInfoTypeForString("UNITCOMBAT_MOUNTED");
-		bool const bMounted = (kUnit.getUnitCombatType() == eMounted);
-		if (bMounted)
+		// <!-- custom: split mounted units into melee mounted units and ranged mounted units so that pikemen are not strong against cuiassiers or horse archers and such anyways etc -->
+		static UnitCombatTypes const eMountedMelee = (UnitCombatTypes)
+				GC.getInfoTypeForString("UNITCOMBAT_MOUNTED_MELEE");
+		static UnitCombatTypes const eMountedRanged = (UnitCombatTypes)
+				GC.getInfoTypeForString("UNITCOMBAT_MOUNTED_RANGED");
+		bool const bMountedMelee = (kUnit.getUnitCombatType() == eMountedMelee);
+		bool const bMountedRanged = (kUnit.getUnitCombatType() == eMountedRanged);
+		if (bMountedMelee || bMountedRanged)
 		{
 			if (kPlot.isWater() || kPlot.defenseModifier(NO_TEAM, true) > 0)
 				continue;
@@ -7758,7 +7762,7 @@ UnitTypes CvGame::randomBarbarianUnit(UnitAITypes eUnitAI, CvPlot const& kPlot)
 				become available. The game era is usually already Classical
 				when Archers become available. */
 			(!bAnyExpensiveTech || iUnitEra + 1 >= getCurrentEra())) ||
-			bMounted) // To make up for the terrain restriction
+			bMountedMelee || bMountedRanged) // To make up for the terrain restriction
 		{
 			iDieSides = (iDieSides * rNoBonusReqDieSidesMult).uround();
 		} // </advc.301>

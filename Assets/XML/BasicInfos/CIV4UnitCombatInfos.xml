@@ -28,24 +28,35 @@ or/and modify existing ones, for example, archery units would become:
 			<Description>TXT_KEY_UNITCOMBAT_ARCHER_BOW_SHORT</Description>
 			<Button>,Art/Interface/Buttons/Promotions/Cover.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,5</Button>
 		</UnitCombatInfo>
+		<!-- custom: art import from FFH2 mod's UNITCOMBAT_ARCHER 's button anyways etc -->
 		<UnitCombatInfo>
 			<Type>UNITCOMBAT_ARCHER_BOW_LONG</Type>
 			<Description>TXT_KEY_UNITCOMBAT_ARCHER_BOW_LONG</Description>
-			<Button>,Art/Interface/Buttons/Promotions/Cover.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,5</Button>
+			<Button>Art/AdvCiv_SAS/Unit_Combat_Types/Archers_Bow_Long/ucarcher.dds</Button>
 		</UnitCombatInfo>
+		<!-- custom: art import from c2c mod's PROMOTION_ARROW_BARRAGE1 's button quite similarly anyways etc anyways etc anyways etc -->
 		<UnitCombatInfo>
 			<Type>UNITCOMBAT_ARCHER_CROSSBOW</Type>
 			<Description>TXT_KEY_UNITCOMBAT_ARCHER_CROSSBOW</Description>
-			<Button>,Art/Interface/Buttons/Promotions/Cover.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,5</Button>
+			<Button>Art/AdvCiv_SAS/Unit_Combat_Types/Archers_Crossbow/arrowbarrage1promotion.dds</Button>
 		</UnitCombatInfo>
 
 
 
+		<!-- custom: split mounted units into MOUNTED_MELEE and MOUNTED_RANGED so pikemen are not strong against cuiassiers or horse archers and such anyways etc ; as for the button art import anyways etc from ri mod anyways etc -->
 		<UnitCombatInfo>
-			<Type>UNITCOMBAT_MOUNTED</Type>
-			<Description>TXT_KEY_UNITCOMBAT_MOUNTED</Description>
+			<Type>UNITCOMBAT_MOUNTED_MELEE</Type>
+			<Description>TXT_KEY_UNITCOMBAT_MOUNTED_MELEE</Description>
+			<Button>Art/AdvCiv_SAS/Unit_Combat_Types/Mounted_Melee/charge_cavalry.dds</Button>
+		</UnitCombatInfo>
+		<UnitCombatInfo>
+			<Type>UNITCOMBAT_MOUNTED_RANGED</Type>
+			<Description>TXT_KEY_UNITCOMBAT_MOUNTED_RANGED</Description>
 			<Button>,Art/Interface/Buttons/Promotions/Formation.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,2</Button>
 		</UnitCombatInfo>
+
+
+
 		<UnitCombatInfo>
 			<Type>UNITCOMBAT_MELEE</Type>
 			<Description>TXT_KEY_UNITCOMBAT_MELEE</Description>
@@ -78,11 +89,12 @@ or/and modify existing ones, for example, archery units would become:
 		</UnitCombatInfo>
 
 
-		
+
+		<!-- custom: art import from COM mod's rom_promotion_atlas2.dds atlas (their UNITCOMBAT_BOMBERS button that i extracted from the atlas with Paint.NET as we don't need all the atlas anyways etc) anyways etc -->
 		<UnitCombatInfo>
 			<Type>UNITCOMBAT_AIR_BOMBER</Type>
 			<Description>TXT_KEY_UNITCOMBAT_AIR_BOMBER</Description>
-			<Button>,Art/Interface/Buttons/Promotions/Naval_Units.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,6,15</Button>
+			<Button>Art/AdvCiv_SAS/Unit_Combat_Types/Air_Bomber/air_bombers_button_from_com_atlas.dds</Button>
 		</UnitCombatInfo>
 		<UnitCombatInfo>
 			<Type>UNITCOMBAT_AIR_FIGHTER</Type>

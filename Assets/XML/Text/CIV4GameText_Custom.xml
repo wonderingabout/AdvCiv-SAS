@@ -293,4 +293,28 @@
 		<Tag>TXT_KEY_TECH_GAME_THEORY_QUOTE</Tag>
 		<English>"I fooled you, I fooled you, I got pig iron, I got pig iron, I got all pig iron." - Lonnie Donegan, "Rock Island Line"</English>
 	</TEXT>
+
+
+
+	<!-- custom: from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameText_Misc1.xml and modified or not for advciv-sas anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_FEAT_UNITCOMBAT_ARCHER_BOW_SHORT</Tag>
+		<English>Congratulations, you have trained your first Archery (Bow, Short) Unit ([COLOR_UNIT_TEXT]%s1Unit_Name[COLOR_REVERT]) in %s2City_Name! These units get a special first-strike ability that allows them a chance to hit their opponent before regular combat begins.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_FEAT_UNITCOMBAT_ARCHER_BOW_LONG</Tag>
+		<English>Congratulations, you have trained your first Archery (Bow, Long) Unit ([COLOR_UNIT_TEXT]%s1Unit_Name[COLOR_REVERT]) in %s2City_Name! These units get a special first-strike ability that allows them a chance to hit their opponent before regular combat begins.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_FEAT_UNITCOMBAT_ARCHER_CROSSBOW</Tag>
+		<English>Congratulations, you have trained your first Archery (Crossbow) Unit ([COLOR_UNIT_TEXT]%s1Unit_Name[COLOR_REVERT]) in %s2City_Name! These units get a special first-strike ability that allows them a chance to hit their opponent before regular combat begins.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_FEAT_UNITCOMBAT_MOUNTED_MELEE</Tag>
+		<English>Congratulations, you have trained your first Mounted (Melee) Unit ([COLOR_UNIT_TEXT]%s1Unit_Name[COLOR_REVERT]) in %s2City_Name! These units can move farther per turn than regular units, allowing them to wreak havoc behind enemy lines.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_FEAT_UNITCOMBAT_MOUNTED_RANGED</Tag>
+		<English>Congratulations, you have trained your first Mounted (Ranged) Unit ([COLOR_UNIT_TEXT]%s1Unit_Name[COLOR_REVERT]) in %s2City_Name! These units can move farther per turn than regular units, allowing them to wreak havoc behind enemy lines.</English>
+	</TEXT>
 </Civ4GameText>

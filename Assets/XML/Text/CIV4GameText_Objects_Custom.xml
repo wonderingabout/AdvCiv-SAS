@@ -32,6 +32,18 @@ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond
 
 
 
+	<!-- custom: split mounted units into MOUNTED_MELEE and MOUNTED_RANGED so pikemen are not strong against cuiassiers or horse archers and such anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_MOUNTED_MELEE</Tag>
+		<English>Mounted (Melee)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_MOUNTED_RANGED</Tag>
+		<English>Mounted (Ranged)</English>
+	</TEXT>
+
+
+
 	<!-- custom: disambiguate Ice Terrain vs Ice Feature, hopefully clearer with these 2 separate terms, see RFC DOC custom's XML files,
 	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Text\RFC_DOC_Civilopedia_Lengthy_Custom.xml
 	at the TXT_KEY_TERRAIN_ICE_PEDIA and TXT_KEY_FEATURE_ICE_PEDIA entries (code comments) for details. -->

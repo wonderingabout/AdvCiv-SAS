@@ -5,13 +5,14 @@
 
 	Copyright (c) 2008 The BUG Mod.
 -->
+<!-- custom: add new unit combat types or/and modify existing ones anyways etc -->
 <mod id="UnitNaming" 
 	 name="Unit Naming" 
 	 author="Ruff_Hi" 
 	 version="1.0" 
 	 date="09/02/2007"
 	 url="http://forums.civfanatics.com/showthread.php?t=241801">
-	 
+
 	<options id="UnitNaming" file="Unit Naming.ini">
 		<section id="UnitName">
 			<option id="Enabled" key="Enabled" 
@@ -21,12 +22,18 @@
 					get="isAdvanced" set="setAdvanced"/>
 			<option id="Default" key="Default" 
 					type="string" default="^ut^ ^cnt[n][u]^ (^ct^)"/>
-			
+
 			<option id="Combat_None" key="CombatNone" 
 					type="string" default="DEFAULT"/>
-			<option id="Combat_AIR" key="CombatAIR" 
+			<option id="Combat_AIR_BOMBER" key="CombatAIRBOMBER" 
 					type="string" default="DEFAULT"/>
-			<option id="Combat_ARCHER" key="CombatARCHER" 
+			<option id="Combat_AIR_FIGHTER" key="CombatAIRFIGHTER" 
+					type="string" default="DEFAULT"/>
+			<option id="Combat_ARCHER_BOW_SHORT" key="CombatARCHERBOWSHORT" 
+					type="string" default="DEFAULT"/>
+			<option id="Combat_ARCHER_BOW_LONG" key="CombatARCHERBOWLONG" 
+					type="string" default="DEFAULT"/>
+			<option id="Combat_ARCHER_CROSSBOW" key="CombatARCHERCROSSBOW" 
 					type="string" default="DEFAULT"/>
 			<option id="Combat_ARMOR" key="CombatARMOR" 
 					type="string" default="DEFAULT"/>
@@ -36,7 +43,9 @@
 					type="string" default="DEFAULT"/>
 			<option id="Combat_MELEE" key="CombatMELEE" 
 					type="string" default="DEFAULT"/>
-			<option id="Combat_MOUNTED" key="CombatMOUNTED" 
+			<option id="Combat_MOUNTED_MELEE" key="CombatMOUNTEDMELEE" 
+					type="string" default="DEFAULT"/>
+			<option id="Combat_MOUNTED_RANGED" key="CombatMOUNTEDRANGED" 
 					type="string" default="DEFAULT"/>
 			<option id="Combat_NAVAL" key="CombatNAVAL" 
 					type="string" default="DEFAULT"/>
@@ -48,16 +57,16 @@
 					  args="combatType" id="Combat_%s"/>
 		</section>
 	</options>
-	
+
 	<options id="AdvUnitNaming" file="Adv Unit Naming.ini">
 		<section id="UnitName">
 			<option id="ByEraAndClass" key="%s_%s" args="era, class" 
 					type="string" default="DEFAULT"/>
 		</section>
 	</options>
-	
+
 	<events module="UnitNameEventManager">
 		<!--arg type="key" value="Alt Ctrl N"/-->
 	</events>
-	
+
 </mod>

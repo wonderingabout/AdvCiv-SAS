@@ -9834,7 +9834,11 @@
 			<UnitName/>
 			<UnitCombatPromotions>
 				<UnitCombatPromotion>
-					<UnitCombat>UNITCOMBAT_MOUNTED</UnitCombat>
+					<UnitCombat>UNITCOMBAT_MOUNTED_MELEE</UnitCombat>
+					<UnitPromotion>PROMOTION_RETREAT1</UnitPromotion>
+				</UnitCombatPromotion>
+				<UnitCombatPromotion>
+					<UnitCombat>UNITCOMBAT_MOUNTED_RANGED</UnitCombat>
 					<UnitPromotion>PROMOTION_RETREAT1</UnitPromotion>
 				</UnitCombatPromotion>
 			</UnitCombatPromotions>
@@ -16256,7 +16260,11 @@
 			<UnitName/>
 			<UnitCombatPromotions>
 				<UnitCombatPromotion>
-					<UnitCombat>UNITCOMBAT_MOUNTED</UnitCombat>
+					<UnitCombat>UNITCOMBAT_MOUNTED_MELEE</UnitCombat>
+					<UnitPromotion>PROMOTION_SENTRY</UnitPromotion>
+				</UnitCombatPromotion>
+				<UnitCombatPromotion>
+					<UnitCombat>UNITCOMBAT_MOUNTED_RANGED</UnitCombat>
 					<UnitPromotion>PROMOTION_SENTRY</UnitPromotion>
 				</UnitCombatPromotion>
 			</UnitCombatPromotions>

@@ -2590,7 +2590,11 @@
 			<BonusProductionModifiers/>
 			<UnitCombatFreeExperiences>
 				<UnitCombatFreeExperience>
-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+					<iExperience>2</iExperience>
+				</UnitCombatFreeExperience>
+				<UnitCombatFreeExperience>
+					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
 					<iExperience>2</iExperience>
 				</UnitCombatFreeExperience>
 			</UnitCombatFreeExperiences>
@@ -2763,7 +2767,11 @@
 			<!-- custom: reduce it/this, give instead miltiary production bonus to buff the building and make it more versatile, kind of like how the zulu barracks (ikhanda) are at least in base civ4 (if i am not mistaken) (but anyways etc anyways etc anyways etc...) if i am not mistaken anyways etc, was 4 -->
 			<UnitCombatFreeExperiences>
 				<UnitCombatFreeExperience>
-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+					<iExperience>3</iExperience>
+				</UnitCombatFreeExperience>
+				<UnitCombatFreeExperience>
+					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
 					<iExperience>3</iExperience>
 				</UnitCombatFreeExperience>
 			</UnitCombatFreeExperiences>
