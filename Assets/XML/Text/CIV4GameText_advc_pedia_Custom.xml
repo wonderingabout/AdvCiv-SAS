@@ -90,7 +90,7 @@ hopefully more readable or exportable if need/want be now -->
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS</Tag>
-		<English>Against Classes (A|D), Combat Types (A+D)</English>
+		<English>Against Classes (A/D), Combat T. (A and D)</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS_NO_BUTTON_FOUND</Tag>
@@ -98,7 +98,7 @@ hopefully more readable or exportable if need/want be now -->
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_OF_OTHER_UNITS_MODIFIERS_AGAINST_THIS_UNIT</Tag>
-		<English>Of Other Classes's Units (A|D), Combat Types's Units (A+D)</English>
+		<English>Of Other Classes's Units (A/D), Combat Types's Units (A and D)</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_OF_OTHER_UNITS_MODIFIERS_AGAINST_THIS_UNIT_NO_BUTTON_FOUND</Tag>
