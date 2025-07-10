@@ -1236,25 +1236,19 @@ if not ARGV_NO_TESTING:
 			for leader, expected_data in expected.items():
 				actual_data = actual.get(leader)
 				if actual_data is None:
-					grouped_mismatches.setdefault(leader, []).append(
-						f"[{leader}] Leader is missing in parsed data."
-					)
+					grouped_mismatches.setdefault(leader, []).append(f"[{leader}] Leader is missing in parsed data.")
 					continue
 
 				# Check for field mismatches
 				for key, expected_value in expected_data.items():
 					actual_value = actual_data.get(key, "<MISSING>")
 					if actual_value != expected_value:
-						grouped_mismatches.setdefault(leader, []).append(
-							f"Field '{key}' mismatch: expected '{expected_value}', got '{actual_value}'"
-						)
+						grouped_mismatches.setdefault(leader, []).append(f"Field '{key}' mismatch: expected '{expected_value}', got '{actual_value}'")
 
 				# Check for unexpected extra fields
 				for key in actual_data.keys():
 					if key not in expected_data:
-						grouped_mismatches.setdefault(leader, []).append(
-							f"Unexpected extra field '{key}' present in parsed data (value: '{actual_data[key]}')"
-						)
+						grouped_mismatches.setdefault(leader, []).append(f"Unexpected extra field '{key}' present in parsed data (value: '{actual_data[key]}')")
 
 			return grouped_mismatches
 

@@ -198,9 +198,6 @@ class SevoPediaBuilding:
 		# <!-- custom: see sevopediaunit's self.W_TOTAL_EFFECTIVE_UNIT_PANE for differences in implementation anyways etc -->
 		self.W_TOTAL_EFFECTIVE_BUILDING_PANE = self.W_BUILDING_PANE
 
-		self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING = 8
-		self.HYPOTHESIZED_INTER_BUTTON_SPACING = 4
-
 		self.X_REQUIRES = self.X_BUILDING_PANE
 		self.Y_REQUIRES = self.Y_BUILDING_PANE + self.H_BUILDING_PANE + self.SMALL_MARGIN
 		self.W_REQUIRES = self.W_TOTAL_EFFECTIVE_BUILDING_PANE
@@ -665,7 +662,7 @@ class SevoPediaBuilding:
 				numFreeTxt = ""
 				xSubstractedAdjustment = int(0.91 * buttonSize)
 				xPanel = self.X_REQUIRES
-				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
 
 				# <!-- custom: (but) attach button right now -->
 				screen.attachImageButton( panelName, "", gc.getTechInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iPrereq, 1, False )
@@ -676,7 +673,7 @@ class SevoPediaBuilding:
 			numFreeTxt = ""
 			xSubstractedAdjustment = int(0.91 * buttonSize)
 			xPanel = self.X_REQUIRES
-			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
 
 			screen.attachImageButton( panelName, "", gc.getBonusInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iPrereq, -1, False )
 
@@ -687,7 +684,7 @@ class SevoPediaBuilding:
 				numFreeTxt = ""
 				xSubstractedAdjustment = int(0.91 * buttonSize)
 				xPanel = self.X_REQUIRES
-				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
 
 				screen.attachImageButton(panelName, "", gc.getBonusInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iPrereq, -1, False)
 
@@ -705,7 +702,7 @@ class SevoPediaBuilding:
 					numFreeTxt = ""
 					xSubstractedAdjustment = int(0.91 * buttonSize)
 					xPanel = self.X_REQUIRES
-					xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+					xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
 
 					screen.attachImageButton(panelName, "", gc.getBonusInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iPrereq, -1, False)
 
@@ -715,7 +712,7 @@ class SevoPediaBuilding:
 			numFreeTxt = ""
 			xSubstractedAdjustment = int(0.91 * buttonSize)
 			xPanel = self.X_REQUIRES
-			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
 
 			screen.attachImageButton(panelName, "", gc.getReligionInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iPrereq, -1, False)
 
@@ -735,7 +732,7 @@ class SevoPediaBuilding:
 					numFreeTxt = ""
 					xSubstractedAdjustment = int(0.91 * buttonSize)
 					xPanel = self.X_REQUIRES
-					xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+					xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
 					screen.attachImageButton(panelName, "", projectInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iProject, -1, False)
 
 					# Add "OR" text between projects
@@ -746,7 +743,7 @@ class SevoPediaBuilding:
 						numFreeTxt = localText.getText("TXT_KEY_OR", ())
 						xSubstractedAdjustment = int(1.27 * buttonSize)
 						xPanel = self.X_REQUIRES
-						xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+						xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
 
 					bFirst = False
 
@@ -769,7 +766,7 @@ class SevoPediaBuilding:
 					numFreeTxt = "InC"
 					xSubstractedAdjustment = int(0.75 * buttonSize)
 					xPanel = self.X_REQUIRES
-					xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+					xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
 
 					screen.attachImageButton(panelName, "", gc.getBuildingInfo(iDefaultBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefaultBuilding, -1, False)
 
@@ -791,7 +788,7 @@ class SevoPediaBuilding:
 					numFreeTxt = u"AllC %s+RM" % iNumRequired
 					xSubstractedAdjustment = int(1.19 * buttonSize)
 					xPanel = self.X_REQUIRES
-					xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+					xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
 
 					screen.attachImageButton(panelName, "", gc.getBuildingInfo(iDefaultBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefaultBuilding, -1, False)
 					
@@ -833,7 +830,7 @@ class SevoPediaBuilding:
 				numFreeTxt = "InC"
 				xSubstractedAdjustment = int(0.75 * buttonSize)
 				xPanel = self.X_REQUIRED_FOR
-				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
 
 				screen.attachImageButton(panelName, "", loopBuildingInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iLoopBuilding, -1, False)
 			
@@ -844,7 +841,7 @@ class SevoPediaBuilding:
 				numFreeTxt = u"AllC %s+RM" % iNumRequired
 				xSubstractedAdjustment = int(1.19 * buttonSize)
 				xPanel = self.X_REQUIRED_FOR
-				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
 
 				screen.attachImageButton(panelName, "", loopBuildingInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iLoopBuilding, -1, False)
 
@@ -918,7 +915,7 @@ class SevoPediaBuilding:
 			numFreeTxt = "All Un.C"
 			xSubstractedAdjustment = int(1.04 * buttonSize)
 			xPanel = self.X_FREE_PBBS
-			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
 
 			# <!-- custom: (but) attach button right now -->
 			screen.attachImageButton(panelName, "", gc.getPromotionInfo(iFreePromotion).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iFreePromotion, -1, False)
@@ -930,7 +927,7 @@ class SevoPediaBuilding:
 			numFreeTxt = "All Cs"
 			xSubstractedAdjustment = int(0.87 * buttonSize)
 			xPanel = self.X_FREE_PBBS
-			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
 
 			# Get the default building of this class for the current civilization
 			if self.top.iActivePlayer != -1:
@@ -964,7 +961,7 @@ class SevoPediaBuilding:
 				raise ValueError("[FATAL] Unexpected iNumFreeBonuses=%d value out of bounds iNumFreeBonuses == -1 or iNumFreeBonuses >=1, please verify the code and iNumFreeBonuses are behaving as intended and adjust this sevopedia code or/and your mod code based on this as you want/prefer anyways etc. Note: for info str(FreeBonus) (for display in this error message anyways etc)=%s anyways etc." % (iNumFreeBonuses, str(iFreeBonus)))
 			
 			xPanel = self.X_FREE_PBBS
-			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
 
 			# <!-- custom: (but) attach button right now -->
 			screen.attachImageButton(panelName, "", gc.getBonusInfo(iFreeBonus).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iFreeBonus, -1, False)
@@ -978,7 +975,7 @@ class SevoPediaBuilding:
 				numFreeTxt = u"%s" % (iSpecialistCount)
 				xSubstractedAdjustment = int(xSubstractedAdjustmentNums * buttonSize)
 				xPanel = self.X_FREE_PBBS
-				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
 
 				# <!-- custom: (but) attach button right now -->
 				screen.attachImageButton(panelName, "", gc.getSpecialistInfo(iSpecialist).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, iSpecialist, -1, False)

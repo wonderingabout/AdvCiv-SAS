@@ -207,25 +207,31 @@ class SevoPediaReligion:
 
 		# Create panel with proper styling
 		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_CATEGORY_LEADER", ()), "", False, True, self.X_LEADERS, self.Y_LEADERS, self.W_LEADERS, self.H_LEADERS, PanelStyles.PANEL_STYLE_BLUE50)
-		
+
+		# <!-- custom: note: this doesn't seem to do anything in multilist methods if i am not mistaken anyways etc and in particular no padding so do not use this here i mean for multilists i mean anyways etc anyways etc -->
+		# Additional left side padding for the button(s)
+		#screen.attachLabel(panelName, "", "  ")
+
 		# Create MultiList for leaders
 		rowListName = self.top.getNextWidgetName()
 		
-		# Constants for leader button display
-		BUTTON_SIZE = 64 # Size of each leader button
-		PADDING_X = 9
-		PADDING_Y = 36
-		
+		# Constants for button display
+		BUTTON_SIZE = 64 # Size of each button
+		PANEL_MULTILIST_OFFSET_X = 9
+		PANEL_MULTILIST_OFFSET_Y = 36
+		PANEL_MULTILIST_ADDITIONAL_W = -1 * (PANEL_MULTILIST_OFFSET_X * 2)
+		PANEL_MULTILIST_ADDITIONAL_H = -1 * (PANEL_MULTILIST_OFFSET_Y + 10)
+
 		# Create the MultiList control
 		# Per documentation, the numLists parameter (7th) is actually number of columns
 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
-		multiItemX = self.X_LEADERS + PADDING_X
-		multiItemY = self.Y_LEADERS + PADDING_Y
-		multiItemW = self.W_LEADERS - (PADDING_X * 2)
-		multiItemH = self.H_LEADERS - (PADDING_Y + 10)
+		multiListX = self.X_LEADERS + PANEL_MULTILIST_OFFSET_X
+		multiListY = self.Y_LEADERS + PANEL_MULTILIST_OFFSET_Y
+		multiListW = self.W_LEADERS + PANEL_MULTILIST_ADDITIONAL_W
+		multiListH = self.H_LEADERS + PANEL_MULTILIST_ADDITIONAL_H
 		# Using 1 for auto-calculation of buttons per row
 		buttonCalculate = 1
-		screen.addMultiListControlGFC(rowListName, "", multiItemX, multiItemY, multiItemW, multiItemH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		# Find all leaders who have this religion as favorite, <!-- custom: and --> add <!-- custom: them --> all to the list <!-- custom: anyways etc (not catch them all... or maybe.. or not or yes, anyways etc... xd anyways etc...) -->
 		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
@@ -234,7 +240,8 @@ class SevoPediaReligion:
 				LeaderInfo = gc.getLeaderHeadInfo(iLeader)
 				# Column index (always 0 when numLists=1)
 				columnIndex = 0
-				screen.appendMultiListButton(rowListName, LeaderInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, 1, False)
+				leaderButton = LeaderInfo.getButton()
+				screen.appendMultiListButton(rowListName, leaderButton, columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, 1, False)
 
 
 

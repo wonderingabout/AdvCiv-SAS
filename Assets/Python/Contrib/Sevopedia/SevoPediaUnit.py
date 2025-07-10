@@ -89,9 +89,6 @@ class SevoPediaUnit:
 		# <!-- custom: see sevopediabuilding's self.W_TOTAL_EFFECTIVE_BUILDING_PANE for differences in implementation anyways etc -->
 		self.W_TOTAL_EFFECTIVE_UNIT_PANE = self.W_UNIT_PANE + self.W_PROMO_PANE - self.W_MERGE_PANELS_EFFECT
 
-		self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING = 8
-		self.HYPOTHESIZED_INTER_BUTTON_SPACING = 4
-
 		self.X_REQUIRES = self.X_UNIT_PANE
 		self.Y_REQUIRES = self.Y_UNIT_PANE + self.H_UNIT_PANE + self.SMALL_MARGIN
 		self.W_REQUIRES = self.W_TOTAL_EFFECTIVE_UNIT_PANE
@@ -173,8 +170,9 @@ class SevoPediaUnit:
 		self.placeUnitAnimation()
 		self.placeReplace()
 		self.placeCivilizations()
-		# <!--  custom: moved self.placeSpecial() and self.placeHistory() calls after and from inside self.placeModifiersOfOtherUnitClassesCombatTypesAgainstThisUnit so that we make sure the height and Y position of their respective panels are adjusted if needed depending on how much self.placeModifiersOfOtherUnitClassesCombatTypesAgainstThisUnit needs for all its units (shrink/size down height + Y postion) them if self.placeModifiersOfOtherUnitClassesCombatTypesAgainstThisUnit needs more, else keep default, anyways etc) -->
 		self.placeModifiersOfOtherUnitClassesCombatTypesAgainstThisUnit()
+		self.placeSpecial()
+		self.placeHistory()
 
 
 
@@ -396,14 +394,7 @@ class SevoPediaUnit:
 			if unitInfo.getFreePromotions(iPromotion):
 				isButtonFound = True
 				# Attach promotion button
-				screen.attachImageButton(
-					panelName, "", 
-					gc.getPromotionInfo(iPromotion).getButton(), 
-					GenericButtonSizes.BUTTON_SIZE_CUSTOM, 
-					WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, 
-					iPromotion, -1, False
-				)
-		
+				screen.attachImageButton(panelName, "", gc.getPromotionInfo(iPromotion).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iPromotion, -1, False)
 
 		# If there's no <!-- custom: item --> to display, display "Nothing" <!-- custom: or similar anyways etc -->
 		if not isButtonFound:
@@ -419,7 +410,7 @@ class SevoPediaUnit:
 		addedOffset = 0
 		xSubstractedAdjustmentNumTxt = getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
 		xSubstractedAdjustment = int(xSubstractedAdjustmentNumTxt * buttonSize)
-		xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
+		xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
 
 
 
@@ -447,48 +438,92 @@ class SevoPediaUnit:
 		
 		# Create panel with proper styling
 		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS", ()), "", False, True, self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS, self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS, self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS, self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS, PanelStyles.PANEL_STYLE_BLUE50)
-		# Additional left side padding for the button(s)
-		screen.attachLabel(panelName, "", "  ")
-		
-		nCountOccurencesFound = 0
-		xNumsOrTextsFound = []
-		buttonSize = 64
+
+		# Create MultiList for class and combat buttons
+		rowListName = self.top.getNextWidgetName()
+
+		# <!-- custom: addMultiListControlGFC code from our existing implementation we successfully did for the sevopedia religion leaders panel if i may say but anyways etc anyways etc anyways etc -->
+		# Constants for button display
+		BUTTON_SIZE = 64 # Size of each button
+		PANEL_MULTILIST_OFFSET_X = 9
+		PANEL_MULTILIST_OFFSET_Y = 36
+		PANEL_MULTILIST_ADDITIONAL_W = -1 * (PANEL_MULTILIST_OFFSET_X * 2)
+		PANEL_MULTILIST_ADDITIONAL_H = -1 * (PANEL_MULTILIST_OFFSET_Y)
+
+		# Create the MultiList control
+		# Per documentation, the numLists parameter (7th) is actually number of columns
+		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+		multiListX = self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS + PANEL_MULTILIST_OFFSET_X
+		multiListY = self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS + PANEL_MULTILIST_OFFSET_Y
+		multiListW = self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS + PANEL_MULTILIST_ADDITIONAL_W
+		multiListH = self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS + PANEL_MULTILIST_ADDITIONAL_H
+		# Using 1 for auto-calculation of buttons per row
+		buttonCalculate = 1
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+
+		isButtonFound = False
+		iButtonIndex = 0
+
+		# <!--custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+		buttonsPerRow = get_max_occurences_found_buttons_per_row(self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS, BUTTON_SIZE)
 
 		# Get the unit info
 		unitInfo = gc.getUnitInfo(self.iUnit)
 		iUnitCombatType = unitInfo.getUnitCombatType()
 
-		# Check for UnitClassAttackMods <!-- custom: and UnitClassDefenseMods after this refactor with claude ai all in one go but anyways etc -->
-		for i in range(gc.getNumUnitClassInfos()):
+		for i in xrange(gc.getNumUnitClassInfos()):
 			# Check class-based modifiers (attack and defense)
 			iModAttack = unitInfo.getUnitClassAttackModifier(i)
 			iModDefense = unitInfo.getUnitClassDefenseModifier(i)
-			# Handle class modifiers with x/y format
-			numTxt = get_numTxt_attack_defense_modifiers(iModAttack, iModDefense)
 
 			if iModAttack != 0 or iModDefense != 0:
-				nCountOccurencesFound += 1
-				self.precompute_modifier_button_to_display(numTxt, self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS, nCountOccurencesFound, buttonSize, xNumsOrTextsFound)
-		
+				# Column index (always 0 when numLists=1)
+				columnIndex = 0
+				# <!-- custom: as highlighted by chatgpt and provided now after asked by me that/who noticed too i mean but anyways etc, the unit widget expects unit indexes, not unit class indexes, so fetching a corresponding index to this unit class index if i am not mistaken anyways etc ; then chatgpt also helped solve the unitClass button not displaying due to being generic now solved and with my help too and idea(s) if i may say but anyways etc -->
+				# Find a representative unit from this class
+				unitClassInfo = gc.getUnitClassInfo(i)
+				iRepresentativeUnit = unitClassInfo.getDefaultUnitIndex()
+				unitClassButton = gc.getUnitInfo(iRepresentativeUnit).getButton()
+				screen.appendMultiListButton(rowListName, unitClassButton, columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iRepresentativeUnit, 1, False)
+
+				# Handle class modifiers with x/y format
+				numTxt = get_numTxt_attack_defense_modifiers(iModAttack, iModDefense)
+				extraCorrectionX = get_x_extra_correction(numTxt)
+
+				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+
+				isButtonFound = True
+				iButtonIndex += 1
+
 		# Check for UnitCombatMods
 		# <!-- custom: we need to do this in a separate loop according to chatgpt as "i is a UnitClass index ; gc.getUnitCombatInfo(i) expects a UnitCombatTypes index" and indeed i don't know if this is the cause but we got an error when trying to refactor too aggressively with claude ai i mean but anyways etc the code (ignorantly perhaps of me but good to try or not or yes but anyways etc), so making sure i mean to have a separate loop for combat type modifiers if i am not mistaken in understanding this anyways etc -->
 		# Check for unit combat types that this unit belongs to
 		if iUnitCombatType != -1:  # Make sure this unit has a combat type
 			# Loop through all units to find those with UnitCombatMods against this combat type
-			for i in range(gc.getNumUnitCombatInfos()):
+			for i in xrange(gc.getNumUnitCombatInfos()):
 				iModCombat = unitInfo.getUnitCombatModifier(i)
-				numTxt = u"%+d%%" % (iModCombat)
 
 				if iModCombat != 0:
-					nCountOccurencesFound += 1
-					self.precompute_modifier_button_to_display(numTxt, self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS, nCountOccurencesFound, buttonSize, xNumsOrTextsFound)
-					
-					# Display the combat type button
-					screen.attachImageButton(panelName, "", gc.getUnitCombatInfo(i).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, i, -1, False)
-		
-		isButtonFound = (nCountOccurencesFound > 0)
-		txtKeyNoButtonFound = "TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS_NO_BUTTON_FOUND"
-		self.displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS, self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS, self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS, self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS)
+					isButtonFound = True
+					# Column index (always 0 when numLists=1)
+					columnIndex = 0
+					combatTypeButton = gc.getUnitCombatInfo(i).getButton()
+					# <!-- custom: switch to combat type categories instead using relevant widget instead as provided by claude ai after i prompted it and reflecting on it in this case anyways etc, our previous code was seemingly mistaken in this case but anyways etc -->
+					screen.appendMultiListButton(rowListName, combatTypeButton, columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, i, 1, False)
+
+					numTxt = get_numTxt_combat_type_modifiers(iModCombat)
+					extraCorrectionX = get_x_extra_correction(numTxt)
+
+					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+
+					isButtonFound = True
+					iButtonIndex += 1
+
+		if not isButtonFound:
+			yPanelCenter = self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS + (self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS / 2)
+			textName = self.top.getNextWidgetName()
+			szText = CyTranslator().getText("TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS_NO_BUTTON_FOUND", ())
+			screen.addMultilineText(textName, szText, self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS + 7, yPanelCenter, self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS - 14, self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -527,8 +562,6 @@ class SevoPediaUnit:
 				
 				# Display the specific unit button
 				screen.attachImageButton(panelName, "", otherUnitInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, i, -1, False)
-
-				# <!-- custom: avoid duplicate, if unit has an attack modifier, no need to check if it also has a defense modifier as well, we have displayed it already, don't redisplay it if i am not mistaken, anyways etc -->
 		
 		# Check for unit combat types that this unit belongs to
 		if iUnitCombatType != -1:  # Make sure this unit has a combat type
@@ -539,7 +572,7 @@ class SevoPediaUnit:
 				
 				if iModCombat != 0:
 					nCountOccurencesFound += 1
-					numTxt = u"%+d%%" % (iModCombat)  # Use %+d to always show the sign (+ or -)
+					numTxt = get_numTxt_combat_type_modifiers(iModCombat)
 					self.precompute_modifier_button_to_display(numTxt, self.X_OF_OTHER_UNITS_MODIFIERS, nCountOccurencesFound, buttonSize, xNumsOrTextsFound)
 					
 					# Display the specific unit button
@@ -549,9 +582,6 @@ class SevoPediaUnit:
 		txtKeyNoButtonFound = "TXT_KEY_PEDIA_OF_OTHER_UNITS_MODIFIERS_AGAINST_THIS_UNIT_NO_BUTTON_FOUND"
 		self.displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, self.X_OF_OTHER_UNITS_MODIFIERS, self.Y_OF_OTHER_UNITS_MODIFIERS, self.W_OF_OTHER_UNITS_MODIFIERS, self.H_OF_OTHER_UNITS_MODIFIERS)
 
-		# <!-- custom: after all is done, call self.placeSpecial and self.placeHistory from here inside this function i mean anyways etc so that we have adjusted values for their corresponding H and Y positions after placeModifiersOfOtherUnitClassesCombatTypesAgainstThisUnit has finished displaying its content and has also updated these H and Y positions if needed anyways etc, we make sure to not call the below functions too early if i may say this way as well anyways etc -->
-		self.placeSpecial()
-		self.placeHistory()
 
 
 	def placePeakHillCityTerrainsFeaturesModifiers(self):
@@ -669,7 +699,7 @@ class SevoPediaUnit:
 			
 			# Add text position to our list
 			xPanel = self.X_TERRAIN_FEATURE_CITY_BONUSES
-			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
+			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
 			
 			# Determine widget type based on the jumpType
 			widgetType = WidgetTypes.WIDGET_GENERAL

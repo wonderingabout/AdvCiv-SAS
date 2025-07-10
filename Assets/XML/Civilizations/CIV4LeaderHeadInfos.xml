@@ -28,7 +28,7 @@
 			<iCultureVictoryWeight>0</iCultureVictoryWeight>
 			<iSpaceVictoryWeight>0</iSpaceVictoryWeight>
 			<!-- custom: try to make barbarians more aggressive or conqueror like now that they have developped enough cities with many units to do so instead of keeping them too long in cities -->
-			<iConquestVictoryWeight>70</iConquestVictoryWeight>
+			<iConquestVictoryWeight>120</iConquestVictoryWeight>
 			<iDominationVictoryWeight>30</iDominationVictoryWeight>
 			<iDiplomacyVictoryWeight>0</iDiplomacyVictoryWeight>
 			<!-- BBAI Victory Strategy -->
@@ -49,7 +49,7 @@
 			- Update about this buildunitprob 100: it seems extremely effective no wonder at all in one autoplay ; and update 2 seems to always work perfectly in a few autoplays of 100-200 turns each anyways etc so maybe is good and safe to say it almost if not always works extremely well in preventing barbarians building wonders now anyways etc, and old spaghetti code was indeed useless for that i mean at least rather or not rather but thanks for doing it still if i assume it is old still thanks from the future self who (me i.e. anyways etc) read your code carefully crafted in the past thanks a lot, hopefully is even more polished and beautiful now, anyways etc ; , much less normal buildings too in barbarians but still the core palace we want, no lighthouse ever though even in naval cities, may tweak it bit but seems extremely promising, testing more to be sure, anyways etc
 			- This can probably be safely be reduced fine if it errs a bit by that i mean builing more buildings, eventually after completing them, most very fast, barbarian leader should turn back to war mode, is maybe also good to make sure barbarian leader doesn't skip the 1 hammer "free" buildings it has "right" to whatever that means, anyways etc. I would also want them to get their barbarian lighthouse and barbarian workboats too for example (and maybe workers too) if a (maybe) too high (or not or yes or not or yes or and other or and not anyways etc) (would) prevent that anyways etc, so reducing it a bit to see and test if i may say anyways etc
 			-->
-			<iBuildUnitProb>70</iBuildUnitProb>
+			<iBuildUnitProb>80</iBuildUnitProb>
 			<!-- custom: i want barbarians to be more cautious and calculating, they are not stupid and shouldn't be, but a bit adventurous too though maybe whatever that means or not or and other or and not anyways etc -->
 			<!-- advc.114d: was 0 -->
 			<iBaseAttackOddsChange>1</iBaseAttackOddsChange>

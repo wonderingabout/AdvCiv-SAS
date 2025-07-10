@@ -16,9 +16,7 @@ def progress_bar(score, width=10):
 	# - bar (str): ASCII string representing the progress bar.
 
 	filled_units = int(round((score / 100.0) * width))
-	return (
-		"|" + ("█" * filled_units) + ("-" * (width - filled_units)) + "| %d%%" % score
-	)
+	return ("|" + ("█" * filled_units) + ("-" * (width - filled_units)) + "| %d%%" % score)
 
 def run_tests():
 	print("--- Running crazy normalization tests ---")
@@ -35,19 +33,11 @@ def run_tests():
 
 	for name, value, min_val, max_val, invert in test_cases:
 		try:
-			final_score = normalize_to_100(
-				value, min_val, max_val, B_WARN, invert, attr_name=name
-			)
-			print(
-				"[PASS] %s: value=%d, min=%d, max=%d, invert=%s -> score=%d"
-				% (name, value, min_val, max_val, invert, final_score)
-			)
+			final_score = normalize_to_100(value, min_val, max_val, B_WARN, invert, attr_name=name)
+			print("[PASS] %s: value=%d, min=%d, max=%d, invert=%s -> score=%d" % (name, value, min_val, max_val, invert, final_score))
 			print(progress_bar(final_score))
 		except Exception as e:
-			print(
-				"[FAIL] %s: value=%d, min=%d, max=%d, invert=%s -> ERROR: %s"
-				% (name, value, min_val, max_val, invert, str(e))
-			)
+			print("[FAIL] %s: value=%d, min=%d, max=%d, invert=%s -> ERROR: %s" % (name, value, min_val, max_val, invert, str(e)))
 
 	print("--- Done! ---")
 

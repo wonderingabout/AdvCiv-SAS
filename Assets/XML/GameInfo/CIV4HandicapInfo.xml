@@ -526,7 +526,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
-			<iBarbarianDefenders>2</iBarbarianDefenders>
+			<iBarbarianDefenders>1</iBarbarianDefenders>
 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<iAIGrowthPercent>100</iAIGrowthPercent>
@@ -657,7 +657,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
-			<iBarbarianDefenders>2</iBarbarianDefenders>
+			<iBarbarianDefenders>1</iBarbarianDefenders>
 			<iAIDeclareWarProb>110</iAIDeclareWarProb>
 			<!-- advc.251: was 10 -->
 			<iAIWorkRateModifier>10</iAIWorkRateModifier>
@@ -1069,7 +1069,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.250e: was 1 -->
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
 			<!-- advc.250e: was 4 -->
-			<iBarbarianDefenders>3</iBarbarianDefenders>
+			<iBarbarianDefenders>2</iBarbarianDefenders>
 			<iAIDeclareWarProb>140</iAIDeclareWarProb>
 			<!-- advc.251: was 75 -->
 			<iAIWorkRateModifier>40</iAIWorkRateModifier>

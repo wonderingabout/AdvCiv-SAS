@@ -34,7 +34,7 @@ iBarbarianCityAttackBonus,,,,,0,0,0,0,0
 iBarbarianCityCreationProb,5,10,15,20,25,30,35,40,45
 iBarbarianCityCreationTurnsElapsed,46,44,42,40,38,36,34,32,30
 iBarbarianCreationTurnsElapsed,40,38,36,34,32,30,28,26,24
-iBarbarianDefenders,1,1,1,2,2,2,2,3,3
+iBarbarianDefenders,1,1,1,1,1,2,2,2,3
 iBaseGrowthThresholdPercent,85,90,95,100,105,110,115,120,125
 iBuildTimePercent,100,100,100,100,100,100,100,100,100
 iCivicUpkeepPercent,100,100,100,100,100,100,100,100,100

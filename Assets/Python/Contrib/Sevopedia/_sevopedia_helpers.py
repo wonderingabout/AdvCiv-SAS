@@ -1,3 +1,16 @@
+# <!-- custom: constants useful for numTxt under button placement in a grid-like manner anyways , i got the idea to move them here rather to enhance reuse and remove redundance thanks to chatgpt general comment about them hehe anyways etc thanks anyways etc thanks chatgpt etc anyways etc and me toot thanks anyways etc -->
+HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING = 9
+HYPOTHESIZED_INTER_BUTTON_SPACING = 4
+
+# <!-- custom: for multiline lists -->
+HYPOTHESIZED_MULTI_LIST_EDGE_PADDING = 9
+# <!-- custom: it seems the multilist method uses a smaller inter button lateral spacing than the non multilist one, so adjust as fit anyways etc -->
+HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING = 2
+# <!-- custom: note: below line not yet tested anyways etc -->
+HYPOTHESIZED_MULTI_LIST_INTER_LINE_VERTICAL_SPACING = 4
+
+
+
 def get_leaders_index_to_type_map(gc):
 	# Returns a dictionary mapping each leader index (int) to its string type (e.g., "LEADER_GANDHI").
 	# Excluded leaders (like BARBARIAN) must be filtered by caller if needed.
@@ -109,6 +122,12 @@ def check_images_as_buttons_paths_are_valid(txtKeyDict, localText):
 
 
 
+def get_max_occurences_found_buttons_per_row(panelWidth, buttonsize):
+	totalButtonWidth = buttonsize + HYPOTHESIZED_INTER_BUTTON_SPACING
+	return int((panelWidth - HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING) / totalButtonWidth)
+
+
+
 def get_numTxt_attack_defense_modifiers(iModAttack, iModDefense):
 	numTxt = None
 
@@ -117,15 +136,61 @@ def get_numTxt_attack_defense_modifiers(iModAttack, iModDefense):
 	if iModAttack != 0 or iModDefense != 0:
 		if iModAttack != 0 and iModDefense != 0:
 			# Both attack and defense: x/y format
-			return u"%+d/%+d" % (iModAttack, iModDefense)
+			return "%+d/%+d" % (iModAttack, iModDefense)
 		elif iModAttack != 0:
 			# Only attack: x/* format
-			return u"%+d/_" % (iModAttack)
+			return "%+d/_" % (iModAttack)
 		elif iModDefense != 0:
 			# Only defense: */y format
-			return u"_/%+d" % (iModDefense)
+			return "_/%+d" % (iModDefense)
 	
 	return numTxt
+
+
+
+def get_numTxt_combat_type_modifiers(iModCombat):
+	return "%+d%%" % iModCombat
+
+
+
+def get_x_extra_correction(numTxt):
+	if len(numTxt) < 3:
+		return -3
+	elif len(numTxt) == 3:
+		return -4
+	elif len(numTxt) == 4:
+		# <!-- custom: example "+50%" -->
+		return -5
+	elif len(numTxt) == 5:
+		# <!-- custom: example "+50/_", "+100%", etc -->
+		return -6
+	elif len(numTxt) == 6:
+		return -7
+	else:
+		# <!-- custom: example "+25/+25" -->
+		return -8
+
+
+
+def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, button_size, buttonsPerRow, numTxt, screen, selfTop, widgetType, font):
+	textName = selfTop.getNextWidgetName()
+	buttonColumn = iButtonIndex % buttonsPerRow
+	buttonRow = iButtonIndex // buttonsPerRow
+
+	# <!-- custom: note: since we start at 0 in this nice system chatgpt and claude ai if i may say helped me design and adjust but anyways etc and that i did myself too if i may say but anyways etc anyways etc anyways etc, we don't need to handle the 1th no spacing with next item of the list, as anything multilied by 0 negates spacing, this applies to both column and row calculation(s) if i am not mistaken but or not but but anyways etc anyways etc anyways etc ; however we just add a X correction to start not at leftmost part of the button anyways but instead at center/middle of button to place our first and onwards numTxT anyways etc -->
+	startAtMiddleOfButtonCorrectionX = +1 * (int(button_size / 2))
+
+	# <!-- custom: note: in this code, it seems we are still slightly off vs an ideally centered label, i don't know what the exact cause is, but maybe we can use this as a parameter to control more precisely label positioning based on/depending on anyways etc numTxt and such as we prefer (center more or less aggressively depending on whether numTxt is expected to be long (like "+25/+100" for example) vs short (for example anyways etc "+25%") if i am not mistaken in trying it as such anyways etc, so we add a tiny bit of in this case if i may say anyways etc extra x correction (extraCorrectionX) anyways etc etc -->
+	textX = multiListX + HYPOTHESIZED_MULTI_LIST_EDGE_PADDING + startAtMiddleOfButtonCorrectionX + extraCorrectionX + ((buttonColumn - 1) * button_size) + ((buttonColumn - 1) * HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
+
+	# <!-- custom: similarly to extraCorrectionX, we are slightly off for some reason here so adjust Y position of the numTxt multine text i mean anyways etc, but since this is the same for all buttons unlike in extraCorrectionX (i.e. regardless of numTxt length anyways etc), then it is fine i think anyways etc to hardcode it here for convenience and efficiency anyways etc at least i want to do so hopefully convenient or/and helpful or not or yes or etc anyways etc to do so i mean anyways etc -->
+	extraCorrectionY = -9
+	textY = multiListY + button_size + extraCorrectionY + (buttonRow * button_size) + (buttonRow * HYPOTHESIZED_MULTI_LIST_INTER_LINE_VERTICAL_SPACING)
+
+	textW = 2 * button_size
+	textH = 30
+
+	screen.addMultilineText(textName, numTxt, textX, textY, textW, textH, widgetType, -1, -1, font)
 
 
 
