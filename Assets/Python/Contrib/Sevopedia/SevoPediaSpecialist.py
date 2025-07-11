@@ -85,10 +85,7 @@ class SevoPediaSpecialist:
 		textName = self.top.getNextWidgetName()
 		szText = u""
 		szText = gc.getSpecialistInfo(self.iSpecialist).getCivilopedia()
-		# <!-- custom: use a method that allows us to use padding instead (unless i'm
-		# mistaken about how it works), similarly to how was done in SevoPediaCivic.py's
-		# placeText
-		# -->
+		# <!-- custom: use a method that allows us to use padding instead (unless i'm mistaken about how it works), similarly to how was done in SevoPediaCivic.py's placeText -->
 		#screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.addMultilineText(textName, szText, self.X_TEXT + 7 , self.Y_TEXT + 10 - 20, self.W_TEXT - (15 * 2), self.H_TEXT - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 

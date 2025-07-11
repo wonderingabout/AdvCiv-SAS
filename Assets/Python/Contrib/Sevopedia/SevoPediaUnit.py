@@ -51,12 +51,7 @@ class SevoPediaUnit:
 		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code anyways etc) and modified it and its logic for advciv-sas or not or yes or and other things or and not anyways etc -->
 		self.ICON_SIZE = 64
 		self.ICON_FRAME_SIZE = 164
-		self.MAX_ICON_FRAME_SIZE = 164
-
-		if (self.ICON_SIZE > self.ICON_FRAME_SIZE):
-			raise ValueError(u"[FATAL] self.ICON_SIZE=%d cannot be bigger/higher than self.ICON_FRAME_SIZE=%d, self.ICON_SIZE must fit within the frame, please adjust self.ICON_SIZE or/and self.ICON_FRAME_SIZE so that 0 < self.ICON_SIZE < self.ICON_FRAME_SIZE" % (self.ICON_SIZE, self.ICON_FRAME_SIZE))
-		if (self.ICON_FRAME_SIZE > self.MAX_ICON_FRAME_SIZE):
-			raise ValueError(u"[FATAL] Out of bounds self.ICON_FRAME_SIZE=%d, must be lower than  cannot be bigger/higher than self.MAX_ICON_FRAME_SIZE=%d, please reduce self.ICON_FRAME_SIZE so that 0 < self.ICON_FRAME_SIZE < self.MAX_ICON_FRAME_SIZE" % (self.ICON_FRAME_SIZE, self.MAX_ICON_FRAME_SIZE))
+		check_icon_size_fits_within_icon_frame_size(self.ICON_SIZE, self.ICON_FRAME_SIZE)
 
 		self.W_ICON = self.ICON_SIZE
 		self.H_ICON = self.ICON_SIZE
@@ -99,10 +94,10 @@ class SevoPediaUnit:
 		self.W_UPGRADES_TO = ((self.W_TOTAL_EFFECTIVE_UNIT_PANE - self.MEDIUM_MARGIN)/ 2) 
 		self.H_UPGRADES_TO = self.H_REQUIRES
 
-		self.X_FREE = self.X_UPGRADES_TO + self.W_UPGRADES_TO + self.MEDIUM_MARGIN
-		self.Y_FREE = self.Y_UPGRADES_TO
-		self.W_FREE = self.W_UPGRADES_TO
-		self.H_FREE = self.H_UPGRADES_TO
+		self.X_FREE_PROMOTIONS = self.X_UPGRADES_TO + self.W_UPGRADES_TO + self.MEDIUM_MARGIN
+		self.Y_FREE_PROMOTIONS = self.Y_UPGRADES_TO
+		self.W_FREE_PROMOTIONS = self.W_UPGRADES_TO
+		self.H_FREE_PROMOTIONS = self.H_UPGRADES_TO
 
 		self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.X_UNIT_PANE
 		self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.Y_UPGRADES_TO + self.H_UPGRADES_TO + self.SMALL_MARGIN
@@ -197,7 +192,7 @@ class SevoPediaUnit:
 		panelName = self.top.getNextWidgetName()
 		iCombatType = gc.getUnitInfo(self.iUnit).getUnitCombatType()
 
-		if (iCombatType != -1):
+		if iCombatType != -1:
 			screen.setImageButton(self.top.getNextWidgetName(), gc.getUnitCombatInfo(iCombatType).getButton(), self.X_STATS_PANE, self.Y_STATS_PANE - 35, 32, 32, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iCombatType, 0)
 			screen.setText(self.top.getNextWidgetName(), "", u"<font=3>" + gc.getUnitCombatInfo(iCombatType).getDescription() + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_STATS_PANE + 37, self.Y_STATS_PANE - 30, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iCombatType, 0)
 
@@ -257,29 +252,29 @@ class SevoPediaUnit:
 		screen.attachLabel(panelName, "", "  ")
 
 		iPrereq = gc.getUnitInfo(self.iUnit).getPrereqAndTech()
-		if (iPrereq >= 0):
+		if iPrereq >= 0:
 			screen.attachImageButton(panelName, "", gc.getTechInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iPrereq, 1, False)
 		for j in range(gc.getDefineINT("NUM_UNIT_AND_TECH_PREREQS")):
 			iPrereq = gc.getUnitInfo(self.iUnit).getPrereqAndTechs(j)
-			if (iPrereq >= 0):
+			if iPrereq >= 0:
 				screen.attachImageButton(panelName, "", gc.getTechInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iPrereq, -1, False)
 		bFirst = True
 
 		iPrereq = gc.getUnitInfo(self.iUnit).getPrereqAndBonus()
-		if (iPrereq >= 0):
+		if iPrereq >= 0:
 			bFirst = False
 			screen.attachImageButton(panelName, "", gc.getBonusInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iPrereq, -1, False)
 		nOr = 0
 		for j in range(gc.getNUM_UNIT_PREREQ_OR_BONUSES()):
-			if (gc.getUnitInfo(self.iUnit).getPrereqOrBonuses(j) > -1):
+			if gc.getUnitInfo(self.iUnit).getPrereqOrBonuses(j) > -1:
 				nOr += 1
 		szLeftDelimeter = ""
 		szRightDelimeter = ""
-		if (not bFirst):
-			if (nOr > 1):
+		if not bFirst:
+			if nOr > 1:
 				szLeftDelimeter = localText.getText("TXT_KEY_AND", ()) + "("
 				szRightDelimeter = ") "
-			elif (nOr > 0):
+			elif nOr > 0:
 				szLeftDelimeter = localText.getText("TXT_KEY_AND", ())
 		if len(szLeftDelimeter) > 0:
 			screen.attachLabel(panelName, "", szLeftDelimeter)
@@ -287,8 +282,8 @@ class SevoPediaUnit:
 
 		for j in range(gc.getNUM_UNIT_PREREQ_OR_BONUSES()):
 			eBonus = gc.getUnitInfo(self.iUnit).getPrereqOrBonuses(j)
-			if (eBonus > -1):
-				if (not bFirst):
+			if eBonus > -1:
+				if not bFirst:
 					screen.attachLabel(panelName, "", localText.getText("TXT_KEY_OR", ()))
 				else:
 					bFirst = False
@@ -297,12 +292,12 @@ class SevoPediaUnit:
 			screen.attachLabel(panelName, "", szRightDelimeter)
 
 		iPrereq = gc.getUnitInfo(self.iUnit).getPrereqReligion()
-		if (iPrereq >= 0):
+		if iPrereq >= 0:
 			# <!-- custom: fix base advciv bug, replace WidgetTypes.WIDGET_HELP_RELIGION with WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION as is done already by base advciv and successfully in sevopedia building, anyways etc -->
 			screen.attachImageButton(panelName, "", gc.getReligionInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iPrereq, -1, False)
 
 		iPrereq = gc.getUnitInfo(self.iUnit).getPrereqBuilding()
-		if (iPrereq >= 0):
+		if iPrereq >= 0:
 			screen.attachImageButton(panelName, "", gc.getBuildingInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iPrereq, -1, False)
 		
 		# Project requirements - New code for Manhattan Project and other projects
@@ -311,7 +306,7 @@ class SevoPediaUnit:
 		# Find projects that require this special unit type
 		projectsRequired = []
 		# Check all projects to see if any enables this special unit
-		if (iSpecialUnitType >= 0):
+		if iSpecialUnitType >= 0:
 			for iProject in range(gc.getNumProjectInfos()):
 				projectInfo = gc.getProjectInfo(iProject)
 				if projectInfo.getEveryoneSpecialUnit() == iSpecialUnitType:
@@ -339,11 +334,16 @@ class SevoPediaUnit:
 
 
 	def placeUpgradesTo(self):
+		xPanel = self.X_UPGRADES_TO
+		yPanel = self.Y_UPGRADES_TO
+		wPanel = self.W_UPGRADES_TO
+		hPanel = self.H_UPGRADES_TO
+
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 
 		# Create panel with proper styling
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_UPGRADES_TO", ()), "", False, True, self.X_UPGRADES_TO, self.Y_UPGRADES_TO, self.W_UPGRADES_TO, self.H_UPGRADES_TO, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_UPGRADES_TO", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 		# <!-- custom: additionnal left side padding for the button(s) -->
 		screen.attachLabel(panelName, "", "  ")
 
@@ -366,21 +366,27 @@ class SevoPediaUnit:
 				screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, eLoopUnit, 1, False)
 
 
-		# If there's no <!-- custom: item --> to display, display "Nothing" <!-- custom: or similar anyways etc -->
+
 		if not isButtonFound:
+			txtKey = "TXT_KEY_PEDIA_UPGRADES_TO_NO_BUTTON_FOUND"
 			textName = self.top.getNextWidgetName()
-			szText = CyTranslator().getText("TXT_KEY_PEDIA_UPGRADES_TO_NO_BUTTON_FOUND", ())
-			yCenterPanel = self.Y_UPGRADES_TO + (self.H_UPGRADES_TO / 2)
-			screen.addMultilineText(textName, szText, self.X_UPGRADES_TO + 7, yCenterPanel, self.W_UPGRADES_TO - 14, self.H_UPGRADES_TO - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			szText = CyTranslator().getText(txtKey, ())
+			yPanelCenter = yPanel + (hPanel / 2)
+			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
 	def placeFreePromotions(self):
+		xPanel = self.X_FREE_PROMOTIONS
+		yPanel = self.Y_FREE_PROMOTIONS
+		wPanel = self.W_FREE_PROMOTIONS
+		hPanel = self.H_FREE_PROMOTIONS
+
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		
 		# Create panel with proper styling
-		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_FREE_PROMOTIONS", ()), "", False, True, self.X_FREE, self.Y_FREE, self.W_FREE, self.H_FREE, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_FREE_PROMOTIONS", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 		# Additional left side padding for the button(s)
 		screen.attachLabel(panelName, "", "  ")
 		
@@ -396,12 +402,12 @@ class SevoPediaUnit:
 				# Attach promotion button
 				screen.attachImageButton(panelName, "", gc.getPromotionInfo(iPromotion).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iPromotion, -1, False)
 
-		# If there's no <!-- custom: item --> to display, display "Nothing" <!-- custom: or similar anyways etc -->
 		if not isButtonFound:
+			txtKey = "TXT_KEY_PEDIA_FREE_PROMOTIONS_NO_BUTTON_FOUND"
 			textName = self.top.getNextWidgetName()
-			szText = CyTranslator().getText("TXT_KEY_PEDIA_FREE_PROMOTIONS_NO_BUTTON_FOUND", ())
-			yCenterPanel = self.Y_FREE + (self.H_FREE / 2)
-			screen.addMultilineText(textName, szText, self.X_FREE + 7, yCenterPanel, self.W_FREE - 14, self.H_FREE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			szText = CyTranslator().getText(txtKey, ())
+			yPanelCenter = yPanel + (hPanel / 2)
+			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -433,11 +439,16 @@ class SevoPediaUnit:
 
 
 	def placeModifiersOfThisUnitAgainstOtherUnitClassesCombatTypes(self):
+		xPanel = self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS
+		yPanel = self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS
+		wPanel = self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS
+		hPanel = self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS
+
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		
 		# Create panel with proper styling
-		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS", ()), "", False, True, self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS, self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS, self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS, self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 
 		# Create MultiList for class and combat buttons
 		rowListName = self.top.getNextWidgetName()
@@ -453,10 +464,10 @@ class SevoPediaUnit:
 		# Create the MultiList control
 		# Per documentation, the numLists parameter (7th) is actually number of columns
 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
-		multiListX = self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS + PANEL_MULTILIST_OFFSET_X
-		multiListY = self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS + PANEL_MULTILIST_OFFSET_Y
-		multiListW = self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS + PANEL_MULTILIST_ADDITIONAL_W
-		multiListH = self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS + PANEL_MULTILIST_ADDITIONAL_H
+		multiListX = xPanel + PANEL_MULTILIST_OFFSET_X
+		multiListY = yPanel + PANEL_MULTILIST_OFFSET_Y
+		multiListW = wPanel + PANEL_MULTILIST_ADDITIONAL_W
+		multiListH = hPanel + PANEL_MULTILIST_ADDITIONAL_H
 		# Using 1 for auto-calculation of buttons per row
 		buttonCalculate = 1
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
@@ -465,7 +476,7 @@ class SevoPediaUnit:
 		iButtonIndex = 0
 
 		# <!--custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
-		buttonsPerRow = get_max_occurences_found_buttons_per_row(self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS, BUTTON_SIZE)
+		buttonsPerRow = get_max_occurences_found_buttons_per_row(wPanel, BUTTON_SIZE)
 
 		# Get the unit info
 		unitInfo = gc.getUnitInfo(self.iUnit)
@@ -483,13 +494,11 @@ class SevoPediaUnit:
 				# Find a representative unit from this class
 				unitClassInfo = gc.getUnitClassInfo(i)
 				iRepresentativeUnit = unitClassInfo.getDefaultUnitIndex()
-				unitClassButton = gc.getUnitInfo(iRepresentativeUnit).getButton()
-				screen.appendMultiListButton(rowListName, unitClassButton, columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iRepresentativeUnit, 1, False)
+				screen.appendMultiListButton(rowListName, gc.getUnitInfo(iRepresentativeUnit).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iRepresentativeUnit, 1, False)
 
 				# Handle class modifiers with x/y format
 				numTxt = get_numTxt_attack_defense_modifiers(iModAttack, iModDefense)
-				extraCorrectionX = get_x_extra_correction(numTxt)
-
+				extraCorrectionX = get_extra_correction_x(numTxt)
 				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
 				isButtonFound = True
@@ -507,23 +516,22 @@ class SevoPediaUnit:
 					isButtonFound = True
 					# Column index (always 0 when numLists=1)
 					columnIndex = 0
-					combatTypeButton = gc.getUnitCombatInfo(i).getButton()
 					# <!-- custom: switch to combat type categories instead using relevant widget instead as provided by claude ai after i prompted it and reflecting on it in this case anyways etc, our previous code was seemingly mistaken in this case but anyways etc -->
-					screen.appendMultiListButton(rowListName, combatTypeButton, columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, i, 1, False)
+					screen.appendMultiListButton(rowListName, gc.getUnitCombatInfo(i).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, i, 1, False)
 
 					numTxt = get_numTxt_combat_type_modifiers(iModCombat)
-					extraCorrectionX = get_x_extra_correction(numTxt)
-
+					extraCorrectionX = get_extra_correction_x(numTxt)
 					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
 					isButtonFound = True
 					iButtonIndex += 1
 
 		if not isButtonFound:
-			yPanelCenter = self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS + (self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS / 2)
+			txtKey = "TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS_NO_BUTTON_FOUND"
 			textName = self.top.getNextWidgetName()
-			szText = CyTranslator().getText("TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS_NO_BUTTON_FOUND", ())
-			screen.addMultilineText(textName, szText, self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS + 7, yPanelCenter, self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS - 14, self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			szText = CyTranslator().getText(txtKey, ())
+			yPanelCenter = yPanel + (hPanel / 2)
+			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -745,6 +753,11 @@ class SevoPediaUnit:
 
 
 	def placeReplace(self):
+		xPanel = self.X_REPLACE
+		yPanel = self.Y_REPLACE
+		wPanel = self.W_REPLACE
+		hPanel = self.H_REPLACE
+
 		screen = self.top.getScreen()
 		panel = self.top.getNextWidgetName()
 
@@ -760,7 +773,7 @@ class SevoPediaUnit:
 			panelTxtKey = "TXT_KEY_PEDIA_REPLACE_REPLACED_BY_CUSTOM"
 
 		# Create panel with proper styling
-		screen.addPanel(panel, CyTranslator().getText(panelTxtKey, ()), "", False, True, self.X_REPLACE, self.Y_REPLACE, self.W_REPLACE, self.H_REPLACE, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panel, CyTranslator().getText(panelTxtKey, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 		# <!-- custom: additionnal left side padding for the button(s) -->
 		screen.attachLabel(panel, "", "  ")
 
@@ -782,11 +795,11 @@ class SevoPediaUnit:
 						screen.attachImageButton(panel, "", gc.getUnitInfo(iUnit).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 
 		if not isButtonFound:
-			## If there's no replace (replaced by or/nor replaces anyways etc), display "Nothing" or similar anyways etc
+			txtKey = "TXT_KEY_PEDIA_REPLACE_NO_BUTTON_FOUND"
 			textName = self.top.getNextWidgetName()
-			szText = CyTranslator().getText("TXT_KEY_PEDIA_REPLACE_NO_BUTTON_FOUND", ())
-			yCenterPanel = self.Y_REPLACE + (self.H_REPLACE / 2)
-			screen.addMultilineText(textName, szText, self.X_REPLACE + 7, yCenterPanel, self.W_REPLACE - 14, self.H_REPLACE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			szText = CyTranslator().getText(txtKey, ())
+			yPanelCenter = yPanel + (hPanel / 2)
+			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

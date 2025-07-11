@@ -172,8 +172,7 @@ class SevoPediaCivilization:
 		# <!-- custom: also adding textName (see SevoPediaCivic.py for details) -->
 		textName = self.top.getNextWidgetName()
 		szText = gc.getCivilizationInfo(self.iCivilization).getCivilopedia()
-		# <!-- custom: similar fix as in placeText of SevoPediCivic.py, choosing a more advanced function that also allows padding, and adding padding,
-		# if i am not mistaken about all these elements, see SevoPediaCivic.py for potentially additional information -->
+		# <!-- custom: similar fix as in placeText of SevoPediCivic.py, choosing a more advanced function that also allows padding, and adding padding, if i am not mistaken about all these elements, see SevoPediaCivic.py for potentially additional information -->
 		# screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.addMultilineText(textName, szText, self.X_TEXT + 7 , self.Y_TEXT + 10, self.W_TEXT - (15 * 2), self.H_TEXT - (15 * 2) - 25 + 29, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 

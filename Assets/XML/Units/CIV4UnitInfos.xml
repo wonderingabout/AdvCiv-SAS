@@ -12220,7 +12220,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<!-- custom: add marines as an upgrade now of the ww1 infantry anyways etc, and remove defensive gun unit path (so here the UNITCLASS_SAM_INFANTRY if i am not mistaken anyways etc) from this seemingly offensive type of unit if i am not mistaken anyways etc, this should mostly help the AI so they don't waste their precious infantry units just to build SAM if i am not mistaken, even though i never played so late into the game i assume it's how it would go and that SAM is generally quite bad (at least the ground foot first sam unit anyways etc or/and much less valuable than foot gun infantry if i may say if i am not mistaken anyways etc, may also be fine for human players if they don't want a sam from an infantry as well but anyways etc), was UNITCLASS_SAM_INFANTRY and UNITCLASS_MECHANIZED_INFANTRY -->
 			<UnitClassUpgrades>
 				<UnitClassUpgrade>
-					<UnitClassUpgradeType>UNITCLASS_MARINE</UnitClassUpgradeType>
+					<UnitClassUpgradeType>UNITCLASS_MODERN_INFANTRY</UnitClassUpgradeType>
 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
 				</UnitClassUpgrade>
 				<UnitClassUpgrade>
@@ -12735,9 +12735,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_MARINE, type: UNIT_MARINE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<Class>UNITCLASS_MARINE</Class>
-			<Type>UNIT_MARINE</Type>
+		<UnitInfo> <!-- custom: class: UNITCLASS_MODERN_INFANTRY, type: UNIT_MODERN_INFANTRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<Class>UNITCLASS_MODERN_INFANTRY</Class>
+			<Type>UNIT_MODERN_INFANTRY</Type>
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
@@ -12746,9 +12746,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
-			<Description>TXT_KEY_UNIT_MARINE</Description>
-			<Civilopedia>TXT_KEY_UNIT_MARINE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_MARINE_STRATEGY</Strategy>
+			<Description>TXT_KEY_UNIT_MODERN_INFANTRY</Description>
+			<Civilopedia>TXT_KEY_UNIT_MODERN_INFANTRY_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -12820,9 +12820,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
+			<!-- custom: was tech_industrialism and tech_types tech_rifling -->
 			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
 			<TechTypes>
-				<PrereqTech>TECH_RIFLING</PrereqTech>
+				<PrereqTech>TECH_FASCISM</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
@@ -12923,7 +12924,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				<iRangedWaveSize>0</iRangedWaveSize>
 				<UnitMeshGroup>
 					<iRequired>3</iRequired>
-					<EarlyArtDefineTag>ART_DEF_UNIT_MARINE</EarlyArtDefineTag>
+					<EarlyArtDefineTag>ART_DEF_UNIT_MODERN_INFANTRY</EarlyArtDefineTag>
 				</UnitMeshGroup>
 			</UnitMeshGroups>
 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
@@ -12932,9 +12933,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
+			<!-- custom: was PROMOTION_AMPHIBIOUS -->
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_AMPHIBIOUS</PromotionType>
+					<PromotionType>PROMOTION_FIRST_STRIKE1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>

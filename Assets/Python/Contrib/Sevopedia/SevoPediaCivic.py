@@ -117,22 +117,14 @@ class SevoPediaCivic:
 	def placeText(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need
-		# the redundant background
-		# -->
+		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need the redundant background -->
 		# advc.004y: Label added for this panel
 		#screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.addPanel(panelName, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
-		# <!-- custom: also adding textName (same as in the placeHistory
-		# functions of other files, such as SevoPediaUnit.py, see those
-		# for details or more accurate or not information
-		# -->
+		# <!-- custom: also adding textName (same as in the placeHistory functions of other files, such as SevoPediaUnit.py, see those for details or more accurate or not information -->
 		textName = self.top.getNextWidgetName()
 		szText = u""
-		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY
-		# in SevoPediaBuilding.py (refer to this file for details),
-		# removing (hiding) the entry entirely from the sevopedia.
-		# -->
+		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY in SevoPediaBuilding.py (refer to this file for details), removing (hiding) the entry entirely from the sevopedia. -->
 		#if len(gc.getCivicInfo(self.iCivic).getStrategy()) > 0:
 		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
 		#	szText += gc.getCivicInfo(self.iCivic).getStrategy()
@@ -152,9 +144,7 @@ class SevoPediaCivic:
 		#		szText += u"\n\t"
 		#		szText += szChanges
 		#szText += u"\n\n"
-		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need
-		# the redundant background
-		# -->
+		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need the redundant background -->
 		#szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
 		szText += gc.getCivicInfo(self.iCivic).getCivilopedia()
 		# </advc.004y>

@@ -360,14 +360,6 @@
 
 
 
-	<!-- custom: rename "_PERIA_IMMORTAL" to "_PERSIA_IMMORTAL" -->
-	<TEXT>
-		<Tag>TXT_KEY_UNIT_PERSIA_IMMORTAL</Tag>
-		<English>Immortal</English>
-	</TEXT>
-
-
-
 	<!-- custom: add new camel units anyways etc -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_CAMEL_ARCHER</Tag>
@@ -399,9 +391,10 @@
 
 
 
+	<!-- custom: rename "_PERIA_IMMORTAL" to "_PERSIA_IMMORTAL" -->
 	<TEXT>
-		<Tag>TXT_KEY_UNIT_USA_PATRIOT</Tag>
-		<English>Patriot</English>
+		<Tag>TXT_KEY_UNIT_PERSIA_IMMORTAL</Tag>
+		<English>Immortal</English>
 	</TEXT>
 
 
@@ -409,6 +402,21 @@
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_DUTCH_SWIFT_WORKER</Tag>
 		<English>Swift Worker</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_USA_PATRIOT</Tag>
+		<English>Patriot</English>
+	</TEXT>
+
+
+
+	<!-- custom: rename "_MARINE" (unit) to "_MODERN_INFANTRY" -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_MODERN_INFANTRY</Tag>
+		<English>Modern Infantry</English>
 	</TEXT>
 
 
@@ -553,6 +561,11 @@
 
 
 
+	<!-- custom: rename "Gunpowder Units" to "Gun units" to encompass if i may say anyways etc all kind of gun units not just the early ones that use gunpowder if i am not mistaken anyways etc ; from quick google at https://easyshottargets.com/blogs/news/do-guns-still-use-gunpowder#:~:text=Modern%20firearms%2C%20such%20as%20rifles,the%20older%20type%20of%20gunpowder. it seems gunpowder is no longer used in modern guns but an alternative kind of or sort of anyways etc smokeless powder instead anyways etc if i am not mistaken based on this website anyways etc and didn't check further but maybe is accurate or maybe not or maybe is but anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_GUN</Tag>
+		<English>Gun Units</English>
+	</TEXT>
 
 	<TEXT>
 		<Tag>TXT_KEY_PROMOTION_MEDIC1</Tag>

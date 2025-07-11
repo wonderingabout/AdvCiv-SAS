@@ -20,6 +20,8 @@ import CvUtil
 #import ScreenInput
 #import SevoScreenEnums
 
+from _sevopedia_helpers import check_icon_size_fits_within_icon_frame_size
+
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
@@ -43,12 +45,7 @@ class SevoPediaBonus:
 		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code anyways etc) and modified it and its logic for advciv-sas or not or yes or and other things or and not anyways etc -->
 		self.ICON_SIZE = 64
 		self.ICON_FRAME_SIZE = 164
-		self.MAX_ICON_FRAME_SIZE = 164
-
-		if (self.ICON_SIZE > self.ICON_FRAME_SIZE):
-			raise ValueError(u"[FATAL] self.ICON_SIZE=%d cannot be bigger/higher than self.ICON_FRAME_SIZE=%d, self.ICON_SIZE must fit within the frame, please adjust self.ICON_SIZE or/and self.ICON_FRAME_SIZE so that 0 < self.ICON_SIZE < self.ICON_FRAME_SIZE" % (self.ICON_SIZE, self.ICON_FRAME_SIZE))
-		if (self.ICON_FRAME_SIZE > self.MAX_ICON_FRAME_SIZE):
-			raise ValueError(u"[FATAL] Out of bounds self.ICON_FRAME_SIZE=%d, must be lower than  cannot be bigger/higher than self.MAX_ICON_FRAME_SIZE=%d, please reduce self.ICON_FRAME_SIZE so that 0 < self.ICON_FRAME_SIZE < self.MAX_ICON_FRAME_SIZE" % (self.ICON_FRAME_SIZE, self.MAX_ICON_FRAME_SIZE))
+		check_icon_size_fits_within_icon_frame_size(self.ICON_SIZE, self.ICON_FRAME_SIZE)
 
 		self.W_ICON = self.ICON_SIZE
 		self.H_ICON = self.ICON_SIZE
@@ -172,8 +169,8 @@ class SevoPediaBonus:
 
 		for k in range(YieldTypes.NUM_YIELD_TYPES):
 			iYieldChange = gc.getBonusInfo(self.iBonus).getYieldChange(k)
-			if (iYieldChange != 0):
-				if (iYieldChange > 0):
+			if iYieldChange != 0:
+				if iYieldChange > 0:
 					sign = "+"
 				else:
 					sign = ""
@@ -219,21 +216,21 @@ class SevoPediaBonus:
 			bEffect = False
 			for k in range(YieldTypes.NUM_YIELD_TYPES):
 				iYieldChange = gc.getImprovementInfo(j).getImprovementBonusYield(self.iBonus, k)
-				if (iYieldChange != 0):
+				if iYieldChange != 0:
 					bEffect = True
 					bAnyFound = True
 					iYieldChange += gc.getImprovementInfo(j).getYieldChange(k)
-					if (bFirst):
+					if bFirst:
 						bFirst = False
 					else:
 						szYield += ", "
-					if (iYieldChange > 0):
+					if iYieldChange > 0:
 						sign = "+"
 					else:
 						sign = ""
 					szYield += (u"<font=4>%c%s%i</font>" % (gc.getYieldInfo(k).getChar(), sign, iYieldChange))
 			
-			if (bEffect):
+			if bEffect:
 				# Add horizontal spacing if not the first button
 				if xOffset > 0:
 					spacerName = self.top.getNextWidgetName()
@@ -274,13 +271,13 @@ class SevoPediaBonus:
 		bAnyFound = False
 		for eLoopUnit in range(gc.getNumUnitInfos()):
 			bFound = False
-			if (gc.getUnitInfo(eLoopUnit).getPrereqAndBonus() == self.iBonus):
+			if gc.getUnitInfo(eLoopUnit).getPrereqAndBonus() == self.iBonus:
 				bFound = True
 				bAnyFound = True
 			else:
 				j = 0
 				while (not bFound and j < gc.getNUM_UNIT_PREREQ_OR_BONUSES()):
-					if (gc.getUnitInfo(eLoopUnit).getPrereqOrBonuses(j) == self.iBonus):
+					if gc.getUnitInfo(eLoopUnit).getPrereqOrBonuses(j) == self.iBonus:
 						bFound = True
 						bAnyFound = True
 					j += 1
@@ -323,12 +320,12 @@ class SevoPediaBonus:
 		bAnyDisplayed = False
 		for eLoopBuilding in range(gc.getNumBuildingInfos()):
 			bFound = False
-			if (gc.getBuildingInfo(eLoopBuilding).getPrereqAndBonus() == self.iBonus):
+			if gc.getBuildingInfo(eLoopBuilding).getPrereqAndBonus() == self.iBonus:
 				bFound = True
 			else:
 				j = 0
 				while (not bFound and j < gc.getNUM_BUILDING_PREREQ_OR_BONUSES()):
-					if (gc.getBuildingInfo(eLoopBuilding).getPrereqOrBonuses(j) == self.iBonus):
+					if gc.getBuildingInfo(eLoopBuilding).getPrereqOrBonuses(j) == self.iBonus:
 						bFound = True
 					j += 1
 			if bFound:
@@ -341,12 +338,12 @@ class SevoPediaBonus:
 					or info.getBonusHealthChanges(self.iBonus) > 0
 					or info.getBonusHappinessChanges(self.iBonus) > 0
 					or info.getBonusProductionModifier(self.iBonus) > 0)
-			if (not bShow):
+			if not bShow:
 				for eYield in range(YieldTypes.NUM_YIELD_TYPES):
-					if (info.getBonusYieldModifier(self.iBonus, eYield) > 0):
+					if info.getBonusYieldModifier(self.iBonus, eYield) > 0:
 						bShow = True
 						break
-			if (bShow):
+			if bShow:
 				bAnyDisplayed = True
 				screen.attachImageButton( panelName, "", info.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False )
 
@@ -391,7 +388,7 @@ class SevoPediaBonus:
 		screen.attachLabel(panelName, "", "  ")
 
 		iTech = gc.getBonusInfo(self.iBonus).getTechReveal()
-		if (iTech > -1):
+		if iTech > -1:
 			screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
 			# <!-- custom: we don't need the extra "(Reveals)" or "(Enables)" texts now that they are both not a "requires" anymore (which i
 			# think was very inaccurate, now fixed -->
@@ -412,7 +409,7 @@ class SevoPediaBonus:
 		screen.attachLabel(panelName, "", "  ")
 
 		iTech = gc.getBonusInfo(self.iBonus).getTechCityTrade()
-		if (iTech > -1):
+		if iTech > -1:
 			screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
 			# <!-- custom: same as in placeRevealedBy anyways etc -->
 			#screen.attachLabel(panelName, "", u"(" + localText.getText("TXT_KEY_PEDIA_BONUS_TRADE", ()) + u")")
@@ -439,7 +436,7 @@ class SevoPediaBonus:
 		screen.addPanel(panelName, localText.getText("TXT_KEY_BONUS_OBSOLETE_WITH", ()), "", False, True, self.X_OBSOLETE_WITH, self.Y_OBSOLETE_WITH, self.W_OBSOLETE_WITH, self.H_OBSOLETE_WITH, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panelName, "", "  ")
 		
-		if (techInfo > -1):
+		if techInfo > -1:
 			# Add the tech button directly to the panel
 			szButton = techInfo.getButton()
 			screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTechObsolete, 1, False)

@@ -1,13 +1,6 @@
-# <!-- custom: constants useful for numTxt under button placement in a grid-like manner anyways , i got the idea to move them here rather to enhance reuse and remove redundance thanks to chatgpt general comment about them hehe anyways etc thanks anyways etc thanks chatgpt etc anyways etc and me toot thanks anyways etc -->
+# <!-- custom: constants useful for numTxt under button placement in a grid-like manner anyways , i got the idea to move them here rather to enhance reuse and remove redundance thanks to chatgpt general comment about them hehe anyways etc thanks anyways etc thanks chatgpt etc anyways etc and me toot thanks anyways etc ; note: these are for non-multilist panels, commented-out if we don't need them but kept for reference still if may serve someday but anyways etc -->
 HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING = 9
 HYPOTHESIZED_INTER_BUTTON_SPACING = 4
-
-# <!-- custom: for multiline lists -->
-HYPOTHESIZED_MULTI_LIST_EDGE_PADDING = 9
-# <!-- custom: it seems the multilist method uses a smaller inter button lateral spacing than the non multilist one, so adjust as fit anyways etc -->
-HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING = 2
-# <!-- custom: note: below line not yet tested anyways etc -->
-HYPOTHESIZED_MULTI_LIST_INTER_LINE_VERTICAL_SPACING = 4
 
 
 
@@ -73,6 +66,12 @@ def check_overlapping_keys_between_dicts(d1, d2):
 			overlap.append(k)
 	if overlap:
 		raise ValueError("Overlapping keys between dictionaries: %s" % str(overlap))
+
+
+
+def check_icon_size_fits_within_icon_frame_size(icon_size, icon_frame_size):
+	if icon_size > icon_frame_size:
+		raise ValueError(u"[FATAL] icon_size=%d cannot be bigger/higher than icon_frame_size=%d, icon_size must fit within the frame, please adjust icon_size or/and icon_frame_size so that 0 < icon_size < icon_frame_size" % (icon_size, icon_frame_size))
 
 
 
@@ -153,7 +152,7 @@ def get_numTxt_combat_type_modifiers(iModCombat):
 
 
 
-def get_x_extra_correction(numTxt):
+def get_extra_correction_x(numTxt):
 	if len(numTxt) < 3:
 		return -3
 	elif len(numTxt) == 3:
@@ -172,7 +171,28 @@ def get_x_extra_correction(numTxt):
 
 
 
+def get_extra_correction_some_letters_off_centered_x():
+	# <!-- custom: it seems this numTxt takes slightly more room than expected and is off-centered as a result, maybe because of capitalized letters of maybe alphabetical chars take a bit more room or some other cause, in all cases it uses same code base than for numerical values and such in other parts of the code anyways etc, so just add a small correction specifically for this numTxt or/and in other similar cases if any other anyways etc -->
+	return -2
+
+
+
+def get_extra_correction_x_inbetween_buttons(button_size):
+	# <!-- custom: adjustment to the extraCorrectionX so that the numTxt is inbetween buttons if i may say anways etc, useful for handling the "or" numTxt for example anyways etc -->
+
+	# <!-- custom: also add a small extra correction because we are slightly off from the center point of between the panels if i may say anyways etc -->
+	extraCorrectionOffFromTheCenter = -3
+	return (-1 * (int(button_size / 2))) + extraCorrectionOffFromTheCenter
+
+
 def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, button_size, buttonsPerRow, numTxt, screen, selfTop, widgetType, font):
+	# <!-- custom: for multiline lists -->
+	HYPOTHESIZED_MULTI_LIST_EDGE_PADDING = 9
+	# <!-- custom: it seems the multilist method uses a smaller inter button lateral spacing than the non multilist one, so adjust as fit anyways etc -->
+	HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING = 2
+	# <!-- custom: note: below line not yet tested anyways etc -->
+	HYPOTHESIZED_MULTI_LIST_INTER_LINE_VERTICAL_SPACING = 4
+
 	textName = selfTop.getNextWidgetName()
 	buttonColumn = iButtonIndex % buttonsPerRow
 	buttonRow = iButtonIndex // buttonsPerRow
@@ -196,7 +216,7 @@ def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, 
 
 def getXOccurenceFound(xPanel, leftPadding, interButtonSpacing, nCountOccurencesFound, buttonSize, xSubstractedAdjustment):
 	# <!-- custom: all buttons are spaced, except the first one that depends on panel left side padding, so do a - 1 to account for that -->
-	if (nCountOccurencesFound < 1):
+	if nCountOccurencesFound < 1:
 		raise ValueError("[FATAL] nCountOccurencesFound=%d cannot be < 1, make sure you first increment nCountOccurencesFound at first occurence found before calling this getXOccurenceFound method anyways etc." % nCountOccurencesFound)
 	return xPanel + leftPadding + (nCountOccurencesFound * buttonSize) + ((nCountOccurencesFound - 1) * interButtonSpacing) - xSubstractedAdjustment
 
@@ -204,7 +224,7 @@ def getXOccurenceFound(xPanel, leftPadding, interButtonSpacing, nCountOccurences
 
 def getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize):
 	buttonSizeDoubleSize = 2 * buttonSize
-	if (addedOffset > buttonSizeDoubleSize):
+	if addedOffset > buttonSizeDoubleSize:
 		raise ValueError(u"[FATAL] Offset %d too high, cannot be higher than 2 * buttonsize = 2 * %d = %d, please make sure offset is set as intended, and update your code or this method raising the error depending on what you/need want anyways etc." % (addedOffset, buttonSize, buttonSizeDoubleSize))
 	
 	# <!-- custom: examples of offset:

@@ -663,10 +663,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		#gc.getInfoTypeForString("CIVILIZATION_MINOR")
 		r = []
 		for descr,i in civList:
-			# <!-- custom: reveal minor nation, i want all information
-			# available in the sevopedia. May also be useful for other
-			# mods.
-			# -->
+			# <!-- custom: reveal minor nation, i want all information available in the sevopedia. May also be useful for other
+			# mods. -->
 			#info = gc.getCivilizationInfo(i)
 			#if not info.isPlayable():
 			#	iCapitalBuildingClass = gc.getDefineINT("CAPITAL_BUILDINGCLASS")

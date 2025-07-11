@@ -100,9 +100,9 @@ class SevoPediaImprovement:
 		# <!-- custom: this part is for yields that do not require any additional tech than the one required to gain access to the ressources (for example + 2 hammer with mine, + 4 commerce with town)
 		for k in range(YieldTypes.NUM_YIELD_TYPES):
 			iYieldChange = gc.getImprovementInfo(self.iImprovement).getYieldChange(k)
-			if (iYieldChange != 0):
+			if iYieldChange != 0:
 				szYield = u""
-				if (iYieldChange > 0):
+				if iYieldChange > 0:
 					sign = "+"
 				else:
 					sign = ""
@@ -114,7 +114,7 @@ class SevoPediaImprovement:
 		# <!-- custom: this part is for yields that require irrigation (for example farm + 1 food) -->
 		for k in range(YieldTypes.NUM_YIELD_TYPES):
 			iYieldChange = gc.getImprovementInfo(self.iImprovement).getIrrigatedYieldChange(k)
-			if (iYieldChange != 0):
+			if iYieldChange != 0:
 				# <!-- custom: change here -->
 				#szYield = localText.getText("TXT_KEY_PEDIA_IRRIGATED_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar()))
 				# note: even though we don't use the %s1 field anymore, the parameter is needed for localText.getText else the display shows something weird, so since we don't use it, just leave a "" instead, as long as there is something even if empty should be fine -->		
@@ -129,7 +129,7 @@ class SevoPediaImprovement:
 		# we don't currently have hills specific improvement bonuses, but may be useful if someone were to reuse these sevopedia changes i did -->
 		for k in range(YieldTypes.NUM_YIELD_TYPES):
 			iYieldChange = gc.getImprovementInfo(self.iImprovement).getHillsYieldChange(k)
-			if (iYieldChange != 0):
+			if iYieldChange != 0:
 				szYield = localText.getText("TXT_KEY_PEDIA_HILLS_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar()))
 				szText = u"<font=4>" + szYield + u"</font>"
 				screen.appendListBoxString(listName, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -138,7 +138,7 @@ class SevoPediaImprovement:
 		for k in range(YieldTypes.NUM_YIELD_TYPES):
 			szYield = u""
 			iYieldChange = gc.getImprovementInfo(self.iImprovement).getRiverSideYieldChange(k)
-			if (iYieldChange != 0):
+			if iYieldChange != 0:
 				szYield = localText.getText("TXT_KEY_PEDIA_RIVER_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar()))
 				szText = u"<font=4>" + szYield + u"</font>"
 				screen.appendListBoxString(listName, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -148,7 +148,7 @@ class SevoPediaImprovement:
 			for k in range(YieldTypes.NUM_YIELD_TYPES):
 				szYield = u""
 				iYieldChange = gc.getImprovementInfo(self.iImprovement).getTechYieldChanges(iTech, k)
-				if (iYieldChange != 0):
+				if iYieldChange != 0:
 					szYield = localText.getText("TXT_KEY_PEDIA_TECH_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar(), gc.getTechInfo(iTech).getDescription()))
 					szText = u"<font=4>" + szYield + u"</font>"
 					screen.appendListBoxString(listName, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -158,7 +158,7 @@ class SevoPediaImprovement:
 			for k in range(YieldTypes.NUM_YIELD_TYPES):
 				szYield = u""
 				iYieldChange = gc.getCivicInfo(iCivic).getImprovementYieldChanges(self.iImprovement, k)
-				if (iYieldChange != 0):
+				if iYieldChange != 0:
 					szYield = localText.getText("TXT_KEY_PEDIA_TECH_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar(), gc.getCivicInfo(iCivic).getDescription()))
 					szText = u"<font=4>" + szYield + u"</font>"
 					screen.appendListBoxString(listName, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -167,7 +167,7 @@ class SevoPediaImprovement:
 		for iRoute in range(gc.getNumRouteInfos()):
 			for k in range(YieldTypes.NUM_YIELD_TYPES):
 				iYieldChange = gc.getImprovementInfo(self.iImprovement).getRouteYieldChanges(iRoute, k)
-				if (iYieldChange != 0):									
+				if iYieldChange != 0:
 					# <!-- custom: remove newline, isn't necessary unless i'm mistaken -->
 					#szYield += localText.getText("TXT_KEY_PEDIA_ROUTE_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar(), gc.getRouteInfo(iRoute).getTextKey())) + u"\n"
 					szYield += localText.getText("TXT_KEY_PEDIA_ROUTE_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar(), gc.getRouteInfo(iRoute).getTextKey()))
@@ -187,20 +187,20 @@ class SevoPediaImprovement:
 			bEffect = False
 			for k in range(YieldTypes.NUM_YIELD_TYPES):
 				iYieldChange = info.getImprovementBonusYield(j, k)
-				if (iYieldChange != 0):
+				if iYieldChange != 0:
 					bEffect = True
 					# Uncomment for 3.13 behavior. Note that Uranium shows incorrect hammer yield (should be +2)
 					#iYieldChange += info.getYieldChange(k)
-					if (bFirst):
+					if bFirst:
 						bFirst = False
 					else:
 						szYield += u", "
-					if (iYieldChange > 0):
+					if iYieldChange > 0:
 						sign = u"+"
 					else:
 						sign = u""
 					szYield += (u"%s%i%c" % (sign, iYieldChange, gc.getYieldInfo(k).getChar()))
-			if (bEffect):
+			if bEffect:
 				childPanelName = self.top.getNextWidgetName()
 				screen.attachPanel(panelName, childPanelName, "", "", False, False, PanelStyles.PANEL_STYLE_EMPTY)
 				screen.attachLabel(childPanelName, "", "  ")
@@ -215,9 +215,9 @@ class SevoPediaImprovement:
 		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_REQUIRES", ()), "", False, True, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES, PanelStyles.PANEL_STYLE_BLUE50 )
 		screen.attachLabel(panelName, "", "  ")
 		for iBuild in range(gc.getNumBuildInfos()):
-			if (gc.getBuildInfo(iBuild).getImprovement() == self.iImprovement):
+			if gc.getBuildInfo(iBuild).getImprovement() == self.iImprovement:
 				iTech = gc.getBuildInfo(iBuild).getTechPrereq()
-				if (iTech > -1):
+				if iTech > -1:
 					screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
 
 

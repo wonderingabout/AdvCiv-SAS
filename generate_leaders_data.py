@@ -1174,7 +1174,7 @@ VALID_LEADERS_FOR_AGGREGATED_ATTRIBUTES = [
 	if k not in EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS
 ]
 
-if (IS_INSPECT_DEBUG_LEADER):
+if IS_INSPECT_DEBUG_LEADER:
 	print("1 - Before any force_complete functions: Leader %s's leaders_data: %s" % (LEADER_TO_INSPECT_IN_DEBUG_OUTPUT, str(leaders_data[LEADER_TO_INSPECT_IN_DEBUG_OUTPUT])))
 print("DEBUG DEFAULT MemoryDecays:", leader_defaults_data.get("MemoryDecays"))
 print("DEBUG Catherine MemoryDecays:", leaders_data["LEADER_CATHERINE"]["MemoryDecays"])
@@ -1188,7 +1188,7 @@ force_complete_contact_delays(leaders_data, leader_defaults_data)
 force_complete_memory_decays(leaders_data, leader_defaults_data)
 force_complete_memory_attitude_percents(leaders_data, leader_defaults_data)
 
-if (IS_INSPECT_DEBUG_LEADER):
+if IS_INSPECT_DEBUG_LEADER:
 	print("2 - Before any flatten_all functions: Leader %s's leaders_data: %s" % (LEADER_TO_INSPECT_IN_DEBUG_OUTPUT, str(leaders_data[LEADER_TO_INSPECT_IN_DEBUG_OUTPUT])))
 # --- Now flatten all contacts nicely <!-- custom: then prune list too anwyays etc --> ---
 flatten_all_contacts(leaders_data)
@@ -1199,7 +1199,7 @@ for is_positive in (True, False):
 
 # === Final Cleanup ===
 
-if (IS_INSPECT_DEBUG_LEADER):
+if IS_INSPECT_DEBUG_LEADER:
 	print("3 - Before any prune_nested functions: Leader %s's leaders_data: %s" % (LEADER_TO_INSPECT_IN_DEBUG_OUTPUT, str(leaders_data[LEADER_TO_INSPECT_IN_DEBUG_OUTPUT])))
 prune_nested_no_war_attitude_probs_if_flattened(leaders_data)
 prune_nested_flavors_if_flattened(leaders_data)
@@ -1208,7 +1208,7 @@ prune_nested_memory_lists_if_flattened(leaders_data)
 
 # <!-- custom: safer to do the cleanup only after all parsing is done if i am not mistaken, to make sure data is not used in other places before that if i'm not mistaken and based on my understanding of chatgpt's answer and response and suggestion to me etc anyways -->
 # --- Cleanup remaining unused legacy fields if not already done ---
-if (IS_INSPECT_DEBUG_LEADER):
+if IS_INSPECT_DEBUG_LEADER:
 	print("4 - Before any remove_intermediate functions: Leader %s's leaders_data: %s" % (LEADER_TO_INSPECT_IN_DEBUG_OUTPUT, str(leaders_data[LEADER_TO_INSPECT_IN_DEBUG_OUTPUT])))
 remove_intermediate_contact_fields(leaders_data)
 remove_intermediate_memory_fields(leaders_data)

@@ -11,13 +11,12 @@
 # <!-- custom: part of the code here (placeLeaders in particular, but not exhaustive or maybe exhaustive
 # or not, anyways, is imported from History Rewritten mod:
 # C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\History Rewritten\Assets\Python\Pedia\CvPediaReligion.py
-# which may be modified or not for AdvCiv-SAS, by claude AI and then my adjustments or not to it or not or yes or and other or and not anwyays etc
-# -->
+# which may be modified or not for AdvCiv-SAS, by claude AI and then my adjustments or not to it or not or yes or and other or and not anwyays etc -->
 #
 # <!-- custom: part of the code here (placeBuilding and placeUnit in particular, but not exhaustive or maybe exhaustive
 # or not, anyways, is imported from Rise of Mankind (291) mod:
 # C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Rise of Mankind\
-# which may be modified or not for AdvCiv-SAS-->
+# which may be modified or not for AdvCiv-SAS -->
 
 
 
@@ -26,6 +25,8 @@ import CvUtil
 # <!-- custom: remove or comment out unused imports -->
 #import ScreenInput
 #import SevoScreenEnums
+
+from _sevopedia_helpers import check_icon_size_fits_within_icon_frame_size
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -57,12 +58,7 @@ class SevoPediaReligion:
 		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code anyways etc) and modified it and its logic for advciv-sas or not or yes or and other things or and not anyways etc -->
 		self.ICON_SIZE = 64
 		self.ICON_FRAME_SIZE = 164
-		self.MAX_ICON_FRAME_SIZE = 164
-
-		if (self.ICON_SIZE > self.ICON_FRAME_SIZE):
-			raise ValueError(u"[FATAL] self.ICON_SIZE=%d cannot be bigger/higher than self.ICON_FRAME_SIZE=%d, self.ICON_SIZE must fit within the frame, please adjust self.ICON_SIZE or/and self.ICON_FRAME_SIZE so that 0 < self.ICON_SIZE < self.ICON_FRAME_SIZE" % (self.ICON_SIZE, self.ICON_FRAME_SIZE))
-		if (self.ICON_FRAME_SIZE > self.MAX_ICON_FRAME_SIZE):
-			raise ValueError(u"[FATAL] Out of bounds self.ICON_FRAME_SIZE=%d, must be lower than  cannot be bigger/higher than self.MAX_ICON_FRAME_SIZE=%d, please reduce self.ICON_FRAME_SIZE so that 0 < self.ICON_FRAME_SIZE < self.MAX_ICON_FRAME_SIZE" % (self.ICON_FRAME_SIZE, self.MAX_ICON_FRAME_SIZE))
+		check_icon_size_fits_within_icon_frame_size(self.ICON_SIZE, self.ICON_FRAME_SIZE)
 
 		self.W_ICON = self.ICON_SIZE
 		self.H_ICON = self.ICON_SIZE
@@ -131,7 +127,7 @@ class SevoPediaReligion:
 		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_REQUIRES", ()), "", False, True, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES, PanelStyles.PANEL_STYLE_BLUE50 )
 		screen.attachLabel(panelName, "", "  ")
 		iTech = gc.getReligionInfo(self.iReligion).getTechPrereq()
-		if (iTech > -1):
+		if iTech > -1:
 			screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
 
 
@@ -150,8 +146,9 @@ class SevoPediaReligion:
 			#iPrereq4 = gc.getBuildingInfo(iBuilding).getGlobalReligionCommerce()
 			if (iPrereq == self.iReligion or iPrereq2 == self.iReligion or iPrereq3 == self.iReligion):
 				screen.attachImageButton(panelName, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
-#			elif (iPrereq == self.iReligion and iPrereq4 > 0):
-#				screen.attachImageButton(panelName, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
+			# <!-- custom: adjusted indentation of code comment so it is properly indented at same "level" of indentation than at this part of the code anyways etc anyways etc anyways etc -->
+			#elif (iPrereq == self.iReligion and iPrereq4 > 0):
+			#	screen.attachImageButton(panelName, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
 
 
 
@@ -202,11 +199,16 @@ class SevoPediaReligion:
 	#			TableStyles.TABLE_STYLE_STANDARD)
 	# if it helps us adapt/use the addMultiListControlGFC method, anyways etc -->
 	def placeLeaders(self):
+		xPanel = self.X_LEADERS
+		yPanel = self.Y_LEADERS
+		wPanel = self.W_LEADERS
+		hPanel = self.H_LEADERS
+
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 
 		# Create panel with proper styling
-		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_CATEGORY_LEADER", ()), "", False, True, self.X_LEADERS, self.Y_LEADERS, self.W_LEADERS, self.H_LEADERS, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_CATEGORY_LEADER", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 
 		# <!-- custom: note: this doesn't seem to do anything in multilist methods if i am not mistaken anyways etc and in particular no padding so do not use this here i mean for multilists i mean anyways etc anyways etc -->
 		# Additional left side padding for the button(s)
@@ -225,23 +227,22 @@ class SevoPediaReligion:
 		# Create the MultiList control
 		# Per documentation, the numLists parameter (7th) is actually number of columns
 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
-		multiListX = self.X_LEADERS + PANEL_MULTILIST_OFFSET_X
-		multiListY = self.Y_LEADERS + PANEL_MULTILIST_OFFSET_Y
-		multiListW = self.W_LEADERS + PANEL_MULTILIST_ADDITIONAL_W
-		multiListH = self.H_LEADERS + PANEL_MULTILIST_ADDITIONAL_H
+		multiListX = xPanel + PANEL_MULTILIST_OFFSET_X
+		multiListY = yPanel + PANEL_MULTILIST_OFFSET_Y
+		multiListW = wPanel + PANEL_MULTILIST_ADDITIONAL_W
+		multiListH = hPanel + PANEL_MULTILIST_ADDITIONAL_H
 		# Using 1 for auto-calculation of buttons per row
 		buttonCalculate = 1
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		# Find all leaders who have this religion as favorite, <!-- custom: and --> add <!-- custom: them --> all to the list <!-- custom: anyways etc (not catch them all... or maybe.. or not or yes, anyways etc... xd anyways etc...) -->
 		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
-			LeaderInfo = gc.getLeaderHeadInfo(iLeader)
-			if LeaderInfo.getFavoriteReligion() == self.iReligion:
-				LeaderInfo = gc.getLeaderHeadInfo(iLeader)
+			leaderInfo = gc.getLeaderHeadInfo(iLeader)
+			if leaderInfo.getFavoriteReligion() == self.iReligion:
+				leaderInfo = gc.getLeaderHeadInfo(iLeader)
 				# Column index (always 0 when numLists=1)
 				columnIndex = 0
-				leaderButton = LeaderInfo.getButton()
-				screen.appendMultiListButton(rowListName, leaderButton, columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, 1, False)
+				screen.appendMultiListButton(rowListName, leaderInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, 1, False)
 
 
 

@@ -692,6 +692,99 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 
 
+	def get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix, tail_to_trim, abbreviated_tail, label_raw, max_length):
+		# <!-- custom: for example for "SameReligionAttitudeChangeLimit" (note: "get" front already stripped), "ACL", "(39)", 15: -->
+
+		# <!-- custom: first trim the tail in key_or_suffix if any, for example "SameReligionAttitudeChangeLimit" → "SameReligion" -->
+		if tail_to_trim:
+			key_or_suffix_with_tail_trimmed = key_or_suffix[:-len(tail_to_trim)]
+		else:
+			key_or_suffix_with_tail_trimmed = key_or_suffix
+
+		# <!-- custom: check if this result is longer than would allow to fit "ACL" + " " + "(39)" as compared to what max_length would allow in total in the final label, and if all good trim it as such i.e. trim enough of the key_or_suffix_with_tail_trimmed until it allows to fit total_tail_length within max_length, for example:
+		# - "SameReligion" has a length of 12
+		# - "ACL" + " " + "(39)" has a total_tail_length of 3 + 1 + 4 = 8
+		# - max_length is 15
+		# So there will be max_length - total_tail_length = 15 - 8 = 7 chars remaining for the key_or_suffix_with_tail_trimmed, trim anything beyond that anyways etc, so the key_or_suffix_with_tail_trimmed is now only for example "SameReligion" → "SameRel" -->
+		total_tail_length = len(abbreviated_tail) + len(" ") + len(label_raw)
+		room_for_first = max_length - total_tail_length
+		if room_for_first <= 0:
+			raise ValueError(u"[ERROR] Unexpected label_raw=%s + ' ' + abbreviated_tail=%s total_tail_length=%d, too long to fit key_or_suffix_with_tail_trimmed=%s within max_length = %d in the final label. This should not happen, please make sure abbreviated_tail + ' ' + label_raw are short enough relative to max_length, or/and that max_length is high enough." % (label_raw, abbreviated_tail, total_tail_length, key_or_suffix_with_tail_trimmed, max_length))
+		# <!-- custom: minimum 1 to accomodate for the " " space character anyways etc -->
+		key_or_suffix_with_tail_trimmed_further_trimmed = key_or_suffix_with_tail_trimmed[:max(1, room_for_first)]
+
+		# <!-- custom: finally append ' ' + the abbreviated tail as intended, for example "SameRel" → "SameRelACL (39)" -->
+		key_or_suffix_with_abbreviated_tail = key_or_suffix_with_tail_trimmed_further_trimmed + abbreviated_tail + " " + label_raw
+		
+		return key_or_suffix_with_abbreviated_tail
+
+	def get_labels_as_keys_or_suffixes_max_length_label(key_or_suffix, label_raw, max_length):
+		# Returns key_or_suffix + label_raw, trimmed so total length ≤ max_length.
+		#
+		# <!-- custom: examples of output from chagpt as well and some added by me anyways etc as well too i mean anyways etc anyways etc thanks anyways etc and my prompt too anyways etc: -->
+		# "getMaxWarRand", " (50)", 18 → "MaxWarRand (50)"
+		# "DemandWar", " (50/510)", 18 → "Demand (50/510)"
+		# "LongLongKeyNameHere", " (9)", 14 → "LongLongKe (9)"
+		# "getConquestVictoryWeight", " (39)", 19 → "Conquest (39)"
+		# "getSameReligionAttitudeChangeLimit", " (39)", 15 → "SameRelACL (39)"
+
+		# <!-- custom: first strip front and/or tail, for example "getSameReligionAttitudeChangeLimit" → "SameReligion"
+		if key_or_suffix.startswith("get"):
+			# <!-- custom: strip this front part ("get") first anyways etc-->
+			key_or_suffix_without_front = key_or_suffix[len("get"):]
+
+			if key_or_suffix_without_front.endswith("VictoryWeight"):
+				# <!-- custom: just strip tail (i.e. without appending any abbreviated_tail as a replacement if i am not mistaken anyways etc) -->
+				return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "VictoryWeight", "", label_raw, max_length)
+			elif key_or_suffix_without_front.endswith("RefuseAttitudeThreshold"):
+				# <!-- custom: no need for a "RAT" abbreviated_tail as would clutter and they are all in same category at least as of now if not always or not or yes or etc anyways etc ; so opt for a more compact label instead if i may say i mean anyways etc anyways etc -->
+				return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "RefuseAttitudeThreshold", "", label_raw, max_length)
+			elif key_or_suffix_without_front.endswith("AttitudeThreshold"):
+				# <!-- custom: the "AT" vs "RAT" here is informative though i think for the few fields that have it i think so display it i think i mean anyways etc -->
+				return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeThreshold", "AT", label_raw, max_length)
+			elif key_or_suffix_without_front.endswith("AttitudeChangeLimit"):
+				return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeChangeLimit", "ACL", label_raw, max_length)
+			elif key_or_suffix_without_front.endswith("AttitudeChangeDivisor"):
+				return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeChangeDivisor", "ACD", label_raw, max_length)
+			elif key_or_suffix_without_front.endswith("AttitudeChange"):
+				return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeChange", "AC", label_raw, max_length)
+			else:
+				return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "", "", label_raw, max_length)
+		# <!-- custom: no front nor tail, just trim key_or_suffix to fit label_raw within max_length -->
+		else:
+			return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix, "", "", label_raw, max_length)
+
+	def get_symbol_scale(score, symbol):
+		# <!-- custom: examples:
+		# - with symbol "+" and value 64 (/100), returns "++++++" if i'm not mistaken anyways
+		# - with symbol "#" and value 39 (/100), returns "###" if i'm not mistaken anyways
+		# -->
+		return symbol * (score // 10)
+
+	def compute_and_store_leader_info_cached_tuple(raw_value, min_value, max_value, b_invert, symbol, all_symbols, cache_key, label, iLeader, leader_info_cached):
+		norm_value = normalize_to_100(raw_value, min_value, max_value, B_WARN, b_invert, cache_key)
+
+		if (min_value == max_value):
+			symbol = all_symbols["EQUAL_SCALE_SYMBOL"]
+
+		if IS_DEBUG_LEADER:
+			print("[DEBUG] raw_value=%d, min_value=%d, max_value=%d, norm_value=%d, for cache_key=%s, b_invert=%s at iLeader=%d" % (raw_value, min_value, max_value, norm_value, cache_key, str(b_invert), iLeader))
+
+		if not label:
+			raise ValueError(u"Unexpected label=%s tested false as a boolean in cache_key=%s at iLeader=%d, please check label is not empty or missing or some other kind of invalid format" % (str(label), cache_key, iLeader))
+
+		if (symbol not in all_symbols.values()):
+			raise ValueError(u"Unexpected symbol=%s not in all_symbols=%s in cache_key=%s at iLeader=%d." % (symbol, str(all_symbols), cache_key, iLeader))
+		scale = get_symbol_scale(norm_value, symbol)
+
+		# Store final as <!-- custom: a tuple after all parsing/caching is finished for this leader for faster/better performance than dict or such other storage if i am not mistaken anyways etc --> for future display at UI code anyways etc
+		leader_info_cached_tuple = (label, norm_value, scale)
+		leader_info_cached[cache_key] = leader_info_cached_tuple
+		if IS_DEBUG_LEADER:
+			print(u"[DEBUG] Leader info cached tuple for iLeader=%d is leader_info_cached_tuple=%s" % (iLeader, str(leader_info_cached_tuple)))
+
+
+
 	def compute_and_store_leaders_info_cached(leaders_info_aggregated_raw_contact_probs, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, fields_with_direct_getters, fields_attitude_thresholds, leader_info_minimums, leader_info_maximums):
 		# Loops over all leaders and normalizes each attribute to a 0-100 scale, using previously computed min/max per attribute and inversion flags.
 
@@ -770,97 +863,6 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 		positive_and_negative_memory_index_labels.update(positive_memory_index_labels)
 		positive_and_negative_memory_index_labels.update(negative_memory_index_labels)
 
-		def get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix, tail_to_trim, abbreviated_tail, label_raw, max_length):
-			# <!-- custom: for example for "SameReligionAttitudeChangeLimit" (note: "get" front already stripped), "ACL", "(39)", 15: -->
-
-			# <!-- custom: first trim the tail in key_or_suffix if any, for example "SameReligionAttitudeChangeLimit" → "SameReligion" -->
-			if tail_to_trim:
-				key_or_suffix_with_tail_trimmed = key_or_suffix[:-len(tail_to_trim)]
-			else:
-				key_or_suffix_with_tail_trimmed = key_or_suffix
-
-			# <!-- custom: check if this result is longer than would allow to fit "ACL" + " " + "(39)" as compared to what max_length would allow in total in the final label, and if all good trim it as such i.e. trim enough of the key_or_suffix_with_tail_trimmed until it allows to fit total_tail_length within max_length, for example:
-			# - "SameReligion" has a length of 12
-			# - "ACL" + " " + "(39)" has a total_tail_length of 3 + 1 + 4 = 8
-			# - max_length is 15
-			# So there will be max_length - total_tail_length = 15 - 8 = 7 chars remaining for the key_or_suffix_with_tail_trimmed, trim anything beyond that anyways etc, so the key_or_suffix_with_tail_trimmed is now only for example "SameReligion" → "SameRel" -->
-			total_tail_length = len(abbreviated_tail) + len(" ") + len(label_raw)
-			room_for_first = max_length - total_tail_length
-			if room_for_first <= 0:
-				raise ValueError(u"[ERROR] Unexpected label_raw=%s + ' ' + abbreviated_tail=%s total_tail_length=%d, too long to fit key_or_suffix_with_tail_trimmed=%s within max_length = %d in the final label. This should not happen, please make sure abbreviated_tail + ' ' + label_raw are short enough relative to max_length, or/and that max_length is high enough." % (label_raw, abbreviated_tail, total_tail_length, key_or_suffix_with_tail_trimmed, max_length))
-			# <!-- custom: minimum 1 to accomodate for the " " space character anyways etc -->
-			key_or_suffix_with_tail_trimmed_further_trimmed = key_or_suffix_with_tail_trimmed[:max(1, room_for_first)]
-
-			# <!-- custom: finally append ' ' + the abbreviated tail as intended, for example "SameRel" → "SameRelACL (39)" -->
-			key_or_suffix_with_abbreviated_tail = key_or_suffix_with_tail_trimmed_further_trimmed + abbreviated_tail + " " + label_raw
-			
-			return key_or_suffix_with_abbreviated_tail
-
-		def get_labels_as_keys_or_suffixes_max_length_label(key_or_suffix, label_raw, max_length):
-			# Returns key_or_suffix + label_raw, trimmed so total length ≤ max_length.
-			#
-			# <!-- custom: examples of output from chagpt as well and some added by me anyways etc as well too i mean anyways etc anyways etc thanks anyways etc and my prompt too anyways etc: -->
-			# "getMaxWarRand", " (50)", 18 → "MaxWarRand (50)"
-			# "DemandWar", " (50/510)", 18 → "Demand (50/510)"
-			# "LongLongKeyNameHere", " (9)", 14 → "LongLongKe (9)"
-			# "getConquestVictoryWeight", " (39)", 19 → "Conquest (39)"
-			# "getSameReligionAttitudeChangeLimit", " (39)", 15 → "SameRelACL (39)"
-
-			# <!-- custom: first strip front and/or tail, for example "getSameReligionAttitudeChangeLimit" → "SameReligion"
-			if key_or_suffix.startswith("get"):
-				# <!-- custom: strip this front part ("get") first anyways etc-->
-				key_or_suffix_without_front = key_or_suffix[len("get"):]
-
-				if key_or_suffix_without_front.endswith("VictoryWeight"):
-					# <!-- custom: just strip tail (i.e. without appending any abbreviated_tail as a replacement if i am not mistaken anyways etc) -->
-					return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "VictoryWeight", "", label_raw, max_length)
-				elif key_or_suffix_without_front.endswith("RefuseAttitudeThreshold"):
-					# <!-- custom: no need for a "RAT" abbreviated_tail as would clutter and they are all in same category at least as of now if not always or not or yes or etc anyways etc ; so opt for a more compact label instead if i may say i mean anyways etc anyways etc -->
-					return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "RefuseAttitudeThreshold", "", label_raw, max_length)
-				elif key_or_suffix_without_front.endswith("AttitudeThreshold"):
-					# <!-- custom: the "AT" vs "RAT" here is informative though i think for the few fields that have it i think so display it i think i mean anyways etc -->
-					return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeThreshold", "AT", label_raw, max_length)
-				elif key_or_suffix_without_front.endswith("AttitudeChangeLimit"):
-					return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeChangeLimit", "ACL", label_raw, max_length)
-				elif key_or_suffix_without_front.endswith("AttitudeChangeDivisor"):
-					return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeChangeDivisor", "ACD", label_raw, max_length)
-				elif key_or_suffix_without_front.endswith("AttitudeChange"):
-					return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeChange", "AC", label_raw, max_length)
-				else:
-					return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "", "", label_raw, max_length)
-			# <!-- custom: no front nor tail, just trim key_or_suffix to fit label_raw within max_length -->
-			else:
-				return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix, "", "", label_raw, max_length)
-
-		def get_symbol_scale(score, symbol):
-			# <!-- custom: examples:
-			# - with symbol "+" and value 64 (/100), returns "++++++" if i'm not mistaken anyways
-			# - with symbol "#" and value 39 (/100), returns "###" if i'm not mistaken anyways
-			# -->
-			return symbol * (score // 10)
-
-		def compute_and_store_leader_info_cached_tuple(raw_value, min_value, max_value, b_invert, symbol, cache_key, label, leader_info_cached):
-			norm_value = normalize_to_100(raw_value, min_value, max_value, B_WARN, b_invert, cache_key)
-
-			if (min_value == max_value):
-				symbol = all_symbols["EQUAL_SCALE_SYMBOL"]
-
-			if IS_DEBUG_LEADER:
-				print("[DEBUG] raw_value=%d, min_value=%d, max_value=%d, norm_value=%d, for cache_key=%s, b_invert=%s at iLeader=%d" % (raw_value, min_value, max_value, norm_value, cache_key, str(b_invert), iLeader))
-
-			if not label:
-				raise ValueError(u"Unexpected label=%s tested false as a boolean in cache_key=%s at iLeader=%d, please check label is not empty or missing or some other kind of invalid format" % (str(label), cache_key, iLeader))
-
-			if (symbol not in all_symbols.values()):
-				raise ValueError(u"Unexpected symbol=%s not in all_symbols=%s in cache_key=%s at iLeader=%d." % (symbol, str(all_symbols), cache_key, iLeader))
-			scale = get_symbol_scale(norm_value, symbol)
-
-			# Store final as <!-- custom: a tuple after all parsing/caching is finished for this leader for faster/better performance than dict or such other storage if i am not mistaken anyways etc --> for future display at UI code anyways etc
-			leader_info_cached_tuple = (label, norm_value, scale)
-			leader_info_cached[cache_key] = leader_info_cached_tuple
-			if IS_DEBUG_LEADER:
-				print(u"[DEBUG] Leader info cached tuple for iLeader=%d is leader_info_cached_tuple=%s" % (iLeader, str(leader_info_cached_tuple)))
-
 		for iLeader in range(gc.getNumLeaderHeadInfos()):
 			if iLeader in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS:
 				continue
@@ -880,7 +882,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 					label_with_raw_value_generic = "%s %s" % (label_generic, label_raw_generic)
 				min_value_generic = leader_info_minimums[getter_name_generic]
 				max_value_generic = leader_info_maximums[getter_name_generic]
-				compute_and_store_leader_info_cached_tuple(raw_value_generic, min_value_generic, max_value_generic, b_invert_generic, symbol_generics, getter_name_generic, label_with_raw_value_generic, leader_info_cached)
+				compute_and_store_leader_info_cached_tuple(raw_value_generic, min_value_generic, max_value_generic, b_invert_generic, symbol_generics, all_symbols, getter_name_generic, label_with_raw_value_generic, iLeader, leader_info_cached)
 
 			symbol_attitude_thresholds = all_symbols["RAW_SCALE_SYMBOL"]
 			for getter_name_attitude_threshold, (label_attitude_threshold, b_invert_attitude_threshold) in fields_attitude_thresholds.items():
@@ -892,7 +894,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 					label_with_raw_value_attitude_threshold = "%s %s" % (label_attitude_threshold, label_raw_attitude_threshold)
 				min_value_attitude_threshold = leader_info_minimums[getter_name_attitude_threshold]
 				max_value_attitude_threshold = leader_info_maximums[getter_name_attitude_threshold]
-				compute_and_store_leader_info_cached_tuple(raw_value_attitude_threshold, min_value_attitude_threshold, max_value_attitude_threshold, b_invert_attitude_threshold, symbol_attitude_thresholds, getter_name_attitude_threshold, label_with_raw_value_attitude_threshold, leader_info_cached)
+				compute_and_store_leader_info_cached_tuple(raw_value_attitude_threshold, min_value_attitude_threshold, max_value_attitude_threshold, b_invert_attitude_threshold, symbol_attitude_thresholds, all_symbols, getter_name_attitude_threshold, label_with_raw_value_attitude_threshold, iLeader, leader_info_cached)
 
 			b_invert_flavors = False
 			symbol_flavors = all_symbols["RAW_SCALE_SYMBOL"]
@@ -910,7 +912,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 					label_with_raw_value_flavor = "%s %s" % (label_flavor, label_raw_flavor)
 				min_value_flavor = leader_info_minimums[parsed_name_flavor]
 				max_value_flavor = leader_info_maximums[parsed_name_flavor]
-				compute_and_store_leader_info_cached_tuple(raw_value_flavor, min_value_flavor, max_value_flavor, b_invert_flavors, symbol_flavors, parsed_name_flavor, label_with_raw_value_flavor, leader_info_cached)
+				compute_and_store_leader_info_cached_tuple(raw_value_flavor, min_value_flavor, max_value_flavor, b_invert_flavors, symbol_flavors, all_symbols, parsed_name_flavor, label_with_raw_value_flavor, iLeader, leader_info_cached)
 
 			# <!-- custom: for contact fields, normalize the aggregated contact probs, do not normalize the rands nor the delays (would be redundant, as we don't display them with scale symbols or such, just the raw value in label is enough anyways etc) ; to export raw fields (rand and delay if i am not mistaken anyways etc, uncomment the related rand and delay lines below (untested but probably works-functions else tweak bit anyways etc) to export them to UI if want to display them (then you'd need to uncomment or add if missing them anyways etc in UI categories too anyways etc)) -->
 			# b_invert_contact_rands, b_invert_contact_delays = get_contact_rand_and_delay_invert_flags()
@@ -933,7 +935,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 				# 	label_with_raw_value_rand = "%s %s" % (label_contact, label_raw_rand)
 				# min_value_rand = leader_info_minimums[parsed_name_rand]
 				# max_value_rand = leader_info_maximums[parsed_name_rand]
-				# compute_and_store_leader_info_cached_tuple(raw_value_rand, min_value_rand, max_value_rand, b_invert_contact_rands, symbol_contact_rands_delays, parsed_name_rand, label_with_raw_value_rand, leader_info_cached)
+				# compute_and_store_leader_info_cached_tuple(raw_value_rand, min_value_rand, max_value_rand, b_invert_contact_rands, symbol_contact_rands_delays, all_symbols, parsed_name_rand, label_with_raw_value_rand, iLeader, leader_info_cached)
 
 				# parsed_name_delay = "iContactDelay%s" % suffix # → iContactDelayJoinWar
 				# raw_value_delay = gc.getLeaderHeadInfo(iLeader).getContactDelay(i)
@@ -945,7 +947,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 				# 	label_with_raw_value_delay = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_delay, 19)
 				# else:
 				# 	label_with_raw_value_delay = "%s %s" % (label_contact, label_raw_delay)
-				# compute_and_store_leader_info_cached_tuple(raw_value_delay, min_value_delay, max_value_delay, b_invert_contact_delays, symbol_contact_rands_delays, parsed_name_delay, label_with_raw_value_delay, leader_info_cached)
+				# compute_and_store_leader_info_cached_tuple(raw_value_delay, min_value_delay, max_value_delay, b_invert_contact_delays, symbol_contact_rands_delays, all_symbols, parsed_name_delay, label_with_raw_value_delay, iLeader, leader_info_cached)
 
 				# <!-- custom: then back to aggregated contact fields, the ones that we display at least as of now anyways etc , --> Fourth <!-- custom: actually third in sevopedia leader but named as such for consistency with generate_leaders_data.py pass numbering anyways etc --> pass: normalize final scores
 				# <!-- custom: now transform the raw aggregated prob into a normalized aggregated prob that we store and export for UI display anyways etc -->
@@ -970,7 +972,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 				min_value_4_aggregated_raw_contact_prob = leader_info_minimums[parsed_name_4_aggregated_raw_contact_prob]
 				max_value_4_aggregated_raw_contact_prob = leader_info_maximums[parsed_name_4_aggregated_raw_contact_prob]
 
-				compute_and_store_leader_info_cached_tuple(raw_value_4_aggregated_contact_prob, min_value_4_aggregated_raw_contact_prob, max_value_4_aggregated_raw_contact_prob, b_invert_4_aggregated_contact_probs, symbol_aggregated_contact_probs, parsed_name_4_aggregated_contact_prob, label_with_raw_value_rand_and_raw_value_delay, leader_info_cached)
+				compute_and_store_leader_info_cached_tuple(raw_value_4_aggregated_contact_prob, min_value_4_aggregated_raw_contact_prob, max_value_4_aggregated_raw_contact_prob, b_invert_4_aggregated_contact_probs, symbol_aggregated_contact_probs, all_symbols, parsed_name_4_aggregated_contact_prob, label_with_raw_value_rand_and_raw_value_delay, iLeader, leader_info_cached)
 
 			# <!-- custom: similarly for memory fields, we don't need the raw attitude_percent and decay since they are already in label and we don't display them normalized otherwise either (or neither? But anyways etc...) anyways etc, so normalize only aggregated positive and negative memory affections and resentments, but more specifically also, we don't display positive memory resentments and negative memory affections due to table being too small for these all but anyways etc and/but also our XML being otherwise quite straightforward at least as of now if not always or not, as positive memories all have a positive attitude_percent if i'm not mistaken and same or similarly rather anyways etc negative memories all have a negative atittude_percent, so positive memory resentments and negative memory affections would just perfectly overlap and be redundant with positive memory affections and negative memory resentments, so don't display them in our mod advciv-sas at least as of now if not most likely always in advciv-sas or maybe not but most likely anyways etc. But the feature is there if some mods want to display it, and i think it's very cool to have masochistic (negative memory affections) and/or bitterly ungrateful (positive memory resentments), so code comment code samples or rather maybe lines anyways etc if you want to support it in your mod, remember to also add these fields (parsed_name (parsed names for all fields actually but anyways etc)) in UI categories too and order them as you see fit if you'd want that, which i think is very cool and wish i did and could do, but table is already too full, and i dont have such a crazy in a way i like hehe leader as of yet (or yet? Simply? But anyways etc...) if not always or maybe not but most likely in this case i mean anyways etc, but in all cases, regardless of which, uncomment if you want to add positive memory resentments and negative memory resentments, same also for raw memory attitude_percents and decays not displayed as well since they are in label of aggregated field and we don't otherwise need them, anyways etc -->
 			# b_invert_memory_attitude_percents, b_invert_memory_decays = get_memory_attitude_percent_and_decay_invert_flags(is_positive, is_affection)
@@ -1011,7 +1013,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 						# 		label_with_raw_value_attitude_percent = "%s %s" % (label_memory, label_raw_attitude_percent)
 						# 	min_value_attitude_percent = leader_info_minimums[parsed_name_attitude_percent]
 						# 	max_value_attitude_percent = leader_info_maximums[parsed_name_attitude_percent]
-						# 	compute_and_store_leader_info_cached_tuple(raw_value_attitude_percent, min_value_attitude_percent, max_value_attitude_percent, b_invert_memory_attitude_percents, symbol_memory_attitude_percents_decays, parsed_name_attitude_percent, label_with_raw_value_attitude_percent, leader_info_cached)
+						# 	compute_and_store_leader_info_cached_tuple(raw_value_attitude_percent, min_value_attitude_percent, max_value_attitude_percent, b_invert_memory_attitude_percents, symbol_memory_attitude_percents_decays, all_symbols, parsed_name_attitude_percent, label_with_raw_value_attitude_percent, iLeader, leader_info_cached)
 
 						# parsed_name_decay = "iMemoryDecay%s" % suffix # → iMemoryDecayDeclaredWar
 						# if parsed_name_decay not in leader_info_cached:
@@ -1024,7 +1026,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 						# 		label_with_raw_value_decay = "%s %s" % (label_memory, label_raw_decay)
 						# 	min_value_decay = leader_info_minimums[parsed_name_decay]
 						# 	max_value_decay = leader_info_maximums[parsed_name_decay]
-						# 	compute_and_store_leader_info_cached_tuple(raw_value_decay, min_value_decay, max_value_decay, b_invert_memory_decays, symbol_memory_attitude_percents_decays, parsed_name_decay, label_with_raw_value_decay, leader_info_cached)
+						# 	compute_and_store_leader_info_cached_tuple(raw_value_decay, min_value_decay, max_value_decay, b_invert_memory_decays, symbol_memory_attitude_percents_decays, all_symbols, parsed_name_decay, label_with_raw_value_decay, iLeader, leader_info_cached)
 
 						# <!-- custom: then back to aggregated positive and negative memory affection and resentment fields, the ones that we display at least as of now anyways etc , --> Fourth <!-- custom: actually third in sevopedia leader but named as such for consistency with generate_leaders_data.py pass numbering anyways etc --> pass: normalize final scores
 						# <!-- custom: now transform the raw aggregated prob into a normalized aggregated prob that we store and export for UI display anyways etc -->
@@ -1050,7 +1052,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 						min_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment = leader_info_minimums[parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
 						max_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment = leader_info_maximums[parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
 
-						compute_and_store_leader_info_cached_tuple(raw_value_4_aggregated_positive_or_negative_memory_affection_or_resentment, min_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment, max_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment, b_invert_4_positive_and_negative_memory_affections_and_resentments, symbol_aggregated_positive_and_negative_memory_affections_and_resentments, parsed_name_4_aggregated_positive_or_negative_memory_affection_or_resentment, label_with_raw_value_rand_and_raw_value_delay, leader_info_cached)
+						compute_and_store_leader_info_cached_tuple(raw_value_4_aggregated_positive_or_negative_memory_affection_or_resentment, min_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment, max_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment, b_invert_4_positive_and_negative_memory_affections_and_resentments, symbol_aggregated_positive_and_negative_memory_affections_and_resentments, all_symbols, parsed_name_4_aggregated_positive_or_negative_memory_affection_or_resentment, label_with_raw_value_rand_and_raw_value_delay, iLeader, leader_info_cached)
 
 			b_invert_no_war_attitude_probs = False
 			symbol_no_war_attitude_probs = all_symbols["RAW_SCALE_SYMBOL"]
@@ -1068,7 +1070,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 					label_with_raw_value_no_war_attitude_prob = "%s %s" % (label_no_war_attitude_prob, label_raw_no_war_attitude_prob)
 				min_value_no_war_attitude_prob = leader_info_minimums[parsed_name_no_war_attitude_prob]
 				max_value_no_war_attitude_prob = leader_info_maximums[parsed_name_no_war_attitude_prob]
-				compute_and_store_leader_info_cached_tuple(raw_value_no_war_attitude_prob, min_value_no_war_attitude_prob, max_value_no_war_attitude_prob, b_invert_no_war_attitude_probs, symbol_no_war_attitude_probs, parsed_name_no_war_attitude_prob, label_with_raw_value_no_war_attitude_prob, leader_info_cached)
+				compute_and_store_leader_info_cached_tuple(raw_value_no_war_attitude_prob, min_value_no_war_attitude_prob, max_value_no_war_attitude_prob, b_invert_no_war_attitude_probs, symbol_no_war_attitude_probs, all_symbols, parsed_name_no_war_attitude_prob, label_with_raw_value_no_war_attitude_prob, iLeader, leader_info_cached)
 
 			# <!-- custom: store final complete leader_info_cached (i.e. store a leader_info_cached for each iLeader anyways etc) in LEADERS_INFO_CACHED -->
 			LEADERS_INFO_CACHED[iLeader] = leader_info_cached
@@ -1092,47 +1094,105 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 
 
-	def get_ai_categories(localText, is_display_emoji_buttons):
+	def get_ai_category_header_line_with_or_without_button_and_x_offset(emoji_name, emoji_name_to_button_path_txt_keys, ai_category_header, localText):
+		if IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS:
+			button_path = localText.getText(emoji_name_to_button_path_txt_keys[emoji_name], ())
+			button_size = 16
+			line_button_txt = u"<img=%s size=%s></img>" % (button_path, str(button_size))
+			ai_category_header_line_with_button = u"%s <font=3b>%s</font>" % (line_button_txt, ai_category_header)
+
+			# <!-- custom: add x offset (negative) so we can push button to the left a bit further than where the sub/child (but anyways etc) items/lines of the ai_category start anyways etc -->
+			ai_category_x_offset_with_button = -7
+
+			return (ai_category_header_line_with_button, ai_category_x_offset_with_button)
+		else:
+			ai_category_header_line_without_button = u"<font=3b>%s</font>" % ai_category_header
+			ai_category_x_offset_without_button = 0
+
+			return (ai_category_header_line_without_button, ai_category_x_offset_without_button)
+
+
+
+	def get_ai_category(emoji_name, emoji_name_to_button_path_txt_keys, ai_category_header, ai_category_key_order, localText):
+		# <!-- custom: tuple structure of an ai_category anyways etc -->
+		# (
+		#		ai_category_header_line,
+		#		ai_category_x_offset,
+		#		(
+		#			key1,
+		#			key2,
+		#			etc...
+		#		),
+		# )
+		ai_category_header_line, x_offset = get_ai_category_header_line_with_or_without_button_and_x_offset(emoji_name, emoji_name_to_button_path_txt_keys, ai_category_header, localText)
+
+
+		return (
+			ai_category_header_line,
+			x_offset,
+			ai_category_key_order,
+		)
+
+
+
+	def get_ai_category_key_order_positive_memory_affections_or_resentments(positive_negative, affection_resentment):
+		ai_category_key_order_positive_memories = (
+			"iAggregated%sMemoryGiveHelp%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryAcceptDemand%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryAcceptedReligion%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryAcceptedCivic%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryAcceptedJoinWar%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryAcceptedStopTrading%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryVotedForUs%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryEventGoodToUs%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryLiberatedCities%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryIndependence%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryTradedTechToUs%s" % (positive_negative, affection_resentment),
+		)
+
+		return ai_category_key_order_positive_memories
+
+
+
+	def get_ai_category_key_order_negative_memory_affections_or_resentments(positive_negative, affection_resentment):
+		ai_category_key_order_negative_memories = (
+			"iAggregated%sMemoryDeclaredWar%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryDeclaredWarOnFriend%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryHiredWarAlly%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryNukedUs%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryNukedFriend%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryRazedCity%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryRazedHolyCity%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemorySpyCaught%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryRefusedHelp%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryRejectedDemand%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryDeniedReligion%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryDeniedCivic%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryDeniedJoinWar%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryDeniedStopTrading%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryStoppedTrading%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryHiredTradeEmbargo%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryMadeDemand%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryVotedAgainstUs%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryEventBadToUs%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryCancelledVassalAgreement%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryDeclaredWarRecent%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryReceivedTechFromAny%s" % (positive_negative, affection_resentment),
+			# <!-- custom: hiding this one as we don't have enough space in the table, not ideal but hopefully good enough at least in this case if not always or not or yes or other or etc but anyways etc -->
+			# "iAggregated%sMemoryStoppedTradingRecent%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryMadeDemandRecent%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryCancelledOpenBorders%s" % (positive_negative, affection_resentment),
+			"iAggregated%sMemoryCancelledDefensivePact%s" % (positive_negative, affection_resentment),
+		)
+
+		return ai_category_key_order_negative_memories
+
+
+
+	def get_ai_categories(localText):
 		emoji_name_to_button_path_txt_keys = get_emoji_name_to_button_path_txt_keys(localText)
 
 		# <!-- custom: first generate each category with a ai_category_header_line, label, x_offset, and intra-category attribute/field order too for all categories -->
-
-		def get_ai_category_header_line_with_or_without_button_and_x_offset(emoji_name, emoji_name_to_button_path_txt_keys, ai_category_header, localText):
-			if is_display_emoji_buttons:
-				button_path = localText.getText(emoji_name_to_button_path_txt_keys[emoji_name], ())
-				button_size = 16
-				line_button_txt = u"<img=%s size=%s></img>" % (button_path, str(button_size))
-				ai_category_header_line_with_button = u"%s <font=3b>%s</font>" % (line_button_txt, ai_category_header)
-
-				# <!-- custom: add x offset (negative) so we can push button to the left a bit further than where the sub/child (but anyways etc) items/lines of the ai_category start anyways etc -->
-				ai_category_x_offset_with_button = -7
-
-				return (ai_category_header_line_with_button, ai_category_x_offset_with_button)
-			else:
-				ai_category_header_line_without_button = u"<font=3b>%s</font>" % ai_category_header
-				ai_category_x_offset_without_button = 0
-
-				return (ai_category_header_line_without_button, ai_category_x_offset_without_button)
-
-		def get_ai_category(emoji_name, emoji_name_to_button_path_txt_keys, ai_category_header, ai_category_key_order, localText):
-			# <!-- custom: tuple structure of an ai_category anyways etc -->
-			# (
-			#		ai_category_header_line,
-			#		ai_category_x_offset,
-			#		(
-			#			key1,
-			#			key2,
-			#			etc...
-			#		),
-			# )
-			ai_category_header_line, x_offset = get_ai_category_header_line_with_or_without_button_and_x_offset(emoji_name, emoji_name_to_button_path_txt_keys, ai_category_header, localText)
-
-
-			return (
-				ai_category_header_line,
-				x_offset,
-				ai_category_key_order
-			)
 
 		# Aggregated Contact Prob values/attributes (0-100 (%)) computed from ContactDelay and ContactRand
 		# 🕊️ <!-- custom: Contact Offer Probabilities (0-100) anyways etc -->
@@ -1166,23 +1226,6 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 		# <!-- custom: some of these 4 combinations of positive or negative memory affections or resentments below are unused and thus commented-out ((but functionnal although i did not retest so stilluntested since rewrite of sevopedia leadr to use xml leader info directly not old leaders_data.py but anyways etc) and can be implemented if wished (would need to change the xml values of leaders so that they are relevant though, as currently in default advciv xml and current advciv-sas xml too, no leader has a negative memory positive attitude value, or a postitive memory negative attitude value, but the system supprots it if it were to be changed in xml values this way, commented-out for efficiency and effectiveness, perhaps performance too a bit or/and other etc, anyways.))
 
-		def get_ai_category_key_order_positive_memory_affections_or_resentments(positive_negative, affection_resentment):
-			ai_category_key_order_positive_memories = (
-				"iAggregated%sMemoryGiveHelp%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryAcceptDemand%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryAcceptedReligion%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryAcceptedCivic%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryAcceptedJoinWar%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryAcceptedStopTrading%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryVotedForUs%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryEventGoodToUs%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryLiberatedCities%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryIndependence%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryTradedTechToUs%s" % (positive_negative, affection_resentment),
-			)
-
-			return ai_category_key_order_positive_memories
-
 		# ❤️ Positive Memory Affections (0-100)
 		is_positive = True
 		is_affection = True
@@ -1204,38 +1247,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 		# ai_category_header_positive_memory_resentments = "%s Memory %ss" % (positive_negative, affection_resentment)
 		# ai_category_positive_memory_resentments = get_ai_category(emoji_name_positive_memory_resentments, emoji_name_to_button_path_txt_keys, ai_category_header_positive_memory_resentments, ai_category_key_order_positive_memory_resentments, localText)
 
-		def get_ai_category_key_order_negative_memory_affections_or_resentments(positive_negative, affection_resentment):
-			ai_category_key_order_negative_memories = (
-				"iAggregated%sMemoryDeclaredWar%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryDeclaredWarOnFriend%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryHiredWarAlly%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryNukedUs%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryNukedFriend%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryRazedCity%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryRazedHolyCity%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemorySpyCaught%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryRefusedHelp%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryRejectedDemand%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryDeniedReligion%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryDeniedCivic%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryDeniedJoinWar%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryDeniedStopTrading%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryStoppedTrading%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryHiredTradeEmbargo%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryMadeDemand%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryVotedAgainstUs%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryEventBadToUs%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryCancelledVassalAgreement%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryDeclaredWarRecent%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryReceivedTechFromAny%s" % (positive_negative, affection_resentment),
-				# <!-- custom: hiding this one as we don't have enough space in the table, not ideal but hopefully good enough at least in this case if not always or not or yes or other or etc but anyways etc -->
-				# "iAggregated%sMemoryStoppedTradingRecent%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryMadeDemandRecent%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryCancelledOpenBorders%s" % (positive_negative, affection_resentment),
-				"iAggregated%sMemoryCancelledDefensivePact%s" % (positive_negative, affection_resentment),
-			)
 
-			return ai_category_key_order_negative_memories
 
 		# 💀 Negative Memory Resentments (0-100)
 		is_positive = False
@@ -1475,7 +1487,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 		return ai_right_categories, ai_middle_categories, ai_left_categories
 
 	# === AI Panel's Categor<!-- custom: ies anyways etc--> ===
-	AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES = get_ai_categories(localText, IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS)
+	AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES = get_ai_categories(localText)
 
 	# <!-- custom: final return. Note that this caching, while/even though it is done in sevopedia leader, is triggered from sevopedia main's placeLeaders, after module load, so that we don't cache needlessly in case we never access sevopedia leader at all during entire gaming session (i.e. i mean until game is exited i mean anyways etc), but also before any leader is selected for display as this would slow display of said leader, especially if we'd have to cache at every leader slection which would be ridiculously and needlessly expensive computaitnally anyways etc. So the return to this SevoPediaLeader 's getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession function, if it is changed, needs to also be changed in a similar way in SevoPediaMain 's placeLeaders, hopefully clearer or and helpful but anyways etc anyways etc anyways etc -->
 	# <!-- custom: also print the debug line below regardless of debug flag status, we really want to know this info and it is short, anyways etc -->
@@ -1690,68 +1702,73 @@ class SevoPediaLeader:
 
 
 
+	# <!-- custom: move most helpers outside of their caller function if not a one time thing like the compute cache that is called only once so fine as a design to be done so i mean anyways etc if i may say anyways etc, may increase performance to move helpers outside caller as advised by chatgpt after asking it this question in my prompt anyways etc, so we don't redefine them during runtime each time instead of using them right away, gain may not be big but still nice i think and if i understood it correctly anyways etc, it's also a free gain so why not relatively, the cost in code being messier with not only place methods in the class is fine i think if it's for performance and cleanliness if i may say and clarity, so not free but fine in this case i mean about anyways etc anyways etc anyways etc ; also since the functions are entirely parametrized already and don't manipulate variables (even though could have done so if needed but anyways etc) or such i thought it's fine to do so in particular anyways etc after also asking/telling chatgpt about it which also agreed as often does despite its initial recommendation to overall leave as is but thanks for help chatgpt i mean really anyways etc thanks anyways etc but or not but or yes but anyways etc anyways etc anyways etc ; still even for those called only once like precomputing cache, may and did extract helpers from their caller function for consistency or/and reliability if i may say as i wanted in this case, i think but anyways etc anyways etc anyways etc, which allwoe also to fix a few bugs or/and other suboptimal things at least to me if not others or all or just as it is or not but anyways etc such as not properly parametrized functions not entirely and or such but anyways etc -->
+	def getXAIPanelCoordinate(self, tableId):
+		return self.X_AI_PERSONALITY - tableId * self.W_AI_PERSONALITY - tableId * self.MEDIUM_MARGIN
+
+
+
+	def setupAIPanel(self, screen, txtKey, xPanel):
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName,localText.getText(txtKey, ()),"", True, True, xPanel, self.Y_AI_PERSONALITY, self.W_AI_PERSONALITY, self.H_AI_PERSONALITY, PanelStyles.PANEL_STYLE_BLUE50)
+
+
+
+	def fillAITableRow(self, screen, label, value, scale, xLabel, xValue, xScale, y):
+		labelText = u"<font=2>%s</font>" % label
+		valueText = u"<font=2b>%d</font>" % value
+		scaleText = u"<font=2>%s</font>" % scale
+
+		screen.setText(self.top.getNextWidgetName(), "", labelText, CvUtil.FONT_LEFT_JUSTIFY, xLabel, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setText(self.top.getNextWidgetName(), "", valueText, CvUtil.FONT_LEFT_JUSTIFY, xValue, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setText(self.top.getNextWidgetName(), "", scaleText, CvUtil.FONT_LEFT_JUSTIFY, xScale, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+
+
+	def renderAICategories(self, screen, ai_categories, xPanel, yPanel, leader_info_cached):
+		xLabel = xPanel + self.W_AI_LEFT_SIDE_PADDING
+		xValue = xLabel + self.W_AI_LABEL
+		xScale = xValue + self.W_AI_VALUE
+		y = yPanel + self.H_AI_UPPER_PADDING
+
+		for ai_category in ai_categories:
+			ai_category_header_line, ai_category_x_offset, ai_category_key_order = ai_category
+
+			# --- AI Category Header Line ---
+			xOffsetButton = xLabel + ai_category_x_offset
+			screen.setText(self.top.getNextWidgetName(), "", ai_category_header_line, CvUtil.FONT_LEFT_JUSTIFY, xOffsetButton, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			y += self.H_AI_LINE_HEIGHT
+
+			# <!-- custom: AI Category items in their predefined order anyways etc -->
+			for key in ai_category_key_order:
+				label, norm_value, scale = leader_info_cached[key]
+				self.fillAITableRow(screen, label, norm_value, scale, xLabel, xValue, xScale, y)
+				y += self.H_AI_LINE_HEIGHT
+
+			# <!-- custom: space for next ai_category if any are there anyways etc (else still space but not used more efficient this way i think i mean than rechecking each time and we have some tables that overflow vertically too so maybe fine this way too if not broken in this case i mean maybe but anyways etc -->
+			y += self.H_AI_CATEGORY_SPACING
+
+
+
 	# --- Place AI Personality Panel (using precomputed scales) ---
 	# Renders the full AI Personality panel in the Sevopedia Leader page using precomputed <!-- custom: leader info tuples in leaders_info_cached anyways etc --> for the given leader.
 	def placeAIPersonalityPanel(self, iLeader):
 		screen = self.top.getScreen()
 
-		def getXPanelCoordinate(tableId):
-			return self.X_AI_PERSONALITY - tableId * self.W_AI_PERSONALITY - tableId * self.MEDIUM_MARGIN
+		xPanelRight = self.getXAIPanelCoordinate(self.N_AI_TABLE_NUM - 3)
+		xPanelMiddle = self.getXAIPanelCoordinate(self.N_AI_TABLE_NUM - 2)
+		xPanelLeft = self.getXAIPanelCoordinate(self.N_AI_TABLE_NUM - 1)
 
-		# === Layout constants ===
-		xPanelRight = getXPanelCoordinate(self.N_AI_TABLE_NUM - 3)
-		xPanelMiddle = getXPanelCoordinate(self.N_AI_TABLE_NUM - 2)
-		xPanelLeft = getXPanelCoordinate(self.N_AI_TABLE_NUM - 1)
-
-		def setupPanel(screen, txtKey, xPanel):
-			panelName = self.top.getNextWidgetName()
-			screen.addPanel(panelName,localText.getText(txtKey, ()),"", True, True, xPanel, self.Y_AI_PERSONALITY, self.W_AI_PERSONALITY, self.H_AI_PERSONALITY, PanelStyles.PANEL_STYLE_BLUE50)
-
-		# === PANEL SETUP ===
-		setupPanel(screen, self.AI_PANEL_RIGHT_TXT_KEY, xPanelRight)
-		setupPanel(screen, self.AI_PANEL_MIDDLE_TXT_KEY, xPanelMiddle)
-		setupPanel(screen, self.AI_PANEL_LEFT_TXT_KEY, xPanelLeft)
-
-		def fillTableRow(screen, label, value, scale, xLabel, xValue, xScale, y):
-			labelText = u"<font=2>%s</font>" % label
-			valueText = u"<font=2b>%d</font>" % value
-			scaleText = u"<font=2>%s</font>" % scale
-
-			screen.setText(self.top.getNextWidgetName(), "", labelText, CvUtil.FONT_LEFT_JUSTIFY, xLabel, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-			screen.setText(self.top.getNextWidgetName(), "", valueText, CvUtil.FONT_LEFT_JUSTIFY, xValue, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-			screen.setText(self.top.getNextWidgetName(), "", scaleText, CvUtil.FONT_LEFT_JUSTIFY, xScale, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		self.setupAIPanel(screen, self.AI_PANEL_RIGHT_TXT_KEY, xPanelRight)
+		self.setupAIPanel(screen, self.AI_PANEL_MIDDLE_TXT_KEY, xPanelMiddle)
+		self.setupAIPanel(screen, self.AI_PANEL_LEFT_TXT_KEY, xPanelLeft)
 
 		# <!-- custom: performance optimization if i'm not mistaken anyways etc and after asking chatgpt/becomingthrough to test it to be sure about my intuition i had but anyways etc anyways etc anyways etc... which seems to have turned out correct (at least chatgpt becomingthrough ran a real benchmark with the sample size of its choice anyways etc a diff of (3.366469383239746, 2.984344720840454) seconds for (Method 1 (repeated LEADERS_INFO_CACHED[i] lookup): ~3.37 seconds, Method 2 (store info = LEADERS_INFO_CACHED[i] once): ~2.98 seconds if i am not mistaken in my understanding of it too but anyways etc if not then all good else as is or not but in all cases or not or yes or etc or and other or yes or etc anyways etc) but anyways etc...: store the currently selected leader's LEADERS_INFO_CACHED[iLeader] pointer as the leader_info_cached variable so it is a bit faster to access it this was rather than rebrowsing through the giant or/and parent too but anyways etc pointer here, to indeed access it (i.e. this sub-pointer anyways etc relative to LEADERS_INFO_CACHED parent pointer to the dict anyways etc) rather than through LEADERS_INFO_CACHED at each attribute (we have +/-100 as for us if i may say anyways etc in AdvCiv-SAS) too or around it if i am not too mistaken but anyways etc -->
 		leader_info_cached = LEADERS_INFO_CACHED[iLeader]
 
-		# === Render Function ===
-		def renderAICategories(screen, ai_categories, xPanel, yPanel, leader_info_cached):
-			xLabel = xPanel + self.W_AI_LEFT_SIDE_PADDING
-			xValue = xLabel + self.W_AI_LABEL
-			xScale = xValue + self.W_AI_VALUE
-			y = yPanel + self.H_AI_UPPER_PADDING
-
-			for ai_category in ai_categories:
-				ai_category_header_line, ai_category_x_offset, ai_category_key_order = ai_category
-
-				# --- AI Category Header Line ---
-				xOffsetButton = xLabel + ai_category_x_offset
-				screen.setText(self.top.getNextWidgetName(), "", ai_category_header_line, CvUtil.FONT_LEFT_JUSTIFY, xOffsetButton, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-				y += self.H_AI_LINE_HEIGHT
-
-				# <!-- custom: AI Category items in their predefined order anyways etc -->
-				for key in ai_category_key_order:
-					label, norm_value, scale = leader_info_cached[key]
-					fillTableRow(screen, label, norm_value, scale, xLabel, xValue, xScale, y)
-					y += self.H_AI_LINE_HEIGHT
-
-				# <!-- custom: space for next ai_category if any are there anyways etc (else still space but not used more efficient this way i think i mean than rechecking each time and we have some tables that overflow vertically too so maybe fine this way too if not broken in this case i mean maybe but anyways etc -->
-				y += self.H_AI_CATEGORY_SPACING
-
-		# Render Panels
-		renderAICategories(screen, AI_RIGHT_CATEGORIES, xPanelRight, self.Y_AI_PERSONALITY, leader_info_cached)
-		renderAICategories(screen, AI_MIDDLE_CATEGORIES, xPanelMiddle, self.Y_AI_PERSONALITY, leader_info_cached)
-		renderAICategories(screen, AI_LEFT_CATEGORIES, xPanelLeft, self.Y_AI_PERSONALITY, leader_info_cached)
+		self.renderAICategories(screen, AI_RIGHT_CATEGORIES, xPanelRight, self.Y_AI_PERSONALITY, leader_info_cached)
+		self.renderAICategories(screen, AI_MIDDLE_CATEGORIES, xPanelMiddle, self.Y_AI_PERSONALITY, leader_info_cached)
+		self.renderAICategories(screen, AI_LEFT_CATEGORIES, xPanelLeft, self.Y_AI_PERSONALITY, leader_info_cached)
 
 
 

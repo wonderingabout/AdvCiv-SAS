@@ -61,10 +61,6 @@ class SevoPediaFeature:
 		self.Y_HISTORY = self.Y_RESOURCES + self.H_RESOURCES + 10
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
-		# <!-- custom: we don't use natural wonders in AdvCiv-SAS
-		# self.bNaturalWonder = False
-		# -->
-
 
 
 	def interfaceScreen(self, iFeature):
@@ -76,10 +72,7 @@ class SevoPediaFeature:
 		#info = gc.getFeatureInfo(self.iFeature)
 		# -->
 
-		# <!-- custom: we don't use natural wonders in AdvCiv-SAS
-		#if info.getType().find("_NATURAL_WONDER_") > -1:
-		#	self.bNaturalWonder = True
-		# -->		
+
 
 		self.placeInfo()
 		self.placeDetails()
@@ -128,14 +121,6 @@ class SevoPediaFeature:
 		screen.addPanel(panel, "", "", True, True, self.X_DETAILS, self.Y_DETAILS, self.W_DETAILS, self.H_DETAILS, PanelStyles.PANEL_STYLE_BLUE50)
 		szText = info.getHelp()
 		szText += CyGameTextMgr().getFeatureHelp(self.iFeature, True)
-
-		# <!-- custom: we don't use natural wonders in AdvCiv-SAS
-		#if self.bNaturalWonder:
-		#	sType = gc.getFeatureInfo(self.iFeature).getType().replace("FEATURE_", "BUILDING_")
-		#	iBuilding = gc.getInfoTypeForString(sType)
-		#	if iBuilding != -1:
-		#		szText += CyGameTextMgr().getBuildingHelp(iBuilding, True, False, False, None)#[1:]
-		# -->
 
 		szText = szText.replace("\n\n", "\n").strip()
 		screen.addMultilineText(text, szText, self.X_DETAILS + 5, self.Y_DETAILS + 10, self.W_DETAILS - 10, self.H_DETAILS - 15, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
