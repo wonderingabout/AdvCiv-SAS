@@ -475,7 +475,7 @@ class SevoPediaUnit:
 		isButtonFound = False
 		iButtonIndex = 0
 
-		# <!--custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
 		buttonsPerRow = get_max_occurences_found_buttons_per_row(wPanel, BUTTON_SIZE)
 
 		# Get the unit info

@@ -52,7 +52,7 @@
 
 
 
-			# <!-- custom: for freebonus, done according to according to kujira's website if i am not mistaken anyways etc, in https://gforestshade.github.io/kujira/post/civ4buildinginfos/#inumfreebonuses (translated to english with google chrome):
+			# <!-- custom: for freebonus, done according to kujira's website if i am not mistaken anyways etc, in https://gforestshade.github.io/kujira/post/civ4buildinginfos/#inumfreebonuses (translated to english with google chrome):
 			#
 			# This determines the amount of resource this structure produces.
 			# If <FreeBonus> is set to a value other than NONE and you set this to a positive value,the structure will produce the specified amount of the specified resource.
@@ -609,6 +609,7 @@ class SevoPediaBuilding:
 
 
 
+	# <!-- custom: additional info by chatgpt thanks to my prompt too but anyways etc: "The self.iBuilding is a unique ID already. But the prerequisites (like isBuildingClassNeededInCity) refer to a class, not a specific building. That's where the helper comes in." + also anyways etc "The helper get_iDefaultBuilding_current_civ(iBuildingClass) is not for the current building (self.iBuilding). It's used to resolve prerequisite buildings by class — and each building class can have different versions (UUs) for each civ." i don't know if accurate but maybe is, so adding this info here as part of refactoring and wondering if we should use it in required for anyways etc to which chatgpt also replied anyways etc thanks but or not but or yes but but anyways etc "In placeRequiredFor: You’re checking: for each building: if building X requires our current building's class: show building X" and "You already have the concrete building (X). No need to resolve anything — you are showing the building that depends on yours, not the class." hopefully helpful or not or yes thanks or not thanks or yes thanks anyways etc anyways etc anyways etc -->
 	def get_iDefaultBuilding_current_civ(self, i):
 		# Get the default building of this class for the current civilization
 		if self.top.iActivePlayer != -1:
@@ -655,7 +656,7 @@ class SevoPediaBuilding:
 		isButtonFound = False
 		iButtonIndex = 0
 
-		# <!--custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
 		buttonsPerRow = get_max_occurences_found_buttons_per_row(wPanel, BUTTON_SIZE)
 
 		for iPrereqTech in xrange(gc.getNumTechInfos()):
@@ -745,7 +746,7 @@ class SevoPediaBuilding:
 					screen.appendMultiListButton(rowListName, projectInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iProject, 1, False)
 
 					if not bFirst:
-						# <!-- custom: workaround as our code doesn't handle inconsistent occurence size (a button is 64px currently if not always or not anyways etc, but a label "or" would be smaller than 64px, messing the txtNums alignment of subsequent buttons (if any anyways etc), so to not rewrite all our code or tweak it too deeply, maybe this alternative solution is/can be quite elegant too instead, of putting the "or" label rather as a txtNum just between the buttons, and belonging to the new 2nd button we are adding (no "or" if first project so maybe more sensical or intuitive this way even though is still a hack but maybe not so bad or not or yes or and other or and not anyways etc anyways etc anyways etc...), not having thus to rewrite our otherwise working/functionning(functionnal?) code, anyways etc anyways etc anyways etc...
+						# <!-- custom: workaround as our code doesn't handle inconsistent occurence size (a button is 64px currently if not always or not anyways etc, but a label "or" would be smaller than 64px, messing the txtNums alignment of subsequent buttons (if any anyways etc), so to not rewrite all our code or tweak it too deeply, maybe this alternative solution is/can be quite elegant too instead, of putting the "or" label rather as a txtNum just between the buttons, and belonging to the new 2nd button we are adding (no "or" if first project so maybe more sensical or intuitive this way even though is still a hack but maybe not so bad or not or yes or and other or and not anyways etc anyways etc anyways etc...), not having thus to rewrite our otherwise working/functionning(functionnal?) code, anyways etc anyways etc anyways etc... -->
 						# (Also) S(s)ince our next button is a project, if we were to use this "or", it is fine to be a bit more aggressive with the adjustment and place the txtNum right inbetween both buttons, as no txtNum will be left or right of this txtNum directly in contact with it and colliding or being merged in unintended way, so i quite like this elegant solution :) hehe if i may say, but anyways etc anyways etc anyways etc... -->
 						numTxt = localText.getText("TXT_KEY_OR", ())
 						# <!-- custom: "or" numTxt aligned between this button and the previous one anyways etc -->
@@ -773,7 +774,7 @@ class SevoPediaBuilding:
 					screen.appendMultiListButton(rowListName, gc.getBuildingInfo(iDefaultBuilding).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefaultBuilding, 1, False)
 
 					numTxt = "InC"
-					extraCorrectionX = get_extra_correction_x(numTxt) + get_extra_correction_some_letters_off_centered_x()
+					extraCorrectionX = get_extra_correction_x(numTxt) + get_extra_correction_some_letters_or_other_causes_off_centered_x()
 					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
 					isButtonFound = True
@@ -809,37 +810,47 @@ class SevoPediaBuilding:
 
 
 
-	def displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(self, screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, xPanel, yPanel, wPanel, hPanel):
-		# <!-- custom: now display(ing anyways etc) the corresponding num or text matching the button if any (button) anyways etc -->
-		if isButtonFound:
-			yPanelBottomPart = yPanel + int(0.8 * hPanel)
-			for xOccurenceFound, numTxtOccurenceFound in xNumsOrTextsFound:
-				textName = self.top.getNextWidgetName()
-				szText = numTxtOccurenceFound
-				screen.addMultilineText(textName, szText, xOccurenceFound, yPanelBottomPart, 2 * buttonSize, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
-		# If no <!-- custom: button --> found, display a message
-		else:
-			yPanelCenter = yPanel + (hPanel / 2)
-			textName = self.top.getNextWidgetName()
-			szText = CyTranslator().getText(txtKeyNoButtonFound, ())
-			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
-
-
-	# Shows buildings that require this building as a prerequisite
 	def placeRequiredFor(self):
+		# Shows buildings that require this building as a prerequisite
+		#
+		xPanel = self.X_REQUIRED_FOR
+		yPanel = self.Y_REQUIRED_FOR
+		wPanel = self.W_REQUIRED_FOR
+		hPanel = self.H_REQUIRED_FOR
+
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 
-		nCountOccurencesFound = 0
-		xNumsOrTextsFound = []
-		buttonSize = 64
-
 		# Create panel with proper styling
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_REQUIRED_FOR", ()), "", False, True, self.X_REQUIRED_FOR, self.Y_REQUIRED_FOR, self.W_REQUIRED_FOR, self.H_REQUIRED_FOR, PanelStyles.PANEL_STYLE_BLUE50)
-		# Add padding
-		screen.attachLabel(panelName, "", "  ")
+		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_REQUIRED_FOR", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+
+		# Create MultiList for class and combat buttons
+		rowListName = self.top.getNextWidgetName()
+
+		# <!-- custom: addMultiListControlGFC code from our existing implementation we successfully did for the sevopedia religion leaders panel if i may say but anyways etc anyways etc anyways etc -->
+		# Constants for button display
+		BUTTON_SIZE = 64 # Size of each button
+		PANEL_MULTILIST_OFFSET_X = 9
+		PANEL_MULTILIST_OFFSET_Y = 36
+		PANEL_MULTILIST_ADDITIONAL_W = -1 * (PANEL_MULTILIST_OFFSET_X * 2)
+		PANEL_MULTILIST_ADDITIONAL_H = -1 * (PANEL_MULTILIST_OFFSET_Y)
+
+		# Create the MultiList control
+		# Per documentation, the numLists parameter (7th) is actually number of columns
+		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+		multiListX = xPanel + PANEL_MULTILIST_OFFSET_X
+		multiListY = yPanel + PANEL_MULTILIST_OFFSET_Y
+		multiListW = wPanel + PANEL_MULTILIST_ADDITIONAL_W
+		multiListH = hPanel + PANEL_MULTILIST_ADDITIONAL_H
+		# Using 1 for auto-calculation of buttons per row
+		buttonCalculate = 1
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+
+		isButtonFound = False
+		iButtonIndex = 0
+
+		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+		buttonsPerRow = get_max_occurences_found_buttons_per_row(wPanel, BUTTON_SIZE)
 		
 		# Get the building class of our current building
 		iCurrentBuildingClass = gc.getBuildingInfo(self.iBuilding).getBuildingClassType()
@@ -850,28 +861,37 @@ class SevoPediaBuilding:
 			
 			# Check if this building is needed via BuildingClassNeededs
 			if loopBuildingInfo.isBuildingClassNeededInCity(iCurrentBuildingClass):
-				nCountOccurencesFound += 1
-				numTxt = "InC"
-				xSubstractedAdjustment = int(0.75 * buttonSize)
-				xPanel = self.X_REQUIRED_FOR
-				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
+				# Column index (always 0 when numLists=1)
+				columnIndex = 0
+				screen.appendMultiListButton(rowListName, loopBuildingInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iLoopBuilding, 1, False)
 
-				screen.attachImageButton(panelName, "", loopBuildingInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iLoopBuilding, -1, False)
+				numTxt = "InC"
+				extraCorrectionX = get_extra_correction_x(numTxt) + get_extra_correction_some_letters_or_other_causes_off_centered_x()
+				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+
+				isButtonFound = True
+				iButtonIndex += 1
 			
 			# Check if this building is needed via PrereqBuildingClasses
 			iNumRequired = loopBuildingInfo.getPrereqNumOfBuildingClass(iCurrentBuildingClass)
 			if iNumRequired > 0:
-				nCountOccurencesFound += 1
-				numTxt = u"AllC %s+RM" % iNumRequired
-				xSubstractedAdjustment = int(1.19 * buttonSize)
-				xPanel = self.X_REQUIRED_FOR
-				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
+				# Column index (always 0 when numLists=1)
+				columnIndex = 0
+				screen.appendMultiListButton(rowListName, loopBuildingInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iLoopBuilding, 1, False)
 
-				screen.attachImageButton(panelName, "", loopBuildingInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iLoopBuilding, -1, False)
+				numTxt = "AllC %s+RM" % iNumRequired
+				extraCorrectionX = get_extra_correction_x(numTxt)
+				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
-		isButtonFound = (nCountOccurencesFound > 0)
-		txtKeyNoButtonFound = "TXT_KEY_PEDIA_REQUIRED_FOR_NO_BUTTON_FOUND"
-		self.displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, self.X_REQUIRED_FOR, self.Y_REQUIRED_FOR, self.W_REQUIRED_FOR, self.H_REQUIRED_FOR)
+				isButtonFound = True
+				iButtonIndex += 1
+
+		if not isButtonFound:
+			txtKey = "TXT_KEY_PEDIA_REQUIRED_FOR_NO_BUTTON_FOUND"
+			textName = self.top.getNextWidgetName()
+			szText = CyTranslator().getText(txtKey, ())
+			yPanelCenter = yPanel + (hPanel / 2)
+			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -890,7 +910,7 @@ class SevoPediaBuilding:
 		# Check if the building has an obsolete tech directly <!-- custom: (i assume is about the obsoletetech info in (adjust to your mod path) for example C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Buildings\CIV4BuildingInfos.xml) -->
 		iObsoleteTech = buildingInfo.getObsoleteTech()
 	
-		# If no direct obsolete tech, check if it's a special building type<!-- cus
+		# If no direct obsolete tech, check if it's a special building type
 		# <!-- custom: (e.g. the jewish monastery appears as never obsolete from the direct obsolete tech check due to <ObsoleteTech>NONE</ObsoleteTech>, but it does get obsolete at scientific method though in <ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech> at (adjust with your mod path if different) for example C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Buildings\CIV4SpecialBuildingInfos.xml (now this file is/has been imported in AdvCiv-SAS as well in case we need to change it and to have all info we want and control it if i may say anyways etc anyways etc anyways etc...)) -->
 		if iObsoleteTech == -1:
 			iSpecialBuildingType = buildingInfo.getSpecialBuildingType()
@@ -915,18 +935,44 @@ class SevoPediaBuilding:
 
 
 	def placeFreePBBS(self):
+		xPanel = self.X_FREE_PBBS
+		yPanel = self.Y_FREE_PBBS
+		wPanel = self.W_FREE_PBBS
+		hPanel = self.H_FREE_PBBS
+
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		
+
 		# Create panel with proper styling
-		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_FREE_PBBS", ()), "", False, True, self.X_FREE_PBBS, self.Y_FREE_PBBS, self.W_FREE_PBBS, self.H_FREE_PBBS, PanelStyles.PANEL_STYLE_BLUE50)
-		# Additional left side padding for the button(s)
-		screen.attachLabel(panelName, "", "  ")
-		
-		nCountOccurencesFound = 0
-		xNumsOrTextsFound = []
-		buttonSize = 64
-		xSubstractedAdjustmentNums = 0.61
+		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_FREE_PBBS", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+
+		# Create MultiList for class and combat buttons
+		rowListName = self.top.getNextWidgetName()
+
+		# <!-- custom: addMultiListControlGFC code from our existing implementation we successfully did for the sevopedia religion leaders panel if i may say but anyways etc anyways etc anyways etc -->
+		# Constants for button display
+		BUTTON_SIZE = 64 # Size of each button
+		PANEL_MULTILIST_OFFSET_X = 9
+		PANEL_MULTILIST_OFFSET_Y = 36
+		PANEL_MULTILIST_ADDITIONAL_W = -1 * (PANEL_MULTILIST_OFFSET_X * 2)
+		PANEL_MULTILIST_ADDITIONAL_H = -1 * (PANEL_MULTILIST_OFFSET_Y)
+
+		# Create the MultiList control
+		# Per documentation, the numLists parameter (7th) is actually number of columns
+		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+		multiListX = xPanel + PANEL_MULTILIST_OFFSET_X
+		multiListY = yPanel + PANEL_MULTILIST_OFFSET_Y
+		multiListW = wPanel + PANEL_MULTILIST_ADDITIONAL_W
+		multiListH = hPanel + PANEL_MULTILIST_ADDITIONAL_H
+		# Using 1 for auto-calculation of buttons per row
+		buttonCalculate = 1
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+
+		isButtonFound = False
+		iButtonIndex = 0
+
+		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+		buttonsPerRow = get_max_occurences_found_buttons_per_row(wPanel, BUTTON_SIZE)
 
 		# Get the building info
 		buildingInfo = gc.getBuildingInfo(self.iBuilding)
@@ -934,85 +980,80 @@ class SevoPediaBuilding:
 		# Check if the building grants a free promotion<!-- custom: , and attach(or /"display" maybe indeed too anyways etc anyways etc anyways etc as ClaudeAI said anyways etc its button if there is any/a (free promotion) -->
 		iFreePromotion = buildingInfo.getFreePromotion()
 		if iFreePromotion != -1:
-			# <!-- custom: store text position matching the button for later display as a text -->
-			nCountOccurencesFound += 1
-			numTxt = "All Un.C"
-			xSubstractedAdjustment = int(1.04 * buttonSize)
-			xPanel = self.X_FREE_PBBS
-			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
+			# Column index (always 0 when numLists=1)
+			columnIndex = 0
+			screen.appendMultiListButton(rowListName, gc.getPromotionInfo(iFreePromotion).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iFreePromotion, 1, False)
 
-			# <!-- custom: (but) attach button right now -->
-			screen.attachImageButton(panelName, "", gc.getPromotionInfo(iFreePromotion).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iFreePromotion, -1, False)
+			numTxt = "All Un.C"
+			extraCorrectionX = get_extra_correction_x(numTxt)
+			add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+
+			isButtonFound = True
+			iButtonIndex += 1
 		
 		# Check if the building grants a free building
 		iFreeBuildingClass = buildingInfo.getFreeBuildingClass()
 		if iFreeBuildingClass != -1:
-			nCountOccurencesFound += 1
-			numTxt = "All Cs"
-			xSubstractedAdjustment = int(0.87 * buttonSize)
-			xPanel = self.X_FREE_PBBS
-			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
-
-			# Get the default building of this class for the current civilization
-			if self.top.iActivePlayer != -1:
-				iDefaultBuilding = gc.getCivilizationInfo(gc.getPlayer(self.top.iActivePlayer).getCivilizationType()).getCivilizationBuildings(iFreeBuildingClass)
-			else:
-				iDefaultBuilding = gc.getBuildingClassInfo(iFreeBuildingClass).getDefaultBuildingIndex()
+			iDefaultBuilding =  self.get_iDefaultBuilding_current_civ(iFreeBuildingClass)
 			
 			# If a valid building exists, display its button
 			if iDefaultBuilding != -1:
-				screen.attachImageButton(panelName, "", gc.getBuildingInfo(iDefaultBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefaultBuilding, -1, False)
+				# Column index (always 0 when numLists=1)
+				columnIndex = 0
+				screen.appendMultiListButton(rowListName, gc.getBuildingInfo(iDefaultBuilding).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefaultBuilding, 1, False)
+
+				numTxt = "All Cs"
+				extraCorrectionX = get_extra_correction_x(numTxt)
+				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+
+				isButtonFound = True
+				iButtonIndex += 1
 
 		# Check if the building grants a free bonus
 		iFreeBonus = buildingInfo.getFreeBonus()
-		iNumFreeBonuses = buildingInfo.getNumFreeBonuses()
 		
 		if iFreeBonus != -1:
-			# <!-- custom: store text position matching the button for later display as a text -->
-			nCountOccurencesFound += 1
+			iNumFreeBonuses = buildingInfo.getNumFreeBonuses()
 
-			# <!-- custom: note: for freebonus, done according to according to kujira's website if i am not mistaken anyways etc, in https://gforestshade.github.io/kujira/post/civ4buildinginfos/#inumfreebonuses (translated to english with google chrome), see also "for freebonus, done according to kujira's website" note/code comment at top of this py file if need(ed? But or not but or yes but or etc but anyways etc anyways etc anyways etc) anyways etc:
-			# based on this, displaying free bonus if >= 1 or if == -1, adjusting display depending on this
-			# -->
+			# Column index (always 0 when numLists=1)
+			columnIndex = 0
+			screen.appendMultiListButton(rowListName, gc.getBonusInfo(iFreeBonus).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iFreeBonus, 1, False)
 
-			if iNumFreeBonuses == -1:
-				numTxt = "RM"
-				xSubstractedAdjustment = int(0.74 * buttonSize)
-			elif iNumFreeBonuses >= 1:
-				numTxt = u"%s" % (iNumFreeBonuses)
-				xSubstractedAdjustment = int(xSubstractedAdjustmentNums * buttonSize)
-			else:
-				raise ValueError("[FATAL] Unexpected iNumFreeBonuses=%d value out of bounds iNumFreeBonuses == -1 or iNumFreeBonuses >=1, please verify the code and iNumFreeBonuses are behaving as intended and adjust this sevopedia code or/and your mod code based on this as you want/prefer anyways etc. Note: for info str(FreeBonus) (for display in this error message anyways etc)=%s anyways etc." % (iNumFreeBonuses, str(iFreeBonus)))
-			
-			xPanel = self.X_FREE_PBBS
-			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
+			numTxt = get_numTxt_num_free_bonus_or_random_map(iNumFreeBonuses)
+			extraCorrectionX = get_extra_correction_x(numTxt) + get_extra_correction_some_letters_or_other_causes_off_centered_x()
+			add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
-			# <!-- custom: (but) attach button right now -->
-			screen.attachImageButton(panelName, "", gc.getBonusInfo(iFreeBonus).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iFreeBonus, -1, False)
+			isButtonFound = True
+			iButtonIndex += 1
 			
 		# Check if the building grants free specialists - simpler approach
 		for iSpecialist in range(gc.getNumSpecialistInfos()):
 			if buildingInfo.getFreeSpecialistCount(iSpecialist) > 0:
-				# <!-- custom: store text position matching the button for later display as a text -->
-				nCountOccurencesFound += 1
 				iSpecialistCount = buildingInfo.getFreeSpecialistCount(iSpecialist)
-				numTxt = u"%s" % (iSpecialistCount)
-				xSubstractedAdjustment = int(xSubstractedAdjustmentNums * buttonSize)
-				xPanel = self.X_FREE_PBBS
-				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
 
-				# <!-- custom: (but) attach button right now -->
-				screen.attachImageButton(panelName, "", gc.getSpecialistInfo(iSpecialist).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, iSpecialist, -1, False)
+				# Column index (always 0 when numLists=1)
+				columnIndex = 0
+				screen.appendMultiListButton(rowListName, gc.getSpecialistInfo(iSpecialist).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, iSpecialist, 1, False)
 
-		isButtonFound = (nCountOccurencesFound > 0)
-		txtKeyNoButtonFound = "TXT_KEY_PEDIA_FREE_PBBS_NO_BUTTON_FOUND"
-		self.displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, self.X_FREE_PBBS, self.Y_FREE_PBBS, self.W_FREE_PBBS, self.H_FREE_PBBS)
+				numTxt = "%d" % iSpecialistCount
+				extraCorrectionX = get_extra_correction_x(numTxt) + get_extra_correction_some_letters_or_other_causes_off_centered_x()
+				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
-		# <!-- custom: see also the "For (/to) parsing (parse?)" note/code comment and/or the "example of how to directly import a button path" at top of this py file if need(ed?) but or not or yes but but anyways etc anyways etc anyways etc -->
+				isButtonFound = True
+				iButtonIndex += 1
 
-	# Helper function to determine if a building is civ-specific (unique)
+		if not isButtonFound:
+			txtKey = "TXT_KEY_PEDIA_FREE_PBBS_NO_BUTTON_FOUND"
+			textName = self.top.getNextWidgetName()
+			szText = CyTranslator().getText(txtKey, ())
+			yPanelCenter = yPanel + (hPanel / 2)
+			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+
+
 	def isBuildingUnique(self, iBuildingIndex):
-
+		# Helper function to determine if a building is civ-specific (unique)
+		#
 		buildingInfo = gc.getBuildingInfo(iBuildingIndex)
 		buildingClassInfo = gc.getBuildingClassInfo(buildingInfo.getBuildingClassType())
 		
@@ -1021,8 +1062,10 @@ class SevoPediaBuilding:
 		return iBuildingIndex != defaultBuildingForClass
 
 
-	# Helper function to get which civ a unique building belongs to
+
 	def getBuildingCiv(self, iBuildingIndex):
+		# Helper function to get which civ a unique building belongs to
+		#
 		buildingInfo = gc.getBuildingInfo(iBuildingIndex)
 		buildingClassType = buildingInfo.getBuildingClassType()
 		
@@ -1035,9 +1078,10 @@ class SevoPediaBuilding:
 		return -1  # Should not happen for unique buildings
 
 
-	# Helper function to check if a building class has any unique versions
-	def buildingClassHasUniqueVersions(self, buildingClassType):
 
+	def buildingClassHasUniqueVersions(self, buildingClassType):
+		# Helper function to check if a building class has any unique versions
+		#
 		buildingClassInfo = gc.getBuildingClassInfo(buildingClassType)
 		defaultBuilding = buildingClassInfo.getDefaultBuildingIndex()
 		

@@ -152,10 +152,19 @@ def get_numTxt_combat_type_modifiers(iModCombat):
 
 
 
+def get_numTxt_num_free_bonus_or_random_map(iNumFreeBonuses):
+	# <!-- custom: note: for freebonus, done according to kujira's website if i am not mistaken anyways etc, in https://gforestshade.github.io/kujira/post/civ4buildinginfos/#inumfreebonuses (translated to english with google chrome), see also "for freebonus, done according to kujira's website" note/code comment at top of sevopedia building py file if need(ed? But or not but or yes but or etc but anyways etc anyways etc anyways etc) anyways etc: based on this, displaying free bonus if >= 1 or if == -1, adjusting display depending on this -->
+	if iNumFreeBonuses == -1:
+		return "RM"
+	elif iNumFreeBonuses >= 1:
+		return "%d" % (iNumFreeBonuses)
+	else:
+		raise ValueError("[FATAL] Unexpected iNumFreeBonuses=%d value out of bounds of iNumFreeBonuses == -1 or iNumFreeBonuses >=1, please verify the code and iNumFreeBonuses are behaving as intended and adjust this sevopedia code or/and your mod code based on this as you want/prefer anyways etc." % iNumFreeBonuses)
+
+
+
 def get_extra_correction_x(numTxt):
-	if len(numTxt) < 3:
-		return -3
-	elif len(numTxt) == 3:
+	if len(numTxt) <= 3:
 		return -4
 	elif len(numTxt) == 4:
 		# <!-- custom: example "+50%" -->
@@ -171,7 +180,7 @@ def get_extra_correction_x(numTxt):
 
 
 
-def get_extra_correction_some_letters_off_centered_x():
+def get_extra_correction_some_letters_or_other_causes_off_centered_x():
 	# <!-- custom: it seems this numTxt takes slightly more room than expected and is off-centered as a result, maybe because of capitalized letters of maybe alphabetical chars take a bit more room or some other cause, in all cases it uses same code base than for numerical values and such in other parts of the code anyways etc, so just add a small correction specifically for this numTxt or/and in other similar cases if any other anyways etc -->
 	return -2
 
