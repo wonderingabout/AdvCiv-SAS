@@ -72,4 +72,20 @@ and modified for our needs if needed. -->
 		<Tag>TXT_KEY_BONUS_CAMEL_PEDIA</Tag>
 		<English>[TAB]A camel is an even-toed ungulate within the genus Camelus, bearing distinctive fatty deposits known as humps on its back. There are two species of camels: the dromedary or Arabian camel has a single hump, and the bactrian has two humps. Dromedaries are native to the dry desert areas of West Asia, and Bactrian camels are native to Central and East Asia. Both species are domesticated.[NEWLINE][NEWLINE][TAB]Camels provide milk and meat, and are working animals. Their hair is also used as a source material for woven goods, ranging from Bedouin tents to garments. They are well-suited to long desert journeys and can carry a great deal of cargo, allowing substantial trade over desert regions since ancient times. Camels have been used in wars throughout Africa, the Middle East and India, both as mounts and freight animals, instead of horses and mules.</English>
 	</TEXT>
+
+
+
+	<!-- custom: add a note that these are plot types if i am not mistaken not terrains anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TERRAIN_HILL_PEDIA</Tag>
+		<English>[TAB]A hill is a landform that extends above the surrounding terrain. Hills often have a distinct summit, although in areas with scarp/dip topography a hill may refer to a particular section of flat terrain without a massive summit.[PARAGRAPH:2]Note: although this "terrain" is displayed in the terrains sevopedia category, it (and other plot types as well anyways etc) is in fact not a terrain but a plot type, showed here for convenience of gathering same info in same page and would be tedious or hard or long to create a new page, i hope this info is helpful, so for example if i (AdvCiv-SAS maintainer as of now anyways etc) am not mistaken anyways etc then there can be plot type hill + terrain grassland + feature forest in one tile for example, or plot type peak on a tile for example, or plot type flatland + terrain plains + feature none ; see https://civilization.fandom.com/wiki/Terrain_(Civ4)#Vertical_Terrain or https://forums.civfanatics.com/threads/creating-new-plot-types.410289/post-10175128and for details anyways etc</English>
+	</TEXT>
+
+
+
+	<!-- custom: add a note that these are plot types if i am not mistaken not terrains anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TERRAIN_PEAK_PEDIA</Tag>
+		<English>[TAB]A mountain is a large landform that stretches above the surrounding land in a limited area, usually in the form of a peak. A mountain is generally steeper than a hill. Mountains are formed through tectonic forces or volcanism. These forces can locally raise the surface of the earth. Mountains erode slowly through the action of rivers, weather conditions, and glaciers. A few mountains are isolated summits, but most occur in huge mountain ranges.[PARAGRAPH:1]High elevations on mountains produce colder climates than at sea level. These colder climates strongly affect the ecosystem of mountains: different elevations have different plants and animals. Because of the less hospitable terrain and climate, mountains tend to be used less for agriculture and more for resource extraction and recreation, such as mountain climbing.[PARAGRAPH:2]Note: although this "terrain" is displayed in the terrains sevopedia category, it (and other plot types as well anyways etc) is in fact not a terrain but a plot type, showed here for convenience of gathering same info in same page and would be tedious or hard or long to create a new page, i hope this info is helpful, so for example if i (AdvCiv-SAS maintainer as of now anyways etc) am not mistaken anyways etc then there can be plot type hill + terrain grassland + feature forest in one tile for example, or plot type peak on a tile for example, or plot type flatland + terrain plains + feature none ; see https://civilization.fandom.com/wiki/Terrain_(Civ4)#Vertical_Terrain or https://forums.civfanatics.com/threads/creating-new-plot-types.410289/post-10175128and for details anyways etc</English>
+	</TEXT>
 </Civ4GameText>

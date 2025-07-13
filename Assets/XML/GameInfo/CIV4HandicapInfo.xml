@@ -150,9 +150,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- custom: adjusted based on this line "For GP and growth thresholds, I've added GPThresholdPercent and BaseGrowthThresholdPercent (for all civs) and AIGPThresholdPercent (for AI civs)." (from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv Base Doc\manual.txt) anyways etc -->
 			<iAIGPThresholdPercent>115</iAIGPThresholdPercent>
 			<!-- custom: reworked tech costs, see deity code comment of <iResearchPercent> for details at least as of now the code comment is there i mean anyways etc -->
-			<iAIResearchPercent>127</iAIResearchPercent>
+			<iAIResearchPercent>130</iAIResearchPercent>
 			<!-- was 6x 160 -->
-			<iAITrainPercent>124</iAITrainPercent>
+			<iAITrainPercent>130</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>118</iAIConstructPercent>
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
@@ -277,9 +277,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- was 130 -->
 			<iAIGrowthPercent>110</iAIGrowthPercent>
 			<iAIGPThresholdPercent>110</iAIGPThresholdPercent>
-			<iAIResearchPercent>118</iAIResearchPercent>
+			<iAIResearchPercent>120</iAIResearchPercent>
 			<!-- was 6x 130 -->
-			<iAITrainPercent>116</iAITrainPercent>
+			<iAITrainPercent>120</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>112</iAIConstructPercent>
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
@@ -404,8 +404,8 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.251 -->
 			<iAIGPThresholdPercent>105</iAIGPThresholdPercent>
 			<!-- advc.251 -->
-			<iAIResearchPercent>109</iAIResearchPercent>
-			<iAITrainPercent>108</iAITrainPercent>
+			<iAIResearchPercent>110</iAIResearchPercent>
+			<iAITrainPercent>110</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>106</iAIConstructPercent>
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
@@ -665,8 +665,8 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.251 -->
 			<iAIGPThresholdPercent>95</iAIGPThresholdPercent>
 			<!-- advc.251 -->
-			<iAIResearchPercent>91</iAIResearchPercent>
-			<iAITrainPercent>92</iAITrainPercent>
+			<iAIResearchPercent>90</iAIResearchPercent>
+			<iAITrainPercent>90</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>94</iAIConstructPercent>
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
@@ -794,16 +794,16 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
-			<iBarbarianDefenders>2</iBarbarianDefenders>
+			<iBarbarianDefenders>1</iBarbarianDefenders>
 			<iAIDeclareWarProb>120</iAIDeclareWarProb>
 			<!-- advc.251: was 20 -->
 			<iAIWorkRateModifier>20</iAIWorkRateModifier>
 			<iAIGrowthPercent>90</iAIGrowthPercent>
 			<!-- advc.251 (start) -->
 			<iAIGPThresholdPercent>90</iAIGPThresholdPercent>
-			<iAIResearchPercent>82</iAIResearchPercent>
+			<iAIResearchPercent>80</iAIResearchPercent>
 			<!-- was 90 -->
-			<iAITrainPercent>84</iAITrainPercent>
+			<iAITrainPercent>80</iAITrainPercent>
 			<!-- was 100 -->
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<!-- was 90 -->
@@ -929,7 +929,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<!-- advc.250e: was 1 -->
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
-			<iBarbarianDefenders>2</iBarbarianDefenders>
+			<iBarbarianDefenders>1</iBarbarianDefenders>
 			<iAIDeclareWarProb>130</iAIDeclareWarProb>
 			<!-- advc.251: was 50 -->
 			<iAIWorkRateModifier>30</iAIWorkRateModifier>
@@ -937,9 +937,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.251 (start) -->
 			<iAIGPThresholdPercent>85</iAIGPThresholdPercent>
 			<!-- Higher tech costs for the AI -->
-			<iAIResearchPercent>73</iAIResearchPercent>
+			<iAIResearchPercent>70</iAIResearchPercent>
 			<!-- was 85 -->
-			<iAITrainPercent>76</iAITrainPercent>
+			<iAITrainPercent>70</iAITrainPercent>
 			<!-- was 100 -->
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<!-- was 85 -->
@@ -1069,7 +1069,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.250e: was 1 -->
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
 			<!-- advc.250e: was 4 -->
-			<iBarbarianDefenders>2</iBarbarianDefenders>
+			<iBarbarianDefenders>1</iBarbarianDefenders>
 			<iAIDeclareWarProb>140</iAIDeclareWarProb>
 			<!-- advc.251: was 75 -->
 			<iAIWorkRateModifier>40</iAIWorkRateModifier>
@@ -1077,9 +1077,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.251 (start) -->
 			<iAIGPThresholdPercent>80</iAIGPThresholdPercent>
 			<!-- Higher tech costs for the AI -->
-			<iAIResearchPercent>64</iAIResearchPercent>
+			<iAIResearchPercent>60</iAIResearchPercent>
 			<!-- was 80 -->
-			<iAITrainPercent>68</iAITrainPercent>
+			<iAITrainPercent>60</iAITrainPercent>
 			<!-- was 100 -->
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>76</iAIConstructPercent>
@@ -1209,7 +1209,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIStartingDefenseUnits>3</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>1</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
-			<iBarbarianDefenders>3</iBarbarianDefenders>
+			<iBarbarianDefenders>1</iBarbarianDefenders>
 			<iAIDeclareWarProb>150</iAIDeclareWarProb>
 			<!-- advc.251: was 100 -->
 			<iAIWorkRateModifier>50</iAIWorkRateModifier>
@@ -1217,9 +1217,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.251 (start) -->
 			<iAIGPThresholdPercent>75</iAIGPThresholdPercent>
 			<!-- Higher tech costs for the AI -->
-			<iAIResearchPercent>55</iAIResearchPercent>
+			<iAIResearchPercent>50</iAIResearchPercent>
 			<!-- was 60 -->
-			<iAITrainPercent>60</iAITrainPercent>
+			<iAITrainPercent>50</iAITrainPercent>
 			<!-- custom: i want more reliable handicap settings if i am not mistaken in my understanding and after asking chatgpt / becomingthrough and with a web search i asked it to do to be sure too anyways etc, it told me "According to the Civilization Wiki, the iAIWorldTrainPercent values vary across difficulty levels:" etc.. until "Settler	160 Chieftain 130 Warlord 110 Noble 100 Prince 100 Monarch 100 Emperor 100 Immortal 100 Deity 100" so based on this xml raw data and observation, what i make of it and interpret of it if i may say for our needs in advciv-sas but anyways etc, is that i want reliable AI behaviour when it comes to military hammer train percents, regardless of world size at all difficulties, anyways etc ; seemingly similar reasoning for iAIWorldConstructPercent and iAIWorldCreatePercent if i am not mistaken too anyways etc -->
 			<!-- was 100-->
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>

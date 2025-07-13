@@ -1,6 +1,20 @@
 # <!-- custom: constants useful for numTxt under button placement in a grid-like manner anyways , i got the idea to move them here rather to enhance reuse and remove redundance thanks to chatgpt general comment about them hehe anyways etc thanks anyways etc thanks chatgpt etc anyways etc and me toot thanks anyways etc ; note: these are for non-multilist panels, commented-out if we don't need them but kept for reference still if may serve someday but anyways etc -->
-HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING = 9
-HYPOTHESIZED_INTER_BUTTON_SPACING = 4
+#HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING = 9
+#HYPOTHESIZED_INTER_BUTTON_SPACING = 4
+
+
+
+# <!-- custom: for multilist panels -->
+MULTI_LIST_PANEL_OFFSET_X = 9
+MULTI_LIST_PANEL_OFFSET_Y = 36
+MULTI_LIST_PANEL_ADDITIONAL_W = -1 * (MULTI_LIST_PANEL_OFFSET_X * 2)
+MULTI_LIST_PANEL_ADDITIONAL_H = -1 * (MULTI_LIST_PANEL_OFFSET_Y)
+# <!-- custom: note: no HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING equivalent for multilists if i am not mistaken as this value is the same as PANEL_MULTILIST_OFFSET_X if i am not mistaken anyways etc so using the real value rather anyways etc ; so we use instead PANEL_MULTILIST_OFFSET_X directly for example in get_multilist_max_buttons_per_row as of now at least hopefully helpful but or not but or yes but anyways etc anyways etc anyways etc -->
+HYPOTHESIZED_MULTI_LIST_EDGE_PADDING = 9
+# <!-- custom: it seems the multilist method uses a smaller inter button lateral spacing than the non multilist one, so adjust as fit anyways etc -->
+HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING = 2
+# <!-- custom: note: below line not yet tested anyways etc -->
+HYPOTHESIZED_MULTI_LIST_INTER_LINE_VERTICAL_SPACING = 4
 
 
 
@@ -75,6 +89,15 @@ def check_icon_size_fits_within_icon_frame_size(icon_size, icon_frame_size):
 
 
 
+# <!-- custom: handle for example PROMOTION_GUERILLA1 now being renamed to PROMOTION_HILLS_MASTER1 if i am not mistaken anyways etc, so summoning wrong asset for example as is done in sevopedia bonus's placeUnits panel as of now anyways etc should raise an error not silently pass if i may say and if i am not mistaken anyways etc -->
+def getInfoTypeOrFail(tag, gc):
+	iType = gc.getInfoTypeForString(tag)
+	if iType == -1:
+		raise ValueError("Missing XML tag: '%s'" % tag)
+	return iType
+
+
+
 def check_button_path_is_valid(buttonHeader, resolvedButtonPath, configButtonPathSTxtKey):
 	if resolvedButtonPath == configButtonPathSTxtKey:
 		raise ValueError(u"[VALUE ERROR] Button path not found in XML (resolvedButtonPath=%s matches configButtonPath=%s in buttonHeader=%s, which indicates button path provided in config most likely does not exist in the XML), please check button path provided exists in your mod path and also matches button path in (or in - whichever filename it would have in the future -) AdvCiv-SAS_ImagesAsButtons.xml or/and AdvCiv-SAS_Button_Paths_Hardcoded.xml (or wherever they are stored in the future if these files's filename or code changes anyways etc) is valid and exists in your mod path." % (resolvedButtonPath, configButtonPathSTxtKey, buttonHeader))
@@ -121,29 +144,86 @@ def check_images_as_buttons_paths_are_valid(txtKeyDict, localText):
 
 
 
-def get_max_occurences_found_buttons_per_row(panelWidth, buttonsize):
-	totalButtonWidth = buttonsize + HYPOTHESIZED_INTER_BUTTON_SPACING
-	return int((panelWidth - HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING) / totalButtonWidth)
+def get_hills_button(gc):
+	# Try to find a hills button from the terrain infos
+	for i in range(gc.getNumTerrainInfos()):
+		terrainInfo = gc.getTerrainInfo(i)
+		if "HILL" in terrainInfo.getType():
+			return terrainInfo.getButton()
+		
+	return None
+
+
+
+def get_hills_terrain_id(gc):
+	# Try to find a hills button from the terrain infos
+	for i in range(gc.getNumTerrainInfos()):
+		if "HILL" in gc.getTerrainInfo(i).getType():
+			return i
+
+	return -1
+
+
+
+def get_citiesResolvedButtonPath(localText):
+	citiesConfigButtonPathTxtKey = "TXT_KEY_BUTTON_PATH_HARDCODED_CITIES_BUTTON_PATH"
+	# <!-- custom: add str() wrapper else (i.e. without it anyways etc) we get an error (it seems) (but anyways etc) anyways (i.e. not impliying it is necessary, but without it we get this error with this other kind of button writing code that does not use same logic as the add as <img> one of other buttons anyways etc (from err log anyways etc):
+	#
+	# ArgumentError: Python argument types in
+	#	CyGInterfaceScreen.attachImageButton(CyGInterfaceScreen, str, str, unicode, CvPythonExtensions.GenericButtonSizes, CvPythonExtensions.WidgetTypes, CvPythonExtensions.CivilopediaPageTypes, int, bool)
+	# did not match C++ signature:
+	#	attachImageButton(class CyGInterfaceScreen {lvalue}, char const *, char const *, char const *, enum GenericButtonSizes, enum WidgetTypes, int, int, bool)
+	#  
+	# (adding the str) may or may not be necessary or an alternative solution to this may exist or not, but in all cases anyways etc) anyways etc, etc -->
+	citiesResolvedButtonPath = str(localText.getText(citiesConfigButtonPathTxtKey, ()))
+
+	citiesButtonHeader = "Cities button in Sevopedia Unit's placePeakHillCityTerrainsFeaturesModifiers"
+	check_button_path_is_valid(citiesButtonHeader, citiesResolvedButtonPath, citiesConfigButtonPathTxtKey)
+
+	return citiesResolvedButtonPath
+
+
+
+def get_cities_concept_id(gc):
+	# Find the concept ID for "CONCEPT_CITIES"
+	for i in range(gc.getNumConceptInfos()):
+		if gc.getConceptInfo(i).getType() == "CONCEPT_CITIES":
+			return i
+
+	return -1
+
+
+
+def get_concept_widgetType_widgetID1_widgetID2(conceptID, widgetTypes, civilopediaPageTypes):
+	if conceptID != -1:
+		# For concepts, use WIDGET_PEDIA_DESCRIPTION with proper page type and ID
+		widgetType = widgetTypes.WIDGET_PEDIA_DESCRIPTION
+		widgetID1 = civilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT
+		widgetID2 = conceptID
+		return widgetType, widgetID1, widgetID2
+	else:
+		# Default to WIDGET_GENERAL with no click action
+		widgetType = widgetTypes.WIDGET_GENERAL
+		widgetID1 = -1
+		widgetID2 = -1
+		return widgetType, widgetID1, widgetID2
 
 
 
 def get_numTxt_attack_defense_modifiers(iModAttack, iModDefense):
-	numTxt = None
-
 	# Handle class modifiers with x/y format
 	# Use %+d to always show the sign (+ or -)
-	if iModAttack != 0 or iModDefense != 0:
-		if iModAttack != 0 and iModDefense != 0:
-			# Both attack and defense: x/y format
-			return "%+d/%+d" % (iModAttack, iModDefense)
-		elif iModAttack != 0:
-			# Only attack: x/* format
-			return "%+d/_" % (iModAttack)
-		elif iModDefense != 0:
-			# Only defense: */y format
-			return "_/%+d" % (iModDefense)
-	
-	return numTxt
+	if iModAttack != 0 and iModDefense != 0:
+		# Both attack and defense: x/y format
+		return "%+d/%+d" % (iModAttack, iModDefense)
+	elif iModAttack != 0:
+		# Only attack: x/* format
+		return "%+d/_" % (iModAttack)
+	elif iModDefense != 0:
+		# Only defense: */y format
+		return "_/%+d" % (iModDefense)
+	else:
+		return "_/_"
 
 
 
@@ -165,24 +245,19 @@ def get_numTxt_num_free_bonus_or_random_map(iNumFreeBonuses):
 
 def get_extra_correction_x(numTxt):
 	if len(numTxt) <= 3:
-		return -4
+		# <!-- custom: example "_/_", "1", etc -->
+		return -6
 	elif len(numTxt) == 4:
 		# <!-- custom: example "+50%" -->
-		return -5
+		return -6
 	elif len(numTxt) == 5:
 		# <!-- custom: example "+50/_", "+100%", etc -->
-		return -6
-	elif len(numTxt) == 6:
 		return -7
+	elif len(numTxt) == 6:
+		return -8
 	else:
 		# <!-- custom: example "+25/+25" -->
 		return -8
-
-
-
-def get_extra_correction_some_letters_or_other_causes_off_centered_x():
-	# <!-- custom: it seems this numTxt takes slightly more room than expected and is off-centered as a result, maybe because of capitalized letters of maybe alphabetical chars take a bit more room or some other cause, in all cases it uses same code base than for numerical values and such in other parts of the code anyways etc, so just add a small correction specifically for this numTxt or/and in other similar cases if any other anyways etc -->
-	return -2
 
 
 
@@ -191,20 +266,22 @@ def get_extra_correction_x_inbetween_buttons(button_size):
 
 	# <!-- custom: also add a small extra correction because we are slightly off from the center point of between the panels if i may say anyways etc -->
 	extraCorrectionOffFromTheCenter = -3
+
 	return (-1 * (int(button_size / 2))) + extraCorrectionOffFromTheCenter
 
 
-def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, button_size, buttonsPerRow, numTxt, screen, selfTop, widgetType, font):
-	# <!-- custom: for multiline lists -->
-	HYPOTHESIZED_MULTI_LIST_EDGE_PADDING = 9
-	# <!-- custom: it seems the multilist method uses a smaller inter button lateral spacing than the non multilist one, so adjust as fit anyways etc -->
-	HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING = 2
-	# <!-- custom: note: below line not yet tested anyways etc -->
-	HYPOTHESIZED_MULTI_LIST_INTER_LINE_VERTICAL_SPACING = 4
 
+def get_multilist_max_buttons_per_row(panelWidth, buttonsize):
+	totalButtonWidth = buttonsize + HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING
+
+	return int((panelWidth - MULTI_LIST_PANEL_OFFSET_X) / totalButtonWidth)
+
+
+
+def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, button_size, maxButtonsPerRow, numTxt, screen, selfTop, widgetType, font):
 	textName = selfTop.getNextWidgetName()
-	buttonColumn = iButtonIndex % buttonsPerRow
-	buttonRow = iButtonIndex // buttonsPerRow
+	buttonColumn = iButtonIndex % maxButtonsPerRow
+	buttonRow = iButtonIndex // maxButtonsPerRow
 
 	# <!-- custom: note: since we start at 0 in this nice system chatgpt and claude ai if i may say helped me design and adjust but anyways etc and that i did myself too if i may say but anyways etc anyways etc anyways etc, we don't need to handle the 1th no spacing with next item of the list, as anything multilied by 0 negates spacing, this applies to both column and row calculation(s) if i am not mistaken but or not but but anyways etc anyways etc anyways etc ; however we just add a X correction to start not at leftmost part of the button anyways but instead at center/middle of button to place our first and onwards numTxT anyways etc -->
 	startAtMiddleOfButtonCorrectionX = +1 * (int(button_size / 2))
@@ -220,50 +297,3 @@ def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, 
 	textH = 30
 
 	screen.addMultilineText(textName, numTxt, textX, textY, textW, textH, widgetType, -1, -1, font)
-
-
-
-def getXOccurenceFound(xPanel, leftPadding, interButtonSpacing, nCountOccurencesFound, buttonSize, xSubstractedAdjustment):
-	# <!-- custom: all buttons are spaced, except the first one that depends on panel left side padding, so do a - 1 to account for that -->
-	if nCountOccurencesFound < 1:
-		raise ValueError("[FATAL] nCountOccurencesFound=%d cannot be < 1, make sure you first increment nCountOccurencesFound at first occurence found before calling this getXOccurenceFound method anyways etc." % nCountOccurencesFound)
-	return xPanel + leftPadding + (nCountOccurencesFound * buttonSize) + ((nCountOccurencesFound - 1) * interButtonSpacing) - xSubstractedAdjustment
-
-
-
-def getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize):
-	buttonSizeDoubleSize = 2 * buttonSize
-	if addedOffset > buttonSizeDoubleSize:
-		raise ValueError(u"[FATAL] Offset %d too high, cannot be higher than 2 * buttonsize = 2 * %d = %d, please make sure offset is set as intended, and update your code or this method raising the error depending on what you/need want anyways etc." % (addedOffset, buttonSize, buttonSizeDoubleSize))
-	
-	# <!-- custom: examples of offset:
-	# - if addedOffset is 0.00, returns same value
-	# - if addedOffset is 0.10, returns value + 0.10, for example 0.55 + 0.10 = 0.65 returned anyways etc 
-	# -->
-
-	lenNumTxt = len(numTxt)
-	# <!-- custom: be careful the '%' char in for example "+50%" does not appear in str debug, but it is counted in str length, and does however also appear though in the UI in sevopedia leader py, so adjusting this code based on these results
-	# xxxxxxxxx3xxxxxxx+7
-	# xxxxxxxxx5xxxxxxx-120
-	# xxxxxxxxx6xxxxxxx+1254
-	# xxxxxxxxx4xxxxxxx+50
-	# -->
-	if lenNumTxt < 0:
-		raise ValueError(u"[FATAL] Unhandled negative length at numTxt=%s, lenNumTxt=%d" % (numTxt, lenNumTxt))
-	if lenNumTxt < 3:
-		return 0.72 + addedOffset
-	elif lenNumTxt == 3:
-		# <!-- custom: example "+5"(%), "-8"(%), etc -->
-		return 0.79 + addedOffset
-	elif lenNumTxt == 4:
-		# <!-- custom: example "+50"(%), "-35"(%), etc -->
-		return 0.85 + addedOffset
-	elif lenNumTxt == 5:
-		# <!-- custom: example "+100"(%), "-120"(%), etc -->
-		return 0.92 + addedOffset
-	elif lenNumTxt == 6:
-		# <!-- custom: example "+1000"(%), "-3798"(%), etc -->
-		return 1.01 + addedOffset
-	else:
-		# <!-- custom: example "+10000"(%) or longer, "-37982"(%) or longer, etc -->
-		return 1.09 + addedOffset

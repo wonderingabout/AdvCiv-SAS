@@ -26,7 +26,7 @@ import CvUtil
 #import ScreenInput
 #import SevoScreenEnums
 
-from _sevopedia_helpers import check_icon_size_fits_within_icon_frame_size
+from _sevopedia_helpers import *
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -204,11 +204,13 @@ class SevoPediaReligion:
 		wPanel = self.W_LEADERS
 		hPanel = self.H_LEADERS
 
+		txtKeyPanel = "TXT_KEY_PEDIA_CATEGORY_LEADER"
+
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 
 		# Create panel with proper styling
-		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_CATEGORY_LEADER", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 
 		# <!-- custom: note: this doesn't seem to do anything in multilist methods if i am not mistaken anyways etc and in particular no padding so do not use this here i mean for multilists i mean anyways etc anyways etc -->
 		# Additional left side padding for the button(s)
@@ -216,21 +218,17 @@ class SevoPediaReligion:
 
 		# Create MultiList for leaders
 		rowListName = self.top.getNextWidgetName()
-		
-		# Constants for button display
+
 		BUTTON_SIZE = 64 # Size of each button
-		PANEL_MULTILIST_OFFSET_X = 9
-		PANEL_MULTILIST_OFFSET_Y = 36
-		PANEL_MULTILIST_ADDITIONAL_W = -1 * (PANEL_MULTILIST_OFFSET_X * 2)
-		PANEL_MULTILIST_ADDITIONAL_H = -1 * (PANEL_MULTILIST_OFFSET_Y + 10)
 
 		# Create the MultiList control
+		# Constants for button display
+		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
 		# Per documentation, the numLists parameter (7th) is actually number of columns
 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
-		multiListX = xPanel + PANEL_MULTILIST_OFFSET_X
-		multiListY = yPanel + PANEL_MULTILIST_OFFSET_Y
-		multiListW = wPanel + PANEL_MULTILIST_ADDITIONAL_W
-		multiListH = hPanel + PANEL_MULTILIST_ADDITIONAL_H
 		# Using 1 for auto-calculation of buttons per row
 		buttonCalculate = 1
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)

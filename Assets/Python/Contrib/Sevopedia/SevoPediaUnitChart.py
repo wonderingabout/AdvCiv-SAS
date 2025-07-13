@@ -12,7 +12,7 @@ from CvPythonExtensions import *
 import CvUtil
 
 gc = CyGlobalContext()
-
+localText = CyTranslator()
 
 
 class SevoPediaUnitChart:
@@ -279,7 +279,7 @@ class SevoPediaUnitChart:
 	def placeTableCost(self, screen, table, iCol, iRow, UnitInfo):
 		# Cost
 		if UnitInfo.getProductionCost() < 0:
-			szCostNum = CyTranslator().getText("TXT_KEY_NON_APPLICABLE", ())
+			szCostNum = localText.getText("TXT_KEY_NON_APPLICABLE", ())
 		else:
 			szCostNum = u"%d" % UnitInfo.getProductionCost()
 

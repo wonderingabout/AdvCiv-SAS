@@ -247,7 +247,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		untradeableTechs = []
 		for iTech in range(gc.getNumTechInfos()):
 			if not gc.getTechInfo(iTech).isTrade():
-				untradeableTechs.append(CyTranslator().getText("[ICON_BULLET] ", ()) + gc.getTechInfo(iTech).getDescription())
+				untradeableTechs.append(localText.getText("[ICON_BULLET] ", ()) + gc.getTechInfo(iTech).getDescription())
 
 		if untradeableTechs:
 			szSpecialText += u"\n\n" + localText.getText("TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER", ())

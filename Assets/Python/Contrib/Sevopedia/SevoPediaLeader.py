@@ -1638,7 +1638,7 @@ class SevoPediaLeader:
 	def placeFavorites(self):
 		screen = self.top.getScreen()
 		panel = self.top.getNextWidgetName()
-		screen.addPanel(panel, CyTranslator().getText("TXT_KEY_PEDIA_FAVOURITE_CIVICS_AND_RELIGIONS", ()), "", False, True, self.X_FAVORITES, self.Y_FAVORITES, self.W_FAVORITES, self.H_FAVORITES, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_FAVOURITE_CIVICS_AND_RELIGIONS", ()), "", False, True, self.X_FAVORITES, self.Y_FAVORITES, self.W_FAVORITES, self.H_FAVORITES, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.enableSelect(panel, False)
 		screen.attachLabel(panel, "", "  ")
 

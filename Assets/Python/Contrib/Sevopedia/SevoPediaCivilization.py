@@ -100,15 +100,15 @@ class SevoPediaCivilization:
 
 	def placeCities(self):
 		screen = self.top.getScreen()
-		screen.addPanel(self.top.getNextWidgetName(), CyTranslator().getText("TXT_KEY_CONCEPT_CITIES", ()), "", True, True, self.X_CITIES, self.Y_CITIES, self.W_CITIES, self.H_CITIES, PanelStyles.PANEL_STYLE_BLUE50 )
+		screen.addPanel(self.top.getNextWidgetName(), localText.getText("TXT_KEY_CONCEPT_CITIES", ()), "", True, True, self.X_CITIES, self.Y_CITIES, self.W_CITIES, self.H_CITIES, PanelStyles.PANEL_STYLE_BLUE50 )
 		Info = gc.getCivilizationInfo(self.iCivilization)
 		szText = ""
 		for i in xrange(Info.getNumCityNames()):
 			if i == 0:
-				szText += CyTranslator().getText("[ICON_STAR]", ())
+				szText += localText.getText("[ICON_STAR]", ())
 			else:
-				szText += "\n" + CyTranslator().getText("[ICON_BULLET]", ())
-			szText += CyTranslator().getText(Info.getCityNames(i), ())
+				szText += "\n" + localText.getText("[ICON_BULLET]", ())
+			szText += localText.getText(Info.getCityNames(i), ())
 		screen.addMultilineText(self.top.getNextWidgetName(), szText, self.X_CITIES + 10, self.Y_CITIES + 30, self.W_CITIES, self.H_CITIES - 30, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 

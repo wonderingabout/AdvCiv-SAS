@@ -2,17 +2,15 @@
 
 Below/here is a/the more detailed examples(/sample(s?)?) of the sevopedia reworks than in/as a prolongement (prolongation? Or extension maybe rather as deepl or similar quick translation suggests but anyways etc) [README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks).
 
-## example 1: more AI Personality examples (in leaders category)
+Note: as of now the following link is outdated, but for more sevopedia sample examples than shown in this readme, see also the [full sevopedia samples google drive folder link](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing), although again as of now they are outdated i mean but anyways etc
 
-### examples
+## example 1: more AI Personality examples (in leaders category)
 
 <img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (1).JPG" alt="0.620_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG" alt="0.620_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (3).JPG" alt="0.620_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
 
-For more sevopedia previous about this category or/and other sevopedia categories, see also the [full sevopedia samples google drive folder link](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing)
-
-note: images as buttons provided by chatgpt/becomingthrough, but also are an approach i generalized from [claude AI's code solution in sevopedia building for the power button](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-8-building-category), see also [Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia) for details or/and additional info or/and context on how this was added anyways etc or/and the mod's drive (link in main README.md or/and other places or and not anyways etc)
+Note: images as buttons provided by chatgpt/becomingthrough, but also are an approach i generalized from [claude AI's code solution in sevopedia building for the power button](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-8-building-category), see also [Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia) for details or/and additional info or/and context on how this was added anyways etc or/and the mod's drive (link in main README.md or/and other places or and not anyways etc)
 
 note 2:See [README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader) for how to enable/disable emoji as images
 
@@ -24,15 +22,13 @@ note 3: See [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead
 
 <img src="../Images_In_General/sevopedia_reworks/0.63_sevopedia_unit_chart_sample.JPG" alt="0.63_sevopedia_unit_chart_sample.JPG" width="250"></img>
 
-For more sevopedia previous about this category or/and other sevopedia categories, see also the [full sevopedia samples google drive folder link](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing)
-
 ## example 3: features category
 
 based on rfc doc's and slightly tweaked or not, thanks a lot
 
-<img src="../Images_In_General/sevopedia_reworks/0.64_sevopedia_features_jungle_panel.JPG" alt="0.64_sevopedia_features_jungle_panel.JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample.JPG" alt="0.640_sevopedia_features_sample.JPG" width="250"></img>
 
-For more sevopedia previous about this category or/and other sevopedia categories, see also the [full sevopedia samples google drive folder link](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing)
+See also the [terrains category rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category)
 
 ## example 4: ressources/bonus category
 
@@ -42,8 +38,6 @@ after having written this first paragraph above in this same example 4, a more e
 
 <img src="../Images_In_General/sevopedia_reworks/0.650_sevopedia_bonus_sample (1).JPG" alt="0.650_sevopedia_bonus_sample (1).JPG" width="250"></img>
 
-For more sevopedia previous about this category or/and other sevopedia categories, see also the [full sevopedia samples google drive folder link](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing)
-
 ## example 5: religion category
 
 new Leaders (based on History Rewritten's code) and Buildings (based originally/initially on RFC DOC's code and then ROM 291 as it was cleaner and seemingly more exahaustive and has more other features too anyways etc) and Units (based on ROM 291's code too) panels in Sevopedia Religion category, and then modified by Claude AI thanks to my prompts too or/and adjustments or/and not anyways etc, as well as civ4 bug doc, see code comments in sevopediareligion.py for details.
@@ -52,8 +46,6 @@ new Leaders (based on History Rewritten's code) and Buildings (based originally/
 
 <img src="../Images_In_General/sevopedia_reworks/0.660_sevopedia_religion_sample (1).JPG" alt="0.660_sevopedia_religion_sample (1).JPG" width="250"></img>
 
-For more sevopedia previous about this category or/and other sevopedia categories, see also the [full sevopedia samples google drive folder link](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing)
-
 looks quite very great hehe (at least i think so) anyways etc...
 
 ## example 6: civilization category
@@ -61,8 +53,6 @@ looks quite very great hehe (at least i think so) anyways etc...
 new Cities (based on Middle-earth mod's (very amazing!!!!!! (Not that others are not or maybe bit less or maybe not ((,) i.e) in other others ways or not or/and other or not anyways etc) But anyways etc) Platypedia's code) panel anyways etc ; then reordered the existing panels too for a nice display at least i think (but) anyways etc and enjoy hehe if you want (i mean anyways...) but anyways etc:
 
 <img src="../Images_In_General/sevopedia_reworks/0.670_sevopedia_civilization_sample (1).JPG" alt="0.670_sevopedia_civilization_sample (1).JPG" width="250"></img>
-
-For more sevopedia previous about this category or/and other sevopedia categories, see also the [full sevopedia samples google drive folder link](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing)
 
 ## example 7: unit list category
 
@@ -74,8 +64,6 @@ After having written these, combat information was added (which units is this un
 
 <img src="../Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG" alt="0.680_sevopedia_unit_sample.JPG" width="250"></img>
 
-For more sevopedia previous about this category or/and other sevopedia categories, see also the [full sevopedia samples google drive folder link](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing)
-
 ## example 8: building category
 
 Based on the sevopedia unit previous rework, and also with the help of Claude AI (see [Authors for details (Claude AI's section) in the main readme.me](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details) refactored, beautified, and enhanced sevopedia building as well, with a few new additions in particular such as placeFreePBBS, placeFreeWith, placeRequiredFor, a more exhaustive placeRequires as well, placeStats reworked (in particular great person buttons (images) show now, commerce double times as well( for example that every 1000 year one building may give double culturee output (flat only if i am not mistaken i.e. +2 only if i am not mistaken anyways etc)), and % modifier as well (for example +25% culture, +25% espionage rate if i am not mistaken anyways etc, as well as using a grid for beautification anyways etc)), anew ObsoleteWith, see similarly code or other docs if they exist, maybe code comments too can help for details in [SevopediaBuilding.py](/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py) for details.
@@ -84,4 +72,20 @@ Based on the sevopedia unit previous rework, and also with the help of Claude AI
 <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (2).JPG" alt="0.690_sevopedia_building_sample (2).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (3).JPG" alt="0.690_sevopedia_building_sample (3).JPG" width="250"></img>
 
-For more sevopedia previous about this category or/and other sevopedia categories, see also the [full sevopedia samples google drive folder link](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing)
+## example 9: terrains category
+
+Done much later in development of advciv-sas mod, added in particular new placeUnits and placeUnitsImpassable if i am not mistaken anywyas etc panels that these methods handle anyways etc. They show which units can walk on which tiles, including peak (some code to display peak information is taken from rfc doc mod for example), but most of the new code is written by me and/with chatgpt's help and my prompts too anyways etc.
+
+They also show the modifiers (e.g. "+25/+50" for +25% attack and +50% defense on said terrain, etc) and/or in some cases promotions.
+
+This code also uses our latest as of now refactor using the multilist code as was done in sevopedia unit in advciv-sas/our mod but anyways etc first i mean and also then applied to sevopedia building. While doing so, i noticed or/and wanted or/and just did add such a display for units in terrains. Since the code is modular and was thoroughly debugged and adjusted, it was quite easy relatively to add in sevopedia units, but some new logic had to be added, and it also helped refine the sevopedia unit and sevopedia building implementations if ever slightly or not but anyways etc.
+
+The output/result is as below for example.
+
+Please note peak or hill as of now can only be accessed via the civ-specific unit that has a modifier to it, for example as of now the quechua warrior has the peak button (image) in its modifiers so clicking it allows to access the terrain peak as of now hidden sevopedia page (is how it is in base advciv if not other previous mods that had sevopedia as well or not (i don't know but anyways etc) but anyways etc), and for example the quechua warrior as well for the hill button (image) too since it has it, so it can redirect to the hidden sevopedia terrain hill page.
+
+<img src="../Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG" alt="0.700_sevopedia_terrains_sample (1).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG" alt="0.700_sevopedia_terrains_sample (2).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG" alt="0.700_sevopedia_terrains_sample (3).JPG" width="250"></img>
+
+See also the [features category rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category)

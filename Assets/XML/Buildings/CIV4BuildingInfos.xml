@@ -243,7 +243,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>1</iCost>
+			<iCost>5</iCost>
 			<iHurryCostModifier>50</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -286,7 +286,8 @@
 			<iGlobalHappiness>0</iGlobalHappiness>
 			<iStateReligionHappiness>0</iStateReligionHappiness>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
-			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
+			<!-- custom: barbarians now don't lose/waste a lot of time building uneeded buildings if they ever did, so they can be stronger, but i don't want them as a result to have an unfair advantage, so make them produce units slightly slower; this also includes/accounts for settlers and workers that barbarians don't have to produce or at 1 hammer and similar that take a lot of time as well and that i would want the other players (non-barbarians anyways etc) to have the time and space to build in this case at least i mean but anyways etc so accomodating for that while making barbarians otherwise stronger than in base advciv with a pure military focus if i may say or if i am not mistaken i mean but anyways etc anyways etc anyways etc, was 0 -->
+			<iMilitaryProductionModifier>-50</iMilitaryProductionModifier>
 			<iSpaceProductionModifier>0</iSpaceProductionModifier>
 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
 			<iTradeRoutes>0</iTradeRoutes>
@@ -985,7 +986,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>1</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>1</iCost>
+			<iCost>5</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -1782,7 +1783,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>1</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>1</iCost>
+			<iCost>5</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -2338,7 +2339,7 @@
 			<bCenterInCity>0</bCenterInCity>
 			<!-- custom: (trying to) make sure they (barbarians) build it fast (enough(, anyways etc)) -->
 			<iAIWeight>100</iAIWeight>
-			<iCost>1</iCost>
+			<iCost>5</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -3393,7 +3394,7 @@
 			<bCenterInCity>0</bCenterInCity>
 			<!-- custom: (trying to) make sure they (barbarians) build it fast (enough(, anyways etc)) -->
 			<iAIWeight>100</iAIWeight>
-			<iCost>1</iCost>
+			<iCost>5</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -5240,7 +5241,7 @@
 			<bCenterInCity>0</bCenterInCity>
 			<!-- custom: (trying to) make sure they (barbarians) build it fast (enough(, anyways etc)) so reducing cost and increase iAIWeight as much as possible or that i think is necessary at least or and ideal but anyways etc, this is especially true for the barbarian_harbor as it is necessary to produce workboats, if the city needs water bonuses's food yields in particular anyways etc, see code comments at barbarian_workboat and at the building_harbor for details anyways etc -->
 			<iAIWeight>100</iAIWeight>
-			<iCost>1</iCost>
+			<iCost>5</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -5627,7 +5628,7 @@
 			<bCenterInCity>0</bCenterInCity>
 			<!-- custom: (trying to) make sure they (barbarians) build it fast enough so cheap cost as cheap as possible or and relevant as i found it anyways etc, but no iAIWeight as the building is not critical to have for barbarians i mean unlike the now reworked harbor, anyways etc -->
 			<iAIWeight>0</iAIWeight>
-			<iCost>1</iCost>
+			<iCost>5</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>

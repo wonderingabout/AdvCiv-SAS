@@ -44,10 +44,11 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<!-- custom: make barbarians more likely to destroy cities rather than conquer them, after all they are barbarians, so the human player or other players should tightly defend to prevent that, reinvading is a bit too convenient, as barbarians should be more likely i think and ideally to pillage and destroy everything, not so much conquer all, and if they are too strong, it should be balanced elsewhere not here (which currently tones down their war/raze tendency which i think is not ideal, hopefully more idela this way now and balancing their strength in an other place if need if they are too strong and thus raze too often cities, not here, i wouldn't want gameplay to be too forgiving but accurate, however i want it lenient in its balance whatever that means, that i want it fair and fun, but hard enough and not toned down, and accurate, maybe clear enough this way whatever that means or not or yes or and other or and not anyways etc), was 10 -->
-			<iRazeCityProb>75</iRazeCityProb>
+			<iRazeCityProb>60</iRazeCityProb>
 			<!-- custom: 
 			- Update about this buildunitprob 100: it seems extremely effective no wonder at all in one autoplay ; and update 2 seems to always work perfectly in a few autoplays of 100-200 turns each anyways etc so maybe is good and safe to say it almost if not always works extremely well in preventing barbarians building wonders now anyways etc, and old spaghetti code was indeed useless for that i mean at least rather or not rather but thanks for doing it still if i assume it is old still thanks from the future self who (me i.e. anyways etc) read your code carefully crafted in the past thanks a lot, hopefully is even more polished and beautiful now, anyways etc ; , much less normal buildings too in barbarians but still the core palace we want, no lighthouse ever though even in naval cities, may tweak it bit but seems extremely promising, testing more to be sure, anyways etc
-			- This can probably be safely be reduced fine if it errs a bit by that i mean builing more buildings, eventually after completing them, most very fast, barbarian leader should turn back to war mode, is maybe also good to make sure barbarian leader doesn't skip the 1 hammer "free" buildings it has "right" to whatever that means, anyways etc. I would also want them to get their barbarian lighthouse and barbarian workboats too for example (and maybe workers too) if a (maybe) too high (or not or yes or not or yes or and other or and not anyways etc) (would) prevent that anyways etc, so reducing it a bit to see and test if i may say anyways etc
+			- This can probably be safely be reduced fine if it errs a bit by that i mean builing more buildings, eventually after completing them, most very fast, barbarian leader should turn back to war mode, is maybe also good to make sure barbarian leader doesn't skip the 1 hammer "free" buildings it has "right" to whatever that means, anyways etc. I would also want them to get their barbarian lighthouse and barbarian workboats too for example (and maybe workers too) if a (maybe) too high (or not or yes or not or yes or and other or and not anyways etc) (would) prevent that anyways etc, so reducing it a bit to see and test if i may say anyways etc ;
+			- Update 2 anyways etc: when lowering militaryproductionmodifier to -50 to nerf barbarians and balance them anyways etc, and maybe also related to other changes if not this one, they build buildings and also in particular they build more wonders again, even increasing ibuildunitprob to 100 again, so i don't know how effective it is, it seemed to help a lot, but maybe i changed some settings since then that influenced that but anyways etc, so putting it a bit higher but not 100 so they can build more buildings or such if needed anyways etc
 			-->
 			<iBuildUnitProb>80</iBuildUnitProb>
 			<!-- custom: i want barbarians to be more cautious and calculating, they are not stupid and shouldn't be, but a bit adventurous too though maybe whatever that means or not or and other or and not anyways etc -->
@@ -108,13 +109,7 @@
 			<FavoriteCivic>NONE</FavoriteCivic>
 			<FavoriteReligion>NONE</FavoriteReligion>
 			<Traits/>
-			<!-- custom: trying to make them build more or rather maybe less wonders and do more wars, as their barbarian profile would incline them to ideally as in as i would want them in theory maybe anyways etc i mean anyways, this is actually taken from genghis khan code hehe even though he is not a barbarian leader per se at least in civ4 if not everywhere or not i don't know enough to say but could learn or not but in all cases anyways etc was just to mention this or not hehe as i wanted or not hehe or not hehe or yes hehe but anyways etc anyways etc ; not sure it will make a difference but trying, but as is, anyways etc anyways etc -->
-			<Flavors>
-				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>10</iFlavor>
-				</Flavor>
-			</Flavors>
+			<Flavors/>
 			<ContactRands/>
 			<ContactDelays/>
 			<MemoryDecays/>

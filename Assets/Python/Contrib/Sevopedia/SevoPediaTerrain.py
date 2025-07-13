@@ -5,8 +5,10 @@
 from CvPythonExtensions import *
 import CvUtil
 
-gc = CyGlobalContext()
+from _sevopedia_helpers import *
 
+gc = CyGlobalContext()
+localText = CyTranslator()
 
 class SevoPediaTerrain:
 	def __init__(self, main):
@@ -47,17 +49,29 @@ class SevoPediaTerrain:
 		self.X_RESOURCES = self.X_FEATURES
 		self.Y_RESOURCES = self.Y_FEATURES + self.H_FEATURES + 10
 		self.W_RESOURCES = self.top.R_PEDIA_PAGE - self.X_RESOURCES
-		self.H_RESOURCES = 110
+		self.H_RESOURCES = self.H_FEATURES
 
-		self.X_HISTORY = self.X_RESOURCES
+		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details anyways etc -->
+		self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE = 64
+
+		self.X_UNITS = self.X_RESOURCES
+		self.Y_UNITS = self.Y_RESOURCES + self.H_RESOURCES + 10
+		self.W_UNITS = self.top.R_PEDIA_PAGE - self.X_RESOURCES
+		self.H_UNITS = self.H_FEATURES + self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
+
+		self.X_UNITS_IMPASSABLE = self.X_UNITS
+		self.Y_UNITS_IMPASSABLE = self.Y_UNITS + self.H_UNITS + 10
+		self.W_UNITS_IMPASSABLE = self.top.R_PEDIA_PAGE - self.X_UNITS
+		self.H_UNITS_IMPASSABLE = self.H_FEATURES
+
+		self.X_HISTORY = self.X_UNITS_IMPASSABLE
 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
-		self.Y_HISTORY = self.Y_RESOURCES + self.H_RESOURCES + 10
+		self.Y_HISTORY = self.Y_UNITS_IMPASSABLE + self.H_UNITS_IMPASSABLE + 10
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
 
 
 	def interfaceScreen(self, iTerrain):
-		screen = self.top.getScreen()
 		self.iTerrain = iTerrain
 
 		self.placeInfo()
@@ -65,6 +79,8 @@ class SevoPediaTerrain:
 		self.placeFeatures()
 		self.placeImprovements()
 		self.placeResources()
+		self.placeUnits()
+		self.placeUnitsImpassable()
 		self.placeHistory()
 
 
@@ -75,7 +91,9 @@ class SevoPediaTerrain:
 		info = gc.getTerrainInfo(self.iTerrain)
 
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_INFO_PANE, self.Y_INFO_PANE, self.W_INFO_PANE, self.H_INFO_PANE, PanelStyles.PANEL_STYLE_BLUE50)
-		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
+
+		# <!-- custom: was PanelStyles.PANEL_STYLE_MAIN -->
+		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
 		screen.addDDSGFC(self.top.getNextWidgetName(), info.getButton(), self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		screen.addListBoxGFC(panel, "", self.X_INFO_TEXT, self.Y_INFO_TEXT, self.W_INFO_TEXT, self.H_INFO_TEXT, TableStyles.TABLE_STYLE_EMPTY)
@@ -117,7 +135,7 @@ class SevoPediaTerrain:
 		screen = self.top.getScreen()
 		panel = self.top.getNextWidgetName()
 
-		screen.addPanel(panel, CyTranslator().getText("TXT_KEY_MISC_FEATURES", ()), "", False, True, self.X_FEATURES, self.Y_FEATURES, self.W_FEATURES, self.H_FEATURES, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panel, localText.getText("TXT_KEY_MISC_FEATURES", ()), "", False, True, self.X_FEATURES, self.Y_FEATURES, self.W_FEATURES, self.H_FEATURES, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panel, "", "  ")
 
 		for iFeature in xrange(gc.getNumFeatureInfos()):
@@ -133,9 +151,8 @@ class SevoPediaTerrain:
 	def placeImprovements(self):
 		screen = self.top.getScreen()
 		panel = self.top.getNextWidgetName()
-		info = gc.getTerrainInfo(self.iTerrain)
 
-		screen.addPanel(panel, CyTranslator().getText("TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT", ()), "", False, True, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT", ()), "", False, True, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panel, "", "  ")
 
 		for iImprovement in xrange(gc.getNumImprovementInfos()):
@@ -153,7 +170,7 @@ class SevoPediaTerrain:
 		screen = self.top.getScreen()
 		panel = self.top.getNextWidgetName()
 
-		screen.addPanel(panel, CyTranslator().getText("TXT_KEY_CONCEPT_RESOURCES", ()), "", False, True, self.X_RESOURCES, self.Y_RESOURCES, self.W_RESOURCES, self.H_RESOURCES, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panel, localText.getText("TXT_KEY_CONCEPT_RESOURCES", ()), "", False, True, self.X_RESOURCES, self.Y_RESOURCES, self.W_RESOURCES, self.H_RESOURCES, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panel, "", "  ")
 
 		for iResource in xrange(gc.getNumBonusInfos()):
@@ -166,13 +183,270 @@ class SevoPediaTerrain:
 				screen.attachImageButton(panel, "", ResourceInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iResource, 1, False)
 
 
+
+	# <!-- custom: code provided by chatgpt thanks to my prompt too and adjusted or not for advciv-sas anyways etc -->
+	def placeUnits(self):
+		xPanel = self.X_UNITS
+		yPanel = self.Y_UNITS
+		wPanel = self.W_UNITS
+		hPanel = self.H_UNITS
+
+		txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_FEATURE_UNITS"
+
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+
+		# Create panel with proper styling
+		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+
+		# Create MultiList for leaders
+		rowListName = self.top.getNextWidgetName()
+
+		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details anyways etc -->
+		BUTTON_SIZE = self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
+
+		# Create the MultiList control
+		# Constants for button display
+		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+		# Per documentation, the numLists parameter (7th) is actually number of columns
+		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+		# Using 1 for auto-calculation of buttons per row
+		buttonCalculate = 1
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+
+		#isButtonFound = False
+		iButtonIndex = 0
+
+		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
+
+		# <!-- custom: for peak we display units that can walk on the tile rather than those that have modifier, i find this or/and think this is more informative anyways etc -->
+		if self.iTerrain == gc.getInfoTypeForString("TERRAIN_PEAK"):
+			for iUnit in xrange(gc.getNumUnitInfos()):
+				unitInfo = gc.getUnitInfo(iUnit)
+
+				if unitInfo.isGraphicalOnly():
+					continue
+
+				# <!-- custom: also handle water units that can move through all terrains but only on water if i am not mistaken anyways etc -->
+				if unitInfo.getDomainType() == DomainTypes.DOMAIN_LAND:
+					if unitInfo.isCanMoveImpassable() or unitInfo.isCanMoveAllTerrain():
+						# Column index (always 0 when numLists=1)
+						columnIndex = 0
+						screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+
+						# <!-- custom: still for the modifiers if any for eligible i.e. current block's units anyways etc, use/display terrain modifiers if any anyways etc -->
+						iTerrainAttack = unitInfo.getTerrainAttackModifier(self.iTerrain)
+						iTerrainDefense = unitInfo.getTerrainDefenseModifier(self.iTerrain)
+
+						numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
+						extraCorrectionX = get_extra_correction_x(numTxt)
+						add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+
+						#isButtonFound = True
+						iButtonIndex += 1
+
+		# <!-- custom: terrain_hill uses its own kind of modifier, plus also i'd want to show guerilla promotion as well anyways etc, so handle its display separately anyways etc -->
+		elif self.iTerrain == gc.getInfoTypeForString("TERRAIN_HILL"):
+			# <!-- custom: raise an error if asset does not exist (in advciv-sas we have renamed PROMOTION_GUERILLA1 to PROMOTION_HILLS_MASTER1 and such anyways etc) -->
+			iPromotionHillsMaster1 = getInfoTypeOrFail("PROMOTION_HILLS_MASTER1", gc)
+			iPromotionHillsMaster2 = getInfoTypeOrFail("PROMOTION_HILLS_MASTER2", gc)
+			iPromotionHillsMaster3 = getInfoTypeOrFail("PROMOTION_HILLS_MASTER3", gc)
+
+			for iUnit in xrange(gc.getNumUnitInfos()):
+				unitInfo = gc.getUnitInfo(iUnit)
+
+				if unitInfo.isGraphicalOnly():
+					continue
+
+				iHillsAttack = unitInfo.getHillsAttackModifier()
+				iHillsDefense = unitInfo.getHillsDefenseModifier()
+
+				isHasHM1 = unitInfo.getFreePromotions(iPromotionHillsMaster1)
+				isHasHM2 = unitInfo.getFreePromotions(iPromotionHillsMaster2)
+				isHasHM3 = unitInfo.getFreePromotions(iPromotionHillsMaster3)
+
+				if ((iHillsAttack != 0) or (iHillsDefense != 0) or isHasHM1 or isHasHM2 or isHasHM3):
+					# Column index (always 0 when numLists=1)
+					columnIndex = 0
+					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+
+					if (iHillsAttack != 0 or iHillsDefense != 0):
+						numTxt = get_numTxt_attack_defense_modifiers(iHillsAttack, iHillsDefense)
+					else:
+						# <!-- custom: display first the modifier, and only if there are no modifiers, try to display the promotion(s) instead if there are any promotion(s), anyways etc ; also very efficient code if i may say at least computationally provided by chatgpt and at least efficient (very) (if not at least quite if not lot but anyways etc also wanted it to be quite clear but mostly performant but anyways etc anyways etc anyways etc) to me in this case at least but anyways etc thanks to my prompt too but or not but or yes but anyways etc -->
+						s = ""
+						if isHasHM1:
+							s = "HM1"
+						if isHasHM2:
+							if s:
+								s += "+2"
+							else:
+								s = "HM2"
+						if isHasHM3:
+							if s:
+								s += "+3"
+							else:
+								s = "HM3"
+						if s:
+							numTxt = s
+
+					extraCorrectionX = get_extra_correction_x(numTxt)
+					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+
+					#isButtonFound = True
+					iButtonIndex += 1
+
+		elif self.iTerrain in (gc.getInfoTypeForString('TERRAIN_COAST'), gc.getInfoTypeForString('TERRAIN_OCEAN')):
+			# <!-- custom: raise an error if asset does not exist (in advciv-sas we have renamed PROMOTION_GUERILLA1 to PROMOTION_HILLS_MASTER1 and such anyways etc) -->
+			iPromotionNavigator1 = getInfoTypeOrFail("PROMOTION_NAVIGATOR1", gc)
+			iPromotionNavigator2 = getInfoTypeOrFail("PROMOTION_NAVIGATOR2", gc)
+
+			for iUnit in xrange(gc.getNumUnitInfos()):
+				unitInfo = gc.getUnitInfo(iUnit)
+
+				if unitInfo.isGraphicalOnly():
+					continue
+
+				iTerrainAttack = unitInfo.getTerrainAttackModifier(self.iTerrain)
+				iTerrainDefense = unitInfo.getTerrainDefenseModifier(self.iTerrain)
+
+				isHasN1 = unitInfo.getFreePromotions(iPromotionNavigator1)
+				isHasN2 = unitInfo.getFreePromotions(iPromotionNavigator2)
+
+				if (unitInfo.isCanMoveAllTerrain() or ((unitInfo.getDomainType() == DomainTypes.DOMAIN_SEA) and (not unitInfo.getTerrainImpassable(self.iTerrain)) and (unitInfo.getTerrainPassableTech(self.iTerrain) == -1)) or (iTerrainAttack != 0) or (iTerrainDefense != 0) or isHasN1 or isHasN2):
+					columnIndex = 0
+					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+
+					if (iTerrainAttack != 0 or iTerrainDefense != 0):
+						numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
+					else:
+						s = ""
+						if isHasN1:
+							s = "N1"
+						if isHasN2:
+							if s:
+								s += "+2"
+							else:
+								s = "N2"
+						if s:
+							numTxt = s
+				
+					numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
+					extraCorrectionX = get_extra_correction_x(numTxt)
+					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+
+					#isButtonFound = True
+					iButtonIndex += 1
+
+		else:
+			for iUnit in xrange(gc.getNumUnitInfos()):
+				unitInfo = gc.getUnitInfo(iUnit)
+
+				if unitInfo.isGraphicalOnly():
+					continue
+
+				iTerrainAttack = unitInfo.getTerrainAttackModifier(self.iTerrain)
+				iTerrainDefense = unitInfo.getTerrainDefenseModifier(self.iTerrain)
+
+				if iTerrainAttack != 0 or iTerrainDefense != 0:
+					# Column index (always 0 when numLists=1)
+					columnIndex = 0
+					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+
+					numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
+					extraCorrectionX = get_extra_correction_x(numTxt)
+					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+
+					#isButtonFound = True
+					iButtonIndex += 1
+
+	# <!-- custom: code provided by chatgpt thanks to my prompt too and adjusted or not for advciv-sas anyways etc -->
+	def placeUnitsImpassable(self):
+		xPanel = self.X_UNITS_IMPASSABLE
+		yPanel = self.Y_UNITS_IMPASSABLE
+		wPanel = self.W_UNITS_IMPASSABLE
+		hPanel = self.H_UNITS_IMPASSABLE
+
+		txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE"
+		if self.iTerrain == gc.getInfoTypeForString("TERRAIN_PEAK"):
+			txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE_PEAK"
+
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+
+		# Create panel with proper styling
+		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+
+		# Create MultiList for leaders
+		rowListName = self.top.getNextWidgetName()
+
+		BUTTON_SIZE = 64
+
+		# Create the MultiList control
+		# Constants for button display
+		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+		# Per documentation, the numLists parameter (7th) is actually number of columns
+		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+		# Using 1 for auto-calculation of buttons per row
+		buttonCalculate = 1
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+
+		# <!-- custom: for peak we display units that can walk on the tile rather than those that have modifier, i find this or/and think this is more informative anyways etc -->
+		if self.iTerrain == gc.getInfoTypeForString("TERRAIN_PEAK"):
+			for iUnit in xrange(gc.getNumUnitInfos()):
+				unitInfo = gc.getUnitInfo(iUnit)
+
+				if unitInfo.isGraphicalOnly():
+					continue
+
+				# <!-- custom: also handle water units that can move through all terrains but only on water if i am not mistaken anyways etc -->
+				if unitInfo.getDomainType() == DomainTypes.DOMAIN_LAND:
+					if not unitInfo.isCanMoveImpassable() and not unitInfo.isCanMoveAllTerrain():
+						# Column index (always 0 when numLists=1)
+						columnIndex = 0
+						screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+
+		elif self.iTerrain in (gc.getInfoTypeForString('TERRAIN_COAST'), gc.getInfoTypeForString('TERRAIN_OCEAN')):
+			for iUnit in xrange(gc.getNumUnitInfos()):
+				unitInfo = gc.getUnitInfo(iUnit)
+
+				if unitInfo.isGraphicalOnly():
+					continue
+
+				# <!-- custom: unitInfo.isCanMoveAllTerrain() returns too many units but (not unitInfo.isCanMoveAllTerrain()) does not, so unlike in placeUnits, wrap this unitInfo.isCanMoveAllTerrain() in placeUnitsImpassable in the domain sea check, ideally i would have wanted to check our xml by having a large permissive check, but the results are unreadable since almost all units have this (not unitInfo.isCanMoveAllTerrain()) that is true -->
+				if unitInfo.getDomainType() == DomainTypes.DOMAIN_SEA:
+					if ((unitInfo.getTerrainImpassable(self.iTerrain) or (unitInfo.getTerrainPassableTech(self.iTerrain) != -1)) and (not unitInfo.isCanMoveAllTerrain())):
+						columnIndex = 0
+						screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+
+		else:
+			for iUnit in xrange(gc.getNumUnitInfos()):
+				unitInfo = gc.getUnitInfo(iUnit)
+
+				if unitInfo.isGraphicalOnly():
+					continue
+
+				if (unitInfo.getTerrainImpassable(self.iTerrain) or (unitInfo.getTerrainPassableTech(self.iTerrain) != -1)):
+					# Column index (always 0 when numLists=1)
+					columnIndex = 0
+					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+
+
+
 	def placeHistory(self):
 		screen = self.top.getScreen()
 		panel = self.top.getNextWidgetName()
 		text = self.top.getNextWidgetName()
 		info = gc.getTerrainInfo(self.iTerrain)
 
-		screen.addPanel(panel, CyTranslator().getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50 )
+		screen.addPanel(panel, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50 )
 
 		szHistory = info.getCivilopedia()
 		screen.addMultilineText(text, szHistory, self.X_HISTORY + 10, self.Y_HISTORY + 30, self.W_HISTORY - 20, self.H_HISTORY - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)

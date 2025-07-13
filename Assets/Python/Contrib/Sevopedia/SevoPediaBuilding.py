@@ -315,7 +315,7 @@ class SevoPediaBuilding:
 	def placeStats(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		placeStatsPanelTxtKey = ""
+		placeStatsTxtKeyPanel = ""
 
 		buildingInfo = gc.getBuildingInfo(self.iBuilding)
 
@@ -334,7 +334,7 @@ class SevoPediaBuilding:
 		# <!-- custom: note: we have a risk of overflow of data/items to display, if all or most of these fields are full, while only having 9 grid positions to do so, this should be extremely rare, but if it were to happen, you can increase grid size to 3 columns * 4 rows (to do that, you could for example reduce line height spacing (but may be a bit ugly (maybe) but anyways), reduce upper padding (but maybe not needed or not lot as we can even now display a 4th row but not as pretty if starting from current "padded"(?)/upper padding), or for example artifically increase the panel height so the code thinks it has more room to fill one more row (which it has but then is bit ugly(ier) anyways etc) (the 4th before going to a new column and back to 1st row anyways etc), or maybe tweak the code i proudly as in rather funnily? did if that is a word hehe by myself based on old code from sevopedia leader's grid code (renderCategories and such if i am not mistaken and they are still named the same now anyways etc which we created as well with chatgpt/becomingthorugh (see authors for details) but anyways etc anyways etc anyways etc...) and adjusting/refatoring it for our need for this sevopedia building's placeStats anyways etc anyways etc anyways etc), or/and other things ways maybe to refactor it or not so it fits a 4th row or yes or and other or and not anyways etc. Since we don't have to do this, 9 grid of 3 columns * 3 rows are probably enough for us so staying/sticking with that maybe anyways etc anyways etc anyways etc... -->
 
 		# <!-- custom: blue panel style PanelStyles.PANEL_STYLE_BLUE50 is/can be anyways etc useful for debugging, otherwise we don't need a blue on blue color, prefer transparent ("EMPTY" if i am not mistaken anyways etc), anyways etc -->
-		self.setupStatsPanel(screen, panelName, placeStatsPanelTxtKey, PanelStyles.PANEL_STYLE_EMPTY)
+		self.setupStatsPanel(screen, panelName, placeStatsTxtKeyPanel, PanelStyles.PANEL_STYLE_EMPTY)
 
 		x = self.X_STATS_PANE
 		y = self.Y_STATS_PANE
@@ -420,7 +420,7 @@ class SevoPediaBuilding:
 					
 					# Add power button
 					configButtonPathSTxtKey = "TXT_KEY_BUTTON_PATH_HARDCODED_POWER_BUTTON_PATH"
-					resolvedButtonPath = CyTranslator().getText(configButtonPathSTxtKey, ())
+					resolvedButtonPath = localText.getText(configButtonPathSTxtKey, ())
 					buttonHeader = "Power Button in Sevopedia Building's placeStats"
 					check_button_path_is_valid(buttonHeader, resolvedButtonPath, configButtonPathSTxtKey)
 					buttonSize = 24
@@ -514,7 +514,7 @@ class SevoPediaBuilding:
 		# <!-- custom: 6.1.1: Only display the great people button and the flat value, for example "(Great People button) +2", use a button later in "custom 6.1.2:" rather instead anyways etc ; modifiers are handled as a separate item as +50% great person for example is not specific to any great person type unlike for example +2 great artist, so it would not make sense to put +50% where the button is anyways etc, plus easier to handle button position with our current button positioning code too anyways etc -->
 		if buildingInfo.getGreatPeopleRateChange() != 0:
 			# Create the text with the great person rate change
-			szText = CyTranslator().getText("TXT_KEY_PEDIA_GREAT_PEOPLE_CUSTOM", (buildingInfo.getGreatPeopleRateChange(),))
+			szText = localText.getText("TXT_KEY_PEDIA_GREAT_PEOPLE_CUSTOM", (buildingInfo.getGreatPeopleRateChange(),))
 			
 			# Format with the great people character
 			szText2 = u"%c  %s" % (CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR), szText)
@@ -564,8 +564,8 @@ class SevoPediaBuilding:
 		if buildingInfo.getGreatPeopleRateChange() != 0:
 			screen = self.top.getScreen()
 			panelName = self.top.getNextWidgetName()
-			greatPersonPanelTxtKey = ""
-			self.setupStatsPanel(screen, panelName, greatPersonPanelTxtKey, PanelStyles.PANEL_STYLE_EMPTY)
+			greatPersonTxtKeyPanel = ""
+			self.setupStatsPanel(screen, panelName, greatPersonTxtKeyPanel, PanelStyles.PANEL_STYLE_EMPTY)
 
 			buttonXOffset = 66
 			# <!-- custom: slightly shift the button if button size (w and h) are higher than 32 to simulate a better centering effect towards the text of "+2" (great people count example) for example, the buttonYOffset = +2 if it were same value is purely coincidental value that suited us to center the button, no correlation or link at least voluntary anyways etc -->
@@ -625,30 +625,27 @@ class SevoPediaBuilding:
 		wPanel = self.W_REQUIRES
 		hPanel = self.H_REQUIRES
 
+		txtKeyPanel = "TXT_KEY_PEDIA_REQUIRES"
+
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 
 		# Create panel with proper styling
-		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_REQUIRES", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 
 		# Create MultiList for class and combat buttons
 		rowListName = self.top.getNextWidgetName()
 
-		# <!-- custom: addMultiListControlGFC code from our existing implementation we successfully did for the sevopedia religion leaders panel if i may say but anyways etc anyways etc anyways etc -->
-		# Constants for button display
 		BUTTON_SIZE = 64 # Size of each button
-		PANEL_MULTILIST_OFFSET_X = 9
-		PANEL_MULTILIST_OFFSET_Y = 36
-		PANEL_MULTILIST_ADDITIONAL_W = -1 * (PANEL_MULTILIST_OFFSET_X * 2)
-		PANEL_MULTILIST_ADDITIONAL_H = -1 * (PANEL_MULTILIST_OFFSET_Y)
 
 		# Create the MultiList control
+		# Constants for button display
+		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
 		# Per documentation, the numLists parameter (7th) is actually number of columns
 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
-		multiListX = xPanel + PANEL_MULTILIST_OFFSET_X
-		multiListY = yPanel + PANEL_MULTILIST_OFFSET_Y
-		multiListW = wPanel + PANEL_MULTILIST_ADDITIONAL_W
-		multiListH = hPanel + PANEL_MULTILIST_ADDITIONAL_H
 		# Using 1 for auto-calculation of buttons per row
 		buttonCalculate = 1
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
@@ -657,7 +654,7 @@ class SevoPediaBuilding:
 		iButtonIndex = 0
 
 		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
-		buttonsPerRow = get_max_occurences_found_buttons_per_row(wPanel, BUTTON_SIZE)
+		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 
 		for iPrereqTech in xrange(gc.getNumTechInfos()):
 			if isTechRequiredForBuilding(iPrereqTech, self.iBuilding):
@@ -713,7 +710,7 @@ class SevoPediaBuilding:
 						numTxt = localText.getText("TXT_KEY_OR", ())
 						# <!-- custom: "or" numTxt aligned between this button and the previous one anyways etc -->
 						extraCorrectionX = get_extra_correction_x(numTxt) + get_extra_correction_x_inbetween_buttons(BUTTON_SIZE)
-						add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+						add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 					else:
 						bFirst = False
 
@@ -751,7 +748,7 @@ class SevoPediaBuilding:
 						numTxt = localText.getText("TXT_KEY_OR", ())
 						# <!-- custom: "or" numTxt aligned between this button and the previous one anyways etc -->
 						extraCorrectionX = get_extra_correction_x(numTxt) + get_extra_correction_x_inbetween_buttons(BUTTON_SIZE)
-						add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+						add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 					else:
 						bFirst = False
 
@@ -774,8 +771,8 @@ class SevoPediaBuilding:
 					screen.appendMultiListButton(rowListName, gc.getBuildingInfo(iDefaultBuilding).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefaultBuilding, 1, False)
 
 					numTxt = "InC"
-					extraCorrectionX = get_extra_correction_x(numTxt) + get_extra_correction_some_letters_or_other_causes_off_centered_x()
-					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+					extraCorrectionX = get_extra_correction_x(numTxt)
+					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
 					isButtonFound = True
 					iButtonIndex += 1
@@ -796,15 +793,15 @@ class SevoPediaBuilding:
 
 					numTxt = "AllC %s+RM" % iNumRequired
 					extraCorrectionX = get_extra_correction_x(numTxt)
-					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
 					isButtonFound = True
 					iButtonIndex += 1
 
 		if not isButtonFound:
-			txtKey = "TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS_NO_BUTTON_FOUND"
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS_NO_BUTTON_FOUND"
 			textName = self.top.getNextWidgetName()
-			szText = CyTranslator().getText(txtKey, ())
+			szText = localText.getText(txtKeyNoButtonFound, ())
 			yPanelCenter = yPanel + (hPanel / 2)
 			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
@@ -818,30 +815,27 @@ class SevoPediaBuilding:
 		wPanel = self.W_REQUIRED_FOR
 		hPanel = self.H_REQUIRED_FOR
 
+		txtKeyPanel = "TXT_KEY_PEDIA_REQUIRED_FOR"
+
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 
 		# Create panel with proper styling
-		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_REQUIRED_FOR", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 
 		# Create MultiList for class and combat buttons
 		rowListName = self.top.getNextWidgetName()
 
-		# <!-- custom: addMultiListControlGFC code from our existing implementation we successfully did for the sevopedia religion leaders panel if i may say but anyways etc anyways etc anyways etc -->
-		# Constants for button display
 		BUTTON_SIZE = 64 # Size of each button
-		PANEL_MULTILIST_OFFSET_X = 9
-		PANEL_MULTILIST_OFFSET_Y = 36
-		PANEL_MULTILIST_ADDITIONAL_W = -1 * (PANEL_MULTILIST_OFFSET_X * 2)
-		PANEL_MULTILIST_ADDITIONAL_H = -1 * (PANEL_MULTILIST_OFFSET_Y)
 
 		# Create the MultiList control
+		# Constants for button display
+		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
 		# Per documentation, the numLists parameter (7th) is actually number of columns
 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
-		multiListX = xPanel + PANEL_MULTILIST_OFFSET_X
-		multiListY = yPanel + PANEL_MULTILIST_OFFSET_Y
-		multiListW = wPanel + PANEL_MULTILIST_ADDITIONAL_W
-		multiListH = hPanel + PANEL_MULTILIST_ADDITIONAL_H
 		# Using 1 for auto-calculation of buttons per row
 		buttonCalculate = 1
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
@@ -850,7 +844,7 @@ class SevoPediaBuilding:
 		iButtonIndex = 0
 
 		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
-		buttonsPerRow = get_max_occurences_found_buttons_per_row(wPanel, BUTTON_SIZE)
+		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 		
 		# Get the building class of our current building
 		iCurrentBuildingClass = gc.getBuildingInfo(self.iBuilding).getBuildingClassType()
@@ -866,8 +860,8 @@ class SevoPediaBuilding:
 				screen.appendMultiListButton(rowListName, loopBuildingInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iLoopBuilding, 1, False)
 
 				numTxt = "InC"
-				extraCorrectionX = get_extra_correction_x(numTxt) + get_extra_correction_some_letters_or_other_causes_off_centered_x()
-				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+				extraCorrectionX = get_extra_correction_x(numTxt)
+				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
 				isButtonFound = True
 				iButtonIndex += 1
@@ -881,15 +875,15 @@ class SevoPediaBuilding:
 
 				numTxt = "AllC %s+RM" % iNumRequired
 				extraCorrectionX = get_extra_correction_x(numTxt)
-				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
 				isButtonFound = True
 				iButtonIndex += 1
 
 		if not isButtonFound:
-			txtKey = "TXT_KEY_PEDIA_REQUIRED_FOR_NO_BUTTON_FOUND"
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_REQUIRED_FOR_NO_BUTTON_FOUND"
 			textName = self.top.getNextWidgetName()
-			szText = CyTranslator().getText(txtKey, ())
+			szText = localText.getText(txtKeyNoButtonFound, ())
 			yPanelCenter = yPanel + (hPanel / 2)
 			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
@@ -900,7 +894,7 @@ class SevoPediaBuilding:
 		panelName = self.top.getNextWidgetName()
 		
 		# Create panel with proper styling
-		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_OBSOLETE", ()), "", False, True, self.X_OBSOLETE_WITH, self.Y_OBSOLETE_WITH, self.W_OBSOLETE_WITH, self.H_OBSOLETE_WITH, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_OBSOLETE", ()), "", False, True, self.X_OBSOLETE_WITH, self.Y_OBSOLETE_WITH, self.W_OBSOLETE_WITH, self.H_OBSOLETE_WITH, PanelStyles.PANEL_STYLE_BLUE50)
 		# <!-- custom: additionnal left side padding for the button(s) -->
 		screen.attachLabel(panelName, "", "  ")
 		
@@ -926,10 +920,10 @@ class SevoPediaBuilding:
 
 		else:
 			# <!-- custom: prettier display -->
-			#screen.attachLabel(panelName, "", CyTranslator().getText("TXT_KEY_PEDIA_NEVER_OBSOLETE", ()))
+			#screen.attachLabel(panelName, "", localText.getText("TXT_KEY_PEDIA_NEVER_OBSOLETE", ()))
 			yPanelCenter = self.Y_OBSOLETE_WITH + (self.H_OBSOLETE_WITH / 2)
 			textName = self.top.getNextWidgetName()
-			szText = CyTranslator().getText("TXT_KEY_PEDIA_OBSOLETE_NO_BUTTON_FOUND", ())
+			szText = localText.getText("TXT_KEY_PEDIA_OBSOLETE_NO_BUTTON_FOUND", ())
 			screen.addMultilineText(textName, szText, self.X_OBSOLETE_WITH + 7, yPanelCenter, self.W_OBSOLETE_WITH - 14, self.H_OBSOLETE_WITH - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
@@ -940,30 +934,27 @@ class SevoPediaBuilding:
 		wPanel = self.W_FREE_PBBS
 		hPanel = self.H_FREE_PBBS
 
+		txtKeyPanel = "TXT_KEY_PEDIA_FREE_PBBS"
+
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 
 		# Create panel with proper styling
-		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_FREE_PBBS", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 
 		# Create MultiList for class and combat buttons
 		rowListName = self.top.getNextWidgetName()
 
-		# <!-- custom: addMultiListControlGFC code from our existing implementation we successfully did for the sevopedia religion leaders panel if i may say but anyways etc anyways etc anyways etc -->
-		# Constants for button display
 		BUTTON_SIZE = 64 # Size of each button
-		PANEL_MULTILIST_OFFSET_X = 9
-		PANEL_MULTILIST_OFFSET_Y = 36
-		PANEL_MULTILIST_ADDITIONAL_W = -1 * (PANEL_MULTILIST_OFFSET_X * 2)
-		PANEL_MULTILIST_ADDITIONAL_H = -1 * (PANEL_MULTILIST_OFFSET_Y)
 
 		# Create the MultiList control
+		# Constants for button display
+		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
 		# Per documentation, the numLists parameter (7th) is actually number of columns
 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
-		multiListX = xPanel + PANEL_MULTILIST_OFFSET_X
-		multiListY = yPanel + PANEL_MULTILIST_OFFSET_Y
-		multiListW = wPanel + PANEL_MULTILIST_ADDITIONAL_W
-		multiListH = hPanel + PANEL_MULTILIST_ADDITIONAL_H
 		# Using 1 for auto-calculation of buttons per row
 		buttonCalculate = 1
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
@@ -972,7 +963,7 @@ class SevoPediaBuilding:
 		iButtonIndex = 0
 
 		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
-		buttonsPerRow = get_max_occurences_found_buttons_per_row(wPanel, BUTTON_SIZE)
+		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 
 		# Get the building info
 		buildingInfo = gc.getBuildingInfo(self.iBuilding)
@@ -986,7 +977,7 @@ class SevoPediaBuilding:
 
 			numTxt = "All Un.C"
 			extraCorrectionX = get_extra_correction_x(numTxt)
-			add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+			add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
 			isButtonFound = True
 			iButtonIndex += 1
@@ -1004,7 +995,7 @@ class SevoPediaBuilding:
 
 				numTxt = "All Cs"
 				extraCorrectionX = get_extra_correction_x(numTxt)
-				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
 				isButtonFound = True
 				iButtonIndex += 1
@@ -1020,8 +1011,8 @@ class SevoPediaBuilding:
 			screen.appendMultiListButton(rowListName, gc.getBonusInfo(iFreeBonus).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iFreeBonus, 1, False)
 
 			numTxt = get_numTxt_num_free_bonus_or_random_map(iNumFreeBonuses)
-			extraCorrectionX = get_extra_correction_x(numTxt) + get_extra_correction_some_letters_or_other_causes_off_centered_x()
-			add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+			extraCorrectionX = get_extra_correction_x(numTxt)
+			add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
 			isButtonFound = True
 			iButtonIndex += 1
@@ -1036,16 +1027,16 @@ class SevoPediaBuilding:
 				screen.appendMultiListButton(rowListName, gc.getSpecialistInfo(iSpecialist).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, iSpecialist, 1, False)
 
 				numTxt = "%d" % iSpecialistCount
-				extraCorrectionX = get_extra_correction_x(numTxt) + get_extra_correction_some_letters_or_other_causes_off_centered_x()
-				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+				extraCorrectionX = get_extra_correction_x(numTxt)
+				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
 				isButtonFound = True
 				iButtonIndex += 1
 
 		if not isButtonFound:
-			txtKey = "TXT_KEY_PEDIA_FREE_PBBS_NO_BUTTON_FOUND"
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_FREE_PBBS_NO_BUTTON_FOUND"
 			textName = self.top.getNextWidgetName()
-			szText = CyTranslator().getText(txtKey, ())
+			szText = localText.getText(txtKeyNoButtonFound, ())
 			yPanelCenter = yPanel + (hPanel / 2)
 			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
@@ -1101,11 +1092,13 @@ class SevoPediaBuilding:
 		wPanel = self.W_FREE_WITH
 		hPanel = self.H_FREE_WITH
 
+		txtKeyPanel = "TXT_KEY_PEDIA_FREE_WITH"
+
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		
 		# Create panel with proper styling
-		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_FREE_WITH", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 		# <!-- custom: additional left side padding for the button(s) -->
 		screen.attachLabel(panelName, "", "  ")
 		
@@ -1161,9 +1154,9 @@ class SevoPediaBuilding:
 					screen.attachImageButton(panelName, "", gc.getBuildingInfo(iBuildingLoop).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuildingLoop, -1, False)
 
 		if not isButtonFound:
-			txtKey = "TXT_KEY_PEDIA_FREE_WITH_NO_BUTTON_FOUND"
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_FREE_WITH_NO_BUTTON_FOUND"
 			textName = self.top.getNextWidgetName()
-			szText = CyTranslator().getText(txtKey, ())
+			szText = localText.getText(txtKeyNoButtonFound, ())
 			yPanelCenter = yPanel + (hPanel / 2)
 			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
@@ -1175,22 +1168,22 @@ class SevoPediaBuilding:
 		wPanel = self.W_REPLACE
 		hPanel = self.H_REPLACE
 
-		screen = self.top.getScreen()
-		panel = self.top.getNextWidgetName()
-
 		iBuildingClass = gc.getBuildingInfo(self.iBuilding).getBuildingClassType()
 		iBaseBuilding = gc.getBuildingClassInfo(iBuildingClass).getDefaultBuildingIndex()
 
 		# Use different text key depending on whether this is a unique or base building
 		if self.iBuilding != iBaseBuilding:
 			# This is a unique building that replaces a base building
-			panelTxtKey = "TXT_KEY_PEDIA_REPLACE_REPLACES_CUSTOM"
+			txtKeyPanel = "TXT_KEY_PEDIA_REPLACE_REPLACES_CUSTOM"
 		else:
 			# This is a base building that can be replaced by unique buildings
-			panelTxtKey = "TXT_KEY_PEDIA_REPLACE_REPLACED_BY_CUSTOM"
+			txtKeyPanel = "TXT_KEY_PEDIA_REPLACE_REPLACED_BY_CUSTOM"
+
+		screen = self.top.getScreen()
+		panel = self.top.getNextWidgetName()
 
 		# Create panel with proper styling
-		screen.addPanel(panel, CyTranslator().getText(panelTxtKey, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panel, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 		# <!-- custom: additionnal left side padding for the button(s) -->
 		screen.attachLabel(panel, "", "  ")
 
@@ -1212,9 +1205,9 @@ class SevoPediaBuilding:
 						screen.attachImageButton(panel, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
 
 		if not isButtonFound:
-			txtKey = "TXT_KEY_PEDIA_REPLACE_NO_BUTTON_FOUND"
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_REPLACE_NO_BUTTON_FOUND"
 			textName = self.top.getNextWidgetName()
-			szText = CyTranslator().getText(txtKey, ())
+			szText = localText.getText(txtKeyNoButtonFound, ())
 			yPanelCenter = yPanel + (hPanel / 2)
 			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
@@ -1252,7 +1245,7 @@ class SevoPediaBuilding:
 			#screen.attachLabel(panelName, "", localText.getText("TXT_KEY_PEDIA_AVAILABLE_ALL_CIVS", ()))
 			yPanelCenter = self.Y_CIVILIZATIONS + (self.H_CIVILIZATIONS / 2)
 			textName = self.top.getNextWidgetName()
-			szText = CyTranslator().getText("TXT_KEY_PEDIA_CIVILIZATIONS_NO_BUTTON_FOUND", ())
+			szText = localText.getText("TXT_KEY_PEDIA_CIVILIZATIONS_NO_BUTTON_FOUND", ())
 			screen.addMultilineText(textName, szText, self.X_CIVILIZATIONS + 7, yPanelCenter, self.W_CIVILIZATIONS - 14, self.H_CIVILIZATIONS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 

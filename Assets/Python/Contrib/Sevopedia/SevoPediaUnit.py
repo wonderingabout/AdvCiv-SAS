@@ -104,15 +104,18 @@ class SevoPediaUnit:
 		self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.W_UPGRADES_TO
 		self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.H_REQUIRES
 
-		self.X_TERRAIN_FEATURE_CITY_BONUSES = self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS + self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS + self.MEDIUM_MARGIN
-		self.Y_TERRAIN_FEATURE_CITY_BONUSES = self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS
-		self.W_TERRAIN_FEATURE_CITY_BONUSES = self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS
-		self.H_TERRAIN_FEATURE_CITY_BONUSES = self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS
+		self.X_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS + self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS + self.MEDIUM_MARGIN
+		self.Y_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS
+		self.W_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS
+		self.H_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS
+
+		# <!-- custom: adjust this based on your multilist button size ; note that i use i mean this is used only in the _OF_OTHER_UNITS_MODIFIERS related panel i mean anyways etc, so not applying this everywhere as all other multilist panels as of now only use one row or if they have multiple rows they don't use a numTxt as of now at least if not always or not i mean but or not but or yes but anyways etc anyways etc anyways etc; tested only for a button size of 64 as rest of the multilist code, but it should maybe handle quite well another button size minus perhaps small numTxt adjustments or corrections that may be influenced by button size -->
+		self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE = 64
 
 		self.X_OF_OTHER_UNITS_MODIFIERS = self.X_UNIT_PANE
 		self.Y_OF_OTHER_UNITS_MODIFIERS = self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS + self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS + self.SMALL_MARGIN
 		self.W_OF_OTHER_UNITS_MODIFIERS = self.top.R_PEDIA_PAGE - self.X_UNIT_PANE
-		self.H_OF_OTHER_UNITS_MODIFIERS = self.H_REQUIRES
+		self.H_OF_OTHER_UNITS_MODIFIERS = self.H_REQUIRES + self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
 
 		self.X_SPECIAL = self.X_UNIT_PANE
 		self.Y_SPECIAL = self.Y_OF_OTHER_UNITS_MODIFIERS + self.H_OF_OTHER_UNITS_MODIFIERS + self.SMALL_MARGIN
@@ -339,11 +342,13 @@ class SevoPediaUnit:
 		wPanel = self.W_UPGRADES_TO
 		hPanel = self.H_UPGRADES_TO
 
+		txtKeyPanel = "TXT_KEY_PEDIA_UPGRADES_TO"
+
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 
 		# Create panel with proper styling
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_UPGRADES_TO", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 		# <!-- custom: additionnal left side padding for the button(s) -->
 		screen.attachLabel(panelName, "", "  ")
 
@@ -368,9 +373,9 @@ class SevoPediaUnit:
 
 
 		if not isButtonFound:
-			txtKey = "TXT_KEY_PEDIA_UPGRADES_TO_NO_BUTTON_FOUND"
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_UPGRADES_TO_NO_BUTTON_FOUND"
 			textName = self.top.getNextWidgetName()
-			szText = CyTranslator().getText(txtKey, ())
+			szText = localText.getText(txtKeyNoButtonFound, ())
 			yPanelCenter = yPanel + (hPanel / 2)
 			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
@@ -382,11 +387,13 @@ class SevoPediaUnit:
 		wPanel = self.W_FREE_PROMOTIONS
 		hPanel = self.H_FREE_PROMOTIONS
 
+		txtKeyPanel = "TXT_KEY_PEDIA_FREE_PROMOTIONS"
+
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		
 		# Create panel with proper styling
-		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_FREE_PROMOTIONS", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 		# Additional left side padding for the button(s)
 		screen.attachLabel(panelName, "", "  ")
 		
@@ -403,37 +410,10 @@ class SevoPediaUnit:
 				screen.attachImageButton(panelName, "", gc.getPromotionInfo(iPromotion).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iPromotion, -1, False)
 
 		if not isButtonFound:
-			txtKey = "TXT_KEY_PEDIA_FREE_PROMOTIONS_NO_BUTTON_FOUND"
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_FREE_PROMOTIONS_NO_BUTTON_FOUND"
 			textName = self.top.getNextWidgetName()
-			szText = CyTranslator().getText(txtKey, ())
+			szText = localText.getText(txtKeyNoButtonFound, ())
 			yPanelCenter = yPanel + (hPanel / 2)
-			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
-
-
-	# <!-- custom: since this uses always the same logic and values overall unlike in sevopedia building, easier and more efficient to wrap it in one helper function without losing clarity perhaps gaining if i may say in this case or not or yes or other or etc but anyways etc anyways etc anyways etc -->
-	def precompute_modifier_button_to_display(self, numTxt, xPanel, nCountOccurencesFound, buttonSize, xNumsOrTextsFound):
-		addedOffset = 0
-		xSubstractedAdjustmentNumTxt = getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
-		xSubstractedAdjustment = int(xSubstractedAdjustmentNumTxt * buttonSize)
-		xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
-
-
-
-	def displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(self, screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, xPanel, yPanel, wPanel, hPanel):
-		# <!-- custom: now display(ing anyways etc) the corresponding num or text matching the button if any (button) anyways etc -->
-		if isButtonFound:
-			yPanelBottomPart = yPanel + int(0.8 * hPanel)
-			for xOccurenceFound, numFreeTxtOccurenceFound in xNumsOrTextsFound:
-				textName = self.top.getNextWidgetName()
-				szText = numFreeTxtOccurenceFound
-				screen.addMultilineText(textName, szText, xOccurenceFound, yPanelBottomPart, 2 * buttonSize, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
-		# If no <!-- custom: button --> found, display a message
-		else:
-			yPanelCenter = yPanel + (hPanel / 2)
-			textName = self.top.getNextWidgetName()
-			szText = CyTranslator().getText(txtKeyNoButtonFound, ())
 			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
@@ -444,30 +424,28 @@ class SevoPediaUnit:
 		wPanel = self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS
 		hPanel = self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS
 
+		txtKeyPanel = "TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS"
+
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		
 		# Create panel with proper styling
-		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 
 		# Create MultiList for class and combat buttons
 		rowListName = self.top.getNextWidgetName()
 
 		# <!-- custom: addMultiListControlGFC code from our existing implementation we successfully did for the sevopedia religion leaders panel if i may say but anyways etc anyways etc anyways etc -->
-		# Constants for button display
 		BUTTON_SIZE = 64 # Size of each button
-		PANEL_MULTILIST_OFFSET_X = 9
-		PANEL_MULTILIST_OFFSET_Y = 36
-		PANEL_MULTILIST_ADDITIONAL_W = -1 * (PANEL_MULTILIST_OFFSET_X * 2)
-		PANEL_MULTILIST_ADDITIONAL_H = -1 * (PANEL_MULTILIST_OFFSET_Y)
 
 		# Create the MultiList control
+		# Constants for button display
+		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
 		# Per documentation, the numLists parameter (7th) is actually number of columns
 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
-		multiListX = xPanel + PANEL_MULTILIST_OFFSET_X
-		multiListY = yPanel + PANEL_MULTILIST_OFFSET_Y
-		multiListW = wPanel + PANEL_MULTILIST_ADDITIONAL_W
-		multiListH = hPanel + PANEL_MULTILIST_ADDITIONAL_H
 		# Using 1 for auto-calculation of buttons per row
 		buttonCalculate = 1
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
@@ -476,7 +454,7 @@ class SevoPediaUnit:
 		iButtonIndex = 0
 
 		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
-		buttonsPerRow = get_max_occurences_found_buttons_per_row(wPanel, BUTTON_SIZE)
+		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 
 		# Get the unit info
 		unitInfo = gc.getUnitInfo(self.iUnit)
@@ -499,7 +477,7 @@ class SevoPediaUnit:
 				# Handle class modifiers with x/y format
 				numTxt = get_numTxt_attack_defense_modifiers(iModAttack, iModDefense)
 				extraCorrectionX = get_extra_correction_x(numTxt)
-				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
 				isButtonFound = True
 				iButtonIndex += 1
@@ -513,7 +491,6 @@ class SevoPediaUnit:
 				iModCombat = unitInfo.getUnitCombatModifier(i)
 
 				if iModCombat != 0:
-					isButtonFound = True
 					# Column index (always 0 when numLists=1)
 					columnIndex = 0
 					# <!-- custom: switch to combat type categories instead using relevant widget instead as provided by claude ai after i prompted it and reflecting on it in this case anyways etc, our previous code was seemingly mistaken in this case but anyways etc -->
@@ -521,32 +498,56 @@ class SevoPediaUnit:
 
 					numTxt = get_numTxt_combat_type_modifiers(iModCombat)
 					extraCorrectionX = get_extra_correction_x(numTxt)
-					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
 					isButtonFound = True
 					iButtonIndex += 1
 
 		if not isButtonFound:
-			txtKey = "TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS_NO_BUTTON_FOUND"
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS_NO_BUTTON_FOUND"
 			textName = self.top.getNextWidgetName()
-			szText = CyTranslator().getText(txtKey, ())
+			szText = localText.getText(txtKeyNoButtonFound, ())
 			yPanelCenter = yPanel + (hPanel / 2)
 			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
 	def placeModifiersOfOtherUnitClassesCombatTypesAgainstThisUnit(self):
+		xPanel = self.X_OF_OTHER_UNITS_MODIFIERS
+		yPanel = self.Y_OF_OTHER_UNITS_MODIFIERS
+		wPanel = self.W_OF_OTHER_UNITS_MODIFIERS
+		hPanel = self.H_OF_OTHER_UNITS_MODIFIERS
+
+		txtKeyPanel = "TXT_KEY_PEDIA_OF_OTHER_UNITS_MODIFIERS_AGAINST_THIS_UNIT"
+
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		
-		# Create panel with proper styling
-		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_OF_OTHER_UNITS_MODIFIERS_AGAINST_THIS_UNIT", ()), "", False, True, self.X_OF_OTHER_UNITS_MODIFIERS, self.Y_OF_OTHER_UNITS_MODIFIERS, self.W_OF_OTHER_UNITS_MODIFIERS, self.H_OF_OTHER_UNITS_MODIFIERS, PanelStyles.PANEL_STYLE_BLUE50)
-		# Additional left side padding for the button(s)
-		screen.attachLabel(panelName, "", "  ")
-		
-		nCountOccurencesFound = 0
-		xNumsOrTextsFound = []
-		buttonSize = 64
+
+		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+
+		# Create MultiList for class and combat buttons
+		rowListName = self.top.getNextWidgetName()
+
+		# <!-- custom: note: since this is meant to have multiple lines, actually passing button size as a parameter here rather than hardcoded value of say 64, so that the size of other related panels is adjusted the bigger or smaller in this case i mean anyways etc the _MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE panel is, see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE for details if any are there i mean hopefully helpful anyways etc -->
+		BUTTON_SIZE = self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE # Size of each button
+
+		# Create the MultiList control
+		# Constants for button display
+		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+		# Per documentation, the numLists parameter (7th) is actually number of columns
+		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+		# Using 1 for auto-calculation of buttons per row
+		buttonCalculate = 1
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+
+		isButtonFound = False
+		iButtonIndex = 0
+
+		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 
 		# Get the unit info for the current unit
 		unitInfo = gc.getUnitInfo(self.iUnit)
@@ -561,15 +562,18 @@ class SevoPediaUnit:
 			iModAttack = otherUnitInfo.getUnitClassAttackModifier(iUnitClass)
 			iModDefense = otherUnitInfo.getUnitClassDefenseModifier(iUnitClass)
 
-			# Handle class modifiers with x/y format
-			numTxt = get_numTxt_attack_defense_modifiers(iModAttack, iModDefense)
-
 			if iModAttack != 0 or iModDefense != 0:
-				nCountOccurencesFound += 1
-				self.precompute_modifier_button_to_display(numTxt, self.X_OF_OTHER_UNITS_MODIFIERS, nCountOccurencesFound, buttonSize, xNumsOrTextsFound)
-				
-				# Display the specific unit button
-				screen.attachImageButton(panelName, "", otherUnitInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, i, -1, False)
+				# Column index (always 0 when numLists=1)
+				columnIndex = 0
+				screen.appendMultiListButton(rowListName, otherUnitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, i, 1, False)
+
+				# Handle class modifiers with x/y format
+				numTxt = get_numTxt_attack_defense_modifiers(iModAttack, iModDefense)
+				extraCorrectionX = get_extra_correction_x(numTxt)
+				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+
+				isButtonFound = True
+				iButtonIndex += 1
 		
 		# Check for unit combat types that this unit belongs to
 		if iUnitCombatType != -1:  # Make sure this unit has a combat type
@@ -579,160 +583,152 @@ class SevoPediaUnit:
 				iModCombat = otherUnitInfo.getUnitCombatModifier(iUnitCombatType)
 				
 				if iModCombat != 0:
-					nCountOccurencesFound += 1
+					# Column index (always 0 when numLists=1)
+					columnIndex = 0
+					screen.appendMultiListButton(rowListName, otherUnitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, i, 1, False)
+
 					numTxt = get_numTxt_combat_type_modifiers(iModCombat)
-					self.precompute_modifier_button_to_display(numTxt, self.X_OF_OTHER_UNITS_MODIFIERS, nCountOccurencesFound, buttonSize, xNumsOrTextsFound)
-					
-					# Display the specific unit button
-					screen.attachImageButton(panelName, "", otherUnitInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, i, -1, False)
-		
-		isButtonFound = (nCountOccurencesFound > 0)
-		txtKeyNoButtonFound = "TXT_KEY_PEDIA_OF_OTHER_UNITS_MODIFIERS_AGAINST_THIS_UNIT_NO_BUTTON_FOUND"
-		self.displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, self.X_OF_OTHER_UNITS_MODIFIERS, self.Y_OF_OTHER_UNITS_MODIFIERS, self.W_OF_OTHER_UNITS_MODIFIERS, self.H_OF_OTHER_UNITS_MODIFIERS)
+					extraCorrectionX = get_extra_correction_x(numTxt)
+					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+
+					isButtonFound = True
+					iButtonIndex += 1
+
+		if not isButtonFound:
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_OF_OTHER_UNITS_MODIFIERS_AGAINST_THIS_UNIT_NO_BUTTON_FOUND"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNoButtonFound, ())
+			yPanelCenter = yPanel + (hPanel / 2)
+			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
 	def placePeakHillCityTerrainsFeaturesModifiers(self):
+		xPanel = self.X_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS
+		yPanel = self.Y_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS
+		wPanel = self.W_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS
+		hPanel = self.H_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS
+
+		txtKeyPanel = "TXT_KEY_PEDIA_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS"
+
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		
-		# Create panel with proper styling
-		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS", ()), "", False, True, self.X_TERRAIN_FEATURE_CITY_BONUSES, self.Y_TERRAIN_FEATURE_CITY_BONUSES, self.W_TERRAIN_FEATURE_CITY_BONUSES, self.H_TERRAIN_FEATURE_CITY_BONUSES, PanelStyles.PANEL_STYLE_BLUE50)
-		
-		# Additional left side padding for the button(s)
-		screen.attachLabel(panelName, "", "  ")
-		
-		nCountOccurencesFound = 0
-		xNumsOrTextsFound = []
-		buttonSize = 64
+
+		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+
+		# Create MultiList for class and combat buttons
+		rowListName = self.top.getNextWidgetName()
+
+		BUTTON_SIZE = 64 # Size of each button
+
+		# Create the MultiList control
+		# Constants for button display
+		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+		# Per documentation, the numLists parameter (7th) is actually number of columns
+		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+		# Using 1 for auto-calculation of buttons per row
+		buttonCalculate = 1
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+
+		isButtonFound = False
+		iButtonIndex = 0
+
+		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 		
 		# Get the unit info
 		unitInfo = gc.getUnitInfo(self.iUnit)
-		
-		# Dictionary to store combined bonuses: key is (type, buttonArt, description, jumpType, widgetID1, widgetID2)
-		# value is a tuple of (attackBonus, defenseBonus)
-		combinedBonuses = {}
-		
-		# Special cases for Hills and City
-		hillsButton = ""
-		hillsDescription = CyTranslator().getText("TXT_KEY_TERRAIN_HILL", ())
 
-		citiesConfigButtonPathSTxtKey = "TXT_KEY_BUTTON_PATH_HARDCODED_CITIES_BUTTON_PATH"
-		# <!-- custom: add str() wrapper else (i.e. without it anyways etc) we get an error (it seems) (but anyways etc) anyways (i.e. not impliying it is necessary, but without it we get this error with this other kind of button writing code that does not use same logic as the add as <img> one of other buttons anyways etc (from err log anyways etc):
-		#
-		# ArgumentError: Python argument types in
-		#	CyGInterfaceScreen.attachImageButton(CyGInterfaceScreen, str, str, unicode, CvPythonExtensions.GenericButtonSizes, CvPythonExtensions.WidgetTypes, CvPythonExtensions.CivilopediaPageTypes, int, bool)
-		# did not match C++ signature:
-		#	attachImageButton(class CyGInterfaceScreen {lvalue}, char const *, char const *, char const *, enum GenericButtonSizes, enum WidgetTypes, int, int, bool)
-		#  
-		# (adding the str) may or may not be necessary or an alternative solution to this may exist or not, but in all cases anyways etc) anyways etc, etc -->
-		citiesResolvedButtonPath = str(CyTranslator().getText(citiesConfigButtonPathSTxtKey, ()))
-		citiesButtonHeader = "Cities button in Sevopedia Unit's placePeakHillCityTerrainsFeaturesModifiers"
-		check_button_path_is_valid(citiesButtonHeader, citiesResolvedButtonPath, citiesConfigButtonPathSTxtKey)	
-		citiesDescription = CyTranslator().getText("TXT_KEY_CONCEPT_CITIES", ())
-		
-		# Try to find a hills button from the terrain infos
-		for i in range(gc.getNumTerrainInfos()):
-			terrainInfo = gc.getTerrainInfo(i)
-			if "HILL" in terrainInfo.getType():
-				hillsButton = terrainInfo.getButton()
-				break
-		
-		# Find the concept ID for "CONCEPT_CITIES"
-		iCitiesConceptID = -1
-		for i in range(gc.getNumConceptInfos()):
-			if gc.getConceptInfo(i).getType() == "CONCEPT_CITIES":
-				iCitiesConceptID = i
-				break
-		
 		# Hills bonuses
 		iHillsAttack = unitInfo.getHillsAttackModifier()
 		iHillsDefense = unitInfo.getHillsDefenseModifier()
-		if iHillsAttack > 0 or iHillsDefense > 0:
-			hillsTerrainID = -1
-			for i in range(gc.getNumTerrainInfos()):
-				if "HILL" in gc.getTerrainInfo(i).getType():
-					hillsTerrainID = i
-					break
+
+		# <!-- custom: include negative values as well if i am not mistaken and after having asked chatgpt to be sure or quite more sure if i may say but anyways etc -->
+		if iHillsAttack != 0 or iHillsDefense != 0:
+			widgetType = WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN
+			hillsTerrainID = get_hills_terrain_id(gc)
+			widgetID2 = -1
+
+			# Column index (always 0 when numLists=1)
+			columnIndex = 0
+			screen.appendMultiListButton(rowListName, get_hills_button(gc), columnIndex, widgetType, hillsTerrainID, widgetID2, False)
+
+			numTxt = get_numTxt_attack_defense_modifiers(iHillsAttack, iHillsDefense)
+			extraCorrectionX = get_extra_correction_x(numTxt)
+			add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+
+			isButtonFound = True
+			iButtonIndex += 1
+	
+		# Terrain Attack/Defense bonuses
+		# <!-- custom: note peak is handled here as well if i am not mistaken (i.e. same as for the other terrains only here if i am not mistaken anyways etc), except for hills that follow a different modifier formula with getHillsAttackModifier and getHillsDefenseModifier if i am not mistaken anyways etc -->
+		for i in range(gc.getNumTerrainInfos()):	
+			iTerrainAttack = unitInfo.getTerrainAttackModifier(i)
+			iTerrainDefense = unitInfo.getTerrainDefenseModifier(i)
 			
-			key = ("HILLS", hillsButton, hillsDescription, "HILLS", hillsTerrainID, -1)
-			combinedBonuses[key] = (iHillsAttack, iHillsDefense)
+			if iTerrainAttack != 0 or iTerrainDefense != 0:
+				widgetType = WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN
+				widgetID2 = -1
+
+				# Column index (always 0 when numLists=1)
+				columnIndex = 0
+				screen.appendMultiListButton(rowListName, gc.getTerrainInfo(i).getButton(), columnIndex, widgetType, i, widgetID2, False)
+
+				numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
+				extraCorrectionX = get_extra_correction_x(numTxt)
+				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+
+				isButtonFound = True
+				iButtonIndex += 1
 		
 		# City bonuses
 		iCityAttack = unitInfo.getCityAttackModifier()
 		iCityDefense = unitInfo.getCityDefenseModifier()
-		if iCityAttack > 0 or iCityDefense > 0:
-			# Use Widget_Pedia_Description with the concept ID
-			if iCitiesConceptID != -1:
-				key = ("CITY", citiesResolvedButtonPath, citiesDescription, "CONCEPT", CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, iCitiesConceptID)
-			else:
-				key = ("CITY", citiesResolvedButtonPath, citiesDescription, "NONE", -1, -1)
-			combinedBonuses[key] = (iCityAttack, iCityDefense)
-		
-		# Terrain Attack/Defense bonuses
-		for i in range(gc.getNumTerrainInfos()):
-			terrainInfo = gc.getTerrainInfo(i)
-			terrainType = terrainInfo.getType()
-			
-			iTerrainAttack = unitInfo.getTerrainAttackModifier(i)
-			iTerrainDefense = unitInfo.getTerrainDefenseModifier(i)
-			
-			if iTerrainAttack > 0 or iTerrainDefense > 0:
-				key = (terrainType, terrainInfo.getButton(), terrainInfo.getDescription(), "TERRAIN", i, -1)
-				combinedBonuses[key] = (iTerrainAttack, iTerrainDefense)
-		
+
+		if iCityAttack != 0 or iCityDefense != 0:
+			citiesConceptID = get_cities_concept_id(gc)
+			widgetType, widgetID1, widgetID2 = get_concept_widgetType_widgetID1_widgetID2(citiesConceptID, WidgetTypes, CivilopediaPageTypes)
+
+			# Column index (always 0 when numLists=1)
+			columnIndex = 0
+			screen.appendMultiListButton(rowListName, get_citiesResolvedButtonPath(localText), columnIndex, widgetType, widgetID1, widgetID2, False)
+
+			numTxt = get_numTxt_attack_defense_modifiers(iCityAttack, iCityDefense)
+			extraCorrectionX = get_extra_correction_x(numTxt)
+			add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+
+			isButtonFound = True
+			iButtonIndex += 1
+
 		# Feature Attack/Defense bonuses
-		for i in range(gc.getNumFeatureInfos()):
-			featureInfo = gc.getFeatureInfo(i)
-			featureType = featureInfo.getType()
-			
+		for i in range(gc.getNumFeatureInfos()):	
 			iFeatureAttack = unitInfo.getFeatureAttackModifier(i)
 			iFeatureDefense = unitInfo.getFeatureDefenseModifier(i)
 			
-			if iFeatureAttack > 0 or iFeatureDefense > 0:
-				key = (featureType, featureInfo.getButton(), featureInfo.getDescription(), "FEATURE", i, -1)
-				combinedBonuses[key] = (iFeatureAttack, iFeatureDefense)
-		
-		# Now process all the combined bonuses we found and display them
-		for (bonusType, buttonArt, description, jumpType, widgetID1, widgetID2), (attackBonus, defenseBonus) in combinedBonuses.items():
-			nCountOccurencesFound += 1
-			
-			# Create the combined bonus text
-			numTxt = get_numTxt_attack_defense_modifiers(attackBonus, defenseBonus)
-			
-			# Calculate text position offset
-			addedOffset = -0.07
-			xSubstractedAdjustmentNumTxt = getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
-			xSubstractedAdjustment = int(xSubstractedAdjustmentNumTxt * buttonSize)
-			
-			# Add text position to our list
-			xPanel = self.X_TERRAIN_FEATURE_CITY_BONUSES
-			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
-			
-			# Determine widget type based on the jumpType
-			widgetType = WidgetTypes.WIDGET_GENERAL
-			
-			if jumpType == "TERRAIN":
-				widgetType = WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN
-				screen.attachImageButton(panelName, "", buttonArt, GenericButtonSizes.BUTTON_SIZE_CUSTOM, widgetType, widgetID1, -1, False)
-			elif jumpType == "FEATURE":
+			if iFeatureAttack != 0 or iFeatureDefense != 0:
 				widgetType = WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE
-				screen.attachImageButton(panelName, "", buttonArt, GenericButtonSizes.BUTTON_SIZE_CUSTOM, widgetType, widgetID1, -1, False)
-			elif jumpType == "HILLS":
-				widgetType = WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN
-				screen.attachImageButton(panelName, "", buttonArt, GenericButtonSizes.BUTTON_SIZE_CUSTOM, widgetType, widgetID1, -1, False)
-			elif jumpType == "CONCEPT":
-				# For concepts, use WIDGET_PEDIA_DESCRIPTION with proper page type and ID
-				widgetType = WidgetTypes.WIDGET_PEDIA_DESCRIPTION
-				screen.attachImageButton(panelName, "", buttonArt, GenericButtonSizes.BUTTON_SIZE_CUSTOM, widgetType, widgetID1, widgetID2, False)
-			else:
-				# Default to WIDGET_GENERAL with no click action
-				screen.attachImageButton(panelName, "", buttonArt, GenericButtonSizes.BUTTON_SIZE_CUSTOM, widgetType, -1, -1, False)
-		
-		# Display the bonus texts or "no bonuses" message
-		isButtonFound = (nCountOccurencesFound > 0)
-		txtKeyNoButtonFound = "TXT_KEY_PEDIA_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS_NO_BUTTON_FOUND"
-		self.displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, self.X_TERRAIN_FEATURE_CITY_BONUSES, self.Y_TERRAIN_FEATURE_CITY_BONUSES, self.W_TERRAIN_FEATURE_CITY_BONUSES, self.H_TERRAIN_FEATURE_CITY_BONUSES)
+				widgetID2 = -1
+
+				# Column index (always 0 when numLists=1)
+				columnIndex = 0
+				screen.appendMultiListButton(rowListName, gc.getFeatureInfo(i).getButton(), columnIndex, widgetType, i, widgetID2, False)
+
+				numTxt = get_numTxt_attack_defense_modifiers(iFeatureAttack, iFeatureDefense)
+				extraCorrectionX = get_extra_correction_x(numTxt)
+				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+
+				isButtonFound = True
+				iButtonIndex += 1
+
+		if not isButtonFound:
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS_NO_BUTTON_FOUND"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNoButtonFound, ())
+			yPanelCenter = yPanel + (hPanel / 2)
+			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -758,22 +754,22 @@ class SevoPediaUnit:
 		wPanel = self.W_REPLACE
 		hPanel = self.H_REPLACE
 
-		screen = self.top.getScreen()
-		panel = self.top.getNextWidgetName()
-
 		iUnitClass = gc.getUnitInfo(self.iUnit).getUnitClassType()
 		iBaseUnit = gc.getUnitClassInfo(iUnitClass).getDefaultUnitIndex()
 
 		# Use different text key depending on whether this is a unique or base unit
 		if self.iUnit != iBaseUnit:
 			# This is a unique unit that replaces a base unit
-			panelTxtKey = "TXT_KEY_PEDIA_REPLACE_REPLACES_CUSTOM"
+			txtKeyPanel = "TXT_KEY_PEDIA_REPLACE_REPLACES_CUSTOM"
 		else:
 			# This is a base unit that can be replaced by unique units
-			panelTxtKey = "TXT_KEY_PEDIA_REPLACE_REPLACED_BY_CUSTOM"
+			txtKeyPanel = "TXT_KEY_PEDIA_REPLACE_REPLACED_BY_CUSTOM"
+
+		screen = self.top.getScreen()
+		panel = self.top.getNextWidgetName()
 
 		# Create panel with proper styling
-		screen.addPanel(panel, CyTranslator().getText(panelTxtKey, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panel, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 		# <!-- custom: additionnal left side padding for the button(s) -->
 		screen.attachLabel(panel, "", "  ")
 
@@ -795,9 +791,9 @@ class SevoPediaUnit:
 						screen.attachImageButton(panel, "", gc.getUnitInfo(iUnit).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 
 		if not isButtonFound:
-			txtKey = "TXT_KEY_PEDIA_REPLACE_NO_BUTTON_FOUND"
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_REPLACE_NO_BUTTON_FOUND"
 			textName = self.top.getNextWidgetName()
-			szText = CyTranslator().getText(txtKey, ())
+			szText = localText.getText(txtKeyNoButtonFound, ())
 			yPanelCenter = yPanel + (hPanel / 2)
 			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 

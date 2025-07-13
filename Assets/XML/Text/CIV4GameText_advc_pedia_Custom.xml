@@ -157,4 +157,19 @@ hopefully more readable or exportable if need/want be now -->
 		<Tag>TXT_KEY_UNIT_WORK_BOAT_BARBARIAN</Tag>
 		<English>Work Boat (Barbarian)</English>
 	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_TERRAIN_FEATURE_UNITS</Tag>
+		<English>Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE</Tag>
+		<English>Cannot move: units with TerrainImpassables or TerrainPassableTechs in their XML</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE_PEAK</Tag>
+		<English>Cannot move: units without bCanMoveImpassable and without bCanMoveAllTerrain in their XML</English>
+	</TEXT>
 </Civ4GameText>
