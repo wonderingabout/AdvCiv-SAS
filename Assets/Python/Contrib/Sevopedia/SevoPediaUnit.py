@@ -192,6 +192,7 @@ class SevoPediaUnit:
 
 	def placeStats(self):
 		screen = self.top.getScreen()
+		# <!-- custom: self.top.getNextWidgetName() is regenerated many times and `szName = self.top.getNextWidgetName()` is never used, removing unused variables and (so i am anyways etc) trying to avoid redundance as long as code seems to work fine or as intended i mean anyways etc and also to avoid or/and fix the ruff warning anyways etc, i asked chatgpt to be sure and it seems this is fine perhaps even good to do so but anyways code seems to function fine and no warning so hopefully fixed in this case i mean at least but anyways etc -->
 		panelName = self.top.getNextWidgetName()
 		iCombatType = gc.getUnitInfo(self.iUnit).getUnitCombatType()
 
@@ -207,7 +208,6 @@ class SevoPediaUnit:
 		else:
 			iStrength = gc.getUnitInfo(self.iUnit).getCombat()
 		if iStrength > 0: # advc.004y: Don't show 0 strength for nukes
-			szName = self.top.getNextWidgetName()
 			szStrength = localText.getText("TXT_KEY_PEDIA_STRENGTH_CUSTOM", (iStrength,))
 			szStrengthText = u"%c  " % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR) + szStrength
 			screen.appendListBoxStringNoUpdate(panelName, u"<font=4>" + szStrengthText + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
@@ -219,14 +219,12 @@ class SevoPediaUnit:
 			# 4 move helicopter, (hopefully helpful ,) (but) (if or not)(anyways etc) anyways etc -->
 			## Don't show 1 move for air units
 			#elif eDomain != DomainTypes.DOMAIN_AIR: # </advc.004y>
-			szName = self.top.getNextWidgetName()
 			szMovement = localText.getText("TXT_KEY_PEDIA_MOVEMENT_CUSTOM", (gc.getUnitInfo(self.iUnit).getMoves(),))
 			szMovementText = u"%c  " % CyGame().getSymbolID(FontSymbols.MOVES_CHAR) + szMovement
 			screen.appendListBoxStringNoUpdate(panelName, u"<font=4>" + szMovementText + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 		# advc.004y: Moved range above production cost. Condition for ICBM added.
 		if gc.getUnitInfo(self.iUnit).getAirRange() > 0 or gc.getUnitInfo(self.iUnit).getNukeRange() >= 0:
-			szName = self.top.getNextWidgetName()
 			iRange = gc.getUnitInfo(self.iUnit).getAirRange()
 			if iRange > 0: # advc.004y
 				szRange = localText.getText("TXT_KEY_PEDIA_RANGE_CUSTOM", (iRange,))
@@ -237,7 +235,6 @@ class SevoPediaUnit:
 			szRangeText = u"R    " + szRange
 			screen.appendListBoxStringNoUpdate(panelName, u"<font=4>" + szRangeText + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 		if (gc.getUnitInfo(self.iUnit).getProductionCost() >= 0 and not gc.getUnitInfo(self.iUnit).isFound()):
-			szName = self.top.getNextWidgetName()
 			if self.top.iActivePlayer == -1:
 				szCost = localText.getText("TXT_KEY_PEDIA_COST_CUSTOM", ((gc.getUnitInfo(self.iUnit).getProductionCost() * gc.getDefineINT("UNIT_PRODUCTION_PERCENT"))/100,))
 			else:
@@ -649,12 +646,12 @@ class SevoPediaUnit:
 		# <!-- custom: include negative values as well if i am not mistaken and after having asked chatgpt to be sure or quite more sure if i may say but anyways etc -->
 		if iHillsAttack != 0 or iHillsDefense != 0:
 			widgetType = WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN
-			hillsTerrainID = get_hills_terrain_id(gc)
+			iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
 			widgetID2 = -1
 
 			# Column index (always 0 when numLists=1)
 			columnIndex = 0
-			screen.appendMultiListButton(rowListName, get_hills_button(gc), columnIndex, widgetType, hillsTerrainID, widgetID2, False)
+			screen.appendMultiListButton(rowListName, get_hills_button(iHill, gc), columnIndex, widgetType, iHill, widgetID2, False)
 
 			numTxt = get_numTxt_attack_defense_modifiers(iHillsAttack, iHillsDefense)
 			extraCorrectionX = get_extra_correction_x(numTxt)

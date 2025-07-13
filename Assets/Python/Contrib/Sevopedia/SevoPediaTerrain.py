@@ -99,9 +99,21 @@ class SevoPediaTerrain:
 		screen.addListBoxGFC(panel, "", self.X_INFO_TEXT, self.Y_INFO_TEXT, self.W_INFO_TEXT, self.H_INFO_TEXT, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(panel, False)
 		screen.appendListBoxString(panel, u"<font=4b>" + info.getDescription() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.appendListBoxString(panel, "Terrain", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
-		if self.iTerrain == gc.getInfoTypeForString('TERRAIN_HILL'):
+		# <!-- custom: add missing txt key "Terrain" not in RFC DOC mod if i am not mistaken (didn't recheck but i assume it was as such seeing it is as of now hardcoded but anyways etc), instead of hardcoded one, now moved to its own txt key as in the below call as of now if i am not mistaken anyways etc -->
+		# <!-- custom: also display some terrains as plot types / terrains, see xml txt key code comment for details if any hopefully helpful but or not but or yes but but anyways etc anyways etc anyways etc -->
+		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
+		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
+		iOcean = getInfoTypeOrFail("TERRAIN_OCEAN", gc)
+
+		if self.iTerrain == iPeak or self.iTerrain == iHill or self.iTerrain == iOcean:
+			txtKeyTerrainPlotType = localText.getText("TXT_KEY_PEDIA_PLOT_TYPE_TERRAIN_CUSTOM", ())
+		else:
+			txtKeyTerrainPlotType = localText.getText("TXT_KEY_PEDIA_TERRAIN_CUSTOM", ())
+
+		screen.appendListBoxString(panel, txtKeyTerrainPlotType, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+
+		if self.iTerrain == iHill:
 			szStats = (u"%d%c  " % (-1, gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar()))
 			szStats += (u"+%d%c  " % (1, gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()))
 		else:
@@ -123,7 +135,9 @@ class SevoPediaTerrain:
 
 		screen.addPanel(panel, "", "", True, True, self.X_DETAILS, self.Y_DETAILS, self.W_DETAILS, self.H_DETAILS, PanelStyles.PANEL_STYLE_BLUE50)
 
-		if self.iTerrain != gc.getInfoTypeForString('TERRAIN_HILL'):
+		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
+
+		if self.iTerrain != iHill:
 			szText = info.getHelp()
 			szText += CyGameTextMgr().getTerrainHelp(self.iTerrain, True)
 			szText = szText.replace("\n\n", "\n").strip()
@@ -155,13 +169,15 @@ class SevoPediaTerrain:
 		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT", ()), "", False, True, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panel, "", "  ")
 
+		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
+
 		for iImprovement in xrange(gc.getNumImprovementInfos()):
 			ImprovementInfo = gc.getImprovementInfo(iImprovement)
 			if ImprovementInfo.isGoody():
 				continue
 			elif ImprovementInfo.getTerrainMakesValid(self.iTerrain):
 				screen.attachImageButton(panel, "", ImprovementInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
-			elif self.iTerrain == gc.getInfoTypeForString('TERRAIN_HILL') and ImprovementInfo.isHillsMakesValid():
+			elif self.iTerrain == iHill and ImprovementInfo.isHillsMakesValid():
 				screen.attachImageButton(panel, "", ImprovementInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
 
 
@@ -173,13 +189,16 @@ class SevoPediaTerrain:
 		screen.addPanel(panel, localText.getText("TXT_KEY_CONCEPT_RESOURCES", ()), "", False, True, self.X_RESOURCES, self.Y_RESOURCES, self.W_RESOURCES, self.H_RESOURCES, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panel, "", "  ")
 
+		# <!-- custom: minor refactor to test for the existence of terrain_hill 's id explicitly else raise an error not silently pass anyways etc as is also done in several other parts of the sevopedia reworked/refactored code if i may say but anyways etc anyways etc anyways etc -->
+		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
+
 		for iResource in xrange(gc.getNumBonusInfos()):
 			ResourceInfo = gc.getBonusInfo(iResource)
 			if ResourceInfo.isGraphicalOnly():
 				continue
 			elif ResourceInfo.isTerrain(self.iTerrain):
 				screen.attachImageButton(panel, "", ResourceInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iResource, 1, False)
-			elif self.iTerrain == gc.getInfoTypeForString('TERRAIN_HILL') and ResourceInfo.isHills():
+			elif self.iTerrain == iHill and ResourceInfo.isHills():
 				screen.attachImageButton(panel, "", ResourceInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iResource, 1, False)
 
 
@@ -224,7 +243,13 @@ class SevoPediaTerrain:
 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 
 		# <!-- custom: for peak we display units that can walk on the tile rather than those that have modifier, i find this or/and think this is more informative anyways etc -->
-		if self.iTerrain == gc.getInfoTypeForString("TERRAIN_PEAK"):
+		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
+		# <!-- custom: terrain_hill uses its own kind of modifier, plus also i'd want to show guerilla promotion as well anyways etc, so handle its display separately anyways etc -->
+		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
+		iCoast = getInfoTypeOrFail("TERRAIN_COAST", gc)
+		iOcean = getInfoTypeOrFail("TERRAIN_OCEAN", gc)
+
+		if self.iTerrain == iPeak:
 			for iUnit in xrange(gc.getNumUnitInfos()):
 				unitInfo = gc.getUnitInfo(iUnit)
 
@@ -249,8 +274,7 @@ class SevoPediaTerrain:
 						#isButtonFound = True
 						iButtonIndex += 1
 
-		# <!-- custom: terrain_hill uses its own kind of modifier, plus also i'd want to show guerilla promotion as well anyways etc, so handle its display separately anyways etc -->
-		elif self.iTerrain == gc.getInfoTypeForString("TERRAIN_HILL"):
+		elif self.iTerrain == iHill:
 			# <!-- custom: raise an error if asset does not exist (in advciv-sas we have renamed PROMOTION_GUERILLA1 to PROMOTION_HILLS_MASTER1 and such anyways etc) -->
 			iPromotionHillsMaster1 = getInfoTypeOrFail("PROMOTION_HILLS_MASTER1", gc)
 			iPromotionHillsMaster2 = getInfoTypeOrFail("PROMOTION_HILLS_MASTER2", gc)
@@ -300,7 +324,7 @@ class SevoPediaTerrain:
 					#isButtonFound = True
 					iButtonIndex += 1
 
-		elif self.iTerrain in (gc.getInfoTypeForString('TERRAIN_COAST'), gc.getInfoTypeForString('TERRAIN_OCEAN')):
+		elif self.iTerrain == iCoast or self.iTerrain == iOcean:
 			# <!-- custom: raise an error if asset does not exist (in advciv-sas we have renamed PROMOTION_GUERILLA1 to PROMOTION_HILLS_MASTER1 and such anyways etc) -->
 			iPromotionNavigator1 = getInfoTypeOrFail("PROMOTION_NAVIGATOR1", gc)
 			iPromotionNavigator2 = getInfoTypeOrFail("PROMOTION_NAVIGATOR2", gc)
@@ -372,7 +396,9 @@ class SevoPediaTerrain:
 		hPanel = self.H_UNITS_IMPASSABLE
 
 		txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE"
-		if self.iTerrain == gc.getInfoTypeForString("TERRAIN_PEAK"):
+
+		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
+		if self.iTerrain == iPeak:
 			txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE_PEAK"
 
 		screen = self.top.getScreen()
@@ -398,8 +424,11 @@ class SevoPediaTerrain:
 		buttonCalculate = 1
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
+		iCoast = getInfoTypeOrFail("TERRAIN_COAST", gc)
+		iOcean = getInfoTypeOrFail("TERRAIN_OCEAN", gc)
+
 		# <!-- custom: for peak we display units that can walk on the tile rather than those that have modifier, i find this or/and think this is more informative anyways etc -->
-		if self.iTerrain == gc.getInfoTypeForString("TERRAIN_PEAK"):
+		if self.iTerrain == iPeak:
 			for iUnit in xrange(gc.getNumUnitInfos()):
 				unitInfo = gc.getUnitInfo(iUnit)
 
@@ -413,7 +442,7 @@ class SevoPediaTerrain:
 						columnIndex = 0
 						screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 
-		elif self.iTerrain in (gc.getInfoTypeForString('TERRAIN_COAST'), gc.getInfoTypeForString('TERRAIN_OCEAN')):
+		elif self.iTerrain == iCoast or self.iTerrain == iOcean:
 			for iUnit in xrange(gc.getNumUnitInfos()):
 				unitInfo = gc.getUnitInfo(iUnit)
 

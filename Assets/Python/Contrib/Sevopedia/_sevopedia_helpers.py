@@ -89,15 +89,6 @@ def check_icon_size_fits_within_icon_frame_size(icon_size, icon_frame_size):
 
 
 
-# <!-- custom: handle for example PROMOTION_GUERILLA1 now being renamed to PROMOTION_HILLS_MASTER1 if i am not mistaken anyways etc, so summoning wrong asset for example as is done in sevopedia bonus's placeUnits panel as of now anyways etc should raise an error not silently pass if i may say and if i am not mistaken anyways etc -->
-def getInfoTypeOrFail(tag, gc):
-	iType = gc.getInfoTypeForString(tag)
-	if iType == -1:
-		raise ValueError("Missing XML tag: '%s'" % tag)
-	return iType
-
-
-
 def check_button_path_is_valid(buttonHeader, resolvedButtonPath, configButtonPathSTxtKey):
 	if resolvedButtonPath == configButtonPathSTxtKey:
 		raise ValueError(u"[VALUE ERROR] Button path not found in XML (resolvedButtonPath=%s matches configButtonPath=%s in buttonHeader=%s, which indicates button path provided in config most likely does not exist in the XML), please check button path provided exists in your mod path and also matches button path in (or in - whichever filename it would have in the future -) AdvCiv-SAS_ImagesAsButtons.xml or/and AdvCiv-SAS_Button_Paths_Hardcoded.xml (or wherever they are stored in the future if these files's filename or code changes anyways etc) is valid and exists in your mod path." % (resolvedButtonPath, configButtonPathSTxtKey, buttonHeader))
@@ -144,24 +135,17 @@ def check_images_as_buttons_paths_are_valid(txtKeyDict, localText):
 
 
 
-def get_hills_button(gc):
-	# Try to find a hills button from the terrain infos
-	for i in range(gc.getNumTerrainInfos()):
-		terrainInfo = gc.getTerrainInfo(i)
-		if "HILL" in terrainInfo.getType():
-			return terrainInfo.getButton()
-		
-	return None
+# <!-- custom: handle for example PROMOTION_GUERILLA1 now being renamed to PROMOTION_HILLS_MASTER1 if i am not mistaken anyways etc, so summoning wrong asset for example as is done in sevopedia bonus's placeUnits panel as of now anyways etc should raise an error not silently pass if i may say and if i am not mistaken anyways etc ; also useful to access any asset id safely if i am not mistaken such as hills or peak terrains 's id, or hills's button for example too if i am not mistaken anyways etc -->
+def getInfoTypeOrFail(tag, gc):
+	iType = gc.getInfoTypeForString(tag)
+	if iType == -1:
+		raise ValueError("Missing XML tag: '%s'" % tag)
+	return iType
 
 
 
-def get_hills_terrain_id(gc):
-	# Try to find a hills button from the terrain infos
-	for i in range(gc.getNumTerrainInfos()):
-		if "HILL" in gc.getTerrainInfo(i).getType():
-			return i
-
-	return -1
+def get_hills_button(iHill, gc):
+	return gc.getTerrainInfo(iHill).getButton()
 
 
 

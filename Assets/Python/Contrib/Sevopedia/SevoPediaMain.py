@@ -43,6 +43,8 @@ import TraitUtil
 import BugCore
 import BugUtil
 
+from _sevopedia_helpers import *
+
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
@@ -616,7 +618,20 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, gc.getTerrainInfo)
 	
 	def getTerrainList(self):
-		return self.getSortedList(gc.getNumTerrainInfos(), gc.getTerrainInfo)
+		# <!-- custom: add peak and hill to terrain display even though they are plot types if i am not mistaken but with the changes in sevopedia terrain (new placeUnits and placeUnitsImpassable panels as of now anyways etc), these still provide very valuable info so adding them helps a lot anyways etc ; code provided by chatgpt thanks to my prompt too and previous reworks i did with it or with claude ai or and such and myself too if i adjusted it a bit or lot or not adjusted but in all cases anyways etc anyways etc thanks anyways etc anyways etc anyways etc -->
+		terrainsList = self.getSortedList(gc.getNumTerrainInfos(), gc.getTerrainInfo)
+
+		# Add Hill as a pseudo-entry
+		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
+		if iHill != -1:
+			terrainsList.append((gc.getTerrainInfo(iHill).getDescription(), iHill))
+
+		# Add Peak as a pseudo-entry
+		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
+		if iPeak is not None:
+			terrainsList.append((gc.getTerrainInfo(iPeak).getDescription(), iPeak))
+
+		return terrainsList
 
 
 	def placeFeatures(self):

@@ -97,7 +97,7 @@ class SevoPediaFeature:
 		screen.appendListBoxString(panel, u"<font=4b>" + info.getDescription() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 		szText = ""
-		screen.appendListBoxString(panel, localText.getText("TXT_KEY_PEDIA_TERRAIN_FEATURE", ()), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.appendListBoxString(panel, localText.getText("TXT_KEY_PEDIA_FEATURE", ()), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 		szText = u""
 		for iYield in xrange(YieldTypes.NUM_YIELD_TYPES):
@@ -132,7 +132,7 @@ class SevoPediaFeature:
 		panel = self.top.getNextWidgetName()
 		info = gc.getFeatureInfo(self.iFeature)
 
-		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_TERRAIN", ()), "", False, True, self.X_FEATURES, self.Y_FEATURES, self.W_FEATURES, self.H_FEATURES, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_TERRAINS_MINUS_PLOT_TYPES", ()), "", False, True, self.X_FEATURES, self.Y_FEATURES, self.W_FEATURES, self.H_FEATURES, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panel, "", "  ")
 
 		for iTerrain in xrange(gc.getNumTerrainInfos()):

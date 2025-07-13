@@ -81,7 +81,6 @@ class SevoPediaPromotion:
 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_LEADS_TO", ()), "", False, True, self.X_LEADS_TO_PANE, self.Y_LEADS_TO_PANE, self.W_LEADS_TO_PANE, self.H_LEADS_TO_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panelName, "", "  ")
 		for j in range(gc.getNumPromotionInfos()):
-			iPrereq = gc.getPromotionInfo(j).getPrereqPromotion()
 			if (gc.getPromotionInfo(j).getPrereqPromotion() == self.iPromotion or gc.getPromotionInfo(j).getPrereqOrPromotion1() == self.iPromotion or gc.getPromotionInfo(j).getPrereqOrPromotion2() == self.iPromotion):
 				screen.attachImageButton(panelName, "", gc.getPromotionInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, j, 1, False)
 
@@ -143,7 +142,7 @@ class SevoPediaPromotion:
 		i = 0
 		for iI in range(gc.getNumUnitCombatInfos()):
 			if (0 != gc.getPromotionInfo(self.iPromotion).getUnitCombat(iI)):
-				iRow = screen.appendTableRow(szTable)
+				# <!-- custom: removed line `iRow = screen.appendTableRow(szTable)` to fix ruff warning of variable being unused so cleaning this up, after asking chatgpt this seems fine and safe to do and we have no errors so maybe solved as well (as in sevopedia unit ruff warning fix/cleanup as well anyways etc) anyways etc -->
 				screen.setTableText(szTable, 0, i, u"<font=2>" + gc.getUnitCombatInfo(iI).getDescription() + u"</font>", gc.getUnitCombatInfo(iI).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iI, -1, CvUtil.FONT_LEFT_JUSTIFY)
 				i += 1
 

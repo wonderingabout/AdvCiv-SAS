@@ -74,15 +74,15 @@ Based on the sevopedia unit previous rework, and also with the help of Claude AI
 
 ## example 9: terrains category
 
-Done much later in development of advciv-sas mod, added in particular new placeUnits and placeUnitsImpassable if i am not mistaken anywyas etc panels that these methods handle anyways etc. They show which units can walk on which tiles, including peak (some code to display peak information is taken from rfc doc mod for example), but most of the new code is written by me and/with chatgpt's help and my prompts too anyways etc.
+Done much later in development of advciv-sas mod, added in particular new placeUnits and placeUnitsImpassable if i am not mistaken anywyas etc panels that these methods handle anyways etc. They show which units can walk on which tiles, including peak (some code to display some peak information is taken from rfc doc mod for example), but most of the new code is written by me and/with chatgpt's help and my prompts too anyways etc.
 
-They also show the modifiers (e.g. "+25/+50" for +25% attack and +50% defense on said terrain, etc) and/or in some cases promotions.
+So now we also show Peak and Hill as new "terrains" even though they are both plot types and terrains if i am not mistaken in civ4 anyways etc. Such info is added using as of now the "Plot Type / Terrain" alternative identifier, reusing the former RFC DOC mod's "Terrain" harcoded identifier, now more flexible and perhaps informative, and info about that in the pedia entry even though not too clean maybe exhaustive or/and informative anyways etc.
 
-This code also uses our latest as of now refactor using the multilist code as was done in sevopedia unit in advciv-sas/our mod but anyways etc first i mean and also then applied to sevopedia building. While doing so, i noticed or/and wanted or/and just did add such a display for units in terrains. Since the code is modular and was thoroughly debugged and adjusted, it was quite easy relatively to add in sevopedia units, but some new logic had to be added, and it also helped refine the sevopedia unit and sevopedia building implementations if ever slightly or not but anyways etc.
+The reworked sevopedia terrain page now also shows the unit terrain modifiers (e.g. "+25/+50" for +25% attack and +50% defense on said terrain, etc) and/or in some cases promotions.
+
+This code uses our latest as of now refactor that uses the multilist code as was done in sevopedia unit in advciv-sas/our mod but anyways etc first i mean and also then applied to sevopedia building. While doing so, i noticed or/and wanted or/and just did add such a display for units in terrains. Since the code is modular and was thoroughly debugged and adjusted, it was quite easy relatively to add in sevopedia units, but some new logic had to be added, and it also helped refine the sevopedia unit and sevopedia building implementations if ever slightly or not but anyways etc.
 
 The output/result is as below for example.
-
-Please note peak or hill as of now can only be accessed via the civ-specific unit that has a modifier to it, for example as of now the quechua warrior has the peak button (image) in its modifiers so clicking it allows to access the terrain peak as of now hidden sevopedia page (is how it is in base advciv if not other previous mods that had sevopedia as well or not (i don't know but anyways etc) but anyways etc), and for example the quechua warrior as well for the hill button (image) too since it has it, so it can redirect to the hidden sevopedia terrain hill page.
 
 <img src="../Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG" alt="0.700_sevopedia_terrains_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG" alt="0.700_sevopedia_terrains_sample (2).JPG" width="250"></img>
