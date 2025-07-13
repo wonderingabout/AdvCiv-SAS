@@ -398,6 +398,7 @@ class SevoPediaTerrain:
 		txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE"
 
 		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
+
 		if self.iTerrain == iPeak:
 			txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE_PEAK"
 

@@ -1133,8 +1133,9 @@ bool CvDLLWidgetData::executeAltAction(CvWidgetDataStruct &widgetDataExternal)
 		py.jumpToPedia(widgetDataStruct.m_iData2, "Improvement");
 		break;
 	case WIDGET_HELP_BONUS_REVEAL:
+	// <!-- custom: fix the obsolete bonus error known issue number 22 in advciv-sas (see known issues readme for details), replace line `py.jumpToPedia(widgetDataStruct.m_iData2, "Bonus");` with one using iData1 as obsolete buildings in tech advisor don't have the id bug, as advised by chatgpt also thanks to my prompt too but anyways etc, and it indeed fixed the issue now anyways etc -->
 	case WIDGET_HELP_OBSOLETE_BONUS:
-		py.jumpToPedia(widgetDataStruct.m_iData2, "Bonus");
+		py.jumpToPedia(iData1, "Bonus");
 		break;
 	case WIDGET_CITIZEN:
 	case WIDGET_FREE_CITIZEN:

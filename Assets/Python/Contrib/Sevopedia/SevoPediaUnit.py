@@ -651,7 +651,7 @@ class SevoPediaUnit:
 
 			# Column index (always 0 when numLists=1)
 			columnIndex = 0
-			screen.appendMultiListButton(rowListName, get_hills_button(iHill, gc), columnIndex, widgetType, iHill, widgetID2, False)
+			screen.appendMultiListButton(rowListName, gc.getTerrainInfo(iHill).getButton(), columnIndex, widgetType, iHill, widgetID2, False)
 
 			numTxt = get_numTxt_attack_defense_modifiers(iHillsAttack, iHillsDefense)
 			extraCorrectionX = get_extra_correction_x(numTxt)

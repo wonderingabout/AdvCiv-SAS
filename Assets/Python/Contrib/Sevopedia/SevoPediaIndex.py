@@ -191,7 +191,7 @@ class SevoPediaIndex:
 					iRow += 1
 					iColumn = 0
 			
-			# <!-- custom: refactor, since sText was defined in existing code, reuse it instead of hardcoding it again at each call if i may say and am not mistaken, this also fixes ruff warning and according to chatgpt this is unused as well and safe to remove as well so adding it again in this case i mean anyways etc ; similarly removed unused lines `sButton = ""` and `eWidget = None` and as for lines `iData1 = item[1]` and `iData2 = 1` adding them instead of hardcoding each time same variables if i am not mistaken anyways etc  -->
+			# <!-- custom: refactor, since sText was defined in existing code, reuse it instead of hardcoding it again at each call if i may say and am not mistaken, this also fixes ruff warning and according to chatgpt this is unused as well and safe to remove as well so adding it again in this case i mean anyways etc ; similarly removed unused lines `sButton = ""` and `eWidget = None` and as for lines `iData1 = item[1]` and `iData2 = 1` also using them as variables similarly instead of hardcoding them each time if i am not mistaken anyways etc  -->
 			sText = u"<font=3>" + item[0] + u"</font>"
 			iData1 = item[1]
 			iData2 = 1

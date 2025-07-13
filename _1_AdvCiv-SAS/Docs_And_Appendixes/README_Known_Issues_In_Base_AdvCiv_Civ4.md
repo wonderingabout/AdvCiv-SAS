@@ -626,7 +626,7 @@ Since we had the list but buggy, chatgpt/becomingthrough was right in its guess 
 
 See screenshots linked in this drive for details as well, thanks anyways etc thanks, anyways etc.
 
-## 22 - (partially fixed/workedaround) Obsolete bonuses (such as BONUS_ELEPHANTS anyways etc) in tech advisor (i.e. tech tree view anyways etc) redirect to sevopedia bonus with id none causing an error, unlike obsolete buildings (like BUILDING_SPIRAL_MINARET for example anyways etc) successfully showing the building item's page anyways etc
+## 22 - (Now fixed) Obsolete bonuses (such as BONUS_ELEPHANTS anyways etc) in tech advisor (i.e. tech tree view anyways etc) failing to redirect to sevopedia bonus with id none causing an error, unlike obsolete buildings (like BUILDING_SPIRAL_MINARET for example anyways etc) successfully showing the building item's page anyways etc
 
 See screenshots of this issue in this [google drive folder link](https://drive.google.com/drive/folders/127ReqMyucJZ2gH88ARhgTWwuh6jl4oCs?usp=sharing)
 
@@ -639,6 +639,8 @@ This would mean the issue is before, at the pedia jump caller's level if not bef
 I have also noticed we have the real id if i am not mistaken in CvTechChooser.py (see screenshots with the debug lines in code comments for example 25 for (obsolete selected) BONUS_ELEPHANTS if i am not mistaken anyways etc), but i don't know how to solve it further, and claude ai and chatgpt seemingly can't find the issue or fix easily as well with these code samples it seems, even though they helped me lot or quite a bit and i didn't show it in screenshots as bit tedious but anyways etc.
 
 Still, adding a fallback iItem (for example of 1 anyways etc) if iItem is -1 seems to workaround it, we get to wrong bonus (like BONUS_COAL in this example anyways etc) but at least no error anymore, also it doesn't seem to break anything, nor to break obsolete buildings in particular that seem to still function as intended or as they did before, so although/while anyways etc it remains yet to solve the obsolete bonus issue, it is perhaps more playable now anyways etc, hopefully helpful or not or yes or and other or and not or yes or etc anyways etc anyways etc anyways etc
+
+update: now fixed: the issue/bug/error anyways etc was seemingly caused by a new base advciv code in CvDLLWidgetData.cpp, now reverted to using `iData1` same as obsolete buildings did (and which didn't have the issue again but anyways etc) and not `widgetDataStruct.m_iData2` at the line after line `case WIDGET_HELP_OBSOLETE_BONUS:` (repetition of me but anyways etc...), which fixed it now if i am not mistaken anyways etc, see also screenshots for details in the google drive anyways etc. So removed previous workaround of using a fallback as well as debug lines as they are not needed anymore now that issue is identified and solved if i am not mistaken anyways etc hopefully helpful or not or yes or etc but anyways etc.
 
 ## 23 - (not fixed) Barbarian city being stuck looping producing a barbarian workboat without producing a new unit at each loop plus the barbarian workboat almost always vanishes one or a few turns after its completing, for few dozen turns several times in same autoplay
 

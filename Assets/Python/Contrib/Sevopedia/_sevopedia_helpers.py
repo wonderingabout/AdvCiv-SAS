@@ -144,11 +144,6 @@ def getInfoTypeOrFail(tag, gc):
 
 
 
-def get_hills_button(iHill, gc):
-	return gc.getTerrainInfo(iHill).getButton()
-
-
-
 def get_citiesResolvedButtonPath(localText):
 	citiesConfigButtonPathTxtKey = "TXT_KEY_BUTTON_PATH_HARDCODED_CITIES_BUTTON_PATH"
 	# <!-- custom: add str() wrapper else (i.e. without it anyways etc) we get an error (it seems) (but anyways etc) anyways (i.e. not impliying it is necessary, but without it we get this error with this other kind of button writing code that does not use same logic as the add as <img> one of other buttons anyways etc (from err log anyways etc):
