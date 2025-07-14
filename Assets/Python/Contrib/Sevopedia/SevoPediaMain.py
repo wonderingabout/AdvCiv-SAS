@@ -601,7 +601,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, gc.getTerrainInfo)
 	
 	def getTerrainList(self):
-		# <!-- custom: add peak and hill to terrain display even though they are plot types if i am not mistaken but with the changes in sevopedia terrain (new placeUnits and placeUnitsImpassable panels as of now anyways etc), these still provide very valuable info so adding them helps a lot anyways etc ; code provided by chatgpt thanks to my prompt too and previous reworks i did with it or with claude ai or and such and myself too if i adjusted it a bit or lot or not adjusted but in all cases anyways etc anyways etc thanks anyways etc anyways etc anyways etc -->
+		# <!-- custom: add peak and hill to terrain display even though they are plot types if i am not mistaken but with the changes in sevopedia terrain (new placeRelevantUnits and placeUnitsImpassable panels as of now anyways etc), these still provide very valuable info so adding them helps a lot anyways etc ; code provided by chatgpt thanks to my prompt too and previous reworks i did with it or with claude ai or and such and myself too if i adjusted it a bit or lot or not adjusted but in all cases anyways etc anyways etc thanks anyways etc anyways etc anyways etc -->
 		terrainsList = self.getSortedList(gc.getNumTerrainInfos(), gc.getTerrainInfo)
 
 		# Add Hill as a pseudo-entry

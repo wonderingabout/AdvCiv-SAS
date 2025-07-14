@@ -234,7 +234,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 
 
-	# <!-- custom: add non-tradeable (<bTrade> if i am not mistaken anyways etc) tech list at the end of placeSpecial, addition from/of chatgpt/becomingthrough thanks to my prompt too but anyways etc -->
+	# <!-- custom: add non-tradeable (<bTrade> if i am not mistaken anyways etc) tech list at the end of placeSpecial, addition from chatgp thanks to my prompt and adjustments or not or yes or and other or and etc too anyways etc anyways etc anyways etc -->
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -243,15 +243,14 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 		szSpecialText = CyGameTextMgr().getTechHelp(self.iTech, True, False, False, False, -1)[1:]
 
-		# Append a global list of untradeable techs
-		untradeableTechs = []
-		for iTech in range(gc.getNumTechInfos()):
+		# <!-- custom: add the list of all untradeable techs if any are untradeable anyways etc -->
+		untradeableTechsText = ""
+		for iTech in xrange(gc.getNumTechInfos()):
 			if not gc.getTechInfo(iTech).isTrade():
-				untradeableTechs.append(localText.getText("[ICON_BULLET] ", ()) + gc.getTechInfo(iTech).getDescription())
+				untradeableTechsText += u"\n%s%s" % (localText.getText("[ICON_BULLET]", ()), gc.getTechInfo(iTech).getDescription())
 
-		if untradeableTechs:
-			szSpecialText += u"\n\n" + localText.getText("TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER", ())
-			szSpecialText += u"\n" + u"\n".join(untradeableTechs)
+		if untradeableTechsText:
+			szSpecialText += u"\n\n%s%s" % (localText.getText("TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER", ()), untradeableTechsText)
 
 		# <!-- custom: seems to overfill a bit actually quite a bit xd after rechecking but anyways etc, reduce height, was self.H_SPECIAL_PANE-10 -->
 		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL_PANE + 5, self.Y_SPECIAL_PANE + 30, self.W_SPECIAL_PANE - 35, self.H_SPECIAL_PANE - 35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)

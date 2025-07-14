@@ -2,6 +2,8 @@
 # C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaTerrain.py
 # which may be modified or not for AdvCiv-SAS -->
 
+
+
 from CvPythonExtensions import *
 import CvUtil
 
@@ -9,6 +11,8 @@ from _sevopedia_helpers import *
 
 gc = CyGlobalContext()
 localText = CyTranslator()
+
+
 
 class SevoPediaTerrain:
 	def __init__(self, main):
@@ -31,10 +35,10 @@ class SevoPediaTerrain:
 		self.W_INFO_TEXT = 220
 		self.H_INFO_TEXT = self.H_INFO_PANE - 20
 
-		self.X_DETAILS = self.X_INFO_PANE + self.W_INFO_PANE + 10
-		self.W_DETAILS = self.top.R_PEDIA_PAGE - self.X_DETAILS
-		self.H_DETAILS = self.H_INFO_PANE
-		self.Y_DETAILS = self.Y_INFO_PANE
+		self.X_SPECIAL = self.X_INFO_PANE + self.W_INFO_PANE + 10
+		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL
+		self.H_SPECIAL = self.H_INFO_PANE
+		self.Y_SPECIAL = self.Y_INFO_PANE
 
 		self.X_FEATURES = self.X_INFO_PANE
 		self.Y_FEATURES = self.Y_INFO_PANE + self.H_INFO_PANE + 10
@@ -54,14 +58,14 @@ class SevoPediaTerrain:
 		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details anyways etc -->
 		self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE = 64
 
-		self.X_UNITS = self.X_RESOURCES
-		self.Y_UNITS = self.Y_RESOURCES + self.H_RESOURCES + 10
-		self.W_UNITS = self.top.R_PEDIA_PAGE - self.X_RESOURCES
-		self.H_UNITS = self.H_FEATURES + self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
+		self.X_RELEVANT_UNITS = self.X_RESOURCES
+		self.Y_RELEVANT_UNITS = self.Y_RESOURCES + self.H_RESOURCES + 10
+		self.W_RELEVANT_UNITS = self.top.R_PEDIA_PAGE - self.X_RESOURCES
+		self.H_RELEVANT_UNITS = self.H_FEATURES + self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
 
-		self.X_UNITS_IMPASSABLE = self.X_UNITS
-		self.Y_UNITS_IMPASSABLE = self.Y_UNITS + self.H_UNITS + 10
-		self.W_UNITS_IMPASSABLE = self.top.R_PEDIA_PAGE - self.X_UNITS
+		self.X_UNITS_IMPASSABLE = self.X_RELEVANT_UNITS
+		self.Y_UNITS_IMPASSABLE = self.Y_RELEVANT_UNITS + self.H_RELEVANT_UNITS + 10
+		self.W_UNITS_IMPASSABLE = self.top.R_PEDIA_PAGE - self.X_RELEVANT_UNITS
 		self.H_UNITS_IMPASSABLE = self.H_FEATURES
 
 		self.X_HISTORY = self.X_UNITS_IMPASSABLE
@@ -75,11 +79,11 @@ class SevoPediaTerrain:
 		self.iTerrain = iTerrain
 
 		self.placeInfo()
-		self.placeDetails()
+		self.placeSpecial()
 		self.placeFeatures()
 		self.placeImprovements()
 		self.placeResources()
-		self.placeUnits()
+		self.placeRelevantUnits()
 		self.placeUnitsImpassable()
 		self.placeHistory()
 
@@ -127,21 +131,22 @@ class SevoPediaTerrain:
 
 
 
-	def placeDetails(self):
+	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panel = self.top.getNextWidgetName()
 		text = self.top.getNextWidgetName()
 		info = gc.getTerrainInfo(self.iTerrain)
 
-		screen.addPanel(panel, "", "", True, True, self.X_DETAILS, self.Y_DETAILS, self.W_DETAILS, self.H_DETAILS, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panel, "", "", True, True, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
 
 		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
 
+		# <!-- custom: the entry seems garbage or info aobut terrain_peak perhaps? But/so anyways etc leaving it as rfc doc mod did if i am not mistaken just with minor refactor of iHill above as of now anyways etc -->
 		if self.iTerrain != iHill:
 			szText = info.getHelp()
 			szText += CyGameTextMgr().getTerrainHelp(self.iTerrain, True)
 			szText = szText.replace("\n\n", "\n").strip()
-			screen.addMultilineText(text, szText, self.X_DETAILS + 5, self.Y_DETAILS + 10, self.W_DETAILS - 10, self.H_DETAILS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText(text, szText, self.X_SPECIAL + 5, self.Y_SPECIAL + 10, self.W_SPECIAL - 10, self.H_SPECIAL - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -171,14 +176,17 @@ class SevoPediaTerrain:
 
 		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
 
-		for iImprovement in xrange(gc.getNumImprovementInfos()):
-			ImprovementInfo = gc.getImprovementInfo(iImprovement)
-			if ImprovementInfo.isGoody():
-				continue
-			elif ImprovementInfo.getTerrainMakesValid(self.iTerrain):
-				screen.attachImageButton(panel, "", ImprovementInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
-			elif self.iTerrain == iHill and ImprovementInfo.isHillsMakesValid():
-				screen.attachImageButton(panel, "", ImprovementInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
+		# <!-- custom: add a logic that excludes hills from this as output is unreliable, see below code comment as of now anyways etc -->
+		if self.iTerrain != iHill:
+			for iImprovement in xrange(gc.getNumImprovementInfos()):
+				ImprovementInfo = gc.getImprovementInfo(iImprovement)
+				if ImprovementInfo.isGoody():
+					continue
+				elif ImprovementInfo.getTerrainMakesValid(self.iTerrain):
+					screen.attachImageButton(panel, "", ImprovementInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
+				# <!-- custom: the output is not reliable for hills improvements (missing forts, also cottages are conditionally dependent on terrain having enough food according to https://civilization.fandom.com/wiki/Hill_(Civ4) if i am not mistaken anyways etc, missing forest preserve too dependent on forest or jungle according to this link as well, so disabling the display entirely rather anyways etc)
+				# elif self.iTerrain == iHill and ImprovementInfo.isHillsMakesValid():
+				# 	screen.attachImageButton(panel, "", ImprovementInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
 
 
 
@@ -204,13 +212,13 @@ class SevoPediaTerrain:
 
 
 	# <!-- custom: code provided by chatgpt thanks to my prompt too and adjusted or not for advciv-sas anyways etc -->
-	def placeUnits(self):
-		xPanel = self.X_UNITS
-		yPanel = self.Y_UNITS
-		wPanel = self.W_UNITS
-		hPanel = self.H_UNITS
+	def placeRelevantUnits(self):
+		xPanel = self.X_RELEVANT_UNITS
+		yPanel = self.Y_RELEVANT_UNITS
+		wPanel = self.W_RELEVANT_UNITS
+		hPanel = self.H_RELEVANT_UNITS
 
-		txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_FEATURE_UNITS"
+		txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_FEATURE_RELEVANT_UNITS"
 
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -218,7 +226,6 @@ class SevoPediaTerrain:
 		# Create panel with proper styling
 		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 
-		# Create MultiList for leaders
 		rowListName = self.top.getNextWidgetName()
 
 		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details anyways etc -->
@@ -256,14 +263,13 @@ class SevoPediaTerrain:
 				if unitInfo.isGraphicalOnly():
 					continue
 
-				# <!-- custom: also handle water units that can move through all terrains but only on water if i am not mistaken anyways etc -->
+				# <!-- custom: also handle water units that can move through all terrains but only on water if i am not mistaken anyways etc ; also for peak logic is different than for other terrains in placeRelevantUnits, do not place only units that have modifiers for this "terrain" (as is plot type too if i am not mistaken but anyways etc), but place more broadly any unit, even if it doesn't have a modifier, as long as it can walk on the tile, then display the numTxt or any information optionally if the unit has it, else default to something like "_/_" (no attack or def modifier) or whatever the numTxt generating function gives us anyways etc or anythign else you'd want or i'd want too but i am fine with this if i may say (and i coded it xd but anyways etc...) hopefully helpful or not or yes or etc but anyways etc... -->
 				if unitInfo.getDomainType() == DomainTypes.DOMAIN_LAND:
 					if unitInfo.isCanMoveImpassable() or unitInfo.isCanMoveAllTerrain():
 						# Column index (always 0 when numLists=1)
 						columnIndex = 0
 						screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 
-						# <!-- custom: still for the modifiers if any for eligible i.e. current block's units anyways etc, use/display terrain modifiers if any anyways etc -->
 						iTerrainAttack = unitInfo.getTerrainAttackModifier(self.iTerrain)
 						iTerrainDefense = unitInfo.getTerrainDefenseModifier(self.iTerrain)
 
@@ -345,7 +351,7 @@ class SevoPediaTerrain:
 					columnIndex = 0
 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 
-					if (iTerrainAttack != 0 or iTerrainDefense != 0):
+					if iTerrainAttack != 0 or iTerrainDefense != 0:
 						numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
 					else:
 						s = ""
@@ -408,7 +414,6 @@ class SevoPediaTerrain:
 		# Create panel with proper styling
 		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 
-		# Create MultiList for leaders
 		rowListName = self.top.getNextWidgetName()
 
 		BUTTON_SIZE = 64
@@ -450,7 +455,7 @@ class SevoPediaTerrain:
 				if unitInfo.isGraphicalOnly():
 					continue
 
-				# <!-- custom: unitInfo.isCanMoveAllTerrain() returns too many units but (not unitInfo.isCanMoveAllTerrain()) does not, so unlike in placeUnits, wrap this unitInfo.isCanMoveAllTerrain() in placeUnitsImpassable in the domain sea check, ideally i would have wanted to check our xml by having a large permissive check, but the results are unreadable since almost all units have this (not unitInfo.isCanMoveAllTerrain()) that is true -->
+				# <!-- custom: unitInfo.isCanMoveAllTerrain() returns too many units but (not unitInfo.isCanMoveAllTerrain()) does not, so unlike in placeRelevantUnits, wrap this unitInfo.isCanMoveAllTerrain() in placeUnitsImpassable in the domain sea check, ideally i would have wanted to check our xml by having a large permissive check, but the results are unreadable since almost all units have this (not unitInfo.isCanMoveAllTerrain()) that is true -->
 				if unitInfo.getDomainType() == DomainTypes.DOMAIN_SEA:
 					if ((unitInfo.getTerrainImpassable(self.iTerrain) or (unitInfo.getTerrainPassableTech(self.iTerrain) != -1)) and (not unitInfo.isCanMoveAllTerrain())):
 						columnIndex = 0

@@ -633,7 +633,6 @@ class SevoPediaBuilding:
 		# Create panel with proper styling
 		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 
-		# Create MultiList for class and combat buttons
 		rowListName = self.top.getNextWidgetName()
 
 		BUTTON_SIZE = 64 # Size of each button
@@ -823,7 +822,6 @@ class SevoPediaBuilding:
 		# Create panel with proper styling
 		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 
-		# Create MultiList for class and combat buttons
 		rowListName = self.top.getNextWidgetName()
 
 		BUTTON_SIZE = 64 # Size of each button
@@ -942,7 +940,6 @@ class SevoPediaBuilding:
 		# Create panel with proper styling
 		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 
-		# Create MultiList for class and combat buttons
 		rowListName = self.top.getNextWidgetName()
 
 		BUTTON_SIZE = 64 # Size of each button
@@ -1250,12 +1247,28 @@ class SevoPediaBuilding:
 
 
 
+	# <!-- custom: add iconquestprob thanks to claude ai and my prompt too and adjustments if any hopefullyhelpful but or not but or yes but anyways etc anyways etc anyways etc, quite similarly than for the getChopProductionText addition in sevopedia feature anyways etc ; note: also got the idea from looking ingame at the sevopedia of ri mod anyways etc even though our implementation is different (in placeStats, didn't look at code but anyways etc, their idea helped so thanks i mean anyways etc anyways etc anyways etc) -->
+	def getIConquestProbText(self):
+		buildingInfo = gc.getBuildingInfo(self.iBuilding)
+		# <!-- custom: return any value even 0 to display it as such anyways etc -->
+		conquestProb = buildingInfo.getConquestProbability()
+
+		return (u"%siConquestProb: %d" % (localText.getText("[ICON_BULLET]", ()), conquestProb))
+
+
+
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50 )
 		listName = self.top.getNextWidgetName()
 		szSpecialText = CyGameTextMgr().getBuildingHelp(self.iBuilding, True, False, False, None)[1:]
+
+		# Add conquest probability information
+		conquestProbText = self.getIConquestProbText()
+		if conquestProbText:
+			szSpecialText += "\n%s" % conquestProbText
+
 		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+30, self.W_SPECIAL-10, self.H_SPECIAL-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 

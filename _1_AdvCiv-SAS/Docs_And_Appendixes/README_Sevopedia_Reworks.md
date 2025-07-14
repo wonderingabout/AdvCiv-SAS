@@ -16,19 +16,26 @@ note 2:See [README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in
 
 note 3: See [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels) for how to show keys or suffixes instead of labels anyways etc
 
+note 4: in below sample examples, click the images to view them full size
+
 ## example 2: unit chart category
 
-(Unit Combat Types expanded page when you click on a combat type), thanks a lot to RFC DOC mod's code which i used quite heavily, then base AdvCiv which i used to enhance it (blue background, margin), then i rewrote it heavily again to tweak it and add dynamic table size based on unit combat type (for example air units have 10 columns (air interception and air range)), while other unit combat types only have 8, click to view these images full size:
+(Unit Combat Types expanded page when you click on a combat type), thanks a lot to RFC DOC mod's code which i used quite heavily, then base AdvCiv which i used to enhance it (blue background, margin), then i rewrote it heavily again to tweak it and add dynamic table size based on unit combat type (for example air units have 10 columns (air interception and air range)), while other unit combat types only have 8
 
 <img src="../Images_In_General/sevopedia_reworks/0.63_sevopedia_unit_chart_sample.JPG" alt="0.63_sevopedia_unit_chart_sample.JPG" width="250"></img>
 
 ## example 3: features category
 
-based on rfc doc's and slightly tweaked or not, thanks a lot
+Based on rfc doc mod's code originally, and significantly tweaked or/and enhanced since then.
 
-<img src="../Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample.JPG" alt="0.640_sevopedia_features_sample.JPG" width="250"></img>
+Then following the sevopedia terrains rework (see for details sevopedia [terrains category rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category) anyways etc), new placeRelevantUnits and placeUnitsImpassable panels corresponding to these methods/functions have also been added anyways etc, so now we can see which units are stronger or weaker per feature as well as the numTxt (what i call this, meaning the textual information such as "+25/+50" for example for +25% attack and +50% defense or any promotion information that makes the unit stronger in said feature (such as woodsman for example in jungle and forest in advciv-sas anyways etc)) if any.
 
-See also the [terrains category rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category)
+Also added chop production information as part of the jungle rework (that as of now also gives production on chop, see [README_Quick_Get_Started_Guide.md#terrains--features-non-exhaustive-see-sevopedia-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#terrains--features-non-exhaustive-see-sevopedia-orand-xml-for-details) for details) thanks to claude ai and chatgpt and my prompts and adjustments too but anyways etc anyways etc anyways etc.
+
+Note: ice feature (named "ice cap" feature as of now in advciv-sas anyways etc) which is impassable in base advciv +/- civ4 and our mod except for some units that can go on impassable if i am not mistaken anyways etc 's display is handled differently than other features due to this property it has so a bit like terrain peak anyways etc, see sevopedia feature ice's page for bit of details or/and code comments and code too i mean anyways etc in as of now sevopedia feature's code if i am not mistaken as well hopefully helpful anyways etc.
+
+<img src="../Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG" alt="0.640_sevopedia_features_sample (1).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG" alt="0.640_sevopedia_features_sample (2).JPG" width="250"></img>
 
 ## example 4: ressources/bonus category
 
@@ -68,13 +75,15 @@ After having written these, combat information was added (which units is this un
 
 Based on the sevopedia unit previous rework, and also with the help of Claude AI (see [Authors for details (Claude AI's section) in the main readme.me](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details) refactored, beautified, and enhanced sevopedia building as well, with a few new additions in particular such as placeFreePBBS, placeFreeWith, placeRequiredFor, a more exhaustive placeRequires as well, placeStats reworked (in particular great person buttons (images) show now, commerce double times as well( for example that every 1000 year one building may give double culturee output (flat only if i am not mistaken i.e. +2 only if i am not mistaken anyways etc)), and % modifier as well (for example +25% culture, +25% espionage rate if i am not mistaken anyways etc, as well as using a grid for beautification anyways etc)), anew ObsoleteWith, see similarly code or other docs if they exist, maybe code comments too can help for details in [SevopediaBuilding.py](/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py) for details.
 
+Also added later iConquestProb display in placeSpecial, idea i got from watching ingame the sevopedia of ri mod (didn't watch that part of code as tedious anyways etc) with chatgpt +/- claude ai i forgot who xd maybe both but anyways etc.
+
 <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (1).JPG" alt="0.690_sevopedia_building_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (2).JPG" alt="0.690_sevopedia_building_sample (2).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (3).JPG" alt="0.690_sevopedia_building_sample (3).JPG" width="250"></img>
 
 ## example 9: terrains category
 
-Done much later in development of advciv-sas mod, added in particular new placeUnits and placeUnitsImpassable if i am not mistaken anywyas etc panels that these methods handle anyways etc. They show which units can walk on which tiles, including peak (some code to display some peak information is taken from rfc doc mod for example), but most of the new code is written by me and/with chatgpt's help and my prompts too anyways etc.
+Done much later in development of advciv-sas mod, added in particular new placeRelevantUnits and placeUnitsImpassable if i am not mistaken anywyas etc panels that these methods handle anyways etc. They show which units can walk on which tiles, including peak (some code to display some peak information is taken from rfc doc mod for example), but most of the new code is written by me and/with chatgpt's help and my prompts too anyways etc.
 
 So now we also show Peak and Hill as new "terrains" even though they are both plot types and terrains if i am not mistaken in civ4 anyways etc. Such info is added using as of now the "Plot Type / Terrain" alternative identifier, reusing the former RFC DOC mod's "Terrain" harcoded identifier, now more flexible and perhaps informative, and info about that in the pedia entry even though not too clean maybe exhaustive or/and informative anyways etc.
 

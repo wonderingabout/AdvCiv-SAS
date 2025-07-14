@@ -13643,6 +13643,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<FeatureNatives/>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
+			<!-- custom: as chariots cannot walk on jungle or forest as of now in advciv-sas, no need to put feature attack or defense bonus like the other most if not all mounted_melee units anyways etc -->
 			<FeatureAttacks/>
 			<FeatureDefenses/>
 			<!-- custom: was UNITCLASS_AXEMAN 100 -->
@@ -13860,6 +13861,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<iTerrainDefense>50</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
+			<!-- custom: as chariots cannot walk on jungle or forest as of now in advciv-sas, no need to put feature attack or defense bonus like the other most if not all mounted_melee units anyways etc -->
 			<FeatureAttacks/>
 			<FeatureDefenses/>
 			<!-- custom: was UNITCLASS_AXEMAN 100 -->
@@ -14066,7 +14068,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<TerrainAttacks/>
 			<TerrainDefenses/>
 			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<!-- custom: do/give anyways etc milder penalties than the mounted_melee units, as they can still attack fine from a distance as they are ranged if i am not mistaken anyways etc, but may have trouble to take cover or navigate the terrain still and/or may find it hard to hide or protect their heavy in size in this case anyways etc mount so more targetable by ennemies if i may say anywyas etc, so give as of now only a penalty to simplify and represent this accurately, as it shouldn't affect too much warfare since cities are not built on forest or jungle in their inner tile after they are founded if i am not mistaken but anyways etc, still maybe may help especially human players who take advantage of this, or maybe may change AI combat if odds become lower, and rebalance otherwise a bit op mounted infantry if i may say anyways etc, was empty -->
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods>
 				<UnitClassAttackMod>
 					<UnitClassType>UNITCLASS_CATAPULT</UnitClassType>
@@ -14278,8 +14290,27 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<iTerrainDefense>50</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<!-- custom: give forest and jungle penalty for most if not all mounted_melee units anyways etc, as i assume it would be less practical (also as they are overall larger in this case anyways etc mount + rider it would be harder for them to take cover if i am not mistaken anyways etc, so simplifying this by giving an overall penalty identical to most if not all mounted_melee units anyways etc, see code comments at featureattacks or featuredefenses of mounted_ranged units if any penalty or such modifiers also or not applies to them anyways etc) for them to navigate these features and they would lose their speed or such advantage too if i am not mistaken anyways etc, and would now be at a disadvantage vs melee or such units i assume if i am not mistaken anyways etc, so give them both attack and defense penalty, should be too op or significant if i may say anyways etc militarily as cities don't have forest or jungle in the tiles they are founded on after they are founded on a tile if i am not mistaken i mean anyways etc ; also even assuming tile is roaded, their escape options may still be limited to the road path and they may get ambushed, so simplifying this with a global penalty as of now at least if not always or not or yes but anyways etc for mounted_melee units on forest and jungle as of now anyways etc, the other terrains i mean such as grassland and plains that are flat do not give a significant advantage that is not already part of the unit's strength/stats, also would be op as they'd get a grassland or plains modifier advantage on attacking cities and or such, and then melee units would need them too, so unless the advantage is strong or the tile weak, avoiding to buff too much terrains at least for mounted_melee or/and other such or other units anyways etc, was empty -->
+			<FeatureAttacks>
+				<FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>-25</iFeatureAttack>
+				</FeatureAttack>
+				<FeatureAttack>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureAttack>-25</iFeatureAttack>
+				</FeatureAttack>
+			</FeatureAttacks>
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods>
 				<UnitClassAttackMod>
 					<UnitClassType>UNITCLASS_CATAPULT</UnitClassType>
@@ -14505,8 +14536,27 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<iTerrainDefense>25</iTerrainDefense>
 				</TerrainDefense>	
 			</TerrainDefenses>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc, was empty -->
+			<FeatureAttacks>
+				<FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>-25</iFeatureAttack>
+				</FeatureAttack>
+				<FeatureAttack>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureAttack>-25</iFeatureAttack>
+				</FeatureAttack>
+			</FeatureAttacks>
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods>
 				<UnitClassAttackMod>
 					<UnitClassType>UNITCLASS_CATAPULT</UnitClassType>
@@ -14730,7 +14780,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</TerrainDefense>	
 			</TerrainDefenses>
 			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods>
 				<UnitClassAttackMod>
 					<UnitClassType>UNITCLASS_CATAPULT</UnitClassType>
@@ -14931,8 +14991,27 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<iTerrainDefense>25</iTerrainDefense>
 				</TerrainDefense>	
 			</TerrainDefenses>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc, was empty -->
+			<FeatureAttacks>
+				<FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>-25</iFeatureAttack>
+				</FeatureAttack>
+				<FeatureAttack>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureAttack>-25</iFeatureAttack>
+				</FeatureAttack>
+			</FeatureAttacks>
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<UnitCombatMods>
@@ -15140,7 +15219,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</TerrainDefense>	
 			</TerrainDefenses>
 			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<UnitCombatMods>
@@ -15344,8 +15433,27 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<FeatureNatives/>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc, was empty -->
+			<FeatureAttacks>
+				<FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>-25</iFeatureAttack>
+				</FeatureAttack>
+				<FeatureAttack>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureAttack>-25</iFeatureAttack>
+				</FeatureAttack>
+			</FeatureAttacks>
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<!-- custom: give mounted_melee a small boost to compensate their overall weakness as compared to mounted_ranged anyways etc, was empty -->
@@ -15550,8 +15658,27 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<FeatureNatives/>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc, was empty -->
+			<FeatureAttacks>
+				<FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>-25</iFeatureAttack>
+				</FeatureAttack>
+				<FeatureAttack>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureAttack>-25</iFeatureAttack>
+				</FeatureAttack>
+			</FeatureAttacks>
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<!-- custom: give mounted_melee a small boost to compensate their overall weakness as compared to mounted_ranged anyways etc, was empty -->
@@ -15774,8 +15901,27 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<iTerrainDefense>25</iTerrainDefense>
 				</TerrainDefense>	
 			</TerrainDefenses>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc, was empty -->
+			<FeatureAttacks>
+				<FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>-25</iFeatureAttack>
+				</FeatureAttack>
+				<FeatureAttack>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureAttack>-25</iFeatureAttack>
+				</FeatureAttack>
+			</FeatureAttacks>
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<!-- custom: give mounted_melee a small boost to compensate their overall weakness as compared to mounted_ranged anyways etc, was empty -->
@@ -16001,7 +16147,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</TerrainDefense>	
 			</TerrainDefenses>
 			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<UnitCombatMods/>
@@ -16206,7 +16362,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<TerrainAttacks/>
 			<TerrainDefenses/>
 			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<UnitCombatMods/>
@@ -16415,7 +16581,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<TerrainAttacks/>
 			<TerrainDefenses/>
 			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<UnitCombatMods>
@@ -16621,7 +16797,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<TerrainAttacks/>
 			<TerrainDefenses/>
 			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<UnitCombatMods/>
@@ -16847,7 +17033,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</TerrainDefense>	
 			</TerrainDefenses>
 			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<UnitCombatMods/>
@@ -17042,7 +17238,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<TerrainAttacks/>
 			<TerrainDefenses/>
 			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods>
 				<UnitClassAttackMod>
 					<UnitClassType>UNITCLASS_CANNON</UnitClassType>
@@ -17261,7 +17467,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</TerrainDefense>	
 			</TerrainDefenses>
 			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>-25</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods>
 				<UnitClassAttackMod>
 					<UnitClassType>UNITCLASS_CANNON</UnitClassType>

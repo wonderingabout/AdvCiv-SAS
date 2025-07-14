@@ -429,7 +429,6 @@ class SevoPediaUnit:
 		# Create panel with proper styling
 		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 
-		# Create MultiList for class and combat buttons
 		rowListName = self.top.getNextWidgetName()
 
 		# <!-- custom: addMultiListControlGFC code from our existing implementation we successfully did for the sevopedia religion leaders panel if i may say but anyways etc anyways etc anyways etc -->
@@ -522,7 +521,6 @@ class SevoPediaUnit:
 
 		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 
-		# Create MultiList for class and combat buttons
 		rowListName = self.top.getNextWidgetName()
 
 		# <!-- custom: note: since this is meant to have multiple lines, actually passing button size as a parameter here rather than hardcoded value of say 64, so that the size of other related panels is adjusted the bigger or smaller in this case i mean anyways etc the _MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE panel is, see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE for details if any are there i mean hopefully helpful anyways etc -->
@@ -613,7 +611,6 @@ class SevoPediaUnit:
 
 		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 
-		# Create MultiList for class and combat buttons
 		rowListName = self.top.getNextWidgetName()
 
 		BUTTON_SIZE = 64 # Size of each button

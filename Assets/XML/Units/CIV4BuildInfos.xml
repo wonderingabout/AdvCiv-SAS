@@ -56,12 +56,13 @@
 			<ImprovementType>IMPROVEMENT_FARM</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_IRRIGATE</EntityEvent>
+			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
 					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>400</iTime>
-					<iProduction>0</iProduction>
+					<iProduction>20</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
 				<FeatureStruct>
@@ -136,12 +137,13 @@
 			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_MINE</EntityEvent>
+			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
 					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>400</iTime>
-					<iProduction>0</iProduction>
+					<iProduction>20</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
 				<FeatureStruct>
@@ -178,12 +180,13 @@
 			<ImprovementType>IMPROVEMENT_WORKSHOP</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_MINE</EntityEvent>
+			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
 					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>400</iTime>
-					<iProduction>0</iProduction>
+					<iProduction>20</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
 				<FeatureStruct>
@@ -242,12 +245,13 @@
 			<ImprovementType>IMPROVEMENT_WINDMILL</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
+			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
 					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>400</iTime>
-					<iProduction>0</iProduction>
+					<iProduction>20</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
 				<FeatureStruct>
@@ -286,12 +290,13 @@
 			<ImprovementType>IMPROVEMENT_WATERMILL</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
+			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
 					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>400</iTime>
-					<iProduction>0</iProduction>
+					<iProduction>20</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
 				<FeatureStruct>
@@ -328,12 +333,13 @@
 			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
+			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
 					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>400</iTime>
-					<iProduction>0</iProduction>
+					<iProduction>20</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
 				<FeatureStruct>
@@ -371,12 +377,13 @@
 			<ImprovementType>IMPROVEMENT_QUARRY</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
+			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
 					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>400</iTime>
-					<iProduction>0</iProduction>
+					<iProduction>20</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
 				<FeatureStruct>
@@ -413,12 +420,13 @@
 			<ImprovementType>IMPROVEMENT_PASTURE</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
+			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
 					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>400</iTime>
-					<iProduction>0</iProduction>
+					<iProduction>20</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
 				<FeatureStruct>
@@ -483,12 +491,13 @@
 			<ImprovementType>IMPROVEMENT_WELL</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
+			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
 					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>400</iTime>
-					<iProduction>0</iProduction>
+					<iProduction>20</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
 				<FeatureStruct>
@@ -545,12 +554,13 @@
 			<ImprovementType>IMPROVEMENT_COTTAGE</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
+			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
 					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>400</iTime>
-					<iProduction>0</iProduction>
+					<iProduction>20</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
 				<FeatureStruct>
@@ -617,12 +627,13 @@
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_CHOP</EntityEvent>
 			<!-- custom: move to an earlier tech and buff remove_jungle, now at same time as remove_forest, plus is necessary to make it sooner due to our tech_tree starting sooner in history or rather bronze working is quite late, maybe stone tools are enough or something to carve tree paths (i did not check though but anyways etc hopefully accurate enough or relevant enough for our needs and game and mod in advciv-sas hopefully fits well anyways etc anyways etc anyways etc...), was TECH_IRON_WORKING -->
+			<!-- custom: also give hammer on chop, after all jungle is composed of trees and such as well, give less than cleanly ordered forest trees and also to balance out forest and jungle each with their strengths if i may say anyways etc ; also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
 					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>400</iTime>
-					<iProduction>0</iProduction>
+					<iProduction>20</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
 			</FeatureStructs>
@@ -644,7 +655,7 @@
 			<ImprovementType>NONE</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_CHOP</EntityEvent>
-			<!-- cusotm: similar reasoning as remove_forest, moved to earlier in tech tree too anyways etc, was TECH_BRONZE_WORKING -->
+			<!-- custom: similar reasoning as remove_forest, moved to earlier in tech tree too anyways etc, was TECH_BRONZE_WORKING -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_FOREST</FeatureType>

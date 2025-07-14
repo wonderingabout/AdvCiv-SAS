@@ -132,8 +132,7 @@ class SevoPediaBonus:
 		self.iBonus = iBonus
 
 		# <!-- custom: Move the panel position, so that it starts from a lower point in the screen.
-		# We will use this newly freed place to put the larger Buildings, while we create a RevealedBy panel instead where the Buildings panel was. Hopefully much clearer and more room to fit many buildings this way now, and to separate tech revealed by and tech tradeable since, both currently in the "Requires" panel which is very weird i think, now renamed to "RevealedBy" and "TradeableSince")
-		# -->
+		# We will use this newly freed place to put the larger Buildings, while we create a RevealedBy panel instead where the Buildings panel was. Hopefully much clearer and more room to fit many buildings this way now, and to separate tech revealed by and tech tradeable since, both currently in the "Requires" panel which is very weird i think, now renamed to "RevealedBy" and "TradeableSince") -->
 		self.placeBonusPane()
 		self.placeStats()
 		self.placeImprovements()

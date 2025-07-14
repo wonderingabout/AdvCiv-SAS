@@ -577,7 +577,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 
 	def get_leader_info_minimums_and_maximums(fields_with_direct_getters, fields_attitude_thresholds, leaders_info_aggregated_raw_contact_probs, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments):
-		# <!--- custom: fake leaders that stores minimum values among all leader for each field we want to display regardless of inversions anyways etc, same for maximum values too anyways etc -->
+		# <!-- custom: fake leaders that stores minimum values among all leader for each field we want to display regardless of inversions anyways etc, same for maximum values too anyways etc -->
 		leader_info_minimums = {}
 		leader_info_maximums = {}
 

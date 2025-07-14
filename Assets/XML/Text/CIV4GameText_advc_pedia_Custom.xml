@@ -161,8 +161,8 @@ hopefully more readable or exportable if need/want be now -->
 
 
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_TERRAIN_FEATURE_UNITS</Tag>
-		<English>Units</English>
+		<Tag>TXT_KEY_PEDIA_TERRAIN_FEATURE_RELEVANT_UNITS</Tag>
+		<English>Relevant Units</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE</Tag>
@@ -170,6 +170,14 @@ hopefully more readable or exportable if need/want be now -->
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE_PEAK</Tag>
-		<English>Cannot move: units without bCanMoveImpassable and without bCanMoveAllTerrain in their XML</English>
+		<English>Cannot move: units without bCanMoveImpassable and without bCanMoveAllTerrain in their XML (only Domain Land displayed)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE</Tag>
+		<English>Cannot move: units with FeatureImpassables or FeaturePassableTechs in their XML</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE_ICE</Tag>
+		<English>Cannot move: units without bCanMoveImpassable in their XML (all domains displayed)</English>
 	</TEXT>
 </Civ4GameText>

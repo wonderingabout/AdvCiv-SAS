@@ -216,7 +216,6 @@ class SevoPediaReligion:
 		# Additional left side padding for the button(s)
 		#screen.attachLabel(panelName, "", "  ")
 
-		# Create MultiList for leaders
 		rowListName = self.top.getNextWidgetName()
 
 		BUTTON_SIZE = 64 # Size of each button
