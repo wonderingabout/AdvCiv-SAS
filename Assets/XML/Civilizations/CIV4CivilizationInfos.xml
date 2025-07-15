@@ -2355,9 +2355,10 @@
 					<BuildingType>BUILDING_KOREAN_SEOWON</BuildingType>
 				</Building>
 			</Buildings>
+			<!-- custom: was UNITCLASS_CATAPULT -->
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_CATAPULT</UnitClassType>
+					<UnitClassType>UNITCLASS_CANNON</UnitClassType>
 					<UnitType>UNIT_KOREAN_HWACHA</UnitType>
 				</Unit>
 			</Units>

@@ -80,7 +80,7 @@
 	<!-- custom: add info that it applies only outside of cultural borders if i am not mistaken anyways etc -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_CANNOT_ENTER</Tag>
-		<English>[ICON_BULLET]Cannot Enter (only applies to tiles outside of cultural borders. But applies regardless in all tiles even if tile is roaded):</English>
+		<English>[ICON_BULLET]Cannot Enter (only applies to tiles outside of cultural borders. This effect applies to these tiles even if they are roaded):</English>
 	</TEXT>
 	<!-- custom: short version ingame in map view -->
 	<TEXT>

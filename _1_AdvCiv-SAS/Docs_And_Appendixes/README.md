@@ -1,6 +1,6 @@
 # Docs_And_Appendixes
 
-todo write maybe etc not sure not guaranteed maybe not really anyways etc
+Main Advciv-SAS documentation folder. Other notable, non-exhaustive references as well anyways etc below anyways etc.
 
 ## Extra_Appendixes
 
@@ -8,4 +8,4 @@ If any mention of an appendix or extra appendix is made and you don't find it on
 
 ## Modding Ressources
 
-Please see: [Modding Ressources page of this git](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/)
+Please see: [Modding Ressources's README page of this git](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md)

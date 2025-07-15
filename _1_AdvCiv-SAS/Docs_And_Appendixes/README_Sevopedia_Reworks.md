@@ -4,6 +4,8 @@ Below/here is a/the more detailed examples(/sample(s?)?) of the sevopedia rework
 
 Note: as of now the following link is outdated, but for more sevopedia sample examples than shown in this readme, see also the [full sevopedia samples google drive folder link](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing), although again as of now they are outdated i mean but anyways etc
 
+Note 2: in below sample examples, click the images to view them full size
+
 ## example 1: more AI Personality examples (in leaders category)
 
 <img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (1).JPG" alt="0.620_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
@@ -15,8 +17,6 @@ Note: images as buttons provided by chatgpt/becomingthrough, but also are an app
 note 2:See [README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader) for how to enable/disable emoji as images
 
 note 3: See [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels) for how to show keys or suffixes instead of labels anyways etc
-
-note 4: in below sample examples, click the images to view them full size
 
 ## example 2: unit chart category
 

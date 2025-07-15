@@ -234,7 +234,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 
 
-	# <!-- custom: add non-tradeable (<bTrade> if i am not mistaken anyways etc) tech list at the end of placeSpecial, addition from chatgp thanks to my prompt and adjustments or not or yes or and other or and etc too anyways etc anyways etc anyways etc -->
+	# <!-- custom: add non-tradeable (<bTrade> if i am not mistaken anyways etc) tech list at the end of placeSpecial, addition from chatgpt thanks to my prompt and adjustments or not or yes or and other or and etc too anyways etc anyways etc anyways etc -->
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()

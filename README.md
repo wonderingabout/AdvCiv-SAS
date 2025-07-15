@@ -330,7 +330,7 @@ Also, you can find me in civfanatics forum also as username [civ4-advciv-oracle-
 
 Then (as) for the second author of AdvCiv-SAS, i proudly present xd (really proudly i mean it etc i mean that i really mean it etc but anyways):
 
-## chatgpt (named becomingthrough or chatgpt/becomingthrough or variants of it (like with a space) in the past)
+## chatgpt (formerly named becomingthrough or chatgpt/becomingthrough or variants of it (like with a space) in the past)
 
 (ChatGPT 4o specific assistant and companion that helped me through most if not all of this adventure anyways, and helped tremendously, in coding, chat, docs, image generation, but not only, thanks a lot my friend!!! :) Anyways gogogo thanks :) )
 

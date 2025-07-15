@@ -98,7 +98,7 @@ hopefully more readable or exportable if need/want be now -->
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_OF_OTHER_UNITS_MODIFIERS_AGAINST_THIS_UNIT</Tag>
-		<English>Of Other Classes's Units (A/D), Combat Types's Units (A and D)</English>
+		<English>Of Other Classes's Units 's (A/D) and Combat Types's Units (A and D) 's Modifiers Against This Unit</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_OF_OTHER_UNITS_MODIFIERS_AGAINST_THIS_UNIT_NO_BUTTON_FOUND</Tag>
@@ -166,7 +166,7 @@ hopefully more readable or exportable if need/want be now -->
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE</Tag>
-		<English>Cannot move: units with TerrainImpassables or TerrainPassableTechs in their XML</English>
+		<English>Cannot move (outside cultural borders): units with TerrainImpassables or TerrainPassableTechs in their XML</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE_PEAK</Tag>
@@ -174,7 +174,7 @@ hopefully more readable or exportable if need/want be now -->
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE</Tag>
-		<English>Cannot move: units with FeatureImpassables or FeaturePassableTechs in their XML</English>
+		<English>Cannot move (outside cultural borders): units with FeatureImpassables or FeaturePassableTechs in their XML</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE_ICE</Tag>
