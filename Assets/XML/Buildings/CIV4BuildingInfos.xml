@@ -6129,15 +6129,15 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PORT, type: BUILDING_VIKING_TRADING_POST (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PORT, type: BUILDING_SCANDINAVIA_TRADING_POST (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<BuildingClass>BUILDINGCLASS_PORT</BuildingClass>
-			<Type>BUILDING_VIKING_TRADING_POST</Type>
+			<Type>BUILDING_SCANDINAVIA_TRADING_POST</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
-			<Description>TXT_KEY_BUILDING_VIKING_TRADING_POST</Description>
-			<Civilopedia>TXT_KEY_BUILDING_VIKING_TRADING_POST_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_VIKING_TRADING_POST_STRATEGY</Strategy>
+			<Description>TXT_KEY_BUILDING_SCANDINAVIA_TRADING_POST</Description>
+			<Civilopedia>TXT_KEY_BUILDING_SCANDINAVIA_TRADING_POST_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
-			<ArtDefineTag>ART_DEF_BUILDING_VIKING_TRADING_POST</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_BUILDING_SCANDINAVIA_TRADING_POST</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
 			<HolyCity>NONE</HolyCity>
 			<ReligionType>NONE</ReligionType>

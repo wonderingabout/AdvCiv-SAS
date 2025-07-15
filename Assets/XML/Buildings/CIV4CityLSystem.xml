@@ -1454,7 +1454,7 @@ I am not sure which i should take, but since there are redundancies i guess i sh
 			<Rotate>-60</Rotate>
 			<Scale>1.1</Scale>
 		</ArtRef>
-		<ArtRef Name="building:BUILDING_VIKING_TRADING_POST">
+		<ArtRef Name="building:BUILDING_SCANDINAVIA_TRADING_POST">
 			<Attribute Class="Scalar">bNoWaterTest:1</Attribute>
 			<!-- this bypasses water testing -->
 			<Attribute Class="Scalar">szSpecialLayout:Coast</Attribute>

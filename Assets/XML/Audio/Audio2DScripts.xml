@@ -294,8 +294,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_SONG_VIKING</ScriptID>
-		<SoundID>SONG_VIKING</SoundID>
+		<ScriptID>AS2D_SONG_SCANDINAVIA</ScriptID>
+		<SoundID>SONG_SCANDINAVIA</SoundID>
 		<SoundType>GAME_MUSIC</SoundType>
 		<iMinVolume>70</iMinVolume>
 		<iMaxVolume>70</iMaxVolume>
@@ -16440,8 +16440,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_UNIT_BUILD_GREEK_PHALANX</ScriptID>
-		<SoundID>SND_BUILD_GREEK_PHALANX</SoundID>
+		<ScriptID>AS2D_UNIT_BUILD_GREEK_HOPLITE</ScriptID>
+		<SoundID>SND_BUILD_GREEK_HOPLITE</SoundID>
 		<SoundType>GAME_SFX</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>

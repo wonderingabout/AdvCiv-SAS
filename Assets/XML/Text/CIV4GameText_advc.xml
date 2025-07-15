@@ -2974,34 +2974,7 @@
 		<Italian>%D1: "Opponiamo il vostro espansionismo aggressivo!"</Italian>
 		<Spanish>%D1: "Nos oponemos a vuestro expansionismo agresivo."</Spanish>
 	</TEXT>
-	
-	<!-- advc.907a: Rename Praetorian to Legionary in English texts.
-		 See CIV4GameText_advc.008.xml for the Civilopedia changes. -->
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_UNIT_ROME_PRAETORIAN</Tag>
-		<English>Legionary</English>
-		<French>
-			<Text>Pr&#233;torien</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Pr&#228;torianer</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Pretoriano:Pretoriani</Text>
-			<Gender>Male</Gender>
-			<Plural>0:1</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Pretoriano:Pretorianos</Text>
-			<Gender>Male</Gender>
-			<Plural>0:1</Plural>
-		</Spanish>
-	</TEXT>
-	
+
 	<!-- advc.908a: Based on TXT_KEY_TRAIT_EXTRA_YIELD_THRESHOLDS
 		 (CIV4GameTextInfos.xml) -->
 	<TEXT>

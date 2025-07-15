@@ -399,6 +399,24 @@
 
 
 
+	<!-- custom: rename "GREEK_PHALANX" to "GREEK_HOPLITE" -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_GREEK_HOPLITE</Tag>
+		<English>Hoplite</English>
+	</TEXT>
+
+
+
+	<!-- custom: rename "ROME_PRAETORIAN" to "ROMAN_LEGIONARY", see code comment at the pedia entry corresponding to this tag/unit for details anyways etc -->
+	<!-- advc.907a: Rename Praetorian to Legionary in English texts.
+		 See CIV4GameText_advc.008.xml for the Civilopedia changes. -->
+	<TEXT> <!-- redefine -->
+		<Tag>TXT_KEY_UNIT_ROMAN_LEGIONARY</Tag>
+		<English>Legionary</English>
+	</TEXT>
+
+
+
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_DUTCH_SWIFT_WORKER</Tag>
 		<English>Swift Worker</English>
@@ -417,6 +435,33 @@
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_MODERN_INFANTRY</Tag>
 		<English>Modern Infantry</English>
+	</TEXT>
+
+
+
+	<!-- custom: rename "_VIKING" and "_VIKINGS" to "_SCANDINAVIA" anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_CIV_SCANDINAVIA_DESC</Tag>
+		<English>Scandinavian Empire</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CIV_SCANDINAVIA_SHORT_DESC</Tag>
+		<English>Scandinavia</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CIV_SCANDINAVIA_ADJECTIVE</Tag>
+		<English>Scandinavian</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_SCANDINAVIA_TRADING_POST</Tag>
+		<English>Trading Post</English>
+	</TEXT>
+	<!-- custom: rename "_BESERKER" to "_VIKING", see code comment at the pedia entry corresponding to this tag/unit for details anyways etc -->
+	<!-- advc.907a: Rename Praetorian to Legionary in English texts.
+		 See CIV4GameText_advc.008.xml for the Civilopedia changes. -->
+	<TEXT> <!-- redefine -->
+		<Tag>TXT_KEY_UNIT_SCANDINAVIA_VIKING</Tag>
+		<English>Viking</English>
 	</TEXT>
 
 

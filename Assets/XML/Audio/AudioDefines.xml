@@ -79,7 +79,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SONG_VIKING</SoundID>
+			<SoundID>SONG_SCANDINAVIA</SoundID>
 			<Filename>Sounds/Soundtrack/Viking</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -1052,21 +1052,21 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SONG_VIKINGS_SCENARIO</SoundID>
+			<SoundID>SONG_SCANDINAVIA_SCENARIO</SoundID>
 			<Filename>Sounds/Soundtrack/Scenarios/Viking</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SONG_VIKINGS_SCENARIO_WIN</SoundID>
+			<SoundID>SONG_SCANDINAVIA_SCENARIO_WIN</SoundID>
 			<Filename>Sounds/Soundtrack/Scenarios/VikingVictory</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SONG_VIKINGS_SCENARIO_LOSE</SoundID>
+			<SoundID>SONG_SCANDINAVIA_SCENARIO_LOSE</SoundID>
 			<Filename>Sounds/Soundtrack/Scenarios/VikingLoss</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -4580,7 +4580,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_BUILD_GREEK_PHALANX</SoundID>
+			<SoundID>SND_BUILD_GREEK_HOPLITE</SoundID>
 			<Filename>Sounds/Units/BuildGreekPhalanx</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -8094,14 +8094,14 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_VIKING_SELECT</SoundID>
+			<SoundID>SND_SCANDINAVIA_SELECT</SoundID>
 			<Filename>Sounds/Units/VikingSelect</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_VIKING_ORDER</SoundID>
+			<SoundID>SND_SCANDINAVIA_ORDER</SoundID>
 			<Filename>Sounds/Units/VikingOrder</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>

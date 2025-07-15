@@ -142,7 +142,7 @@
 					<UntilEra>NONE</UntilEra>
 				</EncouragedCiv>
 				<EncouragedCiv>
-					<CivilizationType>CIVILIZATION_VIKING</CivilizationType>
+					<CivilizationType>CIVILIZATION_SCANDINAVIA</CivilizationType>
 					<UntilEra>ERA_FUTURE</UntilEra>
 				</EncouragedCiv>
 				<EncouragedCiv>
@@ -467,7 +467,7 @@
 					<UntilEra>NONE</UntilEra>
 				</EncouragedCiv>
 				<EncouragedCiv>
-					<CivilizationType>CIVILIZATION_VIKING</CivilizationType>
+					<CivilizationType>CIVILIZATION_SCANDINAVIA</CivilizationType>
 					<UntilEra>NONE</UntilEra>
 				</EncouragedCiv>
 				<EncouragedCiv>
@@ -752,7 +752,7 @@
 					<UntilEra>NONE</UntilEra>
 				</DiscouragedCiv>
 				<DiscouragedCiv>
-					<CivilizationType>CIVILIZATION_VIKING</CivilizationType>
+					<CivilizationType>CIVILIZATION_SCANDINAVIA</CivilizationType>
 					<UntilEra>NONE</UntilEra>
 				</DiscouragedCiv>
 				<DiscouragedCiv>

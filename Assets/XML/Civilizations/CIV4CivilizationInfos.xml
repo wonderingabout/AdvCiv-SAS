@@ -1669,7 +1669,7 @@
 			<Units>
 				<Unit>
 					<UnitClassType>UNITCLASS_AXEMAN</UnitClassType>
-					<UnitType>UNIT_GREEK_PHALANX</UnitType>
+					<UnitType>UNIT_GREEK_HOPLITE</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>
@@ -3370,7 +3370,7 @@
 			<Units>
 				<Unit>
 					<UnitClassType>UNITCLASS_SWORDSMAN</UnitClassType>
-					<UnitType>UNIT_ROME_PRAETORIAN</UnitType>
+					<UnitType>UNIT_ROMAN_LEGIONARY</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>
@@ -3739,14 +3739,15 @@
 			<CivilizationSelectionSound>AS3D_SUMERIA_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_SUMERIA_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
+		<!-- custom: rename "_VIKING" and "_VIKINGS" to "_SCANDINAVIA" anyways etc ; also also remove "_CHANGED" in txt key / asset name of these units anyways etc -->
 		<CivilizationInfo>
-			<Type>CIVILIZATION_VIKING</Type>
-			<Description>TXT_KEY_CIV_VIKING_DESC</Description>
-			<ShortDescription>TXT_KEY_CIV_VIKING_SHORT_DESC</ShortDescription>
-			<Adjective>TXT_KEY_CIV_VIKING_ADJECTIVE</Adjective>
-			<Civilopedia>TXT_KEY_CHANGED_CIV_VIKING_PEDIA</Civilopedia>
+			<Type>CIVILIZATION_SCANDINAVIA</Type>
+			<Description>TXT_KEY_CIV_SCANDINAVIA_DESC</Description>
+			<ShortDescription>TXT_KEY_CIV_SCANDINAVIA_SHORT_DESC</ShortDescription>
+			<Adjective>TXT_KEY_CIV_SCANDINAVIA_ADJECTIVE</Adjective>
+			<Civilopedia>TXT_KEY_CIV_SCANDINAVIA_PEDIA</Civilopedia>
 			<DefaultPlayerColor>PLAYERCOLOR_LIGHT_PURPLE</DefaultPlayerColor>
-			<ArtDefineTag>ART_DEF_CIVILIZATION_VIKINGS</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_CIVILIZATION_SCANDINAVIA</ArtDefineTag>
 			<ArtStyleType>ARTSTYLE_EUROPEAN</ArtStyleType>
 			<UnitArtStyleType>UNIT_ARTSTYLE_EUROPEAN</UnitArtStyleType>
 			<bPlayable>1</bPlayable>
@@ -3795,13 +3796,13 @@
 			<Buildings>
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_PORT</BuildingClassType>
-					<BuildingType>BUILDING_VIKING_TRADING_POST</BuildingType>
+					<BuildingType>BUILDING_SCANDINAVIA_TRADING_POST</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
 				<Unit>
 					<UnitClassType>UNITCLASS_MACEMAN</UnitClassType>
-					<UnitType>UNIT_VIKING_BESERKER</UnitType>
+					<UnitType>UNIT_SCANDINAVIA_VIKING</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>
@@ -3841,8 +3842,8 @@
 				</Leader>
 			</Leaders>
 			<DerivativeCiv>CIVILIZATION_AMERICA</DerivativeCiv>
-			<CivilizationSelectionSound>AS3D_VIKING_SELECT</CivilizationSelectionSound>
-			<CivilizationActionSound>AS3D_VIKING_ORDER</CivilizationActionSound>
+			<CivilizationSelectionSound>AS3D_SCANDINAVIA_SELECT</CivilizationSelectionSound>
+			<CivilizationActionSound>AS3D_SCANDINAVIA_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
 		<CivilizationInfo>
 			<Type>CIVILIZATION_ZULU</Type>
@@ -4192,6 +4193,11 @@
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_CASTLE</BuildingClassType>
 					<BuildingType>BUILDING_BARBARIAN_CASTLE</BuildingType>
+				</Building>
+				<!-- custom: probably doesn't work-function anyways etc as has been tested not to, but in case it maybe does, adding the great_wall to explicitly prevent barbarians from building it, which they seem to often do for some reason anyways etc especially more now with the recent changes to military produciton modifier to balance barbarians for some reason anyways etc -->
+				<Building>
+					<BuildingClassType>BUILDINGCLASS_GREAT_WALL</BuildingClassType>
+					<BuildingType>NONE</BuildingType>
 				</Building>
 				<!-- custom: inefficient to build an aqueduct for barbarians and not very realistic, let (barbarian) palace provide health directly, more efficient this wayso they can focus more on producing units anyways etc
 				Same for forge, provide military only small (relatively anyways etc) production bonus instead
