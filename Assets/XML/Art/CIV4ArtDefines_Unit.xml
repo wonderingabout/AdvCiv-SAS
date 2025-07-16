@@ -2455,9 +2455,10 @@
 			<SelectionSound>AS3D_UN_OCEAN_END1</SelectionSound>
 			<ActionSound>AS3D_UN_OCEAN_END1</ActionSound>
 		</UnitArtInfo>
+		<!-- custom: button art import from ri mod anyways etc -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_FRIGATE</Type>
-			<Button>,Art/Interface/Buttons/Units/Frigate.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,9</Button>
+			<Button>Art/AdvCiv_SAS/Units/Frigate/frigate.dds</Button>
 			<!-- advc.002j: was 0.24 -->
 			<fScale>0.25</fScale>
 			<fInterfaceScale>0.5</fInterfaceScale>
@@ -2495,9 +2496,10 @@
 			<SelectionSound>AS3D_UN_OCEAN_END1</SelectionSound>
 			<ActionSound>AS3D_UN_OCEAN_END1</ActionSound>
 		</UnitArtInfo>
+		<!-- custom: button art import from ri mod anyways etc -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_SHIP_OF_THE_LINE</Type>
-			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,1,12</Button>
+			<Button>Art/AdvCiv_SAS/Units/Ship_Of_The_Line/sotl.dds</Button>
 			<fScale>0.22</fScale>
 			<fInterfaceScale>0.5</fInterfaceScale>
 			<bActAsLand>0</bActAsLand>

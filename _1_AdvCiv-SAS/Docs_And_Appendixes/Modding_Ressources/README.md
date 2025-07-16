@@ -2,7 +2,7 @@
 
 This is a non-exhaustive page containing some ressources i found helpful.
 
-## Disclaimer and general information
+## Modding disclaimer and general information
 
 I don't know a lot about XML, C++, or Python, and (only) got familiar with these languages recently as i started developping for Civ4 this AdvCiv-SAS mod.
 
@@ -25,6 +25,40 @@ Was not easy to find how, but [this stackoverflow answer](https://stackoverflow.
 To get the id from the url, what i did and that works as of now anyways etc is to click on the image in the drive folder containing the image, then the sandwich menu whatever they call it xd anyways etc, then "open in new window", then the following url such (for example in `https://drive.google.com/file/d/1_CcxxS36yJmp779-oxuQD3QSWI0eBubC/view` has the id `1_CcxxS36yJmp779-oxuQD3QSWI0eBubC` that i can insert in the src field following the stackoverflow answer instructions/example linked and that as of now seems to work-function fine for all the images we inserted in the git readme as such anyways etc. (note: i didn't add too many images as it would be tedious to manage in the drive vs git, but for non-essential ones and especially heavy ones atleast in advciv-sas i mean anwyays etc anyways etc, moved them to the drive or fetched them for there directly if already there anwyays etc)
 
 Was not easy to find how at least to me anyways etc so i am glad i found how anyways etc and so i mean anyways etc i hope these instructions help i mean at least as of now, anyways etc anyways etc anyways etc.
+
+### Download media assets for example on youtube
+
+Disclaimer/note: for copyright disclaimer and such, please read this first [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer). Note also it is up to you to download or/and use copyright-safe or not assets in your mod or other places, at least it is your responsibility to do so, these are only provided as general instructions, hopefulyl helpful but i have to cover myself xd too i mean if i may say but anyways etc.
+
+Moving forward, i found this very nice reddit post if i may say but anyways etc on [how to download youtube videos](https://www.reddit.com/r/youtubedl/wiki/howdoidownloadpartsofavideo/) with yt-dlp, i also found this very nice reddit post too i mean very helpful but anyways etc on [how to download any media file from youtube to mp3 using yt-dlp](https://www.reddit.com/r/youtubedl/comments/130i9og/ytdlp_how_to_automatically_convert_all_audio/)
+
+In case the information of this second link disappears soemday, here is a copy of it anyways etc:
+
+>What I actually ended up doing was adding this to the configuration file:
+>
+>--audio-format mp3 --embed-thumbnail --add-metadata
+
+Thanks for help if i may say but anyways etc thanks anyways etc...
+
+Here is now if i may say but anyways etc (I like this theatrical performance of an announcer i am performing xd and very excited to do so in my mind but anyways etc...) an example of how to download one, for an audio asset for example here anyways etc ! (, but anyways etc) As if i'm not mistaken civ4 expects .mp3 files of a music without copyright claim on it, or "royalty free music" as it seems they call it anyways etc (note: to be honest i think it's kinda shit (the music i mean but anyways etc) but it is helpful and maybe not too bad, but thanks for that anyways etc), for/to download(ing/ but anyways etc...) the entire media file as mp3 in this case if i'm not mistaken anyways etc.
+
+But while writing this, it now played this veyr nice or cool/relaxing soft if as they say if i may say too in this case but anyways etc or not or etc but anyways etc, from [this youtube playlist](https://www.youtube.com/watch?v=MM2-z8inpY8&list=PLfP6i5T0-DkLlj5LDluZcpP9n6YlATpSG&index=3) for example but anyways etc ; also adding what i know of yt-dlp or not or yes but anyways etc such as using `-x`
+
+(note: personally i also removed the thumbnail as it makes file needlessly heavier, plus may cause bugs or not (untested but maybe or maybe not), also i prefer it more abstract i think? Not sure but is as it is, enable thumbnail if you want but anyways etc)
+
+```bash
+yt-dlp -x https://www.youtube.com/watch?v=MM2-z8inpY8 --audio-format mp3 --add-metadata
+```
+
+Please note that it is also possible to set a start time and end time, like i mean you don't have to have the whole file but say from 00:30 to 00:55 section/part of the media file if you want, see the first reddit link in this readme.md section (but anyways etc...) for details if i'm not mistaken and still available, but anyways etc...
+
+### add media assets
+
+Disclaimer/note: for copyright disclaimer and such, please read this first [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer). Note also it is up to you to download or/and use copyright-safe or not assets in your mod or other places, at least it is your responsibility to do so, these are only provided as general instructions, hopefulyl helpful but i have to cover myself xd too i mean if i may say but anyways etc.
+
+To add music to a leader in advciv-sas for example (i assume would be the same or very similar in an advciv or civ4 based mod too if i am not mistaken and if i may say too but anyways etc anyways etc anyways etc), do a vs code global search for example of "ewuare_" (new leader we added in advciv-sas for the kingdom of benin anyways etc) and see in audio xml files (and also a bit in leaderhead too if you track where the corresponding assets such as for example "DIPLO_EWUARE_EARLY" lead to in the leader head info xml file too but anyways etc for an example of how we added his music anyways etc.
+
+Note: be very careful!(!!! but anyways etc anyways etc anyways etc) Need to remove the `.mp3` in filename else file is unreadable anyways etc!!!
 
 ### write git commit message gradually as you do changes before committing them, and keep notes of ideas anyways etc
 

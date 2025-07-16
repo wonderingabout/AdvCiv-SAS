@@ -6843,10 +6843,11 @@
 			<BonusHappinessChanges/>
 			<BonusProductionModifiers/>
 			<UnitCombatFreeExperiences/>
+			<!-- custom: was 4 -->
 			<DomainFreeExperiences>
 				<DomainFreeExperience>
 					<DomainType>DOMAIN_SEA</DomainType>
-					<iExperience>4</iExperience>
+					<iExperience>3</iExperience>
 				</DomainFreeExperience>
 			</DomainFreeExperiences>
 			<DomainProductionModifiers>

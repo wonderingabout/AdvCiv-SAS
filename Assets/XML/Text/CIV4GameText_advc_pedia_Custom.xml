@@ -166,7 +166,7 @@ hopefully more readable or exportable if need/want be now -->
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE</Tag>
-		<English>Cannot move (outside cultural borders): units with TerrainImpassables or TerrainPassableTechs in their XML</English>
+		<English>Cannot move (outside of cultural borders): units with TerrainImpassables or TerrainPassableTechs in their XML</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE_PEAK</Tag>
@@ -174,7 +174,7 @@ hopefully more readable or exportable if need/want be now -->
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE</Tag>
-		<English>Cannot move (outside cultural borders): units with FeatureImpassables or FeaturePassableTechs in their XML</English>
+		<English>Cannot move (outside of cultural borders): units with FeatureImpassables or FeaturePassableTechs in their XML</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE_ICE</Tag>

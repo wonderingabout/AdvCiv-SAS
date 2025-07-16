@@ -1857,6 +1857,34 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
+			<SoundID>DIPLO_EWUARE_EARLY</SoundID>
+			<Filename>Art/AdvCiv_SAS/LeaderHeads/Ewuare/music/Djole</Filename>
+			<LoadType>STREAMED</LoadType>
+			<bIsCompressed>1</bIsCompressed>
+			<bInGeneric>1</bInGeneric>
+		</SoundData>
+		<SoundData>
+			<SoundID>DIPLO_EWUARE_MIDDLE</SoundID>
+			<Filename>Art/AdvCiv_SAS/LeaderHeads/Ewuare/music/Djole</Filename>
+			<LoadType>STREAMED</LoadType>
+			<bIsCompressed>1</bIsCompressed>
+			<bInGeneric>1</bInGeneric>
+		</SoundData>
+		<SoundData>
+			<SoundID>DIPLO_EWUARE_LATE_INTRO</SoundID>
+			<Filename>Art/AdvCiv_SAS/LeaderHeads/Ewuare/music/Djole</Filename>
+			<LoadType>STREAMED</LoadType>
+			<bIsCompressed>1</bIsCompressed>
+			<bInGeneric>1</bInGeneric>
+		</SoundData>
+		<SoundData>
+			<SoundID>DIPLO_EWUARE_LATE_LP</SoundID>
+			<Filename>Art/AdvCiv_SAS/LeaderHeads/Ewuare/music/Djole</Filename>
+			<LoadType>STREAMED</LoadType>
+			<bIsCompressed>1</bIsCompressed>
+			<bInGeneric>1</bInGeneric>
+		</SoundData>
+		<SoundData>
 			<SoundID>DIPLO_CAESAR_EARLY</SoundID>
 			<Filename>Sounds/Diplomacy/Caesar_Early</Filename>
 			<LoadType>STREAMED</LoadType>
