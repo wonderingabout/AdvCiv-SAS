@@ -5748,8 +5748,8 @@
 		<ScriptID>AS2D_DIPLO_CYRUS_EARLY</ScriptID>
 		<SoundID>DIPLO_CYRUS_EARLY</SoundID>
 		<SoundType>GAME_MUSIC</SoundType>
-		<iMinVolume>55</iMinVolume>
-		<iMaxVolume>55</iMaxVolume>
+		<iMinVolume>30</iMinVolume>
+		<iMaxVolume>30</iMaxVolume>
 		<iPitchChangeDown>0</iPitchChangeDown>
 		<iPitchChangeUp>0</iPitchChangeUp>
 		<iMinLeftPan>-1</iMinLeftPan>

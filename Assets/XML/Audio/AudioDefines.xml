@@ -1858,7 +1858,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>DIPLO_CYRUS_EARLY</SoundID>
-			<Filename>Art/AdvCiv_SAS/LeaderHeads/Cyrus/music/Persia_Ancient_Journey_Fantasy_Music_Beautiful_Persian_Ambient_07_24</Filename>
+			<Filename>Art/AdvCiv_SAS/LeaderHeads/Cyrus/music/Persian_Battle_Royalty_Free_Music</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>

@@ -1,3 +1,245 @@
+commit aa5518de413426df04a854c2e9f6436328958d79
+Author: wonderingabout <hidden>
+Date:   2025-07-17 14:11:44 +0200
+
+change ewuare's music to a copyright-safe one if i am not mistaken, add individual music for many leaders that used to share the same music (e.g. cyrus and darius) that should be copyright-safe too if i am not mistaken, see the copyright section in the main readme for details, add license info, and other changes or not or yes or and etc but anyways etc
+- add license info
+- replace leader_ewuare's music with royalty-free one as it seems it was copyrighted and i want to sleep sound as i said to chatgpt whoa sked em about it even though i really like/liekd the music but anyways etc as it is or not or other or etc but anyways etc anyways etc anyways etc
+- give each leader its own specific if i may say anyways etc music (for example cyrus and darius, or boudica and brennus for example anyways etc would share same music unlike most civ4 leader, now fixed/addressed if i may say anyways etc), these should be copyright-safe, but check to be sure and if i am not mistaken too or even if i am mistaken anyways etc the main readme's copyright section at [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer) for details anyways etc
+- rename "_GENGHISKHAN_" to "_GENGHIS_KHAN_" in most places anyways etc (the sfx thing i don't know what it is for so safer to leave as is in case it is useful maybe but anyways etc)
+- rename "_KUBLAIKHAN_" to "_KUBLAI_KHAN_" (in all places this time if i am not mistaken too but anyways etc and in this case but anyways etc anyways etc anyways etc) anyways etc
+- rename "DIPLO_CAESAR_" to "DIPLO_AUGUSTUS_CAESAR_" and add JULIUS equivalent of it for JULIUS_CAESAR too if i may say but anyways etc
+
+phew!!! Finally free from this copyright hell, i hope the musics are nice and copyright-safe (see the copyright section of the main readme for details or and info but anyways etc), some are really nice and epic :) but i need some rest hehe as i want it too but anyways etc :)
+
+commit 71aca6f96af18165e55cb62e10789ecce3b9573d
+Author: wonderingabout <hidden>
+Date:   2025-07-16 13:18:40 +0200
+
+add copyright information/doc anyways etc, add leader_ewuare 's music anyways etc (see copyright section for details anyways etc), update docs, add a few art button assets from ri mod and other changes anyways etc
+- new buttons (ri mod import) for the unit_frigate, ship_of_the_line
+- add copyright information and such and yt-dlp downloading form youtube general information with copyright link too but anyways etc
+- add ewuare leader-specific music (see main readme's copyright section for details but anyways etc anyways etc anyways etc)
+
+commit 632293eb54bf832cf683c84e973186b3c837fe6e
+Author: wonderingabout <hidden>
+Date:   2025-07-15 22:37:17 +0200
+
+rename asset names, import new art (mostly buttons but some nif) from ri mod (in particular the now renamed scandinavia_viking unit with epic pedia entry i found but anyways etc if i may say but anyways etc)
+- rename "rome_praetorian" to "roman_legionary"
+- "<!-- custom: rename "GREEK_PHALANX" to "GREEK_HOPLITE", entry from https://en.wikipedia.org/wiki/Hoplite and adjusted or not for advciv-sas anyways etc -->"
+- new unit buttons imported from ri mod for advciv-sas's attack_submarine, privateer, spanish_conquistador, greek_hoplite, roman_legionary
+- rename "_VIKING" and "_VIKINGS" to "_SCANDINAVIA" anyways etc
+- also remove "_CHANGED" in txt key / asset name of these units anyways etc
+- "<!-- custom: rename "_BESERKER" to "_VIKING" ; pedia entry based on https://rideandseek.com/who-were-the-norsemen/ (i found this entry very informative so although i am not 100% sure it is all correct it overlapped about a lot of things i read or noticed that may not be so known such as the vikings/norsemen discovering america way before christopher columbus allegedly as i assume was the case if i am not mistaken anyways etc ; and also the vikings title being a profession not an ethnicity/race/people but the word "norsemen" or "norse" i was familiar with finally made sense or more(so?) than it was anyways etc, the word danes too, and it mentions vinland saga :o:o:o if i am not mistaken too but anyways etc...) anyways etc and adjusted or/and formatted +/- corrected formatting if any or not or yes or etc but anyways etc for advciv-sas or not anyways etc -->" + "art import of the button and nif from ri mod's anyways etc ART_DEF_UNIT_VIKING_BESERKER and ART_DEF_UNIT_LATE_SWORDSMAN_VIKING respectively if i may say but anyways etc anyways etc anyways etc, and adjusted or not for advciv-sas anyways etc"
+- "also fixed/replaced the strange the strange [PARAGRAPH:2:1] with the much more commonly used [PARAGRAPH:2] in our advciv-sas assets, i don't know what this strange format/thing is, but if the base `:2` can do it no need for a `:2:1` anyways etc, and strange trailing `[PARAGRAPH:2]</English>` as well that also seem uneeded anyways etc"
+- update docs and other minor or not changes or not anyways etc
+
+commit 67a01372c8d090ceadac390454f052211cd569aa
+Author: wonderingabout <hidden>
+Date:   2025-07-15 14:04:52 +0200
+
+rework the korean hwacha as a cannon-based unit anyways etc and other changes anyways etc anyways etc
+- military balance changes and featureattacks and featuredefenses or and such changes or and additions anyways etc
+- rework the korean hwacha now based on a buffed canon anyways etc
+
+commit 4622d268ac578bf668c6176b866d21b3ca8537c1
+Author: wonderingabout <hidden>
+Date:   2025-07-14 22:19:39 +0200
+
+rework and buff jungle, add placeRelevantUnits and placeUnitsImpassable in sevopedia feature, add chop iProduction information in placeSpecial of sevopedia feature, add iConquestProb display in sevopedia building (idea from watching ingame ri mod sevopedia), all thanks to chatgpt and claude ai too and my prompt and such adjustments too anyways etc and ideas too anyways etc, and other changes or not or yes or etc anyways etc
+- refactor
+- add new placeRelevantsUnits in sevopedia feature similarly
+- remove from display hills improvements as they are unreliable if i am not mistaken, see code comments in sevopedia terrains for details anyways etc
+- mounted_melee: "<!-- custom: give forest and jungle penalty for most if not all mounted_melee units anyways etc, as i assume it would be less practical (also as they are overall larger in this case anyways etc mount + rider it would be harder for them to take cover if i am not mistaken anyways etc, so simplifying this by giving an overall penalty identical to most if not all mounted_melee units anyways etc, see code comments at featureattacks or featuredefenses of mounted_ranged units if any penalty or such modifiers also or not applies to them anyways etc) for them to navigate these features and they would lose their speed or such advantage too if i am not mistaken anyways etc, and would now be at a disadvantage vs melee or such units i assume if i am not mistaken anyways etc, so give them both attack and defense penalty, should be too op or significant if i may say anyways etc militarily as cities don't have forest or jungle in the tiles they are founded on after they are founded on a tile if i am not mistaken i mean anyways etc ; also even assuming tile is roaded, their escape options may still be limited to the road path and they may get ambushed, so simplifying this with a global penalty as of now at least if not always or not or yes but anyways etc for mounted_melee units on forest and jungle as of now anyways etc, the other terrains i mean such as grassland and plains that are flat do not give a significant advantage that is not already part of the unit's strength/stats, also would be op as they'd get a grassland or plains modifier advantage on attacking cities and or such, and then melee units would need them too, so unless the advantage is strong or the tile weak, avoiding to buff too much terrains at least for mounted_melee or/and other such or other units anyways etc, was empty -->"
+- BUILD_REMOVE_JUNGLE as of now increased iProduction from 0 to 20: "<!-- custom: also give hammer on chop, after all jungle is composed of trees and such as well, give less than cleanly ordered forest trees and also to balance out forest and jungle each with their strengths if i may say anyways etc ; also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->" as chatgpt helped me find where too and claude ai helped me debug missing iProduction in all other builds (cottage, farm, etc) that can also remove jungle anyways etc to change this even though it didn't give exact correct place it was precise enough even if bit inaccurate that it helped at least me but anyways etc anyways etc anyways etc i also foudn it myself too but anyways etc then anyways etc anyways etc...
+- FEATURE_JUNGLE: "<!-- custom: some or many websites i looked at or on google or such search anyways etc say jungle is vegetation and animal(s? But anyways etc rich), so to rebalance it and make it as strong in different/other ways than forest, make jungle not give any food penalty, to compensate this or as part of this change, increase health penalty, see below as of now anyways etc anyways etc anyways etc, was -1 / 0 / 0 -->" + iHealthPercent increased from -25 to -50
+- add chop production information in sevopedia feature anyways etc
+- "Also added later iConquestProb display in placeSpecial, idea i got from watching ingame the sevopedia of ri mod (didn't watch that part of code as tedious anyways etc) with chatgpt +/- claude ai i forgot who xd maybe both but anyways etc."
+- mounted_ranged units: "<!-- custom: do/give anyways etc milder penalties than the mounted_melee units, as they can still attack fine from a distance as they are ranged if i am not mistaken anyways etc, but may have trouble to take cover or navigate the terrain still and/or may find it hard to hide or protect their heavy in size in this case anyways etc mount so more targetable by ennemies if i may say anywyas etc, so give as of now only a penalty to simplify and represent this accurately, as it shouldn't affect too much warfare since cities are not built on forest or jungle in their inner tile after they are founded if i am not mistaken but anyways etc, still maybe may help especially human players who take advantage of this, or maybe may change AI combat if odds become lower, and rebalance otherwise a bit op mounted infantry if i may say anyways etc, was empty -->"
+
+commit 0a47e63d61827d9eb543336a7d7e7d78894d597d
+Author: wonderingabout <hidden>
+Date:   2025-07-13 21:17:58 +0200
+
+fixed base advciv bug in CvDLLWidgetData.cpp of obsolete bonuses in tech advisor failing to redirect to corresponding sevopedia bonus page (iItem was -1), thanks to chatgpt's help too and my prompt and help too, and its help too too etc but anyways etc
+<!-- custom: note: fixed a (seemingly base advciv anyways etc) bug in in CvDLLWidgetData.cpp where iItem was -1 for obsolete bonuses redirecting from tech advisor, unlike obsolete buildings which didn't have the issue weirdly/strangely but anyways etc, with chatgpt's help and thanks to my prompt too and observation of the issue and or such but also chatgpt's help in guiding me bit too but anyways etc anyways etc anyways etc ; i had put a workaround here to use a placeholder for iItem but no needed anymore now that this is fixed if i am not mistaken anywyas etc so reverted everything as base advciv code was minus this extra code comment if i may say but anyways etc, see also code comment at WIDGET_HELP_BONUS_REVEAL in CvDLLWidgetData.cpp or/and known issue number 22 as of now anywyas etc in known issues of advciv-sas readme for details as well anyways etc -->
+
+commit 4516bcdd5969c83087455c5853d56fa803a5ddba
+Author: wonderingabout <hidden>
+Date:   2025-07-13 19:58:58 +0200
+
+add TERRAIN_PEAK and TERRAIN_HILL to sevopedia terrain items, add info about plot types, refactor, and other related or not changes anyways etc
+
+commit 3997ab6d2ba3cf4657303c499ef81d516eb0212f
+Author: wonderingabout <hidden>
+Date:   2025-07-13 17:03:55 +0200
+
+add placeUnits and placeUnitsImpassable in sevopedia terrain, nerf/rebalance barbarians so other civs can grow without having to go full ultra military if i may say anyways etc, refactor, add/rebalance/update terrain or/and feature unit modifiers, and other changes anyways etc
+- rebalance barbarians's iMilitaryProductionModifier as of now to -50 anyways etc (see xml for update value anyways etc): "<!-- custom: barbarians now don't lose/waste a lot of time building uneeded buildings if they ever did, so they can be stronger, but i don't want them as a result to have an unfair advantage, so make them produce units slightly slower; this also includes/accounts for settlers and workers that barbarians don't have to produce or at 1 hammer and similar that take a lot of time as well and that i would want the other players (non-barbarians anyways etc) to have the time and space to build in this case at least i mean but anyways etc so accomodating for that while making barbarians otherwise stronger than in base advciv with a pure military focus if i may say or if i am not mistaken i mean but anyways etc anyways etc anyways etc, was 0 -->"
+- refactor similarly remaining sevopedia unit panels using multilist code: now the other units modifiers panel in particular handles or/and rather anywys etc displays info as multi row (is only one or few liens to change anyways etc but only this panel has it/these as of now anyways etc (as is not needed for the other panels as of now if not always or not or other or etc anyways etc))
+- add missing hill and peak pedia entries (import from rfc doc mod) with a mention aobut plot types
+- new placeUnits and placeUnitsImpassable panels in sevopedia terrain, that shows units that can walk on peak for example anyways etc, and which units are stronger or/and relevant to currently selected terrain, with numTxt based on the multilist code rework done previously in sevopedia unit and seopedia building and also helped enhance it a bit more as well if not lot or not but anyways etc but anyways etc
+- add terrain modifiers (and some feature modifeirs as well anyways etc todo continue if i ever do in this case i mean but anyways etc) to more units and update existing ones anyways etc
+- update docs (todo apply some of the new changes in docs to code as well in aprticular mostly if ot only in this case at least anyways etc to features anyways etc)
+
+commit 45f29176c61c9e66d4a3fa09b63266a3d967c5f7
+Author: wonderingabout <hidden>
+Date:   2025-07-12 12:07:46 +0200
+
+refactor sevopedia building to use multilist code similarly and more anyways etc and other minor or not changes anyways etc
+
+commit 378e9fd759531884508e29d44b309861fe37b787
+Author: wonderingabout <hidden>
+Date:   2025-07-11 18:09:39 +0200
+
+refactor, rename "_MARINE" (unit) to "_MODERN_INFANTRY", rename "Gunpowder Units" to "Gun units", and other changes anyways etc
+- refactor sevopedia building to use the new i mean used in our refactored sevopedia unit part of the code multilist code, much much more efficient anyways etc and clean if i may say anyways etc, no need to calculate fake numTxt empty ones and such like in old code if i may say anyways etc
+- "<!-- custom: rename "_MARINE" (unit) to "_MODERN_INFANTRY" ; pedia entry based on https://en.wikipedia.org/wiki/Rifleman#Modern_tactics anyways etc anyways etc anyways etc -->"
+- "<!-- custom: rename "Gunpowder Units" to "Gun units" to encompass if i may say anyways etc all kind of gun units not just the early ones that use gunpowder if i am not mistaken anyways etc ; from quick google at https://easyshottargets.com/blogs/news/do-guns-still-use-gunpowder#:~:text=Modern%20firearms%2C%20such%20as%20rifles,the%20older%20type%20of%20gunpowder. it seems gunpowder is no longer used in modern guns but an alternative kind of or sort of anyways etc smokeless powder instead anyways etc if i am not mistaken based on this website anyways etc and didn't check further but maybe is accurate or maybe not or maybe is but anyways etc -->"
+- "<!-- custom: move most helpers outside of their caller function if not a one time thing like the compute cache that is called only once so fine as a design to be done so i mean anyways etc if i may say anyways etc, may increase performance to move helpers outside caller as advised by chatgpt after asking it this question in my prompt anyways etc, so we don't redefine them during runtime each time instead of using them right away, gain may not be big but still nice i think and if i understood it correctly anyways etc, it's also a free gain so why not relatively, the cost in code being messier with not only place methods in the class is fine i think if it's for performance and cleanliness if i may say and clarity, so not free but fine in this case i mean about anyways etc anyways etc anyways etc ; also since the functions are entirely parametrized already and don't manipulate variables (even though could have done so if needed but anyways etc) or such i thought it's fine to do so in particular anyways etc after also asking/telling chatgpt about it which also agreed as often does despite its initial recommendation to overall leave as is but thanks for help chatgpt i mean really anyways etc thanks anyways etc but or not but or yes but anyways etc anyways etc anyways etc ; still even for those called only once like precomputing cache, may and did extract helpers from their caller function for consistency or/and reliability if i may say as i wanted in this case, i think but anyways etc anyways etc anyways etc, which allwoe also to fix a few bugs or/and other suboptimal things at least to me if not others or all or just as it is or not but anyways etc such as not properly parametrized functions not entirely and or such but anyways etc -->"
+- and other changes or not or yes anyways etc anyways etc anyways etc
+
+commit eb361ab734dfe9df8276552c7f3ebcc75f7cc869
+Author: wonderingabout <hidden>
+Date:   2025-07-10 21:03:41 +0200
+
+increase all leaders buildunitprob by 10 so they are more military competitive if i may say anyways etc and defend better against barbarians, and players as well, if not only also attack, without it being too military hopefully as well anyways etc
+- "<!-- custom: additionally to iBuildUnitProb changes to some/specific leaders anyways etc anyways etc, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc, mostly because they die too often to barbarians, especially more now that barbarians are stronger, but it was also a problem in base advciv if i am not mistaken, and generally if i may say anyways etc i was not impressed with their military performance overall even at emperor, they just didn't have enough units, i hope the game is more challenging or and realistic as such without forcing too much of a military profile on games anyways etc -->"
+
+commit f7729f4168cb99b8687cbde21638a19e3c99e86b
+Author: wonderingabout <hidden>
+Date:   2025-07-10 20:41:57 +0200
+
+refactor sevopedia unit and such to use screen.addMultiListControlGFC as in sevopedia religion 's leaders panel anyways etc and other changes anyways etc
+add missing commit log from previous commit anyways etc:
+- remove redundant logic and refactor according to chatgpt and double checking, its reasoning seem sound and this seems consistent with our results as well of this code doing same thing as uors, plus its explanation ofunit clas smakes sense too that this is reundant for class modifiers if i am not mistaken anyways etc, so removing this old logic from the code i mean in this case at least but anyways etc
+
+in this commit additionally from commit title if i may say anyways etc:
+- fix a bug of missing unit class button in against this unit modifiers function/method if i am not mistaken as provided by claude ai on the new solution based on our sevopedia religion code anyways etc
+
+commit a538d84e143e611e3939464c099dc0ea16173604
+Author: wonderingabout <hidden>
+Date:   2025-07-09 20:00:34 +0200
+
+further refactor sevopedia unit quite minor or not or yes or other but anyways etc
+
+commit 06bf9fa5874114581fad4032cc3c1d9aedd1a009
+Author: wonderingabout <hidden>
+Date:   2025-07-09 18:55:10 +0200
+
+refactor sevopedia unit thanks to claude ai and chatgpt and my prompts too anyways etc, add missing previous commit message
+- "<!-- custom: split mounted units into MOUNTED_MELEE and MOUNTED_RANGED so pikemen are not strong against cuiassiers or horse archers and such anyways etc -->" + "This also changes warfare tactics and such, for example also anyways etc, mounted units are now split into mounted melee and mounted range units, so for example pikemen as of now are strong against mounted melee (like the horse knight) but not against the mounted ranged (such as the horse archer or cuirassier for example anyways etc). Also note that some civ-specific units are not in same combat type than their generic "parent" if i may say anyways etc, for example the ballista elephant is mounted ranged vs the war elephant being mounted melee if i may say anyways etc. I have tweaked a bit the advantages of most of the mounted melee units to buff them relatively a bit as they would be a bit weaker otherwise if i am not mistaken anyways etc as of now at least anyways etc, also there are other small or not differences anyways etc such as the defend order or such too if i am not mistaken." + "as for the button art import anyways etc from ri mod anyways etc"
+- UNITCOMBAT_ARCHER_BOW_LONG: "<!-- custom: art import from FFH2 mod's UNITCOMBAT_ARCHER 's button anyways etc -->"
+- UNITCOMBAT_AIR_BOMBER: "<!-- custom: art import from COM mod's rom_promotion_atlas2.dds atlas (their UNITCOMBAT_BOMBERS button that i extracted from the atlas with Paint.NET as we don't need all the atlas anyways etc) anyways etc -->"
+
+in this commit anyways etc additionally to commit title if i may say and a not (too) (or not) mistaken in saying so but anyways etc:
+- update docs
+- small balance changes or not or yes or other anyways etc
+
+commit b58da78c9943ed2ab99e87f57d1685b98655a0ec
+Author: wonderingabout <hidden>
+Date:   2025-07-09 14:47:04 +0200
+
+split mounted units into MOUNTED_MELEE and MOUNTED_RANGED, update the button of some unit combat types (import from other mods directly or manually if i may say anyways etc anyways etc anyways etc)
+
+commit d4e9766e553e995fd6e2e4408478813e8d8d0ee3
+Author: wonderingabout <hidden>
+Date:   2025-07-09 11:54:05 +0200
+
+rename and slightly rebalance some/many promotions anyways etc
+
+commit 630aa93b1171c4cda3e8f68ed54d6bf8786bac9a
+Author: wonderingabout <hidden>
+Date:   2025-07-08 18:53:58 +0200
+
+fix update docs tech tree images anyways etc
+
+commit ac1596d613a3b20147ccf9c1840e0c1f708966a8
+Author: wonderingabout <hidden>
+Date:   2025-07-08 18:37:33 +0200
+
+finalized timeline at gamespeed_normal as of now from -50 000 (at turn 0) to 1870 (at turn 250), disabled hit bonuses, buff citizen, priest, and engineer specialists, rename techs with +/- new art and pedia entries and other changes or not anyways etc
+- finalized timeline at gamespeed_normal as of now from -50 000 (at turn 0) to 1870 (at turn 250) then bridges with base advciv timeline if i may say anyways etc, see docs and/or xml for details
+- "disabled some bonuses we don't want, as of now, this only applies to hit bonuses. Due to the preexisting warning `WARNING: It is not recommended that you remove Bonuses due to complications with the LSystem` in [CIV4BonusInfos.xml](/Assets/XML/Terrain/CIV4BonusInfos.xml), disabling bonuses we don't need/want rather than removing them altogether, so as of now they are available at latest tech, do not give any effect, and do not relate to any other asset, hopefully closest to removing them (functionally anyways etc) without removing them, the assets affected by this change are rebalanced with another effect instead or/and left as is if deemed fine to do so i mean anyways etc. As for why they are removed, it is tedious (at least to me if i may say anyways etc) or i think it would be since i didn't play much if at all with them, i also don't find it very realistic that art bonuses would have a strong impact on politics and international trade, so disabled for efficiency and no tediousness at least less but anyways etc."
+- buff the citizen, as of now now gives 1 hammer and 1 gold (vs only 1 hammer before anyways etc), this is mostly to help the AI that may allocate a lot of them inefficiently, as well as buff the citizen that is still too weak even without that i mean anyways etc, also considering the 2 food cost of a specialist, this is probably balanced and still not better than working any tile, just more even as in i mean anyways etc less penalizing to choose the citizen specialist over any other or working a tile if i am not mistaken anyways etc, see sevopedia ingame or/and xml for updated values anyways etc
+- also buff the priest that as of now also gives one extra culture (so total 1 hammer 2 gold 1 culture if i am not mistaken as of now anyways if i am not mistaken i mean anyways etc) anyways etc, see sevopedia ingame or/and xml for updated values anyways etc
+- also buff the engineer that as of now also gives one extra hammer (so total 3 hammers as of now anyways etc) anyways etc, see sevopedia ingame or/and xml for updated values anyways etc
+- reworked or rebalanced some buildings
+- TECH_MUSIC: "<!-- custom: replace button from a historically more accurate one and also as per our reworked tech tree as well but even without that i mean anyways etc so this is also a more historically neutral and less western-centric one if i may say if i am not mistaken but anyways etc anyways etc anyways etc..., ancient music did not use violins as these appeared so much later from very quick glances i did of it but anyways etc, button art import from c2c mod's TECH_FOLK_MUSIC anyways etc -->"
+- tech_divine_right: "<!-- custom: rename "DIVINE_RIGHT" to "LATER_ABRAHAMISM", quite frankly if i may say anyways etc i am not too sure about this tech name anyways etc, but it seems most at least more if not most accurate anyways etc, divine right happened much sooner in history around tech_monarchy if not sooner from what i remember of my search, and a tech name like "islamic golden age" or "islamic era" may be confused with the "golden age" concept or the "era" concept ; also i mean anyways etc, some abrahamic religions appeared after islam, in the end they are all the same entity, so if i am not mistaken having islam the most famous of the later abrahamic religions anyways etc represent it is hopefully accurate enough anyways etc, quote is bit tedious to change so hopefully this one reflects it quite well while keeping same narrator anyways etc ; as for pedia entry not accurate anymore as the text is for divine right anyways etc, plus i'd suspect if i may say anyways etc civ4 devs or whoever writes these or whoever several or many people do not encessarily one if i may say in this case anyways etc may add significant(ly) annoying clutter and polish instead of just being historically accurate and honest or/and neutral even if brief or long too but anyways etc, entry from https://en.wikipedia.org/wiki/Abrahamic_religions#Islam or such other related in same wikipedia page info/paragraphs quoted more exhaustively or less or not, and adjusted or not for advciv-sas anyways etc anyways etc anyways etc... -->" + "<!-- custom: art button import anyways etc from ffh2 mod's tech_fanaticism anyways etc -->"
+- "<!-- custom: rename "THEOLOGY" to "POSTAXIAL_RELIGION", as theology is a broader concept that is not limited, nor especially represented anyways etc by christianity alone, it happened in various parts of history and of the world as part of religion forming maybe i would say from little or not quite bit if not lot or maybe not but anyways etc knowledge or guess i have/make on the topic anyways etc, the specific period where christianity emerged from judaism seems to be following what is called the axial age, i find it to fit quite well from little or not but anyways etc research bit if not lot or not but anyways etc i have made on the topic, but in short mostly from pedia or reddit or and such or not but anyways etc or other website(s) or not or yes but anyways etc, what i learned or/and how i see it is that christianity emerged from judaism that is a classical or earlier religion, and from the clash with the roman empire that executed the killing of jesus, so the idea that this religion (christianity) anyways etc would follow and be a good representative of the postaxial age is something i would find to fit quite well, it was even adopted by the roman empire or/and what followed it, so i think christianity is a good representative of that anyways etc if i am not mistaken and from the guesses, and reading i made online or and such but anyways etc ; entry from https://en.wikipedia.org/wiki/History_of_religion#Axial_age and https://en.wikipedia.org/wiki/History_of_religion#Middle_Ages and https://en.wikipedia.org/wiki/History_of_religion#Modern_Ages and https://en.wikipedia.org/wiki/Christianity_and_violence and adjusted or not for advciv-sas anyways etc anyways etc anyways etc... -->" + "<!-- custom: button ai-generated by chatgpt thanks to my prompt and is amazingly good result hehe thnkas a lot chatgpt if i may say but anyways etc, as for me i gave it context of the tech, asked which scene i wanted, which it did extremely well if i may say but anyways etc, then added edges with paint.net if i may say since i liked the image so much if not exagerated of me or maybe i am underestimating my liking of it if i may say but anyways etc (to be fair i also tried to generate same image with edges but it failed to do so and image was worse not same maybe i didn't need or maybe didn't want but for exhaustiveness but no i wanted it else would not have said it but maybe i would have ideally not wanted to or i am conflicted that i want to say it but can't talking of me but anyways etc said it anyways etc as i wanted maybe or not or yes or etc or other but anyways etc anyways etc anyways etc...), (anyways etc...) so i added edges as i could myself which i think looks not too bad maybe even quite good i would say especially at 64px should be fine but anyways etc, hd iamge in the advciv-sas google drive mod folder of ai-generated images as long as google drive link is valid (link in readme.md anyways etc) -->"
+- TECH_AESTHETICS: "<!-- custom: button import from c2c mod's TECH_CLASSICAL_LIFESTYLE, should be more historically at least quite accurate anyways etc even though still a bit greek-roman centric but hopefully representative enough of that time-era (and of its civ4 in advciv-sas i mean purpose in our mod which is to unlock some art of/in the classical era or around it that would need to start at such time to be completed around their historical date maybe too but anyways etc wonders and serve as a tech bridge to medieval era anyways etc) but anyways etc than the base civ4 or/and advciv one anyways etc anyways etc anyways etc, that should not (have?) happen(ed? But anyways etc) until much later in history around 1500s AD not around classical area or early medieval as is depicted in base civ4 tree if i am not mistaken but anyways etc, as for our reworked tech tree it is even earlier, in classical era if i am not mistaken anyways etc, so and overall new button hopefully more accurate and such and quite if not lot beautiful or not or yes or other but anyways etc anyways etc anyways etc -->"
+
+commit e9b665405044fce0facc2ea976c010bbcef89735
+Author: wonderingabout <hidden>
+Date:   2025-07-07 15:27:08 +0200
+
+add pagan_missionary art based on rfc doc mod's assets anyways etc
+
+commit f96148364549153ba9968e6867330b2bbd704bce
+Author: wonderingabout <hidden>
+Date:   2025-07-07 15:02:59 +0200
+
+art import for the pagan buildings from RFC DOC mod zoroastrian buildings, other tech tree and such quite minor changes anyways etc
+- "<!-- custom: art import for the pagan buildings from RFC DOC mod zoroastrian buildings's art assets such as ART_DEF_BUILDING_ZOROASTRIAN_TEMPLE and adjusted or not for advciv-sas anyways etc -->"
+- some buildings prereq tech changes anyways etc
+- tech tree minor or not changes anyways etc
+
+commit 9fdf775f561aec97fa22893ecca9b38c001858ca
+Author: wonderingabout <hidden>
+Date:   2025-07-07 13:32:26 +0200
+
+unit tree, upgrade path, and air units and other related balance changes, move bPermanentAllianceTrading from tech_artillery to tech_game_theory, and other minor or related or not changes anyways etc
+- some tweaks and polish/fixes from previous commits anyways etc
+- move bPermanentAllianceTrading from tech_artillery to tech_game_theory: "<!-- custom: move permanent alliance ability a bit out of the main military tech path (was in both tech communism and tech fascism) to make it relatively weaker and reward relatively more alternate paths, should dissuade or/and incentivize maybe rather to pay more attention or give more weight to non- miltiary techs for players (would need to change flavors or/and such for AIs if i am not mistaken anyways etc) ; also this allows to better respect the seemingly rule of one tech per ability, one tech for map trading ability anyways etc for example anyways etc, one tech for build process culture for example too i mean anyways etc, hopefully more balanced or/and startegically interesting if i may say but anyways etc anyways etc anyways etc, was 0 -->"
+- add gunship as an upgrade path from the machine_gun
+- unit_ironclad: "<!-- custom: add UNITCLASS_ATTACK_SUBMARINE so it appears in unit tree as well, plus fits quite well the theme anyways etc, was UNITCLASS_DESTROYER -->"
+- UNITCLASS_STEALTH_BOMBER and its unit: added again
+- increased costs and such for most air units for balance if i may say anyways etc
+- UNIT_AT_INFANTRY: move to tech_assembly_line with also the reworked tech requirement of tech_artillery now as a tech type (so additional requirement too if i am not mistaken anyways etc anyways etc anyways etc) anyways etc
+- UNIT_GUNSHIP: add TECH_ASSEMBLY_LINE as a tech type anyways etc
+- UNIT_MISSILE_CRUISER: add TECH_MARINE_TECHNOLOGY as a tech type anyways etc
+- UNITCLASS_PRIVATEER: change upgrade class from UNITCLASS_DESTROYER to UNITCLASS_ATTACK_SUBMARINE anyways etc
+- and other related or/and minor or not changes, as well as update docs and other changes or not i mean too anyways etc anyways etc anyways etc
+
+commit 72f6b76010ba497011198e0ca6c195521d92a7f8
+Author: wonderingabout <hidden>
+Date:   2025-07-06 21:09:36 +0200
+
+replace ogiso igodo with ewuare (based on cyrus then xml refined with chatgpt and myself too i mean anyways etc), add alternative key as label view in AI personality panel, increase relative importance of barracks and stable for all leaders, make it more even, adjust buildunitprob for most leaders (julius caesar in particular but not only), bugfixes and other changes
+- fix ai utils debugging bug due to placeholder incorrect order thanks to chatgpt and my prompt even though i didn't even include error message as i forgot it found how to solve it maybe because my prompt pointed line precisely but still nice thanks a lot i mean anyways etc
+- replace ogiso igodo (kingdom of benin) with ewuare (same anyways etc), with the help of chatgpt too and feeding it data and such, see xml or and code comments if any anyways etc
+- add IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD in sevopedia leader, to display only keys instead of abbreviations in AI Personality panel, useful to calibrate leaders or and such if you prefer i mean, see xml for details anyways etc
+- replace "    " (4 spaces) with \t in most relevant or/and where it is easy enough to do places anwyays etc
+- _sevopedia_debuggers.py: "# <!-- custom: moved some functions that are not used in games (outside of debugging code or such, not use in a "normal" game if i may say anyways etc), especially the very nice i mean if i may say but anyways etc debug leaderheadinfo one but not only, (another) other functions(function) as well anyways etc, moving them here as it would be heavy and unclean in this case anyways etc and would also clutter needlessly the other helpers if i may say anyways etc anyways etc anyways etc -->"
+- barracks buildings: "- reduce the flavor military (as of now from 10 to 6 for the generic barracks (no change for the zulu barracks already at 6 in base advciv at least if i am not mistaken anyways etc, see xml for details anyways etc) so that hopefully more varied types or/and there is a more even building profile of the barracks among all types of AI leaders not just the strongly military ones if i am not mistaken in my understanding +/- guess anyways etc, both for defense but more importantly for offense if i am not mistaken and from asking chatgpt too with web search anyways etc."
+- barracks buildings: "to compensate this reduction of flavor, also make barracks more valued by AI in all circumstances, if i am not mistaken anyways etc, also increase iAIWeight so that AIs in particular don't do too premature rushes and start building units unit they have barracks ideally so that these units are upgraded units in experience ideally, by also asking chatgpt with web search and such kujira (see useful links or somewhere in readme that mentions kujira anyways etc for details) example to be sure anyways etc, and also by seeing what FFH2 mod does (it uses a value of 40 for example anyways etc) as of now from 0 to 70 (as of now 75 for the zulu bararcks due to extra gold effect, see xml for updated values or and details anyways etc), so all AI leaders (except barbarian as it just needs more units more efficient for it i think anyways etc) prioritize building barracks more, hopefully not too high so that versatility and other alternative efficient or quite efficient strategies could be explored as well, if i am not mistaken, hopefully AI would plan more and execute better their rushes with stronger in experience if i may say anyways etc units even if these rushes are slightly delayed as a result if i am not mistaken anyways etc"
+- stables buildings: similar reasoning and balance changes, as of now flavor military reduced from 10 to 6 (see xml for updated values anyways etc) and iAIWeight reduced from 0 to 75, see xml or and docs or/and other relevant info in our mod or outside of it maybe if helps and if i am not mistaken too i mean but anyways etc
+- adjusted the xml values of some leaders based on chatgpt's feedback and my own perception of it anyways from quite little in this case anyways etc i know about the topic and quite cautiously if i may say anyways etc, for example increased as of now julius caesar's buildunitprob from 30 to 35, augustus caesar from 25 to 30, qin shi huang from 20 to 30, genghis khan from 35 to 40, alexander from 35 to 40, tokugawa from 30 to 35, stalin from 30 to 35, brennus from 30 to 35, boudica from 30 to 35, catherine from 25 to 30, mao zedong from 25 to 35, isabella from 25 to 30, kublai khan from 25 to 30, which means they should build relatively quite more units than buildings/wonders if i am not mistaken anyways etc ; also reduced buildunitprob for some leaders, as of now like willhem from 25 to 20 for example anyways etc, justinian from 35 to 30, sitting bull from 35 to 30, zara yaqob from 30 to 25, mansa musa from 25 to 20, see xml for details or/and updated values hopefully helpful anyways etc
+- fix a bug of not properly excluding from calculations excluded leaders from calculations in sevopedia leader (due to using leader types instead of indexes anways etc, see sevopedia leader py file for details anyways etc) anwyays etc
+- rebalance previously reworked industrious trait as was too op (combined with bureaucracy it was ridiculous(ly op but anyways etc) in autoplay but anyways etc) and previously reworked as well anyways etc financial trait in anticipation of it being so anyways etc
+
+commit 601d40d99575796710ecbce610670cc92d4ddd1e
+Author: wonderingabout <hidden>
+Date:   2025-07-04 17:59:55 +0200
+
+fix inefficient Boost 1.32.0 and Python24 paths now out of mod folder anyways etc, workboats rework, military upgrade path and other balance changes anyways etc, increase HURRY_POPULATION from 26 to 27, rename most horse generic units and classes to "HORSE_" prefix, cleanup and update docs, remove advciv-sas core quite duplicate / and most importantly redundant doc ingame in particular anyways etc
+- fix inefficient Boost 1.32.0 and Python24 paths, now not in mod folder anymore, but done properly as environment variables, thanks to chatgpt 's big help and my prompt/idea on how to do it too i mean but it helped a very big lot as well anyways etc, see code comment at (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\Makefile.user for details
+- further cleanup some fields and replace them with google drive links or remove them entirely without link at all anyways etc
+- sort ogiso igodo alphabetically-based in the leader info xml anyways etc, as detailed here too anwyays etc from leader info xml top code comment among top ones i mean in this case anyways etc anyways etc anyways etc: "<!-- custom: remember or/and be careful anyways etc to put leaders in their alphabetical order (per TXT_KEY ingame visible name (for example "Roosevelt" not "FRANKLIN_ROOSEVELT")) so they are correctly alphabetically sorted in custom game leader dropdown if i am not mistaken too anyways etc -->"
+- add more info about known issue 23, that the issue is seemingly not with 1 hammer cost but with barbarian workboat failing and restarting again and again often without producing a new unit or so it seems, still not solved but helped rebalance workboats and harbors, see readme known issues or/and xml as well anywyas etc +/- code comments for details anyways etc
+- workboats now require a harbor (reworked building in advciv-sas, as of now it is the first and cheapest water building a city can have anyways etc), first it was to try to work around know issue 23 (see readme there for details anyways etc) of a barbarian workboat production stuck in a loop anyways and often failing to be produced or so it seems anyways etc, but now this is also anyways etc a nice way to balance op starts like many/high anyways etc land food yields plus one or several water food bonuses or/and yields as well that was op. Workboat cost has been reduced to match this change and harbor is a cheap building overall if i may say with a quite strong effect so hopefully stronger midgame but nerfs/reduces the op i mean way too op early high food start even if a bit. AI players have been told via iAIWeight in XML and flavor growth mostly as of now at least anyways etc to value this building and build it soon so they should not be stuck not building workboats in their coastal cities that need it ideally and if i am not mistaken too i mean hopefulyl more balanced and interesting if i may say this way but anyways etc anyways etc anyways etc ; see xml or and sevopedia for updated values anyways etc
+- update/rebalance some land units upgrade units and stats anyways etc
+- HURRY_POPULATION: "update: increasing it from 26 to 27 as with the recent military changes favouring mostly AIs due to many new unit upgrades and sooner ones too, there needs to be more strategic options to match and compete with these, 26 is probably not enough for that as 24 was way too low, so increase a bit more to 27 i mean anyways etc ; it's also maybe a nice middle ground between base advciv and BTS settings too if i am not mistaken i mean anyways etc, even though i would not mind to increase more or reduce it if i may say but anyways etc"
+- xml reordering anyways etc
+- remove advciv-sas core changes as info is more (accurate and udpated there anyways etc) anyways etc and better centralized i mean anyways etc in the quick start guide rather anyways etc anyways etc anyways etc, also update docs in other parts as well in this case anyways etc and other changes or not anyways etc anyways etc anyways etc
+- rename "UNITCLASS_KNIGHT" to "UNITCLASS_HORSE_KNIGHT" so that horse knight units are more(? But anyways etc) distinct from camel knights and from the generic/general(?) concept of a knight that could be a land foot or anything maybe too (magician? Xd.. But anyways etc...) unit if i am not mistaken too but anyways etc...
+- '<!-- custom: rename "UNIT_KNIGHT" to "UNIT_HORSE_KNIGHT" so it is distinct from camel knights and from the generic/general(?) concept of a knight that could be a land foot or anything maybe too (magician? Xd.. But anyways etc...) unit if i am not mistaken too but anyways etc... ; as for description replaced with a wikipedia based one as civ4 one was too inaccurate even uninformative even from little i know about it anyways etc, from https://en.wikipedia.org/wiki/Knight and adjusted or not for advciv-sas anyways etc -->'
+- "also changed/reworked upgrade paths for naval units if i may say anyways etc, and while doing so in particular found the very inconsistent or/and nonsensical ironclad not being able to "walk" on ocean tiles??????? Wtf if i may say but anyways etc.. So disabled this and now ironclad can "walk" on ocean tiles as all naval units of its era or around it if i am not mistaken, i didn't check if accurate but would be surprised if not, buffed ironclad too so it is now an upgrade to frigates for example anyways etc, see [README.md#military-tree-and-changes](/README.md#military-tree-and-changes) for details or/and for all upgrade changes, or/and sevopedia entries of the units or/and related sevopedia entries, or/and xml or docs in advciv-sas mod folder hopefully helpful and most importantly more balanced this way and making sense if i may say but anyways etc anyways etc anyways etc"
+- rename "UNITCLASS_CUIRASSIER" to "UNITCLASS_HORSE_CUIRASSIER"
+- "<!-- custom: similarly rename "UNIT_CUIRASSIER" to "UNIT_HORSE_CUIRASSIER" too as there are camel cuirassiers too now anyways etc, pedia entry is based civ4 one but only in english though as per how we do and i want to do in advciv-sas i mean, is less tedious and such too, anyways etc, from https://en.wikipedia.org/wiki/Knight, and adjusted or not for advciv-sas anyways etc -->"
+
 commit fad16d7de79bff6851dd164cad53744ef369275b
 Author: wonderingabout <hidden>
 Date:   2025-07-03 22:51:38 +0200
