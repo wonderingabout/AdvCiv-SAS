@@ -1276,7 +1276,21 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_MEHMED_LATE</SoundID>
+			<SoundID>DIPLO_SULEIMAN_EARLY</SoundID>
+			<Filename>Sounds/Diplomacy/Mehmed_Early</Filename>
+			<LoadType>STREAMED</LoadType>
+			<bIsCompressed>1</bIsCompressed>
+			<bInGeneric>1</bInGeneric>
+		</SoundData>
+		<SoundData>
+			<SoundID>DIPLO_SULEIMAN_MIDDLE</SoundID>
+			<Filename>Sounds/Diplomacy/Mehmed_Middle</Filename>
+			<LoadType>STREAMED</LoadType>
+			<bIsCompressed>1</bIsCompressed>
+			<bInGeneric>1</bInGeneric>
+		</SoundData>
+		<SoundData>
+			<SoundID>DIPLO_SULEIMAN_LATE</SoundID>
 			<Filename>Sounds/Diplomacy/Mehmed_Late</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -1284,14 +1298,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>DIPLO_MEHMED_EARLY</SoundID>
-			<Filename>Sounds/Diplomacy/Mehmed_Early</Filename>
-			<LoadType>STREAMED</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
-			<SoundID>DIPLO_MEHMED_MIDDLE</SoundID>
-			<Filename>Sounds/Diplomacy/Mehmed_Middle</Filename>
+			<Filename>Art/AdvCiv_SAS/LeaderHeads/Mehmed/music/00_03_000_Old_Ottoman_turkish_Music_Sehnaz_Longa_Composer_Santuri_Ethem_Efendi_1855</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -1458,6 +1465,13 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
+			<SoundID>DIPLO_RAMESSES_EARLY_INTRO</SoundID>
+			<Filename>Art/AdvCiv_SAS/LeaderHeads/Ramesses/music/00_02_245_Ancient_Egyptian_Music_Pharaoh_Ramses_II</Filename>
+			<LoadType>STREAMED</LoadType>
+			<bIsCompressed>1</bIsCompressed>
+			<bInGeneric>1</bInGeneric>
+		</SoundData>
+		<SoundData>
 			<SoundID>DIPLO_ELIZABETH_EARLY</SoundID>
 			<Filename>Sounds/Diplomacy/Elizabeth_Early</Filename>
 			<LoadType>STREAMED</LoadType>
@@ -1479,22 +1493,29 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_VICTORIA_EARLY</SoundID>
+			<SoundID>DIPLO_CHURCHILL_EARLY</SoundID>
 			<Filename>Sounds/Diplomacy/Victoria_Early</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_VICTORIA_MIDDLE</SoundID>
+			<SoundID>DIPLO_CHURCHILL_MIDDLE</SoundID>
 			<Filename>Sounds/Diplomacy/Victoria_Middle</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_VICTORIA_LATE</SoundID>
+			<SoundID>DIPLO_CHURCHILL_LATE</SoundID>
 			<Filename>Sounds/Diplomacy/Victoria_Late</Filename>
+			<LoadType>STREAMED</LoadType>
+			<bIsCompressed>1</bIsCompressed>
+			<bInGeneric>1</bInGeneric>
+		</SoundData>
+		<SoundData>
+			<SoundID>DIPLO_VICTORIA_EARLY</SoundID>
+			<Filename>Art/AdvCiv_SAS/LeaderHeads/Victoria/music/victorian-violin-waltz-222298</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -1522,21 +1543,21 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>DIPLO_NAPOLEON_EARLY</SoundID>
-			<Filename>Sounds/Diplomacy/Napoleon_Early</Filename>
+			<Filename>Art/AdvCiv_SAS/LeaderHeads/Napoleon/music/Symphony_No_25_in_G minor_K_183_I_Allegro_con_brio</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
 			<SoundID>DIPLO_NAPOLEON_MIDDLE</SoundID>
-			<Filename>Sounds/Diplomacy/Napoleon_Middle</Filename>
+			<Filename>Art/AdvCiv_SAS/LeaderHeads/Napoleon/music/Symphony_No_25_in_G minor_K_183_I_Allegro_con_brio</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
 			<SoundID>DIPLO_NAPOLEON_LATE</SoundID>
-			<Filename>Sounds/Diplomacy/Napoleon_Late</Filename>
+			<Filename>Art/AdvCiv_SAS/LeaderHeads/Napoleon/music/Symphony_No_25_in_G minor_K_183_I_Allegro_con_brio</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -1591,22 +1612,29 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_ALEXANDER_EARLY</SoundID>
+			<SoundID>DIPLO_PERICLES_EARLY</SoundID>
 			<Filename>Sounds/Diplomacy/Alexander_Early</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_ALEXANDER_MIDDLE</SoundID>
+			<SoundID>DIPLO_PERICLES_MIDDLE</SoundID>
 			<Filename>Sounds/Diplomacy/Alexander_Middle</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_ALEXANDER_LATE</SoundID>
+			<SoundID>DIPLO_PERICLES_LATE</SoundID>
 			<Filename>Sounds/Diplomacy/Alexander_Late</Filename>
+			<LoadType>STREAMED</LoadType>
+			<bIsCompressed>1</bIsCompressed>
+			<bInGeneric>1</bInGeneric>
+		</SoundData>
+		<SoundData>
+			<SoundID>DIPLO_ALEXANDER_EARLY</SoundID>
+			<Filename>Art/AdvCiv_SAS/LeaderHeads/Alexander/music/The_Companions_Ancient_Macedon_Battle_Music_Alexander_the_Great</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -1759,148 +1787,113 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_GENGHISKHAN_EARLY_INTRO</SoundID>
+			<SoundID>DIPLO_GENGHIS_KHAN_EARLY_INTRO</SoundID>
+			<Filename>Art/AdvCiv_SAS/LeaderHeads/Genghis_Khan/music/Tomorbaatar_the_Iron_Hero</Filename>
+			<LoadType>STREAMED</LoadType>
+			<bIsCompressed>1</bIsCompressed>
+			<bInGeneric>1</bInGeneric>
+		</SoundData>
+		<SoundData>
+			<SoundID>DIPLO_KUBLAI_KHAN_EARLY_INTRO</SoundID>
 			<Filename>Sounds/Diplomacy/GenghisKahn_Early_Intro</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_GENGHISKHAN_EARLY_LP</SoundID>
+			<SoundID>DIPLO_KUBLAI_KHAN_EARLY_LP</SoundID>
 			<Filename>Sounds/Diplomacy/GenghisKahn_Early_Lp</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_GENGHISKHAN_MIDDLE</SoundID>
+			<SoundID>DIPLO_KUBLAI_KHAN_MIDDLE</SoundID>
 			<Filename>Sounds/Diplomacy/GenghisKahn_Middle</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_GENGHISKHAN_LATE_INTRO</SoundID>
+			<SoundID>DIPLO_KUBLAI_KHAN_LATE_INTRO</SoundID>
 			<Filename>Sounds/Diplomacy/GenghisKahn_Late_Intro</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_GENGHISKHAN_LATE_LP</SoundID>
+			<SoundID>DIPLO_KUBLAI_KHAN_LATE_LP</SoundID>
 			<Filename>Sounds/Diplomacy/GenghisKahn_Late_Lp</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_KUBLAIKHAN_EARLY_INTRO</SoundID>
-			<Filename>Sounds/Diplomacy/GenghisKahn_Early_Intro</Filename>
-			<LoadType>STREAMED</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
-			<SoundID>DIPLO_KUBLAIKHAN_EARLY_LP</SoundID>
-			<Filename>Sounds/Diplomacy/GenghisKahn_Early_Lp</Filename>
-			<LoadType>STREAMED</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
-			<SoundID>DIPLO_KUBLAIKHAN_MIDDLE</SoundID>
-			<Filename>Sounds/Diplomacy/GenghisKahn_Middle</Filename>
-			<LoadType>STREAMED</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
-			<SoundID>DIPLO_KUBLAIKHAN_LATE_INTRO</SoundID>
-			<Filename>Sounds/Diplomacy/GenghisKahn_Late_Intro</Filename>
-			<LoadType>STREAMED</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
-			<SoundID>DIPLO_KUBLAIKHAN_LATE_LP</SoundID>
-			<Filename>Sounds/Diplomacy/GenghisKahn_Late_Lp</Filename>
-			<LoadType>STREAMED</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
-			<SoundID>DIPLO_CYRUS_EARLY</SoundID>
+			<SoundID>DIPLO_DARIUS_EARLY</SoundID>
 			<Filename>Sounds/Diplomacy/Cyrus_Early</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_CYRUS_MIDDLE</SoundID>
+			<SoundID>DIPLO_DARIUS_MIDDLE</SoundID>
 			<Filename>Sounds/Diplomacy/Cyrus_Middle</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_CYRUS_LATE_INTRO</SoundID>
+			<SoundID>DIPLO_DARIUS_LATE_INTRO</SoundID>
 			<Filename>Sounds/Diplomacy/Cyrus_Late_Intro</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_CYRUS_LATE_LP</SoundID>
+			<SoundID>DIPLO_DARIUS_LATE_LP</SoundID>
 			<Filename>Sounds/Diplomacy/Cyrus_Late_Lp</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
+			<SoundID>DIPLO_CYRUS_EARLY</SoundID>
+			<Filename>Art/AdvCiv_SAS/LeaderHeads/Cyrus/music/Persia_Ancient_Journey_Fantasy_Music_Beautiful_Persian_Ambient_07_24</Filename>
+			<LoadType>STREAMED</LoadType>
+			<bIsCompressed>1</bIsCompressed>
+			<bInGeneric>1</bInGeneric>
+		</SoundData>
+		<SoundData>
 			<SoundID>DIPLO_EWUARE_EARLY</SoundID>
-			<Filename>Art/AdvCiv_SAS/LeaderHeads/Ewuare/music/Djole</Filename>
+			<Filename>Art/AdvCiv_SAS/LeaderHeads/Ewuare/music/african-tribal-music-342635</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_EWUARE_MIDDLE</SoundID>
-			<Filename>Art/AdvCiv_SAS/LeaderHeads/Ewuare/music/Djole</Filename>
-			<LoadType>STREAMED</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
-			<SoundID>DIPLO_EWUARE_LATE_INTRO</SoundID>
-			<Filename>Art/AdvCiv_SAS/LeaderHeads/Ewuare/music/Djole</Filename>
-			<LoadType>STREAMED</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
-			<SoundID>DIPLO_EWUARE_LATE_LP</SoundID>
-			<Filename>Art/AdvCiv_SAS/LeaderHeads/Ewuare/music/Djole</Filename>
-			<LoadType>STREAMED</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
-			<SoundID>DIPLO_CAESAR_EARLY</SoundID>
+			<SoundID>DIPLO_AUGUSTUS_CAESAR_EARLY</SoundID>
 			<Filename>Sounds/Diplomacy/Caesar_Early</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_CAESAR_MIDDLE</SoundID>
+			<SoundID>DIPLO_AUGUSTUS_CAESAR_MIDDLE</SoundID>
 			<Filename>Sounds/Diplomacy/Caesar_Middle</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_CAESAR_LATE</SoundID>
+			<SoundID>DIPLO_AUGUSTUS_CAESAR_LATE</SoundID>
 			<Filename>Sounds/Diplomacy/Caesar_Late</Filename>
+			<LoadType>STREAMED</LoadType>
+			<bIsCompressed>1</bIsCompressed>
+			<bInGeneric>1</bInGeneric>
+		</SoundData>
+		<SoundData>
+			<SoundID>DIPLO_JULIUS_CAESAR_EARLY</SoundID>
+			<Filename>Art/AdvCiv_SAS/LeaderHeads/Julius_Caesar/music/Epic_Roman_Music_Battle_March</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -1943,6 +1936,13 @@
 		<SoundData>
 			<SoundID>DIPLO_PETER_LATE_LP</SoundID>
 			<Filename>Sounds/Diplomacy/Peter_Late_Lp</Filename>
+			<LoadType>STREAMED</LoadType>
+			<bIsCompressed>1</bIsCompressed>
+			<bInGeneric>1</bInGeneric>
+		</SoundData>
+		<SoundData>
+			<SoundID>DIPLO_STALIN_EARLY_INTRO</SoundID>
+			<Filename>Art/AdvCiv_SAS/LeaderHeads/Stalin/music/soviet-march</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -2069,6 +2069,13 @@
 		<SoundData>
 			<SoundID>DIPLO_BRENNUS_LATE</SoundID>
 			<Filename>Sounds/Diplomacy/Brennus_Late</Filename>
+			<LoadType>STREAMED</LoadType>
+			<bIsCompressed>1</bIsCompressed>
+			<bInGeneric>1</bInGeneric>
+		</SoundData>
+		<SoundData>
+			<SoundID>DIPLO_BOUDICA_EARLY</SoundID>
+			<Filename>Art/AdvCiv_SAS/LeaderHeads/Boudica/music/Epic_Celtic_Scottish_War_Drums_The_Highland_Warriors</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -3362,7 +3369,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_PETER_SFX</SoundID>
+			<SoundID>DIPLO_STALIN_SFX</SoundID>
 			<Filename>Sounds/Diplomacy/Peter_SFX</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
