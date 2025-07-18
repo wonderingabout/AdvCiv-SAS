@@ -806,6 +806,32 @@ class SevoPediaBuilding:
 
 
 
+	# <!-- custom: code provided by gemini ai and adjusted or not for advciv-sas anyways etc -->  
+	def is_building_prereq_overridden_by_civic(self, iBuildingId):
+		# Checks if the prerequisite for the given building ID can be overridden by any civic.
+		# Returns True if an override exists, False otherwise.
+		#
+		buildingInfo = gc.getBuildingInfo(iBuildingId)
+		iSpecialBuildingType = buildingInfo.getSpecialBuildingType()
+
+		# Only special buildings can have their requirements overridden this way by civics
+		if iSpecialBuildingType == -1:
+			return False
+
+		# Iterate through all civics
+		for iCivic in range(gc.getNumCivicInfos()):
+			loopCivicInfo = gc.getCivicInfo(iCivic)
+			# Use the confirmed API method: isSpecialBuildingNotRequired(SpecialBuildingType eIndex)
+			# Pass the integer ID directly, as Python bindings usually handle this.
+			if loopCivicInfo.isSpecialBuildingNotRequired(iSpecialBuildingType):
+				# Found a civic that overrides this building's requirement
+				return True
+
+		# No civic found that overrides this building's requirement
+		return False
+
+
+
 	def placeRequiredFor(self):
 		# Shows buildings that require this building as a prerequisite
 		#
@@ -875,6 +901,26 @@ class SevoPediaBuilding:
 				extraCorrectionX = get_extra_correction_x(numTxt)
 				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
+				isButtonFound = True
+				iButtonIndex += 1
+
+		# <!-- custom: code provided by gemini ai and adjusted or not for advciv-sas anyways etc ; idea i got from watching ri mod's sevopedia building or so it seems anyways etc ingame, of how the cruiser if i am not mistaken requires a drydock to be built. I considered it but in the end it adds needless complication for our mod, but what i wanted to say most anyways etc in this case but anyways etc is that i got the idea from watching their drydock or similar ingame sevopedia page so helped thanks but anyways etc -->
+		# Loop through all units to check their building prerequisites
+		for iLoopUnit in range(gc.getNumUnitInfos()):
+			loopUnitInfo = gc.getUnitInfo(iLoopUnit)
+			iPrereqBuilding = loopUnitInfo.getPrereqBuilding()
+
+			if iPrereqBuilding == self.iBuilding:
+				columnIndex = 0
+				screen.appendMultiListButton(rowListName, loopUnitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iLoopUnit, 1, False)
+
+				# <!-- custom: add numTxt info that this building prereq is or may be but anyways etc overriden by some civics such as organized religion civic for missionaries in this case at least is the only one i can think of in this case but anyways etc -->
+				if self.is_building_prereq_overridden_by_civic(self.iBuilding):
+					numTxt = "(!)Civic(s)"
+					extraCorrectionX = get_extra_correction_x(numTxt)
+					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+
+				# <!-- custom: else do not display any numTxt and just proceed if i may say anyways etc -->
 				isButtonFound = True
 				iButtonIndex += 1
 

@@ -4052,7 +4052,7 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>17</iGridX>
+			<iGridX>19</iGridX>
 			<iGridY>7</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
@@ -4125,7 +4125,7 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>18</iGridX>
+			<iGridX>17</iGridX>
 			<iGridY>7</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>

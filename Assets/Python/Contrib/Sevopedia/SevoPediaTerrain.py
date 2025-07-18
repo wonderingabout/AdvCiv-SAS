@@ -171,7 +171,7 @@ class SevoPediaTerrain:
 		screen = self.top.getScreen()
 		panel = self.top.getNextWidgetName()
 
-		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT", ()), "", False, True, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_IMPROVEMENTS_CUSTOM", ()), "", False, True, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panel, "", "  ")
 
 		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)

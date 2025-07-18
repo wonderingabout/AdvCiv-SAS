@@ -337,6 +337,10 @@
 		<Tag>TXT_KEY_BUILDING_PORT</Tag>
 		<English>Port</English>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_JAPAN_DOUJOU</Tag>
+		<English>Doujou</English>
+	</TEXT>
 
 
 

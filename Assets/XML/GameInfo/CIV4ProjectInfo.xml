@@ -193,7 +193,7 @@
 			<Strategy>TXT_KEY_PROJECT_SPACE_SHIP_STRATEGY</Strategy>
 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
 			<!-- custom: was TECH_ECOLOGY -->
-			<TechPrereq>TECH_PLASTICS</TechPrereq>
+			<TechPrereq>TECH_GENETICS</TechPrereq>
 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
 			<iMaxTeamInstances>1</iMaxTeamInstances>

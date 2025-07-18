@@ -2147,8 +2147,8 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_COAL_PLANT</BuildingClassType>
-					<BuildingType>BUILDING_JAPANESE_SHALE_PLANT</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_JAIL</BuildingClassType>
+					<BuildingType>BUILDING_JAPAN_DOUJOU</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>

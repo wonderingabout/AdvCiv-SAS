@@ -1309,7 +1309,8 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 			<ArtDefineTag>ART_DEF_BONUS_FUR</ArtDefineTag>
 			<TechReveal>NONE</TechReveal>
 			<TechCityTrade>TECH_HUNTING</TechCityTrade>
-			<TechObsolete>TECH_PLASTICS</TechObsolete>
+			<!-- custom: was TECH_PLASTICS -->
+			<TechObsolete>TECH_COMPOSITES</TechObsolete>
 			<YieldChanges>
 				<iYieldChange>0</iYieldChange>
 				<iYieldChange>0</iYieldChange>

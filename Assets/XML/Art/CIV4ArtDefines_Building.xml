@@ -354,16 +354,6 @@
 			<Button>,Art/Interface/Buttons/Buildings/CoalPlant.dds,Art/Interface/Buttons/Buildings_Atlas.dds,5,15</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_JAPANESE_SHALE_PLANT</Type>
-			<LSystem>LSYSTEM_2x2</LSystem>
-			<bAnimated>0</bAnimated>
-			<fScale>1.7</fScale>
-			<fInterfaceScale>0.47</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Japanese Shale plant/Shale_plant.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/CoalPlant.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,8,2</Button>
-		</BuildingArtInfo>
-		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_HYDRO_PLANT</Type>
 			<LSystem>LSYSTEM_4x2</LSystem>
 			<bAnimated>0</bAnimated>
@@ -715,6 +705,27 @@
 			<Button>,Art/Interface/Buttons/Buildings/PoliceStation.dds,Art/Interface/Buttons/Buildings_Atlas.dds,5,9</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_INDIAN_MAUSOLEUM</Type>
+			<LSystem>LSYSTEM_2x2</LSystem>
+			<bAnimated>0</bAnimated>
+			<fScale>1.65</fScale>
+			<fInterfaceScale>0.67</fInterfaceScale>
+			<NIF>Art/Structures/Buildings/Indian_Mausoleum/Indian_Mausoleum.nif</NIF>
+			<KFM/>
+			<Button>,Art/Interface/Buttons/Buildings/PoliceStation.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,7,2</Button>
+		</BuildingArtInfo>
+		<!-- custom: replace "JAPANESE_SHALE_PLANT" with "JAPAN_DOUJOU" ; art import from ri mod and adjusted or not for advciv-sas anyways etc -->
+		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_JAPAN_DOUJOU</Type>
+			<LSystem>LSYSTEM_2x1</LSystem>
+			<bAnimated>0</bAnimated>
+			<fScale>0.65</fScale>
+			<fInterfaceScale>1.1</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/new_temple.nif</NIF>
+			<KFM/>
+			<Button>Art/AdvCiv_SAS/Buildings/Japan_Doujou/bt_sento.dds</Button>
+		</BuildingArtInfo>
+		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_INTELLIGENCE_AGENCY</Type>
 			<LSystem>LSYSTEM_3x2</LSystem>
 			<bAnimated>1</bAnimated>
@@ -733,16 +744,6 @@
 			<NIF>Art/Structures/Buildings/NSA_Headquarters/NSA_Headquarters.nif</NIF>
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/ScotlandYard.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,4,8</Button>
-		</BuildingArtInfo>
-		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_INDIAN_MAUSOLEUM</Type>
-			<LSystem>LSYSTEM_2x2</LSystem>
-			<bAnimated>0</bAnimated>
-			<fScale>1.65</fScale>
-			<fInterfaceScale>0.67</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Indian_Mausoleum/Indian_Mausoleum.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/PoliceStation.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,7,2</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_LEVEE</Type>

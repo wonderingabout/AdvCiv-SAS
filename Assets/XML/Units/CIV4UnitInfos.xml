@@ -17676,7 +17676,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 180 -->
-			<iCost>200</iCost>
+			<iCost>210</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>

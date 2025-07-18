@@ -276,7 +276,7 @@ class CvTechSplashScreen:
 					screen.attachImageButton(panelName2, "", CyGlobalContext().getBuildingInfo(eLoopBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, eLoopBuilding, 1, False )
 
 		# Improvements
-		szImprovesTitleDesc = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT", ()) + ":" + u"</font>"
+		szImprovesTitleDesc = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_IMPROVEMENTS_CUSTOM", ()) + ":" + u"</font>"
 		szImprovesTitleWidget = "ImprovesTitle"
 		screen.setText(szImprovesTitleWidget, "", szImprovesTitleDesc, CvUtil.FONT_LEFT_JUSTIFY, self.X_ALLOWS_PANEL + self.iMarginSpace, self.Y_ALLOWS_PANEL3 - 20, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
