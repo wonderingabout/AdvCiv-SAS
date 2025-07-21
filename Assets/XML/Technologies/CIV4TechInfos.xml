@@ -6578,7 +6578,7 @@
 				<PrereqTech>TECH_RADIO</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_DEPOPULATION</PrereqTech>
+				<PrereqTech>TECH_GAME_THEORY</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_COMPUTERS_QUOTE</Quote>
 			<Sound>AS2D_TECH_COMPUTERS</Sound>

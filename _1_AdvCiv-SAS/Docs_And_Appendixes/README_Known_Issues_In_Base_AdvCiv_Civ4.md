@@ -665,3 +665,29 @@ In another autoplay after this one (save file not appended here i.e. not in the 
 update: having tried again later this save file 173 turn number 50, the issue is consistently reproductible, and i have increased the hammer cost to higher values like 5 and 20 to see if it was the issue but the issue persists exactly almost the same, just instead of being stuck on always 1 turn until production for many turns, it is now apparent the issue is rather with looping, as say for a 20 hammer worker the countdown reduces fine at each turn at the hammer cost is getting completed, but issue is that often no new unit is produced at end of the cycle when hammer cost is completed, instead it seems like a new loop starts over at 0 hammer.
 
 I have also found issue is not whales or some other water bonus as another east barbarian city in same save file has no problem having upgraded bonuses in these cities, but the difference is this city has a harbor (reworked in xml in advciv-sas, not like the base advciv's harbord, it is now in our mod the first water building anyways etc) unlike the city with the bug i mean anyways etc. But after making the change of now workboats requiring a harbor (see xml for details and reasoning why anyways etc) (and a barbarian_harbor specifically anyways etc for barbarian player's barbarian_workboat if i am not mistaken anyways etc), the issue remains the same, so issue is not that the eastern barbarian city that could improve the water bonsues successfully had a harbor either unlike western barbarian city with the bug. So i do not know exactly what is happening, eastern city is also on a lone island but this doesn't seem to be the cause as it successfully improves its water bonuses unlike western city, but i have noticed eastern city is also stuck producing workboats as well. In the end, i still don't know the cause nor how to fix it, but this helped balance the workboats that may be op in some early starts with a lot of land food plus water food. I have added screenshots of these new results if i may say anyways etc.
+
+## 24 - (Attemptingly fixed) Workers often build forts on ressources/bonuses, even if they already have an existing improvement (very inefficient and not immersive)
+
+This is an issue i had more extensively documented in the known issues about advciv civfanatics thread (see link somewhere in [README.md#me-wonderingabout](/README.md#me-wonderingabout)), that AIs often build forts on top of existing improvements.
+
+This should be very inefficient in most cases as forts, if i am not mistaken but anyways etc... :
+
+- take a long time to build (waste of worker time but anyways etc)
+- yield less than improvements
+- it is unlikely a human or other player would ideally attack units garrisoned there as it is not advantageous to do so but anyways etc
+- it is especially inefficient where/when an improvement is already built that connects the ressource/bonus yet the AI undoes that extremely inefficiently for lower yields and other such disadvantages discussed before or not but anyways etc
+- it is also cheaper / more efficient i think at least if i may say in this case at least but anyways etc anyways etc to let the ennemy destroy/pillage an improvement and rebuild it later than to carry fort very low yields on each improved ressource/bonus all the game
+
+There are some other disadvantages such as:
+
+- not immersive to see the AI play so inefficiently, at least to me, but anyways etc
+
+However it could potentially be useful in some cases:
+
+- allow naval units to pass/cross this land tile even if a ressource is on it
+- prebuild the connection to a ressource/bonus, but generally the improvement would be available at same time if not before the ressource/bonus becomes visible, unless talking a blind preconnection attempt but way too inefficient
+- possibly some other +/- more minor advantages but anyways etc
+
+Overall i feel/think it would be better for the AI to not bother with forts at all, so i tried/am trying to add more restrictions or and cases where the AI would simply, to simplify if i may say but anyways etc the logic, skip entirely forts, which should in most cases help the AI.
+
+So although i don't know too much how to do this, but can manage a bit maybe but anyways etc, i made such changes in the DLL with chatgpt's help, as of now untested (see quick start guide for updated status if any there or and cpp files but ideally quick start guide if there as well) but anyways etc

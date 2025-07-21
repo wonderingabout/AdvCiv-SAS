@@ -1367,6 +1367,11 @@ ImprovementTypes AIFoundValue::getBonusImprovement(BonusTypes eBonus, CvPlot con
 		if (eImprovement == NO_IMPROVEMENT)
 			continue;
 		CvImprovementInfo const& kImprovement = GC.getInfo(eImprovement);
+		// <!-- custom: trying to make extra extra sure we don't build forts as they are very inefficient (long time to build, yield less than improvements, and unlikely a human or other player would ideally attack units garrisoned there), they could have some uses (maybe prebuilding connection, allowing naval units to pass/cross land, etc maybe too but anyways etc), but more often than not they should not benefit the AI, and currently the AI often spends a lot of time undoing existing improvements in base advciv as i have noticed many times. I don't know too much how to fix this, but with chatgpt's help i am adding a few bits of code that try to prevent that, here is one of them, hopefully helpful, see quick start guide or some similar or related or other docs in our mod for update status rather than here anyways etc, hopefully helpful or not or yes or other or etc but anyways etc anyways etc anyways etc -->
+		if (kImprovement.isActsAsCity()) // Usually means Fort
+		{
+			continue;
+		}
 		TechTypes const eBuildPrereq = kLoopBuild.getTechPrereq();
 		if (!kImprovement.isImprovementBonusMakesValid(eBonus) ||
 			!kImprovement.isImprovementBonusTrade(eBonus) ||

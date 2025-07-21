@@ -1835,7 +1835,9 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	//if (GC.getGame().getSorenRandNum(5, "AI Worker build Fort with Priority"))
 	/*	advc.001: The above tests !=0. Why should a Fort be given priority
 		80% of the time? */
-	if (SyncRandSuccess100(20))
+	// <!-- custom: trying to make extra extra sure we don't build forts as they are very inefficient (long time to build, yield less than improvements, and unlikely a human or other player would ideally attack units garrisoned there), they could have some uses (maybe prebuilding connection, allowing naval units to pass/cross land, etc maybe too but anyways etc), but more often than not they should not benefit the AI, and currently the AI often spends a lot of time undoing existing improvements in base advciv as i have noticed many times. I don't know too much how to fix this, but with chatgpt's help i am adding a few bits of code that try to prevent that, here is one of them, hopefully helpful, see quick start guide or some similar or related or other docs in our mod for update status rather than here anyways etc, hopefully helpful or not or yes or other or etc but anyways etc anyways etc anyways etc ; here reduce if i am not mistaken and from asking chatgpt if we could do so but anyways etc the chanc to consider forts from 20% to 10% if i am not mistaken and if i understand (tood? But anyways etc...) correctly chatgpt's explanation too, maybe this helps as well reduce fort occurence but anyways etc -->
+	//if (SyncRandSuccess100(20))
+	if (SyncRandSuccess100(10)) // Only 10% chance to even try Fort logic
 	{
 		//bool bCanal = ((100 * getArea().getNumCities()) / std::max(1, GC.getGame().getNumCities()) < 85);
 		/*	K-Mod. The current AI for canals doesn't work anyway;
@@ -21522,32 +21524,34 @@ int CvUnitAI::AI_connectBonusCost(CvPlot const& p, BuildTypes eBuild, int iMissi
 
 	// Ad-hoc heuristic for Fort building:  (overlaps with AI_getPlotDefendersNeeded; fixme?)
 	ImprovementTypes const eImpr = GC.getInfo(eBuild).getImprovement();
-	CvImprovementInfo const& kImpr = GC.getInfo(eImpr);
-	int iDefenseValue = kImpr.getDefenseModifier();
-	// The AI isn't going to station units on an island without cities
-	if(p.getArea().getCitiesPerPlayer(getOwner()) <= 0 ||  /* <advc.035> */
-		GET_PLAYER(getOwner()).AI_isPlotContestedByRival(p))
-	{
-		iDefenseValue = 0;
-	} // </advc.035>
+	// <!-- custom: trying to make extra extra sure we don't build forts as they are very inefficient (long time to build, yield less than improvements, and unlikely a human or other player would ideally attack units garrisoned there), they could have some uses (maybe prebuilding connection, allowing naval units to pass/cross land, etc maybe too but anyways etc), but more often than not they should not benefit the AI, and currently the AI often spends a lot of time undoing existing improvements in base advciv as i have noticed many times. I don't know too much how to fix this, but with chatgpt's help i am adding a few bits of code that try to prevent that, here is one of them, hopefully helpful, see quick start guide or some similar or related or other docs in our mod for update status rather than here anyways etc, hopefully helpful or not or yes or other or etc but anyways etc anyways etc anyways etc -->
+	// CvImprovementInfo const& kImpr = GC.getInfo(eImpr);
+	// int iDefenseValue = kImpr.getDefenseModifier();
+	// // The AI isn't going to station units on an island without cities
+	// if(p.getArea().getCitiesPerPlayer(getOwner()) <= 0 ||  /* <advc.035> */
+	// 	GET_PLAYER(getOwner()).AI_isPlotContestedByRival(p))
+	// {
+	// 	iDefenseValue = 0;
+	// } // </advc.035>
+	// <!-- custom: No!!! De!!! prioritize fucking forts xd, similar to other places, these are just so inefficient to build for minimal gains, only build if absolutely necessary, should statistically benefit the AI more and make it be more efficient and not ruin its yields or worker time if i am not mistaken too but anyways etc, so commenting out most of this function's code, returing iCost instead of r, quite similarly than done as in other places, and as explained as well in the other code comment(s) in this function anyways etc -->
 	/*  Prioritize Forts on tiles with high natural defense and on important
 		resources that may later be guarded. */
-	if(iDefenseValue > 0)
-	{
-		iDefenseValue += p.defenseModifier(getTeam(), true);
-		BonusTypes eBonus = p.getBonusType(getTeam());
-		if(eBonus == NO_BONUS)
-		{
-			FAssert(eBonus != NO_BONUS);
-			return -1;
-		}
-		/*  bonusVal is usually just a single digit; small double digit if it's
-			an important strategic resource. */
-		iDefenseValue += GET_PLAYER(getOwner()).AI_bonusVal(eBonus, 0);
-		/*  (Not much of a point in checking p.isAdjacentToPlayer for all rivals.
-			This function is only called for unworkable tiles, which are usually
-			near a border.) */
-	}
+	// if(iDefenseValue > 0)
+	// {
+	// 	iDefenseValue += p.defenseModifier(getTeam(), true);
+	// 	BonusTypes eBonus = p.getBonusType(getTeam());
+	// 	if(eBonus == NO_BONUS)
+	// 	{
+	// 		FAssert(eBonus != NO_BONUS);
+	// 		return -1;
+	// 	}
+	// 	/*  bonusVal is usually just a single digit; small double digit if it's
+	// 		an important strategic resource. */
+	// 	iDefenseValue += GET_PLAYER(getOwner()).AI_bonusVal(eBonus, 0);
+	// 	/*  (Not much of a point in checking p.isAdjacentToPlayer for all rivals.
+	// 		This function is only called for unworkable tiles, which are usually
+	// 		near a border.) */
+	// }
 	int iCost = GC.getInfo(eBuild).getTime();
 	// No cost for leaving an existing improvement alone
 	if(eImpr == p.getImprovementType())
@@ -21557,24 +21561,25 @@ int CvUnitAI::AI_connectBonusCost(CvPlot const& p, BuildTypes eBuild, int iMissi
 	// Halve the cost when there's nothing to do
 	if(iMissingWorkersInArea == 0)
 		iMultiplier = 1;
-	// Account for having to replace a Fort later
-	if(kImpr.isActsAsCity() && GET_PLAYER(getOwner()).AI_isAdjacentCitySite(p, true))
-		iMultiplier++;
-	iCost *= iMultiplier;
-	iCost /= 2;
-	int const iDefenseWeight = 20;
-	int r = iCost - iDefenseWeight * iDefenseValue;
-	if(kImpr.isActsAsCity() && (p.isConnectSea() ||
-		/*  If no cities in area, only a Fort will connect the bonus.
-			(Unless workable, see advc.124, but p isn't workable.) */
-		GET_TEAM(getTeam()).countNumCitiesByArea(p.getArea()) <= 0))
-	{
-		/*  That means, eBuild is a very good build. But note that the build time
-			component of iCost is on a times-100 scale, so -1000 doesn't guarantee
-			that a Fort is built. */
-		r -= 1000;
-	}
-	return r;
+	// // Account for having to replace a Fort later
+	// if(kImpr.isActsAsCity() && GET_PLAYER(getOwner()).AI_isAdjacentCitySite(p, true))
+	// 	iMultiplier++;
+	// iCost *= iMultiplier;
+	// iCost /= 2;
+	// int const iDefenseWeight = 20;
+	// int r = iCost - iDefenseWeight * iDefenseValue;
+	// if(kImpr.isActsAsCity() && (p.isConnectSea() ||
+	// 	/*  If no cities in area, only a Fort will connect the bonus.
+	// 		(Unless workable, see advc.124, but p isn't workable.) */
+	// 	GET_TEAM(getTeam()).countNumCitiesByArea(p.getArea()) <= 0))
+	// {
+	// 	/*  That means, eBuild is a very good build. But note that the build time
+	// 		component of iCost is on a times-100 scale, so -1000 doesn't guarantee
+	// 		that a Fort is built. */
+	// 	r -= 1000;
+	// }
+	// return r;
+	return iCost;
 	// XXX feature production???
 	/*  As for the Firaxis comment above:
 		Feature production is handled elsewhere (see advc.117). That said, once
