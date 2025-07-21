@@ -22,7 +22,7 @@ note 3: See [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead
 
 (Unit Combat Types expanded page when you click on a combat type), thanks a lot to RFC DOC mod's code which i used quite heavily, then base AdvCiv which i used to enhance it (blue background, margin), then i rewrote it heavily again to tweak it and add dynamic table size based on unit combat type (for example air units have 10 columns (air interception and air range)), while other unit combat types only have 8
 
-<img src="../Images_In_General/sevopedia_reworks/0.63_sevopedia_unit_chart_sample.JPG" alt="0.63_sevopedia_unit_chart_sample.JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample.JPG" alt="0.630_sevopedia_units_chart_sample.JPG" width="250"></img>
 
 ## example 3: features category
 
@@ -37,13 +37,22 @@ Note: ice feature (named "ice cap" feature as of now in advciv-sas anyways etc) 
 <img src="../Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG" alt="0.640_sevopedia_features_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG" alt="0.640_sevopedia_features_sample (2).JPG" width="250"></img>
 
-## example 4: ressources/bonus category
+## example 3.5: improvements category
 
-mostly my own modding and first attemps at deciphering civ4's python, not inordinate if i may say quite fairly, but i like it this end result a lot, may further improve or not, the feedback always helps me, but sometimes the negative ones hurts me more, however sometimes the negative ones lead to better future outcomes, so i am thankful of it when it is done in sincerity and consideration maybe, something like this, even though maybe unpleasant at first, but this is not always, sometimes it's just painful and best avoided i think at least for me anyways, some other times it's painful but leads to better/good results in the future maybe, not guaranteed and just my personal opinion not responsible of what you reader make of it with you or/and others or not make of it, was sharing my advice or rather opinion maybe, each are free or not etc, anyways. As for this page or/and other pages or/and not, may tweak it further or not as i see fit, anyways
+One of the oldest sevopedia reworks, i added it in this readme much later so i hope or i think or maybe it fits quite well or maybe well here but anyways etc.
 
-after having written this first paragraph above in this same example 4, a more extensive rewrite/refactor was done based on [example-7-unit-list-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-7-unit-list-category) and [example-8-building-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-8-building-category), (and) also with the help of Claude AI (see [Authors for details (Claude AI's section) in the main readme.me](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details) (anyways etc), in particular changes include that we now have also added a placeObsoleteWith function now that tells us when a bonus/ressource is obsolete (i.e. at which tech anyways etc) anyways etc anyways etc anyways etc.
+The core changes is on the panel header naming i mean but anyways etc, to help clarify the maning of the modifiers displayed, as well as make text slightly more readable in terms of text size in some panels if i may say and remember it correctly (i could check but i think is how it was but anyways etc). Not much or too big in this case but anyways etc changes otherwise but anyways etc except some beautification and/or such but anyways etc, hopefully helpful still maybe but anyways etc anyways etc anyways etc, example of output below, anyways etc:
 
-<img src="../Images_In_General/sevopedia_reworks/0.650_sevopedia_bonus_sample (1).JPG" alt="0.650_sevopedia_bonus_sample (1).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample.JPG" alt="0.720_sevopedia_improvements_sample.JPG" width="250"></img>
+
+## example 4: ressources/bonuses category
+
+Mostly my own modding and first attemps at deciphering civ4's python, not inordinate if i may say quite fairly, but i like it this end result a lot, may further improve or not, the feedback always helps me, but sometimes the negative ones hurts me more, however sometimes the negative ones lead to better future outcomes, so i am thankful of it when it is done in sincerity and consideration maybe, something like this, even though maybe unpleasant at first, but this is not always, sometimes it's just painful and best avoided i think at least for me anyways, some other times it's painful but leads to better/good results in the future maybe, not guaranteed and just my personal opinion not responsible of what you reader make of it with you or/and others or not make of it, was sharing my advice or rather opinion maybe, each are free or not etc, anyways. As for this page or/and other pages or/and not, may tweak it further or not as i see fit, anyways
+
+after having written this first paragraph above in this same example 4, a more extensive rewrite/refactor was done based on [example-7-unit-list-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-7-unit-list-category) and [example-8-building-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-8-building-category), (and) also with the help of Claude AI (see [Authors for details (Claude AI's section) in the main readme.me](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details) (anyways etc), in particular changes include that we now have also added a placeObsoleteWith function now that tells us when a bonus/ressource is obsolete (i.e. at which tech anyways etc) anyways etc anyways etc anyways etc. Also, changes include as well showing horizontally improvements rather than vertically while still keeping the auto-cetering of the spacing between improvements ; although code is maybe a bit shaky and not too optimal or not or yes or other but anyways etc, it does seem to work-function well for a small number of improvements (didn't test for more how it would display) so i wanted to show it here as well as part of the changes but anyways etc.
+
+<img src="../Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG" alt="0.650_sevopedia_bonuses_sample (1).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG" alt="0.650_sevopedia_bonuses_sample (2).JPG" width="250"></img>
 
 ## example 5: religion category
 
@@ -51,7 +60,7 @@ new Leaders (based on History Rewritten's code) and Buildings (based originally/
 
 (Also note that all leaders now have in AdvCiv-SAS an updated pedia entry based on real wikipedia content, hopefully clearer, more exhaustive, neutral enough, and accurate and updated maybe too, may or not be less politically correct but i don't care, in fact i encourage it and like it, as long as tone is kind and helpful or not necessarily and not respectful either but kind or something, not to impose this as a dictature of myself even though could but would not be very kind, or maybe is in my own way or maybe not or yes etc but anyways... anyways etc anyways etc...)
 
-<img src="../Images_In_General/sevopedia_reworks/0.660_sevopedia_religion_sample (1).JPG" alt="0.660_sevopedia_religion_sample (1).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.660_sevopedia_religions_sample (1).JPG" alt="0.660_sevopedia_religions_sample (1).JPG" width="250"></img>
 
 looks quite very great hehe (at least i think so) anyways etc...
 
@@ -59,7 +68,9 @@ looks quite very great hehe (at least i think so) anyways etc...
 
 new Cities (based on Middle-earth mod's (very amazing!!!!!! (Not that others are not or maybe bit less or maybe not ((,) i.e) in other others ways or not or/and other or not anyways etc) But anyways etc) Platypedia's code) panel anyways etc ; then reordered the existing panels too for a nice display at least i think (but) anyways etc and enjoy hehe if you want (i mean anyways...) but anyways etc:
 
-<img src="../Images_In_General/sevopedia_reworks/0.670_sevopedia_civilization_sample (1).JPG" alt="0.670_sevopedia_civilization_sample (1).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (1).JPG" alt="0.670_sevopedia_civilizations_sample (1).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (2).JPG" alt="0.670_sevopedia_civilizations_sample (2).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (3).JPG" alt="0.670_sevopedia_civilizations_sample (3).JPG" width="250"></img>
 
 ## example 7: unit list category
 
@@ -69,7 +80,10 @@ Finally and most importantly, as something similar as said in the paragraph just
 
 After having written these, combat information was added (which units is this unit strong against or weak against, in which plot types, city or not, terrains, features, etc if any more/other or not etc if not but or anyways etc anyways etc anyways etc..., placeFreePromotions, etc) largely with the help of Claude AI (see [Authors for details (Claude AI's section) in the main readme.me](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details), as well as other changes or not or yes or and other or and not anyways etc, see readme or code comments or code itself for details hopefully exhaustive and clear easy enough to read maybe ideally but in all caes or not or yes or and other or and not anyways etc.
 
-<img src="../Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG" alt="0.680_sevopedia_unit_sample.JPG" width="250"></img>
+Also fixed and now added anyways etc missing iCollateralDamage info as well in the collateral damage text in the DLL if i am not mistaken anyways etc, for example `<iCollateralDamage>25</iCollateralDamage>` for the chinese crossbowman or `<iCollateralDamage>100</iCollateralDamage>` for the catapult is now displayed as well as of now as for example anyways etc `Collateral Damage (base 25%, max 200%) to 5 Defenders` for the chinese crossbowman or `Collateral Damage (base 100%, max 200%) to 6 Defenders` for the catapult; added thanks to chatgpt's help as well anyways etc and me guessing or adjusting it as well but anyways etc
+
+<img src="../Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG" alt="0.680_sevopedia_units_sample (1).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG" alt="0.680_sevopedia_units_sample (2).JPG" width="250"></img>
 
 ## example 8: building category
 
@@ -77,9 +91,9 @@ Based on the sevopedia unit previous rework, and also with the help of Claude AI
 
 Also added later iConquestProb display in placeSpecial, idea i got from watching ingame the sevopedia of ri mod (didn't watch that part of code as tedious anyways etc) with chatgpt +/- claude ai i forgot who xd maybe both but anyways etc.
 
-<img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (1).JPG" alt="0.690_sevopedia_building_sample (1).JPG" width="250"></img>
-<img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (2).JPG" alt="0.690_sevopedia_building_sample (2).JPG" width="250"></img>
-<img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (3).JPG" alt="0.690_sevopedia_building_sample (3).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (1).JPG" alt="0.690_sevopedia_buildings_sample (1).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (2).JPG" alt="0.690_sevopedia_buildings_sample (2).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (3).JPG" alt="0.690_sevopedia_buildings_sample (3).JPG" width="250"></img>
 
 ## example 9: terrains category
 
@@ -98,3 +112,13 @@ The output/result is as below for example.
 <img src="../Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG" alt="0.700_sevopedia_terrains_sample (3).JPG" width="250"></img>
 
 See also the [features category rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category)
+
+## example 10: techs category
+
+This is a more recent beautify that adds era information (currently does nothing in advciv-sas if i am not mistaken anyways etc, may always stay so or not, see quick start guide for info there if any anyways etc) and such other beautifications, imported from rfc doc mod and modified/beuatified/adjusted further or not for advciv-sas anyways etc.
+
+Before that, i had also added a list of untradeable techs following the anti tech whoreism changes in advciv-sas (see the [README_Quick_Get_Started_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details) for details as well anyways etc)
+
+Note: the untradeable techs list as string/text is very efficiently precomputed only once at first tech list load and only if sevopedia tech is accessed (which is as of now always when sevoepdia is first opened as "Techs" is the first category as of now so opened by default) thanks to gemini ai's help and my prompt too and adjustments or not but anyways etc too but anyways etc ; see similar precomputing logic or/and its explanation at sevoepdia reworks's sevopedia leader readme section in [README_Sevopedia_Reworks.md#example-1-more-ai-personality-examples-in-leaders-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-1-more-ai-personality-examples-in-leaders-category) for details anyways etc
+
+<img src="../Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample.JPG" alt="0.710_sevopedia_techs_sample.JPG" width="250"></img>

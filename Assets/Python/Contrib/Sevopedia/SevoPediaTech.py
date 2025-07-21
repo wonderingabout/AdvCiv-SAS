@@ -25,6 +25,27 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
+
+
+# <!-- custom: similarly to how cache precomputing is handled in sevopedia leader, prebuild only once as a function at relevant time if i may say but anyways etc the list as string of untradeable techs anyways etc ; note also anyways etc: code provided by deepseek ai thanks to my prompt and that i adjusted or not for advciv-sas to tweak (my) (but anyways etc...) previous existing code provided by another ai thanks to my prompt too and that i adjusted or not too xd if i may say but anyways etc -->
+def getPrecomputedUntradeableTechsText():
+	untradeableTechs = []
+	for iTech in xrange(gc.getNumTechInfos()):
+		if not gc.getTechInfo(iTech).isTrade():
+			techDesc = gc.getTechInfo(iTech).getDescription()
+			untradeableTechs.append(techDesc)
+
+	untradeableTechs.sort()
+
+	untradeableTechsText = ""
+	bullet = localText.getText("[ICON_BULLET]", ())
+	for tech in untradeableTechs:
+		untradeableTechsText += u"\n%s%s" % (bullet, tech)
+
+	return untradeableTechsText
+
+
+
 class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 	def __init__(self, main):
@@ -33,7 +54,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 		self.X_TECH_PANE = self.top.X_PEDIA_PAGE
 		self.Y_TECH_PANE = self.top.Y_PEDIA_PAGE
-		self.W_TECH_PANE = 300
+		self.W_TECH_PANE = 340
 		self.H_TECH_PANE = 116
 
 		self.W_ICON = 100
@@ -93,17 +114,8 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 	def interfaceScreen(self, iTech):
 		self.iTech = iTech
-		screen = self.top.getScreen()
 
-		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_TECH_PANE, self.Y_TECH_PANE, self.W_TECH_PANE, self.H_TECH_PANE, PanelStyles.PANEL_STYLE_BLUE50)
-		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
-		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getTechInfo(self.iTech).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		if (self.top.iActivePlayer == -1):
-			szCostText = localText.getText("TXT_KEY_PEDIA_COST", (gc.getTechInfo(iTech).getResearchCost(),)) + u"%c" % (gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar())
-		else:
-			szCostText = localText.getText("TXT_KEY_PEDIA_COST", (gc.getTeam(gc.getGame().getActiveTeam()).getResearchCost(iTech),)) + u"%c" % (gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar())
-		screen.setLabel(self.top.getNextWidgetName(), "Background", u"<font=4>" + szCostText.upper() + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_COST + 25, self.Y_COST, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-
+		self.placeTechPane()
 		self.placeCivilizations()
 		self.placePrereqs()
 		self.placeLeadsTo()
@@ -111,6 +123,35 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		self.placeBuildings()
 		self.placeSpecial()
 		self.placeBackground()
+
+
+
+	# <!-- custom: split this more cleanly as a separate method from interfaceScreen if i am not mistaken in assessing so if i may say and also as in other parts of our code as well if i may say but anyways etc ; also Era display code bit/part in this case but anyways etc imported from rfc doc mod and adjusted or not for advciv-sas but anyways etc -->
+	def placeTechPane(self):
+		screen = self.top.getScreen()
+		techInfo = gc.getTechInfo(self.iTech)
+
+		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_TECH_PANE, self.Y_TECH_PANE, self.W_TECH_PANE, self.H_TECH_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+		# <!-- custom: was PanelStyles.PANEL_STYLE_MAIN -->
+		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
+		screen.addDDSGFC(self.top.getNextWidgetName(), techInfo.getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+		#screen.setLabel(self.top.getNextWidgetName(), "Background", szText, CvUtil.FONT_LEFT_JUSTIFY, self.X_COST + 25, self.Y_COST, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+		listBoxName = self.top.getNextWidgetName()
+		szEra = gc.getEraInfo(techInfo.getEra()).getDescription() + " Era"
+
+		techCost = techInfo.getResearchCost()
+		if (self.top.iActivePlayer != -1):
+			techCost = gc.getTeam(gc.getGame().getActiveTeam()).getResearchCost(self.iTech)
+		szCostText = u"%c %s" % (gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar(), localText.getText("TXT_KEY_PEDIA_COST_CUSTOM", (techCost,)))
+
+		screen.addListBoxGFC(listBoxName, "", self.X_TECH_PANE + 92, self.Y_TECH_PANE + 14, self.W_TECH_PANE, self.H_TECH_PANE, TableStyles.TABLE_STYLE_EMPTY)
+		screen.enableSelect(listBoxName, False)
+		# <!-- custom: extra space (" ") in some of these listboxstrings but anyways etc to better align with the research icon char starting more on the right anyways etc, depending on where the space is put, the text is so much better left-aligned between rows i think/feel/see or so it seems to me if i mmay say but anyways etc... -->
+		screen.appendListBoxString(listBoxName, u" <font=4b>" + techInfo.getDescription() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.appendListBoxString(listBoxName, u"<font=3> " + szEra + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.appendListBoxString(listBoxName, u"<font=4>" + szCostText + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -243,14 +284,9 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 		szSpecialText = CyGameTextMgr().getTechHelp(self.iTech, True, False, False, False, -1)[1:]
 
-		# <!-- custom: add the list of all untradeable techs if any are untradeable anyways etc -->
-		untradeableTechsText = ""
-		for iTech in xrange(gc.getNumTechInfos()):
-			if not gc.getTechInfo(iTech).isTrade():
-				untradeableTechsText += u"\n%s%s" % (localText.getText("[ICON_BULLET]", ()), gc.getTechInfo(iTech).getDescription())
-
-		if untradeableTechsText:
-			szSpecialText += u"\n\n%s%s" % (localText.getText("TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER", ()), untradeableTechsText)
+		# <!-- custom: add the list as string of all untradeable techs if any are untradeable anyways etc ; see also sevopedia main precomputing / cache building for untradeable techs text for details anyways etc -->
+		if UNTRADEABLE_TECHS_TEXT:
+			szSpecialText += u"\n\n%s%s" % (localText.getText("TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER", ()), UNTRADEABLE_TECHS_TEXT)
 
 		# <!-- custom: seems to overfill a bit actually quite a bit xd after rechecking but anyways etc, reduce height, was self.H_SPECIAL_PANE-10 -->
 		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL_PANE + 5, self.Y_SPECIAL_PANE + 30, self.W_SPECIAL_PANE - 35, self.H_SPECIAL_PANE - 35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)

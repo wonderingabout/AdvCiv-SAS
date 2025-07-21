@@ -148,8 +148,9 @@
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Granary.dds,Art/Interface/Buttons/Buildings_Atlas.dds,1,3</Button>
 		</BuildingArtInfo>
+		<!-- custom: replace incan "_TERRACE" to "_QULLQA" anyways -->
 		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_INCAN_TERRACE</Type>
+			<Type>ART_DEF_BUILDING_INCAN_QULLQA</Type>
 			<LSystem>LSYSTEM_3x3</LSystem>
 			<bAnimated>0</bAnimated>
 			<fScale>1.2</fScale>

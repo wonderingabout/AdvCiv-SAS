@@ -238,6 +238,27 @@
 
 
 
+	<!-- custom: rename "American Empire" and such to "United States of America" and such (too long to fit empire and may be awkward semantically to have a united states empire although actually thinking of it it may fit quite well actually if i may say but anyways etc...) -->
+	<TEXT>
+		<Tag>TXT_KEY_CIV_AMERICA_DESC</Tag>
+		<English>
+			<Text>United States of America</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CIV_AMERICA_SHORT_DESC</Tag>
+		<English>The USA</English>
+	</TEXT>
+	<!-- custom: i want to translate it to something other than "americans", as i want to embody only the usa, not the whole continent, as i think "americans" xd have a bit too inflated ego there, so chatgpt found me thanks a lot this very nice alternative if i may say after asking it this almost precise and exact prompt minus "it" being another word in another language but anyways etc, i like this result, quite easy to pronounce and accurate, additionally chatgpt said about it "Used in some academic, activist, or bilingual texts. Clunky but precise. Common in Latin America." so i quite really like it if i may say but anyways etc anyways etc anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_CIV_AMERICA_ADJECTIVE</Tag>
+		<English>USAmerican</English>
+	</TEXT>
+
+
+
 	<!-- custom: rename _HORSEBACK_RIDING to _MOUNTED_COMBAT, this asset is a part that is extracted from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameTextInfos.xml -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_MOUNTED_COMBAT_QUOTE</Tag>
@@ -269,7 +290,7 @@
 		<English>"You can't direct the wind, but you can adjust your sails." - Unknown</English>
 	</TEXT>
 	<!-- custom: rename TECH_COMPASS to TECH_NAVIGATION anyways etc -->
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_TECH_NAVIGATION_QUOTE</Tag>
 		<English>"The wisest men follow their own direction." - ascribed to Euripides</English>
 	</TEXT>
@@ -279,19 +300,59 @@
 		<English>"Words have the power to both destroy and heal. When words are both true and kind, they can change our world." - ascribed to the Buddha</English>
 	</TEXT>
 	<!-- custom: rename TECH_STEEL to TECH_MARINE_TECHNOLOGY anyways etc -->
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_TECH_MARINE_TECHNOLOGY_QUOTE</Tag>
 		<English>"Before that steam drill shall beat me down, I'll die with my hammer in my hand." - from "John Henry, the Steel-Driving Man"</English>
 	</TEXT>
 	<!-- custom: replace TECH_PAPER with TECH_THEORY_OF_EVOLUTION, also use the base advciv +/- civ4's TECH_FIBER_OPTICS's quote and audio if i am not mistaken anyways etc -->
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_TECH_THEORY_OF_EVOLUTION_QUOTE</Tag>
 		<English>"There is a single light of science, and to brighten it anywhere is to brighten it everywhere." - Isaac Asimov</English>
 	</TEXT>
 	<!-- custom: replace _REPLACE_PARTS and _REPLACEABLE_PARTS with _GAME_THEORY, also use the base advciv +/- civ4's TECH_RAILROAD's quote and audio if i am not mistaken anyways etc -->
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_TECH_GAME_THEORY_QUOTE</Tag>
 		<English>"I fooled you, I fooled you, I got pig iron, I got pig iron, I got all pig iron." - Lonnie Donegan, "Rock Island Line"</English>
+	</TEXT>
+	<!-- custom: replace laser in "TECH_LASER" and "MP_LASER" with "_TERRAFORMING" and such anyways etc, also use the base advciv +/- civ4's TECH_LASER's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_TERRAFORMING_QUOTE</Tag>
+		<English>"Nothing travels faster than the speed of light with the possible exception of bad news, which obeys its own special laws." - Douglas Adams</English>
+	</TEXT>
+	<!-- custom: replace future_tech in "TECH_FUTURE" and "MP_FUTURE" with "_TRANSHUMANISM" and such anyways etc, also use the base advciv +/- civ4's future_tech's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_TRANSHUMANISM_QUOTE</Tag>
+		<English>"The future will be better tomorrow." - Dan Quayle</English>
+	</TEXT>
+	<!-- custom: replace railroad in "_RAILROAD" and "MP_RAILROAD" with "_QUANTUM_MECHANICS" and such anyways etc, also use the base advciv +/- civ4's replaceable_parts's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_QUANTUM_MECHANICS_QUOTE</Tag>
+		<English>"The whole is more than the sum of its parts." - Aristotle</English>
+	</TEXT>
+	<!-- custom: replace fiber_optics in "_FIBER_OPTICS" and "MP_FIBER_OPTICS" with "_AI" and such anyways etc, also use the base advciv +/- civ4's paper's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_AI_QUOTE</Tag>
+		<English>"I cannot live without books" - Thomas Jefferson</English>
+	</TEXT>
+	<!-- custom: replace robotics in "_ROBOTICS" and "MP_ROBOTICS" with "_ROBOTIC_RIGHTS" and such anyways etc, also use the base advciv +/- civ4's robotics's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_ROBOTIC_RIGHTS_QUOTE</Tag>
+		<English>"The real problem is not whether machines think, but whether men do." - B.F. Skinner</English>
+	</TEXT>
+	<!-- custom: replace tech_stealth in related but anyways etc "_STEALTH" and "MP_STEALTH" with "_ALIEN_LIFE" and such anyways etc, also use the base advciv +/- civ4's tech_stealth's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_ALIEN_LIFE_QUOTE</Tag>
+		<English>"Behind a veil, unseen yet present, I was the forceful soul that moved this mighty body." - Jean Racine</English>
+	</TEXT>
+	<!-- custom: give tech_economics quote to the now removed tech_plastics, and vice-versa if i may say too in this case at least but anyways etc ; also replace tech_plastics with tech_depopulation anyways etc -->
+	<TEXT> <!-- redefine -->
+		<Tag>TXT_KEY_TECH_DEPOPULATION_QUOTE</Tag>
+		<English>"Compound interest is the most powerful force in the universe." - ascribed to Albert Einstein</English>
+	</TEXT>
+	<!-- custom: give tech_economics quote to the now removed tech_plastics, and vice-versa if i may say too in this case at least but anyways etc -->
+	<TEXT> <!-- redefine -->
+		<Tag>TXT_KEY_TECH_ECONOMICS_QUOTE</Tag>
+		<English>"I just want to say one word to you. Just one word: plastics." - Calder Willingham, The Graduate</English>
 	</TEXT>
 
 

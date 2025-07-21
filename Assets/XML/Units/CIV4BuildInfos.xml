@@ -29,7 +29,7 @@
 			<Type>BUILD_RAILROAD</Type>
 			<Description>TXT_KEY_BUILD_RAILROAD</Description>
 			<Help/>
-			<!-- custom: TECH_RAILROAD is an inefficient tech and most likely will be removed from our tech tree, put at TECH_STEAM_POWER instead so railroads can be relevant sooner in the game too favouring endgame being sooner anyways etc -->
+			<!-- custom: TECH_RAILROAD is an inefficient or/and inaccurate but anyways etc tech and is now removed from our tech tree, put at TECH_STEAM_POWER instead so railroads can be relevant sooner in the game too favouring endgame being sooner anyways etc -->
 			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			<iTime>300</iTime>
 			<iCost>0</iCost>
@@ -527,7 +527,7 @@
 			<Type>BUILD_OFFSHORE_PLATFORM</Type>
 			<Description>TXT_KEY_BUILD_OFFSHORE_PLATFORM</Description>
 			<Help/>
-			<!-- custom: was TECH_PLASTICS -->
+			<!-- custom: was the now removed anyways etc TECH_PLASTICS -->
 			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
 			<iTime>0</iTime>
 			<iCost>0</iCost>

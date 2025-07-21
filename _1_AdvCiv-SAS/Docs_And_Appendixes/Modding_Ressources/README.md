@@ -515,6 +515,86 @@ Like this for example if it helps too, anyways etc... (not sayin this is a stand
 
 note3: in some cases it's even harder than that as the nif expects some assets not in the other mod where you're importing it from's folder anyways etc, so with nifskope (see screenshots in drive link in this section of the readme anyways etc), for example for the usa_patriot of/in advciv-sas anyways etc, open the trees and such until you find one or many of the assets the nif requires, in this case it was just brownbesstexture.dds, that was not in ri mod's li_fus_early_america if i am not mistaken anyways etc where the remaining and what i expected to be all but anyways etc unit's art were. So to solve this, i did a search with dragon unpacker in the .fpk of civilization america where i took this unit from, and luckily for us anyways etc this brownbesstexture.dds was there, so i extracted, added it, verified path in nif is relative to current folder as was and not in some other folder parent or child anyways etc to ours, and since all was good by adding this .dds as well in Mods\AdvCiv-SAS\Assets\Art\AdvCiv_SAS\Units\USA_Patriot\nif\ then finally the gun was not purple again of missing art but was the real gun same as in ri mod yohoo!! If i may say but anyways etc. Since it was not luckily too hard to solve unlike harder times i had for example with c2c camel units with many missing assets or and with a path outside of the unit's folder if i remember correctly, i thought it was a good time to add this example to the tutorial since easier and such and i could solve it, while also remembering chatgpt/becomingthrough's instructions at the time for c2c even though i didn't succeed at it at the time now solved with the usa patriot that has a nice brown gun in the game (or white in nifskope as in empty if i am not mistaken in this case but anyways etc) i mean but anyways etc anyways etc anyways etc... hopefully helpful, see drive screenshots as well for examples of how i solved it in main steps hopefully helpful anyways etc
 
+## (Old/Deprecated) Example of how to add a static image file (such as .PNG, .JPG, etc) as a leader portrait
+
+Old information from my notes, now we use leader portraits (nif) with an animation, but an earlier version used static images if i may say and am not mistaken in saying so but anyways etc. But these instructions may be helpful to me or others maybe so adding them for reference anyways etc.
+
+Note: if you want to add leaders or other kinds of button art assets or such, below instructions aim to help at that even though they may not be 100% accurate or best practive, but may be maybe or not anyways etc ; however it should also be noted if i may say i mean anyways that it may be easier to rather import existing art assets from many mods, but if you want to import your own manual art asset, perhaps as static images .dds files, this is how i do it, not guaranteed is best way to do it, may or may not be, but it worked and hopefully helpful enough if you want to do so, otherwise i would recommend in general or all cases to maybe import directy already refined art assets from other mods, but as you prefer and wish and is below as i did too if i may say but anyways etc anyways etc anyways etc and as you are free to do or wis to do or not anyways etc...
+
+Leader dimensions obtained using Paint.NET manual selection (approximately but should be quite precise but not guaranteed may or not anyways) on a 4K screen windowed mode.
+
+First, AdvCiv (+/- / AdvCiv-SAS at least for now) base art dimensions:
+
+- in sevopedia (before my fix): 421 x 488 	(ratio: 0,8627)    ;    (reverse-ratio: 1,1591)
+- ingame diplomacy: 709 x 866 				(ratio: 0,8187)    ;    (reverse-ratio: 1,1214)
+
+Secondly, Realism invictus, used as reference:
+
+- in sevopedia: 510 x 620     (ratio: 0,8226)    ;    (reverse-ratio: 1,2157)
+- ingame diplomacy: 708 x 866 (ratio: 0,8175)    ;    (reverse-ratio: 1,2231)
+
+Thirdly, example of use (not guaranteed to be accurate, may or not be, may help or not, i hope though so but not guaranteed, may or not, anyways, ):
+
+Kingdom of Benin:
+
+- image: 900 x 610 (.PNG)
+- it is landscape, so convert=crop here to portrait, reduce to 610 x 610 then think (is closer to portrait), using Paint.NET, image: 610 x 610
+
+- convert to civ4 ratio: converted image = 610 x ? (no need to reduce, 610 < 866 of AdvCiv diplomacy, even if wasn't, is maybe not necessary for higher quality? But since we don't have this problem here, just continue)
+
+- reduce to civ4 dimension (maintain ratio):
+
+? / 610 = 709 / 866
+
+=>
+
+? = 709 / 866 * 610
+
+=>
+
+? = 499,41
+
+=>
+
+? = 499
+
+=>
+
+image: 499 x 610
+
+- crop to this selection size (of 499 x 610) in this example, using Paint.NET for this image (note: this respects image ratio as in advciv diplomacy ingame)
+
+- after it is cropped to 499 x 610, now resize image using Paint.NET to ? x 512 (Let Paint.NET autofill values and choose to maintain aspect ratio). In this example Paint.NET did it to 419 x 512
+
+- after it is resized, now resize again but to 512 x 512 (without maintaining aspect ratio), using Paint.NET
+
+(note: I think it is the same technique or similar in Realism Invictus, as their .dds files are enlarged in display, but ingame they seem to have a fine ratio.)
+
+(note 2: it is also Realism Invictus who gave me indirectly the idea to do this non ratio (2nd) resize, now my image as theirs do not maintain aspect ratio)
+
+- finally, save the image as a .dds file using Paint.NET still (for example (anyways etc) anyways etc), (may use for example maybeDXT1 with mip maps (Bicubic) and keep gamma correction enabled, or DXT5 with mip maps (not tried so far todo or not, anyways, ) for example if you need/use transparency (i don't know a lot about this, is according to ChatGPT's info, which seems accurate about this at least, anyways, ) and i don't know if gamma would be needed or best desired here too maybe, refer to ChatGPT or maybe other specialized places/sources if you want a more specific or/and detailed or/and accurate info maybe anyways etc)
+
+- ingame check result, in my case looks very nice or as nice as could i think with starting image, displays well in (ingame) sevopedia leader view and ingame diplomacy
+
+This is just an example, adapt as you see fit
+
+## (Old/Deprecated) Example of how to create a leader head .dds button from a static image file (such as .PNG, .JPG, etc) (ideally from the leader head image portrait if any, if i am not mistaken but if i may say anyways etc anyways etc anyways etc)
+
+Old information from my notes, as we now we use leader portraits (nif) with an animation, and while doing so also imported the corresponding .dds button that the mod where we imported the .nif animation and such from also had (this .dds button i mean but anyways etc), so we don't make leader .dds buttons from our own leader static images anymore as of now at least in advciv-sas but anyways etc, but an earlier version used static images if i may say and am not mistaken in saying so but anyways etc. But these instructions may be helpful to me or others maybe so adding them for reference anyways etc.
+
+Fourthly, then for the leaderhead button (mini icon of the leader in the sevopedia if i am not mistaken), since now the final dimension displayed is no longer a portrait (no 256 x 512 stretched to 512 x 512 if am not mistaken, so we can directly crop select at 64 x 64 for such a button (leader icon anyways etc without any resize (stretching or compression of ratio or anythign that alters ratio this time if i am not mistaken anyways etc )) from the native image if i am not mistaken (for example .png, any size should do fine too so ideally take the original image if you sitll have it, else maybe the .dds (unstretched)) should maybe do fine anyways if i am not mistaken anyways etc)
+
+So for example you can first make a 96 x 96 crop selection around his head with Paint.NET, then fine tune it (i.e. redo a crop selection on this 96 x 96 (for example .png maybe anyways etc image) to 64 x 64 in a similar manner to the area you prefer to appear in the leader's final icon/button), and save it as a different file for example Ogiso_Igodo_button.dds.
+
+Note: if at 64x64 your leader head is too big or maybe too small, you may try instead to make a bigger selection of say for example 96 x 96 or maybe even 128 x 128 (or any number inbetwwen like 105 x 105, 99 x 99, etc should maybe work too? (to try i didn't but if you want to try it anyways etc)) and then resize it to 64x64, this way leader head would be smaller relatively to the 64 x 64 button.
+
+Then regenerate the .dds in a similar manner than for the full portrait, but no restretching from say 256x512 to 512x512 since 64x64 is alreayd square so just pick same format maybe or/and other and should maybe be good (check to be sure myinfo/thought/feel/intutiion about it is accurate or not anwyays etc)
+
+And finally implement it (the .dds anyways etc) in XML, looks very very good, at least for me i think, anyways, may or not do further beautification or not such as rounded edges or other things or not, but more than good enough for my purpose and i do what i want if i want or not anyways, hope this helps or not maybe doesn't, but wanted to send/write this as well, may serve me to reference it later again, or
+someone else or other purpose, anyways,
+
+(note: again check all this to make sure my intution or if no or/and such is accurate or/and updated, hopefully helpful, anyways etc)
+
 ## Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded" flag in sevopedia tech 's placeSpecial and in tech tree view (technology advisor) anyways etc
 
 See screenshots of how this was implemented (not fully exhaustive but hopefully quite a bit exhaustive enough if i may say but anyways etc anyways etc anyways etc) in this [google drive folder](https://drive.google.com/drive/folders/176fGLxIWwOTRYAjafi2OGhe8VuVBZLMT?usp=sharing)
@@ -522,7 +602,7 @@ See screenshots of how this was implemented (not fully exhaustive but hopefully 
 Small sample below /example too but anyways etc:
 
 ![0.50_no_tech_trading_example (1).JPG](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.50_no_tech_trading_example%20(1).JPG)
-![0.50_no_tech_trading_example (2).JPG](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.50_no_tech_trading_example%20(2).JPG)
+![0.710_sevopedia_techs_sample.JPG](/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample.JPG)
 
 This was done by adding a new `buildBTradeString` function if i am not mistaken in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp and (adjust to your mod path too anyways etc anyways etc anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.h
 

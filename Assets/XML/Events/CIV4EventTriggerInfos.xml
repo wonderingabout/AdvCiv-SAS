@@ -190,7 +190,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_RADIO</ObsoleteTech>
 				<ObsoleteTech>TECH_REFRIGERATION</ObsoleteTech>
-				<ObsoleteTech>TECH_PLASTICS</ObsoleteTech>
+				<ObsoleteTech>TECH_DEPOPULATION</ObsoleteTech>
 				<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
 				<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
 				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
@@ -911,7 +911,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_RADIO</ObsoleteTech>
 				<ObsoleteTech>TECH_REFRIGERATION</ObsoleteTech>
-				<ObsoleteTech>TECH_PLASTICS</ObsoleteTech>
+				<ObsoleteTech>TECH_DEPOPULATION</ObsoleteTech>
 				<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
 				<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
 				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
@@ -8321,7 +8321,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_RADIO</ObsoleteTech>
 				<ObsoleteTech>TECH_REFRIGERATION</ObsoleteTech>
-				<ObsoleteTech>TECH_PLASTICS</ObsoleteTech>
+				<ObsoleteTech>TECH_DEPOPULATION</ObsoleteTech>
 				<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
 				<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
 				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
@@ -11927,9 +11927,10 @@
 				<PrereqTech>TECH_ENGINEERING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
+			<!-- custom: changed to another/account for anyways etc tech to accomodate reworked tech tree if i may say anyways etc -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
-				<ObsoleteTech>TECH_RAILROAD</ObsoleteTech>
+				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 				<ObsoleteTech>TECH_ECONOMICS</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
@@ -12017,7 +12018,7 @@
 			<AndPreReqs/>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
-				<ObsoleteTech>TECH_RAILROAD</ObsoleteTech>
+				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 				<ObsoleteTech>TECH_ECONOMICS</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
@@ -12102,7 +12103,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_RADIO</ObsoleteTech>
 				<ObsoleteTech>TECH_REFRIGERATION</ObsoleteTech>
-				<ObsoleteTech>TECH_PLASTICS</ObsoleteTech>
+				<ObsoleteTech>TECH_DEPOPULATION</ObsoleteTech>
 				<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
 				<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
 				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
@@ -12193,7 +12194,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_RADIO</ObsoleteTech>
 				<ObsoleteTech>TECH_REFRIGERATION</ObsoleteTech>
-				<ObsoleteTech>TECH_PLASTICS</ObsoleteTech>
+				<ObsoleteTech>TECH_DEPOPULATION</ObsoleteTech>
 				<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
 				<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
 				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
@@ -12797,7 +12798,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_RADIO</ObsoleteTech>
 				<ObsoleteTech>TECH_REFRIGERATION</ObsoleteTech>
-				<ObsoleteTech>TECH_PLASTICS</ObsoleteTech>
+				<ObsoleteTech>TECH_DEPOPULATION</ObsoleteTech>
 				<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
 				<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
 				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
@@ -14691,7 +14692,7 @@
 			<AndPreReqs/>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
-				<ObsoleteTech>TECH_RAILROAD</ObsoleteTech>
+				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -14778,7 +14779,7 @@
 			<AndPreReqs/>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
-				<ObsoleteTech>TECH_RAILROAD</ObsoleteTech>
+				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -14863,7 +14864,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
 				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
-				<ObsoleteTech>TECH_RAILROAD</ObsoleteTech>
+				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -14950,7 +14951,7 @@
 			<AndPreReqs/>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
-				<ObsoleteTech>TECH_RAILROAD</ObsoleteTech>
+				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -15033,7 +15034,7 @@
 				<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
 			</AndPreReqs>
 			<ObsoleteTechs>
-				<ObsoleteTech>TECH_ROBOTICS</ObsoleteTech>
+				<ObsoleteTech>TECH_ROBOTIC_RIGHTS</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -16199,7 +16200,7 @@
 				<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
 			</AndPreReqs>
 			<ObsoleteTechs>
-				<ObsoleteTech>TECH_ROBOTICS</ObsoleteTech>
+				<ObsoleteTech>TECH_ROBOTIC_RIGHTS</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>

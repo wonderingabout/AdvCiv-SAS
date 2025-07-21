@@ -984,15 +984,15 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
 	if (pUnit->collateralDamage() > 0)
 	{
 		szString.append(NEWLINE);
-		if (pUnit->getExtraCollateralDamage() == 0)
+		szString.append(gDLL->getText(
+				"TXT_KEY_UNIT_COLLATERAL_DAMAGE_SHORT", // advc.004: short version
+				pUnit->collateralDamage(), // <!-- custom: add missing iCollateralDamage info as well if i am not mistaken anyways etc, for example <iCollateralDamage>25</iCollateralDamage> ; added thanks to chatgpt's help as well anyways etc and me guessing or adjusting it as well but anyways etc -->
+				100 * kInfo.getCollateralDamageLimit() / GC.getMAX_HIT_POINTS(),
+				pUnit->collateralDamageMaxUnits())); // advc.004
+		// <!-- custom: if i am not mistaken the TXT_KEY_UNIT_COLLATERAL_DAMAGE_EXTRA should not be an else conditional display but a cumulative effect with the base collateral damage, so showing both as well anyways etc -->
+		if (pUnit->getExtraCollateralDamage() != 0)
 		{
-			szString.append(gDLL->getText(
-					"TXT_KEY_UNIT_COLLATERAL_DAMAGE_SHORT", // advc.004: short version
-					100 * kInfo.getCollateralDamageLimit() / GC.getMAX_HIT_POINTS(),
-					pUnit->collateralDamageMaxUnits())); // advc.004
-		}
-		else
-		{
+			szString.append(NEWLINE);
 			szString.append(gDLL->getText("TXT_KEY_UNIT_COLLATERAL_DAMAGE_EXTRA",
 					pUnit->getExtraCollateralDamage()));
 		}
@@ -9321,6 +9321,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 		szBuffer.append(gDLL->getText(/* advc.004: */ bCivilopediaText ?
 				"TXT_KEY_UNIT_COLLATERAL_DAMAGE" :
 				"TXT_KEY_UNIT_COLLATERAL_DAMAGE_SHORT", // advc.004
+				u.getCollateralDamage(), // <!-- custom: add missing iCollateralDamage info as well if i am not mistaken anyways etc, for example <iCollateralDamage>25</iCollateralDamage> ; added thanks to chatgpt's help as well anyways etc and me guessing or adjusting it as well but anyways etc -->
 				100 * u.getCollateralDamageLimit() / GC.getMAX_HIT_POINTS(),
 				u.getCollateralDamageMaxUnits()));// advc.004
 	}

@@ -82,7 +82,7 @@
 			<Civilopedia>TXT_KEY_PROJECT_SDI_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_PROJECT_SDI_STRATEGY</Strategy>
 			<VictoryPrereq>NONE</VictoryPrereq>
-			<!-- custom: was TECH_LASER -->
+			<!-- custom: was TECH_TERRAFORMING -->
 			<TechPrereq>TECH_SATELLITES</TechPrereq>
 			<AnyonePrereqProject>PROJECT_MANHATTAN_PROJECT</AnyonePrereqProject>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
@@ -149,7 +149,7 @@
 			<Civilopedia>TXT_KEY_PROJECT_SS_COCKPIT_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_PROJECT_SPACE_SHIP_STRATEGY</Strategy>
 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
-			<!-- custom: move PROJECT_SS_COCKPIT to computers, seems to make more sense, plus most importantly anyways etc we incentivize more computers and can build the spaceship a bit sooner as well, anyways etc, was TECH_FIBER_OPTICS -->
+			<!-- custom: move PROJECT_SS_COCKPIT to computers, seems to make more sense, plus most importantly anyways etc we incentivize more computers and can build the spaceship a bit sooner as well, anyways etc, was the now removed TECH_FIBER_OPTICS -->
 			<TechPrereq>TECH_COMPUTERS</TechPrereq>
 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>

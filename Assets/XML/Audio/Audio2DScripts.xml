@@ -12898,8 +12898,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_PLASTICS</ScriptID>
-		<SoundID>SND_TECH_PLASTICS</SoundID>
+		<ScriptID>AS2D_TECH_DEPOPULATION</ScriptID>
+		<SoundID>SND_TECH_DEPOPULATION</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -12967,8 +12967,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_FIBER_OPTICS</ScriptID>
-		<SoundID>SND_TECH_FIBER_OPTICS</SoundID>
+		<ScriptID>AS2D_TECH_AI</ScriptID>
+		<SoundID>SND_TECH_AI</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -13036,8 +13036,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_FUTURE</ScriptID>
-		<SoundID>SND_TECH_FUTURE</SoundID>
+		<ScriptID>AS2D_TECH_TRANSHUMANISM</ScriptID>
+		<SoundID>SND_TECH_TRANSHUMANISM</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -13473,8 +13473,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_RAILROAD</ScriptID>
-		<SoundID>SND_TECH_RAILROAD</SoundID>
+		<ScriptID>AS2D_TECH_QUANTUM_MECHANICS</ScriptID>
+		<SoundID>SND_TECH_QUANTUM_MECHANICS</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -13703,8 +13703,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_ROBOTICS</ScriptID>
-		<SoundID>SND_TECH_ROBOTICS</SoundID>
+		<ScriptID>AS2D_TECH_ROBOTIC_RIGHTS</ScriptID>
+		<SoundID>SND_TECH_ROBOTIC_RIGHTS</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -13772,8 +13772,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_LASER</ScriptID>
-		<SoundID>SND_TECH_LASER</SoundID>
+		<ScriptID>AS2D_TECH_TERRAFORMING</ScriptID>
+		<SoundID>SND_TECH_TERRAFORMING</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -13818,8 +13818,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_STEALTH</ScriptID>
-		<SoundID>SND_TECH_STEALTH</SoundID>
+		<ScriptID>AS2D_TECH_ALIEN_LIFE</ScriptID>
+		<SoundID>SND_TECH_ALIEN_LIFE</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -15014,8 +15014,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_MP_PLASTICS</ScriptID>
-		<SoundID>SND_TECH_MP_PLASTICS</SoundID>
+		<ScriptID>AS2D_TECH_MP_DEPOPULATION</ScriptID>
+		<SoundID>SND_TECH_MP_DEPOPULATION</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -15083,8 +15083,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_MP_FIBER_OPTICS</ScriptID>
-		<SoundID>SND_TECH_MP_FIBER_OPTICS</SoundID>
+		<ScriptID>AS2D_TECH_MP_AI</ScriptID>
+		<SoundID>SND_TECH_MP_AI</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -15152,8 +15152,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_MP_FUTURE</ScriptID>
-		<SoundID>SND_TECH_MP_FUTURE</SoundID>
+		<ScriptID>AS2D_TECH_MP_TRANSHUMANISM</ScriptID>
+		<SoundID>SND_TECH_MP_TRANSHUMANISM</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -15589,8 +15589,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_MP_RAILROAD</ScriptID>
-		<SoundID>SND_TECH_MP_RAILROAD</SoundID>
+		<ScriptID>AS2D_TECH_MP_QUANTUM_MECHANICS</ScriptID>
+		<SoundID>SND_TECH_MP_QUANTUM_MECHANICS</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -15819,8 +15819,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_MP_ROBOTICS</ScriptID>
-		<SoundID>SND_TECH_MP_ROBOTICS</SoundID>
+		<ScriptID>AS2D_TECH_MP_ROBOTIC_RIGHTS</ScriptID>
+		<SoundID>SND_TECH_MP_ROBOTIC_RIGHTS</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -15888,8 +15888,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_MP_LASER</ScriptID>
-		<SoundID>SND_TECH_MP_LASER</SoundID>
+		<ScriptID>AS2D_TECH_MP_TERRAFORMING</ScriptID>
+		<SoundID>SND_TECH_MP_TERRAFORMING</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -15934,8 +15934,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_MP_STEALTH</ScriptID>
-		<SoundID>SND_TECH_MP_STEALTH</SoundID>
+		<ScriptID>AS2D_TECH_MP_ALIEN_LIFE</ScriptID>
+		<SoundID>SND_TECH_MP_ALIEN_LIFE</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>

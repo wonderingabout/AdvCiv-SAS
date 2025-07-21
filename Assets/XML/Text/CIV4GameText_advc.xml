@@ -3045,14 +3045,6 @@
 		<Spanish>"Una vez hayas probado el vuelo caminar&#225;s por la tierra con los ojos alzados hacia el cielo porque ya habr&#225;s estado all&#237; y querr&#225;s volver." - Leonardo Da Vinci</Spanish>
 	</TEXT>
 	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_TECH_ECONOMICS_QUOTE</Tag>
-		<English>"Compound interest is the most powerful force in the universe." - ascribed to Albert Einstein</English>
-		<French>"Les int&#233;r&#234;ts compos&#233;s sont la plus grande force de tout l'univers." - Albert Einstein</French>
-		<German>"Der Zinseszins war die gr&#246;&#223;te Erfindung des menschlichen Denkens." - Albert Einstein (zugeschrieben)</German>
-		<Italian>"L'interesse composto &#232; la forza pi&#249; potente dell'universo." - Albert Einstein</Italian>
-		<Spanish>"El inter&#233;s compuesto es la fuerza m&#225;s poderosa de la galaxia." - Albert Einstein</Spanish>
-	</TEXT>
-	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_TECH_PHILOSOPHY_QUOTE</Tag>
 		<English>"I have gained this by philosophy: that I do without being commanded what others do only from fear of the law." - ascribed to Aristotle</English>
 		<French>"La philosophie m'a appris ceci : ce que je fais sans que l'on me l'ordonne, les autres le font par crainte de la loi." - Aristote</French>
@@ -3553,42 +3545,23 @@
 		<Spanish>Actitud hacia %s3_leader: %s1_attitude (+/- 0)</Spanish>
 	</TEXT>
 	
+	<!-- custom: rename "Amerindian Empire" back if i may say in this case at least but anyways etc to "Native American Empire" -->
 	<!-- advc.002b: Overwrites values in CIV4GameText_Objects_BTS.xml. -->
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_CIV_NATIVE_AMERICA_DESC</Tag>
-		<English>Amerindian Empire</English>
-		<French>
-			<Text>Empire am&#233;rindien</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Indianer-Reich</Text>
-			<Gender>Neuter:Neuter:Neuter</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Impero Amerindio</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Imperio Amerindio</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
+		<English>Native American Empire</English>
 	</TEXT>
 
 	<!-- advc.005: was Pacal II -->
 	<!-- custom: i want the full leader name, plus i'm thinking of
 	adding Basil II	for the byzantine empire -->
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_LEADER_PACAL</Tag>
 		<English>Pacal II</English>
 	</TEXT>
 	<!-- custom: was Justinian -->
 	<!-- advc.005: Removed regnal number I (all languages) -->
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_LEADER_JUSTINIAN</Tag>
 		<English>Justinian I</English>
 	</TEXT>
@@ -3613,7 +3586,7 @@
 		<English>Willem van Oranje</English>
 	</TEXT>
 	<!-- custom: was Suryavarman. (in BtS Civ4GameTextObjects XML) -->
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_LEADER_SURYAVARMAN</Tag>
 		<English>Suryavarman II</English>
 	</TEXT>
@@ -5784,45 +5757,22 @@
 	</TEXT>
 
 
-	<!-- custom: clearer and more exhaustive formula:
-	"Collateral Damage (max: 200%) to 3 Defenders"
-	is now:
-	"Collateral Damage to 3 Units: 30% (max: 200%)"
-	Collateral Damage can be used on any type of units, not strictly
-	"defenders" even though it is technically true, hopefully clearer
-	now especially for the player or/and me at least or not, anyways,
-	was:
-	<English>[ICON_BULLET]Collateral Damage (max. %d1%%) to %d2 [NUM1:Defender:Defenders]</English>
-	todo
-	-->
+
+	<!-- custom: more recent change now as well thanks to chatgpt too and my prompt too but anyways etc: also show iCollateralDamage not only max if i am not mistaken in doing so anyways etc, also fix NUM1 to NUM3 according to chatgpt if i am not mistaken (would have been NUM2 without our change not NUM1 too if i am not mistaken as well and according to chatgpt too and if i understand it correctly i mean but anyways etc) -->
 	<!-- advc.004: From CIV4GameTextChanged_BTS.xml. State collateralDamageMaxUnits.  -->
-	<TEXT> <!-- redefine -->
+	<TEXT>
 		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE</Tag>
-		<English>[ICON_BULLET]Collateral Damage (max. %d1%%) to %d2 [NUM1:Defender:Defenders]</English>
+		<English>[ICON_BULLET]Collateral Damage (base %d1%%, max. %d2%%) to %d3 [NUM3:Defender:Defenders]</English>
 	</TEXT>
-	<!-- custom: clearer and more exhaustive formula:
-	"Coll. Damage (max: 100%) to 3 Defenders"
-	is now:
-	"Collateral Damage (3): 30% (max: 200%)"
-	Collateral Damage can be used on any type of units, not strictly
-	"defenders" even though it is technically true, hopefully clearer
-	now especially for the player or/and me at least or not, anyways,
-	was:
-	<English>[ICON_BULLET]Coll. Damage (max. %d1%%) to %d2 [NUM1:Defender:Defenders]</English>
-	todo
-	-->
+	<!-- custom: more recent change now as well thanks to chatgpt too and my prompt too but anyways etc: also show iCollateralDamage not only max if i am not mistaken in doing so anyways etc, also fix NUM1 to NUM3 according to chatgpt if i am not mistaken (would have been NUM2 without our change not NUM1 too if i am not mistaken as well and according to chatgpt too and if i understand it correctly i mean but anyways etc) -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE_SHORT</Tag>
-		<English>[ICON_BULLET]Coll. Damage (max. %d1%%) to %d2 [NUM1:Defender:Defenders]</English>
+		<English>[ICON_BULLET]Coll. Damage (base %d1%%, max. %d2%%) to %d3 [NUM3:Defender:Defenders]</English>
 	</TEXT>
-	<!-- custom:
-	was:
-	<English>[ICON_BULLET]Causes Collateral Damage (%D1_Amount%%)</English>
-	todo?
-	-->
+	<!-- custom: not sure if accurate but it does seem to say "extra" and the cpp getter also has extra in its name ; since this shouldn't refer to iCollateralDamage if i am not mistaken in my guess, adding the word "extra", anyways etc -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE_EXTRA</Tag>
-		<English>[ICON_BULLET]Causes Collateral Damage (%D1_Amount%%)</English>
+		<English>[ICON_BULLET]Causes Extra Collateral Damage (%D1_Amount%%)</English>
 	</TEXT>
 
 

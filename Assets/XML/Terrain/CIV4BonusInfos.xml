@@ -1309,7 +1309,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 			<ArtDefineTag>ART_DEF_BONUS_FUR</ArtDefineTag>
 			<TechReveal>NONE</TechReveal>
 			<TechCityTrade>TECH_HUNTING</TechCityTrade>
-			<!-- custom: was TECH_PLASTICS -->
+			<!-- custom: was the now removed anyways etc TECH_PLASTICS -->
 			<TechObsolete>TECH_COMPOSITES</TechObsolete>
 			<YieldChanges>
 				<iYieldChange>0</iYieldChange>
@@ -1997,9 +1997,9 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 			<BonusClassType>BONUSCLASS_DISABLED</BonusClassType>
 			<ArtDefineTag>ART_DEF_BONUS_DRAMA</ArtDefineTag>
 			<!-- custom: was NONE NONE NONE -->
-			<TechReveal>TECH_FUTURE_TECH</TechReveal>
-			<TechCityTrade>TECH_FUTURE_TECH</TechCityTrade>
-			<TechObsolete>TECH_FUTURE_TECH</TechObsolete>
+			<TechReveal>TECH_TRANSHUMANISM</TechReveal>
+			<TechCityTrade>TECH_TRANSHUMANISM</TechCityTrade>
+			<TechObsolete>TECH_TRANSHUMANISM</TechObsolete>
 			<YieldChanges/>
 			<iAITradeModifier>0</iAITradeModifier>
 			<iAIObjective>0</iAIObjective>
@@ -2040,9 +2040,9 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 			<BonusClassType>BONUSCLASS_DISABLED</BonusClassType>
 			<ArtDefineTag>ART_DEF_BONUS_MUSIC</ArtDefineTag>
 			<!-- custom: was NONE NONE NONE -->
-			<TechReveal>TECH_FUTURE_TECH</TechReveal>
-			<TechCityTrade>TECH_FUTURE_TECH</TechCityTrade>
-			<TechObsolete>TECH_FUTURE_TECH</TechObsolete>
+			<TechReveal>TECH_TRANSHUMANISM</TechReveal>
+			<TechCityTrade>TECH_TRANSHUMANISM</TechCityTrade>
+			<TechObsolete>TECH_TRANSHUMANISM</TechObsolete>
 			<YieldChanges/>
 			<iAITradeModifier>0</iAITradeModifier>
 			<iAIObjective>0</iAIObjective>

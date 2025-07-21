@@ -61,7 +61,7 @@
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_BONUS</Tag>
 		<!-- custom: <English>Resources</English>-->
-		<English>Bonus</English>
+		<English>Bonuses</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_CIV</Tag>
@@ -340,6 +340,10 @@
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_JAPAN_DOUJOU</Tag>
 		<English>Doujou</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_INCAN_QULLQA</Tag>
+		<English>Qullqa</English>
 	</TEXT>
 
 
@@ -806,5 +810,40 @@
 	<TEXT>
 		<Tag>TXT_KEY_TECH_GAME_THEORY</Tag>
 		<English>Game Theory</English>
+	</TEXT>
+	<!-- custom: replace laser in "TECH_LASER" and "MP_LASER" with "_TERRAFORMING" and such anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_TERRAFORMING</Tag>
+		<English>Terraforming</English>
+	</TEXT>
+	<!-- custom: replace future_tech in "TECH_FUTURE" and "MP_FUTURE" with "_TRANSHUMANISM" and such anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_TRANSHUMANISM</Tag>
+		<English>Transhumanism</English>
+	</TEXT>
+	<!-- custom: replace railroad in "_RAILROAD" and "MP_RAILROAD" with "_QUANTUM_MECHANICS" and such anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_QUANTUM_MECHANICS</Tag>
+		<English>Quantum Mechanics</English>
+	</TEXT>
+	<!-- custom: replace fiber_optics in "_FIBER_OPTICS" and "MP_FIBER_OPTICS" with "_AI" and such anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_AI</Tag>
+		<English>AI</English>
+	</TEXT>
+	<!-- custom: replace robotics in "_ROBOTICS" and "MP_ROBOTICS" with "_ROBOTIC_RIGHTS" and such anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_ROBOTIC_RIGHTS</Tag>
+		<English>Robotic Rights</English>
+	</TEXT>
+	<!-- custom: replace tech_stealth in related but anyways etc "_STEALTH" and "MP_STEALTH" with "_ALIEN_LIFE" and such anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_ALIEN_LIFE</Tag>
+		<English>Alien Life</English>
+	</TEXT>
+	<!-- custom: replace tech_plastics with tech_depopulation anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_DEPOPULATION</Tag>
+		<English>Depopulation</English>
 	</TEXT>
 </Civ4GameText>

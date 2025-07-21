@@ -235,10 +235,11 @@ class SevoPediaUnit:
 			szRangeText = u"R    " + szRange
 			screen.appendListBoxStringNoUpdate(panelName, u"<font=4>" + szRangeText + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 		if (gc.getUnitInfo(self.iUnit).getProductionCost() >= 0 and not gc.getUnitInfo(self.iUnit).isFound()):
-			if self.top.iActivePlayer == -1:
-				szCost = localText.getText("TXT_KEY_PEDIA_COST_CUSTOM", ((gc.getUnitInfo(self.iUnit).getProductionCost() * gc.getDefineINT("UNIT_PRODUCTION_PERCENT"))/100,))
-			else:
-				szCost = localText.getText("TXT_KEY_PEDIA_COST_CUSTOM", (gc.getActivePlayer().getUnitProductionNeeded(self.iUnit),))
+			unitCost = (gc.getUnitInfo(self.iUnit).getProductionCost() * gc.getDefineINT("UNIT_PRODUCTION_PERCENT"))/100
+			if self.top.iActivePlayer != -1:
+				unitCost = gc.getActivePlayer().getUnitProductionNeeded(self.iUnit)
+
+			szCost = localText.getText("TXT_KEY_PEDIA_COST_CUSTOM", (unitCost,))
 			szCostText = u"%c  " % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar() + szCost
 			screen.appendListBoxStringNoUpdate(panelName, u"<font=4>" + szCostText + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.updateListBox(panelName)

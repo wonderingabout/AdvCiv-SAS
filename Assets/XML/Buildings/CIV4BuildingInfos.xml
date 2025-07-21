@@ -1124,7 +1124,8 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
-			<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
+			<!-- custom: was TECH_ECONOMICS -->
+			<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
 			<PrereqTech>TECH_ENGINEERING</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -1738,7 +1739,8 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
-			<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
+			<!-- custom: was TECH_ECONOMICS -->
+			<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
 			<PrereqTech>TECH_ENGINEERING</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -3305,7 +3307,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: important to get the granary early enough especially since it is so cheap/cheaper even if effect is a bit weaker, also indirectly helps military and production (slaving and hammer count) now, so give it quite similar flavors than than the incan terrace civ-specific granary anyways etc, was flavor growth 4 -->
+			<!-- custom: important to get the granary early enough especially since it is so cheap/cheaper even if effect is a bit weaker, also indirectly helps military and production (slaving and hammer count) now, so give it quite similar flavors than than the incan qullqa civ-specific granary anyways etc, was flavor growth 4 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
@@ -3517,15 +3519,15 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: granary, type: incan_terrace (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_GRANARY, type: BUILDING_INCAN_QULLQA (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<BuildingClass>BUILDINGCLASS_GRANARY</BuildingClass>
-			<Type>BUILDING_INCAN_TERRACE</Type>
+			<Type>BUILDING_INCAN_QULLQA</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
-			<Description>TXT_KEY_BUILDING_INCAN_TERRACE</Description>
-			<Civilopedia>TXT_KEY_BUILDING_INCAN_TERRACE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_INCAN_TERRACE_STRATEGY</Strategy>
+			<Description>TXT_KEY_BUILDING_INCAN_QULLQA</Description>
+			<Civilopedia>TXT_KEY_BUILDING_INCAN_QULLQA_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
-			<ArtDefineTag>ART_DEF_BUILDING_INCAN_TERRACE</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_BUILDING_INCAN_QULLQA</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
 			<HolyCity>NONE</HolyCity>
 			<ReligionType>NONE</ReligionType>
@@ -3654,7 +3656,7 @@
 				<iYield>0</iYield>
 			</YieldModifiers>
 			<CommerceChanges/>
-			<!-- custom: reworked as part of the slavery+granary rework or/and rebalance(ing anyways etc), now the incan granary (terrace) is a production building, more in line with the pedia entry of it as well, and not a bad change i think as gaining culture should be reserved to cultural buildings, and extending borders so easily without a monument or such is a bit too op or a weird mix/hard to balance combo (either too weak or too strong no real middle margin, but in all cases i want to rework it as such now, anyways etc), maybe will turn out well, or not, or yes or etc, but anyways etc, was was 0, 0, 1 -->
+			<!-- custom: reworked as part of the slavery+granary rework or/and rebalance(ing anyways etc), now the incan granary (qullqa) is a production building, more in line with the pedia entry of it as well, and not a bad change i think as gaining culture should be reserved to cultural buildings, and extending borders so easily without a monument or such is a bit too op or a weird mix/hard to balance combo (either too weak or too strong no real middle margin, but in all cases i want to rework it as such now, anyways etc), maybe will turn out well, or not, or yes or etc, but anyways etc, was was 0, 0, 1 -->
 			<!-- custom: was 0, 0, 1 (note: as for the below advc comment of base advciv, it applies to the old <iCommerce>1</iCommerce> line now removed entirely as part of our rework in advciv-sas, anyways etc) -->
 			<!-- advc.908b: was 2 -->
 			<ObsoleteSafeCommerceChanges/>
@@ -3896,7 +3898,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: a bit less production than the incan_terrace but still quite important for production even though less / a bit less indeed but anyways etc anyways etc... -->
+			<!-- custom: a bit less production than the INCAN_QULLQA but still quite important for production even though less / a bit less indeed but anyways etc anyways etc... -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
@@ -6485,7 +6487,7 @@
 			<PrereqBuildingClasses/>
 			<BuildingClassNeededs>
 				<BuildingClassNeeded>
-					<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_LIGHTHOUSE</BuildingClassType>
 					<bNeededInCity>1</bNeededInCity>
 				</BuildingClassNeeded>
 			</BuildingClassNeededs>
@@ -6671,7 +6673,7 @@
 			<PrereqBuildingClasses/>
 			<BuildingClassNeededs>
 				<BuildingClassNeeded>
-					<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_LIGHTHOUSE</BuildingClassType>
 					<bNeededInCity>1</bNeededInCity>
 				</BuildingClassNeeded>
 			</BuildingClassNeededs>
@@ -6857,8 +6859,14 @@
 				</DomainProductionModifier>
 			</DomainProductionModifiers>
 			<BuildingHappinessChanges/>
+			<!-- custom: having a harder or hard at all in this case anyways etc building +/- class here but anyways etc prereq would make AIs build them less or later, and since building is not core and is also a naval building, would make AI focus more on land warfare and help it maybe anyways etc, is also thematically consistent with the theme of gradually increasing produciton, here in this case naval production but anyways etc, with gradually more specialized buildings if i may say but anyways etc, was empty -->
 			<PrereqBuildingClasses/>
-			<BuildingClassNeededs/>
+			<BuildingClassNeededs>
+				<BuildingClassNeeded>
+					<BuildingClassType>BUILDINGCLASS_PORT</BuildingClassType>
+					<bNeededInCity>1</bNeededInCity>
+				</BuildingClassNeeded>
+			</BuildingClassNeededs>
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
@@ -6872,7 +6880,7 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>2</iFlavor>
+					<iFlavor>1</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -7832,8 +7840,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: they were relevant sooner in tech/history if i am not mistaken from quite quick in this case anyways etc glances/searches on wikipedia or and such anyways etc anyways etc anyways etc, plus to make them buildable sooner too anyways etc anyways etc anyways etc, was TECH_PLASTICS -->
-			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
+			<!-- custom: they were relevant sooner in tech/history if i am not mistaken from quite quick in this case anyways etc glances/searches on wikipedia or and such anyways etc anyways etc anyways etc, plus to make them buildable sooner too anyways etc anyways etc anyways etc, was the now removed anyways etc TECH_PLASTICS -->
+			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -14802,8 +14810,8 @@
 			<iMaxLatitude>90</iMaxLatitude>
 			<!-- custom: was 0 -->
 			<iGreatPeopleRateModifier>40</iGreatPeopleRateModifier>
-			<!-- custom: was 0 -->
-			<iGreatGeneralRateModifier>75</iGreatGeneralRateModifier>
+			<!-- custom: since this is cumulative if i am not mistaken and according to a web search i asked chatgpt to do about it which linked to https://forums.civfanatics.com/threads/do-great-general-bonuses-stack.352203/?utm_source=chatgpt.com among other sources it seems too if i am not mistaken but anyways etc (it also told me at first that it is not cumulative even with kujira's japanese (no pun or intended but why not as i told it but anyways etc) that it was not cumulative, but after asking it to do a web search to be sure i found this at least i mean it found it for me xd if i may say and thnaks to me too my prompt or critical thinking or such (its critical thinking too maybe evn though is different to criticize its previous diea maybe or just regurgitate this other new one but anywyas etc it helped in this case at least but anyways etc)), so choosing a lower value so that several doujous would be needed to make a difference rather than one or it being otherwise op, also this is or shoudl be maybe if i am not mistaken culturally consistent or thematically consistent but anyways etc with the fact that there are several "schools" of doujous or such from something like that so maybe each symbolically improves the rate by its own contribution or and such or not at least i imagine it so at least in advciv-sas if i may say but anyways etc, so choosing a quite small in this case but anyways etc value that should hopefully in this case but anyways etc still be significant but anyways etc ; or so it seem sif i am not mistaken that it seemms to stack (didn't check lot but hopefully correct but anwyays etc anyways etc anyways etc), was 0 -->
+			<iGreatGeneralRateModifier>25</iGreatGeneralRateModifier>
 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
 			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
 			<iAnarchyModifier>0</iAnarchyModifier>
@@ -24126,7 +24134,7 @@
 			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
 			<!-- custom: nerf its effect a bit and make it never obsolete, should be more balanced and interesting if i may say anyways etc building/effect anyways etc, was TECH_SCIENTIFIC_METHOD -->
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: was TECH_AESTHETICS -->
+			<!-- custom: was TECH_AESTHETICS and techTypes TECH_POLYTHEISM -->
 			<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
@@ -25911,7 +25919,7 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
-			<!-- custom: see also code comment TXT_KEY_BUILDING_KREMLIN_PEDIA for extra or related or similar i mean information or salty as in upset opinion of me about base civ4 +/- advciv if it came from advciv but seems to be base civ4 but advciv didn't change it but takes time but still but anyways etc i changed it anyways etc ; was TECH_FIBER_OPTICS -->
+			<!-- custom: see also code comment TXT_KEY_BUILDING_KREMLIN_PEDIA for extra or related or similar i mean information or salty as in upset opinion of me about base civ4 +/- advciv if it came from advciv but seems to be base civ4 but advciv didn't change it but takes time but still but anyways etc i changed it anyways etc ; was the now removed TECH_FIBER_OPTICS -->
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<PrereqTech>TECH_COMMUNISM</PrereqTech>
 			<TechTypes/>
@@ -26098,7 +26106,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: moved here so it can be built sooner, also seems to fit the theme and historical accuracy qutie well, and as per our reworked tech tree and as i'd want to balance the building too anyways etc, was TECH_RADIO -->
+			<!-- custom: moved here so it can be built sooner, also seems to fit the theme and historical accuracy quite well, and as per our reworked tech tree and as i'd want to balance the building too anyways etc, was TECH_RADIO -->
 			<!-- advc.200: -->
 			<PrereqTech>TECH_NATIONALISM</PrereqTech>
 			<TechTypes/>
@@ -27043,8 +27051,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: make it available sooner so it is built before endgame anyways etc, was TECH_PLASTICS -->
-			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
+			<!-- custom: make it available sooner so it is built before endgame anyways etc, should also be historically or/and thematically quite accurate too but anyways etc, was the now removed anyways etc TECH_PLASTICS -->
+			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -27394,7 +27402,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_MASS_MEDIA</PrereqTech>
+			<!-- custom: was TECH_MASS_MEDIA -->
+			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -28946,13 +28955,9 @@
 			<!-- advc.008a: was ERA_RENAISSANCE -->
 			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: was TECH_AESTHETICS -->
+			<!-- custom: was TECH_AESTHETICS and techTypes TECH_MEDITATION -->
 			<PrereqTech>TECH_MEDITATION</PrereqTech>
-			<TechTypes>
-				<PrereqTech>TECH_MEDITATION</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-			</TechTypes>
+			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -30264,7 +30269,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: tech_railroad now removed or todo to be removed if i am not mistaken and (if i anyways etc) will not change this plan i mean anyways etc, was TECH_RAILROAD -->
+			<!-- custom: changed to another / to account for anyways etc tech to accomodate reworked tech tree if i may say anyways etc, was the now removed TECH_RAILROAD anyways etc -->
 			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_CORPORATION</PrereqTech>

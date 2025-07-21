@@ -2018,7 +2018,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_ORGANIZED_RELIGION</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion> <!-- custom: none, not religion_paganism for brennus, see notes_about_religious_design.txt for details -->
+			<FavoriteReligion>NONE</FavoriteReligion> <!-- custom: none, not religion_paganism for brennus, see notes_about_religious_design.txt in the mod's google drive for details -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_SPIRITUAL</TraitType>
@@ -2671,7 +2671,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_NATIONHOOD</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion> <!-- custom: none, not religion_christianity, see notes_about_religious_design.txt for details -->
+			<FavoriteReligion>NONE</FavoriteReligion> <!-- custom: none, not religion_christianity, see notes_about_religious_design.txt in the mod's google drive for details -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_CHARISMATIC</TraitType>

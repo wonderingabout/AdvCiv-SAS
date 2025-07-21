@@ -103,13 +103,13 @@
 
 
 
-	# <!-- custom: logic is as follows for the below placeFreeWith function/method anyways etc as prompted to Claude AI to me but anyways etc anyways etc anyways etc...:
+	# <!-- custom: logic is as follows for the below placeFreeWith function/method anyways etc as prompted to Claude AI to me but anyways etc anyways etc anyways etc... (note: renamed terrace to qullqa to update this explanation with the new civ-specific incan building name, everything else being the same when it comes to this explanation if i may say and if i am not mistaken but anyways etc):
 	# example: barbarian specific granary is free with barbarian palace (barbarians only), so:
 	#
 	# if currently selected building is:
 	# 	* barbarian granary: we show in free with that the barbarian granary is free with the barbarian palace button
 	# 	* generic granary: we show in free with that the generic granary is free with "None" if a barbarian specific palace exists, else if no barbarian palace exists then we show in free with that the generic granary is free with the barbarian palace
-	# 	* other civ-specific granary (for example incan terrace): we show in free with that the terrace is free with "None", as the incans cannot have the barbarian palace, so they can never have the free granary, but if the incans could have a palace that has a free granary in it, then display this palace instead, else "None"
+	# 	* other civ-specific granary (for example incan qullqa): we show in free with that the qullqa is free with "None", as the incans cannot have the barbarian palace, so they can never have the free granary, but if the incans could have a palace that has a free granary in it, then display this palace instead, else "None"
 	#
 	# -
 	#
@@ -119,7 +119,7 @@
 	#
 	# 	1. Barbarian Granary page: Shows barbarian palace (because barbarian granary is unique and barbarian palace provides it for free)
 	# 	2. Generic Granary page: Shows "None" (because the granary class has unique versions like barbarian granary, so only generic providers would be shown, but barbarian palace is unique)
-	# 	3. Incan Terrace page: Shows "None" (because terrace is unique to Incans, and barbarian palace is unique to barbarians, so Incans can't use barbarian palace)
+	# 	3. Incan qullqa page: Shows "None" (because qullqa is unique to Incans, and barbarian palace is unique to barbarians, so Incans can't use barbarian palace)
 	#
 	# The key logic changes:
 	#
@@ -367,10 +367,11 @@ class SevoPediaBuilding:
 
 		# <!-- custom: 1: Cost -->
 		if buildingInfo.getProductionCost() > 0:
-			if self.top.iActivePlayer == -1:
-				szCost = localText.getText("TXT_KEY_PEDIA_COST_CUSTOM", ((buildingInfo.getProductionCost() * gc.getDefineINT("BUILDING_PRODUCTION_PERCENT"))/100,))
-			else:
-				szCost = localText.getText("TXT_KEY_PEDIA_COST_CUSTOM", (gc.getPlayer(self.top.iActivePlayer).getBuildingProductionNeeded(self.iBuilding),))
+			buildingCost = (buildingInfo.getProductionCost() * gc.getDefineINT("BUILDING_PRODUCTION_PERCENT"))/100
+			if self.top.iActivePlayer != -1:
+				buildingCost = gc.getPlayer(self.top.iActivePlayer).getBuildingProductionNeeded(self.iBuilding)
+
+			szCost = localText.getText("TXT_KEY_PEDIA_COST_CUSTOM", (buildingCost,))
 			szText2 = u"%c  %s" % (gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar(), szCost)
 			self.fillStatsCell(screen, szText2, x, y)
 			x, y, rowItemId = self.getStatsNextItemCoordinates(x, y, rowItemId, columnWidth)
@@ -824,10 +825,8 @@ class SevoPediaBuilding:
 			# Use the confirmed API method: isSpecialBuildingNotRequired(SpecialBuildingType eIndex)
 			# Pass the integer ID directly, as Python bindings usually handle this.
 			if loopCivicInfo.isSpecialBuildingNotRequired(iSpecialBuildingType):
-				# Found a civic that overrides this building's requirement
 				return True
 
-		# No civic found that overrides this building's requirement
 		return False
 
 
@@ -920,7 +919,7 @@ class SevoPediaBuilding:
 					extraCorrectionX = get_extra_correction_x(numTxt)
 					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
-				# <!-- custom: else do not display any numTxt and just proceed if i may say anyways etc -->
+				# <!-- custom: else do not display any numTxt, and just proceed in all cases if i may say anyways etc -->
 				isButtonFound = True
 				iButtonIndex += 1
 

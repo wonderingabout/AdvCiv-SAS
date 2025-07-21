@@ -8591,7 +8591,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_ECONOMICS</SoundID>
+			<SoundID>SND_TECH_DEPOPULATION</SoundID>
 			<Filename>Sounds/Tech/Tech_Economics</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -8661,7 +8661,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_PLASTICS</SoundID>
+			<SoundID>SND_TECH_ECONOMICS</SoundID>
 			<Filename>Sounds/Tech/Tech_Plastics</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -8682,8 +8682,8 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_FIBER_OPTICS</SoundID>
-			<Filename>Sounds/Tech/Tech_FiberOptics</Filename>
+			<SoundID>SND_TECH_AI</SoundID>
+			<Filename>Sounds/Tech/Tech_Paper</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8703,7 +8703,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_FUTURE</SoundID>
+			<SoundID>SND_TECH_TRANSHUMANISM</SoundID>
 			<Filename>Sounds/Tech/Tech_FutureTech</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -8836,8 +8836,8 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_RAILROAD</SoundID>
-			<Filename>Sounds/Tech/Tech_Railroad</Filename>
+			<SoundID>SND_TECH_QUANTUM_MECHANICS</SoundID>
+			<Filename>Sounds/Tech/Tech_ReplaceableParts</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8906,7 +8906,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_ROBOTICS</SoundID>
+			<SoundID>SND_TECH_ROBOTIC_RIGHTS</SoundID>
 			<Filename>Sounds/Tech/Tech_Robotics</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -8927,7 +8927,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_LASER</SoundID>
+			<SoundID>SND_TECH_TERRAFORMING</SoundID>
 			<Filename>Sounds/Tech/Tech_Laser</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -8941,7 +8941,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_STEALTH</SoundID>
+			<SoundID>SND_TECH_ALIEN_LIFE</SoundID>
 			<Filename>Sounds/Tech/Tech_Stealth</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -9235,7 +9235,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_ECONOMICS</SoundID>
+			<SoundID>SND_TECH_MP_DEPOPULATION</SoundID>
 			<Filename>Sounds/Tech/Tech_MP_Economics</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -9305,7 +9305,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_PLASTICS</SoundID>
+			<SoundID>SND_TECH_MP_ECONOMICS</SoundID>
 			<Filename>Sounds/Tech/Tech_MP_Plastics</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -9326,8 +9326,8 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_FIBER_OPTICS</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_FiberOptics</Filename>
+			<SoundID>SND_TECH_MP_AI</SoundID>
+			<Filename>Sounds/Tech/Tech_MP_Paper</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9347,7 +9347,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_FUTURE</SoundID>
+			<SoundID>SND_TECH_MP_TRANSHUMANISM</SoundID>
 			<Filename>Sounds/Tech/Tech_MP_FutureTech</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -9480,8 +9480,8 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_RAILROAD</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Railroad</Filename>
+			<SoundID>SND_TECH_MP_QUANTUM_MECHANICS</SoundID>
+			<Filename>Sounds/Tech/Tech_MP_ReplaceableParts</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9550,7 +9550,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_ROBOTICS</SoundID>
+			<SoundID>SND_TECH_MP_ROBOTIC_RIGHTS</SoundID>
 			<Filename>Sounds/Tech/Tech_MP_Robotics</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -9571,7 +9571,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_LASER</SoundID>
+			<SoundID>SND_TECH_MP_TERRAFORMING</SoundID>
 			<Filename>Sounds/Tech/Tech_MP_Laser</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -9585,7 +9585,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_STEALTH</SoundID>
+			<SoundID>SND_TECH_MP_ALIEN_LIFE</SoundID>
 			<Filename>Sounds/Tech/Tech_MP_Stealth</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>

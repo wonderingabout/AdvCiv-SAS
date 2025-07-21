@@ -25,12 +25,12 @@ So i hope this more efficient tech tree helps have a smoother game experience fo
 
 View also notes files that have tech in their name, or and other notes files that while not directly named with "tech" in their filename, may also contain directly or indirectly related tech information (ideally i should have (more maybe anyways etc or not or yes or etc or and other or and not anyways etc separated the info, but sometimes also the info is intertwined so not possible to separate unless duplicating the info, so or/and i hope there is still enough info in these docs hopefully or not but anyways etc...))
 
-These files include (may not be exhaustive in case i forgot some or maybe i didn't but anyways etc...):
+These files include (may not be exhaustive in case i forgot some or maybe i didn't but anyways etc...) (note: see them in the mod's google drive to view the file and for details anyways etc, some text in them is not updated or not relevant anymore, some of it should be informative about some technological choices in advciv-sas if i may say and if i am not mistaken hopefully helpful or not or yes or other or etc but anyways etc anyways etc anyways etc):
 
-- [notes_about_tech_design_choices.txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_choices.txt)
-- [notes_about_tech_design_indirect_associations.txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_indirect_associations.txt)
-- [notes_about_tech_design_swapped_simplified_tree.txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_swapped_simplified_tree.txt)
-- [notes_about_techs_civ4_to_remove_or_replace_or_add.txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_techs_civ4_to_remove_or_replace_or_add.txt)
+- notes_about_tech_design_choices.txt
+- notes_about_tech_design_indirect_associations.txt
+- notes_about_tech_design_swapped_simplified_tree.txt
+- notes_about_techs_civ4_to_remove_or_replace_or_add.txt
 
 ## Abstract timeline tech tree
 

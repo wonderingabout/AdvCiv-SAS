@@ -37,7 +37,7 @@ To do that, for example with VS Code, first click File / Open folder... and choo
 
 Then navigate to [/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py) file which has the config of the AI Personality Panel feature (in the .py file), as shown in the screenshots below as well (click to view the screenshot full size/bigger anyways etc anyways etc anyways etc):
 
-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_false.PNG" alt="0.621_sevopedia_leader_emoji_config_py_flag_false.PNG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leaders_emoji_config_py_flag_false.PNG" alt="0.621_sevopedia_leaders_emoji_config_py_flag_false.PNG" width="250"></img>
 
 Change this line:
 
@@ -53,13 +53,13 @@ IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True
 
 As in the screenshot below as well similarly anyways etc:
 
-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_true.PNG" alt="0.621_sevopedia_leader_emoji_config_py_flag_true.PNG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leaders_emoji_config_py_flag_true.PNG" alt="0.621_sevopedia_leaders_emoji_config_py_flag_true.PNG" width="250"></img>
 
 And vice versa to disable it (restart the game to apply changes if game was already running)
 
 Here is how it would look like without emojis for example anyways etc:
 
-<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leader_emoji_config_py_flag_example.JPG" alt="0.621_sevopedia_leader_emoji_config_py_flag_example.JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_leaders_emoji_config_py_flag_example.JPG" alt="0.621_sevopedia_leaders_emoji_config_py_flag_example.JPG" width="250"></img>
 
 ## Where and how to find the abbreviations (in label) (in the AI Personality Panel)'s meaning
 
@@ -109,7 +109,7 @@ Similarly to how was done for emoji images, there is also an `IS_LABELS_ARE_KEYS
 
 Here is an example below of it would look like with this set to `True` hopefully helpful or not or yes or and other or and not anyways etc:
 
-<img src="../Images_In_General/sevopedia_reworks/0.622_sevopedia_leader_labels_as_keys_or_suffixes.JPG" alt="0.622_sevopedia_leader_labels_as_keys_or_suffixes.JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.622_sevopedia_leaders_labels_as_keys_or_suffixes.JPG" alt="0.622_sevopedia_leaders_labels_as_keys_or_suffixes.JPG" width="250"></img>
 
 ## Normalization (to 100 in AdvCiv-SAS anyways) and leader(s) score/ranking
 

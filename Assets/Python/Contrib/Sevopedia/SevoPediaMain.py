@@ -78,6 +78,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt/becomingthrough's explanation anyways etc-->
 		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
+		# <!-- custom: do something similar for the untradeable techs text but anyways etc anyways etc anyways etc -->
+		self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT = False
 
 		self.H_SCREEN = 768
 		self.W_SCREEN = 1024
@@ -505,6 +507,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def placeTechs(self):
 		self.list = self.getTechList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, gc.getTechInfo)
+
+		# <!-- custom: similarly to how we did in placeLeaders, precompute only once the list as string of untradeable techs for display in sevopedia tech, since it is always the same, and precompute it only after first time list is displayed so it is smoother/faster maybe even if a bit if not a lot but anyways etc anyways etc anyways etc ; also do not build it needlessly if we never access sevopedia tech same as in/for the leaders_info_cached code but anyways etc -->
+		if not self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT:
+			SevoPediaTech.UNTRADEABLE_TECHS_TEXT = SevoPediaTech.getPrecomputedUntradeableTechsText()
+			self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT = True
+			print("[DEBUG] Sevopedia Tech Untradeable techs list prebuilt from Sevopedia Main. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited) (for info, in SevopediaMain, self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT=%s)." % str(self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT))
 	
 	def getTechList(self):
 		return self.getSortedList(gc.getNumTechInfos(), gc.getTechInfo)
