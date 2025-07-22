@@ -668,7 +668,7 @@ I have also found issue is not whales or some other water bonus as another east 
 
 ## 24 - (Attemptingly fixed) AI Workers often build forts on ressources/bonuses, even if they already have an existing improvement (very inefficient and not immersive)
 
-Note: as of now the changes in the DLL described below in this section can be found [in this commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/6d82d51fe1e3a3262d7c69af67daaacb927175e4) among a few other unrelated changes but or not but or yes but but anyways etc hopefuly helpful or not or yes or etc but anyways etc
+Note: as of now the changes in the DLL described below in this section can be found [in this advciv-sas commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/6d82d51fe1e3a3262d7c69af67daaacb927175e4) among a few other unrelated changes but or not but or yes but but anyways etc hopefuly helpful or not or yes or etc but anyways etc
 
 This is an issue i had more extensively documented in the known issues about advciv civfanatics thread (see link somewhere in [README.md#me-wonderingabout](/README.md#me-wonderingabout)), that AIs often build forts on top of existing improvements.
 
@@ -696,9 +696,11 @@ So although i don't know too much how to do this, but can manage a bit maybe but
 
 ## 25 - Attempt to fix AIs settling too much and too often on bonuses, especially food bonuses (!!!) and metals and other high production bonuses to a lesser extent
 
+As of now if not all related changes can be found mostly if not almost entirely but anyways etc in [this advciv-sas commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/95347a520d7fbe41465c324ad609bddba32a167d) anyways etc
+
 ### Origin and description of the problem anyways etc
 
-This is also one of the issues i had noticed in base advciv and that still happens in advciv-sas as of now, so trying to fix it. I had asked about it in the past f1rpo who kindly made/added/pushed but anyways etc [this commit](https://github.com/f1rpo/AdvCiv/commit/1a372d417a6001e2afe2b40e69824b45fa375907) as a partial patch/fix to it
+This is also one of the issues i had noticed in base advciv and that still happens in advciv-sas as of now, so trying to fix it. I had asked about it in the past f1rpo who kindly made/added/pushed but anyways etc [this base advciv commit](https://github.com/f1rpo/AdvCiv/commit/1a372d417a6001e2afe2b40e69824b45fa375907) as a partial patch/fix to it
 
 But while it seemingly may have improved it a bit, AI still settles on metals, and although that may be fine, perhaps even desirable in some cases maybe (metal on hills in particular maybe but anyways etc), AI still often plant their cities on food bonuses which is very very inefficient. As i don't know too much about these but am very eager to improve these ideally if i may say but anyways etc... I asked chatgpt and trying to fix/tweak quite cautiously this logic, quite similarly than in [README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive)
 

@@ -646,7 +646,7 @@ short AIFoundValue::evaluate()
 			int const iBonusCommerce = aiBonusImprovementYield[YIELD_COMMERCE];
 
 			// Confirmed: In CitySiteEvaluator.cpp, p is a CvPlot const& — the current plot being evaluated for a potential city site. All calls like p.getTerrainType() or p.isRiver() are valid because p is already in scope and refers to that plot.
-			TerrainTypes eTerrain = p.getTerrainType();
+			TerrainTypes const eTerrain = p.getTerrainType();
 
 			// <!-- custom: see also code comment(s) and code at int AIFoundValue::foundOnResourceValue(int const* aiBonusImprovementYield) const, for food bonuses anyways etc -->
 
@@ -661,38 +661,38 @@ short AIFoundValue::evaluate()
 					iValue += iHighProductionBonusDesertValorization;
 				}
 
-				// <!-- custom: then consider hill, should be mostly good to plant on a metal or high production bonus on a hill, give a quite big boost to that including the defense bonus as of now too if i am not mistaken but anyways etc, except if tile is grassland where food advantage of having high yield improving the tile rather for 1 food cost seems more profitable but anyways etc so in these cases instead give a penalty to discourage the AI to settle/found its city there if i am not mistaken but anyways etc -->
+				// <!-- custom: now consider hill, should be mostly good to plant on a metal or high production bonus on a hill, give a quite big boost to that including the defense bonus as of now too if i am not mistaken but anyways etc, except if tile is grassland where food advantage of having high yield improving the tile rather for 1 food cost seems more profitable but anyways etc so in these cases instead give a penalty to discourage the AI to settle/found its city there if i am not mistaken but anyways etc -->
 				if (p.isHills())
 				{
 					if (eTerrain != eGrass)
 					{
 						// Mild bonus if on hill (good production)
-						int const iHighProductionBonusHillValorization = 100 * iBonusProduction;
-						IFLOG logBBAI("+%d valorization: metal or high production bonus on hill non-grass (%S)", iHighProductionBonusHillValorization, GC.getInfo(eBonus).getDescription());
-						iValue += iHighProductionBonusHillValorization;
+						int const iHighProductionBonusHillNotGrassValorization = 100 * iBonusProduction;
+						IFLOG logBBAI("+%d valorization: metal or high production bonus on hill non-grass (%S)", iHighProductionBonusHillNotGrassValorization, GC.getInfo(eBonus).getDescription());
+						iValue += iHighProductionBonusHillNotGrassValorization;
 					}
 					else
 					{
 						// <!-- custom: on hills grassland, discourage the AI to plant there as production is lower, may not get the extra hammer or may want to improve it rather for only 1 food cost but anyways etc -->
-						int iHighProductionBonusHillGrassPenalty = 100 * iBonusProduction;
+						int const iHighProductionBonusHillGrassPenalty = 100 * iBonusProduction;
 						IFLOG logBBAI("-%d penalty: metal or high production bonus on hill grass (%S)", iHighProductionBonusHillGrassPenalty, GC.getInfo(eBonus).getDescription());
 						iValue -= iHighProductionBonusHillGrassPenalty;
 					}
 				}
 				else
 				{
-					int iHighProductionBonusPenalty = 100 * iBonusProduction;
-					IFLOG logBBAI("-%d penalty: metal or high production bonus on non-hill (%S)", iHighProductionBonusPenalty, GC.getInfo(eBonus).getDescription());
-					iValue -= iHighProductionBonusPenalty;
+					int const iHighProductionBonusNotHillPenalty = 100 * iBonusProduction;
+					IFLOG logBBAI("-%d penalty: metal or high production bonus on non-hill (%S)", iHighProductionBonusNotHillPenalty, GC.getInfo(eBonus).getDescription());
+					iValue -= iHighProductionBonusNotHillPenalty;
 				}
 			}
 
-			// <!-- custom: then handle quite high if not also but anyways etc really high commerce total yield bonuses if i am not mistaken such as gold, etc, better avoid settling on them as a general rule, may more often than not help the AI in most cases but anyways etc -->
+			// <!-- custom: then handle high commerce total yield bonuses if i am not mistaken such as gold, etc, better avoid settling on them as a general rule, may more often than not help the AI in most cases but anyways etc -->
 			if (iBonusCommerce >= 3)
 			{
-				int const iCommercePenalty = 100 * iBonusCommerce;
-				iValue -= iCommercePenalty;
-				IFLOG logBBAI("-%d penalty: high-commerce bonus (%S, %dC)", iCommercePenalty, GC.getInfo(eBonus).getDescription(), iBonusCommerce);
+				int const iCommerceBonusPenalty = 100 * iBonusCommerce;
+				iValue -= iCommerceBonusPenalty;
+				IFLOG logBBAI("-%d penalty: high-commerce bonus (%S)", iCommerceBonusPenalty, GC.getInfo(eBonus).getDescription());
 			}
 		}
 		if (!bHome) // (Home plot was handled upfront)
