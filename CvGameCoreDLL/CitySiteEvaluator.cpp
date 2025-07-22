@@ -376,6 +376,11 @@ short AIFoundValue::evaluate()
 	int iInnerBadTiles = 0;
 	int iLandTiles = 0; // advc.031
 	// <advc.040>
+
+	// <!-- custom: attempt to support desert and grass conditional bonus settling/founding city logic anyways etc -->
+	TerrainTypes const eDesert = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_DESERT");
+	TerrainTypes const eGrass = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_GRASS");
+
 	bool bFirstColony = isPrioritizeAsFirstColony();
 	IFLOG if(bFirstColony) logBBAI("First colony");
 	// Scope for countBadTiles return parameters
@@ -624,6 +629,7 @@ short AIFoundValue::evaluate()
 				//iValue += (iBonusValue + 10);
 				iResourceValue += iBonusValue; // K-Mod
 			}
+
 			/*if (p.isWater())
 				iValue += (bCoastal ? 0 : -800);*/ // (was ? 100 : -800)
 			// <advc.031> Replacing the above
@@ -633,6 +639,61 @@ short AIFoundValue::evaluate()
 				IFLOG logBBAI("-%d from water resource near non-coastal site", iPenalty);
 				iValue -= iPenalty;
 			} // </advc.031>
+
+			// <!-- custom: attempt to prevent/discourage further settling on metals or high production bonuses except in cases it should be mostly beneficial such as on hills, added thanks to chatgpt's help as i don't know too much about these, hopefully safe and functionnal and helps solving this but anyways etc -->
+			//int const iFood = aiBonusImprovementYield[YIELD_FOOD];
+			int const iBonusProduction = aiBonusImprovementYield[YIELD_PRODUCTION];
+			int const iBonusCommerce = aiBonusImprovementYield[YIELD_COMMERCE];
+
+			// Confirmed: In CitySiteEvaluator.cpp, p is a CvPlot const& — the current plot being evaluated for a potential city site. All calls like p.getTerrainType() or p.isRiver() are valid because p is already in scope and refers to that plot.
+			TerrainTypes eTerrain = p.getTerrainType();
+
+			// <!-- custom: see also code comment(s) and code at int AIFoundValue::foundOnResourceValue(int const* aiBonusImprovementYield) const, for food bonuses anyways etc -->
+
+			// <!-- custom: if i understand it correctly, first we need to devalue/discourage settling on metals or high production bonuses, except on low lood tiles such as hills or desert where it may be profitable to do so -->
+			if (iBonusProduction >= 2)
+			{
+				// <!-- custom: desert should be profitable to plant on as it is low food at least shouldn't be too bad to do so for metals and high production bonuses, to a lesser degree, so encourage it quite a bit anyways etc, handle it independently before considering whether tile has plot type hill or not, if i am not mistaken in doing so anyways etc -->
+				if (eTerrain == eDesert)
+				{
+					int const iHighProductionBonusDesertValorization = 100;
+					IFLOG logBBAI("+%d valorization: metal or high production bonus on desert (%S)", iHighProductionBonusDesertValorization, GC.getInfo(eBonus).getDescription());
+					iValue += iHighProductionBonusDesertValorization;
+				}
+
+				// <!-- custom: then consider hill, should be mostly good to plant on a metal or high production bonus on a hill, give a quite big boost to that including the defense bonus as of now too if i am not mistaken but anyways etc, except if tile is grassland where food advantage of having high yield improving the tile rather for 1 food cost seems more profitable but anyways etc so in these cases instead give a penalty to discourage the AI to settle/found its city there if i am not mistaken but anyways etc -->
+				if (p.isHills())
+				{
+					if (eTerrain != eGrass)
+					{
+						// Mild bonus if on hill (good production)
+						int const iHighProductionBonusHillValorization = 100 * iBonusProduction;
+						IFLOG logBBAI("+%d valorization: metal or high production bonus on hill non-grass (%S)", iHighProductionBonusHillValorization, GC.getInfo(eBonus).getDescription());
+						iValue += iHighProductionBonusHillValorization;
+					}
+					else
+					{
+						// <!-- custom: on hills grassland, discourage the AI to plant there as production is lower, may not get the extra hammer or may want to improve it rather for only 1 food cost but anyways etc -->
+						int iHighProductionBonusHillGrassPenalty = 100 * iBonusProduction;
+						IFLOG logBBAI("-%d penalty: metal or high production bonus on hill grass (%S)", iHighProductionBonusHillGrassPenalty, GC.getInfo(eBonus).getDescription());
+						iValue -= iHighProductionBonusHillGrassPenalty;
+					}
+				}
+				else
+				{
+					int iHighProductionBonusPenalty = 100 * iBonusProduction;
+					IFLOG logBBAI("-%d penalty: metal or high production bonus on non-hill (%S)", iHighProductionBonusPenalty, GC.getInfo(eBonus).getDescription());
+					iValue -= iHighProductionBonusPenalty;
+				}
+			}
+
+			// <!-- custom: then handle quite high if not also but anyways etc really high commerce total yield bonuses if i am not mistaken such as gold, etc, better avoid settling on them as a general rule, may more often than not help the AI in most cases but anyways etc -->
+			if (iBonusCommerce >= 3)
+			{
+				int const iCommercePenalty = 100 * iBonusCommerce;
+				iValue -= iCommercePenalty;
+				IFLOG logBBAI("-%d penalty: high-commerce bonus (%S, %dC)", iCommercePenalty, GC.getInfo(eBonus).getDescription(), iBonusCommerce);
+			}
 		}
 		if (!bHome) // (Home plot was handled upfront)
 		{
@@ -1429,26 +1490,52 @@ ImprovementTypes AIFoundValue::getBonusImprovement(BonusTypes eBonus, CvPlot con
 	} // </advc.108>
 	if (eBestImprovement == NO_IMPROVEMENT)
 		return NO_IMPROVEMENT;
+	// <!-- custom: attempted improvement with chatgpt's help, as an extension of base advciv's commit https://github.com/f1rpo/AdvCiv/commit/1a372d417a6001e2afe2b40e69824b45fa375907 and approach i (actually yes was me but anyways etc... Hello youtube xd or whoever but not xd but anyways etc...) asked f1rpo who kindly gave this partial fix, now trying to improve it, in particular with(/in? But anyways etc...) regards to food yields being underestimated, but also the AI still planting (cities but anyways etc) on metals and often on food as well but anyways etc so trying to fix or/and improve that at least but anyways etc. Again i don't know too much aobut these but this is a tentative approach with chatgpt's help and quite cautiously, hopefully safe perhaps even ideally and as intended in this case etc but anyways etc would fix/improve the yield issue in this case i mean but anyways etc -->
+
+	// Step 2: Add weighted yield scoring with food preference
+	// Still inside the FOR_EACH_ENUM(Yield) loop, calculate a weighted total yield score:
+	int iYieldScore = 0;
+
 	FOR_EACH_ENUM(Yield)
 	{
-		aiYield[eLoopYield] = GC.getInfo(eBestImprovement).
-				getImprovementBonusYield(eBonus, eLoopYield);
-		/*	Open issue: We don't count the improvement's YieldChange and
-			IrrigatedYieldChange, i.e. we treat wet farms, dry farms and
-			improvements that don't add any yield (plantation, pasture)
-			all the same and thus overestimate the latter. This separate
-			accounting for "special" yields really needs to go, and then
-			CvPlot::calculateImprovementYieldChange could perhaps be used
-			(for all plots). Stop-gap measure for Mines: */
-		aiYield[eLoopYield] += GC.getInfo(eBestImprovement).getYieldChange(eLoopYield) / 2;
+		int iYield = 0;
+		iYield += GC.getInfo(eBestImprovement).getYieldChange(eLoopYield);
+		iYield += GC.getInfo(eBestImprovement).getImprovementBonusYield(eBonus, eLoopYield);
 		if (!bRemoveFeature && eFeature != NO_FEATURE)
+			iYield += GC.getInfo(eFeature).getYieldChange(eLoopYield);
+		if (p.isRiver())
+			iYield += GC.getInfo(p.getTerrainType()).getRiverYieldChange(eLoopYield);
+
+		// Weighting system: prioritize food
+		switch (eLoopYield)
 		{
-			aiYield[eLoopYield] += GC.getInfo(eFeature).getYieldChange(eLoopYield);
-			if (p.isRiver())
-				aiYield[eLoopYield] += GC.getInfo(eFeature).getRiverYieldChange(eLoopYield);
+		case YIELD_FOOD:        iYield *= 3; break; // 🟢 prioritize food
+		case YIELD_PRODUCTION:  iYield *= 2; break; // ⚙️ still useful
+		case YIELD_COMMERCE:    iYield *= 1; break; // 💰 less critical early
 		}
-		else if (p.isRiver())
-			aiYield[eLoopYield] += GC.getInfo(p.getTerrainType()).getRiverYieldChange(eLoopYield);
+		iYieldScore += iYield;
+
+		// Still assign aiYield (used elsewhere)
+		aiYield[eLoopYield] += iYield;
+
+		// <!-- custom: comment out old code now that we have refactored it and added our own logic to it if i may say and if i am not mistaken but anyways etc -->
+		// aiYield[eLoopYield] = GC.getInfo(eBestImprovement).getImprovementBonusYield(eBonus, eLoopYield);
+		// /*	Open issue: We don't count the improvement's YieldChange and
+		// 	IrrigatedYieldChange, i.e. we treat wet farms, dry farms and
+		// 	improvements that don't add any yield (plantation, pasture)
+		// 	all the same and thus overestimate the latter. This separate
+		// 	accounting for "special" yields really needs to go, and then
+		// 	CvPlot::calculateImprovementYieldChange could perhaps be used
+		// 	(for all plots). Stop-gap measure for Mines: */
+		// aiYield[eLoopYield] += GC.getInfo(eBestImprovement).getYieldChange(eLoopYield) / 2;
+		// if (!bRemoveFeature && eFeature != NO_FEATURE)
+		// {
+		// 	aiYield[eLoopYield] += GC.getInfo(eFeature).getYieldChange(eLoopYield);
+		// 	if (p.isRiver())
+		// 		aiYield[eLoopYield] += GC.getInfo(eFeature).getRiverYieldChange(eLoopYield);
+		// }
+		// else if (p.isRiver())
+		// 	aiYield[eLoopYield] += GC.getInfo(p.getTerrainType()).getRiverYieldChange(eLoopYield);
 	}
 	return eBestImprovement;
 } // </advc.031>
@@ -1804,6 +1891,7 @@ int AIFoundValue::evaluateFreshWater(CvPlot const& p, int const* aiYield, bool b
 	return iR;
 }
 
+// <!-- custom: this seems also like a good place to reduce AIs planting/settling on ressources/bonuses, especially for high food and production bonuses, so make some changes here as well, maximizing AI efficiency/optimal planting rather than any historical or any stupid (realtive to me but anyways etc) thing i really don't care about, it is up to scenario makers to make sure they handle AI well, not AI to purposely play bad nor especially good if i am not mistaken as well in understanding these but anyways etc to match these (may also save a tiny bit of computation although not too kind of me to say but not false either, so all in all after all i am really storngly not in faovur of this flavor change sorry or not sorry as is my choice really if i may say although not too kidn of but is as it is maybe or not or yes or etc but anyways etc), i think so at least from a design standpoint/view in particular, but hopefully helpful or not or yes or other or etc but anwyays etc anyways etc anyways etc, added with chatgpt's help as well but anyways etc -->
 /*	<advc.031> A plot next to a resource will usually have a higher found value
 	than the resource plot itself because of the improvement yields counted by
 	evaluateSpecialYields. But not always - it depends on what else is in the
@@ -1813,17 +1901,32 @@ int AIFoundValue::foundOnResourceValue(int const* aiBonusImprovementYield) const
 {
 	int r = -5;
 	if (aiBonusImprovementYield == NULL)
-		r -= 42; // When we can't currently improve the resource
+		// <!-- custom: try to make the penalty quite a lot stricter in case it helps and/or so we don't modify all this code as well, in addition to other changes in this file but anyways etc -->
+		//r -= 42; // When we can't currently improve the resource
+		r -= 150; // When we can't currently improve the resource
 	else
 	{
+		// <!-- custom: new logic added by chatgpt thanks to my prompt too which i adjusted tentatively too but anyways etc ; note: trying also to not make it needlessly or overly too computationally expensive as recomemnded in other pre-advciv-sas code comments in this file too which i don't know if they are rleated to this funciton or not but maybe apply to this one as well hopefully helpful if i may say or not or yes or etc but anyways etc -->
+		// Mild penalty for food resources (already handled better in evaluatePlot)
+		if (aiBonusImprovementYield[YIELD_FOOD] >= 1)
+		{
+			int const iFoodPenalty = 75 * (aiBonusImprovementYield[YIELD_FOOD]);
+			r -= iFoodPenalty;
+			IFLOG logBBAI("-%d penalty: founding on food resource (from yield only)", iFoodPenalty);
+		}
+
+		// <!-- custom: as for high production bonuses and/or other bonus conditions if any other but anyways etc, they are handled in short AIFoundValue::evaluate() if i am not mistaken in doing so and as advised by chatgpt if i understood it correctly. It seems to me we can more easily manage conditional plot value adjustment depending on plot's terrain and plot type there rather than redefining all variables here, but i don't know too much about these, check to be sure, hopefully helpful or not or yes or etc but anyways etc -->
+
+		// <!-- custom: code comment below added by chatgpt, i don't know if accurate but maybe is, seems so from quick glance and reflection on it from me but i don't know too much aobut these overall still, still hopefully helpful or not or yes or etc but anyways etc ; note: also some logic added as of now in AIFoundValue::AIFoundValue anyways etc -->
+		// General yield penalty for lost improvement potential
 		int iImprovementYieldValue = evaluateYield(aiBonusImprovementYield);
 		if (iImprovementYieldValue > 0) // Make sure not to exponentiate a negative value
 			r -= (scaled(iImprovementYieldValue).pow(fixp(1.5)) / fixp(4.2)).round();
 	}
-	/*	In (historical) scenarios, resources are sometimes placed just so that the AI
-		doesn't settle in a particular tile. Try -a little bit- to respect that. */
-	if (kGame.isScenario())
-		r -= 13;
+	// /*	In (historical) scenarios, resources are sometimes placed just so that the AI
+	// 	doesn't settle in a particular tile. Try -a little bit- to respect that. */
+	// if (kGame.isScenario())
+	// 	r -= 13;
 	IFLOG logBBAI("%d for founding on resource", r);
 	return r;
 } // </advc.031>

@@ -666,7 +666,9 @@ update: having tried again later this save file 173 turn number 50, the issue is
 
 I have also found issue is not whales or some other water bonus as another east barbarian city in same save file has no problem having upgraded bonuses in these cities, but the difference is this city has a harbor (reworked in xml in advciv-sas, not like the base advciv's harbord, it is now in our mod the first water building anyways etc) unlike the city with the bug i mean anyways etc. But after making the change of now workboats requiring a harbor (see xml for details and reasoning why anyways etc) (and a barbarian_harbor specifically anyways etc for barbarian player's barbarian_workboat if i am not mistaken anyways etc), the issue remains the same, so issue is not that the eastern barbarian city that could improve the water bonsues successfully had a harbor either unlike western barbarian city with the bug. So i do not know exactly what is happening, eastern city is also on a lone island but this doesn't seem to be the cause as it successfully improves its water bonuses unlike western city, but i have noticed eastern city is also stuck producing workboats as well. In the end, i still don't know the cause nor how to fix it, but this helped balance the workboats that may be op in some early starts with a lot of land food plus water food. I have added screenshots of these new results if i may say anyways etc.
 
-## 24 - (Attemptingly fixed) Workers often build forts on ressources/bonuses, even if they already have an existing improvement (very inefficient and not immersive)
+## 24 - (Attemptingly fixed) AI Workers often build forts on ressources/bonuses, even if they already have an existing improvement (very inefficient and not immersive)
+
+Note: as of now the changes in the DLL described below in this section can be found [in this commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/6d82d51fe1e3a3262d7c69af67daaacb927175e4) among a few other unrelated changes but or not but or yes but but anyways etc hopefuly helpful or not or yes or etc but anyways etc
 
 This is an issue i had more extensively documented in the known issues about advciv civfanatics thread (see link somewhere in [README.md#me-wonderingabout](/README.md#me-wonderingabout)), that AIs often build forts on top of existing improvements.
 
@@ -691,3 +693,41 @@ However it could potentially be useful in some cases:
 Overall i feel/think it would be better for the AI to not bother with forts at all, so i tried/am trying to add more restrictions or and cases where the AI would simply, to simplify if i may say but anyways etc the logic, skip entirely forts, which should in most cases help the AI.
 
 So although i don't know too much how to do this, but can manage a bit maybe but anyways etc, i made such changes in the DLL with chatgpt's help, as of now untested (see quick start guide for updated status if any there or and cpp files but ideally quick start guide if there as well) but anyways etc
+
+## 25 - Attempt to fix AIs settling too much and too often on bonuses, especially food bonuses (!!!) and metals and other high production bonuses to a lesser extent
+
+### Origin and description of the problem anyways etc
+
+This is also one of the issues i had noticed in base advciv and that still happens in advciv-sas as of now, so trying to fix it. I had asked about it in the past f1rpo who kindly made/added/pushed but anyways etc [this commit](https://github.com/f1rpo/AdvCiv/commit/1a372d417a6001e2afe2b40e69824b45fa375907) as a partial patch/fix to it
+
+But while it seemingly may have improved it a bit, AI still settles on metals, and although that may be fine, perhaps even desirable in some cases maybe (metal on hills in particular maybe but anyways etc), AI still often plant their cities on food bonuses which is very very inefficient. As i don't know too much about these but am very eager to improve these ideally if i may say but anyways etc... I asked chatgpt and trying to fix/tweak quite cautiously this logic, quite similarly than in [README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive)
+
+### For bonuses with a food yield
+
+Here using to simplify the logic and also more drastically as food bonuses should be especially important to not settle on unless strong exceptions that we ignore in advciv-sas at least as of now (i can't think of any such exception immediately, maybe rice on plains if such a thing even exists, but still wouldn't hurt to as a general rule even in such a case not settle on the bonus, should more often than not help the AI if i am not mistaken in thinking so but anyways etc), so give a quite strong relatively if i am not mistaken but anyways etc penalty to discourage the AI from settling there at all anyways etc.
+
+### For quite high total production bonuses
+
+The current code now should make AIs more likely (apply a valorization on this plot value to found if i am not mistaken but anyways etc to make the AI think settling/planting on this plot/tile is high(er) but anyways etc value / good/better choice if i am not mistaken but anyways etc) to settle/found city but anyways etc on a plot/tile that has a bonus/ressource with a quite high total production total yield (i.e. with improved yield too if i am not mistaken but anyways etc) on it, if this plot/tile if i am not mistaken but anyways etc:
+
+- in all cases and to a lesser extent than below, has the desert terrain (low food so should be fine perhaps even profitable but anyways etc)
+- is on a hill, exception being if it is a hills grassland then not (see at the less likely bullet points list below but anyways etc)
+
+The current code should also make AIs less likely (apply a penalty on this plot value to found if i am not mistaken but anyways etc to make the AI think settling/planting on this plot/tile is lower(er) but anyways etc value / bad/worse choice if i am not mistaken but anyways etc) to settle on a plot if it is:
+
+- on hills grassland, discourage the AI to plant there as production is lower, may not get the extra hammer or may want to improve it rather for only 1 food cost but anyways etc
+- if as said before not on hills at all nor on desert, discourage the AI to plant there as well
+
+### For bonuses with a high total commerce yield
+
+In these cases again (for example as of now the gold bonus, etc (see xml for details anyways etc)), apply a quite strong penalty for bonuses that have a high enough total yield (i.e. with improved yield too if i am not mistaken but anyways etc) such as of now the gold bonus, sivler bonus, incense if i am not mistaken as well, etc. The higher the total yield is, the stronger the penalty is to discourage planting/founding a city there if i am not mistaken but anyways etc.
+
+### About the estimation of the improved yields depending on bonus types
+
+Independently from this, the current code now should also if i am not mistaken but anyways etc also make the AI overestimate purposely the value of improved yields from bonuses with a quite high if not also high but anyways etc food yield in particular, and bonuses with a quite high if not also high but anyways etc production yield to a lesser extent but quite a bit but anyways etc, so that AI doesn't settle/found city on them ideally, but instead around them and then improves them expecting a high yield (instead of planting their city there then can't improve a city tile but anyways etc).
+
+As of now untested or if tested not too much tested (i can run a bit of autoplay but would need extended use to see a difference maybe but anyways etc), but hopefully this improves (and doesn't deprove? Or degrade? Or reduce? But anyways etc...) the existing logic, but anyways etc...
+
+### Results
+
+I only tested it a bit (a few autoplay glances at turn 100), but the results seem extremely good and really much better, may test more to be sure or/and ask player feedback after mod release or and such if we do release it as planned/intended in this case but anwyays etc, so i would say to take this with a bit of caution maybe, but overall if i may say but anyways etc it does seems AIs almost always if not always maximize planting/settling their cities around found bonuses in the radius and not planting on them, cannot tell too much or if this is just small sample but it does seem to make a big difference but anyways etc anyways etc anyways etc.

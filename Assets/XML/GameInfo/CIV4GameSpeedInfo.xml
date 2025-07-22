@@ -290,6 +290,7 @@
 			<!-- custom:
 
 			then resumes/starts here now anyways etc:
+														- turn 0 [START] -
 			For from -50 000  to  -30 000	;	Month increment: 12 * 5 000  years = 60 000  months		;	Turns: 4
 			For from -30 000  to  -20 000	;	Month increment: 12 * 2 500  years = 30 000  months		;	Turns: 4
 			For from -20 000  to  -15 000	;	Month increment: 12 * 1 000  years = 12 000  months		;	Turns: 5
@@ -310,7 +311,18 @@
 			For from  1400    to  1840		;	Month increment: 12 * 10     years = 120     months		;	Turns: 44
 			For from  1840    to  1870		;	Month increment: 12 * 5      years = 60      months		;	Turns: 6
 														- end of turn 250 -
-			note: as per base advciv code comment below, we end in an even (not odd if i may say no pun (at least didn't intend directly (nor indirectly if i may say but anwyays etc...) but anyways etc...) number, as of now 1870, then we bridge on base advciv timeline going forward which should be quite accurate if i may say maybe (but i didn't check anyways etc))
+			For from  1870    to  2000		;	Month increment: 12 * 5      years = 60      months		;	Turns: 26
+			For from  2000    to  2048		;	Month increment: 12 * 2      years = 24      months		;	Turns: 24
+														- end of turn 300 -
+			For from  2048    to  2052		;	Month increment: 12 * 2      years = 24      months		;	Turns: 2
+			For from  2052    to  2100		;	Month increment: 12 * 1      years = 12      months		;	Turns: 48
+														- end of turn 350 -
+			For from  2100    to  2125		;	Month increment: 6 * 1      years = 6      months		;	Turns: 50
+														- end of turn 400 -
+			For from  2125    to  2150		;	Month increment: 6 * 1      years = 6      months		;	Turns: 50
+														- end of turn 450 -
+			For from  2150    to  2155		;	Month increment: 6 * 1      years = 6      months		;	Turns: 10
+														- end of turn 460 [END] -
 			-->
 			<GameTurnInfos>
 				<GameTurnInfo>
@@ -380,7 +392,8 @@
 						 in the next period (2 years per turn) will be odd. -->
 				<!--	<iTurnsPerIncrement>26</iTurnsPerIncrement>-->
 				<!--</GameTurnInfo>-->
-				<GameTurnInfo>
+				<!-- custom: in our case i see no reason to go slower than 5 years (i.e. 60 months if i am not mistaken anyways etc) per turn, we need to account for future era and such, also at that pace even 100 turns would "only" be 500 years so should be fine to dive deep into the future era if i am not mistaken maybe but anyways etc, so actually deviate from base advciv's timeline anyways etc -->
+				<!--<GameTurnInfo>
 					<iMonthIncrement>24</iMonthIncrement>
 					<iTurnsPerIncrement>82</iTurnsPerIncrement>
 				</GameTurnInfo>
@@ -391,6 +404,30 @@
 				<GameTurnInfo>
 					<iMonthIncrement>6</iMonthIncrement>
 					<iTurnsPerIncrement>152</iTurnsPerIncrement>
+				</GameTurnInfo>-->
+				<GameTurnInfo>
+					<iMonthIncrement>60</iMonthIncrement>
+					<iTurnsPerIncrement>26</iTurnsPerIncrement>
+				</GameTurnInfo>
+				<GameTurnInfo>
+					<iMonthIncrement>24</iMonthIncrement>
+					<iTurnsPerIncrement>24</iTurnsPerIncrement>
+				</GameTurnInfo>
+				<GameTurnInfo>
+					<iMonthIncrement>24</iMonthIncrement>
+					<iTurnsPerIncrement>2</iTurnsPerIncrement>
+				</GameTurnInfo>
+				<GameTurnInfo>
+					<iMonthIncrement>12</iMonthIncrement>
+					<iTurnsPerIncrement>48</iTurnsPerIncrement>
+				</GameTurnInfo>
+				<GameTurnInfo>
+					<iMonthIncrement>6</iMonthIncrement>
+					<iTurnsPerIncrement>50</iTurnsPerIncrement>
+				</GameTurnInfo>
+				<GameTurnInfo>
+					<iMonthIncrement>6</iMonthIncrement>
+					<iTurnsPerIncrement>50</iTurnsPerIncrement>
 				</GameTurnInfo>
 			</GameTurnInfos>
 		</GameSpeedInfo>
