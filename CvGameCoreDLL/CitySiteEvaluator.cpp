@@ -706,6 +706,7 @@ short AIFoundValue::evaluate()
 		{
 			// <!-- custom: defensive bonus of the hill and low food planting/settling the city here but anyways etc should be good as a general rule, except for hill grassland where prioritizing food rather and having a high yield for only 1 food cost the tile may be a better or/and more rewarding strategy instead. So do not give a valorization in that case if i may say but anyways etc, this will be handled by the general grass logic, however also do not valorize hill in that case as part of not incentivizing to plant/settle/found but anyways etc cities on hill grassland anyways etc -->
 			// custom: note: valorizing hill settling too much may have some issues if i am not mistaken such as having cities not carry irrigation if i am not mistaken (i don't know too much aobut these) for AIs, but generally more often than not the defense bonus as well as taking one of the low food yield tiles should be a good start to plant the city, so valorize it very much for non-bonus tiles as well (even though a bit less or/and differently in value than for bonus tiles but anyways etc), penalizing hill grassland should ideally especially help in the early game as the yield of hill grassland are very good as of now at least and if i am not mistaken, so better not settle on it, anyways etc -->
+			// custom: note 2: as of now flood plains or and other potentially/hypothetically quite high or high food feature cannot exist on hill, so no need to spend computation on them, but ideally in a mod mod if you'd want to account for such, you'd add them (i.e. the flood plains feature for example if it could fit in a hill for example but anyways etc) here to the hill bonus exclusion (as it is a high food tile, better not plant/settle/found city on it and waste it if i may say but anyways etc) then penalize for example the flood plains feature below separately from the terrain "cascade" (as chatgpt calls it but anwyays etc thanks anyways etc) in its own feature cascade rather (if i amy say too if i may say but anyways etc...) so that the feature valorization change (penalty or increase of valorization but anyways etc) also applies to all terrains, not only just to desert, anyways etc. In short, flood plains on hills don't exist if i am not mistaken in base advciv +/- civ nor in advciv-sas, but it is easier and computationally to handle it as such, update your code as you see fit if your mod mod or such supports this so that flood plains on hills are also accurately penalized to discourage AI planting/settling/founding cities there as hills grassland currently is, if you want i mean, hopefully helpful or not or yes or other or etc but anyways etc anyways etc anyways etc. -->
 			if (p.isHills() && p.getTerrainType() != eGrass)
 				iValue += 50;
 
@@ -715,19 +716,21 @@ short AIFoundValue::evaluate()
 			// custom: note3: also statistically these may happen more often so place them before in case it helps computationally skip the other checks if i may say but anyways etc anyways etc anyways etc -->
 			if (p.getTerrainType() == ePlains)
 				iValue += 25;
-			else if (p.getTerrainType() == eDesert)
-				iValue += 45;
+			// <!-- custom: discourage settling on high food tiles such as grassland and flood plains, higher penalties the higher the food bonus is anyways etc -->
+			else if (p.getTerrainType() == eGrass)
+				iValue -= 25;
+			else if (p.getTerrainType() == eDesert) {
+				// <!-- custom: may not cover the case of for example mod mods having flood plains on other terrains than desert, but it is computationally more efficient to do so i.e. to check i mean but anyways etc in this case but anyways etc the flood plains feature only in its relevant/comaptible in XML terrain(s), which in advciv-sas and as of now only are desert. I don't know how many times we run this instruction, but if it's quite a lot, even saving one instruction may be nice if i may say, remember to modify this if you modify in your mod mod or such the flood plains compatible terrains or/and such but anyways etc -->
+				if (p.getFeatureType() == eFloodPlains)
+					iValue -= 50;
+				else
+					iValue += 45;
+			}
+			// <!-- custom: as of now tundra yields are lower than plains, so although food yields are seemingly the same if i am not mistaken but anyways etc, prioritize it a bit more than plains if everything else is equal and if i am not mistaken too but anyways etc -->
 			else if (p.getTerrainType() == eTundra)
-				iValue += 25;
+				iValue += 30;
 			else if (p.getTerrainType() == eSnow)
 				iValue += 45;
-
-			// <!-- custom: discourage settling on high food tiles such as grassland and flood plains, higher penalties the higher the food bonus is anyways etc -->
-			if (p.getTerrainType() == eGrass)
-				iValue -= 25;
-			// <!-- custom: i don't think there can be flood plains on grass so maybe fine to use an else if for computation if helps even a bit but anyways etc -->
-			else if (p.getFeatureType() == eFloodPlains)
-				iValue -= 50;
 		}
 
 		if (!bHome) // (Home plot was handled upfront)
