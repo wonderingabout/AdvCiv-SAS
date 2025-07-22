@@ -33,6 +33,8 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
+
+
 class SevoPediaUnit:
 
 	def __init__(self, main):

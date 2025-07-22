@@ -148,6 +148,8 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
+
+
 class SevoPediaBuilding:
 
 	def __init__(self, main):

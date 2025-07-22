@@ -51,6 +51,8 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
+
+
 # <!-- custom: config flag to use/display emoji buttons for the ai personality panels's headers or and other or and not anyways etc or not optionally anyways etc -->
 # 🌟🛠️ CUSTOMIZATION: Toggle emoji buttons in AI category headers!
 # 🎨 Set to True to enable emoji icons (like ⚔️, 🏆, 💰) in the AI Personality panel headers.

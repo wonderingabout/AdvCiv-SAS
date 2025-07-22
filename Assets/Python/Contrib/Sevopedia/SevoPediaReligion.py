@@ -32,6 +32,8 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
+
+
 class SevoPediaReligion:
 
 	def __init__(self, main):

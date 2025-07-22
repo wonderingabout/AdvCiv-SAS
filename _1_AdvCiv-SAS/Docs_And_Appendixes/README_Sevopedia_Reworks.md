@@ -51,8 +51,11 @@ Mostly my own modding and first attemps at deciphering civ4's python, not inordi
 
 after having written this first paragraph above in this same example 4, a more extensive rewrite/refactor was done based on [example-7-unit-list-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-7-unit-list-category) and [example-8-building-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-8-building-category), (and) also with the help of Claude AI (see [Authors for details (Claude AI's section) in the main readme.me](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details) (anyways etc), in particular changes include that we now have also added a placeObsoleteWith function now that tells us when a bonus/ressource is obsolete (i.e. at which tech anyways etc) anyways etc anyways etc anyways etc. Also, changes include as well showing horizontally improvements rather than vertically while still keeping the auto-cetering of the spacing between improvements ; although code is maybe a bit shaky and not too optimal or not or yes or other but anyways etc, it does seem to work-function well for a small number of improvements (didn't test for more how it would display) so i wanted to show it here as well as part of the changes but anyways etc.
 
+More recently, also added thanks to bit of chatgpt's help too hehe even though mostly me but it helped too but anyways etc the terrain (as of now minus some plot types (see sevopedia terrain readme section information or/and quick start guide or/and code comments anyways etc)) and feature info, hopefully helpful or/and (more at least or maybe simply exhaustive or more but anyways etc...) exhaustive but anyways etc
+
 <img src="../Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG" alt="0.650_sevopedia_bonuses_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG" alt="0.650_sevopedia_bonuses_sample (2).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (3).JPG" alt="0.650_sevopedia_bonuses_sample (3).JPG" width="250"></img>
 
 ## example 5: religion category
 

@@ -10,6 +10,8 @@
 # see ReadMe [advc: BUG help file] for details
 #
 
+
+
 # <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
 from CvPythonExtensions import *
 
@@ -52,6 +54,8 @@ localText = CyTranslator()
 AdvisorOpt = BugCore.game.Advisors
 
 g_TraitUtilInitDone = False
+
+
 
 class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
