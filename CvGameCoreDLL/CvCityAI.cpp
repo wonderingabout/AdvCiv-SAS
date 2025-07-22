@@ -9506,6 +9506,16 @@ bool CvCityAI::AI_chooseBuilding(int iFocusFlags, int iMaxTurns, int iMinThresho
 	eBestBuilding = AI_bestBuildingThreshold(iFocusFlags, iMaxTurns, iMinThreshold);
 	if (eBestBuilding != NO_BUILDING)
 	{
+		// <!-- custom: try to prevent barbarians from building world wonders, their purpose is to fight not to compete for wonders no matter how well they are developped, at least in advciv-sas, increasing iBuildUnitProb to 100 and using NONE in civilizations info xml file seem to be no good or not always reliable/consistent as they still build world wonders in some cases and quite often, so patching the DLL rather hopefully helps reliably solve this, with chatgpt's help and my prompts and adjustments or not or yes or etc or and such or not or yes or etc too but anyways etc anyways etc anyways etc -->
+		// Check if Barbarian is trying to build a world wonder and skip it
+		const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+		if (kOwner.isBarbarian())
+		{
+			CvBuildingInfo const& kBuilding = GC.getInfo(eBestBuilding);
+			if (kBuilding.isWorldWonder())
+				return false;
+		}
+
 		/*if (iOdds < 0 ||
 			getBuildingProduction(eBestBuilding) > 0 ||
 			SyncRandNum(100) < iOdds)*/ // BBAI

@@ -140,11 +140,9 @@ Results are very good, if you have good eyes or are very patient or/and know whe
 
 A few screenshots of the issue (screenshot previews below as long as links are valid anyways etc) in [this Google drive folder about this issue](https://drive.google.com/drive/folders/1WNHP4fQQ1Dbm4JnXx9YDedCnLzrOO8ey?usp=sharing)
 
-## 3 - (now fixed) Barbarians (cities) building wonders
+## 3 - (now fixed with a DLL patch) Barbarians (cities) building wonders, in particular now fixed i.e. disabled for world wonders anyways etc
 
-UPDATE: seemingly now fixed using builUnitProb 100 or a similar value, testing more to be sure but seems extremely effective in stopping all (great and wonder) building tendency entirely in barbarian, ened to test more to be sure (in case) i am not mistaken anyways etc, may tone it dow a bit so they can build the barabarian lighthouse they seemingly never do now, but anyways etc
-
-In AdvCiv base code after implementing the barbarians boost to make them more economically viable and/or strong but anyways etc anyways etc anyways etc... Barbarians are still trying to build wonders sometimes, the base AdvCiv code does not prevent that, or/and at least not always maybe or not or yes indeed but anyways etc anyways etc ; and even complete them sometimes actually, for example(s anyways etc anyways etc):
+In base advCiv code, after implementing the barbarians boost to make them more economically viable and/or strong but anyways etc anyways etc anyways etc... Barbarians are still trying to build wonders sometimes, the base AdvCiv code does not prevent that, or/and at least not always maybe or not or yes indeed but anyways etc anyways etc ; and even complete them sometimes actually, for example(s anyways etc anyways etc):
 
 A few screenshots of the issue (screenshot previews below as long as links are valid anyways etc) in [this Google drive folder about this issue](https://drive.google.com/drive/folders/1p5O09XzbbrM5x2hxFD6RGvBpuU8RzPAd?usp=sharing)
 
@@ -152,9 +150,22 @@ There may be(/have been, but anyways etc) other cases like these, and i don't kn
 
 So/And anyways etc i removed all such old logic of buildingclass NONE in (adjust if non-steam game or other mod path you have to where your advciv-sas or/and other mod you're using or not etc anyways etc is anyways etc) `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Civilizations\CIV4CivilizationInfos.xml`.
 
-For now trying the FLAVOR_MILITARY 10 approach (inspired or rather taken (as i already had the idea but anyways thanks still or not thanks or thanks still or and other or and not anyways etc) from genghis khan's code), not sure it will make a difference but this (value not the leader, i don't know enough about genghis khan to say if he aligns or not, i could maybe express a tentative opinion if i knew more but abstaining from that as i don't know lot or enough about him even though may be cool or/and interesting maybe i mean to know but anyways etc anyways etc)align with their profile of being (more of a at least ideally i.e. in theory if not more ideal too or not but(/) anyways etc anyways etc...) anyways warmongerer anyways etc.
+I had tried tweaking/changing WonderConstructRand but seemingly no change at all.
 
-Currently testing a builUnitProb 100 or similar in leader barbarian that seems very very effective, but testing more if i test to be sure, may be fixed now for real or maybe not, hopefully, but maybe or maybe not, but anyways etc anyways etc anyways etc
+I had also tried using BuilUnitProb 100  or similar in leader barbarian XML, but although it seemed to have helped in most cases, in some cases barbarians would still build world wonders.
+
+Lines such as:
+
+```xml
+				<Building>
+					<BuildingClassType>BUILDINGCLASS_GREAT_WALL</BuildingClassType>
+					<BuildingType>NONE</BuildingType>
+				</Building>
+```
+
+Were totally ineffective, so i have removed them as well for as of now for wonders i mean if i may say but anyways etc.
+
+Thanks to chatgpt's help, and following recent as of now DLL changes such as in [README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive), it seems to finally be fixed by patching the DLL directly instead in [/CvGameCoreDLL/CvCityAI.cpp](/CvGameCoreDLL/CvCityAI.cpp), as of now only for world wonders (no need to forbid national wonders too strongly as of now at least if not always or not or yes or etc but anyways etc)
 
 ## 4 - (now fixed) Sevopedia Unit's placeRequires's Religion button (for example any religious missionary unit) not redirecting to sevopedia religion (nothing happens on click anyways etc)
 
@@ -742,19 +753,20 @@ I only tested it a bit (a few autoplay glances at turn 100), but the results see
 
 Similarly to [README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---attempt-to-fix-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-to-a-lesser-extent) and [README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---attempt-to-fix-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-to-a-lesser-extent), also add logic in the DLL for non-bonus/ressource tiles, with chatgpt's help and my prompts and thoughts too but anyways etc anyways etc anyways etc, to help the AI better choose tiles to settle/plant/found city on, prioritizing low-food tiles rather as a general rule (especially hill due to the defense bonus that it has additionally but anyways etc), with some exceptions (such as hill grassland as of now but anyways etc)
 
-Logic as of now summarized as such by chatgpt (i just renamed its "bonus" word to "value")
+Logic as of now summarized as such by chatgpt (i just renamed its "bonus" word to "value" and edited a quite a bit its table but anyways etc)
 
 note: values may be updated, please view code at [/CvGameCoreDLL/CitySiteEvaluator.cpp](/CvGameCoreDLL/CitySiteEvaluator.cpp) for details or/and updated value, hopefully this general logic helps and/or is not too not updated anymore but anyways etc
 
-| Tile Type      | Terrain Value | Hill Value | Total if Hill | Notes                    |
-| -------------- | ------------- | ---------- | ------------- | ------------------------ |
-| Grassland      | −25           | 0          | −25           | Correctly discouraged    |
-| Grassland Hill | −25           | 0          | −25           | Excluded from hill bonus |
-| Plains         | +25           | +50        | **+75**       | Solid early-game spot    |
-| Desert         | +45           | +50        | **+95**       | Great overwrite option   |
-| Snow           | +45           | +50        | **+95**       | Same                     |
-| Tundra         | +25           | +50        | **+75**       | Better than flat tundra  |
-| Floodplains    | −50           | —          | −50           | Correctly discouraged    |
+| Tile Type      | Value no Hill | Hill Value | Value if Hill | Notes                                   |
+| -------------- | ------------- | ---------- | ------------- | --------------------------------------- |
+| Grassland      | −25           | 0          | −25           | Correctly discouraged                   |
+| Plains         | +25           | +50        | **+75**       | Solid early-game spot                   |
+| Desert         | +45           | +50        | **+95**       | Great overwrite option                  |
+| Snow           | +45           | +50        | **+95**       | Same                                    |
+| Tundra         | +25           | +50        | **+75**       | Better than flat tundra                 |
+| Floodplains    | −50           | —          | 0(*)          | Hill Floodplains not existent as of now |
+
+(*) Since as of now if i am not mistaken hill floodplain does not exist unless i'm mistaken, no need to explicitly handle it, may be computationally cheaper to do so as well in this case at least but anyways etc.
 
 This means for example that settling/planting/founding city but anyways etc on a hills desert tile is strongly encouraged, hill with plains quite very if i may say but anyways etc strongly encouraged too, flatland (no hill, no peak) desert still quite significantly too if i may say but slightly less than the hill modifier itself so that if everything else is being the same (as of now we don't have other terrains that would go on a hill plot type if i am not mistaken but anyways etc, but maybe the distinction helps somehow, but anyways etc) so that hill is still slightly preferred in that case (again i don't think as of now we have such terrain where it would apply, but theoretically maybe with some terrain changes, since logic doesn't harm, keep it as is anyways etc).
 

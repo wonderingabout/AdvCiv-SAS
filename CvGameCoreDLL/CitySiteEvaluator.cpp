@@ -377,7 +377,7 @@ short AIFoundValue::evaluate()
 	int iLandTiles = 0; // advc.031
 	// <advc.040>
 
-	// <!-- custom: attempt to support desert, grass, and flood plains conditional bonus settling/founding city logic anyways etc -->
+	// <!-- custom: attempt to support terrains and feature(s) conditional settling/founding city logic anyways etc -->
 	TerrainTypes const eDesert = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_DESERT");
 	TerrainTypes const eSnow = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_SNOW");
 	TerrainTypes const ePlains = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_PLAINS");

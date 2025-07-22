@@ -4194,19 +4194,12 @@
 					<BuildingClassType>BUILDINGCLASS_CASTLE</BuildingClassType>
 					<BuildingType>BUILDING_BARBARIAN_CASTLE</BuildingType>
 				</Building>
-				<!-- custom: probably doesn't work-function anyways etc as has been tested not to, but in case it maybe does, adding the great_wall to explicitly prevent barbarians from building it, which they seem to often do for some reason anyways etc especially more now with the recent changes to military produciton modifier to balance barbarians for some reason anyways etc -->
+				<!-- custom: lines such as 
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_GREAT_WALL</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_GREAT_LIGHTHOUSE</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_STATUE_OF_ZEUS</BuildingClassType>
-					<BuildingType>NONE</BuildingType>
-				</Building>
+				don't do anything in preventing barbarians to build wonders, removing them they still build wonders as well (as i tested many times and the result seems to be indeed that it seems to be so if i may say but anyways etc), so removing them entirely for wonders since they don't help at all, this is prevented by a patch in the DLL in CvCityAI.cpp we added in advciv-sas with chatgpt's help too and my help too and its help too too and my help too too etc anyways etc anyways etc anyways etc -->
 				<!-- custom: inefficient to build an aqueduct for barbarians and not very realistic, let (barbarian) palace provide health directly, more efficient this wayso they can focus more on producing units anyways etc
 				Same for forge, provide military only small (relatively anyways etc) production bonus instead
 				Test to not put the stable too for efficiency and maybe bit accuracy/realism maybe or not or yes or and other or and not but in all cases anyways etc -->
@@ -4222,22 +4215,6 @@
 					<BuildingClassType>BUILDINGCLASS_STABLE</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
-				<!-- custom: fix bug(/(careless as in unaware of or and other or and not? but anyways etc, anyways etc) oversight? Anyways etc) (seemingly from AdvCiv or/and base Civ4 or/and other mods or not anyways etc) where Barbarians could build schwedagon pawa as happened in an autoplay, anyways etc
-				
-				update: this doesn't fix it so removed, and it was already there, plus they tried to build mausolleum of mausollos todo (ideally i mean anyways) fix make barbarians not build any wonder at all (but maybe not too bad as is but certainly not ideal maybe... But anyways etc anyways etc anyways etc anyways etc...)
-				-->
-				<!-- custom: 
-				old code lines such as:
-					<Building>
-						<BuildingClassType>BUILDINGCLASS_SHWEDAGON_PAYA</BuildingClassType>
-						<BuildingType>NONE</BuildingType>
-					</Building>
-				seem to have no effect at all on preventing barbarians from building wonders, as they built (still (but)(anyways etc) anyways etc shwedagon paya and mausoleum of mausollos, perhaps this was just hidden as they were not prosperous enough, but now that they can compete for wonders too with other players, they (barbarians) try(were trying anyways etc) to build wonders sometimes even completed them before other players), so as the code is useless or not entirely effective, removed it, and now trying this very negative as in in value as in in number anyways etc anyways etc anyways etc iWonderConstructRand which seems to do the trick, and no more spaghetti code (but i lovbe spaghetti (to eat) but anyways etc...(maybe code too or not too but in all cases anyways etc...)) so we don't have to remove it and clean our code
-
-				I have tried using <iWonderConstructRand>-9999</iWonderConstructRand> (for <Type>LEADER_BARBARIAN</Type>) or some very negative in value as in in number anyways etc but doesn't work
-
-				then i tried <iBuildUnitProb>100</iBuildUnitProb> and seems to work extremely well and be effective, no wonder at all now in barbarians, no normal building though like the lighthouse anymore even though the barabarian version of it is so much cheaper and such to build anyways etc, may tone it down a bit, or/and test more to be sure, but this seems fixed now, anyways etc
-				-->
 				<!-- custom: (Normal Buildings)-->
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_MONUMENT</BuildingClassType>
@@ -4364,10 +4341,7 @@
 
 
 
-			<!-- custom: barbarians are now stronger, all the military units are now allowed unlike in base AdvCiv anyways etc:
-			pikeman, rifleman, grenadier, infantry, marine, etc (think of them as bandits, mercenaries,
-			pirates, terrorists, or such, anyways etc)
-			-->
+			<!-- custom: barbarians are now stronger, all the military units are now allowed unlike in base AdvCiv anyways etc: pikeman, rifleman, grenadier, infantry, marine, etc (think of them as bandits, mercenaries, pirates, terrorists, or such, anyways etc) if they can last long enough in this case until then but anyways etc -->
 			<!-- advc.303: Not sure where comments are allowed in this file;
 			demonstrably not everywhere. Added NONE entries to the Barbarians
 			starting at Monument (still called "Obelisk" internally) until
@@ -4482,7 +4456,7 @@
 				</Unit>
 			</Units>
 			<FreeUnitClasses/>
-			<!-- custom: barbarians now start with free buildings (given as a civ specific 1 (hammer) cost building equivalent of it instead (else free building applies only to the first barbarian city and not all barbarian cities)), and techs too anyways (even though they should get them free as they start (i assume from other civs or by some mechanics((?))(), still making extra sure they always start with them (i.e. with these techs anyways etc))), hopefully stronger this way without interfering too much in religions at least not directly, and compensates at least partly their later start in cities hopefully anyways etc
+			<!-- custom: barbarians now start with free buildings (given as a civ specific lower hammer cost building equivalent of it instead (else free building applies only to the first barbarian city and not all barbarian cities)), and techs too anyways (even though they should get them free as they start (i assume from other civs or by some mechanics((?))(), still making extra sure they always start with them (i.e. with these techs anyways etc))), hopefully stronger this way without interfering too much in religions at least not directly, and compensates at least partly their later start in cities hopefully anyways etc
 			I tried giving them a free worker but it seems ignored by the DLL/game (whichever accurate version of this explanation it is or/and other is not or yes or and other or and not anyways etc, ), but military units seem to work, only for the first barbarian civ, so instead not giving any specific military units, and making a few core units like the worker much cheaper for barbarians as they start later and have penalties and such of smaller and sparse cities, anyways etc, hopefully more interesting (gameplay) this way i mean anyways or not or yes or and other or and not, anyways etc.
 			Putting the free (barbarian) buildings also here in FreeBuildingClasses also ensures the first barbarian city always get them without needing to build it themsleves or risk skipping it.
 
