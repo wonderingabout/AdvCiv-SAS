@@ -4,9 +4,9 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- Terrain Infos -->
+<!-- custom: note: be careful when/if renaming some of these terrains but anyways etc, as they are now also hardcoded in advciv-sas in the DLL as part of AI settling/founding/planting cities optimization, if you want to rename it, rename it there as well and recompile the DLL, anyways etc -->
 <Civ4TerrainInfos xmlns="x-schema:CIV4TerrainSchema.xml">
 	<TerrainInfos>
-		<!-- custom: note: be careful renaming this "TERRAIN_GRASS", as it is now hardcoded in the DLL, if you want to rename it, rename it there as well and recompile the DLL, anyways etc -->
 		<TerrainInfo>
 			<Type>TERRAIN_GRASS</Type>
 			<Description>TXT_KEY_TERRAIN_GRASS</Description>
@@ -303,7 +303,6 @@
 			<WorldSoundscapeAudioScript>ASSS_PLAINS_SELECT_AMB</WorldSoundscapeAudioScript>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</TerrainInfo>
-		<!-- custom: note: be careful renaming this "TERRAIN_DESERT", as it is now hardcoded in the DLL, if you want to rename it, rename it there as well and recompile the DLL, anyways etc -->
 		<TerrainInfo>
 			<Type>TERRAIN_DESERT</Type>
 			<Description>TXT_KEY_TERRAIN_DESERT</Description>

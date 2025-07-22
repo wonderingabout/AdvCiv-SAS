@@ -4199,6 +4199,14 @@
 					<BuildingClassType>BUILDINGCLASS_GREAT_WALL</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
+				<Building>
+					<BuildingClassType>BUILDINGCLASS_GREAT_LIGHTHOUSE</BuildingClassType>
+					<BuildingType>NONE</BuildingType>
+				</Building>
+				<Building>
+					<BuildingClassType>BUILDINGCLASS_STATUE_OF_ZEUS</BuildingClassType>
+					<BuildingType>NONE</BuildingType>
+				</Building>
 				<!-- custom: inefficient to build an aqueduct for barbarians and not very realistic, let (barbarian) palace provide health directly, more efficient this wayso they can focus more on producing units anyways etc
 				Same for forge, provide military only small (relatively anyways etc) production bonus instead
 				Test to not put the stable too for efficiency and maybe bit accuracy/realism maybe or not or yes or and other or and not but in all cases anyways etc -->

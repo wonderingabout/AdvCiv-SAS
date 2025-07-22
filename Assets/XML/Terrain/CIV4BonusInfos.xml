@@ -1966,7 +1966,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 			<!-- custom: reducing iPlayer to 0 if need be to make it player-independent too if i am not mistaken and flat, always constant spanwing, anyways etc, was 67 -->
 			<!-- custom: buff water ressources, less pronounced in less general ressources/bonsues (as fish and mollusc are for example) (if any other(s) such bonuses exist in civ4 in our civ4 mod advciv-sas at least anyways etc), but since it was 0, using a higher than 0 value to not disable it if i am not mistaken according to/as said in (english verison rather translated web page using google chrome (for example is what i used anyways etc, see docs for details anyways etc) https://gforestshade.github.io/kujira/post/civ4bonusinfos/#itilesper, was 67 / 0 ; after tweaking it to 0 / 26 seems still a bit too high in frequency, whale appears a bit too often anyways etc, reduce it a bit now from 0 / 26 anyways etc to value(s) below anyways etc anyways etc anyways etc -->
 			<iPlayer>0</iPlayer>
-			<iTilesPer>28</iTilesPer>
+			<iTilesPer>29</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>1</iUnique>
 			<iGroupRange>0</iGroupRange>

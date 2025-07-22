@@ -377,9 +377,13 @@ short AIFoundValue::evaluate()
 	int iLandTiles = 0; // advc.031
 	// <advc.040>
 
-	// <!-- custom: attempt to support desert and grass conditional bonus settling/founding city logic anyways etc -->
+	// <!-- custom: attempt to support desert, grass, and flood plains conditional bonus settling/founding city logic anyways etc -->
 	TerrainTypes const eDesert = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_DESERT");
+	TerrainTypes const eSnow = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_SNOW");
+	TerrainTypes const ePlains = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_PLAINS");
+	TerrainTypes const eTundra = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_TUNDRA");
 	TerrainTypes const eGrass = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_GRASS");
+	FeatureTypes const eFloodPlains = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FLOOD_PLAINS");
 
 	bool bFirstColony = isPrioritizeAsFirstColony();
 	IFLOG if(bFirstColony) logBBAI("First colony");
@@ -630,12 +634,14 @@ short AIFoundValue::evaluate()
 				iResourceValue += iBonusValue; // K-Mod
 			}
 
+			// <!-- custom: AI still often / quite often ignores water bonus in range and settles as a non-coastal city rather, so try to enforce or strengthen this bonus, especially considering water bonuses are often if not entirely food yield related in advciv-sas at least but anyways etc -->
 			/*if (p.isWater())
 				iValue += (bCoastal ? 0 : -800);*/ // (was ? 100 : -800)
 			// <advc.031> Replacing the above
 			if (p.isWater() && !bCoastal)
 			{
-				int const iPenalty = 165;
+				//int const iPenalty = 165;
+				int const iPenalty = 400;
 				IFLOG logBBAI("-%d from water resource near non-coastal site", iPenalty);
 				iValue -= iPenalty;
 			} // </advc.031>
@@ -695,6 +701,35 @@ short AIFoundValue::evaluate()
 				IFLOG logBBAI("-%d penalty: high-commerce bonus (%S)", iCommerceBonusPenalty, GC.getInfo(eBonus).getDescription());
 			}
 		}
+		// <!-- custom: use a simpler formula for non-bonus tiles so that it is computationally more efficient to handle them as a separate case but anyways etc, and we can maybe also fine-tune independently/more easily or/and cleanly perhaps the logics of bonus vs non-bonus tiles if needed but anyways etc anyways etc anyways etc ; also not logging as may be a bit too noisy and perhaps inefficient or maybe computational? But anyways etc ; note: not changing this part too much in case it has unexpected effects on AI behaviour and as i don't know too much about these even with chatgpt's help and my thoughts, but hopefully these help quite a bit if not quite a lot hopefully but anyways etc maybe (you may test them to be sure ideally i mean, from a few autoplay there seems to be a difference at first glance but not a major one, trying to not increase these values too much in case it has unintended or unexpected effect, but ideally try to tweak/tinker with these a bit more xd i assessed quick intuitively, but hopefully helpful or not or yes or etc but anyways etc) -->
+		else
+		{
+			// <!-- custom: defensive bonus of the hill and low food planting/settling the city here but anyways etc should be good as a general rule, except for hill grassland where prioritizing food rather and having a high yield for only 1 food cost the tile may be a better or/and more rewarding strategy instead. So do not give a valorization in that case if i may say but anyways etc, this will be handled by the general grass logic, however also do not valorize hill in that case as part of not incentivizing to plant/settle/found but anyways etc cities on hill grassland anyways etc -->
+			// custom: note: valorizing hill settling too much may have some issues if i am not mistaken such as having cities not carry irrigation if i am not mistaken (i don't know too much aobut these) for AIs, but generally more often than not the defense bonus as well as taking one of the low food yield tiles should be a good start to plant the city, so valorize it very much for non-bonus tiles as well (even though a bit less or/and differently in value than for bonus tiles but anyways etc), penalizing hill grassland should ideally especially help in the early game as the yield of hill grassland are very good as of now at least and if i am not mistaken, so better not settle on it, anyways etc -->
+			if (p.isHills() && p.getTerrainType() != eGrass)
+				iValue += 50;
+
+			// <!-- custom: low food tiles such as desert and tundra for example but anyways etc, they also generally have low yields (low production for desert hill for example and low food in general ; quite similar for tundra tiles as well anyways etc), so settling on it should be very good and ideal even (we don't have the defensive bonus but nice yields), at least it should be preferred significantly more i think but anyways etc -->
+			// custom: note: this can be cumulative with the hill effect, so a hill desert would be preferred over a hill plains where we may keep it to have higher yields on (defensive bonus is same too as of now in base advciv and advciv-sas as well if i am not mistaken but anyways etc) -->
+			// custom: note 2: reduce value a tiny bit so hill still has the edge over flatland desert and snow if everything else is equal anyways etc -->
+			// custom: note3: also statistically these may happen more often so place them before in case it helps computationally skip the other checks if i may say but anyways etc anyways etc anyways etc -->
+			if (p.getTerrainType() == ePlains)
+				iValue += 25;
+			else if (p.getTerrainType() == eDesert)
+				iValue += 45;
+			else if (p.getTerrainType() == eTundra)
+				iValue += 25;
+			else if (p.getTerrainType() == eSnow)
+				iValue += 45;
+
+			// <!-- custom: discourage settling on high food tiles such as grassland and flood plains, higher penalties the higher the food bonus is anyways etc -->
+			if (p.getTerrainType() == eGrass)
+				iValue -= 25;
+			// <!-- custom: i don't think there can be flood plains on grass so maybe fine to use an else if for computation if helps even a bit but anyways etc -->
+			else if (p.getFeatureType() == eFloodPlains)
+				iValue -= 50;
+		}
+
 		if (!bHome) // (Home plot was handled upfront)
 		{
 			int iSpecialYieldModifier = calculateSpecialYieldModifier(iCultureModifier,
@@ -1494,8 +1529,6 @@ ImprovementTypes AIFoundValue::getBonusImprovement(BonusTypes eBonus, CvPlot con
 
 	// Step 2: Add weighted yield scoring with food preference
 	// Still inside the FOR_EACH_ENUM(Yield) loop, calculate a weighted total yield score:
-	int iYieldScore = 0;
-
 	FOR_EACH_ENUM(Yield)
 	{
 		int iYield = 0;
@@ -1513,7 +1546,6 @@ ImprovementTypes AIFoundValue::getBonusImprovement(BonusTypes eBonus, CvPlot con
 		case YIELD_PRODUCTION:  iYield *= 2; break; // ⚙️ still useful
 		case YIELD_COMMERCE:    iYield *= 1; break; // 💰 less critical early
 		}
-		iYieldScore += iYield;
 
 		// Still assign aiYield (used elsewhere)
 		aiYield[eLoopYield] += iYield;

@@ -50,7 +50,7 @@
 			- This can probably be safely be reduced fine if it errs a bit by that i mean builing more buildings, eventually after completing them, most very fast, barbarian leader should turn back to war mode, is maybe also good to make sure barbarian leader doesn't skip the 1 hammer "free" buildings it has "right" to whatever that means, anyways etc. I would also want them to get their barbarian lighthouse and barbarian workboats too for example (and maybe workers too) if a (maybe) too high (or not or yes or not or yes or and other or and not anyways etc) (would) prevent that anyways etc, so reducing it a bit to see and test if i may say anyways etc ;
 			- Update 2 anyways etc: when lowering militaryproductionmodifier to -50 to nerf barbarians and balance them anyways etc, and maybe also related to other changes if not this one, they build buildings and also in particular they build more wonders again, even increasing ibuildunitprob to 100 again, so i don't know how effective it is, it seemed to help a lot, but maybe i changed some settings since then that influenced that but anyways etc, so putting it a bit higher but not 100 so they can build more buildings or such if needed anyways etc
 			-->
-			<iBuildUnitProb>80</iBuildUnitProb>
+			<iBuildUnitProb>100</iBuildUnitProb>
 			<!-- custom: i want barbarians to be more cautious and calculating, they are not stupid and shouldn't be, but a bit adventurous too though maybe whatever that means or not or and other or and not anyways etc -->
 			<!-- advc.114d: was 0 -->
 			<iBaseAttackOddsChange>1</iBaseAttackOddsChange>
