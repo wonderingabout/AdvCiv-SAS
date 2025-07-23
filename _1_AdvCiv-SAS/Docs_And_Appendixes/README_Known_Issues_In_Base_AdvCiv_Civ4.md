@@ -731,15 +731,14 @@ The current code should also make AIs less likely (apply a penalty on this plot 
 - on hills grassland, discourage the AI to plant there as production is lower, may not get the extra hammer or may want to improve it rather for only 1 food cost but anyways etc
 - if as said before not on hills at all nor on desert, discourage the AI to plant there as well
 
-Overall and as of now, if still updated, here is how it works as kidnly provided by chatgpt thanks without me askign xd thanks chatgpt if i may say maybe me too thanks to me too i mean in this case but anyways etc, which (the table in this case but anyways etc anyways etc anyways etc...) formatted in this case to fit in the docs a bit easier if i may say but anyways etc:
+Overall and as of now, if still updated, here is how it works as kidnly provided by chatgpt thanks without me askign xd thanks chatgpt if i may say maybe me too thanks to me too i mean in this case but anyways etc, which (the table in this case but anyways etc anyways etc anyways etc...) formatted and with some corrections or modifications i added as well but anyways etc:
 
-| Case                                 | Handled? | What Happens                       |
-| ------------------------------------ | -------- | ---------------------------------- |
-| Hill & not Grass                     | Yes      | Valorized                          |
-| Hill & Grass                         | Yes      | Not valorized, but penalized below |
-| Desert & low food (on hill)          | Yes      | Valorized modestly                 |
-| Flatland or other terrain (not hill) | Yes      | General penalty                    |
-| Grass (anywhere)                     | Yes      | Always gets additional penalty     |
+| Case                                                | Handled? | What Happens                                                  |
+| --------------------------------------------------- | -------- | ------------------------------------------------------------- |
+| Hill & not Grass                                    | Yes      | Valorized (encouraged to settle)                              |
+| Non-Hill                                            | Yes      | General penalty (discouraged to settle)                       |
+| Any Grass (including Hill Grass)                    | Yes      | Always gets additional penalty (high food tile)               |
+| Low Food terrain (Desert or Snow) & low food bonus  | Yes      | Mild additional valorization if bonus also has low food yield |
 
 ### For bonuses with a high total commerce yield
 
