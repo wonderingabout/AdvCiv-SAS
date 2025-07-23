@@ -7653,7 +7653,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iCollateralDamage>0</iCollateralDamage>
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
-			<iCityAttack>10</iCityAttack>
+			<!-- custom: was 10 -->
+			<iCityAttack>25</iCityAttack>
 			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
 			<iHillsAttack>0</iHillsAttack>
@@ -21026,8 +21027,26 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<TerrainAttacks/>
-			<TerrainDefenses/>
+			<TerrainAttacks>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_OCEAN</TerrainType>
+					<iTerrainAttack>25</iTerrainAttack>
+				</TerrainAttack>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_COAST</TerrainType>
+					<iTerrainAttack>10</iTerrainAttack>
+				</TerrainAttack>
+			</TerrainAttacks>
+			<TerrainDefenses>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_OCEAN</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
+				</TerrainDefense>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_COAST</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
+				</TerrainDefense>
+			</TerrainDefenses>
 			<FeatureAttacks/>
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
@@ -22773,17 +22792,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
+			<!-- custom: since the unit doesn't appear to have any modifier in sevopedia and the base advciv code comment seems clear enough if i may say in this case but anyways etc, use simply an empty tag rather if i am not mistaken anyways etc -->
 			<!-- advc.906: both 25 in K-Mod 1.45 -->
-			<TerrainAttacks>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_OCEAN</TerrainType>
-					<iTerrainAttack>0</iTerrainAttack>
-				</TerrainAttack>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_COAST</TerrainType>
-					<iTerrainAttack>0</iTerrainAttack>
-				</TerrainAttack>
-			</TerrainAttacks>
+			<TerrainAttacks/>
 			<TerrainDefenses/>
 			<FeatureAttacks/>
 			<FeatureDefenses/>

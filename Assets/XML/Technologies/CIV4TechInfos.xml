@@ -649,9 +649,7 @@
 			<CommerceFlexible>
 				<bFlexible>0</bFlexible>
 				<bFlexible>0</bFlexible>
-				<!-- custom: now that culture can be built from aesthetics, music can be
-				more worthwhile to use to control the slider now maybe instead, was 1 -->
-				<bFlexible>0</bFlexible>
+				<bFlexible>1</bFlexible>
 				<bFlexible>0</bFlexible>
 			</CommerceFlexible>
 			<TerrainTrades/>
@@ -4053,8 +4051,8 @@
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
-			<iHealth>0</iHealth>
-			<iHappiness>0</iHappiness>
+			<iHealth>-5</iHealth>
+			<iHappiness>-5</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
 			<iAsset>48</iAsset>
 			<iPower>0</iPower>
@@ -4085,15 +4083,15 @@
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>2</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>6</iFlavor>
+					<iFlavor>10</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
-					<iFlavor>3</iFlavor>
+					<iFlavor>10</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+					<iFlavor>10</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
@@ -4187,19 +4185,18 @@
 			<Civilopedia>TXT_KEY_TECH_ALIEN_LIFE_PEDIA</Civilopedia>
 			<Help/>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
-			<Advisor>ADVISOR_MILITARY</Advisor>
+			<Advisor>ADVISOR_GROWTH</Advisor>
 			<iAIWeight>0</iAIWeight>
-			<!-- advc.552: was 10 -->
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>8000</iCost>
+			<iCost>16000</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_FUTURE</Era>
-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+			<FirstFreeUnitClass>UNITCLASS_GREAT_MERCHANT</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
-			<iHealth>0</iHealth>
+			<iHealth>2</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
 			<iAsset>48</iAsset>
@@ -4230,12 +4227,12 @@
 			<bRiverTrade>0</bRiverTrade>
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>8</iFlavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>6</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
-					<iFlavor>3</iFlavor>
+					<iFlavor>6</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
@@ -4332,18 +4329,17 @@
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<iAIWeight>0</iAIWeight>
-			<!-- advc.552: was 10 -->
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>7500</iCost>
+			<iCost>10000</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_FUTURE</Era>
-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+			<FirstFreeUnitClass>UNITCLASS_GREAT_ARTIST</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
-			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+			<iWorkerSpeedModifier>50</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
-			<iHealth>0</iHealth>
-			<iHappiness>0</iHappiness>
+			<iHealth>1</iHealth>
+			<iHappiness>2</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
 			<iAsset>48</iAsset>
 			<iPower>0</iPower>
@@ -4374,11 +4370,19 @@
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>1</iFlavor>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
-					<iFlavor>9</iFlavor>
+					<iFlavor>8</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_CULTURE</FlavorType>
+					<iFlavor>4</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>6</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
@@ -4401,17 +4405,16 @@
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
-			<iCost>8000</iCost>
+			<iCost>13000</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_FUTURE</Era>
-			<!-- custom: was UNITCLASS_GREAT_ENGINEER -->
-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
-			<iFeatureProductionModifier>0</iFeatureProductionModifier>
-			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+			<FirstFreeUnitClass>UNITCLASS_GREAT_SCIENTIST</FirstFreeUnitClass>
+			<iFeatureProductionModifier>50</iFeatureProductionModifier>
+			<iWorkerSpeedModifier>50</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
 			<iHealth>0</iHealth>
-			<iHappiness>0</iHappiness>
+			<iHappiness>1</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
 			<iAsset>48</iAsset>
 			<iPower>0</iPower>
@@ -4435,18 +4438,35 @@
 			<bWaterWork>0</bWaterWork>
 			<iGridX>22</iGridX>
 			<iGridY>5</iGridY>
-			<DomainExtraMoves/>
+			<DomainExtraMoves>
+				<DomainExtraMove>
+					<DomainType>DOMAIN_LAND</DomainType>
+					<iExtraMoves>1</iExtraMoves>
+				</DomainExtraMove>
+				<DomainExtraMove>
+					<DomainType>DOMAIN_SEA</DomainType>
+					<iExtraMoves>1</iExtraMoves>
+				</DomainExtraMove>
+			</DomainExtraMoves>
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>3</iFlavor>
+					<iFlavor>6</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
-					<iFlavor>8</iFlavor>
+					<iFlavor>2</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>2</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
@@ -6079,15 +6099,15 @@
 			<Civilopedia>TXT_KEY_TECH_QUANTUM_MECHANICS_PEDIA</Civilopedia>
 			<Help/>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
-			<Advisor>ADVISOR_ECONOMY</Advisor>
+			<Advisor>ADVISOR_GROWTH</Advisor>
 			<iAIWeight>0</iAIWeight>
-			<iAITradeModifier>10</iAITradeModifier>
-			<iCost>4500</iCost>
+			<iAITradeModifier>0</iAITradeModifier>
+			<iCost>16000</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_FUTURE</Era>
-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
-			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+			<FirstFreeUnitClass>UNITCLASS_GREAT_ENGINEER</FirstFreeUnitClass>
+			<iFeatureProductionModifier>100</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
 			<iHealth>0</iHealth>
@@ -6121,24 +6141,12 @@
 			<bRiverTrade>0</bRiverTrade>
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>2</iFlavor>
-				</Flavor>
-				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>7</iFlavor>
+					<iFlavor>10</iFlavor>
 				</Flavor>
 				<Flavor>
-					<FlavorType>FLAVOR_GOLD</FlavorType>
-					<iFlavor>3</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>1</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>4</iFlavor>
+					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
@@ -6523,7 +6531,8 @@
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MODERN</Era>
-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+			<!-- custom: was NONE -->
+			<FirstFreeUnitClass>UNITCLASS_GREAT_ENGINEER</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
@@ -6594,17 +6603,16 @@
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>7000</iCost>
+			<iCost>16000</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<!-- custom: was ERA_MODERN -->
 			<Era>ERA_FUTURE</Era>
-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+			<FirstFreeUnitClass>UNITCLASS_GREAT_SPY</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
 			<iHealth>0</iHealth>
-			<iHappiness>0</iHappiness>
+			<iHappiness>1</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
 			<iAsset>48</iAsset>
 			<iPower>10</iPower>
@@ -6628,18 +6636,27 @@
 			<bWaterWork>0</bWaterWork>
 			<iGridX>23</iGridX>
 			<iGridY>1</iGridY>
-			<DomainExtraMoves/>
+			<DomainExtraMoves>
+				<DomainExtraMove>
+					<DomainType>DOMAIN_AIR</DomainType>
+					<iExtraMoves>1</iExtraMoves>
+				</DomainExtraMove>
+			</DomainExtraMoves>
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
-					<iFlavor>9</iFlavor>
+					<iFlavor>8</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>5</iFlavor>
+					<iFlavor>2</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
@@ -6801,21 +6818,19 @@
 			<Civilopedia>TXT_KEY_TECH_ROBOTIC_RIGHTS_PEDIA</Civilopedia>
 			<Help/>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
-			<Advisor>ADVISOR_SCIENCE</Advisor>
+			<Advisor>ADVISOR_CULTURE</Advisor>
 			<iAIWeight>0</iAIWeight>
-			<!-- advc.552: was 10 -->
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>8000</iCost>
+			<iCost>13000</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_FUTURE</Era>
-			<!-- custom: was NONE -->
-			<FirstFreeUnitClass>UNITCLASS_GREAT_ENGINEER</FirstFreeUnitClass>
+			<FirstFreeUnitClass>UNITCLASS_GREAT_PROPHET</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
 			<iHealth>0</iHealth>
-			<iHappiness>0</iHappiness>
+			<iHappiness>1</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
 			<iAsset>48</iAsset>
 			<iPower>0</iPower>
@@ -6845,20 +6860,16 @@
 			<bRiverTrade>0</bRiverTrade>
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>1</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>8</iFlavor>
-				</Flavor>
-				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+					<iFlavor>6</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
 					<iFlavor>2</iFlavor>
 				</Flavor>
 				<Flavor>
-					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>1</iFlavor>
+					<FlavorType>FLAVOR_RELIGION</FlavorType>
+					<iFlavor>4</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
@@ -6877,23 +6888,23 @@
 			<Civilopedia>TXT_KEY_TECH_TRANSHUMANISM_PEDIA</Civilopedia>
 			<Help/>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
-			<Advisor>ADVISOR_SCIENCE</Advisor>
+			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>10000</iCost>
+			<iCost>13000</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_FUTURE</Era>
-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+			<FirstFreeUnitClass>UNITCLASS_GREAT_GENERAL</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
-			<iHealth>1</iHealth>
-			<iHappiness>1</iHappiness>
+			<iHealth>2</iHealth>
+			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
 			<iAsset>64</iAsset>
 			<iPower>0</iPower>
-			<bRepeat>1</bRepeat>
+			<bRepeat>0</bRepeat>
 			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
@@ -6919,28 +6930,12 @@
 			<bRiverTrade>0</bRiverTrade>
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>1</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_RELIGION</FlavorType>
-					<iFlavor>1</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>1</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_GOLD</FlavorType>
-					<iFlavor>1</iFlavor>
-				</Flavor>
-				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
-					<iFlavor>1</iFlavor>
+					<iFlavor>6</iFlavor>
 				</Flavor>
 				<Flavor>
-					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>1</iFlavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>6</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
