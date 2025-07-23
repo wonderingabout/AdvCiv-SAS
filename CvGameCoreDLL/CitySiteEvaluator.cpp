@@ -634,12 +634,12 @@ short AIFoundValue::evaluate()
 				iResourceValue += iBonusValue; // K-Mod
 			}
 
-			// <!-- custom: AI still often / quite often ignores water bonus in range and settles as a non-coastal city rather, so try to enforce or strengthen this bonus, especially considering water bonuses are often if not entirely food yield related in advciv-sas at least but anyways etc -->
 			/*if (p.isWater())
 				iValue += (bCoastal ? 0 : -800);*/ // (was ? 100 : -800)
 			// <advc.031> Replacing the above
 			if (p.isWater() && !bCoastal)
 			{
+				// <!-- custom: AI still often / quite often ignores water bonus in range and settles as a non-coastal city rather, so try to enforce or strengthen this bonus, especially considering water bonuses are often if not entirely food yield related in advciv-sas at least but anyways etc -->
 				//int const iPenalty = 165;
 				int const iPenalty = 400;
 				IFLOG logBBAI("-%d from water resource near non-coastal site", iPenalty);
@@ -647,7 +647,7 @@ short AIFoundValue::evaluate()
 			} // </advc.031>
 
 			// <!-- custom: attempt to prevent/discourage further settling on metals or high production bonuses except in cases it should be mostly beneficial such as on hills, added thanks to chatgpt's help as i don't know too much about these, hopefully safe and functionnal and helps solving this but anyways etc -->
-			//int const iFood = aiBonusImprovementYield[YIELD_FOOD];
+			int const iBonusFood = aiBonusImprovementYield[YIELD_FOOD];
 			int const iBonusProduction = aiBonusImprovementYield[YIELD_PRODUCTION];
 			int const iBonusCommerce = aiBonusImprovementYield[YIELD_COMMERCE];
 
@@ -659,38 +659,44 @@ short AIFoundValue::evaluate()
 			// <!-- custom: if i understand it correctly, first we need to devalue/discourage settling on metals or high production bonuses, except on low lood tiles such as hills or desert where it may be profitable to do so -->
 			if (iBonusProduction >= 2)
 			{
-				// <!-- custom: desert should be profitable to plant on as it is low food at least shouldn't be too bad to do so for metals and high production bonuses, to a lesser degree, so encourage it quite a bit anyways etc, handle it independently before considering whether tile has plot type hill or not, if i am not mistaken in doing so anyways etc -->
-				if (eTerrain == eDesert)
-				{
-					int const iHighProductionBonusDesertValorization = 100;
-					IFLOG logBBAI("+%d valorization: metal or high production bonus on desert (%S)", iHighProductionBonusDesertValorization, GC.getInfo(eBonus).getDescription());
-					iValue += iHighProductionBonusDesertValorization;
-				}
-
-				// <!-- custom: now consider hill, should be mostly good to plant on a metal or high production bonus on a hill, give a quite big boost to that including the defense bonus as of now too if i am not mistaken but anyways etc, except if tile is grassland where food advantage of having high yield improving the tile rather for 1 food cost seems more profitable but anyways etc so in these cases instead give a penalty to discourage the AI to settle/found its city there if i am not mistaken but anyways etc -->
+				// <!-- custom: on hill, should be mostly good to plant on a metal or high production bonus on a hill, give a quite big boost to that including the defense bonus as of now too if i am not mistaken but anyways etc, except if tile is grassland where food advantage of having high yield improving the tile rather for 1 food cost seems more profitable but anyways etc so in these cases instead give a penalty to discourage the AI to settle/found its city there if i am not mistaken but anyways etc -->
+				// <!-- custom: else on high food hill tiles such as in advciv-sas only hill grassland, capitalize rather on the other yields for low food cost and do not settle there, but do not penalize here, since we penalize regardless of tile being hill or not all grass terrain tiles, which would also apply there for hill grassland, so no need to double penalize, as noticed or hinted by chatgpt which(/who? But anyways etc) advised to reduce the penalty, so i got this idea, thanks a lot chatgpt but anyways etc too i mean really but anyways etc anyways etc anyways etc -->
 				if (p.isHills())
 				{
 					if (eTerrain != eGrass)
 					{
-						// Mild bonus if on hill (good production)
-						int const iHighProductionBonusHillNotGrassValorization = 100 * iBonusProduction;
-						IFLOG logBBAI("+%d valorization: metal or high production bonus on hill non-grass (%S)", iHighProductionBonusHillNotGrassValorization, GC.getInfo(eBonus).getDescription());
-						iValue += iHighProductionBonusHillNotGrassValorization;
+						// Mild bonus if on hill (good production) <!-- custom: and tile is low food -->
+						// <!-- custom: note: other high food terrain(s)/feature(s) than grass, such as potentially flood plains on hills in mod mods maybe is not supported for computational effiency and since we don't use it in advciv-sas, add it here or/and tweak code to support it, see code at the non-bonus/ressource part of the terrain tweaks we added in advciv-sas in this .cpp file for details hopefully helpful or not or yes or other or etc but anyways etc anyways etc anyways etc -->
+						int const iHighProductionBonusHillLowFoodValorization = 100 * iBonusProduction;
+						IFLOG logBBAI("+%d valorization: metal or high production bonus on hill with low food terrain/feature (%S)", iHighProductionBonusHillLowFoodValorization, GC.getInfo(eBonus).getDescription());
+						iValue += iHighProductionBonusHillLowFoodValorization;
 					}
-					else
+					// <!-- custom: desert should be profitable to plant on as it is low food at least shouldn't be too bad to do so for metals and high production bonuses, to a lesser degree, so encourage it quite a bit anyways etc, handle it independently before considering whether tile has plot type hill or not, if i am not mistaken in doing so anyways etc ; note: flood plains not supported in desert logic in advciv-sas as computationally cheaper to do so and most importantly if i may say but anyways etc we don't have bonuses on flood plains, implement it in your mod mod here as well or and other relevant places we added in advciv-sas if you don't want the AI settling on flood plains where you have allowed some bonuses, see the code comments at non-bonus tiles tweaks we did in advciv-sas or/and the readme of known issues for details if any are there, hopefully helpful or not or yes or etc but anyways etc -->
+					// <!-- custom: add an exception for camel type of bonuses that spawns on desert as of now in advciv-sas but anyways etc and that may have a high production modifier on top of a high enough food one -->
+					else if (eTerrain == eDesert && iBonusFood < 1)
 					{
-						// <!-- custom: on hills grassland, discourage the AI to plant there as production is lower, may not get the extra hammer or may want to improve it rather for only 1 food cost but anyways etc -->
-						int const iHighProductionBonusHillGrassPenalty = 100 * iBonusProduction;
-						IFLOG logBBAI("-%d penalty: metal or high production bonus on hill grass (%S)", iHighProductionBonusHillGrassPenalty, GC.getInfo(eBonus).getDescription());
-						iValue -= iHighProductionBonusHillGrassPenalty;
+						int const iHighProductionBonusDesertValorization = 25;
+						IFLOG logBBAI("+%d valorization: metal or high production bonus on desert where the bonus does not have a high enough food yield (%S)", iHighProductionBonusDesertValorization, GC.getInfo(eBonus).getDescription());
+						iValue += iHighProductionBonusDesertValorization;
 					}
 				}
+				// <!-- custom: as a general rule, discourage settling at all on production bonuses, outside of these exceptions or other edge cases especially covered before in this block if i am not mistaken and with chatgpt's bit help and my ideas too and such but anyways etc -->
 				else
 				{
-					int const iHighProductionBonusNotHillPenalty = 100 * iBonusProduction;
-					IFLOG logBBAI("-%d penalty: metal or high production bonus on non-hill (%S)", iHighProductionBonusNotHillPenalty, GC.getInfo(eBonus).getDescription());
-					iValue -= iHighProductionBonusNotHillPenalty;
+					int const iHighProductionBonusGeneralIfNotYetHandledPenalty = 100 * iBonusProduction;
+					IFLOG logBBAI("-%d penalty: metal or high production bonus as a general rule, if not covered by previous edge cases especially handled nor by exceptions (%S)",
+						iHighProductionBonusGeneralIfNotYetHandledPenalty, GC.getInfo(eBonus).getDescription());
+					iValue -= iHighProductionBonusGeneralIfNotYetHandledPenalty;
 				}
+
+				// <!-- custom: apply an additional penalty for grass and other if any high food terrains (in advciv-sas there is only grass if i am not mistaken that can have bonuses on it but anyways etc), in particular iron or copper flatland grass should be improved for a nice production yield with no food cost, this also penalizes hill grassland for example if i am not mistaken too as intended anyways etc -->
+				if (eTerrain == eGrass)
+				{
+					int const iHighProductionBonusGrassAdditionalPenalty = 100 * iBonusProduction;
+					IFLOG logBBAI("-%d additional penalty: metal or high production bonus on grass (%S)", iHighProductionBonusGrassAdditionalPenalty, GC.getInfo(eBonus).getDescription());
+					iValue -= iHighProductionBonusGrassAdditionalPenalty;
+				}
+
 			}
 
 			// <!-- custom: then handle high commerce total yield bonuses if i am not mistaken such as gold, etc, better avoid settling on them as a general rule, may more often than not help the AI in most cases but anyways etc -->

@@ -55,7 +55,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 	print("iMaxGoldTradePercent: %d" % info.getMaxGoldTradePercent())
 	print("iMaxGoldPerTurnTradePercent: %d" % info.getMaxGoldPerTurnTradePercent())
 
-	# <!-- custom: also add BBAI Victory weights now that we have exposed them / expose them to python as well, see todo docs for details and todo add .cpp code comment fielname anways etc-->
+	# <!-- custom: also add BBAI Victory weights now that we have exposed them / expose them to python as well, see todo docs for details and todo add .cpp code comment fielname anways etc -->
 	print("\n\n==== BBAI VICTORY WEIGHTS ====")
 	print("Culture Victory Weight: %d" % info.getCultureVictoryWeight())
 	print("Space Victory Weight: %d" % info.getSpaceVictoryWeight())
@@ -143,7 +143,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
 		2: "ATTITUDE_CAUTIOUS",
 		3: "ATTITUDE_PLEASED",
 		4: "ATTITUDE_FRIENDLY",
-		5: "ALWAYS??" # <!-- custom: comment-out to reproduce the error anyways etc, added this value also as this seems like a purposeful valid DLL behaviour if i may say anyways etc, see above for explanation or/and of my understanding of it hopefully helpful or ont or yes or etc or and other or and not anyways etc-->
+		5: "ALWAYS??" # <!-- custom: comment-out to reproduce the error anyways etc, added this value also as this seems like a purposeful valid DLL behaviour if i may say anyways etc, see above for explanation or/and of my understanding of it hopefully helpful or ont or yes or etc or and other or and not anyways etc -->
 	}
 
 	for attr in dir(info):

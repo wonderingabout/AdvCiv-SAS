@@ -385,7 +385,7 @@
 					<iMonthIncrement>60</iMonthIncrement>
 					<iTurnsPerIncrement>6</iTurnsPerIncrement>
 				</GameTurnInfo>
-				<!-- custom: comment out this since we covered this time of history if i'm not mistaken anwyays etc, but keep to base advciv comment as is informative or/and useful if i may say anyways etc-->
+				<!-- custom: comment out this since we covered this time of history if i'm not mistaken anwyays etc, but keep to base advciv comment as is informative or/and useful if i may say anyways etc -->
 				<!--<GameTurnInfo>-->
 				<!--	<iMonthIncrement>60</iMonthIncrement>-->
 					<!-- Avoid an odd number here - otherwise all the year numbers

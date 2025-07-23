@@ -731,6 +731,16 @@ The current code should also make AIs less likely (apply a penalty on this plot 
 - on hills grassland, discourage the AI to plant there as production is lower, may not get the extra hammer or may want to improve it rather for only 1 food cost but anyways etc
 - if as said before not on hills at all nor on desert, discourage the AI to plant there as well
 
+Overall and as of now, if still updated, here is how it works as kidnly provided by chatgpt thanks without me askign xd thanks chatgpt if i may say maybe me too thanks to me too i mean in this case but anyways etc, which (the table in this case but anyways etc anyways etc anyways etc...) formatted in this case to fit in the docs a bit easier if i may say but anyways etc:
+
+| Case                                 | Handled? | What Happens                       |
+| ------------------------------------ | -------- | ---------------------------------- |
+| Hill & not Grass                     | Yes      | Valorized                          |
+| Hill & Grass                         | Yes      | Not valorized, but penalized below |
+| Desert & low food (on hill)          | Yes      | Valorized modestly                 |
+| Flatland or other terrain (not hill) | Yes      | General penalty                    |
+| Grass (anywhere)                     | Yes      | Always gets additional penalty     |
+
 ### For bonuses with a high total commerce yield
 
 In these cases again (for example as of now the gold bonus, etc (see xml for details anyways etc)), apply a quite strong penalty for bonuses that have a high enough total yield (i.e. with improved yield too if i am not mistaken but anyways etc) such as of now the gold bonus, sivler bonus, incense if i am not mistaken as well, etc. The higher the total yield is, the stronger the penalty is to discourage planting/founding a city there if i am not mistaken but anyways etc.

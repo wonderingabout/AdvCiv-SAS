@@ -715,7 +715,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 			</Rands>
 			<iPlayer>0</iPlayer>
 			<!-- custom: buff water ressources, and molluscs should be more general and widespread than clam(s) alone is(are?) anyways etc, was 0 / 32 -->
-			<iTilesPer>24</iTilesPer>
+			<iTilesPer>26</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>1</iUnique>
 			<iGroupRange>0</iGroupRange>
@@ -990,7 +990,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 			<!-- custom: buff water ressources, and fish as a general bonus/ressource should still be quite widespread ; 0 / 24 may still be a tiny bit too high possibly, reduce to 0 / 25 anyways etc, was originally 0 / 35 if i am not mistaken in base advciv code at least as of now anyways etc -->
 			<iPlayer>0</iPlayer>
 			<!-- advc.129: was 32 -->
-			<iTilesPer>25</iTilesPer>
+			<iTilesPer>26</iTilesPer>
 			<iMinLandPercent>0</iMinLandPercent>
 			<iUnique>1</iUnique>
 			<iGroupRange>0</iGroupRange>

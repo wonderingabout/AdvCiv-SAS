@@ -96,7 +96,7 @@ def check_button_path_is_valid(buttonHeader, resolvedButtonPath, configButtonPat
 
 
 def get_emoji_name_to_button_path_txt_keys(localText):
-	# <!-- custom: see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Text\AdvCiv-SAS_ImagesAsButtons.xml or/and AdvCiv-SAS_Button_Paths_Hardcoded.xml for details or and other information or and in other places or and not or and other or and not anyways etc-->
+	# <!-- custom: see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Text\AdvCiv-SAS_ImagesAsButtons.xml or/and AdvCiv-SAS_Button_Paths_Hardcoded.xml for details or and other information or and in other places or and not or and other or and not anyways etc -->
 	# emojiName → TXT_KEY path
 	emoji_name_to_button_path_txt_keys = {
 		"Dove": "TXT_KEY_IMAGE_AS_BUTTON_DOVE_BUTTON_PATH",

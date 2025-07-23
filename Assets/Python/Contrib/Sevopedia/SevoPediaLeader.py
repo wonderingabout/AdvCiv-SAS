@@ -537,7 +537,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 			# ==== VASSAL AND FREEDOM FIELDS (from XML order) ====
 			"getVassalPowerModifier": ("ResistCapitulP.M", False),
 			"getFreedomAppreciation": ("FreedomApprec", False),
-			# <!-- custom: then fields with nested or/and incremental getters (flavors, contacts, memory, nowarattitudeprobs, etc if any more anyways etc) are handled separately later anyways etc-->
+			# <!-- custom: then fields with nested or/and incremental getters (flavors, contacts, memory, nowarattitudeprobs, etc if any more anyways etc) are handled separately later anyways etc -->
 		}
 
 		# ==== ATTITUDE THRESHOLDS ====
@@ -732,7 +732,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 		# <!-- custom: first strip front and/or tail, for example "getSameReligionAttitudeChangeLimit" → "SameReligion"
 		if key_or_suffix.startswith("get"):
-			# <!-- custom: strip this front part ("get") first anyways etc-->
+			# <!-- custom: strip this front part ("get") first anyways etc -->
 			key_or_suffix_without_front = key_or_suffix[len("get"):]
 
 			if key_or_suffix_without_front.endswith("VictoryWeight"):
@@ -876,7 +876,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 			symbol_generics = all_symbols["RAW_SCALE_SYMBOL"]
 			for getter_name_generic, (label_generic, b_invert_generic) in fields_with_direct_getters.items():
 				raw_value_generic = getattr(gc.getLeaderHeadInfo(iLeader), getter_name_generic)()
-				# <!-- custom: also add raw value to label like "Military (12)" for example for flavors instead of just "Military" (so we have both raw value in label as well as normalized value in the 2nd column of each of the AI personality panel tables anyways etc (i.e. before the scale (e.g. "++++" or similar anyways etc column of each of the AI personality panel tables too anyways etc-->
+				# <!-- custom: also add raw value to label like "Military (12)" for example for flavors instead of just "Military" (so we have both raw value in label as well as normalized value in the 2nd column of each of the AI personality panel tables anyways etc (i.e. before the scale (e.g. "++++" or similar anyways etc column of each of the AI personality panel tables too anyways etc -->
 				label_raw_generic = "(%d)" % raw_value_generic
 				if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
 					label_with_raw_value_generic = get_labels_as_keys_or_suffixes_max_length_label(getter_name_generic, label_raw_generic, 18)
@@ -986,7 +986,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 			for is_positive in (True, False):
 				for is_affection in (True, False):
-					# <!-- custom: skip positive memory resentments and negative memory affections as said in top code comment before if i may say anyways etc, uncomment or remove this/these checks anyways etc to export them as well anyways etc-->
+					# <!-- custom: skip positive memory resentments and negative memory affections as said in top code comment before if i may say anyways etc, uncomment or remove this/these checks anyways etc to export them as well anyways etc -->
 					if is_positive and (not is_affection):
 						continue
 					if (not is_positive) and is_affection:
@@ -1488,7 +1488,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 		return ai_right_categories, ai_middle_categories, ai_left_categories
 
-	# === AI Panel's Categor<!-- custom: ies anyways etc--> ===
+	# === AI Panel's Categor<!-- custom: ies anyways etc --> ===
 	AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES = get_ai_categories(localText)
 
 	# <!-- custom: final return. Note that this caching, while/even though it is done in sevopedia leader, is triggered from sevopedia main's placeLeaders, after module load, so that we don't cache needlessly in case we never access sevopedia leader at all during entire gaming session (i.e. i mean until game is exited i mean anyways etc), but also before any leader is selected for display as this would slow display of said leader, especially if we'd have to cache at every leader slection which would be ridiculously and needlessly expensive computaitnally anyways etc. So the return to this SevoPediaLeader 's getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession function, if it is changed, needs to also be changed in a similar way in SevoPediaMain 's placeLeaders, hopefully clearer or and helpful but anyways etc anyways etc anyways etc -->

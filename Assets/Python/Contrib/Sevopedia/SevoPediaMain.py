@@ -80,7 +80,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.ITEM_LIST_ID	= "PediaMainItemList"
 		self.UPGRADES_GRAPH_ID	= "PediaMainUpgradesGraph"
 
-		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc-->
+		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc -->
 		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
 		# <!-- custom: do something similar for the untradeable techs text but anyways etc anyways etc anyways etc -->
 		self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT = False

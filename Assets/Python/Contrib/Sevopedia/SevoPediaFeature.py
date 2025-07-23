@@ -263,7 +263,7 @@ class SevoPediaFeature:
 		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 
-		# <!-- custom: handle feature(s) that is (are) impassable (anyways etc...) such as of now only the ice cap feature anyways etc quite similarly than the peak terrain was handled in sevopedia terrain's placeRelevantUnits, with some differences anyways etc, see code comments at sevopedia feature's placeUnitsImpassable anyways etc-->
+		# <!-- custom: handle feature(s) that is (are) impassable (anyways etc...) such as of now only the ice cap feature anyways etc quite similarly than the peak terrain was handled in sevopedia terrain's placeRelevantUnits, with some differences anyways etc, see code comments at sevopedia feature's placeUnitsImpassable anyways etc -->
 		iIce = getInfoTypeOrFail("FEATURE_ICE", gc)
 		# <!-- custom: handle features with promotions or other specific effects if any if i may say anyways etc separately, similar to how was done in sevopedia terrain previous new placeRelevantUnits and placeUnitsImpassable this new features code is based on but anyways etc anyways etc anyways etc -->
 		iForest = getInfoTypeOrFail("FEATURE_FOREST", gc)

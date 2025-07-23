@@ -659,7 +659,7 @@ class CvReligionScreen:
 				CyInterface().selectCity(pCity, true)
 
 		elif (self.ReligionScreenInputMap.has_key(inputClass.getFunctionName())):
-			# <!-- custom: replace lone string litteral with proper comment out, confirmed safe after asking chatgpt even though it can be mistaken sometimes and i can be too maybe in some cases here it seems safe to remove and replace instead with a proper comment anyways etc-->
+			# <!-- custom: replace lone string litteral with proper comment out, confirmed safe after asking chatgpt even though it can be mistaken sometimes and i can be too maybe in some cases here it seems safe to remove and replace instead with a proper comment anyways etc -->
 			# Calls function mapped in ReligionScreenInputMap
 			#
 			# only get from the map if it has the key

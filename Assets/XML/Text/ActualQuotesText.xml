@@ -1917,7 +1917,7 @@
 		<Italian>La tua debolezza &#232; imbarazzante, #CT_NAME! Dacci ci&#242; che vogliamo o morirai!</Italian>
 		<Spanish>&#161;Vuestra debilidad es despreciable, [CT_NAME]! &#161;Dadnos lo que queremos o pereced!</Spanish>
 	</TEXT>
-	<!-- custom: now named Moctezuma, not montezuma anymore, otherwise same at least for this part if not for other or maybe not but anyways etc anyways etc-->
+	<!-- custom: now named Moctezuma, not montezuma anymore, otherwise same at least for this part if not for other or maybe not but anyways etc anyways etc -->
 	<!-- advc.005h: Repurpose Montezuma's power_weaker #1 -->
 	<TEXT>
 		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_2</Tag>
