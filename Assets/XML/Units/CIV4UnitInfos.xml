@@ -1366,15 +1366,33 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
 					<iTerrainAttack>50</iTerrainAttack>
 				</TerrainAttack>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_DESERT</TerrainType>
+					<iTerrainAttack>10</iTerrainAttack>
+				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>	
+			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
 					<iTerrainDefense>50</iTerrainDefense>
-				</TerrainDefense>	
+				</TerrainDefense>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_DESERT</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
+				</TerrainDefense>
 			</TerrainDefenses>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<FeatureAttacks>
+				<FeatureAttack>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureAttack>10</iFeatureAttack>
+				</FeatureAttack>
+			</FeatureAttacks>
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>25</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<UnitCombatMods/>
@@ -1623,10 +1641,31 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<TerrainAttacks/>
-			<TerrainDefenses/>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<TerrainAttacks>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+					<iTerrainAttack>10</iTerrainAttack>
+				</TerrainAttack>
+			</TerrainAttacks>
+			<TerrainDefenses>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
+				</TerrainDefense>
+			</TerrainDefenses>
+			<!-- custom: not functionnal as of now if i am not mistaken as workers are non-fighters as of now in advciv-sas but added for flavor as in for theme and for accuracy and/or exhaustiveness if i may say but anyways etc -->
+			<FeatureAttacks>
+				<FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>25</iFeatureAttack>
+				</FeatureAttack>
+			</FeatureAttacks>
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>50</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<UnitCombatMods/>
@@ -5459,10 +5498,38 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<TerrainAttacks/>
-			<TerrainDefenses/>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<TerrainAttacks>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainAttack>25</iTerrainAttack>
+				</TerrainAttack>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainAttack>10</iTerrainAttack>
+				</TerrainAttack>
+			</TerrainAttacks>
+			<TerrainDefenses>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainDefense>50</iTerrainDefense>
+				</TerrainDefense>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
+				</TerrainDefense>
+			</TerrainDefenses>
+			<FeatureAttacks>
+				<FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>25</iFeatureAttack>
+				</FeatureAttack>
+			</FeatureAttacks>
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>25</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<!-- custom: was UNITCLASS_CHARIOT 100 -->
 			<UnitClassDefenseMods/>
@@ -5659,8 +5726,26 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<TerrainAttacks/>
-			<TerrainDefenses/>
+			<TerrainAttacks>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainAttack>10</iTerrainAttack>
+				</TerrainAttack>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_DESERT</TerrainType>
+					<iTerrainAttack>25</iTerrainAttack>
+				</TerrainAttack>
+			</TerrainAttacks>
+			<TerrainDefenses>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
+				</TerrainDefense>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_DESERT</TerrainType>
+					<iTerrainDefense>50</iTerrainDefense>
+				</TerrainDefense>
+			</TerrainDefenses>
 			<FeatureAttacks/>
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
@@ -5856,27 +5941,35 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<iTerrainAttack>25</iTerrainAttack>
 				</TerrainAttack>
 				<TerrainAttack>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainAttack>10</iTerrainAttack>
+				</TerrainAttack>
+				<TerrainAttack>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
+					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
 					<iTerrainAttack>25</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>	
+			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
 					<iTerrainDefense>50</iTerrainDefense>
 				</TerrainDefense>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_TUNDRA</TerrainType>
-					<iTerrainAttack>50</iTerrainAttack>
-				</TerrainAttack>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
+				</TerrainDefense>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
 					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>	
+				</TerrainDefense>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
+				</TerrainDefense>
 			</TerrainDefenses>
 			<FeatureAttacks/>
 			<FeatureDefenses/>
@@ -5924,6 +6017,229 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<FreePromotions>
 				<FreePromotion>
 					<PromotionType>PROMOTION_HILLS_MASTER1</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+			</FreePromotions>
+			<LeaderPromotion>NONE</LeaderPromotion>
+			<iLeaderExperience>0</iLeaderExperience>
+		</UnitInfo>
+		<UnitInfo> <!-- custom: class: UNITCLASS_AXEMAN, type: UNIT_AZTEC_JAGUAR (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<Class>UNITCLASS_AXEMAN</Class>
+			<Type>UNIT_AZTEC_JAGUAR</Type>
+			<UniqueNames/>
+			<Special>NONE</Special>
+			<Capture>NONE</Capture>
+			<Combat>UNITCOMBAT_MELEE</Combat>
+			<Domain>DOMAIN_LAND</Domain>
+			<!-- K-Mod: was UNITAI_COUNTER -->
+			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+			<Invisible>NONE</Invisible>
+			<SeeInvisible>NONE</SeeInvisible>
+			<Description>TXT_KEY_UNIT_AZTEC_JAGUAR</Description>
+			<Civilopedia>TXT_KEY_UNIT_AZTEC_JAGUAR_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+			<Advisor>ADVISOR_MILITARY</Advisor>
+			<bAnimal>0</bAnimal>
+			<bFood>0</bFood>
+			<bNoBadGoodies>0</bNoBadGoodies>
+			<bOnlyDefensive>0</bOnlyDefensive>
+			<bNoCapture>0</bNoCapture>
+			<bQuickCombat>0</bQuickCombat>
+			<bRivalTerritory>0</bRivalTerritory>
+			<bMilitaryHappiness>1</bMilitaryHappiness>
+			<bMilitarySupport>1</bMilitarySupport>
+			<bMilitaryProduction>1</bMilitaryProduction>
+			<bPillage>1</bPillage>
+			<bSpy>0</bSpy>
+			<bSabotage>0</bSabotage>
+			<bDestroy>0</bDestroy>
+			<bStealPlans>0</bStealPlans>
+			<bInvestigate>0</bInvestigate>
+			<bCounterSpy>0</bCounterSpy>
+			<bFound>0</bFound>
+			<bGoldenAge>0</bGoldenAge>
+			<bInvisible>0</bInvisible>
+			<bFirstStrikeImmune>0</bFirstStrikeImmune>
+			<bNoDefensiveBonus>0</bNoDefensiveBonus>
+			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+			<bCanMoveImpassable>0</bCanMoveImpassable>
+			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
+			<bFlatMovementCost>0</bFlatMovementCost>
+			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
+			<bNukeImmune>0</bNukeImmune>
+			<bPrereqBonuses>0</bPrereqBonuses>
+			<bPrereqReligion>0</bPrereqReligion>
+			<bMechanized>0</bMechanized>
+			<bSuicide>0</bSuicide>
+			<bHiddenNationality>0</bHiddenNationality>
+			<bAlwaysHostile>0</bAlwaysHostile>
+			<!-- custom: since the unit is so strong, make sure it cannot be upgraded to swordsmen in particular for this unit, may help the AI in particular, as of now it seems axemen cannot be upgraded to swordsmen, but adding this line as reminder if we or some other mod ever wants to change it, that the jaguar should be stronger without upgrading to swordsmen. -->
+			<UnitClassUpgrades>
+				<UnitClassUpgrade>
+					<UnitClassUpgradeType>UNITCLASS_MACEMAN</UnitClassUpgradeType>
+					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+				</UnitClassUpgrade>
+			</UnitClassUpgrades>
+			<UnitClassTargets/>
+			<UnitCombatTargets/>
+			<UnitClassDefenders/>
+			<UnitCombatDefenders/>
+			<FlankingStrikes/>
+			<UnitAIs>
+				<UnitAI>
+					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+			</UnitAIs>
+			<NotUnitAIs/>
+			<Builds/>
+			<ReligionSpreads/>
+			<CorporationSpreads/>
+			<GreatPeoples/>
+			<Buildings/>
+			<HolyCity>NONE</HolyCity>
+			<ReligionType>NONE</ReligionType>
+			<StateReligion>NONE</StateReligion>
+			<PrereqReligion>NONE</PrereqReligion>
+			<PrereqCorporation>NONE</PrereqCorporation>
+			<PrereqBuilding>NONE</PrereqBuilding>
+			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+			<TechTypes/>
+			<BonusType>NONE</BonusType>
+			<PrereqBonuses>
+				<BonusType>BONUS_COPPER</BonusType>
+				<BonusType>BONUS_IRON</BonusType>
+				<BonusType>NONE</BonusType>
+				<BonusType>NONE</BonusType>
+			</PrereqBonuses>
+			<ProductionTraits/>
+			<Flavors/>
+			<iAIWeight>0</iAIWeight>
+			<!-- custom: note: aztec warrior reworked, now based on the axeman not the swordsman anymore. This works well i think if i may say as the low/now lower but anyways etc cost as well as earlier unit availability in this case but anyways etc allows for very early rushes (usually the AI may have a mix of axemen and swordsmen=jaguars but anyways etc which was inefficient, hopefully this favours more the rushing profile of the aztec civilization, at least for as of now only leader moctezuma we have but anyways etc), it may synergize especially well with their sacrifice/slaving profile or/and buildings or such anyways etc -->
+			<iCost>35</iCost>
+			<iHurryCostModifier>0</iHurryCostModifier>
+			<iAdvancedStartCost>100</iAdvancedStartCost>
+			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+			<iMinAreaSize>-1</iMinAreaSize>
+			<iMoves>1</iMoves>
+			<bNoRevealMap>0</bNoRevealMap>
+			<iAirRange>0</iAirRange>
+			<iAirUnitCap>0</iAirUnitCap>
+			<iDropRange>0</iDropRange>
+			<iNukeRange>-1</iNukeRange>
+			<iWorkRate>0</iWorkRate>
+			<iBaseDiscover>0</iBaseDiscover>
+			<iDiscoverMultiplier>0</iDiscoverMultiplier>
+			<iBaseHurry>0</iBaseHurry>
+			<iHurryMultiplier>0</iHurryMultiplier>
+			<iBaseTrade>0</iBaseTrade>
+			<iTradeMultiplier>0</iTradeMultiplier>
+			<iGreatWorkCulture>0</iGreatWorkCulture>
+			<iEspionagePoints>0</iEspionagePoints>
+			<TerrainImpassables/>
+			<FeatureImpassables/>
+			<TerrainPassableTechs/>
+			<FeaturePassableTechs/>
+			<iCombat>5</iCombat>
+			<iCombatLimit>100</iCombatLimit>
+			<iAirCombat>0</iAirCombat>
+			<iAirCombatLimit>0</iAirCombatLimit>
+			<iXPValueAttack>4</iXPValueAttack>
+			<iXPValueDefense>2</iXPValueDefense>
+			<iFirstStrikes>0</iFirstStrikes>
+			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+			<iInterceptionProbability>0</iInterceptionProbability>
+			<iEvasionProbability>0</iEvasionProbability>
+			<iWithdrawalProb>0</iWithdrawalProb>
+			<iCollateralDamage>0</iCollateralDamage>
+			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+			<!-- custom: also give it the swordsman's city attack bonus, this goes quite well with their theme of early aggression if i am not mistaken but anyways etc, and they retain most of their previous advantages as swordsmen, but now available sooner and cheaper in cost despite the strength reduction, overall the unit should be much stronger now hopefully balanced and not op ; it was way too weak before, but anyways etc, was 0 -->
+			<iCityAttack>10</iCityAttack>
+			<iCityDefense>0</iCityDefense>
+			<iAnimalCombat>0</iAnimalCombat>
+			<iHillsAttack>0</iHillsAttack>
+			<iHillsDefense>0</iHillsDefense>
+			<TerrainNatives/>
+			<FeatureNatives/>
+			<TerrainAttacks/>
+			<TerrainDefenses/>
+			<!-- custom: axes could be useful in navigating or fighting in the woods maybe. -->
+			<FeatureAttacks>
+				<FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>10</iFeatureAttack>
+				</FeatureAttack>
+				<FeatureAttack>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureAttack>25</iFeatureAttack>
+				</FeatureAttack>
+			</FeatureAttacks>
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>10</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>50</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
+			<UnitClassAttackMods/>
+			<UnitClassDefenseMods/>
+			<UnitCombatMods>
+				<UnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+					<iUnitCombatMod>50</iUnitCombatMod>
+				</UnitCombatMod>
+			</UnitCombatMods>
+			<UnitCombatCollateralImmunes/>
+			<DomainMods/>
+			<BonusProductionModifiers/>
+			<iBombRate>0</iBombRate>
+			<iBombardRate>0</iBombardRate>
+			<SpecialCargo>NONE</SpecialCargo>
+			<DomainCargo>NONE</DomainCargo>
+			<iCargo>0</iCargo>
+			<iConscription>2</iConscription>
+			<iCultureGarrison>4</iCultureGarrison>
+			<iExtraCost>0</iExtraCost>
+			<iAsset>2</iAsset>
+			<!-- custom: was 5 -->
+			<iPower>6</iPower>
+			<UnitMeshGroups>
+				<iGroupSize>3</iGroupSize>
+				<fMaxSpeed>1.75</fMaxSpeed>
+				<fPadTime>1</fPadTime>
+				<iMeleeWaveSize>3</iMeleeWaveSize>
+				<iRangedWaveSize>0</iRangedWaveSize>
+				<UnitMeshGroup>
+					<iRequired>3</iRequired>
+					<EarlyArtDefineTag>ART_DEF_UNIT_AZTEC_JAGUAR</EarlyArtDefineTag>
+				</UnitMeshGroup>
+			</UnitMeshGroups>
+			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+			<HotKey/>
+			<bAltDown>0</bAltDown>
+			<bShiftDown>0</bShiftDown>
+			<bCtrlDown>0</bCtrlDown>
+			<iHotKeyPriority>0</iHotKeyPriority>
+			<!-- custom: if i am not mistaken from my memory i mean, i seem to i mean anyways etc remember that the jaguars are elite forces valued in society, since the unit is so weak, may be fine to buff it as such anyways etc, in terms of civ4 if i may say this may fit quite well their aggressive profile of the trait i mean if i am not mistaken anyways etc, overall they should mostly be used for offense but this also allows some room for defense and covers the overall "elite forces" feeling/theme of the unit if i may say but or not but or yes but but anyways etc, was PROMOTION_WOODSMAN1 -->
+			<FreePromotions>
+				<FreePromotion>
+					<PromotionType>PROMOTION_COMBAT1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -6111,221 +6427,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_SWORDSMAN, type: UNIT_AZTEC_JAGUAR (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<Class>UNITCLASS_SWORDSMAN</Class>
-			<Type>UNIT_AZTEC_JAGUAR</Type>
-			<UniqueNames/>
-			<Special>NONE</Special>
-			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_MELEE</Combat>
-			<Domain>DOMAIN_LAND</Domain>
-			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
-			<Invisible>NONE</Invisible>
-			<SeeInvisible>NONE</SeeInvisible>
-			<Description>TXT_KEY_UNIT_AZTEC_JAGUAR</Description>
-			<Civilopedia>TXT_KEY_UNIT_AZTEC_JAGUAR_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_AZTEC_JAGUAR_STRATEGY</Strategy>
-			<Advisor>ADVISOR_MILITARY</Advisor>
-			<bAnimal>0</bAnimal>
-			<bFood>0</bFood>
-			<bNoBadGoodies>0</bNoBadGoodies>
-			<bOnlyDefensive>0</bOnlyDefensive>
-			<bNoCapture>0</bNoCapture>
-			<bQuickCombat>0</bQuickCombat>
-			<bRivalTerritory>0</bRivalTerritory>
-			<bMilitaryHappiness>1</bMilitaryHappiness>
-			<bMilitarySupport>1</bMilitarySupport>
-			<bMilitaryProduction>1</bMilitaryProduction>
-			<bPillage>1</bPillage>
-			<bSpy>0</bSpy>
-			<bSabotage>0</bSabotage>
-			<bDestroy>0</bDestroy>
-			<bStealPlans>0</bStealPlans>
-			<bInvestigate>0</bInvestigate>
-			<bCounterSpy>0</bCounterSpy>
-			<bFound>0</bFound>
-			<bGoldenAge>0</bGoldenAge>
-			<bInvisible>0</bInvisible>
-			<bFirstStrikeImmune>0</bFirstStrikeImmune>
-			<bNoDefensiveBonus>0</bNoDefensiveBonus>
-			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
-			<bCanMoveImpassable>0</bCanMoveImpassable>
-			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
-			<bFlatMovementCost>0</bFlatMovementCost>
-			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
-			<bNukeImmune>0</bNukeImmune>
-			<bPrereqBonuses>0</bPrereqBonuses>
-			<bPrereqReligion>0</bPrereqReligion>
-			<bMechanized>0</bMechanized>
-			<bSuicide>0</bSuicide>
-			<bHiddenNationality>0</bHiddenNationality>
-			<bAlwaysHostile>0</bAlwaysHostile>
-			<UnitClassUpgrades>
-				<UnitClassUpgrade>
-					<UnitClassUpgradeType>UNITCLASS_MACEMAN</UnitClassUpgradeType>
-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
-				</UnitClassUpgrade>
-			</UnitClassUpgrades>
-			<UnitClassTargets/>
-			<UnitCombatTargets/>
-			<UnitClassDefenders/>
-			<UnitCombatDefenders/>
-			<FlankingStrikes/>
-			<UnitAIs>
-				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-			</UnitAIs>
-			<NotUnitAIs/>
-			<Builds/>
-			<ReligionSpreads/>
-			<CorporationSpreads/>
-			<GreatPeoples/>
-			<Buildings/>
-			<HolyCity>NONE</HolyCity>
-			<ReligionType>NONE</ReligionType>
-			<StateReligion>NONE</StateReligion>
-			<PrereqReligion>NONE</PrereqReligion>
-			<PrereqCorporation>NONE</PrereqCorporation>
-			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
-			<TechTypes/>
-			<BonusType>NONE</BonusType>
-			<PrereqBonuses/>
-			<ProductionTraits/>
-			<Flavors/>
-			<iAIWeight>0</iAIWeight>
-			<!-- custom: note: trying to cost quite low as it is as of now anyways etc as it synergizes quite well if not very well with their sacrifice/slaving profile, so give them a bunch of averely stronger cheaper units rather than a few elite ones even though may be more accurate historically to do so though if i am not mistaken from my memory of it (see code comment at freepromotions for tiny bit in this case i mean anyways etc more info about this i mean anyways etc), so keeping as is 35 as of now at least if not always or not but anyways etc -->
-			<iCost>35</iCost>
-			<iHurryCostModifier>0</iHurryCostModifier>
-			<iAdvancedStartCost>100</iAdvancedStartCost>
-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<iMinAreaSize>-1</iMinAreaSize>
-			<iMoves>1</iMoves>
-			<bNoRevealMap>0</bNoRevealMap>
-			<iAirRange>0</iAirRange>
-			<iAirUnitCap>0</iAirUnitCap>
-			<iDropRange>0</iDropRange>
-			<iNukeRange>-1</iNukeRange>
-			<iWorkRate>0</iWorkRate>
-			<iBaseDiscover>0</iBaseDiscover>
-			<iDiscoverMultiplier>0</iDiscoverMultiplier>
-			<iBaseHurry>0</iBaseHurry>
-			<iHurryMultiplier>0</iHurryMultiplier>
-			<iBaseTrade>0</iBaseTrade>
-			<iTradeMultiplier>0</iTradeMultiplier>
-			<iGreatWorkCulture>0</iGreatWorkCulture>
-			<iEspionagePoints>0</iEspionagePoints>
-			<TerrainImpassables/>
-			<FeatureImpassables/>
-			<TerrainPassableTechs/>
-			<FeaturePassableTechs/>
-			<iCombat>5</iCombat>
-			<iCombatLimit>100</iCombatLimit>
-			<iAirCombat>0</iAirCombat>
-			<iAirCombatLimit>0</iAirCombatLimit>
-			<iXPValueAttack>4</iXPValueAttack>
-			<iXPValueDefense>2</iXPValueDefense>
-			<iFirstStrikes>0</iFirstStrikes>
-			<iChanceFirstStrikes>0</iChanceFirstStrikes>
-			<iInterceptionProbability>0</iInterceptionProbability>
-			<iEvasionProbability>0</iEvasionProbability>
-			<iWithdrawalProb>0</iWithdrawalProb>
-			<iCollateralDamage>0</iCollateralDamage>
-			<iCollateralDamageLimit>200</iCollateralDamageLimit>
-			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
-			<iCityAttack>10</iCityAttack>
-			<iCityDefense>0</iCityDefense>
-			<iAnimalCombat>0</iAnimalCombat>
-			<iHillsAttack>0</iHillsAttack>
-			<iHillsDefense>0</iHillsDefense>
-			<TerrainNatives/>
-			<FeatureNatives/>
-			<TerrainAttacks>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainAttack>10</iTerrainAttack>
-				</TerrainAttack>
-			</TerrainAttacks>
-			<TerrainDefenses>	
-				<TerrainDefense>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>	
-			</TerrainDefenses>
-			<FeatureAttacks>
-				<FeatureAttack>
-					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureAttack>25</iFeatureAttack>
-				</FeatureAttack>
-			</FeatureAttacks>
-			<FeatureDefenses>
-				<FeatureDefense>
-					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>25</iFeatureDefense>
-				</FeatureDefense>
-			</FeatureDefenses>
-			<UnitClassAttackMods/>
-			<UnitClassDefenseMods/>
-			<UnitCombatMods/>
-			<UnitCombatCollateralImmunes/>
-			<DomainMods/>
-			<BonusProductionModifiers/>
-			<iBombRate>0</iBombRate>
-			<iBombardRate>0</iBombardRate>
-			<SpecialCargo>NONE</SpecialCargo>
-			<DomainCargo>NONE</DomainCargo>
-			<iCargo>0</iCargo>
-			<iConscription>1</iConscription>
-			<iCultureGarrison>5</iCultureGarrison>
-			<iExtraCost>0</iExtraCost>
-			<iAsset>2</iAsset>
-			<!-- advc.104e: was 6 -->
-			<iPower>5</iPower>
-			<UnitMeshGroups>
-				<iGroupSize>3</iGroupSize>
-				<fMaxSpeed>1.75</fMaxSpeed>
-				<fPadTime>1</fPadTime>
-				<iMeleeWaveSize>3</iMeleeWaveSize>
-				<iRangedWaveSize>0</iRangedWaveSize>
-				<UnitMeshGroup>
-					<iRequired>3</iRequired>
-					<EarlyArtDefineTag>ART_DEF_UNIT_AZTEC_JAGUAR</EarlyArtDefineTag>
-				</UnitMeshGroup>
-			</UnitMeshGroups>
-			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
-			<HotKey/>
-			<bAltDown>0</bAltDown>
-			<bShiftDown>0</bShiftDown>
-			<bCtrlDown>0</bCtrlDown>
-			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: if i am not mistaken from my memory i mean, i seem to i mean anyways etc remember that the jaguars are elite forces valued in society, since the unit is so weak, may be fine to buff it as such anyways etc, in terms of civ4 if i may say these new promotions, city-oriented, may fit quite well their aggressive profile of the trait i mean if i am not mistaken anyways etc, was PROMOTION_WOODSMAN1 -->
-			<FreePromotions>
-				<FreePromotion>
-					<PromotionType>PROMOTION_CITY_RAIDER1</PromotionType>
-					<bFreePromotion>1</bFreePromotion>
-				</FreePromotion>
-				<FreePromotion>
-					<PromotionType>PROMOTION_CITY_GARRISON1</PromotionType>
-					<bFreePromotion>1</bFreePromotion>
-				</FreePromotion>
-			</FreePromotions>
-			<LeaderPromotion>NONE</LeaderPromotion>
-			<iLeaderExperience>0</iLeaderExperience>
-		</UnitInfo>
 		<UnitInfo> <!-- custom: class: UNITCLASS_SWORDSMAN, type: UNIT_CELTIC_GALLIC_WARRIOR (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Class>UNITCLASS_SWORDSMAN</Class>
 			<Type>UNIT_CELTIC_GALLIC_WARRIOR</Type>
@@ -6470,10 +6571,30 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<TerrainAttacks/>
-			<TerrainDefenses/>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<TerrainAttacks>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainAttack>10</iTerrainAttack>
+				</TerrainAttack>
+			</TerrainAttacks>
+			<TerrainDefenses>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
+				</TerrainDefense>
+			</TerrainDefenses>
+			<FeatureAttacks>
+				<FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>25</iFeatureAttack>
+				</FeatureAttack>
+			</FeatureAttacks>
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>50</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<UnitCombatMods/>
@@ -6662,10 +6783,38 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<TerrainAttacks/>
-			<TerrainDefenses/>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<TerrainAttacks>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainAttack>25</iTerrainAttack>
+				</TerrainAttack>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_DESERT</TerrainType>
+					<iTerrainAttack>10</iTerrainAttack>
+				</TerrainAttack>
+			</TerrainAttacks>
+			<TerrainDefenses>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainDefense>50</iTerrainDefense>
+				</TerrainDefense>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_DESERT</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
+				</TerrainDefense>
+			</TerrainDefenses>
+			<FeatureAttacks>
+				<FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>25</iFeatureAttack>
+				</FeatureAttack>
+			</FeatureAttacks>
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>25</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<UnitCombatMods/>
@@ -6704,10 +6853,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<FreePromotions>
 				<FreePromotion>
 					<PromotionType>PROMOTION_COMBAT1</PromotionType>
-					<bFreePromotion>1</bFreePromotion>
-				</FreePromotion>
-				<FreePromotion>
-					<PromotionType>PROMOTION_COMBAT2</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -6862,19 +7007,19 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<iTerrainAttack>25</iTerrainAttack>
 				</TerrainAttack>
 				<TerrainAttack>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>	
+			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
 					<iTerrainDefense>50</iTerrainDefense>
 				</TerrainDefense>
 				<TerrainDefense>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
 					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>	
+				</TerrainDefense>
 			</TerrainDefenses>
 			<FeatureAttacks/>
 			<FeatureDefenses/>
@@ -7283,8 +7428,19 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<TerrainAttacks/>
-			<TerrainDefenses/>
+			<!-- custom: sometimes i slightly deviated from strict terrain world map real layout, as of now for example in eastern europe and asia, see code comment at the german_hussar about the Köppen climate classification map for details hopefully helpful or otn or yes or etc but anyways etc anyways etc anyways etc -->
+			<TerrainAttacks>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+					<iTerrainAttack>10</iTerrainAttack>
+				</TerrainAttack>
+			</TerrainAttacks>
+			<TerrainDefenses>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
+				</TerrainDefense>
+			</TerrainDefenses>
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
@@ -7514,15 +7670,15 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<iTerrainAttack>25</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>	
+			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
 					<iTerrainDefense>50</iTerrainDefense>
 				</TerrainDefense>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_SNOW</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>	
+					<iTerrainDefense>50</iTerrainDefense>
+				</TerrainDefense>
 			</TerrainDefenses>
 			<FeatureAttacks>
 				<FeatureAttack>
@@ -7971,7 +8127,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainAttack>20</iTerrainAttack>
+					<iTerrainAttack>25</iTerrainAttack>
+				</TerrainAttack>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainAttack>25</iTerrainAttack>
 				</TerrainAttack>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
@@ -7984,23 +8144,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<iTerrainDefense>25</iTerrainDefense>
 				</TerrainDefense>
 				<TerrainDefense>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainDefense>50</iTerrainDefense>
+				</TerrainDefense>
+				<TerrainDefense>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
 					<iTerrainDefense>25</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
-			<!-- custom: spearmen could have some range advantage fighting in the woods maybe. -->
-			<FeatureAttacks>
-				<FeatureAttack>
-					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureAttack>10</iFeatureAttack>
-				</FeatureAttack>
-			</FeatureAttacks>
-			<FeatureDefenses>
-				<FeatureDefense>
-					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>10</iFeatureDefense>
-				</FeatureDefense>
-			</FeatureDefenses>
+			<!-- custom: no room to give the woods range advantage of spearmen, unit would have too many modifiers as well -->
+			<FeatureAttacks/>
+			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<UnitCombatMods>
@@ -8209,11 +8363,19 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
 					<iFeatureAttack>25</iFeatureAttack>
 				</FeatureAttack>
+				<FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>10</iFeatureAttack>
+				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>25</iFeatureDefense>
+					<iFeatureDefense>50</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>10</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -8426,8 +8588,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 				<TerrainAttack>
-					<TerrainType>TERRAIN_PEAK</TerrainType>
-					<iTerrainAttack>50</iTerrainAttack>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
 			<TerrainDefenses>
@@ -8435,13 +8597,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
 					<iTerrainDefense>25</iTerrainDefense>
 				</TerrainDefense>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
-				</TerrainAttack>
 				<TerrainDefense>
-					<TerrainType>TERRAIN_PEAK</TerrainType>
-					<iTerrainDefense>75</iTerrainDefense>
+					<TerrainType>TERRAIN_DESERT</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
+				</TerrainDefense>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
 			<FeatureAttacks>
@@ -8453,7 +8615,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>10</iFeatureDefense>
+					<iFeatureDefense>25</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -8834,7 +8996,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 60 -->
-			<iCost>90</iCost>
+			<iCost>85</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -8874,38 +9036,33 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>
-			<!-- custom: since they are more mercenaries from what i've read and prone
-			to mutiny, unlike the reworked pikemen i do not give them any city defense
-			bonus -->
+			<!-- custom: since they are more mercenaries from what i've read and prone to mutiny, unlike the reworked pikemen i do not give them any city defense bonus -->
 			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
-			<!-- custom: unit rework, higher than the reworked pikeman as they seem
-			to have been doing very well in most terrains, was 0 -->
+			<!-- custom: unit rework, higher than the reworked pikeman as they seem to have been doing very well in most terrains, was 0 -->
 			<iHillsAttack>25</iHillsAttack>
 			<iHillsDefense>25</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<!-- custom: unlike the reworked pikemen, the holy roman special unit seems
-			to good in most if not all terrains, so removing the penalties that the reworked
-			pikemen have. May affect city attack/defense/planting strategy. -->
+			<!-- custom: unlike the reworked pikemen, the holy roman special unit seems to be good in most if not all terrains, so removing the woods penalties that the reworked pikemen have, otherwise respecting consistently if i may say but anyways etc the civ's geography with adjustments based on climate (see german_hussar 's code comment at terrain and feature attacks and defenses for details but anyways etc hopefully helpful or not or yes or etc but anyways etc) -->
 			<TerrainAttacks>
 				<TerrainAttack>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainAttack>20</iTerrainAttack>
+					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainAttack>15</iTerrainAttack>
+					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
 			<TerrainDefenses>
 				<TerrainDefense>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainDefense>20</iTerrainDefense>
+					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
 				</TerrainDefense>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainDefense>15</iTerrainDefense>
+					<iTerrainDefense>25</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
 			<FeatureAttacks/>
@@ -9582,7 +9739,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>25</iCost>
+			<iCost>30</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -9606,7 +9763,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<iCombat>5</iCombat>
+			<!-- custom: was 3 -->
+			<iCombat>4</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -9621,23 +9779,31 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iCollateralDamage>0</iCollateralDamage>
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+			<!-- custom: was 0 and 0 anyways etc -->
 			<iCityAttack>10</iCityAttack>
 			<iCityDefense>10</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
 			<iHillsAttack>0</iHillsAttack>
-			<iHillsDefense>0</iHillsDefense>
+			<iHillsDefense>25</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<!-- custom: according to https://www.quora.com/Why-was-ancient-Babylon-located-in-a-desert/answer/Thomas-Edward-Samuel-Thomas there was no desert or something around it close to it at the time, i don't know if all accurate as i didn't check, but assuming it is, adjust terrain modifiers for this unit, favouring buffing plains when possible as it is a weaker terrain and if not too teidous ideally i may to apply it to more units if it doesn't add too much complexity as well but anyways etc, also trying to make sure it doesn't break balance anyways etc -->
 			<TerrainAttacks>
 				<TerrainAttack>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainAttack>25</iTerrainAttack>
+				</TerrainAttack>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_DESERT</TerrainType>
 					<iTerrainAttack>25</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
 			<TerrainDefenses>
 				<TerrainDefense>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
+				</TerrainDefense>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_DESERT</TerrainType>
 					<iTerrainDefense>25</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
@@ -9658,7 +9824,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
-					<iUnitCombatMod>20</iUnitCombatMod>
+					<iUnitCombatMod>50</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
 			<UnitCombatCollateralImmunes/>
@@ -9864,8 +10030,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iCollateralDamage>0</iCollateralDamage>
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
-			<iCityAttack>0</iCityAttack>
-			<iCityDefense>25</iCityDefense>
+			<iCityAttack>10</iCityAttack>
+			<iCityDefense>50</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
 			<iHillsAttack>0</iHillsAttack>
 			<iHillsDefense>25</iHillsDefense>
@@ -10265,8 +10431,18 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHillsDefense>25</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<TerrainAttacks/>
-			<TerrainDefenses/>
+			<TerrainAttacks>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainAttack>10</iTerrainAttack>
+				</TerrainAttack>
+			</TerrainAttacks>
+			<TerrainDefenses>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
+				</TerrainDefense>
+			</TerrainDefenses>
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
@@ -10477,11 +10653,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<iTerrainAttack>25</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>	
+			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
 					<iTerrainDefense>50</iTerrainDefense>
-				</TerrainDefense>	
+				</TerrainDefense>
 			</TerrainDefenses>
 			<FeatureAttacks>
 				<FeatureAttack>
@@ -10865,8 +11041,34 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<TerrainAttacks/>
-			<TerrainDefenses/>
+			<TerrainAttacks>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainAttack>25</iTerrainAttack>
+				</TerrainAttack>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_DESERT</TerrainType>
+					<iTerrainAttack>25</iTerrainAttack>
+				</TerrainAttack>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainAttack>10</iTerrainAttack>
+				</TerrainAttack>
+			</TerrainAttacks>
+			<TerrainDefenses>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
+				</TerrainDefense>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_DESERT</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
+				</TerrainDefense>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
+				</TerrainDefense>
+			</TerrainDefenses>
 			<FeatureAttacks/>
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
@@ -11052,10 +11254,30 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<TerrainAttacks/>
-			<TerrainDefenses/>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<TerrainAttacks>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainAttack>10</iTerrainAttack>
+				</TerrainAttack>
+			</TerrainAttacks>
+			<TerrainDefenses>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
+				</TerrainDefense>
+			</TerrainDefenses>
+			<FeatureAttacks>
+				<FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>25</iFeatureAttack>
+				</FeatureAttack>
+			</FeatureAttacks>
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>25</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<UnitCombatMods/>
@@ -11234,18 +11456,21 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<!-- custom: was empty -->
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>10</iTerrainAttack>
+					<iTerrainAttack>25</iTerrainAttack>
 				</TerrainAttack>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainAttack>10</iTerrainAttack>
+				</TerrainAttack>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
 					<iTerrainAttack>25</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>	
+			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_GRASS</TerrainType>
 					<iTerrainDefense>25</iTerrainDefense>
@@ -11253,21 +11478,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				<TerrainDefense>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
 					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>	
+				</TerrainDefense>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
+				</TerrainDefense>
 			</TerrainDefenses>
-			<!-- custom: was empty -->
-			<FeatureAttacks>
-				<FeatureAttack>
-					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>10</iFeatureAttack>
-				</FeatureAttack>
-			</FeatureAttacks>
-			<FeatureDefenses>
-				<FeatureDefense>
-					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>25</iFeatureDefense>
-				</FeatureDefense>
-			</FeatureDefenses>
+			<FeatureAttacks/>
+			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<UnitCombatMods/>
@@ -11679,8 +11897,18 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<FeatureNatives/>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<FeatureAttacks>
+				<FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>25</iFeatureAttack>
+				</FeatureAttack>
+			</FeatureAttacks>
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>50</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<!-- custom: was "MOUNTED" 25 and UNITCOMBAT_GUN 25 -->
@@ -11690,7 +11918,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<iUnitCombatMod>50</iUnitCombatMod>
 				</UnitCombatMod>
 				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
 					<iUnitCombatMod>25</iUnitCombatMod>
 				</UnitCombatMod>
 				<UnitCombatMod>
@@ -11891,10 +12119,18 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
 					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainAttack>10</iTerrainAttack>
+				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>	
+			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
+				</TerrainDefense>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
 					<iTerrainDefense>25</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
@@ -13885,11 +14121,19 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<TerrainType>TERRAIN_DESERT</TerrainType>
 					<iTerrainAttack>50</iTerrainAttack>
 				</TerrainAttack>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainAttack>10</iTerrainAttack>
+				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>	
+			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
 					<iTerrainDefense>50</iTerrainDefense>
+				</TerrainDefense>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
 			<!-- custom: see code comment at the generic chariot at FeatureAttacks and/or FeatureDefenses if any code comments are there anyways etc for details anyways etc, was empty -->
@@ -14335,11 +14579,19 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<TerrainType>TERRAIN_DESERT</TerrainType>
 					<iTerrainAttack>50</iTerrainAttack>
 				</TerrainAttack>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainAttack>10</iTerrainAttack>
+				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>	
+			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
 					<iTerrainDefense>50</iTerrainDefense>
+				</TerrainDefense>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
 			<!-- custom: give forest and jungle penalty for most if not all mounted_melee units anyways etc, as i assume it would be less practical (also as they are overall larger in this case anyways etc mount + rider it would be harder for them to take cover if i am not mistaken anyways etc, so simplifying this by giving an overall penalty identical to most if not all mounted_melee units anyways etc, see code comments at featureattacks or featuredefenses of mounted_ranged units if any penalty or such modifiers also or not applies to them anyways etc) for them to navigate these features and they would lose their speed or such advantage too if i am not mistaken anyways etc, and would now be at a disadvantage vs melee or such units i assume if i am not mistaken anyways etc, so give them both attack and defense penalty, should be too op or significant if i may say anyways etc militarily as cities don't have forest or jungle in the tiles they are founded on after they are founded on a tile if i am not mistaken i mean anyways etc ; also even assuming tile is roaded, their escape options may still be limited to the road path and they may get ambushed, so simplifying this with a global penalty as of now at least if not always or not or yes but anyways etc for mounted_melee units on forest and jungle as of now anyways etc, the other terrains i mean such as grassland and plains that are flat do not give a significant advantage that is not already part of the unit's strength/stats, also would be op as they'd get a grassland or plains modifier advantage on attacking cities and or such, and then melee units would need them too, so unless the advantage is strong or the tile weak, avoiding to buff too much terrains at least for mounted_melee or/and other such or other units anyways etc, was empty -->
@@ -14570,39 +14822,31 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
+					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 				<TerrainAttack>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
 					<iTerrainAttack>25</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>	
+			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
 					<iTerrainDefense>25</iTerrainDefense>
 				</TerrainDefense>
 				<TerrainDefense>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
 					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>	
+				</TerrainDefense>
 			</TerrainDefenses>
-			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc, was empty -->
+			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc . also remove forest penalties due to civ geographic in world map advantage of forest, see other units code comments at terrainattacks or and such hopefully helpful or not or yes or etc but anyways etc, was empty -->
 			<FeatureAttacks>
-				<FeatureAttack>
-					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>-25</iFeatureAttack>
-				</FeatureAttack>
 				<FeatureAttack>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
 					<iFeatureAttack>-25</iFeatureAttack>
 				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
-				<FeatureDefense>
-					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
-				</FeatureDefense>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
 					<iFeatureDefense>-25</iFeatureDefense>
@@ -14809,26 +15053,26 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<!-- custom: make camel units better/stronger in desert and similar terrain +/- features anyways etc -->
+			<!-- custom: make camel units better/stronger in desert and such terrains, but not buffing them too much as they are the generic unit and it may skew warfare too much to use them both for offense or defense against stronger units they shouldn't win again, so buff it moderately but quite a bit in this case at least if i may say but anyways etc -->
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>50</iTerrainAttack>
+					<iTerrainAttack>25</iTerrainAttack>
 				</TerrainAttack>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
+					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>	
+			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainDefense>50</iTerrainDefense>
+					<iTerrainDefense>25</iTerrainDefense>
 				</TerrainDefense>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
 					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>	
+				</TerrainDefense>
 			</TerrainDefenses>
 			<FeatureAttacks/>
 			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
@@ -15033,14 +15277,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
+					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>	
+			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
 					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>	
+				</TerrainDefense>
 			</TerrainDefenses>
 			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc, was empty -->
 			<FeatureAttacks>
@@ -15263,21 +15507,22 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<iTerrainAttack>25</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>	
+			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
 					<iTerrainDefense>50</iTerrainDefense>
-				</TerrainDefense>	
+				</TerrainDefense>
 			</TerrainDefenses>
-			<FeatureAttacks/>
-			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
+			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc ; remove jungle defense penalty and give an additional jungle attack advantage as of now anyways etc for this civ-specific unit if i may say but anyways etc due to civ geography world map advantage, see other units's code comments for details or/and additional info anyways etc -->
+			<FeatureAttacks>
+				<FeatureAttack>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureAttack>25</iFeatureAttack>
+				</FeatureAttack>
+			</FeatureAttacks>
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
-				</FeatureDefense>
-				<FeatureDefense>
-					<FeatureType>FEATURE_JUNGLE</FeatureType>
 					<iFeatureDefense>-25</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
@@ -15707,8 +15952,18 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<TerrainAttacks/>
-			<TerrainDefenses/>
+			<TerrainAttacks>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainAttack>25</iTerrainAttack>
+				</TerrainAttack>
+			</TerrainAttacks>
+			<TerrainDefenses>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
+				</TerrainDefense>
+			</TerrainDefenses>
 			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc, was empty -->
 			<FeatureAttacks>
 				<FeatureAttack>
@@ -15931,26 +16186,26 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<!-- custom: make camel units better/stronger in desert and similar terrain +/- features anyways etc -->
+			<!-- custom: make camel units better/stronger in desert and such terrains, but not buffing them too much as they are the generic unit and it may skew warfare too much to use them both for offense or defense against stronger units they shouldn't win again, so buff it moderately but quite a bit in this case at least if i may say but anyways etc -->
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>50</iTerrainAttack>
+					<iTerrainAttack>25</iTerrainAttack>
 				</TerrainAttack>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
+					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>	
+			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainDefense>50</iTerrainDefense>
+					<iTerrainDefense>25</iTerrainDefense>
 				</TerrainDefense>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
 					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>	
+				</TerrainDefense>
 			</TerrainDefenses>
 			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc, was empty -->
 			<FeatureAttacks>
@@ -16181,22 +16436,22 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>75</iTerrainAttack>
+					<iTerrainAttack>50</iTerrainAttack>
 				</TerrainAttack>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
+					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>	
+			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainDefense>75</iTerrainDefense>
+					<iTerrainDefense>50</iTerrainDefense>
 				</TerrainDefense>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
 					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>	
+				</TerrainDefense>
 			</TerrainDefenses>
 			<FeatureAttacks/>
 			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
@@ -16632,15 +16887,21 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<TerrainAttacks/>
-			<TerrainDefenses/>
+			<TerrainAttacks>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainAttack>25</iTerrainAttack>
+				</TerrainAttack>
+			</TerrainAttacks>
+			<TerrainDefenses>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainDefense>50</iTerrainDefense>
+				</TerrainDefense>
+			</TerrainDefenses>
 			<FeatureAttacks/>
-			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
+			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc ; also remove the unit's forest penalty similarly due to world map, see code comments at other unit's terrainattacks or such for details anyways etc -->
 			<FeatureDefenses>
-				<FeatureDefense>
-					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
-				</FeatureDefense>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
 					<iFeatureDefense>-25</iFeatureDefense>
@@ -16849,15 +17110,22 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<TerrainAttacks/>
-			<TerrainDefenses/>
+			<!-- custom: sometimes i slightly deviated from strict terrain world map real layout, as of now for example in europe due to it being only forestic with no obvious terrain in the world maps i saw but anyways etc, but eastern europe is cold, so symbolize as having a bit of tundra in civ4 terms but anyways etc (see for example this Köppen climate classification map https://en.wikipedia.org/wiki/K%C3%B6ppen_climate_classification for details or maybe rather info or such hopefulyl helpful if i may say but anyways etc...) -->
+			<TerrainAttacks>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+					<iTerrainAttack>10</iTerrainAttack>
+				</TerrainAttack>
+			</TerrainAttacks>
+			<TerrainDefenses>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
+				</TerrainDefense>
+			</TerrainDefenses>
 			<FeatureAttacks/>
-			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
+			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc ; removing the forest penalty due to their geography favouring forest if i am not mistaken in doing so at least i want so hopefulyl helpful or not or yes or etc but anyways etc, see also as of now the korean civ-specific unit for similar example / type of example if i may say but anyways etc -->
 			<FeatureDefenses>
-				<FeatureDefense>
-					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
-				</FeatureDefense>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
 					<iFeatureDefense>-25</iFeatureDefense>
@@ -17067,26 +17335,26 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<!-- custom: make camel units better/stronger in desert and similar terrain +/- features anyways etc -->
+			<!-- custom: make camel units better/stronger in desert and such terrains, but not buffing them too much as they are the generic unit and it may skew warfare too much to use them both for offense or defense against stronger units they shouldn't win again, so buff it moderately but quite a bit in this case at least if i may say but anyways etc -->
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>50</iTerrainAttack>
+					<iTerrainAttack>25</iTerrainAttack>
 				</TerrainAttack>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
+					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>	
+			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainDefense>50</iTerrainDefense>
+					<iTerrainDefense>25</iTerrainDefense>
 				</TerrainDefense>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
 					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>	
+				</TerrainDefense>
 			</TerrainDefenses>
 			<FeatureAttacks/>
 			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
@@ -17512,7 +17780,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<iTerrainAttack>50</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>	
+			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
 					<iTerrainDefense>50</iTerrainDefense>
@@ -17520,15 +17788,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				<TerrainDefense>
 					<TerrainType>TERRAIN_SNOW</TerrainType>
 					<iTerrainDefense>50</iTerrainDefense>
-				</TerrainDefense>	
+				</TerrainDefense>
 			</TerrainDefenses>
 			<FeatureAttacks/>
-			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
+			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc ; also remove the forest penalty due to civ's world map advantage, see other units 's code comments for details anyways etc -->
 			<FeatureDefenses>
-				<FeatureDefense>
-					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
-				</FeatureDefense>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
 					<iFeatureDefense>-25</iFeatureDefense>
@@ -18971,8 +19235,18 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<TerrainAttacks/>
-			<TerrainDefenses/>
+			<TerrainAttacks>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainAttack>10</iTerrainAttack>
+				</TerrainAttack>
+			</TerrainAttacks>
+			<TerrainDefenses>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
+				</TerrainDefense>
+			</TerrainDefenses>
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>

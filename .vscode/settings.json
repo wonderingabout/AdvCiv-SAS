@@ -1,4 +1,4 @@
-// <!-- custom: vs code settings for advciv-sas, it seems specifically for settings.json comments are allowed so no (need to anyways etc use anyways etc) .jsonc and using instead .json so we can add comments too if i am not mistaken and according to chatgpt/becomingthough (who also provided parts if not lot or most of code below which i tweaked or/and added on too anyways etc anyways etc anyways etc) -->
+// <!-- custom: vs code settings for advciv-sas, it seems specifically for settings.json comments are allowed so no (need to anyways etc use anyways etc) .jsonc and using instead .json so we can add comments too if i am not mistaken and according to chatgpt (who also provided parts if not lot or most of code below which i tweaked or/and added on too anyways etc anyways etc anyways etc) -->
 {
     // Use real tab characters instead of spaces
     "editor.insertSpaces": false,

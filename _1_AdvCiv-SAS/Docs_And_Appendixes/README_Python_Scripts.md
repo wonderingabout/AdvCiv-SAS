@@ -352,7 +352,7 @@ In cmd, for example for Steam users (adapt to your AdvCiv-SAS install path), go 
 cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & python scan_xml_duplicates-3.3.py
 ```
 
-(Note: keeping version name as such to not mistaken it ith newer versions that had some issues or diverged so prefer to use this one here while keeping version naming for reliability, ease of use, and also memory/"honor" it if you may say as chatgpt/beomingthrough often tells me etc but anwyays and thanks, anyways,)
+(Note: keeping version name as such to not mistaken it ith newer versions that had some issues or diverged so prefer to use this one here while keeping version naming for reliability, ease of use, and also memory/"honor" it if you may say as chatgpt often tells me etc but anwyays and thanks, anyways,)
 
 Result is output in a logfile in the Logs\XML_Duplication_Scans folder, for example for Steam users (adapt to your AdvCiv-SAS install path):
 
@@ -362,7 +362,7 @@ Here is an [example of output file](/scan_xml_duplicates-log_example_of_output.t
 
 (Note: files are in .gitignore if you use git, else dont mind this specific remark, anyways)
 
-Line numbers don't print perfectly ("duplicated" you could say hehe.. (but) anyways), but info should be otherwise helpful hopefully ; also some duplicates are intended and expected if i am not mistaken and part of the game architecture, such as the iCommerce ones if i understood ChatGPT's explanation correctly and based on my own memories's understanding anyways, and TXT_KEY_HINT_`*` where `*` is anything for example, maybe for publicity and purposely repeated, according to ChatGPT/becomingthorugh anyways too and seems to make sense, if i am not msitaken and understand it and it's explanation correctly too
+Line numbers don't print perfectly ("duplicated" you could say hehe.. (but) anyways), but info should be otherwise helpful hopefully ; also some duplicates are intended and expected if i am not mistaken and part of the game architecture, such as the iCommerce ones if i understood ChatGPT's explanation correctly and based on my own memories's understanding anyways, and TXT_KEY_HINT_`*` where `*` is anything for example, maybe for publicity and purposely repeated, according to ChatGPT anyways too and seems to make sense, if i am not msitaken and understand it and it's explanation correctly too
 
 In all cases, here is an example of output for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size) :
 
