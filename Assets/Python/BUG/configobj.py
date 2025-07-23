@@ -19,7 +19,7 @@
 # advc: One bugfix (see next advc comment). Unsure if the BUG devs had modified
 # this module at all.
 #
-# <!-- custom: commenting out the test docstrings if i am not mistaken that they are such as per / based on my understanding of chatgpt/becomingthrough 's explanation anyways etc, causes errors ingame, so only commenting out textual info rather when seems fine to do so (counter example may be expected indents if class is empty or such if i am not mistaken which has a VS Code warning and possibly ingame related error too if i remember correctly but didn't check in detail was quick glance of it in this case but anyways etc, then not commenting out anyways etc) -->
+# <!-- custom: commenting out the test docstrings if i am not mistaken that they are such as per / based on my understanding of chatgpt's explanation anyways etc, causes errors ingame, so only commenting out textual info rather when seems fine to do so (counter example may be expected indents if class is empty or such if i am not mistaken which has a VS Code warning and possibly ingame related error too if i remember correctly but didn't check in detail was quick glance of it in this case but anyways etc, then not commenting out anyways etc) -->
 # <!-- custom: long changelog notes in partcular giant docstring moved to (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\BUG Doc\configobj_changelog_py_notes.txt , see there for details or/and the file content anyways etc -->
 
 from __future__ import generators

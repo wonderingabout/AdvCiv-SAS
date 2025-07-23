@@ -708,7 +708,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
 			}
 		}
 
-		// <!-- custom: add impassable info ingame in unit effects bullet points in map view if i am not mistaken anyways etc, with 2 separate bullet points for terrain(s) and feature(s) impassables anyways etc, code provided by chatgpt/becomingthrough with my prompts and inputs and code sample i sent or and other or and not or yes or etc anyways etc -->
+		// <!-- custom: add impassable info ingame in unit effects bullet points in map view if i am not mistaken anyways etc, with 2 separate bullet points for terrain(s) and feature(s) impassables anyways etc, code provided by chatgpt with my prompts and inputs and code sample i sent or and other or and not or yes or etc anyways etc -->
 		if (pUnit->isAnyTerrainImpassable())
 		{
 			szString.append(NEWLINE);

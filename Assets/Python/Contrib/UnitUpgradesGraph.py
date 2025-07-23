@@ -386,7 +386,7 @@ class UnitUpgradesGraph:
 								if (medB == -1 and medA >= y):
 									self.swap(mGraph, x, y-1, y)
 									doneB = False
-							# <!-- custom: do not use "==" when comparing to False as per ruff rule and chatgpt/becomingthrough's answer to it and my prompt etc similarly too anyways etc -->
+							# <!-- custom: do not use "==" when comparing to False as per ruff rule and chatgpt's answer to it and my prompt etc similarly too anyways etc -->
 							if not doneB:
 								doneA = False
 						doneB = False

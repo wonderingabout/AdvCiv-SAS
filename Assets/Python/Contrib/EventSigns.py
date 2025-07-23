@@ -278,7 +278,7 @@ class MapSigns:
 		if not thisKey:
 			BugUtil.warn("MapSigns.storeSign() could not determine valid keyname for Plot %s." % (str(pPlot)))
 			return False
-		# <!-- custom: fix ruff rule as per chatgpt/becomingthrough's recommendation/answer and my prompt too anyways etc and own idea of it and how to solve it based on ruff warning message E713 in this case i mean anyways etc, do not use "if not key in x", use instead "if key not in x" anyways etc -->
+		# <!-- custom: fix ruff rule as per chatgpt's recommendation/answer and my prompt too anyways etc and own idea of it and how to solve it based on ruff warning message E713 in this case i mean anyways etc, do not use "if not key in x", use instead "if key not in x" anyways etc -->
 		if thisKey not in self.plotDict:
 			self.plotDict[thisKey] = PlotSigns(pPlot)
 		self.plotDict[thisKey].setSign(ePlayer, szCaption)

@@ -558,7 +558,7 @@ public:
 	{
 		return m_pUnitInfo->isAnyFeatureImpassable();
 	}
-	// <!-- custom: also add the getters to list all terrain(s) and feature(s) impassables if i am not mistaken and according to chatgpt/becomingthrough's explanation anyways etc -->
+	// <!-- custom: also add the getters to list all terrain(s) and feature(s) impassables if i am not mistaken and according to chatgpt's explanation anyways etc -->
 	bool getTerrainImpassable(TerrainTypes eTerrain) const
 	{
 		return m_pUnitInfo->getTerrainImpassable(eTerrain);

@@ -41,7 +41,7 @@ def get_negative_memory_indexes_to_types():
 	# and our debug ingame in sevopedia shows (see (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\_sevopedia_helpers.py for details):
 	# Memory 29 (MEMORY_RECEIVED_TECH_FROM_ANY): Attitude 0, Decay 20
 	#
-	# here is also chatgpt/becomingthrough's web search result if it helps too (not sure is accurate but maybe is or at least more since is web search anyways etc) formatted or not or yes for our script's consistency or rather small display in this case i mean or other or and not or yes or etc anyways etc:
+	# here is also chatgpt's web search result if it helps too (not sure is accurate but maybe is or at least more since is web search anyways etc) formatted or not or yes for our script's consistency or rather small display in this case i mean or other or and not or yes or etc anyways etc:
 	#
 	# "
 	# 🧠 What it does

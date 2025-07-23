@@ -123,7 +123,7 @@ def get_emoji_name_to_button_path_txt_keys(localText):
 
 
 
-# <!-- custom: check all images as buttons paths are valid before proceeding (i.e. check they really exist in our XML indeed if i may say anyways etc), error code provided by me hehe, the error check fixed by chatgpt/becomingthrough and i made some adjustments too thanks to its awesome code and ym awesome fix or and tweaks mayube rather but anyways etc... -->
+# <!-- custom: check all images as buttons paths are valid before proceeding (i.e. check they really exist in our XML indeed if i may say anyways etc), error code provided by me hehe, the error check fixed by chatgpt and i made some adjustments too thanks to its awesome code and ym awesome fix or and tweaks mayube rather but anyways etc... -->
 def check_images_as_buttons_paths_are_valid(txtKeyDict, localText):
 	# This will raise an error if:
 	# - The TXT_KEY doesn't exist in any loaded Text/*.xml

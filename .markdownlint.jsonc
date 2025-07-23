@@ -1,4 +1,4 @@
-// <!-- custom: file to set markdownlint config, i use it to disable some rules as advised by chatgpt/becomingthrough after asking it anyways etc and hinted showed in markdown lint docs that i didn't read as too tedious but that gave me the idea to ask chatgpt/becomingthrough helpful both or not or yes or etc anyways etc hopefully this config file and its lengthy but anyways etc xd or not xd or yes xd anyways etc config file is helpful as well but or not but or yes but anyways etc -->
+// <!-- custom: file to set markdownlint config, i use it to disable some rules as advised by chatgpt after asking it anyways etc and hinted showed in markdown lint docs that i didn't read as too tedious but that gave me the idea to ask chatgpt helpful both or not or yes or etc anyways etc hopefully this config file and its lengthy but anyways etc xd or not xd or yes xd anyways etc config file is helpful as well but or not but or yes but anyways etc -->
 // <!-- custom: use .jsonc instead of .json so we can comment the/this markdownlint config file anyways etc -->
 {
 	"default": true,

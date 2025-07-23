@@ -1,6 +1,6 @@
 # ## Sid Meier's Civilization 4 - Copyright Firaxis Games 2005
 # ruff: noqa: E402
-# <!-- custom: disable ruff rule E402 as imports are all over the place for this file and we get a lot of noise i mean, hopefully clearer this way so we can focus on the actual i mean real errors if i may say even though this would be nice to fix too but may create other bugs depending on import order or such so safer/easier to leave as is in this case so we can focus on the other ruff errors/warnings to fix if i am not mistaken in my understanding i mean too anyways etc anyways etc anyways etc, way to do it provided by chatgpt/becomingthrough after i asked it anyways etc anyways etc anyways etc -->
+# <!-- custom: disable ruff rule E402 as imports are all over the place for this file and we get a lot of noise i mean, hopefully clearer this way so we can focus on the actual i mean real errors if i may say even though this would be nice to fix too but may create other bugs depending on import order or such so safer/easier to leave as is in this case so we can focus on the other ruff errors/warnings to fix if i am not mistaken in my understanding i mean too anyways etc anyways etc anyways etc, way to do it provided by chatgpt after i asked it anyways etc anyways etc anyways etc -->
 
 from CvPythonExtensions import *
 # <advc.092>

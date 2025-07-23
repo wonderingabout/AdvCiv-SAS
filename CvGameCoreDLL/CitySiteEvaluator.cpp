@@ -719,7 +719,8 @@ short AIFoundValue::evaluate()
 			// <!-- custom: discourage settling on high food tiles such as grassland and flood plains, higher penalties the higher the food bonus is anyways etc -->
 			else if (p.getTerrainType() == eGrass)
 				iValue -= 25;
-			else if (p.getTerrainType() == eDesert) {
+			else if (p.getTerrainType() == eDesert)
+			{
 				// <!-- custom: may not cover the case of for example mod mods having flood plains on other terrains than desert, but it is computationally more efficient to do so i.e. to check i mean but anyways etc in this case but anyways etc the flood plains feature only in its relevant/comaptible in XML terrain(s), which in advciv-sas and as of now only are desert. I don't know how many times we run this instruction, but if it's quite a lot, even saving one instruction may be nice if i may say, remember to modify this if you modify in your mod mod or such the flood plains compatible terrains or/and such but anyways etc -->
 				if (p.getFeatureType() == eFloodPlains)
 					iValue -= 50;

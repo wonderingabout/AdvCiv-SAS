@@ -1052,7 +1052,7 @@ def parse_leader(leader, leader_type, leader_data, seen_tags):
 		seen_tags.add(tag)
 		expected = infer_type(tag)
 
-		# <!-- custom: nested fields first so that <Flavors/> for example which is a valid field (all flavor set to 0 if i am not mistaken, unlike non-existing Flavors field at all which should if i am not mistaken and as we want if i may say at least me but anyways etc raises an error below) is handled as 0 0 0 0 0 (etc for each flavor) rather than going through the len(child) == 0 where no parsing of flavors happen at all since Flavors is a nested field we don't want to handle as such (i.e. that we don't want to handle it as a flat, non-nested XML field, anyways etc), so we handle the exceptions first if i may say but anyways etc then the general case(s) seems safer or/and more reliable or/and accurate as chatgpt/becomingthrough did and explained to me as well as thanks to my promtps and own reflection and such if i may say but anyways etc... -->
+		# <!-- custom: nested fields first so that <Flavors/> for example which is a valid field (all flavor set to 0 if i am not mistaken, unlike non-existing Flavors field at all which should if i am not mistaken and as we want if i may say at least me but anyways etc raises an error below) is handled as 0 0 0 0 0 (etc for each flavor) rather than going through the len(child) == 0 where no parsing of flavors happen at all since Flavors is a nested field we don't want to handle as such (i.e. that we don't want to handle it as a flat, non-nested XML field, anyways etc), so we handle the exceptions first if i may say but anyways etc then the general case(s) seems safer or/and more reliable or/and accurate as chatgpt did and explained to me as well as thanks to my promtps and own reflection and such if i may say but anyways etc... -->
 		# --- always handle known nested tags first — even if empty
 		if tag == "NoWarAttitudeProbs":
 			parse_no_war_attitude_probs_inline(child, leader_data, leader_type)
@@ -1100,7 +1100,7 @@ def parse_leader(leader, leader_type, leader_data, seen_tags):
 # <!-- custom: before parsing any leader is done, make sure our normalize_to_100 shifting works as expected -->
 test_expected_shifting_pre_normalize_to_100()
 
-# <!-- custom: leader_defaults_data block as highlighted by chatgpt/becomingthrough to me so adding this info anyways -->
+# <!-- custom: leader_defaults_data block as highlighted by chatgpt to me so adding this info anyways -->
 # 1. Parse LEADER_DEFAULTS (this fills leader_defaults_data)
 for leader in root.findall(".//civ4:LeaderHeadInfo", ns):
 	type_tag = leader.find("civ4:Type", ns)
@@ -1133,7 +1133,7 @@ for mem_type in MEMORY_TYPES_NOT_IN_LEADER_DEFAULTS:
 			"iMemoryAttitudePercent": 0
 		})
 
-# <!-- custom: ideally should also do the same for memoryDecays indeed too if i may say as chatgpt/becomingthrough suggests and i adjusted value weirdly from 100 it said to 0 maybe fits better for missing or and is the default if empty in leader_defaults but anyways etc ; it seems leader_defaults has all fields already but in case one were to be missing like a few memory atittude percent fields do but anyways etc, then these/those memory decay fields would default to 0 if i am not mistaken, so handle them if any are missing as such (i.e. as 0 if i am not mistaken but anyways etc) so our data displays/handle it accurately anyways etc -->
+# <!-- custom: ideally should also do the same for memoryDecays indeed too if i may say as chatgpt suggests and i adjusted value weirdly from 100 it said to 0 maybe fits better for missing or and is the default if empty in leader_defaults but anyways etc ; it seems leader_defaults has all fields already but in case one were to be missing like a few memory atittude percent fields do but anyways etc, then these/those memory decay fields would default to 0 if i am not mistaken, so handle them if any are missing as such (i.e. as 0 if i am not mistaken but anyways etc) so our data displays/handle it accurately anyways etc -->
 if "MemoryDecays" not in leader_defaults_data:
 	leader_defaults_data["MemoryDecays"] = []
 
@@ -1151,7 +1151,7 @@ for mem_type in MEMORY_TYPES_NOT_IN_LEADER_DEFAULTS:
 			"iMemoryDecayRand": 0
 		})
 
-# <!-- custom: leader_data block as highlighted by chatgpt/becomingthrough to me so adding this info anyways -->
+# <!-- custom: leader_data block as highlighted by chatgpt to me so adding this info anyways -->
 for leader in root.findall(".//civ4:LeaderHeadInfo", ns):
 	type_tag = leader.find("civ4:Type", ns)
 	if type_tag is None or not type_tag.text:

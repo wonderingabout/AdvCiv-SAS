@@ -313,7 +313,7 @@ class SevoPediaBuilding:
 
 
 
-	# <!-- custom: table code based on placeAiPersonality panel method/function in sevopedialeader we (me and becomingthrough chatgpt) had written and enhanced together and all anyways etc, modifying/adjusting it for this sevopediabuilding (much) simpler panel (stats pane) need but still important as we don't want to scroll after say 4th element, move to 2nd column rather and resume filling there. -->
+	# <!-- custom: table code based on placeAiPersonality panel method/function in sevopedialeader we (me and chatgpt) had written and enhanced together and all anyways etc, modifying/adjusting it for this sevopediabuilding (much) simpler panel (stats pane) need but still important as we don't want to scroll after say 4th element, move to 2nd column rather and resume filling there. -->
 	def placeStats(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
