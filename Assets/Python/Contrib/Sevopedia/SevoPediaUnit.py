@@ -863,8 +863,14 @@ class SevoPediaUnit:
 		screen.addPanel(panelName, localText.getText("", ()), "", True, True, self.X_PROMO_PANE, self.Y_PROMO_PANE, self.W_PROMO_PANE, self.H_PROMO_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		rowListName = self.top.getNextWidgetName()
 		screen.addMultiListControlGFC(rowListName, "", self.X_PROMO_PANE+15, self.Y_PROMO_PANE+40, self.W_PROMO_PANE-20, self.H_PROMO_PANE-40, 1, self.PROMOTION_ICON_SIZE, self.PROMOTION_ICON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+
+		# <!-- custom: disabling entirely if (isPromotionValid(k, self.iUnit, False) we get too many promotions, but enabling it some are missing (see below in code comments but anyways etc), so as advised by chatgpt checking which promotions belong to the unit through another condition, seems to solve/fix the issue as now we see the missing promotions as per the xml, anyways etc -->
+		eUnitCombat = gc.getUnitInfo(self.iUnit).getUnitCombatType()
+
 		for k in range(gc.getNumPromotionInfos()):
-			if (isPromotionValid(k, self.iUnit, False) and not gc.getPromotionInfo(k).isGraphicalOnly()):
+			# <!-- custom: disable isPromotionValid(k, self.iUnit, False) check as some promotions are missing such as collateral damage 1 and 2 and also leadership promotion in the generic swordsman panel for example, as advised by chatgpt, anyways etc (it said "In-game, a Swordsman may earn the promotion eventually (e.g. through experience), but if it doesn't yet satisfy all prereqs, isPromotionValid might return False" which i don't know if it is accurate but maybe is, hopefully helpful or not or yes or etc but anyways etc) -->
+			#if (isPromotionValid(k, self.iUnit, False) and not gc.getPromotionInfo(k).isGraphicalOnly()):
+			if gc.getPromotionInfo(k).getUnitCombat(eUnitCombat) > 0 and not gc.getPromotionInfo(k).isGraphicalOnly():
 				screen.appendMultiListButton(rowListName, gc.getPromotionInfo(k).getButton(), 0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, k, -1, False)
 
 

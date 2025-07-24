@@ -30,8 +30,8 @@ class SevoPediaUnitChart:
 		self.MARGIN = 20
 		self.N_COLUMNS = 0
 		self.W_NAME = 270
-		# <!-- custom: with 128 or below, the collateral damage text is not fully displayed as of now anyways etc -->
-		self.W_NUM = 129
+		# <!-- custom: 129 is enough but just in case some numerical chars are longer, add a bit extra margin if i may say (i don't know if accurate, may or may not be so, but if it is, this avoids the display from being truncated due to too short row width although maybe a bit less pretty even if a tiny bit as a result if i may due to display being larger in this case if i may say but anyways etc) -->
+		self.W_NUM = 130
 		
 		self.W_TABLE = ((self.N_COLUMNS - 2 - 1) * self.W_NUM) + (2 * self.MARGIN)
 
@@ -222,8 +222,8 @@ class SevoPediaUnitChart:
 
 	def placeTableCollateral(self, screen, table, iCol, iRow, UnitInfo):
 		# Collateral
-		if UnitInfo.getCollateralDamage() > 0:
-			szCollateralRate = u"%d%%-%d%% (%d)" % (UnitInfo.getCollateralDamage(), UnitInfo.getCollateralDamageLimit(), UnitInfo.getCollateralDamageMaxUnits())
+		if UnitInfo.getCollateralDamage() > 0 or UnitInfo.getCollateralDamageLimit():
+			szCollateralRate = u"%d%%/%d%% (%d)" % (UnitInfo.getCollateralDamage(), UnitInfo.getCollateralDamageLimit(), UnitInfo.getCollateralDamageMaxUnits())
 		else:
 			szCollateralRate = u""
 

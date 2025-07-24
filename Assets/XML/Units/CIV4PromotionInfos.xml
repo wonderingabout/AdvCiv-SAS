@@ -2908,7 +2908,7 @@
 
 		<PromotionInfo>
 			<Type>PROMOTION_COLLATERAL_DAMAGE1</Type>
-			<Description>TXT_KEY_PROMOTION_BARRAGE1</Description>
+			<Description>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE1</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
@@ -2993,11 +2993,7 @@
 					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
-				<!-- custom: todo replace only for lance light (they can throw them), not
-				exactly collateral but close enough maybe? same for sword light, imagine
-				they can throw shurikens or knifes or something from a distance (then
-				maybe run away), i also like that it is consistent with the other light
-				units having collateral damage -->
+				<!-- custom: not exactly collateral but close enough maybe? same for sword light, imagine they can throw shurikens or knifes or something from a distance (then maybe run away), i also like that it is consistent with the other light units having collateral damage -->
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
@@ -3014,6 +3010,10 @@
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
@@ -3027,7 +3027,7 @@
 		</PromotionInfo>
 		<PromotionInfo>
 			<Type>PROMOTION_COLLATERAL_DAMAGE2</Type>
-			<Description>TXT_KEY_PROMOTION_BARRAGE2</Description>
+			<Description>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE2</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
@@ -3112,11 +3112,7 @@
 					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
-				<!-- custom: todo replace only for lance light (they can throw them), not
-				exactly collateral but close enough maybe? same for sword light, imagine
-				they can throw shurikens or knifes or something from a distance (then
-				maybe run away), i also like that it is consistent with the other light
-				units having collateral damage -->
+				<!-- custom: not exactly collateral but close enough maybe? same for sword light, imagine they can throw shurikens or knifes or something from a distance (then maybe run away), i also like that it is consistent with the other light units having collateral damage -->
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
@@ -3133,6 +3129,10 @@
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
@@ -3146,7 +3146,7 @@
 		</PromotionInfo>
 		<PromotionInfo>
 			<Type>PROMOTION_COLLATERAL_DAMAGE3</Type>
-			<Description>TXT_KEY_PROMOTION_BARRAGE3</Description>
+			<Description>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE3</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
@@ -3220,11 +3220,6 @@
 					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
-				<!-- custom: todo only sword light -->
-				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
-					<bUnitCombat>1</bUnitCombat>
-				</UnitCombat>
 				<!-- custom: restricted to MOUNTED_RANGED units not all mounted units anyways etc -->
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
@@ -3250,7 +3245,7 @@
 		</PromotionInfo>
 		<PromotionInfo>
 			<Type>PROMOTION_COLLATERAL_DAMAGE4</Type>
-			<Description>TXT_KEY_PROMOTION_BARRAGE4</Description>
+			<Description>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE4</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
@@ -3311,18 +3306,6 @@
 					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
-				<!-- custom: todo only gun bomber -->
-				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
-					<bUnitCombat>1</bUnitCombat>
-				</UnitCombat>
-				<!-- custom: todo replace with war boats and war boats (and submarines too
-				i think but todo check) foreign only 
-				todo only boat cuirassiers if i add them again, anyways, -->
-				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
-					<bUnitCombat>1</bUnitCombat>
-				</UnitCombat>
 				<!-- custom: todo only heavy artillery -->
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
@@ -3338,7 +3321,7 @@
 		</PromotionInfo>
 		<PromotionInfo>
 			<Type>PROMOTION_COLLATERAL_DAMAGE5</Type>
-			<Description>TXT_KEY_PROMOTION_BARRAGE5</Description>
+			<Description>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE5</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>PROMOTION_LEADER</PromotionPrereq>
@@ -4497,6 +4480,11 @@
 				</UnitCombat>
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
+					<bUnitCombat>1</bUnitCombat>
+				</UnitCombat>
+				<!-- custom: weird that melee is not here, adding it as well if i am not mistaken in doing so and assessing i'd want to do so, but should be so still at least i want so in this case if i'm not mistaken, but anyways etc anyways etc anyways etc -->
+				<UnitCombat>
+					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
 					<bUnitCombat>1</bUnitCombat>
 				</UnitCombat>
 				<UnitCombat>

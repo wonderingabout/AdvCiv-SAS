@@ -1,3 +1,146 @@
+commit 8662b6bb212613b584ce334a2c1770d4ce24d523
+Author: wonderingabout <hidden>
+Date:   2025-07-24 17:24:06 +0200
+
+add mod music as of now and loading screen (same image as main menu)
+- sound is copyright free f i am not mistaken from pixabay, see copyright section in the main readme.md for details
+
+commit 9daa176dfca934644f8fc0db8ff9234ab583146b
+Author: wonderingabout <hidden>
+Date:   2025-07-24 15:43:13 +0200
+
+Change mod wallpaper (generated with Creator Nightcafe Studio then expanded with Pixelcut AI) thanks to chatgpt's suggestion and my promtp and thoughts too and its thoughts too too etc anyways etc and my thoughts too too "too" if i may say but anyways etc xd anyways etc..., added thanks to ri mod's CIV4MainMenuBG.nif adjusted or not for advciv-sas anyways etc
+- "As for how to replace default civ4 background, i used ri mod's CIV4MainMenuBG.nif and its related files, then just if i amy say but anyways etc replaced their duomo3.dds with our dds, now renamed to duomo3.dds as well, and updated the path to where our nif is, see `MAINMENU_SCENE_CLASSICAL` in [/Assets/XML/Art/CIV4ArtDefines_Interface.xml](/Assets/XML/Art/CIV4ArtDefines_Interface.xml) for details"
+
+commit 07b48542c9f1f7747970aa1f73d0a65555333f74
+Author: wonderingabout <hidden>
+Date:   2025-07-24 12:17:27 +0200
+
+add base collateral damage info in sevopedia unit chart and refactor a bit anyways etc
+
+commit 81f6d19bbb04b5ccbe06059f7223027712714832
+Author: wonderingabout <hidden>
+Date:   2025-07-23 23:10:54 +0200
+
+minor tweaks anyways etc
+
+commit 2a7f9e05e8ecc4300cda1e76d25966f2c528cc90
+Author: wonderingabout <hidden>
+Date:   2025-07-23 22:43:40 +0200
+
+add initial future era techs 's/' anyways etc effects anyways etc
+
+commit 0c8c5d8906ba50d94e463a782022da256885a991
+Author: wonderingabout <hidden>
+Date:   2025-07-23 18:53:26 +0200
+
+add terrain or/and feature modifiers for remaining intended civ-specific units, rework the aztec_jaguar to be now based on the axeman (not swordsman anymore)
+- "terrains and features have a higher importance in military, more units have terrain/feature bonuses, and sometimes rarely terrain maluses (i prefer to buff the weak than nerf the strong, unless i think it is relevant (quite strongly) anyways etc... ; as it is also tedious and less intuitive mostly if i may say too and not necessarily worth it or as i would want it maybe but anyways etc). Civ-specific units in particular as of now almost all have terrain +/- feature modifiers, see sevopedia entry of each unit for details about each unit's modifiers, or see sevopedia terrain or/and sevopedia feature page to see all units modifiers for said terrain/feature (see for more details [README_Sevopedia_Reworks.md#example-9-terrains-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category) and [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) anyways etc). For example the camel knight or the zulu impi are stronger in desert or/and other terrains as well. Some generic units have terrain or/and feature modifiers although generally less and as of now only for few units to not skew the balance and as is quite needless, only civ-specific units should have strongest modifiers, but generic units can have modifiers as well at least in advciv-sas when relevant. See also [README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units](/README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units) for additional info anyways etc" + "+ "sometimes i slightly deviated from strict terrain world map real layout, as of now only in europe due to it being only forestic with no obvious terrain in the world maps i saw but anyways etc, but eastern europe is cold, so symbolize as having a bit of tundra in civ4 terms but anyways etc (see for example this [europe climate map on wikipedia](https://fr.m.wikipedia.org/wiki/Fichier:Europe_K%C3%B6ppen_Map.png) for details or maybe rather info or such hopefulyl helpful if i may say but anyways etc...)"
+- "<!-- custom: note: aztec warrior reworked, now based on the axeman not the swordsman anymore. This works well i think if i may say as the low/now lower but anyways etc cost as well as earlier unit availability in this case but anyways etc allows for very early rushes (usually the AI may have a mix of axemen and swordsmen=jaguars but anyways etc which was inefficient, hopefully this favours more the rushing profile of the aztec civilization, at least for as of now only leader moctezuma we have but anyways etc), it may synergize especially well with their sacrifice/slaving profile or/and buildings or such anyways etc -->" + "<!-- custom: if i am not mistaken from my memory i mean, i seem to i mean anyways etc remember that the jaguars are elite forces valued in society, since the unit is so weak, may be fine to buff it as such anyways etc, in terms of civ4 if i may say this may fit quite well their aggressive profile of the trait i mean if i am not mistaken anyways etc, overall they should mostly be used for offense but this also allows some room for defense and covers the overall "elite forces" feeling/theme of the unit if i may say but or not but or yes but but anyways etc, was PROMOTION_WOODSMAN1 -->" + "<!-- custom: also give it the swordsman's city attack bonus, this goes quite well with their theme of early aggression if i am not mistaken but anyways etc, and they retain most of their previous advantages as swordsmen, but now available sooner and cheaper in cost despite the strength reduction, overall the unit should be much stronger now hopefully balanced and not op ; it was way too weak before, but anyways etc, was 0 -->"
+
+commit 3816ed06c12bb80365b1fb8dd9d2e689783f4d6b
+Author: wonderingabout <hidden>
+Date:   2025-07-23 13:38:02 +0200
+
+tweak settling on high production bonuses logic to give a small boost on snow terrain as well and other tweaks/fixes anyways etc
+
+commit b09ba3d5109ebbe8a24a34d1ab87483f827e9be6
+Author: wonderingabout <hidden>
+Date:   2025-07-23 12:09:39 +0200
+
+optimize not-settling on high production bonuses logic to better avoid flatland grass and other conditions perhaps
+note: handles camel type of food desert bonuses on hills as well even though as of now camel do not spawn on hills but anyways etc at least this case is covered in this case if i may say but anyways etc anyways etc anyways etc and is thanks to chatgpt's help as well too i mean but anyways etc thanks chatgpt and me too thanks to me too i mean but anyways etc anyways etc anyways etc...
+
+commit df113f66c87227994793b0ed6c31dda5ea7abb1f
+Author: wonderingabout <hidden>
+Date:   2025-07-23 10:11:37 +0200
+
+cleanup and minor fixes/tweaks
+
+commit d16c95379ecd63f25fd3c9d6737cebc5558b68df
+Author: wonderingabout <hidden>
+Date:   2025-07-22 18:31:11 +0200
+
+tweak/fix/optimize settling/founding/planting cities on non bonus/ressource tiles logic/code anyways etc anyways etc anyways etc
+
+commit 1cc70ae3bea84bac1cb3544f0430460da3548418
+Author: wonderingabout <hidden>
+Date:   2025-07-22 17:08:49 +0200
+
+seemingly now reliably fix barbarians building world wonders with a DLL patch in CvCityAI.cpp with chatgpt and my and etc's help too etc anyways etc thanks anyways etc anyways etc anyways etc
+- "Fixed now, bug where barbarians would build and often complete wonders, in particular now fixed for world wonders: now that barbarians are economically competitive and strong enough to support/be able to do it vs other civs, they would beat the other players to wonders in some cases. To solve that, while other approaches such as iBuildUnitProb, WonderConstructRand, BuildingClass NONE, were all ineffective or not entirely effective or/and reliable, i added a patch in the DLL in CvCityAI.cpp with chatgpt's help too and my thoughts and prompts and/or adjustments too but anyways etc but also its help too too if i may say and my help too too too and its help too too too etc xd but anyways etc, hopefully solved now, test to be sure, but anyways etc. See the [README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-with-a-dll-patch-barbarians-cities-building-wonders-in-particular-now-fixed-ie-disabled-for-world-wonders-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-with-a-dll-patch-barbarians-cities-building-wonders-in-particular-now-fixed-ie-disabled-for-world-wonders-anyways-etc) for details"
+
+commit 9fcf571e9ab16b6ea0839ee8e651f236fcdc4115
+Author: wonderingabout <hidden>
+Date:   2025-07-22 14:40:55 +0200
+
+add terrains (as of now minus some plot types but anyways etc) and features information in sevopedia bonus with chatgpt's help and my help/thoughts/idea/adjustments etc too but its help too and my help too too etc but anyways etc hopefully helpful or not or yes or etc but anyways etc
+
+commit 96aa082a991bea20941d4dd9e5f602d26590effa
+Author: wonderingabout <hidden>
+Date:   2025-07-22 13:29:35 +0200
+
+(Attempt to) make the AI settle more on low food terrain/features and less on high food ones, especially more on hill (due to additional defense bonus), make the not settling in range of water bonus penalty stronger than in base advciv if i may say anyways etc, hopefully both of these help although not tested too much from quick glance but maybe they do but anyways etc
+- "similarly also attemptingly fixed/addressed AI settling/founding/planting cities, for non-bonus/ressource tiles, not enough on low food tiles such as hill (defense modifier and low food in particular make it a particularly nice candidate to settle/plant/found cities on in most cases (excluding hills grassland but anyways etc) but anyways etc) +/- desert, snow (terrain), plains, tundra, all of which should now more or less strongly depending on some conditions be prioritized even a bit if not a bit more but anyways etc, and too often on high food ones such as grassland, including hill grassland, and flood plains. This logic was added in the DLL, with chatgpt's help and my prompts and thoughts too similarly i mean than for previous AI settling or worker behaviour changes in advciv-sas i mean as i don't know too much about these but can provide some ideas or think about them in this case with chatgpt's help thanks anyways etc, but anyways etc anyways etc anyways etc, hopefully helpful or not or yes or etc but anyways etc anyways etc anyways etc. Effect should be a bit less pronounced if i may say but anyways etc, as i don't know how this code may affect other parts or not of the AI behaviour, still there may be a bit of difference if not quite a bit, hopefully helpful but anyways etc anyways etc anyways etc (only tested on a few autoplay runs, you may want to test to be sure and see if it maybe makes a difference or/and that is signficant enough, but anyways etc anyways etc anyways etc)"
+- "About water bonuses/ressources in particular, quite often it seems they are in range of city settle/found/plant spot but ignored by AI settling/founding/planting its city instead but anyways etc a non-coastal location, attempt to fix/address this as well by making the penalty in that case much stronger, as of now increased from -165 to -400 (seems to have been -800 in k-mod if i am not mistaken but anyways etc, see [/CvGameCoreDLL/CitySiteEvaluator.cpp](/CvGameCoreDLL/CitySiteEvaluator.cpp) for details or/and updated value anyways etc), hopefully helps the AI consider more often water ressources or at least not ignore them when they are in range of their city sites considerations if i may say in this case at least maybe but anyways etc anyways etc anyways etc"
+
+commit c20688b2c267ecee883a41168442ffdb22d32fc5
+Author: wonderingabout <hidden>
+Date:   2025-07-22 03:10:18 +0200
+
+tweaks to the code or and such anyways etc
+
+commit 95347a520d7fbe41465c324ad609bddba32a167d
+Author: wonderingabout <hidden>
+Date:   2025-07-22 02:05:45 +0200
+
+seemingly much improve but anyways etc AI settling behaviour around bonuses/ressources, complete timeline until turn 460 at as of now 2155 AD if i am not mistaken anyways etc
+- complete timeline until turn 460 (2155 AD as of now anyways if i am not mistaken in my counting but anyways etc etc)
+- "Attemptingly fixed AI settlers often settling/planting their cities on bonuses/ressources, in particular on food bonuses (as of now pig, wheat, etc.), but also bonuses with a quite high if not more but anyways etc production total yield (as of now iron, copper, etc.), and bonuses with a high commerce yield (as of now gold, incense, etc.), thanks to chatgpt's help and my prompts and adjustments too or and such and its help too but anyways etc anyways etc anyways etc, see for details [README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---attempt-to-fix-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-to-a-lesser-extent](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---attempt-to-fix-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-to-a-lesser-extent) anyways etc. For quite high if not more but anyways etc production bonuses, make logic conditional depending on plot type or/and terrain (for example desert terrain is low food so often fine to plant on a high production bonus there, but as for hills it may be a good idea to plant on them for the extra hammer and avoiding low food yields on this tile (plus defense bonus of planting on the tile etc), exception being hills grassland where for 1 food cost it should really be better (i think so at least but anyways etc) to maximize the hammer count, plus total hammer count would be lower than say on a plains hill that has lower food as well so it may be worth it more to plant on a hills plains but not so much on a hills grassland, etc). As for the results, i only tested it a bit (a few autoplay glances at turn 100), but the results seem extremely good and really much better, may test more to be sure or/and ask player feedback after mod release or and such if we do release it as planned/intended in this case but anwyays etc, so i would say to take this with a bit of caution maybe, but overall if i may say but anyways etc it does seems AIs almost always if not always maximize planting/settling their cities around found bonuses in the radius and not planting on them, cannot tell too much or if this is just small sample but it does seem to make a big difference but anyways etc anyways etc anyways etc."
+
+commit 6d82d51fe1e3a3262d7c69af67daaacb927175e4
+Author: wonderingabout <hidden>
+Date:   2025-07-21 20:16:39 +0200
+
+deprioritize forts severely for AI workers as they are very inefficient to build and their yields and purpose too in most cases
+- "further discourage AI workers to build forts on bonus/ressources, as it is often very inefficient (lower yields than ressource/bonus specific improvements, longer time to build, unlikely to be attacked there as disadvantageous, sometimes AI workers waste time to go out of their way to remove a ressource/bonus specific improvement just to build a fort in base advciv, also allowing/letting the ennemy pillage and rebuild ressources/bonuses that shouldn't be vital for any unless i'm mistaken then rebuilding the improvement later with nice yields should be much cheaper and more efficient i think at least if i may say in this case at least but anyways etc and if i am not mistaken too but anyways etc than guarding it with low yields the entire game), i tried to make this much less, ideally never likely to happen, as should generally be much more efficient to do so. In some cases the forts advantages may be lost such as connecting naval tiles or such, but generally it should benefit the AI and improve its performance. As of now untested, but done with chatgpt's help in modifying the DLL to do so, also guided by existing code comments that help a lot, see also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive) for details"
+
+deprioritize the fucking forts !!! (even chatgpt noded in censored rewriting of it and even though it doesn't have/isn't a self but still thanks in this case at least if i may say but anyways etc) Xd , But anyways etc
+
+commit f6b992b469693c39a918827166e35d48a12b0745
+Author: wonderingabout <hidden>
+Date:   2025-07-21 16:42:18 +0200
+
+add future era techs, add BuildingClassNeededs in sevopedia unit's placeRequiredFor, add iCollateralDamage info in the DLL, rename/replace some civ or/and building or such names anyways etc, update docs, and other changes or not or yes or etc but anyways etc
+- "add `BuildingClassNeededs` (i.e. building classes required in city in order to be able to build this building if i am not mistaken but anyways etc) to some buildings so that AIs build them less and focus more on production of military units or wonders or any generally if not in most cases but anyways etc more relevant efficient thing to build if i may say but anyways etc. Is also culturally or thematically more consistent. For example, the drydock, a naval unit production boosting for most but anyways etc building now requires the building_port (see water tiles or such change or sevopedia ingame about this new as of now production-based building for details anyways etc) to be built in the city anyways etc. I tried to limit these new additions to buildings where it is relevant and does not cripple or needlessly slow the game or make building buildings (no pun but anyways etc...) tedious or painful or not worth it economically in this case i mean as well but anyways etc."
+- "<!-- custom: similarly to how cache precomputing is handled in sevopedia leader, prebuild only once as a function at relevant time if i may say but anyways etc the list as string of untradeable techs anyways etc ; note also anyways etc: code provided by deepseek ai thanks to my prompt and that i adjusted or not for advciv-sas to tweak (my) (but anyways etc...) previous existing code provided by another ai thanks to my prompt too and that i adjusted or not too xd if i may say but anyways etc -->"
+- "<!-- custom: replace laser in "TECH_LASER" and "MP_LASER" with "_TERRAFORMING" and such anyways etc, also use the base advciv +/- civ4's TECH_LASER's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc -->" + "<!-- custom: button art import from c2c mod anyways etc -->"
+- Add era information in sevopedia tech and beautify it (import from rfc doc mod adjusted or not for advciv-sas anyways etc)
+- adjust eras to match reworked tech tree and for historical accuracy in general too if i am not mistaken in having assessed so but anyways etc
+- "<!-- custom: replace future_tech in "TECH_FUTURE" and "MP_FUTURE" with "_TRANSHUMANISM" and such anyways etc, also use the base advciv +/- civ4's future_tech's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc -->" + "also pedia entry from https://en.wikipedia.org/wiki/Transhumanism similarly, modified or not for advciv-sas anyways etc"
+- "<!-- custom: replace railroad in "_RAILROAD" and "MP_RAILROAD" with "_QUANTUM_MECHANICS" and such anyways etc, also use the base advciv +/- civ4's replaceable_parts's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc -->" + "also pedia entry from https://en.wikipedia.org/wiki/Quantum_mechanics and https://en.wikipedia.org/wiki/Quantum_mechanics#Applications quite similarly, modified or not for advciv-sas but anwyays etc anyways etc anyways etc"
+- "<!-- custom: replace fiber_optics in "_FIBER_OPTICS" and "MP_FIBER_OPTICS" with "_AI" and such anyways etc, also use the base advciv +/- civ4's paper's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc -->" + "also pedia entry from https://en.wikipedia.org/wiki/Artificial_intelligence similarly, modified or not for advciv-sas anyways etc"
+- adjust the tech types of some/most units and buildings as per the reworked new tech tree but anyways etc
+- "Fixed and now added anyways etc missing iCollateralDamage info as well in the collateral damage text in the DLL if i am not mistaken anyways etc, for example `<iCollateralDamage>25</iCollateralDamage>` for the chinese crossbowman or `<iCollateralDamage>100</iCollateralDamage>` for the catapult is now displayed as well as of now as for example anyways etc `Collateral Damage (base 25%, max 200%) to 5 Defenders` for the chinese crossbowman or `Collateral Damage (base 100%, max 200%) to 6 Defenders` for the catapult; added thanks to chatgpt's help as well anyways etc and me guessing or adjusting it as well but anyways etc"
+- "Also fixed in the DLL the TXT_KEY_UNIT_COLLATERAL_DAMAGE_EXTRA (this unit causes x% extra collateral damage if i am not mistaken anyways etc) now being cumulatively displayed ingame (not in sevopedia, as it was, anyways etc) additionally to the general collateral damage text, instead of it being previously conditionally displayed instead of (`else`) the general collateral damage which would not be visible, so now (e.g. catapult) we see only the general collateral damage message if `pUnit->getExtraCollateralDamage() == 0)`, and alternatively if `(pUnit->getExtraCollateralDamage() != 0)` (e.g. cannon) we now see both the general collateral damage message and additionally also the extra collateral damage as well if i am not mistaken, hopefully helpful or not or yes or etc and as i wanted or and maybe liked too to do maybe yes or not or yes maybe or etc but anyways etc..."
+- "<!-- custom: replace robotics in "_ROBOTICS" and "MP_ROBOTICS" with "_ROBOTIC_RIGHTS" and such anyways etc, also use the base advciv +/- civ4's robotics's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc -->" + ", also pedia entry from https://en.wikipedia.org/wiki/Ethics_of_artificial_intelligence#Robot_rights_or_AI_rights similarly, modified or not for advciv-sas anyways etc"
+- "<!-- custom: replace tech_stealth in related but anyways etc "_STEALTH" and "MP_STEALTH" with "_ALIEN_LIFE" and such anyways etc, also use the base advciv +/- civ4's tech_stealth's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc -->" + "also pedia entry from https://en.wikipedia.org/wiki/Extraterrestrial_life similarly, modified or not for advciv-sas anyways etc"
+- give tech_economics quote to tech_plastics, and vice-versa if i may say too in this case at least but anyways etc
+- "<!-- custom: replace tech_plastics with tech_depopulation anyways etc, also pedia entry from https://en.wikipedia.org/wiki/Population_decline similarly, modified or not for advciv-sas anyways etc -->"
+- move some docs to the mod's google drive anyways etc or remove them (no pun but anyways etc... rather pun was intended my bad to be honest but as i wanted too but anyways etc...)
+- "<!-- custom: replace incan "_TERRACE" to "_QULLQA" anyways, similarly imported from/based on https://en.wikipedia.org/wiki/Qullqa and modified or and slightly corrected formatting or missing closing bracket or not or yes but anyways etc if i may say and if i am not mistaken too but anyways etc or not for advciv-sas but anyways etc anyways etc anyways etc -->"
+- "<!-- custom: rename "Amerindian Empire" back if i may say in this case at least but anyways etc to "Native American Empire" -->"
+- "<!-- custom: rename "American Empire" and such to "United States of America" and such (too long to fit empire and may be awkward semantically to have a united states empire although actually thinking of it it may fit quite well actually if i may say but anyways etc...) -->" + repalce "American" with "USAmerican": "i want to translate it to something other than "americans", as i want to embody only the usa, not the whole continent, as i think "americans" xd have a bit too inflated ego there, so chatgpt found me thanks a lot this very nice alternative if i may say after asking it this almost precise and exact prompt minus "it" being another word in another language but anyways etc, i like this result, quite easy to pronounce and accurate, additionally chatgpt said about it "Used in some academic, activist, or bilingual texts. Clunky but precise. Common in Latin America." so i quite really like it if i may say but anyways etc anyways etc anyways etc"
+
+commit 6c860ed1eb1f6a17984310e7180ccd2e7f3ea5af
+Author: wonderingabout <hidden>
+Date:   2025-07-18 17:09:10 +0200
+
+replace "JAPANESE_SHALE_PLANT" with "JAPAN_DOUJOU" (based on the jail building class anyways etc), add in placeRequiredFor of sevopedia building the unit(s) that require this building thanks to gemini ai, and other changes or not anyways etc
+- add in placeRequiredFor of sevopedia building the unit(s) that require this building i assume to be built if i am not mistaken anyways etc thanks to gemini ai also too (added info or related/similar but anyways etc about it in docs and drive and or such but anyways etc) if any anyways etc + "<!-- custom: code provided by gemini ai and adjusted or not for advciv-sas anyways etc ; idea i got from watching ri mod's sevopedia building or so it seems anyways etc ingame, of how the cruiser if i am not mistaken requires a drydock to be built. I considered it but in the end it adds needless complication for our mod, but what i wanted to say most anyways etc in this case but anyways etc is that i got the idea from watching their drydock or similar ingame sevopedia page so helped thanks but anyways etc -->"
+- replace "JAPANESE_SHALE_PLANT" with "JAPAN_DOUJOU" (based (as of now if not always or not but or not but but anyways etc) on the jail building class anyways etc) + "art import from ri mod and adjusted or not for advciv-sas anyways etc" + "as for the pedia entry, similarly imported from/based on https://en.wikipedia.org/wiki/Dojo and modified or not or/and also transliterated or not as i wanted or not or yes or etc anyways etc for advciv-sas anyways etc"
+- replace plastics with ? (as in inefficient tech i think overlaps with industrialism maybe anyways etc) still not done as of now if not always/never or not in this case at least but anyways etc
+
 commit 6452c8b8e73e58c9683cf53ce02bc6fd66feea5a
 Author: wonderingabout <hidden>
 Date:   2025-07-17 16:07:16 +0200

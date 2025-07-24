@@ -789,3 +789,13 @@ Results so far seem to be that it does seem to help quite a lot from the few aut
 I am not sure it always improves AI settling behaviour ; there may be some cases where locally AI makes worse settling choices due to these changes, but in most cases, at least in theory if i am not mistaken, and although i don't know too much about these, generally/maybe it should improve AI settling choices even if a bit if not more than a bit but anyways etc maybe but anyways etc, but test to be sure, anyways etc.
 
 Still overall should be an improvement, ideally try it a bit more in this case but anyways etc, but is maybe fine or not too bad as is, again i only ran a few autoplay and don't know too much aobut these, but with chatgpt's help and my thoughts too, it does seem like an improvement, even if a bit, if not a bit lot in this case but anyways etc, hopefully helpful or not or yes or etc, but anyways etc.
+
+## 27 - (now fixed) Some promotions are missing in sevopedia unit's placePromotions
+
+See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1hRe5rR9DPBH6XzwllwTLSnh9kbIQwkEG?usp=sharing)
+
+Some promotions were missing in sevopedia unit's placePromotions, for example for the generic swordsman or the zulu impi (melee units combat type if i am not mistaken but anyways etc), they didn't show collateral damage 1 and collateral damage 2 (as of now renamed from base advciv +/- civ4's barrage promotions if i am not mistaken but anyways etc).
+
+So thanks to chatgpt's help, i found the cause althoguh i suspected it too intuitively hehe, but chatgpt told me the issue thnaks to my prompt too but thanks to itself too but anyways etc and provided me and int his code if i may say but anyways etc a working alternative condition of as of now `gc.getPromotionInfo(k).getUnitCombat(eUnitCombat)` (note: `eUnitCombat = gc.getUnitInfo(self.iUnit).getUnitCombatType()`) instead of `isPromotionValid(k, self.iUnit, False)` that was too strict, but just disabling this old too strict condition if i may say but anyways etc showed too many promotions even the ones these units shouldn't have access to such as of now collateral damage 3 and 4 for example anyways etc.
+
+This seems to fix the issue (see screenshots for details, as we specifically now see the missing promotions on top of same old ones if i am not mistaken (didn't check in detail but there seem to be more than before and also to have relevant ones, check screenshots or/and xml for details or comparison or and such but anyways etc)), hopefully helpful or not or yes or etc but anyways etc

@@ -142,7 +142,9 @@ class SevoPediaPromotion:
 		i = 0
 		for iI in range(gc.getNumUnitCombatInfos()):
 			if (0 != gc.getPromotionInfo(self.iPromotion).getUnitCombat(iI)):
-				# <!-- custom: removed line `iRow = screen.appendTableRow(szTable)` to fix ruff warning of variable being unused so cleaning this up, after asking chatgpt this seems fine and safe to do and we have no errors so maybe solved as well (as in sevopedia unit ruff warning fix/cleanup as well anyways etc) anyways etc -->
+				# <!-- custom: removed line `iRow = screen.appendTableRow(szTable)` to fix ruff warning of variable being unused so cleaning this up, after asking chatgpt this seems fine and safe to do and we have no errors so maybe solved as well (as in sevopedia unit ruff warning fix/cleanup as well anyways etc) anyways etc, other sevopedia classes don't seem to have a similar issue from quick glance at each file, although i didn't investigate in depth, hopefully fine, if in doubt check ingame display to see if it matches xml info, in sevopedia at least if i may say, hopefully helpful or not or yes or etc, but or not but or yes but anyways etc anyways etc anyways etc -->
+				# <!-- custom: update: although the variable is not used, the line was needed to show all entries, else we only showed the first one, so remove the identifier rather while keeping the instruction, as chatgpt noticed as wel and poitned to me hehe thanks -->
+				screen.appendTableRow(szTable)
 				screen.setTableText(szTable, 0, i, u"<font=2>" + gc.getUnitCombatInfo(iI).getDescription() + u"</font>", gc.getUnitCombatInfo(iI).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iI, -1, CvUtil.FONT_LEFT_JUSTIFY)
 				i += 1
 

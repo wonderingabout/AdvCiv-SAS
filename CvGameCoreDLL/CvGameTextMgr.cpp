@@ -981,13 +981,15 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
 				(100 * pUnit->combatLimit()) / GC.getMAX_HIT_POINTS()));
 	}
 
-	if (pUnit->collateralDamage() > 0)
+	// <!-- custom: also show collateral damage info (with defenders too but anyways etc) if collateral damage limit > 0 as well, may be useful to know, anyways etc -->
+	// <!-- custom: use pUnit->collateralDamageLimit() instead of 100 * kInfo.getCollateralDamageLimit() / GC.getMAX_HIT_POINTS() , i had done so in an attempt to solve an issue of limit not displaying if base collateral damage is 0, but the issue was something else (we needed to also apply the change in u. unit if i am not mistaken so it (also) appears in sevopedia unit, not in this seemingly ingame panel, but anyways etc), still, is maybe cleaner (but i don't know again as i don't know a lot about these but anyways etc) and the catapult still seems to have the limit info shown, so since display seems to function fine and same as before, leaving it as is it now with our change, but check to be sure, even though seems to be fine at least to me but again check to be sure, hopefully helpful or not or yes or etc, anyways etc -->
+	if (pUnit->collateralDamage() > 0 || pUnit->collateralDamageLimit() > 0)
 	{
 		szString.append(NEWLINE);
 		szString.append(gDLL->getText(
 				"TXT_KEY_UNIT_COLLATERAL_DAMAGE_SHORT", // advc.004: short version
 				pUnit->collateralDamage(), // <!-- custom: add missing iCollateralDamage info as well if i am not mistaken anyways etc, for example <iCollateralDamage>25</iCollateralDamage> ; added thanks to chatgpt's help as well anyways etc and me guessing or adjusting it as well but anyways etc -->
-				100 * kInfo.getCollateralDamageLimit() / GC.getMAX_HIT_POINTS(),
+				pUnit->collateralDamageLimit(),
 				pUnit->collateralDamageMaxUnits())); // advc.004
 		// <!-- custom: if i am not mistaken the TXT_KEY_UNIT_COLLATERAL_DAMAGE_EXTRA should not be an else conditional display but a cumulative effect with the base collateral damage, so showing both as well anyways etc -->
 		if (pUnit->getExtraCollateralDamage() != 0)
@@ -9315,14 +9317,16 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 				(100 * u.getCombatLimit()) / GC.getMAX_HIT_POINTS()));
 	}
 
-	if (u.getCollateralDamage() > 0)
+	// <!-- custom: also display the collateral limit info even for units that have a base collateral damage of 0, but now applying this to sevopedia unit placeSpecial panel here in this code block if i am not mistaken anyways etc, with chatgpt's help too, hopefully helpful or not or yes or etc anyways etc -->
+	int const iCollateralDamageLimit = 100 * u.getCollateralDamageLimit() / GC.getMAX_HIT_POINTS();
+	if (u.getCollateralDamage() > 0 || u.getCollateralDamageLimit() > 0)
 	{
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText(/* advc.004: */ bCivilopediaText ?
 				"TXT_KEY_UNIT_COLLATERAL_DAMAGE" :
 				"TXT_KEY_UNIT_COLLATERAL_DAMAGE_SHORT", // advc.004
 				u.getCollateralDamage(), // <!-- custom: add missing iCollateralDamage info as well if i am not mistaken anyways etc, for example <iCollateralDamage>25</iCollateralDamage> ; added thanks to chatgpt's help as well anyways etc and me guessing or adjusting it as well but anyways etc -->
-				100 * u.getCollateralDamageLimit() / GC.getMAX_HIT_POINTS(),
+				iCollateralDamageLimit,
 				u.getCollateralDamageMaxUnits()));// advc.004
 	}
 

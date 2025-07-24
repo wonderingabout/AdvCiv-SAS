@@ -575,24 +575,25 @@
 		<Tag>TXT_KEY_PROMOTION_RANGE2</Tag>
 		<English>Air Range 2</English>
 	</TEXT>
+	<!-- custom: rename "_BARRAGE" to "_COLLATERAL_DAMAGE" -->
 	<TEXT>
-		<Tag>TXT_KEY_PROMOTION_BARRAGE1</Tag>
+		<Tag>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE1</Tag>
 		<English>Collateral Damage 1</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PROMOTION_BARRAGE2</Tag>
+		<Tag>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE2</Tag>
 		<English>Collateral Damage 2</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PROMOTION_BARRAGE3</Tag>
+		<Tag>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE3</Tag>
 		<English>Collateral Damage 3</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PROMOTION_BARRAGE4</Tag>
+		<Tag>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE4</Tag>
 		<English>Collateral Damage 4</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PROMOTION_BARRAGE5</Tag>
+		<Tag>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE5</Tag>
 		<English>Collateral Damage 5</English>
 	</TEXT>
 
