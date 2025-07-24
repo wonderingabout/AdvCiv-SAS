@@ -152,6 +152,8 @@ See the [README_Less_Generic_Neutral_Unit_Names.md](/_1_AdvCiv-SAS/Docs_And_Appe
 
 ## AI-generated images
 
+### Using ChatGPT
+
 One of the unexpected things that popped up while exploring unit naming in/for anyways etc advciv-sas anyways etc and is/found to be very pleasant but anyways, is the visual art of images, i want AI generated (by ChatGPT) ones as they can be very nice.
 
 I have uploaded mine (or rather ChatGPT's creation with my prompts and feebackbut anyways) [in the AI-generated images's Google Drive](https://drive.google.com/drive/folders/1WTQqrstpKywyHF9TjmvBy4edo8Jh1pYm?usp=sharing), if you want to view them full size or/and more images, please ideally visit this google drive folder link rather.
@@ -177,9 +179,31 @@ Example with some techs (for example the theory of evolution new tech if we add 
 
 People or/and modders are free to reuse them as long as you mention me and chatgpt (link to this github page for example is fine) being the source (and that AI did it maybe too ideally, anyways).
 
-I'll start with units, as there are a few i wanted to replace or create new ones for AdvCiv-SAS's new units first, and will see how it goes based on that. Just to be extra clear, i may not do all unit images, i may or not as i prefer or not or do or not or other or not anyways. It's a bit tedious but result is very pleasant when it works/functions well. Will i think do at least for ground medieval and pre-medieval units as i need/want these for my new units in AdvCiv-SAS, except for that may use existing ones though at least at first if not always, may do or not as i prefer or not or see or not, you are welcome to give feeback, else i continue or not to do what i want or not if i do or not, i hope this is helpful or pleasant though, but anyways,
+### Using Creator Nightcafe Studio and then Pixelcut AI to expand it to 1920 x 1080 with new details
 
-I am not doing the ingame art though, just the buttons, unless i would unexpectedly so, it should most likely be assumed i would not.
+Note: see images in this [google drive folder link](https://drive.google.com/drive/folders/1V-nLk7gtzB6TPkwATeRLo2vqZ7VK_ai5?usp=sharing) for details of the intermediate and such and final image
+
+First to generate our main menu image/theme, i used as advised by chatgpt Creator Nightcafe Studio, with this prompt i got the idea to write hehe (and got very lucky with output at first try hehe (couldn't reproduce an as satisfying image in several other tries in this case at least but anyways etc)):
+
+"Landscape 1920 x 1080 image for a civ4 based mod's wallpaper, showing some natural landscape with a hint of deer or/and camel, in a calm setting, and in line with civ4 artstyle"
+
+<img src="https://drive.google.com/thumbnail?id=12SjSGKjotBJZvdQbp6G0NHqYObW-9mLX" alt="advciv-sas main menu 1024 x 1024 (Creator Nightcafe Studio).webp" width="150"></img>
+
+Tip: make sure you download your ai-generated images at each step in case the tool modifies it as part of one of your actions/requests (such as expanding) or/and prompts and then the original image is lost, while the new one is not satisfying. Thankfully i had done so to show it to chatgpt (or maybe also just because i liked it? But in all cases or not or yes or etc anyways etc...), else would have lost the image :/ Phew if i may say but i thankfully escaped this if i may say but anyways etc...
+
+Then it was 1024 x 1024 though, although otherwise amazing, so since i didn't want any other image but anyways etc, and trying a few just weren't as good nor near nowhere as good, i wanted to enhance and expand this image to 1920 x 1080 with new details (not stretched), so i found this feature in Creator Nightcafe Studio too i mean if i may say but anyways etc, but the result was not as satisfying although not too bad, it was overall much worse quality.
+
+<img src="https://drive.google.com/thumbnail?id=184X9naRKgL4iGgbPEfF21Xrc_nbstx0T" alt="advciv-sas main menu expanded to 1920 x 1080 (Creator Nightcafe Studio).webp" width="150"></img>
+
+I had resigned myself to maybe using it as again it was really not too bad, but i still asked chatgpt xd if i may say if there are tools to expand our images, and to do a web search on it too if i may say but anyways etc, and among the results, it advised me the very nice tool Pixelcut AI, as again if i may say but anyways etc i really wanted to use our if i may say/this image as i like/love it even maybe a loooooot, but i needed it at 16:9 so 1920 x 1080, and not stretched, and i found this one to be incredibly niiiiice!!! And it succeeded at first try as well!!!! (At least in a way i can be and am (very!!!) satified of if i may say but anyways etc...)
+
+The output is amazing and it is now our main menu image :)
+
+<img src="https://drive.google.com/thumbnail?id=1RgXQ5hpC-Xt1qvluYp77ImaX_hlva7zG" alt="advciv-sas main menu expanded to 1920 x 1080 (Creator Nightcafe Studio).webp" width="150"></img>
+
+Then i converted it to .dds with Paint.NET similarly than for other image files in our mod anyways etc.
+
+As for how to replace default civ4 background, i used ri mod's CIV4MainMenuBG.nif and its related files, then just if i amy say but anyways etc replaced their duomo3.dds with our dds, now renamed to duomo3.dds as well, and updated the path to where our nif is, see `MAINMENU_SCENE_CLASSICAL` in [/Assets/XML/Art/CIV4ArtDefines_Interface.xml](/Assets/XML/Art/CIV4ArtDefines_Interface.xml) for details
 
 ## .dds (button) size comparison analysis
 
@@ -371,6 +395,8 @@ it too though unless i'm mistaken)
 - [pixabay website](https://pixabay.com/) for example for royalty-free music as recommended/suggested/mentionned anyways etc to me by chatgpt for example to find leader ewuare's music if not on youtube anyways etc
 - yt-dlp (see copyright section in the main README.md at [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer) and see also the modding_ressources general yt-dlp information for details anyways etc at [Modding_Ressources/README.md#download-media-assets-for-example-on-youtube](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#download-media-assets-for-example-on-youtube))
 - Audacity, to see where it is safe to cut audio without cutting too early or late, for example at 00:02.425 is a bit before audio starts in one of our music files as of now but anyways etc, but by ear it seemed to be around 00:03.000 and quite safe if not safe to be so, but checking to be sure it seems to actually start before, so being able to much more precisely tell where/when it is safe to start or end maybe too if one were to look at end of video i didn't use it as such i mean in our music files at least as of now as begining is most important part not to trim and end seemed clearcut through enough if that is a word in english but anyways etc, see for example screenshots in this [google drive folder link](https://drive.google.com/drive/folders/1ohqHNcsFzNEhIiTksIWYnwk-CB02fDST?usp=sharing) for example of how i use them, hopefully helpful or not or yes or anyways etc to use audacity as such help tool at least for me but anyways etc to know when to cut audio at download time for example but anyways etc
+- [Creator Nightcafe Studio](https://creator.nightcafe.studio/) to generate AI images, see [README.md#using-creator-nightcafe-studio-and-then-pixelcut-ai-to-expand-it-to-1920-x-1080-with-new-details](/README.md#using-creator-nightcafe-studio-and-then-pixelcut-ai-to-expand-it-to-1920-x-1080-with-new-details) for details
+- [Pixelcut AI](https://www.pixelcut.ai/) to expand an image to higher res, for example from 1024 x 1024 to 1920 x 1080 with new details, see [README.md#using-creator-nightcafe-studio-and-then-pixelcut-ai-to-expand-it-to-1920-x-1080-with-new-details](/README.md#using-creator-nightcafe-studio-and-then-pixelcut-ai-to-expand-it-to-1920-x-1080-with-new-details) for details
 
 ## License and reuse
 

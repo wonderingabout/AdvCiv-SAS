@@ -11,6 +11,8 @@
 from CvPythonExtensions import *
 import CvUtil
 
+from _sevopedia_helpers import *
+
 gc = CyGlobalContext()
 localText = CyTranslator()
 
@@ -50,7 +52,7 @@ class SevoPediaUnitChart:
 		screen = self.top.getScreen()
 		table = self.top.getNextWidgetName()
 
-		isAirCombatType = (self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR_BOMBER') or self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR_FIGHTER'))
+		isAirCombatType = (self.iGroup == getInfoTypeOrFail("UNITCOMBAT_AIR_BOMBER", gc) or self.iGroup == getInfoTypeOrFail("UNITCOMBAT_AIR_FIGHTER", gc))
 
 		if not isAirCombatType:
 			self.N_COLUMNS = 8
@@ -206,7 +208,7 @@ class SevoPediaUnitChart:
 
 
 	def placeTableBombard(self, screen, table, iCol, iRow, UnitInfo):
-	# Bombard
+		# Bombard
 		if UnitInfo.getBombardRate() > 0:
 			szBombardRate = u"%d%%" % UnitInfo.getBombardRate()
 		elif UnitInfo.getBombRate() > 0:
@@ -220,12 +222,12 @@ class SevoPediaUnitChart:
 
 	def placeTableCollateral(self, screen, table, iCol, iRow, UnitInfo):
 		# Collateral
-			if UnitInfo.getCollateralDamage() > 0:
-				szCollateralRate = u"%d%%-%d%% (%d)" % (UnitInfo.getCollateralDamage(), UnitInfo.getCollateralDamageLimit(), UnitInfo.getCollateralDamageMaxUnits())
-			else:
-				szCollateralRate = u""
+		if UnitInfo.getCollateralDamage() > 0:
+			szCollateralRate = u"%d%%-%d%% (%d)" % (UnitInfo.getCollateralDamage(), UnitInfo.getCollateralDamageLimit(), UnitInfo.getCollateralDamageMaxUnits())
+		else:
+			szCollateralRate = u""
 
-			screen.setTableInt(table, iCol, iRow, u"<font=3>" + szCollateralRate + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		screen.setTableInt(table, iCol, iRow, u"<font=3>" + szCollateralRate + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 
 
