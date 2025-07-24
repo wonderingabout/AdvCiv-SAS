@@ -781,9 +781,10 @@
 			<Type>MAINMENU_SLIDESHOW_LOAD_CLASSICAL</Type>
 			<Path>Art/Interface/Screens/Loading/LoadingScreenBGslideshowClassical.dds</Path>
 		</InterfaceArtInfo>
+		<!-- custom: using same load screen than our main menu background/wallpaper if i may say because why not and tedious to do another one for short load time and also more consistent and also again why not same if i may say in this case at least but anyways etc... -->
 		<InterfaceArtInfo>
 			<Type>MAINMENU_LOAD_CLASSICAL</Type>
-			<Path>Art/Interface/Screens/Loading/LoadingScreenBGClassical.dds</Path>
+			<Path>Art/AdvCiv_SAS/Main_Menu/wallpaper/duomo3.dds</Path>
 		</InterfaceArtInfo>
 		<InterfaceArtInfo>
 			<Type>MAINMENU_SLIDESHOW_LOAD_BTS</Type>
@@ -832,7 +833,7 @@
 		<!-- custom: replaced on what/how ri mod does it (took their files and just repalced their duomo3.dds with our own renamed to duomo3.dds as well .dds wallpaper), thanks a lot! Anyways etc anyways etc anyways etc... -->
 		<InterfaceArtInfo>
 			<Type>MAINMENU_SCENE_CLASSICAL</Type>
-			<Path>Art/AdvCiv_SAS/MainMenu/Wallpaper/CIV4MainMenuBG.nif</Path>
+			<Path>Art/AdvCiv_SAS/Main_Menu/wallpaper/CIV4MainMenuBG.nif</Path>
 		</InterfaceArtInfo>
 		<InterfaceArtInfo>
 			<Type>MAINMENU_SCENE_NO_SHADER</Type>

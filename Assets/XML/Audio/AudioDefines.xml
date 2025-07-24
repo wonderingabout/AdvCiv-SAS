@@ -4,6 +4,7 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- AudioDefines -->
+<!-- custom: replace main menu "opening_menu" music with our own music, see main readme.md's copyright section for info on copyright there or/and in our mod's relevant places if there is such info anyways etc -->
 <!-- K-Mod has added SND_SQUISH and SND_THEIRALLIANCE. Note that no comments
 	 are allowed within the SoundDatas element. -->
 <AudioDefines xmlns="x-schema:AudioDefinesSchema.xml">
@@ -24,7 +25,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SONG_OPENING_MENU</SoundID>
-			<Filename>Sounds/Soundtrack/OpeningMenu</Filename>
+			<Filename>Art/AdvCiv_SAS/Main_Menu/music/lofi-song-330550</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>

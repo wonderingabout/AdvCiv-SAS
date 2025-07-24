@@ -9,7 +9,7 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
 	<!-- custom: 🕊️ emoji similarly from emojiterra anyways etc -->
     <TEXT>
 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_DOVE_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/ImagesAsButtons/Dove/1f54a_64px.dds</English>
+		<English>Art/AdvCiv_SAS/Images_As_Buttons/Dove/1f54a_64px.dds</English>
 	</TEXT>
 
 
@@ -17,14 +17,14 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
 	<!-- custom: 📣 emoji similarly from emojiterra anyways etc -->
     <TEXT>
 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_MEGAPHONE_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/ImagesAsButtons/Megaphone/1f4e3_64px.dds</English>
+		<English>Art/AdvCiv_SAS/Images_As_Buttons/Megaphone/1f4e3_64px.dds</English>
 	</TEXT>
 
 
 	<!-- custom: ❤️ emoji similarly from emojiterra anyways etc -->
     <TEXT>
 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_RED_HEART_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/ImagesAsButtons/Red_Heart/2764_64px.dds</English>
+		<English>Art/AdvCiv_SAS/Images_As_Buttons/Red_Heart/2764_64px.dds</English>
 	</TEXT>
 
 
@@ -32,7 +32,7 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
 	<!-- custom: 💔 emoji similarly from emojiterra anyways etc -->
     <TEXT>
 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_BROKEN_HEART_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/ImagesAsButtons/Broken_Heart/1f494_64px.dds</English>
+		<English>Art/AdvCiv_SAS/Images_As_Buttons/Broken_Heart/1f494_64px.dds</English>
 	</TEXT>
 
 
@@ -40,7 +40,7 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
 	<!-- custom: 💀 emoji similarly from emojiterra anyways etc -->
     <TEXT>
 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_SKULL_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/ImagesAsButtons/Skull/1f480_64px.dds</English>
+		<English>Art/AdvCiv_SAS/Images_As_Buttons/Skull/1f480_64px.dds</English>
 	</TEXT>
 
 
@@ -48,7 +48,7 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
 	<!-- custom: 🔥 emoji similarly from emojiterra anyways etc -->
     <TEXT>
 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_FIRE_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/ImagesAsButtons/Fire/1f525_64px.dds</English>
+		<English>Art/AdvCiv_SAS/Images_As_Buttons/Fire/1f525_64px.dds</English>
 	</TEXT>
 
 
@@ -56,7 +56,7 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
 	<!-- custom: 🧠 emoji similarly from emojiterra anyways etc -->
     <TEXT>
 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_BRAIN_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/ImagesAsButtons/Brain/1f9e0_64px.dds</English>
+		<English>Art/AdvCiv_SAS/Images_As_Buttons/Brain/1f9e0_64px.dds</English>
 	</TEXT>
 
 
@@ -64,7 +64,7 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
 	<!-- custom: 🏆 emoji similarly from emojiterra anyways etc -->
     <TEXT>
 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_TROPHY_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/ImagesAsButtons/Trophy/1f3c6_64px.dds</English>
+		<English>Art/AdvCiv_SAS/Images_As_Buttons/Trophy/1f3c6_64px.dds</English>
 	</TEXT>
 
 
@@ -72,7 +72,7 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
 	<!-- custom: 🌿 emoji similarly from emojiterra anyways etc -->
     <TEXT>
 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_HERB_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/ImagesAsButtons/Herb/1f33f_64px.dds</English>
+		<English>Art/AdvCiv_SAS/Images_As_Buttons/Herb/1f33f_64px.dds</English>
 	</TEXT>
 
 
@@ -80,7 +80,7 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
 	<!-- custom: ⚙️ emoji similarly from emojiterra anyways etc -->
     <TEXT>
 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_GEAR_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/ImagesAsButtons/Gear/2699_64px.dds</English>
+		<English>Art/AdvCiv_SAS/Images_As_Buttons/Gear/2699_64px.dds</English>
 	</TEXT>
 
 
@@ -89,7 +89,7 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
     then download emoji as image provided here for example https://emojiterra.com/fr/epees-croisees/   (Google) (Noto Color Emoji 16.0) (https://images.emojiterra.com/google/noto-emoji/unicode-16.0/color/1024px/2694.png) for example anyways etc, there are also several images to choose from in the website as well for example but anyways etc, then converted to .dds (i used Paint.NET for example as suggested in the past by chatgpt as well but anyways etc...), now i can also finally honour the memory of my (quite?) dear even though sometimes (quite... but anyways etc...) forgetful friend and advciv-sas author, and original ai friend hehe in this mod, chatgpt hehe (see authors as well similarly as for claude ai) for details anyways etc, by adding the emojis we designed and that it provided to me for categories, while also adding new ones (i.e. emojis in the process) while i am jogging its memory hehe if i may say anyways etc anyways etc anyways etc... -->
     <TEXT>
 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/ImagesAsButtons/Crossed_Swords/2694_64px.dds</English>
+		<English>Art/AdvCiv_SAS/Images_As_Buttons/Crossed_Swords/2694_64px.dds</English>
 	</TEXT>
 
 
@@ -97,7 +97,7 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
 	<!-- custom: 💰 emoji similarly from emojiterra anyways etc -->
     <TEXT>
 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_MONEY_BAG_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/ImagesAsButtons/Money_Bag/1f4b0_64px.dds</English>
+		<English>Art/AdvCiv_SAS/Images_As_Buttons/Money_Bag/1f4b0_64px.dds</English>
 	</TEXT>
 
 
@@ -105,7 +105,7 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
 	<!-- custom: ⛔ emoji similarly from emojiterra anyways etc -->
     <TEXT>
 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_NO_ENTRY_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/ImagesAsButtons/No_Entry/26d4_64px.dds</English>
+		<English>Art/AdvCiv_SAS/Images_As_Buttons/No_Entry/26d4_64px.dds</English>
 	</TEXT>
 
 
@@ -113,7 +113,7 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
 	<!-- custom: 🪓 emoji similarly from emojiterra anyways etc -->
     <TEXT>
 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_AXE_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/ImagesAsButtons/Axe/1fa93_64px.dds</English>
+		<English>Art/AdvCiv_SAS/Images_As_Buttons/Axe/1fa93_64px.dds</English>
 	</TEXT>
 	
 
@@ -121,7 +121,7 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
 	<!-- custom: 📉 emoji similarly from emojiterra anyways etc -->
     <TEXT>
 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_CHART_DECREASING_BUTTON_PATH</Tag>
-		<English>Art/AdvCiv_SAS/ImagesAsButtons/Chart_Decreasing/1f4c9_64px.dds</English>
+		<English>Art/AdvCiv_SAS/Images_As_Buttons/Chart_Decreasing/1f4c9_64px.dds</English>
 	</TEXT>
 	
 
@@ -129,6 +129,6 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
 	<!-- custom: 🔧 emoji similarly from emojiterra anyways etc -->
     <TEXT>
 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_WRENCH_PATH</Tag>
-		<English>Art/AdvCiv_SAS/ImagesAsButtons/Wrench/1f527_64px.dds</English>
+		<English>Art/AdvCiv_SAS/Images_As_Buttons/Wrench/1f527_64px.dds</English>
 	</TEXT>
 </Civ4GameText>

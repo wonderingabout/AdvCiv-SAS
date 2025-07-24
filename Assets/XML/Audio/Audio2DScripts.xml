@@ -44,8 +44,8 @@
 		<ScriptID>AS2D_OPENING_MENU</ScriptID>
 		<SoundID>SONG_OPENING_MENU</SoundID>
 		<SoundType>GAME_MUSIC</SoundType>
-		<iMinVolume>80</iMinVolume>
-		<iMaxVolume>80</iMaxVolume>
+		<iMinVolume>60</iMinVolume>
+		<iMaxVolume>60</iMaxVolume>
 		<iPitchChangeDown>0</iPitchChangeDown>
 		<iPitchChangeUp>0</iPitchChangeUp>
 		<iMinLeftPan>-1</iMinLeftPan>
