@@ -15,6 +15,7 @@ gc = CyGlobalContext()
 localText = CyTranslator()
 
 
+
 class SevoPediaUnitChart:
 	def __init__(self, main):
 		self.iGroup = -1
@@ -27,7 +28,8 @@ class SevoPediaUnitChart:
 		self.MARGIN = 20
 		self.N_COLUMNS = 0
 		self.W_NAME = 270
-		self.W_NUM = 100
+		# <!-- custom: with 128 or below, the collateral damage text is not fully displayed as of now anyways etc -->
+		self.W_NUM = 129
 		
 		self.W_TABLE = ((self.N_COLUMNS - 2 - 1) * self.W_NUM) + (2 * self.MARGIN)
 
@@ -48,14 +50,14 @@ class SevoPediaUnitChart:
 		screen = self.top.getScreen()
 		table = self.top.getNextWidgetName()
 
-		isAirCombatType = ( (self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR_BOMBER')) or (self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR_FIGHTER')) )
+		isAirCombatType = (self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR_BOMBER') or self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR_FIGHTER'))
 
 		if not isAirCombatType:
 			self.N_COLUMNS = 8
 		else:
 			self.N_COLUMNS = 10
 		
-		self.W_TABLE = ( self.W_NAME + ((self.N_COLUMNS - 1) * self.W_NUM) ) + (2 * self.MARGIN)
+		self.W_TABLE = (self.W_NAME + ((self.N_COLUMNS - 1) * self.W_NUM)) + (2 * self.MARGIN)
 
 		# <!-- custom: blue is more readable than standard i find, imported from base AdvCiv and modified with a similar kind of purpose -->
 		#screen.addTableControlGFC(table, self.N_COLUMNS, self.X_TABLE, self.Y_TABLE, self.W_TABLE, self.H_TABLE, True, False, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
@@ -63,6 +65,7 @@ class SevoPediaUnitChart:
 		#screen.enableSort(table)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, self.X_TABLE, self.Y_TABLE, self.W_TABLE, self.H_TABLE, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, self.X_TABLE + self.MARGIN, self.Y_TABLE + self.MARGIN, self.W_TABLE - (self.MARGIN * 2), self.H_TABLE - (self.MARGIN * 2), PanelStyles.PANEL_STYLE_BLUE50)
+
 		table = self.top.getNextWidgetName()
 		tableX = self.X_TABLE + self.MARGIN
 		tableY = self.Y_TABLE + self.MARGIN + 5
@@ -88,46 +91,36 @@ class SevoPediaUnitChart:
 		szBombard = u"%c" % CyGame().getSymbolID(FontSymbols.DEFENSE_CHAR)
 		szCollateral = u"Collateral"
 
-		szWithdraw = u"Withdraw"
-		szAirEvasion = u"Air Evasion"
-
 		szCost = u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()
 
-		# <!-- custom: trick (to center the headers text too) taught to me by ChatGPT, quoting it:
-		# "
-		# screen.setTableColumnHeader(...) don't use FONT_*_JUSTIFY like the cell contents, but there's a workaround.
-		# Unfortunately, the setTableColumnHeader(...) function in Civ4's Python API does not provide a direct way to align the text (like FONT_CENTER_JUSTIFY). But there is a common workaround:
-		# 
-		# Workaround: Pad the header label string manually
-		# By adding spaces before and after the header text, you can visually center it.
-		#  you want to center the header labels in the table (not just the unit entries). The headers set via
-		# Example:
-		# screen.setTableColumnHeader("UnitChart", 1, "   Unit   ", table_width - 100)
-		# You can play with the spacing — more spaces = more centered-looking text depending on the column width.
-		#
-		# Optional enhancement: Use a monospaced font for table headers
-		# If your font is monospaced (unlikely in Civ4 UI), the manual padding is more predictable. In Civ4, though, font kerning varies — so some trial and error is needed.
-		# 
-		# Advanced modding option (if you're feeling bold)
-		# If you're okay with digging into the SDK or custom DLL builds (like AdvCiv or BUG), it’s technically possible to modify the table rendering to expose alignment options for headers. But this is definitely a bigger job — the manual padding is the easiest trick.
-		# "
-		# May also serve for future reference maybe, anyways, thanks a lot ChatGPT, and to those who advised me or told me
-		# about how i could use it, in particular for civ4, or/and or things to thank for or not, anyways, -->
+		# <!-- custom: trick (to center the headers text too) taught to me by ChatGPT, quoting it: "screen.setTableColumnHeader(...) don't use FONT_*_JUSTIFY like the cell contents, but there's a workaround." + "Workaround: Pad the header label string manually" thanks for help chatgpt and advciv/hint if i may say that i adjusted too or not for advciv-sas but anyways etc anyways etc anyways etc... -->
+		szNameText = u"<font=2>    " + szName + u"</font>"
+		szStrengthtext = u"<font=2>             " + szStrength + u"</font>"
+		szMoveText = u"<font=2>             " + szMove + u"</font>"
+		szFirstStrikeText = u"<font=2>       " + szFirstStrike + u"</font>"
+		szBombardText = u"<font=2>            " + szBombard + u"</font>"
+		szCollateralText = u"<font=2>      " + szCollateral + u"</font>"
+		szCostText = u"<font=2>             " + szCost + u"</font>"
 
 		if isAirCombatType:
+			szAirEvasion = u"Air Evasion"
 			szAirIntercept = u"Air Intercept"
 			szAirRange = u"Air Range"
 			
-			screen.setTableColumnHeader(table, 0, u"<font=2>    " + szName + u"    </font>", self.W_NAME)
-			screen.setTableColumnHeader(table, 1, u"<font=2>         " + szStrength + u"       </font>", self.W_NUM)
-			screen.setTableColumnHeader(table, 2, u"<font=2>         " + szMove + u"       </font>", self.W_NUM)
-			screen.setTableColumnHeader(table, 3, u"<font=2>   " + szFirstStrike + u"   </font>", self.W_NUM)
-			screen.setTableColumnHeader(table, 4, u"<font=2>         " + szBombard + u"       </font>", self.W_NUM)
-			screen.setTableColumnHeader(table, 5, u"<font=2>  " + szCollateral + u"   </font>", self.W_NUM)
-			screen.setTableColumnHeader(table, 6, u"<font=2>  " + szAirEvasion + u" </font>", self.W_NUM)
-			screen.setTableColumnHeader(table, 7, u"<font=2>" + szAirIntercept + u"</font>", self.W_NUM)
-			screen.setTableColumnHeader(table, 8, u"<font=2>    " + szAirRange + u"    </font>", self.W_NUM)
-			screen.setTableColumnHeader(table, 9, u"<font=2>         " + szCost + u"       </font>", self.W_NUM)
+			szAirEvasionText = u"<font=2>     " + szAirEvasion + u"</font>"
+			szAirInterceptText = u"<font=2>    " + szAirIntercept + u"</font>"
+			szAirRangeText = u"<font=2>      " + szAirRange + u"</font>"
+
+			screen.setTableColumnHeader(table, 0, szNameText, self.W_NAME)
+			screen.setTableColumnHeader(table, 1, szStrengthtext, self.W_NUM)
+			screen.setTableColumnHeader(table, 2, szMoveText, self.W_NUM)
+			screen.setTableColumnHeader(table, 3, szFirstStrikeText, self.W_NUM)
+			screen.setTableColumnHeader(table, 4, szBombardText, self.W_NUM)
+			screen.setTableColumnHeader(table, 5, szCollateralText, self.W_NUM)
+			screen.setTableColumnHeader(table, 6, szAirEvasionText, self.W_NUM)
+			screen.setTableColumnHeader(table, 7, szAirInterceptText, self.W_NUM)
+			screen.setTableColumnHeader(table, 8, szAirRangeText, self.W_NUM)
+			screen.setTableColumnHeader(table, 9, szCostText, self.W_NUM)
 
 			for iUnit in xrange(gc.getNumUnitInfos()):
 				UnitInfo = gc.getUnitInfo(iUnit)
@@ -146,14 +139,18 @@ class SevoPediaUnitChart:
 					self.placeTableCost(screen, table, 9, iRow, UnitInfo)
 
 		else:
-			screen.setTableColumnHeader(table, 0, u"<font=2>    " + szName + u"    </font>", self.W_NAME)
-			screen.setTableColumnHeader(table, 1, u"<font=2>         " + szStrength + u"       </font>", self.W_NUM)
-			screen.setTableColumnHeader(table, 2, u"<font=2>         " + szMove + u"       </font>", self.W_NUM)
-			screen.setTableColumnHeader(table, 3, u"<font=2>   " + szFirstStrike + u"   </font>", self.W_NUM)
-			screen.setTableColumnHeader(table, 4, u"<font=2>         " + szBombard + u"       </font>", self.W_NUM)
-			screen.setTableColumnHeader(table, 5, u"<font=2>  " + szCollateral + u"   </font>", self.W_NUM)
-			screen.setTableColumnHeader(table, 6, u"<font=2>  " + szWithdraw + u" </font>", self.W_NUM)
-			screen.setTableColumnHeader(table, 7, u"<font=2>         " + szCost + u"       </font>", self.W_NUM)
+			szWithdraw = u"Withdraw"
+
+			szWithdrawText = u"<font=2>      " + szWithdraw + u"</font>"
+
+			screen.setTableColumnHeader(table, 0, szNameText, self.W_NAME)
+			screen.setTableColumnHeader(table, 1, szStrengthtext, self.W_NUM)
+			screen.setTableColumnHeader(table, 2, szMoveText, self.W_NUM)
+			screen.setTableColumnHeader(table, 3, szFirstStrikeText, self.W_NUM)
+			screen.setTableColumnHeader(table, 4, szBombardText, self.W_NUM)
+			screen.setTableColumnHeader(table, 5, szCollateralText, self.W_NUM)
+			screen.setTableColumnHeader(table, 6, szWithdrawText, self.W_NUM)
+			screen.setTableColumnHeader(table, 7, szCostText, self.W_NUM)
 
 			for iUnit in xrange(gc.getNumUnitInfos()):
 				UnitInfo = gc.getUnitInfo(iUnit)
@@ -224,7 +221,7 @@ class SevoPediaUnitChart:
 	def placeTableCollateral(self, screen, table, iCol, iRow, UnitInfo):
 		# Collateral
 			if UnitInfo.getCollateralDamage() > 0:
-				szCollateralRate = u"%d%% (%d)" % (UnitInfo.getCollateralDamageLimit(), UnitInfo.getCollateralDamageMaxUnits())
+				szCollateralRate = u"%d%%-%d%% (%d)" % (UnitInfo.getCollateralDamage(), UnitInfo.getCollateralDamageLimit(), UnitInfo.getCollateralDamageMaxUnits())
 			else:
 				szCollateralRate = u""
 
