@@ -866,6 +866,9 @@ class SevoPediaUnit:
 
 		# <!-- custom: disabling entirely if (isPromotionValid(k, self.iUnit, False) we get too many promotions, but enabling it some are missing (see below in code comments but anyways etc), so as advised by chatgpt checking which promotions belong to the unit through another condition, seems to solve/fix the issue as now we see the missing promotions as per the xml, anyways etc -->
 		eUnitCombat = gc.getUnitInfo(self.iUnit).getUnitCombatType()
+		# No promotions to show for units with no combat type
+		if eUnitCombat == -1:
+			return
 
 		for k in range(gc.getNumPromotionInfos()):
 			# <!-- custom: disable isPromotionValid(k, self.iUnit, False) check as some promotions are missing such as collateral damage 1 and 2 and also leadership promotion in the generic swordsman panel for example, as advised by chatgpt, anyways etc (it said "In-game, a Swordsman may earn the promotion eventually (e.g. through experience), but if it doesn't yet satisfy all prereqs, isPromotionValid might return False" which i don't know if it is accurate but maybe is, hopefully helpful or not or yes or etc but anyways etc) -->
