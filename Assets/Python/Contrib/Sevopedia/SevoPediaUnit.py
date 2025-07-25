@@ -733,8 +733,19 @@ class SevoPediaUnit:
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
+
 		listName = self.top.getNextWidgetName()
 		szSpecialText = CyGameTextMgr().getUnitHelp(self.iUnit, True, False, False, None)[1:]
+
+		# <!-- custom: show if unit has no military support cost info for example for the robotic_infantry we added in advciv-sas anyways etc, code provided by chatgpt thanks to my prompt too etc anyways etc thanks and thanks to me too hehe if i may say in this case but anyways etc, and adjusted for advciv-sas or not by me too if i may say in this case but anyways etc -->
+		# Get unit info
+		unitInfo = gc.getUnitInfo(self.iUnit)
+
+		if not unitInfo.isMilitarySupport():
+			bullet = localText.getText("[ICON_BULLET]", ())
+			noMilitarySupportCostText = localText.getText("TXT_KEY_UNIT_NO_MILITARY_SUPPORT_COST", ())
+			szSpecialText += u"\n%s%s" % (bullet, noMilitarySupportCostText)
+
 		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+30, self.W_SPECIAL-10, self.H_SPECIAL-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 

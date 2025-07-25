@@ -2321,7 +2321,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<iMinAreaSize>-1</iMinAreaSize>
-			<iMoves>4</iMoves>
+			<!-- custom: was 2 -->
+			<iMoves>3</iMoves>
 			<bNoRevealMap>0</bNoRevealMap>
 			<iAirRange>0</iAirRange>
 			<iAirUnitCap>0</iAirUnitCap>
@@ -21317,7 +21318,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bQuickCombat>0</bQuickCombat>
 			<bRivalTerritory>1</bRivalTerritory>
 			<bMilitaryHappiness>0</bMilitaryHappiness>
-			<bMilitarySupport>0</bMilitarySupport>
+			<!-- custom: even if it has no nationality, it should still cost gold or such to run, so give it maintenance military cost too if i may say anyways etc, was 0 -->
+			<bMilitarySupport>1</bMilitarySupport>
 			<bMilitaryProduction>1</bMilitaryProduction>
 			<bPillage>1</bPillage>
 			<bSpy>0</bSpy>

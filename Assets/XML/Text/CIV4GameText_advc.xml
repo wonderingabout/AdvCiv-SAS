@@ -6738,4 +6738,12 @@
 		<English>As a reminder, the following technologies cannot be traded:</English>
 	</TEXT>
 
+
+
+	<!-- custom: show this info in sevopedia unit's as of now placeSpecial for example for the robotic_infantry we added in advciv-sas anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_NO_MILITARY_SUPPORT_COST</Tag>
+		<English>No military support cost</English>
+	</TEXT>
+
 </Civ4GameText>
