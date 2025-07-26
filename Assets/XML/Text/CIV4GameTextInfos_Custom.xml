@@ -95,8 +95,11 @@
 		<Tag>TXT_KEY_PLOT_IMPASSABLE</Tag>
 		<English>[COLOR_WARNING_TEXT]IMPASSABLE (except relevant units)[COLOR_REVERT]</English>
 	</TEXT>
-
-
+	<!-- custom: replace inaccurate info if i am not mistaken but anyways etc of "Impassable terrain" (that i saw in sevopedia feature for example but anyways etc) with a more general text (as ice cap is a feature for example not a terrain so the "terrain" part of the text is inaccurate, also although impassable, some units are exceptions anyways etc), hinting at exceptions anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TERRAIN_IMPASSABLE</Tag>
+		<English>[NEWLINE][ICON_BULLET]Impassable (except relevant units)</English>
+	</TEXT>
 
     <!-- custom: rename Civilopedia to Sevopedia 
     imported from: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameTextInfos.xml

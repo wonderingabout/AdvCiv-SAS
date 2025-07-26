@@ -120,11 +120,11 @@ class SevoPediaTerrain:
 		iOcean = getInfoTypeOrFail("TERRAIN_OCEAN", gc)
 
 		if self.iTerrain == iPeak or self.iTerrain == iHill or self.iTerrain == iOcean:
-			txtKeyTerrainPlotType = localText.getText("TXT_KEY_PEDIA_PLOT_TYPE_TERRAIN_CUSTOM", ())
+			txtKeyTerrainPlotTypeLabel = "TXT_KEY_PEDIA_PLOT_TYPE_TERRAIN_CUSTOM"
 		else:
-			txtKeyTerrainPlotType = localText.getText("TXT_KEY_PEDIA_TERRAIN_CUSTOM", ())
+			txtKeyTerrainPlotTypeLabel = "TXT_KEY_PEDIA_TERRAIN_CUSTOM"
 
-		screen.appendListBoxString(panel, txtKeyTerrainPlotType, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.appendListBoxString(panel, localText.getText(txtKeyTerrainPlotTypeLabel, ()), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 		if self.iTerrain == iHill:
 			szStats = (u"%d%c  " % (-1, gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar()))
@@ -141,17 +141,32 @@ class SevoPediaTerrain:
 
 
 	def placeSpecial(self):
+		xPanel = self.X_SPECIAL
+		yPanel = self.Y_SPECIAL
+		wPanel = self.W_SPECIAL
+		hPanel = self.H_SPECIAL
+
 		screen = self.top.getScreen()
 		panel = self.top.getNextWidgetName()
 		text = self.top.getNextWidgetName()
 		info = gc.getTerrainInfo(self.iTerrain)
 
-		screen.addPanel(panel, "", "", True, True, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panel, "", "", True, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 
+		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
 		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
 
-		# <!-- custom: the entry seems garbage or info aobut terrain_peak perhaps? But/so anyways etc leaving it as rfc doc mod did if i am not mistaken just with minor refactor of iHill above as of now anyways etc -->
-		if self.iTerrain != iHill:
+		# <!-- custom: the entry seems garbage or info about terrain_peak perhaps? But/so anyways etc leaving it as rfc doc mod did if i am not mistaken just with minor refactor of iHill above as of now anyways etc ; the peak info is also incomplete, not mentioning for example the impassable info if i am not mistaken so also not displaying it for peak if i am not mistaken in doing so but anyways etc -->
+		if self.iTerrain == iPeak or self.iTerrain == iHill:
+			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE_WITH_EXPLANATION"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNoDisplay, ())
+			# <!-- custom: note: do not use yPanelCenter as this is a panel with quite high height, higher (no pun but anyways etc...) than default or usual panel height, and it seems that maybe the panel's height is not a clean as chatgpt said this word clean to rephrase my more explanation and question of it maybe not being a multiplier of one line height, so starting from center it would overfill (as it would start a bit below the exact half if inner panel does not have an exactly aligned total height being a line multiplier maybe if i am not mistaken in my guess? That chatgpt seems to approve as well but could be mistaken too or maybe not but hopefully helpful or not or yes or etc, check if this info is accurate though (about line height not cleanly centered in this case but anyways etc...) to be sure anyways etc), so to solve this start a bit higher than the center instead anyways etc -->
+			#yPanelCenter = yPanel + (hPanel / 2)
+			yPanelCenter = yPanel + int(0.42 * hPanel)
+			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+		else:
 			szText = info.getHelp()
 			szText += CyGameTextMgr().getTerrainHelp(self.iTerrain, True)
 			szText = szText.replace("\n\n", "\n").strip()
@@ -160,33 +175,63 @@ class SevoPediaTerrain:
 
 
 	def placeFeatures(self):
+		xPanel = self.X_FEATURES
+		yPanel = self.Y_FEATURES
+		wPanel = self.W_FEATURES
+		hPanel = self.H_FEATURES
+
 		screen = self.top.getScreen()
 		panel = self.top.getNextWidgetName()
 
-		screen.addPanel(panel, localText.getText("TXT_KEY_MISC_FEATURES", ()), "", False, True, self.X_FEATURES, self.Y_FEATURES, self.W_FEATURES, self.H_FEATURES, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panel, localText.getText("TXT_KEY_MISC_FEATURES", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panel, "", "  ")
 
-		for iFeature in xrange(gc.getNumFeatureInfos()):
-			FeatureInfo = gc.getFeatureInfo(iFeature)
+		# <!-- custom: not sure we have a reason to as display is currently empty, but just in case or/and for consistency, also exclude from display here anyways etc -->
+		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
+		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
 
-			if FeatureInfo.isGraphicalOnly():
-				continue
-			elif FeatureInfo.isTerrain(self.iTerrain):
-				screen.attachImageButton(panel, "", FeatureInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, 1, False)
+		if self.iTerrain == iPeak or self.iTerrain == iHill:
+			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE_WITH_EXPLANATION"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNoDisplay, ())
+			# <!-- custom: note: do not use yPanelCenter as this is a quite long text that fits in many line, so starting from center it would overfill, so to solve this start from top of the panel as default would be as advised by chatgpt to fix this thanks to my prompt too anyways etc -->
+			yPanelTop = yPanel + 34
+			screen.addMultilineText(textName, szText, xPanel + 7, yPanelTop, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+		else:
+			for iFeature in xrange(gc.getNumFeatureInfos()):
+				FeatureInfo = gc.getFeatureInfo(iFeature)
+
+				if FeatureInfo.isGraphicalOnly():
+					continue
+				elif FeatureInfo.isTerrain(self.iTerrain):
+					screen.attachImageButton(panel, "", FeatureInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, 1, False)
 
 
 
 	def placeImprovements(self):
+		xPanel = self.X_IMPROVEMENTS
+		yPanel = self.Y_IMPROVEMENTS
+		wPanel = self.W_IMPROVEMENTS
+		hPanel = self.H_IMPROVEMENTS
+
 		screen = self.top.getScreen()
 		panel = self.top.getNextWidgetName()
 
-		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_IMPROVEMENTS_CUSTOM", ()), "", False, True, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_IMPROVEMENTS_CUSTOM", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panel, "", "  ")
 
+		# <!-- custom: add a logic that excludes hills from this as output is unreliable, see below code comment as of now anyways etc, as for peak exclude it as well as it shouldn't have improvements at least as of now anyways etc -->
+		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
 		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
+		if self.iTerrain == iPeak or self.iTerrain == iHill:
+			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNoDisplay, ())
+			yPanelCenter = yPanel + (hPanel / 2)
+			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-		# <!-- custom: add a logic that excludes hills from this as output is unreliable, see below code comment as of now anyways etc -->
-		if self.iTerrain != iHill:
+		else:
 			for iImprovement in xrange(gc.getNumImprovementInfos()):
 				ImprovementInfo = gc.getImprovementInfo(iImprovement)
 				if ImprovementInfo.isGoody():
@@ -200,42 +245,79 @@ class SevoPediaTerrain:
 
 
 	def placeBonusesWithNoFeature(self):
+		xPanel = self.X_BONUSES_WITH_NO_FEATURE
+		yPanel = self.Y_BONUSES_WITH_NO_FEATURE
+		wPanel = self.W_BONUSES_WITH_NO_FEATURE
+		hPanel = self.H_BONUSES_WITH_NO_FEATURE
+
 		screen = self.top.getScreen()
 		panel = self.top.getNextWidgetName()
 
-		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_TERRAIN_BONUSES_WITH_NO_FEATURE", ()), "", False, True, self.X_BONUSES_WITH_NO_FEATURE, self.Y_BONUSES_WITH_NO_FEATURE, self.W_BONUSES_WITH_NO_FEATURE, self.H_BONUSES_WITH_NO_FEATURE, PanelStyles.PANEL_STYLE_BLUE50)
+		# <!-- custom: refactor/tweak/change anyways etc to test for the existence of terrain_hill 's id explicitly else raise an error not silently pass anyways etc as is also done in several other parts of the sevopedia reworked/refactored code if i may say but anyways etc anyways etc anyways etc, and or such other tweaks to rfc doc mod's code for peak anyways etc anyways etc anyways etc -->
+		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
+		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
+		txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_BONUSES_WITH_NO_FEATURE"
+		if self.iTerrain == iPeak:
+			txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_BONUSES_NOT_APPLICABLE_FOR_THIS_PLOT_TYPE"
+		elif self.iTerrain == iHill:
+			txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_BONUSES_HILL"
+
+		screen.addPanel(panel, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panel, "", "  ")
 
-		# <!-- custom: minor refactor to test for the existence of terrain_hill 's id explicitly else raise an error not silently pass anyways etc as is also done in several other parts of the sevopedia reworked/refactored code if i may say but anyways etc anyways etc anyways etc -->
-		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
+		# <!-- custom: not applicable for this plot type / terrain if i am not mistaken, so show an alternative text instead anyways etc -->
+		if self.iTerrain == iPeak:
+			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNoDisplay, ())
+			yPanelCenter = yPanel + (hPanel / 2)
+			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-		for iResource in xrange(gc.getNumBonusInfos()):
-			ResourceInfo = gc.getBonusInfo(iResource)
-			if ResourceInfo.isGraphicalOnly():
-				continue
-			elif ResourceInfo.isTerrain(self.iTerrain):
-				screen.attachImageButton(panel, "", ResourceInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iResource, 1, False)
-			elif self.iTerrain == iHill and ResourceInfo.isHills():
-				screen.attachImageButton(panel, "", ResourceInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iResource, 1, False)
+		else:
+			for iBonus in xrange(gc.getNumBonusInfos()):
+				bonusInfo = gc.getBonusInfo(iBonus)
+				if bonusInfo.isGraphicalOnly():
+					continue
+				# <!-- custom: minor refactor fromr rfc doc mod since output seems to be the same, check for both all terrains and then specifically for hill anyways etc (with the more general check first so it is executed faster even if a micro bit in this case (but still! If i may say too (reference to baten kaitos's kalas line if i may say but anyways etc...) but anyways etc...) but anyways etc...) -->
+				elif (bonusInfo.isTerrain(self.iTerrain)) or (self.iTerrain == iHill and bonusInfo.isHills()):
+					screen.attachImageButton(panel, "", bonusInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1, False)
 
 
 
 	# <!-- custom: code provided by chatgpt thanks to my prompts too and adjustments too but anyways etc -->
 	def placeBonusesOnlyWithFeature(self):
+		xPanel = self.X_BONUSES_ONLY_WITH_FEATURE
+		yPanel = self.Y_BONUSES_ONLY_WITH_FEATURE
+		wPanel = self.W_BONUSES_ONLY_WITH_FEATURE
+		hPanel = self.H_BONUSES_ONLY_WITH_FEATURE
+
 		screen = self.top.getScreen()
 		panel = self.top.getNextWidgetName()
 
-		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_TERRAIN_BONUSES_FEATURE_TERRAIN_BOOLEANS", ()), "", False, True, self.X_BONUSES_ONLY_WITH_FEATURE, self.Y_BONUSES_ONLY_WITH_FEATURE, self.W_BONUSES_ONLY_WITH_FEATURE, self.H_BONUSES_ONLY_WITH_FEATURE, PanelStyles.PANEL_STYLE_BLUE50)
+		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
+		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
+		txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_BONUSES_FEATURE_TERRAIN_BOOLEANS"
+		if self.iTerrain == iHill or self.iTerrain == iPeak:
+			txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_BONUSES_NOT_APPLICABLE_FOR_THIS_PLOT_TYPE"
+
+		screen.addPanel(panel, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panel, "", "  ")
 
-		for iBonus in xrange(gc.getNumBonusInfos()):
-			BonusInfo = gc.getBonusInfo(iBonus)
-			if BonusInfo.isGraphicalOnly():
-				continue
+		if self.iTerrain == iHill or self.iTerrain == iPeak:
+			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNoDisplay, ())
+			yPanelCenter = yPanel + (hPanel / 2)
+			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-			if BonusInfo.isFeatureTerrain(self.iTerrain):
-				screen.attachImageButton(panel, "", BonusInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM,
-										WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1, False)
+		else:
+			for iBonus in xrange(gc.getNumBonusInfos()):
+				BonusInfo = gc.getBonusInfo(iBonus)
+				if BonusInfo.isGraphicalOnly():
+					continue
+
+				if BonusInfo.isFeatureTerrain(self.iTerrain):
+					screen.attachImageButton(panel, "", BonusInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1, False)
 
 
 

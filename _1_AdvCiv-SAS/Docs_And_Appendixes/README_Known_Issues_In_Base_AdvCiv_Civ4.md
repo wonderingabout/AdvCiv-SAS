@@ -709,7 +709,7 @@ So although i don't know too much how to do this, but can manage a bit maybe but
 
 ## 25 - Attempt to fix AIs settling too much and too often on bonuses, especially food bonuses (!!!) and metals and other high production bonuses to a lesser extent
 
-As of now if not all related changes can be found mostly if not almost entirely but anyways etc in this [advciv-sas commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/95347a520d7fbe41465c324ad609bddba32a167d) and this [advciv-sas commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/c20688b2c267ecee883a41168442ffdb22d32fc5) anyways etc. See the .cpp or/and other code updates directly in the code if any updates since then have been made or not, hopefulyl helpful or not or yes or etc but anyways etc, thanks,
+As of now if not all related changes can be found mostly if not almost entirely but anyways etc in this [advciv-sas commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/95347a520d7fbe41465c324ad609bddba32a167d) and this [advciv-sas commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/c20688b2c267ecee883a41168442ffdb22d32fc5) anyways etc. See the .cpp or/and other code updates directly in the code if any updates since then have been made or not, hopefully helpful or not or yes or etc but anyways etc, thanks,
 
 ### Origin and description of the problem anyways etc
 
@@ -824,7 +824,7 @@ So using Paint.NET for example in this explanation and as it is what i use too i
 
 1- First (i am using Paint.NET for example here anyways etc) increase canvas size (not crop, not stretch, but canvas size, so that image stays the same, and new pixels appear additionally) and enable the option to not maintain aspect ratio (which actually maintains image ratio, just it also adds other new empty pixels in the image, so Paint.NET thinks image ratio as in full image ratio including the fake pixels has now changed and is no longer say 1920 x 1080 = 16:9 but something else 1920 x 1500 (fake example) is 1920 / 1500 = 1,28 (fake example just to illustrate), which is fine and as intended since the fake pixels won't be displayed in civ4 anyway).
 
-I have tried several sizes if i may say but anyways etc (see screenshots for examples of how it looks ingame), and i have found that through trial and error of various values, image seems to display best with a total (top + bottom) fake empty pixels height of 1440 - 1080 = 360. 
+I have tried several sizes if i may say but anyways etc (see screenshots for examples of how it looks ingame), and i have found that through trial and error of various values, image seems to display best with a total (top + bottom) fake empty pixels height of 1440 - 1080 = 360.
 
 Spread these fake pixels evenly between top and bottom, so you have 360 / 2 = 180 fake empty pixels to add on top, and the same number at the bottom as well if i may say in this case at least but anyways etc anyways etc anyways etc...
 

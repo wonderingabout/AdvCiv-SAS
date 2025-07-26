@@ -248,12 +248,12 @@ class SevoPediaFeature:
 		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_FEATURE_BONUSES_FEATURE_BOOLEANS", ()), "", False, True, self.X_BONUSES_ON_ANY_TERRAIN, self.Y_BONUSES_ON_ANY_TERRAIN, self.W_BONUSES_ON_ANY_TERRAIN, self.H_BONUSES_ON_ANY_TERRAIN, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panel, "", "  ")
 
-		for iResource in xrange(gc.getNumBonusInfos()):
-			ResourceInfo = gc.getBonusInfo(iResource)
-			if ResourceInfo.isGraphicalOnly():
+		for iBonus in xrange(gc.getNumBonusInfos()):
+			bonusInfo = gc.getBonusInfo(iBonus)
+			if bonusInfo.isGraphicalOnly():
 				continue
-			if ResourceInfo.isFeature(self.iFeature):
-				screen.attachImageButton(panel, "", ResourceInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iResource, 1, False)
+			if bonusInfo.isFeature(self.iFeature):
+				screen.attachImageButton(panel, "", bonusInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1, False)
 
 
 

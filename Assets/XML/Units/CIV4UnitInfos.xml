@@ -17318,7 +17318,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<!-- custom: sometimes i slightly deviated from strict terrain world map real layout, as of now for example in europe due to it being only forestic with no obvious terrain in the world maps i saw but anyways etc, but eastern europe is cold, so symbolize as having a bit of tundra in civ4 terms but anyways etc (see for example this Köppen climate classification map https://en.wikipedia.org/wiki/K%C3%B6ppen_climate_classification for details or maybe rather info or such hopefulyl helpful if i may say but anyways etc...) -->
+			<!-- custom: sometimes i slightly deviated from strict terrain world map real layout, as of now for example in europe due to it being only forestic with no obvious terrain in the world maps i saw but anyways etc, but eastern europe is cold, so symbolize as having a bit of tundra in civ4 terms but anyways etc (see for example this Köppen climate classification map https://en.wikipedia.org/wiki/K%C3%B6ppen_climate_classification for details or maybe rather info or such hopefully helpful if i may say but anyways etc...) -->
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
@@ -17332,7 +17332,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</TerrainDefense>
 			</TerrainDefenses>
 			<FeatureAttacks/>
-			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc ; removing the forest penalty due to their geography favouring forest if i am not mistaken in doing so at least i want so hopefulyl helpful or not or yes or etc but anyways etc, see also as of now the korean civ-specific unit for similar example / type of example if i may say but anyways etc -->
+			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc ; removing the forest penalty due to their geography favouring forest if i am not mistaken in doing so at least i want so hopefully helpful or not or yes or etc but anyways etc, see also as of now the korean civ-specific unit for similar example / type of example if i may say but anyways etc -->
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
