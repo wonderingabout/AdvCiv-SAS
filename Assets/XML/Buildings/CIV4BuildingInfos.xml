@@ -5040,7 +5040,7 @@
 			<bNukeImmune>0</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
-			<!-- custom: increase weight a lot as this is a cheap and powerful building, required to build workboats now, make sure AIs build it fast enough, may be slightly less efficient if AI already has enough land food or yield in land tiles, but overall more efficient to do so i think anyways etc -->
+			<!-- custom: increase weight a lot as this is a cheap and powerful building, required to build workboats now (note: if one city has a harbor, it can build a workboat to work the tiles in another city even if this other city doesn't have a harbor, may seem obvious but i hadn't noticed/thought of it until i saw it in autoplay xd, hopefully helpful but anyways etc...), make sure AIs build it fast enough, may be slightly less efficient if AI already has enough land food or yield in land tiles, but overall more efficient to do so i think anyways etc -->
 			<iAIWeight>50</iAIWeight>
 			<!-- custom: reduce cost to match old lighthouse or around it, as it is its replacement as the first naval building now if i am not mistaken too but or not but but anyways etc anyways etc..., also this building is now prerequired for building workboats (see barbarian_workboat code comment for details), so make it cheap enough, which makes sense also as its effect althugh quite good is much weaker than of a granary that is cheap as well, plus would allow to build workboats faster and cheaper as well anyways etc, this also overall relatively buffs water tiles while still i mean not being op i think anyways etc, was 80 -->
 			<iCost>40</iCost>
@@ -5241,7 +5241,7 @@
 			<bNukeImmune>0</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
-			<!-- custom: (trying to) make sure they (barbarians) build it fast (enough(, anyways etc)) so reducing cost and increase iAIWeight as much as possible or that i think is necessary at least or and ideal but anyways etc, this is especially true for the barbarian_harbor as it is necessary to produce workboats, if the city needs water bonuses's food yields in particular anyways etc, see code comments at barbarian_workboat and at the building_harbor for details anyways etc -->
+			<!-- custom: (trying to) make sure they (barbarians) build it fast (enough(, anyways etc)) so reducing cost and increase iAIWeight as much as possible or that i think is necessary at least or and ideal but anyways etc, this is especially true for the barbarian_harbor as it is necessary to produce workboats (note: if one city has a harbor, it can build a workboat to work the tiles in another city even if this other city doesn't have a harbor, may seem obvious but i hadn't noticed/thought of it until i saw it in autoplay xd, hopefully helpful but anyways etc...), if the city needs water bonuses's food yields in particular anyways etc, see code comments at barbarian_workboat and at the building_harbor for details anyways etc -->
 			<iAIWeight>100</iAIWeight>
 			<iCost>5</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>

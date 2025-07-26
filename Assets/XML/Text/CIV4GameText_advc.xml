@@ -6728,14 +6728,19 @@
 
 
 
-	<!-- custom: add (new anyways etc anyways etc...) the <bTrade> tech info xml flag if i am not mistaken in sevopedia tech's placeSpecial, see also (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp for details or additional info if there is any there anyways etc anyways etc hopefully helpful or not or yes or etc anyways etc -->
+	<!-- custom: add (new anyways etc anyways etc...) the <bTrade> tech info xml flag if i am not mistaken in sevopedia tech's placeSpecial, see also buildBTradeString and related or similar anyways etc in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp for details or additional info if there is any there anyways etc anyways etc hopefully helpful or not or yes or etc anyways etc-->
 	<TEXT>
 		<Tag>TXT_KEY_MISC_TECH_CANNOT_BE_TRADED</Tag>
-		<English>[ICON_BULLET]This technology cannot be traded.</English>
+		<English>[ICON_BULLET]Cannot be traded.</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER</Tag>
 		<English>As a reminder, the following technologies cannot be traded:</English>
+	</TEXT>
+	<!-- custom: adds the <bRepeat> info similarly if i am not mistaken but anyways etc, see also similarly buildBRepeatString anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_MISC_TECH_CAN_BE_REPEATED</Tag>
+		<English>[ICON_BULLET]Can be researched multiple times.</English>
 	</TEXT>
 
 

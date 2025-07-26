@@ -543,7 +543,9 @@
 			<iFirstFreeTechs>0</iFirstFreeTechs>
 			<iAsset>16</iAsset>
 			<iPower>0</iPower>
+			<!-- custom: similarly to changes now displaying bTrade info, we now also display bRepeat info in tech advisor and sevopedia tech if i am not mistaken anyways etc, see also similarly buildBRepeatString if i am not mistaken anyways etc -->
 			<bRepeat>0</bRepeat>
+			<!-- custom: note: bTrade fields are now visible from the c++ code if i may say anyways etc through buildBTradeString, see there for details orand in our mod's docs or and such othe relevant place, hopefulyl helpful but or not but or yes but anyways etc-->
 			<bTrade>1</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
@@ -6621,7 +6623,7 @@
 			<iFirstFreeTechs>0</iFirstFreeTechs>
 			<iAsset>48</iAsset>
 			<iPower>10</iPower>
-			<bRepeat>0</bRepeat>
+			<bRepeat>1</bRepeat>
 			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>

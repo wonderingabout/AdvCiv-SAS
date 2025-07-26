@@ -8154,9 +8154,11 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
 	//	Enables bridge building...
 	buildBridgeString(szBuffer, eTech, true, bPlayerContext);
 
-	// <!-- custom: new addition, add the "This tech cannot be traded" or similar for a tech if i am not mistaken too anyways etc
-	//	Tech cannot be traded (<bTrade> in XML if i am not mistaken in tech info 's xml i mean anyways etc)... -->
+	// <!-- custom: new addition, add the this technology "Cannot be traded" or similar for a tech if i am not mistaken too anyways etc ; (<bTrade> in XML if i am not mistaken in tech info 's xml i mean anyways etc)... -->
 	buildBTradeString(szBuffer, eTech, true, bPlayerContext);
+
+	// <!-- custom: similarly also add the this technology "Can be researched multiple times" or similar for a tech if i am not mistaken too anyways etc ; (<bRepeat> in XML if i am not mistaken in tech info 's xml i mean anyways etc)... -->
+	buildBRepeatString(szBuffer, eTech, true, bPlayerContext);
 
 	//	Can spread irrigation...
 	buildIrrigationString(szBuffer, eTech, true, bPlayerContext);
@@ -15389,6 +15391,19 @@ void CvGameTextMgr::buildBTradeString(CvWStringBuffer &szBuffer,
 		if (bList)
 			szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_MISC_TECH_CANNOT_BE_TRADED"));
+	}
+}
+
+// <!-- custom: quite similarly but displaying the positive condition this time (not negative one like in bTrade but anyways etc) also add the <bRepeat> tech info xml flag if i am not mistaken in sevopedia tech's placeSpecial anyways etc -->
+void CvGameTextMgr::buildBRepeatString(CvWStringBuffer &szBuffer,
+	TechTypes eTech, bool bList, bool bPlayerContext)
+{
+	if (GC.getTechInfo(eTech).isRepeat() &&
+		(!bPlayerContext || !GET_TEAM(getActiveTeam()).isHasTech(eTech)))
+	{
+		if (bList)
+			szBuffer.append(NEWLINE);
+		szBuffer.append(gDLL->getText("TXT_KEY_MISC_TECH_CAN_BE_REPEATED"));
 	}
 }
 

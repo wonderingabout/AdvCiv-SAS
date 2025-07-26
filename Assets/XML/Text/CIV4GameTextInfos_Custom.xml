@@ -90,6 +90,14 @@
 
 
 
+	<!-- custom: add info that some units are exceptions that can move even in impassable anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_PLOT_IMPASSABLE</Tag>
+		<English>[COLOR_WARNING_TEXT]IMPASSABLE (except relevant units)[COLOR_REVERT]</English>
+	</TEXT>
+
+
+
     <!-- custom: rename Civilopedia to Sevopedia 
     imported from: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameTextInfos.xml
     and then modified for AdvCiv-SAS

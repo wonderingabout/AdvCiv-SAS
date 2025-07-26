@@ -601,7 +601,7 @@ See screenshots of how this was implemented (not fully exhaustive but hopefully 
 
 Small sample below /example too but anyways etc:
 
-![0.50_no_tech_trading_example (1).JPG](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.50_no_tech_trading_example%20(1).JPG)
+![0.500_bTrade_bRepeat_example.JPG](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.500_bTrade_bRepeat_example.JPG)
 ![0.710_sevopedia_techs_sample (1).JPG](/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample%20(1).JPG)
 
 This was done by adding a new `buildBTradeString` function if i am not mistaken in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp and (adjust to your mod path too anyways etc anyways etc anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.h
@@ -644,6 +644,8 @@ This bTrade feature being displayed in placeSpecial should ideally have been par
 I also added the info about the full list of i mean anyways etc which techs are not tradeable in placeSpecial, hopefully not too redundant or spammy this way in this case fo the placeSpecial of sevopedia tech and helpful maybe too or not or yes or etc but anyways etc.
 
 Mods are welcome to use this quite simple but still hopefully useful code as long as they quote me and authors in [README.md#authors](/README.md#authors) as being the authors with mod name, even though it is not an obligation, it is a kind request i make, but in all cases hopefully this feature is helpful or not but not to change topic but anyways etc anyways etc anyways etc
+
+Note: later we also similarly changed the c++ so that we now also display the bRepeat info in tech advisor and sevopedia tech if i am not mistaken anyways etc, see also similarly buildBRepeatString if i am not mistaken anyways etc
 
 ## Example of DLL modification 2: missing BBAI getters expose them to sevopedia leader info in gc too for display anyways etc
 

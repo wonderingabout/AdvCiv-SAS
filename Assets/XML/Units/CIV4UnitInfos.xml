@@ -20183,7 +20183,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<StateReligion>NONE</StateReligion>
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
-			<!-- custom: see code comment at barbarian_harbor for details, was NONE -->
+			<!-- custom: see code comment at barbarian_harbor for details (in particular but not only if i may say but anyways etc that not all cities need to have a harbor to work in city radius water tiles anyways etc), was NONE -->
 			<PrereqBuilding>BUILDING_HARBOR</PrereqBuilding>
 			<PrereqTech>TECH_FISHING</PrereqTech>
 			<TechTypes/>
@@ -20384,7 +20384,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<StateReligion>NONE</StateReligion>
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
-			<!-- custom: originally this was tried as part of trying to work around known issue 23 of a barbarian workboat in some conditions failing to improve a bonus like the bonus_whale even if it is at coast, but then i thought it's a nice mechanic, make sure the harbor has a high enough weight (or flavor for all other players than barbarians anyways etc) so that AIs build it fast enough. This new rebalancing is a great way to prevent excessive water food early when the city already has enough land food so game is more gradual and balanced this way anyways etc, was NONE -->
+			<!-- custom: originally this was tried as part of trying to work around known issue 23 of a barbarian workboat in some conditions failing to improve a bonus like the bonus_whale even if it is at coast, but then i thought it's a nice mechanic, make sure the harbor has a high enough weight (or flavor for all other players than barbarians anyways etc) so that AIs build it fast enough. This new rebalancing is a great way to prevent excessive water food early when the city already has enough land food so game is more gradual and balanced this way anyways etc (note: if one city has a harbor, it can build a workboat to work the tiles in another city even if this other city doesn't have a harbor, may seem obvious but i hadn't noticed/thought of it until i saw it in autoplay xd, hopefully helpful but anyways etc...), was NONE -->
 			<PrereqBuilding>BUILDING_BARBARIAN_HARBOR</PrereqBuilding>
 			<PrereqTech>TECH_FISHING</PrereqTech>
 			<TechTypes/>
