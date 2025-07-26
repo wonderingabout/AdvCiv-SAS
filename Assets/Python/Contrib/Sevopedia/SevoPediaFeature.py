@@ -18,6 +18,49 @@ localText = CyTranslator()
 
 
 
+def do_pre_load_xml_features_info_required_data_validation():
+	for iFeature in xrange(gc.getNumFeatureInfos()):
+		# Start with no known max
+		maxSoFarProduction = None
+		maxSoFarTime = None
+
+		# Validate consistency across all builds
+		# Check all builds for ones that can remove this feature
+		for iBuild in xrange(gc.getNumBuildInfos()):
+			buildInfo = gc.getBuildInfo(iBuild)
+
+			if buildInfo.isFeatureRemove(iFeature):
+				removeProduction = buildInfo.getFeatureProduction(iFeature)
+
+				# <!-- custom: there shouldn't be any negative value if i am not mistaken, but if relevant in a mod, they may want to also take them into account here anyways etc -->
+				if removeProduction > 0:
+					if maxSoFarProduction is None:
+						maxSoFarProduction = removeProduction
+					else:
+						if removeProduction > maxSoFarProduction:
+							# <!-- custom: (note: this simplifies display for the where case cottages and farms would have different values (e.g. 20 vs 35 (imaginary values to illustrate anyways etc)) which would be highly unusual. This edge case is ignored in our mod advciv-sas to simplify code, display, and logic, and raising an error instead anyways etc. Ideally if a mod implements such a feature (the remove iProduction 20 vs 35 for different builds), which would be strange btw as building a farm also has a remove the jungle feature as part of it if i am not mistaken it is not a different operation at least it seems so ingame anyways, but in all cases they'd or can remove this check and error, and then alter display to see the different possible values maybe, although again i don't see too much of a case where it may be useful, but just in case and if i am maybe mistaken, you'd need to change this code and then the display logic to display the different value -->
+							if maxSoFarProduction > 0:
+								raise ValueError(u"[VALUE ERROR] Unexpected different iProduction removeProduction=%d value where a not equal to 0 value maxSoFarProduction=%d already existed between builds (cottage, remove_jungle, farm, etc.) at feature=%d (feature type is %s). Please make sure your iProduction is consistent accross all builds that can remove this feature, or if purposely designed as such, modify this code to display such information if you want or/and remove the error anyways etc." % (removeProduction, maxSoFarProduction, iFeature, gc.getFeatureInfo(iFeature).getType()))
+
+							maxSoFarProduction = removeProduction
+
+				removeTime = buildInfo.getFeatureTime(iFeature)
+
+				if removeTime > 0:
+					if maxSoFarTime is None:
+						maxSoFarTime = removeTime
+					else:
+						if removeTime > maxSoFarTime:
+							if maxSoFarTime > 0:
+								# We assume all builds (farm, cottage, etc.) that remove the same feature should take same iTime.
+								# If not, raise an error here and advise manual display implementation if desired.
+								raise ValueError(u"[VALUE ERROR] Unexpected iTime difference=%d when existing maxSoFarTime=%d for builds removing feature=%d (%s). Please ensure all builds that remove this feature share the same iTime, or update display logic to show per-build time if desired." %
+									(removeTime, maxSoFarTime, iFeature, gc.getFeatureInfo(iFeature).getType()))
+							
+							maxSoFarTime = removeTime
+
+
+
 class SevoPediaFeature:
 	def __init__(self, main):
 		self.iFeature = -1
@@ -125,40 +168,7 @@ class SevoPediaFeature:
 
 
 
-	# <!-- custom: code provided by claude ai (and chatgpt too for debug and such anyways etc thanks anyways etc :) anyways etc) thanks to my prompt (too! but anyways etc...) and adjustments too or not or yes or etc but anyways etc -->
-	def getChopProductionText(self):	
-		# Start with no known max
-		maxSoFar = None
-
-		# Check all builds for ones that can remove this feature
-		for iBuild in xrange(gc.getNumBuildInfos()):
-			buildInfo = gc.getBuildInfo(iBuild)
-
-			if buildInfo.isFeatureRemove(self.iFeature):
-				chopProduction = buildInfo.getFeatureProduction(self.iFeature)
-
-				# <!-- custom: there shouldn't be any negative value if i am not mistaken but just in case we'd want to see them, to debug/fix or if some mod mod if i may say or such has some kind of such behaviour anyways etc -->
-				if chopProduction != 0:
-					if maxSoFar is None:
-						maxSoFar = chopProduction
-					else:
-						if chopProduction > maxSoFar:
-							# <!-- custom: (note: this simplifies display for the where case cottages and farms would have different values which would be highly unusual, ignored to simplify code, display, and logic, but ideally if a mod implements such a feature, which would be strange btw as building a farm also chops as part of it if i am not mistaken it is not a different operation at least it seems so ingame anyways, so ignoring this in our code and displaying it as such, raising an error instead anyways etc -->
-							if maxSoFar > 0:
-								raise ValueError(u"[VALUE ERROR] Unexpected different iProduction chopProduction=%d value where a not equal to 0 value maxSoFar=%d already existed between builds (cottage, remove_jungle, farm, etc.) at feature=%d (feature type is %s). Please make sure your iProduction is consistent accross all builds that can remove this feature, or if purposely designed as such, modify this code to display such information if you want or/and remove the error anyways etc." % (chopProduction, maxSoFar, self.iFeature, gc.getFeatureInfo(self.iFeature).getType()))
-
-							maxSoFar = chopProduction
-
-		# <!-- custom: return highest value if any, else return none -->
-		if maxSoFar:
-			chopProductionText = u"%s+%d%s on chop" % (localText.getText("[ICON_BULLET]", ()), maxSoFar, localText.getText("[ICON_PRODUCTION]", ()))
-			print("value xxx is %s" % chopProductionText)
-			return chopProductionText
-		else:
-			return ""
-
-
-
+	# <!-- custom: code provided by claude ai and chatgpt too anyways etc) thanks to my prompts (too! but anyways etc...) and adjustments too or not or yes or etc but anyways etc -->
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panel = self.top.getNextWidgetName()
@@ -169,10 +179,24 @@ class SevoPediaFeature:
 		szText = info.getHelp()
 		szText += CyGameTextMgr().getFeatureHelp(self.iFeature, True)
 
-		# Add chop production information
-		chopProductionText = self.getChopProductionText()
-		if chopProductionText:
-			szText += "\n%s" % chopProductionText
+		for iBuild in xrange(gc.getNumBuildInfos()):
+			buildInfo = gc.getBuildInfo(iBuild)
+
+			# <!-- custom: since we already do the pre-checks at pre-load time, simply and directly fetch the first strictly positive (not taking into account negative values as they would be highly unusual and i wouldn't see their purpose at least in our mod, see the code at pre load for details) value -->
+			if buildInfo.isFeatureRemove(self.iFeature):
+				bullet = localText.getText("[ICON_BULLET]", ())
+
+				# <!-- custom: check iProduction and iTime separately for cases such as feature fallout that have 0 iProduction but an iTime > 0 (so we need to handle being able to display only the iTime optionally without iProduction anyways etc) -->
+				removeTime = buildInfo.getFeatureTime(self.iFeature)
+				if removeTime > 0:
+					szText += u"\n%sRemove iTime: %d" % (bullet, removeTime)
+
+				removeProduction = buildInfo.getFeatureProduction(self.iFeature)
+				if removeProduction > 0:
+					szText += u"\n%s+%d%s on remove" % (bullet, removeProduction, localText.getText("[ICON_PRODUCTION]", ()))
+
+				# <!-- custom: all values should be the same, no need to continue the loop after we got first strictly positive iProduction or/and iTime based one anyways etc -->
+				break
 
 		szText = szText.replace("\n\n", "\n").strip()
 		screen.addMultilineText(text, szText, self.X_SPECIAL + 5, self.Y_SPECIAL + 10, self.W_SPECIAL - 10, self.H_SPECIAL - 15, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)

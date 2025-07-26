@@ -82,8 +82,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc -->
 		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
-		# <!-- custom: do something similar for the untradeable techs text but anyways etc anyways etc anyways etc -->
+		# <!-- custom: do something similar for the untradeable techs text and or such other similar or quite similar codes if i may say or not or yes or etc but anyways etc anyways etc anyways etc -->
 		self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT = False
+		self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE = False
 
 		self.H_SCREEN = 768
 		self.W_SCREEN = 1024
@@ -516,7 +517,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		if not self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT:
 			SevoPediaTech.UNTRADEABLE_TECHS_TEXT = SevoPediaTech.getPrecomputedUntradeableTechsText()
 			self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT = True
-			print("[DEBUG] Sevopedia Tech Untradeable techs list prebuilt from Sevopedia Main. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited) (for info, in SevopediaMain, self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT=%s)." % str(self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT))
+			print("Sevopedia Tech Untradeable techs list prebuilt from Sevopedia Main. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited) (for info, in SevopediaMain, self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT=%s)." % str(self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT))
 	
 	def getTechList(self):
 		return self.getSortedList(gc.getNumTechInfos(), gc.getTechInfo)
@@ -630,6 +631,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def placeFeatures(self):
 		self.list = self.getFeatureList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, gc.getFeatureInfo)
+
+		# <!-- custom: quite similarly if i may say but anyways etc to other precompute codes in sevopedia main, also do sevopedia bonus's pre-loading logic at time where it is more/most efficient if i may say but anyways etc anyways etc anyways etc -->
+		if not self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE:
+			SevoPediaFeature.do_pre_load_xml_features_info_required_data_validation()
+			self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE = True
+			print("Sevopedia Feature pre load XML data validation done from Sevopedia Main. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited) (for info, in SevopediaMain, self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE=%s)." % str(self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE))
 	
 	def getFeatureList(self):
 		return self.getSortedList(gc.getNumFeatureInfos(), gc.getFeatureInfo)
@@ -692,7 +699,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			SevoPediaLeader.LEADERS_INFO_CACHED, SevoPediaLeader.AI_RIGHT_CATEGORIES, SevoPediaLeader.AI_MIDDLE_CATEGORIES, SevoPediaLeader.AI_LEFT_CATEGORIES = SevoPediaLeader.getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession()
 			# <!-- custom: do not rebuild if built once already, for the entire session keep the same cache, even if we exit sevopedia, store data in memory or wherever it is stored anyways etc, but do not build it until we click on leaders category the first time, not at module load (so a bit later than module load and not automatic but conditional in this case anyways etc), but still before any leader is selected if i am not mistaken too anyways etc -->
 			self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = True
-			print("[DEBUG] Sevopedia Leader cache prebuilt from Sevopedia Main. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited) (for info, in SevopediaMain, self.IS_SEVOPEDIALEADER_CACHE_PREBUILT=%s)." % str(self.IS_SEVOPEDIALEADER_CACHE_PREBUILT))
+			print("Sevopedia Leader cache prebuilt from Sevopedia Main. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited) (for info, in SevopediaMain, self.IS_SEVOPEDIALEADER_CACHE_PREBUILT=%s)." % str(self.IS_SEVOPEDIALEADER_CACHE_PREBUILT))
 	
 	def getLeaderList(self):
 		# <advc.004y>

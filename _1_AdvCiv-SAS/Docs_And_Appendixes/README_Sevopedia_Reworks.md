@@ -31,12 +31,13 @@ Based on rfc doc mod's code originally, and significantly tweaked or/and enhance
 
 Then following the sevopedia terrains rework (see for details sevopedia [terrains category rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category) anyways etc), new placeRelevantUnits and placeUnitsImpassable panels corresponding to these methods/functions have also been added anyways etc, so now we can see which units are stronger or weaker per feature as well as the numTxt (what i call this, meaning the textual information such as "+25/+50" for example for +25% attack and +50% defense or any promotion information that makes the unit stronger in said feature (such as woodsman for example in jungle and forest in advciv-sas anyways etc)) if any.
 
-Also added chop production information as part of the jungle rework (that as of now also gives production on chop, see [README_Quick_Get_Started_Guide.md#terrains--features-non-exhaustive-see-sevopedia-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#terrains--features-non-exhaustive-see-sevopedia-orand-xml-for-details) for details) thanks to claude ai and chatgpt and my prompts and adjustments too but anyways etc anyways etc anyways etc.
+Also added the remove production and/or time (for example feature_fallout only has iTime and no iProduction as of now and if i am not mistaken but anyways etc anyways etc anyways etc) information as part of the jungle rework and then of a later optimziation that moves some logic to pre-load code (similarly to the precomputing as of now in sevopedia main's placeLeaders and placeTechs) (that as of now also gives production on remove, see [README_Quick_Get_Started_Guide.md#terrains--features-non-exhaustive-see-sevopedia-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#terrains--features-non-exhaustive-see-sevopedia-orand-xml-for-details) for details) thanks to claude ai or/and chatgpt if i may say but anyways etc and my prompts and adjustments too but anyways etc anyways etc anyways etc.
 
-Note: ice feature (named "ice cap" feature as of now in advciv-sas anyways etc) which is impassable in base advciv +/- civ4 and our mod except for some units that can go on impassable if i am not mistaken anyways etc 's display is handled differently than other features due to this property it has so a bit like terrain peak anyways etc, see sevopedia feature ice's page for bit of details or/and code comments and code too i mean anyways etc in as of now sevopedia feature's code if i am not mistaken as well hopefully helpful anyways etc.
+Note 2: ice feature (named "ice cap" feature as of now in advciv-sas anyways etc) which is impassable in base advciv +/- civ4 and our mod except for some units that can go on impassable if i am not mistaken anyways etc 's display is handled differently than other features due to this property it has so a bit like terrain peak anyways etc, see sevopedia feature ice's page for bit of details or/and code comments and code too i mean anyways etc in as of now sevopedia feature's code if i am not mistaken as well hopefully helpful anyways etc.
 
 <img src="../Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG" alt="0.640_sevopedia_features_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG" alt="0.640_sevopedia_features_sample (2).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG" alt="0.640_sevopedia_features_sample (2).JPG" width="250"></img>
 
 ## example 3.5: improvements category
 
@@ -44,7 +45,11 @@ One of the oldest sevopedia reworks, i added it in this readme much later so i h
 
 The core changes is on the panel header naming i mean but anyways etc, to help clarify the maning of the modifiers displayed, as well as make text slightly more readable in terms of text size in some panels if i may say and remember it correctly (i could check but i think is how it was but anyways etc). Not much or too big in this case but anyways etc changes otherwise but anyways etc except some beautification and/or such but anyways etc, hopefully helpful still maybe but anyways etc anyways etc anyways etc, example of output below, anyways etc:
 
-<img src="../Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample.JPG" alt="0.720_sevopedia_improvements_sample.JPG" width="250"></img>
+More recently, i also added the improvement's build time (`iTime` in XML (note: related to the build's iTime, not the FeatureStruct's `iTime` which is about time to remove the feature as part building this build if i may say and if i am not mistaken, which is something different not displayed here but in sevopedia feature, see there or/and the [sevopedia feature's section in this readme](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) for details, thanks,))
+
+<img src="../Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG" alt="0.720_sevopedia_improvements_sample (1).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG" alt="0.720_sevopedia_improvements_sample (2).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG" alt="0.720_sevopedia_improvements_sample (3).JPG" width="250"></img>
 
 ## example 4: ressources/bonuses category
 

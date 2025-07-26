@@ -272,18 +272,6 @@
 						<iYieldChange>0</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
-				<!-- custom: +1 for the extra wine correlation indirectly (enhanced by other buildings so no need to boost it too much and is historically concordant to when wine commerce became more widespread if i am not mistaken from my memories of my research (even if little bit of it (i.e. of research) or not little bit or yes or not little bit anyways etc anyways etc indeed anyways etc anyways etc anyways etc...)), anyways etc -->
-				<BonusTypeStruct>
-					<BonusType>BONUS_GRAPES</BonusType>
-					<bBonusMakesValid>1</bBonusMakesValid>
-					<bBonusTrade>1</bBonusTrade>
-					<iDiscoverRand>0</iDiscoverRand>
-					<YieldChanges>
-						<iYieldChange>0</iYieldChange>
-						<iYieldChange>0</iYieldChange>
-						<iYieldChange>3</iYieldChange>
-					</YieldChanges>
-				</BonusTypeStruct>
 			</BonusTypeStructs>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
@@ -933,6 +921,18 @@
 						<iYieldChange>1</iYieldChange>
 						<iYieldChange>0</iYieldChange>
 						<iYieldChange>2</iYieldChange>
+					</YieldChanges>
+				</BonusTypeStruct>
+				<!-- custom: +1 for the extra wine correlation indirectly (enhanced by other buildings so no need to boost it too much and is historically concordant to when wine commerce became more widespread if i am not mistaken from my memories of my research (even if little bit of it (i.e. of research) or not little bit or yes or not little bit anyways etc anyways etc indeed anyways etc anyways etc anyways etc...)) anyways etc ; also i wanted to put it on farms and did so originally if i may say but anyways etc, but grapes spawn on hills too so the plantation is a better fit to allow to improve grapes on hills as well if i may say, chatgpt also says to me from what i understand of its explanation and interpret if i may say but anyways etc that it is more accurate to use plantations rather than farms, still is needed for our mod but maybe fits well as well, perhaps better as it said even maybe or not or yes or etc but anyways etc -->
+				<BonusTypeStruct>
+					<BonusType>BONUS_GRAPES</BonusType>
+					<bBonusMakesValid>1</bBonusMakesValid>
+					<bBonusTrade>1</bBonusTrade>
+					<iDiscoverRand>0</iDiscoverRand>
+					<YieldChanges>
+						<iYieldChange>0</iYieldChange>
+						<iYieldChange>0</iYieldChange>
+						<iYieldChange>3</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 			</BonusTypeStructs>

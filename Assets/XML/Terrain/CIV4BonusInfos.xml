@@ -1415,20 +1415,41 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 			<iGroupRand>12</iGroupRand>
 			<!-- advc.129: was 1 -->
 			<bArea>0</bArea>
+			<!-- custom: seems more realistic as such according to chatgpt and also as perincluding flood_plains, but also even flatland desert and such anyways etc, was 1 -->
 			<bHills>1</bHills>
 			<bFlatlands>1</bFlatlands>
 			<bNoRiverSide>0</bNoRiverSide>
 			<bNormalize>1</bNormalize>
-			<TerrainBooleans/>
+			<!-- custom: was empty -->
+			<TerrainBooleans>
+				<TerrainBoolean>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<bTerrain>1</bTerrain>
+				</TerrainBoolean>
+			</TerrainBooleans>
+			<!-- custom: changed as recommended/suggested by chatgpt after asking it too, and also after that where i found some info for example here https://www.beldiamond.com/blogs/guidance/where-do-precious-gemstones-come-from?srsltid=AfmBOooKdFeP12k24LvXWWNp9GGZqRQ94ZhK5frfS8ui2gCy3VuVODyj ; strategically may make river economy more viable or if already is viable more versatile anyways etc, was FEATURE_JUNGLE 1 ; note: it may also indirectly help address some AI issues i have noticed mentionned in some base advciv or such code comments now that gemstones spawn on various terrains including feature less ones if i may say and am not mistaken in saying or thinking so, at least in all cases i find it an interesting design as such in particular for flood_plains that are now more versatile on top of it being more realistic perhaps immersive as hinted or suggested by chatgpt to add them i mean mentionning something like this / meaning something similar i mean if i may say but anyways etc -->
 			<FeatureBooleans>
 				<FeatureBoolean>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
 					<bFeature>1</bFeature>
 				</FeatureBoolean>
+				<FeatureBoolean>
+					<FeatureType>FEATURE_FLOOD_PLAINS</FeatureType>
+					<bFeature>1</bFeature>
+				</FeatureBoolean>
+				<FeatureBoolean>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<bFeature>1</bFeature>
+				</FeatureBoolean>
 			</FeatureBooleans>
+			<!-- custom: was TERRAIN_GRASS 1 -->
 			<FeatureTerrainBooleans>
 				<FeatureTerrainBoolean>
 					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<bFeatureTerrain>1</bFeatureTerrain>
+				</FeatureTerrainBoolean>
+				<FeatureTerrainBoolean>
+					<TerrainType>TERRAIN_DESERT</TerrainType>
 					<bFeatureTerrain>1</bFeatureTerrain>
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>

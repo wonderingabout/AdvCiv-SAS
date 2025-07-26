@@ -230,8 +230,21 @@ class SevoPediaImprovement:
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_EFFECTS", ()), "", True, False, self.X_EFFECTS, self.Y_EFFECTS, self.W_EFFECTS, self.H_EFFECTS, PanelStyles.PANEL_STYLE_BLUE50 )
+
 		listName = self.top.getNextWidgetName()
 		szSpecialText = CyGameTextMgr().getImprovementHelp(self.iImprovement, True)
+
+		# Show iTime for building this improvement <!-- custom: (note: not related to feature remove's iTime, here it is about the improvement's iTime (i.e. time to build this improvement if i am not mistaken anyways etc))), code provided by chatgpt thanks to my prompt too and adjustments or not too too if i may say and thanks to it i.e. to chatgpt too too too if i may say but etc anyways etc -->
+		bullet = localText.getText("[ICON_BULLET]", ())
+		for iBuild in xrange(gc.getNumBuildInfos()):
+			buildInfo = gc.getBuildInfo(iBuild)
+			if buildInfo.getImprovement() == self.iImprovement:
+				iTime = buildInfo.getTime()
+				if iTime > 0:
+					szSpecialText += u"\n%sBuild Time: %d" % (bullet, iTime)
+					# Improvement is unique per build, so we can stop here after first meaningful (iTime > 0) entry
+					break
+
 		screen.addMultilineText(listName, szSpecialText, self.X_EFFECTS+5, self.Y_EFFECTS+5, self.W_EFFECTS-10, self.H_EFFECTS-10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 

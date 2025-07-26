@@ -374,7 +374,8 @@
 			<HillsYieldChange/>
 			<iMovement>1</iMovement>
 			<iSeeThrough>0</iSeeThrough>
-			<iHealthPercent>-40</iHealthPercent>
+			<!-- custom: this feature is a bit op so fine to nerf it bit, no reason not to increase the health penalty even outside of this as seems more realistic if i am not mistaken in my guess but or not but or yes but anyways etc, was -40 -->
+			<iHealthPercent>-50</iHealthPercent>
 			<iDefense>0</iDefense>
 			<iAppearance>10000</iAppearance>
 			<iDisappearance>0</iDisappearance>
@@ -615,7 +616,8 @@
 			<HillsYieldChange/>
 			<iMovement>2</iMovement>
 			<iSeeThrough>0</iSeeThrough>
-			<iHealthPercent>-50</iHealthPercent>
+			<!-- custom: increase it so it is higher than jungle, was -50 -->
+			<iHealthPercent>-75</iHealthPercent>
 			<iDefense>0</iDefense>
 			<iAppearance>0</iAppearance>
 			<!-- K-Mod: was 500 -->
