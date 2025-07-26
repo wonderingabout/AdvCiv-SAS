@@ -133,11 +133,6 @@
 		<Tag>TXT_KEY_PEDIA_IMPROVEMENTS_CUSTOM</Tag>
 		<English>Improvements</English>
 	</TEXT>
-	<!-- custom: add new entry: replace "Ressources" description with "Bonuses" to be consistent with our renaming in advciv-sas and such or not and such but anyways etc -->
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_BONUSES_CUSTOM</Tag>
-		<English>Bonuses</English>
-	</TEXT>
 	<!-- custom: hopefully clearer formula of specifying it is about the base improvement tile yield(s) -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_BASE_TILE_YIELD_CHANGES</Tag>

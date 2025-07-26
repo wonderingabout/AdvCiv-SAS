@@ -742,9 +742,11 @@ class SevoPediaUnit:
 		unitInfo = gc.getUnitInfo(self.iUnit)
 
 		if not unitInfo.isMilitarySupport():
+			if szSpecialText.strip():
+				szSpecialText += u"\n"
 			bullet = localText.getText("[ICON_BULLET]", ())
 			noMilitarySupportCostText = localText.getText("TXT_KEY_UNIT_NO_MILITARY_SUPPORT_COST", ())
-			szSpecialText += u"\n%s%s" % (bullet, noMilitarySupportCostText)
+			szSpecialText += u"%s%s" % (bullet, noMilitarySupportCostText)
 
 		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+30, self.W_SPECIAL-10, self.H_SPECIAL-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
@@ -847,18 +849,11 @@ class SevoPediaUnit:
 	def placeHistory(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		# <!-- custom: i don't need the "History:" in TXT_KEY_CIVILOPEDIA_HISTORY, is redundant with background
-		# that is already about the unit's background -->
 		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
 		textName = self.top.getNextWidgetName()
 		szText = u""
 		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY in SevoPediaBuilding.py (refer to this file for details), removing (hiding) the entry entirely from the sevopedia. -->
-		#if len(gc.getUnitInfo(self.iUnit).getStrategy()) > 0:
-		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
-		#	szText += gc.getUnitInfo(self.iUnit).getStrategy()
-		#	szText += u"\n\n"
-		# <!-- custom: i don't need the background: tag either, a box being there is explicit enough, clearer, prettier, and more efficient i think. -->
-		#szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
+		# <!-- custom: same reasoning as for/in SevopediaBuilding.py, i also don't need the redundant "History:" -->
 		szText += gc.getUnitInfo(self.iUnit).getCivilopedia()
 		# <!-- custom: fix height too low, does not display properly the concept texts (for example any religious missionary unit) -->
 		#screen.addMultilineText(textName, szText, self.X_HISTORY + 15, self.Y_HISTORY + 40, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)

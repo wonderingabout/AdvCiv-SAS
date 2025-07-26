@@ -66,6 +66,9 @@ class SevoPediaFeature:
 		self.iFeature = -1
 		self.top = main
 
+		self.MEDIUM_MARGIN = 15
+		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+
 		self.X_INFO_PANE = self.top.X_PEDIA_PAGE
 		self.Y_INFO_PANE = self.top.Y_PEDIA_PAGE
 		self.W_INFO_PANE = 290
@@ -82,43 +85,43 @@ class SevoPediaFeature:
 		self.W_INFO_TEXT = 220
 		self.H_INFO_TEXT = self.H_INFO_PANE - 20
 
-		self.X_SPECIAL = self.X_INFO_PANE + self.W_INFO_PANE + 10
+		self.X_SPECIAL = self.X_INFO_PANE + self.W_INFO_PANE + self.MEDIUM_MARGIN
 		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL
 		self.H_SPECIAL = self.H_INFO_PANE
 		self.Y_SPECIAL = self.Y_INFO_PANE
 
 		self.X_FEATURES = self.X_INFO_PANE
-		self.Y_FEATURES = self.Y_INFO_PANE + self.H_INFO_PANE + 10
+		self.Y_FEATURES = self.Y_INFO_PANE + self.H_INFO_PANE + self.SMALL_MARGIN
 		self.W_FEATURES = self.W_INFO_PANE
 		self.H_FEATURES = 110
 
-		self.X_IMPROVEMENTS = self.X_FEATURES + self.W_FEATURES + 10
+		self.X_IMPROVEMENTS = self.X_FEATURES + self.W_FEATURES + self.MEDIUM_MARGIN
 		self.Y_IMPROVEMENTS = self.Y_FEATURES
 		self.W_IMPROVEMENTS = self.top.R_PEDIA_PAGE - self.X_IMPROVEMENTS
 		self.H_IMPROVEMENTS = self.H_FEATURES
 
-		self.X_RESOURCES = self.X_FEATURES
-		self.Y_RESOURCES = self.Y_FEATURES + self.H_FEATURES + 10
-		self.W_RESOURCES = self.top.R_PEDIA_PAGE - self.X_RESOURCES
-		self.H_RESOURCES = self.H_FEATURES
+		self.X_BONUSES_ON_ANY_TERRAIN = self.X_FEATURES
+		self.Y_BONUSES_ON_ANY_TERRAIN = self.Y_FEATURES + self.H_FEATURES + self.SMALL_MARGIN
+		self.W_BONUSES_ON_ANY_TERRAIN = self.top.R_PEDIA_PAGE - self.X_BONUSES_ON_ANY_TERRAIN
+		self.H_BONUSES_ON_ANY_TERRAIN = self.H_FEATURES
 
 		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details anyways etc -->
 		self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE = 64
 
 		# <!-- custom: new placeRelevantUnits and placeUnitsImpassable based on the new anyways etc sevopedia terrain implementation anyways etc -->
-		self.X_RELEVANT_UNITS = self.X_RESOURCES
-		self.Y_RELEVANT_UNITS = self.Y_RESOURCES + self.H_RESOURCES + 10
-		self.W_RELEVANT_UNITS = self.top.R_PEDIA_PAGE - self.X_RESOURCES
+		self.X_RELEVANT_UNITS = self.X_BONUSES_ON_ANY_TERRAIN
+		self.Y_RELEVANT_UNITS = self.Y_BONUSES_ON_ANY_TERRAIN + self.H_BONUSES_ON_ANY_TERRAIN + self.SMALL_MARGIN
+		self.W_RELEVANT_UNITS = self.top.R_PEDIA_PAGE - self.X_BONUSES_ON_ANY_TERRAIN
 		self.H_RELEVANT_UNITS = self.H_FEATURES + self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
 
 		self.X_UNITS_IMPASSABLE = self.X_RELEVANT_UNITS
-		self.Y_UNITS_IMPASSABLE = self.Y_RELEVANT_UNITS + self.H_RELEVANT_UNITS + 10
+		self.Y_UNITS_IMPASSABLE = self.Y_RELEVANT_UNITS + self.H_RELEVANT_UNITS + self.SMALL_MARGIN
 		self.W_UNITS_IMPASSABLE = self.top.R_PEDIA_PAGE - self.X_RELEVANT_UNITS
 		self.H_UNITS_IMPASSABLE = self.H_FEATURES
 
 		self.X_HISTORY = self.X_UNITS_IMPASSABLE
 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
-		self.Y_HISTORY = self.Y_UNITS_IMPASSABLE + self.H_UNITS_IMPASSABLE + 10
+		self.Y_HISTORY = self.Y_UNITS_IMPASSABLE + self.H_UNITS_IMPASSABLE + self.SMALL_MARGIN
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
 
@@ -130,7 +133,7 @@ class SevoPediaFeature:
 		self.placeSpecial()
 		self.placeTerrain()
 		self.placeImprovements()
-		self.placeResources()
+		self.placeBonusesOnAnyTerrain()
 		self.placeRelevantUnits()
 		self.placeUnitsImpassable()
 		self.placeHistory()
@@ -176,30 +179,34 @@ class SevoPediaFeature:
 		info = gc.getFeatureInfo(self.iFeature)
 
 		screen.addPanel(panel, "", "", True, True, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
-		szText = info.getHelp()
-		szText += CyGameTextMgr().getFeatureHelp(self.iFeature, True)
+		szSpecialText = info.getHelp()
+		szSpecialText += CyGameTextMgr().getFeatureHelp(self.iFeature, True)
 
 		for iBuild in xrange(gc.getNumBuildInfos()):
 			buildInfo = gc.getBuildInfo(iBuild)
 
 			# <!-- custom: since we already do the pre-checks at pre-load time, simply and directly fetch the first strictly positive (not taking into account negative values as they would be highly unusual and i wouldn't see their purpose at least in our mod, see the code at pre load for details) value -->
 			if buildInfo.isFeatureRemove(self.iFeature):
+				if szSpecialText.strip():
+					szSpecialText += u"\n"
 				bullet = localText.getText("[ICON_BULLET]", ())
 
 				# <!-- custom: check iProduction and iTime separately for cases such as feature fallout that have 0 iProduction but an iTime > 0 (so we need to handle being able to display only the iTime optionally without iProduction anyways etc) -->
 				removeTime = buildInfo.getFeatureTime(self.iFeature)
 				if removeTime > 0:
-					szText += u"\n%sRemove iTime: %d" % (bullet, removeTime)
+					szSpecialText += u"%sRemove iTime: %d" % (bullet, removeTime)
+
+				szSpecialText += u"\n"
 
 				removeProduction = buildInfo.getFeatureProduction(self.iFeature)
 				if removeProduction > 0:
-					szText += u"\n%s+%d%s on remove" % (bullet, removeProduction, localText.getText("[ICON_PRODUCTION]", ()))
+					szSpecialText += u"%s+%d%s on remove" % (bullet, removeProduction, localText.getText("[ICON_PRODUCTION]", ()))
 
 				# <!-- custom: all values should be the same, no need to continue the loop after we got first strictly positive iProduction or/and iTime based one anyways etc -->
 				break
 
-		szText = szText.replace("\n\n", "\n").strip()
-		screen.addMultilineText(text, szText, self.X_SPECIAL + 5, self.Y_SPECIAL + 10, self.W_SPECIAL - 10, self.H_SPECIAL - 15, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		szSpecialText = szSpecialText.replace("\n\n", "\n").strip()
+		screen.addMultilineText(text, szSpecialText, self.X_SPECIAL + 5, self.Y_SPECIAL + 10, self.W_SPECIAL - 10, self.H_SPECIAL - 15, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -234,11 +241,11 @@ class SevoPediaFeature:
 
 
 
-	def placeResources(self):
+	def placeBonusesOnAnyTerrain(self):
 		screen = self.top.getScreen()
 		panel = self.top.getNextWidgetName()
 
-		screen.addPanel(panel, localText.getText("TXT_KEY_CONCEPT_RESOURCES", ()), "", False, True, self.X_RESOURCES, self.Y_RESOURCES, self.W_RESOURCES, self.H_RESOURCES, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_FEATURE_BONUSES_FEATURE_BOOLEANS", ()), "", False, True, self.X_BONUSES_ON_ANY_TERRAIN, self.Y_BONUSES_ON_ANY_TERRAIN, self.W_BONUSES_ON_ANY_TERRAIN, self.H_BONUSES_ON_ANY_TERRAIN, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panel, "", "  ")
 
 		for iResource in xrange(gc.getNumBonusInfos()):

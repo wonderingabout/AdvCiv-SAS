@@ -1442,7 +1442,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 					<bFeature>1</bFeature>
 				</FeatureBoolean>
 			</FeatureBooleans>
-			<!-- custom: was TERRAIN_GRASS 1 -->
+			<!-- custom: added terrain_desert so it appears in sevopedia terrain's featureterrainbooleans corresponding panel, although functionally it should not be necessary as flood_plains feature appear only on desert terrain if i am not mistaken, so allowing bonus_gemstones in this example but anyways etc on flood_plains feature is the same as allowing flood_plains feature in desert terrain so should not be needed if i am not mistaken, but as i said i meean if i may say but anyways etc added so bonus_gemstones is displayed in sevopedia terrain's desert entry if i may say and if i am not mistaken but anyways etc, was TERRAIN_GRASS 1 -->
 			<FeatureTerrainBooleans>
 				<FeatureTerrainBoolean>
 					<TerrainType>TERRAIN_GRASS</TerrainType>

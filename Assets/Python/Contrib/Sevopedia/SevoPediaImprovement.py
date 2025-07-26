@@ -25,6 +25,9 @@ class SevoPediaImprovement:
 		self.iImprovement = -1
 		self.top = main
 
+		self.MEDIUM_MARGIN = 15
+		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+
 		self.X_UPPER_PANE = self.top.X_PEDIA_PAGE
 		self.Y_UPPER_PANE = self.top.Y_PEDIA_PAGE
 		self.W_UPPER_PANE = 210
@@ -36,16 +39,17 @@ class SevoPediaImprovement:
 		self.Y_ICON = self.Y_UPPER_PANE + (self.H_UPPER_PANE - self.H_ICON) / 2
 		self.ICON_SIZE = 64
 
-		self.X_IMPROVENEMT_ANIMATION = self.X_UPPER_PANE + self.W_UPPER_PANE + 10
+		self.X_IMPROVENEMT_ANIMATION = self.X_UPPER_PANE + self.W_UPPER_PANE + self.MEDIUM_MARGIN
 		self.W_IMPROVENEMT_ANIMATION = self.top.R_PEDIA_PAGE - self.X_IMPROVENEMT_ANIMATION
 		self.Y_IMPROVENEMT_ANIMATION = self.Y_UPPER_PANE + 7
 		self.H_IMPROVENEMT_ANIMATION = self.H_UPPER_PANE - 7
+
 		self.X_ROTATION_IMPROVENEMT_ANIMATION = -20
 		self.Z_ROTATION_IMPROVENEMT_ANIMATION = 30
 		self.SCALE_ANIMATION = 0.7
 
 		self.X_IMPROVEMENTS_PANE = self.X_UPPER_PANE
-		self.Y_IMPROVEMENTS_PANE = self.Y_UPPER_PANE + self.H_UPPER_PANE + 10
+		self.Y_IMPROVEMENTS_PANE = self.Y_UPPER_PANE + self.H_UPPER_PANE + self.SMALL_MARGIN
 		self.W_IMPROVEMENTS_PANE = 340
 		self.H_IMPROVEMENTS_PANE = 180
 		# <advc.004y>
@@ -53,17 +57,17 @@ class SevoPediaImprovement:
 			self.H_IMPROVEMENTS_PANE += 45
 		# </advc.004y>
 		self.X_REQUIRES = self.X_UPPER_PANE
-		self.Y_REQUIRES = self.Y_IMPROVEMENTS_PANE + self.H_IMPROVEMENTS_PANE + 10
+		self.Y_REQUIRES = self.Y_IMPROVEMENTS_PANE + self.H_IMPROVEMENTS_PANE + self.SMALL_MARGIN
 		self.W_REQUIRES = self.W_IMPROVEMENTS_PANE
 		self.H_REQUIRES = 110
 
 		self.X_EFFECTS = self.X_UPPER_PANE
-		self.Y_EFFECTS = self.Y_REQUIRES + self.H_REQUIRES + 10
+		self.Y_EFFECTS = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
 		self.W_EFFECTS = self.W_IMPROVEMENTS_PANE
 		self.H_EFFECTS = self.top.B_PEDIA_PAGE - self.Y_EFFECTS
 
-		self.X_BONUS_YIELDS_PANE = self.X_IMPROVEMENTS_PANE + self.W_IMPROVEMENTS_PANE + 10
-		self.Y_BONUS_YIELDS_PANE = self.Y_UPPER_PANE + self.H_UPPER_PANE + 10
+		self.X_BONUS_YIELDS_PANE = self.X_IMPROVEMENTS_PANE + self.W_IMPROVEMENTS_PANE + self.MEDIUM_MARGIN
+		self.Y_BONUS_YIELDS_PANE = self.Y_UPPER_PANE + self.H_UPPER_PANE + self.SMALL_MARGIN
 		self.W_BONUS_YIELDS_PANE = self.top.R_PEDIA_PAGE - self.X_BONUS_YIELDS_PANE
 		self.H_BONUS_YIELDS_PANE = self.top.B_PEDIA_PAGE - self.Y_BONUS_YIELDS_PANE
 
@@ -235,13 +239,15 @@ class SevoPediaImprovement:
 		szSpecialText = CyGameTextMgr().getImprovementHelp(self.iImprovement, True)
 
 		# Show iTime for building this improvement <!-- custom: (note: not related to feature remove's iTime, here it is about the improvement's iTime (i.e. time to build this improvement if i am not mistaken anyways etc))), code provided by chatgpt thanks to my prompt too and adjustments or not too too if i may say and thanks to it i.e. to chatgpt too too too if i may say but etc anyways etc -->
+		if szSpecialText.strip():
+			szSpecialText += u"\n"
 		bullet = localText.getText("[ICON_BULLET]", ())
 		for iBuild in xrange(gc.getNumBuildInfos()):
 			buildInfo = gc.getBuildInfo(iBuild)
 			if buildInfo.getImprovement() == self.iImprovement:
 				iTime = buildInfo.getTime()
 				if iTime > 0:
-					szSpecialText += u"\n%sBuild Time: %d" % (bullet, iTime)
+					szSpecialText += u"%sBuild Time: %d" % (bullet, iTime)
 					# Improvement is unique per build, so we can stop here after first meaningful (iTime > 0) entry
 					break
 

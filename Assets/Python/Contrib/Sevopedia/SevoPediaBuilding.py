@@ -1329,7 +1329,6 @@ class SevoPediaBuilding:
 	def placeHistory(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need the redundant background -->
 		#screen.addPanel( panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50 )
 		screen.addPanel( panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50 )
 		textName = self.top.getNextWidgetName()
@@ -1339,7 +1338,7 @@ class SevoPediaBuilding:
 		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
 		#	szText += gc.getBuildingInfo(self.iBuilding).getStrategy()
 		#	szText += u"\n\n"
-		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need the redundant background -->
+		# <!-- custom: i also don't need the "History:" in TXT_KEY_CIVILOPEDIA_HISTORY, is redundant with background that is already about the building's background -->
 		#szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
 		szText += gc.getBuildingInfo(self.iBuilding).getCivilopedia()
 		# <!-- custom: but here we also restore/add padding -->

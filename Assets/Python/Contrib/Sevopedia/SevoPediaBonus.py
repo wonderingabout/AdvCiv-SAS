@@ -36,8 +36,6 @@ class SevoPediaBonus:
 		self.iBonus = -1
 		self.top = main
 
-		# <!-- custom: based on sevopediabuilding's code, see there for details and differences of implementation --> 
-		
 		self.MEDIUM_MARGIN = 15
 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
 
@@ -71,35 +69,26 @@ class SevoPediaBonus:
 		# <!-- custom: see sevopediaunit's self.W_TOTAL_EFFECTIVE_UNIT_PANE for differences in implementation anyways etc -->
 		self.W_TOTAL_EFFECTIVE_BONUS_PANE = self.W_BONUS_PANE
 
-		self.H_WISHED_OR_AND_IMAGINED_IMPROVEMENTS_HEIGHT = 110
-		#self.H_EXTRA_ROOM_FOR_IMPROVEMENTS_HORIZONTAL_PANEL_VERTICAL_LABELS = 40
-		self.H_EXTRA_ROOM_FOR_IMPROVEMENTS_HORIZONTAL_PANEL_VERTICAL_LABELS = 0
-
 		self.X_IMPROVEMENTS = self.X_BONUS_PANE
 		self.Y_IMPROVEMENTS = self.Y_BONUS_PANE + self.H_BONUS_PANE + self.SMALL_MARGIN
 		self.W_IMPROVEMENTS = self.W_TOTAL_EFFECTIVE_BONUS_PANE
-		self.H_IMPROVEMENTS = self.H_WISHED_OR_AND_IMAGINED_IMPROVEMENTS_HEIGHT + self.H_EXTRA_ROOM_FOR_IMPROVEMENTS_HORIZONTAL_PANEL_VERTICAL_LABELS
+		self.H_IMPROVEMENTS = 110
 
 		self.X_UNITS = self.X_BONUS_PANE
 		self.W_UNITS = self.top.R_PEDIA_PAGE - self.X_UNITS
 		self.Y_UNITS = self.Y_IMPROVEMENTS + self.H_IMPROVEMENTS + self.SMALL_MARGIN
-		self.H_UNITS = self.H_WISHED_OR_AND_IMAGINED_IMPROVEMENTS_HEIGHT
+		self.H_UNITS = self.H_IMPROVEMENTS
 
 		# <!-- custom: put the buildings panel under the units panel so easier to refer to it directly, it will also be identical in dimensions (or very close) so we will not need to change much (coordinates or other things) this way -->
 		self.X_BUILDINGS_AND_PROJECTS = self.X_BONUS_PANE
 		self.Y_BUILDINGS_AND_PROJECTS = self.Y_UNITS + self.H_UNITS + self.SMALL_MARGIN
 		self.W_BUILDINGS_AND_PROJECTS = self.W_UNITS
-		self.H_BUILDINGS_AND_PROJECTS = self.H_UNITS
+		self.H_BUILDINGS_AND_PROJECTS = self.H_IMPROVEMENTS
 
 		self.X_TERRAINS = self.X_BONUS_PANE
 		self.Y_TERRAINS = self.Y_BUILDINGS_AND_PROJECTS + self.H_BUILDINGS_AND_PROJECTS + self.SMALL_MARGIN
 		self.W_TERRAINS = self.W_IMPROVEMENTS
-		self.H_TERRAINS = self.H_BUILDINGS_AND_PROJECTS
-
-		self.X_FEATURES = self.X_BONUS_PANE + self.W_TERRAINS + self.SMALL_MARGIN
-		self.Y_FEATURES = self.Y_TERRAINS
-		self.W_FEATURES = self.W_IMPROVEMENTS
-		self.H_FEATURES = self.H_TERRAINS
+		self.H_TERRAINS = self.H_IMPROVEMENTS
 
 		self.X_SPECIAL = self.X_BONUS_PANE
 		self.Y_SPECIAL = self.Y_TERRAINS + self.H_TERRAINS + self.SMALL_MARGIN
@@ -133,10 +122,20 @@ class SevoPediaBonus:
 		self.W_OBSOLETE_WITH = self.W_REVEALED_BY
 		self.H_OBSOLETE_WITH = self.H_IMPROVEMENTS
 
+		self.X_FEATURES = self.X_BONUS_ANIMATION
+		self.Y_FEATURES = self.Y_TERRAINS
+		self.W_FEATURES = (self.W_BONUS_ANIMATION / 2) - self.MEDIUM_MARGIN
+		self.H_FEATURES = self.H_IMPROVEMENTS
+
+		self.X_FEATURE_TERRAIN_BOOLEANS = self.X_FEATURES + self.W_FEATURES + self.MEDIUM_MARGIN
+		self.Y_FEATURE_TERRAIN_BOOLEANS = self.Y_FEATURES
+		self.W_FEATURE_TERRAIN_BOOLEANS = self.W_FEATURES
+		self.H_FEATURE_TERRAIN_BOOLEANS = self.H_IMPROVEMENTS
+
 		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
 
 		self.X_HISTORY = self.X_BONUS_ANIMATION
-		self.Y_HISTORY = self.Y_TERRAINS + self.H_TERRAINS + self.SMALL_MARGIN
+		self.Y_HISTORY = self.Y_FEATURES + self.H_FEATURES + self.SMALL_MARGIN
 		self.W_HISTORY = self.W_BONUS_ANIMATION
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
@@ -154,6 +153,7 @@ class SevoPediaBonus:
 		self.placeBuildingsAndProjects()
 		self.placeTerrains()
 		self.placeFeatures()
+		self.placeFeatureTerrainBooleans()
 		self.placeSpecial()
 		# <!-- custom: split the former/old placeRequires, into 2 functions/methods now instead, placeRevealedBy and placeTradeableSince (which is hopefully more accurate this way too), anyways etc -->
 		self.placeRevealedBy()
@@ -386,7 +386,8 @@ class SevoPediaBonus:
 		wPanel = self.W_TERRAINS
 		hPanel = self.H_TERRAINS
 
-		txtKeyPanel = "TXT_KEY_PEDIA_TERRAINS_MINUS_PLOT_TYPES"
+		# <!-- custom: see the corresponding asset's XML code comment for details -->
+		txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_BOOLEANS"
 
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -443,7 +444,8 @@ class SevoPediaBonus:
 		wPanel = self.W_FEATURES
 		hPanel = self.H_FEATURES
 
-		txtKeyPanel = "TXT_KEY_MISC_FEATURES"
+		# <!-- custom: see the corresponding asset's XML code comment for details -->
+		txtKeyPanel = "TXT_KEY_PEDIA_FEATURE_BOOLEANS"
 
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -481,6 +483,64 @@ class SevoPediaBonus:
 				# Column index (always 0 when numLists=1)
 				columnIndex = 0
 				screen.appendMultiListButton(rowListName, gc.getFeatureInfo(iFeature).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, 1, False)
+
+				isButtonFound = True
+				#iButtonIndex += 1
+
+		if not isButtonFound:
+			txtKeyNoButtonFound = "TXT_KEY_BONUS_GENERIC_NONE"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNoButtonFound, ())
+			yPanelCenter = yPanel + (hPanel / 2)
+			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+
+
+	# <!-- custom: also show Bonuses available through FeatureTerrainBooleans, such as as of now bonus_gemstones being available in grassland forest, but not in TerrainBooleans (no grassland entry there if i may say but anyways etc), so show this info here as well ; code provided by chatgpt thanks to my prompt too and such etc but anyways etc -->
+	def placeFeatureTerrainBooleans(self):
+		xPanel = self.X_FEATURE_TERRAIN_BOOLEANS
+		yPanel = self.Y_FEATURE_TERRAIN_BOOLEANS
+		wPanel = self.W_FEATURE_TERRAIN_BOOLEANS
+		hPanel = self.H_FEATURE_TERRAIN_BOOLEANS
+
+		# <!-- custom: see the corresponding asset's XML code comment for details -->
+		txtKeyPanel = "TXT_KEY_PEDIA_FEATURE_TERRAIN_BOOLEANS"
+
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+
+		# Create panel with proper styling
+		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+
+		# <!-- custom: note: this doesn't seem to do anything in multilist methods if i am not mistaken anyways etc and in particular no padding so do not use this here i mean for multilists i mean anyways etc anyways etc -->
+		# Additional left side padding for the button(s)
+		#screen.attachLabel(panelName, "", "  ")
+
+		rowListName = self.top.getNextWidgetName()
+
+		BUTTON_SIZE = 64 # Size of each button
+
+		# Create the MultiList control
+		# Constants for button display
+		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+		# Per documentation, the numLists parameter (7th) is actually number of columns
+		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+		# Using 1 for auto-calculation of buttons per row
+		buttonCalculate = 1
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+
+		isButtonFound = False
+		#iButtonIndex = 0
+
+		# <!-- custom: core logic provided by chatgpt thanks to my prompt and such adjustments or not or yes or etc too but anyways etc anyways etc anyways etc... -->
+		for iTerrain in xrange(gc.getNumTerrainInfos()):
+			if gc.getBonusInfo(self.iBonus).isFeatureTerrain(iTerrain):
+				# Column index (always 0 when numLists=1)
+				columnIndex = 0
+				screen.appendMultiListButton(rowListName, gc.getTerrainInfo(iTerrain).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iTerrain, 1, False)
 
 				isButtonFound = True
 				#iButtonIndex += 1

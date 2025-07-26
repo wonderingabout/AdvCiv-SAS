@@ -37,7 +37,10 @@ def getPrecomputedUntradeableTechsText():
 
 	untradeableTechs.sort()
 
-	untradeableTechsText = ""
+	untradeableTechsText = u""
+
+	untradeableTechsText += localText.getText("TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER", ())
+
 	bullet = localText.getText("[ICON_BULLET]", ())
 	for tech in untradeableTechs:
 		untradeableTechsText += u"\n%s%s" % (bullet, tech)
@@ -51,6 +54,9 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 	def __init__(self, main):
 		self.iTech = -1
 		self.top = main
+
+		self.MEDIUM_MARGIN = 15
+		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
 
 		self.X_TECH_PANE = self.top.X_PEDIA_PAGE
 		self.Y_TECH_PANE = self.top.Y_PEDIA_PAGE
@@ -67,48 +73,43 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		self.X_COST = self.X_TECH_PANE + 110
 		self.Y_COST = self.Y_TECH_PANE + 47
 
-		self.X_CIVS = self.X_TECH_PANE + self.W_TECH_PANE + 10
-		self.Y_CIVS = self.Y_TECH_PANE
-		self.W_CIVS = self.top.R_PEDIA_PAGE - self.X_CIVS
-		self.H_CIVS = 110
+		self.X_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = self.X_TECH_PANE + self.W_TECH_PANE + self.MEDIUM_MARGIN
+		self.Y_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = self.Y_TECH_PANE
+		self.W_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = self.top.R_PEDIA_PAGE - self.X_CIVILIZATIONS_THAT_START_WITH_THIS_TECH
+		self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = 110
 
-		# advc.004y (note): These dimensions are for the "background" panel, which includes more than just the tech quote.
-		self.X_QUOTE_PANE = self.X_TECH_PANE
-		self.Y_QUOTE_PANE = self.Y_TECH_PANE + self.H_TECH_PANE + 10
-		self.W_QUOTE_PANE = self.top.R_PEDIA_PAGE - self.X_QUOTE_PANE
+		# <!-- custom: removed old base advciv code that increased height of some panels to seemingly insert the quote, but the quote seems to be already in the placeHistory panel with plenty space already, so remove this logic and simplify code anyways etc, consistently with how it is done in other panels, at least we  don't have a reason to make these panels selectively higher so make standard height for all in sevopedia tech in advciv-sas at least if i may say but or not but or yes but but anyways etc ; so rename "_QUOTE_PANE" to "_HISTORY" and do some other adjustments anyways etc anyways etc anyways etc -->
+		self.H_TOTAL_BOTTOM_PANELS_HEIGHT_WITH_MARGINS = (3 * self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH) + (3 * self.SMALL_MARGIN)
 
-		# <advc.004y>
-		# Move some height settings up:
-		self.H_PREREQ_PANE = 124
-		self.H_BUILDING_PANE = self.H_PREREQ_PANE
-		self.H_UNIT_PANE = self.H_PREREQ_PANE
-		#self.H_SPECIAL_PANE = self.top.B_PEDIA_PAGE - self.Y_SPECIAL_PANE
-		# Instead use any extra space for the QUOTE_PANE
-		self.H_SPECIAL_PANE = self.H_BUILDING_PANE + self.H_UNIT_PANE + 10
-		# was 110
-		self.H_QUOTE_PANE = self.top.B_PEDIA_PAGE - self.H_SPECIAL_PANE - self.H_PREREQ_PANE - self.Y_QUOTE_PANE - 20
-		# </advc.004y>
+		self.X_HISTORY = self.X_TECH_PANE
+		self.Y_HISTORY = self.Y_TECH_PANE + self.H_TECH_PANE + self.SMALL_MARGIN
+		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
+		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY - self.H_TOTAL_BOTTOM_PANELS_HEIGHT_WITH_MARGINS
 
-		self.X_PREREQ_PANE = self.X_TECH_PANE
-		self.Y_PREREQ_PANE = self.Y_QUOTE_PANE + self.H_QUOTE_PANE + 10
-		self.W_PREREQ_PANE = self.top.W_PEDIA_PAGE / 2 - 5
+		self.X_REQUIRES = self.X_TECH_PANE
+		self.Y_REQUIRES = self.Y_HISTORY + self.H_HISTORY + self.SMALL_MARGIN
+		self.W_REQUIRES = self.top.W_PEDIA_PAGE / 2 - 5
+		self.H_REQUIRES = self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH
 
-		self.X_LEADS_TO_PANE = self.X_PREREQ_PANE + self.W_PREREQ_PANE + 10
-		self.Y_LEADS_TO_PANE = self.Y_PREREQ_PANE
-		self.W_LEADS_TO_PANE = self.W_PREREQ_PANE
-		self.H_LEADS_TO_PANE = self.H_PREREQ_PANE
+		self.X_LEADS_TO = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
+		self.Y_LEADS_TO = self.Y_REQUIRES
+		self.W_LEADS_TO = self.W_REQUIRES
+		self.H_LEADS_TO = self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH
 
-		self.X_SPECIAL_PANE = self.X_TECH_PANE
-		self.W_SPECIAL_PANE = self.W_PREREQ_PANE
-		self.Y_SPECIAL_PANE = self.Y_PREREQ_PANE + self.H_PREREQ_PANE + 10
+		self.X_SPECIAL = self.X_TECH_PANE
+		self.W_SPECIAL = self.W_REQUIRES
+		self.Y_SPECIAL = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
+		self.H_SPECIAL = (2 * self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH) + self.SMALL_MARGIN
 
-		self.X_UNIT_PANE = self.X_LEADS_TO_PANE
-		self.W_UNIT_PANE = self.W_LEADS_TO_PANE
-		self.Y_UNIT_PANE = self.Y_SPECIAL_PANE
+		self.X_UNITS_ENABLED = self.X_LEADS_TO
+		self.W_UNITS_ENABLED = self.W_LEADS_TO
+		self.Y_UNITS_ENABLED = self.Y_SPECIAL
+		self.H_UNITS_ENABLED = self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH
 
-		self.X_BUILDING_PANE = self.X_UNIT_PANE
-		self.W_BUILDING_PANE = self.W_UNIT_PANE
-		self.Y_BUILDING_PANE = self.Y_UNIT_PANE + self.H_UNIT_PANE + 10
+		self.X_BUILDINGS_ENABLED = self.X_LEADS_TO
+		self.W_BUILDINGS_ENABLED = self.W_LEADS_TO
+		self.Y_BUILDINGS_ENABLED = self.Y_UNITS_ENABLED + self.H_UNITS_ENABLED + 10
+		self.H_BUILDINGS_ENABLED = self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH
 
 
 
@@ -116,13 +117,13 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		self.iTech = iTech
 
 		self.placeTechPane()
-		self.placeCivilizations()
+		self.placeCivilizationsThatStartWithThisTech()
 		self.placePrereqs()
 		self.placeLeadsTo()
 		self.placeUnits()
 		self.placeBuildings()
 		self.placeSpecial()
-		self.placeBackground()
+		self.placeHistory()
 
 
 
@@ -155,7 +156,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 
 
-	def placeCivilizations(self):
+	def placeCivilizationsThatStartWithThisTech(self):
 		# <advc.004y> Show the box only for starting techs
 		civs = []
 		for iCiv in range(gc.getNumCivilizationInfos()):
@@ -168,7 +169,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		# </advc.004y>
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_CATEGORY_CIV", ()), "", False, True, self.X_CIVS, self.Y_CIVS, self.W_CIVS, self.H_CIVS, PanelStyles.PANEL_STYLE_BLUE50 )
+		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_CIVILIZATIONS_THAT_START_WITH_THIS_TECH", ()), "", False, True, self.X_CIVILIZATIONS_THAT_START_WITH_THIS_TECH, self.Y_CIVILIZATIONS_THAT_START_WITH_THIS_TECH, self.W_CIVILIZATIONS_THAT_START_WITH_THIS_TECH, self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH, PanelStyles.PANEL_STYLE_BLUE50 )
 		screen.attachLabel(panelName, "", "  ")
 		for iCiv in civs: # advc.004y: Use the list computed above
 			civ = gc.getCivilizationInfo(iCiv)
@@ -181,7 +182,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		screen = self.top.getScreen()
 		szLeadsTo = localText.getText("TXT_KEY_PEDIA_LEADS_TO", ())
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, szLeadsTo, "", False, True, self.X_LEADS_TO_PANE, self.Y_LEADS_TO_PANE, self.W_LEADS_TO_PANE, self.H_LEADS_TO_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, szLeadsTo, "", False, True, self.X_LEADS_TO, self.Y_LEADS_TO, self.W_LEADS_TO, self.H_LEADS_TO, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panelName, "", "  ")
 
 		for j in range(gc.getNumTechInfos()):
@@ -200,7 +201,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		screen = self.top.getScreen()
 		szRequires = localText.getText("TXT_KEY_PEDIA_REQUIRES", ())
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, szRequires, "", False, True, self.X_PREREQ_PANE, self.Y_PREREQ_PANE, self.W_PREREQ_PANE, self.H_PREREQ_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, szRequires, "", False, True, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panelName, "", "  ")
 		bFirst = True
 		for j in range(gc.getNUM_AND_TECH_PREREQS()):
@@ -244,7 +245,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 	def placeUnits(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_UNITS_ENABLED", ()), "", False, True, self.X_UNIT_PANE, self.Y_UNIT_PANE, self.W_UNIT_PANE, self.H_UNIT_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_UNITS_ENABLED", ()), "", False, True, self.X_UNITS_ENABLED, self.Y_UNITS_ENABLED, self.W_UNITS_ENABLED, self.H_UNITS_ENABLED, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panelName, "", "  ")
 		iActivePlayer = gc.getGame().getActivePlayer() # advc.003l
 		for eLoopUnit in range(gc.getNumUnitInfos()):
@@ -262,7 +263,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 	def placeBuildings(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_BUILDINGS_ENABLED", ()), "", False, True, self.X_BUILDING_PANE, self.Y_BUILDING_PANE, self.W_BUILDING_PANE, self.H_BUILDING_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_BUILDINGS_ENABLED", ()), "", False, True, self.X_BUILDINGS_ENABLED, self.Y_BUILDINGS_ENABLED, self.W_BUILDINGS_ENABLED, self.H_BUILDINGS_ENABLED, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panelName, "", "  ")
 		for eLoopBuilding in range(gc.getNumBuildingInfos()):
 			if (eLoopBuilding != -1):
@@ -279,43 +280,34 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()), "", True, False, self.X_SPECIAL_PANE, self.Y_SPECIAL_PANE, self.W_SPECIAL_PANE, self.H_SPECIAL_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
 		listName = self.top.getNextWidgetName()
 
 		szSpecialText = CyGameTextMgr().getTechHelp(self.iTech, True, False, False, False, -1)[1:]
 
-		# <!-- custom: add the list as string of all untradeable techs if any are untradeable anyways etc ; see also sevopedia main precomputing / cache building for untradeable techs text for details anyways etc -->
-		if UNTRADEABLE_TECHS_TEXT:
-			szSpecialText += u"\n\n%s%s" % (localText.getText("TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER", ()), UNTRADEABLE_TECHS_TEXT)
+		# <!-- custom: add the list as string of all untradeable techs if this tech is untradeable ; see also sevopedia main precomputing / cache building for untradeable techs text for details anyways etc -->
+		if (not gc.getTechInfo(self.iTech).isTrade()):
+			if szSpecialText.strip():
+				szSpecialText += u"\n\n"
+			szSpecialText += UNTRADEABLE_TECHS_TEXT
 
-		# <!-- custom: seems to overfill a bit actually quite a bit xd after rechecking but anyways etc, reduce height, was self.H_SPECIAL_PANE-10 -->
-		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL_PANE + 5, self.Y_SPECIAL_PANE + 30, self.W_SPECIAL_PANE - 35, self.H_SPECIAL_PANE - 35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		# <!-- custom: seems to overfill a bit actually quite a bit xd after rechecking but anyways etc, reduce height, was self.H_SPECIAL-10 -->
+		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL + 5, self.Y_SPECIAL + 30, self.W_SPECIAL - 35, self.H_SPECIAL - 35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
-	def placeBackground(self): # advc.004y: renamed from "placeQuote"
+	def placeHistory(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need the redundant background -->
-		# advc.004y: Label added for this panel
-		#screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_QUOTE_PANE, self.Y_QUOTE_PANE, self.W_QUOTE_PANE, self.H_QUOTE_PANE, PanelStyles.PANEL_STYLE_BLUE50)
-		screen.addPanel(panelName, "", "", True, True, self.X_QUOTE_PANE, self.Y_QUOTE_PANE, self.W_QUOTE_PANE, self.H_QUOTE_PANE, PanelStyles.PANEL_STYLE_BLUE50)
-		# <advc.004y> Show strategy help too (like for civics)
+		screen.addPanel(panelName, "", "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
 		szText = u""
-		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY in SevoPediaBuilding.py (refer to this file for details), removing (hiding) the entry entirely from the sevopedia ; and same reasoning as for/in SevopediaUnit.py, i don't need the redundant background line -->
-		#if len(gc.getTechInfo(self.iTech).getStrategy()) > 0:
-		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
-		#	szText += gc.getTechInfo(self.iTech).getStrategy()
-		#	szText += u"\n\n"
-		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
-		# </advc.004y>
+		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY in SevoPediaBuilding.py (refer to this file for details), removing (hiding) the entry entirely from the sevopedia. -->
 		szText += gc.getTechInfo(self.iTech).getQuote()
 		szText += u"\n\n" + gc.getTechInfo(self.iTech).getCivilopedia()
 		szQuoteTextWidget = self.top.getNextWidgetName()
-		# <!-- custom: i prefer the fancier design, find it way more beautiful too, restoring it ; as for padding adjust/modify it a bit too anyways etc, was self.X_QUOTE_PANE + 9, self.Y_QUOTE_PANE + 12 -->
-		# <advc.004y> Now that the quote isn't on top anymore, we can keep it simple:
+		# <!-- custom: i prefer the fancier design, find it way more beautiful too, restoring it ; as for padding adjust/modify it a bit too anyways etc, was self.X_HISTORY + 9, self.Y_HISTORY + 12, also we removed _HISTORY to simplify and standardize code and display and as we don't need nor want the extra height in this case if i may say but anyways etc -->
 		#screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.addMultilineText(szQuoteTextWidget, szText, self.X_QUOTE_PANE + 9, self.Y_QUOTE_PANE + 12, self.W_QUOTE_PANE - (15 * 2), self.H_QUOTE_PANE - (15 * 2), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(szQuoteTextWidget, szText, self.X_HISTORY + 9, self.Y_HISTORY + 12, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

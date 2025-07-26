@@ -22,9 +22,35 @@ and modified or not for our needs in advciv-sas anyways etc -->
 
 
 	<!-- custom: add mention that this does not include plot types (if i am not mistaken (such as hills, peak, if i am not mistaken as well anyways etc)), renamed asset as such, anyways etc ; "some" as ocean is included since we show the ice cap (i.e. ice feature in base advciv +/- civ4 anyways etc) feature anyways etc -->
-    <TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_PEDIA_TERRAINS_MINUS_PLOT_TYPES</Tag>
 		<English>Terrains (Minus some Plot types)</English>
+	</TEXT>
+	<!-- custom: also add these txt keys including also FeatureTerrainBooleans info but anyways etc, in accordance with if i may say too but anyways etc the info in (translate to english with web browser page right click on page or such anyways etc) https://gforestshade.github.io/kujira/post/civ4bonusinfos/#terrainbooleans and also chatgpt's explanation of it which used it spontaeously while doing a web search to answer my question of what this does, which would explain why the base advciv (+/- civ4? Didn't check but anyways etc) had the bonus_furs rdundantly in terrainbooleans and featureterrainbooleans redundantly, but with different meanings so not a redundant code if i may say unlike my use of the word redundant twice xd if i may say but as i felt if i may say whatever that means xd at least to me in this case but anyways etc, which would make sense as well as it would be in line with kujira's explanation too (translated and also explained by chatgpt i mean who can read japanese natively if i am not mistaken so it fetched the original language and explained it to me as well but anyways etc) so hopefully is accurate maybe if i'm not mistaken too but check to be sure anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_TERRAIN_BOOLEANS</Tag>
+		<English>Terrains (Minus some Plot types) with no Feature</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FEATURE_BOOLEANS</Tag>
+		<English>Features on any terrain</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FEATURE_TERRAIN_BOOLEANS</Tag>
+		<English>Terrains Only If With This Bonus's Featur.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_TERRAIN_BONUSES_WITH_NO_FEATURE</Tag>
+		<English>Bonuses in this terrain only if the terrain has no feature (see sevopedia bonus)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_TERRAIN_BONUSES_FEATURE_TERRAIN_BOOLEANS</Tag>
+		<English>Bonuses in this terrain only if the bonus's features are compatible with "terrains only if with this feature" (see sevopedia bonus)</English>
+	</TEXT>
+	<!-- custom: add new entry: replace "Ressources" description with "Bonuses" to be consistent with our renaming in advciv-sas and such or not and such but anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FEATURE_BONUSES_FEATURE_BOOLEANS</Tag>
+		<English>Bonuses On Any Terrain (see also sevopedia bonus)</English>
 	</TEXT>
 
 

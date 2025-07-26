@@ -73,6 +73,15 @@
 		<English>Pr. List</English>
 	</TEXT>
 
+
+
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CIVILIZATIONS_THAT_START_WITH_THIS_TECH</Tag>
+		<English>Civilizations that start with this technology</English>
+	</TEXT>
+
+
+
 	<!-- custom: rename "Ivory" to "Elephants". Here the main reasons for this change: 
 	- 1) you need elephants to build war elephants, not ivory, even if you were to somehow find ivory somewhere, it would/could not magically turn into a war elephant, so using the animal instead.
 	- 2) ivory doesn't grow on the groud i think if i am not mistaken, but is derived from elephants, independent of whether they are alive or dead.

@@ -19,6 +19,9 @@ class SevoPediaTerrain:
 		self.iTerrain = -1
 		self.top = main
 
+		self.MEDIUM_MARGIN = 15
+		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+
 		self.X_INFO_PANE = self.top.X_PEDIA_PAGE
 		self.Y_INFO_PANE = self.top.Y_PEDIA_PAGE
 		self.W_INFO_PANE = 290
@@ -35,42 +38,47 @@ class SevoPediaTerrain:
 		self.W_INFO_TEXT = 220
 		self.H_INFO_TEXT = self.H_INFO_PANE - 20
 
-		self.X_SPECIAL = self.X_INFO_PANE + self.W_INFO_PANE + 10
+		self.X_SPECIAL = self.X_INFO_PANE + self.W_INFO_PANE + self.MEDIUM_MARGIN
 		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL
 		self.H_SPECIAL = self.H_INFO_PANE
 		self.Y_SPECIAL = self.Y_INFO_PANE
 
 		self.X_FEATURES = self.X_INFO_PANE
-		self.Y_FEATURES = self.Y_INFO_PANE + self.H_INFO_PANE + 10
+		self.Y_FEATURES = self.Y_INFO_PANE + self.H_INFO_PANE + self.SMALL_MARGIN
 		self.W_FEATURES = self.W_INFO_PANE
 		self.H_FEATURES = 110
 
-		self.X_IMPROVEMENTS = self.X_FEATURES + self.W_FEATURES + 10
+		self.X_IMPROVEMENTS = self.X_FEATURES + self.W_FEATURES + self.MEDIUM_MARGIN
 		self.Y_IMPROVEMENTS = self.Y_FEATURES
 		self.W_IMPROVEMENTS = self.top.R_PEDIA_PAGE - self.X_IMPROVEMENTS
 		self.H_IMPROVEMENTS = self.H_FEATURES
 
-		self.X_RESOURCES = self.X_FEATURES
-		self.Y_RESOURCES = self.Y_FEATURES + self.H_FEATURES + 10
-		self.W_RESOURCES = self.top.R_PEDIA_PAGE - self.X_RESOURCES
-		self.H_RESOURCES = self.H_FEATURES
+		self.X_BONUSES_WITH_NO_FEATURE = self.X_FEATURES
+		self.Y_BONUSES_WITH_NO_FEATURE = self.Y_FEATURES + self.H_FEATURES + self.SMALL_MARGIN
+		self.W_BONUSES_WITH_NO_FEATURE = self.top.R_PEDIA_PAGE - self.X_BONUSES_WITH_NO_FEATURE
+		self.H_BONUSES_WITH_NO_FEATURE = self.H_FEATURES
+
+		self.X_BONUSES_ONLY_WITH_FEATURE = self.X_FEATURES
+		self.Y_BONUSES_ONLY_WITH_FEATURE = self.Y_BONUSES_WITH_NO_FEATURE + self.H_BONUSES_WITH_NO_FEATURE + self.SMALL_MARGIN
+		self.W_BONUSES_ONLY_WITH_FEATURE = self.top.R_PEDIA_PAGE - self.X_BONUSES_ONLY_WITH_FEATURE
+		self.H_BONUSES_ONLY_WITH_FEATURE = self.H_FEATURES
 
 		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details anyways etc -->
 		self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE = 64
 
-		self.X_RELEVANT_UNITS = self.X_RESOURCES
-		self.Y_RELEVANT_UNITS = self.Y_RESOURCES + self.H_RESOURCES + 10
-		self.W_RELEVANT_UNITS = self.top.R_PEDIA_PAGE - self.X_RESOURCES
+		self.X_RELEVANT_UNITS = self.X_FEATURES
+		self.Y_RELEVANT_UNITS = self.Y_BONUSES_ONLY_WITH_FEATURE + self.H_BONUSES_ONLY_WITH_FEATURE + self.SMALL_MARGIN
+		self.W_RELEVANT_UNITS = self.top.R_PEDIA_PAGE - self.X_BONUSES_ONLY_WITH_FEATURE
 		self.H_RELEVANT_UNITS = self.H_FEATURES + self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
 
-		self.X_UNITS_IMPASSABLE = self.X_RELEVANT_UNITS
-		self.Y_UNITS_IMPASSABLE = self.Y_RELEVANT_UNITS + self.H_RELEVANT_UNITS + 10
+		self.X_UNITS_IMPASSABLE = self.X_FEATURES
+		self.Y_UNITS_IMPASSABLE = self.Y_RELEVANT_UNITS + self.H_RELEVANT_UNITS + self.SMALL_MARGIN
 		self.W_UNITS_IMPASSABLE = self.top.R_PEDIA_PAGE - self.X_RELEVANT_UNITS
 		self.H_UNITS_IMPASSABLE = self.H_FEATURES
 
-		self.X_HISTORY = self.X_UNITS_IMPASSABLE
+		self.X_HISTORY = self.X_FEATURES
 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
-		self.Y_HISTORY = self.Y_UNITS_IMPASSABLE + self.H_UNITS_IMPASSABLE + 10
+		self.Y_HISTORY = self.Y_UNITS_IMPASSABLE + self.H_UNITS_IMPASSABLE + self.SMALL_MARGIN
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
 
@@ -82,7 +90,8 @@ class SevoPediaTerrain:
 		self.placeSpecial()
 		self.placeFeatures()
 		self.placeImprovements()
-		self.placeResources()
+		self.placeBonusesWithNoFeature()
+		self.placeBonusesOnlyWithFeature()
 		self.placeRelevantUnits()
 		self.placeUnitsImpassable()
 		self.placeHistory()
@@ -190,11 +199,11 @@ class SevoPediaTerrain:
 
 
 
-	def placeResources(self):
+	def placeBonusesWithNoFeature(self):
 		screen = self.top.getScreen()
 		panel = self.top.getNextWidgetName()
 
-		screen.addPanel(panel, localText.getText("TXT_KEY_CONCEPT_RESOURCES", ()), "", False, True, self.X_RESOURCES, self.Y_RESOURCES, self.W_RESOURCES, self.H_RESOURCES, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_TERRAIN_BONUSES_WITH_NO_FEATURE", ()), "", False, True, self.X_BONUSES_WITH_NO_FEATURE, self.Y_BONUSES_WITH_NO_FEATURE, self.W_BONUSES_WITH_NO_FEATURE, self.H_BONUSES_WITH_NO_FEATURE, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panel, "", "  ")
 
 		# <!-- custom: minor refactor to test for the existence of terrain_hill 's id explicitly else raise an error not silently pass anyways etc as is also done in several other parts of the sevopedia reworked/refactored code if i may say but anyways etc anyways etc anyways etc -->
@@ -208,6 +217,25 @@ class SevoPediaTerrain:
 				screen.attachImageButton(panel, "", ResourceInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iResource, 1, False)
 			elif self.iTerrain == iHill and ResourceInfo.isHills():
 				screen.attachImageButton(panel, "", ResourceInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iResource, 1, False)
+
+
+
+	# <!-- custom: code provided by chatgpt thanks to my prompts too and adjustments too but anyways etc -->
+	def placeBonusesOnlyWithFeature(self):
+		screen = self.top.getScreen()
+		panel = self.top.getNextWidgetName()
+
+		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_TERRAIN_BONUSES_FEATURE_TERRAIN_BOOLEANS", ()), "", False, True, self.X_BONUSES_ONLY_WITH_FEATURE, self.Y_BONUSES_ONLY_WITH_FEATURE, self.W_BONUSES_ONLY_WITH_FEATURE, self.H_BONUSES_ONLY_WITH_FEATURE, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.attachLabel(panel, "", "  ")
+
+		for iBonus in xrange(gc.getNumBonusInfos()):
+			BonusInfo = gc.getBonusInfo(iBonus)
+			if BonusInfo.isGraphicalOnly():
+				continue
+
+			if BonusInfo.isFeatureTerrain(self.iTerrain):
+				screen.attachImageButton(panel, "", BonusInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM,
+										WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1, False)
 
 
 
