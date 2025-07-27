@@ -191,12 +191,11 @@ class SevoPediaTerrain:
 		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
 
 		if self.iTerrain == iPeak or self.iTerrain == iHill:
-			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE_WITH_EXPLANATION"
+			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE"
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNoDisplay, ())
-			# <!-- custom: note: do not use yPanelCenter as this is a quite long text that fits in many line, so starting from center it would overfill, so to solve this start from top of the panel as default would be as advised by chatgpt to fix this thanks to my prompt too anyways etc -->
-			yPanelTop = yPanel + 34
-			screen.addMultilineText(textName, szText, xPanel + 7, yPanelTop, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			yPanelCenter = yPanel + (hPanel / 2)
+			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		else:
 			for iFeature in xrange(gc.getNumFeatureInfos()):

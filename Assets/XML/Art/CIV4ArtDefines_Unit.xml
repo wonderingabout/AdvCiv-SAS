@@ -1984,7 +1984,7 @@
 			<ActionSound>AS3D_UN_TANK_FORT</ActionSound>
 		</UnitArtInfo>
 		<UnitArtInfo>
-			<Type>ART_DEF_UNIT_MODERN_ARMOR</Type>
+			<Type>ART_DEF_UNIT_MODERN_TANK</Type>
 			<Button>,Art/Interface/Buttons/Units/ModernArmor.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,1,11</Button>
 			<!-- advc.002j: was 0.57 -->
 			<fScale>0.55</fScale>
@@ -1994,6 +1994,42 @@
 			<NIF>Art/Units/ModernArmor/ModernArmor.nif</NIF>
 			<KFM>Art/Units/ModernArmor/ModernArmor.kfm</KFM>
 			<SHADERNIF>Art/Units/ModernArmor/ModernArmor_FX.nif</SHADERNIF>
+			<ShadowDef>
+				<ShadowNIF>Art/Units/01_UnitShadows/ModernArmorShadow.nif</ShadowNIF>
+				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+				<fShadowScale>1.0</fShadowScale>
+			</ShadowDef>
+			<iDamageStates>4</iDamageStates>
+			<TrailDefinition>
+				<Texture>Art/Shared/tanktread.dds</Texture>
+				<fWidth>0.8</fWidth>
+				<fLength>180.0</fLength>
+				<fTaper>0.0</fTaper>
+				<fFadeStartTime>0.2</fFadeStartTime>
+				<fFadeFalloff>0.35</fFadeFalloff>
+			</TrailDefinition>
+			<fBattleDistance>0.5</fBattleDistance>
+			<fRangedDeathTime>0.12</fRangedDeathTime>
+			<bActAsRanged>1</bActAsRanged>
+			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+			<AudioRunSounds>
+				<AudioRunTypeLoop>LOOPSTEP_MOD_ARMOUR</AudioRunTypeLoop>
+				<AudioRunTypeEnd>ENDSTEP_MOD_ARMOUR</AudioRunTypeEnd>
+			</AudioRunSounds>
+			<SelectionSound>AS3D_UN_MOD_ARMOUR_HEAL</SelectionSound>
+			<ActionSound>AS3D_UN_MOD_ARMOUR_HEAL</ActionSound>
+		</UnitArtInfo>
+		<!-- custom: import from c2c mod's "stealth_armor" and adjusted or not for advciv-sas anyways etc -->
+		<UnitArtInfo>
+			<Type>ART_DEF_UNIT_ROBOTIC_TANK</Type>
+			<Button>Art/AdvCiv_SAS/Units/Robotic_Tank/stealth_armor.dds</Button>
+			<fScale>0.40</fScale>
+			<fInterfaceScale>1.1</fInterfaceScale>
+			<bActAsLand>0</bActAsLand>
+			<bActAsAir>0</bActAsAir>
+			<NIF>Art/AdvCiv_SAS/Units/Robotic_Tank/nif/myrmidon_fx.nif</NIF>
+			<KFM>Art/Units/ModernArmor/ModernArmor.kfm</KFM>
+			<SHADERNIF>Art/AdvCiv_SAS/Units/Robotic_Tank/nif/myrmidon_fx.nif</SHADERNIF>
 			<ShadowDef>
 				<ShadowNIF>Art/Units/01_UnitShadows/ModernArmorShadow.nif</ShadowNIF>
 				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>

@@ -486,13 +486,22 @@
 			<DefaultUnit>UNIT_TANK</DefaultUnit>
 		</UnitClassInfo>
 		<UnitClassInfo>
-			<Type>UNITCLASS_MODERN_ARMOR</Type>
-			<Description>TXT_KEY_UNIT_MODERN_ARMOR</Description>
+			<Type>UNITCLASS_MODERN_TANK</Type>
+			<Description>TXT_KEY_UNIT_MODERN_TANK</Description>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
 			<iMaxTeamInstances>-1</iMaxTeamInstances>
 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
 			<iInstanceCostModifier>0</iInstanceCostModifier>
-			<DefaultUnit>UNIT_MODERN_ARMOR</DefaultUnit>
+			<DefaultUnit>UNIT_MODERN_TANK</DefaultUnit>
+		</UnitClassInfo>
+		<UnitClassInfo>
+			<Type>UNITCLASS_ROBOTIC_TANK</Type>
+			<Description>TXT_KEY_UNIT_ROBOTIC_TANK</Description>
+			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+			<iMaxTeamInstances>-1</iMaxTeamInstances>
+			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+			<iInstanceCostModifier>0</iInstanceCostModifier>
+			<DefaultUnit>UNIT_ROBOTIC_TANK</DefaultUnit>
 		</UnitClassInfo>
 		<UnitClassInfo>
 			<Type>UNITCLASS_GUNSHIP</Type>

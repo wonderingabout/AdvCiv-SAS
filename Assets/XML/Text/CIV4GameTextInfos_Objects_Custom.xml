@@ -448,14 +448,21 @@
 
 
 
-	<!-- custom: rename "_MARINE" (unit) to "_MODERN_INFANTRY" -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_MODERN_INFANTRY</Tag>
 		<English>Modern Infantry</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_UNIT_MODERN_TANK</Tag>
+		<English>Modern Tank</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_UNIT_ROBOTIC_INFANTRY</Tag>
 		<English>Robotic Infantry</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_ROBOTIC_TANK</Tag>
+		<English>Robotic Tank</English>
 	</TEXT>
 
 

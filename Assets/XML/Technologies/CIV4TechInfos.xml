@@ -4406,7 +4406,7 @@
 			<Civilopedia>TXT_KEY_TECH_FUSION_PEDIA</Civilopedia>
 			<Help/>
 			<Strategy>TXT_KEY_TECH_FUSION_STRATEGY</Strategy>
-			<Advisor>ADVISOR_SCIENCE</Advisor>
+			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
 			<iCost>13000</iCost>
@@ -4471,7 +4471,7 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>2</iFlavor>
+					<iFlavor>8</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
@@ -6621,9 +6621,9 @@
 			<iFirstFreeTechs>0</iFirstFreeTechs>
 			<iAsset>48</iAsset>
 			<iPower>10</iPower>
-			<!-- custom: note: bTrade fields are now visible from the c++ code if i may say anyways etc through buildBTradeString, see there for details orand in our mod's docs or and such other relevant place, hopefully helpful but or not but or yes but anyways etc-->
-			<bRepeat>0</bRepeat>
 			<!-- custom: similarly to changes now displaying bTrade info, we now also display bRepeat info in tech advisor and sevopedia tech if i am not mistaken anyways etc, see also similarly buildBRepeatString if i am not mistaken anyways etc -->
+			<bRepeat>0</bRepeat>
+			<!-- custom: note: bTrade fields are now visible from the c++ code if i may say anyways etc through buildBTradeString, see there for details orand in our mod's docs or and such other relevant place, hopefully helpful but or not but or yes but anyways etc -->
 			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>

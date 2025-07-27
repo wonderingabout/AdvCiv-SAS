@@ -12257,10 +12257,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
 				</UnitClassUpgrade>
 				<UnitClassUpgrade>
-					<UnitClassUpgradeType>UNITCLASS_SAM_INFANTRY</UnitClassUpgradeType>
-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
-				</UnitClassUpgrade>
-				<UnitClassUpgrade>
 					<UnitClassUpgradeType>UNITCLASS_MACHINE_GUN</UnitClassUpgradeType>
 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
 				</UnitClassUpgrade>
@@ -12451,9 +12447,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bSuicide>0</bSuicide>
 			<bHiddenNationality>0</bHiddenNationality>
 			<bAlwaysHostile>0</bAlwaysHostile>
+			<!-- custom: upgrade the anti tank to a unit that is good against tanks but anyways etc... ; also this allows the gunship to appear on the units tree so nice for that effect as well if i may say but anywyas etc, was UNITCLASS_MECHANIZED_INFANTRY 1 -->
 			<UnitClassUpgrades>
 				<UnitClassUpgrade>
-					<UnitClassUpgradeType>UNITCLASS_MECHANIZED_INFANTRY</UnitClassUpgradeType>
+					<UnitClassUpgradeType>UNITCLASS_GUNSHIP</UnitClassUpgradeType>
 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
 				</UnitClassUpgrade>
 			</UnitClassUpgrades>
@@ -13406,7 +13403,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_GUN</Combat>
+			<!-- custom: was UNITCOMBAT_GUN -->
+			<Combat>UNITCOMBAT_ARMOR</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
@@ -13445,7 +13443,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bNukeImmune>0</bNukeImmune>
 			<bPrereqBonuses>0</bPrereqBonuses>
 			<bPrereqReligion>0</bPrereqReligion>
-			<bMechanized>0</bMechanized>
+			<!-- custom: although according to (translate to english using web browser or such anyways etc) https://gforestshade.github.io/kujira/post/civ4unitinfos/#bmechanized) no effect seems to be used/activated by enabling this field if i may but anyways etc, still it seems very strange if i may say too in this case but anyways etc that the mechanized_infantry, that has "mechanized" in its litteral name if i may say but anyways etc... Is not among mechanized units ; now that we changed its combat type as well as of now to combat_armor, it also makes sense furthermore if i may say but anyways etc to enable this effect on this unit as well anyways etc, was 0 -->
+			<bMechanized>1</bMechanized>
 			<bSuicide>0</bSuicide>
 			<bHiddenNationality>0</bHiddenNationality>
 			<bAlwaysHostile>0</bAlwaysHostile>
@@ -18109,7 +18108,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bAlwaysHostile>0</bAlwaysHostile>
 			<UnitClassUpgrades>
 				<UnitClassUpgrade>
-					<UnitClassUpgradeType>UNITCLASS_MODERN_ARMOR</UnitClassUpgradeType>
+					<UnitClassUpgradeType>UNITCLASS_MODERN_TANK</UnitClassUpgradeType>
 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
 				</UnitClassUpgrade>
 			</UnitClassUpgrades>
@@ -18248,9 +18247,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_MODERN_ARMOR, type: UNIT_MODERN_ARMOR (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<Class>UNITCLASS_MODERN_ARMOR</Class>
-			<Type>UNIT_MODERN_ARMOR</Type>
+		<UnitInfo> <!-- custom: class: UNITCLASS_MODERN_TANK, type: UNIT_MODERN_TANK (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<Class>UNITCLASS_MODERN_TANK</Class>
+			<Type>UNIT_MODERN_TANK</Type>
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
@@ -18259,9 +18258,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
-			<Description>TXT_KEY_UNIT_MODERN_ARMOR</Description>
-			<Civilopedia>TXT_KEY_UNIT_MODERN_ARMOR_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_MODERN_ARMOR_STRATEGY</Strategy>
+			<Description>TXT_KEY_UNIT_MODERN_TANK</Description>
+			<Civilopedia>TXT_KEY_UNIT_MODERN_TANK_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -18297,7 +18296,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bSuicide>0</bSuicide>
 			<bHiddenNationality>0</bHiddenNationality>
 			<bAlwaysHostile>0</bAlwaysHostile>
-			<UnitClassUpgrades/>
+			<UnitClassUpgrades>
+				<UnitClassUpgrade>
+					<UnitClassUpgradeType>UNITCLASS_ROBOTIC_TANK</UnitClassUpgradeType>
+					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+				</UnitClassUpgrade>
+			</UnitClassUpgrades>
 			<UnitClassTargets/>
 			<UnitCombatTargets/>
 			<UnitClassDefenders/>
@@ -18419,7 +18423,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				<iRangedWaveSize>1</iRangedWaveSize>
 				<UnitMeshGroup>
 					<iRequired>1</iRequired>
-					<EarlyArtDefineTag>ART_DEF_UNIT_MODERN_ARMOR</EarlyArtDefineTag>
+					<EarlyArtDefineTag>ART_DEF_UNIT_MODERN_TANK</EarlyArtDefineTag>
 				</UnitMeshGroup>
 			</UnitMeshGroups>
 			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
@@ -18431,6 +18435,197 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<FreePromotions>
 				<FreePromotion>
 					<PromotionType>PROMOTION_BLITZKRIEG</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+			</FreePromotions>
+			<LeaderPromotion>NONE</LeaderPromotion>
+			<iLeaderExperience>0</iLeaderExperience>
+		</UnitInfo>
+		<UnitInfo> <!-- custom: class: UNITCLASS_ROBOTIC_TANK, type: UNIT_ROBOTIC_TANK (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<Class>UNITCLASS_ROBOTIC_TANK</Class>
+			<Type>UNIT_ROBOTIC_TANK</Type>
+			<UniqueNames/>
+			<Special>NONE</Special>
+			<Capture>NONE</Capture>
+			<Combat>UNITCOMBAT_ARMOR</Combat>
+			<Domain>DOMAIN_LAND</Domain>
+			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+			<Invisible>NONE</Invisible>
+			<SeeInvisible>NONE</SeeInvisible>
+			<Description>TXT_KEY_UNIT_ROBOTIC_TANK</Description>
+			<Civilopedia>TXT_KEY_UNIT_ROBOTIC_TANK_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+			<Advisor>ADVISOR_MILITARY</Advisor>
+			<bAnimal>0</bAnimal>
+			<bFood>0</bFood>
+			<bNoBadGoodies>0</bNoBadGoodies>
+			<bOnlyDefensive>0</bOnlyDefensive>
+			<bNoCapture>0</bNoCapture>
+			<bQuickCombat>0</bQuickCombat>
+			<bRivalTerritory>0</bRivalTerritory>
+			<bMilitaryHappiness>1</bMilitaryHappiness>
+			<!-- custom: not sure if fully robotic units should cost unit maintenance, but to fit the theme, and to make the unit somewhat op or at least relevant vs other units, making it free support -->
+			<bMilitarySupport>0</bMilitarySupport>
+			<bMilitaryProduction>1</bMilitaryProduction>
+			<bPillage>1</bPillage>
+			<bSpy>0</bSpy>
+			<bSabotage>0</bSabotage>
+			<bDestroy>0</bDestroy>
+			<bStealPlans>0</bStealPlans>
+			<bInvestigate>0</bInvestigate>
+			<bCounterSpy>0</bCounterSpy>
+			<bFound>0</bFound>
+			<bGoldenAge>0</bGoldenAge>
+			<bInvisible>0</bInvisible>
+			<bFirstStrikeImmune>0</bFirstStrikeImmune>
+			<bNoDefensiveBonus>1</bNoDefensiveBonus>
+			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+			<bCanMoveImpassable>0</bCanMoveImpassable>
+			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
+			<bFlatMovementCost>0</bFlatMovementCost>
+			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
+			<bNukeImmune>0</bNukeImmune>
+			<bPrereqBonuses>0</bPrereqBonuses>
+			<bPrereqReligion>0</bPrereqReligion>
+			<bMechanized>1</bMechanized>
+			<bSuicide>0</bSuicide>
+			<bHiddenNationality>0</bHiddenNationality>
+			<bAlwaysHostile>0</bAlwaysHostile>
+			<UnitClassUpgrades/>
+			<UnitClassTargets/>
+			<UnitCombatTargets/>
+			<UnitClassDefenders/>
+			<UnitCombatDefenders/>
+			<FlankingStrikes/>
+			<UnitAIs>
+				<UnitAI>
+					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+			</UnitAIs>
+			<NotUnitAIs/>
+			<Builds/>
+			<ReligionSpreads/>
+			<CorporationSpreads/>
+			<GreatPeoples/>
+			<Buildings/>
+			<HolyCity>NONE</HolyCity>
+			<ReligionType>NONE</ReligionType>
+			<StateReligion>NONE</StateReligion>
+			<PrereqReligion>NONE</PrereqReligion>
+			<PrereqCorporation>NONE</PrereqCorporation>
+			<PrereqBuilding>NONE</PrereqBuilding>
+			<!-- custom: making it out of main scientific path so that military path is not too rewarded and other strategies are just as vlaid or at least worth profits if i may say but anyways etc -->
+			<PrereqTech>TECH_FUSION</PrereqTech>
+			<TechTypes>
+				<PrereqTech>TECH_AI</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+			</TechTypes>
+			<!-- custom: make it so oil is not needed anymore by the time these are popular or in production anyways -->
+			<BonusType>BONUS_ALUMINUM</BonusType>
+			<PrereqBonuses/>
+			<ProductionTraits/>
+			<Flavors/>
+			<iAIWeight>0</iAIWeight>
+			<iCost>340</iCost>
+			<iHurryCostModifier>0</iHurryCostModifier>
+			<iAdvancedStartCost>100</iAdvancedStartCost>
+			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+			<iMinAreaSize>-1</iMinAreaSize>
+			<iMoves>2</iMoves>
+			<bNoRevealMap>0</bNoRevealMap>
+			<iAirRange>0</iAirRange>
+			<iAirUnitCap>0</iAirUnitCap>
+			<iDropRange>0</iDropRange>
+			<iNukeRange>-1</iNukeRange>
+			<iWorkRate>0</iWorkRate>
+			<iBaseDiscover>0</iBaseDiscover>
+			<iDiscoverMultiplier>0</iDiscoverMultiplier>
+			<iBaseHurry>0</iBaseHurry>
+			<iHurryMultiplier>0</iHurryMultiplier>
+			<iBaseTrade>0</iBaseTrade>
+			<iTradeMultiplier>0</iTradeMultiplier>
+			<iGreatWorkCulture>0</iGreatWorkCulture>
+			<iEspionagePoints>0</iEspionagePoints>
+			<TerrainImpassables/>
+			<FeatureImpassables/>
+			<TerrainPassableTechs/>
+			<FeaturePassableTechs/>
+			<iCombat>65</iCombat>
+			<iCombatLimit>100</iCombatLimit>
+			<iAirCombat>0</iAirCombat>
+			<iAirCombatLimit>0</iAirCombatLimit>
+			<iXPValueAttack>4</iXPValueAttack>
+			<iXPValueDefense>2</iXPValueDefense>
+			<iFirstStrikes>1</iFirstStrikes>
+			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+			<iInterceptionProbability>0</iInterceptionProbability>
+			<iEvasionProbability>0</iEvasionProbability>
+			<iWithdrawalProb>0</iWithdrawalProb>
+			<iCollateralDamage>0</iCollateralDamage>
+			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+			<iCollateralDamageMaxUnits>6</iCollateralDamageMaxUnits>
+			<iCityAttack>0</iCityAttack>
+			<iCityDefense>0</iCityDefense>
+			<iAnimalCombat>0</iAnimalCombat>
+			<iHillsAttack>0</iHillsAttack>
+			<iHillsDefense>0</iHillsDefense>
+			<TerrainNatives/>
+			<FeatureNatives/>
+			<TerrainAttacks/>
+			<TerrainDefenses/>
+			<FeatureAttacks/>
+			<FeatureDefenses/>
+			<UnitClassAttackMods/>
+			<UnitClassDefenseMods/>
+			<UnitCombatMods/>
+			<UnitCombatCollateralImmunes/>
+			<DomainMods/>
+			<BonusProductionModifiers/>
+			<iBombRate>0</iBombRate>
+			<iBombardRate>0</iBombardRate>
+			<SpecialCargo>NONE</SpecialCargo>
+			<DomainCargo>NONE</DomainCargo>
+			<iCargo>0</iCargo>
+			<iConscription>0</iConscription>
+			<iCultureGarrison>16</iCultureGarrison>
+			<iExtraCost>0</iExtraCost>
+			<iAsset>6</iAsset>
+			<iPower>65</iPower>
+			<UnitMeshGroups>
+				<iGroupSize>1</iGroupSize>
+				<fMaxSpeed>1.75</fMaxSpeed>
+				<fPadTime>1</fPadTime>
+				<iMeleeWaveSize>1</iMeleeWaveSize>
+				<iRangedWaveSize>1</iRangedWaveSize>
+				<UnitMeshGroup>
+					<iRequired>1</iRequired>
+					<EarlyArtDefineTag>ART_DEF_UNIT_ROBOTIC_TANK</EarlyArtDefineTag>
+				</UnitMeshGroup>
+			</UnitMeshGroups>
+			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
+			<HotKey/>
+			<bAltDown>0</bAltDown>
+			<bShiftDown>0</bShiftDown>
+			<bCtrlDown>0</bCtrlDown>
+			<iHotKeyPriority>0</iHotKeyPriority>
+			<!-- custom: simulate it being able to walk at day and night non-stop at minimal energetic cost anyways etc, so add PROMOTION_MOBILITY_COST as well to this unit's free promotions that were based on the modern_tank's free promotions anyways etc -->
+			<FreePromotions>
+				<FreePromotion>
+					<PromotionType>PROMOTION_BLITZKRIEG</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+				<FreePromotion>
+					<PromotionType>PROMOTION_MOBILITY_COST</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -19559,14 +19754,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bSuicide>0</bSuicide>
 			<bHiddenNationality>0</bHiddenNationality>
 			<bAlwaysHostile>0</bAlwaysHostile>
-			<!-- custom: add gunship so it appears in tech tree but also these units (i.e. the machine_gun and the gunship) have a quite similar combat profile if i may say anyways etc (mostly defend (cannot capture cities), strong against armored units, +/- etc if any) + their overall machine gun theme of the unit if i may say and if i am not mistaken anyways etc, so add the gunship here too in upgrade tree makes sense and makes the machine_gun stronger if i may say, makes more sense than upgrading cavalry if i may say anyways etc even though i was a bit mistaken as in ignorant that gunship was a land unit in civ4 not air unit if i am not mistaken as i didn't know and i have still never played with this unit if i may say in this case at least but anyways etc, in all cases maybe this change adds more strategy or/and makes the machine_gun stronger as a unit if i am not mistaken but anyways etc anyways etc anyways etc, was UNITCLASS_MECHANIZED_INFANTRY -->
 			<UnitClassUpgrades>
 				<UnitClassUpgrade>
 					<UnitClassUpgradeType>UNITCLASS_MECHANIZED_INFANTRY</UnitClassUpgradeType>
-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
-				</UnitClassUpgrade>
-				<UnitClassUpgrade>
-					<UnitClassUpgradeType>UNITCLASS_GUNSHIP</UnitClassUpgradeType>
 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
 				</UnitClassUpgrade>
 			</UnitClassUpgrades>
