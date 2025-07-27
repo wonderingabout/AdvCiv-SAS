@@ -45,8 +45,8 @@ etc.. as i coudl successfully feed these to chatgpt in chatbox message (no file 
 
 ### based on this ChatGPT can analyze data
 
-find trends, fix errors, adjust weights or inversions, very very easily, or if not should help if you are aware of its limitations (not very persistent memory that trims often, some files not being possible to send, invents or tends to invent if doesn't know, errs if you mislead it or if scope is too large or/and prompt too long, or/and other things, etc) :) anyways gogogogoog anyways
+Find trends, fix errors, adjust weights or inversions, very very easily, or if not should help if you are aware of its limitations (not very persistent memory that trims often, some files not being possible to send, invents or tends to invent if doesn't know, errs if you mislead it or if scope is too large or/and prompt too long, or/and other things, etc) :) anyways gogogogogo anyways
 
 ## More personal notes and how i self relate to it and related and such anyways etc
 
-see the mod's google drive for details
+See the mod's google drive for details

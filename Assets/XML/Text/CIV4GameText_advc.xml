@@ -5762,12 +5762,12 @@
 	<!-- advc.004: From CIV4GameTextChanged_BTS.xml. State collateralDamageMaxUnits.  -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE</Tag>
-		<English>[ICON_BULLET]Collateral Damage (base %d1%%, max. %d2%%) to %d3 [NUM3:Defender:Defenders]</English>
+		<English>[ICON_BULLET]Collateral Damage (base %d1%%, limit %d2%%) to %d3 [NUM3:Defender:Defenders]</English>
 	</TEXT>
 	<!-- custom: more recent change now as well thanks to chatgpt too and my prompt too but anyways etc: also show iCollateralDamage not only max if i am not mistaken in doing so anyways etc, also fix NUM1 to NUM3 according to chatgpt if i am not mistaken (would have been NUM2 without our change not NUM1 too if i am not mistaken as well and according to chatgpt too and if i understand it correctly i mean but anyways etc) -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE_SHORT</Tag>
-		<English>[ICON_BULLET]Coll. Damage (base %d1%%, max. %d2%%) to %d3 [NUM3:Defender:Defenders]</English>
+		<English>[ICON_BULLET]Coll. Damage (base %d1%%, lim. %d2%%) to %d3 [NUM3:Defender:Defenders]</English>
 	</TEXT>
 	<!-- custom: not sure if accurate but it does seem to say "extra" and the cpp getter also has extra in its name ; since this shouldn't refer to iCollateralDamage if i am not mistaken in my guess, adding the word "extra", anyways etc -->
 	<TEXT>
