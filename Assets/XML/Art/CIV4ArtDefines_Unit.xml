@@ -289,6 +289,36 @@
 			<SelectionSound>AS3D_UN_AIRSHIP_COMMAND_PATROL</SelectionSound>
 			<ActionSound>AS3D_UN_AIRSHIP_COMMAND_PATROL</ActionSound>
 		</UnitArtInfo>
+		<!-- custom: new unit based on a c2c mod ("recon_drone" anyways etc) not base civ4 art so ideally no need to overtweak the design so it fits quite realistically domain_land anyways etc ; also adjusted or not for advciv-sas anyways etc, tried to do it based on a mix of advciv-sas's airship (as it is already tuned to domain_land as we want anyways etc for free control of the unit on map tiles if i am not mistaken and or other advantages maybe but anyways etc) and the gunship as it seems this c2c mod's unit is based on the gunship i assume based on its artdefine in c2c mod if i am not mistaken so trying to replicate c2c mod's or maybe rather if i may say but anyways etc our art defines equivalents of the advciv-sas gunship (which as of now is same as base_advciv in art defines i mean at least if i am not mistaken too but anyways etc) anyways etc, but also not too absed on the gunship as this recon_drone in our mod is mostly if not only a civilian unit, so things liek fortify or such are not intended for this unit in our mod at least as of now anyways etc -->
+		<UnitArtInfo>
+			<Type>ART_DEF_UNIT_ROBOTIC_RECON_DRONE</Type>
+			<Button>Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/recon_drone.dds</Button>
+			<fScale>0.2</fScale>
+			<fInterfaceScale>1.0</fInterfaceScale>
+			<bActAsLand>0</bActAsLand>
+			<bActAsAir>0</bActAsAir>
+			<NIF>Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/Predator.nif</NIF>
+			<KFM>Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/tiger.kfm</KFM>
+			<SHADERNIF>Art/AdvCiv_SAS/Units/Robotic_Recon_Drone/nif/Predator.nif</SHADERNIF>
+			<ShadowDef>
+				<ShadowNIF>Art/Units/01_UnitShadows/GunshipShadow.nif</ShadowNIF>
+				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+				<fShadowScale>0.75</fShadowScale>
+			</ShadowDef>
+			<iDamageStates>4</iDamageStates>
+			<fBattleDistance>0.5</fBattleDistance>
+			<fRangedDeathTime>0.12</fRangedDeathTime>
+			<bSmoothMove>1</bSmoothMove>
+			<bActAsRanged>1</bActAsRanged>
+			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+			<AudioRunSounds>
+				<AudioRunTypeLoop> </AudioRunTypeLoop>
+				<AudioRunTypeEnd> </AudioRunTypeEnd>
+			</AudioRunSounds>
+			<PatrolSound>AS3D_UN_AIRSHIP_PATROL</PatrolSound>
+			<SelectionSound>AS3D_UN_AIRSHIP_COMMAND_PATROL</SelectionSound>
+			<ActionSound>AS3D_UN_AIRSHIP_COMMAND_PATROL</ActionSound>
+		</UnitArtInfo>
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_ANCIENT_SPY</Type>
 			<Button>,Art/Interface/Buttons/Units/Spy.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,8,14</Button>

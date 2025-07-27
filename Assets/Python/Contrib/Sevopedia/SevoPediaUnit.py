@@ -452,7 +452,7 @@ class SevoPediaUnit:
 		isButtonFound = False
 		iButtonIndex = 0
 
-		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 
 		# Get the unit info
@@ -544,7 +544,7 @@ class SevoPediaUnit:
 		isButtonFound = False
 		iButtonIndex = 0
 
-		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 
 		# Get the unit info for the current unit
@@ -633,7 +633,7 @@ class SevoPediaUnit:
 		isButtonFound = False
 		iButtonIndex = 0
 
-		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 		
 		# Get the unit info

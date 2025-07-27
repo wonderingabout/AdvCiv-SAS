@@ -4521,9 +4521,7 @@
 			<!-- advc.200: was PROMOTION_FIRST_STRIKE4 in K-Mod; reverted -->
 			<!-- custom: extend eligible prerequired promotions, was NONE -->
 			<PromotionPrereqOr2>PROMOTION_CITY_RAIDER1</PromotionPrereqOr2>
-			<!-- custom: no reason to go so far in tech tree to require it,
-			make it to the wheel for example, where roads are discovered,
-			may make more sense, was TECH_MILITARY_SCIENCE-->
+			<!-- custom: no reason to go so far in tech tree to require it, make it to the wheel for example, where roads are discovered, may make more sense, was TECH_MILITARY_SCIENCE -->
 			<TechPrereq>TECH_THE_WHEEL</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>

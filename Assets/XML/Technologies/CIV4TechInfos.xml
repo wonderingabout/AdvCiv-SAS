@@ -2614,7 +2614,7 @@
 			<Quote>TXT_KEY_TECH_NATURALISM_QUOTE</Quote>
 			<Sound>AS2D_TECH_NATURALISM</Sound>
 			<SoundMP>AS2D_TECH_MP_NATURALISM</SoundMP>
-			<!-- custom: new naturalism button now that it replaces old tech alphabet anyways etc, based on a base civ4 atlas if i am not mistaken anyways etc, old one was ,Art/Interface/Buttons/TechTree/Alphabet.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,1 anyways etc:  -->
+			<!-- custom: new naturalism button now that it replaces old tech alphabet anyways etc, based on a base civ4 atlas if i am not mistaken anyways etc -->
 			<Button>,Art/Interface/Buttons/TechTree/Alphabet.dds,Art/Interface/Buttons/GodsOfOld_Atlas.dds,8,5</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_CALENDAR (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
@@ -4051,8 +4051,8 @@
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
-			<iHealth>-5</iHealth>
-			<iHappiness>-5</iHappiness>
+			<iHealth>-6</iHealth>
+			<iHappiness>-6</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
 			<iAsset>48</iAsset>
 			<iPower>0</iPower>
@@ -4196,7 +4196,7 @@
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
-			<iHealth>2</iHealth>
+			<iHealth>3</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
 			<iAsset>48</iAsset>
@@ -4225,6 +4225,7 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
+			<!-- custom: do not put flavor growth too high although the health bonus is nice, to not lead growth leaders astray, in case they need locally in this game i mean more military or culture perhaps anyways etc -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
@@ -4371,14 +4372,19 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
+			<!-- custom: tech is very important for future military units although it itself (if this how to say it in english but anyways etc...) doesn't have strong military / offensive or defensive units anyways etc, but still put high military flavor so AI leaders search this tech strongly if they want later units anyways etc ; it is similarly a key tech to access later future techs so make sure AI leaders research it if they have the science flavor as well by having a high enough flavor_science as well if i may say but anyways etc -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>2</iFlavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<iFlavor>12</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
-					<iFlavor>8</iFlavor>
+					<iFlavor>12</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_CULTURE</FlavorType>
@@ -4443,16 +4449,7 @@
 			<bWaterWork>0</bWaterWork>
 			<iGridX>22</iGridX>
 			<iGridY>5</iGridY>
-			<DomainExtraMoves>
-				<DomainExtraMove>
-					<DomainType>DOMAIN_LAND</DomainType>
-					<iExtraMoves>1</iExtraMoves>
-				</DomainExtraMove>
-				<DomainExtraMove>
-					<DomainType>DOMAIN_SEA</DomainType>
-					<iExtraMoves>1</iExtraMoves>
-				</DomainExtraMove>
-			</DomainExtraMoves>
+			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
@@ -6112,8 +6109,8 @@
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_FUTURE</Era>
 			<FirstFreeUnitClass>UNITCLASS_GREAT_ENGINEER</FirstFreeUnitClass>
-			<iFeatureProductionModifier>50</iFeatureProductionModifier>
-			<iWorkerSpeedModifier>50</iWorkerSpeedModifier>
+			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
@@ -6140,14 +6137,23 @@
 			<bWaterWork>0</bWaterWork>
 			<iGridX>23</iGridX>
 			<iGridY>5</iGridY>
-			<DomainExtraMoves/>
+			<DomainExtraMoves>
+				<DomainExtraMove>
+					<DomainType>DOMAIN_LAND</DomainType>
+					<iExtraMoves>1</iExtraMoves>
+				</DomainExtraMove>
+				<DomainExtraMove>
+					<DomainType>DOMAIN_SEA</DomainType>
+					<iExtraMoves>1</iExtraMoves>
+				</DomainExtraMove>
+			</DomainExtraMoves>
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>10</iFlavor>
+					<iFlavor>6</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
@@ -6841,7 +6847,7 @@
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
 			<iHealth>0</iHealth>
-			<iHappiness>1</iHappiness>
+			<iHappiness>2</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
 			<iAsset>48</iAsset>
 			<iPower>0</iPower>
@@ -6876,7 +6882,7 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>2</iFlavor>
+					<iFlavor>4</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>

@@ -464,6 +464,13 @@
 		<Tag>TXT_KEY_UNIT_SELF_PROPELLED_ARTILLERY</Tag>
 		<English>Self-Propelled Artillery</English>
 	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_ROBOTIC_RECON_DRONE</Tag>
+		<English>Robotic Recon Drone</English>
+	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_ROBOTIC_INFANTRY</Tag>
 		<English>Robotic Infantry</English>

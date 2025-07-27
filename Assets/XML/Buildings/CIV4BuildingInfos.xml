@@ -4831,7 +4831,7 @@
 			<FreeStartEra>ERA_FUTURE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: see also TXT_KEY_BUILDING_RECYCLING_CENTER_PEDIA for details or related info anyways etc  -->
+			<!-- custom: see also TXT_KEY_BUILDING_RECYCLING_CENTER_PEDIA for details or related info anyways etc -->
 			<PrereqTech>TECH_ECOLOGY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -12613,7 +12613,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: adjust flavors-->
+			<!-- custom: adjust flavors -->
 			<!-- advc.020: was 10 Gold, but also helpful for Growth -->
 			<Flavors>
 				<Flavor>

@@ -106,7 +106,7 @@
 	<!-- custom: also replace TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT to something clearer at the same time, maybe helps.
 	Create a new TXT KEY specifically for the improvements info of the ressources (bonus) category (before creating	this new txt key, the previous one was shared between category title "Improvements", and	Ressources/"Improvements", not possible to modify one without affecting the other which is not optimal, so creating this new text key, and updating the python files too to support it)
 	-->
-	<!-- custom: be careful, this applies to the ressources category not the improvement category unlike what the tile may (mis)lead to think, clarified that this is the total (base + extra) bonus  -->
+	<!-- custom: be careful, this applies to the ressources category not the improvement category unlike what the tile may (mis)lead to think, clarified that this is the total (base + extra) bonus -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_BONUS_TOTAL_BASE_AND_EXTRA_IMPROVEMENTS_YIELD_CHANGES</Tag>
 		<English>Total (Base + extra) Improvement(s) Yield Change(s)</English>

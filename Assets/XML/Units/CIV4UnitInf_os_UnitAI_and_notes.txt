@@ -18,7 +18,7 @@ for example for the ancient maceman:
 10 stregth = iAsset value of 10
 for example for the archer
 6 strength = iAsset value of 6
---->
+-->
 
 
 

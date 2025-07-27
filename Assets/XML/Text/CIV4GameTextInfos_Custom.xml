@@ -101,10 +101,7 @@
 		<English>[NEWLINE][ICON_BULLET]Impassable (except relevant units)</English>
 	</TEXT>
 
-    <!-- custom: rename Civilopedia to Sevopedia 
-    imported from: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameTextInfos.xml
-    and then modified for AdvCiv-SAS
-    -->
+    <!-- custom: rename Civilopedia to Sevopedia -->
     <TEXT>
 		<Tag>TXT_KEY_MAIN_MENU_CIVILOPEDIA</Tag>
 		<English>Sevopedia</English>
@@ -117,13 +114,6 @@
 		<Tag>TXT_KEY_PEDIA_SCREEN_TOP</Tag>
 		<English>Top</English>
 	</TEXT>
-    <!-- custom: moved from:
-    C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\Assets\XML\Text\CIV4GameText_advc.xml
-    Better centralize all data in same place, especially if they come from same
-    file originally
-    -->
-	<!-- advc.004y: Like TXT_KEY_MAIN_MENU_CIVILOPEDIA (CIV4GameTextInfos.xml),
-		 but all capitalized. -->
 	<!-- custom: rename civilopedia to sevopedia, better if players get used to the actual name, hopefully the "pedia" part of it should/would be clear enough to indicate that it is the same as the civilopedia. -->
 	<TEXT>
 		<Tag>TXT_KEY_CIVILOPEDIA_TITLE</Tag>

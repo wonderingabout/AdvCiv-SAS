@@ -4454,7 +4454,8 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>50</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_POLICE_STATE</FavoriteCivic>
-			<FavoriteReligion>RELIGION_DAOISM</FavoriteReligion> <!-- custom: not strictly daoist, but closest and seems accurate, see notes for details-->
+			<!-- custom: not strictly daoist, but closest and seems accurate, see notes in docs or/and mod's google drive if there as well for details anyways etc -->
+			<FavoriteReligion>RELIGION_DAOISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_AGGRESSIVE</TraitType>

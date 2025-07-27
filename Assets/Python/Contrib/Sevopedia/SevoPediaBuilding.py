@@ -655,7 +655,7 @@ class SevoPediaBuilding:
 		isButtonFound = False
 		iButtonIndex = 0
 
-		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 
 		for iPrereqTech in xrange(gc.getNumTechInfos()):
@@ -868,7 +868,7 @@ class SevoPediaBuilding:
 		isButtonFound = False
 		iButtonIndex = 0
 
-		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 		
 		# Get the building class of our current building
@@ -1006,7 +1006,7 @@ class SevoPediaBuilding:
 		isButtonFound = False
 		iButtonIndex = 0
 
-		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
 
 		# Get the building info
