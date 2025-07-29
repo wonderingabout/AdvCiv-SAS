@@ -609,6 +609,7 @@
 			<FeatureMakesValids/>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
+			<!-- custom: also add more hammer at fusion or similar tech, idea i got from rfc doc mod anyways etc -->
 			<TechYieldChanges>
 				<TechYieldChange>
 					<PrereqTech>TECH_GUILDS</PrereqTech>
@@ -620,6 +621,14 @@
 				</TechYieldChange>
 				<TechYieldChange>
 					<PrereqTech>TECH_CHEMISTRY</PrereqTech>
+					<TechYields>
+						<iYield>0</iYield>
+						<iYield>1</iYield>
+						<iYield>0</iYield>
+					</TechYields>
+				</TechYieldChange>
+				<TechYieldChange>
+					<PrereqTech>TECH_FUSION</PrereqTech>
 					<TechYields>
 						<iYield>0</iYield>
 						<iYield>1</iYield>
@@ -938,7 +947,17 @@
 			</BonusTypeStructs>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
-			<TechYieldChanges/>
+			<!-- custom: food can quickly become op, give it at most food related improvements except the farm ; also give as of now a commerce gold tech yield to forest_preserve to buff it as it is quite related to food theme as well without being op or so i think at least anyways etc, as well as of now at terraforming for towns just to extend their capabilities naturally as part of the game growth if i may say in this case but anyways etc in a way that is hopefully not op anyways etc and that maybe thematically makes sense if i may say but anyways etc -->
+			<TechYieldChanges>
+				<TechYieldChange>
+					<PrereqTech>TECH_ALIEN_LIFE</PrereqTech>
+					<TechYields>
+						<iYield>1</iYield>
+						<iYield>0</iYield>
+						<iYield>0</iYield>
+					</TechYields>
+				</TechYieldChange>
+			</TechYieldChanges>
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
@@ -1103,7 +1122,17 @@
 			</BonusTypeStructs>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
-			<TechYieldChanges/>
+			<!-- custom: see code comment at plantation 's techyieldchanges anyways etc -->
+			<TechYieldChanges>
+				<TechYieldChange>
+					<PrereqTech>TECH_ALIEN_LIFE</PrereqTech>
+					<TechYields>
+						<iYield>1</iYield>
+						<iYield>0</iYield>
+						<iYield>0</iYield>
+					</TechYields>
+				</TechYieldChange>
+			</TechYieldChanges>
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
@@ -1523,6 +1552,7 @@
 			<FeatureMakesValids/>
 			<ImprovementPillage>IMPROVEMENT_VILLAGE</ImprovementPillage>
 			<ImprovementUpgrade/>
+			<!-- custom: see code comment at plantation 's techyieldchanges anyways etc -->
 			<TechYieldChanges>
 				<TechYieldChange>
 					<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
@@ -1530,6 +1560,14 @@
 						<iYield>0</iYield>
 						<iYield>0</iYield>
 						<iYield>1</iYield>
+					</TechYields>
+				</TechYieldChange>
+				<TechYieldChange>
+					<PrereqTech>TECH_TERRAFORMING</PrereqTech>
+					<TechYields>
+						<iYield>0</iYield>
+						<iYield>0</iYield>
+						<iYield>2</iYield>
 					</TechYields>
 				</TechYieldChange>
 			</TechYieldChanges>
@@ -1649,7 +1687,17 @@
 			</FeatureMakesValids>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
-			<TechYieldChanges/>
+			<!-- custom: see code comment at plantation 's techyieldchanges anyways etc -->
+			<TechYieldChanges>
+				<TechYieldChange>
+					<PrereqTech>TECH_ALIEN_LIFE</PrereqTech>
+					<TechYields>
+						<iYield>0</iYield>
+						<iYield>0</iYield>
+						<iYield>2</iYield>
+					</TechYields>
+				</TechYieldChange>
+			</TechYieldChanges>
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>

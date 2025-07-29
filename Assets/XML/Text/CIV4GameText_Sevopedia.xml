@@ -136,13 +136,13 @@
 	<!-- custom: hopefully clearer formula of specifying it is about the base improvement tile yield(s) -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_BASE_TILE_YIELD_CHANGES</Tag>
-		<English>Base Tile Yield Change(s)</English>
+		<English>Base Tile Yield Changes</English>
 	</TEXT>
 	<!-- custom: be careful, this is applied to improvements category not ressources category.
 	Also clarifying it to a more detailed/accurate name to hopefully help the player, was "Bonus Yields" -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_ON_BONUSES_EXTRA_TILE_YIELD_CHANGES</Tag>
-		<English>On Bonus(es)/Ressource(s) Extra Tile Yield Change(s)</English>
+		<English>On Bonus(es) Extra Tile Yield Changes</English>
 	</TEXT>
 	<!-- custom: "Food: +1F (with Irrigation)" becomes now "+1F (with Irrigation)", remove the uneeded "%s1: " too now, see placeYield in SevoPediaImprovement.py for details -->
 	<TEXT>

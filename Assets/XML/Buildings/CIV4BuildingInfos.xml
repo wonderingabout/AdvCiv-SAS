@@ -16186,6 +16186,7 @@
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_PAGAN_SHRINE</ArtDefineTag>
+			<!-- custom: import from same mod where we imported the baalism nif_found from (forgot which) (the movie rather .dds file was in the files there as well if i am not mistaken anyways etc) anyways etc -->
 			<MovieDefineTag>ART_DEF_MOVIE_SHRINE_PAGAN</MovieDefineTag>
 			<HolyCity>RELIGION_PAGANISM</HolyCity>
 			<ReligionType>RELIGION_PAGANISM</ReligionType>
@@ -24913,7 +24914,7 @@
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_CULTURE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_NATYA_SHASTRA</ArtDefineTag>
-			<!-- custom: todo to change ideally, or alternatively set to NONE maybe too if possible even though less ideal but anyways etc at least would function-work but anyways etc, for now uses the old sistine chapel's movie which functions-works too but anyways etc anyways etc anyways etc... -->
+			<!-- custom: import from c2c mod's movie Meenakshi.bik -->
 			<MovieDefineTag>ART_DEF_MOVIE_NATYA_SHASTRA</MovieDefineTag>
 			<HolyCity>NONE</HolyCity>
 			<ReligionType>NONE</ReligionType>

@@ -103,7 +103,7 @@ and then modified for AdvCiv-SAS
 		</MovieArtInfo>
 		<MovieArtInfo>
 			<Type>ART_DEF_MOVIE_NATYA_SHASTRA</Type>
-			<Path>Art/Movies/Wonders/SistineChapel.bik</Path>
+			<Path>Art/AdvCiv_SAS/Buildings/Natya_Shastra/movie/Meenakshi.bik</Path>
 		</MovieArtInfo>
 		<MovieArtInfo>
 			<Type>ART_DEF_MOVIE_SPIRAL_MINARET</Type>
@@ -183,7 +183,7 @@ and then modified for AdvCiv-SAS
 		</MovieArtInfo>
 		<MovieArtInfo>
 			<Type>ART_DEF_MOVIE_SHRINE_PAGAN</Type>
-			<Path>Art/Movies/Religion/Confucianism/Shrine_Con_dwg_512.dds</Path>
+			<Path>Art/AdvCiv_SAS/Religions/Paganism/nif_found/Shaman_Shrine.dds</Path>
 		</MovieArtInfo>
 		<MovieArtInfo>
 			<Type>ART_DEF_MOVIE_SHRINE_DAOIST</Type>

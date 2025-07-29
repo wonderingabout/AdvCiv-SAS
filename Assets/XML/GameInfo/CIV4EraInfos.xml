@@ -515,21 +515,23 @@
 			<iEventChancePerTurn>10</iEventChancePerTurn>
 			<iSoundtrackSpace>40</iSoundtrackSpace>
 			<bFirstSoundtrackFirst>0</bFirstSoundtrackFirst>
+			<!-- custom: replace with original/specific if i may say anyways etc music instead of the modern era music copy pasted again here if i may say anyways etc ; see main readme's copyright section for copyright details if any are there or somewhere else relevant in our mod's docs if any are there as well alternatively as well anyways etc, anyways etc -->
 			<EraInfoSoundtracks>
-				<EraInfoSoundtrack>AS2D_ANFORTAS_WOUND</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_CHAIRMAN_DANCES</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_CHCONNE</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_CHRISTIAN_ZEAL</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_COMMON_TONES</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_GRAND_PIANOLA_1</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_GRAND_PIANOLA_2</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_HARMONIELEHRE</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_HYMING_SLEWS</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_LOOPS_AND_VERSES</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_MEISTER_ECKHARDT</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_SHAKING_AND_TREMBLING</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_THE_PEOPLE_ARE_HEROES</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_TROMBA_LONTANA</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_FUTURE_EPIC_SYMPHONIC_METAL_263322</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_FUTURE_FAMINE_IN_EUROPE</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_FUTURE_FINAL_SUNSHINE</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_FUTURE_FOOT_TAPPER_CLASSICAL</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_FUTURE_FUTURISTIC_ROBOT_COPS_234351</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_FUTURE_HEAVY_THRASH_METAL_377893</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_FUTURE_HOPE_AND_DESPAIR_212413</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_FUTURE_INTENSE_BLACK_METAL_304729</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_FUTURE_INTO_THE_DARKNESS_336411</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_FUTURE_LOFI_295209</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_FUTURE_ON_THE_COSMIC</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_FUTURE_POWER_IN_THEIR</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_FUTURE_RELAXING_PIANO_LOFI_251401</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_FUTURE_TACO_TRUCK_HEIST_377352</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_FUTURE_WORLD_S_END</EraInfoSoundtrack>
 			</EraInfoSoundtracks>
 			<CitySoundscapes>
 				<CitySoundscape>

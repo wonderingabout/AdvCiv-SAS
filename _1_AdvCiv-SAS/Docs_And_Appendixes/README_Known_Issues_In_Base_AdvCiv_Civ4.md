@@ -843,3 +843,31 @@ The result is the image appears no longer stretched at the top nor at the bottom
 Note 4: i have noticed also we could create fake pixels on the sides too, although much less, as it seems approximately 1 or 2% (gross estimation) of our image is missing on the left and right side, but bit tedious, so for now i fixed the biggest issue if i may say, but ideally one may also try to add fake pixels (say 6-10 pixels on each side to try to see if a larger portion of the as of now 1920 x 1440 image is visible, so it would maybe be say 1926 x 1440 or 1930 x 1440 or more or less around although i didn't try it so this is just speculation on my end, but a tiny portion of the side of the image is not visible, maybe this would help as well or maybe not, ideally i'd try it someday too but not guaranteed may or may not do so, hopefully helpful or not or yes or etc anyways etc...)
 
 Again, screenshots of intermediate steps are also shown in the google drive link in this known issue number's section as well, hopefully helpful or not or yes or etc anyways etc anyways etc anyways etc...
+
+## 29 - (as of now with a workaround) clicking on a specific spot in tech advisor at tech transhumanism's blue box causes a crash
+
+See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1-bhTzZeKZg8z_n0hcDJtAY8DnFfuuftg?usp=sharing)
+
+I don't know what the cause is, but clicking, in tech advisor (i.e. tech tree view if i am not mistaken anyways etc), on as of now tech_transhumanism's box (the blue rectalnge) specific position, we consistently get a crash and i have no idea why.
+
+I don't know if me playing in windowed as of now due to it being so much easier for developping/debugging and or such but anyways etc (didn't test full screen but anyways etc).
+
+Err logs and Dbg log don't seem to indicate anything related to this, so make sure you make enough saves regularly before browsing too much on tech advisor at least anyways etc.
+
+As of now, i have found a reliable/consistent workaround anyways etc, which is to click on the tech name itself, then the crash is avoided and we are successfulyl redirected to sevopedia tech anyways etc
+
+update: i have found the issue, and could reproduce it in particular with tech_agriculture, by adding an or prereq that is faulty or/and impossible to meet (i.e. xml asks tech_depopulation for example as of now here anyways etc to research tech_agriculture, even though tech_agriculture shouldn't require any tech as of now i mean anyways etc (and tech_depopulation also requires indirectly uch earlier tech_agriculture, so it is impossible to meet this tech prereq for tech_agriculture anyways etc, hence the crash when right clicking on the modified tech_agriculture's blue box as well anyways etc)).
+
+So it appears that the do research or whatever related or similar to it fails and crashes silently (would be nice to have an error message, ideally no crash anyways etc). I added the lines below at tech_agriculture and it caused same crash:
+
+```xml
+			<OrPreReqs>
+				<PrereqTech>TECH_DEPOPULATION</PrereqTech>
+			</OrPreReqs>
+```
+
+So based on this, the crash is caused by impossible prereqs, but an actual error message such as impossible to process the doResearch command would be nicer, as well as ideally not crashing.
+
+Ideally i would fix it, but is tedious, and most importantly, the issue shoudl disappear when we have proper tech preresq not the fake ones that are not functionnal and just taken from any tech i could find to replace with our new techs. So this is only a temporary issue, although less idela, it is probably most efficient to leave as it is. It is also maybe more reliable to have a silent crash rather than adding a complicated way to handle that may react unpredictably and not necessarily always handle correctly the cause or other causes. So seems safer and most efficient to leave it as it is, and just keep in mind if tech advisor crashes happen again, that issue may be faulty tech prereqs.
+
+See also, although not directly related: [README_Known_Issues_In_Base_AdvCiv_Civ4.md#22---now-fixed-obsolete-bonuses-such-as-bonus_elephants-anyways-etc-in-tech-advisor-ie-tech-tree-view-anyways-etc-failing-to-redirect-to-sevopedia-bonus-with-id-none-causing-an-error-unlike-obsolete-buildings-like-building_spiral_minaret-for-example-anyways-etc-successfully-showing-the-building-items-page-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#22---now-fixed-obsolete-bonuses-such-as-bonus_elephants-anyways-etc-in-tech-advisor-ie-tech-tree-view-anyways-etc-failing-to-redirect-to-sevopedia-bonus-with-id-none-causing-an-error-unlike-obsolete-buildings-like-building_spiral_minaret-for-example-anyways-etc-successfully-showing-the-building-items-page-anyways-etc)

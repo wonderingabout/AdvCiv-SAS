@@ -19,6 +19,8 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
+
+
 class SevoPediaImprovement:
 
 	def __init__(self, main):
@@ -51,11 +53,9 @@ class SevoPediaImprovement:
 		self.X_IMPROVEMENTS_PANE = self.X_UPPER_PANE
 		self.Y_IMPROVEMENTS_PANE = self.Y_UPPER_PANE + self.H_UPPER_PANE + self.SMALL_MARGIN
 		self.W_IMPROVEMENTS_PANE = 340
-		self.H_IMPROVEMENTS_PANE = 180
-		# <advc.004y>
-		if self.top.bFullScreen:
-			self.H_IMPROVEMENTS_PANE += 45
-		# </advc.004y>
+		# <!-- custom: increase height so we display more effects especially related to future/robotic era changes anyways etc ; also the "effects" (placeSpecial) panel is very small so maybe fine to do so and use the room for the base tile yield change(s) panel anyways etc -->
+		self.H_IMPROVEMENTS_PANE = 300
+
 		self.X_REQUIRES = self.X_UPPER_PANE
 		self.Y_REQUIRES = self.Y_IMPROVEMENTS_PANE + self.H_IMPROVEMENTS_PANE + self.SMALL_MARGIN
 		self.W_REQUIRES = self.W_IMPROVEMENTS_PANE
