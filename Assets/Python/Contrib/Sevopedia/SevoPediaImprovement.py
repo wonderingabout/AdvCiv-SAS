@@ -69,10 +69,10 @@ class SevoPediaImprovement:
 		self.Y_REQUIRES = self.Y_IMPROVEMENT_PANE + self.H_IMPROVEMENT_PANE + self.SMALL_MARGIN
 		self.W_REQUIRES = self.W_IMPROVEMENT_ANIMATION
 
-		self.X_BASE_YIELDS = self.X_IMPROVEMENT_PANE
-		self.Y_BASE_YIELDS = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
-		self.W_BASE_YIELDS = self.W_IMPROVEMENT_ANIMATION
-		self.H_BASE_YIELDS = self.top.B_PEDIA_PAGE - self.Y_BASE_YIELDS
+		self.X_MOST_YIELDS = self.X_IMPROVEMENT_PANE
+		self.Y_MOST_YIELDS = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
+		self.W_MOST_YIELDS = self.W_IMPROVEMENT_ANIMATION
+		self.H_MOST_YIELDS = self.top.B_PEDIA_PAGE - self.Y_MOST_YIELDS
 
 		self.X_TERRAIN_MAKES_VALIDS = self.X_IMPROVEMENT_ANIMATION
 		self.Y_TERRAIN_MAKES_VALIDS = self.Y_IMPROVEMENT_ANIMATION + self.H_IMPROVEMENT_ANIMATION + self.SMALL_MARGIN
@@ -101,7 +101,7 @@ class SevoPediaImprovement:
 		self.placeBonusYields()
 		self.placeImprovementAnimation()
 		self.placeRequires()
-		self.placeBaseYields()
+		self.placeMostYields()
 		self.placeTerrainMakesValids()
 		self.placeFeatureMakesValids()
 		self.placeHistory()
@@ -114,6 +114,43 @@ class SevoPediaImprovement:
 		# <!-- custom: was PanelStyles.PANEL_STYLE_MAIN -->
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
 		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getImprovementInfo(self.iImprovement).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+		# <!-- custom: move base yield info from yields panel to the improvement_pane panel, prettier or/adn clearer/more accurate as well maybe anyways etc (a bit like in sevopedia terrain and sevopedia feature anyways etc), anyways etc -->
+		# <!-- custom: line removed that seemed safe to do see diff with earlier code for comparison if needed -->
+		# <!-- custom: this part is for yields that do not require any additional tech than the one required to gain access to the ressources (for example + 2 hammer with mine, + 4 commerce with town)
+		s = u""
+		nCount = 0
+
+		for k in range(YieldTypes.NUM_YIELD_TYPES):
+			iYieldChange = gc.getImprovementInfo(self.iImprovement).getYieldChange(k)
+
+			if iYieldChange != 0:
+				# <!-- custom: for some reason the production char has one less char or something similar anyways etc, so pad it to the right as advised to me by chatgpt in a different way than what i did here but helped although i had same idea too xd but helped still thanks to find easier the char or see the idea itself so i could reflect on it if i may say anyways etc -->
+				if gc.getYieldInfo(k).getChar() == YieldTypes.YIELD_PRODUCTION:
+					s += u" "
+
+				if iYieldChange > 0:
+					sign = "+"
+				else:
+					sign = ""
+				s += (u"%s%i%c" % (sign, iYieldChange, gc.getYieldInfo(k).getChar()))
+				nCount += 1
+
+				# <!-- custom: also pad to the right as it seems we miss a char there as well anyways etc -->
+				if gc.getYieldInfo(k).getChar() == YieldTypes.YIELD_PRODUCTION:
+					s += u" "
+		
+		if nCount > 0:
+			szYield = u"<font=4>%s</font>" % s
+
+			xCenteringAdjust = 0
+			for i in range(nCount):
+				xCenteringAdjust -= 21
+
+			xCenteringPositioning = ((self.W_IMPROVEMENT_PANE-10) / 2) - 4
+			yBottomPositioning = self.H_IMPROVEMENT_PANE - 44
+			
+			screen.addMultilineText(self.top.getNextWidgetName(), szYield, self.X_IMPROVEMENT_PANE + xCenteringPositioning + xCenteringAdjust +5, self.Y_IMPROVEMENT_PANE - 13 + yBottomPositioning, self.W_IMPROVEMENT_PANE-10, self.H_IMPROVEMENT_PANE-10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -199,30 +236,13 @@ class SevoPediaImprovement:
 
 
 
-	def placeBaseYields(self):
+	def placeMostYields(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_BASE_TILE_YIELD_CHANGES", ()), "", True, True, self.X_BASE_YIELDS, self.Y_BASE_YIELDS, self.W_BASE_YIELDS, self.H_BASE_YIELDS, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_MOST_TILE_YIELD_CHANGES", ()), "", True, True, self.X_MOST_YIELDS, self.Y_MOST_YIELDS, self.W_MOST_YIELDS, self.H_MOST_YIELDS, PanelStyles.PANEL_STYLE_BLUE50)
 		listName = self.top.getNextWidgetName()
 		screen.attachListBoxGFC(panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(listName, False)
-
-		# <!-- custom: changes based on the same idea applied in SevoPediaBonus.py 's placeStats function as it is similar
-		#szYield += (u"%s: %s%i%c" % (gc.getYieldInfo(k).getDescription(), sign, iYieldChange, gc.getYieldInfo(k).getChar()))
-		# <!-- custom: line removed that seemed safe to do see diff with earlier code for comparison if needed -->
-		# <!-- custom: this part is for yields that do not require any additional tech than the one required to gain access to the ressources (for example + 2 hammer with mine, + 4 commerce with town)
-		for k in range(YieldTypes.NUM_YIELD_TYPES):
-			iYieldChange = gc.getImprovementInfo(self.iImprovement).getYieldChange(k)
-			if iYieldChange != 0:
-				szYield = u""
-				if iYieldChange > 0:
-					sign = "+"
-				else:
-					sign = ""
-				# <!-- custom: change here, also add a larger font, especially now that we have more room with less text now -->
-				#szYield += (u"%s: %s%i%c" % (gc.getYieldInfo(k).getDescription(), sign, iYieldChange, gc.getYieldInfo(k).getChar()))
-				szYield += (u"<font=4>%s%i%c</font>" % (sign, iYieldChange, gc.getYieldInfo(k).getChar()))
-				screen.appendListBoxString(listName, szYield, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		# <!-- custom: this part is for yields that require irrigation (for example farm + 1 food) -->
 		for k in range(YieldTypes.NUM_YIELD_TYPES):

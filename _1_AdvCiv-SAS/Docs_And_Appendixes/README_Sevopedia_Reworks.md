@@ -49,7 +49,7 @@ The core changes is on the panel header naming i mean but anyways etc, to help c
 
 More recently, i also added the improvement's build time (`iTime` in XML (note: related to the build's iTime, not the FeatureStruct's `iTime` which is about time to remove the feature as part building this build if i may say and if i am not mistaken, which is something different not displayed here but in sevopedia feature, see there or/and the [sevopedia feature's section in this readme](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) for details, thanks,)).
 
-Also refactored it and then added TerrainMakesValids, FeatureMakesValids, and History info/panels anyways etc (txt_key s imported from m-e mod (see [/README.md#credits](/README.md#credits) for details anyways etc), see sevopedia improvement py file or/and xml code comments for details anyways etc).
+Also refactored and beautified it, as well as added new TerrainMakesValids, FeatureMakesValids, and History info/panels anyways etc (txt_key s imported from m-e mod (see [/README.md#credits](/README.md#credits) for details anyways etc), see sevopedia improvement py file or/and xml code comments for details anyways etc).
 
 <img src="../Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG" alt="0.720_sevopedia_improvements_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG" alt="0.720_sevopedia_improvements_sample (2).JPG" width="250"></img>
