@@ -686,7 +686,7 @@ class SevoPediaUnit:
 		iCityDefense = unitInfo.getCityDefenseModifier()
 
 		if iCityAttack != 0 or iCityDefense != 0:
-			citiesConceptID = get_cities_concept_id(gc)
+			citiesConceptID = get_concept_id("CONCEPT_CITIES", gc)
 			widgetType, widgetID1, widgetID2 = get_concept_widgetType_widgetID1_widgetID2(citiesConceptID, WidgetTypes, CivilopediaPageTypes)
 
 			# Column index (always 0 when numLists=1)

@@ -116,6 +116,7 @@ then modified to have "Mods Info" and "Outdated" instead of the old concept sevo
 			<Description>TXT_KEY_CONCEPT_BUILDINGS</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_BUILDINGS_PEDIA</Civilopedia>
 		</ConceptInfo>
+		<!-- custom: about the CONCEPT_CITIES, we use it to redirect to, as of now from sevopedia unit, so in case you want to move it, handle the modification there or here as well anyways etc -->
 		<ConceptInfo>
 			<Type>CONCEPT_CITIES</Type>
 			<Description>TXT_KEY_CONCEPT_CITIES</Description>
@@ -256,6 +257,23 @@ then modified to have "Mods Info" and "Outdated" instead of the old concept sevo
 			<Description>TXT_KEY_CONCEPT_REVOLUTION</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_REVOLUTION_PEDIA</Civilopedia>
 		</ConceptInfo>
+		<!-- custom: new additions to redirect to them in sevopedia improvement, see there for details anyways etc ; is also with the help of gemini ai, anyways etc -->
+		<ConceptInfo>
+			<Type>CONCEPT_RIVERS</Type>
+			<Description>TXT_KEY_CONCEPT_RIVERS_TITLE</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_RIVERS_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_ROUTE_ROAD</Type>
+			<Description>TXT_KEY_CONCEPT_ROUTE_ROAD_TITLE</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_ROUTE_ROAD_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<ConceptInfo>
+			<Type>CONCEPT_ROUTE_RAILROAD</Type>
+			<Description>TXT_KEY_CONCEPT_ROUTE_RAILROAD_TITLE</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_ROUTE_RAILROAD_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<!-- custom: end of new additions anyways etc -->
 		<ConceptInfo>
 			<Type>CONCEPT_SPACESHIP</Type>
 			<Description>TXT_KEY_CONCEPT_SPACESHIP</Description>

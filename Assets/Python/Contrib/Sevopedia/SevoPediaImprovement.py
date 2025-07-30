@@ -17,6 +17,8 @@ import CvUtil
 #import ScreenInput
 #import SevoScreenEnums
 
+from _sevopedia_helpers import *
+
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
@@ -228,76 +230,113 @@ class SevoPediaImprovement:
 
 
 
+	# <!-- custom: code entirely replaced with a code provided by claude ai based on m-e mod 's placeImprovements code (in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth\Assets\Python\Screens\PlatyPedia\PlatyPediaImprovement.py ) anyways etc, also with gemini ai's help too thanks a lot as well anyways etc, and adjsuted or not for advciv-sas anyways etc -->
 	def placeMostYields(self):
 		screen = self.top.getScreen()
+		screen.addPanel(self.top.getNextWidgetName(), localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_MOST_TILE_YIELD_CHANGES", ()), "", True, True, self.X_MOST_YIELDS, self.Y_MOST_YIELDS, self.W_MOST_YIELDS, self.H_MOST_YIELDS, PanelStyles.PANEL_STYLE_BLUE50)
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_MOST_TILE_YIELD_CHANGES", ()), "", True, True, self.X_MOST_YIELDS, self.Y_MOST_YIELDS, self.W_MOST_YIELDS, self.H_MOST_YIELDS, PanelStyles.PANEL_STYLE_BLUE50)
-		listName = self.top.getNextWidgetName()
-		screen.attachListBoxGFC(panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY)
-		screen.enableSelect(listName, False)
+		screen.addScrollPanel(panelName, "", self.X_MOST_YIELDS - 2, self.Y_MOST_YIELDS + 20, self.W_MOST_YIELDS + 4, self.H_MOST_YIELDS - 46, PanelStyles.PANEL_STYLE_EMPTY)
 
-		# <!-- custom: this part is for yields that require irrigation (for example farm + 1 food) -->
-		for k in range(YieldTypes.NUM_YIELD_TYPES):
-			iYieldChange = gc.getImprovementInfo(self.iImprovement).getIrrigatedYieldChange(k)
+		iY = 6
+		iButtonSize = 64  # Use default 64px button size for better visibility
+		Info = gc.getImprovementInfo(self.iImprovement)
+
+		# Irrigated yield changes
+		sText = ""
+		for k in xrange(YieldTypes.NUM_YIELD_TYPES):
+			iYieldChange = Info.getIrrigatedYieldChange(k)
 			if iYieldChange != 0:
-				# <!-- custom: change here -->
-				#szYield = localText.getText("TXT_KEY_PEDIA_IRRIGATED_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar()))
-				# note: even though we don't use the %s1 field anymore, the parameter is needed for localText.getText else the display shows something weird, so since we don't use it, just leave a "" instead, as long as there is something even if empty should be fine -->		
-				szYield = localText.getText("TXT_KEY_PEDIA_IRRIGATED_YIELD", ("", iYieldChange, gc.getYieldInfo(k).getChar()))
-				szText = u"<font=4>" + szYield + u"</font>"
-				screen.appendListBoxString(listName, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
+		if len(sText) > 0:
+			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_IRRIGATION").getPath(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, gc.getInfoTypeForString("CONCEPT_IRRIGATION"))
+			screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			iY += (iButtonSize + 8)
 
-		# <!-- custom: (it seems) no improvement of the sevopedia in base bts/advciv uses this part.
-		# Doing a global search (with vs code) in root civ4 folder, i found this:
-		# TXT_KEY_PEDIA_HILLS_YIELD
-		# <English>%s1: %D2%F3 (on Hills)</English>
-		# we don't currently have hills specific improvement bonuses, but may be useful if someone were to reuse these sevopedia changes i did -->
-		for k in range(YieldTypes.NUM_YIELD_TYPES):
-			iYieldChange = gc.getImprovementInfo(self.iImprovement).getHillsYieldChange(k)
+		# Hills yield changes
+		sText = ""
+		for k in xrange(YieldTypes.NUM_YIELD_TYPES):
+			iYieldChange = Info.getHillsYieldChange(k)
 			if iYieldChange != 0:
-				szYield = localText.getText("TXT_KEY_PEDIA_HILLS_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar()))
-				szText = u"<font=4>" + szYield + u"</font>"
-				screen.appendListBoxString(listName, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
+		if len(sText) > 0:
+			iHill = gc.getInfoTypeForString("TERRAIN_HILL")
+			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, gc.getTerrainInfo(iHill).getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iHill, 1)
+			screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			iY += (iButtonSize + 8)
 
-		# <!-- custom: similarly (done) as for for/in TXT_KEY_PEDIA_HILLS_YIELD -->
-		for k in range(YieldTypes.NUM_YIELD_TYPES):
-			szYield = u""
-			iYieldChange = gc.getImprovementInfo(self.iImprovement).getRiverSideYieldChange(k)
+		# River yield changes
+		sText = ""
+		for k in xrange(YieldTypes.NUM_YIELD_TYPES):
+			iYieldChange = Info.getRiverSideYieldChange(k)
 			if iYieldChange != 0:
-				szYield = localText.getText("TXT_KEY_PEDIA_RIVER_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar()))
-				szText = u"<font=4>" + szYield + u"</font>"
-				screen.appendListBoxString(listName, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
+		if len(sText) > 0:
+			# <!-- custom: unlike in m-e mod or so it seems if i may say but anyways etc, we don't use WidgetTypes.WIDGET_PYTHON and id 6783 neither if i may say but anyways etc, so go for a simpler implementation, that matches how we redirect using concepts in sevopedia unit as of now to the concept_cities for example, we now have a new concept_rivers to redirect to now in advciv-sas, use that rather, is also thanks to gemini ai's help, and adjusted or not by me too hehe if i may say in this case but anyways etc for advciv-sas anyways etc -->
+			#screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_RIVER_PLACEMENT").getPath(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PYTHON, 6783, -1)
+			#screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			# This button now links to the Civilopedia concept for Rivers.
+			# Its tooltip and click behavior are handled by the built-in Civ4 widget system.
+			# Ensure 'CONCEPT_RIVERS' is defined in your Civilopedia XML.
+			riversConceptID = get_concept_id("CONCEPT_RIVERS", gc)
+			widgetType, widgetID1, widgetID2 = get_concept_widgetType_widgetID1_widgetID2(riversConceptID, WidgetTypes, CivilopediaPageTypes)
+			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_RIVER_PLACEMENT").getPath(), 0, iY, iButtonSize, iButtonSize, widgetType, widgetID1, widgetID2)
+			screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			iY += (iButtonSize + 8)
 
-		# <!-- custom: this part is for yields that require an additional tech than the one required to gain access to the ressources (for example + 1 hammer with mine (requires railroad), + 1 commerce with town (requires printing press)) -->
-		for iTech in range(gc.getNumTechInfos()):
-			for k in range(YieldTypes.NUM_YIELD_TYPES):
-				szYield = u""
-				iYieldChange = gc.getImprovementInfo(self.iImprovement).getTechYieldChanges(iTech, k)
+		# Tech yield changes
+		for item in xrange(gc.getNumTechInfos()):
+			sText = ""
+			for k in xrange(YieldTypes.NUM_YIELD_TYPES):
+				iYieldChange = Info.getTechYieldChanges(item, k)
 				if iYieldChange != 0:
-					szYield = localText.getText("TXT_KEY_PEDIA_TECH_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar(), gc.getTechInfo(iTech).getDescription()))
-					szText = u"<font=4>" + szYield + u"</font>"
-					screen.appendListBoxString(listName, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
+			if len(sText):
+				screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, gc.getTechInfo(item).getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, item, 1)
+				screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				iY += (iButtonSize + 8)
 
-		# <!-- custom: similarly (done) as for for/in TXT_KEY_PEDIA_HILLS_YIELD -->
-		for iCivic in range(gc.getNumCivicInfos()):
-			for k in range(YieldTypes.NUM_YIELD_TYPES):
-				szYield = u""
-				iYieldChange = gc.getCivicInfo(iCivic).getImprovementYieldChanges(self.iImprovement, k)
+		# Civic yield changes
+		for item in xrange(gc.getNumCivicInfos()):
+			sText = ""
+			for k in xrange(YieldTypes.NUM_YIELD_TYPES):
+				iYieldChange = gc.getCivicInfo(item).getImprovementYieldChanges(self.iImprovement, k)
 				if iYieldChange != 0:
-					szYield = localText.getText("TXT_KEY_PEDIA_TECH_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar(), gc.getCivicInfo(iCivic).getDescription()))
-					szText = u"<font=4>" + szYield + u"</font>"
-					screen.appendListBoxString(listName, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
+			if len(sText):
+				screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, gc.getCivicInfo(item).getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, item, 1)
+				screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				iY += (iButtonSize + 8)
 
-		#<!-- custom: similarly (done) as for for/in TXT_KEY_PEDIA_HILLS_YIELD -->
-		for iRoute in range(gc.getNumRouteInfos()):
-			for k in range(YieldTypes.NUM_YIELD_TYPES):
-				iYieldChange = gc.getImprovementInfo(self.iImprovement).getRouteYieldChanges(iRoute, k)
+		# Route yield changes
+		for item in xrange(gc.getNumRouteInfos()):
+			sText = ""
+			for k in xrange(YieldTypes.NUM_YIELD_TYPES):
+				iYieldChange = Info.getRouteYieldChanges(item, k)
 				if iYieldChange != 0:
-					# <!-- custom: remove newline, isn't necessary unless i'm mistaken -->
-					#szYield += localText.getText("TXT_KEY_PEDIA_ROUTE_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar(), gc.getRouteInfo(iRoute).getTextKey())) + u"\n"
-					szYield += localText.getText("TXT_KEY_PEDIA_ROUTE_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar(), gc.getRouteInfo(iRoute).getTextKey()))
-					szText = u"<font=4>" + szYield + u"</font>"
-					screen.appendListBoxString(listName, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
+			if len(sText):
+				# <!-- similarly than for river yield changes, also handle route yield changes differently than in m-e mod, using the newly added in advciv-sas CONCEPT_ROUTE_ROAD and CONCEPT_ROUTE_RAILROAD (as these are as of now our only routeinfo xml entries if i am not mistaken anyways etc) as sevopedia pages to redirect to as well anyways etc -->
+				#screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, gc.getRouteInfo(item).getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PYTHON, 6788, item)
+				#screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				# Determine which concept to link to based on the route type.
+				routeInfo = gc.getRouteInfo(item)
+				# <!-- custom: as of now if i am not mistaken with a conceptIDToRoute of -1 we would get with get_concept_widgetType_widgetID1_widgetID2 anyways etc an id1 -1 and id2 -1 and widget general too if i may say anyways etc so maybe fine for not crash, else i'd still want it to crash loudly rather than silently, as i said to gemini ai too who approved of it hehe as they (ais) usually do but i believe sitll provided some critical thinking or non-opposition one with my idea maybe if i am not mistaken but in all cases thanks for being my echo chamber xd gemini ai if i may say yo helped me lot if i may say here too anyways etc and other ais as well thanks i mean too if i may say but anyways etc, but since this seems safe enough in handling fallback no redirect, maybe leave as is and do not write a hard crash if missing at load such as what we do as of now for the getters in sevopedia leader for example if i remember correctly and am not mistaken i mean (i think not but in case and to eb safe who knows but anyways etc) -->
+				# Initialize with invalid ID
+				conceptIDToRoute = -1
+				# Check if it's a Road or Railroad, or a general Route concept
+				if routeInfo.getType() == "ROUTE_ROAD":
+					conceptIDToRoute = get_concept_id("CONCEPT_ROUTE_ROAD", gc)
+				elif routeInfo.getType() == "ROUTE_RAILROAD":
+					conceptIDToRoute = get_concept_id("CONCEPT_ROUTE_RAILROAD", gc)
+				# Add more conditions here if you have other specific route types and concepts for them.
+
+				# Get widget parameters for the determined concept.
+				widgetType, widgetID1, widgetID2 = get_concept_widgetType_widgetID1_widgetID2(conceptIDToRoute, WidgetTypes, CivilopediaPageTypes)
+
+				# Use the button from the RouteInfo itself
+				screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, routeInfo.getButton(), 0, iY, iButtonSize, iButtonSize, widgetType, widgetID1, widgetID2)
+				screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				iY += (iButtonSize + 8)
 
 
 

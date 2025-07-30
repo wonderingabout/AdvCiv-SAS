@@ -136,4 +136,32 @@ Rename the tag									Original untouched; you're free to localize your version
 		<Tag>TXT_KEY_ADVCIV_SAS_CORE_AI_PERSONALITY_PANEL_INTRO_PEDIA_SR</Tag>
 		<English>[H1]About the AI Personality Panel in AdvCiv-SAS[\H1][PARAGRAPH:2]An exhaustive/extensive documentation has been written about the AI Personality Panel feature (that is) in AdvCiv-SAS (in the SevopediaLeader category), explaining, in broad, general ways how it works and how to read the data from a new player's perspective.[PARAGRAPH:2]It is recommended to read it to understand better how it works.[PARAGRAPH:2]You can view it:[NEWLINE]- online on github (todo add link),[NEWLINE]- or even if you are offline, you can read the .md files as any text file, for example with Notepad++ (or the default Notepad.exe of windows too if you prefer but Notepad.exe has less advanced features, still more than good enough for reading a doc especially if you prefer and should display all info as well if i'm not mistaken, anyways etc anyways). The file path is, for example if you have the Steam version of Civ4 (adapt to where your game and mod is if you use a non-Steam (or other than Steam) version (maybe rather anyways): "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\README_AI_Personality_Panel.md")[PARAGRAPH:2]You'll get most info from there hopefully rather than me copy pasting the same doc (painfully hehe but that i would gladly do (maybe or not or other etc anyways) but better avoid if possible anyways) in sevopedia ingame and it being potentially outdated after not long, etc anyways, thanks.</English>
 	</TEXT>
+
+
+
+	<!-- custom: see code comment at (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml for details anyways etc, i adjusted gemini ai's code and help thanks a lot still anyways etc hehe if i may say but anyways etc anyways etc anyways etc ; note: it is also fine if i may say but anyways etc if the info below is unfortunately outdated if i may say but anyways etc or/and not relevant in our mod anymore, we don't support it, but use it mostly if not only for its redirect feature/behaviour similarly to how we handle the redirect in sevopedia unit as of now to concept_cities, if it can help all good, else we do not maintain these, but add them at least for this purpose of redirecting if i may say in our mod i.e. advciv-sas but anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_CONCEPT_RIVERS_TITLE</Tag>
+		<English>Rivers</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CONCEPT_RIVERS_PEDIA</Tag>
+		<English>[H1]Rivers[\H1][PARAGRAPH:2]Rivers are exceptional terrain in that they are not "in" or "on" a tile, but they run between tiles. A river is considered adjacent to all tiles that it runs along, including all four tiles which touch a place where the river bends or empties into water. However, the two tiles which touch the source of a river and are behind it, with respect to the river's flow, are not riverside. Rivers supply fresh water to all adjacent tiles. A river adds +1 [ICON_COMMERCE] to all adjacent land tiles, unless they also contain an unimproved forest or jungle. Only riverside Cities may build [LINK=BUILDING_LEVEE]Levees[\LINK], which provide +1 [ICON_PRODUCTION] to every riverside tile within that City's radius.[PARAGRAPH:1]Source: https://civilization.fandom.com/wiki/Terrain_(Civ4)#Rivers</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CONCEPT_ROUTE_ROAD_TITLE</Tag>
+		<English>Route (Road)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CONCEPT_ROUTE_ROAD_PEDIA</Tag>
+		<English>[H1]Route (Road)[\H1][PARAGRAPH:2]Roads and railroads allow units to move longer distances within a turn by reducing the movement costs of terrain.[PARAGRAPH:1]When a unit is within hostile cultural borders, roads and railroads have no effect unless the unit has the Commando promotion. When the civilization has an Open Borders agreement allowing their units right of passage, they may freely take advantage of roads and railroads.[PARAGRAPH:2]Roads can be built after discovering The Wheel. With roads, all spaces cost 1/2 [ICON_MOVES] Movement points (MP) to enter from other road tiles. After discovering [LINK=TECH_ENGINEERING]Engineering[\LINK], the cost goes down to 1/3 [ICON_MOVES] MP. In practice, this means that a unit with just one movement point can move three tiles using roads. Similarly, units with two movement points can move six tiles.[PARAGRAPH:1]Source: https://civilization.fandom.com/wiki/Road_and_railroad_(Civ4)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CONCEPT_ROUTE_RAILROAD_TITLE</Tag>
+		<English>Route (Railroad)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CONCEPT_ROUTE_RAILROAD_PEDIA</Tag>
+		<English>[H1]Route (Railroad)[\H1][PARAGRAPH:2]Roads and railroads allow units to move longer distances within a turn by reducing the movement costs of terrain.[PARAGRAPH:1]When a unit is within hostile cultural borders, roads and railroads have no effect unless the unit has the Commando promotion. When the civilization has an Open Borders agreement allowing their units right of passage, they may freely take advantage of roads and railroads.[PARAGRAPH:2]To build railroads, the civilization first needs to discover the Railroad technology and have an access to Coal or Oil. Railroads are similar to roads, but they reduce the number of [ICON_MOVES] Movement points needed to enter a tile from another railroad tile to 1/10 [ICON_MOVES] MP.[PARAGRAPH:1]Railroads also give a bonus of 1 [ICON_PRODUCTION] to tiles with a [LINK=IMPROVEMENT_MINE]Mine[\LINK], a [LINK=IMPROVEMENT_LUMBERMILL]Lumbermill[\LINK], or a [LINK=IMPROVEMENT_QUARRY]Quarry[\LINK].[PARAGRAPH:1]Source: https://civilization.fandom.com/wiki/Road_and_railroad_(Civ4)</English>
+	</TEXT>
 </Civ4GameText>

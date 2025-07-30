@@ -163,44 +163,36 @@
 		<Tag>TXT_KEY_PEDIA_FEATURE_MAKES_VALIDS_NO_RESTRICTION</Tag>
 		<English>No Restriction in ImprovementInfo 's FeatureMakesValids</English>
 	</TEXT>
-	<!-- custom: "Food: +1F (with Irrigation)" becomes now "+1F (with Irrigation)", remove the uneeded "%s1: " too now, see placeYield in SevoPediaImprovement.py for details -->
+	<!-- custom: "Food: +1F (with Irrigation)" becomes now "+1F (with Irrigation)", remove the uneeded "%s1: " too now, see placeYield in SevoPediaImprovement.py for details ; note: update anyways etc: these entries are not used anymore now that we display them as buttons, commented-out in case they may be needed someday (or not if i may say in this case too if i may say but anyways etc...) but anyways etc
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_IRRIGATED_YIELD</Tag>
-		<!-- %s1 = TXT_KEY_IMPROVEMENT -->
 		<English>%D2%F3 (with Irrigation)</English>
 		<French>%D2%F3 (avec irrigation)</French>
 		<German>Modernisierung %s1: %D2%F3 (mit Bew&#228;sserung)</German>
 		<Italian>%D2%F3 (con irrigazione)</Italian>
 		<Spanish>%D2 %F3 (con riego)</Spanish>
 	</TEXT>
-	<!-- custom: for the german translation the	text was/looks(ed) weird so i applied the english one instead "Production: +1H (on Hills)" is now "+1H (on Hills)" -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_HILLS_YIELD</Tag>
-		<!-- %s1 = TXT_KEY_IMPROVEMENT -->
 		<English>%D2%F3 (on Hills)</English>
 		<French>%D2%F3 (sur les collines)</French>
 		<Italian>%D2%F3 (sulle colline)</Italian>
 		<Spanish>%D2 %F3 (en colinas)</Spanish>
 	</TEXT>
-	<!-- custom: similarly (done) as for for/in TXT_KEY_PEDIA_HILLS_YIELD -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_RIVER_YIELD</Tag>
-		<!-- %s1 = TXT_KEY_IMPROVEMENT -->
 		<English>%D2%F3 (next to River)</English>
 		<French>%D2%F3 (pr&#232;s des fleuves)</French>
 		<Italian>%D2%F3 (vicino a un fiume)</Italian>
 		<Spanish>%D2 %F3 (junto a un r&#237;o)</Spanish>
 	</TEXT>
-	<!-- custom: similarly (done) as for for/in TXT_KEY_PEDIA_HILLS_YIELD -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_TECH_YIELD</Tag>
-		<!-- %s1 = TXT_KEY_IMPROVEMENT  %s4 = TXT_KEY_BONUS -->
 		<English>%D2%F3 (with [LINK=literal]%s4[\LINK])</English>
 		<French>%D2%F3 (avec [LINK=literal]%s4[\LINK])</French>
 		<Italian>%D2%F3 (con [LINK=literal]%s4[\LINK])</Italian>
 		<Spanish>%D2 %F3 (con [LINK=literal]%s4[\LINK])</Spanish>
 	</TEXT>
-	<!-- custom: similarly (done) as for for/in TXT_KEY_PEDIA_HILLS_YIELD -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_ROUTE_YIELD</Tag>
 		<English>%D2%F3 (with [LINK=CONCEPT_MOVEMENT]%s4[\LINK])</English>
@@ -208,7 +200,7 @@
 		<Italian>%D2%F3 (con [LINK=CONCEPT_MOVEMENT]%s4[\LINK])</Italian>
 		<Spanish>%D2 %F3 (con [LINK=CONCEPT_MOVEMENT]%s4[\LINK])</Spanish>
 	</TEXT>
-
+	-->	
 
 	<!-- advc.004y: Originally in CIV4GameTextInfos.xml. Only removed the
 	parentheses and "Total"; more comprehensible this way. -->
