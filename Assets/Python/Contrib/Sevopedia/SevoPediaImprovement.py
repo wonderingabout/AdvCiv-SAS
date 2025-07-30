@@ -125,27 +125,19 @@ class SevoPediaImprovement:
 			iYieldChange = gc.getImprovementInfo(self.iImprovement).getYieldChange(k)
 
 			if iYieldChange != 0:
-				# <!-- custom: for some reason the production char has one less char or something similar anyways etc, so pad it to the right as advised to me by chatgpt in a different way than what i did here but helped although i had same idea too xd but helped still thanks to find easier the char or see the idea itself so i could reflect on it if i may say anyways etc -->
-				if gc.getYieldInfo(k).getChar() == YieldTypes.YIELD_PRODUCTION:
-					s += u" "
-
 				if iYieldChange > 0:
 					sign = "+"
 				else:
 					sign = ""
-				s += (u"%s%i%c" % (sign, iYieldChange, gc.getYieldInfo(k).getChar()))
+				s += (u"%s%i%c " % (sign, iYieldChange, gc.getYieldInfo(k).getChar()))
 				nCount += 1
-
-				# <!-- custom: also pad to the right as it seems we miss a char there as well anyways etc -->
-				if gc.getYieldInfo(k).getChar() == YieldTypes.YIELD_PRODUCTION:
-					s += u" "
 		
 		if nCount > 0:
 			szYield = u"<font=4>%s</font>" % s
 
 			xCenteringAdjust = 0
 			for i in range(nCount):
-				xCenteringAdjust -= 21
+				xCenteringAdjust -= 23
 
 			xCenteringPositioning = ((self.W_IMPROVEMENT_PANE-10) / 2) - 4
 			yBottomPositioning = self.H_IMPROVEMENT_PANE - 44
