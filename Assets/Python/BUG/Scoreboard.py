@@ -18,7 +18,7 @@ import DealUtil
 import FontUtil
 import CvUtil
 import re
-# <!-- custom: remove or comment out unused imports -->
+# <!-- custom: remove or comment out seemingly unused imports -->
 import MonkeyTools # advc.085: For checking Ctrl key
 import LayoutDict # advc.092
 import CvScreensInterface # advc.092

@@ -452,10 +452,11 @@
 			<Description>TXT_KEY_TERRAIN_TUNDRA</Description>
 			<Civilopedia>TXT_KEY_TERRAIN_TUNDRA_PEDIA</Civilopedia>
 			<ArtDefineTag>ART_DEF_TERRAIN_TUNDRA</ArtDefineTag>
+			<!-- custom: buff tundra and make it a viable alternative tile to plains, not just a weaker tile ; should still be a bit weaker than terrain_plains according to chatgpt as of now at least, and is maybe realistic to represent to tundra higher modern ressource extraction in general terms from what i understand and reprhase of chatgpt's explanation anyways etc, was 1 / 0 / 0 -->
 			<Yields>
 				<iYield>1</iYield>
 				<iYield>0</iYield>
-				<iYield>0</iYield>
+				<iYield>1</iYield>
 			</Yields>
 			<RiverYieldChange>
 				<iYield>0</iYield>

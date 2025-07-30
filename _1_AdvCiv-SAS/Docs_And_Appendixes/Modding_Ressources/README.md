@@ -221,6 +221,66 @@ Great people AIs:
 For unit AIs that are correct in the OP, I didn't write anything.
 ```
 
+## Where to find Python errors or debug (so no need to copy them either if you need to ask chatgpt or such or a forum anyways etc)
+
+Go and look in (adjust to your mod path):
+
+- C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log
+- C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonErr.log
+- C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonErr2.log
+
+You'll have errors in err log (the same errors you see ingame if i am not mistaken, but no need to manually rewrite them, just copy paste these anyways etc) such as for example anyways etc:
+
+```log
+Traceback (most recent call last):
+
+  File "CvScreensInterface", line 487, in pediaJumpToImprovement
+
+  File "SevoPediaMain", line 327, in pediaJump
+
+  File "SevoPediaImprovement", line 103, in interfaceScreen
+
+  File "SevoPediaImprovement", line 300, in placeTerrainMakesValid
+
+AttributeError: 'CvImprovementInfo' object has no attribute 'isTerrainMakesValid'
+ERR: Python function pediaJumpToImprovement failed, module CvScreensInterface
+```
+
+Which would help you solve them, in my case by doing a global search, finding the correct makesvalid method or such (much easier with the [civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt](/_0_Common_Docs/CIV4BUG%20Sourceforge%20net%20All%20Classes%20Doc/civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt) file we added in advciv-sas mod doc files (that i found on the internet i mean i didn't write it myself but it helps a lot, see below how to use vs code global search for example for details anyways etc)
+
+## Another example of how to use VS Code global search (also shows an example of how to also browse the CIV4 BUG doc (copy included in our mod) anyways etc)
+
+I call it "global search" but i don't know how it is exactly called, it's the feature that allows you in VS Code to search in your entire opened folder (all files) rather than just the current file (not ctrl+f, but instead the "zoom object looking icon" on left panel as of now in vs code anyways etc)
+
+result is for example this (you can right click -> "copy" too so no need to rewrite them)
+
+```txt
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\CIV4BUG Sourceforge net All Classes Doc\civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt
+  4173,13: BOOL isBonusMakesValid ()
+  4232,16: BOOL getFeatureMakesValid (INT i)
+  4274,16: BOOL getTerrainMakesValid (INT i)
+  4292,18: BOOL isFreshWaterMakesValid ()
+  4298,13: BOOL isHillsMakesValid ()
+  4301,24: BOOL isImprovementBonusMakesValid (INT i)
+  4328,17: BOOL isRiverSideMakesValid ()
+```
+
+Then feed it to chatgpt with the makes valid entire method (a dozen or 2 dozen lines hehe as of now, which i only display for concision these fewer lines here) so it can help me fix it thanks chatgpt if i may say or maybe me too thanks to em too i mean or yes or not or yes or etc but anyways etc:
+
+```python
+		for iTerrain in xrange(gc.getNumTerrainInfos()):
+			if gc.getImprovementInfo(self.iImprovement).isTerrainMakesValid(iTerrain):
+```
+
+that chatgpt fixed as (slightly adjusted its code by merging 2 lines (it created a bValid boolean we otherwise don't use if i am not mistaken but anyways etc)), after a bit of back and forth unusually, as usually it would fix it at first try when giving it bug doc sample, but it thought our code was right despite the error. Still, (or i could ask other ais like gemini or claude or deepseek maybe too or and such but  anyways etc):
+
+```python
+		for iTerrain in xrange(gc.getNumTerrainInfos()):
+			if gc.getImprovementInfo(self.iImprovement).getTerrainMakesValid(iTerrain):
+```
+
+Which helped fix our issue successfully now anyways etc if i may say thnakfulyl but anyways etc :)
+
 ## Civ4 ProcessInfos XML info
 
 From: [modiki's website, wayback archive version latest i found anyways etc](https://web.archive.org/web/20230330010924/https://modiki.civfanatics.com/index.php?title=Civ4ProcessInfo) since was/is down the website as of/for now anyways etc

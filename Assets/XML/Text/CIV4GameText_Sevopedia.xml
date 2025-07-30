@@ -139,10 +139,29 @@
 		<English>Base Tile Yield Changes</English>
 	</TEXT>
 	<!-- custom: be careful, this is applied to improvements category not ressources category.
-	Also clarifying it to a more detailed/accurate name to hopefully help the player, was "Bonus Yields" -->
+	Also clarifying it to a more detailed/accurate name to hopefully help the player ; also as of now disabled as is prettier and clearer without it anyways etc, was "Bonus Yields"
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_ON_BONUSES_EXTRA_TILE_YIELD_CHANGES</Tag>
-		<English>On Bonus(es) Extra Tile Yield Changes</English>
+		<English>On Bonuses Extra Yield</English>
+	</TEXT>
+	-->
+	<!-- custom: new panels, see sevopedia improvement for details anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_TERRAIN_MAKES_VALIDS</Tag>
+		<English>TerrainMakesValids</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FEATURE_MAKES_VALIDS</Tag>
+		<English>FeatureMakesValids</English>
+	</TEXT>
+	<!-- custom: clarify that the restriction can be elsewhere (maybe in bonus infos for example? But anyways etc), not only see sevopedia improvement for details anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_TERRAIN_MAKES_VALIDS_NO_RESTRICTION</Tag>
+		<English>No Restriction in ImprovementInfo 's TerrainMakesValids</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FEATURE_MAKES_VALIDS_NO_RESTRICTION</Tag>
+		<English>No Restriction in ImprovementInfo 's FeatureMakesValids</English>
 	</TEXT>
 	<!-- custom: "Food: +1F (with Irrigation)" becomes now "+1F (with Irrigation)", remove the uneeded "%s1: " too now, see placeYield in SevoPediaImprovement.py for details -->
 	<TEXT>

@@ -4,7 +4,7 @@
 
 from CvPythonExtensions import *
 import CvUtil
-# <!-- custom: remove or comment out unused imports -->
+# <!-- custom: remove or comment out seemingly unused imports -->
 #import ScreenInput
 #import SevoScreenEnums
 #import TraitUtil

@@ -1,6 +1,6 @@
 # Sid Meier's Civilization 4
 # Copyright Firaxis Games 2005
-
+#
 #
 # Sevopedia 2.3
 #   sevotastic.blogspot.com
@@ -9,9 +9,11 @@
 # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
 #
 
+
+
 from CvPythonExtensions import *
 import CvUtil
-# <!-- custom: remove or comment out unused imports -->
+# <!-- custom: remove or comment out seemingly unused imports -->
 #import ScreenInput
 #import SevoScreenEnums
 
@@ -30,46 +32,64 @@ class SevoPediaImprovement:
 		self.MEDIUM_MARGIN = 15
 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
 
-		self.X_UPPER_PANE = self.top.X_PEDIA_PAGE
-		self.Y_UPPER_PANE = self.top.Y_PEDIA_PAGE
-		self.W_UPPER_PANE = 210
-		self.H_UPPER_PANE = 210
+		self.X_IMPROVEMENT_PANE = self.top.X_PEDIA_PAGE
+		self.Y_IMPROVEMENT_PANE = self.top.Y_PEDIA_PAGE
+		self.W_IMPROVEMENT_PANE = 210
+		self.H_IMPROVEMENT_PANE = 210
 
 		self.W_ICON = 150
 		self.H_ICON = 150
-		self.X_ICON = self.X_UPPER_PANE + (self.H_UPPER_PANE - self.H_ICON) / 2
-		self.Y_ICON = self.Y_UPPER_PANE + (self.H_UPPER_PANE - self.H_ICON) / 2
+		self.X_ICON = self.X_IMPROVEMENT_PANE + (self.H_IMPROVEMENT_PANE - self.H_ICON) / 2
+		self.Y_ICON = self.Y_IMPROVEMENT_PANE + (self.H_IMPROVEMENT_PANE - self.H_ICON) / 2
 		self.ICON_SIZE = 64
 
-		self.X_IMPROVENEMT_ANIMATION = self.X_UPPER_PANE + self.W_UPPER_PANE + self.MEDIUM_MARGIN
-		self.W_IMPROVENEMT_ANIMATION = self.top.R_PEDIA_PAGE - self.X_IMPROVENEMT_ANIMATION
-		self.Y_IMPROVENEMT_ANIMATION = self.Y_UPPER_PANE + 7
-		self.H_IMPROVENEMT_ANIMATION = self.H_UPPER_PANE - 7
+		self.W_BONUS_YIELDS = 260
+		self.W_IMPROVEMENT_ANIMATION = ((self.top.R_PEDIA_PAGE - self.top.X_PEDIA_PAGE) - self.W_BONUS_YIELDS - (2 * self.MEDIUM_MARGIN)) / 2
+		self.W_SPECIAL = self.W_IMPROVEMENT_ANIMATION - self.MEDIUM_MARGIN - self.W_IMPROVEMENT_PANE
 
-		self.X_ROTATION_IMPROVENEMT_ANIMATION = -20
-		self.Z_ROTATION_IMPROVENEMT_ANIMATION = 30
-		self.SCALE_ANIMATION = 0.7
+		self.X_SPECIAL = self.X_IMPROVEMENT_PANE + self.W_IMPROVEMENT_PANE + self.MEDIUM_MARGIN
+		self.Y_SPECIAL = self.Y_IMPROVEMENT_PANE
+		self.H_SPECIAL = self.H_IMPROVEMENT_PANE
 
-		self.X_IMPROVEMENTS_PANE = self.X_UPPER_PANE
-		self.Y_IMPROVEMENTS_PANE = self.Y_UPPER_PANE + self.H_UPPER_PANE + self.SMALL_MARGIN
-		self.W_IMPROVEMENTS_PANE = 340
-		# <!-- custom: increase height so we display more effects especially related to future/robotic era changes anyways etc ; also the "effects" (placeSpecial) panel is very small so maybe fine to do so and use the room for the base tile yield change(s) panel anyways etc -->
-		self.H_IMPROVEMENTS_PANE = 300
+		self.X_BONUS_YIELDS = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
+		self.Y_BONUS_YIELDS = self.Y_IMPROVEMENT_PANE
+		self.H_BONUS_YIELDS = self.top.B_PEDIA_PAGE - self.Y_BONUS_YIELDS
 
-		self.X_REQUIRES = self.X_UPPER_PANE
-		self.Y_REQUIRES = self.Y_IMPROVEMENTS_PANE + self.H_IMPROVEMENTS_PANE + self.SMALL_MARGIN
-		self.W_REQUIRES = self.W_IMPROVEMENTS_PANE
 		self.H_REQUIRES = 110
 
-		self.X_EFFECTS = self.X_UPPER_PANE
-		self.Y_EFFECTS = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
-		self.W_EFFECTS = self.W_IMPROVEMENTS_PANE
-		self.H_EFFECTS = self.top.B_PEDIA_PAGE - self.Y_EFFECTS
+		self.X_IMPROVEMENT_ANIMATION = self.X_BONUS_YIELDS + self.W_BONUS_YIELDS + self.MEDIUM_MARGIN
+		self.Y_IMPROVEMENT_ANIMATION = self.Y_IMPROVEMENT_PANE + 7
+		self.H_IMPROVEMENT_ANIMATION = self.H_IMPROVEMENT_PANE + self.SMALL_MARGIN + (2 * self.H_REQUIRES)  - 7
 
-		self.X_BONUS_YIELDS_PANE = self.X_IMPROVEMENTS_PANE + self.W_IMPROVEMENTS_PANE + self.MEDIUM_MARGIN
-		self.Y_BONUS_YIELDS_PANE = self.Y_UPPER_PANE + self.H_UPPER_PANE + self.SMALL_MARGIN
-		self.W_BONUS_YIELDS_PANE = self.top.R_PEDIA_PAGE - self.X_BONUS_YIELDS_PANE
-		self.H_BONUS_YIELDS_PANE = self.top.B_PEDIA_PAGE - self.Y_BONUS_YIELDS_PANE
+		self.X_ROTATION_IMPROVEMENT_ANIMATION = -20
+		self.Z_ROTATION_IMPROVEMENT_ANIMATION = 30
+		self.SCALE_ANIMATION = 0.7
+
+		self.X_REQUIRES = self.X_IMPROVEMENT_PANE
+		self.Y_REQUIRES = self.Y_IMPROVEMENT_PANE + self.H_IMPROVEMENT_PANE + self.SMALL_MARGIN
+		self.W_REQUIRES = self.W_IMPROVEMENT_ANIMATION
+
+		self.X_BASE_YIELDS = self.X_IMPROVEMENT_PANE
+		self.Y_BASE_YIELDS = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
+		self.W_BASE_YIELDS = self.W_IMPROVEMENT_ANIMATION
+		self.H_BASE_YIELDS = self.top.B_PEDIA_PAGE - self.Y_BASE_YIELDS
+
+		self.X_TERRAIN_MAKES_VALIDS = self.X_IMPROVEMENT_ANIMATION
+		self.Y_TERRAIN_MAKES_VALIDS = self.Y_IMPROVEMENT_ANIMATION + self.H_IMPROVEMENT_ANIMATION + self.SMALL_MARGIN
+		self.W_TERRAIN_MAKES_VALIDS = self.W_IMPROVEMENT_ANIMATION
+		self.H_TERRAIN_MAKES_VALIDS = self.H_REQUIRES
+
+		self.X_FEATURE_MAKES_VALIDS = self.X_IMPROVEMENT_ANIMATION
+		self.Y_FEATURE_MAKES_VALIDS = self.Y_TERRAIN_MAKES_VALIDS + self.H_TERRAIN_MAKES_VALIDS + self.SMALL_MARGIN
+		self.W_FEATURE_MAKES_VALIDS = self.W_IMPROVEMENT_ANIMATION
+		self.H_FEATURE_MAKES_VALIDS = self.H_REQUIRES
+
+		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
+
+		self.X_HISTORY = self.X_IMPROVEMENT_ANIMATION
+		self.Y_HISTORY = self.Y_FEATURE_MAKES_VALIDS + self.H_FEATURE_MAKES_VALIDS + self.SMALL_MARGIN
+		self.W_HISTORY = self.W_IMPROVEMENT_ANIMATION
+		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
 
 
@@ -78,26 +98,111 @@ class SevoPediaImprovement:
 
 		self.placeImprovementPane()
 		self.placeSpecial()
-		self.placeBonusYield()
-		self.placeYield()
+		self.placeBonusYields()
+		self.placeImprovementAnimation()
 		self.placeRequires()
+		self.placeBaseYields()
+		self.placeTerrainMakesValids()
+		self.placeFeatureMakesValids()
+		self.placeHistory()
 
 
 
 	def placeImprovementPane(self):
 		screen = self.top.getScreen()
-		screen.addPanel( self.top.getNextWidgetName(), "", "", False, False, self.X_UPPER_PANE, self.Y_UPPER_PANE, self.W_UPPER_PANE, self.H_UPPER_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel( self.top.getNextWidgetName(), "", "", False, False, self.X_IMPROVEMENT_PANE, self.Y_IMPROVEMENT_PANE, self.W_IMPROVEMENT_PANE, self.H_IMPROVEMENT_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		# <!-- custom: was PanelStyles.PANEL_STYLE_MAIN -->
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
 		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getImprovementInfo(self.iImprovement).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-		screen.addImprovementGraphicGFC(self.top.getNextWidgetName(), self.iImprovement, self.X_IMPROVENEMT_ANIMATION, self.Y_IMPROVENEMT_ANIMATION, self.W_IMPROVENEMT_ANIMATION, self.H_IMPROVENEMT_ANIMATION, WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_IMPROVENEMT_ANIMATION, self.Z_ROTATION_IMPROVENEMT_ANIMATION, self.SCALE_ANIMATION, True)
 
 
-	def placeYield(self):
+
+	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		# advc.004y: text key was TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_BASE_TILE_YIELD_CHANGES", ()), "", True, True, self.X_IMPROVEMENTS_PANE, self.Y_IMPROVEMENTS_PANE, self.W_IMPROVEMENTS_PANE, self.H_IMPROVEMENTS_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+		# <!-- custom: prettier and clearer without the/a header anyways etc, also gives a bit extra room in case we have many effects to place, and matches sevopedia terrain and feature display as well or/and more closely if i am not mistaken too anyways etc -->
+		#screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_EFFECTS", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50 )
+		screen.addPanel( panelName, "", "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50 )
+
+		listName = self.top.getNextWidgetName()
+		szSpecialText = CyGameTextMgr().getImprovementHelp(self.iImprovement, True)
+
+		# Show iTime for building this improvement <!-- custom: (note: not related to feature remove's iTime, here it is about the improvement's iTime (i.e. time to build this improvement if i am not mistaken anyways etc))), code provided by chatgpt thanks to my prompt too and adjustments or not too too if i may say and thanks to it i.e. to chatgpt too too too if i may say but etc anyways etc -->
+		if szSpecialText.strip():
+			szSpecialText += u"\n"
+		bullet = localText.getText("[ICON_BULLET]", ())
+		for iBuild in xrange(gc.getNumBuildInfos()):
+			buildInfo = gc.getBuildInfo(iBuild)
+			if buildInfo.getImprovement() == self.iImprovement:
+				iTime = buildInfo.getTime()
+				if iTime > 0:
+					szSpecialText += u"%sBuild Time: %d" % (bullet, iTime)
+					# Improvement is unique per build, so we can stop here after first meaningful (iTime > 0) entry
+					break
+
+		#screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+5, self.W_SPECIAL-10, self.H_SPECIAL-10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL - 13, self.W_SPECIAL-10, self.H_SPECIAL-10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+
+
+	def placeBonusYields(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		# <!-- custom: prettier and clearer without the/a header anyways etc, also gives a bit extra room in case we have many effects to place, and matches sevopedia terrain and feature display as well or/and more closely if i am not mistaken too anyways etc -->
+		#screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_ON_BONUSES_EXTRA_TILE_YIELD_CHANGES", ()), "", True, True, self.X_BONUS_YIELDS, self.Y_BONUS_YIELDS, self.W_BONUS_YIELDS, self.H_BONUS_YIELDS, PanelStyles.PANEL_STYLE_BLUE50 )
+		screen.addPanel( panelName, "", "", True, True, self.X_BONUS_YIELDS, self.Y_BONUS_YIELDS, self.W_BONUS_YIELDS, self.H_BONUS_YIELDS, PanelStyles.PANEL_STYLE_BLUE50 )
+		info = gc.getImprovementInfo(self.iImprovement)
+		for j in range(gc.getNumBonusInfos()):
+			bFirst = True
+			szYield = u""
+			bEffect = False
+			for k in range(YieldTypes.NUM_YIELD_TYPES):
+				iYieldChange = info.getImprovementBonusYield(j, k)
+				if iYieldChange != 0:
+					bEffect = True
+					# Uncomment for 3.13 behavior. Note that Uranium shows incorrect hammer yield (should be +2)
+					#iYieldChange += info.getYieldChange(k)
+					if bFirst:
+						bFirst = False
+					else:
+						szYield += u", "
+					if iYieldChange > 0:
+						sign = u"+"
+					else:
+						sign = u""
+					szYield += (u"%s%i%c" % (sign, iYieldChange, gc.getYieldInfo(k).getChar()))
+			if bEffect:
+				childPanelName = self.top.getNextWidgetName()
+				screen.attachPanel(panelName, childPanelName, "", "", False, False, PanelStyles.PANEL_STYLE_EMPTY)
+				screen.attachLabel(childPanelName, "", "  ")
+				screen.attachImageButton( childPanelName, "", gc.getBonusInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, j, 1, False )
+				screen.attachLabel(childPanelName, "", u"<font=4>" + szYield + u"</font>")
+
+
+
+	def placeImprovementAnimation(self):
+		screen = self.top.getScreen()
+		screen.addImprovementGraphicGFC(self.top.getNextWidgetName(), self.iImprovement, self.X_IMPROVEMENT_ANIMATION, self.Y_IMPROVEMENT_ANIMATION, self.W_IMPROVEMENT_ANIMATION, self.H_IMPROVEMENT_ANIMATION, WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_IMPROVEMENT_ANIMATION, self.Z_ROTATION_IMPROVEMENT_ANIMATION, self.SCALE_ANIMATION, True)
+
+
+
+	def placeRequires(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_REQUIRES", ()), "", False, True, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES, PanelStyles.PANEL_STYLE_BLUE50 )
+		screen.attachLabel(panelName, "", "  ")
+		for iBuild in range(gc.getNumBuildInfos()):
+			if gc.getBuildInfo(iBuild).getImprovement() == self.iImprovement:
+				iTech = gc.getBuildInfo(iBuild).getTechPrereq()
+				if iTech > -1:
+					screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
+
+
+
+	def placeBaseYields(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_BASE_TILE_YIELD_CHANGES", ()), "", True, True, self.X_BASE_YIELDS, self.Y_BASE_YIELDS, self.W_BASE_YIELDS, self.H_BASE_YIELDS, PanelStyles.PANEL_STYLE_BLUE50)
 		listName = self.top.getNextWidgetName()
 		screen.attachListBoxGFC(panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(listName, False)
@@ -184,74 +289,69 @@ class SevoPediaImprovement:
 
 
 
-	def placeBonusYield(self):
+	# <!-- custom: new addition thanks to chatgpt and my prompt and own base code too i imported and tweaked form other places in our mod anyways etc as well as my own adjustments to its code too or not or yes or etc but anyways etc ; as for logic if i am not mistaken this is how it works-functions based on chatgpt's explanation as well as my own research/findings in (translate to english using web browser or such anyways etc) https://gforestshade.github.io/kujira/post/civ4improvementinfos/#terrainmakesvalids: if some terrains are specified then the improvement is only allowed on these terrains, else improvement is allowed on all terrains ; not sure i got it all right (in particular in the case of irrigation or such conditions seemingly allowing the improvement on a terrain even if not listed here), so i am not sure it is all accurate but maybe is, check to be sure, and adjust this if needed i mean anyways etc ; i implemented it as such and also added an explicative text that maybe the restriction could be elsewhere if not in improvementinfos (not stated directly but may be indiretly inferred from text maybe as of now but anyways etc) hopefully helpful or not or yes or etc but anyways etc -->
+	def placeTerrainMakesValids(self):
+		xPanel = self.X_TERRAIN_MAKES_VALIDS
+		yPanel = self.Y_TERRAIN_MAKES_VALIDS
+		wPanel = self.W_TERRAIN_MAKES_VALIDS
+		hPanel = self.H_TERRAIN_MAKES_VALIDS
+
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_ON_BONUSES_EXTRA_TILE_YIELD_CHANGES", ()), "", True, True, self.X_BONUS_YIELDS_PANE, self.Y_BONUS_YIELDS_PANE, self.W_BONUS_YIELDS_PANE, self.H_BONUS_YIELDS_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
-		info = gc.getImprovementInfo(self.iImprovement)
-		for j in range(gc.getNumBonusInfos()):
-			bFirst = True
-			szYield = u""
-			bEffect = False
-			for k in range(YieldTypes.NUM_YIELD_TYPES):
-				iYieldChange = info.getImprovementBonusYield(j, k)
-				if iYieldChange != 0:
-					bEffect = True
-					# Uncomment for 3.13 behavior. Note that Uranium shows incorrect hammer yield (should be +2)
-					#iYieldChange += info.getYieldChange(k)
-					if bFirst:
-						bFirst = False
-					else:
-						szYield += u", "
-					if iYieldChange > 0:
-						sign = u"+"
-					else:
-						sign = u""
-					szYield += (u"%s%i%c" % (sign, iYieldChange, gc.getYieldInfo(k).getChar()))
-			if bEffect:
-				childPanelName = self.top.getNextWidgetName()
-				screen.attachPanel(panelName, childPanelName, "", "", False, False, PanelStyles.PANEL_STYLE_EMPTY)
-				screen.attachLabel(childPanelName, "", "  ")
-				screen.attachImageButton( childPanelName, "", gc.getBonusInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, j, 1, False )
-				screen.attachLabel(childPanelName, "", u"<font=4>" + szYield + u"</font>")
-
-
-
-	def placeRequires(self):
-		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_REQUIRES", ()), "", False, True, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES, PanelStyles.PANEL_STYLE_BLUE50 )
+		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_TERRAIN_MAKES_VALIDS", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50 )
 		screen.attachLabel(panelName, "", "  ")
-		for iBuild in range(gc.getNumBuildInfos()):
-			if gc.getBuildInfo(iBuild).getImprovement() == self.iImprovement:
-				iTech = gc.getBuildInfo(iBuild).getTechPrereq()
-				if iTech > -1:
-					screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
+
+		isButtonFound = False
+
+		for iTerrain in xrange(gc.getNumTerrainInfos()):
+			if gc.getImprovementInfo(self.iImprovement).getTerrainMakesValid(iTerrain):
+				isButtonFound = True
+				screen.attachImageButton(panelName, "", gc.getTerrainInfo(iTerrain).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iTerrain, 1, False)
+
+		if not isButtonFound:
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_TERRAIN_MAKES_VALIDS_NO_RESTRICTION"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNoButtonFound, ())
+			yPanelCenter = yPanel + (hPanel / 2)
+			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
-	def placeSpecial(self):
+	def placeFeatureMakesValids(self):
+		xPanel = self.X_FEATURE_MAKES_VALIDS
+		yPanel = self.Y_FEATURE_MAKES_VALIDS
+		wPanel = self.W_FEATURE_MAKES_VALIDS
+		hPanel = self.H_FEATURE_MAKES_VALIDS
+
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_EFFECTS", ()), "", True, False, self.X_EFFECTS, self.Y_EFFECTS, self.W_EFFECTS, self.H_EFFECTS, PanelStyles.PANEL_STYLE_BLUE50 )
+		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_FEATURE_MAKES_VALIDS", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50 )
+		screen.attachLabel(panelName, "", "  ")
 
-		listName = self.top.getNextWidgetName()
-		szSpecialText = CyGameTextMgr().getImprovementHelp(self.iImprovement, True)
+		isButtonFound = False
 
-		# Show iTime for building this improvement <!-- custom: (note: not related to feature remove's iTime, here it is about the improvement's iTime (i.e. time to build this improvement if i am not mistaken anyways etc))), code provided by chatgpt thanks to my prompt too and adjustments or not too too if i may say and thanks to it i.e. to chatgpt too too too if i may say but etc anyways etc -->
-		if szSpecialText.strip():
-			szSpecialText += u"\n"
-		bullet = localText.getText("[ICON_BULLET]", ())
-		for iBuild in xrange(gc.getNumBuildInfos()):
-			buildInfo = gc.getBuildInfo(iBuild)
-			if buildInfo.getImprovement() == self.iImprovement:
-				iTime = buildInfo.getTime()
-				if iTime > 0:
-					szSpecialText += u"%sBuild Time: %d" % (bullet, iTime)
-					# Improvement is unique per build, so we can stop here after first meaningful (iTime > 0) entry
-					break
+		for iFeature in xrange(gc.getNumFeatureInfos()):
+			if gc.getImprovementInfo(self.iImprovement).getFeatureMakesValid(iFeature):
+				isButtonFound = True
+				screen.attachImageButton(panelName, "", gc.getFeatureInfo(iFeature).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, 1, False)
 
-		screen.addMultilineText(listName, szSpecialText, self.X_EFFECTS+5, self.Y_EFFECTS+5, self.W_EFFECTS-10, self.H_EFFECTS-10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		if not isButtonFound:
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_FEATURE_MAKES_VALIDS_NO_RESTRICTION"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNoButtonFound, ())
+			yPanelCenter = yPanel + (hPanel / 2)
+			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+
+
+	# <!-- custom: addition based on our existing mod's code in some other class, as for pedia entries, imported from m-e mod (see main readme for mod abbreviation details in as of now credits section if i am not mistaken anyways etc) (but i also found them later in c2c mod and they are seemingly the same but the file is sadly/unfortunately way too bloated so going for the m-e mod one(s if talking about the assets themselves if i am not mistaken in thinking/saying so but anyways etc)) anyways etc -->
+	def placeHistory(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.attachLabel(panelName, "", "  ")
+		textName = self.top.getNextWidgetName()
+		screen.addMultilineText(textName, gc.getImprovementInfo(self.iImprovement).getCivilopedia(), self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 30, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

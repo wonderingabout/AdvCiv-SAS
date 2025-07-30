@@ -17,7 +17,7 @@
 from CvPythonExtensions import *
 import CvUtil
 import CvPediaScreen
-# <!-- custom: remove or comment out unused imports -->
+# <!-- custom: remove or comment out seemingly unused imports -->
 #import ScreenInput
 #import SevoScreenEnums
 
