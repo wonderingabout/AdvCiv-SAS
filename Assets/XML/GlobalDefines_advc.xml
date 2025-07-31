@@ -1310,7 +1310,7 @@
 		 percentage points. Recommended: -10 to penalize researching the same
 		 tech; use 0 for BtS behavior.
 		 Related: TECH_COST_EXTRA_TEAM_MEMBER_MODIFIER (50) -->
-	<!-- custom: no reason to penalize research if they research the same tech, in fact it could probably and most liekly be reduced due to synergies and cooperation in this case anyways etc, but to simplify it, use/restore the 0 value in Bts behavior if not mistaken from reading base advciv code comment i am still thankful that was there and informative though but anyways etc, was -10 -->
+	<!-- custom: no reason to penalize research if they research the same tech, in fact it could probably and most likely be reduced due to synergies and cooperation in this case anyways etc, but to simplify it, use/restore the 0 value in Bts behavior if not mistaken from reading base advciv code comment i am still thankful that was there and informative though but anyways etc, was -10 -->
 	<Define>
 		<DefineName>RESEARCH_MODIFIER_EXTRA_TEAM_MEMBER</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>

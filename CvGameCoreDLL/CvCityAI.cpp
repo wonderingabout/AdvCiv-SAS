@@ -10861,27 +10861,27 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 
 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 
-	// <!-- custom: code provided by gemini ai and adjusted or not for advciv-sas anyways etc, to prevent AI from choosing the citizen specialist, which is generally if not almost always a bad or inefficient choice, espcially crippling in the early game i think but anyways etc. As gemini AI did, it is also more efficient computationally to early return at beginning of function rather than do all computation just to return an int without any computation.  Early return and drastic disallowing is more efficient computationally and strategically, i can barely see cases where the citizen specialist would be valuable, but to not break anything, simply keep existing architecture of code if i may say, and return lowest positive value as gemini ai did, or something very or similar to it anyways etc -->
-    // === ADVANCE AI: Disincentivize AI from choosing the generic Citizen specialist ===
-    // This block should be placed at the very beginning of the function.
-    // It short-circuits evaluation for AI players trying to pick the default Citizen specialist.
-    // Note: A similar idea (devaluing generic citizens) was previously present in commented-out code towards the end of this function.
-    // This new approach provides a stronger, direct override for AI players.
-    if (!kOwner.isHuman()) // Check if the current player (kOwner) is an AI
-    {
-        // If the 'new_job' being considered is a specialist AND it's the default Citizen specialist
-        if (new_job.first && ((SpecialistTypes)new_job.second) == GC.getDEFAULT_SPECIALIST())
-        {
-            // Return a very low, positive value. This makes it undesirable for the AI
-            // compared to actual plots or other specialists, effectively making them avoid it.
-            // A value like 1 or 2 is usually sufficient to make it uncompetitive.
-            // This ensures that the AI will only pick it if literally no other valid option exists
-            // (e.g., all plots are already worked and no other specialists are available/valid).
-            return 1; // You can experiment with 0, 1, or 2 based on in-game testing.
-                      // 1 is generally safe as it won't be seen as "negative" by the AI.
-        }
-    }
-    // === END ADVANCE AI MODIFICATION ===
+	// <!-- custom: code provided by gemini ai (and chatgpt's help too at first hehe but anyways etc) and adjusted or not for advciv-sas anyways etc, to prevent AI from choosing the citizen specialist, which is generally if not almost always a bad or inefficient choice, espcially crippling in the early game i think but anyways etc. As gemini AI did, it is also more efficient computationally to early return at beginning of function rather than do all computation just to return an int without any computation.  Early return and drastic disallowing is more efficient computationally and strategically, i can barely see cases where the citizen specialist would be valuable, but to not break anything, simply keep existing architecture of code if i may say, and return lowest positive value as gemini ai did, or something very or similar to it anyways etc -->
+	// === ADVANCE AI: Disincentivize AI from choosing the generic Citizen specialist ===
+	// This block should be placed at the very beginning of the function.
+	// It short-circuits evaluation for AI players trying to pick the default Citizen specialist.
+	// Note: A similar idea (devaluing generic citizens) was previously present in commented-out code towards the end of this function.
+	// This new approach provides a stronger, direct override for AI players.
+	if (!kOwner.isHuman()) // Check if the current player (kOwner) is an AI
+	{
+		// If the 'new_job' being considered is a specialist AND it's the default Citizen specialist
+		if (new_job.first && ((SpecialistTypes)new_job.second) == GC.getDEFAULT_SPECIALIST())
+		{
+			// Return a very low, positive value. This makes it undesirable for the AI
+			// compared to actual plots or other specialists, effectively making them avoid it.
+			// A value like 1 or 2 is usually sufficient to make it uncompetitive.
+			// This ensures that the AI will only pick it if literally no other valid option exists
+			// (e.g., all plots are already worked and no other specialists are available/valid).
+			return 1; // You can experiment with 0, 1, or 2 based on in-game testing.
+					// 1 is generally safe as it won't be seen as "negative" by the AI.
+		}
+	}
+	// === END ADVANCE AI MODIFICATION ===
 
 	int iTotalValue = 0;
 

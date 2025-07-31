@@ -755,10 +755,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 {
 	PROFILE_FUNC();
 
-	int iBestValue = 0;
-	BuildTypes eBestBuild = NO_BUILD;
-	CvPlot* pBestPlot = NULL;
-
 	/*	K-Mod. hack: For the AI, I want to use the standard pathfinder, CvUnit::generatePath.
 		but this function is also used to give action recommendations for the player
 		- and for that I do not want to disrupt the standard pathfinder.
@@ -778,67 +774,96 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 		pathFinder.setGroup(*getGroup(), NO_MOVEMENT_FLAGS, 5, GC.getMOVE_DENOMINATOR());
 	} // K-Mod end
 
-	for (int iPass = 0; iPass < 2; iPass++)
-	{
-		// K-Mod: only workable tiles
-		for (WorkablePlotIter it(kCity); it.hasNext(); ++it)
-		{
-			CvPlot& kPlot = *it;
-			CityPlotTypes ePlot = it.currID();
-			if (&kPlot == pIgnorePlot || /*!AI_plotValid(kPlot)*/kPlot.isWater()) // advc.opt
-				continue;
-			if (GET_PLAYER(getOwner()).isAutomationSafe(kPlot))
-				continue;
-			int iValue = kCity.AI_getBestBuildValue(ePlot);
-			if (iValue <= iBestValue)
-				continue;
-			BuildTypes eBuild = kCity.AI_getBestBuild(ePlot);
-			if (eBuild == NO_BUILD || /* K-Mod: */ !canBuild(kPlot, eBuild))
-				continue;
-			if (iPass == 0)
-			{
-				iBestValue = iValue;
-				pBestPlot = &kPlot;
-				eBestBuild = eBuild;
-				continue;
-			}
-			//if (canBuild(pLoopPlot, eBuild))
-			if (kPlot.isVisibleEnemyUnit(this))
-				continue;
-			/*int iPathTurns;
-			if (generatePath(pLoopPlot, 0, true, &iPathTurns)) {
-				// XXX take advantage of range (warning... this could lead to some units doing nothing...)
-				int iMaxWorkers = 1;
-				if (getPathLastNode()->m_iData1 == 0)
-					iPathTurns++;
-				else if (iPathTurns <= 1)
-					iMaxWorkers = AI_calculatePlotWorkersNeeded(pLoopPlot, eBuild);
-				if (pUnit != NULL) {
-					if (pUnit->getPlot().isCity() && iPathTurns == 1 && getPathLastNode()->m_iData1 > 0)
-					iMaxWorkers += 10;
-				} }*/ // BtS
-			// K-Mod. basically the same thing, but using pathFinder.
-			if (!pathFinder.generatePath(kPlot))
-				continue;
-			int iPathTurns = pathFinder.getPathTurns() + (pathFinder.getFinalMoves() == 0 ? 1 : 0);
-			int iMaxWorkers = (iPathTurns > 1 ? 1 : AI_calculatePlotWorkersNeeded(kPlot, eBuild));
-			if (pUnit != NULL && pUnit->getPlot().isCity() && iPathTurns == 1)
-				iMaxWorkers += 10;
-			// K-Mod end
-			if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(kPlot, MISSIONAI_BUILD, getGroup(),
-				/* <advc.opt> */ 0, iMaxWorkers /* </advc.opt> */) < iMaxWorkers)
-			{
-				//XXX this could be improved greatly by
-				//looking at the real build time and other factors
-				//when deciding whether to stack.
-				iValue /= iPathTurns;
+	// <!-- custom: rewrite / refactor this heavily by gemini ai (with my prompts and feedback and such adjustments as well or not or yes or etc anyways etc for advciv-sas too anyways etc anyways etc anyways etc) to fix fatal flaw of not returning any best plot if our selected best plot happens to be unpathable, plus other seemingly bugs as well (see code comments below in this function for details anyways etc) -->
+	// <!-- custom: make sure AI workers always improve bonuses before anything else. This attempts to fix/address the "Boston screenshot" issue, where AI in a tundra environment mined two hill tiles and did not improve a nearby deer in city radius at all at turn 75, which would have helped the city grow, and even build the current worker city was building just as fast if i am not mistaken anyways etc (see screenshot and doc at known issues readme as of now number 30 for details anyways etc).
+	// Prioritizing to always improve bonuses first before anything else should always be a good move if not then almost always, for the AI in particular, it should be much more efficient than improving any other tile. I hope that the added slightly increased computation in below code does not decrease too much performance ideally (i think very minimal if not neglectible, but i don't know i mean so stating this to be sure and i would suggest to check this as well to be sure as this is just a guess on my end that i can make easily i mean as i don't know too much how to precisely check these or/and would be too tedious for a same end-goal of implementing these unless they are drastically or significantly +/ much in this case at least but anyways etc slower). I have measured to be sure since gemini ai insisted our code is better thanks a lot gemini ai hehe for caring if imay say in this case at least maybe or so it seems i mena but thnaks still but anyways etc really thanks anyways etc, actually our new code is seemingly faster: 45.185s for old DLL before rewrite, vs 43.008s with our new rewritten DLL in a 100 turn autoplay of a quite large pangea (didn't check exactly how). Of course some variation may occur, but our DLL shouldn't be slower or significantly slower, hopefully even a bit faster, at elast it felt so watching turns span even if a bit, and seems confirmed with this, but chek to be sure anyways etc.
+	// Most importantly, even if it were to be slower, but i hope and think it shouldn't be by a big lot if at all (even though i don't know too much about these but hopefully and seemingly to me based on this code i mean and what i can understand or guess of it but anyways etc) it may help AI strength/competitiveness so this should be valued at least i think so in this case at least but anyways etc. To simplify logic, include all bonuses in cultural borders (i.e. any reachable bonus), not just those in cities (at least do not restrict to that, and there should be some benefits to improving a bonus even if outside of a city radius, so hopefully efficient enough in this case and simple enough to handle in code if i am not mistaken as well anyways etc), if i am not mistaken and this code does this ; code provided thanks to / by gemini ai with chatgpt's help too and thanks to my prompt too anyways etc, and adjustments i did as well or not for advciv-sas anyways etc, anyways etc -->
+	// <!-- custom: also, the rewrite addresses one or a few suboptimal behaviours the code had, as reviewed quite extensively with gemini ai from quite little in this case i mean but anyways etc i know about these but can guess quite a bit in this case at least with gemini ai's help too thanks and thanks to me too maybe but anyways etc, in particular that regardless of the pathfinding computation performed at pass 1 (line `if (iPass > 0 || eBestBuild == NO_BUILD)` anyways etc), the best plot found if any would be pathfinding recomputed which is inefficient unless i am mistaken (but i don't know too much about these so check to be sure anyways etc) which seems to me to be inefficiently written if i am not mistaken now that i understand it better from all this thining hehe but hopefully, but again i could overlooked some other parts of the explanation or misunderstood some of the logic, so check to be sure, hopefully new code is much cleaner now and much easier to customize to add other enhancements as well anyways etc -->
 
-				iBestValue = iValue;
-				pBestPlot = &kPlot;
-				eBestBuild = eBuild;
+	// A list of potential build candidates.
+	// We use a nested pair to store the value, plot pointer, and plot index.
+	typedef std::pair<int, std::pair<CvPlot*, CityPlotTypes> > Candidate;
+	std::vector<Candidate> candidates;
+
+	// <!-- custom: note: performance optimization and perhaps logic optimization as well anyways etc i got from watching gemini ai's general feedback on it being perhaps slow (which in fact seemingly was not after measuring (see above anyways etc) anyways etc) it gave me this other idea thanks a lot hehe, and that i would have ideally implemented, but it seems faster to not check pathfinding at all (in case it is expensive as gemini ai said in another answer to me i mean in this case but anyways etc) and loop over all tiles rather than check pathfinding at same time as we check candidates so that we can early exit after first bonus found (in short it seems faster to store all candidates than pre-sort them, which should be uneeded if we don't choose them anyway in the end in this case at least but anyways etc): if we find a bonus, check other following plots lightly if i am not mistaken but anyways etc, since in the end we will choose a bonus, so may skip any non bonus tile at first bonus tile found. This may have also helped enforce the bonus-first priority so nice in all ways maybe anyways etc, but as said before is maybe not as efficient as i thought (although i didn't measure it so check to be sure in case relevant or interested in this case i mean anyways etc) so not implementing it anyways etc -->
+
+	// ===================================================
+	// PHASE 1: A single loop to find ALL valid candidates and their values.
+	// ===================================================
+	for (WorkablePlotIter it(kCity); it.hasNext(); ++it)
+	{
+		CvPlot& kPlot = *it;
+		CityPlotTypes ePlot = it.currID();
+		
+		if (&kPlot == pIgnorePlot || /*!AI_plotValid(kPlot)*/kPlot.isWater()) // advc.opt
+			continue;
+		if (GET_PLAYER(getOwner()).isAutomationSafe(kPlot))
+			continue;
+
+		int iValue = kCity.AI_getBestBuildValue(ePlot);
+		
+		// === ADVANCE AI: The "Value Hack" ===
+		BonusTypes eBonus = kPlot.getNonObsoleteBonusType(getTeam());
+		if (eBonus != NO_BONUS)
+		{
+			// Give a base multiplier for any unimproved bonus.
+			iValue *= 100;
+
+			// <!-- custom: the more food the higher priority hehe (not in real life or why not but quality maye bit too at least in this case or in real life or both or only in real life or not or yes or etc but anyways etc...) if i may say anyways etc, so multiply it even further than the base any unimproved bonus multiplier if i am not mistaken in my understanding anyways etc -->
+			// Give an even bigger multiplier if the bonus is a FOOD bonus.
+			int const bonusFoodYieldChange = GC.getBonusInfo(eBonus).getYieldChange(YIELD_FOOD);
+			if (bonusFoodYieldChange > 0)
+			{
+				iValue *= (5 * bonusFoodYieldChange);
 			}
 		}
-		if (iPass > 0 || eBestBuild == NO_BUILD)
+		// === END ADVANCE AI ===
+		BuildTypes eBuild = kCity.AI_getBestBuild(ePlot);
+		if (eBuild == NO_BUILD || /* K-Mod: */ !canBuild(kPlot, eBuild))
+			continue;
+
+		// Store this candidate. We will check pathfinding <!-- custom: and other conditions (such as enemy on plot maybe anyways etc) --> later <!-- custom: for efficiency, as there is no need to check this on tiles we would not select as best anyways if i am not mistaken, as gemini ai did thanks i mean, anyways etc, it is faster to just sort them all without looking too deep, then process them later, than spend computation to look at a tile we won't use later if i am not mistaken anyways etc -->
+		candidates.push_back(std::make_pair(iValue, std::make_pair(&kPlot, ePlot)));
+	}
+
+	// ===================================================
+	// PHASE 2: Sort the candidates and find the first pathable one.
+	// ===================================================
+	std::sort(candidates.begin(), candidates.end(), std::greater<Candidate>());
+
+	CvPlot* pBestPlot = NULL;
+	BuildTypes eBestBuild = NO_BUILD;
+
+	// Loop through all candidates
+	for (size_t i = 0; i < candidates.size(); ++i)
+	{
+		// Retrieve the plot and its CityPlotTypes index from the vector.
+		pBestPlot = candidates[i].second.first;
+		CityPlotTypes ePlot = candidates[i].second.second;
+
+		// Get the build for this plot using the ePlot index.
+		eBestBuild = kCity.AI_getBestBuild(ePlot);
+		FAssert(eBestBuild != NO_BUILD);
+
+		// <!-- custom: code comment provided by gemini ai, when i asked it why we use something else in its new code instead of it.currID() or something similar to it as so it seems if i am not mistaken from quite quick glance or look in this case but anyways etc ; i don't know if the below explanation by gemini ai is acurate or not as i don't know too much, but after asking it again, and after we got a compile error when trying to use seemingly mistakenly getCityPlotIndex() it provided as part of my prompt as well but still it provided it if i may say but i contributed indirectly even though i didn't suggest this one specifically if i remember correctly and am not mistaken but anyways etc, maybe it is correct, still check to be sure again i mean anyways etc, hopefully informative to add this as well anyways etc -->
+		/*
+		Here, it.currID() directly provides the CityPlotTypes index (ePlot) in Phase 1.
+
+		Since the CvPlot object in this codebase does not have a getCityPlotIndex() method,
+		we must store this ePlot index along with the CvPlot* pointer itself. This is done
+		in the 'candidates' vector.
+
+		In Phase 2, we iterate through the sorted 'candidates' and retrieve both the
+		pBestPlot pointer and the ePlot index. We then use this stored ePlot index to
+		get the correct eBestBuild type for that specific plot, which is the correct
+		and necessary way to get the eBuild type in this refactored code.
+		*/
+		// Get the build for this plot.
+		eBestBuild = kCity.AI_getBestBuild(ePlot);
+		FAssert(eBestBuild != NO_BUILD);
+
+		// Check pathfinding <!-- custom: and other conditions such as worker safety militarily and any other if any anyways etc -->.
+		if (pBestPlot->isVisibleEnemyUnit(this))
 			continue;
 
 		FAssert(pBestPlot != NULL);
@@ -858,30 +883,41 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 		// K-Mod. basically the same thing, but using pathFinder.
 		if (pathFinder.generatePath(*pBestPlot))
 		{
-			int iPathTurns = pathFinder.getPathTurns() +
-					(pathFinder.getFinalMoves() == 0 ? 1 : 0);
-			int iMaxWorkers = iPathTurns > 1 ? 1 :
-					AI_calculatePlotWorkersNeeded(*pBestPlot, eBestBuild);
-			if (pUnit != NULL && pUnit->getPlot().isCity() && iPathTurns == 1)
-				iMaxWorkers += 10;
-		// K-Mod end
-			int iWorkerCount = GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
-					*pBestPlot, MISSIONAI_BUILD, getGroup());
-			if (iWorkerCount < iMaxWorkers)
-				break; //Good to go.
+			// <!-- custom: max one worker per tile, should be much more efficient in most cases hopefully anyways etc, minimal gain in spending a lot of move speed to go in one tile this move speed could be used to start much faster on other tiles, especially if it's to inefficiently move to high move cost tile like unroaded hill or forest if i am not mistaken anyways etc ; however in some cases this may be slower, than say improve a bonus to a farm or pasture with 2 available workers, but i hope that in most cases this is statistically more beneficial for the AI than not to focus one worker on one tile anyways etc, the type of improvement may also be improtant to tweak as well, ideally start with the improvement not a road on food bonuses (even if just 1 food) but not handled here if we ever handle it anyways etc ; is maybe also computationally faster as a side effect to execute this code maybe (but check to be sure as this is just a guess and i don't know too much about these but i assume so), it also nicely simplifies code as hinted by gemini ai when commenting on this idea before i wrote code, hopefully helpful but anyways etc -->
+			//int iPathTurns = pathFinder.getPathTurns() + (pathFinder.getFinalMoves() == 0 ? 1 : 0);
+			// int iMaxWorkers = iPathTurns > 1 ? 1 : AI_calculatePlotWorkersNeeded(*pBestPlot, eBestBuild);
+			// if (pUnit != NULL && pUnit->getPlot().isCity() && iPathTurns == 1)
+			// 	iMaxWorkers += 10;
+			//
+			int const iMaxWorkers = 1;
+			if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(*pBestPlot, MISSIONAI_BUILD, getGroup(),
+				/* <advc.opt> */ 0, iMaxWorkers /* </advc.opt> */) < iMaxWorkers)
+			{
+				// This is a valid, pathable, and <!-- custom: current highest (in our loop in this case i mean anyways etc) value --> available candidate. We found it!
+				break;
+			}
 		}
-		eBestBuild = NO_BUILD;
-		iBestValue = 0;
+		else
+		{
+			// If pathfinding or <!-- custom: such other conditions if any failed anyways etc --> failed, we continue the loop to the next candidate.
+			// In case the loop finishes, we reset eBestBuild.
+			eBestBuild = NO_BUILD;
+			continue;
+		}
 	}
 
+	// ===================================================
+	// FINAL: Return the result.
+	// ===================================================
 	if (eBestBuild != NO_BUILD)
 	{
-		FAssert(NULL != pBestPlot);
+		FAssert(pBestPlot != NULL);
 		if (ppBestPlot != NULL)
 			*ppBestPlot = pBestPlot;
 		if (peBestBuild != NULL)
 			*peBestBuild = eBestBuild;
 	}
+	
 	return (eBestBuild != NO_BUILD);
 }
 
