@@ -147,6 +147,12 @@ then modified to have "Mods Info" and "Outdated" instead of the old concept sevo
 			<Description>TXT_KEY_CONCEPT_CULTURE</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_CULTURE_PEDIA</Civilopedia>
 		</ConceptInfo>
+		<!-- custom: new entry -->
+		<ConceptInfo>
+			<Type>CONCEPT_CUSTOMIZATION</Type>
+			<Description>TXT_KEY_CONCEPT_CUSTOMIZATION</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_CUSTOMIZATION_PEDIA</Civilopedia>
+		</ConceptInfo>
 		<ConceptInfo>
 			<Type>CONCEPT_DIPLOMACY</Type>
 			<Description>TXT_KEY_CONCEPT_DIPLOMACY</Description>
@@ -166,6 +172,18 @@ then modified to have "Mods Info" and "Outdated" instead of the old concept sevo
 			<Type>CONCEPT_FOOD</Type>
 			<Description>TXT_KEY_CONCEPT_FOOD</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_FOOD_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<!-- custom: new entry -->
+		<ConceptInfo>
+			<Type>CONCEPT_FRESH_WATER</Type>
+			<Description>TXT_KEY_CONCEPT_FRESH_WATER</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_FRESH_WATER_PEDIA</Civilopedia>
+		</ConceptInfo>
+		<!-- custom: new entry -->
+		<ConceptInfo>
+			<Type>CONCEPT_GLOBAL_WARMING</Type>
+			<Description>TXT_KEY_CONCEPT_GLOBAL_WARMING</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_GLOBAL_WARMING_PEDIA</Civilopedia>
 		</ConceptInfo>
 		<ConceptInfo>
 			<Type>CONCEPT_GOLDEN_AGE</Type>
@@ -258,22 +276,30 @@ then modified to have "Mods Info" and "Outdated" instead of the old concept sevo
 			<Civilopedia>TXT_KEY_CONCEPT_REVOLUTION_PEDIA</Civilopedia>
 		</ConceptInfo>
 		<!-- custom: new additions to redirect to them in sevopedia improvement, see there for details anyways etc ; is also with the help of gemini ai, anyways etc -->
+		<!-- custom: new entry -->
 		<ConceptInfo>
 			<Type>CONCEPT_RIVERS</Type>
-			<Description>TXT_KEY_CONCEPT_RIVERS_TITLE</Description>
+			<Description>TXT_KEY_CONCEPT_RIVERS</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_RIVERS_PEDIA</Civilopedia>
 		</ConceptInfo>
+		<!-- custom: new entry -->
 		<ConceptInfo>
 			<Type>CONCEPT_ROUTE_ROAD</Type>
-			<Description>TXT_KEY_CONCEPT_ROUTE_ROAD_TITLE</Description>
+			<Description>TXT_KEY_CONCEPT_ROUTE_ROAD</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_ROUTE_ROAD_PEDIA</Civilopedia>
 		</ConceptInfo>
+		<!-- custom: new entry -->
 		<ConceptInfo>
 			<Type>CONCEPT_ROUTE_RAILROAD</Type>
-			<Description>TXT_KEY_CONCEPT_ROUTE_RAILROAD_TITLE</Description>
+			<Description>TXT_KEY_CONCEPT_ROUTE_RAILROAD</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_ROUTE_RAILROAD_PEDIA</Civilopedia>
 		</ConceptInfo>
-		<!-- custom: end of new additions anyways etc -->
+		<!-- custom: new entry -->
+		<ConceptInfo>
+			<Type>CONCEPT_SCORING_SYSTEM</Type>
+			<Description>TXT_KEY_CONCEPT_SCORING_SYSTEM</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SCORING_SYSTEM_PEDIA</Civilopedia>
+		</ConceptInfo>
 		<ConceptInfo>
 			<Type>CONCEPT_SPACESHIP</Type>
 			<Description>TXT_KEY_CONCEPT_SPACESHIP</Description>
