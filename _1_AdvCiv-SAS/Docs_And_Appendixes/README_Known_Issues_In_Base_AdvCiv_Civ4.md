@@ -872,4 +872,35 @@ Ideally i would fix it, but is tedious, and most importantly, the issue shoudl d
 
 See also, although not directly related: [README_Known_Issues_In_Base_AdvCiv_Civ4.md#22---now-fixed-obsolete-bonuses-such-as-bonus_elephants-anyways-etc-in-tech-advisor-ie-tech-tree-view-anyways-etc-failing-to-redirect-to-sevopedia-bonus-with-id-none-causing-an-error-unlike-obsolete-buildings-like-building_spiral_minaret-for-example-anyways-etc-successfully-showing-the-building-items-page-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#22---now-fixed-obsolete-bonuses-such-as-bonus_elephants-anyways-etc-in-tech-advisor-ie-tech-tree-view-anyways-etc-failing-to-redirect-to-sevopedia-bonus-with-id-none-causing-an-error-unlike-obsolete-buildings-like-building_spiral_minaret-for-example-anyways-etc-successfully-showing-the-building-items-page-anyways-etc)
 
-## 30 -
+## 30 - (Attemptingly fixed) AI workers not prioritizing bonuses to improve, especially food bonuses, and other AI workers optimizations or/and changes anyways etc
+
+See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1xeAY-R41d3jQ8W4JvK8mhdRBlkKINpQu?usp=sharing)
+
+This is an issue i had in base advciv, and this solution may not necessarily in all cases be better, but i believe and hope in most cases it helps, at least for the part of the code changed. Rewrote/refactored `CvUnitAI::AI_bestCityBuild` with gemini ai's help for most thanks to its persistence in particular (see [/README.md#gemini-ai](/README.md#gemini-ai)) for details anyways etc.
+
+I have written most details there, so only adding here as less tedious to do so anyways etc, but hopefully helpful or not or yes or etc but anyways etc a few or quite a few screenshots in the google drive link folder mentionned at the top of this known issue section (as of now number 30 anyways etc)
+
+These changes hopefully fix this issue (see "Boston" screenshot in this google drive (as of now screenshot 1478 if i am not mistaken anyways etc)). Although i couldn't reproduce it directly since worker behaviour changed in more ways or it is autoplay variation somehow maybe (less likely but maybe?), starting from same save file 334 (also appended), Washington is quickly improved, firt with bonuses. In some cases, see screenshot 1499 if i am not mistaken anyways etc, other tiles seem to prevail, most likely due to other code parts, but it corrected soon enough and the silver was improved soona after which was the main purpose/goal of these changes (in base advciv i would have a bonus not imrpoved for a few dozen turns if not more if i remember it correctly, which was very unimmersive), so hopefully AI is more efficient this way.
+
+Ideally i would track other places where changes may be necessary, not sure i would do but maybe, or maybe not ; in this case i mean, anyways etc.
+
+As part of this change, i tried to increase AI worker efficiency by having them max put one worker to a tile to improve: if a worker is improving it already, skip it and go to another tile instead (there may be some delay until a worker goes there and starts improving it i mean anyways etc resulting in some ineffiencies of traveling there while a worker is also already travelling there, perhaps closer or not but anyways etc, but it seems to correct better, as soon as the closest worker starts, the other workers bounces back fast to another tile if i may say anyways etc)
+
+This is not always the best choice, but i believe generally AI would be more efficient this way.
+
+As a side effect, this new code seems slightly faster (see gemini ai link for details).
+
+I would want to do other changes ideally to AI worker and such logic, not sure i would but ideally ; and is in this case i mean if i may say, anyways etc.
+
+## 31 - (Attemptingly fixed) Deprioritize routes for AI workers in favour of yields first, except in some rare cases
+
+See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1BpwAkJ6V4cT8zeN99UOds7wu0efB5PUe?usp=sharing)
+
+Rewrite and greatly simplify `BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild)`, so that we deprioritize routes for AI workers, and build them only in very rare cases, especially in the early game where yields are so important (now prioritize yields over move speed advantage, should help AI a lot in most cases hopefully at least i think so in this case anyways etc), and AI workers would often in base advciv waste time building roads first, sometimes even forgetting to improve the bonus in particular, or other tiles. I hope this makes AI sharper and more efficient, with a cleaner and much simpler best build override, thanks to gemini ai as well and thanks to me too if i may say in this case but anyways etc.
+
+Areas of improvement not related to our code change:
+
+- screenshot 1502: do not build farm on spices grassland just because there is a river: the mine yields so much more
+- screenshot 1505: do not build cottage on plains, build on grassland rather, is a better tile to work, and improve any remaining bonus eligible to be improved before that
+
+Hopefully i'd continue improving these ideally but may or may not do anyways etc

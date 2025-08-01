@@ -18111,133 +18111,106 @@ bool CvUnitAI::AI_improvePlot(CvPlot const& kPlot, BuildTypes eBuild) // advc: p
 
 BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) // advc: param was CvPlot*
 {
+	// <!-- custom: rewrite and simplify this function's logic, with gemini ai's help anyways etc, so that we never override the best build, if i understood it correctly, in particular with roads but not only in very select few cases, otherwise always build best build first: deprioritize routes, we want the improvement first (pasture, farm, etc.) on our bonuses if i may say anyways etc before roading, gives the yield slightly sooner, especially valuable for food bonuses but maybe not only (may help production as well although the need to have a route for say iron would be higher, but even then in the end it would need to be mined (for iron for example anyways etc), then in that case better mine at first, we also allow only one AI worker per build now in advciv-sas to try to make AI more efficient (see changes at CvUnitAI::AI_bestCityBuild for details anyways etc)) ; so consider route later after other more important improvements have been built, we may lose some mobility but hoepfully get yields sooner or/and more reliably, i believe higher level players may more often than not not route as is more efficient but is just my opinion/intuition of it based of my memories of when i played at monarch/emperor hehe, every worker turn counts, try to save them, and move speed is not so critical early, but yields are if i am not mistaken, then later, it would be all roaded anyways etc, hopefully makes AI stronger this way at least in most cases anyways etc ; tweak hinted by gemini ai telling me to change something around here although i didn't look at all, i hope this code i did doesn't break anything as it is conservative yet hopefully effective anyways etc (trade movement for sooner yields in short anyways etc) thanks a lot for help gemini ai and thanks to me too hehe if i may say hoepfully helpful anyways etc -->
+
+	// <!-- custom: new function code here anyways etc -->
+	// This function is a simplified and refactored version of the original.
+	// It determines if a worker should perform a different, more urgent
+	// build task on a plot than the one it was originally assigned.
+	// This simplified version only overrides the original build for two specific,
+	// high-priority cases:
+	// 1. To clear a feature if a planned improvement requires it.
+	// 2. To build a road if the plot bridges two separate road networks.
 	FAssert(eBuild != NO_BUILD);
-	bool bBuildRoute = false;
-	bool bClearFeature = false;
+
+	CvBuildInfo const& kOriginalBuildInfo = GC.getInfo(eBuild);
+
+	// If the original build is a route or the plot already has a route,
+	// we don't need to override it. This prevents the function from
+	// getting stuck in a loop or re-prioritizing a road that's already
+	// been built.
+	if (kOriginalBuildInfo.getRoute() != NO_ROUTE || kPlot.isRoute()) {
+		return eBuild;
+	}
+
+	// --- High-Priority Override 1: Clear Feature ---
+	// We check if the originally planned improvement requires a feature
+	// to be removed first. If so, we find the specific build task to
+	// remove that feature and return it as the new, high-priority task.
 	FeatureTypes eFeature = kPlot.getFeatureType();
-
-	CvBuildInfo& kOriginalBuildInfo = GC.getInfo(eBuild);
-	if (kOriginalBuildInfo.getRoute() != NO_ROUTE)
-		return eBuild;
-	//int iWorkersNeeded // advc: It's more like a prediction of how many workers will attend to the task
-	int iTargetWorkers = AI_calculatePlotWorkersNeeded(kPlot, eBuild);
-
-	//if (pPlot->getBonusType() == NO_BONUS)
-	// BETTER_BTS_AI_MOD, Bugfix, 7/31/08, jdog5000:
-	if (kPlot.getNonObsoleteBonusType(getTeam()) == NO_BONUS)
+	if (eFeature != NO_FEATURE && kOriginalBuildInfo.isFeatureRemove(eFeature))
 	{
-		CvCityAI const* pTargetCity =  kPlot.AI_getWorkingCity();
-		if (pTargetCity != NULL)
+		// Find a build type that specifically removes this feature.
+		FOR_EACH_ENUM(Build)
 		{
-			int iCityWorkers = pTargetCity->AI_getWorkersHave();
-			/*  <advc.113b> Count the current worker if it isn't already included
-				(Previously, the caller took care of that by calling
-				CvCity::AI_changeWorkersHave beforehand.) */
-			if (AI_getCityToImprove() != pTargetCity)
-				iCityWorkers++; // </advc.113b>
-			iTargetWorkers = std::max(1, std::min(iTargetWorkers, iCityWorkers));
-		}
-	}
-	if (eFeature != NO_FEATURE)
-	{
-		CvFeatureInfo& kFeatureInfo = GC.getInfo(eFeature);
-		if (kOriginalBuildInfo.isFeatureRemove(eFeature))
-		{
-			if (kOriginalBuildInfo.getImprovement() == NO_IMPROVEMENT ||
-					(!kPlot.isBeingWorked() ||
-					kFeatureInfo.getYieldChange(YIELD_FOOD) +
-					kFeatureInfo.getYieldChange(YIELD_PRODUCTION) <= 0))
-				bClearFeature = true;
-		}
-		if (kFeatureInfo.getMovementCost() > 1 && iTargetWorkers > 1)
-			bBuildRoute = true;
-	}
-	//if (pPlot->getBonusType() != NO_BONUS)
-	// BETTER_BTS_AI_MOD, Bugfix, 7/31/08, jdog5000: START
-	if (kPlot.getNonObsoleteBonusType(getTeam()) != NO_BONUS)
-		bBuildRoute = true;
-	else if (kPlot.isHills())
-	{
-		if (GC.getDefineINT(CvGlobals::HILLS_EXTRA_MOVEMENT) > 0 && iTargetWorkers > 1)
-			bBuildRoute = true;
-	} // BETTER_BTS_AI_MOD: END
-
-	if (kPlot.isRoute())
-		bBuildRoute = false;
-
-	int const NO_PLOTGROUP = FFreeList::INVALID_INDEX; // advc
-	BuildTypes eBestBuild = NO_BUILD;
-	int iBestValue = 0;
-	FOR_EACH_ENUM(Build)
-	{
-		CvBuildInfo const& kLoopBuild = GC.getInfo(eLoopBuild);
-		RouteTypes eRoute = kLoopBuild.getRoute();
-		if ((bBuildRoute && eRoute != NO_ROUTE) ||
-			(bClearFeature && kLoopBuild.isFeatureRemove(eFeature)))
-		{
-			if (!canBuild(kPlot, eLoopBuild))
-				continue;
-
-			int iValue = 10000;
-			if (bBuildRoute && eRoute != NO_ROUTE)
+			CvBuildInfo const& kLoopBuild = GC.getInfo(eLoopBuild);
+			if (kLoopBuild.isFeatureRemove(eFeature))
 			{
-				iValue *= (1 + GC.getInfo(eRoute).getValue());
-				iValue /= 2;
-				//if (pPlot->getBonusType() != NO_BONUS)
-				// BETTER_BTS_AI_MOD, Bugfix, 7/31/08, jdog5000:
-				if (kPlot.getNonObsoleteBonusType(getTeam()) != NO_BONUS)
-					iValue *= 2;
-
-				if (kPlot.getWorkingCity() != NULL)
+				if (canBuild(kPlot, eLoopBuild))
 				{
-					iValue *= 2 + iTargetWorkers +
-							((kPlot.isHills() && iTargetWorkers > 1) ?
-							2 * GC.getDefineINT(CvGlobals::HILLS_EXTRA_MOVEMENT) : 0);
-					iValue /= 3;
+					// Found a build to remove the feature. Return it as the high priority.
+					return eLoopBuild;
 				}
-				ImprovementTypes const eImprovement = kOriginalBuildInfo.getImprovement();
-				if (eImprovement != NO_IMPROVEMENT)
-				{
-					CvImprovementInfo const& kImprov = GC.getInfo(eImprovement);
-					int iRouteMultiplier =
-							100 * kImprov.getRouteYieldChanges(eRoute, YIELD_FOOD) +
-							100 * kImprov.getRouteYieldChanges(eRoute, YIELD_PRODUCTION) +
-							 60 * kImprov.getRouteYieldChanges(eRoute, YIELD_COMMERCE);
-					iValue *= 100 + iRouteMultiplier;
-					iValue /= 100;
-				}
-				int iPlotGroupId = NO_PLOTGROUP;
-				FOR_EACH_ADJ_PLOT(kPlot)
-				{
-					if (!kPlot.isRiver() && !pAdj->isRoute())
-						continue;
-
-					CvPlotGroup* pAdjPlotGroup = pAdj->getPlotGroup(getOwner());
-					if (pAdjPlotGroup == NULL || pAdjPlotGroup->getID() == NO_PLOTGROUP)
-						continue;
-
-					if (pAdjPlotGroup->getID() != iPlotGroupId &&
-						// advc.001: Based on Mongoose Mod changelog (12-14 Dec 2012)
-						iPlotGroupId != NO_PLOTGROUP)
-					{
-						//This plot bridges plot groups, so route it.
-						iValue *= 4;
-						break;
-					}
-					else iPlotGroupId = pAdjPlotGroup->getID();
-				}
-			}
-			iValue /= kLoopBuild.getTime() + 1;
-			if (iValue > iBestValue)
-			{
-				iBestValue = iValue;
-				eBestBuild = eLoopBuild;
 			}
 		}
 	}
-	if (eBestBuild == NO_BUILD)
+
+	// --- High-Priority Override 2: Bridge Plot Groups ---
+	// We check if the plot is a critical link between two unconnected
+	// road networks. If so, building a road here is a high-priority
+	// strategic task for the empire's economy and military.
+	
+	// NEW LOGIC: Check if the original build is a local bonus improvement.
+	// If so, we should prioritize that over bridging plot groups.
+	if (kOriginalBuildInfo.getImprovement() != NO_IMPROVEMENT && kPlot.getNonObsoleteBonusType(getTeam()) != NO_BONUS)
+	{
+		// The original plan is a bonus improvement. We don't want to override it with a road.
 		return eBuild;
-	return eBestBuild;
+	}
+
+	int const NO_PLOTGROUP = FFreeList::INVALID_INDEX;
+	int iPlotGroupId = NO_PLOTGROUP;
+	bool bBridgesPlotGroups = false;
+
+	FOR_EACH_ADJ_PLOT(kPlot)
+	{
+		// We now care about adjacent plots that have a route OR a river.
+		if (!pAdj->isRoute() && !pAdj->isRiver())
+			continue;
+
+		CvPlotGroup* pAdjPlotGroup = pAdj->getPlotGroup(getOwner());
+		if (pAdjPlotGroup == NULL || pAdjPlotGroup->getID() == NO_PLOTGROUP)
+			continue;
+
+		// If we find an adjacent plot that is part of a different plot group
+		// than the first one we found, this plot is a bridge.
+		if (iPlotGroupId != NO_PLOTGROUP && pAdjPlotGroup->getID() != iPlotGroupId)
+		{
+			bBridgesPlotGroups = true;
+			break;
+		}
+		iPlotGroupId = pAdjPlotGroup->getID();
+	}
+
+	if (bBridgesPlotGroups)
+	{
+		// If the plot is a bridge, we find and return a route-building task.
+		FOR_EACH_ENUM(Build)
+		{
+			CvBuildInfo const& kLoopBuild = GC.getInfo(eLoopBuild);
+			if (kLoopBuild.getRoute() != NO_ROUTE)
+			{
+				if (canBuild(kPlot, eLoopBuild))
+				{
+					// Found a route build that bridges a gap. Return it as a high priority.
+					return eLoopBuild;
+				}
+			}
+		}
+	}
+
+	// If no high-priority override was found, return the original build.
+	return eBuild;
 }
 
 
