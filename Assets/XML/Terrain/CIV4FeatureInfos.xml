@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Alex Mantzaris (Firaxis Games) --><!-- Sid Meier's Civilization 4 --><!-- Copyright Firaxis Games 2005 --><!-- -->
 <!-- Feature -->
-<!-- custom: note: be careful when/if renaming some of these features but anyways etc, as one or several of these are now also hardcoded in advciv-sas in the DLL as part of AI settling/founding/planting cities optimization, if you want to rename it, rename it there as well and recompile the DLL, anyways etc -->
+<!-- custom: note: be careful when/if renaming some of these features but anyways etc, as one or several of these are now also hardcoded in advciv-sas in the DLL as part of AI settling/founding/planting cities optimization, as well as optimizing AI worker improvement choice, if you want to rename it, rename it there as well and recompile the DLL, anyways etc -->
 <Civ4FeatureInfos xmlns="x-schema:CIV4TerrainSchema.xml">
 	<FeatureInfos>
 		<FeatureInfo>
@@ -135,8 +135,9 @@
 			<iSeeThrough>1</iSeeThrough>
 			<!-- custom: (now and as of now i mean anyways etc same as of the forest health positive modifier but negative here anyways etc), was -25 -->
 			<iHealthPercent>-50</iHealthPercent>
+			<!-- custom: reduce `iDefense` (base feature jungle if i am not mistaken but anyways etc) as of now from 0 to -25: gotta get something out of all those jungle penalties, reduce tile defense, which would make it easier for city owners to indirectly defend their cities or/and attack invaders if i am not mistaken, as as outside of cities provide a more man vs man kind of warfare xd if i may say but anyways etc, as also in the jungle everyone is left on their own, which is quite realistic maybe too anyways etc, also this doesn't affect city tile warfare as features are cleared on found if i am not mistaken but anyways etc so should be fine at least i want to do it so anyways etc (note: as of now rival defense of +25% still applies for all features if i am not mistaken, so as of now -25 to +25 (seemingly 25 for all features but i am not 100.0% sure if i may say but anyways etc..., check to be sure anyways etc) would be 0 total feature_jungle defense, vs 0 + 25 = 25 total defense on feature_forest if i am not mistaken anyways etc), was 0 -->
 			<!-- advc.012: was 50 -->
-			<iDefense>0</iDefense>
+			<iDefense>-25</iDefense>
 			<!-- advc.012 -->
 			<iRivalDefense>25</iRivalDefense>
 			<iAppearance>0</iAppearance>

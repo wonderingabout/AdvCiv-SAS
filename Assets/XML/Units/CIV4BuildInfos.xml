@@ -4,6 +4,7 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- Build Infos -->
+<!-- custom: be careful when renaming or manipulating "BUILD_REMOVE_FOREST" and "BUILD_REMOVE_JUNGLE" in particular, as we hardcode them in CvUnitAI::AI_bestCityBuild as part of optimizing AI worker building choice, so if you make a change related to these or perhaps other feature removal in your mod, handle it there as well and recompile DLL anyways etc ; note: fallout doesn't seem to be handled specifically as a remove build unlike forest and jungle but only as part of building other builds, so is not related to this code comment warning if i may say and if i am not mistaken, but check to be sure, although should be accurate, but check to be sure if needed i mean in this case but anyways etc -->
 <Civ4BuildInfos xmlns="x-schema:CIV4UnitSchema.xml">
 	<BuildInfos>
 		<BuildInfo>

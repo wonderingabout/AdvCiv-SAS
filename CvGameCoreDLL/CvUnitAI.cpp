@@ -748,12 +748,123 @@ int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
 	return range(iOdds, 1, 99);
 }
 
+// <!-- custom: new addition by gemini ai thanks to my prompt too, to help AI workers know the bonus-specific (note: land only bonuses, as it seems workboats and water plots are not handled in CvUnitAI::AI_bestCityBuild if i am not mistaken anyways etc) improvement for a bonus and optimize AI workers improvement choice based on this, moved as a static helper for potential reuse and clarity/clean code in this case at least i mean but anyways etc, see also CvUnitAI::AI_bestCityBuild for details -->
+// Helper function to provide a static, constant map of bonus-specific land builds.
+// This is more efficient than rebuilding the map on every function call.
+// <!-- custom: actually hard code them rather would be much easier so AI knows gold wants a mine not a workshop, and spices want a plantation or nothing, not a farm (nor a cottage! as i saw done then replaced hehe in base advciv if i remember it correctly anyways etc), may help fix the banana cottage issue in base advciv ideally and theoretically as well anyways etc at least for this part of the code anyways etc. Cleanest way would be an xml flag, but tedious to implement, hardcode here for simplicity and may later or may not implement it properly, adjust this code for your mod anyways etc -->
+// This is the pre-C++11 compatible way to initialize a static map.
+const std::map<BonusTypes, BuildTypes>& getBonusSpecificLandBuilds()
+{
+	// <!-- custom: seems efficient according to gemini ai (see below), i don't know too much aobut these hehe except the general static idea and or such, but in case it is accurate and looks to be so but check to be sure, hopefully this is also informative so adding it as part of explanation as well i mean anyways etc -->
+	// The static keyword ensures this map is initialized only once.
+	// When you declare a variable as static inside a function, C++ guarantees that it is only created once, the very first time that function is called. After that, the program remembers the variable and every subsequent call to the function uses the same, already-created object. The map is not recreated or destroyed on each function call.
+	static std::map<BonusTypes, BuildTypes> s_bonusSpecificLandBuilds;
+	if (s_bonusSpecificLandBuilds.empty())
+	{
+		// <!-- custom: bonuses as per the XML order for exhaustiveness and reliability and making sure we don't forget any anyways etc, adjust as you see fit anyways etc ; see also https://civilization.fandom.com/wiki/Resource_(Civ4)#Strategic_Resources and such or not or yes or etc anyways etc related categories in this link anyways etc for bonus-specific build/improvement i mean anyways etc -->
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_ALUMINUM") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_MINE");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_COAL") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_MINE");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_COPPER") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_MINE");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_HORSE") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_PASTURE");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_IRON") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_MINE");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_MARBLE") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_QUARRY");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_OIL") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_WELL");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_STONE") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_QUARRY");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_URANIUM") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_MINE");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_BANANA") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_PLANTATION");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_MAIZE") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_FARM");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_CATTLE") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_PASTURE");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_DEER") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_CAMP");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_PIG") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_PASTURE");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_RICE") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_FARM");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_SHEEP") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_PASTURE");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_WHEAT") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_FARM");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_DYE") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_PLANTATION");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_FUR") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_CAMP");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_GEMSTONES") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_MINE");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_GOLD") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_MINE");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_INCENSE") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_PLANTATION");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_ELEPHANTS") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_CAMP");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_SILK") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_PLANTATION");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_SILVER") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_MINE");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_SPICES") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_PLANTATION");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_SUGAR") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_PLANTATION");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_GRAPES") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_PLANTATION");
+		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_CAMEL") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_PASTURE");
+		// Add other bonus-specific mappings here as needed.
+	}
+	return s_bonusSpecificLandBuilds;
+}
+
+// Define the Candidate struct outside the function so it can be used as a template argument.
+// A list of potential build candidates.
+// A struct to store a candidate build with its value and the chosen BuildType.
+struct Candidate {
+	int iValue;
+	CvPlot* pPlot;
+	CityPlotTypes ePlot;
+	BuildTypes eBuild;
+
+	bool operator>(const Candidate& other) const {
+		return iValue > other.iValue;
+	}
+};
+
 // Returns true if the unit found a build for this city...
+// <!-- custom: also add after our rewrite in advciv-sas code to handle/optimize terrain improvement choice, generally and in short in this case but anyways etc do not build a cottage flatland plains if there are flatland grass tiles that are much better candidates, as for bonuses simplify logic for efficiency and no-tediousness xd if i may say but anyways etc to always improve them regardless of terrain anyways etc (high-food bonuses first though as below if i am not mistaken anyways etc) ; code provided by gemini ai and that i adjusted as well in/for advciv-sas in this case anyways etc, similarly as below anyways etc ; see also new code we added n advciv-sas but anyways etc that handles settling priorities based on terrains or/and features and hills anyways etc in as of now CitySiteEvaluator.cpp which this code is partially based on as well if i may say and if i am not mistaken anyways etc -->
+// This function determines the value of a specific improvement on a plot,
+// which is the core logic that guides AI worker actions.
+// This version is a rewrite to prioritize improvements based on terrain,
+// features, and yield potential, similar to city founding logic.
+// It aims to fix issues like building farms on valuable bonus tiles <!-- custom: like spices instead of a plantation (wait to improve it at all ideally anyways etc) -->
+// and inefficiently clearing forests or improving low-yield tiles.
 bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	CvPlot** ppBestPlot, BuildTypes* peBestBuild,
 	CvPlot* pIgnorePlot, CvUnit* pUnit) const
 {
 	PROFILE_FUNC();
+
+	// <!-- custom: attempt to support terrains and feature(s) conditional logic anyways etc -->
+	TerrainTypes const eTerrainGrass = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_GRASS");
+	TerrainTypes const eTerrainPlains = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_PLAINS");
+	TerrainTypes const eTerrainDesert = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_DESERT");
+	TerrainTypes const eTerrainTundra = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_TUNDRA");
+	TerrainTypes const eTerrainSnow = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_SNOW");
+
+	FeatureTypes const eFeatureFloodPlains = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FLOOD_PLAINS");
+	FeatureTypes const eFeatureForest = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FOREST");
+	FeatureTypes const eFeatureJungle = (FeatureTypes)GC.getInfoTypeForString("FEATURE_JUNGLE");
+	// <!-- custom: used to check if it's on our existing plot so we can clear it (removing fallout doesn't seem to be handled specifically as a build_remove unlike forest and jungle but only as part of building other builds, so fallout is not related to the above code if i am not mistaken, but check to be sure, although should be accurate, but check to be sure if needed i mean in this case but anyways etc) -->
+	FeatureTypes const eFeatureFallout = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FALLOUT");
+
+	// <!-- custom: modify these if needed in your mod anyways etc -->
+    // Hardcoded BuildTypes for common feature removals for efficiency.
+    BuildTypes const eBuildRemoveForest = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_FOREST");
+    BuildTypes const eBuildRemoveJungle = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_JUNGLE");
+
+	// <!-- custom: if i am not mistaken, camps (possibly other builds? But lazy to check xd but anyways etc hopefully accurate enough anyways etc) can be built without removing feature forest or jungle, so handle them a bit differently here anyways etc -->
+    BuildTypes const eBuildCamp = (BuildTypes)GC.getInfoTypeForString("BUILD_CAMP");
+
+	// All Civ4 <!-- custom: as per our mod's xml most importantly i mean thanks still really i mean claude ai hehe for this sample and such anyways etc --> bonuses that require camps
+	BonusTypes const eBonusDeer = (BonusTypes)GC.getInfoTypeForString("BONUS_DEER");
+	BonusTypes const eBonusElephants = (BonusTypes)GC.getInfoTypeForString("BONUS_ELEPHANTS");
+	BonusTypes const eBonusFur = (BonusTypes)GC.getInfoTypeForString("BONUS_FUR");
+
+    // Define the BuildType constant for clarity.
+    // This directly refers to the action a worker takes.
+    BuildTypes const eBuildFarm = (BuildTypes)GC.getInfoTypeForString("BUILD_FARM");
+    BuildTypes const eBuildMine = (BuildTypes)GC.getInfoTypeForString("BUILD_MINE");
+    BuildTypes const eBuildCottage = (BuildTypes)GC.getInfoTypeForString("BUILD_COTTAGE");
+
+    BuildTypes const eBuildWorkshop = (BuildTypes)GC.getInfoTypeForString("BUILD_WORKSHOP");
+    BuildTypes const eBuildWindmill = (BuildTypes)GC.getInfoTypeForString("BUILD_WINDMILL");
+
+	// <!-- custom: useful for blacklist checks of the current plot's improvement (NOT what next build to build for the worker (sorry for capitalization xd but was to be clear anyways etc, and i repeated myself too "build to build" (now again xd) but not sorry for that i mean but i hope these comments help really if i may say but anyways etc), in fact for builds to build, unlike below current plot's improvement to check/find, use above build enums rather, as checking a build's improvement created a crash for workshop or/and actsAsCity (fort) (didn't check which between workshop and fort and only in one savegame so could have other issues in others untested, but browsing by builds as above seems safe and clean and fixed it, so i'd recommend from little or not in this case i know but anyways etc to use eBuild for next worker build and such checks, vs eImprovement for the current plot's existing improvement check rather, to avoid bugs and be clean and consistent and clear if i may say and if i am not mistaken, but check to be sure anyways etc thanks anyways etc)) -->
+	ImprovementTypes const eImprovementHamlet = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HAMLET");
+	ImprovementTypes const eImprovementVillage = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_VILLAGE");
+	ImprovementTypes const eImprovementTown = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_TOWN");
+	ImprovementTypes const eImprovementWindmill = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_WINDMILL");
+	ImprovementTypes const eImprovementWorkshop = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_WORKSHOP");
 
 	/*	K-Mod. hack: For the AI, I want to use the standard pathfinder, CvUnit::generatePath.
 		but this function is also used to give action recommendations for the player
@@ -778,14 +889,25 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	// <!-- custom: make sure AI workers always improve bonuses before anything else. This attempts to fix/address the "Boston screenshot" issue, where AI in a tundra environment mined two hill tiles and did not improve a nearby deer in city radius at all at turn 75, which would have helped the city grow, and even build the current worker city was building just as fast if i am not mistaken anyways etc (see screenshot and doc at known issues readme as of now number 30 for details anyways etc).
 	// Prioritizing to always improve bonuses first before anything else should always be a good move if not then almost always, for the AI in particular, it should be much more efficient than improving any other tile. I hope that the added slightly increased computation in below code does not decrease too much performance ideally (i think very minimal if not neglectible, but i don't know i mean so stating this to be sure and i would suggest to check this as well to be sure as this is just a guess on my end that i can make easily i mean as i don't know too much how to precisely check these or/and would be too tedious for a same end-goal of implementing these unless they are drastically or significantly +/ much in this case at least but anyways etc slower). I have measured to be sure since gemini ai insisted our code is better thanks a lot gemini ai hehe for caring if imay say in this case at least maybe or so it seems i mena but thnaks still but anyways etc really thanks anyways etc, actually our new code is seemingly faster: 45.185s for old DLL before rewrite, vs 43.008s with our new rewritten DLL in a 100 turn autoplay of a quite large pangea (didn't check exactly how). Of course some variation may occur, but our DLL shouldn't be slower or significantly slower, hopefully even a bit faster, at elast it felt so watching turns span even if a bit, and seems confirmed with this, but chek to be sure anyways etc.
 	// Most importantly, even if it were to be slower, but i hope and think it shouldn't be by a big lot if at all (even though i don't know too much about these but hopefully and seemingly to me based on this code i mean and what i can understand or guess of it but anyways etc) it may help AI strength/competitiveness so this should be valued at least i think so in this case at least but anyways etc. To simplify logic, include all bonuses in cultural borders (i.e. any reachable bonus), not just those in cities (at least do not restrict to that, and there should be some benefits to improving a bonus even if outside of a city radius, so hopefully efficient enough in this case and simple enough to handle in code if i am not mistaken as well anyways etc), if i am not mistaken and this code does this ; code provided thanks to / by gemini ai with chatgpt's help too and thanks to my prompt too anyways etc, and adjustments i did as well or not for advciv-sas anyways etc, anyways etc -->
-	// <!-- custom: also, the rewrite addresses one or a few suboptimal behaviours the code had, as reviewed quite extensively with gemini ai from quite little in this case i mean but anyways etc i know about these but can guess quite a bit in this case at least with gemini ai's help too thanks and thanks to me too maybe but anyways etc, in particular that regardless of the pathfinding computation performed at pass 1 (line `if (iPass > 0 || eBestBuild == NO_BUILD)` anyways etc), the best plot found if any would be pathfinding recomputed which is inefficient unless i am mistaken (but i don't know too much about these so check to be sure anyways etc) which seems to me to be inefficiently written if i am not mistaken now that i understand it better from all this thining hehe but hopefully, but again i could overlooked some other parts of the explanation or misunderstood some of the logic, so check to be sure, hopefully new code is much cleaner now and much easier to customize to add other enhancements as well anyways etc -->
+	// <!-- custom: also, the rewrite addresses one or a few suboptimal behaviours the code had, as reviewed quite extensively with gemini ai from quite little in this case i mean but anyways etc i know about these but can guess quite a bit in this case at least with gemini ai's help too thanks and thanks to me too maybe but anyways etc, in particular that regardless of the pathfinding computation performed at pass 1 (line `if (iPass > 0 || eBestBuild == NO_BUILD)` anyways etc), the best plot found if any would be pathfinding recomputed (or even computed at all since we only need one best plot, so computing it decrementally from best candidate to worse until one is found then early return it seems much more efficient as we do rather than compute all plots even the ones which in the end / ultimately in this case but anyways etc not will be our best so no need to needlessly (needless repetition (no pun xd or maybe yes or not but not consiously purposeful of memaybe whatever that means or not or yes or etc but anyways etc) but anyways etc...)) which is inefficient unless i am mistaken (but i don't know too much about these so check to be sure anyways etc) which seems to me to be inefficiently written if i am not mistaken now that i understand it better from all this thining hehe but hopefully, but again i could overlooked some other parts of the explanation or misunderstood some of the logic, so check to be sure, hopefully new code is much cleaner now and much easier to customize to add other enhancements as well anyways etc -->
 
-	// A list of potential build candidates.
-	// We use a nested pair to store the value, plot pointer, and plot index.
-	typedef std::pair<int, std::pair<CvPlot*, CityPlotTypes> > Candidate;
 	std::vector<Candidate> candidates;
 
-	// <!-- custom: note: performance optimization and perhaps logic optimization as well anyways etc i got from watching gemini ai's general feedback on it being perhaps slow (which in fact seemingly was not after measuring (see above anyways etc) anyways etc) it gave me this other idea thanks a lot hehe, and that i would have ideally implemented, but it seems faster to not check pathfinding at all (in case it is expensive as gemini ai said in another answer to me i mean in this case but anyways etc) and loop over all tiles rather than check pathfinding at same time as we check candidates so that we can early exit after first bonus found (in short it seems faster to store all candidates than pre-sort them, which should be uneeded if we don't choose them anyway in the end in this case at least but anyways etc): if we find a bonus, check other following plots lightly if i am not mistaken but anyways etc, since in the end we will choose a bonus, so may skip any non bonus tile at first bonus tile found. This may have also helped enforce the bonus-first priority so nice in all ways maybe anyways etc, but as said before is maybe not as efficient as i thought (although i didn't measure it so check to be sure in case relevant or interested in this case i mean anyways etc) so not implementing it anyways etc -->
+    // A map for efficient lookup of the best improvement for a given bonus.
+	const std::map<BonusTypes, BuildTypes>& bonusBuilds = getBonusSpecificLandBuilds();
+
+	// <!-- custom: note: performance optimization and perhaps logic optimization as well anyways etc i got from watching gemini ai's general feedback on it being perhaps slow (which in fact seemingly was not after measuring (see above anyways etc) anyways etc) it gave me this other idea thanks a lot hehe, and that i would have ideally implemented, but it seems faster to not check pathfinding at all (in case it is expensive as gemini ai said in another answer to me i mean in this case but anyways etc) and loop over all tiles rather than check pathfinding at same time as we check candidates so that we can early exit after first bonus found (in short it seems faster to store all candidates blindly than pre-select them only for pathfinder-eligible and passing ones i mean anyways etc, which should be uneeded if we don't choose them anyway in the end in this case at least but anyways etc) ; so my idea was (unimplemented due to explained reasons in this code comment if i am not mistaken anyways etc): if we find a bonus, check other following plots lightly if i am not mistaken but anyways etc, since in the end we will choose a bonus, so may skip any non bonus tile at first bonus tile found. This may have also helped enforce the bonus-first priority so nice in all ways maybe anyways etc, but as said before is maybe not as efficient as i thought (as if this only best tile ends up being unpathable, then all the other good candidates we skipped assuming we had a better one would not be chosen then if no other pathfinder-ok bonus tile exists, so safer and also seemingly faster to not bother with pathfinder until we have sorted all plots from best to worse in this case i mean anyways etc) (although i didn't measure it so check to be sure in case relevant or interested in this case i mean anyways etc) so not implementing it anyways etc -->
+
+	// <!-- custom: computationally faster even if a bit maybe to access these directly instead of through the pointer/method especially for/if repeated/ly use/d if i may say maybe but check to be sure anyways etc -->
+
+	// <!-- custom: food difference may be at 0 when we are building a worker or settler for example (i assume it is via the bFood xml field in unit info but check to be sure anyways etc), so count food only when we are not building these units, as we don't know if it's really 0 or 0 as a result of food production, and i don't want to modify the code in case it interferes with many things although ideally i should i think but not sure but in all cases calculating ourselves rather the real actual city food difference based on yields and food consumption, not on civ4 helpers, to decide in this case i mean but anyways etc if for example we should build farms when starved (are we really starved or building a worker? We need the info to decide in this case i mean but anyways etc so adding it here if i may say but) anyways etc, with the help of claude ai as well and my prompts and adjustments too or not or yes or etc but anyways etc -->
+	// int const iCityFoodDifference = kCity.foodDifference();
+	int const iRealCalculatedCityFoodDifference = kCity.getYieldRate(YIELD_FOOD) - kCity.foodConsumption();
+
+	int const iCityHealthCalculatedDifference = kCity.goodHealth() - kCity.badHealth();
+	int const iCityPopulation = kCity.getPopulation();
+	
+	const int penaltyForOverwritingPlot = 300;
 
 	// ===================================================
 	// PHASE 1: A single loop to find ALL valid candidates and their values.
@@ -794,36 +916,813 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	{
 		CvPlot& kPlot = *it;
 		CityPlotTypes ePlot = it.currID();
-		
+
 		if (&kPlot == pIgnorePlot || /*!AI_plotValid(kPlot)*/kPlot.isWater()) // advc.opt
 			continue;
 		if (GET_PLAYER(getOwner()).isAutomationSafe(kPlot))
 			continue;
 
-		int iValue = kCity.AI_getBestBuildValue(ePlot);
-		
+		// <!-- custom: trick to start from scratch and ignore all previous rules and do our own thing if i may say anyways etc, perhaps save computation while doing so if i may say maybe but anyways etc ; so now we use iValue to choose which tiles to improve first, while independently from that, the bestBuild is separately as of now now anyways etc handled with our own helpers depending on terrain, feature, bonuses or not, tech indirect condition (canBuild) and other or not conditions, in the plot anyways etc ; but what i mean is logic is cleanly separated between which is bets ideal supposed build, vs independently, which tile do we improve now and first i mean but anyways etc -->
+		// int iValue = kCity.AI_getBestBuildValue(ePlot);
+		// <!-- custom: also to override seemingly higher `iValue <= 1` expected conditions in other functions, not sure they call this and use it, but just in cast start with higher values in case other functions expect them anyways etc (check to be sure i mean i am not sure or didn't check too much hopefully helpful or not or yes or etc anyways etc), start with a higher minimal value than this threshold, although ours should be so much higher than 1 for most good plots, but just in case to not be rejected there if we somehow have a good plot or not too bad one with negative value anyways etc if i am not mistaken -->
+		int iValue = 10;
+
+		// <!-- custom: AI does a lot of bad stuff, this is much better with our value tweaks (no more farms on plains but now too many farms on grassland, still i believe startign from scratch and ignoring any above instucitons from our code is best, so we'll determine best build ourselves here at least for what this part of the code is responsible for, test to do so in this case i mean anyways etc) -->	
+		// <!-- custom: move eBuild definition here if i am not mistaken in doing so i mean anyways etc -->
+		// BuildTypes const eBuild = kCity.AI_getBestBuild(ePlot);
+		BuildTypes eBestSupposedBuild = NO_BUILD;
+
+		bool const bPlotFreshWater = kPlot.isFreshWater();
+		// <!-- custom: count fresh water on plot as 1 food yield, useful for calculations anyways etc -->
+		int const iPlotFreshWater = (bPlotFreshWater ? 1 : 0);
+
+		// Get terrain and feature info
+		TerrainTypes const eTerrain = kPlot.getTerrainType();
+		FeatureTypes const eFeature = kPlot.getFeatureType();
+
 		// === ADVANCE AI: The "Value Hack" ===
+		// <!-- custom: Improving bonuses (if possible) anyways etc --> on the plot is the highest priority.
+
 		BonusTypes eBonus = kPlot.getNonObsoleteBonusType(getTeam());
+
 		if (eBonus != NO_BONUS)
 		{
-			// Give a base multiplier for any unimproved bonus.
-			iValue *= 100;
-
-			// <!-- custom: the more food the higher priority hehe (not in real life or why not but quality maye bit too at least in this case or in real life or both or only in real life or not or yes or etc but anyways etc...) if i may say anyways etc, so multiply it even further than the base any unimproved bonus multiplier if i am not mistaken in my understanding anyways etc -->
-			// Give an even bigger multiplier if the bonus is a FOOD bonus.
-			int const bonusFoodYieldChange = GC.getBonusInfo(eBonus).getYieldChange(YIELD_FOOD);
-			if (bonusFoodYieldChange > 0)
+			// <!-- custom: note : flexibly chop, instead of bonus flexible build, we'll choose same best plot again, but advantage is we can better respond, say to invasion, and finish chopping (getting production too and worker availability) if we need to interrupt it mid way, more efficient this way, frees also some move speed if flatland for mobile units if i am not mistaken anyways etc -->
+			// <!-- custom: note 2: even if chopping is important, do not change plot value at all, so that highest value bonus is chopped first, then at next step it is still highest value so it is improved, then it has now an improvement that is correct so it is moved out of our plots in all cases, then 2nd best bonus is chopped if needed, else improved, then 3rd bonus choped if needed then improved etc, then the rest of the plots :) Hehe a very elegant solution as gemini ai said from idea i nicely got but it helped me lot, so making chopping more important by not making it more important (else with a multiplier AI would rush in theory at least but anyways etc from chopping one bonus to directly chopping bonus 2 without imrpvoing bonus 1 before that which would defeat the purpose and be very inefficient, only goal was to chop before actual improve for flexibility of AI workers and such anyways etc) if i may say but anyways etc... -->
+			if (eFeature == eFeatureForest)
 			{
-				iValue *= (5 * bonusFoodYieldChange);
+				// <!-- custom: no need to remove feature yet, first get the yields from the camp, +/- early connection in this case i mean but anyways etc if a river or route or such is already there luckily/conveniently as well anyways etc -->
+				if ((eBonus == eBonusDeer) || (eBonus == eBonusElephants) || (eBonus == eBonusFur))
+				{
+					if (canBuild(kPlot, eBuildCamp))
+					{
+						eBestSupposedBuild = eBuildCamp;
+					}
+					else
+					{
+						if (canBuild(kPlot, eBuildRemoveForest))
+						{
+							eBestSupposedBuild = eBuildRemoveForest;
+						}
+						else
+						{
+							// <!-- custom: ignore the plot for now, we could "pre-chop", but really chop just in anticipation of the bonus specific improvement/build later, but this is inefficient, maybe there are other tiles to work first, even if they don't have a bonus, code is simpler this way too anyways etc -->
+							continue;
+						}
+					}
+				}
+			}
+			else if (eFeature == eFeatureJungle)
+			{
+				// <!-- custom: no need to remove feature yet, first get the yields from the camp, +/- early connection in this case i mean but anyways etc if a river or route or such is already there luckily/conveniently as well anyways etc -->
+				if ((eBonus == eBonusDeer) || (eBonus == eBonusElephants) || (eBonus == eBonusFur))
+				{
+					if (canBuild(kPlot, eBuildCamp))
+					{
+						eBestSupposedBuild = eBuildCamp;
+					}
+					else
+					{
+						if (canBuild(kPlot, eBuildRemoveJungle))
+						{
+							eBestSupposedBuild = eBuildRemoveJungle;
+						}
+						else
+						{
+							// <!-- custom: ignore the plot for now, we could "pre-chop", but really chop just in anticipation of the bonus specific improvement/build later, but this is inefficient, maybe there are other tiles to work first, even if they don't have a bonus, code is simpler this way too anyways etc -->
+							continue;
+						}
+					}
+				}
+			}
+			// <!-- custom: if we know we can chop, no need to look for a costly specific build we won't do now since we want to chop explicitly/specifically if i may say in this case but anyways etc first. So else, only look for a bonus specific build if plot is already chopped, in other words if plot's feature is not forest nor jungle if i am not mistaken anyways etc -->
+			else
+			{
+				// Handle bonus-specific improvements using our new helper function
+				std::map<BonusTypes, BuildTypes>::const_iterator it = bonusBuilds.find(eBonus);
+				if (it != bonusBuilds.end())
+				{
+					BuildTypes const eBonusSpecificBuild = it->second;
+
+					// <!-- custom: actually before any further computation or even further consideration i mean in this case but anyways etc, if the bonus tile is improved, and improvement is already our best, no need to think further. -->
+					ImprovementTypes eBonusSpecificImprovement = GC.getBuildInfo(eBonusSpecificBuild).getImprovement();
+
+					// === Blacklist: Early exit if bonus <!-- should not be improved -->
+					if (kPlot.getImprovementType() != NO_IMPROVEMENT)
+					{
+						//  is already improved correctly ===
+						if (kPlot.getImprovementType() == eBonusSpecificImprovement)
+						{
+							continue;
+						}
+					}
+
+					// <!-- custom: build these or nothing else, leave banana tile empty until we have plantation, may be efficient in most cases for the AI to optimize build time usage rather than overwriting them inefficiently later, except some exceptions such as banana farms if irrigated on grass anyways etc, but generally workers have probably better things (chop for hammer on remove, build cottage early, etc) to do that would not make it so worth it) so maybe fine as such anyways etc, hopefully no more banana cottages on plains still though and such similar cases anyways etc or such with this patch or new logic at least for this part of the code anyways etc -->
+					// Fail-fast check: If we can build the bonus-specific improvement, then proceed with the high-value logic.
+					int const bonusFoodYieldChange = GC.getBonusInfo(eBonus).getYieldChange(YIELD_FOOD);
+
+					if (canBuild(kPlot, eBonusSpecificBuild))
+					{
+						eBestSupposedBuild = eBonusSpecificBuild;
+
+						int const bonusCommerceYieldChange = GC.getBonusInfo(eBonus).getYieldChange(YIELD_COMMERCE);
+						int const bonusProductionYieldChange = GC.getBonusInfo(eBonus).getYieldChange(YIELD_PRODUCTION);
+
+						// Give a <!-- custom: very high value (avoid multiplying for any weird bug or such, addition by a big number would produce more consistent or/and reliable results i think if i may say and if i am not mistaken anyways etc) --> for any unimproved bonus.
+						iValue += 20000;
+
+						// <!-- custom: the more food the higher priority hehe (not in real life or why not but quality maye bit too at least in this case or in real life or both or only in real life or not or yes or etc but anyways etc...) if i may say anyways etc, so multiply it even further than the base any unimproved bonus multiplier if i am not mistaken in my understanding anyways etc -->
+						// Give an even bigger multiplier if the bonus is a FOOD bonus.
+						if (bonusFoodYieldChange > 0)
+							iValue += (8 * bonusFoodYieldChange * 500);
+						// <!-- custom: then also valorize hammer/production less, i'd prefer to improve iron before gold i mean, although this is debatable, handle as such anyways etc, i hope in most cases if i may say anyways etc it would make AI more efficient anyways etc -->
+						if (bonusProductionYieldChange > 0)
+							iValue += (4 * bonusProductionYieldChange * 500);
+						// <!-- custom: if there is a lot of commerce, it may make sense to go for this one first maybe anyways etc, but it needs to be a lot and more generally i would say anyways etc -->
+						if (bonusCommerceYieldChange > 0)
+							iValue += (2 * bonusCommerceYieldChange * 500);
+					}
+					// The bonus-specific improvement is not yet available and there was no feature to chop.
+					// <!-- custom: one exception to the general ignore rule below as of now anyways etc, an irrigated farm for example on banana is quite attractive, even if inefficient, is not too long to build, and the yields are good ; but if food is low such as in plains or tundra terrains anyways etc, we may also build a farm if tile has enough food i mean anyways etc ; also since farms only give food yield and 1 food as of now early in particular if i am not mistaken but anyways etc, aim for at least 4+ total plot food to consider building it, so for grass fresh water + 1 bonus food is enough (or 2 bonus food), but for plains to reach 4 total food, we'd need either fresh water + 2 bonus food, or 3 bonus food to make it worth our while if i may say too in this case but anyways etc, food is very worth it especially early overall, so consider this to be a good move if i may say that it would be bad to miss in this case i mean for the AI i mean too, leaving an unusually high food plot even if weirdly/unefficiently improved may not be good, hopefully this makes AI stronger in this case i mean and more efficient too i mean too anyways etc -->
+					else if (canBuild(kPlot, eBuildFarm))
+					{
+						if (((eTerrain == eTerrainGrass && ((iPlotFreshWater + bonusFoodYieldChange) >= 2))) ||
+						(((eTerrain == eTerrainPlains) || (eTerrain == eTerrainTundra)) && ((iPlotFreshWater  + bonusFoodYieldChange) >= 3)))
+						{
+							eBestSupposedBuild = eBuildFarm;
+
+							iValue += 18000;
+						}
+					}
+					// <!-- custom: else fall back to general rule: ignore until better conditions anyways etc, unless critically urgent or here rather least relevant ones remaining to improve, then would still be in our candidates list anyways etc -->
+					else
+					{
+						iValue -= 1000;
+					}
+				}
+				// <!-- custom: up to modders to support this and add their new or changed features or such, as for us we skip this plot for efficiency anyways etc -->
+				// The bonus has no corresponding build in our map.
+				else
+				{
+					continue;
+				}
 			}
 		}
 		// === END ADVANCE AI ===
-		BuildTypes eBuild = kCity.AI_getBestBuild(ePlot);
-		if (eBuild == NO_BUILD || /* K-Mod: */ !canBuild(kPlot, eBuild))
-			continue;
 
-		// Store this candidate. We will check pathfinding <!-- custom: and other conditions (such as enemy on plot maybe anyways etc) --> later <!-- custom: for efficiency, as there is no need to check this on tiles we would not select as best anyways if i am not mistaken, as gemini ai did thanks i mean, anyways etc, it is faster to just sort them all without looking too deep, then process them later, than spend computation to look at a tile we won't use later if i am not mistaken anyways etc -->
-		candidates.push_back(std::make_pair(iValue, std::make_pair(&kPlot, ePlot)));
+		// <!-- custom: after bonus computation is handled, for bonus preference do not mind the terrain/feature, improve any terrain as long as it is a bonus with very great priority if i may say anyways etc, else if our best would not be a bonus (no bonus or unreachable), then consider terrain or/and feature anyways etc, prefer high food terrain most importantly: for example and in particular, do not build flatland plains cottage when there are flatland grass tiles available in city radius, this is a big waste of food yield and opportunity -->
+        // Logic to prioritize farms on high-food terrains like grassland and plains.
+		else
+		{
+			// <!-- custom: for non-bonus tiles, never destroy high value improvements or later game ones ; this maybe (/might or not anyways etc if/in case other parts of the DLL interfere with this/our code anyways etc) helps avoid oscillation (i.e. workers changing their mind and overwriting again and again a tile based on fleeting meh xd if i may say, which is maybe valid in this case at least if i may say but anyways etc but is very inefficient, so for AI may help a lot to make it focus its mind on one statistical improvement and stick to it anyways etc)
+			// <!-- custom: note however that as for bonus tiles, they don't follow this logic: still overwrite a banana hamlet or even town, they shouldn't have been there at all ideally as per our code, but if they are or some other code handled it as such, then do not let the stupid banana hamlet or town persist, we'd get just as much yields with a regular plantation, connecting the bonus as a side effect if i am not mistaken too anyways etc -->
+			ImprovementTypes const ePlotCurrentImprovement = kPlot.getImprovementType();
+			// Now using the newly defined constants for clarity and consistency.
+			if (ePlotCurrentImprovement == eImprovementHamlet ||
+				ePlotCurrentImprovement == eImprovementVillage ||
+				ePlotCurrentImprovement == eImprovementTown ||
+				ePlotCurrentImprovement == eImprovementWorkshop ||
+				ePlotCurrentImprovement == eImprovementWindmill)
+			{
+				// This 'continue' will skip to the next build in the outer loop,
+				// preventing the AI from ever considering destroying a high-level non-bonus improvement.
+				continue;
+			}
+
+			// <!-- custom: with our reworked system, assume current improvement is always or often good for effiency and no reason not to, should often hopefully not be a too bad improvement, so give a general penalty to discourage overwriting a plot ; do so only when all other plots, especially unupgraded ones that are good enough, have been handled first, not strict foribddance so workshops and such later game buildings can be built if i am not mistaken anyways etc -->
+			if (kPlot.getImprovementType() != NO_IMPROVEMENT)
+			{
+				// <!-- custom: check and be alert on whether we can build higher level improvements, ignoring less relevant ones like forest preserve, lumbermill, watermill, that are not too good i mean generally or for efficiency, focus on most efficent ones anyways etc -->
+				bool const bCanBuildAssumedEfficientHigherLevelImprovements = (canBuild(kPlot, eBuildWorkshop) || canBuild(kPlot, eBuildWindmill));
+
+				if (!bCanBuildAssumedEfficientHigherLevelImprovements)
+				{
+					iValue -= 3 * penaltyForOverwritingPlot;
+					// <!-- note: adjusted in some other places where it is really better to replace it, such as plains farm that are meh (see there at plains checks for details anyways etc), considering overwriting existing ones when/if all good tiles have been improved first -->
+				}
+				else
+				{
+					// <!-- custom: the higher level improvements are more attractive, still we'd want to improve unimproved tiles first that are good enough, and if none remain, with now a low threshold, consider overwriting plots, especially attractive ones if i may say anyways etc -->
+					iValue -= penaltyForOverwritingPlot;
+				}
+			}
+
+			// <!-- custom: PHASE 1 - estimate plot value (i.e. priority for the next plot to improve first anyways etc) and best build on said plot, for all plots in our loop anyways etc -->
+
+			// <!-- custom: PHASE 1.1 - process features to chop first -->
+			// Priority 1: Handle features that need removal or special treatment
+			if (eFeature == eFeatureForest)
+			{
+				if (canBuild(kPlot, eBuildRemoveForest))
+				{
+					// <!-- custom: should we chop this non-bonus plot? To decide that if i may say but anyways etc, take into account city population, and current health -->
+					// <!-- custom: past a certain size, we can get health from buildings or such, and maybe game would have devlopped enough that by that time/point but anyways etc we can also traded health bonuses if needed, ideally and hopefully AI does so although i didn't check too much, check to be sure anyways etc -->
+					if (iCityPopulation >= 7)
+					{
+						if (iCityHealthCalculatedDifference >= 1)
+						{
+							// <!-- custom: chop first, think later -->
+							eBestSupposedBuild = eBuildRemoveForest;
+							// <!-- custom: note: do not change iValue specifically for forest remove as forest is important enough as it is i mean anyways etc, and it is more efficient to do other builds on other plots, rather than chop best tile and later maybe not improving the tile to go chop next tile to chop instead of improving this best one that was chopped just before if i am not mistaken anyways etc ; also chopping say grassland first vs plains as we'd be more inclined to build on higher food anyways etc is handled later in terrain/features checks as of now i mean anyways etc -->
+						}
+						else
+						{
+							// <!-- custom: do not chop yet (avoid overchopping) -->
+							continue;
+						}
+					}
+					else
+					{
+						if (iCityHealthCalculatedDifference >= -1)
+						{
+							// <!-- custom: chop more generously if i may say anyways etc, we need to grow the city, and the hammer/production is nice early, hopefully we also have enough food anyways etc to accomodate slightly lower health anyways for small in this case city size anyways etc -->
+							eBestSupposedBuild = eBuildRemoveForest;
+
+							iValue += 50 * (1 + iCityHealthCalculatedDifference);
+						}
+						else
+						{
+							// <!-- custom: do not chop yet (avoid overchopping) -->
+							continue;
+						}
+					}
+
+					// <!-- custom: finally value for chop per terrain (prioritize chopping grassland over plains, all other things being equal, in hope that we'd improve the tile later on a higher base food yield tile if i may say anyways etc), since we won't look at this later in this case at least if i may say but anyways etc -->
+					if (eTerrain == eTerrainGrass)
+					{
+						iValue += 1300;
+					}
+					else if (eTerrain == eTerrainPlains)
+					{
+						iValue += 700;
+					}
+					// <!-- custom: try to keep forest a bit more all other things get equal, the hammer/production is not too bad and we have a bit of base commerce too now with the tundra rework/buff in our mod as of now i mean anyways etc -->
+					else if (eTerrain == eTerrainTundra)
+					{
+						iValue += 600;
+					}
+				}
+				else
+				{
+					// <!-- custom: wait for right time, do nothing (yet in this case i mean anyways etc) in this case i mean anyways etc -->
+					continue;
+				}
+			}
+			else if (eFeature == eFeatureJungle)
+			{
+				if (canBuild(kPlot, eBuildRemoveJungle))
+				{
+					// <!-- custom: should we chop this non-bonus plot? To decide that if i may say but anyways etc, take into account city population, and current health -->
+					// <!-- custom: past a certain size, we can get health from buildings or such, and maybe game would have devlopped enough that by that time/point but anyways etc we can also traded health bonuses if needed, ideally and hopefully AI does so although i didn't check too much, check to be sure anyways etc -->
+					if (iCityPopulation >= 7)
+					{
+						// <!-- custom: chop first, think later -->
+						eBestSupposedBuild = eBuildRemoveJungle;
+						// <!-- custom: encourage chopping jungle the more city pop and unhealthy or/and unhealthiness (i.e. i mean anyways etc difference anyways etc) we have) ; the health pressure to grow population would need to optimize unhealthiness as we can, and good builds should already have been handled anyways etc -->
+						iValue += (50 * (-1 * (iCityHealthCalculatedDifference - 1))) + (50 * (iCityPopulation - 6));
+					}
+					// <!-- custom: if low enough on city poopulation, do not bother too much with chopping jungle, if we have blnank tiles reay to use (i.e. chopped or without forest or jungle at the time of this check anyways etc) -->
+					else
+					{
+						if (iCityHealthCalculatedDifference <= 2)
+						{
+							// <!-- custom: jungle is harder to remove for lesser reward, only consider if we are low on health and there are no other good plots to improve first, our city is small so we still have some leeway to focus on other more valuable tasks first if possible in this case i mean anyways etc -->
+							eBestSupposedBuild = eBuildRemoveJungle;
+
+							iValue -= 75 * (iCityHealthCalculatedDifference - 1);
+						}
+						else
+						{
+							// <!-- custom: do not chop yet (avoid overchopping) -->
+							continue;
+						}
+					}
+					// <!-- custom: finally base value for chop per terrain (prioritize chopping grassland over plains, all other things being equal, in hope that we'd improve the tile later on a higher base food yield tile if i may say anyways etc), since we won't look at this later in this case at least if i may say but anyways etc -->
+					if (eTerrain == eTerrainGrass)
+					{
+						iValue += 1300;
+					}
+					else if (eTerrain == eTerrainPlains)
+					{
+						iValue += 700;
+					}
+				}
+				else
+				{
+					// <!-- custom: wait for right time, do nothing (yet in this case i mean anyways etc) in this case i mean anyways etc -->
+					continue;
+				}
+			}
+			// <!-- custom: PHASE 1.2: if no features to chop, fallback to usual analysis of best build to choose, and keep analyzing the value of our builds as part of terrain / feature analysis now though anyways etc -->
+			else
+			{
+				// Priority 2: Special terrain/feature combinations
+				if (eFeature == eFeatureFloodPlains)
+				{
+					// <!-- custom: unless we are very much starving, do not waste this high food tile just to build a farm or such food improvement -->
+					if (iRealCalculatedCityFoodDifference >= -2)
+					{
+						// Floodplains: Great for cottages (high food + commerce potential)
+						// High food terrain = can afford cottage
+						if (canBuild(kPlot, eBuildCottage))
+						{
+							// <!-- custom: the absolute best and ideal, if we can build it and conditions are good, no need to think further anyways etc -->
+							eBestSupposedBuild = eBuildCottage;
+
+							// <!-- custom: the ideal plot to start improving first, high food ; do not worry about production for now, the food is good enough and more often than not always gonna be worth it, at least we hope in this case i mean if i may say anyways etc -->
+							iValue += 2000;
+						}
+						else
+						{
+							// <!-- custom: wait for right time, do nothing (yet in this case i mean anyways etc) in this case i mean anyways etc -->
+							continue;
+						}
+					}
+					// <!-- custom: but in some rare cases farm on flood plains can be quite good.. if we can build it i mean anyways etc -->
+					else
+					{
+						// <!-- custom: in such urgent cases, make extra sure we can actually build the farm we dream so bad of if i may say in this case but anyways etc -->
+						if (canBuild(kPlot, eBuildFarm))
+						{
+							eBestSupposedBuild = eBuildFarm;
+
+							iValue += 2000 + (100 * (-1 * iRealCalculatedCityFoodDifference));
+
+							if (bPlotFreshWater)
+							{
+								// <!-- custom: extra bonus if fresh water for farms and we are starved, we'd get more food and maybe even solve our food problem anyways etc -->
+								iValue += 100;
+							}
+						}
+						// <!-- custom: else, fallback to previous plan, gotta make what we can of the tile before we starve. -->
+						else if (canBuild(kPlot, eBuildCottage))
+						{
+							eBestSupposedBuild = eBuildCottage;
+
+							iValue += 2000;
+						}
+						else
+						{
+							// <!-- custom: wait for right time, do nothing (yet in this case i mean anyways etc) in this case i mean anyways etc -->
+							continue;
+						}
+					}
+				}
+				// <!-- custom: feature floodplains can effectively be considered a terrain as it spawns only on desert in our mod if i am not mistaken as in base advciv +/- civ4, so use else if for computational effiency if i may say anyways etc -->
+				else if (eTerrain == eTerrainGrass)
+				{
+					if (kPlot.isHills())
+					{
+						// <!-- custom: unless we are very much starving, do not waste this high food tile just to build a farm or such food improvement -->
+						if (iRealCalculatedCityFoodDifference >= -1)
+						{
+							if (canBuild(kPlot, eBuildMine))
+							{
+								// <!-- custom: hill grassland very strong early, even later in game maybe too anyways etc ; we get nice production and quite nice food as well, great starter, a bit less than flood plains as lower food, but really nice tile overall ; the build may also still be better even than windmill due to base food higher yield of grassland -->
+								eBestSupposedBuild = eBuildMine;
+
+								iValue += 1500;
+
+							}
+							else
+							{
+								// <!-- custom: wait for right time, do nothing (yet in this case i mean anyways etc) in this case i mean anyways etc -->
+								continue;
+							}
+
+						}
+						// <!-- custom: low food, can't be too picky if i may say in this case at least maybe but anyways etc -->
+						else
+						{
+							if (canBuild(kPlot, eBuildWindmill))
+							{
+								// <!-- custom: the windmill may be a fine alternative then, hopefully the food helps, that we'd get even on a hill, quite nice, yields are not too great, but at least city grows hopefully or doesn't stop growing too much (use what we can mindset xd if i may say at least for me and in this case if i may say but anyways etc) -->
+								eBestSupposedBuild = eBuildWindmill;
+
+								iValue += 1400;
+
+							}
+							else if (canBuild(kPlot, eBuildMine))
+							{
+								// <!-- custom: we are out of luck, get the hill grassland mine is really good, but we'll starve in a few citizens or sooner if our conditions change, still this is quite good overall produciton for cheap food -->
+								eBestSupposedBuild = eBuildMine;
+
+								iValue += 1300;
+
+							}
+							else
+							{
+								// <!-- custom: we are doomed xd, look and contemplate this tile until we starve xd if i may say but anyways etc, maybe the stars look good at night there... Xd or to rest calm and in peace if i may say maybe if i may say in this case hehe but anyways etc -->
+								continue;
+							}
+						}
+					}
+					// <!-- custom: many things could be good on flatland grass, but statistically, cottage would be best and most universally possible to build, then when we have workshops, switch over if cottage didn't grow yet, else keep cottage (logic to not overwrite which or which not to overwrite improvement handled outside of this function, for now simply pick ideal supposed best regardless of plot condition (existing improvements or such other conditions as well not taken into account here anyways etc)) -->
+					else
+					{
+						// <!-- custom: as long as we have enough or barely enough food, afford to capitalize on that and maximize potential and higher yields anyways etc -->
+						if (iRealCalculatedCityFoodDifference >= -1)
+						{
+							if (canBuild(kPlot, eBuildWorkshop))
+							{
+								eBestSupposedBuild = eBuildWorkshop;
+
+								// <!-- custom: solid mid-game choice, essentially it is the same as a hill grassland later in the game, prefer cottages still as a general rule in the early game, but we may need the production rather later, starting to plan mid game wars and invasions, hopefully we have enough commerce by now in all the empire maybe anyways etc, but in all cases shift a bit more towards production, especially for unimproved tiles, but it may still be quite storng even in imrpoved ones hopefulyl as this is a strong choice i would say especially in later game anyways etc -->
+								iValue += 1650;
+							}
+							// <!-- custom: i don't think we need farms, they are or may be quite tempting, but capitalize on high food of this tile to grow slow for later higher commerce, should statistically help most, if i may say but anyways etc -->
+							// High food terrain = can afford cottage
+							else if (canBuild(kPlot, eBuildCottage))
+							{
+								eBestSupposedBuild = eBuildCottage;
+
+								iValue += 1600;
+							}
+							else
+							{
+								// <!-- custom: wait for right time, do nothing (yet in this case i mean anyways etc) in this case i mean anyways etc -->
+								continue;
+							}
+						}
+						// <!-- custom: else if short on food, make sure city can grow, a farm can be quite good even on grassland in some circumstances, but generally avoid -->
+						else
+						{
+							// <!-- custom: try our luck with a farm... if we can ideally in this case i mean anyways etc. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage if i am not mistaken anyways etc -->
+							if (canBuild(kPlot, eBuildFarm))
+							{
+								eBestSupposedBuild = eBuildFarm;
+
+								iValue += 1300 + (100 * (-1 * iRealCalculatedCityFoodDifference));
+
+								if (bPlotFreshWater)
+								{
+									// <!-- custom: extra bonus if fresh water for farms and we are starved, we'd get more food and maybe even solve our food problem anyways etc -->
+									iValue += 100;
+								}
+							}
+							// <!-- custom: else, fallback to previous plan, gotta make what we can of the tile before we starve, this is still a good tile, so use it as best as we can if i may say in this case anyways etc. -->
+							else if (canBuild(kPlot, eBuildWorkshop))
+							{
+								eBestSupposedBuild = eBuildWorkshop;
+
+								iValue += 1300;
+							}
+							else if (canBuild(kPlot, eBuildCottage))
+							{
+								eBestSupposedBuild = eBuildCottage;
+
+								iValue += 1300;
+							}
+							else
+							{
+								// <!-- custom: out of luck, ask claude ai or such other AIs anyways etc what one can do on grass flatland anyways etc before we run out of food and assuming we can't improve the tile, play some music maybe with some wind xd or lsten to it or sing maybe.. But wait wouldn't that be at a camp, but is noisy though maybe, or not? But anyways etc... -->
+								continue;
+							}
+						}
+					}
+				}
+				// <!-- custom: lower food terrain as of now i mean but anyways etc -->
+				else if (eTerrain == eTerrainPlains)
+				{
+					// <!-- custom: on hills the problem is more straightforward if i may say anyways etc, build mines until we can afford windmills, then let iValue despite outside of this function if we should build the best build or not vs other tiles (i.e. as of now due to the penalty of overwriting plots, windmills would not be considered until high enough value city plots have been improved first anyways etc, our build mine on plains would be delayed until then anyways etc) -->
+					if (kPlot.isHills())
+					{
+						// <!-- custom: as long as we have enough food to afford building on lower-food plains terrains i mean but anyways etc, prefer the mine, yields slightly more anyways etc -->
+						if (iRealCalculatedCityFoodDifference >= 0)
+						{
+							if (canBuild(kPlot, eBuildMine))
+							{
+								// <!-- custom: still good and solid choice if i may say in this case anyways etc, but costs food -->
+								eBestSupposedBuild = eBuildMine;
+
+								iValue += 800;
+							}
+							else
+							{
+								// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
+								continue;
+							}
+
+						}
+						// <!-- custom: if low on food on a hill consider windmill with a higher priority -->
+						else
+						{
+							if (canBuild(kPlot, eBuildWindmill))
+							{
+								// <!-- custom: windmill on plains is not too bad, but unless we are starved, this is not a so good build -->
+								eBestSupposedBuild = eBuildWindmill;
+
+								iValue += 800;
+
+							}
+							else if (canBuild(kPlot, eBuildMine))
+							{
+								// <!-- custom: get the best we can before we starve -->
+								eBestSupposedBuild = eBuildMine;
+
+								iValue += 700;
+
+							}
+							else
+							{
+								// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
+								continue;
+							}
+						}
+					}
+					// <!-- custom: on flatland plains make good cottages early, and fine worshops late assuming we have extra food, if no food or really low, a farm may be fine, especially irrigated else build what we can until we starve -->
+					else
+					{
+						if (iRealCalculatedCityFoodDifference >= 0)
+						{
+							if (canBuild(kPlot, eBuildWorkshop))
+							{
+								// <!-- custom: windmill on plains is not too bad, but unless we are starved, this is not a so good build -->
+								eBestSupposedBuild = eBuildWorkshop;
+
+								iValue += 800;
+
+							}
+							else if (canBuild(kPlot, eBuildCottage))
+							{
+								// <!-- custom: still quite good but not ultimate best, delay if all higher potential food tiles especially unimproved ones have been improved already -->
+								eBestSupposedBuild = eBuildCottage;
+
+								iValue += 600;
+							}
+							else
+							{
+								// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
+								continue;
+							}
+
+						}
+						// <!-- custom: if low on food on a flatland plains, do what we can to raise food if no other plots are good, else get what we can if we can before we starve in this case i mean anyways etc -->
+						else
+						{
+							// <!-- custom: try our luck with a farm... if we can ideally in this case i mean anyways etc. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage if i am not mistaken anyways etc -->
+							if (canBuild(kPlot, eBuildFarm))
+							{
+								eBestSupposedBuild = eBuildFarm;
+
+								iValue += 900 + (100 * (-1 * iRealCalculatedCityFoodDifference));
+
+								if (bPlotFreshWater)
+								{
+									// <!-- custom: extra bonus if fresh water for farms and we are starved, we'd get more food and maybe even solve our food problem anyways etc -->
+									iValue += 100;
+								}
+							}
+							// <!-- custom: else, fallback to previous plan, gotta make what we can of the tile before we starve, this is still a good tile, so use it as best as we can if i may say in this case anyways etc. -->
+							else if (canBuild(kPlot, eBuildWorkshop))
+							{
+								eBestSupposedBuild = eBuildWorkshop;
+
+								iValue += 800;
+							}
+							else if (canBuild(kPlot, eBuildCottage))
+							{
+								eBestSupposedBuild = eBuildCottage;
+
+								iValue += 600;
+							}
+							else
+							{
+								// <!-- custom: out of luck, leave the plot as is, at least for now if i may say i mean anyways etc -->
+								continue;
+							}
+						}
+					}
+				}
+				// <!-- custom: for tundra prioritize developping the other food tiles, develop tundra last or among last terrains, or/and only if we are surrounded by it, then prefer farms or cottages depending on our food supply on flatland, else and in general as well i mean anyways etc see below logic for details -->
+				else if (eTerrain == eTerrainTundra)
+				{
+					// <!-- custom: on hills the problem is more straightforward similarly to plains, but they yield less production, so less valuable, still as tundra is lower production overall, production is valuable itself, so make it worth a bit less than plains so that plains prevail but not by a lot if i am not mistaken in my thinking so if i may say but anyways etc... -->
+					if (kPlot.isHills())
+					{
+						// <!-- custom: as long as we have enough food to afford building on lower-food plains terrains i mean but anyways etc, prefer the mine, yields slightly more anyways etc ; also as tundra tends to have less food around it, so consistently (i.e. regardless of food difference if i am not mistaken in my thinking anyways etc) favour the windmill instead -->
+						if (canBuild(kPlot, eBuildWindmill))
+						{
+							// <!-- custom: on tundra the windmill may be slightly more valuable than on plains, i don't know exactly why i feel or seem to think so if i may say but anyways etc, but maybe since production is low anyway, capitalize on food rather, or maybe because tundra overall has less food in its environment so value food more but anyways etc windmill, go for it anyway etc -->
+							eBestSupposedBuild = eBuildWindmill;
+
+							iValue += 500;
+
+						}
+						else if (canBuild(kPlot, eBuildMine))
+						{
+							// <!-- custom: if nothing better to do, grab what we can anyways etc -->
+							eBestSupposedBuild = eBuildMine;
+
+							iValue += 350;
+						}
+						else
+						{
+							// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
+							continue;
+						}
+					}
+					// <!-- custom: on flatland plains make good cottages early, and fine worshops late assuming we have extra food, if no food or really low, a farm may be fine, especially irrigated else build what we can until we starve -->
+					else
+					{
+						// <!-- custom: tighter food requirement than plains, as tundra tends to be surrounded by other tundra or snow or such other low food tiles so favour food more if i am not mistaken anyways etc -->
+						if (iRealCalculatedCityFoodDifference >= -1)
+						{
+							if (canBuild(kPlot, eBuildWorkshop))
+							{
+								// <!-- custom: windmill on plains is not too bad, but unless we are starved, this is not a so good build -->
+								eBestSupposedBuild = eBuildWorkshop;
+
+								iValue += 575;
+
+							}
+							// <!-- custom: note: we could have added the watermill, but the yields are not good enough and early enough, also even if not, this is not a high production terrain and is likely to be surrounded by economy tiles as well or/and tundra ones maybe too but anyways etc, bet on commerce rather for these tiles/cities maybe, hopefulyl staistically often most helpful for AI but anyways etc -->
+							else if (canBuild(kPlot, eBuildCottage))
+							{
+								// <!-- custom: still quite good especially with the tundra change that now gives one extra commerce in our mod advciv-sas if i may say but anyways etc, but still not ultimate best if i may say but anyways etc, delay if all higher potential food tiles especially unimproved ones have been improved already -->
+								eBestSupposedBuild = eBuildCottage;
+
+								iValue += 550;
+							}
+							else
+							{
+								// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
+								continue;
+							}
+
+						}
+						// <!-- custom: if low on food on a flatland tundra, a farm is good if we can get it especially considering the scarce environment if i am not mistaken but anyways etc, do what we can to raise food if no other plots are good, else get what we can if we can before we starve in this case i mean anyways etc -->
+						else
+						{
+							// <!-- custom: try our luck with a farm... if we can ideally in this case i mean anyways etc. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage if i am not mistaken anyways etc -->
+							if (canBuild(kPlot, eBuildFarm))
+							{
+								eBestSupposedBuild = eBuildFarm;
+
+								iValue += 500 + (100 * (-1 * iRealCalculatedCityFoodDifference));
+
+								if (bPlotFreshWater)
+								{
+									// <!-- custom: extra bonus if fresh water for farms and we are starved, we'd get more food and maybe even solve our food problem anyways etc -->
+									iValue += 100;
+								}
+							}
+							// <!-- custom: else, fallback to previous plan, gotta make what we can of the tile before we starve, this is still a good tile, so use it as best as we can if i may say in this case anyways etc. -->
+							else if (canBuild(kPlot, eBuildWorkshop))
+							{
+								eBestSupposedBuild = eBuildWorkshop;
+
+								iValue += 575;
+							}
+							else if (canBuild(kPlot, eBuildCottage))
+							{
+								eBestSupposedBuild = eBuildCottage;
+
+								iValue += 550;
+							}
+							else
+							{
+								// <!-- custom: out of luck, leave the plot as is, at least for now if i may say i mean anyways etc -->
+								continue;
+							}
+						}
+					}
+				}
+				// <!-- custom: on snow, i think the only thing we can do is build a mine or something similar on hills, and it shoudn't be too high priority unless we have lots of food (but even then should we waste it on a snow tile or use this scarce advantage in cold environment if i may say but anyways etc for other tiles, ideally tundra maybe? But anyways etc) -->
+				else if (eTerrain == eTerrainSnow)
+				{
+					if (kPlot.isHills())
+					{
+						// <!-- custom: even if the windmill technically raises food, the yields are still not great, bet on the mine being more useful rather -->
+						if (iRealCalculatedCityFoodDifference >= -2)
+						{
+							if (canBuild(kPlot, eBuildMine))
+							{
+								// <!-- custom: if nothing better to do, grab what we can anyways etc -->
+								eBestSupposedBuild = eBuildMine;
+
+								iValue += 200;
+							}
+							else
+							{
+								// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
+								continue;
+							}
+						}
+						// <!-- custom: count on the windmill but not too much, this is really last ditch and quite desperate xd if i may say in this case but anyways etc -->
+						else
+						{
+							if (canBuild(kPlot, eBuildWindmill))
+							{
+								// <!-- custom: if nothing better to do, grab what we can anyways etc -->
+								eBestSupposedBuild = eBuildWindmill;
+
+								iValue += 250;
+							}
+							else if (canBuild(kPlot, eBuildMine))
+							{
+								// <!-- custom: if nothing better to do, grab what we can anyways etc -->
+								eBestSupposedBuild = eBuildMine;
+
+								iValue += 200;
+							}
+							else
+							{
+								// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
+								continue;
+							}
+						}
+					}
+					// <!-- custom: else nothing to do on flatland snow if i am not mistaken, that would raise our yields at all (we DON'T want forts if i may say but anyways etc...) -->
+				}
+				// <!-- custom: on desert, except from hills, i don't think we can build anything at all as per xml if i am not mistaken (although i didn't check too much if at all to be fair but it seems to function as such ingame if i may say and if i am not mistaken but anyways etc) but anyways etc -->
+				else if (eTerrain == eTerrainDesert)
+				{
+					if (kPlot.isHills())
+					{
+						// <!-- custom: even if the windmill technically raises food, the yields are still not great, bet on the mine being more useful rather -->
+						if (iRealCalculatedCityFoodDifference >= -2)
+						{
+							if (canBuild(kPlot, eBuildMine))
+							{
+								// <!-- custom: if nothing better to do, grab what we can anyways etc -->
+								eBestSupposedBuild = eBuildMine;
+
+								iValue += 200;
+							}
+							else
+							{
+								// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
+								continue;
+							}
+						}
+						// <!-- custom: count on the windmill but not too much, this is really last ditch and quite desperate xd if i may say in this case but anyways etc -->
+						else
+						{
+							if (canBuild(kPlot, eBuildWindmill))
+							{
+								// <!-- custom: if nothing better to do, grab what we can anyways etc -->
+								eBestSupposedBuild = eBuildWindmill;
+
+								iValue += 250;
+							}
+							else if (canBuild(kPlot, eBuildMine))
+							{
+								// <!-- custom: if nothing better to do, grab what we can anyways etc -->
+								eBestSupposedBuild = eBuildMine;
+
+								iValue += 200;
+							}
+							else
+							{
+								// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
+								continue;
+							}
+						}
+					}
+				}
+				// <!-- custom: should not be called but just in case in this case i mean anyways etc ; note: modify this if you implement new terrains or features in your mod and you want your AI workers to support and improve them, with the priorities you want anyways etc, as for us in advciv-sas this is not supported for efficiency and laziness or rather most improtantly no gain too but anyways etc, hopefully this information is still helpful but anyways etc -->
+				else
+				{
+					continue;
+				}
+			}
+
+			// <!-- custom: note: in theory this new system should handle oscillation tremendously better, considering "sacred" higher level improvements, while being responsive to food or health or such conditions to overwrite or/and adjust future builds if needed anyways etc -->
+		}
+
+		// <!-- custom: PHASE 1.2 - common logic again (both bonus and non-bonu plots again in this case i mean if i may say anyways etc) no more adjusting the best build to build for this loop plot, now only final adjustments before storing plot information anyways etc -->
+
+		// <!-- custom: check here after all builds adjustments if final settled on build is still none, then forget this plot if i may say anyways etc -->
+		if (!canBuild(kPlot, eBestSupposedBuild) || eBestSupposedBuild == NO_BUILD)
+		{
+			continue;
+		}
+		else
+		{
+			// <!-- custom: apply final penalties here, to account for edge cases where they are not relevant (badly needing a farm in a city full of flatland plains for example anyways etc, then we may strongly consider overwriting, use bOverwriteCurrentImprovementHasPenalty to determine that in this case i mean but anyways etc). We could have applied it at first then cancel it for edge cases but is redundant and inefficient so do here rather i mean as seems ideal or more ideal if it is a word or way to say it but anyways etc -->
+
+			// <!-- custom: valorization for river tiles, we get one extra commerce, prioritize there if everything else is equal otherwise anyways etc ; but less than the penalty for overwriting as it should still be better to not overwrite just because there is a river ; a river is otherwise sueful/valuable in this case at least if i may say i mean but anyways etc if all other conditions being equal, we can build there if i may say, but anyways etc -->
+			if (kPlot.isRiver())
+			{
+				iValue += 100;
+			}
+
+			// <!-- custom: watch out / check for fallout if i may say anyways etc, if any tile has fallout, build any build, it will remove it on this tile as part of building the new build if i am not mistaken anyways etc -->
+			if (kPlot.getFeatureType() == eFeatureFallout)
+			{
+				iValue += 10000;
+			}
+
+			// Store this candidate. We will check pathfinding <!-- custom: and other conditions (such as enemy on plot maybe anyways etc) --> later <!-- custom: for efficiency, as there is no need to check this on tiles we would not select as best anyways if i am not mistaken, as gemini ai did thanks i mean, anyways etc, it is faster to just sort them all without looking too deep, then process them later, than spend computation to look at a tile we won't use later if i am not mistaken anyways etc -->
+			Candidate candidate;
+			candidate.iValue = iValue;
+			candidate.pPlot = &kPlot;
+			candidate.ePlot = ePlot;
+			candidate.eBuild = eBestSupposedBuild;
+
+			candidates.push_back(candidate);
+		}
 	}
 
 	// ===================================================
@@ -837,36 +1736,14 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	// Loop through all candidates
 	for (size_t i = 0; i < candidates.size(); ++i)
 	{
-		// Retrieve the plot and its CityPlotTypes index from the vector.
-		pBestPlot = candidates[i].second.first;
-		CityPlotTypes ePlot = candidates[i].second.second;
+		pBestPlot = candidates[i].pPlot;
+		eBestBuild = candidates[i].eBuild;
 
-		// Get the build for this plot using the ePlot index.
-		eBestBuild = kCity.AI_getBestBuild(ePlot);
-		FAssert(eBestBuild != NO_BUILD);
-
-		// <!-- custom: code comment provided by gemini ai, when i asked it why we use something else in its new code instead of it.currID() or something similar to it as so it seems if i am not mistaken from quite quick glance or look in this case but anyways etc ; i don't know if the below explanation by gemini ai is acurate or not as i don't know too much, but after asking it again, and after we got a compile error when trying to use seemingly mistakenly getCityPlotIndex() it provided as part of my prompt as well but still it provided it if i may say but i contributed indirectly even though i didn't suggest this one specifically if i remember correctly and am not mistaken but anyways etc, maybe it is correct, still check to be sure again i mean anyways etc, hopefully informative to add this as well anyways etc -->
-		/*
-		Here, it.currID() directly provides the CityPlotTypes index (ePlot) in Phase 1.
-
-		Since the CvPlot object in this codebase does not have a getCityPlotIndex() method,
-		we must store this ePlot index along with the CvPlot* pointer itself. This is done
-		in the 'candidates' vector.
-
-		In Phase 2, we iterate through the sorted 'candidates' and retrieve both the
-		pBestPlot pointer and the ePlot index. We then use this stored ePlot index to
-		get the correct eBestBuild type for that specific plot, which is the correct
-		and necessary way to get the eBuild type in this refactored code.
-		*/
-		// Get the build for this plot.
-		eBestBuild = kCity.AI_getBestBuild(ePlot);
-		FAssert(eBestBuild != NO_BUILD);
-
+		FAssert(pBestPlot != NULL);
 		// Check pathfinding <!-- custom: and other conditions such as worker safety militarily and any other if any anyways etc -->.
 		if (pBestPlot->isVisibleEnemyUnit(this))
 			continue;
 
-		FAssert(pBestPlot != NULL);
 		/*int iPathTurns;
 		if (generatePath(pBestPlot, 0, true, &iPathTurns) && canBuild(pBestPlot, eBestBuild) &&
 				!pBestPlot->isVisibleEnemyUnit(this)) {
@@ -18111,7 +18988,7 @@ bool CvUnitAI::AI_improvePlot(CvPlot const& kPlot, BuildTypes eBuild) // advc: p
 
 BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) // advc: param was CvPlot*
 {
-	// <!-- custom: rewrite and simplify this function's logic, with gemini ai's help anyways etc, so that we never override the best build, if i understood it correctly, in particular with roads but not only in very select few cases, otherwise always build best build first: deprioritize routes, we want the improvement first (pasture, farm, etc.) on our bonuses if i may say anyways etc before roading, gives the yield slightly sooner, especially valuable for food bonuses but maybe not only (may help production as well although the need to have a route for say iron would be higher, but even then in the end it would need to be mined (for iron for example anyways etc), then in that case better mine at first, we also allow only one AI worker per build now in advciv-sas to try to make AI more efficient (see changes at CvUnitAI::AI_bestCityBuild for details anyways etc)) ; so consider route later after other more important improvements have been built, we may lose some mobility but hoepfully get yields sooner or/and more reliably, i believe higher level players may more often than not not route as is more efficient but is just my opinion/intuition of it based of my memories of when i played at monarch/emperor hehe, every worker turn counts, try to save them, and move speed is not so critical early, but yields are if i am not mistaken, then later, it would be all roaded anyways etc, hopefully makes AI stronger this way at least in most cases anyways etc ; tweak hinted by gemini ai telling me to change something around here although i didn't look at all, i hope this code i did doesn't break anything as it is conservative yet hopefully effective anyways etc (trade movement for sooner yields in short anyways etc) thanks a lot for help gemini ai and thanks to me too hehe if i may say hoepfully helpful anyways etc -->
+	// <!-- custom: rewrite and simplify this function's logic, with gemini ai's help anyways etc, so that we never override the best build, if i understood it correctly, in particular with roads but not only in very select few cases, otherwise always build best build first: deprioritize routes, we want the improvement first (pasture, farm, etc.) on our bonuses if i may say anyways etc before roading, gives the yield slightly sooner, especially valuable for food bonuses but maybe not only (may help production as well although the need to have a route for say iron would be higher, but even then in the end it would need to be mined (for iron for example anyways etc), then in that case better mine at first, we also allow only one AI worker per build now in advciv-sas to try to make AI more efficient (see changes at CvUnitAI::AI_bestCityBuild for details anyways etc)) ; so consider route later after other more important improvements have been built, we may lose some mobility but hopefully get yields sooner or/and more reliably, i believe higher level players may more often than not not route as is more efficient but is just my opinion/intuition of it based of my memories of when i played at monarch/emperor hehe, every worker turn counts, try to save them, and move speed is not so critical early, but yields are if i am not mistaken, then later, it would be all roaded anyways etc, hopefully makes AI stronger this way at least in most cases anyways etc ; tweak hinted by gemini ai telling me to change something around here although i didn't look at all, i hope this code i did doesn't break anything as it is conservative yet hopefully effective anyways etc (trade movement for sooner yields in short anyways etc) thanks a lot for help gemini ai and thanks to me too hehe if i may say hopefully helpful anyways etc -->
 
 	// <!-- custom: new function code here anyways etc -->
 	// This function is a simplified and refactored version of the original.
@@ -18121,7 +18998,20 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) 
 	// high-priority cases:
 	// 1. To clear a feature if a planned improvement requires it.
 	// 2. To build a road if the plot bridges two separate road networks.
+
 	FAssert(eBuild != NO_BUILD);
+
+	FeatureTypes const eFeatureForest = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FOREST");
+	FeatureTypes const eFeatureJungle = (FeatureTypes)GC.getInfoTypeForString("FEATURE_JUNGLE");
+	// <!-- custom: used to check if it's on our existing plot so we can clear it (removing fallout doesn't seem to be handled specifically as a build_remove unlike forest and jungle but only as part of building other builds, so fallout is not related to the above code if i am not mistaken, but check to be sure, although should be accurate, but check to be sure if needed i mean in this case but anyways etc) -->
+	FeatureTypes const eFeatureFallout = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FALLOUT");
+
+	// <!-- custom: modify these if needed in your mod anyways etc -->
+    // Hardcoded BuildTypes for common feature removals for efficiency.
+    BuildTypes const eBuildRemoveForest = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_FOREST");
+    BuildTypes const eBuildRemoveJungle = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_JUNGLE");
+
+	FeatureTypes const eFeature = kPlot.getFeatureType();
 
 	CvBuildInfo const& kOriginalBuildInfo = GC.getInfo(eBuild);
 
@@ -18137,19 +19027,37 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) 
 	// We check if the originally planned improvement requires a feature
 	// to be removed first. If so, we find the specific build task to
 	// remove that feature and return it as the new, high-priority task.
-	FeatureTypes eFeature = kPlot.getFeatureType();
-	if (eFeature != NO_FEATURE && kOriginalBuildInfo.isFeatureRemove(eFeature))
+	// <!-- custom: also this is a safeguard for cases where somehow we may have missed the specific build to remove feature (if any exists anyways etc) ; note: advantage of hardcoding these especially for forest and jungle is we don't say get a farm that maybe can remove a jungle when we wanted to build a workshop instead after chopping anyways etc, requires a bit more maintenance but hopefully this stay consistent enough and is computationally efficient, also when caller is one of our refactored functions such as CvUnitAI::AI_bestCityBuild, they already process extensively best build in many conditions including chopping, so this is a safeguard and in case other functions call this (didn't check too much if at all), hopefully helpful or not or yes or etc information i added but anyways etc -->
+	if (!kOriginalBuildInfo.isFeatureRemove(eFeature))
 	{
-		// Find a build type that specifically removes this feature.
-		FOR_EACH_ENUM(Build)
+		if (eFeature == eFeatureForest)
 		{
-			CvBuildInfo const& kLoopBuild = GC.getInfo(eLoopBuild);
-			if (kLoopBuild.isFeatureRemove(eFeature))
+			if (canBuild(kPlot, eBuildRemoveForest))
 			{
-				if (canBuild(kPlot, eLoopBuild))
+				return eBuildRemoveForest;
+			}
+		}
+		else if (eFeature == eFeatureJungle)
+		{
+			if (canBuild(kPlot, eBuildRemoveJungle))
+			{
+				return eBuildRemoveJungle;
+			}
+		}
+		// <!-- custom: not sure it is needed but just to be safe anyways etc, get any build we can, as fallout doesn't have as of now a build_remove_fallout if i am not mistaken, get build through say build_farm if it can remove fallout (anything is good as long as we remove fallout, but if our preivous build was already made with that in mind (removing fallout if we selected a workshop in another function for example, then kOriginalBuildInfo.isFeatureRemove(eFeature) would be true if i am not mistaken and we wouldn't reach this code at all anyway so this is really a safeguad of a safeguard xd and in case othe rfuncitons call this soemhwo (i ddin't check) anyways etc)) -->
+		else if (eFeature == eFeatureFallout)
+		{
+			// Find a build type that specifically removes this feature.
+			FOR_EACH_ENUM(Build)
+			{
+				CvBuildInfo const& kLoopBuild = GC.getInfo(eLoopBuild);
+				if (kLoopBuild.isFeatureRemove(eFeature))
 				{
-					// Found a build to remove the feature. Return it as the high priority.
-					return eLoopBuild;
+					if (canBuild(kPlot, eLoopBuild))
+					{
+						// Found a build to remove the feature. Return it as the high priority.
+						return eLoopBuild;
+					}
 				}
 			}
 		}

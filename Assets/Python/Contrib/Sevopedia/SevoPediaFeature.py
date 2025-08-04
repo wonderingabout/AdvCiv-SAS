@@ -72,7 +72,8 @@ class SevoPediaFeature:
 		self.X_INFO_PANE = self.top.X_PEDIA_PAGE
 		self.Y_INFO_PANE = self.top.Y_PEDIA_PAGE
 		self.W_INFO_PANE = 290
-		self.H_INFO_PANE = 120
+		# <!-- custom: make some room for the new fields we added in placeSpecial and align display horizontally with placeSpecial anyways etc, was 120 -->
+		self.H_INFO_PANE = 127
 
 		self.W_ICON = 100
 		self.H_ICON = 100

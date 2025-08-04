@@ -1,5 +1,5 @@
-in sevopediabuilding,
-printObjAttrs(gc.getBuildingInfo(self.iBuilding))
+in sevopediabuilding, after importing the sevopedia_debuggers (`from sevopedia_debuggers import *` or something similar in case i made a typo or such but anyways etc)
+printObjAttrs(gc.getFeatureInfo(self.iFeature))
 returns/logs/prints this anyways etc:
 
 

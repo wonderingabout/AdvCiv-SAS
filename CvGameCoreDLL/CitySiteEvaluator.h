@@ -185,25 +185,32 @@ private:
 	int sumUpPlotValues(std::vector<int>& aiPlotValues) const;
 	int evaluateSpecialYields(int const* aiSpecialYield, int iSpecialYieldTiles,
 			int iSpecialFoodPlus, int iSpecialFoodMinus) const;
-	bool isTooManyTakenTiles(int iTaken, int iResourceValue, bool bLowValue) const;
+	// <!-- custom: simplify logic and attempt to spread cities more, currently they are way too crowded which is inefficient -->
+	// bool isTooManyTakenTiles(int iTaken, int iResourceValue, bool bLowValue) const;
+	bool isTooManyTakenTiles(int iTaken, int iResourceValue) const;
 	int evaluateLongTermHealth(int& iHealthPercent) const;
 	int evaluateFeatureProduction(int iProduction) const;
 	int evaluateSeaAccess(bool bGoodFirstColony, scaled rProductionModifier,
 			int iLandTiles) const;
-	int evaluateDefense() const;
+	// int evaluateDefense() const;
 	int evaluateGoodies(int iGoodies) const;
 	int adjustToLandAreaBoundary(int iValue) const;
 	int adjustToStartingSurroundings(int iValue) const;
 	int adjustToStartingChoices(int iValue) const;
-	int adjustToFood(int iValue, int iSpecialFoodPlus, int iSpecialFoodMinus,
-			int iGreenTiles) const;
-	int adjustToProduction(int iValue, scaled rBaseProduction) const;
-	int adjustToBarbarianSurroundings(int iValue) const;
+	// <!-- custom: try to remove this interference as we have a finer algorithm now, and this old code may lead to unexpected results if i may say anyways etc -->
+	// int adjustToFood(int iValue, int iSpecialFoodPlus, int iSpecialFoodMinus,
+	// 		int iGreenTiles) const;
+	// <!-- custom: see code comment there for details anyways etc -->
+	// int adjustToProduction(int iValue, scaled rBaseProduction) const;
+	// <!-- custom: same anyways etc -->
+	//int adjustToBarbarianSurroundings(int iValue) const;
 	int adjustToCivSurroundings(int iValue, int iStealPercent) const;
 	int adjustToCitiesPerArea(int iValue) const;
 	int adjustToBonusCount(int iValue, std::vector<int> const& aiBonusCount) const;
-	int adjustToBadTiles(int iValue, int iBadTiles) const;
-	int adjustToBadHealth(int iValue, int iGoodHealth) const;
+	// <!-- custom: try to remove this interference as we have a finer algorithm now, and this old code may lead to unexpected results if i may say anyways etc -->
+	// int adjustToBadTiles(int iValue, int iBadTiles) const;
+	// <!-- custom: same anyways etc -->
+	//int adjustToBadHealth(int iValue, int iGoodHealth) const;
 	int countDeadlockedBonuses() const;
 	bool isDeadlockedBonus(CvPlot const& kBonusPlot, int iMinRange) const;
 };

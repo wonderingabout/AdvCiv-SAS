@@ -760,7 +760,9 @@ As of now untested or if tested not too much tested (i can run a bit of autoplay
 
 I only tested it a bit (a few autoplay glances at turn 100), but the results seem extremely good and really much better, may test more to be sure or/and ask player feedback after mod release or and such if we do release it as planned/intended in this case but anwyays etc, so i would say to take this with a bit of caution maybe, but overall if i may say but anyways etc it does seems AIs almost always if not always maximize planting/settling their cities around found bonuses in the radius and not planting on them, cannot tell too much or if this is just small sample but it does seem to make a big difference but anyways etc anyways etc anyways etc.
 
-## 26 - Attemptingly fixed/addressed AI settling/founding/planting cities, for non-bonus/ressource tiles, not enough on low food tiles such as hill +/- desert, snow (terrain), plains, tundra , and too often on high food ones such as grassland, including hill grassland, and flood plains
+## 26 - fix/enhance told AI which terrains and features environments are best to settle near. As for local tile to settle on optimization : won't fix for now at least anyways etc)
+
+update 2: told AI which terrains and features environments are best to settle near. Note that as of now however, won't fix local best tile (e.g. on desert rather than on flood plains) to settle on due to this AI behaviour: AI settling on grass instead of locally say desert or snow tile for optimization. I implemented a code that AI do exactly that, but this also resulted in AI going for tundra environment just not to settle on a grass tile, i'd prefer it to settle on a grass tile if surrounded by more grass tiles, rather than going to a tundra environement to optimize not wasting the grass tile. It would be ideal if AI both went for the nicest environment, and then also looked at best plot in said environment ; but until and if i do that (not guaranteed, i have an idea how but not sure is worth wasting best site just for slightly although significantly forgot sentence but anyways etc, what i mean is we could for example (an idea i got didn't check if relevant or not or if other pieces of code already do that except or out of those we added that do that for other parts of the code (storing candidate plots as of now in a struct for tiles to improve in cvunitai but anyways etc) or maybe check where ai found value function is called and tweak there is needed but anyways etc, but for now giving ai best chances by telling it which tiles are good, for non-bonus tiles ; as for bonus tiles as of now still using this system to discourage AI settling on them often (settle on sheep grass is very bad unless locally otherwise extremely good if i am not mistaken but anyways etc) or missing them (having fish in range and not going for coastal location that includes it if i am not mistaken but anyways etc, which seems to work-fucntion better with our change that reverts it stronger and closer to kmod code if i am not mistaken but anyways etc)))
 
 Similarly to [README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---attempt-to-fix-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-to-a-lesser-extent) and [README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---attempt-to-fix-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-to-a-lesser-extent), also add logic in the DLL for non-bonus/ressource tiles, with chatgpt's help and my prompts and thoughts too but anyways etc anyways etc anyways etc, to help the AI better choose tiles to settle/plant/found city on, prioritizing low-food tiles rather as a general rule (especially hill due to the defense bonus that it has additionally but anyways etc), with some exceptions (such as hill grassland as of now but anyways etc)
 
@@ -890,6 +892,10 @@ This is not always the best choice, but i believe generally AI would be more eff
 
 As a side effect, this new code seems slightly faster (see gemini ai link for details).
 
+Areas of improvement not related to our code change:
+
+- screenshots 1476 and 1477 1502: the "Corinth screenshots": in a low food environment (here mostly/only tundra +/- hills anyways etc), prioritize water settling more, as city would otherwise be starved at low pop, but on sea it can grow to high numbers as there is enough food there if i am not mistaken anyways etc
+
 I would want to do other changes ideally to AI worker and such logic, not sure i would but ideally ; and is in this case i mean if i may say, anyways etc.
 
 ## 31 - (Attemptingly fixed) Deprioritize routes for AI workers in favour of yields first, except in some rare cases
@@ -900,7 +906,52 @@ Rewrite and greatly simplify `BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot con
 
 Areas of improvement not related to our code change:
 
-- screenshot 1502: do not build farm on spices grassland just because there is a river: the mine yields so much more
 - screenshot 1505: do not build cottage on plains, build on grassland rather, is a better tile to work, and improve any remaining bonus eligible to be improved before that
 
 Hopefully i'd continue improving these ideally but may or may not do anyways etc
+
+## 32 - (now seemingly fixed) Prioritize settling on coast when food environment is low (many tundra or/and plains or/and desert or/and snow (or/and peak although i assume is not counted but to be safe anyways etc)) (the "Corinth screenshot")
+
+See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1O-5WGOwvufgZS9z2DJ-wY2hlkTJLhP8I?usp=sharing)
+
+It was an issue i had in base advciv, when AI is in a low environment, say many tundra tiles for example i mean anyways etc, it is likely city would starve soon, so settling on the coast if in reach is much more valuable.
+
+I added a code that counts low terrain or feature tiles in city radius, and if a certain amount is reached (as of now >= 7 medium low (snow, desert (and shoudln't be counted but peak as well but to be safe if i may say but anyways etc))), then we consider this environment to be low-food, and get discouraged if our tile is not coastal. The food penalty is increasing with the among of low-food tiles pas this threshold. See how i implemented it if i may say but anyways etc in `AIFoundValue::evaluate()` in [/CvGameCoreDLL/CitySiteEvaluator.cpp](/CvGameCoreDLL/CitySiteEvaluator.cpp) for details anyways etc.
+
+This means that what was a good spot is now not anymore a good spot, and AI will consider the next best tile instead similarly, which will not get penalized if it is coastal.
+
+As can be seen in screenshots if i may say but anyways etc, with some previous changes i made, AI had a seemingly better understanding or/annd reaction but anyways etc to which bonuses are valuable and to settle near and not on, such as in screenshot 1475, here i assume to successfully grab the water bonuses thankfully thanks to our changes i assume that incentivize this more but anyways etc, however in screenshot 1476, these changes still did not compell AI to settle on coast and corinth in full tundra/snow is starved soon, which could have been avoided just by settling one tile south or somewhere near that for a much higher potential city relatively if i may say but anyways etc.
+
+After these new changes i implemented in this known issue as of now 32 but anyways etc, we can see if i may say but anyways that for example, AI still values water bonuses for coastal planting (screenshot 1580), but now also successfully settles on the coast even if there is no water bonus in range, just to avoid the low-food environment early starving (screenshot 1585 in now city sparta). In particular, thanks to the changes and buffs we made to coastal planting, it may be a bit stronger to plant on coast than in base advciv, relatively, although land should sitll be quite betetr as of now at least if i may say but anyways etc.
+
+Hopefully AI is stronger with these changes anyways etc.
+
+## 33 - Tremendously improved and fixed and enhanced AI worker build/improvement logic in CvUnitAI::AI_bestCityBuild
+
+See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1O-5WGOwvufgZS9z2DJ-wY2hlkTJLhP8I?usp=sharing)
+
+As written in the quick start guide:
+
+Complete overhaul of `CvUnitAI::AI_bestCityBuild` [/CvGameCoreDLL/CvUnitAI.cpp](/CvGameCoreDLL/CvUnitAI.cpp) : now AI workers follow a highly optimized build (improvements) routine and strategy, based on terrain, food, health, fast chopping, etc.
+
+This is done by completely ignoring base advciv +/- civ4 algorithms or/and logic, and defining probabilistically with a value tree our own value system +/- of priority to build based on our own advciv-sas conditions if i may say but anyways etc. Some of the changes include for example favouring cottages on flood plains unless we are low on food then farm, or not overwriting.
+
+Oscillation (i.e. AI workers constantly changing their minds and ovrwriting a mine with a windmill, then a few turns later rewrite the windmill with a mine, etc) should be much much less frequent and cleanly managed, with a set of "holy" improvements never to overwrite (hamlet, village, town, workshop, etc), a penalty for overwriting improvements so AI improves other improvements first, a wait later system to keep best tiles for later if we don't have an immediate good move for them and methodically improving next eligible best, as well as a system to tell the AI which are best and bonus-specific improvements, to fix the banana cottage issue, it will do a plantation or nothing, unless the food gain is high (grassland irrigated for example) then it may do a farm very methodically else leave for later to increase AI worker efficiency.
+
+Also, these changes fix and remove AI opening on a cottage plain, it will look for flood plains first, then grassland, etc. Logic is fine tuned on hills.
+
+There are many related changes as well, please view code there for details.
+
+In screenshots, it can be seen that:
+
+- at turn 50, before any of our changes to this function but anyways etc (screenshot 1525), mecca has farms on grapes plains although plantations are unavailable, and it barely improved its much more profitable grassland tiles. Also, there is a hamlet (!!!) on plains iron which is now destroyed so all investment is lost, and not using this to improve other tiles and now have say a hamlet grassland ideally for example or something similar anyways etc. It seems a plains has a cottage on it instead of grassland, very inefficient and waste of good tiles.
+- at turn 50 again, but after our changes, in an early and conservative and much earlier version of our changes (screenshot 1571), mecca is beyond comparison so much more improved, with many villages at turn 50 on grassland, and the grapes have been ignored since we don't have plantation, so workers were not wasted. Needless to say AI is tremendously stronger now with these changes, the iron is ignored as well, although in some runs there seemed to be a cottage at the time in the aztec city (if not always, improving without bonus specific improvement tiles with bonuses should now if i am not mistaken happen much less often still hopefully and if i am not mistaken i mean but anyways etc). Plains are ignored succesfully now until we build on higher food tiles first as intended anyways etc.
+- at turn 50 again again (xd if i may say but anyways etc...) (screenshot 1641 but anyways etc), mecca is still strongly developed, although a bit less advanced cottages but they are present, but it is better settled (not on hill grassland anymore due to some unrelated changes i made in the meantime, and its production potential is stronger The aztec cities are doing very well too, not improving nor capitalizing on any plains tile until grass for example are handled first, and bonuses are improved very early in the game as per past changes now fine tuned a bit if i may say or enforced/made sure no issue). AI is now amazingly stronger and more efficient at improving its cities.
+
+Gemini ai and claude ai in particular helped me a lot do these as well as myself anyways etc.
+
+Note for modders: since this is done with if and/or else if and/or else checks, with many continue clauses at plot loop, it should be extremely fast to run as well, we may gain some time also since we don't use base advciv +/- civ4 methods/functions that may have been slower. Also, if you implement new terrains or features or modify existing ones, you'd need to update these checks as well, else your workers may stare clueless having no idea how to improve these terrains or features you added, and you'd need to specify their relative priority vs say floodplains or snow similarly. This is the trade-off or one of the trade offs of this veyr nice optimization but i believe it is very worth it, AI is very competitive now at growing its cities, at least tremedously more than before if i am not mistaken but anyways etc.
+
+As a result, AI cities and workers should be tremendously stronger than in base advciv, at least in theory. They favour economy improvements a bit too much but seem to handle fine having enough production for now although a bit less than before as i didn't tweak it for such. They also favour slow and steady growth, and adapt to current food situation per city to decide next improvement, without overwriting other improvements that already exist until all good other tiles have been improved first, following a detailed value adjustment system if i may say but anyways etc, with the help of gemini ai and claude ai mostly as well as myself too hehe if i may say but anyways etc.
+
+Next goal is to fix citizen allocation that is terrible in base advciv +/- civ4, as as of now for example (screenshots 1573 and 1574) ulundi is starving despite having unallocated pig and corn that are improved for many turns!!!! Or (screenshots 1595 and 1596) prague stagnant while its improved sheep grassland is unallocated. This is shit citizen allocation and i hope to fix it but anyways etc. Hopefully AI is already much stronger with our changes but thanks for past if i may say but anyways etc but i hope i can improve these things among others or not in this case i mean but anyways etc.

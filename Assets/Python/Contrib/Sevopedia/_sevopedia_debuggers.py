@@ -3,7 +3,7 @@
 
 
 # <!-- custom: modified from Claude AI's (kindly shared (to me or and all or not or and other or and not but anyways etc anyways etc anyways etc...)) or not for AdvCiv-SAS or/and my personal taste or feel or/and wish or thought or and other or and not anyways etc anyways etc anyways etc... -->
-# <!-- custom: be careful/make sure to launch this at interfaceScreen level or later, else at __init__ this/the output is still empty, so run this later to have the actual tech info output -->
+# <!-- custom: be careful/make sure to launch this at interfaceScreen level or later, else at __init__ this/the output is still empty, so run this later to have the actual tech info output ; but also be careful to not launch/run/call this but anyways etc later than your error line if you have any, else the code execution would stop before you reach your debugger's call and you won't see any debug (e.g. if you have a code error at line 200, call debugger method at line 199 or sooner, not at line 201+ as it would never be reached before execution stops and you don't see debug content anyways etc), a good place may be the top of interfaceScreen generally i would say but check to be sure hopefully helpful or not or yes or etc but anyways etc -->
 # Get all attributes of the object
 def printObjAttrs(obj):
 	print ("[DEBUG] Begining of show obj inner fields if i am not mistaken anyways etc.")
