@@ -2,6 +2,8 @@
 
 Some known issues (non-exhaustive ideally yes but maybe not anyways etc) about AdvCiv code or earlier or/and AdvCiv-SAS specific code that may be fixed someday or not (ideally yes too same but maybe not especially if deemed not so bad or even part of the necessary mechanic but then would not be an issue but if known maybe or not or yes but anyways etc anyways etc anyways etc).
 
+Note: if a google drive link is missing or redundantly copy pasted from one known issue to another, you might be able to find it in their parent folder if i may say in this case but anyways etc here in this [Base AdvCiv issues examples](https://drive.google.com/drive/folders/11wTFHidBHTutXXyiaRAhayA7y7d5Rg-8?usp=sharing). Not all issues have a drive folder, but as of now most do.
+
 hopefully helpful, thanks, anyways, thanks,
 
 ## 1 - Redundant attribute values for all AI Civs
@@ -806,7 +808,7 @@ This seems to fix the issue (see screenshots for details, as we specifically now
 
 ## 28 - (now fixed) Wallpaper of our mod's custom being stretched vertically while some of the top of the wallpaper is not shown at all, at 1920 x 1080 game resolution
 
-See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1-j9EHLeY7FzJ0iHZqBXIAOyOPfzJVC0t?usp=sharing)
+See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1-j9EHLeY7FzJ0iHZqBXIAOyOPfzJVC0t?usp=sharing)..
 
 When adding our mod's custom wallpaper instead of default base advciv +/- civ4 one, one issue i encountered is that our image was stretched vertically, while some of the top of the image was entirely missing.
 
@@ -848,7 +850,7 @@ Again, screenshots of intermediate steps are also shown in the google drive link
 
 ## 29 - (as of now with a workaround) clicking on a specific spot in tech advisor at tech transhumanism's blue box causes a crash
 
-See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1-bhTzZeKZg8z_n0hcDJtAY8DnFfuuftg?usp=sharing)
+See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1-bhTzZeKZg8z_n0hcDJtAY8DnFfuuftg?usp=sharing).
 
 I don't know what the cause is, but clicking, in tech advisor (i.e. tech tree view if i am not mistaken anyways etc), on as of now tech_transhumanism's box (the blue rectalnge) specific position, we consistently get a crash and i have no idea why.
 
@@ -876,13 +878,13 @@ See also, although not directly related: [README_Known_Issues_In_Base_AdvCiv_Civ
 
 ## 30 - (Attemptingly fixed) AI workers not prioritizing bonuses to improve, especially food bonuses, and other AI workers optimizations or/and changes anyways etc
 
-See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1xeAY-R41d3jQ8W4JvK8mhdRBlkKINpQu?usp=sharing)
+See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1xeAY-R41d3jQ8W4JvK8mhdRBlkKINpQu?usp=sharing).
 
 This is an issue i had in base advciv, and this solution may not necessarily in all cases be better, but i believe and hope in most cases it helps, at least for the part of the code changed. Rewrote/refactored `CvUnitAI::AI_bestCityBuild` with gemini ai's help for most thanks to its persistence in particular (see [/README.md#gemini-ai](/README.md#gemini-ai)) for details anyways etc.
 
 I have written most details there, so only adding here as less tedious to do so anyways etc, but hopefully helpful or not or yes or etc but anyways etc a few or quite a few screenshots in the google drive link folder mentionned at the top of this known issue section (as of now number 30 anyways etc)
 
-These changes hopefully fix this issue (see "Boston" screenshot in this google drive (as of now screenshot 1478 if i am not mistaken anyways etc)). Although i couldn't reproduce it directly since worker behaviour changed in more ways or it is autoplay variation somehow maybe (less likely but maybe?), starting from same save file 334 (also appended), Washington is quickly improved, firt with bonuses. In some cases, see screenshot 1499 if i am not mistaken anyways etc, other tiles seem to prevail, most likely due to other code parts, but it corrected soon enough and the silver was improved soona after which was the main purpose/goal of these changes (in base advciv i would have a bonus not imrpoved for a few dozen turns if not more if i remember it correctly, which was very unimmersive), so hopefully AI is more efficient this way.
+These changes hopefully fix this issue (see "Boston" screenshot in this google drive (as of now screenshot 1478 if i am not mistaken anyways etc)). Although i couldn't reproduce it directly since worker behaviour changed in more ways or it is autoplay variation somehow maybe (less likely but maybe?), starting from same save file 334 (also appended), Washington is quickly improved, firt with bonuses. In some cases, see screenshot 1499 if i am not mistaken anyways etc, other tiles seem to prevail, most likely due to other code parts, but it corrected soon enough and the silver was improved soona after which was the main purpose/goal of these changes (in base advciv i would have a bonus not improved for a few dozen turns if not more if i remember it correctly, which was very unimmersive), so hopefully AI is more efficient this way.
 
 Ideally i would track other places where changes may be necessary, not sure i would do but maybe, or maybe not ; in this case i mean, anyways etc.
 
@@ -912,7 +914,7 @@ Hopefully i'd continue improving these ideally but may or may not do anyways etc
 
 ## 32 - (now seemingly fixed) Prioritize settling on coast when food environment is low (many tundra or/and plains or/and desert or/and snow (or/and peak although i assume is not counted but to be safe anyways etc)) (the "Corinth screenshot")
 
-See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1O-5WGOwvufgZS9z2DJ-wY2hlkTJLhP8I?usp=sharing)
+See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1O-5WGOwvufgZS9z2DJ-wY2hlkTJLhP8I?usp=sharing).
 
 It was an issue i had in base advciv, when AI is in a low environment, say many tundra tiles for example i mean anyways etc, it is likely city would starve soon, so settling on the coast if in reach is much more valuable.
 
@@ -928,7 +930,7 @@ Hopefully AI is stronger with these changes anyways etc.
 
 ## 33 - Tremendously improved and fixed and enhanced AI worker build/improvement logic in CvUnitAI::AI_bestCityBuild
 
-See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1O-5WGOwvufgZS9z2DJ-wY2hlkTJLhP8I?usp=sharing)
+See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1WQUG049I2F1nPMhTVrnTstgNYjVslg9i?usp=sharing).
 
 As written in the quick start guide:
 
@@ -955,3 +957,42 @@ Note for modders: since this is done with if and/or else if and/or else checks, 
 As a result, AI cities and workers should be tremendously stronger than in base advciv, at least in theory. They favour economy improvements a bit too much but seem to handle fine having enough production for now although a bit less than before as i didn't tweak it for such. They also favour slow and steady growth, and adapt to current food situation per city to decide next improvement, without overwriting other improvements that already exist until all good other tiles have been improved first, following a detailed value adjustment system if i may say but anyways etc, with the help of gemini ai and claude ai mostly as well as myself too hehe if i may say but anyways etc.
 
 Next goal is to fix citizen allocation that is terrible in base advciv +/- civ4, as as of now for example (screenshots 1573 and 1574) ulundi is starving despite having unallocated pig and corn that are improved for many turns!!!! Or (screenshots 1595 and 1596) prague stagnant while its improved sheep grassland is unallocated. This is shit citizen allocation and i hope to fix it but anyways etc. Hopefully AI is already much stronger with our changes but thanks for past if i may say but anyways etc but i hope i can improve these things among others or not in this case i mean but anyways etc.
+
+## 34 - (Seemingly fixed/tweaked) Major K-Mod suboptimal food plot AI city allocation: starving or stagnant cities prefer 1 hammer over 4 food plots that are unallocated to any population ("Ulundi screenshots", "Prague Screenshots", and others) + food not being valued when food is production (e.g. worker, settler, etc if any more) when it is in fact the exact same and probably more reliable to set rather than production
+
+See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1yqmOZ1hSXPtgeVY69eFlj6R6OAM9mdze?usp=sharing).
+
+These are a few of major k-mod bugs or/and very suboptimal city population plot allocation issues i have encountered. I noticed them while still in save file 334 which is a save file which helped me a lot enhance the AI (save file at turn 0 in drive in this known issue or/and related ones as of now anyways etc) if i may say with gemini ai and claude ai's help as well for most and my help too xd if i may say but anyways etc...
+
+About the issues fixed here or patched if not fully fixed, as can be seen in screenshots, before the fixes/patches:
+
+- Screenshots 1573 and 1574 (the "Ulundi screenshots"): a city is starving while having one unhappy citizen, but this could be avoided by allocating any of the pig flatland grass or sheep flatland grass tiles. Although there would be no benefit to do so as city can't grow, starving is not good either, as if the food situation is resolved in the future, we'd be happy to start from a higher point, even if it costs a bit short term production, no need to starve ourselves to death just to produce a bit faster, pay a bit more food ideally to sustain our population during this time even if a bit and even if production is a bit less (ideally only a bit) relatively in this case i mean but anyways etc
+- Screenshots 1595 and 1596 (the "Prague screenshots"): a city is stagnant while unhappy as well (1 citizen). Problem: the city allocates a 2 food 1 hammer tile instead of a 5 food 1 commerce tile. I don't believe 1 hammer is better than 3 food, we may want to grow, even if unhappy, and who knows, slave later, or maybe in the meantime unhappiness situation would improve, and we'd be happy to have the extra citizen, potentially also the food bar full and growing in the meantime. But don't overdo this, no point in growing too much if too many citizens are unhappy, but it needs some help here i think, even at the cost of some production, value food a bit more i think, but be careful to not overdo it
+- Screenshots 1472 (and 1475 too if i am not mistaken if it is indeed from same time but anyways etc) (the "Boston Screenshots" again if i may say anyways etc): a city is building a worker (food is production (same for the settler too if i am not mistaken and as of now anyways etc)), but it could allocate the fish in anticipation of the worker being completed, so that city could grow at end of project. 3 hammer (and 1 commerce) is same as 3 food (and 1 commerce as well anyways etc) to produce a worker, but the food is more liekly than not, in most cases to be useful, especially for this tundra city that is low on food, so allocate rather the food than the hammer, if all other things are equal).
+- Screenshot 1473 (the "Mycenian screenshot"): a city is stagnant, but it has many food tiles it could use to grow. Even if city is barbarian, the flatland grass tiles could be allocated. Note: the specialist usage seems a bit aggressive so we may want to tone it down early so cities can grow more, maybe, but not sure, kept as reference if want to see it later/again in this case i mean but anyways etc
+
+The fixes: they are tentative and quite conservative, perhaps patches in some cases, i am not really sure i found the exact or all causes, but i hope these changes help a lot, as seen in these screenshots, not in same order as before in order to make explanation easier for me (sorry for inconsistency or/and inconvenience hopefully fine or nto too bad to read but as it is maybe too but or not but or yes but anyways etc...) but anyways etc:
+
+- the "Boston Screenshots" issue: i didn't test it, but i think one of the lines if not the line triggering it or related to it was `iValue += bFoodIsProduction ? 0 : (iFoodYieldTimes100+50)/100;` in `CvCityAI::AI_yieldValue`. Problem of this approach if i am not mistaken is that to produce a worker or settler, 3 hammer or 3 food is the exact same, it is 3 production, therefore food should be valued just as much, not 0. When worker is completed, city would be in a position to continue to grow, instead of stagnate or starve, even if a bit. I am not sure this is the only way or thing to fix and didn't check since, but i hope this helps. As of now, it is as such: `iValue += ((iFoodYieldTimes100+50)/100);` with some implementations differences (see below). It seems that in screenshots 1665 and 1666 (screenshot 1673 with the milder final version of the patch seems to indicate a good response as well, with the 2 food tile being used to produce a worker rather than the 1 food 1 hammer one, which should be better after this production (i.e. of a worker i mean if i may say but anyways etc) ends if if i am not mistaken anyways etc), although it used a more exteme approach to try to fix and debug it (see below at ulundi screenshots but anyways etc), when producing a settler, the city does use food yields now even if it is just a small sampel and it could have happened due to other reasons (such as no good hammer tile to compete with the food yields maybe), but indirectly this would also mean developing cottages and such more while producing a settler or worker, here in a flood plains cottage, which is a bit stronger than a 2 food 1 hammer flatland grass forest tile. Although i am no sure this fixes it, it does seem to be better or at least not worse in this sample, while not deteriorating city behaviour early, hoepfully helps and better this way anyways etc.
+- the "Ulundi screenshots" issue: in screenshots 1573 and 1574, similarly here, or rather not my bad, but i would say at least that we can maybe fix it or patch it at that line. I tried and implemented other tentative ways to boost food quite conservatively, else cities are very unhappy, low production and high pop (screenshot 1663 and 1664 if i am not mistaken too anyways etc), and similarly the same at aachen (screenshots 1666 and 1667 if i am not mistaken too anyways etc), which is inefficient, but at least all food plots were allocated, very nice ! This indicated if i am not mistaken that issue could be addressed this way, even if in a milder way but anyways etc. So i added a check that if we are unhappy (reusing old k-mod or/and civ4 bits for that but with a new check anyways etc) value food only a bit more, but if we are happy (i.e. that we'd have room to grow), value food quite a bit extra more (but not too much i tried else we'd go back to high pop low production very angry inefficient city). So by giving a food boost but relatively milder one, we now grow but only a bit more, when angry, not a lot more (and when not angry (i.e. happy city anyways etc) we'd grow a lot more although not shown here if i am not mistaken anyways etc)). I didn't contine to check what happens at next turns, but in screenshots 1669 and 1670 for example after this fix or tentative patch, plot allocation seems now to be very very good. Production is high, and city is not starving, growing moderately, which is about perfect i'd say. After all we could slave as said before and would very much need or want the pop if our unhappiness solves. Aachen (screenshot 1672, but difference is city is not unhappy (i.e. is happy but anyways etc)) has also a very good food profile, with high plot plots all allocated and fast growth and quite high production, about perfect too!! Very good response or behaviour in screenshot 1674 as well in karakoum, which is happy too with high food and high production.
+- As for the "Prague screenshots" (stagnant city not allocating food), i didn't retest it since prague was settled elsewhere many times, as shown in screnshot 1673, and consistently, i don't know if my change caused this somehow, but this is a fine choice too and a good location, after removing the jungle it is a quite strong grass spot, although a bit weak before that, and is coastal too so good for late game. So i don't have a definitive repsonse but i hope all in all these changes help a lot. Also, i don't know when i took this screenshot but seemingly later during the test changes phase, but seemingly AI would prefer a 1 food 1 hammer 1 commerce flatland plains cottage over an improved 5 food 1 commerce sheep grassland, just because it has 1 unhappy citizen. 1 hammer is not superior to 5 food!!! (or 4 food with the diff even), even if unhappy, extra pop could be used later to slave or when unhapiness is solved food would be more full even if we produce slightly less to do so!!!
+
+The code that seemed to make a nice and decisive positive difference it seems to me at least but anyways etc was as of now this one i added if i am not mistaken anyways etc:
+
+```cpp
+		// iValue += bFoodIsProduction ? 0 : (iFoodYieldTimes100+50)/100;
+		// <!-- custom: commented-out line below (that was a test to try to fix known issue 34 which is seemignly done or at least bypassed at the cost of angry cities still growing and having lower production but anyways etc) fixes it or so it seems, but at the cost of lowered produciton, even if cities have few angry citizens, try to make it more fine-tuned to city current state if i may say but anyways etc: we value food as long as we are not angry, if we are angry, value production in an attempt to build things that would make us go out of unhappiness, but even if we don't, no point in growing further, the citizen won't be allocated anyways etc ; results of this change seem to be very good, cities are not starving anymore unallocating food tiles, they grow until unhappy, then it seems to halt but the food tiles are still reasonable allocated even though production is now high as well and growth slow it seems from quick testing / glances but anyways etc, although this is a patch and not full fix, i hope this helps the issue a lot, or so it seems from quick testing and glance anyways etc -->
+		// iValue += ((iFoodYieldTimes100+50)/100) * 100;
+		if (iHappinessLevel > 0)
+		{
+			iValue += ((iFoodYieldTimes100+50)/100) * 3;
+		}
+		else
+		{
+			iValue += ((iFoodYieldTimes100+50)/100);
+		}
+```
+
+I also did a few other tentative changes that may be relevant or not, not documented here, see commit [todo add link](todo add link) for details anyways etc.
+
+Hopefully AI is a bit stronger with this changed i attempted to make in a balanced way (not too much food, not as it was too much production)

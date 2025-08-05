@@ -6859,7 +6859,7 @@
 				</DomainProductionModifier>
 			</DomainProductionModifiers>
 			<BuildingHappinessChanges/>
-			<!-- custom: having a harder or hard at all in this case anyways etc building +/- class here but anyways etc prereq would make AIs build them less or later, and since building is not core and is also a naval building, would make AI focus more on land warfare and help it maybe anyways etc, is also thematically consistent with the theme of gradually increasing produciton, here in this case naval production but anyways etc, with gradually more specialized buildings if i may say but anyways etc, was empty -->
+			<!-- custom: having a harder or hard at all in this case anyways etc building +/- class here but anyways etc prereq would make AIs build them less or later, and since building is not core and is also a naval building, would make AI focus more on land warfare and help it maybe anyways etc, is also thematically consistent with the theme of gradually increasing production, here in this case naval production but anyways etc, with gradually more specialized buildings if i may say but anyways etc, was empty -->
 			<PrereqBuildingClasses/>
 			<BuildingClassNeededs>
 				<BuildingClassNeeded>

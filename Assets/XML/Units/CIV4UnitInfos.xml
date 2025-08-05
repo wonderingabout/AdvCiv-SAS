@@ -2626,7 +2626,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>3</iAsset>
-			<!-- custom: keep iPower low as this is a defensive recon unit so AI doesn't think soemone having them is strong, effectively they can't do too much damage either anyways etc, hopefully quite accurate or/and effective at this stage of the game so AI handles these/them quite well in combat anyways etc -->
+			<!-- custom: keep iPower low as this is a defensive recon unit so AI doesn't think someone having them is strong, effectively they can't do too much damage either anyways etc, hopefully quite accurate or/and effective at this stage of the game so AI handles these/them quite well in combat anyways etc -->
 			<iPower>4</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -2865,7 +2865,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>3</iAsset>
-			<!-- custom: keep iPower low as this is a defensive recon unit so AI doesn't think soemone having them is strong, effectively they can't do too much damage either anyways etc, hopefully quite accurate or/and effective at this stage of the game so AI handles these/them quite well in combat anyways etc -->
+			<!-- custom: keep iPower low as this is a defensive recon unit so AI doesn't think someone having them is strong, effectively they can't do too much damage either anyways etc, hopefully quite accurate or/and effective at this stage of the game so AI handles these/them quite well in combat anyways etc -->
 			<iPower>5</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>

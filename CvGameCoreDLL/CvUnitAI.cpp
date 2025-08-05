@@ -1074,7 +1074,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
         // Logic to prioritize farms on high-food terrains like grassland and plains.
 		else
 		{
-			// <!-- custom: for non-bonus tiles, never destroy high value improvements or later game ones ; this maybe (/might or not anyways etc if/in case other parts of the DLL interfere with this/our code anyways etc) helps avoid oscillation (i.e. workers changing their mind and overwriting again and again a tile based on fleeting meh xd if i may say, which is maybe valid in this case at least if i may say but anyways etc but is very inefficient, so for AI may help a lot to make it focus its mind on one statistical improvement and stick to it anyways etc)
+			// <!-- custom: for non-bonus tiles, never destroy high value "sacred"/"holy" improvements or later game ones ; this maybe (/might or not anyways etc if/in case other parts of the DLL interfere with this/our code anyways etc) helps avoid oscillation (i.e. workers changing their mind and overwriting again and again a tile based on fleeting meh xd if i may say, which is maybe valid in this case at least if i may say but anyways etc but is very inefficient, so for AI may help a lot to make it focus its mind on one statistical improvement and stick to it anyways etc)
 			// <!-- custom: note however that as for bonus tiles, they don't follow this logic: still overwrite a banana hamlet or even town, they shouldn't have been there at all ideally as per our code, but if they are or some other code handled it as such, then do not let the stupid banana hamlet or town persist, we'd get just as much yields with a regular plantation, connecting the bonus as a side effect if i am not mistaken too anyways etc -->
 			ImprovementTypes const ePlotCurrentImprovement = kPlot.getImprovementType();
 			// Now using the newly defined constants for clarity and consistency.
@@ -1254,7 +1254,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 								iValue += 100;
 							}
 						}
-						// <!-- custom: else, fallback to previous plan, gotta make what we can of the tile before we starve. -->
+						// <!-- custom: else, fallback to previous plan, gotta make what we can get what we can of the tile before we starve. -->
 						else if (canBuild(kPlot, eBuildCottage))
 						{
 							eBestSupposedBuild = eBuildCottage;
@@ -1304,7 +1304,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 							}
 							else if (canBuild(kPlot, eBuildMine))
 							{
-								// <!-- custom: we are out of luck, get the hill grassland mine is really good, but we'll starve in a few citizens or sooner if our conditions change, still this is quite good overall produciton for cheap food -->
+								// <!-- custom: we are out of luck, get the hill grassland mine is really good, but we'll starve in a few citizens or sooner if our conditions change, still this is quite good overall production for cheap food -->
 								eBestSupposedBuild = eBuildMine;
 
 								iValue += 1300;
@@ -1327,7 +1327,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 							{
 								eBestSupposedBuild = eBuildWorkshop;
 
-								// <!-- custom: solid mid-game choice, essentially it is the same as a hill grassland later in the game, prefer cottages still as a general rule in the early game, but we may need the production rather later, starting to plan mid game wars and invasions, hopefully we have enough commerce by now in all the empire maybe anyways etc, but in all cases shift a bit more towards production, especially for unimproved tiles, but it may still be quite storng even in imrpoved ones hopefulyl as this is a strong choice i would say especially in later game anyways etc -->
+								// <!-- custom: solid mid-game choice, essentially it is the same as a hill grassland later in the game, prefer cottages still as a general rule in the early game, but we may need the production rather later, starting to plan mid game wars and invasions, hopefully we have enough commerce by now in all the empire maybe anyways etc, but in all cases shift a bit more towards production, especially for unimproved tiles, but it may still be quite storng even in improved ones hopefulyl as this is a strong choice i would say especially in later game anyways etc -->
 								iValue += 1650;
 							}
 							// <!-- custom: i don't think we need farms, they are or may be quite tempting, but capitalize on high food of this tile to grow slow for later higher commerce, should statistically help most, if i may say but anyways etc -->
@@ -1360,7 +1360,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 									iValue += 100;
 								}
 							}
-							// <!-- custom: else, fallback to previous plan, gotta make what we can of the tile before we starve, this is still a good tile, so use it as best as we can if i may say in this case anyways etc. -->
+							// <!-- custom: else, fallback to previous plan, gotta make what we can get what we can of the tile before we starve, this is still a good tile, so use it as best as we can if i may say in this case anyways etc. -->
 							else if (canBuild(kPlot, eBuildWorkshop))
 							{
 								eBestSupposedBuild = eBuildWorkshop;
@@ -1473,7 +1473,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 									iValue += 100;
 								}
 							}
-							// <!-- custom: else, fallback to previous plan, gotta make what we can of the tile before we starve, this is still a good tile, so use it as best as we can if i may say in this case anyways etc. -->
+							// <!-- custom: else, fallback to previous plan, gotta make what we can get what we can of the tile before we starve, this is still a good tile, so use it as best as we can if i may say in this case anyways etc. -->
 							else if (canBuild(kPlot, eBuildWorkshop))
 							{
 								eBestSupposedBuild = eBuildWorkshop;
@@ -1567,7 +1567,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 									iValue += 100;
 								}
 							}
-							// <!-- custom: else, fallback to previous plan, gotta make what we can of the tile before we starve, this is still a good tile, so use it as best as we can if i may say in this case anyways etc. -->
+							// <!-- custom: else, fallback to previous plan, gotta make what we can get what we can of the tile before we starve, this is still a good tile, so use it as best as we can if i may say in this case anyways etc. -->
 							else if (canBuild(kPlot, eBuildWorkshop))
 							{
 								eBestSupposedBuild = eBuildWorkshop;
@@ -1691,7 +1691,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			// <!-- custom: note: in theory this new system should handle oscillation tremendously better, considering "sacred" higher level improvements, while being responsive to food or health or such conditions to overwrite or/and adjust future builds if needed anyways etc -->
 		}
 
-		// <!-- custom: PHASE 1.2 - common logic again (both bonus and non-bonu plots again in this case i mean if i may say anyways etc) no more adjusting the best build to build for this loop plot, now only final adjustments before storing plot information anyways etc -->
+		// <!-- custom: PHASE 1.2 - common logic again (both bonus and non-bonus plots again in this case i mean if i may say anyways etc) no more adjusting the best build to build for this loop plot, now only final adjustments before storing plot information anyways etc -->
 
 		// <!-- custom: check here after all builds adjustments if final settled on build is still none, then forget this plot if i may say anyways etc -->
 		if (!canBuild(kPlot, eBestSupposedBuild) || eBestSupposedBuild == NO_BUILD)
@@ -19044,7 +19044,7 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) 
 				return eBuildRemoveJungle;
 			}
 		}
-		// <!-- custom: not sure it is needed but just to be safe anyways etc, get any build we can, as fallout doesn't have as of now a build_remove_fallout if i am not mistaken, get build through say build_farm if it can remove fallout (anything is good as long as we remove fallout, but if our preivous build was already made with that in mind (removing fallout if we selected a workshop in another function for example, then kOriginalBuildInfo.isFeatureRemove(eFeature) would be true if i am not mistaken and we wouldn't reach this code at all anyway so this is really a safeguad of a safeguard xd and in case othe rfuncitons call this soemhwo (i ddin't check) anyways etc)) -->
+		// <!-- custom: not sure it is needed but just to be safe anyways etc, get any build we can, as fallout doesn't have as of now a build_remove_fallout if i am not mistaken, get build through say build_farm if it can remove fallout (anything is good as long as we remove fallout, but if our preivous build was already made with that in mind (removing fallout if we selected a workshop in another function for example, then kOriginalBuildInfo.isFeatureRemove(eFeature) would be true if i am not mistaken and we wouldn't reach this code at all anyway so this is really a safeguad of a safeguard xd and in case other functions call this somehow (i ddin't check) anyways etc)) -->
 		else if (eFeature == eFeatureFallout)
 		{
 			// Find a build type that specifically removes this feature.

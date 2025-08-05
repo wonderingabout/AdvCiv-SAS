@@ -9762,17 +9762,18 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
 
 	// work out how much food deficit would be acceptable
 	int iStarvingAllowance = 0;
-	{
-		int iFoodLevel = getFood();
-		int iFoodToGrow = growthThreshold();
-		int iHappinessLevel = happyLevel() - unhappyLevel(0);
+	// <!-- custom: cities starve too often, on top of failing to allocate best food tiles ; make it stricter by not allowing any allowance, as advised by claude ai when asking it thanks to my prompts and or such or not contributions or not too if i may say but anyways etc -->
+	// {
+	// 	int iFoodLevel = getFood();
+	// 	int iFoodToGrow = growthThreshold();
+	// 	int iHappinessLevel = happyLevel() - unhappyLevel(0);
 
-		if (AI_isEmphasizeAvoidGrowth() || iHappinessLevel < (isHuman() ? 0 : 1))
-		{
-			iStarvingAllowance = std::max(0, (iFoodLevel - std::max(1, ((7 * iFoodToGrow) / 10))));
-			iStarvingAllowance /= (iHappinessLevel+getEspionageHappinessCounter()/2 >= 0 ? 2 : 1);
-		}
-	}
+	// 	if (AI_isEmphasizeAvoidGrowth() || iHappinessLevel < (isHuman() ? 0 : 1))
+	// 	{
+	// 		iStarvingAllowance = std::max(0, (iFoodLevel - std::max(1, ((7 * iFoodToGrow) / 10))));
+	// 		iStarvingAllowance /= (iHappinessLevel+getEspionageHappinessCounter()/2 >= 0 ? 2 : 1);
+	// 	}
+	// }
 
 	//
 
@@ -9871,7 +9872,11 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
 				? GET_PLAYER(getOwner()).specialistYield((SpecialistTypes)unworked_it->second.second, YIELD_FOOD)
 				: getCityIndexPlot((CityPlotTypes)unworked_it->second.second)->getYield(YIELD_FOOD);
 
-			if (iFoodPerTurn >= 0 && iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0)
+			// <!-- custom: seemingly a bug found by claude ai ; indeed ingame cities are starving without allocating improved sheep or such high tiles (see as of now known issue 34 in docs anyways etc with screenshots there in the google drive anyways etc) -->
+			// OLD: Only avoid starvation if we're not already starving
+			// if (iFoodPerTurn >= 0 && iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0)
+			// NEW: Always check if job change improves/worsens food situation
+			if (iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0)
 			{
 				bTakeNewJob = false;
 			}
@@ -10407,9 +10412,32 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
 			iGrowthValue += 8 // in addition to other effects.
 					+ (AI_isStrongEmphasis() ? 3 : 0); // advc.131d
 		} // </k146>
+		// <!-- custom: we have a major big of cities being stagnant and allocating unimproved plains no bonus rather than improved sheep grassland (see "prague screenshots" and doc for details in as of now known issue 34 in docs anyways etc), on top of the starving cities not allocating improved food tiles at all (see the "ulundi screenshots" for example and such as well as of now in example 34 but anyways etc) ; both seem to come down to cities choosing production over food. Attempt for now in this change i mean but anyways etc to reason cities that being stagnant is not good enough when there are nice yields to allocate, as provided and suggested by gemini ai thanks to my prompt and question about this issue i can't really or easily find the root of xd but anyways etc, hopefully helpful or not or yes or etc but check to be sure if i may say but anyways etc -->
+		// Add a small boost for non-emphasized food to make it more valuable than production
+		else if (iFoodYield > 0 && !AI_isEmphasizeAvoidGrowth()) {
+			iGrowthValue += 2;
+		}
+
+		// <!-- custom: moved up so we can use these in our checks anyways etc -->
+		int iHealthLevel = goodHealth() - badHealth();
+		int iHappinessLevel = (isNoUnhappiness() ?
+				std::max(3, iHealthLevel + 5) : happyLevel() - unhappyLevel(0));
+
+		// <!-- custom: actually even if food is production, food is just as valuable, i noticed in tundra cities workers would go before our reworked workers (didn't check since since they also settle elsewhere now but i assume would be different with the new priority system of builds but anyways etc) 4 food is just as good as 4 hammer to produce a settler, no reason to negate here i think if i understood it correctly but anyways etc ; i seem to have solved the issue of 1 hammer being preferred over 5 food even if city has to starve for it (see known issue 34 for details with screenshots and documentation about it too i mean anyways etc), now ulundi is growing big, not starving while unallocating the food, and high food tiles are all allocated although production is a bit low though now so need to reduce the crazy * 100 multiplier i put as well as a test on top of removing the foodisproduction check to fix / enhance things -->
 		// tiny food factor, to ensure that even when we don't want to grow,
 		// we still prefer more food if everything else is equal
-		iValue += bFoodIsProduction ? 0 : (iFoodYieldTimes100+50)/100;
+		// iValue += bFoodIsProduction ? 0 : (iFoodYieldTimes100+50)/100;
+		// <!-- custom: commented-out line below (that was a test to try to fix known issue 34 which is seemignly done or at least bypassed at the cost of angry cities still growing and having lower production but anyways etc) fixes it or so it seems, but at the cost of lowered produciton, even if cities have few angry citizens, try to make it more fine-tuned to city current state if i may say but anyways etc: we value food as long as we are not angry, if we are angry, value production in an attempt to build things that would make us go out of unhappiness, but even if we don't, no point in growing further, the citizen won't be allocated anyways etc ; results of this change seem to be very good, cities are not starving anymore unallocating food tiles, they grow until unhappy, then it seems to halt but the food tiles are still reasonable allocated even though production is now high as well and growth slow it seems from quick testing / glances but anyways etc, although this is a patch and not full fix, i hope this helps the issue a lot, or so it seems from quick testing and glance anyways etc -->
+		// iValue += ((iFoodYieldTimes100+50)/100) * 100;
+		if (iHappinessLevel > 0)
+		{
+			iValue += ((iFoodYieldTimes100+50)/100) * 3;
+		}
+		else
+		{
+			iValue += ((iFoodYieldTimes100+50)/100);
+		}
+
 
 		int const iFoodPerTurn = getYieldRate(YIELD_FOOD) - foodConsumption() -
 				(bRemove? iFoodYield : 0);
@@ -10419,10 +10447,6 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
 		/*	(I'd like to lower this when evaluating plots we might switch to -
 			but currently there is no way to know we're doing that.) */
 		int const iAdjustedFoodPerTurn = iFoodPerTurn;
-
-		int iHealthLevel = goodHealth() - badHealth();
-		int iHappinessLevel = (isNoUnhappiness() ?
-				std::max(3, iHealthLevel + 5) : happyLevel() - unhappyLevel(0));
 
 		// if we not human, allow us to starve to half full if avoiding growth
 		if (!bIgnoreStarvation)
@@ -10450,7 +10474,6 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
 				// value food high, but not forced
 				//iValue += 36 * std::min(iFoodYield, -iFoodPerTurn+(bReassign ? iConsumtionPerPop : 0));
 				iValue += (iHappinessLevel >= 0 ? 2: 1)*std::max(iGrowthValue, iBaseProductionValue*3) * std::min(iFoodYield, -(iFoodPerTurn + iStarvingAllowance));
-				// note. iGrowthValue only counts unworked plots - so it isn't entirely suitable for this. Hence the arbitrary minimum value.
 			}
 		}
 
@@ -10861,7 +10884,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 
 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 
-	// <!-- custom: code provided by gemini ai (and chatgpt's help too at first hehe but anyways etc) and adjusted or not for advciv-sas anyways etc, to prevent AI from choosing the citizen specialist, which is generally if not almost always a bad or inefficient choice, espcially crippling in the early game i think but anyways etc. As gemini AI did, it is also more efficient computationally to early return at beginning of function rather than do all computation just to return an int without any computation.  Early return and drastic disallowing is more efficient computationally and strategically, i can barely see cases where the citizen specialist would be valuable, but to not break anything, simply keep existing architecture of code if i may say, and return lowest positive value as gemini ai did, or something very or similar to it anyways etc -->
+	// <!-- custom: code provided by gemini ai (and chatgpt's help too at first hehe but anyways etc) and adjusted or not for advciv-sas anyways etc, to prevent AI from choosing the citizen specialist, which is generally if not almost always a bad or inefficient choice, espcially crippling in the early game i think but anyways etc. As gemini AI did, it is also more efficient computationally to early return at begining of function rather than do all computation just to return an int without any computation.  Early return and drastic disallowing is more efficient computationally and strategically, i can barely see cases where the citizen specialist would be valuable, but to not break anything, simply keep existing architecture of code if i may say, and return lowest positive value as gemini ai did, or something very or similar to it anyways etc -->
 	// === ADVANCE AI: Disincentivize AI from choosing the generic Citizen specialist ===
 	// This block should be placed at the very beginning of the function.
 	// It short-circuits evaluation for AI players trying to pick the default Citizen specialist.

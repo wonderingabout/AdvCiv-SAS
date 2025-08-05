@@ -2824,7 +2824,7 @@ int AIFoundValue::adjustToStartingChoices(int iValue) const
 }
 
 
-// <!-- custom: remove this, as we already have a very new fine tuned yield terrain focus logic, and lack of production is not necessarily bad (cottage city may be strong locally if AI otherwise has good empire production anyways etc for example if i am not mistaken anyways etc, but point is don't reject city just because it may have low produciton, look at overall terrain and such yields which we already do anyways etc, so remove this specific if i may say in this case but anyways etc logic that may interfere with that and our changes in a way that may make AI less efficient maybe if i'm not mistaken but check to be sure anyways etc anyways etc) -->
+// <!-- custom: remove this, as we already have a very new fine tuned yield terrain focus logic, and lack of production is not necessarily bad (cottage city may be strong locally if AI otherwise has good empire production anyways etc for example if i am not mistaken anyways etc, but point is don't reject city just because it may have low production, look at overall terrain and such yields which we already do anyways etc, so remove this specific if i may say in this case but anyways etc logic that may interfere with that and our changes in a way that may make AI less efficient maybe if i'm not mistaken but check to be sure anyways etc anyways etc) -->
 // int AIFoundValue::adjustToProduction(int iValue, scaled rBaseProduction) const
 // {
 // 	// K-Mod. reduce value of cities which will struggle to get any productivity.
