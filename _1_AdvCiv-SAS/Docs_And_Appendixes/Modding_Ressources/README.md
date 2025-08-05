@@ -66,7 +66,7 @@ To download from a specified time to end, use, as chatgpt advsied/told me when i
 yt-dlp -x --audio-format mp3 --postprocessor-args "-ss 00:00:15.000" "https://www.youtube.com/watch?v=MM2-z8inpY8"
 ```
 
-Then untested but to download from begining to an end time, use similarly as advised/told by chatgpt anyways etc:
+Then untested but to download from beginning to an end time, use similarly as advised/told by chatgpt anyways etc:
 
 ```bash
 yt-dlp -x --audio-format mp3 --postprocessor-args "-to 00:00:45.000" "https://www.youtube.com/watch?v=MM2-z8inpY8"

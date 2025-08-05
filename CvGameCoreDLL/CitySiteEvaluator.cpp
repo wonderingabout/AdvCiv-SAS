@@ -3153,7 +3153,10 @@ int AIFoundValue::adjustToCivSurroundings(int iValue, int iStealPercent) const
 	if (pOurNearestCity == NULL)
 		return iValue;
 
-	int iDistance = /* advc.031: */ std::min(GC.getMap().maxMaintenanceDistance(),
+	// <!-- custom: seems like we can make this a const if i am not mistaken anyways etc so added the `const` if i am not mistaken in doing and/or thinking so but anyways etc ; also, as this seems to be distance to our nearest city, renamed as such if i am not mistaken in doing/thinking so as well if i may say but anyways etc, value as of now unchanged otherwise if i am not mistaken too anyways etc -->
+	// int iDistance = /* advc.031: */ std::min(GC.getMap().maxMaintenanceDistance(),
+	// 		::plotDistance(iX, iY, pOurNearestCity->getX(), pOurNearestCity->getY()));
+	int const iDistanceToOurNearestCity = /* advc.031: */ std::min(GC.getMap().maxMaintenanceDistance(),
 			::plotDistance(iX, iY, pOurNearestCity->getX(), pOurNearestCity->getY()));
 	// <advc.031> Don't discourage settling on small nearby landmasses
 	if (pCapital == NULL || pCapital->isArea(kArea) ||
@@ -3163,14 +3166,42 @@ int AIFoundValue::adjustToCivSurroundings(int iValue, int iStealPercent) const
 		//int iDistPenalty = 8000;
 		// <!-- custom: try to spread cities more as they are too crowded as of now anyways etc and simplify formula as well if i am not mistaken in doing so anyways etc, as advised as a general idea by claude ai when i asked it about this code thanks anyways etc thanks but anyways etc -->
 		// int iDistPenalty = 5100 - (scaled::min(4, rAIEraFactor) * 775).round();
-		int iDistPenalty = 1000;
+		// <!-- custom: attempt to increase distance penalties as with flat 1000 with our change, cities are a bit too far as of now with this change anyways etc, but try not to make them crowded again either anyways etc, try to make first cities closer to each other, less important for later ones -->
+		int iDistPenalty = 1500;
 
 		// </advc.031> (no functional change below)
-		iDistPenalty *= iDistance;
+		iDistPenalty *= iDistanceToOurNearestCity;
 		iDistPenalty /= GC.getMap().maxTypicalDistance(); // advc.140: was maxPlotDistance
-		iDistPenalty = std::min(500 * iDistance, iDistPenalty);
+		iDistPenalty = std::min(500 * iDistanceToOurNearestCity, iDistPenalty);
 		iValue -= iDistPenalty;
-		IFLOG logBBAI("%d from distance penalty (%d distance to %S)", iDistPenalty, iDistance, cityName(*pOurNearestCity));
+		IFLOG logBBAI("%d from distance penalty (%d distance to %S)", iDistPenalty, iDistanceToOurNearestCity, cityName(*pOurNearestCity));
+
+		// <!-- custom: on top of that, add a num cities penalty, meaning the less cities we have, the more we care about them being close knit, but not necessarily in relation to capital, this would lead to too much star shaped empires and maybe miss locally fine or nice thin or such other shapes. What i care about is that cities are close to each other not necessarily to capital at all, and that they are not too close else their plots overlap as seems to be the case now, especially when we plant our cities ; later in the game, more city spots would be taken, and our economy stronger to support them, and our military ideally stronger to protect them i mean too if i may say in this case but anyways etc, so we can be more creative or/and combative about which spots we want maybe especially for local benefits if i may say in this case but anyways etc, code added with the help of gemini ai thanks to my prompt too and that i modified or not for advciv-sas too too if i may say but anyways etc anyways etc -->
+		// --- Custom City Spacing Logic ---
+		// We want to avoid cities being too close, and to control how far they spread.
+		// We'll base this on the distance to the nearest city, not the capital.
+		int const iMinDistanceToNearestCity = 4; // Minimum distance we want to see between cities.
+		int const iMaxDistanceToNearestCity = 8; // Maximum distance we'll tolerate for new cities.
+
+		int const iCities = kPlayer.getNumCities();
+		int iMinMaxDistanceToNearestCityModifier = 0;
+
+		// Penalty for cities being too close. This is a severe penalty.
+		if (iDistanceToOurNearestCity < iMinDistanceToNearestCity)
+		{
+			iMinMaxDistanceToNearestCityModifier = -1000 * (iMinDistanceToNearestCity - iDistanceToOurNearestCity);
+		}
+		// Penalty for cities being too far. This penalty decreases as the empire grows.
+		else if (iDistanceToOurNearestCity > iMaxDistanceToNearestCity)
+		{
+			// The penalty is less severe for larger empires, as they can afford to stretch.
+			int iExcessDistanceToOurNearestCity = iDistanceToOurNearestCity - iMaxDistanceToNearestCity;
+			iMinMaxDistanceToNearestCityModifier = -600 * iExcessDistanceToOurNearestCity / (1 + iCities);
+		}
+
+		// Apply the final modifier to the city value.
+		iValue += iMinMaxDistanceToNearestCityModifier;
+		IFLOG logBBAI("%d from min / max distance to nearest city modifier (%d distance to our nearest city %S)", iMinMaxDistanceToNearestCityModifier, iDistanceToOurNearestCity, cityName(*pOurNearestCity));
 	}
 
 	return iValue;

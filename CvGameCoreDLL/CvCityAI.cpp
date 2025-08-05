@@ -9872,7 +9872,7 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
 				? GET_PLAYER(getOwner()).specialistYield((SpecialistTypes)unworked_it->second.second, YIELD_FOOD)
 				: getCityIndexPlot((CityPlotTypes)unworked_it->second.second)->getYield(YIELD_FOOD);
 
-			// <!-- custom: seemingly a bug found by claude ai ; indeed ingame cities are starving without allocating improved sheep or such high tiles (see as of now known issue 34 in docs anyways etc with screenshots there in the google drive anyways etc) -->
+			// <!-- custom: seemingly a bug found by claude ai ; i am not sure this is really a bug, but in all cases indeed ingame cities are starving without allocating improved sheep or such high tiles (see as of now known issue 34 in docs anyways etc with screenshots there in the google drive anyways etc) -->
 			// OLD: Only avoid starvation if we're not already starving
 			// if (iFoodPerTurn >= 0 && iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0)
 			// NEW: Always check if job change improves/worsens food situation
@@ -10412,13 +10412,13 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
 			iGrowthValue += 8 // in addition to other effects.
 					+ (AI_isStrongEmphasis() ? 3 : 0); // advc.131d
 		} // </k146>
-		// <!-- custom: we have a major big of cities being stagnant and allocating unimproved plains no bonus rather than improved sheep grassland (see "prague screenshots" and doc for details in as of now known issue 34 in docs anyways etc), on top of the starving cities not allocating improved food tiles at all (see the "ulundi screenshots" for example and such as well as of now in example 34 but anyways etc) ; both seem to come down to cities choosing production over food. Attempt for now in this change i mean but anyways etc to reason cities that being stagnant is not good enough when there are nice yields to allocate, as provided and suggested by gemini ai thanks to my prompt and question about this issue i can't really or easily find the root of xd but anyways etc, hopefully helpful or not or yes or etc but check to be sure if i may say but anyways etc -->
+		// <!-- custom: we have a major bug or/and suboptimal behaviour in this case i mean but anyways etc of cities being stagnant and allocating unimproved plains no bonus rather than improved sheep grassland (see "prague screenshots" and doc for details in as of now known issue 34 in docs anyways etc), on top of the starving cities not allocating improved food tiles at all (see the "ulundi screenshots" for example and such as well as of now in example 34 but anyways etc) ; both seem to come down to cities choosing production over food. Attempt for now in this change i mean but anyways etc to reason cities that being stagnant is not good enough when there are nice yields to allocate, as provided and suggested by gemini ai thanks to my prompt and question about this issue i can't really or easily find the root of xd but anyways etc, hopefully helpful or not or yes or etc but check to be sure if i may say but anyways etc -->
 		// Add a small boost for non-emphasized food to make it more valuable than production
 		else if (iFoodYield > 0 && !AI_isEmphasizeAvoidGrowth()) {
 			iGrowthValue += 2;
 		}
 
-		// <!-- custom: moved up so we can use these in our checks anyways etc -->
+		// <!-- custom: moved up if i may say in this case too at least if i may say but anyways etc so we can use these in our checks anyways etc -->
 		int iHealthLevel = goodHealth() - badHealth();
 		int iHappinessLevel = (isNoUnhappiness() ?
 				std::max(3, iHealthLevel + 5) : happyLevel() - unhappyLevel(0));
@@ -10474,6 +10474,7 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
 				// value food high, but not forced
 				//iValue += 36 * std::min(iFoodYield, -iFoodPerTurn+(bReassign ? iConsumtionPerPop : 0));
 				iValue += (iHappinessLevel >= 0 ? 2: 1)*std::max(iGrowthValue, iBaseProductionValue*3) * std::min(iFoodYield, -(iFoodPerTurn + iStarvingAllowance));
+				// note. iGrowthValue only counts unworked plots - so it isn't entirely suitable for this. Hence the arbitrary minimum value.
 			}
 		}
 
@@ -10884,7 +10885,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 
 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 
-	// <!-- custom: code provided by gemini ai (and chatgpt's help too at first hehe but anyways etc) and adjusted or not for advciv-sas anyways etc, to prevent AI from choosing the citizen specialist, which is generally if not almost always a bad or inefficient choice, espcially crippling in the early game i think but anyways etc. As gemini AI did, it is also more efficient computationally to early return at begining of function rather than do all computation just to return an int without any computation.  Early return and drastic disallowing is more efficient computationally and strategically, i can barely see cases where the citizen specialist would be valuable, but to not break anything, simply keep existing architecture of code if i may say, and return lowest positive value as gemini ai did, or something very or similar to it anyways etc -->
+	// <!-- custom: code provided by gemini ai (and chatgpt's help too at first hehe but anyways etc) and adjusted or not for advciv-sas anyways etc, to prevent AI from choosing the citizen specialist, which is generally if not almost always a bad or inefficient choice, espcially crippling in the early game i think but anyways etc. As gemini AI did, it is also more efficient computationally to early return at beginning of function rather than do all computation just to return an int without any computation.  Early return and drastic disallowing is more efficient computationally and strategically, i can barely see cases where the citizen specialist would be valuable, but to not break anything, simply keep existing architecture of code if i may say, and return lowest positive value as gemini ai did, or something very or similar to it anyways etc -->
 	// === ADVANCE AI: Disincentivize AI from choosing the generic Citizen specialist ===
 	// This block should be placed at the very beginning of the function.
 	// It short-circuits evaluation for AI players trying to pick the default Citizen specialist.
