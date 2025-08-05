@@ -2888,6 +2888,11 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 					GC.getGame().getNukesExploded()) /
 					(GC.getGame().countFreeTeamsAlive() + 1));
 		}
+
+		// <!-- custom: do not build any settler at all if war likely, prepare for war, the hammer is very precious and can make us win the war with more units, but having an extra city to defend would make us even thinner, having split military, on top of having less units, see known issue 36 for details -->
+		aiUnitAIVal[UNITAI_SETTLE] = 0;
+		// <!-- custom: not sure this one is necessary nor exactly what it does but just in case anyways etc -->
+		aiUnitAIVal[UNITAI_SETTLER_SEA] = 0;
 	}
 
 	if (isBarbarian())
@@ -2924,33 +2929,34 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 
 				aiUnitAIVal[UNITAI_PIRATE_SEA] += pWaterArea->getNumTiles() / 600;
 
-				if (bWarPossible)
-				{
-					// K-Mod note: this is bogus. TODO: change it so that it scales properly with map size.
-					aiUnitAIVal[UNITAI_ATTACK_SEA] += std::min(
-							pWaterArea->getNumTiles() / 150,
-							(iCoastalCities * 2 + iMilitaryWeight / 9) / (bAssault ? 4 : 6) +
-							(bPrimaryArea ? 1 : 0));
-					aiUnitAIVal[UNITAI_RESERVE_SEA] += std::min(
-							pWaterArea->getNumTiles() / 200,
-							(iCoastalCities * 2 + iMilitaryWeight / 7) / 5 +
-							(bPrimaryArea ? 1 : 0));
-					aiUnitAIVal[UNITAI_ESCORT_SEA] += (kOwner.AI_totalWaterAreaUnitAIs(
-							*pWaterArea, UNITAI_ASSAULT_SEA) +
-							(kOwner.AI_totalWaterAreaUnitAIs(
-							*pWaterArea, UNITAI_CARRIER_SEA) * 2));
-					aiUnitAIVal[UNITAI_ASSAULT_SEA] += std::min(pWaterArea->getNumTiles() / 250,
-							(iCoastalCities * 2 + iMilitaryWeight / 6) / (bAssault ? 5 : 8) +
-							(bPrimaryArea ? 1 : 0));
-					aiUnitAIVal[UNITAI_CARRIER_SEA] += std::min(
-							pWaterArea->getNumTiles() / 350,
-							(iCoastalCities * 2 + iMilitaryWeight / 8) / 7 +
-							(bPrimaryArea ? 1 : 0));
-					aiUnitAIVal[UNITAI_MISSILE_CARRIER_SEA] += std::min(
-							pWaterArea->getNumTiles() / 350,
-							(iCoastalCities * 2 + iMilitaryWeight / 8) / 7 +
-							(bPrimaryArea ? 1 : 0));
-				}
+				// <!-- custom: even if war is possible, and especially if, focus on land warfare rather, so also deprioritize naval units there, see below for details, i noticed this spot as well thanks to gemini ai who gave me feedback about my first solution to this -->
+				// if (bWarPossible)
+				// {
+				// 	// K-Mod note: this is bogus. TODO: change it so that it scales properly with map size.
+				// 	aiUnitAIVal[UNITAI_ATTACK_SEA] += std::min(
+				// 			pWaterArea->getNumTiles() / 150,
+				// 			(iCoastalCities * 2 + iMilitaryWeight / 9) / (bAssault ? 4 : 6) +
+				// 			(bPrimaryArea ? 1 : 0));
+				// 	aiUnitAIVal[UNITAI_RESERVE_SEA] += std::min(
+				// 			pWaterArea->getNumTiles() / 200,
+				// 			(iCoastalCities * 2 + iMilitaryWeight / 7) / 5 +
+				// 			(bPrimaryArea ? 1 : 0));
+				// 	aiUnitAIVal[UNITAI_ESCORT_SEA] += (kOwner.AI_totalWaterAreaUnitAIs(
+				// 			*pWaterArea, UNITAI_ASSAULT_SEA) +
+				// 			(kOwner.AI_totalWaterAreaUnitAIs(
+				// 			*pWaterArea, UNITAI_CARRIER_SEA) * 2));
+				// 	aiUnitAIVal[UNITAI_ASSAULT_SEA] += std::min(pWaterArea->getNumTiles() / 250,
+				// 			(iCoastalCities * 2 + iMilitaryWeight / 6) / (bAssault ? 5 : 8) +
+				// 			(bPrimaryArea ? 1 : 0));
+				// 	aiUnitAIVal[UNITAI_CARRIER_SEA] += std::min(
+				// 			pWaterArea->getNumTiles() / 350,
+				// 			(iCoastalCities * 2 + iMilitaryWeight / 8) / 7 +
+				// 			(bPrimaryArea ? 1 : 0));
+				// 	aiUnitAIVal[UNITAI_MISSILE_CARRIER_SEA] += std::min(
+				// 			pWaterArea->getNumTiles() / 350,
+				// 			(iCoastalCities * 2 + iMilitaryWeight / 8) / 7 +
+				// 			(bPrimaryArea ? 1 : 0));
+				// }
 			}
 		}
 
@@ -2989,7 +2995,9 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 				aiUnitAIVal[UNITAI_DEFENSE_AIR] += (bDefense ? 1 : 0) *
 						kOwner.getNumCities() + 1;
 
-				if (pWaterArea != NULL)
+				// <!-- custom: add a check here as well as advised by gemini ai: if city is landlocked (i assume it means is in a lake, do not build any military naval unit on it is quite pointless or at least do not prioritize it further anyways etc) ; note: i don't know if this is the correct way to access MIN_WATER_SIZE_FOR_OCEAN or whichever thing if i may say but anyways etc is relevant for our check of city being landlocked if i am not mistaken but anyways etc, but it compiled successfully and gemini ai provided it to me based on our global search results and a code sample i provided too so hopefully accurate but anyways etc (if not i wouldn't mind less military naval units, but i hope this is as intended though and there are still a bit of military naval units still but not too much or/and too prioritized if i am not mistaken too if i may say but anyways etc). -->
+				// if (pWaterArea != NULL)
+				if (pWaterArea != NULL && isCoastal(GC.getDefineINT("MIN_WATER_SIZE_FOR_OCEAN")))
 				{
 					if (kOwner.getNumCities() > 3 || getArea().getNumUnownedTiles() < 10)
 					{
@@ -3080,17 +3088,18 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 	//aiUnitAIVal[UNITAI_ICBM] *= 18;
 	aiUnitAIVal[UNITAI_ICBM] *= 18 * kOwner.AI_nukeWeight() / 100; // K-Mod
 	aiUnitAIVal[UNITAI_WORKER_SEA] *= (bDanger ? 3 : 10);
-	aiUnitAIVal[UNITAI_ATTACK_SEA] *= 5;
-	aiUnitAIVal[UNITAI_RESERVE_SEA] *= 4;
-	aiUnitAIVal[UNITAI_ESCORT_SEA] *= 20;
-	aiUnitAIVal[UNITAI_EXPLORE_SEA] *= 18;
-	aiUnitAIVal[UNITAI_ASSAULT_SEA] *= 14;
-	aiUnitAIVal[UNITAI_SETTLER_SEA] *= 16;
-	aiUnitAIVal[UNITAI_MISSIONARY_SEA] *= 12;
-	aiUnitAIVal[UNITAI_SPY_SEA] *= 10;
-	aiUnitAIVal[UNITAI_CARRIER_SEA] *= 8;
-	aiUnitAIVal[UNITAI_MISSILE_CARRIER_SEA] *= 8;
-	aiUnitAIVal[UNITAI_PIRATE_SEA] *= 5;
+	// <!-- custom: deprioritize military sea units, as AI builds them too much then its cities die (10+ galleons and almost no land unit defending cities, see known issue number as of now 35 for details), but land warfare should be most important, although this favours pangea a bit too much, it makes AI hopefully overall stronger and less prone to abuse -->
+	// aiUnitAIVal[UNITAI_ATTACK_SEA] *= 5;
+	// aiUnitAIVal[UNITAI_RESERVE_SEA] *= 4;
+	// aiUnitAIVal[UNITAI_ESCORT_SEA] *= 20;
+	// aiUnitAIVal[UNITAI_EXPLORE_SEA] *= 18;
+	// aiUnitAIVal[UNITAI_ASSAULT_SEA] *= 14;
+	// aiUnitAIVal[UNITAI_SETTLER_SEA] *= 16;
+	// aiUnitAIVal[UNITAI_MISSIONARY_SEA] *= 12;
+	// aiUnitAIVal[UNITAI_SPY_SEA] *= 10;
+	// aiUnitAIVal[UNITAI_CARRIER_SEA] *= 8;
+	// aiUnitAIVal[UNITAI_MISSILE_CARRIER_SEA] *= 8;
+	// aiUnitAIVal[UNITAI_PIRATE_SEA] *= 5;
 	aiUnitAIVal[UNITAI_ATTACK_AIR] *= 6;
 	aiUnitAIVal[UNITAI_DEFENSE_AIR] *= 4; // K-Mod, up from *3
 	aiUnitAIVal[UNITAI_CARRIER_AIR] *= 15;
@@ -10429,7 +10438,8 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
 		// iValue += bFoodIsProduction ? 0 : (iFoodYieldTimes100+50)/100;
 		// <!-- custom: commented-out line below (that was a test to try to fix known issue 34 which is seemignly done or at least bypassed at the cost of angry cities still growing and having lower production but anyways etc) fixes it or so it seems, but at the cost of lowered produciton, even if cities have few angry citizens, try to make it more fine-tuned to city current state if i may say but anyways etc: we value food as long as we are not angry, if we are angry, value production in an attempt to build things that would make us go out of unhappiness, but even if we don't, no point in growing further, the citizen won't be allocated anyways etc ; results of this change seem to be very good, cities are not starving anymore unallocating food tiles, they grow until unhappy, then it seems to halt but the food tiles are still reasonable allocated even though production is now high as well and growth slow it seems from quick testing / glances but anyways etc, although this is a patch and not full fix, i hope this helps the issue a lot, or so it seems from quick testing and glance anyways etc -->
 		// iValue += ((iFoodYieldTimes100+50)/100) * 100;
-		if (iHappinessLevel > 0)
+		// <!-- custom: note: also include 0 happiness (i.e not unhappy) as it seems in another same file, ulundi again was starving while not unhappy nor happy (at 0 exactly) instead of allocating a food tile anyways etc ; note 2: the issue happens still with this change but fixed itself right away the next turn, so i'd tend or like to think this is ideally solved, see known issue 34 appendix for details anyways etc.
+		if (iHappinessLevel >= 0)
 		{
 			iValue += ((iFoodYieldTimes100+50)/100) * 3;
 		}

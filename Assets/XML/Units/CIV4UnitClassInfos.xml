@@ -42,12 +42,14 @@
 			<iInstanceCostModifier>0</iInstanceCostModifier>
 			<DefaultUnit>UNIT_WOLF</DefaultUnit>
 		</UnitClassInfo>
+		<!-- custom: make the settler a national unit (such as are the missionaries in civ4 +/- base advciv as well if i am not mistaken but anyways etc), with only one allowed simultaneously per player, so that AI doesn't spam them very inefficiently (e.g. building settlers in 2 cities at the same time is very costly, see known issue 37 for details, or building one settler when we already have one, there shouldn't be a strong reason to do so, it is more likely to cripple economy than not). Hopefully it does not inconvenience or reduce player freedom too much, but i also think it makes sense in terms of gameplay, to settle one city at a time if i may say, hopefully fine as such or not too bad or even maybe good for balance as well as tremendously helping AI in all cases i think ; this is done thanks to claude ai too who helped me locate this xml spot hehe although i could maybe have found it too but it gave me feedback too and help is nice if i may say when and as i asked if i may say thanks claude ai hehe if i may say too or again here in this case i mean but anyways etc ; it may also make settler timing more strategic as well, as well as also the importance to/in making sure they don't die and to escort them well maybe too, so maybe a fine or/and interesting change at least i want to do it as such but anyways etc anyways etc anyways etc -->
 		<UnitClassInfo>
 			<Type>UNITCLASS_SETTLER</Type>
 			<Description>TXT_KEY_UNIT_SETTLER</Description>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
 			<iMaxTeamInstances>-1</iMaxTeamInstances>
-			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+			<!-- custom: was - 1 -->
+			<iMaxPlayerInstances>1</iMaxPlayerInstances>
 			<iInstanceCostModifier>0</iInstanceCostModifier>
 			<DefaultUnit>UNIT_SETTLER</DefaultUnit>
 		</UnitClassInfo>

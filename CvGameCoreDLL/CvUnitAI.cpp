@@ -1327,7 +1327,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 							{
 								eBestSupposedBuild = eBuildWorkshop;
 
-								// <!-- custom: solid mid-game choice, essentially it is the same as a hill grassland later in the game, prefer cottages still as a general rule in the early game, but we may need the production rather later, starting to plan mid game wars and invasions, hopefully we have enough commerce by now in all the empire maybe anyways etc, but in all cases shift a bit more towards production, especially for unimproved tiles, but it may still be quite storng even in improved ones hopefulyl as this is a strong choice i would say especially in later game anyways etc -->
+								// <!-- custom: solid mid-game choice, essentially it is the same as a hill grassland later in the game, prefer cottages still as a general rule in the early game, but we may need the production rather later, starting to plan mid game wars and invasions, hopefully we have enough commerce by now in all the empire maybe anyways etc, but in all cases shift a bit more towards production, especially for unimproved tiles, but it may still be quite storng even in improved ones hopefully as this is a strong choice i would say especially in later game anyways etc -->
 								iValue += 1650;
 							}
 							// <!-- custom: i don't think we need farms, they are or may be quite tempting, but capitalize on high food of this tile to grow slow for later higher commerce, should statistically help most, if i may say but anyways etc -->
@@ -1536,7 +1536,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 								iValue += 575;
 
 							}
-							// <!-- custom: note: we could have added the watermill, but the yields are not good enough and early enough, also even if not, this is not a high production terrain and is likely to be surrounded by economy tiles as well or/and tundra ones maybe too but anyways etc, bet on commerce rather for these tiles/cities maybe, hopefulyl staistically often most helpful for AI but anyways etc -->
+							// <!-- custom: note: we could have added the watermill, but the yields are not good enough and early enough, also even if not, this is not a high production terrain and is likely to be surrounded by economy tiles as well or/and tundra ones maybe too but anyways etc, bet on commerce rather for these tiles/cities maybe, hopefully statistically often most helpful for AI but anyways etc -->
 							else if (canBuild(kPlot, eBuildCottage))
 							{
 								// <!-- custom: still quite good especially with the tundra change that now gives one extra commerce in our mod advciv-sas if i may say but anyways etc, but still not ultimate best if i may say but anyways etc, delay if all higher potential food tiles especially unimproved ones have been improved already -->
