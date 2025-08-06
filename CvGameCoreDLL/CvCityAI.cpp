@@ -10850,6 +10850,35 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
 		iValue += std::max(1, iCommerceValue);
 	}
 //
+	// <!-- custom: weird code comment above but anyways etc, adding here a patch/fix by chatgpt 3-o as well thnaks to my prompt and adjustments or not or yes or etc or/and such too but anyways etc, to attempt to fix as of now known issue 40 of a china AI city in this example staying pop 1 for 50 turns seemingly due to one or a few high production tiles, and producting archers, walls, workers etc (which is maybe not bad, but favour growth rather at least more, as city is pop 3 at turn 100 while it could grow so fast instead if it could do this still, seems really bad as city is very happy so could have grown a lot. So make food value a function of happiness vs unhappiness ratio, so that the closer we are to hapiness vs unhappiness cap (i.e. 0, equal hapyp vs unhappy, the less we value foodn, and also meaning if we are very happy, favour growth), hopefully not going overboard of having size 10 cities with 1 hammer and max pop and many unhappy citizens but anyways etc ; note: chatgpt 3-o went with +6% food increase per happy if i am not mistaken, but i felt it's too conservative, grow if we can, so although i have no idea of actual values trying other values experimentally and we see but anyways etc -->
+	// ------------------------------------------------------------------
+	// boost food if there is spare happiness
+	// ------------------------------------------------------------------
+	// Why 6 % per surplus happy?
+	// +30 % at +5 happy (common with early lux + Monarchy)
+	// +60 % hard cap at +10 (avoids runaway weighting in Golden Ages)
+	// Zero change if happiness ≤ unhappiness, so starving / angry cities stay cautious.
+	// Tweak 6 or the min(10, …) cap to taste.
+	int const iHappySurplus = happyLevel() - unhappyLevel(0);      // >0 means room to grow
+	// <!-- custom: exception to this rule: if food is production (worker, settler, etc if any if i am not mistaken anyways etc), then 6 hammer is fine and better than 2 or 3 food. I just don't know if AI would swap its tiles later or not but anyways etc -->
+	if (iHappySurplus > 0 && !isFoodProduction())
+	{
+		/*  Each surplus happy point increases food’s weight.
+			Pop-1 cities with +5 happy <!-- custom: increase quite a lot / significantly if i may say but anyways etc --> the attractiveness of food.   */
+		// <!-- custom: for example if i'm not mistaken with 9 happy and 1 unhappy so 9 - 1 = 8 happy surplus, we'd have the food value now being multiplied by 8, but if happy surplus is only 2 (say 9 happy 7 unhappy for example but anyways etc) then the food multiplier would only be 2 which seems fine as it is quite mild maybe (i don't know but i assume seeing very quickly other mulitplicative calculations if i may say but anyways etc in this function but only glanced and from my memory of it so check to be sure but anyways etc) but still encouraging growth if i may say but anyways etc, testing it to see if excessive or not ingame or/and if solves known issue as of now 40 among other issues or not but anyways etc ; in short favour growth if we are happy (i.e and have room to grow if i'm not mistaken in this case at least but anyways etc), and the happier we are the more we want to use it to grow (even if production is lower as a result short term but anyways etc) if i may say but anyways etc -->
+		// <!-- custom: update: this change seems very effective, china ai grows its city very fast, although at another spot, and has 3 cities at turn 50 now not just 2 with high pop. These cities opt for high food at low pop, then at high pop they seem to successfully switch or focus on hammer a lot more, i am very happy of these changes, i think AI is stronger and reacts more dynamically to its environment now, without being too food focused. At turn 60, China AI has a 4th city growing as well already, very nice, if i am not mistaken, anyways etc ; i did another run in autoplay as well but anyways etc and the results seem even better. China AI settled its city C at same location, improved the copper, although a bit later, then continuously ignored it, grew, and slaved a few times, while still favouring growth and being way over happiness cap in this cap ; at turn 100 it has a few more buildings than when it stayed passively low pop on copper. It seemed also as said before to adopt a produciton profile again at hgiher pop, beijing woudl produce the great wall :) looking inside beijing the hammer production is decent: most high hammer tiles are worked, while most are still food tiles, but this seems very efficient or nice :) i am very happy of these changes and result, and i think AI is quite a lot stronger now if i'm not mistaken but anyways etc, see also known issue as of now 40 for details or/and additional info anyways etc -->
+		// <!-- custom: note: if happiness surplus is exactly 1, this seems to do nothing as noted by chatgpt 3-o if i may say and if i'm not mistaken which although it annoyed me bit with math xd it helped me lot so thanks a lot chagpt 3-o too if i may say but anyways etc (:) anyways etc), as we multiply by 1, but since i'm satisfied with these results, leaving it as such, probably not too bad or maybe even fine as such as 1 happiness is about full no happy almost anyways if i'm not mistaken if i may say but anyways etc -->
+		iFoodValue *= iHappySurplus;
+
+		/*  Optional: nudge hammers downward when the city is very happy
+			so a lone 6-hammer hill won’t override a 3-food pasture.           */
+		if (iHappySurplus >= 3)
+		{
+			// <!-- custom: so for example if i'm not mistaken with 9 happy and 1 unhappy, we'd have 9 - 1 = 8 happy surplus, so we'd want to reduce hammer value a lot and capitalize on our happiness to grow if i may say at least in this case but anyways etc, and so it production value would be divided by 8 - 1 = 7 so we'd have iProductionValue reduced to 1 / 7 = 14.3 % (approximately but anyways etc) of its former value, so we'd grow much more ideally, but if happiness suprplus is say only 3 (for example 9 happy and 6 unhappy), the extra divider would be 3 - 1 = 2, so we'd have iProductionValue reduced to = 1 / 2 = 50% of its former value which is fine i think, we still have some room to grow after all, better use that and capitalize on long term -->
+			iProductionValue /= (iHappySurplus - 1);
+		}
+	}
+
 	if (iFoodValue > 0)
 	{
 		iFoodValue *= 100;
