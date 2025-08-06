@@ -14796,8 +14796,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: was 120 -->
-			<iCost>110</iCost>
+			<iCost>120</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -14809,7 +14808,7 @@
 			<iMinLatitude>0</iMinLatitude>
 			<iMaxLatitude>90</iMaxLatitude>
 			<!-- custom: was 0 -->
-			<iGreatPeopleRateModifier>40</iGreatPeopleRateModifier>
+			<iGreatPeopleRateModifier>25</iGreatPeopleRateModifier>
 			<!-- custom: since this is cumulative if i am not mistaken and according to a web search i asked chatgpt to do about it which linked to https://forums.civfanatics.com/threads/do-great-general-bonuses-stack.352203/?utm_source=chatgpt.com among other sources it seems too if i am not mistaken but anyways etc (it also told me at first that it is not cumulative even with kujira's japanese (no pun or intended but why not as i told it but anyways etc) that it was not cumulative, but after asking it to do a web search to be sure i found this at least i mean it found it for me xd if i may say and thnaks to me too my prompt or critical thinking or such (its critical thinking too maybe evn though is different to criticize its previous diea maybe or just regurgitate this other new one but anywyas etc it helped in this case at least but anyways etc)), so choosing a lower value so that several doujous would be needed to make a difference rather than one or it being otherwise op, also this is or shoudl be maybe if i am not mistaken culturally consistent or thematically consistent but anyways etc with the fact that there are several "schools" of doujous or such from something like that so maybe each symbolically improves the rate by its own contribution or and such or not at least i imagine it so at least in advciv-sas if i may say but anyways etc, so choosing a quite small in this case but anyways etc value that should hopefully in this case but anyways etc still be significant but anyways etc ; or so it seem sif i am not mistaken that it seemms to stack (didn't check lot but hopefully correct but anwyays etc anyways etc anyways etc), was 0 -->
 			<iGreatGeneralRateModifier>25</iGreatGeneralRateModifier>
 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
@@ -14891,7 +14890,13 @@
 					<iSpecialistCount>1</iSpecialistCount>
 				</SpecialistCount>
 			</SpecialistCounts>
-			<FreeSpecialistCounts/>
+			<!-- custom: kind of like ninjas hehe, and opens up to spy economy so interesting strategically or/and for flavor thematically i mean, advised/suggested/hinted by chatgpt o-3 :) -->
+			<FreeSpecialistCounts>
+				<FreeSpecialistCount>
+					<SpecialistType>SPECIALIST_SPY</SpecialistType>
+					<iFreeSpecialistCount>1</iFreeSpecialistCount>
+				</FreeSpecialistCount>
+			</FreeSpecialistCounts>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
 			<ConstructSound/>
@@ -14911,7 +14916,7 @@
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
-					<iFlavor>7</iFlavor>
+					<iFlavor>10</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
@@ -14919,7 +14924,7 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>4</iFlavor>
+					<iFlavor>5</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>

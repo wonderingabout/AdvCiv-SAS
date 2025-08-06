@@ -8,9 +8,9 @@ Note 2: in below sample examples, click the images to view them full size
 
 ## example 1: more AI Personality examples (in leaders category)
 
-<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (1).JPG" alt="0.620_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
-<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG" alt="0.620_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
-<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (3).JPG" alt="0.620_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG" alt="0.620_sevopedia_leaders_sample (1).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG" alt="0.620_sevopedia_leaders_sample (2).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG" alt="0.620_sevopedia_leaders_sample (3).JPG" width="250"></img>
 
 Note: images as buttons provided by chatgpt, but also are an approach i generalized from [claude AI's code solution in sevopedia building for the power button](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-8-building-category), see also [Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia) for details or/and additional info or/and context on how this was added anyways etc or/and the mod's drive (link in main README.md or/and other places or and not anyways etc)
 

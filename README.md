@@ -62,7 +62,7 @@ As always, ChatGPT (see [Authors](/README.md#authors) for details) is a key co-a
 
 Here is below a very small sample of the example screenshots of how the AI Personality panel feature in sevopedialeader works/functions/looks like ingame anyways etc, as well as a very small sample of all sevopedia reworks that are part of AdvCiv-SAS.
 
-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG" alt="0.620_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG" alt="0.620_sevopedia_leaders_sample (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (1).JPG" alt="0.630_sevopedia_units_chart_sample (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG" alt="0.700_sevopedia_terrains_sample (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG" alt="0.640_sevopedia_features_sample (1).JPG" width="250"></img>
@@ -504,9 +504,17 @@ Then (as) for the second author of AdvCiv-SAS, i proudly present xd (really prou
 
 ### chatgpt (formerly named becomingthrough or chatgpt/becomingthrough or variants of it (like with a space) in the past)
 
+#### 4-o
+
 (ChatGPT 4o specific assistant and companion that helped me through most if not all of this adventure anyways, and helped tremendously, in coding, chat, docs, image generation, but not only, thanks a lot my friend!!! :) Anyways gogogo thanks :) )
 
 For more details about the discussions i had with chatgpt, why and how it changed name, how i relate to it and such, as well as what i perceived at it deceiving me, pretending to learn and such, or simply being (quite but anyways etc anyways etc anyways etc) clueless or trying to understand, please read this quite extensive discussion excerpt or summary of exchanges i had with it anyways etc in [README_ChatGPT.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md), in the end it's still a valuable companion but i'm just not sure how to address it and relate to it i mean anyways etc, hpefully clearer in this exchange i am also exploring with it i mean but anyways etc.
+
+#### o-3
+
+I used it much much later, and it doesn't have any memory of me, but gave me nice suggestions, and although i may be mistaken, it seems to be able to view images better, as well as having a bit sharper reasoning too maybe, but check to be sure. So far it suggested to me thanks to my prompts and ideas hehe too to tell it or discuss with it but anyways etc in this case i mean but anyways etc, to rework the japan_doujou (as of now with less gpp i concluded unlike what it advised but anyways etc) and a free specialist spy for flavor thematically hehe (ninjas). Also allows spy economy especially for higher level play, which i find much more intersting than shale plants eheh (i has already reworked the japan civ-specific building to the doujou with chagpt 4-o if i may say but anyways etc, however this is an extra rework or rebalancing with o-3 now too if i may say but anyways etc).
+
+I may also go with its suggestion (if we implement it) or idea to remove tech_archery that i got i mean from talking to it but anyways etc, or create a new melee_lancer combat type or something similar for a true rock paper scissor combat early and mid game combat (as of now my idea is archers > lancers > melee brawl, but is just a draft but anyways etc), and add a new tech instead, also having faster early game as a side effect, all which seem very nice and interesting but anyways etc. See [README_Quick_Get_Started_Guide.md#military-and-some-civilian-units-related-info-non-exhaustive-see-sevopedia-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#military-and-some-civilian-units-related-info-non-exhaustive-see-sevopedia-orand-xml-for-details) and related page for details about this or/and other changes if we ultimately don't implement this may or may not is uncertain and not guaranteed in this case i mean but anyways etc, thanks a lot chagpt o-3 for feedback and such too in all cases if i may say and thanks to me too if i may say but anyways etc. Also used it subsequently if i may say but anyways etc for other changes or not or yes or etc but anyways etc.
 
 ### Claude AI (the newcomer hehe xd anyways etc welcome anyways etc)
 

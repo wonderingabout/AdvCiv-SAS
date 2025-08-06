@@ -896,11 +896,9 @@ This is not always the best choice, but i believe generally AI would be more eff
 
 As a side effect, this new code seems slightly faster (see gemini ai link for details).
 
-Areas of improvement not related to our code change:
-
-- screenshots 1476 and 1477 1502: the "Corinth screenshots": in a low food environment (here mostly/only tundra +/- hills anyways etc), prioritize water settling more, as city would otherwise be starved at low pop, but on sea it can grow to high numbers as there is enough food there if i am not mistaken anyways etc
-
 I would want to do other changes ideally to AI worker and such logic, not sure i would but ideally ; and is in this case i mean if i may say, anyways etc.
+
+update note: i have noticed that commenting out the `CvUnitAI::AI_improveBonus` function entirely in the inner body i mean in this case but anyways etc and returning always and only false, we'd fix farm spices issue, however we'd lose the roading bonuses ability we had ; i didn't see an easy way to selectively do this with AIs like chatgpt o-3, so kept as is and tolerating occasional suboptimal improvements for the sake of having many nice ones often (we now mostly handle improving bonuses ourselves in CvUnitAI::AI_bestCityBuild in a way that should be much more efficient anyways etc)
 
 ## 31 - (Attemptingly fixed) Deprioritize routes for AI workers in favour of yields first, except in some rare cases
 
