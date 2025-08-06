@@ -3196,7 +3196,9 @@ int AIFoundValue::adjustToCivSurroundings(int iValue, int iStealPercent) const
 		{
 			// The penalty is less severe for larger empires, as they can afford to stretch.
 			int iExcessDistanceToOurNearestCity = iDistanceToOurNearestCity - iMaxDistanceToNearestCity;
-			iMinMaxDistanceToNearestCityModifier = -600 * iExcessDistanceToOurNearestCity / (1 + iCities);
+			// <!-- custom: make it scale slower with city num, as it seems AI is a bit/sometimes too adventurous with more cities anyways etc -->
+			// iMinMaxDistanceToNearestCityModifier = -600 * iExcessDistanceToOurNearestCity / (1 + iCities);
+			iMinMaxDistanceToNearestCityModifier = -600 * iExcessDistanceToOurNearestCity / (1 + (iCities / 3));
 		}
 
 		// Apply the final modifier to the city value.

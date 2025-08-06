@@ -2573,6 +2573,29 @@ CvCityAI* CvUnitAI::AI_getCityToImprove() const
 }
 
 
+// <!-- custom: helper provided by chatgpt o-3 to count tiles as part of fine tuning next city to improve based on the number of tiles already improved in a city (see below in CvUnitAI::AI_workerMove for details anyways etc) -->
+static int countImprovedTiles(CvCity const* pCity)
+{
+    int iCount = 0;
+    for (int i = 0; i < NUM_CITY_PLOTS; ++i)
+    {
+		CvPlot* pPlot = plotCity(pCity->getX(), pCity->getY(),
+								static_cast<CityPlotTypes>(i));  // ← cast added <!-- custom: to fix compile error, added by chatgpt 3-o as well thanks to my prompt too but anyways etc (error: "
+								// 1>..\CvUnitAI.cpp(2582): error C2664: 'plotCity' : cannot convert parameter 3 from 'int' to 'CityPlotTypes'
+								// 1>          Conversion to enumeration type requires an explicit cast (static_cast, C-style cast or function-style cast)
+								// 1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2'
+								// 1>  Stop.
+								// ") -->
+        if (pPlot == NULL)
+            continue;
+        if (pPlot->getWorkingCity() != pCity)
+            continue;
+        if (pPlot->getImprovementType() != NO_IMPROVEMENT)
+            ++iCount;
+    }
+    return iCount;
+}
+
 void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 {
 	PROFILE_FUNC();
@@ -2695,6 +2718,19 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	} }*/
 	if (pCity != NULL)
 	{
+		// <!-- custom: we need to move to city B sooner if city A is improved enough already, now our AI workers are much more efficient, but the core cities are overly improved, while edge cities are quite a bit underdevelopped (see known issue as of now 39 for details with screenshots anyways etc, a 10+ city in particular won't grow or hardly grow in the example mentionned, but workers keep improving it, although we'll never allocate all these 15+ tiles, and city B needs help fast anyways etc, earlier in the game may help too but anyways etc) maybe if i'm not mistaken and ideally but anyways etc ; see known issue as of now 39 for details -->
+		/*  BEFORE the iNeed/iHave block, short-circuit if city A is already fine  */
+		// <!-- custom: adjust as you see fit: 1, 2, 3 plots, etc. So for example iBuffer 1 would mean that if city pop is 6, when our total improved tiles count in all city if i'm not mistaken but anyways etc is >= 6 + 1 = 7 plots, we have improved city A enough, move to city B that may need improvements more urgently, especially if City A won't grow further, no point in improving too many tiles in city A while ignoring city B that would much need otherwise to have its tiles improve rather but anyways etc. -->
+		const int iBuffer = 1;
+		if (countImprovedTiles(pCity) >= pCity->getPopulation() + iBuffer ||
+			(pCity->unhappyLevel(0) > pCity->happyLevel() ||
+			pCity->foodDifference(false) <= 0))
+		{
+			if (AI_nextCityToImprove(pCity))   // go pick city B right now
+				return;
+		}
+		/* ---- original iNeed / iHave code follows ---- */
+
 		int const iNeed = pCity->AI_getWorkersNeeded();
 		int const iHave = pCity->AI_getWorkersHave();
 		/* bts code
