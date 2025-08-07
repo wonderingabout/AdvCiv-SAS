@@ -7873,425 +7873,438 @@ namespace
 	}
 }
 
+// <!-- custom: since we handle all this ourselves now in CvUnitAI::AI_bestCityBuild, we don't want any interference, disabled as part of trying to solve spices plains forcibly irrigated despite our code controlling most of the ai worker build decisions now, as well as flood plains or flatland grass as well very inefficiently farmed when city is not even starved, let us handle it ourselves rather there as we seem to already do for most but anyways etc, added by chatgpt o-3 anyways etc and adjusted or not or yes or etc by me too if i may say but anyways etc ; update: this solved the farm on spices plains issue and also unwanted as well farm on flood plains, AI workers chose to go for production economy for some reason xd, but our best improvements are still chosen reliably it seems (e.g. cottage on flood plains or nothing unless we are starved, see CvUnitAI::AI_bestCityBuild for details anyways etc) -->
 // advc (note): K-Mod function based on AI_updateBestBuild
 int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImprovement,
 	int iFoodPriority, int iProductionPriority, int iCommercePriority, int iDesiredFoodChange,
 	int iClearFeatureValue, bool bEmphasizeIrrigation, BuildTypes* peBestBuild) const
 {
-	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
-	BonusTypes eBonus = kPlot.getBonusType(getTeam());
-	BonusTypes eNonObsoleteBonus = kPlot.getNonObsoleteBonusType(getTeam());
+	// Clean, non-crashing ways to “turn off” the vanilla evaluator
+	// 1. Early-exit
+	// Keep the signature and the out-params intact, but short-circuit:
+	// Top of AI_getImprovementValue, right after eNonObsoleteBonus line
+	// ---------------------------------------------------------------
+	if (peBestBuild)
+	{
+		*peBestBuild = NO_BUILD;
+	}
+	// “don’t bother”
+	return 0;
 
-	BuildTypes eBestTempBuild = NO_BUILD;
-	// first check if the improvement is valid on this plot
-	// this also allows us work out whether or not the improvement will remove the plot feature...
-	bool bValid = false;
-	bool bIgnoreFeature = false;
-	if (eImprovement == kPlot.getImprovementType())
-		bValid = true;
-	else
-	{
-		int iBestTempBuildValue = 0;
-		FOR_EACH_ENUM(Build)
-		{
-			if (GC.getInfo(eLoopBuild).getImprovement() != eImprovement)
-				continue;
-			if (kOwner.canBuild(kPlot, eLoopBuild, false))
-			{
-				int iValue = 10000;
-				iValue /= (GC.getInfo(eLoopBuild).getTime() + 1);
-				// XXX feature production???  // (advc: I think the chop decision in AI_updateBestBuild will handle that)
-				if (iValue > iBestTempBuildValue)
-				{
-					iBestTempBuildValue = iValue;
-					eBestTempBuild = eLoopBuild;
-				}
-			}
-		}
-		if (eBestTempBuild != NO_BUILD)
-		{
-			bValid = true;
-			if (kPlot.isFeature() &&
-				GC.getInfo(eBestTempBuild).isFeatureRemove(kPlot.getFeatureType()))
-			{
-				bIgnoreFeature = true;
-				if (GC.getInfo(kPlot.getFeatureType()).getYieldChange(YIELD_PRODUCTION) > 0 &&
-					eNonObsoleteBonus == NO_BONUS)
-				{
-					if (kOwner.isHumanOption(PLAYEROPTION_LEAVE_FORESTS))
-						bValid = false;
-					else if (healthRate() < 0 &&
-						GC.getInfo(kPlot.getFeatureType()).getHealthPercent() > 0)
-					{
-						bValid = false;
-					}
-					else if (kOwner.getFeatureHappiness(kPlot.getFeatureType()) > 0)
-						bValid = false;
-				}
-			}
-		}
-	}
-	if (!bValid)
-	{
-		if (peBestBuild != NULL)
-			*peBestBuild = NO_BUILD;
-		return 0;
-	}
+// 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
+// 	BonusTypes eBonus = kPlot.getBonusType(getTeam());
+// 	BonusTypes eNonObsoleteBonus = kPlot.getNonObsoleteBonusType(getTeam());
 
-	// Now get the value of the improvement itself.
-	ImprovementTypes eFinalImprovement = CvImprovementInfo::finalUpgrade(eImprovement);
-	if (eFinalImprovement == NO_IMPROVEMENT)
-		eFinalImprovement = eImprovement;
+// 	BuildTypes eBestTempBuild = NO_BUILD;
+// 	// first check if the improvement is valid on this plot
+// 	// this also allows us work out whether or not the improvement will remove the plot feature...
+// 	bool bValid = false;
+// 	bool bIgnoreFeature = false;
+// 	if (eImprovement == kPlot.getImprovementType())
+// 		bValid = true;
+// 	else
+// 	{
+// 		int iBestTempBuildValue = 0;
+// 		FOR_EACH_ENUM(Build)
+// 		{
+// 			if (GC.getInfo(eLoopBuild).getImprovement() != eImprovement)
+// 				continue;
+// 			if (kOwner.canBuild(kPlot, eLoopBuild, false))
+// 			{
+// 				int iValue = 10000;
+// 				iValue /= (GC.getInfo(eLoopBuild).getTime() + 1);
+// 				// XXX feature production???  // (advc: I think the chop decision in AI_updateBestBuild will handle that)
+// 				if (iValue > iBestTempBuildValue)
+// 				{
+// 					iBestTempBuildValue = iValue;
+// 					eBestTempBuild = eLoopBuild;
+// 				}
+// 			}
+// 		}
+// 		if (eBestTempBuild != NO_BUILD)
+// 		{
+// 			bValid = true;
+// 			if (kPlot.isFeature() &&
+// 				GC.getInfo(eBestTempBuild).isFeatureRemove(kPlot.getFeatureType()))
+// 			{
+// 				bIgnoreFeature = true;
+// 				if (GC.getInfo(kPlot.getFeatureType()).getYieldChange(YIELD_PRODUCTION) > 0 &&
+// 					eNonObsoleteBonus == NO_BONUS)
+// 				{
+// 					if (kOwner.isHumanOption(PLAYEROPTION_LEAVE_FORESTS))
+// 						bValid = false;
+// 					else if (healthRate() < 0 &&
+// 						GC.getInfo(kPlot.getFeatureType()).getHealthPercent() > 0)
+// 					{
+// 						bValid = false;
+// 					}
+// 					else if (kOwner.getFeatureHappiness(kPlot.getFeatureType()) > 0)
+// 						bValid = false;
+// 				}
+// 			}
+// 		}
+// 	}
+// 	if (!bValid)
+// 	{
+// 		if (peBestBuild != NULL)
+// 			*peBestBuild = NO_BUILD;
+// 		return 0;
+// 	}
 
-	scaled rValue;
-	//int aiDiffYields[NUM_YIELD_TYPES]; // removed by K-Mod (replaced by time-weighted yields!)
-	//int aiFinalYields[NUM_YIELD_TYPES];
+// 	// Now get the value of the improvement itself.
+// 	ImprovementTypes eFinalImprovement = CvImprovementInfo::finalUpgrade(eImprovement);
+// 	if (eFinalImprovement == NO_IMPROVEMENT)
+// 		eFinalImprovement = eImprovement;
 
-	if (eBonus != NO_BONUS && eNonObsoleteBonus != NO_BONUS)
-	{
-		//if (GC.getInfo(eFinalImprovement).isImprovementBonusTrade(eNonObsoleteBonus))
-		if (kOwner.doesImprovementConnectBonus(eFinalImprovement, eNonObsoleteBonus))
-		{
-			// K-Mod
-			rValue += kOwner.AI_bonusVal(eNonObsoleteBonus, 1) * 50;
-			rValue += 100;
-			// K-Mod end
-			/*	<advc.121> Kludge to force the AI to prefer improvements with yields
-				over forts. Don't want to rule out forts altogether b/c of gems in a
-				jungle -- w/o IW, a fort is the only way to connect the resource. */
-			int iImprYieldChange = 0;
-			FOR_EACH_ENUM(Yield)
-			{
-				iImprYieldChange += kPlot.calculateImprovementYieldChange(
-						eImprovement, eLoopYield, kOwner.getID());
-			}
-			if (iImprYieldChange <= 0 && kPlot.getWorkingCity() != NULL)
-				// <!-- custom: trying to make extra extra sure we don't build forts as they are very inefficient (long time to build, yield less than improvements, and unlikely a human or other player would ideally attack units garrisoned there), they could have some uses (maybe prebuilding connection, allowing naval units to pass/cross land, etc maybe too but anyways etc), but more often than not they should not benefit the AI, and currently the AI often spends a lot of time undoing existing improvements in base advciv as i have noticed many times. I don't know too much how to fix this, but with chatgpt's help i am adding a few bits of code that try to prevent that, here is one of them, hopefully helpful, see quick start guide or some similar or related or other docs in our mod for update status rather than here anyways etc, hopefully helpful or not or yes or other or etc but anyways etc anyways etc anyways etc ; here increase the division to keep code as it is functionnally but with stricter behaviour if i am not mistaken towards forts but anyways etc -->
-				//rValue /= 3;
-				rValue /= 10;
-			// </advc.121>
-		}
-		else
-		{
-			// K-Mod, bug fix. (original code deleted now.)
-			/*  Presumably the original author wanted to subtract 1000 if eBestBuild would
-				take away the bonus; not ... the nonsense they actually wrote. */
-			if (kOwner.doesImprovementConnectBonus(kPlot.getImprovementType(), eNonObsoleteBonus))
-			{
-				// By the way, AI_bonusVal is typically 10 for the first bonus, and 2 for subsequent.
-				rValue -= kOwner.AI_bonusVal(eNonObsoleteBonus, -1) * 50;
-				rValue -= 100;
-			}
-		}
-	}
-	else if (eFinalImprovement != kPlot.getImprovementType()) // advc.121 (save time)
-	{
-		rValue += AI_bonusDiscoverRandVal(eFinalImprovement);
-		// <advc.121> Prefer to use only differences in this upper part
-		if (kPlot.isImproved())
-			rValue -= AI_bonusDiscoverRandVal(kPlot.getImprovementType());
-		// </advc.121>
-	}
-	//if (rValue >= 0) // disabled by K-Mod. (maybe the yield will be worth it!)
+// 	scaled rValue;
+// 	//int aiDiffYields[NUM_YIELD_TYPES]; // removed by K-Mod (replaced by time-weighted yields!)
+// 	//int aiFinalYields[NUM_YIELD_TYPES];
 
-	EagerEnumMap<YieldTypes,scaled> weightedFinalYields;
-	EagerEnumMap<YieldTypes,scaled> weightedYieldDiffs;
-	{
-		// K-Mod. Get a weighted average of the yields for improvements which upgrade (eg. cottages).
-		int iTimeScale = 60;
-		if (10 * GC.getGame().getElapsedGameTurns() < 3 * GC.getGame().getEstimateEndTurn())
-			iTimeScale += 10;
-		if (kOwner.AI_atVictoryStage4())
-			iTimeScale -= 30;
-		else if (10 * GC.getGame().getElapsedGameTurns() >
-			7 * GC.getGame().getEstimateEndTurn())
-		{
-			iTimeScale -= 10;
-		}
-		// advc.001: was AI_isDoVictoryStrategy
-		if (kOwner.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS))
-			iTimeScale += 50;
-		if (GET_TEAM(getTeam()).AI_getNumWarPlans(WARPLAN_TOTAL) +
-			// advc.001: Surely(?) preparations should count here as well
-			GET_TEAM(getTeam()).AI_getNumWarPlans(WARPLAN_PREPARING_TOTAL) > 0)
-		{
-			iTimeScale -= 20;
-		}
-		else if (kOwner.AI_getFlavorValue(FLAVOR_MILITARY) > 0)
-			iTimeScale -= 10;
-		if (eNonObsoleteBonus != NO_BONUS &&
-			!kOwner.doesImprovementConnectBonus(eImprovement, eNonObsoleteBonus))
-		{
-			iTimeScale = std::min(30, iTimeScale);
-		}
-		iTimeScale = std::max(iTimeScale, 20);
-		// Other adjustments?
+// 	if (eBonus != NO_BONUS && eNonObsoleteBonus != NO_BONUS)
+// 	{
+// 		//if (GC.getInfo(eFinalImprovement).isImprovementBonusTrade(eNonObsoleteBonus))
+// 		if (kOwner.doesImprovementConnectBonus(eFinalImprovement, eNonObsoleteBonus))
+// 		{
+// 			// K-Mod
+// 			rValue += kOwner.AI_bonusVal(eNonObsoleteBonus, 1) * 50;
+// 			rValue += 100;
+// 			// K-Mod end
+// 			/*	<advc.121> Kludge to force the AI to prefer improvements with yields
+// 				over forts. Don't want to rule out forts altogether b/c of gems in a
+// 				jungle -- w/o IW, a fort is the only way to connect the resource. */
+// 			int iImprYieldChange = 0;
+// 			FOR_EACH_ENUM(Yield)
+// 			{
+// 				iImprYieldChange += kPlot.calculateImprovementYieldChange(
+// 						eImprovement, eLoopYield, kOwner.getID());
+// 			}
+// 			if (iImprYieldChange <= 0 && kPlot.getWorkingCity() != NULL)
+// 				// <!-- custom: trying to make extra extra sure we don't build forts as they are very inefficient (long time to build, yield less than improvements, and unlikely a human or other player would ideally attack units garrisoned there), they could have some uses (maybe prebuilding connection, allowing naval units to pass/cross land, etc maybe too but anyways etc), but more often than not they should not benefit the AI, and currently the AI often spends a lot of time undoing existing improvements in base advciv as i have noticed many times. I don't know too much how to fix this, but with chatgpt's help i am adding a few bits of code that try to prevent that, here is one of them, hopefully helpful, see quick start guide or some similar or related or other docs in our mod for update status rather than here anyways etc, hopefully helpful or not or yes or other or etc but anyways etc anyways etc anyways etc ; here increase the division to keep code as it is functionnally but with stricter behaviour if i am not mistaken towards forts but anyways etc -->
+// 				//rValue /= 3;
+// 				rValue /= 10;
+// 			// </advc.121>
+// 		}
+// 		else
+// 		{
+// 			// K-Mod, bug fix. (original code deleted now.)
+// 			/*  Presumably the original author wanted to subtract 1000 if eBestBuild would
+// 				take away the bonus; not ... the nonsense they actually wrote. */
+// 			if (kOwner.doesImprovementConnectBonus(kPlot.getImprovementType(), eNonObsoleteBonus))
+// 			{
+// 				// By the way, AI_bonusVal is typically 10 for the first bonus, and 2 for subsequent.
+// 				rValue -= kOwner.AI_bonusVal(eNonObsoleteBonus, -1) * 50;
+// 				rValue -= 100;
+// 			}
+// 		}
+// 	}
+// 	else if (eFinalImprovement != kPlot.getImprovementType()) // advc.121 (save time)
+// 	{
+// 		rValue += AI_bonusDiscoverRandVal(eFinalImprovement);
+// 		// <advc.121> Prefer to use only differences in this upper part
+// 		if (kPlot.isImproved())
+// 			rValue -= AI_bonusDiscoverRandVal(kPlot.getImprovementType());
+// 		// </advc.121>
+// 	}
+// 	//if (rValue >= 0) // disabled by K-Mod. (maybe the yield will be worth it!)
 
-		// Adjustments to match calculation in CvPlot::doImprovement
-		iTimeScale *= GC.getInfo(GC.getGame().getGameSpeedType()).getImprovementPercent();
-		iTimeScale /= 100;
-		iTimeScale *= GC.getInfo(GC.getGame().getStartEra()).getImprovementPercent();
-		iTimeScale /= 100;
-		{
-			int iUpgrRate = kOwner.getImprovementUpgradeRate();
-			// <advc.912f>
-			if (iUpgrRate == 0)
-				iTimeScale = 0;
-			else
-			{	/*	<advc.001> This fraction was flipped. Pretty sure that this was wrong.
-					The ImprovementPercentModifiers apply to the time needed for an upgrade,
-					whereas the upgrade rate applies to the time spent working the tile.
-					A higher upgrade rate means that we should be more interested in
-					delayed rewards, which is what a high iTimeScale value does. Note that
-					the upgrade rate factors into the evaluation at no other point. */
-				iTimeScale *= iUpgrRate;
-				iTimeScale /= 100; // </advc.001>
-				// </advc.912f>
-			}
-		}
+// 	EagerEnumMap<YieldTypes,scaled> weightedFinalYields;
+// 	EagerEnumMap<YieldTypes,scaled> weightedYieldDiffs;
+// 	{
+// 		// K-Mod. Get a weighted average of the yields for improvements which upgrade (eg. cottages).
+// 		int iTimeScale = 60;
+// 		if (10 * GC.getGame().getElapsedGameTurns() < 3 * GC.getGame().getEstimateEndTurn())
+// 			iTimeScale += 10;
+// 		if (kOwner.AI_atVictoryStage4())
+// 			iTimeScale -= 30;
+// 		else if (10 * GC.getGame().getElapsedGameTurns() >
+// 			7 * GC.getGame().getEstimateEndTurn())
+// 		{
+// 			iTimeScale -= 10;
+// 		}
+// 		// advc.001: was AI_isDoVictoryStrategy
+// 		if (kOwner.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS))
+// 			iTimeScale += 50;
+// 		if (GET_TEAM(getTeam()).AI_getNumWarPlans(WARPLAN_TOTAL) +
+// 			// advc.001: Surely(?) preparations should count here as well
+// 			GET_TEAM(getTeam()).AI_getNumWarPlans(WARPLAN_PREPARING_TOTAL) > 0)
+// 		{
+// 			iTimeScale -= 20;
+// 		}
+// 		else if (kOwner.AI_getFlavorValue(FLAVOR_MILITARY) > 0)
+// 			iTimeScale -= 10;
+// 		if (eNonObsoleteBonus != NO_BONUS &&
+// 			!kOwner.doesImprovementConnectBonus(eImprovement, eNonObsoleteBonus))
+// 		{
+// 			iTimeScale = std::min(30, iTimeScale);
+// 		}
+// 		iTimeScale = std::max(iTimeScale, 20);
+// 		// Other adjustments?
 
-		/*	Getting the time-weighted yields for the new and old improvements;
-			then use them to calculate the final yield and yield difference. */
-		AI_timeWeightedImprovementYields(kPlot, eImprovement,
-				iTimeScale, weightedFinalYields);
-		AI_timeWeightedImprovementYields(kPlot, kPlot.getImprovementType(),
-				iTimeScale, weightedYieldDiffs);
-	}
-	FOR_EACH_ENUM(Yield)
-	{
-		weightedFinalYields.add(eLoopYield,
-				kPlot.calculateNatureYield(eLoopYield, getTeam(), bIgnoreFeature));
-		weightedYieldDiffs.set(eLoopYield, weightedFinalYields.get(eLoopYield) -
-				(weightedYieldDiffs.get(eLoopYield) +
-				kPlot.calculateNatureYield(eLoopYield, getTeam())));
-	}
+// 		// Adjustments to match calculation in CvPlot::doImprovement
+// 		iTimeScale *= GC.getInfo(GC.getGame().getGameSpeedType()).getImprovementPercent();
+// 		iTimeScale /= 100;
+// 		iTimeScale *= GC.getInfo(GC.getGame().getStartEra()).getImprovementPercent();
+// 		iTimeScale /= 100;
+// 		{
+// 			int iUpgrRate = kOwner.getImprovementUpgradeRate();
+// 			// <advc.912f>
+// 			if (iUpgrRate == 0)
+// 				iTimeScale = 0;
+// 			else
+// 			{	/*	<advc.001> This fraction was flipped. Pretty sure that this was wrong.
+// 					The ImprovementPercentModifiers apply to the time needed for an upgrade,
+// 					whereas the upgrade rate applies to the time spent working the tile.
+// 					A higher upgrade rate means that we should be more interested in
+// 					delayed rewards, which is what a high iTimeScale value does. Note that
+// 					the upgrade rate factors into the evaluation at no other point. */
+// 				iTimeScale *= iUpgrRate;
+// 				iTimeScale /= 100; // </advc.001>
+// 				// </advc.912f>
+// 			}
+// 		}
 
-	// K-Mod
-	/*  If this improvement results in a change in food, then building it
-		will result in a change in the food multiplier.
-		We should try to preempt that change to prevent best-build from oscillating.
-		In our situation, we have
-		iDesiredFoodChange ~= -iFoodDifference and
-		aiDiffYields[0] == 2 * food change from the improvement.
-		Unfortunately, it's a bit of a lengthy calculation to work out
-		all of the factors involved in iFoodPriority. So I'll just use a
-		very rough approximation. Hopefully it will be better than nothing. */
-	int iCorrectedFoodPriority = iFoodPriority;
-	if (weightedYieldDiffs.get(YIELD_FOOD) != 0 && isWorkingPlot(kPlot))
-	{
-		/*	16 is arbitrary. It would be possible to get something better
-			using targetPop and so on, but that would be slower... */
-		/*	advc.121: Try 8 (twice the impact), also with changes in
-			AI_getYieldMultipliers in mind. */
-		int iTotalFood = 8 * GC.getFOOD_CONSUMPTION_PER_POPULATION();
-		iCorrectedFoodPriority = (iCorrectedFoodPriority *
-				(iTotalFood - weightedYieldDiffs.get(YIELD_FOOD)) /
-				std::max(1, iTotalFood)).round();
-	}
-	FAssert(iCorrectedFoodPriority == iFoodPriority ||
-			((iCorrectedFoodPriority < iFoodPriority) ==
-			(weightedYieldDiffs.get(YIELD_FOOD) > 0)));
-	// This corrected priority isn't perfect, but I think it will be better than nothing.
-	// K-Mod end
-	{
-		YieldPercentMap weights;
-		weights.set(YIELD_FOOD, iCorrectedFoodPriority);
-		// Was 60% in BtS, now 80%.
-		weights.set(YIELD_PRODUCTION, (iProductionPriority * 102) / 128);
-		weights.set(YIELD_COMMERCE, (iCommercePriority * 51) / 128);
-		FOR_EACH_ENUM(Yield)
-			rValue += weightedYieldDiffs.get(eLoopYield) * weights.get(eLoopYield);
-		// <advc.131>, advc.005a: Personality moved up
-		if (!isHuman())
-		{
-			int iPersonalityModifier = GC.getInfo(getPersonalityType()).
-					getImprovementWeightModifier(eFinalImprovement);
-			// This would not help the current improvement
-			/*rValue *= std::max(0, 200 + iPersonalityModifier);
-			rValue /= 200;*/ // BtS
-			// Cleaner based on the difference in modifiers
-			iPersonalityModifier -=
-					(kPlot.isImproved() ? GC.getInfo(getPersonalityType()).
-					getImprovementWeightModifier(kPlot.getImprovementType()) : 0);
-			if (iPersonalityModifier != 0) // save time
-			{
-				/*	Let a 100% personality modifier be as weighty as one unit of
-					the least important yield type (probably commerce). Typical
-					modifiers in XML are 20 to 30%. */
-				scaled rMinWeight = scaled::MAX;
-				FOR_EACH_ENUM(Yield)
-					rMinWeight.decreaseTo(weights.get(eLoopYield));
-				rValue += scaled(iPersonalityModifier, 100) * rMinWeight;
-			}
-		} // </advc.131>
-	}
-	/*	K-Mod. If we're going to have too much food
-		regardless of the improvement on this plot, then reduce the food value */
-	if (iDesiredFoodChange < 0 && -iDesiredFoodChange >=
-		weightedFinalYields.get(YIELD_FOOD) - weightedYieldDiffs.get(YIELD_FOOD))
-	{
-		 // reduce the weight of food. (cf. values above.)
-		rValue -= weightedYieldDiffs.get(YIELD_FOOD) * iCorrectedFoodPriority * fixp(0.4);
-	} // K-Mod end
+// 		/*	Getting the time-weighted yields for the new and old improvements;
+// 			then use them to calculate the final yield and yield difference. */
+// 		AI_timeWeightedImprovementYields(kPlot, eImprovement,
+// 				iTimeScale, weightedFinalYields);
+// 		AI_timeWeightedImprovementYields(kPlot, kPlot.getImprovementType(),
+// 				iTimeScale, weightedYieldDiffs);
+// 	}
+// 	FOR_EACH_ENUM(Yield)
+// 	{
+// 		weightedFinalYields.add(eLoopYield,
+// 				kPlot.calculateNatureYield(eLoopYield, getTeam(), bIgnoreFeature));
+// 		weightedYieldDiffs.set(eLoopYield, weightedFinalYields.get(eLoopYield) -
+// 				(weightedYieldDiffs.get(eLoopYield) +
+// 				kPlot.calculateNatureYield(eLoopYield, getTeam())));
+// 	}
 
-	if (rValue > 0)
-	{
-		// this is mainly to make it improve better tiles first
-		//flood plain > grassland > plain > tundra
-		rValue += weightedFinalYields.get(YIELD_FOOD) * 8; // was 10
-		rValue += weightedFinalYields.get(YIELD_PRODUCTION) * 7; // was 6
-		rValue += weightedFinalYields.get(YIELD_COMMERCE) * 4;
+// 	// K-Mod
+// 	/*  If this improvement results in a change in food, then building it
+// 		will result in a change in the food multiplier.
+// 		We should try to preempt that change to prevent best-build from oscillating.
+// 		In our situation, we have
+// 		iDesiredFoodChange ~= -iFoodDifference and
+// 		aiDiffYields[0] == 2 * food change from the improvement.
+// 		Unfortunately, it's a bit of a lengthy calculation to work out
+// 		all of the factors involved in iFoodPriority. So I'll just use a
+// 		very rough approximation. Hopefully it will be better than nothing. */
+// 	int iCorrectedFoodPriority = iFoodPriority;
+// 	if (weightedYieldDiffs.get(YIELD_FOOD) != 0 && isWorkingPlot(kPlot))
+// 	{
+// 		/*	16 is arbitrary. It would be possible to get something better
+// 			using targetPop and so on, but that would be slower... */
+// 		/*	advc.121: Try 8 (twice the impact), also with changes in
+// 			AI_getYieldMultipliers in mind. */
+// 		int iTotalFood = 8 * GC.getFOOD_CONSUMPTION_PER_POPULATION();
+// 		iCorrectedFoodPriority = (iCorrectedFoodPriority *
+// 				(iTotalFood - weightedYieldDiffs.get(YIELD_FOOD)) /
+// 				std::max(1, iTotalFood)).round();
+// 	}
+// 	FAssert(iCorrectedFoodPriority == iFoodPriority ||
+// 			((iCorrectedFoodPriority < iFoodPriority) ==
+// 			(weightedYieldDiffs.get(YIELD_FOOD) > 0)));
+// 	// This corrected priority isn't perfect, but I think it will be better than nothing.
+// 	// K-Mod end
+// 	{
+// 		YieldPercentMap weights;
+// 		weights.set(YIELD_FOOD, iCorrectedFoodPriority);
+// 		// Was 60% in BtS, now 80%.
+// 		weights.set(YIELD_PRODUCTION, (iProductionPriority * 102) / 128);
+// 		weights.set(YIELD_COMMERCE, (iCommercePriority * 51) / 128);
+// 		FOR_EACH_ENUM(Yield)
+// 			rValue += weightedYieldDiffs.get(eLoopYield) * weights.get(eLoopYield);
+// 		// <advc.131>, advc.005a: Personality moved up
+// 		if (!isHuman())
+// 		{
+// 			int iPersonalityModifier = GC.getInfo(getPersonalityType()).
+// 					getImprovementWeightModifier(eFinalImprovement);
+// 			// This would not help the current improvement
+// 			/*rValue *= std::max(0, 200 + iPersonalityModifier);
+// 			rValue /= 200;*/ // BtS
+// 			// Cleaner based on the difference in modifiers
+// 			iPersonalityModifier -=
+// 					(kPlot.isImproved() ? GC.getInfo(getPersonalityType()).
+// 					getImprovementWeightModifier(kPlot.getImprovementType()) : 0);
+// 			if (iPersonalityModifier != 0) // save time
+// 			{
+// 				/*	Let a 100% personality modifier be as weighty as one unit of
+// 					the least important yield type (probably commerce). Typical
+// 					modifiers in XML are 20 to 30%. */
+// 				scaled rMinWeight = scaled::MAX;
+// 				FOR_EACH_ENUM(Yield)
+// 					rMinWeight.decreaseTo(weights.get(eLoopYield));
+// 				rValue += scaled(iPersonalityModifier, 100) * rMinWeight;
+// 			}
+// 		} // </advc.131>
+// 	}
+// 	/*	K-Mod. If we're going to have too much food
+// 		regardless of the improvement on this plot, then reduce the food value */
+// 	if (iDesiredFoodChange < 0 && -iDesiredFoodChange >=
+// 		weightedFinalYields.get(YIELD_FOOD) - weightedYieldDiffs.get(YIELD_FOOD))
+// 	{
+// 		 // reduce the weight of food. (cf. values above.)
+// 		rValue -= weightedYieldDiffs.get(YIELD_FOOD) * iCorrectedFoodPriority * fixp(0.4);
+// 	} // K-Mod end
 
-		if (weightedFinalYields.get(YIELD_FOOD) >=
-			GC.getFOOD_CONSUMPTION_PER_POPULATION())
-		{
-			//this is a food yielding tile
-			if (iCorrectedFoodPriority > 100)
-				rValue.mulDiv(100 + iCorrectedFoodPriority, 200);
-			if (iDesiredFoodChange > 0)
-			{
-				//iValue += (10 * (1 + aiDiffYields[YIELD_FOOD]) * (1 + aiFinalYields[YIELD_FOOD] - GC.getFOOD_CONSUMPTION_PER_POPULATION()) * iDesiredFoodChange * iCorrectedFoodPriority) / 100;
-				// <K-Mod>
-				rValue += (10 * (1 + weightedYieldDiffs.get(YIELD_FOOD)) *
-						(1 + weightedFinalYields.get(YIELD_FOOD)
-						- GC.getFOOD_CONSUMPTION_PER_POPULATION()) *
-						std::min(1 + iDesiredFoodChange / 3, 4) *
-						iCorrectedFoodPriority) / 100; // </K-Mod>
-			}
-			if (iCommercePriority > 100)
-			{
-				//iValue *= 100 + (((iCommercePriority - 100) * aiDiffYields[YIELD_COMMERCE]) / 2);
-				//iValue /= 100;
-				rValue += (rValue * ((iCommercePriority - 100) *
-						weightedYieldDiffs.get(YIELD_COMMERCE))) / 200;
-			}
-		}
-		/* else if (aiFinalYields[YIELD_FOOD] < GC.getFOOD_CONSUMPTION_PER_POPULATION()) {
-			if ((aiDiffYields[YIELD_PRODUCTION] > 0) && (aiFinalYields[YIELD_FOOD]+aiFinalYields[YIELD_PRODUCTION] > 3)) {
-				if (iCorrectedFoodPriority < 100 || kOwner.getCurrentEra() < 2) {
-					//value booster for mines on hills
-					iValue *= (100 + 25 * aiDiffYields[YIELD_PRODUCTION]);
-					iValue /= 100;
-				}
-			}
-		}*/
+// 	if (rValue > 0)
+// 	{
+// 		// this is mainly to make it improve better tiles first
+// 		//flood plain > grassland > plain > tundra
+// 		rValue += weightedFinalYields.get(YIELD_FOOD) * 8; // was 10
+// 		rValue += weightedFinalYields.get(YIELD_PRODUCTION) * 7; // was 6
+// 		rValue += weightedFinalYields.get(YIELD_COMMERCE) * 4;
 
-		if (iCorrectedFoodPriority < 100 && iProductionPriority > 100)
-		{
-			rValue *= 200 + (iProductionPriority - 100) *
-					weightedFinalYields.get(YIELD_PRODUCTION);
-			rValue /= 200;
-		}
-		if (eNonObsoleteBonus == NO_BONUS)
-		{
-			if (iDesiredFoodChange > 0)
-			{
-				//We want more food.
-				rValue *= 2 + scaled::max(0, weightedYieldDiffs.get(YIELD_FOOD));
-				rValue /= 2 * (1 + scaled::max(0, -weightedYieldDiffs.get(YIELD_FOOD)));
-			}
-		}
-	}
+// 		if (weightedFinalYields.get(YIELD_FOOD) >=
+// 			GC.getFOOD_CONSUMPTION_PER_POPULATION())
+// 		{
+// 			//this is a food yielding tile
+// 			if (iCorrectedFoodPriority > 100)
+// 				rValue.mulDiv(100 + iCorrectedFoodPriority, 200);
+// 			if (iDesiredFoodChange > 0)
+// 			{
+// 				//iValue += (10 * (1 + aiDiffYields[YIELD_FOOD]) * (1 + aiFinalYields[YIELD_FOOD] - GC.getFOOD_CONSUMPTION_PER_POPULATION()) * iDesiredFoodChange * iCorrectedFoodPriority) / 100;
+// 				// <K-Mod>
+// 				rValue += (10 * (1 + weightedYieldDiffs.get(YIELD_FOOD)) *
+// 						(1 + weightedFinalYields.get(YIELD_FOOD)
+// 						- GC.getFOOD_CONSUMPTION_PER_POPULATION()) *
+// 						std::min(1 + iDesiredFoodChange / 3, 4) *
+// 						iCorrectedFoodPriority) / 100; // </K-Mod>
+// 			}
+// 			if (iCommercePriority > 100)
+// 			{
+// 				//iValue *= 100 + (((iCommercePriority - 100) * aiDiffYields[YIELD_COMMERCE]) / 2);
+// 				//iValue /= 100;
+// 				rValue += (rValue * ((iCommercePriority - 100) *
+// 						weightedYieldDiffs.get(YIELD_COMMERCE))) / 200;
+// 			}
+// 		}
+// 		/* else if (aiFinalYields[YIELD_FOOD] < GC.getFOOD_CONSUMPTION_PER_POPULATION()) {
+// 			if ((aiDiffYields[YIELD_PRODUCTION] > 0) && (aiFinalYields[YIELD_FOOD]+aiFinalYields[YIELD_PRODUCTION] > 3)) {
+// 				if (iCorrectedFoodPriority < 100 || kOwner.getCurrentEra() < 2) {
+// 					//value booster for mines on hills
+// 					iValue *= (100 + 25 * aiDiffYields[YIELD_PRODUCTION]);
+// 					iValue /= 100;
+// 				}
+// 			}
+// 		}*/
 
-	if (bEmphasizeIrrigation &&
-		GC.getInfo(eFinalImprovement).isCarriesIrrigation())
-	{
-		rValue += 400; // advc.131: was 500
-	}
-	if (getImprovementFreeSpecialists(eFinalImprovement) > 0)
-		// advc.131: Was 2000. That beats crucial strategic resources too easily.
-		rValue += 1200;
-	if (kOwner.getAdvancedStartPoints() < 0)
-	{	// <advc.901> Code moved into (recursive) auxiliary function
-		rValue += AI_healthHappyImprovementValue(kPlot, eImprovement,
-				eFinalImprovement, bIgnoreFeature, false); // </advc.901>
-	}
-	// (advc.131: Leader personality moved up)
-	if (!kPlot.isImproved())
-	{
-		if (kPlot.isBeingWorked() &&
-			// K-Mod. (don't boost the value if it means removing a good feature.)
-			(iClearFeatureValue >= 0 || eBestTempBuild == NO_BUILD ||
-			!GC.getInfo(eBestTempBuild).isFeatureRemove(kPlot.getFeatureType())))
-		{
-			rValue *= 5;
-			rValue /= 4;
-		}
-		/*if (eBestTempBuild != NO_BUILD) {
-			if (kPlot.isFeature()) {
-				if (GC.getInfo(eBestTempBuild).isFeatureRemove(kPlot.getFeatureType())) {
-					CvCity* pCity;
-					iValue += kPlot.getFeatureProduction(eBestTempBuild, getTeam(), &pCity) * 2;
-					FAssert(pCity == this);
-					iValue += iClearFeatureValue;
-				}
-			}
-		}*/ // K-Mod. I've moved this out of the if statement, because it should apply regardless of whether there is already an improvement on the plot.
-	}
-	else
-	{
-		// cottage/villages (don't want to chop them up if turns have been invested)
-		ImprovementTypes eImprovementDowngrade = GC.getInfo(kPlot.getImprovementType()).
-				getImprovementPillage();
-		/*while (eImprovementDowngrade != NO_IMPROVEMENT) {
-			CvImprovementInfo& kImprovementDowngrade = GC.getInfo(eImprovementDowngrade);
-			iValue -= kImprovementDowngrade.getUpgradeTime() * 8;
-			eImprovementDowngrade = (ImprovementTypes)kImprovementDowngrade.getImprovementPillage();
-		}*/ // BtS
-		// K-Mod. Be careful not to get trapped in an infinite loop of improvement downgrades.
-		if (eImprovementDowngrade != NO_IMPROVEMENT)
-		{
-			std::set<ImprovementTypes> cited_improvements;
-			while (eImprovementDowngrade != NO_IMPROVEMENT &&
-				cited_improvements.insert(eImprovementDowngrade).second)
-			{
-				CvImprovementInfo const& kImprovementDowngrade = GC.getInfo(eImprovementDowngrade);
-				rValue -= kImprovementDowngrade.getUpgradeTime() * 8;
-				eImprovementDowngrade = kImprovementDowngrade.getImprovementPillage();
-			}
-		} // K-Mod end
+// 		if (iCorrectedFoodPriority < 100 && iProductionPriority > 100)
+// 		{
+// 			rValue *= 200 + (iProductionPriority - 100) *
+// 					weightedFinalYields.get(YIELD_PRODUCTION);
+// 			rValue /= 200;
+// 		}
+// 		if (eNonObsoleteBonus == NO_BONUS)
+// 		{
+// 			if (iDesiredFoodChange > 0)
+// 			{
+// 				//We want more food.
+// 				rValue *= 2 + scaled::max(0, weightedYieldDiffs.get(YIELD_FOOD));
+// 				rValue /= 2 * (1 + scaled::max(0, -weightedYieldDiffs.get(YIELD_FOOD)));
+// 			}
+// 		}
+// 	}
 
-		if (GC.getInfo(kPlot.getImprovementType()).getImprovementUpgrade() != NO_IMPROVEMENT)
-		{
-			rValue -= scaled(8 * kPlot.getUpgradeProgress() *
-					GC.getInfo(kPlot.getImprovementType()).getUpgradeTime(),
-					100 * std::max(1,
-					GC.getGame().getImprovementUpgradeTime(kPlot.getImprovementType())));
-		}
-		if (eNonObsoleteBonus == NO_BONUS)
-		{
-			if (isWorkingPlot(kPlot))
-			{
-				if ((iCorrectedFoodPriority < 100 &&
-					weightedFinalYields.get(YIELD_FOOD) >=
-					GC.getFOOD_CONSUMPTION_PER_POPULATION()) ||
-					GC.getInfo(kPlot.getImprovementType()).getImprovementPillage() != NO_IMPROVEMENT)
-				{
-					rValue -= 70;
-					rValue.mulDiv(2, 3);
-				}
-			}
-		}
-		if (kOwner.isHumanOption(PLAYEROPTION_SAFE_AUTOMATION) &&
-			rValue.isPositive()) // advc.001
-		{
-			rValue /= 4; // Greatly prefer builds which are legal.
-		}
-	}
-	// K-Mod. Feature value. (moved from the 'no improvement' block above.)
-	if (kPlot.isFeature() && eBestTempBuild != NO_BUILD &&
-		GC.getInfo(eBestTempBuild).isFeatureRemove(kPlot.getFeatureType()))
-	{
-		/*CvCity* pCity; iValue += kPlot.getFeatureProduction(eBestTempBuild, getTeam(), &pCity) * 2;
-		FAssert(pCity == this);*/ // handle chop value elsewhere
-		rValue += iClearFeatureValue;
-	} // K-Mod end
-	if (peBestBuild != NULL)
-	{	// advc: Caller relies on no build being returned for present improvement
-		FAssert(eImprovement != kPlot.getImprovementType() || eBestTempBuild == NO_BUILD);
-		*peBestBuild = eBestTempBuild;
-	}
-	return rValue.round();
+// 	if (bEmphasizeIrrigation &&
+// 		GC.getInfo(eFinalImprovement).isCarriesIrrigation())
+// 	{
+// 		rValue += 400; // advc.131: was 500
+// 	}
+// 	if (getImprovementFreeSpecialists(eFinalImprovement) > 0)
+// 		// advc.131: Was 2000. That beats crucial strategic resources too easily.
+// 		rValue += 1200;
+// 	if (kOwner.getAdvancedStartPoints() < 0)
+// 	{	// <advc.901> Code moved into (recursive) auxiliary function
+// 		rValue += AI_healthHappyImprovementValue(kPlot, eImprovement,
+// 				eFinalImprovement, bIgnoreFeature, false); // </advc.901>
+// 	}
+// 	// (advc.131: Leader personality moved up)
+// 	if (!kPlot.isImproved())
+// 	{
+// 		if (kPlot.isBeingWorked() &&
+// 			// K-Mod. (don't boost the value if it means removing a good feature.)
+// 			(iClearFeatureValue >= 0 || eBestTempBuild == NO_BUILD ||
+// 			!GC.getInfo(eBestTempBuild).isFeatureRemove(kPlot.getFeatureType())))
+// 		{
+// 			rValue *= 5;
+// 			rValue /= 4;
+// 		}
+// 		/*if (eBestTempBuild != NO_BUILD) {
+// 			if (kPlot.isFeature()) {
+// 				if (GC.getInfo(eBestTempBuild).isFeatureRemove(kPlot.getFeatureType())) {
+// 					CvCity* pCity;
+// 					iValue += kPlot.getFeatureProduction(eBestTempBuild, getTeam(), &pCity) * 2;
+// 					FAssert(pCity == this);
+// 					iValue += iClearFeatureValue;
+// 				}
+// 			}
+// 		}*/ // K-Mod. I've moved this out of the if statement, because it should apply regardless of whether there is already an improvement on the plot.
+// 	}
+// 	else
+// 	{
+// 		// cottage/villages (don't want to chop them up if turns have been invested)
+// 		ImprovementTypes eImprovementDowngrade = GC.getInfo(kPlot.getImprovementType()).
+// 				getImprovementPillage();
+// 		/*while (eImprovementDowngrade != NO_IMPROVEMENT) {
+// 			CvImprovementInfo& kImprovementDowngrade = GC.getInfo(eImprovementDowngrade);
+// 			iValue -= kImprovementDowngrade.getUpgradeTime() * 8;
+// 			eImprovementDowngrade = (ImprovementTypes)kImprovementDowngrade.getImprovementPillage();
+// 		}*/ // BtS
+// 		// K-Mod. Be careful not to get trapped in an infinite loop of improvement downgrades.
+// 		if (eImprovementDowngrade != NO_IMPROVEMENT)
+// 		{
+// 			std::set<ImprovementTypes> cited_improvements;
+// 			while (eImprovementDowngrade != NO_IMPROVEMENT &&
+// 				cited_improvements.insert(eImprovementDowngrade).second)
+// 			{
+// 				CvImprovementInfo const& kImprovementDowngrade = GC.getInfo(eImprovementDowngrade);
+// 				rValue -= kImprovementDowngrade.getUpgradeTime() * 8;
+// 				eImprovementDowngrade = kImprovementDowngrade.getImprovementPillage();
+// 			}
+// 		} // K-Mod end
+
+// 		if (GC.getInfo(kPlot.getImprovementType()).getImprovementUpgrade() != NO_IMPROVEMENT)
+// 		{
+// 			rValue -= scaled(8 * kPlot.getUpgradeProgress() *
+// 					GC.getInfo(kPlot.getImprovementType()).getUpgradeTime(),
+// 					100 * std::max(1,
+// 					GC.getGame().getImprovementUpgradeTime(kPlot.getImprovementType())));
+// 		}
+// 		if (eNonObsoleteBonus == NO_BONUS)
+// 		{
+// 			if (isWorkingPlot(kPlot))
+// 			{
+// 				if ((iCorrectedFoodPriority < 100 &&
+// 					weightedFinalYields.get(YIELD_FOOD) >=
+// 					GC.getFOOD_CONSUMPTION_PER_POPULATION()) ||
+// 					GC.getInfo(kPlot.getImprovementType()).getImprovementPillage() != NO_IMPROVEMENT)
+// 				{
+// 					rValue -= 70;
+// 					rValue.mulDiv(2, 3);
+// 				}
+// 			}
+// 		}
+// 		if (kOwner.isHumanOption(PLAYEROPTION_SAFE_AUTOMATION) &&
+// 			rValue.isPositive()) // advc.001
+// 		{
+// 			rValue /= 4; // Greatly prefer builds which are legal.
+// 		}
+// 	}
+// 	// K-Mod. Feature value. (moved from the 'no improvement' block above.)
+// 	if (kPlot.isFeature() && eBestTempBuild != NO_BUILD &&
+// 		GC.getInfo(eBestTempBuild).isFeatureRemove(kPlot.getFeatureType()))
+// 	{
+// 		/*CvCity* pCity; iValue += kPlot.getFeatureProduction(eBestTempBuild, getTeam(), &pCity) * 2;
+// 		FAssert(pCity == this);*/ // handle chop value elsewhere
+// 		rValue += iClearFeatureValue;
+// 	} // K-Mod end
+// 	if (peBestBuild != NULL)
+// 	{	// advc: Caller relies on no build being returned for present improvement
+// 		FAssert(eImprovement != kPlot.getImprovementType() || eBestTempBuild == NO_BUILD);
+// 		*peBestBuild = eBestTempBuild;
+// 	}
+// 	return rValue.round();
 }
 
 /*  advc.901: Cut from AI_getImprovementValue so that benefits for nearby team cities

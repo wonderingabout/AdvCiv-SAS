@@ -811,6 +811,7 @@ struct CandidatePlot {
 };
 
 // Returns true if the unit found a build for this city...
+// <!-- custom: update: also disabled functionally CvCityAI::AI_getImprovementValue and CvUnitAI::AI_irrigateTerritory which solved the farm on spices plains issue when unwanted (not in our exceptions below) as well as inefficient and needless farms on floodplains or flatland grass or other unwanted interferences, see these functions (or whatever remains of them for details, as well as screenshots in known issue 30 for details anyways etc), we now have greater if not total control over our AI workers or close to it, and this improves ai efficiency further if i am not mistaken and is thanks to chatgpt and co or such like claude ai and such if i may say too (and thanks to me too if i may say but anyways etc) but anyways etc -->
 // <!-- custom: also add after our rewrite in advciv-sas code to handle/optimize terrain improvement choice, generally and in short in this case but anyways etc do not build a cottage flatland plains if there are flatland grass tiles that are much better candidate plots, as for bonuses simplify logic for efficiency and no-tediousness xd if i may say but anyways etc to always improve them regardless of terrain anyways etc (high-food bonuses first though as below if i am not mistaken anyways etc) ; code provided by gemini ai and that i adjusted as well in/for advciv-sas in this case anyways etc, similarly as below anyways etc ; see also new code we added n advciv-sas but anyways etc that handles settling priorities based on terrains or/and features and hills anyways etc in as of now CitySiteEvaluator.cpp which this code is partially based on as well if i may say and if i am not mistaken anyways etc -->
 // This function determines the value of a specific improvement on a plot,
 // which is the core logic that guides AI worker actions.
@@ -858,7 +859,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 
     BuildTypes const eBuildWorkshop = (BuildTypes)GC.getInfoTypeForString("BUILD_WORKSHOP");
     BuildTypes const eBuildWindmill = (BuildTypes)GC.getInfoTypeForString("BUILD_WINDMILL");
-	
+
 	// <!-- custom: useful for blacklist checks of the current plot's improvement (NOT what next build to build for the worker (sorry for capitalization xd but was to be clear anyways etc, and i repeated myself too "build to build" (now again xd) but not sorry for that i mean but i hope these comments help really if i may say but anyways etc), in fact for builds to build, unlike below current plot's improvement to check/find, use above build enums rather, as checking a build's improvement created a crash for workshop or/and actsAsCity (fort) (didn't check which between workshop and fort and only in one savegame so could have other issues in others untested, but browsing by builds as above seems safe and clean and fixed it, so i'd recommend from little or not in this case i know but anyways etc to use eBuild for next worker build and such checks, vs eImprovement for the current plot's existing improvement check rather, to avoid bugs and be clean and consistent and clear if i may say and if i am not mistaken, but check to be sure anyways etc thanks anyways etc)) -->
 	ImprovementTypes const eImprovementHamlet = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HAMLET");
 	ImprovementTypes const eImprovementVillage = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_VILLAGE");
@@ -966,12 +967,29 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 						if (canBuild(kPlot, eBuildRemoveForest))
 						{
 							eBestSupposedBuild = eBuildRemoveForest;
+
+							iValue += 19000;
 						}
 						else
 						{
 							// <!-- custom: ignore the plot for now, we could "pre-chop", but really chop just in anticipation of the bonus specific improvement/build later, but this is inefficient, maybe there are other tiles to work first, even if they don't have a bonus, code is simpler this way too anyways etc -->
 							continue;
 						}
+					}
+				}
+				// <!-- custom: also handle silver and/or other bonuses on forest as well anyways etc -->
+				else
+				{
+					if (canBuild(kPlot, eBuildRemoveForest))
+					{
+						eBestSupposedBuild = eBuildRemoveForest;
+
+						iValue += 19000;
+					}
+					else
+					{
+						// <!-- custom: ignore the plot for now, we could "pre-chop", but really chop just in anticipation of the bonus specific improvement/build later, but this is inefficient, maybe there are other tiles to work first, even if they don't have a bonus, code is simpler this way too anyways etc -->
+						continue;
 					}
 				}
 			}
@@ -983,18 +1001,37 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					if (canBuild(kPlot, eBuildCamp))
 					{
 						eBestSupposedBuild = eBuildCamp;
+
+						iValue += 19000;
 					}
 					else
 					{
 						if (canBuild(kPlot, eBuildRemoveJungle))
 						{
 							eBestSupposedBuild = eBuildRemoveJungle;
+
+							iValue += 19000;
 						}
 						else
 						{
 							// <!-- custom: ignore the plot for now, we could "pre-chop", but really chop just in anticipation of the bonus specific improvement/build later, but this is inefficient, maybe there are other tiles to work first, even if they don't have a bonus, code is simpler this way too anyways etc -->
 							continue;
 						}
+					}
+				}
+				// <!-- custom: also handle gemstones and/or other bonuses on jungle as well anyways etc -->
+				else
+				{
+					if (canBuild(kPlot, eBuildRemoveJungle))
+					{
+						eBestSupposedBuild = eBuildRemoveJungle;
+
+						iValue += 19000;
+					}
+					else
+					{
+						// <!-- custom: ignore the plot for now, we could "pre-chop", but really chop just in anticipation of the bonus specific improvement/build later, but this is inefficient, maybe there are other tiles to work first, even if they don't have a bonus, code is simpler this way too anyways etc -->
+						continue;
 					}
 				}
 			}
@@ -2722,8 +2759,12 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 		// <!-- custom: we need to move to city B sooner if city A is improved enough already, now our AI workers are much more efficient, but the core cities are overly improved, while edge cities are quite a bit underdevelopped (see known issue as of now 39 for details with screenshots anyways etc, a 10+ city in particular won't grow or hardly grow in the example mentionned, but workers keep improving it, although we'll never allocate all these 15+ tiles, and city B needs help fast anyways etc, earlier in the game may help too but anyways etc) maybe if i'm not mistaken and ideally but anyways etc ; see known issue as of now 39 for details -->
 		/*  BEFORE the iNeed/iHave block, short-circuit if city A is already fine  */
 		// <!-- custom: adjust as you see fit: 1, 2, 3 plots, etc. So for example iBuffer 1 would mean that if city pop is 6, when our total improved tiles count in all city if i'm not mistaken but anyways etc is >= 6 + 1 = 7 plots, we have improved city A enough, move to city B that may need improvements more urgently, especially if City A won't grow further, no point in improving too many tiles in city A while ignoring city B that would much need otherwise to have its tiles improve rather but anyways etc. -->
-		const int iBuffer = 1;
-		if (countImprovedTiles(pCity) >= pCity->getPopulation() + iBuffer ||
+		// <!-- custom: accounting for specialists and the need to develop other cities soon and sooner, which we still don't do soon enough as of now, reduce buffer from 1 to 0 as a test to see what happens anyways etc -->
+		// <!-- custom: add an extra tolerance and leeway for small cities, indeed they can be expected to grow fast, so stay longer in these even if we have a few more plots than our current pop (e.g. if city pop is 2, continue improving tiles until we have >= 0 + 2 pop + 2 extra tiles = 4 plots improved in city radius if i am not mistaken but anyways etc), hopefully this also helps if cities share tiles and in case they are counted as belonging to city B when in fact it is worked by city A (just a guess/theory but hopefully this helps too but anyways etc) -->
+		const int iCityPopulation = pCity->getPopulation();
+		const int iBufferExtraForSmallCities = (iCityPopulation <= 3 ? 2 : 0);
+		const int iBuffer = 0;
+		if (countImprovedTiles(pCity) >= (iCityPopulation + iBuffer + iBufferExtraForSmallCities) ||
 			(pCity->unhappyLevel(0) > pCity->happyLevel() ||
 			pCity->foodDifference(false) <= 0))
 		{
@@ -18477,125 +18518,127 @@ bool CvUnitAI::AI_nextCityToImproveAirlift()
 }
 
 
+// <!-- custom: we handle these ourselves now in CvUnitAI::AI_bestCityBuild, please do not override and interfere with our preferred ideal tiles like often cottages on flood plains or grass, no farm on plains spices (exceptions managed there as well), we as of now don't strictly handle irrigation, but we want to remove unwanted interferences, this ruins good city radiuses with needless farms just because a tile, any unimproved tile, can be irrigated, according to what i understand of claude ai's explanation, and otherwise we have almost total control and improved it nicely. So testing commenting-out this function entirely to see what happens, as advised by claude ai, we already choose and improve cities based on terrain and such, even if as of now we don't handle irrigation, it is not a concern big enough to override nice and ultimate or at least very efficient yield and terrain optimization we added if i may say but anyways etc, so testing to disable functionally this to see anyways etc -->
 bool CvUnitAI::AI_irrigateTerritory()
 {
-	PROFILE_FUNC();
-	// <advc.300>
-	if (isBarbarian())
-		return false; // </advc.300>
-	// Erik <OPT1> Cache the viable subset of builds so that we don't have to loop through all of them
-	std::vector<BuildTypes> irrigationCarryingBuilds;
-	FOR_EACH_ENUM(Build)
-	{
-		if (GC.getInfo(eLoopBuild).getImprovement() != NO_IMPROVEMENT)
-		{
-			ImprovementTypes eImprovement = GC.getInfo(eLoopBuild).getImprovement();
-			if (GC.getInfo(eImprovement).isCarriesIrrigation())
-				irrigationCarryingBuilds.push_back(eLoopBuild);
-		}
-	} // </OPT1>
+	// PROFILE_FUNC();
+	// // <advc.300>
+	// if (isBarbarian())
+	// 	return false; // </advc.300>
+	// // Erik <OPT1> Cache the viable subset of builds so that we don't have to loop through all of them
+	// std::vector<BuildTypes> irrigationCarryingBuilds;
+	// FOR_EACH_ENUM(Build)
+	// {
+	// 	if (GC.getInfo(eLoopBuild).getImprovement() != NO_IMPROVEMENT)
+	// 	{
+	// 		ImprovementTypes eImprovement = GC.getInfo(eLoopBuild).getImprovement();
+	// 		if (GC.getInfo(eImprovement).isCarriesIrrigation())
+	// 			irrigationCarryingBuilds.push_back(eLoopBuild);
+	// 	}
+	// } // </OPT1>
 
-	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
-	int const iGwEventTally = GC.getGame().getGwEventTally();
+	// CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	// int const iGwEventTally = GC.getGame().getGwEventTally();
 
-	CvPlot const* pBestPlot = NULL;
-	BuildTypes eBestBuild = NO_BUILD;
-	int iBestValue = 0;
-	// advc.pf: Mainly to avoid placing routes along the way through foreign borders
-	MovementFlags const eFlags = MOVE_SAFE_TERRITORY;
-	for (int i = 0; i < GC.getMap().numPlots(); i++)
-	{
-		CvPlot const& kLoopPlot = GC.getMap().getPlotByIndex(i);
-		if (!kLoopPlot.isArea(getArea()))
-			continue;
+	// CvPlot const* pBestPlot = NULL;
+	// BuildTypes eBestBuild = NO_BUILD;
+	// int iBestValue = 0;
+	// // advc.pf: Mainly to avoid placing routes along the way through foreign borders
+	// MovementFlags const eFlags = MOVE_SAFE_TERRITORY;
+	// for (int i = 0; i < GC.getMap().numPlots(); i++)
+	// {
+	// 	CvPlot const& kLoopPlot = GC.getMap().getPlotByIndex(i);
+	// 	if (!kLoopPlot.isArea(getArea()))
+	// 		continue;
 
-		if (/*!AI_plotValid(&kLoopPlot) ||*/ // advc.opt: The area check is enough
-			kLoopPlot.getOwner() != kOwner.getID() || // XXX team???
-			kLoopPlot.getWorkingCity() != NULL)
-		{
-			continue;
-		}
-		ImprovementTypes const eCurrentImprov = kLoopPlot.getImprovementType();
-		if (eCurrentImprov != NO_IMPROVEMENT)
-		{
-			if (kOwner.isAutomationSafe(kLoopPlot))
-				continue;
-			if (GC.getInfo(eCurrentImprov).isCarriesIrrigation())
-				continue;
-			BonusTypes const eBonus = kLoopPlot.getNonObsoleteBonusType(getTeam());
-			if (eBonus != NO_BONUS &&
-				// !(GC.getInfo(eImprovement).isImprovementBonusTrade(eBonus)))
-				kOwner.doesImprovementConnectBonus(eCurrentImprov, eBonus)) // K-Mod
-			{
-				continue;
-			}
-		}
-		if (!kLoopPlot.isIrrigationAvailable(true))
-			continue;
+	// 	if (/*!AI_plotValid(&kLoopPlot) ||*/ // advc.opt: The area check is enough
+	// 		kLoopPlot.getOwner() != kOwner.getID() || // XXX team???
+	// 		kLoopPlot.getWorkingCity() != NULL)
+	// 	{
+	// 		continue;
+	// 	}
+	// 	ImprovementTypes const eCurrentImprov = kLoopPlot.getImprovementType();
+	// 	if (eCurrentImprov != NO_IMPROVEMENT)
+	// 	{
+	// 		if (kOwner.isAutomationSafe(kLoopPlot))
+	// 			continue;
+	// 		if (GC.getInfo(eCurrentImprov).isCarriesIrrigation())
+	// 			continue;
+	// 		BonusTypes const eBonus = kLoopPlot.getNonObsoleteBonusType(getTeam());
+	// 		if (eBonus != NO_BONUS &&
+	// 			// !(GC.getInfo(eImprovement).isImprovementBonusTrade(eBonus)))
+	// 			kOwner.doesImprovementConnectBonus(eCurrentImprov, eBonus)) // K-Mod
+	// 		{
+	// 			continue;
+	// 		}
+	// 	}
+	// 	if (!kLoopPlot.isIrrigationAvailable(true))
+	// 		continue;
 
-		int iBestTempBuildValue = MAX_INT;
-		BuildTypes eBestTempBuild = NO_BUILD;
-		for (size_t iJ = 0; iJ < irrigationCarryingBuilds.size(); iJ++)
-		{
-			const BuildTypes eBuild = irrigationCarryingBuilds[iJ];
-			if (!canBuild(kLoopPlot, eBuild))
-				continue;
-			/*  <advc.121> Was 10000/(...getTime()+1). Same problem as in
-				AI_improveBonus (see there). */
-			int iValue = GC.getInfo(eBuild).getTime();
-			// XXX feature production???
-			if (iValue < iBestTempBuildValue)
-			{
-				iBestTempBuildValue = iValue;
-				eBestTempBuild = eBuild;
-			}
-		}
-		if (eBestTempBuild == NO_BUILD)
-			continue;
+	// 	int iBestTempBuildValue = MAX_INT;
+	// 	BuildTypes eBestTempBuild = NO_BUILD;
+	// 	for (size_t iJ = 0; iJ < irrigationCarryingBuilds.size(); iJ++)
+	// 	{
+	// 		const BuildTypes eBuild = irrigationCarryingBuilds[iJ];
+	// 		if (!canBuild(kLoopPlot, eBuild))
+	// 			continue;
+	// 		/*  <advc.121> Was 10000/(...getTime()+1). Same problem as in
+	// 			AI_improveBonus (see there). */
+	// 		int iValue = GC.getInfo(eBuild).getTime();
+	// 		// XXX feature production???
+	// 		if (iValue < iBestTempBuildValue)
+	// 		{
+	// 			iBestTempBuildValue = iValue;
+	// 			eBestTempBuild = eBuild;
+	// 		}
+	// 	}
+	// 	if (eBestTempBuild == NO_BUILD)
+	// 		continue;
 
-		FeatureTypes const eFeature = kLoopPlot.getFeatureType();
-		if (eFeature != NO_FEATURE && GC.getInfo(eBestTempBuild).isFeatureRemove(eFeature))
-		{
-			CvFeatureInfo const& kFeatureInfo = GC.getInfo(kLoopPlot.getFeatureType());
-			// K-Mod:
-			if ((iGwEventTally >= 0 && kFeatureInfo.getWarmingDefense() > 0) ||
-				(kOwner.isHumanOption(PLAYEROPTION_LEAVE_FORESTS) &&
-				kFeatureInfo.getYieldChange(YIELD_PRODUCTION) > 0))
-			{
-				continue;
-			}
-		}
+	// 	FeatureTypes const eFeature = kLoopPlot.getFeatureType();
+	// 	if (eFeature != NO_FEATURE && GC.getInfo(eBestTempBuild).isFeatureRemove(eFeature))
+	// 	{
+	// 		CvFeatureInfo const& kFeatureInfo = GC.getInfo(kLoopPlot.getFeatureType());
+	// 		// K-Mod:
+	// 		if ((iGwEventTally >= 0 && kFeatureInfo.getWarmingDefense() > 0) ||
+	// 			(kOwner.isHumanOption(PLAYEROPTION_LEAVE_FORESTS) &&
+	// 			kFeatureInfo.getYieldChange(YIELD_PRODUCTION) > 0))
+	// 		{
+	// 			continue;
+	// 		}
+	// 	}
 
-		if (kLoopPlot.isVisibleEnemyUnit(this) ||
-			kOwner.AI_isAnyPlotTargetMissionAI(kLoopPlot, MISSIONAI_BUILD, getGroup(), 1))
-		{
-			continue;
-		}
-		int iPathTurns; // XXX should this actually be at the top of the loop? (with saved paths and all...)
-		if (generatePath(kLoopPlot, eFlags, true, &iPathTurns))
-		{
-			const int iValue = 10000 - iPathTurns; // advc.opt: Instead of dividing by iPathTurns+1
-			if (iValue > iBestValue)
-			{
-				iBestValue = iValue;
-				eBestBuild = eBestTempBuild;
-				pBestPlot = &kLoopPlot;
-			}
-		}
-	}
+	// 	if (kLoopPlot.isVisibleEnemyUnit(this) ||
+	// 		kOwner.AI_isAnyPlotTargetMissionAI(kLoopPlot, MISSIONAI_BUILD, getGroup(), 1))
+	// 	{
+	// 		continue;
+	// 	}
+	// 	int iPathTurns; // XXX should this actually be at the top of the loop? (with saved paths and all...)
+	// 	if (generatePath(kLoopPlot, eFlags, true, &iPathTurns))
+	// 	{
+	// 		const int iValue = 10000 - iPathTurns; // advc.opt: Instead of dividing by iPathTurns+1
+	// 		if (iValue > iBestValue)
+	// 		{
+	// 			iBestValue = iValue;
+	// 			eBestBuild = eBestTempBuild;
+	// 			pBestPlot = &kLoopPlot;
+	// 		}
+	// 	}
+	// }
 
-	if (pBestPlot == NULL)
-		return false;
+	// if (pBestPlot == NULL)
+	// 	return false;
 
-	FAssertBounds(NO_BUILD, GC.getNumBuildInfos(), eBestBuild);
-	getGroup()->pushMission(MISSION_ROUTE_TO,
-			pBestPlot->getX(), pBestPlot->getY(), eFlags, false,
-			false, MISSIONAI_BUILD, pBestPlot);
-	getGroup()->pushMission(MISSION_BUILD,
-			eBestBuild, -1, eFlags,
-			true, // K-Mod: was (getGroup()->getLengthMissionQueue() > 0)
-			false, MISSIONAI_BUILD, pBestPlot);
-	return true;
+	// FAssertBounds(NO_BUILD, GC.getNumBuildInfos(), eBestBuild);
+	// getGroup()->pushMission(MISSION_ROUTE_TO,
+	// 		pBestPlot->getX(), pBestPlot->getY(), eFlags, false,
+	// 		false, MISSIONAI_BUILD, pBestPlot);
+	// getGroup()->pushMission(MISSION_BUILD,
+	// 		eBestBuild, -1, eFlags,
+	// 		true, // K-Mod: was (getGroup()->getLengthMissionQueue() > 0)
+	// 		false, MISSIONAI_BUILD, pBestPlot);
+	// return true;
+	return false;
 }
 
 

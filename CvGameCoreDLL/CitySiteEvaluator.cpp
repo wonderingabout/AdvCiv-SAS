@@ -859,7 +859,9 @@ short AIFoundValue::evaluate()
 	{
 		if (iLowFoodLocationCount >= 7)
 		{
-			iValue -= 50 * iLowFoodLocationCount;
+			// <!-- custom: sometimes this is still ignored, although it shows to have helped in some cities already and at first, increase penalty quite a bit more if i may say anyways etc, which solved on testing successfully the issue, see known issue for details  -->
+			// iValue -= 50 * iLowFoodLocationCount;
+			iValue -= 75 * iLowFoodLocationCount;
 		}
 	}
 
@@ -2032,14 +2034,18 @@ int AIFoundValue::foundOnResourceValue(int const* aiBonusImprovementYield) const
 	if (aiBonusImprovementYield == NULL)
 		// <!-- custom: try to make the penalty quite a lot stricter in case it helps and/or so we don't modify all this code as well, in addition to other changes in this file but anyways etc -->
 		//r -= 42; // When we can't currently improve the resource
-		r -= 150; // When we can't currently improve the resource
+		// <!-- custom: also increase penalty here anyways etc -->
+		// r -= 150; // When we can't currently improve the resource
+		r -= 400; // When we can't currently improve the resource
 	else
 	{
 		// <!-- custom: new logic added by chatgpt thanks to my prompt too which i adjusted tentatively too but anyways etc ; note: trying also to not make it needlessly or overly too computationally expensive as recomemnded in other pre-advciv-sas code comments in this file too which i don't know if they are rleated to this funciton or not but maybe apply to this one as well hopefully helpful if i may say or not or yes or etc but anyways etc -->
 		// Mild penalty for food resources (already handled better in evaluatePlot)
 		if (aiBonusImprovementYield[YIELD_FOOD] >= 1)
 		{
-			int const iFoodPenalty = 150 * (aiBonusImprovementYield[YIELD_FOOD]);
+			// <!-- custom: it seems we sometimes still found on deer tundra in autoplay, try to increase the penalty further, while trying not to increase it too much in case it is locally best to found as such if i am not mistaken but anyways etc, 400 may seem high but even 300 was not enough although it fluctuated a bit before staying there, i could try 350 maybe but since 400 does fine keep as is for possible edge cases, hopefully this doesn't prevent locally good spots where settling on food is ideal, but even if then, statistically should be betetr for ai to avoid settling on food bonuses :) and now all bonuses as well with the removal of yield food in multiplier, but i didn't check if this is only on food bonuses at caller or not, in all cases seems to run fine as such now and better than how it was for choosing city locations if i am not mistaken but anyways etc so leaving as such if i may say but anyways etc -->
+			// int const iFoodPenalty = 150 * (aiBonusImprovementYield[YIELD_FOOD]);
+			int const iFoodPenalty = 400;
 			r -= iFoodPenalty;
 			IFLOG logBBAI("-%d penalty: founding on food resource (from yield only)", iFoodPenalty);
 		}
