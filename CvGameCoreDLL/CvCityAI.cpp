@@ -10854,11 +10854,7 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
 	// ------------------------------------------------------------------
 	// boost food if there is spare happiness
 	// ------------------------------------------------------------------
-	// Why 6 % per surplus happy?
-	// +30 % at +5 happy (common with early lux + Monarchy)
-	// +60 % hard cap at +10 (avoids runaway weighting in Golden Ages)
 	// Zero change if happiness ≤ unhappiness, so starving / angry cities stay cautious.
-	// Tweak 6 or the min(10, …) cap to taste.
 	int const iHappySurplus = happyLevel() - unhappyLevel(0);      // >0 means room to grow
 	// <!-- custom: exception to this rule: if food is production (worker, settler, etc if any if i am not mistaken anyways etc), then 6 hammer is fine and better than 2 or 3 food. I just don't know if AI would swap its tiles later or not but anyways etc -->
 	if (iHappySurplus > 0 && !isFoodProduction())

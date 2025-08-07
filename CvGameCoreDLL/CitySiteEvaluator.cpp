@@ -1582,8 +1582,9 @@ ImprovementTypes AIFoundValue::getBonusImprovement(BonusTypes eBonus, CvPlot con
 			bCanTrade = true;
 			bCanImprove = true;
 		}
-		else if (bCanTrade) // Prefer currently available build - regardless of yield
-			continue;
+		// <!-- custom: based on my understanding of this code thanks to gemini ai's help as well, that is quite different from what gemini ai seems to say about it that it is related to workers or such if i understood it correctly but anyways etc, which i also asked as this code seemed weird so i asked it about it, this may explain why we are happy to count an improvement as good enough, say a farm, even if a plantation is better in terms of yield, so don't bother calculating the rest. I assume this is done for computational effiency, but may lead to other problems down the line. I'd rather prefer it be accurate and see what happens and if for example AI settles better or worse on tiles. I also want to see if this somehow affects AI building farms on grapes plains instead of waiting for plantations, so commenting it out. And i want to see if it's really much faster with it, although we should not have too much settlers or bonuses, except at turn 1, and even then it doesn't seem like it would cost a lot of extra computation to run this, so if it can help in other ways, try to do the full calculation/bonus yield evaluation rather and not just of first eligible found build if i am not mistaken, but anyways etc -->
+		// else if (bCanTrade) // Prefer currently available build - regardless of yield
+		// 	continue;
 		int iYieldValue = 0;
 		bool bRemove = (eFeature != NO_FEATURE && kLoopBuild.isFeatureRemove(eFeature));
 		FOR_EACH_ENUM(Yield) // Make sure we're not picking Fort over a yield improvement

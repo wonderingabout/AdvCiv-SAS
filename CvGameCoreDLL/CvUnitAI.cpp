@@ -858,7 +858,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 
     BuildTypes const eBuildWorkshop = (BuildTypes)GC.getInfoTypeForString("BUILD_WORKSHOP");
     BuildTypes const eBuildWindmill = (BuildTypes)GC.getInfoTypeForString("BUILD_WINDMILL");
-
+	
 	// <!-- custom: useful for blacklist checks of the current plot's improvement (NOT what next build to build for the worker (sorry for capitalization xd but was to be clear anyways etc, and i repeated myself too "build to build" (now again xd) but not sorry for that i mean but i hope these comments help really if i may say but anyways etc), in fact for builds to build, unlike below current plot's improvement to check/find, use above build enums rather, as checking a build's improvement created a crash for workshop or/and actsAsCity (fort) (didn't check which between workshop and fort and only in one savegame so could have other issues in others untested, but browsing by builds as above seems safe and clean and fixed it, so i'd recommend from little or not in this case i know but anyways etc to use eBuild for next worker build and such checks, vs eImprovement for the current plot's existing improvement check rather, to avoid bugs and be clean and consistent and clear if i may say and if i am not mistaken, but check to be sure anyways etc thanks anyways etc)) -->
 	ImprovementTypes const eImprovementHamlet = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HAMLET");
 	ImprovementTypes const eImprovementVillage = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_VILLAGE");
@@ -907,10 +907,13 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	// <!-- custom: it seems this is no good and confuses the AI, as we have a very irrigated city, i assume as it built many workers or some other condition, it got misled into thinking that we were starved, when we were not. Commenting out the if starved build farm on flatland grass code sovled the issue, so i assume this check is too often true, even if we are not starved, inaccurately favouring the farm and thus reducing AI effiency and strength (over irrigated city, and in grass tiles what's worse which our best tiles or among to use for potential rather (cottage, etc.) ideally, but now with low production). The idea was to build farms ONLY if really needed, especially in high food tiles, really try to avoid it unless necessary. For now, use an estimated food consumption rather, so that we don't think we're starved just because we're producting a worker, with the idea that each citizen consumes 2 food if i am not mistaken but anyways etc -->
 	// int const iRealCalculatedCityFoodDifference = kCity.getYieldRate(YIELD_FOOD) - kCity.foodConsumption();
 	// <!-- custom: update: it seems that when we are building settlers or such food is production builds, food allocation or/and food yields are quite a lot reduced or so it seems at least in some cases, attempt this approach i found somewhere in the code anyways etc -->
-	//int const iEstimatedCityFoodDifference = kCity.getYieldRate(YIELD_FOOD) - (2 * iCityPopulation)  ;
-	int const iEstimatedCityFoodDifference = (kCity.isFoodProduction() ?
-			std::max(0, (kCity.getYieldRate(YIELD_FOOD) -
-			kCity.foodConsumption(true))) : 0);
+	//int const iEstimatedCityFoodDifference = kCity.getYieldRate(YIELD_FOOD) - (2 * iCityPopulation)
+	// <!-- custom: try a modified version of the sample below, as we sometimes, although quite rare now and we have many nice flood plain cottages, but sometimes still but anyways etc build too much farms, which is a problem especially on flood plains but also on grass as we should ideally capitalize on these tiles, maybe cause is we are confused by food is production so rather than doing here and in a way that seems inaccurate or not relevant to us according to my understanding of gemini ai's explanation of it (if food is production i don't want to count food at all in particular, unreliable, i'd rather just ignore building farms then), trying this formula provided by gemini ai instead anyways etc and that i modified too ignoring food production case. On top of it, add a check that if food is production, assume we have enough food. This is sketchy and maybe inaccurate sometimes, but i'd rather they don't build farms than build them, unless we are really starved, which is often unlikely -->
+	// int const iEstimatedCityFoodDifference = (kCity.isFoodProduction() ?
+	// 		std::max(0, (kCity.getYieldRate(YIELD_FOOD) -
+	// 		kCity.foodConsumption(true))) : 0);
+	// <!-- custom: update 3: even with this change and some other changes as well, we still build farms on flood plains and on bonuses (although rarer for bonuses), i even tried to comment out the farm building code entirely but it still happens, so i assume there is another code outside of this function and/or of what we wrote that interferes with our logic but anyways etc -->
+	int const iEstimatedCityFoodDifference = kCity.getYieldRate(YIELD_FOOD) - kCity.foodConsumption(false);
 
 	const int penaltyForOverwritingPlot = 300;
 
@@ -927,7 +930,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 		if (GET_PLAYER(getOwner()).isAutomationSafe(kPlot))
 			continue;
 
-		// <!-- custom: trick to start from scratch and ignore all previous rules and do our own thing if i may say anyways etc, perhaps save computation while doing so if i may say maybe but anyways etc ; so now we use iValue to choose which tiles to improve first, while independently from that, the bestBuild is separately as of now now anyways etc handled with our own helpers depending on terrain, feature, bonuses or not, tech indirect condition (canBuild) and other or not conditions, in the plot anyways etc ; but what i mean is logic is cleanly separated between which is bets ideal supposed build, vs independently, which tile do we improve now and first i mean but anyways etc -->
+		// <!-- custom: trick to start from scratch and ignore all previous rules and do our own thing if i may say anyways etc, perhaps save computation while doing so if i may say maybe but anyways etc ; so now we use iValue to choose which tiles to improve first, while independently from that, the bestBuild is separately as of now now anyways etc handled with our own helpers depending on terrain, feature, bonuses or not, tech indirect condition (canBuild) and other or not conditions, in the plot anyways etc ; but what i mean is logic is cleanly separated between which is best ideal supposed build, vs independently, which tile do we improve now and first i mean but anyways etc -->
 		// int iValue = kCity.AI_getBestBuildValue(ePlot);
 		// <!-- custom: also to override seemingly higher `iValue <= 1` expected conditions in other functions, not sure they call this and use it, but just in cast start with higher values in case other functions expect them anyways etc (check to be sure i mean i am not sure or didn't check too much hopefully helpful or not or yes or etc anyways etc), start with a higher minimal value than this threshold, although ours should be so much higher than 1 for most good plots, but just in case to not be rejected there if we somehow have a good plot or not too bad one with negative value anyways etc if i am not mistaken -->
 		int iValue = 10;
@@ -937,7 +940,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 		// BuildTypes const eBuild = kCity.AI_getBestBuild(ePlot);
 		BuildTypes eBestSupposedBuild = NO_BUILD;
 
-		// Get terrain and feature info
 		TerrainTypes const eTerrain = kPlot.getTerrainType();
 		FeatureTypes const eFeature = kPlot.getFeatureType();
 
@@ -1222,7 +1224,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				if (eFeature == eFeatureFloodPlains)
 				{
 					// <!-- custom: unless we are very much starving, do not waste this high food tile just to build a farm or such food improvement -->
-					if (iEstimatedCityFoodDifference >= -2)
+					if (iEstimatedCityFoodDifference >= -2 || kCity.isFoodProduction())
 					{
 						// Floodplains: Great for cottages (high food + commerce potential)
 						// High food terrain = can afford cottage
@@ -1243,8 +1245,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					// <!-- custom: but in some rare cases farm on flood plains can be quite good.. if we can build it i mean anyways etc -->
 					else
 					{
-						// <!-- custom: in such urgent cases, make extra sure we can actually build the farm we dream so bad of if i may say in this case but anyways etc -->
-						if (canBuild(kPlot, eBuildFarm))
+						// <!-- custom: in such urgent cases, make extra sure we can actually build the farm we dream so bad of if i may say in this case but anyways etc ; note: see code comment at iEstimatedCityFoodDifference for details about food is production case if i may say but anyways etc -->
+						if (canBuild(kPlot, eBuildFarm) && !kCity.isFoodProduction())
 						{
 							eBestSupposedBuild = eBuildFarm;
 
@@ -1271,7 +1273,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					if (kPlot.isHills())
 					{
 						// <!-- custom: unless we are very much starving, do not waste this high food tile just to build a farm or such food improvement -->
-						if (iEstimatedCityFoodDifference >= -1)
+						if (iEstimatedCityFoodDifference >= -1 || kCity.isFoodProduction())
 						{
 							if (canBuild(kPlot, eBuildMine))
 							{
@@ -1286,17 +1288,16 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 								// <!-- custom: wait for right time, do nothing (yet in this case i mean anyways etc) in this case i mean anyways etc -->
 								continue;
 							}
-
 						}
 						// <!-- custom: low food, can't be too picky if i may say in this case at least maybe but anyways etc -->
 						else
 						{
-							if (canBuild(kPlot, eBuildWindmill))
+							if (canBuild(kPlot, eBuildWindmill) && !kCity.isFoodProduction())
 							{
 								// <!-- custom: the windmill may be a fine alternative then, hopefully the food helps, that we'd get even on a hill, quite nice, yields are not too great, but at least city grows hopefully or doesn't stop growing too much (use what we can mindset xd if i may say at least for me and in this case if i may say but anyways etc) -->
 								eBestSupposedBuild = eBuildWindmill;
 
-								iValue += 1400;
+								iValue += 1200 + (100 * (-1 * iEstimatedCityFoodDifference));
 
 							}
 							else if (canBuild(kPlot, eBuildMine))
@@ -1318,7 +1319,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					else
 					{
 						// <!-- custom: as long as we have enough or barely enough food, afford to capitalize on that and maximize potential and higher yields anyways etc -->
-						if (iEstimatedCityFoodDifference >= -1)
+						if (iEstimatedCityFoodDifference >= -1 || kCity.isFoodProduction())
 						{
 							if (canBuild(kPlot, eBuildWorkshop))
 							{
@@ -1345,12 +1346,12 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 						else
 						{
 							// <!-- custom: try our luck with a farm... if we can ideally in this case i mean anyways etc. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage if i am not mistaken anyways etc -->
-							if (canBuild(kPlot, eBuildFarm))
+							if (canBuild(kPlot, eBuildFarm) && !kCity.isFoodProduction())
 							{
 								eBestSupposedBuild = eBuildFarm;
 
 								// <!-- custom: high food tile, start from a lower point to try to avoid overbuilding them -->
-								iValue += 1300 + (100 * (-1 * iEstimatedCityFoodDifference));
+								iValue += 1450 + (100 * (-1 * iEstimatedCityFoodDifference));
 							}
 							// <!-- custom: else, fallback to previous plan, gotta make what we can get what we can of the tile before we starve, this is still a good tile, so use it as best as we can if i may say in this case anyways etc. -->
 							// else if (canBuild(kPlot, eBuildWorkshop))
@@ -1381,7 +1382,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					if (kPlot.isHills())
 					{
 						// <!-- custom: as long as we have enough food to afford building on lower-food plains terrains i mean but anyways etc, prefer the mine, yields slightly more anyways etc -->
-						if (iEstimatedCityFoodDifference >= 0)
+						if (iEstimatedCityFoodDifference >= 0 || kCity.isFoodProduction())
 						{
 							if (canBuild(kPlot, eBuildMine))
 							{
@@ -1400,7 +1401,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 						// <!-- custom: if low on food on a hill consider windmill with a higher priority -->
 						else
 						{
-							if (canBuild(kPlot, eBuildWindmill))
+							if (canBuild(kPlot, eBuildWindmill) && !kCity.isFoodProduction())
 							{
 								// <!-- custom: windmill on plains is not too bad, but unless we are starved, this is not a so good build -->
 								eBestSupposedBuild = eBuildWindmill;
@@ -1426,7 +1427,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					// <!-- custom: on flatland plains make good cottages early, and fine worshops late assuming we have extra food, if no food or really low, a farm may be fine, especially irrigated else build what we can until we starve -->
 					else
 					{
-						if (iEstimatedCityFoodDifference >= 0)
+						if (iEstimatedCityFoodDifference >= 0 || kCity.isFoodProduction())
 						{
 							if (canBuild(kPlot, eBuildWorkshop))
 							{
@@ -1454,7 +1455,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 						else
 						{
 							// <!-- custom: try our luck with a farm... if we can ideally in this case i mean anyways etc. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage if i am not mistaken anyways etc -->
-							if (canBuild(kPlot, eBuildFarm))
+							if (canBuild(kPlot, eBuildFarm) && !kCity.isFoodProduction())
 							{
 								eBestSupposedBuild = eBuildFarm;
 
@@ -1513,7 +1514,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					else
 					{
 						// <!-- custom: tighter food requirement than plains, as tundra tends to be surrounded by other tundra or snow or such other low food tiles so favour food more if i am not mistaken anyways etc -->
-						if (iEstimatedCityFoodDifference >= -1)
+						if (iEstimatedCityFoodDifference >= -1 || kCity.isFoodProduction())
 						{
 							if (canBuild(kPlot, eBuildWorkshop))
 							{
@@ -1542,7 +1543,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 						else
 						{
 							// <!-- custom: try our luck with a farm... if we can ideally in this case i mean anyways etc. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage if i am not mistaken anyways etc -->
-							if (canBuild(kPlot, eBuildFarm))
+							if (canBuild(kPlot, eBuildFarm) && !kCity.isFoodProduction())
 							{
 								eBestSupposedBuild = eBuildFarm;
 
@@ -1575,7 +1576,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					if (kPlot.isHills())
 					{
 						// <!-- custom: even if the windmill technically raises food, the yields are still not great, bet on the mine being more useful rather -->
-						if (iEstimatedCityFoodDifference >= -2)
+						if (iEstimatedCityFoodDifference >= -2 || kCity.isFoodProduction())
 						{
 							if (canBuild(kPlot, eBuildMine))
 							{
@@ -1622,7 +1623,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					if (kPlot.isHills())
 					{
 						// <!-- custom: even if the windmill technically raises food, the yields are still not great, bet on the mine being more useful rather -->
-						if (iEstimatedCityFoodDifference >= -2)
+						if (iEstimatedCityFoodDifference >= -2 || kCity.isFoodProduction())
 						{
 							if (canBuild(kPlot, eBuildMine))
 							{
@@ -1640,7 +1641,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 						// <!-- custom: count on the windmill but not too much, this is really last ditch and quite desperate xd if i may say in this case but anyways etc -->
 						else
 						{
-							if (canBuild(kPlot, eBuildWindmill))
+							if (canBuild(kPlot, eBuildWindmill) && !kCity.isFoodProduction())
 							{
 								// <!-- custom: if nothing better to do, grab what we can anyways etc -->
 								eBestSupposedBuild = eBuildWindmill;
@@ -18710,7 +18711,7 @@ bool CvUnitAI::AI_fortTerritory(bool bCanal, bool bAirbase)
 	return false;
 }
 
-// <!-- custom: i have noticed that commenting out this function entirely in the inner body i mean in this case but anyways etc and returning always and only false, we'd fix farm spices issue, however we'd lose the roading bonuses ability we had ; i didn't see an easy way to selectively do this with AIs like chatgpt o-3, so kept as is and tolerating occasional suboptimal improvements for the sake of having many nice ones often (we now mostly handle improving bonuses ourselves in CvUnitAI::AI_bestCityBuild in a way that should be much more efficient anyways etc) -->
+// <!-- custom: i have noticed that commenting out this function entirely in the inner body i mean in this case but anyways etc and returning always and only false, we'd fix farm spices issue, however we'd lose the roading bonuses ability we had ; i didn't see an easy way to selectively do this with AIs like chatgpt o-3, so kept as is and tolerating occasional suboptimal improvements for the sake of having many nice ones often (we now mostly handle improving bonuses ourselves in CvUnitAI::AI_bestCityBuild in a way that should be much more efficient anyways etc) ; update: i have tried and now added in `CvUnitAI::AI_improveBonus` but anyways etc to replace the ebuild code here with our bonus specific finding and algorithm code, but it seems issue persisted, so to not needlessly conflict with what this code could do, leave it as is although not optimal but maybe fine or yes or other or etc but anyways etc -->
 //bool CvUnitAI::AI_improveBonus(int iMinValue, CvPlot** ppBestPlot, BuildTypes* peBestBuild, int* piBestValue)
 bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anyway.)
 	int iMissingWorkersInArea) // advc.121
@@ -18994,14 +18995,50 @@ bool CvUnitAI::AI_improvePlot(CvPlot const& kPlot, BuildTypes eBuild) // advc: p
 
 		return true;
 	}
-	else if (canBuildRoute())
-	{
-		if (AI_connectPlot(kPlot))
-			return true;
-	}
+	// <!-- custom: tentative fix 2 by claude ai to further improve the issue of bonuses not connected soon enough, despite our refactor in CvUnitAI::AI_betterPlotBuild helping otherwise worker AI efficiency (see below for details anyways etc), adjusted or not by me if i may say too but anyways etc ; result is it seems a bit better, we road gold sooner in one autoplay in same map i ran, even if it gets swapped by mine immediately, but then switches back to road successfully. And we finally roadthe corn in khmer city that was long not roaded, although we do it quite late at turn 66, but we still do it, i didn't check in detail if we'd eventually road it in older dlls version of this fix or related previous ones that had bigger issues regarding this, but this seems like an improvement with this latest fix, so although i am not too sure what this does, leaving it as such as it seems to help, my core goal and concern is ai is linked to bonuses sooner and asap, while keeping its efficiency from numerous refactors and reworks on ai worker effiency, which seems to be done quite well anyways etc -->
+	// else if (canBuildRoute())
+	// {
+	// 	if (AI_connectPlot(kPlot))
+	// 		return true;
+	// }
 
-	return false;
-
+	// return false;
+    else
+    {
+        // When called with NO_BUILD, prioritize roading improved bonuses FIRST
+        BonusTypes eBonus = kPlot.getNonObsoleteBonusType(getTeam());
+        if (eBonus != NO_BONUS && 
+            kPlot.getImprovementType() != NO_IMPROVEMENT &&
+            !kPlot.isRoute() &&
+            canBuildRoute())
+        {
+            // This is an improved bonus without a road - high priority!
+            FOR_EACH_ENUM(Build)
+            {
+                if (GC.getInfo(eLoopBuild).getRoute() != NO_ROUTE &&
+                    canBuild(kPlot, eLoopBuild))
+                {
+                    if (!at(kPlot))
+                    {
+                        pushGroupMoveTo(kPlot, NO_MOVEMENT_FLAGS, false, false,
+                                MISSIONAI_BUILD, &kPlot);
+                    }
+                    getGroup()->pushMission(MISSION_BUILD, eLoopBuild, -1, NO_MOVEMENT_FLAGS,
+                            true, false, MISSIONAI_BUILD, &kPlot);
+                    return true;
+                }
+            }
+        }
+        
+        // Then fall back to your existing AI_connectPlot logic
+        if (canBuildRoute())
+        {
+            if (AI_connectPlot(kPlot))
+                return true;
+        }
+    }
+    
+    return false;
 }
 
 BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) // advc: param was CvPlot*
@@ -19017,35 +19054,62 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) 
 	// 1. To clear a feature if a planned improvement requires it.
 	// 2. To build a road if the plot bridges two separate road networks.
 
+	// <!-- custom: not sure it is needed to add fallout as such but just to be safe anyways etc, get any build we can, as fallout doesn't have as of now a build_remove_fallout if i am not mistaken, get build through say build_farm if it can remove fallout (anything is good as long as we remove fallout, but if our preivous build was already made with that in mind (removing fallout if we selected a workshop in another function for example, then kOriginalBuildInfo.isFeatureRemove(eFeature) would be true if i am not mistaken and we wouldn't reach this code at all anyway so this is really a safeguad of a safeguard xd and in case other functions call this somehow (i ddin't check) anyways etc)) -->
+	// <!-- custom: for feature remove builds, this is a safeguard for cases where somehow we may have missed the specific build to remove feature (if any exists anyways etc) ; note: advantage of hardcoding these especially for forest and jungle is we don't say get a farm that maybe can remove a jungle when we wanted to build a workshop instead after chopping anyways etc, requires a bit more maintenance but hopefully this stay consistent enough and is computationally efficient, also when caller is one of our refactored functions such as CvUnitAI::AI_bestCityBuild, they already process extensively best build in many conditions including chopping, so this is a safeguard and in case other functions call this (didn't check too much if at all), hopefully helpful or not or yes or etc information i added but anyways etc -->
+	// <!-- custom: fix on refactored version: while we now improve bonuses much more efficiently, and not needlessly road them first and other things, so very nice early yields, and bonuses improved much sooner in the game, so very very nice yields too but anyways etc, we now however have bonuses sometimes unroaded, for quite a long time often. Trying to do the best of both, improving bonuses sooner, but also roading them sooner as well, and not roading everything execessively/needlessly or/and too soon as well (the former function was quite crazy about roading if i am not mistaken based on the ai that helped me refactor it and all but anyways etc 's reaction to the code xd if i remember it correctly but anyways etc) ; code provided by claude ai ; with this version it seems we are on a good track, as we road more bonuses or sooner (at turn 60 almsot all are roaded in capital city it seems (vs most but not marbe with o-3's fix, and i assume worse or same before o-3's fix even) in the autoplay same map i ran, but we'd still like to road even sooner ideally -->
+
 	FAssert(eBuild != NO_BUILD);
 
 	FeatureTypes const eFeatureForest = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FOREST");
 	FeatureTypes const eFeatureJungle = (FeatureTypes)GC.getInfoTypeForString("FEATURE_JUNGLE");
-	// <!-- custom: used to check if it's on our existing plot so we can clear it (removing fallout doesn't seem to be handled specifically as a build_remove unlike forest and jungle but only as part of building other builds, so fallout is not related to the above code if i am not mistaken, but check to be sure, although should be accurate, but check to be sure if needed i mean in this case but anyways etc) -->
 	FeatureTypes const eFeatureFallout = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FALLOUT");
 
-	// <!-- custom: modify these if needed in your mod anyways etc -->
-    // Hardcoded BuildTypes for common feature removals for efficiency.
-    BuildTypes const eBuildRemoveForest = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_FOREST");
-    BuildTypes const eBuildRemoveJungle = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_JUNGLE");
+	// Hardcoded BuildTypes for common feature removals for efficiency.
+	BuildTypes const eBuildRemoveForest = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_FOREST");
+	BuildTypes const eBuildRemoveJungle = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_JUNGLE");
 
 	FeatureTypes const eFeature = kPlot.getFeatureType();
-
 	CvBuildInfo const& kOriginalBuildInfo = GC.getInfo(eBuild);
 
 	// If the original build is a route or the plot already has a route,
-	// we don't need to override it. This prevents the function from
-	// getting stuck in a loop or re-prioritizing a road that's already
-	// been built.
+	// we don't need to override it.
 	if (kOriginalBuildInfo.getRoute() != NO_ROUTE || kPlot.isRoute()) {
 		return eBuild;
 	}
 
+	// IMPROVED LOGIC: Road improved bonuses that aren't connected yet
+	BonusTypes eBonus = kPlot.getNonObsoleteBonusType(getTeam());
+	if (eBonus != NO_BONUS && 
+		kPlot.getImprovementType() != NO_IMPROVEMENT &&
+		!kPlot.isRoute() &&
+		canBuildRoute())
+	{
+		// Check if this improved bonus needs a road for trade connection
+		// Most bonuses need roads unless the improvement itself provides connection
+		bool bNeedsRoad = true;
+		
+		// Only some improvements (like camps, fishing boats) connect bonuses without roads
+		if (GET_PLAYER(getOwner()).doesImprovementConnectBonus(kPlot.getImprovementType(), eBonus))
+		{
+			bNeedsRoad = false;
+		}
+		
+		// If bonus needs road for connection, prioritize building it
+		if (bNeedsRoad)
+		{
+			FOR_EACH_ENUM(Build)
+			{
+				if (GC.getInfo(eLoopBuild).getRoute() != NO_ROUTE &&
+					canBuild(kPlot, eLoopBuild))
+				{
+					return eLoopBuild;   // Build road on improved bonus
+				}
+			}
+		}
+	}
+
 	// --- High-Priority Override 1: Clear Feature ---
-	// We check if the originally planned improvement requires a feature
-	// to be removed first. If so, we find the specific build task to
-	// remove that feature and return it as the new, high-priority task.
-	// <!-- custom: also this is a safeguard for cases where somehow we may have missed the specific build to remove feature (if any exists anyways etc) ; note: advantage of hardcoding these especially for forest and jungle is we don't say get a farm that maybe can remove a jungle when we wanted to build a workshop instead after chopping anyways etc, requires a bit more maintenance but hopefully this stay consistent enough and is computationally efficient, also when caller is one of our refactored functions such as CvUnitAI::AI_bestCityBuild, they already process extensively best build in many conditions including chopping, so this is a safeguard and in case other functions call this (didn't check too much if at all), hopefully helpful or not or yes or etc information i added but anyways etc -->
+	// Check if the originally planned improvement requires a feature to be removed first
 	if (!kOriginalBuildInfo.isFeatureRemove(eFeature))
 	{
 		if (eFeature == eFeatureForest)
@@ -19062,10 +19126,9 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) 
 				return eBuildRemoveJungle;
 			}
 		}
-		// <!-- custom: not sure it is needed but just to be safe anyways etc, get any build we can, as fallout doesn't have as of now a build_remove_fallout if i am not mistaken, get build through say build_farm if it can remove fallout (anything is good as long as we remove fallout, but if our preivous build was already made with that in mind (removing fallout if we selected a workshop in another function for example, then kOriginalBuildInfo.isFeatureRemove(eFeature) would be true if i am not mistaken and we wouldn't reach this code at all anyway so this is really a safeguad of a safeguard xd and in case other functions call this somehow (i ddin't check) anyways etc)) -->
 		else if (eFeature == eFeatureFallout)
 		{
-			// Find a build type that specifically removes this feature.
+			// Find a build type that specifically removes this feature
 			FOR_EACH_ENUM(Build)
 			{
 				CvBuildInfo const& kLoopBuild = GC.getInfo(eLoopBuild);
@@ -19073,7 +19136,6 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) 
 				{
 					if (canBuild(kPlot, eLoopBuild))
 					{
-						// Found a build to remove the feature. Return it as the high priority.
 						return eLoopBuild;
 					}
 				}
@@ -19082,15 +19144,14 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) 
 	}
 
 	// --- High-Priority Override 2: Bridge Plot Groups ---
-	// We check if the plot is a critical link between two unconnected
-	// road networks. If so, building a road here is a high-priority
-	// strategic task for the empire's economy and military.
+	// Check if the plot is a critical link between two unconnected road networks
 	
 	// NEW LOGIC: Check if the original build is a local bonus improvement.
 	// If so, we should prioritize that over bridging plot groups.
-	if (kOriginalBuildInfo.getImprovement() != NO_IMPROVEMENT && kPlot.getNonObsoleteBonusType(getTeam()) != NO_BONUS)
+	if (kOriginalBuildInfo.getImprovement() != NO_IMPROVEMENT && 
+		kPlot.getNonObsoleteBonusType(getTeam()) != NO_BONUS)
 	{
-		// The original plan is a bonus improvement. We don't want to override it with a road.
+		// The original plan is a bonus improvement. Don't override it with a road.
 		return eBuild;
 	}
 
@@ -19100,7 +19161,7 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) 
 
 	FOR_EACH_ADJ_PLOT(kPlot)
 	{
-		// We now care about adjacent plots that have a route OR a river.
+		// Care about adjacent plots that have a route OR a river
 		if (!pAdj->isRoute() && !pAdj->isRiver())
 			continue;
 
@@ -19109,7 +19170,7 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) 
 			continue;
 
 		// If we find an adjacent plot that is part of a different plot group
-		// than the first one we found, this plot is a bridge.
+		// than the first one we found, this plot is a bridge
 		if (iPlotGroupId != NO_PLOTGROUP && pAdjPlotGroup->getID() != iPlotGroupId)
 		{
 			bBridgesPlotGroups = true;
@@ -19120,7 +19181,7 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) 
 
 	if (bBridgesPlotGroups)
 	{
-		// If the plot is a bridge, we find and return a route-building task.
+		// If the plot is a bridge, find and return a route-building task
 		FOR_EACH_ENUM(Build)
 		{
 			CvBuildInfo const& kLoopBuild = GC.getInfo(eLoopBuild);
@@ -19128,14 +19189,13 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) 
 			{
 				if (canBuild(kPlot, eLoopBuild))
 				{
-					// Found a route build that bridges a gap. Return it as a high priority.
 					return eLoopBuild;
 				}
 			}
 		}
 	}
 
-	// If no high-priority override was found, return the original build.
+	// If no high-priority override was found, return the original build
 	return eBuild;
 }
 
