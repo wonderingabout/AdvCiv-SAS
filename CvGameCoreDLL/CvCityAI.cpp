@@ -2995,7 +2995,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 				aiUnitAIVal[UNITAI_DEFENSE_AIR] += (bDefense ? 1 : 0) *
 						kOwner.getNumCities() + 1;
 
-				// <!-- custom: add a check here as well as advised by gemini ai: if city is landlocked (i assume it means is in a lake, do not build any military naval unit on it is quite pointless or at least do not prioritize it further anyways etc) ; note: i don't know if this is the correct way to access MIN_WATER_SIZE_FOR_OCEAN or whichever thing if i may say but anyways etc is relevant for our check of city being landlocked if i am not mistaken but anyways etc, but it compiled successfully and gemini ai provided it to me based on our global search results and a code sample i provided too so hopefully accurate but anyways etc (if not i wouldn't mind less military naval units, but i hope this is as intended though and there are still a bit of military naval units still but not too much or/and too prioritized if i am not mistaken too if i may say but anyways etc). -->
+				// <!-- custom: add a check `&& isCoastal(GC.getDefineINT("MIN_WATER_SIZE_FOR_OCEAN")` here as well as advised by gemini ai: if city is landlocked (i assume it means is in a lake, do not build any military naval unit on it is quite pointless or at least do not prioritize it further anyways etc) ; note: i don't know if this is the correct way to access MIN_WATER_SIZE_FOR_OCEAN or whichever thing if i may say but anyways etc is relevant for our check of city being landlocked if i am not mistaken but anyways etc, but it compiled successfully and gemini ai provided it to me based on our global search results and a code sample i provided too so hopefully accurate but anyways etc (if not i wouldn't mind less military naval units, but i hope this is as intended though and there are still a bit of military naval units still but not too much or/and too prioritized if i am not mistaken too if i may say but anyways etc). -->
 				// if (pWaterArea != NULL)
 				if (pWaterArea != NULL && isCoastal(GC.getDefineINT("MIN_WATER_SIZE_FOR_OCEAN")))
 				{
@@ -3071,6 +3071,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 
 	aiUnitAIVal[UNITAI_SETTLE] *= (bDanger ? 8 : 12); // was ? 8 : 20
 	aiUnitAIVal[UNITAI_WORKER] *= (bDanger ? 2 : 7);
+
 	aiUnitAIVal[UNITAI_ATTACK] *= 3;
 	aiUnitAIVal[UNITAI_ATTACK_CITY] *= 5; // K-Mod, up from *4
 	aiUnitAIVal[UNITAI_COLLATERAL] *= 5;
@@ -3084,9 +3085,12 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 	aiUnitAIVal[UNITAI_CITY_DEFENSE] *= 2;
 	aiUnitAIVal[UNITAI_CITY_COUNTER] *= 2;
 	aiUnitAIVal[UNITAI_CITY_SPECIAL] *= 2;
+
 	aiUnitAIVal[UNITAI_EXPLORE] *= (bDanger ? 6 : 15);
+
 	//aiUnitAIVal[UNITAI_ICBM] *= 18;
 	aiUnitAIVal[UNITAI_ICBM] *= 18 * kOwner.AI_nukeWeight() / 100; // K-Mod
+
 	aiUnitAIVal[UNITAI_WORKER_SEA] *= (bDanger ? 3 : 10);
 	// <!-- custom: deprioritize military sea units, as AI builds them too much then its cities die (10+ galleons and almost no land unit defending cities, see known issue number as of now 35 for details), but land warfare should be most important, although this favours pangea a bit too much, it makes AI hopefully overall stronger and less prone to abuse -->
 	// aiUnitAIVal[UNITAI_ATTACK_SEA] *= 5;
@@ -3100,6 +3104,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 	// aiUnitAIVal[UNITAI_CARRIER_SEA] *= 8;
 	// aiUnitAIVal[UNITAI_MISSILE_CARRIER_SEA] *= 8;
 	// aiUnitAIVal[UNITAI_PIRATE_SEA] *= 5;
+
 	aiUnitAIVal[UNITAI_ATTACK_AIR] *= 6;
 	aiUnitAIVal[UNITAI_DEFENSE_AIR] *= 4; // K-Mod, up from *3
 	aiUnitAIVal[UNITAI_CARRIER_AIR] *= 15;
@@ -3136,6 +3141,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 		aiUnitAIVal[UNITAI_PIRATE_SEA] = 0;
 		aiUnitAIVal[UNITAI_ICBM] = 0; // advc.143b
 	} // </advc.033>
+
 	int iBestValue = 0;
 	UnitTypes eBestUnit = NO_UNIT;
 

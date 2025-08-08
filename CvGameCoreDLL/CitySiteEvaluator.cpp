@@ -378,15 +378,15 @@ short AIFoundValue::evaluate()
 	// <advc.040>
 
 	// <!-- custom: attempt to support terrains and feature(s) conditional settling/founding city logic anyways etc -->
-	TerrainTypes const eTerrainPeak = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_PEAK");
-	TerrainTypes const eTerrainDesert = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_DESERT");
-	TerrainTypes const eTerrainSnow = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_SNOW");
-	TerrainTypes const eTerrainPlains = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_PLAINS");
-	TerrainTypes const eTerrainTundra = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_TUNDRA");
-	TerrainTypes const eTerrainGrass = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_GRASS");
+	static const TerrainTypes eTerrainPeak = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_PEAK");
+	static const TerrainTypes eTerrainDesert = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_DESERT");
+	static const TerrainTypes eTerrainSnow = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_SNOW");
+	static const TerrainTypes eTerrainPlains = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_PLAINS");
+	static const TerrainTypes eTerrainTundra = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_TUNDRA");
+	static const TerrainTypes eTerrainGrass = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_GRASS");
 
-	FeatureTypes const eFeatureFloodPlains = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FLOOD_PLAINS");
-	FeatureTypes const eFeatureOasis = (FeatureTypes)GC.getInfoTypeForString("FEATURE_OASIS");
+	static const FeatureTypes eFeatureFloodPlains = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FLOOD_PLAINS");
+	static const FeatureTypes eFeatureOasis = (FeatureTypes)GC.getInfoTypeForString("FEATURE_OASIS");
 
 	bool bFirstColony = isPrioritizeAsFirstColony();
 	IFLOG if(bFirstColony) logBBAI("First colony");
