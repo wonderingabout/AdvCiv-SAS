@@ -216,10 +216,160 @@ Great people AIs:
 - UNITAI_GREAT_MERCHANT: Roll dice to decide if unit should Find best city to conduct trade mission in and do so, or start a golden age, or join a high priority city
 - UNITAI_GREAT_ENGINEER: Build an available wonder. If no wonder is available to rush, roll dice to decide whether to start a golden age, or join high priority city
 
-
-
 For unit AIs that are correct in the OP, I didn't write anything.
 ```
+
+## Find and select map type in the DLL
+
+While trying to fix the issue of too many naval units hehe (no reference to another mod xd is first thing that i wrote unconsciously but anyways etc), i have found these map types with chatgpt 5's help (who/which helped me write this doc section btw but anyways etc)
+
+Default Map Scripts – Civilization IV: Beyond the Sword
+
+### Location
+
+`C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\PublicMaps\`
+
+### Map Script Files
+
+- `Archipelago.py`
+- `Balanced.py`
+- `Continents.py`
+- `Custom_Continents.py`
+- `Fantasy_Realm.py`
+- `Fractal.py`
+- `Great_Plains.py`
+- `Highlands.py`
+- `Hub.py`
+- `Ice_Age.py`
+- `Inland_Sea.py`
+- `Islands.py`
+- `Lakes.py`
+- `Maze.py`
+- `Mirror.py`
+- `Oasis.py`
+- `Pangaea.py`
+- `Ring.py`
+- `Shuffle.py`
+- `Team_Battleground.py`
+- `Terra.py`
+- `Tilted_Axis.py`
+- `Wheel.py`
+- `aDebugMap.py` *(testing/development)*
+
+### Map type summary
+
+Done by chatgpt 5 (so/but check to be sure it is accurate, anyways etc) and formatted by me too i mean if i may say (check if my formatting is accurate or not xd maybe too or not or yes or other or etc but anyways etc)
+
+Below is a quick-reference summary of all default map scripts in *Beyond the Sword*, with short descriptions of their typical gameplay impact.
+
+#### Archipelago
+
+Multiple varied-sized islands surrounded by ocean. Limited land in each spot means players rely on fishing and naval expansion. Ideal for exploration-focused play and slower-paced growth.
+
+#### Balanced
+
+One big landmass with several smaller surrounding islets. Players start near the ocean on the main continent, offering a mix of naval and land play opportunities.
+
+#### Continents
+
+Two to three large continents separated by oceans. Civs are spread across them, fostering mid-game naval competition and territorial strategies.
+
+#### Custom Continents
+
+Like Continents but with multiple tiny islands scattered around. Encourages periodic naval moments and strategic planning across both land and sea.
+
+#### Fantasy Realm
+
+A solid, continuous landmass with many freshwater lakes. Terrain is wildly mixed—desert, tundra, and ice appear randomly, adding variety to exploration.
+
+#### Fractal
+
+Strange, thin, snakelike landmasses created from mathematical formulas. Shoreline spawns are common, and landscapes are notoriously unpredictable.
+
+#### Great Plains
+
+Inspired by the US plains—large open areas with rivers, patches of desert, forests, and strategic resources like stone and marble. Good for land-based development.
+
+#### Highlands
+
+Steppes and hills fill the map, resembling Indo-Asian terrain. Forests, minor jungle, tundra, and hills dominate—adds vertical strategic depth.
+
+#### Hub
+
+One central landmass with “spokes” radiating out. Designed for multiplayer (up to ~10 players), with players starting on separate spokes for balanced connections.
+
+#### Ice Age
+
+Ice and tundra dominate the map. Habitable land is scarce and spread thin, often in island-like formations, making expansion challenging.
+
+#### Inland Sea
+
+A large sea surrounded by continents—land wraps around central water. Strategic naval chokepoints and inland water access define this map’s dynamic.
+
+#### Islands
+
+Moderate-sized islands spread across the map, typically one per civilization. Encourages early naval focus and avoiding land-based wars.
+
+#### Lakes
+
+One large landmass featuring multiple large saltwater lakes. Starting positions are typically near water, aiding lake-based trade and exploration.
+
+#### Mirror
+
+The map is symmetrically mirrored. Player placements and landforms reflect across an axis, offering balanced starts and fairness in multiplayer.
+
+#### Oasis
+
+Desert centre with water along one edge. Civilizations often start near the desert border, establishing survival and resource strategies early.
+
+#### Pangaea
+
+A single large continent with water edges. Starts are random, leading to land-heavy conflicts and limited early naval warfare.
+
+#### Maze
+
+Land forms maze-like paths between water. Complex navigation makes exploration and expansion tricky but strategically rich.
+
+#### Ring
+
+A ring of interconnected islands surrounding a cold or snowy center. Offers a unique, circular naval-limited game flow.
+
+#### Shuffle
+
+Essentially “Random” — all aspects are scrambled. Starts and continent patterns are fluid and unpredictable.
+
+#### Team Battleground
+
+Layered terrain: snow/tundra, grassland, desert, then back again. Similar to Mirror but with more randomness—balanced starts and mixed weather zones.
+
+#### Terra
+
+Earth-like layout—multiple continents with islands. Players usually start on sizable landmasses, encouraging territorial tussles.
+
+### Modding note
+
+When calling `getMapScriptName()` or checking the selected script in the DLL (e.g., `updatePangaea()`), Civ4 uses the **filename without `.py`** — e.g., `Pangaea.py` → `"Pangaea"`. If you want to treat multiple map types the same way in AI logic (e.g., `"Continents"` like `"Pangaea"`), explicitly check for each name.
+
+Examples of usage based on real mod existing samples in the mod (for example in [/CvGameCoreDLL/CvInitCore.cpp](/CvGameCoreDLL/CvInitCore.cpp) if i'm not mistaken but check to be sure but anyways etc) before our changes hehe, if i'm not mistaken anyways etc (check to be sure) but anyways etc:
+
+```cpp
+bool const isPangea = GC.getInitCore().isPangaea();
+```
+
+or
+
+```cpp
+bool const isLandMap = (
+    getMapScriptName().compare(L"Pangaea") == 0 ||
+    getMapScriptName().compare(L"Continents") == 0
+)
+```
+
+Note: not static map type although would have been computationally nice, but to be safe in case map type changes when loading another save file or creating a new map maybe (i don't know but in case i mean, check to be sure but anyways etc) during civ4 run time anyways etc, as advised by chatgpt 5 too but anyways etc
+
+As for implementation, see what i did for example in as of now `isNavalHeavyMap` and `isLandHeavyMap` but check if it is accurate or/and there is a better way to characterize maps or not but anyways etc
+
+See also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc) anyways etc.
 
 ## Where to find Python errors or debug (so no need to copy them either if you need to ask chatgpt or such or a forum anyways etc)
 

@@ -3763,7 +3763,7 @@
 					<bTrait>1</bTrait>
 				</Trait>
 			</Traits>
-			<!-- custom: rebalanced according to and with the help of chatgpt o-3 much later anyways etc to follow civ4 original format, i had done 5 military 3 growth 2 religion originally anyways etc, hopefully more accurate this way and civ4 compliant and also reliable for ai personality panel display and compare too if i am not mistaken but anyways etc -->
+			<!-- custom: rebalanced according to and with the help of chatgpt o3 much later anyways etc to follow civ4 original format, i had done 5 military 3 growth 2 religion originally anyways etc, hopefully more accurate this way and civ4 compliant and also reliable for ai personality panel display and compare too if i am not mistaken but anyways etc -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>

@@ -34,7 +34,8 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 			</YieldChanges>
 			<!-- advc.036: was 10 -->
 			<iAITradeModifier>0</iAITradeModifier>
-			<iAIObjective>0</iAIObjective>
+			<!-- custom: due to robotic/future era changes/additions but anyways etc, try to make this bonus extra important as an objective similarly to other bonuses that have this > 0 as well anyways etc, was 0 -->
+			<iAIObjective>10</iAIObjective>
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iPlacementOrder>2</iPlacementOrder>
@@ -213,7 +214,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 				<iYieldChange>0</iYieldChange>
 			</YieldChanges>
 			<iAITradeModifier>0</iAITradeModifier>
-			<!-- custom: try to make horse extra important as an objective (not restricting trade if uneeded extra in possession ideally but not tested nor do i know too much about it anyways etc but hopefully maybe would work as intended maybe not guaranteed though anyways etc may or not anyways etc) if they don't have it, was  0 -->
+			<!-- custom: try to make horse extra important as an objective (not restricting trade if uneeded extra in possession ideally but not tested nor do i know too much about it anyways etc but hopefully maybe would work as intended maybe not guaranteed though anyways etc may or not anyways etc) if they don't have it, was 0 -->
 			<iAIObjective>10</iAIObjective>
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
@@ -278,7 +279,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 			</YieldChanges>
 			<!-- advc.036: was 10 -->
 			<iAITradeModifier>0</iAITradeModifier>
-			<!-- custom: try to make iron extra important as an objective (not restricting trade if uneeded extra in possession ideally but not tested nor do i know too much about it anyways etc but hopefully maybe would work as intended maybe not guaranteed though anyways etc may or not anyways etc) if they don't have it, was  0 -->
+			<!-- custom: try to make iron extra important as an objective (not restricting trade if uneeded extra in possession ideally but not tested nor do i know too much about it anyways etc but hopefully maybe would work as intended maybe not guaranteed though anyways etc may or not anyways etc) if they don't have it, was 0 -->
 			<iAIObjective>10</iAIObjective>
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>

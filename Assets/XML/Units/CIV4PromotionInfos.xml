@@ -1239,8 +1239,8 @@
 			<PromotionPrereqOr1>NONE</PromotionPrereqOr1>
 			<!-- advc.200: PROMOTION_FIRST_STRIKE2 in K-Mod; reverted -->
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
-			<!-- custom: -->
-			<TechPrereq>TECH_CONSTRUCTION</TechPrereq>
+			<!-- custom: was NONE -->
+			<TechPrereq>TECH_SAILING</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
 			<iBlitz>0</iBlitz>

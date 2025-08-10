@@ -72,29 +72,30 @@ void CvGame::updateColoredPlots()
 							PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
 				}
 			}
-			// Plot improvement replacement circles for debugging
-			FOR_EACH_ENUM(PlotNum)
-			{
-				CvPlot& kPlot = kMap.getPlotByIndex(eLoopPlotNum);
-				CvCityAI const* pWorkingCity = kPlot.AI_getWorkingCity();
-				ImprovementTypes eImprovement = kPlot.getImprovementType();
-				if (pWorkingCity != NULL && eImprovement != NO_IMPROVEMENT)
-				{
-					CityPlotTypes ePlot = pWorkingCity->getCityPlotIndex(kPlot);
-					//int iBuildValue = pWorkingCity->AI_getBestBuildValue(ePlot);
-					BuildTypes eBestBuild = pWorkingCity->AI_getBestBuild(ePlot);
-					if (eBestBuild != NO_BUILD)
-					{
-						if (GC.getInfo(eBestBuild).getImprovement() != NO_IMPROVEMENT &&
-							eImprovement != GC.getInfo(eBestBuild).getImprovement())
-						{
-							kEngine.addColoredPlot(kPlot.getX(), kPlot.getY(),
-									GC.getInfo(GC.getColorType("RED")).getColor(),
-									PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
-						}
-					}
-				}
-			}
+			// <!-- custom: even in debugging (if i understood it correctly), these are confusing and needlessly taking computing power too, we use bestcitybuild now anyway instead to choose our best plots to build on and all for AI workers, so try to gradually remove old code influence, while increasing performance if we can do so as well or functionality at least i want to do so in this case but anyways etc -->
+			// // Plot improvement replacement circles for debugging
+			// FOR_EACH_ENUM(PlotNum)
+			// {
+			// 	CvPlot& kPlot = kMap.getPlotByIndex(eLoopPlotNum);
+			// 	CvCityAI const* pWorkingCity = kPlot.AI_getWorkingCity();
+			// 	ImprovementTypes eImprovement = kPlot.getImprovementType();
+			// 	if (pWorkingCity != NULL && eImprovement != NO_IMPROVEMENT)
+			// 	{
+			// 		CityPlotTypes ePlot = pWorkingCity->getCityPlotIndex(kPlot);
+			// 		//int iBuildValue = pWorkingCity->AI_getBestBuildValue(ePlot);
+			// 		BuildTypes eBestBuild = pWorkingCity->AI_getBestBuild(ePlot);
+			// 		if (eBestBuild != NO_BUILD)
+			// 		{
+			// 			if (GC.getInfo(eBestBuild).getImprovement() != NO_IMPROVEMENT &&
+			// 				eImprovement != GC.getInfo(eBestBuild).getImprovement())
+			// 			{
+			// 				kEngine.addColoredPlot(kPlot.getX(), kPlot.getY(),
+			// 						GC.getInfo(GC.getColorType("RED")).getColor(),
+			// 						PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
+			// 			}
+			// 		}
+			// 	}
+			// }
 		}
 	} // BETTER_BTS_AI_MOD: END
 
@@ -237,36 +238,38 @@ void CvGame::updateColoredPlots()
 	if (!GET_PLAYER(getActivePlayer()).isOption(PLAYEROPTION_NO_UNIT_RECOMMENDATIONS) ||
 		!GET_PLAYER(getActivePlayer()).isHuman()) // advc.127
 	{
-		CvUnitAI const& kRecommendUnit = pHeadSelectedUnit->AI(); // advc.003u
-		if (kRecommendUnit.AI_getUnitAIType() == UNITAI_WORKER ||
-			kRecommendUnit.AI_getUnitAIType() == UNITAI_WORKER_SEA)
-		{
-			if (kRecommendUnit.getPlot().getOwner() == kRecommendUnit.getOwner())
-			{
-				CvCityAI* pCity = kRecommendUnit.getPlot().AI_getWorkingCity();
-				if (pCity != NULL)
-				{
-					CvPlot* pBestPlot = NULL;
-					if (kRecommendUnit.AI_bestCityBuild(*pCity, &pBestPlot) &&
-						pCity->AI_getBestBuildValue(pCity->getCityPlotIndex(*pBestPlot)) > 1)
-					{
-						FAssert(pBestPlot != NULL);
-						kEngine.addColoredPlot(pBestPlot->getX(), pBestPlot->getY(),
-								GC.getInfo(GC.getColorType("HIGHLIGHT_TEXT")).getColor(),
-								PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
-						CvPlot* pNextBestPlot = NULL;
-						if (kRecommendUnit.AI_bestCityBuild(*pCity, &pNextBestPlot, NULL, pBestPlot) &&
-							pCity->AI_getBestBuildValue(pCity->getCityPlotIndex(*pNextBestPlot)) > 1)
-						{
-							FAssert(pNextBestPlot != NULL);
-							kEngine.addColoredPlot(pNextBestPlot->getX(), pNextBestPlot->getY(),
-									GC.getInfo(GC.getColorType("HIGHLIGHT_TEXT")).getColor(),
-									PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
-						}
-					}
-				}
-			}
-		}
+		// <!-- custom: also disable worker plot to improve recommendations, we save computation this way, reduce the interference of old very inefficient and perhaps needlessly computationally expensive, on top of tiles shown not necessarily being the best as well. We only want to see city sites and such and not have too many needless circles that are confusing as well on top of using needless computing power but anyways etc ; located code spot to remove thanks to claude ai after i found first one above in this function anyways etc -->
+		// CvUnitAI const& kRecommendUnit = pHeadSelectedUnit->AI(); // advc.003u
+		// if (kRecommendUnit.AI_getUnitAIType() == UNITAI_WORKER ||
+		// 	kRecommendUnit.AI_getUnitAIType() == UNITAI_WORKER_SEA)
+		// {
+		// 	if (kRecommendUnit.getPlot().getOwner() == kRecommendUnit.getOwner())
+		// 	{
+		// 		CvCityAI* pCity = kRecommendUnit.getPlot().AI_getWorkingCity();
+		// 		if (pCity != NULL)
+		// 		{
+		// 			CvPlot* pBestPlot = NULL;
+		// 			if (kRecommendUnit.AI_bestCityBuild(*pCity, &pBestPlot) &&
+		// 				pCity->AI_getBestBuildValue(pCity->getCityPlotIndex(*pBestPlot)) > 1)
+		// 			{
+		// 				FAssert(pBestPlot != NULL);
+		// 				kEngine.addColoredPlot(pBestPlot->getX(), pBestPlot->getY(),
+		// 						GC.getInfo(GC.getColorType("HIGHLIGHT_TEXT")).getColor(),
+		// 						PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
+		// 				CvPlot* pNextBestPlot = NULL;
+		// 				if (kRecommendUnit.AI_bestCityBuild(*pCity, &pNextBestPlot, NULL, pBestPlot) &&
+		// 					pCity->AI_getBestBuildValue(pCity->getCityPlotIndex(*pNextBestPlot)) > 1)
+		// 				{
+		// 					FAssert(pNextBestPlot != NULL);
+		// 					kEngine.addColoredPlot(pNextBestPlot->getX(), pNextBestPlot->getY(),
+		// 							GC.getInfo(GC.getColorType("HIGHLIGHT_TEXT")).getColor(),
+		// 							PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// }
+		
 		/*	K-Mod. I've rearranged the following code a bit, so that it is more efficient, and so that
 			it shows city sites within 7 turns, rather than just the ones in 4 plot range.
 			the original code has been deleted, because it was quite bulky. */

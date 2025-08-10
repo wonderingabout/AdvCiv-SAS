@@ -512,7 +512,7 @@
 			<DomainFreeExperiences/>
 			<DomainProductionModifiers/>
 			<BuildingHappinessChanges/>
-			<!-- custom: relax courthouse requirement a bit anyways etc, quite unlikely a player woudl generally have so many cities, even if the player somehow has, unlikely all have courthouses too at least in early-mid game anyways etc, so relax it a bit i mean anyways etc, was BUILDINGCLASS_COURTHOUSE 4 -->
+			<!-- custom: relax courthouse requirement a bit anyways etc, quite unlikely a player would generally have so many cities, even if the player somehow has, unlikely all have courthouses too at least in early-mid game anyways etc, so relax it a bit i mean anyways etc, was BUILDINGCLASS_COURTHOUSE 4 -->
 			<PrereqBuildingClasses>
 				<PrereqBuildingClass>
 					<BuildingClassType>BUILDINGCLASS_COURTHOUSE</BuildingClassType>
@@ -14890,7 +14890,7 @@
 					<iSpecialistCount>1</iSpecialistCount>
 				</SpecialistCount>
 			</SpecialistCounts>
-			<!-- custom: kind of like ninjas hehe, and opens up to spy economy so interesting strategically or/and for flavor thematically i mean, advised/suggested/hinted by chatgpt o-3 :) -->
+			<!-- custom: kind of like ninjas hehe, and opens up to spy economy so interesting strategically or/and for flavor thematically i mean, advised/suggested/hinted by chatgpt o3 :) -->
 			<FreeSpecialistCounts>
 				<FreeSpecialistCount>
 					<SpecialistType>SPECIALIST_SPY</SpecialistType>

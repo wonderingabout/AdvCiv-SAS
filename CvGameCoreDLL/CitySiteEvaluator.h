@@ -168,7 +168,8 @@ private:
 			bool bCanNeverImprove = false) const;
 	int evaluateFreshWater(CvPlot const& p, int const* aiYield, bool bSteal,
 			int& iRiverTiles, int& iGreenTiles) const;
-	int foundOnResourceValue(int const* aiBonusImprovementYield) const;
+	// <!-- custom: removed and now added inline in parent caller AIFoundValue::evaluate() directly, as it seems to be called only once, and we'd have more parameters to fine tune it further in parent caller rather, it is also clearer this way i think anyways etc -->
+	//int foundOnResourceValue(int const* aiBonusImprovementYield) const;
 	int applyCultureModifier(CvPlot const& p, int iPlotValue, int iCultureModifier,
 			bool bShare) const;
 	int nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bCanTrade,
