@@ -7110,27 +7110,31 @@ void CvUnitAI::AI_workerSeaMove()
 			}
 		}
 	}
-	if (!isHuman() && AI_getUnitAIType() == UNITAI_WORKER_SEA)
-	{
-		CvCityAI const* pCity = getPlot().AI_getPlotCity();
-		if (pCity != NULL && pCity->getOwner() == getOwner())
-		{
-			if (pCity->AI_neededSeaWorkers() == 0)
-			{
-				if (GC.getGame().getElapsedGameTurns() > 10 &&
-					GET_PLAYER(getOwner()).calculateUnitCost() > 0)
-				{
-					scrap();
-					return;
-				}
-			}
-			else
-			{	// Probably ice-locked since we can't perform any actions
-				scrap();
-				return;
-			}
-		}
-	}
+	// <!-- custom: this seems to be where the never ending one turn workboat for like 50 turns in many cities issue happens/is caused by (see known issue as of now 23 for details anyways etc), attempt a patch/fix with chatgpt 5's help as it really really ruins the game for these AI (seemingly only AI and never human cities at least i don't remember having such an issue in my games in base advciv at time i had played it if i may say but anyways etc) stuck in perpetual never ending unit loop -->
+	// <!-- custom: update: actually, as discussed with chatgpt 5, i think it's really maybe better to not scrap, we waste hammers doing so, but instead telling the AI not to produce these workboats if it judges it has enough but anyways etc -->
+	// <!-- custom: it seems the needed vs existing workboats (sea workers but anyways etc) logic is (seemingly but looks fine although i didn't check but anyways etc) handled fine already in CvCityAI::AI_chooseProduction so no change needed there, don't worry about scrapping, and so just let AIs produce the unit as they want i mean but anyways etc, and then when produced but anyways etc, they would assess if they want one again, don't scrap a yet to be produced unit that tries to be produced again next turn endlessly or almost (few dozen turns often times or such), if i understood enough of this bug correctly anyways etc -->
+	// <!-- custom: update 3: there is still some issue is still a bit present/persistent, but it is tremendously better, as the workboat now completes its production in 2-3 turns in autoplay, incredibly better than 30-40 turns, but it seems there is something else preventing the production at turn 1 of completion but check to be sure anyways etc -->
+	// if (!isHuman() && AI_getUnitAIType() == UNITAI_WORKER_SEA)
+	// {
+	// 	CvCityAI const* pCity = getPlot().AI_getPlotCity();
+	// 	if (pCity != NULL && pCity->getOwner() == getOwner())
+	// 	{
+	// 		if (pCity->AI_neededSeaWorkers() == 0)
+	// 		{
+	// 			if (GC.getGame().getElapsedGameTurns() > 10 &&
+	// 				GET_PLAYER(getOwner()).calculateUnitCost() > 0)
+	// 			{
+	// 				scrap();
+	// 				return;
+	// 			}
+	// 		}
+	// 		else
+	// 		{	// Probably ice-locked since we can't perform any actions
+	// 			scrap();
+	// 			return;
+	// 		}
+	// 	}
+	// }
 
 	if (AI_retreatToCity())
 	{

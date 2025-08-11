@@ -7157,6 +7157,7 @@ int CvCityAI::AI_processValue(ProcessTypes eProcess, CommerceTypes eCommerceType
 }
 
 
+// <!-- custom: currently we produce may more workboats than we need (and workers a bit too but that's another issue if i may say but anyways etc), we need to check how much water bonuses are unimproved in our cultural borders, and among them how much are within reach (e.g. ocean fish not until tech_astronomy as of now if i'm not mistaken anyways etc, but coast fish at tech_fishing can be improved (and already reachable before or if not very soon if i'm not mistaken but anyways etc)). Count only the workboats we need right now, not all workboats we'll need when we can navigate ocean and whatnot i mean if i am not mistaken but anyways etc -->
 int CvCityAI::AI_neededSeaWorkers() /* advc: */ const
 {
 	int iNeededSeaWorkers = 0;
