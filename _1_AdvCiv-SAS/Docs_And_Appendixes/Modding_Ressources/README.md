@@ -6,53 +6,72 @@ This is a non-exhaustive page containing some ressources i found helpful.
 
 Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 which does this very well and fast anyways etc among other versions who/which could or not but anyways etc), feeding it the global search results of these entries and telling the format of the entries :) Hopefully helpful, thanks a lot chatgpt 5 hehe (among other versions or not had i tried with them but anyways etc). If you're curious how i did it, see this [google drive folder link](https://drive.google.com/drive/folders/1B18cJ8GYD8X_0vMoiTihVz0tthg5m_sg?usp=sharing) 's screenshots for details, hopefully helpful or not or yes or etc anyways etc ; i simplified the latest level of nesting (as of now map links such as pangea, continents etc) from the menu as it was needlessly cluttering and not too informative or fast to browse (the main map link is enough i think and these entries are short) but i d as i want too heheif i may say hopefully helpful or not or yes or etc but anyways etc
 
-[Modding disclaimer and general information](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#modding-disclaimer-and-general-information)
+Note: do not remove the 2 spaces at the end of the link, or do so at your own risk xd (is as you want though i mean if i may say in this case i mean but anyways etc) i have warned you xd if i may say but anyways etc.
 
-[A few useful tips](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#a-few-useful-tips)
-&emsp;[google drive image link in html tag if i am not mistaken anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#google-drive-image-link-in-html-tag-if-i-am-not-mistaken-anyways-etc)
-&emsp;[Download media assets for example on youtube](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#download-media-assets-for-example-on-youtube)
-&emsp;[add media assets](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#add-media-assets)
-&emsp;[write git commit message gradually as you do changes before committing them, and keep notes of ideas anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#write-git-commit-message-gradually-as-you-do-changes-before-committing-them-and-keep-notes-of-ideas-anyways-etc)
-&emsp;[full git log with anonymized email in a .txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#full-git-log-with-anonymized-email-in-a-txt)
-&emsp;[manual(s) and docs in .txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#manuals-and-docs-in-txt)
-&emsp;&emsp;[advciv id changes manual.txt results](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#advciv-id-changes-manualtxt-results)
-&emsp;[Sources about XML AI Attributes and their meaning](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#sources-about-xml-ai-attributes-and-their-meaning)
+<details>
+<summary>Spoiler: if you want to know why xd click here but anyways etc</summary>
 
-[A few useful other links](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#a-few-useful-other-links)
-[In case UnitAIs info from link above is deleted someday, here is a copy here in case, anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#in-case-unitais-info-from-link-above-is-deleted-someday-here-is-a-copy-here-in-case-anyways-etc)
+Nothing bad or dramatic would happen, but text will become like this
+[myLink1](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#menu)
+[myLink2](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#menu)
+[myLink3](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#menu)
+etc.
 
-[Find and select map type in the DLL](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#find-and-select-map-type-in-the-dll)
-&emsp;[Location](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#location)
-&emsp;[Map Script Files](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#map-script-files)
-&emsp;[Map type summary](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#map-type-summary)
+Instead of:
 
-[Modding note](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#modding-note)
+[myLink1](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#menu)  
+[myLink2](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#menu)  
+[myLink3](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#menu)  
+</details>
+<br>
 
-[Where to find Python errors or debug](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#where-to-find-python-errors-or-debug-so-no-need-to-copy-them-either-if-you-need-to-ask-chatgpt-or-such-or-a-forum-anyways-etc)
+[Modding disclaimer and general information](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#modding-disclaimer-and-general-information)  
 
-[Another example of how to use VS Code global search](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug-doc-copy-included-in-our-mod-anyways-etc)
+[A few useful tips](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#a-few-useful-tips)  
+&emsp;[google drive image link in html tag if i am not mistaken anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#google-drive-image-link-in-html-tag-if-i-am-not-mistaken-anyways-etc)  
+&emsp;[Download media assets for example on youtube](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#download-media-assets-for-example-on-youtube)  
+&emsp;[add media assets](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#add-media-assets)  
+&emsp;[write git commit message gradually as you do changes before committing them, and keep notes of ideas anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#write-git-commit-message-gradually-as-you-do-changes-before-committing-them-and-keep-notes-of-ideas-anyways-etc)  
+&emsp;[full git log with anonymized email in a .txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#full-git-log-with-anonymized-email-in-a-txt)  
+&emsp;[manual(s) and docs in .txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#manuals-and-docs-in-txt)  
+&emsp;&emsp;[advciv id changes manual.txt results](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#advciv-id-changes-manualtxt-results)  
+&emsp;[Sources about XML AI Attributes and their meaning](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#sources-about-xml-ai-attributes-and-their-meaning)  
 
-[Civ4 ProcessInfos XML info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#civ4-processinfos-xml-info)
+[A few useful other links](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#a-few-useful-other-links)  
+[In case UnitAIs info from link above is deleted someday, here is a copy here in case, anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#in-case-unitais-info-from-link-above-is-deleted-someday-here-is-a-copy-here-in-case-anyways-etc)  
 
-[Copy of the tutorial on how to modify GameFonts.tga for FREE](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#copy-of-the-tutorial-on-how-to-modify-gamefontstga-for-free)
+[Find and select map type in the DLL](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#find-and-select-map-type-in-the-dll)  
+&emsp;[Location](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#location)  
+&emsp;[Map Script Files](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#map-script-files)  
+&emsp;[Map type summary](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#map-type-summary)  
 
-[ICONS code XML names (may or not be exhaustive anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#icons-code-xml-names-may-or-not-be-exhaustive-anyways-etc-with-some-color-changing-code-as-bonus-or-to-be-extra-exhaustive-a-bit-more-than-needed-but-is-here-if-needed-maybe-anyways-etc)
+[Modding note](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#modding-note)  
 
-[Insert an img in a text label in sevopedia](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia)
+[Where to find Python errors or debug](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#where-to-find-python-errors-or-debug-so-no-need-to-copy-them-either-if-you-need-to-ask-chatgpt-or-such-or-a-forum-anyways-etc)  
 
-[Import a nif art asset from another mod](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#import-a-nif-art-asset-from-another-mod-example-with-how-we-added-the-impluviums-nif-as-an-import-from-ffh2-mods-adventurers-guild-building-anyways-etc)
+[Another example of how to use VS Code global search](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug-doc-copy-included-in-our-mod-anyways-etc)  
 
-[(Old/Deprecated) Example of how to add a static image file as a leader portrait](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#olddeprecated-example-of-how-to-add-a-static-image-file-such-as-png-jpg-etc-as-a-leader-portrait)
+[Civ4 ProcessInfos XML info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#civ4-processinfos-xml-info)  
 
-[(Old/Deprecated) Example of how to create a leader head .dds button from a static image file](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#olddeprecated-example-of-how-to-create-a-leader-head-dds-button-from-a-static-image-file-such-as-png-jpg-etc-ideally-from-the-leader-head-image-portrait-if-any-if-i-am-not-mistaken-but-if-i-may-say-anyways-etc-anyways-etc-anyways-etc)
+[Copy of the tutorial on how to modify GameFonts.tga for FREE](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#copy-of-the-tutorial-on-how-to-modify-gamefontstga-for-free)  
 
-[Example of DLL modification of CvGameTextMgr.cpp](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc)
+[ICONS code XML names (may or not be exhaustive anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#icons-code-xml-names-may-or-not-be-exhaustive-anyways-etc-with-some-color-changing-code-as-bonus-or-to-be-extra-exhaustive-a-bit-more-than-needed-but-is-here-if-needed-maybe-anyways-etc)  
 
-[Example of DLL modification 2: missing BBAI getters](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-2-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display-anyways-etc)
+[Insert an img in a text label in sevopedia](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia)  
 
-[Example of performance optimization of python loading time](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-performance-optimization-of-python-loading-time-as-in-when-we-load-the-code-and-loading-times-if-i-may-say-anyways-etc-as-in-code-performance-due-to-how-it-is-optimized-from-what-little-or-not-little-i-know-or-and-did-of-it-but-anyways-etc)
+[Import a nif art asset from another mod](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#import-a-nif-art-asset-from-another-mod-example-with-how-we-added-the-impluviums-nif-as-an-import-from-ffh2-mods-adventurers-guild-building-anyways-etc)  
 
-[Files](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#files)
+[(Old/Deprecated) Example of how to add a static image file as a leader portrait](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#olddeprecated-example-of-how-to-add-a-static-image-file-such-as-png-jpg-etc-as-a-leader-portrait)  
+
+[(Old/Deprecated) Example of how to create a leader head .dds button from a static image file](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#olddeprecated-example-of-how-to-create-a-leader-head-dds-button-from-a-static-image-file-such-as-png-jpg-etc-ideally-from-the-leader-head-image-portrait-if-any-if-i-am-not-mistaken-but-if-i-may-say-anyways-etc-anyways-etc-anyways-etc)  
+
+[Example of DLL modification of CvGameTextMgr.cpp](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc)  
+
+[Example of DLL modification 2: missing BBAI getters](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-2-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display-anyways-etc)  
+
+[Example of performance optimization of python loading time](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-performance-optimization-of-python-loading-time-as-in-when-we-load-the-code-and-loading-times-if-i-may-say-anyways-etc-as-in-code-performance-due-to-how-it-is-optimized-from-what-little-or-not-little-i-know-or-and-did-of-it-but-anyways-etc)  
+
+[Files](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#files)  
 
 ## Modding disclaimer and general information
 
