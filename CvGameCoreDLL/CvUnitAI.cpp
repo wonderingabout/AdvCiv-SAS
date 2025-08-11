@@ -2568,21 +2568,31 @@ bool CvUnitAI::AI_foundFirstCity()
 	// <advc>
 	CvGame const& kGame = GC.getGame();
 	CvPlayerAI& kOwner = GET_PLAYER(getOwner());
-	CvGameSpeedInfo const& kSpeed = GC.getInfo(kGame.getGameSpeedType());
+	// <!-- custom: we don't use kSpeed and game speed percent as noted by chatgpt 5 thanks hehe if i may say, can comment them out now if i am not mistaken, anyways etc -->
+	// CvGameSpeedInfo const& kSpeed = GC.getInfo(kGame.getGameSpeedType());
 	/*  Earlier exploreMove may have revealed more tiles. Don't set bStartingLoc;
 		that setting rules out e.g. plots with a goody hut or at the edge of a
 		flat map. I've added some getNumCities()<=0 checks to AI_foundValue. */
 	kOwner.AI_updateFoundValues(false); // </advc>
-	int iGameSpeedPercent = (2 * kSpeed.getTrainPercent()
-			+ kSpeed.getConstructPercent() + kSpeed.getResearchPercent()) / 4;
-	int iMaxFoundTurn = (iGameSpeedPercent + 50) / 150; //quick 0, normal/epic 1, marathon 2
+	// int iGameSpeedPercent = (2 * kSpeed.getTrainPercent()
+	// 		+ kSpeed.getConstructPercent() + kSpeed.getResearchPercent()) / 4;
+
+	// <!-- custom: give AIs more time to pick best spot ; sometimes they start in really bad spot, sometimes they could get a much better one, no hurry to settle right away, give it a few turns safely, also same on all maps to simplify and because no reason no to, as capital city is important even at fastest speed if i am not mistaken but anyways etc. Lower quality starts may be fine for a 3rd city or such but not for capital that is key to wining, definitely spend sometime to find a better spot ; also did some minor refactor and cleanup but anyways etc ; code with the help of chatgpt 5 and claude ai and my adjustments or such, check if accurate, anyways etc -->
+	// int iMaxFoundTurn = (iGameSpeedPercent + 50) / 150; //quick 0, normal/epic 1, marathon 2
+	int const iMaxTurnsToFound = 4;
+
 	if(!kGame.isScenario() && // advc: Let the creator of the scenario decide where the AI settles
 		canMove() && !kOwner.AI_isPlotCitySite(getPlot()) &&
-		kGame.getElapsedGameTurns() <= iMaxFoundTurn)
+		kGame.getElapsedGameTurns() <= iMaxTurnsToFound)
 	{
 		CvPlot* pBestPlot = NULL;
-		int iBestValue = 0;
-		int iBestFoundTurn = 0;
+		
+		int iBestValue = 0; // raw found value of the chosen site (for logs)
+		// <!-- custom: expand this logic chatgpt 5 suggested / had the idea if i may say but anyways etc, that in case the base value is somehow really low but the only good one if i am not mistaken but anyways etc, check if accurate but anyways etc -->
+		// (Nice-to-have) Initialize iBestWeightedValue = -1 so a site with score 0 can still win if nothing else is reachable.
+		int iBestWeightedValue = -99999; // weighted score = raw * weight (0..100)
+		int iBestTurnToFound = 0;
+
 		for (int iCitySite = 0; iCitySite < kOwner.AI_getNumCitySites(); iCitySite++)
 		{
 			CvPlot& kSite = kOwner.AI_getCitySite(iCitySite);
@@ -2591,53 +2601,94 @@ bool CvUnitAI::AI_foundFirstCity()
 			{
 				continue;
 			}
+
 			//int iPlotValue = kOwner.AI_foundValue(pCitySite->getX(), pCitySite->getY());
-			int iPlotValue = kSite.getFoundValue(kOwner.getID());
-			if(iPlotValue <= iBestValue)
+			int const iPlotValue = kSite.getFoundValue(kOwner.getID());
+
+			// (Optional, nice speed-up) Add an upper-bound prune before pathfinding: if even with weight=100 a site can’t beat the current best, skip generatePath:
+			if (iPlotValue * 100 <= iBestWeightedValue)  // max weight is 100
+			{
 				continue;
+			}
+
 			//Can this unit reach the plot this turn? (getPathLastNode()->m_iData2 == 1)
 			//Will this unit still have movement points left to found the city the same turn? (getPathLastNode()->m_iData1 > 0))
 			if (generatePath(kSite))
 			{
-				int iFoundTurn = kGame.getElapsedGameTurns() +
-						/*getPathLastNode()->m_iData2 -
-						(getPathLastNode()->m_iData1 > 0 ? 1 : 0);*/
-						// advc: Adapted to K-Mod pathfinder
-						getPathFinder().getPathTurns() -
-						(getPathFinder().getFinalMoves() > 0 ? 1 : 0);
-				if (iFoundTurn <= iMaxFoundTurn)
+				// CLAUDE: Calculate <!-- custom: found turn --> for THIS SPECIFIC PLOT
+				// Now we can ask the pathfinder about the path it just calculated:
+				// int const iFoundTurn = kGame.getElapsedGameTurns() +
+				// 		/*getPathLastNode()->m_iData2 -
+				// 		(getPathLastNode()->m_iData1 > 0 ? 1 : 0);*/
+				// 		// advc: Adapted to K-Mod pathfinder
+				// 		getPathFinder().getPathTurns() -
+				// 		(getPathFinder().getFinalMoves() > 0 ? 1 : 0);
+				// <!-- custom: refactoring idea i got based on chatgpt 5's feedback, for clarity, check if accurate, anyways etc -->
+				int const pathTurnsFromNow = getPathFinder().getPathTurns() - (getPathFinder().getFinalMoves() > 0 ? 1 : 0);
+				int const iFoundTurn = kGame.getElapsedGameTurns() + pathTurnsFromNow;
+
+				// CLAUDE: Calculate weight for THIS SPECIFIC PLOT based on its turns to found
+				int const iTurnsBeyondMaxToFound = std::max(0, iFoundTurn - iMaxTurnsToFound);
+
+				int iTurnWeight;
+
+				// <!-- custom: until we have spent the number of turns allowed, no penalty to get a better plot, then sharp emergency rather, so we don't discard better sites just because they are far ; also note: >, not >= to strictly allow 4 entire turns before any penalty is applied anyways etc ; give AI the best chances to win and overcome a bad start on tundra, coast only, etc ; removed old advciv / kmod flat penalty per turn code for cleanliness and readability if i may say andif i am not mistaken in my understanding too i mean but anyways etc -->
+				if (iTurnsBeyondMaxToFound == 0)
 				{
-					iPlotValue *= 100; //more precision
-					/*  the slower the game speed, the less penality the plotvalue
-						gets for long walks towards it.
-						On normal it's -18% per turn */
-					/*  advc: 18% seems a bit much; try 15%. K-Mod found values
-						aren't quite on the same scale as BBAI. */
-					iPlotValue *= 100 - std::min(100, ((1500/
-							std::max(1, iGameSpeedPercent)) * iFoundTurn));
-					iPlotValue /= 100;
-					if (iPlotValue > iBestValue)
-					{
-						iBestValue = iPlotValue;
-						iBestFoundTurn = iFoundTurn;
-						pBestPlot = &kSite;
-					}
+					iTurnWeight = 100;
+				}
+				else if (iTurnsBeyondMaxToFound == 1)
+				{
+					iTurnWeight = 67; 
+				}
+				else if (iTurnsBeyondMaxToFound == 2)
+				{
+					iTurnWeight = 33; 
+				}
+				// <!-- custom: else, see claude ai's explanation below if i am not mistaken and it is not too i mean, check if accurate, anyways etc -->
+				// CLAUDE: Since we already filtered out plots that take too long above,
+				// iTurnWeight should never be 0 here
+				// CLAUDE: Skip plots that would take too long, matching original logic
+				else
+				{
+					continue;
+				}
+
+				// <!-- custom: note: no division here, the whole point of weighting is not doing a divison, just at the end remember to store the raw value and not weighted one and should be all good if i am not mistaken anyways etc -->
+				int const iWeightedPlotValue = (iTurnWeight * iPlotValue);
+
+				if (iWeightedPlotValue <= iBestWeightedValue)
+				{
+					continue;
+				}
+				else
+				{
+					iBestWeightedValue = iWeightedPlotValue;
+					iBestTurnToFound = iFoundTurn;
+					// CLAUDE: Store the raw value of THIS plot, not some other variable
+					iBestValue = iPlotValue;
+					pBestPlot = &kSite;
 				}
 			}
 		}
+
+		// <!-- custom: fresh water or river is not mandatory if the site is otherwise great if i am not mistaken, we'd miss some locally best sites, let aifoundvalue or whichever function(s) is(are) responsible for this pick river or such if locally best or such, just do not discard nice sites just because of not certain to be always best preferences (what if the river loses us a food bonus for example, let evaluate or other such functions ponder these if they can indeed but anyways etc) -->
+		// if (pBestPlot != NULL)
+		// {
+		// 	//Don't give up coast or river, don't settle on bonus with food
+		// 	/*if ((getPlot().isRiver() && !pBestPlot->isRiver())
+		// 		|| (getPlot().isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) && !pBestPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+		// 		|| (pBestPlot->getBonusType(NO_BONUS && pBestPlot->calculateNatureYield(YIELD_FOOD, getTeam(), true) > 0))*/
+		// 	// advc: I think AI_foundValue can handle the other stuff
+		// 	if (getPlot().isFreshWater() && !pBestPlot->isFreshWater())
+		// 		pBestPlot = NULL;
+		// }
+
 		if (pBestPlot != NULL)
 		{
-			//Don't give up coast or river, don't settle on bonus with food
-			/*if ((getPlot().isRiver() && !pBestPlot->isRiver())
-				|| (getPlot().isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) && !pBestPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
-				|| (pBestPlot->getBonusType(NO_TEAM) != NO_BONUS && pBestPlot->calculateNatureYield(YIELD_FOOD, getTeam(), true) > 0))*/
-			// advc: I think AI_foundValue can handle the other stuff
-			if (getPlot().isFreshWater() && !pBestPlot->isFreshWater())
-				pBestPlot = NULL;
-		}
-		if (pBestPlot != NULL)
-		{
-			if (gUnitLogLevel >= 2) logBBAI("    Settler not founding in place but moving %d, %d to nearby city site at %d, %d (%d turns away) with value %d)", (pBestPlot->getX() - getX()), (pBestPlot->getY() - getY()), pBestPlot->getX(), pBestPlot->getY(), iBestFoundTurn, iBestValue);
+			// CLAUDE: iBestValue is already set correctly above, no need to reassign
+
+			if (gUnitLogLevel >= 2) logBBAI("    Settler not founding in place but moving %d, %d to nearby city site at %d, %d (%d turns away) with value %d)", (pBestPlot->getX() - getX()), (pBestPlot->getY() - getY()), pBestPlot->getX(), pBestPlot->getY(), iBestTurnToFound, iBestValue);
 			pushGroupMoveTo(*pBestPlot, MOVE_SAFE_TERRITORY, false, false,
 					MISSIONAI_FOUND, pBestPlot);
 			return true;

@@ -2057,12 +2057,13 @@ int AIFoundValue::evaluateYield(int const* aiYield, CvPlot const* p,
 			r += 8 * (aiYield[YIELD_COMMERCE] + aiYield[YIELD_PRODUCTION]);
 		}
 		else r /= 3;
-		if (kSet.isStartingLoc() && !bCoastal)
-		{
-			r -= 75; // advc.031: was -400 in BtS, -120 in K-Mod
-			/*	(K-Mod comment: "I'm pretty much forbidding starting 1 tile
-				inland non-coastal with more than a few non-lake water tiles.) */
-		}
+		// <!-- custom: disable non coastal penalty, let ai decide if it wants coast or not and not induce a bias in it. With our changes to how ai evaluate terrains and features in evaluate function if i am not mistaken but anyways etc, AIs should be able to properly assess is coast is better (as of now for low-food environments or if there are water bonuses nearby which they were not so good if not at all able to do before but anyways etc), and if not able we'd better do it there rather than here and complexify formula. Also, generally coastal start is a bit weaker, so give AI a chance to go for land starter with more plots to grow, perhaps more forests to chop, unless it assesses it best to not do otherwise, anyways etc. -->
+		// if (kSet.isStartingLoc() && !bCoastal)
+		// {
+		// 	r -= 75; // advc.031: was -400 in BtS, -120 in K-Mod
+		// 	/*	(K-Mod comment: "I'm pretty much forbidding starting 1 tile
+		// 		inland non-coastal with more than a few non-lake water tiles.) */
+		// }
 	}  // <advc.031>
 	if (bCanNeverImprove)
 		r = (r * 77) / 100; // </advc.031>

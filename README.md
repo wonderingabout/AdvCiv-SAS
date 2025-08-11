@@ -20,7 +20,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 &emsp;[Other advciv-sas changes example(s)](/README.md#other-advciv-sas-changes-examples)  
 &emsp;[Concepts (as of now in the "Outdated" sevopedia category)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category)  
 &emsp;[Mods Info](/README.md#mods-info)  
-&emsp;[Python Scripts](/README.md#python-scripts)
+&emsp;[Python Scripts](/README.md#python-scripts)  
 &emsp;&emsp;[csv and md view of the handicap (difficulties info in a table for all difficulties) info](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info)  
 &emsp;&emsp;[csv github view for the flatten_leaders_data_to_csv conversion script](/README.md#csv-github-view-for-the-flatten_leaders_data_to_csv-conversion-script)  
 [Less Generic-neutral unit names or/and combat types and note about woman units](/README.md#less-generic-neutral-unit-names-orand-combat-types-and-note-about-woman-units)  
