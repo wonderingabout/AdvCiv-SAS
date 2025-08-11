@@ -14,17 +14,17 @@ AI attributes (at least i call them this way not sure it is their exact name but
 
 Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 which does this very well and fast anyways etc among other versions who/which could or not but anyways etc), feeding it the global search results of these entries and telling the format of the entries :) Hopefully helpful, thanks a lot chatgpt 5 hehe (among other versions or not had i tried with them but anyways etc). If you're curious how i did it, see this [google drive folder link](https://drive.google.com/drive/folders/1B18cJ8GYD8X_0vMoiTihVz0tthg5m_sg?usp=sharing) 's screenshots for details, hopefully helpful or not or yes or etc anyways etc
 
-[Sources about XML AI Attributes and their meaning](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#sources-about-xml-ai-attributes-and-their-meaning)  
-[General Aim of the AI Attributes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#general-aim-of-the-ai-attributes)  
-&emsp;[how to enable/disable emoji buttons in sevopedia leader](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader)  
-[Where and how to find the abbreviations (in label) (in the AI Personality Panel)'s meaning](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#where-and-how-to-find-the-abbreviations-in-label-in-the-ai-personality-panels-meaning)  
-[Normalization (to 100 in AdvCiv-SAS anyways) and leader(s) score/ranking](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#normalization-to-100-in-advciv-sas-anyways-and-leaders-scoreranking)  
-[As a player (i.e. only if you want to play anyways etc), what you need to know and do](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#as-a-player-ie-only-if-you-want-to-play-anyways-etc-what-you-need-to-know-and-do)  
-[Notes about performance optimization of the AI Personality panel caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)  
-[If you want to mod](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#if-you-want-to-mod)  
-[Display(ing) the AI attributes in the AI Personality Panel and how to read the tables/panels](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels)  
-[Note about some ai attributes being ignored](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#note-about-some-ai-attributes-being-ignored)  
-[Currently if not always unfinished todo or(/and?) not or etc anyways](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#currently-if-not-always-unfinished-todo-orand-not-or-etc-anyways)  
+[Sources about XML AI Attributes and their meaning](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#sources-about-xml-ai-attributes-and-their-meaning)
+[General Aim of the AI Attributes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#general-aim-of-the-ai-attributes)
+&emsp;[how to enable/disable emoji buttons in sevopedia leader](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader)
+[Where and how to find the abbreviations (in label) (in the AI Personality Panel)'s meaning](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#where-and-how-to-find-the-abbreviations-in-label-in-the-ai-personality-panels-meaning)
+[Normalization (to 100 in AdvCiv-SAS anyways) and leader(s) score/ranking](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#normalization-to-100-in-advciv-sas-anyways-and-leaders-scoreranking)
+[As a player (i.e. only if you want to play anyways etc), what you need to know and do](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#as-a-player-ie-only-if-you-want-to-play-anyways-etc-what-you-need-to-know-and-do)
+[Notes about performance optimization of the AI Personality panel caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)
+[If you want to mod](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#if-you-want-to-mod)
+[Display(ing) the AI attributes in the AI Personality Panel and how to read the tables/panels](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels)
+[Note about some ai attributes being ignored](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#note-about-some-ai-attributes-being-ignored)
+[Currently if not always unfinished todo or(/and?) not or etc anyways](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#currently-if-not-always-unfinished-todo-orand-not-or-etc-anyways)
 [Note about the value of 0 not always being 0, and a value > 0 sometimes being 0](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#note-about-the-value-of-0-not-always-being-0-and-a-value--0-sometimes-being-0)
 
 ## Sources about XML AI Attributes and their meaning
