@@ -2579,7 +2579,7 @@ bool CvUnitAI::AI_foundFirstCity()
 
 	// <!-- custom: give AIs more time to pick best spot ; sometimes they start in really bad spot, sometimes they could get a much better one, no hurry to settle right away, give it a few turns safely, also same on all maps to simplify and because no reason no to, as capital city is important even at fastest speed if i am not mistaken but anyways etc. Lower quality starts may be fine for a 3rd city or such but not for capital that is key to wining, definitely spend sometime to find a better spot ; also did some minor refactor and cleanup but anyways etc ; code with the help of chatgpt 5 and claude ai and my adjustments or such, check if accurate, anyways etc -->
 	// int iMaxFoundTurn = (iGameSpeedPercent + 50) / 150; //quick 0, normal/epic 1, marathon 2
-	int const iMaxTurnsToFound = 4;
+	int const iMaxTurnsToFound = 5;
 
 	if(!kGame.isScenario() && // advc: Let the creator of the scenario decide where the AI settles
 		canMove() && !kOwner.AI_isPlotCitySite(getPlot()) &&
@@ -2632,18 +2632,14 @@ bool CvUnitAI::AI_foundFirstCity()
 
 				int iTurnWeight;
 
-				// <!-- custom: until we have spent the number of turns allowed, no penalty to get a better plot, then sharp emergency rather, so we don't discard better sites just because they are far ; also note: >, not >= to strictly allow 4 entire turns before any penalty is applied anyways etc ; give AI the best chances to win and overcome a bad start on tundra, coast only, etc ; removed old advciv / kmod flat penalty per turn code for cleanliness and readability if i may say andif i am not mistaken in my understanding too i mean but anyways etc -->
+				// <!-- custom: until we have spent the number of turns allowed, no penalty to get a better plot, then sharp emergency rather, so we don't discard better sites just because they are far ; also note: >, not >= to strictly allow 5 entire turns before any penalty is applied anyways etc ; give AI the best chances to win and overcome a bad start on tundra, coast only, etc ; removed old advciv / kmod flat penalty per turn code for cleanliness and readability if i may say and if i am not mistaken in my understanding too i mean but anyways etc -->
 				if (iTurnsBeyondMaxToFound == 0)
 				{
 					iTurnWeight = 100;
 				}
 				else if (iTurnsBeyondMaxToFound == 1)
 				{
-					iTurnWeight = 67; 
-				}
-				else if (iTurnsBeyondMaxToFound == 2)
-				{
-					iTurnWeight = 33; 
+					iTurnWeight = 50; 
 				}
 				// <!-- custom: else, see claude ai's explanation below if i am not mistaken and it is not too i mean, check if accurate, anyways etc -->
 				// CLAUDE: Since we already filtered out plots that take too long above,
