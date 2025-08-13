@@ -26,7 +26,6 @@ Instead of:
 <br>
 
 [Modding disclaimer and general information](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#modding-disclaimer-and-general-information)  
-
 [A few useful tips](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#a-few-useful-tips)  
 &emsp;[google drive image link in html tag if i am not mistaken anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#google-drive-image-link-in-html-tag-if-i-am-not-mistaken-anyways-etc)  
 &emsp;[Download media assets for example on youtube](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#download-media-assets-for-example-on-youtube)  
@@ -36,41 +35,25 @@ Instead of:
 &emsp;[manual(s) and docs in .txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#manuals-and-docs-in-txt)  
 &emsp;&emsp;[advciv id changes manual.txt results](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#advciv-id-changes-manualtxt-results)  
 &emsp;[Sources about XML AI Attributes and their meaning](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#sources-about-xml-ai-attributes-and-their-meaning)  
-
 [A few useful other links](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#a-few-useful-other-links)  
 [In case UnitAIs info from link above is deleted someday, here is a copy here in case, anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#in-case-unitais-info-from-link-above-is-deleted-someday-here-is-a-copy-here-in-case-anyways-etc)  
-
 [Find and select map type in the DLL](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#find-and-select-map-type-in-the-dll)  
 &emsp;[Location](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#location)  
 &emsp;[Map Script Files](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#map-script-files)  
 &emsp;[Map type summary](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#map-type-summary)  
-
 [Modding note](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#modding-note)  
-
 [Where to find Python errors or debug](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#where-to-find-python-errors-or-debug-so-no-need-to-copy-them-either-if-you-need-to-ask-chatgpt-or-such-or-a-forum-anyways-etc)  
-
 [Another example of how to use VS Code global search](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug-doc-copy-included-in-our-mod-anyways-etc)  
-
 [Civ4 ProcessInfos XML info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#civ4-processinfos-xml-info)  
-
 [Copy of the tutorial on how to modify GameFonts.tga for FREE](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#copy-of-the-tutorial-on-how-to-modify-gamefontstga-for-free)  
-
 [ICONS code XML names (may or not be exhaustive anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#icons-code-xml-names-may-or-not-be-exhaustive-anyways-etc-with-some-color-changing-code-as-bonus-or-to-be-extra-exhaustive-a-bit-more-than-needed-but-is-here-if-needed-maybe-anyways-etc)  
-
 [Insert an img in a text label in sevopedia](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia)  
-
 [Import a nif art asset from another mod](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#import-a-nif-art-asset-from-another-mod-example-with-how-we-added-the-impluviums-nif-as-an-import-from-ffh2-mods-adventurers-guild-building-anyways-etc)  
-
 [(Old/Deprecated) Example of how to add a static image file as a leader portrait](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#olddeprecated-example-of-how-to-add-a-static-image-file-such-as-png-jpg-etc-as-a-leader-portrait)  
-
 [(Old/Deprecated) Example of how to create a leader head .dds button from a static image file](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#olddeprecated-example-of-how-to-create-a-leader-head-dds-button-from-a-static-image-file-such-as-png-jpg-etc-ideally-from-the-leader-head-image-portrait-if-any-if-i-am-not-mistaken-but-if-i-may-say-anyways-etc-anyways-etc-anyways-etc)  
-
 [Example of DLL modification of CvGameTextMgr.cpp](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc)  
-
 [Example of DLL modification 2: missing BBAI getters](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-2-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display-anyways-etc)  
-
 [Example of performance optimization of python loading time](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-performance-optimization-of-python-loading-time-as-in-when-we-load-the-code-and-loading-times-if-i-may-say-anyways-etc-as-in-code-performance-due-to-how-it-is-optimized-from-what-little-or-not-little-i-know-or-and-did-of-it-but-anyways-etc)  
-
 [Files](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#files)  
 
 ## Modding disclaimer and general information
@@ -191,7 +174,7 @@ note: about the below example, a global search on "HandicapIncrementTurns" direc
 
 VS Code's (for example) global search can be useful in particular but not only, for example, to try to understand what advciv id changes do.
 
-For example while trying to tweak difficulty settings after having added our new script of handicap info display as explained in [README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-infodata](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-infodata), i was trying, for example in this case but anyways etc, to understand what this unknown (to me at least but anyways etc) `iAIHandicapIncrementTurns` field does, no info in usual websites like kujira or and such anyways etc
+For example while trying to tweak difficulty settings after having added our new script of handicap info display as explained in [/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info), i was trying, for example in this case but anyways etc, to understand what this unknown (to me at least but anyways etc) `iAIHandicapIncrementTurns` field does, no info in usual websites like kujira or and such anyways etc
 
 Output is as follows for a search on "251" and right click "copy" on the global search results (part of them that are in manual.txt i mean anyways etc):
 

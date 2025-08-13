@@ -1636,9 +1636,15 @@ void CvCityAI::AI_chooseProduction()
 		int const iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
 
 		// <!-- custom: if i may say... difensu moudo!! But anyways etc... -->
-		bool const bDefenseMode = ((iEnemyPowerPercent >= 130) || /* bWarPossible || */ bAnyPlannedWar || bAnyRealWar || bDanger || bDefense /* && !bPeaceAloneLikely */);
+		// <!-- custom: test to reduce this a bit more as recommended by chatgpt 5 but done in my own way/own values if i may say but anyways etc, as it's a bit too late to defend when too behind maybe indeed but anyways etc -->
+		// int const iDefenseModeThreshold = 130;
+		int const iDefenseModeThreshold = 120;
+		bool const bDefenseMode = ((iEnemyPowerPercent >= iDefenseModeThreshold) || /* bWarPossible || */ bAnyPlannedWar || bAnyRealWar || bDanger || bDefense /* && !bPeaceAloneLikely */);
 		// bool const bOffenseMode = (((!bAnyRealWar && iEnemyPowerPercent <= 70) || bWarPlan || bAnyPlannedWar || bAnyRealWar || bAssault || (!bDefense && bLandWar) /* && !bPeaceAloneLikely */));
-		bool const bOffenseMode = ((bAnyRealWar && iEnemyPowerPercent <= 70) || bWarPlan || bAnyPlannedWar || bAnyRealWar || bAssault || (!bDefense && bLandWar) /* && !bPeaceAloneLikely */);
+		// <!-- custom: test to increase this a bit more as recommended by chatgpt 5 but done in my own way/own values if i may say but anyways etc, as it's a bit too late to defend when too behind maybe indeed but anyways etc -->
+		// int const iOffenseModeThreshold = 70;
+		int const iOffenseModeThreshold = 80;
+		bool const bOffenseMode = ((bAnyRealWar && iEnemyPowerPercent <= iOffenseModeThreshold) || bWarPlan || bAnyPlannedWar || bAnyRealWar || bAssault || (!bDefense && bLandWar) /* && !bPeaceAloneLikely */);
 
 		// int const iNumCities = kOwner.getNumCities();
 		// <!-- custom: make sure we don't overbuild workers, used only in the context of blocking forced settlers builds and aoviding chain worker loops if i am not mistaken, so maybe fine to be a bit stricter and maybe workers would still be produced with more relaxed conditions hopefully and if i am not mistaken but check to be sure but anyways etc ; each city needs maximum 2 workers before it's too much -->
@@ -3377,8 +3383,14 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 		int const iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
 
 		// <!-- custom: if i may say... difensu moudo!! But anyways etc... -->
-		bool const bDefenseMode = (((iEnemyPowerPercent >= 130) /*||  bWarPossible ||*/ || bAnyPlannedWar || bAnyRealWar || bDanger || bDefense) && !bPeaceAloneLikely);
-		bool const bOffenseMode = (((bAnyRealWar && iEnemyPowerPercent <= 70) || bWarPlan || bAnyPlannedWar || bAnyRealWar || bAssault || (!bDefense && bLandWar)) && !bPeaceAloneLikely);
+		// <!-- custom: test to reduce this a bit more as recommended by chatgpt 5 but done in my own way/own values if i may say but anyways etc, as it's a bit too late to defend when too behind maybe indeed but anyways etc -->
+		// int const iDefenseModeThreshold = 130;
+		int const iDefenseModeThreshold = 120;
+		bool const bDefenseMode = (((iEnemyPowerPercent >= iDefenseModeThreshold) /*||  bWarPossible ||*/ || bAnyPlannedWar || bAnyRealWar || bDanger || bDefense) && !bPeaceAloneLikely);
+		// <!-- custom: test to increase this a bit more as recommended by chatgpt 5 but done in my own way/own values if i may say but anyways etc, as it's a bit too late to defend when too behind maybe indeed but anyways etc -->
+		// int const iOffenseModeThreshold = 70;
+		int const iOffenseModeThreshold = 80;
+		bool const bOffenseMode = (((bAnyRealWar && iEnemyPowerPercent <= iOffenseModeThreshold) || bWarPlan || bAnyPlannedWar || bAnyRealWar || bAssault || (!bDefense && bLandWar)) && !bPeaceAloneLikely);
 
 		// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should ratehr be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc,a nd if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
 		// <!-- custom: trying to save some computing power by moving the mapname outside the function plus condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
@@ -11466,28 +11478,79 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 
 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 
-	// <!-- custom: code provided by gemini ai (and chatgpt's help too at first hehe but anyways etc) and adjusted or not for advciv-sas anyways etc, to prevent AI from choosing the citizen specialist, which is generally if not almost always a bad or inefficient choice, espcially crippling in the early game i think but anyways etc. As gemini AI did, it is also more efficient computationally to early return at beginning of function rather than do all computation just to return an int without any computation.  Early return and drastic disallowing is more efficient computationally and strategically, i can barely see cases where the citizen specialist would be valuable, but to not break anything, simply keep existing architecture of code if i may say, and return lowest positive value as gemini ai did, or something very or similar to it anyways etc -->
-	// === ADVANCE AI: Disincentivize AI from choosing the generic Citizen specialist ===
-	// This block should be placed at the very beginning of the function.
-	// It short-circuits evaluation for AI players trying to pick the default Citizen specialist.
-	// Note: A similar idea (devaluing generic citizens) was previously present in commented-out code towards the end of this function.
-	// This new approach provides a stronger, direct override for AI players.
-	if (!kOwner.isHuman()) // Check if the current player (kOwner) is an AI
+	// <!-- custom: code provided by gemini ai (and chatgpt's help too at first hehe but anyways etc) and adjusted or not for advciv-sas anyways etc, to prevent AI from choosing the citizen specialist, which is generally if not almost always a bad or inefficient choice, espcially crippling in the early game i think but anyways etc. As gemini AI did, it is also more efficient computationally to early return at beginning of function rather than do all computation just to return an int without any computation.  Early return and drastic disallowing is more efficient computationally and strategically, i can barely see cases where the citizen specialist would be valuable. Originally this code returned 1 as gemini ai did and had suggested in code comment below, but then as per chatgpt 5's review now released hehe with available code samples, and while adding the strict population limit to address AI cities wrongly assigning inefficiently/too early sometimes specialists and then stagnating (see below for details) or such similar or relatded issue if i'm not mistaken but anyways etc, use a lower value to be safe and better cover edge cases, unlike what is written below from gemini ai, kept for exhaustiveness and just in case, hopefully helpful or not or yes or etc, anyways etc -->
+	if (!kOwner.isHuman())
 	{
+		// <!-- custom: update: recommended by chatgpt 5 to use a high negative value such as -100000 instead of 1 in case other values could be lower and then our specialist unwantingly still being chosen if i understood its explanation correctly. To avoid that, use a very negative value, still high enough to avoid overflow according to my understanding of chatgpt's explanation, check if accurate and relevant here anyways etc -->
+		static const int AI_JOB_FORBIDDEN = -100000; // decisively low, far from overflow/underflow
+		static const SpecialistTypes eSpecialistDefault = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
+
+		const int iCityPopulation = getPopulation();
+
+		// <!-- custom: AIs often misassign specialists especially when their city is still small and perhaps low food too, resulting in pop 2 cities being stagnant. Sometimes even 2 specialists were assigned in said cities. Happened to barbarians too. It would be amazing to retweak all, but i believe a simple sanity/safe patch of preventing cities <= 4 to use a specialist of any kind would help a lot, see known issue as of now 45 for details anyways etc, also code by chatgpt 5 that i adjusted or not or yes or etc but anyways etc, check if accurate and thanks for help chatgpt 5 hehe anyways etc -->
+		if (iCityPopulation <= 4)
+		{
+			if (new_job.first && !old_job.first)
+			{
+				return AI_JOB_FORBIDDEN;
+			}
+		}
+		// <!-- custom: also disable/discourage AI from choosing a specialist for any bigger size city if they can still grow before that, hopefully also helps them be more efficient and stronger without killing versatility if i am not mistaken anyways etc -->
+		// <!-- custom: update: generalizing the previous is "grow when you can instead of assigning any specialist" policy below now to all bigger sized cities without population cap anymore if i am not mistaken but anyways etc, as some cities still are inefficiently stagnant when they could have grown first instead, see known issue as of now 45 for details with screenshots anyways etc -->
+		// <!-- custom: also note if i may say but anyways etc: on the plus side as well, not having to think about specialists at all in some conditions will probably save quite a lot or a bit at least if i may say of computation as well as a nice side effect too hopefully while preserving versatility or preserving it enough and assuming our change works as intended if i am not mistaken (would need to test more to be sure but anyways etc)-->
+		// strict growth-first rule for small-but-not-tiny cities with headroom
+		// Block *hiring* specialists when: pop >= 7, net happy ≥ 1, food surplus ≥ 2,
+		// and we're NOT in food→production mode (Settlers/Workers).
+		// <!-- custom: update: generalizing this "grow when you can instead of assigning any specialist" policy, as some cities still are inefficiently stagnant when they could have grown first instead, see known issue as of now 45 for details with screenshots anyways etc -->
+		// else if (iCityPopulation <= 7 && !isFoodProduction() && (iHappySurplus >= 1))
+		else
+		{
+			const int iHappySurplus = (happyLevel() - unhappyLevel(0));
+
+			if (!isFoodProduction() && (iHappySurplus >= 1))
+			{
+				int const iFoodSurplus = getYieldRate(YIELD_FOOD) - foodConsumption();
+
+				if (iFoodSurplus >= 2 && new_job.first && !old_job.first)
+				{
+					return AI_JOB_FORBIDDEN;
+				}
+			}
+		}
+
+		// <!-- custom: note: this block added at the time with gemini ai's help and thanks to my prompt(s if any xd if i may say but anyways etc) and such adjustments or etc too and now with chagpt 5's adjustments as well but anyways etc is about at the beginning of the function here too after the new checks we added, should be fine as per chatgpt 5's review and if i am not mistaken, check if accurate, anyways etc -->
+		// === Disincentivize AI from choosing the generic Citizen specialist ===
+		// This block should be placed at the very beginning of the function.
+		// It short-circuits evaluation for AI players trying to pick the default Citizen specialist.
+		// Note: A similar idea (devaluing generic citizens) was previously present in commented-out code towards the end of this function.
+		// This new approach provides a stronger, direct override for AI players.
 		// If the 'new_job' being considered is a specialist AND it's the default Citizen specialist
-		if (new_job.first && ((SpecialistTypes)new_job.second) == GC.getDEFAULT_SPECIALIST())
+		if ((eSpecialistDefault != NO_SPECIALIST) && new_job.first && (new_job.second == eSpecialistDefault))
 		{
 			// Return a very low, positive value. This makes it undesirable for the AI
 			// compared to actual plots or other specialists, effectively making them avoid it.
 			// A value like 1 or 2 is usually sufficient to make it uncompetitive.
 			// This ensures that the AI will only pick it if literally no other valid option exists
 			// (e.g., all plots are already worked and no other specialists are available/valid).
-			return 1; // You can experiment with 0, 1, or 2 based on in-game testing.
-					// 1 is generally safe as it won't be seen as "negative" by the AI.
+			// return 1; // You can experiment with 0, 1, or 2 based on in-game testing.
+			// 		// 1 is generally safe as it won't be seen as "negative" by the AI.
+			return AI_JOB_FORBIDDEN;
 		}
-	}
-	// === END ADVANCE AI MODIFICATION ===
 
+		// <!-- custom: for barbarians, do not allow any other specialist than the scientist, they would die or if not really don't need the other types for efficiency as well, keeping the scientist for versatility and utility, and in case we make some changes later where they last a big longer as a result in this case i mean but anyways etc ; note: for performance optimization, put this check last so all other conditions apply to other non-barbarian AI players first without checking this uneededly if i am not mistaken and if this is a word xd but anyways etc, as well as to barbarians as well, then only if not check barbarians specifically for remaining conditions if i am not mistaken but anyways etc -->
+		// Barbarian rule: allow only Scientist as a specialist target.
+		// Applies to both hires (plot->spec) and switches (spec->spec). Removals (spec->plot) unaffected.
+		if (isBarbarian())
+		{
+			static const SpecialistTypes eSpecialistScientist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST");
+
+			if ((eSpecialistScientist != NO_SPECIALIST) && new_job.first && (new_job.second != eSpecialistScientist))
+			{
+				return AI_JOB_FORBIDDEN;
+			}
+		} 
+	}
+	
 	int iTotalValue = 0;
 
 	// Calculate and evaluate direct changes in yields

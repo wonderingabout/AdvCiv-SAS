@@ -1136,7 +1136,8 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/Promotions/Charge.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,5</Button>
+			<!-- custom: now uses the old promotion_sentry's button anyways etc -->
+			<Button>,Art/Interface/Buttons/Promotions/Sentry.dds,Art/Interface/Buttons/Promotions_Atlas.dds,5,6</Button>
 		</PromotionInfo>
 		<PromotionInfo>
 			<Type>PROMOTION_COUNTER_TANK</Type>
@@ -1224,7 +1225,8 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/Promotions/Ambush.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,1</Button>
+			<!-- custom: imported / manually extracted from com mod's atlas, that was in an fpk.. with Paint.NET. Not easy or intuitive to find but i have it now thankfully in this case if i may say but anyways etc -->
+			<Button>Art/AdvCiv_SAS/Unit_Combat_Types/Armored_Units/armored_units.dds</Button>
 		</PromotionInfo>
 
 
@@ -1971,7 +1973,8 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/Promotions/Guerilla1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,5,5</Button>
+			<!-- custom: button import from c2c mod's as of now "Hill Worker" promotions anyways etc -->
+			<Button>Art/AdvCiv_SAS/Promotions/Hills_Master_1/workerhills1.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
 			<Type>PROMOTION_HILLS_MASTER2</Type>
@@ -2051,7 +2054,8 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/Promotions/Guerilla2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,6,5</Button>
+			<!-- custom: button import from c2c mod's as of now "Hill Worker" promotions anyways etc -->
+			<Button>Art/AdvCiv_SAS/Promotions/Hills_Master_2/workerhills2.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
 			<Type>PROMOTION_HILLS_MASTER3</Type>
@@ -2128,7 +2132,8 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/Promotions/Guerilla2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,7,5</Button>
+			<!-- custom: button import from c2c mod's as of now "Hill Worker" promotions anyways etc -->
+			<Button>Art/AdvCiv_SAS/Promotions/Hills_Master_3/workerhills3.dds</Button>
 		</PromotionInfo>
 
 
@@ -3023,7 +3028,8 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/Promotions/Barrage1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,1</Button>
+			<!-- custom: now using the old promotion_counter_siege's button anyways etc -->
+			<Button>,Art/Interface/Buttons/Promotions/Charge.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,5</Button>
 		</PromotionInfo>
 		<PromotionInfo>
 			<Type>PROMOTION_COLLATERAL_DAMAGE2</Type>
@@ -3142,7 +3148,8 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/Promotions/Barrage2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,5,1</Button>
+			<!-- custom: button import from c2c mod anyways etc -->
+			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_2/charge2.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
 			<Type>PROMOTION_COLLATERAL_DAMAGE3</Type>
@@ -3241,7 +3248,8 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/Promotions/Barrage3.dds,Art/Interface/Buttons/Promotions_Atlas.dds,6,1</Button>
+			<!-- custom: button import from c2c mod anyways etc -->
+			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_3/charge3.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
 			<Type>PROMOTION_COLLATERAL_DAMAGE4</Type>
@@ -3317,7 +3325,8 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/Promotions/Barrage3.dds,Art/Interface/Buttons/Promotions_Atlas.dds,6,1</Button>
+			<!-- custom: made with paint.net (lasso select ctrl+c ctrl+v (for the star part of the image) but anyways etc) from the c2c mod's button anyways etc -->
+			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_4/charge4.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
 			<Type>PROMOTION_COLLATERAL_DAMAGE5</Type>
@@ -3887,7 +3896,8 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/Promotions/Accuracy.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,1</Button>
+			<!-- custom: button import from ri mod then modified with paint.net to remove the star part of the image anyways etc -->
+			<Button>Art/AdvCiv_SAS/Promotions/City_Bombard_Damage/bombarding1_no_star.dds</Button>
 		</PromotionInfo>
 
 
@@ -3985,7 +3995,8 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/Promotions/Flanking1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,6,3</Button>
+			<!-- custom: button import from c2c mod anyways etc -->
+			<Button>Art/AdvCiv_SAS/Promotions/Retreat_1/escape1.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
 			<Type>PROMOTION_RETREAT2</Type>
@@ -4068,7 +4079,8 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/Promotions/Flanking2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,7,3</Button>
+			<!-- custom: button import from c2c mod anyways etc -->
+			<Button>Art/AdvCiv_SAS/Promotions/Retreat_2/escape2.dds</Button>
 		</PromotionInfo>
 
 
@@ -4156,7 +4168,8 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/Promotions/Sentry.dds,Art/Interface/Buttons/Promotions_Atlas.dds,5,6</Button>
+			<!-- custom: button import from ri mod anyways etc -->
+			<Button>Art/AdvCiv_SAS/Promotions/Sentry/observer.dds</Button>
 		</PromotionInfo>
 
 
@@ -4227,7 +4240,8 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/Promotions/Navigation1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,7,4</Button>
+			<!-- custom: imported / manually extracted from com mod's atlas, that was in an fpk.. with Paint.NET. Not easy or intuitive to find but i have it now thankfully in this case if i may say but anyways etc -->
+			<Button>Art/AdvCiv_SAS/Promotions/Navigator_1/navigator_1.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
 			<Type>PROMOTION_NAVIGATOR2</Type>
@@ -4295,7 +4309,8 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/Promotions/Navigation2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,8,4</Button>
+			<!-- custom: imported / manually extracted from com mod's atlas, that was in an fpk.. with Paint.NET. Not easy or intuitive to find but i have it now thankfully in this case if i may say but anyways etc -->
+			<Button>Art/AdvCiv_SAS/Promotions/Navigator_2/navigator_2.dds</Button>
 		</PromotionInfo>
 
 
@@ -5146,7 +5161,8 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,4,15</Button>
+			<!-- custom: made with paint.net by myself hehe if i may say but anyways etc from rfc doc atlas's (wherever i found it the fastest anyways etc) air intercept button but anyways etc -->
+			<Button>Art/AdvCiv_SAS/Promotions/Air_Interception_3/air_interception_3.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
 			<Type>PROMOTION_AIR_INTERCEPTION4</Type>
@@ -5213,7 +5229,8 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,4,15</Button>
+			<!-- custom: made with paint.net by myself hehe if i may say but anyways etc from rfc doc atlas's (wherever i found it the fastest anyways etc) air intercept button but anyways etc -->
+			<Button>Art/AdvCiv_SAS/Promotions/Air_Interception_4/air_interception_4.dds</Button>
 		</PromotionInfo>
 
 

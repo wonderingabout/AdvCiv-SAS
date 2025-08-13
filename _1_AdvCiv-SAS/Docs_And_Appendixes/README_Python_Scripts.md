@@ -55,7 +55,7 @@ You can safely delete such log files or/and folders if you wish so (especially i
 
 (you can skip this step if you just want to see AdvCiv-SAS sample .csv and .md file examples of output as well anyways etc)
 
-Additionally to the main README's handicap info to csv and md info in [README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-infodata](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-infodata), here are a few additional screenshots, also code is provided thanks to chatgpt and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc
+Additionally to the main README's handicap info to csv and md info in [/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info), here are a few additional screenshots, also code is provided thanks to chatgpt and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc
 
 also note: you need to generate the table file (.csv and .md (you'd need to uncomment the .md generating block/aprt of the script to do that as we commented it out in/for  advciv-sas as we don't use it since the .csv is more than enough and better if i may say more performant for our needs in advciv-sas if i may say but anyways etc) by running the script everytime you modify the xml, else if it's just for viewing no need to do that and you can view the files provided in the mod advciv-sas (or another mod using this script maybe too anyways etc) directly).
 

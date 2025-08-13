@@ -11604,7 +11604,8 @@ void CvCity::read(FDataStreamBase* pStream)
 		deleted as soon as savegame compatibility gets broken by a release) */
 	if (uiFlag < 10)
 	{
-		SpecialistTypes eSpy = (SpecialistTypes)GC.getInfoTypeForString(
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const SpecialistTypes eSpy = (SpecialistTypes)GC.getInfoTypeForString(
 				"SPECIALIST_SPY", true);
 		if (eSpy != NO_SPECIALIST)
 		{
@@ -11633,23 +11634,26 @@ void CvCity::read(FDataStreamBase* pStream)
 			}
 		} // </advc.911a>
 		// <advc.908b>
-		BuildingTypes eHippodrome = (BuildingTypes)
-					GC.getInfoTypeForString("BUILDING_BYZANTINE_HIPPODROME", true);
-		if (eHippodrome != NO_BUILDING && getNumBuilding(eHippodrome) > 0 &&
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const BuildingTypes eHippodrome = (BuildingTypes)GC.getInfoTypeForString("BUILDING_BYZANTINE_HIPPODROME", true);
+		int const iHipCount = getNumBuilding(eHippodrome);
+
+		if (eHippodrome != NO_BUILDING && iHipCount > 0 &&
 			!GET_TEAM(getTeam()).isObsoleteBuilding(eHippodrome))
 		{
-			SpecialistTypes eArtist = (SpecialistTypes)GC.getInfoTypeForString(
-					"SPECIALIST_ARTIST", true);
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const SpecialistTypes eArtist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ARTIST", true);
 			if (eArtist != NO_SPECIALIST)
-				changeMaxSpecialistCount(eArtist, getNumBuilding(eHippodrome));
+				changeMaxSpecialistCount(eArtist, iHipCount);
 		}
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc ; refactor a bit to do so more efficiently if i'm not mistaken anyways etc -->
+		static const BuildingClassTypes eBuildingTheatre = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_THEATRE", true);
+		static const BuildingClassTypes eBuildingColosseum = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_COLOSSEUM", true);
+
 		std::vector<std::pair<BuildingClassTypes,int> > aeiCultureHappyMults;
-		aeiCultureHappyMults.push_back(std::make_pair((BuildingClassTypes)
-				GC.getInfoTypeForString("BUILDINGCLASS_THEATRE", true),
-				50));
-		aeiCultureHappyMults.push_back(std::make_pair((BuildingClassTypes)
-				GC.getInfoTypeForString("BUILDINGCLASS_COLOSSEUM", true),
-				200));
+		aeiCultureHappyMults.push_back(std::make_pair(eBuildingTheatre, 50));
+		aeiCultureHappyMults.push_back(std::make_pair(eBuildingColosseum, 200));
+
 		for (size_t i = 0; i < aeiCultureHappyMults.size(); i++)
 		{
 			BuildingClassTypes const eClass = aeiCultureHappyMults[i].first;
@@ -11734,8 +11738,9 @@ void CvCity::read(FDataStreamBase* pStream)
 				}
 			}
 		}
-		BuildingTypes eAPBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_APOSTOLIC_PALACE");
-		SpecialistTypes ePriest = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_PRIEST");
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const BuildingTypes eAPBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_APOSTOLIC_PALACE");
+		static const SpecialistTypes ePriest = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_PRIEST");
 		if (eAPBuilding != NO_BUILDING && ePriest != NO_SPECIALIST)
 		{
 			char const* aszShrineNames[] = { "BUILDING_JEWISH_SHRINE", "BUILDING_CHRISTIAN_SHRINE",
