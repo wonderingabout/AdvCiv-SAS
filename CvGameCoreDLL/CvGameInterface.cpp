@@ -2227,11 +2227,12 @@ bool CvGame::updateNukeAreaOfEffect(CvPlot const* pCenter) const
 	{
 		return false;
 	}
-	NiColorA const& kColor = GC.getInfo(GC.getColorType("YELLOW")).getColor();
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const ColorTypes eColorYellow = GC.getColorType("YELLOW");
+	static const NiColorA kYellow = GC.getInfo(eColorYellow).getColor();
 	for (SquareIter itPlot(*pCenter, pNuke->nukeRange()); itPlot.hasNext(); ++itPlot)
 	{
-		gDLL->getEngineIFace()->fillAreaBorderPlot(itPlot->getX(), itPlot->getY(),
-				kColor, AREA_BORDER_LAYER_NUKE);
+		gDLL->getEngineIFace()->fillAreaBorderPlot(itPlot->getX(), itPlot->getY(), kYellow, AREA_BORDER_LAYER_NUKE);
 	}
 	return true;
 }
@@ -2242,14 +2243,16 @@ void CvGame::updateSeaPatrolColors(CvUnit const& kSelectedUnit)
 	gDLL->getEngineIFace()->clearAreaBorderPlots(AREA_BORDER_LAYER_PATROLLED);
 	if (!kSelectedUnit.isSeaPatrolling())
 		return;
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const ColorTypes eColorCityBlue = (ColorTypes)GC.getInfoTypeForString("COLOR_CITY_BLUE");
+	static const NiColorA& kBlue = GC.getInfo(eColorCityBlue).getColor();
+
 	for (SquareIter itPlot(kSelectedUnit, GC.getMAX_SEA_PATROL_RANGE(), false);
 		itPlot.hasNext(); ++itPlot)
 	{
 		if (kSelectedUnit.canReachBySeaPatrol(*itPlot))
 		{
-			gDLL->getEngineIFace()->fillAreaBorderPlot(itPlot->getX(), itPlot->getY(),
-					GC.getInfo((ColorTypes)GC.getInfoTypeForString("COLOR_CITY_BLUE")).
-					getColor(), AREA_BORDER_LAYER_PATROLLED);
+			gDLL->getEngineIFace()->fillAreaBorderPlot(itPlot->getX(), itPlot->getY(), kBlue, AREA_BORDER_LAYER_PATROLLED);
 		}
 	}
 }

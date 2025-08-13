@@ -2789,8 +2789,9 @@ bool CvGame::isPowerfulStartingBonus(CvPlot const& kPlot, PlayerTypes eStartPlay
 	BonusTypes eBonus = kPlot.getBonusType(TEAMID(eStartPlayer));
 	if (eBonus == NO_BONUS)
 		return false;
-	return (GC.getInfo(eBonus).getBonusClassType() ==
-			GC.getInfoTypeForString("BONUSCLASS_PRECIOUS"));
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const BonusClassTypes eBonusClassPrecious = (BonusClassTypes)GC.getInfoTypeForString("BONUSCLASS_PRECIOUS");
+	return (GC.getInfo(eBonus).getBonusClassType() == eBonusClassPrecious);
 }
 
 // Tailored for Tundra Deer, dry Jungle Rice
@@ -5816,13 +5817,15 @@ void CvGame::makeSpecialBuildingValid(SpecialBuildingTypes eSpecialBuilding,
 	m_abSpecialBuildingValid.set(eSpecialBuilding, true);
 	if (bAnnounce)
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 		CvWString szBuffer = gDLL->getText("TXT_KEY_SPECIAL_BUILDING_VALID",
 				GC.getInfo(eSpecialBuilding).getTextKeyWide());
 		for (PlayerIter<MAJOR_CIV> itObs; itObs.hasNext(); ++itObs)
 		{
 			gDLL->UI().addMessage(itObs->getID(), false, -1, szBuffer,
 					"AS2D_PROJECT_COMPLETED", MESSAGE_TYPE_MAJOR_EVENT, NULL,
-					GC.getColorType("HIGHLIGHT_TEXT"));
+					eColorHighlightText);
 		}
 	}
 }
@@ -5891,6 +5894,10 @@ void CvGame::setHolyCity(ReligionTypes eReligion, CvCity* pCity, bool bAnnounce)
 	pHolyCity->setInfoDirty(true);
 	if (!bAnnounce || !isFinalInitialized() || gDLL->GetWorldBuilderMode())
 		return;
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 	CvWString szMsgRevealed(gDLL->getText("TXT_KEY_MISC_REL_FOUNDED",
 			GC.getInfo(eReligion).getTextKeyWide(), pHolyCity->getNameKey()));
 	CvWString szMsgUnknown(gDLL->getText("TXT_KEY_MISC_REL_FOUNDED_UNKNOWN",
@@ -5908,7 +5915,7 @@ void CvGame::setHolyCity(ReligionTypes eReligion, CvCity* pCity, bool bAnnounce)
 				bRevealed ? szMsgRevealed : szMsgUnknown,
 				GC.getInfo(eReligion).getSound(), MESSAGE_TYPE_MAJOR_EVENT,
 				GC.getInfo(eReligion).getButton(),
-				GC.getColorType("HIGHLIGHT_TEXT"),
+				eColorHighlightText,
 				bRevealed ? pHolyCity->getX() : -1, bRevealed ? pHolyCity->getY() : -1,
 				false, bRevealed);
 	}
@@ -5935,6 +5942,10 @@ void CvGame::setHeadquarters(CorporationTypes eCorp, CvCity* pCity, bool bAnnoun
 	pHeadquarters->setInfoDirty(true);
 	if (!bAnnounce || !isFinalInitialized() || gDLL->GetWorldBuilderMode())
 		return;
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 	CvWString szMsgRevealed(gDLL->getText("TXT_KEY_MISC_CORPORATION_FOUNDED",
 			GC.getInfo(eCorp).getTextKeyWide(), pHeadquarters->getNameKey()));
 	CvWString szMsgUnknown(gDLL->getText("TXT_KEY_MISC_CORPORATION_FOUNDED_UNKNOWN",
@@ -5952,7 +5963,7 @@ void CvGame::setHeadquarters(CorporationTypes eCorp, CvCity* pCity, bool bAnnoun
 				bRevealed ? szMsgRevealed : szMsgUnknown,
 				GC.getInfo(eCorp).getSound(), MESSAGE_TYPE_MAJOR_EVENT,
 				GC.getInfo(eCorp).getButton(),
-				GC.getColorType("HIGHLIGHT_TEXT"),
+				eColorHighlightText,
 				bRevealed ? pHeadquarters->getX() : -1,
 				bRevealed ? pHeadquarters->getY() : -1,
 				false, bRevealed);
@@ -6275,19 +6286,22 @@ void CvGame::doGlobalWarming()
 	{
 		setGwEventTally(0);
 
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+		
 		// Send a message saying that the threshold has been passed
 		CvWString szBuffer;
 
 		szBuffer = gDLL->getText("TXT_KEY_MISC_GLOBAL_WARMING_ACTIVE");
 		// add the message to the replay
 		addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, NO_PLAYER, szBuffer,
-				GC.getColorType("HIGHLIGHT_TEXT"));
+				eColorHighlightText);
 
 		for (PlayerIter<MAJOR_CIV> itObs; itObs.hasNext(); ++itObs)
 		{
 			gDLL->UI().addMessage(itObs->getID(), false, -1, szBuffer,
 					"AS2D_GLOBALWARMING", MESSAGE_TYPE_MAJOR_EVENT, NULL,
-					GC.getColorType("HIGHLIGHT_TEXT"));
+					eColorHighlightText);
 			// Tell human players that the threshold has been reached
 			if (itObs->isHuman() && !isNetworkMultiPlayer())
 			{
@@ -7536,8 +7550,8 @@ int CvGame::createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent,
 		if (pPlot->isWater() &&
 			!pNewUnit->getUnitInfo().isHiddenNationality()) // kekm.12
 		{
-			PromotionTypes eDisorganized = (PromotionTypes)
-					GC.getInfoTypeForString("PROMOTION_DISORGANIZED", true);
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const PromotionTypes eDisorganized = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_DISORGANIZED", true);
 			if (eDisorganized != NO_PROMOTION)
 				pNewUnit->setHasPromotion(eDisorganized, true);
 		} // K-Mod end
@@ -7732,10 +7746,8 @@ UnitTypes CvGame::randomBarbarianUnit(UnitAITypes eUnitAI, CvPlot const& kPlot)
 			iUnitEra = -1;
 		// Mounted units only in open terrain
 		// <!-- custom: split mounted units into melee mounted units and ranged mounted units so that pikemen are not strong against cuiassiers or horse archers and such anyways etc -->
-		static UnitCombatTypes const eMountedMelee = (UnitCombatTypes)
-				GC.getInfoTypeForString("UNITCOMBAT_MOUNTED_MELEE");
-		static UnitCombatTypes const eMountedRanged = (UnitCombatTypes)
-				GC.getInfoTypeForString("UNITCOMBAT_MOUNTED_RANGED");
+		static const UnitCombatTypes eMountedMelee = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED_MELEE");
+		static const UnitCombatTypes eMountedRanged = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED_RANGED");
 		bool const bMountedMelee = (kUnit.getUnitCombatType() == eMountedMelee);
 		bool const bMountedRanged = (kUnit.getUnitCombatType() == eMountedRanged);
 		if (bMountedMelee || bMountedRanged)
@@ -9429,7 +9441,8 @@ void CvGame::onAllGameDataRead()
 	// <advc.500c>
 	if (m_uiSaveFlag < 19)
 	{
-		TechTypes eNationalism = (TechTypes)GC.getInfoTypeForString("TECH_NATIONALISM");
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const TechTypes eNationalism = (TechTypes)GC.getInfoTypeForString("TECH_NATIONALISM");
 		if (eNationalism != NO_TECH)
 		{
 			for (PlayerIter<ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
@@ -9743,6 +9756,9 @@ void CvGame::setVoteSourceReligion(VoteSourceTypes eVoteSource,
 	m_aeVoteSourceReligion.set(eVoteSource, eReligion);
 	if (bAnnounce && eReligion != NO_RELIGION)
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 		CvWString szBuffer = gDLL->getText("TXT_KEY_VOTE_SOURCE_RELIGION",
 				GC.getInfo(eReligion).getTextKeyWide(),
 				GC.getInfo(eReligion).getAdjectiveKey(),
@@ -9754,7 +9770,7 @@ void CvGame::setVoteSourceReligion(VoteSourceTypes eVoteSource,
 					itPlayer->getTeam(), true); // </advc.127>
 			gDLL->UI().addMessage(itPlayer->getID(), false, -1, szBuffer,
 					GC.getInfo(eReligion).getSound(), MESSAGE_TYPE_MAJOR_EVENT,
-					NULL, GC.getColorType("HIGHLIGHT_TEXT"),
+					NULL, eColorHighlightText,
 					iiXY.first, iiXY.second); // advc.127b
 		}
 	}
@@ -10085,6 +10101,9 @@ void CvGame::doVoteResults()
 		VoteSourceTypes eVoteSource = pVoteTriggered->eVoteSource;
 		bool bPassed = false;
 
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 		if (!canDoResolution(eVoteSource, subdata))
 		{
 			for (PlayerIter<MAJOR_CIV> itObs; itObs.hasNext(); ++itObs)
@@ -10099,7 +10118,7 @@ void CvGame::doVoteResults()
 				std::pair<int,int> xy = getVoteSourceXY(eVoteSource, itObs->getTeam());
 				gDLL->UI().addMessage(itObs->getID(), false, -1, szMessage,
 						"AS2D_NEW_ERA", MESSAGE_TYPE_INFO, NULL,
-						GC.getColorType("HIGHLIGHT_TEXT"),
+						eColorHighlightText,
 						xy.first, xy.second); // advc.127b
 			}
 		}
@@ -10338,7 +10357,7 @@ void CvGame::doVoteResults()
 						countPossibleVote(eVote, eVoteSource),
 						szResolution.GetCString());
 				addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, NO_PLAYER, szMessage,
-						GC.getColorType("HIGHLIGHT_TEXT"));
+						eColorHighlightText);
 			} // </advc.150b>
 			for (PlayerIter<MAJOR_CIV> itObs; itObs.hasNext(); ++itObs)
 			{
@@ -10387,7 +10406,7 @@ void CvGame::doVoteResults()
 							// <advc.127b>
 							eVSBuilding == NO_BUILDING ? NULL :
 							GC.getInfo(eVSBuilding).getButton(), // </advc.127b>
-							GC.getColorType("HIGHLIGHT_TEXT"),
+							eColorHighlightText,
 							iiXY.first, iiXY.second); // advc.127b
 				}
 			}

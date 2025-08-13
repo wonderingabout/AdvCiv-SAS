@@ -153,11 +153,13 @@ void WarTradeAlert::showMessage(TeamTypes eHireling, bool bNowTooManyWars) const
 
 void WarTradeAlert::showMessage(CvWString szMsg, TeamTypes eHireling) const
 {
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const ColorTypes eColorWarTradeAlert = (ColorTypes)GC.getColorType("WAR_TRADE_ALERT");
 	AdvCiv4lert::showMessage(szMsg, NULL,
 			// <advc.127b>
 			GET_TEAM(eHireling).getCapitalX(TEAMID(m_eOwner)),
 			GET_TEAM(eHireling).getCapitalY(TEAMID(m_eOwner)), // </advc.127b>
-			GC.getColorType("WAR_TRADE_ALERT"));
+			eColorWarTradeAlert);
 } // </advc.210a>
 
 // <advc.210b>
@@ -507,10 +509,12 @@ void CityTradeAlert::msgWilling(std::vector<CvCity const*> const& kCities,
 		szMsg.append(L" ");
 		szMsg.append(kCities[i]->getName());
 	}
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const ColorTypes eColorCityBlue = (ColorTypes)GC.getColorType("CITY_BLUE");
 	showMessage(szMsg, NULL,
 			kCities.size() == 1 ? kCities[0]->getX() : - 1,
 			kCities.size() == 1 ? kCities[0]->getY() : - 1,
-			GC.getColorType("CITY_BLUE"));
+			eColorCityBlue);
 }
 
 
@@ -530,9 +534,12 @@ void CityTradeAlert::msgLiberate(std::vector<CvCity const*> const& kCities,
 	}
 	CvWString szName(GET_PLAYER(ePlayer).getName());
 	szMsg.append(gDLL->getText("TXT_KEY_CAN_LIBERATE", szName.c_str()));
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const ColorTypes eColorCityBlue = (ColorTypes)GC.getColorType("CITY_BLUE");
 	showMessage(szMsg, NULL,
 			kCities.size() == 1 ? kCities[0]->getX() : - 1,
 			kCities.size() == 1 ? kCities[0]->getY() : - 1,
-			GC.getColorType("CITY_BLUE"));
+			eColorCityBlue);
 }
 // </advc.ctr>

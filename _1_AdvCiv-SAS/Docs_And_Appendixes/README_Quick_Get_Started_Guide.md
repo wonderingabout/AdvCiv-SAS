@@ -74,7 +74,7 @@ Be warned though it can be very lengthy, so read below if you want (some of the)
 
 ### Translations
 
-For the new content or modified one in this mod (AdvCiv-SAS), only English translations are provided. If your game is in another language, you will still see some text, but in English. For modders, see the detailed explanation (code comment), mostly provided by ChatGPT and which was very helpful (to me at least, anyways, ) on how this is implemented at TXT_KEY_ADVCIV_SAS_CORE_CHANGES_PEDIA_SR 's entry in [CIV4GameText_advc_pedia_Lengthy_Custom.xml](Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml) anyways etc
+For the new content or modified one in this mod (AdvCiv-SAS), only English translations are provided. If your game is in another language, you will still see some text, but in English. For modders, see the detailed explanation (code comment), mostly provided by ChatGPT and which was very helpful (to me at least, anyways, ) on how this is implemented at TXT_KEY_ADVCIV_SAS_CORE_CHANGES_PEDIA_SR 's entry.
 
 ### Renaming (non-exhaustive)
 

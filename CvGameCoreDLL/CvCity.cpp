@@ -6631,6 +6631,9 @@ void CvCity::setCultureLevel(CultureLevelTypes eNewValue, bool bUpdatePlotGroups
 	if (GC.getGame().isFinalInitialized() && getCultureLevel() > eOldValue &&
 		getCultureLevel() > 1)
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 		CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_BORDERS_EXPANDED", getNameKey()));
 		gDLL->UI().addMessage(getOwner(), false, -1, szBuffer, getPlot(),
 				"AS2D_CULTUREEXPANDS", MESSAGE_TYPE_MINOR_EVENT,
@@ -6659,7 +6662,7 @@ void CvCity::setCultureLevel(CultureLevelTypes eNewValue, bool bUpdatePlotGroups
 					gDLL->UI().addMessage(kObs.getID(), false, -1, szMsg, getPlot(),
 							"AS2D_CULTURELEVEL", MESSAGE_TYPE_MAJOR_EVENT,
 							GC.getInfo(COMMERCE_CULTURE).getButton(),
-							GC.getColorType("HIGHLIGHT_TEXT"));
+							eColorHighlightText);
 				}
 				else
 				{
@@ -6668,11 +6671,11 @@ void CvCity::setCultureLevel(CultureLevelTypes eNewValue, bool bUpdatePlotGroups
 					gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer,
 							"AS2D_CULTURELEVEL", MESSAGE_TYPE_MAJOR_EVENT,
 							GC.getInfo(COMMERCE_CULTURE).getButton(),
-							GC.getColorType("HIGHLIGHT_TEXT"));
+							eColorHighlightText);
 				}
 			} // <advc.106>
 			GC.getGame().addReplayMessage(getPlot(), REPLAY_MESSAGE_MAJOR_EVENT,
-					getOwner(), szMsg, GC.getColorType("HIGHLIGHT_TEXT"));
+					getOwner(), szMsg, eColorHighlightText);
 			// </advc.106>
 		}
 		// ONEVENT - Culture growth
@@ -9315,6 +9318,9 @@ void CvCity::setHasReligion(ReligionTypes eReligion, bool bNewValue, bool bAnnou
 	{
 		if (bAnnounce)
 		{	// <advc.106e> Announce removed religion to other civs as well
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 			for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 			{
 				CvPlayer const& kObs = *it;
@@ -9331,7 +9337,7 @@ void CvCity::setHasReligion(ReligionTypes eReligion, bool bNewValue, bool bAnnou
 						kObs.getID(), // advc.106e: was getOwner() in K-Mod
 						false, -1, szBuffer, "AS2D_BLIGHT",
 						MESSAGE_TYPE_MINOR_EVENT, // advc.106b: was MAJOR
-						GC.getInfo(eReligion).getButton(), GC.getColorType("RED"),
+						GC.getInfo(eReligion).getButton(), eColorRed,
 						getX(), getY(), bArrows, bArrows);
 			}
 		}
@@ -11200,6 +11206,7 @@ bool CvCity::isMeltdownBuildingSuperseded(BuildingTypes eDangerBuilding) const
 
 void CvCity::read(FDataStreamBase* pStream)
 {
+	// 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
 	uint uiFlag=0;
 	pStream->Read(&uiFlag);
 
@@ -11304,173 +11311,77 @@ void CvCity::read(FDataStreamBase* pStream)
 	// m_bInfoDirty not saved...
 	// m_bLayoutDirty not saved...
 	pStream->Read(&m_bPlundered);
+	
 	// <advc.103>
-	if(uiFlag >= 6)
-		pStream->Read(&m_bInvestigate);
+	pStream->Read(&m_bInvestigate);
 	// </advc.103> <advc.003u>
-	if (uiFlag >= 7)
-		pStream->Read(&m_bChooseProductionDirty);
+	pStream->Read(&m_bChooseProductionDirty);
 	// </advc.003u>
 	pStream->Read((int*)&m_eOwner);
 	pStream->Read((int*)&m_ePreviousOwner);
 	pStream->Read((int*)&m_eOriginalOwner);
 	pStream->Read((int*)&m_eCultureLevel);
 
-	if (uiFlag >= 12)
-	{
-		m_aiSeaPlotYield.read(pStream);
-		m_aiRiverPlotYield.read(pStream);
-		m_aiBaseYieldRate.read(pStream);
-		m_aiYieldRateModifier.read(pStream);
-		m_aiPowerYieldRateModifier.read(pStream);
-		m_aiBonusYieldRateModifier.read(pStream);
-		m_aiTradeYield.read(pStream);
-		m_aiCorporationYield.read(pStream);
-		m_aiExtraSpecialistYield.read(pStream);
-		m_aiCommerceRate.read(pStream);
-		m_aiProductionToCommerceModifier.read(pStream);
-		m_aiBuildingCommerce.read(pStream);
-		m_aiSpecialistCommerce.read(pStream);
-		m_aiReligionCommerce.read(pStream);
-		m_aiCorporationCommerce.read(pStream);
-		m_aiCommerceRateModifier.read(pStream);
-		m_aiCommerceHappinessPer.read(pStream);
-		m_aiDomainFreeExperience.read(pStream);
-		m_aiDomainProductionModifier.read(pStream);
-		m_aiCulture.read(pStream);
-		m_aiNumRevolts.read(pStream);
-		m_abEverOwned.read(pStream);
-		m_abTradeRoute.read(pStream);
-		m_abRevealed.read(pStream);
-		m_abEspionageVisibility.read(pStream);
-	}
-	else
-	{
-		m_aiSeaPlotYield.readArray<int>(pStream);
-		m_aiRiverPlotYield.readArray<int>(pStream);
-		m_aiBaseYieldRate.readArray<int>(pStream);
-		m_aiYieldRateModifier.readArray<int>(pStream);
-		m_aiPowerYieldRateModifier.readArray<int>(pStream);
-		m_aiBonusYieldRateModifier.readArray<int>(pStream);
-		m_aiTradeYield.readArray<int>(pStream);
-		m_aiCorporationYield.readArray<int>(pStream);
-		m_aiExtraSpecialistYield.readArray<int>(pStream);
-		m_aiCommerceRate.readArray<int>(pStream);
-		m_aiProductionToCommerceModifier.readArray<int>(pStream);
-		m_aiBuildingCommerce.readArray<int>(pStream);
-		m_aiSpecialistCommerce.readArray<int>(pStream);
-		m_aiReligionCommerce.readArray<int>(pStream);
-		m_aiCorporationCommerce.readArray<int>(pStream);
-		m_aiCommerceRateModifier.readArray<int>(pStream);
-		m_aiCommerceHappinessPer.readArray<int>(pStream);
-		m_aiDomainFreeExperience.readArray<int>(pStream);
-		m_aiDomainProductionModifier.readArray<int>(pStream);
-		m_aiCulture.readArray<int>(pStream);
-		m_aiNumRevolts.readArray<int>(pStream);
-		m_abEverOwned.readArray<bool>(pStream);
-		m_abTradeRoute.readArray<bool>(pStream);
-		m_abRevealed.readArray<bool>(pStream);
-		m_abEspionageVisibility.readArray<bool>(pStream);
-	}
+	m_aiSeaPlotYield.read(pStream);
+	m_aiRiverPlotYield.read(pStream);
+	m_aiBaseYieldRate.read(pStream);
+	m_aiYieldRateModifier.read(pStream);
+	m_aiPowerYieldRateModifier.read(pStream);
+	m_aiBonusYieldRateModifier.read(pStream);
+	m_aiTradeYield.read(pStream);
+	m_aiCorporationYield.read(pStream);
+	m_aiExtraSpecialistYield.read(pStream);
+	m_aiCommerceRate.read(pStream);
+	m_aiProductionToCommerceModifier.read(pStream);
+	m_aiBuildingCommerce.read(pStream);
+	m_aiSpecialistCommerce.read(pStream);
+	m_aiReligionCommerce.read(pStream);
+	m_aiCorporationCommerce.read(pStream);
+	m_aiCommerceRateModifier.read(pStream);
+	m_aiCommerceHappinessPer.read(pStream);
+	m_aiDomainFreeExperience.read(pStream);
+	m_aiDomainProductionModifier.read(pStream);
+	m_aiCulture.read(pStream);
+	m_aiNumRevolts.read(pStream);
+	m_abEverOwned.read(pStream);
+	m_abTradeRoute.read(pStream);
+	m_abRevealed.read(pStream);
+	m_abEspionageVisibility.read(pStream);
 
 	pStream->ReadString(m_szName);
 	// <advc.106k>
-	if(uiFlag >= 5)
-		pStream->ReadString(m_szPreviousName); // </advc.106k>
+	pStream->ReadString(m_szPreviousName); // </advc.106k>
 	pStream->ReadString(m_szScriptData);
-	if (uiFlag >= 12)
-	{
-		m_aiNoBonus.read(pStream);
-		m_aiFreeBonus.read(pStream);
-		m_aiNumBonuses.read(pStream);
-		m_aiNumCorpProducedBonuses.read(pStream);
-		m_aiProjectProduction.read(pStream);
-		m_aiBuildingProduction.read(pStream);
-		m_aiBuildingProductionTime.read(pStream);
-		m_aeBuildingOriginalOwner.read(pStream);
-		m_aiBuildingOriginalTime.read(pStream);
-		m_aiUnitProduction.read(pStream);
-		m_aiUnitProductionTime.read(pStream);
-		m_aiGreatPeopleUnitRate.read(pStream);
-		m_aiGreatPeopleUnitProgress.read(pStream);
-		m_aiSpecialistCount.read(pStream);
-		m_aiMaxSpecialistCount.read(pStream);
-		m_aiForceSpecialistCount.read(pStream);
-		m_aiFreeSpecialistCount.read(pStream);
-		m_aiImprovementFreeSpecialists.read(pStream);
-		m_aiReligionInfluence.read(pStream);
-		// <advc.enum>
-		if (uiFlag >= 16)
-			m_aiShrine.read(pStream); // </advc.enum>
-		m_aiStateReligionHappiness.read(pStream);
-		m_aiUnitCombatFreeExperience.read(pStream);
-		m_aiFreePromotionCount.read(pStream);
-		m_aiNumRealBuilding.read(pStream);
-		m_aiNumFreeBuilding.read(pStream);
-		m_abWorkingPlot.read(pStream);
-		if (uiFlag >= 17)
-		{
-			m_abHasReligion.read(pStream);
-			m_abHasCorporation.read(pStream);
-		}
-		else
-		{
-			LegacyArrayEnumMap<ReligionTypes,bool>::convert(m_abHasReligion, pStream);
-			LegacyArrayEnumMap<CorporationTypes,bool>::convert(m_abHasCorporation, pStream);
-		}
-	}
-	else
-	{
-		m_aiNoBonus.readArray<int>(pStream);
-		m_aiFreeBonus.readArray<int>(pStream);
-		m_aiNumBonuses.readArray<int>(pStream);
-		m_aiNumCorpProducedBonuses.readArray<int>(pStream);
-		m_aiProjectProduction.readArray<int>(pStream);
-		m_aiBuildingProduction.readArray<int>(pStream);
-		m_aiBuildingProductionTime.readArray<int>(pStream);
-		m_aeBuildingOriginalOwner.readArray<int>(pStream);
-		EagerEnumMap<BuildingTypes,int> aiBuildingOriginalTime;
-		aiBuildingOriginalTime.readArray<int>(pStream);
-		FOR_EACH_ENUM(Building)
-		{
-			int iTimeRead = aiBuildingOriginalTime.get(eLoopBuilding);
-			m_aiBuildingOriginalTime.set(eLoopBuilding,
-					iTimeRead == MIN_INT ? iBuildingOriginalTimeUnknown : iTimeRead);
-		}
-		m_aiUnitProduction.readArray<int>(pStream);
-		m_aiUnitProductionTime.readArray<int>(pStream);
-		m_aiGreatPeopleUnitRate.readArray<int>(pStream);
-		m_aiGreatPeopleUnitProgress.readArray<int>(pStream);
-		m_aiSpecialistCount.readArray<int>(pStream);
-		m_aiMaxSpecialistCount.readArray<int>(pStream);
-		m_aiForceSpecialistCount.readArray<int>(pStream);
-		m_aiFreeSpecialistCount.readArray<int>(pStream);
-		m_aiImprovementFreeSpecialists.readArray<int>(pStream);
-		m_aiReligionInfluence.readArray<int>(pStream);
-		m_aiStateReligionHappiness.readArray<int>(pStream);
-		m_aiUnitCombatFreeExperience.readArray<int>(pStream);
-		m_aiFreePromotionCount.readArray<int>(pStream, /* advc.313: */ -1);
-		m_aiNumRealBuilding.readArray<int>(pStream);
-		m_aiNumFreeBuilding.readArray<int>(pStream);
-		m_abWorkingPlot.readArray<bool>(pStream);
-		m_abHasReligion.readArray<bool>(pStream);
-		m_abHasCorporation.readArray<bool>(pStream);
-	}
+	m_aiNoBonus.read(pStream);
+	m_aiFreeBonus.read(pStream);
+	m_aiNumBonuses.read(pStream);
+	m_aiNumCorpProducedBonuses.read(pStream);
+	m_aiProjectProduction.read(pStream);
+	m_aiBuildingProduction.read(pStream);
+	m_aiBuildingProductionTime.read(pStream);
+	m_aeBuildingOriginalOwner.read(pStream);
+	m_aiBuildingOriginalTime.read(pStream);
+	m_aiUnitProduction.read(pStream);
+	m_aiUnitProductionTime.read(pStream);
+	m_aiGreatPeopleUnitRate.read(pStream);
+	m_aiGreatPeopleUnitProgress.read(pStream);
+	m_aiSpecialistCount.read(pStream);
+	m_aiMaxSpecialistCount.read(pStream);
+	m_aiForceSpecialistCount.read(pStream);
+	m_aiFreeSpecialistCount.read(pStream);
+	m_aiImprovementFreeSpecialists.read(pStream);
+	m_aiReligionInfluence.read(pStream);
 	// <advc.enum>
-	if (uiFlag < 16 && GC.getNumUnitInfos() > 116 &&
-		// Great Prophet points. To save time. isHolyCity check not possible here.
-		getGreatPeopleUnitRate((UnitTypes)116) > 0)
-	{
-		FOR_EACH_ENUM(Building)
-		{
-			if (getNumBuilding(eLoopBuilding) > 0 &&
-				GC.getInfo(eLoopBuilding).getHolyCity() != NO_RELIGION)
-			{
-				m_aiShrine.add(GC.getInfo(eLoopBuilding).getReligionType(), 1);
-				break;
-			}
-		}
-	} // </advc.enum>
+	m_aiShrine.read(pStream); // </advc.enum>
+	m_aiStateReligionHappiness.read(pStream);
+	m_aiUnitCombatFreeExperience.read(pStream);
+	m_aiFreePromotionCount.read(pStream);
+	m_aiNumRealBuilding.read(pStream);
+	m_aiNumFreeBuilding.read(pStream);
+	m_abWorkingPlot.read(pStream);
+		m_abHasReligion.read(pStream);
+		m_abHasCorporation.read(pStream);
+	// <advc.enum>
 	for (size_t i = 0; i < m_aTradeCities.size(); i++)
 	{
 		pStream->Read((int*)&m_aTradeCities[i].eOwner);
@@ -11482,24 +11393,13 @@ void CvCity::read(FDataStreamBase* pStream)
 
 	pStream->Read(&m_iPopulationRank);
 	pStream->Read(&m_bPopulationRankValid);
-	if (uiFlag >= 12)
-	{
-		m_aiBaseYieldRank.read(pStream);
-		m_abBaseYieldRankValid.read(pStream);
-		m_aiYieldRank.read(pStream);
-		m_abYieldRankValid.read(pStream);
-		m_aiCommerceRank.read(pStream);
-		m_abCommerceRankValid.read(pStream);
-	}
-	else
-	{
-		m_aiBaseYieldRank.readArray<int>(pStream);
-		m_abBaseYieldRankValid.readArray<bool>(pStream);
-		m_aiYieldRank.readArray<int>(pStream);
-		m_abYieldRankValid.readArray<bool>(pStream);
-		m_aiCommerceRank.readArray<int>(pStream);
-		m_abCommerceRankValid.readArray<bool>(pStream);
-	}
+
+	m_aiBaseYieldRank.read(pStream);
+	m_abBaseYieldRankValid.read(pStream);
+	m_aiYieldRank.read(pStream);
+	m_abYieldRankValid.read(pStream);
+	m_aiCommerceRank.read(pStream);
+	m_abCommerceRankValid.read(pStream);
 
 	int iNumElts=-1;
 
@@ -11512,284 +11412,26 @@ void CvCity::read(FDataStreamBase* pStream)
 		m_aEventsOccured.push_back(eEvent);
 	}
 
-	if (uiFlag >= 12)
-	{
-		m_aeiiBuildingYieldChange.read(pStream);
-		m_aeiiBuildingCommerceChange.read(pStream);
-		m_aeiBuildingHappyChange.read(pStream);
-		m_aeiBuildingHealthChange.read(pStream);
-	}
-	else
-	{
-		// (advc: BtS had actually read int but written size_t)
-		size_t uiSize;
-		pStream->Read(&uiSize);
-		for (size_t i = 0; i < uiSize; i++)
-		{
-			int iBuildingClass, iYield, iChange;
-			pStream->Read(&iBuildingClass);
-			pStream->Read(&iYield);
-			pStream->Read(&iChange);
-			m_aeiiBuildingYieldChange.set(
-					static_cast<BuildingClassTypes>(iBuildingClass),
-					static_cast<YieldTypes>(iYield),
-					iChange);
-		}
-		pStream->Read(&uiSize);
-		for (size_t i = 0; i < uiSize; i++)
-		{
-			int iBuildingClass, iCommerce, iChange;
-			pStream->Read(&iBuildingClass);
-			pStream->Read(&iCommerce);
-			pStream->Read(&iChange);
-			m_aeiiBuildingCommerceChange.set(
-					static_cast<BuildingClassTypes>(iBuildingClass),
-					static_cast<CommerceTypes>(iCommerce),
-					iChange);
-		}
-		m_aeiBuildingHappyChange.readPair<size_t,int,int>(pStream);
-		m_aeiBuildingHealthChange.readPair<size_t,int,int>(pStream);
-	}
+	m_aeiiBuildingYieldChange.read(pStream);
+	m_aeiiBuildingCommerceChange.read(pStream);
+	m_aeiBuildingHappyChange.read(pStream);
+	m_aeiBuildingHealthChange.read(pStream);
 	// <advc.912d>
-	if(uiFlag >= 4)
-		pStream->Read(&m_iPopRushHurryCount);
-	if (uiFlag < 15 &&
-		(uiFlag < 9 || // Everyone had gotten only 40% from Granary prior to version 9
-		// After version 9, players affected by No Slavery had been exempt
-		!isHuman() || !GC.getGame().isOption(GAMEOPTION_NO_SLAVERY)))
-	{	// Now everyone gets 50% again, just like in BtS.
-		m_iMaxFoodKeptPercent = (m_iMaxFoodKeptPercent * 5) / 4;
-	} // </advc.912d>
+	pStream->Read(&m_iPopRushHurryCount);
+
 	// <advc.004x>
-	if(uiFlag >= 2)
-	{
-		pStream->Read(&m_iMostRecentOrder);
-		pStream->Read(&m_bMostRecentUnit);
-	} // </advc.004x>
+	pStream->Read(&m_iMostRecentOrder);
+	pStream->Read(&m_bMostRecentUnit);
+	// </advc.004x>
 	// <advc.030b>
-	if(uiFlag < 3)
-	{
-		CvArea* pWaterArea = waterArea(true);
-		if(pWaterArea != NULL)
-			pWaterArea->changeCitiesPerPlayer(getOwner(), 1);
-	} // </advc.030b>
-	// <advc.310>
-	if (uiFlag < 8)
-	{
-		BuildingTypes eVersailles = (BuildingTypes)GC.getInfoTypeForString(
-				"BUILDING_VERSAILLES", true);
-		if (eVersailles != NO_BUILDING && getNumBuilding(eVersailles) > 0)
-		{
-			CvBuildingInfo const& kVersailles = GC.getInfo(eVersailles);
-			int iRateChange = kVersailles.getGreatPeopleRateChange();
-			UnitClassTypes eOldGPClass = (UnitClassTypes)GC.getInfoTypeForString(
-						"UNITCLASS_GREAT_MERCHANT", true);
-			UnitClassTypes eNewGPClass = (UnitClassTypes)kVersailles.getGreatPeopleUnitClass();
-			/*	To provide some safety against messing up savegames of a mod-mod
-				that may not have adopted this XML change */
-			if (eNewGPClass == GC.getInfoTypeForString("UNITCLASS_GREAT_SPY", true) &&
-				iRateChange == 2 && eOldGPClass != NO_UNITCLASS)
-			{
-				UnitTypes eOldGPUnit = getCivilization().getUnit(eOldGPClass);
-				UnitTypes eNewGPUnit = getCivilization().getUnit(eNewGPClass);
-				if (eOldGPUnit != NO_UNIT && eNewGPUnit != NO_UNIT)
-				{
-					changeGreatPeopleUnitRate(eOldGPUnit, -iRateChange);
-					changeGreatPeopleUnitRate(eNewGPUnit, iRateChange);
-				}
-			}
-		}
-	} // </advc.310>
-	/*	<advc.911a>  (Reminder: All this junk can and should be
-		deleted as soon as savegame compatibility gets broken by a release) */
-	if (uiFlag < 10)
-	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-		static const SpecialistTypes eSpy = (SpecialistTypes)GC.getInfoTypeForString(
-				"SPECIALIST_SPY", true);
-		if (eSpy != NO_SPECIALIST)
-		{
-			std::vector<std::pair<BuildingClassTypes,int> > aeiSpyChanges;
-			aeiSpyChanges.push_back(std::make_pair((BuildingClassTypes)
-					GC.getInfoTypeForString("BUILDINGCLASS_COURTHOUSE", true),
-					1));
-			aeiSpyChanges.push_back(std::make_pair((BuildingClassTypes)
-					GC.getInfoTypeForString("BUILDINGCLASS_JAIL", true),
-					-1));
-			for (size_t i = 0; i < aeiSpyChanges.size(); i++)
-			{
-				BuildingClassTypes const eClass = aeiSpyChanges[i].first;
-				if (eClass == NO_BUILDINGCLASS || getNumBuilding(eClass) <= 0)
-					continue;
-				FOR_EACH_ENUM(Building)
-				{
-					if (GC.getInfo(eLoopBuilding).getBuildingClassType() == eClass &&
-						!GET_TEAM(getTeam()).isObsoleteBuilding(eLoopBuilding))
-					{
-						changeMaxSpecialistCount(eSpy, getNumBuilding(eLoopBuilding) *
-								aeiSpyChanges[i].second);
-					}
-
-				}
-			}
-		} // </advc.911a>
-		// <advc.908b>
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-		static const BuildingTypes eHippodrome = (BuildingTypes)GC.getInfoTypeForString("BUILDING_BYZANTINE_HIPPODROME", true);
-		int const iHipCount = getNumBuilding(eHippodrome);
-
-		if (eHippodrome != NO_BUILDING && iHipCount > 0 &&
-			!GET_TEAM(getTeam()).isObsoleteBuilding(eHippodrome))
-		{
-			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-			static const SpecialistTypes eArtist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ARTIST", true);
-			if (eArtist != NO_SPECIALIST)
-				changeMaxSpecialistCount(eArtist, iHipCount);
-		}
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc ; refactor a bit to do so more efficiently if i'm not mistaken anyways etc -->
-		static const BuildingClassTypes eBuildingTheatre = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_THEATRE", true);
-		static const BuildingClassTypes eBuildingColosseum = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_COLOSSEUM", true);
-
-		std::vector<std::pair<BuildingClassTypes,int> > aeiCultureHappyMults;
-		aeiCultureHappyMults.push_back(std::make_pair(eBuildingTheatre, 50));
-		aeiCultureHappyMults.push_back(std::make_pair(eBuildingColosseum, 200));
-
-		for (size_t i = 0; i < aeiCultureHappyMults.size(); i++)
-		{
-			BuildingClassTypes const eClass = aeiCultureHappyMults[i].first;
-			if (eClass == NO_BUILDINGCLASS || getNumBuilding(eClass) <= 0)
-				continue;
-			FOR_EACH_ENUM(Building)
-			{
-				if (GC.getInfo(eLoopBuilding).getBuildingClassType() == eClass &&
-					!GET_TEAM(getTeam()).isObsoleteBuilding(eLoopBuilding))
-				{
-					int iNewHappy = GC.getInfo(eLoopBuilding).
-							getCommerceHappiness(COMMERCE_CULTURE);
-					int iOldHappy = (iNewHappy * 100) / aeiCultureHappyMults[i].second;
-					changeCommerceHappinessPer(COMMERCE_CULTURE,
-							(iNewHappy - iOldHappy) * getNumBuilding(eLoopBuilding));
-				}
-			}
-		} // </advc.908b>
-		// <advc.160>
-		if (GC.getGame().isOption(GAMEOPTION_NO_SLAVERY) && isHuman())
-		{
-			BuildingClassTypes eGranary = (BuildingClassTypes)
-					GC.getInfoTypeForString("BUILDINGCLASS_GRANARY", true);
-			if (eGranary != NO_BUILDINGCLASS)
-			{
-				int iGranaries = getNumBuilding(eGranary);
-				if (iGranaries > 0 && getMaxFoodKeptPercent() >= 40)
-					changeMaxFoodKeptPercent(10 * iGranaries);
-			}
-		} 
-	} // </advc.160>
-	// <advc.201>, advc.200, advc.098
-	if (uiFlag < 13)
-	{
-		bool bUpdate = true;
-		SpecialBuildingTypes eCath = (SpecialBuildingTypes)GC.getInfoTypeForString(
-				"SPECIALBUILDING_CATHEDRAL");
-		if (eCath != NO_SPECIALBUILDING &&
-			getCommerceRateModifier(COMMERCE_CULTURE) >= 40) // to save time
-		{
-			CvCivilization const& kCiv = getCivilization();
-			for (int i = 0; i < kCiv.getNumBuildings(); i++)
-			{
-				if (getNumBuilding(kCiv.buildingAt(i)) <= 0)
-					continue;
-				if (GC.getInfo(kCiv.buildingAt(i)).getSpecialBuildingType() != eCath)
-					continue;
-				changeCommerceRateModifier(COMMERCE_CULTURE, 10);
-				bUpdate = false;
-			}
-		}
-		if (bUpdate)
-			updateBuildingCommerce(COMMERCE_CULTURE);
-		if (uiFlag < 11)
-		{
-			CorporationTypes eCreativeConstr = (CorporationTypes)
-						GC.getInfoTypeForString("CORPORATION_4", true);
-			if (eCreativeConstr != NO_CORPORATION && isHasCorporation(eCreativeConstr))
-				updateCorporationCommerce(COMMERCE_CULTURE);
-		}
-	} // </advc.201>
-	// <advc.179>
-	if (uiFlag < 14)
-	{
-		VoteSourceTypes eAP = (VoteSourceTypes)GC.getInfoTypeForString("DIPLOVOTE_POPE");
-		if (eAP != NO_VOTESOURCE)
-		{
-			ReligionTypes eAPReligion = GC.getGame().getVoteSourceReligion(eAP);
-			if (eAPReligion != NO_RELIGION && isHasReligion(eAPReligion) &&
-				GET_PLAYER(getOwner()).isLoyalMember(eAP) && GC.getGame().isDiploVote(eAP))
-			{
-				FOR_EACH_ENUM(Building)
-				{
-					if (GC.getInfo(eLoopBuilding).getReligionType() == eAPReligion)
-					{
-						setBuildingYieldChange(CvCivilization::buildingClass(eLoopBuilding),
-								/*	Set the yield to 1 rather than subtracting 1.
-									To address a bug that had existed in AdvCiv 1.00
-									and had, in some circumstances, set the yield to 0. */
-								YIELD_PRODUCTION, 1);
-					}
-				}
-			}
-		}
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-		static const BuildingTypes eAPBuilding = (BuildingTypes)GC.getInfoTypeForString("BUILDING_APOSTOLIC_PALACE");
-		static const SpecialistTypes ePriest = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_PRIEST");
-		if (eAPBuilding != NO_BUILDING && ePriest != NO_SPECIALIST)
-		{
-			char const* aszShrineNames[] = { "BUILDING_JEWISH_SHRINE", "BUILDING_CHRISTIAN_SHRINE",
-					"BUILDING_ISLAMIC_SHRINE", "BUILDING_HINDU_SHRINE", "BUILDING_BUDDHIST_SHRINE",
-					"BUILDING_PAGAN_SHRINE", "BUILDING_DAOIST_SHRINE" };
-			for (int i = 0; i < ARRAYSIZE(aszShrineNames); i++)
-			{
-				BuildingTypes eShrine = (BuildingTypes)GC.getInfoTypeForString(aszShrineNames[i]);
-				if (eShrine == NO_BUILDING)
-					continue;
-				// Shrines lose one priest slot each
-				changeMaxSpecialistCount(ePriest, -1 * getNumBuilding(eShrine));
-			}
-			changeMaxSpecialistCount(ePriest, 2 * getNumBuilding(eAPBuilding));
-		} // </advc.179>
-		// <advc.exp.1>
-		// (Change to MAX_CITY_COUNT_FOR_MAINTENANCE can only affect large civs)
-		if (GET_PLAYER(getOwner()).getNumCities() > 20 ||
-			// <advc.exp.2> (Changes to the unique buildings)
-			getCivilizationType() == GC.getInfoTypeForString("CIVILIZATION_ZULU") ||
-			getCivilizationType() == GC.getInfoTypeForString("CIVILIZATION_HOLY_ROMAN"))
-			// </advc.exp.2>
-		{
-			updateMaintenance();
-		}
-	} // </advc.exp.1>
 }
 
 void CvCity::write(FDataStreamBase* pStream)
 {
 	PROFILE_FUNC(); // advc
 	REPRO_TEST_BEGIN_WRITE(CvString::format("City(%d,%d)", getX(), getY()));
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
 	uint uiFlag;
-	//uiFlag = 1; // K-Mod
-	//uiFlag = 2; // advc.004x
-	//uiFlag = 3; // advc.030b
-	//uiFlag = 4; // advc.912d
-	//uiFlag = 5; // advc.106k
-	//uiFlag = 6; // advc.103
-	//uiFlag = 7; // advc.003u: m_bChooseProductionDirty
-	//uiFlag = 8; // advc.310
-	//uiFlag = 9; // advc.912d (adjust food kept; NB: should've adjusted MaxFoodKept)
-	//uiFlag = 10; // advc.911a, advc.908b
-	//uiFlag = 11; // advc.201, advc.098
-	//uiFlag = 12; // advc.enum: new enum map save behavior
-	//uiFlag = 13; // advc.201: Cathedrals restored to BtS stats
-	//uiFlag = 14; // advc.179, advc.exp.1, advc.exp.2
-	//uiFlag = 15; // advc.912d: Partly reverted, adjust MaxFoodKept.
-	//uiFlag = 16; // advc.enum: m_aiShrine
 	uiFlag = 17; // advc.313: Disorganized promo removed, advc.enum: bugfix.
 	pStream->Write(uiFlag);
 
@@ -12548,6 +12190,9 @@ void CvCity::applyEvent(EventTypes eEvent,
 			int iNumPillage = kEvent.getMinPillage() +
 					SyncRandNum(kEvent.getMaxPillage() - kEvent.getMinPillage());
 
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 			int iNumPillaged = 0;
 			for (int i = 0; i < iNumPillage; i++)
 			{
@@ -12570,7 +12215,7 @@ void CvCity::applyEvent(EventTypes eEvent,
 						gDLL->UI().addMessage(getOwner(), false, -1, szBuffer, *pPlot,
 								"AS2D_PILLAGED", MESSAGE_TYPE_INFO,
 								GC.getInfo(pPlot->getImprovementType()).getButton(),
-								GC.getColorType("RED"));
+								eColorRed);
 						pPlot->setImprovementType(NO_IMPROVEMENT);
 						iNumPillaged++;
 						break;
@@ -12716,7 +12361,8 @@ void CvCity::doPartisans()
 	if (getNumPartisanUnits(kPartisanPlayer.getID()) <= 0)
 		return;
 
-	EventTriggerTypes eTrigger = (EventTriggerTypes)GC.getInfoTypeForString("EVENTTRIGGER_PARTISANS");
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const EventTriggerTypes eTrigger = (EventTriggerTypes)GC.getInfoTypeForString("EVENTTRIGGER_PARTISANS");
 	FAssert(eTrigger != NO_EVENTTRIGGER);
 	if (!GC.getGame().isEventActive(eTrigger) ||
 		/*  Non-negative probability means, apparently, that the event is
@@ -12896,6 +12542,9 @@ void CvCity::liberate(bool bConquest, /* advc.ctr: */ bool bPeaceDeal)
 				kLiberationTeam.getTotalLand(false));
 	}
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 	CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_CITY_LIBERATED", getNameKey(),
 			GET_PLAYER(getOwner()).getNameKey(),
 			GET_PLAYER(ePlayer).getCivilizationAdjectiveKey());
@@ -12910,11 +12559,11 @@ void CvCity::liberate(bool bConquest, /* advc.ctr: */ bool bPeaceDeal)
 					"AS2D_REVOLTEND",
 					MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY, // advc.106b
 					ARTFILEMGR.getInterfaceArtPath("WORLDBUILDER_CITY_EDIT"),
-					GC.getColorType("HIGHLIGHT_TEXT"));
+					eColorHighlightText);
 		}
 	}
 	GC.getGame().addReplayMessage(getPlot(), REPLAY_MESSAGE_MAJOR_EVENT,
-			getOwner(), szBuffer, GC.getColorType("HIGHLIGHT_TEXT"));
+			getOwner(), szBuffer, eColorHighlightText);
 	// <advc.ctr>
 	if (!bPeaceDeal)
 		GET_PLAYER(ePlayer).AI_rememberLiberation(*this, bConquest); // </advc.ctr>
@@ -13386,6 +13035,8 @@ void CvCity::failProduction(int iOrderData, int iInvestedProduction, bool bProje
 	if (iGoldPercent <= 0)
 		return;
 	int iProductionGold = (iInvestedProduction * iGoldPercent) / 100;
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 	GET_PLAYER(getOwner()).changeGold(iProductionGold);
 	CvWString szMsg = gDLL->getText("TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED",
 			getNameKey(), bProject ?
@@ -13394,7 +13045,7 @@ void CvCity::failProduction(int iOrderData, int iInvestedProduction, bool bProje
 			iProductionGold);
 	gDLL->UI().addMessage(getOwner(), false, -1, szMsg, getPlot(), "AS2D_WONDERGOLD",
 			MESSAGE_TYPE_MINOR_EVENT, GC.getInfo(COMMERCE_GOLD).getButton(),
-			GC.getColorType("RED"));
+			eColorRed);
 }
 
 // <advc.064b>

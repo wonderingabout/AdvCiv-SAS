@@ -86,7 +86,7 @@ If you just want to play and do not need all the project bigger details, i added
 
 note: it is recommended to read this (quick get started guide) part even if you want to know the deeper changes. There are stuff and things/information i added only recently in it, which may not be available in the longer docs.
 
-I may also update it after releasing the AdvCiv-SAS mod (and its new or/and future version(s) if there are after initial release ideally but if not and in all cases anyways etc), maybe, but not guaranteed, if there are significant changes i would like to add or mention/talk about there. But i would move them to the bottom so you don't have to reread all ideally but not sure i would do that though so and anyways as is or not anyways etc anyways etc hopefully helpful enough this way if this way is the way maybe (or not but in all cases anyways etc anyways etc) but anyways etc...
+I may also update it after releasing the AdvCiv-SAS mod (and its new or/and future version(s) if there are after initial release ideally but if not and in all cases anyways etc), maybe, but not guaranteed, if there are significant changes i would like to add or mention/talk about there.
 
 ## Important Sevopedia reworks (click on the images below to view them full size)
 
