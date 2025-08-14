@@ -5783,7 +5783,9 @@ void CvTeam::read(FDataStreamBase* pStream)
 {
 	reset(); // Init data before load
 
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
 	uint uiFlag=0;
+
 	pStream->Read(&uiFlag);
 
 	pStream->Read(&m_iNumMembers);
@@ -5809,223 +5811,78 @@ void CvTeam::read(FDataStreamBase* pStream)
 	pStream->Read(&m_iMasterPower);
 	pStream->Read(&m_iEnemyWarWearinessModifier);
 	pStream->Read(&m_iRiverTradeCount);
+
 	// <advc.500c> (Older saves handled after techs are loaded)
-	if (uiFlag >= 18)
-		pStream->Read(&m_iNoFearForSafetyCount); // </advc.500c>
+	pStream->Read(&m_iNoFearForSafetyCount); // </advc.500c>
+
 	pStream->Read(&m_iEspionagePointsEver);
+
 	// <advc.003m>
-	if(uiFlag >= 5)
-	{
 		pStream->Read(&m_iMajorWarEnemies);
 		pStream->Read(&m_iMinorWarEnemies);
 		pStream->Read(&m_iVassalWarEnemies);
 		pStream->Read(&m_bMinorTeam);
-	}
-	else
-	{
-		updateMinorCiv(); // Need to do this before CvTeamAI::read
-		/*	All teams need to be loaded before war enemies can be counted.
-			Set negative counts in order to signal to CvGame::onAllGameDataRead
-			that finalizeInit needs to be called. */
-		m_iMajorWarEnemies = m_iMinorWarEnemies = m_iVassalWarEnemies = -1;
-	} // </advc.003m>
+	// </advc.003m>
 
 	pStream->Read(&m_bMapCentering);
 	pStream->Read(&m_bCapitulated);
-	// <advc.opt> (obsolete)
-	if (uiFlag >= 7 && uiFlag < 16)
-	{
-		bool bAnyVictoryCountdown; // (discard)
-		pStream->Read(&bAnyVictoryCountdown);
-	} // </advc.opt>
+
 	pStream->Read((int*)&m_eID);
 	FAssertEnumBounds(m_eID); // advc (sanity check)
-	if (uiFlag >= 16)
-	{
-		m_aiStolenVisibilityTimer.read(pStream);
-		m_aiWarWeariness.read(pStream);
-	}
-	else
-	{
-		m_aiStolenVisibilityTimer.readArray<int>(pStream);
-		m_aiWarWeariness.readArray<int>(pStream);
-	}
-	// <advc> (for kekm.38)
-	if (uiFlag >= 15)
-	{
-		if (uiFlag >= 16)
-			m_aiTechShareCount.read(pStream);
-		else m_aiTechShareCount.readArray<char>(pStream);
-	}
-	else
-	{	/*	Used to be stored for each possible team count, now player count.
-			And the iTechShare from XML is no longer treated as 1 less in the DLL. */
-		ArrayEnumMap<TeamTypes,int> aiTeamTechShareCount;
-		aiTeamTechShareCount.readArray<int>(pStream);
-		if (aiTeamTechShareCount.isAnyNonDefault())
-		{
-			for (int i = 0; i < std::min<int>(MAX_TEAMS, MAX_PLAYERS - 1); i++)
-			{
-				m_aiTechShareCount.set((PlayerTypes)(i + 1),
-						aiTeamTechShareCount.get((TeamTypes)i));
-			}
-		}
-	} // </advc>
-	if (uiFlag >= 16)
-	{
-		m_aiEspionagePointsAgainstTeam.read(pStream);
-		m_aiCounterespionageTurnsLeftAgainstTeam.read(pStream);
-		m_aiCounterespionageModAgainstTeam.read(pStream);
-		// <advc.130k> (Handle old saves in CvTeamAI) 
-		if (uiFlag >= 17)
-			m_aiTurnsAtPeace.read(pStream); // </advc.130k>
-		m_aiCommerceFlexibleCount.read(pStream);
-	}
-	else
-	{
-		m_aiEspionagePointsAgainstTeam.readArray<int>(pStream);
-		m_aiCounterespionageTurnsLeftAgainstTeam.readArray<int>(pStream);
-		m_aiCounterespionageModAgainstTeam.readArray<int>(pStream);
-		m_aiCommerceFlexibleCount.readArray<int>(pStream);
-	}
-	// <advc.120g> Prior to uiFlag=6, espionage was flexible from the beginning.
-	if(uiFlag < 6)
-		m_aiCommerceFlexibleCount.set(COMMERCE_ESPIONAGE, 1); // </advc.120g>
-	if (uiFlag >= 16)
-	{
-		m_aiExtraMoves.read(pStream);
-		m_aiForceTeamVoteEligibilityCount.read(pStream);
-	}
-	else
-	{
-		m_aiExtraMoves.readArray<int>(pStream);
-		m_aiForceTeamVoteEligibilityCount.readArray<int>(pStream);
-	}
+
+	m_aiStolenVisibilityTimer.read(pStream);
+	m_aiWarWeariness.read(pStream);
+
+
+	m_aiTechShareCount.read(pStream);
+	// </advc>
+
+	m_aiEspionagePointsAgainstTeam.read(pStream);
+	m_aiCounterespionageTurnsLeftAgainstTeam.read(pStream);
+	m_aiCounterespionageModAgainstTeam.read(pStream);
+	// <advc.130k> (Handle old saves in CvTeamAI) 
+
+	m_aiTurnsAtPeace.read(pStream); // </advc.130k>
+
+	m_aiCommerceFlexibleCount.read(pStream);
+
+	m_aiExtraMoves.read(pStream);
+	m_aiForceTeamVoteEligibilityCount.read(pStream);
+
 	// <advc.091>
-	if (uiFlag >= 12)
-	{
-		if (uiFlag >= 16)
-			m_aiHasMetTurn.read(pStream);
-		else m_aiHasMetTurn.readArray<int>(pStream);
-	}
-	else
-	{
-		ArrayEnumMap<TeamTypes,bool> abHasMet;
-		abHasMet.readArray<bool>(pStream);
-		CvGame const& kGame = GC.getGame();
-		int iGameTurn = kGame.getGameTurn();
-		int iStartTurn = kGame.getStartTurn();
-		FAssert(iGameTurn >= 0 && iStartTurn >= 0);
-		for (TeamIter<> itTeam; itTeam.hasNext(); ++itTeam)
-		{
-			TeamTypes eTeam = itTeam->getID();
-			if (abHasMet.get(eTeam))
-			{
-				m_aiHasMetTurn.set(eTeam,
-						eTeam == getID() ? iStartTurn : iGameTurn);
-			}
-		}
-	}
+	m_aiHasMetTurn.read(pStream);
+
 	// </advc.091>
-	/*if (uiFlag >= 1)
-		pStream->Read(MAX_TEAMS, m_abHasSeen);
-	else memcpy(m_abHasSeen, m_abHasMet, sizeof(*m_abHasSeen)*MAX_TEAMS);*/ // K-Mod
-	FAssert(uiFlag >= 1);
-	if (uiFlag >= 16)
-	{
-		m_abHasSeen.read(pStream);
-		m_abAtWar.read(pStream);
-	}
-	else
-	{
-		m_abHasSeen.readArray<bool>(pStream);
-		m_abAtWar.readArray<bool>(pStream);
-	}
+
+	m_abHasSeen.read(pStream);
+	m_abAtWar.read(pStream);
+
 	// <advc.162>
-	if (uiFlag >= 4)
-	{
-		if (uiFlag >= 16)
-			m_abJustDeclaredWar.read(pStream);
-		else m_abJustDeclaredWar.readArray<bool>(pStream);
-	} // </advc.162>
-	if (uiFlag >= 16)
-	{
-		m_abPermanentWarPeace.read(pStream);
-		m_abOpenBorders.read(pStream);
-	}
-	else
-	{
-		m_abPermanentWarPeace.readArray<bool>(pStream);
-		m_abOpenBorders.readArray<bool>(pStream);
-	}
+	m_abJustDeclaredWar.read(pStream);
+	// </advc.162>
+
+	m_abPermanentWarPeace.read(pStream);
+	m_abOpenBorders.read(pStream);
+
 	// <advc.034>
-	if(uiFlag >= 3)
-	{
-		if (uiFlag >= 9)
-		{
-			if (uiFlag >= 16)
-				m_abDisengage.read(pStream);
-			else m_abDisengage.readArray<bool>(pStream);
-		}
-		else // I had previously written only MAX_CIV_TEAMS values
-		{
-			bool abTmp[MAX_CIV_TEAMS];
-			pStream->Read(MAX_CIV_TEAMS, abTmp);
-			for (int i = 0; i < MAX_CIV_TEAMS; i++)
-				m_abDisengage.set((TeamTypes)i, abTmp[i]);
-		}
-	} // </advc.034>
-	if (uiFlag >= 16)
-	{
-		m_abDefensivePact.read(pStream);
-		m_abForcePeace.read(pStream);
-	}
-	else
-	{
-		m_abDefensivePact.readArray<bool>(pStream);
-		m_abForcePeace.readArray<bool>(pStream);
-	}
+	m_abDisengage.read(pStream);
+	// </advc.034>
+
+	m_abDefensivePact.read(pStream);
+	m_abForcePeace.read(pStream);
+
 	// <advc.opt>
-	if (uiFlag < 9)
-	{
-		ArrayEnumMap<TeamTypes,bool> dummy; // m_abVassal
-		dummy.readArray<bool>(pStream);
-	}
 	pStream->Read((int*)&m_eMaster);
-	if (uiFlag >= 2)
-		pStream->Read((int*)&m_eLeader);
-	if (uiFlag < 8)
-		updateLeaderID();
+	pStream->Read((int*)&m_eLeader);
 	// </advc.opt>
-	if (uiFlag >= 16)
-	{
-		if (uiFlag >= 19)
-			m_abCanLaunch.read(pStream);
-		else LegacyArrayEnumMap<VictoryTypes,bool>::convert(m_abCanLaunch, pStream);
-		m_aiRouteChange.read(pStream);
-		m_aiProjectCount.read(pStream);
-	}
-	else
-	{
-		m_abCanLaunch.readArray<bool>(pStream);
-		m_aiRouteChange.readArray<int>(pStream);
-		m_aiProjectCount.readArray<int>(pStream);
-	}
-	if (uiFlag < 14)
-	{	// Reduced SDI interception chance in AdvCiv 1.0
-		ProjectTypes eSDI = (ProjectTypes)GC.getInfoTypeForString("PROJECT_SDI");
-		if (eSDI != NO_PROJECT)
-		{
-			int iSDICount = m_aiProjectCount.get(eSDI);
-			if (iSDICount > 0 && getNukeInterception() >= iSDICount * 75)
-			{
-				changeNukeInterception(iSDICount * -15);
-			}
-		}
-	}
-	if (uiFlag >= 16)
-		m_aiProjectDefaultArtTypes.read(pStream);
-	else m_aiProjectDefaultArtTypes.readArray<int>(pStream);
+
+	m_abCanLaunch.read(pStream);
+
+	m_aiRouteChange.read(pStream);
+	m_aiProjectCount.read(pStream);
+
+	m_aiProjectDefaultArtTypes.read(pStream);
+
 	// project art types
 	FOR_EACH_ENUM(Project)
 	{
@@ -6036,109 +5893,29 @@ void CvTeam::read(FDataStreamBase* pStream)
 			m_aaiProjectArtTypes[eLoopProject].push_back(iTmp);
 		}
 	}
-	if (uiFlag >= 16)
-	{
-		m_aiProjectMaking.read(pStream);
-		m_aiUnitClassCount.read(pStream);
-		m_aiBuildingClassCount.read(pStream);
-		m_aiObsoleteBuildingCount.read(pStream);
-		m_aiResearchProgress.read(pStream);
-		m_aiTechCount.read(pStream);
-		m_aiTerrainTradeCount.read(pStream);
-		m_aiVictoryCountdown.read(pStream);
-	}
-	else
-	{
-		m_aiProjectMaking.readArray<int>(pStream);
-		m_aiUnitClassCount.readArray<int>(pStream);
-		m_aiBuildingClassCount.readArray<int>(pStream);
-		m_aiObsoleteBuildingCount.readArray<int>(pStream);
-		m_aiResearchProgress.readArray<int>(pStream);
-		m_aiTechCount.readArray<int>(pStream);
-		m_aiTerrainTradeCount.readArray<int>(pStream);
-		m_aiVictoryCountdown.readArray<int>(pStream);
-	}
+
+	m_aiProjectMaking.read(pStream);
+	m_aiUnitClassCount.read(pStream);
+	m_aiBuildingClassCount.read(pStream);
+	m_aiObsoleteBuildingCount.read(pStream);
+	m_aiResearchProgress.read(pStream);
+	m_aiTechCount.read(pStream);
+	m_aiTerrainTradeCount.read(pStream);
+	m_aiVictoryCountdown.read(pStream);
+
 	// <advc.opt>
-	if (uiFlag == 10) // Fix a bug in AdvCiv 0.97
-	{
-		FOR_EACH_ENUM(Victory)
-		{	/*	Is 0 a legit value? Well, let's hope that it represents
-				"no countdown started" in this savegame. */
-			if (getVictoryCountdown(eLoopVictory) == 0)
-				m_aiVictoryCountdown.set(eLoopVictory, -1);
-		}
-	} // </advc.opt>
-	if (uiFlag >= 16)
-	{
-		if (uiFlag >= 19)
-			m_abHasTech.read(pStream);
-		else LegacyArrayEnumMap<TechTypes,bool>::convert(m_abHasTech, pStream);
-	}
-	else m_abHasTech.readArray<bool>(pStream);
+
+	m_abHasTech.read(pStream);
+
 	// <advc.101>
-	if (uiFlag >= 10)
-		pStream->Read(&m_iTechCount);
-	else
-	{
-		FOR_EACH_ENUM(Tech)
-		{
-			if (m_abHasTech.get(eLoopTech))
-				m_iTechCount++;
-		}
-	} // </advc.101>
-	if (uiFlag >= 16)
-	{
-		if (uiFlag >= 19)
-			m_abNoTradeTech.read(pStream);
-		else LegacyArrayEnumMap<TechTypes,bool>::convert(m_abNoTradeTech, pStream);
-		m_aaiImprovementYieldChange.read(pStream);
-	}
-	else
-	{
-		m_abNoTradeTech.readArray<bool>(pStream);
-		m_aaiImprovementYieldChange.readArray<int>(pStream);
-	}
-	if (uiFlag >= 16)
-	{
-		if (uiFlag >= 19)
-			m_abRevealedBonuses.read(pStream);
-		else LegacyArrayEnumMap<BonusTypes,bool>::convert(m_abRevealedBonuses, pStream);
-	}
-	else
-	{
-		int iSize;
-		pStream->Read(&iSize);
-		for (int i = 0; i < iSize; i++)
-		{
-			int iBonus;
-			pStream->Read(&iBonus);
-			m_abRevealedBonuses.insert(iBonus, true);
-		}
-	}
-	// <advc.500c> (Citizen assignment gets updated by CvGame::onAllGameDataRead)
-	if (uiFlag < 18)
-	{
-		TechTypes eNationalism = (TechTypes)GC.getInfoTypeForString("TECH_NATIONALISM");
-		if (eNationalism != NO_TECH && isHasTech(eNationalism))
-			m_iNoFearForSafetyCount = 1;
-	} // </advc.500c>
-	// <advc.183> Reveal any destroyed forts (so that aircraft can't rebase to them)
-	if (uiFlag < 13 && isAlive())
-	{
-		FOR_EACH_ENUM(PlotNum)
-		{
-			CvPlot& kPlot = GC.getMap().getPlotByIndex(eLoopPlotNum);
-			if (kPlot.isWater()) // to save time
-				continue;
-			ImprovementTypes eRevealedImprov = kPlot.getRevealedImprovementType(getID());
-			if (eRevealedImprov != NO_IMPROVEMENT &&
-				kPlot.getImprovementType() != eRevealedImprov &&
-				GC.getInfo(eRevealedImprov).isActsAsCity())
-			{
-				kPlot.setRevealedImprovementType(getID(), NO_IMPROVEMENT);
-			}
-		}
-	} // </advc.183>
+	pStream->Read(&m_iTechCount);
+	// </advc.101>
+
+	m_abNoTradeTech.read(pStream);
+
+	m_aaiImprovementYieldChange.read(pStream);
+
+	m_abRevealedBonuses.read(pStream);
 }
 
 // <advc.003m>  (for legacy savegames)
@@ -6156,26 +5933,11 @@ void CvTeam::write(FDataStreamBase* pStream)
 {
 	PROFILE_FUNC(); // advc
 	REPRO_TEST_BEGIN_WRITE(CvString::format("Team(%d)", getID()));
+
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
 	uint uiFlag;
-	//uiFlag = 1; // K-Mod
-	//uiFlag = 2; // advc.opt: m_eLeader added
-	//uiFlag = 3; // advc.034
-	//uiFlag = 4; // advc.162
-	//uiFlag = 5; // advc.003m
-	//uiFlag = 6; // advc.120g
-	//uiFlag = 7; // advc.opt: m_bAnyVictoryCountdown
-	//uiFlag = 8; // advc.opt: change in updateLeaderID
-	//uiFlag = 9; // advc.opt: remove m_abVassal; advc.enum/ advc.034: write m_abDisengage[BARBARIAN_TEAM]
-	//uiFlag = 10; // advc.101: m_iTechCount
-	//uiFlag = 11; // advc.opt: fix m_aiVictoryCountdown bug
-	//uiFlag = 12; // advc.091
-	//uiFlag = 13; // advc.183
-	//uiFlag = 14; // advc.650
-	//uiFlag = 15; // advc (for kekm.38)
-	//uiFlag = 16; // advc.enum: new enum map save behavior
-	//uiFlag = 17; // advc.130k
-	//uiFlag = 18; // advc.500c
 	uiFlag = 19; // advc.enum: Bugfix in bool-valued ArrayEnumMap
+
 	pStream->Write(uiFlag);
 
 	pStream->Write(m_iNumMembers);
@@ -6226,7 +5988,7 @@ void CvTeam::write(FDataStreamBase* pStream)
 	m_aiForceTeamVoteEligibilityCount.write(pStream);
 
 	m_aiHasMetTurn.write(pStream); // advc.091
-	m_abHasSeen.write(pStream); // K-Mod. uiFlag >= 1
+	m_abHasSeen.write(pStream); // K-Mod.
 	m_abAtWar.write(pStream);
 	m_abJustDeclaredWar.write(pStream); // advc.162
 	m_abPermanentWarPeace.write(pStream);
