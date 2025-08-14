@@ -13420,6 +13420,7 @@ uint CvPlayerAI::AI_unitImpassables(UnitTypes eUnit) const
 	uint uiCount = 0;
 	// <advc.057>
 	uint const uiCountBits = 3;
+	// <!-- custom: note: as part of cleaning up the old uiFlag code, not deleting these uiFlagBits code "bits" xd (no pun but anyways etc...) though as recommended by claude ai and chatgpt 5 as according to chatgpt 5 for example this isn't using the savegame uiFlag so kept as such if i'm not mistaken, check if accurate, anyways etc --> 
 	uint const uiFlagBits = std::numeric_limits<uint>::digits - uiCountBits;
 	uint const uiTerrains = (uint)GC.getNumTerrainInfos();
 	FAssert(uiTerrains + ((uint)GC.getNumFeatureInfos()) <= uiFlagBits);
@@ -22908,7 +22909,9 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
 {
 	CvPlayer::read(pStream);
 
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
 	uint uiFlag=0;
+
 	pStream->Read(&uiFlag);
 
 	pStream->Read(&m_iPeaceWeight);
@@ -22917,14 +22920,14 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
 	pStream->Read(&m_iCivicTimer);
 	pStream->Read(&m_iReligionTimer);
 	pStream->Read(&m_iExtraGoldTarget);
+
 	// K-Mod
-	if (uiFlag >= 6)
-		pStream->Read(&m_iCityTargetTimer);
-	else AI_setCityTargetTimer(0); // K-Mod end
+	pStream->Read(&m_iCityTargetTimer);
+	// K-Mod end
+
 	AI_updateEraFactor(); // advc.erai (no need to serialize this)
 	// <advc.651>
-	if (uiFlag >= 16)
-		pStream->Read(&m_bDangerFromSubmarines); // </advc.651>
+	pStream->Read(&m_bDangerFromSubmarines); // </advc.651>
 
 	pStream->Read((int*)&m_eStrategyHash);
 	//pStream->Read(&m_iStrategyHashCacheTurn); // disabled by K-Mod
@@ -22944,8 +22947,7 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
 	//pStream->Read(&m_iUpgradeUnitsCachedExpThreshold); // disabled by K-Mod
 	pStream->Read(&m_iUpgradeUnitsCachedGold);
 	// K-Mod
-	if (uiFlag >= 7)
-		pStream->Read(&m_iAvailableIncome);
+	pStream->Read(&m_iAvailableIncome);
 	// K-Mod end
 
 	pStream->Read(NUM_UNITAI_TYPES, m_aiNumTrainAIUnits);
@@ -22960,33 +22962,23 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
 	pStream->Read(MAX_PLAYERS, m_aiGoldTradedTo);
 	pStream->Read(MAX_PLAYERS, m_aiAttitudeExtra);
 	// <advc.130w>
-	if (uiFlag >= 22) // (Otherwise, update it in CvGame::onAllGameDataRead.)
-		m_arExpansionistHate.read(pStream); // </advc.130w>
+	m_arExpansionistHate.read(pStream); // </advc.130w>
 	// <advc.079>
-	if(uiFlag >= 12)
+
+	int iTmp;
+	for(int i = 0; i < MAX_CIV_PLAYERS; i++)
 	{
-		int iTmp;
-		for(int i = 0; i < MAX_CIV_PLAYERS; i++)
-		{
-			pStream->Read(&iTmp);
-			m_aeLastBrag[i] = (UnitTypes)iTmp;
-			pStream->Read(&iTmp);
-			m_aeLastWarn[i] = (TeamTypes)iTmp;
-		}
-	} // </advc.079>
-	// <advc.130c>
-	{
-		bool m_abDisusedCache[MAX_CIV_PLAYERS];
-		if (uiFlag >= 13 && uiFlag < 21)
-			pStream->Read(MAX_CIV_PLAYERS, m_abDisusedCache);
-		if (uiFlag >= 14 && uiFlag < 21)
-			pStream->Read(MAX_CIV_PLAYERS, m_abDisusedCache);
-	} // </advc.130c>
+		pStream->Read(&iTmp);
+		m_aeLastBrag[i] = (UnitTypes)iTmp;
+		pStream->Read(&iTmp);
+		m_aeLastWarn[i] = (TeamTypes)iTmp;
+	}
+	// </advc.079>
+
 	/*	K-Mod. Load the attitude cache. (In BBAI and the CAR Mod, this was not saved.
 		But there are rare situations in which it needs to be saved/read
 		to avoid OOS errors.) */
-	if (uiFlag >= 4)
-		pStream->Read(MAX_PLAYERS, &m_aiAttitude[0]);
+	pStream->Read(MAX_PLAYERS, &m_aiAttitude[0]);
 	// K-Mod end
 	pStream->Read(MAX_PLAYERS, m_abFirstContact);
 
@@ -22998,18 +22990,14 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
 	for(int i = 0; i < MAX_PLAYERS; i++)
 	{
 		int iNumMemoryTypesToRead = NUM_MEMORY_TYPES;
-		if(uiFlag < 11)
-			iNumMemoryTypesToRead--;
+
 		pStream->Read(iNumMemoryTypesToRead, m_aaiMemoryCount[i]);
-		if(uiFlag < 11) { // DECLARED_WAR_RECENT takes over for STOPPED_TRADING_RECENT
-			FAssert(iNumMemoryTypesToRead == MEMORY_DECLARED_WAR_RECENT);
-			m_aaiMemoryCount[i][iNumMemoryTypesToRead] = m_aaiMemoryCount[i]
-					[MEMORY_STOPPED_TRADING_RECENT];
-		}
+
 	} // </advc.104i>
 	pStream->Read(&m_bWasFinancialTrouble);
 	pStream->Read(&m_iTurnLastProductionDirty);
 
+	// <!-- custom: note: lone bracket was as such, left as is if i'm not mistaken as it is not related to our uiflag logic, check if accurate, anyways etc -->
 	{
 		m_aeAICitySites.clear();
 		uint uiSize;
@@ -23024,70 +23012,58 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
 
 	pStream->Read(GC.getNumBonusInfos(), m_aiBonusValue);
 	// <advc.036>
-	if (uiFlag >= 10)
-		pStream->Read(GC.getNumBonusInfos(), m_aiBonusValueTrade); // </advc.036>
+	pStream->Read(GC.getNumBonusInfos(), m_aiBonusValueTrade); // </advc.036>
 
 	pStream->Read(GC.getNumUnitClassInfos(), m_aiUnitClassWeights);
 	pStream->Read(GC.getNumUnitCombatInfos(), m_aiUnitCombatWeights);
 	// <advc.115f>
-	if (uiFlag >= 20)
-		m_aiVictoryWeights.read(pStream);
-	else AI_updateVictoryWeights(); // </advc.115f>
-	// <advc.130n>
-	if (uiFlag == 18)
-	{
-		ArrayEnumMap<ReligionTypes,scaled> arDifferentReligionThreat;
-		arDifferentReligionThreat.read(pStream); // discard
-	} // </advc.130n>
+	m_aiVictoryWeights.read(pStream);
+	// </advc.115f>
+
 	// K-Mod
 	m_GreatPersonWeights.clear();
-	if (uiFlag >= 5)
+
+	int iItems;
+	int iType, iWeight;
+	pStream->Read(&iItems);
+	for (int i = 0; i < iItems; i++)
 	{
-		int iItems;
-		int iType, iWeight;
-		pStream->Read(&iItems);
-		for (int i = 0; i < iItems; i++)
-		{
-			pStream->Read(&iType);
-			pStream->Read(&iWeight);
-			m_GreatPersonWeights.insert(std::make_pair((UnitClassTypes)iType, iWeight));
-		}
+		pStream->Read(&iType);
+		pStream->Read(&iWeight);
+		m_GreatPersonWeights.insert(std::make_pair((UnitClassTypes)iType, iWeight));
 	}
 	// K-Mod end
+
 	// <advc.550g>
-	if (uiFlag >= 17)
+	int iSize;
+	pStream->Read(&iSize);
+	if (iSize > 0)
+		m_aeBestTechs.resize(iSize);
+	for (int i = 0; i < iSize; i++)
 	{
-		int iSize;
-		pStream->Read(&iSize);
-		if (iSize > 0)
-			m_aeBestTechs.resize(iSize);
-		for (int i = 0; i < iSize; i++)
-		{
-			int iTech;
-			pStream->Read(&iTech);
-			m_aeBestTechs[i] = (TechTypes)iTech;
-		}
-	} // </advc.550g>
+		int iTech;
+		pStream->Read(&iTech);
+		m_aeBestTechs[i] = (TechTypes)iTech;
+	}
+	// </advc.550g>
 	//pStream->Read(MAX_PLAYERS, m_aiCloseBordersAttitude);
 	pStream->Read(MAX_PLAYERS, &m_aiCloseBordersAttitude[0]); // K-Mod
+
+	// <!-- custom: using another identifier since now that we removed the old uiFlag check inner scope, this is now on same scope as existing iSize causing a compile error if i'm not mistaken, so distinguishing these 2 by renaming the 2nd definition to iSizeTwo hehe if i may say creative name xd but why not if i may say in this case i mean but anyways etc -->
 	// <advc.opt>
-	if(uiFlag >= 8)
+	int iSizeTwo;
+	pStream->Read(&iSizeTwo);
+	for(int i = 0; i < iSizeTwo; i++)
 	{
-		int iSize;
-		pStream->Read(&iSize);
-		for(int i = 0; i < iSize; i++)
-		{
-			int iFirst, iSecond;
-			pStream->Read(&iFirst);
-			pStream->Read(&iSecond);
-			m_neededExplorersByArea[iFirst] = iSecond;
-		}
+		int iFirst, iSecond;
+		pStream->Read(&iFirst);
+		pStream->Read(&iSecond);
+		m_neededExplorersByArea[iFirst] = iSecond;
 	}
-	else if(isAlive())
-		AI_updateNeededExplorers();
 	// </advc.opt>
+
 	// <advc.104>
-	if(isMajorCiv() && (uiFlag < 15 ? isEverAlive() : isAlive()))
+	if(isMajorCiv() && isAlive())
 		m_pUWAI->read(pStream); // </advc.104>
 	if(getID() == MAX_PLAYERS - 1) // advc: After all players have been loaded ...
 	{	// <advc.104>
@@ -23106,25 +23082,12 @@ void CvPlayerAI::write(FDataStreamBase* pStream)
 	PROFILE_FUNC(); // advc
 	CvPlayer::write(pStream);
 	REPRO_TEST_BEGIN_WRITE(CvString::format("PlayerAI(%d)", getID()));
+
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
 	uint uiFlag;
-	//uiFlag = 3; // BBAI
-	//uiFlag = 4; // K-Mod: m_aiAttitude
-	//uiFlag = 5; // K-Mod: m_GreatPersonWeights
-	//uiFlag = 6; // K-Mod: m_iCityTargetTimer
-	//uiFlag = 8; // advc.opt
-	//uiFlag = 9; // advc.148
-	//uiFlag = 10; // advc.036
-	//uiFlag = 11; // advc.104i
-	//uiFlag = 12; // advc.079
-	//uiFlag = 14; // advc.130c
-	//uiFlag = 15; // advc.104: Don't save UWAI cache of dead civ
-	//uiFlag = 16; // advc.651
-	//uiFlag = 17; // advc.550g
-	//uiFlag = 18; // advc.130n
-	//uiFlag = 19; // advc.130n (mostly removed again)
-	//uiFlag = 20; // advc.115f
-	//uiFlag = 21; // advc.130c (remove separate cache for score diff)
+
 	uiFlag = 22; // advc.130w: Cache for expansionist hate
+
 	pStream->Write(uiFlag);
 
 	pStream->Write(m_iPeaceWeight);
@@ -23153,7 +23116,7 @@ void CvPlayerAI::write(FDataStreamBase* pStream)
 	//pStream->Write(m_iUpgradeUnitsCacheTurn); // disabled by K-Mod
 	//pStream->Write(m_iUpgradeUnitsCachedExpThreshold); // disabled by K-Mod
 	pStream->Write(m_iUpgradeUnitsCachedGold);
-	pStream->Write(m_iAvailableIncome); // K-Mod. uiFlag >= 7
+	pStream->Write(m_iAvailableIncome); // K-Mod.
 
 	pStream->Write(NUM_UNITAI_TYPES, m_aiNumTrainAIUnits);
 	pStream->Write(NUM_UNITAI_TYPES, m_aiNumAIUnits);
