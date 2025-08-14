@@ -4552,53 +4552,20 @@ void CvSelectionGroup::read(FDataStreamBase* pStream)
 
 	m_units.Read(pStream);
 	// <advc.004l>
-	if(uiFlag >= 2)
-		m->knownEnemies.Read(pStream); // </advc.004l>
+	m->knownEnemies.Read(pStream); // </advc.004l>
+
 	// <advc.011b>
-	if(uiFlag <= 0)
-	{
-		CLinkList<MissionDataLegacy> tmp;
-		tmp.Read(pStream);
-		for(CLLNode<MissionDataLegacy>* pNode = tmp.head();
-			pNode != NULL; pNode = tmp.next(pNode))
-		{
-			MissionDataLegacy tmpMission = pNode->m_data;
-			MissionData mission;
-			mission.bModified = false;
-			mission.eMissionType = tmpMission.eMissionType;
-			mission.iData1 = tmpMission.iData1;
-			mission.iData2 = tmpMission.iData2;
-			mission.eFlags = tmpMission.eFlags;
-			mission.iPushTurn = tmpMission.iPushTurn;
-			m_missionQueue.insertAtEnd(mission);
-		}
-	}
-	else // </advc.011b>
-		m_missionQueue.Read(pStream);
-	// <advc.pf>
-	if (uiFlag < 3)
-	{	// Replace removed movement flag with SAFE_TERRITORY
-		MovementFlags const MOVE_ROUTE_TO = static_cast<MovementFlags>(1 << 14);
-		for (CLLNode<MissionData>* pNode = headMissionQueueNode(); pNode != NULL;
-			pNode = nextMissionQueueNode(pNode))
-		{
-			MissionData& md = pNode->m_data;
-			if (md.eMissionType == MISSION_ROUTE_TO || (md.eFlags & MOVE_ROUTE_TO))
-			{
-				md.eFlags |= MOVE_SAFE_TERRITORY;
-				md.eFlags &= ~MOVE_ROUTE_TO;
-			}
-		}
-	} // </advc.pf>
+	// </advc.011b>
+	m_missionQueue.Read(pStream);
 }
 
 
 void CvSelectionGroup::write(FDataStreamBase* pStream)
 {
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
 	uint uiFlag;
-	//uiFlag = 1; // advc.011b
-	//uiFlag = 2; // advc.004l
 	uiFlag = 3; // advc.pf (MOVE_ROUTE_TO removed)
+
 	pStream->Write(uiFlag);
 	REPRO_TEST_BEGIN_WRITE(CvString::format("SelGroup(%d,%d,%d)", getID(), getX(), getY()));
 	pStream->Write(m_iID);

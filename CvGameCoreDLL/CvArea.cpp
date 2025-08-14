@@ -573,7 +573,9 @@ void CvArea::read(FDataStreamBase* pStream)
 {
 	reset();
 
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
 	uint uiFlag=0;
+
 	pStream->Read(&uiFlag);
 
 	pStream->Read(&m_iID);
@@ -587,62 +589,28 @@ void CvArea::read(FDataStreamBase* pStream)
 	pStream->Read(&m_iBarbarianCitiesEver); // advc.300
 
 	pStream->Read(&m_bWater);
+
 	// <advc.030>
-	if(uiFlag >= 1)
-	{
-		pStream->Read(&m_bLake);
-		pStream->Read(&m_iRepresentativeArea);
-	}
-	else
-	{
-		updateLake(false);
-		m_iRepresentativeArea = m_iID;
-	} // </advc.030>
-	if (uiFlag < 4)
-		m_aiUnitsPerPlayer.readArray<int>(pStream);
-	else m_aiUnitsPerPlayer.read(pStream);
+	pStream->Read(&m_bLake);
+	pStream->Read(&m_iRepresentativeArea);
+	// </advc.030>
+
+	m_aiUnitsPerPlayer.read(pStream);
 	// <advc>
-	if (uiFlag < 2)
-	{
-		// Discard AnimalsPerPlayer
-		FOR_EACH_ENUM(Player)
-		{
-			int iTmp;
-			pStream->Read(&iTmp);
-		}
-	} // </advc>
-	if (uiFlag < 4)
-	{
-		m_aiCitiesPerPlayer.readArray<int>(pStream);
-		m_aiPopulationPerPlayer.readArray<int>(pStream);
-		m_aiBuildingGoodHealth.readArray<int>(pStream);
-		m_aiBuildingBadHealth.readArray<int>(pStream);
-		m_aiBuildingHappiness.readArray<int>(pStream);
-		m_aiTradeRoutes.readArray<int>(pStream); // advc.310
-		m_aiFreeSpecialist.readArray<int>(pStream);
-		m_aiPower.readArray<int>(pStream);
-		m_aiBestFoundValue.readArray<int>(pStream);
-		m_aiNumRevealedTiles.readArray<int>(pStream);
-		m_aiCleanPowerCount.readArray<int>(pStream);
-		m_aiBorderObstacleCount.readArray<int>(pStream);
-		m_aeAreaAIType.readArray<int>(pStream);
-	}
-	else
-	{
-		m_aiCitiesPerPlayer.read(pStream);
-		m_aiPopulationPerPlayer.read(pStream);
-		m_aiBuildingGoodHealth.read(pStream);
-		m_aiBuildingBadHealth.read(pStream);
-		m_aiBuildingHappiness.read(pStream);
-		m_aiTradeRoutes.read(pStream); // advc.310
-		m_aiFreeSpecialist.read(pStream);
-		m_aiPower.read(pStream);
-		m_aiBestFoundValue.read(pStream);
-		m_aiNumRevealedTiles.read(pStream);
-		m_aiCleanPowerCount.read(pStream);
-		m_aiBorderObstacleCount.read(pStream);
-		m_aeAreaAIType.read(pStream);
-	}
+
+	m_aiCitiesPerPlayer.read(pStream);
+	m_aiPopulationPerPlayer.read(pStream);
+	m_aiBuildingGoodHealth.read(pStream);
+	m_aiBuildingBadHealth.read(pStream);
+	m_aiBuildingHappiness.read(pStream);
+	m_aiTradeRoutes.read(pStream); // advc.310
+	m_aiFreeSpecialist.read(pStream);
+	m_aiPower.read(pStream);
+	m_aiBestFoundValue.read(pStream);
+	m_aiNumRevealedTiles.read(pStream);
+	m_aiCleanPowerCount.read(pStream);
+	m_aiBorderObstacleCount.read(pStream);
+	m_aeAreaAIType.read(pStream);
 
 	FOR_EACH_ENUM(Player)
 	{
@@ -651,39 +619,13 @@ void CvArea::read(FDataStreamBase* pStream)
 		m_aTargetCities[eLoopPlayer].validateOwner(); // advc.opt
 	}
 
-	if (uiFlag < 4)
-	{
-		ArrayEnumMap2D<PlayerTypes,YieldTypes,short> aaiYieldRateModifier;
-		if (uiFlag < 2)
-			aaiYieldRateModifier.readArray<int>(pStream);
-		else aaiYieldRateModifier.readArray<short>(pStream);
-		FOR_EACH_ENUM(Player)
-		{
-			FOR_EACH_ENUM(Yield)
-			{
-				m_aaiYieldRateModifier.set(eLoopPlayer, eLoopYield,
-						 aaiYieldRateModifier.get(eLoopPlayer, eLoopYield));
-			}
-		}
-		m_aaiNumTrainAIUnits.readArray<int>(pStream);
-		m_aaiNumAIUnits.readArray<int>(pStream);
-	}
-	else
-	{
-		m_aaiYieldRateModifier.read(pStream);
-		m_aaiNumTrainAIUnits.read(pStream);
-		m_aaiNumAIUnits.read(pStream);
-	}
-	if (uiFlag < 4)
-		m_aiBonuses.readArray<int>(pStream);
-	else m_aiBonuses.read(pStream);
+	m_aaiYieldRateModifier.read(pStream);
+	m_aaiNumTrainAIUnits.read(pStream);
+	m_aaiNumAIUnits.read(pStream);
+
+	m_aiBonuses.read(pStream);
+
 	//m_aiImprovements.Read(pStream);
-	// <advc.opt>
-	if (uiFlag < 3)
-	{
-		EagerEnumMap<ImprovementTypes,int> dummy;
-		dummy.readArray<int>(pStream);
-	} // </advc.opt>
 }
 
 
@@ -691,11 +633,11 @@ void CvArea::write(FDataStreamBase* pStream)
 {
 	PROFILE_FUNC(); // advc
 	REPRO_TEST_BEGIN_WRITE(CvString::format("Area(%d)", getID()));
+
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
 	uint uiFlag;
-	//uiFlag = 1; // advc.030
-	//uiFlag = 2; // advc: Remove m_aiAnimalsPerPlayer, advc.enum: write m_aaiYieldRateModifier as short
-	//uiFlag = 3; // advc.opt: Remove m_aiImprovements
 	uiFlag = 4; // advc.enum: new enum map save behavior
+
 	pStream->Write(uiFlag);
 
 	pStream->Write(m_iID);
