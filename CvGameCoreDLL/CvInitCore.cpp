@@ -1862,7 +1862,9 @@ void CvInitCore::read(FDataStreamBase* pStream)
 	resetGame(true);
 	resetPlayers(true); // </advc.enum>
 
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
 	uint uiFlag=0;
+
 	pStream->Read(&uiFlag);
 
 	// GAME DATA
@@ -1871,10 +1873,11 @@ void CvInitCore::read(FDataStreamBase* pStream)
 	pStream->ReadString(m_szGamePassword);
 	pStream->ReadString(m_szAdminPassword);
 	pStream->ReadString(m_szMapScriptName);
+
 	// <advc>
-	if (uiFlag >= 3)
-		pStream->Read(&m_bPangaea);
-	else updatePangaea(); // </advc>
+	pStream->Read(&m_bPangaea);
+	// </advc>
+
 	pStream->Read(&m_bWBMapNoPlayers);
 
 	pStream->Read((int*)&m_eWorldSize);
@@ -1901,27 +1904,11 @@ void CvInitCore::read(FDataStreamBase* pStream)
 		pStream->Read(m_iNumVictories, m_abVictories);
 	}
 	// <advc.enum>
-	if (uiFlag >= 6)
-		m_abOptions.read(pStream);
-	else if (uiFlag >= 4)
-		m_abOptions.readArray<int>(pStream, 1);
-	else // </advc.enum>
-	{
-		bool abOptions[NUM_GAMEOPTION_TYPES] = {};
-		// <advc.912d>
-		if (uiFlag <= 1)
-		{
-			if (uiFlag == 1)
-				pStream->Read(NUM_GAMEOPTION_TYPES - 2, abOptions);
-			else pStream->Read(NUM_GAMEOPTION_TYPES - 3, abOptions);
-		}
-		else pStream->Read(NUM_GAMEOPTION_TYPES - 1, abOptions);
-		FOR_EACH_ENUM(GameOption)
-			m_abOptions.set(eLoopGameOption, abOptions[eLoopGameOption]);
-	} // </advc.912d>
-	if (uiFlag >= 6)
-		m_abMPOptions.read(pStream);
-	else m_abMPOptions.readArray<bool>(pStream);
+
+	m_abOptions.read(pStream);
+
+	m_abMPOptions.read(pStream);
+
 	pStream->Read(&m_bStatReporting);
 
 	pStream->Read(&m_iGameTurn);
@@ -1941,62 +1928,23 @@ void CvInitCore::read(FDataStreamBase* pStream)
 	pStream->ReadString(MAX_PLAYERS, m_aszEmail);
 	pStream->ReadString(MAX_PLAYERS, m_aszSmtpHost);
 
-	if (uiFlag >= 6)
-		m_abWhiteFlag.read(pStream);
-	else m_abWhiteFlag.readArray<bool>(pStream);
+	m_abWhiteFlag.read(pStream);
+
 	pStream->ReadString(MAX_PLAYERS, m_aszFlagDecal);
 
-	if (uiFlag >= 6)
-	{
-		m_aeCiv.read(pStream);
-		m_aeLeader.read(pStream);
-		m_aeTeam.read(pStream);
-		m_aeHandicap.read(pStream);
-		m_aeColor.read(pStream);
-		m_aeArtStyle.read(pStream);
-	}
-	else
-	{
-		m_aeCiv.readArray<int>(pStream);
-		m_aeLeader.readArray<int>(pStream);
-		m_aeTeam.readArray<int>(pStream);
-		m_aeHandicap.readArray<int>(pStream);
-		m_aeColor.readArray<int>(pStream);
-		m_aeArtStyle.readArray<int>(pStream);
-	}
-	/*	<advc.250a> Looks like I hadn't taken care of save compatibility
-		when I did away with the "King" handicap. Game handicap will have to be
-		handled by CvGame. */
-	if (uiFlag <= 1)
-	{
-		FOR_EACH_ENUM(Player)
-		{
-			if (getHandicap(eLoopPlayer) >= GC.getNumHandicapInfos())
-			{
-				FErrorMsg("Invalid handicap ID loaded");
-				HandicapTypes eReplacement = (HandicapTypes)
-						GC.getInfoTypeForString("HANDICAP_EMPEROR");
-				if (eReplacement == NO_HANDICAP)
-					eReplacement = (HandicapTypes)(GC.getNumHandicapInfos() - 1);
-				setHandicap(eLoopPlayer, eReplacement);
-			}
-		}
-	} // </advc.250a>
+	m_aeCiv.read(pStream);
+	m_aeLeader.read(pStream);
+	m_aeTeam.read(pStream);
+	m_aeHandicap.read(pStream);
+	m_aeColor.read(pStream);
+	m_aeArtStyle.read(pStream);
+
 	// <advc.190c>
-	if (uiFlag >= 5)
-	{
-		if (uiFlag >= 6)
-		{
-			m_abCivChosenRandomly.read(pStream);
-			m_abLeaderChosenRandomly.read(pStream);
-		}
-		else
-		{
-			m_abCivChosenRandomly.readArray<bool>(pStream);
-			m_abLeaderChosenRandomly.readArray<bool>(pStream);
-		}
-		pStream->Read(&m_bCivLeaderSetupKnown);
-	} // </advc.190c>
+	m_abCivChosenRandomly.read(pStream);
+	m_abLeaderChosenRandomly.read(pStream);
+
+	pStream->Read(&m_bCivLeaderSetupKnown);
+	// </advc.190c>
 
 	pStream->Read(MAX_PLAYERS, (int*)m_aeSlotStatus);
 	pStream->Read(MAX_PLAYERS, (int*)m_aeSlotClaim);
@@ -2006,16 +1954,10 @@ void CvInitCore::read(FDataStreamBase* pStream)
 		if (m_aeSlotClaim[i] == SLOTCLAIM_ASSIGNED)
 			m_aeSlotClaim[i] = SLOTCLAIM_RESERVED;
 	}
-	if (uiFlag >= 6)
-	{
-		m_abPlayableCiv.read(pStream);
-		m_abMinorNationCiv.read(pStream);
-	}
-	else
-	{
-		m_abPlayableCiv.readArray<bool>(pStream);
-		m_abMinorNationCiv.readArray<bool>(pStream);
-	}
+
+	m_abPlayableCiv.read(pStream);
+	m_abMinorNationCiv.read(pStream);
+
 	if (CvPlayer::areStaticsInitialized())
 	{
 		for (int i = 0; i < MAX_PLAYERS; i++)
@@ -2040,13 +1982,9 @@ void CvInitCore::read(FDataStreamBase* pStream)
 void CvInitCore::write(FDataStreamBase* pStream)
 {
 	REPRO_TEST_BEGIN_WRITE("InitCore");
+
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
 	uint uiFlag;
-	//uiFlag = 1; // BtS
-	//uiFlag = 2; // advc.912d
-	//uiFlag = 3; // advc: m_bPangaea
-	//uiFlag = 4; // advc.enum: m_abOptions as byte map
-	//uiFlag = 5; // advc.190c
-	//uiFlag = 6; // advc.enum: new enum map save behavior
 	uiFlag = 7; // advc.tsl: Additional game option
 
 	pStream->Write(uiFlag);

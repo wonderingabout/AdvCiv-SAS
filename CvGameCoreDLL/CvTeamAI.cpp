@@ -4986,106 +4986,50 @@ void CvTeamAI::read(FDataStreamBase* pStream)
 	// <advc.104>
 	if ((getUWAI().isEnabled() || getUWAI().isEnabled(true)) && isAlive() && isMajorCiv())
 		uwai().init(getID()); // </advc.104>
+
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
 	uint uiFlag=0;
+
 	pStream->Read(&uiFlag);
-	if (uiFlag >= 6)
-	{
-		m_aiWarPlanStateCounter.read(pStream);
-		m_aiAtWarCounter.read(pStream);
-		m_aiAtPeaceCounter.read(pStream);
-		m_aiHasMetCounter.read(pStream);
-		m_aiOpenBordersCounter.read(pStream);
-		m_aiDefensivePactCounter.read(pStream);
-		m_aiShareWarCounter.read(pStream);
-		if (uiFlag >= 9) // advc.130r
-			m_arWarSuccess.read(pStream);
-		// <advc.130r>
-		else
-		{
-			ArrayEnumMap<TeamTypes,int> aiWarSuccess;
-			aiWarSuccess.read(pStream);
-			FOR_EACH_ENUM(Team)
-				m_arWarSuccess.set(eLoopTeam, aiWarSuccess.get(eLoopTeam));
-		} // </advc.130r>
-		m_aiSharedWarSuccess.read(pStream); // advc.130m
-	}
-	else
-	{
-		m_aiWarPlanStateCounter.readArray<int>(pStream);
-		m_aiAtWarCounter.readArray<int>(pStream);
-		m_aiAtPeaceCounter.readArray<int>(pStream);
-		m_aiHasMetCounter.readArray<int>(pStream);
-		m_aiOpenBordersCounter.readArray<int>(pStream);
-		m_aiDefensivePactCounter.readArray<int>(pStream);
-		m_aiShareWarCounter.readArray<int>(pStream);
-		// <advc.130r>
-		ArrayEnumMap<TeamTypes,int> aiWarSuccess;
-		aiWarSuccess.readArray<int>(pStream);
-		FOR_EACH_ENUM(Team)
-			m_arWarSuccess.set(eLoopTeam, aiWarSuccess.get(eLoopTeam));
-		// </advc.130r>
-		m_aiSharedWarSuccess.readArray<int>(pStream); // advc.130m
-	}
-	/*	<advc.130k> CvTeam keeps an accurate count now, our count is randomized.
-		Still, better than nothing when loading an old save. */
-	if (uiFlag < 8)
-	{
-		FOR_EACH_ENUM(Team)
-			m_aiTurnsAtPeace.set(eLoopTeam, m_aiAtPeaceCounter.get(eLoopTeam));
-	} // </advc.130k>
-	// <advc.130n>
-	if (uiFlag < 7)
-	{	// Discard data b/c obsolete
-		int iReligions;
-		pStream->Read(&iReligions);
-		for(int i = 0; i < iReligions; i++)
-		{
-			int first; int second;
-			pStream->Read(&first);
-			pStream->Read(&second);
-		}
-	} // </advc.130n>
-	if (uiFlag >= 6)
-	{
-		m_aiEnemyPeacetimeTradeValue.read(pStream);
-		m_aiEnemyPeacetimeGrantValue.read(pStream);
-	}
-	else
-	{
-		m_aiEnemyPeacetimeTradeValue.readArray<int>(pStream);
-		m_aiEnemyPeacetimeGrantValue.readArray<int>(pStream);
-	}
+
+	m_aiWarPlanStateCounter.read(pStream);
+	m_aiAtWarCounter.read(pStream);
+	m_aiAtPeaceCounter.read(pStream);
+	m_aiHasMetCounter.read(pStream);
+	m_aiOpenBordersCounter.read(pStream);
+	m_aiDefensivePactCounter.read(pStream);
+	m_aiShareWarCounter.read(pStream);
+
+	// advc.130r
+	m_arWarSuccess.read(pStream);
+	// </advc.130r>
+
+	m_aiSharedWarSuccess.read(pStream); // advc.130m
+
+	m_aiEnemyPeacetimeTradeValue.read(pStream);
+	m_aiEnemyPeacetimeGrantValue.read(pStream);
+
 	// <advc.opt>
-	if (uiFlag >= 3)
-	{
-		if (uiFlag >= 6)
-			m_aiWarPlanCounts.read(pStream);
-		else m_aiWarPlanCounts.readArray<int>(pStream);
-		pStream->Read(&m_bAnyWarPlan);
-	}
-	else
-	{	/*	Can't compute war plan counts until alive status has been set for all teams.
-			Set negative counts in order to signal to CvGAme::onAllGameDataRead that
-			AI_finalizeInit needs to be called. */
-		FOR_EACH_ENUM(WarPlan)
-			m_aiWarPlanCounts.set(eLoopWarPlan, -1);
-	} // </advc.opt>
-	if (uiFlag >= 6)
-		m_aeWarPlan.read(pStream);
-	else m_aeWarPlan.readArray<int>(pStream);
+	m_aiWarPlanCounts.read(pStream);
+
+	pStream->Read(&m_bAnyWarPlan);
+	// </advc.opt>
+
+	m_aeWarPlan.read(pStream);
+
 	pStream->Read((int*)&m_eWorstEnemy);
+
 	// <advc.109>
-	if (uiFlag >= 2)
-		pStream->Read(&m_bLonely); // </advc.109>
+	pStream->Read(&m_bLonely); // </advc.109>
+
 	// <advc.650>
-	if (uiFlag >= 5)
-	{
-		size_t iSize;
-		pStream->Read(&iSize);
-		m_aeNukeExplosions.resize(iSize);
-		if (iSize > 0)
-			pStream->Read((int)iSize, (int*)&m_aeNukeExplosions[0]);
-	} // </advc.650>
+	size_t iSize;
+	pStream->Read(&iSize);
+	m_aeNukeExplosions.resize(iSize);
+	if (iSize > 0)
+		pStream->Read((int)iSize, (int*)&m_aeNukeExplosions[0]);
+	// </advc.650>
+
 	m_strengthMemory.read(pStream, uiFlag, getID()); // advc.158
 	// <advc.104>
 	if (isEverAlive() && !isBarbarian() && !isMinorCiv())
@@ -5112,16 +5056,11 @@ void CvTeamAI::write(FDataStreamBase* pStream)
 	CvTeam::write(pStream);
 
 	REPRO_TEST_BEGIN_WRITE(CvString::format("TeamAI(%d)", getID()).GetCString());
+
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
 	uint uiFlag;
-	//uiFlag = 1; // K-Mod: StrengthMemory
-	//uiFlag = 2; // advc.109
-	//uiFlag = 3; // advc.opt: m_aiWarPlanCounts
-	//uiFlag = 4; // advc.158
-	//uiFlag = 5; // advc.650
-	//uiFlag = 6; // advc.enum: new enum map save behavior
-	//uiFlag = 7; // advc.130n (Now handled w/o extra data)
-	//uiFlag = 8; // advc.130k: To support CvTeam::m_aiTurnsAtPeace
 	uiFlag = 9; // advc.130r
+
 	pStream->Write(uiFlag);
 
 	m_aiWarPlanStateCounter.write(pStream);

@@ -1226,18 +1226,22 @@ void CvMap::invalidateBorderDangerCache(TeamTypes eTeam)
 // read object from a stream. used during load
 void CvMap::read(FDataStreamBase* pStream)
 {
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
 	uint uiFlag=0;
+
 	pStream->Read(&uiFlag);
 
 	CvMapInitData defaultMapData;
-	reset(&defaultMapData, /* advc.enum: */ uiFlag >= 7);
+	// <!-- custom: note: uiflag check replaced with simple boolean anyways etc -->
+	reset(&defaultMapData, /* advc.enum: */ true);
 
 	pStream->Read(&m_iGridWidth);
 	pStream->Read(&m_iGridHeight);
+
 	// <advc.opt>
-	if (uiFlag >= 3)
-		pStream->Read((int*)&m_ePlots);
-	else updateNumPlots(); // </advc.opt>
+	pStream->Read((int*)&m_ePlots);
+	// </advc.opt>
+
 	pStream->Read(&m_iLandPlots);
 	pStream->Read(&m_iOwnedPlots);
 	pStream->Read(&m_iTopLatitude);
@@ -1251,29 +1255,20 @@ void CvMap::read(FDataStreamBase* pStream)
 	// </advc.opt>
 	pStream->Read(&m_bWrapX);
 	pStream->Read(&m_bWrapY);
-	if (uiFlag >= 4)
-	{
-		m_aiNumBonus.read(pStream);
-		m_aiNumBonusOnLand.read(pStream);
-	}
-	else
-	{
-		m_aiNumBonus.readArray<int>(pStream);
-		m_aiNumBonusOnLand.readArray<int>(pStream);
-	}
+
+	m_aiNumBonus.read(pStream);
+	m_aiNumBonusOnLand.read(pStream);
+
 	// <advc.108c>
-	if (uiFlag >= 6)
-		m_aebBalancedBonuses.read(pStream); // </advc.108c>
+	m_aebBalancedBonuses.read(pStream); // </advc.108c>
 	// <advc.enum>
-	if (uiFlag >= 7)
-	{
-		m_aeiPlotExtraYield.read(pStream);
-		m_aiPlotExtraCost.read(pStream);
-	} // </advc.enum>
+	m_aeiPlotExtraYield.read(pStream);
+	m_aiPlotExtraCost.read(pStream);
+	// </advc.enum>
 	// <advc.304>
-	if (uiFlag >= 5)
-		GC.getGame().getBarbarianWeightMap().getActivityMap().read(pStream);
+	GC.getGame().getBarbarianWeightMap().getActivityMap().read(pStream);
 	// </advc.304>
+
 	if (numPlots() > 0)
 	{
 		m_pMapPlots = new CvPlot[numPlots()];
@@ -1282,12 +1277,6 @@ void CvMap::read(FDataStreamBase* pStream)
 		// <advc.003s>
 		for (int i = 0; i < numPlots(); i++)
 			m_pMapPlots[i].initAdjList(); // </advc.003s>
-		// <advc.opt>
-		if (uiFlag < 2)
-		{
-			for (int i = 0; i < numPlots(); i++)
-				m_pMapPlots[i].updateAnyIsthmus();
-		} // </advc.opt>
 	}
 
 	ReadStreamableFFreeListTrashArray(m_areas, pStream);
@@ -1302,33 +1291,29 @@ void CvMap::read(FDataStreamBase* pStream)
 		(The problem was that goody huts weren't always highlighted by the
 		Resource layer after loading a game.) */
 	gDLL->UI().setDirty(GlobeLayer_DIRTY_BIT, true);
+
 	// <advc.106n>
-	if (uiFlag > 0)
+	size_t iPixels;
+	pStream->Read(&iPixels);
+	m_replayTexture.reserve(iPixels);
+	for (size_t i = 0; i < iPixels; i++)
 	{
-		size_t iPixels;
-		pStream->Read(&iPixels);
-		m_replayTexture.reserve(iPixels);
-		for (size_t i = 0; i < iPixels; i++)
-		{
-			byte ucPixel;
-			pStream->Read(&ucPixel);
-			m_replayTexture.push_back(ucPixel);
-		}
-	} // </advc.106n>
+		byte ucPixel;
+		pStream->Read(&ucPixel);
+		m_replayTexture.push_back(ucPixel);
+	}
+	// </advc.106n>
 }
 
 
 void CvMap::write(FDataStreamBase* pStream)
 {
 	REPRO_TEST_BEGIN_WRITE("Map");
+
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
 	uint uiFlag;
-	//uiFlag = 1; // advc.106n
-	//uiFlag = 2; // advc.opt: CvPlot::m_bAnyIsthmus
-	//uiFlag = 3; // advc.opt: m_ePlots
-	//uiFlag = 4; // advc.enum: new enum map save behavior
-	//uiFlag = 5; // advc.304: Barbarian weight map
-	//uiFlag = 6; // advc.108c
 	uiFlag = 7; // advc.enum: Extra plot yields, costs moved from CvGame
+
 	pStream->Write(uiFlag);
 
 	pStream->Write(m_iGridWidth);

@@ -10479,7 +10479,9 @@ int CvUnit::getSubUnitsAlive(int iDamage) const
 
 void CvUnit::read(FDataStreamBase* pStream)
 {
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
 	uint uiFlag=0;
+
 	pStream->Read(&uiFlag);
 
 	pStream->Read(&m_iID);
@@ -10491,13 +10493,10 @@ void CvUnit::read(FDataStreamBase* pStream)
 	pStream->Read(&m_iLastMoveTurn);
 	pStream->Read(&m_iReconX);
 	pStream->Read(&m_iReconY);
+
 	// <advc.029>
-	if(uiFlag < 4)
-	{
-		if(m_iReconX != INVALID_PLOT_COORD && m_iReconY != INVALID_PLOT_COORD)
-			m_iLastReconTurn = GC.getGame().getGameTurn();
-	}
-	else pStream->Read(&m_iLastReconTurn); // </advc.029>
+	pStream->Read(&m_iLastReconTurn); // </advc.029>
+
 	pStream->Read(&m_iGameTurnCreated);
 	pStream->Read(&m_iDamage);
 	pStream->Read(&m_iMoves);
@@ -10509,11 +10508,7 @@ void CvUnit::read(FDataStreamBase* pStream)
 	pStream->Read(&m_iAttackPlotY);
 	pStream->Read(&m_iCombatTimer);
 	pStream->Read(&m_iCombatFirstStrikes);
-	if (uiFlag < 2)
-	{
-		int iCombatDamage;
-		pStream->Read(&iCombatDamage);
-	}
+
 	pStream->Read(&m_iFortifyTurns);
 	pStream->Read(&m_iBlitzCount);
 	pStream->Read(&m_iAmphibCount);
@@ -10552,18 +10547,13 @@ void CvUnit::read(FDataStreamBase* pStream)
 	pStream->Read(&m_iBaseCombat);
 	pStream->Read((int*)&m_eFacingDirection);
 	pStream->Read(&m_iImmobileTimer);
+
 	//pStream->Read(&m_bMadeAttack);
 	// <advc.164>
-	if(uiFlag >= 5)
-		pStream->Read(&m_iMadeAttacks);
-	else
-	{
-		bool bTmp=false;
-		pStream->Read(&bTmp);
-		if(bTmp)
-			m_iMadeAttacks = 1;
-		else m_iMadeAttacks = 0;
-	} // </advc.164>
+	pStream->Read(&m_iMadeAttacks);
+	// </advc.164>
+
+	// <!-- custom: note: lone bracket left as is as part of / while doing the old uiflag cleanup anyways etc -->
 	{
 		bool bTmp; // advc.pt: For reading bitfield members
 		pStream->Read(&bTmp);
@@ -10577,25 +10567,21 @@ void CvUnit::read(FDataStreamBase* pStream)
 		// m_bInfoBarDirty not saved...
 		pStream->Read(&bTmp);
 		m_bBlockading = bTmp;
-		if (uiFlag > 0)
-		{
-			pStream->Read(&bTmp);
-			m_bAirCombat = bTmp;
-		}
+
+		pStream->Read(&bTmp);
+		m_bAirCombat = bTmp;
+
 		// <advc.opt>
-		if (uiFlag >= 6)
-		{
-			pStream->Read(&bTmp);
-			m_bFlatMovement = bTmp;
-		} // </advc.opt>
+		pStream->Read(&bTmp);
+		m_bFlatMovement = bTmp;
+		// </advc.opt>
 	}
+
 	pStream->Read((int*)&m_eOwner);
 	pStream->Read((int*)&m_eCapturingPlayer);
 	pStream->Read((int*)&m_eUnitType);
 	m_pUnitInfo = &GC.getInfo(m_eUnitType);
-	// <advc.opt>
-	if (uiFlag <= 6)
-		updateFlatMovement(); // </advc.opt>
+
 	pStream->Read((int*)&m_eLeaderUnitType);
 	pStream->Read((int*)&m_combatUnit.eOwner);
 	pStream->Read(&m_combatUnit.iID);
@@ -10604,47 +10590,23 @@ void CvUnit::read(FDataStreamBase* pStream)
 	// <advc.opt>
 	m_combatUnit.validateOwner();
 	m_transportUnit.validateOwner(); // </advc.opt>
-	if (uiFlag >= 7)
-		m_aiExtraDomainModifier.read(pStream);
-	else m_aiExtraDomainModifier.readArray<int>(pStream);
+
+	m_aiExtraDomainModifier.read(pStream);
 
 	pStream->ReadString(m_szName);
 	pStream->ReadString(m_szScriptData);
 
 	// <advc.313>
-	if (uiFlag >= 8)
-		m_abHasPromotion.read(pStream);
-	else if (uiFlag == 7)
-	{
-		// Skip loading Disorganized promo
-		LegacyArrayEnumMap<PromotionTypes,bool>::convert(m_abHasPromotion, pStream, -1);
-		/*	Promo effects get cached in m_iExtra... members, which get saved.
-			This is good for the extra moves, not good for the strength modifier
-			b/c that gets applied on the fly now. */
-		if (isKnownSeaBarbarian())
-			m_iExtraCombatPercent += 10;
-	}
-	else m_abHasPromotion.readArray<bool>(pStream, -1); // </advc.313>
-	if (uiFlag >= 7)
-	{
-		m_aiTerrainDoubleMoveCount.read(pStream);
-		m_aiFeatureDoubleMoveCount.read(pStream);
-		m_aiExtraTerrainAttackPercent.read(pStream);
-		m_aiExtraTerrainDefensePercent.read(pStream);
-		m_aiExtraFeatureAttackPercent.read(pStream);
-		m_aiExtraFeatureDefensePercent.read(pStream);
-		m_aiExtraUnitCombatModifier.read(pStream);
-	}
-	else
-	{
-		m_aiTerrainDoubleMoveCount.readArray<int>(pStream);
-		m_aiFeatureDoubleMoveCount.readArray<int>(pStream);
-		m_aiExtraTerrainAttackPercent.readArray<int>(pStream);
-		m_aiExtraTerrainDefensePercent.readArray<int>(pStream);
-		m_aiExtraFeatureAttackPercent.readArray<int>(pStream);
-		m_aiExtraFeatureDefensePercent.readArray<int>(pStream);
-		m_aiExtraUnitCombatModifier.readArray<int>(pStream);
-	}
+	m_abHasPromotion.read(pStream);
+	// </advc.313>
+
+	m_aiTerrainDoubleMoveCount.read(pStream);
+	m_aiFeatureDoubleMoveCount.read(pStream);
+	m_aiExtraTerrainAttackPercent.read(pStream);
+	m_aiExtraTerrainDefensePercent.read(pStream);
+	m_aiExtraFeatureAttackPercent.read(pStream);
+	m_aiExtraFeatureDefensePercent.read(pStream);
+	m_aiExtraUnitCombatModifier.read(pStream);
 }
 
 
@@ -10652,14 +10614,10 @@ void CvUnit::write(FDataStreamBase* pStream)
 {
 	PROFILE_FUNC(); // advc
 
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
 	uint uiFlag;
-	//uiFlag = 2; // BtS
-	//uiFlag = 3; // K-Mod
-	//uiFlag = 4; // advc.029
-	//uiFlag = 5; // advc.164
-	//uiFlag = 6; // advc.opt (m_bFlatMovement)
-	//uiFlag = 7; // advc.enum: new enum map save behavior
 	uiFlag = 8; // advc.313: Disorganized promo removed, advc.enum: bugfix.
+
 	pStream->Write(uiFlag);
 	REPRO_TEST_BEGIN_WRITE(CvString::format("Unit(%d,%d,%d)", getID(), getX(), getY()));
 
