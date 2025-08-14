@@ -14403,7 +14403,9 @@ void CvCityAI::read(FDataStreamBase* pStream)
 {
 	CvCity::read(pStream);
 
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
 	uint uiFlag=0;
+
 	pStream->Read(&uiFlag);
 
 	pStream->Read(&m_iEmphasizeAvoidGrowthCount);
@@ -14411,11 +14413,6 @@ void CvCityAI::read(FDataStreamBase* pStream)
 	pStream->Read(&m_bAssignWorkDirty);
 	//pStream->Read(&m_bChooseProductionDirty);
 	// <advc.003u>
-	if (uiFlag < 5)
-	{
-		bool bTmp;
-		pStream->Read(&bTmp);
-	} // </advc.003u>
 
 	pStream->Read((int*)&m_routeToCity.eOwner);
 	pStream->Read(&m_routeToCity.iID);
@@ -14424,60 +14421,41 @@ void CvCityAI::read(FDataStreamBase* pStream)
 	pStream->Read(NUM_YIELD_TYPES, m_aiEmphasizeYieldCount);
 	pStream->Read(NUM_COMMERCE_TYPES, m_aiEmphasizeCommerceCount);
 	pStream->Read(&m_bForceEmphasizeCulture);
+
 	// <advc.131d>
-	if (uiFlag >= 9)
-		pStream->Read(&m_bStrongEmphasis); // </advc.131d>
+	pStream->Read(&m_bStrongEmphasis); // </advc.131d>
+
 	pStream->Read(NUM_CITY_PLOTS, m_aiBestBuildValue);
 	pStream->Read(NUM_CITY_PLOTS, (int*)m_aeBestBuild);
+
 	// <advc.opt>
-	if(uiFlag >= 4)
-		pStream->Read((int*)&m_eBestBuild); // </advc.opt>
+	pStream->Read((int*)&m_eBestBuild); // </advc.opt>
 	pStream->Read(GC.getNumEmphasizeInfos(), m_pbEmphasize);
 	pStream->Read(NUM_YIELD_TYPES, m_aiSpecialYieldMultiplier);
+
 	// <advc.opt>
-	if (uiFlag < 6)
-	{
-		int iTmp; // Discard old closeness cache meta data
-		pStream->Read(&iTmp);
-		pStream->Read(&iTmp);
-	}
-	else
-	{
-		pStream->Read(MAX_PLAYERS, m_aiCachePlayerClosenessTurn);
-		pStream->Read(MAX_PLAYERS, m_aiCachePlayerClosenessDistance);
-	} // </advc.opt>
+	pStream->Read(MAX_PLAYERS, m_aiCachePlayerClosenessTurn);
+	pStream->Read(MAX_PLAYERS, m_aiCachePlayerClosenessDistance);
+	// </advc.opt>
+
 	pStream->Read(MAX_PLAYERS, m_aiPlayerCloseness);
 	pStream->Read(&m_iNeededFloatingDefenders);
 	pStream->Read(&m_iNeededFloatingDefendersCacheTurn);
+
 	// <advc.139>
-	if (uiFlag >= 8)
-		pStream->Read((int*)&m_eSafety);
-	else
-	{
-		bool bEvac = false;
-		bool bSafe = true;
-		if (uiFlag >= 3)
-			pStream->Read(&bEvac);
-		if (uiFlag >= 7)
-			pStream->Read(&bSafe);
-		if (bEvac)
-			m_eSafety = CITYSAFETY_EVACUATING;
-		else if (!bSafe)
-			m_eSafety = CITYSAFETY_THREATENED;
-	}
-	if (uiFlag >= 7)
-		pStream->Read(&m_iCityValPercent);
+	pStream->Read((int*)&m_eSafety);
+
+	pStream->Read(&m_iCityValPercent);
 	// </advc.139>
+
 	pStream->Read(&m_iWorkersNeeded);
 	pStream->Read(&m_iWorkersHave);
+
 	// K-Mod
-	if (uiFlag >= 1)
-	{
-		FAssert(m_aiConstructionValue.size() == GC.getNumBuildingClassInfos());
-		pStream->Read(GC.getNumBuildingClassInfos(), &m_aiConstructionValue[0]);
-	}
-	if (uiFlag >= 2)
-		pStream->Read(&m_iCultureWeight);
+	FAssert(m_aiConstructionValue.size() == GC.getNumBuildingClassInfos());
+	pStream->Read(GC.getNumBuildingClassInfos(), &m_aiConstructionValue[0]);
+
+	pStream->Read(&m_iCultureWeight);
 	// K-Mod end
 }
 
@@ -14485,16 +14463,11 @@ void CvCityAI::read(FDataStreamBase* pStream)
 void CvCityAI::write(FDataStreamBase* pStream)
 {
 	CvCity::write(pStream);
+
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
 	uint uiFlag;
-	//uiFlag = 1; // K-Mod: m_aiConstructionValue
-	//uiFlag = 2; // K-Mod: m_iCultureWeight
-	//uiFlag = 3; // advc.139: m_bEvacuate
-	//uiFlag = 4; // advc.opt: m_eBestBuild
-	//uiFlag = 5; // advc.003u: Move m_bChooseProductionDirty to CvCity
-	//uiFlag = 6; // advc.opt: Per-player meta data for closeness cache
-	//uiFlag = 7; // advc.139: m_bSafe, m_iCityValPercent
-	//uiFlag = 9; // advc.139: m_eSafety
 	uiFlag = 9; // advc.131d
+
 	pStream->Write(uiFlag);
 	REPRO_TEST_BEGIN_WRITE(CvString::format("CityAI(%d,%d)", getX(), getY()));
 	pStream->Write(m_iEmphasizeAvoidGrowthCount);
