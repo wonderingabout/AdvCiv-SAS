@@ -8798,16 +8798,13 @@ void CvGame::read(FDataStreamBase* pStream)
 {
 	reset(NO_HANDICAP);
 
+	// 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
 	uint uiFlag=0;
 	pStream->Read(&uiFlag);
 	/*	advc: So that onAllGameDataRead can perform some final updates
 		based on the save version */
 	m_uiSaveFlag = uiFlag;
-	if (uiFlag < 1)
-	{
-		int iEndTurnMessagesSent;
-		pStream->Read(&iEndTurnMessagesSent);
-	}
+
 	pStream->Read(&m_iElapsedGameTurns);
 	pStream->Read(&m_iStartTurn);
 	pStream->Read(&m_iStartYear);
@@ -8835,13 +8832,10 @@ void CvGame::read(FDataStreamBase* pStream)
 		m_iAIAutoPlay = -1; // </advc.127>
 	pStream->Read(&m_iGlobalWarmingIndex); // K-Mod
 	pStream->Read(&m_iGwEventTally); // K-Mod
+
 	// <advc.opt>
-	if (uiFlag >= 4)
-	{
-		pStream->Read(&m_iCivPlayersEverAlive);
-		pStream->Read(&m_iCivTeamsEverAlive);
-	} /* The else case is handled in allGameDataRead - need to read the players and
-		 teams first. */
+	pStream->Read(&m_iCivPlayersEverAlive);
+	pStream->Read(&m_iCivTeamsEverAlive);
 	// </advc.opt>
 	// m_uiInitialTime not saved
 
@@ -8862,111 +8856,47 @@ void CvGame::read(FDataStreamBase* pStream)
 	pStream->Read((int*)&m_eVictory);
 	pStream->Read((int*)&m_eGameState);
 	// <advc.106h>
-	if (uiFlag >= 6)
-		pStream->Read((int*)&m_eInitialActivePlayer);
-	else m_eInitialActivePlayer = getActivePlayer(); // </advc.106h>
+	pStream->Read((int*)&m_eInitialActivePlayer);
+
 	// <advc.004m>
-	if (uiFlag >= 5)
-	{
-		pStream->Read((int*)&m_eCurrentLayer);
-		/*	Initial autosave doesn't contain valid info about the globe layers
-				b/c it gets created before Python calls reportCurrentLayer */
-		if (getTurnSlice() > 0)
-			m_bLayerFromSavegame = true;
-	} // </advc.004m>
+	pStream->Read((int*)&m_eCurrentLayer);
+	/*	Initial autosave doesn't contain valid info about the globe layers
+			b/c it gets created before Python calls reportCurrentLayer */
+	if (getTurnSlice() > 0)
+		m_bLayerFromSavegame = true;
+	// </advc.004m>
+
 	pStream->ReadString(m_szScriptData);
 
-	if (uiFlag < 1)
-	{
-		std::vector<int> aiEndTurnMessagesReceived(MAX_PLAYERS);
-		pStream->Read(MAX_PLAYERS, &aiEndTurnMessagesReceived[0]);
-	}
-	if (uiFlag >= 21)
-	{
-		m_aeRankPlayer.read(pStream);
-		m_aePlayerRank.read(pStream);
-		m_aiPlayerScore.read(pStream);
-		m_aeRankTeam.read(pStream);
-		m_aeTeamRank.read(pStream);
-		m_aiTeamScore.read(pStream);
-		m_aiUnitCreatedCount.read(pStream);
-		m_aiUnitClassCreatedCount.read(pStream);
-		m_aiBuildingClassCreatedCount.read(pStream);
-		m_aiProjectCreatedCount.read(pStream);
-		m_aiForceCivicCount.read(pStream);
-	}
-	else
-	{
-		m_aeRankPlayer.readArray<int>(pStream);
-		m_aePlayerRank.readArray<int>(pStream);
-		m_aiPlayerScore.readArray<int>(pStream);
-		m_aeRankTeam.readArray<int>(pStream);
-		m_aeTeamRank.readArray<int>(pStream);
-		m_aiTeamScore.readArray<int>(pStream);
-		m_aiUnitCreatedCount.readArray<int>(pStream);
-		m_aiUnitClassCreatedCount.readArray<int>(pStream);
-		m_aiBuildingClassCreatedCount.readArray<int>(pStream);
-		m_aiProjectCreatedCount.readArray<int>(pStream);
-		m_aiForceCivicCount.readArray<int>(pStream);
-	}
-	if (uiFlag >= 11)
-		m_aiVoteOutcome.read(pStream);
-	else m_aiVoteOutcome.readArray<int>(pStream);
-	if (uiFlag >= 21)
-	{
-		m_aiReligionGameTurnFounded.read(pStream);
-		m_aiCorporationGameTurnFounded.read(pStream);
-		m_aiSecretaryGeneralTimer.read(pStream);
-		m_aiVoteTimer.read(pStream);
-		m_aiDiploVote.read(pStream);
-		if (uiFlag >= 24)
-		{
-			m_abSpecialUnitValid.read(pStream);
-			m_abSpecialBuildingValid.read(pStream);
-			m_abReligionSlotTaken.read(pStream);
-		}
-		else
-		{
-			LegacyArrayEnumMap<SpecialUnitTypes,bool>::convert(m_abSpecialUnitValid, pStream);
-			LegacyArrayEnumMap<SpecialBuildingTypes,bool>::convert(m_abSpecialBuildingValid, pStream);
-			LegacyArrayEnumMap<ReligionTypes,bool>::convert(m_abReligionSlotTaken, pStream);
-		}
-		m_aeHolyCity.read(pStream);
-		m_aeHeadquarters.read(pStream);
-	}
-	else
-	{
-		m_aiReligionGameTurnFounded.readArray<int>(pStream);
-		m_aiCorporationGameTurnFounded.readArray<int>(pStream);
-		m_aiSecretaryGeneralTimer.readArray<int>(pStream);
-		m_aiVoteTimer.readArray<int>(pStream);
-		m_aiDiploVote.readArray<int>(pStream);
-		m_abSpecialUnitValid.readArray<bool>(pStream);
-		m_abSpecialBuildingValid.readArray<bool>(pStream);
-		m_abReligionSlotTaken.readArray<bool>(pStream);
-		m_pLegacyOrgSeatData = new IDInfo[14];
-		for (int i = 0; i < 7; i++)
-		{
-			int iOwner, iCity;
-			pStream->Read(&iOwner);
-			pStream->Read(&iCity);
-			IDInfo cityInfo((PlayerTypes)iOwner, iCity);
-			cityInfo.validateOwner(); // advc.opt
-			/*	advc.enum: Want to store the city plot ID, but can't obtain that
-				from the cityInfo until the CvPlayer data has been read, so ... */
-			m_pLegacyOrgSeatData[i] = cityInfo;
-		}
-		for (int i = 7; i < 14; i++)
-		{
-			int iOwner, iCity;
-			pStream->Read(&iOwner);
-			pStream->Read(&iCity);
-			IDInfo cityInfo((PlayerTypes)iOwner, iCity);
-			cityInfo.validateOwner(); // advc.opt
-			m_pLegacyOrgSeatData[i] = cityInfo;
-		}
-	}
+	m_aeRankPlayer.read(pStream);
+	m_aePlayerRank.read(pStream);
+	m_aiPlayerScore.read(pStream);
+	m_aeRankTeam.read(pStream);
+	m_aeTeamRank.read(pStream);
+	m_aiTeamScore.read(pStream);
+	m_aiUnitCreatedCount.read(pStream);
+	m_aiUnitClassCreatedCount.read(pStream);
+	m_aiBuildingClassCreatedCount.read(pStream);
+	m_aiProjectCreatedCount.read(pStream);
+	m_aiForceCivicCount.read(pStream);
 
+
+	m_aiVoteOutcome.read(pStream);
+
+	m_aiReligionGameTurnFounded.read(pStream);
+	m_aiCorporationGameTurnFounded.read(pStream);
+	m_aiSecretaryGeneralTimer.read(pStream);
+	m_aiVoteTimer.read(pStream);
+	m_aiDiploVote.read(pStream);
+
+	m_abSpecialUnitValid.read(pStream);
+	m_abSpecialBuildingValid.read(pStream);
+	m_abReligionSlotTaken.read(pStream);
+
+	m_aeHolyCity.read(pStream);
+	m_aeHeadquarters.read(pStream);
+
+	// <!-- custom: brackets without if or else or such was already as such, kept as is as advised by chatgpt 5, check if accurate, anyways etc -->
 	{
 		CvWString szBuffer;
 		uint iSize;
@@ -8994,25 +8924,24 @@ void CvGame::read(FDataStreamBase* pStream)
 
 	m_mapRand.read(pStream);
 	m_sorenRand.read(pStream);
+
 	// <advc.027b>
-	if (uiFlag >= 7)
-	{
-		pStream->Read(&m_initialRandSeed.uiMap);
-		pStream->Read(&m_initialRandSeed.uiSync);
-	} // </advc.027b>
+	pStream->Read(&m_initialRandSeed.uiMap);
+	pStream->Read(&m_initialRandSeed.uiSync);
+	// </advc.027b>
+
+	// <!-- custom: as part of removing uiflag, also removed weird boolean code here as well that has a bunch of nested uiflag conditionals, now directly checking the game options we need as advised by chatgpt 5, check if accurate, anyways etc ; this is simplified thanks to claude ai, and my prompt(s) and adjsutments too and/or such but anyways etc, check if accurate, anyways etc (i have deleted old seemingly base advciv or maybe of some other mods who knows i didn't check too much and just deleted and merged old uiflags into latest if checks are true but anyways etc code, too horrible to look at xd, except maybe in a museum, or maybe is not that bad and i'm exagerating, but hopefully much cleaner now anyways etc), which i also did here anyways etc -->
+
+	// Simplified: assuming current UI flag version (27)
+	// Simplified: assuming current UI flag version (no backwards compatibility)
 	// <advc.tsl>, advc.701: Options have been shuffled around a few times
-	bool bNewSeed = isOption((GameOptionTypes)
-			(uiFlag < 2 || uiFlag >= 17 ? 17 : 19));
-	bool bLockMods = isOption((GameOptionTypes)
-			(uiFlag >= 15 && uiFlag < 17 ? 27 : 18));
-	bool bNoVassals = isOption((GameOptionTypes)
-			(uiFlag >= 17 ? 23 : 20));
-	bool bNoEspionage = isOption((GameOptionTypes)
-			(uiFlag >= 17 ? 27 : 23));
-	bool bRiseFall = isOption((GameOptionTypes)
-			(uiFlag < 2 ? false : (uiFlag < 17 ? 17 : 19)));
-	bool bTrueStarts = isOption((GameOptionTypes)
-			(uiFlag < 15 ? false : (uiFlag < 17 ? 18 : 20)));
+	const bool bNewSeed = isOption((GameOptionTypes)17);      // or 19 - you'd need to check which is correct
+	const bool bLockMods = isOption((GameOptionTypes)18);
+	const bool bNoVassals = isOption((GameOptionTypes)23);    // for current version
+	const bool bNoEspionage = isOption((GameOptionTypes)27);  // for current version
+	const bool bRiseFall = isOption((GameOptionTypes)19);     // for current version  
+	const bool bTrueStarts = isOption((GameOptionTypes)20);   // for current version
+
 	setOption(GAMEOPTION_NEW_RANDOM_SEED, bNewSeed);
 	setOption(GAMEOPTION_LOCK_MODS, bLockMods);
 	setOption(GAMEOPTION_RISE_FALL, bRiseFall);
@@ -9020,6 +8949,7 @@ void CvGame::read(FDataStreamBase* pStream)
 	setOption(GAMEOPTION_NO_VASSAL_STATES, bNoVassals);
 	setOption(GAMEOPTION_NO_ESPIONAGE, bNoEspionage);
 	// </advc.tsl>
+
 	// <advc.250b>
 	if (isOption(GAMEOPTION_SPAH))
 		m_pSpah->read(pStream); // </advc.250b>
@@ -9042,82 +8972,15 @@ void CvGame::read(FDataStreamBase* pStream)
 
 	pStream->Read(&m_iNumSessions);
 	// <advc.tsl>
-	if (uiFlag >= 16)
-		pStream->Read(&m_iMapRegens); // </advc.tsl>
+	pStream->Read(&m_iMapRegens); // </advc.tsl>
 	if (!isNetworkMultiPlayer())
 		m_iNumSessions++;
-	/*	<advc.enum> In part based on code from obsolete structs
-		PlotExtraYield, PlotExtraCost. */
-	if (uiFlag < 21)
+
+	m_aeVoteSourceReligion.read(pStream);
+
+	if (!isOption(GAMEOPTION_NO_EVENTS))
 	{
-		CvMap& kMap = GC.getMap();
-		/*	Map hasn't yet been reset and won't reset the plot extra data at all
-			when loading a legacy save. It's all up to CvGame then. */
-		kMap.resetPlotExtraData();
-		int iSize;
-		pStream->Read(&iSize);
-		for (int i = 0; i < iSize; i++)
-		{
-			int iX, iY;
-			pStream->Read(&iX);
-			pStream->Read(&iY);
-			FOR_EACH_ENUM(Yield)
-			{
-				int iChange;
-				pStream->Read(&iChange);
-				kMap.setPlotExtraYield(kMap.plotNum(iX, iY), eLoopYield, iChange);
-			}
-		}
-		pStream->Read(&iSize);
-		for (int i = 0; i < iSize; i++)
-		{
-			int iX, iY, iCost;
-			pStream->Read(&iX);
-			pStream->Read(&iY);
-			pStream->Read(&iCost);
-			kMap.changePlotExtraCost(kMap.plotNum(iX, iY), iCost);
-		}
-	} // </advc.enum>
-	// <advc>
-	if (uiFlag >= 9)
-	{
-		if (uiFlag >= 11)
-			m_aeVoteSourceReligion.read(pStream);
-		else m_aeVoteSourceReligion.readArray<int>(pStream);
-	}
-	else // </advc>
-	{
-		int iSize;
-		pStream->Read(&iSize);
-		for (int i = 0; i < iSize; i++)
-		{
-			VoteSourceTypes eVoteSource;
-			ReligionTypes eReligion;
-			pStream->Read((int*)&eVoteSource);
-			pStream->Read((int*)&eReligion);
-			m_aeVoteSourceReligion.set(eVoteSource, eReligion); // advc
-		}
-	}
-	if (uiFlag >= 21)
-	{
-		if (!isOption(GAMEOPTION_NO_EVENTS))
-		{
-			if (uiFlag >= 24)
-				m_abInactiveTriggers.read(pStream);
-			else LegacyArrayEnumMap<EventTriggerTypes,bool>::convert(m_abInactiveTriggers, pStream);
-		}
-	}
-	else
-	{
-		int iSize;
-		pStream->Read(&iSize);
-		for (int i = 0; i < iSize; i++)
-		{
-			int iTrigger;
-			pStream->Read(&iTrigger);
-			if (!isOption(GAMEOPTION_NO_EVENTS)) // advc.003v
-				m_abInactiveTriggers.set((EventTriggerTypes)iTrigger, true);
-		}
+		m_abInactiveTriggers.read(pStream);
 	}
 
 	// Get the active player information from the initialization structure
@@ -9143,23 +9006,15 @@ void CvGame::read(FDataStreamBase* pStream)
 			m_sorenRand.reseed(timeGetTime());
 		}
 	}
-	if (uiFlag < 21)
-	{
-		// advc.enum: Skip data now handled by CvMap
-		int iShrineBuildingCount;
-		pStream->Read(&iShrineBuildingCount);
-		int* aiShrineBuildingOrReligion = new int[GC.getNumBuildingInfos()];
-		pStream->Read(GC.getNumBuildingInfos(), aiShrineBuildingOrReligion);
-		pStream->Read(GC.getNumBuildingInfos(), aiShrineBuildingOrReligion);
-		delete[] aiShrineBuildingOrReligion;
-	}
+
 	pStream->Read(&m_iNumCultureVictoryCities);
 	pStream->Read((int*)&m_eCultureVictoryCultureLevel);
 	// <advc.052>
-	if (uiFlag >= 3)
-		pStream->Read(&m_bScenario); // </advc.052>
+
+	pStream->Read(&m_bScenario); // </advc.052>
+
 	m_iTurnLoadedFromSave = m_iElapsedGameTurns; // advc.044
-	GAMETEXT.setAlwaysShowPlotCulture(uiFlag >= 10); // advc.099f
+	GAMETEXT.setAlwaysShowPlotCulture(true); // advc.099f
 	applyOptionEffects(); // advc.310
 	m_bFPTestDone = !isNetworkMultiPlayer(); // advc.003g
 }
@@ -9168,36 +9023,11 @@ void CvGame::read(FDataStreamBase* pStream)
 void CvGame::write(FDataStreamBase* pStream)
 {
 	PROFILE_FUNC(); // advc
+
+	// 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
 	uint uiFlag;
-	//uiFlag = 1; // BtS
-	//uiFlag = 2; // advc.701: R&F option
-	//uiFlag = 3; // advc.052
-	//uiFlag = 4; // advc.opt: Players and teams ever alive
-	//uiFlag = 5; // advc.004m
-	//uiFlag = 6; // advc.106h
-	//uiFlag = 7; // advc.027b
-	//uiFlag = 8; // advc.172
-	//uiFlag = 9; // advc (m_aeVoteSourceReligion)
-	//uiFlag = 10; // advc.099f
-	//uiFlag = 11; // advc.enum: new enum map save behavior
-	//uiFlag = 12; // advc.130n: DifferentReligionThreat added to CvPlayerAI
-	//uiFlag = 13; // advc.148: RELATIONS_THRESH_WORST_ENEMY
-	//uiFlag = 14; // advc.148, advc.130n, advc.130x (religion attitude)
-	//uiFlag = 15; // advc.tsl: new game option
-	//uiFlag = 16; // advc.tsl: map regen counter
-	//uiFlag = 17; // advc.tsl: game options moved around
-	//uiFlag = 18; // advc.130c: change in rank hate calc
-	//uiFlag = 19; // advc.500c: Update citizen assignments
-	//uiFlag = 20; // advc.130r: Update war attitude
-	//uiFlag = 21; // advc.enum
-	//uiFlag = 22; // advc.130n: Bugfix in fave-civic attitude calc
-	//uiFlag = 23; // advc.124b: Need a plot group update for compatibility
-	/*	advc.enum: Bugfix in bool-valued ArrayEnumMap; advc.130c: tweak;
-		advc.130n: fave civic based on displayed leader type. */
-	//uiFlag = 24;
-	//uiFlag = 25; // advc.130n (bugfix)
-	//uiFlag = 26; // advc.130w: Cache for expansionist hate
 	uiFlag = 27; // advc.130w: RivalVassalAttitude tweak
+
 	pStream->Write(uiFlag);
 	REPRO_TEST_BEGIN_WRITE("Game pt1");
 	pStream->Write(m_iElapsedGameTurns);
