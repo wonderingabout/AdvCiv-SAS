@@ -7230,37 +7230,29 @@ void CvPlot::read(FDataStreamBase* pStream)
 {
 	//reset(); // advc: Constructor handles that
 
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
 	uint uiFlag=0;
+
 	pStream->Read(&uiFlag);
 	pStream->Read(&m_iX);
 	pStream->Read(&m_iY);
+
 	// <advc.opt>
-	if (uiFlag >= 12)
-		pStream->Read(&m_iPlotNum);
-	else updatePlotNum();
+	pStream->Read(&m_iPlotNum);
 	// </advc.opt>
+
 	pStream->Read(&m_iArea);
 
 	pStream->Read(&m_iFeatureVariety);
 	pStream->Read(&m_iOwnershipDuration);
 	pStream->Read(&m_iImprovementDuration);
-	// <advc.912f>
-	if (uiFlag < 9)
-	{
-		short iUpgradeProgress;
-		pStream->Read(&iUpgradeProgress);
-		m_iUpgradeProgress = iUpgradeProgress;
-		m_iUpgradeProgress *= 100;
-	} // </advc.912f>
-	else pStream->Read(&m_iUpgradeProgress);
+
+	pStream->Read(&m_iUpgradeProgress);
 	pStream->Read(&m_iForceUnownedTimer);
+
 	// <advc.opt>
-	if (uiFlag < 5)
-	{
-		short sTmp; pStream->Read(&sTmp);
-		m_iCityRadiusCount = safeIntCast<char>(sTmp);
-	}
-	else pStream->Read(&m_iCityRadiusCount);
+	pStream->Read(&m_iCityRadiusCount);
+
 	int iRiver;
 	pStream->Read(&iRiver);
 	if (iRiver < MIN_SHORT || iRiver > MAX_SHORT)
@@ -7269,48 +7261,33 @@ void CvPlot::read(FDataStreamBase* pStream)
 	// </advc.opt>
 	pStream->Read(&m_iMinOriginalStartDist);
 	pStream->Read(&m_iReconCount);
+
 	// <advc.opt>
-	if (uiFlag < 5)
-	{
-		short sTmp; pStream->Read(&sTmp);
-		m_iRiverCrossingCount = safeIntCast<char>(sTmp);
-	}
-	else pStream->Read(&m_iRiverCrossingCount); // </advc.opt>
+	pStream->Read(&m_iRiverCrossingCount); // </advc.opt>
+
 	// <advc.tsl>
-	if(uiFlag >= 3)
-	{
-		if (uiFlag < 5)
-		{
-			short sTmp;
-			pStream->Read(&sTmp);
-			m_iLatitude = safeIntCast<char>(sTmp);
-		}
-		else pStream->Read(&m_iLatitude);
-	}
-	else m_iLatitude = calculateLatitude(); // </advc.tsl>
+	pStream->Read(&m_iLatitude);
+	// </advc.tsl>
 
 	bool bVal;
 	pStream->Read(&bVal);
 	m_bStartingPlot = bVal;
-	if(uiFlag < 4) // advc.opt: m_bHills removed
-		pStream->Read(&bVal);
+
 	pStream->Read(&bVal);
 	m_bNOfRiver = bVal;
 	pStream->Read(&bVal);
 	m_bWOfRiver = bVal;
 	pStream->Read(&bVal);
 	m_bIrrigated = bVal;
+
 	// <advc.opt>
-	if (uiFlag >= 7)
-	{
-		pStream->Read(&bVal);
-		m_bImpassable = bVal;
-	}
-	if (uiFlag >= 8) // else CvMap::read will handle it
-	{
-		pStream->Read(&bVal);
-		m_bAnyIsthmus = bVal;
-	} // </advc.opt>
+	pStream->Read(&bVal);
+	m_bImpassable = bVal;
+
+	pStream->Read(&bVal);
+	m_bAnyIsthmus = bVal;
+	// </advc.opt>
+
 	pStream->Read(&bVal);
 	m_bPotentialCityWork = bVal;
 	// m_bShowCitySymbols not saved
@@ -7319,51 +7296,31 @@ void CvPlot::read(FDataStreamBase* pStream)
 	// m_bLayoutStateWorked not saved
 
 	pStream->Read(&m_eOwner);
+
 	// <advc.opt>
-	if (uiFlag >= 6)
-		pStream->Read(&m_eTeam);
-	else updateTeam(); // </advc.opt>
-	if (uiFlag < 5)
-	{
-		short sTmp;
-		pStream->Read(&sTmp);
-		m_ePlotType = safeIntCast<char>(sTmp);
-		pStream->Read(&sTmp);
-		m_eTerrainType = safeIntCast<char>(sTmp);
-		pStream->Read(&sTmp);
-		m_eFeatureType = safeIntCast<char>(sTmp);
-	}
-	else
-	{ // </advc.opt>
-		pStream->Read(&m_ePlotType);
-		pStream->Read(&m_eTerrainType);
-		pStream->Read(&m_eFeatureType);
-	}  // <advc.opt>
-	if (uiFlag < 7)
-		updateImpassable(); // </advc.opt>
+	pStream->Read(&m_eTeam);
+	// </advc.opt>
+
+	// <!-- custom: the base advciv comment note initial tag seems to be missing, i didn't remove it, not adding it either just in case, and is if i am not mistaken too hehe but anyways etc-->
+	// </advc.opt>
+	pStream->Read(&m_ePlotType);
+	pStream->Read(&m_eTerrainType);
+	pStream->Read(&m_eFeatureType);
+
 	pStream->Read(&m_eBonusType);
 	FAssertInfoEnum((BonusTypes)m_eBonusType); // advc
+
 	// <advc.opt>
-	if (uiFlag < 5)
-	{
-		short sTmp;
-		pStream->Read(&sTmp);
-		m_eImprovementType = safeIntCast<char>(sTmp);
-	}
-	else pStream->Read(&m_eImprovementType);
-	if (uiFlag < 5)
-	{
-		short sTmp;
-		pStream->Read(&sTmp);
-		m_eRouteType = safeIntCast<char>(sTmp);
-	}
-	else pStream->Read(&m_eRouteType); // </advc.opt>
+	pStream->Read(&m_eImprovementType);
+
+	pStream->Read(&m_eRouteType); // </advc.opt>
+
 	pStream->Read(&m_eRiverNSDirection);
 	pStream->Read(&m_eRiverWEDirection);
+
 	// <advc.035>
-	if(uiFlag >= 1)
-		pStream->Read(&m_eSecondOwner);
-	else m_eSecondOwner = m_eOwner;
+	pStream->Read(&m_eSecondOwner);
+
 	if (!GC.getDefineBOOL(CvGlobals::OWN_EXCLUSIVE_RADIUS))
 		m_eSecondOwner = m_eOwner; // </advc.035>
 	pStream->Read((int*)&m_plotCity.eOwner);
@@ -7377,118 +7334,48 @@ void CvPlot::read(FDataStreamBase* pStream)
 	m_workingCity.validateOwner();
 	m_workingCityOverride.validateOwner(); // </advc.opt>
 
-	if (uiFlag >= 13)
-		m_aiYield.read(pStream);
-	else if (uiFlag < 5)
-		m_aiYield.readArray<short>(pStream);
-	else m_aiYield.readArray<char>(pStream);
+	m_aiYield.read(pStream);
+
 	// BETTER_BTS_AI_MOD, Efficiency (plot danger cache), 08/21/09, jdog5000: START
 	/*	K-Mod. I've changed the purpose of invalidateBorderDangerCache.
 		It is no longer appropriate for this. */
 	/*m_iActivePlayerNoBorderDangerCache = false;
 	invalidateBorderDangerCache();*/
 	// BETTER_BTS_AI_MOD: END
-	if (uiFlag >= 13)
-	{
-		m_aiCulture.read(pStream);
-		m_aiFoundValue.read(pStream);
-		m_aiPlayerCityRadiusCount.read(pStream);
-		m_aiPlotGroup.read(pStream);
-		m_aiVisibilityCount.read(pStream);
-		m_aiStolenVisibilityCount.read(pStream);
-		m_aiBlockadedCount.read(pStream);
-		m_aiRevealedOwner.read(pStream);
-		m_abRiverCrossing.read(pStream);
-		m_abRevealed.read(pStream);
-		m_aeRevealedImprovementType.read(pStream);
-		m_aeRevealedRouteType.read(pStream);
-	}
-	else
-	{
-		m_aiCulture.readLazyArray<char,int>(pStream);
-		m_aiFoundValue.readLazyArray<char,short>(pStream);
-		if (uiFlag < 10)
-			m_aiPlayerCityRadiusCount.readLazyArray<char,char>(pStream);
-		else m_aiPlayerCityRadiusCount.readPair<short,short,char>(pStream);
-		m_aiPlotGroup.readLazyArray<char,int>(pStream);
-		m_aiVisibilityCount.readLazyArray<char,short>(pStream);
-		if (uiFlag < 10)
-		{
-			m_aiStolenVisibilityCount.readLazyArray<char,short>(pStream);
-			m_aiBlockadedCount.readLazyArray<char,short>(pStream);
-		}
-		else
-		{
-			m_aiStolenVisibilityCount.readPair<short,short,short>(pStream);
-			m_aiBlockadedCount.readPair<short,short,short>(pStream);
-		}
-		m_aiRevealedOwner.readLazyArray<char,char>(pStream);
-		m_abRiverCrossing.readLazyArray<char,bool>(pStream);
-		m_abRevealed.readLazyArray<char,bool>(pStream);
-		if (uiFlag < 5)
-			m_aeRevealedImprovementType.readLazyArray<char,short>(pStream);
-		else if (uiFlag < 10)
-			m_aeRevealedImprovementType.readLazyArray<char,char>(pStream);
-		else m_aeRevealedImprovementType.readPair<short,short,short>(pStream);
-		if (uiFlag == 10)
-		{	// List-based map didn't work out well here
-			ListEnumMap<TeamTypes,RouteTypes> aeRevealedRouteType;
-			aeRevealedRouteType.readPair<short,short,short>(pStream);
-			if (aeRevealedRouteType.isAnyNonDefault())
-			{
-				FOR_EACH_ENUM(Team)
-					m_aeRevealedRouteType.set(eLoopTeam, aeRevealedRouteType.get(eLoopTeam));
-			}
-		}
-		else
-		{
-			if (uiFlag < 5)
-				m_aeRevealedRouteType.readLazyArray<char,short>(pStream);
-			else m_aeRevealedRouteType.readLazyArray<char,char>(pStream);
-		}
-	}
+
+	m_aiCulture.read(pStream);
+	m_aiFoundValue.read(pStream);
+	m_aiPlayerCityRadiusCount.read(pStream);
+	m_aiPlotGroup.read(pStream);
+	m_aiVisibilityCount.read(pStream);
+	m_aiStolenVisibilityCount.read(pStream);
+	m_aiBlockadedCount.read(pStream);
+	m_aiRevealedOwner.read(pStream);
+	m_abRiverCrossing.read(pStream);
+	m_abRevealed.read(pStream);
+	m_aeRevealedImprovementType.read(pStream);
+	m_aeRevealedRouteType.read(pStream);
+
 	m_szScriptData = pStream->ReadString();
-	if (uiFlag >= 13)
-		m_aiBuildProgress.read(pStream);
-	else m_aiBuildProgress.readLazyArray<int,short>(pStream);
+
+	m_aiBuildProgress.read(pStream);
 	// <advc.011>
-	if (uiFlag < 5)
-	{
-		int iTmp; pStream->Read(&iTmp);
-		m_iTurnsBuildsInterrupted = safeIntCast<short>(iTmp);
-	}
-	else pStream->Read(&m_iTurnsBuildsInterrupted); // </advc.011>
+
+	pStream->Read(&m_iTurnsBuildsInterrupted); // </advc.011>
+
 	// <advc.005c>
 	CvWString szTmp;
 	pStream->ReadString(szTmp);
 	if (!szTmp.empty())
 		setRuinsName(szTmp); // </advc.005c>
+
 	// <advc.opt>
-	if (uiFlag >= 2)
-		pStream->Read(&m_iTotalCulture);
-	else if (m_aiCulture.isAnyNonDefault()) // just to save time
-	{
-		/*  CvPlayer objects aren't loaded yet. Players that have never been alive
-			should have 0 culture, so we don't really need to check isEverAlive. */
-		FOR_EACH_ENUM(Player)
-			m_iTotalCulture += m_aiCulture.get(eLoopPlayer);
-	} // </advc.opt>
-	if (uiFlag >= 13)
-	{
-		m_aaiCultureRangeCities.read(pStream);
-		m_aaiInvisibleVisibilityCount.read(pStream);
-	}
-	else if (uiFlag >= 10)
-	{
-		m_aaiCultureRangeCities.readTuple<short,short,char>(pStream);
-		m_aaiInvisibleVisibilityCount.readTuple<short,short,short>(pStream);
-	}
-	else
-	{
-		m_aaiCultureRangeCities.readLazyArray<char,int,char>(pStream);
-		m_aaiInvisibleVisibilityCount.readLazyArray<char,int,short>(pStream);
-		
-	}
+	pStream->Read(&m_iTotalCulture);
+	// </advc.opt>
+
+	m_aaiCultureRangeCities.read(pStream);
+	m_aaiInvisibleVisibilityCount.read(pStream);
+
 	m_units.Read(pStream);
 }
 
@@ -7496,20 +7383,11 @@ void CvPlot::read(FDataStreamBase* pStream)
 void CvPlot::write(FDataStreamBase* pStream)
 {
 	PROFILE_FUNC(); // advc
+
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
 	uint uiFlag;
-	//uiFlag = 1; // advc.035
-	//uiFlag = 2; // advc.opt
-	//uiFlag = 3; // advc.tsl
-	//uiFlag = 4; // advc.opt: m_bHills removed
-	//uiFlag = 5; // advc.opt, advc.011, advc.enum: some int or short members turned into short or char
-	//uiFlag = 6; // advc.opt: m_eTeam
-	//uiFlag = 7; // advc.opt: m_bImpassable
-	//uiFlag = 8; // advc.opt: m_bAnyIsthmus
-	//uiFlag = 9; // advc.912f
-	//uiFlag = 10; // advc.enum (sparse maps 1)
-	//uiFlag = 11; // advc.enum (sparse maps 2)
-	//uiFlag = 12; // advc.opt (m_iPlotNum)
 	uiFlag = 13; // advc.enum: new enum map save behavior
+
 	pStream->Write(uiFlag);
 	REPRO_TEST_BEGIN_WRITE(CvString::format("Plot pt1(%d,%d)", getX(), getY()).GetCString());
 	pStream->Write(m_iX);
