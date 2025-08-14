@@ -61,7 +61,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [43 - (Attemptingly improved/enhanced) AI settlers, for the first city found (i.e. at turn 0 if i am not mistaken anyways etc), settling too soon instead of digging a bit for better sites](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#43---attemptingly-improvedenhanced-ai-settlers-for-the-first-city-found-ie-at-turn-0-if-i-am-not-mistaken-anyways-etc-settling-too-soon-instead-of-digging-a-bit-for-better-sites-and-other-related-changes)  
 [44 - (Enhanced) Make/Encourage AI settlers walk away from bad starting sites in this case i mean but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#44---enhanced-makeencourage-ai-settlers-walk-away-from-bad-starting-sites-in-this-case-i-mean-but-anyways-etc)  
 [45 - (Addressed / Patched / Worked around) AI cities assigning too soon or/and too often specialists, resulting in early stagnation very inefficiently: now added sanity rules to not go for a specialist anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#45---addressed--patched--worked-around-ai-cities-assigning-too-soon-orand-too-often-specialists-resulting-in-early-stagnation-very-inefficiently-now-added-sanity-rules-to-not-go-for-a-specialist-anyways-etc)  
-
+[46 - (Cleaned up) Very big messy old uiFlag code in the DLL, seemingly to support savegame compatibility, which i don't care about, especially considering how complicated the code is as a result](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#46---cleaned-up-very-big-messy-old-uiflag-code-in-the-dll-seemingly-to-support-savegame-compatibility-which-i-dont-care-about-especially-considering-how-complicated-the-code-is-as-a-result)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -1356,3 +1356,11 @@ Hopefully they help AI be stronger and more reliable in its specialist choices o
 Note: on the plus side as well, not having to think about specialists at all in some conditions will probably save quite a lto or a bit at least if i may say of computation as well as a nice side effect too hopefully while preserving versatility or preserving it enough and assuming our change works as intended if i am not mistaken (would need to test more to be sure but anyways etc)
 
 update: after a bit further evaluation, i have decided to generalize the previous rule as quick patch, as for example in screenshot as of now 2270, edo city (kingdom of bening) is size 12, can grow (stagnant with a specialist equals food is 2 without (in fact more due to poorly assigned tiles but it's another issue that looks or may be tedious to fix although would be nice but anyways etc)) but chooses instead to assign a specialist, so generalizing the "grow when you can" policy anyways etc.
+
+## 46 - (Cleaned up) Very big messy old uiFlag code in the DLL, seemingly to support savegame compatibility, which i don't care about, especially considering how complicated the code is as a result
+
+In the DLL i have cleaned up the old `uiFlag` code that was super redundant and messy, with the help of chatgpt 5 and a bit of claude ai too. I don't know too much about these, but if i understood and understand i mean too if i may say but anyways etc correctly this code was responsible for keeping savegame compatibility.
+
+While it would be nice if old savegames could be preserved accross all versions, it is ridiculously complicated to do so, and the previous code was beyond a mess xd (at least to me but anyways etc). I have cleaned up all of it, which saved about 50 kB from the DLL size as of now, and is hopefully much cleaner in this case i mean if i may say but anyways etc.
+
+As a result, savegames are not compatible whenever a breaking change is made in AdvCiv-SAS. See related info at [/README.md#not-supported-in-advciv-sas](/README.md#not-supported-in-advciv-sas) as well anyways etc.
