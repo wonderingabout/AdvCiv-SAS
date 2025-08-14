@@ -14061,7 +14061,9 @@ void CvPlayer::read(FDataStreamBase* pStream)
 {
 	reset();
 
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
 	uint uiFlag=0;
+
 	pStream->Read(&uiFlag);
 	// <advc.027>
 	{	// (No longer stored as x,y)
@@ -14070,8 +14072,8 @@ void CvPlayer::read(FDataStreamBase* pStream)
 		pStream->Read(&iStartingY);
 		m_pStartingPlot = GC.getMap().plot(iStartingX, iStartingY);
 	}
-	if (uiFlag >= 14)
-		pStream->Read(&m_bRandomWBStart);
+
+	pStream->Read(&m_bRandomWBStart);
 	// </advc.027>
 	pStream->Read(&m_iTotalPopulation);
 	pStream->Read(&m_iTotalLand);
@@ -14080,9 +14082,10 @@ void CvPlayer::read(FDataStreamBase* pStream)
 	pStream->Read(&m_iGoldPerTurn);
 	pStream->Read(&m_iAdvancedStartPoints);
 	pStream->Read(&m_iGoldenAgeTurns);
+
 	// <advc.001x>
-	if (uiFlag >= 11)
-		pStream->Read(&m_iScheduledGoldenAges); // </advc.001x>
+	pStream->Read(&m_iScheduledGoldenAges); // </advc.001x>
+
 	pStream->Read(&m_iNumUnitGoldenAges);
 	pStream->Read(&m_iStrikeTurns);
 	pStream->Read(&m_iAnarchyTurns);
@@ -14116,19 +14119,13 @@ void CvPlayer::read(FDataStreamBase* pStream)
 	pStream->Read(&m_iFreeMilitaryUnitsPopulationPercent);
 	pStream->Read(&m_iGoldPerUnit);
 	pStream->Read(&m_iGoldPerMilitaryUnit);
-	// K-Mod
-	if (uiFlag < 3)
-	{
-		m_iGoldPerUnit *= 100;
-		m_iGoldPerMilitaryUnit *= 100;
-	}
-	// K-Mod end
+
 	pStream->Read(&m_iExtraUnitCost);
 	pStream->Read(&m_iNumMilitaryUnits);
 	pStream->Read(&m_iHappyPerMilitaryUnit);
 	// <advc.912c>
-	if(uiFlag >= 6)
-		pStream->Read(&m_iLuxuryModifier); // </advc.912c>
+
+	pStream->Read(&m_iLuxuryModifier); // </advc.912c>
 	pStream->Read(&m_iMilitaryFoodProductionCount);
 	pStream->Read(&m_iConscriptCount);
 	pStream->Read(&m_iMaxConscript);
@@ -14139,9 +14136,10 @@ void CvPlayer::read(FDataStreamBase* pStream)
 	pStream->Read(&m_iExpInBorderModifier);
 	pStream->Read(&m_iBuildingOnlyHealthyCount);
 	pStream->Read(&m_iDistanceMaintenanceModifier);
+
 	// <advc.912g>
-	if (uiFlag >= 20)
-		pStream->Read(&m_iColonyMaintenanceModifier); // </advc.912g>
+	pStream->Read(&m_iColonyMaintenanceModifier); // </advc.912g>
+
 	pStream->Read(&m_iNumCitiesMaintenanceModifier);
 	pStream->Read(&m_iCorporationMaintenanceModifier);
 	pStream->Read(&m_iTotalMaintenance);
@@ -14181,13 +14179,13 @@ void CvPlayer::read(FDataStreamBase* pStream)
 	pStream->Read(&m_iWondersScore);
 	pStream->Read(&m_iTechScore);
 	pStream->Read(&m_iCombatExperience);
+
 	// <advc.004x>
-	if(uiFlag >= 8)
-	{
-		int tmp=-1;
-		pStream->Read(&tmp);
-		m_eReminderPending = (CivicTypes)tmp;
-	} // </advc.004x>
+	int tmp=-1;
+	pStream->Read(&tmp);
+	m_eReminderPending = (CivicTypes)tmp;
+	// </advc.004x>
+
 	pStream->Read(&m_bAlive);
 	pStream->Read(&m_bEverAlive);
 	pStream->Read(&m_bTurnActive);
@@ -14196,19 +14194,14 @@ void CvPlayer::read(FDataStreamBase* pStream)
 	pStream->Read(&m_bPbemNewTurn);
 	pStream->Read(&m_bExtendedGame);
 	pStream->Read(&m_bFoundedFirstCity);
+
 	// <advc.078>
-	if(uiFlag >= 9)
-		pStream->Read(&m_bAnyGPPEver); // </advc.078>
+	pStream->Read(&m_bAnyGPPEver); // </advc.078>
+
 	pStream->Read(&m_bStrike);
+
 	// K-Mod
-	if (uiFlag >= 4)
-		pStream->Read(&m_iChoosingFreeTechCount);
-	else if (uiFlag >= 2)
-	{
-		bool bFreeTech = false;
-		pStream->Read(&bFreeTech);
-		m_iChoosingFreeTechCount = bFreeTech ? 1 : 0;
-	}
+	pStream->Read(&m_iChoosingFreeTechCount);
 	// K-Mod end
 
 	pStream->Read((int*)&m_eID);
@@ -14219,175 +14212,76 @@ void CvPlayer::read(FDataStreamBase* pStream)
 	updateTeamType(); //m_eTeamType not saved
 	updateHuman();
 
-	if (uiFlag >= 16)
-	{
-		m_aiSeaPlotYield.read(pStream);
-		m_aiYieldRateModifier.read(pStream);
-		m_aiCapitalYieldRateModifier.read(pStream);
-		m_aiExtraYieldThreshold.read(pStream);
-	}
-	else
-	{
-		m_aiSeaPlotYield.readArray<int>(pStream);
-		m_aiYieldRateModifier.readArray<int>(pStream);
-		m_aiCapitalYieldRateModifier.readArray<int>(pStream);
-		m_aiExtraYieldThreshold.readArray<int>(pStream);
-	}
+	m_aiSeaPlotYield.read(pStream);
+	m_aiYieldRateModifier.read(pStream);
+	m_aiCapitalYieldRateModifier.read(pStream);
+	m_aiExtraYieldThreshold.read(pStream);
+
 	// <advc.908a>
-	if (uiFlag >= 15)
-	{
-		if (uiFlag >= 16)
-			m_aiExtraYieldNaturalThreshold.read(pStream);
-		else m_aiExtraYieldNaturalThreshold.readArray<int>(pStream);
-	}
-	else
-	{
-		FOR_EACH_ENUM(Yield)
-		{
-			int iThresh = m_aiExtraYieldThreshold.get(eLoopYield);
-			if (iThresh > 0)
-				m_aiExtraYieldNaturalThreshold.set(eLoopYield, iThresh + 1);
-		}
-		m_aiExtraYieldThreshold.reset();
-	} // </advc.908a>
-	if (uiFlag >= 16)
-	{
-		m_aiTradeYieldModifier.read(pStream);
-		m_aiFreeCityCommerce.read(pStream);
-		m_aiCommercePercent.read(pStream);
-		m_aiCommerceRateTimes100.read(pStream);
-		// <advc.157>
-		if (uiFlag >= 17)
-			m_aiCommerceRate.read(pStream);
-		else updateCommerceRates(); // </advc.157>
-		m_aiCommerceRateModifier.read(pStream);
-		m_aiCapitalCommerceRateModifier.read(pStream);
-		m_aiStateReligionBuildingCommerce.read(pStream);
-		m_aiSpecialistExtraCommerce.read(pStream);
-		m_aiCommerceFlexibleCount.read(pStream);
-		m_aiGoldPerTurnByPlayer.read(pStream);
-		m_aiEspionageSpendingWeightAgainstTeam.read(pStream);
-		m_abFeatAccomplished.read(pStream);
-		m_abOptions.read(pStream);
-	}
-	else
-	{
-		m_aiTradeYieldModifier.readArray<int>(pStream);
-		m_aiFreeCityCommerce.readArray<int>(pStream);
-		m_aiCommercePercent.readArray<int>(pStream);
-		m_aiCommerceRateTimes100.readArray<int>(pStream);
-		m_aiCommerceRateModifier.readArray<int>(pStream);
-		m_aiCapitalCommerceRateModifier.readArray<int>(pStream);
-		m_aiStateReligionBuildingCommerce.readArray<int>(pStream);
-		m_aiSpecialistExtraCommerce.readArray<int>(pStream);
-		m_aiCommerceFlexibleCount.readArray<int>(pStream);
-		m_aiGoldPerTurnByPlayer.readArray<int>(pStream);
-		m_aiEspionageSpendingWeightAgainstTeam.readArray<int>(pStream);
-		m_abFeatAccomplished.readArray<bool>(pStream);
-		m_abOptions.readArray<bool>(pStream);
-	}
+	m_aiExtraYieldNaturalThreshold.read(pStream);
+	// </advc.908a>
+
+	m_aiTradeYieldModifier.read(pStream);
+	m_aiFreeCityCommerce.read(pStream);
+	m_aiCommercePercent.read(pStream);
+	m_aiCommerceRateTimes100.read(pStream);
+
+	// <advc.157>
+	m_aiCommerceRate.read(pStream);
+	// </advc.157>
+
+	m_aiCommerceRateModifier.read(pStream);
+	m_aiCapitalCommerceRateModifier.read(pStream);
+	m_aiStateReligionBuildingCommerce.read(pStream);
+	m_aiSpecialistExtraCommerce.read(pStream);
+	m_aiCommerceFlexibleCount.read(pStream);
+	m_aiGoldPerTurnByPlayer.read(pStream);
+	m_aiEspionageSpendingWeightAgainstTeam.read(pStream);
+	m_abFeatAccomplished.read(pStream);
+	m_abOptions.read(pStream);
+
 	pStream->ReadString(m_szScriptData);
-	if (uiFlag >= 16)
-	{
-		m_aiBonusExport.read(pStream);
-		m_aiBonusImport.read(pStream);
-		m_aiImprovementCount.read(pStream);
-		m_aiFreeBuildingCount.read(pStream);
-		m_aiExtraBuildingHappiness.read(pStream);
-		m_aiExtraBuildingHealth.read(pStream);
-		m_aiFeatureHappiness.read(pStream);
-		m_aiUnitClassCount.read(pStream);
-		m_aiUnitClassMaking.read(pStream);
-		m_aiBuildingClassCount.read(pStream);
-		m_aiBuildingClassMaking.read(pStream);
-		m_aiHurryCount.read(pStream);
-		m_aiSpecialBuildingNotRequiredCount.read(pStream);
-		m_aiHasCivicOptionCount.read(pStream);
-		m_aiNoCivicUpkeepCount.read(pStream);
-		m_aiHasReligionCount.read(pStream);
-		m_aiHasCorporationCount.read(pStream);
-		m_aiUpkeepCount.read(pStream);
-		m_aiSpecialistValidCount.read(pStream);
-		if (uiFlag >= 21)
-			m_abResearchingTech.read(pStream);
-		else LegacyArrayEnumMap<TechTypes,bool>::convert(m_abResearchingTech, pStream);
-	}
-	else
-	{
-		m_aiBonusExport.readArray<int>(pStream);
-		m_aiBonusImport.readArray<int>(pStream);
-		m_aiImprovementCount.readArray<int>(pStream);
-		m_aiFreeBuildingCount.readArray<int>(pStream);
-		m_aiExtraBuildingHappiness.readArray<int>(pStream);
-		m_aiExtraBuildingHealth.readArray<int>(pStream);
-		m_aiFeatureHappiness.readArray<int>(pStream);
-		m_aiUnitClassCount.readArray<int>(pStream);
-		m_aiUnitClassMaking.readArray<int>(pStream);
-		m_aiBuildingClassCount.readArray<int>(pStream);
-		m_aiBuildingClassMaking.readArray<int>(pStream);
-		m_aiHurryCount.readArray<int>(pStream);
-		m_aiSpecialBuildingNotRequiredCount.readArray<int>(pStream);
-		m_aiHasCivicOptionCount.readArray<int>(pStream);
-		m_aiNoCivicUpkeepCount.readArray<int>(pStream);
-		m_aiHasReligionCount.readArray<int>(pStream);
-		m_aiHasCorporationCount.readArray<int>(pStream);
-		m_aiUpkeepCount.readArray<int>(pStream);
-		m_aiSpecialistValidCount.readArray<int>(pStream);
-		m_abResearchingTech.readArray<bool>(pStream);
-	}
+
+	m_aiBonusExport.read(pStream);
+	m_aiBonusImport.read(pStream);
+	m_aiImprovementCount.read(pStream);
+	m_aiFreeBuildingCount.read(pStream);
+	m_aiExtraBuildingHappiness.read(pStream);
+	m_aiExtraBuildingHealth.read(pStream);
+	m_aiFeatureHappiness.read(pStream);
+	m_aiUnitClassCount.read(pStream);
+	m_aiUnitClassMaking.read(pStream);
+	m_aiBuildingClassCount.read(pStream);
+	m_aiBuildingClassMaking.read(pStream);
+	m_aiHurryCount.read(pStream);
+	m_aiSpecialBuildingNotRequiredCount.read(pStream);
+	m_aiHasCivicOptionCount.read(pStream);
+	m_aiNoCivicUpkeepCount.read(pStream);
+	m_aiHasReligionCount.read(pStream);
+	m_aiHasCorporationCount.read(pStream);
+	m_aiUpkeepCount.read(pStream);
+	m_aiSpecialistValidCount.read(pStream);
+
+	m_abResearchingTech.read(pStream);
+
 	// <advc.091>
-	if (uiFlag >= 12)
-	{
-		if (uiFlag >= 16)
-			m_abEverSeenDemographics.read(pStream);
-		else m_abEverSeenDemographics.readArray<bool>(pStream);
-	}
-	else if(isBarbarian()) // Once all players have been loaded
-	{
-		for (PlayerIter<CIV_ALIVE> itSpyPlayer; itSpyPlayer.hasNext(); ++itSpyPlayer)
-		{
-			for (PlayerIter<CIV_ALIVE> itTargetPlayer; itTargetPlayer.hasNext();
-				++itTargetPlayer)
-			{
-				itSpyPlayer->m_abEverSeenDemographics.set(itTargetPlayer->getID(),
-						itSpyPlayer->canSeeDemographics(itTargetPlayer->getID()));
-			}
-		}
-	} // </advc.091>
-	if (uiFlag >= 16)
-	{
-		if (uiFlag >= 21)
-			m_abLoyalMember.read(pStream);
-		else LegacyArrayEnumMap<VoteSourceTypes,bool,void*,true>::convert(m_abLoyalMember, pStream);
-		m_aeCivics.read(pStream);
-		m_aeeiSpecialistExtraYield.read(pStream);
-		m_aeeiImprovementYieldChange.read(pStream);
-	}
-	else
-	{
-		m_abLoyalMember.readArray<bool>(pStream);
-		m_aeCivics.readArray<int>(pStream);
-		m_aeeiSpecialistExtraYield.readArray<int>(pStream);
-		m_aeeiImprovementYieldChange.readArray<int>(pStream);
-	}
+	m_abEverSeenDemographics.read(pStream);
+	// </advc.091>
+
+	m_abLoyalMember.read(pStream);
+
+	m_aeCivics.read(pStream);
+	m_aeeiSpecialistExtraYield.read(pStream);
+	m_aeeiImprovementYieldChange.read(pStream);
+
 	// <advc> Future-proofing
 	if (isBarbarian())
 		m_abLoyalMember.setAll(false); // </advc>
-	// <advc.912g>
-	if (uiFlag < 20)
-	{
-		FOR_EACH_ENUM(Civic)
-		{
-			if (isCivic(eLoopCivic))
-			{
-				changeColonyMaintenanceModifier(GC.getInfo(eLoopCivic).
-						getColonyMaintenanceModifier());
-			}
-		}
-	} // </advc.912g>
+
 	m_groupCycle.Read(pStream);
 	m_researchQueue.Read(pStream);
 
+	// <!-- custom: lone bracket left as is as seemingly not related to the uiflag cleanup we (i.e. me if i may say but anyways etc) are doing here if i'm not mistaken, check if accurate, anyways etc -->
 	{
 		m_cityNames.clear();
 		CvWString szBuffer;
@@ -14459,11 +14353,13 @@ void CvPlayer::read(FDataStreamBase* pStream)
 			}
 		}
 	}
+
 	// <advc.004s>
 	FOR_EACH_ENUM(PlayerHistory)
 	{
 		PlayerHistory& kHist = m_playerHistory[eLoopPlayerHistory];
-		kHist.read(pStream, getID(), uiFlag < 13);
+		// <!-- custom: note: i just replaced the old uiflag check with false since it was not true (checking for low uiflag number), ideally chatgpt 5 says one can, if want sot optimize or/and clean up further, go in the callee as it calls it (no pun but anyways etc...) and remove old parameter references then remove the parameter entirly if i'm not mistaken in my undrstanding of it, as well as other related things it sugegsted, check if accurate, as for me i am going for the simple(st? But anyways etc) and reliable fix anyways etc -->
+		kHist.read(pStream, getID(), false);
 	} // </advc.004s>
 
 	{
@@ -14550,7 +14446,7 @@ void CvPlayer::read(FDataStreamBase* pStream)
 		}
 	}
 
-	if (uiFlag > 0)
+	// <!-- custom: adding lone brackets just in case as is seemingly done as a pattern here if i may say, after we have cleaned up the old conditional uiflag check hence its scope as well if i am not mistaken anyways etc -->
 	{
 		m_triggersFired.clear();
 		uint iSize;
@@ -14560,18 +14456,6 @@ void CvPlayer::read(FDataStreamBase* pStream)
 			int iTrigger;
 			pStream->Read(&iTrigger);
 			m_triggersFired.push_back((EventTriggerTypes)iTrigger);
-		}
-	}
-	else
-	{
-		// yuck, hardcoded number of eventTriggers in the epic game in initial release
-		int iEventTriggers = std::min(176, GC.getNumEventTriggerInfos());
-		for (int i = 0; i < iEventTriggers; i++)
-		{
-			bool bTriggered;
-			pStream->Read(&bTriggered);
-			if (bTriggered)
-				m_triggersFired.push_back((EventTriggerTypes)i);
 		}
 	}
 
@@ -14589,20 +14473,11 @@ void CvPlayer::read(FDataStreamBase* pStream)
 	}
 
 	pStream->Read(&m_iPopRushHurryCount);
+
 	// <advc.064b>
-	if(uiFlag >= 10)
-		pStream->Read(&m_iGoldRushHurryCount);
-	else
-	{
-		FOR_EACH_ENUM(Hurry)
-		{
-			if (GC.getInfo(eLoopHurry).getGoldPerProduction() > 0)
-			{
-				m_iGoldRushHurryCount = m_aiHurryCount.get(eLoopHurry);
-				break;
-			}
-		}
-	} // </advc.064b>
+	pStream->Read(&m_iGoldRushHurryCount);
+	// </advc.064b>
+
 	pStream->Read(&m_iInflationModifier);
 
 	if(!isAlive())
@@ -14614,66 +14489,6 @@ void CvPlayer::read(FDataStreamBase* pStream)
 	if(kGame.isOption(GAMEOPTION_RISE_FALL) && kGame.getRiseFall().hasRetired())
 		kGame.getRiseFall().retire(); // </advc.706>
 	// <advc.908a>
-	if(uiFlag < 5 && !isBarbarian())
-	{
-		FOR_EACH_ENUM(Yield)
-			updateExtraYieldThresholds(eLoopYield);
-	} // </advc.908a>
-	// <advc.908c> Philosophical trait effect reduced by 20 points in AdvCiv 1.0
-	if (uiFlag < 15)
-	{
-		FOR_EACH_ENUM(Trait)
-		{
-			if (hasTrait(eLoopTrait) &&
-				GC.getInfo(eLoopTrait).getGreatPeopleRateModifier() == 80)
-			{
-				changeGreatPeopleRateModifier(-20);
-				break;
-			}
-		}
-	} // </advc.908c>
-	// <advc.912c>
-	if(uiFlag <= 6)
-	{
-		FOR_EACH_ENUM2(Civic, eCivic)
-		{
-			if (!isCivic(eCivic))
-				continue;
-			CvCivicInfo& kCivic = GC.getInfo(eCivic);
-			if (kCivic.getLuxuryModifier() <= 0)
-				continue;
-			int iPreviousHappyPer = (uiFlag < 6 ? 1 : 0);
-			int iPreviousLux =  (uiFlag < 6 ? 0 : 50);
-			changeHappyPerMilitaryUnit(kCivic.getHappyPerMilitaryUnit() -
-					iPreviousHappyPer);
-			changeLuxuryModifier(kCivic.getLuxuryModifier() - iPreviousLux);
-		}
-	} // </advc.912c>
-	// <advc>
-	if (uiFlag < 22)
-	{
-		FOR_EACH_ENUM(Commerce)
-		{
-			m_aiCommerceRateTimes100.set(eLoopCommerce, 0);
-			FOR_EACH_CITY(pCity, *this)
-			{
-				m_aiCommerceRateTimes100.add(eLoopCommerce,
-						pCity->getCommerceRateTimes100(eLoopCommerce));
-			}
-		}
-		updateCommerceRates();
-	} // </advc>
-	// <advc.708>
-	if (uiFlag < 19 && GC.getGame().isOption(GAMEOPTION_RISE_FALL) && isAlive())
-	{
-		if (!isMajorCiv())
-		{
-			// Don't update until all civ player handicaps have been set
-			if (isBarbarian())
-				GC.getGame().updateAIHandicap();
-		}
-		else GC.getGame().getRiseFall().setPlayerHandicap(getID(), isHuman(), true);
-	} // </advc.708>
 }
 
 // save object to a stream
@@ -14682,26 +14497,12 @@ void CvPlayer::write(FDataStreamBase* pStream)
 	PROFILE_FUNC(); // advc
 
 	REPRO_TEST_BEGIN_WRITE(CvString::format("PlayerPt1(%d)", getID()));
+
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now if i'm not mistaken and according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15, etc if any more ; as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore if i'm not mistaken in understanding what it said or about this too, commenting our and seeing anyways etc, check if accurate, is thanks to my prompts and such too i mean, anyways etc ; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves i made even yesterday, since i am still testing i would like to use same save files, but before release i may remove this.. if i remember i mean and still to then in this case i mean though if i may say but anyways etc -->
 	uint uiFlag;
-	//uiFlag = 1; // BtS
-	//uiFlag = 5; // K-Mod
-	//uiFlag = 5; // advc.908a (I guess I broke compatibility here)
-	//uiFlag = 7; // advc.912c (6 used up for a test version)
-	//uiFlag = 8; // advc.004x
-	//uiFlag = 9; // advc.078
-	//uiFlag = 10; // advc.064b
-	//uiFlag = 11; // advc.001x
-	//uiFlag = 12; // advc.091
-	//uiFlag = 13; // advc.004s
-	//uiFlag = 14; // advc.027 (m_bRandomWBStart)
-	//uiFlag = 15; // advc.908a (separate tag for nerfed trait effect), advc.908c
-	//uiFlag = 16; // advc.enum: new enum map save behavior
-	//uiFlag = 17; // advc.157
-	//uiFlag = 18; // advc.251 (city maintenance changed in handicap XML)
-	//uiFlag = 19; // advc.708
-	//uiFlag = 20; // advc.912g
-	//uiFlag = 21; // advc.enum: Bugfix in bool-valued ArrayEnumMap
+
 	uiFlag = 22; // advc: Bugs fixed with civ-wide special commerce rate cache
+
 	pStream->Write(uiFlag);
 
 	// <advc.027>
@@ -14824,7 +14625,7 @@ void CvPlayer::write(FDataStreamBase* pStream)
 	pStream->Write(m_bFoundedFirstCity);
 	pStream->Write(m_bAnyGPPEver); // advc.078
 	pStream->Write(m_bStrike);
-	pStream->Write(m_iChoosingFreeTechCount); // K-Mod (bool for 2 <= uiFlag < 4. then int.)
+	pStream->Write(m_iChoosingFreeTechCount); // K-Mod
 
 	pStream->Write(m_eID);
 	pStream->Write(m_ePersonalityType);
