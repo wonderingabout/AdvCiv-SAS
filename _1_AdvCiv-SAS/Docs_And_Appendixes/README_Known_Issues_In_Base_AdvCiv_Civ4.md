@@ -62,6 +62,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [44 - (Enhanced) Make/Encourage AI settlers walk away from bad starting sites in this case i mean but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#44---enhanced-makeencourage-ai-settlers-walk-away-from-bad-starting-sites-in-this-case-i-mean-but-anyways-etc)  
 [45 - (Addressed / Patched / Worked around) AI cities assigning too soon or/and too often specialists, resulting in early stagnation very inefficiently: now added sanity rules to not go for a specialist anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#45---addressed--patched--worked-around-ai-cities-assigning-too-soon-orand-too-often-specialists-resulting-in-early-stagnation-very-inefficiently-now-added-sanity-rules-to-not-go-for-a-specialist-anyways-etc)  
 [46 - (Cleaned up) Very big messy old uiFlag code in the DLL, seemingly to support savegame compatibility, which i don't care about, especially considering how complicated the code is as a result](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#46---cleaned-up-very-big-messy-old-uiflag-code-in-the-dll-seemingly-to-support-savegame-compatibility-which-i-dont-care-about-especially-considering-how-complicated-the-code-is-as-a-result)  
+[47 - (Fixed / Addressed / Enhanced) AI choosing poorly promotions for its units: now added a set of hard rules in which case some promotions are not good and to ignore as is most efificient in most times, and rarely cases where some promotions are best to always go first](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#47---fixed--addressed--enhanced-ai-choosing-poorly-promotions-for-its-units-now-added-a-set-of-hard-rules-in-which-case-some-promotions-are-not-good-and-to-ignore-as-is-most-efificient-in-most-times-and-rarely-cases-where-some-promotions-are-best-to-always-go-first-for-eg-as-of-no-city_garrison-first-for-unitai_city_defense-city_raider-first-for-unitai_attack_city-etc-if-any-more-anyways-etc)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -1364,3 +1365,96 @@ In the DLL i have cleaned up the old `uiFlag` code that was super redundant and 
 While it would be nice if old savegames could be preserved accross all versions, it is ridiculously complicated to do so, and the previous code was beyond a mess xd (at least to me but anyways etc). I have cleaned up all of it, which saved about 50 kB from the DLL size as of now, and is hopefully much cleaner in this case i mean if i may say but anyways etc.
 
 As a result, savegames are not compatible whenever a breaking change is made in AdvCiv-SAS. See related info at [/README.md#not-supported-in-advciv-sas](/README.md#not-supported-in-advciv-sas) as well anyways etc.
+
+## 47 - (Fixed / Addressed / Enhanced) AI choosing poorly promotions for its units: now added a set of hard rules in which case some promotions are not good and to ignore as is most efificient in most times, and rarely cases where some promotions are best to always go first for (e.g. as of no city_garrison first for unitai_city_defense, city_raider first for unitai_attack_city, etc if any more anyways etc)
+
+See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1xbBTVeF_vqn5DbyIpqkSl-__0pFs0hRX?usp=sharing).
+
+This is one of the core issues i had with base advciv and hopefulyl fixed or addressed in a way AI is now (much but anyways etc) more reliable with its promotion choices, while hopefully not restricting or reducing too much versatility i mean but anyways etc.
+
+My observation and annoyance if i may say but anyways etc, was that AI would often go for very inefficient or/and even simply ineffective promotions like woodsman (useless in city combat and in most non city tiles as well except for few units), medic (better be stronger and win or die is more efficient), that were surprisingly popular among AIs for some reason.
+
+I added with chatgpt 5's help and my adjustments and prompts and such (in `CvUnitAI::AI_promotionValue` but anyways etc) but anyways etc some hard rules that in most cases don't change AI selection process, but just make it start from a more restricted pool, and in rare cases forces an always first choice when absolutely best or most efficient in most cases so going for this for AI players to simplify and for effectiveness too i mean but anyways etc. This can be seen in existing screenshots between 2237 and 2403 (which are not the most representative of how bad AI choices were, but they give some context/examples of how it could often be if i may say but anyways etc suboptimal or ineffective promotions as explained before anyways etc).
+
+Below is a summary of these by chatgpt 5 which i adjusted a bit and sugegsted this or that if i may say but anyways etc but that it otherwise very nicely for the most part put apart (no pun but anyways etc...), check if accurate anyways etc, and if it has been updated since then in function mentionned as of now above in this known issue as of 47 but anyways etc.
+
+### 1) Hard Blocks (global)
+
+| Promotion(s)                                                  |                             Action | Rationale                                                                        |
+| ------------------------------------------------------------- | ---------------------------------: | -------------------------------------------------------------------------------- |
+| **Amphibious**                                                |                         **Forbid** | Too situational for AI; often wasted picks.                                      |
+| **Sentry**, **Woodsman I–III**, **Medic I–IV**, **Logistics** | **Forbid** (with exceptions below) | These are frequently poor/unreliable on generic AI combat units. See exceptions. |
+
+Exceptions for Sentry / Woodsman / Medic / Logistics
+
+| Condition (Unit)                                                                                                |      Action | Rationale                                                                                             |
+| --------------------------------------------------------------------------------------------------------------- | ----------: | ----------------------------------------------------------------------------------------------------- |
+| UnitCombat = **RECON** *and* UnitAI ∈ { **EXPLORE**, **SPY**, **EXPLORE\_SEA**, **SPY\_SEA**, **PIRATE\_SEA** } | **Allowed** | On scouts/recon & recon-like roles, vision/mobility/woods and field medic uses are actually valuable. |
+| Any other unit/role                                                                                             |  **Forbid** | Avoids weak picks on frontline attackers/defenders.                                                   |
+
+>Note: Medic_Ambulatory is still reachable via your XML alternate prereqs (e.g., through FirstStrike2), so the “no Medic I–IV” rule doesn’t block all medic paths.
+
+### 2) Always Pick First — Strict Offensive (City Attackers)
+
+| UnitAI                                      | Promotion           |                        Action | Rationale                                               |
+| ------------------------------------------- | ------------------- | ----------------------------: | ------------------------------------------------------- |
+| **ATTACK\_CITY**, **ATTACK\_CITY\_LEMMING** | **City Raider I**   | **Always pick first** (+2000) | Best attack vs cities; highest priority when available. |
+| 〃                                           | **City Raider II**  | **Always pick first** (+1000) | Continue the chain as long as legal/available.          |
+| 〃                                           | **City Raider III** |         **Always pick first** | Finish the CR line for strong siege/assault hitters.    |
+
+### 3) Offense Blocks (when UnitAI is Offensive)
+
+Who counts as Offensive?
+
+ATTACK, ATTACK_CITY, ATTACK_CITY_LEMMING, COLLATERAL, PARADROP, and all ATTACK_SEA.
+(Hybrids such as COUNTER / CITY_COUNTER are intentionally excluded—see §5.)
+
+| Promotion(s)                               |     Action | Rationale                                                                                                |
+| ------------------------------------------ | ---------: | -------------------------------------------------------------------------------------------------------- |
+| **City Garrison I–III**                    | **Forbid** | Defensive city bonuses don’t help an attacker.                                                           |
+| **Hills Master I–III**                     | **Forbid** | Too map-/situation-dependent; AI tends to overinvest.                                                    |
+| **Counter Melee / Mounted / Siege / Tank** | **Forbid** | Narrow anti-types are less reliable for general attackers; prefer broadly strong lines (Combat/CR/etc.). |
+
+### 4) Always Pick First — Strict Defensive (City Defenders)
+
+Who counts as Strict Defensive?
+
+CITY_DEFENSE, CITY_SPECIAL
+(We exclude RESERVE/RESERVE_SEA here; see §5.)
+
+| Promotion             |                        Action | Rationale                                   |
+| --------------------- | ----------------------------: | ------------------------------------------- |
+| **City Garrison I**   | **Always pick first** (+2000) | Immediate and reliable city defense power.  |
+| **City Garrison II**  | **Always pick first** (+1000) | Continue CG line for strong static defense. |
+| **City Garrison III** |         **Always pick first** | Finish the line.                            |
+
+### 5) Defense Blocks (when UnitAI is Strictly Defensive)
+
+Who counts as Strictly Defensive?
+
+CITY_DEFENSE, CITY_SPECIAL
+(RESERVE and RESERVE_SEA are hybrids; do not apply these defense-only forbids to them.)
+
+| Promotion(s)                                              |     Action | Rationale                                                                              |
+| --------------------------------------------------------- | ---------: | -------------------------------------------------------------------------------------- |
+| **Blitzkrieg**, **Mobility Cost/Range**, **Retreat I–II** | **Forbid** | Mobility/retreat are low value for static city defense.                                |
+| **City Raider I–III**                                     | **Forbid** | Offensive city-attack line; wasted on defenders.                                       |
+| **City Bombard Damage**                                   | **Forbid** | “Siege support” promo doesn’t help on defense.                                         |
+| **Collateral Damage I–V**                                 | **Forbid** | Collateral triggers on *attack*, not while defending; poor value for static defenders. |
+| **Navigator**                                             | **Forbid** | For units that can choose it, being bulky is still more important for defenders.                                 |
+| **Counter Archer**                                        | **Forbid** | Narrow anti-archer line is typically inferior to CG/Combat for defense.                |
+
+### 6) Hybrid UnitAIs (no forced pushes/blocks)
+
+| UnitAI                         | Treatment                                               | Rationale                                                                                         |
+| ------------------------------ | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| **RESERVE**, **RESERVE\_SEA**  | **No special boost/forbid** (beyond global hard blocks) | They swing between shuffling defense and opportunistic offense; over-constraining can hurt.       |
+| **COUNTER**, **CITY\_COUNTER** | **No special boost/forbid** (beyond global hard blocks) | Mixed behavior (intercepts near cities but also attacks nearby threats). Let base scoring decide. |
+
+### Results of known issue 47 changes
+
+As can be seen in existing screenshots between 2423 and 2451, AI is now much more effective, or at least significantly more effective at picking promotions: attackers often have city_raider promotion or some other offensive related or compatible in this case but anyways etc promotions if relevant in this case i mean but anyways etc, defenders more often go for city_garrison which is aobut best in unitai_city_defense, but some offensive longbowmen go for combat or such which is fine as ai uses the to attack and it's decent still as a defensive promotion if attacked by an enemy before this unit leaves its city.
+
+Versatility is quite preserved as well with a variety or enough of promotions.
+
+Thanks to these, i hope AI is now stronger and i would say saner but anyways etc. I didn't test it too extensively but i hope these samples combined with my past observations about base advciv behaviour of how AI promotes its units

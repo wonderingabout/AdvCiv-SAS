@@ -1,4 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?><!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Jon Shafer (Firaxis Games) --><!-- Sid Meier's Civilization 4 --><!-- Copyright Firaxis Games 2005 --><!-- --><!-- Promotion Infos -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Jon Shafer (Firaxis Games) -->
+<!-- Sid Meier's Civilization 4 -->
+<!-- Copyright Firaxis Games 2005 -->
+<!-- --><!-- Promotion Infos -->
+<!-- custom: note: be careful if you change these to also change/reflect them/these if i may say but anyways etc in the DLL at least in CvUnitAI::AI_promotionValue (a global search with VS code or search may help locate them anyways etc) as we have hardcoded some of them there to help/attempt to optimize AI promotion choices, see known issue as of now 47 for details or/and the code there in as of now the .cpp corresponding file(s) anyways etc -->
 <Civ4PromotionInfos xmlns="x-schema:CIV4UnitSchema.xml">
 	<PromotionInfos>
 
@@ -1136,8 +1141,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: now uses the old promotion_sentry's button anyways etc -->
-			<Button>,Art/Interface/Buttons/Promotions/Sentry.dds,Art/Interface/Buttons/Promotions_Atlas.dds,5,6</Button>
+			<Button>,Art/Interface/Buttons/Promotions/Charge.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,5</Button>
 		</PromotionInfo>
 		<PromotionInfo>
 			<Type>PROMOTION_COUNTER_TANK</Type>
@@ -1797,10 +1801,11 @@
 			<Description>TXT_KEY_PROMOTION_MEDIC_AMBULATORY</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
+			<!-- custom: it is a tiny bit in this case i mean but anyways etc op i think to make first_strike2 allow to go for medic_ambulatory, but this is to give AIs other paths to reach ambulatory even if we disallow them the medic1 and logistics paths as we do now for efficiency (see known issue as of now 47 for details or/and related DLL code changes but anyways etc). It is also not nonsensical, perhaps even strategically interesting in this case i mean if i may say but anyways etc, to link the concept as in idea of/to moving/mvoe fast in this case i mean but anyways etc with being ambulatory, hopefully more units can go for it now as a result even for human players perhaps, at the cost of making medic_ambulatory or/and first_strike2 being slightly more op in combination, but since this requires first_strike2 and not first_strike1 is maybe fine as such at least i find it interesting or/and relevant in this case i mean if i may say but anyways etc -->
 			<PromotionPrereq>NONE</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_MEDIC1</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_LOGISTICS</PromotionPrereqOr2>
-			<PromotionPrereqOr3>NONE</PromotionPrereqOr3>
+			<PromotionPrereqOr3>PROMOTION_FIRST_STRIKE2</PromotionPrereqOr3>
 			<TechPrereq>TECH_MEDICINE</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
@@ -1973,8 +1978,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: button import from c2c mod's as of now "Hill Worker" promotions anyways etc -->
-			<Button>Art/AdvCiv_SAS/Promotions/Hills_Master_1/workerhills1.dds</Button>
+			<Button>,Art/Interface/Buttons/Promotions/Guerilla1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,5,5</Button>
 		</PromotionInfo>
 		<PromotionInfo>
 			<Type>PROMOTION_HILLS_MASTER2</Type>
@@ -2054,8 +2058,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: button import from c2c mod's as of now "Hill Worker" promotions anyways etc -->
-			<Button>Art/AdvCiv_SAS/Promotions/Hills_Master_2/workerhills2.dds</Button>
+			<Button>,Art/Interface/Buttons/Promotions/Guerilla2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,6,5</Button>
 		</PromotionInfo>
 		<PromotionInfo>
 			<Type>PROMOTION_HILLS_MASTER3</Type>
@@ -2132,8 +2135,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: button import from c2c mod's as of now "Hill Worker" promotions anyways etc -->
-			<Button>Art/AdvCiv_SAS/Promotions/Hills_Master_3/workerhills3.dds</Button>
+			<Button>,Art/Interface/Buttons/Promotions/Guerilla2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,7,5</Button>
 		</PromotionInfo>
 
 
@@ -3028,8 +3030,8 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: now using the old promotion_counter_siege's button anyways etc -->
-			<Button>,Art/Interface/Buttons/Promotions/Charge.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,5</Button>
+			<!-- custom: button import from ri mod anyways etc -->
+			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_1/charge1.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
 			<Type>PROMOTION_COLLATERAL_DAMAGE2</Type>
@@ -3148,7 +3150,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: button import from c2c mod anyways etc -->
+			<!-- custom: button import from ri mod anyways etc -->
 			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_2/charge2.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
@@ -3248,7 +3250,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: button import from c2c mod anyways etc -->
+			<!-- custom: button import from ri mod anyways etc -->
 			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_3/charge3.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
@@ -3325,7 +3327,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: made with paint.net (lasso select ctrl+c ctrl+v (for the star part of the image) but anyways etc) from the c2c mod's button anyways etc -->
+			<!-- custom: made with paint.net (lasso select ctrl+c ctrl+v (for the star part of the image) but anyways etc) from the ri mod's button anyways etc -->
 			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_4/charge4.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
@@ -3414,7 +3416,8 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/Promotions/Barrage3.dds,Art/Interface/Buttons/Promotions_Atlas.dds,6,1</Button>
+			<!-- custom: made with paint.net (lasso select ctrl+c ctrl+v (for the star part of the image) but anyways etc) from the ri mod's button anyways etc -->
+			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_5/charge5.dds</Button>
 		</PromotionInfo>
 
 
@@ -3995,8 +3998,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: button import from c2c mod anyways etc -->
-			<Button>Art/AdvCiv_SAS/Promotions/Retreat_1/escape1.dds</Button>
+			<Button>,Art/Interface/Buttons/Promotions/Flanking1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,6,3</Button>
 		</PromotionInfo>
 		<PromotionInfo>
 			<Type>PROMOTION_RETREAT2</Type>
@@ -4079,8 +4081,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: button import from c2c mod anyways etc -->
-			<Button>Art/AdvCiv_SAS/Promotions/Retreat_2/escape2.dds</Button>
+			<Button>,Art/Interface/Buttons/Promotions/Flanking2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,7,3</Button>
 		</PromotionInfo>
 
 
@@ -4175,8 +4176,8 @@
 
 
 		<PromotionInfo>
-			<Type>PROMOTION_NAVIGATOR1</Type>
-			<Description>TXT_KEY_PROMOTION_NAVIGATOR1</Description>
+			<Type>PROMOTION_NAVIGATOR</Type>
+			<Description>TXT_KEY_PROMOTION_NAVIGATOR</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
@@ -4241,76 +4242,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<!-- custom: imported / manually extracted from com mod's atlas, that was in an fpk.. with Paint.NET. Not easy or intuitive to find but i have it now thankfully in this case if i may say but anyways etc -->
-			<Button>Art/AdvCiv_SAS/Promotions/Navigator_1/navigator_1.dds</Button>
-		</PromotionInfo>
-		<PromotionInfo>
-			<Type>PROMOTION_NAVIGATOR2</Type>
-			<Description>TXT_KEY_PROMOTION_NAVIGATOR2</Description>
-			<Sound>AS2D_IF_LEVELUP</Sound>
-			<LayerAnimationPath>NONE</LayerAnimationPath>
-			<PromotionPrereq>PROMOTION_RETREAT1</PromotionPrereq>
-			<PromotionPrereqOr1>PROMOTION_NAVIGATOR1</PromotionPrereqOr1>
-			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
-			<!-- custom: was NONE -->
-			<TechPrereq>TECH_NAVIGATION</TechPrereq>
-			<StateReligionPrereq>NONE</StateReligionPrereq>
-			<bLeader>0</bLeader>
-			<iBlitz>0</iBlitz>
-			<bAmphib>0</bAmphib>
-			<bRiver>0</bRiver>
-			<bEnemyRoute>0</bEnemyRoute>
-			<bAlwaysHeal>0</bAlwaysHeal>
-			<bHillsDoubleMove>0</bHillsDoubleMove>
-			<bImmuneToFirstStrikes>0</bImmuneToFirstStrikes>
-			<iVisibilityChange>0</iVisibilityChange>
-			<iMovesChange>1</iMovesChange>
-			<iMoveDiscountChange>0</iMoveDiscountChange>
-			<iAirRangeChange>0</iAirRangeChange>
-			<iInterceptChange>0</iInterceptChange>
-			<iEvasionChange>0</iEvasionChange>
-			<iWithdrawalChange>0</iWithdrawalChange>
-			<iCargoChange>0</iCargoChange>
-			<iCollateralDamageChange>0</iCollateralDamageChange>
-			<iBombardRateChange>0</iBombardRateChange>
-			<iFirstStrikesChange>0</iFirstStrikesChange>
-			<iChanceFirstStrikesChange>0</iChanceFirstStrikesChange>
-			<iEnemyHealChange>0</iEnemyHealChange>
-			<iNeutralHealChange>0</iNeutralHealChange>
-			<iFriendlyHealChange>0</iFriendlyHealChange>
-			<iSameTileHealChange>0</iSameTileHealChange>
-			<iAdjacentTileHealChange>0</iAdjacentTileHealChange>
-			<iCombatPercent>0</iCombatPercent>
-			<iCityAttack>0</iCityAttack>
-			<iCityDefense>0</iCityDefense>
-			<iHillsAttack>0</iHillsAttack>
-			<iHillsDefense>0</iHillsDefense>
-			<iKamikazePercent>0</iKamikazePercent>
-			<iRevoltProtection>0</iRevoltProtection>
-			<iCollateralDamageProtection>0</iCollateralDamageProtection>
-			<iPillageChange>0</iPillageChange>
-			<iUpgradeDiscount>0</iUpgradeDiscount>
-			<iExperiencePercent>0</iExperiencePercent>
-			<TerrainAttacks/>
-			<TerrainDefenses/>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
-			<UnitCombatMods/>
-			<DomainMods/>
-			<TerrainDoubleMoves/>
-			<FeatureDoubleMoves/>
-			<UnitCombats>
-				<UnitCombat>
-					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
-					<bUnitCombat>1</bUnitCombat>
-				</UnitCombat>
-			</UnitCombats>
-			<HotKey/>
-			<bAltDown>0</bAltDown>
-			<bShiftDown>0</bShiftDown>
-			<bCtrlDown>0</bCtrlDown>
-			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: imported / manually extracted from com mod's atlas, that was in an fpk.. with Paint.NET. Not easy or intuitive to find but i have it now thankfully in this case if i may say but anyways etc -->
-			<Button>Art/AdvCiv_SAS/Promotions/Navigator_2/navigator_2.dds</Button>
+			<Button>Art/AdvCiv_SAS/Promotions/Navigator/navigator.dds</Button>
 		</PromotionInfo>
 
 
@@ -5308,7 +5240,7 @@
 		</PromotionInfo>
 
 
-
+		<!-- custom: since this seems unused in DLL due to #if 0 if i am not mistaken and understood correctly chatgpt 5's explanation of it but anyways etc, and since it is and was also commented out here already in the XML as well if i'm not mistaken but anyways etc, also commented it out in the DLL as well, see there for details in corresponding as of now .cpp file(s) anyways etc (can be found with a global search with vs code for example if i am not mistaken but anyways etc), and done as approved to be possible by chatgpt 5, check if accurate, anyways etc -->
 		<!-- K-Mod, special penalty promotion.
 			 advc.905a: iMovesChange set to -1
 			 advc.313: Replaced with handicap-based modifiers.

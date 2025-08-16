@@ -441,8 +441,7 @@ class SevoPediaTerrain:
 
 		elif self.iTerrain == iCoast or self.iTerrain == iOcean:
 			# <!-- custom: raise an error if asset does not exist (in advciv-sas we have renamed PROMOTION_GUERILLA1 to PROMOTION_HILLS_MASTER1 and such anyways etc) -->
-			iPromotionNavigator1 = getInfoTypeOrFail("PROMOTION_NAVIGATOR1", gc)
-			iPromotionNavigator2 = getInfoTypeOrFail("PROMOTION_NAVIGATOR2", gc)
+			iPromotionNavigator = getInfoTypeOrFail("PROMOTION_NAVIGATOR", gc)
 
 			for iUnit in xrange(gc.getNumUnitInfos()):
 				unitInfo = gc.getUnitInfo(iUnit)
@@ -453,10 +452,9 @@ class SevoPediaTerrain:
 				iTerrainAttack = unitInfo.getTerrainAttackModifier(self.iTerrain)
 				iTerrainDefense = unitInfo.getTerrainDefenseModifier(self.iTerrain)
 
-				isHasN1 = unitInfo.getFreePromotions(iPromotionNavigator1)
-				isHasN2 = unitInfo.getFreePromotions(iPromotionNavigator2)
+				isHasN = unitInfo.getFreePromotions(iPromotionNavigator)
 
-				if (unitInfo.isCanMoveAllTerrain() or ((unitInfo.getDomainType() == DomainTypes.DOMAIN_SEA) and (not unitInfo.getTerrainImpassable(self.iTerrain)) and (unitInfo.getTerrainPassableTech(self.iTerrain) == -1)) or (iTerrainAttack != 0) or (iTerrainDefense != 0) or isHasN1 or isHasN2):
+				if (unitInfo.isCanMoveAllTerrain() or ((unitInfo.getDomainType() == DomainTypes.DOMAIN_SEA) and (not unitInfo.getTerrainImpassable(self.iTerrain)) and (unitInfo.getTerrainPassableTech(self.iTerrain) == -1)) or (iTerrainAttack != 0) or (iTerrainDefense != 0) or isHasN):
 					columnIndex = 0
 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 
@@ -464,13 +462,8 @@ class SevoPediaTerrain:
 						numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
 					else:
 						s = ""
-						if isHasN1:
-							s = "N1"
-						if isHasN2:
-							if s:
-								s += "+2"
-							else:
-								s = "N2"
+						if isHasN:
+							s = "N"
 						if s:
 							numTxt = s
 				

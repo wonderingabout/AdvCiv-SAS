@@ -16712,7 +16712,7 @@
 			<UnitCombatPromotions>
 				<UnitCombatPromotion>
 					<UnitCombat>UNITCOMBAT_NAVAL</UnitCombat>
-					<UnitPromotion>PROMOTION_NAVIGATOR1</UnitPromotion>
+					<UnitPromotion>PROMOTION_NAVIGATOR</UnitPromotion>
 				</UnitCombatPromotion>
 			</UnitCombatPromotions>
 			<UnitClassPromotions/>

@@ -711,12 +711,8 @@
 
 
 	<TEXT>
-		<Tag>TXT_KEY_PROMOTION_NAVIGATOR1</Tag>
-		<English>Navigator 1</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PROMOTION_NAVIGATOR2</Tag>
-		<English>Navigator 2</English>
+		<Tag>TXT_KEY_PROMOTION_NAVIGATOR</Tag>
+		<English>Navigator</English>
 	</TEXT>
 
 

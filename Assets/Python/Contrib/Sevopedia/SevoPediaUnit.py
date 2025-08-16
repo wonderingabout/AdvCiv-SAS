@@ -33,6 +33,9 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
+# <!-- custom: change this to False if you don't want to see AI information in the special abilities panel anyways etc -->
+IS_SHOW_AI_INFO = True
+
 
 
 class SevoPediaUnit:
@@ -88,12 +91,12 @@ class SevoPediaUnit:
 
 		self.X_REQUIRES = self.X_UNIT_PANE
 		self.Y_REQUIRES = self.Y_UNIT_PANE + self.H_UNIT_PANE + self.SMALL_MARGIN
-		self.W_REQUIRES = self.W_TOTAL_EFFECTIVE_UNIT_PANE
+		self.W_REQUIRES = ((self.W_TOTAL_EFFECTIVE_UNIT_PANE - self.MEDIUM_MARGIN)/ 2) 
 		self.H_REQUIRES = 110
 
-		self.X_UPGRADES_TO = self.X_UNIT_PANE
-		self.Y_UPGRADES_TO = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
-		self.W_UPGRADES_TO = ((self.W_TOTAL_EFFECTIVE_UNIT_PANE - self.MEDIUM_MARGIN)/ 2) 
+		self.X_UPGRADES_TO = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
+		self.Y_UPGRADES_TO = self.Y_REQUIRES
+		self.W_UPGRADES_TO = ((self.W_REQUIRES - self.MEDIUM_MARGIN)/ 2) 
 		self.H_UPGRADES_TO = self.H_REQUIRES
 
 		self.X_FREE_PROMOTIONS = self.X_UPGRADES_TO + self.W_UPGRADES_TO + self.MEDIUM_MARGIN
@@ -102,8 +105,8 @@ class SevoPediaUnit:
 		self.H_FREE_PROMOTIONS = self.H_UPGRADES_TO
 
 		self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.X_UNIT_PANE
-		self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.Y_UPGRADES_TO + self.H_UPGRADES_TO + self.SMALL_MARGIN
-		self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.W_UPGRADES_TO
+		self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
+		self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.W_REQUIRES
 		self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.H_REQUIRES
 
 		self.X_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS + self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS + self.MEDIUM_MARGIN
@@ -129,7 +132,9 @@ class SevoPediaUnit:
 		self.X_UNIT_ANIMATION = self.X_UNIT_PANE + self.W_TOTAL_EFFECTIVE_UNIT_PANE + self.MEDIUM_MARGIN
 		self.Y_UNIT_ANIMATION = self.Y_UNIT_PANE + self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
 		self.W_UNIT_ANIMATION = self.W_TOTAL_EFFECTIVE_UNIT_PANE
-		self.H_UNIT_ANIMATION = self.H_UNIT_PANE + self.SMALL_MARGIN + self.H_REQUIRES + self.SMALL_MARGIN + self.H_UPGRADES_TO - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
+		# <!-- custom: make it one panel height smaller to accomodate the higher placeSpecial panel that we use to display AI information and or such if any other info displayed or/and to better display the info in cases where the placeSpecial was a bit too short in height in this case i mean but anyways etc anyways etc -->
+		# self.H_UNIT_ANIMATION = self.H_UNIT_PANE + self.SMALL_MARGIN + self.H_REQUIRES + self.SMALL_MARGIN + self.H_UPGRADES_TO - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
+		self.H_UNIT_ANIMATION = self.H_UNIT_PANE + self.SMALL_MARGIN + self.H_REQUIRES - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
 
 		self.X_ROTATION_UNIT_ANIMATION = -20
 		self.Z_ROTATION_UNIT_ANIMATION = 30
@@ -732,21 +737,65 @@ class SevoPediaUnit:
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
+
+		if IS_SHOW_AI_INFO:
+			txtKeyPanel = "TXT_KEY_PEDIA_SPECIAL_ABILITIES_WITH_SOME_AI_INFORMATION"
+		else:
+			txtKeyPanel = "TXT_KEY_PEDIA_SPECIAL_ABILITIES"
+
+		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
 
 		listName = self.top.getNextWidgetName()
 		szSpecialText = CyGameTextMgr().getUnitHelp(self.iUnit, True, False, False, None)[1:]
+
+		bullet = localText.getText("[ICON_BULLET]", ())
 
 		# <!-- custom: show if unit has no military support cost info for example for the robotic_infantry we added in advciv-sas anyways etc, code provided by chatgpt thanks to my prompt too etc anyways etc thanks and thanks to me too hehe if i may say in this case but anyways etc, and adjusted for advciv-sas or not by me too if i may say in this case but anyways etc -->
 		# Get unit info
 		unitInfo = gc.getUnitInfo(self.iUnit)
 
 		if not unitInfo.isMilitarySupport():
-			if szSpecialText.strip():
-				szSpecialText += u"\n"
-			bullet = localText.getText("[ICON_BULLET]", ())
 			noMilitarySupportCostText = localText.getText("TXT_KEY_UNIT_NO_MILITARY_SUPPORT_COST", ())
-			szSpecialText += u"%s%s" % (bullet, noMilitarySupportCostText)
+			szSpecialText += u"\n%s%s" % (bullet, noMilitarySupportCostText)
+
+		# <!-- custom: add ai info for players and me too hehe if i may say but anyways etc: should be valuable for info or balancing but anyways etc, added with the help of claude ai and my prompts and adjustments and inspect or and such but anyways etc... if players want to see it xd, as for me yes i want! In this case i mean but anyways etc -->
+		if IS_SHOW_AI_INFO:
+			# Add Default UnitAI
+			defaultUnitAI = unitInfo.getDefaultUnitAIType()
+			if defaultUnitAI != -1:
+				# Remove the "UNITAI_" prefix for cleaner display
+				defaultUnitAIText = str(defaultUnitAI).replace("UNITAI_", "")
+			else:
+				# <!-- custom: also show the absence of it (as of now shown as "NO_UNITAI" in sevopedia unit it seems, abbreviated as of now to "_" for visual clarity / quick scanning if i may say but anyways etc) anyways etc -->
+				defaultUnitAIText =	"_"
+			# <!-- custom: note: separate info from other non AI entries more cleanly / clearly if i may say but anyways etc, so on more new line for first AI entry anyways etc -->
+			szSpecialText += "\n\n%sDefault UnitAI: %s" % (bullet, defaultUnitAIText)
+
+			# Add all <!-- custom: UnitAIs anyways etc -->
+			unitAIsText = ""
+			for i in xrange(UnitAITypes.NUM_UNITAI_TYPES):
+				if unitInfo.getUnitAIType(i):
+					if unitAIsText:
+						unitAIsText += ", "
+					unitAIsText += gc.getUnitAIInfo(i).getType().replace("UNITAI_", "")
+			if not unitAIsText:
+				unitAIsText = "_"
+			szSpecialText += "\n%sUnitAIs: %s" % (bullet, unitAIsText)
+					
+			# Add all <!-- custom: NotUnitAIs anyways etc -->
+			notUnitAIsText = ""
+			for i in xrange(UnitAITypes.NUM_UNITAI_TYPES):
+				if unitInfo.getNotUnitAIType(i):
+					if notUnitAIsText:
+						notUnitAIsText += ", "
+					notUnitAIsText += gc.getUnitAIInfo(i).getType().replace("UNITAI_", "")
+			if not notUnitAIsText:
+				notUnitAIsText = "_"
+			szSpecialText += "\n%sNotUnitAIs: %s" % (bullet, notUnitAIsText)
+
+			# Add AIWeight
+			aiWeight = unitInfo.getAIWeight()
+			szSpecialText += "\n%siAIWeight: %d" % (bullet, aiWeight)
 
 		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+30, self.W_SPECIAL-10, self.H_SPECIAL-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 

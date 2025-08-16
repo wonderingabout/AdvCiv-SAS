@@ -7543,19 +7543,21 @@ int CvGame::createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent,
 		if (!pPlot->isWater())
 			iCreated++;
 		// </advc.300>
+	// <!-- custom: since this seems unused in XML if i am not mistaken but anyways etc, commented out in the DLL now as approved to be possible by chatgpt 5, check if accurate, anyways etc -->
+	// <!-- custom: note: i don't know why, but it seems this block is indented one indentation higher than previous and following code despite seemingly being in same scope which seems weird, leave is as such for safety or maybe rather if i may say but anyways etc no tediousness, but added this note if helps about this seemingly weirdness, and if i am not mistaken in my understanding or/and knowledge or lack of here in this case if i may say but anyways etc, check if accurate, anyways etc -->
 	// advc.313: Replaced by a handicap-based modifier
-	#if 0
-		/*	K-Mod. Sorry, barbarians. Free ships are just too dangerous for
-			real civilizations to defend against. */
-		if (pPlot->isWater() &&
-			!pNewUnit->getUnitInfo().isHiddenNationality()) // kekm.12
-		{
-			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-			static const PromotionTypes eDisorganized = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_DISORGANIZED", true);
-			if (eDisorganized != NO_PROMOTION)
-				pNewUnit->setHasPromotion(eDisorganized, true);
-		} // K-Mod end
-	#endif
+	// #if 0
+	// 	/*	K-Mod. Sorry, barbarians. Free ships are just too dangerous for
+	// 		real civilizations to defend against. */
+	// 	if (pPlot->isWater() &&
+	// 		!pNewUnit->getUnitInfo().isHiddenNationality()) // kekm.12
+	// 	{
+	// 		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// 		static const PromotionTypes eDisorganized = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_DISORGANIZED", true);
+	// 		if (eDisorganized != NO_PROMOTION)
+	// 			pNewUnit->setHasPromotion(eDisorganized, true);
+	// 	} // K-Mod end
+	// #endif
 		// <advc.304> Discourage nearby unit placement for some time
 		getBarbarianWeightMap().getActivityMap().change(*pPlot,
 				BarbarianActivityMap::maxStrength() / 2, 2); // </advc.304>

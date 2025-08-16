@@ -191,4 +191,9 @@
 		<Tag>TXT_KEY_UNIT_EVADE_INTERCEPTION</Tag>
 		<English>[ICON_BULLET]Can Air Evade Air Interception (%d1_Amount%% Chance)</English>
 	</TEXT>
+
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SPECIAL_ABILITIES_WITH_SOME_AI_INFORMATION</Tag>
+		<English>Special Abilities with some AI information</English>
+	</TEXT>
 </Civ4GameText>

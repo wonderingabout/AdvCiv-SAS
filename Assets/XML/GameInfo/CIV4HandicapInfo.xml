@@ -523,7 +523,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
-			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
 			<iBarbarianDefenders>1</iBarbarianDefenders>
@@ -925,7 +925,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
-			<iAIStartingDefenseUnits>3</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<!-- advc.250e: was 1 -->
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
@@ -1064,8 +1064,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
 			<!-- advc.250e: was 3 -->
-			<iAIStartingDefenseUnits>3</iAIStartingDefenseUnits>
-			<iAIStartingWorkerUnits>1</iAIStartingWorkerUnits>
+			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
+			<!-- custom: with our changes and improvements but anyways etc to AI efficiency, we can afford giving AIs the same worker start if i'm not mistaken anyways etc at all difficulties, was 1 -->
+			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<!-- advc.250e: was 1 -->
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
 			<!-- advc.250e: was 4 -->
@@ -1206,8 +1207,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.250e: was 1 -->
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
 			<!-- advc.250e: was 4 -->
-			<iAIStartingDefenseUnits>3</iAIStartingDefenseUnits>
-			<iAIStartingWorkerUnits>1</iAIStartingWorkerUnits>
+			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
+			<!-- custom: with our changes and improvements but anyways etc to AI efficiency, we can afford giving AIs the same worker start if i'm not mistaken anyways etc at all difficulties, was 1 -->
+			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
 			<iBarbarianDefenders>1</iBarbarianDefenders>
 			<iAIDeclareWarProb>150</iAIDeclareWarProb>

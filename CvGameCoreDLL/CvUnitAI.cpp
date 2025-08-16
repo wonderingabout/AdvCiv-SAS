@@ -10175,6 +10175,234 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		// Don't consume the leader as a regular promotion
 		return 0;
 	}
+
+	// <!-- custom: moved up here, and refactored to remove the countless as in very very numerous repeated lookups in this same function, which seem very inefficient or suboptimal, hopefully cleaner and better for perfomance or/and clarity or/and such maybe too but anyways etc -->
+	UnitAITypes const eAI = AI_getUnitAIType();
+	UnitCombatTypes const eUnitCombat = getUnitCombatType();
+
+	if (ePromotion != NO_PROMOTION)
+	{
+		// <!-- custom: similarly to what we did for AI specialists in CvCityAI::AI_jobChangeValue, also do not allow some promotions for AI players, as these promotions are either too weak most times (e.g. woodsman promotions ineffective in cities etc, even with the buff in our mod anyways etc) or/and too situational to be reliably good for AI players, hopefully helps AI better pick promotions without killing versatility. Better promotion choice is especially important in the early game where any small advantage may give an edge for successfuly invasion or defense, but nice if kept during the whole game as well to do good promotion choices that are in most cases effective for AI players but anyways etc. Done with the help of chatgpt 5 and that i adjusted too and such if i may say but anyways etc, check if accurate, anyways etc -->
+		// <!-- custom: note: as of now this mostly, except for some strict unitais where it seems beneficial to do so, doesn't incentivize anything, only forbids some promotions, otherwise mostly (minus these exceptions) keeping AI choices the same ; hopefully this leads to saner and more effective AI promotion choices, while patching the core issues of flawed to sometimes very flawed AI promotion choices while keeping at least as of now otherwise most of the base advciv behaviour that we attempt to enhance with these rules but anyways etc -->
+		// === HARD BLOCK: promos that can’t possibly help this unit right now ===
+		static const int AI_PROMOTION_FORBIDDEN = -100000; // decisively low, far from overflow/underflow
+		// <!-- custom: always pick these first if in this specific case if i may say but anyways etc especially relevant but anyways etc -->
+		static const int AI_PROMOTION_ALWAYS_PICK_FIRST = 100000;
+
+		static const PromotionTypes ePromotionAmphibious = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_AMPHIBIOUS", true);
+
+		// <!-- custom: first, disable these entirely (i.e. for all AI units), as they are too unlikely to be good most times for the AI that would not use them effectively most times or/and these are weak and not effective enough -->
+		// <!-- custom: note: medic_ambulatory still allowed as can be quite versatile so no reason to kill versatility too hard, but for an individual unit not too good i would say (more efficient to fight and die thna los exp healing i would say or so it seems if i may say but anyways etc) -->
+		if (ePromotion == ePromotionAmphibious)
+		{
+			return AI_PROMOTION_FORBIDDEN;
+		}
+
+		static const PromotionTypes ePromotionSentry = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_SENTRY", true);
+
+		// <!-- custom: note: for some reason woodsman and medic are super popular among AI units as a promotion if i may say but anyways etc, yet these are among if not the most inefficient ones in war ; this is one of the core promotions motivating this change, so making sure only most effective and very rarely most liekly fit with these can choose them/these for AI players i mean but anyways etc, also thanks to the ideas or information/feedback of chatgpt 5 on top of ideas i had gotten too before but anyways etc -->
+		static const PromotionTypes ePromotionWoodsman1 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_WOODSMAN1",  true);
+		static const PromotionTypes ePromotionWoodsman2 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_WOODSMAN2", true);
+		static const PromotionTypes ePromotionWoodsman3 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_WOODSMAN3", true);
+
+		static const PromotionTypes ePromotionMedic1 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_MEDIC1",  true);
+		static const PromotionTypes ePromotionMedic2 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_MEDIC2", true);
+		static const PromotionTypes ePromotionMedic3 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_MEDIC3", true);
+		static const PromotionTypes ePromotionMedic4 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_MEDIC4", true);
+
+		static const PromotionTypes ePromotionLogistics = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_LOGISTICS", true);
+
+		// <!-- custom: most likely not going to be useful or reliably so if i may say but anyways etc except for recon units ; mounted units for example could get combat or anything more effective or likely to be vs this if i am not mistaken so try to avoid "bad" choices or not too often/reliably ""good""/effective ones if i may say but anyways etc for AI players but anyways etc -->
+		if ((ePromotion == ePromotionSentry) ||
+			(ePromotion == ePromotionWoodsman1) ||
+			(ePromotion == ePromotionWoodsman2) ||
+			(ePromotion == ePromotionWoodsman3) ||
+			(ePromotion == ePromotionMedic1) ||
+			(ePromotion == ePromotionMedic2) ||
+			(ePromotion == ePromotionMedic3) ||
+			(ePromotion == ePromotionMedic4) ||
+			(ePromotion == ePromotionLogistics))
+		{
+			static const UnitCombatTypes eUnitCombatRecon = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true);
+			const bool bUnitCombatRecon = (eUnitCombat == eUnitCombatRecon);
+
+			const bool bSentryAndSuchEfficientUnitAI = (
+				(eAI == UNITAI_EXPLORE) ||
+				(eAI == UNITAI_SPY) ||
+				(eAI == UNITAI_EXPLORE_SEA) ||
+				(eAI == UNITAI_SPY_SEA) ||
+				(eAI == UNITAI_PIRATE_SEA)
+			);
+
+			// <!-- custom: actually, medic promotions, and combat, could be a surprisingly useful use for explore units :o Noticed and recommended by chatgpt 5 thanks hehe for woodsman (i noticed it too but forgot, tunnel vision to disable it as it is so inefficient otherwise xd but anyways etc), but even a scout being medic_ambulatory makes a lot of sense actually -->
+			if (!bUnitCombatRecon)
+			{
+				if (!bSentryAndSuchEfficientUnitAI)
+				{
+					return AI_PROMOTION_FORBIDDEN;
+				}
+			}
+			// <!-- custom: in case scouts or explorers have attack_city or such, not totally impossible maybe or with future changes maybe in this case i mean but anyways etc, and also to distinguish these 2 otherwise redundant branches as noted by chatgpt 5 thanks i mean but anyways etc but as i said to it if i may say but anyways etc i like / i'd prefer to distinguish these 2 if i may say as clearer for me to distinguish these edge cases and also to reason about what our code does, of recon units combat type vs specific sentry efficient unitais, and to better be ready to cover in this case i mean but anyways etc any future change we'd make to this in this case i mean if any but anyways etc -->
+			else
+			{
+				if (!bSentryAndSuchEfficientUnitAI)
+				{
+					return AI_PROMOTION_FORBIDDEN;
+				}
+			}
+		}
+
+		const bool bStrictAttackCityLandUnitAI = (
+			(eAI == UNITAI_ATTACK_CITY) ||
+			(eAI == UNITAI_ATTACK_CITY_LEMMING)
+		);
+
+		static const PromotionTypes ePromotionCityRaider1 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_CITY_RAIDER1", true);
+		static const PromotionTypes ePromotionCityRaider2 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_CITY_RAIDER2", true);
+		static const PromotionTypes ePromotionCityRaider3 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_CITY_RAIDER3", true);
+
+		// <!-- custom: if we are strict city offense units / unitais but anywayse city, city raider would be the best or among to go for first and foremost at least in most cases for AIs if i'm not mistaken but anyways etc -->
+		if (bStrictAttackCityLandUnitAI)
+		{
+			if (ePromotion == ePromotionCityRaider1)
+			{
+				return AI_PROMOTION_ALWAYS_PICK_FIRST + 2000;
+			}
+			else if (ePromotion == ePromotionCityRaider2)
+			{
+				return AI_PROMOTION_ALWAYS_PICK_FIRST + 1000;
+			}
+			else if (ePromotion == ePromotionCityRaider3)
+			{
+				return AI_PROMOTION_ALWAYS_PICK_FIRST;
+			}
+		}
+
+		static const PromotionTypes ePromotionCityGarrison1 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_CITY_GARRISON1", true);
+		static const PromotionTypes ePromotionCityGarrison2 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_CITY_GARRISON2", true);
+		static const PromotionTypes ePromotionCityGarrison3 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_CITY_GARRISON3", true);
+
+		static const PromotionTypes ePromotionHillsMaster1 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_HILLS_MASTER1", true);
+		static const PromotionTypes ePromotionHillsMaster2 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_HILLS_MASTER2", true);
+		static const PromotionTypes ePromotionHillsMaster3 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_HILLS_MASTER3", true);
+
+		static const PromotionTypes ePromotionCounterMelee = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COUNTER_MELEE", true);
+		static const PromotionTypes ePromotionCounterMounted = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COUNTER_MOUNTED", true);
+		static const PromotionTypes ePromotionCounterSiege = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COUNTER_SIEGE", true);
+		static const PromotionTypes ePromotionCounterTank = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COUNTER_TANK", true);
+
+		// <!-- custom: note: counter and city_counter are seemingly hybrids according to chatgpt 5, i.e. used both for defense and offense so not included either the offensive block nor in the defensive one, as too aggressive promotion restricitions may hurt the unit as pointed by chatgpt 5, check if accurate, hopefully helps the AI without hurting it xd if i may say in this case but anyways etc -->
+		const bool bCommonOffenseLandUnitAI = (
+			// <!-- custom: note: as of now seemingly unused or/and disabled for AIs but just in case or/and to be exhaustive anyways etc -->
+			(eAI == UNITAI_ATTACK_CITY_LEMMING) || 
+			// <!-- custom: note: as of now seemingly unused or/and disabled for AIs but just in case or/and to be exhaustive anyways etc -->
+			(eAI == UNITAI_COLLATERAL) ||
+			(eAI == UNITAI_PARADROP)
+		);
+
+		// <!-- custom: the less strict rules such as not pick hills master still stand, for example if all city raider of the strict rules are already picked if i am not mistaken but anyways etc ; so include strict offense unitais in the general offense unitai rules if i'm not mistaken but anyways etc -->
+		const bool bOffenseLandUnitAI = (bStrictAttackCityLandUnitAI || bCommonOffenseLandUnitAI);
+
+		const bool bOffenseNavalUnitAI = (
+			(eAI == UNITAI_ATTACK_SEA)
+		);
+
+		const bool bOffenseUnitAI = (bOffenseLandUnitAI || bOffenseNavalUnitAI);
+
+		// <!-- custom: promotion_city_garrison1 and such unlikely to be too useful or reliably useful/used by the AI / AI players 's offense(ive? But anyways etc) unitAIs if not used for/with these unitAIs but anyways etc, so disable them for effiency and most often likely to be useful and effective (or non-not effective if i may say but anyways etc...), and same as well for generally defensive type of unitAIs such as hills_master1 and such if i am not mistaken in my assessment of so/such if i may say but anyways etc, as for hills_master1 and such for example but anyways etc, they are too situational to be reliably used for offense, and as of now the hill attack modifier comes only at later levels of this promotion, not worth the exp investment for AI players due to it not being reliable, bet on other promotions rather, but here we're just disabling the unlikely to be useful ones, otherwise as of now at least not changing choosing logic but anyways etc ; as for counter_siege and/or such if any other, generally city defenders are not or should not be siege units if i'm not mistaken but anyways etc, so aim for counter archer or such or anything else i mean if i may say but anyways rather etc for AI offense units anyways etc ; as for counter tanks, most of them are going to be attackers and not city guards most likely as well, so statistically more likely to be beneficial to avoid this promotion as well for offensive unitais if i am not mistaken but anyways etc ; as for counter_melee, it is unclear and harder, but many exceptions such as mounted units, siege, etc, can make this choice not relevant, so avoid it for effectiveness and statistical probability, even though in many cases it may have been a good choice, in many other cases it might not, so better go for something more reliable and effective for offense units, such as combat, city_raider, first_strike, among other possibilities maybe (here we are not altering these, only blacklisting not-relevant or most likely to be useful choices while hopefully not killing versatility too much if i may say but anyways etc) anyways etc -->
+		if ((ePromotion == ePromotionCityGarrison1) ||
+			(ePromotion == ePromotionCityGarrison2) ||
+			(ePromotion == ePromotionCityGarrison3) ||
+			(ePromotion == ePromotionHillsMaster1) ||
+			(ePromotion == ePromotionHillsMaster2) ||
+			(ePromotion == ePromotionHillsMaster3) ||
+			(ePromotion == ePromotionCounterMelee) ||
+			(ePromotion == ePromotionCounterMounted) ||
+			(ePromotion == ePromotionCounterSiege) ||
+			(ePromotion == ePromotionCounterTank))
+		{
+			if (bOffenseUnitAI)
+			{
+				return AI_PROMOTION_FORBIDDEN;
+			}
+		}
+			
+		const bool bStrictDefenseLandUnitAI = (
+			(eAI == UNITAI_CITY_DEFENSE) ||
+			(eAI == UNITAI_CITY_SPECIAL)
+		);
+
+		// <!-- custom: note: reserve (and reserve_sea) similarly excluded from this due to being hybrids frequently flipped from defense to offense according to the doc i had compiled as in recorded/saved at the time xd if i may say but anyways etc, as well as chatgpt 5's info after i asked it about it and after it did a web search too, so removing / not having strict nor less strict defensive rules for these then if i am not mistaken, check if accurate, anyways etc -->
+		const bool bDefenseLandUnitAI = bStrictDefenseLandUnitAI;
+
+		// <!-- custom: if we are strict or strongly most likely to be city defenders units / unitais but anyways etc, city garrison would be the best or among to go for first and foremost at least in most cases for AIs if i'm not mistaken but anyways etc -->
+		if (bDefenseLandUnitAI)
+		{
+			if (ePromotion == ePromotionCityGarrison1)
+			{
+				return AI_PROMOTION_ALWAYS_PICK_FIRST + 2000;
+			}
+			else if (ePromotion == ePromotionCityGarrison2)
+			{
+				return AI_PROMOTION_ALWAYS_PICK_FIRST + 1000;
+			}
+			else if (ePromotion == ePromotionCityGarrison3)
+			{
+				return AI_PROMOTION_ALWAYS_PICK_FIRST;
+			}
+		}
+
+		// <!-- custom: sea no pun but typo or mistake but anyways etc.. i mean see if i may say but anyways etc the note about reserve_sea not included here as it is a sort of hybrid it seems and being too strict about it may hurt it if i am not mistaken but anyways etc -->
+		const bool bDefenseNavalUnitAI = (
+			(eAI == UNITAI_ESCORT_SEA)
+		);
+
+		const bool bDefenseUnitAI = (bDefenseLandUnitAI || bDefenseNavalUnitAI);
+
+		static const PromotionTypes ePromotionBlitzkrieg = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_BLITZKRIEG", true);
+		static const PromotionTypes ePromotionMobilityCost = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_MOBILITY_COST", true);
+		static const PromotionTypes ePromotionMobilityRange = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_MOBILITY_RANGE", true);
+		static const PromotionTypes ePromotionRetreat1 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_RETREAT1", true);
+		static const PromotionTypes ePromotionRetreat2 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_RETREAT2", true);
+
+		static const PromotionTypes ePromotionCounterArcher = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COUNTER_ARCHER", true);
+
+		static const PromotionTypes ePromotionCityBombardDamage = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_CITY_BOMBARD_DAMAGE", true);
+
+		// <!-- custom: according to chatgpt 5 and confirmed by it after it did a web search but anyways etc, check if accurate, collateral damage is not applied for defensive units (e.g. a catapult defending a city, attacked by a swordsman, then the swordsman's stack doesn't receive "splash" damage to other units in the stack, but this is only when the catapult attacks, check if accurate as i don't know for sure and only guessed so, but maybe chatgpt 5 is indeed correct, just check to be sure i mean if i may say but anyways etc ; so as for defensive units, disabling these since it won't be useful being on the receiving end of an attack -->
+		static const PromotionTypes ePromotionCollateralDamage1 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COLLATERAL_DAMAGE1", true);
+		static const PromotionTypes ePromotionCollateralDamage2 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COLLATERAL_DAMAGE2", true);
+		static const PromotionTypes ePromotionCollateralDamage3 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COLLATERAL_DAMAGE3", true);
+		static const PromotionTypes ePromotionCollateralDamage4 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COLLATERAL_DAMAGE4", true);
+		static const PromotionTypes ePromotionCollateralDamage5 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COLLATERAL_DAMAGE5", true);
+
+		static const PromotionTypes ePromotionNavigator = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_NAVIGATOR", true);
+
+		// <!-- custom: quite/kind of similar reasoning than was done for offensive units, but now using a different logic: defenders need to be bulky/tanky, no need for mobility, no need for offense promotions. See also code comment above about collateral damage not applying when in defense (i.e. being attacked if i'm not mistaken but anyways etc), check if accurate as well anyways etc, hopefully helps AI better pick promotions while keeping versatility enough otherwise but anyways etc -->
+		if ((ePromotion == ePromotionBlitzkrieg) ||
+			(ePromotion == ePromotionMobilityCost) ||
+			(ePromotion == ePromotionMobilityRange) ||
+			(ePromotion == ePromotionRetreat1) ||
+			(ePromotion == ePromotionRetreat2) ||
+			(ePromotion == ePromotionCityRaider1) ||
+			(ePromotion == ePromotionCityRaider2) ||
+			(ePromotion == ePromotionCityRaider3) ||
+			(ePromotion == ePromotionCityBombardDamage) ||
+			(ePromotion == ePromotionCollateralDamage1) ||
+			(ePromotion == ePromotionCollateralDamage2) ||
+			(ePromotion == ePromotionCollateralDamage3) ||
+			(ePromotion == ePromotionCollateralDamage4) ||
+			(ePromotion == ePromotionCollateralDamage5) ||
+			(ePromotion == ePromotionNavigator) ||
+			(ePromotion == ePromotionCounterArcher))
+		{
+			if (bDefenseUnitAI)
+			{
+				return AI_PROMOTION_FORBIDDEN;
+			}
+		}
+	}
+
 	int iValue = 0;
 	//if (GC.getInfo(ePromotion).isBlitz())
 	// <advc.164>
@@ -10187,8 +10415,8 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 				(getDropRange() > 0 ? 1 : 0));
 		if(iExtraAttacks > 0) // </advc.164>
 		{
-			if ((AI_getUnitAIType() == UNITAI_RESERVE  && baseMoves() > 1) ||
-				AI_getUnitAIType() == UNITAI_PARADROP)
+			if ((eAI == UNITAI_RESERVE  && baseMoves() > 1) ||
+				eAI == UNITAI_PARADROP)
 			{
 				//iValue += 10;
 				iValue += 8 * iExtraAttacks; // advc.164
@@ -10203,8 +10431,8 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 
 	if (GC.getInfo(ePromotion).isAmphib())
 	{
-		if (AI_getUnitAIType() == UNITAI_ATTACK ||
-			AI_getUnitAIType() == UNITAI_ATTACK_CITY)
+		if (eAI == UNITAI_ATTACK ||
+			eAI == UNITAI_ATTACK_CITY)
 		{
 			iValue += 5;
 		}
@@ -10213,8 +10441,8 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 
 	if (GC.getInfo(ePromotion).isRiver())
 	{
-		if (AI_getUnitAIType() == UNITAI_ATTACK ||
-			AI_getUnitAIType() == UNITAI_ATTACK_CITY)
+		if (eAI == UNITAI_ATTACK ||
+			eAI == UNITAI_ATTACK_CITY)
 		{
 			iValue += 5;
 		}
@@ -10223,28 +10451,28 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 
 	if (GC.getInfo(ePromotion).isEnemyRoute())
 	{
-		if (AI_getUnitAIType() == UNITAI_PILLAGE)
+		if (eAI == UNITAI_PILLAGE)
 			iValue += 40;
-		else if (AI_getUnitAIType() == UNITAI_ATTACK ||
-			AI_getUnitAIType() == UNITAI_ATTACK_CITY)
+		else if (eAI == UNITAI_ATTACK ||
+			eAI == UNITAI_ATTACK_CITY)
 		{
 			iValue += 20;
 		}
-		else if (AI_getUnitAIType() == UNITAI_PARADROP)
+		else if (eAI == UNITAI_PARADROP)
 			iValue += 10;
 		else iValue += 4;
 	}
 
 	if (GC.getInfo(ePromotion).isAlwaysHeal())
 	{
-		if (AI_getUnitAIType() == UNITAI_ATTACK ||
-			AI_getUnitAIType() == UNITAI_ATTACK_CITY ||
-			AI_getUnitAIType() == UNITAI_PILLAGE ||
-			AI_getUnitAIType() == UNITAI_COUNTER ||
-			AI_getUnitAIType() == UNITAI_ATTACK_SEA ||
-			AI_getUnitAIType() == UNITAI_PIRATE_SEA ||
-			AI_getUnitAIType() == UNITAI_ESCORT_SEA ||
-			AI_getUnitAIType() == UNITAI_PARADROP)
+		if (eAI == UNITAI_ATTACK ||
+			eAI == UNITAI_ATTACK_CITY ||
+			eAI == UNITAI_PILLAGE ||
+			eAI == UNITAI_COUNTER ||
+			eAI == UNITAI_ATTACK_SEA ||
+			eAI == UNITAI_PIRATE_SEA ||
+			eAI == UNITAI_ESCORT_SEA ||
+			eAI == UNITAI_PARADROP)
 		{
 			iValue += 10;
 		}
@@ -10253,7 +10481,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 
 	if (GC.getInfo(ePromotion).isHillsDoubleMove())
 	{
-		if (AI_getUnitAIType() == UNITAI_EXPLORE)
+		if (eAI == UNITAI_EXPLORE)
 			iValue += 20;
 		else iValue += 10;
 	}
@@ -10261,9 +10489,9 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	if (GC.getInfo(ePromotion).isImmuneToFirstStrikes() &&
 		!immuneToFirstStrikes())
 	{
-		if (AI_getUnitAIType() == UNITAI_ATTACK_CITY)
+		if (eAI == UNITAI_ATTACK_CITY)
 			iValue += 12;
-		else if (AI_getUnitAIType() == UNITAI_ATTACK)
+		else if (eAI == UNITAI_ATTACK)
 			iValue += 8;
 		else iValue += 4;
 	}
@@ -10271,57 +10499,57 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	int iExtra = 0;
 	int iTemp;
 	iTemp = GC.getInfo(ePromotion).getVisibilityChange();
-	if (AI_getUnitAIType() == UNITAI_EXPLORE_SEA ||
-		AI_getUnitAIType() == UNITAI_EXPLORE)
+	if (eAI == UNITAI_EXPLORE_SEA ||
+		eAI == UNITAI_EXPLORE)
 	{
 		iValue += (iTemp * 40);
 	}
-	else if (AI_getUnitAIType() == UNITAI_PIRATE_SEA)
+	else if (eAI == UNITAI_PIRATE_SEA)
 		iValue += (iTemp * 20);
 
 	iTemp = GC.getInfo(ePromotion).getMovesChange();
-	if (AI_getUnitAIType() == UNITAI_ATTACK_SEA ||
-		AI_getUnitAIType() == UNITAI_PIRATE_SEA ||
-		AI_getUnitAIType() == UNITAI_RESERVE_SEA ||
-		AI_getUnitAIType() == UNITAI_ESCORT_SEA ||
-		AI_getUnitAIType() == UNITAI_EXPLORE_SEA ||
-		AI_getUnitAIType() == UNITAI_ASSAULT_SEA ||
-		AI_getUnitAIType() == UNITAI_SETTLER_SEA ||
-		AI_getUnitAIType() == UNITAI_PILLAGE ||
-		AI_getUnitAIType() == UNITAI_ATTACK ||
-		AI_getUnitAIType() == UNITAI_PARADROP)
+	if (eAI == UNITAI_ATTACK_SEA ||
+		eAI == UNITAI_PIRATE_SEA ||
+		eAI == UNITAI_RESERVE_SEA ||
+		eAI == UNITAI_ESCORT_SEA ||
+		eAI == UNITAI_EXPLORE_SEA ||
+		eAI == UNITAI_ASSAULT_SEA ||
+		eAI == UNITAI_SETTLER_SEA ||
+		eAI == UNITAI_PILLAGE ||
+		eAI == UNITAI_ATTACK ||
+		eAI == UNITAI_PARADROP)
 	{
 		iValue += (iTemp * 20);
 	}
 	else iValue += (iTemp * 4);
 
 	iTemp = GC.getInfo(ePromotion).getMoveDiscountChange();
-	if (AI_getUnitAIType() == UNITAI_PILLAGE)
+	if (eAI == UNITAI_PILLAGE)
 		iValue += (iTemp * 10);
 	else iValue += (iTemp * 2);
 
 	iTemp = GC.getInfo(ePromotion).getAirRangeChange();
-	if (AI_getUnitAIType() == UNITAI_ATTACK_AIR ||
-		AI_getUnitAIType() == UNITAI_CARRIER_AIR)
+	if (eAI == UNITAI_ATTACK_AIR ||
+		eAI == UNITAI_CARRIER_AIR)
 	{
 		iValue += (iTemp * 20);
 	}
-	else if (AI_getUnitAIType() == UNITAI_DEFENSE_AIR)
+	else if (eAI == UNITAI_DEFENSE_AIR)
 		iValue += (iTemp * 10);
 
 	iTemp = GC.getInfo(ePromotion).getInterceptChange();
-	if (AI_getUnitAIType() == UNITAI_DEFENSE_AIR)
+	if (eAI == UNITAI_DEFENSE_AIR)
 		iValue += (iTemp * 3);
-	else if (AI_getUnitAIType() == UNITAI_CITY_SPECIAL ||
-		AI_getUnitAIType() == UNITAI_CARRIER_AIR)
+	else if (eAI == UNITAI_CITY_SPECIAL ||
+		eAI == UNITAI_CARRIER_AIR)
 	{
 		iValue += (iTemp * 2);
 	}
 	else iValue += (iTemp / 10);
 
 	iTemp = GC.getInfo(ePromotion).getEvasionChange();
-	if (AI_getUnitAIType() == UNITAI_ATTACK_AIR ||
-		AI_getUnitAIType() == UNITAI_CARRIER_AIR)
+	if (eAI == UNITAI_ATTACK_AIR ||
+		eAI == UNITAI_CARRIER_AIR)
 	{
 		iValue += (iTemp * 3);
 	}
@@ -10329,12 +10557,12 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 
 	iTemp = GC.getInfo(ePromotion).getFirstStrikesChange() * 2;
 	iTemp += GC.getInfo(ePromotion).getChanceFirstStrikesChange();
-	if (AI_getUnitAIType() == UNITAI_RESERVE ||
-		AI_getUnitAIType() == UNITAI_COUNTER ||
-		AI_getUnitAIType() == UNITAI_CITY_DEFENSE ||
-		AI_getUnitAIType() == UNITAI_CITY_COUNTER ||
-		AI_getUnitAIType() == UNITAI_CITY_SPECIAL ||
-		AI_getUnitAIType() == UNITAI_ATTACK)
+	if (eAI == UNITAI_RESERVE ||
+		eAI == UNITAI_COUNTER ||
+		eAI == UNITAI_CITY_DEFENSE ||
+		eAI == UNITAI_CITY_COUNTER ||
+		eAI == UNITAI_CITY_SPECIAL ||
+		eAI == UNITAI_ATTACK)
 	{
 		iTemp *= 8;
 		iExtra = getExtraChanceFirstStrikes() + getExtraFirstStrikes() * 2;
@@ -10350,13 +10578,13 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra = (getUnitInfo().getWithdrawalProbability() + (getExtraWithdrawal() * 4));
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
-		if (AI_getUnitAIType() == UNITAI_ATTACK_CITY)
+		if (eAI == UNITAI_ATTACK_CITY)
 		{
 			iValue += (iTemp * 4) / 3;
 		}
-		else if (AI_getUnitAIType() == UNITAI_COLLATERAL ||
-			AI_getUnitAIType() == UNITAI_RESERVE ||
-			AI_getUnitAIType() == UNITAI_RESERVE_SEA ||
+		else if (eAI == UNITAI_COLLATERAL ||
+			eAI == UNITAI_RESERVE ||
+			eAI == UNITAI_RESERVE_SEA ||
 			getLeaderUnitType() != NO_UNIT)
 		{
 			iValue += iTemp * 1;
@@ -10371,26 +10599,26 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
 
-		if (AI_getUnitAIType() == UNITAI_COLLATERAL)
+		if (eAI == UNITAI_COLLATERAL)
 			iValue += (iTemp * 1);
-		else if (AI_getUnitAIType() == UNITAI_ATTACK_CITY)
+		else if (eAI == UNITAI_ATTACK_CITY)
 			iValue += ((iTemp * 2) / 3);
 		else iValue += (iTemp / 8);
 	}
 
 	iTemp = GC.getInfo(ePromotion).getBombardRateChange();
-	if (AI_getUnitAIType() == UNITAI_ATTACK_CITY)
+	if (eAI == UNITAI_ATTACK_CITY)
 	{
 		iValue += (iTemp * 2);
 	}
 	else iValue += (iTemp / 8);
 	// BETTER_BTS_AI_MOD, Unit AI, 04/26/10, jdog5000: START
 	iTemp = GC.getInfo(ePromotion).getEnemyHealChange();
-	if (AI_getUnitAIType() == UNITAI_ATTACK ||
-		AI_getUnitAIType() == UNITAI_PILLAGE ||
-		AI_getUnitAIType() == UNITAI_ATTACK_SEA ||
-		AI_getUnitAIType() == UNITAI_PARADROP ||
-		AI_getUnitAIType() == UNITAI_PIRATE_SEA)
+	if (eAI == UNITAI_ATTACK ||
+		eAI == UNITAI_PILLAGE ||
+		eAI == UNITAI_ATTACK_SEA ||
+		eAI == UNITAI_PARADROP ||
+		eAI == UNITAI_PIRATE_SEA)
 	// BETTER_BTS_AI_MOD: END
 	{
 		iValue += (iTemp / 4);
@@ -10401,9 +10629,9 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	iValue += (iTemp / 8);
 
 	iTemp = GC.getInfo(ePromotion).getFriendlyHealChange();
-	if ((AI_getUnitAIType() == UNITAI_CITY_DEFENSE) ||
-		  (AI_getUnitAIType() == UNITAI_CITY_COUNTER) ||
-		  (AI_getUnitAIType() == UNITAI_CITY_SPECIAL))
+	if ((eAI == UNITAI_CITY_DEFENSE) ||
+		  (eAI == UNITAI_CITY_COUNTER) ||
+		  (eAI == UNITAI_CITY_SPECIAL))
 	{
 		iValue += (iTemp / 4);
 	}
@@ -10411,13 +10639,13 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 
 	// BBAI / K-Mod
 	if (getDamage() > 0 || ((AI_getBirthmark() % 8 == 0) &&
-		(AI_getUnitAIType() == UNITAI_COUNTER ||
-		AI_getUnitAIType() == UNITAI_PILLAGE ||
-		AI_getUnitAIType() == UNITAI_ATTACK_CITY ||
-		AI_getUnitAIType() == UNITAI_RESERVE ||
-		AI_getUnitAIType() == UNITAI_PIRATE_SEA ||
-		AI_getUnitAIType() == UNITAI_RESERVE_SEA ||
-		AI_getUnitAIType() == UNITAI_ASSAULT_SEA)))
+		(eAI == UNITAI_COUNTER ||
+		eAI == UNITAI_PILLAGE ||
+		eAI == UNITAI_ATTACK_CITY ||
+		eAI == UNITAI_RESERVE ||
+		eAI == UNITAI_PIRATE_SEA ||
+		eAI == UNITAI_RESERVE_SEA ||
+		eAI == UNITAI_ASSAULT_SEA)))
 	{
 	// BBAI / K-Mod
 		iTemp = GC.getInfo(ePromotion).getSameTileHealChange() + getSameTileHeal();
@@ -10469,7 +10697,6 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	}
 
 	iTemp = GC.getInfo(ePromotion).getCombatPercent();
-	UnitAITypes const eAI = AI_getUnitAIType();
 	// kmodx: Removed redundant clauses
 	if (eAI == UNITAI_ATTACK || eAI == UNITAI_COUNTER ||
 		eAI == UNITAI_CITY_COUNTER || eAI == UNITAI_ATTACK_SEA ||
@@ -10490,7 +10717,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 			iExtra = (getUnitInfo().getCityAttackModifier() + (getExtraCityAttackPercent() * 2));
 			iTemp *= (100 + iExtra);
 			iTemp /= 100;
-			if (AI_getUnitAIType() == UNITAI_ATTACK_CITY)
+			if (eAI == UNITAI_ATTACK_CITY)
 			{
 				iValue += (iTemp * 1);
 			}
@@ -10501,8 +10728,8 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	iTemp = GC.getInfo(ePromotion).getCityDefensePercent();
 	if (iTemp != 0)
 	{
-		if ((AI_getUnitAIType() == UNITAI_CITY_DEFENSE) ||
-			  (AI_getUnitAIType() == UNITAI_CITY_SPECIAL))
+		if ((eAI == UNITAI_CITY_DEFENSE) ||
+			  (eAI == UNITAI_CITY_SPECIAL))
 		{
 			iExtra = getUnitInfo().getCityDefenseModifier() + (getExtraCityDefensePercent() * 2);
 			iValue += ((iTemp * (100 + iExtra)) / 100);
@@ -10516,8 +10743,8 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra = getExtraHillsAttackPercent();
 		iTemp *= (100 + iExtra * 2);
 		iTemp /= 100;
-		if ((AI_getUnitAIType() == UNITAI_ATTACK) ||
-			(AI_getUnitAIType() == UNITAI_COUNTER))
+		if ((eAI == UNITAI_ATTACK) ||
+			(eAI == UNITAI_COUNTER))
 		{
 			iValue += (iTemp / 4);
 		}
@@ -10530,12 +10757,12 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra = (getUnitInfo().getHillsDefenseModifier() + (getExtraHillsDefensePercent() * 2));
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
-		if (AI_getUnitAIType() == UNITAI_CITY_DEFENSE)
+		if (eAI == UNITAI_CITY_DEFENSE)
 		{
 			if (getPlot().isCity() && getPlot().isHills())
 				iValue += (iTemp * 4) / 3;
 		}
-		else if (AI_getUnitAIType() == UNITAI_COUNTER)
+		else if (eAI == UNITAI_COUNTER)
 		{
 			if (getPlot().isHills())
 				iValue += (iTemp / 4);
@@ -10545,9 +10772,9 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	}
 	// advc.099e: Commented out
 	/*iTemp = GC.getInfo(ePromotion).getRevoltProtection();
-	if ((AI_getUnitAIType() == UNITAI_CITY_DEFENSE) ||
-		(AI_getUnitAIType() == UNITAI_CITY_COUNTER) ||
-		(AI_getUnitAIType() == UNITAI_CITY_SPECIAL)) {
+	if ((eAI == UNITAI_CITY_DEFENSE) ||
+		(eAI == UNITAI_CITY_COUNTER) ||
+		(eAI == UNITAI_CITY_SPECIAL)) {
 		if (iTemp > 0) {
 			PlayerTypes eOwner = getPlot().calculateCulturalOwner();
 			if (eOwner != NO_PLAYER && GET_PLAYER(eOwner).getTeam() != GET_PLAYER(getOwner()).getTeam())
@@ -10556,23 +10783,23 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	}*/
 
 	iTemp = GC.getInfo(ePromotion).getCollateralDamageProtection();
-	if (AI_getUnitAIType() == UNITAI_CITY_DEFENSE ||
-		AI_getUnitAIType() == UNITAI_CITY_COUNTER ||
-		AI_getUnitAIType() == UNITAI_CITY_SPECIAL)
+	if (eAI == UNITAI_CITY_DEFENSE ||
+		eAI == UNITAI_CITY_COUNTER ||
+		eAI == UNITAI_CITY_SPECIAL)
 	{
 		iValue += (iTemp / 3);
 	}
-	else if ((AI_getUnitAIType() == UNITAI_ATTACK) ||
-		(AI_getUnitAIType() == UNITAI_COUNTER))
+	else if ((eAI == UNITAI_ATTACK) ||
+		(eAI == UNITAI_COUNTER))
 	{
 		iValue += (iTemp / 4);
 	}
 	else iValue += (iTemp / 8);
 
 	iTemp = GC.getInfo(ePromotion).getPillageChange();
-	if (AI_getUnitAIType() == UNITAI_PILLAGE ||
-		AI_getUnitAIType() == UNITAI_ATTACK_SEA ||
-		AI_getUnitAIType() == UNITAI_PIRATE_SEA)
+	if (eAI == UNITAI_PILLAGE ||
+		eAI == UNITAI_ATTACK_SEA ||
+		eAI == UNITAI_PIRATE_SEA)
 	{
 		iValue += (iTemp / 4);
 	}
@@ -10582,20 +10809,20 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	iValue += (iTemp / 16);
 
 	iTemp = GC.getInfo(ePromotion).getExperiencePercent();
-	if (AI_getUnitAIType() == UNITAI_ATTACK ||
-		AI_getUnitAIType() == UNITAI_ATTACK_SEA ||
-		AI_getUnitAIType() == UNITAI_PIRATE_SEA ||
-		AI_getUnitAIType() == UNITAI_RESERVE_SEA ||
-		AI_getUnitAIType() == UNITAI_ESCORT_SEA ||
-		AI_getUnitAIType() == UNITAI_CARRIER_SEA ||
-		AI_getUnitAIType() == UNITAI_MISSILE_CARRIER_SEA)
+	if (eAI == UNITAI_ATTACK ||
+		eAI == UNITAI_ATTACK_SEA ||
+		eAI == UNITAI_PIRATE_SEA ||
+		eAI == UNITAI_RESERVE_SEA ||
+		eAI == UNITAI_ESCORT_SEA ||
+		eAI == UNITAI_CARRIER_SEA ||
+		eAI == UNITAI_MISSILE_CARRIER_SEA)
 	{
 		iValue += (iTemp * 1);
 	}
 	else iValue += (iTemp / 2);
 
 	iTemp = GC.getInfo(ePromotion).getKamikazePercent();
-	if (AI_getUnitAIType() == UNITAI_ATTACK_CITY)
+	if (eAI == UNITAI_ATTACK_CITY)
 		iValue += (iTemp / 16);
 	else iValue += (iTemp / 64);
 
@@ -10607,8 +10834,8 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 			iExtra = getExtraTerrainAttackPercent(eLoopTerrain);
 			iTemp *= (100 + iExtra * 2);
 			iTemp /= 100;
-			if ((AI_getUnitAIType() == UNITAI_ATTACK) ||
-				(AI_getUnitAIType() == UNITAI_COUNTER))
+			if ((eAI == UNITAI_ATTACK) ||
+				(eAI == UNITAI_COUNTER))
 			{
 				iValue += (iTemp / 4);
 			}
@@ -10621,7 +10848,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 			iExtra =  getExtraTerrainDefensePercent(eLoopTerrain);
 			iTemp *= (100 + iExtra);
 			iTemp /= 100;
-			if (AI_getUnitAIType() == UNITAI_COUNTER)
+			if (eAI == UNITAI_COUNTER)
 			{
 				if (getPlot().getTerrainType() == eLoopTerrain)
 					iValue += (iTemp / 4);
@@ -10632,10 +10859,10 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 
 		if (GC.getInfo(ePromotion).getTerrainDoubleMove(eLoopTerrain))
 		{
-			if (AI_getUnitAIType() == UNITAI_EXPLORE)
+			if (eAI == UNITAI_EXPLORE)
 				iValue += 20;
-			else if (AI_getUnitAIType() == UNITAI_ATTACK ||
-				AI_getUnitAIType() == UNITAI_PILLAGE)
+			else if (eAI == UNITAI_ATTACK ||
+				eAI == UNITAI_PILLAGE)
 			{
 				iValue += 10;
 			}
@@ -10651,8 +10878,8 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 			iExtra = getExtraFeatureAttackPercent(eLoopFeature);
 			iTemp *= (100 + iExtra * 2);
 			iTemp /= 100;
-			if ((AI_getUnitAIType() == UNITAI_ATTACK) ||
-				(AI_getUnitAIType() == UNITAI_COUNTER))
+			if ((eAI == UNITAI_ATTACK) ||
+				(eAI == UNITAI_COUNTER))
 			{
 				iValue += (iTemp / 4);
 			}
@@ -10668,7 +10895,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 
 			if (!noDefensiveBonus())
 			{
-				if (AI_getUnitAIType() == UNITAI_COUNTER)
+				if (eAI == UNITAI_COUNTER)
 				{
 					if (getPlot().getFeatureType() == eLoopFeature)
 						iValue += (iTemp / 4);
@@ -10680,10 +10907,10 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 
 		if (GC.getInfo(ePromotion).getFeatureDoubleMove(eLoopFeature))
 		{
-			if (AI_getUnitAIType() == UNITAI_EXPLORE)
+			if (eAI == UNITAI_EXPLORE)
 				iValue += 20;
-			else if (AI_getUnitAIType() == UNITAI_ATTACK ||
-				AI_getUnitAIType() == UNITAI_PILLAGE)
+			else if (eAI == UNITAI_ATTACK ||
+				eAI == UNITAI_PILLAGE)
 			{
 				iValue += 10;
 			}
@@ -10696,7 +10923,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 
 	FOR_EACH_ENUM(UnitCombat)
 	{
-		if (eLoopUnitCombat == getUnitCombatType())
+		if (eLoopUnitCombat == eUnitCombat)
 			iSameCombat += unitCombatModifier(eLoopUnitCombat);
 		else iOtherCombat += unitCombatModifier(eLoopUnitCombat);
 	}
@@ -10705,7 +10932,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		iTemp = GC.getInfo(ePromotion).getUnitCombatModifierPercent(eLoopUnitCombat);
 		int iCombatWeight = 0;
 		//Fighting their own kind
-		if (eLoopUnitCombat== getUnitCombatType())
+		if (eLoopUnitCombat== eUnitCombat)
 		{
 			if (iSameCombat >= iOtherCombat)
 				iCombatWeight = 70;//"axeman takes formation"
@@ -10722,13 +10949,13 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		iCombatWeight *= GET_PLAYER(getOwner()).AI_getUnitCombatWeight(eLoopUnitCombat);
 		iCombatWeight /= 100;
 
-		if (AI_getUnitAIType() == UNITAI_COUNTER ||
-			AI_getUnitAIType() == UNITAI_CITY_COUNTER)
+		if (eAI == UNITAI_COUNTER ||
+			eAI == UNITAI_CITY_COUNTER)
 		{
 			iValue += (iTemp * iCombatWeight) / 50;
 		}
-		else if (AI_getUnitAIType() == UNITAI_ATTACK ||
-				AI_getUnitAIType() == UNITAI_RESERVE)
+		else if (eAI == UNITAI_ATTACK ||
+				eAI == UNITAI_RESERVE)
 		{
 			iValue += (iTemp * iCombatWeight) / 100;
 		}
@@ -10740,10 +10967,10 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		//WTF? why float and cast to int?
 		//iTemp = (int)((GC.getInfo(ePromotion).getDomainModifierPercent(eLoopDomain) + getExtraDomainModifier(eLoopDomain) * 100.0f);
 		iTemp = GC.getInfo(ePromotion).getDomainModifierPercent(eLoopDomain);
-		if (AI_getUnitAIType() == UNITAI_COUNTER)
+		if (eAI == UNITAI_COUNTER)
 			iValue += (iTemp * 1);
-		else if (AI_getUnitAIType() == UNITAI_ATTACK ||
-			AI_getUnitAIType() == UNITAI_RESERVE)
+		else if (eAI == UNITAI_ATTACK ||
+			eAI == UNITAI_RESERVE)
 		{
 			iValue += (iTemp / 2);
 		}
