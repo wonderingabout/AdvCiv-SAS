@@ -4253,7 +4253,7 @@
 			<Sound>AS2D_TECH_ALIEN_LIFE</Sound>
 			<SoundMP>AS2D_TECH_MP_ALIEN_LIFE</SoundMP>
 			<!-- custom: button art import from c2c mod anyways etc -->
-			<Button>Art/AdvCiv_SAS/Techs/Alien_Life/endless_exploration.dds</Button>
+			<Button>Art/AdvCiv_SAS/Techs/Alien_Life/galactic_ecology.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_GENETICS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>TECH_GENETICS</Type>
@@ -4275,7 +4275,7 @@
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
 			<!-- custom: was 3 -->
-			<iHealth>2</iHealth>
+			<iHealth>1</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
 			<iAsset>48</iAsset>
@@ -4304,6 +4304,7 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
+			<!-- custom: was flavors production 3 science 7 growth 10 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
@@ -4315,7 +4316,7 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>10</iFlavor>
+					<iFlavor>4</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>

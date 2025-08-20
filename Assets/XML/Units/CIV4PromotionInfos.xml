@@ -1709,7 +1709,7 @@
 			<PromotionPrereq>PROMOTION_MEDIC3</PromotionPrereq>
 			<PromotionPrereqOr1>NONE</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
-			<TechPrereq>TECH_MEDICINE</TechPrereq>
+			<TechPrereq>TECH_GENETICS</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
 			<iBlitz>0</iBlitz>
@@ -2605,7 +2605,8 @@
 			<Description>TXT_KEY_PROMOTION_CITYRAIDER3</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
-			<PromotionPrereq>NONE</PromotionPrereq>
+			<!-- custom: a bit too op if requiring only previous one i think, add a promotion instead that is far enough in promotion tree without being too far but anyways etc ; hoepfully that/this also encourages a variety of alternate startegies as well rather but anyways etc, was NONE -->
+			<PromotionPrereq>PROMOTION_COMBAT2</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_CITY_RAIDER2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
 			<TechPrereq>NONE</TechPrereq>
@@ -2835,7 +2836,8 @@
 			<Description>TXT_KEY_PROMOTION_GARRISON3</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
-			<PromotionPrereq>NONE</PromotionPrereq>
+			<!-- custom: a bit too op if requiring only previous one i think, add a promotion instead that is far enough in promotion tree without being too far but anyways etc ; hoepfully that/this also encourages a variety of alternate startegies as well rather but anyways etc, was NONE -->
+			<PromotionPrereq>PROMOTION_COMBAT2</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_CITY_GARRISON2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
 			<TechPrereq>NONE</TechPrereq>
@@ -3031,7 +3033,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<!-- custom: button import from ri mod anyways etc -->
-			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_1/charge1.dds</Button>
+			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_1/barrage1.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
 			<Type>PROMOTION_COLLATERAL_DAMAGE2</Type>
@@ -3151,7 +3153,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<!-- custom: button import from ri mod anyways etc -->
-			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_2/charge2.dds</Button>
+			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_2/barrage2.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
 			<Type>PROMOTION_COLLATERAL_DAMAGE3</Type>
@@ -3251,7 +3253,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<!-- custom: button import from ri mod anyways etc -->
-			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_3/charge3.dds</Button>
+			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_3/barrage3.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
 			<Type>PROMOTION_COLLATERAL_DAMAGE4</Type>
@@ -3328,7 +3330,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<!-- custom: made with paint.net (lasso select ctrl+c ctrl+v (for the star part of the image) but anyways etc) from the ri mod's button anyways etc -->
-			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_4/charge4.dds</Button>
+			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_4/barrage4.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
 			<Type>PROMOTION_COLLATERAL_DAMAGE5</Type>
@@ -3340,7 +3342,7 @@
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
 			<TechPrereq>NONE</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
-			<bLeader>1</bLeader>
+			<bLeader>0</bLeader>
 			<iBlitz>0</iBlitz>
 			<bAmphib>0</bAmphib>
 			<bRiver>0</bRiver>
@@ -3417,7 +3419,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<!-- custom: made with paint.net (lasso select ctrl+c ctrl+v (for the star part of the image) but anyways etc) from the ri mod's button anyways etc -->
-			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_5/charge5.dds</Button>
+			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_5/barrage5.dds</Button>
 		</PromotionInfo>
 
 
@@ -3629,7 +3631,8 @@
 			<Description>TXT_KEY_PROMOTION_FIRST_STRIKE3</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
-			<PromotionPrereq>NONE</PromotionPrereq>
+			<!-- custom: a bit too op if requiring only previous one i think, add a promotion instead that is far enough in promotion tree without being too far but anyways etc ; hoepfully that/this also encourages a variety of alternate startegies as well rather but anyways etc, was NONE -->
+			<PromotionPrereq>PROMOTION_COMBAT2</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_FIRST_STRIKE2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
 			<TechPrereq>NONE</TechPrereq>
@@ -4184,7 +4187,7 @@
 			<PromotionPrereqOr1>PROMOTION_RETREAT1</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
 			<!-- custom: was NONE -->
-			<TechPrereq>TECH_SAILING</TechPrereq>
+			<TechPrereq>TECH_NAVIGATION</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
 			<iBlitz>0</iBlitz>
@@ -4726,7 +4729,8 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/Promotions/Combat5.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,7,16</Button>
+			<!-- custom: button import from c2c mod anyways etc ; old button/promotion was very confusing both in name and button image hopefully clearer if i may say but anyways etc ; it also meshes so much better now with all mobility related promotions (including as of now retreat but anyways etc) now having an arrow in their button which i think is much more clear and consistent if i may say but anyways etc -->
+			<Button>Art/AdvCiv_SAS/Promotions/Mobility_Range/backdown1promotion.dds</Button>
 		</PromotionInfo>
 
 
@@ -5104,7 +5108,7 @@
 			<PromotionPrereq>PROMOTION_AIR_INTERCEPTION3</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_COMBAT3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
-			<TechPrereq>TECH_ADVANCED_FLIGHT</TechPrereq>
+			<TechPrereq>TECH_SATELLITES</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
 			<iBlitz>0</iBlitz>

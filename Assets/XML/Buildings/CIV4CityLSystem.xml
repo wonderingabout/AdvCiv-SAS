@@ -1040,7 +1040,7 @@ I am not sure which i should take, but since there are redundancies i guess i sh
 			<Rotate>45</Rotate>
 			<Scale>2.9</Scale>
 		</ArtRef>
-		<!-- custom: removed building:BUILDING_PAGAN_CATHEDRAL entirely from this file as i don't know where the 2x3 would fit in this file, hopefully works fine if i am not mistaken in my hope or guess in this guess but anyways etc, added for mention/reference if need further but if works-functions fine then is for info anyways etc -->
+		<!-- custom: removed building:BUILDING_PAGAN_MONASTERY entirely from this file as i don't know where the 2x3 would fit in this file, hopefully works fine if i am not mistaken in my hope or guess in this guess but anyways etc, added for mention/reference if need further but if works-functions fine then is for info anyways etc ; also i don't know too much about these if at all in this case i mean but anyways etc so check if what i said is accurate anyways etc -->
 		<ArtRef Name="building:BUILDING_PAGAN_TEMPLE">
 			<Rotate>45</Rotate>
 			<Scale>2.5</Scale>
@@ -1316,7 +1316,7 @@ I am not sure which i should take, but since there are redundancies i guess i sh
 		<ArtRef Name="building:BUILDING_SPANISH_CITADEL">
 			<Scale>1.2</Scale>
 		</ArtRef>
-		<ArtRef Name="building:BUILDING_PAGAN_MONASTERY">
+		<ArtRef Name="building:BUILDING_PAGAN_CATHEDRAL">
 			<Scale>2.5</Scale>
 		</ArtRef>
 		<ArtRef Name="building:BUILDING_PAGAN_SHRINE">

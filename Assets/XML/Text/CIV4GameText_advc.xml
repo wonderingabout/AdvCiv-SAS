@@ -6750,5 +6750,8 @@
 		<Tag>TXT_KEY_UNIT_NO_MILITARY_SUPPORT_COST</Tag>
 		<English>No military support cost</English>
 	</TEXT>
-
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_MAY_GRANT_UNITS_ON_CAPTURE</Tag>
+		<English>May grant unit(s) on capture</English>
+	</TEXT>
 </Civ4GameText>

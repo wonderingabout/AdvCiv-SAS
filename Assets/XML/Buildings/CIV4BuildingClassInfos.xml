@@ -913,9 +913,11 @@
 		<BuildingClassInfo>
 			<Type>BUILDINGCLASS_HERMITAGE</Type>
 			<Description>TXT_KEY_BUILDING_HERMITAGE</Description>
-			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+			<!-- custom: now a world wonder, was -1 -->
+			<iMaxGlobalInstances>1</iMaxGlobalInstances>
 			<iMaxTeamInstances>-1</iMaxTeamInstances>
-			<iMaxPlayerInstances>1</iMaxPlayerInstances>
+			<!-- custom: was a national wonder if i am not mistaken anyways etc that this indicates a wonder was national if value is 1 anyways etc, was 1 -->
+			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
 			<iExtraPlayerInstances>0</iExtraPlayerInstances>
 			<bNoLimit>0</bNoLimit>
 			<bMonument>0</bMonument>

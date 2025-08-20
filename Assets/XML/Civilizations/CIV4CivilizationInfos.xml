@@ -4354,11 +4354,11 @@
 			<Units>
 				<Unit>
 					<UnitClassType>UNITCLASS_WORKER</UnitClassType>
-					<UnitType>UNIT_WORKER_BARBARIAN</UnitType>
+					<UnitType>UNIT_BARBARIAN_WORKER</UnitType>
 				</Unit>
 				<Unit>
 					<UnitClassType>UNITCLASS_WORKBOAT</UnitClassType>
-					<UnitType>UNIT_WORKBOAT_BARBARIAN</UnitType>
+					<UnitType>UNIT_BARBARIAN_WORKBOAT</UnitType>
 				</Unit>
 				<Unit>
 					<UnitClassType>UNITCLASS_SETTLER</UnitClassType>

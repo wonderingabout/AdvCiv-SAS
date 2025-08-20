@@ -150,11 +150,11 @@ hopefully more readable or exportable if need/want be now -->
 		<English>[TAB]See [LINK=CIVILIZATION_BARBARIAN]Barbarians (Civilization)[\LINK] for details.</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_UNIT_WORKER_BARBARIAN</Tag>
+		<Tag>TXT_KEY_UNIT_BARBARIAN_WORKER</Tag>
 		<English>Worker (Barbarian)</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_UNIT_WORK_BOAT_BARBARIAN</Tag>
+		<Tag>TXT_KEY_UNIT_BARBARIAN_WORKBOAT</Tag>
 		<English>Work Boat (Barbarian)</English>
 	</TEXT>
 

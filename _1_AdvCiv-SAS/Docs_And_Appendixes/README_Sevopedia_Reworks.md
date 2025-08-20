@@ -117,6 +117,8 @@ Also added the "no military support cost" (`bMilitarySupport` in unit info's XML
 
 Also added the AI information now of as of now the UnitAI and iAIWeight information anyways etc, optionally disablable (if it's a word xd but anyways etc) in placeSpecial's corresponding panel but anyways etc, by setting `IS_SHOW_AI_INFO` to `False` in [SevoPediaUnit.py](/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py) similarly to how can be done for some leader flags in sevopedia leader (example of a similar explanation with screenshots of how to change these from `True` to `False` in [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels) anyways etc), thanks to claude ai's help as well and my adjustments and such too but anyways etc
 
+Also added the "May grant unit(s) on capture" info (`<Capture>` in the XML, for example for the generic settler or generic worker anyways etc) thanks to claude ai as well as well as thanks to my prompts and adjustments or such or not or yes or etc but anyways etc.
+
 <img src="../Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG" alt="0.680_sevopedia_units_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG" alt="0.680_sevopedia_units_sample (2).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG" alt="0.680_sevopedia_units_sample (3).JPG" width="250"></img>

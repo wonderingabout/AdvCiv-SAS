@@ -63,6 +63,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [45 - (Addressed / Patched / Worked around) AI cities assigning too soon or/and too often specialists, resulting in early stagnation very inefficiently: now added sanity rules to not go for a specialist anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#45---addressed--patched--worked-around-ai-cities-assigning-too-soon-orand-too-often-specialists-resulting-in-early-stagnation-very-inefficiently-now-added-sanity-rules-to-not-go-for-a-specialist-anyways-etc)  
 [46 - (Cleaned up) Very big messy old uiFlag code in the DLL, seemingly to support savegame compatibility, which i don't care about, especially considering how complicated the code is as a result](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#46---cleaned-up-very-big-messy-old-uiflag-code-in-the-dll-seemingly-to-support-savegame-compatibility-which-i-dont-care-about-especially-considering-how-complicated-the-code-is-as-a-result)  
 [47 - (Fixed / Addressed / Enhanced) AI choosing poorly promotions for its units: now added a set of hard rules in which case some promotions are not good and to ignore as is most efificient in most times, and rarely cases where some promotions are best to always go first](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#47---fixed--addressed--enhanced-ai-choosing-poorly-promotions-for-its-units-now-added-a-set-of-hard-rules-in-which-case-some-promotions-are-not-good-and-to-ignore-as-is-most-efificient-in-most-times-and-rarely-cases-where-some-promotions-are-best-to-always-go-first-for-eg-as-of-no-city_garrison-first-for-unitai_city_defense-city_raider-first-for-unitai_attack_city-etc-if-any-more-anyways-etc)  
+[48 - (Enhanced) AI building walls when they are stronger and don't need it, or wonders when they are weaker or in danger (don't build wonders for our neighbours when they capture us), and overall added a lot of extra buildingValue reject or/and always build first logic depending on building type and/or such anyways etc ; and reworked as well the ditching wonders logic to be seemingly stricter and more war/danger focused anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhanced-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -225,7 +226,7 @@ Lines such as:
 
 Were totally ineffective, so i have removed them as well for as of now for wonders i mean if i may say but anyways etc.
 
-Thanks to chatgpt's help, and following recent as of now DLL changes such as in [README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive), it seems to finally be fixed by patching the DLL directly instead in [/CvGameCoreDLL/CvCityAI.cpp](/CvGameCoreDLL/CvCityAI.cpp), as of now only for world wonders (no need to forbid national wonders too strongly as of now at least if not always or not or yes or etc but anyways etc)
+Thanks to chatgpt's help, and following recent as of now DLL changes such as in [README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive), it seems to finally be fixed by patching the DLL directly instead in [/CvGameCoreDLL/CvCityAI.cpp](/CvGameCoreDLL/CvCityAI.cpp) in `CvCityAI::AI_chooseBuilding`, as of now only for world wonders (no need to forbid national wonders too strongly as of now at least if not always or not or yes or etc but anyways etc)
 
 ## 4 - (now fixed) Sevopedia Unit's placeRequires's Religion button (for example any religious missionary unit) not redirecting to sevopedia religion (nothing happens on click anyways etc)
 
@@ -1458,3 +1459,150 @@ As can be seen in existing screenshots between 2423 and 2451, AI is now much mor
 Versatility is quite preserved as well with a variety or enough of promotions.
 
 Thanks to these, i hope AI is now stronger and i would say saner but anyways etc. I didn't test it too extensively but i hope these samples combined with my past observations about base advciv behaviour of how AI promotes its units
+
+## 48 - (Enhanced) AI building walls when they are stronger and don't need it, or wonders when they are weaker or in danger (don't build wonders for our neighbours when they capture us), and overall added a lot of extra buildingValue reject or/and always build first logic depending on building type and/or such anyways etc ; and reworked as well the ditching wonders logic to be seemingly stricter and more war/danger focused anyways etc
+
+See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1rgDB6pYhNGFJHE7jI-4oCe6C32ot2uFe?usp=sharing).
+
+So then this is one of the last key/core AI issues i have noticed and had with base advciv, at least those easily or/and urgently fixable at least to me but anyways etc, about building selection.
+
+I have noticed for example in autoplay AI go for walls while they are at peace time or strong so shouldn't need to defend. This could be used to have 1.5 extra axeman or 1+ longbowman or such urgently needed thing, or a worker or half settler, or other building, anything. Similarly, AIs would a bit too foten build wonders, i assume even in cases where they are behind and should focus on defense and consolidating their base rather (be it in economy, workers, science, anything but short or mid term rather), and they'd likely end up building it for their neighbour when they conquer them (could have easily built a castle or such instead), and such other changes. Or, it is useless to build stable if we don't have horse nor camel nor elephants bonus. Culture is not determining factor early especially if we are behind, so invest on 2.5 swordsmen rathan than a collosseum, or any more urgent building anyways etc. Etc for other buildings.
+
+However i didn't go overboard as in too strict on these, as it can be hard to determine if barracks are consistently better as an opener than say a granary or half settler or extra worker or such.
+
+So, what i did was mostly if not only but anyways etc to add reject rules on top of existing ones (in `CvCityAI::AI_buildingValue`), so base advciv old code still applies, but only after our prefiltering has operated to skim through most we most likely don't want. In rare cases, we push some buildings as absolute best (e.g. urgently building walls or a castle if behind or declared war on (but not if we are stronger)), effectively overriding base advciv +/- whoever wrote the old code i mean anyways etc.
+
+Note: it seems these don't apply to the capital city due to the code already having a `return 0;` if city is capital. There may be a reason why it is here, and i guess capital priorities are handled elsewhere or such (didn't investigate though, maybe fine to leave as such with some variety or/and tedious/lazy to do it xd (more the former part of the latter if i may say but anyways etc...)), but hopefully fine or fine enough as such anyways
+
+### Summary by chatgpt 5 anyways etc
+
+Below is the summary of this as of now 1000+ line code in .md tables. I didn't check in detail, but it seems at first glance to be incredibly informative and concise. Check if accurate though, and thanks a lot chatgpt 5 again for the tables and all if i may say anyways etc thanks (chatgpt 5 helped me a big lot to code this as well and review and debug and such, even though i have contributed as well with my prompts and suggestions and/or such but i really helped lot too thanks anyways etc):
+
+This summarizes the new **hard gates / nudges** we added inside `CvCityAI::AI_buildingValue(...)`.
+It only documents logic that exists in the code we just reviewed (no speculation).
+
+---
+
+#### Shared signals, constants & helpers used across rules
+
+- **War / pressure flags:** `bAtWar`, `bDanger`, `bWarPlan`, `iEnemyPowerPercent`  
+  - `bEnemyStrong` ⇢ `iEnemyPowerPercent >= 120`  
+  - `bAtWarAndEnemyWeak` ⇢ `bAtWar && iEnemyPowerPercent <= 80`
+- **Growth signal:**  
+  `iEffectiveFood = max(0, iFoodDifference) - max(0, -iHealthLevel); if (iHappinessSurplus <= 0) iEffectiveFood = 0;`
+- **Happiness/health:** `iHappinessSurplus`, `iHealthLevel` (K‑Mod style reduced volatility)
+- **Trade reality:** `bForeignTrade` (true if this city currently has any foreign trade route)
+- **Production / research:** `iBaseHammersPerTurn`, `iBeakersPerTurn`
+- **City costs:** `iMaintenanceTimes100`
+- **Empire stats (single loop):** `iBestHpt`, `iSecondBestHpt`, `iBestMaint100Global`, `iSecondBestMaint100Global`, `iTopPop1`, `iTopPop2`, and `iNumCitiesHighMaintCountGlobal` (≥ 6 gpt)
+- **Game speed scaling:** `iGameSpeedMultiplier = GameSpeedInfo.getConstructPercent()`
+- **“Force-ish” constant:** `AI_BUILDING_ALWAYS_PICK_FIRST = 999999` (used as a large tiebreaker)
+- **Post‑build production multiplier detector:**  
+  `iTotalHammersModifier = kBuilding.getYieldModifier(YIELD_PRODUCTION) + sum(getBonusYieldModifier(..., YIELD_PRODUCTION))`  
+  (used to spot Forge/Factory/Ironworks‑like effects; **not** build‑time speed)
+- **Build‑time speed (for wonders):** `iProductionModifier = getProductionModifier(eBuilding)`
+
+---
+
+#### Tuning knobs (quick reference)
+
+| Knob | Default | Effect |
+|---|---:|---|
+| Enemy strong threshold | 120 | When ≥, prefer static defense / skip econ; kill WW. |
+| Enemy weak threshold | 80 | When ≤ and at war, allow barracks/stable pushes. |
+| Pump gate (hpt) | 8 | Min hammers to justify early unit-pump buildings. |
+| Granary “rush” gate | happy≥4 & iEffectiveFood≥4 | Force-first for food-kept buildings. |
+| Health “rush” gate | iHealthLevel≤1 & happy≥2 & iEffectiveFood≥2 | Force-first for net health buildings. |
+| WW soft turn cap (@ Normal) | 20 | Skip WW if estimated turns exceed cap (speed-scaled). |
+| Early “no-mod” WW window | 35 | After this, require ≥25% build-time mods to try WW. |
+| Culture early-mid window | 125 | Skip pure culture if borders already workable. |
+| High-maint city cutoff | 6 gpt | Maintenance reducers and FP logic use this. |
+
+---
+
+#### Non‑wonder buildings
+
+| Category | Detection (code) | Gates / Actions | Thresholds & scaling | Rationale / Notes |
+|---|---|---|---|---|
+| **Defensive (Walls/Castle/…​)** | `getDefenseModifier>=25` \|\| `getBombardDefenseModifier>=20` \|\| `RaiseDefense>=15` \|\| `getAllCityDefenseModifier>=10` | If **not at war** → **skip**. If **at war & enemy weak & !danger** → **skip**. If **enemy strong** → **ALWAYS_PICK_FIRST**. | Enemy strong ≥120%; enemy weak ≤80%. | Avoid static defense spam in peace; build urgently only when truly threatened. |
+| **Land‑unit pumps (Barracks‑like)** | Land XP ≥2 **or** land prod mod ≥20 | If `iBaseHammersPerTurn < 8` → no special push. If **at war & enemy strong/danger** → **skip**. If **war plan** **or** (**at war & enemy weak**) → **ALWAYS_PICK_FIRST**. | `iPumpGate=8` hpt. | Don’t delay units when weak; do invest when pressing or advantaged. |
+| **Stable** | BuildingClass == STABLE | Require **TECH_MOUNTED_COMBAT**. If no **Horse/Camel/Elephants** connected → **skip**. If **enemy strong** → **skip**. If **war plan** or **at war & enemy weak** → **ALWAYS_PICK_FIRST**. | — | Never build without mounts; prioritize when we’ll field mounted. |
+| **Naval pumps** | Sea XP/Prod modifiers | If map is **land‑heavy** (`isLandHeavyMap`) → **skip**. | — | Don’t sink hammers into navy on land maps. |
+| **City maintenance reducers** | `getMaintenanceModifier >= 25` | If city maintenance **< 6 gpt** → **skip**. If **at war & enemy strong** → **skip**. | `iMaintenanceTimes100 < 600` | ROI gate; avoid long payback during pressure. |
+| **Food‑kept (Granary, etc.)** | `iFoodKept >= 25` | If **low happy** (`<=1`) → **skip**. If **at war & enemy strong** → **skip**. If **happy ≥4** **and** `iEffectiveFood ≥4` → **ALWAYS_PICK_FIRST**. | — | Build when growth can be used; don’t store food into a cap. |
+| **Health** | `getAdditionalHealthByBuilding(...) > 0` | If **healthy already** (`iHealthLevel ≥2`) **or** `(iHealthLevel ≥0 && iEffectiveFood < 2)` → **skip**. If **at war & enemy strong** → **skip**. Else if `iHealthLevel ≤1 && iHappinessSurplus ≥2 && iEffectiveFood ≥2` → **ALWAYS_PICK_FIRST**. | Uses city‑specific net health gain (future=true). | Urgent when we can grow into it; otherwise punt. |
+| **Production multipliers (Forge/Factory‑like)** | `iTotalHammersModifier ≥ 20` | **Early window**: if **low prod (≤12 hpt)** **and** **low growth** (`iFoodDifference ≤1` or no happy) **and** **weak happy gain (≤2)** → **skip**. If **at war & enemy strong** → **skip**. | Early window: first ~100 turns @ Normal (scaled). | Avoid stunting early cities that can’t leverage the multiplier yet. |
+| **Happiness** | `getAdditionalHappinessByBuilding(...) > 0` \|\| `isNoUnhappiness()` | If **happy headroom ≥3** and **low food** (`iFoodDifference ≤1`) → **skip**. If **at war & enemy strong** → **skip**. If **at/over cap** (`iHappinessSurplus ≤ 0`) **and** `iEffectiveFood ≥2` → **ALWAYS_PICK_FIRST**. | — | Add happy when it immediately unlocks growth; otherwise hold. |
+| **Science** | Research % ≥20 **or** flat beakers **or** (Scientist slots/free) | If **at war** **or** **danger** **or** **war plan** → **skip**. | — | Don’t pause survival or momentum for beakers. |
+| **Economy (Gold)** | Gold % ≥20 **or** flat gold **or** (Merchant slots/free) and **not** previously classified | Same war/danger/war‑plan **skip**. If %‑only and city **gold rate < 6** → **skip**. | — | ROI gate for early banks/markets. |
+| **Trade‑route econ** | Adds routes **or** has trade route % (incl. foreign) | If war/danger/war‑plan → **skip**. If **foreign %** but **no foreign routes** and **doesn’t add routes** → **skip**. If **tiny base trade** (`iTradeYield ≤3`) then require **+routes**: base 3→ +1, base ≤2→ +2; otherwise **skip**. | Uses current `iTradeYield` in this city; counts “virtual” route when % mods present. | Build CH/Harbor where trade exists or where added routes will matter. |
+| **Espionage** | EP % ≥20 **or** flat EP/Spy slots/free **or** EP defense ≥20 | War/danger/war‑plan → **skip**. Difficulty skew: if **human pays much less for tech** (AI advantage, gap ≥ +30) and **EP defense** → **ALWAYS_PICK_FIRST −1000**. If **AI pays much more** (gap ≤ −20) and **EP source** → **ALWAYS_PICK_FIRST −1000**. | Gap: `iHumanResearchPercent − iAIResearchPercent`. | Hedge vs human EP when ahead; lean EP offense when behind on costs. |
+| **Culture‑only** | Flat culture **or** culture % (and not classified earlier) | If **BFC not needed** and **early‑mid window** and **existing culture ≥2** → **skip**. | Early‑mid ≈ first ~125 turns @ Normal (scaled). | Don’t overbuild fluff culture once borders are workable. |
+| **Unknown / misc** | Anything not matched above | If **war**/**danger**/**enemy strong** **or** **war plan** → **skip**. | — | Conservative default during pressure. |
+
+---
+
+#### Shared (applies to World & National wonders)
+
+| Gate / Check                 | Condition (code cue)                                                                                                                                                 | Action                                                                                                                                                                                        | Notes                                                         |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| **Base throughput**          | `iBaseHammersPerTurn < 8`                                                                                                                                            | **skip**                                                                                                                                                                                      | Too weak to justify any wonder.                               |
+| **City quality vs empire**   | `(iBaseHpt + 5 ≥ iSecondBestHpt)` **or** `(iBaseHpt*100 > iBestHpt*70)`                                                                                              | required                                                                                                                                                                                      | Only near-top hammer cities proceed.                          |
+| **Turn cap (time-to-build)** | `iTurnsWW = ceil(getProductionNeeded / (hpt * (1 + getProductionModifier)))`; soft cap ≈ **20 turns @ Normal** (speed-scaled; tighter if Human−AI construct gap ≥20) | if over cap → **skip**                                                                                                                                                                        | Uses **build-time** mods only (stone/marble/traits/religion). |
+| **“National Park” style**    | `getUnhealthyPopulationModifier() ≤ −50`                                                                                                                             | If **bAtWar/bDanger/bWarPlan/bEnemyStrong** → **skip**. Then require **pop ≥ 12** and **pop ≥ 2nd-highest** (`iTopPop2`); if **iHealthLevel ≥ 2** → **skip**; else let normal scoring decide. | Keeps NP-like effects for big, unhealthy hubs.                |
+
+---
+
+#### World Wonders (only)
+
+| Gate / Check              | Condition (code cue)                                                        | Action                                                    | Notes                                                   |
+| ------------------------- | --------------------------------------------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------- |
+| **War / pressure**        | `bAtWar` \|\| `bDanger` \|\| `bWarPlan` \|\| `bEnemyStrong`                 | **skip**                                                  | Don’t throw the game for a shiny thing.                 |
+| **Early “no-mod” window** | After \~**35 turns @ Normal** (speed-scaled) and `iProductionModifier < 25` | **skip**                                                  | Once rush window closes, require ≥25% build-time oomph. |
+| **Very-early floor**      | In early window and `iBaseHpt ≤ 7`                                          | **skip**                                                  | Not enough throughput to snipe.                         |
+| **Coastal-lean WW**       | Sea XP/Prod, coastal routes, sea plot yield effects                         | Require **≥ 3 coastal cities** empire-wide; else **skip** | Flat empire rule.                                       |
+| **Race pressure**         | `kBuilding.getPrereqAndTech()` held by **≥3 met teams**                     | **skip**                                                  | Simple “too hot” race filter.                           |
+
+---
+
+#### National Wonders (only)
+
+| Subtype                                  | Detection (code cue)                      | Gates / Actions                                                                                                                                                                                                                     | Notes                                                     |
+| ---------------------------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| **Military pump (Heroic-Epic-like)**     | Land **production** modifiers             | If **bEnemyStrong** or **bDanger** → **skip**. If **bWarPlan** or **bAtWar & enemy weak**, and **this city ≥ 2nd-best hpt**, → **ALWAYS\_PICK\_FIRST +1000**.                                                                       | Concentrate pumps in real hammer hubs when pushing.       |
+| **Land XP focus**                        | Land **XP** modifiers                     | Same pressure skip. If **bWarPlan** or **enemy weak**, and **≥ 2nd-best hpt**, → **ALWAYS\_PICK\_FIRST**.                                                                                                                           | Smaller nudge than pure pump.                             |
+| **Government Center (Forbidden Palace)** | `isGovernmentCenter()` (non-Palace class) | If **#cities ≤ 6** or **capital** → **skip**. Else if **≥3 cities** with **maintenance ≥ 6 gpt** and **this city’s maint ≥ 2nd-best**, and **no war pressure**, → **ALWAYS\_PICK\_FIRST −1000**.                                    | Place where it actually cuts empire costs; avoid capital. |
+| **Palace move**                          | Palace building class                     | Under **pressure** → **skip**. After \~**100 turns @ Normal** (speed-scaled) and **#cities ≥ 4**, require **both**: this city’s **base hpt ≥ 1.5×** capital **and** **beakers/turn ≥ 1.5×** capital → **ALWAYS\_PICK\_FIRST −500**. | “Both” prevents oscillation; no early palace shuffles.    |
+| **General fallback**                     | —                                         | If **bAtWar**/**bDanger**/**bWarPlan**/**bEnemyStrong** → **skip**.                                                                                                                                                                 | Conservative default under pressure.                      |
+
+---
+
+#### Notes on correctness
+
+- **Post‑build vs build‑time modifiers:** We explicitly separate *yield* multipliers (Forge/Factory) from *build‑time* speed (`getProductionModifier`), so WW timing is computed correctly while regular production buildings are evaluated by their **post‑completion** value.
+- **Trade checks are per‑city:** Foreign % bonuses are ignored unless this city actually has foreign routes **or** the building **adds** routes (so it can create the base to multiply).
+- **Empire loops:** The single pass that computes top production, top maintenance, and top populations is reused by multiple rules to keep decisions coherent and cheap.
+
+### Results of known issue 48
+
+So the experience should be quite similar than in base advciv but with some differences. Power and such can fluctuate during the game, etc.
+
+In testing, i barely tested it so in autoplay (see screenshots for details), but it does seem like only the top dogs go for wonders, which if true would be a very nice improvement, if said weaker AIs would build longbowmen or even strengthen their economy or anything else, it would be a nice win.
+
+Our checks seem to not always apply, again i suspect due to power fluctuations, perhaps short circuits to our logic or other code interferring maybe as well.
+
+But it does seem for example that only the top dogs are now going for wonders, yet enough wonders have been built so it didn't become a giant warfare thankfully (although i wouldn't mind, but wouldn't be exactly the same game).
+
+Shaka AI in particular has a strong military and didn't go for (at least didn't complete) any wonder, which is a nice result, possibly he recovered and was a bit weaker early, or is just how it was, but at least he didn't invest into a weird hybrid war builder profile that would be inefficient.
+
+And most wonders are as i said only built or mostly by the top dogs only, with no AI falling behind the 0.8 of being too weak range, unlike before where i saw in same map often some 0.6 and 0.7, i assume/guess/hope if it's not random fluctuation due to some other changes, that the weaker AIs invested hammers into building their defense or anything to stay competitive, some are vassals to others yet their power is decent. In short, it seems like AIs are better now with our changes at handling being behind / weaker in military or anything, and pre-plannedly don't go into tunnel vision strategies anymore at least much less, but as i only tested with a small autoplay sample here, check more to be sure anyways etc. (see screenshots as well about this sample autoplay but anyways etc).
+
+So hopefully now AI is stronger and more responsive in its gameplay, while not being too stereotypically anti building or pro war or the reverse of these anyways etc, but test more to be sure, anyways etc.
+
+Note on performance: turn time seems a bit slower after these changes, i guess some loops or such, although minimal, are costly due to repetition, ideally a lot of the common logic should/would be moved away at caller or such level if possible, but left as such as is not too bad, and we otherwise mostly use a mix of if and elses if i may say but still it does seem quite a bit slower although i didn't measure it exactly but maybe fine as such but anyways etc, but update: i knew it was strange, indeed our new code is seemingly faster, if not just a fluctuation, as after the early game, our if and else checks should filter out most of the buildings anyway before they enter the possibly not so efficient 2000 line function code, so it makes sense that our code is actually seemingly a bit faster, maybe it seemed slower due to the first turns being a bit slower, or possibly because most liekly other changes affected turn time and i didn't notice it, or maybe it was always as such, or maybe we are faster than base advciv and i don't know it, but even if false or in all cases, what matters is there is seemingly no performance cost to our changes, if anything it seems slightly faster thankfully if not the same but anyways etc, below the times i measured with old vs new DLL, in a .md table format thanks to chatgpt 5 doing it from the time measurement screenshots i made quite approximately but quite accurately (in a +/- 1-2 second range possibly at max more or less anyways etc)
+
+| Turn | New DLL (Run 1) | Old DLL (Run 2) |
+| ---: | :-------------: | :-------------: |
+|   50 |      13.9 s     |      13.2 s     |
+|  100 |      29.2 s     |      28.5 s     |
+|  150 |      54.8 s     |      56.3 s     |

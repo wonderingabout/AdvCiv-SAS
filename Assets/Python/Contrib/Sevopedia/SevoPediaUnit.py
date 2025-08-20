@@ -758,6 +758,14 @@ class SevoPediaUnit:
 			noMilitarySupportCostText = localText.getText("TXT_KEY_UNIT_NO_MILITARY_SUPPORT_COST", ())
 			szSpecialText += u"\n%s%s" % (bullet, noMilitarySupportCostText)
 
+		# <!-- custom: if unit grants unit(s) on capture anyways etc, code added thanks to claude ai as well as my prompt and adjustments and/or such or not or yes or etc anyways etc -->
+		unitCaptureClassType = unitInfo.getUnitCaptureClassType()
+		if unitCaptureClassType != -1:
+			unitCaptureClassTypeInfo = gc.getUnitClassInfo(unitCaptureClassType)
+			if unitCaptureClassTypeInfo:
+				captureText = localText.getText("TXT_KEY_UNIT_MAY_GRANT_UNITS_ON_CAPTURE", ())
+				szSpecialText += u"\n%s%s: %s" % (bullet, captureText, unitCaptureClassTypeInfo.getType())
+
 		# <!-- custom: add ai info for players and me too hehe if i may say but anyways etc: should be valuable for info or balancing but anyways etc, added with the help of claude ai and my prompts and adjustments and inspect or and such but anyways etc... if players want to see it xd, as for me yes i want! In this case i mean but anyways etc -->
 		if IS_SHOW_AI_INFO:
 			# Add Default UnitAI
