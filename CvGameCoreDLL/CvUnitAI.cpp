@@ -2839,13 +2839,28 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	bool bCanRetreat = true; // advc.opt: Try only once (uses of this variable not marked with comments)
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 
-	// XXX could be trouble...
-	if (getPlot().getOwner() != getOwner())
+	// <!-- custom: in rare cases, workers still get parked in cities, seeming with MISSIONAI_RETREAT + ACTIVITY_HOLD, as also noticed by chatgpt 5 in the screenshot i showed it about it. Trying to fix that with the help of chatgpt 5 now, check if accurate anyways etc, and see for details known issue as of now 50 with screenshots and such but anyways etc -->
+	// two small patches that fix it
+	// 2) Unstick “retreaters” at the start of the turn
+	// Right at the top of AI_workerMove (after you build kOwner), add:
+	// Unstick previous retreats: if we’re in our land and not threatened, wake up.
+	if (getGroup()->AI().AI_getMissionAIType() == MISSIONAI_RETREAT &&
+		getPlot().getOwner() == getOwner() &&
+		!kOwner.AI_isPlotThreatened(plot(), 1)) // adjacent only
 	{
-		if (AI_retreatToCity())
-			return;
-		bCanRetreat = false;
+		getGroup()->setActivityType(ACTIVITY_AWAKE);
+		getGroup()->AI().AI_setMissionAI(NO_MISSIONAI, NULL, NULL);
+		// fall through to normal worker logic
 	}
+
+	// <!-- custom: disable this as this may cause unintended retreats or interfere with our own logic, chatgpt 5 recommends removing or narrowing it, i'll comment it out then as i got the idea to do myself as well if i may say but thanks a lot for help and confirmation / expertise if i may say thnaks a lot anyways etc -->
+	// // XXX could be trouble...
+	// if (getPlot().getOwner() != getOwner())
+	// {
+	// 	if (AI_retreatToCity())
+	// 		return;
+	// 	bCanRetreat = false;
+	// }
 
 	if (!isHuman())
 	{
@@ -2923,8 +2938,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 					int iNearTurns = 1;
 
 					// Commit from a bit farther if target is high-impact (jungle clear or bonus)
-					FeatureTypes eJungle = (FeatureTypes)GC.getInfoTypeForString("FEATURE_JUNGLE");
-					if ((pTarget->getFeatureType() == eJungle) ||
+					if ((pTarget->getFeatureType() == eFeatureJungle) ||
 						(pTarget->getNonObsoleteBonusType(getTeam()) != NO_BONUS))
 					{
 						iNearTurns = 2;
@@ -3289,8 +3303,31 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 		}
 	}
 
-	if (bCanRetreat && AI_retreatToCity(false, true))
-		return;
+	// <!-- custom: in rare cases, workers still get parked in cities, seeming with MISSIONAI_RETREAT + ACTIVITY_HOLD, as also noticed by chatgpt 5 in the screenshot i showed it about it. Trying to fix that with the help of chatgpt 5 now, check if accurate anyways etc, and see for details known issue as of now 50 with screenshots and such but anyways etc -->
+	// yep — the screenshot tells the story:
+
+	// left debug list shows several Workers with MISSIONAI_RETREAT, HOLD.
+	// they’re inside your borders (Persepolis) and just… park.
+	// that’s your “parking” culprit: once a worker gets a RETREAT mission it often sits on HOLD for many turns unless something explicitly clears that state.
+
+	// why it’s happening even after your earlier tweak
+	// You already softened the early retreat check (outside borders only, radius=1).
+	// But near the end of AI_workerMove there’s still this unconditional fallback:
+	// That call runs even inside borders, and AI_retreatToCity sets the group to
+	// MISSIONAI_RETREAT + ACTIVITY_HOLD. In mid-game with 1–2 wars, the internal threat
+	// heuristics will happily keep flagging tiles as “unsafe”, so workers pile into the
+	// nearest city and stay on HOLD. That matches your screenshot exactly.
+	// two small patches that fix it
+	// 1) Don’t retreat inside borders (final fallback)
+	// Change the late fallback to only run outside borders:
+	// if (bCanRetreat && AI_retreatToCity(false, true))
+	// 	return;
+	if (bCanRetreat && plot()->getOwner() != getOwner())
+	{
+		if (AI_retreatToCity(false, true)) return;
+	}
+	// (If you still want some retreat inside borders, gate it by a very hard condition,
+	// e.g. same-tile danger — but that’s basically capture anyway, so I’d skip it.)
 
 	/*if (AI_retreatToCity())
 		return; */ // disabled by K-Mod (redundant)
