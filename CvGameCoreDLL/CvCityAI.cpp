@@ -8721,6 +8721,36 @@ int CvCityAI::AI_minDefenders() const
 	{
 		iDefenders++;
 	}
+
+	// <!-- custom: now that this seems mostly fixed, but check if accurate, disable this for later turns where barbarians should no longer be a threat, and total units of players higher making it even more costly for lesser purpose anyways etc ; i hope that cities are defended well enough by then to hopefully allow/permit this computation savig but anyways etc ; also as a side effect if theoretically this would make AIs a bit reluctant to attack or somehow mess their offense tempo, hopefully this also helps that? Although we could lose the benefit of it better guarding cities possibly maybe but anyways etc, trying to disable it past a certain amount of turns for expected performance gains and perhaps indirectly other gains as well if no losses but anyways etc, chatgpt 5 said it's also fine, check if accurate to be sure anyways etc -->
+	CvGame const& kGame = GC.getGame();
+	const int iMaxTurnDefendWeakerCitiesHarderNormal = 120;
+	const int iMaxTurnDefendWeakerCitiesHarderAdjusted = (iMaxTurnDefendWeakerCitiesHarderNormal * GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent()) / 100;
+	if (kGame.getElapsedGameTurns() <= iMaxTurnDefendWeakerCitiesHarderAdjusted)
+	{
+		// <!-- custom: not sure how exactly this works or effective it is, but in autoplay it doesn't seem worse at least, maybe even a bit better although may be fluctuation so kept as such, code provided thanks to chatgpt 5 also too anyways etc and my prompts too but anyways etc, as for its notes/explaantions check if accurate, and thanks for them too if i may say in this case but anyways etc ; see known issue as of now 49 for details anyways etc -->
+		// It raises the need only where it actually helps, so overstocked cities feel a pull from frontier/new cities.
+		// --- Early anti-barb buffer: conditional 3rd defender where it matters ---
+		if (!GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
+		{
+			const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+			if (kOwner.AI_isDefenseFocusOnBarbarians(getArea()))
+			{
+				// ~10 turns, speed-scaled
+				const int iNewCityWindow =
+					10 * GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent() / 100;
+
+				const bool bNewCity  = (GC.getGame().getGameTurn() - getGameTurnAcquired() < iNewCityWindow);
+				const bool bFrontier = (getCultureLevel() <= 1) ||
+									(getPlot().calculateCulturePercent(kOwner.getID()) < 60);
+				const bool bThreat   = (AI_cityThreat() > 0);
+
+				if (!isCapital() && (bNewCity || bFrontier || bThreat))
+					iDefenders++; // bumps typical vulnerable cities to 3
+			}
+		}
+	}
+
 	return iDefenders;
 }
 

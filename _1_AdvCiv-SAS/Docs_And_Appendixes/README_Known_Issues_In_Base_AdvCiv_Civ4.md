@@ -64,6 +64,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [46 - (Cleaned up) Very big messy old uiFlag code in the DLL, seemingly to support savegame compatibility, which i don't care about, especially considering how complicated the code is as a result](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#46---cleaned-up-very-big-messy-old-uiflag-code-in-the-dll-seemingly-to-support-savegame-compatibility-which-i-dont-care-about-especially-considering-how-complicated-the-code-is-as-a-result)  
 [47 - (Fixed / Addressed / Enhanced) AI choosing poorly promotions for its units: now added a set of hard rules in which case some promotions are not good and to ignore as is most efificient in most times, and rarely cases where some promotions are best to always go first](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#47---fixed--addressed--enhanced-ai-choosing-poorly-promotions-for-its-units-now-added-a-set-of-hard-rules-in-which-case-some-promotions-are-not-good-and-to-ignore-as-is-most-efificient-in-most-times-and-rarely-cases-where-some-promotions-are-best-to-always-go-first-for-eg-as-of-no-city_garrison-first-for-unitai_city_defense-city_raider-first-for-unitai_attack_city-etc-if-any-more-anyways-etc)  
 [48 - (Enhanced/Reworked) AI building walls when they are stronger and don't need it, or wonders when they are weaker or in danger (don't build wonders for our neighbours when they capture us), and overall added a lot of extra buildingValue reject or/and always build first logic depending on building type and/or such anyways etc ; and reworked as well the ditching wonders logic to be seemingly stricter and more war/danger focused anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc)  
+[49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#49---enhancedaddressed-ai-having-4-defenders-in-capital-city-but-only-1-defender-in-city-b-that-gets-captured-or-razed-by-barbarians-then-now-almost-always-if-not-always-new-cities-go-be-founded-with-2-defenders)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -1615,3 +1616,27 @@ Thanks to chatgpt 5 for the table again hehe thanks anyways etc:
 |   50 |        16.2 s       |        15.4 s       |
 |  100 |        45.3 s       |        40.5 s       |
 |  150 |        91.2 s       |        87.5 s       |
+
+## 49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders
+
+See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1t-sHkDPig9ycq_PC7AHMdw1kQ-z3oG--?usp=sharing)
+
+This is one issue i noticed recently but most likely present in base advciv +/- civ4 maybe as well, of having new cities not defended enough, for example having 4+ defenders/units (regardless of unitai or anything) yet only 1 unit in city B, despite capital city being able to pump units fast, and the risk of the new city being destroyed by barbarians early, defeating the purpose.
+
+I don't know too much how to code works, but with the help of chatgpt 5, also making gemini 2.5 pro think on it, they co-thought, most chatgpt 5 in the end but anyways etc, to produce this solution i refined with my prompts and adjustments and testing and such but anyways etc thanks a lot for help if i may say but anyways etc.
+
+The changes are as of now in `CvUnitAI::AI_update`, `CvUnitAI::AI_guardCityMinDefender`, `CvCityAI::AI_minDefenders`.
+
+In particular about the changes in `CvUnitAI::AI_update`, if i understand it correctly and as i asked chatgpt 5 to do and based on screenshots results as well i fed it but anyways etc, regardless of unitai, we ask 2 defenders per new city, instead of often 1. This seems almost always if not always respected now, and it seems there are less barbarian invasions now (see screnshots for details and check if accurate as well anyways etc).
+
+I expect AI to be significantly stronger thanks to these changes, although there are other areas where it could improve, but not losing as often early cities, despite barbarians being very strong in our mod, is nice to have. Some cities are still lost but better than was, and i couldn't find how to easily increase min defenders to 3, nor would like to risk making capital city too weak.
+
+To see how it was before the changes, you can see if i may say but anyways etc existing screenshots between 2585 and 2647, as well as with more details in the example 1 and 2 screenshots anyways etc. These are only small samples as the issue was really widespread anyways etc.
+
+After the fix or tentative patch/fix at least, it seems our new cities consitently or at least much more often now properly have 2 defenders, as can be seen in existing screenshots between 2659 and 2660, as well as with more details in all the after change screenshots. If not always, it is extremely more or so it seems at least more applied now but anyways etc. I since then enhanced it by rmeoving the original gating of barbarian turns chatgpt 5 had added in an attempt to make it stricter and i mean more effective but anyways etc.
+
+So all in all, the AI should now if i'm not mistaken be stronger as a result of these changes, but check to be sure and if accurate as again i don't know too much about these but anyways etc.
+
+Note: i added some extra screenshots that show the current state of our AI, militarily it is very strong and impressive, low focus on wonders but not absolute 0, and very very strong scary in a good way army if i may say but anyways etc, in the same drive link related to this issue in a drive folder as well, but anyways etc.
+
+Update: since all seems to work well or better but anyways etc, added code to disable it after turn 120 adjusted to game speed but anyways etc, so that it is computationally cheaper now that units are really numberous but anyways etc and since barbarians are less of a threat now if at all at this stage, plus cities should be guarded enough to handle this now without needing our code, or in case it creates later issues (maybe we'd lose some unknown fixes with our code but unlikely even though possible), check code comments for details and chatgpt 5 said it's fine as of now at least but check to be sure anyways etc.

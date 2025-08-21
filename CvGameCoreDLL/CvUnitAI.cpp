@@ -207,6 +207,76 @@ bool CvUnitAI::AI_update()
 				return false;
 		}
 	} // </advc.139>
+
+	// <!-- custom: now that this seems mostly fixed, but check if accurate, disable this for later turns where barbarians should no longer be a threat, and total units of players higher making it even more costly for lesser purpose anyways etc ; i hope that cities are defended well enough by then to hopefully allow/permit this computation savig but anyways etc ; also as a side effect if theoretically this would make AIs a bit reluctant to attack or somehow mess their offense tempo, hopefully this also helps that? Although we could lose the benefit of it better guarding cities possibly maybe but anyways etc, trying to disable it past a certain amount of turns for expected performance gains and perhaps indirectly other gains as well if no losses but anyways etc, chatgpt 5 said it's also fine, check if accurate to be sure anyways etc -->
+	CvGame const& kGame = GC.getGame();
+	const int iMaxTurnDefendWeakerCitiesHarderNormal = 120;
+	const int iMaxTurnDefendWeakerCitiesHarderAdjusted = (iMaxTurnDefendWeakerCitiesHarderNormal * GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent()) / 100;
+	if (kGame.getElapsedGameTurns() <= iMaxTurnDefendWeakerCitiesHarderAdjusted)
+	{
+		// <!-- custom: currently we have an issue as i assume is in base advciv +/- civ4 as well and originally but anyways etc that barbarians capture cities too much early, however AI has plenty/enough units, but 4 are in capital, while 1 only is in city B, so if AI is not lucky with barbarians avoiding city B, its city would be captured, and capital is needlessly overly defended which is inefficient as well. Production seems fine, but movement of units should be fixed ideally. Tentative fix provided by chatgpt 5, based on the request i made to gemini 2.5 pro as well to weigh which would work better xd but anyways etc or refine based on each other's output anyways etc, check if accurate, i refined i helped format the code comment too if i may say but anyways etc ; see known issue as of now 49 for details anyways etc -->
+		// 2) Add a tiny “push” at the very top of AI_cityDefenseMove
+		// --- push defenders out of overstocked cities (minimal & effective) ---
+		// <!-- custom: but update, tested previous change ingame, the issue still seemingly mostly persists, and in many cities i have noticed enough units are stationed but they are not necessarily defender unitai types or such, so asked chatgpt 5 about it which (who? But anyways etc) adjusted it as such thanks anyways etc, check if accurate anyways etc -->
+		// - Counts all defend-capable units, so surplus in capital is recognized even if they’re COUNTER/RESERVE/ATTACK.
+		// - The iExtraDefenders trick (+1 during early barbs) nudges the search to treat secondary cities as “wanting one more” without changing AI_minDefenders() globally.
+		// - Local search (iMaxPath=4) keeps it from yanking units across the empire. If it still clusters, try 6.
+		// --- Early, light-weight city-to-city garrison rebalance ----------
+		const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+		if (getDomainType() == DOMAIN_LAND && !isBarbarian() && !kOwner.isMinorCiv())
+		{
+			const UnitAITypes eAI = AI_getUnitAIType();
+			// <!-- custom: note: UNITAI_ATTACK_LEMMING not added as advised by chatgpt 5, we also don't use them in our mod anyway so maybe fine as such, below is reasoning it gave if helps anyways etc, check if accurate and thanks chatgpt 5 for all help xd really if i may say thanks anyways etc -->
+			// Include UNITAI_ATTACK_CITY_LEMMING in the exporter?
+			// I’d exclude it. Lemming units are for stack assaults and are deliberately “commit-to-attack” flavored; turning them into garrisons can stall offensives and create weird back-and-forth. If you ever want to relax that, do it behind a strict gate (early barb focus, no current war plan, path ≤ 3), but default should be not to use them as donors.
+			const bool bMilAI =
+				(eAI == UNITAI_ATTACK ||
+				eAI == UNITAI_ATTACK_CITY ||
+				eAI == UNITAI_COLLATERAL ||
+				eAI == UNITAI_PILLAGE ||
+				eAI == UNITAI_RESERVE ||
+				eAI == UNITAI_COUNTER ||
+				eAI == UNITAI_CITY_DEFENSE ||
+				eAI == UNITAI_CITY_COUNTER ||
+				eAI == UNITAI_CITY_SPECIAL);
+
+			if (bMilAI)
+			{
+				CvCityAI const* pHere = getPlot().AI_getPlotCity();
+				if (pHere != NULL && pHere->getOwner() == getOwner())
+				{
+					// Count any unit that can defend, not just GUARD_CITY mission
+					const int iHave   = pHere->getPlot().plotCount(PUF_canDefendGroupHead, -1, -1, getOwner());
+					const int iMinHere = pHere->AI_minDefenders();
+
+					// <!-- custom: this seemingly works very well, all cities at least most i looked at but anyways etc properly now have 2 defenders not 1 defender per new city anymore or so it seems in cities that had the issue, but we can probably enhance this, maybe make it a general rule as well, also we can actually count on capital to replenish its units faster, so make it give more units rather anyways etc at trying to do so anyways etc ; update: not much change after increasing iExtraWant from 1 to 2, and to be hoenst i don't know too much or exactly what and hwo this does what it does xd, but results are not worse, perhaps slightly betetr with the window removed or capital check (as i said i want capitals in particular to pump and give units if i may say but anywyas etc as they can replenish faster, hopefully this doesn't make capital cities too weak if ever applied but at least smaller cities are better guarded and less barbarian invasions it seems, but check if accurate as i don't know too much about these anyways etc-->
+					// Early barbarian buffer: ask every non-capital for +1 (for shuffling only)
+					// int iBarbWindowTurns = 60 * GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent() / 100; // ~60 @ Normal
+					// bool bEarlyBarbs = (!GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS) &&
+					// 					GC.getGame().getGameTurn() < iBarbWindowTurns &&
+					// 					!pHere->isCapital());
+					// int iExtraWant = bEarlyBarbs ? 1 : 0;
+					const int iExtraWant = 2;
+
+					// Export one defender only if this city is above its own minimum
+					if (iHave > iMinHere)
+					{
+						if (AI_guardCity(/*bLeave*/false, /*bSearch*/true,
+										// <!-- custom: this seemed to do fine if i may say but anyways etc, but increasing it in case it helps anyways etc, so even if distance is long, go there anyway anyways etc in this case i mean but anyways etc -->
+										///*iMaxPath*/4,
+										/*iMaxPath*/6,
+										MOVE_SAFE_TERRITORY | MOVE_AVOID_ENEMY_WEIGHT_3,
+										/*iExtraDefenders*/ iExtraWant))
+						{
+							return false; // moved / split to help a short city
+						}
+					}
+				}
+			}
+		}
+		// ---------------------------------------------------------------------------
+	}
+
 	/*	<advc> A frequent breakpoint for debugging, and usually on the stack
 		when breaking elsewhere. */
 #ifdef _DEBUG
@@ -215,6 +285,7 @@ bool CvUnitAI::AI_update()
 	char const* szTypeDbg = m_pUnitInfo->getType();
 #endif
 	// </advc>
+	
 	switch (eUnitAI)
 	{
 	case UNITAI_UNKNOWN:
@@ -11629,7 +11700,12 @@ bool CvUnitAI::AI_guardCityMinDefender(bool bSearch)
 				iDefendersHave--;
 			}
 			// K-Mod end
-			int iDefendersNeed = pLoopCity->AI_minDefenders();
+
+			// <!-- custom: currently we have an issue as i assume is in base advciv +/- civ4 as well and originally but anyways etc that barbarians capture cities too much early, however AI has plenty/enough units, but 4 are in capital, while 1 only is in city B, so if AI is not lucky with barbarians avoiding city B, its city would be captured, and capital is needlessly overly defended which is inefficient as well. Production seems fine, but movement of units should be fixed ideally. Tentative fix provided by chatgpt 5, based on the request i made to gemini 2.5 pro as well to weigh which would work better xd but anyways etc or refine based on each other's output anyways etc, check if accurate, i also adjusted it a tiny bit or such and helped formatting code comments too if i may say but anyways etc ; see known issue as of now 49 for details anyways etc -->
+			// int iDefendersNeed = pLoopCity->AI_minDefenders();
+			// 1) Make the search ask for what the city really needs
+			// That one-liner lets the existing “pull” logic target cities that are under their true need (incl. barb/danger effects), not just under the bare min.
+			const int iDefendersNeed = pLoopCity->AI_neededDefenders(true);
 
 			if (iDefendersHave < iDefendersNeed)
 			{
@@ -11660,6 +11736,15 @@ bool CvUnitAI::AI_guardCityMinDefender(bool bSearch)
 							iValue += pLoopCity->isOccupation() ? 8 : 0;
 							iValue -= iPathTurns;
 							// K-Mod end
+
+							// <!-- custom: i don't know too much about these, but open review chatgpt 5 says it's nice to keep after all our other changes related to the issue we had, so kept as is ; see known issue as of now 49 for details anyways etc -->
+							// 3) Optional (nice-to-have) cherry on top
+							// If you want to be extra robust with almost no extra code, add a small priority boost in the search:
+							// Inside AI_guardCityMinDefender(bSearch) where iValue is computed, add:
+							// This just breaks ties the right way. It’s safe and tiny.
+							bool const bEmpty = (iDefendersHave == 0);
+							if (bEmpty)                  iValue += 100;  // empty city first
+							if (pLoopCity->AI_isDanger()) iValue += 50;  // threatened cities next
 
 							if (iValue > iBestValue)
 							{

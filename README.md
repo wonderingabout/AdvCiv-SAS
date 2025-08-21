@@ -550,6 +550,8 @@ In all cases not writing a specific doc for Claude AI as i hadn't/i haven't used
 
 ### Gemini AI
 
+#### 2.5 Flash
+
 More recently i also tried gemini AI as it was / i found to be but anyways etc mentionned in a reddit post but anyways etc while i was looking at perhaps new chatgpt models or general info about AI in wiki or not but anyways etc, and i used gemini AI to successfully add the list of units / buttons that require a building in sevopedia building's placeRequiredFor, for example the pagan/buddhist missionary require the pagan/buddhist monastery, or less ambiguously if i may say as organized religion civic may override this if i am not mistaken but anyways etc, in advciv-sas as of now workboats require a harbor in order to be built, see quick start guide for details about this change anyways etc, but now we show it as well in sevopedia building's harbor(s) page(s) i mean (including civ-specific versions like as of now the barbarian harbor but anyways etc), see also this [google drive folder link](https://drive.google.com/drive/folders/1DZwcPeeodfXNs1OmTe94daVQcnxbU0ov?usp=sharing) for example/screenshots of how i implemented it if interested if i may say but anyways etc
 
 Note: while gemini ai performs quite well and could do it successfully at first try at least for this task/case but anyways etc, it also created helpers with a different function name which was also uneeded, so i didn't need the numTxt display part of the code so there was no issue, else may have not worked/functionned at first try without a tweak, but functions-works fine so maybe fine in this case but is for exhaustiveness if i may say but anyways etc.
@@ -560,7 +562,13 @@ I have also discovered later (or so it seems at least to me anyways etc) during 
 
 Also, gemini ai is very helpful, and seemingly the free version especially :) If the code you're working on i mean but anyways etc is getting too long, consider removing code comments entirely or as much as needed, then feed it a clean file (such as .cpp or such) so it can hopefully read all your code part you were working on i mean but anyways etc, the smaller the better in this case i think i mean but anyways etc. This advice may also be useful for other AIs like chatgpt or such, but i found it most helpful and as of now in gemini AI anyways etc (although in theory should apply exact or mostly same with other AIs, but check to be sure, anyways etc).
 
+#### 2.5 Pro
+
+I used it to help refine and co-think with chatgpt 5 on how to solve an issue, and it seems to have helped find a minimal and effective test, at least according to chatgpt 5 as i didn't test it to know, but thanks too i mean gemini 2.5 pro hehe thanks.
+
 ### DeepSeek AI
+
+#### V3 if i'm not mistaken anyways etc
 
 I also have experimented briefly if i may say but anyways etc as i had the opportunity if i may say in this case i mean but anyways etc with deepseek ai, to rearrange the untradeable techs code so that, after i made it now behave as a precompute at cache time only once like/as the leaders_info_cached does very efficiently if i may say but anyways etc, and since it is also in this case the exact same code every time, it is computationally much cheaper and efficient and cleaner but anyways etc to precompute it as cache as well instead of at each new tech selection.
 
