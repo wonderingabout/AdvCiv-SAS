@@ -4359,88 +4359,14 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
 	CvGame const& kGame = GC.getGame();
-	int const iOwnerEra = kOwner.getCurrentEra();
-	int const iCitizenValue = AI_citizenValue(); // advc
 
 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
 	BuildingClassTypes const eBuildingClass = kBuilding.getBuildingClassType();
-	int const iLimitedWonderLimit = GC.getInfo(eBuildingClass).getLimit();
-	bool const bLimitedWonder = (iLimitedWonderLimit >= 0);
+
 	// <!-- custom: store this once since we check it many times anyways etc -->
 	const bool bWorldWonder = kBuilding.isWorldWonder();
 	const bool bNationalWonder = kBuilding.isNationalWonder();
 	const bool bWonder = (bWorldWonder || bNationalWonder);
-
-	// <advc.131>
-	int iTotalBonusYieldMod = 0;
-	int iTotalImprFreeSpecialists = 0;
-	bool bAnySeaPlotYieldChange = false; // </advc.131>
-
-	// <K-Mod>
-	/*	This new value, iPriorityFactor, is used to boost the value of
-		productivity buildings without overvaluing productivity.
-		The point is to get the AI to build productiviy buildings quickly,
-		but not if they come with large negative side effects.
-		I may use it for other adjustments in the future. */
-	int iPriorityFactor = 100;
-
-	/*	bRemove means that we're evaluating the cost of losing this building
-		rather than adding it. the definition used here is just a kludge because
-		there currently isn't any other way to tell the difference.
-		Currently, bRemove is only in a few parts of the evaluation
-		where it is particularly important; for example, bRemove is critical for
-		calculating the lost value of obsoleting walls and castles.
-		There are several sections which could, in the future, be improved
-		using bRemove - but I don't see it as a high priority. */
-	bool const bRemove = (getNumBuilding(eBuilding) >=
-			GC.getDefineINT(CvGlobals::CITY_MAX_NUM_BUILDINGS));
-	// advc.004c: bRemove && !bObsolete is OK; that means spy attack.
-	FAssert(!bObsolete || bRemove);
-
-	/*	Veto checks: return zero if the building is not suitable.
-		Note: these checks are essentially the same as in the original code,
-		they've just been moved. */
-	if (iFocusFlags & BUILDINGFOCUS_WORLDWONDER)
-	{
-		if (!bWorldWonder ||
-			findBaseYieldRateRank(YIELD_PRODUCTION) <= 3)
-		{
-			/*	Note / TODO: the production condition is from the original BtS code.
-				I intend to remove / change that condition in the future. */
-			return 0;
-		}
-	}
-	if (kBuilding.isCapital())
-		return 0;
-	// <advc.014>
-	if(GET_TEAM(getOwner()).isCapitulated() && bWorldWonder &&
-		kBuilding.getHolyCity() == NO_RELIGION)
-	{
-		return 0;
-	} // </advc.014>
-	FOR_EACH_NON_DEFAULT_PAIR(kBuilding.
-		getReligionChange(), Religion, int)
-	{
-		if (perReligionVal.second > 0 &&
-			!GET_TEAM(getTeam()).hasHolyCity(perReligionVal.first))
-		{
-			return 0;
-		}
-	}
-	// Construction value cache.
-	/*	Note: the WONDEROK and WORLDWONDER flags should not affect
-		the final value - and so cache should not be disabled by those flags. */
-	bool const bNeutralFlags = (iFocusFlags &
-			~(BUILDINGFOCUS_WONDEROK | BUILDINGFOCUS_WORLDWONDER)) == 0;
-	bool const bUseConstructionValueCache = (bNeutralFlags && iThreshold == 0);
-	if (bUseConstructionValueCache && m_aiConstructionValue[eBuildingClass] != -1)
-		return m_aiConstructionValue[eBuildingClass];
-	// </K-Mod>
-
-	ReligionTypes const eStateReligion = kOwner.getStateReligion();
-
-	bool const bAreaAlone = kOwner.AI_isAreaAlone(getArea());
-	int const iHasMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
 
 	/*	K-Mod note: I've set this to ignore "food is production"
 		so that building value is not distorted by that effect. */
@@ -4455,33 +4381,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 	int const iHealthLevel = goodHealth() - badHealth() + getEspionageHealthCounter()/2;
 	// K-Mod end
 
-	bool const bProvidesPower = (kBuilding.isPower() ||
-			(kBuilding.getPowerBonus() != NO_BONUS &&
-			hasBonus(kBuilding.getPowerBonus())) ||
-			kBuilding.isAreaCleanPower());
-	int const iTotalPopulation = kOwner.getTotalPopulation();
 	int const iNumCities = kOwner.getNumCities();
-	int const iNumCitiesInArea = getArea().getCitiesPerPlayer(getOwner());
-	// <K-Mod>
-	int const iCitiesTarget = GC.getInfo(GC.getMap().getWorldSize()).
-			getTargetNumCities(); // </K-Mod>
 
-	bool const bHighProductionCity = (findBaseYieldRateRank(YIELD_PRODUCTION) <=
-			std::max(3, iNumCities / 2));
-
-	int const iCultureRank = findCommerceRateRank(COMMERCE_CULTURE);
-	int const iCulturalVictoryNumCultureCities = kGame.culturalVictoryNumCultureCities();
-
-	bool const bFinancialTrouble = kOwner.AI_isFinancialTrouble();
-
-	// BETTER_BTS_AI_MOD, Victory Strategy AI, 03/08/10, jdog5000: START
-	bool const bCulturalVictory1 = kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE1);
-	bool const bCulturalVictory2 = kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE2);
-	bool const bCulturalVictory3 = kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE3);
-	bool const bSpaceVictory1 = kOwner.AI_atVictoryStage(AI_VICTORY_SPACE1);
-	// BETTER_BTS_AI_MOD: END
-
-	bool const bCanPopRush = /*kOwner.*/canPopRush(); // advc.912d
 	bool const bWarPlan = kOwner.AI_isFocusWar(area()); // advc.105
 			//GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0; // K-Mod
 
@@ -4556,13 +4457,13 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 	const bool bMinor = kOwner.isMinorCiv();
 	const bool bBarbarian = kOwner.isBarbarian();
 
-	if (bBarbarian && !bMinor)
+	if (!bBarbarian && !bMinor)
 	{
 		// Quick threat read
 		bool const bDanger = AI_isDanger();
 		bool const bAtWar = (GET_TEAM(getTeam()).getNumWars() > 0);
 
-		// Enemy power percent: sum of enemy power as % of ours (K-Mod style).
+		// Enemy power percent: sum of enemy power as % of ours.
 		// < 100  => we’re stronger; e.g., 80 means we’re ~125% of them.
 		const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
 
@@ -4690,7 +4591,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			// --- Hard rule: don't build Stables without horses/camels <!-- custom: or elephants as it noticed and suggested itself while i had forgotten as in overlooked it rather as i didn't think of it at all xd in this case if i may say but anyways etc -->--------------------
 			static const BuildingClassTypes eBuildingClassStable = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_STABLE", true);
 
-			const bool bBuildingClassStable = (eBuildingClassStable != NO_BUILDINGCLASS && kBuilding.getBuildingClassType() == eBuildingClassStable);
+			const bool bBuildingClassStable = (eBuildingClassStable != NO_BUILDINGCLASS && eBuildingClass == eBuildingClassStable);
 
 			if (bBuildingClassStable)
 			{
@@ -5425,7 +5326,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					return 0;
 				}
 
-				// <!-- custom: even if we don't have bonuses early, we may get a lucky stonehedge if rivals have not connected their stone yet or/and we got lucky with our start that would have high production maybe so give it a try in these early turns for wonders cases but anyways etc, else don't risk wasting precious early hammer on incompleted wonder vs say units or anything else instead (a granary + barracks + worker for example more or less if i may say but anyways etc) ; note: modifiers are not only bonuses, a civic or religion modifier may be equal or even stronger than the bonus one, even if we don't have the bonus, so look rather at the final modifier no matetr where it comes from -->
+				// <!-- custom: even if we don't have bonuses early, we may get a lucky stonehenge if rivals have not connected their stone yet or/and we got lucky with our start that would have high production maybe so give it a try in these early turns for wonders cases but anyways etc, else don't risk wasting precious early hammer on incompleted wonder vs say units or anything else instead (a granary + barracks + worker for example more or less if i may say but anyways etc) ; note: modifiers are not only bonuses, a civic or religion modifier may be equal or even stronger than the bonus one, even if we don't have the bonus, so look rather at the final modifier no matetr where it comes from -->
 				// Early window (scaled to speed)
 				const int iEarlyTurnsNoModifierNormal = 35; // @Normal
 				const int iEarlyTurnsNoModifierAdjusted = iEarlyTurnsNoModifierNormal * iGameSpeedMultiplier / 100;
@@ -5537,7 +5438,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				const bool bGovCenter = kBuilding.isGovernmentCenter();
 				// <!-- custom: note: this is not the barbarian block so fine if i am not mistaken but check to be sure anyways etc -->
 				static const BuildingClassTypes eBuildingClassPalace = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_PALACE", true);
-				const bool bPalaceBuildingClass = (kBuilding.getBuildingClassType() == eBuildingClassPalace);
+				const bool bPalaceBuildingClass = (eBuildingClass == eBuildingClassPalace);
 
 				if (!bPalaceBuildingClass)
 				{
@@ -5635,6 +5536,116 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			}
 		}
 	}
+
+	// <!-- custom: moved these below our pre-checks / pre-filtering out since we don't use them and they may interfere with our logic or/and cost performance needlessly -->
+	// <!-- custom: beginning of moved block -->
+	int const iOwnerEra = kOwner.getCurrentEra();
+	int const iCitizenValue = AI_citizenValue(); // advc
+
+	int const iLimitedWonderLimit = GC.getInfo(eBuildingClass).getLimit();
+	bool const bLimitedWonder = (iLimitedWonderLimit >= 0);
+
+	bool const bProvidesPower = (kBuilding.isPower() ||
+			(kBuilding.getPowerBonus() != NO_BONUS &&
+			hasBonus(kBuilding.getPowerBonus())) ||
+			kBuilding.isAreaCleanPower());
+	int const iTotalPopulation = kOwner.getTotalPopulation();
+
+	int const iNumCitiesInArea = getArea().getCitiesPerPlayer(getOwner());
+	// <K-Mod>
+	int const iCitiesTarget = GC.getInfo(GC.getMap().getWorldSize()).
+			getTargetNumCities(); // </K-Mod>
+
+	bool const bHighProductionCity = (findBaseYieldRateRank(YIELD_PRODUCTION) <=
+			std::max(3, iNumCities / 2));
+
+	int const iCultureRank = findCommerceRateRank(COMMERCE_CULTURE);
+	int const iCulturalVictoryNumCultureCities = kGame.culturalVictoryNumCultureCities();
+
+	bool const bFinancialTrouble = kOwner.AI_isFinancialTrouble();
+
+	// BETTER_BTS_AI_MOD, Victory Strategy AI, 03/08/10, jdog5000: START
+	bool const bCulturalVictory1 = kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE1);
+	bool const bCulturalVictory2 = kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE2);
+	bool const bCulturalVictory3 = kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE3);
+	bool const bSpaceVictory1 = kOwner.AI_atVictoryStage(AI_VICTORY_SPACE1);
+	// BETTER_BTS_AI_MOD: END
+
+	bool const bCanPopRush = /*kOwner.*/canPopRush(); // advc.912d
+
+	// <advc.131>
+	int iTotalBonusYieldMod = 0;
+	int iTotalImprFreeSpecialists = 0;
+	bool bAnySeaPlotYieldChange = false; // </advc.131>
+
+	// <K-Mod>
+	/*	This new value, iPriorityFactor, is used to boost the value of
+		productivity buildings without overvaluing productivity.
+		The point is to get the AI to build productiviy buildings quickly,
+		but not if they come with large negative side effects.
+		I may use it for other adjustments in the future. */
+	int iPriorityFactor = 100;
+
+	/*	bRemove means that we're evaluating the cost of losing this building
+		rather than adding it. the definition used here is just a kludge because
+		there currently isn't any other way to tell the difference.
+		Currently, bRemove is only in a few parts of the evaluation
+		where it is particularly important; for example, bRemove is critical for
+		calculating the lost value of obsoleting walls and castles.
+		There are several sections which could, in the future, be improved
+		using bRemove - but I don't see it as a high priority. */
+	bool const bRemove = (getNumBuilding(eBuilding) >=
+			GC.getDefineINT(CvGlobals::CITY_MAX_NUM_BUILDINGS));
+	// advc.004c: bRemove && !bObsolete is OK; that means spy attack.
+	FAssert(!bObsolete || bRemove);
+
+	/*	Veto checks: return zero if the building is not suitable.
+		Note: these checks are essentially the same as in the original code,
+		they've just been moved. */
+	if (iFocusFlags & BUILDINGFOCUS_WORLDWONDER)
+	{
+		if (!bWorldWonder ||
+			findBaseYieldRateRank(YIELD_PRODUCTION) <= 3)
+		{
+			/*	Note / TODO: the production condition is from the original BtS code.
+				I intend to remove / change that condition in the future. */
+			return 0;
+		}
+	}
+
+	if (kBuilding.isCapital())
+		return 0;
+	
+	// <advc.014>
+	if(GET_TEAM(getOwner()).isCapitulated() && bWorldWonder &&
+		kBuilding.getHolyCity() == NO_RELIGION)
+	{
+		return 0;
+	} // </advc.014>
+	FOR_EACH_NON_DEFAULT_PAIR(kBuilding.
+		getReligionChange(), Religion, int)
+	{
+		if (perReligionVal.second > 0 &&
+			!GET_TEAM(getTeam()).hasHolyCity(perReligionVal.first))
+		{
+			return 0;
+		}
+	}
+	// Construction value cache.
+	/*	Note: the WONDEROK and WORLDWONDER flags should not affect
+		the final value - and so cache should not be disabled by those flags. */
+	bool const bNeutralFlags = (iFocusFlags &
+			~(BUILDINGFOCUS_WONDEROK | BUILDINGFOCUS_WORLDWONDER)) == 0;
+	bool const bUseConstructionValueCache = (bNeutralFlags && iThreshold == 0);
+	if (bUseConstructionValueCache && m_aiConstructionValue[eBuildingClass] != -1)
+		return m_aiConstructionValue[eBuildingClass];
+	// </K-Mod>
+
+	ReligionTypes const eStateReligion = kOwner.getStateReligion();
+
+	bool const bAreaAlone = kOwner.AI_isAreaAlone(getArea());
+	int const iHasMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
+	// <!-- custom: end of moved block anyways etc -->
 
 	int iValue = 0;
 	for (int iPass = 0; iPass < 2; iPass++)

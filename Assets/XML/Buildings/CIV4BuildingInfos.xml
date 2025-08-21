@@ -10930,7 +10930,7 @@
 			<DomainProductionModifiers/>
 			<BuildingHappinessChanges/>
 			<PrereqBuildingClasses/>
-			<!-- custom: observatory class removed entirely, laboratory now requires instead a university, which (i.e. the university, not directly related info to the laboratory but to be exhaustive maybe or and other reason or and not but anyways etc...) may mesh also better with _OXFORD_UNIVERSITY being a more important key previous objective, like other monument type of buildings are also strongly linked to/with _STONEHEDGE anyways etc -->
+			<!-- custom: observatory class removed entirely, laboratory now requires instead a university, which (i.e. the university, not directly related info to the laboratory but to be exhaustive maybe or and other reason or and not but anyways etc...) may mesh also better with _OXFORD_UNIVERSITY being a more important key previous objective, like other monument type of buildings are also strongly linked to/with _STONEHENGE anyways etc -->
 			<BuildingClassNeededs>
 				<BuildingClassNeeded>
 					<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
@@ -22971,7 +22971,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: stonehedge, type: stonehedge (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<BuildingInfo> <!-- custom: class: stonehendge, type: stonehenge (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<BuildingClass>BUILDINGCLASS_STONEHENGE</BuildingClass>
 			<Type>BUILDING_STONEHENGE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
