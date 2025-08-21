@@ -1794,7 +1794,8 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/Promotions/Combat5.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,8,16</Button>
+			<!-- custom: replaced with a button i made based on the medic 3 button from ri mod (thankfully found it easily there without having to browse through atlas or wherever it was so thanks for this .dds ready to use but anyways etc) then edited with paint.net to add the 4th medic level but anyways etc -->
+			<Button>Art/AdvCiv_SAS/Promotions/Medic_4/medic4.dds</Button>
 		</PromotionInfo>
 		<PromotionInfo>
 			<Type>PROMOTION_MEDIC_AMBULATORY</Type>

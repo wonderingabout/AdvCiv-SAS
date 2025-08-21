@@ -3054,52 +3054,6 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_FUTURE_FAMINE_IN_EUROPE</ScriptID>
-		<SoundID>SONG_FUTURE_FAMINE_IN_EUROPE</SoundID>
-		<SoundType>GAME_MUSIC</SoundType>
-		<iMinVolume>65</iMinVolume>
-		<iMaxVolume>65</iMaxVolume>
-		<iPitchChangeDown>0</iPitchChangeDown>
-		<iPitchChangeUp>0</iPitchChangeUp>
-		<iMinLeftPan>-1</iMinLeftPan>
-		<iMaxLeftPan>-1</iMaxLeftPan>
-		<iMinRightPan>-1</iMinRightPan>
-		<iMaxRightPan>-1</iMaxRightPan>
-		<bLooping>0</bLooping>
-		<iMinTimeDelay>0</iMinTimeDelay>
-		<iMaxTimeDelay>0</iMaxTimeDelay>
-		<bTaperForSoundtracks>0</bTaperForSoundtracks>
-		<iLengthOfSound>0</iLengthOfSound>
-		<fMinDryLevel>1.0</fMinDryLevel>
-		<fMaxDryLevel>1.0</fMaxDryLevel>
-		<fMinWetLevel>0.0</fMinWetLevel>
-		<fMaxWetLevel>0.0</fMaxWetLevel>
-		<iNotPlayPercent>0</iNotPlayPercent>
-	</Script2DSound>
-	<Script2DSound>
-		<ScriptID>AS2D_FUTURE_FINAL_SUNSHINE</ScriptID>
-		<SoundID>SONG_FUTURE_FINAL_SUNSHINE</SoundID>
-		<SoundType>GAME_MUSIC</SoundType>
-		<iMinVolume>60</iMinVolume>
-		<iMaxVolume>60</iMaxVolume>
-		<iPitchChangeDown>0</iPitchChangeDown>
-		<iPitchChangeUp>0</iPitchChangeUp>
-		<iMinLeftPan>-1</iMinLeftPan>
-		<iMaxLeftPan>-1</iMaxLeftPan>
-		<iMinRightPan>-1</iMinRightPan>
-		<iMaxRightPan>-1</iMaxRightPan>
-		<bLooping>0</bLooping>
-		<iMinTimeDelay>0</iMinTimeDelay>
-		<iMaxTimeDelay>0</iMaxTimeDelay>
-		<bTaperForSoundtracks>0</bTaperForSoundtracks>
-		<iLengthOfSound>0</iLengthOfSound>
-		<fMinDryLevel>1.0</fMinDryLevel>
-		<fMaxDryLevel>1.0</fMaxDryLevel>
-		<fMinWetLevel>0.0</fMinWetLevel>
-		<fMaxWetLevel>0.0</fMaxWetLevel>
-		<iNotPlayPercent>0</iNotPlayPercent>
-	</Script2DSound>
-	<Script2DSound>
 		<ScriptID>AS2D_FUTURE_FOOT_TAPPER_CLASSICAL</ScriptID>
 		<SoundID>SONG_FUTURE_FOOT_TAPPER_CLASSICAL</SoundID>
 		<SoundType>GAME_MUSIC</SoundType>
@@ -3284,29 +3238,6 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_FUTURE_POWER_IN_THEIR</ScriptID>
-		<SoundID>SONG_FUTURE_POWER_IN_THEIR</SoundID>
-		<SoundType>GAME_MUSIC</SoundType>
-		<iMinVolume>60</iMinVolume>
-		<iMaxVolume>60</iMaxVolume>
-		<iPitchChangeDown>0</iPitchChangeDown>
-		<iPitchChangeUp>0</iPitchChangeUp>
-		<iMinLeftPan>-1</iMinLeftPan>
-		<iMaxLeftPan>-1</iMaxLeftPan>
-		<iMinRightPan>-1</iMinRightPan>
-		<iMaxRightPan>-1</iMaxRightPan>
-		<bLooping>0</bLooping>
-		<iMinTimeDelay>0</iMinTimeDelay>
-		<iMaxTimeDelay>0</iMaxTimeDelay>
-		<bTaperForSoundtracks>0</bTaperForSoundtracks>
-		<iLengthOfSound>0</iLengthOfSound>
-		<fMinDryLevel>1.0</fMinDryLevel>
-		<fMaxDryLevel>1.0</fMaxDryLevel>
-		<fMinWetLevel>0.0</fMinWetLevel>
-		<fMaxWetLevel>0.0</fMaxWetLevel>
-		<iNotPlayPercent>0</iNotPlayPercent>
-	</Script2DSound>
-	<Script2DSound>
 		<ScriptID>AS2D_FUTURE_RELAXING_PIANO_LOFI_251401</ScriptID>
 		<SoundID>SONG_FUTURE_RELAXING_PIANO_LOFI_251401</SoundID>
 		<SoundType>GAME_MUSIC</SoundType>
@@ -3332,29 +3263,6 @@
 	<Script2DSound>
 		<ScriptID>AS2D_FUTURE_TACO_TRUCK_HEIST_377352</ScriptID>
 		<SoundID>SONG_FUTURE_TACO_TRUCK_HEIST_377352</SoundID>
-		<SoundType>GAME_MUSIC</SoundType>
-		<iMinVolume>60</iMinVolume>
-		<iMaxVolume>60</iMaxVolume>
-		<iPitchChangeDown>0</iPitchChangeDown>
-		<iPitchChangeUp>0</iPitchChangeUp>
-		<iMinLeftPan>-1</iMinLeftPan>
-		<iMaxLeftPan>-1</iMaxLeftPan>
-		<iMinRightPan>-1</iMinRightPan>
-		<iMaxRightPan>-1</iMaxRightPan>
-		<bLooping>0</bLooping>
-		<iMinTimeDelay>0</iMinTimeDelay>
-		<iMaxTimeDelay>0</iMaxTimeDelay>
-		<bTaperForSoundtracks>0</bTaperForSoundtracks>
-		<iLengthOfSound>0</iLengthOfSound>
-		<fMinDryLevel>1.0</fMinDryLevel>
-		<fMaxDryLevel>1.0</fMaxDryLevel>
-		<fMinWetLevel>0.0</fMinWetLevel>
-		<fMaxWetLevel>0.0</fMaxWetLevel>
-		<iNotPlayPercent>0</iNotPlayPercent>
-	</Script2DSound>
-	<Script2DSound>
-		<ScriptID>AS2D_FUTURE_WORLD_S_END</ScriptID>
-		<SoundID>SONG_FUTURE_WORLD_S_END</SoundID>
 		<SoundType>GAME_MUSIC</SoundType>
 		<iMinVolume>60</iMinVolume>
 		<iMaxVolume>60</iMaxVolume>
