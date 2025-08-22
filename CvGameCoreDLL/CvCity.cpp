@@ -10745,8 +10745,16 @@ bool CvCity::checkCanContinueProduction(bool bCheckUpgrade,
 
 void CvCity::doProduction(bool bAllowNoProduction)
 {
-	if (GC.getPythonCaller()->doProduction(*this))
-		return;
+	// <!-- custom: added in an attempt to solve the no production issue we have in many cities, not sure this specific block helps but it has been recommended by chatgpt 5 and doesn't seem to hurt nor change our issue, keep as is just in case anyways etc ; see known issue as of now 51 for details anyways etc -->
+	// if (GC.getPythonCaller()->doProduction(*this))
+	// 	return;
+
+	// Only honor Python if it actually did something
+	if (GC.getPythonCaller()->doProduction(*this)) {
+		if (isProduction() || (isHuman() && isChooseProductionDirty()))
+			return; // OK, Python set something or popped a human chooser
+		// else: fall through and let the normal logic pick something
+	}
 
 	if (!isHuman() || isProductionAutomated())
 	{
@@ -10756,6 +10764,57 @@ void CvCity::doProduction(bool bAllowNoProduction)
 			AI().AI_chooseProduction();
 		}
 	}
+
+	// <!-- custom: we have an issue of AI cities sometimes having seemingly no production at all for several turns, see known issue as of now 51 for examples and details. It seems to have happened in base advciv as well in an example i had documented, although the issue may have been soemthing else back then as it was at end game vs early game now in advciv-sas. In all cases, this is crippling, attempt to patch it with the help of chatgpt 5 but anyways etc, check if accurate anyways etc -->
+	// NEW: hard safety net for AI
+	// <!-- custom: unit is the most reliable, as of now we can always build the warrior (i.e. ancient maceman in our mod now anyways etc), else many units should be available, we don't start with no unit buildable at turn 0 after we have our first city, else how would these cities be guarded, go for cheapest unit just so we don't waste hammer, if we are lucky next production should get back on track as often does, at worst this would happen 2 or 3 times on a row before production seemingly fixes itself hoepfully. We do have many processes in the middle game, so i assume they are a fallback for the many no production that would have happened otherwise as is the case in current save file i am testing on, see known issue as of now 51 for details anyways etc. Note: this is maybe good for AI, as more units even if cheap can be upgraded e.g. of an ancient maceman to an axeman cheaper than for humans so maybe worth it in the long run, and this is a reliable choice, vs buildings that have many conditions we seemingly handle well already, as the japan ai city already produced key buildings except the walls as we instructed it around turns 40-50, so maybe don't meddle with it and not sure it would be as worth, we want more units for now and to not waste hammers if no production as a tentative patch to this no production issue here that happens in many cities it seems at least a few in this save file i am reviewing testing on but anyways etc -->
+	// <!-- custom: after adding this check, the results are very nice, we have much less no production, and can produce much more units, but i have noticed a huge issue now, which is that we scrap so many units, we scrap more untis that we produce, so ofc AIs die to barbarians, we need to find how to tone that down, despite not being bankrupt due to economy though, it reminds me of the workboat infinite scrapping known issue we had (see known issue as of now) --> 
+	if (!isHuman() /* <!-- custom: maybe add !isDisorder() and maybe also !isOccupation() or something later but first try to debug or/and fix it if i may say but anyways etc ; update: left as is for now as such as long as doesn't break anything, so we maximize change of solving the issue, even if a fake order is created, hopefully it is created later anyways etc, ideally would add checks but for now trying to fix other issues of excessive unit scrapping which is much more urgent anyways etc, and we seem to have improved on this issue already anyways etc --> */ && !isProduction()) {
+		// Cheapest combat unit
+		UnitTypes eBestFallbackUnit = NO_UNIT;
+		int iBestUCost = MAX_INT;
+		FOR_EACH_ENUM(Unit)
+		{
+			if (!canTrain(eLoopUnit, false))
+			{
+				continue;
+			}
+
+			const CvUnitInfo& kU = GC.getInfo(eLoopUnit);
+			// Land-only, must actually fight
+			if (kU.getDomainType() != DOMAIN_LAND)
+			{
+				continue;
+			}
+			if (kU.getCombat() <= 0)
+			{
+				continue; // ignore noncombat here
+			}
+
+			// <!-- custom: ignore civilian units that happen to have strength, and more generally any unitai that is not among the most efficient ones (e.g. no naval units, no spy or anything else, etc), while we do a fallback, let it be a good one! Xd anways etc -->
+			const UnitAITypes eAI = kU.getDefaultUnitAIType();
+			if (!(eAI == UNITAI_CITY_DEFENSE ||
+				eAI == UNITAI_COUNTER ||
+				eAI == UNITAI_RESERVE ||
+				eAI == UNITAI_ATTACK ||
+				eAI == UNITAI_ATTACK_CITY))
+			{
+				continue;
+			}
+
+			const int iCost = getProductionNeeded(eLoopUnit);
+			if (iCost < iBestUCost)
+			{
+				iBestUCost = iCost;
+				eBestFallbackUnit = eLoopUnit;
+			}
+		}
+		if (eBestFallbackUnit != NO_UNIT) {
+			pushOrder(ORDER_TRAIN, eBestFallbackUnit, GC.getInfo(eBestFallbackUnit).getDefaultUnitAIType());
+			return;
+		}
+	}
+	// <!-- custom: else if fails, let old code continue, it seems there is a process fallback which may explain why so many cities go for processes later in the game rather than the processes being actually good, maybe these cities would have been no production otherwise maybe but anyways etc, still it is a less efficient choice, prefer more units ideally especially for weaker players, but fine as a general rule as well anyways etc -->
 
 	if (!bAllowNoProduction && !isProduction())
 		return;
