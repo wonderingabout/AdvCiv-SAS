@@ -119,15 +119,15 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.313: was -40 -->
 			<iAIAnimalBonus>-30</iAIAnimalBonus>
 			<iAIBarbarianBonus>-30</iAIBarbarianBonus>
-			<iStartingDefenseUnits>3</iStartingDefenseUnits>
+			<iStartingDefenseUnits>1</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
-			<iStartingExploreUnits>1</iStartingExploreUnits>
+			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
 			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
 			<iBarbarianDefenders>1</iBarbarianDefenders>
-			<iAIDeclareWarProb>70</iAIDeclareWarProb>
+			<iAIDeclareWarProb>80</iAIDeclareWarProb>
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<!-- advc.251 (start) -->
 			<!-- was 160 -->
@@ -135,9 +135,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- custom: adjusted based on this line "For GP and growth thresholds, I've added GPThresholdPercent and BaseGrowthThresholdPercent (for all civs) and AIGPThresholdPercent (for AI civs)." (from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv Base Doc\manual.txt) anyways etc -->
 			<iAIGPThresholdPercent>115</iAIGPThresholdPercent>
 			<!-- custom: reworked tech costs, see deity code comment of <iResearchPercent> for details at least as of now the code comment is there i mean anyways etc -->
-			<iAIResearchPercent>130</iAIResearchPercent>
+			<iAIResearchPercent>124</iAIResearchPercent>
 			<!-- was 6x 160 -->
-			<iAITrainPercent>130</iAITrainPercent>
+			<iAITrainPercent>124</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>118</iAIConstructPercent>
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
@@ -247,23 +247,23 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.313: was -40 -->
 			<iAIAnimalBonus>-15</iAIAnimalBonus>
 			<iAIBarbarianBonus>-15</iAIBarbarianBonus>
-			<iStartingDefenseUnits>2</iStartingDefenseUnits>
+			<iStartingDefenseUnits>1</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
-			<iStartingExploreUnits>1</iStartingExploreUnits>
+			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
 			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
 			<iBarbarianDefenders>1</iBarbarianDefenders>
-			<iAIDeclareWarProb>80</iAIDeclareWarProb>
+			<iAIDeclareWarProb>90</iAIDeclareWarProb>
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<!-- advc.251 (start) -->
 			<!-- was 130 -->
 			<iAIGrowthPercent>110</iAIGrowthPercent>
 			<iAIGPThresholdPercent>110</iAIGPThresholdPercent>
-			<iAIResearchPercent>120</iAIResearchPercent>
+			<iAIResearchPercent>116</iAIResearchPercent>
 			<!-- was 6x 130 -->
-			<iAITrainPercent>120</iAITrainPercent>
+			<iAITrainPercent>116</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>112</iAIConstructPercent>
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
@@ -373,22 +373,22 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.313: was -40 -->
 			<iAIAnimalBonus>-20</iAIAnimalBonus>
 			<iAIBarbarianBonus>0</iAIBarbarianBonus>
-			<iStartingDefenseUnits>2</iStartingDefenseUnits>
+			<iStartingDefenseUnits>1</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
-			<iStartingExploreUnits>1</iStartingExploreUnits>
+			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
 			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
 			<iBarbarianDefenders>1</iBarbarianDefenders>
-			<iAIDeclareWarProb>90</iAIDeclareWarProb>
+			<iAIDeclareWarProb>100</iAIDeclareWarProb>
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<iAIGrowthPercent>105</iAIGrowthPercent>
 			<!-- advc.251 -->
 			<iAIGPThresholdPercent>105</iAIGPThresholdPercent>
 			<!-- advc.251 -->
-			<iAIResearchPercent>110</iAIResearchPercent>
-			<iAITrainPercent>110</iAITrainPercent>
+			<iAIResearchPercent>108</iAIResearchPercent>
+			<iAITrainPercent>108</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>106</iAIConstructPercent>
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
@@ -502,7 +502,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIAnimalBonus>0</iAIAnimalBonus>
 			<iAIBarbarianBonus>0</iAIBarbarianBonus>
 			<!-- custom: considering noble is intended to be a bit harder now and a bridge closer to prince, also increase the value here, was 0 -->
-			<iStartingDefenseUnits>2</iStartingDefenseUnits>
+			<iStartingDefenseUnits>1</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
@@ -510,7 +510,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
 			<iBarbarianDefenders>1</iBarbarianDefenders>
-			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+			<iAIDeclareWarProb>110</iAIDeclareWarProb>
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<iAIGrowthPercent>100</iAIGrowthPercent>
 			<!-- advc.251 -->
@@ -637,19 +637,19 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
-			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
-			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
 			<iBarbarianDefenders>1</iBarbarianDefenders>
-			<iAIDeclareWarProb>110</iAIDeclareWarProb>
+			<iAIDeclareWarProb>120</iAIDeclareWarProb>
 			<!-- advc.251: was 10 -->
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<iAIGrowthPercent>95</iAIGrowthPercent>
 			<!-- advc.251 -->
 			<iAIGPThresholdPercent>95</iAIGPThresholdPercent>
 			<!-- advc.251 -->
-			<iAIResearchPercent>90</iAIResearchPercent>
-			<iAITrainPercent>90</iAITrainPercent>
+			<iAIResearchPercent>92</iAIResearchPercent>
+			<iAITrainPercent>92</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>94</iAIConstructPercent>
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
@@ -774,19 +774,19 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
-			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
-			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
 			<iBarbarianDefenders>1</iBarbarianDefenders>
-			<iAIDeclareWarProb>120</iAIDeclareWarProb>
+			<iAIDeclareWarProb>130</iAIDeclareWarProb>
 			<!-- advc.251: was 20 -->
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<iAIGrowthPercent>90</iAIGrowthPercent>
 			<!-- advc.251 (start) -->
 			<iAIGPThresholdPercent>90</iAIGPThresholdPercent>
-			<iAIResearchPercent>80</iAIResearchPercent>
+			<iAIResearchPercent>84</iAIResearchPercent>
 			<!-- was 90 -->
-			<iAITrainPercent>80</iAITrainPercent>
+			<iAITrainPercent>84</iAITrainPercent>
 			<!-- was 100 -->
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<!-- was 90 -->
@@ -908,21 +908,21 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
-			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<!-- advc.250e: was 1 -->
-			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
 			<iBarbarianDefenders>1</iBarbarianDefenders>
-			<iAIDeclareWarProb>130</iAIDeclareWarProb>
+			<iAIDeclareWarProb>140</iAIDeclareWarProb>
 			<!-- advc.251: was 50 -->
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<iAIGrowthPercent>85</iAIGrowthPercent>
 			<!-- advc.251 (start) -->
 			<iAIGPThresholdPercent>85</iAIGPThresholdPercent>
 			<!-- Higher tech costs for the AI -->
-			<iAIResearchPercent>70</iAIResearchPercent>
+			<iAIResearchPercent>76</iAIResearchPercent>
 			<!-- was 85 -->
-			<iAITrainPercent>70</iAITrainPercent>
+			<iAITrainPercent>76</iAITrainPercent>
 			<!-- was 100 -->
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<!-- was 85 -->
@@ -1051,23 +1051,23 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
 			<!-- advc.250e: was 3 -->
-			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
 			<!-- custom: with our changes and improvements but anyways etc to AI efficiency, we can afford giving AIs the same worker start if i'm not mistaken anyways etc at all difficulties, was 1 -->
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
 			<!-- advc.250e: was 1 -->
-			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
 			<!-- advc.250e: was 4 -->
 			<iBarbarianDefenders>1</iBarbarianDefenders>
-			<iAIDeclareWarProb>140</iAIDeclareWarProb>
+			<iAIDeclareWarProb>150</iAIDeclareWarProb>
 			<!-- advc.251: was 75 -->
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
 			<iAIGrowthPercent>80</iAIGrowthPercent>
 			<!-- advc.251 (start) -->
 			<iAIGPThresholdPercent>80</iAIGPThresholdPercent>
 			<!-- Higher tech costs for the AI -->
-			<iAIResearchPercent>60</iAIResearchPercent>
+			<iAIResearchPercent>68</iAIResearchPercent>
 			<!-- was 80 -->
-			<iAITrainPercent>60</iAITrainPercent>
+			<iAITrainPercent>68</iAITrainPercent>
 			<!-- was 100 -->
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>76</iAIConstructPercent>
@@ -1192,18 +1192,20 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIAnimalBonus>0</iAIAnimalBonus>
 			<!-- advc.313: end -->
 			<iAIBarbarianBonus>0</iAIBarbarianBonus>
+			<!-- custom: now the same at all difficulties for all players, human and AIs, thanks to many AI efficiency improvements, see known issue as of now 52 and related issues if any for details in our doc or/and in the code if i may say but anyways etc ; extend this logic indirectly to explorers or such anyways etc although not directly related, no reason anymore to give freebies there if AIs are comeptent enough anyways etc -->
 			<iStartingDefenseUnits>1</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
 			<!-- advc.250e: was 1 -->
 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
 			<!-- advc.250e: was 4 -->
-			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
+			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
 			<!-- custom: with our changes and improvements but anyways etc to AI efficiency, we can afford giving AIs the same worker start if i'm not mistaken anyways etc at all difficulties, was 1 -->
 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
-			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+			<!-- custom: make these 0 to test early as barbarians are a bit too strong as of now anyways etc -->
 			<iBarbarianDefenders>1</iBarbarianDefenders>
-			<iAIDeclareWarProb>150</iAIDeclareWarProb>
+			<iAIDeclareWarProb>160</iAIDeclareWarProb>
 			<!-- custom: let's try to give 0 at all difficulties, our workers are so efficient now thanks to AI changes in bestcitybuild and such, i think we can afford it, and if needed may as well rather just increase worker count rather, for an enjoyable fairer experience for human players too anyways etc -->
 			<!-- advc.251: was 100 -->
 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
@@ -1211,9 +1213,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- advc.251 (start) -->
 			<iAIGPThresholdPercent>75</iAIGPThresholdPercent>
 			<!-- Higher tech costs for the AI -->
-			<iAIResearchPercent>50</iAIResearchPercent>
+			<iAIResearchPercent>60</iAIResearchPercent>
 			<!-- was 60 -->
-			<iAITrainPercent>50</iAITrainPercent>
+			<iAITrainPercent>60</iAITrainPercent>
 			<!-- custom: i want more reliable handicap settings if i am not mistaken in my understanding and after asking chatgpt and with a web search i asked it to do to be sure too anyways etc, it told me "According to the Civilization Wiki, the iAIWorldTrainPercent values vary across difficulty levels:" etc.. until "Settler	160 Chieftain 130 Warlord 110 Noble 100 Prince 100 Monarch 100 Emperor 100 Immortal 100 Deity 100" so based on this xml raw data and observation, what i make of it and interpret of it if i may say for our needs in advciv-sas but anyways etc, is that i want reliable AI behaviour when it comes to military hammer train percents, regardless of world size at all difficulties, anyways etc ; seemingly similar reasoning for iAIWorldConstructPercent and iAIWorldCreatePercent if i am not mistaken too anyways etc -->
 			<!-- was 100-->
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>

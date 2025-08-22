@@ -3211,8 +3211,116 @@ void CvUnit::automate(AutomateTypes eAutomate)
 }
 
 
+// <!-- custom: we scrap way too many military units in particular, as i have noticed it in the early game (+/- turn 40-50 but anyways etc, could and most likely happens in other circumstances but didn't check check to be sure and if i'm not mistaken anyways etc), so after we produce a unit we end up with 1 less, so this would mean we scrapped 2. Especially crippling early when barbarians are stronger, our military weak, and rivals dangerous as well potentially. Try to reduce scrapping with this tentative code change but anyways etc, while also not overdoing it in case it collapses our economy, here or/and in other places, see known issue as of now 52 for details anyways etc; also code provided by chatgpt 5 thansk to my prompts and code samples i fed it and or such, check if accurate, anyways etc -->
+// <!-- custom: the changes in CvPlayerAI::AI_doMilitary did not change the seemingly cyclical scrapping behaviour of new ancient macemen many turns on a row, so as advised by chatgpt 5 (genius idea it got, it may not seem to clean but great way to solve it xd thanks! But anyways etc), implementing our logic here as well, check if accurate anyways etc -->
+// Why here? Anything that eventually calls scrap() must pass canScrap() first. With this guard, your land combat units won’t be culled every other turn in the early game or under threat, matching the pattern you observed (6→5→6→5).
+// <!-- custom: update!!! Tremendously fixed!!! No more scrapping and painful losing of these ancient macemen, will reduce handicap now to accomodate these and make sure we don't run abnkrupt at leats early, else i don't care too much or as much, and give AI best chances anyways etc, see known issue as of now 52 for details anyways etc; in short we only aded some more prechecks here as we usually do, in an attempt to help improve AI efficiency or/and correct or help improve significant AI flaws, so hopefully AI is now stronger as such and we have to adjust some things to match these but anyways etc, see known issue mentionned here in these code comments for details but anyways etc, and we otherwise kept function the same anyways etc -->
 bool CvUnit::canScrap() const
 {
+	// <!-- custom: old function was a 3 liner anyways etc... -->
+	// if (getPlot().isFighting())
+	// 	return false;
+	// return true;
+
+	// <!-- custom: update: the danger and not before turn 100 and other conditions anyways etc no scrapping gating here worked extremely great and solved the scrapping issue, see known issue as of now 52 for details anyways etc; now doing a less going overboard xd approach if i may say but anyways etc, we can just disable scrapping entirely and not waste computation, or in other cases tune it to be selectively disabled or such anyways etc, commenting-out this old code we added at first for that end since we don't need to check these now so kept as is commented-out in case if need (and note: untested or barely tested once in this case i mean but anyways etc), may remove it if uneeded, anyways etc -->
+	// 		// only allow scrapping if actually over budget or burning gold
+	// 		const int iCostPerMil = kOwner.AI_unitCostPerMil();
+	// 		const int iMaxPerMil  = kOwner.AI_maxUnitCostPerMil();
+	// 		if (iCostPerMil <= iMaxPerMil && kOwner.calculateGoldRate() >= 0)
+	// 			return false;
+	// 	}
+	// }
+
+	if (!isHuman())
+	{
+		// <!-- custom: no disband at all regardless, as well, for land military units (found by our preferred/corresponding unitais as as of now below but anyways etc), they are likely to be valuable one way or another at some point, unlike naval units or perhaps scouts or workers to a lesser extent, but what i mean is do not scrap them at all, hopefully fixes low midgame AI output or enhances it (handicap and such will be adjusted to match these changes as well but see for details or/and updated info known issue as of now 52 or other related docs anyways etc)
+		const UnitAITypes eAI = AI_getUnitAIType();
+
+		const bool bLandMilitaryUnitAIs = (
+			(eAI == UNITAI_ATTACK) ||
+			(eAI == UNITAI_ATTACK_CITY) ||
+			(eAI == UNITAI_ATTACK_CITY_LEMMING) ||
+			(eAI == UNITAI_COUNTER) ||
+			(eAI == UNITAI_CITY_COUNTER) ||
+			// <!-- custom: note: we don't use UNITAI_COLLATERAL, UNITAI_PILLAGE and such so not going the extra long mile to save them either if i may say (in case they are produced which shouldn't happen any way but adding this note for clarity if i may say but anyways etc) but anyways etc -->
+			//
+			(eAI == UNITAI_CITY_DEFENSE) ||
+			(eAI == UNITAI_CITY_SPECIAL) ||
+			(eAI == UNITAI_RESERVE) ||
+			//
+			(eAI == UNITAI_PARADROP)
+		);
+
+		if (bLandMilitaryUnitAIs)
+		{
+			return false;
+		}
+		// <!-- custom: if the former fails if i may say but anyways for example in some mod mod where workers are high strength or can fight or such, add an additional check faithful to our land military units first spirit and maybe helps catch more without false positives like spies (unless they can really fight again i mean in some mod mod or such (maybe our mod too but very unlikely so most likely not, as i don't have a reason to do this as of now so most likely not but anyways etc) perhaps but anyways etc) or galleons ; note: as i don't trust the canFight check in case it fires weird things at us or flags the wrong ones (didn't check but to be safe anyways etc), go with our former check first, maybe computationally more efficient although i didn't check the canFight function but anyways etc -->
+		// prefer explicit AIs, but also OR with canFight() just in case
+		else if (getDomainType() == DOMAIN_LAND && canFight())
+		{
+			return false;
+		}
+
+		// <!-- custom: then do not scrap any unit at all before turn 150 (at normal game speed), the surplus is likely to be useful, if we go to war or get invaded, then numbers would dim at that time anyways etc -->
+		CvGame const& kGame = GC.getGame();
+		const int iCurrentTurn = kGame.getGameTurn();
+
+		static const int iNoDisbandAtAllTurnsNormal = 150;
+		// <!-- custom: no static for the below, they may change in another save file or new map or such maybe (check to be sure as this is just a guess from me anyways etc) -->
+		const int iNoDisbandAtAllTurnsAdjusted = iNoDisbandAtAllTurnsNormal * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() / 100;
+		const bool bNoDisbandAtAllTurnsAdjusted = (iCurrentTurn < iNoDisbandAtAllTurnsAdjusted);
+
+		if (bNoDisbandAtAllTurnsAdjusted)
+		{
+			return false;
+		}
+		// <!-- custom: then workers should be a bit valuable, but since we don't scrap until 150 (at normal), then it is maybe fine and not needed to add another worker-specific no scrap filter (else may have added in this case i mean but anyways etc), so past turn 150 our new focus is to not scrap if circumstances dictate so, for example if we are in danger
+		// 
+		// <!-- custom: so else let normal scrapping handle this, scrap if we have to (outside our preferred (as of now military land but anyways etc) units as above but anyways etc) else don't but no need to waste computation here or/and disturb existing logic otherwise and/or possibly have unintended effects/consequences, as chatgpt 5 prompted me to do (no pun xd but anyways etc) with its not directly related question but which helped me improve i think hehe the code i mean thanks a lot anyways etc -->
+		// else
+		// {
+		// 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+		// 	const CvTeamAI&   kTeam  = GET_TEAM(getTeam());
+
+		// 	// <!-- custom: we already return false and never ever scrap land military units so no need to add them here inefficiently and most importantly unneededly if i may say but anyways etc -->
+
+		// 	// Situation read
+		// 	const bool bWarPlan = kOwner.AI_isFocusWar();
+		// 	const bool bAtWar = (kTeam.getNumWars() > 0);
+		// 	const int  iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
+		// 	const bool bEnemyStrong = (iEnemyPowerPercent >= 120);
+		// 	const bool bEnemyWeak   = (iEnemyPowerPercent <= 80);
+
+		// 	// There is no AI_isDanger() at player scope. Build a bDanger flag by scanning your cities.
+		// 	// Danger heuristic: any unsafe city or any plot danger near a city
+		// 	bool bDanger = false;
+		// 	FOR_EACH_CITYAI(pCityAI, kOwner)
+		// 	{
+		// 		if (!pCityAI->AI_isSafe() ||
+		// 			kOwner.AI_isAnyPlotDanger(*pCityAI->plot(), 2, /*bTestMoves=*/false))
+		// 		{
+		// 			bDanger = true;
+		// 			break;
+		// 		}
+		// 	}
+		// 	// We *disallow scrapping* during any of these conditions.
+		// 	if (canFight())
+		// 	{
+		// 		// newborns: let them live a few turns
+		// 		if (kGame.getGameTurn() - getGameTurnCreated() < 5)
+		// 		{
+		// 			return false;
+		// 		}
+		// 		if (bAtWar || bEnemyStrong || bEnemyWeak || bDanger || bWarPlan)
+		// 		{
+		// 			return false;
+		// 		}
+		// 	}
+		// }
+	}
+
+	// <!-- custom: then after our checks, resume from old code below anyways etc -->
 	if (getPlot().isFighting())
 		return false;
 	return true;

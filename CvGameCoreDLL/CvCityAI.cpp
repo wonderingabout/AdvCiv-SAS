@@ -487,10 +487,10 @@ void CvCityAI::AI_chooseProduction()
 				bool const bWarPlan = kPlayer.AI_isFocusWar(area());
 				// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate, anyways etc -->
 				const bool bAtWar = (GET_TEAM(getTeam()).getNumWars() > 0);
-				const int  iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
+				const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
 				const bool bEnemyStrong = (iEnemyPowerPercent >= 120);
 				// <!-- custom: note: if i remember it correctly but anyways etc, chatgpt 5 said this applies also if not at war. I guessedly thought this maybe would or could return 0 if we are not at war with any ennemy, faslifying formula and defeating the purpose. In some places, i have added bAtWarAndEnemyWeak, while in some other places i may have left it as bEnemyWeak (check to be sure, i didn't check too much anyways etc). I don't know which is more correct as of now and didn't dig too deep into it, so left as such, hopefully accurate enough but anyways etc, thnakfully at this part of the code the difference wouldn't be too big regardless, and most importantly it already pre-checks bAtWar before so no issue there but ideally figure out how it works to decide in this case i mean but anyways etc if we should merge the weak with an at war check to be safe or if uneeded and be more flexible and accurate with only a weak check, but left as such anyways etc -->
-				const bool bEnemyWeak   = (iEnemyPowerPercent <= 80);
+				const bool bEnemyWeak = (iEnemyPowerPercent <= 80);
 
 				// Keep a baseline threshold so peaceful wonder builds don’t auto-stick at 0%. 
 				int iThreshold = 25;

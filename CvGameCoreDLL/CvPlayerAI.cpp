@@ -28524,6 +28524,22 @@ int CvPlayerAI::AI_disbandValue(CvUnitAI const& kUnit, bool bMilitaryOnly) const
 	{
 		return MAX_INT;
 	}
+	// <!-- custom: note: if i remember it correctly but anyways etc, chatgpt 5 said this applies also if not at war. I guessedly thought this maybe would or could return 0 if we are not at war with any ennemy, faslifying formula and defeating the purpose. In some places, i have added bAtWarAndEnemyWeak, while in some other places i may have left it as bEnemyWeak (check to be sure, i didn't check too much anyways etc). I don't know which is more correct as of now and didn't dig too deep into it, so left as such, hopefully accurate enough but anyways etc, thnakfully at this part of the code the difference wouldn't be too big regardless, and most importantly it already pre-checks bAtWar before so no issue there but ideally figure out how it works to decide in this case i mean but anyways etc if we should merge the weak with an at war check to be safe or if uneeded and be more flexible and accurate with only a weak check, but left as such anyways etc -->
+	// <!-- custom: update issue is now solved by patching globally the canScrap, and below approach didn't solve anything, so i'll comment it out, enable it if need or want and see for related info known issue as of now 52 anyways etc -->
+	// // B) Patch AI_disbandValue to strongly de-prefer scrapping new combat units & live garrisons
+	// // (You already boost value for MISSIONAI_GUARD_CITY; the check above covers plain defenders without that mission tag.)
+	// // Don’t scrap fresh combat units (prevents “we built one, ended with fewer”).
+	// if (kUnit.canFight() &&
+	// 	GC.getGame().getGameTurn() - kUnit.getGameTurnCreated() < 5)
+	// 	return MAX_INT;
+
+	// // Don’t scrap a unit actively defending one of our city tiles.
+	// if (kUnit.plot() && kUnit.plot()->isCity() &&
+	// 	kUnit.getGroup() && kUnit.getGroup()->canDefend() &&
+	// 	kUnit.plot()->getOwner() == getID())
+	// 	return MAX_INT;
+	// <!-- custom: then normal/old if i may say but anyways etc code below anyways etc -->
+	
 	int iValue = 1000 + SyncRandNum(200);
 
 	iValue *= 100 + 3 * kUnit.getUnitInfo().getProductionCost();

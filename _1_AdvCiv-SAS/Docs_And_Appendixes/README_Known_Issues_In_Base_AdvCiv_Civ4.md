@@ -67,6 +67,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#49---enhancedaddressed-ai-having-4-defenders-in-capital-city-but-only-1-defender-in-city-b-that-gets-captured-or-razed-by-barbarians-then-now-almost-always-if-not-always-new-cities-go-be-founded-with-2-defenders)  
 [50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change i mean anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#50---tremendously-improvedfixedenhanced-excessive-ai-worker-retreat-logic-causing-worker-parking-in-cities-in-rare-cases-now-added-a-wake-from-retreat-and-other-changes-if-any-other-change-i-mean-anyways-etc)  
 [51 - (Partially patched and worked around / improved) Massive base advciv +/- civ4 issue if i'm not mistaken of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure anyways etc): add a fallback cheapest unit production which helps quite a lot reduce this, but not entirely, in CvCity::doProduction](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---partially-patched-and-worked-around--improved-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc-add-a-fallback-cheapest-unit-production-which-helps-quite-a-lot-reduce-this-but-not-entirely-in-cvcitydoproduction)  
+[52 - (Beyond Tremendously improved anyways etc) Remove AI scrapping of military land units, as way too many units are scrapped early, yet we really need them to defend against barbarians or our rivals or such anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#52---beyond-tremendously-improved-anyways-etc-remove-ai-scrapping-of-military-land-units-as-way-too-many-units-are-scrapped-early-yet-we-really-need-them-to-defend-against-barbarians-or-our-rivals-or-such-anyways-etc)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -791,9 +792,11 @@ Next issue now is that AIs produce a bit too many workboats, for example there a
 
 I assume this is what old code attempted to solve but very inefficient, or maybe it had some other purpose +/- as well or not mmaybe but in all cases if i may say anyways etc. Ideally we'd want to count in advance the amount of workboats we need based on water bonsues in cultural borders (to get health even if out of city radius anyways etc), and produce exactly only the number of workboats to access currently accessible (e.g. coast only) unimproved bonuses, so no need to scrap them later, which i'll attempt to do later in another known issue, but this is still tremendously better than being stuck in a loop for dozen turns and seemingly for many AI cities, which is very crippling, so hopefully a lot better now but anyways etc.
 
+See also although not directly related but anwyays etc: [52 - (Beyond Tremendously improved anyways etc) Remove AI scrapping of military land units, as way too many units are scrapped early, yet we really need them to defend against barbarians or our rivals or such anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#52---beyond-tremendously-improved-anyways-etc-remove-ai-scrapping-of-military-land-units-as-way-too-many-units-are-scrapped-early-yet-we-really-need-them-to-defend-against-barbarians-or-our-rivals-or-such-anyways-etc).
+
 ## 23.2 - (Attemptingly partially addressed/reduced) AI players producing more workboats than needed which then stay parked in city or go explore
 
-Not a critical issue as it is in fact less than i thought in known issue as of now 23 above in this doc but anyways etc, but i tried to reduce the AI producing a bit too much workboats, mostly by doing changes as advised by chatgpt and claude ai (and approved by gemini ai too) if they are not all and myself mistaken but could be the case but check to be sure, in `CvCityAI::AI_neededSeaWorkers`, changing look ahead from 5 to 0 (check explanation there as it has the AI(s) explaining it better than i would n this case but anyways etc). It seems some cities still have an extra workboat, but some cities don't, not sure the change made a different, but since it seems harmless, and AIs agree at least those i asked but anyways etc it should be so, left as such, but check to be sure, anyways etc.
+Not a critical issue as it is in fact less than i thought in known issue as of now [23 - (Seemingly now fixed) Major bug of AI cities being stuck in a loop of producing a workboat and instantly scrapping it](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#23---seemingly-now-fixed-major-bug-of-ai-cities-being-stuck-in-a-loop-of-producing-a-workboat-and-instantly-scrapping-it-so-without-producing-a-new-unit-if-im-not-mistaken-then-producing-a-new-one-endlessly-for-dozen-turns-until-it-somehow-solved-itself-but-way-too-late) above in this doc but anyways etc, but i tried to reduce the AI producing a bit too much workboats, mostly by doing changes as advised by chatgpt and claude ai (and approved by gemini ai too) if they are not all and myself mistaken but could be the case but check to be sure, in `CvCityAI::AI_neededSeaWorkers`, changing look ahead from 5 to 0 (check explanation there as it has the AI(s) explaining it better than i would n this case but anyways etc). It seems some cities still have an extra workboat, but some cities don't, not sure the change made a different, but since it seems harmless, and AIs agree at least those i asked but anyways etc it should be so, left as such, but check to be sure, anyways etc.
 
 Note: change was originally done in an attempt to solve a bug i had created while disabling functionally getimprovementvalue, info about it in this doc or in the code comment at function mentionned in this known issue as of now 23.2 too if i am not mistaken but check to be sure anyways etc, and since the bug is now fixed, i kept this change since is conservative, obvious, and seemingly harmless if i am not mistaken but check to be sure anyways etc.
 
@@ -1694,3 +1697,61 @@ It reminds me of the critical bug of infinite workboat loop we found most likely
 So trying to find and fix and possibly enhance the excessive scrapping issue, goal is to remain economically competitive (not crush our research or such), but don't excessively scrap, and if all goes well reduce handicap penalties, as i suspect AI production should greatly improve if/after we fix it, and if not possible, at least document it maybe but anyways etc.
 
 As for this issue of no production, not totally improved but significantly better now if i'm not mistaken, so trying to move to the much more urgent issue now and see what we can or can not (or cannot? Or not can? Xd but anyways etc) do but anyways etc
+
+## 52 - (Beyond Tremendously improved anyways etc) Remove AI scrapping of military land units, as way too many units are scrapped early, yet we really need them to defend against barbarians or our rivals or such anyways etc
+
+See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1JHA0QsVUyBiKy_BDFgXFb-wYG_t-EcUc?usp=sharing)
+
+So this is another major AI improvement of a major issue we had in base advciv +/- civ4: for example japan AI would between turns 37 and 44, scrap 2 of its newly produced ancient macemen (now added as a patch to the no produciton at all during that time in known issue 51).
+
+As a result, it was weaker, and this likely contributed to barbarians successfully invading it and japan ai having a bad game.
+
+As can be seen in existing screenshots between 2742 and 2753, our ancient maceman count goes down as soon as we produce a unit, and our units are not attacked either, so this means we scrap them if i am not mistaken but anyways etc. I tried doing changes in `CvPlayerAI::AI_doMilitary` and/or other related function(s) but it was ineffective nor unfortunately helping to solve this at all. The screenhots mentionned just before were actually before these, and still same issue if not worse nor slightly better, still about the same it seems if i am not mistaken but anyways etc.
+
+So chatgpt 5 then got the brilliant idea to add our logic in `CvUnit::canScrap`, or as i called it xd, "scrap the scrapping", or was it "scrapping the scrap" as it called it i think if i'm not mistkane but regardless, this is where we added our code, and effect was immediate, as can be seen in existing screenshots between 2757 and 2764. We don't scrap anymore. I tried to check economy by autoplaying longer, and we don't go bankrupt (at emperor difficulty with quite reasonable penalties, but that i'll reduce a bit as well now that AIs are more competent/efficient but anyways etc), and our military seems quite a bit stronger if i'm not mistaken although i barely glanced in this case i mean but anyways etc, and can only assume this is due to having more units throughout the game.
+
+I refined the logic by telling it to as of now never scrap valuable military land units, and also as a general rule to never scrap before turn 150 for any unit at all regardless of its unitai or such anyways etc. (So including workers, triremes, etc.) Hopefully this helps AI not waste hammer destorying and rebuilding units non stop but anyways etc.
+
+As can be seen in these screenshots after the change as well, japan ai now has a proper midgame, and doesn't die nor is badly weakened by barbarian taking its city(ies but anyways etc). I beleive AI is stronger as such, and no extra change is needed, except reducing starting defenders and reducing handicap a bit to accomodate, after all no risk to overproduce if we have more even terms than the human, and the excess land military units are always useful.
+
+The results of before/after change are resumed by chatgpt 5's own analysis of each screenshot, but check if accurate as well if needed but anyways etc
+
+>Before (pre-canScrap change)
+
+| Turn | Year    | Workers | Scout | Archers | Ancient Macemen |
+| ---: | :------ | ------: | ----: | ------: | --------------: |
+|   37 | 4750 BC |       2 |     1 |       3 |               6 |
+|   38 | 4500 BC |       2 |     1 |       4 |               6 |
+|   39 | 4375 BC |       2 |     1 |       4 |               5 |
+|   40 | 4250 BC |       2 |     1 |       4 |               6 |
+|   41 | 4125 BC |       2 |     1 |       4 |               5 |
+|   42 | 4000 BC |       2 |     1 |       4 |               6 |
+|   43 | 3875 BC |       2 |     1 |       4 |               5 |
+|   44 | 3750 BC |       2 |     1 |       4 |               5 |
+
+>Pattern: macemen oscillate 6 ↔ 5, dropping right after a completion.
+>
+>After (post-canScrap change)
+
+| Turn | Year    | Workers | Scout | Archers | Ancient Macemen |
+| ---: | :------ | ------: | ----: | ------: | --------------: |
+|   37 | 4750 BC |       2 |     1 |       3 |               6 |
+|   38 | 4500 BC |       2 |     1 |       4 |               6 |
+|   39 | 4375 BC |       2 |     1 |       4 |               6 |
+|   40 | 4250 BC |       2 |     1 |       4 |               7 |
+|   41 | 4125 BC |       2 |     1 |       4 |               7 |
+|   42 | 4000 BC |       2 |     1 |       4 |               8 |
+|   43 | 3875 BC |       2 |     1 |       4 |               8 |
+|   44 | 3750 BC |       2 |     1 |       4 |               8 |
+
+>Pattern: steady growth 6 → 8, no post-build drop.
+>
+>Quick take
+>
+>The before sequence shows automated disband right after a unit finishes (classic “produce one, delete one”).
+>
+>The after sequence confirms the source fix (blocking scrap for the relevant units) works: counts only go up when production finishes, and never down on the following turn — even with small negative GPT.
+
+One issue i have noticed, not related to this change, but linked to [23 - (Seemingly now fixed) Major bug of AI cities being stuck in a loop of producing a workboat and instantly scrapping it](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#23---seemingly-now-fixed-major-bug-of-ai-cities-being-stuck-in-a-loop-of-producing-a-workboat-and-instantly-scrapping-it-so-without-producing-a-new-unit-if-im-not-mistaken-then-producing-a-new-one-endlessly-for-dozen-turns-until-it-somehow-solved-itself-but-way-too-late) indirectly, is AI in some rare cases, despite our tentative changes in other known issues, overproduces galleons and privateers (like 20+ mixed galleons privateers which is insane when most rivals stick to +/- 5 which is much more reasonable), and dies as a result (short-circuit(s) somewhere or is our logic to prevent this other issue ineffective somehow despite showing good results on unitai land types?), at turns 200-220, this would be our next issue to investigate ideally if we do but anyways etc.
+
+For now, since all seems to work great, i'll simply adjust handicap and no other economy change, hopefully AI is stronger thanks to these and games can be more even, less of a grind, as we had envisioned (i.e. me but anyways etc) while / as as one of the goals if i may say but anyways etc i was making this mod but anyways etc

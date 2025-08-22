@@ -86,6 +86,14 @@ If you want to see the full very exhaustive code changes between AdvCiv current 
 
 Be warned though it can be very lengthy, so read below if you want (some of the) main quick pointers rather.
 
+## Very Quick Get Started Guide (Written carefully with the help and by ChatGPT-5 xd but check if accurate info there still anyways etc)
+
+If the below quick get started guide is too lengthy or hard to read or as alternative perhaps, please also consider viewing the very quick version of it written by chatgpt 5.
+
+It is more likely to be outdated as i would not update it as often, but most if not all info should hopefully be there as well. Caveat though but anyways etc, make sure info is accurate, there could be mistakes or such from what is said in the quick guide (that could have mistakes as well but not due to summarizing). I adjusted it a tiny bit or such but didn't check too much if accurate i mean, hopefully informative and helpful though but check if accurate again anyways etc.
+
+You can view it here anyways etc [README_Very_Quick_Get_Started_Guide_By_ChatGPT.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md).
+
 ## Quick Start Guide
 
 If you just want to play and do not need all the project bigger details, i added a quick guide of the main changes from Civ4 and base AdvCiv for players: [README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md)

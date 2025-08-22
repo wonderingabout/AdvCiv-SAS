@@ -3281,7 +3281,22 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 				kOwner.calculateUnitCost() > 0)
 			{	// <advc.113>
 				if (pCity == NULL || pCity->AI_getWorkersNeeded() < pCity->AI_getWorkersHave() + 1)
-				{	/*  Scrap eventually b/c the worker could be stuck in this area,
+				{	
+					// <!-- custom: i had added this code in an attempt to address known issue 52, now seemingly sovled or tremendously improved but check docs there to be sure anyways etc, still this code may be useful maybe although i didn't test it too much if at all, so kept enabled, disable it / comment-out / remove if you have no use for it or don't deem it relevant, -->
+					// Never scrap if safe / new / still useful
+					if (plot() != NULL && plot()->getOwner() == getOwner()) return;            // inside borders
+					if (GC.getGame().getGameTurn() - getGameTurnCreated() < 10) return;        // young unit
+					if (AI_getCityToImprove() != NULL) return;                                  // we have demand
+
+					// Also avoid scrapping when we don't exceed need:
+					if (GET_PLAYER(getOwner()).AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER) <=
+						GET_PLAYER(getOwner()).AI_neededWorkers(getArea()))
+					{
+						return;
+					}
+					// <!-- custom: end of new code change anyways etc -->
+					
+					/*  Scrap eventually b/c the worker could be stuck in this area,
 						but there's no hurry. */
 					scaled rScrapProb(iTotalHave, std::max(1, iTotalThresh));
 					rScrapProb -= 1;
