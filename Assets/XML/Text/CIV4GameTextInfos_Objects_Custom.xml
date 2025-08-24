@@ -486,6 +486,14 @@
 
 
 
+	<!-- custom: rename "AT_INFANTRY" to "BAZOOKA" anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_BAZOOKA</Tag>
+		<English>Bazooka</English>
+	</TEXT>
+
+
+
 	<!-- custom: rename "_VIKING" and "_VIKINGS" to "_SCANDINAVIA" anyways etc -->
 	<TEXT>
 		<Tag>TXT_KEY_CIV_SCANDINAVIA_DESC</Tag>

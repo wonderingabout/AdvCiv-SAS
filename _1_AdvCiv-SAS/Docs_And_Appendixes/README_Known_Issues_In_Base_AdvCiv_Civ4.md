@@ -39,6 +39,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [22.5 - (Addressed) Fixed weird flavors or XML fields](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#225---addressed-seemingly-fixed-weird-flavors-or-xml-fields-mistakes)  
 [22.6 - (Addressed) XML tweaks and fixes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#226---addressed-xml-tweaks-and-fixes)  
 [23 - (Seemingly now fixed) Major bug of AI cities being stuck in a loop of producing a workboat and instantly scrapping it](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#23---seemingly-now-fixed-major-bug-of-ai-cities-being-stuck-in-a-loop-of-producing-a-workboat-and-instantly-scrapping-it-so-without-producing-a-new-unit-if-im-not-mistaken-then-producing-a-new-one-endlessly-for-dozen-turns-until-it-somehow-solved-itself-but-way-too-late)  
+[23.2 - (Attemptingly partially addressed/reduced) AI players producing more workboats than needed which then stay parked in city or go explore](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#232---attemptingly-partially-addressedreduced-ai-players-producing-more-workboats-than-needed-which-then-stay-parked-in-city-or-go-explore)
 [24 - (Attemptingly fixed) AI Workers often build forts on ressources/bonuses](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive)  
 [25 - (Seemingly fixed) AIs settling too much/often on bonuses](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---seemingly-fixed-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-or-also-commerce-bonuses-to-a-lesser-extent)  
 [26 - (Attemptingly fixed/addressed) Tell AI settlers which terrains/features are best to settle near](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#26---attemptingly-fixedaddressed-tell-ai-settlers-which-non-home-and-non-bonus-tiles-terrains-and-features-environments-are-best-to-settle-near-for-example-good-if-a-lot-of-grass-or-flood-plains-in-city-radius-bad-if-desert-or-plains-in-city-radius-as-for-local-tile-to-settle-on-bhome-optimization-as-well-hate-to-settle-on-hill-grass-or-flood-plains-love-to-settle-on-hill-plains-or-tundra-or-desert--overridden-only-if-locally-plot-is-otherwise-really-good-eg-allows-to-have-2-bonuses-or-such-so-ideal-spot-but-we-have-to-settle-on-flood-plains-for-it-for-example-or-some-other-good-tile-anyways-etc)  
@@ -68,6 +69,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change i mean anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#50---tremendously-improvedfixedenhanced-excessive-ai-worker-retreat-logic-causing-worker-parking-in-cities-in-rare-cases-now-added-a-wake-from-retreat-and-other-changes-if-any-other-change-i-mean-anyways-etc)  
 [51 - (Partially patched and worked around / improved) Massive base advciv +/- civ4 issue if i'm not mistaken of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure anyways etc): add a fallback cheapest unit production which helps quite a lot reduce this, but not entirely, in CvCity::doProduction](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---partially-patched-and-worked-around--improved-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc-add-a-fallback-cheapest-unit-production-which-helps-quite-a-lot-reduce-this-but-not-entirely-in-cvcitydoproduction)  
 [52 - (Beyond Tremendously improved anyways etc) Remove AI scrapping of military land units, as way too many units are scrapped early, yet we really need them to defend against barbarians or our rivals or such anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#52---beyond-tremendously-improved-anyways-etc-remove-ai-scrapping-of-military-land-units-as-way-too-many-units-are-scrapped-early-yet-we-really-need-them-to-defend-against-barbarians-or-our-rivals-or-such-anyways-etc)  
+[53 - (Beyond Tremendously Improved) Naval dementia of producing privateers/galleons then seemingly scrapping them and repeat, or/and of more importantly building galleons and privateers in droves and excess if i may say but anyways etc, despite enemy threatening cities of land capture for 20+ turns, and losing capital as a result anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#53---beyond-tremendously-improved-naval-dementia-of-producing-privateersgalleons-then-seemingly-scrapping-them-and-repeat-orand-of-more-importantly-building-galleons-and-privateers-in-droves-and-excess-if-i-may-say-but-anyways-etc-despite-enemy-threatening-cities-of-land-capture-for-20-turns-and-losing-capital-as-a-result-anyways-etc-fixedaddressed-by-now-managing-production-of-each-unitai-with-max-by-type-in-cvcityaiai_chooseunit-as-well-as-disallowing-scrapping-and-managing-it-by-unitai-type-globally-as-well-in-cvunitcanscrap-by-type-as-well-with-max-and-such-other-conditions-for-some-units-like-as-of-now-workers-anyways-etc)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -1160,6 +1162,8 @@ I also fixed thanks to gemini ai various other conditions where we don't want th
 
 See also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc) which generalizes, fixes and tunes this approach based on other conditions while otherwise preserving base advciv code behaviour. Hopefully a lot more efficient but also responsive/effective AI UNITAI choices if i am not mistaken but check to be sure but anyways etc.
 
+update: see enhancement of this in [53 - (Beyond Tremendously Improved) Naval dementia of producing privateers/galleons then seemingly scrapping them and repeat, or/and of more importantly building galleons and privateers in droves and excess if i may say but anyways etc, despite enemy threatening cities of land capture for 20+ turns, and losing capital as a result anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#53---beyond-tremendously-improved-naval-dementia-of-producing-privateersgalleons-then-seemingly-scrapping-them-and-repeat-orand-of-more-importantly-building-galleons-and-privateers-in-droves-and-excess-if-i-may-say-but-anyways-etc-despite-enemy-threatening-cities-of-land-capture-for-20-turns-and-losing-capital-as-a-result-anyways-etc-fixedaddressed-by-now-managing-production-of-each-unitai-with-max-by-type-in-cvcityaiai_chooseunit-as-well-as-disallowing-scrapping-and-managing-it-by-unitai-type-globally-as-well-in-cvunitcanscrap-by-type-as-well-with-max-and-such-other-conditions-for-some-units-like-as-of-now-workers-anyways-etc) anyways etc
+
 ## 36 - (Attemptingly fixed or addressed) AI building settlers at critical time when war is likely, instead of preparing for war: very bad as the few more units with the hammer saved could make us gain or not lose the war, while the extra city makes all our empire thinner and our units split, on top of having less units overall as well anyways etc
 
 No screenshots from that time except save files, that i'd prefer not to rescreenshot now but anyways etc, however i had listed this issue in example 47 in the list of base advciv issues i had compiled as in listed gradually here in [this CFC forum post](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814) i made but anyways etc, where it happened 2 times to/for Augustus AI making it/him but anyways etc much weaker militarily and my conquest of him much easier in this game (although he/it but anyways etc was still surprisingly strong so is like a wasted chance in this case at least i mean but anyways etc)
@@ -1755,3 +1759,232 @@ The results of before/after change are resumed by chatgpt 5's own analysis of ea
 One issue i have noticed, not related to this change, but linked to [23 - (Seemingly now fixed) Major bug of AI cities being stuck in a loop of producing a workboat and instantly scrapping it](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#23---seemingly-now-fixed-major-bug-of-ai-cities-being-stuck-in-a-loop-of-producing-a-workboat-and-instantly-scrapping-it-so-without-producing-a-new-unit-if-im-not-mistaken-then-producing-a-new-one-endlessly-for-dozen-turns-until-it-somehow-solved-itself-but-way-too-late) indirectly, is AI in some rare cases, despite our tentative changes in other known issues, overproduces galleons and privateers (like 20+ mixed galleons privateers which is insane when most rivals stick to +/- 5 which is much more reasonable), and dies as a result (short-circuit(s) somewhere or is our logic to prevent this other issue ineffective somehow despite showing good results on unitai land types?), at turns 200-220, this would be our next issue to investigate ideally if we do but anyways etc.
 
 For now, since all seems to work great, i'll simply adjust handicap and no other economy change, hopefully AI is stronger thanks to these and games can be more even, less of a grind, as we had envisioned (i.e. me but anyways etc) while / as as one of the goals if i may say but anyways etc i was making this mod but anyways etc
+
+## 53 - (Beyond Tremendously Improved) Naval dementia of producing privateers/galleons then seemingly scrapping them and repeat, or/and of more importantly building galleons and privateers in droves and excess if i may say but anyways etc, despite enemy threatening cities of land capture for 20+ turns, and losing capital as a result anyways etc: fixed/addressed by now managing production of each unitai with max by type in CvCityAI::AI_chooseUnit, as well as disallowing scrapping and managing it by unitai type globally as well in CvUnit::canScrap by type as well with max and such other conditions for some units like as of now workers anyways etc
+
+See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1vHCLdFvm9cQpE_7rXnRL3X9zOQDxTAgH?usp=sharing)
+
+This is also a major AI improvement/refinement, it expands on previous known issue as of now 52 approach, as while solving said known issue but anyways etc, i had noticed Khmer AI's naval cities were producing privateers and galleons like crazy around turn 200, despite most AIs doing fine and only having few such units but anyways etc.
+
+As a result, it got invaded 20 turns later with poor military and lost its capital, essentially lost. But this could have been easily avoided or at least much better, if decision was made sooner to build land units instead of naval, quite useless on pangea further more but anyways etc, especially past a certain threshold.
+
+We had handled or attempted to handle this issue in [35 - (Attemptingly fixed/addressed) AI building too many military naval units then gets invaded on land](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#35---attemptingly-fixed-or-addressed-ai-building-too-many-military-naval-units-then-gets-invaded-on-land-and-cant-defend-10-galleons-and-barely-any-land-defender--do-not-prioritize-water-military-units-if-city-is-landlocked-i-assume-it-means-stuck-in-a-lake-or-something-if-i-am-not-mistaken-but-anyways-etc), but i guess the approach was conservative, or maybe rather didn't cover the many short-circuits to our logic or such (maybe, this is a guess, check if accurate anyways etc).
+
+It also seemed although i didn't check too much that some of those privateers disappeared, like the infinite loop issue in [23 - (Seemingly now fixed) Major bug of AI cities being stuck in a loop of producing a workboat and instantly scrapping it](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#23---seemingly-now-fixed-major-bug-of-ai-cities-being-stuck-in-a-loop-of-producing-a-workboat-and-instantly-scrapping-it-so-without-producing-a-new-unit-if-im-not-mistaken-then-producing-a-new-one-endlessly-for-dozen-turns-until-it-somehow-solved-itself-but-way-too-late). Still who knows if this or maybe other such loop issues silently didn't happen. At this point i didn't and don't trust the code anymore, let's implement global or such sanity guards! If i may say but anyways etc hehe anyways etc. And chatgpt 5 helped me a lot thanks too, including for part of the documentation of this issue below as well anyways etc.
+
+So just like in known issue as of now 52 but anyways etc, we generalized the production control and overproduction management by putting our prechecks at the source, which seems to be `CvCityAI::AI_chooseUnit`. I did some refactoring as well with the help of chatgpt 5 but anyways etc so the overloaded function now calls the 2nd overloaded one since they ultimately perform the same task duplicated, and so we can control it all so nice xd if i may say but anyways etc in one place.
+
+On top of that, i matched these new rules per unitAI asymetrically in `CvUnit::canScrap()` as well, with now a more general approach covering more unitais than before and/or differently. The main/general but anyways etc idea is quite simple: make sure we don't overproduce using max units for most unitais, then when it comes to scrapping, generally don't scrap most of these unitais (plus some extra nice sanity checks like don't scrap icbm, or great person units (who knows if they do somehow anyways etc), etc.) and assume we have produced just enough anyway.
+
+I didn't implement any economy check, but it seems we don't go bankrupt at least for now, even if we did, if we are ni danger or weak, it's better to do this last ditch effrot than say build a wonder xd, which we also prevent in other known issue(s) hehe so AI is really strong now at least much more than in base advciv, and despite plenty of things to improve too ideally but still very nice progress if i may say but anyways etc.
+
+So what this changes in short is:
+
+- prevent naval overproduction and such: don't overproduce naval units when in danger or such and evne if not add some sanity max quotas or limits per unitai (prevents overproducing naval units from any short circuit code if i'm not mistaken as we block the order itself now (unless some other unknown code emits orders, else we should now handle most if not all)): helps react better to threat and map type and produce optimal unitais (with some flexibility is not too strict but quite guided for the AIs's sake and for efficiency of the AI if i may say but anyways etc)
+- prevent naval dementia: don't go like: "oh i need one more unit, let's produce it". (Production completes...) "Oh i have one too many unit, let's scrap 1 or 2 just because xd no one will notice it" (i mean yes but it's horrible and hurts AI strength and aesthetic too but anyways etc...), then AI is like "oh, i need one more unit, let's produce it" (ofc you do, you jsut scrapped it xd). This was the issue with workboats, possibly with privateers, maybe with other units. At this point i don't trust the code anymore xd, not sure that i did though but now i definitely don't, although it works not too bad otherwise, so i implemented global sanity checks for almost all unitAIs if not all then almost anyways etc.
+
+Results are tremendously positive, i started from a very desperate save at turn 200, 20 turns more or less before capital fell with the naval dementia or/and overproduction issue.
+
+In first run, before the changes, as can be seen painfully if i may say but anyways etc in existing screenshots between 2787 and 2800, we (i.e. Khmer AI but anyways etc) have 12 galleons, 5 privateers and 13 frigates, in a pangea!! At turn 205 too, while if i may say but anyways etc, other rivals are much reasonable, in the single digits, sometimes even single hand digits if i may say but anyways etc... Yet we feel compelled to produce more naval units, which is definitely already useless on pangea and on top of it considering our composition. We then die and lsoe our capital 20 turns later more or less pathetically or/and tragically, what use were the boats for. Again, this issue was existing in base advciv, but i thought we had prevented it enough in known issue 35, but iguess our logic is overriden in many places xd or short circuited, this new logic we added explained below should be much more effective! But check to be sure anyways etc.
+
+As for after our changes, the difference is massive. Despite save file being already desperate and AI starting at turn 200 so already doomed with such wasted hammers, it quickly redirects, and produces the next turn and so on various land units or does processes like Research or Wealth that are not nonsensical if i may say but anyways etc, much better use of our hammers anyways etc. Not a single extra naval unit built, very nice. This can be seen in existing screenshots between 2827 and 2850. We squeezed easily 10+ if not more although i didn't count so maybe bit less, various land units in these 20 turns, which range from pikemen, cannons, camel knights, nice anyways etc. In the end it was not enough to save the already desperate situation, but we give a much better (and saner too if i may say but anyways etc! Anyways etc). I suspect if we start sooner before the mistake is made, perhaps at turns 100-150 and metaphorically undo these naval units being prouced by goig back in this case i mean but anyways etc, surely the outcome would have been different, possibly Khmer AI would not have died, its position was actually quite good, and with a size 21 capital city at turn 200-220, it could have certainly done better in retrospect if i may say but anyways etc.
+
+So i am very happy and satisfied of these changes, now below the detail by chatgpt 5, check if accurate as always if i may say, but i hope these are very informative, we'll go over changes, as of now, in `CvUnit::canScrap()` and `CvCityAI::AI_chooseUnit`. Unlikely i'll update them so remember they are general info if not updated (i could but not guaranteed, i may or may not do so anyways etc). Also about below chatgpt 5 explanation that helps very nicely thanks a lot chatgpt 5 but anyways etc, i have formatted it a bit as well but otherwise didn't check much if at all, check if accurate anyways etc.
+
+Note: i went beyond fixing the issue at hand and added some nice extra sanity cheks liek icbm or worker max count per era and such as shown below, i hope AI is a lot more competitive, possibly silent issues like unknown scrapping or loops are solved by now, check for economic bankruptcy as i didn't guard against it assuming AI is rich enough or threatened enough to make it compensate its excess or/and handicap lowered enough so it can't overproduce so easily which is a win for us at least me xd if not some other players or not or etc but anyways etc.
+
+### canScrap() — AI scrapping policy
+
+>Scope: applies only to AI units (if (!isHuman()) …).
+>Baseline guard retained: never scrap while the unit’s plot is fighting.
+
+#### 1) Unit categories and the scrapping decision
+
+| Category                      | Identification (by UnitAI / traits)                                                                                              | canScrap() result        |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| **Land combat**               | `ATTACK`, `ATTACK_CITY`, `ATTACK_CITY_LEMMING`, `COUNTER`, `CITY_COUNTER`, `CITY_DEFENSE`, `CITY_SPECIAL`, `RESERVE`, `PARADROP` | **Never scrap**          |
+| **Land combat (fallback)**    | `DOMAIN_LAND && canFight()` (safety net for modmods)                                                                             | **Never scrap**          |
+| **Naval – frontline**         | `ATTACK_SEA`, `RESERVE_SEA`, `PIRATE_SEA`                                                                                        | **Never scrap**          |
+| **Naval – explore / support** | `EXPLORE_SEA`, `ASSAULT_SEA`, `ESCORT_SEA`                                                                                       | **Never scrap**          |
+| **Naval – air platforms**     | `CARRIER_SEA`, `MISSILE_CARRIER_SEA`                                                                                             | **Never scrap**          |
+| **Naval – civilians**         | `SETTLER_SEA`, `WORKER_SEA`, `MISSIONARY_SEA`, `SPY_SEA`                                                                         | **Never scrap**          |
+| **Land civilians (most)**     | `EXPLORE`, `SETTLE`, `MISSIONARY`, `SPY`                                                                                         | **Never scrap**          |
+| **Workers (land)**            | `WORKER`                                                                                                                         | **Conditional** (see §2) |
+| **Air combat**                | `ATTACK_AIR`, `DEFENSE_AIR`                                                                                                      | **Never scrap**          |
+| **Great People**              | `GREAT_PROPHET`, `GREAT_ARTIST`, `GREAT_SCIENTIST`, `GREAT_GENERAL`, `GREAT_MERCHANT`, `GREAT_ENGINEER`, `GREAT_SPY`             | **Never scrap**          |
+| **Missiles**                  | `ICBM`, `MISSILE_AIR`                                                                                                            | **Never scrap**          |
+| **Any unit with cargo**       | `getCargo() > 0`                                                                                                                 | **Never scrap**          |
+
+#### 2) Worker scrapping logic (the only conditional case)
+
+Goal: let the AI thin surplus workers after the empire is mature, without ping-ponging.
+
+When: only from Renaissance onward. Earlier eras never scrap workers.
+
+Cap formula
+
+`base = 2.5 * cities = (2 * N) + ((N * 5) / 10)` (integer math)
+
+Linear era decay starting at Renaissance (era index = 3):
+`erasSinceRen = max(0, (currentEra - 3) + 1)`
+`pct = max(60, 100 - 10 * erasSinceRen)` → never below 60% of base
+`cap = max( minWorkers , (base * pct) / 100 )`
+
+`minWorkers = 3 + ((N * 3) / 10)` (keeps a small backbone)
+
+Scrap condition
+
+Only allow scrapping if totalWorkers **>** cap.
+(Using strict > avoids disbanding when we’re exactly on target.)
+
+Sample caps (integer arithmetic)
+
+| Cities (N) | Base (2.5N) | MinWorkers | Renaissance (90%) | Industrial (80%) | Modern (70%) | Future (60% floor) |
+| ---------: | ----------: | ---------: | ----------------: | ---------------: | -----------: | -----------------: |
+|          2 |           5 |          3 |                 4 |                4 |            4 |                  3 |
+|          4 |          10 |          4 |                 9 |                8 |            7 |                  6 |
+|          6 |          15 |          4 |                13 |               12 |           10 |                  9 |
+|          8 |          20 |          5 |                18 |               16 |           14 |                 12 |
+
+#### 3) Global time gate
+
+| Guard                   | Value                                                                                |
+| ----------------------- | ------------------------------------------------------------------------------------ |
+| **No disbanding phase** | Before turn **150 @ Normal speed**, scaled by game speed: `150 * TrainPercent / 100` |
+
+#### 4) Design notes / asymmetry with production
+
+- Asymmetric by design: we limit production in AI_chooseUnit() (e.g., naval caps by map + danger), but we don’t scrap those categories later. This prevents “produce → scrap” loops and keeps hammers focused.
+- Workers are the single category where we both cap production (early generous, later tighter) and allow pruning post-Renaissance when over the target.
+- Safety rails: never scrap cargo carriers, GP, missiles, air combat, or land combat. Early global “no disband” phase protects the crucial development window.
+
+#### 5) Tuning dials (all hardcoded for simplicity)
+
+| Constant                     |             Current | Effect                                                              |
+| ---------------------------- | ------------------: | ------------------------------------------------------------------- |
+| `iNoDisbandAtAllTurnsNormal` |             **150** | Length of early “no disband” window (scaled by speed).              |
+| Worker decay start era       | **Renaissance (3)** | Bring forward/back to change when pruning can begin.                |
+| Worker decay per era         |             **10%** | Linearly reduces target from Ren; floor at 60%.                     |
+| Worker floor                 |     **60% of base** | Ensures we always retain a useful workforce.                        |
+| `minWorkers` slope           |        **3 + 0.3N** | Keeps small empires functional and large empires from hitting zero. |
+
+#### 6) Quick pseudo-flow (for readers)
+
+```pseudocode
+if human → default behavior
+if plot is fighting → never scrap
+if AI:
+  if LandCombatAI || (DOMAIN_LAND && canFight) → never scrap
+  if Naval any AI → never scrap
+  if Land civ (explore/settle/missionary/spy) → never scrap
+  if Air combat → never scrap
+  if Great Person || Missile → never scrap
+  if has cargo → never scrap
+  if turn < scaled(150) → never scrap
+  if Worker:
+     if era < Renaissance → never scrap
+     compute cap (2.5N with linear 10%/era decay, floor 60%, min backbone)
+     if totalWorkers > cap → allow scrapping (else refuse)
+return true otherwise
+```
+
+### AI_chooseUnit() — production gates
+
+>Entry point: the (UnitAITypes, iOdds) overload now funnels to the
+>(UnitTypes, UnitAITypes) overload, so all gating lives in one place.
+>The “best unit” picker remains the same; only the final “should we actually queue it?” logic is centralized.
+
+#### 0) Situation + map read (used throughout)
+
+bAtWar, `bWarPlan = AI_isFocusWar()`, `bDanger = AI_isDanger()`
+
+Enemy pressure: bEnemyStrong if AI_getEnemyPowerPercent(true) ≥ 120
+
+Map flavor from script name: LandHeavy vs NavalHeavy
+
+Scale by empire size: `N = getNumCities()`
+
+Caps compare empire-wide counts using AI_totalUnitAIs(...), which includes units in production (prevents over-queuing in parallel)
+
+#### 1) Naval unit AIs
+
+| Group                 | AIs                                   |            Base cap | Map tweak                  | Threat tweak                                                       | Notes                                                        |              |   |                                                            |                                                 |            |                                      |
+| --------------------- | ------------------------------------- | ------------------: | -------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------ | ------------ | - | ---------------------------------------------------------- | ----------------------------------------------- | ---------- | ------------------------------------ |
+| **Frontline**         | `ATTACK_SEA, RESERVE_SEA, PIRATE_SEA` |                 `N` | `2N` on NavalHeavy         | Halve (min 1) if \`bAtWar                                          |                                                              | bEnemyStrong |   | bDanger                                                    |                                                 | bWarPlan\` | Prevents late naval bloat on Pangaea |
+| **Explore**           | `EXPLORE_SEA`                         |        `1 + ⌊0.3N⌋` | `2 + ⌊0.3N⌋` on NavalHeavy | Halve (min 1) if any threat                                        | Keep a small scout fleet only                                |              |   |                                                            |                                                 |            |                                      |
+| **Assault (offense)** | `ASSAULT_SEA`                         |                 `N` | `2N` on NavalHeavy         | **Block** if \`bEnemyStrong                                        |                                                              | bDanger      |   | bWarPlan\`                                                 | Don’t plan invasions under pressure             |            |                                      |
+| **Escort (defense)**  | `ESCORT_SEA`                          |                 `N` | `2N` on NavalHeavy         | Reduce to **60%** (min 1) if any threat                            | Keeps some cover, but trims excess                           |              |   |                                                            |                                                 |            |                                      |
+| **Air platforms**     | `CARRIER_SEA, MISSILE_CARRIER_SEA`    |                 `N` | `2N` on NavalHeavy         | Reduce to **60%** (min 1) if any threat                            |                                                              |              |   |                                                            |                                                 |            |                                      |
+| **Settler ships**     | `SETTLER_SEA`                         |        `1 + ⌊0.3N⌋` | `2 + ⌊0.3N⌋` on NavalHeavy | If threat: **block** on land-heavy maps; allow **1** on NavalHeavy | Avoid risky expansion during danger                          |              |   |                                                            |                                                 |            |                                      |
+| **Workboats**         | `WORKER_SEA`                          | `N` (≤ Renaissance) | `2N` on NavalHeavy         | —                                                                  | After Renaissance: `1 + ⌊0.3N⌋` (or `2 + ⌊0.3N⌋` NavalHeavy) |              |   |                                                            |                                                 |            |                                      |
+| **Missionary ships**  | `MISSIONARY_SEA`                      | `N` (≤ Renaissance) | `2N` on NavalHeavy         | **Block** if any threat                                            | After Ren: `1 + ⌊0.3N⌋` (or `2 + ⌊0.3N⌋`)                    |              |   |                                                            |                                                 |            |                                      |
+| **Spy ships**         | `SPY_SEA`                             |                 `N` | `⌊1.5N⌋` on NavalHeavy     | **Block** if \`bAtWar                                              |                                                              | bEnemyStrong |   | bDanger`. If `bWarPlan\` and **not** NavalHeavy: **block** | Naval recon is only for naval maps / calm times |            |                                      |
+
+>Build is refused if AI_totalUnitAIs(...) ≥ cap for that group.
+
+#### 2) Land civilian AIs
+
+| Group            | AIs          |                             Cap | Threat tweak                                                   | Notes                       |              |   |                                                     |                                     |
+| ---------------- | ------------ | ------------------------------: | -------------------------------------------------------------- | --------------------------- | ------------ | - | --------------------------------------------------- | ----------------------------------- |
+| **Explorers**    | `EXPLORE`    |      `2` (or `1` on NavalHeavy) | **Block** if any threat                                        |                             |              |   |                                                     |                                     |
+| **Settlers**     | `SETTLE`     |                             `1` | **Block** if any threat                                        | “One at a time” rule        |              |   |                                                     |                                     |
+| **Workers**      | `WORKER`     |                       see below | Slightly lenient: **block only** when `bAtWar && bEnemyStrong` | Era-scaled cap (next table) |              |   |                                                     |                                     |
+| **Missionaries** | `MISSIONARY` |   `N` (≤ Renaissance), else `2` | **Block** if any threat                                        |                             |              |   |                                                     |                                     |
+| **Spies**        | `SPY`        | `N` (or `⌊1.5N⌋` on NavalHeavy) | **Block** if \`bAtWar                                          |                             | bEnemyStrong |   | bDanger`; if `bWarPlan && !NavalHeavy\` → **block** | Don’t stall land wars with spy spam |
+
+Worker production cap (matches scrapping doc):
+
+- Base: `2.5 * N = (2 * N) + ((N * 5) / 10)`
+- From Renaissance (era=3) onward, apply linear decay per era:
+- - `erasSinceRen = max(0, (currentEra - 3) + 1)`
+- - `pct = max(60, 100 - 10 * erasSinceRen)` → floor at 60%
+- - `cap = max( minWorkers , (base * pct) / 100 )`
+- `minWorkers = 3 + ⌊0.3N⌋`
+- Refuse build when `totalWorkers ≥ cap`.
+
+#### 3) Air combat (empire cap)
+
+| Group                             | AIs                       |     Cap | Threat tweak |
+| --------------------------------- | ------------------------- | ------: | ------------ |
+| **Fighters + Bombers (combined)** | `ATTACK_AIR, DEFENSE_AIR` | `3 * N` | None         |
+
+#### 4) Unhandled AIs
+
+Everything not listed above (e.g., land military) is free to build here; pruning and protection are managed on the scrapping side (which, by policy, never scraps land combat anyway).
+
+#### 5) Asymmetry with canScrap()
+
+- Naval + most civilians: Production is capped up front; scrapping is disabled later → no “produce→scrap→produce” loops.
+- Workers: Capped in production and may be trimmed later only if above the same target (post-Renaissance).
+- Land combat & air combat: Production allowed (no cap here for land); never scrapped later.
+
+#### 6) Tuning dials
+
+| Constant / Rule            | Current                                                                                                |
+| -------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Naval frontline base cap   | `N` (or `2N` on NavalHeavy)                                                                            |
+| Threat halving / 60% trims | Halve or 60% as listed above (min 1)                                                                   |
+| Explorer caps              | Land: 2 (1 on NavalHeavy). Sea: `1 + 0.3N` (2 + 0.3N on NavalHeavy)                                    |
+| Settler caps               | Land: 1. Sea: `1 + 0.3N` (2 + 0.3N on NavalHeavy), but block under threat except allow 1 on NavalHeavy |
+| Worker base + decay        | Base `2.5N`; -10%/era from Renaissance; floor 60%; min `3 + 0.3N`                                      |
+| Air (fighters+bombers)     | `3N` combined                                                                                          |
+
+#### 7) Mini flow (for readers)
+
+```pseudocode
+if eUnit == NO_UNIT → fail
+read map flavor, situation flags, N = num cities
+if Naval AI:
+   compute cap per table (+map, +threat tweaks)
+   if total >= cap → refuse
+   else allow
+else if Land civilians:
+   apply per-group rules (incl. worker era decay)
+   if total >= cap (or threat says block) → refuse
+else if Air combat:
+   if total fighters+bombers >= 3N → refuse
+else:
+   allow (land military, etc.)
+pushOrder(ORDER_TRAIN, eUnit, eUnitAI)
+return true
+```

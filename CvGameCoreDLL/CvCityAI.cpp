@@ -484,7 +484,7 @@ void CvCityAI::AI_chooseProduction()
 					std::max(1, getProductionNeeded(eProductionBuilding));
 
 				// Situation read
-				bool const bWarPlan = kPlayer.AI_isFocusWar(area());
+				bool const bWarPlan = kPlayer.AI_isFocusWar();
 				// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate, anyways etc -->
 				const bool bAtWar = (GET_TEAM(getTeam()).getNumWars() > 0);
 				const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
@@ -606,6 +606,7 @@ void CvCityAI::AI_chooseProduction()
 			pWaterArea = NULL;
 		bWaterDanger = kPlayer.AI_isAnyWaterDanger(getPlot(), 4);
 	}
+
 	// advc: Some old and unused code deleted
 	bool bLandWar = kPlayer.AI_isLandWar(kArea); // K-Mod
 	bool const bWarPrep = kTeam.AI_isSneakAttackPreparing(); // advc.104s
@@ -619,7 +620,11 @@ void CvCityAI::AI_chooseProduction()
 			kArea.getAreaAIType(getTeam()) == AREAAI_ASSAULT_MASSING);
 	bool const bPrimaryArea = kPlayer.AI_isPrimaryArea(kArea);
 	bool const bFinancialTrouble = kPlayer.AI_isFinancialTrouble();
+
 	int const iNumCitiesInArea = kArea.getCitiesPerPlayer(getOwner());
+	// <!-- custom: store this once since we use it many times then reference the cached variable rather as chatgpt 5 usually advices hehe but anyways etc -->
+	const int iNumCities = kPlayer.getNumCities();
+
 	// advc: Renamed from bImportantCity
 	bool bCultureCity = false; //be very careful about setting this.
 	int const iCultureRateRank = findCommerceRateRank(COMMERCE_CULTURE);
@@ -702,7 +707,7 @@ void CvCityAI::AI_chooseProduction()
 	int iMaxSettlers = 0;
 	if (!bFinancialTrouble)
 	{
-		iMaxSettlers = std::min((kPlayer.getNumCities() + 1) / 2,
+		iMaxSettlers = std::min((iNumCities + 1) / 2,
 				iNumAreaCitySites + iNumWaterAreaCitySites);
 		if (bLandWar || bAssault)
 			iMaxSettlers = (iMaxSettlers + 2) / 3;
@@ -716,10 +721,10 @@ void CvCityAI::AI_chooseProduction()
 		/*	if we do not have enough cities, then the highest culture city
 			will not get special attention. */
 		if (iCultureRateRank > 1 ||
-			kPlayer.getNumCities() > iCulturalVictoryNumCultureCities + 1)
+			iNumCities > iCulturalVictoryNumCultureCities + 1)
 		{
 			if (iNumAreaCitySites + iNumWaterAreaCitySites > 0 &&
-				kPlayer.getNumCities() < 6 && SyncRandOneChanceIn(2))
+				iNumCities < 6 && SyncRandOneChanceIn(2))
 			{
 				bCultureCity = false;
 			}
@@ -754,9 +759,9 @@ void CvCityAI::AI_chooseProduction()
 	// also, reduce the value to encourage early expansion until we reach the recommend city target
 	{
 		int iCitiesTarget = GC.getInfo(GC.getMap().getWorldSize()).getTargetNumCities();
-		if (iNumAreaCitySites > 0 && kPlayer.getNumCities() < iCitiesTarget)
+		if (iNumAreaCitySites > 0 && iNumCities < iCitiesTarget)
 		{
-			iBestBuildingValue *= kPlayer.getNumCities() + iCitiesTarget;
+			iBestBuildingValue *= iNumCities + iCitiesTarget;
 			iBestBuildingValue /= 2*iCitiesTarget;
 		}
 	}
@@ -765,7 +770,7 @@ void CvCityAI::AI_chooseProduction()
 	// Don't give exemptions to cities that don't have anything good to build anyway.
 	bool bUnitExempt = false;
 	if (iBestBuildingValue >= 40 &&
-		(iProductionRank - 1) * 2 > kPlayer.getNumCities())
+		(iProductionRank - 1) * 2 > iNumCities)
 	{
 		bool bBelowMedian = true;
 		FOR_EACH_ENUM(Commerce)
@@ -778,7 +783,7 @@ void CvCityAI::AI_chooseProduction()
 				bUnitExempt = true;
 				break;
 			}
-			if ((iRank - 1) * 2 < kPlayer.getNumCities())
+			if ((iRank - 1) * 2 < iNumCities)
 				bBelowMedian = false;
 		}
 		if (bBelowMedian)
@@ -867,7 +872,7 @@ void CvCityAI::AI_chooseProduction()
 	// K-Mod end
 
 	// K-Mod, short-circuit production choice if we already have something really good in mind
-	if (kPlayer.getNumCities() > 1) // don't use this short circuit if this is our only city.
+	if (iNumCities > 1) // don't use this short circuit if this is our only city.
 	{
 		if (kPlayer.AI_atVictoryStage(AI_VICTORY_SPACE4))
 		{
@@ -906,7 +911,7 @@ void CvCityAI::AI_chooseProduction()
 	{
 		/*	Warriors are blocked from UNITAI_CITY_DEFENSE,
 			in early game this confuses AI city building */
-		if (kPlayer.AI_totalUnitAIs(UNITAI_CITY_DEFENSE) <= kPlayer.getNumCities())
+		if (kPlayer.AI_totalUnitAIs(UNITAI_CITY_DEFENSE) <= iNumCities)
 		{
 			if (kPlayer.AI_bestCityUnitAIValue(UNITAI_CITY_DEFENSE, this) == 0)
 			{
@@ -1119,7 +1124,7 @@ void CvCityAI::AI_chooseProduction()
 				CvArea const* pAnyWaterArea = waterArea(true);
 				if (pAnyWaterArea != NULL &&
 					kPlayer.AI_totalWaterAreaUnitAIs(*pAnyWaterArea, aeSeaAttackTypes)
-					/* </advc.017> */  < std::min(3, kPlayer.getNumCities()))
+					/* </advc.017> */  < std::min(3, iNumCities))
 				{
 					if (gCityLogLevel >= 2) logBBAI("      City %S uses minimal naval", getName().GetCString());
 					/*  <advc.017> Don't prioritize those ships quite as much
@@ -1174,7 +1179,7 @@ void CvCityAI::AI_chooseProduction()
 					/*  Should afford one Galleon eventually, if only to
 						ferry Workers (advc.040). */
 				(iOwnerEra >= CvEraInfo::AI_getAgeOfExploration() &&
-					kPlayer.getNumCities() >= 4)) &&
+					iNumCities >= 4)) &&
 					pCapital != NULL && sameArea(*pCapital) &&
 					// </advc.017b>
 					kPlayer.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_SETTLER_SEA) <= 0)
@@ -1210,7 +1215,7 @@ void CvCityAI::AI_chooseProduction()
 		}
 		if (!(bDefenseWar && iWarSuccessRatio < -30)) {
 			if ((iExistingWorkers < ((iNeededWorkers + 1) / 2))) {
-				if (getPopulation() > 3 || (iProductionRank < (kPlayer.getNumCities() + 1) / 2)) {
+				if (getPopulation() > 3 || (iProductionRank < (iNumCities + 1) / 2)) {
 					if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER)) {
 						if (gCityLogLevel >= 2) logBBAI("      City %S uses choose worker 3", getName().GetCString());
 						return;
@@ -1237,7 +1242,7 @@ void CvCityAI::AI_chooseProduction()
 				int iWorkerOdds = 110;
 				// Discourage training workers in parallel
 				int iMaking = kArea.getNumTrainAIUnits(getOwner(), UNITAI_WORKER);
-				iWorkerOdds -= (100 * iMaking) / std::max(1, kPlayer.getNumCities() - 1);
+				iWorkerOdds -= (100 * iMaking) / std::max(1, iNumCities - 1);
 				/*  If nearly enough workers, then rather train more settlers first.
 					(Use sth. like AI_calculateSettlerPriority*iExistingWorkers^2/iNeededWorkers^2 instead?) */
 				if(10 * iExistingWorkers >= 8 * iNeededWorkers && iMaxSettlers > iNumSettlers)
@@ -1351,7 +1356,7 @@ void CvCityAI::AI_chooseProduction()
 		//if (iExistingWorkers != 0)
 		if (!bDanger && iExistingWorkers < (iNeededWorkers + 1) / 2)
 		{
-			if (getPopulation() >= 3 || iProductionRank <= (kPlayer.getNumCities() + 1) / 2)
+			if (getPopulation() >= 3 || iProductionRank <= (iNumCities + 1) / 2)
 			{
 				if (!bChooseWorker &&
 					// advc.113: Wait for mainland to send workers
@@ -1539,8 +1544,8 @@ void CvCityAI::AI_chooseProduction()
 	}
 
 	//opportunistic wonder build (1)
-	if (!bDanger && !hasActiveWorldWonder() && kPlayer.getNumCities() <= 3 &&
-		(kPlayer.getNumCities() > 1 || iNumSettlers > 0)) // K-Mod
+	if (!bDanger && !hasActiveWorldWonder() && iNumCities <= 3 &&
+		(iNumCities > 1 || iNumSettlers > 0)) // K-Mod
 	{
 		// For small civ at war, don't build wonders unless winning
 		//if (!bLandWar || (iWarSuccessRating > 30))
@@ -1570,7 +1575,7 @@ void CvCityAI::AI_chooseProduction()
 			if (pCapital == NULL || (4 * kArea.getPopulationPerPlayer(getOwner()) >
 				5 * pCapital->getArea().getPopulationPerPlayer(getOwner()) &&
 				// advc.131:
-				findBaseYieldRateRank(YIELD_PRODUCTION) <= kPlayer.getNumCities() / 2))
+				findBaseYieldRateRank(YIELD_PRODUCTION) <= iNumCities / 2))
 			{
 				int iOdds = 3 * kArea.getCitiesPerPlayer(getOwner()); // advc.131: was 15 flat
 				if (AI_chooseBuilding(BUILDINGFOCUS_CAPITAL, iOdds))
@@ -1663,8 +1668,8 @@ void CvCityAI::AI_chooseProduction()
 	if (!bSpendingExempt && iNukeWeight > 0)
 	{
 		int iNukesHave = kPlayer.AI_totalUnitAIs(UNITAI_ICBM);
-		int iNukesWant = 1 + std::min(kPlayer.getNumCities(),
-				kGame.getNumCities() - kPlayer.getNumCities()) / 5;
+		int iNukesWant = 1 + std::min(iNumCities,
+				kGame.getNumCities() - iNumCities) / 5;
 		if (iNukesHave < iNukesWant)
 		{
 			/*	Relying on the RNG in this function seems generally questionable
@@ -1694,7 +1699,8 @@ void CvCityAI::AI_chooseProduction()
 
 		// CvArea* pWaterArea = waterArea(true);
 
-		bool const bWarPlan = GET_PLAYER(getOwner()).AI_isFocusWar(area()); // advc.105
+		// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate anyways etc -->
+		bool const bWarPlan = GET_PLAYER(getOwner()).AI_isFocusWar(); // advc.105
 				//(GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0);
 		bool const bDefense = (getArea().getAreaAIType(getTeam()) == AREAAI_DEFENSIVE);
 		bLandWar = (bDefense || (getArea().getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) || (getArea().getAreaAIType(getTeam()) == AREAAI_MASSING));
@@ -1738,7 +1744,7 @@ void CvCityAI::AI_chooseProduction()
 
 		// int const iNumCities = kOwner.getNumCities();
 		// <!-- custom: make sure we don't overbuild workers, used only in the context of blocking forced settlers builds and aoviding chain worker loops if i am not mistaken, so maybe fine to be a bit stricter and maybe workers would still be produced with more relaxed conditions hopefully and if i am not mistaken but check to be sure but anyways etc ; each city needs maximum 2 workers before it's too much -->
-		bool const bTooMuchWorkers = GET_PLAYER(getOwner()).AI_totalUnitAIs(UNITAI_WORKER) >= (2 * kPlayer.getNumCities());
+		bool const bTooMuchWorkers = GET_PLAYER(getOwner()).AI_totalUnitAIs(UNITAI_WORKER) >= (2 * iNumCities);
 
 		// <!-- custom: try our luck expanding blindly in the early game (then later we'll consider if we go expansion mode or on guard mode no settler we'll consider it after this delay anyways etc) ; 75 turns allow for a few cities but from a more delayed start and stornger cities, less barbarian captures too due to being less thin before expanding based on autoplay results anyways etc -->
 		const int iBaseFreeTurns = 75; // @NORMAL speed
@@ -1805,7 +1811,7 @@ void CvCityAI::AI_chooseProduction()
 				for water area sites? */
 			if (pWaterArea != NULL)
 			{
-				int iTotalCities = kPlayer.getNumCities();
+				int iTotalCities = iNumCities;
 				int iSettlerSeaNeeded = std::min(iNumWaterAreaCitySites, ((iTotalCities + 4) / 8) + 1);
 				bool bColonies = false; // advc.017b
 				if (pCapital != NULL)
@@ -1855,7 +1861,7 @@ void CvCityAI::AI_chooseProduction()
 					iSettlerPriority * (bLandWar ? 1 : 2)))
 				{
 					if (gCityLogLevel >= 2) logBBAI("      City %S uses build settler 1", getName().GetCString());
-					if (kPlayer.getNumMilitaryUnits() <= kPlayer.getNumCities() + 1)
+					if (kPlayer.getNumMilitaryUnits() <= iNumCities + 1)
 					{
 						if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
 						{
@@ -2020,7 +2026,7 @@ void CvCityAI::AI_chooseProduction()
 	}*/ // BtS
 
 	//opportunistic wonder build
-	if (!bDanger && (!hasActiveWorldWonder() || kPlayer.getNumCities() > 3))
+	if (!bDanger && (!hasActiveWorldWonder() || iNumCities > 3))
 	{
 		// For civ at war, don't build wonders if losing
 		if (!bTotalWar && (!bLandWar || iWarSuccessRating > 0)) // was -30
@@ -2329,7 +2335,7 @@ void CvCityAI::AI_chooseProduction()
 					if (!bFinancialTrouble && iCarriers < (kPlayer.AI_totalUnitAIs(UNITAI_ASSAULT_SEA) / 4))
 					{
 						// Reduce chances of starting if city has low production
-						if (AI_chooseUnit(UNITAI_CARRIER_SEA, (iProductionRank <= ((kPlayer.getNumCities() / 3) + 1)) ? -1 : 30))
+						if (AI_chooseUnit(UNITAI_CARRIER_SEA, (iProductionRank <= ((iNumCities / 3) + 1)) ? -1 : 30))
 						{
 							AI_chooseBuilding(BUILDINGFOCUS_DOMAINSEA, 16);
 							return;
@@ -2418,7 +2424,7 @@ void CvCityAI::AI_chooseProduction()
 						kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_AIR);
 				if (NO_UNIT != eBestAttackAircraft)
 				{
-					iAircraftNeed = (2 + kPlayer.getNumCities() *
+					iAircraftNeed = (2 + iNumCities *
 							(3 * GC.getInfo(eBestAttackAircraft).getAirCombat())) /
 							(2 * std::max(1, kGame.getBestLandUnitCombat()));
 					int iBestDefenseValue = kPlayer.AI_bestCityUnitAIValue(
@@ -2438,7 +2444,7 @@ void CvCityAI::AI_chooseProduction()
 				}
 				if (iBestMissileValue > 0)
 				{
-					iAircraftNeed = std::max(iAircraftNeed, 1 + kPlayer.getNumCities() / 2);
+					iAircraftNeed = std::max(iAircraftNeed, 1 + iNumCities / 2);
 				}
 				bool bAirBlitz = kPlayer.AI_isDoStrategy(AI_STRATEGY_AIR_BLITZ);
 				bool bLandBlitz = kPlayer.AI_isDoStrategy(AI_STRATEGY_LAND_BLITZ);
@@ -2473,7 +2479,7 @@ void CvCityAI::AI_chooseProduction()
 				if(3*iFightersHave < iAircraftNeed)
 						// <cdtw.7> (Disabled again)
 						/*(kPlayer.AI_atVictoryStage(AI_VICTORY_CULTURE4) &&
-						3*iFightersHave < 2*kPlayer.getNumCities())) */// </cdtw.7>
+						3*iFightersHave < 2*iNumCities)) */// </cdtw.7>
 				{
 					if (AI_chooseUnit(UNITAI_DEFENSE_AIR))
 					{
@@ -2514,7 +2520,7 @@ void CvCityAI::AI_chooseProduction()
 	if (!bFinancialTrouble && iMissileCarriers > 0 && !bCultureCity)
 	{	// Bugfix(?): was '<=' in BtS
 		// advc: Make it '>=' though, not '>'.
-		if (iProductionRank >= kPlayer.getNumCities() / 2 + 1)
+		if (iProductionRank >= iNumCities / 2 + 1)
 		{
 			UnitTypes eBestMissileCarrierUnit = NO_UNIT;
 			kPlayer.AI_bestCityUnitAIValue(UNITAI_MISSILE_CARRIER_SEA, NULL, &eBestMissileCarrierUnit);
@@ -2544,7 +2550,7 @@ void CvCityAI::AI_chooseProduction()
 	/*if (!bAlwaysPeace && !(bLandWar || bAssault) && (kPlayer.AI_isDoStrategy(AI_STRATEGY_OWABWNW) || SyncRandOneChanceIn(12))) {
 		if (!bFinancialTrouble) {
 			int iTotalNukes = kPlayer.AI_totalUnitAIs(UNITAI_ICBM);
-			int iNukesWanted = 1 + 2 * std::min(kPlayer.getNumCities(), kGame.getNumCities() - kPlayer.getNumCities());
+			int iNukesWanted = 1 + 2 * std::min(iNumCities, kGame.getNumCities() - iNumCities);
 			if ((iTotalNukes < iNukesWanted) && (SyncRandNum(100) < (90 - (80 * iTotalNukes) / iNukesWanted))) {
 				if (pWaterArea != NULL) {
 					if (AI_chooseUnit(UNITAI_MISSILE_CARRIER_SEA, 50))
@@ -2565,8 +2571,8 @@ void CvCityAI::AI_chooseProduction()
 			(!bAssault || SyncRandNum(400) < std::min(200, 50 + iNukeWeight/2)))
 		{
 			int iTotalNukes = kPlayer.AI_totalUnitAIs(UNITAI_ICBM);
-			int iNukesWanted = 1 + 2 * std::min(kPlayer.getNumCities(),
-					kGame.getNumCities() - kPlayer.getNumCities());
+			int iNukesWanted = 1 + 2 * std::min(iNumCities,
+					kGame.getNumCities() - iNumCities);
 			if (iTotalNukes < iNukesWanted &&
 				SyncRandNum(100) * iNukesWanted < 90 - (80 * iTotalNukes))
 			{
@@ -2691,7 +2697,7 @@ void CvCityAI::AI_chooseProduction()
 		if (!bFinancialTrouble)
 		{
 			// Force civs with foreign colonies to build a few assault transports to defend the colonies
-			if (kPlayer.AI_totalUnitAIs(UNITAI_ASSAULT_SEA) < (kPlayer.getNumCities() - iNumCapitalAreaCities)/3)
+			if (kPlayer.AI_totalUnitAIs(UNITAI_ASSAULT_SEA) < (iNumCities - iNumCapitalAreaCities)/3)
 			{
 				if (AI_chooseUnit(UNITAI_ASSAULT_SEA))
 					return;
@@ -2710,6 +2716,7 @@ void CvCityAI::AI_chooseProduction()
 	}
 
 	// <!-- custom: stop bypassing our code ffs if i may say xd but anyways etc... ; also specifically for this unitai, we don't want it anymore, see code comment at bestunit( for details if i am not mistaken but anyways etc ; update: exception is barbarians as they may need to to pilage and such if i am not mistaken i mean check to be sure but anyways etc -->
+	// <!-- custom: since barbarians are seemingly handled in AI_barbChooseProduction (but this is just a guess based on what it seems to be at a quick glance but anyways etc, check if accurate anyways etc), we can probably disable this entirely rather than add a barbarian check, but keep the check just in case anyways etc -->
 	// Don't build pirates in financial trouble as they'll be disbanded with high probability
 	if (bMinor || bBarbarian)
 	{
@@ -2797,9 +2804,9 @@ void CvCityAI::AI_chooseProduction()
 		}
 	}
 
-	//if ((iProductionRank <= ((kPlayer.getNumCities() > 8) ? 3 : 2))
+	//if ((iProductionRank <= ((iNumCities > 8) ? 3 : 2))
 	// Ideally we'd look at relative production, not just rank.
-	if (iProductionRank <= kPlayer.getNumCities() / 9 + 2 && getPopulation() > 3)
+	if (iProductionRank <= iNumCities / 9 + 2 && getPopulation() > 3)
 	{
 		int iWonderRand = 8 + SyncRandNum(GC.getInfo(getPersonalityType()).
 				getWonderConstructRand());
@@ -2865,7 +2872,7 @@ void CvCityAI::AI_chooseProduction()
 		iAircraftHave < iAircraftNeed && !bFinancialTrouble)
 	{
 		int iOdds = 33;
-		if (iFreeAirExperience > 0 || iProductionRank <= 1 + kPlayer.getNumCities() / 2)
+		if (iFreeAirExperience > 0 || iProductionRank <= 1 + iNumCities / 2)
 			iOdds = -1;
 		if (AI_chooseLeastRepresentedUnit(airWeight, iOdds))
 			return;
@@ -2968,7 +2975,7 @@ void CvCityAI::AI_chooseProduction()
 		iBuildUnitProbAdjusted *= (250 + std::max(iProjectValue, iBestBuildingValue));
 		iBuildUnitProbAdjusted /= (100 + 3 * std::max(iProjectValue, iBestBuildingValue));
 		// K-Mod end
-		if (bLandWar || (kPlayer.getNumCities() <= 3 && kGame.getElapsedGameTurns() < 60) ||
+		if (bLandWar || (iNumCities <= 3 && kGame.getElapsedGameTurns() < 60) ||
 			(!bUnitExempt && SyncRandSuccess100(iBuildUnitProbAdjusted)) ||
 			(isHuman() && getGameTurnFounded() == kGame.getGameTurn()))
 		{
@@ -2982,7 +2989,7 @@ void CvCityAI::AI_chooseProduction()
 	}
 
 	// Only cities with reasonable production
-	/*if ((iProductionRank <= ((kPlayer.getNumCities() > 8) ? 3 : 2))
+	/*if ((iProductionRank <= ((iNumCities > 8) ? 3 : 2))
 			&& (getPopulation() > 3)) {
 		if (AI_chooseProject()) {
 			if (gCityLogLevel >= 2) logBBAI("      City %S uses choose project 2", getName().GetCString());
@@ -3099,7 +3106,8 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 	// BETTER_BTS_AI_MOD, City AI, 11/30/08, jdog5000: bNoImpassable=true
 	CvArea* pWaterArea = waterArea(true);
 
-	bool const bWarPlan = GET_PLAYER(getOwner()).AI_isFocusWar(area()); // advc.105
+	// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate anyways etc -->
+	bool const bWarPlan = GET_PLAYER(getOwner()).AI_isFocusWar(); // advc.105
 			//(GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0);
 	bool const bDefense = (getArea().getAreaAIType(getTeam()) == AREAAI_DEFENSIVE);
 	//bLandWar = (bDefense || (getArea().getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) || (getArea().getAreaAIType(getTeam()) == AREAAI_MASSING));
@@ -3482,7 +3490,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 		int const iOffenseModeThreshold = 80;
 		bool const bOffenseMode = (((bAnyRealWar && iEnemyPowerPercent <= iOffenseModeThreshold) || bWarPlan || bAnyPlannedWar || bAnyRealWar || bAssault || (!bDefense && bLandWar)) && !bPeaceAloneLikely);
 
-		// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should ratehr be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc,a nd if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
+		// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should ratehr be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc, and if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
 		// <!-- custom: trying to save some computing power by moving the mapname outside the function plus condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
 		const CvWString& mapName = GC.getInitCore().getMapScriptName();
 
@@ -4389,7 +4397,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 	int const iNumCities = kOwner.getNumCities();
 
-	bool const bWarPlan = kOwner.AI_isFocusWar(area()); // advc.105
+	// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate anyways etc -->
+	// bool const bWarPlan = kOwner.AI_isFocusWar(area()); // advc.105
+	bool const bWarPlan = kOwner.AI_isFocusWar();
 			//GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0; // K-Mod
 
 	int const iFoodKept = kOwner.getFoodKept(eBuilding); // advc.912d
@@ -11125,8 +11135,11 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
 			(250 * getUnitProduction(eBestUnit)) /
 			std::max(1, getProductionNeeded(eBestUnit)))) // K-Mod end
 		{
-			pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI);
-			return true;
+			// <!-- custom: avoid redundance, call same function instead anyways etc, also so we can tweak it there only once, much cleaner anyways etc ; also note: chatgpt 5 recommeneded to add a return here (i.e. in next code, not comment, line as of now below anyways etc), i thought it was not necessary, but maybe chatgpt 5 is right and i don't know too much about these, check if accurate anyways etc -->
+			// pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI);
+			// return true;
+			// Funnel through the (UnitTypes, UnitAITypes) overload and propagate success/failure.
+			return AI_chooseUnit(eBestUnit, eUnitAI);
 		}
 	}
 
@@ -11137,6 +11150,559 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 {
 	if (eUnit != NO_UNIT)
 	{
+		// <!-- custom: not sure if we should exclude barbarian (e.g. if we someday add land units rules here (e.g. more defenders if in dangers based on total unitais anyways etc, on top of what is done in bestunitai (so maybe redundant but to be safe about short circuits or such as well but anyways etc))) but just in case anyways etc -->
+		CvPlayerAI const& kPlayer = GET_PLAYER(getOwner());
+		const bool bBarbarian = kPlayer.isBarbarian();
+
+		// <!-- custom: note: all values here are linked to their counterpart/equivalent in the canScrap function e.g. to know which is the max (decisions to scrap or not are not directly symetrical to what we do here to produce them (e.g. don't produce naval units at war on land, but don't scrap exist ones though), but may often be or not, in all cases please refer to each function to see the link between them if i may say but anyways etc -->
+		if (!bBarbarian)
+		{
+			// <!-- custom: add our pre-checks to help improve the naval dementia of overproducing naval units and pangea or/and scrapping them as well possibly, then being invaded and losing top city while having spent needlessly hammers on 20+ mix of galleons/privateers on pangea, fixing the overproducing part of the issue here by setting sanity gates / pre-checks before we push the final order, and so we can control here all order if i'm not mistaken but anyways etc -->
+			const bool bNavalFrontLineUnitAIs = (
+				(eUnitAI == UNITAI_ATTACK_SEA) ||
+				(eUnitAI == UNITAI_RESERVE_SEA) ||
+				(eUnitAI == UNITAI_PIRATE_SEA)
+			);
+
+			const bool bNavalExploreSeaUnitAIs = (
+				(eUnitAI == UNITAI_EXPLORE_SEA)
+			);
+
+			const bool bNavalSupportOffenseFrontUnitAIs = (
+				(eUnitAI == UNITAI_ASSAULT_SEA)
+			);
+
+			const bool bNavalSupportDefenseFrontUnitAIs = (
+				(eUnitAI == UNITAI_ESCORT_SEA)
+			);
+
+			const bool bNavalAirExtraUnitAIs = (
+				(eUnitAI == UNITAI_CARRIER_SEA) ||
+				(eUnitAI == UNITAI_MISSILE_CARRIER_SEA)
+			);
+
+			const bool bNavalSettlerSeaUnitAIs = (
+				(eUnitAI == UNITAI_SETTLER_SEA)
+			);
+
+			const bool bNavalWorkerSeaUnitAIs = (
+				(eUnitAI == UNITAI_WORKER_SEA)
+			);
+
+			const bool bNavalMissionarySeaUnitAIs = (
+				(eUnitAI == UNITAI_MISSIONARY_SEA)
+			);
+
+			const bool bNavalSpySeaUnitAIs = (
+				(eUnitAI == UNITAI_SPY_SEA)
+			);
+
+			const bool bAllHandledNavalUnitAIs = (
+				bNavalFrontLineUnitAIs ||
+				bNavalSupportOffenseFrontUnitAIs ||
+				bNavalSupportDefenseFrontUnitAIs ||
+				bNavalExploreSeaUnitAIs ||
+				bNavalAirExtraUnitAIs ||
+				//
+				bNavalSettlerSeaUnitAIs ||
+				bNavalWorkerSeaUnitAIs ||
+				bNavalMissionarySeaUnitAIs ||
+				bNavalSpySeaUnitAIs
+			);
+
+			// Situation read
+			// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate anyways etc -->
+			bool const bWarPlan = kPlayer.AI_isFocusWar();
+			bool const bDanger = AI_isDanger();
+			// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate, anyways etc -->
+			const bool bAtWar = (GET_TEAM(getTeam()).getNumWars() > 0);
+			const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
+			const bool bEnemyStrong = (iEnemyPowerPercent >= 120);
+			// <!-- custom: note: if i remember it correctly but anyways etc, chatgpt 5 said this applies also if not at war. I guessedly thought this maybe would or could return 0 if we are not at war with any ennemy, faslifying formula and defeating the purpose. In some places, i have added bAtWarAndEnemyWeak, while in some other places i may have left it as bEnemyWeak (check to be sure, i didn't check too much anyways etc). I don't know which is more correct as of now and didn't dig too deep into it, so left as such, hopefully accurate enough but anyways etc, thnakfully at this part of the code the difference wouldn't be too big regardless, and most importantly it already pre-checks bAtWar before so no issue there but ideally figure out how it works to decide in this case i mean but anyways etc if we should merge the weak with an at war check to be safe or if uneeded and be more flexible and accurate with only a weak check, but left as such anyways etc -->
+			//const bool bEnemyWeak = (iEnemyPowerPercent <= 80);
+
+			const int iCurrentEra = kPlayer.getCurrentEra();
+			// <!-- custom: as of now eras are (see xml for details or/and updated version anyways etc -->
+			// 18,5: 			<Type>ERA_ANCIENT</Type> (0 i assume anyways etc)
+			// 79,5: 			<Type>ERA_CLASSICAL</Type> (1)
+			// 154,5: 			<Type>ERA_MEDIEVAL</Type> (2)
+			// 237,5: 			<Type>ERA_RENAISSANCE</Type> (3)
+			// 320,5: 			<Type>ERA_INDUSTRIAL</Type> (4)
+			// 401,5: 			<Type>ERA_MODERN</Type> (5)
+			// 477,5: 			<Type>ERA_FUTURE</Type> (6)
+
+			// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should ratehr be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc, and if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
+			// <!-- custom: trying to save some computing power by moving the mapname outside the function plus condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
+			const CvWString& mapName = GC.getInitCore().getMapScriptName();
+			bool const bLandHeavyMap = isLandHeavyMap(mapName);
+			bool bNavalHeavyMap = false;
+			if (!bLandHeavyMap)
+			{
+				bNavalHeavyMap = isNavalHeavyMap(mapName);
+			}
+
+			const int iNumCities = kPlayer.getNumCities();
+
+			if (bAllHandledNavalUnitAIs)
+			{
+				if (bNavalFrontLineUnitAIs)
+				{
+					// <!-- custom: let's limit certain types of naval units by map type (less on land heavy ones like pangea, more in naval heavy ones like archipelago, anyways etc), to help the known issue as of now 53 of having an AI player have 20+ galleons/privateers, yet producing them +/- scrapping them (dementia/insane like behvaiour if may say but anyways etc.., but not its fault, it just wasn't told better, so hopefully we can help AI have saner unit limits, and we'll ahndle the seemignly naval units scrapping elsewhere as we did in known issue as of now 52 for many units but anyways etc), so for now a few of the combat naval unit AIs (like max iNumCities per AI player seems very sane on pangea, possibly * 2 for naval heavy maps, no need to overproduce beyond that, nor to scrap before that potentially risking crazy loops but anyways etc, we hopefully maybe also save computation by implementing our check here before code is executed but anyways etc) ; code added with the help / thanks to chatgpt 5 as well, check if accurate (and check mine too i mean but anyways etc) anyways etc -->
+					int iMaxUnits = iNumCities;
+					if (bNavalHeavyMap)
+					{
+						iMaxUnits = 2 * iNumCities;
+					}
+
+					// <!-- custom: adjust based on danger, do not waste hammer if threatened in particular, or if preparing a nice offense, make it effective and use our hammer wisely if i may say but anyways etc -->
+					if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
+					{
+						// When you halve naval caps under danger/war, iNumCities == 1 would drop to 0 and hard-block all builds. If that’s not what you want, clamp to at least 1.
+						iMaxUnits = std::max(1, iMaxUnits / 2);
+					}
+
+					// <!-- custom: this counts existing and being produced units if i'm not mistaken, which is perfect to avoid overproducing (e.g. if we 5 units, limit is 6, but cities C D E are producing one unit each, they all think limit is not reached so fine, but if they finish production we'll/'d end up with 5+3 = 8 units above what we want by 2, so to produce, check the total being produced + existing already, as pointed by chatgpt 5 as well, check if accurate anyways etc -->
+					// Sum current empire-wide SEA combat AIs (exclude workers / settlers / explorers)
+					int iTotalUnitAIs = 0;
+					iTotalUnitAIs += kPlayer.AI_totalUnitAIs(UNITAI_ATTACK_SEA);
+					iTotalUnitAIs += kPlayer.AI_totalUnitAIs(UNITAI_RESERVE_SEA);
+					iTotalUnitAIs += kPlayer.AI_totalUnitAIs(UNITAI_PIRATE_SEA); // counts pirates too
+
+					if (iTotalUnitAIs >= iMaxUnits)
+					{
+						return false;
+					}
+					// <!-- custom: else continue and if all good otherwise produce the unit at the end of this function if i'm not mistaken but anyways etc -->
+				}
+				else if (bNavalExploreSeaUnitAIs)
+				{
+					// <!-- custom: we don't need too many explore units, especially on land heavy maps, so make sure we don't overproduce (unless they all die or something then replenish if i may say but anyways etc) them and waste hammer anyways etc -->
+					int iMaxUnits = 1 + (3 * iNumCities) / 10; // 1 + ⌊0.3 * cities⌋;
+					if (bNavalHeavyMap)
+					{
+						iMaxUnits = 2 + (3 * iNumCities) / 10;
+					}
+
+					// <!-- custom: adjust based on danger, do not waste hammer if threatened in particular, or if preparing a nice offense, make it effective and use our hammer wisely if i may say but anyways etc -->
+					if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
+					{
+						iMaxUnits = std::max(1, iMaxUnits / 2);
+					}
+
+					int iTotalUnitAIs = 0;
+					iTotalUnitAIs += kPlayer.AI_totalUnitAIs(UNITAI_EXPLORE_SEA);
+
+					if (iTotalUnitAIs >= iMaxUnits)
+					{
+						return false;
+					}
+				}
+				else if (bNavalSupportOffenseFrontUnitAIs)
+				{
+					// <!-- custom: the needed amount will heavily be influenced by our war strategy or situation if i may say but anyways etc, otherwise falling back with the as of now below default anyways etc -->
+					int iMaxUnits = iNumCities;
+					if (bNavalHeavyMap)
+					{
+						iMaxUnits = 2 * iNumCities;
+					}
+
+					// <!-- custom: adjust based on danger, do not waste hammer if threatened in particular, or if preparing a nice offense, make it effective and use our hammer wisely if i may say but anyways etc -->
+					if (bEnemyStrong || bDanger || bWarPlan)
+					{
+						// <!-- custom: no time for these, focus is on defense atm not offense if i may say anyways etc -->
+						return false;
+					}
+					// <!-- custom: else if bEnemyStrong stay the same, fine as such anyways etc -->
+
+					int iTotalUnitAIs = 0;
+					iTotalUnitAIs += kPlayer.AI_totalUnitAIs(UNITAI_ASSAULT_SEA);
+
+					if (iTotalUnitAIs >= iMaxUnits)
+					{
+						return false;
+					}
+				}
+				else if (bNavalSupportDefenseFrontUnitAIs)
+				{
+					// <!-- custom: the needed amount will be influenced by our war strategy or situation if i may say but anyways etc, otherwise falling back with the as of now below default anyways etc -->
+					int iMaxUnits = iNumCities;
+					if (bNavalHeavyMap)
+					{
+						iMaxUnits = 2 * iNumCities;
+					}
+
+					// <!-- custom: it is hard to predict how these units will be used, we could maybe settle a new island, guard our cargo, who knows, i don't know exactly how this is used, so let's be a bit conservative and also broad in case they have many use cases, following our general rule though to be conservative and preserve hammer, especially considering our current issue of 20+ galleons/privateers crazy dementia pump xd if i may say but anyways etc while our top city is captured around turn 220, so giving lower priority to naval units in harsh times as well here as a general rule, but with less concern than for assault as of now at least if i may say but anyways etc -->
+					if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
+					{
+						iMaxUnits = std::max(1, (iMaxUnits * 6 / 10));
+					}
+
+					int iTotalUnitAIs = 0;
+					iTotalUnitAIs += kPlayer.AI_totalUnitAIs(UNITAI_ESCORT_SEA);
+
+					if (iTotalUnitAIs >= iMaxUnits)
+					{
+						return false;
+					}
+				}
+				else if (bNavalAirExtraUnitAIs)
+				{
+					// <!-- custom: i don't know too much about these units so allow some quite conservatively and in a sane manner without going overboard on restriction nor in unrestricting them but anyways etc -->
+					int iMaxUnits = iNumCities;
+					if (bNavalHeavyMap)
+					{
+						iMaxUnits = 2 * iNumCities;
+					}
+
+					// <!-- custom: it is hard to predict how these units will be used, we could maybe settle a new island, guard our cargo, who knows, i don't know exactly how this is used, so let's be a bit conservative and also broad in case they have many use cases, following our general rule though to be conservative and preserve hammer, especially considering our current issue of 20+ galleons/privateers crazy dementia pump xd if i may say but anyways etc while our top city is captured around turn 220, so giving lower priority to naval units in harsh times as well here as a general rule, but with less concern than for assault as of now at least if i may say but anyways etc -->
+					if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
+					{
+						iMaxUnits = std::max(1, (iMaxUnits * 6 / 10));
+					}
+					// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant) but anyways etc -->
+
+					int iTotalUnitAIs = 0;
+					iTotalUnitAIs += kPlayer.AI_totalUnitAIs(UNITAI_CARRIER_SEA);
+					iTotalUnitAIs += kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_CARRIER_SEA);
+
+					if (iTotalUnitAIs >= iMaxUnits)
+					{
+						return false;
+					}
+				}
+				else if (bNavalSettlerSeaUnitAIs)
+				{
+					// <!-- custom: don't overbuild these especially early, we won't found too many cities all at the same time (else something may be wrong with our economy or something xd i would guess at least with base/current settings of maintenance / city cost / settler cost but anyways etc) -->
+					int iMaxUnits = 1 + (3 * iNumCities) / 10; // 1 + ⌊0.3 * cities⌋;
+					if (bNavalHeavyMap)
+					{
+						iMaxUnits = 2 + (3 * iNumCities) / 10;
+					}
+
+					// <!-- custom: if at war or such danger or threat, don't die, don't expand, but since this is about founding cities, allow one for naval heavy maps anyways etc -->
+					if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
+					{
+						if (bNavalHeavyMap)
+						{
+							iMaxUnits = 1;
+						}
+						else
+						{
+							return false;
+						}
+					}
+					// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant) but anyways etc -->
+
+					int iTotalUnitAIs = 0;
+					iTotalUnitAIs += kPlayer.AI_totalUnitAIs(UNITAI_SETTLER_SEA);
+
+					if (iTotalUnitAIs >= iMaxUnits)
+					{
+						return false;
+					}
+				}
+				else if (bNavalWorkerSeaUnitAIs)
+				{
+					// <!-- custom: no reason to have too many of these, but early we may need quite a few -->
+					int iMaxUnits;
+					if (iCurrentEra <= 3)
+					{
+						iMaxUnits = iNumCities;
+						if (bNavalHeavyMap)
+						{
+							iMaxUnits = 2 * iNumCities;
+						}
+					}
+					else
+					{
+						iMaxUnits = 1 + (3 * iNumCities) / 10; // 1 + ⌊0.3 * cities⌋;
+						if (bNavalHeavyMap)
+						{
+							iMaxUnits = 2 + (3 * iNumCities) / 10;
+						}
+					}
+
+					// <!-- custom: the limits are sane, and at war, especially if pilalged, we may need more workboats, plus they are cheap anyway, so just make sure to not overbuild which we do then all fine i would say/guess but anyways etc, so no threat/war or such change for this unitai anyways etc -->
+
+					int iTotalUnitAIs = 0;
+					iTotalUnitAIs += kPlayer.AI_totalUnitAIs(UNITAI_WORKER_SEA);
+
+					if (iTotalUnitAIs >= iMaxUnits)
+					{
+						return false;
+					}
+				}
+				else if (bNavalMissionarySeaUnitAIs)
+				{
+					// <!-- custom: no reason to have too many of these, but early we may need quite a few -->
+					int iMaxUnits;
+					if (iCurrentEra <= 3)
+					{
+						iMaxUnits = iNumCities;
+						if (bNavalHeavyMap)
+						{
+							iMaxUnits = 2 * iNumCities;
+						}
+					}
+					else
+					{
+						iMaxUnits = 1 + (3 * iNumCities) / 10; // 1 + ⌊0.3 * cities⌋;
+						if (bNavalHeavyMap)
+						{
+							iMaxUnits = 2 + (3 * iNumCities) / 10;
+						}
+					}
+
+					// <!-- custom: if at war or such danger or threat, don't die, don't worry or try to propagate religions, now is not the time, save every hammer (and unit cost if it costs, which i don't know, but hammer is justification/raitonale of enough if i may say but anyways etc to not overbuild or at all maybe but anyways etc) -->
+					if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
+					{
+						return false;
+					}
+					// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant) but anyways etc -->
+
+					int iTotalUnitAIs = 0;
+					iTotalUnitAIs += kPlayer.AI_totalUnitAIs(UNITAI_MISSIONARY_SEA);
+
+					if (iTotalUnitAIs >= iMaxUnits)
+					{
+						return false;
+					}
+				}
+				else if (bNavalSpySeaUnitAIs)
+				{
+					// <!-- custom: allow AI to be quite versatile with these, just don't overdo it anyways etc -->
+					int iMaxUnits = iNumCities;
+					if (bNavalHeavyMap)
+					{
+						iMaxUnits = (iNumCities * 3) / 2;
+					}
+
+					// <!-- custom: at war these can go a long way, especially on land maps, we can get a big advantage from using these, but if we don't already have them, don't build them now, they won't be ready nor effective in time anyway and we'd have just wasted hammer if i may say but anyways etc -->
+					if (bAtWar || bEnemyStrong || bDanger)
+					{
+						return false;
+					}
+					else if (bWarPlan)
+					{
+						if (!bNavalHeavyMap)
+						{
+							// <!-- custom: useless or/and ineffective at land warfare, better not waste hammer here if i am not mistaken, but anyways etc -->
+							return false;
+						}
+						// <!-- custom: else keep as is most likely fine but anyways etc -->
+					}
+					// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant) but anyways etc -->
+
+					int iTotalUnitAIs = 0;
+					iTotalUnitAIs += kPlayer.AI_totalUnitAIs(UNITAI_SPY_SEA);
+
+					if (iTotalUnitAIs >= iMaxUnits)
+					{
+						return false;
+					}
+				}
+			}
+
+			const bool bLandExploreUnitAIs = (
+				(eUnitAI == UNITAI_EXPLORE)
+			);
+
+			const bool bLandSettlerUnitAIs = (
+				(eUnitAI == UNITAI_SETTLE)
+			);
+
+			const bool bLandWorkerUnitAIs = (
+				(eUnitAI == UNITAI_WORKER)
+			);
+
+			const bool bLandMissionaryUnitAIs = (
+				(eUnitAI == UNITAI_MISSIONARY)
+			);
+
+			const bool bLandSpyUnitAIs = (
+				(eUnitAI == UNITAI_SPY)
+			);
+
+			const bool bAllHandledLandCivilianUnitAIs = (
+				bLandExploreUnitAIs ||
+				bLandSettlerUnitAIs ||
+				bLandWorkerUnitAIs ||
+				bLandMissionaryUnitAIs ||
+				bLandSpyUnitAIs
+			);
+
+			if (bAllHandledLandCivilianUnitAIs)
+			{
+				if (bLandExploreUnitAIs)
+				{
+					// <!-- custom: we don't need too many explore units, especially on naval heavy maps, so make sure we don't overproduce (unless they all die or something then replenish if i may say but anyways etc) them and waste hammer anyways etc -->
+					int iMaxUnits = 2;
+					if (bNavalHeavyMap)
+					{
+						iMaxUnits = 1;
+					}
+
+					// <!-- custom: adjust based on danger, squeeze every last bit of hammer xd we can save if i may say but anyways etc -->
+					if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
+					{
+						return false;
+					}
+
+					int iTotalUnitAIs = 0;
+					iTotalUnitAIs += kPlayer.AI_totalUnitAIs(UNITAI_EXPLORE);
+
+					if (iTotalUnitAIs >= iMaxUnits)
+					{
+						return false;
+					}
+				}
+				else if (bLandSettlerUnitAIs)
+				{
+					// <!-- custom: only one settler at a time and for efficiency anyways etc -->
+					int iMaxUnits = 1;
+
+					// <!-- custom: no time for expansion at war or danger or similar anyways etc -->
+					if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
+					{
+						return false;
+					}
+
+					int iTotalUnitAIs = 0;
+					iTotalUnitAIs += kPlayer.AI_totalUnitAIs(UNITAI_SETTLE);
+
+					if (iTotalUnitAIs >= iMaxUnits)
+					{
+						return false;
+					}
+				}
+				else if (bLandWorkerUnitAIs)
+				{
+					// <!-- custom: have a good amount early, gradually fade past a certain point/era (as of now before renaissance but anyways etc) anyways etc -->
+					// base: 2.5 workers per city
+					int iMaxUnits = (2 * iNumCities) + ((iNumCities * 5) / 10);
+					// <!-- custom: be careful to not overproduce them, workers are expensive and block growth, could be 1.5 swordsman instead for example plus the food growth used as slaving if stored in that time but anyways etc, but some amount is needed to grow especially early but anyways etc -->
+
+					static const int iEraRenaissance = 3;
+
+					if (iCurrentEra >= iEraRenaissance)
+					{
+						// <!-- custom: +1 since we start eras at 0 if i'm not mistaken so renaissance is first era where our decay starts to apply but anyways etc -->
+						// clamp to avoid negative
+						const int iErasSinceRenaissance = std::max(0, (iCurrentEra - iEraRenaissance) + 1);
+
+						// <!-- custom: as for decay use a very simple and effecive formula/idea i got hehe thanks to chatgpt 5's own review of my previous idea it gav eme this idea too so thanks really but anysays etc: 10% decay per era, starting from renaissance included hehe thanks but anyways etc ; scale * 100 for rounding error/precision asa chatgpt 5 described sugegsted although i may have had or not or yes or etc but anyways etc same idea or not or yes or etc in this case i mean but anyways etc -->
+						// Era decay: start at Renaissance; <!-- custom: linear (as chatgpt 5 describes them, i don't know too much about these xd but anyways etc, but i like the idea of a linear.. reduction xd not regression! i know even less about these or a bit more but in all cases i like how predictable and simple this is if all good, rather than (0.9^n)*x if i'm not mistaken in understanding chatgpt 5's explanation of what compound is which again i don't know a lot about if at all but i can understand a bit from this thanks, and prefer linear if all good as is simple and predictable (at least to me and/or more easily but anyways etc) anyways etc) --> -10% per era -->
+						const int pct = std::max(60, (100 - (10 * iErasSinceRenaissance))); // never below <!-- custom: 40% reduction/decay, so never below 60% of the max value but anyways etc -->
+						const int iMaxWorkersDecayed = (iMaxUnits * pct) / 100;
+						// <!-- custom: keep minimal force of 3+ workers around in case but no need to pay maintenance (if it costs? I don't know but i guess so but anyways etc) for all anyways etc -->
+						const int iMinWorkersInCase = 3 + ((iNumCities * 3) / 10);
+						iMaxUnits = std::max(iMinWorkersInCase, iMaxWorkersDecayed);
+					}
+
+					// <!-- custom: no time for expansion at war or danger or similar anyways etc, but the worker is so important we'll be a bit more lenient, we may unlock more hammers for example if i may say but anyways etc by producing a worker that would then chop or build a mine or workshop or anything useful so don't be too harsh here as advised by chatgpt 5 thanks but anyways etc -->
+					if (bAtWar && bEnemyStrong)
+					{
+						return false;
+					}
+					// <!-- custom: else if planning war and otherwise no danger or such (e.g. enemy is weak or no danger but anyways etc), still continue to grow anyways etc ; as for bDanger and bEnemyStrong and such if any more maybe but anyways etc, they may be a bit too strong signals so we'll ignore them as well here for workers, hopefully AI handles these well and doesn't overproduce them but anyways etc (workers are also not that expensive like wonders that we'd need so bad to avoid them, and benefits may be immediate so go with a more lenient check or rather maybe gate if i may say but anyways etc) -->
+
+					int iTotalUnitAIs = 0;
+					iTotalUnitAIs += kPlayer.AI_totalUnitAIs(UNITAI_WORKER);
+
+					if (iTotalUnitAIs >= iMaxUnits)
+					{
+						return false;
+					}
+				}
+				else if (bLandMissionaryUnitAIs)
+				{
+					// <!-- custom: peacetime or early: spread religion (capped as they are national units if i am not mistaken but adding an extra check here just in case anyways etc), and also with more conditions and fine tuning but anyways etc, so else don't or do less anyways etc -->
+					int iMaxUnits;
+					if (iCurrentEra <= 3)
+					{
+						iMaxUnits = iNumCities;
+					}
+					else
+					{
+						iMaxUnits = 2;
+					}
+
+					// <!-- custom: if at war or such danger or threat, don't die, don't worry or try to propagate religions, now is not the time, save every hammer (and unit cost if it costs, which i don't know, but hammer is justification/raitonale of enough if i may say but anyways etc to not overbuild or at all maybe but anyways etc) -->
+					if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
+					{
+						return false;
+					}
+					// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant) but anyways etc -->
+
+					int iTotalUnitAIs = 0;
+					iTotalUnitAIs += kPlayer.AI_totalUnitAIs(UNITAI_MISSIONARY);
+
+					if (iTotalUnitAIs >= iMaxUnits)
+					{
+						return false;
+					}
+				}
+				else if (bLandSpyUnitAIs)
+				{
+					// <!-- custom: allow AI to be quite versatile with these, just don't overdo it anyways etc -->
+					int iMaxUnits = iNumCities;
+					if (bNavalHeavyMap)
+					{
+						iMaxUnits = (iNumCities * 3) / 2;
+					}
+
+					// <!-- custom: at war these can go a long way, especially on land maps, we can get a big advantage from using these, but if we don't already have them, don't build them now, they won't be ready nor effective in time anyway and we'd have just wasted hammer if i may say but anyways etc -->
+					if (bAtWar || bEnemyStrong || bDanger)
+					{
+						return false;
+					}
+					// <!-- custom: else if bWarPlan, don't interfere, they could help with our offense, e.g. weakening our target or spying on it to gather data or steal info or such but anyways etc -->
+					else if (bWarPlan)
+					{
+						if (!bNavalHeavyMap)
+						{
+							// <!-- custom: useless or/and ineffective at land warfare, better not waste hammer here if i am not mistaken, but anyways etc -->
+							return false;
+						}
+						// <!-- custom: else keep as is most likely fine but anyways etc -->
+					}
+					// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant) but anyways etc -->
+
+					int iTotalUnitAIs = 0;
+					iTotalUnitAIs += kPlayer.AI_totalUnitAIs(UNITAI_SPY);
+
+					if (iTotalUnitAIs >= iMaxUnits)
+					{
+						return false;
+					}
+				}
+			}
+
+			// <!-- custom: i didn't check, but just in case we have the issue with air units, manage in a very straightforward and simple max units just in case, these are not critical if i'm not mistaken, but we want to avoid preemptively if exists dementia of destroy produce infinite loop, or excess producing at the cost of cities being weakly guarded or/and newer (mostly land but anyways etc) units not build especially when hammer is plenty but anyways etc, give some leeway for versatility but not too much for efficiency anyways etc -->
+			const bool bAirCombatUnitAIs = (
+				(eUnitAI == UNITAI_ATTACK_AIR) ||
+				(eUnitAI == UNITAI_DEFENSE_AIR)
+			);
+			if (bAirCombatUnitAIs)
+			{
+				// <!-- custom: let's limit certain types of naval units by map type (less on land heavy ones like pangea, more in naval heavy ones like archipelago, anyways etc), to help the known issue as of now 53 of having an AI player have 20+ galleons/privateers, yet producing them +/- scrapping them (dementia/insane like behvaiour if may say but anyways etc.., but not its fault, it just wasn't told better, so hopefully we can help AI have saner unit limits, and we'll ahndle the seemignly naval units scrapping elsewhere as we did in known issue as of now 52 for many units but anyways etc), so for now a few of the combat naval unit AIs (like max iNumCities per AI player seems very sane on pangea, possibly * 2 for naval heavy maps, no need to overproduce beyond that, nor to scrap before that potentially risking crazy loops but anyways etc, we hopefully maybe also save computation by implementing our check here before code is executed but anyways etc) ; code added with the help / thanks to chatgpt 5 as well, check if accurate (and check mine too i mean but anyways etc) anyways etc -->
+				// <!-- custom: combined total shared between air fighters and air bombers if i'm not mistaken but anyways etc -->
+				const int iMaxUnits = 3 * iNumCities;
+
+				int iTotalUnitAIs = 0;
+				iTotalUnitAIs += kPlayer.AI_totalUnitAIs(UNITAI_ATTACK_AIR);
+				iTotalUnitAIs += kPlayer.AI_totalUnitAIs(UNITAI_DEFENSE_AIR);
+
+				if (iTotalUnitAIs >= iMaxUnits)
+				{
+					return false;
+				}
+			}
+
+			// <!-- custom: note: as of now unhandled unitais here mean free production or let AI decide, the more the better: military land units, air units but anyways etc, see canScrap function for the handling of these produced units anyways etc -->
+		}
+		
+		// <!-- custom: old code resumes here anyways etc -->
 		pushOrder(ORDER_TRAIN, eUnit, eUnitAI);
 		return true;
 	}
@@ -14132,6 +14698,8 @@ void CvCityAI::AI_barbChooseProduction()
 	int const iWaterPercent = AI_calculateWaterWorldPercent();
 	bool const bDanger = AI_isDanger();
 	int const iNumCitiesInArea = getArea().getCitiesPerPlayer(getOwner());
+	// <!-- custom: store this once since we use it many times then reference the cached variable rather as chatgpt 5 usually advices hehe but anyways etc -->
+	const int iNumCities = kPlayer.getNumCities();
 	int const iExistingWorkers = kPlayer.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER);
 	int const iNeededWorkers = kPlayer.AI_neededWorkers(getArea());
 
@@ -14242,7 +14810,7 @@ void CvCityAI::AI_barbChooseProduction()
 	{
 		if (SyncRandOneChanceIn(3)) // AI Coast Raiders
 		{
-			if (kPlayer.AI_totalUnitAIs(UNITAI_ASSAULT_SEA) <= 1 + kPlayer.getNumCities() / 2)
+			if (kPlayer.AI_totalUnitAIs(UNITAI_ASSAULT_SEA) <= 1 + iNumCities / 2)
 			{
 				if (AI_chooseUnit(UNITAI_ASSAULT_SEA))
 				{
@@ -14253,7 +14821,7 @@ void CvCityAI::AI_barbChooseProduction()
 		}
 		if (SyncRandNum(110) < iWaterPercent + 10)
 		{
-			if (kPlayer.AI_totalUnitAIs(UNITAI_PIRATE_SEA) <= kPlayer.getNumCities())
+			if (kPlayer.AI_totalUnitAIs(UNITAI_PIRATE_SEA) <= iNumCities)
 			{
 				if (AI_chooseUnit(UNITAI_PIRATE_SEA))
 				{

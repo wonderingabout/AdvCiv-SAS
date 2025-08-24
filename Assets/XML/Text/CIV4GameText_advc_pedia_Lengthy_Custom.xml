@@ -333,6 +333,14 @@
 
 
 
+	<!-- custom: rename "AT_INFANTRY" to "BAZOOKA" ; pedia entry based on https://en.wikipedia.org/wiki/Bazooka and adjusted or not for advciv-sas anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_BAZOOKA_PEDIA</Tag>
+		<English>[TAB]The bazooka is a man-portable recoilless anti-tank rocket launcher weapon, widely deployed by the United States Army, especially during World War II. Also referred to as the "stovepipe", the innovative bazooka was among the first generation of rocket-propelled anti-tank weapons used in infantry combat. Featuring a solid-propellant rocket for propulsion, it allowed for high-explosive anti-tank (HEAT) shaped charge warheads to be delivered against armored vehicles, machine gun nests, and fortified bunkers at ranges beyond that of a standard thrown grenade or mine. The universally applied nickname arose from the weapon's M1 variant's vague resemblance to the musical instrument called a bazooka invented and popularized by 1930s American comedian Bob Burns.[PARAGRAPH:1]During World War II, the German armed forces captured several bazookas in early North African and Eastern Front encounters and soon reverse engineered their own version, increasing the warhead diameter to 8.8 cm (among other minor changes) and widely issuing it as the Raketenpanzerbüchse "Panzerschreck" ("rocket anti-armor rifle 'tank terror'"). Near the end of the war, the Japanese developed a similar weapon, the Type 4 70 mm AT rocket launcher, which featured a rocket-propelled grenade of a different design. During the Korean War, the M1 and M9 Bazooka series was replaced by the larger caliber M20 Super Bazooka.[PARAGRAPH:1]The term "bazooka" still sees informal use as a generic term referring to any shoulder fired ground-to-ground/ground-to-air missile weapon (mainly rocket-propelled grenade launchers or recoilless rifles), and as an expression that heavy measures are being taken.</English>
+	</TEXT>
+
+
+
 	<!-- custom: taken from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_BTS.xml and then modified for AdvCiv-SAS -->
 	<!-- custom: description from: https://en.wikipedia.org/wiki/Paganism and https://en.wikipedia.org/wiki/Polytheism -->
 	<TEXT>

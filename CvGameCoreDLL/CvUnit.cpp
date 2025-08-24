@@ -3234,21 +3234,21 @@ bool CvUnit::canScrap() const
 	if (!isHuman())
 	{
 		// <!-- custom: no disband at all regardless, as well, for land military units (found by our preferred/corresponding unitais as as of now below but anyways etc), they are likely to be valuable one way or another at some point, unlike naval units or perhaps scouts or workers to a lesser extent, but what i mean is do not scrap them at all, hopefully fixes low midgame AI output or enhances it (handicap and such will be adjusted to match these changes as well but see for details or/and updated info known issue as of now 52 or other related docs anyways etc)
-		const UnitAITypes eAI = AI_getUnitAIType();
+		const UnitAITypes eUnitAI = AI_getUnitAIType();
 
 		const bool bLandMilitaryUnitAIs = (
-			(eAI == UNITAI_ATTACK) ||
-			(eAI == UNITAI_ATTACK_CITY) ||
-			(eAI == UNITAI_ATTACK_CITY_LEMMING) ||
-			(eAI == UNITAI_COUNTER) ||
-			(eAI == UNITAI_CITY_COUNTER) ||
+			(eUnitAI == UNITAI_ATTACK) ||
+			(eUnitAI == UNITAI_ATTACK_CITY) ||
+			(eUnitAI == UNITAI_ATTACK_CITY_LEMMING) ||
+			(eUnitAI == UNITAI_COUNTER) ||
+			(eUnitAI == UNITAI_CITY_COUNTER) ||
 			// <!-- custom: note: we don't use UNITAI_COLLATERAL, UNITAI_PILLAGE and such so not going the extra long mile to save them either if i may say (in case they are produced which shouldn't happen any way but adding this note for clarity if i may say but anyways etc) but anyways etc -->
 			//
-			(eAI == UNITAI_CITY_DEFENSE) ||
-			(eAI == UNITAI_CITY_SPECIAL) ||
-			(eAI == UNITAI_RESERVE) ||
+			(eUnitAI == UNITAI_CITY_DEFENSE) ||
+			(eUnitAI == UNITAI_CITY_SPECIAL) ||
+			(eUnitAI == UNITAI_RESERVE) ||
 			//
-			(eAI == UNITAI_PARADROP)
+			(eUnitAI == UNITAI_PARADROP)
 		);
 
 		if (bLandMilitaryUnitAIs)
@@ -3262,62 +3262,262 @@ bool CvUnit::canScrap() const
 			return false;
 		}
 
-		// <!-- custom: then do not scrap any unit at all before turn 150 (at normal game speed), the surplus is likely to be useful, if we go to war or get invaded, then numbers would dim at that time anyways etc -->
-		CvGame const& kGame = GC.getGame();
-		const int iCurrentTurn = kGame.getGameTurn();
+		// <!-- custom: as for naval units, do not scrap them at all, we had the workboat infinite loop issue in known issue as of now 23 if i'm not mistaken that we fixed, but then in known issue as of now 53 i noticed a privateer loop and AI dying because of it. Since we now handle properly max naval units among other units being produced, we don't fear overproducing them too much, at least not too hard, but we i.e. i xd but anyways etc fear invisible scrapping. There should almost never be good cases where scrapping is worth, and these should be handled as exceptions rather than the main rule. Just in known issue as of now 52, removing scrapping greatly improves AI military efficiency and performance, and it didn't go bankrupt at all (they can't produce that much units anyway, allowing to reduce handicap so they produce less units so they are less likely to be bankrupt and so they also nicely have a bit of buff and buffer (no pun xd but anyways etc). Really, i feel or it seems to me like scrapping should be handled as an exception not as a "i don't know what to do with this weird unit let's just scrap it xd". "No! Don't scrap it xd, figure out what to do with it, most often the risk of loop or such far outweigh having 1 or 2 extra units anyway i think but anyways etc), if fearing financial trouble or such, please implement it in your code, as for me as of now i consider/assume assume AIs develop well and build these formulas based on iNumCities or such for scaling but anyways etc, the benefits seem to far outweigh the risks/costs but anyways etc, and please read if i may say but anyways etc known isue as of now 53 for details anyways etc ; also, since we are only adding pre checks and not changing the logic otherwise, should be fine but anyways etc -->
+		// <!-- custom: not sure if we should exclude barbarian (e.g. if we someday add land units rules here (e.g. more defenders if in dangers based on total unitais anyways etc, on top of what is done in bestunitai (so maybe redundant but to be safe about short circuits or such as well but anyways etc))) but just in case anyways etc -->
+		CvPlayerAI const& kPlayer = GET_PLAYER(getOwner());
+		const bool bBarbarian = kPlayer.isBarbarian();
 
-		static const int iNoDisbandAtAllTurnsNormal = 150;
-		// <!-- custom: no static for the below, they may change in another save file or new map or such maybe (check to be sure as this is just a guess from me anyways etc) -->
-		const int iNoDisbandAtAllTurnsAdjusted = iNoDisbandAtAllTurnsNormal * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() / 100;
-		const bool bNoDisbandAtAllTurnsAdjusted = (iCurrentTurn < iNoDisbandAtAllTurnsAdjusted);
+		if (!bBarbarian)
+		{
+			// <!-- custom: note: all values here if any are linked to their counterpart/equivalent in the canScrap function e.g. to know which is the max (decisions to scrap or not are not directly symetrical to what we do here to produce them (e.g. don't produce naval units at war on land, but don't scrap exist ones though), but may often be or not, in all cases please refer to each function to see the link between them if i may say but anyways etc -->
 
-		if (bNoDisbandAtAllTurnsAdjusted)
+			const bool bNavalFrontLineUnitAIs = (
+				(eUnitAI == UNITAI_ATTACK_SEA) ||
+				(eUnitAI == UNITAI_RESERVE_SEA) ||
+				(eUnitAI == UNITAI_PIRATE_SEA)
+			);
+
+			const bool bNavalExploreSeaUnitAIs = (
+				(eUnitAI == UNITAI_EXPLORE_SEA)
+			);
+
+			const bool bNavalSupportOffenseFrontUnitAIs = (
+				(eUnitAI == UNITAI_ASSAULT_SEA)
+			);
+
+			const bool bNavalSupportDefenseFrontUnitAIs = (
+				(eUnitAI == UNITAI_ESCORT_SEA)
+			);
+
+			const bool bNavalAirExtraUnitAIs = (
+				(eUnitAI == UNITAI_CARRIER_SEA) ||
+				(eUnitAI == UNITAI_MISSILE_CARRIER_SEA)
+			);
+
+			const bool bNavalSettlerSeaUnitAIs = (
+				(eUnitAI == UNITAI_SETTLER_SEA)
+			);
+
+			const bool bNavalWorkerSeaUnitAIs = (
+				(eUnitAI == UNITAI_WORKER_SEA)
+			);
+
+			const bool bNavalMissionarySeaUnitAIs = (
+				(eUnitAI == UNITAI_MISSIONARY_SEA)
+			);
+
+			const bool bNavalSpySeaUnitAIs = (
+				(eUnitAI == UNITAI_SPY_SEA)
+			);
+
+			const bool bAllHandledNavalUnitAIs = (
+				bNavalFrontLineUnitAIs ||
+				bNavalSupportOffenseFrontUnitAIs ||
+				bNavalSupportDefenseFrontUnitAIs ||
+				bNavalExploreSeaUnitAIs ||
+				bNavalAirExtraUnitAIs ||
+				//
+				bNavalSettlerSeaUnitAIs ||
+				bNavalWorkerSeaUnitAIs ||
+				bNavalMissionarySeaUnitAIs ||
+				bNavalSpySeaUnitAIs
+			);
+			// <!-- custom: since we now already handle in CvCityAI::AI_chooseUnit when to produce them and how much, no need to worry too much about scrapping enough units. However, as shown in known issue as of now 53 but anyways etc, it seems scrapping still happens for privateers or such, although i am not sure and AI may have just been overproducing and i didn't check too much, still generally scrapping benefits should now far outweigh costs/risks, which include infinite loop of missing a unit we just created and/or such, and as happened in known issue as of now 23 as well with workboats in the past. It seems much simpler to disable scrapping altogether for most if not all, and see what happens and if we go bankrupt or not. By meeting our quotas sooner, we can then move on to other units or buildings or anything much more efficiently/effectively than scrap reproduce again, and 1-2 lone units are not a big problem vs the global risk of scrapping messing up, so disabling it at least for these units but anyways etc; chatgpt 5 also likes this change if i may say at least it said so so the change seems fine to it at least if not more but anyways etc -->
+			// asymmetric: don’t scrap existing boats
+			if (bAllHandledNavalUnitAIs)
+			{
+				return false;
+			}
+
+			// <!-- custom: as for settlers, see what happens but don't risk a loop of produce destroy again and again, very costly on city growth. Some code comment mentionned settlers confuse AIs; possibly, but we'd need to test to be sure, there is a risk AI overproduces them in the middle game then scrap and repeat. I didn't see it so far although i didn't see too much, but better not risk, disable scrapping and keep 1 lone extra settler and be done, and see what happens ingame anyways etc if needs adjustment or not (not sure i'd always be here ot make them hehe but i hope the comment helps raise awareness/info about this idea/concern i has if i may say but anyways etc) -->
+
+			const bool bLandExploreUnitAIs = (
+				(eUnitAI == UNITAI_EXPLORE)
+			);
+
+			const bool bLandSettlerUnitAIs = (
+				(eUnitAI == UNITAI_SETTLE)
+			);
+
+			const bool bLandMissionaryUnitAIs = (
+				(eUnitAI == UNITAI_MISSIONARY)
+			);
+
+			const bool bLandSpyUnitAIs = (
+				(eUnitAI == UNITAI_SPY)
+			);
+
+			const bool bMostHandledLandCivilianUnitAIs = (
+				bLandExploreUnitAIs ||
+				bLandSettlerUnitAIs ||
+				bLandMissionaryUnitAIs ||
+				bLandSpyUnitAIs
+			);
+			// <!-- custom: similarly, avoid scrapping for these, prefer having a few extra than risking infinite loops of produce scrap, or other issues we may not be aware of if i am not in my assessment in this case i mean but anyways etc ; also if we happen to have a few extras for some reason, (hut, unit gifted, etc), do not mind it, assume it is not excessive and don't complexify logic for a few extra units that ultimately won't change hopefully game outcome but anyways etc (note: we may want though to add a preventive patch against gifting abuse if i may say but anyways etc, say if we are above limit, scrap any gifted unit to us, but may be a bit tedious or/and i don't know how, we'd need to scrap the unit received if worse than ours else one of ours if ours are worse etc, ideally would be very nice, but maybe leave it as such if not overboard may be fine and not worth the effort if i may say, although again would be very nice, but hopefully this note/reminder helps if someone other than me (or possibly me but less likely i'd do it again but who knows but i may very well not do it though, may or not not guaranteed, anyways etc) gets the idea from this or something but anyways etc) -->
+			if (bMostHandledLandCivilianUnitAIs)
+			{
+				return false;
+			}
+
+			const bool bLandWorkerUnitAIs = (
+				(eUnitAI == UNITAI_WORKER)
+			);
+
+			// <!-- custom: for workers, they are numerous and not so needed later in the game, i don't know if they cost maintenance, but since we handle max in a quite advanced way for them if i may say but anyways etc in CvCityAI::AI_chooseUnit, let's use it and reduce our workforce if i may say but anyways etc if they are unneeded as of now as we reach a certain point in the game and gradually so the later with some threshold but anyways etc -->
+			if (bLandWorkerUnitAIs)
+			{
+				const int iNumCities = kPlayer.getNumCities();
+
+				// <!-- custom: have a good amount early, gradually fade past a certain point/era (as of now before renaissance but anyways etc) anyways etc -->
+				// base: 2.5 workers per city
+				int iMaxUnits = (2 * iNumCities) + ((iNumCities * 5) / 10);
+				// <!-- custom: be careful to not overproduce them, workers are expensive and block growth, could be 1.5 swordsman instead for example plus the food growth used as slaving if stored in that time but anyways etc, but some amount is needed to grow especially early but anyways etc -->
+
+				const int iCurrentEra = kPlayer.getCurrentEra();
+				// <!-- custom: as of now eras are (see xml for details or/and updated version anyways etc -->
+				// 18,5: 			<Type>ERA_ANCIENT</Type> (0 i assume anyways etc)
+				// 79,5: 			<Type>ERA_CLASSICAL</Type> (1)
+				// 154,5: 			<Type>ERA_MEDIEVAL</Type> (2)
+				// 237,5: 			<Type>ERA_RENAISSANCE</Type> (3)
+				// 320,5: 			<Type>ERA_INDUSTRIAL</Type> (4)
+				// 401,5: 			<Type>ERA_MODERN</Type> (5)
+				// 477,5: 			<Type>ERA_FUTURE</Type> (6)
+
+				static const int iEraRenaissance = 3;
+
+				// <!-- custom: don't scrap before renaissance anyways etc -->
+				if (iCurrentEra < iEraRenaissance)
+				{
+					return false;
+				}
+				else
+				{
+					// <!-- custom: +1 since we start eras at 0 if i'm not mistaken so renaissance is first era where our decay starts to apply but anyways etc -->
+					// clamp to avoid negative
+					const int iErasSinceRenaissance = std::max(0, (iCurrentEra - iEraRenaissance) + 1);
+
+					// <!-- custom: as for decay use a very simple and effecive formula/idea i got hehe thanks to chatgpt 5's own review of my previous idea it gav eme this idea too so thanks really but anysays etc: 10% decay per era, starting from renaissance included hehe thanks but anyways etc ; scale * 100 for rounding error/precision asa chatgpt 5 described sugegsted although i may have had or not or yes or etc but anyways etc same idea or not or yes or etc in this case i mean but anyways etc -->
+					// Era decay: start at Renaissance; <!-- custom: linear (as chatgpt 5 describes them, i don't know too much about these xd but anyways etc, but i like the idea of a linear.. reduction xd not regression! i know even less about these or a bit more but in all cases i like how predictable and simple this is if all good, rather than (0.9^n)*x if i'm not mistaken in understanding chatgpt 5's explanation of what compound is which again i don't know a lot about if at all but i can understand a bit from this thanks, and prefer linear if all good as is simple and predictable (at least to me and/or more easily but anyways etc) anyways etc) --> -10% per era -->
+					const int pct = std::max(60, (100 - (10 * iErasSinceRenaissance))); // never below <!-- custom: 40% reduction/decay, so never below 60% of the max value but anyways etc -->
+					const int iMaxWorkersDecayed = (iMaxUnits * pct) / 100;
+					// <!-- custom: keep minimal force of 3+ workers around in case but no need to pay maintenance (if it costs? I don't know but i guess so but anyways etc) for all anyways etc -->
+					const int iMinWorkersInCase = 3 + ((iNumCities * 3) / 10);
+					iMaxUnits = std::max(iMinWorkersInCase, iMaxWorkersDecayed);
+
+					// <!-- custom: don't scrap existing unit just because we won't produce them (e.g. at war with some other conditions as of now but anyways etc), however track our max in all circumstances and scrap excess as game goes on but anyways etc -->
+					int iTotalUnitAIs = 0;
+					iTotalUnitAIs += kPlayer.AI_totalUnitAIs(UNITAI_WORKER);
+
+					// <!-- custom: inferior or equal, as we don't scrap if just at max as nicely noted by chatgpt 5 thanks anyways etc (and despite it being superior or equal in the chooseUnit function hehe if i understood it correctly but anyways etc) -->
+					if (iTotalUnitAIs <= iMaxUnits)
+					{
+						return false;
+					}
+					// <!-- custom: else i.e. if we have too much units, go with the code and scrap if all goes as intended later before final order but anyways etc -->
+				}
+			}
+
+			const bool bAirCombatUnitAIs = (
+				(eUnitAI == UNITAI_ATTACK_AIR) ||
+				(eUnitAI == UNITAI_DEFENSE_AIR)
+			);
+			if (bAirCombatUnitAIs)
+			{
+				return false;
+			}
+
+			// <!-- custom: then do not scrap any unit at all before turn 150 (at normal game speed), the surplus is likely to be useful, if we go to war or get invaded, then numbers would dim at that time anyways etc -->
+			CvGame const& kGame = GC.getGame();
+			const int iCurrentTurn = kGame.getGameTurn();
+
+			static const int iNoDisbandAtAllTurnsNormal = 150;
+			// <!-- custom: no static for the below, they may change in another save file or new map or such maybe (check to be sure as this is just a guess from me anyways etc) -->
+			const int iNoDisbandAtAllTurnsAdjusted = iNoDisbandAtAllTurnsNormal * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() / 100;
+			const bool bNoDisbandAtAllPhase = (iCurrentTurn < iNoDisbandAtAllTurnsAdjusted);
+
+			if (bNoDisbandAtAllPhase)
+			{
+				return false;
+			}
+
+			// <!-- custom: no need for these below, but kept in case as they were bit tedious to make for this cvunit.cpp file but anyways etc and in case we change our rules here or use them for something else similar but anyways etc -->
+			// else
+			// {
+			// 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+			// 	const CvTeamAI&   kTeam  = GET_TEAM(getTeam());
+
+			// 	// <!-- custom: we already return false and never ever scrap land military units so no need to add them here inefficiently and most importantly unneededly if i may say but anyways etc -->
+
+			// 	// Situation read
+			// 	const bool bWarPlan = kOwner.AI_isFocusWar();
+			// 	const bool bAtWar = (kTeam.getNumWars() > 0);
+			// 	const int  iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
+			// 	const bool bEnemyStrong = (iEnemyPowerPercent >= 120);
+			// 	const bool bEnemyWeak   = (iEnemyPowerPercent <= 80);
+
+			// 	// There is no AI_isDanger() at player scope. Build a bDanger flag by scanning your cities.
+			// 	// Danger heuristic: any unsafe city or any plot danger near a city
+			// 	bool bDanger = false;
+			// 	FOR_EACH_CITYAI(pCityAI, kOwner)
+			// 	{
+			// 		if (!pCityAI->AI_isSafe() ||
+			// 			kOwner.AI_isAnyPlotDanger(*pCityAI->plot(), 2, /*bTestMoves=*/false))
+			// 		{
+			// 			bDanger = true;
+			// 			break;
+			// 		}
+			// 	}
+			// 	// We *disallow scrapping* during any of these conditions.
+			// 	if (canFight())
+			// 	{
+			// 		// newborns: let them live a few turns
+			// 		if (kGame.getGameTurn() - getGameTurnCreated() < 5)
+			// 		{
+			// 			return false;
+			// 		}
+			// 		if (bAtWar || bEnemyStrong || bEnemyWeak || bDanger || bWarPlan)
+			// 		{
+			// 			return false;
+			// 		}
+			// 	}
+			// }
+		}
+
+		// <!-- custom: these below should happen less often, for computation saving put them at the end but anyways etc -->
+
+		// <!-- custom: do not scrap anything carrying units, nice idea by chatgpt 5 i didn't even ask this but just some ideas and it found this thanks. Also nice thing is but anyways etc this is compatible i think if i'm not mistaken but anyways etc with mod mods, if some weird weird xd but anyways etc mod makes swordsmen carry cargo, then don't delete the swordsman (it has ants or ant soldiers xd (not in our mod but maybe but anyways etc), so i find this sanity check very nice if it doesn't break anything, may uncover or/and solve unknown issues too maybe hopefully or prevent some maybe who knows so i like this very much if i may say but anyways etc thanks anyways etc -->
+		// Never scrap anything carrying cargo
+		// Prevents “oops I deleted a galleon with settlers”.
+		// <!-- custom: note: not protecting passengers with a getCargo() > 0 contrary to what chatgpt 5 advises, as i don't know how it would behave if forcibly protecting the inside units if i may say but anyways etc (looks less predictable to me, perhaps needless extra care here as in not relevant to the problem maybe if i may say but anyways etc although i'm not too sure but it looks as such to be fine and suitable maybe to go and to simplify as such maybe too but anyways etc), and i hope the protection of the cargo itself is enough and most fit -->
+		if (getCargo() > 0)
 		{
 			return false;
 		}
-		// <!-- custom: then workers should be a bit valuable, but since we don't scrap until 150 (at normal), then it is maybe fine and not needed to add another worker-specific no scrap filter (else may have added in this case i mean but anyways etc), so past turn 150 our new focus is to not scrap if circumstances dictate so, for example if we are in danger
-		// 
-		// <!-- custom: so else let normal scrapping handle this, scrap if we have to (outside our preferred (as of now military land but anyways etc) units as above but anyways etc) else don't but no need to waste computation here or/and disturb existing logic otherwise and/or possibly have unintended effects/consequences, as chatgpt 5 prompted me to do (no pun xd but anyways etc) with its not directly related question but which helped me improve i think hehe the code i mean thanks a lot anyways etc -->
-		// else
-		// {
-		// 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
-		// 	const CvTeamAI&   kTeam  = GET_TEAM(getTeam());
 
-		// 	// <!-- custom: we already return false and never ever scrap land military units so no need to add them here inefficiently and most importantly unneededly if i may say but anyways etc -->
+		// <!-- custom: sanity check: do not scrap great persons (hopefully doesn't happen but who knows, don't kill the great prophet or general or scientist or such anyways etc) -->
+		const bool bGreatPersonUnitAIs = (
+			(eUnitAI == UNITAI_GREAT_PROPHET) ||
+			(eUnitAI == UNITAI_GREAT_ARTIST) ||
+			(eUnitAI == UNITAI_GREAT_SCIENTIST) ||
+			(eUnitAI == UNITAI_GREAT_GENERAL) ||
+			(eUnitAI == UNITAI_GREAT_MERCHANT) ||
+			(eUnitAI == UNITAI_GREAT_ENGINEER) ||
+			(eUnitAI == UNITAI_GREAT_SPY)
+		);
+		if (bGreatPersonUnitAIs)
+		{
+			return false;
+		}
 
-		// 	// Situation read
-		// 	const bool bWarPlan = kOwner.AI_isFocusWar();
-		// 	const bool bAtWar = (kTeam.getNumWars() > 0);
-		// 	const int  iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
-		// 	const bool bEnemyStrong = (iEnemyPowerPercent >= 120);
-		// 	const bool bEnemyWeak   = (iEnemyPowerPercent <= 80);
-
-		// 	// There is no AI_isDanger() at player scope. Build a bDanger flag by scanning your cities.
-		// 	// Danger heuristic: any unsafe city or any plot danger near a city
-		// 	bool bDanger = false;
-		// 	FOR_EACH_CITYAI(pCityAI, kOwner)
-		// 	{
-		// 		if (!pCityAI->AI_isSafe() ||
-		// 			kOwner.AI_isAnyPlotDanger(*pCityAI->plot(), 2, /*bTestMoves=*/false))
-		// 		{
-		// 			bDanger = true;
-		// 			break;
-		// 		}
-		// 	}
-		// 	// We *disallow scrapping* during any of these conditions.
-		// 	if (canFight())
-		// 	{
-		// 		// newborns: let them live a few turns
-		// 		if (kGame.getGameTurn() - getGameTurnCreated() < 5)
-		// 		{
-		// 			return false;
-		// 		}
-		// 		if (bAtWar || bEnemyStrong || bEnemyWeak || bDanger || bWarPlan)
-		// 		{
-		// 			return false;
-		// 		}
-		// 	}
-		// }
+		// <!-- custom: sanity check, do not scrap ICBM (just in case but anyways etc), hopefully doesn't cause issues and helps (maybe solves unknown ones but in all cases anyways etc) but anyways etc -->
+		const bool bAirMissileUnitAIs = (
+			(eUnitAI == UNITAI_ICBM) ||
+			(eUnitAI == UNITAI_MISSILE_AIR)
+		);
+		if (bAirMissileUnitAIs)
+		{
+			return false;
+		}
 	}
 
 	// <!-- custom: then after our checks, resume from old code below anyways etc -->
