@@ -573,14 +573,8 @@ void CvCityAI::AI_chooseProduction()
 	if (bWasFoodProduction)
 		AI_assignWorkingPlots();
 
-	// <!-- custom: added in an attempt to solve the no production issue we have in many cities, not sure this specific block helps but it has been recommended by chatgpt 5 and doesn't seem to hurt nor change our issue, keep as is just in case anyways etc ; see known issue as of now 51 for details anyways etc -->
-	// if (GC.getPythonCaller()->AI_chooseProduction(*this))
-	// 	return;
-
-	if (GC.getPythonCaller()->AI_chooseProduction(*this)) {
-		if (isProduction())   // only accept if it actually queued something
-			return;
-	}
+	if (GC.getPythonCaller()->AI_chooseProduction(*this))
+		return;
 
 	//if (isHuman() && isProductionAutomated())
 	if (isHuman())

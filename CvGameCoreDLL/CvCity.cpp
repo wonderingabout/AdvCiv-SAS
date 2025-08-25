@@ -557,7 +557,109 @@ void CvCity::doTurn()
 	// <K-Mod>
 	doPlotCultureTimes100(false, kOwner.getID(),
 			getCommerceRateTimes100(COMMERCE_CULTURE), true); // </K-Mod>
+
 	doProduction(!bForceProduction);
+
+	// <!-- custom: we have an issue of AI cities sometimes having seemingly no production at all for several turns, see known issue as of now 51 for examples and details. It seems to have happened in base advciv as well in an example i had documented, although the issue may have been soemthing else back then as it was at end game vs early game now in advciv-sas. In all cases, this is crippling, attempt to patch it with the help of chatgpt 5 but anyways etc, check if accurate anyways etc -->
+	// --- BEGIN: hard safety net for AI production ---
+	// <!-- custom: we now successfully always avoid the no production, and other cities don't fall back to our fall back if they have a valid production -->
+	if (!isHuman())
+	{
+		// <!-- custom: but todo: if a city fell once in no production and this was avoided by our fallback here, then it will never ever exit the fallback loop, despite having only 1 unit currently built in queue, and the other cities doing fine (building granaries, settlers, scouts, barracks, anything it seems) but not our city that fell into the fallback and seemingly can't get out of it at next production (at least in next 20 turns anyways etc), trying to change the bNeedFallback to prevent that, while keeping effectiveness of the fallback otherwise anyways etc; result: very effective! No more no production still, and japan ai gets out of the fallback successfully switching to a settler a few turns later thanks a lot chatgpt 5 anyways etc -->
+		//const bool bNeedFallback = !isProduction();
+		const bool bQueueEmpty  = (getOrderQueueLength() == 0);
+		const bool bHeadProcess = (!bQueueEmpty && isProductionProcess());
+		const bool bHeadInvalid = (!bQueueEmpty && !canContinueProduction(getOrderData(0)));
+		const bool bNeedFallback = (bQueueEmpty || bHeadInvalid || bHeadProcess);
+
+		if (bNeedFallback)
+		{
+			const int iCurrentEra = kOwner.getCurrentEra();
+			// <!-- custom: as of now eras are (see xml for details or/and updated version anyways etc -->
+			// 18,5: 			<Type>ERA_ANCIENT</Type> (0 i assume anyways etc)
+			// 79,5: 			<Type>ERA_CLASSICAL</Type> (1)
+			// 154,5: 			<Type>ERA_MEDIEVAL</Type> (2)
+			// 237,5: 			<Type>ERA_RENAISSANCE</Type> (3)
+			// 320,5: 			<Type>ERA_INDUSTRIAL</Type> (4)
+			// 401,5: 			<Type>ERA_MODERN</Type> (5)
+			// 477,5: 			<Type>ERA_FUTURE</Type> (6)
+			const int iMaxCost = 50 * (iCurrentEra + 1);  // Era 0→50, 1→100, ... 6→350
+
+			// <!-- custom: go for the most expensive one so we don't accumulate a bunch of low overall combat fighting ability and high maintenance cost and go bankrupt too soon; also this helps reduce military upgrade costs later on if i'm not mistaken but anyways etc. Hopefully the xml is such that no unit are super high cost (e.g. 300 hammer unit cost of a unit at stone age/ era_ancient or medieval era/ era_medieval or something in some mod mod or perhaps ours although not too likely but anyways etc), so add a guard against that (per era as unit costs change as the game goes on anyways etc) anyways etc. Note: we also assume here hammer cost accurately reflects overall combat ability if i may say but anyways etc.-->
+			UnitTypes eCheapestUnit = NO_UNIT;      // backup if nothing under cap
+			UnitTypes eBestFallbackUnit = NO_UNIT;  // track highest cost ≤ cap
+
+			int iCheapestCost = MAX_INT;
+			int iBestFallbackCost = MIN_INT;
+
+			FOR_EACH_ENUM(Unit)
+			{
+				if (!canTrain(eLoopUnit, false))
+				{
+					continue;
+				}
+				const CvUnitInfo& kU = GC.getInfo(eLoopUnit);
+				// Land-only, must actually fight
+				if (kU.getDomainType() != DOMAIN_LAND)
+				{
+					continue;
+				}
+				if (kU.getCombat() <= 0)
+				{
+					continue; // ignore noncombat here
+				}
+				// <!-- custom: ignore civilian units that happen to have strength, and more generally any unitai that is not among the most efficient ones (e.g. no naval units, no spy or anything else, etc), while we do a fallback, let it be a good one! Xd anways etc -->
+				const UnitAITypes eUnitAI = kU.getDefaultUnitAIType();
+				if (!(eUnitAI == UNITAI_CITY_DEFENSE ||
+					eUnitAI == UNITAI_COUNTER ||
+					eUnitAI == UNITAI_RESERVE ||
+					eUnitAI == UNITAI_ATTACK ||
+					eUnitAI == UNITAI_ATTACK_CITY))
+				{
+					continue;
+				}
+
+				const int iCost = getProductionNeeded(eLoopUnit);
+
+				// track cheapest overall as fallback-of-fallback
+				if (iCost < iCheapestCost)
+				{
+					iCheapestCost = iCost;
+					eCheapestUnit = eLoopUnit;
+				}
+				// prefer the most expensive unit ≤ cap;
+				if (iCost <= iMaxCost && iCost > iBestFallbackCost)
+				{
+					iBestFallbackCost = iCost;
+					eBestFallbackUnit = eLoopUnit;
+				}
+			}
+
+			// if nothing within cap, use the cheapest trainable option
+			if (eBestFallbackUnit == NO_UNIT)
+			{
+				eBestFallbackUnit = eCheapestUnit;
+			}
+			if (eBestFallbackUnit != NO_UNIT)
+			{
+				// only if something unusable is there
+				const bool bReplaceHead = (!bQueueEmpty);
+				// make it the head so it starts immediately next turn
+				pushOrder(ORDER_TRAIN,
+						eBestFallbackUnit,
+						GC.getInfo(eBestFallbackUnit).getDefaultUnitAIType(),
+						/*bSave=*/false,
+						/*bPop=*/bReplaceHead,
+						/*iPosition=*/0,
+						/*bForce=*/false);
+
+				// critical: stop the chooser from clearing this emergency order next turn
+				setChooseProductionDirty(false);
+			}
+		}
+	}
+	// --- END: safety net ---
+
 	doDecay();
 	doReligion();
 	doGreatPeople();
@@ -10745,16 +10847,8 @@ bool CvCity::checkCanContinueProduction(bool bCheckUpgrade,
 
 void CvCity::doProduction(bool bAllowNoProduction)
 {
-	// <!-- custom: added in an attempt to solve the no production issue we have in many cities, not sure this specific block helps but it has been recommended by chatgpt 5 and doesn't seem to hurt nor change our issue, keep as is just in case anyways etc ; see known issue as of now 51 for details anyways etc -->
-	// if (GC.getPythonCaller()->doProduction(*this))
-	// 	return;
-
-	// Only honor Python if it actually did something
-	if (GC.getPythonCaller()->doProduction(*this)) {
-		if (isProduction() || (isHuman() && isChooseProductionDirty()))
-			return; // OK, Python set something or popped a human chooser
-		// else: fall through and let the normal logic pick something
-	}
+	if (GC.getPythonCaller()->doProduction(*this))
+		return;
 
 	if (!isHuman() || isProductionAutomated())
 	{
@@ -10764,57 +10858,6 @@ void CvCity::doProduction(bool bAllowNoProduction)
 			AI().AI_chooseProduction();
 		}
 	}
-
-	// <!-- custom: we have an issue of AI cities sometimes having seemingly no production at all for several turns, see known issue as of now 51 for examples and details. It seems to have happened in base advciv as well in an example i had documented, although the issue may have been soemthing else back then as it was at end game vs early game now in advciv-sas. In all cases, this is crippling, attempt to patch it with the help of chatgpt 5 but anyways etc, check if accurate anyways etc -->
-	// NEW: hard safety net for AI
-	// <!-- custom: unit is the most reliable, as of now we can always build the warrior (i.e. ancient maceman in our mod now anyways etc), else many units should be available, we don't start with no unit buildable at turn 0 after we have our first city, else how would these cities be guarded, go for cheapest unit just so we don't waste hammer, if we are lucky next production should get back on track as often does, at worst this would happen 2 or 3 times on a row before production seemingly fixes itself hoepfully. We do have many processes in the middle game, so i assume they are a fallback for the many no production that would have happened otherwise as is the case in current save file i am testing on, see known issue as of now 51 for details anyways etc. Note: this is maybe good for AI, as more units even if cheap can be upgraded e.g. of an ancient maceman to an axeman cheaper than for humans so maybe worth it in the long run, and this is a reliable choice, vs buildings that have many conditions we seemingly handle well already, as the japan ai city already produced key buildings except the walls as we instructed it around turns 40-50, so maybe don't meddle with it and not sure it would be as worth, we want more units for now and to not waste hammers if no production as a tentative patch to this no production issue here that happens in many cities it seems at least a few in this save file i am reviewing testing on but anyways etc -->
-	// <!-- custom: after adding this check, the results are very nice, we have much less no production, and can produce much more units, but i have noticed a huge issue now, which is that we scrap so many units, we scrap more untis that we produce, so ofc AIs die to barbarians, we need to find how to tone that down, despite not being bankrupt due to economy though, it reminds me of the workboat infinite scrapping known issue we had (see known issue as of now) --> 
-	if (!isHuman() /* <!-- custom: maybe add !isDisorder() and maybe also !isOccupation() or something later but first try to debug or/and fix it if i may say but anyways etc ; update: left as is for now as such as long as doesn't break anything, so we maximize change of solving the issue, even if a fake order is created, hopefully it is created later anyways etc, ideally would add checks but for now trying to fix other issues of excessive unit scrapping which is much more urgent anyways etc, and we seem to have improved on this issue already anyways etc --> */ && !isProduction()) {
-		// Cheapest combat unit
-		UnitTypes eBestFallbackUnit = NO_UNIT;
-		int iBestUCost = MAX_INT;
-		FOR_EACH_ENUM(Unit)
-		{
-			if (!canTrain(eLoopUnit, false))
-			{
-				continue;
-			}
-
-			const CvUnitInfo& kU = GC.getInfo(eLoopUnit);
-			// Land-only, must actually fight
-			if (kU.getDomainType() != DOMAIN_LAND)
-			{
-				continue;
-			}
-			if (kU.getCombat() <= 0)
-			{
-				continue; // ignore noncombat here
-			}
-
-			// <!-- custom: ignore civilian units that happen to have strength, and more generally any unitai that is not among the most efficient ones (e.g. no naval units, no spy or anything else, etc), while we do a fallback, let it be a good one! Xd anways etc -->
-			const UnitAITypes eAI = kU.getDefaultUnitAIType();
-			if (!(eAI == UNITAI_CITY_DEFENSE ||
-				eAI == UNITAI_COUNTER ||
-				eAI == UNITAI_RESERVE ||
-				eAI == UNITAI_ATTACK ||
-				eAI == UNITAI_ATTACK_CITY))
-			{
-				continue;
-			}
-
-			const int iCost = getProductionNeeded(eLoopUnit);
-			if (iCost < iBestUCost)
-			{
-				iBestUCost = iCost;
-				eBestFallbackUnit = eLoopUnit;
-			}
-		}
-		if (eBestFallbackUnit != NO_UNIT) {
-			pushOrder(ORDER_TRAIN, eBestFallbackUnit, GC.getInfo(eBestFallbackUnit).getDefaultUnitAIType());
-			return;
-		}
-	}
-	// <!-- custom: else if fails, let old code continue, it seems there is a process fallback which may explain why so many cities go for processes later in the game rather than the processes being actually good, maybe these cities would have been no production otherwise maybe but anyways etc, still it is a less efficient choice, prefer more units ideally especially for weaker players, but fine as a general rule as well anyways etc -->
 
 	if (!bAllowNoProduction && !isProduction())
 		return;
