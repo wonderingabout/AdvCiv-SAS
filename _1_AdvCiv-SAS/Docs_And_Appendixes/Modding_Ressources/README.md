@@ -138,6 +138,14 @@ To add music to a leader in advciv-sas for example (i assume would be the same o
 
 Note: be very careful!(!!! but anyways etc anyways etc anyways etc) Need to remove the `.mp3` in filename else file is unreadable anyways etc!!!
 
+### trick to capture fast actions in same turn: press print screen super fast many times if you don't want to bother recording a video
+
+If you have an issue that happens only for split seconds or even shorter in this case i mean but anyways etc and hard to view in one screenshot, and if recording a video is too much trouble, you can try pressing print screen many times super fast whiel the behaviour you want to capture in screenshot happens.
+
+I noticed this accidentally or rather unconsciously xd, and it helped me identify an issue that we can only for like 0.2 seconds or such, but that can be captured in a screenshot this way.
+
+See an example of this in the update note in [51 - (Partially patched and worked around / improved) Massive base advciv +/- civ4 issue if i'm not mistaken of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure anyways etc): add a fallback cheapest unit production which helps quite a lot reduce this, but not entirely, in CvCity::doProduction](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---partially-patched-and-worked-around--improved-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc-add-a-fallback-cheapest-unit-production-which-helps-quite-a-lot-reduce-this-but-not-entirely-in-cvcitydoproduction) anyways etc.
+
 ### write git commit message gradually as you do changes before committing them, and keep notes of ideas anyways etc
 
 I have noticed while developing this advciv-sas mod at some point it is is so helpful to write bit by bit and gradually the commit message rather than do all changes then try to guess/remember which. Not necessarily listing all changes, but the main ones or most relevant or important ones in importance i mean (redundant to say important importance but anyways etc) as bullet points or such as you prefer anyways etc.

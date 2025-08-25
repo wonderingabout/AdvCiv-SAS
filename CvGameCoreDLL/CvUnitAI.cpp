@@ -977,7 +977,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	// <!-- custom: make sure AI workers always improve bonuses before anything else. This attempts to fix/address the "Boston screenshot" issue, where AI in a tundra environment mined two hill tiles and did not improve a nearby deer in city radius at all at turn 75, which would have helped the city grow, and even build the current worker city was building just as fast if i am not mistaken anyways etc (see screenshot and doc at known issues readme as of now number 30 for details anyways etc).
 	// Prioritizing to always improve bonuses first before anything else should always be a good move if not then almost always, for the AI in particular, it should be much more efficient than improving any other tile. I hope that the added slightly increased computation in below code does not decrease too much performance ideally (i think very minimal if not neglectible, but i don't know i mean so stating this to be sure and i would suggest to check this as well to be sure as this is just a guess on my end that i can make easily i mean as i don't know too much how to precisely check these or/and would be too tedious for a same end-goal of implementing these unless they are drastically or significantly +/ much in this case at least but anyways etc slower). I have measured to be sure since gemini ai insisted our code is better thanks a lot gemini ai hehe for caring if imay say in this case at least maybe or so it seems i mena but thnaks still but anyways etc really thanks anyways etc, actually our new code is seemingly faster: 45.185s for old DLL before rewrite, vs 43.008s with our new rewritten DLL in a 100 turn autoplay of a quite large pangea (didn't check exactly how). Of course some variation may occur, but our DLL shouldn't be slower or significantly slower, hopefully even a bit faster, at elast it felt so watching turns span even if a bit, and seems confirmed with this, but chek to be sure anyways etc.
 	// Most importantly, even if it were to be slower, but i hope and think it shouldn't be by a big lot if at all (even though i don't know too much about these but hopefully and seemingly to me based on this code i mean and what i can understand or guess of it but anyways etc) it may help AI strength/competitiveness so this should be valued at least i think so in this case at least but anyways etc. To simplify logic, include all bonuses in cultural borders (i.e. any reachable bonus), not just those in cities (at least do not restrict to that, and there should be some benefits to improving a bonus even if outside of a city radius, so hopefully efficient enough in this case and simple enough to handle in code if i am not mistaken as well anyways etc), if i am not mistaken and this code does this ; code provided thanks to / by gemini ai with chatgpt's help too and thanks to my prompt too anyways etc, and adjustments i did as well or not for advciv-sas anyways etc, anyways etc -->
-	// <!-- custom: also, the rewrite addresses one or a few suboptimal behaviours the code had, as reviewed quite extensively with gemini ai from quite little in this case i mean but anyways etc i know about these but can guess quite a bit in this case at least with gemini ai's help too thanks and thanks to me too maybe but anyways etc, in particular that regardless of the pathfinding computation performed at pass 1 (line `if (iPass > 0 || eBestBuild == NO_BUILD)` anyways etc), the best plot found if any would be pathfinding recomputed (or even computed at all since we only need one best plot, so computing it decrementally from best candidate plot to worse until one is found then early return it seems much more efficient as we do rather than compute all plots even the ones which in the end / ultimately in this case but anyways etc not will be our best so no need to needlessly (needless repetition (no pun xd or maybe yes or not but not consiously purposeful of memaybe whatever that means or not or yes or etc but anyways etc) but anyways etc...)) which is inefficient unless i am mistaken (but i don't know too much about these so check to be sure anyways etc) which seems to me to be inefficiently written if i am not mistaken now that i understand it better from all this thining hehe but hopefully, but again i could overlooked some other parts of the explanation or misunderstood some of the logic, so check to be sure, hopefully new code is much cleaner now and much easier to customize to add other enhancements as well anyways etc -->
+	// <!-- custom: also, the rewrite addresses one or a few suboptimal behaviours the code had, as reviewed quite extensively with gemini ai from quite little in this case i mean but anyways etc i know about these but can guess quite a bit in this case at least with gemini ai's help too thanks and thanks to me too maybe but anyways etc, in particular that regardless of the pathfinding computation performed at pass 1 (line `if (iPass > 0 || eBestBuild == NO_BUILD)` anyways etc), the best plot found if any would be pathfinding recomputed (or even computed at all since we only need one best plot, so computing it decrementally from best candidate plot to worse until one is found then early return it seems much more efficient as we do rather than compute all plots even the ones which in the end / ultimately in this case but anyways etc not will be our best so no need to needlessly (needless repetition (no pun xd or maybe yes or not but not consiously purposeful of me maybe whatever that means or not or yes or etc but anyways etc) but anyways etc...)) which is inefficient unless i am mistaken (but i don't know too much about these so check to be sure anyways etc) which seems to me to be inefficiently written if i am not mistaken now that i understand it better from all this thining hehe but hopefully, but again i could overlooked some other parts of the explanation or misunderstood some of the logic, so check to be sure, hopefully new code is much cleaner now and much easier to customize to add other enhancements as well anyways etc -->
 
 	std::vector<CandidatePlot> candidatePlots;
 
@@ -1038,6 +1038,11 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 
 		if (eBonus != NO_BONUS)
 		{
+			// <!-- custom: also handle here choosing to road the tile so it is done and we get the early effects like as of now +1 health with rice or wheat, or +1 happy with gold or silver anyways etc, as well as connecting it to our capital if needed (e.g. no river that connects it already or such anyways etc) (note: this does not handle regular roading for all tiles (i.e. it does not include non-bonus ones, as of now not handled here anyways etc)). This is efficient since we already through all plots here and check bonuses and such, so that we don't need to do it later when/where we enforce this rule in the related functions that call us i.e. that call this function, is done as advised by chatgpt 5 and me asking about this idea to do it rather than the solution it provided but thanks too but anyways etc -->
+			// prefer ROAD, never rails <!-- custom: i.e. i mean / what i want is but anyways etc: don't bother with railroads, hopefully handled elsewhere, we only want to connect the bonuses, regular road is fine for that anyways etc -->
+			// <!-- custom: note: one of the advantages of choosing road here rather than at caller level or such of CvUnitAI::AI_bestCityBuild function but anyways etc, is that for example if we can improve with bestbuild already (e.g. gemstones with a mine) but we can't road yet (e.g. the wheel not unlocked as of now should mostly be only condition if i'm not mistaken but check to be sure anyways etc) then we'd improve it now, do other tasks, then when we unlock roads, we'd have to check all bonus plots, check if they have a road and if not if best improvement then if not river or not connected to a city or capital or such whatever, then only then road; that's a lot of checks, when we can just reuse all these checks already here, and add a "you should build road alternatively here" case that handles bonus having best improvement be it at turn 1 or turn 99 or wherever we unlock the wheel or and whichever tech allos us to, so it seems to me like a better solution to handle the road decision here (with all edge cases like camp on forest/jungle not requiring a chop or such (e.g. we can't chop yet if we don't have as of now tech_masonry, but we have tech_hunting so as of now we can build the camp don't wait, or don't waste turns chopping and get yields first is a bit better or such other cases if any, so nicer and easier to handle here i think but anyways etc)), while we handle the road order outside this function at caller level or such but check if accurate anyways etc; another advantage is we already check pathfinding here or such (else we would skip candidate plot and not return it, so seems very fine as such, and chatgpt 5 agrees with me hehe despite goign back and forth a few times on whether to do or not but it helped me big lot and is quite sharp if i may say thanks but anyways etc, so going with this approach i think indeed if i may say in this case i mean but anyways etc) -->
+			static const BuildTypes eBuildRoad = (BuildTypes)GC.getInfoTypeForString("BUILD_ROAD");
+
 			// <!-- custom: note : flexibly chop, instead of bonus flexible build, we'll choose same best plot again, but advantage is we can better respond, say to invasion, and finish chopping (getting production too and worker availability) if we need to interrupt it mid way, more efficient this way, frees also some move speed if flatland for mobile units if i am not mistaken anyways etc -->
 			// <!-- custom: note 2: even if chopping is important, do not change plot value at all, so that highest value bonus is chopped first, then at next step it is still highest value so it is improved, then it has now an improvement that is correct so it is moved out of our plots in all cases, then 2nd best bonus is chopped if needed, else improved, then 3rd bonus choped if needed then improved etc, then the rest of the plots :) Hehe a very elegant solution as gemini ai said from idea i nicely got but it helped me lot, so making chopping more important by not making it more important (else with a multiplier AI would rush in theory at least but anyways etc from chopping one bonus to directly chopping bonus 2 without imrpvoing bonus 1 before that which would defeat the purpose and be very inefficient, only goal was to chop before actual improve for flexibility of AI workers and such anyways etc) if i may say but anyways etc... -->
 			if (eFeature == eFeatureForest)
@@ -1048,23 +1053,34 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					if (canBuild(kPlot, eBuildCamp))
 					{
 						eBestSupposedBuild = eBuildCamp;
+
+						iValue += 19000;
+					}
+					else if (canBuild(kPlot, eBuildRemoveForest))
+					{
+						eBestSupposedBuild = eBuildRemoveForest;
+
+						iValue += 19000;
+					}
+					// <-- custom: even if we can't chop yet, we can still build a road to get the effects (e.g. 1 happy with bonus_furs if has a camp on forest or jungle for example anyways etc), so try a road as well here. If we can chop though, do so first so it's done, then the roading will be handled by bonus specific branch of the bonus code, as tile would not have a feature forest nor feature jungle anymore (i.e. no feature to remove), and camp will be as of now detected as the idea bonus improvement (bonus specific anyways etc) and so roading choice will be handled there rather, as for here in case we can't chop but can build e.g. a camp, then road as well if we can (else continue i guess if i may say but anyways etc) -->
+					else if (!kPlot.isConnectedToCapital(getOwner()))
+					{
+						if (eBuildRoad != NO_BUILD && canBuild(kPlot, eBuildRoad))
+						{
+							eBestSupposedBuild = eBuildRoad;
+
+							// high, but still less than an *unimproved* bonus (+20000 in your code)
+							iValue += 16000;
+						}
 					}
 					else
 					{
-						if (canBuild(kPlot, eBuildRemoveForest))
-						{
-							eBestSupposedBuild = eBuildRemoveForest;
-
-							iValue += 19000;
-						}
-						else
-						{
-							// <!-- custom: ignore the plot for now, we could "pre-chop", but really chop just in anticipation of the bonus specific improvement/build later, but this is inefficient, maybe there are other tiles to work first, even if they don't have a bonus, code is simpler this way too anyways etc -->
-							continue;
-						}
+						// <!-- custom: already improved, and if necessary and possible already connected (else may simply unneeded so continue anyway if i'm not mistaken anyways etc) -->
+						// <!-- custom: ignore the plot for now, we could "pre-chop", but really chop just in anticipation of the bonus specific improvement/build later, but this is inefficient, maybe there are other tiles to work first, even if they don't have a bonus, code is simpler this way too anyways etc -->
+						continue;
 					}
 				}
-				// <!-- custom: also handle silver and/or other bonuses on forest as well anyways etc -->
+				// <!-- custom: also handle silver and/or other bonuses on forest as well anyways etc; we need to remove the forest else the bonus specific branch will never be reached due to feature being forest or jungle and we'd be stuck here forever wondering if we chop or not but anyways etc -->
 				else
 				{
 					if (canBuild(kPlot, eBuildRemoveForest))
@@ -1091,22 +1107,31 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 
 						iValue += 19000;
 					}
-					else
+					else if (canBuild(kPlot, eBuildRemoveJungle))
 					{
-						if (canBuild(kPlot, eBuildRemoveJungle))
-						{
-							eBestSupposedBuild = eBuildRemoveJungle;
+						eBestSupposedBuild = eBuildRemoveJungle;
 
-							iValue += 19000;
-						}
-						else
+						iValue += 19000;
+					}
+					// <-- custom: even if we can't chop yet, we can still build a road to get the effects (e.g. 1 happy with bonus_furs if has a camp on forest or jungle for example anyways etc), so try a road as well here. If we can chop though, do so first so it's done, then the roading will be handled by bonus specific branch of the bonus code, as tile would not have a feature forest nor feature jungle anymore (i.e. no feature to remove), and camp will be as of now detected as the idea bonus improvement (bonus specific anyways etc) and so roading choice will be handled there rather, as for here in case we can't chop but can build e.g. a camp, then road as well if we can (else continue i guess if i may say but anyways etc) -->
+					else if (!kPlot.isConnectedToCapital(getOwner()))
+					{
+						if (eBuildRoad != NO_BUILD && canBuild(kPlot, eBuildRoad))
 						{
-							// <!-- custom: ignore the plot for now, we could "pre-chop", but really chop just in anticipation of the bonus specific improvement/build later, but this is inefficient, maybe there are other tiles to work first, even if they don't have a bonus, code is simpler this way too anyways etc -->
-							continue;
+							eBestSupposedBuild = eBuildRoad;
+
+							// high, but still less than an *unimproved* bonus (+20000 in your code)
+							iValue += 16000;
 						}
 					}
+					else
+					{
+						// <!-- custom: already improved, and if necessary and possible already connected (else may simply unneeded so continue anyway if i'm not mistaken anyways etc) -->
+						// <!-- custom: ignore the plot for now, we could "pre-chop", but really chop just in anticipation of the bonus specific improvement/build later, but this is inefficient, maybe there are other tiles to work first, even if they don't have a bonus, code is simpler this way too anyways etc -->
+						continue;
+					}
 				}
-				// <!-- custom: also handle gemstones and/or other bonuses on jungle as well anyways etc -->
+				// <!-- custom: also handle gemstones and/or other bonuses on jungle as well anyways etc; we need to remove the jungle else the bonus specific branch will never be reached due to feature being forest or jungle and we'd be stuck here forever wondering if we chop or not but anyways etc -->
 				else
 				{
 					if (canBuild(kPlot, eBuildRemoveJungle))
@@ -1162,7 +1187,22 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					//  is already improved correctly ===
 					if (kPlot.getImprovementType() == eBonusSpecificImprovement)
 					{
-						continue;
+						if (!kPlot.isConnectedToCapital(getOwner()))
+						{
+							// <!-- custom: disabled as seems redundant despite chatgpt 5's original suggestion, when feeding it the code it says that this is not required actually: `&& canBuildRoute()`; since we hardcode the road itself, maybe no need to complicate this and simply check corresponding build directly but i don't know too much about these, check if accurate anyways etc -->
+							if (eBuildRoad != NO_BUILD && canBuild(kPlot, eBuildRoad))
+							{
+								eBestSupposedBuild = eBuildRoad;
+
+								// high, but still less than an *unimproved* bonus (+20000 in your code)
+								iValue += 16000;
+							}
+						}
+						else
+						{
+							// <!-- custom: already improved, and if necessary and possible already connected (else may simply unneeded so continue anyway if i'm not mistaken anyways etc) -->
+							continue;
+						}
 					}
 				}
 
@@ -1810,7 +1850,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 								// <!-- custom: if nothing better to do, grab what we can anyways etc -->
 								eBestSupposedBuild = eBuildMine;
 
-								// <!-- note: especially for smart ais reading this or human modders or players not overlooking it xd if i may say but hard to notice if i may say too in this case but anyways etc, evne though the value is really low, in some cases we may have nothing else better to do at all (not counting roads not handled in this function), so we may build a hill desert around turn 20 as in autoplay in save file 336 from turn 0, because there is simply nothing better: no cottages, no chopping so can't mine the gemstones in forest even though we have mining we can't mine yet, etc, in these rare cases weird things like mining hill desert actually make a lot of sense, it's the only or among only best moves :) And it's not even bad in terms of yields, just relatively worse and shows system funcitons well too if i may say in this case at least but anywas etc -->
+								// <!-- note: especially for smart ais reading this or human modders or players not overlooking it xd if i may say but hard to notice if i may say too in this case but anyways etc, evne though the value is really low, in some cases we may have nothing else better to do at all (not counting non-bonus roads not handled in this function), so we may build a hill desert around turn 20 as in autoplay in save file 336 from turn 0, because there is simply nothing better: no cottages, no chopping so can't mine the gemstones in forest even though we have mining we can't mine yet, etc, in these rare cases weird things like mining hill desert actually make a lot of sense, it's the only or among only best moves :) And it's not even bad in terms of yields, just relatively worse and shows system funcitons well too if i may say in this case at least but anywas etc -->
 								iValue += 200;
 							}
 							else
@@ -18769,24 +18809,72 @@ bool CvUnitAI::AI_improveCity(CvCityAI const& kCity)
 
 	CvPlot* pBestPlot=NULL;
 	BuildTypes eBestBuild=NO_BUILD;
+
+	// <!-- custom: this is one of the only 2 functions where our entirely rewritten and greatly worker efficiency optimized but anyways etc AI_bestCityBuild function is ever called. Our current goal is to chain roads only on bonuses after they are improved. This is to gain the effects such health from connecting wheat or rice, happiness from connecting gold or silver as well for example anyways etc, which may unlock our cap of unhappiness or/and health or such other benefits if any sooner if i'm not mistaken but anyways etc. But we don't handle roading in our rewritten function, despite now only us handling the improvement of bonuses. So the existing functions we rely on often call/do too late the connecting bonus (if needed e.g. not on rivers connected to city maybe or such if bonus is already improved and on a river maybe (check if accurate and if i'm not mistaken but anyways etc)) logic. So what we'd want without rewriting everything, since they handle roads fine, just roading bonuses too late, is to add just right after our rewritten function is called, roading logic so that bonus is roaded right after improve anyways etc. Luckily or fortunately if i may say but anyways etc, it seems in our entire code our rewritten function is as of now called only twice, so we'll patch both logics and see if it helps solve the issue of city being stagnant unhealthy or/and unhappy despite having bonuses improved as we do now in our rewritten function, but not connected so we don't have their effects as we want. This is one of these places, done as recommended by chatgpt 5 and as i suggested a bit too hehe if i may say and helped provide it code samples too of my own idea i mean but it helped lot, but check if accurate mine or/and its reasoning as well if i may say but anyways etc, hopefully helpful but anyways etc; i also formatted a bit its comments and added them in code coments or/and such if i may say but anyways etc. Also see known issue as of now 31 update 2 for details if any or/and related info anyways etc. -->
 	if (!AI_bestCityBuild(kCity, &pBestPlot, &eBestBuild, NULL, this))
 		return false; // advc
+
 	FAssert(pBestPlot != NULL);
 	FAssertEnumBounds(eBestBuild);
-	MovementFlags eFlags = NO_MOVEMENT_FLAGS; // advc.pf
-	// <advc> Moved into helper function
-	MissionTypes eMission = (AI_shouldRouteWhileImproving(*pBestPlot, eFlags, &kCity) ?
-			MISSION_ROUTE_TO : MISSION_MOVE_TO); // </advc>
-	getGroup()->pushMission(eMission,
-			pBestPlot->getX(), pBestPlot->getY(),
-			eFlags, false, false,
-			MISSIONAI_BUILD, pBestPlot);
-	eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild);
-	getGroup()->pushMission(MISSION_BUILD,
-			eBestBuild, -1,
-			eFlags, /*(getGroup()->getLengthMissionQueue() > 0)*/ true, // K-Mod
-			false, MISSIONAI_BUILD, pBestPlot);
-	return true;
+
+	// Patch 1 — AI_improveCity
+	// <!-- custom: update: now we actually choose best build to be eBuildRoad in CvUnitAI::AI_bestCityBuild function as it is efficient to do so as i got the idea to and as chatgpt 5 recommended as well when asking it hehe about this idea i got but anyways etc. So just make sure this eBuildRoad in CvUnitAI::AI_bestCityBuild is successfully handled as a road (we check there plot being pathable, as well as if connected to capital already (e.g. river or such, so simply connect here anyways etc)) -->
+	static const BuildTypes eBuildRoad = (BuildTypes)GC.getInfoTypeForString("BUILD_ROAD");
+	
+    // Sentinel: road an already-improved, unconnected bonus (Wheel known)
+	// Return from the sentinel branch to avoid falling through to the generic path:
+    const BonusTypes eBonusHere = pBestPlot->getNonObsoleteBonusType(getTeam());
+    const bool bSentinelRoad = (eBestBuild == eBuildRoad && eBonusHere != NO_BONUS);
+
+    if (bSentinelRoad)
+    {
+        // 1) move to the tile (don’t auto-road the whole path)
+        getGroup()->pushMission(MISSION_MOVE_TO,
+            pBestPlot->getX(), pBestPlot->getY(),
+            NO_MOVEMENT_FLAGS, false, false,
+            MISSIONAI_BUILD, pBestPlot);
+
+        // 2) road the tile itself
+        if (canBuild(*pBestPlot, eBuildRoad))
+        {
+            getGroup()->pushMission(MISSION_BUILD,
+                eBuildRoad, -1, NO_MOVEMENT_FLAGS,
+                /*append*/true, /*manual*/false, MISSIONAI_BUILD, pBestPlot);
+        }
+
+        // 3) build the *shortest* missing connector to the trade network
+        if (!AI_connectPlot(*pBestPlot))
+        {
+            if (CvCity* pCap = GET_PLAYER(getOwner()).getCapitalCity())
+            {
+                getGroup()->pushMission(MISSION_ROUTE_TO,
+                    pCap->getX(), pCap->getY(),
+                    MOVE_SAFE_TERRITORY, /*append*/true,
+                    /*manual*/false, MISSIONAI_BUILD, pBestPlot);
+            }
+        }
+        return true;
+    }
+	// --- normal (non-sentinel) path, unchanged ---
+	// <!-- custom: the else i added here is redundant i think since we return true but just for clarity and in case code changes somehow someday or such but anyways etc -->
+	else
+	{
+		// <!-- custom: old code resumes below anyways etc -->
+		MovementFlags eFlags = NO_MOVEMENT_FLAGS; // advc.pf
+		// <advc> Moved into helper function
+		MissionTypes eMission = (AI_shouldRouteWhileImproving(*pBestPlot, eFlags, &kCity) ?
+				MISSION_ROUTE_TO : MISSION_MOVE_TO); // </advc>
+		getGroup()->pushMission(eMission,
+				pBestPlot->getX(), pBestPlot->getY(),
+				eFlags, false, false,
+				MISSIONAI_BUILD, pBestPlot);
+		eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild);
+		getGroup()->pushMission(MISSION_BUILD,
+				eBestBuild, -1,
+				eFlags, /*(getGroup()->getLengthMissionQueue() > 0)*/ true, // K-Mod
+				false, MISSIONAI_BUILD, pBestPlot);
+		return true;
+	}
 }
 
 
@@ -19019,6 +19107,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
         // Ask the per-city logic for its single best target plot + build
         CvPlot* pPlot = NULL;
         BuildTypes eBuild = NO_BUILD;
+		// <!-- custom: note: for some reason we crash when only try to check AI_bestCityBuild function call and not AI_getBestBuild function call if i'm not mistaken anyways etc. I don't know if it's related to my heavy changes in the function or not or if it wa already here before or not. My idea is since we handle all (land) improvements as we want now directly in AI_bestCityBuild, we maybe don't need anymore the old AI_getBestBuild that we disabled in our rewritten AI_bestCityBuild to compute value of each plot ourselves, but maybe this interferes or removes or doesn't handle some logic like workboats, roads, water tiles? I don't know enough nor did i check, so these are just guesses of me anyways, but since it seems to work as is, i'm adding this info just for reference or if useful to debug or for myself xd if i may say but anyways etc, hopefully helpful or not or yes or etc anyways etc -->
         if (pLoopCity->AI_getBestBuild(NO_CITYPLOT) == NO_BUILD ||
             !AI_bestCityBuild(*pLoopCity, &pPlot, &eBuild, NULL, this))
         {
@@ -19043,7 +19132,6 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
         pBestPlot = pPlot;
         break;
     }
-
 	// <!-- custom: then back to old code if i am not mistaken anyways etc -->
 
 	if (pBestPlot == NULL)
@@ -19056,24 +19144,64 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 	if (NULL != pBestPlot->getWorkingCity())
 		pBestPlot->getWorkingCity()->AI_changeWorkersHave(+1);*/
 
-	// <advc.121>
-	MissionTypes eMission = MISSION_MOVE_TO;
-	if (!getPlot().isSamePlotGroup(*pBestPlot, getOwner()) || !getPlot().isRoute() ||
-		SyncRandOneChanceIn(stepDistance(plot(), pBestPlot) + 1))
+	// <!-- custom: this is one of the only 2 functions where our entirely rewritten and greatly worker efficiency optimized but anyways etc AI_bestCityBuild function is ever called. Our current goal is to chain roads only on bonuses after they are improved. This is to gain the effects such health from connecting wheat or rice, happiness from connecting gold or silver as well for example anyways etc, which may unlock our cap of unhappiness or/and health or such other benefits if any sooner if i'm not mistaken but anyways etc. But we don't handle roading in our rewritten function, despite now only us handling the improvement of bonuses. So the existing functions we rely on often call/do too late the connecting bonus (if needed e.g. not on rivers connected to city maybe or such if bonus is already improved and on a river maybe (check if accurate and if i'm not mistaken but anyways etc)) logic. So what we'd want without rewriting everything, since they handle roads fine, just roading bonuses too late, is to add just right after our rewritten function is called, roading logic so that bonus is roaded right after improve anyways etc. Luckily or fortunately if i may say but anyways etc, it seems in our entire code our rewritten function is as of now called only twice, so we'll patch both logics and see if it helps solve the issue of city being stagnant unhealthy or/and unhappy despite having bonuses improved as we do now in our rewritten function, but not connected so we don't have their effects as we want. This is one of these places, done as recommended by chatgpt 5 and as i suggested a bit too hehe if i may say and helped provide it code samples too of my own idea i mean but it helped lot, but check if accurate mine or/and its reasoning as well if i may say but anyways etc, hopefully helpful but anyways etc; i also formatted a bit its comments and added them in code coments or/and such if i may say but anyways etc. Also see known issue as of now 31 update 2 for details if any or/and related info anyways etc. -->
+	// Patch 2 — AI_nextCityToImprove
+	// <!-- custom: then after i asked a bit to know more or/and for clarity or where to put the code xd it added these details, check if accurate anyways etc -->
+	// Is Patch 2 needed?
+	// Strictly speaking, Patch 1 will catch cases where the worker improves tiles in its current city. But you’ve made AI_nextCityToImprove much more active (good!), so plenty of improvements will be initiated from there. To guarantee “improve → then connect” everywhere, apply both patches.
+	// ... after we have pBestPlot and eBestBuild chosen ...
+	static const BuildTypes eBuildRoad = (BuildTypes)GC.getInfoTypeForString("BUILD_ROAD");
+	const BonusTypes eBonusHere = pBestPlot->getNonObsoleteBonusType(getTeam());
+	const bool bSentinelRoad = (eBestBuild == eBuildRoad && eBonusHere != NO_BONUS);
+
+	if (bSentinelRoad)
 	{
-		if (generatePath(*pBestPlot, MOVE_SAFE_TERRITORY)) // advc.pf
-			eMission = MISSION_ROUTE_TO;
-	}
-	getGroup()->pushMission(eMission, /* </advc.121> */
+		getGroup()->pushMission(MISSION_MOVE_TO,
 			pBestPlot->getX(), pBestPlot->getY(),
-			eMission == MISSION_ROUTE_TO ? MOVE_SAFE_TERRITORY : NO_MOVEMENT_FLAGS, // advc.pf
-			false, false, MISSIONAI_BUILD, pBestPlot);
-	eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild);
-	getGroup()->pushMission(MISSION_BUILD,
-			eBestBuild, -1, NO_MOVEMENT_FLAGS,
-			//(getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pBestPlot);
-			true, false, MISSIONAI_BUILD, pBestPlot); // K-Mod
-	return true;
+			NO_MOVEMENT_FLAGS, false, false, MISSIONAI_BUILD, pBestPlot);
+
+		if (canBuild(*pBestPlot, eBuildRoad))
+		{
+			getGroup()->pushMission(MISSION_BUILD,
+				eBuildRoad, -1, NO_MOVEMENT_FLAGS,
+				/*append*/true, /*manual*/false, MISSIONAI_BUILD, pBestPlot);
+		}
+
+		if (!AI_connectPlot(*pBestPlot))
+		{
+			if (CvCity* pCap = GET_PLAYER(getOwner()).getCapitalCity())
+			{
+				getGroup()->pushMission(MISSION_ROUTE_TO,
+					pCap->getX(), pCap->getY(),
+					MOVE_SAFE_TERRITORY, /*append*/true,
+					/*manual*/false, MISSIONAI_BUILD, pBestPlot);
+			}
+		}
+		return true;
+	}
+	// <!-- custom: then code resumes below anyways etc-->
+	// <!-- custom: note: the else i added here is redundant i think since we return true but just for clarity and in case code changes somehow someday or such but anyways etc -->
+	else
+	{
+		// <advc.121>
+		MissionTypes eMission = MISSION_MOVE_TO;
+		if (!getPlot().isSamePlotGroup(*pBestPlot, getOwner()) || !getPlot().isRoute() ||
+			SyncRandOneChanceIn(stepDistance(plot(), pBestPlot) + 1))
+		{
+			if (generatePath(*pBestPlot, MOVE_SAFE_TERRITORY)) // advc.pf
+				eMission = MISSION_ROUTE_TO;
+		}
+		getGroup()->pushMission(eMission, /* </advc.121> */
+				pBestPlot->getX(), pBestPlot->getY(),
+				eMission == MISSION_ROUTE_TO ? MOVE_SAFE_TERRITORY : NO_MOVEMENT_FLAGS, // advc.pf
+				false, false, MISSIONAI_BUILD, pBestPlot);
+		eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild);
+		getGroup()->pushMission(MISSION_BUILD,
+				eBestBuild, -1, NO_MOVEMENT_FLAGS,
+				//(getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pBestPlot);
+				true, false, MISSIONAI_BUILD, pBestPlot); // K-Mod
+		return true;
+	}
 }
 
 
@@ -19720,6 +19848,7 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) 
 		return eBuild;
 	}
 
+	// <!-- custom: note: this is used several times in our code; one such cases is when we want to road a bonus in a city radius (from CvUnitAI::AI_bestCityBuild function i assume if i'm not mistaken but anyways etc). In that case, the new bSentinelRoad in CvUnitAI::AI_improveCity takes over so we can move to the tile, build the chosen build_road in CvUnitAI::AI_bestCityBuild, and then road to nearest path to trade network if i understood it correctly based on chatgpt 5's explanation and what i understood of this in general too hehe, but check if accurate and if i am not mistaken; so in such a case we now override this code. However, do not remove it or comment-out, as it can (maybe, check if accurate) still be useful for example if we have a bonus in cultural borders but not in the BFC of any city, then CvUnitAI::AI_bestCityBuild function would not pick these up yet we still need the road, and in such other cases perhaps, so fall back to these if i'm not mistaken anyways etc -->
 	// IMPROVED LOGIC: Road improved bonuses that aren't connected yet
 	BonusTypes eBonus = kPlot.getNonObsoleteBonusType(getTeam());
 	if (eBonus != NO_BONUS && 

@@ -1,8 +1,8 @@
-# Quick Get Started Guide (AdvCiv-SAS)
+# Very Quick Get Started Guide
 
 This guide highlights key differences between AdvCiv-SAS and AdvCiv/Civ4 BTS. It’s intentionally practical and a bit verbose so newer players can follow the “what changed” and “why it matters.” For technical details, see the main [README](/README.md) and the docs under [/_1_AdvCiv-SAS/](/_1_AdvCiv-SAS/).
 
-## Sevopedia AdvCiv-SAS Entries
+## Sevopedia
 
 Some changes are also summarized directly in the Sevopedia. See [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md). Sample screenshots are provided there.
 

@@ -72,7 +72,7 @@ void CvGame::updateColoredPlots()
 							PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
 				}
 			}
-			// <!-- custom: even in debugging (if i understood it correctly), these are confusing and needlessly taking computing power too, we use bestcitybuild now anyway instead to choose our best plots to build on and all for AI workers, so try to gradually remove old code influence, while increasing performance if we can do so as well or functionality at least i want to do so in this case but anyways etc -->
+			// <!-- custom: even in debugging (if i understood it correctly), these are confusing and needlessly taking computing power too, we use CvUnitAI::AI_bestCityBuild now anyway instead to choose our best plots to build on and all for AI workers, so try to gradually remove old code influence, while increasing performance if we can do so as well or functionality at least i want to do so in this case but anyways etc -->
 			// // Plot improvement replacement circles for debugging
 			// FOR_EACH_ENUM(PlotNum)
 			// {

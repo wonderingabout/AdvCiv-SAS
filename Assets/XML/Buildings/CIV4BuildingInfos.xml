@@ -5499,7 +5499,7 @@
 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
 			<iAreaTradeRoutes>0</iAreaTradeRoutes>
 			<!-- custom: was 0 -->
-			<iTradeRouteModifier>50</iTradeRouteModifier>
+			<iTradeRouteModifier>25</iTradeRouteModifier>
 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
 			<iFreeTechs>0</iFreeTechs>
@@ -5686,7 +5686,7 @@
 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
 			<iAreaTradeRoutes>0</iAreaTradeRoutes>
 			<!-- custom: was 0 -->
-			<iTradeRouteModifier>50</iTradeRouteModifier>
+			<iTradeRouteModifier>25</iTradeRouteModifier>
 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
 			<iFreeTechs>0</iFreeTechs>
@@ -6253,7 +6253,8 @@
 			<iTradeRoutes>0</iTradeRoutes>
 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
 			<iAreaTradeRoutes>0</iAreaTradeRoutes>
-			<iTradeRouteModifier>25</iTradeRouteModifier>
+			<!-- custom: was 25 -->
+			<iTradeRouteModifier>50</iTradeRouteModifier>
 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
 			<iFreeTechs>0</iFreeTechs>
@@ -6264,11 +6265,10 @@
 			<iAsset>4</iAsset>
 			<iPower>0</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
-			<!-- custom: also give water tiles production per tile so they scale better in the middle game, plus should be more balanced than strong trade routes, as you/the player would need to allocate citizens and work these tiles else no bonus, hopefully more balanced and also stronger water tiles this way that scale gradually with the game without being OP ideally, anyways etc ; as for the viking trading post add gold per tile as the vikings were traders too if i am not mistaken anyways etc, should be balanced since tiles need to be allocated else no bonus to gold and such but anyways etc hopefully balanced anyways etc anyways etc anyways etc -->
 			<SeaPlotYieldChanges>
 				<iYield>0</iYield>
 				<iYield>1</iYield>
-				<iYield>1</iYield>
+				<iYield>0</iYield>
 			</SeaPlotYieldChanges>
 			<RiverPlotYieldChanges/>
 			<GlobalSeaPlotYieldChanges/>
@@ -6449,12 +6449,7 @@
 			<iAsset>4</iAsset>
 			<iPower>0</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
-			<!-- custom: also give water tiles gold per tile so they scale better in the middle game, plus should be more balanced than strong trade routes, as you/the player would need to allocate citizens and work these tiles else no bonus, hopefully more balanced and also stronger water tiles this way that scale gradually with the game without being OP ideally, anyways etc, was empty -->
-			<SeaPlotYieldChanges>
-				<iYield>0</iYield>
-				<iYield>0</iYield>
-				<iYield>1</iYield>
-			</SeaPlotYieldChanges>
+			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
@@ -6625,8 +6620,7 @@
 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
 			<iAreaTradeRoutes>0</iAreaTradeRoutes>
 			<iTradeRouteModifier>0</iTradeRouteModifier>
-			<!-- custom: was 100 -->
-			<iForeignTradeRouteModifier>50</iForeignTradeRouteModifier>
+			<iForeignTradeRouteModifier>100</iForeignTradeRouteModifier>
 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
 			<iFreeTechs>0</iFreeTechs>
 			<iDefense>0</iDefense>
@@ -6636,24 +6630,14 @@
 			<iAsset>4</iAsset>
 			<iPower>0</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
-			<!-- custom: also give water tiles gold per tile so they scale better in the middle game, plus should be more balanced than strong trade routes, as you/the player would need to allocate citizens and work these tiles else no bonus, hopefully more balanced and also stronger water tiles this way that scale gradually with the game without being OP ideally, anyways etc, was empty -->
-			<SeaPlotYieldChanges>
-				<iYield>0</iYield>
-				<iYield>0</iYield>
-				<iYield>1</iYield>
-			</SeaPlotYieldChanges>
+			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
 			<ObsoleteSafeCommerceChanges/>
 			<CommerceChangeDoubleTimes/>
-			<!-- custom: was empty -->
-			<CommerceModifiers>
-				<iCommerce>10</iCommerce>
-				<iCommerce>0</iCommerce>
-				<iCommerce>0</iCommerce>
-			</CommerceModifiers>
+			<CommerceModifiers/>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
 			<StateReligionCommerces/>
