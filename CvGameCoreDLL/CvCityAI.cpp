@@ -5170,84 +5170,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				return 0;
 			}
 
-			// Reuse a single loop for all stats we need
-			int iBestHpt = 0, iSecondBestHpt = 0;
-			int iBestMaint100Global = 0, iSecondBestMaint100Global = 0;
-			int iTopPop1 = 0, iTopPop2 = 0;
-			const int iGateMTimes100 = 600; // 6 gpt
-			int iNumCitiesHighMaintCountGlobal = 0;
-
-			FOR_EACH_CITY(pLoopCity, GET_PLAYER(getOwner()))
-			{
-				// --- top-2 base hammers -----------------------------------------------
-				const int h = pLoopCity->getBaseYieldRate(YIELD_PRODUCTION);
-				if (h > iBestHpt)
-				{
-					iSecondBestHpt = iBestHpt;
-					iBestHpt = h;
-				}
-				else if (h > iSecondBestHpt)
-				{
-					iSecondBestHpt = h;
-				}
-
-				// --- maintenance×100 (global + same landmass) --------------------------
-				// global top-2
-				const int m100 = pLoopCity->getMaintenanceTimes100();
-				if (m100 > iBestMaint100Global)
-				{
-					iSecondBestMaint100Global = iBestMaint100Global;
-					iBestMaint100Global = m100;
-				}
-				else if (m100 > iSecondBestMaint100Global)
-				{
-					iSecondBestMaint100Global = m100;
-				}
-				if (m100 >= iGateMTimes100)
-				{
-					++iNumCitiesHighMaintCountGlobal;
-				}
-
-				// --- top-2 populations (by value) -------------------------------------
-				const int cPop = pLoopCity->getPopulation();
-				if (cPop > iTopPop1)
-				{
-					iTopPop2 = iTopPop1;
-					iTopPop1 = cPop;
-				}
-				else if (cPop > iTopPop2)
-				{
-					iTopPop2 = cPop;
-				}
-			}
-
-			// <!-- custom: cover the one city empire case as chatgpt 5 nicely advised and that i thought of hehe but then forgot xd or/and didn't know how to easily do or forgot to do it but anyways etc thanks ; note: i don't know if cities can be 0 and negative somehow and still build stuff but just in case maybe using <= rather than == but anyways etc -->
-			if (iNumCities <= 1)
-			{
-				iSecondBestHpt = iBestHpt;
-				// <!-- custom: unneeded as we reject if not enough cities are high enough maintenance cost (and before that even if city number is not high enough which is definitely more than 1 total cities but anyways etc) later but for exhaustiveness and/or clarity maybe but anyways etc -->
-				iSecondBestMaint100Global = iBestMaint100Global;
-				iTopPop2 = iTopPop1;
-			}
-
-			// <!-- custom: alternatively this is a good enough city to pump hammer anyways etc if: -->
-			const int iTopHammerLeeway = 5;
-			const int iPercentSlack = 30; // percent slack vs. best
-
-			const bool bHighEnoughHammersPerTurn = (
-				// small <!-- custom: leeway anyways etc -->
-				(iBaseHammersPerTurn + iTopHammerLeeway >= iSecondBestHpt) ||
-				// <!-- custom: cover the case where cities are less than iHammerLeeway from best to worst, don't reject good cities if they are just 1-2 hammer apart, use an alternative condition for that case as well anyways etc -->
-				// <!-- custom: e.g. if top city is 60 hammers, then our city candidate needs to have at least 60 hammers - 18 hammers (i.e. 30% of best hammer city hammers anyways etc) = 42 hammers strictly, so at least 43 hammers, which is good enough to replace our best cities if previous fail -->
-				((iBaseHammersPerTurn * 100) > (iBestHpt * (100 - iPercentSlack)))
-			);
-
-			// <!-- custom: too low production to produce national wonders fast enough vs other cities, especially for some wonders that scale with base hammers per turn (e.g. heroic epic (i.e. we benefit more from the multiplier the more units we have but anyways etc) if i'm not mistaken as of now but anyways etc) -->
-			if (!bHighEnoughHammersPerTurn)
-			{
-				return 0;
-			}
-
 			// <!-- custom: e.g. building our build 25% faster with stone (not related to yields/hammers gained after building is completed! But anyways etc) -->
 			// Full production modifier (traits, resources, state religion, etc.)
 			const int iProductionModifier = getProductionModifier(eBuilding);
@@ -5292,19 +5214,96 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			// <!-- custom: then in all cases adjust based on game speed anyways etc -->
 			int const iSoftTurnCapAdjusted = iSoftTurnCapNormal * iGameSpeedMultiplier / 100;
 
-			// <!-- custom: note: this also handles production bonus based wonders such as the ironworks so no need to handle it later again in the national wonder block anyways etc -->
+			// <!-- custom: note: this also handles turn to build calculation for production bonus based wonders if i'm not mistaken but anyways etc such as the ironworks -->
 			// If it's going to sit in the queue forever, skip.
 			if (iTurnsWW > iSoftTurnCapAdjusted)
 			{
 				return 0;
 			}
 
+			// Reuse a single loop for all stats we need
+			int iBestHpt = 0, iSecondBestHpt = 0, iThirdBestHpt = 0;
+			int iBestMaint100Global = 0, iSecondBestMaint100Global = 0;
+			int iTopPop1 = 0, iTopPop2 = 0;
+			const int iGateMTimes100 = 600; // 6 gpt
+			int iNumCitiesHighMaintCountGlobal = 0;
+
+			FOR_EACH_CITY(pLoopCity, GET_PLAYER(getOwner()))
+			{
+				// --- top-3 base hammers -----------------------------------------------
+				const int h = pLoopCity->getBaseYieldRate(YIELD_PRODUCTION);
+				if (h > iBestHpt)
+				{
+					iThirdBestHpt = iSecondBestHpt;
+					iSecondBestHpt = iBestHpt;
+					iBestHpt = h;
+				}
+				else if (h > iSecondBestHpt)
+				{
+					iThirdBestHpt = iSecondBestHpt;
+					iSecondBestHpt = h;
+				}
+				else if (h > iThirdBestHpt)
+				{
+					iThirdBestHpt = h;
+				}
+
+				// --- maintenance×100 (global + same landmass) --------------------------
+				// global top-2
+				const int m100 = pLoopCity->getMaintenanceTimes100();
+				if (m100 > iBestMaint100Global)
+				{
+					iSecondBestMaint100Global = iBestMaint100Global;
+					iBestMaint100Global = m100;
+				}
+				else if (m100 > iSecondBestMaint100Global)
+				{
+					iSecondBestMaint100Global = m100;
+				}
+				if (m100 >= iGateMTimes100)
+				{
+					++iNumCitiesHighMaintCountGlobal;
+				}
+
+				// --- top-2 populations (by value) -------------------------------------
+				const int cPop = pLoopCity->getPopulation();
+				if (cPop > iTopPop1)
+				{
+					iTopPop2 = iTopPop1;
+					iTopPop1 = cPop;
+				}
+				else if (cPop > iTopPop2)
+				{
+					iTopPop2 = cPop;
+				}
+			}
+
+			// <!-- custom: cover the one city empire case as chatgpt 5 nicely advised and that i thought of hehe but then forgot xd or/and didn't know how to easily do or forgot to do it but anyways etc thanks ; note: i don't know if cities can be 0 and negative somehow and still build stuff but just in case maybe using <= rather than == but anyways etc -->
+			if (iNumCities <= 1)
+			{
+				iSecondBestHpt = iBestHpt;
+				iThirdBestHpt = iBestHpt;
+
+				// <!-- custom: unneeded as we reject if not enough cities are high enough maintenance cost (and before that even if city number is not high enough which is definitely more than 1 total cities but anyways etc) later but for exhaustiveness and/or clarity maybe but anyways etc -->
+				iSecondBestMaint100Global = iBestMaint100Global;
+				iTopPop2 = iTopPop1;
+			}
+
+			// <!-- custom: alternatively this is a good enough city to pump hammer anyways etc if: -->
+			const int iTopHammerLeeway = 5;
+			const int iPercentSlack = 30; // percent slack vs. best
+			// <!-- custom: cover the case where cities are less than iHammerLeeway from best to worst, don't reject good cities if they are just 1-2 hammer apart, use an alternative condition for that case as well anyways etc -->
+			// <!-- custom: e.g. if top city is 60 hammers, then our city candidate needs to have at least 60 hammers - 18 hammers (i.e. 30% of best hammer city hammers anyways etc) = 42 hammers strictly, so at least 43 hammers, which is good enough to replace our best cities if previous fail -->
+			const bool bAlternativeEnoughHammerSlack = ((iBaseHammersPerTurn * 100) > (iBestHpt * (100 - iPercentSlack)));
+			const bool bTop2HammerLeeway = ((iBaseHammersPerTurn + iTopHammerLeeway >= iSecondBestHpt) || bAlternativeEnoughHammerSlack);
+			const bool bTop3HammerLeeway = ((iBaseHammersPerTurn + iTopHammerLeeway >= iThirdBestHpt) || bAlternativeEnoughHammerSlack);
+
 			// <!-- custom: common logic for unhealthiness removing wonders (world + national) anyways etc -->
 			// --- National Park style (skip when already healthy / too small ) -------------
 			// Detect NP by either “no pop unhealthiness”
-			const bool bUnhealthinessReducerBuilding = kBuilding.getUnhealthyPopulationModifier() <= -50;
+			const bool bUnhealthinessReducerWonder = kBuilding.getUnhealthyPopulationModifier() <= -50;
 
-			if (bUnhealthinessReducerBuilding)
+			if (bUnhealthinessReducerWonder)
 			{
 				// Don’t do this under pressure
 				if (bAtWar || bDanger || bWarPlan || bEnemyStrong)
@@ -5326,6 +5325,26 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				}
 				// else: let normal scoring handle it <!-- custom: (don't prioritize here, just make sure we don't build it when inefficient anyways etc) -->
 			}
+
+			// <!-- custom: for production modifier wonders (e.g city increases by +25% hammer or such but anyways etc), only do so in top cities. Note: could handle other yields but would be tedious and we don't necessarily have too many if at all such wonders -->
+			const bool bProductionWonder = (
+				iTotalHammersModifier >= 20 // || // Forge/Factory <!-- custom: or weird variants if some mods implement bonus based hammer modifiers in regular buildings (as the ironworks does for example anyways etc), so account for that as well anywyas etc -->
+				// <!-- custom: for now only tweak the early game as is most important and where most gains can be made i think but anyways etc, later production should be high enough and civilization developped enough to be able to more freely choose without too much consequences in this case i mean but anyways etc -->
+				//kBuilding.isPower() ||                                  // Plant gives power
+				//kBuilding.isAreaCleanPower()
+			);
+			if (bProductionWonder)
+			{
+				// <!-- custom: for scaling hammer wonders (world and national anyways etc), pick best or among best hammer cities for best scaling of benefits if i am not mistaken anyways etc -->
+				if (!bTop2HammerLeeway)
+				{
+					return 0;
+				}
+			}
+
+			// <!-- custom: note: ideally should handle commerce modifier wonders, but hopefully the hammer minimum requirements filter out most of the cities, still it is possible that a city is low hammer and high gold for example or vice versa, in such case it would be bad to build the wrong of each but anyways etc, but left as is for now if not always or not as bit tedious but anyways etc; there is also a risk they may never be built since we are already restricting enough, hopefully commerce and hammer overlap nicely or nicely enough, else maybe fine all in all considered to leave as such but in all cases anyways etc -->
+
+			// <!-- custom: note: cultural wonders (world and national) not handled, let AI decide if it wants them or not; may skew too much the balance or gameplay otherwise, and is less code to code (repetition but anyways etc) too if i may say but anyways etc (not that i would mind too much had purpose in this case i mean if i may say but anyways etc) -->
 
 			if (bWorldWonder)
 			{
@@ -5355,6 +5374,12 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				}
 				// <!-- custom: unlikely we complete them before that, consider skipping anyways etc -->
 				else if (!bEnoughEarlyHammerToGoForWonders)
+				{
+					return 0;
+				}
+
+				// <!-- custom: for world wonders, make sure we win the race, use top 2 as base anyways etc -->
+				if (!bTop2HammerLeeway)
 				{
 					return 0;
 				}
@@ -5405,11 +5430,23 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			}
 			else if (bNationalWonder)
 			{
+				// <!-- custom: for national wonders, no risk to lose the race, use top 2 or top 3 as base or such depending on if the national wonder is a scaling one or not anyways etc -->
+				if (!bTop3HammerLeeway)
+				{
+					return 0;
+				}
+
 				// <!-- custom: military national wonders, in particular heroic epic, etc if any more anyways etc -->
 				if (bLandUnitsBuilding)
 				{
 					// Don’t invest if we’re about to get rolled
 					if (bEnemyStrong || bDanger)
+					{
+						return 0;
+					}
+
+					// <!-- custom: this is one of the scaling national wonders where we really want top hammer to take best benefits from it if i may say but anyways etc, so use tighter requirement with some leeway but anyways etc -->
+					if (!bTop2HammerLeeway)
 					{
 						return 0;
 					}
@@ -5433,6 +5470,13 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					{
 						return 0;
 					}
+
+					// <!-- custom: if it existed/exists, this would be / is one of the scaling national wonders where we really want top hammer to take best benefits from it if i may say but anyways etc, so use tighter requirement with some leeway but anyways etc -->
+					if (!bTop2HammerLeeway)
+					{
+						return 0;
+					}
+
 					if (bWarPlan || bAtWarAndEnemyWeak)
 					{
 						if (iBaseHammersPerTurn >= iSecondBestHpt)

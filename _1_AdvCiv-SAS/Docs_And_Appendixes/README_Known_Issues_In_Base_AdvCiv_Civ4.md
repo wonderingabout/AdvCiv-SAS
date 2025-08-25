@@ -1506,24 +1506,21 @@ It only documents logic that exists in the code we just reviewed (no speculation
 
 ---
 
-#### Shared signals, constants & helpers used across rules
+#### Common signals & helpers
 
-- **War / pressure flags:** `bAtWar`, `bDanger`, `bWarPlan`, `iEnemyPowerPercent`  
-  - `bEnemyStrong` ⇢ `iEnemyPowerPercent >= 120`  
-  - `bAtWarAndEnemyWeak` ⇢ `bAtWar && iEnemyPowerPercent <= 80`
-- **Growth signal:**  
-  `iEffectiveFood = max(0, iFoodDifference) - max(0, -iHealthLevel); if (iHappinessSurplus <= 0) iEffectiveFood = 0;`
-- **Happiness/health:** `iHappinessSurplus`, `iHealthLevel` (K‑Mod style reduced volatility)
-- **Trade reality:** `bForeignTrade` (true if this city currently has any foreign trade route)
-- **Production / research:** `iBaseHammersPerTurn`, `iBeakersPerTurn`
-- **City costs:** `iMaintenanceTimes100`
-- **Empire stats (single loop):** `iBestHpt`, `iSecondBestHpt`, `iBestMaint100Global`, `iSecondBestMaint100Global`, `iTopPop1`, `iTopPop2`, and `iNumCitiesHighMaintCountGlobal` (≥ 6 gpt)
+- **War / pressure flags:** `bAtWar`, `bDanger`, `bWarPlan`, `iEnemyPowerPercent`
+- - Derived: `bEnemyStrong := (iEnemyPowerPercent >= 120)`, `bAtWarAndEnemyWeak := (bAtWar && iEnemyPowerPercent <= 80)`
+- **Growth signal:** `iEffectiveFood = max(0, iFoodDifference) - max(0, -iHealthLevel);`
+- - `if (iHappinessSurplus <= 0) iEffectiveFood = 0`
+- **Happiness / health:** `iHappinessSurplus`, `iHealthLevel` (reduced-volatility)
+- **Trade reality:** `bForeignTrade` (this city currently has any foreign trade route)
+- **Throughput / research:** `iBaseHammersPerTurn`, `iBeakersPerTurn`
+- **City costs (this city):** `iMaintenanceTimes100`
+- **Empire cost stats (single pass):** `iBestMaint100Global`, `iSecondBestMaint100Global`, `iNumCitiesHighMaintCountGlobal` (gate ≈ **≥ 600** ⇒ **≥ 6 gpt**)
 - **Game speed scaling:** `iGameSpeedMultiplier = GameSpeedInfo.getConstructPercent()`
-- **“Force-ish” constant:** `AI_BUILDING_ALWAYS_PICK_FIRST = 999999` (used as a large tiebreaker)
-- **Post‑build production multiplier detector:**  
-  `iTotalHammersModifier = kBuilding.getYieldModifier(YIELD_PRODUCTION) + sum(getBonusYieldModifier(..., YIELD_PRODUCTION))`  
-  (used to spot Forge/Factory/Ironworks‑like effects; **not** build‑time speed)
-- **Build‑time speed (for wonders):** `iProductionModifier = getProductionModifier(eBuilding)`
+- **“Force-ish” tiebreaker:** `AI_BUILDING_ALWAYS_PICK_FIRST = 999999`
+- **Post-build production multiplier detector:** `iTotalHammersModifier = kBuilding.getYieldModifier(YIELD_PRODUCTION) + Σ getBonusYieldModifier(..., YIELD_PRODUCTION)` (Forge/Factory/Ironworks-like; **not** build-time speed)
+- **Build-time speed (wonders only, used by timing):** `iProductionModifier = getProductionModifier(eBuilding)`
 
 ---
 
@@ -1565,38 +1562,61 @@ It only documents logic that exists in the code we just reviewed (no speculation
 
 ---
 
+#### Wonder selection — revised gates (top-hammer leeway + common vs. WW/NW)
+
+- **Empire top hammers (single pass):** `iBestHpt`, `iSecondBestHpt`, `iThirdBestHpt`
+- **Leeway constants:** `iTopHammerLeeway = 5` (flat wiggle), `iPercentSlack = 30` (relative)
+- **Leeway tests:**
+  - `bAlternativeEnoughHammerSlack := (iBaseHpt * 100 > iBestHpt * (100 - iPercentSlack))`
+  - `bTop2HammerLeeway := (iBaseHpt + iTopHammerLeeway >= iSecondBestHpt) || bAlternativeEnoughHammerSlack`
+  - `bTop3HammerLeeway := (iBaseHpt + iTopHammerLeeway >= iThirdBestHpt) || bAlternativeEnoughHammerSlack`
+- **Throughput floor:** require `iBaseHpt >= 8` to consider any wonder.
+- **Soft turn cap (speed-scaled):**
+  - `iTurnsWW = ceil( cost / ( hpt * (1 + buildTimeMods) ) )`
+  - Base cap ≈ `20` turns @ Normal, scaled by game speed.
+  - Tighten by 10% when construct-percent gap `(HumanWCP − AIWCP) ≥ 20` (i.e., `cap = cap * 0.9`).
+- **Post-build production multiplier detector (for “production wonders”):**
+  - `iTotalHammersModifier = kBuilding.getYieldModifier(YIELD_PRODUCTION) + Σ getBonusYieldModifier(..., YIELD_PRODUCTION)`
+  - Use to flag scaling wonders; when true, also require `bTop2HammerLeeway`.
+- **Build-time speed (for timing only):**  
+  `iProductionModifier = getProductionModifier(eBuilding)` (stone/marble/traits/religion), used **only** in `iTurnsWW`.
+
+---
+
 #### Shared (applies to World & National wonders)
 
-| Gate / Check                 | Condition (code cue)                                                                                                                                                 | Action                                                                                                                                                                                        | Notes                                                         |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| **Base throughput**          | `iBaseHammersPerTurn < 8`                                                                                                                                            | **skip**                                                                                                                                                                                      | Too weak to justify any wonder.                               |
-| **City quality vs empire**   | `(iBaseHpt + 5 ≥ iSecondBestHpt)` **or** `(iBaseHpt*100 > iBestHpt*70)`                                                                                              | required                                                                                                                                                                                      | Only near-top hammer cities proceed.                          |
-| **Turn cap (time-to-build)** | `iTurnsWW = ceil(getProductionNeeded / (hpt * (1 + getProductionModifier)))`; soft cap ≈ **20 turns @ Normal** (speed-scaled; tighter if Human−AI construct gap ≥20) | if over cap → **skip**                                                                                                                                                                        | Uses **build-time** mods only (stone/marble/traits/religion). |
-| **“National Park” style**    | `getUnhealthyPopulationModifier() ≤ −50`                                                                                                                             | If **bAtWar/bDanger/bWarPlan/bEnemyStrong** → **skip**. Then require **pop ≥ 12** and **pop ≥ 2nd-highest** (`iTopPop2`); if **iHealthLevel ≥ 2** → **skip**; else let normal scoring decide. | Keeps NP-like effects for big, unhealthy hubs.                |
+| Gate                             | Condition                                 | Action                                                                                                                                                 | Notes                                                         |
+| -------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------- |
+| **Throughput floor**             | `iBaseHpt < 8`                            | Skip                                                                                                                                                   | Don’t starve cities on wonders.                               |
+| **Time-to-build**                | `iTurnsWW > softCap`                      | Skip                                                                                                                                                   | Uses **build-time** modifiers (stone/marble/traits/religion). |
+| **NP-style unhealth reducer**    | `getUnhealthyPopulationModifier() ≤ −50`  | If **war/danger/warplan/enemyStrong** → skip. Else require **pop ≥ 12** and **pop ≥ 2nd-highest (iTopPop2)** and **iHealthLevel < 2**; otherwise skip. | Keeps these for big, unhealthy hubs.                          |
+| **Production-multiplier wonder** | `iTotalHammersModifier ≥ 20` (post-build) | Require **bTop2HammerLeeway**                                                                                                                          | Concentrates scaling wonders in real hammer hubs.             |
 
 ---
 
 #### World Wonders (only)
 
-| Gate / Check              | Condition (code cue)                                                        | Action                                                    | Notes                                                   |
-| ------------------------- | --------------------------------------------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------- |
-| **War / pressure**        | `bAtWar` \|\| `bDanger` \|\| `bWarPlan` \|\| `bEnemyStrong`                 | **skip**                                                  | Don’t throw the game for a shiny thing.                 |
-| **Early “no-mod” window** | After \~**35 turns @ Normal** (speed-scaled) and `iProductionModifier < 25` | **skip**                                                  | Once rush window closes, require ≥25% build-time oomph. |
-| **Very-early floor**      | In early window and `iBaseHpt ≤ 7`                                          | **skip**                                                  | Not enough throughput to snipe.                         |
-| **Coastal-lean WW**       | Sea XP/Prod, coastal routes, sea plot yield effects                         | Require **≥ 3 coastal cities** empire-wide; else **skip** | Flat empire rule.                                       |
-| **Race pressure**         | `kBuilding.getPrereqAndTech()` held by **≥3 met teams**                     | **skip**                                                  | Simple “too hot” race filter.                           |
+| Gate                           | Condition                                                                       | Action                                    | Notes                                                              |
+| ------------------------------ | ------------------------------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------ |
+| **War / pressure**             | `bAtWar` \|\| `bDanger` \|\| `bWarPlan` \|\| `bEnemyStrong`                     | Skip                                      | Don’t throw the game to a race.                                    |
+| **Early “no-modifier” window** | After \~**35 turns @ Normal** (speed-scaled) **and** `iProductionModifier < 25` | Skip                                      | Once the early snipe window closes, require ≥25% build-time oomph. |
+| **Very-early throughput**      | Inside early window **and** `iBaseHpt ≤ 7`                                      | Skip                                      | Not enough production to snipe.                                    |
+| **Hammer competitiveness**     | **Require `bTop2HammerLeeway`**                                                 | Skip if false                             | Ensures only near-top cities enter races.                          |
+| **Coastal-lean WW**            | Sea XP/Prod, coastal routes, or sea plot yield effects present                  | Require **≥3 coastal cities empire-wide** | Flat empire rule to avoid marginal coastal WWs on land empires.    |
+| **Race pressure**              | `PrereqAndTech` held by **≥3** met teams                                        | Skip                                      | Simple heat check (AND-tech gate).                                 |
 
 ---
 
 #### National Wonders (only)
 
-| Subtype                                  | Detection (code cue)                      | Gates / Actions                                                                                                                                                                                                                     | Notes                                                     |
-| ---------------------------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| **Military pump (Heroic-Epic-like)**     | Land **production** modifiers             | If **bEnemyStrong** or **bDanger** → **skip**. If **bWarPlan** or **bAtWar & enemy weak**, and **this city ≥ 2nd-best hpt**, → **ALWAYS\_PICK\_FIRST +1000**.                                                                       | Concentrate pumps in real hammer hubs when pushing.       |
-| **Land XP focus**                        | Land **XP** modifiers                     | Same pressure skip. If **bWarPlan** or **enemy weak**, and **≥ 2nd-best hpt**, → **ALWAYS\_PICK\_FIRST**.                                                                                                                           | Smaller nudge than pure pump.                             |
-| **Government Center (Forbidden Palace)** | `isGovernmentCenter()` (non-Palace class) | If **#cities ≤ 6** or **capital** → **skip**. Else if **≥3 cities** with **maintenance ≥ 6 gpt** and **this city’s maint ≥ 2nd-best**, and **no war pressure**, → **ALWAYS\_PICK\_FIRST −1000**.                                    | Place where it actually cuts empire costs; avoid capital. |
-| **Palace move**                          | Palace building class                     | Under **pressure** → **skip**. After \~**100 turns @ Normal** (speed-scaled) and **#cities ≥ 4**, require **both**: this city’s **base hpt ≥ 1.5×** capital **and** **beakers/turn ≥ 1.5×** capital → **ALWAYS\_PICK\_FIRST −500**. | “Both” prevents oscillation; no early palace shuffles.    |
-| **General fallback**                     | —                                         | If **bAtWar**/**bDanger**/**bWarPlan**/**bEnemyStrong** → **skip**.                                                                                                                                                                 | Conservative default under pressure.                      |
+| Subtype                                  | Detection                                 | Gates / Actions                                                                                                                                                                                              | Notes                                               |
+| ---------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------- |
+| **General NW gate**                      | —                                         | **Require `bTop3HammerLeeway`**                                                                                                                                                                              | Keeps NWs in top-tier production cities by default. |
+| **Military pump (Heroic-Epic-like)**     | Land production modifiers                 | If **enemyStrong/danger** → skip. Else **require `bTop2HammerLeeway`**; and if **warplan** or **(at war & enemy weak)** and **this city ≥ 2nd-best hpt**, return a strong **“pick first”** nudge.            | Concentrates pumps in true hammers when pushing.    |
+| **Land-XP NW**                           | Land XP modifiers                         | Same pressure skips and **`bTop2HammerLeeway`**; smaller nudge when pressing.                                                                                                                                | —                                                   |
+| **Government Center (Forbidden Palace)** | `isGovernmentCenter()` (non-Palace class) | If **#cities ≤ 6** or **capital** → skip. Else, if **≥3 cities** have **maintenance ≥ 6 gpt**, and **this city’s maint ≥ 2nd-highest**, and **no war pressure**, return a modest **“pick first”** nudge.     | Place where it actually cuts costs; avoid capital.  |
+| **Palace move**                          | Palace building class                     | Under pressure → skip. After \~**100 turns @ Normal** and **#cities ≥ 4**, require **both**: this city’s **base hpt ≥ 1.5×** capital **and** **beakers/turn ≥ 1.5×** capital → small **“pick first”** nudge. | The “both” rule prevents oscillation.               |
+| **Fallback**                             | —                                         | If **bAtWar/bDanger/bWarPlan/bEnemyStrong** → skip.                                                                                                                                                          | Conservative default under pressure.                |
 
 ---
 
@@ -1605,6 +1625,37 @@ It only documents logic that exists in the code we just reviewed (no speculation
 - **Post‑build vs build‑time modifiers:** We explicitly separate *yield* multipliers (Forge/Factory) from *build‑time* speed (`getProductionModifier`), so WW timing is computed correctly while regular production buildings are evaluated by their **post‑completion** value.
 - **Trade checks are per‑city:** Foreign % bonuses are ignored unless this city actually has foreign routes **or** the building **adds** routes (so it can create the base to multiply).
 - **Empire loops:** The single pass that computes top production, top maintenance, and top populations is reused by multiple rules to keep decisions coherent and cheap.
+
+#### Quick pseudocode (flow)
+
+```pseudocode
+if (isWonder) {
+  if (iBaseHpt < 8) return 0;
+  if (iTurnsWW > softCap) return 0;
+
+  // empire stats → iBestHpt, iSecondBestHpt, iThirdBestHpt, etc.
+  // leeway: bTop2HammerLeeway / bTop3HammerLeeway
+
+  if (NP-like) { pressure -> skip; pop/health gates -> else let scoring; }
+
+  if (isProductionMultiplierWonder && !bTop2HammerLeeway) return 0;
+
+  if (isWorldWonder) {
+    if (pressure) return 0;
+    if (!earlyWindow && iProductionModifier < 25) return 0;
+    if (earlyWindow && iBaseHpt <= 7) return 0;
+    if (!bTop2HammerLeeway) return 0;
+    if (coastalLean && coastalCities < 3) return 0;
+    if (AND gate tech owned by ≥3 met teams) return 0;
+  }
+  else { // National Wonder
+    if (!bTop3HammerLeeway) return 0;
+    if (militaryPump/landXP) { pressure -> skip; require bTop2; maybe nudge; }
+    if (ForbiddenPalace) { size/maint gates; maybe nudge; }
+    if (PalaceMove) { late+big dual 1.5× test; maybe nudge; }
+    if (pressure) return 0;
+  }
+}```
 
 ### Results of known issue 48
 
@@ -1707,7 +1758,7 @@ I still don't know why the no production happened/happens, but it seems we now c
 
 See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1JHA0QsVUyBiKy_BDFgXFb-wYG_t-EcUc?usp=sharing)
 
-So this is another major AI improvement of a major issue we had in base advciv +/- civ4: for example japan AI would between turns 37 and 44, scrap 2 of its newly produced ancient macemen (now added as a patch to the no produciton at all during that time in [51 - (Worked around / fixed) Massive seemingly base advciv +/- civ4 issue if i'm not mistaken of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc)).
+So this is another major AI improvement of a major issue we had in base advciv +/- civ4: for example japan AI would between turns 37 and 44, scrap 2 of its newly produced ancient macemen (update: now archers but anyways etc) (now added as a patch to the no produciton at all during that time in [51 - (Worked around / fixed) Massive seemingly base advciv +/- civ4 issue if i'm not mistaken of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc)).
 
 As a result, it was weaker, and this likely contributed to barbarians successfully invading it and japan ai having a bad game.
 

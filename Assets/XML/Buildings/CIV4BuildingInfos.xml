@@ -21006,7 +21006,8 @@
 			<iGlobalHappiness>0</iGlobalHappiness>
 			<iStateReligionHappiness>0</iStateReligionHappiness>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
-			<iMilitaryProductionModifier>100</iMilitaryProductionModifier>
+			<!-- custom: this was way too op and game breaking, leading AIs to run away too, and considering the modifier is available for all the game, fine as such i think anyways etc, was 100 -->
+			<iMilitaryProductionModifier>50</iMilitaryProductionModifier>
 			<iSpaceProductionModifier>0</iSpaceProductionModifier>
 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
 			<iTradeRoutes>0</iTradeRoutes>
