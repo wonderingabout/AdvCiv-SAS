@@ -7662,8 +7662,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: make it available sooner so it can be built sooner, also main reason too is it's more accurate this way if i am not mistaken from quite quick glance at wikipedia or and such, also a bit more like in civ3 if i remember it correctly but or not but or yes but but anyways etc ; also i find it interesting as a gameplay mechanic that coal plant has higher pollution but can be built sooner, changes the strategy around wonders and units in late game too anyways etc maybe too hopefully interesting if i may say or not or yes or other anyways etc anyways etc anyways etc but anyways etc this way but anyways etc, was TECH_ASSEMBLY_LINE -->
-			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
+			<!-- custom: was TECH_ASSEMBLY_LINE -->
+			<PrereqTech>TECH_COMBUSTION</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -12844,7 +12844,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_GUILDS</PrereqTech>
+			<!-- custom: was TECH_GUILDS and tech types TECH_CURRENCY anyways etc -->
+			<PrereqTech>TECH_MATHEMATICS</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_CURRENCY</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -24745,7 +24746,8 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
-			<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
+			<!-- custom: was TECH_RIFLING -->
+			<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			<!-- custom: was TECH_CODE_OF_LAWS -->
 			<PrereqTech>TECH_ENGINEERING</PrereqTech>
 			<TechTypes/>
@@ -27266,7 +27268,7 @@
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: so it can be built sooner and seems quite accurate too, also tech assembly line is too strong and bloated while this other tech has more space to use anyways etc would be more balanced and make it/this tech stronger as well anyways etc, was TECH_ASSEMBLY_LINE -->
-			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -27778,10 +27780,15 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
-			<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
-			<!-- custom: was TECH_POLYTHEISM -->
-			<PrereqTech>TECH_PRIESTHOOD</PrereqTech>
-			<TechTypes/>
+			<!-- custom: was TECH_SCIENTIFIC_METHOD -->
+			<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+			<!-- custom: was TECH_POLYTHEISM and tech types empty anyways etc-->
+			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
+			<TechTypes>
+				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+			</TechTypes>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -27983,9 +27990,13 @@
 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
 			<!-- custom: was TECH_COMPUTERS -->
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: was TECH_THEORY_OF_EVOLUTION -->
-			<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
-			<TechTypes/>
+			<PrereqTech>TECH_EDUCATION</PrereqTech>
+			<!-- custom: was empty anyways etc -->
+			<TechTypes>
+				<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+			</TechTypes>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>

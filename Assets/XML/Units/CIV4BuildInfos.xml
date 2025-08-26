@@ -284,7 +284,7 @@
 			<Description>TXT_KEY_BUILD_WATERMILL</Description>
 			<Help/>
 			<!-- custom: seems historically more accurate or/and meshes or fits better anyways etc with our reworked tech tree sooner, was TECH_MACHINERY anyways etc -->
-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+			<PrereqTech>TECH_SCIENTIFIC_METHOD</PrereqTech>
 			<iTime>400</iTime>
 			<iCost>0</iCost>
 			<bKill>0</bKill>

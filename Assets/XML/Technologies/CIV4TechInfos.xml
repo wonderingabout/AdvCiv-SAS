@@ -120,7 +120,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>7</iGridX>
-			<iGridY>3</iGridY>
+			<iGridY>7</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -225,12 +225,12 @@
 			<iCost>60</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<Era>ERA_ANCIENT</Era>
+			<Era>ERA_FUTURE</Era>
 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
-			<iHealth>0</iHealth>
+			<iHealth>1</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
 			<iAsset>8</iAsset>
@@ -253,8 +253,8 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>3</iGridX>
-			<iGridY>11</iGridY>
+			<iGridX>21</iGridX>
+			<iGridY>12</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -643,7 +643,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>8</iGridX>
-			<iGridY>3</iGridY>
+			<iGridY>5</iGridY>
 			<DomainExtraMoves/>
 			<!-- advc.120g: Added the espionage row (no functional change) -->
 			<CommerceFlexible>
@@ -689,23 +689,10 @@
 			<Strategy>TXT_KEY_TECH_FEUDALISM_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<!-- advc.131b -->
-			<!-- custom: not a problem if they search feudalism too soon or too often, it is a strong tech that helps both military and economy.
-			The history relevance is not a problem to me, much more military performance of choosing a more effective tech (than machinery would be before that
-			Trying to increase it further, ideally AIs would value feudalism more, which should help both economically and militarily. Should be much more useful
-			than engineering. I initially increased it to 0, now trying to increase it to 125. As AIs now get monarchy as a free tech, having feudalism soon after should be
-			a really attractive option, was -125
-			-->
-			<iAIWeight>125</iAIWeight>
+			<!-- custom: a useful tech, not too op though, especially after our tech rework, make sure it is not penalized and value it a bit, else let ai decide anyways etc, was -125 -->
+			<iAIWeight>25</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
 			<!-- advc.910: was 700 -->
-			<!-- custom: feudalism is a key important tech with the unit reworks in AdvCiv-SAS now, also from what i checked, it
-			seems it started a bit sooner than other techs, so maybe fine to reduce this a bit, so that most civs also access
-			sooner this key tech. Maybe this helps avoiding snowballs of some players.
-			I am not concerned so much about the year number, much more on the turn number. As long as progression is gradual
-			enough in numbers of turns, maybe the increment of turns rather could be updated? What i want is to keep a gradual
-			ratio increase between techs, not a brutal one, unless i have a strong reason to do so. Testing this to see, was 820.
-			Considering the cost of monarchy is increased now, and that feudalism requires it, then feudalism's cost can be
-			further reduced to keep historical accuracy maybe -->
 			<iCost>450</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -739,7 +726,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>9</iGridX>
-			<iGridY>10</iGridY>
+			<iGridY>9</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -885,7 +872,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>5</iGridX>
-			<iGridY>3</iGridY>
+			<iGridY>7</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -962,7 +949,8 @@
 			<bPermanentAllianceTrading>0</bPermanentAllianceTrading>
 			<bVassalTrading>0</bVassalTrading>
 			<bBridgeBuilding>0</bBridgeBuilding>
-			<bIrrigation>1</bIrrigation>
+			<!-- custom: was 1 -->
+			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>8</iGridX>
@@ -1026,8 +1014,7 @@
 			<iCost>1000</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<!-- custom: was ERA_MEDIEVAL -->
-			<Era>ERA_CLASSICAL</Era>
+			<Era>ERA_MEDIEVAL</Era>
 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
@@ -1055,8 +1042,8 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>5</iGridX>
-			<iGridY>14</iGridY>
+			<iGridX>9</iGridX>
+			<iGridY>7</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -2192,7 +2179,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>1</iGridX>
-			<iGridY>5</iGridY>
+			<iGridY>3</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -2378,7 +2365,7 @@
 			<Quote>TXT_KEY_TECH_SEAFARING_QUOTE</Quote>
 			<Sound>AS2D_TECH_SEAFARING</Sound>
 			<SoundMP>AS2D_TECH_MP_SEAFARING</SoundMP>
-			<!-- custom: button import from c2c mod's TECH_BOAT_BUILDING in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Caveman2Cosmos\Assets\C2C2.FPK ; old button was <Button>,Art/Interface/Buttons/TechTree/Sailing.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,7</Button> anyways etc -->
+			<!-- custom: button import from c2c mod's TECH_BOAT_BUILDING in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Caveman2Cosmos\Assets\C2C2.FPK anyways etc -->
 			<Button>Art/AdvCiv_SAS/Techs/Seafaring/boatbuilding.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_WRITING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
@@ -2503,8 +2490,8 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>6</iGridX>
-			<iGridY>5</iGridY>
+			<iGridX>5</iGridX>
+			<iGridY>3</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -2583,6 +2570,12 @@
 			<iGridX>11</iGridX>
 			<iGridY>12</iGridY>
 			<DomainExtraMoves/>
+			<!-- custom: was missing (and i assume empty but anyways etc (is the effect from the old now removed TECH_SCIENTIFIC_METHOD but anyways etc)) -->
+			<SpecialistExtraCommerces>
+				<iCommerce>0</iCommerce>
+				<iCommerce>1</iCommerce>
+				<iCommerce>0</iCommerce>
+			</SpecialistExtraCommerces>
 			<!-- custom: was 0 / 0 / 0 / 1 -->
 			<!-- advc.120g -->
 			<CommerceFlexible/>
@@ -2815,7 +2808,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>7</iGridX>
-			<iGridY>7</iGridY>
+			<iGridY>9</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -3373,7 +3366,7 @@
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_INDUSTRIAL -->
-			<Era>ERA_MEDIEVAL</Era>
+			<Era>ERA_CLASSICAL</Era>
 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
@@ -3398,11 +3391,13 @@
 			<bPermanentAllianceTrading>0</bPermanentAllianceTrading>
 			<bVassalTrading>0</bVassalTrading>
 			<bBridgeBuilding>0</bBridgeBuilding>
-			<bIrrigation>0</bIrrigation>
-			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+			<!-- custom: was 0 -->
+			<bIrrigation>1</bIrrigation>
+			<!-- custom: not sure if strictly accurate, but from very quick glance it seems signficant progress was made in irrigation technology around 0 AD/BC(? But anyways etc) anyways etc +/- 1000 years, so maybe this fits, as i really want this irrigation ignore thing to be available sooner, before game ends, and seems quite relevant to do so at this tech for example anyways etc, was 0 -->
+			<bIgnoreIrrigation>1</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>10</iGridX>
-			<iGridY>5</iGridY>
+			<iGridX>8</iGridX>
+			<iGridY>3</iGridY>
 			<DomainExtraMoves/>
 			<!-- K-Mod 1.45 (reverted by advc.200): -->
 			<!--CommerceModifiers>
@@ -3411,11 +3406,7 @@
 				<iCommerce>0</iCommerce>
 			</CommerceModifiers-->
 			<!-- K-Mod 1.44: -->
-			<SpecialistExtraCommerces>
-				<iCommerce>0</iCommerce>
-				<iCommerce>1</iCommerce>
-				<iCommerce>0</iCommerce>
-			</SpecialistExtraCommerces>
+			<!-- custom: was SpecialistExtraCommerces 0 / 1 / 0, removed entirely as this seems to cause XML errors at init, effect (as of now scientist specialist +1 science if i'm not mistaken but anyways etc) moved to another tech anyways etc -->
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
@@ -4498,7 +4489,7 @@
 			<iCost>40</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<Era>ERA_ANCIENT</Era>
+			<Era>ERA_FUTURE</Era>
 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
@@ -4527,7 +4518,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>1</iGridX>
-			<iGridY>3</iGridY>
+			<iGridY>5</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -4641,7 +4632,7 @@
 			<iCost>60</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<Era>ERA_ANCIENT</Era>
+			<Era>ERA_FUTURE</Era>
 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
@@ -4739,7 +4730,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>2</iGridX>
-			<iGridY>13</iGridY>
+			<iGridY>3</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -4984,7 +4975,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>6</iGridX>
-			<iGridY>14</iGridY>
+			<iGridY>5</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -5259,7 +5250,7 @@
 			<Quote>TXT_KEY_TECH_NAVIGATION_QUOTE</Quote>
 			<Sound>AS2D_TECH_NAVIGATION</Sound>
 			<SoundMP>AS2D_TECH_MP_NAVIGATION</SoundMP>
-			<!-- custom: button import from FFH2 mod's TECH_CARTOGRAPHY in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Fall from Heaven 2\Assets\Pak0.FPK ; old button was <Button>,Art/Interface/Buttons/TechTree/Compass.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,2</Button> anyways etc -->
+			<!-- custom: button import from FFH2 mod's TECH_CARTOGRAPHY in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Fall from Heaven 2\Assets\Pak0.FPK anyways etc -->
 			<Button>Art/AdvCiv_SAS/Techs/Navigation/cartography.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_CONSTRUCTION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
@@ -5304,7 +5295,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>4</iGridX>
-			<iGridY>5</iGridY>
+			<iGridY>3</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -5464,11 +5455,10 @@
 			<bVassalTrading>0</bVassalTrading>
 			<bBridgeBuilding>0</bBridgeBuilding>
 			<bIrrigation>0</bIrrigation>
-			<!-- custom: not sure if strictly accurate, but from very quick glance it seems signficant progress(es? But anyways etc) were made in irrigation technology around 0 AD/BC? anyways etc +/- 1000 years, so maybe tech_engineering fits, as i really want this irrigation ignore thing to be available sooner, before game ends, and seems quite relevant to do so at this tech for example anyways etc -->
-			<bIgnoreIrrigation>1</bIgnoreIrrigation>
+			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>7</iGridX>
-			<iGridY>5</iGridY>
+			<iGridY>3</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -5577,7 +5567,7 @@
 			<Quote>TXT_KEY_TECH_SAILING_QUOTE</Quote>
 			<Sound>AS2D_TECH_SAILING</Sound>
 			<SoundMP>AS2D_TECH_MP_SAILING</SoundMP>
-			<!-- custom: button import from HR mod's TECH_SEAFARING, old button was <Button>,Art/Interface/Buttons/TechTree/Optics.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,6</Button> anyways etc -->
+			<!-- custom: button import from HR mod's TECH_SEAFARING anyways etc -->
 			<Button>Art/AdvCiv_SAS/Techs/Sailing/Sailing.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_GUNPOWDER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
@@ -6928,7 +6918,7 @@
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
-			<iHealth>2</iHealth>
+			<iHealth>1</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
 			<iAsset>64</iAsset>
@@ -6964,7 +6954,11 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>6</iFlavor>
+					<iFlavor>4</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<iFlavor>3</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>

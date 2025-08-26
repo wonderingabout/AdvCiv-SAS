@@ -260,19 +260,19 @@ First to generate our main menu image/theme, i used as advised by chatgpt Creato
 
 "Landscape 1920 x 1080 image for a civ4 based mod's wallpaper, showing some natural landscape with a hint of deer or/and camel, in a calm setting, and in line with civ4 artstyle"
 
-<img src="https://drive.google.com/thumbnail?id=12SjSGKjotBJZvdQbp6G0NHqYObW-9mLX" alt="advciv-sas main menu 1024 x 1024 (Creator Nightcafe Studio).webp" width="150"></img>
+<img src="https://drive.google.com/thumbnail?id=1xDlcEiaGf71MaEnl4PUUcISa6wdX82xN" alt="advciv-sas main menu 1024 x 1024 (Creator Nightcafe Studio).webp" width="150"></img>
 
 Tip: make sure you download your ai-generated images at each step in case the tool modifies it as part of one of your actions/requests (such as expanding) or/and prompts and then the original image is lost, while the new one is not satisfying. Thankfully i had done so to show it to chatgpt (or maybe also just because i liked it? But in all cases or not or yes or etc anyways etc...), else would have lost the image :/ Phew if i may say but i thankfully escaped this if i may say but anyways etc...
 
 Then it was 1024 x 1024 though, although otherwise amazing, so since i didn't want any other image but anyways etc, and trying a few just weren't as good nor near nowhere as good, i wanted to enhance and expand this image to 1920 x 1080 with new details (not stretched), so i found this feature in Creator Nightcafe Studio too i mean if i may say but anyways etc, but the result was not as satisfying although not too bad, it was overall much worse quality.
 
-<img src="https://drive.google.com/thumbnail?id=184X9naRKgL4iGgbPEfF21Xrc_nbstx0T" alt="advciv-sas main menu expanded to 1920 x 1080 (Creator Nightcafe Studio).webp" width="150"></img>
+<img src="https://drive.google.com/thumbnail?id=1PMaPYxcX7ai6xCc8e-hG-sydadjHpjvS" alt="advciv-sas main menu expanded to 1920 x 1080 (Creator Nightcafe Studio).webp" width="150"></img>
 
 I had resigned myself to maybe using it as again it was really not too bad, but i still asked chatgpt xd if i may say if there are tools to expand our images, and to do a web search on it too if i may say but anyways etc, and among the results, it advised me the very nice tool Pixelcut AI, as again if i may say but anyways etc i really wanted to use our if i may say/this image as i like/love it even maybe a loooooot, but i needed it at 16:9 so 1920 x 1080, and not stretched, and i found this one to be incredibly niiiiice!!! And it succeeded at first try as well!!!! (At least in a way i can be and am (very!!!) satified of if i may say but anyways etc...)
 
 The output is amazing and it is now our main menu image :)
 
-<img src="https://drive.google.com/thumbnail?id=1RgXQ5hpC-Xt1qvluYp77ImaX_hlva7zG" alt="advciv-sas main menu expanded to 1920 x 1080 (Creator Nightcafe Studio).webp" width="150"></img>
+<img src="https://drive.google.com/thumbnail?id=18F-HKoEUBJZ7GmmKYFhVATd6UYRlWAmV" alt="advciv-sas main menu expanded to 1920 x 1080 (Pixelcut AI).webp" width="150"></img>
 
 Then i converted it to .dds with Paint.NET similarly than for other image files in our mod anyways etc.
 

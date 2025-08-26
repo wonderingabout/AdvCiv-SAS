@@ -793,7 +793,8 @@
 			<PromotionPrereq>NONE</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_COMBAT1</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_FIRST_STRIKE1</PromotionPrereqOr2>
-			<TechPrereq>TECH_GUNPOWDER</TechPrereq>
+			<!-- custom: was TECH_GUNPOWDER -->
+			<TechPrereq>TECH_RIFLING</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
 			<iBlitz>0</iBlitz>
@@ -1067,7 +1068,8 @@
 			<PromotionPrereqOr1>PROMOTION_COMBAT1</PromotionPrereqOr1>
 			<!-- advc.200: PROMOTION_FIRST_STRIKE1 in K-Mod; reverted -->
 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
-			<TechPrereq>NONE</TechPrereq>
+			<!-- custom: was NONE -->
+			<TechPrereq>TECH_ENGINEERING</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
 			<iBlitz>0</iBlitz>
@@ -1151,7 +1153,8 @@
 			<PromotionPrereq>NONE</PromotionPrereq>
 			<PromotionPrereqOr1>PROMOTION_COMBAT2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_FIRST_STRIKE2</PromotionPrereqOr2>
-			<TechPrereq>NONE</TechPrereq>
+			<!-- custom: was NONE -->
+			<TechPrereq>TECH_ARTILLERY</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
 			<iBlitz>0</iBlitz>

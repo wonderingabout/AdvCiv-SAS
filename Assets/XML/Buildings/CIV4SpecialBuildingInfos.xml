@@ -40,7 +40,8 @@
 			<Type>SPECIALBUILDING_CATHEDRAL</Type>
 			<Description>TXT_KEY_SPECIALBUILDING_CATHEDRAL</Description>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<TechPrereq>TECH_PRIESTHOOD</TechPrereq>
+			<!-- custom: was TECH_PRIESTHOOD -->
+			<TechPrereq>TECH_MONOTHEISM</TechPrereq>
 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
 			<bValid>1</bValid>
 			<ProductionTraits/>
@@ -54,7 +55,8 @@
 			<Description>TXT_KEY_SPECIALBUILDING_MONASTERY</Description>
 			<!-- custom: reworked monasteries, also for betetr or worse religion is still relevant in modern era (i am not a big fan of it but each do as they please maybe as long as they don't harm or maybe too ideally not annoy me as well but anyways etc..., even though it is for me to handle, at least don't act in an actively harmful way to me maybe if i may say maybe indeed but anyways etc) ; also remove scientific effect which doesn't make sense for a religious building, in fact it should be the opposite effect, religion makes dumber and further away from science for betetr or worse (i am not a fan too but society (perhaps societies if i may say but anyways etc) function as such so there must be a reason or reasons i mean in this case anyways etc anyways etc anyways etc), so no reason to obsolete this building anymore which is easier to handle/follow/grasp/manage if i may say anyways etc in terms of gameplay and modding as well at least for me maybe for others or not or yes or other but anyways etc, was TECH_SCIENTIFIC_METHOD -->
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<TechPrereq>TECH_PRIESTHOOD</TechPrereq>
+			<!-- custom: was TECH_PRIESTHOOD -->
+			<TechPrereq>TECH_MONARCHY</TechPrereq>
 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
 			<bValid>1</bValid>
 			<!-- custom: makes it more interesting to think of them as being willing to meditate rather than going to a generic religious office maybe at least i'd want to represent it as such in advciv-sas anyways etc -->

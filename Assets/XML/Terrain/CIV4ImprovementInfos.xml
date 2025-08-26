@@ -615,10 +615,11 @@
 			<FeatureMakesValids/>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
+			<!-- custom: was as of now first PrereqTech TECH_GUILDS anyways etc -->
 			<!-- custom: also add more hammer at fusion or similar tech, idea i got from rfc doc mod anyways etc -->
 			<TechYieldChanges>
 				<TechYieldChange>
-					<PrereqTech>TECH_GUILDS</PrereqTech>
+					<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 					<TechYields>
 						<iYield>0</iYield>
 						<iYield>1</iYield>

@@ -7644,7 +7644,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+			<PrereqTech>TECH_GUILDS</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -7846,7 +7846,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+			<PrereqTech>TECH_GUILDS</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -8073,7 +8073,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+			<PrereqTech>TECH_GUILDS</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -9250,7 +9250,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_ENGINEERING -->
-			<PrereqTech>TECH_FEUDALISM</PrereqTech>
+			<PrereqTech>TECH_GUILDS</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -9485,9 +9485,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_ENGINEERING -->
-			<PrereqTech>TECH_FEUDALISM</PrereqTech>
+			<PrereqTech>TECH_GUILDS</PrereqTech>
 			<TechTypes>
-				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+				<PrereqTech>TECH_CONSTITUTION</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
@@ -11333,7 +11333,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+			<!-- custom: was TECH_GUNPOWDER -->
+			<PrereqTech>TECH_RIFLING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -11520,7 +11521,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+			<!-- custom: was TECH_GUNPOWDER -->
+			<PrereqTech>TECH_RIFLING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -11738,7 +11740,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+			<!-- custom: was TECH_GUNPOWDER -->
+			<PrereqTech>TECH_RIFLING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -11955,7 +11958,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+			<!-- custom: was TECH_GUNPOWDER -->
+			<PrereqTech>TECH_RIFLING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -12189,7 +12193,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: rifleman units moved later in tech tree as per our reworked tech tree, seems more balanced this way giving early gun (+/- monted anyways etc) units, as well as indirectly old melee or non-gun (+/- mounted) units some time to still be relevant, perhaps more historically accurate too even though i didn't check in detail but checked bit for other units anyways etc, was TECH_RIFLING with techTypes empty anyways etc -->
-			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
+			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_RIFLING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -12397,7 +12401,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: rifleman units moved later in tech tree as per our reworked tech tree, seems more balanced this way giving early gun (+/- monted anyways etc) units, as well as indirectly old melee or non-gun (+/- mounted) units some time to still be relevant, perhaps more historically accurate too even though i didn't check in detail but checked bit for other units anyways etc, was TECH_RIFLING with techTypes empty anyways etc -->
-			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
+			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_RIFLING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -12620,7 +12624,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: rifleman units moved later in tech tree as per our reworked tech tree, seems more balanced this way giving early gun (+/- monted anyways etc) units, as well as indirectly old melee or non-gun (+/- mounted) units some time to still be relevant, perhaps more historically accurate too even though i didn't check in detail but checked bit for other units anyways etc, was TECH_RIFLING with techTypes empty anyways etc -->
-			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
+			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_RIFLING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -16642,8 +16646,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: was TECH_GUILDS -->
-			<PrereqTech>TECH_FEUDALISM</PrereqTech>
+			<PrereqTech>TECH_GUILDS</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -16863,8 +16866,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: was TECH_GUILDS -->
-			<PrereqTech>TECH_FEUDALISM</PrereqTech>
+			<PrereqTech>TECH_GUILDS</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -17110,7 +17112,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+			<PrereqTech>TECH_GUILDS</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -17343,7 +17345,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+			<PrereqTech>TECH_GUILDS</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -19905,7 +19907,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_ENGINEERING -->
-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+			<PrereqTech>TECH_SCIENTIFIC_METHOD</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>

@@ -1508,10 +1508,10 @@ It only documents logic that exists in the code we just reviewed (no speculation
 
 #### Common signals & helpers
 
-- **War / pressure flags:** `bAtWar`, `bDanger`, `bWarPlan`, `iEnemyPowerPercent`
-- - Derived: `bEnemyStrong := (iEnemyPowerPercent >= 120)`, `bAtWarAndEnemyWeak := (bAtWar && iEnemyPowerPercent <= 80)`
-- **Growth signal:** `iEffectiveFood = max(0, iFoodDifference) - max(0, -iHealthLevel);`
-- - `if (iHappinessSurplus <= 0) iEffectiveFood = 0`
+- **War / pressure flags:** `bAtWar`, `bDanger`, `bWarPlan`, `iEnemyPowerPercent`  
+  Derived: `bEnemyStrong := (iEnemyPowerPercent >= 120)`, `bAtWarAndEnemyWeak := (bAtWar && iEnemyPowerPercent <= 80)`
+- **Growth signal:** `iEffectiveFood = max(0, iFoodDifference) - max(0, -iHealthLevel);`  
+  `if (iHappinessSurplus <= 0) iEffectiveFood = 0`
 - **Happiness / health:** `iHappinessSurplus`, `iHealthLevel` (reduced-volatility)
 - **Trade reality:** `bForeignTrade` (this city currently has any foreign trade route)
 - **Throughput / research:** `iBaseHammersPerTurn`, `iBeakersPerTurn`
@@ -1655,7 +1655,8 @@ if (isWonder) {
     if (PalaceMove) { late+big dual 1.5× test; maybe nudge; }
     if (pressure) return 0;
   }
-}```
+}
+```
 
 ### Results of known issue 48
 
