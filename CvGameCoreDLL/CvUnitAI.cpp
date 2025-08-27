@@ -822,50 +822,74 @@ int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
 // <!-- custom: new addition by gemini ai thanks to my prompt too, to help AI workers know the bonus-specific (note: land only bonuses, as it seems workboats and water plots are not handled in CvUnitAI::AI_bestCityBuild if i am not mistaken anyways etc) improvement for a bonus and optimize AI workers improvement choice based on this, moved as a static helper for potential reuse and clarity/clean code in this case at least i mean but anyways etc, see also CvUnitAI::AI_bestCityBuild for details -->
 // Helper function to provide a static, constant map of bonus-specific land builds.
 // This is more efficient than rebuilding the map on every function call.
-// <!-- custom: actually hard code them rather would be much easier so AI knows gold wants a mine not a workshop, and spices want a plantation or nothing, not a farm (nor a cottage! as i saw done then replaced hehe in base advciv if i remember it correctly anyways etc), may help fix the banana cottage issue in base advciv ideally and theoretically as well anyways etc at least for this part of the code anyways etc. Cleanest way would be an xml flag, but tedious to implement, hardcode here for simplicity and may later or may not implement it properly, adjust this code for your mod anyways etc -->
+// <!-- custom: actually hardcode them rather would be much easier so AI knows gold wants a mine not a workshop, and spices want a plantation or nothing, not a farm (nor a cottage! as i saw done then replaced hehe in base advciv if i remember it correctly anyways etc), may help fix the banana cottage issue in base advciv ideally and theoretically as well anyways etc at least for this part of the code anyways etc. Cleanest way would be an xml flag, but tedious to implement, hardcode here for simplicity and may later or may not implement it properly, adjust this code for your mod anyways etc -->
 // This is the pre-C++11 compatible way to initialize a static map.
-const std::map<BonusTypes, BuildTypes>& getBonusSpecificLandBuilds()
+std::map<BonusTypes, BuildTypes> const& CvUnitAI::getBonusSpecificLandBuilds()
 {
-	// <!-- custom: seems efficient according to gemini ai (see below), i don't know too much about these hehe except the general static idea and or such, but in case it is accurate and looks to be so but check to be sure, hopefully this is also informative so adding it as part of explanation as well i mean anyways etc -->
-	// The static keyword ensures this map is initialized only once.
-	// When you declare a variable as static inside a function, C++ guarantees that it is only created once, the very first time that function is called. After that, the program remembers the variable and every subsequent call to the function uses the same, already-created object. The map is not recreated or destroyed on each function call.
-	static std::map<BonusTypes, BuildTypes> s_bonusSpecificLandBuilds;
-	if (s_bonusSpecificLandBuilds.empty())
-	{
+	// <!-- custom: refactor of this new function i had added, with chatgpt 5 so we can reuse it in other .cpp files, and simplifying/optimizing its performance to cache it or such since it shouldn't change while we can anyways etc and if was not done before already (i don't know too much about these, check if accurate anyways etc), check if accurate anyways etc -->
+    static std::map<BonusTypes, BuildTypes> s;   // created once, reused forever
+    static bool s_inited = false;
+    if (s_inited) return s;
+
+    struct Pair { const char* bonus; const char* build; };
+    static const Pair kEntries[] = {
 		// <!-- custom: bonuses as per the XML order for exhaustiveness and reliability and making sure we don't forget any anyways etc, adjust as you see fit anyways etc ; see also https://civilization.fandom.com/wiki/Resource_(Civ4)#Strategic_Resources and such or not or yes or etc anyways etc related categories in this link anyways etc for bonus-specific build/improvement i mean anyways etc -->
-		// Cache IDs once
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_ALUMINUM") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_MINE");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_COAL") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_MINE");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_COPPER") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_MINE");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_HORSE") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_PASTURE");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_IRON") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_MINE");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_MARBLE") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_QUARRY");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_OIL") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_WELL");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_STONE") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_QUARRY");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_URANIUM") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_MINE");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_BANANA") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_PLANTATION");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_MAIZE") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_FARM");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_CATTLE") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_PASTURE");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_DEER") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_CAMP");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_PIG") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_PASTURE");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_RICE") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_FARM");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_SHEEP") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_PASTURE");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_WHEAT") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_FARM");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_DYE") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_PLANTATION");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_FUR") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_CAMP");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_GEMSTONES") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_MINE");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_GOLD") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_MINE");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_INCENSE") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_PLANTATION");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_ELEPHANTS") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_CAMP");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_SILK") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_PLANTATION");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_SILVER") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_MINE");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_SPICES") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_PLANTATION");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_SUGAR") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_PLANTATION");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_GRAPES") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_PLANTATION");
-		s_bonusSpecificLandBuilds[ (BonusTypes)GC.getInfoTypeForString("BONUS_CAMEL") ] = (BuildTypes)GC.getInfoTypeForString("BUILD_PASTURE");
+        {"BONUS_ALUMINUM","BUILD_MINE"},
+        {"BONUS_COAL","BUILD_MINE"},
+        {"BONUS_COPPER","BUILD_MINE"},
+        {"BONUS_HORSE","BUILD_PASTURE"},
+        {"BONUS_IRON","BUILD_MINE"},
+        {"BONUS_MARBLE","BUILD_QUARRY"},
+        {"BONUS_OIL","BUILD_WELL"},
+        {"BONUS_STONE","BUILD_QUARRY"},
+        {"BONUS_URANIUM","BUILD_MINE"},
+        {"BONUS_BANANA","BUILD_PLANTATION"},
+        {"BONUS_MAIZE","BUILD_FARM"},
+        {"BONUS_CATTLE","BUILD_PASTURE"},
+        {"BONUS_DEER","BUILD_CAMP"},
+        {"BONUS_PIG","BUILD_PASTURE"},
+        {"BONUS_RICE","BUILD_FARM"},
+        {"BONUS_SHEEP","BUILD_PASTURE"},
+        {"BONUS_WHEAT","BUILD_FARM"},
+        {"BONUS_DYE","BUILD_PLANTATION"},
+        {"BONUS_FUR","BUILD_CAMP"},
+        {"BONUS_GEMSTONES","BUILD_MINE"},
+        {"BONUS_GOLD","BUILD_MINE"},
+        {"BONUS_INCENSE","BUILD_PLANTATION"},
+        {"BONUS_ELEPHANTS","BUILD_CAMP"},
+        {"BONUS_SILK","BUILD_PLANTATION"},
+        {"BONUS_SILVER","BUILD_MINE"},
+        {"BONUS_SPICES","BUILD_PLANTATION"},
+        {"BONUS_SUGAR","BUILD_PLANTATION"},
+        {"BONUS_GRAPES","BUILD_PLANTATION"},
+        {"BONUS_CAMEL","BUILD_PASTURE"},
 		// Add other bonus-specific mappings here as needed.
-	}
-	return s_bonusSpecificLandBuilds;
+    };
+
+    for (size_t i = 0; i < sizeof(kEntries)/sizeof(kEntries[0]); ++i) {
+        int b  = GC.getInfoTypeForString(kEntries[i].bonus);
+        int bd = GC.getInfoTypeForString(kEntries[i].build);
+        if (b != -1 && bd != -1)
+            s[(BonusTypes)b] = (BuildTypes)bd;
+        // else: silently skip (or IFLOG a warning if you like)
+    }
+
+    s_inited = true;
+    return s;
+}
+
+BuildTypes CvUnitAI::getBonusSpecificLandBuild(BonusTypes eBonus)
+{
+    std::map<BonusTypes, BuildTypes> const& m = getBonusSpecificLandBuilds();
+    std::map<BonusTypes, BuildTypes>::const_iterator it = m.find(eBonus);
+    return (it == m.end() ? NO_BUILD : it->second);
+}
+
+ImprovementTypes CvUnitAI::getBonusSpecificLandImprovement(BonusTypes eBonus)
+{
+    BuildTypes eBuild = getBonusSpecificLandBuild(eBonus);
+    return (eBuild == NO_BUILD ? NO_IMPROVEMENT
+                               : (ImprovementTypes)GC.getInfo(eBuild).getImprovement());
 }
 
 // Define the Candidate<!-- custom: Plot but anyways etc --> struct outside the function so it can be used as a template argument.
@@ -896,6 +920,12 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	CvPlot* pIgnorePlot, CvUnit* pUnit) const
 {
 	PROFILE_FUNC();
+
+	// <!-- custom: fix crash at turn 77 more properly now that we have identified the cause to be here since changing the code here triggers it, and guarding null and no build in caller avoids it, see code comment at callers of this function for details. Code provided by chatgpt 5 in an attempt to fix it more cleanly and ideally not have workers parked, check if accurate anyways etc -->
+	// And no—you won’t be “back to square one” or re-introduce the crash as long as you add two tiny safety fixes:
+	if (ppBestPlot)  *ppBestPlot  = NULL;
+	if (peBestBuild) *peBestBuild = NO_BUILD;
+	// ... PHASE 1 builds candidates ...
 
 	// <!-- custom: attempt to support terrains and feature(s) conditional logic anyways etc -->
 	static const TerrainTypes eTerrainGrass = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_GRASS");
@@ -981,9 +1011,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 
 	std::vector<CandidatePlot> candidatePlots;
 
-    // A map for efficient lookup of the best improvement for a given bonus.
-	static const std::map<BonusTypes, BuildTypes>& bonusBuilds = getBonusSpecificLandBuilds();
-
 	// <!-- custom: note: performance optimization and perhaps logic optimization as well anyways etc i got from watching gemini ai's general feedback on it being perhaps slow (which in fact seemingly was not after measuring (see above anyways etc) anyways etc) it gave me this other idea thanks a lot hehe, and that i would have ideally implemented, but it seems faster to not check pathfinding at all (in case it is expensive as gemini ai said in another answer to me i mean in this case but anyways etc) and loop over all tiles rather than check pathfinding at same time as we check candidate plots so that we can early exit after first bonus found (in short it seems faster to store all candidate plots blindly than pre-select them only for pathfinder-eligible and passing ones i mean anyways etc, which should be uneeded if we don't choose them anyway in the end in this case at least but anyways etc) ; so my idea was (unimplemented due to explained reasons in this code comment if i am not mistaken anyways etc): if we find a bonus, check other following plots lightly if i am not mistaken but anyways etc, since in the end we will choose a bonus, so may skip any non bonus tile at first bonus tile found. This may have also helped enforce the bonus-first priority so nice in all ways maybe anyways etc, but as said before is maybe not as efficient as i thought (as if this only best tile ends up being unpathable, then all the other good candidate plots we skipped assuming we had a better one would not be chosen then if no other pathfinder-ok bonus tile exists, so safer and also seemingly faster to not bother with pathfinder until we have sorted all plots from best to worse in this case i mean anyways etc) (although i didn't measure it so check to be sure in case relevant or interested in this case i mean anyways etc) so not implementing it anyways etc -->
 
 	// <!-- custom: computationally faster even if a bit maybe to access these directly instead of through the pointer/method especially for/if repeated/ly use/d if i may say maybe but check to be sure anyways etc -->
@@ -1001,7 +1028,19 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	// 		std::max(0, (kCity.getYieldRate(YIELD_FOOD) -
 	// 		kCity.foodConsumption(true))) : 0);
 	// <!-- custom: update 3: even with this change and some other changes as well, we still build farms on flood plains and on bonuses (although rarer for bonuses), i even tried to comment out the farm building code entirely but it still happens, so i assume there is another code outside of this function and/or of what we wrote that interferes with our logic but anyways etc -->
-	int const iEstimatedCityFoodDifference = kCity.getYieldRate(YIELD_FOOD) - kCity.foodConsumption(false);
+	// <!-- custom: update 4: in rare cases we get crazy oscillation between flatland grass farm and cottage. City is not even starved, but it runs a very useless specialist hindering its growth and so is stagnant. Or some other times, there is an angry citizen so city thinks it needs food, but een if we increase food we'll just have more angry citizens, fix happiness rather, on the former case don't assign needless specialists here if we need the food to grow. For our part here, we'll assume specialists are assigned correctly and manage it there. We should restrict farms (or other food giving builds on non-bonus plots too i mean but anyways etc) only when we really need the food. Let's count our ideal food need to account for these specialist or angry citizens rather. Code provided with the help of chatgpt 5 and that i adjusted as i saw fit or/and such but anyways etc, check if accurate anyways etc -->
+	// int const iEstimatedCityFoodDifference = kCity.getYieldRate(YIELD_FOOD) - kCity.foodConsumption(false);
+
+	// Specialists that actually cost population (and thus 'pull' 2 food each)
+	const int iNonFreeSpecialists = std::max(0, kCity.getSpecialistPopulation() - kCity.totalFreeSpecialists());
+	const int iAngryCitizens = kCity.angryPopulation();
+	const int iFoodConsumedBySpecialistOrAngryCitizens = (GC.getFOOD_CONSUMPTION_PER_POPULATION() * (iNonFreeSpecialists + iAngryCitizens));
+
+	const int iFoodSurplusCityHas = (kCity.getYieldRate(YIELD_FOOD) - kCity.foodConsumption(/*bFoodProduction=*/false));
+	// That looks solid! You’re doing exactly what we wanted:
+	// take the ordinary surplus food - consumption(false) (which includes angry + specialists),
+	// then “give it back” by adding 2 * (non-free specialists + angry citizens) so the AI doesn’t panic-farm just because people are angry or parked in specialist slots.
+	const int iEstimatedCityFoodDifference = iFoodSurplusCityHas + iFoodConsumedBySpecialistOrAngryCitizens;
 
 	const int penaltyForOverwritingPlot = 300;
 
@@ -1166,13 +1205,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			else
 			{
 				// <!-- custom: find the bonus's bonus-specific build first -->
-				BuildTypes eBonusSpecificBuild = NO_BUILD;
-
-				std::map<BonusTypes, BuildTypes>::const_iterator it = bonusBuilds.find(eBonus);
-				if (it != bonusBuilds.end())
-				{
-					eBonusSpecificBuild = it->second;
-				}
+				BuildTypes const eBonusSpecificBuild = getBonusSpecificLandBuild(eBonus);
 				if (eBonusSpecificBuild == NO_BUILD)
 				{
 					// <!-- custom: up to modders to support this in their mod, here we assume bonus not in map means unknown bonus, do not improve at all, for ease of code mostly if i may say rather than put any random build in a messy and inefficient or/and ineffective way worked aorund patched in a bad way i'd say but anyways etc -->
@@ -1535,7 +1568,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 						else
 						{
 							// <!-- custom: consider the workshop first if it doesn't cost any food anymore), else don't build it at least not yet in this case i mean but anyways etc -->
-							if (bImprovementWorkshopCostsNoFood && (canBuild(kPlot, eBuildWorkshop)))
+							if (bImprovementWorkshopCostsNoFood && canBuild(kPlot, eBuildWorkshop))
 							{
 								eBestSupposedBuild = eBuildWorkshop;
 
@@ -1873,29 +1906,31 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 		// <!-- custom: PHASE 1.2 - common logic again (both bonus and non-bonus plots again in this case i mean if i may say anyways etc) no more adjusting the best build to build for this loop plot, now only final adjustments before storing plot information anyways etc -->
 
 		// <!-- custom: check here after all builds adjustments if final settled on build is still none, then forget this plot if i may say anyways etc -->
-		if (!canBuild(kPlot, eBestSupposedBuild) || eBestSupposedBuild == NO_BUILD)
+		if (eBestSupposedBuild == NO_BUILD)
 		{
 			continue;
 		}
-		else
+		if (!canBuild(kPlot, eBestSupposedBuild))
 		{
-			// <!-- custom: apply final penalties here, to account for edge cases where they are not relevant (badly needing a farm in a city full of flatland plains for example anyways etc, then we may strongly consider overwriting, use bOverwriteCurrentImprovementHasPenalty to determine that in this case i mean but anyways etc). We could have applied it at first then cancel it for edge cases but is redundant and inefficient so do here rather i mean as seems ideal or more ideal if it is a word or way to say it but anyways etc -->
-
-			// <!-- custom: valorization for river tiles, we get one extra commerce, prioritize there if everything else is equal otherwise anyways etc ; but less than the penalty for overwriting as it should still be better to not overwrite just because there is a river ; a river is otherwise sueful/valuable in this case at least if i may say i mean but anyways etc if all other conditions being equal, we can build there if i may say, but anyways etc -->
-			if (kPlot.isRiver())
-			{
-				iValue += 100;
-			}
-
-			// Store this candidate <!-- custom: plot -->. We will check pathfinding <!-- custom: and other conditions (such as enemy on plot maybe anyways etc) --> later <!-- custom: for efficiency, as there is no need to check this on tiles we would not select as best anyways if i am not mistaken, as gemini ai did thanks i mean, anyways etc, it is faster to just sort them all without looking too deep, then process them later, than spend computation to look at a tile we won't use later if i am not mistaken anyways etc -->
-			CandidatePlot candidatePlot;
-			candidatePlot.iValue = iValue;
-			candidatePlot.pPlot = &kPlot;
-			candidatePlot.ePlot = ePlot;
-			candidatePlot.eBuild = eBestSupposedBuild;
-
-			candidatePlots.push_back(candidatePlot);
+			continue;
 		}
+
+		// <!-- custom: apply final penalties here, to account for edge cases where they are not relevant (badly needing a farm in a city full of flatland plains for example anyways etc, then we may strongly consider overwriting, use bOverwriteCurrentImprovementHasPenalty to determine that in this case i mean but anyways etc). We could have applied it at first then cancel it for edge cases but is redundant and inefficient so do here rather i mean as seems ideal or more ideal if it is a word or way to say it but anyways etc -->
+
+		// <!-- custom: valorization for river tiles, we get one extra commerce, prioritize there if everything else is equal otherwise anyways etc ; but less than the penalty for overwriting as it should still be better to not overwrite just because there is a river ; a river is otherwise sueful/valuable in this case at least if i may say i mean but anyways etc if all other conditions being equal, we can build there if i may say, but anyways etc -->
+		if (kPlot.isRiver())
+		{
+			iValue += 100;
+		}
+
+		// Store this candidate <!-- custom: plot -->. We will check pathfinding <!-- custom: and other conditions (such as enemy on plot maybe anyways etc) --> later <!-- custom: for efficiency, as there is no need to check this on tiles we would not select as best anyways if i am not mistaken, as gemini ai did thanks i mean, anyways etc, it is faster to just sort them all without looking too deep, then process them later, than spend computation to look at a tile we won't use later if i am not mistaken anyways etc -->
+		CandidatePlot candidatePlot;
+		candidatePlot.iValue = iValue;
+		candidatePlot.pPlot = &kPlot;
+		candidatePlot.ePlot = ePlot;
+		candidatePlot.eBuild = eBestSupposedBuild;
+
+		candidatePlots.push_back(candidatePlot);
 	}
 
 	// ===================================================
@@ -1905,21 +1940,35 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 
 	CvPlot* pBestPlot = NULL;
 	BuildTypes eBestBuild = NO_BUILD;
+	bool bFound = false;
 
 	// Loop through all candidate <!-- custom: plots -->
 	for (size_t i = 0; i < candidatePlots.size(); ++i)
 	{
-		pBestPlot = candidatePlots[i].pPlot;
-		eBestBuild = candidatePlots[i].eBuild;
+		// Note: do not assign *ppBestPlot/*peBestBuild inside the loop. Only set the locals there.
+		CvPlot* pB = candidatePlots[i].pPlot;
+		BuildTypes eB = candidatePlots[i].eBuild;
 
-		FAssert(pBestPlot != NULL);
+		FAssert(pB != NULL);
+		// <!-- custom: we don't test this assertion??? Most likely is where our crash at turn 77 happens again as chatgpt 5 provided, see code comments related to AI_bestCityBuild crashes at turn 77 for details anyways etc, and check if accurate in case me or/and chatgpt 5 are mistaken but anyways etc -->
+        // <-- when you accept:
+		if (pB == NULL)
+		{
+			continue;
+		}
+		if (eB == NO_BUILD)
+		{
+			continue;
+		}
+		// <!-- custom: and of the additions to fix crash at turn 77 anyways etc -->
+
 		// Check pathfinding <!-- custom: and other conditions such as worker safety militarily and any other if any anyways etc -->.
-		if (pBestPlot->isVisibleEnemyUnit(this))
+		if (pB->isVisibleEnemyUnit(this))
 			continue;
 
 		/*int iPathTurns;
-		if (generatePath(pBestPlot, 0, true, &iPathTurns) && canBuild(pBestPlot, eBestBuild) &&
-				!pBestPlot->isVisibleEnemyUnit(this)) {
+		if (generatePath(pB, 0, true, &iPathTurns) && canBuild(pB, eB) &&
+				!pB->isVisibleEnemyUnit(this)) {
 			int iMaxWorkers = 1;
 			if (pUnit != NULL) {
 				if (pUnit->getPlot().isCity())
@@ -1928,18 +1977,18 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			if (getPathLastNode()->m_iData1 == 0)
 				iPathTurns++;
 			else if (iPathTurns <= 1)
-				iMaxWorkers = AI_calculatePlotWorkersNeeded(pBestPlot, eBestBuild);
+				iMaxWorkers = AI_calculatePlotWorkersNeeded(pB, eB);
 		} */ // BtS
 		// K-Mod. basically the same thing, but using pathFinder.
-		if (pathFinder.generatePath(*pBestPlot))
+		if (pathFinder.generatePath(*pB))
 		{
 			// <!-- custom: max one worker per tile, should be much more efficient in most cases hopefully anyways etc, minimal gain in spending a lot of move speed to go in one tile this move speed could be used to start much faster on other tiles, especially if it's to inefficiently move to high move cost tile like unroaded hill or forest if i am not mistaken anyways etc ; however in some cases this may be slower, than say improve a bonus to a farm or pasture with 2 available workers, but i hope that in most cases this is statistically more beneficial for the AI than not to focus one worker on one tile anyways etc, the type of improvement may also be improtant to tweak as well, ideally start with the improvement not a road on food bonuses (even if just 1 food) but not handled here if we ever handle it anyways etc ; is maybe also computationally faster as a side effect to execute this code maybe (but check to be sure as this is just a guess and i don't know too much about these but i assume so), it also nicely simplifies code as hinted by gemini ai when commenting on this idea before i wrote code, hopefully helpful but anyways etc -->
 			//int iPathTurns = pathFinder.getPathTurns() + (pathFinder.getFinalMoves() == 0 ? 1 : 0);
-			// int iMaxWorkers = iPathTurns > 1 ? 1 : AI_calculatePlotWorkersNeeded(*pBestPlot, eBestBuild);
+			// int iMaxWorkers = iPathTurns > 1 ? 1 : AI_calculatePlotWorkersNeeded(*pB, eB);
 			// if (pUnit != NULL && pUnit->getPlot().isCity() && iPathTurns == 1)
 			// 	iMaxWorkers += 10;
 			//
-			// if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(*pBestPlot, MISSIONAI_BUILD, getGroup(),
+			// if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(*pB, MISSIONAI_BUILD, getGroup(),
 			// 	/* <advc.opt> */ 0, iMaxWorkers /* </advc.opt> */) < iMaxWorkers)
 
 			// <!-- custom: chatgpt 5 explanation of this code to help me make sense of this, check to be sure it is accurate or not accurate, hopefully informative as well for me or and others or not or yes or etc but anyways etc -->
@@ -1951,35 +2000,39 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			int const iRange = 0;
 			// <!-- custom: note: as a side effect of now having 1 AI worker per tile, they are harder to capture and no risk of losing a big worker stack, so i believe this is nice all in all of a change, not just for AI efficiency anymore if i am not mistaken but anyways etc. -->
 			int const iMaxWorkers = 1;
-			int const iReservedPlot = GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(*pBestPlot, MISSIONAI_BUILD, getGroup(), iRange, iMaxWorkers);
+			int const iReservedPlot = GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(*pB, MISSIONAI_BUILD, getGroup(), iRange, iMaxWorkers);
 			if (iReservedPlot < iMaxWorkers)
 			{
 				// This is a valid, pathable, and <!-- custom: current highest (in our loop in this case i mean anyways etc) value --> available candidate <!-- custom: plot -->. We found it!
+				// <-- when you accept:
+				// ACCEPT the candidate: set locals (NOT out-params), mark found, and break
+				pBestPlot  = pB;
+				eBestBuild = eB;
+				bFound     = true;
 				break;
 			}
-		}
-		else
-		{
-			// If pathfinding or <!-- custom: such other conditions if any failed anyways etc --> failed, we continue the loop to the next candidate <!-- custom: plot -->.
-			// In case the loop finishes, we reset eBestBuild.
-			eBestBuild = NO_BUILD;
-			continue;
 		}
 	}
 
 	// ===================================================
 	// FINAL: Return the result.
 	// ===================================================
-	if (eBestBuild != NO_BUILD)
-	{
-		FAssert(pBestPlot != NULL);
-		if (ppBestPlot != NULL)
-			*ppBestPlot = pBestPlot;
-		if (peBestBuild != NULL)
-			*peBestBuild = eBestBuild;
-	}
+	// <!-- custom: we get a crash at turn 777 when disabling food checks on non-bonus non-hill grass plots in an attempt to solve/debug other oscillation issues, but we did have a crash in AI_nextCityToImprove caller of AI_bestCityBuild function when checking if it was not false, which didn't happen if guarded before by the old AI_getBestBuild (see code comment at caller for details), which is very suspicious of us doing something wrong here after or/and before our refactor, as chatgpt 5 pointed based on code samples i provided it to and my vague guess about that too hehe if i may say but anyways etc. Based on chatgpt 5 feedback and review of code samples, adding this instead, check if accurate, anyways etc -->
+	// if (eBestBuild != NO_BUILD)
+	// {
+	// 	FAssert(pBestPlot != NULL);
+	// 	if (ppBestPlot != NULL)
+	// 		*ppBestPlot = pBestPlot;
+	// 	if (peBestBuild != NULL)
+	// 		*peBestBuild = eBestBuild;
+	// }
 	
-	return (eBestBuild != NO_BUILD);
+	// return (eBestBuild != NO_BUILD);
+
+	// Ensure outputs are consistent no matter how we exit
+	if (ppBestPlot)  *ppBestPlot  = bFound ? pBestPlot  : NULL;
+	if (peBestBuild) *peBestBuild = bFound ? eBestBuild : NO_BUILD;
+	return bFound;
 }
 
 
@@ -3073,7 +3126,9 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 		// <!-- custom: make the extra plot count a bit larger to account for (no pun but anyways etc) plot overlapping between cities, so if city A and city B share 2 plots, and these were improved in city A, we don't want the AI worker to think "hey, city B already has 2 tiles improved and its pop is 1, not too much more to do if threshold plots ot imrpove vs city population is reached, so make it a bit larger to account for that anyways etc, as of now here 3 (see below at iBufferForAllCities anyways etc) rather than say 2 anyways etc." -->
 		const int iBufferExtraForSmallCities = (iCityPopulation <= 4 ? 2 : 0);
 		// <!-- custom: note: even for big cities, the extra is not 0, to help reduce oscillation, so workers would stay a bit longer in city (if pop is 7 they'd stay until 8 plots are improved, so city A is ready for its next citizen, and when workers are in city B, they can stay longer as city A already has a few more/extra improvements to grow, even if not no big deal it is already developped, but don't overimprove city A, as city B is more urgent, but just a little bit extra in city A to avoid the back and forth / oscillation as discussed with chatgpt 5 with the idea i got hehe, so in short improve big cities a bit more than needed so we can comeback to them later and they'll still grow fine for a while, but don't overimprove, so that we move sooner to city B that is smaller and much needing early improvements, which we currently don't do or not enough (small cities take too logn to be improved by AI workers as of now anyways etc), and when we are in city B, improve a lot more plots than needed as it will grow fast, and do not leave city B until a few extra plots have been developped (if city pop 1, dont leave until 4 plots are improved for example if i'm not mistaken but anyways etc, then don't come back for a while if i'm not mistkane and in this case i mean but anyways etc)) -->
-		const int iBufferForAllCities = 1;
+		// <!-- custom: update: prefer more back and forth and to take care of new cities sooner, is maybe more efficient for AI as some cities wait too long to be improved while others are too improved anyways etc -->
+		// const int iBufferForAllCities = 1;
+		const int iBufferForAllCities = 0;
 		if ((countImprovedTiles(pCity) >= (iCityPopulation + iBufferForAllCities + iBufferExtraForSmallCities)) ||
 			// <!-- custom: for big cities, if they are unhappy it can be expected they have stagnated and won't grow further, go to smaller city B or even city C that can grow more and need and would benefit from the improvements now instead of overimproving city A that won't grow seemingly soon -->
 			(iCityPopulation >= 6 && (pCity->unhappyLevel(0) > pCity->happyLevel())))
@@ -18811,11 +18866,16 @@ bool CvUnitAI::AI_improveCity(CvCityAI const& kCity)
 	BuildTypes eBestBuild=NO_BUILD;
 
 	// <!-- custom: this is one of the only 2 functions where our entirely rewritten and greatly worker efficiency optimized but anyways etc AI_bestCityBuild function is ever called. Our current goal is to chain roads only on bonuses after they are improved. This is to gain the effects such health from connecting wheat or rice, happiness from connecting gold or silver as well for example anyways etc, which may unlock our cap of unhappiness or/and health or such other benefits if any sooner if i'm not mistaken but anyways etc. But we don't handle roading in our rewritten function, despite now only us handling the improvement of bonuses. So the existing functions we rely on often call/do too late the connecting bonus (if needed e.g. not on rivers connected to city maybe or such if bonus is already improved and on a river maybe (check if accurate and if i'm not mistaken but anyways etc)) logic. So what we'd want without rewriting everything, since they handle roads fine, just roading bonuses too late, is to add just right after our rewritten function is called, roading logic so that bonus is roaded right after improve anyways etc. Luckily or fortunately if i may say but anyways etc, it seems in our entire code our rewritten function is as of now called only twice, so we'll patch both logics and see if it helps solve the issue of city being stagnant unhealthy or/and unhappy despite having bonuses improved as we do now in our rewritten function, but not connected so we don't have their effects as we want. This is one of these places, done as recommended by chatgpt 5 and as i suggested a bit too hehe if i may say and helped provide it code samples too of my own idea i mean but it helped lot, but check if accurate mine or/and its reasoning as well if i may say but anyways etc, hopefully helpful but anyways etc; i also formatted a bit its comments and added them in code coments or/and such if i may say but anyways etc. Also see known issue as of now 31 update 2 for details if any or/and related info anyways etc. -->
+	// <!-- update: about the crash issue, may be fixed now, since we got another crash related to changes in bestcitybuild function, now fixed by adding null or such guards, read below for details in code comments anyways etc -->
 	if (!AI_bestCityBuild(kCity, &pBestPlot, &eBestBuild, NULL, this))
 		return false; // advc
 
 	FAssert(pBestPlot != NULL);
 	FAssertEnumBounds(eBestBuild);
+
+	// <!-- custom: chatgpt 5 hinted in its thoughts if i'm not mistaken that we don't check these asserts in a release build, i don't know too much about these but i use a release build, and adding these fixes it as well as checking it in other callers, i don't know exactly which if it's this caller or/and the other caller, but leaving it as such since we don't crash anymore at turn 77 anyways etc -->
+	if (pBestPlot == NULL || eBestBuild == NO_BUILD)
+		return false;  // belt-and-suspenders
 
 	// Patch 1 — AI_improveCity
 	// <!-- custom: update: now we actually choose best build to be eBuildRoad in CvUnitAI::AI_bestCityBuild function as it is efficient to do so as i got the idea to and as chatgpt 5 recommended as well when asking it hehe about this idea i got but anyways etc. So just make sure this eBuildRoad in CvUnitAI::AI_bestCityBuild is successfully handled as a road (we check there plot being pathable, as well as if connected to capital already (e.g. river or such, so simply connect here anyways etc)) -->
@@ -19107,13 +19167,25 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
         // Ask the per-city logic for its single best target plot + build
         CvPlot* pPlot = NULL;
         BuildTypes eBuild = NO_BUILD;
+		// <!-- custom: update: another crash caused by this function is now fixed, read below null and such checks code comments, so this one may be fixed too, but check if accurate anyways etc -->
 		// <!-- custom: note: for some reason we crash when only try to check AI_bestCityBuild function call and not AI_getBestBuild function call if i'm not mistaken anyways etc. I don't know if it's related to my heavy changes in the function or not or if it wa already here before or not. My idea is since we handle all (land) improvements as we want now directly in AI_bestCityBuild, we maybe don't need anymore the old AI_getBestBuild that we disabled in our rewritten AI_bestCityBuild to compute value of each plot ourselves, but maybe this interferes or removes or doesn't handle some logic like workboats, roads, water tiles? I don't know enough nor did i check, so these are just guesses of me anyways, but since it seems to work as is, i'm adding this info just for reference or if useful to debug or for myself xd if i may say but anyways etc, hopefully helpful or not or yes or etc anyways etc -->
-        if (pLoopCity->AI_getBestBuild(NO_CITYPLOT) == NO_BUILD ||
-            !AI_bestCityBuild(*pLoopCity, &pPlot, &eBuild, NULL, this))
+		// <!-- custom: so after the update, now that the crash is fixed, trying to disable old interference of AI_getbestCityBuild since our funciton is more optimized in case the other function gives us too many NO_BUILD or bad improvements or such but anyways etc (is just a guess from me so check if accurate anyways etc); result update: we don't crash anymore!!! Even if not relying on the old and most likely faulty AI_bestCityBuild, our logic is now reliable, and our city D or such are now improved much sooner as we want -->
+        // if (pLoopCity->AI_getBestBuild(NO_CITYPLOT) == NO_BUILD ||
+        //     !AI_bestCityBuild(*pLoopCity, &pPlot, &eBuild, NULL, this))
+        // {
+        //     continue; // nothing useful to do in this city right now
+        // }
+        if (!AI_bestCityBuild(*pLoopCity, &pPlot, &eBuild, NULL, this))
         {
             continue; // nothing useful to do in this city right now
         }
         FAssert(pPlot != NULL && eBuild != NO_BUILD);
+		// <!-- custom: chatgpt 5 hinted in its thoughts if i'm not mistaken that we don't check these asserts in a release build, i don't know too much about these but i use a release build, and adding these fixes it as well as checking it in other callers, so left as such anyways etc -->
+		if (pPlot == NULL || eBuild == NO_BUILD)
+			continue;
+		// <!-- custom: be careful, commenting out the null and no build check i added below causes the crash again at turn 77; update: very good results!! We now don't need this hacky failsafe that according to chatgpt 5 would cause workers to skip improving cities, cleanly fixed now no crash at turn 77 so we can disable it, but if you see a crash again, consider enabling it to see if helps even if issue may not eb directly cause here but this could prevent it perhaps, seems fine though now but check to be sure anyways etc -->
+		// if (pBestPlot == NULL || eBestBuild == NO_BUILD)
+		// 	continue;
 
         // Don’t dogpile a tile already targeted by someone else
         const int iMaxWorkers = 1;

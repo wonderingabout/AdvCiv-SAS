@@ -205,7 +205,8 @@ private:
 	// int adjustToProduction(int iValue, scaled rBaseProduction) const;
 	// <!-- custom: same anyways etc -->
 	//int adjustToBarbarianSurroundings(int iValue) const;
-	int adjustToCivSurroundings(int iValue, int iStealPercent) const;
+	// <!-- custom: this adjustToCivSurroundings caused a bug of AI settler settling on bonus camel desert which is very bad in a desert surroudning even worse, it is seemingly called only once in AIFoundValue::evaluate, may as well disable it since it is so complicated and who knows where the bug(s? But anyways etc) is(/are? But anyways etc) and instead migrate only a very simplified version of the logic we want directly inline in its only caller so in AIFoundValue::evaluate, done so with the help of chatgpt 5, check if accurate anyways etc, see known issue as of now 54 for details anyways etc -->
+	// int adjustToCivSurroundings(int iValue, int iStealPercent) const;
 	int adjustToCitiesPerArea(int iValue) const;
 	int adjustToBonusCount(int iValue, std::vector<int> const& aiBonusCount) const;
 	// <!-- custom: try to remove this interference as we have a finer algorithm now, and this old code may lead to unexpected results if i may say anyways etc -->

@@ -10,6 +10,8 @@
 #include "CvInfo_GameOption.h"
 #include "CvInfo_Civics.h"
 #include "BBAILog.h"
+// <!-- custom: added to use our bonusspecific helpers as recommended by chatgpt 5 thanks a lot hehe if i may say but anyways etc, check if accurate, anyways etc -->
+#include "CvUnitAI.h"
 
 // advc: New file; see comment in the header.
 
@@ -383,7 +385,9 @@ short AIFoundValue::evaluate()
 	bool const bStartPhase = (iNumCities == 0);
 	// <!-- custom: use tile count rather than water plots, as we may be skipping them due to isUsablePlot as claude ai noticed/noted if i may say but anyways etc, and with chatgpt 5's and other ai's help anyways etc -->
 	int iTileCountWaterWithBonus = 0;
-	int iTileCountLand = 0;
+	int iTileCountWaterNoBonus = 0;
+	int iTileCountNoPeakLand = 0;
+	int iTileCountPeak = 0;
 
 	int iCautiousHealthPercent = 0;
 
@@ -482,30 +486,38 @@ short AIFoundValue::evaluate()
 			const bool bHomePlot = isHome(*pLoopPlot);
 			const BonusTypes eBonusPlot = getBonus(*pLoopPlot);
 
-			if (bStartPhase)
-			{
-				if (!bHomePlot)
-				{
-					if (!pLoopPlot->isWater())
-					{
-						++iTileCountLand;
-					}
-					else
-					{
-						if (eBonusPlot != NO_BONUS)
-						{
-							++iTileCountWaterWithBonus;
-						}
-					}
-				}
-			}
-
 			TerrainTypes const eTerrainPlot = pLoopPlot->getTerrainType();
 			FeatureTypes const eFeaturePlot = pLoopPlot->getFeatureType();
 
 			// <!-- custom: optimization as recommended by chatgpt 5 thanks anyways etc -->
 			const bool pLoopPlotIsHills = pLoopPlot->isHills();
 			const bool pLoopPlotIsPeak  = pLoopPlot->isPeak();
+
+			if (!bHomePlot)
+			{
+				if (!pLoopPlot->isWater())
+				{
+					if (!pLoopPlotIsPeak)
+					{
+						++iTileCountNoPeakLand;
+					}
+					else if (pLoopPlotIsPeak)
+					{
+						++iTileCountPeak;
+					}
+				}
+				else
+				{
+					if (eBonusPlot != NO_BONUS)
+					{
+						++iTileCountWaterWithBonus;
+					}
+					else
+					{
+						++iTileCountWaterNoBonus;
+					}
+				}
+			}
 
 			if (!bHomePlot)
 			{
@@ -526,6 +538,7 @@ short AIFoundValue::evaluate()
 				{
 					iLowFoodLocationCount += 2;
 				}
+				// <!-- custom: no need to count hill grassland as it can be windmilled if needed later, and the base yields otherwise are good so try not to devalue it too much if i am not mistaken but anyways etc -->
 				else if (eTerrainPlot == eTerrainDesert)
 				{
 					if ((eFeaturePlot == eFeatureFloodPlains) || (eFeaturePlot == eFeatureOasis))
@@ -693,7 +706,7 @@ short AIFoundValue::evaluate()
 			// <advc.031> Count home plot yield twice b/c it's immediately available
 			iPlotValue *= 2;
 			iValue += iPlotValue;
-			// <!-- custom: removed foundOnResourceValue, now code added directly here anyways etc ; and if i'm not mistaken this is the place where we can tell AI to not settle on bonuses and how so, anyways etc ; also merging the bonus has improvement vs no improvement logic at the common part of penalty calculation and using aiNatureYield instead for it rather than aiBonusImprovementYield as in old code as advised by chatgpt 5 anyways etc, splitting it only later at the finer calculation (with fixp and such quite similarly to how it was in the old code anyways etc) -->
+			// <!-- custom: removed foundOnResourceValue, now code added directly here anyways etc ; and if i'm not mistaken this is the place where we can tell AI to not settle on bonuses and how so, anyways etc ; also merging the bonus has improvement vs no improvement logic at the common part of penalty calculation and using aiNatureYield instead for it rather than aiBonusImprovementYield as in old code as advised by chatgpt 5 anyways etc, splitting it only later at the finer calculation (with fixp and such quite similarly to how it was in the old code anyways etc) ; also nature yield shouldn't be that much to begin with, what we want most is to count improved yields and the base +1 are quite minor, if they are hard or tricky to take into account at least for me and in this case i mean but anyways etc i'd rather avoid it, we have our yields here xd if i may say anyways etc -->
 			// if (eBonus != NO_BONUS)
 			// {
 			// 	// Replacing K-Mod code that had adjusted the home plot yield
@@ -707,75 +720,91 @@ short AIFoundValue::evaluate()
 			city sites, so it needs to be discouraged a bit. */
 			if (eBonus != NO_BONUS)
 			{
+				const bool bVeryLowFoodBonusPlot = (eTerrain == eTerrainSnow || ((eTerrain == eTerrainDesert) && (eFeature != eFeatureFloodPlains)) || (pIsHills && (eTerrain != eTerrainGrass)));
+
 				// <!-- custom: was -5 for some reason in old code, chatgpt 5 used 0 so going with it anyways etc -->
 				//int r = -5;
 				int r = 0;
 
-				// Nature yield penalties (ignore improvement availability)
-				if (aiNatureYield[YIELD_FOOD] >= 1)
-				{
-					// <!-- custom: it seems we sometimes still found on deer tundra in autoplay, try to increase the penalty further, while trying not to increase it too much in case it is locally best to found as such if i am not mistaken but anyways etc, 400 may seem high but even 300 was not enough although it fluctuated a bit before staying there, i could try 350 maybe but since 400 does fine keep as is for possible edge cases, hopefully this doesn't prevent locally good spots where settling on food is ideal, but even if then, statistically should be better for ai to avoid settling on food bonuses :) -->
-					int const iOnBonusPenalty = 450;
-					r -= iOnBonusPenalty;
-					IFLOG logBBAI("-%d penalty for founding on food bonus", iOnBonusPenalty);
-				}
-				else if (aiNatureYield[YIELD_PRODUCTION] >= 1)
-				{
-					int iOnBonusPenalty = 300;
+				// <!-- custom: new code by chatgpt 5 using our bonusspecific helpers, which i adjusted a bit, check if accurate anyways etc -->
+				// 1) What improvement would we build on this bonus? (tech-agnostic)
+				ImprovementTypes const eBonusSpecificImprovement = CvUnitAI::getBonusSpecificLandImprovement(eBonus);
 
-					// <!-- custom: but if bonus is very low-food, and yield is not too high, this is attractive, especially on a hill ; note: although a bit redundant, it gives flexibility to tweak values anyways etc -->
-					if (eTerrain == eTerrainSnow || eTerrain == eTerrainDesert || pIsHills)
+				// 2) Bonus-specific improved yields (no city-center bump, no base imp extras)
+				// <!-- custom: may be more reliable than aiBonusImprovementYield just in case it does some weird stuff as we had issues with AI settling on camel desert or sometimes before deer tundra when penalties were not high enough (and even if very high for desert camel), so trying to rework and see if we can fix the issue anyways etc -->
+				int fImp = 0, hImp = 0, cImp = 0;
+				if (eBonusSpecificImprovement != NO_IMPROVEMENT)
+				{
+					fImp = GC.getInfo(eBonusSpecificImprovement).getImprovementBonusYield(eBonus, YIELD_FOOD);
+					hImp = GC.getInfo(eBonusSpecificImprovement).getImprovementBonusYield(eBonus, YIELD_PRODUCTION);
+					cImp = GC.getInfo(eBonusSpecificImprovement).getImprovementBonusYield(eBonus, YIELD_COMMERCE);
+
+					// <!-- custom: use this to detect food bonuses, as according to chatgpt 5 nature yield is not reliable in accurately assessing a tile's yield of a bonus is indeed food bonus or not something else like the city base's tile yield from little in this case i mean but anyways etc i understood of it, check if accurate anyways etc ; also note: for food any food is extremely valuable, even if a commerce bonus that happens to give some improved food, value it much still anyways etc as recommended by chatgpt 5 and what i udnerstood got the idea to do of it too i mean if i may say but anyways etc -->
+					if (fImp >= 1)
 					{
-						iOnBonusPenalty -= 200;
-
-						// <!-- custom: settle on hill bonus production, that is low food, except if it gives a lot of improved bonus hammer or/and commerce then better not or not as much -->
-						if (eBonusImprovement != NO_IMPROVEMENT)
-						{
-							iOnBonusPenalty += 25 * (aiBonusImprovementYield[YIELD_PRODUCTION] + aiBonusImprovementYield[YIELD_COMMERCE]);
-						}
+						// <!-- custom: it seems we sometimes still found on deer tundra in autoplay, try to increase the penalty further, while trying not to increase it too much in case it is locally best to found as such if i am not mistaken but anyways etc, 400 may seem high but even 300 was not enough although it fluctuated a bit before (all this is with the old formula, not this new one below as untested with old file to know but anyways etc) staying there, i could try 350 maybe but since 400 does fine keep as is for possible edge cases, hopefully this doesn't prevent locally good spots where settling on food is ideal, but even if then, statistically should be better for ai to avoid settling on food bonuses ; update: the other new issue i had of ai settling on camel desert is now averted to much later with our new change to imrpvoed yield rather than nature ones, but although ai doesn't settle at turn 50, it considers it at turn 100 when other sites are taken, nearby home plots should be much mroe attractive, so i guess we are not valuing it enough or something, testing and see hopefully not causing ai to chosoe worse sites just to avoid settling on bonus too much but even if it were to happen that may still be better in most cases although not ideal than settling on food bonuses, ideally i would dig why this happens or such and fix this more cleanly, but hopefully this helps anyways etc (since issue only happens on desert camel, maybe base desert food yield being so low interferes or some other logics conflicts soemwhere else? These are just guesses, could be mistaken or not, check if accurate anyways etc) -->
+						// <!-- custom: be careful we return short which is very constraining, it seems we convert negative values to -1 as a safety, but just in case don't make the penalty extremely extremely high xd if i may say but anyways etc, for now i'm investigating why we over settle on food bonuses when penalty is so high (like 1500 * food), could it be overflow with an early return that was before the final return 1 safety, then our value would be positive i guess in some cases (like -33 000 becomes a positive int or something hence the issue of AIs suddenly loving to settle on any food bonus maybe?), reducing it a bit because of that risk and weird behaviour we had anyways etc -->
+						int const iOnBonusFoodPenalty = 600 * fImp;
+						// <!-- custom: be careful to not mix up as noted by chatgpt 5, we add the cumulative penalty here (a positive number if we penalize, a negative number if we for some reason don't penalize but valorize weirdly instead), then later at the end we subract to iValue this positive penalty number so add penalty to r, do not substract anyways etc -->
+						r += iOnBonusFoodPenalty;
+						IFLOG logBBAI("%d penalty for founding on food bonus", iOnBonusFoodPenalty);
 					}
-
-					r -= iOnBonusPenalty;
-					IFLOG logBBAI("-%d penalty for founding on production bonus", iOnBonusPenalty);
-				}
-				else if (aiNatureYield[YIELD_COMMERCE] >= 1)
-				{
-					int iOnBonusPenalty = 200;
-
-					// <!-- custom: but if bonus is very low-food, and yield is not too high, this is attractive, especially on a hill ; note: although a bit redundant, it gives flexibility to tweak values anyways etc -->
-					if (eTerrain == eTerrainSnow || eTerrain == eTerrainDesert || pIsHills)
+					// <!-- custom: use combinatory rather than else if in case some weird bonuses have a mix of several effects (e.g. quite high hammer and quite high commerce overall but each itself is just a bit above average not so good yet when combined gold + hammer is very nice for example anyways etc, then we want to take both into account in such cases anyways etc) -->
+					if (hImp >= 2)
 					{
-						iOnBonusPenalty -= 150;
+						int iOnBonusProductionPenalty = 350;
 
-						// <!-- custom: counter this plot "terrain" scale with yield, the higher the yield, the less inclined we'd be to settle on it, e.g. settle on bonus commerce hill low food except if it gives a lot of improved commerce or/and hammer then better not or not as much -->
-						if (eBonusImprovement != NO_IMPROVEMENT)
+						// <!-- custom: but if bonus is very low-food, and yield is not too high, this is attractive, especially on a hill, but the higher the yields, the more we'd rather hve low food and high yields than settle on the bonus to save food anyways etc -->
+						if (bVeryLowFoodBonusPlot)
 						{
-							iOnBonusPenalty += 25 * (aiBonusImprovementYield[YIELD_COMMERCE] + aiBonusImprovementYield[YIELD_PRODUCTION]);
+							iOnBonusProductionPenalty -= 150;
+							iOnBonusProductionPenalty += 75 * hImp;
 						}
+
+						// <!-- custom: be careful to not mix up as noted by chatgpt 5, we add the cumulative penalty here (a positive number if we penalize, a negative number if we for some reason don't penalize but valorize weirdly instead), then later at the end we subract to iValue this positive penalty number so add penalty to r, do not substract anyways etc -->
+						r += iOnBonusProductionPenalty;
+						IFLOG logBBAI("%d penalty for founding on production bonus", iOnBonusProductionPenalty);
 					}
+					if (cImp >= 2)
+					{
+						int iOnBonusCommercePenalty = 300;
 
-					r -= iOnBonusPenalty;
-					IFLOG logBBAI("-%d penalty for founding on commerce bonus", iOnBonusPenalty);
+						// <!-- custom: but if bonus is very low-food, and yield is not too high, this is attractive, especially on a hill ; note: although a bit redundant, it gives flexibility to tweak values anyways etc -->
+						if (bVeryLowFoodBonusPlot)
+						{
+							iOnBonusCommercePenalty -= 100;
+							iOnBonusCommercePenalty += 50 * cImp;
+						}
+
+						// <!-- custom: be careful to not mix up as noted by chatgpt 5, we add the cumulative penalty here (a positive number if we penalize, a negative number if we for some reason don't penalize but valorize weirdly instead), then later at the end we subract to iValue this positive penalty number so add penalty to r, do not substract anyways etc -->
+						r += iOnBonusCommercePenalty;
+						IFLOG logBBAI("%d penalty for founding on commerce bonus", iOnBonusCommercePenalty);
+					}
 				}
-
-				// <!-- custom: improvement specific logic here only, as in old code of the now merged here and removed there but anyways etc AIFoundValue::foundOnResourceValue anyways etc -->
-				// Improvement-specific penalty for lost yield potential
-				if (eBonusImprovement != NO_IMPROVEMENT)
+				else
 				{
-					// <!-- custom: code comment below added by chatgpt, i don't know if accurate but maybe is, seems so from quick glance and reflection on it from me but i don't know too much about these overall still, still hopefully helpful or not or yes or etc but anyways etc ; note: also some logic added as of now in AIFoundValue::AIFoundValue anyways etc -->
-					// General yield penalty for lost improvement potential
-					int const iImprovementYieldValue = evaluateYield(aiBonusImprovementYield);
-					if (iImprovementYieldValue > 0) // Make sure not to exponentiate a negative value
-						r -= (scaled(iImprovementYieldValue).pow(fixp(1.5)) / fixp(4.2)).round();
+					IFLOG logBBAI("Warning: no mapped improvement for bonus %S", GC.getInfo(eBonus).getDescription());
 				}
+
+				// <!-- custom: we now fetch bonusspecific improvement directly from our ideal map, regardless of if available or not for better or worse, but assume AI can always improve bonuses so it doesn't discard/dismiss those it can't improve yet if i'm not mistaken in my understanding so disable this (can probably remove but check if accurate anyways etc) anyways etc -->
+				// // <!-- custom: improvement specific logic here only, as in old code of the now merged here and removed there but anyways etc AIFoundValue::foundOnResourceValue anyways etc -->
+				// // Improvement-specific penalty for lost yield potential
+				// if (eBonusImprovement != NO_IMPROVEMENT)
+				// {
+				// 	// <!-- custom: code comment below added by chatgpt, i don't know if accurate but maybe is, seems so from quick glance and reflection on it from me but i don't know too much about these overall still, still hopefully helpful or not or yes or etc but anyways etc ; note: also some logic added as of now in AIFoundValue::AIFoundValue anyways etc -->
+				// 	// General yield penalty for lost improvement potential
+				// 	int const iImprovementYieldValue = evaluateYield(aiBonusImprovementYield);
+				// 	if (iImprovementYieldValue > 0) // Make sure not to exponentiate a negative value
+				// 		r -= (scaled(iImprovementYieldValue).pow(fixp(1.5)) / fixp(4.2)).round();
+				// }
 
 				// /*	In (historical) scenarios, resources are sometimes placed just so that the AI
 				// 	doesn't settle in a particular tile. Try -a little bit- to respect that. */
 				// if (kGame.isScenario())
 				// 	r -= 13;
 
-				iValue += r;
-				IFLOG logBBAI("%d for founding on resource", r);
+				iValue -= r;
+				IFLOG logBBAI("Penalty (substracted to iValue) %d for founding on bonus", r);
 			}
 			// <!-- custom: for non-bonus for home plot (i.e. the exact tile where we settle our city if i'm not mistaken anyways etc) tiles, also add home plot optimization, low-food is juicy (e.g. desert or hill plains better than floodplains or hill grass if i am not mistaken anyways etc) -->
 			else
@@ -1066,7 +1095,7 @@ short AIFoundValue::evaluate()
 	if (bStartPhase)
 	{
 		// <!-- custom: regardless of coastal status if i am not mistaken but anyways etc, tolerate some low number of non land non bonus tiles, but past a certain threshold, strongly penalize it so AIs wouldn't take this city site unless nothing at all is better but anyways etc ; also for our first city we don't want to be too close to the coast anyway and more like closer to the center for more radial expansion or possibilities, better city distance to capital cost, stronger early position for later expansions, etc if any other advantages but anyways etc, and if the spot is good, keep it for city 2 not for starting one where we really want nice yields on land and a closer to center position for later expansion if i am not mistaken but anyways etc ; as for value we have 20 bfc tiles (minus home plot) if i'm not mistaken, so if it has more than 8 water tiles no bonus, or equivalent, so less than 12 good tiles, change site, anyways etc -->
-		const int iGoodBFCTiles = iTileCountLand + iTileCountWaterWithBonus;
+		const int iGoodBFCTiles = iTileCountNoPeakLand + iTileCountWaterWithBonus;
 
 		if (iGoodBFCTiles <= 12)
 		{
@@ -1085,6 +1114,15 @@ short AIFoundValue::evaluate()
 			// const int iValueCompressed = (1 + iGoodBFCTiles + std::max(0, iValue / 50));
 			// return std::max<short>(1, truncIntCast<short>(iValueCompressed));
 			return 0;
+		}
+	}
+	// <!-- custom: add similar logic to help track peak or such, for example a city has many peak, but is not counted as bad like desert if i am not mistaken since bad plots are skipped in the loop maybe? So to be safe penalize peak as well here (but not water which is a fine tile workable and that gives yields and such anyways etc) anyways etc -->
+	else
+	{
+		// <!-- custom: peak in non home plot devalue local plot anyways etc, is as of now not workable, not walkable for most units, and has no yield, so better avoid if possible anyways etc but not too strongly may skew iValue too much for an otherwise good site anyways etc -->
+		if (iTileCountPeak > 0)
+		{
+			iValue -= 75;
 		}
 	}
 
@@ -1147,8 +1185,134 @@ short AIFoundValue::evaluate()
 	// if (bBarbarian)
 	// 	iValue = adjustToBarbarianSurroundings(iValue);
 	// else if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
-	if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
-		iValue = adjustToCivSurroundings(iValue, iStealPercent);
+
+	// <!-- custom: through trial and error, while trying to find why we settle on camel desert in middle game (turns 50+, whiel having saner choices earlier in map view ingame (circled tiles), i have found that commenting the block below causes the issue to be solved, AI has sane sites as always and now settles around or near this but no AI player considers settling on camel desert or near it anymore, so i assume something is majorly faulty in it or/and didn't accomodate/account for food desert bonuses or such. Since i don't like interferences if i may say but anyways etc, commented out since i have found it to be reproductible that uncommenting it triggers again the error, replaced with a very simplified version of the logic we want, inline in this function that is its only caller, with the help of chatgpt 5, check if accurate, see known issue as of now 54 for details anyways etc -->
+	// if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
+	// 	iValue = adjustToCivSurroundings(iValue, iStealPercent);
+	// --- SAS inline distance shaping (simple & bounded) ---
+	// C++03-safe, integer math only, overflow-safe via percent scaling.
+	// Notes
+	// Setting FAR_CAP = 100 + the early return 0; gives you the hard “nope” at extreme distances.
+	// I left the “too close” branch clamped at 50% so proximity never kills a locally amazing site.
+	// This keeps your logic simple, deterministic, and aligned with your “better no city than a split empire” philosophy.
+	if (!kSet.isStartingLoc() && !kSet.isNormalizing())
+	{
+		// <!-- custom: 1) distance to nearest city penalties (as per our previous refactor/change but enhanced/simplified thanks to chatgpt 5 too if i may say but anyways etc) -->
+		// <!-- custom: added const* for efficiency but then chatgpt 5 said to add another one xd, check if accurate and thanks anyways etc -->
+		// const on the left (CvCity const*) means you won’t mutate the city via this pointer.
+		// const on the right (* const) means you won’t reassign pNearest.
+		CvCity const* const pNearest = GC.getMap().findCity(iX, iY, ePlayer, eTeam, false);
+		if (pNearest != NULL)
+		{
+			const int iDistRaw = ::plotDistance(iX, iY, pNearest->getX(), pNearest->getY());
+
+			// Derive from city radius so mods changing radius stay sane.
+			static const int CITYR   = (5 + CITY_PLOTS_DIAMETER) / 2; // default 5
+			static const int MIN_OK  = CITYR - 1; // ≤ MIN_OK-1 = “too close”
+			static const int MAX_OK  = CITYR;     // ≥ MAX_OK+1 = “too far”
+
+			static const int CLOSE_STEP = 15; // % per tile inside MIN_OK
+			static const int FAR_STEP   = 10; // % per tile beyond MAX_OK
+			static const int CLOSE_CAP  = 50; // max close penalty
+			static const int FAR_CAP    = 100; // allow hard kill
+
+			int mult = 100; // 100% = no change
+
+			// Too close
+			if (iDistRaw <= MIN_OK - 1)
+			{
+				int pct = (MIN_OK - iDistRaw) * CLOSE_STEP;
+				if (pct > CLOSE_CAP) pct = CLOSE_CAP;
+				mult -= pct;
+			}
+			// Too far
+			else if (iDistRaw >= MAX_OK + 1)
+			{
+				int pct = (iDistRaw - MAX_OK) * FAR_STEP;
+				if (pct > FAR_CAP) pct = FAR_CAP;
+
+				// Hard cutoff for extreme stretch
+				if (pct >= 100)
+				{
+					IFLOG logBBAI("Dist shaping: d=%d -> hard reject near %S", iDistRaw, cityName(*pNearest));
+					return 0;
+				}
+				mult -= pct;
+			}
+
+			const int oldVal = iValue;
+			iValue = (iValue * mult) / 100;
+			if (iValue < 0) iValue = 0;
+			IFLOG if (iValue != oldVal) logBBAI("Dist shaping: d=%d -> x%d%% (%d→%d) near %S", iDistRaw, mult, oldVal, iValue, cityName(*pNearest));
+		}
+		// --- end SAS distance shaping ---
+
+		// <!-- custom: 2) anyways etc -->
+		// --- SAS: super-simple culture pressure gate (no cheat, cheap) ---
+		// Goal: it's fine if a site is a *little* pressed, but skip it if it's *too* pressed.
+		// Notes
+		// - No-cheat preserved: foreign cities only counted if KNOWN_TO and AI_deduceCitySite says we could infer them.
+		// - Cheap: one pass, integer math, no squares or fixed-point.
+		// - Behavior:
+		// 		- A little culture nearby? Ignore it.
+		// 		- Medium pressure? Keep the site but down-weight it.
+		// 		- Heavy pressure (e.g., right next to a big foreign border)? Return 0 so it drops out.
+		int iMaxPressure = 0; // we just look at the worst single nearby foreign city
+
+		for (PlayerIter<CIV_ALIVE, KNOWN_TO> it(eTeam); it.hasNext(); ++it)
+		{
+			const CvPlayer& kLoop = *it;
+			if (kLoop.getTeam() == eTeam) continue;
+			if (GET_TEAM(kLoop.getTeam()).isVassal(eTeam)) continue;
+
+			FOR_EACH_CITY(pCity, kLoop)
+			{
+				if (!pCity->isArea(kArea)) continue;
+
+				// don't cheat: only count cities we could reasonably know about
+				if (!kSet.isAllSeeing() && !kTeam.AI_deduceCitySite(*pCity))
+					continue;
+
+				const int d = plotDistance(iX, iY, pCity->getX(), pCity->getY());
+				const int r = pCity->getCultureLevel() + 3; // same scale as the old code
+
+				int iLocal = 0;
+				if (d <= r)
+				{
+					// Linear 10..100 scale: edge of culture ring ~10, adjacent to city ~100.
+					// (Cheap & monotone; no divisions by zero.)
+					iLocal = 10 + (90 * (r - d)) / (r > 0 ? r : 1);
+				}
+				else if (d == r + 1)
+				{
+					// slight pressure just outside the ring
+					iLocal = 5;
+				}
+
+				if (iLocal > iMaxPressure) iMaxPressure = iLocal;
+			}
+		}
+
+		// Tuning: "soft" tolerance vs "hard" refusal
+		const int SOFT = 35; // <=35: ignore pressure
+		const int HARD = 70; // >=70: too pressed → reject site outright
+
+		if (iMaxPressure >= HARD)
+		{
+			IFLOG logBBAI("Site rejected: culture pressure=%d (>= %d)", iMaxPressure, HARD);
+			return 0; // too risky; likely to be crushed/flipped
+		}
+		else if (iMaxPressure >= SOFT)
+		{
+			// Mild penalty between SOFT..HARD. Clamp so we never nuke more than -70% here.
+			int mult = 100 - ((iMaxPressure - SOFT) * 2); // linear fade
+			if (mult < 30) mult = 30;
+			int const iOld = iValue;
+			iValue = (iValue * mult) / 100;
+			IFLOG if(iValue!=iOld) logBBAI("Culture pressure %d -> x%d%% (%d→%d)", iMaxPressure, mult, iOld, iValue);
+		}
+		// --- end culture pressure gate ---
+	}
 
 	iValue = adjustToCitiesPerArea(iValue);
 
@@ -1194,12 +1358,25 @@ short AIFoundValue::evaluate()
 	// advc: BtS code (iDifferentAreaTile) deleted
 	// (disabled by K-Mod. This kind of stuff is already taken into account.)
 
-	// // <!-- custom: move this below to attempt to / in case it better avoid / avoids (but anyways etc) overflow, as chatgpt 5 seems to rightfully if i may sya but anyways etc be concerned about it :) but anyways etc. -->
+	// <!-- custom: let's add a guard against too high values as well just in case, as recommended by chatgpt 5 when i asked it about this risk that it could happen too hehe, i adjusted the code it provided to for that end and i saw fit too if i may say but anyways etc, check if accurate anyways etc ; also refactored a bit otherwise our already changed code as commented below anyways etc -->
+	static const int kMaxFound = 32765; // leave headroom under 32767
+	// // <!-- custom: move this below to attempt to / in case it better avoid / avoids (but anyways etc) overflow, as chatgpt 5 seems to rightfully if i may say but anyways etc be concerned about it but check if accurate i mean, i also refactored it a bit, anyways etc -->
+	// if (iValue <= 0)
+	// 	return 1;
 	if (iValue <= 0)
-		return 1;
-	FAssert(iValue >= 0);
-	IFLOG logBBAI("Bottom line (found-city value): %d\n", iValue);
-	return std::max<short>(1, truncIntCast<short>(iValue));
+	{
+		iValue = 1;
+	}
+	// guard high (saturate before narrowing)
+	// FAssert(iValue >= 0);
+	// IFLOG logBBAI("Bottom line (found-city value): %d\n", iValue);
+	// return std::max<short>(1, truncIntCast<short>(iValue));
+	else if (iValue > kMaxFound)
+	{
+		IFLOG logBBAI("Clamp high iValue %d -> %d", iValue, kMaxFound);
+		iValue = kMaxFound;
+	}
+	return (short)iValue;
 }
 
 
@@ -3105,328 +3282,329 @@ int AIFoundValue::adjustToStartingChoices(int iValue) const
 // }
 
 
-int AIFoundValue::adjustToCivSurroundings(int iValue, int iStealPercent) const
-{
-	// K-Mod. Adjust based on proximity to other players, and the shape of our empire.
-	int iForeignProximity = 0;
-	bool bFreeForeignCulture = false; // advc.031
-	int iOurProximity = 0;
-	CvCity const* pOurNearestCity = NULL;
-	CvCity const* pNearestForeignCity = NULL; // advc.031
-	int iMaxDistanceFromCapital = 0;
-	for (PlayerIter<CIV_ALIVE,KNOWN_TO> it(eTeam); it.hasNext(); ++it)
-	{
-		CvPlayer const& kLoopPlayer = *it;
-		if (kArea.getCitiesPerPlayer(kLoopPlayer.getID()) <= 0 ||
-			GET_TEAM(kLoopPlayer.getTeam()).isVassal(eTeam))
-		{
-			continue;
-		}
-		int iProximity = 0;
-		FOR_EACH_CITY(pLoopCity, /* *this */ kLoopPlayer) // advc.001: Not this player!
-		{
-			if (kLoopPlayer.getID() == ePlayer && pCapital != NULL)
-			{
-				iMaxDistanceFromCapital = std::max(iMaxDistanceFromCapital,
-						plotDistance(pCapital->plot(), pLoopCity->plot()));
-			}
-			if (!pLoopCity->isArea(kArea))
-				continue;
-			// <advc.031> Don't cheat
-			if (!kSet.isAllSeeing() && !kTeam.AI_deduceCitySite(*pLoopCity))
-				continue; // </advc.031>
-			int const iDistance = plotDistance(iX, iY,
-					pLoopCity->getX(), pLoopCity->getY());
-			if (kLoopPlayer.getID() == ePlayer)
-			{
-				if (pOurNearestCity == NULL ||
-					iDistance < plotDistance(iX, iY,
-					pOurNearestCity->getX(), pOurNearestCity->getY()))
-				{
-					pOurNearestCity = pLoopCity;
-				}
-			}
-			// <advc.031>
-			else if (kLoopPlayer.hasCapital())
-			{
-				if (pNearestForeignCity == NULL ||
-					iDistance < plotDistance(iX, iY,
-					pNearestForeignCity->getX(), pNearestForeignCity->getY()))
-				{
-					pNearestForeignCity = pLoopCity;
-				}
-			} // </advc.031>
-			int iCultureRange = pLoopCity->getCultureLevel() + 3;
-			if (kTeam.AI_deduceCitySite(*pLoopCity))
-			{
-				if (iDistance <= iCultureRange)
-				{
-					// cf. culture distribution in CvCity::doPlotCultureTimes100
-					iProximity += 90*(iDistance-iCultureRange)*(iDistance-iCultureRange)/
-							(iCultureRange*iCultureRange) + 10;
-				}
-				/*	<advc.031> A little extra range is useful to consider for
-					contested sites */
-				else if (iDistance == iCultureRange + 1)
-					iProximity += 5; // </advc.031>
-			}
-		}
-		if (kLoopPlayer.getTeam() == eTeam)
-			iOurProximity = std::max(iOurProximity, iProximity);
-		else if (iProximity > iForeignProximity)
-		{
-			iForeignProximity = iProximity;
-			// advc.031:
-			bFreeForeignCulture = (kLoopPlayer.getFreeCityCommerce(COMMERCE_CULTURE) > 1 ||
-					(pNearestForeignCity != NULL && pNearestForeignCity->isCapital()));
-		}
-	}
-	// <advc.031>
-	int iOurFreeCultureAdvantage = (bFreeForeignCulture ? -1 : 0) +
-			(kSet.isEasyCulture() ? 1 : 0); // </advc.031>
-	/*	Reduce the value if we are going to get squeezed out by culture.
-		Increase the value if we are hoping to block the other player! */
-	if (iForeignProximity > 0)
-	{
-		/*	As a rough guide of scale, settling 3 steps from a level 2 city
-			in isolation would give a proximity of 24.
-			4 steps from a level 2 city = 13
-			4 steps from a level 3 city = 20 */
-		int iDelta = iForeignProximity - iOurProximity;
-		IFLOG logBBAI("Proximity difference (foreign minus ours): %d - %d = %d", iForeignProximity, iOurProximity, iDelta);
-		if (iDelta > 47 + iOurFreeCultureAdvantage * 8) // advc.031: was 50 flat
-		{
-			IFLOG logBBAI("Site disregarded: proximity difference too great");
-			return 0; // we'd be crushed and eventually flipped if we settled here.
-		}
-		int const iTempValue = iValue; // advc.031
-		if (iDelta > -20 &&
-			//iDelta <= (kSet.isAmbitious() ? 10 : 0) * (bEasyCulture ? 2 : 1))
-			// advc.031:
-			iDelta <= 5 + iOurFreeCultureAdvantage * 5 + (kSet.isAmbitious() ? 8 : 0))
-		{
-			/*	we want to get this spot before our opponents do.
-				The lower our advantage, the more urgent the site is. */
-			iValue *= 115 + // advc.031: was 120
-					iDelta/2 + (kSet.isAmbitious() ? 5 : 0)
-					// advc.031: The 2nd city should focus more on high yields
-					- (iCities <= 1 ? 11 : 0);
-			iValue /= 100;
-			/*  <advc.031> Don't rush to settle marginal spots (which might
-				not even make the MinFoundValue cut w/o the boost above). */
-			if (iTempValue < 2000)
-			{
-				iValue *= iTempValue;
-				iValue /= 2000;
-				iValue = std::max(iTempValue, iValue);
-			} // </advc.031>
-		}
-		//iDelta -= (kSet.isEasyCulture() ? 20 : 10);
-		iDelta -= 10 + iOurFreeCultureAdvantage * 10; // advc.031
-		if (iDelta > 0 &&
-			iForeignProximity > 5) // advc.031
-		{
-			iValue *= 100 - iDelta*3/2;
-			iValue /= 100;
-		}
-		IFLOG if(iValue!=iTempValue) logBBAI("%d from foreign proximity", iValue - iTempValue);
-		/*  <advc.031> This is not about being squeezed, but squeezing others
-			and thereby angering them. StealPercent says how much we
-			squeeze them (cultural strength is already taken into account). */
-		if (iStealPercent >= 100)
-		{
-			/*  Between 130 (Alexander, G. Khan, Louis, Montezuma) and
-				80 (Gandhi, Joao, Justinian). A leader who likes limited war
-				should be less concerned about creating border troubles. */
-			scaled rDiploFactor = (kPlayer.isHuman() && !kSet.isDebug() ? 100 :
-					GC.getInfo(kPlayer.getPersonalityType()).getLimitedWarPowerRatio());
-			if (kSet.isDefensive())
-				rDiploFactor += 33;
-			if (kPlot.isHills())
-				rDiploFactor += 16;
-			// The importance of a few stolen tiles decreases over time
-			rDiploFactor += rAIEraFactor * 13;
-			rDiploFactor = fixp(1.6) * rDiploFactor / iStealPercent;
-			rDiploFactor.clamp(fixp(0.6), 1);
-			iValue = (iValue * rDiploFactor).round();
-			IFLOG logBBAI("Times %d percent (diplo modifier) from stealing %d/100 tiles",
-					rDiploFactor.getPercent(), iStealPercent);
-		} // </advc.031>
-	}  // <advc.108> Avoid moving the starting settler far on crowded maps
-	else if (iCities <= 0 && !kSet.isStartingLoc() && !kSet.isNormalizing() &&
-		kPlayer.getStartingPlot() != NULL && &kPlot != kPlayer.getStartingPlot())
-	{
-		int iCivAlive = PlayerIter<CIV_ALIVE>::count();
-		int iRecommended = kGame.getRecommendedPlayers();
-		if (iCivAlive > iRecommended && iRecommended > 0)
-		{
-			int iDistFromStart = plotDistance(kPlayer.getStartingPlot(), &kPlot);
-			if (iDistFromStart > 1)
-			{
-				scaled rMultiplier(iRecommended,
-						iCivAlive + std::min(iDistFromStart, 5) - 1);
-				IFLOG logBBAI("Times %d percent for moving starting Settler %d tiles on a crowded map",
-						rMultiplier.getPercent(), iDistFromStart);
-				iValue = (iValue * rMultiplier).round();
-			}
-		}
-	} // </advc.108>
-	// K-Mod end (the rest is original code - but I've made some edits...)
+// <!-- custom: this adjustToCivSurroundings caused a bug of AI settler settling on bonus camel desert which is very bad in a desert surroudning even worse, it is seemingly called only once in AIFoundValue::evaluate, may as well disable it (including our changes in it but anyways etc) since it is so complicated and who knows where the bug(s? But anyways etc) is(/are? But anyways etc) and instead migrate only a very simplified version of the logic we want directly inline in its only caller so in AIFoundValue::evaluate, done so with the help of chatgpt 5, check if accurate anyways etc -->
+// int AIFoundValue::adjustToCivSurroundings(int iValue, int iStealPercent) const
+// {
+// 	// K-Mod. Adjust based on proximity to other players, and the shape of our empire.
+// 	int iForeignProximity = 0;
+// 	bool bFreeForeignCulture = false; // advc.031
+// 	int iOurProximity = 0;
+// 	CvCity const* pOurNearestCity = NULL;
+// 	CvCity const* pNearestForeignCity = NULL; // advc.031
+// 	int iMaxDistanceFromCapital = 0;
+// 	for (PlayerIter<CIV_ALIVE,KNOWN_TO> it(eTeam); it.hasNext(); ++it)
+// 	{
+// 		CvPlayer const& kLoopPlayer = *it;
+// 		if (kArea.getCitiesPerPlayer(kLoopPlayer.getID()) <= 0 ||
+// 			GET_TEAM(kLoopPlayer.getTeam()).isVassal(eTeam))
+// 		{
+// 			continue;
+// 		}
+// 		int iProximity = 0;
+// 		FOR_EACH_CITY(pLoopCity, /* *this */ kLoopPlayer) // advc.001: Not this player!
+// 		{
+// 			if (kLoopPlayer.getID() == ePlayer && pCapital != NULL)
+// 			{
+// 				iMaxDistanceFromCapital = std::max(iMaxDistanceFromCapital,
+// 						plotDistance(pCapital->plot(), pLoopCity->plot()));
+// 			}
+// 			if (!pLoopCity->isArea(kArea))
+// 				continue;
+// 			// <advc.031> Don't cheat
+// 			if (!kSet.isAllSeeing() && !kTeam.AI_deduceCitySite(*pLoopCity))
+// 				continue; // </advc.031>
+// 			int const iDistance = plotDistance(iX, iY,
+// 					pLoopCity->getX(), pLoopCity->getY());
+// 			if (kLoopPlayer.getID() == ePlayer)
+// 			{
+// 				if (pOurNearestCity == NULL ||
+// 					iDistance < plotDistance(iX, iY,
+// 					pOurNearestCity->getX(), pOurNearestCity->getY()))
+// 				{
+// 					pOurNearestCity = pLoopCity;
+// 				}
+// 			}
+// 			// <advc.031>
+// 			else if (kLoopPlayer.hasCapital())
+// 			{
+// 				if (pNearestForeignCity == NULL ||
+// 					iDistance < plotDistance(iX, iY,
+// 					pNearestForeignCity->getX(), pNearestForeignCity->getY()))
+// 				{
+// 					pNearestForeignCity = pLoopCity;
+// 				}
+// 			} // </advc.031>
+// 			int iCultureRange = pLoopCity->getCultureLevel() + 3;
+// 			if (kTeam.AI_deduceCitySite(*pLoopCity))
+// 			{
+// 				if (iDistance <= iCultureRange)
+// 				{
+// 					// cf. culture distribution in CvCity::doPlotCultureTimes100
+// 					iProximity += 90*(iDistance-iCultureRange)*(iDistance-iCultureRange)/
+// 							(iCultureRange*iCultureRange) + 10;
+// 				}
+// 				/*	<advc.031> A little extra range is useful to consider for
+// 					contested sites */
+// 				else if (iDistance == iCultureRange + 1)
+// 					iProximity += 5; // </advc.031>
+// 			}
+// 		}
+// 		if (kLoopPlayer.getTeam() == eTeam)
+// 			iOurProximity = std::max(iOurProximity, iProximity);
+// 		else if (iProximity > iForeignProximity)
+// 		{
+// 			iForeignProximity = iProximity;
+// 			// advc.031:
+// 			bFreeForeignCulture = (kLoopPlayer.getFreeCityCommerce(COMMERCE_CULTURE) > 1 ||
+// 					(pNearestForeignCity != NULL && pNearestForeignCity->isCapital()));
+// 		}
+// 	}
+// 	// <advc.031>
+// 	int iOurFreeCultureAdvantage = (bFreeForeignCulture ? -1 : 0) +
+// 			(kSet.isEasyCulture() ? 1 : 0); // </advc.031>
+// 	/*	Reduce the value if we are going to get squeezed out by culture.
+// 		Increase the value if we are hoping to block the other player! */
+// 	if (iForeignProximity > 0)
+// 	{
+// 		/*	As a rough guide of scale, settling 3 steps from a level 2 city
+// 			in isolation would give a proximity of 24.
+// 			4 steps from a level 2 city = 13
+// 			4 steps from a level 3 city = 20 */
+// 		int iDelta = iForeignProximity - iOurProximity;
+// 		IFLOG logBBAI("Proximity difference (foreign minus ours): %d - %d = %d", iForeignProximity, iOurProximity, iDelta);
+// 		if (iDelta > 47 + iOurFreeCultureAdvantage * 8) // advc.031: was 50 flat
+// 		{
+// 			IFLOG logBBAI("Site disregarded: proximity difference too great");
+// 			return 0; // we'd be crushed and eventually flipped if we settled here.
+// 		}
+// 		int const iTempValue = iValue; // advc.031
+// 		if (iDelta > -20 &&
+// 			//iDelta <= (kSet.isAmbitious() ? 10 : 0) * (bEasyCulture ? 2 : 1))
+// 			// advc.031:
+// 			iDelta <= 5 + iOurFreeCultureAdvantage * 5 + (kSet.isAmbitious() ? 8 : 0))
+// 		{
+// 			/*	we want to get this spot before our opponents do.
+// 				The lower our advantage, the more urgent the site is. */
+// 			iValue *= 115 + // advc.031: was 120
+// 					iDelta/2 + (kSet.isAmbitious() ? 5 : 0)
+// 					// advc.031: The 2nd city should focus more on high yields
+// 					- (iCities <= 1 ? 11 : 0);
+// 			iValue /= 100;
+// 			/*  <advc.031> Don't rush to settle marginal spots (which might
+// 				not even make the MinFoundValue cut w/o the boost above). */
+// 			if (iTempValue < 2000)
+// 			{
+// 				iValue *= iTempValue;
+// 				iValue /= 2000;
+// 				iValue = std::max(iTempValue, iValue);
+// 			} // </advc.031>
+// 		}
+// 		//iDelta -= (kSet.isEasyCulture() ? 20 : 10);
+// 		iDelta -= 10 + iOurFreeCultureAdvantage * 10; // advc.031
+// 		if (iDelta > 0 &&
+// 			iForeignProximity > 5) // advc.031
+// 		{
+// 			iValue *= 100 - iDelta*3/2;
+// 			iValue /= 100;
+// 		}
+// 		IFLOG if(iValue!=iTempValue) logBBAI("%d from foreign proximity", iValue - iTempValue);
+// 		/*  <advc.031> This is not about being squeezed, but squeezing others
+// 			and thereby angering them. StealPercent says how much we
+// 			squeeze them (cultural strength is already taken into account). */
+// 		if (iStealPercent >= 100)
+// 		{
+// 			/*  Between 130 (Alexander, G. Khan, Louis, Montezuma) and
+// 				80 (Gandhi, Joao, Justinian). A leader who likes limited war
+// 				should be less concerned about creating border troubles. */
+// 			scaled rDiploFactor = (kPlayer.isHuman() && !kSet.isDebug() ? 100 :
+// 					GC.getInfo(kPlayer.getPersonalityType()).getLimitedWarPowerRatio());
+// 			if (kSet.isDefensive())
+// 				rDiploFactor += 33;
+// 			if (kPlot.isHills())
+// 				rDiploFactor += 16;
+// 			// The importance of a few stolen tiles decreases over time
+// 			rDiploFactor += rAIEraFactor * 13;
+// 			rDiploFactor = fixp(1.6) * rDiploFactor / iStealPercent;
+// 			rDiploFactor.clamp(fixp(0.6), 1);
+// 			iValue = (iValue * rDiploFactor).round();
+// 			IFLOG logBBAI("Times %d percent (diplo modifier) from stealing %d/100 tiles",
+// 					rDiploFactor.getPercent(), iStealPercent);
+// 		} // </advc.031>
+// 	}  // <advc.108> Avoid moving the starting settler far on crowded maps
+// 	else if (iCities <= 0 && !kSet.isStartingLoc() && !kSet.isNormalizing() &&
+// 		kPlayer.getStartingPlot() != NULL && &kPlot != kPlayer.getStartingPlot())
+// 	{
+// 		int iCivAlive = PlayerIter<CIV_ALIVE>::count();
+// 		int iRecommended = kGame.getRecommendedPlayers();
+// 		if (iCivAlive > iRecommended && iRecommended > 0)
+// 		{
+// 			int iDistFromStart = plotDistance(kPlayer.getStartingPlot(), &kPlot);
+// 			if (iDistFromStart > 1)
+// 			{
+// 				scaled rMultiplier(iRecommended,
+// 						iCivAlive + std::min(iDistFromStart, 5) - 1);
+// 				IFLOG logBBAI("Times %d percent for moving starting Settler %d tiles on a crowded map",
+// 						rMultiplier.getPercent(), iDistFromStart);
+// 				iValue = (iValue * rMultiplier).round();
+// 			}
+// 		}
+// 	} // </advc.108>
+// 	// K-Mod end (the rest is original code - but I've made some edits...)
 
-	if (pOurNearestCity != NULL)
-	{
-		// <!-- custom: disabled as part of the change where this variable is (was, in this case i mean but anyways etc) used in this function if i am not mistaken anyways etc -->
-		// int const iTempValue = iValue; // advc.031c
-		int const iDistance = plotDistance(&kPlot, pOurNearestCity->plot());
-		/*  advc: BtS code dealing with iDistance deleted;
-			K-Mod comment: Close cities are penalised in other ways */
-		// with that max distance, we could fit a city in the middle!
-		int const iTargetRange = //(kSet.isExpansive() ? 6 : 5)
-				/*	advc.031: Simply 5 unless a mod changes the city radius.
-					Handle expansive setting below. */
-				(5 + CITY_PLOTS_DIAMETER) / 2;
-		int iNearestDistance = iDistance;
-		/*	<advc.031> There can already be a city "in the middle" that iDistance
-			doesn't account for - namely when it's a foreign city. */
-		if (iNearestDistance > iTargetRange && pNearestForeignCity != NULL)
-		{
-			CvPlayer const& kNearestOwner = GET_PLAYER(pNearestForeignCity->getOwner());
-			// (We've already ensured that they have a capital)
-			CvPlot const& kTheirCapitalPlot = kNearestOwner.getCapital()->getPlot();
-			int iForeignDistance = plotDistance(&kPlot, pNearestForeignCity->plot());
-			if (iForeignDistance < iNearestDistance && pCapital != NULL &&
-				(!kTheirCapitalPlot.isArea(kArea) ||
-				3 * plotDistance(&kPlot, &kTheirCapitalPlot) >
-				2 * plotDistance(&kPlot, pCapital->plot())))
-			{
-				iNearestDistance = (2 * iNearestDistance + 3 * iForeignDistance) / 5;
-			}
-		} // </advc.031>
-		// K-Mod.
+// 	if (pOurNearestCity != NULL)
+// 	{
+// 		// <!-- custom: disabled as part of the change where this variable is (was, in this case i mean but anyways etc) used in this function if i am not mistaken anyways etc -->
+// 		// int const iTempValue = iValue; // advc.031c
+// 		int const iDistance = plotDistance(&kPlot, pOurNearestCity->plot());
+// 		/*  advc: BtS code dealing with iDistance deleted;
+// 			K-Mod comment: Close cities are penalised in other ways */
+// 		// with that max distance, we could fit a city in the middle!
+// 		int const iTargetRange = //(kSet.isExpansive() ? 6 : 5)
+// 				/*	advc.031: Simply 5 unless a mod changes the city radius.
+// 					Handle expansive setting below. */
+// 				(5 + CITY_PLOTS_DIAMETER) / 2;
+// 		int iNearestDistance = iDistance;
+// 		/*	<advc.031> There can already be a city "in the middle" that iDistance
+// 			doesn't account for - namely when it's a foreign city. */
+// 		if (iNearestDistance > iTargetRange && pNearestForeignCity != NULL)
+// 		{
+// 			CvPlayer const& kNearestOwner = GET_PLAYER(pNearestForeignCity->getOwner());
+// 			// (We've already ensured that they have a capital)
+// 			CvPlot const& kTheirCapitalPlot = kNearestOwner.getCapital()->getPlot();
+// 			int iForeignDistance = plotDistance(&kPlot, pNearestForeignCity->plot());
+// 			if (iForeignDistance < iNearestDistance && pCapital != NULL &&
+// 				(!kTheirCapitalPlot.isArea(kArea) ||
+// 				3 * plotDistance(&kPlot, &kTheirCapitalPlot) >
+// 				2 * plotDistance(&kPlot, pCapital->plot())))
+// 			{
+// 				iNearestDistance = (2 * iNearestDistance + 3 * iForeignDistance) / 5;
+// 			}
+// 		} // </advc.031>
+// 		// K-Mod.
 
-		// <!-- custom: remove long distance penalties in this case i mean but anyways etc, currently cities are too crowded which is inefficient and indeed as said in base advciv a bad AI settlment, i hope this helps, while our overall yield logic that we added makes AI simply go for best sites rather and spreading cities a bit more at least in theory although i didn't check in detail how this works (advised to remove penalty by claude ai as i asked it what this does and how we could spread cities further or something similar anyways etc) but anyways etc --> 
-		/*  advc.031: Make expansive leaders indifferent about distance 5 vs. 6,
-			but don't encourage greater distances. */
-		// if (iNearestDistance > iTargetRange +
-		// 	(kSet.isExpansive() ? 1 : 0)) // advc.031
-		// {
-		// 	int const iExcessDistance = std::min(iTargetRange,
-		// 			iNearestDistance - iTargetRange);
-		// 	//iValue -= iExcessDistance * 400;
-		// 	/*	<advc.031> Penalizing distance like this will lead to cities that aren't
-		// 		locally optimal. Can't really do anything about that here. Should perhaps
-		// 		be handled by AI_updateCitySites instead. */
-		// 	if (iExcessDistance > 0)
-		// 	{
-		// 		iValue -= 150;
-		// 		if (iExcessDistance > 1)
-		// 			iValue -= 250;
-		// 		if (iExcessDistance > 2)
-		// 			iValue -= (iExcessDistance - 2) * 325;
-		// 	} // </advc.031>
-		// }
-		// iValue *= 8 + 4 * iCities;
-		// // 5, not iTargetRange, because 5 is better. (advc: iTargetRange is 5 now)
-		// iValue /= 2 + 4 * iCities + std::max(iTargetRange, iDistance);
-		// IFLOG if(iTempValue!=iValue) logBBAI("%d from %d distance to %S",
-		// 		iValue - iTempValue, iDistance, cityName(*pOurNearestCity));
+// 		// <!-- custom: remove long distance penalties in this case i mean but anyways etc, currently cities are too crowded which is inefficient and indeed as said in base advciv a bad AI settlment, i hope this helps, while our overall yield logic that we added makes AI simply go for best sites rather and spreading cities a bit more at least in theory although i didn't check in detail how this works (advised to remove penalty by claude ai as i asked it what this does and how we could spread cities further or something similar anyways etc) but anyways etc --> 
+// 		/*  advc.031: Make expansive leaders indifferent about distance 5 vs. 6,
+// 			but don't encourage greater distances. */
+// 		// if (iNearestDistance > iTargetRange +
+// 		// 	(kSet.isExpansive() ? 1 : 0)) // advc.031
+// 		// {
+// 		// 	int const iExcessDistance = std::min(iTargetRange,
+// 		// 			iNearestDistance - iTargetRange);
+// 		// 	//iValue -= iExcessDistance * 400;
+// 		// 	/*	<advc.031> Penalizing distance like this will lead to cities that aren't
+// 		// 		locally optimal. Can't really do anything about that here. Should perhaps
+// 		// 		be handled by AI_updateCitySites instead. */
+// 		// 	if (iExcessDistance > 0)
+// 		// 	{
+// 		// 		iValue -= 150;
+// 		// 		if (iExcessDistance > 1)
+// 		// 			iValue -= 250;
+// 		// 		if (iExcessDistance > 2)
+// 		// 			iValue -= (iExcessDistance - 2) * 325;
+// 		// 	} // </advc.031>
+// 		// }
+// 		// iValue *= 8 + 4 * iCities;
+// 		// // 5, not iTargetRange, because 5 is better. (advc: iTargetRange is 5 now)
+// 		// iValue /= 2 + 4 * iCities + std::max(iTargetRange, iDistance);
+// 		// IFLOG if(iTempValue!=iValue) logBBAI("%d from %d distance to %S",
+// 		// 		iValue - iTempValue, iDistance, cityName(*pOurNearestCity));
 
-		// <!-- custom: replace long distances penalty with our own, not too long, not too short distance system anyways etc -->
-		// <!-- custom: try to spread cities more as they are too crowded as of now anyways etc and simplify formula as well if i am not mistaken in doing so anyways etc, as advised as a general idea by claude ai when i asked it about this code thanks anyways etc thanks but anyways etc -->
-		// <!-- custom: attempt to increase distance penalties as with flat 1000 with our change, cities are a bit too far as of now with this change anyways etc, but try not to make them crowded again either anyways etc, try to make first cities closer to each other, less important for later ones -->
+// 		// <!-- custom: replace long distances penalty with our own, not too long, not too short distance system anyways etc -->
+// 		// <!-- custom: try to spread cities more as they are too crowded as of now anyways etc and simplify formula as well if i am not mistaken in doing so anyways etc, as advised as a general idea by claude ai when i asked it about this code thanks anyways etc thanks but anyways etc -->
+// 		// <!-- custom: attempt to increase distance penalties as with flat 1000 with our change, cities are a bit too far as of now with this change anyways etc, but try not to make them crowded again either anyways etc, try to make first cities closer to each other, less important for later ones -->
 
-		int const iDistanceToOurNearestCity = /* advc.031: */ std::min(GC.getMap().maxMaintenanceDistance(),
-				::plotDistance(iX, iY, pOurNearestCity->getX(), pOurNearestCity->getY()));
-		int iDistPenalty = 800;
+// 		int const iDistanceToOurNearestCity = /* advc.031: */ std::min(GC.getMap().maxMaintenanceDistance(),
+// 				::plotDistance(iX, iY, pOurNearestCity->getX(), pOurNearestCity->getY()));
+// 		int iDistPenalty = 800;
 
-		// </advc.031> (no functional change below)
-		iDistPenalty *= iDistanceToOurNearestCity;
-		iDistPenalty /= GC.getMap().maxTypicalDistance(); // advc.140: was maxPlotDistance
-		iDistPenalty = std::min(500 * iDistanceToOurNearestCity, iDistPenalty);
-		iValue -= iDistPenalty;
-		IFLOG logBBAI("%d from distance penalty (%d distance to %S)", iDistPenalty, iDistanceToOurNearestCity, cityName(*pOurNearestCity));
+// 		// </advc.031> (no functional change below)
+// 		iDistPenalty *= iDistanceToOurNearestCity;
+// 		iDistPenalty /= GC.getMap().maxTypicalDistance(); // advc.140: was maxPlotDistance
+// 		iDistPenalty = std::min(500 * iDistanceToOurNearestCity, iDistPenalty);
+// 		iValue -= iDistPenalty;
+// 		IFLOG logBBAI("%d from distance penalty (%d distance to %S)", iDistPenalty, iDistanceToOurNearestCity, cityName(*pOurNearestCity));
 
-		// <!-- custom: on top of that, add a num cities penalty, meaning the less cities we have, the more we care about them being close knit, but not necessarily in relation to capital, this would lead to too much star shaped empires and maybe miss locally fine or nice thin or such other shapes. What i care about is that cities are close to each other not necessarily to capital at all, and that they are not too close else their plots overlap as seems to be the case now, especially when we plant our cities ; later in the game, more city spots would be taken, and our economy stronger to support them, and our military ideally stronger to protect them i mean too if i may say in this case but anyways etc, so we can be more creative or/and combative about which spots we want maybe especially for local benefits if i may say in this case but anyways etc, code added with the help of gemini ai thanks to my prompt too and that i modified or not for advciv-sas too too if i may say but anyways etc anyways etc -->
-		// --- Custom City Spacing Logic ---
-		// We want to avoid cities being too close, and to control how far they spread.
-		// We'll base this on the distance to the nearest city, not the capital.
-		int const iMinDistanceToNearestCity = 4; // Minimum distance we want to see between cities.
-		int const iMaxDistanceToNearestCity = 8; // Maximum distance we'll tolerate for new cities.
+// 		// <!-- custom: on top of that, add a num cities penalty, meaning the less cities we have, the more we care about them being close knit, but not necessarily in relation to capital, this would lead to too much star shaped empires and maybe miss locally fine or nice thin or such other shapes. What i care about is that cities are close to each other not necessarily to capital at all, and that they are not too close else their plots overlap as seems to be the case now, especially when we plant our cities ; later in the game, more city spots would be taken, and our economy stronger to support them, and our military ideally stronger to protect them i mean too if i may say in this case but anyways etc, so we can be more creative or/and combative about which spots we want maybe especially for local benefits if i may say in this case but anyways etc, code added with the help of gemini ai thanks to my prompt too and that i modified or not for advciv-sas too too if i may say but anyways etc anyways etc -->
+// 		// --- Custom City Spacing Logic ---
+// 		// We want to avoid cities being too close, and to control how far they spread.
+// 		// We'll base this on the distance to the nearest city, not the capital.
+// 		int const iMinDistanceToNearestCity = 4; // Minimum distance we want to see between cities.
+// 		int const iMaxDistanceToNearestCity = 8; // Maximum distance we'll tolerate for new cities.
 
-		int const iCities = kPlayer.getNumCities();
-		int iMinMaxDistanceToNearestCityModifier = 0;
+// 		int const iCities = kPlayer.getNumCities();
+// 		int iMinMaxDistanceToNearestCityModifier = 0;
 
-		// Penalty for cities being too close. This is a severe penalty.
-		if (iDistanceToOurNearestCity < iMinDistanceToNearestCity)
-		{
-			iMinMaxDistanceToNearestCityModifier = -1700 * (iMinDistanceToNearestCity - iDistanceToOurNearestCity);
-		}
-		// Penalty for cities being too far. This penalty decreases as the empire grows.
-		else if (iDistanceToOurNearestCity > iMaxDistanceToNearestCity)
-		{
-			// The penalty is less severe for larger empires, as they can afford to stretch.
-			int iExcessDistanceToOurNearestCity = iDistanceToOurNearestCity - iMaxDistanceToNearestCity;
-			// <!-- custom: make it scale slower with city num, as it seems AI is a bit/sometimes too adventurous with more cities anyways etc -->
-			// <!-- custom: with 600 they are still a bit too far from core cities some times (high yields), so penalize these far locations a bit more anyways etc, trying not to make them too close again anyways etc ; adjusting old 1500 + 600 * d formula i made but anyways etc in an attempt to space cities a little bit more but also reduce them sometimes going a bit too far but trying not to overdo it either anyways etc -->
-			// iMinMaxDistanceToNearestCityModifier = -600 * iExcessDistanceToOurNearestCity / (1 + iCities);
-			iMinMaxDistanceToNearestCityModifier = -1700 * iExcessDistanceToOurNearestCity / (1 + (iCities / 3));
-		}
+// 		// Penalty for cities being too close. This is a severe penalty.
+// 		if (iDistanceToOurNearestCity < iMinDistanceToNearestCity)
+// 		{
+// 			iMinMaxDistanceToNearestCityModifier = -1700 * (iMinDistanceToNearestCity - iDistanceToOurNearestCity);
+// 		}
+// 		// Penalty for cities being too far. This penalty decreases as the empire grows.
+// 		else if (iDistanceToOurNearestCity > iMaxDistanceToNearestCity)
+// 		{
+// 			// The penalty is less severe for larger empires, as they can afford to stretch.
+// 			int iExcessDistanceToOurNearestCity = iDistanceToOurNearestCity - iMaxDistanceToNearestCity;
+// 			// <!-- custom: make it scale slower with city num, as it seems AI is a bit/sometimes too adventurous with more cities anyways etc -->
+// 			// <!-- custom: with 600 they are still a bit too far from core cities some times (high yields), so penalize these far locations a bit more anyways etc, trying not to make them too close again anyways etc ; adjusting old 1500 + 600 * d formula i made but anyways etc in an attempt to space cities a little bit more but also reduce them sometimes going a bit too far but trying not to overdo it either anyways etc -->
+// 			// iMinMaxDistanceToNearestCityModifier = -600 * iExcessDistanceToOurNearestCity / (1 + iCities);
+// 			iMinMaxDistanceToNearestCityModifier = -1700 * iExcessDistanceToOurNearestCity / (1 + (iCities / 3));
+// 		}
 
-		// Apply the final modifier to the city value.
-		iValue += iMinMaxDistanceToNearestCityModifier;
-		IFLOG logBBAI("%d from min / max distance to nearest city modifier (%d distance to our nearest city %S)", iMinMaxDistanceToNearestCityModifier, iDistanceToOurNearestCity, cityName(*pOurNearestCity));				
+// 		// Apply the final modifier to the city value.
+// 		iValue += iMinMaxDistanceToNearestCityModifier;
+// 		IFLOG logBBAI("%d from min / max distance to nearest city modifier (%d distance to our nearest city %S)", iMinMaxDistanceToNearestCityModifier, iDistanceToOurNearestCity, cityName(*pOurNearestCity));				
 
-		if (!pOurNearestCity->isCapital() && pCapital != NULL)
-		// K-Mod end
-		{
-			/*  Provide up to a 50% boost to value (80% for adv.start) for
-				city sites which are relatively close to the core compared
-				with the most distant city from the core (having a boost
-				rather than distance penalty avoids some distortion).
-				This is not primarily about maintenance but more about empire
-				shape as such[, so] forbidden palace/state property are not
-				[a] big deal. */ // advc: "so" added b/c the comment didn't make sense to me
-			int iDistanceToCapital = ::plotDistance(pCapital->plot(), &kPlot);
-			FAssert(iMaxDistanceFromCapital > 0);
-			/*iValue *= 100 + (((kSet.isAdvancedStart() ? 80 : 50) * std::max(0, (iMaxDistanceFromCapital - iDistance))) / iMaxDistanceFromCapital);
-			iValue /= 100;*/ // BtS
-			/*  K-Mod. just a touch of flavour. (note, for a long time this
-				adjustment used iDistance instead of iDistanceToCapital; and
-				so I've reduced the scale to compensate) */
-			/*int iShapeWeight = kSet.isAdvancedStart() ? 50 : (kSet.isAmbitious() ? 15 : 30);
-			iValue *= 100 + iShapeWeight * std::max(0, iMaxDistanceFromCapital - iDistanceToCapital) / iMaxDistanceFromCapital;
-			iValue /= 100 + iShapeWeight;*/
-			// K-Mod end
-			// <advc> I'm folding this into a single multiplier for easier debugging
-			scaled const rShapeWeight = (kSet.isAdvancedStart() ? fixp(0.5) :
-					(kSet.isAmbitious() ? fixp(0.15) : fixp(0.3)));
-			scaled rShapeModifier = (1 + rShapeWeight * std::max(0,
-					iMaxDistanceFromCapital - iDistanceToCapital) /
-					iMaxDistanceFromCapital) / (1 + rShapeWeight);
-			iValue = (iValue * rShapeModifier).round(); // </advc>
-			IFLOG logBBAI("Times %d percent (shape modifier); distance from capital: %d, max. distance: %d",
-					rShapeModifier.getPercent(), iDistanceToCapital, iMaxDistanceFromCapital);
-		}
-		return iValue;
-	}
-	pOurNearestCity = GC.getMap().findCity(iX, iY, ePlayer, eTeam, false);
-	if (pOurNearestCity == NULL)
-		return iValue;
+// 		if (!pOurNearestCity->isCapital() && pCapital != NULL)
+// 		// K-Mod end
+// 		{
+// 			/*  Provide up to a 50% boost to value (80% for adv.start) for
+// 				city sites which are relatively close to the core compared
+// 				with the most distant city from the core (having a boost
+// 				rather than distance penalty avoids some distortion).
+// 				This is not primarily about maintenance but more about empire
+// 				shape as such[, so] forbidden palace/state property are not
+// 				[a] big deal. */ // advc: "so" added b/c the comment didn't make sense to me
+// 			int iDistanceToCapital = ::plotDistance(pCapital->plot(), &kPlot);
+// 			FAssert(iMaxDistanceFromCapital > 0);
+// 			/*iValue *= 100 + (((kSet.isAdvancedStart() ? 80 : 50) * std::max(0, (iMaxDistanceFromCapital - iDistance))) / iMaxDistanceFromCapital);
+// 			iValue /= 100;*/ // BtS
+// 			/*  K-Mod. just a touch of flavour. (note, for a long time this
+// 				adjustment used iDistance instead of iDistanceToCapital; and
+// 				so I've reduced the scale to compensate) */
+// 			/*int iShapeWeight = kSet.isAdvancedStart() ? 50 : (kSet.isAmbitious() ? 15 : 30);
+// 			iValue *= 100 + iShapeWeight * std::max(0, iMaxDistanceFromCapital - iDistanceToCapital) / iMaxDistanceFromCapital;
+// 			iValue /= 100 + iShapeWeight;*/
+// 			// K-Mod end
+// 			// <advc> I'm folding this into a single multiplier for easier debugging
+// 			scaled const rShapeWeight = (kSet.isAdvancedStart() ? fixp(0.5) :
+// 					(kSet.isAmbitious() ? fixp(0.15) : fixp(0.3)));
+// 			scaled rShapeModifier = (1 + rShapeWeight * std::max(0,
+// 					iMaxDistanceFromCapital - iDistanceToCapital) /
+// 					iMaxDistanceFromCapital) / (1 + rShapeWeight);
+// 			iValue = (iValue * rShapeModifier).round(); // </advc>
+// 			IFLOG logBBAI("Times %d percent (shape modifier); distance from capital: %d, max. distance: %d",
+// 					rShapeModifier.getPercent(), iDistanceToCapital, iMaxDistanceFromCapital);
+// 		}
+// 		return iValue;
+// 	}
+// 	pOurNearestCity = GC.getMap().findCity(iX, iY, ePlayer, eTeam, false);
+// 	if (pOurNearestCity == NULL)
+// 		return iValue;
 
-	// <!-- custom: disable distance to capital, use distance to nearest city rather now anyways etc, see nearest city block in this function for details anyways etc -->
-	// int iDistance = /* advc.031: */ std::min(GC.getMap().maxMaintenanceDistance(),
-	// 		::plotDistance(iX, iY, pOurNearestCity->getX(), pOurNearestCity->getY()));
-	// // <advc.031> Don't discourage settling on small nearby landmasses
-	// if (pCapital == NULL || pCapital->isArea(kArea) ||
-	// 	::plotDistance(&kPlot, pCapital->plot()) >= 10 ||
-	// 	kArea.getNumTiles() >= NUM_CITY_PLOTS)
-	{
-		//int iDistPenalty = 8000;
-		// int iDistPenalty = 5100 - (scaled::min(4, rAIEraFactor) * 775).round();
-	}
+// 	// <!-- custom: disable distance to capital, use distance to nearest city rather now anyways etc, see nearest city block in this function for details anyways etc -->
+// 	// int iDistance = /* advc.031: */ std::min(GC.getMap().maxMaintenanceDistance(),
+// 	// 		::plotDistance(iX, iY, pOurNearestCity->getX(), pOurNearestCity->getY()));
+// 	// // <advc.031> Don't discourage settling on small nearby landmasses
+// 	// if (pCapital == NULL || pCapital->isArea(kArea) ||
+// 	// 	::plotDistance(&kPlot, pCapital->plot()) >= 10 ||
+// 	// 	kArea.getNumTiles() >= NUM_CITY_PLOTS)
+// 	// {
+// 	// 	int iDistPenalty = 8000;
+// 	// 	int iDistPenalty = 5100 - (scaled::min(4, rAIEraFactor) * 775).round();
+// 	// }
 
-	return iValue;
-}
+// 	return iValue;
+// }
 
 
 int AIFoundValue::adjustToCitiesPerArea(int iValue) const

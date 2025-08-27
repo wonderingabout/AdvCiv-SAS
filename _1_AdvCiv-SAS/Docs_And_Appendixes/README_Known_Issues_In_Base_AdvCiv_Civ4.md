@@ -70,6 +70,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [51 - (Worked around / fixed) Massive seemingly base advciv +/- civ4 issue if i'm not mistaken of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc)  
 [52 - (Beyond Tremendously improved anyways etc) Remove AI scrapping of military land units, as way too many units are scrapped early, yet we really need them to defend against barbarians or our rivals or such anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#52---beyond-tremendously-improved-anyways-etc-remove-ai-scrapping-of-military-land-units-as-way-too-many-units-are-scrapped-early-yet-we-really-need-them-to-defend-against-barbarians-or-our-rivals-or-such-anyways-etc)  
 [53 - (Beyond Tremendously Improved) Naval dementia of producing privateers/galleons then seemingly scrapping them and repeat, or/and of more importantly building galleons and privateers in droves and excess if i may say but anyways etc, despite enemy threatening cities of land capture for 20+ turns, and losing capital as a result anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#53---beyond-tremendously-improved-naval-dementia-of-producing-privateersgalleons-then-seemingly-scrapping-them-and-repeat-orand-of-more-importantly-building-galleons-and-privateers-in-droves-and-excess-if-i-may-say-but-anyways-etc-despite-enemy-threatening-cities-of-land-capture-for-20-turns-and-losing-capital-as-a-result-anyways-etc-fixedaddressed-by-now-managing-production-of-each-unitai-with-max-by-type-in-cvcityaiai_chooseunit-as-well-as-disallowing-scrapping-and-managing-it-by-unitai-type-globally-as-well-in-cvunitcanscrap-by-type-as-well-with-max-and-such-other-conditions-for-some-units-like-as-of-now-workers-anyways-etc)  
+[54 - (Fixed) Major Base Advciv +/- civ4 in AIFoundValue::adjustToCivSurroundings causing AI settlers to value midgame (turn 50+ for example here anways etc) settling on camel desert; worked around and disabled this function entirely, now inline a very simplified version of it inline in its only caller](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#54---fixed-major-base-advciv---civ4-in-aifoundvalueadjusttocivsurroundings-causing-ai-settlers-to-value-midgame-turn-50-for-example-here-anways-etc-settling-on-camel-desert-worked-around-and-disabled-this-function-entirely-now-inline-a-very-simplified-version-of-it-inline-in-its-only-caller)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -2041,3 +2042,29 @@ else:
 pushOrder(ORDER_TRAIN, eUnit, eUnitAI)
 return true
 ```
+
+## 54 - (Fixed) Major Base Advciv +/- civ4 in AIFoundValue::adjustToCivSurroundings causing AI settlers to value midgame (turn 50+ for example here anways etc) settling on camel desert; worked around and disabled this function entirely, now inline a very simplified version of it inline in its only caller
+
+See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1gYU7NrXpJNc5p6hbqOsCxnOmCy_7VTDf?usp=sharing)
+
+As can be seen in existing screenshots between 3073 and 3089, AI would settle an extremely bad spot on a camel desert tile which is bad on itself already but which is on top of it fully surrounded by desert, the absolutely worst site. But in the early game AI would not consider this site as among its best (no colored circle at that plot for any player so i assume it means this anyways etc), only later on, at turn 51 (not at turn 50)
+
+I have tried to find why, and comment like a madman xd if i may say and told chatgpt 5 too, blindly, until i found the issue, specifically caused by enabling this line:
+
+```cpp
+	// <!-- custom: through trial and error, while trying to find why we settle on camel desert in middle game (turns 50+, whiel having saner choices earlier in map view ingame (circled tiles), i have found that commenting the block below causes the issue to be solved, AI has sane sites as always and now settles around or near this but no AI player considers settling on camel desert or near it anymore, so i assume something is majorly faulty in it or/and didn't accomodate/account for food desert bonuses or such. Since i don't like interferences if i may say but anyways etc, commented out for now until i dig further, see known issue as of now 54 for details but anyways etc -->
+	// <!-- custom: culprit code to investigate begin -->	
+	// todo check replace if camel settle on again
+	// if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
+	// 	iValue = adjustToCivSurroundings(iValue, iStealPercent);
+```
+
+Yet again another shitty base advciv +/- civ4 code.
+
+It's such a huge mess i said screw this, let's rewrite it much simpler, so this `AIFoundValue::adjustToCivSurroundings` function is now disabled, which fixes our issue, and i have enabled distance penalty code and culture press checks in a much simpler manner with the help of chatgpt 5 if i may say thanks a lot, inline in the only caller of this function (`AIFoundValue::evaluate` if i'm not mistaken anyways etc).
+
+Testing ingame is extremely good, as can be seen in existing screenshots between 3131 and 3141. We now do not settle on the camel, and in fact not at all in this desertic area but around it, plus we don't settle too close to our rivals either at a glance it seems, so i would say this is an extremely good result, and yet again another example of shitty base advciv +/- civ4 (whoever wrote this code xd despite the other good things they may have done).
+
+Thanks to this, i believe AI is stronger and settles better, but check if accurate anyways etc.
+
+Note: i also adjusted distance to civs, as well as culture pressure settling choices, to reject too far (vs penalizing far distance only which would not strictly forbid site if not penalized hard enough if i'm not mistaken) or too culturally pressing sites entirely (didn't test but maybe same at least now we reject too culturally pressing sites at least in theory (didn't test it too much but seems to work as such at a quick glance)) anyways etc.
