@@ -71,6 +71,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [52 - (Beyond Tremendously improved anyways etc) Remove AI scrapping of military land units, as way too many units are scrapped early, yet we really need them to defend against barbarians or our rivals or such anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#52---beyond-tremendously-improved-anyways-etc-remove-ai-scrapping-of-military-land-units-as-way-too-many-units-are-scrapped-early-yet-we-really-need-them-to-defend-against-barbarians-or-our-rivals-or-such-anyways-etc)  
 [53 - (Beyond Tremendously Improved) Naval dementia of producing privateers/galleons then seemingly scrapping them and repeat, or/and of more importantly building galleons and privateers in droves and excess if i may say but anyways etc, despite enemy threatening cities of land capture for 20+ turns, and losing capital as a result anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#53---beyond-tremendously-improved-naval-dementia-of-producing-privateersgalleons-then-seemingly-scrapping-them-and-repeat-orand-of-more-importantly-building-galleons-and-privateers-in-droves-and-excess-if-i-may-say-but-anyways-etc-despite-enemy-threatening-cities-of-land-capture-for-20-turns-and-losing-capital-as-a-result-anyways-etc-fixedaddressed-by-now-managing-production-of-each-unitai-with-max-by-type-in-cvcityaiai_chooseunit-as-well-as-disallowing-scrapping-and-managing-it-by-unitai-type-globally-as-well-in-cvunitcanscrap-by-type-as-well-with-max-and-such-other-conditions-for-some-units-like-as-of-now-workers-anyways-etc)  
 [54 - (Fixed) Major Base Advciv +/- civ4 in AIFoundValue::adjustToCivSurroundings causing AI settlers to value midgame (turn 50+ for example here anways etc) settling on camel desert; worked around and disabled this function entirely, now inline a very simplified version of it inline in its only caller](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#54---fixed-major-base-advciv---civ4-in-aifoundvalueadjusttocivsurroundings-causing-ai-settlers-to-value-midgame-turn-50-for-example-here-anways-etc-settling-on-camel-desert-worked-around-and-disabled-this-function-entirely-now-inline-a-very-simplified-version-of-it-inline-in-its-only-caller)  
+[55 - (To keep in mind if you have a game crash in AdvCiv-SAS) One of the culprits could be AI_bestCityBuild (after we rewrote it entirely more or less anyways etc) sometimes firing not null or whatever (there are lines to uncomment in its callers that may fix it)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#55---to-keep-in-mind-if-you-have-a-game-crash-in-advciv-sas-one-of-the-culprits-could-be-ai_bestcitybuild-after-we-rewrote-it-entirely-more-or-less-anyways-etc-sometimes-firing-not-null-or-whatever-there-are-lines-to-uncomment-in-its-callers-that-may-fix-it)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -2049,12 +2050,9 @@ See screenshots and files about/related(ing? Anyways etc) to this issue in this 
 
 As can be seen in existing screenshots between 3073 and 3089, AI would settle an extremely bad spot on a camel desert tile which is bad on itself already but which is on top of it fully surrounded by desert, the absolutely worst site. But in the early game AI would not consider this site as among its best (no colored circle at that plot for any player so i assume it means this anyways etc), only later on, at turn 51 (not at turn 50)
 
-I have tried to find why, and comment like a madman xd if i may say and told chatgpt 5 too, blindly, until i found the issue, specifically caused by enabling this line:
+I have tried to find why, and comment out like a madman xd if i may say and told chatgpt 5 too, blindly, until i found the issue, specifically caused by enabling these lines:
 
 ```cpp
-	// <!-- custom: through trial and error, while trying to find why we settle on camel desert in middle game (turns 50+, whiel having saner choices earlier in map view ingame (circled tiles), i have found that commenting the block below causes the issue to be solved, AI has sane sites as always and now settles around or near this but no AI player considers settling on camel desert or near it anymore, so i assume something is majorly faulty in it or/and didn't accomodate/account for food desert bonuses or such. Since i don't like interferences if i may say but anyways etc, commented out for now until i dig further, see known issue as of now 54 for details but anyways etc -->
-	// <!-- custom: culprit code to investigate begin -->	
-	// todo check replace if camel settle on again
 	// if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
 	// 	iValue = adjustToCivSurroundings(iValue, iStealPercent);
 ```
@@ -2068,3 +2066,42 @@ Testing ingame is extremely good, as can be seen in existing screenshots between
 Thanks to this, i believe AI is stronger and settles better, but check if accurate anyways etc.
 
 Note: i also adjusted distance to civs, as well as culture pressure settling choices, to reject too far (vs penalizing far distance only which would not strictly forbid site if not penalized hard enough if i'm not mistaken) or too culturally pressing sites entirely (didn't test but maybe same at least now we reject too culturally pressing sites at least in theory (didn't test it too much but seems to work as such at a quick glance)) anyways etc.
+
+## 55 - (To keep in mind if you have a game crash in AdvCiv-SAS) One of the culprits could be AI_bestCityBuild (after we rewrote it entirely more or less anyways etc) sometimes firing not null or whatever (there are lines to uncomment in its callers that may fix it)
+
+This is an issue specific to AdvCiv-SAS i think after we rewrote `CvUnitAI::AI_bestCityBuild`, but i think i should document it.
+
+If you have a game crash, consider first adding null or such checks to `CvUnitAI::AI_bestCityBuild` callers which are very few.
+
+In particular, as of now i fixed the crash at turn 77 in a save file by strengthening our null things we set up in `CvUnitAI::AI_bestCityBuild` (most likely we changed them after rewriting the candidate plot logic but i am not totally sure still it should be something related to this). The crashes didn't happen until i stopped relying in the fallback NO_BUILD returned by `pLoopCity->AI_getBestBuild(NO_CITYPLOT) == NO_BUILD` line in `CvUnitAI::AI_nextCityToImprove`. So after i strengthened these null or such checks (i don't know too much about these but it did fix the issue anyways etc) in `CvUnitAI::AI_bestCityBuild`, issue was now fixed, and i do not rely on it anymore and have no crash at turn 77, yay! If i may say anyways etc.
+
+Since all seemed to work well and no crash, i kept it as such. Until a few more autoplays later (i.e. of other save files anyways etc), when i now got a crash again if i may say but anyways etc at turn 68, that i could fix by uncommenting another safety i had added in `CvUnitAI::AI_nextCityToImprove` which is but anyways etc:
+
+```cpp
+		// <!-- custom: be careful, commenting out the null and no build check i added below causes the crash again at turn 77; update: very good results!! We now don't need this hacky failsafe that according to chatgpt 5 would cause workers to skip improving cities, cleanly fixed now no crash at turn 77 so we can disable it, but if you see a crash again, consider enabling it to see if helps even if issue may not be directly cause here but this could prevent it perhaps, seems fine though now but check to be sure anyways etc -->
+		// <!-- custom: update 2: although the crash at turn 77 was fixed, we get another crash (in another save file, at turn 68 now) fixed by uncommenting this, so until this is found kept as such i.e. uncommented anyways etc -->
+		if (pBestPlot == NULL || eBestBuild == NO_BUILD)
+			continue;
+```
+
+Kept as is until i find the cause, but if we can streghten our functio so we don't have to rely on this, i may remove it later.
+
+If i remove it (i.e. assuming we fix this specific crash and you encounter a crash), consider tinkering around `CvUnitAI::AI_bestCityBuild` and/or its callers, and see what happens and if it solves your issue, including but not only reenabling the safeties i mentionned or others you get the idea to, hopefully helpful or not or yes or etc anyways etc.
+
+Update: fixed!!! The culprit was not our now streghtened (and before that nicely rewritten but anyways etc) `CvUnitAI::AI_bestCityBuild` function but instead our reliance on old code of the `AI_betterPlotBuild` in `CvUnitAI::AI_nextCityToImprove` a bit after calling our rewritten function but anyways etc:
+
+```cpp
+		getGroup()->pushMission(eMission, /* </advc.121> */
+				pBestPlot->getX(), pBestPlot->getY(),
+				eMission == MISSION_ROUTE_TO ? MOVE_SAFE_TERRITORY : NO_MOVEMENT_FLAGS, // advc.pf
+				false, false, MISSIONAI_BUILD, pBestPlot);
+		// <!-- custom: don't rely on this anymore, we get nice and reliable builds from AI_bestCityBuild, but this line interferred with it and caused the crash at turn 68, at least commenting it out fixes it and we can remove our safety guard above. See code comments in this function or/and known issue as of now 55 for details anyways etc, tricky bug found by chatgpt 5 too thanks a lot thanks to my prompts too and or such anyways etc -->
+		//eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild);
+		//
+		getGroup()->pushMission(MISSION_BUILD,
+				eBestBuild, -1, NO_MOVEMENT_FLAGS,
+				//(getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pBestPlot);
+				true, false, MISSIONAI_BUILD, pBestPlot); // K-Mod
+```
+
+So as i said in as of now one of the code comments related to this fix, at this point i think it's better to crash and fix whatever flawed logic we have cleanly than avoiding it and having suboptimal, not necessarily visible issue(s? But anyways etc). If you have a crash again, consider adding or/and reenabling such checks in or near our rewritten AI_bestCityBuild callers which are very few as of now at least but anyways etc and see if it helps or tinker around this (or/and ask a chatbot or whatever ai you have xd helped lot for me at least but do as you prefer i mean xd hopefully helpful or not or yes or etc anyways etc).

@@ -19183,7 +19183,8 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 		// <!-- custom: chatgpt 5 hinted in its thoughts if i'm not mistaken that we don't check these asserts in a release build, i don't know too much about these but i use a release build, and adding these fixes it as well as checking it in other callers, so left as such anyways etc -->
 		if (pPlot == NULL || eBuild == NO_BUILD)
 			continue;
-		// <!-- custom: be careful, commenting out the null and no build check i added below causes the crash again at turn 77; update: very good results!! We now don't need this hacky failsafe that according to chatgpt 5 would cause workers to skip improving cities, cleanly fixed now no crash at turn 77 so we can disable it, but if you see a crash again, consider enabling it to see if helps even if issue may not eb directly cause here but this could prevent it perhaps, seems fine though now but check to be sure anyways etc -->
+		// <!-- custom: be careful, commenting out the null and no build check i added below causes the crash again at turn 77; update: very good results!! We now don't need this hacky failsafe that according to chatgpt 5 would cause workers to skip improving cities, cleanly fixed now no crash at turn 77 so we can disable it, but if you see a crash again, consider enabling it to see if helps even if issue may not be directly cause here but this could prevent it perhaps, seems fine though now but check to be sure anyways etc -->
+		// <!-- custom: update 2: although the crash at turn 77 was fixed, we get another crash (in another save file, at turn 68 now) fixed by uncommenting this, so until this is found kept as such i.e. uncommented anyways etc. Update 3: fixed by commenting out our old reliance on line `eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild);` below in this CvUnitAI::AI_nextCityToImprove function: since we return nice builds and all and also optimized ones that should also be reliable, no need to rely on the old AI_betterPlotBuild function that here caused an issue as well. Tricky bug found by chatgpt 5 thanks to my prompts and such too hehe, so disabling this below guard/safety again. At this point i think it's better to crash and fix whatever flawed logic we have cleanly than avoiding it and having suboptimal, not necessarily visible issue(s? But anyways etc). If you have a crash again, consider adding or/and reenabling such checks in or near our rewritten AI_bestCityBuild callers which are very few as of now at least but anyways etc and see if it helps or tinker around this (or/and ask a chatbot or whatever ai you have xd helped lot for me at least but do as you prefer i mean xd hopefully helpful or not or yes or etc anyways etc). See also known issue as of now 55 for extra info if needed and if any info is there anyways etc. -->
 		// if (pBestPlot == NULL || eBestBuild == NO_BUILD)
 		// 	continue;
 
@@ -19267,7 +19268,9 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 				pBestPlot->getX(), pBestPlot->getY(),
 				eMission == MISSION_ROUTE_TO ? MOVE_SAFE_TERRITORY : NO_MOVEMENT_FLAGS, // advc.pf
 				false, false, MISSIONAI_BUILD, pBestPlot);
-		eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild);
+		// <!-- custom: don't rely on this anymore, we get nice and reliable builds from AI_bestCityBuild, but this line interferred with it and caused the crash at turn 68, at least commenting it out fixes it and we can remove our safety guard above. See code comments in this function or/and known issue as of now 55 for details anyways etc, tricky bug found by chatgpt 5 too thanks a lot thanks to my prompts too and or such anyways etc -->
+		//eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild);
+		//
 		getGroup()->pushMission(MISSION_BUILD,
 				eBestBuild, -1, NO_MOVEMENT_FLAGS,
 				//(getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pBestPlot);
