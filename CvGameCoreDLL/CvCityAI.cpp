@@ -4531,6 +4531,19 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 		if (!bWonder)
 		{
+			// <!-- custom: 0) but anyways etc; always build the harbor (or whichever buildings give food) no matter what. I have noticed many cities being stagnant and low food, or even if growing they could greatly benefit from it. Including one tile or 2 tile island cities building a needless worker or such. I don't know if our logic prevents that, but at least in very simple terms, build the harbor or any building (not wonders as hammer costly but anyways etc, at least if we'd add them we'd handle them elsewhere but as of now not handled specifically meaning AI will not reject them with same rules as other wonders as of now if i'm not mistaken but anyways etc) with such an effect asap if city can, don't complicate logic with needless things otherwise. This may help island cities 1-2 tiles in particular quickly reach their potential and not astray in particular if i may say but not only the cities i mean in this case but anyways etc. Also ignore even war checks or conditions as AIs produce too much units as of now which is good but it is also good that this helps them mitigate it even if a bit and to not go abnkrupt too soon with unit excess but anyways etc -->
+			// --- Fast path: water-food buildings (Harbor in AdvCiv-SAS) always first ---
+			const bool bWaterFoodBuilding = (
+				(kBuilding.getSeaPlotYieldChange(YIELD_FOOD) > 0) ||
+				(kBuilding.getGlobalSeaPlotYieldChange(YIELD_FOOD) > 0)
+			);
+
+			if (bWaterFoodBuilding && iFoodDifference <= 1 && !isFoodProduction())
+			{
+				return AI_BUILDING_ALWAYS_PICK_FIRST;
+			}
+			// --- end fast path ---
+
 			// Is this building primarily defensive in cities (local or global) <!-- custom: e.g. walls, castle, chichen itza of the base civ4 for example too if i am not mistaken anyways etc ; also use a value threshold of 25 or such anyways etc to remove false positives, in case a building gives small defense modifier but is not actually a defense building (e.g. not directly related to this but similar but anyways etc: ikhanda gives maybe like 10-15% maintenance reduction but is a military building, and skipping it based on economic criteria may be bad, so using a similar logic here with a quite high base threshold to make sure we flag actually defensive buildings if i am not mistaken anyways etc) --> ?
 			const bool bDefenseBuilding = (
 				(kBuilding.getDefenseModifier() >= 25) ||
@@ -4856,6 +4869,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 			// <!-- custom: note: among remaining buildings, the effects get more often intertwinned if i may say in this case but anyways etc, so i mean but anyways etc execute this before last such buildings (but before the final unknown or/and uncovered buildings tail after it) so that we don't classify other buildings as cultural ones for example (e.g. as of now the spain civ-specific castle) if they happen to have culture in them as many buildings do but it would not be their main function and may interfere with our previous rules, so do these last and excluding previously covered ones just to be safe about this if i may say but anyways etc -->
 			const bool bPreviousBuildings = (
+				bWaterFoodBuilding ||
 				bDefenseBuilding ||
 				bCityMaintenanceBuilding ||
 				bFoodKeptBuilding ||

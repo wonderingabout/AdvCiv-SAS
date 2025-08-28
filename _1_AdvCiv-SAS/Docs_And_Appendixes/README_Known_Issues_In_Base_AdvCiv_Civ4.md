@@ -1220,7 +1220,7 @@ See screenshots and files about/related(ing? Anyways etc) to this issue in this 
 
 Another very weird weird weird! Xd if i may say but anyways etc... But this is definitely weird i mean.
 
-I compile the DLL while solving an issue or attempting to (related to a crash ingame at turn 156 with bestycitybuild function fixed by a guard i was trying to remove, but this is not the point i mean anyways etc, the point is read after brackets if i may say anyways etc to see it i mean but anyways) i got very weird XML errors at game launch as in screenshots. I thought maybe i had changed something or whatever, but it should have been exact same DLL as one of the versions of the code i had tried just a very little in this case i mean but anyways etc while before anyways etc.
+I compiled the DLL while solving an issue or attempting to (related to a crash ingame at turn 156 with bestycitybuild function fixed by a guard i was trying to remove, but this is not the point i mean anyways etc, the point is read after brackets if i may say anyways etc to see it i mean but anyways) but then i got very weird XML errors at game launch as in screenshots. I thought maybe i had changed something or whatever, but it should have been exact same DLL as one of the versions of the code i had tried just a very little in this case i mean but anyways etc while before anyways etc.
 
 So i exited VS 2010 C++ Express (what i use to compile but anyways etc), recompiled the DLL, and boom magically solved xd.
 
@@ -1228,7 +1228,7 @@ I believe this may have been one of these comsic ray issues or whatever, the err
 
 So continuing to fix my issues in this case i mean but anyways etc now that this recompile solved this very weird and behaviour i never had before but anyways etc.
 
-Note: i made sure as usual it's not a fast compile (i delete the temp_files always if not then almost always before recompiling as i don't trust fast compile issues due to issues (no pun but anyways etc) i had with it, unless for fast testing or such but anyways etc), but still issue happened, so if i didn't make a huge mistake or something very unexpected there most liekly seems to be something very wrong here if i'm not mistaken but anyways etc, but as long as i can compile whatever xd maybe if i may say but anyways etc.
+Note: i made sure as usual it's not a fast compile (i delete the temp_files always if not then almost always before recompiling as i don't trust fast compile issues due to issues (no pun but anyways etc) i had with it, unless for fast testing or such but anyways etc), but still issue happened, so if i didn't make a huge mistake or something very unexpected there most likely seems to be something very wrong here if i'm not mistaken but anyways etc, but as long as i can compile whatever xd maybe if i may say but anyways etc.
 
 ## 39 - (Seemingly fixed or/and enhanced) Make AI workers move sooner to City B or City C or such, and vice versa, if current city is already improved enough and don't need to be over improved, while other cities are not improved enough and would much rather need it
 
@@ -1550,6 +1550,7 @@ It only documents logic that exists in the code we just reviewed (no speculation
 |---|---:|---|
 | Enemy strong threshold | 120 | When ≥, prefer static defense / skip econ; kill WW. |
 | Enemy weak threshold | 80 | When ≤ and at war, allow barracks/stable pushes. |
+| Harbor trigger (food) | `iFoodDifference <= 1` | Permissive gate to force Harbor first unless city is in food-as-production mode. |
 | Pump gate (hpt) | 8 | Min hammers to justify early unit-pump buildings. |
 | Granary “rush” gate | happy≥4 & iEffectiveFood≥4 | Force-first for food-kept buildings. |
 | Health “rush” gate | iHealthLevel≤1 & happy≥2 & iEffectiveFood≥2 | Force-first for net health buildings. |
@@ -1564,6 +1565,7 @@ It only documents logic that exists in the code we just reviewed (no speculation
 
 | Category | Detection (code) | Gates / Actions | Thresholds & scaling | Rationale / Notes |
 |---|---|---|---|---|
+| **Water-food on sea (Harbor)** | `getSeaPlotYieldChange(YIELD_FOOD) > 0` \|\| `getGlobalSeaPlotYieldChange(YIELD_FOOD) > 0` | If `iFoodDifference <= 1` **and** `!isFoodProduction()` → **ALWAYS\_PICK\_FIRST**; otherwise fall through to normal logic | Uses raw surplus; no growth/war checks; only in `!bWonder` | Prevents stagnant/low-food coastal and island cities from stalling on low-value builds; settler/worker mode is exempt |
 | **Defensive (Walls/Castle/…​)** | `getDefenseModifier>=25` \|\| `getBombardDefenseModifier>=20` \|\| `RaiseDefense>=15` \|\| `getAllCityDefenseModifier>=10` | If **not at war** → **skip**. If **at war & enemy weak & !danger** → **skip**. If **enemy strong** → **ALWAYS_PICK_FIRST**. | Enemy strong ≥120%; enemy weak ≤80%. | Avoid static defense spam in peace; build urgently only when truly threatened. |
 | **Land‑unit pumps (Barracks‑like)** | Land XP ≥2 **or** land prod mod ≥20 | If `iBaseHammersPerTurn < 8` → no special push. If **at war & enemy strong/danger** → **skip**. If **war plan** **or** (**at war & enemy weak**) → **ALWAYS_PICK_FIRST**. | `iPumpGate=8` hpt. | Don’t delay units when weak; do invest when pressing or advantaged. |
 | **Stable** | BuildingClass == STABLE | Require **TECH_MOUNTED_COMBAT**. If no **Horse/Camel/Elephants** connected → **skip**. If **enemy strong** → **skip**. If **war plan** or **at war & enemy weak** → **ALWAYS_PICK_FIRST**. | — | Never build without mounts; prioritize when we’ll field mounted. |
@@ -1864,7 +1866,7 @@ As for after our changes, the difference is massive. Despite save file being alr
 
 So i am very happy and satisfied of these changes, now below the detail by chatgpt 5, check if accurate as always if i may say, but i hope these are very informative, we'll go over changes, as of now, in `CvUnit::canScrap()` and `CvCityAI::AI_chooseUnit`. Unlikely i'll update them so remember they are general info if not updated (i could but not guaranteed, i may or may not do so anyways etc). Also about below chatgpt 5 explanation that helps very nicely thanks a lot chatgpt 5 but anyways etc, i have formatted it a bit as well but otherwise didn't check much if at all, check if accurate anyways etc.
 
-Note: i went beyond fixing the issue at hand and added some nice extra sanity cheks liek icbm or worker max count per era and such as shown below, i hope AI is a lot more competitive, possibly silent issues like unknown scrapping or loops are solved by now, check for economic bankruptcy as i didn't guard against it assuming AI is rich enough or threatened enough to make it compensate its excess or/and handicap lowered enough so it can't overproduce so easily which is a win for us at least me xd if not some other players or not or etc but anyways etc.
+Note: i went beyond fixing the issue at hand and added some nice extra sanity cheks like icbm or worker max count per era and such as shown below, i hope AI is a lot more competitive, possibly silent issues like unknown scrapping or loops are solved by now, check for economic bankruptcy as i didn't guard against it assuming AI is rich enough or threatened enough to make it compensate its excess or/and handicap lowered enough so it can't overproduce so easily which is a win for us at least me xd if not some other players or not or etc but anyways etc.
 
 ### canScrap() — AI scrapping policy
 
