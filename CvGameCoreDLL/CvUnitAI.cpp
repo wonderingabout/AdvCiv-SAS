@@ -19185,6 +19185,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 			continue;
 		// <!-- custom: be careful, commenting out the null and no build check i added below causes the crash again at turn 77; update: very good results!! We now don't need this hacky failsafe that according to chatgpt 5 would cause workers to skip improving cities, cleanly fixed now no crash at turn 77 so we can disable it, but if you see a crash again, consider enabling it to see if helps even if issue may not be directly cause here but this could prevent it perhaps, seems fine though now but check to be sure anyways etc -->
 		// <!-- custom: update 2: although the crash at turn 77 was fixed, we get another crash (in another save file, at turn 68 now) fixed by uncommenting this, so until this is found kept as such i.e. uncommented anyways etc. Update 3: fixed by commenting out our old reliance on line `eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild);` below in this CvUnitAI::AI_nextCityToImprove function: since we return nice builds and all and also optimized ones that should also be reliable, no need to rely on the old AI_betterPlotBuild function that here caused an issue as well. Tricky bug found by chatgpt 5 thanks to my prompts and such too hehe, so disabling this below guard/safety again. At this point i think it's better to crash and fix whatever flawed logic we have cleanly than avoiding it and having suboptimal, not necessarily visible issue(s? But anyways etc). If you have a crash again, consider adding or/and reenabling such checks in or near our rewritten AI_bestCityBuild callers which are very few as of now at least but anyways etc and see if it helps or tinker around this (or/and ask a chatbot or whatever ai you have xd helped lot for me at least but do as you prefer i mean xd hopefully helpful or not or yes or etc anyways etc). See also known issue as of now 55 for extra info if needed and if any info is there anyways etc. -->
+		// <!-- custom: update 3: after fixing crash at turn 68 issue, we now have a crash at turn 156, which happens rarely depending on autoplay settings in same map. I suspect it's a rare type of crash, and our logic otherwise works fine. It is hard to pinpoint exactly what failed, but the below "guard" or rather hard reject actually from what i understand thanks to chatgpt 5's explanation too i mean and my prompts too xd but anyways etc, is that this avoided the crashes at turn 68 and now turn 156 after we fixed the old betterplotbuild wrong for us now but anyways etc (if i'm not mistaken in this case i mean but anyways etc) reliance, by simply hard rejecting any candidate to be chosen rather than actually cleanly guarding against an issue. Indeed, at city loop selection stage pBestPlot and eBestBuild are still null/NO_BUILD, it is only the current candidates pPlot and eBuild for the current cityai in loop that are assigned and that we should guard. So effectively, we would never choose anything here at all, therefore this guard is wrong and should be removed although it helped fix the rare turn 156 crash and others due to hard rejecting everything. A softer solution is ideally to find where the crash happens and fix it there, and not ruin 99%+ of the valid choices (actually probably 99.9%+ (or 99.99+%? Maybe but anyways etc...) but anyways etc xd if not more. If i can't find where or why, i'll have to reenable this, but ideally if i can fix it i'd rather not use this very extreme hard reject here. -->
 		// if (pBestPlot == NULL || eBestBuild == NO_BUILD)
 		// 	continue;
 
@@ -19207,15 +19208,25 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
     }
 	// <!-- custom: then back to old code if i am not mistaken anyways etc -->
 
-	if (pBestPlot == NULL)
-		return false;
-	FAssertEnumBounds(eBestBuild);
+	// <!-- custom: turn 156 rare crash proper guard now below, after commenting our this guard of bestplot from old code too anyways etc anyways etc, with the help of chatgpt 5, check if accurate anyways etc -->
+	// if (pBestPlot == NULL)
+	// 	return false;
+	// FAssertEnumBounds(eBestBuild);
 	// advc.113b: Now handled by AI_workerMove
 	/*if (getPlot().getWorkingCity() != NULL)
 		getPlot().getWorkingCity()->AI_changeWorkersHave(-1);
 	FAssert(pBestPlot->getWorkingCity() != NULL || GC.getInfo(eBestBuild).getImprovement() == NO_IMPROVEMENT);
 	if (NULL != pBestPlot->getWorkingCity())
 		pBestPlot->getWorkingCity()->AI_changeWorkersHave(+1);*/
+
+	// <!-- custom: doing a more exhaustive best plot check again to be sure, doesn't solve rare crash at turn 156 but still a bit more robust anyways etc -->
+	if (pBestPlot == NULL || eBestBuild == NO_BUILD)
+		return false;
+	// <!-- custom: i want to see if just the first new guard is enough and not the second new guard, if you have an error consider enabling the 2nd guard anyways etc -->
+	// re-validate in case something changed just now
+	// if (!canBuild(*pBestPlot, eBestBuild))
+	// 	return false;
+	FAssertEnumBounds(eBestBuild);
 
 	// <!-- custom: this is one of the only 2 functions where our entirely rewritten and greatly worker efficiency optimized but anyways etc AI_bestCityBuild function is ever called. Our current goal is to chain roads only on bonuses after they are improved. This is to gain the effects such health from connecting wheat or rice, happiness from connecting gold or silver as well for example anyways etc, which may unlock our cap of unhappiness or/and health or such other benefits if any sooner if i'm not mistaken but anyways etc. But we don't handle roading in our rewritten function, despite now only us handling the improvement of bonuses. So the existing functions we rely on often call/do too late the connecting bonus (if needed e.g. not on rivers connected to city maybe or such if bonus is already improved and on a river maybe (check if accurate and if i'm not mistaken but anyways etc)) logic. So what we'd want without rewriting everything, since they handle roads fine, just roading bonuses too late, is to add just right after our rewritten function is called, roading logic so that bonus is roaded right after improve anyways etc. Luckily or fortunately if i may say but anyways etc, it seems in our entire code our rewritten function is as of now called only twice, so we'll patch both logics and see if it helps solve the issue of city being stagnant unhealthy or/and unhappy despite having bonuses improved as we do now in our rewritten function, but not connected so we don't have their effects as we want. This is one of these places, done as recommended by chatgpt 5 and as i suggested a bit too hehe if i may say and helped provide it code samples too of my own idea i mean but it helped lot, but check if accurate mine or/and its reasoning as well if i may say but anyways etc, hopefully helpful but anyways etc; i also formatted a bit its comments and added them in code coments or/and such if i may say but anyways etc. Also see known issue as of now 31 update 2 for details if any or/and related info anyways etc. -->
 	// Patch 2 — AI_nextCityToImprove
@@ -19254,12 +19265,17 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 	}
 	// <!-- custom: then code resumes below anyways etc-->
 	// <!-- custom: note: the else i added here is redundant i think since we return true but just for clarity and in case code changes somehow someday or such but anyways etc -->
+	// <!-- custom: update 4 or whichever number it is now anyways etc: below else code block caused a crash at turn 156 in a rare save file (i.e. from turn 100 going to the next 100 turns we 100% trigger the crash, but in same map but from turn 150 no crash it seems or something else changed possibly, also i played a few autoplay maps up to turn 300 and the crash didn't happen, so this is what i mean by rare xd, so far only commenting out this (or using the too extreme hard reject in city loop above but much less ideal if i'm not mistaken anyways etc) fix(es) it, this is what i mean by rare but it is reproductible and consistent anyways etc), and even at turn 117 in same rare save file too when disabling the <advc.121> check and eMission change, so i think something is wrong here or/and doesn't go well with our current code but anyways etc -->
+	// <!-- custom: the crash in the else block below is reproductible, always at turn 156, i found the issue, see below code comments for details anyways etc -->
 	else
 	{
 		// <advc.121>
 		MissionTypes eMission = MISSION_MOVE_TO;
-		if (!getPlot().isSamePlotGroup(*pBestPlot, getOwner()) || !getPlot().isRoute() ||
-			SyncRandOneChanceIn(stepDistance(plot(), pBestPlot) + 1))
+		// <!-- custom: after a bunch of back and forth and trial and error, i empirically got the idea to comment out this myself hehe, and found that this check is what causes the crash at turn 156! Disabling the sameplotgroup check fixes the crash. I don't know exactly why, but among all AIs i asked chatgpt 5 helped me most. Grok AI which i tried for the first time too but anyways etc was surprisingly sharp (Grok 4 Expert), and it gave the below explanation (for context if i may say but anyways etc i had commented out sameplotgroup and syncranonechancein calls hehe if i'm not mistaken that they are calls but anyways etc), check if accurate anyways etc -->
+		// Of the two commented parts, the !getPlot().isSamePlotGroup(*pBestPlot, getOwner()) || is more likely the culprit—it derefs pBestPlot and checks connectivity, which could lead to ROUTE_TO in semi-connected scenarios where pathing/flags assume disconnection but reality differs, causing downstream corruption. The random SyncRandOneChanceIn adds nondeterminism, but since Civ4's rand is synced/deterministic, it's less likely alone (though it could trigger the bad case in your specific save seed).
+		// if (!getPlot().isSamePlotGroup(*pBestPlot, getOwner()) || !getPlot().isRoute() ||
+		// 	SyncRandOneChanceIn(stepDistance(plot(), pBestPlot) + 1))
+		if (!getPlot().isRoute() || SyncRandOneChanceIn(stepDistance(plot(), pBestPlot) + 1))
 		{
 			if (generatePath(*pBestPlot, MOVE_SAFE_TERRITORY)) // advc.pf
 				eMission = MISSION_ROUTE_TO;
@@ -19277,8 +19293,54 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 				true, false, MISSIONAI_BUILD, pBestPlot); // K-Mod
 		return true;
 	}
-}
 
+	// <!-- custom: below code successfully avoids the turn 156 crash, try it if you notice other issues maybe but anyways etc, as for me i fixed the old code above since it has much better worker efficiency, kept if we meet future crashes in the future or such (redundant word future but anyways etc) in case it helps but anyways etc -->
+	// else
+	// {
+	// 	// --- minimal & robust generic path (no ROUTE_TO here) ---
+
+	// 	// Runtime sanity (release-safe)
+	// 	if (pBestPlot == NULL)
+	// 		return false;
+
+	// 	if (eBestBuild <= NO_BUILD || eBestBuild >= GC.getNumBuildInfos())
+	// 		return false;
+
+	// 	// If something changed since selection (feature/ownership/tech), bail
+	// 	if (!canBuild(*pBestPlot, eBestBuild))
+	// 		return false;
+
+	// 	// If we're already standing there, just build
+	// 	if (atPlot(pBestPlot))
+	// 	{
+	// 		getGroup()->pushMission(MISSION_BUILD, eBestBuild, -1,
+	// 			NO_MOVEMENT_FLAGS, /*append*/false, /*manual*/false,
+	// 			MISSIONAI_BUILD, pBestPlot);
+	// 		return true;
+	// 	}
+
+	// 	// Must be reachable with our current flags (simple move flavor)
+	// 	if (!generatePath(*pBestPlot))
+	// 		return false;
+
+	// 	// 1) Move there (no attached mission-plot to reduce side-effects)
+	// 	getGroup()->pushMission(MISSION_MOVE_TO,
+	// 		pBestPlot->getX(), pBestPlot->getY(),
+	// 		NO_MOVEMENT_FLAGS, /*append*/false, /*manual*/false,
+	// 		MISSIONAI_BUILD, /*mission plot*/NULL);
+
+	// 	// 2) Re-check just before queuing the build
+	// 	if (!canBuild(*pBestPlot, eBestBuild))
+	// 		return true; // movement queued; replan next turn
+
+	// 	// 3) Queue the actual improvement
+	// 	getGroup()->pushMission(MISSION_BUILD, eBestBuild, -1,
+	// 		NO_MOVEMENT_FLAGS, /*append*/true, /*manual*/false,
+	// 		MISSIONAI_BUILD, pBestPlot);
+
+	// 	return true;
+	// }
+}
 
 bool CvUnitAI::AI_nextCityToImproveAirlift()
 {
