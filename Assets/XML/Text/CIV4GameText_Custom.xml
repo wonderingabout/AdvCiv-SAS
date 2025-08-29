@@ -294,10 +294,10 @@
 		<Tag>TXT_KEY_TECH_NAVIGATION_QUOTE</Tag>
 		<English>"The wisest men follow their own direction." - ascribed to Euripides</English>
 	</TEXT>
-	<!-- custom: replace _ALPHABET with _NATURALISM anyways etc -->
+	<!-- custom: replace _ALPHABET with _NATURALISM anyways etc (update: susing scientific_method (now removed quote anyways etc)) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_NATURALISM_QUOTE</Tag>
-		<English>"Words have the power to both destroy and heal. When words are both true and kind, they can change our world." - ascribed to the Buddha</English>
+		<English>"I do not feel obliged to believe that the same God who has endowed us with sense, reason, and intellect has intended us to forgo their use." - Galileo Galilei</English>
 	</TEXT>
 	<!-- custom: rename TECH_STEEL to TECH_MARINE_TECHNOLOGY anyways etc -->
 	<TEXT>
@@ -358,6 +358,10 @@
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_TECH_ECONOMICS_QUOTE</Tag>
 		<English>"I just want to say one word to you. Just one word: plastics." - Calder Willingham, The Graduate</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_TECH_WATER_WHEEL_QUOTE</Tag>
+		<English>"Words have the power to both destroy and heal. When words are both true and kind, they can change our world." - ascribed to the Buddha</English>
 	</TEXT>
 
 

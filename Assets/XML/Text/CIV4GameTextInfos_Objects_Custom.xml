@@ -890,4 +890,9 @@
 		<Tag>TXT_KEY_TECH_DEPOPULATION</Tag>
 		<English>Depopulation</English>
 	</TEXT>
+	<!-- custom: replace "SCIENTIFIC_METHOD" with "WATER_WHEEL" anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_WATER_WHEEL</Tag>
+		<English>Water Wheel</English>
+	</TEXT>
 </Civ4GameText>

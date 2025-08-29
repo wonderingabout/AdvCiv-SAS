@@ -8614,7 +8614,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_NATURALISM</SoundID>
-			<Filename>Sounds/Tech/Tech_NATURALISM</Filename>
+			<Filename>Sounds/Tech/Tech_ScientificMethod</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8676,8 +8676,8 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_SCIMETHOD</SoundID>
-			<Filename>Sounds/Tech/Tech_ScientificMethod</Filename>
+			<SoundID>SND_TECH_WATER_WHEEL</SoundID>
+			<Filename>Sounds/Tech/Tech_Alphabet</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9258,7 +9258,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_NATURALISM</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_NATURALISM</Filename>
+			<Filename>Sounds/Tech/Tech_MP_ScientificMethod</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9320,8 +9320,8 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_SCIMETHOD</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_ScientificMethod</Filename>
+			<SoundID>SND_TECH_MP_WATER_WHEEL</SoundID>
+			<Filename>Sounds/Tech/Tech_MP_Alphabet</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>

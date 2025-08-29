@@ -1761,7 +1761,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_SCIENTIFIC_METHOD</PrereqTech>
+				<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_LIBERALISM</PrereqTech>
@@ -2573,7 +2573,7 @@
 			<iGridX>11</iGridX>
 			<iGridY>12</iGridY>
 			<DomainExtraMoves/>
-			<!-- custom: was missing (and i assume empty but anyways etc (is the effect from the old now removed TECH_SCIENTIFIC_METHOD but anyways etc)) -->
+			<!-- custom: was missing (and i assume empty but anyways etc (is the effect from the old TECH_SCIENTIFIC_METHOD (now removed anyways etc) but anyways etc)) -->
 			<SpecialistExtraCommerces>
 				<iCommerce>0</iCommerce>
 				<iCommerce>1</iCommerce>
@@ -3355,12 +3355,12 @@
 			<SoundMP>AS2D_TECH_MP_CHEMISTRY</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Chemistry.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,9</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_SCIENTIFIC_METHOD (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<Type>TECH_SCIENTIFIC_METHOD</Type>
-			<Description>TXT_KEY_TECH_SCIENTIFIC_METHOD</Description>
-			<Civilopedia>TXT_KEY_TECH_SCIENTIFIC_METHOD_PEDIA</Civilopedia>
+		<TechInfo> <!-- custom: type: TECH_WATER_WHEEL (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<Type>TECH_WATER_WHEEL</Type>
+			<Description>TXT_KEY_TECH_WATER_WHEEL</Description>
+			<Civilopedia>TXT_KEY_TECH_WATER_WHEEL_PEDIA</Civilopedia>
 			<Help/>
-			<Strategy>TXT_KEY_TECH_SCIENTIFIC_METHOD_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
@@ -3434,9 +3434,9 @@
 			<AndPreReqs>
 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
 			</AndPreReqs>
-			<Quote>TXT_KEY_TECH_SCIENTIFIC_METHOD_QUOTE</Quote>
-			<Sound>AS2D_TECH_SCIMETHOD</Sound>
-			<SoundMP>AS2D_TECH_MP_SCIMETHOD</SoundMP>
+			<Quote>TXT_KEY_TECH_WATER_WHEEL_QUOTE</Quote>
+			<Sound>AS2D_TECH_WATER_WHEEL</Sound>
+			<SoundMP>AS2D_TECH_MP_WATER_WHEEL</SoundMP>
 			<!-- custom: button import from c2c mod anyways etc, also tech name idea i got from them as i was hestiating between a few other variants and didn't know this one thanks if i may say but anyways etc -->
 			<Button>Art/AdvCiv_SAS/Techs/Water_Wheel/waterwheels.dds</Button>
 		</TechInfo>
@@ -3503,7 +3503,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_SCIENTIFIC_METHOD</PrereqTech>
+				<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
@@ -3577,7 +3577,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_SCIENTIFIC_METHOD</PrereqTech>
+				<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_CHEMISTRY</PrereqTech>

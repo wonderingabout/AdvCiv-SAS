@@ -399,7 +399,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 			<Civilopedia>TXT_KEY_BONUS_OIL_PEDIA</Civilopedia>
 			<BonusClassType>BONUSCLASS_MODERN</BonusClassType>
 			<ArtDefineTag>ART_DEF_BONUS_OIL</ArtDefineTag>
-			<!-- custom: was TECH_SCIENTIFIC_METHOD -->
+			<!-- custom: was TECH_SCIENTIFIC_METHOD (now removed anyways etc) -->
 			<TechReveal>TECH_COMBUSTION</TechReveal>
 			<TechCityTrade>TECH_COMBUSTION</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>

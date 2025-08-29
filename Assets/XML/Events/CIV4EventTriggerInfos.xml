@@ -7540,7 +7540,7 @@
 				<Event>EVENT_ANCIENTOLYMPICS_2</Event>
 			</PrereqEvents>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
-			<!-- custom: replace with a more relevant tech tree tech as TECH_SCIENTIFIC_METHOD has been moved in tech tree anyways etc -->
+			<!-- custom: replace with a more relevant tech tree tech as TECH_SCIENTIFIC_METHOD (now removed anyways etc) has been moved in tech tree anyways etc -->
 			<OrPreReqs>
 				<PrereqTech>TECH_LIBERALISM</PrereqTech>
 			</OrPreReqs>
@@ -8576,7 +8576,7 @@
 				<PrereqTech>TECH_ENGINEERING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
-			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it wth a substitute here TECH_MILITARY_SCIENCE, also remove TECH_SCIENTIFIC_METHOD here and ideally in places where it is not relevant anymore with reworked tech tree anyways etc -->
+			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it wth a substitute here TECH_MILITARY_SCIENCE, also remove TECH_SCIENTIFIC_METHOD (now removed anyways etc) here and ideally in places where it is not relevant anymore with reworked tech tree anyways etc -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 				<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
@@ -9100,7 +9100,7 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
-			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, remove it from this event anyways etc, also remove TECH_SCIENTIFIC_METHOD as it has been moved in tech tree anyways etc, use another closer or/and more relevant tech in our reworked tech tree anyways etc -->
+			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, remove it from this event anyways etc, also remove TECH_SCIENTIFIC_METHOD (now removed anyways etc) as it has been moved in tech tree anyways etc, use another closer or/and more relevant tech in our reworked tech tree anyways etc -->
 			<OrPreReqs>
 				<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
@@ -10772,7 +10772,7 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
-			<!-- custom: use a closer tech instead in our reworked tech tree anyways etc, was TECH_SCIENTIFIC_METHOD -->
+			<!-- custom: use a closer tech instead in our reworked tech tree anyways etc, was TECH_SCIENTIFIC_METHOD (now removed anyways etc) -->
 			<OrPreReqs>
 				<PrereqTech>TECH_ECONOMICS</PrereqTech>
 			</OrPreReqs>
@@ -15942,7 +15942,7 @@
 			<AndPreReqs>
 				<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
 			</AndPreReqs>
-			<!-- custom: replace TECH_SCIENTIFIC_METHOD now that it has a reworked position in tech tree anyways etc with TECH_THEORY_OF_EVOLUTION -->
+			<!-- custom: replace TECH_SCIENTIFIC_METHOD (now removed anyways etc) now that it has a reworked position in tech tree anyways etc with TECH_THEORY_OF_EVOLUTION -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_THEORY_OF_EVOLUTION</ObsoleteTech>
 			</ObsoleteTechs>

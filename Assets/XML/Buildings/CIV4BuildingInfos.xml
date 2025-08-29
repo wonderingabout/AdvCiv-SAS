@@ -8725,7 +8725,7 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
-			<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
+			<ObsoleteTech>TECH_WATER_WHEEL</ObsoleteTech>
 			<PrereqTech>TECH_MYSTICISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -9273,7 +9273,7 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>ERA_MODERN</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
-			<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
+			<ObsoleteTech>TECH_WATER_WHEEL</ObsoleteTech>
 			<!-- custom: until we do and if we do ideally but anyways etc our full full tech tree rework, for now construction is too far, use polytheism instead for the ziggurat anyways etc -->
 			<!-- custom: with our tech tree rework, now based on construction, see docs including but not only or only or not the notes .txt type of files and ctrl+f "ziggurat" for example for details or wikipedia online or such or and other sources or and not anyways etc -->
 			<PrereqTech>TECH_POLYTHEISM</PrereqTech>
@@ -23164,7 +23164,7 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
-			<!-- custom: was TECH_SCIENTIFIC_METHOD -->
+			<!-- custom: was TECH_SCIENTIFIC_METHOD (now removed anyways etc) -->
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<PrereqTech>TECH_LITERATURE</PrereqTech>
 			<TechTypes/>
@@ -24153,7 +24153,7 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
-			<!-- custom: nerf its effect a bit and make it never obsolete, should be more balanced and interesting if i may say anyways etc building/effect anyways etc, was TECH_SCIENTIFIC_METHOD -->
+			<!-- custom: nerf its effect a bit and make it never obsolete, should be more balanced and interesting if i may say anyways etc building/effect anyways etc, was TECH_SCIENTIFIC_METHOD (now removed anyways etc) -->
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: was TECH_AESTHETICS and techTypes TECH_POLYTHEISM -->
 			<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
@@ -27782,7 +27782,7 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
-			<!-- custom: was TECH_SCIENTIFIC_METHOD -->
+			<!-- custom: was TECH_SCIENTIFIC_METHOD (now removed anyways etc) -->
 			<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
 			<!-- custom: was TECH_POLYTHEISM and tech types empty anyways etc-->
 			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>

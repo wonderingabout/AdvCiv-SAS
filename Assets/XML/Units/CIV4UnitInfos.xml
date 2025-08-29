@@ -19925,7 +19925,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_ENGINEERING -->
-			<PrereqTech>TECH_SCIENTIFIC_METHOD</PrereqTech>
+			<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
