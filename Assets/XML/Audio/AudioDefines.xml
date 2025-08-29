@@ -8410,7 +8410,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_PRIESTHOOD</SoundID>
+			<SoundID>SND_TECH_BIOENGINEERING</SoundID>
 			<Filename>Sounds/Tech/Tech_Priesthood</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -8473,7 +8473,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_GUILDS</SoundID>
+			<SoundID>SND_TECH_CHIVALRY</SoundID>
 			<Filename>Sounds/Tech/Tech_Guilds</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -8802,7 +8802,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_ARCHERY</SoundID>
+			<SoundID>SND_TECH_SPACE_EXPLORATION</SoundID>
 			<Filename>Sounds/Tech/Tech_Archery</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -9054,7 +9054,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_PRIESTHOOD</SoundID>
+			<SoundID>SND_TECH_MP_BIOENGINEERING</SoundID>
 			<Filename>Sounds/Tech/Tech_MP_Priesthood</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -9117,7 +9117,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_GUILDS</SoundID>
+			<SoundID>SND_TECH_MP_CHIVALRY</SoundID>
 			<Filename>Sounds/Tech/Tech_MP_Guilds</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -9446,7 +9446,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_ARCHERY</SoundID>
+			<SoundID>SND_TECH_MP_SPACE_EXPLORATION</SoundID>
 			<Filename>Sounds/Tech/Tech_MP_Archery</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>

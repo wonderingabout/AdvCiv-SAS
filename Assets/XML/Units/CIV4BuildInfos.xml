@@ -217,7 +217,7 @@
 			<Type>BUILD_LUMBERMILL</Type>
 			<Description>TXT_KEY_BUILD_LUMBERMILL</Description>
 			<Help/>
-			<!-- custom: historically more accurate in our reworked tech tree anyways etc at least qutie accurate and functional in terms of gameplay, guilds are way too early in our reworked tech tree for lumbermill anyways etc, machinery is a bit late but fine in this case i mean anyways etc anyways etc, plus buffes tech_machinery too anyways etc, was TECH_GUILDS -->
+			<!-- custom: historically more accurate in our reworked tech tree anyways etc at least qutie accurate and functional in terms of gameplay, guilds are way too early in our reworked tech tree for lumbermill anyways etc, machinery is a bit late but fine in this case i mean anyways etc anyways etc, plus buffes tech_machinery too anyways etc, was TECH_GUILDS (now removed) -->
 			<!-- K-Mod: was REPLACEABLE_PARTS -->
 			<PrereqTech>TECH_MACHINERY</PrereqTech>
 			<!-- advc.902: was 800 -->

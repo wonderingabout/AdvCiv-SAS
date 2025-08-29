@@ -895,4 +895,19 @@
 		<Tag>TXT_KEY_TECH_WATER_WHEEL</Tag>
 		<English>Water Wheel</English>
 	</TEXT>
+	<!-- custom: replace "_GUILDS" with "_CHIVALRY" -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_CHIVALRY</Tag>
+		<English>Chivalry</English>
+	</TEXT>
+	<!-- custom: replace "_PRIESTHOOD" with "_BIOENGINEERING" -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_BIOENGINEERING</Tag>
+		<English>Bioengineering</English>
+	</TEXT>
+	<!-- custom: replace "_ARCHERY" with "_SPACE_EXPLORATION" -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_SPACE_EXPLORATION</Tag>
+		<English>Space Exploration</English>
+	</TEXT>
 </Civ4GameText>

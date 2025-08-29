@@ -2770,10 +2770,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_AI</PrereqTech>
+			<PrereqTech>TECH_SPACE_EXPLORATION</PrereqTech>
 			<TechTypes>
+				<PrereqTech>TECH_AI</PrereqTech>
 				<PrereqTech>TECH_ADVANCED_FLIGHT</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
 			<!-- custom: like other/most if not all anyways etc robotic units anyways etc -->
@@ -7662,7 +7662,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
-			<PrereqTech>TECH_GUILDS</PrereqTech>
+			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -7864,7 +7864,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
-			<PrereqTech>TECH_GUILDS</PrereqTech>
+			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -8091,7 +8091,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
-			<PrereqTech>TECH_GUILDS</PrereqTech>
+			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -9268,7 +9268,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_ENGINEERING -->
-			<PrereqTech>TECH_GUILDS</PrereqTech>
+			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -9503,7 +9503,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_ENGINEERING -->
-			<PrereqTech>TECH_GUILDS</PrereqTech>
+			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_CONSTITUTION</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -9777,7 +9777,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: was TECH_ARCHERY -->
+			<!-- custom: was TECH_ARCHERY (now removed) -->
 			<PrereqTech>TECH_HUNTING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
@@ -10712,7 +10712,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY -->
+			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY (now removed) -->
 			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_HUNTING</PrereqTech>
@@ -10909,7 +10909,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY -->
+			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY (now removed) -->
 			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_HUNTING</PrereqTech>
@@ -11127,7 +11127,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY -->
+			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY (now removed) -->
 			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_HUNTING</PrereqTech>
@@ -16664,7 +16664,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_GUILDS</PrereqTech>
+			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -16884,7 +16884,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_GUILDS</PrereqTech>
+			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -17130,7 +17130,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_GUILDS</PrereqTech>
+			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -17363,7 +17363,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_GUILDS</PrereqTech>
+			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>

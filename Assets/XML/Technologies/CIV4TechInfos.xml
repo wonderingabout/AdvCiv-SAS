@@ -99,7 +99,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>8</iAsset>
+			<iAsset>24</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -213,21 +213,20 @@
 			<SoundMP>AS2D_TECH_MP_POLYTHEISM</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Polytheism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,6</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_PRIESTHOOD (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<Type>TECH_PRIESTHOOD</Type>
-			<Description>TXT_KEY_TECH_PRIESTHOOD</Description>
-			<Civilopedia>TXT_KEY_TECH_PRIESTHOOD_PEDIA</Civilopedia>
+		<TechInfo> <!-- custom: type: TECH_BIOENGINEERING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<Type>TECH_BIOENGINEERING</Type>
+			<Description>TXT_KEY_TECH_BIOENGINEERING</Description>
+			<Civilopedia>TXT_KEY_TECH_BIOENGINEERING_PEDIA</Civilopedia>
 			<Help/>
-			<Strategy>TXT_KEY_TECH_PRIESTHOOD_STRATEGY</Strategy>
-			<Advisor>ADVISOR_RELIGION</Advisor>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+			<Advisor>ADVISOR_GROWTH</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<iCost>60</iCost>
+			<!--custom: todo:<iCost>10000</iCost>-->
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<!-- custom: todo: temporarily reverted until the other bugs are fixed and/or such anyways etc -->
-			<!--<Era>ERA_FUTURE</Era>-->
-			<Era>ERA_ANCIENT</Era>
+			<Era>ERA_FUTURE</Era>
 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
@@ -235,10 +234,10 @@
 			<iHealth>1</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>8</iAsset>
+			<iAsset>56</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>1</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -263,20 +262,16 @@
 			<bRiverTrade>0</bRiverTrade>
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_RELIGION</FlavorType>
-					<iFlavor>10</iFlavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>5</iFlavor>
 				</Flavor>
 				<Flavor>
-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>3</iFlavor>
+					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+					<iFlavor>4</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GOLD</FlavorType>
-					<iFlavor>1</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>6</iFlavor>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
@@ -284,9 +279,9 @@
 				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
-			<Quote>TXT_KEY_TECH_PRIESTHOOD_QUOTE</Quote>
-			<Sound>AS2D_TECH_PRIESTHOOD</Sound>
-			<SoundMP>AS2D_TECH_MP_PRIESTHOOD</SoundMP>
+			<Quote>TXT_KEY_TECH_BIOENGINEERING_QUOTE</Quote>
+			<Sound>AS2D_TECH_BIOENGINEERING</Sound>
+			<SoundMP>AS2D_TECH_MP_BIOENGINEERING</SoundMP>
 			<!-- custom: button import from c2c mod anyways etc -->
 			<Button>Art/AdvCiv_SAS/Techs/Bio_Engineering/biotech.dds</Button>
 		</TechInfo>
@@ -312,7 +307,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>8</iAsset>
+			<iAsset>16</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -385,7 +380,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>16</iAsset>
+			<iAsset>8</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<!-- custom: was 1 -->
@@ -441,7 +436,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_PRIESTHOOD</PrereqTech>
+				<PrereqTech>TECH_BIOENGINEERING</PrereqTech>
 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
@@ -592,7 +587,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_PRIESTHOOD</PrereqTech>
+				<PrereqTech>TECH_BIOENGINEERING</PrereqTech>
 				<PrereqTech>TECH_CURRENCY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
@@ -733,18 +728,15 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
+			<!-- custom: was flavors military 5 production 6 culture 2 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>5</iFlavor>
+					<iFlavor>7</iFlavor>
 				</Flavor>
 				<Flavor>
-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+					<FlavorType>FLAVOR_GOLD</FlavorType>
 					<iFlavor>6</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>2</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
@@ -853,7 +845,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>24</iAsset>
+			<iAsset>16</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -1003,12 +995,12 @@
 			<SoundMP>AS2D_TECH_MP_CIVIL_SERVICE</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Civil Service.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,2</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_GUILDS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<Type>TECH_GUILDS</Type>
-			<Description>TXT_KEY_TECH_GUILDS</Description>
-			<Civilopedia>TXT_KEY_TECH_GUILDS_PEDIA</Civilopedia>
+		<TechInfo> <!-- custom: type: TECH_CHIVALRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<Type>TECH_CHIVALRY</Type>
+			<Description>TXT_KEY_TECH_CHIVALRY</Description>
+			<Civilopedia>TXT_KEY_TECH_CHIVALRY_PEDIA</Civilopedia>
 			<Help/>
-			<Strategy>TXT_KEY_TECH_GUILDS_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<!-- advc.552: was 10 -->
@@ -1050,22 +1042,11 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
+			<!-- custom: was flavors military 2 production 5 gold 2 culture 1 -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>2</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>5</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_GOLD</FlavorType>
-					<iFlavor>2</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>1</iFlavor>
+					<iFlavor>10</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
@@ -1074,9 +1055,9 @@
 			<AndPreReqs>
 				<PrereqTech>TECH_FEUDALISM</PrereqTech>
 			</AndPreReqs>
-			<Quote>TXT_KEY_TECH_GUILDS_QUOTE</Quote>
-			<Sound>AS2D_TECH_GUILDS</Sound>
-			<SoundMP>AS2D_TECH_MP_GUILDS</SoundMP>
+			<Quote>TXT_KEY_TECH_CHIVALRY_QUOTE</Quote>
+			<Sound>AS2D_TECH_CHIVALRY</Sound>
+			<SoundMP>AS2D_TECH_MP_CHIVALRY</SoundMP>
 			<!-- custom: button import from m-e mod anyways etc -->
 			<Button>Art/AdvCiv_SAS/Techs/Chivalry/Smithing.dds</Button>
 		</TechInfo>
@@ -1338,7 +1319,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>32</iAsset>
+			<iAsset>24</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -1792,7 +1773,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>48</iAsset>
+			<iAsset>24</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<!-- custom: was 1 -->
@@ -1868,7 +1849,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>48</iAsset>
+			<iAsset>40</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -2442,7 +2423,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_PRIESTHOOD</PrereqTech>
+				<PrereqTech>TECH_BIOENGINEERING</PrereqTech>
 				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
 				<PrereqTech>TECH_POTTERY</PrereqTech>
 			</OrPreReqs>
@@ -2548,7 +2529,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>16</iAsset>
+			<iAsset>32</iAsset>
 			<iPower>4</iPower>
 			<bRepeat>0</bRepeat>
 			<!-- custom: was 1 -->
@@ -2635,7 +2616,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>16</iAsset>
+			<iAsset>8</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -2863,7 +2844,7 @@
 			<iHappiness>0</iHappiness>
 			<!-- custom: would make more sense for this when it is changed to TECH_THEORY_OF_EVOLUTION, currently TECH_LIBERALISM is bloated and toos trong already if i am not mistaken, giving theory of evolution some purpsoe while also making sense in terms of gameplay, searching it means fallign behind in military path so i hope it can be worth it this way to choose this alternative path anyways etc and for versatile startegy too anyways etc, was 0 -->
 			<iFirstFreeTechs>1</iFirstFreeTechs>
-			<iAsset>24</iAsset>
+			<iAsset>32</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<!-- custom: was 1 -->
@@ -2974,7 +2955,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_GUILDS</PrereqTech>
+				<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_CURRENCY</PrereqTech>
@@ -3413,6 +3394,7 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
+			<!-- custom: was flavors production 2 gold 1 science 10; note: i didn't add military flavor here to not mislead AI leaders from main military path (as of now chivalry / civil service rather or/and other techs but anyways etc) -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
@@ -3423,8 +3405,12 @@
 					<iFlavor>1</iFlavor>
 				</Flavor>
 				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>8</iFlavor>
+				</Flavor>
+				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
-					<iFlavor>10</iFlavor>
+					<iFlavor>5</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
@@ -3462,7 +3448,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>40</iAsset>
+			<iAsset>32</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -3608,7 +3594,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>40</iAsset>
+			<iAsset>24</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -3854,7 +3840,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>18</iGridX>
-			<iGridY>5</iGridY>
+			<iGridY>3</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -4049,7 +4035,7 @@
 			<iHealth>-6</iHealth>
 			<iHappiness>-6</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>48</iAsset>
+			<iAsset>56</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>0</bTrade>
@@ -4194,7 +4180,7 @@
 			<iHealth>3</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>48</iAsset>
+			<iAsset>64</iAsset>
 			<iPower>5</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>0</bTrade>
@@ -4215,7 +4201,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>23</iGridX>
-			<iGridY>12</iGridY>
+			<iGridY>9</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -4223,19 +4209,11 @@
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>10</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_GOLD</FlavorType>
-					<iFlavor>2</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
 					<iFlavor>3</iFlavor>
 				</Flavor>
 				<Flavor>
-					<FlavorType>FLAVOR_SCIENCE</FlavorType>
-					<iFlavor>2</iFlavor>
+					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+					<iFlavor>4</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
@@ -4345,7 +4323,7 @@
 			<iHealth>1</iHealth>
 			<iHappiness>2</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>48</iAsset>
+			<iAsset>56</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>0</bTrade>
@@ -4423,9 +4401,10 @@
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
 			<iHealth>0</iHealth>
-			<iHappiness>1</iHappiness>
+			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>48</iAsset>
+			<!-- custom: was 48 -->
+			<iAsset>56</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<!-- custom: was 1 -->
@@ -4447,7 +4426,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>22</iGridX>
-			<iGridY>5</iGridY>
+			<iGridY>3</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -4459,10 +4438,6 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
-					<iFlavor>2</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_GROWTH</FlavorType>
 					<iFlavor>2</iFlavor>
 				</Flavor>
 				<Flavor>
@@ -4486,15 +4461,13 @@
 			<Description>TXT_KEY_TECH_HUNTING</Description>
 			<Civilopedia>TXT_KEY_TECH_HUNTING_PEDIA</Civilopedia>
 			<Help/>
-			<Strategy>TXT_KEY_TECH_HUNTING_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>40</iCost>
+			<iCost></iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<!-- custom: todo: temporarily reverted until the other bugs are fixed and/or such anyways etc -->
-			<!--<Era>ERA_FUTURE</Era>-->
 			<Era>ERA_ANCIENT</Era>
 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
@@ -4625,33 +4598,32 @@
 			<SoundMP>AS2D_TECH_MP_MINING</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Mining.dds,Art/Interface/Buttons/TechTree_Atlas.dds,8,5</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_ARCHERY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<Type>TECH_ARCHERY</Type>
-			<Description>TXT_KEY_TECH_ARCHERY</Description>
-			<Civilopedia>TXT_KEY_TECH_ARCHERY_PEDIA</Civilopedia>
+		<TechInfo> <!-- custom: type: TECH_SPACE_EXPLORATION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<Type>TECH_SPACE_EXPLORATION</Type>
+			<Description>TXT_KEY_TECH_SPACE_EXPLORATION</Description>
+			<Civilopedia>TXT_KEY_TECH_SPACE_EXPLORATION_PEDIA</Civilopedia>
 			<Help/>
-			<Strategy>TXT_KEY_TECH_ARCHERY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<!-- advc.552: was 10 -->
 			<iAITradeModifier>0</iAITradeModifier>
 			<iCost>60</iCost>
+			<!--custom: todo:<iCost>10000</iCost>-->
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<!-- custom: todo: temporarily reverted until the other bugs are fixed and/or such anyways etc -->
-			<!--<Era>ERA_FUTURE</Era>-->
-			<Era>ERA_ANCIENT</Era>
+			<Era>ERA_FUTURE</Era>
 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
 			<iHealth>0</iHealth>
-			<iHappiness>0</iHappiness>
+			<iHappiness>1</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>8</iAsset>
+			<iAsset>56</iAsset>
 			<iPower>6</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>1</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -4670,31 +4642,32 @@
 			<bWaterWork>0</bWaterWork>
 			<iGridX>21</iGridX>
 			<iGridY>1</iGridY>
-			<DomainExtraMoves/>
+			<DomainExtraMoves>
+				<DomainExtraMove>
+					<DomainType>DOMAIN_AIR</DomainType>
+					<iExtraMoves>1</iExtraMoves>
+				</DomainExtraMove>
+			</DomainExtraMoves>
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>10</iFlavor>
+					<iFlavor>5</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
-					<iFlavor>2</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>2</iFlavor>
+					<iFlavor>3</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
 				<PrereqTech>TECH_HUNTING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
-			<Quote>TXT_KEY_TECH_ARCHERY_QUOTE</Quote>
-			<Sound>AS2D_TECH_ARCHERY</Sound>
-			<SoundMP>AS2D_TECH_MP_ARCHERY</SoundMP>
+			<Quote>TXT_KEY_TECH_SPACE_EXPLORATION_QUOTE</Quote>
+			<Sound>AS2D_TECH_SPACE_EXPLORATION</Sound>
+			<SoundMP>AS2D_TECH_MP_SPACE_EXPLORATION</SoundMP>
 			<!-- custom: button import from c2c mod anyways etc -->
 			<Button>Art/AdvCiv_SAS/Techs/Space_Exploration/endless_exploration.dds</Button>
 		</TechInfo>
@@ -5125,7 +5098,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>16</iAsset>
+			<iAsset>8</iAsset>
 			<iPower>4</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -5523,7 +5496,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>24</iAsset>
+			<iAsset>8</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -5642,7 +5615,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_GUILDS</PrereqTech>
+				<PrereqTech>TECH_CHIVALRY</PrereqTech>
 				<PrereqTech>TECH_EDUCATION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
@@ -5672,7 +5645,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>32</iAsset>
+			<iAsset>48</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -5969,7 +5942,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>40</iAsset>
+			<iAsset>48</iAsset>
 			<iPower>4</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -6118,7 +6091,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>40</iAsset>
+			<iAsset>64</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>0</bTrade>
@@ -6139,7 +6112,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>23</iGridX>
-			<iGridY>5</iGridY>
+			<iGridY>3</iGridY>
 			<DomainExtraMoves>
 				<DomainExtraMove>
 					<DomainType>DOMAIN_LAND</DomainType>
@@ -6632,7 +6605,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>1</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>48</iAsset>
+			<iAsset>64</iAsset>
 			<iPower>10</iPower>
 			<!-- custom: similarly to changes now displaying bTrade info, we now also display bRepeat info in tech advisor and sevopedia tech if i am not mistaken anyways etc, see also similarly buildBRepeatString if i am not mistaken anyways etc -->
 			<bRepeat>0</bRepeat>
@@ -6656,12 +6629,7 @@
 			<bWaterWork>0</bWaterWork>
 			<iGridX>23</iGridX>
 			<iGridY>1</iGridY>
-			<DomainExtraMoves>
-				<DomainExtraMove>
-					<DomainType>DOMAIN_AIR</DomainType>
-					<iExtraMoves>1</iExtraMoves>
-				</DomainExtraMove>
-			</DomainExtraMoves>
+			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
@@ -6673,10 +6641,6 @@
 				<Flavor>
 					<FlavorType>FLAVOR_GOLD</FlavorType>
 					<iFlavor>10</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>2</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
@@ -6737,7 +6701,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>18</iGridX>
-			<iGridY>3</iGridY>
+			<iGridY>5</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -6856,7 +6820,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>2</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>48</iAsset>
+			<iAsset>56</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>0</bTrade>
@@ -6930,7 +6894,7 @@
 			<iHealth>1</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>64</iAsset>
+			<iAsset>56</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>0</bTrade>

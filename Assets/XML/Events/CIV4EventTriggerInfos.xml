@@ -284,8 +284,9 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
+			<!-- custom: was TECH_ARCHERY (now removed) -->
 			<OrPreReqs>
-				<PrereqTech>TECH_ARCHERY</PrereqTech>
+				<PrereqTech>TECH_HUNTING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it with a substitute instead, TECH_ECOLOGY in this case anyways etc -->
@@ -378,10 +379,11 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
+			<!-- custom: replaced TECH_PRIESTHOOD (now removed), replaced with TECH_MONARCHY anyways etc -->
 			<OrPreReqs>
 				<PrereqTech>TECH_WRITING</PrereqTech>
 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
-				<PrereqTech>TECH_PRIESTHOOD</PrereqTech>
+				<PrereqTech>TECH_MONARCHY</PrereqTech>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
@@ -1091,10 +1093,11 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
+			<!-- custom: replaced TECH_PRIESTHOOD removed, replaced with TECH_MONARCHY anyways etc -->
 			<OrPreReqs>
 				<PrereqTech>TECH_WRITING</PrereqTech>
 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
-				<PrereqTech>TECH_PRIESTHOOD</PrereqTech>
+				<PrereqTech>TECH_MONARCHY</PrereqTech>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
@@ -2933,10 +2936,11 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
+			<!-- custom: replaced TECH_PRIESTHOOD removed, replaced with TECH_MONARCHY anyways etc -->
 			<OrPreReqs>
 				<PrereqTech>TECH_WRITING</PrereqTech>
 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
-				<PrereqTech>TECH_PRIESTHOOD</PrereqTech>
+				<PrereqTech>TECH_MONARCHY</PrereqTech>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
@@ -5976,8 +5980,9 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
+			<!-- custom: was TECH_ARCHERY (now removed) -->
 			<OrPreReqs>
-				<PrereqTech>TECH_ARCHERY</PrereqTech>
+				<PrereqTech>TECH_MASONRY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs>
@@ -14858,7 +14863,7 @@
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs/>
 			<AndPreReqs>
-				<PrereqTech>TECH_GUILDS</PrereqTech>
+				<PrereqTech>TECH_CHIVALRY</PrereqTech>
 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			</AndPreReqs>
 			<ObsoleteTechs>

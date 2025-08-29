@@ -12070,8 +12070,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_PRIESTHOOD</ScriptID>
-		<SoundID>SND_TECH_PRIESTHOOD</SoundID>
+		<ScriptID>AS2D_TECH_BIOENGINEERING</ScriptID>
+		<SoundID>SND_TECH_BIOENGINEERING</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -12277,8 +12277,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_GUILDS</ScriptID>
-		<SoundID>SND_TECH_GUILDS</SoundID>
+		<ScriptID>AS2D_TECH_CHIVALRY</ScriptID>
+		<SoundID>SND_TECH_CHIVALRY</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -13358,8 +13358,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_ARCHERY</ScriptID>
-		<SoundID>SND_TECH_ARCHERY</SoundID>
+		<ScriptID>AS2D_TECH_SPACE_EXPLORATION</ScriptID>
+		<SoundID>SND_TECH_SPACE_EXPLORATION</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -14186,8 +14186,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_MP_PRIESTHOOD</ScriptID>
-		<SoundID>SND_TECH_MP_PRIESTHOOD</SoundID>
+		<ScriptID>AS2D_TECH_MP_BIOENGINEERING</ScriptID>
+		<SoundID>SND_TECH_MP_BIOENGINEERING</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -14393,8 +14393,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_MP_GUILDS</ScriptID>
-		<SoundID>SND_TECH_MP_GUILDS</SoundID>
+		<ScriptID>AS2D_TECH_MP_CHIVALRY</ScriptID>
+		<SoundID>SND_TECH_MP_CHIVALRY</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -15474,8 +15474,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_MP_ARCHERY</ScriptID>
-		<SoundID>SND_TECH_MP_ARCHERY</SoundID>
+		<ScriptID>AS2D_TECH_MP_SPACE_EXPLORATION</ScriptID>
+		<SoundID>SND_TECH_MP_SPACE_EXPLORATION</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>

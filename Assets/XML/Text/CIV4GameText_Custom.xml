@@ -363,6 +363,21 @@
 		<Tag>TXT_KEY_TECH_WATER_WHEEL_QUOTE</Tag>
 		<English>"Words have the power to both destroy and heal. When words are both true and kind, they can change our world." - ascribed to the Buddha</English>
 	</TEXT>
+	<!-- custom: replace "_GUILDS" with "_CHIVALRY" -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_CHIVALRY_QUOTE</Tag>
+		<English>"People of the same trade seldom meet together, even for merriment and diversion, but the conversation ends in a conspiracy against the public." - Adam Smith</English>
+	</TEXT>
+	<!-- custom: replace "_PRIESTHOOD" with "_BIOENGINEERING" -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_BIOENGINEERING_QUOTE</Tag>
+		<English>"The Lord bless you and keep you; the Lord make His face to shine upon you and be gracious to you; the Lord lift up His countenance upon you and give you peace." - The Bible, Numbers</English>
+	</TEXT>
+	<!-- custom: replace "_ARCHERY" with "_SPACE_EXPLORATION" -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_SPACE_EXPLORATION_QUOTE</Tag>
+		<English>"Do not throw the arrow which will return against you." - Kurdish Proverb</English>
+	</TEXT>
 
 
 

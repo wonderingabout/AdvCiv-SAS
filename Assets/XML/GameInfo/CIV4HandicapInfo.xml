@@ -109,9 +109,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iUnownedWaterTilesPerBarbarianUnit>475</iUnownedWaterTilesPerBarbarianUnit>
 			<iUnownedTilesPerBarbarianCity>130</iUnownedTilesPerBarbarianCity>
 			<!-- advc.300: was 50 -->
-			<iBarbarianCreationTurnsElapsed>33</iBarbarianCreationTurnsElapsed>
+			<iBarbarianCreationTurnsElapsed>34</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 55 -->
-			<iBarbarianCityCreationTurnsElapsed>39</iBarbarianCityCreationTurnsElapsed>
+			<iBarbarianCityCreationTurnsElapsed>40</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>5</iBarbarianCityCreationProb>
 			<!-- advc.313: was -70 -->
 			<iAnimalBonus>-30</iAnimalBonus>
@@ -237,9 +237,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iUnownedWaterTilesPerBarbarianUnit>450</iUnownedWaterTilesPerBarbarianUnit>
 			<iUnownedTilesPerBarbarianCity>125</iUnownedTilesPerBarbarianCity>
 			<!-- advc.300: was 45 -->
-			<iBarbarianCreationTurnsElapsed>32</iBarbarianCreationTurnsElapsed>
+			<iBarbarianCreationTurnsElapsed>33</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 50 -->
-			<iBarbarianCityCreationTurnsElapsed>38</iBarbarianCityCreationTurnsElapsed>
+			<iBarbarianCityCreationTurnsElapsed>39</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>10</iBarbarianCityCreationProb>
 			<!-- advc.313: was -60 -->
 			<iAnimalBonus>-20</iAnimalBonus>
@@ -363,9 +363,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iUnownedTilesPerBarbarianUnit>58</iUnownedTilesPerBarbarianUnit>
 			<iUnownedWaterTilesPerBarbarianUnit>425</iUnownedWaterTilesPerBarbarianUnit>
 			<iUnownedTilesPerBarbarianCity>120</iUnownedTilesPerBarbarianCity>
-			<iBarbarianCreationTurnsElapsed>31</iBarbarianCreationTurnsElapsed>
+			<iBarbarianCreationTurnsElapsed>32</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 45 -->
-			<iBarbarianCityCreationTurnsElapsed>37</iBarbarianCityCreationTurnsElapsed>
+			<iBarbarianCityCreationTurnsElapsed>38</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>15</iBarbarianCityCreationProb>
 			<!-- advc.313: was -50 -->
 			<iAnimalBonus>-10</iAnimalBonus>
@@ -491,9 +491,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iUnownedWaterTilesPerBarbarianUnit>400</iUnownedWaterTilesPerBarbarianUnit>
 			<iUnownedTilesPerBarbarianCity>115</iUnownedTilesPerBarbarianCity>
 			<!-- advc.300: was 35 -->
-			<iBarbarianCreationTurnsElapsed>30</iBarbarianCreationTurnsElapsed>
+			<iBarbarianCreationTurnsElapsed>31</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 40 -->
-			<iBarbarianCityCreationTurnsElapsed>36</iBarbarianCityCreationTurnsElapsed>
+			<iBarbarianCityCreationTurnsElapsed>37</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>20</iBarbarianCityCreationProb>
 			<!-- advc.313: was -40 -->
 			<iAnimalBonus>0</iAnimalBonus>
@@ -619,9 +619,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iUnownedWaterTilesPerBarbarianUnit>375</iUnownedWaterTilesPerBarbarianUnit>
 			<iUnownedTilesPerBarbarianCity>110</iUnownedTilesPerBarbarianCity>
 			<!-- advc.300: was 30 -->
-			<iBarbarianCreationTurnsElapsed>29</iBarbarianCreationTurnsElapsed>
+			<iBarbarianCreationTurnsElapsed>30</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 35 -->
-			<iBarbarianCityCreationTurnsElapsed>35</iBarbarianCityCreationTurnsElapsed>
+			<iBarbarianCityCreationTurnsElapsed>36</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>25</iBarbarianCityCreationProb>
 			<!-- advc.313: was -30 -->
 			<iAnimalBonus>0</iAnimalBonus>
@@ -755,9 +755,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iUnownedWaterTilesPerBarbarianUnit>350</iUnownedWaterTilesPerBarbarianUnit>
 			<iUnownedTilesPerBarbarianCity>105</iUnownedTilesPerBarbarianCity>
 			<!-- advc.300: was 25 -->
-			<iBarbarianCreationTurnsElapsed>28</iBarbarianCreationTurnsElapsed>
+			<iBarbarianCreationTurnsElapsed>29</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 30 -->
-			<iBarbarianCityCreationTurnsElapsed>34</iBarbarianCityCreationTurnsElapsed>
+			<iBarbarianCityCreationTurnsElapsed>35</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>30</iBarbarianCityCreationProb>
 			<!-- advc.313: start -->
 			<!-- was -20 -->
@@ -890,9 +890,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iUnownedWaterTilesPerBarbarianUnit>325</iUnownedWaterTilesPerBarbarianUnit>
 			<iUnownedTilesPerBarbarianCity>100</iUnownedTilesPerBarbarianCity>
 			<!-- advc.300: was 20 -->
-			<iBarbarianCreationTurnsElapsed>27</iBarbarianCreationTurnsElapsed>
+			<iBarbarianCreationTurnsElapsed>28</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 25 -->
-			<iBarbarianCityCreationTurnsElapsed>33</iBarbarianCityCreationTurnsElapsed>
+			<iBarbarianCityCreationTurnsElapsed>34</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>35</iBarbarianCityCreationProb>
 			<iAnimalBonus>0</iAnimalBonus>
 			<!-- advc.313: start -->
@@ -1032,9 +1032,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iUnownedWaterTilesPerBarbarianUnit>300</iUnownedWaterTilesPerBarbarianUnit>
 			<iUnownedTilesPerBarbarianCity>95</iUnownedTilesPerBarbarianCity>
 			<!-- advc.300: was 15 -->
-			<iBarbarianCreationTurnsElapsed>26</iBarbarianCreationTurnsElapsed>
+			<iBarbarianCreationTurnsElapsed>27</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 20 -->
-			<iBarbarianCityCreationTurnsElapsed>32</iBarbarianCityCreationTurnsElapsed>
+			<iBarbarianCityCreationTurnsElapsed>33</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>40</iBarbarianCityCreationProb>
 			<iAnimalBonus>0</iAnimalBonus>
 			<!-- advc.313: start -->
@@ -1175,9 +1175,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iUnownedWaterTilesPerBarbarianUnit>275</iUnownedWaterTilesPerBarbarianUnit>
 			<iUnownedTilesPerBarbarianCity>90</iUnownedTilesPerBarbarianCity>
 			<!-- advc.300: was 10 -->
-			<iBarbarianCreationTurnsElapsed>25</iBarbarianCreationTurnsElapsed>
+			<iBarbarianCreationTurnsElapsed>26</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 15 -->
-			<iBarbarianCityCreationTurnsElapsed>31</iBarbarianCityCreationTurnsElapsed>
+			<iBarbarianCityCreationTurnsElapsed>32</iBarbarianCityCreationTurnsElapsed>
 			<iBarbarianCityCreationProb>45</iBarbarianCityCreationProb>
 			<iAnimalBonus>0</iAnimalBonus>
 			<iBarbarianBonus>0</iBarbarianBonus>

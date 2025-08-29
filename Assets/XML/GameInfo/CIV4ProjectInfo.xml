@@ -236,7 +236,7 @@
 			<Strategy>TXT_KEY_PROJECT_SPACE_SHIP_STRATEGY</Strategy>
 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
 			<!-- custom: was TECH_GENETICS -->
-			<TechPrereq>TECH_TRANSHUMANISM</TechPrereq>
+			<TechPrereq>TECH_BIOENGINEERING</TechPrereq>
 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
 			<iMaxTeamInstances>1</iMaxTeamInstances>
@@ -274,7 +274,7 @@
 			<Strategy>TXT_KEY_PROJECT_SPACE_SHIP_STRATEGY</Strategy>
 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
 			<!-- custom: was TECH_SATELLITES -->
-			<TechPrereq>TECH_ARCHERY</TechPrereq>
+			<TechPrereq>TECH_SPACE_EXPLORATION</TechPrereq>
 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
 			<iMaxTeamInstances>1</iMaxTeamInstances>
@@ -316,8 +316,7 @@
 			<Civilopedia>TXT_KEY_PROJECT_SS_ENGINE_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_PROJECT_SPACE_SHIP_STRATEGY</Strategy>
 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
-			<!-- custom: move spaceship sooner (here PROJECT_SS_ENGINE anyways etc) in tech tree so it can actually be built and sooner before game ends or player quits, also a bit more of a threat now to keep other players in check or attack them sooner if needed anyways etc, was TECH_FUSION -->
-			<TechPrereq>TECH_SUPERCONDUCTORS</TechPrereq>
+			<TechPrereq>TECH_FUSION</TechPrereq>
 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
 			<iMaxTeamInstances>2</iMaxTeamInstances>
@@ -406,7 +405,7 @@
 			<Civilopedia>TXT_KEY_PROJECT_SS_THRUSTERS_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_PROJECT_SPACE_SHIP_STRATEGY</Strategy>
 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
-			<!-- custom: now that tech_rocketry is free, use it to build PROJECT_SS_THRUSTERS, so we can build the spaceship sooner in tech tree and out of the main military path too but or not but or yes but or and other or and not or yes or other or etc anyways etc, was TECH_SUPERCONDUCTORS -->
+			<!-- custom: now that tech_rocketry is free, use it to build PROJECT_SS_THRUSTERS, so we can build the spaceship sooner in tech tree and out of the main military path too but or not but or yes but or and other or and not or yes or other or etc anyways etc, was TECH_SUPERCONDUCTORS; update: now that we added a future_era, make space race not end too soon before players have reasonably advanced enough in it, so keep some space parts if i may say in this case but anyways etc at later future_era techs as of now but anyways etc -->
 			<TechPrereq>TECH_ROCKETRY</TechPrereq>
 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
