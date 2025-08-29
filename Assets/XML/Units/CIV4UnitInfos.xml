@@ -5416,13 +5416,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<Capture>NONE</Capture>
 			<Combat>UNITCOMBAT_MELEE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<!-- custom: make them default to defenders for safer AI early, see code comments at unitAIs for details of this or of other related units anyways etc -->
-			<DefaultUnitAI>UNITAI_RESERVE</DefaultUnitAI>
+			<!-- custom: see code comment at UnitAIs anyways etc, trying to not make them too aggressive and maybe keep defensive role to some extent while still not staying parked in cities ideally if i'm not mistaken but anyways etc, was UNITAI_ATTACK -->
+			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_WARRIOR</Description>
 			<Civilopedia>TXT_KEY_UNIT_WARRIOR_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_WARRIOR_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -5473,18 +5473,36 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
+			<!-- custom: i would want ancient macemen / warriors to be flexible versatile units, but they are now bad at city combat, so make them roam more, plus with our AI efficiency enhancements but anyways etc AI tend to overproduce them and keep them long which may take a lot of unit costs; also since archers are as of now now available sooner, no need to rely on ancient macemen too much to fill that void, but AIs may be vulnerable to early rushes in the first turns if warriors/ancient macemen don't defend cities at all maybe, so try to give them more unit combat roles instead +/- change default one or such anyways etc, was UNITAI_ATTACK -->
 			<UnitAIs>
-				<!-- custom: warriors are valuable as city defenders too for AI players, but attempt to favour mobility so reserve role rather than city_defense in an attempt to better spread our defenses between early cities and avoid early barbarian captures that are very detrimental, perhaps early rushes to a lesser extent, if i am not mistaken anyways etc, so removed the city_defense role i had added despite it being quite effective for defending our capital early, but maybe not flexible enough, testing this to be sure and seeing what happens, hopefully helps in this case i mean but anyways etc but testing it anyways etc -->
-				<UnitAI>
-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
 			</UnitAIs>
-			<NotUnitAIs/>
+			<!-- custom: was UNITAI_CITY_DEFENSE -->
+			<NotUnitAIs>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+			</NotUnitAIs>
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>

@@ -287,8 +287,8 @@
 			<Quote>TXT_KEY_TECH_PRIESTHOOD_QUOTE</Quote>
 			<Sound>AS2D_TECH_PRIESTHOOD</Sound>
 			<SoundMP>AS2D_TECH_MP_PRIESTHOOD</SoundMP>
-			<!-- custom: old button was <Button>,Art/Interface/Buttons/TechTree/Priesthood.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,11</Button> -->
-			<Button>,Art/Interface/Buttons/TechTree/Priesthood.dds,Art/Interface/Buttons/GodsOfOld_Atlas.dds,8,6</Button>
+			<!-- custom: button import from c2c mod anyways etc -->
+			<Button>Art/AdvCiv_SAS/Techs/Bio_Engineering/biotech.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_MONOTHEISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>TECH_MONOTHEISM</Type>
@@ -1077,7 +1077,8 @@
 			<Quote>TXT_KEY_TECH_GUILDS_QUOTE</Quote>
 			<Sound>AS2D_TECH_GUILDS</Sound>
 			<SoundMP>AS2D_TECH_MP_GUILDS</SoundMP>
-			<Button>,Art/Interface/Buttons/TechTree/Guilds.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,4</Button>
+			<!-- custom: button import from m-e mod anyways etc -->
+			<Button>Art/AdvCiv_SAS/Techs/Chivalry/Smithing.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_LATER_ABRAHAMISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>TECH_LATER_ABRAHAMISM</Type>
@@ -3436,7 +3437,8 @@
 			<Quote>TXT_KEY_TECH_SCIENTIFIC_METHOD_QUOTE</Quote>
 			<Sound>AS2D_TECH_SCIMETHOD</Sound>
 			<SoundMP>AS2D_TECH_MP_SCIMETHOD</SoundMP>
-			<Button>,Art/Interface/Buttons/TechTree/Scientific Method.dds,Art/Interface/Buttons/TechTree_Atlas.dds,8,7</Button>
+			<!-- custom: button import from c2c mod anyways etc, also tech name idea i got from them as i was hestiating between a few other variants and didn't know this one thanks if i may say but anyways etc -->
+			<Button>Art/AdvCiv_SAS/Techs/Water_Wheel/waterwheels.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_PHYSICS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>TECH_PHYSICS</Type>
@@ -4693,7 +4695,8 @@
 			<Quote>TXT_KEY_TECH_ARCHERY_QUOTE</Quote>
 			<Sound>AS2D_TECH_ARCHERY</Sound>
 			<SoundMP>AS2D_TECH_MP_ARCHERY</SoundMP>
-			<Button>,Art/Interface/Buttons/TechTree/Archery.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,1</Button>
+			<!-- custom: button import from c2c mod anyways etc -->
+			<Button>Art/AdvCiv_SAS/Techs/Space_Exploration/endless_exploration.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_MASONRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>TECH_MASONRY</Type>

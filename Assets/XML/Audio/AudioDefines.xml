@@ -8698,6 +8698,13 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_BIOLOGY</SoundID>
+			<Filename>Sounds/Tech/Tech_FiberOptics</Filename>
+			<LoadType>DYNAMIC_RES</LoadType>
+			<bIsCompressed>1</bIsCompressed>
+			<bInGeneric>1</bInGeneric>
+		</SoundData>
+		<SoundData>
+			<SoundID>SND_TECH_THEORY_OF_EVOLUTION</SoundID>
 			<Filename>Sounds/Tech/Tech_Biology</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -8762,13 +8769,6 @@
 		<SoundData>
 			<SoundID>SND_TECH_AI</SoundID>
 			<Filename>Sounds/Tech/Tech_Paper</Filename>
-			<LoadType>DYNAMIC_RES</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
-			<SoundID>SND_TECH_THEORY_OF_EVOLUTION</SoundID>
-			<Filename>Sounds/Tech/Tech_FiberOptics</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9341,13 +9341,6 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_BIOLOGY</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Biology</Filename>
-			<LoadType>DYNAMIC_RES</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
 			<SoundID>SND_TECH_MP_MEDICINE</SoundID>
 			<Filename>Sounds/Tech/Tech_MP_Medicine</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
@@ -9411,8 +9404,15 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_THEORY_OF_EVOLUTION</SoundID>
+			<SoundID>SND_TECH_MP_BIOLOGY</SoundID>
 			<Filename>Sounds/Tech/Tech_MP_FiberOptics</Filename>
+			<LoadType>DYNAMIC_RES</LoadType>
+			<bIsCompressed>1</bIsCompressed>
+			<bInGeneric>1</bInGeneric>
+		</SoundData>
+		<SoundData>
+			<SoundID>SND_TECH_MP_THEORY_OF_EVOLUTION</SoundID>
+			<Filename>Sounds/Tech/Tech_MP_Biology</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>

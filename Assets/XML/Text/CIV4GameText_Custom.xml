@@ -304,9 +304,14 @@
 		<Tag>TXT_KEY_TECH_MARINE_TECHNOLOGY_QUOTE</Tag>
 		<English>"Before that steam drill shall beat me down, I'll die with my hammer in my hand." - from "John Henry, the Steel-Driving Man"</English>
 	</TEXT>
-	<!-- custom: replace TECH_PAPER with TECH_THEORY_OF_EVOLUTION, also use the base advciv +/- civ4's TECH_FIBER_OPTICS's quote and audio if i am not mistaken anyways etc -->
+	<!-- custom: replace TECH_PAPER with TECH_THEORY_OF_EVOLUTION, also use the base advciv +/- civ4's TECH_BIOLOGY's quote and audio if i am not mistaken anyways etc -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_THEORY_OF_EVOLUTION_QUOTE</Tag>
+		<English>"It is not the strongest of the species that survive, but the one most responsive to change." - Charles Darwin (paraphrase)</English>
+	</TEXT>
+	<!-- custom: use the base advciv +/- civ4's TECH_FIBER_OPTICS's quote anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_BIOLOGY_QUOTE</Tag>
 		<English>"There is a single light of science, and to brighten it anywhere is to brighten it everywhere." - Isaac Asimov</English>
 	</TEXT>
 	<!-- custom: replace _REPLACE_PARTS and _REPLACEABLE_PARTS with _GAME_THEORY, also use the base advciv +/- civ4's TECH_RAILROAD's quote and audio if i am not mistaken anyways etc -->
