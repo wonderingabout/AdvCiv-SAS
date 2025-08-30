@@ -8411,7 +8411,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_BIOENGINEERING</SoundID>
-			<Filename>Sounds/Tech/Tech_Priesthood</Filename>
+			<Filename>Sounds/Tech/Tech_Combustion</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8425,7 +8425,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MONARCHY</SoundID>
-			<Filename>Sounds/Tech/Tech_Monarchy</Filename>
+			<Filename>Sounds/Tech/Tech_Construction</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8453,14 +8453,14 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_FEUDALISM</SoundID>
-			<Filename>Sounds/Tech/Tech_Feudalism</Filename>
+			<Filename>Sounds/Tech/Tech_DivineRight</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_POSTAXIAL_RELIGION</SoundID>
-			<Filename>Sounds/Tech/Tech_Theology</Filename>
+			<Filename>Sounds/Tech/Tech_Priesthood</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8474,7 +8474,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_CHIVALRY</SoundID>
-			<Filename>Sounds/Tech/Tech_Guilds</Filename>
+			<Filename>Sounds/Tech/Tech_Feudalism</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8488,7 +8488,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_LATER_ABRAHAMISM</SoundID>
-			<Filename>Sounds/Tech/Tech_DivineRight</Filename>
+			<Filename>Sounds/Tech/Tech_Monarchy</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8502,7 +8502,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MILITARY_TRADITION</SoundID>
-			<Filename>Sounds/Tech/Tech_MilitaryTradition</Filename>
+			<Filename>Sounds/Tech/Tech_MP_MetalCasting</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8726,7 +8726,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_COMBUSTION</SoundID>
-			<Filename>Sounds/Tech/Tech_Combustion</Filename>
+			<Filename>Sounds/Tech/Tech_Plastics</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8747,7 +8747,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_ECONOMICS</SoundID>
-			<Filename>Sounds/Tech/Tech_Plastics</Filename>
+			<Filename>Sounds/Tech/Tech_Guilds</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8803,7 +8803,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_SPACE_EXPLORATION</SoundID>
-			<Filename>Sounds/Tech/Tech_Archery</Filename>
+			<Filename>Sounds/Tech/Tech_Laser</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8838,14 +8838,14 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_METALCAST</SoundID>
-			<Filename>Sounds/Tech/Tech_MetalCasting</Filename>
+			<Filename>Sounds/Tech/Tech_Steel</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_CONSTRUCTION</SoundID>
-			<Filename>Sounds/Tech/Tech_Construction</Filename>
+			<Filename>Sounds/Tech/Tech_Military_Science</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8901,14 +8901,14 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_STEAMPOWER</SoundID>
-			<Filename>Sounds/Tech/Tech_SteamPower</Filename>
+			<Filename>Sounds/Tech/Tech_MilitaryTradition</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MARINE_TECHNOLOGY</SoundID>
-			<Filename>Sounds/Tech/Tech_Steel</Filename>
+			<Filename>Sounds/Tech/Tech_SteamPower</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9006,14 +9006,14 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_TERRAFORMING</SoundID>
-			<Filename>Sounds/Tech/Tech_Laser</Filename>
+			<Filename>Sounds/Tech/Tech_Theology</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MILITARY_SCIENCE</SoundID>
-			<Filename>Sounds/Tech/Tech_Military_Science</Filename>
+			<Filename>Sounds/Tech/Tech_Archery</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9055,7 +9055,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_BIOENGINEERING</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Priesthood</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Combustion</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9069,7 +9069,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_MONARCHY</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Monarchy</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Construction</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9097,14 +9097,14 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_FEUDALISM</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Feudalism</Filename>
+			<Filename>Sounds/Tech/Tech_MP_DivineRight</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_POSTAXIAL_RELIGION</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Theology</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Priesthood</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9118,7 +9118,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_CHIVALRY</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Guilds</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Feudalism</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9132,7 +9132,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_LATER_ABRAHAMISM</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_DivineRight</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Monarchy</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9146,7 +9146,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_MILITARY_TRADITION</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_MilitaryTradition</Filename>
+			<Filename>Sounds/Tech/Tech_MetalCasting</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9356,7 +9356,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_COMBUSTION</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Combustion</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Plastics</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9377,7 +9377,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_ECONOMICS</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Plastics</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Guilds</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9447,7 +9447,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_SPACE_EXPLORATION</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Archery</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Laser</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9482,14 +9482,14 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_METALCAST</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_MetalCasting</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Steel</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_CONSTRUCTION</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Construction</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Military_Science</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9545,14 +9545,14 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_STEAMPOWER</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_SteamPower</Filename>
+			<Filename>Sounds/Tech/Tech_MP_MilitaryTradition</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_MARINE_TECHNOLOGY</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Steel</Filename>
+			<Filename>Sounds/Tech/Tech_MP_SteamPower</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9650,14 +9650,14 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_TERRAFORMING</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Laser</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Theology</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_MILITARY_SCIENCE</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Military_Science</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Archery</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>

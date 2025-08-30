@@ -264,15 +264,16 @@
 		<Tag>TXT_KEY_TECH_MOUNTED_COMBAT_QUOTE</Tag>
 		<English>"If you speak the truth, have a foot in the stirrup." - Turkish proverb</English>
 	</TEXT>
-	<!-- custom: rename "THEOLOGY" to "POSTAXIAL_RELIGION" -->
+	<!-- custom: rename "THEOLOGY" to "POSTAXIAL_RELIGION"; update: with the quote of tech_priesthood (now removed) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_POSTAXIAL_RELIGION_QUOTE</Tag>
-		<English>"Two cities have been formed by two loves: the earthly by the love of self; the heavenly by the love of God." - St. Augustine</English>
+		<English>"The Lord bless you and keep you; the Lord make His face to shine upon you and be gracious to you; the Lord lift up His countenance upon you and give you peace." - The Bible, Numbers</English>
 	</TEXT>
-	<!-- custom: rename "DIVINE_RIGHT" to "LATER_ABRAHAMISM" -->
+	<!-- custom: rename "DIVINE_RIGHT" to "LATER_ABRAHAMISM"; update: now using the quote of tech_monarchy anyways etc -->
+	<!-- Not originally by Herodotus -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_LATER_ABRAHAMISM_QUOTE</Tag>
-		<English>"I am the state." - ascribed to Louis XIV</English>
+		<English>"A multitude of rulers is not a good thing. Let there be one ruler, one king." - Homer, The Iliad</English>
 	</TEXT>
 	<!-- custom: rename _UTOPIA to _COMMUNISM, similarly extarcted anyways etc -->
 	<TEXT>
@@ -299,10 +300,11 @@
 		<Tag>TXT_KEY_TECH_NATURALISM_QUOTE</Tag>
 		<English>"I do not feel obliged to believe that the same God who has endowed us with sense, reason, and intellect has intended us to forgo their use." - Galileo Galilei</English>
 	</TEXT>
-	<!-- custom: rename TECH_STEEL to TECH_MARINE_TECHNOLOGY anyways etc -->
+	<!-- custom: rename TECH_STEEL to TECH_MARINE_TECHNOLOGY anyways etc; update: with the quote of tech_steam_power -->
+	<!-- "anecdote" should make clear enough that it might be fictional -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_MARINE_TECHNOLOGY_QUOTE</Tag>
-		<English>"Before that steam drill shall beat me down, I'll die with my hammer in my hand." - from "John Henry, the Steel-Driving Man"</English>
+		<English>"You would make a ship sail against the winds and currents by lighting a bon-fire under her deck? I have no time for such nonsense." - Napoleon, on Robert Fulton's Steamship (anecdote)</English>
 	</TEXT>
 	<!-- custom: replace TECH_PAPER with TECH_THEORY_OF_EVOLUTION, also use the base advciv +/- civ4's TECH_BIOLOGY's quote and audio if i am not mistaken anyways etc -->
 	<TEXT>
@@ -319,10 +321,10 @@
 		<Tag>TXT_KEY_TECH_GAME_THEORY_QUOTE</Tag>
 		<English>"I fooled you, I fooled you, I got pig iron, I got pig iron, I got all pig iron." - Lonnie Donegan, "Rock Island Line"</English>
 	</TEXT>
-	<!-- custom: replace laser in "TECH_LASER" and "MP_LASER" with "_TERRAFORMING" and such anyways etc, also use the base advciv +/- civ4's TECH_LASER's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc -->
+	<!-- custom: replace laser in "TECH_LASER" and "MP_LASER" with "_TERRAFORMING" and such anyways etc, also use the base advciv +/- civ4's TECH_LASER's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc; update: with the quote of tech_theology (now removed) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_TERRAFORMING_QUOTE</Tag>
-		<English>"Nothing travels faster than the speed of light with the possible exception of bad news, which obeys its own special laws." - Douglas Adams</English>
+		<English>"Two cities have been formed by two loves: the earthly by the love of self; the heavenly by the love of God." - St. Augustine</English>
 	</TEXT>
 	<!-- custom: replace future_tech in "TECH_FUTURE" and "MP_FUTURE" with "_TRANSHUMANISM" and such anyways etc, also use the base advciv +/- civ4's future_tech's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc -->
 	<TEXT>
@@ -349,34 +351,74 @@
 		<Tag>TXT_KEY_TECH_ALIEN_LIFE_QUOTE</Tag>
 		<English>"Behind a veil, unseen yet present, I was the forceful soul that moved this mighty body." - Jean Racine</English>
 	</TEXT>
-	<!-- custom: give tech_economics quote to the now removed tech_plastics, and vice-versa if i may say too in this case at least but anyways etc ; also replace tech_plastics with tech_depopulation anyways etc -->
-	<TEXT> <!-- redefine -->
+	<!-- custom: give tech_economics quote to the now removed tech_plastics, and vice-versa if i may say too in this case at least but anyways etc; also replace tech_plastics with tech_depopulation anyways etc -->
+	<TEXT>
 		<Tag>TXT_KEY_TECH_DEPOPULATION_QUOTE</Tag>
 		<English>"Compound interest is the most powerful force in the universe." - ascribed to Albert Einstein</English>
 	</TEXT>
-	<!-- custom: give tech_economics quote to the now removed tech_plastics, and vice-versa if i may say too in this case at least but anyways etc -->
-	<TEXT> <!-- redefine -->
+	<!-- custom: give tech_economics quote to the now removed tech_plastics, and vice-versa if i may say too in this case at least but anyways etc; update: with the quote of tech_guilds (now removed) -->
+	<TEXT>
 		<Tag>TXT_KEY_TECH_ECONOMICS_QUOTE</Tag>
-		<English>"I just want to say one word to you. Just one word: plastics." - Calder Willingham, The Graduate</English>
+		<English>"People of the same trade seldom meet together, even for merriment and diversion, but the conversation ends in a conspiracy against the public." - Adam Smith</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_TECH_WATER_WHEEL_QUOTE</Tag>
 		<English>"Words have the power to both destroy and heal. When words are both true and kind, they can change our world." - ascribed to the Buddha</English>
 	</TEXT>
-	<!-- custom: replace "_GUILDS" with "_CHIVALRY" -->
+	<!-- custom: replace "_GUILDS" with "_CHIVALRY"; update: with the quote of tech_feudalism -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_CHIVALRY_QUOTE</Tag>
-		<English>"People of the same trade seldom meet together, even for merriment and diversion, but the conversation ends in a conspiracy against the public." - Adam Smith</English>
+		<English>"I will to my lord be true and faithful, and love all which he loves and shun all which he shuns." - Anglo Saxon Oath of Fealty</English>
 	</TEXT>
-	<!-- custom: replace "_PRIESTHOOD" with "_BIOENGINEERING" -->
+	<!-- custom: replace "_PRIESTHOOD" with "_BIOENGINEERING"; update: with the quote of tech_combustion -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_BIOENGINEERING_QUOTE</Tag>
-		<English>"The Lord bless you and keep you; the Lord make His face to shine upon you and be gracious to you; the Lord lift up His countenance upon you and give you peace." - The Bible, Numbers</English>
+		<English>"Everything in life is somewhere else, and you get there in a car." - E. B. White</English>
 	</TEXT>
-	<!-- custom: replace "_ARCHERY" with "_SPACE_EXPLORATION" -->
+	<!-- custom: replace "_ARCHERY" with "_SPACE_EXPLORATION"; update: with the quote of tech_laser (now removed) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_SPACE_EXPLORATION_QUOTE</Tag>
+		<English>"Nothing travels faster than the speed of light with the possible exception of bad news, which obeys its own special laws." - Douglas Adams</English>
+	</TEXT>
+	<!-- custom: now using the quote of tech_plastics (now removed) anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_COMBUSTION_QUOTE</Tag>
+		<English>"I just want to say one word to you. Just one word: plastics." - Calder Willingham, The Graduate</English>
+	</TEXT>
+	<!-- custom: now using the quote of tech_divine_right (now removed) anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_FEUDALISM_QUOTE</Tag>
+		<English>"I am the state." - ascribed to Louis XIV</English>
+	</TEXT>
+	<!-- custom: now using the quote of tech_construction anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_MONARCHY_QUOTE</Tag>
+		<English>"And on the pedestal these words appear: 'My name is Ozymandias, king of kings: Look on my works, ye Mighty, and despair!' Nothing beside remains." - Percy Bysshe Shelley</English>
+	</TEXT>
+	<!-- custom: now using the quote of tech_steel (now removed) anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_METAL_CASTING_QUOTE</Tag>
+		<English>"Before that steam drill shall beat me down, I'll die with my hammer in my hand." - from "John Henry, the Steel-Driving Man"</English>
+	</TEXT>
+	<!-- custom: now using the quote of tech_metal_casting anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_MILITARY_TRADITION_QUOTE</Tag>
+		<English>"And them that take the sword shall perish by the sword." - The Bible, Matthew</English>
+	</TEXT>
+	<!-- custom: now using the quote of tech_archery (now removed) anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_MILITARY_SCIENCE_QUOTE</Tag>
 		<English>"Do not throw the arrow which will return against you." - Kurdish Proverb</English>
+	</TEXT>
+	<!-- custom: now using the quote of tech_military_science anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_CONSTRUCTION_QUOTE</Tag>
+		<English>"I must study politics and war that my sons may have liberty to study mathematics and philosophy." - John Adams</English>
+	</TEXT>
+	<!-- custom: now using the quote of tech_military_tradition anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_STEAM_POWER_QUOTE</Tag>
+		<English>"Victorious warriors win first and then go to war, while defeated warriors go to war first and then seek to win." - Sun-Tzu</English>
 	</TEXT>
 
 

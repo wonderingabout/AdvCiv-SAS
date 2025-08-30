@@ -3060,24 +3060,6 @@
 		<Italian>"Mettiti al lavoro di buona lena." - Esopo</Italian>
 		<Spanish>"Arrima el hombro a la rueda." - Esopo</Spanish>
 	</TEXT>
-	<!-- Not originally by Herodotus -->
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_TECH_MONARCHY_QUOTE</Tag>
-		<English>"A multitude of rulers is not a good thing. Let there be one ruler, one king." - Homer, The Iliad</English>
-		<French>"Abondance de souverains nuit ! Il ne peut y en avoir qu'un, un seul Roi !" - H&#233;rodote</French>
-		<German>"Zu viele Herrscher sind nicht gut. M&#246;ge ein Herrscher als K&#246;nig regieren!" - Homer, die Ilias</German>
-		<Italian>"Non servono molti sovrani. Che il comando sia di un uomo solo, che sia proclamato un re." - Erodoto</Italian>
-		<Spanish>"No es bueno el caudillaje de muchos; sea uno solo el caudillo, uno solo el rey." - Herodoto</Spanish>
-	</TEXT>
-	<!-- "anecdote" should make clear enough that it might be fictional -->
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_TECH_STEAM_POWER_QUOTE</Tag>
-		<English>"You would make a ship sail against the winds and currents by lighting a bon-fire under her deck? I have no time for such nonsense." - Napoleon, on Robert Fulton's Steamship (anecdote)</English>
-		<French>"Vous feriez avancer un navire contre vents et courants en allumant un brasier sous le pont ? Je n'ai pas de temps &#224; perdre avec de telles inepties." - Napol&#233;on parlant du bateau &#224; vapeur de Robert Fulton</French>
-		<German>"Was veranlasst Sie zu der Annahme, dass ein Schiff gegen den Wind und gegen die Str&#246;mung segeln k&#246;nnte, wenn man nur ein Feuer unter Deck anz&#252;nde? Ich habe keine Zeit, mir so einen Unsinn anzuh&#246;ren." - Napoleon &#252;ber Robert Fultons Dampfschiff (Anekdote)</German>
-		<Italian>"Quindi per far andare una nave controvento dovresti accendere un fuoco nella stiva? Non ho tempo per queste idiozie." - Napoleone a proposito della nave a vapore di Robert Fulton</Italian>
-		<Spanish>"-&#191;Usted har&#237;a barcos que navegaran contra las corrientes y los vientos con solo encender una caldera bajo la cubierta? &#173;Disc&#250;lpeme, no tengo tiempo para escuchar tonter&#237;as." - Napole&#243;n, hablando del barco a vapor de Robert Fulton</Spanish>
-	</TEXT>
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_TECH_NATIONALISM_QUOTE</Tag>
 		<English>"A man does not have himself killed for a half-pence a day or for a petty distinction. You must speak to the soul in order to electrify him." - ascribed to Napoleon Bonaparte</English>

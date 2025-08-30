@@ -40,6 +40,51 @@ as for the value itself the cost reduction will be seemingly higher the more the
 So in other words, if i am not mistaken, but anyways etc ( ...), this adjusts for highest difficulties where AIs have massive boosts and tones these down a bit to a softer formula or something or maybe rather a smoother slower game pace from AIs at higher(st) difficulties (but anyways etc ( ...)), at least i am guessing it does this, i could or not be mistaken but anyways etc, what we'll do for advciv-sas is try to make the game more gradual, but also AIs stronger without (it) being a grind but anyways etc, so we'll none ideally or close to none cost reduction, except from natural (if i may say but anyways etc...) or something adjustments as part of cities growing or such, but not sure we'll/'d handled it in such a way or how we'd do (i have an idea but will see how to adjust or reconsider as in recontemplate if i may say but anyways etc how i'd want AIs at higher difficulties relate to human players in terms of challenge (i want it higher) and no grind (i want less grind, competent AI, but ideally and if not possible too i mean but anyways etc, forgot my sentence but anyways etc, in short, but anyways etc or not short indeed but anyways etc..., make difficulties more gradual and AI competitive where it does not have a huge unfair advantage ideally hard or painful to overcome but is consistently stronger more efficient or feels like so without being too ahead in tech or such like wonders or such, will see how handled and if possible ideally or not or yes or etc but that is/would be the goal indeed but not sure or yes or not but in all cases anyways etc...
 
 So for now not changing it, may be adjusted in the future ideally indeed or may not be will see or may, but in all cases anyways etc...
+
+update: it seems to be called in functions like CvPlayer::getProductionNeeded and CvPlayer::trainingModifierFromHandicap and CvTeam::getResearchCost and CvPlayer::getGrowthThreshold
+
+like this for example for the first function i quoted but anyways etc
+
+		int iAIModifier = //h.getAIPerEraModifier() * getCurrentEra()
+				kGame.AIHandicapAdjustment();
+		if(GC.getInfo(eProject).isWorldProject())
+			iAIModifier += h.getAIWorldCreatePercent();
+		else iAIModifier += h.getAICreatePercent();
+		iProductionNeeded *= iAIModifier;
+
+so this would explain why our AIs run away midgame with huge military despite the conservative and gradual handicap settings i tried to implement.
+
+Since this interferes with how i want to balance the game, directly via the handicap modifiers like iAITrainPercent or iAIConstructPercent or such and have a balanced and fair game where AI plays well at all difficulties and gradually harder not exponentially and having a close hard fought game not this shit xd if i'm not mistaken, disabling it if i understood it correctly anyways etc.
+
+I asked chatgpt 5 to be sure and to confirm it as some of it was unclear to me, and indeed i mean thanks to it i see very clearly i should set this to 0 at all difficulties as i want it if i want reliable handicap settings. (Then adjust as i want fields like iAITrainPercent or such anyways etc), but check if accurate anyways etc.
+
+Here is its explanation based on code samples i fed it too (and most of the above explanation as well but anyways etc):
+
+beginning of quote
+"
+- Yes—you’ve read it right. iAIHandicapIncrementTurns adds a linear, time-based discount for AIs that stacks every so many turns (scaled by game speed).
+- To disable it without recompiling, set iAIHandicapIncrementTurns to 0 in CIV4HandicapInfo.xml. Setting it to 100 does not disable it; it just makes the drip very slow.
+"
+end of quote
+
+it also said:
+beginning of quote
+"
+This is a (usually negative) percentage points value that gets added to the various AI Percent fields when costs are computed (train/construct/world variants, research, growth threshold, etc.). With a positive iAIHandicapIncrementTurns, the return value is negative and grows in magnitude over time ⇒ AI costs go down the longer the game runs.
+
+Rule of thumb on Normal speed (getSpeedPercent()==100):
+iAIHandicapIncrementTurns = 100 → about –1% per 100 turns
+
+50 → –2% per 100 turns
+33 → ≈ –3% per 100 turns
+25 → –4% per 100 turns
+20 → –5% per 100 turns
+
+So across 300–400 turns, those add up (e.g., 20 yields roughly –15% to –20% total extra discount by late game). That’s likely a contributor to the midgame AI runaway you’re seeing even with conservative base handicap percents.
+"
+end of quote
+
+And i didn't want to recompile so i asked it as such too if i may say but anyways etc, and it confirmed i mean that i can do 0 rather and no recompile but anyways etc
 -->
 <!-- custom: note: iResearchPercent and iAIResearchPercent are now in our mod but anyways etc used as of now to adjust AI building priorities for example as of now for espionage and espionage defense buildings in particular, in the DLL in as of now CvCityAI::AI_buildingValue, if you adjust these here, try to match the changes there, general idea is as of now that at highest difficulties where AI has a tech research advantage, it needs to protect itself against human in particular spy attempts, vs when having research penalties in lowest difficulties, it needs to engage in spying more (at least as for us building such buildings more or/and with a higher priority rather as of now at least but anyways etc) and not care as much about spying defense, see there for details, anyways etc -->
 <!-- Handicap Infos -->
@@ -137,9 +182,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- custom: reworked tech costs, see deity code comment of <iResearchPercent> for details at least as of now the code comment is there i mean anyways etc -->
 			<iAIResearchPercent>124</iAIResearchPercent>
 			<!-- was 6x 160 -->
-			<iAITrainPercent>112</iAITrainPercent>
+			<iAITrainPercent>115</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
-			<iAIConstructPercent>112</iAIConstructPercent>
+			<iAIConstructPercent>115</iAIConstructPercent>
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
 			<iAICreatePercent>106</iAICreatePercent>
 			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
@@ -263,9 +308,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIGPThresholdPercent>110</iAIGPThresholdPercent>
 			<iAIResearchPercent>116</iAIResearchPercent>
 			<!-- was 6x 130 -->
-			<iAITrainPercent>108</iAITrainPercent>
+			<iAITrainPercent>110</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
-			<iAIConstructPercent>108</iAIConstructPercent>
+			<iAIConstructPercent>110</iAIConstructPercent>
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
 			<iAICreatePercent>104</iAICreatePercent>
 			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
@@ -388,9 +433,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIGPThresholdPercent>105</iAIGPThresholdPercent>
 			<!-- advc.251 -->
 			<iAIResearchPercent>108</iAIResearchPercent>
-			<iAITrainPercent>104</iAITrainPercent>
+			<iAITrainPercent>105</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
-			<iAIConstructPercent>104</iAIConstructPercent>
+			<iAIConstructPercent>105</iAIConstructPercent>
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
 			<iAICreatePercent>102</iAICreatePercent>
 			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
@@ -649,9 +694,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIGPThresholdPercent>95</iAIGPThresholdPercent>
 			<!-- advc.251 -->
 			<iAIResearchPercent>92</iAIResearchPercent>
-			<iAITrainPercent>96</iAITrainPercent>
+			<iAITrainPercent>95</iAITrainPercent>
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
-			<iAIConstructPercent>96</iAIConstructPercent>
+			<iAIConstructPercent>95</iAIConstructPercent>
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
 			<iAICreatePercent>97</iAICreatePercent>
 			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
@@ -662,7 +707,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIInflationPercent>95</iAIInflationPercent>
 			<iAIWarWearinessPercent>94</iAIWarWearinessPercent>
 			<!-- advc.251: Renamed; was 1 per era. -->
-			<iAIHandicapIncrementTurns>100</iAIHandicapIncrementTurns>
+			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 110 -->
 			<iAIAdvancedStartPercent>125</iAIAdvancedStartPercent>
 			<!-- advc.148 -->
@@ -786,11 +831,11 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIGPThresholdPercent>90</iAIGPThresholdPercent>
 			<iAIResearchPercent>84</iAIResearchPercent>
 			<!-- was 90 -->
-			<iAITrainPercent>92</iAITrainPercent>
+			<iAITrainPercent>90</iAITrainPercent>
 			<!-- was 100 -->
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<!-- was 90 -->
-			<iAIConstructPercent>92</iAIConstructPercent>
+			<iAIConstructPercent>90</iAIConstructPercent>
 			<!-- was 100 -->
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
 			<iAICreatePercent>94</iAICreatePercent>
@@ -804,7 +849,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIInflationPercent>90</iAIInflationPercent>
 			<iAIWarWearinessPercent>88</iAIWarWearinessPercent>
 			<!-- advc.251: Renamed; was 2 per era. -->
-			<iAIHandicapIncrementTurns>50</iAIHandicapIncrementTurns>
+			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 120 -->
 			<iAIAdvancedStartPercent>145</iAIAdvancedStartPercent>
 			<!-- advc.148 -->
@@ -922,11 +967,11 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- Higher tech costs for the AI -->
 			<iAIResearchPercent>76</iAIResearchPercent>
 			<!-- was 85 -->
-			<iAITrainPercent>88</iAITrainPercent>
+			<iAITrainPercent>85</iAITrainPercent>
 			<!-- was 100 -->
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<!-- was 85 -->
-			<iAIConstructPercent>88</iAIConstructPercent>
+			<iAIConstructPercent>85</iAIConstructPercent>
 			<!-- was 100 -->
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
 			<iAICreatePercent>91</iAICreatePercent>
@@ -940,7 +985,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIInflationPercent>85</iAIInflationPercent>
 			<iAIWarWearinessPercent>82</iAIWarWearinessPercent>
 			<!-- advc.251: Renamed; was 3 per era. -->
-			<iAIHandicapIncrementTurns>33</iAIHandicapIncrementTurns>
+			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 135 -->
 			<iAIAdvancedStartPercent>175</iAIAdvancedStartPercent>
 			<!-- advc.148 -->
@@ -1067,10 +1112,10 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- Higher tech costs for the AI -->
 			<iAIResearchPercent>68</iAIResearchPercent>
 			<!-- was 80 -->
-			<iAITrainPercent>84</iAITrainPercent>
+			<iAITrainPercent>80</iAITrainPercent>
 			<!-- was 100 -->
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
-			<iAIConstructPercent>84</iAIConstructPercent>
+			<iAIConstructPercent>80</iAIConstructPercent>
 			<!-- was 100 -->
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
 			<iAICreatePercent>88</iAICreatePercent>
@@ -1084,7 +1129,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIInflationPercent>80</iAIInflationPercent>
 			<iAIWarWearinessPercent>76</iAIWarWearinessPercent>
 			<!-- advc.251: Renamed; was 4 per era. -->
-			<iAIHandicapIncrementTurns>25</iAIHandicapIncrementTurns>
+			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 150 -->
 			<iAIAdvancedStartPercent>210</iAIAdvancedStartPercent>
 			<!-- advc.148 -->
@@ -1215,12 +1260,12 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<!-- Higher tech costs for the AI -->
 			<iAIResearchPercent>60</iAIResearchPercent>
 			<!-- was 60 -->
-			<iAITrainPercent>80</iAITrainPercent>
+			<iAITrainPercent>75</iAITrainPercent>
 			<!-- custom: i want more reliable handicap settings if i am not mistaken in my understanding and after asking chatgpt and with a web search i asked it to do to be sure too anyways etc, it told me "According to the Civilization Wiki, the iAIWorldTrainPercent values vary across difficulty levels:" etc.. until "Settler	160 Chieftain 130 Warlord 110 Noble 100 Prince 100 Monarch 100 Emperor 100 Immortal 100 Deity 100" so based on this xml raw data and observation, what i make of it and interpret of it if i may say for our needs in advciv-sas but anyways etc, is that i want reliable AI behaviour when it comes to military hammer train percents, regardless of world size at all difficulties, anyways etc ; seemingly similar reasoning for iAIWorldConstructPercent and iAIWorldCreatePercent if i am not mistaken too anyways etc -->
 			<!-- was 100-->
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<!-- was 60 -->
-			<iAIConstructPercent>80</iAIConstructPercent>
+			<iAIConstructPercent>75</iAIConstructPercent>
 			<!-- was 100 -->
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
 			<!-- was 60 -->
@@ -1236,8 +1281,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may 
 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
 			<iAIInflationPercent>75</iAIInflationPercent>
 			<iAIWarWearinessPercent>70</iAIWarWearinessPercent>
+			<!-- custom: now disabled at all difficulties/handicap settings, as it is unreliable, game breaking, and uneeded, i can adjust iAITrainPercent or/and such other fields for a more even and fair game if needed or harder one as i see fit, and not exponentially harder one. Our AI is efficient with its hammer now so it always runs away at emperor autoplay at least, i suspect due to this or it could be one of the contributing factors, i don't like it anyway so disabled if i may say xd, as confirmed by chatgpt 5, check if accurate, anyways etc; as a side effect, AIs will produce less units, so they'll go bankrupt later or not at all maybe, so will probably help them a lot in the long term if i may say, i hate this kind of very uneeded and sneaky settings added instead of improving the AI rather, but anyways etc -->
 			<!-- advc.251: Renamed; was 5 per era. -->
-			<iAIHandicapIncrementTurns>20</iAIHandicapIncrementTurns>
+			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 170 -->
 			<iAIAdvancedStartPercent>270</iAIAdvancedStartPercent>
 			<!-- advc.148 -->

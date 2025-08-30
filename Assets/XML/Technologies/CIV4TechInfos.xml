@@ -226,7 +226,8 @@
 			<!--custom: todo:<iCost>10000</iCost>-->
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<Era>ERA_FUTURE</Era>
+			<Era>ERA_ANCIENT</Era>
+			<!--custom: todo:<Era>ERA_FUTURE</Era>-->
 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
@@ -4612,7 +4613,8 @@
 			<!--custom: todo:<iCost>10000</iCost>-->
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<Era>ERA_FUTURE</Era>
+			<Era>ERA_ANCIENT</Era>
+			<!--custom: todo:<Era>ERA_FUTURE</Era>-->
 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
