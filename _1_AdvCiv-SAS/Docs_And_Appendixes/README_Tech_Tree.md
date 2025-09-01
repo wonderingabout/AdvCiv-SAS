@@ -59,3 +59,139 @@ Then if i am not mistaken much later i did this swapping based version but that 
 (click on google drive link at top of this readme to view it on google drive rather at full size anyways etc)
 
 ![0.30b_tech_tree_mini_temp.png](https://drive.google.com/thumbnail?id=1e42RDsufVEuBpY9ZVii2uFC65wXP-wnt&sz=w4000)
+
+## Starting techs rework
+
+As it is too lengthy to put in the [README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md), here are how we changed the starting civ techs in our mod
+
+### before most recent as of now rework anyways etc
+
+Done amazingly by chatgpt 5 (numbers are line in our xml civilization info file as of now anyways etc), check if accurate and thanks a lot chatgpt 5 and thanks to my prompt and such too if i may say but anyways etc
+
+| Civ                      | Lines       | FreeTechs                               | Allowed-only? |
+|--------------------------|-------------|------------------------------------------|---------------|
+| America                  | 9–142       | 109→Fishing, 113→Agriculture             | ❌            |
+| Arabia                   | 143–244     | 219→The Wheel, 223→Mysticism             | ❌            |
+| Aztec                    | 245–346     | 321→Mysticism, 325→Hunting               | ✅            |
+| Babylon                  | 347–452     | 427→Agriculture, 431→The Wheel           | ❌            |
+| Byzantium                | 453–562     | 537→The Wheel, 541→Mysticism             | ❌            |
+| Carthage                 | 563–669     | 644→Fishing, 648→Mining                  | ✅            |
+| Celt                     | 670–784     | 755→Hunting, 759→Mysticism               | ✅            |
+| China                    | 785–898     | 869→Agriculture, 873→Mining              | ❌            |
+| Egypt                    | 899–1024    | 995→The Wheel, 999→Agriculture           | ❌            |
+| England                  | 1025–1136   | 1103→Fishing, 1107→Mining                | ✅            |
+| Ethiopia                 | 1137–1256   | 1215→Hunting, 1219→Mining                | ✅            |
+| Kingdom of Benin         | 1257–1366   | 1341→Mysticism, 1345→Fishing             | ✅            |
+| France                   | 1367–1480   | 1447→The Wheel, 1451→Agriculture         | ❌            |
+| Germany                  | 1481–1603   | 1574→Pottery, 1578→Mining                | ✅            |
+| Greece                   | 1604–1718   | 1689→Fishing, 1693→Hunting               | ✅            |
+| Holy Roman               | 1719–1830   | 1805→Mysticism, 1809→Hunting             | ✅            |
+| Inca                     | 1831–1931   | 1906→Agriculture, 1910→Mysticism         | ❌            |
+| India                    | 1932–2098   | 2069→Mysticism, 2073→Mining              | ✅            |
+| Japan                    | 2099–2199   | 2174→Fishing, 2178→The Wheel             | ❌            |
+| Khmer                    | 2200–2307   | 2282→Hunting, 2286→Mining                | ✅            |
+| Korea                    | 2308–2404   | 2379→Mining, 2383→Mysticism              | ✅            |
+| Mali                     | 2405–2500   | 2475→The Wheel, 2479→Mining              | ❌            |
+| Maya                     | 2501–2610   | 2585→Mining, 2589→Mysticism              | ✅            |
+| Mongol                   | 2611–2713   | 2684→The Wheel, 2688→Hunting             | ❌            |
+| Native America           | 2714–2829   | 2804→Agriculture, 2808→Fishing           | ❌            |
+| Netherlands              | 2830–2942   | 2917→Agriculture, 2921→Fishing           | ❌            |
+| Ottoman                  | 2943–3048   | 3019→The Wheel, 3023→Agriculture         | ❌            |
+| Persia                   | 3049–3183   | 3154→Agriculture, 3158→Hunting           | ❌            |
+| Portugal                 | 3184–3294   | 3269→Fishing, 3273→Mining                | ✅            |
+| Rome                     | 3295–3419   | 3390→Fishing, 3394→Mining                | ✅            |
+| Russia                   | 3420–3531   | 3498→Hunting, 3502→Mining                | ✅            |
+| Spain                    | 3532–3638   | 3613→Fishing, 3617→Mysticism             | ✅            |
+| Sumeria                  | 3639–3742   | 3716→Mysticism, 3720→Pottery             | ✅            |
+| Scandinavia              | 3743–3847   | 3822→Fishing, 3826→Hunting               | ✅            |
+| Zulu                     | 3848–3949   | 3924→Agriculture, 3928→Hunting           | ❌            |
+| Minor                    | 3950–4087   | 4046→Mining, 4050→Mysticism, 4054→Fishing, 4058→The Wheel, 4062→Agriculture, 4066→Hunting | ❌ |
+| Barbarian                | 4088–EOF    | 4487→Pottery, 4491→Fishing, 4495→Seafaring, 4500→Masonry | ❌ |
+
+Without counting barbarians and minor, the total count among civs is as of now (thanks to chatgpt 5 too and my prompt and such too hehe but anyways etc):
+
+Allowed starting techs
+
+- Mining:     13
+- Fishing:    12
+- Mysticism:  12
+- Hunting:    11
+- Pottery:     2
+
+### after most recent as of now rework anyways etc
+
+After a few or quite many back and forth and reviewing rounds with chatgpt 5 which helped me tons but also me hehe and my own ideas but it helped lot too but anyways etc, here are (below but anyways etc) the adjusted starting techs for civs as of now in advciv-sas, written by chatgpt 5. This was mostly to remove/replace old now removed tech_agriculture and tech_the_wheel starters that are now no longer starting techs, as well as quite along with it rebalance it and rework it all if i may say but anyways etc. I think the result is really good at least much better than it was check if accurate anyways etc.
+
+#### main table (chatgpt 5 written anyways etc)
+
+> Goals: (1) stay historically/thematically sane, (2) avoid **too many repeats** of the same pair, and (3) **minimize “amazing” pairs** like **Mining+Hunting** (early rush spike) and **Mining+Pottery** (eco+production spike) — while keeping a **few** for clear identity/variety.  
+> Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it selectively.  
+> **Balance status:** global totals are **14 each** (Fishing, Pottery, Mysticism, Hunting, Mining).
+
+| Civ               | Old FreeTechs                 | New FreeTechs                 | Rationale |
+|-------------------|-------------------------------|-------------------------------|-----------|
+| America           | Fishing, Agriculture          | **Fishing, Hunting**          | Drops disallowed Agriculture. Frontier/scouting flavor; modest econ. *Avoids Mining+Hunting / Mining+Pottery.* |
+| Arabia            | The Wheel, Mysticism          | **Mysticism, Pottery**        | Replaces Wheel. Oasis trade + early religion; balanced culture/commercial start. *Avoids Mining+Pottery.* |
+| Aztec             | Mysticism, Hunting            | **Mining, Mysticism**         | **Jaguar** now at Bronze Working → Mining speeds access. Mysticism matches ritual/state culture. We **avoid Mining+Hunting** to curb rush. |
+| Babylon           | Agriculture, The Wheel        | **Pottery, Mysticism**        | Clay/brick + temples identity; compliant and steady. *Skips Mining to avoid Mining+Pottery.* |
+| Byzantium         | The Wheel, Mysticism          | **Mysticism, Fishing**        | Bosporus/seaborne empire + spiritual tone; removes early-road snowball. |
+| Carthage          | Fishing, Mining               | **Fishing, Pottery**          | Maritime commerce + cottages; **drops Mining** to lower early snowball and reduce pair repetition. |
+| Celt              | Hunting, Mysticism            | **Hunting, Mining**           | **Gallic Warrior** metallurgy path justified; shifts from “druidic” to martial. **Intentional strong pair** (Mining+Hunting) for UU identity; kept rare overall. |
+| China             | Agriculture, Mining           | **Mining, Pottery**           | Bronze/iron + ceramics traditions; we keep this as **one of the few** strong **Mining+Pottery** pairs for identity. |
+| Egypt             | The Wheel, Agriculture        | **Fishing, Pottery**          | Nile fishing + ubiquitous ceramics; removes early-road snowball and *avoids Mining+Pottery.* |
+| England           | Fishing, Mining               | **Fishing, Mining**           | Industrial metals identity fits; Fishing+Mining is acceptable (Fishing is weakest). Also avoids overusing Mining+Pottery. |
+| Ethiopia          | Hunting, Mining               | **Hunting, Mysticism**        | Highlands/faith; **removes Mining+Hunting** spike while keeping early defense. |
+| Kingdom of Benin  | Mysticism, Fishing            | **Mysticism, Fishing**        | Coastal trade + religious courts; already balanced and flavorful. |
+| France            | The Wheel, Agriculture        | **Hunting, Pottery**          | Aristocratic hunt + towns; replaces disallowed pair; ceded Mining for global balance/diversity. |
+| Germany           | Pottery, Mining               | **Pottery, Mining**           | Crafts + metalwork flexibility. **One of the few** Mining+Pottery we keep (Old World metallurgy). |
+| Greece            | Fishing, Hunting              | **Fishing, Mysticism**        | Still coastal/Aegean, but we emphasize oracles/cults/philosophy. Frees a Mining slot; avoids Mining+Pottery/Hunting spikes. |
+| Holy Roman        | Mysticism, Hunting            | **Mysticism, Hunting**        | Clerical legitimacy + levies; varied without Mining spikes. |
+| Inca              | Agriculture, Mysticism        | **Mysticism, Pottery**        | Andean ritual + terrace/cottage econ; deliberately *avoids Mining* to keep starts fair. |
+| India             | Mysticism, Mining             | **Mysticism, Mining**         | Spiritual tradition + engineering; not an “amazing” pair. |
+| Japan             | Fishing, The Wheel            | **Fishing, Hunting**          | Keeps maritime identity; **Jōmon hunter-gatherer** roots make Hunting plausible. Avoids adding another Mining+Pottery or Mining+Hunting. |
+| Khmer             | Hunting, Mining               | **Fishing, Hunting**          | Tonlé Sap/Mekong fisheries + elephants/camps; **removes Mining+Hunting** rush spike. |
+| Korea             | Mining, Mysticism             | **Mining, Mysticism**         | Metalwork/engineering + Confucian culture; solid, non-“amazing” pair. |
+| Mali              | The Wheel, Mining             | **Hunting, Pottery**          | **Skirmisher** alignment via Hunting; Pottery for commerce; Wheel dropped. Religious angle exists, but this keeps them fair and avoids Mining spikes. |
+| Maya              | Mining, Mysticism             | **Mining, Mysticism**         | Stonework/metals + religion/astronomy; avoids the “amazing” pairings. |
+| Mongol            | The Wheel, Hunting            | **Hunting, Pottery**          | Steppe military + simple econ; *no Mining* to avoid rush/econ spikes. |
+| Native America    | Agriculture, Fishing          | **Hunting, Mining**           | Replace inland Fishing with Mining (abstracts obsidian/flint/quarries). **Dog Soldier** benefits from the Bronze Working line. Adds one OP pair by design; helps identity. |
+| Netherlands       | Agriculture, Fishing          | **Fishing, Pottery**          | Maritime commerce + early cottages; *no Mining* for a gentler opener. |
+| Ottoman           | The Wheel, Agriculture        | **Hunting, Pottery**          | Anatolian frontier/ghazi tradition (Hunting) plus early crafts/urbanization (Pottery). Skips Mining to avoid an early power spike and helps global balance (frees room for Russia’s landward re-theme). The pair is versatile but not “amazing.” |
+| Persia            | Agriculture, Hunting          | **Hunting, Mining**           | Nearer to **Iron Working** path in your tree; strong metallurgy tradition. We accept one more OP pair for identity; totals remain balanced. |
+| Portugal          | Fishing, Mining               | **Fishing, Pottery**          | Age-of-Discovery maritime commerce; Mining ceded to reduce repetition and fund other civs’ thematic needs. |
+| Rome              | Fishing, Mining               | **Fishing, Mining**           | Metals for **Praetorian** timing; avoids Hunting and Mining+Pottery extremes. |
+| Russia            | Hunting, Mining               | **Pottery, Mining**           | Land-empire emphasis (settlement/crafts) and less “fishy” opening. Keeps metal identity while replacing Fishing; also offsets Ottoman’s change to keep 14/14/14/14/14 totals. |
+| Spain             | Fishing, Mysticism            | **Fishing, Mysticism**        | Maritime reach + organized religion; avoids Mining spikes. |
+| Sumeria           | Mysticism, Pottery            | **Mysticism, Mining**         | **Vulture** (axe) loves metals; still not the “amazing” Mining+Pottery/Hunting. |
+| Scandinavia       | Fishing, Hunting              | **Fishing, Hunting**          | Seafaring + raiding/hunting; balanced opener without Mining; keeps variety. |
+| Zulu              | Agriculture, Hunting          | **Hunting, Mining**           | **Intentionally keep an OP pair (Mining+Hunting)** for **Impi** flavor/identity; brings Agriculture into compliance. |
+
+#### Global tech totals (should sum to 70 = 35 civs × 2)
+
+| Tech      | Count |
+|-----------|-------|
+| Fishing   | 14    |
+| Hunting   | 14    |
+| Mysticism | 14    |
+| Pottery   | 14    |
+| Mining    | 14    |
+
+#### Starting pair counts (canonicalized; order-insensitive)
+
+| Pair                   | Count |
+|------------------------|-------|
+| Mining + Mysticism     | 5     |
+| Fishing + Hunting      | 4     |
+| Fishing + Mysticism    | 4     |
+| Fishing + Pottery      | 4     |
+| Hunting + Mining       | 4     |
+| Hunting + Pottery      | 4     |
+| Mysticism + Pottery    | 3     |
+| Mining + Pottery       | 3     |
+| Fishing + Mining       | 2     |
+| Hunting + Mysticism    | 2     |
+
+**Sanity checks:**
+
+- Pair counts sum to **35** civs.  
+- Tech totals sum to **70** picks (5 techs × 14 each). ✅

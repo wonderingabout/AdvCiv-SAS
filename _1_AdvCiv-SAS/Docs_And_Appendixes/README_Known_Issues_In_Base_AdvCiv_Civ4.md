@@ -2168,7 +2168,7 @@ I am very happy of this result and of us (i.e. me or/and maybe players xd but an
 
 See also: [57 (Not reproductible) Unknown game crash at turn 94](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#57-not-reproductible-unknown-game-crash-at-turn-94)
 
-## 57 (Not reproductible) Unknown game crash at turn 94
+## 57 (reproductible and as of now not yet fixed if ever fixed anyways etc) Unknown game crash at turn 94 (this one isn't reproductible) but also at turn 95 in another map (this one IS reproductible)
 
 See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/15z0uxT_RxClHNk0u7HnlcmqdmA9gLNkO?usp=sharing)
 
@@ -2176,4 +2176,6 @@ I cannot reproduce it from same save file at least not in a few retries (even ex
 
 No idea what the cause is, but could be DLL related based on the .dmp (see screenshot) (although this is just a guess, check if accurate and i don't know too much about these anyways etc).
 
-Btw, if useful, i have added info on how to enable .dmp files at crash here in [Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crash-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crash-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash-anyways-etc), anyways etc.
+Btw, if useful, i have added info on how to enable .dmp files at crash here in [Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash-anyways-etc), anyways etc.
+
+Update: however after our starting techs changes/reworks, now on map number 385 (is just my own numbering of testing map, not related to any other popular save or such numbering or purely coincidental if so anyways etc), starting from save file (appended in drive link anyways etc) at turn 50, autoplay 50 turns and we reliably crash at turn 95. Very unlikely to be caused by this pure xml civilization info change, especially considering past history of recent crashes in this case i mean but anyways etc, but since this crash is now (assuming is the same, regardless we'd have to debug or attempt to debug or fix it ideally anyways etc) reproductible so this could be used to investigate why or/and such anyways etc.

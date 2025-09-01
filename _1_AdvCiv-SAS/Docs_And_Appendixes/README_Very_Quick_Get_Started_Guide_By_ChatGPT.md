@@ -2,15 +2,62 @@
 
 This guide highlights key differences between AdvCiv-SAS and AdvCiv/Civ4 BTS. It’s intentionally practical and a bit verbose so newer players can follow the “what changed” and “why it matters.” For technical details, see the main [README](/README.md) and the docs under [/_1_AdvCiv-SAS/](/_1_AdvCiv-SAS/).
 
+## Menu
+
+[Sevopedia](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#sevopedia)  
+[Handicap info tables (.csv / .md) and script](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#handicap-info-tables-csv--md-and-script)  
+[Full code diff (very long)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#full-code-diff-very-long)  
+[Main Changes — quick starter guide](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#main-changes--quick-starter-guide)  
+&emsp;[Translations](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#translations)  
+&emsp;[Renaming (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#renaming-non-exhaustive)  
+&emsp;[Sevopedia reworks & related UI](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#sevopedia-reworks--related-ui)  
+&emsp;[Concepts (currently under “Outdated” category)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#concepts-currently-under-outdated-category)  
+&emsp;[AI — General behaviour (non-exhaustive; see XML/Defines for full detail)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#ai--general-behaviour-non-exhaustive-see-xmldefines-for-full-detail)  
+&emsp;&emsp;[General changes (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#general-changes-ai)  
+&emsp;&emsp;[Units in general (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#units-in-general-ai)  
+&emsp;&emsp;[Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#settlers-ai)  
+&emsp;&emsp;[Workers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#workers-ai)  
+&emsp;&emsp;[Specialists (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#specialists-ai)  
+&emsp;&emsp;[City Production (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#city-production-ai)  
+&emsp;&emsp;[Leaders (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#leaders-ai)  
+&emsp;&emsp;[Buildings (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#buildings-ai)  
+&emsp;&emsp;[Military (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#military-ai)  
+&emsp;[UI / In-game](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#ui--in-game)  
+&emsp;[General changes (non-exhaustive; see GlobalDefines/XML)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#general-changes-non-exhaustive-see-globaldefinesxml)  
+&emsp;[Handicap i.e. difficulty settings (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#handicap-ie-difficulty-settings-non-exhaustive)  
+&emsp;[Specialists (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#specialists-non-exhaustive)  
+&emsp;[Terrains / Features (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#terrains--features-non-exhaustive)  
+&emsp;[Bonus (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#bonus-non-exhaustive)  
+&emsp;[Improvements & worker builds (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#improvements--worker-builds-non-exhaustive)  
+&emsp;[Technologies (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#technologies-non-exhaustive)  
+&emsp;[Eras](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#eras)  
+&emsp;[Civilizations (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#civilizations-non-exhaustive)  
+&emsp;[Leaders (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#leaders-non-exhaustive)  
+&emsp;[Barbarians (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#barbarians-non-exhaustive)  
+&emsp;[Traits (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#traits-non-exhaustive)  
+&emsp;[Culture](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#culture)  
+&emsp;[Religions (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#religions-non-exhaustive)  
+&emsp;[Corporations (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#corporations-non-exhaustive)  
+&emsp;[Civilian Units](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#civilian-units)  
+&emsp;[Military & related units (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#military--related-units-non-exhaustive)  
+[Fixes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#fixes)  
+
 ## Sevopedia
 
 Some changes are also summarized directly in the Sevopedia. See [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md). Sample screenshots are provided there.
 
 - New/updated Sevopedia content (e.g., the AI personality panel with raw attributes and cross-leader comparisons) aims to make leader behavior easier to understand. See the section above for images and details.
 
+<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG" alt="0.620_sevopedia_leaders_sample (1).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG" alt="0.620_sevopedia_leaders_sample (2).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG" alt="0.620_sevopedia_leaders_sample (3).JPG" width="250"></img>
+
 ## Handicap info tables (.csv / .md) and script
 
-To help compare difficulty (“handicap”) settings, tables are generated as CSV/MD. See README: Handicap tables for examples and the script that produces them.
+To help compare difficulty (“handicap”) settings, tables are generated as CSV/MD. [See README: Handicap tables](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info) for examples and the script that produces them.
+
+<img src="../Images_In_General/scripts/csv_handicap_info_github_view_example.PNG" alt="csv_handicap_info_github_view_example.PNG" width="250"></img>
+<img src="../Images_In_General/scripts/csv_md_handicap_vs_code_preview_example.PNG" alt="csv_md_handicap_vs_code_preview_example.PNG" width="250"></img>
 
 ## Full code diff (very long)
 
@@ -179,7 +226,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
 ### Improvements and worker builds (non-exhaustive)
 
 - **Tech prereqs** adjusted (e.g., **Quarry** earlier; **Remove Forest** and **Remove Jungle** available together and earlier).
-- **Farms without irrigation** unlock at **Engineering**.
+- **Farms without irrigation** unlock at **Water Wheel**.
 - **Worker cost reduced** (see XML for exact value).
 - **Workshops** can be built on **tundra** (`<TerrainMakesValids>`).
 - **Railroads** placed earlier in the tree (**Steam Power**). See Techs.
@@ -192,6 +239,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
 - **TECH_COST_NOTRADE_MODIFIER** **-23 → -20** (when No Tech Trading game option is on). See *GlobalDefines_advc.xml*.
 - **Exponential pacing**: fewer late‑era techs/units to avoid a tedious endgame.
 - **FirstFreeUnitClass** assignments reshuffled to diversify GP races (one GP type per tech; often earlier).
+- **Starting techs — reworked**: `TECH_AGRICULTURE` & `TECH_THE_WHEEL` are **no longer** starting techs; `TECH_POTTERY` **now is**. Even distribution across **35** civs (**70 total; 2 per civ ⇒ ~14 per tech**). A **“pair”** = a civ’s two starting techs (unordered), e.g., **Native Americans** now `HUNTING + MINING` (fits Dog Soldier / Bronze Working). **Current** max pair frequency is **5** (not a hard cap). Done with **heavy assistance from ChatGPT-5** plus manual tuning. Details: [starting-techs](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#starting-techs-rework) • [civ list & rationale](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#after-most-recent-as-of-now-rework-anyways-etc).
 
 ### Eras
 
