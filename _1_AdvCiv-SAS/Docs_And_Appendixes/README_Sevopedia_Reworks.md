@@ -153,7 +153,7 @@ See also the [features category rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/READM
 
 ## example 10: techs category
 
-This is a more recent refactor and beautify that adds era information (currently does nothing in advciv-sas if i am not mistaken anyways etc, may always stay so or not, see quick start guide for info there if any anyways etc) and such other beautifications. The info pane (top left info of the tech, era, cost as of now anyways etc) in particular is imported from rfc doc mod and modified/beautified/adjusted further or not for advciv-sas anyways etc.
+This is a more recent refactor and beautify that adds era information and such other beautifications. The info pane (top left info of the tech, era, cost as of now anyways etc) in particular is imported from rfc doc mod and modified/beautified/adjusted further or not for advciv-sas anyways etc.
 
 Before that, i had also added a list of untradeable techs following the anti tech whoreism changes in advciv-sas (see the [README_Quick_Get_Started_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details) for details as well anyways etc)
 

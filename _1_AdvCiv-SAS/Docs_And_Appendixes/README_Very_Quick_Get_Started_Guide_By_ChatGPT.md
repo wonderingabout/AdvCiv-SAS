@@ -133,7 +133,8 @@ For the exhaustive diff between AdvCiv stable (e.g., 1.12) and AdvCiv-SAS, see t
 - **Slavery**: `HURRY_POPULATION` production increased (**27**). See *CIV4HurryInfo.xml* (`HURRY_POPULATION`).
 - **Leader random selection**: `PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT` **20 → 0** (all civs equal chance regardless of leader count). See *GlobalDefines_advc.xml*.
 - **We Love the King Day**: restored (present in SAS).
-- **Sea level research multipliers**: narrow the gap: `SEALEVEL_HIGH` **iResearchPercent 87 → 90**, `SEALEVEL_LOW` **117 → 110**. See *CIV4SeaLevelInfo.xml*.
+- **Research scaling — sea level**: `iResearchPercent = 100` for High / Medium / Low (**was** `117 / 100 / 87`). Sea level no longer alters research pace.
+- **Research scaling — world size**: `iResearchPercent` **rescaled** from `95 / 98 / 102 / 115 / 137 / 150` to `85 / 90 / 95 / 100 / 125 / 150` (so **Standard = 100**). This makes Standard the baseline and keeps scaling explicit.
 
 ### Handicap i.e. difficulty settings (non-exhaustive)
 
@@ -180,7 +181,6 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
 - **Tech prereqs** adjusted (e.g., **Quarry** earlier; **Remove Forest** and **Remove Jungle** available together and earlier).
 - **Farms without irrigation** unlock at **Engineering**.
 - **Worker cost reduced** (see XML for exact value).
-- **Workboats** now require a **Harbor** (first/cheapest water building) to be built; cost reduced to compensate. A city with a Harbor can build boats for other cities.
 - **Workshops** can be built on **tundra** (`<TerrainMakesValids>`).
 - **Railroads** placed earlier in the tree (**Steam Power**). See Techs.
 
@@ -196,7 +196,12 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
 ### Eras
 
 - **Future era** reworked into a full era with techs/units/buildings and its own music; begins with **tech_depopulation** as a balancing/historical nod. See Sevopedia/XML.
-- **Era info** is shown in Sevopedia Tech entries (eras themselves don’t alter rules in SAS).
+- **Era info** is shown in Sevopedia Tech entries.
+- **Eras — research scaling**: `iResearchPercent = 100` for all eras; `iTechCostModifier = 0`. Tech costs now come directly from TechInfos (no hidden per-era multipliers).
+- **Eras — anarchy scaling**: `iAnarchyPercent = 100` for all eras (**was** `50 / 50 / 40 / 40 / 34 / 34 / 34`). In practice this yields about **2 turns** of anarchy when you change civics (or similar). Intent: add strategic weight without tedium; **indirectly buffs** traits with **no anarchy** (e.g., Spiritual).
+- **Eras — growth & production scaling flattened**: set `iGrowthPercent` (food-to-grow), `iTrainPercent` (unit cost), `iConstructPercent` (building cost), and `iCreatePercent` (project cost) to **100 for all eras** (**was** `100 / 100 / 100 / 90 / 80 / 70 / 60`). Removes late-era discounts that sped up mid/late game; pacing is now **predictable and gradual**, with balance handled directly via per-item `iCost` instead.
+- **Eras — worker builds & improvements scaling flattened**: set `iBuildPercent` and `iImprovementPercent` from **100/100/100/90/80/70/60 → 100** at **all eras**. The original reason for the era-based scaling isn’t known; this change is intentional to keep tile-development pacing **predictable and consistent** across eras and to tune balance directly through base costs/worker rates rather than hidden era multipliers.
+- **Eras — culture scaling flattened**: set `iCulturePercent` from **100/100/80/70/60/50/50 → 100** at **all eras**. Removes late-era culture acceleration so culture growth stays **consistent** and driven by **commerce/buildings**, not hidden era multipliers. In **AdvCiv-SAS**, if we ever want modern (or ancient) culture to weigh differently, we prefer adjusting the **explicit culture values on buildings/units** rather than reintroducing era-wide modifiers.
 
 ### Civilizations (non-exhaustive)
 

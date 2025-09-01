@@ -27,8 +27,9 @@
 			<iGridHeight>13</iGridHeight>
 			<iTerrainGrainChange>-1</iTerrainGrainChange>
 			<iFeatureGrainChange>-1</iFeatureGrainChange>
+			<!-- custom: can we agree "standard" is the standard research rate? Please? Please? Please?? This is really stupid, anyways etc. All the other research rates are beyond retarded too, but anyways etc, was 95 -->
 			<!-- advc.910: was 100 -->
-			<iResearchPercent>95</iResearchPercent>
+			<iResearchPercent>85</iResearchPercent>
 			<!-- advc.140: was 80 -->
 			<iTradeProfitPercent>70</iTradeProfitPercent>
 			<!-- advc.140: was 50 -->
@@ -62,8 +63,9 @@
 			<iGridHeight>17</iGridHeight>
 			<iTerrainGrainChange>-1</iTerrainGrainChange>
 			<iFeatureGrainChange>-1</iFeatureGrainChange>
+			<!-- custom: can we agree "standard" is the standard research rate? Please? Please? Please?? This is really stupid, anyways etc. All the other research rates are beyond retarded too, but anyways etc, was 98 -->
 			<!-- advc.910: was 110 -->
-			<iResearchPercent>98</iResearchPercent>
+			<iResearchPercent>90</iResearchPercent>
 			<!-- advc.140: was 70 -->
 			<iTradeProfitPercent>63</iTradeProfitPercent>
 			<!-- advc.140: was 60 -->
@@ -95,8 +97,9 @@
 			<iGridHeight>22</iGridHeight>
 			<iTerrainGrainChange>0</iTerrainGrainChange>
 			<iFeatureGrainChange>0</iFeatureGrainChange>
+			<!-- custom: can we agree "standard" is the standard research rate? Please? Please? Please?? This is really stupid, anyways etc. All the other research rates are beyond retarded too, but anyways etc, was 102 -->
 			<!-- advc.910: was 120 -->
-			<iResearchPercent>102</iResearchPercent>
+			<iResearchPercent>95</iResearchPercent>
 			<!-- advc.140: was 60 -->
 			<iTradeProfitPercent>55</iTradeProfitPercent>
 			<!-- advc.140: was 70 -->
@@ -134,8 +137,9 @@
 			<iGridHeight>28</iGridHeight>
 			<iTerrainGrainChange>0</iTerrainGrainChange>
 			<iFeatureGrainChange>0</iFeatureGrainChange>
+			<!-- custom: can we agree "standard" is the standard research rate? Please? Please? Please?? This is really stupid, anyways etc, was 115 -->
 			<!-- advc.910: was 130 -->
-			<iResearchPercent>115</iResearchPercent>
+			<iResearchPercent>100</iResearchPercent>
 			<!-- advc.140: was 50 -->
 			<iTradeProfitPercent>48</iTradeProfitPercent>
 			<!-- advc.140: was 80 -->
@@ -169,8 +173,9 @@
 			<iGridHeight>34</iGridHeight>
 			<iTerrainGrainChange>1</iTerrainGrainChange>
 			<iFeatureGrainChange>1</iFeatureGrainChange>
+			<!-- custom: can we agree "standard" is the standard research rate? Please? Please? Please?? This is really stupid, anyways etc. All the other research rates are beyond retarded too, but anyways etc, was 137 -->
 			<!-- advc.910: was 140 -->
-			<iResearchPercent>137</iResearchPercent>
+			<iResearchPercent>125</iResearchPercent>
 			<iTradeProfitPercent>40</iTradeProfitPercent>
 			<!-- advc.140: was 90 -->
 			<iDistanceMaintenancePercent>91</iDistanceMaintenancePercent>
@@ -207,6 +212,7 @@
 			<iTerrainGrainChange>2</iTerrainGrainChange>
 			<!-- advc.129: was 1 -->
 			<iFeatureGrainChange>2</iFeatureGrainChange>
+			<!-- custom: can we agree "standard" is the standard research rate? Please? Please? Please?? This is really stupid, anyways etc. All the other research rates are beyond retarded too, but anyways etc, was 150 -->
 			<iResearchPercent>150</iResearchPercent>
 			<!-- advc.140: was 30 -->
 			<iTradeProfitPercent>33</iTradeProfitPercent>

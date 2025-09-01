@@ -615,11 +615,10 @@
 			<FeatureMakesValids/>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
-			<!-- custom: was as of now first PrereqTech TECH_GUILDS (now removed) anyways etc -->
-			<!-- custom: also add more hammer at fusion or similar tech, idea i got from rfc doc mod anyways etc -->
+			<!-- custom: nerf the workshop a bit as it was a bit too op, was as of now first PrereqTech TECH_GUILDS (now removed) and TECH_CHEMISTRY anyways etc; also add more hammer at fusion or similar tech, idea i got from rfc doc mod anyways etc -->
 			<TechYieldChanges>
 				<TechYieldChange>
-					<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+					<PrereqTech>TECH_MACHINERY</PrereqTech>
 					<TechYields>
 						<iYield>0</iYield>
 						<iYield>1</iYield>
@@ -627,7 +626,7 @@
 					</TechYields>
 				</TechYieldChange>
 				<TechYieldChange>
-					<PrereqTech>TECH_CHEMISTRY</PrereqTech>
+					<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
 					<TechYields>
 						<iYield>0</iYield>
 						<iYield>1</iYield>

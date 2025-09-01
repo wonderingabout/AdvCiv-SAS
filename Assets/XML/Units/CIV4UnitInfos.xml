@@ -13531,7 +13531,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<iCombat>28</iCombat>
+			<iCombat>30</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -13577,7 +13577,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iCultureGarrison>12</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>4</iAsset>
-			<iPower>28</iPower>
+			<iPower>30</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -14231,7 +14231,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<!-- custom: was UNITCOMBAT_GUN -->
 			<Combat>UNITCOMBAT_ARMOR</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
+			<!-- custom: was UNITAI_CITY_DEFENSE -->
+			<DefaultUnitAI>UNITAI_RESERVE</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_MECHANIZED_INFANTRY</Description>
@@ -21157,8 +21158,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<StateReligion>NONE</StateReligion>
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
-			<!-- custom: see code comment at barbarian_harbor for details (in particular but not only if i may say but anyways etc that not all cities need to have a harbor to work in city radius water tiles anyways etc), was NONE -->
-			<PrereqBuilding>BUILDING_HARBOR</PrereqBuilding>
+			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_FISHING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
@@ -21172,8 +21172,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			</ProductionTraits>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: cost reduced now that it depends on a harbor being built in the city already, was 30 -->
-			<iCost>20</iCost>
+			<iCost>30</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -21358,8 +21357,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<StateReligion>NONE</StateReligion>
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
-			<!-- custom: originally this was tried as part of trying to work around known issue 23 of a barbarian workboat in some conditions failing to improve a bonus like the bonus_whale even if it is at coast, but then i thought it's a nice mechanic, make sure the harbor has a high enough weight (or flavor for all other players than barbarians anyways etc) so that AIs build it fast enough. This new rebalancing is a great way to prevent excessive water food early when the city already has enough land food so game is more gradual and balanced this way anyways etc (note: if one city has a harbor, it can build a workboat to work the tiles in another city even if this other city doesn't have a harbor, may seem obvious but i hadn't noticed/thought of it until i saw it in autoplay xd, hopefully helpful but anyways etc...), was NONE -->
-			<PrereqBuilding>BUILDING_BARBARIAN_HARBOR</PrereqBuilding>
+			<PrereqBuilding>NONE</PrereqBuilding>
 			<PrereqTech>TECH_FISHING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>

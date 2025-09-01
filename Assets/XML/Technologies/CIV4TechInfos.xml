@@ -16,7 +16,7 @@
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>50</iCost>
+			<iCost>40</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_ANCIENT</Era>
@@ -87,7 +87,7 @@
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>80</iCost>
+			<iCost>475</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_ANCIENT -->
@@ -140,9 +140,12 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_MYSTICISM</PrereqTech>
+				<PrereqTech>TECH_MUSIC</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<AndPreReqs>
+				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_MEDITATION_QUOTE</Quote>
 			<Sound>AS2D_TECH_MEDITATION</Sound>
 			<SoundMP>AS2D_TECH_MP_MEDITATION</SoundMP>
@@ -157,7 +160,7 @@
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>100</iCost>
+			<iCost>65</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_ANCIENT</Era>
@@ -207,7 +210,9 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_MYSTICISM</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<AndPreReqs>
+				<PrereqTech>TECH_MINING</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_POLYTHEISM_QUOTE</Quote>
 			<Sound>AS2D_TECH_POLYTHEISM</Sound>
 			<SoundMP>AS2D_TECH_MP_POLYTHEISM</SoundMP>
@@ -222,12 +227,10 @@
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>60</iCost>
-			<!--custom: todo:<iCost>10000</iCost>-->
+			<iCost>8000</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<Era>ERA_ANCIENT</Era>
-			<!--custom: todo:<Era>ERA_FUTURE</Era>-->
+			<Era>ERA_FUTURE</Era>
 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
@@ -276,10 +279,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_MEDITATION</PrereqTech>
-				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
+				<PrereqTech>TECH_DEPOPULATION</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<AndPreReqs>
+				<PrereqTech>TECH_GENETICS</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_BIOENGINEERING_QUOTE</Quote>
 			<Sound>AS2D_TECH_BIOENGINEERING</Sound>
 			<SoundMP>AS2D_TECH_MP_BIOENGINEERING</SoundMP>
@@ -295,8 +299,7 @@
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<!-- custom: trying to make tech pace more gradual or/and accurate, was 120 -->
-			<iCost>230</iCost>
+			<iCost>350</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_ANCIENT -->
@@ -352,7 +355,7 @@
 				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_MASONRY</PrereqTech>
+				<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_MONOTHEISM_QUOTE</Quote>
 			<Sound>AS2D_TECH_MONOTHEISM</Sound>
@@ -368,8 +371,7 @@
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<!-- custom: trying to make tech pace more gradual or/and accurate, was 300 -->
-			<iCost>580</iCost>
+			<iCost>100</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_CLASSICAL -->
@@ -437,10 +439,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_BIOENGINEERING</PrereqTech>
-				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
+				<PrereqTech>TECH_CALENDAR</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<AndPreReqs>
+				<PrereqTech>TECH_AGRICULTURE</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_MONARCHY_QUOTE</Quote>
 			<Sound>AS2D_TECH_MONARCHY</Sound>
 			<SoundMP>AS2D_TECH_MP_MONARCHY</SoundMP>
@@ -456,7 +459,7 @@
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.910: was 200 -->
-			<iCost>250</iCost>
+			<iCost>150</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_CLASSICAL -->
@@ -509,7 +512,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_AESTHETICS</PrereqTech>
+				<PrereqTech>TECH_WRITING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
@@ -528,7 +531,7 @@
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>350</iCost>
+			<iCost>225</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_CLASSICAL</Era>
@@ -588,11 +591,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_BIOENGINEERING</PrereqTech>
-				<PrereqTech>TECH_CURRENCY</PrereqTech>
+				<PrereqTech>TECH_MONARCHY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_WRITING</PrereqTech>
+				<PrereqTech>TECH_LITERATURE</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_CODE_OF_LAWS_QUOTE</Quote>
 			<Sound>AS2D_TECH_CODE_OF_LAWS</Sound>
@@ -609,7 +611,7 @@
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.910: was 300 -->
-			<iCost>350</iCost>
+			<iCost>650</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_CLASSICAL</Era>
@@ -620,7 +622,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>16</iAsset>
+			<iAsset>24</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -671,9 +673,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_AESTHETICS</PrereqTech>
+				<PrereqTech>TECH_MEDITATION</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<AndPreReqs>
+				<PrereqTech>TECH_ENGINEERING</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_DRAMA_QUOTE</Quote>
 			<Sound>AS2D_TECH_DRAMA</Sound>
 			<SoundMP>AS2D_TECH_MP_DRAMA</SoundMP>
@@ -691,7 +695,7 @@
 			<iAIWeight>25</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
 			<!-- advc.910: was 700 -->
-			<iCost>450</iCost>
+			<iCost>900</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MEDIEVAL</Era>
@@ -741,10 +745,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_MONARCHY</PrereqTech>
+				<PrereqTech>TECH_CONSTITUTION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_WRITING</PrereqTech>
+				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_FEUDALISM_QUOTE</Quote>
 			<Sound>AS2D_TECH_FEUDALISM</Sound>
@@ -760,7 +765,7 @@
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>500</iCost>
+			<iCost>650</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_MEDIEVAL -->
@@ -814,10 +819,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
+				<PrereqTech>TECH_AESTHETICS</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_WRITING</PrereqTech>
+				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_POSTAXIAL_RELIGION_QUOTE</Quote>
 			<Sound>AS2D_TECH_POSTAXIAL_RELIGION</Sound>
@@ -834,7 +839,7 @@
 			<Advisor>ADVISOR_CULTURE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>600</iCost>
+			<iCost>225</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_MEDIEVAL -->
@@ -892,11 +897,8 @@
 			</Flavors>
 			<OrPreReqs>
 				<PrereqTech>TECH_LITERATURE</PrereqTech>
-				<PrereqTech>TECH_DRAMA</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_MATHEMATICS</PrereqTech>
-			</AndPreReqs>
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_MUSIC_QUOTE</Quote>
 			<Sound>AS2D_TECH_MUSIC</Sound>
 			<SoundMP>AS2D_TECH_MP_MUSIC</SoundMP>
@@ -913,8 +915,7 @@
 			<iAIWeight>0</iAIWeight>
 			<!-- advc.552: was 0 -->
 			<iAITradeModifier>10</iAITradeModifier>
-			<!-- custom: trying to make tech pace more gradual or/and accurate, was 800 -->
-			<iCost>400</iCost>
+			<iCost>650</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_MEDIEVAL -->
@@ -985,11 +986,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
-				<PrereqTech>TECH_FEUDALISM</PrereqTech>
+				<PrereqTech>TECH_MEDITATION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_MATHEMATICS</PrereqTech>
+				<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_CIVIL_SERVICE_QUOTE</Quote>
 			<Sound>AS2D_TECH_CIVIL_SERVICE</Sound>
@@ -1003,10 +1003,11 @@
 			<Help/>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
-			<iAIWeight>0</iAIWeight>
+			<!-- custom: very important medieval military tech, also give it iAIWeight anyways etc -->
+			<iAIWeight>100</iAIWeight>
 			<!-- advc.552: was 10 -->
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>1000</iCost>
+			<iCost>900</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MEDIEVAL</Era>
@@ -1051,10 +1052,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_MACHINERY</PrereqTech>
+				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_FEUDALISM</PrereqTech>
+				<PrereqTech>TECH_DRAMA</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_CHIVALRY_QUOTE</Quote>
 			<Sound>AS2D_TECH_CHIVALRY</Sound>
@@ -1072,7 +1073,7 @@
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.174: was 1200 -->
-			<iCost>700</iCost>
+			<iCost>900</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MEDIEVAL</Era>
@@ -1128,10 +1129,13 @@
 					<iFlavor>8</iFlavor>
 				</Flavor>
 			</Flavors>
-			<OrPreReqs/>
+			<OrPreReqs>
+				<PrereqTech>TECH_DRAMA</PrereqTech>
+			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
-				<PrereqTech>TECH_MONARCHY</PrereqTech>
+				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
+				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_LATER_ABRAHAMISM_QUOTE</Quote>
 			<Sound>AS2D_TECH_LATER_ABRAHAMISM</Sound>
@@ -1149,7 +1153,7 @@
 			<iAIWeight>0</iAIWeight>
 			<!-- advc.552: was 0 -->
 			<iAITradeModifier>10</iAITradeModifier>
-			<iCost>1800</iCost>
+			<iCost>2900</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_RENAISSANCE -->
@@ -1162,7 +1166,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>32</iAsset>
+			<iAsset>40</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<!-- custom: was 1 -->
@@ -1214,11 +1218,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
-				<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
+				<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+				<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_NATIONALISM_QUOTE</Quote>
 			<Sound>AS2D_TECH_NATIONALISM</Sound>
@@ -1233,9 +1236,10 @@
 			<Strategy>TXT_KEY_TECH_MILITARY_TRADITION_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
+			<!-- custom: is a strong military tech or quite strong one at least anyways etc, was 0 -->
 			<!-- advc.552: Was 10; rather give this weight to Nationalism -->
-			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>2000</iCost>
+			<iAITradeModifier>10</iAITradeModifier>
+			<iCost>2500</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_RENAISSANCE -->
@@ -1247,7 +1251,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>32</iAsset>
+			<iAsset>40</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<!-- custom: was 1 -->
@@ -1289,10 +1293,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_NATIONALISM</PrereqTech>
+				<PrereqTech>TECH_RIFLING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_MUSIC</PrereqTech>
+				<PrereqTech>TECH_LIBERALISM</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_MILITARY_TRADITION_QUOTE</Quote>
 			<Sound>AS2D_TECH_MILITARY_TRADITION</Sound>
@@ -1308,7 +1312,7 @@
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>2000</iCost>
+			<iCost>650</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_RENAISSANCE -->
@@ -1366,10 +1370,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_NATIONALISM</PrereqTech>
+				<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
+				<PrereqTech>TECH_AESTHETICS</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_CONSTITUTION_QUOTE</Quote>
 			<Sound>AS2D_TECH_CONSTITUTION</Sound>
@@ -1386,7 +1390,7 @@
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.910: was 1400 -->
-			<iCost>1500</iCost>
+			<iCost>2100</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_RENAISSANCE</Era>
@@ -1440,10 +1444,12 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_EDUCATION</PrereqTech>
+				<PrereqTech>TECH_NATURALISM</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
+				<PrereqTech>TECH_BANKING</PrereqTech>
+				<PrereqTech>TECH_RIFLING</PrereqTech>
+				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_LIBERALISM_QUOTE</Quote>
 			<Sound>AS2D_TECH_LIBERALISM</Sound>
@@ -1459,7 +1465,7 @@
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>2800</iCost>
+			<iCost>2100</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_RENAISSANCE</Era>
@@ -1507,10 +1513,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_CONSTITUTION</PrereqTech>
+				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+				<PrereqTech>TECH_CONSTITUTION</PrereqTech>
+				<PrereqTech>TECH_BANKING</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_DEMOCRACY_QUOTE</Quote>
 			<Sound>AS2D_TECH_DEMOCRACY</Sound>
@@ -1526,7 +1533,7 @@
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>1600</iCost>
+			<iCost>2900</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_RENAISSANCE -->
@@ -1538,7 +1545,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>32</iAsset>
+			<iAsset>40</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -1585,9 +1592,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_ECONOMICS</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_CONSTITUTION</PrereqTech>
-			</AndPreReqs>
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_CORPORATION_QUOTE</Quote>
 			<Sound>AS2D_TECH_CORPORATION</Sound>
 			<SoundMP>AS2D_TECH_MP_CORPORATION</SoundMP>
@@ -1602,7 +1607,7 @@
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>2400</iCost>
+			<iCost>3500</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_INDUSTRIAL -->
@@ -1615,7 +1620,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>40</iAsset>
+			<iAsset>48</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -1665,10 +1670,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
+				<PrereqTech>TECH_NATIONALISM</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_NATIONALISM</PrereqTech>
+				<PrereqTech>TECH_COMMUNISM</PrereqTech>
+				<PrereqTech>TECH_COMBUSTION</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_FASCISM_QUOTE</Quote>
 			<Sound>AS2D_TECH_FASCISM</Sound>
@@ -1685,7 +1691,7 @@
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>2800</iCost>
+			<iCost>3000</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_INDUSTRIAL</Era>
@@ -1743,10 +1749,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
+				<PrereqTech>TECH_LIBERALISM</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_LIBERALISM</PrereqTech>
+				<PrereqTech>TECH_NATIONALISM</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_COMMUNISM_QUOTE</Quote>
 			<Sound>AS2D_TECH_COMMUNISM</Sound>
@@ -1763,7 +1769,7 @@
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.910: was 3600 -->
-			<iCost>4000</iCost>
+			<iCost>3600</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MODERN</Era>
@@ -1774,7 +1780,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>24</iAsset>
+			<iAsset>48</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<!-- custom: was 1 -->
@@ -1838,7 +1844,7 @@
 			<iAIWeight>0</iAIWeight>
 			<!-- advc.552: was 10 -->
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>5500</iCost>
+			<iCost>2900</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: ERA_MODERN -->
@@ -1870,7 +1876,7 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>15</iGridX>
+			<iGridX>14</iGridX>
 			<iGridY>12</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
@@ -1891,11 +1897,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_DEPOPULATION</PrereqTech>
-				<PrereqTech>TECH_FISSION</PrereqTech>
+				<PrereqTech>TECH_BIOLOGY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_BIOLOGY</PrereqTech>
+				<PrereqTech>TECH_ECONOMICS</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_ECOLOGY_QUOTE</Quote>
 			<Sound>AS2D_TECH_ECOLOGY</Sound>
@@ -1982,7 +1987,7 @@
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>60</iCost>
+			<iCost>100</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_ANCIENT</Era>
@@ -2041,9 +2046,11 @@
 					<iFlavor>3</iFlavor>
 				</Flavor>
 			</Flavors>
-			<OrPreReqs/>
+			<OrPreReqs>
+				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
+			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_POTTERY</PrereqTech>
+				<PrereqTech>TECH_MASONRY</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_THE_WHEEL_QUOTE</Quote>
 			<Sound>AS2D_TECH_THE_WHEEL</Sound>
@@ -2059,7 +2066,7 @@
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>60</iCost>
+			<iCost>65</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_ANCIENT</Era>
@@ -2114,8 +2121,13 @@
 					<iFlavor>10</iFlavor>
 				</Flavor>
 			</Flavors>
-			<OrPreReqs/>
-			<AndPreReqs/>
+			<OrPreReqs>
+				<PrereqTech>TECH_POTTERY</PrereqTech>
+				<PrereqTech>TECH_MYSTICISM</PrereqTech>
+			</OrPreReqs>
+			<AndPreReqs>
+				<PrereqTech>TECH_HUNTING</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_AGRICULTURE_QUOTE</Quote>
 			<Sound>AS2D_TECH_AGRICULTURE</Sound>
 			<SoundMP>AS2D_TECH_MP_AGRICULTURE</SoundMP>
@@ -2132,7 +2144,7 @@
 			starting to build a granary sooner should help the AI, although not as much (i think) as more military or expansion focused techs -->
 			<iAIWeight>20</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>80</iCost>
+			<iCost>40</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_ANCIENT</Era>
@@ -2203,7 +2215,7 @@
 			<Advisor>ADVISOR_CULTURE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>300</iCost>
+			<iCost>475</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_CLASSICAL</Era>
@@ -2214,7 +2226,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>10</iAsset>
+			<iAsset>24</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -2255,9 +2267,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_WRITING</PrereqTech>
+				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<AndPreReqs>
+				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_AESTHETICS_QUOTE</Quote>
 			<Sound>AS2D_TECH_AESTHETICS</Sound>
 			<SoundMP>SND_TECH_MP_AESTHETICS</SoundMP>
@@ -2278,7 +2292,7 @@
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.301 -->
 			<iBarbarianFreeTechModifier>-50</iBarbarianFreeTechModifier>
-			<iCost>100</iCost>
+			<iCost>65</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_ANCIENT</Era>
@@ -2362,11 +2376,7 @@
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<!-- custom: increase slightly the cost since writing is more valuable now (may decrease
-			alphabet cost to compensate and have about same total cost or something similar). Trying
-			also to keep historical accuracy so cost should not be too high, maybe more immersive this
-			way too maybe, was 120. -->
-			<iCost>142</iCost>
+			<iCost>100</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_ANCIENT</Era>
@@ -2424,9 +2434,8 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_BIOENGINEERING</PrereqTech>
-				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
-				<PrereqTech>TECH_POTTERY</PrereqTech>
+				<PrereqTech>TECH_AGRICULTURE</PrereqTech>
+				<PrereqTech>TECH_CALENDAR</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_WRITING_QUOTE</Quote>
@@ -2443,7 +2452,7 @@
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>250</iCost>
+			<iCost>225</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_CLASSICAL</Era>
@@ -2500,9 +2509,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_WRITING</PrereqTech>
+				<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<AndPreReqs>
+				<PrereqTech>TECH_WRITING</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_MATHEMATICS_QUOTE</Quote>
 			<Sound>AS2D_TECH_MATHEMATICS</Sound>
 			<SoundMP>AS2D_TECH_MP_MATHEMATICS</SoundMP>
@@ -2517,9 +2528,7 @@
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<!-- custom: decrease alphabet cost to compensate the increased cost of writing.
-			May change more if/as i modify the techs more -->
-			<iCost>260</iCost>
+			<iCost>1700</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_RENAISSANCE</Era>
@@ -2586,9 +2595,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_WRITING</PrereqTech>
+				<PrereqTech>TECH_EDUCATION</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<AndPreReqs>
+				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_NATURALISM_QUOTE</Quote>
 			<Sound>AS2D_TECH_NATURALISM</Sound>
 			<SoundMP>AS2D_TECH_MP_NATURALISM</SoundMP>
@@ -2605,7 +2616,7 @@
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.174: was 350 -->
-			<iCost>300</iCost>
+			<iCost>65</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_CLASSICAL -->
@@ -2666,11 +2677,9 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_MATHEMATICS</PrereqTech>
+				<PrereqTech>TECH_MYSTICISM</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_SEAFARING</PrereqTech>
-			</AndPreReqs>
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_CALENDAR_QUOTE</Quote>
 			<Sound>AS2D_TECH_CALENDAR</Sound>
 			<SoundMP>AS2D_TECH_MP_CALENDAR</SoundMP>
@@ -2689,7 +2698,7 @@
 			<iAIWeight>20</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- custom: trying to make tech pace more gradual or/and accurate, was 400 -->
-			<iCost>305</iCost>
+			<iCost>150</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_CLASSICAL -->
@@ -2742,10 +2751,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_MATHEMATICS</PrereqTech>
-				<PrereqTech>TECH_NATURALISM</PrereqTech>
+				<PrereqTech>TECH_METAL_CASTING</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<AndPreReqs>
+				<PrereqTech>TECH_MONARCHY</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_CURRENCY_QUOTE</Quote>
 			<Sound>AS2D_TECH_CURRENCY</Sound>
 			<SoundMP>AS2D_TECH_MP_CURRENCY</SoundMP>
@@ -2760,7 +2770,7 @@
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>800</iCost>
+			<iCost>475</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_MEDIEVAL -->
@@ -2814,11 +2824,8 @@
 			</Flavors>
 			<OrPreReqs>
 				<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
-				<PrereqTech>TECH_DRAMA</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_MEDITATION</PrereqTech>
-			</AndPreReqs>
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_PHILOSOPHY_QUOTE</Quote>
 			<Sound>AS2D_TECH_PHILOSOPHY</Sound>
 			<SoundMP>AS2D_TECH_MP_PHILOSOPHY</SoundMP>
@@ -2833,7 +2840,7 @@
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>650</iCost>
+			<iCost>3000</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_INDUSTRIAL</Era>
@@ -2843,9 +2850,9 @@
 			<iTradeRoutes>0</iTradeRoutes>
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
-			<!-- custom: would make more sense for this when it is changed to TECH_THEORY_OF_EVOLUTION, currently TECH_LIBERALISM is bloated and toos trong already if i am not mistaken, giving theory of evolution some purpsoe while also making sense in terms of gameplay, searching it means fallign behind in military path so i hope it can be worth it this way to choose this alternative path anyways etc and for versatile startegy too anyways etc, was 0 -->
+			<!-- custom: currently TECH_LIBERALISM is bloated and too strong already if i am not mistaken, giving theory_of_evolution some purpsoe while also making sense in terms of gameplay, searching it means falling behind in military path so i hope it can be worth it this way to choose this alternative path anyways etc and for versatile startegy too anyways etc, was 0 -->
 			<iFirstFreeTechs>1</iFirstFreeTechs>
-			<iAsset>32</iAsset>
+			<iAsset>40</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<!-- custom: was 1 -->
@@ -2866,7 +2873,7 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>14</iGridX>
+			<iGridX>15</iGridX>
 			<iGridY>12</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
@@ -2888,8 +2895,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
-				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+				<PrereqTech>TECH_ECOLOGY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_THEORY_OF_EVOLUTION_QUOTE</Quote>
@@ -2908,7 +2914,7 @@
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.910: was 700 -->
-			<iCost>800</iCost>
+			<iCost>1300</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MEDIEVAL</Era>
@@ -2919,7 +2925,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>24</iAsset>
+			<iAsset>32</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -2956,10 +2962,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_CHIVALRY</PrereqTech>
+				<PrereqTech>TECH_CURRENCY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_CURRENCY</PrereqTech>
+				<PrereqTech>TECH_FEUDALISM</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_BANKING_QUOTE</Quote>
 			<Sound>AS2D_TECH_BANKING</Sound>
@@ -2975,7 +2981,7 @@
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>1800</iCost>
+			<iCost>1300</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_RENAISSANCE -->
@@ -3029,9 +3035,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
+				<PrereqTech>TECH_MEDICINE</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<AndPreReqs>
+				<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_EDUCATION_QUOTE</Quote>
 			<Sound>AS2D_TECH_EDUCATION</Sound>
 			<SoundMP>AS2D_TECH_MP_EDUCATION</SoundMP>
@@ -3046,7 +3054,7 @@
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>1600</iCost>
+			<iCost>1300</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_RENAISSANCE -->
@@ -3103,11 +3111,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
+				<PrereqTech>TECH_FEUDALISM</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_MACHINERY</PrereqTech>
-				<PrereqTech>TECH_NATURALISM</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_PRINTING_PRESS_QUOTE</Quote>
 			<Sound>AS2D_TECH_PRINTPRESS</Sound>
@@ -3123,7 +3130,7 @@
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>1400</iCost>
+			<iCost>2500</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_RENAISSANCE -->
@@ -3135,7 +3142,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>32</iAsset>
+			<iAsset>40</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -3180,10 +3187,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_EDUCATION</PrereqTech>
+				<PrereqTech>TECH_BANKING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_BANKING</PrereqTech>
+				<PrereqTech>TECH_LIBERALISM</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_ECONOMICS_QUOTE</Quote>
 			<Sound>AS2D_TECH_ECONOMICS</Sound>
@@ -3199,7 +3206,7 @@
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>2000</iCost>
+			<iCost>1300</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_RENAISSANCE -->
@@ -3257,12 +3264,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_MEDITATION</PrereqTech>
-				<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
-			</OrPreReqs>
-			<!-- custom: astronomy quite strongly liinked to india's history if i am not mistaken anyways etc in https://en.wikipedia.org/wiki/Indian_astronomy, approximate it by tech_meditation that happens in the late classical time now in our reworked tech tree if i am not mistaken anyways etc (even though is still todo as of now but anyways etc), heliocentrism also linked to aristarchus 's (greek astronomer around 250 BCE if i am not mistaken from this quick search anyways etc https://en.wikipedia.org/wiki/Heliocentrism), is also quite good from a balance standpoint to make these techs more useful than the usual education scientific method of our new tech tree reworked anyways etc -->
-			<AndPreReqs>
 				<PrereqTech>TECH_NAVIGATION</PrereqTech>
+			</OrPreReqs>
+			<AndPreReqs>
+				<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+				<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_ASTRONOMY_QUOTE</Quote>
 			<Sound>AS2D_TECH_ASTRONOMY</Sound>
@@ -3279,7 +3285,7 @@
 			<iAIWeight>0</iAIWeight>
 			<!-- advc.552: was 0 -->
 			<iAITradeModifier>10</iAITradeModifier>
-			<iCost>1800</iCost>
+			<iCost>1700</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_RENAISSANCE</Era>
@@ -3330,7 +3336,7 @@
 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_ENGINEERING</PrereqTech>
+				<PrereqTech>TECH_MACHINERY</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_CHEMISTRY_QUOTE</Quote>
 			<Sound>AS2D_TECH_CHEMISTRY</Sound>
@@ -3346,8 +3352,7 @@
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<!-- advc.200: 2800 in K-Mod 1.45 -->
-			<iCost>2400</iCost>
+			<iCost>650</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_INDUSTRIAL -->
@@ -3359,7 +3364,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>40</iAsset>
+			<iAsset>24</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -3414,12 +3419,10 @@
 					<iFlavor>5</iFlavor>
 				</Flavor>
 			</Flavors>
-			<OrPreReqs>
-				<PrereqTech>TECH_CHEMISTRY</PrereqTech>
-				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
-			</OrPreReqs>
+			<OrPreReqs/>
 			<AndPreReqs>
-				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+				<PrereqTech>TECH_ENGINEERING</PrereqTech>
+				<PrereqTech>TECH_NAVIGATION</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_WATER_WHEEL_QUOTE</Quote>
 			<Sound>AS2D_TECH_WATER_WHEEL</Sound>
@@ -3436,7 +3439,7 @@
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>4000</iCost>
+			<iCost>2100</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_INDUSTRIAL -->
@@ -3490,15 +3493,15 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
+				<PrereqTech>TECH_MACHINERY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
+				<PrereqTech>TECH_CHEMISTRY</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_PHYSICS_QUOTE</Quote>
 			<Sound>AS2D_TECH_PHYSICS</Sound>
 			<SoundMP>AS2D_TECH_MP_PHYSICS</SoundMP>
-			<!-- custom: button changed as physics is earlier now, import from warlords's atlas, old button was in base advciv anyways etc: <Button>,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,6</Button> -->
+			<!-- custom: button changed as physics is earlier now, import from warlords's atlas anyways etc -->
 			<Button>,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,15</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_BIOLOGY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
@@ -3511,7 +3514,7 @@
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.910: was 3600 -->
-			<iCost>3850</iCost>
+			<iCost>2500</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_INDUSTRIAL</Era>
@@ -3564,10 +3567,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
+				<PrereqTech>TECH_NATURALISM</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_CHEMISTRY</PrereqTech>
+				<PrereqTech>TECH_PHYSICS</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_BIOLOGY_QUOTE</Quote>
 			<Sound>AS2D_TECH_BIOLOGY</Sound>
@@ -3583,11 +3586,11 @@
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>4500</iCost>
+			<iCost>900</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_INDUSTRIAL -->
-			<Era>ERA_CLASSICAL</Era>
+			<Era>ERA_MEDIEVAL</Era>
 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
@@ -3644,10 +3647,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_BIOLOGY</PrereqTech>
+				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_SAILING</PrereqTech>
+				<PrereqTech>TECH_CONSTITUTION</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_MEDICINE_QUOTE</Quote>
 			<Sound>AS2D_TECH_MEDICINE</Sound>
@@ -3664,7 +3667,7 @@
 			<iAIWeight>0</iAIWeight>
 			<!-- advc.552: was 10 -->
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>4500</iCost>
+			<iCost>3000</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_INDUSTRIAL</Era>
@@ -3721,9 +3724,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_PHYSICS</PrereqTech>
+				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<AndPreReqs>
+				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_ELECTRICITY_QUOTE</Quote>
 			<Sound>AS2D_TECH_ELECTRICITY</Sound>
 			<SoundMP>AS2D_TECH_MP_ELECTRICITY</SoundMP>
@@ -3738,7 +3743,7 @@
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>3600</iCost>
+			<iCost>3000</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_INDUSTRIAL</Era>
@@ -3790,9 +3795,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_STEAM_POWER</PrereqTech>
+				<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<AndPreReqs>
+				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_COMBUSTION_QUOTE</Quote>
 			<Sound>AS2D_TECH_COMBUSTION</Sound>
 			<SoundMP>AS2D_TECH_MP_COMBUSTION</SoundMP>
@@ -3807,7 +3814,7 @@
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
-			<iCost>5500</iCost>
+			<iCost>4200</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_INDUSTRIAL????? -->
@@ -3819,7 +3826,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>40</iAsset>
+			<iAsset>48</iAsset>
 			<iPower>8</iPower>
 			<bRepeat>0</bRepeat>
 			<!-- custom: was 1 -->
@@ -3861,9 +3868,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_ELECTRICITY</PrereqTech>
+				<PrereqTech>TECH_MASS_MEDIA</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<AndPreReqs>
+				<PrereqTech>TECH_ARTILLERY</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_FISSION_QUOTE</Quote>
 			<Sound>AS2D_TECH_FISSION</Sound>
 			<SoundMP>AS2D_TECH_MP_FISSION</SoundMP>
@@ -3878,7 +3887,7 @@
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
-			<iCost>5000</iCost>
+			<iCost>3600</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MODERN</Era>
@@ -3937,10 +3946,11 @@
 					<iFlavor>3</iFlavor>
 				</Flavor>
 			</Flavors>
-			<OrPreReqs/>
+			<OrPreReqs>
+				<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
+			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_PHYSICS</PrereqTech>
-				<PrereqTech>TECH_COMBUSTION</PrereqTech>
+				<PrereqTech>TECH_RADIO</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_FLIGHT_QUOTE</Quote>
 			<Sound>AS2D_TECH_FLIGHT</Sound>
@@ -3958,7 +3968,7 @@
 			<!-- advc.552: was 10 -->
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.910: was 5000 -->
-			<iCost>5500</iCost>
+			<iCost>4200</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MODERN</Era>
@@ -4009,7 +4019,7 @@
 				<PrereqTech>TECH_FLIGHT</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_SATELLITES</PrereqTech>
+				<PrereqTech>TECH_FASCISM</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_ADVANCED_FLIGHT_QUOTE</Quote>
 			<Sound>AS2D_TECH_ADVANCED_FLIGHT</Sound>
@@ -4077,14 +4087,14 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_LIBERALISM</PrereqTech>
-				<PrereqTech>TECH_DEMOCRACY</PrereqTech>
+				<PrereqTech>TECH_COMPOSITES</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_SATELLITES</PrereqTech>
 				<PrereqTech>TECH_SUPERCONDUCTORS</PrereqTech>
-				<PrereqTech>TECH_COMPOSITES</PrereqTech>
 				<PrereqTech>TECH_COMPUTERS</PrereqTech>
+				<PrereqTech>TECH_LIBERALISM</PrereqTech>
+				<PrereqTech>TECH_DEMOCRACY</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_DEPOPULATION_QUOTE</Quote>
 			<Sound>AS2D_TECH_DEPOPULATION</Sound>
@@ -4102,7 +4112,7 @@
 			<iAIWeight>0</iAIWeight>
 			<!-- advc.552: was 10 -->
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>7500</iCost>
+			<iCost>5000</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MODERN</Era>
@@ -4151,11 +4161,9 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_DEPOPULATION</PrereqTech>
+				<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_SATELLITES</PrereqTech>
-			</AndPreReqs>
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_COMPOSITES_QUOTE</Quote>
 			<Sound>AS2D_TECH_COMPOSITES</Sound>
 			<SoundMP>AS2D_TECH_MP_COMPOSITES</SoundMP>
@@ -4218,10 +4226,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_ADVANCED_FLIGHT</PrereqTech>
+				<PrereqTech>TECH_ROBOTIC_RIGHTS</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_COMPOSITES</PrereqTech>
+				<PrereqTech>TECH_TRANSHUMANISM</PrereqTech>
+				<PrereqTech>TECH_SPACE_EXPLORATION</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_ALIEN_LIFE_QUOTE</Quote>
 			<Sound>AS2D_TECH_ALIEN_LIFE</Sound>
@@ -4239,7 +4248,7 @@
 			<iAIWeight>0</iAIWeight>
 			<!-- advc.552: was 10 -->
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>7000</iCost>
+			<iCost>4200</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_FUTURE -->
@@ -4294,7 +4303,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_SUPERCONDUCTORS</PrereqTech>
+				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_MEDICINE</PrereqTech>
@@ -4313,7 +4322,7 @@
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>10000</iCost>
+			<iCost>8000</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_FUTURE</Era>
@@ -4374,10 +4383,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_COMPUTERS</PrereqTech>
-				<PrereqTech>TECH_TERRAFORMING</PrereqTech>
+				<PrereqTech>TECH_DEPOPULATION</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<AndPreReqs>
+				<PrereqTech>TECH_COMPUTERS</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_AI_QUOTE</Quote>
 			<Sound>AS2D_TECH_AI</Sound>
 			<SoundMP>AS2D_TECH_MP_AI</SoundMP>
@@ -4393,7 +4403,7 @@
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
-			<iCost>13000</iCost>
+			<iCost>11000</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_FUTURE</Era>
@@ -4447,10 +4457,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_AI</PrereqTech>
+				<PrereqTech>TECH_DEPOPULATION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_FISSION</PrereqTech>
+				<PrereqTech>TECH_SUPERCONDUCTORS</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_FUSION_QUOTE</Quote>
 			<Sound>AS2D_TECH_FUSION</Sound>
@@ -4466,7 +4476,7 @@
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost></iCost>
+			<iCost>40</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_ANCIENT</Era>
@@ -4541,7 +4551,7 @@
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>50</iCost>
+			<iCost>40</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_ANCIENT</Era>
@@ -4609,12 +4619,10 @@
 			<iAIWeight>0</iAIWeight>
 			<!-- advc.552: was 10 -->
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>60</iCost>
-			<!--custom: todo:<iCost>10000</iCost>-->
+			<iCost>8000</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<Era>ERA_ANCIENT</Era>
-			<!--custom: todo:<Era>ERA_FUTURE</Era>-->
+			<Era>ERA_FUTURE</Era>
 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
@@ -4664,9 +4672,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_HUNTING</PrereqTech>
+				<PrereqTech>TECH_DEPOPULATION</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<AndPreReqs>
+				<PrereqTech>TECH_SATELLITES</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_SPACE_EXPLORATION_QUOTE</Quote>
 			<Sound>AS2D_TECH_SPACE_EXPLORATION</Sound>
 			<SoundMP>AS2D_TECH_MP_SPACE_EXPLORATION</SoundMP>
@@ -4682,7 +4692,7 @@
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>80</iCost>
+			<iCost>65</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_ANCIENT</Era>
@@ -4742,8 +4752,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_MINING</PrereqTech>
-				<PrereqTech>TECH_MYSTICISM</PrereqTech>
+				<PrereqTech>TECH_POTTERY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_MASONRY_QUOTE</Quote>
@@ -4761,9 +4770,9 @@
 			<!-- custom: if AIs value bronze working more now, so would be the counter to axemen (which is chariots).
 			Animal husbandry should also help revealing horse planting spots sooner to have better city locations, and getting pastures
 			sooner on relevant ressources to help growth and production, therefore i put a higher weight than for bronze working -->
-			<iAIWeight>50</iAIWeight>
+			<iAIWeight>75</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>100</iCost>
+			<iCost>65</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_ANCIENT</Era>
@@ -4828,7 +4837,6 @@
 			</Flavors>
 			<OrPreReqs>
 				<PrereqTech>TECH_HUNTING</PrereqTech>
-				<PrereqTech>TECH_AGRICULTURE</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_ANIMAL_HUSBANDRY_QUOTE</Quote>
@@ -4843,12 +4851,10 @@
 			<Help/>
 			<Strategy>TXT_KEY_TECH_BRONZE_WORKING_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
-			<!-- custom: bronze working is extra important to get early on, to upgrade the warrior free defenders into axemen at higher difficulties, or to
-			know more optimal city spots (that include copper) sooner, among other possible reasons -->
+			<!-- custom: bronze working is extra important to get early on, to upgrade the warrior free defenders into axemen at higher difficulties, or to know more optimal city spots (that include copper) sooner, among other possible reasons -->
 			<iAIWeight>30</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<!-- custom: trying to make tech pace more gradual or/and accurate historically, was 120 -->
-			<iCost>135</iCost>
+			<iCost>150</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_ANCIENT</Era>
@@ -4859,7 +4865,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>8</iAsset>
+			<iAsset>16</iAsset>
 			<iPower>8</iPower>
 			<bRepeat>0</bRepeat>
 			<!-- custom: was 1 -->
@@ -4905,9 +4911,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_MINING</PrereqTech>
+				<PrereqTech>TECH_METAL_CASTING</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<AndPreReqs>
+				<PrereqTech>TECH_MONARCHY</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_BRONZE_WORKING_QUOTE</Quote>
 			<Sound>AS2D_TECH_BRONZEWORK</Sound>
 			<SoundMP>AS2D_TECH_MP_BRONZEWORK</SoundMP>
@@ -4926,7 +4934,7 @@
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.301 -->
 			<iBarbarianFreeTechModifier>50</iBarbarianFreeTechModifier>
-			<iCost>250</iCost>
+			<iCost>350</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_CLASSICAL</Era>
@@ -4937,7 +4945,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>8</iAsset>
+			<iAsset>16</iAsset>
 			<iPower>10</iPower>
 			<bRepeat>0</bRepeat>
 			<!-- custom: was 1 -->
@@ -4987,9 +4995,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
+				<PrereqTech>TECH_THE_WHEEL</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<AndPreReqs>
+				<PrereqTech>TECH_MUSIC</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_MOUNTED_COMBAT_QUOTE</Quote>
 			<Sound>AS2D_TECH_MOUNTED_COMBAT</Sound>
 			<SoundMP>AS2D_TECH_MP_MOUNTED_COMBAT</SoundMP>
@@ -5007,8 +5017,7 @@
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.131b: was 200 -->
-			<!-- custom: trying to make tech pace more gradual or/and accurate, was 210 -->
-			<iCost>190</iCost>
+			<iCost>350</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_CLASSICAL</Era>
@@ -5067,7 +5076,9 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<AndPreReqs>
+				<PrereqTech>TECH_CURRENCY</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_IRON_WORKING_QUOTE</Quote>
 			<Sound>AS2D_TECH_IRONWORK</Sound>
 			<SoundMP>AS2D_TECH_MP_IRONWORK</SoundMP>
@@ -5083,12 +5094,7 @@
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.306: was 450 -->
-			<!-- custom: trying to make tech pace more gradual or/and accurate, this
-			tech should also be more strategic in AdvCiv-SAS, some units may specifically
-			require metal casting, not just for the forges, is maybe more accurate
-			historically too maybe, hopefully this maybe increases immersion also,
-			was 375 -->
-			<iCost>260</iCost>
+			<iCost>100</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_CLASSICAL -->
@@ -5149,10 +5155,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+				<PrereqTech>TECH_MINING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_POTTERY</PrereqTech>
+				<PrereqTech>TECH_MASONRY</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_METAL_CASTING_QUOTE</Quote>
 			<Sound>AS2D_TECH_METALCAST</Sound>
@@ -5168,7 +5174,7 @@
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>400</iCost>
+			<iCost>350</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_CLASSICAL</Era>
@@ -5226,10 +5232,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+				<PrereqTech>TECH_SAILING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_SEAFARING</PrereqTech>
+				<PrereqTech>TECH_MATHEMATICS</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_NAVIGATION_QUOTE</Quote>
 			<Sound>AS2D_TECH_NAVIGATION</Sound>
@@ -5246,7 +5252,7 @@
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>350</iCost>
+			<iCost>150</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_CLASSICAL -->
@@ -5311,10 +5317,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_MATHEMATICS</PrereqTech>
+				<PrereqTech>TECH_MASONRY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_MASONRY</PrereqTech>
+				<PrereqTech>TECH_THE_WHEEL</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_CONSTRUCTION_QUOTE</Quote>
 			<Sound>AS2D_TECH_CONSTRUCTION</Sound>
@@ -5331,8 +5337,7 @@
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
 			<!-- advc.306: was 700 -->
-			<!-- custom: trying to make tech pace more gradual or/and accurate, was 710 -->
-			<iCost>890</iCost>
+			<iCost>1300</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MEDIEVAL</Era>
@@ -5343,7 +5348,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>24</iAsset>
+			<iAsset>32</iAsset>
 			<iPower>8</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -5388,9 +5393,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_METAL_CASTING</PrereqTech>
+				<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<AndPreReqs>
+				<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_MACHINERY_QUOTE</Quote>
 			<Sound>AS2D_TECH_MACHINERY</Sound>
 			<SoundMP>AS2D_TECH_MP_MACHINERY</SoundMP>
@@ -5403,13 +5410,9 @@
 			<Help/>
 			<Strategy>TXT_KEY_TECH_ENGINEERING_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
-			<!-- custom: trying to reduce it, pikemen are cheap and longbowmen provide about as good defense bonuses, and since
-			they are more versatile it may help more. When rivals have enough knights, AI would then have enough techs or units to
-			to defend against that without requiring these defenders to be pikemen. This tech is not so bad, it's more so that
-			feudalism should be much better, helping economically too., was 0 -->
-			<iAIWeight>-100</iAIWeight>
+			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>1000</iCost>
+			<iCost>475</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_MEDIEVAL -->
@@ -5466,10 +5469,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+				<PrereqTech>TECH_NAVIGATION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_MACHINERY</PrereqTech>
+				<PrereqTech>TECH_MATHEMATICS</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_ENGINEERING_QUOTE</Quote>
 			<Sound>AS2D_TECH_ENGINEERING</Sound>
@@ -5486,7 +5490,7 @@
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.306: was 600 -->
-			<iCost>660</iCost>
+			<iCost>150</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_MEDIEVAL -->
@@ -5498,7 +5502,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>8</iAsset>
+			<iAsset>16</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -5543,10 +5547,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_NAVIGATION</PrereqTech>
+				<PrereqTech>TECH_SEAFARING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_MACHINERY</PrereqTech>
+				<PrereqTech>TECH_MASONRY</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_SAILING_QUOTE</Quote>
 			<Sound>AS2D_TECH_SAILING</Sound>
@@ -5563,7 +5567,7 @@
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
-			<iCost>1200</iCost>
+			<iCost>1300</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_RENAISSANCE -->
@@ -5618,9 +5622,10 @@
 			</Flavors>
 			<OrPreReqs>
 				<PrereqTech>TECH_CHIVALRY</PrereqTech>
-				<PrereqTech>TECH_EDUCATION</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<AndPreReqs>
+				<PrereqTech>TECH_EDUCATION</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_GUNPOWDER_QUOTE</Quote>
 			<Sound>AS2D_TECH_GUNPOWDER</Sound>
 			<SoundMP>AS2D_TECH_MP_GUNPOWDER</SoundMP>
@@ -5635,7 +5640,7 @@
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>1800</iCost>
+			<iCost>3600</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MODERN</Era>
@@ -5677,26 +5682,22 @@
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>5</iFlavor>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 				<Flavor>
-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>8</iFlavor>
+					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GOLD</FlavorType>
 					<iFlavor>2</iFlavor>
 				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_SCIENCE</FlavorType>
-					<iFlavor>1</iFlavor>
-				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_BANKING</PrereqTech>
+				<PrereqTech>TECH_CORPORATION</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_GAME_THEORY_QUOTE</Quote>
 			<Sound>AS2D_TECH_GAME_THEORY</Sound>
@@ -5714,7 +5715,7 @@
 			<iAIWeight>0</iAIWeight>
 			<!-- advc.552: was 0 -->
 			<iAITradeModifier>10</iAITradeModifier>
-			<iCost>2000</iCost>
+			<iCost>2500</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_RENAISSANCE -->
@@ -5726,7 +5727,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>32</iAsset>
+			<iAsset>40</iAsset>
 			<iPower>12</iPower>
 			<bRepeat>0</bRepeat>
 			<!-- custom: was 1 -->
@@ -5766,7 +5767,9 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_CHEMISTRY</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<AndPreReqs>
+				<PrereqTech>TECH_RIFLING</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_MILITARY_SCIENCE_QUOTE</Quote>
 			<Sound>AS2D_TECH_MILITARY_SCIENCE</Sound>
 			<SoundMP>AS2D_TECH_MP_MILITARY_SCIENCE</SoundMP>
@@ -5781,7 +5784,7 @@
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
-			<iCost>2400</iCost>
+			<iCost>1700</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_RENAISSANCE</Era>
@@ -5834,10 +5837,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_GAME_THEORY</PrereqTech>
+				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+				<PrereqTech>TECH_MACHINERY</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_RIFLING_QUOTE</Quote>
 			<Sound>AS2D_TECH_RIFLING</Sound>
@@ -5853,7 +5856,7 @@
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>3200</iCost>
+			<iCost>2500</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_INDUSTRIAL</Era>
@@ -5914,7 +5917,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_GAME_THEORY</PrereqTech>
+				<PrereqTech>TECH_PHYSICS</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_CHEMISTRY</PrereqTech>
@@ -5933,7 +5936,7 @@
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
-			<iCost>2800</iCost>
+			<iCost>3500</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MODERN</Era>
@@ -5990,10 +5993,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_CHEMISTRY</PrereqTech>
+				<PrereqTech>TECH_REFRIGERATION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+				<PrereqTech>TECH_ELECTRICITY</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_MARINE_TECHNOLOGY_QUOTE</Quote>
 			<Sound>AS2D_TECH_MARINE_TECHNOLOGY</Sound>
@@ -6010,7 +6013,7 @@
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
-			<iCost>5000</iCost>
+			<iCost>2900</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_INDUSTRIAL</Era>
@@ -6022,7 +6025,8 @@
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
 			<iAsset>40</iAsset>
-			<iPower>8</iPower>
+			<!-- custom: was 8 -->
+			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<!-- custom: was 1 -->
 			<bTrade>0</bTrade>
@@ -6066,7 +6070,7 @@
 				<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_CORPORATION</PrereqTech>
+				<PrereqTech>TECH_ECONOMICS</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_ASSEMBLY_LINE_QUOTE</Quote>
 			<Sound>AS2D_TECH_ASSEMBLINE</Sound>
@@ -6143,10 +6147,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
+				<PrereqTech>TECH_FUSION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_STEAM_POWER</PrereqTech>
+				<PrereqTech>TECH_ROBOTIC_RIGHTS</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_QUANTUM_MECHANICS_QUOTE</Quote>
 			<Sound>AS2D_TECH_QUANTUM_MECHANICS</Sound>
@@ -6163,7 +6167,7 @@
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
-			<iCost>4000</iCost>
+			<iCost>3500</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: ERA_INDUSTRIAL -->
@@ -6175,7 +6179,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>40</iAsset>
+			<iAsset>48</iAsset>
 			<iPower>10</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -6212,7 +6216,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_RIFLING</PrereqTech>
+				<PrereqTech>TECH_COMBUSTION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_PHYSICS</PrereqTech>
@@ -6232,7 +6236,7 @@
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
-			<iCost>6500</iCost>
+			<iCost>4200</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_INDUSTRIAL -->
@@ -6244,7 +6248,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>40</iAsset>
+			<iAsset>48</iAsset>
 			<iPower>10</iPower>
 			<bRepeat>0</bRepeat>
 			<!-- custom: was 1 -->
@@ -6290,10 +6294,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
+				<PrereqTech>TECH_FASCISM</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_ELECTRICITY</PrereqTech>
+				<PrereqTech>TECH_ARTILLERY</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_INDUSTRIALISM_QUOTE</Quote>
 			<Sound>AS2D_TECH_INDUSTRIALISM</Sound>
@@ -6309,7 +6313,7 @@
 			<Advisor>ADVISOR_CULTURE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>6000</iCost>
+			<iCost>3500</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MODERN</Era>
@@ -6347,14 +6351,11 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
+			<!-- custom: was flavors military 5 science 3 culture 9 -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>5</iFlavor>
-				</Flavor>
-				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
-					<iFlavor>3</iFlavor>
+					<iFlavor>6</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_CULTURE</FlavorType>
@@ -6379,7 +6380,7 @@
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>4000</iCost>
+			<iCost>2900</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_MODERN -->
@@ -6392,7 +6393,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>48</iAsset>
+			<iAsset>40</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -6434,11 +6435,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_ELECTRICITY</PrereqTech>
-				<PrereqTech>TECH_COMBUSTION</PrereqTech>
+				<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_BIOLOGY</PrereqTech>
+				<PrereqTech>TECH_DEMOCRACY</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_REFRIGERATION_QUOTE</Quote>
 			<Sound>AS2D_TECH_REFRIGERATION</Sound>
@@ -6454,7 +6454,7 @@
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>6500</iCost>
+			<iCost>5000</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MODERN</Era>
@@ -6502,8 +6502,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_REFRIGERATION</PrereqTech>
-				<PrereqTech>TECH_COMPUTERS</PrereqTech>
+				<PrereqTech>TECH_FISSION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_SUPERCONDUCTOR_QUOTE</Quote>
@@ -6520,7 +6519,7 @@
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>6500</iCost>
+			<iCost>5000</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MODERN</Era>
@@ -6577,10 +6576,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_RADIO</PrereqTech>
+				<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_GAME_THEORY</PrereqTech>
+				<PrereqTech>TECH_MASS_MEDIA</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_COMPUTERS_QUOTE</Quote>
 			<Sound>AS2D_TECH_COMPUTERS</Sound>
@@ -6650,10 +6650,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_SATELLITES</PrereqTech>
+				<PrereqTech>TECH_SPACE_EXPLORATION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_DEPOPULATION</PrereqTech>
+				<PrereqTech>TECH_FUSION</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_TERRAFORMING_QUOTE</Quote>
 			<Sound>AS2D_TECH_TERRAFORMING</Sound>
@@ -6670,7 +6670,7 @@
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
-			<iCost>5000</iCost>
+			<iCost>4200</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MODERN</Era>
@@ -6719,11 +6719,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_FLIGHT</PrereqTech>
 				<PrereqTech>TECH_ARTILLERY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_RIFLING</PrereqTech>
+				<PrereqTech>TECH_FLIGHT</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_ROCKETRY_QUOTE</Quote>
 			<Sound>AS2D_TECH_ROCKETRY</Sound>
@@ -6740,7 +6739,7 @@
 			<iAIWeight>0</iAIWeight>
 			<!-- advc.552: was 10 -->
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>6000</iCost>
+			<iCost>5000</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MODERN</Era>
@@ -6792,10 +6791,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_ROCKETRY</PrereqTech>
+				<PrereqTech>TECH_ADVANCED_FLIGHT</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_RADIO</PrereqTech>
+				<PrereqTech>TECH_ROCKETRY</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_SATELLITES_QUOTE</Quote>
 			<Sound>AS2D_TECH_SATELLITES</Sound>
@@ -6811,7 +6810,7 @@
 			<Advisor>ADVISOR_CULTURE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>13000</iCost>
+			<iCost>11000</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_FUTURE</Era>
@@ -6867,7 +6866,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_COMPUTERS</PrereqTech>
+				<PrereqTech>TECH_AI</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_ROBOTIC_RIGHTS_QUOTE</Quote>
@@ -6885,7 +6884,7 @@
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>13000</iCost>
+			<iCost>11000</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_FUTURE</Era>
@@ -6937,10 +6936,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_GENETICS</PrereqTech>
+				<PrereqTech>TECH_BIOENGINEERING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_ALIEN_LIFE</PrereqTech>
+				<PrereqTech>TECH_AI</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_TRANSHUMANISM_QUOTE</Quote>
 			<Sound>AS2D_TECH_TRANSHUMANISM</Sound>

@@ -11,8 +11,8 @@
 			<Description>TXT_KEY_SEALEVEL_LOW</Description>
 			<iSeaLevelChange>-8</iSeaLevelChange>
 			<!-- advc.910 -->
-			<!-- custom: i don't know why this is so skewed and admittedly didn't read note there, but maybe it can be toned down a bit closer to how it is at all sea levels anyways etc, was 117 -->
-			<iResearchPercent>110</iResearchPercent>
+			<!-- custom: i don't care about this shit, make it reproductible please ffs, anyways etc; not my problem if they pick a land or water heavy map, costs will be same anyways etc, was 117 -->
+			<iResearchPercent>100</iResearchPercent>
 		</SeaLevelInfo>
 		<SeaLevelInfo>
 			<Type>SEALEVEL_MEDIUM</Type>
@@ -26,8 +26,8 @@
 			<Description>TXT_KEY_SEALEVEL_HIGH</Description>
 			<iSeaLevelChange>6</iSeaLevelChange>
 			<!-- advc.910 -->
-			<!-- custom: i don't know why this is so skewed and admittedly didn't read note there, but maybe it can be toned down a bit closer to how it is at all sea levels anyways etc, was 87 -->
-			<iResearchPercent>90</iResearchPercent>
+			<!-- custom: i don't care about this shit, make it reproductible please ffs, anyways etc; not my problem if they pick a land or water heavy map, costs will be same anyways etc, was 87 -->
+			<iResearchPercent>100</iResearchPercent>
 		</SeaLevelInfo>
 	</SeaLevelInfos>
 </Civ4SeaLevelInfo>

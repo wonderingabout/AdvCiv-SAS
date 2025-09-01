@@ -1346,14 +1346,508 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 
 			// <!-- custom: PHASE 1 - estimate plot value (i.e. priority for the next plot to improve first anyways etc) and best build on said plot, for all plots in our loop anyways etc -->
 
-			// <!-- custom: PHASE 1.1 - process features to chop first -->
+			// <!-- custom: PHASE 1.1: general for non-bonus plots terrain/feature (not choppable ones anyways etc) analysis anyways etc -->
+			// Priority 1: Special terrain/feature combinations
+			if (eFeature == eFeatureFloodPlains)
+			{
+				// <!-- custom: unless we are very much starving, do not waste this high food tile just to build a farm or such food improvement -->
+				if (iEstimatedCityFoodDifference >= 1 || kCity.isFoodProduction())
+				{
+					// Floodplains: Great for cottages (high food + commerce potential)
+					// High food terrain = can afford cottage
+					if (canBuild(kPlot, eBuildCottage))
+					{
+						// <!-- custom: the absolute best and ideal, if we can build it and conditions are good, no need to think further anyways etc -->
+						eBestSupposedBuild = eBuildCottage;
+
+						// <!-- custom: the ideal plot to start improving first, high food ; do not worry about production for now, the food is good enough and more often than not always gonna be worth it, at least we hope in this case i mean if i may say anyways etc -->
+						iValue += 2000;
+					}
+					else
+					{
+						// <!-- custom: wait for right time, do nothing (yet in this case i mean anyways etc) in this case i mean anyways etc -->
+						continue;
+					}
+				}
+				// <!-- custom: but in some rare cases farm on flood plains can be quite good.. if we can build it i mean anyways etc -->
+				else
+				{
+					// <!-- custom: in such urgent cases, make extra sure we can actually build the farm we dream so bad of if i may say in this case but anyways etc ; note: see code comment at iEstimatedCityFoodDifference for details about food is production case if i may say but anyways etc -->
+					if (canBuild(kPlot, eBuildFarm) && !kCity.isFoodProduction())
+					{
+						eBestSupposedBuild = eBuildFarm;
+
+						// <!-- custom: high food tile, start from a lower point to try to avoid overbuilding them if i am not mistaken but in all cases if i may say anyways etc -->
+						iValue += 1700 + (100 * (-1 * iEstimatedCityFoodDifference));
+					}
+					// <!-- custom: else, fallback to previous plan, gotta make what we can get what we can of the tile before we starve. -->
+					else if (canBuild(kPlot, eBuildCottage))
+					{
+						eBestSupposedBuild = eBuildCottage;
+
+						iValue += 2000;
+					}
+					else
+					{
+						// <!-- custom: wait for right time, do nothing (yet in this case i mean anyways etc) in this case i mean anyways etc -->
+						continue;
+					}
+				}
+			}
+			// <!-- custom: feature floodplains can effectively be considered a terrain as it spawns only on desert in our mod if i am not mistaken as in base advciv +/- civ4, so use else if for computational effiency if i may say anyways etc -->
+			else if (eTerrain == eTerrainGrass)
+			{
+				if (kPlot.isHills())
+				{
+					// <!-- custom: unless we are very much starving, do not waste this high food tile just to build a farm or such food improvement -->
+					if (iEstimatedCityFoodDifference >= -1 || kCity.isFoodProduction())
+					{
+						if (canBuild(kPlot, eBuildMine))
+						{
+							// <!-- custom: hill grassland very strong early, even later in game maybe too anyways etc ; we get nice production and quite nice food as well, great starter, a bit less than flood plains as lower food, but really nice tile overall ; the build may also still be better even than windmill due to base food higher yield of grassland -->
+							eBestSupposedBuild = eBuildMine;
+
+							// <!-- custom: improve these first before cottages to not neglect our production as well, generally they are few in cities anyway but we tend to neglect them quite a bit for grass cottages, attempt to address that as well as valuing them in general anyways etc. But also make sure we grow first, so give first populations to cottages or such rather, then say from pop 3+ or such focus more on mines on hill grass instead for example anyways etc -->
+							// <!-- custom: some data by chatgpt 5 of my idea too with its help too later i mean if i may say in this case i mean but anyways etc, check if accurate anyways etc -->
+							// That yields:
+							// pop 1 → 1540
+							// pop 2 → 1590
+							// pop ≥3 → 1640
+							// Given flat-grass cottage = 1600, this enforces:
+							// pop 1–2: cottage (1600) > mine (1540/1590)
+							// pop ≥3: mine (1640) > cottage (1600)
+							// …which matches your rule perfectly.
+							iValue += ((-100 + (50 * std::min(3, iCityPopulation))) + 1590);
+						}
+						else
+						{
+							// <!-- custom: wait for right time, do nothing (yet in this case i mean anyways etc) in this case i mean anyways etc -->
+							continue;
+						}
+					}
+					// <!-- custom: low food, can't be too picky if i may say in this case at least maybe but anyways etc -->
+					else
+					{
+						if (canBuild(kPlot, eBuildWindmill) && !kCity.isFoodProduction())
+						{
+							// <!-- custom: the windmill may be a fine alternative then, hopefully the food helps, that we'd get even on a hill, quite nice, yields are not too great, but at least city grows hopefully or doesn't stop growing too much (use what we can mindset xd if i may say at least for me and in this case if i may say but anyways etc) -->
+							eBestSupposedBuild = eBuildWindmill;
+
+							iValue += 1200 + (100 * (-1 * iEstimatedCityFoodDifference));
+						}
+						else if (canBuild(kPlot, eBuildMine))
+						{
+							// <!-- custom: we are out of luck, get the hill grassland mine is really good, but we'll starve in a few citizens or sooner if our conditions change, still this is quite good overall production for cheap food -->
+							eBestSupposedBuild = eBuildMine;
+
+							iValue += 1300;
+						}
+						else
+						{
+							// <!-- custom: we are doomed xd, look and contemplate this tile until we starve xd if i may say but anyways etc, maybe the stars look good at night there... Xd or to rest calm and in peace if i may say maybe if i may say in this case hehe but anyways etc -->
+							continue;
+						}
+					}
+				}
+				// <!-- custom: many things could be good on flatland grass, but statistically, cottage would be best and most universally possible to build, then when we have workshops, switch over if cottage didn't grow yet, else keep cottage (logic to not overwrite which or which not to overwrite improvement handled outside of this function, for now simply pick ideal supposed best regardless of plot condition (existing improvements or such other conditions as well not taken into account here anyways etc)) -->
+				else
+				{
+					// <!-- custom: as long as we have enough or barely enough food, afford to capitalize on that and maximize potential and higher yields anyways etc -->
+					if (iEstimatedCityFoodDifference >= 2 || kCity.isFoodProduction())
+					{
+						if (canBuild(kPlot, eBuildWorkshop))
+						{
+							eBestSupposedBuild = eBuildWorkshop;
+
+							// <!-- custom: solid mid-game choice, essentially it is the same as a hill grassland later in the game, prefer cottages still as a general rule in the early game, but we may need the production rather later, starting to plan mid game wars and invasions, hopefully we have enough commerce by now in all the empire maybe anyways etc, but in all cases shift a bit more towards production, especially for unimproved tiles, but it may still be quite storng even in improved ones hopefully as this is a strong choice i would say especially in later game anyways etc -->
+							iValue += 1650;
+
+							if (bImprovementWorkshopCostsNoFood)
+							{
+								// <!-- custom: extra value for workshop if it costs no food, extremely attractive anyways etc -->
+								iValue += 1000;
+							}
+						}
+						// <!-- custom: i don't think we need farms, they are or may be quite tempting, but capitalize on high food of this tile to grow slow for later higher commerce, should statistically help most, if i may say but anyways etc -->
+						// High food terrain = can afford cottage
+						else if (canBuild(kPlot, eBuildCottage))
+						{
+							eBestSupposedBuild = eBuildCottage;
+
+							iValue += 1600;
+						}
+						else
+						{
+							// <!-- custom: wait for right time, do nothing (yet in this case i mean anyways etc) in this case i mean anyways etc -->
+							continue;
+						}
+					}
+					// <!-- custom: else if short on food, make sure city can grow, a farm can be quite good even on grassland in some circumstances, but generally avoid -->
+					else
+					{
+						// <!-- custom: consider the workshop first if it doesn't cost any food anymore), else don't build it at least not yet in this case i mean but anyways etc -->
+						if (bImprovementWorkshopCostsNoFood && canBuild(kPlot, eBuildWorkshop))
+						{
+							eBestSupposedBuild = eBuildWorkshop;
+
+							// <!-- custom: extremely attractive on this terrain if no food cost anyways etc -->
+							iValue += 2000;
+						}
+						// <!-- custom: try our luck with a farm... if we can ideally in this case i mean anyways etc. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage if i am not mistaken anyways etc -->
+						else if (canBuild(kPlot, eBuildFarm) && !kCity.isFoodProduction())
+						{
+							eBestSupposedBuild = eBuildFarm;
+
+							// <!-- custom: high food tile, start from a lower point to try to avoid overbuilding them -->
+							iValue += 1460 + (100 * (-1 * iEstimatedCityFoodDifference));
+						}
+						else if (canBuild(kPlot, eBuildCottage))
+						{
+							eBestSupposedBuild = eBuildCottage;
+
+							iValue += 1300;
+						}
+						else
+						{
+							// <!-- custom: out of luck, ask claude ai or such other AIs anyways etc what one can do on grass flatland anyways etc before we run out of food and assuming we can't improve the tile, play some music maybe with some wind xd or lsten to it or sing maybe.. But wait wouldn't that be at a camp, but is noisy though maybe, or not? But anyways etc... -->
+							continue;
+						}
+					}
+				}
+			}
+			// <!-- custom: lower food terrain as of now i mean but anyways etc -->
+			else if (eTerrain == eTerrainPlains)
+			{
+				// <!-- custom: on hills the problem is more straightforward if i may say anyways etc, build mines until we can afford windmills, then let iValue despite outside of this function if we should build the best build or not vs other tiles (i.e. as of now due to the penalty of overwriting plots, windmills would not be considered until high enough value city plots have been improved first anyways etc, our build mine on plains would be delayed until then anyways etc) -->
+				if (kPlot.isHills())
+				{
+					// <!-- custom: as long as we have enough food to afford building on lower-food plains terrains i mean but anyways etc, prefer the mine, yields slightly more anyways etc -->
+					if (iEstimatedCityFoodDifference >= 0 || kCity.isFoodProduction())
+					{
+						if (canBuild(kPlot, eBuildMine))
+						{
+							// <!-- custom: still good and solid choice if i may say in this case anyways etc, but costs food -->
+							eBestSupposedBuild = eBuildMine;
+
+							iValue += 800;
+						}
+						else
+						{
+							// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
+							continue;
+						}
+					}
+					// <!-- custom: if low on food on a hill consider windmill with a higher priority -->
+					else
+					{
+						if (canBuild(kPlot, eBuildWindmill) && !kCity.isFoodProduction())
+						{
+							// <!-- custom: windmill on plains is not too bad, but unless we are starved, this is not a so good build -->
+							eBestSupposedBuild = eBuildWindmill;
+
+							iValue += 800;
+						}
+						else if (canBuild(kPlot, eBuildMine))
+						{
+							// <!-- custom: get the best we can before we starve -->
+							eBestSupposedBuild = eBuildMine;
+
+							iValue += 700;
+						}
+						else
+						{
+							// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
+							continue;
+						}
+					}
+				}
+				// <!-- custom: on flatland plains make good cottages early, and fine worshops late assuming we have extra food, if no food or really low, a farm may be fine, especially irrigated else build what we can until we starve -->
+				else
+				{
+					if (iEstimatedCityFoodDifference >= 3 || kCity.isFoodProduction())
+					{
+						if (canBuild(kPlot, eBuildWorkshop))
+						{
+							// <!-- custom: windmill on plains is not too bad, but unless we are starved, it is not a so good build -->
+							eBestSupposedBuild = eBuildWorkshop;
+
+							iValue += 800;
+
+							if (bImprovementWorkshopCostsNoFood)
+							{
+								// <!-- custom: extra value for workshop if it costs no food, extremely attractive anyways etc -->
+								iValue += 1000;
+							}
+						}
+						else if (canBuild(kPlot, eBuildCottage))
+						{
+							// <!-- custom: still quite good but not ultimate best, delay if all higher potential food tiles especially unimproved ones have been improved already -->
+							eBestSupposedBuild = eBuildCottage;
+
+							iValue += 600;
+						}
+						else
+						{
+							// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
+							continue;
+						}
+					}
+					// <!-- custom: if low on food on a flatland plains, do what we can to raise food if no other plots are good, else get what we can if we can before we starve in this case i mean anyways etc -->
+					else
+					{
+						// <!-- custom: consider the workshop first if it doesn't cost any food anymore), else don't build it at least not yet in this case i mean but anyways etc -->
+						if (bImprovementWorkshopCostsNoFood && (canBuild(kPlot, eBuildWorkshop)))
+						{
+							eBestSupposedBuild = eBuildWorkshop;
+
+							// <!-- custom: extremely attractive on this terrain if no food cost anyways etc -->
+							iValue += 1600;
+						}
+						// <!-- custom: try our luck with a farm... if we can ideally in this case i mean anyways etc. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage if i am not mistaken anyways etc -->
+						else if (canBuild(kPlot, eBuildFarm) && !kCity.isFoodProduction())
+						{
+							eBestSupposedBuild = eBuildFarm;
+
+							iValue += 900 + (100 * (-1 * iEstimatedCityFoodDifference));
+						}
+						else if (canBuild(kPlot, eBuildCottage))
+						{
+							eBestSupposedBuild = eBuildCottage;
+
+							// <!-- custom: still quite good but not ultimate best, but if we're going to build a farm as relatively holy anyway in this low-food terrain, restrict the cottage by increasing its requirement further (i.e. lowering its iValue so it is more rarely built if i may say but anyways etc), making it even less likely to be built unless we have tons of food or if we can't build a farm and nothing or almost nothing else is good right now in city radius if i am not mistaken but anyways etc, for effiency, but anyways etc -->
+							iValue += 500;
+						}
+						else
+						{
+							// <!-- custom: out of luck, leave the plot as is, at least for now if i may say i mean anyways etc -->
+							continue;
+						}
+					}
+				}
+			}
+			// <!-- custom: for tundra prioritize developping the other food tiles, develop tundra last or among last terrains, or/and only if we are surrounded by it, then prefer farms or cottages depending on our food supply on flatland, else and in general as well i mean anyways etc see below logic for details -->
+			else if (eTerrain == eTerrainTundra)
+			{
+				// <!-- custom: on hills the problem is more straightforward similarly to plains, but they yield less production, so less valuable, still as tundra is lower production overall, production is valuable itself, so make it worth a bit less than plains so that plains prevail but not by a lot if i am not mistaken in my thinking so if i may say but anyways etc... -->
+				if (kPlot.isHills())
+				{
+					// <!-- custom: as long as we have enough food to afford building on lower-food plains terrains i mean but anyways etc, prefer the mine, yields slightly more anyways etc ; also as tundra tends to have less food around it, so consistently (i.e. regardless of food difference if i am not mistaken in my thinking anyways etc) favour the windmill instead -->
+					if (canBuild(kPlot, eBuildWindmill))
+					{
+						// <!-- custom: on tundra the windmill may be slightly more valuable than on plains, i don't know exactly why i feel or seem to think so if i may say but anyways etc, but maybe since production is low anyway, capitalize on food rather, or maybe because tundra overall has less food in its environment so value food more but anyways etc windmill, go for it anyway etc -->
+						eBestSupposedBuild = eBuildWindmill;
+
+						iValue += 500;
+					}
+					else if (canBuild(kPlot, eBuildMine))
+					{
+						// <!-- custom: if nothing better to do, grab what we can anyways etc -->
+						eBestSupposedBuild = eBuildMine;
+
+						iValue += 350;
+					}
+					else
+					{
+						// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
+						continue;
+					}
+				}
+				// <!-- custom: on flatland plains make good cottages early, and fine worshops late assuming we have extra food, if no food or really low, a farm may be fine, especially irrigated else build what we can until we starve -->
+				else
+				{
+					// <!-- custom: tighter food requirement than plains, as tundra tends to be surrounded by other tundra or snow or such other low food tiles so favour food more if i am not mistaken anyways etc -->
+					if (iEstimatedCityFoodDifference >= 3 || kCity.isFoodProduction())
+					{
+						if (canBuild(kPlot, eBuildWorkshop))
+						{
+							// <!-- custom: windmill on plains is not too bad, but unless we are starved, this is not a so good build -->
+							eBestSupposedBuild = eBuildWorkshop;
+
+							iValue += 575;
+
+							if (bImprovementWorkshopCostsNoFood)
+							{
+								// <!-- custom: extra value for workshop if it costs no food, extremely attractive anyways etc -->
+								iValue += 1000;
+							}
+						}
+						// <!-- custom: note: we could have added the watermill, but the yields are not good enough and early enough, also even if not, this is not a high production terrain and is likely to be surrounded by economy tiles as well or/and tundra ones maybe too but anyways etc, bet on commerce rather for these tiles/cities maybe, hopefully statistically often most helpful for AI but anyways etc -->
+						else if (canBuild(kPlot, eBuildCottage))
+						{
+							// <!-- custom: still quite good especially with the tundra change that now gives one extra commerce in our mod advciv-sas if i may say but anyways etc, but still not ultimate best if i may say but anyways etc, delay if all higher potential food tiles especially unimproved ones have been improved already -->
+							eBestSupposedBuild = eBuildCottage;
+
+							iValue += 550;
+						}
+						else
+						{
+							// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
+							continue;
+						}
+					}
+					// <!-- custom: if low on food on a flatland tundra, a farm is good if we can get it especially considering the scarce environment if i am not mistaken but anyways etc, do what we can to raise food if no other plots are good, else get what we can if we can before we starve in this case i mean anyways etc -->
+					else
+					{
+						// <!-- custom: consider the workshop first if it doesn't cost any food anymore), else don't build it at least not yet in this case i mean but anyways etc -->
+						if (bImprovementWorkshopCostsNoFood && (canBuild(kPlot, eBuildWorkshop)))
+						{
+							eBestSupposedBuild = eBuildWorkshop;
+
+							// <!-- custom: extremely attractive on this terrain if no food cost anyways etc -->
+							iValue += 1600;
+						}
+						// <!-- custom: try our luck with a farm... if we can ideally in this case i mean anyways etc. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage if i am not mistaken anyways etc -->
+						else if (canBuild(kPlot, eBuildFarm) && !kCity.isFoodProduction())
+						{
+							eBestSupposedBuild = eBuildFarm;
+
+							iValue += 500 + (100 * (-1 * iEstimatedCityFoodDifference));
+						}
+						else if (canBuild(kPlot, eBuildCottage))
+						{
+							eBestSupposedBuild = eBuildCottage;
+
+							// <!-- custom: but the general rule still applies, low food, farm first unless lot of food (e.g. if coastal location) -->						
+							iValue += 150;
+						}
+						else
+						{
+							// <!-- custom: out of luck, leave the plot as is, at least for now if i may say i mean anyways etc -->
+							continue;
+						}
+					}
+				}
+			}
+			// <!-- custom: on snow, i think the only thing we can do is build a mine or something similar on hills, and it shoudn't be too high priority unless we have lots of food (but even then should we waste it on a snow tile or use this scarce advantage in cold environment if i may say but anyways etc for other tiles, ideally tundra maybe? But anyways etc) -->
+			else if (eTerrain == eTerrainSnow)
+			{
+				if (kPlot.isHills())
+				{
+					// <!-- custom: even if the windmill technically raises food, the yields are still not great, bet on the mine being more useful rather -->
+					if (iEstimatedCityFoodDifference >= 4 || kCity.isFoodProduction())
+					{
+						if (canBuild(kPlot, eBuildMine))
+						{
+							// <!-- custom: if nothing better to do, grab what we can anyways etc -->
+							eBestSupposedBuild = eBuildMine;
+
+							iValue += 200;
+						}
+						else
+						{
+							// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
+							continue;
+						}
+					}
+					// <!-- custom: count on the windmill but not too much, this is really last ditch and quite desperate xd if i may say in this case but anyways etc -->
+					else
+					{
+						if (canBuild(kPlot, eBuildWindmill))
+						{
+							// <!-- custom: if nothing better to do, grab what we can anyways etc -->
+							eBestSupposedBuild = eBuildWindmill;
+
+							iValue += 250;
+						}
+						else if (canBuild(kPlot, eBuildMine))
+						{
+							// <!-- custom: if nothing better to do, grab what we can anyways etc -->
+							eBestSupposedBuild = eBuildMine;
+
+							iValue += 200;
+						}
+						else
+						{
+							// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
+							continue;
+						}
+					}
+				}
+				// <!-- custom: else nothing to do on flatland snow if i am not mistaken, that would raise our yields at all (we DON'T want forts if i may say but anyways etc...) -->
+			}
+			// <!-- custom: on desert, except from hills, i don't think we can build anything at all as per xml if i am not mistaken (although i didn't check too much if at all to be fair but it seems to function as such ingame if i may say and if i am not mistaken but anyways etc) but anyways etc -->
+			else if (eTerrain == eTerrainDesert)
+			{
+				if (kPlot.isHills())
+				{
+					// <!-- custom: even if the windmill technically raises food, the yields are still not great, bet on the mine being more useful rather -->
+					if (iEstimatedCityFoodDifference >= 4 || kCity.isFoodProduction())
+					{
+						if (canBuild(kPlot, eBuildMine))
+						{
+							// <!-- custom: if nothing better to do, grab what we can anyways etc -->
+							eBestSupposedBuild = eBuildMine;
+
+							iValue += 200;
+						}
+						else
+						{
+							// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
+							continue;
+						}
+					}
+					// <!-- custom: count on the windmill but not too much, this is really last ditch and quite desperate xd if i may say in this case but anyways etc -->
+					else
+					{
+						if (canBuild(kPlot, eBuildWindmill) && !kCity.isFoodProduction())
+						{
+							// <!-- custom: if nothing better to do, grab what we can anyways etc -->
+							eBestSupposedBuild = eBuildWindmill;
+
+							iValue += 250;
+						}
+						else if (canBuild(kPlot, eBuildMine))
+						{
+							// <!-- custom: if nothing better to do, grab what we can anyways etc -->
+							eBestSupposedBuild = eBuildMine;
+
+							// <!-- note: especially for smart ais reading this or human modders or players not overlooking it xd if i may say but hard to notice if i may say too in this case but anyways etc, evne though the value is really low, in some cases we may have nothing else better to do at all (not counting non-bonus roads not handled in this function), so we may build a hill desert around turn 20 as in autoplay in save file 336 from turn 0, because there is simply nothing better: no cottages, no chopping so can't mine the gemstones in forest even though we have mining we can't mine yet, etc, in these rare cases weird things like mining hill desert actually make a lot of sense, it's the only or among only best moves :) And it's not even bad in terms of yields, just relatively worse and shows system funcitons well too if i may say in this case at least but anywas etc -->
+							iValue += 200;
+						}
+						else
+						{
+							// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
+							continue;
+						}
+					}
+				}
+			}
+
+			// <!-- custom: PHASE 1.2 - adjust based on features to chop then (chop first before building a non-bonus farm or mine for example anyways etc -->
 			// Priority 1: Handle features that need removal or special treatment
+
 			if (eFeature == eFeatureForest)
 			{
 				if (canBuild(kPlot, eBuildRemoveForest))
 				{
 					// <!-- custom: should we chop this non-bonus plot? To decide that if i may say but anyways etc, take into account city population, and current health -->
 					// <!-- custom: past a certain size, we can get health from buildings or such, and maybe game would have devlopped enough that by that time/point but anyways etc we can also traded health bonuses if needed, ideally and hopefully AI does so although i didn't check too much, check to be sure anyways etc -->
+
+					// <!-- custom: chop as long as we have the health, else devalue it -->
+					// <!-- custom: here is some data from chatgpt 5 if helps (and helps me too balance it maybe xd, check if accurate and updated but anyways etc) -->
+					// Forest removal scoring
+					// healthDiff := iCityHealthCalculatedDifference  (>0 = surplus health, <0 = unhealth)
+					//
+					// Behavior in this block:
+					// • If pop >= 7: only consider chopping when healthDiff >= 1; otherwise we SKIP (continue).
+					//   Δ = 50 * healthDiff
+					// • If pop < 7: always consider chopping with
+					//   Δ = -100 + 50 * healthDiff   (i.e., needs at least +2 health to break even)
+					//
+					// Examples (Δ in iValue units):
+					//   pop 6,  health -2 → Δ = -100 + 50*(-2) = -200  (strongly discouraging early chop)
+					//   pop 6,  health +1 → Δ = -100 + 50*(1)  = -50   (still discouraging)
+					//   pop 6,  health +2 → Δ = -100 + 50*(2)  = 0     (neutral threshold)
+					//   pop 7,  health  0 → SKIP (not even evaluated)
+					//   pop 7,  health +1 → Δ = 50                         (encouraging)
+					//   pop 12, health +3 → Δ = 150                        (encouraging late chop)
+					//   pop 12, health -1 → SKIP                           (not evaluated)
+					//
+					// Notes / edge cases:
+					// • The hard SKIP for (pop >= 7 && healthDiff <= 0) prevents emergency forest chops from competing.
+					//   If you want “rare emergencies” to be possible, replace SKIP with a small negative Δ instead.
+					// • Early forests are broadly devalued (need +2 health to be neutral). This protects against
+					//   overchopping in the opening unless the city is clearly healthy.
 					if (iCityPopulation >= 7)
 					{
 						if (iCityHealthCalculatedDifference >= 1)
@@ -1372,28 +1866,13 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					}
 					else
 					{
-						// <!-- custom: chop as long as we have the health, else devalue it -->
 						eBestSupposedBuild = eBuildRemoveForest;
 
 						iValue += -100 + (50 * iCityHealthCalculatedDifference);
 					}
-
-					// <!-- custom: finally value for chop per terrain (prioritize chopping grassland over plains, all other things being equal, in hope that we'd improve the tile later on a higher base food yield tile if i may say anyways etc), since we won't look at this later in this case at least if i may say but anyways etc -->
-					if (eTerrain == eTerrainGrass)
-					{
-						iValue += 1500;
-					}
-					// <!-- custom: try to keep forest a bit more all other things get equal, the hammer/production yields as well as health are not too bad -->
-					else if (eTerrain == eTerrainPlains)
-					{
-						iValue += 800;
-					}
-					else if (eTerrain == eTerrainTundra)
-					{
-						iValue += 600;
-					}
 				}
-				else
+				// <!-- custom: if no good candidate was found in general non-bonus terrain/feature phase, plus no plot to chop on top of that if i may say but anyways etc, then nothing to do here for now at least if not always or not and in this case i mean but anyways etc -->
+				else if (eBestSupposedBuild == NO_BUILD)
 				{
 					// <!-- custom: wait for right time, do nothing (yet in this case i mean anyways etc) in this case i mean anyways etc -->
 					continue;
@@ -1405,6 +1884,34 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				{
 					// <!-- custom: should we chop this non-bonus plot? To decide that if i may say but anyways etc, take into account city population, and current health -->
 					// <!-- custom: past a certain size, we can get health from buildings or such, and maybe game would have devlopped enough that by that time/point but anyways etc we can also traded health bonuses if needed, ideally and hopefully AI does so although i didn't check too much, check to be sure anyways etc -->
+
+					// <!-- custom: here is some data from chatgpt 5 if helps (and helps me too balance it maybe xd, check if accurate and updated but anyways etc) -->
+					// Jungle removal scoring (assumes iCityHealthCalculatedDifference >0 = surplus health, <0 = unhealth)
+					//
+					// Action: we always set eBestSupposedBuild = eBuildRemoveJungle; scoring decides priority.
+					//
+					// pop >= 7:
+					//   Δ = 75 * ((pop - 6) - healthDiff)
+					//   • Positive when (pop - 6) > healthDiff
+					//   • Zero when (pop - 6) == healthDiff
+					//   • Negative when (pop - 6) < healthDiff  (i.e., very healthy big city → less urgency)
+					//
+					// pop < 7:
+					//   Δ = max(0, 50 * (-healthDiff))   // non-negative; only rises with unhealth
+					//
+					// Examples (Δ in iValue units):
+					//   pop 4,  health +2 → Δ = max(0, 50 * -2)     = 0        (healthy small city → not urgent)
+					//   pop 4,  health -1 → Δ = max(0, 50 * 1)      = 50       (encouraging early clear)
+					//   pop 6,  health -3 → Δ = max(0, 50 * 3)      = 150      (strong push to clear)
+					//   pop 7,  health  0 → Δ = 75 * ((1) - 0)      = 75       (moderately encouraging)
+					//   pop 7,  health +1 → Δ = 75 * (1 - 1)        = 0        (neutral)
+					//   pop 7,  health +2 → Δ = 75 * (1 - 2)        = -75      (discouraging; other tiles likely win)
+					//   pop 10, health +3 → Δ = 75 * (4 - 3)        = 75       (still okay to clear)
+					//   pop 10, health -2 → Δ = 75 * (4 - (-2))     = 450      (very strong push to clear)
+					//
+					// Notes:
+					// • The pop<7 path now never yields negative Δ, preventing “always chop” from losing to other plots purely due to positivity.
+					// • Large healthy cities can still deprioritize jungle if they have better improvements to do first.
 					if (iCityPopulation >= 7)
 					{
 						// <!-- custom: chop first, think later -->
@@ -1417,493 +1924,23 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 						// <!-- custom: always chop, but more if health is low since it's jungle, very nice if we could solve health issue, plus i mistakenly put a check >= 1 here without handling the else case so we had a city unimproved at turn 175, spotted by chtagpt o3 thanks and now fixed and adjusted with this logic, but also proof our system works nicely as intended without interference if i'm not mistakena t least in this case but anyways etc, which is ideal functioning of this system i mean but anyways etc ; if low pop prioritize chopping jungle as is very worth it (less health, and in our mod we gain production too anyways etc) -->
 						eBestSupposedBuild = eBuildRemoveJungle;
 
-						iValue += 50 * (-1 * iCityHealthCalculatedDifference);
-					}
-					// <!-- custom: finally base value for chop per terrain (prioritize chopping grassland over plains, all other things being equal, in hope that we'd improve the tile later on a higher base food yield tile if i may say anyways etc), since we won't look at this later in this case at least if i may say but anyways etc -->
-					if (eTerrain == eTerrainGrass)
-					{
-						iValue += 1600;
-					}
-					// <!-- custom: unlike how we value plains very low generally, when it comes to chopping and a city being unhealthy, this is easy and free health, so spend some time to clear it asap, better and cheaper than building an aqueduct or whatever, just do it after plains. After we have chopped, ignore the plains tile again and do not improve it, this is just to gain health, not to improve the tile at all otherwise, at least for now until all other good plots have been improved first -->
-					else if (eTerrain == eTerrainPlains)
-					{
-						iValue += 1500;
+						iValue += std::max(0, 50 * (-1 * iCityHealthCalculatedDifference));
 					}
 				}
-				else
+				// <!-- custom: if no good candidate was found in general non-bonus terrain/feature phase, plus no plot to chop on top of that if i may say but anyways etc, then nothing to do here for now at least if not always or not and in this case i mean but anyways etc -->
+				else if (eBestSupposedBuild == NO_BUILD)
 				{
 					// <!-- custom: wait for right time, do nothing (yet in this case i mean anyways etc) in this case i mean anyways etc -->
 					continue;
 				}
 			}
-			// <!-- custom: PHASE 1.2: if no features to chop, fallback to usual analysis of best build to choose, and keep analyzing the value of our builds as part of terrain / feature analysis now though anyways etc -->
-			else
-			{
-				// Priority 2: Special terrain/feature combinations
-				if (eFeature == eFeatureFloodPlains)
-				{
-					// <!-- custom: unless we are very much starving, do not waste this high food tile just to build a farm or such food improvement -->
-					if (iEstimatedCityFoodDifference >= 1 || kCity.isFoodProduction())
-					{
-						// Floodplains: Great for cottages (high food + commerce potential)
-						// High food terrain = can afford cottage
-						if (canBuild(kPlot, eBuildCottage))
-						{
-							// <!-- custom: the absolute best and ideal, if we can build it and conditions are good, no need to think further anyways etc -->
-							eBestSupposedBuild = eBuildCottage;
 
-							// <!-- custom: the ideal plot to start improving first, high food ; do not worry about production for now, the food is good enough and more often than not always gonna be worth it, at least we hope in this case i mean if i may say anyways etc -->
-							iValue += 2000;
-						}
-						else
-						{
-							// <!-- custom: wait for right time, do nothing (yet in this case i mean anyways etc) in this case i mean anyways etc -->
-							continue;
-						}
-					}
-					// <!-- custom: but in some rare cases farm on flood plains can be quite good.. if we can build it i mean anyways etc -->
-					else
-					{
-						// <!-- custom: in such urgent cases, make extra sure we can actually build the farm we dream so bad of if i may say in this case but anyways etc ; note: see code comment at iEstimatedCityFoodDifference for details about food is production case if i may say but anyways etc -->
-						if (canBuild(kPlot, eBuildFarm) && !kCity.isFoodProduction())
-						{
-							eBestSupposedBuild = eBuildFarm;
-
-							// <!-- custom: high food tile, start from a lower point to try to avoid overbuilding them if i am not mistaken but in all cases if i may say anyways etc -->
-							iValue += 1700 + (100 * (-1 * iEstimatedCityFoodDifference));
-						}
-						// <!-- custom: else, fallback to previous plan, gotta make what we can get what we can of the tile before we starve. -->
-						else if (canBuild(kPlot, eBuildCottage))
-						{
-							eBestSupposedBuild = eBuildCottage;
-
-							iValue += 2000;
-						}
-						else
-						{
-							// <!-- custom: wait for right time, do nothing (yet in this case i mean anyways etc) in this case i mean anyways etc -->
-							continue;
-						}
-					}
-				}
-				// <!-- custom: feature floodplains can effectively be considered a terrain as it spawns only on desert in our mod if i am not mistaken as in base advciv +/- civ4, so use else if for computational effiency if i may say anyways etc -->
-				else if (eTerrain == eTerrainGrass)
-				{
-					if (kPlot.isHills())
-					{
-						// <!-- custom: unless we are very much starving, do not waste this high food tile just to build a farm or such food improvement -->
-						if (iEstimatedCityFoodDifference >= -1 || kCity.isFoodProduction())
-						{
-							if (canBuild(kPlot, eBuildMine))
-							{
-								// <!-- custom: hill grassland very strong early, even later in game maybe too anyways etc ; we get nice production and quite nice food as well, great starter, a bit less than flood plains as lower food, but really nice tile overall ; the build may also still be better even than windmill due to base food higher yield of grassland -->
-								eBestSupposedBuild = eBuildMine;
-
-								iValue += 1500;
-							}
-							else
-							{
-								// <!-- custom: wait for right time, do nothing (yet in this case i mean anyways etc) in this case i mean anyways etc -->
-								continue;
-							}
-						}
-						// <!-- custom: low food, can't be too picky if i may say in this case at least maybe but anyways etc -->
-						else
-						{
-							if (canBuild(kPlot, eBuildWindmill) && !kCity.isFoodProduction())
-							{
-								// <!-- custom: the windmill may be a fine alternative then, hopefully the food helps, that we'd get even on a hill, quite nice, yields are not too great, but at least city grows hopefully or doesn't stop growing too much (use what we can mindset xd if i may say at least for me and in this case if i may say but anyways etc) -->
-								eBestSupposedBuild = eBuildWindmill;
-
-								iValue += 1200 + (100 * (-1 * iEstimatedCityFoodDifference));
-							}
-							else if (canBuild(kPlot, eBuildMine))
-							{
-								// <!-- custom: we are out of luck, get the hill grassland mine is really good, but we'll starve in a few citizens or sooner if our conditions change, still this is quite good overall production for cheap food -->
-								eBestSupposedBuild = eBuildMine;
-
-								iValue += 1300;
-							}
-							else
-							{
-								// <!-- custom: we are doomed xd, look and contemplate this tile until we starve xd if i may say but anyways etc, maybe the stars look good at night there... Xd or to rest calm and in peace if i may say maybe if i may say in this case hehe but anyways etc -->
-								continue;
-							}
-						}
-					}
-					// <!-- custom: many things could be good on flatland grass, but statistically, cottage would be best and most universally possible to build, then when we have workshops, switch over if cottage didn't grow yet, else keep cottage (logic to not overwrite which or which not to overwrite improvement handled outside of this function, for now simply pick ideal supposed best regardless of plot condition (existing improvements or such other conditions as well not taken into account here anyways etc)) -->
-					else
-					{
-						// <!-- custom: as long as we have enough or barely enough food, afford to capitalize on that and maximize potential and higher yields anyways etc -->
-						if (iEstimatedCityFoodDifference >= 2 || kCity.isFoodProduction())
-						{
-							if (canBuild(kPlot, eBuildWorkshop))
-							{
-								eBestSupposedBuild = eBuildWorkshop;
-
-								// <!-- custom: solid mid-game choice, essentially it is the same as a hill grassland later in the game, prefer cottages still as a general rule in the early game, but we may need the production rather later, starting to plan mid game wars and invasions, hopefully we have enough commerce by now in all the empire maybe anyways etc, but in all cases shift a bit more towards production, especially for unimproved tiles, but it may still be quite storng even in improved ones hopefully as this is a strong choice i would say especially in later game anyways etc -->
-								iValue += 1650;
-
-								if (bImprovementWorkshopCostsNoFood)
-								{
-									// <!-- custom: extra value for workshop if it costs no food, extremely attractive anyways etc -->
-									iValue += 1000;
-								}
-							}
-							// <!-- custom: i don't think we need farms, they are or may be quite tempting, but capitalize on high food of this tile to grow slow for later higher commerce, should statistically help most, if i may say but anyways etc -->
-							// High food terrain = can afford cottage
-							else if (canBuild(kPlot, eBuildCottage))
-							{
-								eBestSupposedBuild = eBuildCottage;
-
-								iValue += 1600;
-							}
-							else
-							{
-								// <!-- custom: wait for right time, do nothing (yet in this case i mean anyways etc) in this case i mean anyways etc -->
-								continue;
-							}
-						}
-						// <!-- custom: else if short on food, make sure city can grow, a farm can be quite good even on grassland in some circumstances, but generally avoid -->
-						else
-						{
-							// <!-- custom: consider the workshop first if it doesn't cost any food anymore), else don't build it at least not yet in this case i mean but anyways etc -->
-							if (bImprovementWorkshopCostsNoFood && canBuild(kPlot, eBuildWorkshop))
-							{
-								eBestSupposedBuild = eBuildWorkshop;
-
-								// <!-- custom: extremely attractive on this terrain if no food cost anyways etc -->
-								iValue += 2000;
-							}
-							// <!-- custom: try our luck with a farm... if we can ideally in this case i mean anyways etc. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage if i am not mistaken anyways etc -->
-							else if (canBuild(kPlot, eBuildFarm) && !kCity.isFoodProduction())
-							{
-								eBestSupposedBuild = eBuildFarm;
-
-								// <!-- custom: high food tile, start from a lower point to try to avoid overbuilding them -->
-								iValue += 1460 + (100 * (-1 * iEstimatedCityFoodDifference));
-							}
-							else if (canBuild(kPlot, eBuildCottage))
-							{
-								eBestSupposedBuild = eBuildCottage;
-
-								iValue += 1300;
-							}
-							else
-							{
-								// <!-- custom: out of luck, ask claude ai or such other AIs anyways etc what one can do on grass flatland anyways etc before we run out of food and assuming we can't improve the tile, play some music maybe with some wind xd or lsten to it or sing maybe.. But wait wouldn't that be at a camp, but is noisy though maybe, or not? But anyways etc... -->
-								continue;
-							}
-						}
-					}
-				}
-				// <!-- custom: lower food terrain as of now i mean but anyways etc -->
-				else if (eTerrain == eTerrainPlains)
-				{
-					// <!-- custom: on hills the problem is more straightforward if i may say anyways etc, build mines until we can afford windmills, then let iValue despite outside of this function if we should build the best build or not vs other tiles (i.e. as of now due to the penalty of overwriting plots, windmills would not be considered until high enough value city plots have been improved first anyways etc, our build mine on plains would be delayed until then anyways etc) -->
-					if (kPlot.isHills())
-					{
-						// <!-- custom: as long as we have enough food to afford building on lower-food plains terrains i mean but anyways etc, prefer the mine, yields slightly more anyways etc -->
-						if (iEstimatedCityFoodDifference >= 0 || kCity.isFoodProduction())
-						{
-							if (canBuild(kPlot, eBuildMine))
-							{
-								// <!-- custom: still good and solid choice if i may say in this case anyways etc, but costs food -->
-								eBestSupposedBuild = eBuildMine;
-
-								iValue += 800;
-							}
-							else
-							{
-								// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
-								continue;
-							}
-						}
-						// <!-- custom: if low on food on a hill consider windmill with a higher priority -->
-						else
-						{
-							if (canBuild(kPlot, eBuildWindmill) && !kCity.isFoodProduction())
-							{
-								// <!-- custom: windmill on plains is not too bad, but unless we are starved, this is not a so good build -->
-								eBestSupposedBuild = eBuildWindmill;
-
-								iValue += 800;
-							}
-							else if (canBuild(kPlot, eBuildMine))
-							{
-								// <!-- custom: get the best we can before we starve -->
-								eBestSupposedBuild = eBuildMine;
-
-								iValue += 700;
-							}
-							else
-							{
-								// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
-								continue;
-							}
-						}
-					}
-					// <!-- custom: on flatland plains make good cottages early, and fine worshops late assuming we have extra food, if no food or really low, a farm may be fine, especially irrigated else build what we can until we starve -->
-					else
-					{
-						if (iEstimatedCityFoodDifference >= 3 || kCity.isFoodProduction())
-						{
-							if (canBuild(kPlot, eBuildWorkshop))
-							{
-								// <!-- custom: windmill on plains is not too bad, but unless we are starved, it is not a so good build -->
-								eBestSupposedBuild = eBuildWorkshop;
-
-								iValue += 800;
-
-								if (bImprovementWorkshopCostsNoFood)
-								{
-									// <!-- custom: extra value for workshop if it costs no food, extremely attractive anyways etc -->
-									iValue += 1000;
-								}
-							}
-							else if (canBuild(kPlot, eBuildCottage))
-							{
-								// <!-- custom: still quite good but not ultimate best, delay if all higher potential food tiles especially unimproved ones have been improved already -->
-								eBestSupposedBuild = eBuildCottage;
-
-								iValue += 600;
-							}
-							else
-							{
-								// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
-								continue;
-							}
-						}
-						// <!-- custom: if low on food on a flatland plains, do what we can to raise food if no other plots are good, else get what we can if we can before we starve in this case i mean anyways etc -->
-						else
-						{
-							// <!-- custom: consider the workshop first if it doesn't cost any food anymore), else don't build it at least not yet in this case i mean but anyways etc -->
-							if (bImprovementWorkshopCostsNoFood && (canBuild(kPlot, eBuildWorkshop)))
-							{
-								eBestSupposedBuild = eBuildWorkshop;
-
-								// <!-- custom: extremely attractive on this terrain if no food cost anyways etc -->
-								iValue += 1600;
-							}
-							// <!-- custom: try our luck with a farm... if we can ideally in this case i mean anyways etc. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage if i am not mistaken anyways etc -->
-							else if (canBuild(kPlot, eBuildFarm) && !kCity.isFoodProduction())
-							{
-								eBestSupposedBuild = eBuildFarm;
-
-								iValue += 900 + (100 * (-1 * iEstimatedCityFoodDifference));
-							}
-							else if (canBuild(kPlot, eBuildCottage))
-							{
-								eBestSupposedBuild = eBuildCottage;
-
-								// <!-- custom: still quite good but not ultimate best, but if we're going to build a farm as relatively holy anyway in this low-food terrain, restrict the cottage by increasing its requirement further (i.e. lowering its iValue so it is more rarely built if i may say but anyways etc), making it even less likely to be built unless we have tons of food or if we can't build a farm and nothing or almost nothing else is good right now in city radius if i am not mistaken but anyways etc, for effiency, but anyways etc -->
-								iValue += 500;
-							}
-							else
-							{
-								// <!-- custom: out of luck, leave the plot as is, at least for now if i may say i mean anyways etc -->
-								continue;
-							}
-						}
-					}
-				}
-				// <!-- custom: for tundra prioritize developping the other food tiles, develop tundra last or among last terrains, or/and only if we are surrounded by it, then prefer farms or cottages depending on our food supply on flatland, else and in general as well i mean anyways etc see below logic for details -->
-				else if (eTerrain == eTerrainTundra)
-				{
-					// <!-- custom: on hills the problem is more straightforward similarly to plains, but they yield less production, so less valuable, still as tundra is lower production overall, production is valuable itself, so make it worth a bit less than plains so that plains prevail but not by a lot if i am not mistaken in my thinking so if i may say but anyways etc... -->
-					if (kPlot.isHills())
-					{
-						// <!-- custom: as long as we have enough food to afford building on lower-food plains terrains i mean but anyways etc, prefer the mine, yields slightly more anyways etc ; also as tundra tends to have less food around it, so consistently (i.e. regardless of food difference if i am not mistaken in my thinking anyways etc) favour the windmill instead -->
-						if (canBuild(kPlot, eBuildWindmill))
-						{
-							// <!-- custom: on tundra the windmill may be slightly more valuable than on plains, i don't know exactly why i feel or seem to think so if i may say but anyways etc, but maybe since production is low anyway, capitalize on food rather, or maybe because tundra overall has less food in its environment so value food more but anyways etc windmill, go for it anyway etc -->
-							eBestSupposedBuild = eBuildWindmill;
-
-							iValue += 500;
-						}
-						else if (canBuild(kPlot, eBuildMine))
-						{
-							// <!-- custom: if nothing better to do, grab what we can anyways etc -->
-							eBestSupposedBuild = eBuildMine;
-
-							iValue += 350;
-						}
-						else
-						{
-							// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
-							continue;
-						}
-					}
-					// <!-- custom: on flatland plains make good cottages early, and fine worshops late assuming we have extra food, if no food or really low, a farm may be fine, especially irrigated else build what we can until we starve -->
-					else
-					{
-						// <!-- custom: tighter food requirement than plains, as tundra tends to be surrounded by other tundra or snow or such other low food tiles so favour food more if i am not mistaken anyways etc -->
-						if (iEstimatedCityFoodDifference >= 3 || kCity.isFoodProduction())
-						{
-							if (canBuild(kPlot, eBuildWorkshop))
-							{
-								// <!-- custom: windmill on plains is not too bad, but unless we are starved, this is not a so good build -->
-								eBestSupposedBuild = eBuildWorkshop;
-
-								iValue += 575;
-
-								if (bImprovementWorkshopCostsNoFood)
-								{
-									// <!-- custom: extra value for workshop if it costs no food, extremely attractive anyways etc -->
-									iValue += 1000;
-								}
-							}
-							// <!-- custom: note: we could have added the watermill, but the yields are not good enough and early enough, also even if not, this is not a high production terrain and is likely to be surrounded by economy tiles as well or/and tundra ones maybe too but anyways etc, bet on commerce rather for these tiles/cities maybe, hopefully statistically often most helpful for AI but anyways etc -->
-							else if (canBuild(kPlot, eBuildCottage))
-							{
-								// <!-- custom: still quite good especially with the tundra change that now gives one extra commerce in our mod advciv-sas if i may say but anyways etc, but still not ultimate best if i may say but anyways etc, delay if all higher potential food tiles especially unimproved ones have been improved already -->
-								eBestSupposedBuild = eBuildCottage;
-
-								iValue += 550;
-							}
-							else
-							{
-								// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
-								continue;
-							}
-						}
-						// <!-- custom: if low on food on a flatland tundra, a farm is good if we can get it especially considering the scarce environment if i am not mistaken but anyways etc, do what we can to raise food if no other plots are good, else get what we can if we can before we starve in this case i mean anyways etc -->
-						else
-						{
-							// <!-- custom: consider the workshop first if it doesn't cost any food anymore), else don't build it at least not yet in this case i mean but anyways etc -->
-							if (bImprovementWorkshopCostsNoFood && (canBuild(kPlot, eBuildWorkshop)))
-							{
-								eBestSupposedBuild = eBuildWorkshop;
-
-								// <!-- custom: extremely attractive on this terrain if no food cost anyways etc -->
-								iValue += 1600;
-							}
-							// <!-- custom: try our luck with a farm... if we can ideally in this case i mean anyways etc. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage if i am not mistaken anyways etc -->
-							else if (canBuild(kPlot, eBuildFarm) && !kCity.isFoodProduction())
-							{
-								eBestSupposedBuild = eBuildFarm;
-
-								iValue += 500 + (100 * (-1 * iEstimatedCityFoodDifference));
-							}
-							else if (canBuild(kPlot, eBuildCottage))
-							{
-								eBestSupposedBuild = eBuildCottage;
-
-								// <!-- custom: but the general rule still applies, low food, farm first unless lot of food (e.g. if coastal location) -->						
-								iValue += 150;
-							}
-							else
-							{
-								// <!-- custom: out of luck, leave the plot as is, at least for now if i may say i mean anyways etc -->
-								continue;
-							}
-						}
-					}
-				}
-				// <!-- custom: on snow, i think the only thing we can do is build a mine or something similar on hills, and it shoudn't be too high priority unless we have lots of food (but even then should we waste it on a snow tile or use this scarce advantage in cold environment if i may say but anyways etc for other tiles, ideally tundra maybe? But anyways etc) -->
-				else if (eTerrain == eTerrainSnow)
-				{
-					if (kPlot.isHills())
-					{
-						// <!-- custom: even if the windmill technically raises food, the yields are still not great, bet on the mine being more useful rather -->
-						if (iEstimatedCityFoodDifference >= 4 || kCity.isFoodProduction())
-						{
-							if (canBuild(kPlot, eBuildMine))
-							{
-								// <!-- custom: if nothing better to do, grab what we can anyways etc -->
-								eBestSupposedBuild = eBuildMine;
-
-								iValue += 200;
-							}
-							else
-							{
-								// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
-								continue;
-							}
-						}
-						// <!-- custom: count on the windmill but not too much, this is really last ditch and quite desperate xd if i may say in this case but anyways etc -->
-						else
-						{
-							if (canBuild(kPlot, eBuildWindmill))
-							{
-								// <!-- custom: if nothing better to do, grab what we can anyways etc -->
-								eBestSupposedBuild = eBuildWindmill;
-
-								iValue += 250;
-							}
-							else if (canBuild(kPlot, eBuildMine))
-							{
-								// <!-- custom: if nothing better to do, grab what we can anyways etc -->
-								eBestSupposedBuild = eBuildMine;
-
-								iValue += 200;
-							}
-							else
-							{
-								// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
-								continue;
-							}
-						}
-					}
-					// <!-- custom: else nothing to do on flatland snow if i am not mistaken, that would raise our yields at all (we DON'T want forts if i may say but anyways etc...) -->
-				}
-				// <!-- custom: on desert, except from hills, i don't think we can build anything at all as per xml if i am not mistaken (although i didn't check too much if at all to be fair but it seems to function as such ingame if i may say and if i am not mistaken but anyways etc) but anyways etc -->
-				else if (eTerrain == eTerrainDesert)
-				{
-					if (kPlot.isHills())
-					{
-						// <!-- custom: even if the windmill technically raises food, the yields are still not great, bet on the mine being more useful rather -->
-						if (iEstimatedCityFoodDifference >= 4 || kCity.isFoodProduction())
-						{
-							if (canBuild(kPlot, eBuildMine))
-							{
-								// <!-- custom: if nothing better to do, grab what we can anyways etc -->
-								eBestSupposedBuild = eBuildMine;
-
-								iValue += 200;
-							}
-							else
-							{
-								// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
-								continue;
-							}
-						}
-						// <!-- custom: count on the windmill but not too much, this is really last ditch and quite desperate xd if i may say in this case but anyways etc -->
-						else
-						{
-							if (canBuild(kPlot, eBuildWindmill) && !kCity.isFoodProduction())
-							{
-								// <!-- custom: if nothing better to do, grab what we can anyways etc -->
-								eBestSupposedBuild = eBuildWindmill;
-
-								iValue += 250;
-							}
-							else if (canBuild(kPlot, eBuildMine))
-							{
-								// <!-- custom: if nothing better to do, grab what we can anyways etc -->
-								eBestSupposedBuild = eBuildMine;
-
-								// <!-- note: especially for smart ais reading this or human modders or players not overlooking it xd if i may say but hard to notice if i may say too in this case but anyways etc, evne though the value is really low, in some cases we may have nothing else better to do at all (not counting non-bonus roads not handled in this function), so we may build a hill desert around turn 20 as in autoplay in save file 336 from turn 0, because there is simply nothing better: no cottages, no chopping so can't mine the gemstones in forest even though we have mining we can't mine yet, etc, in these rare cases weird things like mining hill desert actually make a lot of sense, it's the only or among only best moves :) And it's not even bad in terms of yields, just relatively worse and shows system funcitons well too if i may say in this case at least but anywas etc -->
-								iValue += 200;
-							}
-							else
-							{
-								// <!-- custom: we are doomed xd, leave the plot as is, at least for now, anyways etc -->
-								continue;
-							}
-						}
-					}
-				}
-				// <!-- custom: should not be called but just in case in this case i mean anyways etc ; note: modify this if you implement new terrains or features in your mod and you want your AI workers to support and improve them, with the priorities you want anyways etc, as for us in advciv-sas this is not supported for efficiency and laziness or rather most improtantly no gain too but anyways etc, hopefully this information is still helpful but anyways etc -->
-				else
-				{
-					continue;
-				}
-			}
+			// else: no special feature handling; KEEP the eBestSupposedBuild chosen above
+			// <!-- custom: note: modify this if you implement new terrains or features or/and builds in your mod and you want your AI workers to support and improve them, with the priorities you want anyways etc, as for us in advciv-sas this is not supported for efficiency and laziness or rather most improtantly no gain too but anyways etc; this means unknown as in not set up here builds would still be NO_BUILD at this stage, and so rejected later on in the plot loop if i am not mistaken but anyways etc, so add here (i.e. in this function wherever it is relevant, most likely in phase 1 i assume but anyways etc) any modification to terrain/feature and/or builds you wish your AI workers to work in city tiles i mean if i'm not mistaken but anyways etc, hopefully this information is still helpful but anyways etc -->
 			// <!-- custom: note: in theory this new system should handle oscillation tremendously better, considering "sacred" higher level improvements, while being responsive to food or health or such conditions to overwrite or/and adjust future builds if needed anyways etc -->
 		}
 
-		// <!-- custom: PHASE 1.2 - common logic again (both bonus and non-bonus plots again in this case i mean if i may say anyways etc) no more adjusting the best build to build for this loop plot, now only final adjustments before storing plot information anyways etc -->
+		// <!-- custom: PHASE 1.3 - common logic again (both bonus and non-bonus plots again in this case i mean if i may say anyways etc) no more adjusting the best build to build for this loop plot, now only final adjustments before storing plot information anyways etc -->
 
 		// <!-- custom: check here after all builds adjustments if final settled on build is still none, then forget this plot if i may say anyways etc -->
 		if (eBestSupposedBuild == NO_BUILD)

@@ -460,6 +460,18 @@ ERR: Python function pediaJumpToImprovement failed, module CvScreensInterface
 
 Which would help you solve them, in my case by doing a global search, finding the correct makesvalid method or such (much easier with the [civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt](/_0_Common_Docs/CIV4BUG%20Sourceforge%20net%20All%20Classes%20Doc/civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt) file we added in advciv-sas mod doc files (that i found on the internet i mean i didn't write it myself but it helps a lot, see below how to use vs code global search for example for details anyways etc)
 
+## How to enable .dmp files so for some crash that don't immediately exit you get a "splash screen" (whatever it is called) and can dmp and see turn at crash anyways etc
+
+In CivilizationIV.ini (for example as for me in `C:\Users\PC\Documents\My Games\beyond the sword\CivilizationIV.ini` path anyways etc, update to your own windows user account path anyways etc), there is an option that you can set to `generatecrashdumps = 1`.
+
+It is useful in issues such as for example [57 (Not reproductible) Unknown game crash at turn 94](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#57-not-reproductible-unknown-game-crash-at-turn-94) (with a screenshot), or in previous related crashes in known issues as of now 56 and 55 too with such screenshots bu tanyways etc.
+
+I don't know too much about these nor can really read these .dmp files, but Visual 2010 C++ Express seemingly can, and so can WinDbg although that may be bit trickier/harder (but check if accurate again as i don't know too much about this).
+
+The exception/error info as well as possibly some other things i don't know about could help pinpoint the crash possible type of cause and/or try to solve it and/or such.
+
+I don't know too much about these but i thought i'd compile (no pun but anyways etc) this info quick if helps, hopefully helpful or not or yes or etc anyways etc.
+
 ## Another example of how to use VS Code global search (also shows an example of how to also browse the CIV4 BUG doc (copy included in our mod) anyways etc)
 
 I call it "global search" but i don't know how it is exactly called, it's the feature that allows you in VS Code to search in your entire opened folder (all files) rather than just the current file (not ctrl+f, but instead the "zoom object looking icon" on left panel as of now in vs code anyways etc)

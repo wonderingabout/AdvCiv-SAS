@@ -174,7 +174,8 @@
 			<Type>BUILD_WORKSHOP</Type>
 			<Description>TXT_KEY_BUILD_WORKSHOP</Description>
 			<Help/>
-			<PrereqTech>TECH_METAL_CASTING</PrereqTech>
+			<!-- custom: nerf the workshop a bit as it was a bit too op, was TECH_METAL_CASTING -->
+			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			<iTime>600</iTime>
 			<iCost>0</iCost>
 			<bKill>0</bKill>
