@@ -76,6 +76,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [56 - (Fixed) Most likely base advciv +/- civ4 crash at turn 156 fixed by commenting out the !getPlot().isSamePlotGroup(*pBestPlot, getOwner()) check in CvUnitAI::AI_nextCityToImprove else block (old code)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#56---fixed-most-likely-base-advciv---civ4-crash-at-turn-156-fixed-by-commenting-out-the-getplotissameplotgrouppbestplot-getowner-check-in-cvunitaiai_nextcitytoimprove-else-block-old-code)  
 [57 - (Not reproductible) Unknown game crash at turn 94](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#57---not-reproductible-unknown-game-crash-at-turn-94)  
 [58 - (Fixed/Enhanced) Reproductible crash at turn 95 in another map, related to the else block in CvUnitAI::AI_nextCityToImprove, by rewriting the else block based on the (more? But anyways etc) code at CvUnitAI::AI_connectPlot anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#58---fixedenhanced-reproductible-crash-at-turn-95-in-another-map-related-to-the-else-block-in-cvunitaiai_nextcitytoimprove-by-rewriting-the-else-block-based-on-the-more-but-anyways-etc-code-at-cvunitaiai_connectplot-anyways-etc)  
+[59 - (Partially improved) some AI cities are not improved enough and totally neglected for dozen turns](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#59---partially-improved-some-ai-cities-are-not-improved-enough-and-totally-neglected-for-dozen-turns)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -2222,3 +2223,21 @@ A few notes now that this is seemingly solved reliably and nicely enhanced it se
 >```
 
 Now all cities of all AI players are improved and roaded fine and fast enough nicely it seems if i am not mistaken but anyways etc, except elephantine city that is not imrpoved nor roaded at all at turn 200+, then after it is roaded gets nicely improved a very nice and strong city, but a bit too late, so trying to make workers move there faster as our next known issue but anyways etc.
+
+## 59 - (Partially improved) some AI cities are not improved enough and totally neglected for dozen turns
+
+See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1FrLep_WV4E8kkdvw6zs0EB-YP0-1z1ea?usp=sharing)
+
+After fixing previous known issue as of now 58, i have (had? But anyways etc) noticed that some cities are neglected for a long time like elephantine city at turn 200 in one of the first screenshot in this known issue anyways etc. Then looking more closely, i also noticed that at turn 100 we don't move fast enough to some cities, and overimprove some other cities.
+
+I tweaked the code at (in? But anyways etc) `CvUnitAI::AI_workerMove` tentatively to attempt to skew that a bit, while also attempting to fix some edge cases while doing so, like a 2 land tiles city in same landmass, if just counting based on city population we may stay here forever trying to raise its city plot count to 10 which is impossible, etc.
+
+Thanks to these changes that at least in theory should improve things a bit, we do seem to notice better i.e. sooner improvement in these cities, for example elephantine is improved at turn 190-200 vs turn +/- 230 before, and the nothern city is still improved around turn 190 as before.
+
+These could be fluctuations, but i repeated it a few times, then started from turn 0 again instead of turn 100 save file of the original save file of this known issue as of now 59 that is at turn 100 but anyways etc, and even at turn 100 some cities seem to be improved a bit more.
+
+Again, could be autoplay fluctuations, but it does seem to be slightly better, and since it doesn't break anything, and theoretically improves/enhances old code, i am comitting it as such.
+
+Chatgpt 5 helped me a lot to do it, and we wrote a much more advanced version of it (at least bit more advanced in this case i mean but anyways etc) but it failed to produce the expected change, being slightly worse, so i'm happy with this conservative change at least for now, if as expected it improves things quite a bit without making it worse. Check if accurate, hopefully helpful, anyways etc.
+
+Note: as for screenshots, see existing screenshots between 3387 to 3395 for how it was before (i don't have the elephantine screenshot anymore if i had it at all in this case i mean but anyways etc it seems i mean but anyways etc), vs existing screenshots between 3423 and 3429 (run from turn 100) (as for from turn 0 it seems it didn't screenshot when i pressed key, and autplaying produces a different outcome (city spot settled by another AI player, where some city is not improved for enough time but empire overall quite ell if tno very well for most cities improved it seems at a glance but check ingame if accurate maybe as again these are conservative and not fully fixing changes, that aim to not disrupt previous logic or make it worse hopefully as i don't understand too much about these nor am i abel to change them in this case i mean but anyways etc, else may have tinkered a bit more but anyways etc))

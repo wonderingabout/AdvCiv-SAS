@@ -2070,7 +2070,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	// ===================================================
 	// FINAL: Return the result.
 	// ===================================================
-	// <!-- custom: we get a crash at turn 777 when disabling food checks on non-bonus non-hill grass plots in an attempt to solve/debug other oscillation issues, but we did have a crash in AI_nextCityToImprove caller of AI_bestCityBuild function when checking if it was not false, which didn't happen if guarded before by the old AI_getBestBuild (see code comment at caller for details), which is very suspicious of us doing something wrong here after or/and before our refactor, as chatgpt 5 pointed based on code samples i provided it to and my vague guess about that too hehe if i may say but anyways etc. Based on chatgpt 5 feedback and review of code samples, adding this instead, check if accurate, anyways etc -->
+	// <!-- custom: we get a crash at turn 77 when disabling food checks on non-bonus non-hill grass plots in an attempt to solve/debug other oscillation issues, but we did have a crash in AI_nextCityToImprove caller of AI_bestCityBuild function when checking if it was not false, which didn't happen if guarded before by the old AI_getBestBuild (see code comment at caller for details), which is very suspicious of us doing something wrong here after or/and before our refactor, as chatgpt 5 pointed based on code samples i provided it to and my vague guess about that too hehe if i may say but anyways etc. Based on chatgpt 5 feedback and review of code samples, adding this instead, check if accurate, anyways etc -->
 	// if (eBestBuild != NO_BUILD)
 	// {
 	// 	FAssert(pBestPlot != NULL);
@@ -2929,28 +2929,28 @@ CvCityAI* CvUnitAI::AI_getCityToImprove() const
 }
 
 
-// <!-- custom: helper provided by chatgpt o3 to count tiles as part of fine tuning next city to improve based on the number of tiles already improved in a city (see below in CvUnitAI::AI_workerMove for details anyways etc) -->
-static int countImprovedTiles(CvCity const* pCity)
-{
-    int iCount = 0;
-    for (int i = 0; i < NUM_CITY_PLOTS; ++i)
-    {
-		CvPlot* pPlot = plotCity(pCity->getX(), pCity->getY(),
-								static_cast<CityPlotTypes>(i));  // ← cast added <!-- custom: to fix compile error, added by chatgpt 3-o as well thanks to my prompt too but anyways etc (error: "
-								// 1>..\CvUnitAI.cpp(2582): error C2664: 'plotCity' : cannot convert parameter 3 from 'int' to 'CityPlotTypes'
-								// 1>          Conversion to enumeration type requires an explicit cast (static_cast, C-style cast or function-style cast)
-								// 1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2'
-								// 1>  Stop.
-								// ") -->
-        if (pPlot == NULL)
-            continue;
-        if (pPlot->getWorkingCity() != pCity)
-            continue;
-        if (pPlot->getImprovementType() != NO_IMPROVEMENT)
-            ++iCount;
-    }
-    return iCount;
-}
+// <!-- custom: helper provided by chatgpt o3 to count tiles as part of fine tuning next city to improve based on the number of tiles already improved in a city (see below in CvUnitAI::AI_workerMove for details anyways etc), now commented out after the changes related to known issue as of now 59 by chatgpt 5 and thanks to my prompts and such too, check if accurate anyways etc -->
+// static int countImprovedTiles(CvCity const* pCity)
+// {
+//     int iCount = 0;
+//     for (int i = 0; i < NUM_CITY_PLOTS; ++i)
+//     {
+// 		CvPlot* pPlot = plotCity(pCity->getX(), pCity->getY(),
+// 								static_cast<CityPlotTypes>(i));  // ← cast added <!-- custom: to fix compile error, added by chatgpt 3-o as well thanks to my prompt too but anyways etc (error: "
+// 								// 1>..\CvUnitAI.cpp(2582): error C2664: 'plotCity' : cannot convert parameter 3 from 'int' to 'CityPlotTypes'
+// 								// 1>          Conversion to enumeration type requires an explicit cast (static_cast, C-style cast or function-style cast)
+// 								// 1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2'
+// 								// 1>  Stop.
+// 								// ") -->
+//         if (pPlot == NULL)
+//             continue;
+//         if (pPlot->getWorkingCity() != pCity)
+//             continue;
+//         if (pPlot->getImprovementType() != NO_IMPROVEMENT)
+//             ++iCount;
+//     }
+//     return iCount;
+// }
 
 void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 {
@@ -3168,8 +3168,39 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 			if (AI_improveCity(*pCity))
 				return;
 	} }*/
-	if (pCity != NULL)
+	// <!-- custom: exclude barbarians as their cities can be very far apart and no point connecting them for barbarian player i mean anyways etc -->
+	if (pCity != NULL && !isBarbarian())
 	{
+		// <!-- custom: update related to changes related to (redundant sentence but anyways etc) known issue as of now 59, with the help of chatgpt 5 who did most of it but thanks to my prompts and such too but anyways etc, check if accurate and see mentionned known issue for details i mean but anyways etc -->
+		// notes
+		// We count improved land even if not currently worked on purpose. That keeps a small “ready” buffer so workers can leave earlier without immediate oscillation.
+		// We do require isBeingWorked() for water, so a 1–2-tile peninsula that works mostly coast won’t trap workers trying to fill land forever.
+		// --- Single-pass scan over the city BFC (no recursion, no best-build calls) ---
+		int iImprovedLand = 0; // land tiles (non-water, non-peak) assigned to this city that already have an improvement
+		int iWorkedWater  = 0; // water tiles currently being worked
+		// Don’t chase impossible targets on 1–2-tile peninsulas: cap by available land slots.
+		int iLandSlots    = 0; // count of land tiles (non-water, non-peak) assigned to this city
+
+		for (int i = 0; i < NUM_CITY_PLOTS; ++i)
+		{
+			CvPlot* p = plotCity(pCity->getX(), pCity->getY(), static_cast<CityPlotTypes>(i));
+			if (p == NULL) continue;
+			if (p->getWorkingCity() != pCity) continue; // tile is assigned to another city
+
+			if (p->isWater())
+			{
+				if (p->isBeingWorked())
+					++iWorkedWater;
+				continue; // water doesn't count toward land slots / land improvements
+			}
+			if (p->isPeak())
+				continue;
+
+			++iLandSlots; // potential land slot for this city
+			if (p->getImprovementType() != NO_IMPROVEMENT)
+				++iImprovedLand; // we intentionally count improved land even if not currently worked
+		}
+
 		// <!-- custom: we need to move to city B sooner if city A is improved enough already, now our AI workers are much more efficient, but the core cities are overly improved, while edge cities are quite a bit underdevelopped (see known issue as of now 39 for details with screenshots anyways etc, a 10+ city in particular won't grow or hardly grow in the example mentionned, but workers keep improving it, although we'll never allocate all these 15+ tiles, and city B needs help fast anyways etc, earlier in the game may help too but anyways etc) maybe if i'm not mistaken and ideally but anyways etc ; see known issue as of now 39 for details -->
 		/*  BEFORE the iNeed/iHave block, short-circuit if city A is already fine  */
 		// <!-- custom: adjust as you see fit: 1, 2, 3 plots, etc. So for example iBufferForAllCities 1 would mean that if city pop is 6, when our total improved tiles count in all city if i'm not mistaken but anyways etc is >= 6 + 1 = 7 plots, we have improved city A enough, move to city B that may need improvements more urgently, especially if City A won't grow further, no point in improving too many tiles in city A while ignoring city B that would much need otherwise to have its tiles improve rather but anyways etc. -->
@@ -3177,16 +3208,69 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 		// <!-- custom: add an extra tolerance and leeway for small cities, indeed they can be expected to grow fast, so stay longer in these even if we have a few more plots than our current pop (e.g. if city pop is 2, continue improving tiles until we have >= 0 + 2 pop + 2 extra tiles = 4 plots improved in city radius if i am not mistaken but anyways etc), hopefully this also helps if cities share tiles and in case they are counted as belonging to city B when in fact it is worked by city A (just a guess/theory but hopefully this helps too but anyways etc) -->
 		const int iCityPopulation = pCity->getPopulation();
 		// <!-- custom: make the extra plot count a bit larger to account for (no pun but anyways etc) plot overlapping between cities, so if city A and city B share 2 plots, and these were improved in city A, we don't want the AI worker to think "hey, city B already has 2 tiles improved and its pop is 1, not too much more to do if threshold plots ot imrpove vs city population is reached, so make it a bit larger to account for that anyways etc, as of now here 3 (see below at iBufferForAllCities anyways etc) rather than say 2 anyways etc." -->
-		const int iBufferExtraForSmallCities = (iCityPopulation <= 4 ? 2 : 0);
-		// <!-- custom: note: even for big cities, the extra is not 0, to help reduce oscillation, so workers would stay a bit longer in city (if pop is 7 they'd stay until 8 plots are improved, so city A is ready for its next citizen, and when workers are in city B, they can stay longer as city A already has a few more/extra improvements to grow, even if not no big deal it is already developped, but don't overimprove city A, as city B is more urgent, but just a little bit extra in city A to avoid the back and forth / oscillation as discussed with chatgpt 5 with the idea i got hehe, so in short improve big cities a bit more than needed so we can comeback to them later and they'll still grow fine for a while, but don't overimprove, so that we move sooner to city B that is smaller and much needing early improvements, which we currently don't do or not enough (small cities take too logn to be improved by AI workers as of now anyways etc), and when we are in city B, improve a lot more plots than needed as it will grow fast, and do not leave city B until a few extra plots have been developped (if city pop 1, dont leave until 4 plots are improved for example if i'm not mistaken but anyways etc, then don't come back for a while if i'm not mistkane and in this case i mean but anyways etc)) -->
+		// Small-city bias: keep workers a bit longer on tiny cities so they can grow smoothly.
+		const int iSmallCityBuffer = (iCityPopulation <= 4 ? 2 : 0);
+		// <!-- custom: note: even for big cities, the extra is not 0, to help reduce oscillation, so workers would stay a bit longer in city (if pop is 7 they'd stay until 8 plots are improved, so city A is ready for its next citizen, and when workers are in city B, they can stay longer as city A already has a few more/extra improvements to grow, even if not no big deal it is already developped, but don't overimprove city A, as city B is more urgent, but just a little bit extra in city A to avoid the back and forth / oscillation as discussed with chatgpt 5 with the idea i got hehe, so in short improve big cities a bit more than needed so we can comeback to them later and they'll still grow fine for a while, but don't overimprove, so that we move sooner to city B that is smaller and much needing early improvements, which we currently don't do or not enough (small cities take too long to be improved by AI workers as of now anyways etc), and when we are in city B, improve a lot more plots than needed as it will grow fast, and do not leave city B until a few extra plots have been developped (if city pop 1, dont leave until 4 plots are improved for example if i'm not mistaken but anyways etc, then don't come back for a while if i'm not mistkane and in this case i mean but anyways etc)) -->
 		// <!-- custom: update: prefer more back and forth and to take care of new cities sooner, is maybe more efficient for AI as some cities wait too long to be improved while others are too improved anyways etc -->
 		// const int iBufferForAllCities = 1;
-		const int iBufferForAllCities = 0;
-		if ((countImprovedTiles(pCity) >= (iCityPopulation + iBufferForAllCities + iBufferExtraForSmallCities)) ||
+		// <!-- custom: update 2: since then, switch to more advance edge case handling, to help fix many/some cities still not improved soon enough and more generally also enhance our logic (old code removed or commented out anyways etc) anyways etc -->
+		const int iGlobalBuffer = 0;
+		const int iTotalBuffer = iSmallCityBuffer + iGlobalBuffer;
+
+		// Land demand ≈ citizens not already sitting on water tiles.
+		// (If we work 3 coast tiles at pop 6, only ~3 land tiles really want improvements.)
+		const int iLandDemand = std::max(0, iCityPopulation - iWorkedWater);
+
+		int iTargetLandImprovements = iLandDemand + iTotalBuffer;
+		iTargetLandImprovements = std::min(iTargetLandImprovements, iLandSlots);
+
+		// if ((countImprovedTiles(pCity) >= iCityPopulation + iTotalBuffer) ||
+		// If we’ve met the target (or the city is large & unhappy → likely stagnant), go pick another city now.
+		if (iImprovedLand >= iTargetLandImprovements ||
 			// <!-- custom: for big cities, if they are unhappy it can be expected they have stagnated and won't grow further, go to smaller city B or even city C that can grow more and need and would benefit from the improvements now instead of overimproving city A that won't grow seemingly soon -->
 			(iCityPopulation >= 6 && (pCity->unhappyLevel(0) > pCity->happyLevel())))
+		// {
+		// 	if (AI_nextCityToImprove(pCity))   // go pick city B right now
+		// 		return;
+		// }
+		// Notes:
+		// - We use plot-group to detect land disconnection (avoids “connected by coast” cases).
+		// - MISSION_MOVE_TO with NO_MOVEMENT_FLAGS = “just walk there.” No roads/routing.
+		// - Mission “plot” is NULL on purpose so we don’t prematurely count the worker as assigned; they’ll pick up the city normally once they arrive.
+		// If you want safer movement (no neutral), switch both NO_MOVEMENT_FLAGS to MOVE_SAFE_TERRITORY.
 		{
-			if (AI_nextCityToImprove(pCity))   // go pick city B right now
+			// <!-- custom: while trying to enforce our change, also try to focus/prioritize disconnected by road but connectable cities in our empire first as they are often not roaded for quite the very long time, hopefully this helps anyways etc -->
+			// Hunt the first same-area land-orphan (disconnected from capital)
+			CvCity* pCap = GET_PLAYER(getOwner()).getCapitalCity();
+			if (pCap != NULL)
+			{
+				CvCityAI const* pOrphan = NULL;
+				FOR_EACH_CITYAI(pLoopCity, GET_PLAYER(getOwner()))
+				{
+					if (pLoopCity == pCity) continue;
+					if (!pLoopCity->isArea(getArea())) continue; // same landmass only
+					if (!pLoopCity->plot()->isSamePlotGroup(*pCap->plot(), getOwner()))
+					{ pOrphan = pLoopCity; break; }
+				}
+
+				if (pOrphan != NULL)
+				{
+					GroupPathFinder& pf = CvSelectionGroup::pathFinder();
+					pf.setGroup(*getGroup(), NO_MOVEMENT_FLAGS); // permissive: allow neutral tiles
+					if (pf.generatePath(*pOrphan->plot()))
+					{
+						// Pure move; no routing; no mission-plot attachment.
+						getGroup()->pushMission(MISSION_MOVE_TO,
+							pOrphan->getX(), pOrphan->getY(),
+							NO_MOVEMENT_FLAGS, /*append*/false, /*manual*/false,
+							MISSIONAI_BUILD, /*mission plot*/NULL);
+						return; // commit to going now
+					}
+				}
+			}
+
+			// No orphan found or no path → fall back to normal pick
+			if (AI_nextCityToImprove(pCity))
 				return;
 		}
 
@@ -19209,7 +19293,10 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
     pf.setGroup(*getGroup(), NO_MOVEMENT_FLAGS);
 
 	// <!-- custom: addition related to the fix of crash at turn 95, see below code comments or/and known issue as of now 58 for details anyways etc -->
-	int iTargetCityId = -1; // <-- remember which city owned the chosen plot
+	CvCityAI const* pTargetCity = NULL; // remember which city owned the chosen plot
+
+	// Don’t dogpile a tile already targeted by someone else
+	static const int iMaxWorkers = 1;
 
     FOR_EACH_CITYAI(pLoopCity, kOwner)
     {
@@ -19245,8 +19332,6 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 		// if (pBestPlot == NULL || eBestBuild == NO_BUILD)
 		// 	continue;
 
-        // Don’t dogpile a tile already targeted by someone else
-        const int iMaxWorkers = 1;
         if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(*pPlot, MISSIONAI_BUILD,
                 getGroup(), /*iRange*/0, /*iMaxCount*/iMaxWorkers) >= iMaxWorkers)
         {
@@ -19261,7 +19346,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
         eBestBuild = eBuild;
         pBestPlot = pPlot;
 		// <!-- custom: new addition part of the fix/rewrite of the else block below that was seemingly causing the crash at turn 95 that is now seemingly fixed as well, see below code comments for details or/and known issue as of now 58 for details anyways etc. -->
-		iTargetCityId = pLoopCity->getID(); // <-- add this
+		pTargetCity = pLoopCity; // stash the pointer directly
         break;
     }
 	// <!-- custom: then back to old code if i am not mistaken anyways etc -->
@@ -19397,10 +19482,6 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 	// Only adds a tiny fallback move and a final canBuild check.
 	else
 	{
-		// Reconstruct the city pointer (safe even after the loop)
-		CvCityAI* pTargetCity = (iTargetCityId >= 0 ?
-			GET_PLAYER(getOwner()).AI_getCity(iTargetCityId) : NULL);
-
 		// Safety: if something changed, bail cleanly
 		if (pBestPlot == NULL || eBestBuild == NO_BUILD)
 			return false;
