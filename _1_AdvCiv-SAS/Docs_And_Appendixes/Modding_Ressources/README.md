@@ -45,6 +45,7 @@ Instead of:
 [Where to find Python errors or debug](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#where-to-find-python-errors-or-debug-so-no-need-to-copy-them-either-if-you-need-to-ask-chatgpt-or-such-or-a-forum-anyways-etc)  
 [How to enable .dmp files so for some crashes that don't immediately exit you get a "splash screen" (whatever it is called) and can dmp and see turn at crash anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash-anyways-etc)  
 [Another example of how to use VS Code global search](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug-doc-copy-included-in-our-mod-anyways-etc)  
+[Which XML version file to choose to import in your mod when there are multiple ones (for example one in base Civ4 (vanilla is it called?) folder and one in BTS folder)](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#which-xml-version-file-to-choose-to-import-in-your-mod-when-there-are-multiple-ones-for-example-one-in-base-civ4-vanilla-is-it-called-folder-and-one-in-bts-folder)  
 [Civ4 ProcessInfos XML info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#civ4-processinfos-xml-info)  
 [Copy of the tutorial on how to modify GameFonts.tga for FREE](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#copy-of-the-tutorial-on-how-to-modify-gamefontstga-for-free)  
 [ICONS code XML names (may or not be exhaustive anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#icons-code-xml-names-may-or-not-be-exhaustive-anyways-etc-with-some-color-changing-code-as-bonus-or-to-be-extra-exhaustive-a-bit-more-than-needed-but-is-here-if-needed-maybe-anyways-etc)  
@@ -465,7 +466,7 @@ Which would help you solve them, in my case by doing a global search, finding th
 
 In CivilizationIV.ini (for example as for me in `C:\Users\PC\Documents\My Games\beyond the sword\CivilizationIV.ini` path anyways etc, update to your own windows user account path anyways etc), there is an option that you can set to `generatecrashdumps = 1`.
 
-It is useful in issues such as for example [57 (Not reproductible) Unknown game crash at turn 94](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#57-not-reproductible-unknown-game-crash-at-turn-94) (with a screenshot), or in previous related crashes in known issues as of now 56 and 55 too with such screenshots bu tanyways etc.
+It is useful in issues such as for example [57 - (Not reproductible) Unknown game crash at turn 94](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#57---not-reproductible-unknown-game-crash-at-turn-94) (with a screenshot), or in previous related crashes in known issues as of now 56 and 55 too with such screenshots bu tanyways etc.
 
 I don't know too much about these nor can really read these .dmp files, but Visual 2010 C++ Express seemingly can, and so can WinDbg although that may be bit trickier/harder (but check if accurate again as i don't know too much about this).
 
@@ -507,6 +508,30 @@ that chatgpt fixed as (slightly adjusted its code by merging 2 lines (it created
 Which helped fix our issue successfully now anyways etc if i may say thnakfulyl but anyways etc :)
 
 note: many many many other things global search can be useful for, for example this includes how i made suepr fast as of now all the readme md files's menus with chatgpt 5's help, bug hunting, and many other uses hehe if i may say but anyways etc.
+
+## Which XML version file to choose to import in your mod when there are multiple ones (for example one in base Civ4 (vanilla is it called?) folder and one in BTS folder)
+
+See screenshots or/and files about this in this [google drive folder link](https://drive.google.com/drive/folders/17FJs8tJy6g7SOsvtaRd5wVuX96mbmR_u?usp=sharing)
+
+This is something that may seem obvious but i didn't know it until i noticed someone explaining something to me (thanks xd hehe if i may say but anyways etc) mention it.
+
+For example, say you want to add or/and change some code related to basicinfos xml file in your mod. If you do a global search with vs code at root of civ4 folder (as for me for example it is `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\`) (note: not to be confounded with the BTS folder that is a subfolder of the former civ4 vanilla one at least in the steam version of civ4 bts it seems but anyways etc, and so that is in instead : `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\`), you'll find results in many files and folders related to such code samples you looked for.
+
+Or easier, if you use a tool like wiztree to search for said files (e.g. basicinfos xml file in this example but anyways etc) in root of civ4 folder (which as for me is the vanilla steam civ4 folder mentionned before anyways etc), you see something as in the screenshot, so many basicinfos xml files:
+
+- one in `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\BasicInfos\CIV4BasicInfos.xml` (civ 4 vanilla version of it if i'm not mistaken but anyways etc) (+/- 800 lines)
+- and one in `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Warlords\Assets\XML\BasicInfos\CIV4BasicInfos.xml` (civ 4 warlords version of it i assume if i'm not mistaken but anyways etc) (+/- 843 lines if i'm not mistaken anyways etc)
+- one in `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\BasicInfos\CIV4BasicInfos.xml` (civ 4 bts version of it i assume if i'm not mistaken but anyways etc) (+/- 260 lines)
+
+I don't know too much about these, but it seems to me that these are different versions of same file, and only most recent one relevant to your mod is applied (i.e. if you play vanilla the vanilla one applies i guess, but if you play bts the bts one applies rather i guess) but this is just a guess and i could or not be mistaken, check if accurate (for example ask chatgpt 5 or whichever recent or relevant version of it or some other ai or ask in some forum or such alternatively anyways etc) anyways etc.
+
+Sometimes the differences are small, sometimes the differences are huge as here, so which version to pick? Generally if you play bts i'd say pick latest, but again i don't know for sure, so i compiled this info since it would have been nice to know when i started modding, hopefully helpful and helps you if you want to start your mod but anyways etc.
+
+In this case i guess they changed the way old code worked or/and split it among other files or did some massive change that would explain the difference, but check if accurate as these are also just guesses of mine that may be accurate but i don't know for sure.
+
+Also as a corollary of this, if you see many versions of an asset, say `UNIT_WARRIOR` in different versions of unit infos, and you want to import it in your mod and modify it if not already there, generally i would say import latest version of it (so the BTS one), or you could even fetch it / steal it xd from other mods if they are okay with it (generally are but check as this is also just a guess, as for my mod generally fine too but read copyright and license section if you are in doubt or as the absolute reference despite what i said here in [README.md#license-and-reuse](/README.md#license-and-reuse) for the assets or/and any form of content i added or modified (or removed too but then you can't steal it xd if i may say unless you steal the idea then same applies maybe or not as removing maybe doesn't require asking as weird as it is maybe but in all cases check if accurate too in license section of this mod's main readme if in doubt or/and to be sure but anyways etc) but anyways etc).
+
+Hopefully helpful anyways etc.
 
 ## Civ4 ProcessInfos XML info
 

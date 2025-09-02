@@ -66,6 +66,8 @@ As it is too lengthy to put in the [README_Quick_Get_Started_Guide.md](/_1_AdvCi
 
 ### before most recent as of now rework anyways etc
 
+#### main table (chatgpt 5 written anyways etc) - before change anyways etc
+
 Done amazingly by chatgpt 5 (numbers are line in our xml civilization info file as of now anyways etc), check if accurate and thanks a lot chatgpt 5 and thanks to my prompt and such too if i may say but anyways etc
 
 | Civ                      | Lines       | FreeTechs                               | Allowed-only? |
@@ -107,6 +109,8 @@ Done amazingly by chatgpt 5 (numbers are line in our xml civilization info file 
 | Zulu                     | 3848–3949   | 3924→Agriculture, 3928→Hunting           | ❌            |
 | Minor                    | 3950–4087   | 4046→Mining, 4050→Mysticism, 4054→Fishing, 4058→The Wheel, 4062→Agriculture, 4066→Hunting | ❌ |
 | Barbarian                | 4088–EOF    | 4487→Pottery, 4491→Fishing, 4495→Seafaring, 4500→Masonry | ❌ |
+
+#### Global tech totals (should sum to 70 = 35 civs × 2) - before change anyways etc
 
 Without counting barbarians and minor, the total count among civs is as of now (thanks to chatgpt 5 too and my prompt and such too hehe but anyways etc):
 
