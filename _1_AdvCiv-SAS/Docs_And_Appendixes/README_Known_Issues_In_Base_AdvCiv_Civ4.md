@@ -2234,7 +2234,7 @@ I tweaked the code at (in? But anyways etc) `CvUnitAI::AI_workerMove` tentativel
 
 Thanks to these changes that at least in theory should improve things a bit, we do seem to notice better i.e. sooner improvement in these cities, for example elephantine is improved at turn 190-200 vs turn +/- 230 before, and the nothern city is still improved around turn 190 as before.
 
-These could be fluctuations, but i repeated it a few times, then started from turn 0 again instead of turn 100 save file of the original save file of this known issue as of now 59 that is at turn 100 but anyways etc, and even at turn 100 some cities seem to be improved a bit more.
+These could be autoplay fluctuations, but i repeated it a few times, then started from turn 0 again instead of turn 100 save file of the original save file of this known issue as of now 59 that is at turn 100 but anyways etc, and even at turn 100 some cities seem to be improved a bit more.
 
 Again, could be autoplay fluctuations, but it does seem to be slightly better, and since it doesn't break anything, and theoretically improves/enhances old code, i am comitting it as such.
 
