@@ -19021,7 +19021,7 @@ bool CvUnitAI::AI_improveCity(CvCityAI const& kCity)
     // Sentinel: road an already-improved, unconnected bonus (Wheel known)
 	// Return from the sentinel branch to avoid falling through to the generic path:
     const BonusTypes eBonusHere = pBestPlot->getNonObsoleteBonusType(getTeam());
-    const bool bSentinelRoad = (eBestBuild == eBuildRoad && eBonusHere != NO_BONUS);
+    const bool bSentinelRoad = ((eBuildRoad != NO_BUILD) && (eBestBuild == eBuildRoad) && (eBonusHere != NO_BONUS));
 
     if (bSentinelRoad)
     {
@@ -19292,8 +19292,10 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
     GroupPathFinder& pf = CvSelectionGroup::pathFinder();
     pf.setGroup(*getGroup(), NO_MOVEMENT_FLAGS);
 
-	// <!-- custom: addition related to the fix of crash at turn 95, see below code comments or/and known issue as of now 58 for details anyways etc -->
-	CvCityAI const* pTargetCity = NULL; // remember which city owned the chosen plot
+	// // <!-- custom: addition related to the fix of crash at turn 95, see below code comments or/and known issue as of now 58 for details anyways etc -->
+	// CvCityAI const* pTargetCity = NULL; // remember which city owned the chosen plot
+	// <!-- custom: update: revert to how it was before, to how it was when we added it originally or similar to such anyways etc, as the now commented out above optimization might have been related to crash at turn 283, even if not, reverted to safer code just to be safe if i'm not mistaken, see known issue as of now 60 for details anyways etc -->
+	int iTargetCityId = -1;
 
 	// Don’t dogpile a tile already targeted by someone else
 	static const int iMaxWorkers = 1;
@@ -19329,6 +19331,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 		// <!-- custom: be careful, commenting out the null and no build check i added below causes the crash again at turn 77; update: very good results!! We now don't need this hacky failsafe that according to chatgpt 5 would cause workers to skip improving cities, cleanly fixed now no crash at turn 77 so we can disable it, but if you see a crash again, consider enabling it to see if helps even if issue may not be directly cause here but this could prevent it perhaps, seems fine though now but check to be sure anyways etc -->
 		// <!-- custom: update 2: although the crash at turn 77 was fixed, we get another crash (in another save file, at turn 68 now) fixed by uncommenting this, so until this is found kept as such i.e. uncommented anyways etc. Update 3: fixed by commenting out our old reliance on line `eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild);` below in this CvUnitAI::AI_nextCityToImprove function: since we return nice builds and all and also optimized ones that should also be reliable, no need to rely on the old AI_betterPlotBuild function that here caused an issue as well. Tricky bug found by chatgpt 5 thanks to my prompts and such too hehe, so disabling this below guard/safety again. At this point i think it's better to crash and fix whatever flawed logic we have cleanly than avoiding it and having suboptimal, not necessarily visible issue(s? But anyways etc). If you have a crash again, consider adding or/and reenabling such checks in or near our rewritten AI_bestCityBuild callers which are very few as of now at least but anyways etc and see if it helps or tinker around this (or/and ask a chatbot or whatever ai you have xd helped lot for me at least but do as you prefer i mean xd hopefully helpful or not or yes or etc anyways etc). See also known issue as of now 55 for extra info if needed and if any info is there anyways etc. -->
 		// <!-- custom: update 3: after fixing crash at turn 68 issue, we now have a crash at turn 156, which happens rarely depending on autoplay settings in same map. I suspect it's a rare type of crash, and our logic otherwise works fine. It is hard to pinpoint exactly what failed, but the below "guard" or rather hard reject actually from what i understand thanks to chatgpt 5's explanation too i mean and my prompts too xd but anyways etc, is that this avoided the crashes at turn 68 and now turn 156 after we fixed the old betterplotbuild wrong for us now but anyways etc (if i'm not mistaken in this case i mean but anyways etc) reliance, by simply hard rejecting any candidate to be chosen rather than actually cleanly guarding against an issue. Indeed, at city loop selection stage pBestPlot and eBestBuild are still null/NO_BUILD, it is only the current candidates pPlot and eBuild for the current cityai in loop that are assigned and that we should guard. So effectively, we would never choose anything here at all, therefore this guard is wrong and should be removed although it helped fix the rare turn 156 crash and others due to hard rejecting everything. A softer solution is ideally to find where the crash happens and fix it there, and not ruin 99%+ of the valid choices (actually probably 99.9%+ (or 99.99+%? Maybe but anyways etc...) but anyways etc xd if not more. If i can't find where or why, i'll have to reenable this, but ideally if i can fix it i'd rather not use this very extreme hard reject here. Updated info about this: now solved, see known issue as of now 56 for details and code below too in the else block anyways etc; update again: commenting out this hard reject also fixes, although not ideal since it rejects everything but helps pinpoint issue but anyways etc, crash at turn 95 (see known issue as of now 58 for details anyways etc), so definitely useful to try to comment this out temporarily and see if it helps fix your issue i mean but check if accurate anyways etc -->
+		// <!-- custom: we now have a reproductible crash at turn 283, despite many autoplays playing fine end to end since then, and enabling this hard reject fixes the issue (at least no crash after enabling it), from save file at turn 200. But this is not optimal as said before, very suboptimal. So trying to find a proper fix instead anyways etc; update: very quickly fixed by chatgpt 5 thanks a lot if i may say thanks :) We i.e. chatgpt 5 here xd thanks to my prompts and documentation and such xd added a bunch of safeties in this function, hopefully without altering existing worker functionning/effiency. At this point i don't understand too much what's going on and if code is safe, doesn't break anything, doesn't lose functionality, while fixing this very or quite rare crash, i'm adding it xd. See known issue as of now 60 for details anyways etc -->
 		// if (pBestPlot == NULL || eBestBuild == NO_BUILD)
 		// 	continue;
 
@@ -19346,7 +19349,11 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
         eBestBuild = eBuild;
         pBestPlot = pPlot;
 		// <!-- custom: new addition part of the fix/rewrite of the else block below that was seemingly causing the crash at turn 95 that is now seemingly fixed as well, see below code comments for details or/and known issue as of now 58 for details anyways etc. -->
-		pTargetCity = pLoopCity; // stash the pointer directly
+		// pTargetCity = pLoopCity; // stash the pointer directly
+		// <!-- custom: update: revert to how it was before, to how it was when we added it originally or similar to such anyways etc, as the now commented out above optimization might have been related to crash at turn 283, even if not, reverted to safer code just to be safe if i'm not mistaken, see known issue as of now 60 for details anyways etc. As for code comment below, is by chatgpt 5 as many others are (generally those without "custom: " but anyways etc), check if accurate, hopefully helpful, anyways etc -->
+		// Raw pointer for pTargetCity
+		// Very rarely (late game, many events per turn) the target city can be razed/traded between selection and mission queueing, leaving a dangling pointer. Using a city ID and re-hydrating the pointer just before use avoids that class of crash.
+		iTargetCityId = pLoopCity->getID();
         break;
     }
 	// <!-- custom: then back to old code if i am not mistaken anyways etc -->
@@ -19371,6 +19378,27 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 	// 	return false;
 	FAssertEnumBounds(eBestBuild);
 
+	// <!-- custom: is one of the tentative fixes to crash at turn 283, which is now solved. I don't know if it does, but added as per chatgpt 5 since it doesn't seem to break anything, but i don't know too much how it works so check if accurate i mean anyways etc. See known issue as of now 60 for details anyways etc -->
+	// re-hydrate the target city safely (with the fallback you already liked):
+	CvCityAI* pTargetCity = NULL;
+	if (iTargetCityId >= 0)
+		pTargetCity = GET_PLAYER(getOwner()).AI_getCity(iTargetCityId);
+	if (pTargetCity == NULL && pBestPlot != NULL)
+	{
+		if (CvCity* pWC = pBestPlot->getWorkingCity())
+		{
+			if (pWC->getOwner() == getOwner())
+				pTargetCity = GET_PLAYER(getOwner()).AI_getCity(pWC->getID());  // ✅ on CvPlayerAI
+		}
+	}
+
+	// <!-- custom: is one of the tentative fixes to crash at turn 283, which is now solved. I don't know if it does, but added as per chatgpt 5 since it doesn't seem to break anything, but i don't know too much how it works so check if accurate i mean anyways etc. See known issue as of now 60 for details anyways etc -->
+	// Keep the guard (good):
+	if (eBestBuild <= NO_BUILD || eBestBuild >= GC.getNumBuildInfos())
+		return false;
+	if (!pBestPlot->isArea(getArea()))
+		return false;
+
 	// <!-- custom: this is one of the only 2 functions where our entirely rewritten and greatly worker efficiency optimized but anyways etc AI_bestCityBuild function is ever called. Our current goal is to chain roads only on bonuses after they are improved. This is to gain the effects such health from connecting wheat or rice, happiness from connecting gold or silver as well for example anyways etc, which may unlock our cap of unhappiness or/and health or such other benefits if any sooner if i'm not mistaken but anyways etc. But we don't handle roading in our rewritten function, despite now only us handling the improvement of bonuses. So the existing functions we rely on often call/do too late the connecting bonus (if needed e.g. not on rivers connected to city maybe or such if bonus is already improved and on a river maybe (check if accurate and if i'm not mistaken but anyways etc)) logic. So what we'd want without rewriting everything, since they handle roads fine, just roading bonuses too late, is to add just right after our rewritten function is called, roading logic so that bonus is roaded right after improve anyways etc. Luckily or fortunately if i may say but anyways etc, it seems in our entire code our rewritten function is as of now called only twice, so we'll patch both logics and see if it helps solve the issue of city being stagnant unhealthy or/and unhappy despite having bonuses improved as we do now in our rewritten function, but not connected so we don't have their effects as we want. This is one of these places, done as recommended by chatgpt 5 and as i suggested a bit too hehe if i may say and helped provide it code samples too of my own idea i mean but it helped lot, but check if accurate mine or/and its reasoning as well if i may say but anyways etc, hopefully helpful but anyways etc; i also formatted a bit its comments and added them in code coments or/and such if i may say but anyways etc. Also see known issue as of now 31 update 2 for details if any or/and related info anyways etc. -->
 	// Patch 2 — AI_nextCityToImprove
 	// <!-- custom: then after i asked a bit to know more or/and for clarity or where to put the code xd it added these details, check if accurate anyways etc -->
@@ -19379,7 +19407,9 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 	// ... after we have pBestPlot and eBestBuild chosen ...
 	static const BuildTypes eBuildRoad = (BuildTypes)GC.getInfoTypeForString("BUILD_ROAD");
 	const BonusTypes eBonusHere = pBestPlot->getNonObsoleteBonusType(getTeam());
-	const bool bSentinelRoad = (eBestBuild == eBuildRoad && eBonusHere != NO_BONUS);
+	// <!-- custom: added a NO_BUILD check as should have done before but anyways etc as one of the tentative fixes to crash at turn 283, which is now solved. I don't know if it does, but added as per chatgpt 5 since it doesn't seem to break anything, but i don't know too much how it works so check if accurate i mean anyways etc. See known issue as of now 60 for details anyways etc -->
+	// Sentinel-road branch: guard the constant and leave behavior as-is.
+	const bool bSentinelRoad = ((eBuildRoad != NO_BUILD) && (eBestBuild == eBuildRoad) && (eBonusHere != NO_BONUS));
 
 	if (bSentinelRoad)
 	{
@@ -19486,19 +19516,24 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 		if (pBestPlot == NULL || eBestBuild == NO_BUILD)
 			return false;
 
+		// <!-- custom: is one of the tentative fixes to crash at turn 283, which is now solved. Chatgpt 5 slightly tweaked/rewrote this part but it seems almost the same at first glance although there must be important differences. In all cases, i added below some of the info it provided as code comments as well (check if accurate anyways etc), and i don't know if it does, but added as per chatgpt 5 since it doesn't seem to break anything, but i don't know too much how it works so check if accurate i mean anyways etc. See known issue as of now 60 for details anyways etc -->
+		// Mission payload on first ROUTE_TO leg
+		// On the first leg (route to city), you attach pBestPlot as mission plot. K-Mod’s MISSION_ROUTE_TO expects the final route goal in missionData (or NULL for a pure move/route leg). Attaching a different plot can blow up later in release builds.
+		// Two-leg route block: don’t reuse path state; and don’t attach pBestPlot to the first leg to the city.
+
 		// Prefer the stable two-leg ROUTE pattern when possible
 		bool bDidRouteLegs = false;
 		if (canBuildRoute() && pTargetCity != NULL &&
 			pTargetCity->isArea(getArea()) && pBestPlot->isArea(getArea()) &&
 			!pBestPlot->isWater())
 		{
-			// Make sure both legs are pathable with safe flags
-			if (generatePath(pTargetCity->getPlot(), MOVE_SAFE_TERRITORY, true) &&
-				generatePath(*pBestPlot, MOVE_SAFE_TERRITORY, true))
+			// separate calls, no reuse flag
+			if (generatePath(pTargetCity->getPlot(), MOVE_SAFE_TERRITORY) &&
+				generatePath(*pBestPlot,          MOVE_SAFE_TERRITORY))
 			{
 				if (atPlot(pBestPlot))
 				{
-					// Already at plot: route from plot to city
+					// already at the plot: route from plot -> city (missionData safe to attach pBestPlot here)
 					getGroup()->pushMission(MISSION_ROUTE_TO,
 						pTargetCity->getX(), pTargetCity->getY(),
 						MOVE_SAFE_TERRITORY, false, false,
@@ -19506,39 +19541,37 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 				}
 				else
 				{
-					// Route to city first (no append), then to the plot (append)
+					// FIRST LEG: route to city, missionData = NULL (do not attach pBestPlot yet)
 					getGroup()->pushMission(MISSION_ROUTE_TO,
 						pTargetCity->getX(), pTargetCity->getY(),
 						MOVE_SAFE_TERRITORY, false, false,
-						MISSIONAI_BUILD, pBestPlot);
+						MISSIONAI_BUILD, (CvPlot*)NULL);
 
+					// SECOND LEG: route city -> target plot, missionData = pBestPlot
 					getGroup()->pushMission(MISSION_ROUTE_TO,
 						pBestPlot->getX(), pBestPlot->getY(),
 						MOVE_SAFE_TERRITORY, true, false,
-						MISSIONAI_BUILD, pBestPlot); // K-Mod pattern
+						MISSIONAI_BUILD, pBestPlot);
 				}
 				bDidRouteLegs = true;
 			}
 		}
 
-		if (!bDidRouteLegs)
-		{
-			// Fallback: simple move (don’t attach mission-plot on pure move)
+		// <!-- custom: is one of the tentative fixes to crash at turn 283, which is now solved. Chatgpt 5 slightly tweaked/rewrote this part but it seems almost the same at first glance although there must be important differences. In all cases, i added below some of the info it provided as code comments as well (check if accurate anyways etc), and i don't know if it does, but added as per chatgpt 5 since it doesn't seem to break anything, but i don't know too much how it works so check if accurate i mean anyways etc. See known issue as of now 60 for details anyways etc -->
+		// Fallback move and final build: keep your logic, but add one last cheap sanity before build.
+		if (!bDidRouteLegs) {
 			getGroup()->pushMission(MISSION_MOVE_TO,
 				pBestPlot->getX(), pBestPlot->getY(),
 				NO_MOVEMENT_FLAGS, false, false,
 				MISSIONAI_BUILD, (CvPlot*)NULL);
 		}
 
-		// Final sanity before building (cheap; protects against rare invalidation)
+		// Re-validate right before queuing the build (protects against very rare invalidation)
 		if (!canBuild(*pBestPlot, eBestBuild))
-			return true; // movement/route queued; replan next turn
+			return true;
 
-		// Queue the improvement
-		getGroup()->pushMission(MISSION_BUILD,
-			eBestBuild, -1, NO_MOVEMENT_FLAGS,
+		getGroup()->pushMission(MISSION_BUILD, eBestBuild, -1, NO_MOVEMENT_FLAGS,
 			/*append*/true, /*manual*/false, MISSIONAI_BUILD, pBestPlot);
-
 		return true;
 	}
 

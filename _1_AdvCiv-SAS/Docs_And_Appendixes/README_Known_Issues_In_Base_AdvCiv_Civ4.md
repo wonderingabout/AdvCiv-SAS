@@ -77,6 +77,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [57 - (Not reproductible) Unknown game crash at turn 94](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#57---not-reproductible-unknown-game-crash-at-turn-94)  
 [58 - (Fixed/Enhanced) Reproductible crash at turn 95 in another map, related to the else block in CvUnitAI::AI_nextCityToImprove, by rewriting the else block based on the (more? But anyways etc) code at CvUnitAI::AI_connectPlot anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#58---fixedenhanced-reproductible-crash-at-turn-95-in-another-map-related-to-the-else-block-in-cvunitaiai_nextcitytoimprove-by-rewriting-the-else-block-based-on-the-more-but-anyways-etc-code-at-cvunitaiai_connectplot-anyways-etc)  
 [59 - (Partially improved) some AI cities are not improved enough and totally neglected for dozen turns](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#59---partially-improved-some-ai-cities-are-not-improved-enough-and-totally-neglected-for-dozen-turns)  
+[60 - (Fixed) Seemingly rare reproductible crash at turn 283 in CvUnitAI::AI_nextCityToImprove, by adding a bunch of seemingly conservative safeties (as chatgpt 5 did anyways etc, check if accurate anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#60---fixed-seemingly-rare-crash-at-turn-283-in-cvunitaiai_nextcitytoimprove-by-adding-a-bunch-of-seemingly-conservative-safeties-as-chatgpt-5-did-anyways-etc-check-if-accurate-anyways-etc)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -2226,6 +2227,8 @@ A few notes now that this is seemingly solved reliably and nicely enhanced it se
 
 Now all cities of all AI players are improved and roaded fine and fast enough nicely it seems if i am not mistaken but anyways etc, except elephantine city that is not imrpoved nor roaded at all at turn 200+, then after it is roaded gets nicely improved a very nice and strong city, but a bit too late, so trying to make workers move there faster as our next known issue but anyways etc.
 
+See also: [60 - (Fixed) Seemingly rare reproductible crash at turn 283 in CvUnitAI::AI_nextCityToImprove, by adding a bunch of seemingly conservative safeties (as chatgpt 5 did anyways etc, check if accurate anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#60---fixed-seemingly-rare-crash-at-turn-283-in-cvunitaiai_nextcitytoimprove-by-adding-a-bunch-of-seemingly-conservative-safeties-as-chatgpt-5-did-anyways-etc-check-if-accurate-anyways-etc)
+
 ## 59 - (Partially improved) some AI cities are not improved enough and totally neglected for dozen turns
 
 See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1FrLep_WV4E8kkdvw6zs0EB-YP0-1z1ea?usp=sharing)
@@ -2242,4 +2245,73 @@ Again, could be autoplay fluctuations, but it does seem to be slightly better, a
 
 Chatgpt 5 helped me a lot to do it, and we wrote a much more advanced version of it (at least bit more advanced in this case i mean but anyways etc) but it failed to produce the expected change, being slightly worse, so i'm happy with this conservative change at least for now, if as expected it improves things quite a bit without making it worse. Check if accurate, hopefully helpful, anyways etc.
 
-Note: as for screenshots, see existing screenshots between 3387 to 3395 for how it was before (i don't have the elephantine screenshot anymore if i had it at all in this case i mean but anyways etc it seems i mean but anyways etc), vs existing screenshots between 3423 and 3429 (run from turn 100) (as for from turn 0 it seems it didn't screenshot when i pressed key, and autplaying produces a different outcome (city spot settled by another AI player, where some city is not improved for enough time but empire overall quite ell if tno very well for most cities improved it seems at a glance but check ingame if accurate maybe as again these are conservative and not fully fixing changes, that aim to not disrupt previous logic or make it worse hopefully as i don't understand too much about these nor am i abel to change them in this case i mean but anyways etc, else may have tinkered a bit more but anyways etc))
+Note: as for screenshots, see existing screenshots between 3387 to 3395 for how it was before (i don't have the elephantine screenshot anymore if i had it at all in this case i mean but anyways etc it seems i mean but anyways etc), vs existing screenshots between 3423 and 3429 (run from turn 100) (as for from turn 0 it seems it didn't screenshot when i pressed key, and autplaying produces a different outcome (city spot settled by another AI player, where some city is not improved for enough time but empire overall quite ell if tno very well for most cities improved it seems at a glance but check ingame if accurate maybe as again these are conservative and not fully fixing changes, that aim to not disrupt previous logic or make it worse hopefully as i don't understand too much about these nor am i able to change them in this case i mean but anyways etc, else may have tinkered a bit more but anyways etc))
+
+## 60 - (Fixed) Seemingly rare reproductible crash at turn 283 in CvUnitAI::AI_nextCityToImprove, by adding a bunch of seemingly conservative safeties (as chatgpt 5 did anyways etc, check if accurate anyways etc)
+
+See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1uOm6zvQjV4D018oyMHYMGOcUtBNVyKn4?usp=sharing)
+
+As usual a crash that was fixed by reenabling our hard reject in `CvUnitAI::AI_nextCityToImprove` as explained in [58 - (Fixed/Enhanced) Reproductible crash at turn 95 in another map, related to the else block in CvUnitAI::AI_nextCityToImprove, by rewriting the else block based on the (more? But anyways etc) code at CvUnitAI::AI_connectPlot anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#58---fixedenhanced-reproductible-crash-at-turn-95-in-another-map-related-to-the-else-block-in-cvunitaiai_nextcitytoimprove-by-rewriting-the-else-block-based-on-the-more-but-anyways-etc-code-at-cvunitaiai_connectplot-anyways-etc).
+
+But this is very suboptimal, so i asked chatgpt 5 if it had an idea of how to fix this based on our previous documentation and current code. I didn't feed it the .dmp as in the drive link of this known issue but anyways etc, but it does seem like a pointer or such issue from little in this case i mean but anyways etc i know about these (more precisely about what it shows rather but anyways etc: exception code "0xC0000005" and exception information "The thread tried to read from or write to a virtual address for which it does not have the appropriate access." in VS C++ 2010 Express since it also opens .dmp files nicely thanks i mean if i may say but anyways etc) but anyways etc.
+
+Notes:
+
+- the ingame screenshot shows tech tree but it should be unrelated, as i was just browsing it and the crash was reproductible.
+- same observation as usual: the crash is reproductible many times (at least i did 2 times from save file at turn 200 (autplay 100 turns from there so 200 -> 300), but not reproductible if i "bridge" save at turn 250 (autoplay 50 turns from there so 250 -> 300) then continue normally without even reloading or exiting the program), which is strange but must have an explanation i mean but which may also help if one has such crashes to perhaps workaround them but anyways etc.
+
+In all cases, chatgpt 5 very nicely and very swiftly fixed it at first try, very impressive and thanks a big lot for the long hours or such if not more but anyways etc whichever time it is in this case i mean but anyways etc it saved me but anyways etc.
+
+At this point i don't understand too much what's going on in the code xd, but i tried to annotate it with the info/feedback/analysis chatgpt 5 gave me, check if accurate though but anyways etc.
+
+The additions are conservative overall from what i can see or understand of them, so hopefully they don't break anything especially worker efficiency, and seem very targeted changes that aim to fix rather than rewrite, but is just a vague guess or rather impression and i don't know too much about these, check if accurate anyways etc.
+
+Ideally i would undo these one by one, until i find culprit, and only mention the others here here not related to the fix, but this is way too tedious, and if it doesn't break anything and preserves functionality i'd rather keep it as is if seems safe but anyways etc (but check if accurate)
+
+The issue seems now fixed as i tested it twice and it seems to not crash anymore from turn 200, while it crashed reliably twice before from turn 200 as well but anyways etc. To complement this doc since i don't understand too much about it but anyways etc, i asked chatgpt 5 to provide some info on what it changed or the issue in general or and such, here is what it said, check if accurate, hopefully helpful, anyways etc, and thanks for the .md snippet too thanks :) If i may say but anyways etc:
+
+I edited it a bit as there was an inaccuracy line which i removed from below but anyways etc that said we changed betterplotbuild when we in fact changed it loooong ago not now, still check if accurate as i don't know too much about these, hopefully helpful anyways etc
+
+>**What went wrong (T283) & what we changed**
+>
+>- Crash pattern: rare, late-game, masked by the “hard reject.” Likely invalid state used between target selection and mission queuing (0xC0000005).
+>- Root causes (probable): (1) stale/dangling `pTargetCity` when a city is razed/traded after selection; (2) attaching the **wrong missionData** on the first `ROUTE_TO` leg; (3) a bad in-loop guard referencing `pBestPlot/eBestBuild` instead of the current `pPlot/eBuild`.
+>- Selection fixes: removed the in-loop “hard reject”; keep `pPlot/eBuild` checks local; store **city ID** (`iTargetCityId`) instead of a raw `pTargetCity` pointer.
+>- Re-hydrate safely: after the loop, rebuild `pTargetCity = GET_PLAYER(getOwner()).AI_getCity(id)`; fallback to `pBestPlot->getWorkingCity()` if needed.
+>- Routing fix: use a **two-leg** `ROUTE_TO` pattern (city → plot). **First leg**: missionData = `NULL`. **Second leg**: missionData = `pBestPlot`. Don’t reuse path state.
+>- Guards added: bail if `pBestPlot == NULL` or `eBestBuild == NO_BUILD`; validate `eBestBuild` bounds; ensure same land `area()`.
+>- Sentinel-road: only trigger if `eBuildRoad != NO_BUILD` and a real bonus is present.
+>- Fallback: if no route legs queued, issue a `MOVE_TO` to `pBestPlot`, then re-check `canBuild` immediately before `MISSION_BUILD`.
+>- Kept: anti-dogpile cap (`iMaxWorkers=1`) and existing pathfinder handle.
+>- Result: no repro of the T283 crash; worker behavior (one-worker-per-tile, efficient targeting) preserved.
+
+Additionally, while i should have started with this to give more context, chatgpt 5, the one that gave me the code that fixed it, also said this as part of its reply, below, anyways etc:
+
+>Reading the code you pasted, I see three risky spots (all late-turn sensitive):
+>
+>Wrong variables checked inside the city loop (the old “hard reject”)
+>You still have a continue; line that checks pBestPlot / eBestBuild inside the loop that’s evaluating pPlot / eBuild. That can desync control flow and leave pBestPlot/eBestBuild stale. It also needlessly skips the first viable city every time.
+>
+>Raw pointer for pTargetCity
+>Very rarely (late game, many events per turn) the target city can be razed/traded between selection and mission queueing, leaving a dangling pointer. Using a city ID and re-hydrating the pointer just before use avoids that class of crash.
+>
+>Mission payload on first ROUTE_TO leg
+>On the first leg (route to city), you attach pBestPlot as mission plot. K-Mod’s MISSION_ROUTE_TO expects the final route goal in missionData (or NULL for a pure move/route leg). Attaching a different plot can blow up later in release builds.
+
+The chatgpt 5 that gave me the original fix to this issue also said (check if accurate but anyways etc):
+
+>Why this should kill the T283 crash
+>
+>Removing the in-loop hard reject stops us from carrying stale pBestPlot/eBestBuild through to the route leg logic.
+>
+>City-ID re-hydration prevents a rare dangling pTargetCity deref. (Late-game routings happen long after many conquest events; this tightens that window.)
+>
+>Passing NULL missionData on the first ROUTE_TO leg aligns with the expected K-Mod pattern (missionData = final build plot only). That avoids later code assuming the attached plot is the route target and touching the wrong object.
+>
+>If you want a tiny breadcrumb for future unknowns, sprinkle this once right before each return false;/early return true;:
+>
+>```cpp
+>// gDLL->logMsg(getOwner(), "AI_nextCityToImprove early-out: reason=<text> unit=%d turn=%d", getID(), GC.getGame().getGameTurn());
+>```
+
+However i have noticed an issue, most likely to recent roading changes we made to worker, perhaps in this `CvUnitAI::AI_nextCityToImprove` or in `CvUnitAI::AI_workerMove` or such other function perhaps, that workers try to infitely road while in city tile, which is very inefficient. Ideally we'll try to address this at next known issue anyways etc.
