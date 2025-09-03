@@ -34,9 +34,6 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 &emsp;&emsp;[csv github view for the flatten_leaders_data_to_csv conversion script](/README.md#csv-github-view-for-the-flatten_leaders_data_to_csv-conversion-script)  
 [Less Generic-neutral unit names or/and combat types and note about woman units](/README.md#less-generic-neutral-unit-names-orand-combat-types-and-note-about-woman-units)  
 [AI-generated images](/README.md#ai-generated-images)  
-&emsp;[Using ChatGPT](/README.md#using-chatgpt)  
-&emsp;[Using Creator Nightcafe Studio and then Pixelcut AI to expand it to 1920 x 1080 with new details](/README.md#using-creator-nightcafe-studio-and-then-pixelcut-ai-to-expand-it-to-1920-x-1080-with-new-details)  
-[.dds (button) size comparison analysis](/README.md#dds-button-size-comparison-analysis)  
 [Civs you can expect in this mod](/README.md#civs-you-can-expect-in-this-mod)  
 &emsp;[World map with civs](/README.md#world-map-with-civs)  
 &emsp;[Other map(s) i used for terrain modifiers for civ-specific units](/README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units)  
@@ -230,70 +227,15 @@ See the [README_Less_Generic_Neutral_Unit_Names.md](/_1_AdvCiv-SAS/Docs_And_Appe
 
 ## AI-generated images
 
-### Using ChatGPT
+While developping the AdvCiv-SAS mod, i have learned (despite having tried in the past a few times with Midjourney but not related to this anyways etc) to and successfully generated some AI-generated images, first with tools like ChatGPT for buttons or/and such, and then for our main menu background images with other tools, in particular with the help of PixelCut AI that was very nice.
 
-One of the unexpected things that popped up while exploring unit naming in/for anyways etc advciv-sas anyways etc and is/found to be very pleasant but anyways, is the visual art of images, i want AI generated (by ChatGPT) ones as they can be very nice.
+I edited some of these with Paint.NET to add in some of them the blue "ribbon" (margins whatever they are called). Here are, below, some examples of ai-generated images in our mod, for more details see: [Docs_And_Appendixes/README_AI_Generated_Images.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Generated_Images.md)
 
-I have uploaded mine (or rather ChatGPT's creation with my prompts and feebackbut anyways) [in the AI-generated images's Google Drive](https://drive.google.com/drive/folders/1WTQqrstpKywyHF9TjmvBy4edo8Jh1pYm?usp=sharing), if you want to view them full size or/and more images, please ideally visit this google drive folder link rather.
+Note: these are low size images, see link mentionned above for the google drive link to view them in high quality (full/original resolution) anyways etc
 
-Note: as of now the units ai-generated images for unit buttons are likely to be implemented in advciv-sas as it is unlikely we would add these units in particular and existing unit buttons are otherwise not too bad (and we imported some from other mods as well rather if needed thanks i mean too to those mod or me for importing them xd if i may say too but anyways etc anyways etc anyways etc), but they are shown here for exhaustiveness anyways etc.
-
-You can find below an example of preview for the lancer medium 2 (bronze age as of now if not always or not anyways) for example here anyways etc, the longbow 3 (iron age), and the sword light 4 (medieval era):
-
-<img src="https://drive.google.com/thumbnail?id=1_CcxxS36yJmp779-oxuQD3QSWI0eBubC&sz=w1024" alt="lance_medium_2.png" width="150"></img>
-<img src="https://drive.google.com/thumbnail?id=1xnoVb0f_rTnCr1uMXTrcf7qgKg3MAQ1J&sz=w1024" alt="longbow_3.png" width="150"></img>
-<img src="https://drive.google.com/thumbnail?id=1zXIdyZx_yjZ-c3PUFusxYbGpquFccQoU&sz=w1024" alt="sword_light_4.png" width="150"></img>
-
-Example with some buildings (the Gord (new Russian building based on the castle, see the [google drive folder of how i implemented the gord](https://drive.google.com/drive/folders/1UhABiU4hylKHGV1JK0kXEZwzkFRmF3Px?usp=sharing) anyways etc) for example, and the Impluvium as well (Kingdom of Benin's building))
-
-<img src="https://drive.google.com/thumbnail?id=1ORGSZmBXkpK9Gyw_I7T3xJU8wTR6feGv&sz=w1024" alt="impluvium_west_african.png" width="150"></img>
-<img src="https://drive.google.com/thumbnail?id=1U-syGoHzWMQevTgmKhfuwfcT529yQPCx&sz=w1024" alt="gord.png" width="150"></img>
-
-Example with some techs (for example the theory of evolution new tech if we add it todo, mounted combat/riding/warfare (edited with Paint.NET by myself to remove extra camel, not sure i did best but hopefully good enough and was fun even though bit tedious xd but anyways etc ([see in this google drive folder image edit with Paint.NET](https://drive.google.com/drive/folders/1UNyrAqEjOJCHkNH8c05q2MFx1C6l0fNi?usp=sharing) for details, i really wanted this image so had to fix it if i may say, but anyways etc anyways etc anyways etc... this image i mean anyways etc...)))
-
-<img src="https://drive.google.com/thumbnail?id=1by2tQKbfjkQUAP-kh2Tuh1oKq6t4uYnJ&sz=w1024" alt="theory_of_evolution.png" width="150"></img>
-<img src="https://drive.google.com/thumbnail?id=1nHZBm85mTTs_i_o84pWlNArtkfTwTz_S&sz=w1024" alt="mounted_tech.png" width="150"></img>
 <img src="https://drive.google.com/thumbnail?id=1KxNi9tdGYsoWlwGiVihdixa9F4yIJri0&sz=w1024" alt="mounted_tech_edited.png" width="150"></img>
-
-People or/and modders are free to reuse them as long as you mention me and chatgpt (link to this github page for example is fine) being the source (and that AI did it maybe too ideally, anyways).
-
-### Using Creator Nightcafe Studio and then Pixelcut AI to expand it to 1920 x 1080 with new details
-
-Note: see full-size images in this [google drive folder link](https://drive.google.com/drive/folders/1V-nLk7gtzB6TPkwATeRLo2vqZ7VK_ai5?usp=sharing) for details of the intermediate and such and final image
-
-First to generate our main menu image/theme, i used as advised by chatgpt Creator Nightcafe Studio (note: about their privacy/notification settings, i'd recommend making them more restrictive, see [README.md#some-useful-tools-while-doing-this](/README.md#some-useful-tools-while-doing-this) but as you prefer if i may say anyways etc), with this prompt i got the idea to write hehe (and got very lucky with output at first try hehe (couldn't reproduce an as satisfying image in several other tries in this case at least but anyways etc)):
-
-"Landscape 1920 x 1080 image for a civ4 based mod's wallpaper, showing some natural landscape with a hint of deer or/and camel, in a calm setting, and in line with civ4 artstyle"
-
-<img src="https://drive.google.com/thumbnail?id=1xDlcEiaGf71MaEnl4PUUcISa6wdX82xN" alt="advciv-sas main menu 1024 x 1024 (Creator Nightcafe Studio).webp" width="150"></img>
-
-Tip: make sure you download your ai-generated images at each step in case the tool modifies it as part of one of your actions/requests (such as expanding) or/and prompts and then the original image is lost, while the new one is not satisfying. Thankfully i had done so to show it to chatgpt (or maybe also just because i liked it? But in all cases or not or yes or etc anyways etc...), else would have lost the image :/ Phew if i may say but i thankfully escaped this if i may say but anyways etc...
-
-Then it was 1024 x 1024 though, although otherwise amazing, so since i didn't want any other image but anyways etc, and trying a few just weren't as good nor near nowhere as good, i wanted to enhance and expand this image to 1920 x 1080 with new details (not stretched), so i found this feature in Creator Nightcafe Studio too i mean if i may say but anyways etc, but the result was not as satisfying although not too bad, it was overall much worse quality.
-
-<img src="https://drive.google.com/thumbnail?id=1PMaPYxcX7ai6xCc8e-hG-sydadjHpjvS" alt="advciv-sas main menu expanded to 1920 x 1080 (Creator Nightcafe Studio).webp" width="150"></img>
-
-I had resigned myself to maybe using it as again it was really not too bad, but i still asked chatgpt xd if i may say if there are tools to expand our images, and to do a web search on it too if i may say but anyways etc, and among the results, it advised me the very nice tool Pixelcut AI, as again if i may say but anyways etc i really wanted to use our if i may say/this image as i like/love it even maybe a loooooot, but i needed it at 16:9 so 1920 x 1080, and not stretched, and i found this one to be incredibly niiiiice!!! And it succeeded at first try as well!!!! (At least in a way i can be and am (very!!!) satified of if i may say but anyways etc...)
-
-The output is amazing and it is now our main menu image :)
-
-<img src="https://drive.google.com/thumbnail?id=18F-HKoEUBJZ7GmmKYFhVATd6UYRlWAmV" alt="advciv-sas main menu expanded to 1920 x 1080 (Pixelcut AI).webp" width="150"></img>
-
-Then i converted it to .dds with Paint.NET similarly than for other image files in our mod anyways etc.
-
-As for how to replace default civ4 main menu background, i used ri mod's civ4mainmenubg.nif and its related files, then just if i amy say but anyways etc replaced their duomo3.dds with our dds, now renamed to duomo3.dds as well, and updated the path to where our nif is, see `MAINMENU_SCENE_CLASSICAL` (main menu background) and `MAINMENU_LOAD_CLASSICAL` (loading screen (e.g. loading a save file, loading a new map, etc.) background) in [/Assets/XML/Art/CIV4ArtDefines_Interface.xml](/Assets/XML/Art/CIV4ArtDefines_Interface.xml) for details
-
-Note: intended game resolution: 1920 x 1080 Unexpected results may happen at higher resolutions like the ri mod's logo suddenly apeparing maybe xd even though should otherwise be the exact same gameplay but check to be sure and i am not responsible even though seems most likely that nothig else changed, but again check to be sure in case i overlooked something (unlikely and hopefully i am not mistaken in saying so but again check to be sure just to cover myself if i may say, hoepfully helpful or not or yes or etc, anyways etc), anyways etc.
-
-Note 2: then the image ingame is stretched vertically unlike our real image .jpg file or .dds, so to solve this we need to edit/"hack" the image a bit by adding fake empty pixels (half at the top, half at the bottom of the image it seems if i am not mistaken but anyways etc), so our image is now 1920 x 1440 instead with these fake empty pixels. This is to fix civ4 or/and the nif's constraints (i don't know which, but now is solved and image displays reliably without being stretched vertically, or some vertical (top and bottom) part being missing (we should see approximately if i am not mistaken >99+% if not 100% of our image now, vs much less (like 60-70% (not precise estimation just vaguely guessing approximately to explain it as bit tedious to measure precisely if i may say but hopefully helpful or not or yes or etc but anyways etc...) before then rest was stretched vertically to fit screen) before this fix) if i am not mistaken but anyways etc). See how i did so and why and such here for details in [README_Known_Issues_In_Base_AdvCiv_Civ4.md#28---now-fixed-wallpaper-of-our-mods-custom-being-stretched-vertically-while-some-of-the-top-of-the-wallpaper-is-not-shown-at-all-at-1920-x-1080-game-resolution](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#28---now-fixed-wallpaper-of-our-mods-custom-being-stretched-vertically-while-some-of-the-top-of-the-wallpaper-is-not-shown-at-all-at-1920-x-1080-game-resolution)
-
-Note 3: if you want to know how i removed the blue rectangle color, it is (thanks to chatgpt 5) done by replacing, in [/Resource/Civ4Theme_Custom.thm](/Resource/Civ4Theme_Custom.thm) the `style SF_CtrlTheme_Civ4_Control_Panel_MainStart_Style` 's image lines such as `Image			= 	GBitmap("../../../../Resource/Civ4/Custom/main_start.tga", HVGrid, 1, 2, 0, 0);` to `Image			= 	GBitmap();`
-
-Note 3.2: then in `style SF_CtrlTheme_Civ4_Control_Button_MainMenuSelection_Style` in same file you can also change text color for example at lines such as (thanks to chatgpt 5's help anyways etc) `.Default						=	GFC_Control_Color_Text_Default;` (seemingly white at least before the change) to `.Default						=	GColor(0,0,0,255);` (as of now black much more readable now that we don't have the old blue rectangle as a background anyways etc) , white was too bright so now is black, screenshots are visible in the gogole drive folder corresponding to known issue above anyways etc, and/or other text beautification(s) (see code comments there for details anyways etc).
-
-## .dds (button) size comparison analysis
-
-See [README_Dds_button_size_comparison_analysis.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Dds_button_size_comparison_analysis.md) for details
+<img src="https://drive.google.com/thumbnail?id=1U-syGoHzWMQevTgmKhfuwfcT529yQPCx&sz=w1024" alt="gord.png" width="150"></img>
+<img src="https://drive.google.com/thumbnail?id=18F-HKoEUBJZ7GmmKYFhVATd6UYRlWAmV&sz=w2048" alt="advciv-sas main menu expanded to 1920 x 1080 (Pixelcut AI).webp" width="267"></img>
 
 ## Civs you can expect in this mod
 
@@ -493,8 +435,8 @@ it too though unless i'm mistaken)
 - [pixabay website](https://pixabay.com/) for example for royalty-free music as recommended/suggested/mentionned anyways etc to me by chatgpt for example to find leader ewuare's music if not on youtube anyways etc
 - yt-dlp (see copyright section in the main README.md at [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer) and see also the modding_ressources general yt-dlp information for details anyways etc at [Modding_Ressources/README.md#download-media-assets-for-example-on-youtube](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#download-media-assets-for-example-on-youtube))
 - Audacity, to see where it is safe to cut audio without cutting too early or late, for example at 00:02.425 is a bit before audio starts in one of our music files as of now but anyways etc, but by ear it seemed to be around 00:03.000 and quite safe if not safe to be so such as in these [google drive folder link](https://drive.google.com/drive/folders/1ohqHNcsFzNEhIiTksIWYnwk-CB02fDST?usp=sharing) screenshots anways etc, or also to convert audio files such as from .wav to .mp3 for some of our future/robotic era music as of now anyways etc
-- [Creator Nightcafe Studio](https://creator.nightcafe.studio/) to generate AI images, see [README.md#using-creator-nightcafe-studio-and-then-pixelcut-ai-to-expand-it-to-1920-x-1080-with-new-details](/README.md#using-creator-nightcafe-studio-and-then-pixelcut-ai-to-expand-it-to-1920-x-1080-with-new-details) for details ; but check also the notifications and privacy setting as they can be or simply are to me if i may say at least as of now but anyways etc extremely noisy / permissive / distracing even, so consider disabling them or such before creating any image or alternatively after anyways etc
-- [Pixelcut AI](https://www.pixelcut.ai/) to expand an image to higher res, for example from 1024 x 1024 to 1920 x 1080 with new details, see [README.md#using-creator-nightcafe-studio-and-then-pixelcut-ai-to-expand-it-to-1920-x-1080-with-new-details](/README.md#using-creator-nightcafe-studio-and-then-pixelcut-ai-to-expand-it-to-1920-x-1080-with-new-details) for details
+- [Creator Nightcafe Studio](https://creator.nightcafe.studio/) to generate AI images, see [README_AI_Generated_Images.md#using-creator-nightcafe-studio-to-generate-it-1024x1024](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Generated_Images.md#using-creator-nightcafe-studio-to-generate-it-1024x1024) for details ; but check also the notifications and privacy setting as they can be or simply are to me if i may say at least as of now but anyways etc extremely noisy / permissive / distracing even, so consider disabling them or such before creating any image or alternatively after anyways etc
+- [Pixelcut AI](https://www.pixelcut.ai/) to expand an image to higher res, for example from 1024 x 1024 to 1920 x 1080 with new details, see [README_AI_Generated_Images.md#then-using-then-pixelcut-ai-to-expand-it-to-1920-x-1080-with-new-details-very-nicely-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Generated_Images.md#then-using-then-pixelcut-ai-to-expand-it-to-1920-x-1080-with-new-details-very-nicely-anyways-etc) for details
 
 ## License and reuse
 

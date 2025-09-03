@@ -1,12 +1,12 @@
-# Coding Help for AdvCiv / AdvCiv-SAS
+# README (Modding Ressources)
 
-This is a non-exhaustive page containing some ressources i found helpful.
+This is a non-exhaustive page containing some ressources i found helpful and general help on how i modded advciv-sas, hopefully helpful, but anyways etc.
 
 ## Menu
 
 Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 which does this very well and fast anyways etc among other versions who/which could or not but anyways etc), feeding it the global search results of these entries and telling the format of the entries :) Hopefully helpful, thanks a lot chatgpt 5 hehe (among other versions or not had i tried with them but anyways etc). If you're curious how i did it, see this [google drive folder link](https://drive.google.com/drive/folders/1B18cJ8GYD8X_0vMoiTihVz0tthg5m_sg?usp=sharing) 's screenshots for details, hopefully helpful or not or yes or etc anyways etc ; i simplified the latest level of nesting (as of now map links such as pangea, continents etc) from the menu as it was needlessly cluttering and not too informative or fast to browse (the main map link is enough i think and these entries are short) but i d as i want too heheif i may say hopefully helpful or not or yes or etc but anyways etc
 
-Note: do not remove the 2 spaces at the end of the link, or do so at your own risk xd (is as you want though i mean if i may say in this case i mean but anyways etc) i have warned you xd if i may say but anyways etc.
+Note: do not remove the 2 spaces at the end of the links in the menu, or do so at your own risk xd (is as you want though i mean if i may say in this case i mean but anyways etc) i have warned you xd if i may say but anyways etc.
 
 <details>
 <summary>Spoiler: if you want to know why xd click here but anyways etc</summary>
@@ -27,7 +27,7 @@ Instead of:
 
 [Modding disclaimer and general information](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#modding-disclaimer-and-general-information)  
 [A few useful tips](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#a-few-useful-tips)  
-&emsp;[google drive image link in html tag if i am not mistaken anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#google-drive-image-link-in-html-tag-if-i-am-not-mistaken-anyways-etc)  
+&emsp;[Insert a google drive image link in an html tag if i am not mistaken anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#insert-a-google-drive-image-link-in-an-html-tag-if-i-am-not-mistaken-anyways-etc)  
 &emsp;[Download media assets for example on youtube](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#download-media-assets-for-example-on-youtube)  
 &emsp;[add media assets](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#add-media-assets)  
 &emsp;[write git commit message gradually as you do changes before committing them, and keep notes of ideas anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#write-git-commit-message-gradually-as-you-do-changes-before-committing-them-and-keep-notes-of-ideas-anyways-etc)  
@@ -38,10 +38,6 @@ Instead of:
 [A few useful other links](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#a-few-useful-other-links)  
 [In case UnitAIs info from link above is deleted someday, here is a copy here in case, anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#in-case-unitais-info-from-link-above-is-deleted-someday-here-is-a-copy-here-in-case-anyways-etc)  
 [Find and select map type in the DLL](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#find-and-select-map-type-in-the-dll)  
-&emsp;[Location](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#location)  
-&emsp;[Map Script Files](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#map-script-files)  
-&emsp;[Map type summary](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#map-type-summary)  
-[Modding note](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#modding-note)  
 [Where to find Python errors or debug](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#where-to-find-python-errors-or-debug-so-no-need-to-copy-them-either-if-you-need-to-ask-chatgpt-or-such-or-a-forum-anyways-etc)  
 [How to enable .dmp files so for some crashes that don't immediately exit you get a "splash screen" (whatever it is called) and can dmp and see turn at crash anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash-anyways-etc)  
 [Another example of how to use VS Code global search](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug-doc-copy-included-in-our-mod-anyways-etc)  
@@ -53,6 +49,9 @@ Instead of:
 [Import a nif art asset from another mod](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#import-a-nif-art-asset-from-another-mod-example-with-how-we-added-the-impluviums-nif-as-an-import-from-ffh2-mods-adventurers-guild-building-anyways-etc)  
 [(Old/Deprecated) Example of how to add a static image file as a leader portrait](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#olddeprecated-example-of-how-to-add-a-static-image-file-such-as-png-jpg-etc-as-a-leader-portrait)  
 [(Old/Deprecated) Example of how to create a leader head .dds button from a static image file](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#olddeprecated-example-of-how-to-create-a-leader-head-dds-button-from-a-static-image-file-such-as-png-jpg-etc-ideally-from-the-leader-head-image-portrait-if-any-if-i-am-not-mistaken-but-if-i-may-say-anyways-etc-anyways-etc-anyways-etc)  
+[.dds (button) size comparison analysis - (Trying to find) optimal .dds button size for a 164px (+ 2(px?) due to small(anyways etc...) mistake anyways etc) icon frame in sevopedia unit's unit pane('s icon frame)](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#dds-button-size-comparison-analysis---trying-to-find-optimal-dds-button-size-for-a-164px--2px-due-to-smallanyways-etc-mistake-anyways-etc-icon-frame-in-sevopedia-units-unit-panes-icon-frame)  
+[How to change the mod's main menu background image (for example to add a static image instead of default base advciv +/- civ4 image)](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-change-the-mods-main-menu-background-image-for-example-to-add-a-static-image-instead-of-default-base-advciv---civ4-image)  
+[How to remove the blue rectangle in main menu screen, change text color for example to black, etc. (in .thm files anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-remove-the-blue-rectangle-in-main-menu-screen-change-text-color-for-example-to-black-etc-in-thm-files-anyways-etc)  
 [Example of DLL modification of CvGameTextMgr.cpp](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc)  
 [Example of DLL modification 2: missing BBAI getters](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-2-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display-anyways-etc)  
 [Example of performance optimization of python loading time](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-performance-optimization-of-python-loading-time-as-in-when-we-load-the-code-and-loading-times-if-i-may-say-anyways-etc-as-in-code-performance-due-to-how-it-is-optimized-from-what-little-or-not-little-i-know-or-and-did-of-it-but-anyways-etc)  
@@ -74,11 +73,11 @@ Else or additionally, you may find more help asking your question(s) directly on
 
 ## A few useful tips
 
-### google drive image link in html tag if i am not mistaken anyways etc
+### Insert a google drive image link in an html tag if i am not mistaken anyways etc
 
-Was not easy to find how, but [this stackoverflow answer](https://stackoverflow.com/a/52067077) shows how to do it successfully, ai-generated images as of now in our advciv-sas mod anyways etc use this successfully as well anyways etc, see also the implementation in the main README.md at [README.md#ai-generated-images](/README.md#ai-generated-images) for example of how it is done successfully at least as of now if it helps anyways etc.
+Was not easy to find how, but [this stackoverflow answer](https://stackoverflow.com/a/52067077) shows how to do it successfully, ai-generated images as of now in our advciv-sas mod anyways etc use this successfully as well anyways etc, see also an implementation example of this in the [README_AI_Generated_Images.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Generated_Images.md) .md file's `<img>` links for example anyways etc.
 
-To get the id from the url, what i did and that works as of now anyways etc is to click on the image in the drive folder containing the image, then the sandwich menu whatever they call it xd anyways etc, then "open in new window", then the following url such (for example in `https://drive.google.com/file/d/1_CcxxS36yJmp779-oxuQD3QSWI0eBubC/view` has the id `1_CcxxS36yJmp779-oxuQD3QSWI0eBubC` that i can insert in the src field following the stackoverflow answer instructions/example linked and that as of now seems to work-function fine for all the images we inserted in the git readme as such anyways etc. (note: i didn't add too many images as it would be tedious to manage in the drive vs git, but for non-essential ones and especially heavy ones atleast in advciv-sas i mean anwyays etc anyways etc, moved them to the drive or fetched them for there directly if already there anwyays etc)
+To get the id from the url, what i did and that works as of now anyways etc is to click on the image in the drive folder containing the image, then the sandwich menu whatever they call it xd anyways etc, then "open in new window", then the following url such (for example in `https://drive.google.com/file/d/1_CcxxS36yJmp779-oxuQD3QSWI0eBubC/view`) has the id `1_CcxxS36yJmp779-oxuQD3QSWI0eBubC` that i can insert in the src field following the stackoverflow answer instructions/example linked and that as of now seems to work-function fine for all the images we inserted in the git readme as such anyways etc. (note: i didn't add too many images as it would be tedious to manage in the drive vs git, but for non-essential ones and especially heavy ones atleast in advciv-sas i mean anwyays etc anyways etc, moved them to the drive or fetched them for there directly if already there anwyays etc)
 
 Was not easy to find how at least to me anyways etc so i am glad i found how anyways etc and so i mean anyways etc i hope these instructions help i mean at least as of now, anyways etc anyways etc anyways etc.
 
@@ -906,6 +905,81 @@ And finally implement it (the .dds anyways etc) in XML, looks very very good, at
 someone else or other purpose, anyways,
 
 (note: again check all this to make sure my intution or if no or/and such is accurate or/and updated, hopefully helpful, anyways etc)
+
+## .dds (button) size comparison analysis - (Trying to find) optimal .dds button size for a 164px (+ 2(px?) due to small(anyways etc...) mistake anyways etc) icon frame in sevopedia unit's unit pane('s icon frame)
+
+Trying to implement the new AI-generated images of ChatGPT (see [Authors](/README.md#authors) for details), and while doing the Sevopedia Building todo add link (some time) after (anyways etc) the [sevopedia unit rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-7-unit-list-category) i first tried to assess the size at which they display optimally.
+
+Lower size may result in smaller file size, perhaps even performance increase (but not sure i don't know anyways etc), but may reduce image quality if too low.
+
+Similarly, too high image size such as 1024 seems to result in a too pixelated image.
+
+All image and .dds files at different sizes used in the below experiment/analysis are available in this [.dds comparison and analysis Google Drive folder link](https://drive.google.com/drive/folders/1_ACul0v892_wqODLBhjYdEoSobhvGiHZ?usp=sharing)
+
+I have taken this 1024 .png generated image for the 164px icon frame (unit pane) in sevopediaunit. But i made a small mistake, which hopefully doesn't alter too much the interpretation of the results, is that i added a + 2 to icon size, because i thought this is how borders (the blue edges are made), but now i understand they are part of the image indeed and not generated by civ4 during rendering, even though i saw such edges before, i didn't (couldn't? Or not or yes or and other or and not or etc anyways etc) make the connection at that time that these are those, anyways etc...
+
+So i have converted it to various sizes with Paint.NET from .png to .dds, always exiting the program (Paint.NET) and reopening the original 1024 x 1024 generated .png of ChatGPT anyways etc anyways etc at each new size conversion, if size is smaller than original (1024), i would thus (to explain and be exhaustive anyways etc) resize image, then save as .dds, then exit
+
+The lines are for example like this, as one may expect (at least for the button path for the little or not little i know of it anyways etc anyways etc anyways etc) maybe anyways etc, but centralized in a similar or maybe rather same folder anyways etc, for clearer reuse, import, export, path linking and or such or and not or and other or and not anyways etc:
+
+```xml
+		<UnitArtInfo>
+			<Type>ART_DEF_UNIT_ARCHER</Type>
+			<Button>Art/AdvCiv_SAS/Units/Archer_Bow_Short_Bronze/Archer_Bow_Short_Bronze_Button_84.dds</Button>
+			<fScale>0.44</fScale>
+			<fInterfaceScale>1.0</fInterfaceScale>
+			<bActAsLand>0</bActAsLand>
+			<bActAsAir>0</bActAsAir>
+			<NIF>Art/Units/Archer/Archer.nif</NIF>
+			<KFM>Art/Units/Archer/Archer.kfm</KFM>
+			<SHADERNIF>Art/Units/Archer/Archer_FX.nif</SHADERNIF>
+			<ShadowDef>
+				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
+				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+				<fShadowScale>0.85</fShadowScale>
+			</ShadowDef>
+			<fBattleDistance>0.35</fBattleDistance>
+			<fRangedDeathTime>0.31</fRangedDeathTime>
+			<bActAsRanged>1</bActAsRanged>
+			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+			<AudioRunSounds>
+				<AudioRunTypeLoop/>
+				<AudioRunTypeEnd/>
+			</AudioRunSounds>
+		</UnitArtInfo>
+```
+
+The results, minus the small and ideally not too altering + 2 to icon size i made mistake or maybe not small or yes but anyways etc, that i would ideally redo cleanly but a bit tedious, and hopefully interpretable if that is a word as in similar enough or maybe rather accurate enough or and other or and not anyways etc, is that:
+
+- 1024 seems too pixelated on this 164px icon unit pane's frame
+- gradually as i reduce size to 512, then 256, quality seems to improve, file size is also much smaller which is nice if high enough and best looking
+- then at size 164 which should be a 1:1 ratio with the pane (minus my small mistake that ohpefully didn't alter it too much) anyways etc, it seems that image is a bit blurrier and less nice(ly?) if that is a word looking than 256 x 256 dds one, so 256 seems better and best so far for .dds size on this
+- then the lower the size, from 164, the worse it gets, more and more blurry on our 164px + 2 due to my mistake but anyways etc
+- finally, at 64px size, so a 1:1 ratio with other buttons if i am not mistaken (or maybe i am, it may actually be 84px or something similar, seeing how the button is smaller than other civ4 ones, but anyways etc, so added a 84px image in a similar manner than other ones (with the + 2 mistake but anyways etc anyways etc...), but it is a bit too big, maybe due to not rounded edges, or maybe it is slightly smaller, (but) (anyways etc) (read at new/next paragraph anyways etc):
+
+(In all cases anyways etc) my general conclusion would be that (it seems that) a ratio slightly bigger than 1 (256:(162(+2))) seems to give best results, at least for the 256px on 164px ratio image example for .dds files.
+
+This may or not apply to buttons, but need to display them at same size than others in the end (else the "overflow" out of the button box like for the 84px button or 128px or 96px or bigger ones too, but they also do not overflow in the unit pane even if 1024 or 256 is way bigger than 512px, todo find how/why, and todo look ingame if images fit in the button box or "overflow" out of it too anyways etc)
+
+(Also,) I(i)(anyways etc) (so but anyways etc) Ideally i would redo the experiment without the uneeded and inaccurate due to my misunderstanding but anyways etc (of) + 2, but is a bit too tedious, ideally would, but may or may not do, hopefully interpretable enough or/and helpful enough or maybe not or yes or etc or and other or and not anyways etc
+
+Note: ingame (map and playing an actual game anyways etc anyways etc anyways etc), the game crashes after a few turn with a 1024px, freezes without end seemingly at 256px so exiting it after a short time of a few seconds or/and such anyways etc anyways etc anyways etc, and similarly at 128px when trying to enter debug mode just like in 128px, at least (all this happens) with default game settings which i don't know a lot about at least not now or and always or and not but in all cases, (so) not using them for now (or maybe a smaller size that doesn't crash or/and displays accurately, anyways etc) if not always or not or yes or and other or and not anyways etc anyways etc anyways etc... anyways etc
+
+Note 2: Among all those sizes, only 64px doesn'(t crash wit default settings at least as i said that i don't know a lot about or not at least for now or not or and always or and not maybe not or yes or and other or and not anyways etc), they seem a bit slower to load even at 64px ingame as they sometimes do not show but there is a default archer button instead the first times, so for now until i investigate more about it/this and know better how it works, not using them, may be for always or and not or and other or and not anyways etc
+
+## How to change the mod's main menu background image (for example to add a static image instead of default base advciv +/- civ4 image)
+
+Ii used ri mod's civ4mainmenubg.nif and its related files, then just if i may say but anyways etc replaced their duomo3.dds with our dds, now renamed to duomo3.dds as well, and updated the path to where our nif is, see `MAINMENU_SCENE_CLASSICAL` (main menu background) and `MAINMENU_LOAD_CLASSICAL` (loading screen (e.g. loading a save file, loading a new map, etc.) background) in [/Assets/XML/Art/CIV4ArtDefines_Interface.xml](/Assets/XML/Art/CIV4ArtDefines_Interface.xml) for details
+
+Note: intended game resolution: 1920 x 1080 Unexpected results may happen at higher resolutions like the ri mod's logo suddenly apeparing maybe xd even though should otherwise be the exact same gameplay but check to be sure and i am not responsible even though seems most likely that nothig else changed, but again check to be sure in case i overlooked something (unlikely and hopefully i am not mistaken in saying so but again check to be sure just to cover myself if i may say, hoepfully helpful or not or yes or etc, anyways etc), anyways etc.
+
+Note 2: then the image ingame is stretched vertically unlike our real image .jpg file or .dds, so to solve this we need to edit/"hack" the image a bit by adding fake empty pixels (half at the top, half at the bottom of the image it seems if i am not mistaken but anyways etc), so our image is now 1920 x 1440 instead with these fake empty pixels. This is to fix civ4 or/and the nif's constraints (i don't know which, but now is solved and image displays reliably without being stretched vertically, or some vertical (top and bottom) part being missing (we should see approximately if i am not mistaken >99+% if not 100% of our image now, vs much less (like 60-70% (not precise estimation just vaguely guessing approximately to explain it as bit tedious to measure precisely if i may say but hopefully helpful or not or yes or etc but anyways etc...) before then rest was stretched vertically to fit screen) before this fix) if i am not mistaken but anyways etc). See how i did so and why and such here for details in [README_Known_Issues_In_Base_AdvCiv_Civ4.md#28---now-fixed-wallpaper-of-our-mods-custom-being-stretched-vertically-while-some-of-the-top-of-the-wallpaper-is-not-shown-at-all-at-1920-x-1080-game-resolution](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#28---now-fixed-wallpaper-of-our-mods-custom-being-stretched-vertically-while-some-of-the-top-of-the-wallpaper-is-not-shown-at-all-at-1920-x-1080-game-resolution)
+
+## How to remove the blue rectangle in main menu screen, change text color for example to black, etc. (in .thm files anyways etc)
+
+If you want to know how i removed the blue rectangle color, it is (thanks to chatgpt 5) done by replacing, in [/Resource/Civ4Theme_Custom.thm](/Resource/Civ4Theme_Custom.thm) the `style SF_CtrlTheme_Civ4_Control_Panel_MainStart_Style` 's image lines such as `Image			= 	GBitmap("../../../../Resource/Civ4/Custom/main_start.tga", HVGrid, 1, 2, 0, 0);` to `Image			= 	GBitmap();`
+
+Note 2: then in `style SF_CtrlTheme_Civ4_Control_Button_MainMenuSelection_Style` in same file you can also change text color for example at lines such as (thanks to chatgpt 5's help anyways etc) `.Default						=	GFC_Control_Color_Text_Default;` (seemingly white at least before the change) to `.Default						=	GColor(0,0,0,255);` (as of now black much more readable now that we don't have the old blue rectangle as a background anyways etc) , white was too bright so now is black, screenshots are visible in the gogole drive folder corresponding to known issue above anyways etc, and/or other text beautification(s) (see code comments there for details anyways etc).
 
 ## Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded" flag in sevopedia tech 's placeSpecial and in tech tree view (technology advisor) anyways etc
 
