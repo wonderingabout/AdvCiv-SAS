@@ -962,10 +962,7 @@ See screenshots and files about/related(ing? Anyways etc) to this issue in this 
 
 When adding our mod's custom wallpaper instead of default base advciv +/- civ4 one, one issue i encountered is that our image was stretched vertically, while some of the top of the image was entirely missing.
 
-Note: i have used ri mod's very useful civ4mainmenubg.nif in particular since they use static images like for their wallpaper in main menu at least but anyways etc, see:
-
-- [How to change the mod's main menu background image (for example to add a static image instead of default base advciv +/- civ4 image)](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-change-the-mods-main-menu-background-image-for-example-to-add-a-static-image-instead-of-default-base-advciv---civ4-image)
-- [How to remove the blue rectangle in main menu screen, change text color for example to black, etc. (in .thm files anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-remove-the-blue-rectangle-in-main-menu-screen-change-text-color-for-example-to-black-etc-in-thm-files-anyways-etc)
+Note: i have used ri mod's very useful civ4mainmenubg.nif in particular since they use static images like for their wallpaper in main menu at least but anyways etc, see [How to change the mod's main menu background image (for example to add a static image instead of default base advciv +/- civ4 image)](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-change-the-mods-main-menu-background-image-for-example-to-add-a-static-image-instead-of-default-base-advciv---civ4-image)
 
 Note 2: in this example i am using a 1920 x 1080 image and game settings at 1920 x 1080 too if i am not mistaken. I assume a smaller or wider in this case but anyways etc image would be shrinked or stretched fine to fit the full screen, but when it comes to some portions of the image being ignored, it has nothing to do with the resolution itself (i.e 1024 x 1024 or 4096 x 2000 would be the same, but difference is aspect ratio (e.g. 16:9 vs 4:3 or such anyways etc)), so i hope these instructions or/and feedback help use the optimal ratio i have found that works-functions well with civ4 engine or so it seems at least with this nif, hopefully helpful anyways etc.
 
@@ -1000,6 +997,8 @@ The result is the image appears no longer stretched at the top nor at the bottom
 Note 4: i have noticed also we could create fake pixels on the sides too, although much less, as it seems approximately 1 or 2% (gross estimation) of our image is missing on the left and right side, but bit tedious, so for now i fixed the biggest issue if i may say, but ideally one may also try to add fake pixels (say 6-10 pixels on each side to try to see if a larger portion of the as of now 1920 x 1440 image is visible, so it would maybe be say 1926 x 1440 or 1930 x 1440 or more or less around although i didn't try it so this is just speculation on my end, but a tiny portion of the side of the image is not visible, maybe this would help as well or maybe not, ideally i'd try it someday too but not guaranteed may or may not do so, hopefully helpful or not or yes or etc anyways etc...)
 
 Again, screenshots of intermediate steps are also shown in the google drive link in this known issue number's section as well, hopefully helpful or not or yes or etc anyways etc anyways etc anyways etc...
+
+See also: [How to remove the blue rectangle in main menu screen, change text color for example to black, etc. (in .thm files anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-remove-the-blue-rectangle-in-main-menu-screen-change-text-color-for-example-to-black-etc-in-thm-files-anyways-etc)
 
 ## 29 - (as of now with a workaround) clicking on a specific spot in tech advisor at tech transhumanism's blue box causes a crash
 
