@@ -5988,7 +5988,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -6166,7 +6166,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -7886,7 +7886,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -8150,7 +8150,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -8671,7 +8671,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -9013,7 +9013,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -9375,7 +9375,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -9461,7 +9461,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -9547,7 +9547,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -9633,7 +9633,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -9719,7 +9719,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -9914,7 +9914,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -9998,7 +9998,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_NATIONALISM</PrereqTech>
 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
-				<PrereqTech>TECH_EDUCATION</PrereqTech>
+				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
 			</OrPreReqs>
@@ -11225,7 +11225,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -11317,7 +11317,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -11579,7 +11579,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -11671,7 +11671,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -11757,7 +11757,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -11849,7 +11849,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -12710,7 +12710,7 @@
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs>
 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
-				<PrereqTech>TECH_EDUCATION</PrereqTech>
+				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 				<PrereqTech>TECH_NATIONALISM</PrereqTech>
@@ -13655,7 +13655,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_NATIONALISM</PrereqTech>
 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
-				<PrereqTech>TECH_EDUCATION</PrereqTech>
+				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
 			</OrPreReqs>
@@ -13742,7 +13742,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_NATIONALISM</PrereqTech>
 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
-				<PrereqTech>TECH_EDUCATION</PrereqTech>
+				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
 			</OrPreReqs>
@@ -13829,7 +13829,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_NATIONALISM</PrereqTech>
 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
-				<PrereqTech>TECH_EDUCATION</PrereqTech>
+				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
 			</OrPreReqs>
@@ -14523,7 +14523,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -14612,7 +14612,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -15862,7 +15862,7 @@
 				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
 			</AndPreReqs>
 			<ObsoleteTechs>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -16811,7 +16811,7 @@
 			<OrPreReqs/>
 			<AndPreReqs/>
 			<ObsoleteTechs>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>

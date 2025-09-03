@@ -8655,7 +8655,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_EDUCATION</SoundID>
+			<SoundID>SND_TECH_BROADER_EDUCATION</SoundID>
 			<Filename>Sounds/Tech/Tech_Education</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -9299,7 +9299,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_EDUCATION</SoundID>
+			<SoundID>SND_TECH_MP_BROADER_EDUCATION</SoundID>
 			<Filename>Sounds/Tech/Tech_MP_Education</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
