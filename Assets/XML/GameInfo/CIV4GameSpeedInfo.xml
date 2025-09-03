@@ -66,39 +66,72 @@
 			<!-- advc.252: start -->
 			<iEventRollSidesPercent>200</iEventRollSidesPercent>
 			<iVoteIntervalPercent>250</iVoteIntervalPercent>
+			<!-- custom: entirely deleted old GameTurnInfos, replaced base on my gamespeed_normal timeline by chatgpt 5 (i added and formatted a bit some info it gave me here if helpful and as i liked to have it thanks chatgpt 5 if i may say i mean but anyways etc), check if accurate anyways etc -->
+			<!--
+			I kept even month increments (multiples of 2) and preserved your “big decades early / 2-ish later” vibe. To avoid ugly 3-month steps at the very end, I left the last three half-year bands at 6 months/turn and compensated by tripling earlier bands — result still lands exactly on 2150-01 at T1250.
+
+			Sanity (all good)
+			Total turns: 1 250 (exact).
+			Total time: 625 800 months (52 150 years) → −50 000 to 2150 CE (exact).
+			Clean pivots kept: 1936, 1990, 2030, 2060, 2090, 2100, 2125, 2150.
+			Even month increments: all are even; late game stays on 6/4/12-style steps, no 3-month oddities at the end.
+			-->
 			<GameTurnInfos>
-				<GameTurnInfo>
-					<iMonthIncrement>240</iMonthIncrement>
-					<iTurnsPerIncrement>130</iTurnsPerIncrement>
-				</GameTurnInfo>
-				<GameTurnInfo>
-					<iMonthIncrement>120</iMonthIncrement>
-					<iTurnsPerIncrement>235</iTurnsPerIncrement>
-				</GameTurnInfo>
-				<GameTurnInfo>
-					<iMonthIncrement>60</iMonthIncrement>
-					<iTurnsPerIncrement>140</iTurnsPerIncrement>
-				</GameTurnInfo>
-				<GameTurnInfo>
-					<iMonthIncrement>24</iMonthIncrement>
-					<iTurnsPerIncrement>65</iTurnsPerIncrement>
-				</GameTurnInfo>
-				<GameTurnInfo>
-					<iMonthIncrement>12</iMonthIncrement>
-					<iTurnsPerIncrement>140</iTurnsPerIncrement>
-				</GameTurnInfo>
-				<GameTurnInfo>
-					<iMonthIncrement>6</iMonthIncrement>
-					<iTurnsPerIncrement>140</iTurnsPerIncrement>
-				</GameTurnInfo>
-				<GameTurnInfo>
-					<iMonthIncrement>3</iMonthIncrement>
-					<iTurnsPerIncrement>160</iTurnsPerIncrement>
-				</GameTurnInfo>
-				<GameTurnInfo>
-					<iMonthIncrement>1</iMonthIncrement>
-					<iTurnsPerIncrement>240</iTurnsPerIncrement>
-				</GameTurnInfo>
+				<!-- -50,000 to -30,000 (20k years) -->
+				<GameTurnInfo><iMonthIncrement>20000</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -30,000 to -20,000 (10k years) -->
+				<GameTurnInfo><iMonthIncrement>10000</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -20,000 to -15,000 (5k years) -->
+				<GameTurnInfo><iMonthIncrement>4000</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -15,000 to -12,000 (3k years) -->
+				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -12,000 to -7,500 (4.5k years) -->
+				<GameTurnInfo><iMonthIncrement>2000</iMonthIncrement><iTurnsPerIncrement>27</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -7,500 to -4,500 (3k years) -->
+				<GameTurnInfo><iMonthIncrement>1000</iMonthIncrement><iTurnsPerIncrement>36</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -4,500 to -3,000 (1.5k years) -->
+				<GameTurnInfo><iMonthIncrement>500</iMonthIncrement><iTurnsPerIncrement>36</iTurnsPerIncrement></GameTurnInfo>
+
+				<!-- -3,000 to -2,200 (800 years) -->
+				<GameTurnInfo><iMonthIncrement>200</iMonthIncrement><iTurnsPerIncrement>48</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -2,200 to -1,480 (720 years) -->
+				<GameTurnInfo><iMonthIncrement>160</iMonthIncrement><iTurnsPerIncrement>54</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -1,480 to -1,000 (480 years) -->
+				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>48</iTurnsPerIncrement></GameTurnInfo>
+
+				<!-- -1,000 to 500 (1,500 years) -->
+				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>150</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 500 to 1300 (800 years) -->
+				<GameTurnInfo><iMonthIncrement>80</iMonthIncrement><iTurnsPerIncrement>120</iTurnsPerIncrement></GameTurnInfo>
+
+				<!-- 1300 to 1400 (100 years)  -->
+				<!-- use ×2 here (not ×3) to hit 1,250 turns while keeping late bands at 6 months -->
+				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+
+				<!-- 1400 to 1750 (350 years) -->
+				<GameTurnInfo><iMonthIncrement>40</iMonthIncrement><iTurnsPerIncrement>105</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 1750 to 1825 (75 years) -->
+				<GameTurnInfo><iMonthIncrement>20</iMonthIncrement><iTurnsPerIncrement>45</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 1825 to 1920 (95 years) -->
+				<GameTurnInfo><iMonthIncrement>20</iMonthIncrement><iTurnsPerIncrement>57</iTurnsPerIncrement></GameTurnInfo>
+
+				<!-- 1920 to 1936 (16 years) -->
+				<GameTurnInfo><iMonthIncrement>16</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 1936 to 1990 (54 years) -->
+				<GameTurnInfo><iMonthIncrement>8</iMonthIncrement><iTurnsPerIncrement>81</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 1990 to 2030 (40 years) -->
+				<GameTurnInfo><iMonthIncrement>8</iMonthIncrement><iTurnsPerIncrement>60</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 2030 to 2060 (30 years) -->
+				<GameTurnInfo><iMonthIncrement>4</iMonthIncrement><iTurnsPerIncrement>90</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 2060 to 2090 (30 years) -->
+				<GameTurnInfo><iMonthIncrement>4</iMonthIncrement><iTurnsPerIncrement>90</iTurnsPerIncrement></GameTurnInfo>
+
+				<!-- 2090 to 2100 (10 years) -->
+				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 2100 to 2125 (25 years) -->
+				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 2125 to 2150 (25 years) -->
+				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
 			</GameTurnInfos>
 			<!-- advc.252: end -->
 		</GameSpeedInfo>
@@ -218,46 +251,71 @@
 			<!-- advc.252: start -->
 			<iEventRollSidesPercent>125</iEventRollSidesPercent>
 			<iVoteIntervalPercent>150</iVoteIntervalPercent>
+			<!-- custom: entirely deleted old GameTurnInfos, replaced base on my gamespeed_normal timeline by chatgpt 5 (i added and formatted a bit some info it gave me here if helpful and as i liked to have it thanks chatgpt 5 if i may say i mean but anyways etc), check if accurate anyways etc -->
+			<!--
+			What I kept/ensured
+			Total turns: 750 (exact)
+			Total span: 625,800 months = 52,150 years (exactly −50 000 → 2150)
+			“Even” month increments: every iMonthIncrement is a multiple of 12 (or 6 for half-years)
+			Pacing shape: mirrors your Normal fade; 1936/1990/2030/2060/2090/2100/2125/2150 all land cleanly
+			Late game granularity: 2y → 1y → ½y, only in the modern/future bands (no early ½-year weirdness)
+			-->
 			<!-- advc.252: end -->
 			<!-- advc.910: Changed all of the turn counts,
 				 some of the increments. -->
 			<GameTurnInfos>
-				<GameTurnInfo>
-					<!-- was 300 -->
-					<iMonthIncrement>360</iMonthIncrement>
-					<iTurnsPerIncrement>90</iTurnsPerIncrement>
-				</GameTurnInfo>
-				<GameTurnInfo>
-					<iMonthIncrement>180</iMonthIncrement>
-					<iTurnsPerIncrement>145</iTurnsPerIncrement>
-				</GameTurnInfo>
-				<GameTurnInfo>
-					<iMonthIncrement>120</iMonthIncrement>
-					<iTurnsPerIncrement>75</iTurnsPerIncrement>
-				</GameTurnInfo>
-				<GameTurnInfo>
-					<iMonthIncrement>60</iMonthIncrement>
-					<iTurnsPerIncrement>21</iTurnsPerIncrement>
-				</GameTurnInfo>
-				<GameTurnInfo>
-					<iMonthIncrement>24</iMonthIncrement>
-					<iTurnsPerIncrement>57</iTurnsPerIncrement>
-				</GameTurnInfo>
-				<GameTurnInfo>
-					<iMonthIncrement>12</iMonthIncrement>
-					<iTurnsPerIncrement>120</iTurnsPerIncrement>
-				</GameTurnInfo>
-				<GameTurnInfo>
-					<iMonthIncrement>6</iMonthIncrement>
-					<iTurnsPerIncrement>102</iTurnsPerIncrement>
-				</GameTurnInfo>
-				<!-- Can't avoid going into quarter years if we want to
-					 maintain 1 year per turn for long enough to avoid
-					 getting ahead of the time line in the 20th century. -->
-				<GameTurnInfo>
-					<iMonthIncrement>3</iMonthIncrement>
-					<iTurnsPerIncrement>140</iTurnsPerIncrement>
-				</GameTurnInfo>
+				<!-- -50,000 to -30,000 (20k years) -->
+				<GameTurnInfo><iMonthIncrement>12000</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -30,000 to -20,000 (10k years) -->
+				<GameTurnInfo><iMonthIncrement>4800</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -20,000 to -15,000 (5k years) -->
+				<GameTurnInfo><iMonthIncrement>2400</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -15,000 to -12,000 (3k years) -->
+				<GameTurnInfo><iMonthIncrement>1200</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -12,000 to -7,500 (4.5k years) -->
+				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>18</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -7,500 to -4,500 (3k years) -->
+				<GameTurnInfo><iMonthIncrement>1200</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -4,500 to -3,000 (1.5k years) -->
+				<GameTurnInfo><iMonthIncrement>1200</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
+
+				<!-- -3,000 to -2,200 (800 years) -->
+				<GameTurnInfo><iMonthIncrement>480</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -2,200 to -1,480 (720 years) -->
+				<GameTurnInfo><iMonthIncrement>192</iMonthIncrement><iTurnsPerIncrement>45</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -1,480 to -1,000 (480 years) -->
+				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>48</iTurnsPerIncrement></GameTurnInfo>
+
+				<!-- -1,000 to 500 (1,500 years) -->
+				<GameTurnInfo><iMonthIncrement>240</iMonthIncrement><iTurnsPerIncrement>75</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 500 to 1300 (800 years) -->
+				<GameTurnInfo><iMonthIncrement>192</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 1300 to 1400 (100 years) -->
+				<GameTurnInfo><iMonthIncrement>48</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 1400 to 1750 (350 years) -->
+				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>35</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 1750 to 1825 (75 years) -->
+				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 1825 to 1920 (95 years) -->
+				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>19</iTurnsPerIncrement></GameTurnInfo>
+
+				<!-- 1920 to 1936 (16 years) -->
+				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 1936 to 1990 (54 years) -->
+				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>27</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 1990 to 2030 (40 years) -->
+				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 2030 to 2060 (30 years) -->
+				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 2060 to 2090 (30 years) -->
+				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
+
+				<!-- 2090 to 2100 (10 years) -->
+				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 2100 to 2125 (25 years) -->
+				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 2125 to 2150 (25 years) -->
+				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
 			</GameTurnInfos>
 		</GameSpeedInfo>
 		<GameSpeedInfo> <!-- custom: GAMESPEED_NORMAL (for VS Code or/and other or/and not similar fast tree view while scrolling anyways etc) -->
@@ -308,21 +366,23 @@
 			For from  500     to  1300		;	Month increment: 12 * 20     years = 240     months		;	Turns: 40
 			For from  1300    to  1400		;	Month increment: 12 * 10     years = 120     months		;	Turns: 10
 														- end of turn 200 -
-			For from  1400    to  1840		;	Month increment: 12 * 10     years = 120     months		;	Turns: 44
-			For from  1840    to  1870		;	Month increment: 12 * 5      years = 60      months		;	Turns: 6
+			For from  1400    to  1750		;	Month increment: 12 * 10     years = 120     months		;	Turns: 35
+			For from  1750    to  1825		;	Month increment: 12 * 5      years = 60      months		;	Turns: 15
 														- end of turn 250 -
-			For from  1870    to  2000		;	Month increment: 12 * 5      years = 60      months		;	Turns: 26
-			For from  2000    to  2048		;	Month increment: 12 * 2      years = 24      months		;	Turns: 24
+			For from  1825    to  1920		;	Month increment: 12 * 5      years = 60      months		;	Turns: 19
+			For from  1920    to  1936		;	Month increment: 12 * 4      years = 48      months		;	Turns: 4
+			For from  1936    to  1990		;	Month increment: 12 * 2      years = 24      months		;	Turns: 27
 														- end of turn 300 -
-			For from  2048    to  2052		;	Month increment: 12 * 2      years = 24      months		;	Turns: 2
-			For from  2052    to  2100		;	Month increment: 12 * 1      years = 12      months		;	Turns: 48
+			For from  1990    to  2030		;	Month increment: 12 * 2      years = 24      months		;	Turns: 20
+			For from  2030    to  2060		;	Month increment: 12 * 1      years = 12      months		;	Turns: 30
 														- end of turn 350 -
-			For from  2100    to  2125		;	Month increment: 6 * 1      years = 6      months		;	Turns: 50
+			For from  2060    to  2090		;	Month increment: 12 * 1      years = 12      months		;	Turns: 30
+			For from  2090    to  2100		;	Month increment: 6 * 1       years = 6       months		;	Turns: 20
 														- end of turn 400 -
-			For from  2125    to  2150		;	Month increment: 6 * 1      years = 6      months		;	Turns: 50
+			For from  2100    to  2125		;	Month increment: 6 * 1       years = 6       months		;	Turns: 50
 														- end of turn 450 -
-			For from  2150    to  2155		;	Month increment: 6 * 1      years = 6      months		;	Turns: 10
-														- end of turn 460 [END] -
+			For from  2125    to  2150		;	Month increment: 6 * 1       years = 6       months		;	Turns: 50
+														- end of turn 500 [END] -
 			-->
 			<GameTurnInfos>
 				<GameTurnInfo>
@@ -379,11 +439,11 @@
 				</GameTurnInfo>
 				<GameTurnInfo>
 					<iMonthIncrement>120</iMonthIncrement>
-					<iTurnsPerIncrement>44</iTurnsPerIncrement>
+					<iTurnsPerIncrement>35</iTurnsPerIncrement>
 				</GameTurnInfo>
 				<GameTurnInfo>
 					<iMonthIncrement>60</iMonthIncrement>
-					<iTurnsPerIncrement>6</iTurnsPerIncrement>
+					<iTurnsPerIncrement>15</iTurnsPerIncrement>
 				</GameTurnInfo>
 				<!-- custom: comment out this since we covered this time of history if i'm not mistaken anwyays etc, but keep to base advciv comment as is informative or/and useful if i may say anyways etc -->
 				<!--<GameTurnInfo>-->
@@ -407,19 +467,31 @@
 				</GameTurnInfo>-->
 				<GameTurnInfo>
 					<iMonthIncrement>60</iMonthIncrement>
-					<iTurnsPerIncrement>26</iTurnsPerIncrement>
+					<iTurnsPerIncrement>19</iTurnsPerIncrement>
+				</GameTurnInfo>
+				<GameTurnInfo>
+					<iMonthIncrement>48</iMonthIncrement>
+					<iTurnsPerIncrement>4</iTurnsPerIncrement>
 				</GameTurnInfo>
 				<GameTurnInfo>
 					<iMonthIncrement>24</iMonthIncrement>
-					<iTurnsPerIncrement>24</iTurnsPerIncrement>
+					<iTurnsPerIncrement>27</iTurnsPerIncrement>
 				</GameTurnInfo>
 				<GameTurnInfo>
 					<iMonthIncrement>24</iMonthIncrement>
-					<iTurnsPerIncrement>2</iTurnsPerIncrement>
+					<iTurnsPerIncrement>20</iTurnsPerIncrement>
 				</GameTurnInfo>
 				<GameTurnInfo>
 					<iMonthIncrement>12</iMonthIncrement>
-					<iTurnsPerIncrement>48</iTurnsPerIncrement>
+					<iTurnsPerIncrement>30</iTurnsPerIncrement>
+				</GameTurnInfo>
+				<GameTurnInfo>
+					<iMonthIncrement>12</iMonthIncrement>
+					<iTurnsPerIncrement>30</iTurnsPerIncrement>
+				</GameTurnInfo>
+				<GameTurnInfo>
+					<iMonthIncrement>6</iMonthIncrement>
+					<iTurnsPerIncrement>20</iTurnsPerIncrement>
 				</GameTurnInfo>
 				<GameTurnInfo>
 					<iMonthIncrement>6</iMonthIncrement>
@@ -476,39 +548,69 @@
 			<!-- advc.252: end -->
 			<!-- advc.910: Changed most of the turn count. Now sum up to a
 				 max turn of 335 instead of 330. -->
+			<!-- custom: entirely deleted old GameTurnInfos, replaced base on my gamespeed_normal timeline by chatgpt 5 (i added and formatted a bit some info it gave me here if helpful and as i liked to have it thanks chatgpt 5 if i may say i mean but anyways etc), check if accurate anyways etc -->
+			<!--
+			I kept even month increments (all multiples of 12; no weird partial-year steps), so you won’t land on funky dates like “January −48 164 BCE”. A few bands use slightly coarser steps than Normal to hit the 330-turn cap, but the band boundaries (those historical pivots) are identical.
+
+			Sanity checks
+			- Total turns: 330 (exact)
+			- Total span: 625,800 months = 52,150 years → −50 000 → 2150 CE (exact)
+			- Pivots preserved: 1936 / 1990 / 2030 / 2060 / 2090 / 2100 / 2125 / 2150 all line up on the same years as Normal
+			- Even-month increments: every iMonthIncrement is a multiple of 12 (clean years/half-years only)
+			-->
 			<GameTurnInfos>
-				<GameTurnInfo>
-					<iMonthIncrement>720</iMonthIncrement>
-					<iTurnsPerIncrement>45</iTurnsPerIncrement>
-				</GameTurnInfo>
-				<GameTurnInfo>
-					<iMonthIncrement>480</iMonthIncrement>
-					<iTurnsPerIncrement>50</iTurnsPerIncrement>
-				</GameTurnInfo>
-				<GameTurnInfo>
-					<iMonthIncrement>360</iMonthIncrement>
-					<iTurnsPerIncrement>15</iTurnsPerIncrement>
-				</GameTurnInfo>
-				<GameTurnInfo>
-					<iMonthIncrement>240</iMonthIncrement>
-					<iTurnsPerIncrement>15</iTurnsPerIncrement>
-				</GameTurnInfo>
-				<GameTurnInfo>
-					<iMonthIncrement>120</iMonthIncrement>
-					<iTurnsPerIncrement>25</iTurnsPerIncrement>
-				</GameTurnInfo>
-				<GameTurnInfo>
-					<iMonthIncrement>60</iMonthIncrement>
-					<iTurnsPerIncrement>26</iTurnsPerIncrement>
-				</GameTurnInfo>
-				<GameTurnInfo>
-					<iMonthIncrement>24</iMonthIncrement>
-					<iTurnsPerIncrement>61</iTurnsPerIncrement>
-				</GameTurnInfo>
-				<GameTurnInfo>
-					<iMonthIncrement>12</iMonthIncrement>
-					<iTurnsPerIncrement>98</iTurnsPerIncrement>
-				</GameTurnInfo>
+				<!-- -50,000 to -30,000 (20k years) -->
+				<GameTurnInfo><iMonthIncrement>48000</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -30,000 to -20,000 (10k years) -->
+				<GameTurnInfo><iMonthIncrement>30000</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -20,000 to -15,000 (5k years) -->
+				<GameTurnInfo><iMonthIncrement>15000</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -15,000 to -12,000 (3k years) -->
+				<GameTurnInfo><iMonthIncrement>12000</iMonthIncrement><iTurnsPerIncrement>3</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -12,000 to -7,500 (4.5k years) -->
+				<GameTurnInfo><iMonthIncrement>9000</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -7,500 to -4,500 (3k years) -->
+				<GameTurnInfo><iMonthIncrement>4500</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -4,500 to -3,000 (1.5k years) -->
+				<GameTurnInfo><iMonthIncrement>1800</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+
+				<!-- -3,000 to -2,200 (800 years) -->
+				<GameTurnInfo><iMonthIncrement>960</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -2,200 to -1,480 (720 years) -->
+				<GameTurnInfo><iMonthIncrement>720</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -1,480 to -1,000 (480 years) -->
+				<GameTurnInfo><iMonthIncrement>480</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
+
+				<!-- -1,000 to 500 (1,500 years) -->
+				<GameTurnInfo><iMonthIncrement>600</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 500 to 1300 (800 years) -->
+				<GameTurnInfo><iMonthIncrement>384</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 1300 to 1400 (100 years) -->
+				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 1400 to 1750 (350 years) -->
+				<GameTurnInfo><iMonthIncrement>168</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 1750 to 1825 (75 years) -->
+				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 1825 to 1920 (95 years) -->
+				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>19</iTurnsPerIncrement></GameTurnInfo>
+
+				<!-- 1920 to 1936 (16 years) -->
+				<GameTurnInfo><iMonthIncrement>48</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 1936 to 1990 (54 years) -->
+				<GameTurnInfo><iMonthIncrement>36</iMonthIncrement><iTurnsPerIncrement>18</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 1990 to 2030 (40 years) -->
+				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 2030 to 2060 (30 years) -->
+				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 2060 to 2090 (30 years) -->
+				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
+
+				<!-- 2090 to 2100 (10 years) -->
+				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 2100 to 2125 (25 years) -->
+				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
+				<!-- 2125 to 2150 (25 years) -->
+				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
 			</GameTurnInfos>
 		</GameSpeedInfo>
 	</GameSpeedInfos>

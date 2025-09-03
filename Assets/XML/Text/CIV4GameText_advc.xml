@@ -1390,42 +1390,6 @@
 
 
 
-	<!-- From Civ4GameText_Misc1.xml (because Marathon speed was added by
-		 patch 1.52). advc.252: Multipliers adjusted. -->
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_GAMESPEED_MARATHON_HELP</Tag>
-		<English>Up to 1250 turns. Research, growth and building production take 2.5 times longer than on normal speed, but unit production takes only 2 times longer. This setting favors warfare and demands much patience.</English>
-		<French>Cette vitesse de jeu tr&#232;s lente permet de faire entrer dans chaque &#232;re le m&#234;me nombre de tours que pour une partie classique.</French>
-		<German>Bis zu 1250 Züge. Forschung, Wachstum und Bau dauern 2,5-mal so lange wie bei normaler Geschwindigkeit, während Einheitenproduktion nur 2-mal so lange dauert, was Eroberungskriege begünstigt. Diese Option erfordert ein hohes Durchhaltevermögen.</German>
-		<Italian>Questa velocit&#224; di gioco incredibilmente lunga permetter&#224; una quantit&#224; di turni pari a quelli di una partita normale per ogni era.</Italian>
-		<Spanish>A esta velocidad prolongada, se tarda casi tantos turnos en completar cada &#233;poca como en una partida normal.</Spanish>
-	</TEXT>
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_GAMESPEED_EPIC_HELP</Tag>
-		<English>Up to 750 turns. Research, growth and production take 50% longer than on normal speed. As unit movement is unaffected by game speed, this setting allows more time for warfare in each era.</English>
-		<French>Si vous choisissez cette vitesse, le temps passera tr&#232;s lentement. Le jeu est &#233;quilibr&#233; pour durer plus longtemps, mais vous aurez l'impression de jouer &#224; une partie normale.</French>
-		<German>Bis zu 750 Züge. Forschung, Wachstum und Produktion dauern 50% länger als bei normaler Geschwindigkeit. Da die Bewegung von Einheiten nicht von der Spielgeschwindigkeit abhängt, bleibt in jedem Zeitalter mehr Zeit für Kriege.</German>
-		<Italian>Scegliendo questa velocit&#224;, potrai provare l'esperienza dello scorrere del tempo. Il gioco &#232; bilanciato per durare pi&#249; a lungo, ma avrai la sensazione di giocare una partita normale.</Italian>
-		<Spanish>Experimentar&#233;is todo el transcurso del tiempo si escog&#233;is esta velocidad.  La partida est&#225; equilibrada para durar m&#225;s, aunque seguir&#225; pareciendo normal.</Spanish>
-	</TEXT>
-	<!-- I've only added the turn number here (assuming Ancient-era start and
-		 enabled Time victory) -->
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_GAMESPEED_NORMAL_HELP</Tag>
-		<English>Up to 500 turns. This is the traditional game speed for Civ.</English>
-		<French>La vitesse par d&#233;faut utilis&#233;e dans le jeu.</French>
-		<German>Bis zu 500 Züge. Die traditionelle Spielgeschwindigkeit von Civilization.</German>
-		<Italian>Questa &#232; la velocit&#224; di gioco tradizionale di Civilization.</Italian>
-		<Spanish>Es la velocidad de juego tradicional del Civi.</Spanish>
-	</TEXT>
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_GAMESPEED_QUICK_HELP</Tag>
-		<English>Up to 335 turns. Research, growth and production are 33% faster than on normal speed. As unit movement is unaffected by game speed, warfare is relatively slow. This setting is worth considering especially for multiplayer games and small maps.</English>
-		<French>Tout se d&#233;roulera plus vite &#224; cette vitesse. Le jeu sera plus rapide, mais toujours &#233;quilibr&#233; pour conserver l'impression d'une partie normale.</French>
-		<German>Bis zu 335 Züge. Forschung, Wachstum und Produktion dauern 33% kürzer als bei normaler Geschwindigkeit. Da die Bewegung von Einheiten nicht von der Spielgeschwindigkeit abhängt, dauert das Erobern von Städten verhältnismäßig lange. Diese Option is besonders für den Mehrspielermodus und für kleine Karten attraktiv.</German>
-		<Italian>Scegli questa opzione per avviare una partita nella quale le cose avvengono pi&#249; rapidamente. La partita sar&#224; pi&#249; veloce, ma bilanciata in modo da sembrare una partita normale.</Italian>
-		<Spanish>Escoged &#233;sta si quer&#233;is una partida en la que todo suceda un poco m&#225;s deprisa.  La partida ser&#225; m&#225;s r&#225;pida pero estar&#225; equilibrada para seguir pareciendo normal.</Spanish>
-	</TEXT>
 	<!-- I don't think these are shown anywhere, but I still wanted to correct
 		 the recommended player counts (in English and German only).-->
 	<TEXT> <!-- redefine -->
