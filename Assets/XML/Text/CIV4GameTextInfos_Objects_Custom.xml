@@ -910,4 +910,9 @@
 		<Tag>TXT_KEY_TECH_SPACE_EXPLORATION</Tag>
 		<English>Space Exploration</English>
 	</TEXT>
+	<!-- custom: rename "_RIFLING" with "_FIREARMS" -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_FIREARMS</Tag>
+		<English>Firearms</English>
+	</TEXT>
 </Civ4GameText>

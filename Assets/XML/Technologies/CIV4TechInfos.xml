@@ -1293,7 +1293,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_RIFLING</PrereqTech>
+				<PrereqTech>TECH_FIREARMS</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_LIBERALISM</PrereqTech>
@@ -1448,7 +1448,7 @@
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_BANKING</PrereqTech>
-				<PrereqTech>TECH_RIFLING</PrereqTech>
+				<PrereqTech>TECH_FIREARMS</PrereqTech>
 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_LIBERALISM_QUOTE</Quote>
@@ -5768,19 +5768,19 @@
 				<PrereqTech>TECH_CHEMISTRY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_RIFLING</PrereqTech>
+				<PrereqTech>TECH_FIREARMS</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_MILITARY_SCIENCE_QUOTE</Quote>
 			<Sound>AS2D_TECH_MILITARY_SCIENCE</Sound>
 			<SoundMP>AS2D_TECH_MP_MILITARY_SCIENCE</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Military Tradition.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,5</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_RIFLING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<Type>TECH_RIFLING</Type>
-			<Description>TXT_KEY_TECH_RIFLING</Description>
-			<Civilopedia>TXT_KEY_TECH_RIFLING_PEDIA</Civilopedia>
+		<TechInfo> <!-- custom: type: TECH_FIREARMS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<Type>TECH_FIREARMS</Type>
+			<Description>TXT_KEY_TECH_FIREARMS</Description>
+			<Civilopedia>TXT_KEY_TECH_FIREARMS_PEDIA</Civilopedia>
 			<Help/>
-			<Strategy>TXT_KEY_TECH_RIFLING_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>10</iAITradeModifier>
@@ -5842,9 +5842,9 @@
 			<AndPreReqs>
 				<PrereqTech>TECH_MACHINERY</PrereqTech>
 			</AndPreReqs>
-			<Quote>TXT_KEY_TECH_RIFLING_QUOTE</Quote>
-			<Sound>AS2D_TECH_RIFLING</Sound>
-			<SoundMP>AS2D_TECH_MP_RIFLING</SoundMP>
+			<Quote>TXT_KEY_TECH_FIREARMS_QUOTE</Quote>
+			<Sound>AS2D_TECH_FIREARMS</Sound>
+			<SoundMP>AS2D_TECH_MP_FIREARMS</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Rifling.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,7</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_STEAM_POWER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->

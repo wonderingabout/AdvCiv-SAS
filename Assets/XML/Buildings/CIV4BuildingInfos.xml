@@ -24747,7 +24747,7 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
-			<!-- custom: was TECH_RIFLING -->
+			<!-- custom: was TECH_FIREARMS -->
 			<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			<!-- custom: was TECH_CODE_OF_LAWS -->
 			<PrereqTech>TECH_ENGINEERING</PrereqTech>

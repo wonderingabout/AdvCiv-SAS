@@ -6081,7 +6081,7 @@
 			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, remove it from this event anyways etc -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
-				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
+				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 				<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
@@ -8062,7 +8062,7 @@
 			<AndPreReqs/>
 			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace with a substitute, here TECH_MILITARY_SCIENCE anyways etc -->
 			<ObsoleteTechs>
-				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
+				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 				<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
 				<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
 			</ObsoleteTechs>
@@ -8320,7 +8320,7 @@
 			<OrPreReqs/>
 			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it with a substitute here TECH_CHEMISTRY -->
 			<AndPreReqs>
-				<PrereqTech>TECH_RIFLING</PrereqTech>
+				<PrereqTech>TECH_FIREARMS</PrereqTech>
 				<PrereqTech>TECH_CHEMISTRY</PrereqTech>
 			</AndPreReqs>
 			<ObsoleteTechs>
@@ -11934,7 +11934,7 @@
 			<AndPreReqs/>
 			<!-- custom: changed to another/account for anyways etc tech to accomodate reworked tech tree if i may say anyways etc -->
 			<ObsoleteTechs>
-				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
+				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 				<ObsoleteTech>TECH_ECONOMICS</ObsoleteTech>
 			</ObsoleteTechs>
@@ -12022,7 +12022,7 @@
 			<OrPreReqs/>
 			<AndPreReqs/>
 			<ObsoleteTechs>
-				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
+				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 				<ObsoleteTech>TECH_ECONOMICS</ObsoleteTech>
 			</ObsoleteTechs>
@@ -12449,7 +12449,7 @@
 			<OrPreReqs/>
 			<AndPreReqs/>
 			<ObsoleteTechs>
-				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
+				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -14696,7 +14696,7 @@
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs>
-				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
+				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
@@ -14783,7 +14783,7 @@
 			<OrPreReqs/>
 			<AndPreReqs/>
 			<ObsoleteTechs>
-				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
+				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
@@ -14868,7 +14868,7 @@
 			</AndPreReqs>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
-				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
+				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
@@ -14955,7 +14955,7 @@
 			<OrPreReqs/>
 			<AndPreReqs/>
 			<ObsoleteTechs>
-				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
+				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>

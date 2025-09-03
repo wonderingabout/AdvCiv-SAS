@@ -420,6 +420,11 @@
 		<Tag>TXT_KEY_TECH_STEAM_POWER_QUOTE</Tag>
 		<English>"Victorious warriors win first and then go to war, while defeated warriors go to war first and then seek to win." - Sun-Tzu</English>
 	</TEXT>
+	<!-- custom: rename "_RIFLING" with "_FIREARMS" -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_FIREARMS_QUOTE</Tag>
+		<English>"Political power grows out of the barrel of a gun." - Mao Zedong</English>
+	</TEXT>
 
 
 

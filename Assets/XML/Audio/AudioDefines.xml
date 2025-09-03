@@ -8893,7 +8893,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_RIFLING</SoundID>
+			<SoundID>SND_TECH_FIREARMS</SoundID>
 			<Filename>Sounds/Tech/Tech_Rifling</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -9537,7 +9537,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_RIFLING</SoundID>
+			<SoundID>SND_TECH_MP_FIREARMS</SoundID>
 			<Filename>Sounds/Tech/Tech_MP_Rifling</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>

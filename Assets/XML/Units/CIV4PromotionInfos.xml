@@ -794,7 +794,7 @@
 			<PromotionPrereqOr1>PROMOTION_COMBAT1</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_FIRST_STRIKE1</PromotionPrereqOr2>
 			<!-- custom: was TECH_GUNPOWDER -->
-			<TechPrereq>TECH_RIFLING</TechPrereq>
+			<TechPrereq>TECH_FIREARMS</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
 			<iBlitz>0</iBlitz>
