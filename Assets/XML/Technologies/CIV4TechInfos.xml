@@ -4392,7 +4392,7 @@
 			<Sound>AS2D_TECH_AI</Sound>
 			<SoundMP>AS2D_TECH_MP_AI</SoundMP>
 			<!-- custom: button art import from c2c mod anyways etc -->
-			<Button>Art/AdvCiv_SAS/Techs/AI/synergetics.dds</Button>
+			<Button>Art/AdvCiv_SAS/Techs/AI/neural_network.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_FUSION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>TECH_FUSION</Type>
