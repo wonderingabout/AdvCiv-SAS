@@ -72,12 +72,17 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [52 - (Beyond Tremendously improved anyways etc) Remove AI scrapping of military land units, as way too many units are scrapped early, yet we really need them to defend against barbarians or our rivals or such anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#52---beyond-tremendously-improved-anyways-etc-remove-ai-scrapping-of-military-land-units-as-way-too-many-units-are-scrapped-early-yet-we-really-need-them-to-defend-against-barbarians-or-our-rivals-or-such-anyways-etc)  
 [53 - (Beyond Tremendously Improved) Naval dementia of producing privateers/galleons then seemingly scrapping them and repeat, or/and of more importantly building galleons and privateers in droves and excess if i may say but anyways etc, despite enemy threatening cities of land capture for 20+ turns, and losing capital as a result anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#53---beyond-tremendously-improved-naval-dementia-of-producing-privateersgalleons-then-seemingly-scrapping-them-and-repeat-orand-of-more-importantly-building-galleons-and-privateers-in-droves-and-excess-if-i-may-say-but-anyways-etc-despite-enemy-threatening-cities-of-land-capture-for-20-turns-and-losing-capital-as-a-result-anyways-etc-fixedaddressed-by-now-managing-production-of-each-unitai-with-max-by-type-in-cvcityaiai_chooseunit-as-well-as-disallowing-scrapping-and-managing-it-by-unitai-type-globally-as-well-in-cvunitcanscrap-by-type-as-well-with-max-and-such-other-conditions-for-some-units-like-as-of-now-workers-anyways-etc)  
 [54 - (Fixed) Major Base Advciv +/- civ4 bug in AIFoundValue::adjustToCivSurroundings causing AI settlers to value midgame (turn 50+ for example here anways etc) settling on camel desert; worked around and disabled this function entirely, now inline a very simplified version of it inline in its only caller](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#54---fixed-major-base-advciv---civ4-bug-in-aifoundvalueadjusttocivsurroundings-causing-ai-settlers-to-value-midgame-turn-50-for-example-here-anways-etc-settling-on-camel-desert-worked-around-and-disabled-this-function-entirely-now-inline-a-very-simplified-version-of-it-inline-in-its-only-caller)  
+[55 to 60 -](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#55-to-60--)  
+<details>
+<summary>Mostly reverted due to causing issues, minus some safeties or very conservative tweaks anyways etc</summary>
+
 [55 - (To keep in mind if you have a game crash in AdvCiv-SAS) One of the culprits could be AI_bestCityBuild (after we rewrote it entirely more or less anyways etc) sometimes firing not null or whatever (there are lines to uncomment in its callers that may fix it)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#55---to-keep-in-mind-if-you-have-a-game-crash-in-advciv-sas-one-of-the-culprits-could-be-ai_bestcitybuild-after-we-rewrote-it-entirely-more-or-less-anyways-etc-sometimes-firing-not-null-or-whatever-there-are-lines-to-uncomment-in-its-callers-that-may-fix-it)  
 [56 - (Fixed) Most likely base advciv +/- civ4 crash at turn 156 fixed by commenting out the !getPlot().isSamePlotGroup(*pBestPlot, getOwner()) check in CvUnitAI::AI_nextCityToImprove else block (old code)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#56---fixed-most-likely-base-advciv---civ4-crash-at-turn-156-fixed-by-commenting-out-the-getplotissameplotgrouppbestplot-getowner-check-in-cvunitaiai_nextcitytoimprove-else-block-old-code)  
 [57 - (Not reproductible) Unknown game crash at turn 94](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#57---not-reproductible-unknown-game-crash-at-turn-94)  
 [58 - (Fixed/Enhanced) Reproductible crash at turn 95 in another map, related to the else block in CvUnitAI::AI_nextCityToImprove, by rewriting the else block based on the (more? But anyways etc) code at CvUnitAI::AI_connectPlot anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#58---fixedenhanced-reproductible-crash-at-turn-95-in-another-map-related-to-the-else-block-in-cvunitaiai_nextcitytoimprove-by-rewriting-the-else-block-based-on-the-more-but-anyways-etc-code-at-cvunitaiai_connectplot-anyways-etc)  
 [59 - (Partially improved) some AI cities are not improved enough and totally neglected for dozen turns](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#59---partially-improved-some-ai-cities-are-not-improved-enough-and-totally-neglected-for-dozen-turns)  
-[60 - (Fixed) Seemingly rare reproductible crash at turn 283 in CvUnitAI::AI_nextCityToImprove, by adding a bunch of seemingly conservative safeties (as chatgpt 5 did anyways etc, check if accurate anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#60---fixed-seemingly-rare-crash-at-turn-283-in-cvunitaiai_nextcitytoimprove-by-adding-a-bunch-of-seemingly-conservative-safeties-as-chatgpt-5-did-anyways-etc-check-if-accurate-anyways-etc)  
+[60 - (Fixed) Seemingly rare reproductible crash at turn 283 in CvUnitAI::AI_nextCityToImprove, by adding a bunch of seemingly conservative safeties (as chatgpt 5 did anyways etc, check if accurate anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#60---fixed-seemingly-rare-reproductible-crash-at-turn-283-in-cvunitaiai_nextcitytoimprove-by-adding-a-bunch-of-seemingly-conservative-safeties-as-chatgpt-5-did-anyways-etc-check-if-accurate-anyways-etc)  
+</details>
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -2093,6 +2098,11 @@ Thanks to this, i believe AI is stronger and settles better, but check if accura
 
 Note: i also adjusted distance to civs, as well as culture pressure settling choices, to reject too far (vs penalizing far distance only which would not strictly forbid site if not penalized hard enough if i'm not mistaken) or too culturally pressing sites entirely (didn't test but maybe same at least now we reject too culturally pressing sites at least in theory (didn't test it too much but seems to work as such at a quick glance)) anyways etc.
 
+## 55 to 60 -
+
+<details>
+<summary>Mostly reverted due to causing issues, minus some safeties or very conservative tweaks anyways etc</summary>
+
 ## 55 - (To keep in mind if you have a game crash in AdvCiv-SAS) One of the culprits could be AI_bestCityBuild (after we rewrote it entirely more or less anyways etc) sometimes firing not null or whatever (there are lines to uncomment in its callers that may fix it)
 
 This is an issue specific to AdvCiv-SAS i think after we rewrote `CvUnitAI::AI_bestCityBuild`, but i think i should document it.
@@ -2227,7 +2237,7 @@ A few notes now that this is seemingly solved reliably and nicely enhanced it se
 
 Now all cities of all AI players are improved and roaded fine and fast enough nicely it seems if i am not mistaken but anyways etc, except elephantine city that is not imrpoved nor roaded at all at turn 200+, then after it is roaded gets nicely improved a very nice and strong city, but a bit too late, so trying to make workers move there faster as our next known issue but anyways etc.
 
-See also: [60 - (Fixed) Seemingly rare reproductible crash at turn 283 in CvUnitAI::AI_nextCityToImprove, by adding a bunch of seemingly conservative safeties (as chatgpt 5 did anyways etc, check if accurate anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#60---fixed-seemingly-rare-crash-at-turn-283-in-cvunitaiai_nextcitytoimprove-by-adding-a-bunch-of-seemingly-conservative-safeties-as-chatgpt-5-did-anyways-etc-check-if-accurate-anyways-etc)
+See also: [60 - (Fixed) Seemingly rare reproductible crash at turn 283 in CvUnitAI::AI_nextCityToImprove, by adding a bunch of seemingly conservative safeties (as chatgpt 5 did anyways etc, check if accurate anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#60---fixed-seemingly-rare-reproductible-crash-at-turn-283-in-cvunitaiai_nextcitytoimprove-by-adding-a-bunch-of-seemingly-conservative-safeties-as-chatgpt-5-did-anyways-etc-check-if-accurate-anyways-etc)
 
 ## 59 - (Partially improved) some AI cities are not improved enough and totally neglected for dozen turns
 
@@ -2315,3 +2325,8 @@ The chatgpt 5 that gave me the original fix to this issue also said (check if ac
 >```
 
 However i have noticed an issue, most likely to recent roading changes we made to worker, perhaps in this `CvUnitAI::AI_nextCityToImprove` or in `CvUnitAI::AI_workerMove` or such other function perhaps, that workers try to infitely road while in city tile, which is very inefficient. Ideally we'll try to address this at next known issue anyways etc.
+
+Update: reverted due to having too much issues, same for old code, is bit less efficient as we road and sometimes improve bonuses sometimes a bit later, but at least it's stable and workers are mostly really efficient, if no rare suboptimal behaviour, but that is overall better than crashes or hard to fix worker issue after issue anyways etc
+
+</details>
+<br>
