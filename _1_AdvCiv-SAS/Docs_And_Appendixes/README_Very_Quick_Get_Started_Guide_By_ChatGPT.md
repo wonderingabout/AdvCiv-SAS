@@ -338,7 +338,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
 - **Grenadiers & Bazooka (formerly Anti-Tank Infantry)**: rebalanced into **hybrid, versatile “foot-bomber” roles**.
 - **Gun units buffed (relative to pre-gun)**: units that **carry firearms** (e.g., **Musketman**, **Horse/Camel Cuirassiers**) are **relatively stronger** than their pre-gun counterparts.
 - **Promotions retuned:**
-  - Some buffed (e.g., **Woodsman**), some nerfed, some prereqs changed (e.g., **Archers** can take **City Bombard**; **Logistics** (formerly Commando) requires **Combat 1** or **City Raider 1**; higher-tier promotions (**City Raider/Garrison/First Strike 3**) also need **Combat 2**).
+  - Some buffed (e.g., **Woodsman**), some reworked/nerfed (e.g., **Hills Master 2 and 3**), some prereqs changed (e.g., **Archers** can take **City Bombard**; **Logistics** (formerly Commando) requires **Combat 1** or **City Raider 1**; higher-tier promotions (**City Raider/Garrison/First Strike 3**) also need **Combat 2**).
   - **Logistics** now at **The Wheel** (was Military Science).
   - Removed redundant promotions (e.g., **Tactics**), to avoid broken retreat odds.
 - **Unit redesigns:**

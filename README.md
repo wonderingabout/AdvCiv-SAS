@@ -91,7 +91,7 @@ Be warned though it can be very lengthy, so read below if you want (some of the)
 
 If the below quick get started guide is too lengthy or hard to read or as alternative perhaps, please also consider viewing the very quick version of it written by chatgpt 5.
 
-It is more likely to be outdated as i would not update it as often, but most if not all info should hopefully be there as well. Caveat though but anyways etc, make sure info is accurate, there could be mistakes or such from what is said in the quick guide (that could have mistakes as well but not due to summarizing). I adjusted it a tiny bit or such but didn't check too much if accurate i mean (and i contributed more generally to it without messing it up unlike below one xd i mostly wrote myself but that is more detailed if i may say but anyways etc), hopefully informative and helpful though but check if accurate again anyways etc.
+It is more likely to be outdated as i would not update it as often, but most if not all info should hopefully be there as well. Caveat though but anyways etc, make sure info is accurate, there could be mistakes or such from what is said in the quick guide (that could have mistakes as well but not due to summarizing). I adjusted/updated it a little in this case i mean but anyways etc bit or such but didn't check too much if accurate i mean (and i contributed more generally to it without messing it up unlike below one xd i mostly wrote myself but that is more detailed if i may say but anyways etc), hopefully informative and helpful though but check if accurate again anyways etc.
 
 You can view it here anyways etc [README_Very_Quick_Get_Started_Guide_By_ChatGPT.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md).
 

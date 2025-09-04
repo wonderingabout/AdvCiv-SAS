@@ -2022,9 +2022,10 @@
 			<iCombatPercent>0</iCombatPercent>
 			<iCityAttack>0</iCityAttack>
 			<iCityDefense>0</iCityDefense>
-			<iHillsAttack>0</iHillsAttack>
-			<!-- custom: similarly to woodsman promotions, make it more even between levels, was 30 -->
-			<iHillsDefense>25</iHillsDefense>
+			<!-- custom: make this a more relevant promotion so give attack instead, also similarly to woodsman promotions, make it more even between levels, was 0 -->
+			<iHillsAttack>25</iHillsAttack>
+			<!-- custom: was 30 -->
+			<iHillsDefense>0</iHillsDefense>
 			<iKamikazePercent>0</iKamikazePercent>
 			<iRevoltProtection>0</iRevoltProtection>
 			<iCollateralDamageProtection>0</iCollateralDamageProtection>
@@ -2103,9 +2104,9 @@
 			<iCombatPercent>0</iCombatPercent>
 			<iCityAttack>0</iCityAttack>
 			<iCityDefense>0</iCityDefense>
-			<!-- custom: was 25 -->
-			<iHillsAttack>50</iHillsAttack>
-			<iHillsDefense>0</iHillsDefense>
+			<iHillsAttack>25</iHillsAttack>
+			<!-- custom: was 0 -->
+			<iHillsDefense>25</iHillsDefense>
 			<iKamikazePercent>0</iKamikazePercent>
 			<iRevoltProtection>0</iRevoltProtection>
 			<iCollateralDamageProtection>0</iCollateralDamageProtection>

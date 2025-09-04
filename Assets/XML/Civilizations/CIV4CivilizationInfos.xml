@@ -1669,7 +1669,7 @@
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_AXEMAN</UnitClassType>
+					<UnitClassType>UNITCLASS_SPEARMAN</UnitClassType>
 					<UnitType>UNIT_GREEK_HOPLITE</UnitType>
 				</Unit>
 			</Units>
@@ -1883,10 +1883,9 @@
 					<BuildingType>BUILDING_INCAN_QULLQA</BuildingType>
 				</Building>
 			</Buildings>
-			<!-- custom: -->
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_SPEARMAN</UnitClassType>
+					<UnitClassType>UNITCLASS_SWORDSMAN</UnitClassType>
 					<UnitType>UNIT_INCAN_QUECHUA</UnitType>
 				</Unit>
 			</Units>

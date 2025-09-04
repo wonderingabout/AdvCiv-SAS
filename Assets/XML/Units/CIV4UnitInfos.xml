@@ -5828,243 +5828,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_AXEMAN, type: UNIT_GREEK_HOPLITE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<Class>UNITCLASS_AXEMAN</Class>
-			<Type>UNIT_GREEK_HOPLITE</Type>
-			<UniqueNames/>
-			<Special>NONE</Special>
-			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_MELEE</Combat>
-			<Domain>DOMAIN_LAND</Domain>
-			<!-- K-Mod: was UNITAI_COUNTER -->
-			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
-			<Invisible>NONE</Invisible>
-			<SeeInvisible>NONE</SeeInvisible>
-			<Description>TXT_KEY_UNIT_GREEK_HOPLITE</Description>
-			<Civilopedia>TXT_KEY_UNIT_GREEK_HOPLITE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
-			<Advisor>ADVISOR_MILITARY</Advisor>
-			<bAnimal>0</bAnimal>
-			<bFood>0</bFood>
-			<bNoBadGoodies>0</bNoBadGoodies>
-			<bOnlyDefensive>0</bOnlyDefensive>
-			<bNoCapture>0</bNoCapture>
-			<bQuickCombat>0</bQuickCombat>
-			<bRivalTerritory>0</bRivalTerritory>
-			<bMilitaryHappiness>1</bMilitaryHappiness>
-			<bMilitarySupport>1</bMilitarySupport>
-			<bMilitaryProduction>1</bMilitaryProduction>
-			<bPillage>1</bPillage>
-			<bSpy>0</bSpy>
-			<bSabotage>0</bSabotage>
-			<bDestroy>0</bDestroy>
-			<bStealPlans>0</bStealPlans>
-			<bInvestigate>0</bInvestigate>
-			<bCounterSpy>0</bCounterSpy>
-			<bFound>0</bFound>
-			<bGoldenAge>0</bGoldenAge>
-			<bInvisible>0</bInvisible>
-			<bFirstStrikeImmune>0</bFirstStrikeImmune>
-			<bNoDefensiveBonus>0</bNoDefensiveBonus>
-			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
-			<bCanMoveImpassable>0</bCanMoveImpassable>
-			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
-			<bFlatMovementCost>0</bFlatMovementCost>
-			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
-			<bNukeImmune>0</bNukeImmune>
-			<bPrereqBonuses>0</bPrereqBonuses>
-			<bPrereqReligion>0</bPrereqReligion>
-			<bMechanized>0</bMechanized>
-			<bSuicide>0</bSuicide>
-			<bHiddenNationality>0</bHiddenNationality>
-			<bAlwaysHostile>0</bAlwaysHostile>
-			<UnitClassUpgrades>
-				<UnitClassUpgrade>
-					<UnitClassUpgradeType>UNITCLASS_MACEMAN</UnitClassUpgradeType>
-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
-				</UnitClassUpgrade>
-			</UnitClassUpgrades>
-			<UnitClassTargets/>
-			<UnitCombatTargets/>
-			<UnitClassDefenders/>
-			<UnitCombatDefenders/>
-			<FlankingStrikes/>
-			<!-- custom: can be very efficient at defense too, so give AI the option to use them as such as well (added UNITAI_RESERVE and UNITAI_CITY_DEFENSE anyways etc) -->
-			<UnitAIs>
-				<UnitAI>
-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-			</UnitAIs>
-			<NotUnitAIs/>
-			<Builds/>
-			<ReligionSpreads/>
-			<CorporationSpreads/>
-			<GreatPeoples/>
-			<Buildings/>
-			<HolyCity>NONE</HolyCity>
-			<ReligionType>NONE</ReligionType>
-			<StateReligion>NONE</StateReligion>
-			<PrereqReligion>NONE</PrereqReligion>
-			<PrereqCorporation>NONE</PrereqCorporation>
-			<PrereqBuilding>NONE</PrereqBuilding>
-			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
-			<TechTypes/>
-			<BonusType>NONE</BonusType>
-			<PrereqBonuses>
-				<BonusType>BONUS_COPPER</BonusType>
-				<BonusType>BONUS_IRON</BonusType>
-				<BonusType>NONE</BonusType>
-				<BonusType>NONE</BonusType>
-			</PrereqBonuses>
-			<ProductionTraits/>
-			<Flavors/>
-			<iAIWeight>0</iAIWeight>
-			<iCost>35</iCost>
-			<iHurryCostModifier>0</iHurryCostModifier>
-			<iAdvancedStartCost>100</iAdvancedStartCost>
-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<iMinAreaSize>-1</iMinAreaSize>
-			<iMoves>1</iMoves>
-			<bNoRevealMap>0</bNoRevealMap>
-			<iAirRange>0</iAirRange>
-			<iAirUnitCap>0</iAirUnitCap>
-			<iDropRange>0</iDropRange>
-			<iNukeRange>-1</iNukeRange>
-			<iWorkRate>0</iWorkRate>
-			<iBaseDiscover>0</iBaseDiscover>
-			<iDiscoverMultiplier>0</iDiscoverMultiplier>
-			<iBaseHurry>0</iBaseHurry>
-			<iHurryMultiplier>0</iHurryMultiplier>
-			<iBaseTrade>0</iBaseTrade>
-			<iTradeMultiplier>0</iTradeMultiplier>
-			<iGreatWorkCulture>0</iGreatWorkCulture>
-			<iEspionagePoints>0</iEspionagePoints>
-			<TerrainImpassables/>
-			<FeatureImpassables/>
-			<TerrainPassableTechs/>
-			<FeaturePassableTechs/>
-			<iCombat>5</iCombat>
-			<iCombatLimit>100</iCombatLimit>
-			<iAirCombat>0</iAirCombat>
-			<iAirCombatLimit>0</iAirCombatLimit>
-			<iXPValueAttack>4</iXPValueAttack>
-			<iXPValueDefense>2</iXPValueDefense>
-			<iFirstStrikes>0</iFirstStrikes>
-			<iChanceFirstStrikes>0</iChanceFirstStrikes>
-			<iInterceptionProbability>0</iInterceptionProbability>
-			<iEvasionProbability>0</iEvasionProbability>
-			<iWithdrawalProb>0</iWithdrawalProb>
-			<iCollateralDamage>0</iCollateralDamage>
-			<iCollateralDamageLimit>200</iCollateralDamageLimit>
-			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
-			<iCityAttack>0</iCityAttack>
-			<iCityDefense>0</iCityDefense>
-			<iAnimalCombat>0</iAnimalCombat>
-			<iHillsAttack>0</iHillsAttack>
-			<iHillsDefense>0</iHillsDefense>
-			<TerrainNatives/>
-			<FeatureNatives/>
-			<TerrainAttacks>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
-				</TerrainAttack>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainAttack>10</iTerrainAttack>
-				</TerrainAttack>
-			</TerrainAttacks>
-			<TerrainDefenses>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-			</TerrainDefenses>
-			<FeatureAttacks>
-				<FeatureAttack>
-					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>10</iFeatureAttack>
-				</FeatureAttack>
-			</FeatureAttacks>
-			<FeatureDefenses>
-				<FeatureDefense>
-					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>10</iFeatureDefense>
-				</FeatureDefense>
-			</FeatureDefenses>
-			<UnitClassAttackMods/>
-			<!-- custom: was UNITCLASS_CHARIOT 100 -->
-			<UnitClassDefenseMods/>
-			<!-- custom: since they have a spear, make them stronger overall against mounted melee anyways etc rather than just chariots anyways etc, also fits the theme in civ3 of it being a strong defensive unit, i don't know if accurate but since they have a spear and shield may not be too strange that they'd be so, but now in civ4 they also have nice combat offensive potential as well (except vs maybe archers or such but anyways etc), was UNITCOMBAT_MELEE 50 -->
-			<UnitCombatMods>
-				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
-					<iUnitCombatMod>50</iUnitCombatMod>
-				</UnitCombatMod>
-				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
-					<iUnitCombatMod>50</iUnitCombatMod>
-				</UnitCombatMod>
-			</UnitCombatMods>
-			<UnitCombatCollateralImmunes/>
-			<DomainMods/>
-			<BonusProductionModifiers/>
-			<iBombRate>0</iBombRate>
-			<iBombardRate>0</iBombardRate>
-			<SpecialCargo>NONE</SpecialCargo>
-			<DomainCargo>NONE</DomainCargo>
-			<iCargo>0</iCargo>
-			<iConscription>2</iConscription>
-			<iCultureGarrison>4</iCultureGarrison>
-			<iExtraCost>0</iExtraCost>
-			<iAsset>2</iAsset>
-			<iPower>6</iPower>
-			<UnitMeshGroups>
-				<iGroupSize>3</iGroupSize>
-				<fMaxSpeed>1.75</fMaxSpeed>
-				<fPadTime>1</fPadTime>
-				<iMeleeWaveSize>3</iMeleeWaveSize>
-				<iRangedWaveSize>0</iRangedWaveSize>
-				<UnitMeshGroup>
-					<iRequired>3</iRequired>
-					<EarlyArtDefineTag>ART_DEF_UNIT_GREEK_HOPLITE</EarlyArtDefineTag>
-				</UnitMeshGroup>
-			</UnitMeshGroups>
-			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
-			<HotKey/>
-			<bAltDown>0</bAltDown>
-			<bShiftDown>0</bShiftDown>
-			<bCtrlDown>0</bCtrlDown>
-			<iHotKeyPriority>0</iHotKeyPriority>
-			<FreePromotions/>
-			<LeaderPromotion>NONE</LeaderPromotion>
-			<iLeaderExperience>0</iLeaderExperience>
-		</UnitInfo>
 		<UnitInfo> <!-- custom: class: UNITCLASS_AXEMAN, type: UNIT_SUMERIAN_VULTURE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Class>UNITCLASS_AXEMAN</Class>
 			<Type>UNIT_SUMERIAN_VULTURE</Type>
@@ -6286,14 +6049,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<Capture>NONE</Capture>
 			<Combat>UNITCOMBAT_MELEE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<!-- custom: was UNITAI_ATTACK -->
 			<!-- K-Mod: was UNITAI_COUNTER -->
-			<DefaultUnitAI>UNITAI_RESERVE</DefaultUnitAI>
+			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_NATIVE_AMERICA_DOG_SOLDIER</Description>
 			<Civilopedia>TXT_KEY_UNIT_NATIVE_AMERICA_DOG_SOLDIER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_NATIVE_AMERICA_DOG_SOLDIER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -6315,7 +6077,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bFound>0</bFound>
 			<bGoldenAge>0</bGoldenAge>
 			<bInvisible>0</bInvisible>
-			<bFirstStrikeImmune>0</bFirstStrikeImmune>
+			<!-- custom: idea nicely recommended by chatgpt 5 thanks a lot anyways etc, was 0 -->
+			<bFirstStrikeImmune>1</bFirstStrikeImmune>
 			<bNoDefensiveBonus>0</bNoDefensiveBonus>
 			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
 			<bCanMoveImpassable>0</bCanMoveImpassable>
@@ -6340,16 +6103,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
-			<!-- custom: they are surprisingly good city defenders, in fact more efficient per hammer than longbowmen, so give AIs the option to value them as well as defenders anyways etc (added UNITAI_RESERVE and UNITAI_CITY_DEFENSE anyways etc) -->
 			<UnitAIs>
-				<UnitAI>
-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
 					<bUnitAI>1</bUnitAI>
@@ -6510,10 +6264,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: maybe goes quite well with the overall pacifist protective profile of sitting bull if i am not mistaken in assessing this + also historically it seems this unit tried to defend their cities hard if i am not mistaken from quick glances too on wikipedia or such, also as this unit is a bit weaker compared to the other axemen variants, fine to buff it as such i think, upgraded units would also keep the promotion if i'm not mistaken which is nice and goes well with protective theme of the unit and leader if i may say but anyways etc, was empty -->
+			<!-- custom: was empty -->
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_CITY_GARRISON1</PromotionType>
+					<PromotionType>PROMOTION_FIRST_STRIKE1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -6936,7 +6690,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<Capture>NONE</Capture>
 			<Combat>UNITCOMBAT_MELEE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+			<!-- custom: was UNITAI_ATTACK -->
+			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_CELTIC_GALLIC_WARRIOR</Description>
@@ -7115,7 +6870,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iCultureGarrison>5</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>2</iAsset>
-			<iPower>6</iPower>
+			<!-- custom: was 6 -->
+			<iPower>7</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -7375,7 +7131,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<Capture>NONE</Capture>
 			<Combat>UNITCOMBAT_MELEE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<!-- advc.131: was UNITAI_ATTACK -->
 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
@@ -7574,6 +7329,234 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<FreePromotions>
 				<FreePromotion>
 					<PromotionType>PROMOTION_MEDIC1</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+			</FreePromotions>
+			<LeaderPromotion>NONE</LeaderPromotion>
+			<iLeaderExperience>0</iLeaderExperience>
+		</UnitInfo>
+		<UnitInfo> <!-- custom: class: UNITCLASS_SWORDSMAN, type: UNIT_INCAN_QUECHUA (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<Class>UNITCLASS_SWORDSMAN</Class>
+			<Type>UNIT_INCAN_QUECHUA</Type>
+			<UniqueNames/>
+			<Special>NONE</Special>
+			<Capture>NONE</Capture>
+			<Combat>UNITCOMBAT_MELEE</Combat>
+			<Domain>DOMAIN_LAND</Domain>
+			<!-- custom: hopefully a bit more versatile and the AI would pick them more but this is just a vague guess check if accurate, i also didn't read below advciv rationale but anyways etc, was UNITAI_ATTACK_CITY -->
+			<!-- advc.131: was UNITAI_ATTACK -->
+			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+			<Invisible>NONE</Invisible>
+			<SeeInvisible>NONE</SeeInvisible>
+			<Description>TXT_KEY_UNIT_INCAN_QUECHUA</Description>
+			<Civilopedia>TXT_KEY_UNIT_INCAN_QUECHUA_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+			<Advisor>ADVISOR_MILITARY</Advisor>
+			<bAnimal>0</bAnimal>
+			<bFood>0</bFood>
+			<bNoBadGoodies>0</bNoBadGoodies>
+			<bOnlyDefensive>0</bOnlyDefensive>
+			<bNoCapture>0</bNoCapture>
+			<bQuickCombat>0</bQuickCombat>
+			<bRivalTerritory>0</bRivalTerritory>
+			<bMilitaryHappiness>1</bMilitaryHappiness>
+			<bMilitarySupport>1</bMilitarySupport>
+			<bMilitaryProduction>1</bMilitaryProduction>
+			<bPillage>1</bPillage>
+			<bSpy>0</bSpy>
+			<bSabotage>0</bSabotage>
+			<bDestroy>0</bDestroy>
+			<bStealPlans>0</bStealPlans>
+			<bInvestigate>0</bInvestigate>
+			<bCounterSpy>0</bCounterSpy>
+			<bFound>0</bFound>
+			<bGoldenAge>0</bGoldenAge>
+			<bInvisible>0</bInvisible>
+			<bFirstStrikeImmune>0</bFirstStrikeImmune>
+			<bNoDefensiveBonus>0</bNoDefensiveBonus>
+			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+			<!-- custom: was 0 -->
+			<bCanMoveImpassable>1</bCanMoveImpassable>
+			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
+			<bFlatMovementCost>0</bFlatMovementCost>
+			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
+			<bNukeImmune>0</bNukeImmune>
+			<bPrereqBonuses>0</bPrereqBonuses>
+			<bPrereqReligion>0</bPrereqReligion>
+			<bMechanized>0</bMechanized>
+			<bSuicide>0</bSuicide>
+			<bHiddenNationality>0</bHiddenNationality>
+			<bAlwaysHostile>0</bAlwaysHostile>
+			<UnitClassUpgrades>
+				<UnitClassUpgrade>
+					<UnitClassUpgradeType>UNITCLASS_MACEMAN</UnitClassUpgradeType>
+					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+				</UnitClassUpgrade>
+			</UnitClassUpgrades>
+			<UnitClassTargets/>
+			<UnitCombatTargets/>
+			<UnitClassDefenders/>
+			<UnitCombatDefenders/>
+			<FlankingStrikes/>
+			<!-- custom: due to the hill modifier as of now, it might be good as a reserve defender for AIs if i am not mistaken but anyways etc, so added UNITAI_RESERVE anyways etc -->
+			<!-- K-Mod: UNITAI_CITY_DEFENSE removed -->
+			<UnitAIs>
+				<UnitAI>
+					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+			</UnitAIs>
+			<NotUnitAIs/>
+			<Builds/>
+			<ReligionSpreads/>
+			<CorporationSpreads/>
+			<GreatPeoples/>
+			<Buildings/>
+			<HolyCity>NONE</HolyCity>
+			<ReligionType>NONE</ReligionType>
+			<StateReligion>NONE</StateReligion>
+			<PrereqReligion>NONE</PrereqReligion>
+			<PrereqCorporation>NONE</PrereqCorporation>
+			<PrereqBuilding>NONE</PrereqBuilding>
+			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+			<TechTypes/>
+			<BonusType>BONUS_IRON</BonusType>
+			<PrereqBonuses/>
+			<ProductionTraits/>
+			<Flavors/>
+			<iAIWeight>0</iAIWeight>
+			<iCost>40</iCost>
+			<iHurryCostModifier>0</iHurryCostModifier>
+			<iAdvancedStartCost>100</iAdvancedStartCost>
+			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+			<iMinAreaSize>-1</iMinAreaSize>
+			<iMoves>1</iMoves>
+			<bNoRevealMap>0</bNoRevealMap>
+			<iAirRange>0</iAirRange>
+			<iAirUnitCap>0</iAirUnitCap>
+			<iDropRange>0</iDropRange>
+			<iNukeRange>-1</iNukeRange>
+			<iWorkRate>0</iWorkRate>
+			<iBaseDiscover>0</iBaseDiscover>
+			<iDiscoverMultiplier>0</iDiscoverMultiplier>
+			<iBaseHurry>0</iBaseHurry>
+			<iHurryMultiplier>0</iHurryMultiplier>
+			<iBaseTrade>0</iBaseTrade>
+			<iTradeMultiplier>0</iTradeMultiplier>
+			<iGreatWorkCulture>0</iGreatWorkCulture>
+			<iEspionagePoints>0</iEspionagePoints>
+			<TerrainImpassables/>
+			<FeatureImpassables/>
+			<TerrainPassableTechs/>
+			<FeaturePassableTechs/>
+			<iCombat>6</iCombat>
+			<iCombatLimit>100</iCombatLimit>
+			<iAirCombat>0</iAirCombat>
+			<iAirCombatLimit>0</iAirCombatLimit>
+			<iXPValueAttack>4</iXPValueAttack>
+			<iXPValueDefense>2</iXPValueDefense>
+			<iFirstStrikes>0</iFirstStrikes>
+			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+			<iInterceptionProbability>0</iInterceptionProbability>
+			<iEvasionProbability>0</iEvasionProbability>
+			<iWithdrawalProb>0</iWithdrawalProb>
+			<iCollateralDamage>0</iCollateralDamage>
+			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+			<iCityAttack>10</iCityAttack>
+			<iCityDefense>0</iCityDefense>
+			<iAnimalCombat>0</iAnimalCombat>
+			<!-- custom: was 0 and 0 (in the generic swordsman i mean anyways etc) -->
+			<iHillsAttack>25</iHillsAttack>
+			<iHillsDefense>25</iHillsDefense>
+			<TerrainNatives/>
+			<FeatureNatives/>
+			<TerrainAttacks>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_DESERT</TerrainType>
+					<iTerrainAttack>10</iTerrainAttack>
+				</TerrainAttack>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainAttack>25</iTerrainAttack>
+				</TerrainAttack>
+			</TerrainAttacks>
+			<TerrainDefenses>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_DESERT</TerrainType>
+					<iTerrainDefense>10</iTerrainDefense>
+				</TerrainDefense>
+				<TerrainDefense>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
+				</TerrainDefense>
+			</TerrainDefenses>
+			<FeatureAttacks>
+				<FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>10</iFeatureAttack>
+				</FeatureAttack>
+			</FeatureAttacks>
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>10</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
+			<UnitClassAttackMods/>
+			<UnitClassDefenseMods/>
+			<UnitCombatMods/>
+			<UnitCombatCollateralImmunes/>
+			<DomainMods/>
+			<BonusProductionModifiers/>
+			<iBombRate>0</iBombRate>
+			<iBombardRate>0</iBombardRate>
+			<SpecialCargo>NONE</SpecialCargo>
+			<DomainCargo>NONE</DomainCargo>
+			<iCargo>0</iCargo>
+			<iConscription>1</iConscription>
+			<iCultureGarrison>5</iCultureGarrison>
+			<iExtraCost>0</iExtraCost>
+			<iAsset>2</iAsset>
+			<!-- custom: was 6 (base swordsman anyways etc) -->
+			<iPower>7</iPower>
+			<UnitMeshGroups>
+				<iGroupSize>3</iGroupSize>
+				<fMaxSpeed>1.75</fMaxSpeed>
+				<fPadTime>1</fPadTime>
+				<iMeleeWaveSize>3</iMeleeWaveSize>
+				<iRangedWaveSize>0</iRangedWaveSize>
+				<UnitMeshGroup>
+					<iRequired>3</iRequired>
+					<EarlyArtDefineTag>ART_DEF_UNIT_INCAN_QUECHUA</EarlyArtDefineTag>
+				</UnitMeshGroup>
+			</UnitMeshGroups>
+			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+			<HotKey/>
+			<bAltDown>0</bAltDown>
+			<bShiftDown>0</bShiftDown>
+			<bCtrlDown>0</bCtrlDown>
+			<iHotKeyPriority>0</iHotKeyPriority>
+			<!-- custom: was empty -->
+			<FreePromotions>
+				<FreePromotion>
+					<PromotionType>PROMOTION_MOBILITY_COST</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -8451,7 +8434,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iCultureGarrison>4</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>2</iAsset>
-			<iPower>4</iPower>
+			<!-- custom: was 4 -->
+			<iPower>6</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -8481,8 +8465,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<Capture>NONE</Capture>
 			<Combat>UNITCOMBAT_MELEE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<!-- custom: use them as defenders rather if i'm not mistaken anyways etc, was UNITAI_ATTACK -->
-			<DefaultUnitAI>UNITAI_RESERVE</DefaultUnitAI>
+			<!-- custom: was UNITAI_COUNTER -->
+			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_ZULU_IMPI</Description>
@@ -8548,7 +8532,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</UnitCombatDefender>
 			</UnitCombatDefenders>
 			<FlankingStrikes/>
-			<!-- custom: better suited for defensive role for AI players, but less efficient than longbowmen as of now to do so in most cases but anyways etc, so give them a more minor defensive role anyways etc -->
+			<!-- custom: i want them to be versatile attackers/hit and runners rather that happen to have good defense, adjust unitais as such, also added in particular UNITAI_ATTACK_CITY due to archery units modifiers we as of now added for the impi (i.e. this unit) anyways etc -->
 			<UnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
@@ -8564,6 +8548,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
@@ -8626,15 +8618,18 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
 			<iInterceptionProbability>0</iInterceptionProbability>
 			<iEvasionProbability>0</iEvasionProbability>
-			<iWithdrawalProb>0</iWithdrawalProb>
+			<!-- custom: was 0 -->
+			<iWithdrawalProb>10</iWithdrawalProb>
 			<iCollateralDamage>0</iCollateralDamage>
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+			<!-- custom: make it more of an attacker / hit and run unit, was 10/25 (advciv-sas generic spearman anyways etc) -->
 			<iCityAttack>0</iCityAttack>
-			<iCityDefense>25</iCityDefense>
+			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
-			<iHillsAttack>10</iHillsAttack>
-			<iHillsDefense>25</iHillsDefense>
+			<!-- custom: was 10/25 (advciv-sas generic spearman anyways etc) -->
+			<iHillsAttack>0</iHillsAttack>
+			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
 			<TerrainAttacks>
@@ -8670,7 +8665,16 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
+			<!-- custom: add archer combat modifiers, idea i got from chatgpt 5 xd watching one of its replies vaguely mentioning archers, was UNITCOMBAT_MOUNTED_MELEE 25 and UNITCOMBAT_MELEE 25 (advciv-sas spearman anyways etc) -->
 			<UnitCombatMods>
+				<UnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+					<iUnitCombatMod>25</iUnitCombatMod>
+				</UnitCombatMod>
+				<UnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_LONG</UnitCombatType>
+					<iUnitCombatMod>25</iUnitCombatMod>
+				</UnitCombatMod>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
 					<iUnitCombatMod>25</iUnitCombatMod>
@@ -8693,7 +8697,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iExtraCost>0</iExtraCost>
 			<iAsset>2</iAsset>
 			<!-- custom: was 4 -->
-			<iPower>5</iPower>
+			<iPower>6</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -8711,9 +8715,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
+			<!-- custom: may fit better shaka's (or whichever leader they have if but anyways etc) aggressive tendency/profile, and this is a versatile promotion as well so can be used in city, at defense, in the field somewhere on random tiles, so may fit quite well, was PROMOTION_MOBILITY_COST -->
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_MOBILITY_COST</PromotionType>
+					<PromotionType>PROMOTION_COMBAT1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -8728,13 +8733,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<Capture>NONE</Capture>
 			<Combat>UNITCOMBAT_MELEE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<!-- custom: use them as defenders rather if i'm not mistaken anyways etc, was UNITAI_ATTACK -->
-			<DefaultUnitAI>UNITAI_RESERVE</DefaultUnitAI>
+			<!-- custom: make it a more versatile unit (quite good at offense, but a bit better at defense if i am not mistaken anyways etc), was UNITAI_ATTACK -->
+			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_MAYA_HOLKAN</Description>
 			<Civilopedia>TXT_KEY_UNIT_MAYA_HOLKAN_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_HOLKAN_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -8790,10 +8795,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</UnitCombatDefender>
 			</UnitCombatDefenders>
 			<FlankingStrikes/>
-			<!-- custom: better suited for defensive role for AI players, but less efficient than longbowmen as of now to do so in most cases but anyways etc, so give them a more minor defensive role anyways etc -->
+			<!-- custom: is a strong defender as well, was reserve, counter, city_counter -->
 			<UnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 				<UnitAI>
@@ -8825,7 +8834,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
-			<PrereqBonuses/>
+			<!-- custom: was empty -->
+			<PrereqBonuses>
+				<BonusType>BONUS_COPPER</BonusType>
+				<BonusType>BONUS_IRON</BonusType>
+				<BonusType>NONE</BonusType>
+				<BonusType>NONE</BonusType>
+			</PrereqBonuses>
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
@@ -8859,19 +8874,23 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iAirCombatLimit>0</iAirCombatLimit>
 			<iXPValueAttack>4</iXPValueAttack>
 			<iXPValueDefense>2</iXPValueDefense>
-			<iFirstStrikes>0</iFirstStrikes>
+			<!-- custom: i want them to be a more versatile unit, was 0 -->
+			<iFirstStrikes>1</iFirstStrikes>
 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
 			<iInterceptionProbability>0</iInterceptionProbability>
 			<iEvasionProbability>0</iEvasionProbability>
-			<iWithdrawalProb>0</iWithdrawalProb>
+			<!-- custom: was 0 -->
+			<iWithdrawalProb>15</iWithdrawalProb>
 			<iCollateralDamage>0</iCollateralDamage>
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+			<!-- custom: i want them to be a more versatile unit, and they are strong enough already to not need city defense specifically, was 0/25 (as of now in advciv-sas generic spearman) -->
 			<iCityAttack>0</iCityAttack>
-			<iCityDefense>25</iCityDefense>
+			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
-			<iHillsAttack>10</iHillsAttack>
-			<iHillsDefense>25</iHillsDefense>
+			<!-- custom: was 10/25 (in the base advciv-sas spearman anyways etc) -->
+			<iHillsAttack>0</iHillsAttack>
+			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
 			<TerrainAttacks/>
@@ -8899,14 +8918,15 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
+			<!-- custom: was UNITCOMBAT_MOUNTED 100 (in base advciv anyways etc) -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
-					<iUnitCombatMod>25</iUnitCombatMod>
+					<iUnitCombatMod>50</iUnitCombatMod>
 				</UnitCombatMod>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
-					<iUnitCombatMod>25</iUnitCombatMod>
+					<iUnitCombatMod>50</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
 			<UnitCombatCollateralImmunes/>
@@ -8921,7 +8941,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iCultureGarrison>4</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>2</iAsset>
-			<iPower>4</iPower>
+			<!-- custom: was 4 -->
+			<iPower>6</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -8939,25 +8960,32 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<FreePromotions/>
+			<!-- custom: was empty -->
+			<FreePromotions>
+				<FreePromotion>
+					<PromotionType>PROMOTION_RETREAT1</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+			</FreePromotions>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_SPEARMAN, type: UNIT_INCAN_QUECHUA (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_SPEARMAN, type: UNIT_GREEK_HOPLITE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Class>UNITCLASS_SPEARMAN</Class>
-			<Type>UNIT_INCAN_QUECHUA</Type>
+			<Type>UNIT_GREEK_HOPLITE</Type>
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
 			<Combat>UNITCOMBAT_MELEE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<!-- custom: this civ-specific unit would be more suited as a versatile unit unlike other spearmen i think if i'm not mistaken anyways etc -->
+			<!-- custom: was UNITAI_ATTACK -->
+			<!-- K-Mod: was UNITAI_COUNTER -->
 			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
-			<Description>TXT_KEY_UNIT_INCAN_QUECHUA</Description>
-			<Civilopedia>TXT_KEY_UNIT_INCAN_QUECHUA_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_INCAN_QUECHUA_STRATEGY</Strategy>
+			<Description>TXT_KEY_UNIT_GREEK_HOPLITE</Description>
+			<Civilopedia>TXT_KEY_UNIT_GREEK_HOPLITE_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -8982,8 +9010,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bFirstStrikeImmune>0</bFirstStrikeImmune>
 			<bNoDefensiveBonus>0</bNoDefensiveBonus>
 			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
-			<!-- custom: was 0 -->
-			<bCanMoveImpassable>1</bCanMoveImpassable>
+			<bCanMoveImpassable>0</bCanMoveImpassable>
 			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
 			<bFlatMovementCost>0</bFlatMovementCost>
 			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
@@ -8994,22 +9021,28 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bSuicide>0</bSuicide>
 			<bHiddenNationality>0</bHiddenNationality>
 			<bAlwaysHostile>0</bAlwaysHostile>
-			<!-- custom: unit reworked, it is a very cheap unit so in best AI or player's interest to keep it until around macemen, half price of swordsmen so better keep being able to produce these rather i think if i am not mistaken i would say anyways etc, was UNITCLASS_AXEMAN 1 and UNITCLASS_SPEARMAN 1 and UNITCLASS_MACEMAN 0 -->
-			<!-- advc.907b: Upgrade to MACEMAN disabled -->
+			<!-- custom: was UNITCLASS_MACEMAN -->
 			<UnitClassUpgrades>
 				<UnitClassUpgrade>
-					<UnitClassUpgradeType>UNITCLASS_MACEMAN</UnitClassUpgradeType>
+					<UnitClassUpgradeType>UNITCLASS_PIKEMAN</UnitClassUpgradeType>
 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
 				</UnitClassUpgrade>
 			</UnitClassUpgrades>
 			<UnitClassTargets/>
 			<UnitCombatTargets/>
 			<UnitClassDefenders/>
-			<UnitCombatDefenders>
-			</UnitCombatDefenders>
+			<UnitCombatDefenders/>
 			<FlankingStrikes/>
-			<!-- custom: use them more as attackers, unlike other spearmen class as of now at least but anyways etc, they are not so efficient at defense if i'm not mistaken (favour archers or such rather maybe i would say but anyways etc), anyways etc -->
+			<!-- custom: can be very efficient at defense too, so give AI the option to use them as such as well (added UNITAI_RESERVE and UNITAI_CITY_DEFENSE anyways etc) -->
 			<UnitAIs>
+				<UnitAI>
+					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
 					<bUnitAI>1</bUnitAI>
@@ -9026,10 +9059,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
 			</UnitAIs>
 			<NotUnitAIs/>
 			<Builds/>
@@ -9043,17 +9072,19 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: was TECH_BRONZE_WORKING and techTypes TECH_HUNTING -->
 			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
-			<PrereqBonuses/>
+			<PrereqBonuses>
+				<BonusType>BONUS_COPPER</BonusType>
+				<BonusType>BONUS_IRON</BonusType>
+				<BonusType>NONE</BonusType>
+				<BonusType>NONE</BonusType>
+			</PrereqBonuses>
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: was 15 -->
-			<!-- advc.907b: was 20 -->
-			<iCost>30</iCost>
+			<iCost>35</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -9077,7 +9108,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<iCombat>4</iCombat>
+			<iCombat>5</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -9094,37 +9125,28 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iCityAttack>0</iCityAttack>
 			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
-			<iHillsAttack>50</iHillsAttack>
-			<iHillsDefense>50</iHillsDefense>
+			<iHillsAttack>0</iHillsAttack>
+			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<!-- custom: quechua rework (ctrl+f maybe helpful for that too etc) ; terrain/feature modifiers balance done with the help of chatgpt 5 as map has many terrain/features so was hard to tell xd if i may say but anyways etc, i adjusted it in my own way as well as i saw fit or preferred but anyways etc, check if accurate anyways etc -->
 			<TerrainAttacks>
 				<TerrainAttack>
-					<TerrainType>TERRAIN_TUNDRA</TerrainType>
-					<iTerrainAttack>10</iTerrainAttack>
-				</TerrainAttack>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>10</iTerrainAttack>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainAttack>25</iTerrainAttack>
 				</TerrainAttack>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
+					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
 			<TerrainDefenses>
 				<TerrainDefense>
-					<TerrainType>TERRAIN_TUNDRA</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainDefense>25</iTerrainDefense>
 				</TerrainDefense>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
+					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
 			<FeatureAttacks>
@@ -9140,8 +9162,19 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
+			<!-- custom: was UNITCLASS_CHARIOT 100 -->
 			<UnitClassDefenseMods/>
-			<UnitCombatMods/>
+			<!-- custom: since they have a spear, make them stronger overall against mounted melee anyways etc rather than just chariots anyways etc, also fits the theme in civ3 of it being a strong defensive unit, i don't know if accurate but since they have a spear and shield may not be too strange that they'd be so, but now in civ4 they also have nice combat offensive potential as well (except vs maybe archers or such but anyways etc); also make them more of a defensive unit so lower melee modifier here since they are as of now now based on the spearman anyways etc, was UNITCOMBAT_MELEE 50 -->
+			<UnitCombatMods>
+				<UnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+					<iUnitCombatMod>25</iUnitCombatMod>
+				</UnitCombatMod>
+				<UnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+					<iUnitCombatMod>25</iUnitCombatMod>
+				</UnitCombatMod>
+			</UnitCombatMods>
 			<UnitCombatCollateralImmunes/>
 			<DomainMods/>
 			<BonusProductionModifiers/>
@@ -9150,12 +9183,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SpecialCargo>NONE</SpecialCargo>
 			<DomainCargo>NONE</DomainCargo>
 			<iCargo>0</iCargo>
-			<iConscription>1</iConscription>
-			<iCultureGarrison>3</iCultureGarrison>
+			<iConscription>2</iConscription>
+			<iCultureGarrison>4</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
-			<iAsset>1</iAsset>
-			<!-- custom: was 2 -->
-			<iPower>4</iPower>
+			<iAsset>2</iAsset>
+			<iPower>6</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -9164,7 +9196,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				<iRangedWaveSize>0</iRangedWaveSize>
 				<UnitMeshGroup>
 					<iRequired>3</iRequired>
-					<EarlyArtDefineTag>ART_DEF_UNIT_INCAN_QUECHUA</EarlyArtDefineTag>
+					<EarlyArtDefineTag>ART_DEF_UNIT_GREEK_HOPLITE</EarlyArtDefineTag>
 				</UnitMeshGroup>
 			</UnitMeshGroups>
 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
@@ -9173,7 +9205,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<FreePromotions/>
+			<!-- custom: was empty -->
+			<FreePromotions>
+				<FreePromotion>
+					<PromotionType>PROMOTION_CITY_GARRISON1</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+			</FreePromotions>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
