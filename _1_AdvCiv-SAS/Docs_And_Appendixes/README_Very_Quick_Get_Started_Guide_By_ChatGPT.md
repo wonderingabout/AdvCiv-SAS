@@ -87,6 +87,7 @@ For the exhaustive diff between AdvCiv stable (e.g., 1.12) and AdvCiv-SAS, see t
 
 - Wider content area, narrower main category column; fills available screen space.
 - Many entries (religions, some techs/buildings/units/bonuses/terrains/features) now use neutral encyclopedia-style blurbs (often Wikipedia-based) for clarity/context. See [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md).
+- **Sevopedia — Shortcuts**: added an entry for the existing `Alt+S` shortcut — opens the tile-label dialog (“Enter caption”) to add/remove text on the selected tile.
 
 ### Concepts (currently under “Outdated” category)
 
@@ -207,7 +208,9 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
 
 - Overall: **snow**, **desert**, and **water** tiles strengthened via bonus/building changes (see Bonus/Buildings sections).
 - **Floodplains persist after raze** (city destruction doesn’t remove them).
-- **Recon units** (ground) can move through **all terrains** (`bCanMoveImpassable`) and **ignore terrain movement costs**; air recon (e.g., **airship**) can move across all terrains (`bCanMoveAllTerrain`), including peaks/water.
+- **Ground explore/recon units**: can move through **all terrains** from game start (e.g., **peaks**) via `bCanMoveImpassable` (no water tiles). They also **ignore terrain movement costs** (not just the Renaissance **Explorer**). See Sevopedia **Terrain: Peak** (new entry; [example-9](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category)) or XML for details.
+- **Other units (example: Quechua Warrior)**: can also move through **all land terrains** (`bCanMoveImpassable`). See Sevopedia Terrain **Peak/Hill** entries (added in the terrain-category rework) or XML/docs for per-terrain/unit details.
+- **Air explore/recon & land-air units**: the **Airship** (see its Sevopedia entry or this guide’s military section) and **Gunship** can move through **all terrains, including peaks and water tiles** using `bCanMoveImpassable` **and** `bCanMoveAllTerrain`.
 - **Movement restrictions** (outside cultural borders): some units (e.g., **chariots**, some **siege**) can’t move in **forest/jungle**; mounted melee/ranged receive **forest/jungle** combat penalties (ranged limited to defense penalty). See Sevopedia entries for per‑unit modifiers.
 - **Feature: Jungle** rework: remove the food penalty (**no food malus**), increase unhealth to `iHealthPercent` **-50**, set feature defense `iDefense` **-25** (still +25% rival defense in features → net 0 in jungle). **Remove jungle** now yields **+20 hammers**.
 - **Feature: Fallout** `iHealthPercent` **-50 → -75**.

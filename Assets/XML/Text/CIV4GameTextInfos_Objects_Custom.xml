@@ -283,6 +283,11 @@
 		<Tag>TXT_KEY_BUILDING_NATYA_SHASTRA</Tag>
 		<English>Natya Shastra</English>
 	</TEXT>
+	<!-- custom: rename "CHICHEN_ITZA" (but not the city though anyways etc) to "TEMPLE_OF_KUKULCAN" anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_TEMPLE_OF_KUKULCAN</Tag>
+		<English>Temple of Kukulcan</English>
+	</TEXT>
 
 
 

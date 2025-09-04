@@ -24725,16 +24725,16 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: chichen_itza, type: chichen_itza (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<BuildingClass>BUILDINGCLASS_CHICHEN_ITZA</BuildingClass>
-			<Type>BUILDING_CHICHEN_ITZA</Type>
+		<BuildingInfo> <!-- custom: class: TEMPLE_OF_KUKULCAN, type: TEMPLE_OF_KUKULCAN (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<BuildingClass>BUILDINGCLASS_TEMPLE_OF_KUKULCAN</BuildingClass>
+			<Type>BUILDING_TEMPLE_OF_KUKULCAN</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
-			<Description>TXT_KEY_BUILDING_CHICHEN_ITZA</Description>
-			<Civilopedia>TXT_KEY_BUILDING_CHICHEN_ITZA_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_CHICHEN_ITZA_STRATEGY</Strategy>
+			<Description>TXT_KEY_BUILDING_TEMPLE_OF_KUKULCAN</Description>
+			<Civilopedia>TXT_KEY_BUILDING_TEMPLE_OF_KUKULCAN_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
-			<ArtDefineTag>ART_DEF_BUILDING_CHICHEN_ITZA</ArtDefineTag>
-			<MovieDefineTag>ART_DEF_MOVIE_CHICHEN_ITZA</MovieDefineTag>
+			<ArtDefineTag>ART_DEF_BUILDING_TEMPLE_OF_KUKULCAN</ArtDefineTag>
+			<MovieDefineTag>ART_DEF_MOVIE_TEMPLE_OF_KUKULCAN</MovieDefineTag>
 			<HolyCity>NONE</HolyCity>
 			<ReligionType>NONE</ReligionType>
 			<StateReligion>NONE</StateReligion>

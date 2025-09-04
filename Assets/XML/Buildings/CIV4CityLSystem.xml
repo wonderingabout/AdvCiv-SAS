@@ -1265,7 +1265,7 @@ I am not sure which i should take, but since there are redundancies i guess i sh
 		<ArtRef Name="building:BUILDING_MILITARY_ACADEMY">
 			<Scale>2.0</Scale>
 		</ArtRef>
-		<ArtRef Name="building:BUILDING_CHICHEN_ITZA">
+		<ArtRef Name="building:BUILDING_TEMPLE_OF_KUKULCAN">
 			<Scale>1.33</Scale>
 		</ArtRef>
 		<ArtRef Name="building:BUILDING_HAGIA_SOPHIA">
