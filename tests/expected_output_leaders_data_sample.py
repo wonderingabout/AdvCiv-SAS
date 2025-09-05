@@ -21,7 +21,7 @@ def get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE():
 			"getMaxGoldPerTurnTradePercent": "0",
 			"getCultureVictoryWeight": "0",
 			"getSpaceVictoryWeight": "0",
-			"getConquestVictoryWeight": "70",
+			"getConquestVictoryWeight": "120",
 			"getDominationVictoryWeight": "30",
 			"getDiplomacyVictoryWeight": "0",
 			"getMaxWarRand": "0",
@@ -35,7 +35,7 @@ def get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE():
 			"getDeclareWarTradeRand": "0",
 			"getDemandRebukedSneakProb": "0",
 			"getDemandRebukedWarProb": "0",
-			"getRazeCityProb": "75",
+			"getRazeCityProb": "60",
 			"getBuildUnitProb": "70",
 			"getBaseAttackOddsChange": "1",
 			"getAttackOddsChangeRand": "16",
@@ -89,7 +89,7 @@ def get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE():
 			"FavoriteCivic": "NONE",
 			"FavoriteReligion": "NONE",
 			"Traits": "",
-			"iFlavorMilitary": 10,
+			"iFlavorMilitary": 0,
 			"UnitAIWeightModifiers": [
 				{
 					"UnitAIType": "UNITAI_RESERVE",
@@ -404,7 +404,7 @@ def get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE():
 			"getDemandRebukedSneakProb": "0",
 			"getDemandRebukedWarProb": "0",
 			"getRazeCityProb": "0",
-			"getBuildUnitProb": "0",
+			"getBuildUnitProb": "10",
 			"getBaseAttackOddsChange": "0",
 			"getAttackOddsChangeRand": "8",
 			"getWorseRankDifferenceAttitudeChange": "0",
@@ -793,7 +793,7 @@ def get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE():
 			"getDemandRebukedSneakProb": "40",
 			"getDemandRebukedWarProb": "25",
 			"getRazeCityProb": "0",
-			"getBuildUnitProb": "40",
+			"getBuildUnitProb": "50",
 			"getBaseAttackOddsChange": "4",
 			"getWorseRankDifferenceAttitudeChange": "-2",
 			"getBetterRankDifferenceAttitudeChange": "0",
@@ -863,23 +863,23 @@ def get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE():
 				},
 				{
 					"EraType": "ERA_MEDIEVAL",
-					"DiploScriptId": "AS2D_DIPLO_ALEXANDER_MIDDLE"
+					"DiploScriptId": "AS2D_DIPLO_ALEXANDER_EARLY"
 				},
 				{
 					"EraType": "ERA_RENAISSANCE",
-					"DiploScriptId": "AS2D_DIPLO_ALEXANDER_MIDDLE"
+					"DiploScriptId": "AS2D_DIPLO_ALEXANDER_EARLY"
 				},
 				{
 					"EraType": "ERA_INDUSTRIAL",
-					"DiploScriptId": "AS2D_DIPLO_ALEXANDER_LATE"
+					"DiploScriptId": "AS2D_DIPLO_ALEXANDER_EARLY"
 				},
 				{
 					"EraType": "ERA_MODERN",
-					"DiploScriptId": "AS2D_DIPLO_ALEXANDER_LATE"
+					"DiploScriptId": "AS2D_DIPLO_ALEXANDER_EARLY"
 				},
 				{
 					"EraType": "ERA_FUTURE",
-					"DiploScriptId": "AS2D_DIPLO_ALEXANDER_LATE"
+					"DiploScriptId": "AS2D_DIPLO_ALEXANDER_EARLY"
 				}
 			],
 			"DiplomacyIntroMusicWar": "",
@@ -1142,7 +1142,7 @@ def get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE():
 			"getDemandRebukedSneakProb": "80",
 			"getDemandRebukedWarProb": "0",
 			"getRazeCityProb": "0",
-			"getBuildUnitProb": "30",
+			"getBuildUnitProb": "40",
 			"getBaseAttackOddsChange": "2",
 			"getWorseRankDifferenceAttitudeChange": "-2",
 			"getBetterRankDifferenceAttitudeChange": "0",
@@ -1491,7 +1491,7 @@ def get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE():
 			"getDemandRebukedSneakProb": "0",
 			"getDemandRebukedWarProb": "0",
 			"getRazeCityProb": "0",
-			"getBuildUnitProb": "15",
+			"getBuildUnitProb": "25",
 			"getBaseAttackOddsChange": "0",
 			"getWorseRankDifferenceAttitudeChange": "0",
 			"getBetterRankDifferenceAttitudeChange": "1",
@@ -1840,7 +1840,7 @@ def get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE():
 			"getDemandRebukedSneakProb": "60",
 			"getDemandRebukedWarProb": "25",
 			"getRazeCityProb": "25",
-			"getBuildUnitProb": "35",
+			"getBuildUnitProb": "45",
 			"getBaseAttackOddsChange": "0",
 			"getWorseRankDifferenceAttitudeChange": "0",
 			"getBetterRankDifferenceAttitudeChange": "1",

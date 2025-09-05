@@ -1,3 +1,159 @@
+commit b9e253a3ce3f13933babe7714a22ddadd31789a4
+Author: wonderingabout <hidden>
+Date:   2025-09-04 20:15:42 +0200
+
+rename "CHICHEN_ITZA" to "TEMPLE_OF_KUKULCAN", add alt+S shortcut info, make unit_gunship move impassable or/and such anyways etc
+- "rename "CHICHEN_ITZA" (but not the city though anyways etc) to "TEMPLE_OF_KUKULCAN" anyways etc"
+- "sevopedia shortcuts category: add info about Alt+S shortcut (Toggle on/off write some text ("Enter caption") on a tile) (added in the Map Layers subcategory anyways etc)."
+- unit_gunship: can now move impassable and all terrain anyways etc
+
+commit 4c7fc2356da7aa194e3332a52b2701feed47082f
+Author: wonderingabout <hidden>
+Date:   2025-09-04 16:12:55 +0200
+
+revert to older CVUnitAI.cpp code for the workermove part as well + minor other changes anyways etc
+we seem to get (much) better results whatever the reason is (cities improved sooner), could be fluctuation but seems more reliable, i didn't test it more than on one autoplay map though but a few times in this map which seems consistently better if not just coincidence or fluctuation or whatever but anyways etc
+
+commit 2a56f3305712675e9db8290e0dae752a0f77142e
+Author: wonderingabout <hidden>
+Date:   2025-09-04 15:20:20 +0200
+
+rework/rebalance the UNIT_GREEK_HOPLITE (now based on the spearman), UNIT_INCAN_QUECHUA (now based on the swordsman), UNIT_MAYA_HOLKAN, UNIT_ZULU_IMPI, UNIT_NATIVE_AMERICA_DOG_SOLDIER, and minor or not changes anyways etc
+- PROMOTION_HILLS_MASTER2: now gives attack instead anyways etc (PROMOTION_HILLS_MASTER3 gives some more defense to compensate anyways etc)
+
+commit 846227765d166db7a7952f06103100cfbac75f6b
+Author: wonderingabout <hidden>
+Date:   2025-09-04 10:32:29 +0200
+
+revert the nicolor static const caching optimization i had added
+i had added it in https://github.com/wonderingabout/AdvCiv-SAS/commit/00866a0741a1e0818a9d9696d120cd9cd4551839#diff-3b9a656021f740cb1ac975c5b4cfc3d7340fc6b8c7633c5e8b6a18aa633013b2R2234-R2247
+
+unlike the static const colortypes caching, i am not sure these are safe, and in general i don't know too much if at all about these.
+
+Chatgpt i don't know which version (but maybe/most likely 5 since it was released at that time if i'm not mistaken but anyways etc) said it was safe, now chatgpt 5 tells me better revert it.
+
+We had a weird crash when clicking on main menu button ingame in map view, so maybe this is related. Even if not, the advantage is not worth the bother anyways etc.
+
+commit c0190d89af44b13838868b97a58d9e339e60442c
+Author: wonderingabout <hidden>
+Date:   2025-09-04 10:00:35 +0200
+
+manually revert to pre known ai worker bonus roading handling and/or such (i.e. manually reverted to b9d3434aae6df181819da7c1651af999885571c6 version of CvUnitAI.cpp), minus keeping safeties and few conservative tweaks
+is bit less efficient but tremendously more stable, and we keep most of our ai worker enhancements still, if crashes or some issue documentation is kept in case anyways etc
+
+commit 6296ef16d8984d65698b486b72d8e745c05da5e1
+Author: wonderingabout <hidden>
+Date:   2025-09-03 21:02:21 +0200
+
+fix rare reproductible crash at turn 283, add info about AI workers seemingly stuck trying to road the city plot which is impossible, hence other cities are not improved enough as a result if other things don't cause this but anyways etc
+
+commit 8656a8b51fe4537b338031e35308141be51ca168
+Author: wonderingabout <hidden>
+Date:   2025-09-03 19:19:27 +0200
+
+fix/tweak GAMESPEED_NORMAL timeline to now have 500 turns anyways etc; add GAMESPEED_EPIC, GAMESPEED_MARATHON, GAMESPEED_QUICK timelines thanks to chatgpt 5 anyways etc
+- fix/tweak GAMESPEED_NORMAL timeline to have 500 turns not 460 or 450 whchever number it was. As for GAMESPEED_EPIC, GAMESPEED_MARATHON, GAMESPEED_QUICK (in the order i made them i mean not me mostly but i helped too as explained later anyways etc): replaced timeline (GameTurnInfos) entirely. Done by chatgpt 5 based on my GAMESPEED_NORMAL timeline, check if accurate, anyways etc
+
+commit ce3a118eab45a27b093739f745733da9829ca6b9
+Author: wonderingabout <hidden>
+Date:   2025-09-03 16:01:01 +0200
+
+adjust starting techs of inca, maya, mongolia
+
+commit 62d7936a35d29a6a2722e996dcaeab1286d4b8db
+Author: wonderingabout <hidden>
+Date:   2025-09-03 14:42:18 +0200
+
+update docs
+
+commit c332858b4aa48bf2a74a0654bb4ce69d967d1e9a
+Author: wonderingabout <hidden>
+Date:   2025-09-03 13:38:45 +0200
+
+rename "_EDUCATION" to "_BROADER_EDUCATION"
+
+commit e8199e74b391efc36a2f156694e2f672a2d6ca5f
+Author: wonderingabout <hidden>
+Date:   2025-09-03 12:56:59 +0200
+
+rename "_RIFLING" with "_FIREARMS"
+
+commit 7e5feb72ab0884ef1cd1e470308c6f3b74c6fab5
+Author: wonderingabout <hidden>
+Date:   2025-09-03 11:17:29 +0200
+
+move the mali skirmisher and babylon bowman to longbowman unit class, adjust starting techs and other balance changes and/or such and/or not anyways etc
+- adjust starting techs so egypt is better aligned with its civ-specific unit (swap with ottoman empire's hutning as fits quite well, see docs for detaisl, that have been updated bit / quite a bit too if i may say in this case but anyways etc) anyways etc
+- move the mali skirmisher and babylon bowman to longbowman unit class anyways etc
+- balance changes and adjustments in units and/or such anyways etc
+
+commit 0c97546299bb1858dcf51cad185c8adf67a71448
+Author: wonderingabout <hidden>
+Date:   2025-09-02 22:51:48 +0200
+
+(Partially improved) some AI cities are not improved enough and totally neglected for dozen turns
+
+commit b8b258c8593658b659bedebf27bfe6c15fa959de
+Author: wonderingabout <hidden>
+Date:   2025-09-02 15:34:50 +0200
+
+(Fixed/Enhanced) Reproductible crash at turn 95 in another map, related to the else block in CvUnitAI::AI_nextCityToImprove, by rewriting the else block based on the (more? But anyways etc) code at CvUnitAI::AI_connectPlot anyways etc
+- add info in docs or/and update them anyways etc
+- other minor or not changes or not anyways etc
+
+commit 5e16104b83234476eae61793e5fb9bf40fb43b9c
+Author: wonderingabout <hidden>
+Date:   2025-09-01 21:00:15 +0200
+
+rework and enhance starting techs distribution after our tech rework, with the tremendous help of chatgpt 5 thanks a lot, anyways etc
+- "reworked/rebalanced starting techs after our tech tree rework, in particular due to tech_agriculture and tech_the_wheel no longer being starting techs, while tech_pottery now is, with the very nice and tremedous help of chatgpt 5 as well here thanks. Also used this opportunity to balance tech repartition to be equal ideally or as even and balanced as possible (as of now among the 35 playable civilizations, the techs are exactly split at 14 assignments per starting tech, for a total of 70 starting techs (2 per civ), which is very nice if possible). Changes include when culturally relevant for example giving tech_mining to tech_bronze_working or such leaning civilizations when thematically/historically quite/relevant enough. For example we changed the native american starting techs from tehc_agriculture and tech_fishing to tech_hunting and tech_mining (goes well with the dog soldier civ-specific unit, and chatgpt 5 gave this rationale if helpful/more exhaustive: "Replace inland Fishing with Mining (abstracts obsidian/flint/quarries). **Dog Soldier** benefits from the Bronze Working line. Adds one OP pair by design; helps identity."). The max occurence of pairs (e.g. tech_hunting + tech_mining is a pair, and tech_mining + tech_hunting is obviously the one and same pair, anyways etc) among all as of now playable 35 civilizations is as of now 5 which is very reasonable and varied enough. I tried to avoid OP combinations but didn't prevent it extra hard either, so gameplay is varied and quite balanced when relevant enough i mean anyways etc. See for details also: [README_Tech_Tree.md#starting-techs-rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#starting-techs-rework), and in particular the as of now list of all civs and their current starting techs with rationale is available there too in [README_Tech_Tree.md#after-most-recent-as-of-now-rework-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#after-most-recent-as-of-now-rework-anyways-etc) for details (not put here for concision but is synthetic and straightforward unliek this message xd but that i hope is sitll helpful i mean but anyways etc)"
+
+commit e2dbc313c7e3a494a8a968a1702a5d04745e90af
+Author: wonderingabout <hidden>
+Date:   2025-09-01 15:02:56 +0200
+
+early/initial tech rework, normalize era settings to be same at all eras for most if not all anyways etc, other changes or not anyways etc
+- revert workboat change: no longer requires a harbor
+- "set `iResearchPercent` to as of now 100 at all eras: impossible to design a proper symetrical or such tech tree if they apply all kinds of modifiers here anyways etc (for example if i set tech_mathematics (first tech in era_classical as of now anyways etc) to cost 250 it would actually cost 285, unmanageable). Similarly disabled `iTechCostModifier` (set to 0) at all difficulties. I really don't need that shit in my mod and would rather adjust tech costs directly, anyways etc. Oh wait, maybe they were lazy? Owww my poor pinkies hurt from typing all day, *crying*, i am too lazy or tired to change one line, so i prefer to spend hours if not days to add an xml field to do it in just one line *crying*. Yay now players complain about invisible research costs, and everyone is happy, or not... So i disabled it at least for me but anyways etc. But wait, actually even changing it was useless, tech_mathematics still costs 285 instead of expected 250 in xml tech infos, but at least for example tech_alien_life costs "only" 18400 instead of 19685, vs 16000 in xml tech infos i set up. Yay? No! This is stupid, lazy, and retarded asf, but at least it's bit better now anyways etc."
+- "set `iResearchPercent` from 117/100/87 (wtf it's not even symetrical. But anyways etc.) to 100 at all sea levels (high, low, medium). I really don't see why we should differentiate. If you love a map, you gotta commit to it (else don't play it?) if i may say anyways etc. Even if tech pace is bit slower due to more water, it's just gonna be how it is, no reason to mess up the whole balance just to accomodate this, and i am not even sure in most cases it would make a big difference anyway, at least one worth the hassle to do this, but anyways etc."
+- "rescale `iResearchPercent` for world sizes from 95/98/102/115/137/150 to 85/90/95/100/125/150. Also can we agree "standard" is the standard research rate, not 115, not 135, but 100??? And balance costs in xml tech info if we need to. So very stupid. But anyways etc. And now tech_mathematics costs 250 at worldsize_standard, not 285, as intended! Yay! But anyways etc... And tech_alien_life costs 16000 not 18400, as intended too! At least as of now, Yay!! But anyways etc..."
+- "increased `iAnarchyPercent` from 50/50/40/40/34/34/34 to 100 at all eras. Effectively this seems to mean anarchy lasts 2 turns. I don't care about realism of late vs early era anarchy duration, i only want the game to be fair and challenging. I think having a bit longer but not tedious or annoying anarchy adds weight to when to change regime or such and make it a more strategic decisions. Indirectly buffs as of now trait_spiritual or such other traits providing no anarchy, and in a general way, we shouldn't change that often civics or such, but if we were to, then we'd value some traits or such more. In short adds bit strategy without too much tediousness hopefully/ideally but anyways etc."
+- "increased `iGrowthPercent` (food per food bar full modifier), `iTrainPercent` (production cost for any unit modifier if i'm not mistaken anyways etc), `iConstructPercent` (hammer cost for buildings modifier), and `iCreatePercent` (hammer cost for a project modifier) from 100/100/100/90/80/70/60 to 100 at all eras, i don't care about realism here as well. May explain why AIs and possibly the human player too in autoplay or real game would produce so much units later in the game, as well as gameplay getting seemingly out of hand in middle and late game. I want gameplay to be gradual not exponential, and i'd rather adjust settings such as iCost for each unit myself reliably if need be, i don't need this shit of weird realism or accomodation or whatever it is if i may say but anyways etc, and i want instead gameplay to be predictable, reliable, and gradual as i said but anyways etc."
+- "similarly increased `iBuildPercent` and `iImprovementPercent` from 100/100/100/90/80/70/60 to 100 at all eras; even assuming 2-4 years per road in later eras it doesn't seem too far-fetched or unrealistic, or 10-20 years in industrial era or such maybe (imaginary numbers anyways etc), so no reason to over-realism here either or whatever the reason was but anyways etc."
+- "nerf the workshop a bit (techs giving extra hammer yields relatively a bit later in our reworked tech tree anyways etc) as it was a bit too op"
+- bestcitybuild refinements anyways etc
+
+commit 6e40f0004c3cb06e1a97be5dd927d657aaa9032f
+Author: wonderingabout <hidden>
+Date:   2025-08-30 14:13:56 +0200
+
+disabled iAIHandicapIncrementTurns at all difficulties/handicap settings, tech quotes reordering and/or such anyways etc
+- iAIHandicapIncrementTurns: "<!-- custom: now disabled at all difficulties/handicap settings, as it is unreliable, game breaking, and uneeded, i can adjust iAITrainPercent or/and such other fields for a more even and fair game if needed or harder one as i see fit, and not exponentially harder one. Our AI is efficient with its hammer now so it always runs away at emperor autoplay at least, i suspect due to this or it could be one of the contributing factors, i don't like it anyway so disabled if i may say xd, as confirmed by chatgpt 5, check if accurate, anyways etc; as a side effect, AIs will produce less units, so they'll go bankrupt later or not at all maybe, so will probably help them a lot in the long term if i may say, i hate this kind of very uneeded and sneaky settings added instead of improving the AI rather, but anyways etc -->"
+- tech quotes reordering and/or such if any other such but anyways etc:
+
+- - combustion ("everything in life is somewhere else, and you get there in a car") -> priesthood (bio engineering)
+- - priesthood (bio engineering) ("the lord bless you and keep you") -> postaxial religion
+- - postaxial religion ("two cities two loves") -> terraforming
+- - terraforming ("nothing travels faster speed of light bad news") -> archery (space expansion)
+- - feudalism ("i will to my lord to be true and faithful) -> guilds (chivalry)
+- - guilds (chivalry) ("people same trade seldom meet together") -> economics
+- - economics ("one word say to you plastics") -> combustion
+- - later abrahamism ("i am the state") -> feudalism
+- - monarchy ("let there be one ruler one king") -> later abrahamism
+- - construction ("king of kings") -> monarchy
+- - steam power ("ship sail") -> marine technology
+- - marine technology ("steam drill etc... hammer in my hand") -> metal casting
+- - metal casting ("take the sword perish by the sword") -> military tradition
+- - archery (space expansion) ("do not throw the arrow which will return against you") ->  military science
+- - military science ("must study war politics sons mathematics philosophy") -> construction
+- - military tradition ("victorious win first go to war etc defeated") -> steam power
+
+commit ca1e3bdee85b90881d3458a9dbae891c67590575
+Author: wonderingabout <hidden>
+Date:   2025-08-29 23:47:57 +0200
+
+replace "_GUILDS" with "_CHIVALRY", replace "_PRIESTHOOD" with "_BIOENGINEERING", replace "_ARCHERY" with "_SPACE_EXPLORATION" (minus quotes for techs in this commit anyways etc), and other related or not changes or not anyways etc
+
 commit 455a85d30a81ca9e040ee2d4c68299b781ab5232
 Author: wonderingabout <hidden>
 Date:   2025-08-29 16:20:25 +0200

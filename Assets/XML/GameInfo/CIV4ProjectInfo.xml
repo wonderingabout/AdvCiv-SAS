@@ -11,7 +11,7 @@
 			<Type>PROJECT_MANHATTAN_PROJECT</Type>
 			<Description>TXT_KEY_PROJECT_MANHATTAN_PROJECT</Description>
 			<Civilopedia>TXT_KEY_PROJECT_MANHATTAN_PROJECT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_PROJECT_MANHATTAN_PROJECT_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<TechPrereq>TECH_FISSION</TechPrereq>
 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
@@ -47,7 +47,7 @@
 			<Type>PROJECT_THE_INTERNET</Type>
 			<Description>TXT_KEY_PROJECT_THE_INTERNET</Description>
 			<Civilopedia>TXT_KEY_PROJECT_THE_INTERNET_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_PROJECT_THE_INTERNET_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<TechPrereq>TECH_COMPUTERS</TechPrereq>
 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
@@ -80,7 +80,7 @@
 			<Type>PROJECT_SDI</Type>
 			<Description>TXT_KEY_PROJECT_SDI</Description>
 			<Civilopedia>TXT_KEY_PROJECT_SDI_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_PROJECT_SDI_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<!-- custom: was TECH_TERRAFORMING -->
 			<TechPrereq>TECH_SATELLITES</TechPrereq>
@@ -115,7 +115,7 @@
 			<Type>PROJECT_APOLLO_PROGRAM</Type>
 			<Description>TXT_KEY_PROJECT_APOLLO_PROGRAM</Description>
 			<Civilopedia>TXT_KEY_PROJECT_APOLLO_PROGRAM_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_PROJECT_APOLLO_PROGRAM_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
 			<TechPrereq>TECH_ROCKETRY</TechPrereq>
 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
@@ -147,7 +147,7 @@
 			<Type>PROJECT_SS_COCKPIT</Type>
 			<Description>TXT_KEY_PROJECT_SS_COCKPIT</Description>
 			<Civilopedia>TXT_KEY_PROJECT_SS_COCKPIT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_PROJECT_SPACE_SHIP_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
 			<!-- custom: move PROJECT_SS_COCKPIT to computers, seems to make more sense, plus most importantly anyways etc we incentivize more computers and can build the spaceship a bit sooner as well, anyways etc, was the now removed TECH_FIBER_OPTICS -->
 			<TechPrereq>TECH_COMPUTERS</TechPrereq>
@@ -190,7 +190,7 @@
 			<Type>PROJECT_SS_LIFE_SUPPORT</Type>
 			<Description>TXT_KEY_PROJECT_SS_LIFE_SUPPORT</Description>
 			<Civilopedia>TXT_KEY_PROJECT_SS_LIFE_SUPPORT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_PROJECT_SPACE_SHIP_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
 			<!-- custom: was TECH_ECOLOGY -->
 			<TechPrereq>TECH_GENETICS</TechPrereq>
@@ -233,7 +233,7 @@
 			<Type>PROJECT_SS_STASIS_CHAMBER</Type>
 			<Description>TXT_KEY_PROJECT_SS_STASIS_CHAMBER</Description>
 			<Civilopedia>TXT_KEY_PROJECT_SS_STASIS_CHAMBER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_PROJECT_SPACE_SHIP_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
 			<!-- custom: was TECH_GENETICS -->
 			<TechPrereq>TECH_BIOENGINEERING</TechPrereq>
@@ -272,7 +272,7 @@
 			<Type>PROJECT_SS_DOCKING_BAY</Type>
 			<Description>TXT_KEY_PROJECT_SS_DOCKING_BAY</Description>
 			<Civilopedia>TXT_KEY_PROJECT_SS_DOCKING_BAY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_PROJECT_SPACE_SHIP_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
 			<!-- custom: was TECH_SATELLITES -->
 			<TechPrereq>TECH_SPACE_EXPLORATION</TechPrereq>
@@ -311,13 +311,14 @@
 			<Type>PROJECT_SS_ENGINE</Type>
 			<Description>TXT_KEY_PROJECT_SS_ENGINE</Description>
 			<Civilopedia>TXT_KEY_PROJECT_SS_ENGINE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_PROJECT_SPACE_SHIP_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
 			<TechPrereq>TECH_FUSION</TechPrereq>
 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
 			<iMaxTeamInstances>2</iMaxTeamInstances>
-			<iCost>1600</iCost>
+			<!-- custom: was 1600 -->
+			<iCost>2000</iCost>
 			<iNukeInterception>0</iNukeInterception>
 			<iTechShare>0</iTechShare>
 			<EveryoneSpecialUnit>NONE</EveryoneSpecialUnit>
@@ -353,7 +354,7 @@
 			<Type>PROJECT_SS_CASING</Type>
 			<Description>TXT_KEY_PROJECT_SS_CASING</Description>
 			<Civilopedia>TXT_KEY_PROJECT_SS_CASING_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_PROJECT_SPACE_SHIP_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
 			<TechPrereq>TECH_COMPOSITES</TechPrereq>
 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
@@ -400,7 +401,7 @@
 			<Type>PROJECT_SS_THRUSTERS</Type>
 			<Description>TXT_KEY_PROJECT_SS_THRUSTERS</Description>
 			<Civilopedia>TXT_KEY_PROJECT_SS_THRUSTERS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_PROJECT_SPACE_SHIP_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
 			<!-- custom: now that tech_rocketry is free, use it to build PROJECT_SS_THRUSTERS, so we can build the spaceship sooner in tech tree and out of the main military path too but or not but or yes but or and other or and not or yes or other or etc anyways etc, was TECH_SUPERCONDUCTORS; update: now that we added a future_era, make space race not end too soon before players have reasonably advanced enough in it, so keep some space parts if i may say in this case but anyways etc at later future_era techs as of now but anyways etc -->
 			<TechPrereq>TECH_ROCKETRY</TechPrereq>

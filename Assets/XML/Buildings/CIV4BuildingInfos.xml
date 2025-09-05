@@ -18,7 +18,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_PALACE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_PALACE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_PALACE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_PALACE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -189,7 +189,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_BARBARIAN_PALACE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_GENERIC_BARBARIAN_CUSTOM_SEE_FOR_DETAILS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_PALACE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_PALACE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -558,7 +558,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_WALLS</Description>
 			<Civilopedia>TXT_KEY_BUILDING_WALLS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_WALLS_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_WALLS</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -742,7 +742,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_CELTIC_DUN</Description>
 			<Civilopedia>TXT_KEY_BUILDING_CELTIC_DUN_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_CELTIC_DUN_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_CELTIC_DUN</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -930,7 +930,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_BARBARIAN_WALLS</Description>
 			<Civilopedia>TXT_KEY_BUILDING_GENERIC_BARBARIAN_CUSTOM_SEE_FOR_DETAILS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_WALLS_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_WALLS</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -1114,7 +1114,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_CASTLE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_CASTLE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_CASTLE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_CASTLE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -1317,7 +1317,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_SPANISH_CITADEL</Description>
 			<Civilopedia>TXT_KEY_BUILDING_SPANISH_CITADEL_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_SPANISH_CITADEL_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_SPANISH_CITADEL</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -1729,7 +1729,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_BARBARIAN_CASTLE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_GENERIC_BARBARIAN_CUSTOM_SEE_FOR_DETAILS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_CASTLE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_CASTLE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -1930,7 +1930,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_BARRACKS</Description>
 			<Civilopedia>TXT_KEY_BUILDING_BARRACKS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_BARRACKS_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_BARRACKS</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -2106,7 +2106,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_ZULU_IKHANDA</Description>
 			<Civilopedia>TXT_KEY_BUILDING_ZULU_IKHANDA_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_ZULU_IKHANDA_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_ZULU_IKHANDA</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -2286,7 +2286,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_BARBARIAN_BARRACKS</Description>
 			<Civilopedia>TXT_KEY_BUILDING_GENERIC_BARBARIAN_CUSTOM_SEE_FOR_DETAILS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_BARRACKS_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_BARRACKS</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -2460,7 +2460,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_STABLE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_STABLE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_STABLE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_STABLE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -2636,7 +2636,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_MONGOL_GER</Description>
 			<Civilopedia>TXT_KEY_BUILDING_MONGOL_GER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_MONGOL_GER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_MONGOL_GER</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -2813,7 +2813,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_BUNKER</Description>
 			<Civilopedia>TXT_KEY_BUILDING_BUNKER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_BUNKER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_BUNKER</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -2982,7 +2982,7 @@
 			<SpecialBuildingType>SPECIALBUILDING_BOMB_SHELTER</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_BOMB_SHELTER</Description>
 			<Civilopedia>TXT_KEY_BUILDING_BOMB_SHELTER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_BOMB_SHELTER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_BOMB_SHELTER</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -3149,7 +3149,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_GRANARY</Description>
 			<Civilopedia>TXT_KEY_BUILDING_GRANARY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_GRANARY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_GRANARY</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -3342,7 +3342,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_BARBARIAN_GRANARY</Description>
 			<Civilopedia>TXT_KEY_BUILDING_GENERIC_BARBARIAN_CUSTOM_SEE_FOR_DETAILS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_GRANARY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_GRANARY</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -3933,7 +3933,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_AQUEDUCT</Description>
 			<Civilopedia>TXT_KEY_BUILDING_AQUEDUCT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_AQUEDUCT_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_AQUEDUCT</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -4111,7 +4111,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_OTTOMAN_HAMMAM</Description>
 			<Civilopedia>TXT_KEY_BUILDING_OTTOMAN_HAMMAM_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_OTTOMAN_HAMMAM_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_OTTOMAN_HAMMAM</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -4283,7 +4283,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_KHMER_BARAY</Description>
 			<Civilopedia>TXT_KEY_BUILDING_KHMER_BARAY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_KHMER_BARAY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_KHMER_BARAY</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -4649,7 +4649,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_HOSPITAL</Description>
 			<Civilopedia>TXT_KEY_BUILDING_HOSPITAL_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_HOSPITAL_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_HOSPITAL</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -4821,7 +4821,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_RECYCLING_CENTER</Description>
 			<Civilopedia>TXT_KEY_BUILDING_RECYCLING_CENTER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_RECYCLING_CENTER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_RECYCLING_CENTER</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -4987,7 +4987,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_HARBOR</Description>
 			<Civilopedia>TXT_KEY_BUILDING_HARBOR_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_HARBOR_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_HARBOR</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -5387,7 +5387,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_LIGHTHOUSE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_LIGHTHOUSE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_LIGHTHOUSE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_LIGHTHOUSE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -5574,7 +5574,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_BARBARIAN_LIGHTHOUSE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_GENERIC_BARBARIAN_CUSTOM_SEE_FOR_DETAILS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_LIGHTHOUSE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_LIGHTHOUSE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -6333,7 +6333,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_CUSTOM_HOUSE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_CUSTOM_HOUSE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_CUSTOM_HOUSE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_CUSTOM_HOUSE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -6515,7 +6515,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_PORTUGAL_FEITORIA</Description>
 			<Civilopedia>TXT_KEY_BUILDING_PORTUGAL_FEITORIA_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_PORTUGAL_FEITORIA_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_PORTUGAL_FEITORIA</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -6691,7 +6691,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_DRYDOCK</Description>
 			<Civilopedia>TXT_KEY_BUILDING_DRYDOCK_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_DRYDOCK_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_DRYDOCK</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -6886,7 +6886,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_AIRPORT</Description>
 			<Civilopedia>TXT_KEY_BUILDING_AIRPORT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_AIRPORT_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_AIRPORT</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -7060,7 +7060,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_FORGE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_FORGE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_FORGE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_FORGE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -7253,7 +7253,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_MALI_MINT</Description>
 			<Civilopedia>TXT_KEY_BUILDING_MALI_FORGE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_MALI_MINT_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_MALI_MINT</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -7452,7 +7452,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_FACTORY</Description>
 			<Civilopedia>TXT_KEY_BUILDING_FACTORY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_FACTORY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_FACTORY</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -7645,7 +7645,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_COAL_PLANT</Description>
 			<Civilopedia>TXT_KEY_BUILDING_COAL_PLANT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_COAL_PLANT_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_COAL_PLANT</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -7814,7 +7814,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_HYDRO_PLANT</Description>
 			<Civilopedia>TXT_KEY_BUILDING_HYDRO_PLANT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_HYDRO_PLANT_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_HYDRO_PLANT</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -7988,7 +7988,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_NUCLEAR_PLANT</Description>
 			<Civilopedia>TXT_KEY_BUILDING_NUCLEAR_PLANT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_NUCLEAR_PLANT_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_NUCLEAR_PLANT</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -8156,7 +8156,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_INDUSTRIAL_PARK</Description>
 			<Civilopedia>TXT_KEY_BUILDING_INDUSTRIAL_PARK_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_INDUSTRIAL_PARK_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_INDUSTRIAL_PARK</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -8347,7 +8347,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_MONUMENT</Description>
 			<Civilopedia>TXT_KEY_NEW_BUILDING_MONUMENT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_MONUMENT_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_CULTURE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_MONUMENT</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -8522,7 +8522,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_EGYPTIAN_OBELISK</Description>
 			<Civilopedia>TXT_KEY_BUILDING_EGYPTIAN_OBELISK_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_EGYPTIAN_OBELISK_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_CULTURE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_EGYPTIAN_OBELISK</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -8708,7 +8708,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_ETHIOPIAN_STELE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_ETHIOPIAN_STELE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_ETHIOPIAN_STELE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_CULTURE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_ETHIOPIAN_STELE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -8882,7 +8882,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_NATIVE_AMERICA_TOTEM</Description>
 			<Civilopedia>TXT_KEY_BUILDING_NATIVE_AMERICA_TOTEM_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_NATIVE_AMERICA_TOTEM_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_NATIVE_AMERICA_TOTEM</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -9070,7 +9070,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_AZTEC_SACRIFICIAL_ALTAR</Description>
 			<Civilopedia>TXT_KEY_BUILDING_AZTEC_SACRIFICIAL_ALTAR_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_AZTEC_SACRIFICIAL_ALTAR_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_AZTEC_SACRIFICIAL_ALTAR</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -9256,7 +9256,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_SUMERIAN_ZIGGURAT</Description>
 			<Civilopedia>TXT_KEY_BUILDING_SUMERIAN_ZIGGURAT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_SUMERIAN_ZIGGURAT_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_CULTURE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_SUMERIAN_ZIGGURAT</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -9453,7 +9453,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_PUBLIC_TRANSPORTATION</Description>
 			<Civilopedia>TXT_KEY_BUILDING_PUBLIC_TRANSPORTATION_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_PUBLIC_TRANSPORTATION_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_PUBLIC_TRANSPORTATION</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -9621,7 +9621,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_ACADEMY</Description>
 			<Civilopedia>TXT_KEY_BUILDING_ACADEMY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_ACADEMY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_ACADEMY</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -9796,7 +9796,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_LIBRARY</Description>
 			<Civilopedia>TXT_KEY_BUILDING_LIBRARY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_LIBRARY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_LIBRARY</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -9991,7 +9991,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_UNIVERSITY</Description>
 			<Civilopedia>TXT_KEY_BUILDING_UNIVERSITY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_UNIVERSITY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_UNIVERSITY</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -10177,7 +10177,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_ARABIAN_MADRASSA</Description>
 			<Civilopedia>TXT_KEY_BUILDING_ARABIAN_MADRASSA_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_ARABIAN_MADRASSA_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_ARABIAN_MADRASSA</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -10376,7 +10376,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_KOREAN_SEOWON</Description>
 			<Civilopedia>TXT_KEY_BUILDING_KOREAN_SEOWON_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_KOREAN_SEOWON_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_KOREAN_SEOWON</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -10752,7 +10752,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_LABORATORY</Description>
 			<Civilopedia>TXT_KEY_BUILDING_LABORATORY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_LABORATORY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_LABORATORY</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -10945,7 +10945,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_THEATRE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_THEATRE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_THEATRE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_CULTURE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_THEATRE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -11136,7 +11136,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_CHINESE_PAVILLION</Description>
 			<Civilopedia>TXT_KEY_BUILDING_CHINESE_PAVILLION_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_CHINESE_PAVILLION_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_CULTURE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_CHINESE_PAVILLION</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -11331,7 +11331,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_BYZANTINE_HIPPODROME</Description>
 			<Civilopedia>TXT_KEY_BUILDING_BYZANTINE_HIPPODROME_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_BYZANTINE_HIPPODROME_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_BYZANTINE_HIPPODROME</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -11529,7 +11529,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_COLOSSEUM</Description>
 			<Civilopedia>TXT_KEY_BUILDING_COLOSSEUM_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_COLOSSEUM_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_COLOSSEUM</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -11701,7 +11701,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_GREEK_ODEON</Description>
 			<Civilopedia>TXT_KEY_BUILDING_GREEK_ODEON_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_GREEK_ODEON_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_GREEK_ODEON</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -11898,7 +11898,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_MAYA_BALL_COURT</Description>
 			<Civilopedia>TXT_KEY_BUILDING_MAYA_BALL_COURT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_MAYA_BALL_COURT_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_MAYA_BALL_COURT</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -12070,7 +12070,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_BABYLON_GARDEN</Description>
 			<Civilopedia>TXT_KEY_BUILDING_BABYLON_GARDEN_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_BABYLON_GARDEN_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_BABYLON_GARDEN</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -12247,7 +12247,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_BROADCAST_TOWER</Description>
 			<Civilopedia>TXT_KEY_BUILDING_BROADCAST_TOWER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_BROADCAST_TOWER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_CULTURE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_BROADCAST_TOWER</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -12443,7 +12443,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_MARKET</Description>
 			<Civilopedia>TXT_KEY_BUILDING_MARKET_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_MARKET_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -12635,7 +12635,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_ROMAN_FORUM</Description>
 			<Civilopedia>TXT_KEY_BUILDING_ROMAN_FORUM_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_ROMAN_FORUM_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_ROMAN_FORUM</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -12827,7 +12827,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_GROCER</Description>
 			<Civilopedia>TXT_KEY_BUILDING_GROCER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_GROCER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_GROCER</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -13029,7 +13029,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_PERSIAN_APOTHECARY</Description>
 			<Civilopedia>TXT_KEY_BUILDING_PERSIAN_GROCER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_PERSIAN_APOTHECARY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_PERSIAN_APOTHECARY</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -13231,7 +13231,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_BANK</Description>
 			<Civilopedia>TXT_KEY_BUILDING_BANK_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_BANK_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_BANK</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -13395,7 +13395,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_ENGLISH_STOCK_EXCHANGE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_ENGLISH_BANK_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_ENGLISH_STOCK_EXCHANGE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_ENGLISH_STOCK_EXCHANGE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -13559,7 +13559,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_SUPERMARKET</Description>
 			<Civilopedia>TXT_KEY_BUILDING_SUPERMARKET_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_SUPERMARKET_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_SUPERMARKET</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -13760,7 +13760,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_AMERICAN_MALL</Description>
 			<Civilopedia>TXT_KEY_CHANGED_BUILDING_AMERICAN_MALL_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_AMERICAN_MALL_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_AMERICAN_MALL</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -13962,7 +13962,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_COURTHOUSE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_COURTHOUSE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_COURTHOUSE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_COURTHOUSE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -14149,7 +14149,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_HOLY_ROMAN_RATHAUS</Description>
 			<Civilopedia>TXT_KEY_BUILDING_HOLY_ROMAN_RATHAUS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_HOLY_ROMAN_RATHAUS_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_HOLY_ROMAN_RATHAUS</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -14337,7 +14337,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_JAIL</Description>
 			<Civilopedia>TXT_KEY_BUILDING_JAIL_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_JAIL_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_JAIL</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -14531,7 +14531,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_INDIAN_MAUSOLEUM</Description>
 			<Civilopedia>TXT_KEY_BUILDING_INDIAN_MAUSOLEUM_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_INDIAN_MAUSOLEUM_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_INDIAN_MAUSOLEUM</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -14937,7 +14937,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_LEVEE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_LEVEE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_LEVEE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_LEVEE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -15104,7 +15104,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_NETHERLANDS_DIKE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_NETHERLANDS_DIKE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_NETHERLANDS_DIKE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_NETHERLANDS_DIKE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -15273,7 +15273,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_INTELLIGENCE_AGENCY</Description>
 			<Civilopedia>TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_INTELLIGENCE_AGENCY</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -16379,7 +16379,7 @@
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_HINDU_TEMPLE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_HINDU_TEMPLE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_HINDU_TEMPLE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_HINDU_TEMPLE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -16559,7 +16559,7 @@
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_HINDU_CATHEDRAL</Description>
 			<Civilopedia>TXT_KEY_BUILDING_HINDU_CATHEDRAL_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_HINDU_CATHEDRAL_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_HINDU_CATHEDRAL</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -16753,7 +16753,7 @@
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_HINDU_MONASTERY</Description>
 			<Civilopedia>TXT_KEY_BUILDING_HINDU_MONASTERY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_HINDU_MONASTERY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_HINDU_MONASTERY</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -16942,7 +16942,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_HINDU_SHRINE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_HINDU_SHRINE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_HINDU_SHRINE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_HINDU_SHRINE</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_SHRINE_HINDU</MovieDefineTag>
@@ -17134,7 +17134,7 @@
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_JEWISH_TEMPLE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_JEWISH_TEMPLE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_JEWISH_TEMPLE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_JEWISH_TEMPLE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -17314,7 +17314,7 @@
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_JEWISH_CATHEDRAL</Description>
 			<Civilopedia>TXT_KEY_BUILDING_JEWISH_CATHEDRAL_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_JEWISH_CATHEDRAL_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_JEWISH_CATHEDRAL</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -17508,7 +17508,7 @@
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_JEWISH_MONASTERY</Description>
 			<Civilopedia>TXT_KEY_BUILDING_JEWISH_MONASTERY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_JEWISH_MONASTERY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_JEWISH_MONASTERY</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -17697,7 +17697,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_JEWISH_SHRINE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_JEWISH_SHRINE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_JEWISH_SHRINE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_JEWISH_SHRINE</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_SHRINE_JEWISH</MovieDefineTag>
@@ -18645,7 +18645,7 @@
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_BUDDHIST_TEMPLE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_BUDDHIST_TEMPLE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_BUDDHIST_TEMPLE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_BUDDHIST_TEMPLE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -18825,7 +18825,7 @@
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_BUDDHIST_CATHEDRAL</Description>
 			<Civilopedia>TXT_KEY_BUILDING_BUDDHIST_CATHEDRAL_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_BUDDHIST_CATHEDRAL_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_BUDDHIST_CATHEDRAL</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -19019,7 +19019,7 @@
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_BUDDHIST_MONASTERY</Description>
 			<Civilopedia>TXT_KEY_BUILDING_BUDDHIST_MONASTERY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_BUDDHIST_MONASTERY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_BUDDHIST_MONASTERY</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -19208,7 +19208,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_BUDDHIST_SHRINE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_BUDDHIST_SHRINE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_BUDDHIST_SHRINE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_BUDDHIST_SHRINE</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_SHRINE_BUDDHIST</MovieDefineTag>
@@ -19400,7 +19400,7 @@
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_CHRISTIAN_TEMPLE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_CHRISTIAN_TEMPLE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_CHRISTIAN_TEMPLE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_CHRISTIAN_TEMPLE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -19580,7 +19580,7 @@
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_CHRISTIAN_CATHEDRAL</Description>
 			<Civilopedia>TXT_KEY_BUILDING_CHRISTIAN_CATHEDRAL_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_CHRISTIAN_CATHEDRAL_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_CHRISTIAN_CATHEDRAL</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -19774,7 +19774,7 @@
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_CHRISTIAN_MONASTERY</Description>
 			<Civilopedia>TXT_KEY_BUILDING_CHRISTIAN_MONASTERY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_CHRISTIAN_MONASTERY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_CHRISTIAN_MONASTERY</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -19963,7 +19963,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_CHRISTIAN_SHRINE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_CHRISTIAN_SHRINE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_CHRISTIAN_SHRINE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_CHRISTIAN_SHRINE</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_SHRINE_CHRISTIAN</MovieDefineTag>
@@ -20155,7 +20155,7 @@
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_ISLAMIC_TEMPLE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_ISLAMIC_TEMPLE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_ISLAMIC_TEMPLE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_ISLAMIC_TEMPLE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -20335,7 +20335,7 @@
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_ISLAMIC_CATHEDRAL</Description>
 			<Civilopedia>TXT_KEY_BUILDING_ISLAMIC_CATHEDRAL_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_ISLAMIC_CATHEDRAL_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_ISLAMIC_CATHEDRAL</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -20529,7 +20529,7 @@
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_ISLAMIC_MONASTERY</Description>
 			<Civilopedia>TXT_KEY_BUILDING_ISLAMIC_MONASTERY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_ISLAMIC_MONASTERY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_ISLAMIC_MONASTERY</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -20718,7 +20718,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_ISLAMIC_SHRINE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_ISLAMIC_SHRINE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_ISLAMIC_SHRINE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_ISLAMIC_SHRINE</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_SHRINE_ISLAMIC</MovieDefineTag>
@@ -20910,7 +20910,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_HEROIC_EPIC</Description>
 			<Civilopedia>TXT_KEY_BUILDING_HEROIC_EPIC_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_HEROIC_EPIC_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_HEROIC_EPIC</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -21093,7 +21093,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_NATIONAL_EPIC</Description>
 			<Civilopedia>TXT_KEY_BUILDING_NATIONAL_EPIC_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_NATIONAL_EPIC_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_CULTURE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_NATIONAL_EPIC</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -21279,7 +21279,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_GLOBE_THEATRE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_GLOBE_THEATRE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_GLOBE_THEATRE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_CULTURE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_GLOBE_THEATRE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -21482,7 +21482,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_NATIONAL_PARK</Description>
 			<Civilopedia>TXT_KEY_BUILDING_NATIONAL_PARK_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_NATIONAL_PARK_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_NATIONAL_PARK</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -21651,7 +21651,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_HERMITAGE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_HERMITAGE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_HERMITAGE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_CULTURE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_HERMITAGE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -21832,7 +21832,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_WALL_STREET</Description>
 			<Civilopedia>TXT_KEY_BUILDING_WALL_STREET_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_WALL_STREET_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_WALL_STREET</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -22012,7 +22012,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_IRONWORKS</Description>
 			<Civilopedia>TXT_KEY_BUILDING_IRONWORKS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_IRONWORKS_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_IRON_WORKS</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -22213,7 +22213,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_MT_RUSHMORE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_MT_RUSHMORE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_MT_RUSHMORE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_MT_RUSHMORE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -22403,7 +22403,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_RED_CROSS</Description>
 			<Civilopedia>TXT_KEY_BUILDING_RED_CROSS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_RED_CROSS_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_RED_CROSS</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -22595,7 +22595,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_SCOTLAND_YARD</Description>
 			<Civilopedia>TXT_KEY_BUILDING_SCOTLAND_YARD_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_SCOTLAND_YARD_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_SCOTLAND_YARD</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -22764,7 +22764,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_PYRAMID</Description>
 			<Civilopedia>TXT_KEY_BUILDING_PYRAMID_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_PYRAMID_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_PYRAMID</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_PYRAMIDS</MovieDefineTag>
@@ -22963,7 +22963,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_STONEHENGE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_STONEHENGE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_STONEHENGE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_CULTURE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_STONEHENGE</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_STONEHENGE</MovieDefineTag>
@@ -23147,7 +23147,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_GREAT_LIBRARY</Description>
 			<Civilopedia>TXT_KEY_BUILDING_GREAT_LIBRARY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_GREAT_LIBRARY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_GREAT_LIBRARY</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_GREAT_LIBRARY</MovieDefineTag>
@@ -23341,7 +23341,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_GREAT_LIGHTHOUSE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_GREAT_LIGHTHOUSE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_GREAT_LIGHTHOUSE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_GREAT_LIGHTHOUSE</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_GREAT_LIGHTHOUSE</MovieDefineTag>
@@ -23544,7 +23544,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_HANGING_GARDEN</Description>
 			<Civilopedia>TXT_KEY_BUILDING_HANGING_GARDEN_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_HANGING_GARDEN_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_HANGING_GARDEN</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_HANGING_GARDENS</MovieDefineTag>
@@ -23736,7 +23736,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_COLOSSUS</Description>
 			<Civilopedia>TXT_KEY_BUILDING_COLOSSUS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_COLOSSUS_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_COLOSSUS</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_COLOSSUS</MovieDefineTag>
@@ -23954,7 +23954,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_ORACLE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_ORACLE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_ORACLE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_ORACLE</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_ORACLE</MovieDefineTag>
@@ -24136,7 +24136,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_PARTHENON</Description>
 			<Civilopedia>TXT_KEY_BUILDING_PARTHENON_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_PARTHENON_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_CULTURE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_PARTHENON</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_PARTHENON</MovieDefineTag>
@@ -24330,7 +24330,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_ANGKOR_WAT</Description>
 			<Civilopedia>TXT_KEY_BUILDING_ANGKOR_WAT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_ANGKOR_WAT_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_ANGKOR_WAT</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_ANGKOR_WAT</MovieDefineTag>
@@ -24537,7 +24537,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_HAGIA_SOPHIA</Description>
 			<Civilopedia>TXT_KEY_BUILDING_HAGIA_SOPHIA_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_HAGIA_SOPHIA_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_HAGIA_SOPHIA</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_HAGIA_SOPHIA</MovieDefineTag>
@@ -25139,7 +25139,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_SPIRAL_MINARET</Description>
 			<Civilopedia>TXT_KEY_BUILDING_SPIRAL_MINARET_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_SPIRAL_MINARET_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_SPIRAL_MINARET</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_SPIRAL_MINARET</MovieDefineTag>
@@ -25323,7 +25323,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_OXFORD_UNIVERSITY</Description>
 			<Civilopedia>TXT_KEY_BUILDING_OXFORD_UNIVERSITY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_OXFORD_UNIVERSITY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_OXFORD_UNIVERSITY</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -25525,7 +25525,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_NOTRE_DAME</Description>
 			<Civilopedia>TXT_KEY_BUILDING_NOTRE_DAME_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_NOTRE_DAME_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_NOTRE_DAME</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_NOTRE_DAME</MovieDefineTag>
@@ -25731,7 +25731,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_TAJ_MAHAL</Description>
 			<Civilopedia>TXT_KEY_BUILDING_TAJ_MAHAL_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_TAJ_MAHAL_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_TAJ_MAHAL</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_TAJ_MAHAL</MovieDefineTag>
@@ -25928,7 +25928,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_KREMLIN</Description>
 			<Civilopedia>TXT_KEY_BUILDING_KREMLIN_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_KREMLIN_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_KREMLIN</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_KREMLIN</MovieDefineTag>
@@ -26114,7 +26114,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_EIFFEL_TOWER</Description>
 			<Civilopedia>TXT_KEY_BUILDING_EIFFEL_TOWER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_EIFFEL_TOWER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_CULTURE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_EIFFEL_TOWER</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_EIFFEL_TOWER</MovieDefineTag>
@@ -26313,7 +26313,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_STATUE_OF_LIBERTY</Description>
 			<Civilopedia>TXT_KEY_BUILDING_STATUE_OF_LIBERTY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_STATUE_OF_LIBERTY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_STATUE_OF_LIBERTY</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_STATUE_OF_LIBERTY</MovieDefineTag>
@@ -26512,7 +26512,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_BROADWAY</Description>
 			<Civilopedia>TXT_KEY_BUILDING_BROADWAY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_BROADWAY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_CULTURE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_BROADWAY</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_BROADWAY</MovieDefineTag>
@@ -26713,7 +26713,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_ROCKNROLL</Description>
 			<Civilopedia>TXT_KEY_BUILDING_ROCKNROLL_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_ROCKNROLL_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_CULTURE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_ROCKNROLL</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_ROCK_AND_ROLL</MovieDefineTag>
@@ -26897,7 +26897,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_HOLLYWOOD</Description>
 			<Civilopedia>TXT_KEY_BUILDING_HOLLYWOOD_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_HOLLYWOOD_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_CULTURE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_HOLLYWOOD</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_HOLLYWOOD</MovieDefineTag>
@@ -27251,7 +27251,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_PENTAGON</Description>
 			<Civilopedia>TXT_KEY_BUILDING_PENTAGON_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_PENTAGON_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_PENTAGON</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_PENTAGON</MovieDefineTag>
@@ -27423,7 +27423,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_UNITED_NATIONS</Description>
 			<Civilopedia>TXT_KEY_BUILDING_UNITED_NATIONS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_UNITED_NATIONS_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_UNITED_NATIONS</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_UNITED_NATIONS</MovieDefineTag>
@@ -27591,7 +27591,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_MILITARY_ACADEMY</Description>
 			<Civilopedia>TXT_KEY_BUILDING_MILITARY_ACADEMY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_THIRD_ROUND_BUILDING_MILITARY_ACADEMY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_MILITARY_ACADEMY</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -27765,7 +27765,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_ARTEMIS</Description>
 			<Civilopedia>TXT_KEY_BUILDING_TEMPLE_OF_ARTEMIS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_TEMPLE_OF_ARTEMIS_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_ARTEMIS</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_ARTEMIS</MovieDefineTag>
@@ -27974,7 +27974,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_SANKORE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_UNIVERSITY_OF_SANKORE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_UNIVERSITY_OF_SANKORE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_SANKORE</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_UNIVERSITY_SANKORE</MovieDefineTag>
@@ -28178,7 +28178,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_GREAT_WALL</Description>
 			<Civilopedia>TXT_KEY_BUILDING_GREAT_WALL_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_GREAT_WALL_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_GREAT_WALL</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_GREAT_WALL</MovieDefineTag>
@@ -28392,7 +28392,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_STATUE_OF_ZEUS</Description>
 			<Civilopedia>TXT_KEY_BUILDING_STATUE_OF_ZEUS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_STATUE_OF_ZEUS_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_STATUE_OF_ZEUS</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_STATUE_OF_ZEUS</MovieDefineTag>
@@ -28584,7 +28584,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_MAUSOLEUM_OF_MAUSSOLLOS</Description>
 			<Civilopedia>TXT_KEY_BUILDING_MAUSOLEUM_OF_MAUSSOLLOS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_MAUSOLEUM_OF_MAUSSOLLOS_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_MAUSOLEUM_OF_MAUSSOLLOS</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_MAUSOLEUM_OF_MAUSSOLLOS</MovieDefineTag>
@@ -28773,7 +28773,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_CRISTO_REDENTOR</Description>
 			<Civilopedia>TXT_KEY_BUILDING_CRISTO_REDENTOR_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_CRISTO_REDENTOR_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_CRISTO_REDENTOR</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_CHRIST_THE_REDEEMER</MovieDefineTag>
@@ -28988,7 +28988,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_SHWEDAGON_PAYA</Description>
 			<Civilopedia>TXT_KEY_BUILDING_SHWEDAGON_PAYA_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_SHWEDAGON_PAYA_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_SHWEDAGON_PAYA</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_SHWEDAGON_PAYA</MovieDefineTag>
@@ -29191,7 +29191,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_MOAI_STATUES</Description>
 			<Civilopedia>TXT_KEY_BUILDING_MOAI_STATUES_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_MOAI_STATUES_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_MOAI_STATUES</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -29383,7 +29383,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_VERSAILLES</Description>
 			<Civilopedia>TXT_KEY_BUILDING_VERSAILLES_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_VERSAILLES_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_VERSAILLES</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_VERSAILLES</MovieDefineTag>
@@ -29592,7 +29592,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_CORPORATION_1</Description>
 			<Civilopedia>TXT_KEY_CORPORATION_1_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_CORPORATION_1_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_CORPORATION_1</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -29769,7 +29769,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>CHANGED_TXT_KEY_CORPORATION_2</Description>
 			<Civilopedia>TXT_KEY_CORPORATION_2_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_CORPORATION_2_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_CORPORATION_2</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -29947,7 +29947,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_CORPORATION_3</Description>
 			<Civilopedia>TXT_KEY_CORPORATION_3_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_CORPORATION_3_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_CORPORATION_3</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -30124,7 +30124,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_CORPORATION_4</Description>
 			<Civilopedia>TXT_KEY_CORPORATION_4_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_CORPORATION_4_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_CORPORATION_4</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -30303,7 +30303,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_CORPORATION_5</Description>
 			<Civilopedia>TXT_KEY_CORPORATION_5_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_CORPORATION_5_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_CORPORATION_5</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -30480,7 +30480,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_CORPORATION_6</Description>
 			<Civilopedia>TXT_KEY_CORPORATION_6_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_CORPORATION_6_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_CORPORATION_6</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -30658,7 +30658,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_CORPORATION_7</Description>
 			<Civilopedia>TXT_KEY_CORPORATION_7_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_CORPORATION_7_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_CORPORATION_7</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
@@ -30837,7 +30837,7 @@
 			<SpecialBuildingType>NONE</SpecialBuildingType>
 			<Description>TXT_KEY_BUILDING_APOSTOLIC_PALACE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_APOSTOLIC_PALACE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_APOSTOLIC_PALACE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<ArtDefineTag>ART_DEF_BUILDING_APOSTOLIC_PALACE</ArtDefineTag>
 			<MovieDefineTag>ART_DEF_MOVIE_APOSTOLIC_PALACE</MovieDefineTag>

@@ -24,7 +24,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_LION</Description>
 			<Civilopedia>TXT_KEY_ANIMAL_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_ANIMAL_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>NONE</Advisor>
 			<bAnimal>1</bAnimal>
 			<bFood>0</bFood>
@@ -205,7 +205,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_BEAR</Description>
 			<Civilopedia>TXT_KEY_ANIMAL_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_ANIMAL_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>NONE</Advisor>
 			<bAnimal>1</bAnimal>
 			<bFood>0</bFood>
@@ -378,7 +378,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_PANTHER</Description>
 			<Civilopedia>TXT_KEY_ANIMAL_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_ANIMAL_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>NONE</Advisor>
 			<bAnimal>1</bAnimal>
 			<bFood>0</bFood>
@@ -551,7 +551,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_WOLF</Description>
 			<Civilopedia>TXT_KEY_ANIMAL_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_ANIMAL_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>NONE</Advisor>
 			<bAnimal>1</bAnimal>
 			<bFood>0</bFood>
@@ -733,7 +733,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_SETTLER</Description>
 			<Civilopedia>TXT_KEY_UNIT_SETTLER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_SETTLER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>1</bFood>
@@ -913,7 +913,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_WORKER</Description>
 			<Civilopedia>TXT_KEY_UNIT_WORKER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_WORKER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>1</bFood>
@@ -1164,7 +1164,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_INDIAN_FAST_WORKER</Description>
 			<Civilopedia>TXT_KEY_UNIT_INDIAN_FAST_WORKER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_INDIAN_FAST_WORKER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>1</bFood>
@@ -1710,7 +1710,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_BARBARIAN_WORKER</Description>
 			<Civilopedia>TXT_KEY_BUILDING_GENERIC_BARBARIAN_CUSTOM_SEE_FOR_DETAILS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_WORKER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>1</bFood>
@@ -1964,7 +1964,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_SCOUT</Description>
 			<Civilopedia>TXT_KEY_UNIT_SCOUT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_SCOUT_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -2193,7 +2193,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_EXPLORER</Description>
 			<Civilopedia>TXT_KEY_UNIT_EXPLORER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_EXPLORER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -2896,7 +2896,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<Description>TXT_KEY_UNIT_SPY</Description>
 			<!-- custom: use a spy dedicated txt key entry to remove much of the unclear or potentially mistaken information. We only want the relevant info about the spy as a unit, not the whole espionnage concept. Also solves some display issues in the sevopedia history panel of this unit. -->
 			<Civilopedia>TXT_KEY_SPY_UNIT_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_SPY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -3076,7 +3076,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_EXECUTIVE_1</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_CORPORATIONS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_EXECUTIVE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -3243,7 +3243,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_EXECUTIVE_2</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_CORPORATIONS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_EXECUTIVE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -3410,7 +3410,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_EXECUTIVE_3</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_CORPORATIONS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_EXECUTIVE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -3577,7 +3577,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_EXECUTIVE_4</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_CORPORATIONS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_EXECUTIVE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -3744,7 +3744,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_EXECUTIVE_5</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_CORPORATIONS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_EXECUTIVE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -3911,7 +3911,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_EXECUTIVE_6</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_CORPORATIONS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_EXECUTIVE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -4078,7 +4078,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_EXECUTIVE_7</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_CORPORATIONS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_EXECUTIVE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -4413,7 +4413,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_HINDU_MISSIONARY</Description>
 			<Civilopedia>TXT_KEY_MISSIONARY_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_HINDU_MISSIONARY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -4581,7 +4581,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_JEWISH_MISSIONARY</Description>
 			<Civilopedia>TXT_KEY_MISSIONARY_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_JEWISH_MISSIONARY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -4917,7 +4917,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_BUDDHIST_MISSIONARY</Description>
 			<Civilopedia>TXT_KEY_MISSIONARY_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_BUDDHIST_MISSIONARY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -5085,7 +5085,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_CHRISTIAN_MISSIONARY</Description>
 			<Civilopedia>TXT_KEY_MISSIONARY_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_CHRISTIAN_MISSIONARY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -5253,7 +5253,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_ISLAMIC_MISSIONARY</Description>
 			<Civilopedia>TXT_KEY_MISSIONARY_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_ISLAMIC_MISSIONARY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -5628,7 +5628,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_AXEMAN</Description>
 			<Civilopedia>TXT_KEY_UNIT_AXEMAN_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_AXEMAN_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -5842,7 +5842,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_SUMERIAN_VULTURE</Description>
 			<Civilopedia>TXT_KEY_UNIT_SUMERIAN_VULTURE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_SUMERIAN_VULTURE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -6511,7 +6511,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_SWORDSMAN</Description>
 			<Civilopedia>TXT_KEY_UNIT_SWORDSMAN_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_SWORDSMAN_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -6696,7 +6696,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_CELTIC_GALLIC_WARRIOR</Description>
 			<Civilopedia>TXT_KEY_UNIT_CELTIC_WARRIOR_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_CELTIC_GALLIC_WARRIOR_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -7577,7 +7577,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_MACEMAN</Description>
 			<Civilopedia>TXT_KEY_UNIT_MACEMAN_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_MACEMAN_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -7779,7 +7779,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_JAPAN_SAMURAI</Description>
 			<Civilopedia>TXT_KEY_UNIT_JAPAN_SAMURAI_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_JAPAN_SAMURAI_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -8242,7 +8242,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_SPEARMAN</Description>
 			<Civilopedia>TXT_KEY_UNIT_SPEARMAN_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_SPEARMAN_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -8471,7 +8471,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_ZULU_IMPI</Description>
 			<Civilopedia>TXT_KEY_UNIT_ZULU_IMPI_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_ZULU_IMPI_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -9229,7 +9229,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_PIKEMAN</Description>
 			<Civilopedia>TXT_KEY_UNIT_PIKEMAN_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_PIKEMAN_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -9460,7 +9460,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_HOLY_ROMAN_LANDSKNECHT</Description>
 			<Civilopedia>TXT_KEY_UNIT_HOLY_ROMAN_LANDSKNECHT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_HOLY_ROMAN_LANDSKNECHT_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -9723,7 +9723,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_ARCHER</Description>
 			<Civilopedia>TXT_KEY_UNIT_ARCHER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_ARCHER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -9962,7 +9962,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_LONGBOWMAN</Description>
 			<Civilopedia>TXT_KEY_UNIT_LONGBOWMAN_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_LONGBOWMAN_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -10704,7 +10704,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_CROSSBOWMAN</Description>
 			<Civilopedia>TXT_KEY_UNIT_CROSSBOWMAN_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_CROSSBOWMAN_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -10902,7 +10902,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_CHINA_CHOKONU</Description>
 			<Civilopedia>TXT_KEY_UNIT_CHINA_CHOKONU_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_CHINA_CHOKONU_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -11120,7 +11120,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN</Description>
 			<Civilopedia>TXT_KEY_UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_CROSSBOWMAN_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -11344,7 +11344,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_MUSKETMAN</Description>
 			<Civilopedia>TXT_KEY_UNIT_MUSKETMAN_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_MUSKETMAN_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -11532,7 +11532,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_OTTOMAN_JANISSARY</Description>
 			<Civilopedia>TXT_KEY_UNIT_OTTOMAN_JANISSARY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_OTTOMAN_JANISSARY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -11747,7 +11747,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_FRENCH_MUSKETEER</Description>
 			<Civilopedia>TXT_KEY_UNIT_FRENCH_MUSKETEER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_FRENCH_MUSKETEER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -11969,7 +11969,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_ETHIOPIAN_OROMO_WARRIOR</Description>
 			<Civilopedia>TXT_KEY_UNIT_ETHIOPIAN_OROMO_WARRIOR_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_ETHIOPIAN_OROMO_WARRIOR_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -12198,7 +12198,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_RIFLEMAN</Description>
 			<Civilopedia>TXT_KEY_UNIT_RIFLEMAN_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_RIFLEMAN_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -12406,7 +12406,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_ENGLISH_REDCOAT</Description>
 			<Civilopedia>TXT_KEY_UNIT_ENGLISH_REDCOAT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_ENGLISH_REDCOAT_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -12876,7 +12876,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_INFANTRY</Description>
 			<Civilopedia>TXT_KEY_UNIT_INFANTRY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_INFANTRY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -13310,7 +13310,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_PARATROOPER</Description>
 			<Civilopedia>TXT_KEY_UNIT_PARATROOPER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_PARATROOPER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -13690,7 +13690,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_GRENADIER</Description>
 			<Civilopedia>TXT_KEY_UNIT_GRENADIER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_GRENADIER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -14101,7 +14101,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_MACHINE_GUN</Description>
 			<Civilopedia>TXT_KEY_UNIT_MACHINE_GUN_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_MACHINE_GUN_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -14308,7 +14308,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_MECHANIZED_INFANTRY</Description>
 			<Civilopedia>TXT_KEY_UNIT_MECHANIZED_INFANTRY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_MECHANIZED_INFANTRY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -14491,7 +14491,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_SAM_INFANTRY</Description>
 			<Civilopedia>TXT_KEY_UNIT_SAM_INFANTRY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_SAM_INFANTRY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -14675,7 +14675,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_MOBILE_SAM</Description>
 			<Civilopedia>TXT_KEY_UNIT_MOBILE_SAM_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_MOBILE_SAM_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -14855,7 +14855,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_CHARIOT</Description>
 			<Civilopedia>TXT_KEY_UNIT_CHARIOT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_CHARIOT_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -15078,7 +15078,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_EGYPT_WARCHARIOT</Description>
 			<Civilopedia>TXT_KEY_UNIT_EGYPT_WARCHARIOT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_EGYPT_WARCHARIOT_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -15320,7 +15320,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_HORSE_ARCHER</Description>
 			<Civilopedia>TXT_KEY_UNIT_HORSE_ARCHER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_HORSE_ARCHER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -15525,7 +15525,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_CARTHAGE_NUMIDIAN_CAVALRY</Description>
 			<Civilopedia>TXT_KEY_UNIT_CARTHAGE_NUMIDIAN_CAVALRY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_CARTHAGE_NUMIDIAN_CAVALRY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -15771,7 +15771,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_MONGOL_KESHIK</Description>
 			<Civilopedia>TXT_KEY_UNIT_MONGOL_KESHIK_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_MONGOL_KESHIK_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -16002,7 +16002,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_CAMEL_ARCHER</Description>
 			<Civilopedia>TXT_KEY_UNIT_CAMEL_ARCHER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_CAMEL_ARCHER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -16217,7 +16217,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_WAR_ELEPHANT</Description>
 			<Civilopedia>TXT_KEY_UNIT_WAR_ELEPHANT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_WAR_ELEPHANT_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -16439,7 +16439,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_KHMER_BALLISTA_ELEPHANT</Description>
 			<Civilopedia>TXT_KEY_UNIT_KHMER_BALLISTA_ELEPHANT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_KHMER_BALLISTA_ELEPHANT_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -16877,7 +16877,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_BYZANTINE_CATAPHRACT</Description>
 			<Civilopedia>TXT_KEY_UNIT_BYZANTINE_CATAPHRACT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_BYZANTINE_CATAPHRACT_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -17786,7 +17786,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_SPANISH_CONQUISTADOR</Description>
 			<Civilopedia>TXT_KEY_UNIT_SPANISH_CONQUISTADOR_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_SPANISH_CONQUISTADOR_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -18463,7 +18463,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_CAVALRY</Description>
 			<Civilopedia>TXT_KEY_UNIT_CAVALRY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_CAVALRY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -18669,7 +18669,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_RUSSIA_COSSACK</Description>
 			<Civilopedia>TXT_KEY_UNIT_RUSSIA_COSSACK_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_RUSSIA_COSSACK_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -18905,7 +18905,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_TANK</Description>
 			<Civilopedia>TXT_KEY_UNIT_TANK_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_TANK_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -19476,7 +19476,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_GUNSHIP</Description>
 			<Civilopedia>TXT_KEY_UNIT_GUNSHIP_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_GUNSHIP_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -19692,7 +19692,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_CATAPULT</Description>
 			<Civilopedia>TXT_KEY_UNIT_CATAPULT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_CATAPULT_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -19914,7 +19914,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_TREBUCHET</Description>
 			<Civilopedia>TXT_KEY_UNIT_TREBUCHET_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_TREBUCHET_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -20141,7 +20141,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_CANNON</Description>
 			<Civilopedia>TXT_KEY_UNIT_CANNON_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_CANNON_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -21156,7 +21156,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_WORK_BOAT</Description>
 			<Civilopedia>TXT_KEY_UNIT_WORK_BOAT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_WORK_BOAT_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -21554,7 +21554,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_GALLEY</Description>
 			<Civilopedia>TXT_KEY_UNIT_GALLEY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_GALLEY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -21745,7 +21745,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_TRIREME</Description>
 			<Civilopedia>CHANGED_TXT_KEY_UNIT_TRIREME_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_TRIREME_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -21953,7 +21953,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_GALLEON</Description>
 			<Civilopedia>TXT_KEY_UNIT_GALLEON_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_GALLEON_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -22352,7 +22352,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_PRIVATEER</Description>
 			<Civilopedia>TXT_KEY_UNIT_PRIVATEER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_PRIVATEER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -22552,7 +22552,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_FRIGATE</Description>
 			<Civilopedia>TXT_KEY_UNIT_FRIGATE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_FRIGATE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -22744,7 +22744,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_SHIP_OF_THE_LINE</Description>
 			<Civilopedia>TXT_KEY_UNIT_SHIP_OF_THE_LINE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_SHIP_OF_THE_LINE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -22950,7 +22950,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_IRONCLAD</Description>
 			<Civilopedia>TXT_KEY_UNIT_IRONCLAD_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_IRONCLAD_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -23149,7 +23149,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_TRANSPORT</Description>
 			<Civilopedia>TXT_KEY_UNIT_TRANSPORT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_TRANSPORT_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -23333,7 +23333,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>INVISIBLE_SUBMARINE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_DESTROYER</Description>
 			<Civilopedia>TXT_KEY_UNIT_DESTROYER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_DESTROYER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -23522,7 +23522,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_BATTLESHIP</Description>
 			<Civilopedia>TXT_KEY_UNIT_BATTLESHIP_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_BATTLESHIP_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -23713,7 +23713,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_MISSILE_CRUISER</Description>
 			<Civilopedia>TXT_KEY_UNIT_MISSILE_CRUISER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_MISSILE_CRUISER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -23903,7 +23903,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>INVISIBLE_SUBMARINE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_ATTACK_SUBMARINE</Description>
 			<Civilopedia>TXT_KEY_UNIT_ATTACK_SUBMARINE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_ATTACK_SUBMARINE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -24103,7 +24103,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_CARRIER</Description>
 			<Civilopedia>TXT_KEY_UNIT_CARRIER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_CARRIER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -24277,7 +24277,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_FIGHTER</Description>
 			<Civilopedia>TXT_KEY_UNIT_FIGHTER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_FIGHTER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -24453,7 +24453,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_JET_FIGHTER</Description>
 			<Civilopedia>TXT_KEY_UNIT_JET_FIGHTER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_JET_FIGHTER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -24629,7 +24629,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_BOMBER</Description>
 			<Civilopedia>TXT_KEY_UNIT_BOMBER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_BOMBER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -24989,7 +24989,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_GUIDED_MISSILE</Description>
 			<Civilopedia>TXT_KEY_UNIT_GUIDED_MISSILE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_GUIDED_MISSILE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -25160,7 +25160,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_TACTICAL_NUKE</Description>
 			<Civilopedia>TXT_KEY_UNIT_TACTICAL_NUKE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_TACTICAL_NUKE_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -25330,7 +25330,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_ICBM</Description>
 			<Civilopedia>TXT_KEY_UNIT_ICBM_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_ICBM_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -25770,7 +25770,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_GREAT_ARTIST</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_GREAT_PEOPLE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_GREAT_ARTIST_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_CULTURE</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -25996,7 +25996,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_GREAT_SCIENTIST</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_GREAT_PEOPLE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_GREAT_SCIENTIST_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_SCIENCE</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -26217,7 +26217,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_GREAT_MERCHANT</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_GREAT_PEOPLE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_GREAT_MERCHANT_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -26436,7 +26436,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_GREAT_ENGINEER</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_GREAT_PEOPLE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_GREAT_ENGINEER_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -26663,7 +26663,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_GREAT_GENERAL</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_GREAT_GENERALS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_GREAT_GENERAL_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
@@ -26900,7 +26900,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_SPECIALIST_GREAT_SPY</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_GREAT_SPY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_GREAT_SPY_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
 			<bFood>0</bFood>
