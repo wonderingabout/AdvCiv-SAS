@@ -4,9 +4,9 @@ This guide highlights key differences between AdvCiv-SAS and AdvCiv/Civ4 BTS. It
 
 ## Menu
 
+[Full code diff (very long)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#full-code-diff-very-long)  
 [Sevopedia](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#sevopedia)  
 [Handicap info tables (.csv / .md) and script](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#handicap-info-tables-csv--md-and-script)  
-[Full code diff (very long)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#full-code-diff-very-long)  
 [Main Changes — quick starter guide](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#main-changes--quick-starter-guide)  
 &emsp;[Translations](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#translations)  
 &emsp;[Renaming (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#renaming-non-exhaustive)  
@@ -14,6 +14,7 @@ This guide highlights key differences between AdvCiv-SAS and AdvCiv/Civ4 BTS. It
 &emsp;[UI / In-game](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#ui--in-game)  
 &emsp;[AI — General behaviour (non-exhaustive; see XML/Defines for full detail)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#ai--general-behaviour-non-exhaustive-see-xmldefines-for-full-detail)  
 &emsp;&emsp;[General changes (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#general-changes-ai)  
+&emsp;[Bonuses (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#bonuses-ai)  
 &emsp;&emsp;[Units in general (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#units-in-general-ai)  
 &emsp;&emsp;[Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#settlers-ai)  
 &emsp;&emsp;[Workers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#workers-ai)  
@@ -26,7 +27,7 @@ This guide highlights key differences between AdvCiv-SAS and AdvCiv/Civ4 BTS. It
 &emsp;[Handicap i.e. difficulty settings (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#handicap-ie-difficulty-settings-non-exhaustive)  
 &emsp;[Specialists (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#specialists-non-exhaustive)  
 &emsp;[Terrains / Features (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#terrains--features-non-exhaustive)  
-&emsp;[Bonus (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#bonus-non-exhaustive)  
+&emsp;[Bonuses (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#bonuses-non-exhaustive)  
 &emsp;[Improvements & worker builds (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#improvements--worker-builds-non-exhaustive)  
 &emsp;[Technologies (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#technologies-non-exhaustive)  
 &emsp;[Eras](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#eras)  
@@ -34,12 +35,18 @@ This guide highlights key differences between AdvCiv-SAS and AdvCiv/Civ4 BTS. It
 &emsp;[Leaders (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#leaders-non-exhaustive)  
 &emsp;[Barbarians (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#barbarians-non-exhaustive)  
 &emsp;[Traits (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#traits-non-exhaustive)  
+&emsp;[Civics (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#civics-non-exhaustive)  
+&emsp;[Buildings (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#buildings-non-exhaustive)  
 &emsp;[Culture](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#culture)  
 &emsp;[Religions (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#religions-non-exhaustive)  
 &emsp;[Corporations (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#corporations-non-exhaustive)  
 &emsp;[Civilian Units](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#civilian-units)  
 &emsp;[Military & related units (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#military--related-units-non-exhaustive)  
 [Fixes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#fixes)  
+
+## Full code diff (very long)
+
+For the exhaustive diff between AdvCiv stable (e.g., 1.12) and AdvCiv-SAS, see the [compare PR](https://github.com/wonderingabout/AdvCiv-SAS/pull/13). It’s big; the guide below is the digest.
 
 ## Sevopedia
 
@@ -51,16 +58,14 @@ Some changes are also summarized directly in the Sevopedia. See [README: Sevoped
 <img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG" alt="0.620_sevopedia_leaders_sample (2).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG" alt="0.620_sevopedia_leaders_sample (3).JPG" width="250"></img>
 
+- **AI Personality panel — legend:** column & symbol meanings: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels).
+
 ## Handicap info tables (.csv / .md) and script
 
 To help compare difficulty (“handicap”) settings, tables are generated as CSV/MD. [See README: Handicap tables](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info) for examples and the script that produces them.
 
 <img src="../Images_In_General/scripts/csv_handicap_info_github_view_example.PNG" alt="csv_handicap_info_github_view_example.PNG" width="250"></img>
 <img src="../Images_In_General/scripts/csv_md_handicap_vs_code_preview_example.PNG" alt="csv_md_handicap_vs_code_preview_example.PNG" width="250"></img>
-
-## Full code diff (very long)
-
-For the exhaustive diff between AdvCiv stable (e.g., 1.12) and AdvCiv-SAS, see the compare PR. It’s big; the guide below is the digest.
 
 ## Main Changes — quick starter guide
 
@@ -92,7 +97,7 @@ For the exhaustive diff between AdvCiv stable (e.g., 1.12) and AdvCiv-SAS, see t
 
 ### UI / In-game
 
-- **UI — worker recommendation highlights disabled**: turned off tile coloring for “worker-recommended plot to improve” (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug (`Ctrl+Z`/chipotle) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#settlers-ai).
+- **UI — worker recommendation highlights disabled**: turned off tile coloring for “worker-recommended plot to improve” (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug (`Ctrl+Z`/chipotle) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#settlers-ai).
 - removed the strategy text in **Choose Production** and **Choose Research** (“Sid’s tips”) popups, as well as in the **Civic Revolution** popup (“Would you like to start a revolution?”); these blurbs were often outdated and/or tedious to maintain.
 
 ### AI — General behaviour (non-exhaustive; see XML/defines for full detail)
@@ -100,6 +105,10 @@ For the exhaustive diff between AdvCiv stable (e.g., 1.12) and AdvCiv-SAS, see t
 #### General changes (AI)
 
 - Global AI settings lean toward pragmatic, opportunistic play over role-play: religion weight adjustments, lower revolt chance, lower war anger, more willingness to demand tribute and sometimes declare if refused, less inclination to take bad wars (especially multi-front). For specifics, see `Assets/XML/AI_Variables_GlobalDefines.xml`, `AI_Variables_GlobalDefines.xml`, and `BBAI_Game_Options_GlobalDefines.xml` for the exact values you changed.
+
+#### Bonuses (AI)
+
+- **AI objective** emphasis for key strategic bonuses: Iron, Horse, Aluminum (`<iAIObjective>10</iAIObjective>`).
 
 #### Units in general (AI)
 
@@ -117,37 +126,38 @@ For the exhaustive diff between AdvCiv stable (e.g., 1.12) and AdvCiv-SAS, see t
 - **Defense/barbarian surroundings:** drop special “avoid barbarians” or “weaker barb cities” site adjustments; choose the best yield sites regardless.
 - **Who builds settlers:** only the **capital** can build settlers, and only at **pop ≥ 5** (unless a city is stuck at low growth, in which case building one can be allowed). This leverages food→hammer conversion efficiently and reduces early barbarian losses from small frontier cities producing settlers.
 - **Free window:** during the first ~75 turns at Normal speed (scaled by game speed), a “free to produce settler” period lets the capital grow before switching into chosen early strategy (offense, defense, etc.).
-- **First city logic:** settlers consider a larger no-penalty scouting radius for founding the capital (`CvUnitAI::AI_foundFirstCity`), and no longer auto-reject non-coastal/non-river sites if a worse “preferred” site exists. It’ll just pick the **best** overall site. See [KI#43](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#43---attemptingly-improvedenhanced-ai-settlers-for-the-first-city-found...).
-- **Avoid excessively watery capitals:** if fewer than **12** “good starter BFC tiles” (land + coastal bonus tiles, excluding the city tile), apply a strong penalty so the capital doesn’t start surrounded by mostly low-yield coast. Other cities may still take such sites later. See [KI#44](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#44---enhanced-makeencourage-ai-settlers-walk-away-from-bad-starting-sites...).
+- **First city logic:** settlers consider a larger no-penalty scouting radius for founding the capital (`CvUnitAI::AI_foundFirstCity`), and no longer auto-reject non-coastal/non-river sites if a worse “preferred” site exists. It’ll just pick the **best** overall site. See [KI#43](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#43---attemptingly-improvedenhanced-ai-settlers-for-the-first-city-found-ie-at-turn-0-if-i-am-not-mistaken-anyways-etc-settling-too-soon-instead-of-digging-a-bit-for-better-sites-and-other-related-changes).
+- **Avoid excessively watery capitals:** if fewer than **12** “good starter BFC tiles” (land + coastal bonus tiles, excluding the city tile), apply a strong penalty so the capital doesn’t start surrounded by mostly low-yield coast. Other cities may still take such sites later. See [KI#44](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#44---enhanced-makeencourage-ai-settlers-walk-away-from-bad-starting-sites-in-this-case-i-mean-but-anyways-etc).
 - **Additional tweaks:** value fresh water more (logic refactored/merged), value settling on **hill-plains** much more, and disable legacy “anti-crowd” biases so the choice stays yield-driven.
 
 #### Workers (AI)
 
-- Strongly discourage building **forts on bonuses** (very poor early yield/time trade). See [KI#24](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses...).
-- Always improve **bonuses first**, prioritizing **food** bonuses. Major refactor of `CvUnitAI::AI_bestCityBuild` to use a probabilistic value tree tuned for SAS. See [KI#30](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses...).
+- Strongly discourage building **forts on bonuses** (very poor early yield/time trade). See [KI#24](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive).
+- Always improve **bonuses first**, prioritizing **food** bonuses. Major refactor of `CvUnitAI::AI_bestCityBuild` to use a probabilistic value tree tuned for SAS. See [KI#30](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc).
 - One worker per improvement **cap** to avoid over-stacking on slow tiles and reduce capture risk.
-- Greatly simplified `AI_betterPlotBuild`: hard **de-prioritization of roads/routes** early; build them only when they’re truly the best move. Focus is on **yields first**. See [KI#31](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers...).
+- Greatly simplified `AI_betterPlotBuild`: hard **de-prioritization of roads/routes** early; build them only when they’re truly the best move. Focus is on **yields first**. See [KI#31](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases).
 - **Overhaul: `AI_bestCityBuild` (full routine):** “holy” improvements (never overwrite: **hamlet, village, town, workshop**) and “semi-holy” (contextual: **farms** in food-poor cities, **cottages** in food-rich cities); fast/ordered improvement; **bonus-specific rules** (e.g., don’t cottage bananas; prefer plantation or a farm only if it makes clear sense); **terrain-aware cottage/farm logic** (flood plains favored for cottages unless the city is food-poor); **minimal oscillation**; prefer steady growth; avoid overwriting until other workable tiles are improved; hold top tiles for later if the “now” move would be inferior. See [KI#33](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild).
-- **Mobility:** workers leave “over-improved” cities sooner to help weaker ones; later pass further improves cross-city mobility and bravery within borders (less idle parking). See [KI#39](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b...) and [KI#41](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility...).
-- **Retreat logic:** fix excessive retreat → “parking in city” edge cases with a wake-from-retreat and saner thresholds. See [KI#50](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#50---tremendously-improvedfixedenhanced-excessive-ai-worker-retreat-logic...).
+- **Mobility:** workers leave “over-improved” cities sooner to help weaker ones; later pass further improves cross-city mobility and bravery within borders (less idle parking). See [KI#39](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it) and [KI#41](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc).
+- **Retreat logic:** fix excessive retreat → “parking in city” edge cases with a wake-from-retreat and saner thresholds. See [KI#50](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#50---tremendously-improvedfixedenhanced-excessive-ai-worker-retreat-logic-causing-worker-parking-in-cities-in-rare-cases-now-added-a-wake-from-retreat-and-other-changes-if-any-other-change-i-mean-anyways-etc).
 
 #### City Plots (AI)
 
-- Fix K-Mod allocation pathologies: starving/stagnant cities no longer choose **+1 hammer** over **+4 food** unworked plots; also value food correctly when **food is production** (settlers/workers). See [KI#34](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#34---seemingly-fixedtweaked-major-k-mod-suboptimal-food-plot-ai-city-allocation...).
-- If happiness room is **high**, push growth harder: favor food tiles more, deemphasize hammers (unless **food is currently production**). See [KI#40](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#40---seemingly-fixed--addressed-tremendousmajor-plot-allocation-improvement-2...).
+- Fix K-Mod allocation pathologies: starving/stagnant cities no longer choose **+1 hammer** over **+4 food** unworked plots; also value food correctly when **food is production** (settlers/workers). See [KI#34](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#34---seemingly-fixedtweaked-major-k-mod-suboptimal-food-plot-ai-city-allocation-starving-or-stagnant-cities-prefer-1-hammer-over-4-food-plots-that-are-unallocated-to-any-population-ulundi-screenshots-prague-screenshots-and-others--food-not-being-valued-when-food-is-production-eg-worker-settler-etc-if-any-more-when-it-is-in-fact-the-exact-same-and-probably-more-reliable-to-set-rather-than-production).
+- If happiness room is **high**, push growth harder: favor food tiles more, deemphasize hammers (unless **food is currently production**). See [KI#40](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#40---seemingly-fixed--addressed-tremendousmajor-plot-allocation-improvement-2-if-we-are-high-in-happiness-favour-food-tiles-much-more-and-hammer-tiles-much-less-if-happiness-is-really-high-favour-growth-dynamically-and-plot-allocation-of-these-the-more-we-can-afford-it-even-if-production-is-slightly-reduced-short-term-as-a-result-it-auto-corrects-at-high-happiness-with-seemingly-much-stronger-ai-and-developped-cities-as-a-result-excluded-if-food-is-production-eg-worker-settler-etc-if-i-am-not-mistaken-but-anyways-etc).
 
 #### Specialists (AI)
 
 - Never pick **Citizen** specialist (very inefficient). Implemented in `CvCityAI::AI_jobChangeValue`.
-- Add **sanity guards**: in small cities (and larger ones with headroom), don’t run specialists at all until growth caps are reached (with food/happiness checks). **Barbarian** cities, on top of these rules, may only run **Scientist** specialists when they must run any. See [KI#45](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#45---addressed--patched--worked-around-ai-cities-assigning-too-soon-orand-too-often...).
+- Add **sanity guards**: in small cities (and larger ones with headroom), don’t run specialists at all until growth caps are reached (with food/happiness checks). **Barbarian** cities, on top of these rules, may only run **Scientist** specialists when they must run any. See [KI#45](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#45---addressed--patched--worked-around-ai-cities-assigning-too-soon-orand-too-often-specialists-resulting-in-early-stagnation-very-inefficiently-now-added-sanity-rules-to-not-go-for-a-specialist-anyways-etc).
 
 #### City Production (AI)
 
-- - **“No production” stall — worked around / fixed**: AI cities no longer sit on **no production**. Added a robust fallback: produce the **most expensive suitable land combat unit**; if a candidate is **extremely overpriced for the era**, switch to the **cheapest suitable** instead. **Civilians** (e.g., scouts) are excluded. This prevents idle turns (e.g., will build an archer in the Ancient era) and cuts wasted hammers. See [KI#51](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc). Related: handicap settings were **slightly reduced** to keep difficulty even with the new efficiency.
+- **“No production” stall — worked around / fixed**: AI cities no longer sit on **no production**. Added a robust fallback: produce the **most expensive suitable land combat unit**; if a candidate is **extremely overpriced for the era**, switch to the **cheapest suitable** instead. **Civilians** (e.g., scouts) are excluded. This prevents idle turns (e.g., will build an archer in the Ancient era) and cuts wasted hammers. See [KI#51](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc). Related: handicap settings were **slightly reduced** to keep difficulty even with the new efficiency.
 
 #### Leaders (AI)
 
-- Adjusted `iBuildUnitProb` for a number of leaders (some up, some down) and also **+10** globally so AIs field more units (they died too often to barbarians, especially with stronger barbarians). See XML for exact numbers.
+- **Leaders — targeted `iBuildUnitProb` edits:** Julius Caesar 30→40; Augustus Caesar 25→30; Qin Shi Huang 20→30; Genghis Khan 35→40; Alexander 35→40; Tokugawa 30→35; Stalin 30→35; Brennus 30→35; Boudica 30→35; Catherine 25→30; Mao Zedong 25→35; Isabella 25→30; Kublai Khan 25→30; Ramesses II 20→25. Reductions: Willem van Oranje 25→20; Justinian I 35→30; Sitting Bull 35→30; Zara Yaqob 30→25; Mansa Musa 25→20.
+- **Global change:** +10 to `iBuildUnitProb` for **all leaders** (applied on top of the per-leader edits).
 - Corrected favorite religions where historical support was weak or inaccurate; scope limited to “favorite religion” for now (see your notes file for sources).
 
 #### Buildings (AI)
@@ -215,20 +225,28 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
 - **Feature: Flood Plains** `iHealthPercent` **-40 → -50**.
 - **Terrain: Tundra** base yield adds **+1 commerce**.
 
-### Bonus (non-exhaustive)
+### Bonuses (non-exhaustive)
 
 - **Wine → Grapes**: now improved by **Plantation** (not Winery). Happiness moved to **Grocer** (Grapes and Sugar both give happiness via Grocer). See Sevopedia/XML.
-- **AI objective** emphasis for key strategic bonuses: Iron, Horse, Aluminum (`<iAIObjective>10</iAIObjective>`).
 - **Hit bonuses** functionally disabled (kept late in tree, obsolete on reveal) to avoid LSystem issues; dependent assets rebalanced or left as‑is where appropriate.
 - **Camel** replaces Hit Movies; spawns on **desert**. High food profile; supports camel‑mounted units (see Military section).
-- **Spawn tweaks**: water bonuses more frequent (Fish/Molluscs); **Whales** can also spawn on **coast**; **Horses** removed from **tundra**; many bonuses shifted slightly toward **map edges**; overall frequencies/yields rebalanced (e.g., **Deer** stronger and more common as core tundra food).
-- **Gemstones** can spawn on **flood plains**/flatlands; no longer on **hills**. See Sevopedia/XML.
+- **Bonuses — distribution (repartition) & yields (with stronger competition):** Adjusted **distribution/spawn chances** and **yields** across many bonuses.  
+  **Yields:** formerly weak bonuses (e.g., **Silver**, **Deer**) are **stronger**; a few outliers (e.g., **Gold**) are **slightly weaker**; overall, bonuses grant **less commerce** to keep pacing gradual.  
+  **Repartition:** **land food bonuses spawn less often** to create **real competition** for high-value spots; after testing, rates were raised enough that maps still feel lively. Several bonuses were **reworked** for clearer roles (e.g., **Sugar** gives **base hammer**; **Horse** gives **base food** on the tile but **hammer** once improved). **Deer** now **spawns more** (primary tundra/snow food) with **strong yields**, making **tundra cities** near Deer more viable. See **Sevopedia → Bonus** for current values and **[commit b841968](https://github.com/wonderingabout/AdvCiv-SAS/commit/b841968682f022e2cefbe1722efb3520492659b8)**; screenshots: **[5238](https://drive.google.com/file/d/1178did3ROEoIV_wbonpH91jZcdaNtzRg/view?usp=sharing)**, **[5241](https://drive.google.com/file/d/15acCk947FpTMmDJdzg6sMXCXOjYwiUB0/view?usp=sharing)**.
+- **Water bonuses — increased but conservative spawns:** **Molluscs** and **Fish** now spawn **more frequently** (they’re “general” water resources). Rates were tuned with tests to avoid over-spawning—**significant yet conservative** increases. See **Sevopedia → Bonus** for current values.
+- **Whales — buff & placement:** **Whales** have been **buffed** and can now **spawn on coast** as well as ocean. Details in **Sevopedia → Bonus → Whales**.
+- **Horses — no tundra placement:** **Horses no longer spawn on tundra.** Food needs there are primarily handled by **Deer**. Concentrating Horses on non-tundra improves typical access patterns on most starts.
+- **Edge-weighted bonus placement:** Shifted bonus distribution to **favor map edges** more (it was too **center-weighted**), reducing the advantage of central starts and making **edge starts more competitive**.
+- **Desert rework — Camel replaces Movies:** On **desert**, **BONUS_CAMEL** now **replaces BONUS_MOVIES**, providing a **desert-friendly food bonus** and serving as a **mounted unit resource** that **competes with Horses** (see **[Military: camel changes](/README.md#military-tree-and-changes)**). Camel XML derives from Horse with SAS adjustments; desert tiles become more viable via **high food yield**.
+- **Horse frequency reduced:** With **Camels** added as an alternative mount, **Horse** **spawn frequency is reduced** to keep mounted-resource balance.
+- **High-food animals slightly rarer:** Other **high-food land animals** are **slightly reduced** in frequency so **Camels** can be present without making food abundances trivial—keeping **competition for top sites** intact.
+- **Gemstones** can spawn on **flood plains**. See Sevopedia/XML.
 
 ### Improvements and worker builds (non-exhaustive)
 
 - **Tech prereqs** adjusted (e.g., **Quarry** earlier; **Remove Forest** and **Remove Jungle** available together and earlier).
 - **Farms without irrigation** unlock at **Water Wheel**.
-- **Worker cost reduced** (see XML for exact value).
+- **Worker cost reduced** (see Sevopedia/XML for exact value).
 - **Workshops** can be built on **tundra** (`<TerrainMakesValids>`).
 - **Railroads** placed earlier in the tree (**Steam Power**). See Techs.
 
@@ -240,13 +258,13 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
 - **TECH_COST_NOTRADE_MODIFIER** **-23 → -20** (when No Tech Trading game option is on). See *GlobalDefines_advc.xml*.
 - **Exponential pacing**: fewer late‑era techs/units to avoid a tedious endgame.
 - **FirstFreeUnitClass** assignments reshuffled to diversify GP races (one GP type per tech; often earlier).
-- **Starting techs — reworked**: `TECH_AGRICULTURE` & `TECH_THE_WHEEL` are **no longer** starting techs; `TECH_POTTERY` **now is**. Even distribution across **35** civs (**70 total; 2 per civ ⇒ ~14 per tech**). A **“pair”** = a civ’s two starting techs (unordered), e.g., **Native Americans** now `HUNTING + MINING` (fits Dog Soldier / Bronze Working). **Current** max pair frequency is **4** (not a hard cap). Done with **heavy assistance from ChatGPT-5** plus manual tuning. Details: [starting-techs](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#starting-techs-rework) • [civ list & rationale](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#after-most-recent-as-of-now-rework-anyways-etc).
+- **Starting techs — reworked**: `TECH_AGRICULTURE` & `TECH_THE_WHEEL` are **no longer** starting techs; `TECH_POTTERY` **now is**. Even distribution across **35** civs (**70 total; 2 per civ ⇒ ~14 per tech**). A **“pair”** = a civ’s two starting techs (unordered), e.g., **Native Americans** now `HUNTING + MINING` (fits Dog Soldier / Bronze Working). **Current** max pair frequency is **4** (not a hard cap). Done with **heavy assistance from ChatGPT-5** plus manual tuning. Details: [starting-techs (civ list & rationale)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#after-most-recent-as-of-now-rework-anyways-etc).
 
 ### Eras
 
 - **Future era** reworked into a full era with techs/units/buildings and its own music; begins with **tech_depopulation** as a balancing/historical nod. See Sevopedia/XML.
 - **Era info** is shown in Sevopedia Tech entries.
-- **Eras — research scaling**: `iResearchPercent = 100` for all eras; `iTechCostModifier = 0`. Tech costs now come directly from TechInfos (no hidden per-era multipliers).
+- **Eras — research scaling**: `iResearchPercent = 100` (**was** `100 / 90 / 80 / 70 / 60 / 50 / 40` for all eras; `iTechCostModifier = 0`. Tech costs now come directly from TechInfos (no hidden per-era multipliers).
 - **Eras — anarchy scaling**: `iAnarchyPercent = 100` for all eras (**was** `50 / 50 / 40 / 40 / 34 / 34 / 34`). In practice this yields about **2 turns** of anarchy when you change civics (or similar). Intent: add strategic weight without tedium; **indirectly buffs** traits with **no anarchy** (e.g., Spiritual).
 - **Eras — growth & production scaling flattened**: set `iGrowthPercent` (food-to-grow), `iTrainPercent` (unit cost), `iConstructPercent` (building cost), and `iCreatePercent` (project cost) to **100 for all eras** (**was** `100 / 100 / 100 / 90 / 80 / 70 / 60`). Removes late-era discounts that sped up mid/late game; pacing is now **predictable and gradual**, with balance handled directly via per-item `iCost` instead.
 - **Eras — worker builds & improvements scaling flattened**: set `iBuildPercent` and `iImprovementPercent` from **100/100/100/90/80/70/60 → 100** at **all eras**. The original reason for the era-based scaling isn’t known; this change is intentional to keep tile-development pacing **predictable and consistent** across eras and to tune balance directly through base costs/worker rates rather than hidden era multipliers.
@@ -280,15 +298,12 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
 ### Buildings (non-exhaustive)
 
 - **Granary:** cheaper, slightly weaker food retention. Civ-specific granaries unchanged (so their relative advantage increases).
-
-- **Water building line reworked/buffed:**
+- **Water building line reworked/buffed** *(Goal: make water tiles more viable while requiring you to work them for the benefits; yields apply per worked tile, not passively from routes.)*:
   - **Harbor** (first water building): health/food oriented.
   - **Lighthouse:** gold oriented (**+x commerce** from worked tiles where applicable).
   - **Port (new):** production oriented (**+x hammer** from worked tiles where applicable).
   - **Moai Statues:** world wonder with broader water synergy; somewhat stronger overall.
   - **Customs House:** buffed.  
-  *(Goal: make water tiles more viable while requiring you to work them for the benefits; yields apply per worked tile, not passively from routes.)*
-
 - Fewer **national** wonders and relatively more **world** wonders.
 - **Palace-likes** (Forbidden Palace, Versailles, etc.) mostly reworked as **world** wonders with tech prereqs so they appear in the tech tree and AIs don’t build them too early. (Barbarian Palace unchanged; used as a balance lever.)
 - Many world-wonder effects simplified/retuned; overall costs adjusted (often slightly **lower**) because:
@@ -321,7 +336,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
 ### Civilian Units
 
 - `DOW_UNIT_CAPTURE_CHANCE` **0 → 50**: workers can be captured **on the turn war is declared**, same as other turns. Aligns with the base capture chance and rewards opportunistic warfare.
-- **Settler** is a **national unit (1 max)** per empire. This prevents AI from building two at once or building a new one while an existing settler is travelling, improves hammer/food efficiency, and raises the stakes on timing/escorts. See [KI#37](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#37---workaround-and-rebalanced-ai-building-2-settlers-very-inefficiently...).
+- **Settler** is a **national unit (1 max)** per empire. This prevents AI from building two at once or building a new one while an existing settler is travelling, improves hammer/food efficiency, and raises the stakes on timing/escorts. See [KI#37](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#37---workaround-and-rebalanced-ai-building-2-settlers-very-inefficiently-at-same-time-or-when-a-settler-unit-already-exists---now-settler-is-a-national-unit-only-1-allowed-per-player).
 
 ### Military & related units (non-exhaustive)
 
@@ -335,7 +350,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
 - **Barracks** now require **Hunting**.
 - **Explorer-class** units can **attack**, but with low strength.
 - Units more **versatile:** e.g., Swords defend better; Archers can attack more credibly.
-- **Naval/animal** units broadly rebalanced; see XML for details.
+- **Naval/animal** units broadly rebalanced; see Sevopedia/XML for details.
 - **Grenadiers & Bazooka (formerly Anti-Tank Infantry)**: rebalanced into **hybrid, versatile “foot-bomber” roles**.
 - **Gun units buffed (relative to pre-gun)**: units that **carry firearms** (e.g., **Musketman**, **Horse/Camel Cuirassiers**) are **relatively stronger** than their pre-gun counterparts.
 - **Promotions retuned:**

@@ -830,7 +830,7 @@
 			<Type>MAINMENU_SCENE</Type>
 			<Path>Art/Interface/Main Menu/CIV4MainMenuBG.nif</Path>
 		</InterfaceArtInfo>
-		<!-- custom: replaced on what/how ri mod does it (took their files and just repalced their duomo3.dds with our own renamed to duomo3.dds as well .dds wallpaper), thanks a lot! Anyways etc anyways etc anyways etc... -->
+		<!-- custom: replaced on what/how ri mod does it (took their files and just replaced their duomo3.dds with our own renamed to duomo3.dds as well .dds wallpaper), thanks a lot! Anyways etc anyways etc anyways etc... -->
 		<InterfaceArtInfo>
 			<Type>MAINMENU_SCENE_CLASSICAL</Type>
 			<Path>Art/AdvCiv_SAS/Main_Menu/wallpaper/CIV4MainMenuBG.nif</Path>

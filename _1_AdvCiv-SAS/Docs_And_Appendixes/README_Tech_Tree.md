@@ -145,10 +145,10 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
 | Egypt             | The Wheel, Agriculture        | **Hunting, Pottery**          | Keep **Pottery** to flow into **Masonry → Construction** (builder identity: Pyramids, aqueducts, etc.). Add **Hunting** to align the **War Chariot** path. |
 | England           | Fishing, Mining               | **Fishing, Mining**           | Industrial metals identity fits; Fishing+Mining is acceptable (Fishing is weakest). Also avoids overusing Mining+Pottery. |
 | Ethiopia          | Hunting, Mining               | **Hunting, Mysticism**        | Highlands/faith; **removes Mining+Hunting** spike while keeping early defense. |
-| Kingdom of Benin  | Mysticism, Fishing            | **Mysticism, Fishing**        | Coastal trade + religious courts; already balanced and flavorful. |
-| France            | The Wheel, Agriculture        | **Hunting, Pottery**          | Aristocratic hunt + towns; replaces disallowed pair; ceded Mining for global balance/diversity. |
+| Kingdom of Benin  | /                             | **Mysticism, Fishing**        | Coastal trade + religious courts; already balanced and flavorful. |
+| France            | The Wheel, Agriculture        | **Hunting, Pottery**          | Aristocratic hunt + towns; replaces disallowed pair. |
 | Germany           | Pottery, Mining               | **Pottery, Mining**           | Crafts + metalwork flexibility. **One of the few** Mining+Pottery we keep (Old World metallurgy). |
-| Greece            | Fishing, Hunting              | **Fishing, Mysticism**        | Still coastal/Aegean, but we emphasize oracles/cults/philosophy. Frees a Mining slot; avoids Mining+Pottery/Hunting spikes. |
+| Greece            | Fishing, Hunting              | **Fishing, Mysticism**        | Still coastal/Aegean, but we emphasize oracles/cults/philosophy. Avoids Mining+Pottery/Hunting spikes. |
 | Holy Roman        | Mysticism, Hunting            | **Mysticism, Hunting**        | Clerical legitimacy + levies; varied without Mining spikes. |
 | Inca              | Agriculture, Mysticism        | **Pottery, Mining**           | Andean mining/metallurgy (copper, arsenical bronze; large-scale gold/silver extraction) + state logistics makes Mining a great fit. Also supports Quechua @ **Iron Working** |
 | India             | Mysticism, Mining             | **Mysticism, Mining**         | Spiritual tradition + engineering; not an “amazing” pair. |
@@ -163,8 +163,8 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
 | Ottoman           | The Wheel, Agriculture        | **Fishing, Pottery**          | **Fishing** to reflect an early maritime footprint on the **Aegean**, **Sea of Marmara** (Bosporus), **Black Sea**, and the **eastern Mediterranean**. Pair with **Pottery** to support early crafts/urbanization and a builder-empire profile. They don't need as much strong starting techs for their civ-specific unit that is later in the game. |
 | Persia            | Agriculture, Hunting          | **Hunting, Mining**           | Nearer to **Iron Working** path in your tree; strong metallurgy tradition. We accept one more OP pair for identity; totals remain balanced. |
 | Portugal          | Fishing, Mining               | **Fishing, Pottery**          | Age-of-Discovery maritime commerce; Mining ceded to reduce repetition and fund other civs’ thematic needs. |
-| Rome              | Fishing, Mining               | **Fishing, Mining**           | Metals for **Praetorian** timing; avoids Hunting and Mining+Pottery extremes. |
-| Russia            | Hunting, Mining               | **Pottery, Mining**           | Land-empire emphasis (settlement/crafts) and less “fishy” opening. Keeps metal identity while replacing Fishing; also offsets Ottoman’s change to keep 14/14/14/14/14 totals. |
+| Rome              | Fishing, Mining               | **Fishing, Mining**           | Metals for **Legionary** timing; avoids Hunting and Mining+Pottery extremes. |
+| Russia            | Hunting, Mining               | **Pottery, Mining**           | Land-empire emphasis (settlement/crafts) and less “fishy” opening. Keeps metal identity; also offsets Ottoman’s change to keep 14/14/14/14/14 totals. |
 | Spain             | Fishing, Mysticism            | **Fishing, Mysticism**        | Maritime reach + organized religion; avoids Mining spikes. |
 | Sumeria           | Mysticism, Pottery            | **Mysticism, Mining**         | **Vulture** (axe) loves metals; still not the “amazing” Mining+Pottery/Hunting. |
 | Scandinavia       | Fishing, Hunting              | **Fishing, Hunting**          | Seafaring + raiding/hunting; balanced opener without Mining; keeps variety. |

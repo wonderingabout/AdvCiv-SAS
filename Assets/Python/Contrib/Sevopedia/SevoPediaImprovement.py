@@ -230,7 +230,7 @@ class SevoPediaImprovement:
 
 
 
-	# <!-- custom: code entirely replaced with a code provided by claude ai based on m-e mod 's placeImprovements code (in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth\Assets\Python\Screens\PlatyPedia\PlatyPediaImprovement.py ) anyways etc, also with gemini ai's help too thanks a lot as well anyways etc, and adjsuted or not for advciv-sas anyways etc -->
+	# <!-- custom: code entirely replaced with a code provided by claude ai based on m-e mod 's placeImprovements code (in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth\Assets\Python\Screens\PlatyPedia\PlatyPediaImprovement.py ) anyways etc, also with gemini ai's help too thanks a lot as well anyways etc, and adjusted or not for advciv-sas anyways etc -->
 	def placeMostYields(self):
 		screen = self.top.getScreen()
 		screen.addPanel(self.top.getNextWidgetName(), localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_MOST_TILE_YIELD_CHANGES", ()), "", True, True, self.X_MOST_YIELDS, self.Y_MOST_YIELDS, self.W_MOST_YIELDS, self.H_MOST_YIELDS, PanelStyles.PANEL_STYLE_BLUE50)

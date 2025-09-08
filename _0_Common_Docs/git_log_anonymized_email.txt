@@ -1,3 +1,12 @@
+commit 8d6bf6e0f61004e415aa3584e906fdb77275c1f8
+Author: wonderingabout <hidden>
+Date:   2025-09-05 14:09:41 +0200
+
+remove uneeded strategy texts as they are tedious to maintain or/and outdated, final update docs before release if i'm not mistaken but anyways etc
+- "removed the strategy text in history / background panels as they are often times outdated or/and tedious to maintain anyways etc."
+- "removed the strategy text in next production to choose for city popup and next tech to choose popup ("Sid's tips"), as well as in civic to switch to popup ("Would you like to start a revolution?"), as they are often times outdated or/and tedious to maintain anyways etc."
+- update docs before release, the final pre-release milestone if i may say but anyways etc
+
 commit b9e253a3ce3f13933babe7714a22ddadd31789a4
 Author: wonderingabout <hidden>
 Date:   2025-09-04 20:15:42 +0200
