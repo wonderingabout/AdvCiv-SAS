@@ -14,6 +14,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 &emsp;[Renaming (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#renaming-non-exhaustive)  
 &emsp;[Sevopedia reworks and other related changes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#sevopedia-reworks-and-other-related-changes)  
 &emsp;[UI / In-game](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#ui--in-game)  
+&emsp;[48 Civs DLL](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#48-civs-dll)  
 &emsp;[AI general behaviour (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#ai-general-behaviour-non-exhaustive-see-global-defines-and-ai-variables-and-such-xml-files-for-details)  
 &emsp;&emsp;[Bonuses (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#bonuses-ai)  
 &emsp;&emsp;[Units in general (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#units-in-general-ai)  
@@ -110,6 +111,10 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
 
 - disabled tile coloring for worker recommended tile to improve (in `CvGame::updateColoredPlots` in CvGameInterface.cpp). These would take needless computation, both in debug mode (ctrl+z and chipotle) and even not in debug mode in regular games, plus most importantly our AI workers now use another logic in `CvUnitAI::AI_bestCityBuild` so the plots recommended are not even the ones that our AI workers would find best. They may be inaccurate if not so good plots, or confusing because we mostly want to see city site recommendations if we have to see anything rather, and i couldn't know if a colored circled tile/plot was a recommended tile to improve for a worker or a recommended site to plant/settle/found a city here (which are quite often btw better than the one i would have settled myself, see [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#settlers-ai) for details or related info anyways etc). Hopefully for the better disabled for worker plots for all these reasons, while keeping all previous coloring such as city sites recommendations and such anyways etc.
 - removed the strategy text in next production to choose for city popup and next tech to choose popup ("Sid's tips"), as well as in civic to switch to popup ("Would you like to start a revolution?"), as they are often times outdated or/and tedious to maintain anyways etc.
+
+## 48 Civs DLL
+
+- a 48 Civs DLL is also provided and available for use in AdvCiv-SAS, tested to run fine xd, see the [main README.md's 48 Civs DLL](/README.md#48-civs-dll) section for details anyways etc.
 
 ### AI general behaviour (non-exhaustive, see global defines and ai variables and such xml files for details)
 

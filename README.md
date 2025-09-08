@@ -35,6 +35,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [Civs you can expect in this mod](/README.md#civs-you-can-expect-in-this-mod)  
 &emsp;[World map with civs](/README.md#world-map-with-civs)  
 &emsp;[Other map(s) i used for terrain modifiers for civ-specific units](/README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units)  
+[48 Civs DLL](/README.md#48-civs-dll)  
 [Project Goals and global view on gameplay changes](/README.md#project-goals-and-global-view-on-gameplay-changes)  
 [Known issues that may be fixed or not fixed in base AdvCiv or/and Civ4 anyways etc](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-orand-civ4-anyways-etc)  
 [Not supported in AdvCiv-SAS](/README.md#not-supported-in-advciv-sas)  
@@ -252,6 +253,30 @@ Among other maps or information i found online but anyways etc, i mostly also us
 Note: sometimes i slightly deviated from strict terrain world map real layout, as of now only in europe and eastern asia due to them being only forestic with no obvious terrain in the world maps i saw but anyways etc, but they is cold, so symbolize it as having if relevant enough a bit of tundra in civ4 terms but anyways etc (see for example this [Köppen climate classification map on wikipedia](https://en.wikipedia.org/wiki/K%C3%B6ppen_climate_classification) for details or maybe rather info or such hopefully helpful if i may say but anyways etc...)
 
 Note 2: as of now i'm using plains as a representative of savanna more or less anyways etc
+
+## 48 Civs DLL
+
+A 48 Civs DLL is also available and provided in this mod. (As of now named "CvGameCoreDLL_48_civs_dll.dll").
+
+To use it, rename old base 18 MAX_CIV_PLAYERS DLL file named "CvGameCoreDLL.dll" to any name you like as long as it's another name, for example to "CvGameCoreDLL_18_civs_dll.dll", and rename the "CvGameCoreDLL_48_civs_dll.dll" to ""CvGameCoreDLL.dll" (vice versa to revert to old 18 players DLL).
+
+I have run a test run for fun and to test it too, as well as documented this DLL i tried for the first time xd, on a huge map, and to answer [this](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16863316) CFC forum request.
+
+See [google drive link here](https://drive.google.com/drive/folders/1wTLu7SdP3aeKOWPjtP_ORcDT2Bpdef3b?usp=sharing) for files and screenshots of this run
+
+It was quite fun xd i mean to try and all, although a bit slower which is expected since there are more players i guess (but i suspect even with same player count, may have run slower on the 48 civs dll civ, based on what i understood of base advciv comments or notes and/or such if i am not mistaken but anyways etc).
+
+Still, in the game where i tried it, it was gradually faster as more and more players were defeated which is expected i guess too. It was also a good test to confirm game runs end to end (although i mistakenly ran it in small map size as i didn't notice it, but seems fine as game still runs end to end fine it seems but anyways etc).
+
+All in all, prefer using the default DLL unless you want to use 19+ max players, then after game is finished if you want to use 18 max players or less, consider reverting to old DLL for your next map anyways etc.
+
+Note: if you already downloaded AdvCiv-4986 that didn't have that DLL, you can download the DLL from this github rather, go in the [/Assets/](/Assets/) folder and find the "CvGameCoreDLL_48_civs_dll.dll" file, click on it, then click on "download raw file" button on top right as below:
+
+(click on the images to view them in full screen or/and bigger size)
+
+<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.900_48-civs-dll-github-download-raw-file.PNG" alt="0.900_48-civs-dll-github-download-raw-file.PNG" width="250"></img>
+
+Note 2: it seems that savegames are not compatible when switching DLLs though based on a code comment in as of now CvEnums.h, so make sure you finish the games you started using the same DLL, and switch back or forth whichever xd only after you want to play a new game (i.e. don't switch DLLs then reload same save file/map if i am not mistaken based on this code comment but i don't know and am only reporting what the base advciv code comment says, check if in doubt some other source, anyways etc).
 
 ## Project Goals and global view on gameplay changes
 
