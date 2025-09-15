@@ -4969,9 +4969,21 @@ void CvUnitAI::AI_attackCityMove()
 						return;
 					}
 				}
+				// <!-- custom: this is code i added with the help of chatgpt 5 xd (check if accurate anyways etc) to attempt to fix the weird back and forth i observed after fixing known issue as of now 62 but anyways etc (not evacuating all units from a doomed city but anyways etc), but that also existed in base advciv if i'm not mistaken but anyways etc, that the stack after nicely evacuating, tried to attack again a much stronger stack, only to retreat without attacking after seeing the enemy stack is too strong, which is very inefficient but also very risky (i name(d but anyways etc) the "weird back and forth" or very "inefficient back and forth" issue but anyways etc). It does not appear if i play at least 2 autoplay turns in a row to now's position (not 1 autoplay turn else we do get baited as explained in known issue 62 anyways etc) even with the 62 dll, so while this change may no longer be necessary, maybe it helps, and it seems like a harmless and very nice to have sanity check if it helps, as i saw plenty such cases of very inefficient back and forth, so kept still. See known issue as of now 63 for details anyways etc -->
+				// Gate the “walk toward target city” step
+				// In CvUnitAI::AI_attackCityMove() there’s a late “We have to walk.” block that always tries to move closer, even if we’ve already computed that the target is too strong
+				// That’s the whole change. When the city is “too strong,” the stack won’t step into the 1–2 tile danger ring; it will fall through to the rest of the logic (merge, bombard if possible, pillage/choke, retreat or stage), rather than yo-yoing and bleeding units.
+				//
 				// We have to walk.
-				if (AI_goToTargetCity(eMoveFlags, MAX_INT, pTargetCity))
-					return;
+				// if (AI_goToTargetCity(eMoveFlags, MAX_INT, pTargetCity))
+				// 	return;
+				//
+				// Do NOT close distance if the target is still too strong (prevents bounce).
+				if (!bTargetTooStrong)
+				{
+					if (AI_goToTargetCity(eMoveFlags, MAX_INT, pTargetCity))
+						return;
+				}
 
 				if (bAnyWarPlan)
 				{
