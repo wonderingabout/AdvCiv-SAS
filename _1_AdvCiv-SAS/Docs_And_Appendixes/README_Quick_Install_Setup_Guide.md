@@ -14,11 +14,15 @@ It should work fine with the Steam one too, but given the choice again i may hav
 
 Then download it from the [CFC Modpacks downloads page (link in intro of main readme)](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/) (or clone / download zip from github if you know how as you prefer) this AdvCiv-SAS mod.
 
-Extract the archive in the Mods folder of BTS/BTS (be careful twice BTS), for example, using Steam the path of AdvCiv-SAS should be **(remove version name such as "-4986" or any name like "-tech-rework" (git branch name, remove when extracting to your civ4 mods folder)** or similar or anything else xd in your folder destination name so it is **strictly "AdvCiv-SAS"**):
+## Extract the mod to your civ4 folder
+
+Extract the archive in the Mods folder of your civ4 BTS/BTS folder (be careful twice BTS (i.e. "Beyond The Sword")), for example, using Steam the path of AdvCiv-SAS should be **(remove version name such as "-4986" or any name like "-tech-rework" (git branch name, remove when extracting to your civ4 mods folder)** or similar or anything else xd in your folder destination name so it is **strictly "AdvCiv-SAS"**):
 
 ```C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\```
 
-If you don't use Steam you can still play this AdvCiv-SAS mod, you'll just have to change the path to where civ4 was installed (and might have less DRMs at the same time so may be even better as you prefer)
+If you don't use Steam you can still play this AdvCiv-SAS mod, you'll just have to change the path to where civ4 was installed (and might have less DRMs at the same time so may be even better as you prefer).
+
+Note: be careful while extracting, a common error (which i made too having no clue why it didn't work...) is to extract with an extra subfolder, then i don't think the game would function. So for example for the steam version of the game, one of the mod files such as AdvCiv-SAS.ini should be found in `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\AdvCiv-SAS.ini` and NOT in `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\AdvCiv-SAS\AdvCiv-SAS.ini` (i.e. don't do this `\AdvCiv-SAS\AdvCiv-SAS\`).
 
 ## Place a shortcut of the mod on your desktop
 
@@ -26,11 +30,9 @@ Finally, add a shortcut to your desktop which link is, for example for Steam:
 
 ```"C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Civ4BeyondSword.exe" mod=\AdvCiv-SAS```
 
-For convenience i have also provided a steam shortcut of this same link just above (since this is the version i have i.e. the steam one of the game anyways etc), ready to use, (AdvCiv-SAS - Steam shortcut.lnk). You can just move (cut then paste, it's just a link so is safe) it to the desktop for your convenience
+For convenience i have also provided a steam shortcut of this same link just above (since this is the version i have i.e. the steam one of the game anyways etc), ready to use, (AdvCiv-SAS - Steam shortcut.lnk). You can just move (cut then paste, it's just a link so is safe) it to the desktop for your convenience.
 
-note: you can do this same process (download and install a Civ 4 mod(s)) for any number of mods you want, just extract it in same Mods folder but with a different folder name, for example you could play Cavemen2Cosmos, Realism Invictus, even AdvCiv alongside AdvCiv-SAS as long they are in different folders, they are totally indepedent, the settings or files of one will not override or affect the other mods, thanks to the very awesome design of Civ 4, thanks!
-
-Note 2: Be careful while extracting, a common error (which i made too having no clue why it didn't work...) is to extract with an extra subfolder, then i don't think the game would function. So for example for the steam version of the game, one of the mod files such as AdvCiv-SAS.ini should be found in `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\AdvCiv-SAS.ini` and NOT in `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\AdvCiv-SAS\AdvCiv-SAS.ini` (i.e. don't do this `\AdvCiv-SAS\AdvCiv-SAS\`).
+Note: you can do this same process (download and install a Civ 4 mod(s), then place a shortcut of it to desktop or wherever you want/prefer if i'm not mistaken but anyways etc) for any number of mods you want, just extract it in same Mods folder but with a different folder name, for example you could play Cavemen2Cosmos, Realism Invictus, even AdvCiv alongside AdvCiv-SAS as long they are in different folders, they are totally indepedent, the settings or files of one will not override or affect the other mods, thanks to the very awesome design of Civ 4, thanks!
 
 ## Where to download more/other mods
 

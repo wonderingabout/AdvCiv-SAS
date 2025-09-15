@@ -10,6 +10,8 @@ Content overall addition is minimal, as of now mostly in the future era, and her
 
 All in all, this simplifies gameplay to some extent, but greatly increases depth and should make the game much more challenging while not being too much of a grind (i.e. we don't want to increase penalties at higher difficulties, but instead aim to avoid/reduce them while trying to make the game harder (and ideally harder than base AdvCiv at all difficulties) through improved AI competency rather anyways etc). There are a lot more changes, and details about these as well below explained in the following sections.
 
+As for the future, development is mostly finished on my end, it is tempting to improve it further and i have ideas how to, but it is tedious and long to do so so i may not do so (may or may not, most likely not, as it is not guaranteed that i would do so most likely, although not 100% sure but most likely, but anyways etc) but anyways etc. I may improve it a bit and see if i want to or/and actually improve it more or not or etc but anyways etc.
+
 ## Menu
 
 Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 which does this very well and fast anyways etc among other versions who/which could or not but anyways etc), feeding it the global search results of these entries and telling the format of the entries :), and then i adjusted a bit after but anyways etc. Hopefully helpful, thanks a lot chatgpt 5 hehe (among other versions or not had i tried with them but anyways etc). If you're curious how i did it, see this [google drive folder link](https://drive.google.com/drive/folders/1B18cJ8GYD8X_0vMoiTihVz0tthg5m_sg?usp=sharing) 's screenshots for details, hopefully helpful or not or yes or etc anyways etc
@@ -36,6 +38,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 &emsp;[World map with civs](/README.md#world-map-with-civs)  
 &emsp;[Other map(s) i used for terrain modifiers for civ-specific units](/README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units)  
 [48 Civs DLL](/README.md#48-civs-dll)  
+[Autoplay test runs](/README.md#autoplay-test-runs)  
 [Project Goals and global view on gameplay changes](/README.md#project-goals-and-global-view-on-gameplay-changes)  
 [Known issues that may be fixed or not fixed in base AdvCiv or/and Civ4 anyways etc](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-orand-civ4-anyways-etc)  
 [Not supported in AdvCiv-SAS](/README.md#not-supported-in-advciv-sas)  
@@ -260,7 +263,7 @@ A 48 Civs DLL is also available and provided in this mod. (As of now named "CvGa
 
 To use it, rename old base 18 MAX_CIV_PLAYERS DLL file named "CvGameCoreDLL.dll" to any name you like as long as it's another name, for example to "CvGameCoreDLL_18_civs_dll.dll", and rename the "CvGameCoreDLL_48_civs_dll.dll" to ""CvGameCoreDLL.dll" (vice versa to revert to old 18 players DLL).
 
-I have run a test run for fun and to test it too, as well as documented this DLL i tried for the first time xd, on a huge map, and to answer [this](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16863316) CFC forum request.
+I have run a test run for fun and to test it too, as well as documented this DLL i tried for the first time xd, and to answer [this](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16863316) CFC forum request but anyways etc.
 
 See [google drive link here](https://drive.google.com/drive/folders/1wTLu7SdP3aeKOWPjtP_ORcDT2Bpdef3b?usp=sharing) for files and screenshots of this run
 
@@ -276,13 +279,21 @@ Note: if you already downloaded AdvCiv-4986 that didn't have that DLL, you can d
 
 <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.900_48-civs-dll-github-download-raw-file.PNG" alt="0.900_48-civs-dll-github-download-raw-file.PNG" width="250"></img>
 
-Note 2: it seems that savegames are not compatible when switching DLLs though based on a code comment in as of now CvEnums.h, so make sure you finish the games you started using the same DLL, and switch back or forth whichever xd only after you want to play a new game (i.e. don't switch DLLs then reload same save file/map if i am not mistaken based on this code comment but i don't know and am only reporting what the base advciv code comment says, check if in doubt some other source, anyways etc).
+Note 2: it seems that savegames are not compatible when switching DLLs though based on [some code comments in as of now CvEnums.h](/CvGameCoreDLL/CvEnums.h#L24-L27), so make sure you finish the games you started using the same DLL, and switch back or forth whichever xd only after you want to play a new game (i.e. don't switch DLLs then reload same save file/map if i am not mistaken based on this code comment but i don't know and am only reporting what the base advciv code comment says, check if in doubt some other source, anyways etc).
+
+## Autoplay test runs
+
+Since release, i may perform autoplay test runs to see how AI behaves and is competitive and all and see potential issues it has and all but anyways etc here in this [google drive folder link](https://drive.google.com/drive/folders/1J8w-LbeZrD2fuifSxT8vJOXYU1MQ_YDh?usp=sharing)
+
+Note: as i said in the intro of this main readme, advciv-sas devlopment is mostly finished as of now, but if i were ever to continue (not guaranteed, i may or may not anyways etc), then datapoints like these may help me pinpoint issues to improve enhance in current AI ((like in test run 0 screenshot 128 anyways etc) Rome AI winning but having a starving capital with artist specialists even though it already reached legendary threshold in city so uneeded if i'm not mistaken but anyways etc), but as is tedious i may or not do so but anyways etc.
+
+See also: [Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc).
 
 ## Project Goals and global view on gameplay changes
 
-For a quick starter guide on the main changes between base AdvCiv and Advciv-SAS, please see rather the [README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md)
+For a quick starter guide on the main changes between base AdvCiv and Advciv-SAS, please see rather the [README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md) or the [Very Quick Get Started Guide (Written carefully with the help and by ChatGPT-5 xd but check if accurate info there still anyways etc)](/README.md#very-quick-get-started-guide-written-carefully-with-the-help-and-by-chatgpt-5-xd-but-check-if-accurate-info-there-still-anyways-etc) version of it if you prefer anyways etc.
 
-Note: what is written is a general draft and to gather ideas, that may not be updated (missing or not anymore considered ideas maybe anyways etc) anymore with current advciv-sas development state, see rather the quick get started guide linked in this section for details.
+Note: what is written is a general draft and to gather ideas, that may not be updated (missing or not anymore considered ideas maybe anyways etc) anymore with current advciv-sas development state, see rather the quick get started guide for details.
 
 The more general gameplay type of changes consist of:
 

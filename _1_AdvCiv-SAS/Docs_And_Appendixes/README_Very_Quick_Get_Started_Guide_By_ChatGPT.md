@@ -191,7 +191,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
 
 - **Timeline & pace**: fast-paced but long enough to play through. Start at **-50 000 BC**; early turns advance by **5 000 years/turn**, then the step size **gradually decreases**. After a few dozen turns at **Normal** speed, you’ll be around the **Bronze Age**. Late-game turns are kept relatively brisk; the game ends at **2150 AD** (**turn 500** on Normal). See [CIV4GameSpeedInfo.xml](/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml) and [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md) for current values. **Note:** the **GAMESPEED_NORMAL** timeline was authored here; other game speeds were derived by **ChatGPT 5** from that timeline (with an annotated year progression in the XML comments).
 - **Start map behavior**: less “terrain polishing”; more starting **vision** so you can choose a spot rather than forcing ideal tiles.
-- **Slavery**: `HURRY_POPULATION` production increased (**27**). See *CIV4HurryInfo.xml* (`HURRY_POPULATION`).
+- **Slavery**: `HURRY_POPULATION` production increased (**24 → 27**). See *CIV4HurryInfo.xml* (`HURRY_POPULATION`).
 - **Leader random selection**: `PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT` **20 → 0** (all civs equal chance regardless of leader count). See *GlobalDefines_advc.xml*.
 - **We Love the King Day**: restored (present in SAS).
 - **Research scaling — sea level**: `iResearchPercent = 100` for High / Medium / Low (**was** `117 / 100 / 87`). Sea level no longer alters research pace.
@@ -286,10 +286,10 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
 ### Barbarians (non-exhaustive)
 
 - **Barbarians — stronger early game & smarter aggression**: economically **stronger in the early game**, growing at a pace closer to human/AI civs and **founding cities more often**, so they stay **relevant longer** before gradually fading by midgame. They still aren’t a full player (**no diplomacy**; **scattered independent cities** that collectively count as the Barbarian civilization). Difficulty scaling is adjusted so players have **less to no combat bonus vs. barbarians** (never a reverse bonus for barbs), with strength **rising gradually by difficulty**. Barbarians also **fill unclaimed land** if it’s left open, tend to **target weaker rivals**, and may **raze cities** more than base AdvCiv/Civ4. This pairs with the AI’s improved **hammer efficiency and availability** (far fewer scrapping/no-production issues): by engaging and “burning off” surplus early units (e.g., **ancient macemen, archers, longbowmen**), barbarians help prevent runaway over-production and early bankruptcies while empires keep growing. For definitions and exact knobs, see the Sevopedia **Barbarian Civilization** entry and XML: [CIV4CivilizationInfos.xml](/Assets/XML/Civilizations/CIV4CivilizationInfos.xml), [CIV4BuildingInfos.xml](/Assets/XML/Buildings/CIV4BuildingInfos.xml), and [CIV4HandicapInfo.xml](/Assets/XML/GameInfo/CIV4HandicapInfo.xml); also see the SAS **handicap tables** in the repo for comparative values.
-- Combat bonuses **against** barbarians are reduced/removed in a difficulty-scaled way (never a reverse bonus **to** barbarians). They choose targets more carefully and **raze** cities more often than base AdvCiv/Civ4. See Sevopedia and XML (e.g., `CIV4CivilizationInfos.xml`, building/handicap XML) and the SAS handicap comparison tables.
+- **Barbarians** no longer attempt **world wonders** (prevents hammer sinks). See [KI#3](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-with-a-dll-patch-barbarians-cities-building-wonders-in-particular-now-fixed-ie-disabled-for-world-wonders-anyways-etc).
 - Barbarian **workers** are civ-specific and **cannot be captured** (prevents worker farming).  
 - Barbarian **workboat** is civ-specific mainly for cost/balance.  
-- Barbarian **leader button/icon** is distinct (no longer Genghis Khan’s). See Sevopedia for the new button source credit.
+- Barbarian **leader button/icon** is distinct (no longer Genghis Khan’s). See XML for the new button source credit.
 
 ### Traits (non-exhaustive)
 
@@ -312,14 +312,13 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
 - Fewer **national** wonders and relatively more **world** wonders.
 - **Palace-likes** (Forbidden Palace, Versailles, etc.) mostly reworked as **world** wonders with tech prereqs so they appear in the tech tree and AIs don’t build them too early. (Barbarian Palace unchanged; used as a balance lever.)
 - Many world-wonder effects simplified/retuned; overall costs adjusted (often slightly **lower**) because:
-  - `BonusProductionModifiers` (e.g., +100% with Marble) are **greatly reduced** (world: mostly removed; national: mostly reduced). Example: **Parthenon** is now **+25% with Marble** (was +100%).
+  - Most `BonusProductionModifiers` (e.g., +100% with Marble) are **greatly reduced**. Example: **Parthenon** is now **+25% with Marble** (was +100%).
 - Removed buildings that didn’t carry their weight or distorted pacing (e.g., **Space Elevator**, **West Point**).
-- **Iron Works:** now requires **both Coal and Iron** empire-wide; city requirement count lowered; cost up moderately (e.g., **700 → 800**) so timing/placement matter more.
+- **Iron Works:** now requires **both Coal and Iron** empire-wide; city requirement count lowered; cost up moderately (e.g., **700 → 800**).
 - **Heroic Epic** (`iMilitaryProductionModifier`): **100% → 50%**. The always-on military production boost was too strong and could let AIs run away; this tones it down while keeping the building relevant.
 - Some **civ-specific** buildings replaced (especially late-game or underwhelming ones). Example: Russian **Research Institute** replaced with **Gord** (castle-based, earlier impact).
 - Added `BuildingClassRequired` chains to curb spam and improve AI focus: e.g., **Drydock** now requires **Port**.
 - Science buildings’ **culture** trimmed (e.g., **Library +2 culture → +1 culture**); similar trims on a few non-purely-cultural national wonders (**Heroic/National Epic, Forbidden Palace**).
-- **Barbarians** no longer attempt **world wonders** (prevents hammer sinks). See [KI#3](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-with-a-dll-patch-barbarians-cities-building-wonders-in-particular-now-fixed-ie-disabled-for-world-wonders-anyways-etc).
 
 ### Culture
 
@@ -327,7 +326,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
 
 ### Religions (non-exhaustive)
 
-- **Paganism** added, **Confucianism** removed (fewer total religions, earlier conflicts slightly more likely, arguably more historical). **Judaism** stays as early representative of monotheism in Civ’s roster.
+- **Religions roster**: added **Paganism**; removed **Confucianism** (chosen partly because it has **fewer adherents** in our framing). Rationale: a lineup that feels simpler and (to us) more historically fitting. We **keep Judaism** as the in-game representative of early **monotheism**, and we continue to prefer a **small set (~7) of religions** for clarity and efficiency.
 - **Missionaries:** significantly **cheaper**.
 - **Monasteries:** simplified — now **espionage** buildings with a **low Great Person rate**; **no longer obsolete**; **no longer give science** (keeps science buildings cleaner and the theming clearer).
 - **Shrines** now **require their religion in the city and the religion’s tech** (so they appear in the tech tree and can’t be built just by conquest). See [KI#12](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#12---shrines-now-require-their-religion) and [KI#13](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#13---shrines-now-appear-in-tech-tree).

@@ -53,6 +53,7 @@ Instead of:
 [.dds (button) size comparison analysis - (Trying to find) optimal .dds button size for a 164px (+ 2(px?) due to small(anyways etc...) mistake anyways etc) icon frame in sevopedia unit's unit pane('s icon frame)](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#dds-button-size-comparison-analysis---trying-to-find-optimal-dds-button-size-for-a-164px--2px-due-to-smallanyways-etc-mistake-anyways-etc-icon-frame-in-sevopedia-units-unit-panes-icon-frame)  
 [How to change the mod's main menu background image (for example to add a static image instead of default base advciv +/- civ4 image)](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-change-the-mods-main-menu-background-image-for-example-to-add-a-static-image-instead-of-default-base-advciv---civ4-image)  
 [How to remove the blue rectangle in main menu screen, change text color for example to black, etc. (in .thm files anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-remove-the-blue-rectangle-in-main-menu-screen-change-text-color-for-example-to-black-etc-in-thm-files-anyways-etc)  
+[How to autoplay (let the AI play for you (super fast gameplay / testing tool anyways etc)) in map (loaded save file, new game, etc.) view anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)  
 [Example of DLL modification of CvGameTextMgr.cpp](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc)  
 [Example of DLL modification 2: missing BBAI getters](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-2-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display-anyways-etc)  
 [Example of performance optimization of python loading time](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-performance-optimization-of-python-loading-time-as-in-when-we-load-the-code-and-loading-times-if-i-may-say-anyways-etc-as-in-code-performance-due-to-how-it-is-optimized-from-what-little-or-not-little-i-know-or-and-did-of-it-but-anyways-etc)  
@@ -1005,6 +1006,18 @@ Note 2: then the image ingame is stretched vertically unlike our real image .jpg
 If you want to know how i removed the blue rectangle color, it is (thanks to chatgpt 5) done by replacing, in [/Resource/Civ4Theme_Custom.thm](/Resource/Civ4Theme_Custom.thm) the `style SF_CtrlTheme_Civ4_Control_Panel_MainStart_Style` 's image lines such as `Image			= 	GBitmap("../../../../Resource/Civ4/Custom/main_start.tga", HVGrid, 1, 2, 0, 0);` to `Image			= 	GBitmap();`
 
 Note 2: then in `style SF_CtrlTheme_Civ4_Control_Button_MainMenuSelection_Style` in same file you can also change text color for example at lines such as (thanks to chatgpt 5's help anyways etc) `.Default						=	GFC_Control_Color_Text_Default;` (seemingly white at least before the change) to `.Default						=	GColor(0,0,0,255);` (as of now black much more readable now that we don't have the old blue rectangle as a background anyways etc) , white was too bright so now is black, screenshots are visible in the gogole drive folder corresponding to known issue above anyways etc, and/or other text beautification(s) (see code comments there for details anyways etc).
+
+## How to autoplay (let the AI play for you (super fast gameplay / testing tool anyways etc)) in map (loaded save file, new game, etc.) view anyways etc
+
+This feature is extremely useful to see how changes feel ingame or/and how AI players handle them.
+
+I don't know the specifics, but in most mods you need to enable chipotle cheat code in CivilizationIV.ini (applies once for all mods and seemingly base bts too but i don't know for sure so check anyways etc).
+
+Then ingame (save file load, new map, etc), press ctrl+z if your mod has this shortcut and you enter debug mode, then press ctrl+shift+x if i'm not mistaken and you can specify the number of turns to autoplay, say 50 or 100 turns or any number (toggle (i.e. press this again anyways etc) during autoplay to stop it before it completes if you want to do so anyways etc).
+
+I don't know if autoplay is a feature of base civ4 or bts or some mods that then most mods implemented check to know more anyways etc (you could ask chatbots like chatgpt or such if you don't know, but their answers may be inaccurate or lead you astray, so double check or such even though they could be accurate or do web search for you or such but check to be sure anyways etc) (or your best bet may be alternatively to check in cfc or such forums somewhere or google it xd if i may say but anyways etc)
+
+See also [/README.md#autoplay-test-runs](/README.md#autoplay-test-runs).
 
 ## Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded" flag in sevopedia tech 's placeSpecial and in tech tree view (technology advisor) anyways etc
 
