@@ -1680,7 +1680,7 @@ void CvCityAI::AI_chooseProduction()
 		}
 	} // </advc.650>
 
-	// <!-- custom: the below code doesn't apply to barbarians, as they have no settler, produce no naval units as a result on pangea so they don't pirate anymore as they should, and shoudl still be focused on their usual invade and such routine if i am not mistaken anyways etc, but this is also proof our logic is working as intended nicely if i may say which is a good thing if i may say too but anyways etc -->
+	// <!-- custom: the below code doesn't apply to barbarians, as they have no settler, produce no naval units as a result on pangea so they don't pirate anymore as they should, and should still be focused on their usual invade and such routine if i am not mistaken anyways etc, but this is also proof our logic is working as intended nicely if i may say which is a good thing if i may say too but anyways etc -->
 	bool bNoSettler = false;
 	bool bWorkerReplacesSettler = false;
 
@@ -3638,7 +3638,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 				// <!-- custom: maximize defense, and units that will defend to the last bit/soldier xd if i may say in this case xd but anyways etc -->
 				aiUnitAIVal[UNITAI_CITY_DEFENSE] *= 50;
 				aiUnitAIVal[UNITAI_CITY_SPECIAL] *= 50;
-				// <!-- custom: a bit less reliable but we need defend units that are flexible too, and if they are somehow the highest unitai, hopefulyl this smaller in this case but anyways etc multiplication will not make them be 2nd bets and be overlooked in this case i mean but anyways etc, but in other cases maybe favour core defense unitais but anyways etc -->
+				// <!-- custom: a bit less reliable but we need defend units that are flexible too, and if they are somehow the highest unitai, hopefully this smaller in this case but anyways etc multiplication will not make them be 2nd bets and be overlooked in this case i mean but anyways etc, but in other cases maybe favour core defense unitais but anyways etc -->
 				aiUnitAIVal[UNITAI_RESERVE] *= 40;
 
 				// <!-- custom: no time for these we are at war or about to be anyways etc -->
@@ -3663,7 +3663,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 				// <!-- custom: maximize defense, and units that will defend to the last bit/soldier xd if i may say in this case xd but anyways etc -->
 				aiUnitAIVal[UNITAI_CITY_DEFENSE] *= 5;
 				aiUnitAIVal[UNITAI_CITY_SPECIAL] *= 5;
-				// <!-- custom: a bit less reliable but we need defend units that are flexible too, and if they are somehow the highest unitai, hopefulyl this smaller in this case but anyways etc multiplication will not make them be 2nd bets and be overlooked in this case i mean but anyways etc, but in other cases maybe favour core defense unitais but anyways etc -->
+				// <!-- custom: a bit less reliable but we need defend units that are flexible too, and if they are somehow the highest unitai, hopefully this smaller in this case but anyways etc multiplication will not make them be 2nd bets and be overlooked in this case i mean but anyways etc, but in other cases maybe favour core defense unitais but anyways etc -->
 				aiUnitAIVal[UNITAI_RESERVE] *= 4;
 
 				// <!-- custom: no time or not too much time for these, although could be useful to slow down our ennemies that are attacking us, but by the time we produce them or/and do anything of use with them, most of the war would have happened already, so don't capitalize or bet too much on these, except if some units are already existing, not handled here by this best unitai to produce code if i am not mistaken but anyways etc, so still devaluing them here when it comes to best to produce but anyways etc-->
@@ -3689,7 +3689,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 				// <!-- custom: maximize defense, and units that will defend to the last bit/soldier xd if i may say in this case xd but anyways etc -->
 				aiUnitAIVal[UNITAI_CITY_DEFENSE] *= 20;
 				aiUnitAIVal[UNITAI_CITY_SPECIAL] *= 20;
-				// <!-- custom: a bit less reliable but we need defend units that are flexible too, and if they are somehow the highest unitai, hopefulyl this smaller in this case but anyways etc multiplication will not make them be 2nd bets and be overlooked in this case i mean but anyways etc, but in other cases maybe favour core defense unitais but anyways etc -->
+				// <!-- custom: a bit less reliable but we need defend units that are flexible too, and if they are somehow the highest unitai, hopefully this smaller in this case but anyways etc multiplication will not make them be 2nd bets and be overlooked in this case i mean but anyways etc, but in other cases maybe favour core defense unitais but anyways etc -->
 				aiUnitAIVal[UNITAI_RESERVE] *= 16;
 
 				// <!-- custom: no time for these -->
@@ -3737,7 +3737,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 			// <!-- custom: make sure we don't overbuild workers, used only in the context of blocking forced settlers builds and aoviding chain worker loops if i am not mistaken, so maybe fine to be a bit stricter and maybe workers would still be produced with more relaxed conditions hopefully and if i am not mistaken but check to be sure but anyways etc ; each city needs maximum 2 workers before it's too much -->
 			bool const bTooMuchWorkers = GET_PLAYER(getOwner()).AI_totalUnitAIs(UNITAI_WORKER) >= (2 * iNumCities);
 
-			if (bStagnant && iCityPopulation <= 2 && !bTooMuchWorkers) // <!-- custom: stagnant or about to be, which would be unusual at such a small size so try to find how/why and if tiles could be fixed or enhanced maybe but anyways etc (if not worker woudl still be useful otherwise for the whole empire maybe so favour this as well but anyways etc, even if this city would grow slower individually as a result, in most cases i hope it will help AI a lot switch to workers sooner when needed in small or stagnating cities, on top of having an uneeded settler, if it doesn't cause issues with unitai selection otherwise in other parts of the code like it being pruned if AI thinks it has too much workers or such but hopefully helpful for this issue and this is just a guess that maybe doesn't happen or does but hopefulyl effective in most cases and helpful to the AI cities stagnating in jungle which is now a rich potential feature to exploit (and remove unhealthiness while doing so too as well if i may say but anyways etc) so build workers but anyways etc) ; we are not using the food anyway so better use food as production if i am not mistaken but anyways etc -->
+			if (bStagnant && iCityPopulation <= 2 && !bTooMuchWorkers) // <!-- custom: stagnant or about to be, which would be unusual at such a small size so try to find how/why and if tiles could be fixed or enhanced maybe but anyways etc (if not worker would still be useful otherwise for the whole empire maybe so favour this as well but anyways etc, even if this city would grow slower individually as a result, in most cases i hope it will help AI a lot switch to workers sooner when needed in small or stagnating cities, on top of having an uneeded settler, if it doesn't cause issues with unitai selection otherwise in other parts of the code like it being pruned if AI thinks it has too much workers or such but hopefully helpful for this issue and this is just a guess that maybe doesn't happen or does but hopefully effective in most cases and helpful to the AI cities stagnating in jungle which is now a rich potential feature to exploit (and remove unhealthiness while doing so too as well if i may say but anyways etc) so build workers but anyways etc) ; we are not using the food anyway so better use food as production if i am not mistaken but anyways etc -->
 			{
 				aiUnitAIVal[UNITAI_WORKER] += 20000;
 			}
@@ -4399,7 +4399,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 	int const iFoodKept = kOwner.getFoodKept(eBuilding); // advc.912d
 	// <!-- custom: moved here to use it with our own rules / checks if i may say and am not mistaken but anyways etc and prett formatted a bit too if i may say in this case but anyways etc -->
 	int const iEstGrowth = iFoodDifference + std::max(0, -iHealthLevel + iFoodDifference);
-	// <!-- custom: update: but after all as per chatgpt 5's review, may be inaccurate due to doubling count of food difference, use something else instead in an attempt to not over or understimate our expected growth anyways etc ; note: not changing previously defined iEstGrowth to keep odl code working as intended, but as for us using this new var rather for our purpose as advised by chatgpt 5 (from another thread xd but thanks lot still but anyways etc, also check if accurate anyways etc) -->
+	// <!-- custom: update: but after all as per chatgpt 5's review, may be inaccurate due to doubling count of food difference, use something else instead in an attempt to not over or understimate our expected growth anyways etc ; note: not changing previously defined iEstGrowth to keep old code working as intended, but as for us using this new var rather for our purpose as advised by chatgpt 5 (from another thread xd but thanks lot still but anyways etc, also check if accurate anyways etc) -->
 
 	// Example scenarios for the growth signal:
 	// Inputs: iFoodDifference (food surplus/turn), iHealthLevel (good-bad), iHappinessSurplus
@@ -4567,7 +4567,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					{
 						return 0;
 					}
-					// If they’re actually scary (≥120%), <!-- custom: build walls with highest priority, we are likely to get attacked, walls or castle or such would help a lot more than any other building, but not for wonders unfortunately if i may say but anyways etc as it is unlikely we complete them on time before war ends or we die or we make any advantage of them anyways etc (worst case we'd be building it for them, invest that hammer in units or last ditch efforts rather that may help more maybe i would say in this case i mean but anyways etc) ; note: the else if is a bit redundant if i am not mistaken but anyways etc hopefulyl clearer as such maybe or not or yes or etc but anyways etc -->
+					// If they’re actually scary (≥120%), <!-- custom: build walls with highest priority, we are likely to get attacked, walls or castle or such would help a lot more than any other building, but not for wonders unfortunately if i may say but anyways etc as it is unlikely we complete them on time before war ends or we die or we make any advantage of them anyways etc (worst case we'd be building it for them, invest that hammer in units or last ditch efforts rather that may help more maybe i would say in this case i mean but anyways etc) ; note: the else if is a bit redundant if i am not mistaken but anyways etc hopefully clearer as such maybe or not or yes or etc but anyways etc -->
 					else if (bEnemyStrong)
 					{
 						return AI_BUILDING_ALWAYS_PICK_FIRST;
@@ -4696,7 +4696,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				}
 			}
 
-			// <!-- custom: extra rules in case as we still sometimes do not build much needed health buildings when we need, or build them when we shouldn't or/and not urgently and shoudl rather invest our hammer elsewhere but anyways etc -->
+			// <!-- custom: extra rules in case as we still sometimes do not build much needed health buildings when we need, or build them when we shouldn't or/and not urgently and should rather invest our hammer elsewhere but anyways etc -->
 			const bool bFoodKeptBuilding = (iFoodKept >= 25);
 
 			if (bFoodKeptBuilding)
@@ -4904,7 +4904,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				!bPreviousBuildings
 			);
 
-			// <!-- custom: similarly hard to tell long term effects of which, especially if these have nested effects like health or such, but we handled excluding misclassified e.g. health buildings like the grocer that happen to give gold, and we treated them as health buildings to assess their importance to buidl or reject them but anyways etc, so now i mean for economy buildings not handled before but anyways etc, use an about same logic as for/in but anyways etc science ones, but with a bit more leeway, as short term is a bit stronger to consider as an alternative vs only more gold right now (unlike vs science which is stronger i'm not mistaken but anyways etc) -->
+			// <!-- custom: similarly hard to tell long term effects of which, especially if these have nested effects like health or such, but we handled excluding misclassified e.g. health buildings like the grocer that happen to give gold, and we treated them as health buildings to assess their importance to build or reject them but anyways etc, so now i mean for economy buildings not handled before but anyways etc, use an about same logic as for/in but anyways etc science ones, but with a bit more leeway, as short term is a bit stronger to consider as an alternative vs only more gold right now (unlike vs science which is stronger i'm not mistaken but anyways etc) -->
 			if (bEconomyOnlyBuilding)
 			{
 				if (bAtWar)
@@ -4931,7 +4931,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 							// City’s actual gold/turn (slider + tiles + specialists etc.)
 							const int iCityGoldRate = getCommerceRate(COMMERCE_GOLD);
 
-							// <!-- custom: low ROI expected if i may say but anyways etc, go for something else at least for now then reevaluate later (note: the happiness part, e.g. of the market, or the health part for example, e.g. of the grocer, have been evaluated before but anyways etc, now we're only evaluating remaining building on economic criteria if i may say but anyways etc), let this function or others hadnle more fine-grained if i may say but anyways etc cases, as for us we only want to cover most blatant ones but anyways (building a bank with 1 city gold rate for example), hopefulyl helps the AI while being versatile and reliable, to be stronger and sharper in its building choices but anyways etc -->
+							// <!-- custom: low ROI expected if i may say but anyways etc, go for something else at least for now then reevaluate later (note: the happiness part, e.g. of the market, or the health part for example, e.g. of the grocer, have been evaluated before but anyways etc, now we're only evaluating remaining building on economic criteria if i may say but anyways etc), let this function or others hadnle more fine-grained if i may say but anyways etc cases, as for us we only want to cover most blatant ones but anyways (building a bank with 1 city gold rate for example), hopefully helps the AI while being versatile and reliable, to be stronger and sharper in its building choices but anyways etc -->
 							if (iCityGoldRate < 6)
 							{
 								return 0;
@@ -5362,7 +5362,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 			if (bWorldWonder)
 			{
-				// <!-- custom: especially if losing, don't build wonder for our ennemies, do something else instead useful to help us survive. Note: there is a code somewhere that i saw that tells the AI to not ditch a wonder being built if >= a certain percentage of completion, which i think is 50%, if i find it heavily tighten it as well anyways etc, even at 50% completion, we can still produce several longbowmen or such instead that may increase our odds a lot, ideally don't start the wonder at all, but if didn't see it (surprise war, etc), then don't continue building it somewhere as well if i find where again in this case i mean but anyways etc, as for this code only handles new buildings to start if i'm not mistaken but anyways etc, and tightening it heavily here in war or war-related context but anyways etc ; update: i found it and tweaked it there as well, it's as of now in CvCityAI::AI_chooseProduction (ctrl+f "completion" to find it xd luckily found it again thankfulyl maybe rather i shoudl say to myself xd or chatgpt 5 i'm tlaking to in this case if i may say but anyways etc) -->
+				// <!-- custom: especially if losing, don't build wonder for our ennemies, do something else instead useful to help us survive. Note: there is a code somewhere that i saw that tells the AI to not ditch a wonder being built if >= a certain percentage of completion, which i think is 50%, if i find it heavily tighten it as well anyways etc, even at 50% completion, we can still produce several longbowmen or such instead that may increase our odds a lot, ideally don't start the wonder at all, but if didn't see it (surprise war, etc), then don't continue building it somewhere as well if i find where again in this case i mean but anyways etc, as for this code only handles new buildings to start if i'm not mistaken but anyways etc, and tightening it heavily here in war or war-related context but anyways etc ; update: i found it and tweaked it there as well, it's as of now in CvCityAI::AI_chooseProduction (ctrl+f "completion" to find it xd luckily found it again thankfully maybe rather i should say to myself xd or chatgpt 5 i'm tlaking to in this case if i may say but anyways etc) -->
 				// hard skips: don’t throw the game to build a shiny thing
 				if (bAtWar || bDanger || bWarPlan || bEnemyStrong)
 				{
@@ -5410,7 +5410,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 				if (bCoastalLeanWonder)
 				{
-					// Flat rule: need at least 3 coastal cities empire-wide <-- custom: regardless of map size, should be easier as such and covering most cases, although a bit inaccurate for small map sizes but maybe fine as naval wonders should overall be less important in most cases unless we have many naval cities which hopefulyl overlaps fine or fine enough with this but anyways etc ; also in our mod moai or such are not critical anymore at least for moai, as the port replaces this per city as an individual building as of now, and moai appear much later anyways etc -->.
+					// Flat rule: need at least 3 coastal cities empire-wide <-- custom: regardless of map size, should be easier as such and covering most cases, although a bit inaccurate for small map sizes but maybe fine as naval wonders should overall be less important in most cases unless we have many naval cities which hopefully overlaps fine or fine enough with this but anyways etc ; also in our mod moai or such are not critical anymore at least for moai, as the port replaces this per city as an individual building as of now, and moai appear much later anyways etc -->.
 					const int iCoastalCities = kOwner.countNumCoastalCities();
 					if (iCoastalCities < 3)
 					{

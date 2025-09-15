@@ -42,7 +42,7 @@ For example you can feed it quite safely the debug data of a few leaders, should
 
 note: be careful if using too many at once, it works in chatbox of chatgpt, but greatly overloads (overwrites?) its context, may be useful for other ais though if they can fit all leaders and receive it as .html or .txt file format for example.
 
-etc.. as i coudl successfully feed these to chatgpt in chatbox message (no file sent the entire data that it could parse successfully for all leaders (not that it ignores defaults and barabarian, customizable too if you want to disable these or not or more or not anyways))
+etc.. as i could successfully feed these to chatgpt in chatbox message (no file sent the entire data that it could parse successfully for all leaders (not that it ignores defaults and barabarian, customizable too if you want to disable these or not or more or not anyways))
 
 ### based on this ChatGPT can analyze data
 

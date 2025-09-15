@@ -506,7 +506,7 @@ that chatgpt fixed as (slightly adjusted its code by merging 2 lines (it created
 			if gc.getImprovementInfo(self.iImprovement).getTerrainMakesValid(iTerrain):
 ```
 
-Which helped fix our issue successfully now anyways etc if i may say thnakfulyl but anyways etc :)
+Which helped fix our issue successfully now anyways etc if i may say thnakfully but anyways etc :)
 
 note: many many many other things global search can be useful for, for example this includes how i made suepr fast as of now all the readme md files's menus with chatgpt 5's help, bug hunting, and many other uses hehe if i may say but anyways etc.
 

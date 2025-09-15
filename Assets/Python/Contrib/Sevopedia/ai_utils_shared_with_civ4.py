@@ -415,7 +415,7 @@ def get_memory_attitude_percent_and_decay_invert_flags(is_positive, is_affection
 
 	else:
 		if is_affection:
-			# <!-- custom: similarly but in negative memories, higher attitude score (ex: + 350 > + 200) means more affection for them (more and more masochistic or similar AI anyways.. which i don't dislike but anyways... Not necessarily especialyl like but anyways (either/too)(or why not?) but anyways...), so we don't invert. -->
+			# <!-- custom: similarly but in negative memories, higher attitude score (ex: + 350 > + 200) means more affection for them (more and more masochistic or similar AI anyways.. which i don't dislike but anyways... Not necessarily especially like but anyways (either/too)(or why not?) but anyways...), so we don't invert. -->
 			return False, False
 		else:
 			# # <!-- custom: similarly but in negative memories, lower attitude score (ex: -350 < -200) means more intense negative feeling (resentment) (resentful and (more) especially spiteful AI but this time in an (seemingly) expected way if (conventionally) harm(ful behaviour or other thing or similar anyways etc thing anyways etc) is done to it), closer to 0 means AI cares less (0 should be		- maximum -		attitudes after normalization unless i'm mistaken anyways but should be as this if i'm not mistaken anyways), so we invert.. -->

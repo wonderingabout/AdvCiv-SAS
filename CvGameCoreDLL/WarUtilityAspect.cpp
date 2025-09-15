@@ -2900,6 +2900,37 @@ void Effort::evaluate() {}
 
 int Risk::preEvaluate()
 {
+	// <!-- custom: also handle risk of going to war too far away and leaving our cities defenseless and dying pathetically if i may say or stupidly but anyways etc shortly after, as is very problematic as of now in base advciv and advciv-sas as of now, see known issue as of now 61 for details anyways etc, also code is provided thanks to chatgpt 5, check if accurate anyways etc; result of this code change: we seem to live a bit longer but still attack the wrong target when a closer and weaker one was in reach but anyways etc, but since it seems harmless and we seem to live longer due to not attacking first target if not due to autoplay fluctuation, kept as such anyways etc -->
+	// if you want a fixed, super-simple “turns-to-contact” cap like 8–10 for land (and e.g. 12 for sea), just replace those calls with constants (or XML defines). the cached city distance we use (UWAICache::City::getDistance()) is the team pathfinder’s notion of turns, and it already factors roads/terrain/domain speed. so roads naturally make the path “shorter” in turns; you don’t need extra code for roads.
+	// --- SIMPLE HARD REJECT / RPE FILTER ---
+
+	// fixed caps in *turns*; tweak to taste or move to XML
+	// <!-- custom: we get very very good results with 2, now spain ai (our ai in autoplay but anyways etc) doesn't get baited by faraway ais and finishes off weak nearby one, as a result we don't get targeted by cyrus ai and keep our lead, now trying to extend the range a bit to see if still safe but anyways etc anyways etc -->
+	// static const int MAX_LAND_TURNS = 2;
+	// <!-- custom: result: seemingly even better, see known issue as of now 61 for details, not increased further to not risk falling back to old pitfalls if i may say but anyways etc, while keeping variety enough in war outcomes with larger window but anyways etc -->
+	static const int MAX_LAND_TURNS = 3;
+	static const int MAX_SEA_TURNS  = 12;
+
+	const bool bNaval = m_kParams.isNaval();
+
+	int minContact = INT_MAX;
+	for (int i = 0; i < ourCache().numCities(); ++i)
+	{
+		UWAICache::City& c = ourCache().cityAt(i);
+		if (c.city().getTeam() != m_kParams.getTarget()) continue;  // target-specific
+		if (!c.canReach()) continue;                     // unreachable from our pov
+		if (!bNaval && !c.canReachByLand()) continue;    // land war needs land path
+		minContact = std::min(minContact, c.getDistance()); // ~turns incl. roads
+	}
+
+	const bool noLift = (bNaval && !ourCache().canTrainAnyCargo());
+	const int  maxTurns = bNaval ? MAX_SEA_TURNS : MAX_LAND_TURNS;
+
+	if (minContact == INT_MAX || minContact > maxTurns || noLift)
+		return -100000; // kill this (agent,target) war plan
+
+	// --- END RPE FILTER ---
+
 	// Handle potential losses of our vassals here
 	scaled rUtility; // (Positive value, gets subtracted in the end.)
 	for (PlayerIter<ALIVE,VASSAL_OF> itVassal(eOurTeam); itVassal.hasNext(); ++itVassal)
