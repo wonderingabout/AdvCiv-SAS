@@ -1676,6 +1676,7 @@ void CvPlayerAI::AI_makeProductionDirty()
 		pLoopCity->setChooseProductionDirty(true);
 }
 
+// <!-- custom: added smarter more aggressive razing which now gives very good results ingame (see below and known issue as of now 64 for details anyways etc), refactored a bit the relevant parts although otherwise and in general mostly the same if i'm not mistaken but anyways etc -->
 // BETTER_BTS_AI_MOD, War tactics AI, 05/16/10, jdog5000:
 void CvPlayerAI::AI_conquerCity(CvCityAI& kCity,  // advc.003u: param was CvCity*
 	bool bEverOwned) // advc.ctr: We already own it; but had we ever previously owned it?
@@ -1690,6 +1691,8 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity,  // advc.003u: param was CvCity
 	CvTeam const& kPreviousTeam = GET_TEAM(kCity.getPreviousOwner());
 	CvGame const& kGame = GC.getGame();
 
+	// <!-- custom: new logic later, see below for details anyways etc -->
+	// --- 1) Cultural victory emergency (existing logic, unchanged) ---
 	bool bCultureVictory = false; // advc.116
 	bool bRaze = false;
 	// Reasons to always raze
@@ -1726,38 +1729,84 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity,  // advc.003u: param was CvCity
 			}
 		} // </advc.116>
 	}  // <advc.ctr>
-	if (!isBarbarian() && !kCity.isHolyCity() && !bEverOwned &&
+	// <!-- custom: store it once to avoid reuse anyways etc -->
+	const bool bBarbarian = isBarbarian();
+	if (!bBarbarian && !kCity.isHolyCity() && !bEverOwned &&
 		!kCity.hasActiveWorldWonder() && AI_isAwfulSite(kCity, true))
 	{
 		bRaze = true;
 	} // </advc.ctr>
+	// <!-- custom: we have an issue of AI not razing a bit or too far cities especially early, usually barbarian cities, that are detrimental to capture rather than simply raze. Make sure we always raze cities in such cases rather than keeping/capturing them, see known issue as of now 64 for details anyways etc; also code provided by chatgpt 5, check if accurate anyways etc -->
+	bool const bPrevOwnerBarb = (kCity.getPreviousOwner() == BARBARIAN_PLAYER);
+	bool const bBarbCity = (bPrevOwnerBarb && (kCity.getOriginalOwner() == BARBARIAN_PLAYER));
+
+	// "Early" window (scaled by speed).
+	const int iEarlyTurnsBase = 120; // ~Classical on Normal. Tune if you like.
+	const int iEarlyTurns =	iEarlyTurnsBase * GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent() / 100;
+	const bool bEarlyPhase = (GC.getGame().getGameTurn() < iEarlyTurns);
+
+	int const iCloseness = kCity.AI_playerCloseness(getID());
+    const bool bIsolated = (iCloseness == 0) || (GET_TEAM(getTeam()).countNumCitiesByArea(kCity.getArea()) == 0);
+
+	// <!-- custom: other reasons to always and absolutely raze no matter what: -->
+	// --- 2) SAS early far-barb rule (minimal) ---
+    if (!bBarbarian && !bEverOwned && bBarbCity /* <!-- custom: no need to care about these, raze regardless if not in our interest to keep the city anyways etc --> !kCity.isHolyCity() && !kCity.hasActiveWorldWonder() */)
+    {
+		// <!-- custom: hopefully this helps raze islandic cities or such in pangea-like maps in particular so we stay focused and don't spread our troops too if i'm not mistaken as chatgpt 5 added here (but check if accurate) but anyways etc -->
+        if (bIsolated && bEarlyPhase)
+		{
+            bRaze = true;
+		}
+    }
+	// <!-- custom: even for non barbarian cities, if they are too far and we are in the early game, do not risk crumbling or splitting our forces at a critical early time when economy and military is weaker and we can't spread too much in this case i mean but anyways etc; so raze the city rather, anyways etc -->
+	// Optional non-barb outpost rule (stricter)
+	if (!bBarbarian && bEarlyPhase && iCloseness == 0)
+	{
+        bRaze = true;
+	}
 
 	if (!bRaze)
 	{
-		int const iCloseness = kCity.AI_playerCloseness(getID());
 		// Reasons to not raze
-		if (!bCultureVictory) // advc.116
+		// <!-- custom: As for this part of the code, refactor this as the intent logged vs condition we check seem unclear and harder to tweak anyways etc; while doing so, also remove the old !bCultureVictory since we check it before anyway to always raze if true, and removing it here makes us avoid being unable to raze later due to it being here as well as recommended by chatgpt 5, check if accurate anyways etc -->
+		// By removing the old if (!bCultureVictory) { keepCity(); return; }, you’ve opened the door for the later iRazeValue logic to run even when there’s no culture-victory emergency. That’s exactly what you want if your goal is “sometimes raze far/awkward cities,” but expect more razing than before (distance, maintenance, barb-origin, etc. can all push iRazeValue > 0).
+		//
+		// if (!bCultureVictory) // advc.116
+		// {
+		// 	if (getNumCities() <= 1 || (getNumCities() < 5 && iCloseness > 0))
+		// 	{
+		// 		if (gPlayerLogLevel >= 1) logBBAI("    Player %d (%S) decides not to raze %S because they have few cities", getID(), getCivilizationDescription(0), kCity.getName().GetCString());
+		// 	}
+		// 	else if (AI_atVictoryStage(AI_VICTORY_DOMINATION3) &&
+		// 			GET_TEAM(getTeam()).AI_isPrimaryArea(kCity.getArea()))
+		// 	{
+		// 		// Do not raze, going for domination
+		// 		if (gPlayerLogLevel >= 1) logBBAI("    Player %d (%S) decides not to raze %S because they're going for domination", getID(), getCivilizationDescription(0), kCity.getName().GetCString());
+		// 	}  // <advc>
+		// 	keepCity(kCity);
+		// 	return;
+		// }
+		//
+		// <!-- custom: note: actually even if we have too few cities, it's not a reason to make a bad deal (i.e. capturing and not razing a too far away city); our weak economy would make it even worse due to city distance in fact but anyways etc, so this looks like a bad reason not to raze, so removed anyways etc -->
+		const bool bGoingForDomination = (AI_atVictoryStage(AI_VICTORY_DOMINATION3) && GET_TEAM(getTeam()).AI_isPrimaryArea(kCity.getArea()));
+		if (bGoingForDomination)
 		{
-			if (getNumCities() <= 1 || (getNumCities() < 5 && iCloseness > 0))
-			{
-				if (gPlayerLogLevel >= 1) logBBAI("    Player %d (%S) decides not to raze %S because they have few cities", getID(), getCivilizationDescription(0), kCity.getName().GetCString());
-			}
-			else if (AI_atVictoryStage(AI_VICTORY_DOMINATION3) &&
-					GET_TEAM(getTeam()).AI_isPrimaryArea(kCity.getArea()))
-			{
-				// Do not raze, going for domination
-				if (gPlayerLogLevel >= 1) logBBAI("    Player %d (%S) decides not to raze %S because they're going for domination", getID(), getCivilizationDescription(0), kCity.getName().GetCString());
-			}  // <advc>
+			// Do not raze, going for domination
+			if (gPlayerLogLevel >= 1) logBBAI("    Player %d (%S) decides not to raze %S because they're going for domination", getID(), getCivilizationDescription(0), kCity.getName().GetCString());
 			keepCity(kCity);
 			return;
 		}
+		// }
+
 		//else // </advc>
 		int iRazeValue = 0;
-		if (isBarbarian())
+		if (bBarbarian)
 		{
-			if (!kCity.isHolyCity() && !kCity.hasActiveWorldWonder() &&
-				kCity.getPreviousOwner() != BARBARIAN_PLAYER &&
-				kCity.getOriginalOwner() != BARBARIAN_PLAYER)
+			// <!-- custom: refactor this a bit anyways etc and change intent a tiny/slight bit in this case i mean but anyways etc to simplify anyways etc -->
+			// if (!kCity.isHolyCity() && !kCity.hasActiveWorldWonder() &&
+			// 	kCity.getPreviousOwner() != BARBARIAN_PLAYER &&
+			// 	kCity.getOriginalOwner() != BARBARIAN_PLAYER)
+			if (!kCity.isHolyCity() && !kCity.hasActiveWorldWonder() && !bBarbCity)
 			{
 				iRazeValue += GC.getInfo(getPersonalityType()).getRazeCityProb();
 				//iRazeValue -= iCloseness;
@@ -1774,9 +1823,6 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity,  // advc.003u: param was CvCity
 		else
 		{
 			bool const bFinancialTrouble = AI_isFinancialTrouble();
-			bool const bBarbCity = (kCity.getPreviousOwner() == BARBARIAN_PLAYER &&
-					kCity.getOriginalOwner() == BARBARIAN_PLAYER);
-			bool const bPrevOwnerBarb = (kCity.getPreviousOwner() == BARBARIAN_PLAYER);
 			bool const bTotalWar = (kPreviousTeam.getNumCities() > 0 && // advc.116
 					// K-Mod
 					GET_TEAM(getTeam()).AI_getWarPlan(kPreviousTeam.getID()) == WARPLAN_TOTAL);
@@ -1835,7 +1881,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity,  // advc.003u: param was CvCity
 				if (pNearestTeamAreaCity == NULL &&
 					/*  <advc.300> The +15 is bad enough if we don't have to
 						worry about attacks against the city */
-					kCity.getPreviousOwner() != BARBARIAN_PLAYER &&
+					!bPrevOwnerBarb &&
 					kCity.getArea().getNumCivCities() > 1) // </advc.300>
 				{
 					if (bTotalWar &&
