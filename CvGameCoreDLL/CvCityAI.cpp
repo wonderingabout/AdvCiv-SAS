@@ -4346,6 +4346,54 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 }
 
 
+// <!-- custom: we have an issue of building a theatre in an unhappy cities (and possibly many) instead of a hindu temple (which would have provided actual happiness rather than culture based that we don't use since we don't want culture slider or reliably do so early in particular where we're more focused on survival), so fix this mistake in this case i mean but anyways etc by being stricter than in getAdditionalHealthByBuilding about which buildings we consider to be happiness buildings anyways etc; code provided by chatgpt 5, check if accurate anyways etc -->
+// Strict, reliable happy: flat, class, player, area, state religion (if applicable),
+// and resource-based IF connected (or granted by this building).
+// Excludes commerce/slider happiness and WW-modifier side-effects.
+static int AI_strictAdditionalHappy(CvCity const& c, BuildingTypes eB)
+{
+    CvBuildingInfo const& b = GC.getInfo(eB);
+    CvPlayer const& p = GET_PLAYER(c.getOwner());
+
+    int iHappy = 0;
+
+    // Flat
+    iHappy += b.getHappiness();
+    iHappy += c.getBuildingHappyChange(b.getBuildingClassType());
+    iHappy += p.getExtraBuildingHappiness(eB);
+    iHappy += b.getAreaHappiness();
+
+    // State religion gated (reliable if you currently run that state religion)
+    if (b.getReligionType() != NO_RELIGION &&
+        p.getStateReligion() == b.getReligionType())
+    {
+        iHappy += b.getStateReligionHappiness();
+    }
+
+    // Resource gated (only if connected or provided by this building; respect NoBonus)
+    FOR_EACH_NON_DEFAULT_PAIR(b.getBonusHappinessChanges(), Bonus, int)
+    {
+        BonusTypes eBonus = perBonusVal.first;
+        if ((c.hasBonus(eBonus) || b.getFreeBonus() == eBonus) &&
+            b.getNoBonus() != eBonus)
+        {
+            iHappy += perBonusVal.second;
+        }
+    }
+
+    // No Unhappiness: treat as removing the whole current anger (immediate cap lift)
+    if (b.isNoUnhappiness())
+    {
+        // if city is currently happy, this contributes 0 (which is fine)
+        iHappy += std::max(0, c.unhappyLevel());
+    }
+
+    // Excluded on purpose:
+    //  - commerce/slider-based happiness
+    //  - war-weariness modifier math
+    return iHappy;
+}
+
 // (I don't see the point of this function being separate to the "threshold" version)
 /*int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags) const {
 	return AI_buildingValueThreshold(eBuilding, iFocusFlags, 0);
@@ -4763,9 +4811,21 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				//kBuilding.isAreaCleanPower()
 			);
 
-			// Expected local happiness the building would add (includes resource synergies).
-			int iHappyGood=0, iHappyBad=0;
-			const int iHappinessGain = getAdditionalHappinessByBuilding(eBuilding, iHappyGood, iHappyBad);
+			// <!-- custom: don't build a theatre instead of a much better hindu temple if city is unhappy (generic theatre (i.e. non-civ-specific ones anyways etc) doesn't give reliable happiness) see code comment at AI_strictAdditionalHappy for details anyways etc -->
+			// // Expected local happiness the building would add (includes resource synergies).
+			// int iHappyGood=0, iHappyBad=0;
+			// const int iHappinessGain = getAdditionalHappinessByBuilding(eBuilding, iHappyGood, iHappyBad);
+			//
+			const int iStrictHappinessGain = AI_strictAdditionalHappy(*this, eBuilding);
+
+			// <!-- custom: now also account for unhappy citizens that would become happy after the building is built (inspired from our code in bestcitybuild (with variable as of now named iFoodConsumedBySpecialistOrAngryCitizens anyways etc) that uncounts food consumed by unhappy citizens anyways etc), as kish city was unhappy and stagnant so the effective food check as of now >= 2 would block the happiness building being built, even if we'd gain food from freeing unhappiness into more workable happy citizen tiles (not guaranteed to be grass land or 2 food tiles but assumed as such to simplify and favour a bit happiness buildings when relevant at least not prevent it in this case i mean but anyways etc), so remove from food effective food the food consumed by unhappy citizens which would then become happy after the happiness building is built anyways etc -->
+			// <!-- custom: results: extremely good!!! Now resuming from same save file at turn 100, Kish city of gilgamesh ai is now pop 13 at turn 150 instead of pop 10, and has built walls (that give 1 happiness in our mod since gilgamesh is protective if i'm not mistaken anyways etc, so it's great AIs can now dynamically (i.e. they adapt to this xml change we made not in hardcoded way hehe super nice but anyways etc) leverage this!!), which is great too because we sent a signal to not build walls if stronger, which gilgamesh ai is (strongest military power at turn 150 so i'd guess so at turn 100 although i didn't check but anyways etc), as well as a colosseum and a market (since gilgamesh has some of the matching bonuses i guess). His military power didn't suffer too much as he is still strongest after these changes now but with more mid and late game potential (so the small short term cost is probably much less important than long term gain anyways etc), see known issue as of now 48.2 for details anyways etc -->
+			// ---- Effective food AFTER curing anger with this building -------------------
+			const int iFoodPerPop   = GC.getFOOD_CONSUMPTION_PER_POPULATION();
+			const int iAngryNow     = angryPopulation(); // (= max(0, -iHappinessSurplus)) in practice
+			const int iCuredAngry   = std::min(iAngryNow, iStrictHappinessGain);
+			// Simple regain: give back their food
+			const int iEffectiveFoodAfterBuiltHappy = iEffectiveFood + (iCuredAngry * iFoodPerPop);
 
 			if (bProductionBuilding)
 			{
@@ -4782,7 +4842,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				// → skip it for now.
 				const bool bLowHammerProduction = (iBaseHammersPerTurn <= 12);
 				const bool bLowGrowthProduction = (iFoodDifference <= 1 || iHappinessSurplus <= 0);
-				const bool bWeakHappinessBoost = (iHappinessGain <= 2);
+				const bool bWeakHappinessBoost = (iStrictHappinessGain <= 2);
 
 				if (bEarlyTurnsProduction)
 				{
@@ -4804,8 +4864,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 			// <!-- custom: if a building gives happiness to all cities, purposely let it slip through our net, perhaps it is good to build it, especially and here only handling it if it is not a wonder (so would be fast to build in this case i mean if i may say but anyways etc) in this case i mean but anyways etc -->
 			const bool bHappinessBuilding = (
-				(iHappinessGain > 0) ||
-				kBuilding.isNoUnhappiness()
+				(iStrictHappinessGain > 0)
 			);
 
 			if (bHappinessBuilding)
@@ -4826,7 +4885,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				}
 				// If we’re at/over the cap and can actually use the happy soon, strongly prefer it
 				// (but don’t force for wonders).
-				if (iHappinessSurplus <= 0 && iHappinessGain > 0 && iEffectiveFood >= 2)
+				if (iHappinessSurplus <= 0 && iStrictHappinessGain > 0 && iEffectiveFoodAfterBuiltHappy >= 2)
 				{
 					return AI_BUILDING_ALWAYS_PICK_FIRST; // optional: comment out if you want “no force”
 				}
@@ -4844,7 +4903,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				(kBuilding.getFreeSpecialistCount(eSpecialistScientist) > 0)
 			);
 
-			// <!-- custom: science buildings can be very important, and it is hard to gauge how important they can be, maybe we'll gain a longterm science or economic or such advantage, or we'll unlock our most important offensive or defensive unit to save us or/and help us win, maybe we need the culture as well even though has been reduced as of now in our mod but also indirectly through new buildings or wonders but anyways etc. Do not limit this too hard, as it is unclear if opening with a granary is always betetr tna say a library, let the function or whichever code(s? But anyways etc) is responsible for this choose, but as for us add the edge cases where it's really not the priority, most important of them being being at war (repetition xd but i think it is gramatically correct but anyways etc...) or about to be or soemthing similar, then we'd rather have 3 axemen than a library in a city we'd lose anyway, or to help us win our rush but anyways etc
+			// <!-- custom: science buildings can be very important, and it is hard to gauge how important they can be, maybe we'll gain a longterm science or economic or such advantage, or we'll unlock our most important offensive or defensive unit to save us or/and help us win, maybe we need the culture as well even though has been reduced as of now in our mod but also indirectly through new buildings or wonders but anyways etc. Do not limit this too hard, as it is unclear if opening with a granary is always better than say a library, let the function or whichever code(s? But anyways etc) is responsible for this choose, but as for us add the edge cases where it's really not the priority, most important of them being being at war (repetition xd but i think it is gramatically correct but anyways etc...) or about to be or soemthing similar, then we'd rather have 3 axemen than a library in a city we'd lose anyway, or to help us win our rush but anyways etc
 			if (bScienceBuilding)
 			{
 				if (bAtWar)
