@@ -91,6 +91,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [62 - (Extremely better/stronger) AI almost not evacuating at all doomed cities (2 swordsmen in an 11 unit defending stack vs a 22+ attacking unit stack), fixed by always and 100% evacuating city doomed city regardless of land unit type, in CvUnitAI::AI_evacuateCity](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#62---extremely-betterstronger-ai-almost-not-evacuating-at-all-doomed-cities-2-swordsmen-in-an-11-unit-defending-stack-vs-a-22-attacking-unit-stack-fixed-by-always-and-100-evacuating-city-doomed-city-regardless-of-land-unit-type-in-cvunitaiai_evacuatecity)  
 [63 - (Possibly prevented and possibly fixed) Weird / very inefficient back and forth of going to attack a city stack, and then going back after seeing enemy stack is too strong. I don't know if this change fixes it since the issue was solved without it (2+ autoplay turns were needed at least it seems not 1), but maybe this change in CvUnitAI::AI_attackCityMove helps a lot but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#63---possibly-prevented-and-possibly-fixed-weird--very-inefficient-back-and-forth-of-going-to-attack-a-city-stack-and-then-going-back-after-seeing-enemy-stack-is-too-strong-i-dont-know-if-this-change-fixes-it-since-the-issue-was-solved-without-it-2-autoplay-turns-were-needed-at-least-it-seems-not-1-but-maybe-this-change-in-cvunitaiai_attackcitymove-helps-a-lot-but-anyways-etc)  
 [64 - (Greatly enhanced) AI not razing faraway cities at captures - now we raze them if we are in the early game and they are not close enough, thanks to changes and tweaks in CvPlayerAI::AI_conquerCity anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#64---greatly-enhanced-ai-not-razing-faraway-cities-at-captures---now-we-raze-them-if-we-are-in-the-early-game-and-they-are-not-close-enough-thanks-to-changes-and-tweaks-in-cvplayeraiai_conquercity-anyways-etc)  
+[65 - (Seemingly tremendously improved) Hatshepsut AI who was strongest player at turn 150 is fighting many wars and dies before turn 200: added "emergency peace" sanity pre-checks in UWAI::Team::considerPeace in UWAIAgent.cpp anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#65---seemingly-tremendously-improved-hatshepsut-ai-who-was-strongest-player-at-turn-150-is-fighting-many-wars-and-dies-before-turn-200-added-emergency-peace-sanity-pre-checks-in-uwaiteamconsiderpeace-in-uwaiagentcpp-anyways-etc)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -2450,3 +2451,96 @@ I continued the game to see what happens a bit (existing screenshots between 262
 But then a new barbarian city (Phoenician but anyways etc) spawns nearby (of the old numidian city if i may say but anyways etc) and this time, still before the early window ends as it's still turn 115 (so before turn as of now 120 we defined as early phase for smart razing but anyways etc), german AI who is close enough to it captures it and does not raze it, which is good as it is close to him so he is likely to benefit from it. Also, it shows our code is not paranoid and still allows close enough cities to be captured, which is good and nice to know! (if i may say but anyways etc). So all in all this seems like a very nice code and enhancement of the AI razing behaviour, which should make AI quite a lot stronger and influence the early game quite heavily but anyways etc :)
 
 Note: some of the changes tweak the old logic to make it less restrictive and raze more often, and some of our additions may also include razing isolated cities like i assume islandic or such in the early game which should be fine considering the high cost to go and maintain presence there, although it might be less optimal for non pangea-like maps but maybe fine as such since is in the early game and we want focus forces if i'm not mistaken, check if accurate too and if i am not mistaken and chatgpt 5 helped me lot do all this although i adjusted it too but anyways etc.
+
+## 65 - (Seemingly tremendously improved) Hatshepsut AI who was strongest player at turn 150 is fighting many wars and dies before turn 200: added "emergency peace" sanity pre-checks in UWAI::Team::considerPeace in UWAIAgent.cpp anyways etc
+
+See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1db_VJaAIRCbPlKANob19QrB7LXja72SV?usp=sharing).
+
+This is another tremendous AI improvement it seems if i may say but anyways etc.
+
+After making the recent known issue changes, i wanted to test if it had an influence on how things would play out if i may say but anyways etc on the old map i tried at first and that i had also tested again more recently after some changes. What i have observed (from turn +/- 60 approximately (a bit before razing olmec city but anyways etc) but anyways etc) now however is that hatshepsut ai takes the lead at turn 150 and is stronger than all other rivals by a significant margin, which didn't happen before these changes.
+
+However, between this now save file turn 150 and (autoplaying 50 turns until but anyways etc) now turn 200 (existing screenshots between 281 and 289 anyways etc), hatshepsut ai who was the leader and possibly likely to win was badly dogpiled by everyone and died before turn 200 actually (despite being strongest leader at turn 150!!).
+
+So to dig why this happened i asked chatgpt 5 to look at the event log screenshots, and based on what it read on them (i didn't read as tedious and bit complicated in this case i mean but anyways etc), this is how it viewed the timeline (check if accurate anyways etc) (also i formatted it a bit but it's its info (based on my prompts and or such too but anyways etc) but anyways etc):
+
+>awesome set of screenshots — here’s what the event log says happened, in order, and why Hatshepsut went from #1 power at T150 (AD 500) to dead by AD 1350.
+>
+>What happened (T150 → T200)
+>AD 470–520: Hatty fights Germany (Bismarck), peaces out.
+>AD 560: Declares on Kublai.
+>AD 780: You declare on Hatty (later peace at AD 920).
+>AD 800: Declares on Bismarck again.
+>AD 860: Berlin captured by Egypt → Germany moves capital to Hamburg. (This puts a permanent target on her back.)
+>AD 880: Rome (Julius Caesar) declares on Hatty.
+>AD 900: Kublai declares on Hatty.
+>AD 960: Khmer (Suryavarman) declares on Hatty.
+>AD 1040: Saladin declares on Hatty (“at the request of Kublai” → a bribe).
+>
+>City losses, multi-front:
+>AD 1000: Alexandria falls to Khmer.
+>AD 1060: Berlin (Egypt) falls to Rome.
+>AD 1100: Heliopolis falls to Mongolia.
+>AD 1140: Elephantine falls to Khmer.
+>AD 1120–1240: Side stuff (Spiral Minaret; Pacal converts), wars continue.
+>AD 1300: Thebes falls to Rome → Memphis becomes capital.
+>AD 1310: Hatty converts to Judaism (late realignment; AP traffic mentions Berlin and Hindu bloc earlier).
+>AD 1330: Peaces Saladin (too late).
+>AD 1350: Memphis captured by Khmer → Hatshepsut defeated.
+>
+>Why it unraveled
+>
+>1) Dogpile trigger: Capturing Berlin (AD 860) made her the common enemy. Within 20 turns she was at war with Rome, Kublai, Khmer, and then Saladin (bribed). That’s 3–4 fronts plus your earlier war.
+>2) Religious/diplomatic isolation: The Apostolic Palace is Hindu (built by Bismarck). Kublai had converted to Hindu very early; AP vote text appears later. Hatty didn’t share that religion and only switched to Judaism at AD 1310, long after the dogpile began, so she had no bloc protection and was easy to bribe against.
+>3) Frontline collapse sequence: Khmer took the south (Alexandria, Elephantine), Rome took the west/center (Berlin, Thebes), Mongolia took Heliopolis. After losing Thebes, moving the capital to Memphis delayed but didn’t stop the end.
+>4) Army shape vs. coalition pressure: At AD 500 her stack was scary (26 LBs, 19 War Elephants, 11 Catapults), great for one front. But against 3–4 civs, you need either rapid peaces/bribes, Vassal mechanics, or concentrated defense; otherwise, cities start to fall piecemeal as happened.
+>
+>Takeaways (useful for AI tuning, if you want)
+>
+>- Dogpile detection: If at war with ≥2 neighbors and DoWs keep coming (or bribe messages appear), switch to “survive mode”: whip walls/castles/LBs, concentrate stacks, and aggressively buy peace or bribe counter-wars.
+>- AP awareness: Heavily weight aligning (or at least avoiding infamy) with the AP religion owner on maps where AP is active; late switches (AD 1310 here) don’t help.
+>- After big capture: After taking a rival’s capital (Berlin), temporarily cool wars; otherwise it invites the coalition response we saw.
+>
+>Net: Hatty didn’t lose because she was weak at T150 — she got dogpiled by a Hindu-AP-centered coalition and was ground down on three fronts over ~400 years.
+
+So based on this, i thought that at first, before fixing the cause (not switching religion to match other leader's religions, although it would make game bit boring if all leaders have same religion but if best move maybe do so in this case i mean but anyways etc), it was a too good opportunity to pass xd to finally fix the too many wars at same time issue and then test it after fix but anyways etc.
+
+So in `UWAI::Team::considerPeace` in UWAIAgent.cpp i added with the help of chatgpt 5 (check if accurate anyways etc) sanity "emergency peace" pre-checks, so that we make peace urgently no matter what if we have 3+ (see code for details anyways etc) wars at same time, or if we have 2+ wars at same time but the combined power of our ennemies is > 160 % of our power if i'm not mistaken (e.g. 2 ennemies having 0.8 (= 80% if i'm not mistaken anyways etc) (or e.g. 0.9 + 0.7, or 1.0 + 1.6, etc. anyways etc) times our power is enough that combined they would be a threat enough to urgently make peace) then urgently make peace no matter what before they ravage us xd if i may say but anyways etc.
+
+The second check is especially good as even if we have 3 wars, if say ennemies have 0.5 0.4 0.4 in total it would be only 0.5 + 0.4 + 0.4 = 1.3 times our power so we can handle it fine no need to trigger emergency peace, however 3+ wars alone is already too late by the time we react to that if rivals are strong. So i wanted something hybrid of 3+ wars or alternatively 2+ wars rather if strong threat which i think we do nicely here and simple but anyways etc (also not enough wars would be boring if i may say but anyways etc, so i'm glad we have found this middle ground where plenty wars still happen but AI now seemingly nicely handles it seems the multi war threat based on opponents' strength if i am not mistaken and if i may say but anyways etc).
+
+Results are extremely good!! As can be seen, starting from same save file at turn 150, in existing screenshots between 290 and 295 (run 1 after the changes) and existing screenshots between 296 and 297 (run 2 after the changes but anyways etc), hatshepsut ai is now still alive and still the strongest, she also made nice military gains, and makes short campaigns by declaring peace not long after war instead of collapsing under too many wars! Her military power shrank a bit relatively to other rivals, but she is still strongest so far and has expanded nicely if i may say but anyways etc. It is the result we wanted, of AI being able to keep a lead and not blunder it due to multi wars.
+
+Chatgpt 5 analyzed the event log as such (put run 2 only for concision anyways etc)
+
+>yep — this second run looks a lot healthier for Hatshepsut. Here’s what the stretched log shows and what it implies.
+>
+>What happened (T150 → T200)
+>
+>AD 470 → 540: Hatshepsut DoW Bismarck, then signs quick peace. One-front skirmish, no dogpile.
+>AD 640: DoW Kublai.
+>AD 680: Mutal falls to Egypt (it was in Kublai’s hands). Clean, early gain.
+>AD 700–820: A couple of short human–Egypt wars/peaces in your log; nothing sticks.
+>AD 900: Apostolic Palace completed (Hamburg). Hindu AP forms; later casts “Stop trading with Hatshepsut” (AD 1140), but it doesn’t derail her momentum.
+>AD 960 → 1120: Hatshepsut DoW Suryavarman, takes Chichén Itzá (AD 1040), then makes peace. Again: decisive hit, then exit.
+>AD 1200 → 1240: DoW Julius Caesar; by AD 1240 she captures Rome (capital), JC moves capital to Antium, and peace the same turn. That’s a huge tempo swing with minimal bleeding.
+>AD 1260–1310: Multiple Golden Ages around the map; no dogpile forms against her.
+>AD 1320: AP vote about stopping war vs Suleiman (not about her).
+>AD 1330: She DoW Pacal II (sequential, not simultaneous).
+>
+>Why this looks stronger
+>
+>- She avoids multi-front wars and fights sequential campaigns with fast peaces after big captures (Chichén Itzá, then Rome). That’s exactly the survival pattern we wanted.
+>- The AP sanction (“stop trading with Hatshepsut”) fires but doesn’t trigger a diplomatic dogpile; she’s already out of the Khmer war by then.
+>- Army at AD 1400 is intact and tops the field (scoreboard shows 1345 soldiers vs ~1250 for Saladin/Bismarck). Composition is sensible for the era: 22 Longbows, 16 Horse Knights + 8 Camel Knights, 7 Trebuchets, some Pikes. Not siege-starved, not over-committed.
+>
+>Did our emergency-peace change help?
+>
+>Indirectly, yes:
+>
+>- The pattern you see (decisive capture → quick peace → shift target) is exactly what our “don’t let multi-wars spiral” nudge encourages.
+>- Even if the hard trigger didn’t fire every time, the added checks reduce the chance of her continuing a costly war while another one starts.
+
+It seems not important anymore or urgent to fix the cause (religious dogpile) as it adds some game variety, and more importantly in this game hatshepsut ai captured rome ai (surprisingly historically accurate xd although is a random generated map and although i don't know too much this timeline's real history but i know they were invovled with each other on some level if i am not mistaken but anyways etc) so their holy pagan city synergized nicely with hatshepsut ai's paganism as well, so may be fine to leave as such i don't know for sure, however i had the issue in base advciv of strongest ai switching religion then making an enemy of everyone stupidly so may need some tweaking possibly even though i don't know where but i could use this save file as a base for that maybe if i may say but anyways etc (however is not guaranteed i may or may not do so anyways etc).
+
+As for this change of seemingly much better but anyways etc "emergency peace" prechecks, AI should be much stronger as well thanks to these hopefully and possibly be better at keeping its lead while still keeping the ability to bully the weak (i.e. many weak players) in multi wars for its interest (e.g. shortly before turn 200 hastsheput ai goes at it again if i may say but anyways etc and declares war on pacal 2 ai who was dying anyway if i may say but anyways etc and who is nearby so nice gain for her and safe as well in this case i mean but anyways etc).

@@ -964,7 +964,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
     static const BuildTypes eBuildWorkshop = (BuildTypes)GC.getInfoTypeForString("BUILD_WORKSHOP");
     static const BuildTypes eBuildWindmill = (BuildTypes)GC.getInfoTypeForString("BUILD_WINDMILL");
 
-	// <!-- custom: absolutely holy improvements without any condition at all (unlike semi-holy ones later that are absolute under soem conditoins only), not confounded with build, this checks improvements on plots, not builds for workers to build. They are useful to early exit if we don't want to overwrite current plot's improvement. This avoids oscillation very nicely :) Written in chatgpt style but definitely human xd, somehow felt to write as so but anyways etc, hopefully helpful but anyways etc -->
+	// <!-- custom: absolutely holy improvements without any condition at all (unlike semi-holy ones later that are absolute under some conditoins only), not confounded with build, this checks improvements on plots, not builds for workers to build. They are useful to early exit if we don't want to overwrite current plot's improvement. This avoids oscillation very nicely :) Written in chatgpt style but definitely human xd, somehow felt to write as so but anyways etc, hopefully helpful but anyways etc -->
 	static const ImprovementTypes eImprovementHamlet = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HAMLET");
 	static const ImprovementTypes eImprovementVillage = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_VILLAGE");
 	static const ImprovementTypes eImprovementTown = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_TOWN");

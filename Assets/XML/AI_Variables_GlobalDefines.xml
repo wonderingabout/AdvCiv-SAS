@@ -168,6 +168,7 @@
 		<!-- custom: AI is unlikely to win 2+ wars at the same time, almost always
 		likely to end bad for the AI, so may help the AI to further discourage
 		it, was 100 -->
+		<!-- custom: now seemingly tremendously improved multi war threat management thanks to the new "emergency peace code" we added instead (but that these uwai defines helped me locate if i may say but anyways etc) in UWAI::Team::considerPeace in UWAIAgent.cpp, see known issue as of now 65 for details anyways etc -->
 		<DefineName>UWAI_WEIGHT_DISTRACTION</DefineName>
 		<iDefineIntVal>300</iDefineIntVal>
 	</Define>
@@ -300,6 +301,7 @@
 		should be very bad for the AI to fight multi wars in terms of winning,
 		as for roleplaying it is not my core concern especially as this may
 		affect AI performance/strength, was 25 last time i modified it -->
+		<!-- custom: now seemingly tremendously improved multi war threat management thanks to the new "emergency peace code" we added instead (but that these uwai defines helped me locate if i may say but anyways etc) in UWAI::Team::considerPeace in UWAIAgent.cpp, see known issue as of now 65 for details anyways etc -->
 		<DefineName>UWAI_MULTI_WAR_RELUCTANCE</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>

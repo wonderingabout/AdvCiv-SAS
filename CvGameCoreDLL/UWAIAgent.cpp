@@ -527,6 +527,30 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
 			that expects to be paid waits for the other side to sue for peace). */
 		rPeaceThresh += 10;
 	}
+
+	// <!-- custom: we have an issue of hatshepsut ai being the military leader with a strong army at turn 150 and then being badly dogpiled on and dying/been defeated before turn 200. While we need to fix the reasons why wars happened that were detrimental for Hatshepsut ai as well but anyways etc, for now and first i mean here but anyways etc, add pre-checks to enforce/emergency exit multi-wars past a certain count and try to seek peace no matter what, as more war ennemies (not including barbarians hopefully if i'm not mistaken but anyways etc) can only be detrimental to us if i'm not mistaken but anyways etc, code provided by chatgpt 5, check if accurate; see also known issue as of now 65 for details anyways etc; results of these "emergency peace" changes: great!!! Now hatshepsut ai seemingly does not die anymore, makes military gains and makes peace many times based on chatgpt 5 reading of the event log as i had not read it myself at first but then i saw same results looking at event log ingame with multiple peace treaties made by hatshepsut ai quite shortly after war in this case i mean but anyways etc, and hatshepsut ai is still strongest player at turn 200 (although by smaller margin but did very great i would say if i may say but anyways etc)!! See known issue as of now 65 for details anyways etc -->
+	// 
+	// Emergency rule: if we're at war with 3+ major civs, force the negotiation path.
+	// With those two placements, Hatshepsut (or anyone) at war with 3+ major civs will reliably try to negotiate peace now, instead of riding the dogpile into the ground.
+	//
+	// Count current wars vs major civs (ignore barbs & minors; also ignore vassal “duplicates”)
+	const int iMajorWars = kAgent.getNumWars(/*bIgnoreMinors=*/true, /*bIgnoreVassals=*/true);
+
+	// Combined enemy power vs us (100 = parity)
+	const int iEnemyPowPct = kAgent.AI_getEnemyPowerPercent(true);
+
+	// <!-- custom: avoid as of now max 3 wars or even if 2 wars if our opponents are strong enough treat it the same. This allows to be versatile enough (3 wars are fine if a few targets are weak, so don't over-peace if i may say but anyways etc which would be bit boring too if i may say or waste potential in this case i mean but anyways etc) but also safe enough (even 2 wars are already dangerous if one or both of these rivals are strong enough to combined ravage us xd if i may say but anyways etc so treat it as an emergency anyways etc) -->
+	const bool bEmergencyPeace = ((iMajorWars >= 3) || (iMajorWars >= 2 && iEnemyPowPct > 160));
+
+	if (bEmergencyPeace)
+	{
+		m_pReport->log("Emergency peace mode: %d simultaneous wars vs majors — forcing negotiation.", iMajorWars);
+		// Make sure the code doesn't early-out on "utility above threshold":
+		// push iU clearly below the threshold so we go to the negotiation block.
+		iU = std::min(iU, rPeaceThresh.uround() - 100);
+	}
+	// keep the existing log (or adjust) after this
+	//
 	m_pReport->log("Threshold for seeking peace: %d", rPeaceThresh.round());
 	if (iU >= rPeaceThresh)
 	{
@@ -637,6 +661,13 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
 		FAssert(iU < rPeaceThresh);
 		rPeaceProb = (rPeaceThresh - iU).sqrt() * fixp(0.03);
 	}
+
+	// <!-- custom: add emergency peace in multi wars as part of our fix as well, code provided by chatgpt 5, check if accurate anyways etc, and see also known issue as of now 65 for details anyways etc -->
+	if (bEmergencyPeace)
+	{
+		rPeaceProb = fixp(1); // 100%
+	}
+
 	if (bOfferPeace)
 	{
 		m_pReport->log("Probability for peace negotiation: %d percent",
