@@ -50,9 +50,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 
 ## Full exhaustive very long and exhaustive changes
 
-If you want to see the full very exhaustive code changes between AdvCiv current latest stable, for example 1.12 here, and AdvCiv-SAS, please visit this [pull request compare](https://github.com/wonderingabout/AdvCiv-SAS/pull/13).
-
-Be warned though it can be very lengthy, so read below if you want (some of the) main quick pointers rather. I tried organizing them in categories if it helps.
+See [README.md#full-exhaustive-very-long-and-exhaustive-changes](/README.md#full-exhaustive-very-long-and-exhaustive-changes).
 
 ## Sevopedia AdvCiv-SAS Entries
 

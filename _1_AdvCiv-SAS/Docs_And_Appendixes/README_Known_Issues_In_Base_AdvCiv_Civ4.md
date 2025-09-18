@@ -2467,26 +2467,28 @@ So to dig why this happened i asked chatgpt 5 to look at the event log screensho
 >awesome set of screenshots — here’s what the event log says happened, in order, and why Hatshepsut went from #1 power at T150 (AD 500) to dead by AD 1350.
 >
 >What happened (T150 → T200)
->AD 470–520: Hatty fights Germany (Bismarck), peaces out.
->AD 560: Declares on Kublai.
->AD 780: You declare on Hatty (later peace at AD 920).
->AD 800: Declares on Bismarck again.
->AD 860: Berlin captured by Egypt → Germany moves capital to Hamburg. (This puts a permanent target on her back.)
->AD 880: Rome (Julius Caesar) declares on Hatty.
->AD 900: Kublai declares on Hatty.
->AD 960: Khmer (Suryavarman) declares on Hatty.
->AD 1040: Saladin declares on Hatty (“at the request of Kublai” → a bribe).
+>
+>- AD 470–520: Hatty fights Germany (Bismarck), peaces out.
+>- AD 560: Declares on Kublai.
+>- AD 780: You declare on Hatty (later peace at AD 920).
+>- AD 800: Declares on Bismarck again.
+>- AD 860: Berlin captured by Egypt → Germany moves capital to Hamburg. (This puts a permanent target on her back.)
+>- AD 880: Rome (Julius Caesar) declares on Hatty.
+>- AD 900: Kublai declares on Hatty.
+>- AD 960: Khmer (Suryavarman) declares on Hatty.
+>- AD 1040: Saladin declares on Hatty (“at the request of Kublai” → a bribe).
 >
 >City losses, multi-front:
->AD 1000: Alexandria falls to Khmer.
->AD 1060: Berlin (Egypt) falls to Rome.
->AD 1100: Heliopolis falls to Mongolia.
->AD 1140: Elephantine falls to Khmer.
->AD 1120–1240: Side stuff (Spiral Minaret; Pacal converts), wars continue.
->AD 1300: Thebes falls to Rome → Memphis becomes capital.
->AD 1310: Hatty converts to Judaism (late realignment; AP traffic mentions Berlin and Hindu bloc earlier).
->AD 1330: Peaces Saladin (too late).
->AD 1350: Memphis captured by Khmer → Hatshepsut defeated.
+>
+>- AD 1000: Alexandria falls to Khmer.
+>- AD 1060: Berlin (Egypt) falls to Rome.
+>- AD 1100: Heliopolis falls to Mongolia.
+>- AD 1140: Elephantine falls to Khmer.
+>- AD 1120–1240: Side stuff (Spiral Minaret; Pacal converts), wars continue.
+>- AD 1300: Thebes falls to Rome → Memphis becomes capital.
+>- AD 1310: Hatty converts to Judaism (late realignment; AP traffic mentions Berlin and Hindu bloc earlier).
+>- AD 1330: Peaces Saladin (too late).
+>- AD 1350: Memphis captured by Khmer → Hatshepsut defeated.
 >
 >Why it unraveled
 >
@@ -2507,7 +2509,7 @@ So based on this, i thought that at first, before fixing the cause (not switchin
 
 So in `UWAI::Team::considerPeace` in UWAIAgent.cpp i added with the help of chatgpt 5 (check if accurate anyways etc) sanity "emergency peace" pre-checks, so that we make peace urgently no matter what if we have 3+ (see code for details anyways etc) wars at same time, or if we have 2+ wars at same time but the combined power of our ennemies is > 160 % of our power if i'm not mistaken (e.g. 2 ennemies having 0.8 (= 80% if i'm not mistaken anyways etc) (or e.g. 0.9 + 0.7, or 1.0 + 1.6, etc. anyways etc) times our power is enough that combined they would be a threat enough to urgently make peace) then urgently make peace no matter what before they ravage us xd if i may say but anyways etc.
 
-The second check is especially good as even if we have 3 wars, if say ennemies have 0.5 0.4 0.4 in total it would be only 0.5 + 0.4 + 0.4 = 1.3 times our power so we can handle it fine no need to trigger emergency peace, however 3+ wars alone is already too late by the time we react to that if rivals are strong. So i wanted something hybrid of 3+ wars or alternatively 2+ wars rather if strong threat which i think we do nicely here and simple but anyways etc (also not enough wars would be boring if i may say but anyways etc, so i'm glad we have found this middle ground where plenty wars still happen but AI now seemingly nicely handles it seems the multi war threat based on opponents' strength if i am not mistaken and if i may say but anyways etc).
+The second check is especially good as even if we have 2 wars, if say ennemies have 0.5 0.6 in total it would be only 0.5 + 0.6 = 1.1 times our power so we can handle it fine no need to trigger emergency peace, however 3+ wars alone is already too late by the time we react to that if rivals are strong. So i wanted something hybrid of 3+ wars or alternatively 2+ wars rather if strong threat which i think we do nicely here and simple but anyways etc (also not enough wars would be boring if i may say but anyways etc, so i'm glad we have found this middle ground where plenty wars still happen but AI now seemingly nicely handles it seems the multi war threat based on opponents' strength if i am not mistaken and if i may say but anyways etc).
 
 Results are extremely good!! As can be seen, starting from same save file at turn 150, in existing screenshots between 290 and 295 (run 1 after the changes) and existing screenshots between 296 and 297 (run 2 after the changes but anyways etc), hatshepsut ai is now still alive and still the strongest, she also made nice military gains, and makes short campaigns by declaring peace not long after war instead of collapsing under too many wars! Her military power shrank a bit relatively to other rivals, but she is still strongest so far and has expanded nicely if i may say but anyways etc. It is the result we wanted, of AI being able to keep a lead and not blunder it due to multi wars.
 
@@ -2517,16 +2519,16 @@ Chatgpt 5 analyzed the event log as such (put run 2 only for concision anyways e
 >
 >What happened (T150 → T200)
 >
->AD 470 → 540: Hatshepsut DoW Bismarck, then signs quick peace. One-front skirmish, no dogpile.
->AD 640: DoW Kublai.
->AD 680: Mutal falls to Egypt (it was in Kublai’s hands). Clean, early gain.
->AD 700–820: A couple of short human–Egypt wars/peaces in your log; nothing sticks.
->AD 900: Apostolic Palace completed (Hamburg). Hindu AP forms; later casts “Stop trading with Hatshepsut” (AD 1140), but it doesn’t derail her momentum.
->AD 960 → 1120: Hatshepsut DoW Suryavarman, takes Chichén Itzá (AD 1040), then makes peace. Again: decisive hit, then exit.
->AD 1200 → 1240: DoW Julius Caesar; by AD 1240 she captures Rome (capital), JC moves capital to Antium, and peace the same turn. That’s a huge tempo swing with minimal bleeding.
->AD 1260–1310: Multiple Golden Ages around the map; no dogpile forms against her.
->AD 1320: AP vote about stopping war vs Suleiman (not about her).
->AD 1330: She DoW Pacal II (sequential, not simultaneous).
+>- AD 470 → 540: Hatshepsut DoW Bismarck, then signs quick peace. One-front skirmish, no dogpile.
+>- AD 640: DoW Kublai.
+>- AD 680: Mutal falls to Egypt (it was in Kublai’s hands). Clean, early gain.
+>- AD 700–820: A couple of short human–Egypt wars/peaces in your log; nothing sticks.
+>- AD 900: Apostolic Palace completed (Hamburg). Hindu AP forms; later casts “Stop trading with Hatshepsut” (AD 1140), but it doesn’t derail her momentum.
+>- AD 960 → 1120: Hatshepsut DoW Suryavarman, takes Chichén Itzá (AD 1040), then makes peace. Again: decisive hit, then exit.
+>- AD 1200 → 1240: DoW Julius Caesar; by AD 1240 she captures Rome (capital), JC moves capital to Antium, and peace the same turn. That’s a huge tempo swing with minimal bleeding.
+>- AD 1260–1310: Multiple Golden Ages around the map; no dogpile forms against her.
+>- AD 1320: AP vote about stopping war vs Suleiman (not about her).
+>- AD 1330: She DoW Pacal II (sequential, not simultaneous).
 >
 >Why this looks stronger
 >

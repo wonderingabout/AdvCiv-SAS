@@ -48,7 +48,7 @@ This guide highlights key differences between AdvCiv-SAS and AdvCiv/Civ4 BTS. It
 
 ## Full code diff (very long)
 
-For the exhaustive diff between AdvCiv stable (e.g., 1.12) and AdvCiv-SAS, see the [compare PR](https://github.com/wonderingabout/AdvCiv-SAS/pull/13). It’s big; the guide below is the digest.
+See [README.md#full-exhaustive-very-long-and-exhaustive-changes](/README.md#full-exhaustive-very-long-and-exhaustive-changes).
 
 ## Sevopedia
 

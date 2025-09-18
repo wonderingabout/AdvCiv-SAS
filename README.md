@@ -89,6 +89,8 @@ If you want to see the full very exhaustive code changes between AdvCiv current 
 
 Be warned though it can be very lengthy, so read below if you want (some of the) main quick pointers rather.
 
+As for the changelog between releases of AdvCiv-SAS, see the [github tags](https://github.com/wonderingabout/AdvCiv-SAS/tags) that for each release show the list of changes in git history format since the previous release.
+
 ## Very Quick Get Started Guide (Written carefully with the help and by ChatGPT-5 xd but check if accurate info there still anyways etc)
 
 If the below quick get started guide is too lengthy or hard to read or as alternative perhaps, please also consider viewing the very quick version of it written by chatgpt 5.
@@ -273,13 +275,9 @@ Still, in the game where i tried it, it was gradually faster as more and more pl
 
 All in all, prefer using the default DLL unless you want to use 19+ max players, then after game is finished if you want to use 18 max players or less, consider reverting to old DLL for your next map anyways etc.
 
-Note: if you already downloaded AdvCiv-4986 that didn't have that DLL, you can download the DLL from this github rather, go in the [/Assets/](/Assets/) folder and find the "CvGameCoreDLL_48_civs_dll.dll" file, click on it, then click on "download raw file" button on top right as below:
+Note: if you already downloaded AdvCiv-4986 that didn't have that 48 civs DLL, you can download [the development version of AdvCiv-SAS](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#development-version) and use the 48 civ DLL that is there (in the /Assets/ folder, file named "CvGameCoreDLL_48_civs_dll.dll") (copy paste it in your mod folder where old DLL is as explained before, or better switch to using the development version as long as it's stable, as it has a few enhancements as said before vs latest stable).
 
-(click on the images to view them in full screen or/and bigger size)
-
-<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.900_48-civs-dll-github-download-raw-file.PNG" alt="0.900_48-civs-dll-github-download-raw-file.PNG" width="250"></img>
-
-Note 2: it seems that savegames are not compatible when switching DLLs though based on [some code comments in as of now CvEnums.h](/CvGameCoreDLL/CvEnums.h#L24-L27), so make sure you finish the games you started using the same DLL, and switch back or forth whichever xd only after you want to play a new game (i.e. don't switch DLLs then reload same save file/map if i am not mistaken based on this code comment but i don't know and am only reporting what the base advciv code comment says, check if in doubt some other source, anyways etc).
+Note 2: it seems that savegames are not compatible when switching from 18 civ DLL to 48 civ DLL (or vice versa i assume anyways etc) though based on [some code comments in as of now CvEnums.h](/CvGameCoreDLL/CvEnums.h#L24-L27), so make sure you finish the games you started using the same DLL, and switch back or forth whichever xd only after you want to play a new game (i.e. don't switch DLLs then reload same save file/map if i am not mistaken based on this code comment but i don't know and am only reporting what the base advciv code comment says, check if in doubt some other source, anyways etc).
 
 ## Autoplay test runs
 

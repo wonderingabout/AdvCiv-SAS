@@ -10,9 +10,27 @@ If you don't have the game, i recommend buying it from GOG rather than Steam (i 
 
 It should work fine with the Steam one too, but given the choice again i may have bought it from GOG rather hehe, although it is not certain as Steam one is convenient too for library access of other games or centralized games lbirary for me i mean or such, but i hope this information helps you decide in this case i mean but anyways etc, check if i am not mistaken i mean too or for extra or updated info if any change has been made since maybe.
 
-## Download (or clone / download zip from github if you know how and prefer) this mod AdvCiv-SAS
+## Download (or clone / download zip from github if you prefer) this mod AdvCiv-SAS
 
-Then download it from the [CFC Modpacks downloads page (link in intro of main readme)](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/) (or clone / download zip from github if you know how as you prefer) this AdvCiv-SAS mod.
+### Stable Version
+
+You can download the latest stable version from the [CFC Modpacks downloads page (link in intro of main readme)](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/) (or clone / download zip from github if you know how as you prefer) this AdvCiv-SAS mod.
+
+Alternatively, or if the former fails, you can also view and download AdvCiv-SAS stable versions (with a message showing changes since last version in git history format for each version) at the [github tags](https://github.com/wonderingabout/AdvCiv-SAS/tags) page.
+
+### Development version
+
+If you want the latest functionnalities even if it might be buggy (generally not, but saying this just in case it might be), consider also testing the development version! It should be further enhanced with possibly a stronger AI or/and other changes if any (if you want to see the list of changes, see the [git commit history, as of now here](https://github.com/wonderingabout/AdvCiv-SAS/commits/tech-rework/)).
+
+To download the development version, go to the [mod's github main page](https://github.com/wonderingabout/AdvCiv-SAS), and click on the green rectangle on the top right, then click "download zip".
+
+(example of how to do it in the screenshot below, click to view it full screen anyways etc)
+
+<img src="../Images_In_General/misc_0.x/0.950_download-zip-github-example.png" alt="0.950_download-zip-github-example.png" width="250"></img>
+
+### Any version
+
+With github you can actually download the mod at any version/commit if i'm not mistaken, but it is a bit less intuitive how to do it if you don't know how, todo write anyways etc.
 
 ## Extract the mod to your civ4 folder
 
@@ -32,7 +50,19 @@ Finally, add a shortcut to your desktop which link is, for example for Steam:
 
 For convenience i have also provided a steam shortcut of this same link just above (since this is the version i have i.e. the steam one of the game anyways etc), ready to use, (AdvCiv-SAS - Steam shortcut.lnk). You can just move (cut then paste, it's just a link so is safe) it to the desktop for your convenience.
 
-Note: you can do this same process (download and install a Civ 4 mod(s), then place a shortcut of it to desktop or wherever you want/prefer if i'm not mistaken but anyways etc) for any number of mods you want, just extract it in same Mods folder but with a different folder name, for example you could play Cavemen2Cosmos, Realism Invictus, even AdvCiv alongside AdvCiv-SAS as long they are in different folders, they are totally indepedent, the settings or files of one will not override or affect the other mods, thanks to the very awesome design of Civ 4, thanks!
+Note: you can do this same process (download and install a Civ 4 mod(s), then place a shortcut of it to desktop or wherever you want/prefer if i'm not mistaken but anyways etc) for any number of mods you want, just extract it in same Mods folder but with a different folder name, for example you could play Cavemen2Cosmos, Realism Invictus, even AdvCiv alongside AdvCiv-SAS as long they are in different folders, they are totally indepedent, the settings or files of one will/should not override or affect the other mods, thanks to the very awesome design of Civ 4, thanks!
+
+## Version number
+
+See [/README.md#version-number](/README.md#version-number)
+
+## Upgrading/Downgrading version of the mod
+
+If you have an older version of AdvCiv-SAS, delete the entire mod folder and put instead your new version of AdvCiv-SAS (does not affect savegames that are not located in this mod folder anyway if i'm not mistaken anyways etc) (or/and make a backup if you want to be safe of the old AdvCiv-SAS folder until you see all works well or want to keep it longer in case anyways etc, but it shouldn't be useful unless the development version crashes and you want to switch back (even then you could just redownload it but do as you prefer i mean hopefully helpful anyways etc)).
+
+## If you have trouble downloading/installing/using/upgrading the mod
+
+Consider asking the question in [the AdvCiv-SAS CFC forum's discussion thread here](/https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) rather than messaging me privately (although i don't mind, just it would be more useful if other people see the question and reply in case they encounter same issue or/and such, but do as you prefer i mean anyways etc).
 
 ## Where to download more/other mods
 
@@ -64,6 +94,6 @@ Then in BUG Menu options i also use this for example hehe but do as you prefer a
 
 (skip this section if only playing without wanting extra details)
 
-If you're developping a mod, or simply want to run some autoplays or such yourself, you'd most like want to enable debug mode (it allows, after enabled, to be able to reveal all map by toggling ctrl+z ingame, as well as do autoplay runs yourself with ctrl+shift+x for example if i'm not mistaken anyways etc). To enable debug mode, if i'm not mistaken you need to set `cheatcode = chipotle` in `C:\Users\PC\Documents\My Games\beyond the sword\CivilizationIV.ini` (note: `PC` is my windows username account, adapt it to your own windows username account or/and wherever your CivilizationIV.ini file or such config file is anyways etc).
+If you're developping a mod, or simply want to run some autoplays or such yourself, you'd most like want to enable debug mode as well as do autoplay runs yourself. See [Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc) for details on how to do it and such anyways etc.
 
-Also, if you're developping/modding or doing autoplays or such, i highly recommend "windowed" rather than fullscreen (`fullscreen = 0` in same CivilizationIV.ini file (or maybe in ingame settings although i didn't test it but anyways etc)), as this is so much more convenient to do screenshots and browse them, go back and forth to your windows folders without having a lag of several seconds everytime you click outside of the game, etc. Otherwise fullscreen is nice for playing i think and much more immersive at least i'd prefer it i think, but fullscreen is way too tedious when modding and testing etc.
+Also, if you're developping/modding or doing autoplays or such, i highly recommend "windowed" rather than fullscreen (`fullscreen = 0` in CivilizationIV.ini file (or maybe in ingame settings although i didn't test it but anyways etc)), as this is so much more convenient in order to do screenshots and browse them easily, as well as go back and forth to your windows folders without having a lag of several seconds everytime you click outside of the game, etc. Otherwise fullscreen is nice for playing i think and much more immersive at least i'd prefer it i think, but fullscreen is way too tedious when modding and testing etc.
