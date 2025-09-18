@@ -12157,6 +12157,129 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		if(bExtraHappyOrHealth && iChange < 0)
 			rOurVal /= fixp(0.75);
 	}
+
+	// <!-- custom: a long standing issue in base advciv that still happens as of now is AI valuing for example pig the same as wheat, even though pig +1 health but wheat gives +2 health (+1 health and also +1 health with a granary which is almost always built), leading to the human player massively exploiting it or being able to and coasting through the early game as a result. Tone this down so AIs have a better understanding of the value of bonuses, by considering the building that increases effects (e.g. +1 health with granary) is always built as soon as we unlock the tech for it (in our mod for example tech_agriculture for building granary), also making sure our building is not obsolete though. Tone this toning down if i may say but anyways etc for bonuses that have increased effects with coastal buildings, as in many cases most cities won't be coastal, so use 1.5 times value to represent that in a simplified manner. Code provided by chatgpt 5, check if accurate anyways etc. Also see known issue as of now 66 for details anyways etc -->
+	// <!-- custom: note: since it seems bonuses losing value (like copper over time is already handled during the game, and according to chatgpt 5 elsewhere, simplifying our code and not wasting needless computation just for our pre-checks here by not checking it; check (no pun but anyways etc) if accurate but anyways etc). -->
+	// Notes & answers
+	// - Fairness (no bullying): The multiplier applies only to the buyer’s evaluation (this function belongs to the buyer), and only when the buyer’s team has the enabling tech. So if we don’t have Agriculture yet, Maize stays valued like +1 health.
+	// - Coastal coverage: Using 0.5 is your requested “good-enough” heuristic. If you later want map-type nuance, bump it slightly on water maps.
+	// - Grocer effects: Covered automatically: if Grocer has BonusHealthChanges for Banana and BonusHappinessChanges for Sugar/Grapes, once we have the Grocer tech those add +1 each to iExtra, so value scales up.
+	// - Obsolete tech: Yes, when a building obsoletes, its bonus-driven effects are disabled; the guard above ensures we don’t count them.
+	// - Performance: One pass over the building list per valuation (no city loops, no pathing). That’s cheap and happens far less often than per-turn city code.
+	//
+	// With this in, you’ll see:
+	// - Maize/Wheat/Rice jump from ~2 gpt to ~3–4 gpt as soon as the buyer has Agriculture (Granary).
+	// - Fish/Crab/Clam rise to ~3 gpt after Seafaring/Harbor (1.5× effect).
+	// - Banana/Sugar/Grapes rise after Grocer tech.
+	//
+	// It’s simple, robust, and it lines resource prices up with actual empire impact without micromanaging current builds.
+	//
+	// --- Tech-gated building synergy for this bonus (simple & fast) ---
+	if (rOurVal.isPositive())
+	{
+		scaled rBoost = 1; // multiply our per-city value by this at the end
+
+		// <!-- custom: among special buildings, as for temples and monasteries, they can be built in many cities, fairly cheaply, and of many religions, however it would be computationally heavy and tedious to check all and every time just for bonus price. Use an approximation of which should most often be reliable enough; if some xml changes were to make these have a lot of bonus-related effects then we'd value these bonuses in trade more as we want, anyways etc -->
+		// yep — easiest way: give two tiny budgets and spend them when we see religion-gated buildings.
+		// Temples: total coverage capped at 0.5 (≈ one dominant religion’s temples).
+		// Monasteries: total coverage capped at 0.5.
+		// Cathedrals still skipped.
+		// Heuristics: at most ~1 religion's temples worth (0.5), and
+		// at most ~1 religion's monasteries worth (0.5)
+		// Track whether this bonus is enhanced by a temple/monastery anywhere
+		int iTempleExtraMax = 0;     // best (health+happy) from any temple
+		int iMonasteryExtraMax = 0;  // best (health+happy) from any monastery
+		// --- once-per-DLL-run cached lookups for the special-building “kinds” we care about
+		static const SpecialBuildingTypes SB_TEMPLE = (SpecialBuildingTypes)GC.getInfoTypeForString("SPECIALBUILDING_TEMPLE", true);
+		static const SpecialBuildingTypes SB_MONASTERY = (SpecialBuildingTypes)GC.getInfoTypeForString("SPECIALBUILDING_MONASTERY", true);
+		static const SpecialBuildingTypes SB_CATHEDRAL = (SpecialBuildingTypes)GC.getInfoTypeForString("SPECIALBUILDING_CATHEDRAL", true);
+
+		FOR_EACH_ENUM(BuildingClass)
+		{
+			const CvBuildingClassInfo& kCls = GC.getInfo(eLoopBuildingClass);
+
+			// <!-- custom: to not cause overvaluing, exclude building classes that are rare (not built in many cities) such as world wonders, national wonders, and cathedrals (handled below since they are not limited but just rarely built due to their cost and restrictions (in XML iMaxGlobalInstances and such are -1 so not limited if i'm not mistaken so need to handle it in another way if i'm not mistaken anyways etc)) as of now which are the only ones i can think of. This is because our nice change caused incense to be a bit overpriced due to effect with buddhist stupa and pagan cathedral which are buildings we rarely build, so no need to value bonuses too much more just because of these. So to simplify, just ignore these cases if i may say but anyways etc; we also save some computation nicely too if i may say by early exiting if i may say but anyways etc -->
+			// Skip world wonders, national wonders (player-limited)
+			// Skip world wonders, team wonders, national wonders
+			if (kCls.isLimited())
+				continue;
+
+			// <!-- custom: e.g. if justinian player gains happiness from horse bonus if he builds his civ-specific stable as of now if i'm not mistaken that it is the case as of now for example but anyways etc, then we have more leverage vs him and he badly needs our bonus more if i may say but anyways etc.. Is sad but is business i mean and maybe just how it is, anyways etc; so on our end make sure we maximize and squeeze the best from him so he can get this bonus. Ugly and terrible but is business i mean and hopefully AI playing smarter anyways etc -->
+			// Use the building the BUYER can actually build for this class
+			BuildingTypes eB = (BuildingTypes)GC.getInfo(getCivilizationType()).getCivilizationBuildings(eLoopBuildingClass);
+			if (eB == NO_BUILDING)
+				eB = kCls.getDefaultBuilding();
+			if (eB == NO_BUILDING)
+				continue; // safety
+
+			const CvBuildingInfo& kB = GC.getInfo(eB);
+
+			// <!-- custom: also exclude cathedrals as said/explained above if i may say but anyways etc -->
+			// Your XML shows cathedrals/temples aren’t class-limited (player instance = −1), so they slip past isLimited(). If you want to exclude religious “chain” buildings from bumping resource prices, just skip by SpecialBuilding type:
+			SpecialBuildingTypes const eSB = kB.getSpecialBuildingType();
+			// Skip cathedrals so they don’t overprice incense (guard if not defined in XML)
+			if (SB_CATHEDRAL != NO_SPECIALBUILDING && eSB == SB_CATHEDRAL)
+			{
+				continue; // don't let cathedrals buildings overprice incense, etc.
+			}
+
+			// Must have the building's enabling tech (if any)
+			TechTypes const eReq = (TechTypes)kB.getPrereqAndTech();
+			if (eReq != NO_TECH && !GET_TEAM(getTeam()).isHasTech(eReq))
+				continue;
+
+			// If the building is obsolete for us, ignore its extra effects
+			TechTypes const eObs = (TechTypes)kB.getObsoleteTech();
+			if (eObs != NO_TECH && GET_TEAM(getTeam()).isHasTech(eObs))
+				continue;
+
+			// How much extra this building adds for THIS bonus (health + happy)
+			int iExtra = 0;
+			iExtra += kB.getBonusHealthChanges(eBonus);
+			iExtra += kB.getBonusHappinessChanges(eBonus);
+			if (iExtra <= 0)
+				continue;
+
+			// Record best temple / monastery bonus and always continue (don’t add normal coverage); budget 0.5 each later
+			if (SB_TEMPLE != NO_SPECIALBUILDING && eSB == SB_TEMPLE)
+			{
+				iTempleExtraMax = std::max(iTempleExtraMax, iExtra);
+				continue; // always continue; don't add normal coverage for temples
+			}
+			if (SB_MONASTERY != NO_SPECIALBUILDING && eSB == SB_MONASTERY)
+			{
+				iMonasteryExtraMax = std::max(iMonasteryExtraMax, iExtra);
+				continue; // same here
+			}
+			
+			// Non-religious buildings: normal coverage (coastal ~ half the cities)
+			// Coastal-only buildings only affect a subset of cities; treat as 50% coverage
+			scaled const rCoverage = (kB.isWater() ? fixp(0.5) : fixp(1));
+			// Each extra “pip” multiplies value (granary grain +1 ⇒ +1.0, harbor seafood +1 ⇒ +0.5)
+			rBoost += rCoverage * iExtra;
+		}
+
+		// Spend the tiny fixed “religion budgets”
+		if (iTempleExtraMax > 0)
+		{
+			rBoost += fixp(0.5) * iTempleExtraMax;
+		}
+		if (iMonasteryExtraMax > 0)
+		{
+			rBoost += fixp(0.5) * iMonasteryExtraMax;
+		}
+
+		rOurVal *= rBoost;
+		// <!-- custom: finally, redivide everything by 2, so that now our bonuses have a hierarchy reflecting effective value/price instead of pig and maize at same price, but divide by 2 else maize becomes way too valuable (10+ gold at turn 100 in some cases). Thus, maize keeps about same price as before, but the pig that the human could sell too expensively is now cheaper so the human player can't abuse it anymore, nor can AI vs AI trades be unfavourable to clueless AIs (trading maize vs pig or equivalent kind of trade of trading away their maize for very low gpt or buying pig for very high gpt which would be bad for them anyways etc) -->
+		// final damping: halve across the board
+		// (keeps boosted foods like Maize roughly where they were,
+		// but pushes low-impact stuff like Pig down)
+		// rOurVal *= fixp(0.5);
+		// <!-- custom: 0.5 leads to a bit too low prices upon testing, increase it a bit but not too much so prices are not ridiculously high nor too low anyways etc -->
+		rOurVal *= fixp(0.75);
+	}
+	// (existing code continues...)
+
 	rOurVal *= getNumCities(); // bonusVal is per city
 	/*  Don't pay fully b/c trade doesn't give us permanent access to the
 		resource, and b/c it tends to be (and should be) a buyer's market. */

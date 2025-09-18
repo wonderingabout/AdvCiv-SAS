@@ -32,6 +32,7 @@ Instead of:
 &emsp;[add media assets](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#add-media-assets)  
 &emsp;[write git commit message gradually as you do changes before committing them, and keep notes of ideas anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#write-git-commit-message-gradually-as-you-do-changes-before-committing-them-and-keep-notes-of-ideas-anyways-etc)  
 &emsp;[full git log with anonymized email in a .txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#full-git-log-with-anonymized-email-in-a-txt)  
+&emsp;[how to create/edit git tags at specific commits with a tag message](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-createedit-git-tags-at-specific-commits-with-a-tag-message)  
 &emsp;[manual(s) and docs in .txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#manuals-and-docs-in-txt)  
 &emsp;&emsp;[advciv id changes manual.txt results](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#advciv-id-changes-manualtxt-results)  
 &emsp;[Sources about XML AI Attributes and their meaning](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#sources-about-xml-ai-attributes-and-their-meaning)  
@@ -170,6 +171,69 @@ cd "C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Be
 For example for AdvCiv-SAS, i put this file (that i ideally should/try to update every while) in this folder for example [/_0_Common_Docs/git_log_anonymized_email.txt](/_0_Common_Docs/git_log_anonymized_email.txt) (but any place (you want) should do (fine) as long as it is in your mod (anywhere inside it maybe anyways)).
 
 note: it should be possible to create erase in one command the old git log but for now at least anyways etc i prefer to manually copy paste, even though risk is low thanks to git commit versioning and having a github backup or such other files or not anyways etc, still for now doing as such but this command may be optimized/enhanced perhaps rather by having it copy it there directly and overwrite old file, which should be quite safe considering it is a rarely used and not actively written on file only a log if i may say as chatgpt would recommend to me about other topics or files when evaluating safety of a change or/and discuss it suggest it with me in this case i mean but anyways etc if i may say or talking about it with it but anyways etc.
+
+### how to create/edit git tags at specific commits with a tag message
+
+Thanks to the help of chatgpt 5, and me noticing how based on past experience or/and such or current observation in this case i mean but anyways etc, what i mean is [git/github tags](https://github.com/wonderingabout/AdvCiv-SAS/tags) can be very useful to manage versions, provide download links, possibly also use as compare points to remember which commit they were at precisely and fast without needing to remember it yourself, anyways etc.
+
+For example, AdvCiv-SAS 4986 is available at the [4986 git/github tag](https://github.com/wonderingabout/AdvCiv-SAS/releases/tag/4986)
+
+#### simple version(s Anyways etc)
+
+Here is how to do it with the help of chatgpt 5, which i adjusted a bit at some parts in this case i mean but anyways etc (check if accurate too, and make backups of your git repo before trying this just in case even though seems to function fine but is to be safe i mean in this case i mean but anyways etc) (for example i run this from git bash on windows):
+
+If the tag doesn’t exist yet:
+
+```cmd
+git fetch origin
+git tag -a 4986 8d6bf6e0f61004e415aa3584e906fdb77275c1f8 \
+  -m "AdvCiv-SAS 4986" \
+  -m "Changelog from base AdvCiv 1.12 to version 4986 is here: https://github.com/wonderingabout/AdvCiv-SAS/compare/96790915238bdaf7d1ef38658e69fe1035129687...8d6bf6e0f61004e415aa3584e906fdb77275c1f8"
+git push origin 4986
+```
+
+If the tag exists but points to the wrong commit:
+
+```cmd
+git fetch origin
+git tag -fa 4986 8d6bf6e0f61004e415aa3584e906fdb77275c1f8 \
+  -m "AdvCiv-SAS 4986" \
+  -m "Changelog from base AdvCiv 1.12 to version 4986 is here: https://github.com/wonderingabout/AdvCiv-SAS/compare/96790915238bdaf7d1ef38658e69fe1035129687...8d6bf6e0f61004e415aa3584e906fdb77275c1f8"
+git push --force origin 4986
+```
+
+#### More advanced version to also set the date of the tag to last commit and not time of tagging, plus using shell variables so less tedious anyways etc
+
+A more advanced version would allow to better control the date we set to the tag. For example, i committed version 4986 as of now more or less 2 weeks ago, however if i create a tag now as above, i generally get the tag dated to now, which doesn't reflect the date when 4986 was made that i would want to show as date of the tag as well, not "now".
+
+To do that, with bit of back and forth wit chatgpt 5 and trial and error (but check if accurate), i have found this very nice version that allows to do that (be bit more careful using it as i don't know if it will always be functionnal (the simple one too but this one in particular xd as it's more technical and might change in the future or apply differently to your use case or something so check if accurate and make a backup of your repo maybe/ideally if i may say just in case but anyways etc))
+
+```cmd
+git fetch origin
+
+# choose names
+# new tag
+TAG=4986
+SHA=8d6bf6e0f61004e415aa3584e906fdb77275c1f8   # <- the 4986 commit
+OLDNAME="base AdvCiv 1.12"                     # quote because of spaces
+BASE=96790915238bdaf7d1ef38658e69fe1035129687
+WHEN=$(git show -s --format=%cI "$SHA")        # or %aI if you prefer author date
+
+# replace the tag locally with correct date + message
+GIT_COMMITTER_DATE="$WHEN" GIT_AUTHOR_DATE="$WHEN" \
+git tag -fa "$TAG" "$SHA" \
+  -m "AdvCiv-SAS $TAG" \
+  -m "Commit history from $OLDNAME to $TAG viewable at https://github.com/wonderingabout/AdvCiv-SAS/commits/tech-rework/?since=2025-03-22&until=2025-09-05 or at https://github.com/wonderingabout/AdvCiv-SAS/compare/$BASE...$SHA"
+
+# force-push because we’re updating an existing remote tag object
+git push --force origin "$TAG"
+# if you’re not correcting an existing remote tag:
+# if not force pushing then before you'd need to rather do instead if i'm not mistaken anyways etc git tag -a (note: i commented it here rather than above else the `\` char followed by a command line breaks the date that is shown as now instead of the date we set in this command, as nicely found by chatgpt 5 and i tested it too to seem to be so but anyways etc (but check if accurate anyways etc)) anyways etc, so i put all comments here for reliability and clarity anyways etc
+# and then next line you could do (no force push if new tag that did not existing before if i'm not mistaken but anyways etc): 
+# git push origin "$TAG"
+```
+
+Result ([for example for tag version 4986 here](https://github.com/wonderingabout/AdvCiv-SAS/releases/tag/4986) as linked before but added here again if i may say in this case i mean but anyways etc for exhaustiveness but anyways etc) is great, now our tag is shown "2 weeks ago" (date of the commit of version 4986), and not "now" anymore (date of when i am tagging it as of now today anyways etc) as we wanted, but again check if accurate and make a backup of your repo just in case, hopefully helpful anyways etc.
 
 ### manual(s) and docs in .txt
 
