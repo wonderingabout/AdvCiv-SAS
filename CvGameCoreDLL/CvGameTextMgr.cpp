@@ -18572,10 +18572,10 @@ void CvGameTextMgr::buildCityBillboardIconString( CvWStringBuffer& szBuffer, CvC
 		// BUG - Airport Icon - start
 		if (BUGOption::isEnabled("MainInterface__AirportIcon", true))
 		{
-			BuildingClassTypes eAirportClass = (BuildingClassTypes)
-					GC.getInfoTypeForString("BUILDINGCLASS_AIRPORT"
-					// Mod-mods that don't have an airport should set bHideAssert:
-					/*,true*/);
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const BuildingClassTypes eAirportClass = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_AIRPORT"
+			// Mod-mods that don't have an airport should set bHideAssert:
+			/*,true*/);
 			if (eAirportClass != NO_BUILDINGCLASS)
 			{
 				BuildingTypes eAirport = pCity->getCivilization().

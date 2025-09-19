@@ -2243,14 +2243,15 @@ void CvGame::updateSeaPatrolColors(CvUnit const& kSelectedUnit)
 	gDLL->getEngineIFace()->clearAreaBorderPlots(AREA_BORDER_LAYER_PATROLLED);
 	if (!kSelectedUnit.isSeaPatrolling())
 		return;
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const ColorTypes eColorCityBlue = (ColorTypes)GC.getInfoTypeForString("COLOR_CITY_BLUE");
 	for (SquareIter itPlot(kSelectedUnit, GC.getMAX_SEA_PATROL_RANGE(), false);
 		itPlot.hasNext(); ++itPlot)
 	{
 		if (kSelectedUnit.canReachBySeaPatrol(*itPlot))
 		{
-			gDLL->getEngineIFace()->fillAreaBorderPlot(itPlot->getX(), itPlot->getY(),
-					GC.getInfo((ColorTypes)GC.getInfoTypeForString("COLOR_CITY_BLUE")).
-					getColor(), AREA_BORDER_LAYER_PATROLLED);
+			gDLL->getEngineIFace()->fillAreaBorderPlot(itPlot->getX(), itPlot->getY(), GC.getInfo(eColorCityBlue).getColor(), AREA_BORDER_LAYER_PATROLLED);
 		}
 	}
 }

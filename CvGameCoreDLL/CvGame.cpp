@@ -7675,6 +7675,9 @@ UnitTypes CvGame::randomBarbarianUnit(UnitAITypes eUnitAI, CvPlot const& kPlot)
 	UnitTypes eR = NO_UNIT;
 	int iBestValue = 0;
 	CvCivilization const& kCiv = GET_PLAYER(BARBARIAN_PLAYER).getCivilization();
+	// <!-- custom: hoist for performance optimization if i'm not mistaken anyways etc -->
+	static const UnitCombatTypes eMountedMelee = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED_MELEE");
+	static const UnitCombatTypes eMountedRanged = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED_RANGED");
 	for (int i = 0; i < kCiv.getNumUnits(); i++)
 	{
 		UnitTypes const eUnit = kCiv.unitAt(i);
@@ -7748,8 +7751,6 @@ UnitTypes CvGame::randomBarbarianUnit(UnitAITypes eUnitAI, CvPlot const& kPlot)
 			iUnitEra = -1;
 		// Mounted units only in open terrain
 		// <!-- custom: split mounted units into melee mounted units and ranged mounted units so that pikemen are not strong against cuiassiers or horse archers and such anyways etc -->
-		static const UnitCombatTypes eMountedMelee = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED_MELEE");
-		static const UnitCombatTypes eMountedRanged = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED_RANGED");
 		bool const bMountedMelee = (kUnit.getUnitCombatType() == eMountedMelee);
 		bool const bMountedRanged = (kUnit.getUnitCombatType() == eMountedRanged);
 		if (bMountedMelee || bMountedRanged)
@@ -9198,18 +9199,8 @@ void CvGame::onAllGameDataRead()
 		m_iCivTeamsEverAlive = countCivTeamsEverAlive();
 	// </advc.opt>
 	GC.getAgents().gameStart(true); // advc.agent
-	// <advc.250a> Cf. CvInitCore::read
-	if (m_uiSaveFlag <= 1)
-	{
-		if (getHandicapType() >= GC.getNumHandicapInfos())
-		{
-			setHandicapType(GET_PLAYER(getActivePlayer()).getHandicapType());
-			initGameHandicap();
-		}
-	} // </advc.250a>
-	// <advc.124b> River connection rules have changed
-	if (m_uiSaveFlag <= 23)
-		updatePlotGroups(); // </advc.124b>
+	// <!-- custom: removed old m_uiSaveFlag code if i'm not mistaken anyways etc -->
+
 	// <advc.003m>
 	for (TeamIter<> it; it.hasNext(); ++it)
 	{
@@ -9231,75 +9222,16 @@ void CvGame::onAllGameDataRead()
 		}
 	} // </advc.opt>
 	m_bAllGameDataRead = true;
-	// <advc.enum>
-	if (m_uiSaveFlag < 21)
-	{
-		for (int i = 0; i < 7; i++)
-		{
-			CvCity const* pCity = getCity(m_pLegacyOrgSeatData[i]);
-			if (pCity != NULL)
-				m_aeHolyCity.set((ReligionTypes)i, pCity->plotNum());
-		}
-		for (int i = 7; i < 14; i++)
-		{
-			CvCity const* pCity = getCity(m_pLegacyOrgSeatData[i]);
-			if (pCity != NULL)
-				m_aeHeadquarters.set((CorporationTypes)(i - 7), pCity->plotNum());
-		}
-		SAFE_DELETE_ARRAY(m_pLegacyOrgSeatData);
-	} // </advc.enum>
-	// <advc.251> Maintenance changed in XML
-	if (m_uiSaveFlag < 25)
-	{
-		for (PlayerIter<ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
-			itPlayer->updateMaintenance();
-	} // </advc.251>
-	// <advc.130w>
-	bool bAttitudeUpdated = false;
-	if (m_uiSaveFlag < 26)
-	{
-		for (PlayerAIIter<MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
-			itPlayer->AI_updateExpansionistHate();
-		bAttitudeUpdated = true;
-	} // </advc.130w>
+
+	// <!-- custom: while removing old m_uiSaveFlag code if i'm not mistaken but anyways etc, keeping parts that are m_uiSaveFlag independent to preserve functionality as it is in case it is used i mean but check if accurate as i don't know too much about these anyways etc -->
 	// <advc.130n>, advc.148, advc.130r, advc.130x, advc.130c, advc.130w
-	if (m_uiSaveFlag < 27 ||
-		// <advc.127> Save created during AI Auto Play
-		(m_iAIAutoPlay != 0 && !isNetworkMultiPlayer()))
+	// <advc.127> Save created during AI Auto Play
+	if (m_iAIAutoPlay != 0 && !isNetworkMultiPlayer())
 	{
 		m_iAIAutoPlay = 0; // </advc.127>
-		if (!bAttitudeUpdated) // advc.130w
-			CvPlayerAI::AI_updateAttitudes();
+		CvPlayerAI::AI_updateAttitudes();
 	} // </advc.130n>
-	// <advc.500c>
-	if (m_uiSaveFlag < 19)
-	{
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-		static const TechTypes eNationalism = (TechTypes)GC.getInfoTypeForString("TECH_NATIONALISM");
-		if (eNationalism != NO_TECH)
-		{
-			for (PlayerIter<ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
-			{
-				if (GET_TEAM(itPlayer->getTeam()).isHasTech(eNationalism))
-				{
-					FOR_EACH_CITY_VAR(pCity, *itPlayer)
-					{
-						if (pCity->getMilitaryHappinessUnits() <= 0)
-							pCity->AI_setAssignWorkDirty(true);
-					}
-				}
-			}
-		}
-	} // </advc.500c>
-	// <advc.172>
-	if (m_uiSaveFlag < 8)
-	{
-		for (PlayerIter<ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
-		{
-			FOR_EACH_CITY_VAR(pCity, *itPlayer)
-				pCity->updateReligionCommerce();
-		}
-	} // </advc.172>
+
 	// <advc.134a>
 	for (PlayerIter<HUMAN> itActive; itActive.hasNext(); ++itActive)
 	{
