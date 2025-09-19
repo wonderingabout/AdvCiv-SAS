@@ -1745,7 +1745,7 @@ void CvCityAI::AI_chooseProduction()
 		const int iFreeTurns = iBaseFreeTurns * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() / 100;
 		const bool bFreeSettlerEarlyWindow = (kGame.getElapsedGameTurns() < iFreeTurns);
 
-		// <!-- custom: only capital can produce settler as of now, but in case we change it, safer to put these at common tree/logic (i.e. with non capital cities too anyways etc) ; note: it is intended that this applies regardless of free window, as even in first 75 or so turns (see below for updated value if any but anyways etc), we want to grow first still before producing settlers, see below for reasons, that include more efficient food is production due to higher pop, as well as stronger miltiary or such so less barbarian captures than with a bunch of 1 size cities thinly/weakly guarded at turn 50-75 then recaptured at turn 75-100 by a rival :( So take a bit slower growth for higher efifciency and see below for details anyways etc -->
+		// <!-- custom: only capital can produce settler as of now, but in case we change it, safer to put these at common tree/logic (i.e. with non capital cities too anyways etc) ; note: it is intended that this applies regardless of free window, as even in first 75 or so turns (see below for updated value if any but anyways etc), we want to grow first still before producing settlers, see below for reasons, that include more efficient food is production due to higher pop, as well as stronger military or such so less barbarian captures than with a bunch of 1 size cities thinly/weakly guarded at turn 50-75 then recaptured at turn 75-100 by a rival :( So take a bit slower growth for higher efifciency and see below for details anyways etc -->
 		if (iCityPopulation <= 4)
 		{
 			// <!-- custom: keep growing as in same old code that was now deleted, i start to understand maybe how they felt writing it, but it was way too permissive or and inaccurate or ineffective or not enough i think, i hope AI is more competitive with this one but there could be a better way ofc but i hope this is not too bad and better than previous one too i think as well if i am not mistaken but.. open to feedback xd, in this code at least not that i would necessarily reply though if i may say but open about being wrong or mistaken in this case i mean but anyways etc... (t.l.d.r don't contact me but i can be wrong xd but anyways etc) -->
@@ -3484,7 +3484,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 		int const iOffenseModeThreshold = 80;
 		bool const bOffenseMode = (((bAnyRealWar && iEnemyPowerPercent <= iOffenseModeThreshold) || bWarPlan || bAnyPlannedWar || bAnyRealWar || bAssault || (!bDefense && bLandWar)) && !bPeaceAloneLikely);
 
-		// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should ratehr be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc, and if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
+		// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc, and if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
 		// <!-- custom: trying to save some computing power by moving the mapname outside the function plus condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
 		const CvWString& mapName = GC.getInitCore().getMapScriptName();
 
@@ -3510,7 +3510,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 			aiUnitAIVal[UNITAI_ATTACK_CITY_LEMMING] = 0;
 
 			// <!-- custom: in land heavy maps, no time or hammer for naval units for most: favour land warfare the most, we are about to enter war if not already in one, and want max power/hammer anyways etc in achieving that or trying to in this case i mean anyways etc ; if not on pangea, apply a milder reduction. Deprioritizing as such military sea units attempts to fix the issue of AI building them too much and then its cities having its cities die (10+ galleons and almost no land unit defending cities, see known issue number as of now 35 for details), but land warfare should be most important, although this favours pangea a bit too much, it makes AI hopefully overall stronger and less prone to abuse -->
-			// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should ratehr be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc,a nd if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
+			// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc,a nd if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
 			if (bLandHeavyMap)
 			{
 				aiUnitAIVal[UNITAI_ATTACK] *= 3;
@@ -3540,7 +3540,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 				// <!-- custom: don't count too much on this to win the war -->
 				aiUnitAIVal[UNITAI_MISSILE_CARRIER_SEA] /= 2;
 			}
-			// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should ratehr be to fix code but this is just in theory and as a less worse solution if it were to be true which i think isn't even with 2 if but check to be sure but anyways etc, and if -> else if -> else is preferable anyway for clarity and/or computational performance as well if i am not mistaken but anyways etc) -->
+			// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were to be true which i think isn't even with 2 if but check to be sure but anyways etc, and if -> else if -> else is preferable anyway for clarity and/or computational performance as well if i am not mistaken but anyways etc) -->
 			else if (bNavalHeavyMap)
 			{
 				// <!-- custom: note by chatgpt 5 on percentage reductions (check if accurate anyways etc) -->
@@ -3572,7 +3572,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 				// <!-- custom: don't count too much on this to win the war -->
 			}
 			// <!-- custom: else map clear not immediately clear if it is more land or water heavy, keep options open just in case but anyways etc but still lean more land as should help us the most or most often, plus considering current 10 galleon issue, attempt to patch it a bit still here if i am not mistaken but don't overdo it in case map is naval xd and we barely have war naval units or such if i am not mistaken in being a bit cautious to do so but check to be sure but anyways etc -->
-			// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should ratehr be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc,a nd if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
+			// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc,a nd if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
 			else
 			{
 				// <!-- custom: map type unclear or unknown, assume a bit of land at least but anyways etc -->
@@ -11342,7 +11342,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 			// 401,5: 			<Type>ERA_MODERN</Type> (5)
 			// 477,5: 			<Type>ERA_FUTURE</Type> (6)
 
-			// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should ratehr be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc, and if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
+			// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc, and if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
 			// <!-- custom: trying to save some computing power by moving the mapname outside the function plus condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
 			const CvWString& mapName = GC.getInitCore().getMapScriptName();
 			bool const bLandHeavyMap = isLandHeavyMap(mapName);
@@ -11353,6 +11353,88 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 			}
 
 			const int iNumCities = kPlayer.getNumCities();
+
+			// <!-- custom: very simple and computationally efficient "are we lagging behind in city count vs other rivals? If so switch to offense rather to attempt to make gains" by approximating we'd need about 1 city per 25 turn to be expanding enough. Even if this is not striclty accurate, what matters is we get a signal soon enough to switch to offense, as it can get time to build units. Plus, limit this to the early game, as later we don't expand as much, and our military composition should be stable so it wouldn't help as much. This attempts to fix issue of joao ai building 36 longbowmen at turn 130 instead while having only 3 cities, and his neighbour that has 8+ cities at a glance and weaker and thinner military would have been a perfect target if say half of our forces had been offense units; code provided by chatgpt 5 check if accurate anyways etc; see known issue as of now 53.2 for details as well anyways etc; also note: we're focused on land warfare here as it is the most important even in water heavy maps the point is to not lose cities or gain them especially early if i'm not mistaken but anyways etc -->
+			// --- SAS: Early breakout nudge (simple, cheap) ---
+
+			// 1) Early-game window (scaled by game speed TrainPercent)
+			const int iTrainPct = GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent();
+			const int iEarlyCutoff = (150 * iTrainPct) / 100; // ~T150 @ Normal
+			const int iCurrentTurn = GC.getGame().getGameTurn();
+			const bool bEarly = (iCurrentTurn <= iEarlyCutoff);
+
+			// <!-- custom: be careful to not be to aggressive, i had tried 25 and it seems we have too many longbowmen converted to counter, for an AI that had enough cities, make sure this is aggressive enough so AIs switch to offense units more, but not too much so that it would make a regularly defended and expanded AI grow thin due to going attack if i am not mistaken but anyways etc (especially considering this steals from our real defenders sohandle with caution, and mostly for AIs likely to have few cities, and thus many extra defenders to convert from if i am not mistaken but anyways etc) -->
+			// 2) “Lagging expansion”: ~1 city per 30 turns (scaled the same way)
+			const int iTurnsPerCity = std::max(1, (30 * iTrainPct) / 100);
+			const int iExpectedCities = std::max(1, iCurrentTurn / iTurnsPerCity);
+			const bool bLaggingBehindNumCities = (iNumCities < iExpectedCities);
+
+			// 3) Local safety (don’t starve defenders if there’s immediate danger)
+			// <!-- custom: reuse !bDanger rather than recomputing it is more efficient i think anyways etc -->
+
+			// 4) Empire composition check: are we defender-heavy?
+			int iDefenders = 0;
+			iDefenders += kPlayer.AI_totalUnitAIs(UNITAI_CITY_DEFENSE);
+			iDefenders += kPlayer.AI_totalUnitAIs(UNITAI_CITY_SPECIAL);
+			// <!-- custom: i assume this is most often used for defense although not sure, account for it so we focus on attack sooner and more if needed and don't underestimate it if i'm not mistaken but anyways etc -->
+			iDefenders += kPlayer.AI_totalUnitAIs(UNITAI_CITY_COUNTER);
+			iDefenders += kPlayer.AI_totalUnitAIs(UNITAI_RESERVE);
+
+			int iAttackers = 0;
+			iAttackers += kPlayer.AI_totalUnitAIs(UNITAI_ATTACK);
+			iAttackers += kPlayer.AI_totalUnitAIs(UNITAI_ATTACK_CITY);
+			iAttackers += kPlayer.AI_totalUnitAIs(UNITAI_ATTACK_CITY_LEMMING);
+			iAttackers += kPlayer.AI_totalUnitAIs(UNITAI_COUNTER);
+			// <!-- custom: this is about late game, ignore for now anyways etc -->
+			//iAttackers += kPlayer.AI_totalUnitAIs(UNITAI_PARADROP);
+
+			const bool bDefenderHeavy = (2 * iDefenders >= iAttackers);
+
+			// 5) If we’re about to add another pure defender while boxed/lagging, reroll to offense.
+			const bool bLandDefenderUnitAI = (
+				(eUnitAI == UNITAI_CITY_DEFENSE) ||
+				(eUnitAI == UNITAI_CITY_SPECIAL) ||
+				(eUnitAI == UNITAI_RESERVE)
+			);
+
+			if (bEarly && !bDanger)
+			{
+				// <!-- custom: if we have too much defenders and it's early and not in danger, switch to attack (although we could use power ratios to help us, hopefully accurate enough to do as such and much simpler maybe although i don't know too much about, potentially computaitonally much faster maybe but anyways etc) -->
+				if ((bLaggingBehindNumCities || bDefenderHeavy) && bLandDefenderUnitAI)
+				{
+					// <!-- custom: use alternative unitai types focusing on most reliable ones we can most likely always build for simplicty and no error ideally although we could check this but i don't know how but anyways etc; what matters most her eis we switch to offense soon enough so that we have enough offense units later in the game where it matters most (joao ai having 36 longbowmen at turn 130 for example is way too much as most of these were city_defense or city_counter or something similar anyways etc) -->
+					// We’ll attempt up to 3 alternatives in weighted order: 50% ATTACK, 25% ATTACK_CITY, 25% COUNTER <!-- custom: COUNTER rather as we can use them for attack if i'm not mistaken anyways etc -->.
+					// <!-- custom: save some computation xd when we can if i may say but anyways etc -->
+					// Pre-cached weighted permutations (built once)
+					static const UnitAITypes kTry50[3]  = { UNITAI_ATTACK,      UNITAI_ATTACK_CITY, UNITAI_COUNTER }; // 50%
+					static const UnitAITypes kTry75[3]  = { UNITAI_ATTACK_CITY, UNITAI_ATTACK,      UNITAI_COUNTER }; // next 25%
+					static const UnitAITypes kTry100[3] = { UNITAI_COUNTER,     UNITAI_ATTACK,      UNITAI_ATTACK_CITY }; // last 25%
+    
+					const int r = syncRand().get(100, "SAS: defender->offense AI nudge");
+					const UnitAITypes* pTry = (r < 50) ? kTry50 : ((r < 75) ? kTry75 : kTry100);
+
+					// Only flip if THIS unit type can actually serve in that role.
+					const CvUnitInfo& kU = GC.getInfo(eUnit);
+					// quick sanity: land combat only (defensive picks should already be land)
+					if (kU.getDomainType() == DOMAIN_LAND && kU.getCombat() > 0)
+					{
+						for (int i = 0; i < 3; i++)
+						{
+							if (kU.getUnitAIType(pTry[i])) // unit supports this AI role?
+							{
+								eUnitAI = pTry[i]; // switch role, keep same unit
+								break;
+							}
+						}
+					}
+					// else: keep original defender AI (can’t sensibly attack)
+					// <!-- custom: and then do not push order here, only alter selection on bestunitai if i'm not mistaken, do not redo all the pipeline and let it be handled before or/and later wherever it is anyways etc -->
+					// notes
+					// This doesn’t push orders or re-run best-unit logic; it just tweaks eUnitAI if the already-picked eUnit supports the offensive role.
+					// Because ATTACK/ATTACK_CITY/COUNTER aren’t in your “handled civilian/naval/air” blocks, the rest of the function just falls through to the final pushOrder(ORDER_TRAIN, eUnit, eUnitAI); as desired.
+				}
+			}
+			// --- SAS: <!-- custom: end of anyways etc --> Early breakout nudge (simple, cheap) ---
 
 			if (bAllHandledNavalUnitAIs)
 			{

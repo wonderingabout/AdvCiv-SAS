@@ -2775,7 +2775,7 @@
 			<BonusHealthChanges/>
 			<BonusHappinessChanges/>
 			<BonusProductionModifiers/>
-			<!-- custom: reduce it/this, give instead miltiary production bonus to buff the building and make it more versatile, kind of like how the zulu barracks (ikhanda) are at least in base civ4 (if i am not mistaken) (but anyways etc anyways etc anyways etc...) if i am not mistaken anyways etc, was 4 -->
+			<!-- custom: reduce it/this, give instead military production bonus to buff the building and make it more versatile, kind of like how the zulu barracks (ikhanda) are at least in base civ4 (if i am not mistaken) (but anyways etc anyways etc anyways etc...) if i am not mistaken anyways etc, was 4 -->
 			<UnitCombatFreeExperiences>
 				<UnitCombatFreeExperience>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
