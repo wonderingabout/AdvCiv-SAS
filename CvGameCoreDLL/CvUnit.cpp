@@ -308,6 +308,10 @@ void CvUnit::finalizeInit() // advc.003u: Body cut from init
 
 	if (m_pUnitInfo->isWorldUnit())
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+		static const ColorTypes eColorUnitText = (ColorTypes)GC.getColorType("UNIT_TEXT");
+
 		for (int i = 0; i < MAX_PLAYERS; i++)
 		{
 			CvPlayer const& kObs = GET_PLAYER((PlayerTypes)i);
@@ -330,21 +334,21 @@ void CvUnit::finalizeInit() // advc.003u: Body cut from init
 						kOwner.getNameKey(), getNameKey());
 				gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer,
 						"AS2D_WONDER_UNIT_BUILD", MESSAGE_TYPE_MAJOR_EVENT, getButton(),
-						GC.getColorType("UNIT_TEXT"), iFlashX, iFlashY, true, true);
+						eColorUnitText, iFlashX, iFlashY, true, true);
 			}
 			else
 			{
 				szBuffer = gDLL->getText("TXT_KEY_MISC_UNKNOWN_CREATED_UNIT", getNameKey());
 				gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer,
 						"AS2D_WONDER_UNIT_BUILD", MESSAGE_TYPE_MAJOR_EVENT, getButton(),
-						GC.getColorType("UNIT_TEXT"));
+						eColorUnitText);
 			}
 		}
 
 		CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_SOMEONE_CREATED_UNIT",
 				kOwner.getNameKey(), getNameKey()));
 		GC.getGame().addReplayMessage(getPlot(), REPLAY_MESSAGE_MAJOR_EVENT,
-				kOwner.getID(), szBuffer, GC.getColorType("UNIT_TEXT"));
+				kOwner.getID(), szBuffer, eColorUnitText);
 	}
 
 	CvEventReporter::getInstance().unitCreated(this);
@@ -440,6 +444,12 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
 		only if our FFreeList ID gets assigned to a new unit. Unknown if this
 		ever actually happens. Don't want to loop through all groups just in case. */
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+	static const ColorTypes eColorUnitText = (ColorTypes)GC.getColorType("UNIT_TEXT");
+
 	CvPlayerAI& kOwner = GET_PLAYER(getOwner()); // advc
 	if (ePlayer != NO_PLAYER)
 	{
@@ -463,14 +473,14 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
 				{
 					szBuffer = gDLL->getText("TXT_KEY_MISC_YOUR_GENERAL_KILLED", getNameKey(),
 								GET_PLAYER(ePlayer).getCivilizationShortDescription());
-					eColor = GC.getColorType("RED");
+					eColor = eColorRed;
 					szSound = GC.getInfo(kObs.getCurrentEra()).getAudioUnitDefeatScript();
 				}
 				else if(kObs.getID() == ePlayer)
 				{
 					szBuffer = gDLL->getText("TXT_KEY_MISC_GENERAL_KILLED_BY_YOU", getNameKey(),
 							kOwner.getCivilizationShortDescription());
-					eColor = GC.getColorType("GREEN");
+					eColor = eColorGreen;
 					szSound = GC.getInfo(kObs.getCurrentEra()).getAudioUnitVictoryScript();
 				}
 				else if(GET_TEAM(kOwner.getTeam()).isHasMet(kObs.getTeam()) || // advc.004u
@@ -479,7 +489,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
 					szBuffer = gDLL->getText("TXT_KEY_MISC_GENERAL_KILLED", getNameKey(),
 							kOwner.getCivilizationShortDescription(),
 							GET_PLAYER(ePlayer).getCivilizationShortDescription());
-					eColor = GC.getColorType("UNIT_TEXT");
+					eColor = eColorUnitText;
 					// K-Mod (the other sound is not appropriate for most civs receiving the message.)
 					szSound = "AS2D_INTERCEPTED";
 				}
@@ -592,7 +602,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
 						GC.getInfo(eCaptureUnitType).getTextKeyWide());
 				gDLL->UI().addMessage(eCapturingPlayer, true, -1, szBuffer,
 						"AS2D_UNITCAPTURE", MESSAGE_TYPE_INFO, pCapturedUnit->getButton(),
-						GC.getColorType("GREEN"), kPlot.getX(), kPlot.getY());
+						eColorGreen, kPlot.getX(), kPlot.getY());
 				// Add a captured mission
 				if (kPlot.isActiveVisible(false)) // K-Mod
 				{
@@ -962,6 +972,10 @@ void CvUnit::updateAirCombat(bool bQuick)
 		if (pInterceptor->getDomainType() != DOMAIN_AIR)
 			pInterceptor->setMadeInterception(true);
 
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+		static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 		if (isDead())
 		{
 			CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_SHOT_DOWN_ENEMY",
@@ -969,12 +983,12 @@ void CvUnit::updateAirCombat(bool bQuick)
 			gDLL->UI().addMessage(pInterceptor->getOwner(), //false
 					true, // advc.004g
 					-1, szBuffer, *pPlot,
-					"AS2D_INTERCEPT", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("GREEN"));
+					"AS2D_INTERCEPT", MESSAGE_TYPE_INFO, getButton(), eColorGreen);
 
 			szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_SHOT_DOWN",
 					getNameKey(), pInterceptor->getNameKey());
 			gDLL->UI().addMessage(getOwner(), true, -1, szBuffer,
-					"AS2D_INTERCEPTED", MESSAGE_TYPE_INFO, pInterceptor->getButton(), GC.getColorType("RED"),
+					"AS2D_INTERCEPTED", MESSAGE_TYPE_INFO, pInterceptor->getButton(), eColorRed,
 					pPlot->getX(), pPlot->getY());
 		}
 		else if (kAirMission.getDamage(BATTLE_UNIT_ATTACKER) > 0)
@@ -986,13 +1000,13 @@ void CvUnit::updateAirCombat(bool bQuick)
 			gDLL->UI().addMessage(pInterceptor->getOwner(), //false
 					true, // advc.004g
 					-1, szBuffer, *pPlot,
-					"AS2D_INTERCEPT", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("GREEN"));
+					"AS2D_INTERCEPT", MESSAGE_TYPE_INFO, getButton(), eColorGreen);
 
 			szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_AIR_UNIT_HURT",
 					getNameKey(), pInterceptor->getNameKey(),
 					kAirMission.getDamage(BATTLE_UNIT_ATTACKER)); // advc.004g
 			gDLL->UI().addMessage(getOwner(), true, -1, szBuffer,
-					"AS2D_INTERCEPTED", MESSAGE_TYPE_INFO, pInterceptor->getButton(), GC.getColorType("RED"),
+					"AS2D_INTERCEPTED", MESSAGE_TYPE_INFO, pInterceptor->getButton(), eColorRed,
 					pPlot->getX(), pPlot->getY());
 		}
 
@@ -1001,14 +1015,14 @@ void CvUnit::updateAirCombat(bool bQuick)
 			CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_SHOT_DOWN_ENEMY",
 					getNameKey(), pInterceptor->getNameKey(), pInterceptor->getVisualCivAdjective(getTeam()));
 			gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, *pPlot,
-					"AS2D_INTERCEPT", MESSAGE_TYPE_INFO, pInterceptor->getButton(), GC.getColorType("GREEN"));
+					"AS2D_INTERCEPT", MESSAGE_TYPE_INFO, pInterceptor->getButton(), eColorGreen);
 
 			szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_SHOT_DOWN",
 					pInterceptor->getNameKey(), getNameKey());
 			gDLL->UI().addMessage(pInterceptor->getOwner(), //false
 					true, // advc.004g
 					-1, szBuffer,
-					"AS2D_INTERCEPTED", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"),
+					"AS2D_INTERCEPTED", MESSAGE_TYPE_INFO, getButton(), eColorRed,
 					pPlot->getX(), pPlot->getY());
 		}
 		else if (kAirMission.getDamage(BATTLE_UNIT_DEFENDER) > 0)
@@ -1018,7 +1032,7 @@ void CvUnit::updateAirCombat(bool bQuick)
 					kAirMission.getDamage(BATTLE_UNIT_DEFENDER), // advc.004g
 					pInterceptor->getVisualCivAdjective(getTeam()));
 			gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, *pPlot,
-					"AS2D_INTERCEPT", MESSAGE_TYPE_INFO, pInterceptor->getButton(), GC.getColorType("GREEN"));
+					"AS2D_INTERCEPT", MESSAGE_TYPE_INFO, pInterceptor->getButton(), eColorGreen);
 
 			szBuffer = gDLL->getText("TXT_KEY_MISC_YOUR_AIR_UNIT_DAMAGED",
 					pInterceptor->getNameKey(), getNameKey(),
@@ -1026,7 +1040,7 @@ void CvUnit::updateAirCombat(bool bQuick)
 			gDLL->UI().addMessage(pInterceptor->getOwner(), //false
 					true, // advc.004g
 					-1, szBuffer,
-					"AS2D_INTERCEPTED", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"),
+					"AS2D_INTERCEPTED", MESSAGE_TYPE_INFO, getButton(), eColorRed,
 					pPlot->getX(), pPlot->getY());
 		}
 
@@ -1035,14 +1049,14 @@ void CvUnit::updateAirCombat(bool bQuick)
 			CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_ABORTED_ENEMY_AIR",
 					pInterceptor->getNameKey(), getNameKey(), getVisualCivAdjective(getTeam()));
 			gDLL->UI().addMessage(pInterceptor->getOwner(), true, -1, szBuffer, *pPlot,
-					"AS2D_INTERCEPT", MESSAGE_TYPE_INFO, pInterceptor->getButton(), GC.getColorType("GREEN"));
+					"AS2D_INTERCEPT", MESSAGE_TYPE_INFO, pInterceptor->getButton(), eColorGreen);
 
 			szBuffer = gDLL->getText("TXT_KEY_MISC_YOUR_AIR_UNIT_ABORTED",
 					getNameKey(), pInterceptor->getNameKey());
 			gDLL->UI().addMessage(getOwner(), //false
 					true, // advc.004g
 					-1, szBuffer,
-					"AS2D_INTERCEPTED", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"),
+					"AS2D_INTERCEPTED", MESSAGE_TYPE_INFO, getButton(), eColorRed,
 					pPlot->getX(), pPlot->getY());
 		}
 	}
@@ -1412,6 +1426,9 @@ void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted,
 			}
 			else
 			{
+				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 				PlayerTypes eAttacker = getVisualOwner(pDefender->getTeam());
 				CvWString szMessage;
 				if (BARBARIAN_PLAYER != eAttacker)
@@ -1423,7 +1440,7 @@ void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted,
 
 				gDLL->UI().addMessage(pDefender->getOwner(), true, -1, szMessage,
 						"AS2D_COMBAT", MESSAGE_TYPE_DISPLAY_ONLY, getButton(),
-						GC.getColorType("RED"), pPlot->getX(), pPlot->getY(), true);
+						eColorRed, pPlot->getX(), pPlot->getY(), true);
 			}
 		}
 
@@ -1647,6 +1664,10 @@ void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted,
 // advc.010: Cut from resolveCombat. Used for killed noncombatants with bFought=false.
 void CvUnit::addAttackSuccessMessages(CvUnit const& kDefender, bool bFought) const
 {
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 	bool const bSound = !suppressStackAttackSound(kDefender); // advc.002l
 	CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_DESTROYED_ENEMY",
 			getNameKey(), /* advc.004u: */ kDefender.getNameKeyNoGG());
@@ -1656,17 +1677,21 @@ void CvUnit::addAttackSuccessMessages(CvUnit const& kDefender, bool bFought) con
 			.getCurrentEra()).getAudioUnitVictoryScript()
 			: NULL, // advc.010: No victory sound for killing noncombatant
 			MESSAGE_TYPE_INFO, NULL,
-			GC.getColorType("GREEN"), kPlot.getX(), kPlot.getY());
+			eColorGreen, kPlot.getX(), kPlot.getY());
 	setHasBeenDefendedAgainstMessage(szBuffer, kDefender, 1); // advc.048c
 	gDLL->UI().addMessage(kDefender.getOwner(), bFought, -1, szBuffer,
 			bSound ? GC.getInfo(GET_PLAYER(kDefender.getOwner()) // advc.002l
 			.getCurrentEra()).getAudioUnitDefeatScript() /* advc.002l: */ : NULL,
-			MESSAGE_TYPE_INFO, NULL, GC.getColorType("RED"), kPlot.getX(), kPlot.getY());
+			MESSAGE_TYPE_INFO, NULL, eColorRed, kPlot.getX(), kPlot.getY());
 }
 
 // <advc> Cut from resolveCombat - just to be consistent with addAttackSuccessMessages.
 void CvUnit::addDefenseSuccessMessages(CvUnit const& kDefender) const
 {
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 	bool const bSound = !suppressStackAttackSound(kDefender);
 	CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_DIED_ATTACKING",
 			getNameKeyNoGG(), // advc.004u
@@ -1675,20 +1700,24 @@ void CvUnit::addDefenseSuccessMessages(CvUnit const& kDefender) const
 	gDLL->UI().addMessage(getOwner(), true, -1, szBuffer,
 			bSound ? GC.getInfo(GET_PLAYER(getOwner()) // advc.002l
 			.getCurrentEra()).getAudioUnitDefeatScript() /* 002l: */ : NULL,
-			MESSAGE_TYPE_INFO, NULL, GC.getColorType("RED"),
+			MESSAGE_TYPE_INFO, NULL, eColorRed,
 			kPlot.getX(), kPlot.getY());
 	setHasBeenDefendedAgainstMessage(szBuffer, kDefender, -1); // advc.048c
 	gDLL->UI().addMessage(kDefender.getOwner(),
 			true, -1, szBuffer,
 			bSound ? GC.getInfo(GET_PLAYER(kDefender.getOwner()) // advc.002l
 			.getCurrentEra()).getAudioUnitVictoryScript() /* advc.002l: */ : NULL,
-			MESSAGE_TYPE_INFO, NULL, GC.getColorType("GREEN"),
+			MESSAGE_TYPE_INFO, NULL, eColorGreen,
 			kPlot.getX(), kPlot.getY());
 }
 
 
 void CvUnit::addWithdrawalMessages(CvUnit const& kDefender) const
 {
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 	bool const bSea = (getDomainType() == DOMAIN_SEA); // advc.002l
 	CvPlot const& kPlot = kDefender.getPlot();
 	CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_YOU_UNIT_WITHDRAW",
@@ -1696,12 +1725,12 @@ void CvUnit::addWithdrawalMessages(CvUnit const& kDefender) const
 	gDLL->UI().addMessage(getOwner(), true, -1, szBuffer,
 			bSea ? "AS2D_OUR_SEA_WITHDRAWL" : // advc.002l
 			"AS2D_OUR_WITHDRAWL", MESSAGE_TYPE_INFO, NULL,
-			GC.getColorType("GREEN"), kPlot.getX(), kPlot.getY());
+			eColorGreen, kPlot.getX(), kPlot.getY());
 	setHasBeenDefendedAgainstMessage(szBuffer, kDefender, 0); // advc.048c
 	gDLL->UI().addMessage(kDefender.getOwner(), true, -1, szBuffer,
 			bSea ? "AS2D_THEIR_SEA_WITHDRAWL" : // advc.002l
 			"AS2D_THEIR_WITHDRAWL", MESSAGE_TYPE_INFO, NULL,
-			GC.getColorType("RED"), kPlot.getX(), kPlot.getY());
+			eColorRed, kPlot.getX(), kPlot.getY());
 } // </advc>
 
 /*	advc.048c: Based on code originally in resolveCombat.
@@ -2926,6 +2955,9 @@ void CvUnit::attackForDamage(CvUnit *pDefender,
 		}
 		else
 		{
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 			PlayerTypes eAttacker = getVisualOwner(pDefender->getTeam());
 			CvWString szMessage;
 			if (BARBARIAN_PLAYER != eAttacker)
@@ -2939,7 +2971,7 @@ void CvUnit::attackForDamage(CvUnit *pDefender,
 			}
 
 			gDLL->UI().addMessage(pDefender->getOwner(), true, -1, szMessage, "AS2D_COMBAT",
-					MESSAGE_TYPE_DISPLAY_ONLY, getButton(), GC.getColorType("RED"),
+					MESSAGE_TYPE_DISPLAY_ONLY, getButton(), eColorRed,
 					pPlot->getX(), pPlot->getY(), true);
 		}
 	}
@@ -4315,6 +4347,10 @@ bool CvUnit::nuke(int iX, int iY)
 	int const iMissionTime = getGroup()->nukeMissionTime();
 	bool const bShortAnimation = (iMissionTime <= 8); // </advc.002m>
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 	if (SyncRandSuccess100(iBestInterception))
 	{
 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it) // advc.003n: Only major civs
@@ -4331,7 +4367,7 @@ bool CvUnit::nuke(int iX, int iY)
 				gDLL->UI().addMessage(kObs.getID(), kObs.getID() == getOwner() ||
 						!bShortAnimation, // advc.002m
 						-1, szBuffer, kPlot, "AS2D_NUKE_INTERCEPTED",
-						MESSAGE_TYPE_MAJOR_EVENT, getButton(), GC.getColorType("RED"));
+						MESSAGE_TYPE_MAJOR_EVENT, getButton(), eColorRed);
 			}
 		}
 		if (kPlot.isActiveVisible(false))
@@ -4476,18 +4512,21 @@ bool CvUnit::nuke(int iX, int iY)
 			gDLL->UI().addMessage(kObs.getID(), kObs.getID() == getOwner() ||
 					!bShortAnimation, // advc.002m
 					-1, szBuffer, kPlot, "AS2D_NUKE_EXPLODES",
-					MESSAGE_TYPE_MAJOR_EVENT, getButton(), GC.getColorType("RED"));
+					MESSAGE_TYPE_MAJOR_EVENT, getButton(), eColorRed);
 		}
 	}
 	// <advc.106>
 	if (pReplayCity != NULL)
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
+
 		szBuffer = gDLL->getText("TXT_KEY_MISC_CITY_NUKED",
 				pReplayCity->getNameKey(), GET_PLAYER(
 				pReplayCity->getOwner()).getNameKey(),
 				GET_PLAYER(getOwner()).getNameKey());
 		GC.getGame().addReplayMessage(getPlot(), REPLAY_MESSAGE_MAJOR_EVENT,
-				getOwner(), szBuffer, GC.getColorType("WARNING_TEXT"));
+				getOwner(), szBuffer, eColorWarningText);
 	} // </advc.106>
 
 	if (isSuicide())
@@ -4804,6 +4843,12 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted,
 			*pbIntercepted = true; // </advc.004c>
 		return true;
 	}
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 	CvWString szBuffer;
 
 	CvCity* pCity = kTarget.getPlotCity();
@@ -4816,11 +4861,11 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted,
 				pCity->getNameKey(), pCity->getDefenseModifier(false), getNameKey());
 		gDLL->UI().addMessage(pCity->getOwner(), true, // advc.004g: was false
 				-1, szBuffer, pCity->getPlot(),
-				"AS2D_BOMBARDED", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"));
+				"AS2D_BOMBARDED", MESSAGE_TYPE_INFO, getButton(), eColorRed);
 		szBuffer = gDLL->getText("TXT_KEY_MISC_ENEMY_DEFENSES_REDUCED_TO", getNameKey(),
 				pCity->getNameKey(), pCity->getDefenseModifier(false));
 		gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, pCity->getPlot(),
-				"AS2D_BOMBARD", MESSAGE_TYPE_INFO, NULL, GC.getColorType("GREEN"));
+				"AS2D_BOMBARD", MESSAGE_TYPE_INFO, NULL, eColorGreen);
 	}
 	else
 	{	// <advc.255> 
@@ -4845,7 +4890,7 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted,
 				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_DESTROYED_IMP",
 						getNameKey(), szStructure);
 				gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, "AS2D_PILLAGE",
-						MESSAGE_TYPE_INFO, getButton(), GC.getColorType("GREEN"),
+						MESSAGE_TYPE_INFO, getButton(), eColorGreen,
 						kTarget.getX(), kTarget.getY());
 				if (kTarget.isOwned() &&
 					kTarget.getOwner() != getOwner()) // advc.004c
@@ -4855,7 +4900,7 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted,
 							getVisualCivAdjective(kTarget.getTeam()));
 					gDLL->UI().addMessage(kTarget.getOwner(), true, // advc.004g: was false
 							-1, szBuffer, kTarget, "AS2D_PILLAGED", MESSAGE_TYPE_INFO,
-							getButton(), GC.getColorType("RED"));
+							getButton(), eColorRed);
 				}
 				// <advc.255>
 				if (bRoute)
@@ -4875,7 +4920,7 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted,
 						getNameKey(), szStructure);
 				gDLL->UI().addMessage(getOwner(), true, -1, szBuffer,
 						"AS2D_BOMB_FAILS", MESSAGE_TYPE_INFO, getButton(),
-						GC.getColorType("RED"), kTarget.getX(), kTarget.getY());
+						eColorRed, kTarget.getX(), kTarget.getY());
 			}
 		}
 		/*	<advc.004c> Can now fail when the improvement only existed in the FoW
@@ -5003,6 +5048,10 @@ bool CvUnit::bombard()
 	setMadeAttack(true);
 	changeMoves(GC.getMOVE_DENOMINATOR());
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 	CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_DEFENSES_IN_CITY_REDUCED_TO",
 			getNameKey(), // advc.004g: Show unit name (idea from MNAI)
 			pBombardCity->getDefenseModifier(false),
@@ -5011,14 +5060,14 @@ bool CvUnit::bombard()
 	gDLL->UI().addMessage(pBombardCity->getOwner(), /* advc.004g: */ true,
 			-1, szBuffer, pBombardCity->getPlot(),
 			!bFirstBombardment ? NULL : // advc.004g: Don't bombard the owner with sound
-			"AS2D_BOMBARDED", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"));
+			"AS2D_BOMBARDED", MESSAGE_TYPE_INFO, getButton(), eColorRed);
 	szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_REDUCE_CITY_DEFENSES",
 			getNameKey(), pBombardCity->getNameKey(),
 			pBombardCity->getDefenseModifier(//false
 			ignoreBuildingDefense())); // advc.004g
 	gDLL->UI().addMessage(getOwner(), true,
 			-1, szBuffer, "AS2D_BOMBARD",
-			MESSAGE_TYPE_INFO, getButton(), GC.getColorType("GREEN"),
+			MESSAGE_TYPE_INFO, getButton(), eColorGreen,
 			pBombardCity->getX(), pBombardCity->getY());
 
 	if (getPlot().isActiveVisible(false))
@@ -5179,12 +5228,16 @@ bool CvUnit::pillageImprovement()
 		}
 		if (iPillageGold > 0)
 		{
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+			static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 			GET_PLAYER(getOwner()).changeGold(iPillageGold);
 			CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_PLUNDERED_GOLD_FROM_IMP",
 					iPillageGold, GC.getInfo(kPlot.getImprovementType()).getTextKeyWide());
 			gDLL->UI().addMessage(getOwner(), true, -1, szBuffer,
 					"AS2D_PILLAGE", MESSAGE_TYPE_INFO, getButton(),
-					GC.getColorType("GREEN"), kPlot.getX(), kPlot.getY());
+					eColorGreen, kPlot.getX(), kPlot.getY());
 			if (kPlot.isOwned())
 			{
 				szBuffer = gDLL->getText("TXT_KEY_MISC_IMP_DESTROYED",
@@ -5192,7 +5245,7 @@ bool CvUnit::pillageImprovement()
 						getNameKey(), getVisualCivAdjective(kPlot.getTeam()));
 				gDLL->UI().addMessage(kPlot.getOwner(), /* advc.106j: */ true,
 						-1, szBuffer, kPlot, "AS2D_PILLAGED",
-						MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"));
+						MESSAGE_TYPE_INFO, getButton(), eColorRed);
 			}
 		}
 	}
@@ -5447,17 +5500,21 @@ bool CvUnit::sabotage()
 				kPlot.getOwner(), NO_TEAM, false);
 		if (pNearestCity != NULL)
 		{
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+			static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 			szBuffer = gDLL->getText("TXT_KEY_MISC_SPY_SABOTAGED",
 					getNameKey(), pNearestCity->getNameKey());
 			gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, "AS2D_SABOTAGE",
-					MESSAGE_TYPE_INFO, getButton(), GC.getColorType("GREEN"),
+					MESSAGE_TYPE_INFO, getButton(), eColorGreen,
 					kPlot.getX(), kPlot.getY());
 
 			if (kPlot.isOwned())
 			{
 				szBuffer = gDLL->getText("TXT_KEY_MISC_SABOTAGE_NEAR", pNearestCity->getNameKey());
 				gDLL->UI().addMessage(kPlot.getOwner(), false, -1, szBuffer, kPlot,
-						"AS2D_SABOTAGE", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"));
+						"AS2D_SABOTAGE", MESSAGE_TYPE_INFO, getButton(), eColorRed);
 			}
 		}
 		if (kPlot.isActiveVisible(false))
@@ -5573,16 +5630,20 @@ bool CvUnit::destroy()
 
 		finishMoves();
 
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+		static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 		CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_SPY_DESTROYED_PRODUCTION",
 				getNameKey(), pCity->getProductionNameKey(), pCity->getNameKey()));
 		gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, "AS2D_DESTROY",
-				MESSAGE_TYPE_INFO, getButton(), GC.getColorType("GREEN"),
+				MESSAGE_TYPE_INFO, getButton(), eColorGreen,
 				pCity->getX(), pCity->getY());
 
 		szBuffer = gDLL->getText("TXT_KEY_MISC_CITY_PRODUCTION_DESTROYED",
 				pCity->getProductionNameKey(), pCity->getNameKey());
 		gDLL->UI().addMessage(pCity->getOwner(), false, -1, szBuffer, pCity->getPlot(),
-				"AS2D_DESTROY", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"));
+				"AS2D_DESTROY", MESSAGE_TYPE_INFO, getButton(), eColorRed);
 
 		if (getPlot().isActiveVisible(false))
 			NotifyEntity(MISSION_DESTROY);
@@ -5694,14 +5755,18 @@ bool CvUnit::stealPlans()
 
 		finishMoves();
 
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+		static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 		szBuffer = gDLL->getText("TXT_KEY_MISC_SPY_STOLE_PLANS", getNameKey(), pCity->getNameKey());
 		gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, "AS2D_STEALPLANS",
-				MESSAGE_TYPE_INFO, getButton(), GC.getColorType("GREEN"),
+				MESSAGE_TYPE_INFO, getButton(), eColorGreen,
 				pCity->getX(), pCity->getY());
 
 		szBuffer = gDLL->getText("TXT_KEY_MISC_PLANS_STOLEN", pCity->getNameKey());
 		gDLL->UI().addMessage(pCity->getOwner(), false, -1, szBuffer, getPlot(),
-				"AS2D_STEALPLANS", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"));
+				"AS2D_STEALPLANS", MESSAGE_TYPE_INFO, getButton(), eColorRed);
 
 		if (getPlot().isActiveVisible(false))
 			NotifyEntity(MISSION_STEAL_PLANS);
@@ -5872,10 +5937,13 @@ bool CvUnit::spread(ReligionTypes eReligion)
 			ReligionTypes eFailedReligion = aieRankedReligions[0].second;
 			if (eFailedReligion == eReligion)
 			{
+				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 				CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_RELIGION_FAILED_TO_SPREAD",
 						getNameKey(), GC.getInfo(eReligion).getChar(), pCity->getNameKey()));
 				gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, "AS2D_NOSPREAD",
-						MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"),
+						MESSAGE_TYPE_INFO, getButton(), eColorRed,
 						pCity->getX(), pCity->getY());
 				bSuccess = false;
 			}
@@ -5995,10 +6063,13 @@ bool CvUnit::spreadCorporation(CorporationTypes eCorporation)
 			pCity->setHasCorporation(eCorporation, true, true, false);
 		else
 		{
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 			CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_CORPORATION_FAILED_TO_SPREAD",
 					getNameKey(), GC.getInfo(eCorporation).getChar(), pCity->getNameKey());
 			gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, "AS2D_NOSPREAD",
-					MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"),
+					MESSAGE_TYPE_INFO, getButton(), eColorRed,
 					pCity->getX(), pCity->getY());
 		}
 	}
@@ -6489,11 +6560,15 @@ bool CvUnit::testSpyIntercepted(PlayerTypes eTargetPlayer, bool bMission, int iM
 	if (pClosestCity != NULL)
 		szCityName = pClosestCity->getName();
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 	CvWString szBuffer = gDLL->getText(szFormatReveal.GetCString(),
 			GET_PLAYER(getOwner()).getCivilizationAdjectiveKey(), getNameKey(),
 			kTargetPlayer.getCivilizationAdjectiveKey(), szCityName.GetCString());
 	gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, getPlot(),
-			"AS2D_EXPOSED", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"));
+			"AS2D_EXPOSED", MESSAGE_TYPE_INFO, getButton(), eColorRed);
 
 	static int const iESPIONAGE_SPY_REVEAL_IDENTITY_PERCENT = GC.getDefineINT("ESPIONAGE_SPY_REVEAL_IDENTITY_PERCENT"); // advc.opt
 	if (SyncRandSuccess100(iESPIONAGE_SPY_REVEAL_IDENTITY_PERCENT))
@@ -6503,14 +6578,14 @@ bool CvUnit::testSpyIntercepted(PlayerTypes eTargetPlayer, bool bMission, int iM
 			GET_PLAYER(eTargetPlayer).AI_rememberEvent(getOwner(), MEMORY_SPY_CAUGHT);
 		}
 		gDLL->UI().addMessage(eTargetPlayer, true, -1, szBuffer, getPlot(),
-				"AS2D_EXPOSE", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("GREEN"));
+				"AS2D_EXPOSE", MESSAGE_TYPE_INFO, getButton(), eColorGreen);
 	}
 	else
 	{
 		szBuffer = gDLL->getText(szFormatNoReveal.GetCString(), getNameKey(),
 				kTargetPlayer.getCivilizationAdjectiveKey(), szCityName.GetCString());
 		gDLL->UI().addMessage(eTargetPlayer, true, -1, szBuffer, getPlot(),
-			"AS2D_EXPOSE", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("GREEN"));
+			"AS2D_EXPOSE", MESSAGE_TYPE_INFO, getButton(), eColorGreen);
 	}
 
 	if (getPlot().isActiveVisible(false))
@@ -10163,6 +10238,11 @@ void CvUnit::setBlockading(bool bNewValue)
 
 void CvUnit::collectBlockadeGold()
 {
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 	//if(getPlot().getTeam() == getTeam()) return; // advc.033: Handled by caller
 
 	/*  <advc.033> Rewritten based on the new blockadeRange function.
@@ -10192,12 +10272,12 @@ void CvUnit::collectBlockadeGold()
 						getNameKey(), pCity->getNameKey(), iGold);
 				gDLL->UI().addMessage(getOwner(), false, -1, szBuffer,
 						"AS2D_BUILD_BANK", MESSAGE_TYPE_INFO, getButton(),
-						GC.getColorType("GREEN"), getX(), getY());
+						eColorGreen, getX(), getY());
 				szBuffer = gDLL->getText("TXT_KEY_MISC_TRADE_ROUTE_PLUNDER",
 						getNameKey(), pCity->getNameKey(), iGold);
 				gDLL->UI().addMessage(pCity->getOwner(), false, -1, szBuffer,
 						"AS2D_BUILD_BANK", MESSAGE_TYPE_INFO, getButton(),
-						GC.getColorType("RED"), pCity->getX(), pCity->getY());
+						eColorRed, pCity->getX(), pCity->getY());
 			}
 		}
 	}
@@ -11125,14 +11205,18 @@ void CvUnit::collateralCombat(CvPlot const* pPlot, CvUnit const* pSkipUnit)
 
 	if (iDamageCount > 0)
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+		static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 		CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_SUFFER_COL_DMG", iDamageCount);
 		gDLL->UI().addMessage(pSkipUnit->getOwner(), pSkipUnit->getDomainType() != DOMAIN_AIR, -1,
 				szBuffer, pSkipUnit->getPlot(), "AS2D_COLLATERAL", MESSAGE_TYPE_INFO, getButton(),
-				GC.getColorType("RED"));
+				eColorRed);
 
 		szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_INFLICT_COL_DMG", getNameKey(), iDamageCount);
 		gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, "AS2D_COLLATERAL",
-				MESSAGE_TYPE_INFO, getButton(), GC.getColorType("GREEN"),
+				MESSAGE_TYPE_INFO, getButton(), eColorGreen,
 				pSkipUnit->getX(), pSkipUnit->getY());
 	}
 }
@@ -11182,6 +11266,11 @@ void CvUnit::flankingStrikeCombat(const CvPlot* pPlot, int iAttackerStrength,
 	int iNumUnitsHit = std::min<int>(aFlankDamagePerUnit.size(),
 			collateralDamageMaxUnits());
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 	for (int i = 0; i < iNumUnitsHit; i++)
 	{
 		int iIndexHit = SyncRandNum(aFlankDamagePerUnit.size());
@@ -11196,14 +11285,14 @@ void CvUnit::flankingStrikeCombat(const CvPlot* pPlot, int iAttackerStrength,
 			gDLL->UI().addMessage(getOwner(), false, -1, szBuffer,
 				GC.getInfo(/* advc.002l: */ GET_PLAYER(getOwner())
 					.getCurrentEra()).getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL,
-					GC.getColorType("GREEN"), pPlot->getX(), pPlot->getY());
+					eColorGreen, pPlot->getX(), pPlot->getY());
 			szBuffer = gDLL->getText("TXT_KEY_MISC_YOUR_UNIT_DIED_BY_FLANKING",
 					kDamagedUnit.getNameKey(),
 					getNameKey(), getVisualCivAdjective(kDamagedUnit.getTeam()));
 			gDLL->UI().addMessage(kDamagedUnit.getOwner(), false, -1, szBuffer,
 					GC.getInfo(/* advc.002l: */ GET_PLAYER(kDamagedUnit.getOwner())
 					.getCurrentEra()).getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL,
-					GC.getColorType("RED"), pPlot->getX(), pPlot->getY());
+					eColorRed, pPlot->getX(), pPlot->getY());
 
 			kDamagedUnit.kill(false);
 		}
@@ -11219,7 +11308,7 @@ void CvUnit::flankingStrikeCombat(const CvPlot* pPlot, int iAttackerStrength,
 		gDLL->UI().addMessage(getOwner(), true, -1, szBuffer,
 				/*GC.getInfo(GET_PLAYER(getOwner())
 				.getCurrentEra()).getAudioUnitVictoryScript()*/ NULL,
-				MESSAGE_TYPE_INFO, NULL, GC.getColorType("GREEN"),
+				MESSAGE_TYPE_INFO, NULL, eColorGreen,
 				pPlot->getX(), pPlot->getY());
 		if (pSkipUnit != NULL)
 		{
@@ -11228,7 +11317,7 @@ void CvUnit::flankingStrikeCombat(const CvPlot* pPlot, int iAttackerStrength,
 			gDLL->UI().addMessage(pSkipUnit->getOwner(), true, -1, szBuffer,
 					/*GC.getInfo(GET_PLAYER(pSkipUnit->getOwner())
 					.getCurrentEra()).getAudioUnitDefeatScript()*/ NULL,
-					MESSAGE_TYPE_INFO, NULL, GC.getColorType("RED"),
+					MESSAGE_TYPE_INFO, NULL, eColorRed,
 					pPlot->getX(), pPlot->getY());
 		}
 	}
@@ -11313,18 +11402,22 @@ bool CvUnit::airStrike(CvPlot& kPlot, /* <advc.004c> */ bool* pbIntercepted)
 	int iUnitDamage = std::max(pDefender->getDamage(),
 			std::min(pDefender->getDamage() + iDamage, airCombatLimit()));
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 	CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR",
 			pDefender->getNameKey(), getNameKey(),
 			// advc.004g:
 			((iUnitDamage - pDefender->getDamage()) * 100) / pDefender->maxHitPoints()));
 	gDLL->UI().addMessage(pDefender->getOwner(), false, -1, szBuffer, kPlot,
-			"AS2D_AIR_ATTACK", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"));
+			"AS2D_AIR_ATTACK", MESSAGE_TYPE_INFO, getButton(), eColorRed);
 
 	szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_ATTACK_BY_AIR", getNameKey(), pDefender->getNameKey(),
 			// advc.004g:
 			((iUnitDamage - pDefender->getDamage()) * 100) / pDefender->maxHitPoints());
 	gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, "AS2D_AIR_ATTACKED",
-			MESSAGE_TYPE_INFO, pDefender->getButton(), GC.getColorType("GREEN"),
+			MESSAGE_TYPE_INFO, pDefender->getButton(), eColorGreen,
 			kPlot.getX(), kPlot.getY());
 
 	collateralCombat(&kPlot, pDefender);
@@ -11419,13 +11512,17 @@ bool CvUnit::rangeStrike(int iX, int iY)
 	int iUnitDamage = std::max(pDefender->getDamage(),
 			std::min(pDefender->getDamage() + iDamage, airCombatLimit()));
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 	CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR",
 			pDefender->getNameKey(), getNameKey(),
 			// advc.004g:
 			((iUnitDamage - pDefender->getDamage()) * 100) / pDefender->maxHitPoints()));
 	//red icon over attacking unit
 	gDLL->UI().addMessage(pDefender->getOwner(), false, -1, szBuffer, getPlot(),
-			"AS2D_COMBAT", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"));
+			"AS2D_COMBAT", MESSAGE_TYPE_INFO, getButton(), eColorRed);
 	//white icon over defending unit
 	gDLL->UI().addMessage(pDefender->getOwner(), false, 0, L"", pDefender->getPlot(),
 			"AS2D_COMBAT", MESSAGE_TYPE_DISPLAY_ONLY, pDefender->getButton());
@@ -11434,7 +11531,7 @@ bool CvUnit::rangeStrike(int iX, int iY)
 			// advc.004g:
 			((iUnitDamage - pDefender->getDamage()) * 100) / pDefender->maxHitPoints());
 	gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, *pPlot,
-			"AS2D_COMBAT", MESSAGE_TYPE_INFO, pDefender->getButton(), GC.getColorType("GREEN"));
+			"AS2D_COMBAT", MESSAGE_TYPE_INFO, pDefender->getButton(), eColorGreen);
 
 	collateralCombat(pPlot, pDefender);
 
@@ -11923,11 +12020,14 @@ void CvUnit::applyEvent(EventTypes eEvent)
 
 	if (kEvent.getUnitImmobileTurns() > 0)
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const ColorTypes eColorUnitText = (ColorTypes)GC.getColorType("UNIT_TEXT");
+
 		changeImmobileTimer(kEvent.getUnitImmobileTurns());
 		CvWString szText = gDLL->getText("TXT_KEY_EVENT_UNIT_IMMOBILE",
 				getNameKey(), kEvent.getUnitImmobileTurns());
 		gDLL->UI().addMessage(getOwner(), false, -1, szText, getPlot(), "AS2D_UNITGIFTED",
-				MESSAGE_TYPE_INFO, getButton(), GC.getColorType("UNIT_TEXT"));
+				MESSAGE_TYPE_INFO, getButton(), eColorUnitText);
 	}
 
 	CvWString szNameKey(kEvent.getUnitNameKey());

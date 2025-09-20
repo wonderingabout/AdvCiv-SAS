@@ -539,6 +539,8 @@ The exception/error info as well as possibly some other things i don't know abou
 
 I don't know too much about these but i thought i'd compile (no pun but anyways etc) this info quick if helps, hopefully helpful or not or yes or etc anyways etc.
 
+To read the output .dmp files (i do normal dump most times to have the vague info of why it crashed xd and don't know too much about these anyways etc), see an example in this known issue's documentation (although we reverted it eventually, it documents an example of showing/reading .dmp files very grossly as in broadly i.e. just a glance/general view as i don't know too much about these but it gives some indication if i may say in this case i mean but anyways etc hopefully helpful but anyways etc) here for example [60 - (Fixed) Seemingly rare reproducible crash at turn 283 in CvUnitAI::AI_nextCityToImprove, by adding a bunch of seemingly conservative safeties (as chatgpt 5 did anyways etc, check if accurate anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#60---fixed-seemingly-rare-reproducible-crash-at-turn-283-in-cvunitaiai_nextcitytoimprove-by-adding-a-bunch-of-seemingly-conservative-safeties-as-chatgpt-5-did-anyways-etc-check-if-accurate-anyways-etc) anyways etc.
+
 ## Another example of how to use VS Code global search (also shows an example of how to also browse the CIV4 BUG doc (copy included in our mod) anyways etc)
 
 I call it "global search" but i don't know how it is exactly called, it's the feature that allows you in VS Code to search in your entire opened folder (all files) rather than just the current file (not ctrl+f, but instead the "zoom object looking icon" on left panel as of now in vs code anyways etc)

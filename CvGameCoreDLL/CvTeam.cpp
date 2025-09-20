@@ -217,6 +217,10 @@ void CvTeam::addTeam(TeamTypes eTeam)
 
 	int const iOriginalTeamSize = getNumMembers(); // K-Mod
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
 		CvPlayer const& kObs = GET_PLAYER((PlayerTypes)i);
@@ -231,7 +235,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
 						getName().GetCString(), GET_TEAM(eTeam).getName().GetCString()));
 				gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer, "AS2D_THEIRALLIANCE",
 						MESSAGE_TYPE_MAJOR_EVENT, // advc.106b
-						NULL, GC.getColorType("HIGHLIGHT_TEXT"),
+						NULL, eColorHighlightText,
 						// advc.127b:
 						getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 			}
@@ -242,7 +246,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
 			getReplayName().GetCString(), GET_TEAM(eTeam).getReplayName().GetCString()));
 	CvGame& kGame = GC.getGame();
 	kGame.addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), szBuffer,
-			GC.getColorType("HIGHLIGHT_TEXT"));
+			eColorHighlightText);
 
 	// K-Mod note: the cancel deals code use to be here. I've moved it lower down.
 
@@ -1325,6 +1329,11 @@ void CvTeam::announceWar(TeamTypes eTarget, bool bPrimaryDoW,
 		szSponsorName = GET_PLAYER(eSponsor).getName();
 		cpSponsorName = szSponsorName.GetCString();
 	} // </advc.100>
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
+	
 	// advc.106o:
 	bool const bMultiple = (TeamIter<MAJOR_CIV,VASSAL_OF>::count(getID()) > 0);
 	CvTeam const& kTarget = GET_TEAM(eTarget);
@@ -1379,7 +1388,7 @@ void CvTeam::announceWar(TeamTypes eTarget, bool bPrimaryDoW,
 		} // </advc.100>
 		gDLL->UI().addMessage(kObs.getID(), bForce, -1, szBuffer,
 					(bPrimaryDoW ? szSound : NULL), // advc.002l
-					MESSAGE_TYPE_MAJOR_EVENT, NULL, GC.getColorType("WARNING_TEXT"),
+					MESSAGE_TYPE_MAJOR_EVENT, NULL, eColorWarningText,
 					// advc.127b:
 					getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 	}
@@ -1412,7 +1421,7 @@ void CvTeam::announceWar(TeamTypes eTarget, bool bPrimaryDoW,
 		szBuffer.append(gDLL->getText("TXT_KEY_MISC_WAR_VIA_EVENT"));
 	} // </advc.106g>
 	GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), szBuffer,
-			GC.getColorType("WARNING_TEXT"));
+			eColorWarningText);
 }
 
 // advc: Cut from makePeace
@@ -1423,6 +1432,11 @@ void CvTeam::announcePeace(TeamTypes eTarget, TeamTypes eBroker,
 	CvTeam const& kTarget = GET_TEAM(eTarget);
 	// advc.106o:
 	bool const bMultiple = (TeamIter<MAJOR_CIV,VASSAL_OF>::count(getID()) > 0);
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 	{
 		CvPlayer const& kObs = *it;
@@ -1452,7 +1466,7 @@ void CvTeam::announcePeace(TeamTypes eTarget, TeamTypes eBroker,
 					szPeacemakers.c_str(), szTargets.c_str());
 		} // </advc.106o>
 		LPCTSTR szSound = NULL;
-		ColorTypes eColor = GC.getColorType("HIGHLIGHT_TEXT");
+		ColorTypes eColor = eColorHighlightText;
 		bool bForce = false;
 		bool bDebugCoords = true; // advc.127b
 		if (kObs.getTeam() == getID())
@@ -1536,7 +1550,7 @@ void CvTeam::announcePeace(TeamTypes eTarget, TeamTypes eBroker,
 		szBuffer.append(gDLL->getText("TXT_KEY_MISC_PEACE_VIA_EVENT"));
 	} // </advc.106g>
 	GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), szBuffer,
-			GC.getColorType("HIGHLIGHT_TEXT"));
+			eColorHighlightText);
 }
 
 /*	advc.106o: To be called on the observer, i.e. the recipient of a message about a
@@ -3210,13 +3224,18 @@ void CvTeam::setDefensivePact(TeamTypes eIndex, bool bNewValue)
 	m_abDefensivePact.set(eIndex, bNewValue);
 	if (isActive() || GET_TEAM(eIndex).isActive())
 		gDLL->UI().setDirty(Score_DIRTY_BIT, true);
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 	CvTeam const& kOther = GET_TEAM(eIndex); // advc
 	if (bNewValue && !kOther.isDefensivePact(getID()))
 	{
 		CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYERS_SIGN_DEFENSIVE_PACT",
 				getReplayName().GetCString(), kOther.getReplayName().GetCString());
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
-				getLeaderID(), szBuffer, GC.getColorType("HIGHLIGHT_TEXT"));
+				getLeaderID(), szBuffer, eColorHighlightText);
 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 		{
 			CvPlayer& kObs = *it;
@@ -3225,7 +3244,7 @@ void CvTeam::setDefensivePact(TeamTypes eIndex, bool bNewValue)
 			{
 				gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer,
 						"AS2D_THEIRALLIANCE", MESSAGE_TYPE_MAJOR_EVENT, NULL,
-						GC.getColorType("HIGHLIGHT_TEXT"),
+						eColorHighlightText,
 						// advc.127b:
 						getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 			}
@@ -3237,7 +3256,7 @@ void CvTeam::setDefensivePact(TeamTypes eIndex, bool bNewValue)
 		CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYERS_CANCEL_DEFENSIVE_PACT",
 				getReplayName().GetCString(), kOther.getReplayName().GetCString());
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
-				getLeaderID(), szBuffer, GC.getColorType("HIGHLIGHT_TEXT"));
+				getLeaderID(), szBuffer, eColorHighlightText);
 		for (PlayerIter<MAJOR_CIV,NOT_SAME_TEAM_AS> it(getID()); it.hasNext(); ++it)
 		{
 			CvPlayer& kObs = *it;
@@ -3399,6 +3418,10 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 		immediately, there could be trouble. I don't think that can happen though. */
 	GC.getGame().updatePlotGroups();
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 	if (isVassal(eMaster))
 	{
 		m_bCapitulated = bCapitulated;
@@ -3507,7 +3530,7 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 						getReplayName().c_str(), GET_TEAM(eMaster).getReplayName().c_str());
 			}
 			GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), szReplayMessage,
-					GC.getColorType("HIGHLIGHT_TEXT"));
+					eColorHighlightText);
 
 			for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 			{
@@ -3518,7 +3541,7 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 				{
 					gDLL->UI().addMessage(kObs.getID(), false, -1, szReplayMessage,
 							"AS2D_WELOVEKING", MESSAGE_TYPE_MAJOR_EVENT, NULL,
-							GC.getColorType("HIGHLIGHT_TEXT"),
+							eColorHighlightText,
 							// advc.127b:
 							getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 				}
@@ -3547,7 +3570,7 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 			}
 
 			GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
-					getLeaderID(), szReplayMessage, GC.getColorType("HIGHLIGHT_TEXT"));
+					getLeaderID(), szReplayMessage, eColorHighlightText);
 
 			for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 			{
@@ -3564,7 +3587,7 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 				{
 					gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer,
 							"AS2D_REVOLTSTART", MESSAGE_TYPE_MAJOR_EVENT, NULL,
-							GC.getColorType("HIGHLIGHT_TEXT"),
+							eColorHighlightText,
 							// advc.127b:
 							getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 				}
@@ -3941,6 +3964,10 @@ void CvTeam::changeProjectCount(ProjectTypes eProject, int iChange)
 			kAIMember.AI_makeProductionDirty();
 	}
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 	if (GC.getGame().isFinalInitialized() && !gDLL->GetWorldBuilderMode())
 	{
 		CvWString szBuffer = gDLL->getText( // <advc.008e>
@@ -3949,7 +3976,7 @@ void CvTeam::changeProjectCount(ProjectTypes eProject, int iChange)
 				"TXT_KEY_MISC_COMPLETES_PROJECT", // </advc.008e>
 				getReplayName().GetCString(), kProject.getTextKeyWide());
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), szBuffer,
-				GC.getColorType("HIGHLIGHT_TEXT"));
+				eColorHighlightText);
 
 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 		{
@@ -3961,7 +3988,7 @@ void CvTeam::changeProjectCount(ProjectTypes eProject, int iChange)
 					getName().GetCString(), kProject.getTextKeyWide());
 			gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer,
 					"AS2D_PROJECT_COMPLETED", MESSAGE_TYPE_MAJOR_EVENT, NULL,
-					GC.getColorType("HIGHLIGHT_TEXT"),
+					eColorHighlightText,
 					// advc.127b:
 					getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 		}
@@ -4229,6 +4256,11 @@ void CvTeam::resetVictoryProgress()
 {	// <advc.opt>
 	if (GC.getGame().getGameState() != GAMESTATE_ON)
 		return;
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 	FOR_EACH_NON_DEFAULT_KEY(m_aiVictoryCountdown, Victory) // </advc.opt>
 	{
 		setVictoryCountdown(eLoopVictory, -1);
@@ -4257,7 +4289,7 @@ void CvTeam::resetVictoryProgress()
 			}
 		}
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
-				getLeaderID(), szBuffer, GC.getColorType("HIGHLIGHT_TEXT"));
+				getLeaderID(), szBuffer, eColorHighlightText);
 	}
 }
 
@@ -4391,6 +4423,11 @@ void CvTeam::announceTechToPlayers(TechTypes eIndex, /* advc.156: */ PlayerTypes
 			/*  advc.156: I think HotSeat doesn't play sounds along with messages,
 				but let's try. */
 			GC.getGame().isHotSeat()) && !bPartial);
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const ColorTypes eColorTechText = (ColorTypes)GC.getColorType("TECH_TEXT");
+
 	for (MemberIter it(getID()); it.hasNext(); ++it)
 	{
 		CvPlayer const& kPlayer = *it;
@@ -4409,7 +4446,7 @@ void CvTeam::announceTechToPlayers(TechTypes eIndex, /* advc.156: */ PlayerTypes
 		gDLL->UI().addMessage(kPlayer.getID(), false, -1, szBuffer,
 				szSound, // advc.156
 				MESSAGE_TYPE_MINOR_EVENT, // advc.106b
-				NULL, GC.getColorType("TECH_TEXT"));
+				NULL, eColorTechText);
 				// K-Mod. Play the quote sound always, the "MP" sound is boring.
 				//(bSound ? GC.getInfo(eIndex).getSound() : NULL)
 	}
@@ -4576,6 +4613,10 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 			kMember.invalidateYieldRankCache();
 		}
 
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 		if (bFirst && bFirstToDiscover)
 		{
 			bool bAnnounceFirst = false; // advc.004
@@ -4616,7 +4657,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 					szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_FIRST_TO_TECH",
 							GET_PLAYER(ePlayer).getReplayName(), kTech.getTextKeyWide());
 					kGame.addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, ePlayer, szBuffer,
-							GC.getColorType("HIGHLIGHT_TEXT"));
+							eColorHighlightText);
 				} // advc.106
 			} // <advc.004>
 			if (bAnnounceFirst) // Cut, pasted, refactored from above
@@ -4637,7 +4678,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 					gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer,
 							(bMajor ? "AS2D_FIRSTTOTECH" : NULL),
 							(bMajor ? MESSAGE_TYPE_MAJOR_EVENT :
-							MESSAGE_TYPE_MINOR_EVENT), NULL, GC.getColorType("HIGHLIGHT_TEXT"),
+							MESSAGE_TYPE_MINOR_EVENT), NULL, eColorHighlightText,
 							// advc.127b:
 							getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 				}
@@ -4769,10 +4810,13 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 		if (bFirst && bFirstToDiscover && // (Note: CvGame::initFreeState uses bFirst=false)
 			GC.getDefineINT("SHOW_FIRST_TO_DISCOVER_IN_REPLAY") > 0)
 		{
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const ColorTypes eColorAltHighlightText = (ColorTypes)GC.getColorType("ALT_HIGHLIGHT_TEXT");
+
 			CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_FIRST_TO_TECH",
 					GET_PLAYER(ePlayer).getReplayName(), kTech.getTextKeyWide());
 			kGame.addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, ePlayer, szBuffer,
-					GC.getColorType("ALT_HIGHLIGHT_TEXT"));
+					eColorAltHighlightText);
 		} // </advc.106>
 	}
 
@@ -5489,6 +5533,11 @@ void CvTeam::testCircumnavigated()
 		GC.getDefineINT("CIRCUMNAVIGATE_FREE_MOVES") != 0)
 	{
 		changeExtraMoves(DOMAIN_SEA, GC.getDefineINT("CIRCUMNAVIGATE_FREE_MOVES"));
+
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 		{
 			CvPlayer const& kObs = *it;
@@ -5506,14 +5555,14 @@ void CvTeam::testCircumnavigated()
 			else szBuffer = gDLL->getText("TXT_KEY_MISC_UNKNOWN_CIRC_GLOBE");
 			gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer,
 					"AS2D_GLOBECIRCUMNAVIGATED", MESSAGE_TYPE_MAJOR_EVENT,
-					NULL, GC.getColorType("HIGHLIGHT_TEXT"),
+					NULL, eColorHighlightText,
 					// advc.127b:
 					getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 		}
 		CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_SOMEONE_CIRC_GLOBE",
 				getReplayName().c_str()));
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
-				getLeaderID(), szBuffer, GC.getColorType("HIGHLIGHT_TEXT"));
+				getLeaderID(), szBuffer, eColorHighlightText);
 	}
 }
 
