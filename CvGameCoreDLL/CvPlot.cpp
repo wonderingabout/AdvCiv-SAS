@@ -4096,6 +4096,11 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
 	CvCity* pOldCity = getPlotCity();
 	if (pOldCity != NULL)  // advc: Removed some assertions and NULL/NO_... checks in this block
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+		static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+		static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 		/*  advc.101: Include pre-revolt owner in messages (sometimes not easy
 			to tell once the city has flipped, and in replays). */
 		wchar const* szOldOwnerDescr = GET_PLAYER(pOldCity->getOwner()).
@@ -4106,12 +4111,12 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
 		gDLL->UI().addMessage(getOwner(), false, -1, szBuffer, *this,
 				"AS2D_CULTUREFLIP", MESSAGE_TYPE_MAJOR_EVENT, 
 				ARTFILEMGR.getInterfaceArtPath("WORLDBUILDER_CITY_EDIT"),
-				GC.getColorType("RED"));
+				eColorRed);
 		gDLL->UI().addMessage(eNewValue, false, -1, szBuffer, *this,
 				"AS2D_CULTUREFLIP",
 				MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY, // advc.106b
 				ARTFILEMGR.getInterfaceArtPath("WORLDBUILDER_CITY_EDIT"),
-				GC.getColorType("GREEN"));
+				eColorGreen);
 		// <advc.101> Tell other civs about it (akin to code in CvCity::doRevolt)
 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 		{
@@ -4124,9 +4129,9 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
 			ColorTypes eColor = NO_COLOR;
 			InterfaceMessageTypes eMsgType = MESSAGE_TYPE_MAJOR_EVENT;
 			if (GET_TEAM(eNewValue).isVassal(kObs.getTeam()))
-				eColor = GC.getColorType("GREEN");
+				eColor = eColorGreen;
 			else if (GET_TEAM(pOldCity->getTeam()).isVassal(kObs.getTeam()))
-				eColor = GC.getColorType("RED");
+				eColor = eColorRed;
 			else eMsgType = MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY; // advc.106b
 			gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer, *this,
 					0, eMsgType, ARTFILEMGR.getInterfaceArtPath("WORLDBUILDER_CITY_EDIT"),

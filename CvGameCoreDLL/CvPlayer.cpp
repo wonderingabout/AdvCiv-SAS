@@ -1532,12 +1532,19 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
 	else if (pOldCity->getOriginalOwner() == getID())
 		GET_PLAYER(pOldCity->getOriginalOwner()).changeCitiesLost(-1);
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 	if (bConquest) // City-captured announcements, replay msg
 	{
 		CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_CAPTURED_CITY", pOldCity->getNameKey()));
 		gDLL->UI().addMessage(getID(), true, -1, szBuffer, pOldCity->getPlot(),
 				"AS2D_CITYCAPTURE", MESSAGE_TYPE_MAJOR_EVENT, ARTFILEMGR.getInterfaceArtPath(
-				"WORLDBUILDER_CITY_EDIT"), GC.getColorType("GREEN"));
+				"WORLDBUILDER_CITY_EDIT"), eColorGreen);
 		CvWString szName;
 		szName.Format(L"%s (%s)", pOldCity->getName().GetCString(), GET_PLAYER(pOldCity->getOwner()).getReplayName());
 		CvWString szCapturedBy(gDLL->getText("TXT_KEY_MISC_CITY_CAPTURED_BY",
@@ -1553,11 +1560,11 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
 				gDLL->UI().addMessage(kObs.getID(), false, -1, szCapturedBy, pOldCity->getPlot(),
 						"AS2D_CITYCAPTURED", /* advc.106b: */ MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY,
 						ARTFILEMGR.getInterfaceArtPath("WORLDBUILDER_CITY_EDIT"),
-						GC.getColorType("RED"));
+						eColorRed);
 			}
 		}
 		GC.getGame().addReplayMessage(pOldCity->getPlot(), REPLAY_MESSAGE_MAJOR_EVENT,
-				getID(), szCapturedBy, GC.getColorType("WARNING_TEXT"));
+				getID(), szCapturedBy, eColorWarningText);
 	} // <advc.ctr> City-ceded announcement, replay msg
 	else if (bTrade &&  // CvCity::liberate handles liberation announcement and replay msg.
 		pOldCity->getLiberationPlayer() != getID())
@@ -1593,11 +1600,11 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
 				gDLL->UI().addMessage(kObs.getID(), false, -1, szHasCeded, kCityPlot,
 						NULL, /* advc.106b: */ MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY,
 						ARTFILEMGR.getInterfaceArtPath("WORLDBUILDER_CITY_EDIT"),
-						GC.getColorType("HIGHLIGHT_TEXT"));
+						eColorHighlightText);
 			}
 		}
 		GC.getGame().addReplayMessage(kCityPlot, REPLAY_MESSAGE_MAJOR_EVENT,
-				getID(), szHasCeded, GC.getColorType("HIGHLIGHT_TEXT"));
+				getID(), szHasCeded, eColorHighlightText);
 	} // </advc.ctr>
 
 	// Capture gold
@@ -1931,7 +1938,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
 							kNewCity.getPlot(), "AS2D_CITYRAZE",
 							MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY, // advc.106b
 							ARTFILEMGR.getInterfaceArtPath("WORLDBUILDER_CITY_EDIT"),
-							GC.getColorType("GREEN"));
+							eColorGreen);
 				}
 				kNewCity.doTask(TASK_RAZE);
 			}
@@ -2333,12 +2340,15 @@ void CvPlayer::disbandUnit(bool bAnnounce)
 	FAssert(!pBestUnit->isGoldenAge());
 	if (bAnnounce) // advc.001: Param was unused (since Vanilla Civ 4)
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 		wchar szBuffer[1024];
 		swprintf(szBuffer, gDLL->getText("TXT_KEY_MISC_UNIT_DISBANDED_NO_MONEY",
 				pBestUnit->getNameKey()).GetCString());
 		gDLL->UI().addMessage(getID(), false, -1, szBuffer, pBestUnit->getPlot(),
 				"AS2D_UNITDISBANDED", MESSAGE_TYPE_MINOR_EVENT, pBestUnit->getButton(),
-				GC.getColorType("RED"));
+				eColorRed);
 	}
 	pBestUnit->kill(false);
 
@@ -2502,8 +2512,11 @@ void CvPlayer::setHumanDisabled(bool bNewVal)
 			szReplayText = gDLL->getText("TXT_KEY_AUTO_PLAY_STARTED");
 		}
 		else szReplayText = gDLL->getText("TXT_KEY_AUTO_PLAY_ENDED");
+
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
-				getID(), szReplayText, GC.getColorType("HIGHLIGHT_TEXT"));
+				getID(), szReplayText, eColorHighlightText);
 	}
 	if (!bNewVal)
 		m_iNewMessages = 0; // Don't open Event Log when coming out of Auto Play
@@ -2810,8 +2823,10 @@ void CvPlayer::doTurn()
 	if (isHuman() && //getStartOfTurnMessageLimit() >= 0 && // The message should be helpful even if the log doesn't auto-open
 		kGame.getElapsedGameTurns() > 0 && !m_listGameMessages.empty())
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const ColorTypes eColorLightGrey = (ColorTypes)GC.getColorType("LIGHT_GREY");
 		gDLL->UI().addMessage(getID(), false, 0, gDLL->getText("TXT_KEY_END_TURN_MSG"), 0,
-				MESSAGE_TYPE_EOT, 0, GC.getColorType("LIGHT_GREY"));
+				MESSAGE_TYPE_EOT, 0, eColorLightGrey);
 	}
 	if (isHuman())
 		m_iNewMessages = 0;
@@ -4493,13 +4508,19 @@ void CvPlayer::raze(CvCity& kCity) // advc: param was CvCity*
 
 	AI().AI_processRazeMemory(kCity); // advc.003n: Moved into subroutine
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
+	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 	wchar szBuffer[1024];
 	swprintf(szBuffer, gDLL->getText("TXT_KEY_MISC_DESTROYED_CITY",
 			kCity.getNameKey()).GetCString());
 	gDLL->UI().addMessage(getID(), true, -1, szBuffer, kCity.getPlot(),
 			"AS2D_CITYRAZE", MESSAGE_TYPE_MAJOR_EVENT,
 			ARTFILEMGR.getInterfaceArtPath("WORLDBUILDER_CITY_EDIT"),
-			GC.getColorType("GREEN"));
+			eColorGreen);
 
 	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 	{
@@ -4514,14 +4535,14 @@ void CvPlayer::raze(CvCity& kCity) // advc: param was CvCity*
 					"AS2D_CITYRAZED",
 					MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY, // advc.106b
 					ARTFILEMGR.getInterfaceArtPath("WORLDBUILDER_CITY_EDIT"),
-					GC.getColorType("RED"));
+					eColorRed);
 		}
 	}
 
 	swprintf(szBuffer, gDLL->getText("TXT_KEY_MISC_CITY_RAZED_BY",
 			kCity.getNameKey(), getCivilizationDescriptionKey()).GetCString());
 	GC.getGame().addReplayMessage(kCity.getPlot(), REPLAY_MESSAGE_MAJOR_EVENT,
-			getID(), szBuffer, GC.getColorType("WARNING_TEXT"));
+			getID(), szBuffer, eColorWarningText);
 
 	kCity.doPartisans(); // advc.003y
 	CvEventReporter::getInstance().cityRazed(&kCity, getID());
@@ -7449,11 +7470,15 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 
 		updateYield();
 
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 		if (isGoldenAge())
 		{
 			szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYER_GOLDEN_AGE_BEGINS", getNameKey());
 			GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szBuffer,
-					GC.getColorType("HIGHLIGHT_TEXT"));
+					eColorHighlightText);
 
 			CvEventReporter::getInstance().goldenAge(getID());
 		}
@@ -7471,7 +7496,7 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 					gDLL->UI().addMessage(kObs.getID(), kObs.getID() == getID(), -1,
 							szBuffer, "AS2D_GOLDAGESTART",
 							MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY, // advc.106b
-							NULL, GC.getColorType("HIGHLIGHT_TEXT"),
+							NULL, eColorHighlightText,
 							// advc.127b:
 							getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 				}
@@ -7479,7 +7504,7 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 				{
 					szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYER_GOLDEN_AGE_ENDED", getNameKey());
 					gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer, "AS2D_GOLDAGEEND",
-							MESSAGE_TYPE_MINOR_EVENT, NULL, GC.getColorType("HIGHLIGHT_TEXT"),
+							MESSAGE_TYPE_MINOR_EVENT, NULL, eColorHighlightText,
 							// advc.127b:
 							getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 				}
@@ -7549,10 +7574,12 @@ void CvPlayer::changeAnarchyTurns(int iChange) // advc: Refactored
 
 	if (isAnarchy())
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
 		gDLL->UI().addMessage(getID(), true, -1,
 				gDLL->getText("TXT_KEY_MISC_REVOLUTION_HAS_BEGUN").GetCString(), "AS2D_REVOLTSTART",
 				MESSAGE_TYPE_MINOR_EVENT, // advc.106b: was MAJOR
-				NULL, GC.getColorType("WARNING_TEXT"),
+				NULL, eColorWarningText,
 				getCapitalX(getTeam()), getCapitalY(getTeam())); // advc.127b
 	}
 	else
@@ -8744,6 +8771,10 @@ void CvPlayer::setAlive(bool bNewValue)
 		{
 			if (!isBarbarian())
 			{
+				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+				static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
+
 				CvWString szBuffer
 					//= gDLL->getText("TXT_KEY_MISC_CIV_DESTROYED", getCivilizationAdjectiveKey());
 					// advc.099: Replacing the above
@@ -8754,11 +8785,11 @@ void CvPlayer::setAlive(bool bNewValue)
 					{
 						gDLL->UI().addMessage((PlayerTypes)iI, false, -1, szBuffer,
 								"AS2D_CIVDESTROYED", MESSAGE_TYPE_MAJOR_EVENT, NULL,
-								GC.getColorType("WARNING_TEXT"));
+								eColorWarningText);
 					}
 				}
 				kGame.addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
-						getID(), szBuffer, GC.getColorType("WARNING_TEXT"));
+						getID(), szBuffer, eColorWarningText);
 				// <advc.104>
 				if ((getUWAI().isEnabled() || getUWAI().isEnabled(true)) && !isMinorCiv())
 					AI().uwai().uninit(); // </advc.104>
@@ -9244,10 +9275,12 @@ void CvPlayer::setStrike(bool bNewValue)
 		{
 			if (isActive())
 			{
+				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
 				gDLL->UI().addMessage(getID(), false, -1,
 						gDLL->getText("TXT_KEY_MISC_UNITS_ON_STRIKE").GetCString(),
 						"AS2D_STRIKE", MESSAGE_TYPE_MINOR_EVENT, NULL,
-						GC.getColorType("WARNING_TEXT"));
+						eColorWarningText);
 				gDLL->UI().setDirty(GameData_DIRTY_BIT, true);
 			}
 		}
@@ -9350,10 +9383,13 @@ void CvPlayer::setCurrentEra(EraTypes eNewValue)
 	} // <advc.106>
 	if (GC.getDefineBOOL("SHOW_ENTERED_ERA_IN_REPLAY"))
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const ColorTypes eColorAltHighlightText = (ColorTypes)GC.getColorType("ALT_HIGHLIGHT_TEXT");
+
 		CvWString szBuffer = gDLL->getText("TXT_KEY_SOMEONE_ENTERED_ERA",
 				getNameKey(), GC.getInfo(eNewValue).getTextKeyWide());
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
-				getID(), szBuffer, GC.getColorType("ALT_HIGHLIGHT_TEXT"));
+				getID(), szBuffer, eColorAltHighlightText);
 	} // </advc.106>
 	// <advc.106n> Save pre-Industrial minimap terrain for replay
 	if (GC.getGame().isFinalInitialized() &&
@@ -11479,6 +11515,9 @@ void CvPlayer::addEspionageReminderMsg(TeamTypes eTarget, CvPlot const* pAt) con
 	}
 	std::sort(aieTargets.rbegin(), aieTargets.rend());
 	bool bFirst = true;
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const ColorTypes eColorWhite = (ColorTypes)GC.getColorType("WHITE");
+
 	for (size_t i = 0; i < aieTargets.size(); i++)
 	{
 		setListHelp(szMsg,
@@ -11486,7 +11525,7 @@ void CvPlayer::addEspionageReminderMsg(TeamTypes eTarget, CvPlot const* pAt) con
 				GET_TEAM(aieTargets[i].second).getName().c_str(), L", ", bFirst);
 	}
 	gDLL->UI().addMessage(getID(), false, -1, szMsg, NULL,
-			MESSAGE_TYPE_INFO, NULL, GC.getColorType("WHITE"),
+			MESSAGE_TYPE_INFO, NULL, eColorWhite,
 			pAt == NULL ? -1 : pAt->getX(), pAt == NULL ? -1 : pAt->getY());
 }
 
@@ -12637,11 +12676,14 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
 		// advc.103: The city screen having opened is confirmation enough
 		if (!kMission.isInvestigateCity())
 		{
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+
 			gDLL->UI().addMessage(getID(), true, -1,
 					gDLL->getText("TXT_KEY_ESPIONAGE_MISSION_PERFORMED"),
 					"AS2D_POSITIVE_DINK", MESSAGE_TYPE_INFO,
 					ARTFILEMGR.getInterfaceArtPath("ESPIONAGE_BUTTON"),
-					GC.getColorType("GREEN"), iX, iY, true, true);
+					eColorGreen, iX, iY, true, true);
 		}
 	}
 	else if (isActive())
@@ -12668,8 +12710,12 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
 		if (eTargetPlayer != NO_PLAYER)
 		{	// <advc.120>
 			ColorTypes eColor = NO_COLOR;
-			if(bAggressiveMission)
-				eColor = GC.getColorType("RED");
+			if (bAggressiveMission)
+			{
+				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+				eColor = eColorRed;
+			}
 			// </advc.120>
 			gDLL->UI().addMessage(eTargetPlayer, /*true*/ false, // advc.120i
 					-1, szBuffer, "AS2D_DEAL_CANCELLED", MESSAGE_TYPE_INFO,
@@ -13842,6 +13888,10 @@ void CvPlayer::doWarnings()
 		gDLL->getEntityIFace()->updateEnemyGlow(pLoopUnit->getEntity());
 	}
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 	//update enemy units close to your territory
 	int iMaxCount = range(((getNumCities() + 4) / 7), 2, 5);
 	for (int i = 0; i < GC.getMap().numPlots(); i++)
@@ -13865,7 +13915,7 @@ void CvPlayer::doWarnings()
 							pNearestCity->getNameKey()).GetCString());
 					gDLL->UI().addMessage(getID(), true, -1, szBuffer, kPlot,
 							"AS2D_ENEMY_TROOPS", MESSAGE_TYPE_INFO, pUnit->getButton(),
-							GC.getColorType("RED"));
+							eColorRed);
 					iMaxCount--;
 				}
 			}
@@ -14881,6 +14931,8 @@ void CvPlayer::createGreatPeople(UnitTypes eGreatPersonUnit,
 					((getGreatGeneralsCreated() / 10) + 1));
 		}
 	}
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const ColorTypes eColorUnitText = (ColorTypes)GC.getColorType("UNIT_TEXT");
 	// <advc.106>
 	CvPlayer const& kGPOwner = GET_PLAYER(kAt.getOwner());
 	// Use shorter message for replays
@@ -14888,7 +14940,7 @@ void CvPlayer::createGreatPeople(UnitTypes eGreatPersonUnit,
 			pGreatPeopleUnit->getReplayName().GetCString(),
 			kGPOwner.getCivilizationDescriptionKey()); // </advc.106>
 	GC.getGame().addReplayMessage(kAt, REPLAY_MESSAGE_MAJOR_EVENT,
-			getID(), szReplayMessage, GC.getColorType("UNIT_TEXT"));
+			getID(), szReplayMessage, eColorUnitText);
 	// Non-replay message
 	CvWString szMessage;
 	CvCity* pCity = kAt.getPlotCity();
@@ -15067,6 +15119,10 @@ void CvPlayer::setTriggerFired(EventTriggeredData const& kTriggeredData, bool bO
 		CvPlot* pPlot = GC.getMap().plot(kTriggeredData.m_iPlotX, kTriggeredData.m_iPlotY);
 		if (!kTriggeredData.m_szGlobalText.empty())
 		{
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+			static const ColorTypes eColorWhite = (ColorTypes)GC.getColorType("WHITE");
+
 			// advc: Moved out of the loop
 			bool bMetOtherPlayer = (kTriggeredData.m_eOtherPlayer == NO_PLAYER ||
 					GET_TEAM(kTriggeredData.m_eOtherPlayer).isHasMet(getTeam()));
@@ -15087,7 +15143,7 @@ void CvPlayer::setTriggerFired(EventTriggeredData const& kTriggeredData, bool bO
 					{
 						gDLL->UI().addMessage(kLoopPlayer.getID(), false, -1,
 								kTriggeredData.m_szGlobalText, "AS2D_CIVIC_ADOPT",
-								MESSAGE_TYPE_MINOR_EVENT, NULL, GC.getColorType("WHITE"),
+								MESSAGE_TYPE_MINOR_EVENT, NULL, eColorWhite,
 								kTriggeredData.m_iPlotX, kTriggeredData.m_iPlotY, true, true);
 					}
 					else
@@ -15838,13 +15894,18 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
 			int const iBeakers = GET_TEAM(getTeam()).changeResearchProgressPercent(
 					eBestTech, kEvent.getTechPercent(), getID());
 			if (iBeakers > 0)
-			{	// advc: Was effectively itMember(getID()); previously fixed by kmodx.
+			{	
+				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+				static const ColorTypes eColorTechText = (ColorTypes)GC.getColorType("TECH_TEXT");
+				
+				// advc: Was effectively itMember(getID()); previously fixed by kmodx.
 				for (MemberIter itMember(getTeam()); itMember.hasNext(); ++itMember)
 				{
 					CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_PROGRESS_TOWARDS_TECH",
 							iBeakers, GC.getInfo(eBestTech).getTextKeyWide());
 					gDLL->UI().addMessage(itMember->getID(), false, -1, szBuffer, NULL,
-							MESSAGE_TYPE_MINOR_EVENT, NULL, GC.getColorType("TECH_TEXT"));
+							MESSAGE_TYPE_MINOR_EVENT, NULL, eColorTechText);
 				}
 			}
 		}
@@ -15980,6 +16041,11 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
 			int const iPillage = kEvent.getMinPillage() +
 					SyncRandNum(kEvent.getMaxPillage() - kEvent.getMinPillage());
 			int iDone = 0;
+
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+			static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 			for (int i = 0; i < iPillage; i++)
 			{
 				int const iRandOffset = SyncRandNum(GC.getMap().numPlots());
@@ -15996,7 +16062,7 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
 								GC.getInfo(pPlot->getImprovementType()).getTextKeyWide());
 						gDLL->UI().addMessage(getID(), false, -1, szBuffer, *pPlot, "AS2D_PILLAGED",
 								MESSAGE_TYPE_INFO, GC.getInfo(pPlot->getImprovementType()).getButton(),
-								GC.getColorType("RED"));
+								eColorRed);
 						pPlot->setImprovementType(NO_IMPROVEMENT);
 						iDone++;
 						break;
@@ -16649,9 +16715,11 @@ void CvPlayer::expireEvent(EventTypes eEvent,
 		}
 		if (bFail)
 		{
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 			gDLL->UI().addMessage(getID(), false, -1,
 					gDLL->getText(GC.getInfo(eEvent).getQuestFailTextKey()),
-					"AS2D_CIVIC_ADOPT", MESSAGE_TYPE_MINOR_EVENT, NULL, GC.getColorType("RED"));
+					"AS2D_CIVIC_ADOPT", MESSAGE_TYPE_MINOR_EVENT, NULL, eColorRed);
 		}
 	}
 }
@@ -17202,8 +17270,10 @@ bool CvPlayer::splitEmpire(CvArea& kArea) // advc: was iAreaId
 				GC.getInfo(eBestLeader).getTextKeyWide());
 		// advc.127b: Announcement loop moved down
 
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 		kGame.addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
-				getID(), szMessage, GC.getColorType("HIGHLIGHT_TEXT"));
+				getID(), szMessage, eColorHighlightText);
 
 		// remove leftover culture from old recycled player
 		/*  BETTER_BTS_AI_MOD, Bugfix, 12/30/08, jdog5000: commented out
@@ -17468,6 +17538,11 @@ void CvPlayer::launch(VictoryTypes eVictory)
 			kTeam.getName().GetCString()));
 	int iPlotX = -1;
 	int iPlotY = -1; // </advc.106>
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 	{
 		CvPlayer const& kObs = *it;
@@ -17481,11 +17556,11 @@ void CvPlayer::launch(VictoryTypes eVictory)
 			szBuffer = gDLL->getText("TXT_KEY_VICTORY_YOU_HAVE_LAUNCHED");
 		gDLL->UI().addMessage(kObs.getID(), true, -1, szBuffer, "AS2D_CULTURELEVEL",
 				MESSAGE_TYPE_MAJOR_EVENT, ARTFILEMGR.getMiscArtPath("SPACE_SHIP_BUTTON"),
-				GC.getColorType("HIGHLIGHT_TEXT"), iPlotX, iPlotY, true, true);
+				eColorHighlightText, iPlotX, iPlotY, true, true);
 	}
 	// <advc.106>
 	GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
-			getID(), szMsg, GC.getColorType("HIGHLIGHT_TEXT"), iPlotX, iPlotY);
+			getID(), szMsg, eColorHighlightText, iPlotX, iPlotY);
 	// </advc.106>
 }
 

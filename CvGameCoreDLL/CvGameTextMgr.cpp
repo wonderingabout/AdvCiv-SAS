@@ -18702,23 +18702,30 @@ void CvGameTextMgr::buildCityBillboardCitySizeString( CvWStringBuffer& szBuffer,
 
 void CvGameTextMgr::getCityBillboardFoodbarColors(CvCity* pCity, std::vector<NiColorA>& aColors)
 {
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const ColorTypes eColorNegativeRate = (ColorTypes)GC.getColorType("NEGATIVE_RATE");
+	static const ColorTypes eColorEmpty = (ColorTypes)GC.getColorType("EMPTY");
+
 	aColors.resize(NUM_INFOBAR_TYPES);
 	aColors[INFOBAR_STORED] = GC.getInfo((ColorTypes)(GC.getInfo(YIELD_FOOD).getColorType())).getColor();
 	aColors[INFOBAR_RATE] = aColors[INFOBAR_STORED];
 	aColors[INFOBAR_RATE].a = 0.5f;
-	aColors[INFOBAR_RATE_EXTRA] = GC.getInfo(GC.getColorType("NEGATIVE_RATE")).getColor();
-	aColors[INFOBAR_EMPTY] = GC.getInfo(GC.getColorType("EMPTY")).getColor();
+	aColors[INFOBAR_RATE_EXTRA] = GC.getInfo(eColorNegativeRate).getColor();
+	aColors[INFOBAR_EMPTY] = GC.getInfo(eColorEmpty).getColor();
 }
 
 void CvGameTextMgr::getCityBillboardProductionbarColors(CvCity* pCity, std::vector<NiColorA>& aColors)
 {
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const ColorTypes eColorEmpty = (ColorTypes)GC.getColorType("EMPTY");
+
 	aColors.resize(NUM_INFOBAR_TYPES);
 	aColors[INFOBAR_STORED] = GC.getInfo((ColorTypes)GC.getInfo(YIELD_PRODUCTION).getColorType()).getColor();
 	aColors[INFOBAR_RATE] = aColors[INFOBAR_STORED];
 	aColors[INFOBAR_RATE].a = 0.5f;
 	aColors[INFOBAR_RATE_EXTRA] = GC.getInfo((ColorTypes)GC.getInfo(YIELD_FOOD).getColorType()).getColor();
 	aColors[INFOBAR_RATE_EXTRA].a = 0.5f;
-	aColors[INFOBAR_EMPTY] = GC.getInfo(GC.getColorType("EMPTY")).getColor();
+	aColors[INFOBAR_EMPTY] = GC.getInfo(eColorEmpty).getColor();
 }
 
 // advc (caveat): Needs to be consistent with CvPlayer::calculateScore

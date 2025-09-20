@@ -5430,12 +5430,14 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 	{
 		if (getWinner() != NO_TEAM)
 		{
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 			CvWString szBuffer(gDLL->getText("TXT_KEY_GAME_WON",
 					GET_TEAM(getWinner()).getReplayName().GetCString(),
 					GC.getInfo(getVictory()).getTextKeyWide()));
 			addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
 					GET_TEAM(getWinner()).getLeaderID(), szBuffer,
-					GC.getColorType("HIGHLIGHT_TEXT"));
+					eColorHighlightText);
 		}
 		if ((getAIAutoPlay() > 0 || gDLL->GetAutorun()) &&
 			!isOption(GAMEOPTION_RISE_FALL)) // advc.707
@@ -8658,12 +8660,15 @@ void CvGame::doFPCheck(int iChecksum, PlayerTypes ePlayer)
 	if (iChecksum == FPChecksum())
 		return; // Active player is able to reproduce checksum received over the net
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
+
 	gDLL->UI().addMessage(getActivePlayer(), true, -1,
 			CvWString::format(L"Your machine's FP test computation has yielded a"
 			L" different result than that of %s. The game may frequently go"
 			L" out of sync due to floating point calculations in the AdvCiv mod.",
 			GET_PLAYER(ePlayer).getName()), NULL, MESSAGE_TYPE_MAJOR_EVENT, NULL,
-			GC.getColorType("WARNING_TEXT"));
+			eColorWarningText);
 } // </advc.003g
 
 // advc.003r:
@@ -8714,7 +8719,11 @@ void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer,
 	pMessage->setPlot(iPlotX, iPlotY);
 	pMessage->setText(szText);
 	if (NO_COLOR == eColor)
-		eColor = GC.getColorType("WHITE");
+	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const ColorTypes eColorWhite = (ColorTypes)GC.getColorType("WHITE");
+		eColor = eColorWhite;
+	}
 	pMessage->setColor(eColor);
 	m_listReplayMessages.push_back(pMessage);
 }

@@ -2662,8 +2662,10 @@ bool CvDLLButtonPopup::launchEventPopup(CvPopup* pPopup, CvPopupInfo &info)
 		CvPlot* pPlot = GC.getMap().plot(pTriggeredData->m_iPlotX, pTriggeredData->m_iPlotY);
 		if (NULL != pPlot)
 		{
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
 			gDLL->getEngineIFace()->addColoredPlot(pPlot->getX(), pPlot->getY(),
-					GC.getInfo(GC.getColorType("WARNING_TEXT")).getColor(),
+					GC.getInfo(eColorWarningText).getColor(),
 					PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
 			m_kUI.lookAt(pPlot->getPoint(), CAMERALOOKAT_NORMAL);
 		}

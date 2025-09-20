@@ -1,6 +1,6 @@
 # Quick Get Started Guide
 
-This page does not go to go deep into the technicalities, for that see the other documents in [/_1_AdvCiv-SAS/](/_1_AdvCiv-SAS/) or the main [README.md](/README.md) for details, but it gives instead a quick starter guide on the key few differences between AdvCiv and AdvCiv-SAS, for newcomer players used to AdvCiv, Civ4 BTS, or some similar mods.
+This page does not go to go deep into the technicalities, for that see the other documents in [/_1_AdvCiv-SAS/](/_1_AdvCiv-SAS/) or the main [README.md](/README.md) for details, but it gives instead a quick starter guide on the key differences between AdvCiv 1.12 and AdvCiv-SAS, for newcomer or more experienced players used to AdvCiv, Civ4 BTS, or some similar mods.
 
 ## Menu
 

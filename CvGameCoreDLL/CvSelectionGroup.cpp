@@ -3049,6 +3049,11 @@ bool CvSelectionGroup::groupBuild(BuildTypes eBuild, /* advc.011b: */ bool bFini
 	}
 	// K-Mod end
 	bool bStopOtherWorkers = false; // advc.011c
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const ColorTypes eColorWhite = (ColorTypes)GC.getColorType("WHITE"/*"COLOR_BUILDING_TEXT"*/);
+
 	FOR_EACH_UNIT_VAR_IN(pUnit, *this)
 	{
 		FAssertMsg(pUnit->at(kPlot), "pLoopUnit is expected to be at pPlot");
@@ -3080,7 +3085,7 @@ bool CvSelectionGroup::groupBuild(BuildTypes eBuild, /* advc.011b: */ bool bFini
 			CvWString szBuffer = gDLL->getText("TXT_KEY_BUILD_NOT_FINISHED", szBuild.c_str());
 			gDLL->UI().addMessage(getOwner(), false, -1, szBuffer, NULL, MESSAGE_TYPE_INFO,
 					GC.getInfo(eBuild).getButton()/*getHeadUnit()->getButton()*/,
-					GC.getColorType("WHITE"/*"COLOR_BUILDING_TEXT"*/),
+					eColorWhite,
 					getX(), getY(), true, false);
 			// </advc.011b>
 			// <advc.011c>

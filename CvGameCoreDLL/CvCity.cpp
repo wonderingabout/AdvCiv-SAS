@@ -9223,13 +9223,16 @@ void CvCity::setNumRealBuildingTimed(BuildingTypes eBuilding, int iNewValue, boo
 			}
 			if (kBuilding.isWorldWonder())
 			{
+				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+				static const ColorTypes eColorBuildingText = (ColorTypes)GC.getColorType("BUILDING_TEXT");
 				szBuffer = gDLL->getText(  // <advc.008e>
 						kBuilding.nameNeedsArticle() ?
 						"TXT_KEY_MISC_COMPLETES_WONDER_THE" :
 						"TXT_KEY_MISC_COMPLETES_WONDER", // </advc.008e>
 						GET_PLAYER(getOwner()).getNameKey(), kBuilding.getTextKeyWide());
 				GC.getGame().addReplayMessage(getPlot(), REPLAY_MESSAGE_MAJOR_EVENT,
-						getOwner(), szBuffer, GC.getColorType("BUILDING_TEXT"));
+						getOwner(), szBuffer, eColorBuildingText);
 				// <advc.106>
 				for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 				{
@@ -9263,7 +9266,7 @@ void CvCity::setNumRealBuildingTimed(BuildingTypes eBuilding, int iNewValue, boo
 							-1, szBuffer, "AS2D_WONDER_BUILDING_BUILD",
 							MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY, // advc.106b
 							kBuilding.getArtInfo()->getButton(),
-							GC.getColorType("BUILDING_TEXT"),
+							eColorBuildingText,
 							// Indicate location only if revealed.
 							bRevealed ? getX() : -1, bRevealed ? getY() : -1,
 							bRevealed, bRevealed);
@@ -9422,6 +9425,7 @@ void CvCity::setHasReligion(ReligionTypes eReligion, bool bNewValue, bool bAnnou
 		if (bAnnounce)
 		{	// <advc.106e> Announce removed religion to other civs as well
 			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
 			static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
 			for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)

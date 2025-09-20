@@ -241,13 +241,17 @@ void CvReplayInfo::addSettingsMsg()
 	PlayerTypes ePlayer = GC.getGame().getInitialActivePlayer();
 	if(ePlayer == NO_PLAYER)
 		return;
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const ColorTypes eColorWhite = (ColorTypes)GC.getColorType("WHITE");
+
 	CvReplayMessage* pSettingsMsg = new CvReplayMessage(0,
 			REPLAY_MESSAGE_MAJOR_EVENT, ePlayer);
 	CvWString szSettings(gDLL->getText("TXT_KEY_MISC_RELOAD", 1) + L". " +
 			gDLL->getText("TXT_KEY_MAIN_MENU_SETTINGS") + L":\n");
 	appendSettingsMsg(szSettings, ePlayer);
 	pSettingsMsg->setText(szSettings);
-	pSettingsMsg->setColor(GC.getColorType("WHITE"));
+	pSettingsMsg->setColor(eColorWhite);
 	FAssert(m_listReplayMessages.empty());
 	m_listReplayMessages.push_back(pSettingsMsg);
 }

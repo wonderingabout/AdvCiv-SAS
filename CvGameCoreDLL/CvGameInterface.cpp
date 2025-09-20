@@ -99,6 +99,13 @@ void CvGame::updateColoredPlots()
 		}
 	} // BETTER_BTS_AI_MOD: END
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+	static const ColorTypes eColorWhite = (ColorTypes)GC.getColorType("WHITE");
+	static const ColorTypes eColorYellow = (ColorTypes)GC.getColorType("YELLOW");
+
 	// City circles when in Advanced Start
 	if (kUI.isInAdvancedStart())
 	{
@@ -121,18 +128,18 @@ void CvGame::updateColoredPlots()
 				if (bStartingPlot)
 				{
 					kEngine.addColoredPlot(kPlot.getX(), kPlot.getY(),
-							GC.getInfo(GC.getColorType("WARNING_TEXT")).getColor(),
+							GC.getInfo(eColorWarningText).getColor(),
 							PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
 				}
 				else if (GET_PLAYER(getActivePlayer()).AI_isPlotCitySite(kPlot))
 				{
 					kEngine.addColoredPlot(kPlot.getX(), kPlot.getY(),
-							GC.getInfo(GC.getColorType("HIGHLIGHT_TEXT")).getColor(),
+							GC.getInfo(eColorHighlightText).getColor(),
 							PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
 				}
 				if (kPlot.isRevealed(getActiveTeam()))
 				{
-					NiColorA color(GC.getInfo(GC.getColorType("WHITE")).getColor());
+					NiColorA color(GC.getInfo(eColorWhite).getColor());
 					color.a = 0.4f;
 					kEngine.fillAreaBorderPlot(kPlot.getX(), kPlot.getY(),
 							color, AREA_BORDER_LAYER_CITY_RADIUS);
@@ -146,7 +153,7 @@ void CvGame::updateColoredPlots()
 	{
 		if (kUI.isCityScreenUp())
 		{
-			NiColorA color(GC.getInfo(GC.getColorType("WHITE")).getColor());
+			NiColorA color(GC.getInfo(eColorWhite).getColor());
 			color.a = 0.7f; // advc: Moved out of the loop below
 			for (WorkingPlotIter it(*pHeadSelectedCity); it.hasNext(); ++it)
 			{
@@ -169,7 +176,7 @@ void CvGame::updateColoredPlots()
 				if (pRallyPlot != NULL)
 				{
 					kEngine.addColoredPlot(pRallyPlot->getX(), pRallyPlot->getY(),
-							GC.getInfo(GC.getColorType("YELLOW")).getColor(),
+							GC.getInfo(eColorYellow).getColor(),
 							PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
 				}
 			}
@@ -191,7 +198,7 @@ void CvGame::updateColoredPlots()
 				{
 					if (kPlot.getWorkingCity() != NULL)
 					{
-						NiColorA color(GC.getInfo(GC.getColorType("HIGHLIGHT_TEXT")
+						NiColorA color(GC.getInfo(eColorHighlightText
 								/*(GC.getInfo(GET_PLAYER(pHeadSelectedUnit->getOwner()).getPlayerColor()).getColorTypePrimary())*/
 								).getColor());
 						color.a = 1.0f;
@@ -227,7 +234,7 @@ void CvGame::updateColoredPlots()
 					&kTargetPlot, pHeadSelectedUnit->getTeam(), iMaxAirRange,
 					pHeadSelectedUnit->getFacingDirection(true))*/))
 				{
-					NiColorA color(GC.getInfo(GC.getColorType("YELLOW")).getColor());
+					NiColorA color(GC.getInfo(eColorYellow).getColor());
 					color.a = 0.5f;
 					kEngine.fillAreaBorderPlot(kTargetPlot.getX(), kTargetPlot.getY(),
 							color, AREA_BORDER_LAYER_RANGED);
@@ -235,6 +242,7 @@ void CvGame::updateColoredPlots()
 			}
 		}
 	}
+
 	if (!GET_PLAYER(getActivePlayer()).isOption(PLAYEROPTION_NO_UNIT_RECOMMENDATIONS) ||
 		!GET_PLAYER(getActivePlayer()).isHuman()) // advc.127
 	{
@@ -292,7 +300,7 @@ void CvGame::updateColoredPlots()
 					if (sitePath.getPathTurns() + i > iMaxPathTurns + 1)
 						continue; // </advc.004>
 					kEngine.addColoredPlot(kSite.getX(), kSite.getY(),
-							GC.getInfo(GC.getColorType("HIGHLIGHT_TEXT")).getColor(),
+							GC.getInfo(eColorHighlightText).getColor(),
 							PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
 				}
 			}
@@ -309,6 +317,7 @@ void CvGame::updateColoredPlots()
 			// just a smaller range.
 			sitePath.setGroup(*pHeadSelectedUnit->getGroup(), NO_MOVEMENT_FLAGS,
 					iRange, GC.getMOVE_DENOMINATOR());
+
 			for (SquareIter it(*pHeadSelectedUnit, iRange); it.hasNext(); ++it)
 			{
 				CvPlot const& kLoopPlot = *it;
@@ -318,7 +327,7 @@ void CvGame::updateColoredPlots()
 					if (sitePath.generatePath(kLoopPlot))
 					{
 						kEngine.addColoredPlot(kLoopPlot.getX(), kLoopPlot.getY(),
-								GC.getInfo(GC.getColorType("HIGHLIGHT_TEXT")).getColor(),
+								GC.getInfo(eColorHighlightText).getColor(),
 								PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
 					}
 				}
@@ -361,12 +370,17 @@ void CvGame::updateBlockadedPlots()
 	CvDLLEngineIFaceBase& kEngine = *gDLL->getEngineIFace(); // advc
 	kEngine.clearAreaBorderPlots(AREA_BORDER_LAYER_BLOCKADED);
 	CvMap const& kMap = GC.getMap();
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const ColorTypes eColorBlack = (ColorTypes)GC.getColorType("BLACK");
+
 	for (int i = 0; i < kMap.numPlots(); ++i)
 	{
 		CvPlot& kPlot = kMap.getPlotByIndex(i);
 		if (kPlot.getBlockadedCount(getActiveTeam()) > 0 && kPlot.isRevealed(getActiveTeam()))
 		{
-			NiColorA color(GC.getInfo(GC.getColorType("BLACK")).getColor());
+			NiColorA color(GC.getInfo(eColorBlack).getColor());
 			color.a = 0.35f;
 			kEngine.fillAreaBorderPlot(kPlot.getX(), kPlot.getY(), color, AREA_BORDER_LAYER_BLOCKADED);
 		}
@@ -2181,10 +2195,11 @@ ColorTypes CvGame::getPlotHighlightColor(CvPlot* pPlot) const
 {
 	if (pPlot == NULL)
 		return NO_COLOR;
-	ColorTypes const eDefaultColor = GC.getColorType("GREEN");
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const ColorTypes eDefaultColor = GC.getColorType("GREEN");
 	if (gDLL->GetWorldBuilderMode())
 		return eDefaultColor;
-	ColorTypes const eNegativeColor = GC.getColorType("DARK_GREY");
+	static const ColorTypes eNegativeColor = GC.getColorType("DARK_GREY");
 
 	switch (gDLL->UI().getInterfaceMode())
 	{
@@ -2227,7 +2242,10 @@ bool CvGame::updateNukeAreaOfEffect(CvPlot const* pCenter) const
 	{
 		return false;
 	}
-	NiColorA const& kColor = GC.getInfo(GC.getColorType("YELLOW")).getColor();
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const ColorTypes eColorYellow = (ColorTypes)GC.getColorType("YELLOW");
+	NiColorA const& kColor = GC.getInfo(eColorYellow).getColor();
 
 	for (SquareIter itPlot(*pCenter, pNuke->nukeRange()); itPlot.hasNext(); ++itPlot)
 	{

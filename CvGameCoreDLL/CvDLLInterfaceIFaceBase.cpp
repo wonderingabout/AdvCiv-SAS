@@ -19,7 +19,11 @@ void CvDLLInterfaceIFaceBase::addMessage(PlayerTypes ePlayer, bool bForce,
 		iLength = GC.getEVENT_MESSAGE_TIME();
 	// Perhaps the EXE does that anyway; let's make sure.
 	if (eFlashColor == NO_COLOR)
-		eFlashColor = GC.getColorType("WHITE"); // </advc>
+	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const ColorTypes eColorWhite = (ColorTypes)GC.getColorType("WHITE");
+		eFlashColor = eColorWhite; // </advc>
+	}
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 	// <advc.700>
 	bool const bRiseFall = GC.getGame().isOption(GAMEOPTION_RISE_FALL);
