@@ -5688,6 +5688,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
+				<!-- custom: maybe they can help counter swordsmen or something, while otherwise still being used offensively if needed if i am not mistaken but anyways etc -->
 				<UnitAI>
 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
@@ -5902,6 +5903,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
+				<!-- custom: maybe they can help counter swordsmen or something, while otherwise still being used offensively if needed if i am not mistaken but anyways etc -->
 				<UnitAI>
 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
@@ -6116,6 +6118,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
+				<!-- custom: maybe they can help counter swordsmen or something, while otherwise still being used offensively if needed if i am not mistaken but anyways etc -->
 				<UnitAI>
 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
@@ -6349,6 +6352,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
+				<!-- custom: maybe they can help counter swordsmen or something, while otherwise still being used offensively if needed if i am not mistaken but anyways etc -->
 				<UnitAI>
 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
@@ -6572,10 +6576,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
 			</UnitAIs>
 			<NotUnitAIs/>
 			<Builds/>
@@ -6755,10 +6755,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
@@ -6973,10 +6969,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
@@ -7201,10 +7193,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
 			</UnitAIs>
 			<NotUnitAIs/>
 			<Builds/>
@@ -7411,10 +7399,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 				<UnitAI>
@@ -7626,6 +7610,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
 			<!-- custom: by that time and as of now longbowmen or such are available and a better / more efficient option for AIs for defense, but human players can still go for these with the defensive promotions, so no defensive unitai here if i am not mistaken anyways etc as of now anyways etc -->
+			<!-- custom: removed UNITAI_CITY_COUNTER from here as macemen are not versatile enough to be reliable city defenders while still being good offense units (too easy to punish with a stack of knight units that are good against them, even a crossbow stack could defeat defending macemen, so use them for offense rather and disable them from here as well as in similar places anyways etc). They may be good against pikemen, but pikemen don't often attack cities and are not that efficient for that, so prefer macemen to focus more on offense unitai roles if i am not mistaken but anyways etc. -->
 			<UnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
@@ -7637,10 +7622,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
@@ -7839,10 +7820,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
@@ -8066,10 +8043,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
@@ -9790,10 +9763,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
 			</UnitAIs>
 			<NotUnitAIs>
 				<!-- custom: this seems to be specifically against city attack suicides which i want to explicitly disable for most units, i don't know if
@@ -10034,10 +10003,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
 			</UnitAIs>
 			<NotUnitAIs>
 				<!-- custom: this seems to be specifically against city attack suicides which i want to explicitly disable for most units, i don't know if
@@ -10058,6 +10023,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				<!-- custom: should not be needed but just in case -->
 				<UnitAI>
 					<UnitAIType>UNITAI_SPY</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<!-- custom: we tend to overproduce longbowmen and they are not that good for city attacks, make them focus on more defensive roles without strictly forbidding attack ones, except if they overlap with defensive ones so we don't end up only with longbowmen, see related info in known issue as of now 53.2.2 for details anyways etc, results are good, longbowmen were reduced from 39 to 33 at turn 130 in the autoplay run mentionned there, which is still too much when we are stronger but already better, so kept as such anyways etc; note: also, i removed if i may say but anyways etc UNITAI_CITY_COUNTER from most units that had it in base advciv like the UNIT_MACEMAN so only defenders or more versatile defenders build it anyways etc -->
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</NotUnitAIs>
@@ -10771,6 +10741,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
+				<!-- custom: can be useful for versatile defense, and possibly offense as well if i am not mistaken but anyways etc, against melee units maybe if i am not mistaken in my guess but anyways etc -->
 				<UnitAI>
 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
@@ -13767,6 +13738,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
+				<!-- custom: maybe good against riflemen or such while still being quite useful at offense with collateral damage effect as of now if i am not mistaken but anyways etc -->
 				<UnitAI>
 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
@@ -19751,11 +19723,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: try to make siege units focus on the city attack part and less on the surrounding tiles attack so they don't get baited at least ideally not as much anyways etc -->
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
 			</UnitAIs>
 			<!-- custom: tentative change to avoid siege units suicides/getting baited during enemy invasion ; and remove unitai_pillage, see other code comments for details anyways etc -->
 			<NotUnitAIs>
@@ -20213,11 +20180,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: try to make siege units focus on the city attack part and less on the surrounding tiles attack so they don't get baited at least ideally not as much anyways etc -->
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
 			</UnitAIs>
 			<!-- custom: tentative change to avoid siege units suicides/getting baited during enemy invasion, see other code comments for details anyways etc -->
 			<NotUnitAIs>
@@ -20404,11 +20366,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<!-- custom: try to make siege units focus on the city attack part and less on the surrounding tiles attack so they don't get baited at least ideally not as much anyways etc -->
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
@@ -20620,11 +20577,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: try to make siege units focus on the city attack part and less on the surrounding tiles attack so they don't get baited at least ideally not as much anyways etc -->
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
 			</UnitAIs>
 			<!-- custom: tentative change to avoid siege units suicides/getting baited during enemy invasion, see other code comments for details anyways etc -->
 			<NotUnitAIs>
@@ -20815,11 +20767,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<!-- custom: try to make siege units focus on the city attack part and less on the surrounding tiles attack so they don't get baited at least ideally not as much anyways etc -->
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
@@ -21014,10 +20961,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>

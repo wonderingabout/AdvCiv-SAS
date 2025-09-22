@@ -11552,7 +11552,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					// notes
 					// This doesn’t push orders or re-run best-unit logic; it just tweaks eUnitAI if the already-picked eUnit supports the offensive role.
 					// Because ATTACK/ATTACK_CITY/COUNTER aren’t in your “handled civilian/naval/air” blocks, the rest of the function just falls through to the final pushOrder(ORDER_TRAIN, eUnit, eUnitAI); as desired.
-				}
+				}		
 			}
 			// --- SAS: <!-- custom: end of anyways etc --> Early breakout nudge (simple, cheap) ---
 
