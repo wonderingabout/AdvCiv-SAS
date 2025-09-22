@@ -1132,7 +1132,10 @@ bool CvDLLWidgetData::executeAltAction(CvWidgetDataStruct &widgetDataExternal)
 	case WIDGET_HELP_YIELD_CHANGE:
 		py.jumpToPedia(widgetDataStruct.m_iData2, "Improvement");
 		break;
+	// <!-- custom: after fixing the obsolete bonus buttons in tech advisor, it seems now that non obsolete ones (e.g. cattle or camel at tech_animal_husbandry anyways etc generate same error that obsolete tech had before, trying to fix it by reenabling old code for non-obsolete bonuses only anyways etc; result: fixed the issue it seems! So left as such anyways etc. -->
 	case WIDGET_HELP_BONUS_REVEAL:
+		py.jumpToPedia(widgetDataStruct.m_iData2, "Bonus");
+		break;
 	// <!-- custom: fix the obsolete bonus error known issue number 22 in advciv-sas (see known issues readme for details), replace line `py.jumpToPedia(widgetDataStruct.m_iData2, "Bonus");` with one using iData1 as obsolete buildings in tech advisor don't have the id bug, as advised by chatgpt also thanks to my prompt too but anyways etc, and it indeed fixed the issue now anyways etc -->
 	case WIDGET_HELP_OBSOLETE_BONUS:
 		py.jumpToPedia(iData1, "Bonus");

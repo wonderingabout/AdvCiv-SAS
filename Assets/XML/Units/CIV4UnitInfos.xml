@@ -19968,7 +19968,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
-			<!-- custom: see related xml comments in this unit's xml info or/and known issue as of now 67 for details anyways etc -->
+			<!-- custom: see related xml comments in this unit's xml info or/and known issue as of now 53.3 for details anyways etc -->
 			<UnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
@@ -19976,7 +19976,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</UnitAI>
 			</UnitAIs>
 			<!-- custom: tentative change to avoid siege units suicides/getting baited during enemy invasion -->
-			<!-- custom: added most unitai types that are not pure city attack type of if i may say but anyways etc, to make trebuchets be built less unless to strictly attack cities as they are bad/inefficient if i may say but anyways etc at anything else (note: ignored attack_city_lemming as seemingly unreliable and never produced by AI players in the autoplay run i tried it even if implemented so ignored to simplify anyways etc), see known issue as of now 67 for details anyways etc -->
+			<!-- custom: added most unitai types that are not pure city attack type of if i may say but anyways etc, to make trebuchets be built less unless to strictly attack cities as they are bad/inefficient if i may say but anyways etc at anything else (note: ignored attack_city_lemming as seemingly unreliable and never produced by AI players in the autoplay run i tried it even if implemented so ignored to simplify anyways etc), see known issue as of now 53.3 for details anyways etc -->
 			<NotUnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
