@@ -19968,18 +19968,15 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
+			<!-- custom: see related xml comments in this unit's xml info or/and known issue as of now 67 for details anyways etc -->
 			<UnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
-				<!-- custom: try to make siege units focus on the city attack part and less on the surrounding tiles attack so they don't get baited at least ideally not as much anyways etc -->
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
 			</UnitAIs>
 			<!-- custom: tentative change to avoid siege units suicides/getting baited during enemy invasion -->
+			<!-- custom: added most unitai types that are not pure city attack type of if i may say but anyways etc, to make trebuchets be built less unless to strictly attack cities as they are bad/inefficient if i may say but anyways etc at anything else (note: ignored attack_city_lemming as seemingly unreliable and never produced by AI players in the autoplay run i tried it even if implemented so ignored to simplify anyways etc), see known issue as of now 67 for details anyways etc -->
 			<NotUnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
@@ -19991,6 +19988,22 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</NotUnitAIs>

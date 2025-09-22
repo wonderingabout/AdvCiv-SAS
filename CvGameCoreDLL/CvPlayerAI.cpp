@@ -14625,6 +14625,78 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI,
 }
 
 
+// <!-- custom: add helpers to count how many units of a combat type we have and/or such anyways etc, to help reduce the excess trebuchets and siege when not relevant (defense, we are weaker, etc.) see known issue as of now 53.3 for details anyways etc; code of below helpers provided by chatgpt 5, check if accurate anyways etc -->
+int CvPlayerAI::AI_countUnitsByCombat(UnitCombatTypes eCombat) const
+{
+	int iTotal = 0;
+	FOR_EACH_ENUM(Unit)
+	{
+		CvUnitInfo const& kU = GC.getInfo(eLoopUnit);
+		if (kU.getUnitCombatType() != eCombat) continue;
+		UnitClassTypes const eCls = (UnitClassTypes)kU.getUnitClassType();
+		if (eCls != NO_UNITCLASS)
+			iTotal += getUnitClassCount(eCls);
+	}
+	return iTotal;
+}
+
+// <!-- custom: if unit has enough city attack, it can be assumed the rest of its stats are otherwise bad, else would be broken for balance. Use to detect as of now trebuchet units, but also similar profile of high city bombard but weak otherwise type of units if i'm not mistaken anyways etc -->
+int CvPlayerAI::AI_countTrebuchetsLike() const
+{
+	static const UnitCombatTypes eUnitCombatSiege = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SIEGE");
+
+	int iTotal = 0;
+	FOR_EACH_ENUM(Unit)
+	{
+		CvUnitInfo const& kU = GC.getInfo(eLoopUnit);
+		if (kU.getUnitCombatType() != eUnitCombatSiege) continue;
+
+		// Use your SDK’s name here:
+		// BtS/AdvCiv variants: getCityAttack() or getCityAttackModifier()
+		// int const iCityAtk =
+		// #ifdef USE_CITY_ATTACK_MODIFIER_NAME
+		// 	kU.getCityAttackModifier();
+		// #else
+		// 	kU.getCityAttack();
+		// #endif
+		// <!-- custom: hopefully enough just with the modifier that trebuchets use if i am not mistaken as of now (but check if accurate as i didn't check in detail but anyways etc) but anyways etc -->
+		int const iCityAtk = kU.getCityAttackModifier();
+		if (iCityAtk >= 50)
+		{
+			UnitClassTypes const eCls = (UnitClassTypes)kU.getUnitClassType();
+			if (eCls != NO_UNITCLASS)
+				iTotal += getUnitClassCount(eCls);
+		}
+	}
+	return iTotal;
+}
+
+int CvPlayerAI::AI_mainOffensiveLandTotalUnitAIs() const
+{
+	return
+	(
+		AI_totalUnitAIs(UNITAI_ATTACK)
+		+ AI_totalUnitAIs(UNITAI_ATTACK_CITY)
+		// <!-- custom: they don't seem produced or reliable in autoplay, but if we somehow have them, might as well count them, check if accurate as i don't know too much about these, anyways etc -->
+		+ AI_totalUnitAIs(UNITAI_ATTACK_CITY_LEMMING)
+		+ AI_totalUnitAIs(UNITAI_COUNTER)
+		// <!-- custom: this is about late game, ignore for now anyways etc -->
+		//+ AI_totalUnitAIs(UNITAI_PARADROP)
+	);
+}
+
+int CvPlayerAI::AI_mainDefensiveLandTotalUnitAIs() const
+{
+	return
+	(
+		AI_totalUnitAIs(UNITAI_CITY_DEFENSE)
+		+ AI_totalUnitAIs(UNITAI_CITY_SPECIAL)
+		// <!-- custom: i assume this is most often used for defense although not sure, account for it so we focus on attack sooner and more if needed and don't underestimate it if i'm not mistaken but anyways etc -->
+		+ AI_totalUnitAIs(UNITAI_CITY_COUNTER)
+		+ AI_totalUnitAIs(UNITAI_RESERVE)
+	);
+}
+
 int CvPlayerAI::AI_totalUnitAIs(UnitAITypes eUnitAI) const
 {
 	return AI_getNumTrainAIUnits(eUnitAI) + AI_getNumAIUnits(eUnitAI);

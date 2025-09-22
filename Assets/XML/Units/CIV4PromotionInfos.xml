@@ -845,7 +845,7 @@
 			<DomainMods/>
 			<TerrainDoubleMoves/>
 			<FeatureDoubleMoves/>
-			<!-- custom: only for MOUNTED_RANGED as MOUNTED_MELEE can't do anything offensively against fun units if i am not mistaken (even defensively at best they can onyl defend and not die if i am not mistaken anyways etc anyways etc anyways etc) -->
+			<!-- custom: only for MOUNTED_RANGED as MOUNTED_MELEE can't do anything offensively against fun units if i am not mistaken (even defensively at best they can only defend and not die if i am not mistaken anyways etc anyways etc anyways etc) -->
 			<UnitCombats>
 				<UnitCombat>
 					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>

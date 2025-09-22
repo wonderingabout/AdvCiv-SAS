@@ -1741,7 +1741,7 @@
 			<Civilopedia>TXT_KEY_CIVIC_FREE_RELIGION_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Button>,Art/Interface/Buttons/Civics/Free_Religion.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,1,3</Button>
-			<!-- custom: this indicates it is most liekyl fine and historically relevant if not accurate but anyways etc in https://en.wikipedia.org/wiki/Freedom_of_religion#History, also helps balance out civis not all in tech_liberalism but anyways etc, was TECH_LIBERALISM -->
+			<!-- custom: this indicates it is most likely fine and historically relevant if not accurate but anyways etc in https://en.wikipedia.org/wiki/Freedom_of_religion#History, also helps balance out civis not all in tech_liberalism but anyways etc, was TECH_LIBERALISM -->
 			<TechPrereq>TECH_NATURALISM</TechPrereq>
 			<iAnarchyLength>1</iAnarchyLength>
 			<Upkeep>UPKEEP_LOW</Upkeep>

@@ -584,7 +584,10 @@ void CvCity::doTurn()
 			// 320,5: 			<Type>ERA_INDUSTRIAL</Type> (4)
 			// 401,5: 			<Type>ERA_MODERN</Type> (5)
 			// 477,5: 			<Type>ERA_FUTURE</Type> (6)
-			const int iMaxCost = 50 * (iCurrentEra + 1);  // Era 0→50, 1→100, ... 6→350
+			static const int iMaxHammerPerEra = 50;
+			const int iMaxCost = iMaxHammerPerEra * (iCurrentEra + 1);  // Era 0→50, 1→100, ... 6→350
+
+			static const UnitCombatTypes eUnitCombatSiege = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SIEGE");
 
 			// <!-- custom: go for the most expensive one so we don't accumulate a bunch of low overall combat fighting ability and high maintenance cost and go bankrupt too soon; also this helps reduce military upgrade costs later on if i'm not mistaken but anyways etc. Hopefully the xml is such that no unit are super high cost (e.g. 300 hammer unit cost of a unit at stone age/ era_ancient or medieval era/ era_medieval or something in some mod mod or perhaps ours although not too likely but anyways etc), so add a guard against that (per era as unit costs change as the game goes on anyways etc) anyways etc. Note: we also assume here hammer cost accurately reflects overall combat ability if i may say but anyways etc.-->
 			UnitTypes eCheapestUnit = NO_UNIT;      // backup if nothing under cap
@@ -616,6 +619,12 @@ void CvCity::doTurn()
 					eUnitAI == UNITAI_RESERVE ||
 					eUnitAI == UNITAI_ATTACK ||
 					eUnitAI == UNITAI_ATTACK_CITY))
+				{
+					continue;
+				}
+				// <!-- custom: ignore siege units as they are not a reliable as in versatile enough unit to be able to be used both for offense and defense if i am not mistaken but anyways etc, see known issue as of now 53.3 for related info, anyways etc -->
+				const bool bUnitCombatSiege = (kU.getUnitCombatType() == eUnitCombatSiege);
+				if (bUnitCombatSiege)
 				{
 					continue;
 				}

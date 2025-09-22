@@ -280,6 +280,8 @@ Note: if you already downloaded AdvCiv-4986 that didn't have that 48 civs DLL, y
 
 Note 2: it seems that savegames are not compatible when switching from 18 civ DLL to 48 civ DLL (or vice versa i assume anyways etc) though based on [some code comments in as of now CvEnums.h](/CvGameCoreDLL/CvEnums.h#L24-L27), so make sure you finish the games you started using the same DLL, and switch back or forth whichever xd only after you want to play a new game (i.e. don't switch DLLs then reload same save file/map if i am not mistaken based on this code comment but i don't know and am only reporting what the base advciv code comment says, check if in doubt some other source, anyways etc).
 
+Note 3: in the [development version](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#development-version), i don't update the 48 civs DLL as often after each change i make, because it is bit more tedious to do it and test the DLL to make sure it runs well or well enough (no compile error or crash or weird stuff or error at a quick glance), so i you want latest features in the development version, consider using the default (i.e. not 48 civs DLL) DLL anyways etc.
+
 ## Autoplay test runs
 
 Since release, i may perform autoplay test runs to see how AI behaves and is competitive and all and see potential issues it has and all but anyways etc here in this [google drive folder link](https://drive.google.com/drive/folders/1J8w-LbeZrD2fuifSxT8vJOXYU1MQ_YDh?usp=sharing)
@@ -348,7 +350,7 @@ Then, continuing on, trying to autoplay to turn 400, we got a crash again at tur
 
 According to chatgpt 5, these may not have been MAF and the .dmp file (see for details [/Modding_Ressources/README.md#How to enable .dmp files so for some crashes that don't immediately exit you get a "splash screen" (whatever it is called) and can dmp and see turn at crash anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash-anyways-etc)) says/means anyways etc that "Exception code: 0xC0000005 → Access Violation (read/write through a bad pointer)", but if you experience crashes, especially mid-late game, consider exiting and reloading the game to see if it helps.
 
-If not, it might be a bug to fix or something. I don't know too much about these, but i fixed a few such reproducible bugs through (painful xd but anyways etc) trial and error.
+If not, it might be a bug to fix or something. I don't know too much about these, but i fixed a few such reproducible bugs through (painfully xd but successfully seemingly did but anyways etc) trial and error.
 
 Our game should be as of now mostly if not really stable, i very rarely encounter crashes, and if they do it's generally very late in the game. Now i know if i'm not mistaken that some of these could simply be "temporary" crashes and not real bugs per se to fix i'd say if i'm not mistaken, but as i don't know too much about these check if accurate, and i don't guarantee no crash at all to happen, just from experience if i may say but anyways etc it seems really rare now to the point i'd consider the game stable, as for the few that had said crashes i didn't test if they are temporary or not now but they might/may be but anyways etc.
 

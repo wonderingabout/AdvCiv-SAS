@@ -11,7 +11,7 @@ Finally, at the end or towards it anyways etc of this readme file, i have also a
 ## General Advice
 
 - send small code chunks [for example this small(er) code sample/bit(s)/part(s)](/_2_Source_File_examples_That_Can_Be_Fed_To_AIs/UWAI/UWAI-short-chat-compatible.txt) and in chat only (it seems it's not possible anymore to send any code now evne in .txt or any format i tried), also when code is too long it seems to confuse ChatGPT, even though it's alzheimer got worse now with what seems like the new backend changes indeed as chatgpt said to me, anyways.
-- reprovide context often during prompts, not necessariyl at each commit, but ideally often enough as its memory trims really fast
+- reprovide context often during prompts, not necessarily at each commit, but ideally often enough as its memory trims really fast
 - zip works well and is supported natively if i'm not mistaken, same for .txt
 - chatgpt is very good at doing charts comparisons, unit tests (using stub or real (for example xml or pasted in chat box, etc)), but chek to be sure if works well (for/+/-in) you(r) case
 - it (chatgpt) can also create scripts to generate such charts so you don't even have to bother dealing with limits and such, for example the [flatten_leaders_data_to_csv.py script](README_Python_Scripts.md#flatten_leaders_data_to_csvpy) (or similar format maybe alternatively if you want) format
