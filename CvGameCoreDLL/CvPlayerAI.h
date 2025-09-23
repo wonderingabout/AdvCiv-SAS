@@ -338,6 +338,7 @@ public:
 	// Convenience: sums of offensive / defensive UnitAIs
 	int AI_mainOffensiveLandTotalUnitAIs() const;
 	int AI_mainDefensiveLandTotalUnitAIs() const;
+	int AI_strictDefensiveLandTotalUnitAIs() const;
 
 	int AI_totalUnitAIs(UnitAITypes eUnitAI) const;														// Exposed to Python
 	int AI_totalAreaUnitAIs(CvArea const& kArea, UnitAITypes eUnitAI) const;							// Exposed to Python

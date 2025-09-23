@@ -589,12 +589,23 @@ void CvCity::doTurn()
 
 			static const UnitCombatTypes eUnitCombatSiege = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SIEGE");
 
-			// <!-- custom: go for the most expensive one so we don't accumulate a bunch of low overall combat fighting ability and high maintenance cost and go bankrupt too soon; also this helps reduce military upgrade costs later on if i'm not mistaken but anyways etc. Hopefully the xml is such that no unit are super high cost (e.g. 300 hammer unit cost of a unit at stone age/ era_ancient or medieval era/ era_medieval or something in some mod mod or perhaps ours although not too likely but anyways etc), so add a guard against that (per era as unit costs change as the game goes on anyways etc) anyways etc. Note: we also assume here hammer cost accurately reflects overall combat ability if i may say but anyways etc.-->
-			UnitTypes eCheapestUnit = NO_UNIT;      // backup if nothing under cap
+			// <!-- custom: go for the most expensive one so we don't accumulate a bunch of low overall combat fighting ability and high maintenance cost and go bankrupt too soon; also this helps reduce military upgrade costs later on if i'm not mistaken but anyways etc. Hopefully the xml is such that no unit are super high cost (e.g. 300 hammer unit cost of a unit at stone age/ era_ancient or medieval era/ era_medieval or something in some mod mod or perhaps ours although not too likely but anyways etc), so add a guard against that (per era as unit costs change as the game goes on anyways etc) anyways etc. Note: we also assume here hammer cost accurately reflects overall combat ability if i may say but anyways etc. Note 2: as of now, if for some extremely unlikely reason there are no buildable units at all, or all eligible ones are beyond iMaxCost extremely unlikely (even less likely in fact but anyways etc), then among all options regardless of iMaxCost, pick the overall cheapest one to save hammer xd but anyways etc. This is an extremly unlikely case safety but just in case or if XML is weirdly tweaked in some mod mod with new weird or such units xd (1 hammer cost 1000 str or 1000 hammer 1 str xd or whatever (not in our mod so far! If i may say, but anyways etc...) but anyways etc.) -->
+			UnitTypes eCheapestOverallUnit = NO_UNIT;      // backup if nothing under cap
 			UnitTypes eBestFallbackUnit = NO_UNIT;  // track highest cost ≤ cap
+			// <!-- custom: cache once after found for efficiency anyways etc -->
+			UnitAITypes eBestFallbackUnitUnitAI = NO_UNITAI;
+			UnitAITypes eCheapestOverallFallbackUnitUnitAI = NO_UNITAI;
 
-			int iCheapestCost = MAX_INT;
+			// <!-- custom: use real cost for sanity no overly expensive unit compare, but use inflated cost (e.g. egyptian war chariot would have inflated cost of 30 * 2 = 60 hammer vs 50 hammer for generic horse archer so we think as we want that war chariot is stronger (since is civ-specific unit we assume so anyways etc). However, don't overdo it, for example if we were to add a civ-specific variant of the ancient maceman / warrior but anyways etc, that would cost say 20 hammers, it would still likely be weaker than a modern horse archer else game would be broken, so 20 * 2 even after inflation is lower than 50 hammer than the horse archer, but the egyptian war chariot is strong enough already that 30 * 2 = 60 inflated hammer cost to estimate strength but anyways etc makes it worth building over the 50 hammer cost generic horse archer). While doing this, still sanity checking based on 30 hammer not 60 hammer (else 60 hammer > max 50 per era in ancient era we would reject it and never build it but anyways etc)) -->
+			int iCheapestOverallCost = MAX_INT;
 			int iBestFallbackCost = MIN_INT;
+
+			int iCheapestOverallScore = -1;
+			int iBestFallbackScore = -1;
+
+			// <!-- custom: optimization from our new code in CvCityAI::AI_chooseUnit (see known issue as of now 53.2.2 for related info anyways etc): assume civ-specific units are best (e.g. pick an egyptian war chariot over a longbow anyways etc) -->
+			// prefetch civ UU mapping once
+			const CvCivilizationInfo& kCiv = GC.getInfo(kOwner.getCivilizationType());
 
 			FOR_EACH_ENUM(Unit)
 			{
@@ -613,51 +624,84 @@ void CvCity::doTurn()
 					continue; // ignore noncombat here
 				}
 				// <!-- custom: ignore civilian units that happen to have strength, and more generally any unitai that is not among the most efficient ones (e.g. no naval units, no spy, no scout or anything else, etc), while we do a fallback, let it be a good one! Xd anways etc -->
-				const UnitAITypes eUnitAI = kU.getDefaultUnitAIType();
-				if (!(eUnitAI == UNITAI_CITY_DEFENSE ||
-					eUnitAI == UNITAI_COUNTER ||
-					eUnitAI == UNITAI_RESERVE ||
-					eUnitAI == UNITAI_ATTACK ||
-					eUnitAI == UNITAI_ATTACK_CITY))
+				const UnitAITypes eLoopDefaultUnitAI = kU.getDefaultUnitAIType();
+				const bool bSuitableDefaultUnitAI = (
+					(eLoopDefaultUnitAI == UNITAI_CITY_DEFENSE) ||
+					(eLoopDefaultUnitAI == UNITAI_COUNTER) ||
+					(eLoopDefaultUnitAI == UNITAI_RESERVE) ||
+					(eLoopDefaultUnitAI == UNITAI_ATTACK) ||
+					(eLoopDefaultUnitAI == UNITAI_ATTACK_CITY)
+				);
+				if (!bSuitableDefaultUnitAI)
 				{
 					continue;
 				}
 				// <!-- custom: ignore siege units as they are not a reliable as in versatile enough unit to be able to be used both for offense and defense if i am not mistaken but anyways etc, see known issue as of now 53.3 for related info, anyways etc -->
-				const bool bUnitCombatSiege = (kU.getUnitCombatType() == eUnitCombatSiege);
-				if (bUnitCombatSiege)
+				const bool bLoopUnitCombatSiege = (kU.getUnitCombatType() == eUnitCombatSiege);
+				if (bLoopUnitCombatSiege)
 				{
 					continue;
 				}
 
-				const int iCost = getProductionNeeded(eLoopUnit);
+				const int iLoopCost = getProductionNeeded(eLoopUnit);
+				int iLoopScore = iLoopCost;
 
+				// <!-- custom: inflate artificially the civ-specific unit assuming it is best (war chariot is as of now anyways etc 5 str for 30 hammer, vs 6 str for 50 hammaer for a horse archer! The horse archer is much more efficient, but we can't judge on str alone, as some units have some nice perks like withdraw chance, etc. Simplest way is to assume civ-specific unit is best choice if available, at least a much stronger one than cost would lead on, else fix our XML to make them strong enough to justify being picked by AI but anyways etc) -->
+				// prefer the civilization's unique unit (war chariot over horse archer, etc.)
+				const UnitClassTypes eClass = kU.getUnitClassType();
+				// <!-- custom: explanation and code below by/from chatgpt 5 but anyways etc, check if accurate as i don't know for sure but it is maybe correct or not or etc but check to be sure anyways etc -->
+				// To prevent inflating default units for civs without unique units (UU), add the check eLoopUnit != GC.getUnitClassInfo(eClass).getDefaultUnit()
+				const UnitTypes eCivUnitForClass = (UnitTypes)kCiv.getCivilizationUnits(eClass);
+				const UnitTypes eDefaultForClass = (UnitTypes)GC.getUnitClassInfo(eClass).getDefaultUnit();
+				const bool bIsUUOverride = (eCivUnitForClass == eLoopUnit && eLoopUnit != eDefaultForClass);
+				// Then use bIsUUOverride for the inflation.
+				if (bIsUUOverride)
+				{
+					// <!-- custom: added a +1 tie breaker if both the best generic unit (e.g. if catapults were allowed so 50 hammer vs a civ-specific archer costing 25 hammer if there was any in our mod anyways etc), we'd now have 51 vs 50 hammer so we win with our civ-specific unit anyways etc -->
+					// treat it as ~100% "more valuable" than its raw cost so cheap UUs still win ties
+					iLoopScore = (2 * iLoopScore) + 1;
+				}
+
+				// <!-- custom are otherwise equal in cost, take the civ-specific one (e.g. a generic axeman 35 hammer vs civ-specific zulu impi (spearman) 35 hammer, which both would be cheap enough to build assuming a tight threshold (which we don't have here but as an example and just in case anyways etc)) -->
 				// track cheapest overall as fallback-of-fallback
-				if (iCost < iCheapestCost)
+				if ((iLoopCost < iCheapestOverallCost) || (iLoopCost == iCheapestOverallCost && iLoopScore > iCheapestOverallScore))
 				{
-					iCheapestCost = iCost;
-					eCheapestUnit = eLoopUnit;
+					iCheapestOverallCost = iLoopCost;
+					iCheapestOverallScore = iLoopScore;
+					eCheapestOverallUnit = eLoopUnit;
+					eCheapestOverallFallbackUnitUnitAI = eLoopDefaultUnitAI;
 				}
-				// prefer the most expensive unit ≤ cap;
-				if (iCost <= iMaxCost && iCost > iBestFallbackCost)
+				// <!-- custom: use iLoopCost for sanity not overly expensive unit check, but use inflated cost for which unit is strongest as per cost indicates check anyways etc; note: <= handles for iLoopCost handles ties if i am not mistaken anyways etc -->
+				// prefer the most expensive unit ≤ cap; <!-- custom: this also avoids producing tons of high maintenance cost low unit overall strength (e.g. ancient maceman especially later in the game anyways etc) units that would cripple our economy. For this reason, it may be better to have no production especially later in the game, but it is only a hypothetical concern as our iMaxHammerPerEra should accomodate all units as of now (or almost all if we somehow mod them to add very expensive ones, not planned as of now but anyways), so this is more hypothetical but an extra information in case chatgpt or whoever reads it is wondering about it in this case i mean but anyways etc. -->
+				if (iLoopCost <= iMaxCost)
 				{
-					iBestFallbackCost = iCost;
-					eBestFallbackUnit = eLoopUnit;
+					// <!-- custom: e.g. egyptian war chariot (30 hammer 5 str, 60 score) better than generic horse archer (50 hammer 6 str, 50 score); also an imaginary civ-specific ancient maceman (20 hammer, 3 str, 40 score still loses vs generic horse archer that is much stronger and hammer efficient (50 hammer, 6 str, 50 score) so all good to not pick the outdated and overall weaker ancient maceman anyways etc) -->
+					// <!-- custom: note: the == is flipped as compared to what is in cheapest unit checks, as cheapest means best cheapest, vs best fallback means highest score one is best, so tie breaking and edge cases are bit different as done in the checks we did if i am not mistaken but anyways etc -->
+					if ((iLoopScore > iBestFallbackScore) || (iLoopScore == iBestFallbackScore && iLoopCost > iBestFallbackCost))
+					{
+						iBestFallbackCost = iLoopCost;
+						iBestFallbackScore = iLoopScore;
+						eBestFallbackUnit = eLoopUnit;
+						eBestFallbackUnitUnitAI = eLoopDefaultUnitAI;
+					}
 				}
 			}
 
-			// if nothing within cap, use the cheapest trainable option
-			if (eBestFallbackUnit == NO_UNIT)
+			// <!-- custom: if no non-cheapest is available (i.e. no unit that is less expensive than iMaxCost (extremely unliekly but just in case anyways etc)), add a little safety but anyways etc that unitai needs to not be no_unitai anyways etc -->
+			// if nothing within cap, use the cheapest overall trainable option
+			if ((eBestFallbackUnit == NO_UNIT) && (eCheapestOverallUnit != NO_UNIT) && (eCheapestOverallFallbackUnitUnitAI != NO_UNITAI))
 			{
-				eBestFallbackUnit = eCheapestUnit;
+				eBestFallbackUnit = eCheapestOverallUnit;
+				eBestFallbackUnitUnitAI = eCheapestOverallFallbackUnitUnitAI;
 			}
-			if (eBestFallbackUnit != NO_UNIT)
+			if ((eBestFallbackUnit != NO_UNIT) && (eBestFallbackUnitUnitAI != NO_UNITAI))
 			{
 				// only if something unusable is there
 				const bool bReplaceHead = (!bQueueEmpty);
 				// make it the head so it starts immediately next turn
 				pushOrder(ORDER_TRAIN,
 						eBestFallbackUnit,
-						GC.getInfo(eBestFallbackUnit).getDefaultUnitAIType(),
+						eBestFallbackUnitUnitAI,
 						/*bSave=*/false,
 						/*bPop=*/bReplaceHead,
 						/*iPosition=*/0,

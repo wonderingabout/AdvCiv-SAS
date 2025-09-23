@@ -11265,6 +11265,11 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 {
 	if (eUnit != NO_UNIT)
 	{
+		// <!-- custom: see known issue 53.2.2 for related info or/and related code in this function on why we'd want to change unit here but anyways etc -->
+		// Try to pick a concrete offensive alternative and COMMIT to it
+		UnitTypes   eChangedUnit   = NO_UNIT;
+		UnitAITypes eChangedUnitAI = NO_UNITAI;
+
 		// <!-- custom: not sure if we should exclude barbarian (e.g. if we someday add land units rules here (e.g. more defenders if in dangers based on total unitais anyways etc, on top of what is done in bestunitai (so maybe redundant but to be safe about short circuits or such as well but anyways etc))) but just in case anyways etc -->
 		CvPlayerAI const& kPlayer = GET_PLAYER(getOwner());
 		const bool bBarbarian = kPlayer.isBarbarian();
@@ -11376,19 +11381,19 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 			const CvUnitInfo& kUnitInfo = GC.getInfo(eUnit);
 
-			const int iDefenders = kPlayer.AI_mainDefensiveLandTotalUnitAIs();
-			const int iAttackers = kPlayer.AI_mainOffensiveLandTotalUnitAIs();
-
 			// <!-- custom: trim excess trebuchet and siege unit orders when not relevant (not attacking cities for trebuchets, being weaker, etc; defending cities for siege units in general which AIs with catapults don't do well i think but anyways etc), as AI produces way too much of them especially when not relevant and detrimental to it, see known issue as of now 53.3 for details anyways etc -->
 			static const UnitCombatTypes eUnitCombatSiege = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SIEGE");
 
 			const bool bUnitCombatSiege = (kUnitInfo.getUnitCombatType() == eUnitCombatSiege);
 
+			int const iSiegesAll = kPlayer.AI_countUnitsByCombat(eUnitCombatSiege);
+			int const iTrebsLike = kPlayer.AI_countTrebuchetsLike();
+
+			const int iMainDefenders = kPlayer.AI_mainDefensiveLandTotalUnitAIs();
+			const int iMainAttackers = kPlayer.AI_mainOffensiveLandTotalUnitAIs();
+
 			if (bUnitCombatSiege)
 			{
-				int const iSiegesAll = kPlayer.AI_countUnitsByCombat(eUnitCombatSiege);
-				int const iTrebsLike = kPlayer.AI_countTrebuchetsLike();
-
 				// <!-- custom: if unit has enough city attack, it can be assumed the rest of its stats are otherwise bad, else would be broken for balance. Use to detect as of now trebuchet units, but also similar profile of high city bombard but weak otherwise type of units if i'm not mistaken anyways etc -->
 				// <!-- custom: hopefully enough just with the modifier that trebuchets use if i am not mistaken as of now (but check if accurate as i didn't check in detail but anyways etc) but anyways etc -->
 				int const iCityAttackModifier = kUnitInfo.getCityAttackModifier();
@@ -11397,31 +11402,28 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				// Trebuchet-like stricter rule
 				if (bTrebuchetLike)
 				{
-					if (iTrebsLike > 0)
+					// <!-- custom: the war has already started, no time to produce them if we didn't do so already, focus on defense or immediate joining stack units to finalize our offensive stacks, now is not the time to weaken our stacks with trebuchets that are quite likely to be not relevant anyways etc anyways etc -->
+					if (bAtWar && !bEnemyWeakNotZero)
 					{
-						// <!-- custom: the war has already started, no time to produce them if we didn't do so already, focus on defense or immediate joining stack units to finalize our offensive stacks, now is not the time to weaken our stacks with trebuchets that are quite likely to be not relevant anyways etc anyways etc -->
-						if (bAtWar && !bEnemyWeakNotZero)
-						{
-							return false; // don’t add more narrow-purpose siege when not stronger
-						}
-						// <!-- custom: even if not at war and still in planning stage, trebuchets are bad if we're weak regardless (we can expect to be attacked, so don't build them if i am not mistaken anyways etc); note: i guessedly assume if we are planning war we are strong enough to do so and so don't mind some trebuchets to help that (otherwise maybe not if other conditions are also not met if i'm not mistaken but anyways etc) but i didn't check, check if accurate anyways etc -->
-						if (!bWarPlan || bDanger)
-						{
-							return false; // don’t add more narrow-purpose siege when not stronger
-						}
-						// <!-- custom: even if not at war, if our enemy is already stronger, don't attempt to build trebuchets that will most likely be useless as enemy will get even stronger over time and we'll be more vulnerable with non versatile or not enough defender units anyways etc -->
-						if (bEnemyStrong)
-						{
-							return false;
-						}
+						return false; // don’t add more narrow-purpose siege when not stronger
+					}
+					// <!-- custom: even if not at war and still in planning stage, trebuchets are bad if we're weak regardless (we can expect to be attacked, so don't build them if i am not mistaken anyways etc); note: i guessedly assume if we are planning war we are strong enough to do so and so don't mind some trebuchets to help that (otherwise maybe not if other conditions are also not met if i'm not mistaken but anyways etc) but i didn't check, check if accurate anyways etc -->
+					if (!bWarPlan || bDanger)
+					{
+						return false; // don’t add more narrow-purpose siege when not stronger
+					}
+					// <!-- custom: even if not at war, if our enemy is already stronger, don't attempt to build trebuchets that will most likely be useless as enemy will get even stronger over time and we'll be more vulnerable with non versatile or not enough defender units anyways etc -->
+					if (bEnemyStrong)
+					{
+						return false;
+					}
 
-						// <!-- custom: even if we are stronger or otherwise ok to produce trebuchets, another edge case may be that they are simply even less versatile than other siege units, so apply tighter rules (their only purpose is to bombard city defenses or suicide attacking a city, except for that we don't want too many of them in our unit composition as it may be crippling or detrimental due to lack of versatility anyways etc -->
-						static const int iCapTrebs = 35;
-						int const iTrebsShareOff = (100 * iTrebsLike) / std::max(1, iAttackers);
-						if (iTrebsShareOff >= iCapTrebs)
-						{
-							return false;
-						}
+					// <!-- custom: even if we are stronger or otherwise ok to produce trebuchets, another edge case may be that they are simply even less versatile than other siege units, so apply tighter rules (their only purpose is to bombard city defenses or suicide attacking a city, except for that we don't want too many of them in our unit composition as it may be crippling or detrimental due to lack of versatility anyways etc -->
+					static const int iCapTrebs = 35;
+					int const iTrebsShareOff = (100 * iTrebsLike) / std::max(1, iMainAttackers);
+					if (iTrebsShareOff >= iCapTrebs)
+					{
+						return false;
 					}
 				}
 
@@ -11483,78 +11485,198 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					}
 				}
 
-				const int iSiegesShareOff = (100 * iSiegesAll) / std::max(1, iAttackers);
+				const int iSiegesShareOff = (100 * iSiegesAll) / std::max(1, iMainAttackers);
 				if (iSiegesShareOff >= iCapSiegesAll)
 				{
 					return false;
 				}
 			}
 
-			// <!-- custom: very simple and computationally efficient "are we lagging behind in city count vs other rivals? If so switch to offense rather to attempt to make gains" by approximating we'd need about 1 city per 25 turn to be expanding enough. Even if this is not striclty accurate, what matters is we get a signal soon enough to switch to offense, as it can get time to build units. Plus, limit this to the early game, as later we don't expand as much, and our military composition should be stable so it wouldn't help as much. This attempts to fix issue of joao ai building 36 longbowmen at turn 130 instead while having only 3 cities, and his neighbour that has 8+ cities at a glance and weaker and thinner military would have been a perfect target if say half of our forces had been offense units; code provided by chatgpt 5 check if accurate anyways etc; see known issue as of now 53.2 for details as well anyways etc; also note: we're focused on land warfare here as it is the most important even in water heavy maps the point is to not lose cities or gain them especially early if i'm not mistaken but anyways etc -->
-			// --- SAS: Early breakout nudge (simple, cheap) ---
-
-			// 1) Early-game window (scaled by game speed TrainPercent)
+			// Early-game window (scaled by game speed TrainPercent)
 			const int iTrainPct = GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent();
 			const int iEarlyCutoff = (150 * iTrainPct) / 100; // ~T150 @ Normal
 			const int iCurrentTurn = GC.getGame().getGameTurn();
 			const bool bEarly = (iCurrentTurn <= iEarlyCutoff);
 
-			// <!-- custom: be careful to not be to aggressive, i had tried 25 and it seems we have too many longbowmen converted to counter, for an AI that had enough cities, make sure this is aggressive enough so AIs switch to offense units more, but not too much so that it would make a regularly defended and expanded AI grow thin due to going attack if i am not mistaken but anyways etc (especially considering this steals from our real defenders sohandle with caution, and mostly for AIs likely to have few cities, and thus many extra defenders to convert from if i am not mistaken but anyways etc) -->
-			// 2) “Lagging expansion”: ~1 city per 30 turns (scaled the same way)
-			const int iTurnsPerCity = std::max(1, (30 * iTrainPct) / 100);
-			const int iExpectedCities = std::max(1, iCurrentTurn / iTurnsPerCity);
-			const bool bLaggingBehindNumCities = (iNumCities < iExpectedCities);
-
-			// 3) Local safety (don’t starve defenders if there’s immediate danger)
-			// <!-- custom: reuse !bDanger rather than recomputing it is more efficient i think anyways etc -->
-
-			// 4) Empire composition check: are we defender-heavy?
-			const bool bDefenderHeavy = (2 * iDefenders >= iAttackers);
-
-			// 5) If we’re about to add another pure defender while boxed/lagging, reroll to offense.
-			const bool bLandDefenderUnitAI = (
+			// <!-- custom: does not include UNITAI_CITY_COUNTER so we make sure we have enough pure defenders per city on average anyways etc -->
+			const bool bStrictLandDefenderUnitAI = (
 				(eUnitAI == UNITAI_CITY_DEFENSE) ||
 				(eUnitAI == UNITAI_CITY_SPECIAL) ||
 				(eUnitAI == UNITAI_RESERVE)
 			);
 
-			if (bEarly && !bDanger)
+			if (bEarly && bStrictLandDefenderUnitAI)
 			{
-				// <!-- custom: if we have too much defenders and it's early and not in danger, switch to attack (although we could use power ratios to help us, hopefully accurate enough to do as such and much simpler maybe although i don't know too much about, potentially computaitonally much faster maybe but anyways etc) -->
-				if ((bLaggingBehindNumCities || bDefenderHeavy) && bLandDefenderUnitAI)
+				// 2) Don’t starve defenders if there’s immediate danger
+				if (!bDanger && !(bAtWar && bEnemyStrong))
 				{
-					// <!-- custom: use alternative unitai types focusing on most reliable ones we can most likely always build for simplicty and no error ideally although we could check this but i don't know how but anyways etc; what matters most her eis we switch to offense soon enough so that we have enough offense units later in the game where it matters most (joao ai having 36 longbowmen at turn 130 for example is way too much as most of these were city_defense or city_counter or something similar anyways etc) -->
-					// We’ll attempt up to 3 alternatives in weighted order: 50% ATTACK, 25% ATTACK_CITY, 25% COUNTER <!-- custom: COUNTER rather as we can use them for attack if i'm not mistaken anyways etc -->.
-					// <!-- custom: save some computation xd when we can if i may say but anyways etc -->
-					// Pre-cached weighted permutations (built once)
-					static const UnitAITypes kTry50[3]  = { UNITAI_ATTACK,      UNITAI_ATTACK_CITY, UNITAI_COUNTER }; // 50%
-					static const UnitAITypes kTry75[3]  = { UNITAI_ATTACK_CITY, UNITAI_ATTACK,      UNITAI_COUNTER }; // next 25%
-					static const UnitAITypes kTry100[3] = { UNITAI_COUNTER,     UNITAI_ATTACK,      UNITAI_ATTACK_CITY }; // last 25%
-    
-					const int r = syncRand().get(100, "SAS: defender->offense AI nudge");
-					const UnitAITypes* pTry = (r < 50) ? kTry50 : ((r < 75) ? kTry75 : kTry100);
+					// // <!-- custom: be careful to not be to aggressive, i had tried 25 and it seems we have too many longbowmen converted to counter, for an AI that had enough cities, make sure this is aggressive enough so AIs switch to offense units more, but not too much so that it would make a regularly defended and expanded AI grow thin due to going attack if i am not mistaken but anyways etc (especially considering this steals from our real defenders sohandle with caution, and mostly for AIs likely to have few cities, and thus many extra defenders to convert from if i am not mistaken but anyways etc) -->
+					// // 1) “Lagging expansion”: ~1 city per 30 turns (scaled the same way)
+					// const int iTurnsPerCity = std::max(1, (30 * iTrainPct) / 100);
+					// const int iExpectedCities = std::max(1, iCurrentTurn / iTurnsPerCity);
+					// const bool bLaggingBehindNumCities = (iNumCities < iExpectedCities);
+					// <!-- custom: update: what matters is not that we are lagging behind, but whether we are overall strong and have met unit requriements to defend cities, which is generally the case when we have less cities than our rivals, so more units per city generally. However sometimes we have both many cities, but also many cities if we get a very good run. In such cases, the same logic of not overdefending early applies, although we should be bit more concerned about not losing our empire and consolidating it rather, still, if somehow we are much stronger than our rivals, it is useless to over defend, as happened in known issue as of now 53.2.2 in autoplay anyways etc. In that case, favour offense more, after all offensive units can defend as well if we are attacked, and generally offense is defense, so we are not too likely to be targeted if we are strong, as human players would do perhaps in some games as well and not overbuild longbows for example especially at higher difficulties where it would most likely cause us to lose the game due to handicap setting penalties especially if not in advciv-sas as their penalties are harsher generally. Still, in our mod we'd want AI to react well to overproduction of defensive units, and block it before it happens in this case i mean but anyways etc, so add this logic regardless of if we are lagging behind in cities or not, purpose is the same, see known issue as of now 53.2.2 for details or/and related info anyways etc -->
 
-					// Only flip if THIS unit type can actually serve in that role.
-					// quick sanity: land combat only (defensive picks should already be land)
-					if (kUnitInfo.getDomainType() == DOMAIN_LAND && kUnitInfo.getCombat() > 0)
+					const int iCurrentTurnAdjusted = (iCurrentTurn * iTrainPct) / 100;
+
+					// <!-- custom: very simple and computationally efficient "are we lagging behind in city count vs other rivals? If so switch to offense rather to attempt to make gains" by approximating we'd need about 1 city per 25 turn to be expanding enough. Even if this is not striclty accurate, what matters is we get a signal soon enough to switch to offense, as it can get time to build units. Plus, limit this to the early game, as later we don't expand as much, and our military composition should be stable so it wouldn't help as much. This attempts to fix issue of joao ai building 36 longbowmen at turn 130 instead while having only 3 cities, and his neighbour that has 8+ cities at a glance and weaker and thinner military would have been a perfect target if say half of our forces had been offense units; code provided by chatgpt 5 check if accurate anyways etc; see known issue as of now 53.2 for details as well anyways etc; also note: we're focused on land warfare here as it is the most important even in water heavy maps the point is to not lose cities or gain them especially early if i'm not mistaken but anyways etc -->
+					const int iMaxDefendersPerCityEarlyAdjusted = 2 + (iCurrentTurnAdjusted >= 100 ? 1 : 0);
+
+					// <!-- custom: not checking units in city plot, as code i added seemed or might be unreliable (was based on getNumDefenders), issue may have been something/somewhere else but anyways etc, but i thought in all cases but anyways etc it's better/good to simplify it as well to be more reliable; as we are in the early game such an approximation is i assume fine anyways etc; using instead only a generous enough but not too broad grossly guessed per city defender, i want AIs to quickly switch to offense mode when they can make gains early, and not produce tons of longbows or such that would prevent that, but we need to be careful to have enough units in general as well, hopefully this is a fine enough and safe enough approximation anyways etc -->
+					// Guard against div-by-zero and define a very simple “defense overweight” signal:
+					const bool bDefenseOverweight = (3 * iMainDefenders > 4 * iMainAttackers);
+
+					const int iEnoughEarlyDefendersPerCityGuessedly = (iMaxDefendersPerCityEarlyAdjusted * iNumCities);
+					const bool bEnoughEarlyDefendersPerCityGuessedly = (iMainDefenders >= iEnoughEarlyDefendersPerCityGuessedly);
+
+					// 3) Empire composition check: are we defender-heavy?
+					// <!-- custom: reuse bEnoughDefenders anyways etc -->
+
+					// 4) If we’re about to add another pure defender while boxed/lagging, reroll to offense.
+					// <!-- custom: reused bStrictLandDefenderUnitAI rather than recomputing as it is more efficient i think anyways etc -->
+
+					// <!-- custom: if we have too much defenders and it's early and not in danger, switch to attack (although we could use power ratios to help us, hopefully accurate enough to do as such and much simpler maybe although i don't know too much about, potentially computaitonally much faster maybe but anyways etc) -->
+					// <!-- custom: use an or here to favour versatility and focus on offense when we are defended enough in the early game. For example if we have 5 cities (at as of now turn 100+ anyways etc) and 2 longbowmen and 1 spearman in our city, or 2 spearmen and 1 longbow or something simlar, we may consider ourselves safe enough when it comes to the early game for this part of the city's computation (if it has more units count the excess as well as virtually belonging to other cities instead, only look at total defenders in all empires in the end to simplify and they could maybe move if needed anyways etc) also remaining attackers could be used as defense, and there shouldn't be too much differences early, so try to grab any offensive edge we can rather as soon / as long as we are safe enough in the early game and if i am not mistaken but anyways etc -->
+					// Short answer: yes—use OR between your two simple signals. It’s safe and matches your intent.
+					// You already gate on “safe to flip” with
+					// !bDanger && !(bAtWar && bEnemyStrong), so you won’t starve defenders when things look bad.
+					// Using non-strict defenders makes the check tolerant to variety (mix of spears/LBs/etc).
+					// With 5 cities and target 3 per city → cap=15: hitting that cap early and flipping is fine—your new offense units still defend in practice.
+					if (bEnoughEarlyDefendersPerCityGuessedly || bDefenseOverweight)
 					{
-						for (int i = 0; i < 3; i++)
+						// <!-- custom: if we can produce better, more offense or versatile focused units, abandon current defense unit project -->
+						// <!-- custom: a catapult rush could work if we have nothing better at all, better than a longbow rush! Just don't overbuild anyways etc; we already processed if we should build siege and trebuchets in particular or not but anyways etc, so use a simplified version here for the "enough defenders but checking if siege are good if we have nothing better part of the code" if i am not mistaken but anyways etc, is bit redundant, ideally should be merged there if i am not mistaken but maybe not too bad as such, as we are not looping over units there in siege checks but are doign so here, so maybe fine as such or not too bad as i said but anyways etc -->
+						const bool bEnoughSiegeAlready = (iSiegesAll >= iNumCities);
+						// <!-- custom: as for trebuchets, be stricter as they are even less versatile, however if we really have absolutely nothing better, a few of them could help us win our rush of longbows + trebuchets xd, so allow some minimally as they are otherwise not efficient and best not produced if not for specific role. Do not implement all checks here again, use a very simple approximation of it here anyways etc. -->
+						const bool bEnoughTrebsLikeAlready = (iTrebsLike >= 2);
+
+						const bool bNoNewSiegeRightNow = (
+							(bAtWar && !bEnemyWeakNotZero) ||
+							(!bWarPlan || bDanger) ||
+							(bEnemyStrong)
+						);
+
+						// “Can we build any generic offensive land unit right now?”
+						// <!-- custom: assume most expensive unit is strongest so we are hammer efficient, as i noticed hatshepsut ai for example built many ancient macemen at turn 100+, possibly because of this new no more defender code, so if we want to pick an attacker, use cost to determine strongest, i.e. the more expensive the stronger we can expect it to be anyways etc. Based on the code in CvCity::doTurn anyways etc -->
+						UnitTypes   eBestUnit = NO_UNIT;
+						UnitAITypes eBestUnitAI = NO_UNITAI;
+						int         iBestScore = -1;
+						int         iBestCost  = MIN_INT;
+
+						// same era cap you use elsewhere
+						static const int iMaxHammerPerEra = 50;
+						const int iMaxCost = iMaxHammerPerEra * (iCurrentEra + 1);
+
+						// prefetch civ UU mapping once
+						const CvCivilizationInfo& kCiv = GC.getInfo(kPlayer.getCivilizationType());
+
+						FOR_EACH_ENUM(Unit)
 						{
-							if (kUnitInfo.getUnitAIType(pTry[i])) // unit supports this AI role?
+							if (!canTrain(eLoopUnit, false)) continue;
+							// <!-- custom: note: this is eLoopUnit's pointer, not currently chosen to be produced eUnit anyways etc -->
+							const CvUnitInfo& kU = GC.getInfo(eLoopUnit);
+							if (kU.getDomainType() != DOMAIN_LAND) continue;
+							if (kU.getCombat() <= 0) continue;
+							// Skip picking the same type you’re trying to replace (just in case an archer line slips through with an offensive AI):
+							if (eLoopUnit == eUnit) continue;
+
+							const bool bLoopUnitIsSiege = (kU.getUnitCombatType() == eUnitCombatSiege);
+							if (bLoopUnitIsSiege)
 							{
-								eUnitAI = pTry[i]; // switch role, keep same unit
-								break;
+								// keep siege out of the “simple offense” bucket <!-- custom: unless we have nothing better and not too much of these as explained/said in above anyways etc -->
+								if (bEnoughSiegeAlready || bEnoughTrebsLikeAlready || bNoNewSiegeRightNow)
+								{
+									continue;
+								}
+							}  
+
+							// sanity cap by era on REAL cost (don’t use inflated for the cap)
+							const int iCost = getProductionNeeded(eLoopUnit);
+							if (iCost > iMaxCost)
+							{
+								continue;
+							}
+
+							// must be usable offensively by default UnitAI
+							const UnitAITypes eLoopDefaultUnitAI = kU.getDefaultUnitAIType();
+							const bool bMainOffenseDefaultUnitAIUnit = (
+								(eLoopDefaultUnitAI == UNITAI_ATTACK) ||
+								(eLoopDefaultUnitAI == UNITAI_ATTACK_CITY) ||
+								// <!-- custom: use getDefaultUnitAIType rather than getUnitAIType to maybe (i guess but i don't know so check to be sure anyways etc) avoid longbowmen as attackers since they have unitai_counter, assume the default type is most representative of the unit's capabilities anyways etc -->
+								(eLoopDefaultUnitAI == UNITAI_COUNTER)
+							);
+
+							if (!bMainOffenseDefaultUnitAIUnit)
+							{
+								continue;
+							}
+							// <!-- custom: if we can build an offensive unitAI unit instead, then switch to it here manually rather anyways etc, then later if all good it would be the final order if i am not mistaken but anyways etc -->
+							else
+							{
+								// <!-- custom: inflate artificially the civ-specific unit assuming it is best (war chariot is as of now anyways etc 5 str for 30 hammer, vs 6 str for 50 hammaer for a horse archer! The horse archer is much more efficient, but we can't judge on str alone, as some units have some nice perks like withdraw chance, etc. Simplest way is to assume civ-specific unit is best choice if available, at least a much stronger one than cost would lead on, else fix our XML to make them strong enough to justify being picked by AI but anyways etc) -->
+								// prefer the civilization's unique unit (war chariot over horse archer, etc.)
+								// score = cost, with a UU override bump (2*cost + 1)
+								int iScore = iCost;
+								const UnitClassTypes eClass = kU.getUnitClassType();
+								const UnitTypes eCivUnitForClass = (UnitTypes)kCiv.getCivilizationUnits(eClass);
+								const UnitTypes eDefaultForClass  = (UnitTypes)GC.getUnitClassInfo(eClass).getDefaultUnit();
+								const bool bIsUUOverride = (eCivUnitForClass == eLoopUnit && eLoopUnit != eDefaultForClass);
+								if (bIsUUOverride)
+								{
+									iScore = (2 * iScore) + 1;
+								}
+
+								// pick highest score; on score tie pick the higher real cost
+								if (iScore > iBestScore || (iScore == iBestScore && iCost > iBestCost))
+								{
+									iBestScore = iScore;
+									iBestCost  = iCost;
+									eBestUnit  = eLoopUnit;
+									eBestUnitAI = eLoopDefaultUnitAI;
+								}
 							}
 						}
-					}
-					// else: keep original defender AI (can’t sensibly attack)
-					// <!-- custom: and then do not push order here, only alter selection on bestunitai if i'm not mistaken, do not redo all the pipeline and let it be handled before or/and later wherever it is anyways etc -->
-					// notes
-					// This doesn’t push orders or re-run best-unit logic; it just tweaks eUnitAI if the already-picked eUnit supports the offensive role.
-					// Because ATTACK/ATTACK_CITY/COUNTER aren’t in your “handled civilian/naval/air” blocks, the rest of the function just falls through to the final pushOrder(ORDER_TRAIN, eUnit, eUnitAI); as desired.
-				}		
+						// commit if we found something
+						if (eBestUnit != NO_UNIT)
+						{
+							eChangedUnit   = eBestUnit;
+							eChangedUnitAI = eBestUnitAI;
+						}
+						// <!-- custom: else if no unit was found, fallback to alternative unitai types for this defensive unit that had a strict or heavily defensive unitai, now instead focusing on most reliable unitais we can most likely always build for simplicty and no error ideally although we could check this but i don't know how but anyways etc; what matters most here is we switch to offense soon enough so that we have enough offense units later in the game where it matters most (joao ai having 36 longbowmen at turn 130 for example is way too much as most of these were city_defense or city_counter or something similar anyways etc), see known issue as of now 53.2 for related info anyways etc -->
+						else
+						{
+							// We’ll attempt up to 3 alternatives in weighted order: 50% ATTACK, 25% ATTACK_CITY, 25% COUNTER <!-- custom: COUNTER rather as we can use them for attack if i'm not mistaken anyways etc -->.
+							// <!-- custom: save some computation xd when we can if i may say but anyways etc -->
+							// Pre-cached weighted permutations (built once)
+							static const UnitAITypes kTry50[3]  = { UNITAI_ATTACK,      UNITAI_ATTACK_CITY, UNITAI_COUNTER }; // 50%
+							static const UnitAITypes kTry75[3]  = { UNITAI_ATTACK_CITY, UNITAI_ATTACK,      UNITAI_COUNTER }; // next 25%
+							static const UnitAITypes kTry100[3] = { UNITAI_COUNTER,     UNITAI_ATTACK,      UNITAI_ATTACK_CITY }; // last 25%
+			
+							const int r = syncRand().get(100, "SAS: defender->offense AI nudge");
+							const UnitAITypes* pTry = (r < 50) ? kTry50 : ((r < 75) ? kTry75 : kTry100);
+
+							// Only flip if THIS unit type can actually serve in that role.
+							// quick sanity: land combat only (defensive picks should already be land)
+							if (kUnitInfo.getDomainType() == DOMAIN_LAND && kUnitInfo.getCombat() > 0)
+							{
+								for (int i = 0; i < 3; i++)
+								{
+									if (kUnitInfo.getUnitAIType(pTry[i])) // unit supports this AI role?
+									{
+										eUnitAI = pTry[i]; // switch role, keep same unit
+										break;
+									}
+								}
+							}
+							// else: keep original defender AI (can’t sensibly attack)
+							// <!-- custom: and then do not push order here, only alter selection on bestunitai if i'm not mistaken, do not redo all the pipeline and let it be handled before or/and later wherever it is anyways etc -->
+							// notes
+							// This doesn’t push orders or re-run best-unit logic; it just tweaks eUnitAI if the already-picked eUnit supports the offensive role.
+							// Because ATTACK/ATTACK_CITY/COUNTER aren’t in your “handled civilian/naval/air” blocks, the rest of the function just falls through to the final pushOrder(ORDER_TRAIN, eUnit, eUnitAI); as desired.
+						}
+					}		
+				}
 			}
-			// --- SAS: <!-- custom: end of anyways etc --> Early breakout nudge (simple, cheap) ---
 
 			// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc, and if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
 			// <!-- custom: trying to save some computing power by moving the mapname outside the function plus condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
@@ -12022,9 +12144,14 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 			// <!-- custom: note: as of now unhandled unitais here mean free production or let AI decide, the more the better: military land units, air units but anyways etc, see canScrap function for the handling of these produced units anyways etc -->
 		}
-		
-		// <!-- custom: old code resumes here anyways etc -->
-		pushOrder(ORDER_TRAIN, eUnit, eUnitAI);
+		if (eChangedUnit != NO_UNIT && eChangedUnitAI != NO_UNITAI)
+		{
+			pushOrder(ORDER_TRAIN, eChangedUnit, eChangedUnitAI);
+		}
+		else
+		{
+			pushOrder(ORDER_TRAIN, eUnit, eUnitAI);
+		}
 		return true;
 	}
 	return false;

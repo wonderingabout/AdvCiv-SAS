@@ -5490,6 +5490,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
+				<!-- custom: favour them dying soon so they don't cost too much maintenance while being useful while they are strong anyways etc -->
+				<UnitAI>
+					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
 					<bUnitAI>1</bUnitAI>
@@ -9999,6 +10004,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
+				<!-- custom: important to keep if all else fails (no camel, no horse, no copper, no iron), the longbows are one of the best options except perhaps catapults later in tech, so do not punish very bad bonuses start if we are otherwise doing well and a longbow rush could help if i am not mistaken and keep this UNITAI_COUNTER to hopefully help that but anyways etc -->
 				<UnitAI>
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
@@ -10122,7 +10128,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iCultureGarrison>6</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>2</iAsset>
-			<iPower>6</iPower>
+			<!-- custom: i don't know if iPower takes modifiers like city defense into account, but when attacking other units, it is generally quite weak if not for other effects like withdraw that make it a good harass unit if i am not mistaken but anyways etc, so try to reflect its power better with our mod changes but anyways etc, check if accurate as i don't know too much about these anyways etc, was 6 -->
+			<iPower>5</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -10220,6 +10227,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<!-- custom: kept for the civ-specific unit unlike generic longbowman as it is versatile enough to be used for offense as well if i am not mistaken but anyways etc -->
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 				<UnitAI>
@@ -10479,6 +10491,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
+				<!-- custom: kept for the civ-specific unit unlike generic longbowman as it is versatile enough to be used for offense as well if i am not mistaken but anyways etc -->
 				<UnitAI>
 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
@@ -15022,7 +15035,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iCultureGarrison>4</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>2</iAsset>
-			<iPower>4</iPower>
+			<iPower>5</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>2</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -15264,7 +15277,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iCultureGarrison>4</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>2</iAsset>
-			<iPower>4</iPower>
+			<!-- custom: a bit inflated if matched up vs longbows if i am not mistaken but anyways etc, but otherwise this beats an axeman and is matched evenly vs a swordsman more or less if i am not mistaken in our mod, was 4 -->
+			<iPower>5</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>2</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>

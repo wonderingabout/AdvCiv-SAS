@@ -14697,6 +14697,16 @@ int CvPlayerAI::AI_mainDefensiveLandTotalUnitAIs() const
 	);
 }
 
+int CvPlayerAI::AI_strictDefensiveLandTotalUnitAIs() const
+{
+	return
+	(
+		AI_totalUnitAIs(UNITAI_CITY_DEFENSE)
+		+ AI_totalUnitAIs(UNITAI_CITY_SPECIAL)
+		+ AI_totalUnitAIs(UNITAI_RESERVE)
+	);
+}
+
 int CvPlayerAI::AI_totalUnitAIs(UnitAITypes eUnitAI) const
 {
 	return AI_getNumTrainAIUnits(eUnitAI) + AI_getNumAIUnits(eUnitAI);
