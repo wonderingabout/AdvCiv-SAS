@@ -659,7 +659,11 @@ void CvCity::doTurn()
 				{
 					// <!-- custom: added a +1 tie breaker if both the best generic unit (e.g. if catapults were allowed so 50 hammer vs a civ-specific archer costing 25 hammer if there was any in our mod anyways etc), we'd now have 51 vs 50 hammer so we win with our civ-specific unit anyways etc -->
 					// treat it as ~100% "more valuable" than its raw cost so cheap UUs still win ties
-					iLoopScore = (2 * iLoopScore) + 1;
+					// <!-- custom: counter civ-specific (e.g. maya holkan, etc) units are less likely to be useful for offense, so do not especially favour them anyways etc -->
+					if (eLoopDefaultUnitAI != UNITAI_COUNTER)
+					{
+						iLoopScore = (2 * iLoopScore) + 1;
+					}
 				}
 
 				// <!-- custom are otherwise equal in cost, take the civ-specific one (e.g. a generic axeman 35 hammer vs civ-specific zulu impi (spearman) 35 hammer, which both would be cheap enough to build assuming a tight threshold (which we don't have here but as an example and just in case anyways etc)) -->

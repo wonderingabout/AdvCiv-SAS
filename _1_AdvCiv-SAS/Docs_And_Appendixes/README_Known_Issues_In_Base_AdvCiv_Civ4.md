@@ -2124,6 +2124,8 @@ pushOrder(ORDER_TRAIN, eUnit, eUnitAI)
 return true
 ```
 
+Update: since then reverted naval unit production control in naval heavy maps (archipelago etc.) as we had way too few of them, which seems to give much better results (didn't update this doc, anyways etc)
+
 ## 53.2 - (Fixed and enhanced) Joao AI building way too many defenders (36 longbowmen at turn 130!! Almost all with UNITAI_CITY_DEFENSE or similar) while being boxed in with only 3 cities, instead of making about half of these offense units or versatile ones to punish overextending thin neighbour, fixed by having an early phase "we have expectedly too few cities at this stage of the game, no need to overbuild anymore denders at this stage of the game, switch to offense or versatile UNITAI rather" and "our military composition has way too many defender UNITAIs, switch to offense or versatile UNITAIs", which seemingly fix the issue anyways etc
 
 See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1SXj_Q_DcmsBsvB0vbajclZUFMYxSBv05?usp=sharing).
@@ -2165,7 +2167,7 @@ Although in some other cases it doesn't seem applied, like khmer ai still going 
 
 While making this new code, i also tried to enforce picking (extra valuing) civ-specific units on the assumptions they are nice (war chariots very cheap and effective for example rather than a horse archer), and avoid otherwise weak units to avoid high unit costs and low effectiveness of the military anyways etc.
 
-I then tried another autoplay run and it was very very brutal, with ewuare ai having 150+ cavalry at turn 260 (in a standard monarch pangea normal game speed map if i am not mistaken but anyways etc) more or less and other units in lower number but anyways etc where he won! Despite not having train percent discounts per era anymore in advciv-sas as of now! I think the good offensive start helped convert it easier to a middle game offensive stack although i didn't check in detail but anyways etc.
+I then tried another autoplay run and it was very very brutal, with ewuare ai having 150+ cavalry at turn 260 (in a standard monarch pangea normal game speed map if i am not mistaken but anyways etc) more or less and other units in lower number but anyways etc where he won! Despite not having train percent discounts per era anymore in advciv-sas as of now! I think the good offensive start helped convert it easier to a middle game offensive stack although i didn't check in detail but anyways etc. If you're curious about this run, i shared some / a few of the screenshots [there in this CFC advciv-sas post anyways etc](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16866658).
 
 So overall very good results it seems!
 

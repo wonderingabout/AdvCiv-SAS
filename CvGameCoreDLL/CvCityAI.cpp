@@ -11623,7 +11623,11 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 								const bool bIsUUOverride = (eCivUnitForClass == eLoopUnit && eLoopUnit != eDefaultForClass);
 								if (bIsUUOverride)
 								{
-									iScore = (2 * iScore) + 1;
+									// <!-- custom: counter civ-specific (e.g. maya holkan, etc) units are less likely to be useful for offense, so do not especially favour them anyways etc -->
+									if (eLoopDefaultUnitAI != UNITAI_COUNTER)
+									{
+										iScore = (2 * iScore) + 1;
+									}
 								}
 
 								// pick highest score; on score tie pick the higher real cost
@@ -11688,16 +11692,17 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				bNavalHeavyMap = isNavalHeavyMap(mapName);
 			}
 
-			if (bAllHandledNavalUnitAIs)
+			// <!-- custom: do not limit naval units on naval heavy maps, it seems we have way too few units as a result in archipelago, after all if a frigate defeats an invading galleon it counts same as having more units than all land cargo invaders, so do not limit it anyways etc, also maybe this allows for more versatile naval games, let AI decide its own strategy in this case i mean but anyways etc (hopefully not nonsensical one else we could tweak it, but naval maps could go many ways and with various approaches perhaps, so let AI handle it and keep versatility here rather if i am not mistaken in my thinking and based on previous results that were bad when nerfing naval production way too hard as of now on archipelago for example anyways etc but anyways etc) -->
+			if (!bNavalHeavyMap && bAllHandledNavalUnitAIs)
 			{
 				if (bNavalFrontLineUnitAIs)
 				{
 					// <!-- custom: let's limit certain types of naval units by map type (less on land heavy ones like pangea, more in naval heavy ones like archipelago, anyways etc), to help the known issue as of now 53 of having an AI player have 20+ galleons/privateers, yet producing them +/- scrapping them (dementia/insane like behvaiour if may say but anyways etc.., but not its fault, it just wasn't told better, so hopefully we can help AI have saner unit limits, and we'll ahndle the seemignly naval units scrapping elsewhere as we did in known issue as of now 52 for many units but anyways etc), so for now a few of the combat naval unit AIs (like max iNumCities per AI player seems very sane on pangea, possibly * 2 for naval heavy maps, no need to overproduce beyond that, nor to scrap before that potentially risking crazy loops but anyways etc, we hopefully maybe also save computation by implementing our check here before code is executed but anyways etc) ; code added with the help / thanks to chatgpt 5 as well, check if accurate (and check mine too i mean but anyways etc) anyways etc -->
 					int iMaxUnits = iNumCities;
-					if (bNavalHeavyMap)
-					{
-						iMaxUnits = 2 * iNumCities;
-					}
+					// if (bNavalHeavyMap)
+					// {
+					// 	iMaxUnits = 2 * iNumCities;
+					// }
 
 					// <!-- custom: adjust based on danger, do not waste hammer if threatened in particular, or if preparing a nice offense, make it effective and use our hammer wisely if i may say but anyways etc -->
 					if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
@@ -11723,10 +11728,10 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				{
 					// <!-- custom: we don't need too many explore units, especially on land heavy maps, so make sure we don't overproduce (unless they all die or something then replenish if i may say but anyways etc) them and waste hammer anyways etc -->
 					int iMaxUnits = 1 + (3 * iNumCities) / 10; // 1 + ⌊0.3 * cities⌋;
-					if (bNavalHeavyMap)
-					{
-						iMaxUnits = 2 + (3 * iNumCities) / 10;
-					}
+					// if (bNavalHeavyMap)
+					// {
+					// 	iMaxUnits = 2 + (3 * iNumCities) / 10;
+					// }
 
 					// <!-- custom: adjust based on danger, do not waste hammer if threatened in particular, or if preparing a nice offense, make it effective and use our hammer wisely if i may say but anyways etc -->
 					if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
@@ -11746,10 +11751,10 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				{
 					// <!-- custom: the needed amount will heavily be influenced by our war strategy or situation if i may say but anyways etc, otherwise falling back with the as of now below default anyways etc -->
 					int iMaxUnits = iNumCities;
-					if (bNavalHeavyMap)
-					{
-						iMaxUnits = 2 * iNumCities;
-					}
+					// if (bNavalHeavyMap)
+					// {
+					// 	iMaxUnits = 2 * iNumCities;
+					// }
 
 					// <!-- custom: adjust based on danger, do not waste hammer if threatened in particular, or if preparing a nice offense, make it effective and use our hammer wisely if i may say but anyways etc -->
 					if (bEnemyStrong || bDanger || bWarPlan)
@@ -11771,10 +11776,10 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				{
 					// <!-- custom: the needed amount will be influenced by our war strategy or situation if i may say but anyways etc, otherwise falling back with the as of now below default anyways etc -->
 					int iMaxUnits = iNumCities;
-					if (bNavalHeavyMap)
-					{
-						iMaxUnits = 2 * iNumCities;
-					}
+					// if (bNavalHeavyMap)
+					// {
+					// 	iMaxUnits = 2 * iNumCities;
+					// }
 
 					// <!-- custom: it is hard to predict how these units will be used, we could maybe settle a new island, guard our cargo, who knows, i don't know exactly how this is used, so let's be a bit conservative and also broad in case they have many use cases, following our general rule though to be conservative and preserve hammer, especially considering our current issue of 20+ galleons/privateers crazy dementia pump xd if i may say but anyways etc while our top city is captured around turn 220, so giving lower priority to naval units in harsh times as well here as a general rule, but with less concern than for assault as of now at least if i may say but anyways etc -->
 					if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
@@ -11794,10 +11799,10 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				{
 					// <!-- custom: i don't know too much about these units so allow some quite conservatively and in a sane manner without going overboard on restriction nor in unrestricting them but anyways etc -->
 					int iMaxUnits = iNumCities;
-					if (bNavalHeavyMap)
-					{
-						iMaxUnits = 2 * iNumCities;
-					}
+					// if (bNavalHeavyMap)
+					// {
+					// 	iMaxUnits = 2 * iNumCities;
+					// }
 
 					// <!-- custom: it is hard to predict how these units will be used, we could maybe settle a new island, guard our cargo, who knows, i don't know exactly how this is used, so let's be a bit conservative and also broad in case they have many use cases, following our general rule though to be conservative and preserve hammer, especially considering our current issue of 20+ galleons/privateers crazy dementia pump xd if i may say but anyways etc while our top city is captured around turn 220, so giving lower priority to naval units in harsh times as well here as a general rule, but with less concern than for assault as of now at least if i may say but anyways etc -->
 					if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
@@ -11819,22 +11824,23 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				{
 					// <!-- custom: don't overbuild these especially early, we won't found too many cities all at the same time (else something may be wrong with our economy or something xd i would guess at least with base/current settings of maintenance / city cost / settler cost but anyways etc) -->
 					int iMaxUnits = 1 + (3 * iNumCities) / 10; // 1 + ⌊0.3 * cities⌋;
-					if (bNavalHeavyMap)
-					{
-						iMaxUnits = 2 + (3 * iNumCities) / 10;
-					}
+					// if (bNavalHeavyMap)
+					// {
+					// 	iMaxUnits = 2 + (3 * iNumCities) / 10;
+					// }
 
 					// <!-- custom: if at war or such danger or threat, don't die, don't expand, but since this is about founding cities, allow one for naval heavy maps anyways etc -->
 					if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
 					{
-						if (bNavalHeavyMap)
-						{
-							iMaxUnits = 1;
-						}
-						else
-						{
-							return false;
-						}
+						// if (bNavalHeavyMap)
+						// {
+						// 	iMaxUnits = 1;
+						// }
+						// else
+						// {
+						// 	return false;
+						// }
+						return false;
 					}
 					// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant) but anyways etc -->
 
@@ -11853,18 +11859,18 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					if (!bEraRenaissanceOrAfter)
 					{
 						iMaxUnits = iNumCities;
-						if (bNavalHeavyMap)
-						{
-							iMaxUnits = 2 * iNumCities;
-						}
+						// if (bNavalHeavyMap)
+						// {
+						// 	iMaxUnits = 2 * iNumCities;
+						// }
 					}
 					else
 					{
 						iMaxUnits = 1 + (3 * iNumCities) / 10; // 1 + ⌊0.3 * cities⌋;
-						if (bNavalHeavyMap)
-						{
-							iMaxUnits = 2 + (3 * iNumCities) / 10;
-						}
+						// if (bNavalHeavyMap)
+						// {
+						// 	iMaxUnits = 2 + (3 * iNumCities) / 10;
+						// }
 					}
 
 					// <!-- custom: the limits are sane, and at war, especially if pilalged, we may need more workboats, plus they are cheap anyway, so just make sure to not overbuild which we do then all fine i would say/guess but anyways etc, so no threat/war or such change for this unitai anyways etc -->
@@ -11884,18 +11890,18 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					if (!bEraRenaissanceOrAfter)
 					{
 						iMaxUnits = iNumCities;
-						if (bNavalHeavyMap)
-						{
-							iMaxUnits = 2 * iNumCities;
-						}
+						// if (bNavalHeavyMap)
+						// {
+						// 	iMaxUnits = 2 * iNumCities;
+						// }
 					}
 					else
 					{
 						iMaxUnits = 1 + (3 * iNumCities) / 10; // 1 + ⌊0.3 * cities⌋;
-						if (bNavalHeavyMap)
-						{
-							iMaxUnits = 2 + (3 * iNumCities) / 10;
-						}
+						// if (bNavalHeavyMap)
+						// {
+						// 	iMaxUnits = 2 + (3 * iNumCities) / 10;
+						// }
 					}
 
 					// <!-- custom: if at war or such danger or threat, don't die, don't worry or try to propagate religions, now is not the time, save every hammer (and unit cost if it costs, which i don't know, but hammer is justification/raitonale of enough if i may say but anyways etc to not overbuild or at all maybe but anyways etc) -->
@@ -11917,10 +11923,10 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				{
 					// <!-- custom: allow AI to be quite versatile with these, just don't overdo it anyways etc -->
 					int iMaxUnits = iNumCities;
-					if (bNavalHeavyMap)
-					{
-						iMaxUnits = (iNumCities * 3) / 2;
-					}
+					// if (bNavalHeavyMap)
+					// {
+					// 	iMaxUnits = (iNumCities * 3) / 2;
+					// }
 
 					// <!-- custom: at war these can go a long way, especially on land maps, we can get a big advantage from using these, but if we don't already have them, don't build them now, they won't be ready nor effective in time anyway and we'd have just wasted hammer if i may say but anyways etc -->
 					if (bAtWar || bEnemyStrong || bDanger)
