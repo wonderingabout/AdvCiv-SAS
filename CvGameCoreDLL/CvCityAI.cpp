@@ -11402,15 +11402,21 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				// Trebuchet-like stricter rule
 				if (bTrebuchetLike)
 				{
+					int iCapTrebs = 20;
+
 					// <!-- custom: the war has already started, no time to produce them if we didn't do so already, focus on defense or immediate joining stack units to finalize our offensive stacks, now is not the time to weaken our stacks with trebuchets that are quite likely to be not relevant anyways etc anyways etc -->
 					if (bAtWar && !bEnemyWeakNotZero)
 					{
 						return false; // don’t add more narrow-purpose siege when not stronger
 					}
 					// <!-- custom: even if not at war and still in planning stage, trebuchets are bad if we're weak regardless (we can expect to be attacked, so don't build them if i am not mistaken anyways etc); note: i guessedly assume if we are planning war we are strong enough to do so and so don't mind some trebuchets to help that (otherwise maybe not if other conditions are also not met if i'm not mistaken but anyways etc) but i didn't check, check if accurate anyways etc -->
-					if (!bWarPlan || bDanger)
+					if (bDanger)
 					{
 						return false; // don’t add more narrow-purpose siege when not stronger
+					}
+					if (!bWarPlan)
+					{
+						iCapTrebs = 15;
 					}
 					// <!-- custom: even if not at war, if our enemy is already stronger, don't attempt to build trebuchets that will most likely be useless as enemy will get even stronger over time and we'll be more vulnerable with non versatile or not enough defender units anyways etc -->
 					if (bEnemyStrong)
@@ -11419,7 +11425,6 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					}
 
 					// <!-- custom: even if we are stronger or otherwise ok to produce trebuchets, another edge case may be that they are simply even less versatile than other siege units, so apply tighter rules (their only purpose is to bombard city defenses or suicide attacking a city, except for that we don't want too many of them in our unit composition as it may be crippling or detrimental due to lack of versatility anyways etc -->
-					static const int iCapTrebs = 35;
 					int const iTrebsShareOff = (100 * iTrebsLike) / std::max(1, iMainAttackers);
 					if (iTrebsShareOff >= iCapTrebs)
 					{
@@ -11427,20 +11432,20 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					}
 				}
 
+				// <!-- custom: if not in cases where we should not produce siege units at all for efficiency, consider the case we can/should, and add some sanity/efficiency limits if i may say but anyways etc -->
+				// Simple caps:
+				int iCapSiegesAll = 50;
+
 				// <!-- custom: even more broadly for all siege units in general like catapults, trebuchets, cannons, etc, they are still not too versatile, especially at defense, so employ if i may say but anyways etc similar checks than for trebuchets, perhaps a bit more lax but not too much, especially for early game units like the catapult that are even less versatile than say a cannon if i am not mistaken but anyways etc (so do not overproduce them especially when defending/weaker as is bad for us if i'm not mistaken but anyways etc) -->
 				// --- Generic siege cap (non-trebuchet specifics) ---
 				if (bAtWar && !bEnemyWeakNotZero)
 				{
-					return false; // don’t add more narrow-purpose siege when not stronger
+					iCapSiegesAll = 25;
 				}
 				if (bDanger)
 				{
 					return false; // don’t add more narrow-purpose siege when not stronger
 				}
-				
-				// <!-- custom: if not in cases where we should not produce siege units at all for efficiency, consider the case we can/should, and add some sanity/efficiency limits if i may say but anyways etc -->
-				// Simple caps:
-				int iCapSiegesAll = 50;
 
 				// <!-- custom: don't need that many so early they'd be too inefficient to keep and maintain for our purpose if i am not mistaken but anyways etc -->
 				if (!bEraRenaissanceOrAfter)
@@ -11448,7 +11453,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					// <!-- custom: a bit extreme as catapults could help destroy strong stacks, but not sure AI knows how to use them as such, better rely more on defensive units anyways etc -->
 					if (bEnemyStrong)
 					{
-						return false;
+						iCapSiegesAll = 20;
 					}
 					// <!-- custom: a bit redundant else since we return before but for clarity and in case we change code or something in this case i mean but anyways etc -->
 					// <!-- custom: invasions should be few early and siege units quite weak, do not overbuilt for efficiency at to have strong versatile stacks with enough non-siege attackers if i am not mistaken but anyways etc -->
@@ -11457,7 +11462,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						// <!-- custom: for non cannon or later units, fine to under build them a bit or not at all if not plotting war soon or something similar, keep a very small reserve (no pun but anyways etc) siege units we can mobilize, but don't capitalize on it too much anyways etc -->
 						if (!bWarPlan)
 						{
-							iCapSiegesAll = 15;
+							iCapSiegesAll = 20;
 						}
 						else
 						{
@@ -11548,12 +11553,14 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						// <!-- custom: a catapult rush could work if we have nothing better at all, better than a longbow rush! Just don't overbuild anyways etc; we already processed if we should build siege and trebuchets in particular or not but anyways etc, so use a simplified version here for the "enough defenders but checking if siege are good if we have nothing better part of the code" if i am not mistaken but anyways etc, is bit redundant, ideally should be merged there if i am not mistaken but maybe not too bad as such, as we are not looping over units there in siege checks but are doign so here, so maybe fine as such or not too bad as i said but anyways etc -->
 						const bool bEnoughSiegeAlready = (iSiegesAll >= iNumCities);
 						// <!-- custom: as for trebuchets, be stricter as they are even less versatile, however if we really have absolutely nothing better, a few of them could help us win our rush of longbows + trebuchets xd, so allow some minimally as they are otherwise not efficient and best not produced if not for specific role. Do not implement all checks here again, use a very simple approximation of it here anyways etc. -->
-						const bool bEnoughTrebsLikeAlready = (iTrebsLike >= 2);
+						const bool bEnoughTrebsLikeAlready = (iTrebsLike >= 3);
 
 						const bool bNoNewSiegeRightNow = (
 							(bAtWar && !bEnemyWeakNotZero) ||
-							(!bWarPlan || bDanger) ||
-							(bEnemyStrong)
+							!bWarPlan ||
+							bDanger
+							// <!-- custom: try to not restrict new siege units too much as we have a bit too few now after our changes although it's a lot better than trebuchets insanity of before but trying to increase it bit more now, as well as also trying to do so in other uncommented changes if i may say in this case i mean but anyways etc -->
+							// bEnemyStrong
 						);
 
 						// “Can we build any generic offensive land unit right now?”
