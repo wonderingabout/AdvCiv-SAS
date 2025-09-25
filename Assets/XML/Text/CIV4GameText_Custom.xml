@@ -459,7 +459,7 @@
 
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_GAMESPEED_QUICK_HELP</Tag>
-		<English>Up to 335 turns. Research, growth and production are 33% faster than on normal speed. As unit movement is unaffected by game speed, warfare is relatively slow. This setting is worth considering especially for multiplayer games and small maps. As of now in AdvCiv-SAS it goes from 50 000 BC to 2150 AD.</English>
+		<English>Up to 330 turns. Research, growth and production are 33% faster than on normal speed. As unit movement is unaffected by game speed, warfare is relatively slow. This setting is worth considering especially for multiplayer games and small maps. As of now in AdvCiv-SAS it goes from 50 000 BC to 2105 AD.</English>
 	</TEXT>
 	<!-- I've only added the turn number here (assuming Ancient-era start and
 		 enabled Time victory) -->
@@ -469,10 +469,10 @@
 	</TEXT>
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_GAMESPEED_EPIC_HELP</Tag>
-		<English>Up to 750 turns. Research, growth and production take 50% longer than on normal speed. As unit movement is unaffected by game speed, this setting allows more time for warfare in each era. As of now in AdvCiv-SAS it goes from 50 000 BC to 2150 AD.</English>
+		<English>Up to 750 turns. Research, growth and production take 50% longer than on normal speed. As unit movement is unaffected by game speed, this setting allows more time for warfare in each era. As of now in AdvCiv-SAS it goes from 50 000 BC to 2105 AD.</English>
 	</TEXT>
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_GAMESPEED_MARATHON_HELP</Tag>
-		<English>Up to 1250 turns. Research, growth and building production take 2.5 times longer than on normal speed, but unit production takes only 2 times longer. This setting favors warfare and demands much patience. As of now in AdvCiv-SAS it goes from 50 000 BC to 2150 AD.</English>
+		<English>Up to 1000 turns (less than in BTS and base AdvCiv). Research, growth, building and unit production take 2 times longer than on normal speed. This setting favors warfare and demands much patience. As of now in AdvCiv-SAS it goes from 50 000 BC to 2105 AD.</English>
 	</TEXT>
 </Civ4GameText>

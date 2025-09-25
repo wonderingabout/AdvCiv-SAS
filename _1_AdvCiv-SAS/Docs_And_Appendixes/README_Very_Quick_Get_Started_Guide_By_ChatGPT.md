@@ -206,6 +206,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
 ### General changes (non-exhaustive; see GlobalDefines/XML)
 
 - **Timeline & pace**: fast-paced but long enough to play through. Start at **-50 000 BC**; early turns advance by **5 000 years/turn**, then the step size **gradually decreases**. After a few dozen turns at **Normal** speed, you’ll be around the **Bronze Age**. Late-game turns are kept relatively brisk; the game ends at **2105 AD** (**turn 500** on Normal). See [CIV4GameSpeedInfo.xml](/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml) and [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md) for current values. **Note:** the **GAMESPEED_NORMAL** timeline was authored here; other game speeds were derived by **ChatGPT 5** from that timeline (with an annotated year progression in the XML comments).
+- **Game speed — Marathon shortened**: `GAMESPEED_MARATHON` total turns **1250 → 1000** (vs base AdvCiv). Adjusted the associated speed modifiers to align with the new length.
 - **Start map behavior**: less “terrain polishing”; more starting **vision** so you can choose a spot rather than forcing ideal tiles.
 - **Slavery**: `HURRY_POPULATION` production increased (**24 → 27**). See *CIV4HurryInfo.xml* (`HURRY_POPULATION`).
 - **Leader random selection**: `PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT` **20 → 0** (all civs equal chance regardless of leader count). See *GlobalDefines_advc.xml*.
