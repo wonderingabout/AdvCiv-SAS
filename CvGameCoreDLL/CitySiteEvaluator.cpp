@@ -383,11 +383,24 @@ short AIFoundValue::evaluate()
 	// int const iElapsedTurns = GC.getGame().getElapsedGameTurns();
 	int const iNumCities = kPlayer.getNumCities();
 	bool const bStartPhase = (iNumCities == 0);
+
 	// <!-- custom: use tile count rather than water plots, as we may be skipping them due to isUsablePlot as claude ai noticed/noted if i may say but anyways etc, and with chatgpt 5's and other ai's help anyways etc -->
 	int iTileCountWaterWithBonus = 0;
 	int iTileCountWaterNoBonus = 0;
 	int iTileCountNoPeakLand = 0;
 	int iTileCountPeak = 0;
+	// <!-- custom: these are also bad as they don't yield anything so same as peak, we should definitely count them to help choose better/optimal or at least ebtter / more optimal sites if i may say but anyways etc -->
+	int iTileCountIceCap = 0;
+	// <!-- custom: excluding flood plains, oasis, and as of now hill desert as even that yields something unlike "naked" desert if i may say but anyways etc that is really bad and should strongly be ignored without overdoing it if site is otherwise good if i'm not mistaken but anyways etc. Since these tiles are so bad and worse than coast that yields things and food, ignore them extra more. Attempts to address known issue as of now 67 of AI not going for a nearby site better in all regards with less desert and more hill grassland if i am not mistaken anyways etc -->
+	int iTileCountVeryBadDesertNoBonus = 0;
+	// <!-- custom: again worse than tundra as has no food and no meaningful improvement if i'm not mistaken but anyways etc; if it's a hill we can still mine or windmill it if i'm not mistaken, but i don't think we can improve snow tiles (although didn't check in detail anyways etc), and even if we could/can, the food penalty on these tiles is really high if i'm not mistaken but anyways etc. We could count 0 food tiles that are not hills, but maybe do as such for clarity or/and such although is less flexible but maybe fine as such anyways etc. We need to count these tiles and deter founding there if there are too much and no other conditions are met if i am not mistaken but anyways etc -->
+	int iTileCountVeryBadSnowNoBonus = 0;
+
+	static const int iMaxToleratedVeryBadTilesStart = GC.getDefineINT("SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_START");
+	static const int iMaxToleratedVeryBadTilesLater = GC.getDefineINT("SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_LATER");
+
+	static const int iBaseValueVeryBadTileStart = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_VERY_BAD_TILE_START");
+	static const int iBaseValueVeryBadTileLater = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_VERY_BAD_TILE_LATER");
 
 	int iCautiousHealthPercent = 0;
 
@@ -402,6 +415,7 @@ short AIFoundValue::evaluate()
 	static const FeatureTypes eFeatureForest = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FOREST");
 	static const FeatureTypes eFeatureJungle = (FeatureTypes)GC.getInfoTypeForString("FEATURE_JUNGLE");
 	static const FeatureTypes eFeatureOasis = (FeatureTypes)GC.getInfoTypeForString("FEATURE_OASIS");
+	static const FeatureTypes eFeatureIceCap = (FeatureTypes)GC.getInfoTypeForString("FEATURE_ICE_CAP");
 
 	bool bFirstColony = isPrioritizeAsFirstColony();
 	IFLOG if(bFirstColony) logBBAI("First colony");
@@ -462,6 +476,12 @@ short AIFoundValue::evaluate()
 	// <!-- custom: count low-food tiles in our environment, if there are more than a few, assume environment is poor in food and valorize water settling -->
 	int iLowFoodLocationCount = 0;
 
+	// <!-- custom: no need to make the cached CvGlobals defines into static const according to chatgpt 5, but hoist them as recommended by chatgpt 5 if i am not mistaken but anyways etc, check if accurate anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// Hoist once per call; no need for static
+	const bool bGlobalsOwnExclusiveRadius = GC.getDefineBOOL(CvGlobals::OWN_EXCLUSIVE_RADIUS);
+	const int iGlobalsExtraYield = GC.getDefineINT(CvGlobals::EXTRA_YIELD);
+
 	FOR_EACH_ENUM(CityPlot)
 	{
 		// <!-- custom: refactor below and adding our new logic(s? But anyways etc) anyways etc -->
@@ -500,8 +520,28 @@ short AIFoundValue::evaluate()
 					if (!pLoopPlotIsPeak)
 					{
 						++iTileCountNoPeakLand;
+
+						// <!-- custom: do not count camel desert tiles, and do not count to simplify for example stone or any bonus tiles; although camel is more worthwhile, we simply want to get a general estimate of how many very bad tiles we have here if i may say but anyways etc, so simplify as such should be accurate enough for our needs in this case i mean but anyways etc -->
+						if (eBonusPlot != NO_BONUS)
+						{
+							if (eTerrainPlot == eTerrainDesert)
+							{
+								if ((eFeaturePlot != eFeatureFloodPlains) && (eFeaturePlot != eFeatureOasis) && !pLoopPlotIsHills)
+								{
+									++iTileCountVeryBadDesertNoBonus;
+								}
+							}
+							else if ((eTerrainPlot == eTerrainSnow) && !pLoopPlotIsHills)
+							{
+								++iTileCountVeryBadSnowNoBonus;
+							}
+							else if (eFeaturePlot == eFeatureIceCap)
+							{
+								++iTileCountIceCap;
+							}
+						}
 					}
-					else if (pLoopPlotIsPeak)
+					else
 					{
 						++iTileCountPeak;
 					}
@@ -517,10 +557,7 @@ short AIFoundValue::evaluate()
 						++iTileCountWaterNoBonus;
 					}
 				}
-			}
 
-			if (!bHomePlot)
-			{
 				// <!-- custom: low-food environment logic detection, as of now used to prioritize food settling/planting/found cities on coastal locations if environment is poor to make best of yields rather than starve soon (and/or dicentivize not doing so maybe too anyways etc) ; note: this is a bit simplified as current plains or tundra or such location could have a lot of wheat and tundra -->
 				if ((eTerrainPlot == eTerrainPlains) || (eTerrainPlot == eTerrainTundra))
 				{
@@ -570,8 +607,7 @@ short AIFoundValue::evaluate()
 		const bool pIsHills = p.isHills();
 
 		// advc.035: The own-exclusive-radius rule only helps if the radii don't overlap
-		bool const bOwnExcl = (GC.getDefineBOOL(CvGlobals::OWN_EXCLUSIVE_RADIUS) &&
-				!bCityRadius && bForeignOwned);
+		bool const bOwnExcl = (bGlobalsOwnExclusiveRadius && !bCityRadius && bForeignOwned);
 
 		bool bRemovableFeature = false; // K-Mod
 		bool bPersistentFeature = false; // advc: was "eventuallyRemovable" in K-Mod
@@ -671,8 +707,7 @@ short AIFoundValue::evaluate()
 						if (iThresh > 0 &&
 							aiNatureYield[eLoopYield] >= iThresh)
 						{
-							aiNatureYield[eLoopYield] += GC.getDefineINT(
-									CvGlobals::EXTRA_YIELD);
+							aiNatureYield[eLoopYield] += iGlobalsExtraYield;
 						}
 					}
 					// <advc.908a>
@@ -681,8 +716,7 @@ short AIFoundValue::evaluate()
 						if (iThresh > 0 &&
 							aiNatureYield[eLoopYield] + 1 >= iThresh)
 						{
-							aiNatureYield[eLoopYield] += GC.getDefineINT(
-									CvGlobals::EXTRA_YIELD);
+							aiNatureYield[eLoopYield] += iGlobalsExtraYield;
 						}
 					} // </advc.908a>
 				}
@@ -1092,6 +1126,11 @@ short AIFoundValue::evaluate()
 		}
 	}
 
+	// <!-- custom: regardless of start phase, some tiles are very bad (can't be improved at all, worse that coast ro such that give food and gold at least), but don't overdo it for non-capital i.e. starting sites if i'm not mistaken but anyways etc, as we could easily maybe throw off the computation of the overall site and reject an otherwise nice one, so take it into account but more midly in that case, especially considering we already added compute in our mod to compute these i think in this function but anyways etc -->
+	// <!-- custom: peak in non home plot devalue local plot anyways etc, is as of now not workable, not walkable for most units, and has no yield, so better avoid if possible anyways etc but not too strongly may skew iValue too much for an otherwise good site anyways etc -->
+	// <!-- custom: update: also count very bad desert and very bad snow, the more we the worse, but giving a small leeway if site is otherwise great to not dismiss it or devalue it needlessl,y as we don't need all tiles to be good especially early at low pop, but if enough are bad, start to take it into accoutn and icnrementally for all very bad tiles so if i may say but anyways etc -->
+	const int iTotalVeryBadTiles = iTileCountPeak + iTileCountIceCap + iTileCountVeryBadDesertNoBonus + iTileCountVeryBadSnowNoBonus;
+
 	if (bStartPhase)
 	{
 		// <!-- custom: regardless of coastal status if i am not mistaken but anyways etc, tolerate some low number of non land non bonus tiles, but past a certain threshold, strongly penalize it so AIs wouldn't take this city site unless nothing at all is better but anyways etc ; also for our first city we don't want to be too close to the coast anyway and more like closer to the center for more radial expansion or possibilities, better city distance to capital cost, stronger early position for later expansions, etc if any other advantages but anyways etc, and if the spot is good, keep it for city 2 not for starting one where we really want nice yields on land and a closer to center position for later expansion if i am not mistaken but anyways etc ; as for value we have 20 bfc tiles (minus home plot) if i'm not mistaken, so if it has more than 8 water tiles no bonus, or equivalent, so less than 12 good tiles, change site, anyways etc -->
@@ -1115,17 +1154,23 @@ short AIFoundValue::evaluate()
 			// return std::max<short>(1, truncIntCast<short>(iValueCompressed));
 			return 0;
 		}
-	}
-	// <!-- custom: add similar logic to help track peak or such, for example a city has many peak, but is not counted as bad like desert if i am not mistaken since bad plots are skipped in the loop maybe? So to be safe penalize peak as well here (but not water which is a fine tile workable and that gives yields and such anyways etc) anyways etc -->
-	else
-	{
-		// <!-- custom: peak in non home plot devalue local plot anyways etc, is as of now not workable, not walkable for most units, and has no yield, so better avoid if possible anyways etc but not too strongly may skew iValue too much for an otherwise good site anyways etc -->
-		if (iTileCountPeak > 0)
+		else
 		{
-			iValue -= 75;
+			if (iTotalVeryBadTiles > iMaxToleratedVeryBadTilesStart)
+			{
+				const int iTotalValueVeryBadTiles = iBaseValueVeryBadTileStart * iTotalVeryBadTiles;
+				iValue -= iTotalValueVeryBadTiles;
+			}
 		}
 	}
-
+	else
+	{
+		if (iTotalVeryBadTiles > iMaxToleratedVeryBadTilesLater)
+		{
+			const int iTotalValueVeryBadTiles = iBaseValueVeryBadTileLater * iTotalVeryBadTiles;
+			iValue -= iTotalValueVeryBadTiles;
+		}
+	}
 
 	// <!-- custom: remove evaluate defense logic as we have a yield focus logic rather, especially do not make barbarian cities weaker, it is infuriating, needless interference, and also this city later will be captured, so make it a good settlement location in all cases anyways etc -->
 	// iValue += evaluateDefense();
@@ -1473,13 +1518,18 @@ bool AIFoundValue::computeOverlap()
 		!kSet.isDebug() && // advc.007
 		!bBarbarian) // advc.303: Barbarians don't have city sites
 	{
+		// <!-- custom: no need to make the cached CvGlobals defines static const according to chatgpt 5, but hoist them as recommended by chatgpt 5 if i am not mistaken but anyways etc, check if accurate anyways etc -->
+		// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+		// Hoist once per call; no need for static
+		const int iGlobalsMinCityRange = GC.getDefineINT(CvGlobals::MIN_CITY_RANGE);
+
 		for (int iSite = 0; iSite < kPlayer.AI_getNumCitySites(); iSite++)
 		{
 			CvPlot const& kCitySitePlot = kPlayer.AI_getCitySite(iSite);
 			if (&kCitySitePlot == &kPlot)
 				continue;
 			if (plotDistance(&kPlot, &kCitySitePlot) <=
-				GC.getDefineINT(CvGlobals::MIN_CITY_RANGE) &&
+				iGlobalsMinCityRange &&
 				kCitySitePlot.sameArea(kPlot))
 			{
 				IFLOG logBBAI("Too close to one of the sites we've already chosen");

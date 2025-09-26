@@ -194,6 +194,10 @@ bool CvXMLLoadUtility::SetGlobalDefines()
 		return false;
 	if(!ReadGlobalDefines("xml\\GlobalDefines_advc.xml", cache))
 		return false; // </advc.009>
+	// <!-- custom: add our new advciv-sas specific file as well anyways etc, as also recommended by chatgpt 5 upon checking this code sample as i asked it to, check if accurate anyways etc -->
+	// Load AdvCiv-SAS overrides / extras
+	if(!ReadGlobalDefines("xml\\GlobalDefines_advciv_sas.xml", cache))
+		return false; // </advc.009>
 
 	// BETTER_BTS_AI_MOD, XML Options, 02/21/10, jdog5000: START
 	ReadGlobalDefines("xml\\BBAI_Game_Options_GlobalDefines.xml", cache);

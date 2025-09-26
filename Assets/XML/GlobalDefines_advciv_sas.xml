@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+
+<!-- custom: adding our own AdvCiv-SAS knobs so that players or me xd but anyways etc can tweak/modify them without having to recompile each time which is tedious anyways etc; general warning: do not put weird values like negative or very big ones, i didn't put any safeguard about this as is tedious and needless, as long as value is sane and around reasonably expected values should be fine, if in doubt ask in forum or such although i may not always be available to reply but maybe someone else might in that case maybe (i don't know i mean but anyways etc) or/and check in code of relevant function(s) anyways etc -->
+<!-- custom: note: using the prefix is a bit cringe xd if i may say but anyways etc but at same time cool and does some publicity if i may say but anyways etc, but most importantly it gives us freedom while being compact but anyways etc to name freely our tunables without risking overriding existing ones and having to check them, as recommended by chatgpt 5 (i had considered it at first then thought meh xd if i may say but anyways etc but now think it makes sense in this case i mean but anyways etc), check if accurate, anyways etc -->
+<!-- custom: note 2: if you modify them while the game is running, you need to restart the game so that it is taken into account according to chatgpt 5 (i also think from experience it does as such if i may say but anyways etc) but check to be sure if in doubt anyways etc -->
+<!-- custom: note 3: filename needs to be hardcoded in the DLL it seems in CvXMLLoadUtilitySet.cpp which i already did (so no need to change anything if you just want to use this file to tweak SAS settings anyways etc) for current filename GlobalDefines_advciv_sas.xml, but if you want to change this file's name or/and add other global define files, make sure they are added there as well if i am not mistaken and chatgpt 5 confirms it, or it won't load as it didn't seem to (load anyways etc) before i added the filename there (but no change needed if you just want to use the file with this filename to tweak settings, it's only info for modding/modders anyways etc), check to be sure anyways etc -->
+
+<Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
+
+	<!-- custom: very bad tiles management knobs in AIFoundValue::evaluate function. Tweaking these allows to change the code we added that tells AI how very bad tiles are valued. Changing it will (at least should but anyways etc) change AI settling preferences and recommended sites in UI as well if i'm not mistaken anyways etc. Are accounted as very bad tiles (check if not updated in code anyways etc), in BFC (excluding home plot (i.e. plot where we settle/found/plant our city anyways etc)):
+		- peak tiles
+		- ice cap tiles
+		- desert tiles that are not hill and have no bonus
+		- snow (i.e. ice sheet) tiles that are not hill and have no bonus
+	Start phase is before our first city is planted/settled/founded but anyways etc.
+	-->
+	<Define>
+		<DefineName>SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_START</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_LATER</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<!-- custom: the higher this positive number is, the more we penalize and think this tile is very very bad, for example 75 would mean a harsher evaluation of this tile and thus likeliness to avoid the city site that has this tile in BFC than say 50 if i'm not mistaken but anyways etc. This value is multiplied by the number of bad tiles if we are past the max tolerated threshold, for example if we have 4 very bad tiles in BFC and we are at start game and the start very bad base value is 100, the currently evaluated city site that has these in BFC would have a penalty in value (and thus likeliness to consider it our best site to settle) of 4 * 100 = - 400 to its value which is as of now a bit more than what iron would give for example so quite big but anyways etc. -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_VERY_BAD_TILE_START</DefineName>
+		<iDefineIntVal>75</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_VERY_BAD_TILE_LATER</DefineName>
+		<iDefineIntVal>25</iDefineIntVal>
+	</Define>
+</Civ4Defines>
