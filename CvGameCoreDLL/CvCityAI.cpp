@@ -4809,7 +4809,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			}
 
 			const bool bProductionBuilding = (
-				iTotalHammersModifier >= 20 // || // Forge/Factory <!-- custom: or weird variants if some mods implement bonus based hammer modifiers in regular buildings (as the ironworks does for example anyways etc), so account for that as well anywyas etc -->
+				iTotalHammersModifier >= 20 // || // Forge/Factory <!-- custom: or weird variants if some mods implement bonus based hammer modifiers in regular buildings (as the ironworks does for example anyways etc), so account for that as well anyways etc -->
 				// <!-- custom: for now only tweak the early game as is most important and where most gains can be made i think but anyways etc, later production should be high enough and civilization developped enough to be able to more freely choose without too much consequences in this case i mean but anyways etc -->
 				//kBuilding.isPower() ||                                  // Plant gives power
 				//kBuilding.isAreaCleanPower()
@@ -5405,7 +5405,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 			// <!-- custom: for production modifier wonders (e.g city increases by +25% hammer or such but anyways etc), only do so in top cities. Note: could handle other yields but would be tedious and we don't necessarily have too many if at all such wonders -->
 			const bool bProductionWonder = (
-				iTotalHammersModifier >= 20 // || // Forge/Factory <!-- custom: or weird variants if some mods implement bonus based hammer modifiers in regular buildings (as the ironworks does for example anyways etc), so account for that as well anywyas etc -->
+				iTotalHammersModifier >= 20 // || // Forge/Factory <!-- custom: or weird variants if some mods implement bonus based hammer modifiers in regular buildings (as the ironworks does for example anyways etc), so account for that as well anyways etc -->
 				// <!-- custom: for now only tweak the early game as is most important and where most gains can be made i think but anyways etc, later production should be high enough and civilization developped enough to be able to more freely choose without too much consequences in this case i mean but anyways etc -->
 				//kBuilding.isPower() ||                                  // Plant gives power
 				//kBuilding.isAreaCleanPower()
@@ -11270,7 +11270,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 		// <!-- custom: also make a copy of our unit right now so we don't have to recheck everytime later if we changed it or not anyways etc -->
 		UnitTypes   eChangedUnit   = eUnit;
 		UnitAITypes eChangedUnitAI = eUnitAI;
-		// <!-- custom: use a pointer (pUnitInfo) rather than a reference (kUnitInfo) so that if we change the unit, we can just refresh the pointer itself, while refreshing the reference is risky according to chatgpt 5 (for example if reference is a const by GC (i don't know too much about it but it's what i understood of it anywyas etc), check if accurate anyways etc -->
+		// <!-- custom: use a pointer (pUnitInfo) rather than a reference (kUnitInfo) so that if we change the unit, we can just refresh the pointer itself, while refreshing the reference is risky according to chatgpt 5 (for example if reference is a const by GC (i don't know too much about it but it's what i understood of it anyways etc), check if accurate anyways etc -->
 		// CvUnitInfo& kUnitInfo = GC.getInfo(eChangedUnit);
 		const CvUnitInfo* pUnitInfo = &GC.getInfo(eChangedUnit);
 		// <!-- custom: info below by chatgpt 5 for reminder, check if accurate anyways etc -->

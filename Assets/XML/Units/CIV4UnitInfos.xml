@@ -13923,7 +13923,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bSuicide>0</bSuicide>
 			<bHiddenNationality>0</bHiddenNationality>
 			<bAlwaysHostile>0</bAlwaysHostile>
-			<!-- custom: upgrade the anti tank to a unit that is good against tanks but anyways etc... ; also this allows the gunship to appear on the units tree so nice for that effect as well if i may say but anywyas etc, was UNITCLASS_MECHANIZED_INFANTRY 1 -->
+			<!-- custom: upgrade the anti tank to a unit that is good against tanks but anyways etc... ; also this allows the gunship to appear on the units tree so nice for that effect as well if i may say but anyways etc, was UNITCLASS_MECHANIZED_INFANTRY 1 -->
 			<UnitClassUpgrades>
 				<UnitClassUpgrade>
 					<UnitClassUpgradeType>UNITCLASS_GUNSHIP</UnitClassUpgradeType>
@@ -15451,7 +15451,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<TerrainAttacks/>
 			<TerrainDefenses/>
 			<FeatureAttacks/>
-			<!-- custom: do/give anyways etc milder penalties than the mounted_melee units, as they can still attack fine from a distance as they are ranged if i am not mistaken anyways etc, but may have trouble to take cover or navigate the terrain still and/or may find it hard to hide or protect their heavy in size in this case anyways etc mount so more targetable by ennemies if i may say anywyas etc, so give as of now only a penalty to simplify and represent this accurately, as it shouldn't affect too much warfare since cities are not built on forest or jungle in their inner tile after they are founded if i am not mistaken but anyways etc, still maybe may help especially human players who take advantage of this, or maybe may change AI combat if odds become lower, and rebalance otherwise a bit op mounted infantry if i may say anyways etc, was empty -->
+			<!-- custom: do/give anyways etc milder penalties than the mounted_melee units, as they can still attack fine from a distance as they are ranged if i am not mistaken anyways etc, but may have trouble to take cover or navigate the terrain still and/or may find it hard to hide or protect their heavy in size in this case anyways etc mount so more targetable by ennemies if i may say anyways etc, so give as of now only a penalty to simplify and represent this accurately, as it shouldn't affect too much warfare since cities are not built on forest or jungle in their inner tile after they are founded if i am not mistaken but anyways etc, still maybe may help especially human players who take advantage of this, or maybe may change AI combat if odds become lower, and rebalance otherwise a bit op mounted infantry if i may say anyways etc, was empty -->
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>

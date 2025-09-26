@@ -144,7 +144,7 @@ Note: be very careful!(!!! but anyways etc anyways etc anyways etc) Need to remo
 
 ### trick to capture fast actions in same turn: press print screen super fast many times if you don't want to bother recording a video
 
-If you have an issue that happens only for split seconds or even shorter in this case i mean but anyways etc and hard to view in one screenshot, and if recording a video is too much trouble, you can try pressing print screen many times super fast whiel the behaviour you want to capture in screenshot happens.
+If you have an issue that happens only for split seconds or even shorter in this case i mean but anyways etc and hard to view in one screenshot, and if recording a video is too much trouble, you can try pressing print screen many times super fast while the behaviour you want to capture in screenshot happens.
 
 I noticed this accidentally or rather unconsciously xd, and it helped me identify an issue that we can only for like 0.2 seconds or such, but that can be captured in a screenshot this way.
 

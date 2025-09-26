@@ -136,7 +136,7 @@ Also added later iConquestProb display in placeSpecial, idea i got from watching
 
 ## example 9: terrains category
 
-Done much later in development of advciv-sas mod, added in particular new placeRelevantUnits and placeUnitsImpassable if i am not mistaken anywyas etc panels that these methods handle anyways etc. They show which units can walk on which tiles, including peak (some code to display some peak information is taken from rfc doc mod for example), but most of the new code is written by me and/with chatgpt's help and my prompts too anyways etc.
+Done much later in development of advciv-sas mod, added in particular new placeRelevantUnits and placeUnitsImpassable if i am not mistaken anyways etc panels that these methods handle anyways etc. They show which units can walk on which tiles, including peak (some code to display some peak information is taken from rfc doc mod for example), but most of the new code is written by me and/with chatgpt's help and my prompts too anyways etc.
 
 So now we also show Peak and Hill as new "terrains" even though they are both plot types and terrains if i am not mistaken in civ4 anyways etc. Such info is added using as of now the "Plot Type / Terrain" alternative identifier, reusing the former RFC DOC mod's "Terrain" harcoded identifier, now more flexible and perhaps informative, and info about that in the pedia entry even though not too clean maybe exhaustive or/and informative anyways etc.
 

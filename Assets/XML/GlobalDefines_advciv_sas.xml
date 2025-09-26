@@ -1,18 +1,21 @@
 <?xml version="1.0"?>
 
-<!-- custom: adding our own AdvCiv-SAS knobs so that players or me xd but anyways etc can tweak/modify them without having to recompile each time which is tedious anyways etc; general warning: do not put weird values like negative or very big ones, i didn't put any safeguard about this as is tedious and needless, as long as value is sane and around reasonably expected values should be fine, if in doubt ask in forum or such although i may not always be available to reply but maybe someone else might in that case maybe (i don't know i mean but anyways etc) or/and check in code of relevant function(s) anyways etc -->
+<!-- custom: adding our own AdvCiv-SAS knobs/tunables anyways etc so that players or me xd but anyways etc can tweak/modify them without having to recompile each time which is tedious anyways etc; general warning: do not put weird values like negative or very big ones, i didn't put any safeguard about this as is tedious and needless, as long as value is sane and around reasonably expected values should be fine, if in doubt ask in forum or such although i may not always be available to reply but maybe someone else might in that case maybe (i don't know i mean but anyways etc) or/and check in code of relevant function(s) anyways etc -->
 <!-- custom: note: using the prefix is a bit cringe xd if i may say but anyways etc but at same time cool and does some publicity if i may say but anyways etc, but most importantly it gives us freedom while being compact but anyways etc to name freely our tunables without risking overriding existing ones and having to check them, as recommended by chatgpt 5 (i had considered it at first then thought meh xd if i may say but anyways etc but now think it makes sense in this case i mean but anyways etc), check if accurate, anyways etc -->
 <!-- custom: note 2: if you modify them while the game is running, you need to restart the game so that it is taken into account according to chatgpt 5 (i also think from experience it does as such if i may say but anyways etc) but check to be sure if in doubt anyways etc -->
 <!-- custom: note 3: filename needs to be hardcoded in the DLL it seems in CvXMLLoadUtilitySet.cpp which i already did (so no need to change anything if you just want to use this file to tweak SAS settings anyways etc) for current filename GlobalDefines_advciv_sas.xml, but if you want to change this file's name or/and add other global define files, make sure they are added there as well if i am not mistaken and chatgpt 5 confirms it, or it won't load as it didn't seem to (load anyways etc) before i added the filename there (but no change needed if you just want to use the file with this filename to tweak settings, it's only info for modding/modders anyways etc), check to be sure anyways etc -->
 
 <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
 
-	<!-- custom: very bad tiles management knobs in AIFoundValue::evaluate function. Tweaking these allows to change the code we added that tells AI how very bad tiles are valued. Changing it will (at least should but anyways etc) change AI settling preferences and recommended sites in UI as well if i'm not mistaken anyways etc. Are accounted as very bad tiles (check if not updated in code anyways etc), in BFC (excluding home plot (i.e. plot where we settle/found/plant our city anyways etc)):
+	<!-- custom: beware: AIFoundValue::evaluate returns a short not an int, so value can only up to 32 000 to -32 000 before overflowing, what this means is try to not put too extreme value changes. Although i think we compute in int and only at the end cast to short so maybe safe although i don't know a lot about these, still keep it in mind when using extremely high values that risk gogin beyond said scope (more than +32 000 or less than -32 000 total site value more or less anyways etc); ideally function would be changed so it would return an int instead to grow much larger (and according to chatgpt 5 if i remember it correctly but anyways etc may be even faster with int actually possibly due to it being optiized for such but check if accurate and i could or not be mistaken and is just a hypothesis but may be right or not but anyways etc) but is how it is i mean, there should be plenty room hopefully as long as valuation and devaluation is not extreme (try to not increase more than few thousands max, as other parts fo the function also change the value anyways etc.) -->
+
+	<!-- custom: these are the very bad tiles management knobs/tunables in AIFoundValue::evaluate function. Tweaking these allows to change the code we added that tells AI how very bad tiles are valued. Changing it will (at least should but anyways etc) change AI settling preferences and recommended sites in UI as well if i'm not mistaken anyways etc. Are accounted as very bad tiles (check if not updated in code anyways etc), in BFC (excluding home plot (i.e. plot where we settle/found/plant our city anyways etc)):
 		- peak tiles
 		- ice cap tiles
 		- desert tiles that are not hill and have no bonus
 		- snow (i.e. ice sheet) tiles that are not hill and have no bonus
 	Start phase is before our first city is planted/settled/founded but anyways etc.
+	Note: these max tolerated tiles defines are checked with a >, not >=, so if you choose a value for example of 3, it means 4+ triggers the effect anyways etc
 	-->
 	<Define>
 		<DefineName>SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_START</DefineName>
@@ -22,13 +25,344 @@
 		<DefineName>SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_LATER</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
-	<!-- custom: the higher this positive number is, the more we penalize and think this tile is very very bad, for example 75 would mean a harsher evaluation of this tile and thus likeliness to avoid the city site that has this tile in BFC than say 50 if i'm not mistaken but anyways etc. This value is multiplied by the number of bad tiles if we are past the max tolerated threshold, for example if we have 4 very bad tiles in BFC and we are at start game and the start very bad base value is 100, the currently evaluated city site that has these in BFC would have a penalty in value (and thus likeliness to consider it our best site to settle) of 4 * 100 = - 400 to its value which is as of now a bit more than what iron would give for example so quite big but anyways etc. -->
+	<!-- custom: the higher this positive number is, the more we penalize and think this tile is very very bad, for example 75 would mean a harsher evaluation of this tile and thus likeliness to avoid the city site that has this tile in BFC than say 50 if i'm not mistaken but anyways etc. This value is multiplied by the number of bad tiles if we are past the strict max tolerated threshold, for example if we have 4 very bad tiles in BFC and we are at start game and the start very bad base value is 100, the currently evaluated city site that has these in BFC would have a penalty in value (and thus likeliness to consider it our best site to settle) of 4 * (-100) = - 400 to its value which is as of now a bit more than what iron would give for example so quite big but anyways etc. -->
 	<Define>
-		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_VERY_BAD_TILE_START</DefineName>
-		<iDefineIntVal>75</iDefineIntVal>
+		<DefineName>SAS_EVALUATE_BASE_VALUE_NOT_HOME_VERY_BAD_TILE_START</DefineName>
+		<iDefineIntVal>-100</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_VERY_BAD_TILE_LATER</DefineName>
+		<DefineName>SAS_EVALUATE_BASE_VALUE_NOT_HOME_VERY_BAD_TILE_LATER</DefineName>
+		<iDefineIntVal>-75</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: add home plot health valorization of fresh water, as it seems to be missing if i am not mistaken anyways etc; or if not missing somehow then not strongly enough applied, as AIs blatantly avoid in range fresh water home plot that is arguably better, most likely to not seeing its value if i may say in this case but anyways etc, so opening its eyes or trying to without going overboard and in this case i mean too if i may say but anyways etc -->
+	<Define>
+		<DefineName>SAS_EVALUATE_EXTRA_VALUE_HOME_FRESH_WATER_RIVER</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: bonus home tiles/plots (note: home plot/tile is the tile where we will settle on if we choose this site among all others anyways etc) below anyways etc -->
+	<!-- custom: if equal or higher than this value, we start to penalize. E.g. if value is 1 and the bonus specific improvement (e.g. plantation for spices, mine for iron, farm for maize, etc.) gives 1 or more food, we penalize settling on it, anyways etc -->
+	<!-- custom: food anyways etc -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_ON_BONUS_FOOD_MIN_IMPROVE_WORTH</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: lower (e.g. -700 is lower than -600 anyways etc) means settling on a bonus that gives food when improved is more penalized at least in theory anyways etc; note: multiplied by GC.getInfo(eBonusSpecificImprovement).getImprovementBonusYield(eBonus, YIELD_FOOD), so if i'm not mistaken if the bonus specific improvement (e.g. plantation for spices, mine for iron, farm for maize, etc.) (e.g. farm) gives 2 more food, and value is 600, then site would lose 2 * 600 = 1200 value which is big and a strong discouragement from settling on this tile -->
+	<Define>
+		<DefineName>SAS_EVALUATE_BASE_VALUE_HOME_ON_BONUS_FOOD</DefineName>
+		<iDefineIntVal>-600</iDefineIntVal>
+	</Define>
+	<!-- custom: production anyways etc -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_ON_BONUS_PRODUCTION_MIN_IMPROVE_WORTH</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_ON_BONUS_PRODUCTION</DefineName>
+		<iDefineIntVal>-350</iDefineIntVal>
+	</Define>
+	<!-- custom: if very low food tile, it may be better to settle on it, so penalty is not as high. The higher (e.g. 200 is higher than 150 anyways etc) this is, the more we value settling on this tile anyways etc -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_ON_BONUS_PRODUCTION_VERY_LOW_FOOD</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+	<!-- custom: but if the bonus yields a lot of production (i.e. hammer but anyways etc), then devalue settling on it. E.g. if value is 75 and for example a bonus specific improvement gives 4 hammer, then we will devalue settling on this tile by 4 * 150 = 600 which is a strong discouragement, as it is better not to settle on this tile and collect the yields even if in low food tile anyways etc. The lower this is the more we penalize settling on this tile anyways etc -->
+	<Define>
+		<DefineName>SAS_EVALUATE_BASE_VALUE_HOME_ON_BONUS_PRODUCTION_VERY_LOW_FOOD</DefineName>
+		<iDefineIntVal>-75</iDefineIntVal>
+	</Define>
+	<!-- custom: commerce anyways etc -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_ON_BONUS_COMMERCE_MIN_IMPROVE_WORTH</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_ON_BONUS_COMMERCE</DefineName>
+		<iDefineIntVal>-300</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_ON_BONUS_COMMERCE_VERY_LOW_FOOD</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_BASE_VALUE_HOME_ON_BONUS_COMMERCE_VERY_LOW_FOOD</DefineName>
+		<iDefineIntVal>-50</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: non-bonus home tiles (note: home plot/tile is the tile where we will settle on if we choose this site among all others anyways etc) below anyways etc -->
+	<!-- custom: the higher these values, the more we value settling on this plot, so if for example tile is flood plains and value is -150, it means we will apply a reduction of 150 to the site value making it less valuable in our eyes, vs if it is hill desert and value of 50 for example anyways etc, then it means we value this tile 50 value more (addition anyways etc), making it more desirable in our eyes to settle on, as hill desert is a bad tile, plus gives defensive bonus further more, so valuing it more for example. The higher this is the more we value settling on said tile, the lower it is the less we value. 0 in particular is neutral for example anyways etc. Anyways etc -->
+	<!-- custom: don't settle here, unless locally extremely good otherwise, higher as some still dont listen anyways etc -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_FLOOD_PLAINS</DefineName>
+		<iDefineIntVal>-150</iDefineIntVal>
+	</Define>
+	<!-- custom: if not floodplains (note: as of now we can't settle on oasis so not accounted for in code if i'm not mistaken but anyways etc), consider adding it there if you want to allow it in your modmod and then put a knob/tunable here, not done in advciv-sas as we don't need it, and to avoid errors or such (since or because we don't use it but anyways etc) but anyways etc -->
+	<!-- custom: then if not floodplains anyways etc -->
+	<!-- custom: still good as is low-food, although not as good as settling on hill plains ideally but anyways etc -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_HILL_DESERT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- custom: locally optimal if we can, but don't devalue otherwise nice tile anyways etc -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_FLATLAND_DESERT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- custom: even more valuable than flatland grass, the hammer yield for low food cost is extremely good, early and even later in game too if i am not mistaken still quite good anyways etc, absolutely avoid settling on this unless really the best locally otherwise -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_HILL_GRASS</DefineName>
+		<iDefineIntVal>-75</iDefineIntVal>
+	</Define>
+	<!-- custom: very valuable, better avoid settling on this plot if we can unless otherwise the best or/and very good locally anyways etc -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_FLATLAND_GRASS</DefineName>
+		<iDefineIntVal>-50</iDefineIntVal>
+	</Define>
+	<!-- custom: extremely good, we remove a low-food tile and get a free extra hammer, plus defensive bonus, ideal starting plot when it comes to terrain if i am not mistaken anyways etc ; one minus than fresh water, would be as good otherwise anyways etc ; try higher value as some cities still don't listen anyways etc, not too high as 10 plains + settle on hill plains is not better than 10 grass + settle on grass -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_HILL_PLAINS</DefineName>
+		<iDefineIntVal>250</iDefineIntVal>
+	</Define>
+	<!-- custom: still quite good, we remove a bad low food tile after all, but not too good to overlook otherwise good local other plot concurrents -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_FLATLAND_PLAINS</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- custom: quite good similarly, just not as good as say hill plains but very good otherwise as a starter -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_HILL_TUNDRA</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- custom: still good, especially in low food environments where every food yield counts, and maybe there is grass near us to not settle on or similar anyways etc -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_FLATLAND_TUNDRA</DefineName>
 		<iDefineIntVal>25</iDefineIntVal>
+	</Define>
+	<!-- custom: note: snow is ice sheet (i.e. ice (terrain)) if i am not mistaken anyways etc -->
+	<!-- custom: quite good similarly, just not as good as say hill plains but very good otherwise as a starter -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_HILL_SNOW</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- custom: same as desert, low food tile, try hard to settle on it rather unless extremely good otherwise to do else -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_FLATLAND_SNOW</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: AI still often / quite often ignores water bonus in range and settles as a non-coastal city rather, so try to enforce or strengthen this bonus, especially considering water bonuses are often if not entirely food yield related in advciv-sas at least but anyways etc -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_WATER_BONUS_NO_COAST</DefineName>
+		<iDefineIntVal>-400</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: non-bonus non-home tiles (note: home plot/tile is the tile where we will settle on if we choose this site among all others anyways etc) below anyways etc -->
+	<!-- custom: for each plot/tile in the candidate BFC, if they are of the type below, we add to candidate city site this value. For example, if BFC has 4 flatland (i.e. not hill anyways etc) grassland tiles and the value for non-bonus non-home grassland tiles is 60, then it means the combined value of these sites to choose our BFC but anyways etc is 4 * 60 = 240. But if we have say 2 tundra tiles in our BFC and the value for non-bonus non-home plot/tile is for example -25, then the value for these tiles in our BFC would be in total 2 * (-25) = -50, which means our candidate site would be devalued (-50 added to its value), which is much worse than having 4 flatland grass tiles for example. Adjust these values as you see fit to tweak AI settler preferences/evaluation if i am not mistaken but anyways etc -->
+	<!-- custom: high food and great cottage candidate, very strong -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLOOD_PLAINS</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<!-- custom: can't grow as much as flood plains with a cottage as it cannot be improved if i am not mistaken, but we have no health penalty, and we get the extra commerce yield immediately, plus it provides fresh water as well if i am not mistaken but anyways etc. I assume (hope but anyways etc) fresh water code is handled elsewhere that supports oasis too hopefully, but even if not and in all cases, maybe this valorization can help. -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_OASIS</DefineName>
+		<iDefineIntVal>90</iDefineIntVal>
+	</Define>
+	<!-- custom: then if not flood plains nor oasis anyways etc -->
+	<!-- custom: low food but at least we can mine it, avoid but not like flatland desert, defensive bonus is locally not too bad maybe as well if someone invades us (but harder to attack them there as well so so so anyways etc) -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_DESERT</DefineName>
+		<iDefineIntVal>-25</iDefineIntVal>
+	</Define>
+	<!-- custom: low food and cannot be improve, strongly avoid -->
+	<!-- custom: note: now handled by the verybadtiles code rather as we handle the tolerance for a certain number of tiles and other such things like ice cap, peak that may not possibly be accounted for in the loop that handles this, so handled there rather directly, so left as 0 here instead as of now anyways etc -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_DESERT</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: very good, low food cost high hammer, a tile we'd want to mine very early for high yields even in stone age, very high value tile to have in city radius if i'm not mistaken anyways etc -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_GRASS</DefineName>
+		<iDefineIntVal>75</iDefineIntVal>
+	</Define>
+	<!-- custom: very valuable for flatland as well, a great tile to start near in our city radius if i am not mistaken anyways etc, slightly worse than floodplains, but since it doesn't have health penalty maybe we can count it as about the same anyways etc -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_GRASS</DefineName>
+		<iDefineIntVal>60</iDefineIntVal>
+	</Define>
+	<!-- custom: quite good tile with hammer yield but food is really too low, value but not a lot, we want to grow most after all, but this is not too bad either -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_PLAINS</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<!-- custom: low-food, has a base hammer though, but we'd need to irrigate it to get the equivalent of a grass tile, and if we cottage it it drains our food growth. This is quite good later in the game with workshops that don't cost food or such, but assume it to be bad as a general rule as most game and cities are settled early anyway if i'm not mistaken anyways etc -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_PLAINS</DefineName>
+		<iDefineIntVal>-20</iDefineIntVal>
+	</Define>
+	<!-- custom: worse than plains hill yield for same low-food food, this is really bad, especially in a tundra environment where food is scarce already, but if needed the hammer yield is not too bad -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_TUNDRA</DefineName>
+		<iDefineIntVal>-30</iDefineIntVal>
+	</Define>
+	<!-- custom: not too bad with as of now the tundra base commerce yield buff we added, still weaker than a base hammer of the plains, avoid more than flatland plains -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_TUNDRA</DefineName>
+		<iDefineIntVal>-25</iDefineIntVal>
+	</Define>
+	<!-- custom: note: snow is ice sheet (i.e. ice (terrain)) if i am not mistaken anyways etc -->
+	<!-- custom: same as tundra hill if i am not mistaken, this is really not great, and i am not sure the less base commerce yield makes too much of a difference. We could mine it though maybe if i'm not mistaken or some other improvements maybe too although i didn't check, but it would be costly in food if i'm not mistaken, so not a great choice to have in our city radius (great to settle on though otherwise if i'm not mistaken but is not handled here, as we are in the non-home-plot code if i am not mistaken if i may say but anyways etc) -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_SNOW</DefineName>
+		<iDefineIntVal>-35</iDefineIntVal>
+	</Define>
+	<!-- custom: low-food same as desert, i am not sure we can do anything with this in our city radius, maybe find a way to buff in our mod somehow, but for now if not always or not, this is really low value tile to have in our city radius, better avoid if i am not mistaken but anyways etc -->
+	<!-- custom: same as flatland desert for this very bad tile anyways etc -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_SNOW</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: water tiles are considered neutral as of now, ideally we would penalize 0 food ones but left as such for now anyways etc -->
+	<!-- custom: note: peak, ice cap are handled in very bad tiles similarly to desert and snow, plus they may not be in the part of the loop where we use this define so maybe best as such and is if i'm not mistaken i mean but anyways etc but in all cases anyways etc -->
+
+
+
+	<!-- custom: discourage non-coastal location for low-food terrain environments: better settle on coast and make profit than starve soon by settling in non-coastal anyways etc -->
+	<!-- custom: if we have less than threshold, no value change to candidate city site, but if beyond, then value is updated by amount. E.g. anyways etc if we have 9 low food tiles, it is beyond our threshold of max 7 or less, so for example if base value coastal low food is -75 then value of the candidate city site but anyways etc is updated by 9 * (-75) = -675 which is a huge devaluation. Note that coastal sites are unaffected by this so they would indirectly be favoured if no other better tile exists anyways etc -->
+	<Define>
+		<DefineName>SAS_EVALUATE_MAX_TOLERATED_COASTAL_LOW_FOOD_TILES</DefineName>
+		<iDefineIntVal>7</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_BASE_VALUE_COASTAL_LOW_FOOD</DefineName>
+		<iDefineIntVal>-75</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: regardless of coastal status if i am not mistaken but anyways etc, tolerate some low number of non land non bonus tiles, but past a certain threshold, strongly penalize it so AIs wouldn't take this city site unless nothing at all is better but anyways etc ; also for our first city we don't want to be too close to the coast anyway and more like closer to the center for more radial expansion or possibilities, better city distance to capital cost, stronger early position for later expansions, etc if any other advantages but anyways etc, and if the spot is good, keep it for city 2 not for starting one where we really want nice yields on land and a closer to center position for later expansion if i am not mistaken but anyways etc ; as for value we have 20 bfc tiles (minus home plot) if i'm not mistaken, so if it has more than 8 water tiles no bonus, or equivalent, so less than 12 good tiles, change site, anyways etc -->
+	<Define>
+		<DefineName>SAS_EVALUATE_MIN_REQUIRED_GOOD_BFC_TILES_START</DefineName>
+		<iDefineIntVal>13</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: through trial and error, while trying to find why we settle on camel desert in middle game (turns 50+, while having saner choices earlier in map view ingame (circled tiles), i have found that commenting the block below causes the issue to be solved, AI has sane sites as always and now settles around or near this but no AI player considers settling on camel desert or near it anymore, so i assume something is majorly faulty in it or/and didn't accomodate/account for food desert bonuses or such. Since i don't like interferences if i may say but anyways etc, commented out since i have found it to be reproducible that uncommenting it triggers again the error, replaced with a very simplified version of the logic we want, inline in this function that is its only caller, with the help of chatgpt 5, check if accurate, see known issue as of now 54 for details anyways etc
+	// if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
+	// 	iValue = adjustToCivSurroundings(iValue, iStealPercent);
+	-->
+	<!-- custom: 1) distance to nearest city penalties (as per our previous refactor/change but enhanced/simplified thanks to chatgpt 5 too if i may say but anyways etc) -->
+	<!-- - SAS inline distance shaping (simple & bounded) - -->
+	<!-- Derive from city radius so mods changing radius stay sane. -->
+	<Define>
+		<DefineName>SAS_EVALUATE_DISTANCE_CITYR_ADD</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_DISTANCE_CITYR_DIVIDE</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<!-- ≤ MIN_OK-1 = “too close” -->
+	<Define>
+		<DefineName>SAS_EVALUATE_DISTANCE_MIN_OK_ADD</DefineName>
+		<iDefineIntVal>-1</iDefineIntVal>
+	</Define>
+	<!-- MAX_OK+1 = “too far” -->
+	<Define>
+		<DefineName>SAS_EVALUATE_DISTANCE_MAX_OK_ADD</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- % per tile inside MIN_OK -->
+	<Define>
+		<DefineName>SAS_EVALUATE_DISTANCE_CLOSE_STEP</DefineName>
+		<iDefineIntVal>15</iDefineIntVal>
+	</Define>
+	<!-- % per tile beyond MAX_OK -->
+	<Define>
+		<DefineName>SAS_EVALUATE_DISTANCE_FAR_STEP</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<!-- max close penalty -->
+	<Define>
+		<DefineName>SAS_EVALUATE_DISTANCE_CLOSE_CAP</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- allow hard kill -->
+	<Define>
+		<DefineName>SAS_EVALUATE_DISTANCE_FAR_CAP</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: 2) anyways etc
+	- SAS: super-simple culture pressure gate (no cheat, cheap) -
+	Goal: it's fine if a site is a *little* pressed, but skip it if it's *too* pressed.
+	Notes
+	- No-cheat preserved: foreign cities only counted if KNOWN_TO and AI_deduceCitySite says we could infer them.
+	- Cheap: one pass, integer math, no squares or fixed-point.
+	- Behavior:
+		- A little culture nearby? Ignore it.
+		- Medium pressure? Keep the site but down-weight it.
+		- Heavy pressure (e.g., right next to a big foreign border)? Return 0 so it drops out.
+	-->
+	<!-- Tuning: "soft" tolerance vs "hard" refusal -->
+	<!-- <35: ignore pressure -->
+	<Define>
+		<DefineName>SAS_EVALUATE_CULTURE_PRESSURE_SOFT</DefineName>
+		<iDefineIntVal>35</iDefineIntVal>
+	</Define>
+	<!-- >=70: too pressed → reject site outright -->
+	<Define>
+		<DefineName>SAS_EVALUATE_CULTURE_PRESSURE_HARD</DefineName>
+		<iDefineIntVal>70</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: this only matters for our first city that we want to grow fast, but when we have a lot of workers, not a big problem, especially if site is overall better long term potential, do not discard it then and bet on long term value rather if i am not mistaken and if i may say but anyways etc ; logic is that as long we don't reach threshold all is as good as no health, but as soon as we reach it, all unhealthiness is bad and more the more unhealthy we are as explained to clarify to chapt 5 but anyways etc ; also be more lenient for later cities, we'd have workers by then to handle chopping or such, and capital would have grown fine
+	// iValue = adjustToBadHealth(iValue, iHealth);
+	// // <advc.031>
+	-->
+	<!-- custom: for example as of now 7 jungle tiles is -50 * 7 = -350, or 8 jungle tiles and 2 forest tiles is (8 * (-50)) + ((2 * 50)) = -400 + 100 = -300 if i am not mistaken anyways etc -->
+	<!-- custom: if <= this value at start phase, we apply unhealthiness value correction anyways etc -->
+	<Define>
+		<DefineName>SAS_EVALUATE_MIN_CAUTIOUS_HEALTH_PERCENT_START</DefineName>
+		<iDefineIntVal>-300</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_LOSS_PERCENT_PER_BAD_UNHEALTHINESS_START</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<!-- custom: example of calculation at start phase anyways etc: -->
+	<!-- custom: e.g. with a iValue of 500: (100 - ((-1) * (-3.5 * 10)) * 500 / 100 = (100 - 35) * 500 / 100 = 65 * 500 / 100 = 325 ; so value lost 35% value as intended if i am not mistaken, added to clarify calculation to chatgpt 5 or proof it to myself hehe but anyways etc -->
+	<Define>
+		<DefineName>SAS_EVALUATE_MIN_CAUTIOUS_HEALTH_PERCENT_LATER</DefineName>
+		<iDefineIntVal>-450</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_LOSS_PERCENT_PER_BAD_UNHEALTHINESS_LATER</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: let's add a guard against too high values as well just in case, as recommended by chatgpt 5 when i asked it about this risk that it could happen too hehe, i adjusted the code it provided to for that end and i saw fit too if i may say but anyways etc, check if accurate anyways etc ; also refactored a bit otherwise our already changed code as commented below anyways etc -->
+	<!-- leave headroom under 32767 -->
+	<Define>
+		<DefineName>SAS_EVALUATE_GUARD_KMAXFOUND</DefineName>
+		<iDefineIntVal>32765</iDefineIntVal>
 	</Define>
 </Civ4Defines>
