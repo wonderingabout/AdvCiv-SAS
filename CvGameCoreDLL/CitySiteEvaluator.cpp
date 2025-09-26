@@ -1412,32 +1412,61 @@ short AIFoundValue::evaluate()
 	// <!-- custom: this only matters for our first city that we want to grow fast, but when we have a lot of workers, not a big problem, especially if site is overall better long term potential, do not discard it then and bet on long term value rather if i am not mistaken and if i may say but anyways etc ; logic is that as long we don't reach threshold all is as good as no health, but as soon as we reach it, all unhealthiness is bad and more the more unhealthy we are as explained to clarify to chapt 5 but anyways etc ; also be more lenient for later cities, we'd have workers by then to handle chopping or such, and capital would have grown fine -->
 	// iValue = adjustToBadHealth(iValue, iHealth);
 	// // <advc.031>
+	// <!-- custom: our code instead but anyways etc -->
+	// Bad-health dampener (pure integer math; no floats)
 	if (bStartPhase)
 	{
 		// <!-- custom: for example as of now 7 jungle tiles is -50 * 7 = -350, or 8 jungle tiles and 2 forest tiles is (8 * (-50)) + ((2 * 50)) = -400 + 100 = -300 if i am not mistaken anyways etc -->
-		static const int iMinCautiousHealthPercentStart = GC.getDefineINT("SAS_EVALUATE_MIN_CAUTIOUS_HEALTH_PERCENT_START");
+		static const int UNHEALTH_THRESH = GC.getDefineINT("SAS_EVALUATE_MIN_UNHEALTH_THRESH_START");
 
-		if (iCautiousHealthPercent <= iMinCautiousHealthPercentStart)
+		// Apply only if city-area health is bad enough
+		// e.g. -350 <= -300 → apply
+		if (iCautiousHealthPercent <= UNHEALTH_THRESH)
 		{
-			static const int iValueLossPercentPerBadUnhealthinessStart = GC.getDefineINT("SAS_EVALUATE_VALUE_LOSS_PERCENT_PER_BAD_UNHEALTHINESS_START");
-			// <!-- custom: e.g -3.5 total health points / bad unhealthiness in city, to clarify to chatgpt 5 so may as well add here if helps and me too helps me maybe hehe maybe but anyways etc -->
-			int const iBadUnhealthiness = (iCautiousHealthPercent / 100);
-			// <!-- custom: note: addition not substraction, so that we reduce iValue the more unhealthy we are, not the opposite (-350 should reduce iValue, not increase it with a (- (- 350) etc.. which would be (+350) etc.. and not what we want as nicely noted by chatgpt 5 hehe thanks but anyways etc-->
-			// <!-- custom: e.g. with a iValue of 500: (100 - ((-1) * (-3.5 * 10)) * 500 / 100 = (100 - 35) * 500 / 100 = 65 * 500 / 100 = 325 ; so value lost 35% value as intended if i am not mistaken, added to clarify calculation to chatgpt 5 or proof it to myself hehe but anyways etc -->
-			int const iValueAdjustedForBadUnhealthiness = ((100 - std::min(100, ((-1) * iValueLossPercentPerBadUnhealthinessStart * iBadUnhealthiness))) * iValue) / 100;
-			iValue = iValueAdjustedForBadUnhealthiness;
+			// RATE is "% penalty per -100 health-percent"
+			// Example: CHP=-350, RATE=10 → penalty = (10 * 350)/100 = 35 (%)
+			static const int UNHEALTH_RATE = GC.getDefineINT("SAS_EVALUATE_VALUE_LOSS_UNHEALTH_RATE_START");
+
+			// -(-350) = 350
+			const int unhealthAbs = -iCautiousHealthPercent;
+			// (10 * 350) / 100 = 3500 / 100 = 35  ← 35%
+			int penaltyPct = (UNHEALTH_RATE * unhealthAbs) / 100;
+			// clamp: never >100%
+			if (penaltyPct > 100) penaltyPct = 100;
+
+			// 100 - 35 = 65 (%)
+			const int mult = 100 - penaltyPct;
+			const int old  = iValue;
+			// iValue *= 65/100
+			// Result: 35% penalty → x65%
+			iValue = (iValue * mult) / 100;
+			IFLOG if (iValue != old)
+				logBBAI("Bad health %d%% (START) rate=%d -> -%d%% => x%d%% (%d→%d)",
+						iCautiousHealthPercent, UNHEALTH_RATE, penaltyPct, mult, old, iValue);
 		}
 	}
 	else
 	{
-		static const int iMinCautiousHealthPercentLater = GC.getDefineINT("SAS_EVALUATE_MIN_CAUTIOUS_HEALTH_PERCENT_LATER");
+		// Later cities: same dampener, but usually milder settings
+		static const int UNHEALTH_THRESH = GC.getDefineINT("SAS_EVALUATE_MIN_UNHEALTH_THRESH_LATER"); // e.g. -450
 
-		if (iCautiousHealthPercent <= iMinCautiousHealthPercentLater)
+		// Apply only if city-area health is bad enough (e.g. -460 <= -450 → apply)
+		if (iCautiousHealthPercent <= UNHEALTH_THRESH)
 		{
-			int const iValueLossPercentPerBadUnhealthiness = GC.getDefineINT("SAS_EVALUATE_VALUE_LOSS_PERCENT_PER_BAD_UNHEALTHINESS_LATER");
-			int const iBadUnhealthiness = (iCautiousHealthPercent / 100);
-			int const iValueAdjustedForBadUnhealthiness = ((100 - std::min(100, ((-1) * iValueLossPercentPerBadUnhealthiness * iBadUnhealthiness))) * iValue) / 100;
-			iValue = iValueAdjustedForBadUnhealthiness;
+			// RATE is "% penalty per -100 health-percent"
+			// Example: CHP=-450, RATE=5 → (5 * 450) / 100 = 2250 / 100 = 22 (% penalty, int trunc)
+			static const int UNHEALTH_RATE = GC.getDefineINT("SAS_EVALUATE_VALUE_LOSS_UNHEALTH_RATE_LATER");
+
+			const int unhealthAbs = -iCautiousHealthPercent;              // -(-450)=450
+			int penaltyPct = (UNHEALTH_RATE * unhealthAbs) / 100;   // e.g. 22
+			if (penaltyPct > 100) penaltyPct = 100;                       // cap at 100%
+
+			const int mult = 100 - penaltyPct;                            // e.g. 78%
+			const int old  = iValue;
+			iValue = (iValue * mult) / 100;                               // x78%
+			IFLOG if (iValue != old)
+				logBBAI("Bad health %d%% (LATER) rate=%d -> -%d%% => x%d%% (%d→%d)",
+						iCautiousHealthPercent, UNHEALTH_RATE, penaltyPct, mult, old, iValue);
 		}
 	}
 
