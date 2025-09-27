@@ -25,7 +25,7 @@
 		<DefineName>SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_LATER</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
-	<!-- custom: the higher this positive number is, the more we penalize and think this tile is very very bad, for example 75 would mean a harsher evaluation of this tile and thus likeliness to avoid the city site that has this tile in BFC than say 50 if i'm not mistaken but anyways etc. This value is multiplied by the number of bad tiles if we are past the strict max tolerated threshold, for example if we have 4 very bad tiles in BFC and we are at start game and the start very bad base value is 100, the currently evaluated city site that has these in BFC would have a penalty in value (and thus likeliness to consider it our best site to settle) of 4 * (-100) = - 400 to its value which is as of now a bit more than what iron would give for example so quite big but anyways etc. -->
+	<!-- custom: the lower (e.g. -200 is lower than -100) this number is, the more we penalize and think such a tile is very very bad and thus reduce the likeliness that we'll choose the candidate city site that has this tile in its BFC if i'm not mistaken but anyways etc. This value is multiplied by the number of bad tiles if we are past the strict max tolerated threshold, for example if we have 4 very bad tiles in BFC and we are at start game and the start very bad base value is 100, the currently evaluated city site that has these in BFC would have a penalty in value (and thus likeliness to consider it our best site to settle) of 4 * (-100) = - 400 to its value which is as of now a bit more than what iron would give for example so quite big but anyways etc. -->
 	<Define>
 		<DefineName>SAS_EVALUATE_BASE_VALUE_NOT_HOME_VERY_BAD_TILE_START</DefineName>
 		<iDefineIntVal>-100</iDefineIntVal>
@@ -97,8 +97,8 @@
 
 
 	<!-- custom: non-bonus home tiles (note: home plot/tile is the tile where we will settle on if we choose this site among all others anyways etc) below anyways etc -->
-	<!-- custom: the higher these values, the more we value settling on this plot, so if for example tile is flood plains and value is -150, it means we will apply a reduction of 150 to the site value making it less valuable in our eyes, vs if it is hill desert and value of 50 for example anyways etc, then it means we value this tile 50 value more (addition anyways etc), making it more desirable in our eyes to settle on, as hill desert is a bad tile, plus gives defensive bonus further more, so valuing it more for example. The higher this is the more we value settling on said tile, the lower it is the less we value. 0 in particular is neutral for example anyways etc. Anyways etc -->
-	<!-- custom: don't settle here, unless locally extremely good otherwise, higher as some still dont listen anyways etc -->
+	<!-- custom: the higher (e.g. -100 is higher than -150) these values, the more we value settling on this plot, so if for example tile is flood plains and value is -150, it means we will apply a reduction of 150 to the site value making it less valuable in our eyes, vs if it is hill desert and value of 50 for example anyways etc, then it means we value this tile 50 value more (addition anyways etc), making it more desirable in our eyes to settle on, as hill desert is a bad tile, plus gives defensive bonus further more, so valuing it more for example. The higher this is the more we value settling on said tile, the lower it is the less we value. 0 in particular is neutral for example anyways etc. Anyways etc -->
+	<!-- custom: don't settle here, unless locally extremely good otherwise, made it even lower as some AIs still didn't listen but anyways etc -->
 	<Define>
 		<DefineName>SAS_EVALUATE_VALUE_HOME_FLOOD_PLAINS</DefineName>
 		<iDefineIntVal>-150</iDefineIntVal>
@@ -125,7 +125,7 @@
 		<DefineName>SAS_EVALUATE_VALUE_HOME_FLATLAND_GRASS</DefineName>
 		<iDefineIntVal>-50</iDefineIntVal>
 	</Define>
-	<!-- custom: extremely good, we remove a low-food tile and get a free extra hammer, plus defensive bonus, ideal starting plot when it comes to terrain if i am not mistaken anyways etc ; one minus than fresh water, would be as good otherwise anyways etc ; try higher value as some cities still don't listen anyways etc, not too high as 10 plains + settle on hill plains is not better than 10 grass + settle on grass -->
+	<!-- custom: extremely good, we remove a low-food tile and get a free extra hammer, plus defensive bonus, ideal starting plot when it comes to terrain if i am not mistaken anyways etc; one minus than fresh water, would be as good otherwise anyways etc; now trying a higher value as some cities still did't listen before it anyways etc, not too high as 10 plains + settle on hill plains is not better than 10 grass + settle on grass -->
 	<Define>
 		<DefineName>SAS_EVALUATE_VALUE_HOME_HILL_PLAINS</DefineName>
 		<iDefineIntVal>250</iDefineIntVal>
@@ -241,17 +241,17 @@
 	<!-- custom: discourage non-coastal location for low-food terrain environments: better settle on coast and make profit than starve soon by settling in non-coastal anyways etc -->
 	<!-- custom: if we have less than threshold, no value change to candidate city site, but if beyond, then value is updated by amount. E.g. anyways etc if we have 9 low food tiles, it is beyond our threshold of max 7 or less, so for example if base value coastal low food is -75 then value of the candidate city site but anyways etc is updated by 9 * (-75) = -675 which is a huge devaluation. Note that coastal sites are unaffected by this so they would indirectly be favoured if no other better tile exists anyways etc -->
 	<Define>
-		<DefineName>SAS_EVALUATE_MAX_TOLERATED_COASTAL_LOW_FOOD_TILES</DefineName>
+		<DefineName>SAS_EVALUATE_MAX_TOLERATED_NOT_COASTAL_LOW_FOOD_TILES</DefineName>
 		<iDefineIntVal>7</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_EVALUATE_BASE_VALUE_COASTAL_LOW_FOOD</DefineName>
+		<DefineName>SAS_EVALUATE_BASE_VALUE_NOT_COASTAL_LOW_FOOD</DefineName>
 		<iDefineIntVal>-75</iDefineIntVal>
 	</Define>
 
 
 
-	<!-- custom: regardless of coastal status if i am not mistaken but anyways etc, tolerate some low number of non land non bonus tiles, but past a certain threshold, strongly penalize it so AIs wouldn't take this city site unless nothing at all is better but anyways etc ; also for our first city we don't want to be too close to the coast anyway and more like closer to the center for more radial expansion or possibilities, better city distance to capital cost, stronger early position for later expansions, etc if any other advantages but anyways etc, and if the spot is good, keep it for city 2 not for starting one where we really want nice yields on land and a closer to center position for later expansion if i am not mistaken but anyways etc ; as for value we have 20 bfc tiles (minus home plot) if i'm not mistaken, so if it has more than 8 water tiles no bonus, or equivalent, so less than 12 good tiles, change site, anyways etc -->
+	<!-- custom: regardless of coastal status if i am not mistaken but anyways etc, tolerate some low number of non land non bonus tiles, but past a certain threshold, strongly penalize it so AIs wouldn't take this city site unless nothing at all is better but anyways etc; also for our first city we don't want to be too close to the coast anyway and more like closer to the center for more radial expansion or possibilities, better city distance to capital cost, stronger early position for later expansions, etc if any other advantages but anyways etc, and if the spot is good, keep it for city 2 not for starting one where we really want nice yields on land and a closer to center position for later expansion if i am not mistaken but anyways etc; as for value we have 20 bfc tiles (minus home plot) if i'm not mistaken, so if it has more than 8 water tiles no bonus, or equivalent, so less than 12 good tiles, change site, anyways etc -->
 	<Define>
 		<DefineName>SAS_EVALUATE_MIN_REQUIRED_GOOD_BFC_TILES_START</DefineName>
 		<iDefineIntVal>13</iDefineIntVal>
@@ -332,7 +332,7 @@
 
 
 
-	<!-- custom: this only matters for our first city that we want to grow fast, but when we have a lot of workers, not a big problem, especially if site is overall better long term potential, do not discard it then and bet on long term value rather if i am not mistaken and if i may say but anyways etc ; logic is that as long we don't reach threshold all is as good as no health, but as soon as we reach it, all unhealthiness is bad and more the more unhealthy we are as explained to clarify to chapt 5 but anyways etc ; also be more lenient for later cities, we'd have workers by then to handle chopping or such, and capital would have grown fine
+	<!-- custom: this only matters for our first city that we want to grow fast, but when we have a lot of workers, not a big problem, especially if site is overall better long term potential, do not discard it then and bet on long term value rather if i am not mistaken and if i may say but anyways etc; logic is that as long we don't reach threshold all is as good as no health, but as soon as we reach it, all unhealthiness is bad and more the more unhealthy we are as explained to clarify to chapt 5 but anyways etc; also be more lenient for later cities, we'd have workers by then to handle chopping or such, and capital would have grown fine
 	// iValue = adjustToBadHealth(iValue, iHealth);
 	// // <advc.031>
 	-->
@@ -377,7 +377,7 @@
 		<iDefineIntVal>10</iDefineIntVal>
 	</Define>
 	<!-- custom: example of calculation at start phase anyways etc: -->
-	<!-- custom: e.g. with a iValue of 500: (100 - ((-1) * (-3.5 * 10)) * 500 / 100 = (100 - 35) * 500 / 100 = 65 * 500 / 100 = 325 ; so value lost 35% value as intended if i am not mistaken, added to clarify calculation to chatgpt 5 or proof it to myself hehe but anyways etc -->
+	<!-- custom: e.g. with a iValue of 500: (100 - ((-1) * (-3.5 * 10)) * 500 / 100 = (100 - 35) * 500 / 100 = 65 * 500 / 100 = 325; so value lost 35% value as intended if i am not mistaken, added to clarify calculation to chatgpt 5 or proof it to myself hehe but anyways etc -->
 	<Define>
 		<DefineName>SAS_EVALUATE_MIN_UNHEALTH_THRESH_LATER</DefineName>
 		<iDefineIntVal>-400</iDefineIntVal>
@@ -389,7 +389,7 @@
 
 
 
-	<!-- custom: let's add a guard against too high values as well just in case, as recommended by chatgpt 5 when i asked it about this risk that it could happen too hehe, i adjusted the code it provided to for that end and i saw fit too if i may say but anyways etc, check if accurate anyways etc ; also refactored a bit otherwise our already changed code as commented below anyways etc -->
+	<!-- custom: let's add a guard against too high values as well just in case, as recommended by chatgpt 5 when i asked it about this risk that it could happen too hehe, i adjusted the code it provided to for that end and i saw fit too if i may say but anyways etc, check if accurate anyways etc; also refactored a bit otherwise our already changed code as commented below anyways etc -->
 	<!-- leave headroom under 32767 -->
 	<Define>
 		<DefineName>SAS_EVALUATE_GUARD_KMAXFOUND</DefineName>

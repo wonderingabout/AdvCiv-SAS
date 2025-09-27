@@ -124,7 +124,7 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
 			<!-- was 45 -->
-			<iDistanceMaintenancePercent>50</iDistanceMaintenancePercent>
+			<iDistanceMaintenancePercent>60</iDistanceMaintenancePercent>
 			<!-- was 40 -->
 			<iNumCitiesMaintenancePercent>60</iNumCitiesMaintenancePercent>
 			<!-- advc.251 (end) -->
@@ -198,9 +198,9 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<!-- advc.251: renamed -->
 			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 100 -->
-			<iAIAdvancedStartPercent>67</iAIAdvancedStartPercent>
+			<iAIAdvancedStartPercent>70</iAIAdvancedStartPercent>
 			<!-- advc.148 -->
-			<iAIAttitudeChangePercent>30</iAIAttitudeChangePercent>
+			<iAIAttitudeChangePercent>10</iAIAttitudeChangePercent>
 			<Goodies>
 				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
 				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
@@ -324,9 +324,9 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<!-- advc.251: renamed -->
 			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 100 -->
-			<iAIAdvancedStartPercent>75</iAIAdvancedStartPercent>
+			<iAIAdvancedStartPercent>80</iAIAdvancedStartPercent>
 			<!-- advc.148 -->
-			<iAIAttitudeChangePercent>30</iAIAttitudeChangePercent>
+			<iAIAttitudeChangePercent>20</iAIAttitudeChangePercent>
 			<Goodies>
 				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
 				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
@@ -578,7 +578,7 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
 			<iAIAdvancedStartPercent>100</iAIAdvancedStartPercent>
 			<!-- advc.148 -->
-			<iAIAttitudeChangePercent>30</iAIAttitudeChangePercent>
+			<iAIAttitudeChangePercent>40</iAIAttitudeChangePercent>
 			<Goodies>
 				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
 				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
@@ -709,9 +709,9 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<!-- advc.251: Renamed; was 1 per era. -->
 			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 110 -->
-			<iAIAdvancedStartPercent>125</iAIAdvancedStartPercent>
+			<iAIAdvancedStartPercent>120</iAIAdvancedStartPercent>
 			<!-- advc.148 -->
-			<iAIAttitudeChangePercent>40</iAIAttitudeChangePercent>
+			<iAIAttitudeChangePercent>50</iAIAttitudeChangePercent>
 			<Goodies>
 				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
 				<!-- advc.314: was HIGH_GOLD -->
@@ -851,9 +851,9 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<!-- advc.251: Renamed; was 2 per era. -->
 			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 120 -->
-			<iAIAdvancedStartPercent>145</iAIAdvancedStartPercent>
+			<iAIAdvancedStartPercent>140</iAIAdvancedStartPercent>
 			<!-- advc.148 -->
-			<iAIAttitudeChangePercent>50</iAIAttitudeChangePercent>
+			<iAIAttitudeChangePercent>60</iAIAttitudeChangePercent>
 			<Goodies>
 				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
 				<GoodyType>GOODY_LOW_GOLD</GoodyType>
@@ -987,9 +987,9 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<!-- advc.251: Renamed; was 3 per era. -->
 			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 135 -->
-			<iAIAdvancedStartPercent>175</iAIAdvancedStartPercent>
+			<iAIAdvancedStartPercent>160</iAIAdvancedStartPercent>
 			<!-- advc.148 -->
-			<iAIAttitudeChangePercent>60</iAIAttitudeChangePercent>
+			<iAIAttitudeChangePercent>70</iAIAttitudeChangePercent>
 			<Goodies>
 				<!-- advc.314: was HIGH_GOLD -->
 				<GoodyType>GOODY_TECH</GoodyType>
@@ -1131,9 +1131,9 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<!-- advc.251: Renamed; was 4 per era. -->
 			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
 			<!-- advc.250c: was 150 -->
-			<iAIAdvancedStartPercent>210</iAIAdvancedStartPercent>
+			<iAIAdvancedStartPercent>180</iAIAdvancedStartPercent>
 			<!-- advc.148 -->
-			<iAIAttitudeChangePercent>70</iAIAttitudeChangePercent>
+			<iAIAttitudeChangePercent>80</iAIAttitudeChangePercent>
 			<Goodies>
 				<GoodyType>GOODY_LOW_GOLD</GoodyType>
 				<GoodyType>GOODY_LOW_GOLD</GoodyType>
@@ -1201,7 +1201,7 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<iColonyMaintenancePercent>130</iColonyMaintenancePercent>
 			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
 			<!-- advc.251: was 150 -->
-			<iCorporationMaintenancePercent>130</iCorporationMaintenancePercent>
+			<iCorporationMaintenancePercent>125</iCorporationMaintenancePercent>
 			<iCivicUpkeepPercent>100</iCivicUpkeepPercent>
 			<iInflationPercent>100</iInflationPercent>
 			<!-- advc.101 -->
@@ -1284,8 +1284,9 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<!-- custom: now disabled at all difficulties/handicap settings, as it is unreliable, game breaking, and uneeded, i can adjust iAITrainPercent or/and such other fields for a more even and fair game if needed or harder one as i see fit, and not exponentially harder one. Our AI is efficient with its hammer now so it always runs away at emperor autoplay at least, i suspect due to this or it could be one of the contributing factors, i don't like it anyway so disabled if i may say xd, as confirmed by chatgpt 5, check if accurate, anyways etc; as a side effect, AIs will produce less units, so they'll go bankrupt later or not at all maybe, so will probably help them a lot in the long term if i may say, i hate this kind of very uneeded and sneaky settings added instead of improving the AI rather, but anyways etc -->
 			<!-- advc.251: Renamed; was 5 per era. -->
 			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
+			<!-- custom: i didn't check what it would look like ingame as i don't use this feature, but our AI is noticeably as in much stronger than before i.e. than in base advciv in particular i mean, and i want these difficulties to be real challenges not placeholders, and handicap to be more grindy and less gradual at higher difficulties, so adjusted these a bit, check if accurate as i didn't check the ingame effect but made such a guess, hopefully accurate enough if i may say and more in line with the spirit of our changes if i may say but anyways etc -->
 			<!-- advc.250c: was 170 -->
-			<iAIAdvancedStartPercent>270</iAIAdvancedStartPercent>
+			<iAIAdvancedStartPercent>200</iAIAdvancedStartPercent>
 			<!-- advc.148 -->
 			<iAIAttitudeChangePercent>90</iAIAttitudeChangePercent>
 			<Goodies>
