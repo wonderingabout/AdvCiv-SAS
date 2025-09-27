@@ -58,11 +58,11 @@ See [/README.md#version-number](/README.md#version-number)
 
 ## Upgrading/Downgrading version of the mod
 
-If you have an older version of AdvCiv-SAS, delete the entire mod folder and put instead your new version of AdvCiv-SAS (does not affect savegames that are not located in this mod folder anyway if i'm not mistaken anyways etc) (or/and make a backup if you want to be safe of the old AdvCiv-SAS folder until you see all works well or want to keep it longer in case anyways etc, but it shouldn't be useful unless the development version crashes and you want to switch back (even then you could just redownload it but do as you prefer i mean hopefully helpful anyways etc)).
+If you want to change the version of AdvCiv-SAS (be it an upgrade to a newer version, or a downgrade to an older version, process is the same anyways etc), delete the entire mod folder and put instead your new version of AdvCiv-SAS (does not affect savegames that are not located in this mod folder anyway if i'm not mistaken anyways etc) (or/and make a backup if you want to be safe of the old AdvCiv-SAS folder until you see all works well or want to keep it longer in case anyways etc, but it shouldn't be useful unless the development version crashes and you want to switch back (even then you could just redownload it but do as you prefer i mean hopefully helpful anyways etc)).
 
-## If you have trouble downloading/installing/using/upgrading the mod
+## If you have trouble downloading/installing/using/upgrading/downgrading the mod
 
-Consider asking the question in [the AdvCiv-SAS CFC forum's discussion thread here](/https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) rather than messaging me privately (although i don't mind, just it would be more useful if other people see the question and reply in case they encounter same issue or/and such, but do as you prefer i mean anyways etc).
+Consider asking the question in [the AdvCiv-SAS CFC forum's discussion thread here](/https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) rather than messaging me privately (although i don't mind, just it would be more useful if other people see the question (and does some publicity for me xd at the same time if i may say shamelessly xd but anyways etc, although it is a non-profit mod if i may say too but anyways etc...) and reply in case they encounter same issue or/and such, but do as you prefer and hopefully i or/and others can provide some help if i may say i mean but anyways etc).
 
 ## Where to download more/other mods
 

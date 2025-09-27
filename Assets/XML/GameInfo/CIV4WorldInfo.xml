@@ -173,9 +173,9 @@
 			<iGridHeight>34</iGridHeight>
 			<iTerrainGrainChange>1</iTerrainGrainChange>
 			<iFeatureGrainChange>1</iFeatureGrainChange>
-			<!-- custom: can we agree "standard" is the standard research rate? Please? Please? Please?? This is really stupid, anyways etc. All the other research rates are beyond retarded too, but anyways etc, was 137 -->
+			<!-- custom: reduced as ingame AIs are falling behind in the early game at large maps, they don't have more early cities just because there is more land if i am not mistaken but anyways etc. Also can we agree "standard" is the standard research rate? Please? Please? Please?? This is really stupid, anyways etc. All the other research rates are beyond retarded too, but anyways etc, was 137 -->
 			<!-- advc.910: was 140 -->
-			<iResearchPercent>125</iResearchPercent>
+			<iResearchPercent>110</iResearchPercent>
 			<iTradeProfitPercent>40</iTradeProfitPercent>
 			<!-- advc.140: was 90 -->
 			<iDistanceMaintenancePercent>91</iDistanceMaintenancePercent>
@@ -212,8 +212,8 @@
 			<iTerrainGrainChange>2</iTerrainGrainChange>
 			<!-- advc.129: was 1 -->
 			<iFeatureGrainChange>2</iFeatureGrainChange>
-			<!-- custom: can we agree "standard" is the standard research rate? Please? Please? Please?? This is really stupid, anyways etc. All the other research rates are beyond retarded too, but anyways etc, was 150 -->
-			<iResearchPercent>150</iResearchPercent>
+			<!-- custom: reduced as ingame AIs are falling behind in the early game at large maps, they don't have more early cities just because there is more land if i am not mistaken but anyways etc. Also can we agree "standard" is the standard research rate? Please? Please? Please?? This is really stupid, anyways etc. All the other research rates are beyond retarded too, but anyways etc, was 150 -->
+			<iResearchPercent>120</iResearchPercent>
 			<!-- advc.140: was 30 -->
 			<iTradeProfitPercent>33</iTradeProfitPercent>
 			<iDistanceMaintenancePercent>100</iDistanceMaintenancePercent>

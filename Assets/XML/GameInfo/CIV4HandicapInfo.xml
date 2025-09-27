@@ -148,7 +148,7 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<iNoTechTradeModifier>80</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>-30</iTechTradeKnownModifier>
 			<!-- advc.309: was 100 -->
-			<iUnownedTilesPerGameAnimal>54</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>52</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 150 -->
 			<iUnownedTilesPerBarbarianUnit>64</iUnownedTilesPerBarbarianUnit>
 			<iUnownedWaterTilesPerBarbarianUnit>475</iUnownedWaterTilesPerBarbarianUnit>

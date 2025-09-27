@@ -5474,7 +5474,11 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit,
 		in AI_getTotalFloatingDefendersNeeded. */
 	iProductionNeeded = (iProductionNeeded *
 			trainingModifierFromHandicap(GC.getInfo(eUnitClass).isWorldUnit())).
-			roundToMultiple(/* advc.251: */ isHuman() ? 5 : 1);
+			// <!-- custom: very annoying, do not round to multiples of 5 please... Ancient macemen 18 hammers cost 20, and swordsman 42 costs 40 while swordsman 43 costs 45, it is a mess and hard to balance. Meanwhile, AIs have per 1 costs like 22, 17, 38, and it seems this is where we need to change it as chatgpt 5 explained to me, check if accurate anyways etc, see known issue as of now 67 for details anyways etc; Also what's even more annoying is that the price change only applies to the human player, so AIs effectively have a different price than the human player, very very annoying and no setting to manage this outside of DLL. Since i find it nonsensical and don't care about pretty numbers in this case at least i mean but anyways etc, disabled it entirely, anyways etc -->
+			// Short answer: for your use-case, they’re the same. Use .round() for clarity.
+			// Semantics: roundToMultiple(1) means “round to the nearest multiple of 1,” i.e. the nearest integer. That’s exactly what .round() does. For positive values (your costs are positive), they’ll return the same integer.
+			// roundToMultiple(/* advc.251: */ isHuman() ? 5 : 1);
+			round();
 	// </advc.107>
 	// advc.251 (comment): See getNewCityProductionValue
 	iProductionNeeded += getUnitExtraCost(eUnitClass);
@@ -5506,7 +5510,9 @@ int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
 	// <advc.251>
 	iProductionNeeded = (iProductionNeeded * per100(
 			GC.getInfo(getHandicapType()).getConstructPercent())).
-			roundToMultiple(isHuman() ? 5 : 1);
+			// <!-- custom: see known issue as of now 67 for details anyways etc -->
+			// roundToMultiple(isHuman() ? 5 : 1);
+			round();
 	if (!isHuman()) // Barbarians too
 	{
 		CvHandicapInfo const& h = GC.getInfo(kGame.getHandicapType());
@@ -5526,9 +5532,11 @@ int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
 int CvPlayer::getProductionNeeded(ProjectTypes eProject) const
 {
 	CvGame const& kGame = GC.getGame();
-	// <advc.251>
-	int const iBaseCost = GC.getInfo(eProject).getProductionCost();
-	int iProductionNeeded = iBaseCost; // </advc.251>
+	// <!-- custom: see known issue as of now 67 for details anyways etc -->
+	// // <advc.251>
+	// int const iBaseCost = GC.getInfo(eProject).getProductionCost();
+	// int iProductionNeeded = iBaseCost; // </advc.251>
+	int iProductionNeeded = GC.getInfo(eProject).getProductionCost();
 
 	static int const iPROJECT_PRODUCTION_PERCENT = GC.getDefineINT("PROJECT_PRODUCTION_PERCENT"); // advc.opt
 	iProductionNeeded *= iPROJECT_PRODUCTION_PERCENT;
@@ -5542,7 +5550,10 @@ int CvPlayer::getProductionNeeded(ProjectTypes eProject) const
 	// <advc.251>
 	iProductionNeeded = (iProductionNeeded *
 			per100(GC.getInfo(getHandicapType()).getCreatePercent())).
-			roundToMultiple(isHuman() ? (iBaseCost > 500 ? 50 : 5) : 1);
+			// <!-- custom: see known issue as of now 67 for details anyways etc, below comment by chatgpt 5, check if accurate anyways etc -->
+			// Yep—you can make projects round to 1 as well. It’s safe and keeps parity with units/buildings if you’ve already switched those.
+			// roundToMultiple(isHuman() ? (iBaseCost > 500 ? 50 : 5) : 1);
+			round();
 	if (!isHuman() && !isBarbarian())
 	{
 		CvHandicapInfo const& h = GC.getInfo(kGame.getHandicapType());
@@ -7285,8 +7296,10 @@ int CvPlayer::greatPeopleThreshold(bool bMilitary) const
 	iThreshold /= 100;
 	// <advc.251>
 	iThreshold = (per100(1) * iThreshold * GC.getInfo(
-			getHandicapType()).getGPThresholdPercent()).roundToMultiple(
-			isHuman() ? 5 : 1);
+			// <!-- custom: see known issue as of now 67 for details anyways etc -->
+			// getHandicapType()).getGPThresholdPercent()).roundToMultiple(
+			// isHuman() ? 5 : 1);
+			getHandicapType()).getGPThresholdPercent()).round();
 	if (!isHuman() && !isBarbarian())
 	{
 		iThreshold = intdiv::round(iThreshold * GC.getInfo(
@@ -18292,7 +18305,9 @@ int CvPlayer::getNewCityProductionValue() const
 	// <advc.251>
 	iValue = (iValue *
 			// Apply production modifier half (b/c getGrowthThreshold is also dependent on handicap)
-			(1 + (trainingModifierFromHandicap(false) - 1) / 2)).roundToMultiple(isHuman() ? 5 : 1);
+			// <!-- custom: see known issue as of now 67 for details anyways etc -->
+			// (1 + (trainingModifierFromHandicap(false) - 1) / 2)).roundToMultiple(isHuman() ? 5 : 1);
+			(1 + (trainingModifierFromHandicap(false) - 1) / 2)).round();
 	// </advc.251>
 	return iValue;
 }

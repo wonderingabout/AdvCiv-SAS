@@ -2279,7 +2279,9 @@ int CvTeam::getResearchCost(TechTypes eTech,
 	}
 	// <advc.251>
 	rCost *= scaled::max(rModifier, 0);
-	int iCost = rCost.roundToMultiple(isHuman() ? 5 : 1);
+	// <!-- custom: see known issue as of now 67 for details anyways etc -->
+	//int iCost = rCost.roundToMultiple(isHuman() ? 5 : 1);
+	const int iCost = rCost.round();
 	// </advc.251>
 	return std::max(1, iCost);
 }

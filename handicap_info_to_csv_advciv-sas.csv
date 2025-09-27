@@ -1,7 +1,7 @@
 Field,Settler,Chieftain,Warlord,Noble,Prince,Monarch,Emperor,Immortal,Deity
-iAIAdvancedStartPercent,67,75,90,100,125,145,175,210,270
+iAIAdvancedStartPercent,70,80,90,100,120,140,160,180,200
 iAIAnimalBonus,-30,-15,-20,0,0,0,0,0,0
-iAIAttitudeChangePercent,30,30,30,30,40,50,60,70,90
+iAIAttitudeChangePercent,10,20,30,40,50,60,70,80,90
 iAIBarbarianBonus,-30,-15,0,0,0,0,0,0,0
 iAICivicUpkeepPercent,118,112,106,100,94,88,82,76,70
 iAIConstructPercent,115,110,105,100,95,90,85,80,75
@@ -40,11 +40,11 @@ iBuildTimePercent,100,100,100,100,100,100,100,100,100
 iCivicUpkeepPercent,100,100,100,100,100,100,100,100,100
 iColonyMaintenancePercent,85,90,95,100,105,110,115,120,130
 iConstructPercent,100,100,100,100,100,100,100,100,100
-iCorporationMaintenancePercent,85,90,95,100,105,110,115,120,130
+iCorporationMaintenancePercent,85,90,95,100,105,110,115,120,125
 iCreatePercent,100,100,100,100,100,100,100,100,100
 iCultureLevelPercent,100,100,100,100,100,100,100,100,100
 iDifficulty,10,20,30,40,50,60,70,80,90
-iDistanceMaintenancePercent,50,65,70,75,80,85,90,95,100
+iDistanceMaintenancePercent,60,65,70,75,80,85,90,95,100
 iForeignCultureStrength,11,14,17,20,23,26,29,32,35
 iFreeUnits,20,8,7,6,5,4,3,2,1
 iFreeWinsVsBarbs,2,1,0,0,0,0,0,0,0
@@ -69,7 +69,7 @@ iTrainPercent,100,100,100,100,100,100,100,100,100
 iUnitCostPercent,100,100,100,100,100,100,100,100,100
 iUnownedTilesPerBarbarianCity,130,125,120,115,110,105,100,95,90
 iUnownedTilesPerBarbarianUnit,64,61,58,55,52,49,46,43,40
-iUnownedTilesPerGameAnimal,54,49,46,43,40,37,34,31,28
+iUnownedTilesPerGameAnimal,52,49,46,43,40,37,34,31,28
 iUnownedWaterTilesPerBarbarianUnit,475,450,425,400,375,350,325,300,275
 GOODY_BARBARIANS_STRONG (*),0,0,1,1,1,1,1,2,2
 GOODY_BARBARIANS_WEAK (*),0,1,1,2,3,4,5,5,6

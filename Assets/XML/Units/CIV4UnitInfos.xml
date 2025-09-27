@@ -6601,7 +6601,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>40</iCost>
+			<!-- custom: see also related known issue as of now 67 for details anyways etc; was 40 -->
+			<iCost>42</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -6787,7 +6788,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>40</iCost>
+			<!-- custom: see also related known issue as of now 67 for details anyways etc; was 40 -->
+			<iCost>42</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -6996,8 +6998,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
+			<!-- custom: see also related known issue as of now 67 for details anyways etc; was 40 -->
 			<!-- advc.907a: was 45 -->
-			<iCost>40</iCost>
+			<iCost>42</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -7218,8 +7221,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: reduce cost to indicate they always spawn more (sort of immortal if i am not mistaken in my attempt to emulate it/this at least is how i want it anyways etc) -->
-			<iCost>35</iCost>
+			<!-- custom: reduce cost to indicate they always spawn more (sort of immortal if i am not mistaken in my attempt to emulate it/this at least is how i want it anyways etc), but not too much to not make them too op either ideally but anyways etc, as the swordsman is still a strong as of now unit but anyways etc; see also related known issue as of now 67 for details anyways etc -->
+			<iCost>38</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -7430,7 +7433,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>40</iCost>
+			<iCost>42</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -7643,7 +7646,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
-			<PrereqTech>TECH_CHIVALRY</PrereqTech>
+			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -7659,7 +7662,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>70</iCost>
+			<!-- custom: was 70 -->
+			<iCost>65</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -7841,7 +7845,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
-			<PrereqTech>TECH_CHIVALRY</PrereqTech>
+			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -7852,7 +7856,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>70</iCost>
+			<!-- custom: was 70 -->
+			<iCost>65</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -8064,7 +8069,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
-			<PrereqTech>TECH_CHIVALRY</PrereqTech>
+			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -8080,7 +8085,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>70</iCost>
+			<!-- custom: was 70 -->
+			<iCost>60</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -12991,7 +12997,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<!-- custom: was 20 -->
+			<!-- custom: see also related known issue as of now 67 for details anyways etc; was 20 -->
 			<iCombat>18</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
