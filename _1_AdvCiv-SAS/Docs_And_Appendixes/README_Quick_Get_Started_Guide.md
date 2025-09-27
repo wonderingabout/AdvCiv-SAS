@@ -388,6 +388,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
 - some units are buildable at different times/tech, also for historical accuracy, see tech tree i.e. tech advisor for details anyways etc
 - rebalanced the warrior / ancient maceman in particular so it gives more base strength but less city combat, as well as now having animal combat modifier as well, and slightly higher cost.
 - barracks in particular now require as of now tech_hunting. Hopefully this helps avoiding a military beeline by AIs or human players, or selectively boosts military leaders more with this extra chance in the early game (for those that start with as of now tech_hunting) anyways etc.
+- spearman units reworked and overall more powerful, including but not only a base strength now increased from 4 to 5 but not only. Also, civ-specific variants have even more varied profiles. See XML/Sevopedia for details anyways etc.
 - explore units can attack: but their strength should be quite low
 - military units are versatile: swordsmen can defend, archers can attack or/and fit more in an attacker as well anyways etc
 - rebalanced also naval units and/or other units like animal units and perhaps other units or not or yes while doing so i mean anyways etc, see xml for details or/and sevopedia ingame also for updated values too i mean anyways etc

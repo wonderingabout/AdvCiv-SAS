@@ -371,6 +371,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
 - **Warrior / “Ancient Maceman”** rebalanced: higher base strength, lower city-combat, gains **vs Animals** bonus; cost slightly up.
 - **Archer / Longbowman:** both available earlier with lower base strength and cost but with new stat mixes; **Archer** no longer upgrades to late units; **Longbow** upgrades to **Crossbow** (earlier availability).
 - **Barracks** now require **Hunting**.
+- **Spearman line:** base Strength **4 → 5**; anti-mounted role strengthened; civ-specific variants further differentiated (see Sevopedia/XML).
 - **Explorer-class** units can **attack**, but with low strength.
 - Units more **versatile:** e.g., Swords defend better; Archers can attack more credibly.
 - **Naval/animal** units broadly rebalanced; see Sevopedia/XML for details.
