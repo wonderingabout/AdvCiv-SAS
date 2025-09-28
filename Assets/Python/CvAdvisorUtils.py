@@ -153,18 +153,36 @@ def unitBuiltFeats(pCity, pUnit):
 				popupInfo.addPythonButton(localText.getText("TXT_KEY_FEAT_ACCOMPLISHED_MORE", ()), "")
 				popupInfo.addPopup(pCity.getOwner())
 		
-	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MELEE)):
+	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MELEE_POLEARM)):
 
-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_MELEE")):
+		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_MELEE_POLEARM")):
 		
-			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MELEE, True)
+			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MELEE_POLEARM, True)
 			
 			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
 				popupInfo = CyPopupInfo()
 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
-				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_MELEE)
+				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_MELEE_POLEARM)
 				popupInfo.setData2(pCity.getID())
-				popupInfo.setText(localText.getText("TXT_KEY_FEAT_UNITCOMBAT_MELEE", (pUnit.getNameKey(), pCity.getNameKey(), )))
+				popupInfo.setText(localText.getText("TXT_KEY_FEAT_UNITCOMBAT_MELEE_POLEARM", (pUnit.getNameKey(), pCity.getNameKey(), )))
+				popupInfo.setOnClickedPythonCallback("featAccomplishedOnClickedCallback")
+				popupInfo.setOnFocusPythonCallback("featAccomplishedOnFocusCallback")
+				popupInfo.addPythonButton(localText.getText("TXT_KEY_FEAT_ACCOMPLISHED_OK", ()), "")
+				popupInfo.addPythonButton(localText.getText("TXT_KEY_FEAT_ACCOMPLISHED_MORE", ()), "")
+				popupInfo.addPopup(pCity.getOwner())
+
+	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MELEE_SHOCK)):
+
+		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_MELEE_SHOCK")):
+		
+			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MELEE_SHOCK, True)
+			
+			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+				popupInfo = CyPopupInfo()
+				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_MELEE_SHOCK)
+				popupInfo.setData2(pCity.getID())
+				popupInfo.setText(localText.getText("TXT_KEY_FEAT_UNITCOMBAT_MELEE_SHOCK", (pUnit.getNameKey(), pCity.getNameKey(), )))
 				popupInfo.setOnClickedPythonCallback("featAccomplishedOnClickedCallback")
 				popupInfo.setOnFocusPythonCallback("featAccomplishedOnFocusCallback")
 				popupInfo.addPythonButton(localText.getText("TXT_KEY_FEAT_ACCOMPLISHED_OK", ()), "")

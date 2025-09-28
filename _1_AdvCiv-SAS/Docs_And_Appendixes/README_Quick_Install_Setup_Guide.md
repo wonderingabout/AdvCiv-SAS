@@ -58,7 +58,7 @@ See [/README.md#version-number](/README.md#version-number)
 
 ## Upgrading/Downgrading version of the mod
 
-If you want to change the version of AdvCiv-SAS (be it an upgrade to a newer version, or a downgrade to an older version, process is the same anyways etc), delete the entire mod folder and put instead your new version of AdvCiv-SAS (does not affect savegames that are not located in this mod folder anyway if i'm not mistaken anyways etc) (or/and make a backup if you want to be safe of the old AdvCiv-SAS folder until you see all works well or want to keep it longer in case anyways etc, but it shouldn't be useful unless the development version crashes and you want to switch back (even then you could just redownload it but do as you prefer i mean hopefully helpful anyways etc)).
+If you want to change the version of AdvCiv-SAS (be it an upgrade to a newer version, or a downgrade to an older version, process is the same anyways etc), delete the entire mod folder and put instead your new version of AdvCiv-SAS (does not delete savegames that are not located in this mod folder anyway if i'm not mistaken anyways etc) (or/and make a backup if you want to be safe of the old AdvCiv-SAS folder until you see all works well or want to keep it longer in case anyways etc, but it shouldn't be useful unless the development version crashes and you want to switch back (even then you could just redownload it but do as you prefer i mean hopefully helpful anyways etc)).
 
 ## If you have trouble downloading/installing/using/upgrading/downgrading the mod
 

@@ -12540,7 +12540,11 @@
 			<UnitName/>
 			<UnitCombatPromotions>
 				<UnitCombatPromotion>
-					<UnitCombat>UNITCOMBAT_MELEE</UnitCombat>
+					<UnitCombat>UNITCOMBAT_MELEE_POLEARM</UnitCombat>
+					<UnitPromotion>PROMOTION_COUNTER_ARCHER</UnitPromotion>
+				</UnitCombatPromotion>
+				<UnitCombatPromotion>
+					<UnitCombat>UNITCOMBAT_MELEE_SHOCK</UnitCombat>
 					<UnitPromotion>PROMOTION_COUNTER_ARCHER</UnitPromotion>
 				</UnitCombatPromotion>
 			</UnitCombatPromotions>
@@ -17577,7 +17581,11 @@
 			<UnitName/>
 			<UnitCombatPromotions>
 				<UnitCombatPromotion>
-					<UnitCombat>UNITCOMBAT_MELEE</UnitCombat>
+					<UnitCombat>UNITCOMBAT_MELEE_POLEARM</UnitCombat>
+					<UnitPromotion>PROMOTION_CITY_GARRISON1</UnitPromotion>
+				</UnitCombatPromotion>
+				<UnitCombatPromotion>
+					<UnitCombat>UNITCOMBAT_MELEE_SHOCK</UnitCombat>
 					<UnitPromotion>PROMOTION_CITY_GARRISON1</UnitPromotion>
 				</UnitCombatPromotion>
 			</UnitCombatPromotions>
@@ -22232,9 +22240,14 @@
 			<iUnitImmobileTurns>0</iUnitImmobileTurns>
 			<UnitPromotion/>
 			<UnitName/>
+			<!-- custom: seems polearm is also relevant for this event at a glance at the text description if i may say but anyways etc so put both polearm and shock melee combat types if i am not mistaken but check to be sure if want to be sure in this case i mean but anyways etc -->
 			<UnitCombatPromotions>
 				<UnitCombatPromotion>
-					<UnitCombat>UNITCOMBAT_MELEE</UnitCombat>
+					<UnitCombat>UNITCOMBAT_MELEE_POLEARM</UnitCombat>
+					<UnitPromotion>PROMOTION_FIRST_STRIKE1</UnitPromotion>
+				</UnitCombatPromotion>
+				<UnitCombatPromotion>
+					<UnitCombat>UNITCOMBAT_MELEE_SHOCK</UnitCombat>
 					<UnitPromotion>PROMOTION_FIRST_STRIKE1</UnitPromotion>
 				</UnitCombatPromotion>
 			</UnitCombatPromotions>

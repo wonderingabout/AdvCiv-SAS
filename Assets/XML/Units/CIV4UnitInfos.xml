@@ -5414,7 +5414,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_MELEE</Combat>
+			<Combat>UNITCOMBAT_MELEE_SHOCK</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<!-- custom: see code comment at UnitAIs anyways etc, trying to not make them too aggressive and maybe keep defensive role to some extent while still not staying parked in cities ideally if i'm not mistaken but anyways etc, was UNITAI_ATTACK -->
 			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
@@ -5625,7 +5625,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_MELEE</Combat>
+			<Combat>UNITCOMBAT_MELEE_SHOCK</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<!-- K-Mod: was UNITAI_COUNTER -->
 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
@@ -5793,10 +5793,15 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
+			<!-- custom: split UNITCOMBAT_MELEE into UNITCOMBAT_MELEE_POLEARM and UNITCOMBAT_MELEE_SHOCK, for axeman units at least for the generic axeman, seems relevant to have/keep anyways etc both effects, but no reason to make axes especially good against swords, if anything i read the opposite online or something, but no need to make it too drastic. Focus should be on making Axes strong vs polearm, as for swords, it's fine if they have a more or less even match up, probably more balanced as such as well, axemen still have the advantage of being cheaper, available earlier (and also as of now requiring less bonuses as copper only is fine for axes as of now unlike for swords if i am not mistaken but anyways etc), and slightly stronger with this multiplier (5 * 1.25 = 6.25 vs 6 for swords outside city if i am not mistaken but anyways etc, which seems more balanced and sensical as well anyways etc). Chatgpt 5 also agrees or/and helped me find this hehe thanks i mean too hehe toto but anyways etc, check if accurate anyways etc. Also, this is good because bronze axemen were ridiculously strong vs later melee units if not the maceman that also had btw a ridiculous melee all units which was way too op or not balanced anyways etc, so all in all seems like a great change but check if accurate anyways etc -->
 			<UnitCombatMods>
 				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
 					<iUnitCombatMod>50</iUnitCombatMod>
+				</UnitCombatMod>
+				<UnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+					<iUnitCombatMod>25</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
 			<UnitCombatCollateralImmunes/>
@@ -5840,7 +5845,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_MELEE</Combat>
+			<Combat>UNITCOMBAT_MELEE_SHOCK</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<!-- K-Mod: was UNITAI_COUNTER -->
 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
@@ -6007,11 +6012,15 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<!-- custom: was UNITCOMBAT_MELEE 25 -->
+			<!-- custom: see code comment at the generic swordsman for details, was UNITCOMBAT_MELEE_POLEARM 25 and UNITCOMBAT_MELEE_SHOCK 25 anyways etc -->
 			<UnitCombatMods>
 				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
-					<iUnitCombatMod>75</iUnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
+					<iUnitCombatMod>50</iUnitCombatMod>
+				</UnitCombatMod>
+				<UnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+					<iUnitCombatMod>50</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
 			<UnitCombatCollateralImmunes/>
@@ -6054,7 +6063,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_MELEE</Combat>
+			<Combat>UNITCOMBAT_MELEE_SHOCK</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<!-- K-Mod: was UNITAI_COUNTER -->
 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
@@ -6234,11 +6243,15 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<!-- custom: was UNITCOMBAT_MELEE 100 -->
+			<!-- custom: see code comment at the generic swordsman for details, was UNITCOMBAT_MELEE_POLEARM 100 and UNITCOMBAT_MELEE_SHOCK 100 anyways etc -->
 			<UnitCombatMods>
 				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
 					<iUnitCombatMod>50</iUnitCombatMod>
+				</UnitCombatMod>
+				<UnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+					<iUnitCombatMod>25</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
 			<UnitCombatCollateralImmunes/>
@@ -6288,7 +6301,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_MELEE</Combat>
+			<Combat>UNITCOMBAT_MELEE_SHOCK</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<!-- K-Mod: was UNITAI_COUNTER -->
 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
@@ -6459,9 +6472,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
+			<!-- custom: see code comment at the generic swordsman for details anyways etc -->
 			<UnitCombatMods>
 				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
+					<iUnitCombatMod>50</iUnitCombatMod>
+				</UnitCombatMod>
+				<UnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
 					<iUnitCombatMod>50</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
@@ -6512,7 +6530,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_MELEE</Combat>
+			<Combat>UNITCOMBAT_MELEE_SHOCK</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<!-- advc.131: was UNITAI_ATTACK -->
 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
@@ -6694,7 +6712,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_MELEE</Combat>
+			<Combat>UNITCOMBAT_MELEE_SHOCK</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<!-- custom: was UNITAI_ATTACK -->
 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
@@ -6908,7 +6926,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_MELEE</Combat>
+			<Combat>UNITCOMBAT_MELEE_SHOCK</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<!-- advc.131: was UNITAI_ATTACK -->
 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
@@ -7129,7 +7147,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_MELEE</Combat>
+			<!-- custom: was UNITCOMBAT_MELEE for the generic swordsman we based in on anyways etc, but it is shown or/and at least seems to be holding a spear if i may say and if i am not mistaken but anyways etc, so make it melee polearm combat type rather. This is good/cool if i may say but anyways etc too but anyways etc because the persia_immortal, although affected as of now by the unit_axeman melee shock combat modifier as of now but anyways etc, still it also has its own effects so is in fact stronger than melee shock units, which makes sense since it has a spear if i am not mistaken but anyways etc; note: not made a spearman because is bronze age based which is too old, stats would be weaker to accomodate that, so defeats targeted era/tech/stats purpose anyways etc -->
+			<Combat>UNITCOMBAT_MELEE_POLEARM</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
@@ -7322,12 +7341,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<FreePromotions>
-				<FreePromotion>
-					<PromotionType>PROMOTION_MEDIC1</PromotionType>
-					<bFreePromotion>1</bFreePromotion>
-				</FreePromotion>
-			</FreePromotions>
+			<FreePromotions/>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
@@ -7337,7 +7351,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_MELEE</Combat>
+			<Combat>UNITCOMBAT_MELEE_SHOCK</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<!-- custom: hopefully a bit more versatile and the AI would pick them more but this is just a vague guess check if accurate, i also didn't read below advciv rationale but anyways etc, was UNITAI_ATTACK_CITY -->
 			<!-- advc.131: was UNITAI_ATTACK -->
@@ -7513,7 +7527,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<UnitCombatMods/>
+			<!-- custom: considering its higher base stats than the spearman, make modifiers lower if i am not mistaken in my thinking and to keep unit swordsman like (raider) focused with this being an extra perk for accuracy or balance or/and such, check if accurate anyways etc; see also code comment at the generic axeman for details and additional/related info anyways etc, was empty in the generic swordsman anyways etc; "a cheap foot unit that happens to have a lance" if i may say so not too op modifiers but sitll significant edge plus cost reduction to help too, hopefully balanced as such anyways etc -->
+			<UnitCombatMods>
+				<UnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+					<iUnitCombatMod>10</iUnitCombatMod>
+				</UnitCombatMod>
+				<UnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+					<iUnitCombatMod>10</iUnitCombatMod>
+				</UnitCombatMod>
+			</UnitCombatMods>
 			<UnitCombatCollateralImmunes/>
 			<DomainMods/>
 			<BonusProductionModifiers/>
@@ -7561,7 +7585,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_MELEE</Combat>
+			<Combat>UNITCOMBAT_MELEE_SHOCK</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<!-- K-Mod: was UNITAI_COUNTER -->
 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
@@ -7714,10 +7738,15 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
+			<!-- custom: more relevant to make macemen units stronger than / counter the melee polearm units rather and be mildly stronger than other melee shock units if any anyways etc, see code comment at the generic axeman for details and additional/related info anyways etc, was UNITCOMBAT_MELEE_POLEARM 50 and UNITCOMBAT_MELEE_SHOCK 50 anyways etc -->
 			<UnitCombatMods>
 				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
 					<iUnitCombatMod>50</iUnitCombatMod>
+				</UnitCombatMod>
+				<UnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+					<iUnitCombatMod>25</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
 			<UnitCombatCollateralImmunes/>
@@ -7761,7 +7790,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_MELEE</Combat>
+			<Combat>UNITCOMBAT_MELEE_SHOCK</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<!-- K-Mod: was UNITAI_COUNTER -->
 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
@@ -7932,9 +7961,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
+			<!-- custom: see code comment at the generic maceman for details and additional/related info anyways etc -->
 			<UnitCombatMods>
 				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
+					<iUnitCombatMod>50</iUnitCombatMod>
+				</UnitCombatMod>
+				<UnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
 					<iUnitCombatMod>50</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
@@ -7985,7 +8019,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_MELEE</Combat>
+			<Combat>UNITCOMBAT_MELEE_SHOCK</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<!-- K-Mod: was UNITAI_COUNTER -->
 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
@@ -8166,10 +8200,15 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
+			<!-- custom: see code comment at the generic maceman for details and additional/related info anyways etc -->
 			<UnitCombatMods>
 				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
 					<iUnitCombatMod>50</iUnitCombatMod>
+				</UnitCombatMod>
+				<UnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+					<iUnitCombatMod>25</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
 			<UnitCombatCollateralImmunes/>
@@ -8184,8 +8223,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iCultureGarrison>6</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>2</iAsset>
+			<!-- custom: was 9 -->
 			<!-- advc.104e: was 10 -->
-			<iPower>9</iPower>
+			<iPower>10</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -8218,7 +8258,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_MELEE</Combat>
+			<Combat>UNITCOMBAT_MELEE_POLEARM</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<!-- custom: use them as defenders rather if i'm not mistaken anyways etc, was UNITAI_ATTACK -->
 			<DefaultUnitAI>UNITAI_RESERVE</DefaultUnitAI>
@@ -8273,7 +8313,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
-			<!-- custom: better suited for defensive role for AI players, but less efficient than longbowmen as of now to do so in most cases but anyways etc, so give them a more minor defensive role anyways etc -->
+			<!-- custom: good defense units as long as axes don't attack us, consider them as well for this role anyways etc, but it's risky because medieval macemen would have a much easier time vs us later vs if we were longbows instead, so although tempting do not assign it (unless unit is somehow stronger which is not the case here at least not for the generic spear if i may say but anyways etc) -->
 			<UnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
@@ -8389,10 +8429,15 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<!-- custom: was UNITCOMBAT_MOUNTED_MELEE 100 and UNITCOMBAT_MOUNTED_RANGED 100 (was the equivalent of this in base advciv i mean anyways etc); i guess this is good against as of now generic war elephants in particular anyways etc, plus they are the counterpart of the axeman so nice too i'd say anyways etc -->
+			<!-- custom: also give small melee shock edge, after all they have longer range, will have some edge vs swords this way without making it op, but still lose to axes as of now, chatgpt 5 approves this change and helped me balance it, check if accurate anyways etc -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
 					<iUnitCombatMod>50</iUnitCombatMod>
+				</UnitCombatMod>
+				<UnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+					<iUnitCombatMod>10</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
 			<UnitCombatCollateralImmunes/>
@@ -8436,7 +8481,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_MELEE</Combat>
+			<Combat>UNITCOMBAT_MELEE_POLEARM</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<!-- custom: now more suited as a versatile/offense unit (but not raider as still too weak as in not specialized enough or strong for that, just not for raiding as it lacks bit strength but maybe fine and possibly fit for this purpose but check to be sure anyways etc), was UNITAI_COUNTER -->
 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
@@ -8496,7 +8541,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
-			<!-- custom: now more suited at being a more versatile unit, but not raider as bit too weak for that and may mislead AI fighting into low odds if i am not mistaken, but maybe unitai_attack encourages it enough indirectly hopefully but anyways etc -->
+			<!-- custom: now more suited at being a more versatile unit, but not raider as bit too weak for that and may mislead AI fighting into low odds if i am not mistaken, but maybe unitai_attack encourages it enough indirectly hopefully but anyways etc; also it is strong enough to apply for reserve role as well if i am not mistaken but anyways etc -->
 			<UnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
@@ -8508,6 +8553,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_RESERVE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
@@ -8616,11 +8665,15 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<!-- custom: as of now same as the generic spearman to keep identity/role or such if i may say but anyways etc -->
+			<!-- custom: give an extra melee edge to match the shaka aggressive profile if i may say but anyways etc, see code comment at the generic spearman for details or/and related info but anyways etc -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
 					<iUnitCombatMod>50</iUnitCombatMod>
+				</UnitCombatMod>
+				<UnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+					<iUnitCombatMod>25</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
 			<UnitCombatCollateralImmunes/>
@@ -8636,7 +8689,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iExtraCost>0</iExtraCost>
 			<iAsset>2</iAsset>
 			<!-- custom: was 4 -->
-			<iPower>5</iPower>
+			<iPower>6</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -8655,12 +8708,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<!-- custom: was PROMOTION_MOBILITY_COST -->
-			<FreePromotions>
-				<FreePromotion>
-					<PromotionType>PROMOTION_FIRST_STRIKE1</PromotionType>
-					<bFreePromotion>1</bFreePromotion>
-				</FreePromotion>
-			</FreePromotions>
+			<FreePromotions/>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
@@ -8670,7 +8718,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_MELEE</Combat>
+			<Combat>UNITCOMBAT_MELEE_POLEARM</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<!-- custom: make it a more versatile unit (quite good at offense, but a bit better at defense if i am not mistaken anyways etc), was UNITAI_ATTACK -->
 			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
@@ -8843,6 +8891,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<!-- custom: was UNITCOMBAT_MOUNTED 100 (in base advciv anyways etc) -->
+			<!-- custom: see code comment at the generic spearman for details or/and related info but anyways etc -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
@@ -8851,6 +8900,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
 					<iUnitCombatMod>50</iUnitCombatMod>
+				</UnitCombatMod>
+				<UnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+					<iUnitCombatMod>10</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
 			<UnitCombatCollateralImmunes/>
@@ -8866,7 +8919,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iExtraCost>0</iExtraCost>
 			<iAsset>2</iAsset>
 			<!-- custom: was 4 -->
-			<iPower>5</iPower>
+			<iPower>6</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -8900,7 +8953,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_MELEE</Combat>
+			<Combat>UNITCOMBAT_MELEE_POLEARM</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<!-- custom: was UNITAI_ATTACK -->
 			<!-- K-Mod: was UNITAI_COUNTER -->
@@ -8957,7 +9010,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
-			<!-- custom: they have a more offensive attack focus now, but are good at defense against most units and hammer efficient for that role as well vs longbows as of now in particular if i am not mistaken but anyways etc, so allow defense but not as default unitai though if i'm not mistaken but anyways etc, so keep some/most of these roles as well anyways etc -->
+			<!-- custom: they have a more offensive attack focus now, but are good at defense against most units and hammer efficient for that role as well vs longbows as of now in particular if i am not mistaken but anyways etc, but don't allow city_defense itself but most defense roles otherwise if i'm not mistaken anyways etc -->
 			<UnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
@@ -8973,10 +9026,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
@@ -9085,13 +9134,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<!-- custom: same as the generic spearman anyways etc; since mounted units seldom/rarely but anyways etc defend cities, this is not op in combination with as of now city attack modifiers i think but anyways etc; note: give them an offensive melee effect anyways etc so alexander can use them as such (maybe pericles too who knows but anyways etc), but i added it as a combat modifier anyways etc rather than free promotion anyways etc else may stack with the pikeman effect at/after but anyways etc upgrade and be bit too op, so better as such, and hoplite is as of now strong enough already if i'm not mistaken anyways etc -->
+			<!-- custom: see code comment at the generic spearman for details or/and related info but anyways etc -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
 					<iUnitCombatMod>50</iUnitCombatMod>
 				</UnitCombatMod>
 				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
 					<iUnitCombatMod>25</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
@@ -9107,6 +9157,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iCultureGarrison>4</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>2</iAsset>
+			<!-- custom: generic spearman (although it was based on axeman in base advciv if i am not mistaken but anyways etc) in base advciv was 4 anyways etc -->
 			<iPower>6</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
@@ -9135,7 +9186,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_MELEE</Combat>
+			<Combat>UNITCOMBAT_MELEE_POLEARM</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<!-- custom: better as a defender generally i would say anyways etc -->
 			<DefaultUnitAI>UNITAI_RESERVE</DefaultUnitAI>
@@ -9203,6 +9254,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_COUNTER</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 				<UnitAI>
@@ -9306,13 +9361,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<!-- custom: was "MOUNTED" 100 -->
+			<!-- custom: This way (melee shock bonus), axes from bronze age (and to a lesser extent the older and cheaper iron age swords anyways etc) no longer beat or match pikes which was nonsensical, especially considering cost difference anyways etc; see also code comment at the generic spearman for details or/and related info but anyways etc -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
 					<iUnitCombatMod>50</iUnitCombatMod>
 				</UnitCombatMod>
 				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
 					<iUnitCombatMod>25</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
@@ -9357,10 +9413,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<Combat>UNITCOMBAT_MELEE</Combat>
+			<Combat>UNITCOMBAT_MELEE_POLEARM</Combat>
 			<Domain>DOMAIN_LAND</Domain>
-			<!-- custom: better as a defender generally i would say anyways etc -->
-			<DefaultUnitAI>UNITAI_RESERVE</DefaultUnitAI>
+			<!-- custom: strong enough to be a versatile unit, nice and effective defender suits it most though so hopefully the below fits if i am not mistaken but anyways etc; hopefully our cities are defended enough as such anyways etc (i hope xd but i don't know for sure check to be sure but anyways etc) -->
+			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
 			<Description>TXT_KEY_UNIT_HOLY_ROMAN_LANDSKNECHT</Description>
@@ -9466,8 +9522,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: was 60 -->
-			<iCost>85</iCost>
+			<!-- custom: note: unit is stronger than base pike, but also symbolizes it being a mercenary and requiring higher costs perhaps, make them strong enough to justify it for flavor or maybe here rather if i may say in this case but anyways etc accuracy anyways etc; but since as of now maces are already cheaper, don't overdo it anyways etc, was 60 -->
+			<iCost>80</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -9492,7 +9548,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
 			<!-- custom: was 6 -->
-			<iCombat>7</iCombat>
+			<iCombat>8</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -9551,13 +9607,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<!-- custom: was "MOUNTED" 100 and UNITCOMBAT_MELEE 100 -->
+			<!-- custom: see code comment at the generic pikeman for details or/and related info but anyways etc -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
 					<iUnitCombatMod>50</iUnitCombatMod>
 				</UnitCombatMod>
 				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
 					<iUnitCombatMod>25</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
@@ -9574,7 +9631,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iExtraCost>0</iExtraCost>
 			<iAsset>2</iAsset>
 			<!-- custom: was 6 -->
-			<iPower>11</iPower>
+			<iPower>10</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -9592,14 +9649,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: from what i've read it seems they were very good at using many war formations. I had also intended to make them extra good against mounted units, was empty -->
+			<!-- custom: from what i've read it seems they were very good at using many war formations. I had also intended to make them extra good against mounted units, but 2 free promotions is a bit too op, move it to combat modifiers rather (although there are no units later so keep strongest but also most relevant i think if i'm not mistaken from what i remember of it in this case i mean but anyways etc here anyways etc), was empty -->
 			<FreePromotions>
 				<FreePromotion>
 					<PromotionType>PROMOTION_COUNTER_MOUNTED</PromotionType>
-					<bFreePromotion>1</bFreePromotion>
-				</FreePromotion>
-				<FreePromotion>
-					<PromotionType>PROMOTION_COUNTER_MELEE</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -10550,10 +10603,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<!-- custom: was UNITCOMBAT_MELEE 50 in base advciv code anyways etc -->
+			<!-- custom: was UNITCOMBAT_MELEE_POLEARM 50 and UNITCOMBAT_MELEE_SHOCK 50 for the generic longbow anyways etc -->
+			<!-- custom: melee shock units are naked more or less, polearm can take cover in simplified terms if i am not mistaken but anyways etc, but they don't necessarily gain an advantage, simplify it by it being a stalemate vs these and so it's not op; as for shock make them weaker as was if i'm not mistaken but anyways etc; see also related comment at the generic spearman or/and such other related comments if i'm not mistaken but anyways etc -->
 			<UnitCombatMods>
 				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
 					<iUnitCombatMod>25</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
@@ -10756,9 +10810,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
+			<!-- custom: see related comment at the babylon longbow, which as of now essential is more or less an ancient crossbow in terms of stats if i'm not mistaken but anyways etc; let's assume crossbows don't crack pikes, just a guess of mine but check if accurate anyways etc -->
 			<UnitCombatMods>
 				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
 					<iUnitCombatMod>50</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
@@ -10975,9 +11030,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
+			<!-- custom: see related comment at the generic crossbow -->
 			<UnitCombatMods>
 				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
 					<iUnitCombatMod>50</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
@@ -11193,9 +11249,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
+			<!-- custom: see related comment at the generic crossbow -->
 			<UnitCombatMods>
 				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
 					<iUnitCombatMod>50</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
@@ -11528,7 +11585,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 80 -->
-			<iCost>100</iCost>
+			<iCost>110</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -14934,10 +14991,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</UnitClassAttackMod>
 			</UnitClassAttackMods>
 			<UnitClassDefenseMods/>
-			<!-- custom: give mounted_melee a small boost to compensate their overall weakness as compared to mounted_ranged anyways etc, was empty -->
+			<!-- custom: rebalance chariot units so they are also bit good vs melee shock (due to their mounted pike i'd guess) and considering they are otherwise a bit too weak for that role at this and later stage of the game anyways etc -->
+			<!-- custom: see related comments at the generic spearman and/or such other related comments if i am not mistaken but anyways etc -->
 			<UnitCombatMods>
 				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
 					<iUnitCombatMod>25</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
@@ -15176,10 +15234,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</UnitClassAttackMod>
 			</UnitClassAttackMods>
 			<UnitClassDefenseMods/>
-			<!-- custom: give mounted_melee a small boost to compensate their overall weakness as compared to mounted_ranged anyways etc, was empty -->
+			<!-- custom: rebalance chariot units so they are also bit good vs melee shock (due to their mounted pike i'd guess) and considering they are otherwise a bit too weak for that role at this and later stage of the game anyways etc -->
+			<!-- custom: see related comments at the generic spearman and/or such other related comments if i am not mistaken but anyways etc -->
 			<UnitCombatMods>
 				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
 					<iUnitCombatMod>25</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
@@ -15566,7 +15625,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iInterceptionProbability>0</iInterceptionProbability>
 			<iEvasionProbability>0</iEvasionProbability>
 			<!-- custom: was 20 -->
-			<iWithdrawalProb>0</iWithdrawalProb>
+			<iWithdrawalProb>15</iWithdrawalProb>
 			<iCollateralDamage>0</iCollateralDamage>
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>6</iCollateralDamageMaxUnits>
@@ -15625,13 +15684,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</UnitClassAttackMod>
 			</UnitClassAttackMods>
 			<UnitClassDefenseMods/>
-			<!-- custom: was UNITCOMBAT_MELEE 50 -->
-			<UnitCombatMods>
-				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
-					<iUnitCombatMod>25</iUnitCombatMod>
-				</UnitCombatMod>
-			</UnitCombatMods>
+			<!-- custom: this is a skirmisher unit historically according to chatgpt 5 (check if accurate although seems to be but i don't know and also didn't check so i'd say to check if you want to be sure in this case i mean but anyways etc), so removing this anyways etc, was UNITCOMBAT_MELEE_POLEARM 50 and UNITCOMBAT_MELEE_SHOCK 50 anyways etc -->
+			<UnitCombatMods/>
 			<UnitCombatCollateralImmunes/>
 			<DomainMods/>
 			<BonusProductionModifiers/>
@@ -15644,8 +15698,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iCultureGarrison>5</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>2</iAsset>
-			<!-- custom: was 6 -->
-			<iPower>8</iPower>
+			<iPower>7</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -15663,8 +15716,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: was PROMOTION_RETREAT1 -->
-			<FreePromotions/>
+			<FreePromotions>
+				<FreePromotion>
+					<PromotionType>PROMOTION_RETREAT1</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+			</FreePromotions>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
@@ -15859,9 +15916,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			</UnitClassAttackMods>
 			<UnitClassDefenseMods/>
 			<!-- custom: give mounted_melee a small boost to compensate their overall weakness as compared to mounted_ranged anyways etc, was empty -->
+			<!-- custom: above comment to delete or update later anyways etc -->
 			<UnitCombatMods>
 				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
 					<iUnitCombatMod>25</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
@@ -16698,7 +16756,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
 			<iInterceptionProbability>0</iInterceptionProbability>
 			<iEvasionProbability>0</iEvasionProbability>
-			<iWithdrawalProb>0</iWithdrawalProb>
+			<!-- custom: was 0 -->
+			<iWithdrawalProb>10</iWithdrawalProb>
 			<iCollateralDamage>0</iCollateralDamage>
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>6</iCollateralDamageMaxUnits>
@@ -16734,13 +16793,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<!-- custom: give mounted_melee a small boost to compensate their overall weakness as compared to mounted_ranged anyways etc, was empty -->
-			<UnitCombatMods>
-				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
-					<iUnitCombatMod>25</iUnitCombatMod>
-				</UnitCombatMod>
-			</UnitCombatMods>
+			<UnitCombatMods/>
 			<UnitCombatCollateralImmunes/>
 			<DomainMods/>
 			<BonusProductionModifiers/>
@@ -16884,7 +16937,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 90 -->
-			<iCost>105</iCost>
+			<iCost>110</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -16918,7 +16971,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
 			<iInterceptionProbability>0</iInterceptionProbability>
 			<iEvasionProbability>0</iEvasionProbability>
-			<iWithdrawalProb>0</iWithdrawalProb>
+			<!-- custom: was 0 -->
+			<iWithdrawalProb>10</iWithdrawalProb>
 			<iCollateralDamage>0</iCollateralDamage>
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>6</iCollateralDamageMaxUnits>
@@ -16980,13 +17034,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<!-- custom: give mounted_melee a small boost to compensate their overall weakness as compared to mounted_ranged anyways etc, was empty -->
-			<UnitCombatMods>
-				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
-					<iUnitCombatMod>25</iUnitCombatMod>
-				</UnitCombatMod>
-			</UnitCombatMods>
+			<UnitCombatMods/>
 			<UnitCombatCollateralImmunes/>
 			<DomainMods/>
 			<BonusProductionModifiers/>
@@ -17164,7 +17212,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
 			<iInterceptionProbability>0</iInterceptionProbability>
 			<iEvasionProbability>0</iEvasionProbability>
-			<iWithdrawalProb>0</iWithdrawalProb>
+			<!-- custom: was 0 -->
+			<iWithdrawalProb>10</iWithdrawalProb>
 			<iCollateralDamage>0</iCollateralDamage>
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>6</iCollateralDamageMaxUnits>
@@ -17211,13 +17260,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<!-- custom: give mounted_melee a small boost to compensate their overall weakness as compared to mounted_ranged anyways etc, was empty -->
-			<UnitCombatMods>
-				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
-					<iUnitCombatMod>25</iUnitCombatMod>
-				</UnitCombatMod>
-			</UnitCombatMods>
+			<UnitCombatMods/>
 			<UnitCombatCollateralImmunes/>
 			<DomainMods/>
 			<BonusProductionModifiers/>
@@ -17837,7 +17880,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
 			<iInterceptionProbability>0</iInterceptionProbability>
 			<iEvasionProbability>0</iEvasionProbability>
-			<iWithdrawalProb>15</iWithdrawalProb>
+			<!-- custom: was 15 -->
+			<iWithdrawalProb>30</iWithdrawalProb>
 			<iCollateralDamage>0</iCollateralDamage>
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>6</iCollateralDamageMaxUnits>
@@ -17875,12 +17919,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<UnitCombatMods>
-				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
-					<iUnitCombatMod>50</iUnitCombatMod>
-				</UnitCombatMod>
-			</UnitCombatMods>
+			<!-- custom: was UNITCOMBAT_MELEE 50, which is very nonsensical in civ4 terms since barely any medieval challenging enough remains at this time, we should focus on other effects instead to make this civ-specific unit strong enough if i'm not mistaken in my thinking but anyways etc -->
+			<UnitCombatMods/>
 			<UnitCombatCollateralImmunes/>
 			<DomainMods/>
 			<BonusProductionModifiers/>
@@ -17912,7 +17952,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<FreePromotions/>
+			<!-- custom: was empty -->
+			<FreePromotions>
+				<FreePromotion>
+					<PromotionType>PROMOTION_AMPHIBIOUS</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+			</FreePromotions>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>

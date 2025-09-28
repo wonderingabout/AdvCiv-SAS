@@ -43,7 +43,7 @@ or/and modify existing ones, for example, archery units would become:
 
 
 
-		<!-- custom: split mounted units into MOUNTED_MELEE and MOUNTED_RANGED so pikemen are not strong against cuiassiers or horse archers and such anyways etc ; as for the button art import anyways etc from ri mod anyways etc -->
+		<!-- custom: split mounted units into MOUNTED_MELEE and MOUNTED_RANGED so pikemen are not strong against cuiassiers or horse archers and such anyways etc; as for the button art import anyways etc from ri mod anyways etc -->
 		<UnitCombatInfo>
 			<Type>UNITCOMBAT_MOUNTED_MELEE</Type>
 			<Description>TXT_KEY_UNITCOMBAT_MOUNTED_MELEE</Description>
@@ -57,11 +57,20 @@ or/and modify existing ones, for example, archery units would become:
 
 
 
+		<!-- custom: split melee units into UNITCOMBAT_MELEE_POLEARM and UNITCOMBAT_MELEE_SHOCK so knight units are not strong against pikemen, and chariots are not strong against spearmen or/and such anyways etc; button import from c2c mod anyways etc -->
 		<UnitCombatInfo>
-			<Type>UNITCOMBAT_MELEE</Type>
-			<Description>TXT_KEY_UNITCOMBAT_MELEE</Description>
+			<Type>UNITCOMBAT_MELEE_POLEARM</Type>
+			<Description>TXT_KEY_UNITCOMBAT_MELEE_POLEARM</Description>
+			<Button>Art/AdvCiv_SAS/Unit_Combat_Types/Melee_Polearm/sidesteppromotion1.dds</Button>
+		</UnitCombatInfo>
+		<UnitCombatInfo>
+			<Type>UNITCOMBAT_MELEE_SHOCK</Type>
+			<Description>TXT_KEY_UNITCOMBAT_MELEE_SHOCK</Description>
 			<Button>,Art/Interface/Buttons/Promotions/Shock.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,5</Button>
 		</UnitCombatInfo>
+
+
+
 		<UnitCombatInfo>
 			<Type>UNITCOMBAT_SIEGE</Type>
 			<Description>TXT_KEY_UNITCOMBAT_SIEGE</Description>
