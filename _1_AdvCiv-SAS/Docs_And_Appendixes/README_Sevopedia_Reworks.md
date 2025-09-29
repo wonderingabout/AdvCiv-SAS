@@ -82,6 +82,8 @@ after having written this first paragraph above in this same example 4, a more e
 
 More recently, also added thanks to bit of chatgpt's help too hehe even though mostly me but it helped too but anyways etc the terrainbooleans, featurebooleans, and featureterrainbooleans info, see sevopedia feature screenshots or ingame for what these mean in their respective panel headers (for example featureterrainbooleans is if i'm not mistaken and as of now "Terrains only if with this bonus's features" or something similar to this abbreviated if needed for example or if updated since then and not shown in screenshot sample or also updated as well if i may say but anyways etc in this readme explantion but anyways etc...) section information or/and quick start guide or/and code comments anyways etc, hopefully helpful or/and (more at least or maybe simply exhaustive or more but anyways etc...) exhaustive but anyways etc
 
+Update: since then, added AI information about `iAIObjective` and/or such fields in sevopedia bonus's placeSpecial panel (effects) anyways etc. Viewable ingame in sevopedia bonus or/and in xml, and done with the help of claude ai thanks to my prompts too and/or such anyways etc.
+
 <img src="../Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG" alt="0.650_sevopedia_bonuses_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG" alt="0.650_sevopedia_bonuses_sample (2).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (3).JPG" alt="0.650_sevopedia_bonuses_sample (3).JPG" width="250"></img>

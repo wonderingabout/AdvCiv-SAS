@@ -33,8 +33,10 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
-# <!-- custom: change this to False if you don't want to see AI information in the special abilities panel anyways etc -->
-IS_SHOW_AI_INFO = True
+# <!-- custom: change its value if you don't want to see AI information in the special abilities panel anyways etc -->
+IS_SHOW_AI_INFO = False
+if gc.getDefineINT("SAS_SEVOPEDIA_UNIT_SHOW_AI_INFORMATION") != 0:
+	IS_SHOW_AI_INFO = True
 
 
 

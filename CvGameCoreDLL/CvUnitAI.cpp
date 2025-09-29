@@ -1243,6 +1243,17 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					continue;
 				}
 			}
+
+			// <!-- custom: i have noticed we improve bonuses in an order that is not optimal to us (e.g. stone before copper, wasting critical 5-10 turns that would have helped us a lot), so add logic to improve them first (if we can). To not hardcode it all, use <iAIObjective> xml field that we added to some bonuses as well. The critical ones are as of now copper, iron, horse, camel, aluminium. If we have the choice between 2 bonuses, one of which is in the <iAIObjective> valued ones, we should really try to improve it first rather (e.g. iron before stone no matter what anyways etc); code provided by chatgpt 5, check if accurate anyways etc -->
+			const int iAIObjectiveBonus = GC.getBonusInfo(eBonus).getAIObjective(); // e.g. 10 for iron
+
+			// <!-- custom: if current iValue is high enough, most likely it means that we are improving this bonus, if so, increase value if it's one of the iAIObjective bonuses if i am not mistaken anyways etc -->
+			// <!-- custom: avoid 1 just in case it creates weird issues anyways etc -->
+			if (iValue >= 10000)
+			{
+				// <!-- custom: make sure we improve it first before anything else if i'm not mistaken anyways etc -->
+				iValue += (2000 * iAIObjectiveBonus);
+			}
 		}
 
 		// <!-- custom: after bonus computation is handled, for bonus preference do not mind the terrain/feature, improve any terrain as long as it is a bonus with very great priority if i may say anyways etc, else if our best would not be a bonus (no bonus or unreachable), then consider terrain or/and feature anyways etc, prefer high food terrain most importantly: for example and in particular, do not build flatland plains cottage when there are flatland grass tiles available in city radius, this is a big waste of food yield and opportunity -->
@@ -19135,9 +19146,13 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
     GroupPathFinder& pf = CvSelectionGroup::pathFinder();
     pf.setGroup(*getGroup(), NO_MOVEMENT_FLAGS);
 
+	// <!-- custom: rank cities to decide to which we should move to. Favour the strategic ones (i.e. the ones that have an iAIObjective bonus like iron or such so we make sure to improve it first) and lowest pop ones, as they are the most likely ones to need improvements if i am not mistaken anyways etc -->
+    // NEW: track best score instead of 'break on first'
+    int bestScore = MIN_INT;
+
     FOR_EACH_CITYAI(pLoopCity, kOwner)
     {
-        if (pLoopCity == pCity)       // don’t pick current city A
+        if (pLoopCity == pCity) // don’t pick current city A
             continue;
 
         // land workers stick to same land area (keeps it sane)
@@ -19176,10 +19191,51 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
         if (!pf.generatePath(*pPlot))
             continue;
 
-        // Found the first viable target in another city — take it.
-        eBestBuild = eBuild;
-        pBestPlot = pPlot;
-        break;
+        // // Found the first viable target in another city — take it.
+        // eBestBuild = eBuild;
+        // pBestPlot = pPlot;
+        // break;
+
+        // --- NEW: compute a simple score ---
+        int score = 1000;
+
+        // prefer closer jobs slightly
+        int pathTurns = pf.getPathTurns();
+        score -= 25 * pathTurns;
+
+        // If this target is on a bonus, fold in <iAIObjective>
+        BonusTypes eB = pPlot->getNonObsoleteBonusType(getTeam());
+        if (eB != NO_BONUS)
+        {
+            const int obj = GC.getBonusInfo(eB).getAIObjective(); // XML dial
+            if (obj > 0)
+            {
+				// <!-- custom: note: if we already have it, no need to rush to it ideally, but maybe fine as a simplification to go for them first, we could trade it, or lose our copy of it, etc. Valuable to have first and to simplify accurately enough if i may say but anyways etc -->
+				score += (obj * 25000);
+			}
+		}
+
+		// <!-- custom: favour low pop cities, they are most likely to most urgently need our improvements -->
+		// prefer lower-pop cities (small weight; just a tiebreaker direction)
+		// --- population-based reduction: 5% per pop beyond 1, capped at 50% ---
+		const int pop = pLoopCity->getPopulation();
+		const int over = std::max(0, pop - 1);                  // 0 at pop=1
+		const int reductionPermille = std::min(500, over * 50); // 5% per pop, cap at 50%
+		const int factorPermille = 1000 - reductionPermille;    // 1000..500
+
+		// Pick ONE of the two lines:
+		// score = (score * factorPermille) / 1000;              // simple (safe if score < ~2.1M)
+		// or the bullet-proof version:
+		const int q = score / 1000, r = score - q * 1000;
+		score = q * factorPermille + (r * factorPermille) / 1000;
+
+        if (score > bestScore)
+        {
+            bestScore = score;
+            eBestBuild = eBuild;
+            pBestPlot  = pPlot;
+        }
+
     }
 
 	// <!-- custom: then back to old code if i am not mistaken anyways etc -->
@@ -19644,7 +19700,10 @@ bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anywa
 					!kPlot.isFeature() ? true :
 					GC.getInfo(eBestTempBuild).isFeatureRemove(kPlot.getFeatureType()));
 		}
-		iValue += std::max(0, 100 * GC.getInfo(eNonObsoleteBonus).getAIObjective());
+		// <!-- custom: improve iron before stone anyways etc -->
+		// iValue += std::max(0, 100 * GC.getInfo(eNonObsoleteBonus).getAIObjective());
+		iValue += std::max(0, 20000 * GC.getInfo(eNonObsoleteBonus).getAIObjective());
+
 
 		if(kOwner.getNumTradeableBonuses(eNonObsoleteBonus) == 0)
 			iValue *= 2;

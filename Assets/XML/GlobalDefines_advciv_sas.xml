@@ -13,14 +13,30 @@
 
 	<!-- custom: enable/disable to show emojis (like ⚔️, 🏆, 💰) in the AI personality panel. 0 is disabled, any other value e.g. 1 is enabled anyways etc -->
 	<Define>
-		<DefineName>SAS_AI_PERSONALITY_PANEL_SHOW_EMOJI</DefineName>
+		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: use this to show instead of abbreviated or custom named labels the key or suffixes instead (shrinked if too long), for example "MaxWarRand", instead of abbreviated custom labels, for example "T.W. Likely", useful when balancing/calibrating leaders xml in particular so no need to remember what each label refers to i mean anyways etc, remember if i may say anyways etc to disable when testing is finished, or use this setting permanently if you prefer i mean or and other or and not or other or etc anyways etc; may also be useful if you prefer this setting to stay this way even outside of testing/modding i mean but as part of playing games and such i mean anyways etc, then no need to disable it if i may say anyways etc anyways etc anyways etc; meaning of these abbreviations is in README_AI_Personality_Panel.md as of now in the "Display(ing) the AI attributes in the AI Personality Panel and how to read the tables/panels" section anyways etc -->
 	<Define>
-		<DefineName>SAS_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD</DefineName>
+		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
+	<!-- custom: change its value if you don't want to see AI information in the special abilities panel anyways etc -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_UNIT_SHOW_AI_INFORMATION</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_BONUS_SHOW_AI_INFORMATION</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: change its value if you don't want to see this info anyways etc -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_TECH_SHOW_NON_TRADEABLE_TECHS_LIST</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
 
 
 
@@ -255,6 +271,13 @@
 
 
 
+	<!-- custom: value iAIObjective bonuses especially more to settle on first, could be critical for our life and death (ideally check if obsolete too but anyways etc). Not having copper or iron may make us die, so really value it more anyways etc. See Sevopedia or XML for value. For example if iAIObjective is 10, and multiplier is 50, then the value of this candidate site that has this iAIObjective valued bonus (as of now copper, iron, horse, camel, aluminium, uranium with various values for each if i'm not mistaken anyways etc) would be for example 10 * 50 = 500 extra value added to this candidate city site which is quite big, but if iAIObjective is 6, then with same 50 multiplier extra value would be 6 * 50 = 300 more points, which is still significant although bit less. Adjust as you see fit to help settlers value more or a lot more (i think negative values would devalue site but i don't know how negative values are handled by XML so better stick with positive ones unless you know what you're doing or want to test or whatever (i am not responsible of what may happen xd then although should be safe but disclaimer i am not responsible test at your own risk and make sure you can use a negative value if you still want it despite this discouragement/caution i gave, anyways etc)) -->
+	<Define>
+		<DefineName>SAS_EVALUATE_EXTRA_VALUE_NOT_HOME_BONUS_IAIOBJECTIVE_MULTIPLIER</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+
+
 	<!-- custom: discourage non-coastal location for low-food terrain environments: better settle on coast and make profit than starve soon by settling in non-coastal anyways etc -->
 	<!-- custom: if we have less than threshold, no value change to candidate city site, but if beyond, then value is updated by amount. E.g. anyways etc if we have 9 low food tiles, it is beyond our threshold of max 7 or less, so for example if base value coastal low food is -75 then value of the candidate city site but anyways etc is updated by 9 * (-75) = -675 which is a huge devaluation. Note that coastal sites are unaffected by this so they would indirectly be favoured if no other better tile exists anyways etc -->
 	<Define>
@@ -417,56 +440,149 @@
 
 	<!-- custom: set this to enable advciv-sas anti excess siege code (via one of the AI_ChooseUnit functions anyways etc). 1 to enabled (recommended), 0 to disabled (disables it entirely, if you want to selectively disable some features, consider tweaking one or a few of the sub configure options below instead anyways etc). Note: if i'm not mistaken the code we added in this function takes into account units in queue, not just existing ones, anyways etc. Note: contrary to what the name indicates, excess is not just about quantity, but also war circumstances, for example if we are at war and enemy is strong, it is very tight if not rejecting all new sieges, or if in danger or such other conditions (not added all here as bit tedious but hopefully the below help enough control siege production for this function, with the hope that other functions don't interfere too much with our logic here (it is quite centralized so effective, but sometimes maybe it would not although it seemed very effective ingame anyways etc)). -->
 	<Define>
-		<DefineName>SAS_BEST_UNIT_NO_EXCESS_SIEGES</DefineName>
+		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: general toggle for trebuchet-like units (any siege unit that has as of now >= 50% city attack modifier is guessed to be weak in other areas and so to be a trebuchet for us anyways etc). -->
 	<Define>
-		<DefineName>SAS_BEST_UNIT_NO_EXCESS_TREBUCHETS_LIKE</DefineName>
+		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_TREBUCHETS_LIKE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: extra min cap on top of the computed max trebuchets-like units allowed if we are restricting trebuchets-like units. For example if we have computed that max allowed for our empire without excess is 1 trbuchet, and if the below is set to 2, then the min for our empire will be 1 + 2 = 3 trebuchet-like units and we won't block excess production of trebuchets-like until >= 3 for example anyways etc. As i find them very inefficient for AIs due to being useless outside of raiding, and AIs often overbuilding them, i set very low or low enough tresholds specifically more for trebuchets-like units, adjust as you see fit, and setting this very high is about the same as setting the no excess trebuchets toggle (except for checks like if enemy strong and at war, if in danger, then avoid them as they are less efficient or most likely to be useful and versatile in most cases (bad at defense if i'm not mistaken especially for AI but anyways etc)) -->
 	<Define>
-		<DefineName>SAS_BEST_UNIT_NO_EXCESS_SIEGES_TREBUCHETS_LIKE_MIN_EXTRA_CAP</DefineName>
+		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES_TREBUCHETS_LIKE_MIN_EXTRA_CAP</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: this is the general toggle for all sieges units, including trebuchets-like units but not only (catapults, trebuchets, cannons (note: from rennaissance onwards, thresholds are more generous, as cannons are versatile and strong, but we still avoid overbuilding them, just with more generous thresholds anyways etc), etc.) -->
+	<!-- custom: this is the general toggle for all sieges units, including trebuchets-like units but not only (catapults, trebuchets, cannons (note: from rennaisance onwards, thresholds are more generous, as cannons are versatile and strong, but we still avoid overbuilding them, just with more generous thresholds anyways etc), etc.) -->
 	<Define>
-		<DefineName>SAS_BEST_UNIT_NO_EXCESS_SIEGES_ALL</DefineName>
+		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: always useful to have some minimal extra threshold, just don't overdo it anyways etc -->
 	<Define>
-		<DefineName>SAS_BEST_UNIT_NO_EXCESS_SIEGES_ALL_MIN_EXTRA_CAP</DefineName>
+		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL_MIN_EXTRA_CAP</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 
 
 
-	<!-- custom: early turn adjusted to game speed (e.g. 150 at normal would be 150 * 150% (epic) / 100 (percentage calculate) = 150 * 1.5 = turn 225 at epic, or 150 * 200 (marathon) / 100) = 150 * 2 = turn 300 at marathon for example anyways etc), where our code remains active. Past this turn, we don't control excess defenders anymore anyways etc. As of now we don't add anymore defender in code past turn 100 included, so increasing it more than say 150 would lead to weird results like having AI think its cities are defended with 3 defenders per city on average at turn 300 or 400. Recommended to not increase past 150 more or less. -->
+	<!-- custom: early turn adjusted to game speed (e.g. 150 at normal would be 150 * 150% (epic) / 100 (percentage calculate) = 150 * 1.5 = turn 225 at epic, or 150 * 200 (marathon) / 100) = 150 * 2 = turn 300 at marathon for example anyways etc), where our code remains active. Past this turn, we don't control excess defenders anymore anyways etc. As of now we don't add anymore defender in code past turn 100 included, so increasing it more than say 150 would lead to weird results like having AI think its cities are defended with 3 defenders per city on average at turn 300 or 400. Recommended to not increase too much past 150 more or less anyways etc -->
+	<!-- custom: as of now only applies to land unitais as are +/- were anyways etc the most important to trim and that overproduce as of now with our changes anyways etc -->
 	<Define>
-		<DefineName>SAS_BEST_UNIT_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD</DefineName>
-		<iDefineIntVal>150</iDefineIntVal>
+		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD</DefineName>
+		<iDefineIntVal>170</iDefineIntVal>
 	</Define>
 	<!-- custom: this is the general toggle, for specific ones, look below anyways etc. Recommended to keep enabled (1) so AIs don't overbuild defenders. Note: sometimes this is not effective, although quite often is and gives good results ingame, but seems to be overriden by some other logic sometimes. I still recommend to keep it enabled though but adjust or test as you see fit anyways etc. -->
 	<Define>
-		<DefineName>SAS_BEST_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS</DefineName>
+		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: specific toggle to always reject if in excess (theoretically would lead to very few defenders when minimal needs are met and no switch other units or unitais, in practice some logic seems to still produce longbows even if we block it here in this function, although generally very good, sometimes some other logic seems to interfere, if our code is not faulty somehow maybe too though, but i recommend disabling this as this is mostly for testing, else AIs often have really thin defenses in autoplay it seems in many cases anyways etc) -->
 	<Define>
-		<DefineName>SAS_BEST_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_REJECT_UNIT</DefineName>
+		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_REJECT_UNIT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: if we reject unit the other flags of attempt are useless i.e. unused if i may say but anyways etc: we only attempt them if this excess defender unit order (to produce this unit anyways etc) is not rejected by the above reject flag. -->
 	<!-- custom: assuming we didn't reject, we can either attempt to replace the unit (e.g. longbowman -> catapult or horse archer or swordsman or anything we can produce anyways that is offensive or versatile enough of a unit anyways etc etc), recommended to keep it enabled as leads to AIs nicely having a more varied composition in many cases (not always but often effective at correcting longbow madness it seems but check to be sure anyways etc) -->
 	<Define>
-		<DefineName>SAS_BEST_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_REPLACE_UNIT</DefineName>
+		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_REPLACE_UNIT</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: if no good candidate, attempt to hijack the unitai rather, so for example instead of having a longbowman with unitai_city_defense, we'd have a longbowman with unitai_counter or whatever else it supports that is less defensive, in the hope these roaming units would help attack someone especially if we have many of them, and hopefulyl capture a city, lose some units so our economy improves, rather than waiting to die with too many longbows (or if not too many buildings or whatever else AI would otherwise do anyways etc), used to help a lot tested ingame, but it seems not effective as of now (not sure if i refactored it wrong or something else might(?) have changed or not), or maybe it's an edge case i saw, i recommend keeping it enabled -->
 	<Define>
-		<DefineName>SAS_BEST_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_HIJACK_UNITAI</DefineName>
+		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_HIJACK_UNITAI</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: extremely effective code ingame, seemingly even better than the no excess defender or excess siege code due to it being written differently, i'd still recommend all of these enabled. As for this no very early units, here are some tunables/knobs but anyways etc to customize/configure them.
+	Era info is as follows if i am not mistaken (check if accurate as i am not 100% sure it starts at 0 for first era but i guess so, check to be sure anyways etc). (found with vs code global search, these are the results in an xml file in our mod anyways etc):
+
+	// 18,5: 			<Type>ERA_ANCIENT</Type> (0 i assume anyways etc)
+	// 79,5: 			<Type>ERA_CLASSICAL</Type> (1)
+	// 154,5: 			<Type>ERA_MEDIEVAL</Type> (2)
+	// 237,5: 			<Type>ERA_RENAISSANCE</Type> (3)
+	// 320,5: 			<Type>ERA_INDUSTRIAL</Type> (4)
+	// 401,5: 			<Type>ERA_MODERN</Type> (5)
+	// 477,5: 			<Type>ERA_FUTURE</Type> (6)
+	
+	The below code allows to restrict very cheap units, as they are very likely to make us bankrupt due to how easy they are to overproduce, so AI is most likely to overbuild them. Plus, they are not very effective (expected as they are cheap), so apply strict gating. Note: is per unitclass, so for example the rome legionary and the generic swordsman belong to the same class swordsman and are gated to the same threshold per class (we can't build both legionaries and generic sworsdmen but is to explain anyways etc)
+
+	This uses XML costs, so it is independent from handicap modifiers, gamespeeds, etc. Very useful to target the units we want, for example the ancient maceman will always cost 18 in xml no matetr ai modifiers or penalties or map size or era anyways etc.
+
+	Example of calculation:
+	- ancient maceman: cost 18 hammer, at era 0 (era_ancient), cost threshold is <= 20; 18 <= 20 so ancient maceman is considered a very cheap unit
+	Finding max allowed: At era 0, if cities multiplier is 1, and extra excess allowed is 3 (not naval map). Assuming we have 2 cities, then max allowed of this very cheap unit is (1 multiplier city * 2 num cities) + 3 (extra excess for not naval map anyways etc) = (1 * 2) + 3 = 2 + 3 = 5 units max.
+	Further more, at era 0 in particular, we divide by 2 this number after turn more or less 50 as we really don't want too much of them, and AIs would often build them even at turn 100 which was very nonsensical. So in this example, 5 units max / 2 = 2.5 (don't ask me if it becomes 3 or 2 xd, i'd suspect 2 units max but not sure but either way a low number allowed for 2 cities on non naval map past turn 50)
+
+	- archer: cost 25 hammer, at era 1 (era_classical), cost threshold is <= 27 so archer is considered a very cheap unit.
+	Finding max allowed: At era 1, if cities multiplier is 4, and extra excess allowed is 3, assuming we have 3 cities, then max allowed is (4 cities multiplier * 3 num cities) + 3 extra excess allowed = 4 * 3 + 3 = 12 + 3 = 15 allowed max. Any more won't help anyway
+
+	- longbow or trireme: cost 45 hammer, at era 2 (era_medieval), cost threshold is <= 47, so longbow or trireme are considered a very cheap unit. At era 2, if cities multiplier is 5, and extra excess allowed is 6, assuming we have 5 cities, then max allowed is (5 cities mulitplier * 5 num cities) + 6 extra excess allowed = 5 * 5 + 6 = 25 + 6 = 31 max. Any more won't help us, we really want to avoid getting bankrupt and get more techs or maybe buildings (if AI wants to anyways etc) or some stronger units (ideally if AI does and can anyways etc) that would be more hammer effective and unit cost efficient anyways etc, or attack someone or whatever, but it will only get worse if we build more of these very cheap units at this era if i am not mistaken anyways etc. Still it can be best move if we really have no bonus even at medieval, so don't totally discourage it either, but make it low enough that in most cases AI woudl switch to something else.
+
+	Seems very although not entirely in classical but seemingly helps a lot our military composition be more varied and not a bunch of cheap units in most cases it seems in autoplay anyways etc, see known issue as of now 67 for some screenshots there although not directly related, we went from 60-75 longbows with 0-10 samurai (from what i remember of it anyways etc) at turn 200 (extreme case but anyways etc) to 37 longbows and 27 samurai.
+	Strongly recommended to keep enabled, tweak as you see fit anyways etc.
+
+	Note: only affects combat units (strength > 0) if i'm not mistaken anyways etc, so no workers unless they ahve strength, but scouts, galleys, archers, all are combat i.e. fighters here i mean anyways etc.
+
+	Note 2: correction to above and extra precision, these era thresholds are tiers, meaning the ancient tier (e.g. ancient maceman, as of now 18 hammer is lower than 20 anyways etc) keeps its gates/caps even after changing era, else we'd have ancient macemen being produced again when we enter classical, which happened in autoplay after i refactored the code, so fixed it by taking the worse cap of each tier (we need to put lower values here though e.g. 20 at ancient tier is lower than 27 at classical tier (for example anyways etc), but say 18 at classical era would not be higher. It is not a strict requirement but just makes things smoother if caps increase anyways etc). Then the classical tier units (e.g. archer 25 hammer < 28 hammer classical tier will have a limit, that will not increase even when we enter medieval era).
+	-->
+	<Define>
+		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: hammer iCost in unitinfo XML if i am not mistaken anyways etc -->
+	<Define>
+		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_ANCIENT_TIER_THRESHOLD</DefineName>
+		<iDefineIntVal>20</iDefineIntVal>
+	</Define>
+	<!-- custom: classical onwards, also curb archers -->
+	<!-- custom: this hopefully also curbs archers at classical era 28 > 25 as of now anyways etc, but not overruling chariots nor spears in classical tier so all good if i may say but anyways etc) -->
+	<Define>
+		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_CLASSICAL_TIER_THRESHOLD</DefineName>
+		<iDefineIntVal>28</iDefineIntVal>
+	</Define>
+	<!-- custom: expanded on to target for example longbows at medieval tier as as of now they cost 45 in xml, so at medieval they would be 47 > 45 so hopefully we stop producing them anyways etc -->
+	<Define>
+		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_MEDIEVAL_PLUS_TIER_THRESHOLD</DefineName>
+		<iDefineIntVal>47</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_ANCIENT_TIER</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: need less for naval maps as there are no invaders or such if i am not mistaken and naval units are also more important so trim it a bit more there anyways etc; also even if some mod mod were to add cheap combat naval units, we are isolated so we would trim less units due to death in combat, account for this and produce less, be it land units like as of now ancient macemen, or some potential naval combat unit or such but anyways etc a modmod might additionally add but anyways etc -->
+	<Define>
+		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_ANCIENT_TIER_NAVAL_HEAVY_MAP</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_ANCIENT_TIER_NOT_NAVAL_HEAVY_MAP</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<!-- custom: past this turn adjusted to game speed, the threshold is halved, e.g. if it was 5 then at turn 50+ the threshold would be 5 / 2 = 2.5 = 2 in int if i am not mistaken anyways etc (i don't think we round up but down rather but not sure is just a guess based on experience if i may say in this case i mean but anyways etc, check if accurate or to be sure but anyways etc); key point is we really don't want these very very cheap and very early units like ancient macemen past this point, they're more likely to be even more useless and very hammer ineffective nor efficient, yet costly in unit maintenance and affecting our growth so don't overbuild these in particular, they are useful early though but avoid after in this case i mean but anyways etc. -->
+	<Define>
+		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_VERY_EARLY_ANCIENT_TIER_END</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- custom: wider excess for later eras but don't overdo it anyways etc -->
+	<!-- custom: e.g. 3 cities multiplier and 4 num cities and 5 extra: (3 * 4) + 5 = 12 + 5 = 17 of this unit max which is reasonable, any more won't help too much, build something else instead anyways etc -->
+	<Define>
+		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_CLASSICAL_TIER</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_CLASSICAL_TIER</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
+	</Define>
+	<!-- custom: e.g. if we have 5 cities, limit for example for longbowmen at medieval is 5 cities multiplier * 6 cities + 7 extra = 5 * 6 + 7 = 30 + 7 = 37 units max which is sane, anymore won't help and will only cripple us, build something else instead, ideally stronger units, else capitalize and try to move further in techs anyways etc -->
+	<Define>
+		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_MEDIEVAL_PLUS_TIER</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_MEDIEVAL_PLUS_TIER</DefineName>
+		<iDefineIntVal>6</iDefineIntVal>
 	</Define>
 </Civ4Defines>

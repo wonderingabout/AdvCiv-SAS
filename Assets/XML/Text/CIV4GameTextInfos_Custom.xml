@@ -196,4 +196,8 @@
 		<Tag>TXT_KEY_PEDIA_SPECIAL_ABILITIES_WITH_SOME_AI_INFORMATION</Tag>
 		<English>Special Abilities with some AI information</English>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_EFFECTS_WITH_SOME_AI_INFORMATION</Tag>
+		<English>Effects with some AI information</English>
+	</TEXT>
 </Civ4GameText>

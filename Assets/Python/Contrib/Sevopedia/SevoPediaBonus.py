@@ -28,6 +28,10 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
+# <!-- custom: change its value if you don't want to see AI information in the special abilities panel anyways etc -->
+IS_SHOW_AI_INFO = False
+if gc.getDefineINT("SAS_SEVOPEDIA_BONUS_SHOW_AI_INFORMATION") != 0:
+	IS_SHOW_AI_INFO = True
 
 
 class SevoPediaBonus:
@@ -557,16 +561,37 @@ class SevoPediaBonus:
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_EFFECTS", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50 )
+
+		# <!-- custom: code added with the help of claude ai thanks anyways etc based on our existing code on advciv-sas and my prompt too and/or such anyways etc -->
+		if IS_SHOW_AI_INFO:
+			txtKeyPanel = "TXT_KEY_PEDIA_EFFECTS_WITH_SOME_AI_INFORMATION"
+		else:
+			txtKeyPanel = "TXT_KEY_PEDIA_EFFECTS"
+
+		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
+
 		listName = self.top.getNextWidgetName()
-		screen.attachListBoxGFC( panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY )
-		screen.enableSelect(listName, False)
-		szSpecialText = CyGameTextMgr().getBonusHelp(self.iBonus, True)
-		# <!-- custom: remove string import as advised by chatgpt after i asked it i mean anyways etc, use native python instead -->
-		splitText = szSpecialText.split("\n")
-		for special in splitText:
-			if len( special ) != 0:
-				screen.appendListBoxString( listName, special, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		szSpecialText = CyGameTextMgr().getBonusHelp(self.iBonus, True)[1:]
+
+		if IS_SHOW_AI_INFO:
+			bullet = localText.getText("[ICON_BULLET]", ())
+
+			# Get bonus info
+			bonusInfo = gc.getBonusInfo(self.iBonus)
+			
+			# Add iAIObjective
+			aiObjective = bonusInfo.getAIObjective()
+
+			# <!-- custom: note: separate info from other non AI entries more cleanly / clearly if i may say but anyways etc, so on more new line for first AI entry anyways etc -->
+			if szSpecialText.strip():
+				szSpecialText += "\n\n"
+			szSpecialText += "%siAIObjective: %d" % (bullet, aiObjective)
+			
+			# Add iAITradeModifier
+			aiTradeModifier = bonusInfo.getAITradeModifier()
+			szSpecialText += "\n%siAITradeModifier: %d" % (bullet, aiTradeModifier)
+
+		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+30, self.W_SPECIAL-10, self.H_SPECIAL-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

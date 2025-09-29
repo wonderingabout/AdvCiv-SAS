@@ -643,7 +643,17 @@ void CvCity::doTurn()
 					continue;
 				}
 
-				const int iLoopCost = getProductionNeeded(eLoopUnit);
+				// Stable classification by XML base cost
+				// (keeps behavior stable if a modmod has odd XML)
+				// const int iLoopCost = getProductionNeeded(eLoopUnit);
+				const int iLoopCost = kU.getProductionCost();     // from XML (unscaled)
+				// <!-- custom: don't deal with garbage or very unexpected XML if i am not mistaken anyways etc -->
+				if (iLoopCost < 0)
+				{
+					continue;
+				}
+
+
 				int iLoopScore = iLoopCost;
 
 				// <!-- custom: inflate artificially the civ-specific unit assuming it is best (war chariot is as of now anyways etc 5 str for 30 hammer, vs 6 str for 50 hammaer for a horse archer! The horse archer is much more efficient, but we can't judge on str alone, as some units have some nice perks like withdraw chance, etc. Simplest way is to assume civ-specific unit is best choice if available, at least a much stronger one than cost would lead on, else fix our XML to make them strong enough to justify being picked by AI but anyways etc) -->

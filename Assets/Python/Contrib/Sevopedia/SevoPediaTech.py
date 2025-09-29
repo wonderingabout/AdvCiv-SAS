@@ -25,25 +25,31 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
+# <!-- custom: change its value if you don't want to see this info anyways etc -->
+IS_SHOW_NON_TRADEABLE_TECHS_LIST = False
+if gc.getDefineINT("SAS_SEVOPEDIA_TECH_SHOW_NON_TRADEABLE_TECHS_LIST") != 0:
+	IS_SHOW_NON_TRADEABLE_TECHS_LIST = True
 
 
 # <!-- custom: similarly to how cache precomputing is handled in sevopedia leader, prebuild only once as a function at relevant time if i may say but anyways etc the list as string of untradeable techs anyways etc ; note also anyways etc: code provided by deepseek ai thanks to my prompt and that i adjusted or not for advciv-sas to tweak (my) (but anyways etc...) previous existing code provided by another ai thanks to my prompt too and that i adjusted or not too xd if i may say but anyways etc -->
 def getPrecomputedUntradeableTechsText():
 	untradeableTechs = []
-	for iTech in xrange(gc.getNumTechInfos()):
-		if not gc.getTechInfo(iTech).isTrade():
-			techDesc = gc.getTechInfo(iTech).getDescription()
-			untradeableTechs.append(techDesc)
 
-	untradeableTechs.sort()
+	if IS_SHOW_NON_TRADEABLE_TECHS_LIST:
+		for iTech in xrange(gc.getNumTechInfos()):
+			if not gc.getTechInfo(iTech).isTrade():
+				techDesc = gc.getTechInfo(iTech).getDescription()
+				untradeableTechs.append(techDesc)
 
-	untradeableTechsText = u""
+		untradeableTechs.sort()
 
-	untradeableTechsText += localText.getText("TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER", ())
+		untradeableTechsText = u""
 
-	bullet = localText.getText("[ICON_BULLET]", ())
-	for tech in untradeableTechs:
-		untradeableTechsText += u"\n%s%s" % (bullet, tech)
+		untradeableTechsText += localText.getText("TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER", ())
+
+		bullet = localText.getText("[ICON_BULLET]", ())
+		for tech in untradeableTechs:
+			untradeableTechsText += u"\n%s%s" % (bullet, tech)
 
 	return untradeableTechsText
 
@@ -285,11 +291,12 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 		szSpecialText = CyGameTextMgr().getTechHelp(self.iTech, True, False, False, False, -1)[1:]
 
-		# <!-- custom: add the list as string of all untradeable techs if this tech is untradeable ; see also sevopedia main precomputing / cache building for untradeable techs text for details anyways etc -->
-		if (not gc.getTechInfo(self.iTech).isTrade()):
-			if szSpecialText.strip():
-				szSpecialText += u"\n\n"
-			szSpecialText += UNTRADEABLE_TECHS_TEXT
+		if IS_SHOW_NON_TRADEABLE_TECHS_LIST:
+			# <!-- custom: add the list as string of all untradeable techs if this tech is untradeable ; see also sevopedia main precomputing / cache building for untradeable techs text for details anyways etc -->
+			if (not gc.getTechInfo(self.iTech).isTrade()):
+				if szSpecialText.strip():
+					szSpecialText += u"\n\n"
+				szSpecialText += UNTRADEABLE_TECHS_TEXT
 
 		# <!-- custom: seems to overfill a bit actually quite a bit xd after rechecking but anyways etc, reduce height, was self.H_SPECIAL-10 -->
 		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL + 5, self.Y_SPECIAL + 30, self.W_SPECIAL - 35, self.H_SPECIAL - 35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
