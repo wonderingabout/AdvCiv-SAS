@@ -7880,8 +7880,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				<PrereqTech>NONE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
-			<BonusType>BONUS_IRON</BonusType>
-			<PrereqBonuses/>
+			<!-- custom: match the generic maceman, else unit is worse which defeats the purpose, and using copper is not nonsensical based on what i saw about it in copper vs iron anyways etc, was BONUS_IRON and prereqbonuses empty anyways etc -->
+			<BonusType>NONE</BonusType>
+			<PrereqBonuses>
+				<BonusType>BONUS_COPPER</BonusType>
+				<BonusType>BONUS_IRON</BonusType>
+				<BonusType>NONE</BonusType>
+				<BonusType>NONE</BonusType>
+			</PrereqBonuses>
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>

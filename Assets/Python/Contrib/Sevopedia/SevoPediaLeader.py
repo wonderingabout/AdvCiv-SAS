@@ -53,18 +53,15 @@ localText = CyTranslator()
 
 
 
-# <!-- custom: config flag to use/display emoji buttons for the ai personality panels's headers or and other or and not anyways etc or not optionally anyways etc -->
-# 🌟🛠️ CUSTOMIZATION: Toggle emoji buttons in AI category headers!
-# 🎨 Set to True to enable emoji icons (like ⚔️, 🏆, 💰) in the AI Personality panel headers.
-# 🙈 Set to False to disable them if you prefer a cleaner or text-only look.
-# 📍This is the main switch for controlling emoji visuals in category titles.
-# 🧠✨ Config line co-crafted in response to wonderingabout's prompt, by becomingthrough ☁️
-IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True
+IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = False
+if gc.getDefineINT("SAS_AI_PERSONALITY_PANEL_SHOW_EMOJI") != 0:
+	IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = True
 
-# <!-- custom: use this to show instead of abbreviated or custom named labels the key or suffixes instead (shrinked if too long), for example "MaxWarRand", instead of abbreviated custom labels, for example "T.W. Likely", useful when balancing/calibrating leaders xml in particular so no need to remember what each label refers to i mean anyways etc, remember if i may say anyways etc to disable when testing is finished, or use this setting permanently if you prefer i mean or and other or and not or other or etc anyways etc ; may also be useful if you prefer this setting to stay this way even outside of testing/modding i mean but as part of playing games and such i mean anyways etc, then no need to disable it if i may say anyways etc anyways etc anyways etc -->
-IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD = False
+IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD = False
+if gc.getDefineINT("SAS_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD") != 0:
+	IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD = True
 
-# <!-- custom: increase hard drive life span by 0.1% by disabling this / setting it to False, maybe (disclaimer: i am not responsible is just i mean about the actual real percentage meant as a joke / comedy thing but anyways etc but is maybe also true that disabling debug may avoid reducing hard drive life span even if a bit, as we write quite a lot of debug at each sevopedia load, however it is not guaranteed and i am not responsible anyways etc, so i mean anyways etc do as you see fit use at your own risk code is there if you want to know what it does with also a(/some) debug sample(s) (non-exhaustive but hopefully quite plenty if i may say and is not gramatically wrong but anyways etc hopefully clear enough or/and helpful or not or yes or other or etc but anyways etc what it means i mean but anyways etc...) in SevopediaLead_derExamplesOfOutputs as of now if filename is still relevant later after writign this code comment but anyways etc, is just harmless text writing but writing a lot may hurt ssd or whichever hard drive especially most importantly by repeated use over a long time period of playing civ4 restarting game many times and such you use so i disabled it for my need now that system seems to wor-function fine anyways etc, available there if needed anyways etc, for my own hard drive too -->
+# <!-- custom: increase hard drive life span by 0.1% by disabling this / setting it to False, maybe (disclaimer: i am not responsible is just i mean about the actual real percentage meant as a joke / comedy thing but anyways etc but is maybe also true that disabling debug may avoid reducing hard drive life span even if a bit, as we write quite a lot of debug at each sevopedia load, however it is not guaranteed and i am not responsible anyways etc, so i mean anyways etc do as you see fit use at your own risk code is there if you want to know what it does with also a(/some) debug sample(s) (non-exhaustive but hopefully quite plenty if i may say and is not gramatically wrong but anyways etc hopefully clear enough or/and helpful or not or yes or other or etc but anyways etc what it means i mean but anyways etc...) in SevopediaLead_derExamplesOfOutputs as of now if filename is still relevant later after writing this code comment but anyways etc, is just harmless text writing but writing a lot may hurt ssd or whichever hard drive especially most importantly by repeated use over a long time period of playing civ4 restarting game many times and such you use so i disabled it for my need now that system seems to wor-function fine anyways etc, available there if needed anyways etc, for my own hard drive too -->
 IS_DEBUG_LEADER = False
 
 # <!-- custom: we already warn once if min == max at/in get_leader_info_minimums_and_maximums, no need to warn again and again i mean at each normalization anyways etc, so set B_WARN to false if i am not mistaken in my understanding anyways etc -->
@@ -878,7 +875,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 				raw_value_generic = getattr(gc.getLeaderHeadInfo(iLeader), getter_name_generic)()
 				# <!-- custom: also add raw value to label like "Military (12)" for example for flavors instead of just "Military" (so we have both raw value in label as well as normalized value in the 2nd column of each of the AI personality panel tables anyways etc (i.e. before the scale (e.g. "++++" or similar anyways etc column of each of the AI personality panel tables too anyways etc -->
 				label_raw_generic = "(%d)" % raw_value_generic
-				if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
+				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
 					label_with_raw_value_generic = get_labels_as_keys_or_suffixes_max_length_label(getter_name_generic, label_raw_generic, 18)
 				else:
 					label_with_raw_value_generic = "%s %s" % (label_generic, label_raw_generic)
@@ -890,7 +887,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 			for getter_name_attitude_threshold, (label_attitude_threshold, b_invert_attitude_threshold) in fields_attitude_thresholds.items():
 				raw_value_attitude_threshold = getattr(gc.getLeaderHeadInfo(iLeader), getter_name_attitude_threshold)()
 				label_raw_attitude_threshold = "(%d)" % raw_value_attitude_threshold
-				if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
+				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
 					label_with_raw_value_attitude_threshold = get_labels_as_keys_or_suffixes_max_length_label(getter_name_attitude_threshold, label_raw_attitude_threshold, 18)
 				else:
 					label_with_raw_value_attitude_threshold = "%s %s" % (label_attitude_threshold, label_raw_attitude_threshold)
@@ -907,7 +904,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 				label_flavor = suffix
 				raw_value_flavor = gc.getLeaderHeadInfo(iLeader).getFlavorValue(i)
 				label_raw_flavor = "(%d)" % raw_value_flavor
-				if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
+				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
 					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
 					label_with_raw_value_flavor = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_flavor, 19)
 				else:
@@ -930,7 +927,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 				# parsed_name_rand = "iContactRand%s" % suffix # → iContactRandJoinWar
 				# raw_value_rand = gc.getLeaderHeadInfo(iLeader).getContactRand(i)
 				# label_raw_rand = "(%d)" % raw_value_rand
-				# if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
+				# if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
 				# 	# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
 				# 	label_with_raw_value_rand = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_rand, 19)
 				# else:
@@ -944,7 +941,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 				# min_value_delay = leader_info_minimums[parsed_name_delay]
 				# max_value_delay = leader_info_maximums[parsed_name_delay]
 				# label_raw_delay = "(%d)" % raw_value_delay
-				# if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
+				# if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
 				# 	# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
 				# 	label_with_raw_value_delay = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_delay, 19)
 				# else:
@@ -963,7 +960,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 				raw_value_delay = gc.getLeaderHeadInfo(iLeader).getContactDelay(i)
 				# <!-- custom: do not display the raw aggregated prob here, but instead the raw rand and raw delay -->
 				label_raw_rand_and_raw_delay = "(%d/%d)" % (raw_value_rand, raw_value_delay)
-				if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
+				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
 					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
 					label_with_raw_value_rand_and_raw_value_delay = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_rand_and_raw_delay, 19)
 				else:
@@ -1008,7 +1005,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 						# if parsed_name_attitude_percent not in leader_info_cached:
 						# 	raw_value_attitude_percent = gc.getLeaderHeadInfo(iLeader).getMemoryAttitudePercent(i)
 						# 	label_raw_attitude_percent = "(%d)" % raw_value_attitude_percent
-						# 	if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
+						# 	if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
 						# 		# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
 						# 		label_with_raw_value_attitude_percent = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_attitude_percent, 19)
 						# 	else:
@@ -1021,7 +1018,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 						# if parsed_name_decay not in leader_info_cached:
 						# 	raw_value_decay = gc.getLeaderHeadInfo(iLeader).getMemoryDecayRand(i)
 						# 	label_raw_decay = "(%d)" % raw_value_decay
-						# 	if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
+						# 	if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
 						# 		# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
 						# 		label_with_raw_value_decay = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_decay, 19)
 						# 	else:
@@ -1043,7 +1040,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 						raw_value_4_attitude_percent = gc.getLeaderHeadInfo(iLeader).getMemoryAttitudePercent(i)
 						raw_value_4_decay = gc.getLeaderHeadInfo(iLeader).getMemoryDecayRand(i)
 						label_raw_attitude_percent_and_raw_decay = "(%d/%d)" % (raw_value_4_attitude_percent, raw_value_4_decay)
-						if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
+						if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
 							# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
 							label_with_raw_value_rand_and_raw_value_delay = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_attitude_percent_and_raw_decay, 19)
 						else:
@@ -1065,7 +1062,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 				label_no_war_attitude_prob = suffix
 				raw_value_no_war_attitude_prob = gc.getLeaderHeadInfo(iLeader).getNoWarAttitudeProb(i)
 				label_raw_no_war_attitude_prob = "(%d)" % raw_value_no_war_attitude_prob
-				if IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD:
+				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
 					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
 					label_with_raw_value_no_war_attitude_prob = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_no_war_attitude_prob, 19)
 				else:

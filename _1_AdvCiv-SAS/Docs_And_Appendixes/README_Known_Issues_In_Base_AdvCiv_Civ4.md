@@ -982,7 +982,7 @@ This is another AI change we did much later hence the .2 to this old but still n
 
 I have noticed the issue that usa ai settles a quite good site, but there was a much better one one tile south east anyways etc that had more hill grassland and less very bad desert and peak. We need to give up the desert stone even if it's a bonus, if the site there is otherwise better, while this one here is otherwise noticeably worse.
 
-Added code in `AIFoundValue::evaluate()` to handle that, see there for details, plus also added tunables/knobs but anyways etc in our new `GlobalDefines_advciv_sas.xml` file but anyways etc to tweak this without having to tediously recompile every time anymore (tested to work anyways etc).
+Added code in `AIFoundValue::evaluate()` to handle that, see there for details, plus also added tunables/knobs but anyways etc in our new [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) file but anyways etc to tweak this without having to tediously recompile every time anymore (tested to work anyways etc).
 
 Result ingame is very good as shown in screenshots, we now choose the correct best site, and future city north is also better, avoiding the coast camel desert site that has too many desert tiles, in favour of a coastal to the east desert plant that has iron and stone in its BFC as we need, but plenty coast to nicely benefit from it if we settle there. AI should be stronger as a result of this, especially if it leverages well this better site if i'm not mistaken but anyways etc.
 
