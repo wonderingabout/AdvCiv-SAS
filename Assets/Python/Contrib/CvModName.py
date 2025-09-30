@@ -1,7 +1,8 @@
 #CvModName.py
 
-modName = "AdvCiv" # advc.009
-displayName = "AdvCiv" #advc.009
+# <!-- custom: change mod name displayed ingame from "AdvCiv" to as of now "AdvCiv-SAS" as our mod is named as of now but anyways etc, and so that it also appears in "Settings" menu ingame (the panel showing game difficulty, map size, number of players, etc if i am not mistaken and if i may say i mean but anyways etc) -->
+modName = "AdvCiv-SAS" # advc.009
+displayName = "AdvCiv-SAS" #advc.009
 modVersion = ""
 
 civName = "BtS"

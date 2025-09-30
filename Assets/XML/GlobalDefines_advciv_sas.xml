@@ -570,7 +570,7 @@
 	<!-- custom: e.g. 3 cities multiplier and 4 num cities and 5 extra: (3 * 4) + 5 = 12 + 5 = 17 of this unit max which is reasonable, any more won't help too much, build something else instead anyways etc -->
 	<Define>
 		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_CLASSICAL_TIER</DefineName>
-		<iDefineIntVal>3</iDefineIntVal>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<Define>
 		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_CLASSICAL_TIER</DefineName>
@@ -579,10 +579,151 @@
 	<!-- custom: e.g. if we have 5 cities, limit for example for longbowmen at medieval is 5 cities multiplier * 6 cities + 7 extra = 5 * 6 + 7 = 30 + 7 = 37 units max which is sane, anymore won't help and will only cripple us, build something else instead, ideally stronger units, else capitalize and try to move further in techs anyways etc -->
 	<Define>
 		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_MEDIEVAL_PLUS_TIER</DefineName>
-		<iDefineIntVal>4</iDefineIntVal>
+		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<Define>
 		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_MEDIEVAL_PLUS_TIER</DefineName>
 		<iDefineIntVal>6</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: enable this so that multi effect bonuses (e.g. wheat has +1 healh and +1 with granary which is effectively 2 health, moluscs have +1 health and +1 with harbor but not all cities are coastal so +1.5 health effectively in terms of how much we value it more or less for example (see code for updated values anyways etc), or grapes giving +1 happy and +1 happy with grocer so effectively +2 happy) as soon as the buyer has the tech required to build these buildings (we assume that then all his cities have the building to simplify and quite accurate still i think as such but anyways etc). AI prices vary with various factors outside of this code, but generall it could lead for example to wheat being valued 4-5 gold per turn vs cow 2 gold per turn, unlike before where both would be value 2 gold per turn which was nonsensical and easy to abuse. Recommended to keep enabled anyways etc. Note: slightly devalues single or no effect bonuses like iron, although they should still stay mostly valuable. See quick guide for more details or code anyways etc. -->
+	<Define>
+		<DefineName>SAS_BONUS_TRADE_VAL_VALUE_MORE_MULTI_EFFECT_BONUSES</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: independently from multi effect bonuses valuing, also add support for valuing more iAIObjective bonuses (as of now iron, copper, camel, horse, etc. anways etc) specifically anyways etc; AI would be quite dumb to sell them very cheap to a rival that would then crush them or simply not get max gold out of it; code provided by chatgpt 5 thanks to my prompts and/or such, check if accurate anyways etc -->
+	<!--
+	// totally—treat AIObjective as the general “this bonus is strategically important” knob, and then layer your edge rules (iron/copper, horse/camel, elephants (low value)) on top. Because both are multiplicative, order doesn’t change the math, but putting the AIObjective block first reads nicest.
+	// - 1) Generic AIObjective bump (broad rule) -
+	// Each AIObjective point adds X%, capped at Y%
+	-->
+	<!-- custom: e.g. if iAIObjective is 6, per point percent is 10(%), and max is 200(%), new value of the iAIObjectiveBonus (1 + ((6 / 100) * 10)) * value = 1 + (6 * 0.10) = 1.60 meaning it is worth 60% more (if its value was 10 gold per turn before, it would now be 16 gold per turn for example if i'm not mistaken anyways etc). -->
+	<Define>
+		<DefineName>SAS_BONUS_TRADE_VAL_VALUE_MORE_AI_OBJECTIVE_BONUSES</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BONUS_TRADE_AI_OBJECTIVE_PER_POINT_PERCENT</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BONUS_TRADE_AI_OBJECTIVE_MAX_PERCENT</DefineName>
+		<iDefineIntVal>200</iDefineIntVal>
+	</Define>
+	<!--
+	// - 2) Simple substitute multipliers for key strategics (edge rules) -
+	-->
+	<Define>
+		<DefineName>SAS_BONUS_TRADE_VAL_VALUE_MORE_IRON_COPPER_HORSE_CAMEL_RELATIVELY</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: here is the logic i drafted to chatgpt 5 after some back and forth and consideration in this case i mean but anyways etc:
+	Note: since it is technical and i didn't reread and/or recheck all, i also asked Grok AI deep search to be sure if logic was correct and fine, for this 2) and also the 1) section, which is said is generally fine and correct anyways etc
+
+	if we have no horse nor camel nor elephants pre medieval, increase them to 1.5x
+	if we have no metal pre medieval, increase them to 1.5x
+
+	if we have no horse nor camel medieval, increase them 1.5x if we have metals else 0.75x
+	if we have no metal medieval, increase iron 2.0x copper 0.75x if we have mounts else iron 1.0x copper 0.50x
+	regardless of all, medieval+ elephants is 0.50x (useless except buildings, offset the small iaiobjective and correct value anyways etc)
+	regardless of all, medieval+ copper is 0.50x similarly
+
+	if we have no horse nor camel renaissance, increase them 1.5x if we have metals else 0.75x
+	if we have no metal renaissance keep same value (does not matter anymore), if we have mounts increase 1.50x
+
+	if we have no camel don't care in industrial+, onwards apply 0.50x (not used for units anymore anyways etc)
+
+	if we have no horse in industrial (cavalry is now metal independant) keep same (we have fallbacks and better units onwards)
+
+	if we have no horse in modern+ apply 0.50x (not used for units anymore anyways etc)
+	Below code comments by chatgpt 5, check if accurate anyways etc
+	-->
+	<!-- Pre-Medieval: boost mounts if you have NO Horse/Camel/Elephants. 100=off, 150=+50%. -->
+	<Define>
+		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_PREMED_NO_MOUNT_PCT</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+	<!-- Pre-Medieval: boost metals if you have NO Iron/Copper. 100=off, 150=+50%. -->
+	<Define>
+		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_PREMED_NO_METAL_PCT</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+
+	<!-- Medieval: if you LACK mounts but HAVE metals, how much to boost mounts (Knights). 200=+100%. -->
+	<Define>
+		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_MOUNT_WITH_METAL_PCT</DefineName>
+		<iDefineIntVal>200</iDefineIntVal>
+	</Define>
+	<!-- Medieval: if you LACK mounts and LACK metals, mounts are weaker (Knights blocked). 75=−25%. -->
+	<Define>
+		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_MOUNT_NO_METAL_PCT</DefineName>
+		<iDefineIntVal>75</iDefineIntVal>
+	</Define>
+	<!-- Medieval: if you LACK metals but HAVE mounts, how much to boost IRON. 200=+100%. -->
+	<Define>
+		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_WITH_MOUNT_IRON_PCT</DefineName>
+		<iDefineIntVal>200</iDefineIntVal>
+	</Define>
+	<!-- Medieval: if you LACK metals but HAVE mounts, how much to value COPPER. 75=−25%. -->
+	<Define>
+		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_WITH_MOUNT_COPPER_PCT</DefineName>
+		<iDefineIntVal>75</iDefineIntVal>
+	</Define>
+	<!-- Medieval: if you LACK metals AND LACK mounts, IRON baseline. 100=no change. -->
+	<Define>
+		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_NO_MOUNT_IRON_PCT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<!-- Medieval: if you LACK metals AND LACK mounts, COPPER is low. 50=−50%. -->
+	<Define>
+		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_NO_MOUNT_COPPER_PCT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- Medieval+: Elephants are basically for buildings only. 50=−50% from Medieval onward. -->
+	<Define>
+		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_PLUS_ELEPHANT_PCT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- Medieval+: Copper loses military relevance. 50=−50% from Medieval onward. -->
+	<Define>
+		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_PLUS_COPPER_PCT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+
+	<!-- Renaissance: if you LACK mounts and HAVE metals, modest mount boost. 150=+50%. -->
+	<Define>
+		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_WITH_METAL_PCT</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+	<!-- Renaissance: if you LACK mounts and LACK metals, small mount discount. 75=−25%. -->
+	<Define>
+		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_NO_METAL_PCT</DefineName>
+		<iDefineIntVal>75</iDefineIntVal>
+	</Define>
+	<!-- Renaissance: if you LACK metals but HAVE mounts, small IRON bump only. 150=+50%. -->
+	<Define>
+		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_METAL_WITH_MOUNT_IRON_PCT</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+	<!-- Industrial+: Camel fades (no relevant units). 50=−50%. -->
+	<Define>
+		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_IND_PLUS_CAMEL_PCT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+
+	<!-- Industrial: Horse still matters (Cavalry). 100=no change. -->
+	<Define>
+		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_IND_HORSE_BASE_PCT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<!-- Modern+: Horse fades (no relevant units). 50=−50%. -->
+	<Define>
+		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MOD_PLUS_HORSE_PCT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 </Civ4Defines>

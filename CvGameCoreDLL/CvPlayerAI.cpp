@@ -12175,7 +12175,9 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 	// It’s simple, robust, and it lines resource prices up with actual empire impact without micromanaging current builds.
 	//
 	// --- Tech-gated building synergy for this bonus (simple & fast) ---
-	if (rOurVal.isPositive())
+	static const bool bValueMoreMultiEffectBonuses = GC.getDefineBOOL("SAS_BONUS_TRADE_VAL_VALUE_MORE_MULTI_EFFECT_BONUSES");
+
+	if (bValueMoreMultiEffectBonuses && rOurVal.isPositive())
 	{
 		scaled rBoost = 1; // multiply our per-city value by this at the end
 
@@ -12278,7 +12280,202 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		// <!-- custom: 0.5 leads to a bit too low prices upon testing, increase it a bit but not too much so prices are not ridiculously high nor too low anyways etc -->
 		rOurVal *= fixp(0.75);
 	}
-	// (existing code continues...)
+
+	// <!-- custom: also add support for valuing more iAIObjective bonuses (as of now iron, copper, camel, horse, etc. anways etc), AI would be quite dumb to sell them very cheap to a rival that would then crush them or simply not get max gold out of it; code provided by chatgpt 5 thanks to my prompts and/or such, check if accurate anyways etc -->
+	// --- 1) Generic AIObjective bump (broad rule) ---
+	static const bool bValueMoreAIObjectiveBonuses = GC.getDefineBOOL("SAS_BONUS_TRADE_VAL_VALUE_MORE_AI_OBJECTIVE_BONUSES");
+
+	if (bValueMoreAIObjectiveBonuses)
+	{
+		const int obj = GC.getInfo(eBonus).getAIObjective();
+		if (obj > 0)
+		{
+			static const int iAIObjectivePerPointPercent = GC.getDefineINT("SAS_BONUS_TRADE_AI_OBJECTIVE_PER_POINT_PERCENT");
+			static const int iAIObjectiveMaxPercent = GC.getDefineINT("SAS_BONUS_TRADE_AI_OBJECTIVE_MAX_PERCENT");
+
+			// Each AIObjective point adds X%, capped at Y%
+			const int perPt = iAIObjectivePerPointPercent;
+			const int maxPct = iAIObjectiveMaxPercent;
+			int pct = 100 + (obj * perPt);
+			if (pct > maxPct) pct = maxPct;
+			rOurVal *= per100(pct);
+		}
+	}
+
+	// --- 2) Simple substitute multipliers for key strategics (edge rules) ---
+	static const bool bValueMoreIronCopperHorseCamelRelatively = GC.getDefineBOOL("SAS_BONUS_TRADE_VAL_VALUE_MORE_IRON_COPPER_HORSE_CAMEL_RELATIVELY");
+
+	if (bValueMoreIronCopperHorseCamelRelatively)
+	{
+		static const BonusTypes B_IRON   = (BonusTypes)GC.getInfoTypeForString("BONUS_IRON");
+		static const BonusTypes B_COPPER = (BonusTypes)GC.getInfoTypeForString("BONUS_COPPER");
+		static const BonusTypes B_HORSE  = (BonusTypes)GC.getInfoTypeForString("BONUS_HORSE");
+		static const BonusTypes B_CAMEL  = (BonusTypes)GC.getInfoTypeForString("BONUS_CAMEL");
+		static const BonusTypes B_ELEPHANTS  = (BonusTypes)GC.getInfoTypeForString("BONUS_ELEPHANTS");
+
+		const bool haveIron   = (B_IRON   != NO_BONUS && getNumAvailableBonuses(B_IRON)   > 0);
+		const bool haveCopper = (B_COPPER != NO_BONUS && getNumAvailableBonuses(B_COPPER) > 0);
+		const bool haveHorse  = (B_HORSE  != NO_BONUS && getNumAvailableBonuses(B_HORSE)  > 0);
+		const bool haveCamel  = (B_CAMEL  != NO_BONUS && getNumAvailableBonuses(B_CAMEL)  > 0);
+		const bool haveElephants = (B_ELEPHANTS != NO_BONUS && getNumAvailableBonuses(B_ELEPHANTS) > 0);
+
+		const bool haveAnyMetal  = (haveIron || haveCopper);
+		const bool haveAnyMount  = (haveHorse || haveCamel);
+
+		const int iCurrentEra = getCurrentEra();
+		// <!-- custom: as of now eras are (see xml for details or/and updated version anyways etc -->
+		// 18,5: 			<Type>ERA_ANCIENT</Type> (0 i assume anyways etc)
+		// 79,5: 			<Type>ERA_CLASSICAL</Type> (1)
+		// 154,5: 			<Type>ERA_MEDIEVAL</Type> (2)
+		// 237,5: 			<Type>ERA_RENAISSANCE</Type> (3)
+		// 320,5: 			<Type>ERA_INDUSTRIAL</Type> (4)
+		// 401,5: 			<Type>ERA_MODERN</Type> (5)
+		// 477,5: 			<Type>ERA_FUTURE</Type> (6)
+		static const int ERA_MEDIEVAL     = 2;
+		static const int ERA_RENAISSANCE  = 3;
+		static const int ERA_INDUSTRIAL   = 4;
+		static const int ERA_MODERN       = 5;
+
+		const bool isPreMed        = (iCurrentEra != NO_ERA && iCurrentEra <  ERA_MEDIEVAL);
+		const bool isMedieval      = (iCurrentEra == ERA_MEDIEVAL);
+		const bool isRenaissance   = (iCurrentEra == ERA_RENAISSANCE);
+		const bool isModernPlus    = (iCurrentEra >= ERA_MODERN);
+
+		int pct = 100;
+
+		static const int MED_ELEPHANT_ANY_PCT                   = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_PLUS_ELEPHANT_PCT");
+		static const int MED_COPPER_ANY_PCT                     = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_PLUS_COPPER_PCT");
+
+		// ===== PRE-MEDIEVAL =====
+		if (isPreMed)
+		{
+			// Tunables (percents)
+			static const int PREMED_NO_MOUNT_PCT                    = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_PREMED_NO_MOUNT_PCT");
+			static const int PREMED_NO_METAL_PCT                    = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_PREMED_NO_METAL_PCT");
+
+			if ((eBonus == B_HORSE || eBonus == B_CAMEL || eBonus == B_ELEPHANTS) &&
+				!haveHorse && !haveCamel && !haveElephants)
+			{
+				pct = PREMED_NO_MOUNT_PCT; // “no mounts at all” → mounts 1.5x
+			}
+			else if ((eBonus == B_IRON || eBonus == B_COPPER) && !haveAnyMetal)
+			{
+				pct = PREMED_NO_METAL_PCT; // “no metals” → metals 1.5x
+			}
+		}
+
+		// ===== MEDIEVAL =====
+		else if (isMedieval)
+		{
+			static const int MED_NO_MOUNT_WITH_METAL_PCT            = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_MOUNT_WITH_METAL_PCT");
+			static const int MED_NO_MOUNT_NO_METAL_PCT              = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_MOUNT_NO_METAL_PCT");
+			static const int MED_NO_METAL_WITH_MOUNT_IRON_PCT       = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_WITH_MOUNT_IRON_PCT");
+			static const int MED_NO_METAL_WITH_MOUNT_COPPER_PCT     = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_WITH_MOUNT_COPPER_PCT");
+			static const int MED_NO_METAL_NO_MOUNT_IRON_PCT         = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_NO_MOUNT_IRON_PCT");
+			static const int MED_NO_METAL_NO_MOUNT_COPPER_PCT       = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_NO_MOUNT_COPPER_PCT");
+
+			// If we lack mounts
+			if ((eBonus == B_HORSE || eBonus == B_CAMEL) && !haveHorse && !haveCamel)
+			{
+				pct = haveAnyMetal ? MED_NO_MOUNT_WITH_METAL_PCT   // 2.0x (Knights attractive)
+								: MED_NO_MOUNT_NO_METAL_PCT;   // 0.75x (no metals ⇒ Knights blocked)
+			}
+			// If we lack metals
+			else if (!haveAnyMetal && (eBonus == B_IRON || eBonus == B_COPPER))
+			{
+				if (haveAnyMount) // mounts present ⇒ push Iron, discount Copper
+				{
+					pct = (eBonus == B_IRON ? MED_NO_METAL_WITH_MOUNT_IRON_PCT
+											: MED_NO_METAL_WITH_MOUNT_COPPER_PCT);
+				}
+				else // no mounts either
+				{
+					pct = (eBonus == B_IRON ? MED_NO_METAL_NO_MOUNT_IRON_PCT
+											: MED_NO_METAL_NO_MOUNT_COPPER_PCT);
+				}
+			}
+
+			// Regardless: Elephants are weak from Medieval on
+			if (eBonus == B_ELEPHANTS)
+			{
+				pct = MED_ELEPHANT_ANY_PCT;
+			}
+			// Regardless: Copper weak from Medieval on
+			else if (eBonus == B_COPPER)
+			{
+				pct = MED_COPPER_ANY_PCT;
+			}
+		}
+
+		// ===== RENAISSANCE =====
+		else if (isRenaissance)
+		{
+			static const int REN_NO_MOUNT_WITH_METAL_PCT            = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_WITH_METAL_PCT");
+			static const int REN_NO_MOUNT_NO_METAL_PCT              = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_NO_METAL_PCT");
+			static const int REN_NO_METAL_WITH_MOUNT_IRON_PCT       = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_METAL_WITH_MOUNT_IRON_PCT");
+			// (Copper at Renaissance stays handled by the MED+ copper clamp)
+
+			// If we lack mounts, modest push only when metals present
+			if ((eBonus == B_HORSE || eBonus == B_CAMEL) && !haveHorse && !haveCamel)
+			{
+				pct = haveAnyMetal ? REN_NO_MOUNT_WITH_METAL_PCT
+								: REN_NO_MOUNT_NO_METAL_PCT;
+			}
+			// If we lack metals, metals mostly indifferent now; small iron bump if mounts present
+			else if (!haveAnyMetal && (eBonus == B_IRON || eBonus == B_COPPER))
+			{
+				if (haveAnyMount && eBonus == B_IRON)
+				{
+					pct = REN_NO_METAL_WITH_MOUNT_IRON_PCT; // 1.5x iron only
+					// Copper still clamped by MED+ rule
+				}
+			}
+
+			// Carry over clamps
+			if (eBonus == B_ELEPHANTS)
+			{
+				pct = MED_ELEPHANT_ANY_PCT;
+			}
+			else if (eBonus == B_COPPER)
+			{
+				pct = MED_COPPER_ANY_PCT;
+			}
+		}
+
+		// ===== INDUSTRIAL+ / MODERN+ =====
+		else // iEra >= Industrial
+		{
+			static const int IND_PLUS_CAMEL_ANY_PCT                 = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_IND_PLUS_CAMEL_PCT");
+			static const int IND_HORSE_BASE_PCT                     = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_IND_HORSE_BASE_PCT");
+			static const int MOD_PLUS_HORSE_ANY_PCT                 = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MOD_PLUS_HORSE_PCT");
+
+			// Camel fades after Industrial
+			if (eBonus == B_CAMEL && !haveCamel)
+			{
+				pct = IND_PLUS_CAMEL_ANY_PCT;
+			}
+			// Horse: OK in Industrial (Cavalry), but fades by Modern+
+			else if (eBonus == B_HORSE && !haveHorse)
+			{
+				pct = (isModernPlus ? MOD_PLUS_HORSE_ANY_PCT : IND_HORSE_BASE_PCT);
+			}
+
+			// Carry over clamps
+			if (eBonus == B_ELEPHANTS)
+			{
+				pct = MED_ELEPHANT_ANY_PCT;
+			}
+			else if (eBonus == B_COPPER)
+			{
+				pct = MED_COPPER_ANY_PCT;
+			}
+		}
+
+		if (pct != 100)
+		{
+			rOurVal *= per100(pct);
+		}
+	}
 
 	rOurVal *= getNumCities(); // bonusVal is per city
 	/*  Don't pay fully b/c trade doesn't give us permanent access to the

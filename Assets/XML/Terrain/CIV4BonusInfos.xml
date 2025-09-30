@@ -1590,6 +1590,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
 				<iYieldChange>0</iYieldChange>
 			</YieldChanges>
 			<iAITradeModifier>0</iAITradeModifier>
+			<!-- custom: add low value for early war elephants, but not too high as not useful otherwise, and may skew too much AI valuing (setller or trading preferences for example after our changes but anyways etc), as the bonus is not so useful in medieval+ (no new military unit or critical building to have if i'm not mistaken but anyways); plus, bonus is available from start if i'm not mistaken but anyways etc, which is fine since war elephants are not available until about midgame so vision does not give a critical advantage, camel units are later as well but camel bonus allows medieval and rennaissance camel units so worth more and worth hiding until tech as of now tech_animal_husbandry anyways etc, as for elephants bonus, value kept low so AI values it a bit but not too much as not as important as horse or camel for example and to prevent excess skewing of AI behaviour while sitll making it (enough hopefully in this case i mean but anyways etc) aware of it: it can be a nice path when we are stuck with longbows until muskets, to have war elephants! But don't overdo it if i may say and if i am not mistaken in this case i mean but anyways etc. -->
 			<iAIObjective>0</iAIObjective>
 			<iHealth>0</iHealth>
 			<iHappiness>1</iHappiness>
