@@ -416,7 +416,7 @@ short AIFoundValue::evaluate()
 	static const FeatureTypes eFeatureForest = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FOREST");
 	static const FeatureTypes eFeatureJungle = (FeatureTypes)GC.getInfoTypeForString("FEATURE_JUNGLE");
 	static const FeatureTypes eFeatureOasis = (FeatureTypes)GC.getInfoTypeForString("FEATURE_OASIS");
-	static const FeatureTypes eFeatureIceCap = (FeatureTypes)GC.getInfoTypeForString("FEATURE_ICE_CAP");
+	static const FeatureTypes eFeatureIce = (FeatureTypes)GC.getInfoTypeForString("FEATURE_ICE");
 
 	bool bFirstColony = isPrioritizeAsFirstColony();
 	IFLOG if(bFirstColony) logBBAI("First colony");
@@ -582,7 +582,7 @@ short AIFoundValue::evaluate()
 							}
 						}
 
-						if (eFeaturePlot == eFeatureIceCap)
+						if (eFeaturePlot == eFeatureIce)
 						{
 							++iTileCountIceCap;
 						}

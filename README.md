@@ -421,7 +421,7 @@ The bit annoying/painful section, but in short this is a fan project that i hope
 
 Note: to know where media files (such as music or videos) might have come from or not, please visit modding_ressources in this git sections, not directly mentioning how due to copyright reasons, but providing examples of how i could have done so or may have not done so, after asking chatgpt this seems safer to state as so while trying to provide general information that may be helpful or not or yes but anyways etc, and i adjusted it bit too based on its feedback suggestion, hopefully helpful or not or yes or etc but anyways etc.
 
-Note 2: about why i used so much music from Nicholas Panek (/ Nicholas John Panek too is the same if i am not mistaken? But check to be sure anyways etc): is because i like this artist's music so much, although of course not all if i may sya but i found many nice ones in arious genres or/and such or whatever i simply enjoyed it if i may say but anyways etc.
+Note 2: about why i used so much music from Nicholas Panek (/ Nicholas John Panek too is the same if i am not mistaken? But check to be sure anyways etc): is because i like this artist's music so much, although of course not all if i may say but i found many nice ones in arious genres or/and such or whatever i simply enjoyed it if i may say but anyways etc.
 
 For mods we took from, i mention them in more detail, hopefully exhaustive but i may have forgotten one or 2 or more or not if i didn't notice but anyways etc, in [README.md#credits](/README.md#credits)
 

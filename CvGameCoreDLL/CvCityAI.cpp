@@ -11747,7 +11747,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 								{
 									eChangedUnitAI = UNITAI_ATTACK_CITY;
 								}
-								// <!-- custom: if offensive roles fail, prefer defensive but more versatile ones, anything is betetr than overstacking excess defense without using our advantage of unit count (or desperate position but anyways etc then dying later anyways etc) -->
+								// <!-- custom: if offensive roles fail, prefer defensive but more versatile ones, anything is better than overstacking excess defense without using our advantage of unit count (or desperate position but anyways etc then dying later anyways etc) -->
 								else if (pUnitInfo->getUnitAIType(UNITAI_RESERVE))
 								{
 									eChangedUnitAI = UNITAI_RESERVE;
