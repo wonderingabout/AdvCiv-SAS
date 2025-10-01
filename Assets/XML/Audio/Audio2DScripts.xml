@@ -17107,8 +17107,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_UNIT_BUILD_MONGOL_KESHIK</ScriptID>
-		<SoundID>SND_BUILD_MONGOL_KESHIK</SoundID>
+		<ScriptID>AS2D_UNIT_BUILD_MONGOL_KHISHIGTEN</ScriptID>
+		<SoundID>SND_BUILD_MONGOL_KHISHIGTEN</SoundID>
 		<SoundType>GAME_SFX</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>

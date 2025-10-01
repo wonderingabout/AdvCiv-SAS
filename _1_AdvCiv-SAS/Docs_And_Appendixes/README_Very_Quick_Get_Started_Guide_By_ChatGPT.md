@@ -392,7 +392,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
   - **Logistics** now at **The Wheel** (was Military Science).
   - Removed redundant promotions (e.g., **Tactics**), to avoid broken retreat odds.
 - **Unit redesigns:**
-  - Weak/late UUs replaced by earlier/impactful ones (e.g., Dutch **East Indiaman** → Dutch **Swift Worker**; German **Panzer** → **Hussar**).
+  - Weak/late UUs replaced by earlier/impactful ones (e.g., Dutch **East Indiaman** → Dutch **Swift Worker**; German **Panzer** → **Hussar**; Mongol **Keshik** → **Khishigten** — better window with the **Ger**, longer medieval span, higher hammer rate, and more historical).
   - **Air** unit costs generally increased.
 - **Upgrade paths** simplified and made more sensible:
   - Mounted tiers upgrade along mounted lines (e.g., **Chariot → Horse Archer**; **War Elephant → Knight**).

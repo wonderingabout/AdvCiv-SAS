@@ -4777,7 +4777,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_BUILD_MONGOL_KESHIK</SoundID>
+			<SoundID>SND_BUILD_MONGOL_KHISHIGTEN</SoundID>
 			<Filename>Sounds/Units/BuildMogolKeshik</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>

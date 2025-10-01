@@ -403,6 +403,11 @@
 		<Tag>TXT_KEY_UNIT_ARABIA_HAJJAN</Tag>
 		<English>Hajjan</English>
 	</TEXT>
+	<!-- custom: rename "_KESHIK" to "_KHISHIGTEN" anyways etc, name from https://www.reddit.com/r/mongolia/comments/15zd5gj/comment/jxgk8zu/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button anyways etc as it seems most accurate accurate to comment there anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_MONGOL_KHISHIGTEN</Tag>
+		<English>Khishigten</English>
+	</TEXT>
 
 
 

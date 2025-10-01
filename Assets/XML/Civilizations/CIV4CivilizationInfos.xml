@@ -2663,8 +2663,8 @@
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_HORSE_ARCHER</UnitClassType>
-					<UnitType>UNIT_MONGOL_KESHIK</UnitType>
+					<UnitClassType>UNITCLASS_HORSE_KNIGHT</UnitClassType>
+					<UnitType>UNIT_MONGOL_KHISHIGTEN</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>
