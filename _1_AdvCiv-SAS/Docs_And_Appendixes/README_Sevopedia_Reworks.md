@@ -22,6 +22,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [example 9: terrains category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category)  
 [example 10: techs category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-10-techs-category)  
 [example 11: shortcuts category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-11-shortcuts-category)  
+[example 12: promotions category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-12-promotions-category)  
 
 ## example 1: more AI Personality examples (in leaders category)
 
@@ -168,3 +169,15 @@ Note: the untradeable techs list as string/text is very efficiently precomputed 
 ## example 11: shortcuts category
 
 No graphical change, only added info about some shortcuts, as of now only about Alt+S (Toggle on/off write some text ("Enter caption") on a tile) anyways etc.
+
+## example 12: promotions category
+
+This is also a very as of now recent in this case i mean but anyways etc refactor, beautification (moderate in this case i mean but anyways etc), and enhancement by adding as of now the free promotions (units) and place promotion (buildings) using the multilist code from previous sevopedia reworks.
+
+The buttons are nicely displayed or an as of now "None" text as in other sevopedia reworks anyways etc. Done with the help of claude ai thanks as well as my own adjustments and prompts or/and such (htnkas too maybe in this case i mean but anyways etc) anyways etc.
+
+Output is really nice and nicely informative too if i may say but anyways etc, examples below anyways etc:
+
+<img src="../Images_In_General/sevopedia_reworks/0.730_sevopedia_promotions_sample (1).JPG" alt="0.730_sevopedia_promotions_sample (1).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.730_sevopedia_promotions_sample (2).JPG" alt="0.730_sevopedia_promotions_sample (2).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.730_sevopedia_promotions_sample (3).JPG" alt="0.730_sevopedia_promotions_sample (3).JPG" width="250"></img>

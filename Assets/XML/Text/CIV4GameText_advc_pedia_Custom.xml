@@ -132,6 +132,22 @@ hopefully more readable or exportable if need/want be now -->
 		<Tag>TXT_KEY_BONUS_GENERIC_NONE</Tag>
 		<English>None</English>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FREE_PROMOTIONS_UNITS</Tag>
+		<English>Free Promotions (Units)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FREE_PROMOTIONS_UNITS_NO_BUTTON_FOUND</Tag>
+		<English>None</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FREE_PROMOTION_BUILDINGS</Tag>
+		<English>Free Promotion (Buildings)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FREE_PROMOTION_BUILDINGS_NO_BUTTON_FOUND</Tag>
+		<English>None</English>
+	</TEXT>
 
 
 
