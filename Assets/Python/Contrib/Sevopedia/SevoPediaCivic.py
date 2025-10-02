@@ -9,15 +9,21 @@
 # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
 #
 
+
+
 from CvPythonExtensions import *
 import CvUtil
 # <!-- custom: remove or comment out seemingly unused imports -->
 #import ScreenInput
 #import SevoScreenEnums
 
+from _sevopedia_helpers import *
+
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
+
+
 
 class SevoPediaCivic:
 
@@ -25,101 +31,184 @@ class SevoPediaCivic:
 		self.iCivic = -1
 		self.top = main
 
-		self.X_MAIN_PANE = self.top.X_PEDIA_PAGE
-		self.Y_MAIN_PANE = self.top.Y_PEDIA_PAGE
-		self.W_MAIN_PANE = 290
-		self.H_MAIN_PANE = 151
+		self.MEDIUM_MARGIN = 15
+		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+
+		# <!-- custom: based on sevopediareligion's code (the placeLeaders function there that we added as well in this case i mean but anyways etc), see there for details and differences of implementation --> 
+		# <!-- custom: this (287 anyways etc) should be accurate according to my measurements if i am not mistaken for a 4 leaders panel but the screen.appendMultiListButton uses seemingly (approximately from my vision but anyways etc) a smaller button spacing, so we have now due to saved reduced spacing a bit extra space on the right margin as compared to left margin, making it asymetrical and less pretty if i may say anyways etc, to solve this, reducing the width, while keeping in mind the correct value should be 287 if i am not mistaken for 4 leaders per row total width including margins (or keeping here as i may or in case i forget or not forget maybe or not or yes or and other or and not anyways etc) -->
+		#self.W_LEADERS = 287
+		self.W_LEADERS = 282
+		self.X_LEADERS = self.top.R_PEDIA_PAGE - self.W_LEADERS
+		self.Y_LEADERS = self.top.Y_PEDIA_PAGE
+		self.H_LEADERS = self.top.B_PEDIA_PAGE - self.Y_LEADERS
+
+		self.X_CIVIC_PANE = self.top.X_PEDIA_PAGE
+		self.Y_CIVIC_PANE = self.top.Y_PEDIA_PAGE
+		#self.W_CIVIC_PANE = 290
+		#self.H_CIVIC_PANE = 151
+		self.W_CIVIC_PANE = 440
+		self.H_CIVIC_PANE = 230
 
 		self.W_ICON = 125
 		self.H_ICON = 125
-		self.X_ICON = self.X_MAIN_PANE + (self.H_MAIN_PANE - self.H_ICON) / 2
-		self.Y_ICON = self.Y_MAIN_PANE + (self.H_MAIN_PANE - self.H_ICON) / 2
+		self.X_ICON = self.X_CIVIC_PANE + (self.H_CIVIC_PANE - self.H_ICON) / 2
+		self.Y_ICON = self.Y_CIVIC_PANE + (self.H_CIVIC_PANE - self.H_ICON) / 2
 		self.ICON_SIZE = 64
 
-		self.X_STATS_PANE = self.X_ICON + self.W_ICON 
-		self.Y_STATS_PANE = 112
-		self.W_STATS_PANE = 250
-		self.H_STATS_PANE = 200
+		self.X_STATS = self.X_ICON + self.W_ICON 
+		#self.Y_STATS = 112
+		self.Y_STATS = 141
+		self.W_STATS = 250
+		self.H_STATS = 200
 
-		self.X_REQUIRES = self.X_MAIN_PANE + self.W_MAIN_PANE + 10
-		self.W_REQUIRES = self.top.R_PEDIA_PAGE - self.X_REQUIRES
+		self.W_REMAINING_CENTER_SPACE = self.top.R_PEDIA_PAGE - (self.W_LEADERS + self.MEDIUM_MARGIN) - self.MEDIUM_MARGIN - (self.X_CIVIC_PANE + self.W_CIVIC_PANE + self.MEDIUM_MARGIN)
+
+		self.X_SPECIAL = self.X_CIVIC_PANE + self.W_CIVIC_PANE + self.MEDIUM_MARGIN
+
+		self.W_REQUIRES = 84
+
+		self.W_SPECIAL = self.W_REMAINING_CENTER_SPACE - self.W_REQUIRES
+
+		self.X_REQUIRES = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
+
 		self.H_REQUIRES = 110
-		self.Y_REQUIRES = self.Y_MAIN_PANE + self.H_MAIN_PANE - self.H_REQUIRES
 
-		self.X_SPECIAL = self.X_MAIN_PANE
-		self.Y_SPECIAL = self.Y_MAIN_PANE + self.H_MAIN_PANE + 10
-		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL
-		self.H_SPECIAL = 160
-		# <advc.004y>
-		if self.top.bFullScreen:
-			self.H_SPECIAL += 40
-		# </advc.004y>
-		self.X_TEXT = self.X_MAIN_PANE
-		self.Y_TEXT = self.Y_SPECIAL + self.H_SPECIAL + 10
-		self.W_TEXT = self.top.R_PEDIA_PAGE - self.X_TEXT
-		self.H_TEXT = self.top.B_PEDIA_PAGE - self.Y_TEXT
+		self.Y_REQUIRES = self.Y_CIVIC_PANE + self.H_CIVIC_PANE - self.H_REQUIRES
+
+		self.Y_SPECIAL = self.Y_CIVIC_PANE
+
+		self.H_SPECIAL = self.H_CIVIC_PANE
+
+		self.X_HISTORY = self.X_CIVIC_PANE
+		self.Y_HISTORY = self.Y_CIVIC_PANE + self.H_CIVIC_PANE + self.SMALL_MARGIN
+		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY - (self.W_LEADERS + self.MEDIUM_MARGIN)
+		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
 
 
 	def interfaceScreen(self, iCivic):
 		self.iCivic = iCivic
-		screen = self.top.getScreen()
 
-		screen.addPanel( self.top.getNextWidgetName(), "", "", False, False, self.X_MAIN_PANE, self.Y_MAIN_PANE, self.W_MAIN_PANE, self.H_MAIN_PANE, PanelStyles.PANEL_STYLE_BLUE50)
-		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
-		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getCivicInfo(self.iCivic).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-
+		self.placeLeaders()
+		self.placeCivicPane()
 		self.placeStats()
 		self.placeSpecial()
 		self.placeRequires()
-		self.placeText()
+		self.placeHistory()
+
+
+
+	# <!-- custom: in https://civ4bug.sourceforge.net/PythonAPI/AllClasses.html i have found this:
+	# VOID addMultiListControlGFC (STRING szName, STRING helpText, INT iX, INT iY, INT iWidth, INT iHeight, INT numLists, INT defaultWidth, INT defaultHeight, TableStyle eStyle)
+	# and in https://github.com/f1rpo/AdvCiv/blob/master/Assets/Python/Screens/CvMainInterface.py#L2050C1-L2053C38 i have found this:
+	# 		self.screen.addMultiListControlGFC("BottomButtonList", u"",
+	#			lRect.x(), lRect.y(), lRect.width(), lRect.height(),
+	#			4, iButtonSize, iButtonSize, # numLists, defaultWidth, defaultHeight
+	#			TableStyles.TABLE_STYLE_STANDARD)
+	# if it helps us adapt/use the addMultiListControlGFC method, anyways etc -->
+	def placeLeaders(self):
+		xPanel = self.X_LEADERS
+		yPanel = self.Y_LEADERS
+		wPanel = self.W_LEADERS
+		hPanel = self.H_LEADERS
+
+		txtKeyPanel = "TXT_KEY_PEDIA_CATEGORY_LEADER"
+
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+
+		# Create panel with proper styling
+		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+
+		# <!-- custom: note: this doesn't seem to do anything in multilist methods if i am not mistaken anyways etc and in particular no padding so do not use this here i mean for multilists i mean anyways etc anyways etc -->
+		# Additional left side padding for the button(s)
+		#screen.attachLabel(panelName, "", "  ")
+
+		rowListName = self.top.getNextWidgetName()
+
+		BUTTON_SIZE = 64 # Size of each button
+
+		# Create the MultiList control
+		# Constants for button display
+		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
+		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
+		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
+		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+		# Per documentation, the numLists parameter (7th) is actually number of columns
+		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+		# Using 1 for auto-calculation of buttons per row
+		buttonCalculate = 1
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+
+		# Find all leaders who have this civic as favorite
+		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
+			leaderInfo = gc.getLeaderHeadInfo(iLeader)
+			if leaderInfo.getFavoriteCivic() == self.iCivic:
+				leaderInfo = gc.getLeaderHeadInfo(iLeader)
+				# Column index (always 0 when numLists=1)
+				columnIndex = 0
+				screen.appendMultiListButton(rowListName, leaderInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, 1, False)
+
+
+
+	def placeCivicPane(self):
+		screen = self.top.getScreen()
+
+		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_CIVIC_PANE, self.Y_CIVIC_PANE, self.W_CIVIC_PANE, self.H_CIVIC_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+		# <!-- custom: no need for the blue frame on blue background, use transparent instead, anyways etc -->
+		#screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
+		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
+		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getCivicInfo(self.iCivic).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 
 	def placeStats(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addListBoxGFC(panelName, "", self.X_STATS_PANE, self.Y_STATS_PANE, self.W_STATS_PANE, self.H_STATS_PANE, TableStyles.TABLE_STYLE_EMPTY)
+		screen.addListBoxGFC(panelName, "", self.X_STATS, self.Y_STATS, self.W_STATS, self.H_STATS, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(panelName, False)
 		iCivicOptionType = gc.getCivicInfo(self.iCivic).getCivicOptionType()
+		# <!-- custom: make text a bit bigger/wider in this case i mean but anyways etc, was font=4 anyways etc -->
 		if (iCivicOptionType != -1):
-			screen.appendListBoxString(panelName, u"<font=3>" + gc.getCivicOptionInfo(iCivicOptionType).getDescription().upper() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.appendListBoxString(panelName, u"<font=4>" + gc.getCivicOptionInfo(iCivicOptionType).getDescription().upper() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 		pUpkeepInfo = gc.getUpkeepInfo(gc.getCivicInfo(self.iCivic).getUpkeep())
 		if (pUpkeepInfo):
-			screen.appendListBoxString(panelName, u"<font=3>" + pUpkeepInfo.getDescription().upper() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
-
-
-
-	def placeRequires(self):
-		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_REQUIRES", ()), "", False, True, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES, PanelStyles.PANEL_STYLE_BLUE50 )
-		screen.enableSelect(panelName, False)
-		screen.attachLabel(panelName, "", "  ")
-		iTech = gc.getCivicInfo(self.iCivic).getTechPrereq()
-		if (iTech > -1):
-			screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
+			screen.appendListBoxString(panelName, u"<font=4>" + pUpkeepInfo.getDescription().upper() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_EFFECTS", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50 )
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_EFFECTS", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
 		listName = self.top.getNextWidgetName()
-		screen.attachListBoxGFC( panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY )
+		screen.attachListBoxGFC(panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(listName, False)
 		szSpecialText = CyGameTextMgr().parseCivicInfo(self.iCivic, True, False, True)
-		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+5, self.W_SPECIAL-10, self.H_SPECIAL-10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		# <!-- custom: leave some room on top, based on placeSpecial in sevopedia terrain anyways etc -->
+		#screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+5, self.W_SPECIAL-10, self.H_SPECIAL-10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+10, self.W_SPECIAL-10, self.H_SPECIAL-20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
-	def placeText(self):
+	def placeRequires(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_REQUIRES", ()), "", False, True, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.enableSelect(panelName, False)
+		screen.attachLabel(panelName, "", "  ")
+		iTech = gc.getCivicInfo(self.iCivic).getTechPrereq()
+		if (iTech > -1):
+			screen.attachImageButton(panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
+
+
+
+	def placeHistory(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		# advc.004y: Label added for this panel
-		#screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
-		screen.addPanel(panelName, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
+		#screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, "", "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
 
 		textName = self.top.getNextWidgetName()
 		szText = u""
@@ -128,7 +217,8 @@ class SevoPediaCivic:
 		szText += gc.getCivicInfo(self.iCivic).getCivilopedia()
 		# </advc.004y>
 		#screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.addMultilineText(textName, szText, self.X_TEXT + 7 , self.Y_TEXT + 10, self.W_TEXT - (15 * 2), self.H_TEXT - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(textName, szText, self.X_HISTORY + 7 , self.Y_HISTORY + 10, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
 
 
 	def handleInput (self, inputClass):

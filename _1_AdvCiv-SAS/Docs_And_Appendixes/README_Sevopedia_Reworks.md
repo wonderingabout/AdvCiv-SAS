@@ -23,6 +23,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [example 10: techs category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-10-techs-category)  
 [example 11: shortcuts category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-11-shortcuts-category)  
 [example 12: promotions category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-12-promotions-category)  
+[example 13: civics category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-13-civics-category)  
 
 ## example 1: more AI Personality examples (in leaders category)
 
@@ -181,3 +182,17 @@ Output is really nice and nicely informative too if i may say but anyways etc, e
 <img src="../Images_In_General/sevopedia_reworks/0.730_sevopedia_promotions_sample (1).JPG" alt="0.730_sevopedia_promotions_sample (1).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.730_sevopedia_promotions_sample (2).JPG" alt="0.730_sevopedia_promotions_sample (2).JPG" width="250"></img>
 <img src="../Images_In_General/sevopedia_reworks/0.730_sevopedia_promotions_sample (3).JPG" alt="0.730_sevopedia_promotions_sample (3).JPG" width="250"></img>
+
+## example 13: civics category
+
+This is another very nice rework :) I should have thought of it sooner xd if i may say in this case i mean but anyways etc, but it is the quite natural expansion of the placeLeaders panel in sevopedia religion (not that i believe (anymore) in them if i may say i mean but anyways etc).
+
+It allowed to polish a bit the sevopedia religion that also had a placeSpecial panel that i could beautify a bit as well (upper spacing anyways etc).
+
+Code provided by/with the help of claude ai too thanks if i may say (and thanks to me too maybe as well if i may say too but anyways etc).
+
+Examples of output below anyways etc:
+
+<img src="../Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG" alt="0.740_sevopedia_civics_sample (1).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (2).JPG" alt="0.740_sevopedia_civics_sample (2).JPG" width="250"></img>
+<img src="../Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (3).JPG" alt="0.740_sevopedia_civics_sample (3).JPG" width="250"></img>

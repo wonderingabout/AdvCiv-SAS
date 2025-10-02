@@ -102,93 +102,13 @@ class SevoPediaReligion:
 	def interfaceScreen(self, iReligion):
 		self.iReligion = iReligion
 
+		self.placeLeaders()
 		self.placeReligionPane()
-		self.placeSpecial()
-		self.placeRequires()
 		self.placeBuilding()
 		self.placeUnit()
-		self.placeLeaders()
+		self.placeRequires()
+		self.placeSpecial()
 		self.placeHistory()
-
-
-
-	def placeReligionPane(self):
-		screen = self.top.getScreen()
-
-		screen.addPanel( self.top.getNextWidgetName(), "", "", False, False, self.X_RELIGION_PANE, self.Y_RELIGION_PANE, self.W_RELIGION_PANE, self.H_RELIGION_PANE, PanelStyles.PANEL_STYLE_BLUE50)
-		# <!-- custom: no need for the blue frame on blue background, use transparent instead, anyways etc -->
-		#screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
-		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
-		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getReligionInfo(self.iReligion).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-
-
-
-	def placeRequires(self):
-		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_REQUIRES", ()), "", False, True, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES, PanelStyles.PANEL_STYLE_BLUE50 )
-		screen.attachLabel(panelName, "", "  ")
-		iTech = gc.getReligionInfo(self.iReligion).getTechPrereq()
-		if iTech > -1:
-			screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
-
-
-
-	# Rise of Mankind 2.9
-	def placeBuilding(self):
-		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_BUILDINGS_ROM_291", ()), "", False, True, self.X_BUILDINGS, self.Y_BUILDINGS, self.W_BUILDINGS, self.H_BUILDINGS, PanelStyles.PANEL_STYLE_BLUE50)
-		screen.attachLabel(panelName, "", "  ")
-		for iBuilding in range(gc.getNumBuildingInfos()):
-			# buildings have several options for religions so need to check them all, only one of them needs to be true
-			iPrereq = gc.getBuildingInfo(iBuilding).getPrereqReligion()
-			iPrereq2 = gc.getBuildingInfo(iBuilding).getReligionType()
-			iPrereq3 = gc.getBuildingInfo(iBuilding).getStateReligion()
-			#iPrereq4 = gc.getBuildingInfo(iBuilding).getGlobalReligionCommerce()
-			if (iPrereq == self.iReligion or iPrereq2 == self.iReligion or iPrereq3 == self.iReligion):
-				screen.attachImageButton(panelName, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
-			# <!-- custom: adjusted indentation of code comment so it is properly indented at same "level" of indentation than at this part of the code anyways etc anyways etc anyways etc -->
-			#elif (iPrereq == self.iReligion and iPrereq4 > 0):
-			#	screen.attachImageButton(panelName, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
-
-
-
-	def placeUnit(self):
-		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_UNITS_ROM_291", ()), "", False, True, self.X_UNITS, self.Y_UNITS, self.W_UNITS, self.H_UNITS, PanelStyles.PANEL_STYLE_BLUE50)
-		screen.attachLabel(panelName, "", "  ")
-		for iUnit in range(gc.getNumUnitInfos()):
-			iPrereq = gc.getUnitInfo(iUnit).getPrereqReligion()
-			iPrereq2 = gc.getUnitInfo(iUnit).getReligionType()
-			iPrereq3 = gc.getUnitInfo(iUnit).getStateReligion()
-			if (iPrereq == self.iReligion or iPrereq2 == self.iReligion or iPrereq3 == self.iReligion):
-				screen.attachImageButton(panelName, "", gc.getUnitInfo(iUnit).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
-
-
-
-	def placeSpecial(self):
-		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_EFFECTS", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50 )
-		listName = self.top.getNextWidgetName()
-		screen.attachListBoxGFC( panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY )
-		screen.enableSelect(listName, False)
-		szSpecialText = CyGameTextMgr().parseReligionInfo(self.iReligion, True)
-		splitText = szSpecialText.split("\n")
-		for special in splitText:
-			if len( special ) != 0:
-				screen.appendListBoxString( listName, special, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-
-
-
-	def placeHistory(self):
-		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel( panelName, "", "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50 )
-		szText = gc.getReligionInfo(self.iReligion).getCivilopedia()
-		screen.attachMultilineText( panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -242,6 +162,88 @@ class SevoPediaReligion:
 				# Column index (always 0 when numLists=1)
 				columnIndex = 0
 				screen.appendMultiListButton(rowListName, leaderInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, 1, False)
+
+
+
+	def placeReligionPane(self):
+		screen = self.top.getScreen()
+
+		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_RELIGION_PANE, self.Y_RELIGION_PANE, self.W_RELIGION_PANE, self.H_RELIGION_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+		# <!-- custom: no need for the blue frame on blue background, use transparent instead, anyways etc -->
+		#screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
+		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
+		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getReligionInfo(self.iReligion).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+
+
+	# Rise of Mankind 2.9
+	def placeBuilding(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_BUILDINGS_ROM_291", ()), "", False, True, self.X_BUILDINGS, self.Y_BUILDINGS, self.W_BUILDINGS, self.H_BUILDINGS, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.attachLabel(panelName, "", "  ")
+		for iBuilding in range(gc.getNumBuildingInfos()):
+			# buildings have several options for religions so need to check them all, only one of them needs to be true
+			iPrereq = gc.getBuildingInfo(iBuilding).getPrereqReligion()
+			iPrereq2 = gc.getBuildingInfo(iBuilding).getReligionType()
+			iPrereq3 = gc.getBuildingInfo(iBuilding).getStateReligion()
+			#iPrereq4 = gc.getBuildingInfo(iBuilding).getGlobalReligionCommerce()
+			if (iPrereq == self.iReligion or iPrereq2 == self.iReligion or iPrereq3 == self.iReligion):
+				screen.attachImageButton(panelName, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
+			# <!-- custom: adjusted indentation of code comment so it is properly indented at same "level" of indentation than at this part of the code anyways etc anyways etc anyways etc -->
+			#elif (iPrereq == self.iReligion and iPrereq4 > 0):
+			#	screen.attachImageButton(panelName, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
+
+
+
+	def placeUnit(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_UNITS_ROM_291", ()), "", False, True, self.X_UNITS, self.Y_UNITS, self.W_UNITS, self.H_UNITS, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.attachLabel(panelName, "", "  ")
+		for iUnit in range(gc.getNumUnitInfos()):
+			iPrereq = gc.getUnitInfo(iUnit).getPrereqReligion()
+			iPrereq2 = gc.getUnitInfo(iUnit).getReligionType()
+			iPrereq3 = gc.getUnitInfo(iUnit).getStateReligion()
+			if (iPrereq == self.iReligion or iPrereq2 == self.iReligion or iPrereq3 == self.iReligion):
+				screen.attachImageButton(panelName, "", gc.getUnitInfo(iUnit).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+
+
+
+	def placeRequires(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_REQUIRES", ()), "", False, True, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.attachLabel(panelName, "", "  ")
+		iTech = gc.getReligionInfo(self.iReligion).getTechPrereq()
+		if iTech > -1:
+			screen.attachImageButton(panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
+
+
+
+	def placeSpecial(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_EFFECTS", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
+		listName = self.top.getNextWidgetName()
+		screen.attachListBoxGFC(panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY)
+		screen.enableSelect(listName, False)
+		szSpecialText = CyGameTextMgr().parseReligionInfo(self.iReligion, True)
+		splitText = szSpecialText.split("\n")
+		for special in splitText:
+			if len(special) != 0:
+				# <!-- custom: use text formatting that allows for the top to have some room before we show text if i'm not mistaken but anyways etc, based on sevopedia terrain's placeSpecial rework if i'm not mistaken too but anyways etc -->
+				#screen.appendListBoxString(listName, special, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+10, self.W_SPECIAL-10, self.H_SPECIAL-20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+
+
+	def placeHistory(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, "", "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
+		szText = gc.getReligionInfo(self.iReligion).getCivilopedia()
+		screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
