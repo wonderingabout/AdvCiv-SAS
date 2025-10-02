@@ -340,6 +340,13 @@
 
 
 	<TEXT>
+		<Tag>TXT_KEY_UNIT_ENGLISH_YEOMAN_ARCHER</Tag>
+		<English>Yeoman Archer</English>
+	</TEXT>
+
+
+
+	<TEXT>
 		<Tag>TXT_KEY_BUILDING_RUSSIAN_GORD</Tag>
 		<English>Gord</English>
 	</TEXT>

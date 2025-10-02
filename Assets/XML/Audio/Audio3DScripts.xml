@@ -6098,8 +6098,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script3DSound>
 	<Script3DSound>
-		<ScriptID>AS3D_UN_REDCOAT_FIDGT_VOX</ScriptID>
-		<SoundID>SND_REDCOAT_FIDGT_VOX</SoundID>
+		<ScriptID>AS3D_UN_YEOMAN_ARCHER_FIDGT_VOX</ScriptID>
+		<SoundID>SND_YEOMAN_ARCHER_FIDGT_VOX</SoundID>
 		<SoundType>GAME_SFX</SoundType>
 		<iMinVolume>45</iMinVolume>
 		<iMaxVolume>70</iMaxVolume>

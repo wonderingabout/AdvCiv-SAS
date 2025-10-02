@@ -1083,8 +1083,8 @@
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_RIFLEMAN</UnitClassType>
-					<UnitType>UNIT_ENGLISH_REDCOAT</UnitType>
+					<UnitClassType>UNITCLASS_CROSSBOWMAN</UnitClassType>
+					<UnitType>UNIT_ENGLISH_YEOMAN_ARCHER</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>

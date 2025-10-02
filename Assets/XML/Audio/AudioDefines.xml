@@ -4644,8 +4644,8 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_BUILD_ENGLISH_REDCOAT</SoundID>
-			<Filename>Sounds/Units/BuildEnglishRedcoat</Filename>
+			<SoundID>SND_BUILD_ENGLISH_YEOMAN_ARCHER</SoundID>
+			<Filename>Sounds/Units/BuildLongbowman</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -4792,7 +4792,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_BUILD_PERSIAN_IMMORTAL</SoundID>
-			<Filename>Sounds/Units/BuildPersianImmortal</Filename>
+			<Filename>Sounds/Units/BuildSpearman</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -5302,7 +5302,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_REDCOAT_FIDGT_VOX</SoundID>
+			<SoundID>SND_YEOMAN_ARCHER_FIDGT_VOX</SoundID>
 			<Filename>Sounds/Units/RedcoatFidgtVox</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>

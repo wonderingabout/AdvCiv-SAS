@@ -16670,8 +16670,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_UNIT_BUILD_ENGLISH_REDCOAT</ScriptID>
-		<SoundID>SND_BUILD_ENGLISH_REDCOAT</SoundID>
+		<ScriptID>AS2D_UNIT_BUILD_ENGLISH_YEOMAN_ARCHER</ScriptID>
+		<SoundID>SND_BUILD_ENGLISH_YEOMAN_ARCHER</SoundID>
 		<SoundType>GAME_SFX</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
