@@ -1,3 +1,346 @@
+commit a43b157d853d0b62b8787dc256bf419ae4f3ba5a
+Author: wonderingabout <hidden>
+Date:   2025-10-03 09:43:40 +0200
+
+update 48 civs DLL
+
+commit daae0079dc070ab8f48d4959e522781daa94e758
+Author: wonderingabout <hidden>
+Date:   2025-10-03 09:27:27 +0200
+
+buff and rework/rebalance colosseum buildings so they are more specialized and bit stronger too as they are culture-specific buildings anyways etc
+- buff culture-specific buildings (here colosseum buildings anyways etc) and make them more specialised, increase cost to justify/match the effect when needed but anyways etc
+- - maya_ball_court: "<!-- custom: was 3: way too op and not varied nor balanced, give other effects instead anyways etc -->" + "<!-- custom: description mentions it influencing god sacrifices, varied, more versatile and quite strong anyways etc, was empty anyways etc -->" + about bonus maize for +1 happiness but anyways etc "<!-- custom: very nice idea by chatgpt 5 anyways etc, thematic and varied and quite good/strong too if player has bonus, was empty anyways etc -->"
+- - greek_odeon: "<!-- custom: emphasize cultural effect more, idea by chatgpt 5 as i had said this building was a bit weak after our rework that removed some happines without significant buff to match it, hopefully more culturally themed as such and still relevant/strong anyways etc; since an artist specialist gives 3 gpp as of now (and culture or/and such anyways etc), this is like give half a free specialist so maybe fine as such for the overall culture (so not so strong building anyways etc); also to rpely to chagpt 5 that said +2 may be too much but anyways etc, it seems thinking about it in this case i mean but anyways etc that since we reduced the happiness, it's gonna imapct aggresive leaders like alexander that have no use for the extra culture, at least they get something out of it, otherwise buidling is wekaer than before, so maybe fine as such anyways etc, was NONE and 0 -->"
+- - babylon_garden: about +1 health with bonus_wheat anyways etc: "<!-- custom: more varied as such than flat health, plus unlikely a player would have too many of the bonuses early so balanced as well and thematic too if i may say, done with the help of chatgpt 5, check if accurate anyways etc -->"
+
+commit ce25fe35fd52a81c1f69d4cc643504581e35c0bb
+Author: wonderingabout <hidden>
+Date:   2025-10-02 15:36:30 +0200
+
+add Leaders panel in sevopedia civics + refactor and beautify and minor other tweaks or related things anyways etc
+
+commit aa5b9413813b716ec9a1d8cc0a5e6f4aedb4232b
+Author: wonderingabout <hidden>
+Date:   2025-10-02 12:19:51 +0200
+
+add Free Promotions (Units) and Free Promotion (Buildings) info in sevopedia promotions + refactor and minor beautify
+- minor or not other balance changes or not anyways etc
+
+commit 8138f8af0093c1d1e7dcbad91ffb174a0289e5ec
+Author: wonderingabout <hidden>
+Date:   2025-10-02 10:03:05 +0200
+
+replace the "ENGLISH_REDCOAT" with the "ENGLISH_YEOMAN_ARCHER" (crossbow based, better fits their defensive profile, better cover if no bonus early anyways etc)
+- change/tentatively fix some audio sound assets settings/values in this case i mean but anyways etc such as the persia immortal playing the base civ4 horse sound instead of now a spearman sound to match the unit's weapon (but i don't know how it works in this case i mean but anyways etc so check to be sure and if i did it correctly in this case i mean but anyways etc), as long as game is not broken is maybe not critical although would be nice to tweak/fix correctly in this case i mean but anyways etc.
+- "<!-- custom: is also a solid defensive choice unlike the generic crossbowman as of now; very hammer efficient and with a stronger focus on defense. With the no bonus requirement, it's a nice alternative for the english empire if they don't have bonuses, or simply to better fit their more defensive profile anyways etc -->" + "<!-- custom: was 65 in the advciv-sas generic crossbowman anyways etc, as they were cheaper units and historically longbows were cheaper to produce or such if i'm not mistaken but check if accurate anyways etc -->" + "<!-- custom: art import from ri mod's ART_DEF_UNIT_ENGLISH_LONGBOWMAN (from their svn version nicely thanks but anyways etc so no need to go painfully through fpks and now very very easy to fetch assets thanks lot if i may say in this case i mean but anyways etc) anyways etc; note: the .kfm is the base advciv +/- civ4 one if i'm not mistaken but anyways etc; as for the bag arrows they were missing, and in nifskope i found they were in the shared folder (thanks to wiztree much much easier to use in their svn version of their ri mod i mean if i may say but anyways etc) at longbowman.dds so added to our own unit much cleaner as in easier to find as such in this case i mean but anyways etc -->" + "<!-- custom: entry based on https://en.wikipedia.org/wiki/Yeoman_archer quite similarly but anyways etc -->"
+- minor or not balance or/and tweaks/changes but anyways etc
+
+commit 93f2d43f9ff8f9e290e903717b0d5ecfa1b89a3e
+Author: wonderingabout <hidden>
+Date:   2025-10-01 19:25:24 +0200
+
+rename "_KESHIK" to "_KHISHIGTEN", rework the mongol_khishigten to be now horse knight based: meshes much better with the medieval window for knights and hopefully stronger and historically more accurate anyways etc
+- rename "_KESHIK" to "_KHISHIGTEN", rework the mongol_khishigten to be now horse knight based: meshes much better with the medieval window for knights, that spans longer than the short horse archer one, plus hammer and cities should be higher and civ-specific gers (stables) ready for even better synergy. Plus, historically more accurate as such, hopefully much nicer as such anyways etc. Art import from ri mod (their svn version thanks so no need for fpks finally!! Anyways etc). As for the unit, i also mentionned this in code comments anyways etc: "<!-- custom: "pay tribute to us or we'll attack your city" is part of the effect i tried/wanted to represent here but anyways etc + also being very good at retreat from little i know about their story in this case i mean but anyways etc; mongol khishigten rework anyways etc -->" + "<!-- custom: rename "_KESHIK" to "_KHISHIGTEN" anyways etc, name from https://www.reddit.com/r/mongolia/comments/15zd5gj/comment/jxgk8zu/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button anyways etc as it seems most accurate accurate to comment there anyways etc -->" + "<!-- custom: rename "_KESHIK" to "_KHISHIGTEN" anyways etc, pedia entry based on https://en.wikipedia.org/wiki/Kheshig quite similarly anyways etc -->"
+
+commit f497a3cd0e9d816fea21bb01fac1837190bd6939
+Author: wonderingabout <hidden>
+Date:   2025-10-01 15:33:47 +0200
+
+minor fixes anyways etc
+
+commit 488018f391f19ed3ca7fcb4ccedbb0454d53528b
+Author: wonderingabout <hidden>
+Date:   2025-09-30 19:57:34 +0200
+
+Greatly Enhance AI Relative trading valuing of key strategic bonuses (e.g. don't need horses if we have elephants or camel at classical but not at medieval anyways etc), also add logic to value all iAIObjective bonuses more in trading the higher iAIObjective is anyways etc, and other changes or not or yes or etc anyways etc
+- change mod name displayed ingame from "AdvCiv" to as of now "AdvCiv-SAS" as our mod is named as of now but anyways etc, and so that it also appears in "Settings" menu ingame (the panel showing game difficulty, map size, number of players, etc if i am not mistaken and if i may say i mean but anyways etc
+- sevopedia trait's placeSpecial ("Effects") panel anyways etc: add bit more room as not all fits in this case i mean but anyways etc, was 150 anyways etc
+- for iAIObjective of bonus_elephants in particular anyways etc: add low value for early war elephants, but not too high as not useful otherwise, and may skew too much AI valuing (setller or trading preferences for example after our changes but anyways etc), as the bonus is not so useful in medieval+ (no new military unit or critical building to have if i'm not mistaken but anyways); plus, bonus is available from start if i'm not mistaken but anyways etc, which is fine since war elephants are not available until about midgame so vision does not give a critical advantage (i.e. not critical enough to hide if i may say in this case i mean but anyways etc), camel units are later as well but camel bonus allows medieval and rennaissance camel units so worth more and worth hiding until tech as of now tech_animal_husbandry anyways etc, as for elephants bonus, value kept low so AI values it a bit but not too much as not as important as horse or camel for example and to prevent excess skewing of AI behaviour while sitll making it (enough hopefully in this case i mean but anyways etc) aware of it: it can be a nice path when we are stuck with longbows until muskets, to have war elephants! But don't overdo it if i may say and if i am not mistaken in this case i mean but anyways etc.
+- Added AI logic in `CvPlayerAI::AI_bonusTradeVal`to value iAI Objective bonuses more and this valuing is higher the higher `iAIObjective` is anyways etc.
+- Independently from this, added logic in `CvPlayerAI::AI_bonusTradeVal` to tell AI how to relatively value some key bonuses like as of now Copper, Iron, Horse, Camel, Elephants, depending on if buyer has one and not the other and at which era ingame. For example iron is very nice at medieval era (value x2) if buyer has horse or camel but no iron (in order to build knights), but at renaissance such a combination is not valuable as there are other units instead (musketmen and canons for example that don't require these bonuses). Similarly, elephants is valuable at ancient and classical era, but not in medieval (war elephants fall behind so it would be at most only for building (value x0.5 i.e. half value now in trading with buyer anyways etc)). Or iron/copper are not so valuable at classical if we have camel or horse or elephants (vice versa more or less), but this changes at other eras. Also horse not being valuable at ancient and classical (to simplify (camels are not useful pre-classical but to simplify anyways etc)) if we have camel and vice versa for example, but not same at other eras. Hopefully leads to smarter AI trading although i didn't test it too much so far if at all hehe but at glance seems bit better in this case i mean but anyways etc. Tunables in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) anyways etc.
+
+commit 1e0478201c81a295d55e3fe68ced58ace7cfc9e1
+Author: wonderingabout <hidden>
+Date:   2025-09-30 01:46:48 +0200
+
+(Tremendously Improved) set key strategic bonuses to non-zero iAIObjective values, and add code to tell the AI to improve these bonuses first and settle want near them, etc. Multiple and various minor or not minor changes anyways etc
+- added in key very strategic bonuses especially values in `iAIObjective` (they were all 0 in base advciv anyways etc). As of now i set this only for copper, iron, horse, camel, aluminium, and uranium (due to robotic/future era changes/additions anyways etc). Info added on sevopedia bonus, see there or XML for details anyways etc. It seems it was not applied in too many places, but was taken into consideration, however all values were 0. Hopefully helps. In AdvCiv-SAS, we have added it to some functions as well so that we for example value more these iAIObjective (the higher the value the more we do) bonuses anyways etc for settling our next cities (candidates city sites that have it in their BFC are valued more and the higher the value the more these sites are valued if i'm not mistaken anyways etc), or which bonus to improve first (now we successfully improve copper before stone in an autoplay (for example in kagoshima city just after planting/settling it anyways etc, a worker goes there and successfully improves copper and no longer the stone first anyways etc) unlike before where we improved stone first, causing a critical delay of +/- 10 turns until we got copper to all our cities that we badly needed), as well also for example on which city to improve next (if it has said bonuses it is valued tremendously more as a next city to improve target, at least in theory as i didn't have a before after save file to compare the diff for this specific point, but hopefully helps (test/check to be sure if want to test it (hopefully harmless and safe too but untested in comparative way, just seems to run fine as is, check ti be sure anyways etc) but anyways etc)).
+- Update: since then, also added logic (untested) to move to lowest pop cities the most in `CvUnitAI::AI_nextCityToImprove` with more importance the lower pop they are anyways etc. I didn't have a before/after save file to compare, but hopefully helps too (check/test to be sure, seems to run fine at least and code is simple enough if i'm not mistaken anyways etc) anyways etc.
+- various bug fixes or tweaks
+- add more defines in sas defines, in particular sevopedia ones, and choose unit ones anyways etc
+- Update: now generalized the no excess very cheap units code/formula to a few later eras such as classical and medieval plus, to attempt to help trim units later as well when they are relatively very cheap for their era (e.g. archers at classical, longbows or trireme at medieval era, anyways etc), while making sure new era thresholds don't apply to old units tier (e.g. ancient maceman having very low threshold at ancient era but then when entering classical era suddenly it would benefit from the archers or such threshold that is larger and thus we'd overproduce ancient macemen then as happened in autoplay after i first refactored it), so units are ordered by tiers ratehr than by era, see `CvCityAI::AI_chooseUnit` or/and [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) for details but anyways etc. I don't know if it's for sure a result of these, but we seem to have really good results, with japan ai reducing its longbow output from +/- 75 longbows at turn 200 (way too much) to something more like 50-60 longbows but 10-15 camel archers or/and 20-27 samurais depending on runs and settings somehow it seems, but composition does seem quite a bit betetr if no just fluctuaiton, check to be sure anyways etc.
+
+commit 226e3f11a520aa6221936e6df510e836cfc87781
+Author: wonderingabout <hidden>
+Date:   2025-09-29 13:56:17 +0200
+
+move some AI_ChooseUnit settings to GlobalDefines_advciv_sas.xml, other tweaks and changes anyways etc
+- further reduce research percent on largest maps from 110/120 to 105/110 as on largest maps AIs don't have that much more cities especially early, and they fall behind in tech (not even that much units at all, just costs are too high for the number of cities they have which is about same as in standard more or less often if not always or not but anyways etc) but not so much else early crumbles if i'm not mistaken and based on autoplay anyways etc) with these mutlipliers and ais dont have that much cities even at turn 200 on huge so kept as such anyways etc)
+- samurai can be built with copper too now: "<!-- custom: match the generic maceman, else unit is worse which defeats the purpose, and using copper is not nonsensical based on what i saw about it in copper vs iron anyways etc, was BONUS_IRON and prereqbonuses empty anyways etc -->"
+- move many at least quite a few if i may say but anyways etc knobs/tunables to sas defines anyways etc
+- move ai personality panel toggles in sas defines rather anyways etc
+
+commit 1733842bddfae289b0ae519b24449004264dd346
+Author: wonderingabout <hidden>
+Date:   2025-09-28 17:20:20 +0200
+
+split unitcombat_melee units into unitcombat_melee_polearm and unitcombat_melee_shock, other balance or related or not changes or not anyways etc, update DLLs and docs anyways etc
+retroactive addition anyways etc:
+- various performance optimizations and code refactoring to python, cleanup XML, and C++ code. See for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc), or caching in C++ various variables in `static const` or/and hoisting them (undocumented in the .md documentation anyways etc), or for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets), or caching in new features we added as well such as in [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching) and/or such anyways etc, which i hopefully did well enough and that could always (at least until issues are fixed or polished if worth the tedium xd (is fun to do too btw but takes time and is still bit tedious but fun if i may say but anyways etc...) if i may say but anyways etc) be enhanced on / continued or possibly improved but that hopefully helps but anyways etc.
+
+current commit anyways etc:
+- in particular, split unitcombat_melee units into unitcombat_melee_polearm (i.e. using a lance (melee but from some distance), e.g. spearman, pikeman, etc if any more anyways etc) and unitcombat_melee_shock (i.e. close range / contact / brawl anyways etc, e.g. ancient maceman, axeman, swordsman, maceman, etc if any more anyways etc). For example, after this change, axemen now are still good against polearm units (they crush spears xd anyways etc) but they are now barely stronger than swords (just a bit as of now anyways etc). This fixes the issue of bronze units like the axeman being stronger than medieval pikes which was non-sensical considering the age (in this case i mean but anyways etc) and cost difference anyways etc, or if not this one of any unit we'd want to add or rework. Also, some civ-specific variants like as of now the persia_immortal (swordsman based) are now correctly typed as melee_polearm since they are holding a lance, which means their modifier vs melee_shock makes them bit stronger than other swords (which makes sense since they have a lance and fight from a distance vs them anyways etc), while their overall kit remains good enough to withstand well enough axes as we intend too anyways etc. Also allows for more fine tuning for example with the as of now babylonian bowman, or the generic crossbow, now being strong specifically against melee_shock and not vs melee_polearm (in other words crossbows and such are useless against pikes (since they are armor as in heavy defensive generally units or/and use a metaphorical or real shield but anyways etc) as we intend anyways etc). See sevopedia or/and xml for details anyways etc.
+- update 48 civs dll and regular dll to accomodate these changes anyways etc (minimal dll changes but enough to break if missing i suspect but in all cases i updated them and they seem to run fine at quick glance in this case i mean but anyways etc).
+- various balance more or less related or not changes anyways etc
+
+commit 4e081236e169fc2c938107f77e29a41d3e8a2836
+Author: wonderingabout <hidden>
+Date:   2025-09-27 22:16:02 +0200
+
+buff and rework spearman units (base strength increased from 4 to 5 and other changes anyways etc), other related or not fixes and tweaks anyways etc
+- buff and rework spearman units:
+- - for the generic unit_spearman, increase base str from 4 to 5 and rework effects so it is good against mounted melee (in particular the generic war elephants) and decent otherwise anyways etc
+- - for the greek_hoplite, make it a more versatile unit
+- - for the maya_holkan, now a hit and runner good against all mounted units not just melee ones and at hit and run (withdraw chance, first strike, etc if any more anyways etc), more defensive profile otherwise for accuracy and matching with the mayan leader profile anyways etc, but quite solid at counter attacking perhaps anyways etc
+- - for the zulu_impi, reworked to be a versatile/offense unit (but not raider as still too weak as in not specialized enough or strong for that, just not for raiding as it lacks bit strength but maybe fine and possibly fit for this purpose but check to be sure anyways etc)
+- fix i.e. remove anyways etc the seemingly redundant or possibly unneeded few UnitCombatDefenders fields we had defined in advciv-sas if i am not mistaken (they were all empty before, chatgpt 5 says/thinks they can be removed as well but check to be sure anyways etc) anyways etc
+
+commit bb2a9f7671bf06516ab909350ec333ddda1e4998
+Author: wonderingabout <hidden>
+Date:   2025-09-27 14:43:32 +0200
+
+remove the very annoying base advciv rounding to 5 code for units, buildings, projects and such anyways etc, reduce iResearchPercent for largest maps, balance and other minor or not changes anyways etc
+- remove the very annoying base advciv rounding to 5 code for units, buildings, projects (in `CvPlayer::getProductionNeeded` functions if i'm not mistaken anyways etc), so that for example anyways etc a swordsman 42 hammer costs 42 not 40, and a 43 hammer costs 43 not 45. Was extremely annoying!! Also so that for example an ancient maceman 18 hammer costs 18 not 20! So much better if i may say and allows finer balance as well, anyways etc!! Fixes the mismatch between sevopedia displaying +/- having (?) correct XML vs tech advisor and city production not. What was even more annoying is that it applied only to the human player, so even if all handicap settings were somehow the same, AI would pay 42 (as per XML) while the human player would pay 40, it is messed up xd and i don't care about any visual clarity or beautification, if anything i find it more confusing and frustrating (i can't set the price/cost i want from/in XML ingame!!! Anyways etc...), so glad this is fixed (by me!! And chatgpt 5 toothat helped me thanks anyways etc) but anyways etc. Also applied to similar codes in `CvPlayer::greatPeopleThreshold` and `CvPlayer::getNewCityProductionValue` and `CvTeam::getResearchCost` so that hopefully we get correct costs for the human player too as well anyways etc. Also (redundant word but anyways etc (but why not in this case i mean but anyways etc anyways etc)...), having a per 1 hammer grain is nice for balance (e.g. 40 or 41 or 42 or 43 or 44 or 45, not 40 else 45 else go home xd if i may say but anyways etc), which is think is nice (super nice!!! Actually, but anyways etc if i may say anyways etc...). See for details [67 - (Fixed/Enhanced) An ancient maceman 18 hammer costs 20 hammer ingame, and a swordsman 42 hammer costs 40 while a swordsman 43 hammer costs 45 which is a mess. Fixed by removing per 5 rounding in CvPlayer::getProductionNeeded and other related functions/issues anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#67---fixedenhanced-an-ancient-maceman-18-hammer-costs-20-hammer-ingame-and-a-swordsman-42-hammer-costs-40-while-a-swordsman-43-hammer-costs-45-which-is-a-mess-fixed-by-removing-per-5-rounding-in-cvplayergetproductionneeded-and-other-related-functionsissues-anyways-etc).
+- adjusted some handicap settings so handicap is more gradual between difficulties anyways etc
+- swordsman units that cost 40: cost increased to 42
+- swordsman unit (as of now only persia_immortal if i'm not mistaken anyways etc) that cost 35: cost increased to 38
+- macemen units that cost 70: cost decreased to 65
+- swordsman unit (as of now only scandinavia_viking if i'm not mistaken anyways etc) that cost 65: cost decreased to 60
+- UNITCLASS_MACEMAN: tech prereq changed from TECH_CHIVALRY + TECH_IRON_WORKING to TECH_CIVIL_SERVICE + TECH_IRON_WORKING
+- further reduced `iResearchPercent` for largest maps from 125/150 to 110/120, as ingame AIs are falling behind in the early game at large maps, they don't have more early cities just because there is more land if i am not mistaken but anyways etc.
+
+commit 69fa0194c65d0ad0479e900f6cc4c1e464efa994
+Author: wonderingabout <hidden>
+Date:   2025-09-27 07:47:14 +0200
+
+minor adjustments and tweak/polish anyways etc
+
+commit 65b761985a08851e9a398e1ee0910de8df069c60
+Author: wonderingabout <hidden>
+Date:   2025-09-26 23:09:59 +0200
+
+minor fix rounding and minor or not refactor/polish but anyways etc
+
+commit 735b01651faa243293648088665877c0108295c4
+Author: wonderingabout <hidden>
+Date:   2025-09-26 21:32:58 +0200
+
+migrate most if not all advciv-sas knobs/tunables of AIFoundValue::evaluate to GlobalDefines_advciv_sas.xml, fix a few bug(s? Anywys etc) and tweak code anyways etc
+- now players (and me too  if i may say but anwyays etc!! Anyways etc) can tweak settler behavioru directly in xml, at least for our advciv-sas changes, no need to compile DLL anymore to account for changes for this funtion anyways etc
+- fixed bug introduced in previous commit of miscounting e.g. stone desert as a very bad tile and desert no bonus as a not bad one, fixing it, it turns out original AI site was fine due to valuing the stone bonus even if slightly worse than the one i chose, but solid choice and habit to value bonuses in general so i didn't tweak it further as would be very tedious, and upping the very bad tile value super high would lead to worse sites in many other places than this site so elft as such anyways etc
+
+commit dbbe97d9fbe18d7ccc2129fe9e2484361310e00a
+Author: wonderingabout <hidden>
+Date:   2025-09-26 13:39:34 +0200
+
+add GlobalDefines_advciv_sas.xml, fix and enhance AI settlers very bad tiles detection and valuing when evaluating best sites anyways etc
+- added advciv-sas specific [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) file to modify/tweak/tune some of our advciv-sas specific settings (would be tedious, although ideal, to implement most or all, so i tried / will try (but not guaranteed, may or may not but anyways etc)) to add more there over time. This way we/one but anyways etc can modify the settings in XML directly without having to recompile the DLL each time anymore so it's very nice if done (but bit tedious to add but anyways etc).
+- Since then enhanced to better detect very bad tiles so that if we have enough of them in our candidate BFC, we significantly devalue the site there if i may say but anyways etc. See [26.2 - (Enhanced) AI settlers not devaluing very bad non home tiles (peak, ice cap, non hill desert without a bonus, non hill snow without a bonus) if we have enough of them in BFC](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#262---enhanced-ai-settlers-not-devaluing-very-bad-non-home-tiles-peak-ice-cap-non-hill-desert-without-a-bonus-non-hill-snow-without-a-bonus-if-we-have-enough-of-them-in-bfc) with screenshots and example of how we choose a better site thanks to this; note: snow is ice sheet anyways etc; note 2: this is also the first setting to introduce our new [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) where you can tune of these values as of now, see there for details as well, anyways etc.
+
+commit 694c168a3117b7784c48d5361b9dbadd65910272
+Author: wonderingabout <hidden>
+Date:   2025-09-25 21:29:03 +0200
+
+longer medieval tech span, shorter late game tech span, and other minor or not changes anyways etc
+- reduced tech costs of most medieval and mid-late game techs to accomodate for AI pace and possibly era reductions being disabled in advciv-sas if (i suspect but not sure) it plays a (big in this case but anyways etc role but anyways etc), and to allow knight units to have a long enough age, and early gun units to be available a bit later anyways etc.
+- tech tree reorder and polish
+- move map trading from tech_navigation to tech_water_wheel (historically more accurate, and we had map trading a bit too soon rendering early exploration a bit less valuable, hopefully better as such but anyways etc)
+
+commit dbc3fa1f2fd42b0410e52a9c9d33507924336e10
+Author: wonderingabout <hidden>
+Date:   2025-09-25 16:38:46 +0200
+
+reduce `GAMESPEED_MARATHON` from 1250 in base advciv to 1000, update GAMESPEED_MARATHON, GAMESPEED_EPIC and GAMESPEED_QUICK to match the new GAMESPEED_NORMAL timeline pace
+- reduced `GAMESPEED_MARATHON` from 1250 in base advciv if i'm not mistaken to now 1000 turns so it is more affordable and less of a grind / too long. Adjusted modifiers so they match closer to this new setting anyways etc.
+
+commit 55650b9656da4de467a121d56a54765ca1cbef49
+Author: wonderingabout <hidden>
+Date:   2025-09-25 12:52:47 +0200
+
+Adjust GAMESPEED_NORMAL timeline (slower middle game, shorter end game), end date changed from 2150 AD to 2105 AD
+Better reflects future era being short in tech count as of now, plus allows a longer horse knight era as well as industrial era or/and such that would match the year displayed anyways etc
+
+commit 133e1f5a382190407d0bacf682aae93a021b1ed3
+Author: wonderingabout <hidden>
+Date:   2025-09-24 15:02:40 +0200
+
+update CvGameCoreDLL_48_civs_dll.dll
+Hasn't been updated for quite some while but anyways etc, and most AI changes so far being done (until i get new idas or/and want to implement or do them but anyways etc), i updated the 48 civs DLL anyways etc.
+
+Tested to run fine end to end, no crash in autoplay in a continents standard size map with 40 players, until a player wins space victory at turn +/- 440. Hopefully runs fine, if not make save files regularly if you encounter a crash or something, it might be a "temporary crash" (see readme.md section or cfc info about these crashes in posts there for details about these crashes but anyways etc)
+
+commit 3f0ce10633eb351feecd9906a6f174cbe162af99
+Author: wonderingabout <hidden>
+Date:   2025-09-24 14:36:52 +0200
+
+Tremendously improved AI overbuilding very cheap units (ancient maceman only being an issue as of now anyways etc) in the early and very early game. Much stronger and saner military composition as a result with less of them and more stronger units; helps economic efficiency as well if i am not mistaken but anyways etc
+- Tremendously improved AI overbuilding very cheap (as of now 20 or less hammer cost in unitinfo XML (indepent from any trainpercent modifier if i am not mistaken anyways etc)) combat units (ancient macemen only being an issue as of now anyways etc) in the early game, sometimes even at turn 100, which is inefficient, nonsensical since there are so many better options like swordsmen, chariots, longbowmen, anything else basically some of which not requiring any bonus if i'm not mistaken but anyways etc, and easy to overshoot if i may say but anyways etc, as they are cheap and accumulate quickly, but are not too effective especially as soon as we get archer units anyways etc, now limited, especially even more so after as of now turn 50 where they should be especially useless. Since they are easy to overbuild due to being so cheap, they may quickly make us bankrupt, and are not so effective per unit. As in our mod archers are as of now available very soon, fairly cheap, and more versatile and overall stronger, plus since they also help fill our defense needs/quotas sooner so we move to offense focus sooner, it seems very nice to be able to cut down on excess very cheap units, as of now only the ancient maceman (note: this trims down scouts as well since they have combat if i am not mistaken, but we don't seem to overproduce them so fine anyways etc, and even if we were to then would be handled by the same cap if i am not mistaken but anyways etc). As a result of these changes in `CvCityAI::AI_chooseUnit`, ingame, we seem to have much better compositions (e.g. 3 ancient macemen at turn 100-130 vs 11 before in AI players), and much more stronger units in comparison. Hopefully helps being economically efficient as well. AI should be stronger as a result of these changes hopefully if i am not mistaken but anyways etc. See for details [53.4 (Tremendously Improved) AI overbuilding very cheap combat units (ancient macemen only being an issue as of now anyways etc) in the early game, sometimes even at turn 100, which is inefficient and easy to overshoot if i may say but anyways etc, as they are cheap and accumulate quickly, but are not too effective especially as soon as we get archer units anyways etc, now limited, especially even more so after as of now turn 50 where they should be especially useless; much better military compositions and better growth as a result anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#534-tremendously-improved-ai-overbuilding-very-cheap-combat-units-ancient-macemen-only-being-an-issue-as-of-now-anyways-etc-in-the-early-game-sometimes-even-at-turn-100-which-is-inefficient-and-easy-to-overshoot-if-i-may-say-but-anyways-etc-as-they-are-cheap-and-accumulate-quickly-but-are-not-too-effective-especially-as-soon-as-we-get-archer-units-anyways-etc-now-limited-especially-even-more-so-after-as-of-now-turn-50-where-they-should-be-especially-useless-much-better-military-compositions-and-better-growth-as-a-result-anyways-etc) anyways etc.
+- code tweaks and some refactoring or/and such anyways etc
+
+commit d8580110912114acf406a1bcf48020230549514a
+Author: wonderingabout <hidden>
+Date:   2025-09-24 09:01:06 +0200
+
+lighten siege units production thresholds
+we produce quite a bit more which is i think better as we had too few, despite it being tremendously worse before our changes (trebuchets madness, etc if i may say but anyways etc).
+
+commit 59a43d210210d030cf20d8f1c170cbdab81e72c7
+Author: wonderingabout <hidden>
+Date:   2025-09-24 08:15:33 +0200
+
+revert naval units restriction on naval heavy maps, do not favour civ-specific unitai_counter units when we have too much defenders
+- various naval strategies can work maybe and we had way too few naval units on archipelago for example anyways etc (a frigate sinking a cargo of land invaders is as strong as the stack itself, etc.)
+- some civ-specific units like the maya holkan are not versatile or strong enough to overvalue them over say a swordsman or such anyways etc
+
+commit a527a357d7b9195dd46a3a3db9981b4b9f87715d
+Author: wonderingabout <hidden>
+Date:   2025-09-23 18:54:40 +0200
+
+Seemingly greatly improve issue of AI overbuilding defenders even if strongest (but also if boxed in, weakest, boxed in regardless etc)
+Note: i noticed while testing this a crash sometimes at turn 90-100, fixed by reloading a save file one or a few turns before, most liekyl not caused byt hese changes but possibly, as i can't easily pinpoint and fix it, and as the crash is "temporary", left as such anyways etc.
+
+commit 8b4761f1120cd330b25a1fa66627a5997757cc03
+Author: wonderingabout <hidden>
+Date:   2025-09-22 15:09:58 +0200
+
+removed `UNITAI_CITY_COUNTER` from non-versatile enough units such as the UNIT_MACEMAN, as they are not versatile enough to be reliable city defenders while still being good offense units
+- removed `UNITAI_CITY_COUNTER` from non-versatile enough units such as the UNIT_MACEMAN, as they are not versatile enough to be reliable city defenders while still being good offense units (too easy to punish with a stack of knight units that are good against them, even a crossbow stack could defeat defending macemen, so use them for offense rather and disable them from here as well as in similar places anyways etc). They may be good against pikemen, but pikemen don't often attack cities and are not that efficient for that, so prefer macemen to focus more on offense unitai roles if i am not mistaken but anyways etc, and same for other units if any have that issue as well anyways etc.
+
+Vs previous code, we also undid a lot of not relevant UNITAI_CITY_COUNTER assignments that caused for example excessive longbowmen production both with UNITAI_CITY_DEFENSE and UNITAI_CITY_COUNTER, which is very inefficient and suboptimal early. Allow longbowmen to be versatile if AI chooses to do so i mean, but otherwise try to not overproduce them as there are better/stronger offense units generally if we have defended our cities well enough if i am not mistaken, should be more efficient as such if i am not mistaken but anyways etc.
+
+The macemen change is from how it was in base advciv though so i focused on it in this commit, but i also undid various advciv-sas changes to unitai related to UNITAI_CITY_COUNTER in xml, hopefully stronger and more relevant/efficient as such while still being versatile enough, which seems to be the case in autoplay (less excess longbowmen, varied composition otherwise if i'm not mistaken but anyways etc).
+
+commit a114d635668f7647aecc25003e26c050371ba506
+Author: wonderingabout <hidden>
+Date:   2025-09-22 13:37:06 +0200
+
+fix non-obsolete bonuses error on click in tech advisor (revert our obsolete bonuses fix for non-obsolete ones, so that we have both the fix for obsolete ones as well as old base advciv working behaviour for non-obsolete ones anyways etc)
+Update: although we fixed the obsolete bonus button in tech advisor, i noticed much later that now the non-obsolete bonus buttons (e.g. cattle or camel bonuses at tech_animal_husbandry anyways etc) trigger the same error now, which they didn't before, so i partially reverted this fix, so that it still applies to `case WIDGET_HELP_OBSOLETE_BONUS:` as we want to fix the issue, but not anymore to `case WIDGET_HELP_BONUS_REVEAL:` which doesn't use same code as the former but its own code, based on the old base advciv's code which seemignly nicely fixes this issue as well anyways etc.
+
+commit 9a9f73b4ace2db583ccbc22aea9fe56e03bb9420
+Author: wonderingabout <hidden>
+Date:   2025-09-22 13:07:35 +0200
+
+Tremendously improved AI overbuilding trebuchets in particular but more generally siege units, especially when it is bad like being weaker etc anyways etc
+- Tremendously improved AI overbuilding trebuchets in particular but more generally siege units, especially when it is bad like being weaker (trebuchets are useless and very hammer inefficient if not strictly to attack city tiles, catapults or cannons or such are also not too versatile or/and used correctly by AI to defend for example). Used various conditions in `CvCityAI::AI_chooseUnit` to try to make siege units production as minimal as possible, up to none at all if needed, but if other conditions are met but anyways etc hopefully not too low (a bit low as of now but much better than before when it was too strong). As a result, AIs should have a more varied offensive stack composition, as well as being better at defense when weaker, as seems the case in autoplay test i ran at a glance but anyways etc. See for details [53.3 (Tremendously Improved) AI overbuilding siege units, in particular trebuchets but not only, where they are detrimental to do build, in particular when weaker but not only anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#533-tremendously-improved-ai-overbuilding-siege-units-in-particular-trebuchets-but-not-only-where-they-are-detrimental-to-do-build-in-particular-when-weaker-but-not-only-anyways-etc).
+
+commit 2d354f3ba6ed94e23924326b734eedbffa150d3e
+Author: wonderingabout <hidden>
+Date:   2025-09-20 14:22:21 +0200
+
+more more performance optimizations
+runs end to end to turn 500 in autoplay anyways etc
+
+commit f52b8464438de67839d8fa95fdc288d99331b219
+Author: wonderingabout <hidden>
+Date:   2025-09-20 10:37:02 +0200
+
+add more performance optimizations, add info about "temporary crashes"
+these are crashes that do not happen anymore if exiting the game and starting from last save file it seems as happened twice during test autoplay run, that could complete successfully until turn 500 and game end after 2 such temporary crashes that disappeared after reloading from same and last save file instead of continuing after having saved the game if i'm not mistaken but anyways etc
+
+commit 70aceae7781eca89c4f867e3ea430c475507a532
+Author: wonderingabout <hidden>
+Date:   2025-09-19 22:32:02 +0200
+
+performance optimizations anyways etc
+- remove old m_uiSaveFlag code in CvGame.cpp except some independent parts if i'm not mistaken for performance optimization and cleanliness if i may say in this case i mean but anyways etc
+- make some vars static const
+- tested to not cause crash in 2 games in autoplay for 500 turns (large map) anyways etc
+
+commit daf6576b0af1befe918b02632ee4c71f71882b3c
+Author: wonderingabout <hidden>
+Date:   2025-09-19 20:48:26 +0200
+
+Fixed and enhanced the issue of AI overbuilding units with defender UNITAIs when it has few cities for the current stage of the game or too much defender UnitAIs in its military composition: hijack next unitAIs to offense or versatile UnitAIs, yields great results ingame and helps fix 36 longbowmen with defender like UnitAIs and only 3 cities at turn 130 or similar, now (in the early game) with a more dynamic composition and better outcomes it seems on this testing sample! Anyways etc)
+- Fixed and enhanced the issue of AI overbuilding units with defender UNITAIs when it has few cities for the current stage of the game (so no need to defend that hard, build attackers to expand rather to save on unit cost and leverage unit count advantage + make up for being boxed in or other causes for having low cities anyways etc) or simply already a majority of units with a defender UNITAI (for example joao ai had 36 longbowmen at turn 130, almost all with UNITAI_CITY_DEFENSE but only 3 cities, very very bad and inefficient, causing his downfall due to not devleopping enough and preparing for war instead by having a more versatile UNITAI composition anyways etc), results may have been much better if some of these units were attacker UNITAI units or versatile UNITAI units rather anyways etc. To address this, we now hijack the UnitAI of next units we produce onwards in `CvCityAI::AI_chooseUnit` after these criterion are met, i.e. for relevant AI players if i am not mistaken anyways etc, and make them offense or versatile UNITAIs based on luck and if unit is eligible (for example Joao AI had many longbowmen with UNITAI_COUNTER, still defending cities if i'm not mistaken but ready to be used as a roaming or offensive stack maybe if i'm not mistaken anyways etc; or justinian AI had 19 longbowmen, but many in a roaming stack with UNITAI_COUNTER, and both these AIs that had low cities or/and exess longbowmen now have a much better middle game, not collapsing to bigger rivals that were a bit thin, but instead making military gains due to better pre-middle game preparation). Note: active only in the early game as is when most expansion happens and cities are weakest, then later on we don't use this logic anymore to not alter gameplay too much or cause issues, plus cities are defended and handled well enough hopefully by then to not need our management and early correction if i'm not mistaken but anyways etc. See for details [53.2 - (Fixed and enhanced) Joao AI building way too many defenders (36 longbowmen at turn 130!! Almost all with UNITAI_CITY_DEFENSE or similar) while being boxed in with only 3 cities, instead of making about half of these offense units or versatile ones to punish overextending thin neighbour, fixed by having an early phase "we have expectedly too few cities at this stage of the game, no need to overbuild anymore denders at this stage of the game, switch to offense or versatile UNITAI rather" and "our military composition has way too many defender UNITAIs, switch to offense or versatile UNITAIs", which seemingly fix the issue anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#532---fixed-and-enhanced-joao-ai-building-way-too-many-defenders-36-longbowmen-at-turn-130-almost-all-with-unitai_city_defense-or-similar-while-being-boxed-in-with-only-3-cities-instead-of-making-about-half-of-these-offense-units-or-versatile-ones-to-punish-overextending-thin-neighbour-fixed-by-having-an-early-phase-we-have-expectedly-too-few-cities-at-this-stage-of-the-game-no-need-to-overbuild-anymore-denders-at-this-stage-of-the-game-switch-to-offense-or-versatile-unitai-rather-and-our-military-composition-has-way-too-many-defender-unitais-switch-to-offense-or-versatile-unitais-which-seemingly-fix-the-issue-anyways-etc) anyways etc.
+
+commit fce68b70e9161e7428339b593c29c3817ec79fe7
+Author: wonderingabout <hidden>
+Date:   2025-09-18 20:24:50 +0200
+
+(Fixed and greatly enhanced) AI valuing for example pig (+1 health) at the same value than maize (+1 health and +1 health from granary = in total + 2 health, much more so should be valued more in trade anyways etc), by adding a pre-check in CvPlayerAI::AI_bonusTradeVal, so we value these extra effects as soon as our buyer has the tech for these buildings anyways etc
+- Fixed and greatly enhanced issue of AI overvaluing low effect bonuses such as pig (gives only +1 health) that it would value at same price than some higher effect bonuses such as maize (+2 health effectively (+1, then +1 from granary we almost always have)), by adding a pre-check in `CvPlayerAI::AI_bonusTradeVal` so that as soon as our trading partner if i may say but anyways etc has the tech, then we assume said party also has granaries in all cities and thus would gain +2 health from maize, then price accordingly. Therefore bonuses are not valued too high too soon (until tech is unlocked, accounts for obsolte buildings too such as as of now the byzantine empire's civ-specific stable giving happiness from horse, that would be cancelled when said building is obsoleted if i'm not mistaken but anyways etc). Does not account wonders and cathedrals to simplify (not present in enough cities to matter), and slightly accounts for temples and monasteries to simplify as well if they were to have such bonus effects. As a result of these changes, AI should undersatnd much better the value for example of its maize or wheat or grapes (from grocer if i'm not mistaken anyways etc), and value it more in trade in gold per turn, while pig or cattle or such should be valued less, so it should no longer be possible to cheese it if i may say but anyways etc and trade suepr aggressively junk or low-value bonuses if i may say but anyways etc for high gpt or other bonuses as easily as was (was quite broken tbh but anyways etc) or such anyways etc. Hopefully leads to stronger AI trading, and fairer AI vs AI trade as well so they don't throw away their nice bonuses to lower value ones even to other AIs. Some bonuses like iron as a result would also be valued less now as they don't have happiness or health from buildings from example, but hopefully its value should still be high enough, and it's maybe fine as such as there are other paths than having iron maybe at least early (else the human player may trade it too easily or something maybe (i am not sure about this change change but maybe it will work out well in overall diplomacy and allow for more startegy rather thna easy trade abuse/exploit anyways etc)). Note: coastal bonuses have a more moderate version of this as we assume many cities are not coastal so they would not gain the building related bonus's extra effect quite often. We count it as such even in water heavy maps (treated the same to simplify anyways etc), so fish would be worth more than pig (with as of now harbor but anyways etc) but less than maize or wheat for example anyways etc. See [66 - (Fixed and greatly enhanced) AI overvaluing bonuses that give minor effects such as pig or cattle/cow (+1 health only), etc, that AI would value the same as maize or wheat (+2 health effectively since almost all cities have a granary and very early anyways etc) or grapes (from grocer) or molluscs (from harbor) for example, by adding a pre-check in CvPlayerAI::AI_bonusTradeVal to value relatively more bonuses the more effects they provide from buildings if we have their required tech of these buildings, so that humans can't abuse/exploit it with aggressive trading to become super rich xd if i may say but anyways etc, and also in AI vs AI trading each AI gets best or more value out of the effective value of their bonuses at least more so now if i may say but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#66---fixed-and-greatly-enhanced-ai-overvaluing-bonuses-that-give-minor-effects-such-as-pig-or-cattlecow-1-health-only-etc-that-ai-would-value-the-same-as-maize-or-wheat-2-health-effectively-since-almost-all-cities-have-a-granary-and-very-early-anyways-etc-or-grapes-from-grocer-or-molluscs-from-harbor-for-example-by-adding-a-pre-check-in-cvplayeraiai_bonustradeval-to-value-relatively-more-bonuses-the-more-effects-they-provide-from-buildings-if-we-have-their-required-tech-of-these-buildings-so-that-humans-cant-abuseexploit-it-with-aggressive-trading-to-become-super-rich-xd-if-i-may-say-but-anyways-etc-and-also-in-ai-vs-ai-trading-each-ai-gets-best-or-more-value-out-of-the-effective-value-of-their-bonuses-at-least-more-so-now-if-i-may-say-but-anyways-etc) for details anyways etc.
+
+commit 1b88522f9c3a7dfd3df304393a2d553891278ebe
+Author: wonderingabout <hidden>
+Date:   2025-09-18 08:43:41 +0200
+
+update docs
+
+commit bf56a70088f859b853c9e72df7fcb8350672d364
+Author: wonderingabout <hidden>
+Date:   2025-09-17 17:07:05 +0200
+
+Seemingly tremendously improved multi-war threat management by adding sanity "emergency peace" pre-checks in UWAI::Team::considerPeace in UWAIAgent.cpp, so that AI makes peace if it fights too many wars or not that many but against a combined strong enough total enemy power ratio
+- Seemingly tremendously improved multi-war threat management by adding sanity "emergency peace" pre-checks in `UWAI::Team::considerPeace` in `UWAIAgent.cpp`, so that AI makes peace if it fights too many wars or not that many but against a combined strong enough total enemy power ratio (vs ours as base anyways etc). This should make AI much stronger as it did in the sample testing where at turn 150 Hatshepsut AI who was strongest leader in the game at this stage could keep its lead until turn 200 thanks to our changes and make targeted campaigns in this sample i mean but anyways etc, instead of being badly dogpiled on and actually dying before turn 200 before our changes. Hopefully these are lax enough that plenty wars still happen, but the focus is on AI survivability and efficiency, not entertainment xd if i may say in this case i mean but anyways etc, see [65 - (Seemingly tremendously improved) Hatshepsut AI who was strongest player at turn 150 is fighting many wars and dies before turn 200: added "emergency peace" sanity pre-checks in UWAI::Team::considerPeace in UWAIAgent.cpp anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#65---seemingly-tremendously-improved-hatshepsut-ai-who-was-strongest-player-at-turn-150-is-fighting-many-wars-and-dies-before-turn-200-added-emergency-peace-sanity-pre-checks-in-uwaiteamconsiderpeace-in-uwaiagentcpp-anyways-etc) for details anyways etc.
+
+commit 6c71dafc04f1094bf4985efa3c7745fef0f2271f
+Author: wonderingabout <hidden>
+Date:   2025-09-17 12:15:55 +0200
+
+Fixed and greatly enhanced AI building a theatre instead of a hindu temple or any strict happiness building (culture slider is useless early and in most cases), by replacing in our prechecks in CvCityAI::AI_buildingValue the use of the too broad and unreliable base advciv +/- civ4's CvCity::getAdditionalHappinessByBuilding with our new AI_strictAdditionalHappy and other related changes or not anyways etc
+- Since then, i enhanced it to better account for which buildings are strict and urgent happiness buildings, as well as better account the expected food gains from them after removing unhappy citizens which yielded great results as well, see [48.2 - (Greatly Enhanced and Fixed) Kish city of gilgamesh AI building a theatre instead of a hindu temple despite having unhappy citizens (and health room to grow otherwise anyways etc), and theatre not giving any reliable happiness (almost anything else would have been much better), fixed by fixed by correcting the happiness building formula in our pre-check in CvCityAI::AI_buildingValue, and in particular replacing the too broad and unreliable CvCity::getAdditionalHappinessByBuilding with our own AI_strictAdditionalHappy anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#482---greatly-enhanced-and-fixed-kish-city-of-gilgamesh-ai-building-a-theatre-instead-of-a-hindu-temple-despite-having-unhappy-citizens-and-health-room-to-grow-otherwise-anyways-etc-and-theatre-not-giving-any-reliable-happiness-almost-anything-else-would-have-been-much-better-fixed-by-fixed-by-correcting-the-happiness-building-formula-in-our-pre-check-in-cvcityaiai_buildingvalue-and-in-particular-replacing-the-too-broad-and-unreliable-cvcitygetadditionalhappinessbybuilding-with-our-own-ai_strictadditionalhappy-anyways-etc) for details anyways etc.
+
+commit 47669361f65810acdd8126becd028e456c68771c
+Author: wonderingabout <hidden>
+Date:   2025-09-16 12:14:44 +0200
+
+tweaked and enhanced old razing logic so that AIs raze cities early if they are far from us, which should make AI much stronger anyways etc
+- tweaked and enhanced old razing logic so we that we (i.e. AI (excluding the barbarian player itself, but as for cities applies more or less to all cities even non-barbarian ones if i'm not mistaken anyways et) players but anyways etc) now raze cities in the early (as of now first 120 turns adjusted to game speed anyways etc) game if they are not close enough to make it worth the early investment. This helps not spread our military forces (which was a major issue in base advciv when it happened, often with most troops being in the new captured faraway city while core ones would be less defended, hopefully much saner and stronger razing now if i'm not mistaken but anyways etc) and scrace economy ressources (city maintenance would be increased per city, pop is generally low in these cities plus the time to build improvements or/and culture or such there, plus the city maintenance in the city itself, etc) so that they stay focused. Indirectly, it may often lead to less fog busting so more barbarians, which is good since it's far from us so will weaken our rivals if i'm not mistaken but anyways etc. As a result of this, AI should be much stronger in the early game, and hopefully no longer split in two making it much easier to defeat (especially if most forces are in the new city). See [64 - (Greatly enhanced) AI not razing faraway cities at captures - now we raze them if we are in the early game and they are not close enough, thanks to changes and tweaks in CvPlayerAI::AI_conquerCity anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#64---greatly-enhanced-ai-not-razing-faraway-cities-at-captures---now-we-raze-them-if-we-are-in-the-early-game-and-they-are-not-close-enough-thanks-to-changes-and-tweaks-in-cvplayeraiai_conquercity-anyways-etc) for details anyways etc.
+
+commit c5b10be19aa0459d7d3334c2ad38b2bb3809f7b4
+Author: wonderingabout <hidden>
+Date:   2025-09-15 20:03:29 +0200
+
+Possibly prevented and possibly fixed the weird and very inefficient back and forth of going to attack a city stack, and then going back after seeing enemy stack is too strong, which was also very risky, with an extra sanity check in CvUnitAI::AI_attackCityMove
+- Possibly prevented and possibly fixed the weird and very inefficient back and forth of going to attack a city stack, and then going back after seeing enemy stack is too strong, which was also very risky if our stack couldn't retreat in time (to defend cities or avoid ambush/attack or other purposes maybe anyways etc). I don't know if this change fixes it since the issue was solved without it (2+ autoplay turns were needed at least it seems not 1), but maybe the additional sanity check of not (going to? But anyways etc) attacking(attack) city if target is too strong, in `CvUnitAI::AI_attackCityMove`, helps a lot but (although would need to test to be sure but seems like a very nice sanity check if not redundant with some other checks maybe but anyways etc) anyways etc. See for details [63 - (Possibly prevented and possibly fixed) Weird / very inefficient back and forth of going to attack a city stack, and then going back after seeing enemy stack is too strong. I don't know if this change fixes it since the issue was solved without it (2+ autoplay turns were needed at least it seems not 1), but maybe this change in CvUnitAI::AI_attackCityMove helps a lot but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#63---possibly-prevented-and-possibly-fixed-weird--very-inefficient-back-and-forth-of-going-to-attack-a-city-stack-and-then-going-back-after-seeing-enemy-stack-is-too-strong-i-dont-know-if-this-change-fixes-it-since-the-issue-was-solved-without-it-2-autoplay-turns-were-needed-at-least-it-seems-not-1-but-maybe-this-change-in-cvunitaiai_attackcitymove-helps-a-lot-but-anyways-etc).
+
+commit af794dd9a626b69963c7993a9ee4642cda1fd4d7
+Author: wonderingabout <hidden>
+Date:   2025-09-15 16:32:24 +0200
+
+Extremely better: AI now always evacuates all its as of now land units from a doomed city rather than often a small part of them (change in CvUnitAI::AI_evacuateCity)
+- (Extremely better/stronger) AI now always evacuates all its as of now land units from a doomed city rather than a small part of them or/and sometimes (before the change AI was almost not evacuating at all doomed cities (2 swordsmen only would be evacuated for example in an 11 unit defending stack vs a 22+ attacking unit stack), see an example of this with details and screenshots or/and such but anyways etc in [62 - (Extremely better/stronger) AI almost not evacuating at all doomed cities (2 swordsmen in an 11 unit defending stack vs a 22+ attacking unit stack), fixed by always and 100% retreat regardless of land unit type, in CvUnitAI::AI_evacuateCity](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#62---extremely-betterstronger-ai-almost-not-evacuating-at-all-doomed-cities-2-swordsmen-in-an-11-unit-defending-stack-vs-a-22-attacking-unit-stack-fixed-by-always-and-100-retreat-regardless-of-land-unit-type-in-cvunitaiai_evacuatecity) anyways etc), fixed by always and 100% retreat regardless of land unit type, in `CvUnitAI::AI_evacuateCity`. As a side effect, it might drag games a bit longer (although i didn't test it to know for sure) and i didn't test it too much beyond this sample case where it makes a huge difference, but i think having a more competitive and not stupid but strategic in this case i mean but anyways etc ai is much better but anyways etc.
+
+commit cbd6eb7f951166ba574d0d2777709edff4fb08f7
+Author: wonderingabout <hidden>
+Date:   2025-09-15 13:09:38 +0200
+
+Seemingly Tremendously Improved AIs getting baited to attack faraway rivals, leaving their core cities mostly defenseless but anyways etc, and oftentimes dying shortly after to an opportunistic rivals. Changed by adding a pre-filter reject in war risk assessment based on distance to us in Risk::preEvaluate in WarUtilityAspect.cpp
+- seemingly tremendously improved issue of AIs getting baited to attack faraway rivals, that would leave their core cities mostly defenseless but anyways etc, and oftentimes dying shortly after to an opportunistic rivals. Changed by adding a pre-filter reject in war risk assessment based on distance to us in `Risk::preEvaluate` in WarUtilityAspect.cpp, so that we don't attack too far away rivals (i assume by extremely increasing risk assessment for said rivals), resulting in better AI outcomes and more focused unit troops on the map (no half of the units in a faraway city anymore it seems for the most part) on land attacks if i am not mistaken i mean but anyways etc, see [61 - (Seemingly Tremendously Improved) AIs getting baited to attack faraway rivals, leaving their core cities mostly defenseless but anyways etc, and oftentimes dying shortly after to an opportunistic rivals. Changed by adding a pre-filter reject in war risk assessment based on distance to us in Risk::preEvaluate in WarUtilityAspect.cpp](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-but-anyways-etc-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp) for details anyways etc.
+
+commit ae2fc3dde850a0bb44b57865eb853b8011257084
+Author: wonderingabout <hidden>
+Date:   2025-09-15 08:47:50 +0200
+
+minor update docs
+no functional change since release anyways etc
+
+commit 0371c03865c847a5d0183bbc731d4c1d22a5f5e7
+Author: wonderingabout <hidden>
+Date:   2025-09-08 14:58:27 +0200
+
+add 48 civs DLL with instructions on how to download and use + google drive folder link of screenshots of test run and such anyways etc
+Addresses https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16863316 anyways etc if i may say but anyways etc :)
+
+commit 41a7bd8b7fa99a53c45078a4ff7f03e9937a6119
+Author: wonderingabout <hidden>
+Date:   2025-09-08 12:57:32 +0200
+
+minor documentation and such updates
+no functional change since release if i'm not mistaken anyways etc
+
 commit 8d6bf6e0f61004e415aa3584e906fdb77275c1f8
 Author: wonderingabout <hidden>
 Date:   2025-09-05 14:09:41 +0200
