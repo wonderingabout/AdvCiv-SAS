@@ -11587,8 +11587,9 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
+			<!-- custom: buff culture-specific buildings, increase cost to justify/match the effect anyways etc, was 80 -->
 			<!-- advc: K-Mod had increased this to 100 -->
-			<iCost>80</iCost>
+			<iCost>90</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -11653,8 +11654,17 @@
 			<YieldChanges/>
 			<!-- advc.200: Had been +20% culture in K-Mod -->
 			<CommerceChanges/>
-			<ObsoleteSafeCommerceChanges/>
-			<CommerceChangeDoubleTimes/>
+			<!-- custom: buff culture-specific buildings, was empty -->
+			<ObsoleteSafeCommerceChanges>
+				<iCommerce>0</iCommerce>
+				<iCommerce>0</iCommerce>
+				<iCommerce>2</iCommerce>
+			</ObsoleteSafeCommerceChanges>
+			<CommerceChangeDoubleTimes>
+				<iCommerce>0</iCommerce>
+				<iCommerce>0</iCommerce>
+				<iCommerce>1000</iCommerce>
+			</CommerceChangeDoubleTimes>
 			<CommerceModifiers/>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
@@ -11683,12 +11693,17 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: was flavor growth 10, doesn't seem to give that much growth to me, as you need to move the culture slider to get any benefit, which kills your growth in other areas (although cities "grow" fine but not so good for a global "grow" (tech, commerce, etc) i would guess anyways etc) -->
 			<!-- advc.020: No flavor in BtS; weird. It's a typical Growth
 				 building. -->
 			<Flavors>
 				<Flavor>
+					<FlavorType>FLAVOR_CULTURE</FlavorType>
+					<iFlavor>6</iFlavor>
+				</Flavor>
+				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>10</iFlavor>
+					<iFlavor>3</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -11734,8 +11749,9 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
-			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+			<!-- custom: emphasize cultural effect more, idea by chatgpt 5 as i had said this building was a bit weak after our rework that removed some happines without significant buff to match it, hopefully more culturally themed as such and still relevant/strong anyways etc; since an artist specialist gives 3 gpp as of now (and culture or/and such anyways etc), this is like give half a free specialist so maybe fine as such for the overall culture (so not so strong building anyways etc); also to rpely to chagpt 5 that said +2 may be too much but anyways etc, it seems thinking about it in this case i mean but anyways etc that since we reduced the happiness, it's gonna imapct aggresive leaders like alexander that have no use for the extra culture, at least they get something out of it, otherwise buidling is wekaer than before, so maybe fine as such anyways etc, was NONE and 0 -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
+			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
 			<bTeamShare>0</bTeamShare>
@@ -11798,7 +11814,8 @@
 			<iHealth>0</iHealth>
 			<iAreaHealth>0</iAreaHealth>
 			<iGlobalHealth>0</iGlobalHealth>
-			<iHappiness>2</iHappiness>
+			<!-- custom: not varied enough, make it more culture focused and still strong enough hopefully, give other effects instead anyways etc, was 2 -->
+			<iHappiness>1</iHappiness>
 			<iAreaHappiness>0</iAreaHappiness>
 			<iGlobalHappiness>0</iGlobalHappiness>
 			<iStateReligionHappiness>0</iStateReligionHappiness>
@@ -11825,11 +11842,12 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
+			<!-- custom: buff culture-specific buildings and make them more varied anyways etc, was 2 -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<!-- K-Mod: was 3 -->
-				<iCommerce>2</iCommerce>
+				<iCommerce>3</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -11877,15 +11895,16 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: was flavors growth 6 culture 6 -->
 			<!-- advc.020: no flavor in BtS -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>6</iFlavor>
+					<iFlavor>7</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>6</iFlavor>
+					<iFlavor>10</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -11995,7 +12014,8 @@
 			<iHealth>0</iHealth>
 			<iAreaHealth>0</iAreaHealth>
 			<iGlobalHealth>0</iGlobalHealth>
-			<iHappiness>3</iHappiness>
+			<!-- custom: was 3: way too op and not varied nor balanced, give other effects instead anyways etc -->
+			<iHappiness>1</iHappiness>
 			<iAreaHappiness>0</iAreaHappiness>
 			<iGlobalHappiness>0</iGlobalHappiness>
 			<iStateReligionHappiness>0</iStateReligionHappiness>
@@ -12022,8 +12042,17 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
-			<ObsoleteSafeCommerceChanges/>
-			<CommerceChangeDoubleTimes/>
+			<!-- custom: buff culture-specific buildings, was empty anyways etc -->
+			<ObsoleteSafeCommerceChanges>
+				<iCommerce>0</iCommerce>
+				<iCommerce>0</iCommerce>
+				<iCommerce>2</iCommerce>
+			</ObsoleteSafeCommerceChanges>
+			<CommerceChangeDoubleTimes>
+				<iCommerce>0</iCommerce>
+				<iCommerce>0</iCommerce>
+				<iCommerce>1000</iCommerce>
+			</CommerceChangeDoubleTimes>
 			<!-- advc.200: Had been +20% culture in K-Mod -->
 			<CommerceModifiers/>
 			<GlobalCommerceModifiers/>
@@ -12036,13 +12065,25 @@
 				<iCommerce>10</iCommerce>
 			</CommerceHappinesses>
 			<ReligionChanges/>
-			<SpecialistCounts/>
+			<!-- custom: description mentions it influencing god sacrifices, varied, more versatile and quite strong anyways etc, was empty anyways etc -->
+			<SpecialistCounts>
+				<SpecialistCount>
+					<SpecialistType>SPECIALIST_PRIEST</SpecialistType>
+					<iSpecialistCount>2</iSpecialistCount>
+				</SpecialistCount>
+			</SpecialistCounts>
 			<FreeSpecialistCounts/>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
 			<ConstructSound>AS2D_BUILD_COLOSSEUM</ConstructSound>
 			<BonusHealthChanges/>
-			<BonusHappinessChanges/>
+			<!-- custom: very nice idea by chatgpt 5 anyways etc, thematic and varied and quite good/strong too if player has bonus, was empty anyways etc -->
+			<BonusHappinessChanges>
+				<BonusHappinessChange>
+					<BonusType>BONUS_MAIZE</BonusType>
+					<iHappinessChange>1</iHappinessChange>
+				</BonusHappinessChange>
+			</BonusHappinessChanges>
 			<BonusProductionModifiers/>
 			<UnitCombatFreeExperiences/>
 			<DomainFreeExperiences/>
@@ -12053,11 +12094,24 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: was flavor growth 10 -->
 			<!-- advc.020: no flavor in BtS; cf. Colosseum -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>10</iFlavor>
+					<iFlavor>5</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_RELIGION</FlavorType>
+					<iFlavor>6</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_CULTURE</FlavorType>
+					<iFlavor>6</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -12192,15 +12246,19 @@
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
 			<GlobalSeaPlotYieldChanges/>
-			<!-- custom: now the babylonian civ-specific building (garden) (anyways etc) gives less health and more food, aligns better with the pedia entry description and buffs it as well as building may (have) be(en) a bit weak anyways etc, a growth strategy may be more worth (or worth more? now but anyways etc) pursuing with the babylonians now maybe or not or yes or and other or and not or yes or etc anyways etc -->
-			<YieldChanges>
-				<iYield>1</iYield>
-				<iYield>0</iYield>
-				<iYield>0</iYield>
-			</YieldChanges>
+			<YieldChanges/>
 			<CommerceChanges/>
-			<ObsoleteSafeCommerceChanges/>
-			<CommerceChangeDoubleTimes/>
+			<!-- custom: buff culture-specific buildings, was empty anyways etc -->
+			<ObsoleteSafeCommerceChanges>
+				<iCommerce>0</iCommerce>
+				<iCommerce>0</iCommerce>
+				<iCommerce>2</iCommerce>
+			</ObsoleteSafeCommerceChanges>
+			<CommerceChangeDoubleTimes>
+				<iCommerce>0</iCommerce>
+				<iCommerce>0</iCommerce>
+				<iCommerce>1000</iCommerce>
+			</CommerceChangeDoubleTimes>
 			<!-- Had been +20% culture in K-Mod -->
 			<CommerceModifiers/>
 			<GlobalCommerceModifiers/>
@@ -12218,7 +12276,13 @@
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
 			<ConstructSound>AS2D_BUILD_COLOSSEUM</ConstructSound>
-			<BonusHealthChanges/>
+			<!-- custom: more varied as such than flat health, plus unlikely a player would have too many of the bonuses early so balanced as well and thematic too if i may say, done with the help of chatgpt 5, check if accurate anyways etc -->
+			<BonusHealthChanges>
+				<BonusHealthChange>
+					<BonusType>BONUS_WHEAT</BonusType>
+					<iHealthChange>1</iHealthChange>
+				</BonusHealthChange>
+			</BonusHealthChanges>
 			<BonusHappinessChanges/>
 			<BonusProductionModifiers/>
 			<UnitCombatFreeExperiences/>
@@ -12230,11 +12294,16 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
+			<!-- custom: was flavors growth 10 anyways etc -->
 			<!-- advc.020: no flavor in BtS; cf. Colosseum -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>10</iFlavor>
+					<iFlavor>8</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_CULTURE</FlavorType>
+					<iFlavor>6</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>

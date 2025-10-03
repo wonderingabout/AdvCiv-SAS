@@ -346,7 +346,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
 - **Heroic Epic** (`iMilitaryProductionModifier`): **100% → 50%**. The always-on military production boost was too strong and could let AIs run away; this tones it down while keeping the building relevant.
 - Some **civ-specific** buildings replaced (especially late-game or underwhelming ones). Example: Russian **Research Institute** replaced with **Gord** (castle-based, earlier impact).
 - Added `BuildingClassRequired` chains to curb spam and improve AI focus: e.g., **Drydock** now requires **Port**.
-- Science buildings’ **culture** trimmed (e.g., **Library +2 culture → +1 culture**); similar trims on a few non-purely-cultural national wonders (**Heroic/National Epic, Forbidden Palace**).
+- **Culture rebalance:** Trimmed incidental culture from science buildings (e.g., **Library: +2 → +1**) and from some non-purely-cultural national wonders (**Heroic Epic**, **National Epic**, **Forbidden Palace**). In exchange, **buffed/reworked culture-focused buildings** (e.g., **Colosseum** and civ variants) to keep the culture path meaningful.
 
 ### Culture
 
