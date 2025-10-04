@@ -564,7 +564,9 @@ void CvCity::doTurn()
 	// --- BEGIN: hard safety net for AI production ---
 	// <!-- custom: we now successfully always avoid the no production, and other cities don't fall back to our fall back if they have a valid production -->
 	// <!-- custom: note: chatgpt 5 recommends adding !isDisorder() / !isOccupation() to quote it xd but anyways etc, as for me i didn't add them for simplicity and as long as works and for reliability in case these cause other issues or not or yes or etc but anyways etc, but if you or me or such notice issues consider adding one or both of these in this case i mean but anyways etc -->
-	if (!isHuman())
+	static const bool bNoProductionForceFallbackUnitInstead = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD");
+
+	if (!isHuman() && bNoProductionForceFallbackUnitInstead)
 	{
 		// <!-- custom: previous issue was: if a city fell once in no production and this was avoided by our fallback here, then it will never ever exit the fallback loop, despite having only 1 unit currently built in queue, and the other cities doing fine (building granaries, settlers, scouts, barracks, anything it seems) but not our city that fell into the fallback and seemingly can't get out of it at next production (at least in next 20 turns anyways etc), trying to change the bNeedFallback to prevent that, while keeping effectiveness of the fallback otherwise anyways etc; result: very effective! No more no production still, and japan ai gets out of the fallback successfully switching to a settler a few turns later thanks a lot chatgpt 5 anyways etc -->
 		//const bool bNeedFallback = !isProduction();
@@ -607,6 +609,12 @@ void CvCity::doTurn()
 			// prefetch civ UU mapping once
 			const CvCivilizationInfo& kCiv = GC.getInfo(kOwner.getCivilizationType());
 
+			// <!-- custom: magic number as chatgpt had noted long ago or in its thoughts, not ideal to do as such but hopefully works well enough and seems used in other places of the code if i remember it correctly but anways etc -->
+			static const int iEraRenaissance = 3;
+			const bool bEraRenaissanceOrAfter = (iCurrentEra >= iEraRenaissance);
+
+			static const bool bNoProductionForceFallbackUnitInsteadInflateCivSpecificUnit = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_INFLATE_CIV_SPECIFIC_UNIT");
+			
 			FOR_EACH_ENUM(Unit)
 			{
 				if (!canTrain(eLoopUnit, false))
@@ -637,8 +645,9 @@ void CvCity::doTurn()
 					continue;
 				}
 				// <!-- custom: ignore siege units as they are not a reliable as in versatile enough unit to be able to be used both for offense and defense if i am not mistaken but anyways etc, see known issue as of now 53.3 for related info, anyways etc -->
+				// <!-- custom: only valid for pre-renaissance units, later on cannons are good enough as defenders as well optionally, especially if we have nothing better else to build, do not overstack pikemen when cannons are a valid option, and pikemen are obsolete due to gun units being onlnie if i may say but anyways etc -->
 				const bool bLoopUnitCombatSiege = (kU.getUnitCombatType() == eUnitCombatSiege);
-				if (bLoopUnitCombatSiege)
+				if (!bEraRenaissanceOrAfter && bLoopUnitCombatSiege)
 				{
 					continue;
 				}
@@ -656,23 +665,26 @@ void CvCity::doTurn()
 
 				int iLoopScore = iLoopCost;
 
-				// <!-- custom: inflate artificially the civ-specific unit assuming it is best (war chariot is as of now anyways etc 5 str for 30 hammer, vs 6 str for 50 hammaer for a horse archer! The horse archer is much more efficient, but we can't judge on str alone, as some units have some nice perks like withdraw chance, etc. Simplest way is to assume civ-specific unit is best choice if available, at least a much stronger one than cost would lead on, else fix our XML to make them strong enough to justify being picked by AI but anyways etc) -->
-				// prefer the civilization's unique unit (war chariot over horse archer, etc.)
-				const UnitClassTypes eClass = kU.getUnitClassType();
-				// <!-- custom: explanation and code below by/from chatgpt 5 but anyways etc, check if accurate as i don't know for sure but it is maybe correct or not or etc but check to be sure anyways etc -->
-				// To prevent inflating default units for civs without unique units (UU), add the check eLoopUnit != GC.getUnitClassInfo(eClass).getDefaultUnit()
-				const UnitTypes eCivUnitForClass = (UnitTypes)kCiv.getCivilizationUnits(eClass);
-				const UnitTypes eDefaultForClass = (UnitTypes)GC.getUnitClassInfo(eClass).getDefaultUnit();
-				const bool bIsUUOverride = (eCivUnitForClass == eLoopUnit && eLoopUnit != eDefaultForClass);
-				// Then use bIsUUOverride for the inflation.
-				if (bIsUUOverride)
+				if (bNoProductionForceFallbackUnitInsteadInflateCivSpecificUnit)
 				{
-					// <!-- custom: added a +1 tie breaker if both the best generic unit (e.g. if catapults were allowed so 50 hammer vs a civ-specific archer costing 25 hammer if there was any in our mod anyways etc), we'd now have 51 vs 50 hammer so we win with our civ-specific unit anyways etc -->
-					// treat it as ~100% "more valuable" than its raw cost so cheap UUs still win ties
-					// <!-- custom: counter civ-specific (e.g. maya holkan, etc) units are less likely to be useful for offense, so do not especially favour them anyways etc -->
-					if (eLoopDefaultUnitAI != UNITAI_COUNTER)
+					// <!-- custom: inflate artificially the civ-specific unit assuming it is best (war chariot is as of now anyways etc 5 str for 30 hammer, vs 6 str for 50 hammaer for a horse archer! The horse archer is much more efficient, but we can't judge on str alone, as some units have some nice perks like withdraw chance, etc. Simplest way is to assume civ-specific unit is best choice if available, at least a much stronger one than cost would lead on, else fix our XML to make them strong enough to justify being picked by AI but anyways etc) -->
+					// prefer the civilization's unique unit (war chariot over horse archer, etc.)
+					const UnitClassTypes eClass = kU.getUnitClassType();
+					// <!-- custom: explanation and code below by/from chatgpt 5 but anyways etc, check if accurate as i don't know for sure but it is maybe correct or not or etc but check to be sure anyways etc -->
+					// To prevent inflating default units for civs without unique units (UU), add the check eLoopUnit != GC.getUnitClassInfo(eClass).getDefaultUnit()
+					const UnitTypes eCivUnitForClass = (UnitTypes)kCiv.getCivilizationUnits(eClass);
+					const UnitTypes eDefaultForClass = (UnitTypes)GC.getUnitClassInfo(eClass).getDefaultUnit();
+					const bool bIsUUOverride = (eCivUnitForClass == eLoopUnit && eLoopUnit != eDefaultForClass);
+					// Then use bIsUUOverride for the inflation.
+					if (bIsUUOverride)
 					{
-						iLoopScore = (2 * iLoopScore) + 1;
+						// <!-- custom: added a +1 tie breaker if both the best generic unit (e.g. if catapults were allowed so 50 hammer vs a civ-specific archer costing 25 hammer if there was any in our mod anyways etc), we'd now have 51 vs 50 hammer so we win with our civ-specific unit anyways etc -->
+						// treat it as ~100% "more valuable" than its raw cost so cheap UUs still win ties
+						// <!-- custom: counter civ-specific (e.g. maya holkan, etc) units are less likely to be useful for offense, so do not especially favour them anyways etc -->
+						if (eLoopDefaultUnitAI != UNITAI_COUNTER)
+						{
+							iLoopScore = (2 * iLoopScore) + 1;
+						}
 					}
 				}
 

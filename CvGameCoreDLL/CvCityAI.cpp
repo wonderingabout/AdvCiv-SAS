@@ -11393,7 +11393,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					int iCapTrebs = 20;
 
 					// <!-- custom: the war has already started, no time to produce them if we didn't do so already, focus on defense or immediate joining stack units to finalize our offensive stacks, now is not the time to weaken our stacks with trebuchets that are quite likely to be not relevant anyways etc anyways etc -->
-					if (bAtWar && !bEnemyWeakNotZero)
+					if (bAtWar && bEnemyStrong)
 					{
 						return false; // don’t add more narrow-purpose siege when not stronger
 					}
@@ -11430,63 +11430,37 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				{
 					// <!-- custom: if not in cases where we should not produce siege units at all for efficiency, consider the case we can/should, and add some sanity/efficiency limits if i may say but anyways etc -->
 					// Simple caps:
-					int iCapSiegesAll = 50;
+					int iCapSiegesAll;
+					int iTotalMainUnits;
 
-					// <!-- custom: even more broadly for all siege units in general like catapults, trebuchets, cannons, etc, they are still not too versatile, especially at defense, so employ if i may say but anyways etc similar checks than for trebuchets, perhaps a bit more lax but not too much, especially for early game units like the catapult that are even less versatile than say a cannon if i am not mistaken but anyways etc (so do not overproduce them especially when defending/weaker as is bad for us if i'm not mistaken but anyways etc) -->
-					// --- Generic siege cap (non-trebuchet specifics) ---
-					if (bAtWar && !bEnemyWeakNotZero)
-					{
-						iCapSiegesAll = 25;
-					}
-					if (bDanger)
-					{
-						return false; // don’t add more narrow-purpose siege when not stronger
-					}
-
-					// <!-- custom: don't need that many so early they'd be too inefficient to keep and maintain for our purpose if i am not mistaken but anyways etc -->
+					// <!-- custom: a few catapults are a valid alternative if we have nothing else to build but longbows, these can help our rush or versatility, just don't overdo it anyways etc -->
 					if (!bEraRenaissanceOrAfter)
 					{
-						// <!-- custom: a bit extreme as catapults could help destroy strong stacks, but not sure AI knows how to use them as such, better rely more on defensive units anyways etc -->
-						if (bEnemyStrong)
+						iCapSiegesAll = 40;
+
+						if (bAtWar && bEnemyStrong)
 						{
+							// <!-- custom: no need to overinvest since we won't attack, but don't neglect it entirely as we may target other rivals instead, or maybe we don't have a better unit at all to build -->
 							iCapSiegesAll = 20;
 						}
-						// <!-- custom: a bit redundant else since we return before but for clarity and in case we change code or something in this case i mean but anyways etc -->
-						// <!-- custom: invasions should be few early and siege units quite weak, do not overbuilt for efficiency at to have strong versatile stacks with enough non-siege attackers if i am not mistaken but anyways etc -->
-						else
+						if (bDanger)
 						{
-							// <!-- custom: for non cannon or later units, fine to under build them a bit or not at all if not plotting war soon or something similar, keep a very small reserve (no pun but anyways etc) siege units we can mobilize, but don't capitalize on it too much anyways etc -->
-							if (!bWarPlan)
-							{
-								iCapSiegesAll = 20;
-							}
-							else
-							{
-								iCapSiegesAll = 40;
-							}
+							iCapSiegesAll = 10; // <!-- custom: avoid adding too much but anyways etc --> narrow-purpose siege when not stronger
 						}
+
+						// <!-- custom: pre renaissance, be wary to not overproduce siege, they are not useful at defense for AIs if i am not mistaken anyways etc -->
+						iTotalMainUnits = iMainAttackers;
 					}
-					// <!-- custom: cannons and such could be used in a more versatile way for defense perhaps, but don't trust the AI too much to do that. They are also strong offense units, so it's fine to overproduce them a bit, if AI wants to (we keep versatile strategies of AIs for example one AI wanting/producing many cannons vs another AI having mostly mounted units or a mix of muskets or such dominantly if i may say in this case i mean but anyways etc), just make sure to not overdo it so add this limit if i am not mistaken but anyways etc. -->
+					// <!-- custom: cannons are strong enough to not limit them so heavily, sometimes they may be our only option except from pikemen if we don't have muskets yet, and pikemen are useless against cuirassiers units, so definitely go for cannon more aggressively or generously if i may say but anyways etc -->
 					else
 					{
-						// <!-- custom: cannons and onwards (artillery etc anyways etc) are a bit stronger and thus more versatile if AI were to use them as such (e.g. maybe defending cities or something), still as they are strong, don't penalize them as hard for versatility of game startegies and efficiency as a cannon dominant stack could work to capture a renaissance+ city i would guess but didn't check to be sure seemed so in games i played, so larger threshold for cannons anyways etc anyways etc -->
-						// <!-- custom: tighten it a bit so we indirectly focus more on immediate defense or more versatile units -->
-						if (bEnemyStrong)
-						{
-							iCapSiegesAll = 40;
-						}
-						// <!-- custom: stronger so allow a bit more reserve than for earlier siege units if i am not mistaken in thinking so but anyways etc, but still don't count on AI too much to use them well, and favour versatile units be it any non-siege attackers or defenders rather in case we need to defender or such, hopefully helps the AI be more efficient with its units but anyways etc -->
-						else if (!bWarPlan)
-						{
-							iCapSiegesAll = 25;
-						}
-						else
-						{
-							iCapSiegesAll = 70;
-						}
+						iCapSiegesAll = 60;
+
+						// <!-- custom: post renaissance, cannons can serve as defenders if we have no better units (do not overbuild pikemen), so make sure to account for them here as well among total units (counting percentage among attackers only would make us stockpile defenders after we have met our siege quotas, which is not what we want (don't want too much excess pikemen at renaissance, they are useless then anyway consider cannons instead, just don't overdo it anyways etc)) -->
+						iTotalMainUnits = iMainAttackers + iMainDefenders;
 					}
 
-					const int iSiegesShareOff = (100 * iSiegesAll) / std::max(1, iMainAttackers);
+					const int iSiegesShareOff = (100 * iSiegesAll) / std::max(1, iTotalMainUnits);
 
 					static const int iSiegesAllMinExtraCap = GC.getDefineINT("SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL_MIN_EXTRA_CAP");
 
