@@ -34,7 +34,7 @@ With github you can actually download the mod at any version/commit if i'm not m
 
 ## Extract the mod to your civ4 folder
 
-Extract the archive in the Mods folder of your civ4 BTS/BTS folder (be careful twice BTS (i.e. "Beyond The Sword")), for example, using Steam the path of AdvCiv-SAS should be **(remove version name such as "-4986" or any name like "-tech-rework" (git branch name, remove when extracting to your civ4 mods folder)** or similar or anything else xd in your folder destination name so it is **strictly "AdvCiv-SAS"**):
+Extract the archive in the Mods folder of your civ4 BTS/BTS folder (be careful twice BTS (i.e. "Beyond The Sword")), for example, using Steam the path of AdvCiv-SAS should be **(remove version name such as "-5030" or any name like "-tech-rework" (git branch name, remove when extracting to your civ4 mods folder)** or similar or anything else xd in your folder destination name so it is **strictly "AdvCiv-SAS"**):
 
 ```C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\```
 

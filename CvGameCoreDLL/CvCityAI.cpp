@@ -3065,32 +3065,6 @@ void CvCityAI::AI_chooseProduction()
 	}
 }
 
-// <!-- custom: new helpers addition quite self explanatory xd if i may say but anyways etc, see also known issue as of now 42 for details too, and also done with chatgpt 5's help and check if accurate too or most relevant or/and if there is a better way perhaps to do this; hopefully helpful or not or yes or etc but anyways etc ; not static map type although would have been computationally nice, but to be safe in case map type changes when loading another save file or creating a new map maybe (i don't know but in case i mean, check to be sure but anyways etc) during civ4 run time anyways etc, as advised by chatgpt 5 too but anyways etc -->
-static bool isLandHeavyMap(const CvWString& mapName)
-{
-    return (
-        mapName == L"Pangaea" ||
-        mapName == L"Continents" ||
-        mapName == L"Custom_Continents" ||
-        mapName == L"Terra" ||
-        mapName == L"Great_Plains" ||
-        mapName == L"Highlands" ||
-        mapName == L"Inland_Sea" ||
-        mapName == L"Oasis" ||
-        mapName == L"Fantasy_Realm" ||
-        mapName == L"Balanced"
-    );
-}
-
-static bool isNavalHeavyMap(const CvWString& mapName)
-{
-    return (
-        mapName == L"Archipelago" ||
-        mapName == L"Islands" ||
-        mapName == L"Ring"
-    );
-}
-
 
 UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAITypes* peBestUnitAI) /* advc: */ const
 {
@@ -3487,14 +3461,12 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 		bool const bOffenseMode = (((bAnyRealWar && iEnemyPowerPercent <= iOffenseModeThreshold) || bWarPlan || bAnyPlannedWar || bAnyRealWar || bAssault || (!bDefense && bLandWar)) && !bPeaceAloneLikely);
 
 		// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc, and if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
-		// <!-- custom: trying to save some computing power by moving the mapname outside the function plus condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
-		const CvWString& mapName = GC.getInitCore().getMapScriptName();
-
-		bool const bLandHeavyMap = isLandHeavyMap(mapName);
-		bool bNavalHeavyMap = false;
-		if (!bLandHeavyMap)
+		// <!-- custom: trying to save some computing power by condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
+		bool const bLandHeavyMapname = GC.getGame().isLandHeavyMapnameCached();
+		bool bNavalHeavyMapname = false;
+		if (!bLandHeavyMapname)
 		{
-			bNavalHeavyMap = isNavalHeavyMap(mapName);
+			bNavalHeavyMapname = GC.getGame().isNavalHeavyMapnameCached();
 		}
 
 		// <!-- custom: war strategy, first the offense block: favour offensive unitAI types, like attack_city, etc, avoid defensive ones as well anyways etc. Also as a general rule for war best units: no naval units (favour land warfare for better or worse is more efficient anyways etc, no civilian units (no settler, no worker, etc if any more), allow air since it's so late anyway, i didn't play long enough in late game to know if air units are strong or not, but as a general rule we'll deprioritize them while not strictly forbidding them -->
@@ -3515,7 +3487,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 
 			// <!-- custom: in land heavy maps, no time or hammer for naval units for most: favour land warfare the most, we are about to enter war if not already in one, and want max power/hammer anyways etc in achieving that or trying to in this case i mean anyways etc ; if not on pangea, apply a milder reduction. Deprioritizing as such military sea units attempts to fix the issue of AI building them too much and then its cities having its cities die (10+ galleons and almost no land unit defending cities, see known issue number as of now 35 for details), but land warfare should be most important, although this favours pangea a bit too much, it makes AI hopefully overall stronger and less prone to abuse -->
 			// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc,a nd if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
-			if (bLandHeavyMap)
+			if (bLandHeavyMapname)
 			{
 				aiUnitAIVal[UNITAI_ATTACK] *= 3;
 				aiUnitAIVal[UNITAI_ATTACK_CITY] *= 3;
@@ -3545,7 +3517,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 				aiUnitAIVal[UNITAI_MISSILE_CARRIER_SEA] /= 2;
 			}
 			// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were to be true which i think isn't even with 2 if but check to be sure but anyways etc, and if -> else if -> else is preferable anyway for clarity and/or computational performance as well if i am not mistaken but anyways etc) -->
-			else if (bNavalHeavyMap)
+			else if (bNavalHeavyMapname)
 			{
 				// <!-- custom: note by chatgpt 5 on percentage reductions (check if accurate anyways etc) -->
 				// "In Civ4 code, aiUnitAIVal[] is an int in many places, so 0.2 will truncate to 0 unless it’s cast to float earlier.
@@ -3637,7 +3609,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 			aiUnitAIVal[UNITAI_PARADROP] = 0;
 
 			// <!-- custom: same or equivalent anyways etc -->
-			if (bLandHeavyMap)
+			if (bLandHeavyMapname)
 			{
 				// <!-- custom: maximize defense, and units that will defend to the last bit/soldier xd if i may say in this case xd but anyways etc -->
 				aiUnitAIVal[UNITAI_CITY_DEFENSE] *= 50;
@@ -3662,7 +3634,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 				aiUnitAIVal[UNITAI_MISSILE_CARRIER_SEA] /= 2;
 			}
 			// <!-- custom: same or equivalent anyways etc -->
-			else if (bNavalHeavyMap)
+			else if (bNavalHeavyMapname)
 			{
 				// <!-- custom: maximize defense, and units that will defend to the last bit/soldier xd if i may say in this case xd but anyways etc -->
 				aiUnitAIVal[UNITAI_CITY_DEFENSE] *= 5;
@@ -4717,10 +4689,15 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			if (bNavalUnitsBuilding)
 			{
 				// <!-- custom: be careful to not make this static in case reloads would cause us to treat old pangea map of last save to a pangea in new archipelago loaded or started map if i am not mistaken but check to be sure, anyways etc -->
-				const CvWString mapName = GC.getInitCore().getMapScriptName();
-				const bool bLandHeavyMap = isLandHeavyMap(mapName);
+				// <!-- custom: trying to save some computing power by condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
+				bool const bLandHeavyMapname = GC.getGame().isLandHeavyMapnameCached();
+				// bool bNavalHeavyMapname = false;
+				// if (!bLandHeavyMapname)
+				// {
+				// 	bNavalHeavyMapname = GC.getGame().isNavalHeavyMapnameCached();
+				// }
 
-				if (bLandHeavyMap)
+				if (bLandHeavyMapname)
 				{
 					// <!-- custom: a coastal check as originally done by chatgpt 5 but anyways etc may cause weird issues with maps that are only coast separated from other land parts/pieces but anyways etc, but we still want to block lake drydocks as they should be quite pointless, unless weird map with giant lake. Take a probability approach, let's build it even in lakes to cover most cases, especially giant lakes xd if i may say but anyways etc, as for coastal check i assume/hope the function or something handles it so we don't build an impossible building somehow, as for us just skip this check, if i am not mistaken, check if accurate as this is just a guess from me and is also to simplify if i may say, as we cover enough edge cases below to save hammer in most cases anyway, leave some leeway otherwise in this case i mean but anyways etc -->
 
@@ -11521,13 +11498,12 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 			}
 
 			// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc, and if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
-			// <!-- custom: trying to save some computing power by moving the mapname outside the function plus condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
-			const CvWString& mapName = GC.getInitCore().getMapScriptName();
-			bool const bLandHeavyMap = isLandHeavyMap(mapName);
-			bool bNavalHeavyMap = false;
-			if (!bLandHeavyMap)
+			// <!-- custom: trying to save some computing power by condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
+			bool const bLandHeavyMapname = GC.getGame().isLandHeavyMapnameCached();
+			bool bNavalHeavyMapname = false;
+			if (!bLandHeavyMapname)
 			{
-				bNavalHeavyMap = isNavalHeavyMap(mapName);
+				bNavalHeavyMapname = GC.getGame().isNavalHeavyMapnameCached();
 			}
 
 			// Early-game window (scaled by game speed TrainPercent)
@@ -11729,7 +11705,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 								// preconditions already true: bNoExcessStrictDefendersUnitAIsAttemptHijackUnitAI
 								// and we're in the strict-defender branch
 
-								// <!-- custom: maybe (hypothetically/guessedly of me but i ahve no idea is just a hunch or random or rather blind or rather intutition but anyways etc / guess but maybe producing attack unitais motivates ai less to fill quotas otherwise, so try counter first and then if not other roles anyways etc) -->
+								// <!-- custom: maybe (hypothetically/guessedly of me but i have no idea is just a hunch or random or rather blind or rather intutition but anyways etc / guess but maybe producing attack unitais motivates ai less to fill quotas otherwise, so try counter first and then if not other roles anyways etc) -->
 								// Prefer COUNTER, then ATTACK, then ATTACK_CITY.
 								if (pUnitInfo->getUnitAIType(UNITAI_COUNTER))
 								{
@@ -11764,7 +11740,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				}
 			}
 
-			// <!-- custom: do not overproduce very cheap (limit ourselves to combat units as is most liekly to bankrupt us and we don't have cheap civilian (especially not that we overproduce if i am not mistaken but anyways etc) units as of now if i am not mistaken but anyways etc) units, for example and in particular ancient macemen early, they are so cheap so it's very easy to go bankrupt carelessly anyways etc, add some sanity limits to prevent that, especially considering they won't be too useful later in the game anyways etc; but since there are so many train percent modifiers (game speed, handicap, possibly eras or whatever although we disabled them so far but a chore to remember them everytime, use xml values rather as nicely sugegsted thanks if i may say but anyways etc by chatgpt 5, check if accurate anyways etc); note: we don't have air units so early and they are not check so ignored air check by chatgpt 5, could be useful in some mod mod but not for us anyways etc; note: the way code is written as of now but anyways etc, it may apply to scouts as well since they have strength/combat as well if i'm not mistaken, but the cap should be large enough that it shouldn't be a concern (unless we overproduce them then fine to limit them as well if i'm not mistaken but anyways etc). -->
+			// <!-- custom: do not overproduce very cheap (limit ourselves to combat units as is most likely to bankrupt us and we don't have cheap civilian (especially not that we overproduce if i am not mistaken but anyways etc) units as of now if i am not mistaken but anyways etc) units, for example and in particular ancient macemen early, they are so cheap so it's very easy to go bankrupt carelessly anyways etc, add some sanity limits to prevent that, especially considering they won't be too useful later in the game anyways etc; but since there are so many train percent modifiers (game speed, handicap, possibly eras or whatever although we disabled them so far but a chore to remember them everytime, use xml values rather as nicely sugegsted thanks if i may say but anyways etc by chatgpt 5, check if accurate anyways etc); note: we don't have air units so early and they are not check so ignored air check by chatgpt 5, could be useful in some mod mod but not for us anyways etc; note: the way code is written as of now but anyways etc, it may apply to scouts as well since they have strength/combat as well if i'm not mistaken, but the cap should be large enough that it shouldn't be a concern (unless we overproduce them then fine to limit them as well if i'm not mistaken but anyways etc). -->
 
 			static const bool bNoExcessVeryCheapMilitaryUnits = GC.getDefineBOOL("SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS");
 
@@ -11811,7 +11787,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						{
 							// <!-- custom: it's as chatgpt 5 says indeed, if we go by era, then we would reach classical era the cap would increase and suddenly we'd have more room to produce ancient macemen as i have noticed ingame and told chatgpt 5 to fix xd (thanks for code if i may say really but anyways etc). To avoid that, always take worst cap for a tier (era-independant) (e.g. ancient macemen or scouts for example anyways etc units (<= 20 anyways etc)) anyways etc keep the worst cap of a few units max even in classical and even in medieval, helps system be saner as well to have a lower risk to overproduce these were they for some reason still available to build for some reason or newly so in this case i mean but anyways etc, prevent it by keeping cap in this case i mean but anyways etc -->
 							// Style caps (independent of current era)
-							iVeryCheapUnitsCap = (CM_ANC * iNumCities) + (bNavalHeavyMap ? EX_ANC_NAV : EX_ANC_LAND);
+							iVeryCheapUnitsCap = (CM_ANC * iNumCities) + (bNavalHeavyMapname ? EX_ANC_NAV : EX_ANC_LAND);
 
 							// <!-- custom: most likely to be useless after the very early game (for ancient macemen at least i mean which are the only very cheap combat units so far in our mod anyways etc), so further tone it down (doesn't make sense to produce ancient macemen at turn 100 on normal as i've seen AIs do when many options are better and it would just bankrupt us or increase unit costs / reduce unit costs efficiency (i.e. maintenance gold per turn for the military units i mean but anyways etc)) anyways etc; note: don't scrap existing ones, they'll die fighting or maybe be upgraded eventually or be useful for some other purpose if hopefully not too numerous but anyways etc, but don't produce anymore if beyond this new cap after the very early game if i am not mistaken in my thinking (i think i am not as this is a good idea i think (but check if accurate or is but anyways etc) but anyways etc) -->
 							static const int VERY_EARLY_TURN_ANCIENT_TIER_END = GC.getDefineINT("SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_VERY_EARLY_ANCIENT_TIER_END");
@@ -11846,13 +11822,13 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 			}
 
 			// <!-- custom: do not limit naval units on naval heavy maps, it seems we have way too few units as a result in archipelago, after all if a frigate defeats an invading galleon it counts same as having more units than all land cargo invaders, so do not limit it anyways etc, also maybe this allows for more versatile naval games, let AI decide its own strategy in this case i mean but anyways etc (hopefully not nonsensical one else we could tweak it, but naval maps could go many ways and with various approaches perhaps, so let AI handle it and keep versatility here rather if i am not mistaken in my thinking and based on previous results that were bad when nerfing naval production way too hard as of now on archipelago for example anyways etc but anyways etc) -->
-			if (!bNavalHeavyMap && bAllHandledNavalUnitAIs)
+			if (!bNavalHeavyMapname && bAllHandledNavalUnitAIs)
 			{
 				if (bNavalFrontLineUnitAIs)
 				{
 					// <!-- custom: let's limit certain types of naval units by map type (less on land heavy ones like pangea, more in naval heavy ones like archipelago, anyways etc), to help the known issue as of now 53 of having an AI player have 20+ galleons/privateers, yet producing them +/- scrapping them (dementia/insane like behvaiour if may say but anyways etc.., but not its fault, it just wasn't told better, so hopefully we can help AI have saner unit limits, and we'll ahndle the seemignly naval units scrapping elsewhere as we did in known issue as of now 52 for many units but anyways etc), so for now a few of the combat naval unit AIs (like max iNumCities per AI player seems very sane on pangea, possibly * 2 for naval heavy maps, no need to overproduce beyond that, nor to scrap before that potentially risking crazy loops but anyways etc, we hopefully maybe also save computation by implementing our check here before code is executed but anyways etc) ; code added with the help / thanks to chatgpt 5 as well, check if accurate (and check mine too i mean but anyways etc) anyways etc -->
 					int iMaxUnits = iNumCities;
-					// if (bNavalHeavyMap)
+					// if (bNavalHeavyMapname)
 					// {
 					// 	iMaxUnits = 2 * iNumCities;
 					// }
@@ -11883,7 +11859,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				{
 					// <!-- custom: we don't need too many explore units, especially on land heavy maps, so make sure we don't overproduce (unless they all die or something then replenish if i may say but anyways etc) them and waste hammer anyways etc -->
 					int iMaxUnits = 1 + (3 * iNumCities) / 10; // 1 + ⌊0.3 * cities⌋;
-					// if (bNavalHeavyMap)
+					// if (bNavalHeavyMapname)
 					// {
 					// 	iMaxUnits = 2 + (3 * iNumCities) / 10;
 					// }
@@ -11905,7 +11881,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				{
 					// <!-- custom: the needed amount will heavily be influenced by our war strategy or situation if i may say but anyways etc, otherwise falling back with the as of now below default anyways etc -->
 					int iMaxUnits = iNumCities;
-					// if (bNavalHeavyMap)
+					// if (bNavalHeavyMapname)
 					// {
 					// 	iMaxUnits = 2 * iNumCities;
 					// }
@@ -11936,7 +11912,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				{
 					// <!-- custom: the needed amount will be influenced by our war strategy or situation if i may say but anyways etc, otherwise falling back with the as of now below default anyways etc -->
 					int iMaxUnits = iNumCities;
-					// if (bNavalHeavyMap)
+					// if (bNavalHeavyMapname)
 					// {
 					// 	iMaxUnits = 2 * iNumCities;
 					// }
@@ -11958,7 +11934,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				{
 					// <!-- custom: i don't know too much about these units so allow some quite conservatively and in a sane manner without going overboard on restriction nor in unrestricting them but anyways etc -->
 					int iMaxUnits = iNumCities;
-					// if (bNavalHeavyMap)
+					// if (bNavalHeavyMapname)
 					// {
 					// 	iMaxUnits = 2 * iNumCities;
 					// }
@@ -11984,7 +11960,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				{
 					// <!-- custom: don't overbuild these especially early, we won't found too many cities all at the same time (else something may be wrong with our economy or something xd i would guess at least with base/current settings of maintenance / city cost / settler cost but anyways etc) -->
 					int iMaxUnits = 1 + (3 * iNumCities) / 10; // 1 + ⌊0.3 * cities⌋;
-					// if (bNavalHeavyMap)
+					// if (bNavalHeavyMapname)
 					// {
 					// 	iMaxUnits = 2 + (3 * iNumCities) / 10;
 					// }
@@ -11992,7 +11968,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					// <!-- custom: if at war or such danger or threat, don't die, don't expand, but since this is about founding cities, allow one for naval heavy maps anyways etc -->
 					if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
 					{
-						// if (bNavalHeavyMap)
+						// if (bNavalHeavyMapname)
 						// {
 						// 	iMaxUnits = 1;
 						// }
@@ -12018,7 +11994,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					if (!bEraRenaissanceOrAfter)
 					{
 						iMaxUnits = iNumCities;
-						// if (bNavalHeavyMap)
+						// if (bNavalHeavyMapname)
 						// {
 						// 	iMaxUnits = 2 * iNumCities;
 						// }
@@ -12026,7 +12002,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					else
 					{
 						iMaxUnits = 1 + (3 * iNumCities) / 10; // 1 + ⌊0.3 * cities⌋;
-						// if (bNavalHeavyMap)
+						// if (bNavalHeavyMapname)
 						// {
 						// 	iMaxUnits = 2 + (3 * iNumCities) / 10;
 						// }
@@ -12048,7 +12024,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					if (!bEraRenaissanceOrAfter)
 					{
 						iMaxUnits = iNumCities;
-						// if (bNavalHeavyMap)
+						// if (bNavalHeavyMapname)
 						// {
 						// 	iMaxUnits = 2 * iNumCities;
 						// }
@@ -12056,7 +12032,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					else
 					{
 						iMaxUnits = 1 + (3 * iNumCities) / 10; // 1 + ⌊0.3 * cities⌋;
-						// if (bNavalHeavyMap)
+						// if (bNavalHeavyMapname)
 						// {
 						// 	iMaxUnits = 2 + (3 * iNumCities) / 10;
 						// }
@@ -12080,7 +12056,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				{
 					// <!-- custom: allow AI to be quite versatile with these, just don't overdo it anyways etc -->
 					int iMaxUnits = iNumCities;
-					// if (bNavalHeavyMap)
+					// if (bNavalHeavyMapname)
 					// {
 					// 	iMaxUnits = (iNumCities * 3) / 2;
 					// }
@@ -12092,7 +12068,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					}
 					else if (bWarPlan)
 					{
-						if (!bNavalHeavyMap)
+						if (!bNavalHeavyMapname)
 						{
 							// <!-- custom: useless or/and ineffective at land warfare, better not waste hammer here if i am not mistaken, but anyways etc -->
 							return false;
@@ -12144,7 +12120,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				{
 					// <!-- custom: we don't need too many explore units, especially on naval heavy maps, so make sure we don't overproduce (unless they all die or something then replenish if i may say but anyways etc) them and waste hammer anyways etc -->
 					int iMaxUnits = 2;
-					if (bNavalHeavyMap)
+					if (bNavalHeavyMapname)
 					{
 						iMaxUnits = 1;
 					}
@@ -12247,7 +12223,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				{
 					// <!-- custom: allow AI to be quite versatile with these, just don't overdo it anyways etc -->
 					int iMaxUnits = iNumCities;
-					if (bNavalHeavyMap)
+					if (bNavalHeavyMapname)
 					{
 						iMaxUnits = (iNumCities * 3) / 2;
 					}
@@ -12260,7 +12236,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					// <!-- custom: else if bWarPlan, don't interfere, they could help with our offense, e.g. weakening our target or spying on it to gather data or steal info or such but anyways etc -->
 					else if (bWarPlan)
 					{
-						if (!bNavalHeavyMap)
+						if (!bNavalHeavyMapname)
 						{
 							// <!-- custom: useless or/and ineffective at land warfare, better not waste hammer here if i am not mistaken, but anyways etc -->
 							return false;

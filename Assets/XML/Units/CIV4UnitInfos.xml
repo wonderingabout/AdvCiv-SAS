@@ -7310,7 +7310,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<UnitCombatMods/>
+			<!-- custom: considering its higher base stats than the spearman, make modifiers lower if i am not mistaken in my thinking and to keep unit swordsman like (raider) focused with this being an extra perk for accuracy or balance or/and such, check if accurate anyways etc; see also code comment at the generic axeman for details and additional/related info anyways etc, was empty in the generic swordsman anyways etc; "a cheap foot unit that happens to have a lance" if i may say so not too op modifiers but sitll significant edge plus cost reduction to help too, hopefully balanced as such anyways etc -->
+			<UnitCombatMods>
+				<UnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+					<iUnitCombatMod>10</iUnitCombatMod>
+				</UnitCombatMod>
+				<UnitCombatMod>
+					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+					<iUnitCombatMod>10</iUnitCombatMod>
+				</UnitCombatMod>
+			</UnitCombatMods>
 			<UnitCombatCollateralImmunes/>
 			<DomainMods/>
 			<BonusProductionModifiers/>
@@ -7527,17 +7537,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<!-- custom: considering its higher base stats than the spearman, make modifiers lower if i am not mistaken in my thinking and to keep unit swordsman like (raider) focused with this being an extra perk for accuracy or balance or/and such, check if accurate anyways etc; see also code comment at the generic axeman for details and additional/related info anyways etc, was empty in the generic swordsman anyways etc; "a cheap foot unit that happens to have a lance" if i may say so not too op modifiers but sitll significant edge plus cost reduction to help too, hopefully balanced as such anyways etc -->
-			<UnitCombatMods>
-				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
-					<iUnitCombatMod>10</iUnitCombatMod>
-				</UnitCombatMod>
-				<UnitCombatMod>
-					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
-					<iUnitCombatMod>10</iUnitCombatMod>
-				</UnitCombatMod>
-			</UnitCombatMods>
+			<UnitCombatMods/>
 			<UnitCombatCollateralImmunes/>
 			<DomainMods/>
 			<BonusProductionModifiers/>
@@ -8126,7 +8126,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 70 -->
-			<iCost>60</iCost>
+			<iCost>65</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -8165,7 +8165,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
 			<!-- custom: was 10 -->
-			<iCityAttack>25</iCityAttack>
+			<iCityAttack>20</iCityAttack>
 			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
 			<iHillsAttack>0</iHillsAttack>
@@ -9016,7 +9016,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
-			<!-- custom: they have a more offensive attack focus now, but are good at defense against most units and hammer efficient for that role as well vs longbows as of now in particular if i am not mistaken but anyways etc, but don't allow city_defense itself but most defense roles otherwise if i'm not mistaken anyways etc -->
+			<!-- custom: they have a more offensive attack focus now, but are good at defense against most units and hammer efficient for that role as well vs longbows as of now in particular, but longbows are more versatile against melee units for example (especially axemen which counter spears as of now if i'm not mistaken but anyways etc), so see code comment below and where the below one links to but anyways etc for details anyways etc -->
 			<UnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
@@ -9032,6 +9032,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				</UnitAI>
 				<UnitAI>
 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<!-- custom: not the primary role but good enough at it, see code comment at iCityDefense for details anyways etc -->
+				<UnitAI>
+					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
@@ -9098,7 +9103,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>
-			<iCityDefense>0</iCityDefense>
+			<!-- custom: was 0 in the base advciv-sas spearman, according to chatgpt 5 it "represents shield wall in streets/gates", check if accurate anyways etc. As for balance we could be countered by axes, however considering the cost difference vs a longbow as of now which is significantly more expensive, we can consider this unit for unitai_city_defense role now with this but anyways etc -->
+			<iCityDefense>10</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
 			<!-- custom: same as generic spearman in our mod anyways etc -->
 			<iHillsAttack>10</iHillsAttack>
@@ -9151,7 +9157,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 					<iUnitCombatMod>25</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
-			<UnitCombatCollateralImmunes/>
+			<!-- custom: add this as recommended by chatgpt 5 (nice idea but anyways etc) to buff the hoplite a bit anyways etc i like it very much thanks but anyways etc; however the hoplite window is a bit before these, so we need another buff -->
+			<UnitCombatCollateralImmunes>
+				<UnitCombatCollateralImmune>
+					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+					<iUnitCombatCollateralImmune>1</iUnitCombatCollateralImmune>
+				</UnitCombatCollateralImmune>
+			</UnitCombatCollateralImmunes>
 			<DomainMods/>
 			<BonusProductionModifiers/>
 			<iBombRate>0</iBombRate>

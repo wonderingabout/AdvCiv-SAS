@@ -266,6 +266,36 @@ void CvGame::setInitialItems()
 		regenerateMap(true); // </advc.tsl>
 }
 
+// <!-- custom: new helpers addition quite self explanatory xd if i may say but anyways etc, see also known issue as of now 42 for details too, and also done with chatgpt 5's help and check if accurate too or most relevant or/and if there is a better way perhaps to do this; hopefully helpful or not or yes or etc but anyways etc ; not static map type although would have been computationally nice, but to be safe in case map type changes when loading another save file or creating a new map maybe (i don't know but in case i mean, check to be sure but anyways etc) during civ4 run time anyways etc, as advised by chatgpt 5 too but anyways etc -->
+// CvGame.cpp — the “braindead” recompute (just ==)
+void CvGame::recomputeMapnameHeaviness()
+{
+    const CvWString name = GC.getInitCore().getMapScriptName(); // whatever you already use
+
+    // land-heavy – your exact list
+    m_bLandHeavyMapname =
+        (name == L"Pangaea") ||
+        (name == L"Continents") ||
+        (name == L"Custom_Continents") ||
+        (name == L"Terra") ||
+        (name == L"Great_Plains") ||
+        (name == L"Highlands") ||
+        (name == L"Inland_Sea") ||
+        (name == L"Oasis") ||
+        (name == L"Fantasy_Realm") ||
+        (name == L"Balanced");
+
+    // naval-heavy – your exact list
+    m_bNavalHeavyMapname =
+        (name == L"Archipelago") ||
+        (name == L"Islands") ||
+        (name == L"Ring");
+
+    // tie-break (just in case you add overlapping names later)
+    if (m_bLandHeavyMapname && m_bNavalHeavyMapname)
+        m_bLandHeavyMapname = false; // prefer naval if ambiguous
+}
+
 
 void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
 {
@@ -322,6 +352,11 @@ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
 	CvMapGenerator::GetInstance().generateRandomMap();
 	CvMapGenerator::GetInstance().addGameElements();
 
+	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not but anyways etc, check if accurate anyways etc -->
+	// 5) Call sites (in CvGame.cpp) — recap
+	// After regenerating map: right after addGameElements() in regenerateMap(...)
+	recomputeMapnameHeaviness();
+	
 	gDLL->getEngineIFace()->RebuildAllPlots();
 	/*	<advc.001> Even if we call CvMap::setupGraphical before RebuildAllPlots,
 		there are still artifacts in texture surfaces. I guess we need to give
@@ -330,8 +365,8 @@ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
 	setUpdateTimer(UPDATE_REBUILD_PLOTS, 1);
 	// Fix dark lines running through Flood Plains
 	{
-		FeatureTypes eFloodPlains = (FeatureTypes)GC.getInfoTypeForString(
-				"FEATURE_FLOOD_PLAINS");
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const FeatureTypes eFloodPlains = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FLOOD_PLAINS");
 		FOR_EACH_ENUM(PlotNum)
 		{
 			CvPlot& kPlot = GC.getMap().getPlotByIndex(eLoopPlotNum);
@@ -568,6 +603,11 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 	m_eNormalizationLevel = NORMALIZE_DEFAULT; // advc.108
 	m_szScriptData = "";
 
+	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not but anyways etc, check if accurate anyways etc -->
+	// In your CvGame::reset body where all the other members get defaults, set:
+	m_bLandHeavyMapname  = false;
+	m_bNavalHeavyMapname = false;
+
 	if (!bConstructorCall)
 	{
 		m_aeRankPlayer.reset();
@@ -687,6 +727,11 @@ void CvGame::initDiplomacy()
 			}
 		}
 	}
+
+	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not but anyways etc, check if accurate anyways etc -->
+	// 5) Call sites (in CvGame.cpp) — recap
+	// After map exists for new/scenario games: end of CvGame::initDiplomacy()
+	recomputeMapnameHeaviness();
 }
 
 /*	advc.002i: Assign unique player colors in games where multiple players
@@ -9030,6 +9075,11 @@ void CvGame::read(FDataStreamBase* pStream)
 	GAMETEXT.setAlwaysShowPlotCulture(true); // advc.099f
 	applyOptionEffects(); // advc.310
 	m_bFPTestDone = !isNetworkMultiPlayer(); // advc.003g
+
+	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not but anyways etc, check if accurate anyways etc -->
+	// 5) Call sites (in CvGame.cpp) — recap
+	// After loading a save: end of CvGame::read(FDataStreamBase*)
+	recomputeMapnameHeaviness();
 }
 
 

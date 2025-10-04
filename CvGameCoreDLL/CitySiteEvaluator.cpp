@@ -547,19 +547,20 @@ short AIFoundValue::evaluate()
 				iGoody++;
 			}
 
-			// <!-- custom: regardless of coastal status if i am not mistaken and if i may say but anyways etc if starting site, we want land tiles, not water tiles, as they we can work them and ahve better long term potential, this should help especially for high coast value but low land count tiles issue, see known issue as of now 44 for details but anyways etc -->
+			// <!-- custom: regardless of coastal status if i am not mistaken and if i may say but anyways etc if starting site, we want land tiles, not water tiles, as they we can work them and have better long term potential, this should help especially for high coast value but low land count tiles issue, see known issue as of now 44 for details but anyways etc -->
 			const bool bHomePlot = isHome(*pLoopPlot);
-			const BonusTypes eBonusPlot = getBonus(*pLoopPlot);
-
-			TerrainTypes const eTerrainPlot = pLoopPlot->getTerrainType();
-			FeatureTypes const eFeaturePlot = pLoopPlot->getFeatureType();
-
-			// <!-- custom: optimization as recommended by chatgpt 5 thanks anyways etc -->
-			const bool pLoopPlotIsHills = pLoopPlot->isHills();
-			const bool pLoopPlotIsPeak  = pLoopPlot->isPeak();
 
 			if (!bHomePlot)
 			{
+				const BonusTypes eBonusPlot = getBonus(*pLoopPlot);
+
+				TerrainTypes const eTerrainPlot = pLoopPlot->getTerrainType();
+				FeatureTypes const eFeaturePlot = pLoopPlot->getFeatureType();
+
+				// <!-- custom: optimization as recommended by chatgpt 5 thanks anyways etc -->
+				const bool pLoopPlotIsHills = pLoopPlot->isHills();
+				const bool pLoopPlotIsPeak  = pLoopPlot->isPeak();
+
 				if (!pLoopPlot->isWater())
 				{
 					if (!pLoopPlotIsPeak)
@@ -604,7 +605,7 @@ short AIFoundValue::evaluate()
 					// }
 				}
 
-				// <!-- custom: low-food environment logic detection, as of now used to prioritize food settling/planting/found cities on coastal locations if environment is poor to make best of yields rather than starve soon (and/or dicentivize not doing so maybe too anyways etc); note: this is a bit simplified as current plains or tundra or such location could have a lot of wheat and tundra -->
+				// <!-- custom: low-food environment logic detection, as of now used to prioritize food settling/planting/founding cities on coastal locations if environment is poor to make best of yields rather than starve soon (and/or dicentivize not doing so maybe too anyways etc); note: this is a bit simplified as current plains or tundra or such location could have a lot of wheat and tundra -->
 				if ((eTerrainPlot == eTerrainPlains) || (eTerrainPlot == eTerrainTundra))
 				{
 					if (pLoopPlotIsHills)
@@ -819,7 +820,7 @@ short AIFoundValue::evaluate()
 					hImp = GC.getInfo(eBonusSpecificImprovement).getImprovementBonusYield(eBonus, YIELD_PRODUCTION);
 					cImp = GC.getInfo(eBonusSpecificImprovement).getImprovementBonusYield(eBonus, YIELD_COMMERCE);
 
-					// <!-- custom: use this to detect food bonuses, as according to chatgpt 5 nature yield is not reliable in accurately assessing a tile's yield of a bonus is indeed food bonus or not something else like the city base's tile yield from little in this case i mean but anyways etc i understood of it, check if accurate anyways etc; also note: for food any food is extremely valuable, even if a commerce bonus that happens to give some improved food, value it much still anyways etc as recommended by chatgpt 5 and what i udnerstood got the idea to do of it too i mean if i may say but anyways etc -->
+					// <!-- custom: use this to detect food bonuses, as according to chatgpt 5 nature yield is not reliable in accurately assessing a tile's yield of a bonus is indeed food bonus or not something else like the city base's tile yield from little in this case i mean but anyways etc i understood of it, check if accurate anyways etc; also note: for food any food is extremely valuable, even if a commerce bonus that happens to give some improved food, value it much still anyways etc as recommended by chatgpt 5 and what i understood got the idea to do of it too i mean if i may say but anyways etc -->
 					if (fImp >= iMinOnBonusFoodImproveWorth)
 					{
 						// <!-- custom: it seems we sometimes still found on deer tundra in autoplay, try to increase the penalty further, while trying not to increase it too much in case it is locally best to found as such if i am not mistaken but anyways etc, 400 may seem high but even 300 was not enough although it fluctuated a bit before (all this is with the old formula, not this new one below as untested with old file to know but anyways etc) staying there, i could try 350 maybe but since 400 does fine keep as is for possible edge cases, hopefully this doesn't prevent locally good spots where settling on food is ideal, but even if then, statistically should be better for ai to avoid settling on food bonuses; update: the other new issue i had of ai settling on camel desert is now averted to much later with our new change to improved yield rather than nature ones, but although ai doesn't settle at turn 50, it considers it at turn 100 when other sites are taken, nearby home plots should be much more attractive, so i guess we are not valuing it enough or something, testing and see hopefully not causing ai to chosoe worse sites just to avoid settling on bonus too much but even if it were to happen that may still be better in most cases although not ideal than settling on food bonuses, ideally i would dig why this happens or such and fix this more cleanly, but hopefully this helps anyways etc (since issue only happens on desert camel, maybe base desert food yield being so low interferes or some other logics conflicts somewhere else? These are just guesses, could be mistaken or not, check if accurate anyways etc) -->

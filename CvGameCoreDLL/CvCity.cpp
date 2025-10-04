@@ -676,7 +676,7 @@ void CvCity::doTurn()
 					}
 				}
 
-				// <!-- custom are otherwise equal in cost, take the civ-specific one (e.g. a generic axeman 35 hammer vs civ-specific zulu impi (spearman) 35 hammer, which both would be cheap enough to build assuming a tight threshold (which we don't have here but as an example and just in case anyways etc)) -->
+				// <!-- custom: if they are otherwise equal in cost, take the civ-specific one (e.g. a generic axeman 35 hammer vs civ-specific zulu impi (spearman) 35 hammer, which both would be cheap enough to build assuming a tight threshold (which we don't have here but as an example and just in case anyways etc)) -->
 				// track cheapest overall as fallback-of-fallback
 				if ((iLoopCost < iCheapestOverallCost) || (iLoopCost == iCheapestOverallCost && iLoopScore > iCheapestOverallScore))
 				{
@@ -701,7 +701,7 @@ void CvCity::doTurn()
 				}
 			}
 
-			// <!-- custom: if no non-cheapest is available (i.e. no unit that is less expensive than iMaxCost (extremely unliekly but just in case anyways etc)), add a little safety but anyways etc that unitai needs to not be no_unitai anyways etc -->
+			// <!-- custom: if no non-cheapest is available (i.e. no unit that is less expensive than iMaxCost (extremely unlikely but just in case anyways etc)), add a little safety but anyways etc that unitai needs to not be no_unitai anyways etc -->
 			// if nothing within cap, use the cheapest overall trainable option
 			if ((eBestFallbackUnit == NO_UNIT) && (eCheapestOverallUnit != NO_UNIT) && (eCheapestOverallFallbackUnitUnitAI != NO_UNITAI))
 			{
