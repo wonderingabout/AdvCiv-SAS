@@ -176,14 +176,16 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits,
 
 	CvPlot& kPlot = getPlot();
 	{
-		int const iFreeCityPlotCulture = GC.getDefineINT("FREE_CITY_CULTURE");
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iFreeCityPlotCulture = GC.getDefineINT("FREE_CITY_CULTURE");
 		if (kPlot.getCulture(getOwner()) < iFreeCityPlotCulture)
 			kPlot.setCulture(getOwner(), iFreeCityPlotCulture, bBumpUnits, false);
 	}
 	kPlot.setOwner(getOwner(), bBumpUnits, false);
 	kPlot.setPlotCity(this);
 
-	int const iFreeCityAdjacentCulture = GC.getDefineINT("FREE_CITY_ADJACENT_CULTURE");
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const int iFreeCityAdjacentCulture = GC.getDefineINT("FREE_CITY_ADJACENT_CULTURE");
 	FOR_EACH_ADJ_PLOT_VAR(getPlot())
 	{
 		if (pAdj->getCulture(getOwner()) < iFreeCityAdjacentCulture)
@@ -262,8 +264,12 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits,
 			if (kCiv.isFreeBuilding(eBuilding))
 				setNumRealBuilding(eBuilding, 1);
 		}
+
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iInitialAICityProduction = GC.getDefineINT("INITIAL_AI_CITY_PRODUCTION");
+
 		if (!isHuman() /* advc.250b: */ && !kGame.isOption(GAMEOPTION_SPAH))
-			changeOverflowProduction(GC.getDefineINT("INITIAL_AI_CITY_PRODUCTION"), 0);
+			changeOverflowProduction(iInitialAICityProduction, 0);
 		// <advc.124g>
 		if (isHuman() && isActiveOwned() &&
 			kOwner.getCurrentResearch() == NO_TECH)
@@ -812,10 +818,14 @@ void CvCity::doTurn()
 
 	updateSurroundingHealthHappiness(); // advc.901
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iWeLoveTheKingMinPop = GC.getDefineINT("WE_LOVE_THE_KING_POPULATION_MIN_POPULATION");
+	static const int iWeLoveTheKingRand = GC.getDefineINT("WE_LOVE_THE_KING_RAND");
+
 	if (isOccupation() || angryPopulation() > 0 || healthRate() < 0)
 		setWeLoveTheKingDay(false);
-	else if (getPopulation() >= GC.getDefineINT("WE_LOVE_THE_KING_POPULATION_MIN_POPULATION") &&
-		SyncRandNum(GC.getDefineINT("WE_LOVE_THE_KING_RAND")) < getPopulation())
+	else if (getPopulation() >= iWeLoveTheKingMinPop &&
+		SyncRandNum(iWeLoveTheKingRand) < getPopulation())
 	{
 		setWeLoveTheKingDay(true);
 	}
@@ -945,7 +955,9 @@ void CvCity::doRevolt()
 		This is just what I need now that the occupation timer decreases
 		probabilistically, but it wasn't committed to the K-Mod repository;
 		so I'm adding it here. */
-	int iTurnsOccupation = GC.getDefineINT("BASE_REVOLT_OCCUPATION_TURNS") +
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iBaseRevoltOccupationTurns = GC.getDefineINT("BASE_REVOLT_OCCUPATION_TURNS");
+	int iTurnsOccupation = iBaseRevoltOccupationTurns +
 			getNumRevolts(eCulturalOwner); // </advc.023>
 	// K-Mod end
 	changeNumRevolts(eCulturalOwner, 1);
@@ -4355,22 +4367,30 @@ int CvCity::cultureStrength(PlayerTypes ePlayer,
 	rSecondPartyModifier.clamp(0, 1);
 	rStrength *= rSecondPartyModifier;
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iForeignCultureStrengthExponent = GC.getDefineINT("FOREIGN_CULTURE_STRENGTH_EXPONENT");
+
 	/*	Culture strength too low in the late game - or garrison strength too high, but
 		garrison strength is what players can directly control; needs to be simple, linear.
 		Make this adjustment before applying grievance modifiers (or any other modifiers
 		that the UI communicates to the player). */
 	static scaled const rFOREIGN_CULTURE_STRENGTH_EXPONENT = per100(
-			GC.getDefineINT("FOREIGN_CULTURE_STRENGTH_EXPONENT"));
+			iForeignCultureStrengthExponent);
 	rStrength.exponentiate(rFOREIGN_CULTURE_STRENGTH_EXPONENT);
 	rStrength *= per100(GC.getInfo(kOwner.getHandicapType()).get(
 			CvHandicapInfo::ForeignCultureStrength));
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iRevoltOffenseStateReligionModifier = GC.getDefineINT("REVOLT_OFFENSE_STATE_RELIGION_MODIFIER");
+	static const int iRevoltDefenseStateReligionModifier = GC.getDefineINT("REVOLT_DEFENSE_STATE_RELIGION_MODIFIER");
+	static const int iTotalCultureModifier = GC.getDefineINT("REVOLT_TOTAL_CULTURE_MODIFIER");
+
 	static scaled const rREVOLT_OFFENSE_STATE_RELIGION_MODIFIER = per100(
-			GC.getDefineINT("REVOLT_OFFENSE_STATE_RELIGION_MODIFIER"));
+			iRevoltOffenseStateReligionModifier);
 	static scaled const rREVOLT_DEFENSE_STATE_RELIGION_MODIFIER = per100(
-			GC.getDefineINT("REVOLT_DEFENSE_STATE_RELIGION_MODIFIER"));
+			iRevoltDefenseStateReligionModifier);
 	static scaled const rREVOLT_TOTAL_CULTURE_MODIFIER = per100(
-			GC.getDefineINT("REVOLT_TOTAL_CULTURE_MODIFIER")); // 100
+			iTotalCultureModifier); // 100
 	scaled rGrievanceModifier;
 	ReligionTypes const eOwnerStateReligion = kOwner.getStateReligion();
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
@@ -8315,7 +8335,11 @@ scaled CvCity::getRevoltTestProbability() const // advc.101: Return type was int
 	// Need to cut cities recently acquired by Barbarians some slack
 	if (isBarbarian() && kGame.getGameTurn() - getGameTurnAcquired() < 8 * rSpeedFactor)
 		return 0; // </advc.101>
-	static scaled const rREVOLT_TEST_PROB = per100(GC.getDefineINT("REVOLT_TEST_PROB")); // advc.opt
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iRevoltTestProb = GC.getDefineINT("REVOLT_TEST_PROB");
+
+	static scaled const rREVOLT_TEST_PROB = per100(iRevoltTestProb); // advc.opt
 	scaled r = rREVOLT_TEST_PROB * per100(100 - getRevoltProtection());
 	r /= rSpeedFactor;
 	r.decreaseTo(1); // advc.101: Upper bound used to be handled by the caller
@@ -8345,8 +8369,12 @@ void CvCity::addRevoltFreeUnits()
 
 	if (eBestUnit != NO_UNIT)
 	{
-		int iFreeUnits = (GC.getDefineINT("BASE_REVOLT_FREE_UNITS") +
-				(getHighestPopulation() * GC.getDefineINT("REVOLT_FREE_UNITS_PERCENT")) / 100);
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iBaseRevoltFreeUnits = GC.getDefineINT("BASE_REVOLT_FREE_UNITS");
+		static const int iRevoltFreeUnitsPercent = GC.getDefineINT("REVOLT_FREE_UNITS_PERCENT");
+
+		int iFreeUnits = (iBaseRevoltFreeUnits +
+				(getHighestPopulation() * iRevoltFreeUnitsPercent) / 100);
 		for (int i = 0; i < iFreeUnits; i++)
 		{
 			GET_PLAYER(getOwner()).initUnit(eBestUnit, getX(), getY(), UNITAI_CITY_DEFENSE);
@@ -9443,9 +9471,12 @@ void CvCity::setHasReligion(ReligionTypes eReligion, bool bNewValue, bool bAnnou
 	setInfoDirty(true);
 	// <advc.106e>
 	int const iOwnerEra = kOwner.getCurrentEra();
-	int const iEraThresh = GC.getDefineINT("STOP_RELIGION_SPREAD_ANNOUNCE_ERA");
-	bool const bAnnounceStateReligionSpread = (GC.getDefineINT(
-			"ANNOUNCE_STATE_RELIGION_SPREAD") > 0);
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iEraThresh = GC.getDefineINT("STOP_RELIGION_SPREAD_ANNOUNCE_ERA");
+	static const int iAnnounceStateReligionSpread = GC.getDefineINT("ANNOUNCE_STATE_RELIGION_SPREAD");
+
+	bool const bAnnounceStateReligionSpread = (iAnnounceStateReligionSpread > 0);
 	// </advc.106e>
 	if (isHasReligion(eReligion))
 	{
@@ -10469,7 +10500,10 @@ void CvCity::setWallOverridePoints(const std::vector< std::pair<float, float> >&
 // <advc.310>
 void CvCity::addGreatWall(int iAttempt)
 {
-	if (GC.getDefineINT("GREAT_WALL_GRAPHIC_MODE") != 1)
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iGreatWallGraphicMode = GC.getDefineINT("GREAT_WALL_GRAPHIC_MODE");
+
+	if (iGreatWallGraphicMode != 1)
 	{
 		gDLL->getEngineIFace()->AddGreatWall(this);
 		return;
@@ -10712,8 +10746,11 @@ void CvCity::doPlotCultureTimes100(bool bUpdate, PlayerTypes ePlayer,
 	scaled rCultureToMaster = 1;
 	if (GET_TEAM(getTeam()).isCapitulated())
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iCapitulatedToMasterCulturePercent = GC.getDefineINT("CAPITULATED_TO_MASTER_CULTURE_PERCENT");
+
 		static scaled const rCAPITULATED_TO_MASTER_CULTURE_PERCENT = per100(
-				GC.getDefineINT("CAPITULATED_TO_MASTER_CULTURE_PERCENT"));
+				iCapitulatedToMasterCulturePercent);
 		rCultureToMaster = rCAPITULATED_TO_MASTER_CULTURE_PERCENT;
 	} // </advc.025>
 	for (SquareIter itPlot(getPlot(), iCultureRange); itPlot.hasNext(); ++itPlot)
@@ -11161,8 +11198,12 @@ void CvCity::doReligion()
 			iChancePercent /= 1 + iReligionCities;
 		}*/
 		// <advc>
+
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iReligionSpreadRand = GC.getDefineINT("RELIGION_SPREAD_RAND");
+
 		static scaled const rRELIGION_SPREAD_DIV = std::max(scaled::epsilon(),
-				per100(GC.getDefineINT("RELIGION_SPREAD_RAND")));
+				per100(iReligionSpreadRand));
 		rSpreadProb /= std::max(scaled::epsilon(),
 				rRELIGION_SPREAD_DIV * per100(
 				GC.getInfo(GC.getGame().getGameSpeedType()).get(
@@ -12984,7 +13025,10 @@ void CvCity::getBuildQueue(std::vector<std::string>& astrQueue) const
 // <advc.004b> See CvCity.h
 int CvCity::initialPopulation()
 {
-	return GC.getDefineINT("INITIAL_CITY_POPULATION") +
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iInitialCityPopulation = GC.getDefineINT("INITIAL_CITY_POPULATION");
+
+	return iInitialCityPopulation +
 			GC.getInfo(GC.getGame().getStartEra()).getFreePopulation();
 }
 
@@ -13240,11 +13284,17 @@ int CvCity::failGoldPercent(OrderTypes eOrder) const // Fail and overflow gold
 	/*  To make any future changes to the process conversion rates easier, tie
 		fail gold to the Wealth process. */
 	int r = GC.getInfo((ProcessTypes)0).getProductionToCommerceModifier(COMMERCE_GOLD);
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iMaxedUnitGoldPercent = GC.getDefineINT("MAXED_UNIT_GOLD_PERCENT");
+	static const int iMaxedBuildingGoldPercent = GC.getDefineINT("MAXED_BUILDING_GOLD_PERCENT");
+	static const int iMaxedProjectGoldPercent = GC.getDefineINT("MAXED_PROJECT_GOLD_PERCENT");
+
 	switch(eOrder)
 	{
-	case ORDER_TRAIN: r *= GC.getDefineINT("MAXED_UNIT_GOLD_PERCENT"); break;
-	case ORDER_CONSTRUCT: r *= GC.getDefineINT("MAXED_BUILDING_GOLD_PERCENT"); break;
-	case ORDER_CREATE: r *= GC.getDefineINT("MAXED_PROJECT_GOLD_PERCENT"); break;
+	case ORDER_TRAIN: r *= iMaxedUnitGoldPercent; break;
+	case ORDER_CONSTRUCT: r *= iMaxedBuildingGoldPercent; break;
+	case ORDER_CREATE: r *= iMaxedProjectGoldPercent; break;
 	default: r *= 100; FAssert(false);
 	}
 	return r / 100;
