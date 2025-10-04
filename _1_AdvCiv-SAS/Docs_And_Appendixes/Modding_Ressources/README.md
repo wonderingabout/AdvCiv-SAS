@@ -208,6 +208,8 @@ A more advanced version would allow to better control the date we set to the tag
 
 To do that, with bit of back and forth wit chatgpt 5 and trial and error (but check if accurate), i have found this very nice version that allows to do that (be bit more careful using it as i don't know if it will always be functionnal (the simple one too but this one in particular xd as it's more technical and might change in the future or apply differently to your use case or something so check if accurate and make a backup of your repo maybe/ideally if i may say just in case but anyways etc))
 
+##### example 1 with more advanced version anyways etc (me totally not using it selfishly as storage (is my mod too but still but anyways etc)... Or i am indeed in this case i mean but anyways etc but anyways etc)
+
 ```cmd
 git fetch origin
 
@@ -234,6 +236,33 @@ git push --force origin "$TAG"
 ```
 
 Result ([for example for tag version 4986 here](https://github.com/wonderingabout/AdvCiv-SAS/releases/tag/4986) as linked before but added here again if i may say in this case i mean but anyways etc for exhaustiveness but anyways etc) is great, now our tag is shown "2 weeks ago" (date of the commit of version 4986), and not "now" anymore (date of when i am tagging it as of now today anyways etc) as we wanted, but again check if accurate and make a backup of your repo just in case, hopefully helpful anyways etc.
+
+##### example 2 with more advanced version anyways etc (me totally not using it selfishly as storage (is my mod too but still but anyways etc)... Or i am indeed in this case i mean but anyways etc but anyways etc); i believe it's also (hopefully (in this case i mean but anyways etc)) useful as illustration but anyways etc
+
+```cmd
+git fetch origin
+
+# choose names
+# new tag
+TAG=5030
+SHA=e3ecaf41449b5a4415d3a98ff0c68c0d0ccd7738   # <- the 5030 commit
+OLDNAME="AdvCiv-SAS 4986"                      # quote because of spaces
+BASE=8d6bf6e0f61004e415aa3584e906fdb77275c1f8
+WHEN=$(git show -s --format=%cI "$SHA")        # or %aI if you prefer author date
+
+# replace the tag locally with correct date + message
+GIT_COMMITTER_DATE="$WHEN" GIT_AUTHOR_DATE="$WHEN" \
+git tag -fa "$TAG" "$SHA" \
+  -m "AdvCiv-SAS $TAG" \
+  -m "Commit history from $OLDNAME to $TAG viewable at https://github.com/wonderingabout/AdvCiv-SAS/commits/tech-rework/?since=2025-09-06&until=2025-10-03 or at https://github.com/wonderingabout/AdvCiv-SAS/compare/$BASE...$SHA"
+
+# force-push because we’re updating an existing remote tag object
+git push --force origin "$TAG"
+# if you’re not correcting an existing remote tag:
+# if not force pushing then before you'd need to rather do instead if i'm not mistaken anyways etc git tag -a (note: i commented it here rather than above else the `\` char followed by a command line breaks the date that is shown as now instead of the date we set in this command, as nicely found by chatgpt 5 and i tested it too to seem to be so but anyways etc (but check if accurate anyways etc)) anyways etc, so i put all comments here for reliability and clarity anyways etc
+# and then next line you could do (no force push if new tag that did not existing before if i'm not mistaken but anyways etc): 
+# git push origin "$TAG"
+```
 
 ### manual(s) and docs in .txt
 

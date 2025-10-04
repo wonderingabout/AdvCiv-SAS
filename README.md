@@ -2,7 +2,7 @@
 
 This mod (AdvCiv-SAS (Simple Advanced Strategy)) is based on [AdvCiv 1.12](https://github.com/f1rpo/AdvCiv/tree/1.12) as it is the latest [AdvCiv (CFC forum/post link)](https://forums.civfanatics.com/threads/advanced-civ.614217/) version as of now, and will/may update whenever there are new changes that are stable.
 
-AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/), not just on github anymore (read below for download/install instructions too anyways etc).
+AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/) and at the [ModDB website](https://www.moddb.com/mods/advciv-sas-simple-advanced-strategy), not just on github anymore (read below for download/install instructions too anyways etc).
 
 The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers in particular, as well as AI more generally being opportunistic and efficiency driven more than anything else as much as possible. Heavy reworks were made, while otherwise staying for most in the base advciv frame, but with a focus on historical accuracy, game balance, and as for UI sevopedia reworks in particular.
 
@@ -18,6 +18,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 
 [Tech Tree](/README.md#tech-tree)  
 [Military Tree and changes](/README.md#military-tree-and-changes)  
+[Ingame gameplay samples](/README.md#ingame-gameplay-samples)  
 [Docs](/README.md#docs)  
 [How to play?](/README.md#how-to-play)  
 [Full exhaustive very long and exhaustive changes](/README.md#full-exhaustive-very-long-and-exhaustive-changes)  
@@ -71,6 +72,16 @@ As of now the military tree is as such in AdvCiv-SAS (please view ingame or/and 
 <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (2).JPG" alt="0.60_military_tree_ingame (2).JPG" width="250"></img>
 
 See [README_More_Exhaustive_Military_Tree.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_More_Exhaustive_Military_Tree.md) for details
+
+## Ingame gameplay samples
+
+These are from autoplay or me playing them myself (for the 4986 rome AI screenshot as of now but anyways etc). AI is very strong, i wanted to showcase that as well as how AI generally behaves and the game looks/feels ingame. Both of these maps were pangea at monarch difficulty if i'm not mistaken but anyways etc. Latest napoleon ai screenshots are shortly before version 5030.
+
+<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.960_gameplay_4986_sample_monarch_1.JPG" alt="0.960_gameplay_4986_sample_monarch_1.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5030_sample_monarch_1.JPG" alt="0.961_autoplay_about_5030_sample_monarch_1.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5030_sample_monarch_2.JPG" alt="0.961_autoplay_about_5030_sample_monarch_2.JPG" width="250"></img>
+
+See also [the CFC AdvCiv-SAS Discussion Thread here](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) as well, or the google drive link (see [Docs section](/README.md#docs) for link below anyways etc) for more gameplay samples although some of these may be old/dated now but anyways etc.
 
 ## Docs
 

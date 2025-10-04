@@ -416,7 +416,7 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
 			<iAnimalBonus>-10</iAnimalBonus>
 			<iBarbarianBonus>0</iBarbarianBonus>
 			<!-- advc.313: was -40 -->
-			<iAIAnimalBonus>-20</iAIAnimalBonus>
+			<iAIAnimalBonus>0</iAIAnimalBonus>
 			<iAIBarbarianBonus>0</iAIBarbarianBonus>
 			<iStartingDefenseUnits>1</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>

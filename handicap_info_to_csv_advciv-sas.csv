@@ -1,6 +1,6 @@
 Field,Settler,Chieftain,Warlord,Noble,Prince,Monarch,Emperor,Immortal,Deity
 iAIAdvancedStartPercent,70,80,90,100,120,140,160,180,200
-iAIAnimalBonus,-30,-15,-20,0,0,0,0,0,0
+iAIAnimalBonus,-30,-15,0,0,0,0,0,0,0
 iAIAttitudeChangePercent,10,20,30,40,50,60,70,80,90
 iAIBarbarianBonus,-30,-15,0,0,0,0,0,0,0
 iAICivicUpkeepPercent,118,112,106,100,94,88,82,76,70
