@@ -79,10 +79,22 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 		break;
 
 	case WIDGET_PLOT_LIST_SHIFT:
-		szBuffer.assign(gDLL->getText("TXT_KEY_MISC_CTRL_SHIFT",
-				GC.getDefineINT("MAX_PLOT_LIST_SIZE") - 1));
-		break;
+	// <!-- custom: when making a static const here we got a compile error:
+	// 	1>..\CvDLLWidgetData.cpp(89): error C2360: initialization of 'iMaxPlotListSize' is skipped by 'case' label
+	// 	1>          ..\CvDLLWidgetData.cpp(83) : see declaration of 'iMaxPlotListSize'
+ 	// 
+	// So i  added braces here as recommended by chatgpt 5, check if accurate as i don't know a lot about these errors if at all i mean but anyways etc -->
+	// You hit the classic MSVC “switch-init” rule. In old MSVC (and standard C++), a declaration with an initializer directly under a case label is illegal unless you introduce a new block. The compiler treats case labels like gotos; control can jump into the middle and “skip” the initialization → C2360.
+	//
+	// Fix (wrap the case in braces)
+	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iMaxPlotListSize = GC.getDefineINT("MAX_PLOT_LIST_SIZE");
 
+		szBuffer.assign(gDLL->getText("TXT_KEY_MISC_CTRL_SHIFT",
+				iMaxPlotListSize - 1));
+		break;
+	}
 	case WIDGET_CITY_SCROLL:
 		break;
 
@@ -1274,8 +1286,11 @@ void CvDLLWidgetData::doPlotListShift(int iChange, bool bMaxStep)
 	int iStep = 10;
 	if (gDLL->UI().isCityScreenUp())
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iMaxPlotListSize = GC.getDefineINT("MAX_PLOT_LIST_SIZE");
+
 		// (Not sure that this is really a maximal limit of anything)
-		int const iBigStep = GC.getDefineINT("MAX_PLOT_LIST_SIZE"); // 100
+		int const iBigStep = iMaxPlotListSize; // 100
 		/*	BUG drawing method will only ever show a single row on the city screen.
 			Don't want to expand rapidly upon the first right-shift then.
 			Instead, let the bMaxStep param jump to the final column. */
@@ -1988,7 +2003,10 @@ void CvDLLWidgetData::parseConscriptHelp(CvWidgetDataStruct &widgetDataStruct, C
 		}
 	}
 	{
-		int iMinCulturePercent = GC.getDefineINT("CONSCRIPT_MIN_CULTURE_PERCENT");
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iConscriptMinCulturePercent = GC.getDefineINT("CONSCRIPT_MIN_CULTURE_PERCENT");
+
+		int iMinCulturePercent = iConscriptMinCulturePercent;
 		if (pHeadSelectedCity->getPlot().calculateTeamCulturePercent(
 			pHeadSelectedCity->getTeam()) < iMinCulturePercent)
 		{
@@ -6172,27 +6190,39 @@ void CvDLLWidgetData::parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct,
 
 	if (eFlags & CvPlayer::POLLUTION_POPULATION)
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iGlobalWarmingPopulationWeight = GC.getDefineINT("GLOBAL_WARMING_POPULATION_WEIGHT");
+		
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_POPULATION",
-				GC.getDefineINT("GLOBAL_WARMING_POPULATION_WEIGHT")));
+				iGlobalWarmingPopulationWeight));
 	}
 	if (eFlags & CvPlayer::POLLUTION_BUILDINGS)
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iGlobalWarmingBuildingWeight = GC.getDefineINT("GLOBAL_WARMING_BUILDING_WEIGHT");
+
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_BUILDINGS",
-				GC.getDefineINT("GLOBAL_WARMING_BUILDING_WEIGHT")));
+				iGlobalWarmingBuildingWeight));
 	}
 	if (eFlags & CvPlayer::POLLUTION_BONUSES)
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iGlobalWarmingBonusWeight = GC.getDefineINT("GLOBAL_WARMING_BONUS_WEIGHT");
+
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_BONUSES",
-				GC.getDefineINT("GLOBAL_WARMING_BONUS_WEIGHT")));
+				iGlobalWarmingBonusWeight));
 	}
 	if (eFlags & CvPlayer::POLLUTION_POWER)
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iGlobalWarmingPowerWeight = GC.getDefineINT("GLOBAL_WARMING_POWER_WEIGHT");
+
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_POWER",
-				GC.getDefineINT("GLOBAL_WARMING_POWER_WEIGHT")));
+				iGlobalWarmingPowerWeight));
 	}
 } // </K-Mod>
 

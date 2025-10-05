@@ -1401,7 +1401,11 @@ bool CvDLLButtonPopup::launchRazeCityPopup(CvPopup* pPopup, CvPopupInfo &info)
 		FAssert(false);
 		return false;
 	}
-	if (GC.getDefineINT("PLAYER_ALWAYS_RAZES_CITIES") != 0)
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const bool bPlayerAlwaysRazesCities = (GC.getDefineINT("PLAYER_ALWAYS_RAZES_CITIES") != 0);
+
+	if (bPlayerAlwaysRazesCities)
 	{
 		kPlayer.raze(*pNewCity);
 		return false;

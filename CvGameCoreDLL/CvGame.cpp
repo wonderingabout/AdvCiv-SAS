@@ -262,7 +262,11 @@ void CvGame::setInitialItems()
 	for (PlayerAIIter<CIV_ALIVE> it; it.hasNext(); ++it)
 		it->AI_updateFoundValues();
 	// <advc.tsl>
-	if (m_iMapRegens < GC.getDefineINT("AUTO_REGEN_MAP"))
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iAutoRegenMap = GC.getDefineINT("AUTO_REGEN_MAP");
+
+	if (m_iMapRegens < iAutoRegenMap)
 		regenerateMap(true); // </advc.tsl>
 }
 
@@ -527,7 +531,10 @@ void CvGame::setStartTurnYear(int iTurn)
 	}
 	else setEstimateEndTurn(getGameTurn() + getMaxTurns());
 
-	setStartYear(GC.getDefineINT("START_YEAR"));
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iStartYear = GC.getDefineINT("START_YEAR");
+
+	setStartYear(iStartYear);
 }
 
 /*	Initialize data members that are serialized. (advc: I'm also initializing some
@@ -591,6 +598,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 
 	m_eHandicap = eHandicap;
 	// <advc.127>
+	// <!-- custom: note: not doing static const here as there seems to be some required init condition and as recommended by chatgpt 5, check if accurate anyways etc -->
 	m_eAIHandicap = (bConstructorCall ? NO_HANDICAP :
 			// (XML not loaded when constructor called)
 			(HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP")); // </advc.127>
@@ -1797,8 +1805,12 @@ void CvGame::normalizeRemovePeaks()
 {
 	// <advc.108>
 	scaled rRemovalProb = 1;
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iRemovalChancePeak = GC.getDefineINT("REMOVAL_CHANCE_PEAK");
+
 	if (m_eNormalizationLevel <= NORMALIZE_LOW)
-		rRemovalProb = per100(GC.getDefineINT("REMOVAL_CHANCE_PEAK"));
+		rRemovalProb = per100(iRemovalChancePeak);
 	// </advc.108>
 
 	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
@@ -1877,8 +1889,9 @@ bool CvGame::normalizeCanAddLakeTo(CvPlot const& kPlot) const
 
 void CvGame::normalizeRemoveBadFeatures()
 {
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
 	// advc.108:
-	int const iThreshBadFeatPerCity = GC.getDefineINT("THRESH-BAD-FEAT-PER-CITY");
+	static const int iThreshBadFeatPerCity = GC.getDefineINT("THRESH-BAD-FEAT-PER-CITY");
 
 	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
 	{
@@ -1971,10 +1984,13 @@ void CvGame::normalizeRemoveBadFeatures()
 
 void CvGame::normalizeRemoveBadTerrain()
 {
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iRemovalChanceBadTerrain = GC.getDefineINT("REMOVAL_CHANCE_BAD_TERRAIN");
+
 	// <advc.108>
 	scaled rKeepProb;
 	if (m_eNormalizationLevel <= NORMALIZE_LOW)
-		rKeepProb = 1 - per100(GC.getDefineINT("REMOVAL_CHANCE_BAD_TERRAIN"));
+		rKeepProb = 1 - per100(iRemovalChanceBadTerrain);
 	// </advc.108>
 	int const iCityRange = CITY_PLOTS_RADIUS;
 	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
@@ -2705,7 +2721,11 @@ void CvGame::updateStartingPlotRange() const
 {
 	CvMap const& kMap = GC.getMap();
 	int iRange = kMap.maxStepDistance() + 10;
-	iRange *= GC.getDefineINT("STARTING_DISTANCE_PERCENT");
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iStartingDistancePercent = GC.getDefineINT("STARTING_DISTANCE_PERCENT");
+
+	iRange *= iStartingDistancePercent;
 	iRange /= 100;
 	int const iAlive = countCivPlayersAlive();
 	int const iLand = kMap.getLandPlots();
@@ -2725,7 +2745,11 @@ void CvGame::updateStartingPlotRange() const
 	iRange += std::min((iMajorAreas + 1) / 2, iAlive);
 	iRange *= 100 + GC.getPythonCaller()->minStartingDistanceMod();
 	iRange /= 100;
-	m_iStartingPlotRange = std::max(iRange, GC.getDefineINT("MIN_CIV_STARTING_DISTANCE"));
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iMinCivStartingDistance = GC.getDefineINT("MIN_CIV_STARTING_DISTANCE");
+
+	m_iStartingPlotRange = std::max(iRange, iMinCivStartingDistance);
 }
 
 // advc: Cut, refactored from normalizeAddExtras
@@ -3154,6 +3178,10 @@ void CvGame::updateGwPercentAnger()
 		iGlobalDefence = calculateGwLandDefence(NO_PLAYER);
 	} // advc: Ensure initialization
 	else iGlobalPollution = iGwSeverityRating = iGlobalDefence = -1;
+
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const int iGLOBAL_WARMING_BASE_ANGER_PERCENT = GC.getDefineINT("GLOBAL_WARMING_BASE_ANGER_PERCENT"); // advc.opt
+
 	for (PlayerIter<MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
 	{
 		int iAngerPercent = 0;
@@ -3171,7 +3199,6 @@ void CvGame::updateGwPercentAnger()
 			// amplify the affects of responsibility
 			iResponsibilityFactor = std::max(0, 2*iResponsibilityFactor-100);
 
-			static int const iGLOBAL_WARMING_BASE_ANGER_PERCENT = GC.getDefineINT("GLOBAL_WARMING_BASE_ANGER_PERCENT"); // advc.opt
 			iAngerPercent = iGLOBAL_WARMING_BASE_ANGER_PERCENT * iGwSeverityRating * iResponsibilityFactor;
 			iAngerPercent = intdiv::round(iAngerPercent, 100 * 100);
 		}
@@ -3677,7 +3704,11 @@ bool CvGame::isTeamVoteEligible(TeamTypes eTeam, VoteSourceTypes eVoteSource) co
 		if (it->isForceTeamVoteEligible(eVoteSource))
 			iCount++;
 	}
-	int iExtraEligible = GC.getDefineINT("TEAM_VOTE_MIN_CANDIDATES") - iCount;
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iTeamVoteMinCandidates = GC.getDefineINT("TEAM_VOTE_MIN_CANDIDATES");
+
+	int iExtraEligible = iTeamVoteMinCandidates - iCount;
 	if (iExtraEligible <= 0)
 		return false;
 	for (TeamIter<CIV_ALIVE,NOT_SAME_TEAM_AS> it(eTeam); it.hasNext(); ++it)
@@ -4702,7 +4733,11 @@ int CvGame::getGlobalWarmingChances() const
 		number of turns in the game, so, by scaling the chances, and the
 		probability per chance, I hope to get roughly the same number of
 		actual events per game. */
-	scaled rIndexPerChance = GC.getDefineINT("GLOBAL_WARMING_INDEX_PER_CHANCE");
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iGlobalWarmingIndexPerChance = GC.getDefineINT("GLOBAL_WARMING_INDEX_PER_CHANCE");
+
+	scaled rIndexPerChance = iGlobalWarmingIndexPerChance;
 	rIndexPerChance *= per100(getSpeedPercent());
 	/*	advc.055: The more teams there are, the less evenly the world tends to
 		develop. GW causes the most damage when much of the world has a similar
@@ -4758,8 +4793,12 @@ int CvGame::calculateGwSustainabilityThreshold(PlayerTypes ePlayer) const
 	/*	expect each pop to give ~10 pollution per turn at the time
 		we cross the threshold, and ~1 pop per land tile...
 		so default resistance should be around 10 per tile. */
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iGlobalWarmingResistance = GC.getDefineINT("GLOBAL_WARMING_RESISTANCE");
+
 	int iGlobalThreshold = GC.getMap().getLandPlots() *
-			GC.getDefineINT("GLOBAL_WARMING_RESISTANCE");
+			iGlobalWarmingResistance;
 
 	/*	maybe we should add some points for coastal tiles as well,
 		so that watery maps don't get too much warming */
@@ -4792,7 +4831,11 @@ int CvGame::calculateGwSeverityRating() const
 	I recommend looking at the graph of this function to get a sense of how it works. */
 	/*	advc: Was long, which is equivalent to int. Could use long long,
 		but it looks like 32 bit should suffice. */
-	int const x = GC.getDefineINT("GLOBAL_WARMING_PROB") * getGlobalWarmingIndex() /
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iGlobalWarmingProb = GC.getDefineINT("GLOBAL_WARMING_PROB");
+
+	int const x = iGlobalWarmingProb * getGlobalWarmingIndex() /
 			(GC.getMap().getLandPlots() * 4 * getSpeedPercent());
 	// shape parameter. Lower values result in the function being steeper earlier.
 	int const b = 55; // advc.055: was 70
@@ -5923,10 +5966,15 @@ void CvGame::setHolyCity(ReligionTypes eReligion, CvCity* pCity, bool bAnnounce)
 	//updateCitySight(false, true);
 	m_aeHolyCity.set(eReligion, pCity == NULL ? NO_PLOT_NUM : pCity->plotNum());
 	//updateCitySight(true, true);
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const int iHolyCityInfluence = GC.getDefineINT("HOLY_CITY_INFLUENCE");
+
 	if (pOldCity != NULL)
 	{
 		pOldCity->changeReligionInfluence(eReligion,
-				-GC.getDefineINT("HOLY_CITY_INFLUENCE"));
+				-iHolyCityInfluence);
 		pOldCity->updateReligionCommerce();
 		pOldCity->setInfoDirty(true);
 	}
@@ -5936,7 +5984,7 @@ void CvGame::setHolyCity(ReligionTypes eReligion, CvCity* pCity, bool bAnnounce)
 
 	CvCity* pHolyCity = getHolyCity(eReligion);
 	pHolyCity->setHasReligion(eReligion, true, bAnnounce, true);
-	pHolyCity->changeReligionInfluence(eReligion, GC.getDefineINT("HOLY_CITY_INFLUENCE"));
+	pHolyCity->changeReligionInfluence(eReligion, iHolyCityInfluence);
 	pHolyCity->updateReligionCommerce();
 	pHolyCity->setInfoDirty(true);
 	if (!bAnnounce || !isFinalInitialized() || gDLL->GetWorldBuilderMode())
@@ -6385,11 +6433,16 @@ void CvGame::doGlobalWarming()
 	// advc.055:
 	std::vector<PreGWPlot> aChangedPlots;
 	bool bSoundPlayed = false; // advc.002l
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const int iGlobalWarmingProb = GC.getDefineINT("GLOBAL_WARMING_PROB");
+
 	for (int i = 0; i < iGlobalWarmingRolls; i++)
 	{
 		// note, warming prob out of 1000, not percent.
 		int iLeftOdds = 10 * getSpeedPercent();
-		if (SyncRandNum(iLeftOdds) >= GC.getDefineINT("GLOBAL_WARMING_PROB"))
+		if (SyncRandNum(iLeftOdds) >= iGlobalWarmingProb)
 			continue;
 		//CvPlot* pPlot = GC.getMap().syncRandPlot(RANDPLOT_LAND | RANDPLOT_NOT_CITY);
 		/*	Global warming is no longer completely random.
@@ -6513,8 +6566,11 @@ void CvGame::doGlobalWarming()
 	updateGwPercentAnger();
 	if (getGlobalWarmingIndex() > 0)
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iGlobalWarmingRestorationRate = GC.getDefineINT("GLOBAL_WARMING_RESTORATION_RATE", 0);
+
 		changeGlobalWarmingIndex(-getGlobalWarmingIndex() *
-				GC.getDefineINT("GLOBAL_WARMING_RESTORATION_RATE", 0)/100);
+				iGlobalWarmingRestorationRate/100);
 	}
 	// <advc.055>
 	/*	advc.706 (note): These will be shortlived INFO-type messages,
@@ -7050,8 +7106,11 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 		}
 	}
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iMinBarbarianStartingDistance = GC.getDefineINT("MIN_BARBARIAN_CITY_STARTING_DISTANCE");
+
 	CitySiteEvaluator citySiteEval(GET_PLAYER(BARBARIAN_PLAYER),
-			GC.getDefineINT("MIN_BARBARIAN_CITY_STARTING_DISTANCE"));
+			iMinBarbarianStartingDistance);
 	/*	<advc.300> Randomize penalty on short inter-city distance for more variety
 		in Barbarian settling patterns. Was 8 in K-Mod. */
 	citySiteEval.discourageBarbarians(5 + SyncRandNum(7));
@@ -7345,7 +7404,10 @@ void CvGame::createAnimals()
 	if (getElapsedGameTurns() < 5)
 		return;
 
-	int const iMinAnimalStartingDist = GC.getDefineINT("MIN_ANIMAL_STARTING_DISTANCE"); // advc.300
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iMinAnimalStartingDistance = GC.getDefineINT("MIN_ANIMAL_STARTING_DISTANCE");
+
+	int const iMinAnimalStartingDist = iMinAnimalStartingDistance; // advc.300
 	FOR_EACH_AREA(pLoopArea)
 	{
 		if (pLoopArea->isWater())
@@ -9452,8 +9514,11 @@ void CvGame::addPlayer(PlayerTypes eNewPlayer, LeaderHeadTypes eLeader, Civiliza
 	}
 	if (bFindNewColor)
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iBarbarianCivilization = GC.getDefineINT("BARBARIAN_CIVILIZATION");
+
 		PlayerColorTypes const eBarbarianColor = (PlayerColorTypes)GC.getInfo((CivilizationTypes)
-				GC.getDefineINT("BARBARIAN_CIVILIZATION")).getDefaultPlayerColor();
+				iBarbarianCivilization).getDefaultPlayerColor();
 		FOR_EACH_ENUM(PlayerColor)
 		{
 			if (eLoopPlayerColor == eBarbarianColor)

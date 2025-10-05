@@ -3130,6 +3130,8 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 	// - UNITAI_MISSILE_CARRIER_SEA: similar to UNITAI_CARRIER_SEA but for missiles
 	// - UNITAI_PIRATE_SEA: Wander around pointlessly, sometimes run a blockade if the die roll tells you to and you are in enemy territory
 
+	const int iNumCities = kOwner.getNumCities();
+
 	int iDummy=-1;
 	if (!bFinancialTrouble && (bPrimaryArea ?
 		//kOwner.findBestFoundValue() > 0 : getArea().getBestFoundValue(getOwner()) > 0
@@ -3161,7 +3163,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 			(bWarPlan || bLandWar || bAssault ? 5 : 8) +
 			(bPrimaryArea ? 1 : 0);
 
-	//aiUnitAIVal[UNITAI_DEFENSE_AIR] += (kOwner.getNumCities() + 1);
+	//aiUnitAIVal[UNITAI_DEFENSE_AIR] += (iNumCities + 1);
 	aiUnitAIVal[UNITAI_DEFENSE_AIR] += kOwner.AI_getTotalAirDefendersNeeded(); // K-Mod
 	aiUnitAIVal[UNITAI_CARRIER_AIR] += kOwner.AI_countCargoSpace(
 			UNITAI_CARRIER_SEA);
@@ -3195,56 +3197,59 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 
 		if (pWaterArea != NULL)
 		{
+			// <!-- custom: dereference risk here so define only after null check according to chatgpt 5 if i understood it correctly, check if accurate, anyways etc; since they are in different scopes, fine to redefine it later when we use it again (after null check) if i understood it correctly and after asking chatgpt 5, check if accurate anyways etc -->
+			const int iPWaterAreaGetNumTiles = pWaterArea->getNumTiles();
+
 			aiUnitAIVal[UNITAI_WORKER_SEA] += AI_neededSeaWorkers();
-			if (kOwner.getNumCities() > 3 || getArea().getNumUnownedTiles() < 10)
+			if (iNumCities > 3 || getArea().getNumUnownedTiles() < 10)
 			{
 				if (bPrimaryArea)
 					aiUnitAIVal[UNITAI_EXPLORE_SEA] += kOwner.AI_neededExplorers(*pWaterArea);
 				if (bPrimaryArea && kOwner.findBestFoundValue() > 0 &&
-					pWaterArea->getNumTiles() > 300)
+					iPWaterAreaGetNumTiles > 300)
 				{
 					aiUnitAIVal[UNITAI_SETTLER_SEA]++;
 				}
 				if (bPrimaryArea &&
 					kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_MISSIONARY) > 0 &&
-					pWaterArea->getNumTiles() > 400)
+					iPWaterAreaGetNumTiles > 400)
 				{
 					aiUnitAIVal[UNITAI_MISSIONARY_SEA]++;
 				}
 
 				if (bPrimaryArea && kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_SPY) > 0 &&
-					pWaterArea->getNumTiles() > 500)
+					iPWaterAreaGetNumTiles > 500)
 				{
 					aiUnitAIVal[UNITAI_SPY_SEA]++;
 				}
 
-				aiUnitAIVal[UNITAI_PIRATE_SEA] += pWaterArea->getNumTiles() / 600;
+				aiUnitAIVal[UNITAI_PIRATE_SEA] += iPWaterAreaGetNumTiles / 600;
 
 				// <!-- custom: be careful, do not use this bWarPossible, this is always true at last for the 100 turns where i tested it, using this for settler build control logic resulted in no settler at all in 100 turns (probably true longer but didn't test anyways etc) -->
 				// if (bWarPossible)
 				// {
 				// K-Mod note: this is bogus. TODO: change it so that it scales properly with map size.
 				aiUnitAIVal[UNITAI_ATTACK_SEA] += std::min(
-						pWaterArea->getNumTiles() / 150,
+						iPWaterAreaGetNumTiles / 150,
 						(iCoastalCities * 2 + iMilitaryWeight / 9) / (bAssault ? 4 : 6) +
 						(bPrimaryArea ? 1 : 0));
 				aiUnitAIVal[UNITAI_RESERVE_SEA] += std::min(
-						pWaterArea->getNumTiles() / 200,
+						iPWaterAreaGetNumTiles / 200,
 						(iCoastalCities * 2 + iMilitaryWeight / 7) / 5 +
 						(bPrimaryArea ? 1 : 0));
 				aiUnitAIVal[UNITAI_ESCORT_SEA] += (kOwner.AI_totalWaterAreaUnitAIs(
 						*pWaterArea, UNITAI_ASSAULT_SEA) +
 						(kOwner.AI_totalWaterAreaUnitAIs(
 						*pWaterArea, UNITAI_CARRIER_SEA) * 2));
-				aiUnitAIVal[UNITAI_ASSAULT_SEA] += std::min(pWaterArea->getNumTiles() / 250,
+				aiUnitAIVal[UNITAI_ASSAULT_SEA] += std::min(iPWaterAreaGetNumTiles / 250,
 						(iCoastalCities * 2 + iMilitaryWeight / 6) / (bAssault ? 5 : 8) +
 						(bPrimaryArea ? 1 : 0));
 				aiUnitAIVal[UNITAI_CARRIER_SEA] += std::min(
-						pWaterArea->getNumTiles() / 350,
+						iPWaterAreaGetNumTiles / 350,
 						(iCoastalCities * 2 + iMilitaryWeight / 8) / 7 +
 						(bPrimaryArea ? 1 : 0));
 				aiUnitAIVal[UNITAI_MISSILE_CARRIER_SEA] += std::min(
-						pWaterArea->getNumTiles() / 350,
+						iPWaterAreaGetNumTiles / 350,
 						(iCoastalCities * 2 + iMilitaryWeight / 8) / 7 +
 						(bPrimaryArea ? 1 : 0));
 				// }
@@ -3278,26 +3283,32 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 						iMilitaryWeight / (bLandWar || bAssault ? 4 : 8) +
 						(bPrimaryArea && !bAreaAlone ? 1 : 0);
 
-				//aiUnitAIVal[UNITAI_ATTACK_AIR] += (kOwner.getNumCities() + 1);
+				//aiUnitAIVal[UNITAI_ATTACK_AIR] += (iNumCities + 1);
 				// K-Mod (extra air attack and defence). Note: iMilitaryWeight is (pArea->getPopulationPerPlayer(getID()) + pArea->getCitiesPerPlayer(getID())
 				aiUnitAIVal[UNITAI_ATTACK_AIR] += (bLandWar ? 2 : 1) *
-						kOwner.getNumCities() + 1;
+						iNumCities + 1;
 				// it would be nice if this was based on enemy air power...
 				aiUnitAIVal[UNITAI_DEFENSE_AIR] += (bDefense ? 1 : 0) *
-						kOwner.getNumCities() + 1;
+						iNumCities + 1;
 
 				// <!-- custom: add a check `&& isCoastal(GC.getDefineINT("MIN_WATER_SIZE_FOR_OCEAN")` here as well as advised by gemini ai: if city is landlocked (i assume it means is in a lake, do not build any military naval unit on it is quite pointless or at least do not prioritize it further anyways etc) ; note: i don't know if this is the correct way to access MIN_WATER_SIZE_FOR_OCEAN or whichever thing if i may say but anyways etc is relevant for our check of city being landlocked if i am not mistaken but anyways etc, but it compiled successfully and gemini ai provided it to me based on our global search results and a code sample i provided too so hopefully accurate but anyways etc (if not i wouldn't mind less military naval units, but i hope this is as intended though and there are still a bit of military naval units still but not too much or/and too prioritized if i am not mistaken too if i may say but anyways etc). -->
 				// if (pWaterArea != NULL)
-				if (pWaterArea != NULL && isCoastal(GC.getDefineINT("MIN_WATER_SIZE_FOR_OCEAN")))
+				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				static const int iMinWaterSizeForOcean = GC.getDefineINT("MIN_WATER_SIZE_FOR_OCEAN");
+
+				if (pWaterArea != NULL && isCoastal(iMinWaterSizeForOcean))
 				{
-					if (kOwner.getNumCities() > 3 || getArea().getNumUnownedTiles() < 10)
+					// <!-- custom: dereference risk here so define only after null check according to chatgpt 5 if i understood it correctly, check if accurate, anyways etc -->
+					const int iPWaterAreaGetNumTiles = pWaterArea->getNumTiles();
+
+					if (iNumCities > 3 || getArea().getNumUnownedTiles() < 10)
 					{
 						aiUnitAIVal[UNITAI_ATTACK_SEA] += std::min(
-								pWaterArea->getNumTiles() / 100,
+								iPWaterAreaGetNumTiles / 100,
 								(iCoastalCities * 2 + iMilitaryWeight / 10) / (bAssault ? 5 : 7) +
 								(bPrimaryArea ? 1 : 0));
 						aiUnitAIVal[UNITAI_RESERVE_SEA] += std::min(
-								pWaterArea->getNumTiles() / 150,
+								iPWaterAreaGetNumTiles / 150,
 								(iCoastalCities * 2 + iMilitaryWeight / 11) / 8 +
 								(bPrimaryArea ? 1 : 0));
 					}
@@ -3709,7 +3720,6 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 			// <!-- custom: if this small city is stagnant (indirectly also check excessive unhealthiness, without the risk of worker loop maybe but anyways etc, and more flexible as well to cover other causes of stagnation, as well as allowing city to stop producing workers sooner even if some unhealthiness remains if i am not mistaken (e.g. we have a lot of excess food maybe which is core concern to fix if i am not mistaken but anyways etc)), a worker would be of great use, perhaps to chop jungle or such or grow the city in some other way maybe, but anyways etc -->
 			// <!-- custom: make pop requirement quite a bit tighter if i may say in this case but anyways etc pop check to avoid worker spam / loop trap, as chatgpt noted that could happen so i had the idea to add this but anyways etc-->
 			bool const bStagnant = (!isFoodProduction() && foodDifference() <= 0);
-			int const iNumCities = kOwner.getNumCities();
 			// <!-- custom: make sure we don't overbuild workers, used only in the context of blocking forced settlers builds and aoviding chain worker loops if i am not mistaken, so maybe fine to be a bit stricter and maybe workers would still be produced with more relaxed conditions hopefully and if i am not mistaken but check to be sure but anyways etc ; each city needs maximum 2 workers before it's too much -->
 			bool const bTooMuchWorkers = GET_PLAYER(getOwner()).AI_totalUnitAIs(UNITAI_WORKER) >= (2 * iNumCities);
 
@@ -9061,8 +9071,11 @@ void CvCityAI::AI_updateSafety(bool bUpdatePerfectSafety)
 	// Only bail if they can take the city in one turn or almost
 	if (iAttackers + 1 >= iDefenders)
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iAIEvacuationThresh = GC.getDefineINT("AI_EVACUATION_THRESH");
+
 		static scaled const rAI_EVACUATION_THRESH = per100(
-				GC.getDefineINT("AI_EVACUATION_THRESH"));
+				iAIEvacuationThresh);
 		scaled rThresh = rAI_EVACUATION_THRESH;
 		//  Higher threshold for important cities
 		scaled rRelativeCityVal = per100(AI_getCityValPercent());

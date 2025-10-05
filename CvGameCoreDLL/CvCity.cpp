@@ -11131,6 +11131,11 @@ void CvCity::doReligion()
 	std::partial_sort(religion_grips.begin(), religion_grips.begin() + iChances,
 			religion_grips.end(), std::greater<std::pair<int,ReligionTypes> >());
 
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const int iReligionSpreadRand = GC.getDefineINT("RELIGION_SPREAD_RAND");
+
 	for (int i = 0; i < iChances; i++)
 	{
 		int iLoopGrip = religion_grips[i].first;
@@ -11198,10 +11203,6 @@ void CvCity::doReligion()
 			iChancePercent /= 1 + iReligionCities;
 		}*/
 		// <advc>
-
-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-		static const int iReligionSpreadRand = GC.getDefineINT("RELIGION_SPREAD_RAND");
-
 		static scaled const rRELIGION_SPREAD_DIV = std::max(scaled::epsilon(),
 				per100(iReligionSpreadRand));
 		rSpreadProb /= std::max(scaled::epsilon(),
