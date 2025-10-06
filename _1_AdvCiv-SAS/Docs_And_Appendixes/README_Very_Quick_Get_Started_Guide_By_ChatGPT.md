@@ -401,7 +401,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
   - **Longbows/Crossbows/Macemen → Musketmen** (more historical/balanced; reduces abuse by **Cuirassiers**, which are slightly stronger but more expensive).
   - **Cavalry → Tanks** now.
 - **Naval upgrades** cleaned up; **Ironclad** can enter ocean and is buffed, serving as a real upgrade from Frigates. See [README: military tree](/README.md#military-tree-and-changes) for full upgrade maps.
-- **Bonus requirements relaxed (selective):** Some units now accept additional bonuses where appropriate (to avoid odd lockouts); e.g., **Samurai** can use **Copper** as well as **Iron** (example only). Strategic pressure from bonuses remains; see Sevopedia/XML.
+- **Bonus requirements relaxed (selective):** Some units now accept additional **bonus** prerequisites where appropriate (to avoid odd lockouts). Examples: **Samurai** can use **Copper** as well as **Iron**; **Swordsman-class civ-specific variants** (e.g., **Roman Legionary**, **Incan Quechua**) can also use **Copper** (only the **Gallic Warrior** could before; which seemed inconsistent and unbalanced without a clear reason why: now equalized). The **generic Swordsman** remains **Iron-only** to preserve strategic pressure. Thematically consistent. See Sevopedia/XML.
 - `BBAI_DEFENSIVE_PACT_BEHAVIOR` **disabled (0)** to restore default BTS behavior (pacts break on DoW).
 - **Voluntary vassals** are **permanent** (culture absorption/merger flavor).
 - **Permanent Alliance** moved off the main military path (was on both **Communism** and **Fascism**) to reduce military beeline dominance and respect “one tech per major unlock” consistency.
