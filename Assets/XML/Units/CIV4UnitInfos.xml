@@ -9266,8 +9266,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bSuicide>0</bSuicide>
 			<bHiddenNationality>0</bHiddenNationality>
 			<bAlwaysHostile>0</bAlwaysHostile>
-			<!-- custom: was UNITCLASS_RIFLEMAN and UNITCLASS_GRENADIER -->
+			<!-- custom: if a pikeman was standing and a cuirassier like unit or even a foot unit with a gun i mean if i may say but anyways etc, and they had a gun nearby to defend themselves they could use, surely they wouldn't just sit around as sitting ducks i mean if i may say but anyways etc but use the gun right (especially since in our mod as of now pikemen are useless / very ineffective against mounted_ranged that the cuirassier units are, so allow musket. May hopefully also help reduce / tone down a bit the AI spam quite late game of pikemen (sometimes even at turn 300 when much better options like cannons or musketmen are available it seems in autoplay at a quick glance in this case i mean if i'm not mistaken if i may say but anyways etc; result ingame: drastically reduced the AI mid late spam of pikemen when very inefficient at least in this short autoplay sample in this case i mean but anyways etc: all the more reason to leave as such if i may say but anyways etc, was UNITCLASS_RIFLEMAN and UNITCLASS_GRENADIER -->
 			<UnitClassUpgrades>
+				<UnitClassUpgrade>
+					<UnitClassUpgradeType>UNITCLASS_MUSKETMAN</UnitClassUpgradeType>
+					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+				</UnitClassUpgrade>
 				<UnitClassUpgrade>
 					<UnitClassUpgradeType>UNITCLASS_GRENADIER</UnitClassUpgradeType>
 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
@@ -9493,8 +9497,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bSuicide>0</bSuicide>
 			<bHiddenNationality>0</bHiddenNationality>
 			<bAlwaysHostile>0</bAlwaysHostile>
-			<!-- custom: was UNITCLASS_RIFLEMAN and UNITCLASS_GRENADIER -->
+			<!-- custom: see code comment at the generic pikeman for details anyways etc, was UNITCLASS_RIFLEMAN and UNITCLASS_GRENADIER -->
 			<UnitClassUpgrades>
+				<UnitClassUpgrade>
+					<UnitClassUpgradeType>UNITCLASS_MUSKETMAN</UnitClassUpgradeType>
+					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+				</UnitClassUpgrade>
 				<UnitClassUpgrade>
 					<UnitClassUpgradeType>UNITCLASS_GRENADIER</UnitClassUpgradeType>
 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
