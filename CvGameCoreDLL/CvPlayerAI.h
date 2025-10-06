@@ -333,6 +333,7 @@ public:
 	// <!-- custom: add helpers to count how many units of a combat type we have and/or such anyways etc, to help reduce the excess trebuchets and siege when not relevant (defense, we are weaker, etc.) see known issue as of now 53.3 for details anyways etc; code provided by chatgpt 5, check if accurate anyways etc -->
 	// Counts units by combat class (e.g. UNITCOMBAT_SIEGE)
 	int AI_countUnitsByCombat(UnitCombatTypes eCombat) const;
+	int AI_countUnitsByCombatNoTrebuchetsLike(UnitCombatTypes eCombat) const;
 	// Siege with big city-attack (>=50%) – “trebuchet-like”
 	int AI_countTrebuchetsLike() const;
 	// Convenience: sums of offensive / defensive UnitAIs

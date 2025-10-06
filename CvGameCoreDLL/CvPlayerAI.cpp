@@ -14830,17 +14830,58 @@ int CvPlayerAI::AI_countUnitsByCombat(UnitCombatTypes eCombat) const
 	{
 		CvUnitInfo const& kU = GC.getInfo(eLoopUnit);
 		if (kU.getUnitCombatType() != eCombat) continue;
+
 		UnitClassTypes const eCls = (UnitClassTypes)kU.getUnitClassType();
 		if (eCls != NO_UNITCLASS)
+		{
+			// <!-- custom: note: it's bit tricky as units could be cancelled midway and we could be stuck in loops trying to build then cancelling midaway, i don't mind a little extra units as result of this i think if i may say and may generally be fine for this purpose if i'm not mistaken in my thinking, check if accurate as this is just a guess of mine but seems to run fine so far anyways etc; chatgpt 5 seems to agree as well, check if accurate as well i mean if i may say but anyways etc -->
+			// Totally fair—queued builds can get canceled or reshuffled, so “counting makings” can push you over a cap and then bounce you back under it next turn. Easiest fix: never count makings and only count units you actually own on the map.
 			iTotal += getUnitClassCount(eCls);
+		}
 	}
 	return iTotal;
 }
 
-// <!-- custom: if unit has enough city attack, it can be assumed the rest of its stats are otherwise bad, else would be broken for balance. Use to detect as of now trebuchet units, but also similar profile of high city bombard but weak otherwise type of units if i'm not mistaken anyways etc -->
+int CvPlayerAI::AI_countUnitsByCombatNoTrebuchetsLike(UnitCombatTypes eCombat) const
+{
+	static const int TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD = GC.getDefineINT("SAS_TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD");
+
+	int iTotal = 0;
+	FOR_EACH_ENUM(Unit)
+	{
+		CvUnitInfo const& kU = GC.getInfo(eLoopUnit);
+		if (kU.getUnitCombatType() != eCombat) continue;
+
+		UnitClassTypes const eCls = (UnitClassTypes)kU.getUnitClassType();
+		if (eCls != NO_UNITCLASS)
+		{
+			// Use your SDK’s name here:
+			// BtS/AdvCiv variants: getCityAttack() or getCityAttackModifier()
+			// int const iCityAtk =
+			// #ifdef USE_CITY_ATTACK_MODIFIER_NAME
+			// 	kU.getCityAttackModifier();
+			// #else
+			// 	kU.getCityAttack();
+			// #endif
+			int const iCityAtk = kU.getCityAttackModifier();
+			if (iCityAtk >= TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD)
+			{
+				continue;
+			}
+			else
+			{
+				iTotal += getUnitClassCount(eCls);
+			}
+		}
+	}
+	return iTotal;
+}
+
 int CvPlayerAI::AI_countTrebuchetsLike() const
 {
 	static const UnitCombatTypes eUnitCombatSiege = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SIEGE");
+
+	static const int TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD = GC.getDefineINT("SAS_TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD");
 
 	int iTotal = 0;
 	FOR_EACH_ENUM(Unit)
@@ -14856,13 +14897,14 @@ int CvPlayerAI::AI_countTrebuchetsLike() const
 		// #else
 		// 	kU.getCityAttack();
 		// #endif
-		// <!-- custom: hopefully enough just with the modifier that trebuchets use if i am not mistaken as of now (but check if accurate as i didn't check in detail but anyways etc) but anyways etc -->
 		int const iCityAtk = kU.getCityAttackModifier();
-		if (iCityAtk >= 50)
+		if (iCityAtk >= TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD)
 		{
 			UnitClassTypes const eCls = (UnitClassTypes)kU.getUnitClassType();
 			if (eCls != NO_UNITCLASS)
+			{
 				iTotal += getUnitClassCount(eCls);
+			}
 		}
 	}
 	return iTotal;

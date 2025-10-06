@@ -21518,7 +21518,7 @@
 			</BuildingClassNeededs>
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
-			<!-- custom: effect imported from kujira website (translate to english with web browser or and such anyways etc): https://gforestshade.github.io/kujira/post/civ4buildinginfos/#iglobalfreespecialist thanks to my idea of searchign it too but anyways etc anyways etc anyways etc ; seems to fit quite well the theme of the building's history i mean of burning down and such from little of it i googled online and some drawings of it showing quite a lot of forest around it from very quick glances anyways etc, hopefully both balanced, varied, and gradual not op effect but strong enough anyways etc, was empty -->
+			<!-- custom: effect imported from kujira website (translate to english with web browser or and such anyways etc): https://gforestshade.github.io/kujira/post/civ4buildinginfos/#iglobalfreespecialist thanks to my idea of searching it too but anyways etc anyways etc anyways etc ; seems to fit quite well the theme of the building's history i mean of burning down and such from little of it i googled online and some drawings of it showing quite a lot of forest around it from very quick glances anyways etc, hopefully both balanced, varied, and gradual not op effect but strong enough anyways etc, was empty -->
 			<ImprovementFreeSpecialists>
 				<ImprovementFreeSpecialist>
 					<ImprovementType>IMPROVEMENT_FOREST_PRESERVE</ImprovementType>

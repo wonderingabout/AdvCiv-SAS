@@ -142,7 +142,7 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
 		{
 			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
 			static const int iMaxExtraXPAnimal = GC.getDefineINT("ANIMAL_MAX_XP_VALUE");
-			// <!-- custom: make const when we can too if i'm not mistaken anywyas etc -->
+			// <!-- custom: make const when we can too if i'm not mistaken anyways etc -->
 			const int iMaxExtraXP = std::max(0,
 				iMaxExtraXPAnimal - kAttacker.getExperience());
 			iExperience = range(iExperience, 0, iMaxExtraXP);
@@ -154,7 +154,7 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
 		{
 			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
 			static const int iMaxExtraXPBarbarian = GC.getDefineINT("BARBARIAN_MAX_XP_VALUE");
-			// <!-- custom: make const when we can too if i'm not mistaken anywyas etc -->
+			// <!-- custom: make const when we can too if i'm not mistaken anyways etc -->
 			const int iMaxExtraXP = std::max(0,
 				iMaxExtraXPBarbarian - kAttacker.getExperience());
 			iExperience = range(iExperience, 0, iMaxExtraXP);

@@ -1856,6 +1856,8 @@ Update: added siege units to excluded fallback units as they are not versatile e
 
 Update 2: updated since then to prefer civ-specific units and other tweaks if any, see [53.2.2 (Seemingly greatly enhanced) AI overproducing defenders early on, especially longbowmen but not only, replaced with an early produce more versatile units especially civ-specific ones when defended enough (at least in theory anyways etc) in CvCityAI::AI_chooseUnit anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#5322-seemingly-greatly-enhanced-ai-overproducing-defenders-early-on-especially-longbowmen-but-not-only-replaced-with-an-early-produce-more-versatile-units-especially-civ-specific-ones-when-defended-enough-at-least-in-theory-anyways-etc-in-cvcityaiai_chooseunit-anyways-etc) for details anyways etc
 
+Update 3: added offense only and defense only alternate logic (fallback to overall units if none available) as i have found/guessed this is where most excess longbowmen came from as they would bypass restrictions in `CvCityAI::AI_chooseUnit` if i'm not mistaken but anyways etc, tunable in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) anyways etc.
+
 ## 52 - (Beyond Tremendously improved anyways etc) Remove AI scrapping of military land units, as way too many units are scrapped early, yet we really need them to defend against barbarians or our rivals or such anyways etc
 
 See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1JHA0QsVUyBiKy_BDFgXFb-wYG_t-EcUc?usp=sharing)
@@ -2194,6 +2196,8 @@ While doing this, i also enhanced the code of the fallback unit choice `CvCity::
 
 Note: i noticed during testing rare crashes at turn 90-100 in a few autoplay maps, disappears after reloading a recent save file, so did not dig further, but i found for info in the .dmp file with windbg which i don't know too much about the culprit to likely be `CvSelectionGroup::plot` or something near it, but check if accurate, and since it is only a ["temporary" crash](/README.md#temporary-crashes), not investigating further anyways etc.
 
+Update: we as of now now favour civ-specific counter units just as much, with an optional config flag not to in sas defines but anyways etc.
+
 ## 53.3 (Tremendously Improved) AI overbuilding siege units, in particular trebuchets but not only, where they are detrimental to do build, in particular when weaker but not only anyways etc
 
 See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/180Hnkhno1HgQb9rzPu-EA9ahH0dr-36K?usp=sharing).
@@ -2231,6 +2235,8 @@ Note: the way the code is as of now written but anyways etc, it may apply to sco
 Update: now generalized the no excess very cheap units code/formula to a few later eras such as classical and medieval plus, to attempt to help trim units later as well when they are relatively very cheap for their era (e.g. archers at classical, longbows or trireme at medieval era, anyways etc), while making sure new era thresholds don't apply to old units tier (e.g. ancient maceman having very low threshold at ancient era but then when entering classical era suddenly it would benefit from the archers or such threshold that is larger and thus we'd overproduce ancient macemen then as happened in autoplay after i first refactored it), so units are ordered by tiers ratehr than by era, see `CvCityAI::AI_chooseUnit` or/and [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) for details but anyways etc.
 
 I don't know if it's for sure a result of these, but we seem to have really good results, with japan ai reducing its longbow output from +/- 75 longbows at turn 200 (way too much) to something more like 50-60 longbows but 10-15 camel archers or/and 20-27 samurais depending on runs and settings somehow it seems, but composition does seem quite a bit better if no just fluctuaiton, check to be sure anyways etc.
+
+Update 2: now the anti excess very cheap units is also included in `CvCity::doTurn` in the no production fallback unit code, as we were producing too many fallback ancient macemen otherwise with the new offense only code (like 19 ancient macemen at turn 100 which is very inefficient and most likely to bankrupt us or ruin our game but anyways etc) anyways etc.
 
 ## 54 - (Fixed) Major Base Advciv +/- civ4 bug in AIFoundValue::adjustToCivSurroundings causing AI settlers to value midgame (turn 50+ for example here anways etc) settling on camel desert; worked around and disabled this function entirely, now inline a very simplified version of it inline in its only caller
 

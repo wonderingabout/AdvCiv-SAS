@@ -909,7 +909,7 @@ struct CandidatePlot {
 
 // Returns true if the unit found a build for this city...
 // <!-- custom: update: also disabled functionally CvCityAI::AI_getImprovementValue and CvUnitAI::AI_irrigateTerritory which solved the farm on spices plains issue when unwanted (not in our exceptions below) as well as inefficient and needless farms on floodplains or flatland grass or other unwanted interferences, see these functions (or whatever remains of them for details, as well as screenshots in known issue 30 for details anyways etc), we now have greater if not total control over our AI workers or close to it, and this improves ai efficiency further if i am not mistaken and is thanks to chatgpt and co or such like claude ai and such if i may say too (and thanks to me too if i may say but anyways etc) but anyways etc -->
-// <!-- custom: also add after our rewrite in advciv-sas code to handle/optimize terrain improvement choice, generally and in short in this case but anyways etc do not build a cottage flatland plains if there are flatland grass tiles that are much better candidate plots, as for bonuses simplify logic for efficiency and no-tediousness xd if i may say but anyways etc to always improve them regardless of terrain anyways etc (high-food bonuses first though as below if i am not mistaken anyways etc) ; code provided by gemini ai and that i adjusted as well in/for advciv-sas in this case anyways etc, similarly as below anyways etc ; see also new code we added n advciv-sas but anyways etc that handles settling priorities based on terrains or/and features and hills anyways etc in as of now CitySiteEvaluator.cpp which this code is partially based on as well if i may say and if i am not mistaken anyways etc -->
+// <!-- custom: also add after our rewrite in advciv-sas code to handle/optimize terrain improvement choice, generally and in short in this case but anyways etc do not build a cottage flatland plains if there are flatland grass tiles that are much better candidate plots, as for bonuses simplify logic for efficiency and no-tediousness xd if i may say but anyways etc to always improve them regardless of terrain anyways etc (high-food bonuses first though as below if i am not mistaken anyways etc); code provided by gemini ai the original version of the code and then heavily polished with the help of chatgpt in particular as of now chatgpt 5 if i remember it correctly but anyways etc, and that i adjusted as well in/for advciv-sas in this case anyways etc, similarly as below anyways etc; see also new code we added n advciv-sas but anyways etc that handles settling priorities based on terrains or/and features and hills anyways etc in as of now CitySiteEvaluator.cpp which this code is partially based on as well if i may say and if i am not mistaken anyways etc -->
 // This function determines the value of a specific improvement on a plot,
 // which is the core logic that guides AI worker actions.
 // This version is a rewrite to prioritize improvements based on terrain,
@@ -936,6 +936,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	static const TerrainTypes eTerrainSnow = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_SNOW");
 
 	static const FeatureTypes eFeatureFloodPlains = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FLOOD_PLAINS");
+	// <!-- custom: note: as of now we cannot improve them but just in case anyways etc: update but anyways etc: as of now this is not really suported so commented out for clarity anyways etc -->
+	// static const FeatureTypes eFeatureOasis = (FeatureTypes)GC.getInfoTypeForString("FEATURE_OASIS");
 	static const FeatureTypes eFeatureForest = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FOREST");
 	static const FeatureTypes eFeatureJungle = (FeatureTypes)GC.getInfoTypeForString("FEATURE_JUNGLE");
 	// <!-- custom: untested but i assume/hope would work-function fine but check to be sure anyways etc-->
@@ -1029,7 +1031,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	// 		std::max(0, (kCity.getYieldRate(YIELD_FOOD) -
 	// 		kCity.foodConsumption(true))) : 0);
 	// <!-- custom: update 3: even with this change and some other changes as well, we still build farms on flood plains and on bonuses (although rarer for bonuses), i even tried to comment out the farm building code entirely but it still happens, so i assume there is another code outside of this function and/or of what we wrote that interferes with our logic but anyways etc -->
-	// <!-- custom: update 4: in rare cases we get crazy oscillation between flatland grass farm and cottage. City is not even starved, but it runs a very useless specialist hindering its growth and so is stagnant. Or some other times, there is an angry citizen so city thinks it needs food, but een if we increase food we'll just have more angry citizens, fix happiness rather, on the former case don't assign needless specialists here if we need the food to grow. For our part here, we'll assume specialists are assigned correctly and manage it there. We should restrict farms (or other food giving builds on non-bonus plots too i mean but anyways etc) only when we really need the food. Let's count our ideal food need to account for these specialist or angry citizens rather. Code provided with the help of chatgpt 5 and that i adjusted as i saw fit or/and such but anyways etc, check if accurate anyways etc -->
+	// <!-- custom: update 4: in rare cases we get crazy oscillation between flatland grass farm and cottage. City is not even starved, but it runs a very useless specialist hindering its growth and so is stagnant. Or some other times, there is an angry citizen so city thinks it needs food, but seen if we increase food we'll just have more angry citizens, fix happiness rather, on the former case don't assign needless specialists here if we need the food to grow. For our part here, we'll assume specialists are assigned correctly and manage it there. We should restrict farms (or other food giving builds on non-bonus plots too i mean but anyways etc) only when we really need the food. Let's count our ideal food need to account for these specialist or angry citizens rather. Code provided with the help of chatgpt 5 and that i adjusted as i saw fit or/and such but anyways etc, check if accurate anyways etc -->
 	// int const iEstimatedCityFoodDifference = kCity.getYieldRate(YIELD_FOOD) - kCity.foodConsumption(false);
 
 	// <!-- custom: note: see also a slightly different implementation of this at variable iEffectiveFoodAfterBuiltHappy in as of now buildingvalue function in cvcityai.cpp file if i am not mistaken anyways etc -->
@@ -1044,7 +1046,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	// then “give it back” by adding 2 * (non-free specialists + angry citizens) so the AI doesn’t panic-farm just because people are angry or parked in specialist slots.
 	const int iEstimatedCityFoodDifference = iFoodSurplusCityHas + iFoodConsumedBySpecialistOrAngryCitizens;
 
-	const int penaltyForOverwritingPlot = 300;
+	static const int penaltyForOverwritingPlot = 300;
 
 	// ===================================================
 	// PHASE 1: A single loop to find ALL valid candidate <!-- custom: plots --> and their values.
@@ -1064,7 +1066,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 		// <!-- custom: also to override seemingly higher `iValue <= 1` expected conditions in other functions, not sure they call this and use it, but just in cast start with higher values in case other functions expect them anyways etc (check to be sure i mean i am not sure or didn't check too much hopefully helpful or not or yes or etc anyways etc), start with a higher minimal value than this threshold, although ours should be so much higher than 1 for most good plots, but just in case to not be rejected there if we somehow have a good plot or not too bad one with negative value anyways etc if i am not mistaken -->
 		int iValue = 10;
 
-		// <!-- custom: AI does a lot of bad stuff, this is much better with our value tweaks (no more farms on plains but now too many farms on grassland, still i believe startign from scratch and ignoring any above instucitons from our code is best, so we'll determine best build ourselves here at least for what this part of the code is responsible for, test to do so in this case i mean anyways etc) -->	
+		// <!-- custom: AI does a lot of bad stuff, this is much better with our value tweaks (no more farms on plains but now too many farms on grassland, still i believe starting from scratch and ignoring any above instucitons from our code is best, so we'll determine best build ourselves here at least for what this part of the code is responsible for, test to do so in this case i mean anyways etc) -->	
 		// <!-- custom: move eBuild definition here if i am not mistaken in doing so i mean anyways etc -->
 		// BuildTypes const eBuild = kCity.AI_getBestBuild(ePlot);
 		BuildTypes eBestSupposedBuild = NO_BUILD;
@@ -1279,7 +1281,12 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			if (kPlot.getImprovementType() != NO_IMPROVEMENT)
 			{
 				// <!-- custom: then the relatively improvements handled here as well, not absolutely holy, but always holy under/if some conditions / are met but anyways etc -->
-				bool const bLowFoodEnvironment = ((eTerrain == eTerrainPlains) || (eTerrain == eTerrainTundra) || (eTerrain == eTerrainSnow) || (eTerrain == eTerrainDesert));
+				bool const bLowFoodEnvironment = (
+					(eTerrain == eTerrainPlains) ||
+					(eTerrain == eTerrainTundra) ||
+					(eTerrain == eTerrainSnow) ||
+					((eTerrain == eTerrainDesert) && (eFeature != eFeatureFloodPlains) /*&& (eFeature != eFeatureOasis)*/)
+				);
 				// <!-- custom: also the opposite, in high food environments (lots of grass, i have noticed workers inefficiently swapping cottage then farm on flatland grass for example bu anyways etc), but if we built cottage once, it means environment was high enough food to being with at that time, else we would not have had done so, so assume that environment is still high food and it is just our current food difference that is fluctuating, either due to suboptimal or more produciton focused plot allocation, or if not irrigated enough or such, but for simplicity, assume our environment is still the same (high-food) and we should thus consider cottage to be absolutely holy under/within/if these conditions //are met as well but anyways etc -->
 
 				if (bLowFoodEnvironment && kPlot.getImprovementType() == eImprovementFarm)

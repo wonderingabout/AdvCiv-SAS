@@ -592,35 +592,93 @@ void CvCity::doTurn()
 			// 320,5: 			<Type>ERA_INDUSTRIAL</Type> (4)
 			// 401,5: 			<Type>ERA_MODERN</Type> (5)
 			// 477,5: 			<Type>ERA_FUTURE</Type> (6)
-			static const int iMaxHammerPerEra = 50;
+			static const int iMaxHammerPerEra = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_MAX_HAMMER_PER_ERA");
 			const int iMaxCost = iMaxHammerPerEra * (iCurrentEra + 1);  // Era 0→50, 1→100, ... 6→350
 
 			static const UnitCombatTypes eUnitCombatSiege = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SIEGE");
 
 			// <!-- custom: go for the most expensive one so we don't accumulate a bunch of low overall combat fighting ability and high maintenance cost and go bankrupt too soon; also this helps reduce military upgrade costs later on if i'm not mistaken but anyways etc. Hopefully the xml is such that no unit are super high cost (e.g. 300 hammer unit cost of a unit at stone age/ era_ancient or medieval era/ era_medieval or something in some mod mod or perhaps ours although not too likely but anyways etc), so add a guard against that (per era as unit costs change as the game goes on anyways etc) anyways etc. Note: we also assume here hammer cost accurately reflects overall combat ability if i may say but anyways etc. Note 2: as of now, if for some extremely unlikely reason there are no buildable units at all, or all eligible ones are beyond iMaxCost extremely unlikely (even less likely in fact but anyways etc), then among all options regardless of iMaxCost, pick the overall cheapest one to save hammer xd but anyways etc. This is an extremly unlikely case safety but just in case or if XML is weirdly tweaked in some mod mod with new weird or such units xd (1 hammer cost 1000 str or 1000 hammer 1 str xd or whatever (not in our mod so far! If i may say, but anyways etc...) but anyways etc.) -->
 			UnitTypes eCheapestOverallUnit = NO_UNIT;      // backup if nothing under cap
-			UnitTypes eBestFallbackUnit = NO_UNIT;  // track highest cost ≤ cap
+			UnitTypes eBestFallbackOverallUnit = NO_UNIT;  // track highest cost ≤ cap
 			// <!-- custom: cache once after found for efficiency anyways etc -->
-			UnitAITypes eBestFallbackUnitUnitAI = NO_UNITAI;
-			UnitAITypes eCheapestOverallFallbackUnitUnitAI = NO_UNITAI;
+			UnitAITypes eBestFallbackOverallUnitUnitAI = NO_UNITAI;
+			UnitAITypes eCheapestFallbackOverallUnitUnitAI = NO_UNITAI;
+
+			// <!-- custom: note: as for offense only and defense only best fallback units but anyways etc, no need to worry about cheapest offense only and defense only, since they are a fallback of a fallback anyway and never reached in actual games (they are just a safety), if ever reached use the overall cheapest as a fallback of fallback for all if i'm not mistaken but anyways etc; also save computation while doing so if i'm not mistaken but anyways etc -->
+			UnitTypes eBestFallbackOffenseUnit = NO_UNIT;
+			// <!-- custom: cache once after found for efficiency anyways etc -->
+			UnitAITypes eBestFallbackOffenseUnitUnitAI = NO_UNITAI;
+
+			UnitTypes eBestFallbackDefenseUnit = NO_UNIT;
+			// <!-- custom: cache once after found for efficiency anyways etc -->
+			UnitAITypes eBestFallbackDefenseUnitUnitAI = NO_UNITAI;
 
 			// <!-- custom: use real cost for sanity no overly expensive unit compare, but use inflated cost (e.g. egyptian war chariot would have inflated cost of 30 * 2 = 60 hammer vs 50 hammer for generic horse archer so we think as we want that war chariot is stronger (since is civ-specific unit we assume so anyways etc). However, don't overdo it, for example if we were to add a civ-specific variant of the ancient maceman / warrior but anyways etc, that would cost say 20 hammers, it would still likely be weaker than a modern horse archer else game would be broken, so 20 * 2 even after inflation is lower than 50 hammer than the horse archer, but the egyptian war chariot is strong enough already that 30 * 2 = 60 inflated hammer cost to estimate strength but anyways etc makes it worth building over the 50 hammer cost generic horse archer). While doing this, still sanity checking based on 30 hammer not 60 hammer (else 60 hammer > max 50 per era in ancient era we would reject it and never build it but anyways etc)) -->
 			int iCheapestOverallCost = MAX_INT;
-			int iBestFallbackCost = MIN_INT;
+			int iBestFallbackOverallCost = MIN_INT;
+
+			int iBestFallbackOffenseCost = MIN_INT;
+			int iBestFallbackDefenseCost = MIN_INT;
 
 			int iCheapestOverallScore = -1;
-			int iBestFallbackScore = -1;
+			int iBestFallbackOverallScore = -1;
+
+			int iBestFallbackOffenseScore = -1;
+			int iBestFallbackDefenseScore = -1;
 
 			// <!-- custom: optimization from our new code in CvCityAI::AI_chooseUnit (see known issue as of now 53.2.2 for related info anyways etc): assume civ-specific units are best (e.g. pick an egyptian war chariot over a longbow anyways etc) -->
 			// prefetch civ UU mapping once
 			const CvCivilizationInfo& kCiv = GC.getInfo(kOwner.getCivilizationType());
+
+			// <!-- custom: it seems we need to cast to CvPlayerAI (i don't know much about these so check if accurate, but chatgpt 5 recommended this after i asked it about the compile error we had before adding it, but check if accurate anyways etc) (with .AI() it seems if i understood it correctly but check if accurate or to be sure in this case i mean but anyways etc) as as of now this function is in CvPlayerAI not CvPlayer, we also seem to do .AI() in other parts of this CvCity.cpp so maybe fine as such but check if accurate or to be sure anyways etc. As for us this fixes our compile error that it was not a member of a class if i'm not mistaken so left as such as well but check if accurate or to be sure anyways etc -->
+			const int iSiegesAllNoTrebuchetsLike = kOwner.AI().AI_countUnitsByCombatNoTrebuchetsLike(eUnitCombatSiege);
+
+			static const int TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD = GC.getDefineINT("SAS_TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD");
 
 			// <!-- custom: magic number as chatgpt had noted long ago or in its thoughts, not ideal to do as such but hopefully works well enough and seems used in other places of the code if i remember it correctly but anways etc -->
 			static const int iEraRenaissance = 3;
 			const bool bEraRenaissanceOrAfter = (iCurrentEra >= iEraRenaissance);
 
 			static const bool bNoProductionForceFallbackUnitInsteadInflateCivSpecificUnit = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_INFLATE_CIV_SPECIFIC_UNIT");
-			
+			static const bool bNoProductionForceFallbackUnitInsteadInflateCivSpecificUnitAnyOtherUnitDefaultAIUnit = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_INFLATE_CIV_SPECIFIC_ANY_OTHER_DEFAULT_UNITAI_UNIT");
+
+			static const bool bNoProductionForceFallbackUnitInsteadOffenseDefaultUnitAIsOnly = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OFFENSE_DEFAULT_UNITAIS_ONLY");
+			static const bool bNoProductionForceFallbackUnitInsteadDefenseDefaultUnitAIsOnly = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_DEFENSE_DEFAULT_UNITAIS_ONLY");
+
+			// <!-- custom: untested but recommended to add by chatgpt 5 which i think is good too (if i were to use them xd but check if accurate too anyways etc) -->
+			// Defines priority sanity (optional but recommended)
+			// If someone sets both “offense only” and “defense only”, your if/else if currently makes offense win silently. Add a guard once near the defines:
+			FAssertMsg(!(bNoProductionForceFallbackUnitInsteadOffenseDefaultUnitAIsOnly && bNoProductionForceFallbackUnitInsteadDefenseDefaultUnitAIsOnly),
+						"Both OFFENSE_ONLY and DEFENSE_ONLY are set; OFFENSE_ONLY will take precedence.");
+
+			static const int iNoProductionForceFallbackUnitInsteadPreRenaissanceSiegesAllNonTrebuchetsLikeThreshold = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_NON_TREBUCHETS_LIKE_THRESHOLD");
+
+			static const bool bNoExcessVeryCheapMilitaryUnits = GC.getDefineBOOL("SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS");
+
+			const int iNumCities = kOwner.getNumCities();
+
+			// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc, and if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
+			// <!-- custom: trying to save some computing power by condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
+			bool const bLandHeavyMapname = GC.getGame().isLandHeavyMapnameCached();
+			bool bNavalHeavyMapname = false;
+			if (!bLandHeavyMapname)
+			{
+				bNavalHeavyMapname = GC.getGame().isNavalHeavyMapnameCached();
+			}
+
+			// Early-game window (scaled by game speed TrainPercent)
+			const int iTrainPct = GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent();
+			// <!-- custom: extend to turn 200 at normal where we reasonably expect muskets to bail us from a no bonus at all start and game, overproducing defenders won't help and would cripple us in fact, so produce just enough to not die while we beeline muskets or such other no bonus units to help us not die if i am not mistaken anyways etc -->
+			// const int iEarlyCutoff = (150 * iTrainPct) / 100; // ~T150 @ Normal
+			static const int iEarlyTurnNoExcessDefendersNormal = GC.getDefineINT("SAS_CHOOSE_UNIT_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD");
+			const int iEarlyCutoff = (iEarlyTurnNoExcessDefendersNormal * iTrainPct) / 100; // e.g. ~T200 @ Normal
+			const int iCurrentTurn = GC.getGame().getGameTurn();
+			const bool bEarly = (iCurrentTurn <= iEarlyCutoff);
+
+			static const int TH_ANC      = GC.getDefineINT("SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_ANCIENT_TIER_THRESHOLD");
+			static const int TH_CLA      = GC.getDefineINT("SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_CLASSICAL_TIER_THRESHOLD");
+			static const int TH_MED_PLUS = GC.getDefineINT("SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_MEDIEVAL_PLUS_TIER_THRESHOLD");
+
 			FOR_EACH_ENUM(Unit)
 			{
 				if (!canTrain(eLoopUnit, false))
@@ -639,37 +697,128 @@ void CvCity::doTurn()
 				}
 				// <!-- custom: ignore civilian units that happen to have strength, and more generally any unitai that is not among the most efficient ones (e.g. no naval units, no spy, no scout or anything else, etc), while we do a fallback, let it be a good one! Xd anways etc -->
 				const UnitAITypes eLoopDefaultUnitAI = kU.getDefaultUnitAIType();
-				const bool bSuitableDefaultUnitAI = (
-					(eLoopDefaultUnitAI == UNITAI_CITY_DEFENSE) ||
+
+				const bool bOffenseDefaultUnitAI = (
 					(eLoopDefaultUnitAI == UNITAI_COUNTER) ||
-					(eLoopDefaultUnitAI == UNITAI_RESERVE) ||
 					(eLoopDefaultUnitAI == UNITAI_ATTACK) ||
 					(eLoopDefaultUnitAI == UNITAI_ATTACK_CITY)
 				);
+				const bool bDefenseDefaultUnitAI = (
+					(eLoopDefaultUnitAI == UNITAI_CITY_DEFENSE) ||
+					(eLoopDefaultUnitAI == UNITAI_CITY_COUNTER) ||
+					(eLoopDefaultUnitAI == UNITAI_CITY_SPECIAL) ||
+					(eLoopDefaultUnitAI == UNITAI_RESERVE)
+				);
+				// <!-- custom: note: we don't reject defense units if offense only yet, or vice versa if offense units if defense only if i'm not mistaken as well but anyways etc, as we still want to compute and store defense units, in case we can build no offense unit at all, then we'd still want to build a defense unit rather than nothing anyways etc if i'm not mistaken but anyways etc -->
+				const bool bSuitableDefaultUnitAI = (bOffenseDefaultUnitAI || bDefenseDefaultUnitAI);
+
 				if (!bSuitableDefaultUnitAI)
 				{
 					continue;
 				}
-				// <!-- custom: ignore siege units as they are not a reliable as in versatile enough unit to be able to be used both for offense and defense if i am not mistaken but anyways etc, see known issue as of now 53.3 for related info, anyways etc -->
+
+				// <!-- custom: do not build too much non-trebuchets like siege units early (i.e. pre-renaissance/cannons anyways etc), but keep enough as they can help us rush an enemy especially if we have no bonus and only longbows as an alternative, but trebuchets are not versatile enough so do not allow them. Defense difference is not big if just for a few units, but these few catapults can many times be decisive so build a few in fallback code but not lot anyways etc. See known issue as of now 53.3 for info related to previous version of these changes anyways etc -->
 				// <!-- custom: only valid for pre-renaissance units, later on cannons are good enough as defenders as well optionally, especially if we have nothing better else to build, do not overstack pikemen when cannons are a valid option, and pikemen are obsolete due to gun units being onlnie if i may say but anyways etc -->
 				const bool bLoopUnitCombatSiege = (kU.getUnitCombatType() == eUnitCombatSiege);
-				if (!bEraRenaissanceOrAfter && bLoopUnitCombatSiege)
+				if (bLoopUnitCombatSiege)
 				{
-					continue;
+					if (!bEraRenaissanceOrAfter)
+					{
+						const int iCityAttackModifier = kU.getCityAttackModifier();
+						const bool bTrebuchetLike = (iCityAttackModifier >= TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD);
+
+						// <!-- custom: simplified non-trebuchets like (i.e. catapults only as of now anyways etc) gate -->
+						if (!bTrebuchetLike)
+						{
+							if (iSiegesAllNoTrebuchetsLike >= iNoProductionForceFallbackUnitInsteadPreRenaissanceSiegesAllNonTrebuchetsLikeThreshold)
+							{
+								continue;
+							}
+						}
+					}
+					// <!-- custom: else no restriction, facilitate cannons+ as we have a bit too few generally and they are strong enough to be considered for both defense and offense especially if we have nothing better like pikes and no muskets yet anyways etc. -->
 				}
+
 
 				// Stable classification by XML base cost
 				// (keeps behavior stable if a modmod has odd XML)
 				// const int iLoopCost = getProductionNeeded(eLoopUnit);
-				const int iLoopCost = kU.getProductionCost();     // from XML (unscaled)
+				const int iLoopXMLCost = kU.getProductionCost();     // from XML (unscaled)
 				// <!-- custom: don't deal with garbage or very unexpected XML if i am not mistaken anyways etc -->
-				if (iLoopCost < 0)
+				if (iLoopXMLCost < 0)
 				{
 					continue;
 				}
+				// <!-- custom: also eliminate very cheap units as we do in CvCityAI::AI_chooseUnit as we now have many early ancient macemen early (19 ancient macemen at turn 100 with the new offense unit only code, which makes sense since longbows or archers are no longer an option, and very cheap units are uncapped (before adding it here now) if i'm not mistaken, but anyways etc -->
+				if (bEarly && bNoExcessVeryCheapMilitaryUnits)
+				{
+					// Classify tier (exclusive)
+					const bool bTierAnc = (iLoopXMLCost <= TH_ANC);
+					const bool bTierCla = (!bTierAnc && iLoopXMLCost <= TH_CLA);
+					const bool bTierMedPlus = (!bTierAnc && !bTierCla && iLoopXMLCost <= TH_MED_PLUS);
 
+					// <!-- custom: cheaper to hoist the last tier since we are doing a loop here unlike in ::AI_ChooseUnit if i'm not mistaken but anyways etc, especially in the later game tiers where more and more units would be part of it in this case i mean if i'm not mistaken but anyways etc, as for the earlier tiers probably cheaper not to hoist them as we don't access them later in the game anyway, and there are more units then as well if i'm not mistaken but anyways etc -->
+					static const int CM_MED_PLUS = GC.getDefineINT("SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_MEDIEVAL_PLUS_TIER");
+					static const int EX_MED_PLUS = GC.getDefineINT("SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_MEDIEVAL_PLUS_TIER");
 
-				int iLoopScore = iLoopCost;
+					// <!-- custom: note: we already check domain_land and combat > 0 so no need to check it here again in this implementation of the very cheap code now in CvCity::doTurn if i'm not mistaken but added note for exhaustiveness if i may say in this case i mean but anyways etc -->
+
+					if (bTierAnc || bTierCla || bTierMedPlus)
+					{
+						// Non-regressing cap by tier: take the minimum across tiers up to this one
+						int iVeryCheapUnitsCap = 0;
+						// Do you really need the “min across tiers”?
+						// - If you promise your XML will always keep capAnc ≤ capCla ≤ capMed, then picking the single tier cap is fine.
+						// - In practice, knobs evolve (mods, balance passes). The min(...) costs just a few integer ops per call and guarantees that Ancient-tier units never get a looser cap because some later-tier numbers got bumped. It’s cheap insurance.
+						// <!-- custom: answer to chatgpt 5: yes i promise xd thanks :) if i may say but anyways etc -->
+
+						if (bTierAnc)
+						{
+							// <!-- custom: need less for naval maps as there are no invaders or such if i am not mistaken and naval units are also more important so trim it a bit more there anyways etc; also even if some mod mod were to add cheap combat naval units, we are isolated so we would trim less units due to death in combat, account for this and produce less, be it land units like as of now ancient macemen, or some potential naval combat unit or such but anyways etc a modmod might additionally add but anyways etc -->
+							// Per-tier knobs
+							static const int CM_ANC      = GC.getDefineINT("SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_ANCIENT_TIER");
+							static const int EX_ANC_NAV  = GC.getDefineINT("SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_ANCIENT_TIER_NAVAL_HEAVY_MAP");
+							static const int EX_ANC_LAND = GC.getDefineINT("SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_ANCIENT_TIER_NOT_NAVAL_HEAVY_MAP");
+
+							// <!-- custom: it's as chatgpt 5 says indeed, if we go by era, then we would reach classical era the cap would increase and suddenly we'd have more room to produce ancient macemen as i have noticed ingame and told chatgpt 5 to fix xd (thanks for code if i may say really but anyways etc). To avoid that, always take worst cap for a tier (era-independant) (e.g. ancient macemen or scouts for example anyways etc units (<= 20 anyways etc)) anyways etc keep the worst cap of a few units max even in classical and even in medieval, helps system be saner as well to have a lower risk to overproduce these were they for some reason still available to build for some reason or newly so in this case i mean but anyways etc, prevent it by keeping cap in this case i mean but anyways etc -->
+							// Style caps (independent of current era)
+							iVeryCheapUnitsCap = (CM_ANC * iNumCities) + (bNavalHeavyMapname ? EX_ANC_NAV : EX_ANC_LAND);
+
+							// <!-- custom: most likely to be useless after the very early game (for ancient macemen at least i mean which are the only very cheap combat units so far in our mod anyways etc), so further tone it down (doesn't make sense to produce ancient macemen at turn 100 on normal as i've seen AIs do when many options are better and it would just bankrupt us or increase unit costs / reduce unit costs efficiency (i.e. maintenance gold per turn for the military units i mean but anyways etc)) anyways etc; note: don't scrap existing ones, they'll die fighting or maybe be upgraded eventually or be useful for some other purpose if hopefully not too numerous but anyways etc, but don't produce anymore if beyond this new cap after the very early game if i am not mistaken in my thinking (i think i am not as this is a good idea i think (but check if accurate or is but anyways etc) but anyways etc) -->
+							static const int VERY_EARLY_TURN_ANCIENT_TIER_END = GC.getDefineINT("SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_VERY_EARLY_ANCIENT_TIER_END");
+							const int iTurnVeryEarlyThresholdScaled = (VERY_EARLY_TURN_ANCIENT_TIER_END * iTrainPct) / 100;
+							const bool bVeryEarly = (iCurrentTurn < iTurnVeryEarlyThresholdScaled);
+							// Past turn e.g. 50 (scaled)? Halve the cap strictly.
+							if (!bVeryEarly)
+							{
+								iVeryCheapUnitsCap /=  2;
+							}
+						}
+						else if (bTierCla)
+						{
+							static const int CM_CLA      = GC.getDefineINT("SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_CLASSICAL_TIER");
+							static const int EX_CLA      = GC.getDefineINT("SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_CLASSICAL_TIER");
+
+							iVeryCheapUnitsCap = (CM_CLA * iNumCities) + EX_CLA;
+						}
+						else if (bTierMedPlus)
+						{
+							iVeryCheapUnitsCap = (CM_MED_PLUS * iNumCities) + EX_MED_PLUS;
+						}
+
+						// <!-- custom: here we don't change unit unlike in ::AI_ChooseUnit as of now if i'm not mistaken so no need to use a pointer if i'm not mistaken but anyways etc -->
+						const UnitClassTypes eUnitClass = kU.getUnitClassType();
+						const int iHaveVeryCheapThisUnits = kOwner.getUnitClassCountPlusMaking(eUnitClass);
+
+						// if iVeryCheapUnitsCap == 0, then at the very first attempt iHaveThis is 0, so 0 >= 0 is true → you block production immediately. So you’ll produce zero of that unit after the halving—not one.
+						if (iHaveVeryCheapThisUnits >= iVeryCheapUnitsCap)
+						{
+							continue;
+						}
+					}
+				}
+
+				int iLoopScore = iLoopXMLCost;
 
 				if (bNoProductionForceFallbackUnitInsteadInflateCivSpecificUnit)
 				{
@@ -687,53 +836,126 @@ void CvCity::doTurn()
 						// <!-- custom: added a +1 tie breaker if both the best generic unit (e.g. if catapults were allowed so 50 hammer vs a civ-specific archer costing 25 hammer if there was any in our mod anyways etc), we'd now have 51 vs 50 hammer so we win with our civ-specific unit anyways etc -->
 						// treat it as ~100% "more valuable" than its raw cost so cheap UUs still win ties
 						// <!-- custom: counter civ-specific (e.g. maya holkan, etc) units are less likely to be useful for offense, so do not especially favour them anyways etc -->
-						if (eLoopDefaultUnitAI != UNITAI_COUNTER)
+						if (bNoProductionForceFallbackUnitInsteadInflateCivSpecificUnitAnyOtherUnitDefaultAIUnit || (eLoopDefaultUnitAI != UNITAI_COUNTER))
 						{
 							iLoopScore = (2 * iLoopScore) + 1;
 						}
 					}
 				}
 
-				// <!-- custom: if they are otherwise equal in cost, take the civ-specific one (e.g. a generic axeman 35 hammer vs civ-specific zulu impi (spearman) 35 hammer, which both would be cheap enough to build assuming a tight threshold (which we don't have here but as an example and just in case anyways etc)) -->
-				// track cheapest overall as fallback-of-fallback
-				if ((iLoopCost < iCheapestOverallCost) || (iLoopCost == iCheapestOverallCost && iLoopScore > iCheapestOverallScore))
-				{
-					iCheapestOverallCost = iLoopCost;
-					iCheapestOverallScore = iLoopScore;
-					eCheapestOverallUnit = eLoopUnit;
-					eCheapestOverallFallbackUnitUnitAI = eLoopDefaultUnitAI;
-				}
-				// <!-- custom: use iLoopCost for sanity not overly expensive unit check, but use inflated cost for which unit is strongest as per cost indicates check anyways etc; note: <= handles for iLoopCost handles ties if i am not mistaken anyways etc -->
+				// <!-- custom: use iLoopXMLCost for sanity not overly expensive unit check, but use inflated cost for which unit is strongest as per cost indicates check anyways etc; note: <= handles for iLoopXMLCost handles ties if i am not mistaken anyways etc -->
 				// prefer the most expensive unit ≤ cap; <!-- custom: this also avoids producing tons of high maintenance cost low unit overall strength (e.g. ancient maceman especially later in the game anyways etc) units that would cripple our economy. For this reason, it may be better to have no production especially later in the game, but it is only a hypothetical concern as our iMaxHammerPerEra should accomodate all units as of now (or almost all if we somehow mod them to add very expensive ones, not planned as of now but anyways), so this is more hypothetical but an extra information in case chatgpt or whoever reads it is wondering about it in this case i mean but anyways etc. -->
-				if (iLoopCost <= iMaxCost)
+				if (iLoopXMLCost <= iMaxCost)
 				{
 					// <!-- custom: e.g. egyptian war chariot (30 hammer 5 str, 60 score) better than generic horse archer (50 hammer 6 str, 50 score); also an imaginary civ-specific ancient maceman (20 hammer, 3 str, 40 score still loses vs generic horse archer that is much stronger and hammer efficient (50 hammer, 6 str, 50 score) so all good to not pick the outdated and overall weaker ancient maceman anyways etc) -->
 					// <!-- custom: note: the == is flipped as compared to what is in cheapest unit checks, as cheapest means best cheapest, vs best fallback means highest score one is best, so tie breaking and edge cases are bit different as done in the checks we did if i am not mistaken but anyways etc -->
-					if ((iLoopScore > iBestFallbackScore) || (iLoopScore == iBestFallbackScore && iLoopCost > iBestFallbackCost))
+					// Track overall best ≤ cap AND per-bucket bests ≤ cap
+					if ((iLoopScore > iBestFallbackOverallScore) || (iLoopScore == iBestFallbackOverallScore && iLoopXMLCost > iBestFallbackOverallCost))
 					{
-						iBestFallbackCost = iLoopCost;
-						iBestFallbackScore = iLoopScore;
-						eBestFallbackUnit = eLoopUnit;
-						eBestFallbackUnitUnitAI = eLoopDefaultUnitAI;
+						iBestFallbackOverallCost = iLoopXMLCost;
+						iBestFallbackOverallScore = iLoopScore;
+						eBestFallbackOverallUnit = eLoopUnit;
+						eBestFallbackOverallUnitUnitAI = eLoopDefaultUnitAI;
 					}
+
+					if (bNoProductionForceFallbackUnitInsteadOffenseDefaultUnitAIsOnly)
+					{
+						if (bOffenseDefaultUnitAI)
+						{
+							// Offense best ≤ cap
+							if ((iLoopScore > iBestFallbackOffenseScore) ||
+								(iLoopScore == iBestFallbackOffenseScore && iLoopXMLCost > iBestFallbackOffenseCost))
+							{
+								iBestFallbackOffenseCost = iLoopXMLCost;
+								iBestFallbackOffenseScore = iLoopScore;
+								eBestFallbackOffenseUnit = eLoopUnit;
+								eBestFallbackOffenseUnitUnitAI = eLoopDefaultUnitAI;
+							}
+						}
+					}
+					else if (bNoProductionForceFallbackUnitInsteadDefenseDefaultUnitAIsOnly)
+					{
+						if (bDefenseDefaultUnitAI)
+						{
+							// Best defense ≤ cap
+							if ((iLoopScore > iBestFallbackDefenseScore) ||
+								(iLoopScore == iBestFallbackDefenseScore && iLoopXMLCost > iBestFallbackDefenseCost))
+							{
+								iBestFallbackDefenseCost = iLoopXMLCost;
+								iBestFallbackDefenseScore = iLoopScore;
+								eBestFallbackDefenseUnit = eLoopUnit;
+								eBestFallbackDefenseUnitUnitAI = eLoopDefaultUnitAI;
+							}
+						}
+					}
+				}
+
+				// <!-- custom: if they are otherwise equal in cost, take the civ-specific one (e.g. a generic axeman 35 hammer vs civ-specific zulu impi (spearman) 35 hammer, which both would be cheap enough to build assuming a tight threshold (which we don't have here but as an example and just in case anyways etc)) -->
+				// track cheapest overall as fallback-of-fallback
+				// Track absolute cheapest overall (global backup)
+				if ((iLoopXMLCost < iCheapestOverallCost) || (iLoopXMLCost == iCheapestOverallCost && iLoopScore > iCheapestOverallScore))
+				{
+					iCheapestOverallCost = iLoopXMLCost;
+					iCheapestOverallScore = iLoopScore;
+					eCheapestOverallUnit = eLoopUnit;
+					eCheapestFallbackOverallUnitUnitAI = eLoopDefaultUnitAI;
 				}
 			}
 
-			// <!-- custom: if no non-cheapest is available (i.e. no unit that is less expensive than iMaxCost (extremely unlikely but just in case anyways etc)), add a little safety but anyways etc that unitai needs to not be no_unitai anyways etc -->
-			// if nothing within cap, use the cheapest overall trainable option
-			if ((eBestFallbackUnit == NO_UNIT) && (eCheapestOverallUnit != NO_UNIT) && (eCheapestOverallFallbackUnitUnitAI != NO_UNITAI))
+			// <!-- custom: attempt offense only units or defense only units first, and if fails overall units, and if fails cheapest units if i'm not mistaken but anyways etc -->
+			// Final pick: primary bucket first; if none, secondary; else global backups
+			UnitTypes   ePick = NO_UNIT;
+			UnitAITypes ePickAI = NO_UNITAI;
+
+			if (bNoProductionForceFallbackUnitInsteadOffenseDefaultUnitAIsOnly)
 			{
-				eBestFallbackUnit = eCheapestOverallUnit;
-				eBestFallbackUnitUnitAI = eCheapestOverallFallbackUnitUnitAI;
+				if (eBestFallbackOffenseUnit != NO_UNIT && eBestFallbackOffenseUnitUnitAI != NO_UNITAI)
+				{
+					ePick = eBestFallbackOffenseUnit;
+					ePickAI = eBestFallbackOffenseUnitUnitAI;
+				}
 			}
-			if ((eBestFallbackUnit != NO_UNIT) && (eBestFallbackUnitUnitAI != NO_UNITAI))
+			else if (bNoProductionForceFallbackUnitInsteadDefenseDefaultUnitAIsOnly)
+			{
+				if (eBestFallbackDefenseUnit != NO_UNIT && eBestFallbackDefenseUnitUnitAI != NO_UNITAI)
+				{
+					ePick = eBestFallbackDefenseUnit;
+					ePickAI = eBestFallbackDefenseUnitUnitAI;
+				}
+			}
+
+			// <!-- custom: fallback in case we have no offense only or no defense only units, we still want to check our overall units instead before checking the cheapest one fallback of the fallback anyways etc; note: use this as a way to sanity check corrupt or missing unitai so we check overalls as a fallback then (and then cheapest if fails if i'm not mistaken but anyways etc) -->
+			// fallback to overall-best ≤ cap
+			const bool bNoOffenseOnlyNorDefenseOnlyUnit = ((ePick == NO_UNIT) || (ePickAI == NO_UNITAI));
+			if (bNoOffenseOnlyNorDefenseOnlyUnit)
+			{
+				if ((eBestFallbackOverallUnit != NO_UNIT) && (eBestFallbackOverallUnitUnitAI != NO_UNITAI))
+				{
+					ePick = eBestFallbackOverallUnit;
+					ePickAI = eBestFallbackOverallUnitUnitAI;
+				}
+			}
+			// <!-- custom: if no non-cheapest is available (i.e. no unit that is less expensive than iMaxCost (extremely unlikely but just in case anyways etc)), add a little safety but anyways etc that unitai needs to not be no_unitai anyways etc; note: same code but different value than no offense only nor defense only unit, as we recompute this after fetching overall unit pick as well if i'm not mistaken but anyways etc -->
+			// fallback to absolute cheapest (global backup)
+			const bool bNoOverallUnit = ((ePick == NO_UNIT) || (ePickAI == NO_UNITAI));
+			if (bNoOverallUnit)
+			{
+				if ((eCheapestOverallUnit != NO_UNIT) && (eCheapestFallbackOverallUnitUnitAI != NO_UNITAI))
+				{
+					ePick = eCheapestOverallUnit;
+					ePickAI = eCheapestFallbackOverallUnitUnitAI;
+				}
+			}
+
+			const bool bHaveAnyFallbackUnit = ((ePick != NO_UNIT) && (ePickAI != NO_UNITAI));
+			if (bHaveAnyFallbackUnit)
 			{
 				// only if something unusable is there
 				const bool bReplaceHead = (!bQueueEmpty);
 				// make it the head so it starts immediately next turn
 				pushOrder(ORDER_TRAIN,
-						eBestFallbackUnit,
-						eBestFallbackUnitUnitAI,
+						ePick,
+						ePickAI,
 						/*bSave=*/false,
 						/*bPop=*/bReplaceHead,
 						/*iPosition=*/0,
