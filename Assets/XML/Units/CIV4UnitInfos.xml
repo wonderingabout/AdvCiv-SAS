@@ -9,6 +9,27 @@
 - also adjust the estimated power of some land units like warrior, animals, etc as part of rebalancing them
 see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Units\CIV4UnitInf_os_UnitAI_and_notes.txt for details anyways etc -->
 <!-- custom: units now have terrain and feature (+/- plot types e.g. hill for some units such as of now the quechua warrior but anyways etc) attack or/and defense combat modifiers. Civ-specific units in particular as of now all have terrain +/- feature modifiers. I tried to follow a dominant terrain and minor ones approach and not make it too op yet still significant (else people would use civ-specific units instead of longbowmen for defense or their verison of the axeman instead of macemen which wouldn't make sense), and was more permissive for features as long as they don't impact city combat (no forest or jungle in city tiles in particular if i am not mistaken but anyways etc). See sevopedia entry of each unit for details or sevopedia terrain or/and sevopedia feature page(s) to easily visualize these with the new UI additions we made there as well but anyways etc. For example as of now the camel knight or the persian immortal are stronger in desert dominantly, or/and other terrains as well, or possibly in features as well. I was more permissive with terrains that are otherwise especially weak, such as snow (ice sheet) and desert. Some generic units have terrain or/and feature modifiers although generally less and as of now only for few units to not skew the  since all players can build them and as is quite needless otherwise and would add too much complication not necessarily in a way that would improve gameplay or experience but anyways etc, so only civ-specific units should have strongest modifiers, but generic units can have modifiers as well at least in advciv-sas when relevant. Note: as of now i'm using plains as a representative of savanna more or less anyways etc -->
+<!-- custom: note about collateral damage calculation in advciv and by extension in our mod xd if i'm not mistaken since i as of now didn't change it, according to chatgpt 5 and thanks to my prompt / after i asked it and or such but anyways etc, and about whether it is additive or multiplicative or other, after feeding it our relevant code (which i found in CvUnit::collateralCombat if i was not mistaken in how i found it  (check if accurate as i don't know too much about these but i could or not be right or not or yes or other or etc but anyways etc), manual, and it doing a quite extensive web search before but anyways etc. I formatted this comment too if i may say, check if accurate, hopefully helpful or not or yes or etc, but anyways etc:
+
+"
+Great catch digging into your own DLL + notes — that settles it.
+In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple add-on:
+	- The “collateral strength” is
+
+	iCollateralStrength = baseCombatStr * collateralDamage() / 100
+
+	If collateralDamage() == 0, that term is 0.
+
+	- However, the function doesn’t bail if your unit has promotion-based bonus: it returns only if iCollateralStrength <= 0 && getExtraCollateralDamage() <= 0.
+	- The actual damage per target is then computed from a ratio that still includes a non-zero iStrengthFactor based on the defender’s strength, and finally scaled by 100 + getExtraCollateralDamage() (your Collateral I, II, …).
+	→ With base collateral 0, promotions still work, but the numbers are modest (exactly what your doc meant by “with the multiplicative formula, 0 base ⇒ Barrage does little”).
+
+	So the mental model is:
+	- Not 0 + 15 = 15%.
+	- Also not 0 × 1.15 = 0% (i.e., “no effect”).
+	- It’s “small baseline from the strength-ratio” × (1 + promo bonus), and capped by your MaxUnits and Limit.
+"
+-->
 <Civ4UnitInfos xmlns="x-schema:CIV4UnitSchema.xml">
 	<UnitInfos>
 		<UnitInfo> <!-- custom: class: UNITCLASS_LION, type: UNIT_LION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
@@ -11039,7 +11060,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<!-- custom: was 0 -->
 			<iWithdrawalProb>25</iWithdrawalProb>
 			<!-- custom: was 50 -->
-			<iCollateralDamage>25</iCollateralDamage>
+			<iCollateralDamage>15</iCollateralDamage>
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>5</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>
@@ -11113,7 +11134,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<FreePromotions/>
+			<!-- custom: was empty -->
+			<FreePromotions>
+				<FreePromotion>
+					<PromotionType>PROMOTION_COLLATERAL_DAMAGE1</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+			</FreePromotions>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
@@ -12084,7 +12111,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<iMinAreaSize>-1</iMinAreaSize>
-			<iMoves>2</iMoves>
+			<!-- custom: no strong enough reason if at all to give extra move here according to chatgpt 5, check if accurate anyways etc, was 2 -->
+			<iMoves>1</iMoves>
 			<bNoRevealMap>0</bNoRevealMap>
 			<iAirRange>0</iAirRange>
 			<iAirUnitCap>0</iAirUnitCap>
@@ -12174,7 +12202,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<iExtraCost>0</iExtraCost>
 			<iAsset>3</iAsset>
 			<!-- custom: was 9 -->
-			<iPower>12</iPower>
+			<iPower>13</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -12192,7 +12220,19 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<FreePromotions/>
+			<!-- custom: very nice idea by chatgpt 5 thanks to my prompt too hehe but anyways etc thanks lot anyways etc; seems thematically fitting and quite relevant, makes the unit more varied and stronger (especially against cuirassiers so very effective and seemingly nicely thematic and relevant thanks again chatgpt 5 if i may say hehe thanks but anyways etc) as well hopefully as was way too weak if i'm not mistaken in my thinking, check also if accurate but anyways etc, was empty -->
+			<!-- History cue: French line infantry excelled at disciplined volley fire and square formations vs cavalry. They weren’t inherently “fast” on foot (the 2-move in BtS is really a “dragoon flavor” abstraction). So your instinct to drop the extra move is spot-on. -->
+			<!-- custom: see note at the top of this xml file about how collateral is calculated according to chatgpt 5 and whether it is additive or multiplicative or other, after feeding it our relevant code, manual, and it doing a quite extensive web search before but anyways etc. As for us, keeping base 0 and adding this free promotion of as of now collateral_damage1 still results in non 0 collateral damage so no need to add collateral and make the unit op, but it doesn't seem that big/high in this case i mean but anyways etc so it seems we don't need to increase unit iCost and leave it as such otherwise if i'm not mistaken but anyways etc -->
+			<FreePromotions>
+				<FreePromotion>
+					<PromotionType>PROMOTION_COUNTER_MOUNTED</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+				<FreePromotion>
+					<PromotionType>PROMOTION_COLLATERAL_DAMAGE1</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+			</FreePromotions>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
