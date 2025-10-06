@@ -976,7 +976,7 @@
 			<Units>
 				<Unit>
 					<UnitClassType>UNITCLASS_CHARIOT</UnitClassType>
-					<UnitType>UNIT_EGYPT_WARCHARIOT</UnitType>
+					<UnitType>UNIT_EGYPTIAN_WAR_CHARIOT</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>

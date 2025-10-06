@@ -540,61 +540,61 @@
 	-->
 	<!-- custom: note: now the anti excess very cheap units is also included in CvCity::doTurn in the no production fallback unit code, as we were producing too many fallback ancient macemen otherwise with the new offense only code (like 19 ancient macemen at turn 100 which is very inefficient and most likely to bankrupt us or ruin our game but anyways etc) anyways etc -->
 	<Define>
-		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS</DefineName>
+		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: hammer iCost in unitinfo XML if i am not mistaken anyways etc -->
 	<Define>
-		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_ANCIENT_TIER_THRESHOLD</DefineName>
+		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_ANCIENT_TIER_THRESHOLD</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
 	<!-- custom: classical onwards, also curb archers -->
 	<!-- custom: this hopefully also curbs archers at classical era 28 > 25 as of now anyways etc, but not overruling chariots nor spears in classical tier so all good if i may say but anyways etc) -->
 	<Define>
-		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_CLASSICAL_TIER_THRESHOLD</DefineName>
+		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_CLASSICAL_TIER_THRESHOLD</DefineName>
 		<iDefineIntVal>28</iDefineIntVal>
 	</Define>
 	<!-- custom: expanded on to target for example longbows at medieval tier as as of now they cost 45 in xml, so at medieval they would be 47 > 45 so hopefully we stop producing them anyways etc -->
 	<Define>
-		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_MEDIEVAL_PLUS_TIER_THRESHOLD</DefineName>
+		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_MEDIEVAL_PLUS_TIER_THRESHOLD</DefineName>
 		<iDefineIntVal>47</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_ANCIENT_TIER</DefineName>
+		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_ANCIENT_TIER</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: need less for naval maps as there are no invaders or such if i am not mistaken and naval units are also more important so trim it a bit more there anyways etc; also even if some mod mod were to add cheap combat naval units, we are isolated so we would trim less units due to death in combat, account for this and produce less, be it land units like as of now ancient macemen, or some potential naval combat unit or such but anyways etc a modmod might additionally add but anyways etc -->
 	<Define>
-		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_ANCIENT_TIER_NAVAL_HEAVY_MAP</DefineName>
+		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_ANCIENT_TIER_NAVAL_HEAVY_MAP</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_ANCIENT_TIER_NOT_NAVAL_HEAVY_MAP</DefineName>
+		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_ANCIENT_TIER_NOT_NAVAL_HEAVY_MAP</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
 	<!-- custom: past this turn adjusted to game speed, the threshold is halved, e.g. if it was 5 then at turn 50+ the threshold would be 5 / 2 = 2.5 = 2 in int if i am not mistaken anyways etc (i don't think we round up but down rather but not sure is just a guess based on experience if i may say in this case i mean but anyways etc, check if accurate or to be sure but anyways etc); key point is we really don't want these very very cheap and very early units like ancient macemen past this point, they're more likely to be even more useless and very hammer ineffective nor efficient, yet costly in unit maintenance and affecting our growth so don't overbuild these in particular, they are useful early though but avoid after in this case i mean but anyways etc. -->
 	<Define>
-		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_VERY_EARLY_ANCIENT_TIER_END</DefineName>
+		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_VERY_EARLY_ANCIENT_TIER_END</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 	<!-- custom: wider excess for later eras but don't overdo it anyways etc -->
 	<!-- custom: e.g. 2 cities multiplier and 3 num cities and 4 extra: (2 * 3) + 4 = 6 + 4 = 10 of this unit max which is reasonable, any more won't help too much, build something else instead anyways etc -->
 	<Define>
-		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_CLASSICAL_TIER</DefineName>
+		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_CLASSICAL_TIER</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_CLASSICAL_TIER</DefineName>
+		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_CLASSICAL_TIER</DefineName>
 		<iDefineIntVal>4</iDefineIntVal>
 	</Define>
 	<!-- custom: e.g. if we have 5 cities, limit for example for longbowmen at medieval is 4 cities multiplier * 5 cities + 8 extra = 4 * 5 + 8 = 20 + 6 = 28 units max which is sane, anymore won't help and will only cripple us, build something else instead, ideally stronger units, else capitalize and try to move further in techs anyways etc -->
 	<!-- custom: sometimes we have nothing better at all to build (no bonus, etc.), and longbow window is quite long, sometimes fine to overproduce and in autoplay sometimes the best move for AI to rush someone with these if i'm not mistaken but anyways etc, so don't trim it too hard if i'm not mistaken but anyways etc -->
 	<Define>
-		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_MEDIEVAL_PLUS_TIER</DefineName>
-		<iDefineIntVal>3</iDefineIntVal>
+		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_MEDIEVAL_PLUS_TIER</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_MEDIEVAL_PLUS_TIER</DefineName>
+		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_MEDIEVAL_PLUS_TIER</DefineName>
 		<iDefineIntVal>10</iDefineIntVal>
 	</Define>
 

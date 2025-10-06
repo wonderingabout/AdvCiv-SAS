@@ -15057,9 +15057,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_CHARIOT, type: UNIT_EGYPT_WARCHARIOT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_CHARIOT, type: UNIT_EGYPTIAN_WAR_CHARIOT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Class>UNITCLASS_CHARIOT</Class>
-			<Type>UNIT_EGYPT_WARCHARIOT</Type>
+			<Type>UNIT_EGYPTIAN_WAR_CHARIOT</Type>
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
@@ -15068,8 +15068,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
-			<Description>TXT_KEY_UNIT_EGYPT_WARCHARIOT</Description>
-			<Civilopedia>TXT_KEY_UNIT_EGYPT_WARCHARIOT_PEDIA</Civilopedia>
+			<Description>TXT_KEY_UNIT_EGYPTIAN_WAR_CHARIOT</Description>
+			<Civilopedia>TXT_KEY_UNIT_EGYPTIAN_WAR_CHARIOT_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
@@ -15284,7 +15284,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
 				<iRangedWaveSize>0</iRangedWaveSize>
 				<UnitMeshGroup>
 					<iRequired>2</iRequired>
-					<EarlyArtDefineTag>ART_DEF_UNIT_EGYPT_WARCHARIOT</EarlyArtDefineTag>
+					<EarlyArtDefineTag>ART_DEF_UNIT_EGYPTIAN_WAR_CHARIOT</EarlyArtDefineTag>
 				</UnitMeshGroup>
 			</UnitMeshGroups>
 			<FormationType>FORMATION_TYPE_MACHINE</FormationType>

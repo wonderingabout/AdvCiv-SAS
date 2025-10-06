@@ -1643,7 +1643,7 @@
 			</AudioRunSounds>
 		</UnitArtInfo>
 		<UnitArtInfo>
-			<Type>ART_DEF_UNIT_EGYPT_WARCHARIOT</Type>
+			<Type>ART_DEF_UNIT_EGYPTIAN_WAR_CHARIOT</Type>
 			<Button>,Art/Interface/Buttons/Units/Chariot_WarChariot.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,6,7</Button>
 			<fScale>0.37</fScale>
 			<fInterfaceScale>0.8</fInterfaceScale>

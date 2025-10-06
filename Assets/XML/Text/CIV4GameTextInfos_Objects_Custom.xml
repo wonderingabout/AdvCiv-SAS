@@ -260,6 +260,11 @@
 		<Tag>TXT_KEY_BUILDING_EGYPTIAN_OBELISK</Tag>
 		<English>Obelisk</English>
 	</TEXT>
+	<!-- custom: rename "_EGYPT_WARCHARIOT" to "_EGYPTIAN_WAR_CHARIOT" to match the existing "_EGYPTIAN_WAR_CHARIOT" and better match the "_EGYPTIAN_OBELISK" we renamed more clearly in the past but anyways etc (note: no idea how the better matching "egyptian_war_chariot" name was detected with old asset names (i don't know how these work it seems but anyways etc) but at least it's consistent now and hopefully clear(er too but anyways etc) if i'm not mistaken but anyways etc) -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_EGYPTIAN_WAR_CHARIOT</Tag>
+		<English>War Chariot</English>
+	</TEXT>
 	<!-- custom: similarly rename NATIONAL_SECURITY that had nothing like a national wonder or anything related if am not mistaken maybe or not or yes but anyways etc to hopefully less confusing or not or yes or and other or and not anyways etc SECURITY_BUREAU anyways etc -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_SECURITY_BUREAU</Tag>
