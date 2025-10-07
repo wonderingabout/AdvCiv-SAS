@@ -108,34 +108,6 @@
 			<FreePromotionUnitCombats/>
 		</TraitInfo>
 		<TraitInfo>
-			<Type>TRAIT_EXPANSIVE</Type>
-			<Description>TXT_KEY_TRAIT_EXPANSIVE</Description>
-			<ShortDescription>TXT_KEY_TRAIT_EXPANSIVE_SHORT</ShortDescription>
-			<Civilopedia>TXT_KEY_TRAIT_EXPANSIVE_PEDIA</Civilopedia>
-			<iHealth>2</iHealth>
-			<iHappiness>0</iHappiness>
-			<iMaxAnarchy>-1</iMaxAnarchy>
-			<iUpkeepModifier>0</iUpkeepModifier>
-			<iLevelExperienceModifier>0</iLevelExperienceModifier>
-			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
-			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
-			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
-			<iMaxGlobalBuildingProductionModifier>0</iMaxGlobalBuildingProductionModifier>
-			<iMaxTeamBuildingProductionModifier>0</iMaxTeamBuildingProductionModifier>
-			<iMaxPlayerBuildingProductionModifier>0</iMaxPlayerBuildingProductionModifier>
-			<ExtraYieldThresholds/>
-			<!-- custom: try a food based multiplier, i don't know how op it would be or the exact math or rather example of values,  but seems interesting and goes well with the growth type and food type/profil i mean of the expansive trait so trying it as such anyways etc, see also this topic/forum https://forums.civfanatics.com/threads/modifying-traits-tradeyieldmodifiers.264979/post-8045016 if helps i mean there is a screenshot and such discussion about this if i am not mistaken hopefully helpful or not or yes or other but anyways etc, was empty -->
-			<TradeYieldModifiers>
-				<iYield>20</iYield>
-				<iYield>0</iYield>
-				<iYield>0</iYield>
-			</TradeYieldModifiers>
-			<CommerceChanges/>
-			<CommerceModifiers/>
-			<FreePromotions/>
-			<FreePromotionUnitCombats/>
-		</TraitInfo>
-		<TraitInfo>
 			<Type>TRAIT_INDUSTRIOUS</Type>
 			<Description>TXT_KEY_TRAIT_INDUSTRIOUS</Description>
 			<ShortDescription>TXT_KEY_TRAIT_INDUSTRIOUS_SHORT</ShortDescription>
@@ -329,7 +301,7 @@
 			<iMaxTeamBuildingProductionModifier>0</iMaxTeamBuildingProductionModifier>
 			<iMaxPlayerBuildingProductionModifier>0</iMaxPlayerBuildingProductionModifier>
 			<ExtraYieldThresholds/>
-			<!-- custom: change from (translate to english with web browser or such anyways etc) https://gforestshade.github.io/kujira/post/civ4traitinfos/#tradeyieldmodifiers adjusted or not for advciv-sas anyways etc, was empty -->
+			<!-- custom: change from (translate to english with web browser or such anyways etc) https://gforestshade.github.io/kujira/post/civ4traitinfos/#tradeyieldmodifiers adjusted or not for advciv-sas anyways etc, see also this topic/forum https://forums.civfanatics.com/threads/modifying-traits-tradeyieldmodifiers.264979/post-8045016 if helps i mean there is a screenshot and such discussion about this if i am not mistaken hopefully helpful or not or yes or other but anyways etc, was empty -->
 			<TradeYieldModifiers>
 				<iYield>10</iYield>
 				<iYield>20</iYield>
