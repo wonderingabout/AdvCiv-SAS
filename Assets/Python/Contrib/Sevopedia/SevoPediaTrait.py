@@ -34,8 +34,8 @@ class SevoPediaTrait:
 		self.X_SPECIAL = self.top.X_PEDIA_PAGE # advc.004y: Omit the MAIN_PANE
 		self.Y_SPECIAL = self.Y_LEADERS + self.H_LEADERS + 10
 		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL
-		# <!-- custom: add bit more room as not all fits in this case i mean but anyways etc, was 150 anyways etc -->
-		self.H_SPECIAL = 200
+		# <!-- custom: add more room as not all fits in this case i mean but anyways etc, was 150 anyways etc -->
+		self.H_SPECIAL = 300
 
 		self.H_MAIN_PANE = self.Y_SPECIAL + self.H_SPECIAL - self.Y_MAIN_PANE
 

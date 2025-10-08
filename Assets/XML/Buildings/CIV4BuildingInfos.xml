@@ -5387,12 +5387,8 @@
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
-			<ProductionTraits>
-				<ProductionTrait>
-					<ProductionTraitType>TRAIT_ORGANIZED</ProductionTraitType>
-					<iProductionTrait>100</iProductionTrait>
-				</ProductionTrait>
-			</ProductionTraits>
+			<!-- custom: was TRAIT_ORGANIZED 100 -->
+			<ProductionTraits/>
 			<HappinessTraits/>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
@@ -5574,12 +5570,8 @@
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
-			<ProductionTraits>
-				<ProductionTrait>
-					<ProductionTraitType>TRAIT_ORGANIZED</ProductionTraitType>
-					<iProductionTrait>100</iProductionTrait>
-				</ProductionTrait>
-			</ProductionTraits>
+			<!-- custom: was TRAIT_ORGANIZED 100 -->
+			<ProductionTraits/>
 			<HappinessTraits/>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
@@ -7451,9 +7443,10 @@
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
+			<!-- custom: was TRAIT_ORGANIZED 100 -->
 			<ProductionTraits>
 				<ProductionTrait>
-					<ProductionTraitType>TRAIT_ORGANIZED</ProductionTraitType>
+					<ProductionTraitType>TRAIT_INDUSTRIOUS</ProductionTraitType>
 					<iProductionTrait>100</iProductionTrait>
 				</ProductionTrait>
 			</ProductionTraits>
@@ -9797,13 +9790,15 @@
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
-			<ProductionTraits>
-				<ProductionTrait>
-					<ProductionTraitType>TRAIT_CREATIVE</ProductionTraitType>
-					<iProductionTrait>100</iProductionTrait>
-				</ProductionTrait>
-			</ProductionTraits>
-			<HappinessTraits/>
+			<!-- custom: was TRAIT_CREATIVE 100 -->
+			<ProductionTraits/>
+			<!-- custom: was empty -->
+			<HappinessTraits>
+				<HappinessTrait>
+					<HappinessTraitType>TRAIT_CREATIVE</HappinessTraitType>
+					<iHappinessTrait>1</iHappinessTrait>
+				</HappinessTrait>
+			</HappinessTraits>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>
@@ -10945,13 +10940,15 @@
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
-			<ProductionTraits>
-				<ProductionTrait>
-					<ProductionTraitType>TRAIT_CREATIVE</ProductionTraitType>
-					<iProductionTrait>100</iProductionTrait>
-				</ProductionTrait>
-			</ProductionTraits>
-			<HappinessTraits/>
+			<!-- custom: was TRAIT_CREATIVE 100 -->
+			<ProductionTraits/>
+			<!-- custom: was empty -->
+			<HappinessTraits>
+				<HappinessTrait>
+					<HappinessTraitType>TRAIT_CREATIVE</HappinessTraitType>
+					<iHappinessTrait>1</iHappinessTrait>
+				</HappinessTrait>
+			</HappinessTraits>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>
@@ -11136,13 +11133,15 @@
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
-			<ProductionTraits>
-				<ProductionTrait>
-					<ProductionTraitType>TRAIT_CREATIVE</ProductionTraitType>
-					<iProductionTrait>100</iProductionTrait>
-				</ProductionTrait>
-			</ProductionTraits>
-			<HappinessTraits/>
+			<!-- custom: was TRAIT_CREATIVE 100 -->
+			<ProductionTraits/>
+			<!-- custom: was empty -->
+			<HappinessTraits>
+				<HappinessTrait>
+					<HappinessTraitType>TRAIT_CREATIVE</HappinessTraitType>
+					<iHappinessTrait>1</iHappinessTrait>
+				</HappinessTrait>
+			</HappinessTraits>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>
@@ -11331,13 +11330,15 @@
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
-			<ProductionTraits>
-				<ProductionTrait>
-					<ProductionTraitType>TRAIT_CREATIVE</ProductionTraitType>
-					<iProductionTrait>100</iProductionTrait>
-				</ProductionTrait>
-			</ProductionTraits>
-			<HappinessTraits/>
+			<!-- custom: was TRAIT_CREATIVE 100 -->
+			<ProductionTraits/>
+			<!-- custom: was empty -->
+			<HappinessTraits>
+				<HappinessTrait>
+					<HappinessTraitType>TRAIT_CREATIVE</HappinessTraitType>
+					<iHappinessTrait>1</iHappinessTrait>
+				</HappinessTrait>
+			</HappinessTraits>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>
@@ -11530,7 +11531,13 @@
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<!-- advc.908b: Was 100 from TRAIT_CREATIVE -->
-			<ProductionTraits/>
+			<!-- custom: was empty -->
+			<ProductionTraits>
+				<ProductionTrait>
+					<ProductionTraitType>TRAIT_CREATIVE</ProductionTraitType>
+					<iProductionTrait>100</iProductionTrait>
+				</ProductionTrait>
+			</ProductionTraits>
 			<HappinessTraits/>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
@@ -11717,7 +11724,13 @@
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<!-- advc.908b: Was 100 from TRAIT_CREATIVE -->
-			<ProductionTraits/>
+			<!-- custom: was empty -->
+			<ProductionTraits>
+				<ProductionTrait>
+					<ProductionTraitType>TRAIT_CREATIVE</ProductionTraitType>
+					<iProductionTrait>100</iProductionTrait>
+				</ProductionTrait>
+			</ProductionTraits>
 			<HappinessTraits/>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
@@ -11918,7 +11931,13 @@
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<!-- advc.908b: Was 100 from TRAIT_CREATIVE -->
-			<ProductionTraits/>
+			<!-- custom: was empty -->
+			<ProductionTraits>
+				<ProductionTrait>
+					<ProductionTraitType>TRAIT_CREATIVE</ProductionTraitType>
+					<iProductionTrait>100</iProductionTrait>
+				</ProductionTrait>
+			</ProductionTraits>
 			<HappinessTraits/>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
@@ -12125,7 +12144,13 @@
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<!-- advc.908b: Was 100 from TRAIT_CREATIVE -->
-			<ProductionTraits/>
+			<!-- custom: was empty -->
+			<ProductionTraits>
+				<ProductionTrait>
+					<ProductionTraitType>TRAIT_CREATIVE</ProductionTraitType>
+					<iProductionTrait>100</iProductionTrait>
+				</ProductionTrait>
+			</ProductionTraits>
 			<HappinessTraits/>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
@@ -12317,7 +12342,13 @@
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
-			<ProductionTraits/>
+			<!-- custom: was empty -->
+			<ProductionTraits>
+				<ProductionTrait>
+					<ProductionTraitType>TRAIT_CREATIVE</ProductionTraitType>
+					<iProductionTrait>100</iProductionTrait>
+				</ProductionTrait>
+			</ProductionTraits>
 			<HappinessTraits>
 				<HappinessTrait>
 					<HappinessTraitType>TRAIT_CHARISMATIC</HappinessTraitType>
@@ -14414,7 +14445,13 @@
 					<iProductionTrait>100</iProductionTrait>
 				</ProductionTrait>
 			</ProductionTraits>
-			<HappinessTraits/>
+			<!-- custom: was empty anyways etc -->
+			<HappinessTraits>
+				<HappinessTrait>
+					<HappinessTraitType>TRAIT_ORGANIZED</HappinessTraitType>
+					<iHappinessTrait>1</iHappinessTrait>
+				</HappinessTrait>
+			</HappinessTraits>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>
@@ -14608,7 +14645,13 @@
 					<iProductionTrait>100</iProductionTrait>
 				</ProductionTrait>
 			</ProductionTraits>
-			<HappinessTraits/>
+			<!-- custom: was empty anyways etc -->
+			<HappinessTraits>
+				<HappinessTrait>
+					<HappinessTraitType>TRAIT_ORGANIZED</HappinessTraitType>
+					<iHappinessTrait>1</iHappinessTrait>
+				</HappinessTrait>
+			</HappinessTraits>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>
@@ -15693,7 +15736,13 @@
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>
-			<HappinessTraits/>
+			<!-- custom: was empty anyways etc -->
+			<HappinessTraits>
+				<HappinessTrait>
+					<HappinessTraitType>TRAIT_SPIRITUAL</HappinessTraitType>
+					<iHappinessTrait>1</iHappinessTrait>
+				</HappinessTrait>
+			</HappinessTraits>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>
@@ -16449,7 +16498,13 @@
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>
-			<HappinessTraits/>
+			<!-- custom: was empty anyways etc -->
+			<HappinessTraits>
+				<HappinessTrait>
+					<HappinessTraitType>TRAIT_SPIRITUAL</HappinessTraitType>
+					<iHappinessTrait>1</iHappinessTrait>
+				</HappinessTrait>
+			</HappinessTraits>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>
@@ -17204,7 +17259,13 @@
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>
-			<HappinessTraits/>
+			<!-- custom: was empty anyways etc -->
+			<HappinessTraits>
+				<HappinessTrait>
+					<HappinessTraitType>TRAIT_SPIRITUAL</HappinessTraitType>
+					<iHappinessTrait>1</iHappinessTrait>
+				</HappinessTrait>
+			</HappinessTraits>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>
@@ -17959,7 +18020,13 @@
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>
-			<HappinessTraits/>
+			<!-- custom: was empty anyways etc -->
+			<HappinessTraits>
+				<HappinessTrait>
+					<HappinessTraitType>TRAIT_SPIRITUAL</HappinessTraitType>
+					<iHappinessTrait>1</iHappinessTrait>
+				</HappinessTrait>
+			</HappinessTraits>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>
@@ -18715,7 +18782,13 @@
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>
-			<HappinessTraits/>
+			<!-- custom: was empty anyways etc -->
+			<HappinessTraits>
+				<HappinessTrait>
+					<HappinessTraitType>TRAIT_SPIRITUAL</HappinessTraitType>
+					<iHappinessTrait>1</iHappinessTrait>
+				</HappinessTrait>
+			</HappinessTraits>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>
@@ -19470,7 +19543,13 @@
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>
-			<HappinessTraits/>
+			<!-- custom: was empty anyways etc -->
+			<HappinessTraits>
+				<HappinessTrait>
+					<HappinessTraitType>TRAIT_SPIRITUAL</HappinessTraitType>
+					<iHappinessTrait>1</iHappinessTrait>
+				</HappinessTrait>
+			</HappinessTraits>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>
@@ -20225,7 +20304,13 @@
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>
-			<HappinessTraits/>
+			<!-- custom: was empty anyways etc -->
+			<HappinessTraits>
+				<HappinessTrait>
+					<HappinessTraitType>TRAIT_SPIRITUAL</HappinessTraitType>
+					<iHappinessTrait>1</iHappinessTrait>
+				</HappinessTrait>
+			</HappinessTraits>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>

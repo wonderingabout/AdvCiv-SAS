@@ -72,6 +72,14 @@
 					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
 				</FreePromotionUnitCombat>
 				<FreePromotionUnitCombat>
+					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
+				</FreePromotionUnitCombat>
+				<FreePromotionUnitCombat>
+					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
+				</FreePromotionUnitCombat>
+				<FreePromotionUnitCombat>
 					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
 					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
 				</FreePromotionUnitCombat>
@@ -97,13 +105,7 @@
 			<ExtraYieldThresholds/>
 			<TradeYieldModifiers/>
 			<CommerceChanges/>
-			<!-- custom: was empty -->
-			<CommerceModifiers>
-				<iCommerce>0</iCommerce>
-				<iCommerce>15</iCommerce>
-				<iCommerce>0</iCommerce>
-				<iCommerce>0</iCommerce>
-			</CommerceModifiers>
+			<CommerceModifiers/>
 			<FreePromotions/>
 			<FreePromotionUnitCombats/>
 		</TraitInfo>
@@ -158,13 +160,7 @@
 				<!-- advc.908b: was 2 -->
 				<iCommerce>1</iCommerce>
 			</CommerceChanges>
-			<!-- custom: was empty anyways etc -->
-			<CommerceModifiers>
-				<iCommerce>0</iCommerce>
-				<iCommerce>0</iCommerce>
-				<iCommerce>25</iCommerce>
-				<iCommerce>0</iCommerce>
-			</CommerceModifiers>
+			<CommerceModifiers/>
 			<FreePromotions/>
 			<FreePromotionUnitCombats/>
 		</TraitInfo>
@@ -280,8 +276,28 @@
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
-			<!-- custom: generally avoid per unit bonuses, tedious and not versatile enough, plus not necessarily the "best" way to buff, considering i find protective weak, buffing it in another (or other) way(s) and removing freepromotioncombats effects entirely -->
-			<FreePromotionUnitCombats/>
+			<FreePromotionUnitCombats>
+				<FreePromotionUnitCombat>
+					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
+					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
+				</FreePromotionUnitCombat>
+				<FreePromotionUnitCombat>
+					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
+				</FreePromotionUnitCombat>
+				<FreePromotionUnitCombat>
+					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
+				</FreePromotionUnitCombat>
+				<FreePromotionUnitCombat>
+					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_LONG</UnitCombatType>
+					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
+				</FreePromotionUnitCombat>
+				<FreePromotionUnitCombat>
+					<UnitCombatType>UNITCOMBAT_ARCHER_CROSSBOW</UnitCombatType>
+					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
+				</FreePromotionUnitCombat>
+			</FreePromotionUnitCombats>
 		</TraitInfo>
 		<TraitInfo>
 			<Type>TRAIT_IMPERIALIST</Type>
