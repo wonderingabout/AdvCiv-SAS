@@ -14827,54 +14827,63 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI,
 // <!-- custom: add helpers to count how many units of a combat type we have and/or such anyways etc, to help reduce the excess trebuchets and siege when not relevant (defense, we are weaker, etc.) see known issue as of now 53.3 for details anyways etc; code of below helpers provided by chatgpt 5, check if accurate anyways etc -->
 int CvPlayerAI::AI_countUnitsByCombat(UnitCombatTypes eCombat) const
 {
-	int iTotal = 0;
-	FOR_EACH_ENUM(Unit)
-	{
-		CvUnitInfo const& kU = GC.getInfo(eLoopUnit);
-		if (kU.getUnitCombatType() != eCombat) continue;
+	const CvCivilizationInfo& kCiv = GC.getInfo(getCivilizationType());
 
-		UnitClassTypes const eCls = (UnitClassTypes)kU.getUnitClassType();
-		if (eCls != NO_UNITCLASS)
-		{
-			// <!-- custom: note: it's bit tricky as units could be cancelled midway and we could be stuck in loops trying to build then cancelling midaway, i don't mind a little extra units as result of this i think if i may say and may generally be fine for this purpose if i'm not mistaken in my thinking, check if accurate as this is just a guess of mine but seems to run fine so far anyways etc; chatgpt 5 seems to agree as well, check if accurate as well i mean if i may say but anyways etc -->
-			// Totally fair—queued builds can get canceled or reshuffled, so “counting makings” can push you over a cap and then bounce you back under it next turn. Easiest fix: never count makings and only count units you actually own on the map.
-			iTotal += getUnitClassCount(eCls);
-		}
+	// Walk classes once; use the player's active type (UU if any, else default)
+	int iTotal = 0;
+	FOR_EACH_ENUM(UnitClass)
+	{
+		// <!-- custom: performance optimization by chatgpt 5 thanks a lot but anyways etc which i slightly tweaked (added const but anyways etc) or not or yes or etc but anyways etc -->
+		// Tiny (optional) micro-perf tweak you can apply to all three: skip classification work when you own zero of that class. It avoids a few GC.getInfo(...) calls
+		const int iHave = getUnitClassCount(eLoopUnitClass);
+		if (iHave == 0)
+			continue;
+
+		UnitTypes eType = (UnitTypes)kCiv.getCivilizationUnits(eLoopUnitClass);
+		if (eType == NO_UNIT)
+			eType = (UnitTypes)GC.getUnitClassInfo(eLoopUnitClass).getDefaultUnit();
+		if (eType == NO_UNIT)
+			continue;
+
+		const CvUnitInfo& kU = GC.getInfo(eType);
+		if (kU.getUnitCombatType() != eCombat)
+			continue;
+
+		// <!-- custom: note: it's bit tricky as units could be cancelled midway and we could be stuck in loops trying to build then cancelling midaway, i don't mind a little extra units as result of this i think if i may say and may generally be fine for this purpose if i'm not mistaken in my thinking, check if accurate as this is just a guess of mine but seems to run fine so far anyways etc; chatgpt 5 seems to agree as well, check if accurate as well i mean if i may say but anyways etc -->
+		// Totally fair—queued builds can get canceled or reshuffled, so “counting makings” can push you over a cap and then bounce you back under it next turn. Easiest fix: never count makings and only count units you actually own on the map.
+		iTotal += iHave; // count once per class
 	}
 	return iTotal;
 }
 
 int CvPlayerAI::AI_countUnitsByCombatNoTrebuchetsLike(UnitCombatTypes eCombat) const
 {
-	static const int TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD = GC.getDefineINT("SAS_TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD");
+	static const int iTH = GC.getDefineINT("SAS_TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD");
+
+	const CvCivilizationInfo& kCiv = GC.getInfo(getCivilizationType());
 
 	int iTotal = 0;
-	FOR_EACH_ENUM(Unit)
+	FOR_EACH_ENUM(UnitClass)
 	{
-		CvUnitInfo const& kU = GC.getInfo(eLoopUnit);
-		if (kU.getUnitCombatType() != eCombat) continue;
+		const int iHave = getUnitClassCount(eLoopUnitClass);
+		if (iHave == 0)
+			continue;
 
-		UnitClassTypes const eCls = (UnitClassTypes)kU.getUnitClassType();
-		if (eCls != NO_UNITCLASS)
-		{
-			// Use your SDK’s name here:
-			// BtS/AdvCiv variants: getCityAttack() or getCityAttackModifier()
-			// int const iCityAtk =
-			// #ifdef USE_CITY_ATTACK_MODIFIER_NAME
-			// 	kU.getCityAttackModifier();
-			// #else
-			// 	kU.getCityAttack();
-			// #endif
-			int const iCityAtk = kU.getCityAttackModifier();
-			if (iCityAtk >= TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD)
-			{
-				continue;
-			}
-			else
-			{
-				iTotal += getUnitClassCount(eCls);
-			}
-		}
+		UnitTypes eType = (UnitTypes)kCiv.getCivilizationUnits(eLoopUnitClass);
+		if (eType == NO_UNIT)
+			eType = (UnitTypes)GC.getUnitClassInfo(eLoopUnitClass).getDefaultUnit();
+		if (eType == NO_UNIT)
+			continue;
+
+		const CvUnitInfo& kU = GC.getInfo(eType);
+		if (kU.getUnitCombatType() != eCombat)
+			continue;
+
+		// Keep only non-trebuchet-like
+		if (kU.getCityAttackModifier() >= iTH)
+			continue;
+
+		iTotal += iHave;
 	}
 	return iTotal;
 }
@@ -14882,32 +14891,32 @@ int CvPlayerAI::AI_countUnitsByCombatNoTrebuchetsLike(UnitCombatTypes eCombat) c
 int CvPlayerAI::AI_countTrebuchetsLike() const
 {
 	static const UnitCombatTypes eUnitCombatSiege = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SIEGE");
+	static const int iTH = GC.getDefineINT("SAS_TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD");
 
-	static const int TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD = GC.getDefineINT("SAS_TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD");
+	const CvCivilizationInfo& kCiv = GC.getInfo(getCivilizationType());
 
 	int iTotal = 0;
-	FOR_EACH_ENUM(Unit)
+	FOR_EACH_ENUM(UnitClass)
 	{
-		CvUnitInfo const& kU = GC.getInfo(eLoopUnit);
-		if (kU.getUnitCombatType() != eUnitCombatSiege) continue;
+		const int iHave = getUnitClassCount(eLoopUnitClass);
+		if (iHave == 0)
+			continue;
 
-		// Use your SDK’s name here:
-		// BtS/AdvCiv variants: getCityAttack() or getCityAttackModifier()
-		// int const iCityAtk =
-		// #ifdef USE_CITY_ATTACK_MODIFIER_NAME
-		// 	kU.getCityAttackModifier();
-		// #else
-		// 	kU.getCityAttack();
-		// #endif
-		int const iCityAtk = kU.getCityAttackModifier();
-		if (iCityAtk >= TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD)
-		{
-			UnitClassTypes const eCls = (UnitClassTypes)kU.getUnitClassType();
-			if (eCls != NO_UNITCLASS)
-			{
-				iTotal += getUnitClassCount(eCls);
-			}
-		}
+		UnitTypes eType = (UnitTypes)kCiv.getCivilizationUnits(eLoopUnitClass);
+		if (eType == NO_UNIT)
+			eType = (UnitTypes)GC.getUnitClassInfo(eLoopUnitClass).getDefaultUnit();
+		if (eType == NO_UNIT)
+			continue;
+
+		const CvUnitInfo& kU = GC.getInfo(eType);
+		if (kU.getUnitCombatType() != eUnitCombatSiege)
+			continue;
+
+		// Trebuchet-like: big city-attack
+		if (kU.getCityAttackModifier() < iTH)
+			continue;
+
+		iTotal += iHave;
 	}
 	return iTotal;
 }
