@@ -12410,25 +12410,27 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		// ===== RENAISSANCE =====
 		else if (isRenaissance)
 		{
-			static const int REN_NO_MOUNT_WITH_METAL_PCT            = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_WITH_METAL_PCT");
-			static const int REN_NO_MOUNT_NO_METAL_PCT              = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_NO_METAL_PCT");
-			static const int REN_NO_METAL_WITH_MOUNT_IRON_PCT       = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_METAL_WITH_MOUNT_IRON_PCT");
-			// (Copper at Renaissance stays handled by the MED+ copper clamp)
+			// Yep—good catch. Let’s make the checks Iron-specific instead of “any metal”, so Copper never fools the logic for Cannons.
+			// What this does:
+			// - “Lack mounts” bumps only when you already have Iron (since Copper doesn’t unlock your mounted line).
+			// - “Lack Iron” bumps Iron regardless of mounts (so Cannons matter even with zero Horse/Camel).
+			// - Copper remains clamped from Medieval+, as before.
+			static const int REN_NO_MOUNT_WITH_IRON_PCT = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_WITH_IRON_PCT");
+			static const int REN_NO_MOUNT_NO_IRON_PCT = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_NO_IRON_PCT");
+			static const int REN_NO_IRON_WITH_MOUNT_IRON_PCT = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_IRON_WITH_MOUNT_IRON_PCT");
+			static const int REN_NO_IRON_NO_MOUNT_IRON_PCT = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_IRON_NO_MOUNT_IRON_PCT");
 
-			// If we lack mounts, modest push only when metals present
+			// If we lack mounts, modest push only when IRON present
 			if ((eBonus == B_HORSE || eBonus == B_CAMEL) && !haveHorse && !haveCamel)
 			{
-				pct = haveAnyMetal ? REN_NO_MOUNT_WITH_METAL_PCT
-								: REN_NO_MOUNT_NO_METAL_PCT;
+				pct = haveIron ? REN_NO_MOUNT_WITH_IRON_PCT
+							: REN_NO_MOUNT_NO_IRON_PCT;
 			}
-			// If we lack metals, metals mostly indifferent now; small iron bump if mounts present
-			else if (!haveAnyMetal && (eBonus == B_IRON || eBonus == B_COPPER))
+			// If we lack IRON, still push Iron even without mounts (Cannons etc.)
+			else if (!haveIron && eBonus == B_IRON)
 			{
-				if (haveAnyMount && eBonus == B_IRON)
-				{
-					pct = REN_NO_METAL_WITH_MOUNT_IRON_PCT; // 1.5x iron only
-					// Copper still clamped by MED+ rule
-				}
+				pct = haveAnyMount ? REN_NO_IRON_WITH_MOUNT_IRON_PCT
+								: REN_NO_IRON_NO_MOUNT_IRON_PCT;
 			}
 
 			// Carry over clamps

@@ -693,7 +693,7 @@
 		<DefineName>SAS_BONUS_TRADE_VAL_VALUE_MORE_IRON_COPPER_HORSE_CAMEL_RELATIVELY</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: here is the logic i drafted to chatgpt 5 after some back and forth and consideration in this case i mean but anyways etc:
+	<!-- custom: here is the logic i drafted (updated bit but refer to below code comments per define rather for clarity with updated values there as well but anyways etc) to chatgpt 5 after some back and forth and consideration in this case i mean but anyways etc:
 	Note: since it is technical and i didn't reread and/or recheck all, i also asked Grok AI deep search to be sure if logic was correct and fine, for this 2) and also the 1) section, which is said is generally fine and correct anyways etc
 
 	if we have no horse nor camel nor elephants pre medieval, increase them to 1.5x
@@ -704,8 +704,8 @@
 	regardless of all, medieval+ elephants is 0.50x (useless except buildings, offset the small iaiobjective and correct value anyways etc)
 	regardless of all, medieval+ copper is 0.50x similarly
 
-	if we have no horse nor camel renaissance, increase them 1.5x if we have metals else 0.75x
-	if we have no metal renaissance keep same value (does not matter anymore), if we have mounts increase 1.50x
+	if we have no horse nor camel renaissance, increase them 1.5x if we have iron else 0.75x
+	if we have no iron renaissance increase for cannons 1.50x, if we have mounts increase 1.50x
 
 	if we have no camel don't care in industrial+, onwards apply 0.50x (not used for units anymore anyways etc)
 
@@ -724,6 +724,8 @@
 		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_PREMED_NO_METAL_PCT</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
+
+
 
 	<!-- Medieval: if you LACK mounts but HAVE metals, how much to boost mounts (Knights). 200=+100%. -->
 	<Define>
@@ -766,32 +768,45 @@
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 
-	<!-- Renaissance: if you LACK mounts and HAVE metals, modest mount boost. 150=+50%. -->
+
+
+	<!-- Renaissance: LACK mounts + HAVE IRON → modest mount boost (Cuirassiers path) -->
 	<Define>
-		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_WITH_METAL_PCT</DefineName>
+		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_WITH_IRON_PCT</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
-	<!-- Renaissance: if you LACK mounts and LACK metals, small mount discount. 75=−25%. -->
+	<!-- Renaissance: LACK mounts + LACK IRON → small mount discount -->
 	<Define>
-		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_NO_METAL_PCT</DefineName>
+		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_NO_IRON_PCT</DefineName>
 		<iDefineIntVal>75</iDefineIntVal>
 	</Define>
-	<!-- Renaissance: if you LACK metals but HAVE mounts, small IRON bump only. 150=+50%. -->
+	<!-- Renaissance: LACK IRON + HAVE mounts → push IRON (Cannons + Cuirassiers path) -->
 	<Define>
-		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_METAL_WITH_MOUNT_IRON_PCT</DefineName>
+		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_IRON_WITH_MOUNT_IRON_PCT</DefineName>
+		<iDefineIntVal>200</iDefineIntVal>
+	</Define>
+	<!-- custom: cannons could use iron, if we don't have mounts and not yet muskets, this is a great option, even if we can, not too bad to have as well for our attacks -->
+	<!-- Renaissance: LACK IRON + LACK mounts → still push IRON (Cannons path) -->
+	<Define>
+		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_IRON_NO_MOUNT_IRON_PCT</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
+
+
+
 	<!-- Industrial+: Camel fades (no relevant units). 50=−50%. -->
 	<Define>
 		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_IND_PLUS_CAMEL_PCT</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
-
 	<!-- Industrial: Horse still matters (Cavalry). 100=no change. -->
 	<Define>
 		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_IND_HORSE_BASE_PCT</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
+
+
+
 	<!-- Modern+: Horse fades (no relevant units). 50=−50%. -->
 	<Define>
 		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MOD_PLUS_HORSE_PCT</DefineName>
