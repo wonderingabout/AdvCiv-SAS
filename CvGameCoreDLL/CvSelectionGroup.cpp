@@ -292,10 +292,15 @@ void CvSelectionGroup::doTurn()
 		if (GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS)
 			&& GET_TEAM(getTeam()).hasMetHuman()) // K-Mod
 		{
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+			static const int iMIN_TIMER_UNIT_DOUBLE_MOVES = GC.getDefineINT("MIN_TIMER_UNIT_DOUBLE_MOVES");
+
 			int iBestWaitTurns = 0;
 			FOR_EACH_UNIT_IN(pUnit, *this)
 			{
-				int iWaitTurns = (GC.getDefineINT("MIN_TIMER_UNIT_DOUBLE_MOVES") -
+				// <!-- custom: seems like this can be made const if i'm not mistaken anyways etc -->
+				const int iWaitTurns = (iMIN_TIMER_UNIT_DOUBLE_MOVES -
 						(GC.getGame().getTurnSlice() - pUnit->getLastMoveTurn()));
 				if (iWaitTurns > iBestWaitTurns)
 					iBestWaitTurns = iWaitTurns;

@@ -178,8 +178,12 @@ void CvReplayInfo::createInfo(PlayerTypes ePlayer)
 	//m_listReplayMessages.clear();
 	FAssert(m_listReplayMessages.empty()); // advc: The above would leak memory
 	// <advc.106h>
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iSETTINGS_IN_REPLAYS = GC.getDefineINT("SETTINGS_IN_REPLAYS");
+
 	if(kGame.getGameState() == GAMESTATE_OVER &&
-		GC.getDefineINT("SETTINGS_IN_REPLAYS") > 0)
+		iSETTINGS_IN_REPLAYS > 0)
 	{
 		addSettingsMsg();
 	} // </advc.106h>
@@ -686,9 +690,16 @@ bool CvReplayInfo::read(FDataStreamBase& stream)
 		int iVersion;
 		stream.Read(&iVersion);
 		// <advc.106i> Unpack mod id and version
-		int iAdvCivID = GC.getDefineINT("SAVE_VERSION");
+
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iAdvCivID = GC.getDefineINT("SAVE_VERSION");
+
 		int iModID = -1;
-		m->bDisplayOtherMods = (GC.getDefineINT("HOF_DISPLAY_OTHER_MOD_REPLAYS") > 0);
+
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iHOF_DISPLAY_OTHER_MOD_REPLAYS = GC.getDefineINT("HOF_DISPLAY_OTHER_MOD_REPLAYS");
+
+		m->bDisplayOtherMods = (iHOF_DISPLAY_OTHER_MOD_REPLAYS > 0);
 		if(iVersion >= 100 * iAdvCivID)
 		{
 			iModID = iVersion / 100;
@@ -853,7 +864,10 @@ bool CvReplayInfo::read(FDataStreamBase& stream)
 			}
 			if(m_szModName.empty())
 			{
-				if(iModID < 0 && GC.getDefineINT("HOF_DISPLAY_BTS_REPLAYS") <= 0)
+				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				static const int iHOF_DISPLAY_BTS_REPLAYS = GC.getDefineINT("HOF_DISPLAY_BTS_REPLAYS");
+
+				if(iModID < 0 && iHOF_DISPLAY_BTS_REPLAYS <= 0)
 					return false;
 			}
 			else if(!m->bDisplayOtherMods &&
@@ -881,7 +895,11 @@ void CvReplayInfo::write(FDataStreamBase& stream)
 {
 	//stream.Write(REPLAY_VERSION);
 	// <advc.106i> Fold AdvCiv's (hopefully) globally unique id into the replay version
-	stream.Write(GC.getDefineINT("SAVE_VERSION") * 100 + REPLAY_VERSION);
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iSAVE_VERSION = GC.getDefineINT("SAVE_VERSION");
+
+	stream.Write(iSAVE_VERSION * 100 + REPLAY_VERSION);
 	// <advc.106m> Fold minimap resolution into active player ID
 	if (!isStoringReplaysAsBtS())
 	{

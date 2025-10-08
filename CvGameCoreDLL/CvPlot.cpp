@@ -578,7 +578,8 @@ void CvPlot::updateSymbols()
 
 	if (iMaxYieldRate > 0)
 	{
-		static int iMAX_YIELD_STACK = GC.getDefineINT("MAX_YIELD_STACK"); // advc.opt: static
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iMAX_YIELD_STACK = GC.getDefineINT("MAX_YIELD_STACK"); // advc.opt: static
 		int iLayers = iMaxYieldRate / iMAX_YIELD_STACK + 1;
 
 		CvSymbol* pSymbol = NULL;
@@ -831,6 +832,13 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
 	std::vector<NukeEffect> aBuildingDestroyed;
 	std::vector<NukeEffect> aCitizensKilled;
 	// </advc.650>
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const int iNUKE_FEATURE = GC.getDefineINT("NUKE_FEATURE");
+	// <!-- custom: also static const the enum as it shouldn't change if i'm not mistaken and as chatgpt 5 agrees as well after i asked it but check if accurate as i don't know too much about these but it does seem so but check to be sure but anyways etc -->
+	static const FeatureTypes eNUKE_FEATURE = (FeatureTypes)iNUKE_FEATURE;
+
 	for (SquareIter it(*this, iRange); it.hasNext(); ++it)
 	{
 		CvPlot& p = *it;
@@ -853,13 +861,13 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
 									GC.getInfo(p.getImprovementType()).getDescription()));
 						}
 						if (p.isFeature() &&
-							p.getFeatureType() != GC.getDefineINT("NUKE_FEATURE"))
+							p.getFeatureType() != iNUKE_FEATURE)
 						{
 							aFeatureDestroyed.push_back(NukeEffect(&p,
 									GC.getInfo(p.getFeatureType()).getDescription()));
 						} // </advc.650>
 						p.setImprovementType(NO_IMPROVEMENT);
-						p.setFeatureType((FeatureTypes)GC.getDefineINT("NUKE_FEATURE"));
+						p.setFeatureType(eNUKE_FEATURE);
 					}
 				}
 			}
@@ -7549,8 +7557,19 @@ void CvPlot::getVisibleImprovementState(ImprovementTypes& eType, bool& bWorked)
 			if (isBeingWorked() && !isCity())
 			{
 				if (isWater())
-					eType = (ImprovementTypes)GC.getDefineINT("WATER_IMPROVEMENT");
-				else eType = (ImprovementTypes)GC.getDefineINT("LAND_IMPROVEMENT");
+				{
+					// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+					static const ImprovementTypes eWATER_IMPROVEMENT = (ImprovementTypes)GC.getDefineINT("WATER_IMPROVEMENT");
+
+					eType = eWATER_IMPROVEMENT;
+				}
+				else
+				{
+					// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+					static const ImprovementTypes eLAND_IMPROVEMENT = (ImprovementTypes)GC.getDefineINT("LAND_IMPROVEMENT");
+
+					eType = eLAND_IMPROVEMENT;
+				}
 			}
 		}
 	}

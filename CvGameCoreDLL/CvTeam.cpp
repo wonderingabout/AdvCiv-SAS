@@ -2006,13 +2006,21 @@ bool CvTeam::isLossesAllowRevolt(TeamTypes eMaster) const
 	CvTeam& kMaster = GET_TEAM(eMaster);
 	if (isVassal(eMaster))
 	{	// advc.112: Lower bound 10 added
+
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iVASSAL_REVOLT_OWN_LOSSES_FACTOR = GC.getDefineINT("VASSAL_REVOLT_OWN_LOSSES_FACTOR");
+
 		if (100 * std::max(10, getTotalLand(false)) < getVassalPower() *
-			GC.getDefineINT("VASSAL_REVOLT_OWN_LOSSES_FACTOR"))
+			iVASSAL_REVOLT_OWN_LOSSES_FACTOR)
 		{
 			return true;
 		}
+
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iVASSAL_REVOLT_MASTER_LOSSES_FACTOR = GC.getDefineINT("VASSAL_REVOLT_MASTER_LOSSES_FACTOR");
+
 		if (100 * kMaster.getTotalLand() < getMasterPower() *
-			GC.getDefineINT("VASSAL_REVOLT_MASTER_LOSSES_FACTOR")) // advc (note): 0 in XML
+			iVASSAL_REVOLT_MASTER_LOSSES_FACTOR) // advc (note): 0 in XML
 		{
 			return true;
 		}
@@ -2432,7 +2440,13 @@ HandicapTypes CvTeam::getHandicapType() const
 	}
 	int const iDiv = it.nextIndex();
 	if (iDiv <= 0)
-		return (HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP");
+	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const HandicapTypes eSTANDARD_HANDICAP = (HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP");
+
+		return eSTANDARD_HANDICAP;
+	}
+		
 	//FAssert((iGameHandicap / iDiv) >= 0);
 	// advc.250a: (also disabled the assertion above)
 	return (HandicapTypes)std::min(GC.getNumHandicapInfos() - 1,
@@ -4618,6 +4632,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
 		// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
 		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+		static const int iSHOW_FIRST_TO_DISCOVER_IN_REPLAY = GC.getDefineINT("SHOW_FIRST_TO_DISCOVER_IN_REPLAY");
 
 		if (bFirst && bFirstToDiscover)
 		{
@@ -4652,9 +4667,10 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 					GET_PLAYER(ePlayer).chooseTech(kTech.getFirstFreeTechs(),
 							szBuffer.GetCString());
 				}
+
 				// advc.004: Announcement code moved into next block
 				// advc.106: Do it at the end instead
-				if (GC.getDefineINT("SHOW_FIRST_TO_DISCOVER_IN_REPLAY") <= 0)
+				if (iSHOW_FIRST_TO_DISCOVER_IN_REPLAY <= 0)
 				{
 					szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_FIRST_TO_TECH",
 							GET_PLAYER(ePlayer).getReplayName(), kTech.getTextKeyWide());
@@ -4698,7 +4714,6 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 				}
 			}
 		}
-
 
 		if (bAnnounce && kGame.isFinalInitialized() &&
 			!gDLL->GetWorldBuilderMode()) // advc
@@ -4810,7 +4825,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 			it->updateTechShare(eTech); // Share through "Internet" project
 		// <advc.106>
 		if (bFirst && bFirstToDiscover && // (Note: CvGame::initFreeState uses bFirst=false)
-			GC.getDefineINT("SHOW_FIRST_TO_DISCOVER_IN_REPLAY") > 0)
+			iSHOW_FIRST_TO_DISCOVER_IN_REPLAY > 0)
 		{
 			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
 			static const ColorTypes eColorAltHighlightText = (ColorTypes)GC.getColorType("ALT_HIGHLIGHT_TEXT");
@@ -5530,11 +5545,15 @@ void CvTeam::testCircumnavigated()
 
 	GC.getGame().makeCircumnavigated();
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const int iCIRCUMNAVIGATE_FREE_MOVES = GC.getDefineINT("CIRCUMNAVIGATE_FREE_MOVES");
+
 	//if (GC.getGame().getElapsedGameTurns() > 0)
 	if (GC.getGame().getElapsedGameTurns() > 1 && // K-Mod (due to changes in when CvTeam::doTurn is called)
-		GC.getDefineINT("CIRCUMNAVIGATE_FREE_MOVES") != 0)
+		iCIRCUMNAVIGATE_FREE_MOVES != 0)
 	{
-		changeExtraMoves(DOMAIN_SEA, GC.getDefineINT("CIRCUMNAVIGATE_FREE_MOVES"));
+		changeExtraMoves(DOMAIN_SEA, iCIRCUMNAVIGATE_FREE_MOVES);
 
 		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
 		// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
@@ -5547,7 +5566,7 @@ void CvTeam::testCircumnavigated()
 			if (getID() == kObs.getTeam())
 			{
 				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_CIRC_GLOBE",
-						GC.getDefineINT("CIRCUMNAVIGATE_FREE_MOVES"));
+						iCIRCUMNAVIGATE_FREE_MOVES);
 			}
 			else if (isHasMet(kObs.getTeam()) /* advc.127: */ || kObs.isSpectator())
 			{
