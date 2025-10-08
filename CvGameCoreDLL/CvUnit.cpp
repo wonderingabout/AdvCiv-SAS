@@ -1523,10 +1523,14 @@ void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted,
 		if (!m_pUnitInfo->isHiddenNationality() &&
 			!pDefender->getUnitInfo().isHiddenNationality())
 		{
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const int iWW_UNIT_KILLED_ATTACKING = GC.getDefineINT("WW_UNIT_KILLED_ATTACKING");
+			static const int iWW_KILLED_UNIT_DEFENDING = GC.getDefineINT("WW_KILLED_UNIT_DEFENDING");
+
 			GET_TEAM(getTeam()).changeWarWeariness(pDefender->getTeam(), *pPlot,
-					GC.getDefineINT("WW_UNIT_KILLED_ATTACKING"));
+					iWW_UNIT_KILLED_ATTACKING);
 			GET_TEAM(pDefender->getTeam()).changeWarWeariness(getTeam(), *pPlot,
-					GC.getDefineINT("WW_KILLED_UNIT_DEFENDING"));
+					iWW_KILLED_UNIT_DEFENDING);
 		}
 		// <advc.130m>
 		int const iWS = GC.getDefineINT(CvGlobals::WAR_SUCCESS_DEFENDING);
@@ -1579,10 +1583,14 @@ void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted,
 		if (!m_pUnitInfo->isHiddenNationality() &&
 			!pDefender->getUnitInfo().isHiddenNationality())
 		{
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const int iWW_UNIT_KILLED_DEFENDING = GC.getDefineINT("WW_UNIT_KILLED_DEFENDING");
+			static const int iWW_KILLED_UNIT_ATTACKING = GC.getDefineINT("WW_KILLED_UNIT_ATTACKING");
+
 			GET_TEAM(pDefender->getTeam()).changeWarWeariness(getTeam(), *pPlot,
-					GC.getDefineINT("WW_UNIT_KILLED_DEFENDING"));
+					iWW_UNIT_KILLED_DEFENDING);
 			GET_TEAM(getTeam()).changeWarWeariness(pDefender->getTeam(), *pPlot,
-					GC.getDefineINT("WW_KILLED_UNIT_ATTACKING"));
+					iWW_KILLED_UNIT_ATTACKING);
 		}
 		// <advc.130m>
 		int const iWS = GC.getDefineINT(CvGlobals::WAR_SUCCESS_ATTACKING);
@@ -4399,6 +4407,12 @@ bool CvUnit::nuke(int iX, int iY)
 		gDLL->getEntityIFace()->AddMission(&kMissionDef);
 	}
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const int iWW_HIT_BY_NUKE = GC.getDefineINT("WW_HIT_BY_NUKE");
+	static const int iWW_ATTACKED_WITH_NUKE = GC.getDefineINT("WW_ATTACKED_WITH_NUKE");
+	static const int iWAR_SUCCESS_NUKE = GC.getDefineINT("WAR_SUCCESS_NUKE");
+
 	setMadeAttack(true);
 	setAttackPlot(&kPlot, false);
 
@@ -4407,11 +4421,11 @@ bool CvUnit::nuke(int iX, int iY)
 		if (!abTeamsAffected.get(it->getID()))
 			continue;
 		it->changeWarWeariness(getTeam(),
-				100 * GC.getDefineINT("WW_HIT_BY_NUKE"));
+				100 * iWW_HIT_BY_NUKE);
 		GET_TEAM(getTeam()).changeWarWeariness(it->getID(),
-				100 * GC.getDefineINT("WW_ATTACKED_WITH_NUKE"));
+				100 * iWW_ATTACKED_WITH_NUKE);
 		GET_TEAM(getTeam()).AI_changeWarSuccess(it->getID(),
-				GC.getDefineINT("WAR_SUCCESS_NUKE"));
+				iWAR_SUCCESS_NUKE);
 	}
 	CvCity const* pReplayCity = NULL; // advc.106
 	// <advc.130q>
@@ -5918,7 +5932,10 @@ bool CvUnit::spread(ReligionTypes eReligion)
 			/*	K-Mod. Instead of simply failing, give some chance of
 				removing one of the existing religions. */
 			std::vector<std::pair<int,ReligionTypes> > aieRankedReligions;
-			int iRandomWeight = GC.getDefineINT("RELIGION_INFLUENCE_RANDOM_WEIGHT");
+
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const int iRandomWeight = GC.getDefineINT("RELIGION_INFLUENCE_RANDOM_WEIGHT");
+
 			FOR_EACH_ENUM(Religion)
 			{
 				if (pCity->isHasReligion(eLoopReligion) || eLoopReligion == eReligion)
@@ -6495,7 +6512,10 @@ bool CvUnit::espionage(EspionageMissionTypes eMission, int iData)
 			if (getPlot().isActiveVisible(false))
 				NotifyEntity(MISSION_ESPIONAGE);
 
-			if (!testSpyIntercepted(eTargetPlayer, true, GC.getDefineINT("ESPIONAGE_SPY_MISSION_ESCAPE_MOD")))
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const int iESPIONAGE_SPY_MISSION_ESCAPE_MOD = GC.getDefineINT("ESPIONAGE_SPY_MISSION_ESCAPE_MOD");
+
+			if (!testSpyIntercepted(eTargetPlayer, true, iESPIONAGE_SPY_MISSION_ESCAPE_MOD))
 			{
 				setFortifyTurns(0);
 				setMadeAttack(true);
@@ -6969,11 +6989,15 @@ bool CvUnit::giveExperience()
 
 int CvUnit::getStackExperienceToGive(int iNumUnits) const
 {
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iWARLORD_MAXIMUM_EXTRA_EXPERIENCE_PERCENT = GC.getDefineINT("WARLORD_MAXIMUM_EXTRA_EXPERIENCE_PERCENT");
+	static const int iWARLORD_EXTRA_EXPERIENCE_PER_UNIT_PERCENT = GC.getDefineINT("WARLORD_EXTRA_EXPERIENCE_PER_UNIT_PERCENT");
+
 	return (m_pUnitInfo->getLeaderExperience() * (100 + std::min(
 			//50 // K-Mod: +50% is too low as a maximum.
-			GC.getDefineINT("WARLORD_MAXIMUM_EXTRA_EXPERIENCE_PERCENT"),
+			iWARLORD_MAXIMUM_EXTRA_EXPERIENCE_PERCENT,
 			(iNumUnits - 1) *
-			GC.getDefineINT("WARLORD_EXTRA_EXPERIENCE_PER_UNIT_PERCENT")))) / 100;
+			iWARLORD_EXTRA_EXPERIENCE_PER_UNIT_PERCENT))) / 100;
 }
 
 int CvUnit::upgradePrice(UnitTypes eUnit) const
@@ -8577,9 +8601,19 @@ int CvUnit::maxXPValue() const
 {
 	int iMaxValue = MAX_INT;
 	if (isAnimal())
-		iMaxValue = std::min(iMaxValue, GC.getDefineINT("ANIMAL_MAX_XP_VALUE"));
+	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iANIMAL_MAX_XP_VALUE = GC.getDefineINT("ANIMAL_MAX_XP_VALUE");
+
+		iMaxValue = std::min(iMaxValue, iANIMAL_MAX_XP_VALUE);
+	}
 	if (isBarbarian())
-		iMaxValue = std::min(iMaxValue, GC.getDefineINT("BARBARIAN_MAX_XP_VALUE"));
+	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iBARBARIAN_MAX_XP_VALUE = GC.getDefineINT("BARBARIAN_MAX_XP_VALUE");
+
+		iMaxValue = std::min(iMaxValue, iBARBARIAN_MAX_XP_VALUE);
+	}
 	return iMaxValue;
 }
 
@@ -9092,6 +9126,13 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			{
 				oldUnits.insertAtEnd(pNode->m_data);
 			}
+
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+			static const int iWW_UNIT_CAPTURED = GC.getDefineINT("WW_UNIT_CAPTURED");
+			static const int iWW_CAPTURED_UNIT = GC.getDefineINT("WW_CAPTURED_UNIT");
+			static const int iWAR_SUCCESS_UNIT_CAPTURING = GC.getDefineINT("WAR_SUCCESS_UNIT_CAPTURING");
+
 			CLLNode<IDInfo>* pUnitNode = oldUnits.head();
 			while (pUnitNode != NULL)
 			{
@@ -9122,11 +9163,11 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 							!pLoopUnit->getUnitInfo().isHiddenNationality())
 						{
 							kUnitTeam.changeWarWeariness(getTeam(),
-									*pNewPlot, GC.getDefineINT("WW_UNIT_CAPTURED"));
+									*pNewPlot, iWW_UNIT_CAPTURED);
 							GET_TEAM(getTeam()).changeWarWeariness(pLoopUnit->getTeam(),
-									*pNewPlot, GC.getDefineINT("WW_CAPTURED_UNIT"));
+									*pNewPlot, iWW_CAPTURED_UNIT);
 							GET_TEAM(getTeam()).AI_changeWarSuccess(pLoopUnit->getTeam(),
-									GC.getDefineINT("WAR_SUCCESS_UNIT_CAPTURING"));
+									iWAR_SUCCESS_UNIT_CAPTURING);
 						}
 						if (//!isNoUnitCapture()
 							SyncRandSuccess100(getCaptureOdds(*pLoopUnit))) // advc.010
@@ -9225,8 +9266,11 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			if (isEnemy(pNewCity->getTeam()) &&
 				!canCoexistWithEnemyUnit(pNewCity->getTeam()) && canFight())
 			{
+				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				static const int iWW_CAPTURED_CITY = GC.getDefineINT("WW_CAPTURED_CITY");
+
 				GET_TEAM(getTeam()).changeWarWeariness(pNewCity->getTeam(), *pNewPlot,
-						GC.getDefineINT("WW_CAPTURED_CITY"));
+						iWW_CAPTURED_CITY);
 				/*GET_TEAM(getTeam()).AI_changeWarSuccess(pNewCity->getTeam(), GC.getDefineINT("WAR_SUCCESS_CITY_CAPTURING"));*/ // BtS
 				// BETTER_BTS_AI_MOD, General AI, 06/14/09, jdog5000
 				// Double war success if capturing capital city, always a significant blow to enemy
@@ -10427,11 +10471,14 @@ void CvUnit::setCombatUnit(CvUnit* pCombatUnit, bool bAttacking)
 // (code copied from setCombatUnit, above)
 bool CvUnit::showSiegeTower(CvUnit* pDefender) const
 {
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iMIN_CITY_ATTACK_MODIFIER_FOR_SIEGE_TOWER = GC.getDefineINT("MIN_CITY_ATTACK_MODIFIER_FOR_SIEGE_TOWER");
+
 	return getDomainType() == DOMAIN_LAND &&
 		!m_pUnitInfo->isIgnoreBuildingDefense() &&
 		pDefender->getPlot().getPlotCity() &&
 		pDefender->getPlot().getPlotCity()->getBuildingDefense() > 0 &&
-		cityAttackModifier() >= GC.getDefineINT("MIN_CITY_ATTACK_MODIFIER_FOR_SIEGE_TOWER");
+		cityAttackModifier() >= iMIN_CITY_ATTACK_MODIFIER_FOR_SIEGE_TOWER;
 }
 
 CvUnit const* CvUnit::getTransportUnit() const
@@ -11505,7 +11552,10 @@ bool CvUnit::rangeStrike(int iX, int iY)
 	FAssert(pDefender != NULL);
 	FAssert(pDefender->canDefend());
 
-	if (GC.getDefineINT("RANGED_ATTACKS_USE_MOVES") == 0)
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iRANGED_ATTACKS_USE_MOVES = GC.getDefineINT("RANGED_ATTACKS_USE_MOVES");
+
+	if (iRANGED_ATTACKS_USE_MOVES == 0)
 	{
 		setMadeAttack(true);
 	}

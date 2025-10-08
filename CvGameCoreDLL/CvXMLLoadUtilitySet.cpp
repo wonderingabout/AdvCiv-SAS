@@ -528,7 +528,11 @@ bool CvXMLLoadUtility::LoadGlobalText()
 		if (bValid)
 		{
 			const int& iLanguage = GAMETEXT.getCurrentLanguage();
-			const int iMax = GC.getDefineINT("MAX_NUM_LANGUAGES");
+
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const int iMAX_NUM_LANGUAGES = GC.getDefineINT("MAX_NUM_LANGUAGES");
+
+			const int iMax = iMAX_NUM_LANGUAGES;
 			int i;
 			for (i = 0; i < iMax; i++)
 			{

@@ -22936,13 +22936,25 @@ EspionageMissionTypes CvUnitAI::AI_bestPlotEspionage(int& iData) const
 	{
 		int iTargetTotal = GET_TEAM(eTargetTeam).getEspionagePointsEver();
 		int iOurTotal = GET_TEAM(getTeam()).getEspionagePointsEver();
-		iBaseIntercept += (GC.getDefineINT("ESPIONAGE_INTERCEPT_SPENDING_MAX") * iTargetTotal) /
+
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iESPIONAGE_INTERCEPT_SPENDING_MAX = GC.getDefineINT("ESPIONAGE_INTERCEPT_SPENDING_MAX");
+
+		iBaseIntercept += (iESPIONAGE_INTERCEPT_SPENDING_MAX * iTargetTotal) /
 				std::max(1, iTargetTotal + iOurTotal);
+
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iESPIONAGE_INTERCEPT_COUNTERESPIONAGE_MISSION = GC.getDefineINT("ESPIONAGE_INTERCEPT_COUNTERESPIONAGE_MISSION");
+
 		if (GET_TEAM(eTargetTeam).getCounterespionageModAgainstTeam(getTeam()) > 0)
-			iBaseIntercept += GC.getDefineINT("ESPIONAGE_INTERCEPT_COUNTERESPIONAGE_MISSION");
+			iBaseIntercept += iESPIONAGE_INTERCEPT_COUNTERESPIONAGE_MISSION;
 	}
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iESPIONAGE_SPY_MISSION_ESCAPE_MOD = GC.getDefineINT("ESPIONAGE_SPY_MISSION_ESCAPE_MOD");
+
 	int const iEscapeCost = 2 * iSpyValue * iBaseIntercept *
-			(100 + GC.getDefineINT("ESPIONAGE_SPY_MISSION_ESCAPE_MOD")) / 10000;
+			(100 + iESPIONAGE_SPY_MISSION_ESCAPE_MOD) / 10000;
 
 	// One espionage mission loop to rule them all.
 	FOR_EACH_ENUM2(EspionageMission, eMission)
