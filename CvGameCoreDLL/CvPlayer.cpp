@@ -9393,8 +9393,12 @@ void CvPlayer::setCurrentEra(EraTypes eNewValue)
 				addPopup(pInfo);
 			}
 		}
-	} // <advc.106>
-	if (GC.getDefineBOOL("SHOW_ENTERED_ERA_IN_REPLAY"))
+	}// <advc.106>
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const bool bShowEnteredEraInReplay = GC.getDefineBOOL("SHOW_ENTERED_ERA_IN_REPLAY");
+
+	if (bShowEnteredEraInReplay)
 	{
 		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
 		static const ColorTypes eColorAltHighlightText = (ColorTypes)GC.getColorType("ALT_HIGHLIGHT_TEXT");
@@ -20170,7 +20174,11 @@ void CvPlayer::announceEspionageToThirdParties(EspionageMissionTypes eMission,
 			iY = pCapital->getY();
 		}
 	}
-	if (GC.getDefineBOOL("ANNOUNCE_ESPIONAGE_REVOLUTION"))
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const bool bAnnounceEspionageRevolution = GC.getDefineBOOL("ANNOUNCE_ESPIONAGE_REVOLUTION");
+
+	if (bAnnounceEspionageRevolution)
 	{
 		for (PlayerIter<MAJOR_CIV,OTHER_KNOWN_TO> it(TEAMID(eTarget)); it.hasNext(); ++it)
 		{

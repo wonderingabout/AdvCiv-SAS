@@ -1385,7 +1385,7 @@
 	</TEXT>
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_HANDICAP_DEITY_HELP</Tag>
-		<English>Should be significantly harder than base AdvCiv settings and gradually harder than previous one, but hopefully less of a grind. Should be very challenging still but gradually so ideally. If this is still too easy, i may add another or 2 other handicap settings gradually harder than this one based on player feedback even though this is not guaranteed and i don't know entirely how but may be worthwile for deity players wanting a higher challenge. Note: unlike in base AdvCiv, INCREASE_START_TURN is disabled similarly so all players start at turn 1 at this handicap setting if i am not mistaken as well.</English>
+		<English>Should be significantly harder than base AdvCiv settings and gradually harder than previous one, but hopefully less of a grind. Should be very challenging still but gradually so ideally. If this is still too easy, i may add another or 2 other handicap settings gradually harder than this one based on player feedback even though this is not guaranteed but may be worthwile for deity players wanting a higher challenge. Note: unlike in base AdvCiv, INCREASE_START_TURN is disabled similarly so all players start at turn 1 at this handicap setting if i am not mistaken as well.</English>
 	</TEXT>
 
 

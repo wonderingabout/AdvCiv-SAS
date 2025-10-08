@@ -589,9 +589,13 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
 		eCapturingPlayer != BARBARIAN_PLAYER)
 	{
 		CvPlayerAI& kCaptor = GET_PLAYER(eCapturingPlayer);
+
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const bool bAI_CAN_DISBAND_UNITS = GC.getDefineBOOL("AI_CAN_DISBAND_UNITS");
+
 		if (kCaptor.isHuman() ||
 			kCaptor.AI_captureUnit(eCaptureUnitType, kPlot) ||
-			!GC.getDefineBOOL("AI_CAN_DISBAND_UNITS"))
+			!bAI_CAN_DISBAND_UNITS)
 		{
 			CvUnit* pCapturedUnit = kCaptor.initUnit(
 					eCaptureUnitType, kPlot.getX(), kPlot.getY());

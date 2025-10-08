@@ -25401,8 +25401,12 @@ bool CvPlayerAI::AI_isVictoryValid(VictoryTypes eVictory, int& iWeight) const
 		iWeight = (bHuman ? iHumanWeight : kPersonality.getCultureVictoryWeight());
 		if (!kGame.culturalVictoryValid())
 			return false;
+
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const bool bBBAIVictoryStrategyCulture = GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_CULTURE");
+
 		if (bCheckBBAIDefine && 
-			!GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_CULTURE"))
+			!bBBAIVictoryStrategyCulture)
 		{
 			return false;
 		}
@@ -25410,6 +25414,10 @@ bool CvPlayerAI::AI_isVictoryValid(VictoryTypes eVictory, int& iWeight) const
 	if (eVictory == kGame.getSpaceVictory())
 	{
 		iWeight = (bHuman ? iHumanWeight : kPersonality.getSpaceVictoryWeight());
+
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const bool bBBAIVictoryStrategySpace = GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_SPACE");
+
 		if (bCheckBBAIDefine &&
 			!GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_SPACE"))
 		{
@@ -25419,8 +25427,12 @@ bool CvPlayerAI::AI_isVictoryValid(VictoryTypes eVictory, int& iWeight) const
 	if (kVictory.isConquest())
 	{
 		iWeight = (bHuman ? iHumanWeight : kPersonality.getConquestVictoryWeight());
+
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const bool bBBAIVictoryStrategyConquest = GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_CONQUEST");
+
 		if (bCheckBBAIDefine &&
-			!GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_CONQUEST"))
+			!bBBAIVictoryStrategyConquest)
 		{
 			return false;
 		}
@@ -25428,8 +25440,12 @@ bool CvPlayerAI::AI_isVictoryValid(VictoryTypes eVictory, int& iWeight) const
 	if (eVictory == kGame.getDominationVictory())
 	{
 		iWeight = (bHuman ? iHumanWeight : kPersonality.getDominationVictoryWeight());
+
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const bool bBBAIVictoryStrategyDomination = GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_DOMINATION");
+
 		if (bCheckBBAIDefine &&
-			!GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_DOMINATION"))
+			!bBBAIVictoryStrategyDomination)
 		{
 			return false;
 		}
@@ -25437,8 +25453,12 @@ bool CvPlayerAI::AI_isVictoryValid(VictoryTypes eVictory, int& iWeight) const
 	if (kVictory.isDiploVote())
 	{
 		iWeight = (bHuman ? iHumanWeight : kPersonality.getDiplomacyVictoryWeight());
+
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const bool bBBAIVictoryStrategyDiplomacy = GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_DIPLOMACY");
+
 		if (bCheckBBAIDefine &&
-			!GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_DIPLOMACY"))
+			!bBBAIVictoryStrategyDiplomacy)
 		{
 			return false;
 		}

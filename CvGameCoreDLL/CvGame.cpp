@@ -219,8 +219,12 @@ void CvGame::setInitialItems()
 	// Delay part of the freebies until starting sites have been assigned
 	initFreeCivState(); // </advc.tsl>
 	initFreeUnits();
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const bool bIncreaseStartTurn = GC.getDefineBOOL("INCREASE_START_TURN");
+
 	// <advc.250c>
-	if (GC.getDefineBOOL("INCREASE_START_TURN") && getStartEra() == 0)
+	if (bIncreaseStartTurn && getStartEra() == 0)
 	{
 		int iStartTurn = getStartTurn();
 		bool bAllHuman = (PlayerIter<HUMAN>::count() >= PlayerIter<CIV_ALIVE>::count());
@@ -413,8 +417,12 @@ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
 	gDLL->UI().setDirty(ColoredPlots_DIRTY_BIT, true);
 
 	cycleSelectionGroups_delayed(1, false);
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const bool bShownDawnAfterRegen = GC.getDefineBOOL("SHOW_DAWN_AFTER_REGEN");
+
 	// <advc.004j>
-	bool bShowDawn = (GC.getDefineBOOL("SHOW_DAWN_AFTER_REGEN") &&
+	bool bShowDawn = (bShownDawnAfterRegen &&
 			// Somehow doesn't work with Adv. Start; Dawn screen doesn't appear.
 			(!isOption(GAMEOPTION_ADVANCED_START) || isOption(GAMEOPTION_SPAH)));
 	// </advc.004j>
@@ -1710,7 +1718,10 @@ void CvGame::setStartingPlotNormalizationLevel(StartingPlotNormalizationLevel eL
 {
 	if (eLevel == NORMALIZE_DEFAULT)
 	{
-		eLevel = (GC.getDefineBOOL("NORMALIZE_STARTPLOTS_AGGRESSIVELY") ?
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const bool bNormalizeStartplotsAggressively = GC.getDefineBOOL("NORMALIZE_STARTPLOTS_AGGRESSIVELY");
+
+		eLevel = (bNormalizeStartplotsAggressively ?
 				NORMALIZE_HIGH : NORMALIZE_LOW);
 		if (eLevel == NORMALIZE_LOW && isGameMultiPlayer() &&
 			TeamIter<HUMAN>::count() > 1)
@@ -9120,8 +9131,11 @@ void CvGame::read(FDataStreamBase* pStream)
 
 	if (isOption(GAMEOPTION_NEW_RANDOM_SEED))
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const bool bIgnoreNewRandomSeedOption = GC.getDefineBOOL("IGNORE_NEW_RANDOM_SEED_OPTION");
+
 		if (!isNetworkMultiPlayer() &&
-			!GC.getDefineBOOL("IGNORE_NEW_RANDOM_SEED_OPTION")) // advc
+			!bIgnoreNewRandomSeedOption) // advc
 		{
 			m_sorenRand.reseed(timeGetTime());
 		}

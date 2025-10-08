@@ -16353,8 +16353,12 @@ void CvGameTextMgr::getAttitudeString(CvWStringBuffer& szBuffer, PlayerTypes ePl
 	CvGame const& kGame = GC.getGame();
 	CvWString szTempBuffer;
 	CvWStringBuffer szBreakdown; // advc.sha
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const bool bShowHiddenAttitudeDefine = GC.getDefineBOOL("SHOW_HIDDEN_ATTITUDE");
+
 	// <advc.sha>
-	bool bSHowHiddenAttitude = (GC.getDefineBOOL("SHOW_HIDDEN_ATTITUDE") ||
+	bool bSHowHiddenAttitude = (bShowHiddenAttitudeDefine ||
 			kGame.isDebugMode()); // </advc.sha>
 	// <advc.004q>
 	bool bObscurePersonality = (kGame.isOption(GAMEOPTION_RANDOM_PERSONALITIES) &&

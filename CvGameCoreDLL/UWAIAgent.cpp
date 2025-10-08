@@ -2379,9 +2379,11 @@ void UWAI::Team::showWarPlanAbandonedMsg(TeamTypes eTarget)
 
 void UWAI::Team::showWarPlanMsg(TeamTypes eTarget, char const* szKey)
 {
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const bool bUWAI_SPECTATOR_ENABLED = GC.getDefineBOOL("UWAI_SPECTATOR_ENABLED");
 
 	CvPlayer& kActivePlayer = GET_PLAYER(GC.getGame().getActivePlayer());
-	if (!kActivePlayer.isSpectator() || !GC.getDefineBOOL("UWAI_SPECTATOR_ENABLED"))
+	if (!kActivePlayer.isSpectator() || !bUWAI_SPECTATOR_ENABLED)
 		return;
 	CvWString szBuffer = gDLL->getText(szKey,
 			GET_TEAM(m_eAgent).getName().GetCString(),

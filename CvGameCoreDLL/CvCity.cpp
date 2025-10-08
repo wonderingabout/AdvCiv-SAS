@@ -379,9 +379,12 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
 	kPlot.setPlotCity(NULL);
 	kPlot.setRuinsName(getName()); // advc.005c
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const bool bFloodPlainsAfterRaze = GC.getDefineBOOL("FLOODPLAIN_AFTER_RAZE");
+
 	// UNOFFICIAL_PATCH, replace floodplains after city is removed, 03/04/10, jdog5000: START
 	if (kPlot.getBonusType() == NO_BONUS &&
-		GC.getDefineBOOL("FLOODPLAIN_AFTER_RAZE")) // advc.129b
+		bFloodPlainsAfterRaze) // advc.129b
 	{
 		FOR_EACH_ENUM(Feature)
 		{

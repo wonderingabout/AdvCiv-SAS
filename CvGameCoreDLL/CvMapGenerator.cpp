@@ -1096,8 +1096,12 @@ int CvMapGenerator::calculateNumBonusesToAdd(BonusTypes eBonus)
 			if (kPlot.canHaveBonus(eBonus, bIgnoreLatitude))
 				iNumPossible++;
 		}
+
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const bool bSublinearBonusQuantities = GC.getDefineBOOL("SUBLINEAR_BONUS_QUANTITIES");
+
 		// <advc.129>
-		if (GC.getDefineBOOL("SUBLINEAR_BONUS_QUANTITIES"))
+		if (bSublinearBonusQuantities)
 		{
 			int iSubtrahend = kBonus.getTilesPer(); // Typically 16 or 32
 			// For normalization; don't want to place fewer resources in general.

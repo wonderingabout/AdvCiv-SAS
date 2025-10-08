@@ -64,6 +64,10 @@ void AdvCiv4lert::check(bool bSilent)
 // <advc.210a>
 void WarTradeAlert::check()
 {
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const bool bAlertOnNoLongerWarTrade = GC.getDefineBOOL("ALERT_ON_NO_LONGER_WAR_TRADE");
+
 	CvPlayer const& kOwner = GET_PLAYER(m_eOwner);
 	for (TeamAIIter<FREE_MAJOR_CIV,OTHER_KNOWN_TO> itHireling(kOwner.getTeam());
 		itHireling.hasNext(); ++itHireling)
@@ -103,7 +107,7 @@ void WarTradeAlert::check()
 				aeNoLongerTradeMsgTeams.push_back(kTarget.getID());
 		}
 		showMessage(kHireling.getID(), aeWillTradeMsgTeams, true);
-		if (GC.getDefineBOOL("ALERT_ON_NO_LONGER_WAR_TRADE"))
+		if (bAlertOnNoLongerWarTrade)
 			showMessage(kHireling.getID(), aeNoLongerTradeMsgTeams, false);
 		if (!getUWAI().isEnabled() &&
 			bNowTooManyWars != m_tooManyWars.get(kHireling.getID()) &&
