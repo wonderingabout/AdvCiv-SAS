@@ -12213,19 +12213,32 @@ void CvCity::getVisibleBuildings(std::list<BuildingTypes>& kChosenVisible,
 	// how big is this city, in terms of buildings?
 	// general rule: no more than fPercentUnique percent of a city can be uniques
 	int iTotalVisibleBuildings;
-	if (::stricmp(GC.getDefineSTRING("GAME_CITY_SIZE_METHOD"), "METHOD_EXPONENTIAL") == 0)
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const bool bGAME_CITY_SIZE_METHOD_With_METHOD_EXPONENTIAL_Equal_To_Zero = (::stricmp(GC.getDefineSTRING("GAME_CITY_SIZE_METHOD"), "METHOD_EXPONENTIAL") == 0);
+
+	if (bGAME_CITY_SIZE_METHOD_With_METHOD_EXPONENTIAL_Equal_To_Zero)
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const float fGAME_CITY_SIZE_EXP_MODIFIER = GC.getDefineFLOAT("GAME_CITY_SIZE_EXP_MODIFIER");
+
 		int iCityScaleMod = (int)(std::pow((float)getPopulation(),
-				GC.getDefineFLOAT("GAME_CITY_SIZE_EXP_MODIFIER")) * 2);
+				fGAME_CITY_SIZE_EXP_MODIFIER) * 2);
 		iTotalVisibleBuildings = 10 + iCityScaleMod;
 	}
 	else
 	{
-		float fLo = GC.getDefineFLOAT("GAME_CITY_SIZE_LINMAP_AT_0");
-		float fHi = GC.getDefineFLOAT("GAME_CITY_SIZE_LINMAP_AT_50");
-		iTotalVisibleBuildings = (int)(((fHi - fLo) / 50.0f) * getPopulation() + fLo);
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const float fLo = GC.getDefineFLOAT("GAME_CITY_SIZE_LINMAP_AT_0");
+		//static const float fHi = GC.getDefineFLOAT("GAME_CITY_SIZE_LINMAP_AT_50");
+		static const float fHiFLo = ((GC.getDefineFLOAT("GAME_CITY_SIZE_LINMAP_AT_50") - fLo) / 50.0f);
+
+		iTotalVisibleBuildings = (int)(fHiFLo * getPopulation() + fLo);
 	}
-	float fMaxUniquePercent = GC.getDefineFLOAT("GAME_CITY_SIZE_MAX_PERCENT_UNIQUE");
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const float fMaxUniquePercent = GC.getDefineFLOAT("GAME_CITY_SIZE_MAX_PERCENT_UNIQUE");
+
 	int iMaxNumUniques = (int)(fMaxUniquePercent * iTotalVisibleBuildings);
 
 	// compute how many buildings are generics vs. unique Civ buildings?

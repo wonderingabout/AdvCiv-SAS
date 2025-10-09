@@ -12279,7 +12279,10 @@ void CvUnit::cheat(bool bCtrl, bool bAlt, bool bShift)
 
 float CvUnit::getHealthBarModifier() const
 {
-	return (GC.getDefineFLOAT("HEALTH_BAR_WIDTH") /
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const float fHEALTH_BAR_WIDTH = GC.getDefineFLOAT("HEALTH_BAR_WIDTH");
+
+	return (fHEALTH_BAR_WIDTH /
 			(GC.getGame().getBestLandUnitCombat() * 2));
 }
 
