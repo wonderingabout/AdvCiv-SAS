@@ -341,9 +341,9 @@
 		<Tag>TXT_KEY_TECH_AI_QUOTE</Tag>
 		<English>"I cannot live without books" - Thomas Jefferson</English>
 	</TEXT>
-	<!-- custom: replace robotics in "_ROBOTICS" and "MP_ROBOTICS" with "_ROBOTIC_RIGHTS" and such anyways etc, also use the base advciv +/- civ4's robotics's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc -->
+	<!-- custom: replace robotics in "_ROBOTICS" and "MP_ROBOTICS" with "_ROBOT_RIGHTS" and such anyways etc, also use the base advciv +/- civ4's robotics's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc -->
 	<TEXT>
-		<Tag>TXT_KEY_TECH_ROBOTIC_RIGHTS_QUOTE</Tag>
+		<Tag>TXT_KEY_TECH_ROBOT_RIGHTS_QUOTE</Tag>
 		<English>"The real problem is not whether machines think, but whether men do." - B.F. Skinner</English>
 	</TEXT>
 	<!-- custom: replace tech_stealth in related but anyways etc "_STEALTH" and "MP_STEALTH" with "_ALIEN_LIFE" and such anyways etc, also use the base advciv +/- civ4's tech_stealth's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc -->

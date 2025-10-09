@@ -905,10 +905,10 @@
 		<Tag>TXT_KEY_TECH_AI</Tag>
 		<English>AI</English>
 	</TEXT>
-	<!-- custom: replace robotics in "_ROBOTICS" and "MP_ROBOTICS" with "_ROBOTIC_RIGHTS" and such anyways etc -->
+	<!-- custom: replace robotics in "_ROBOTICS" and "MP_ROBOTICS" with "_ROBOT_RIGHTS" and such anyways etc -->
 	<TEXT>
-		<Tag>TXT_KEY_TECH_ROBOTIC_RIGHTS</Tag>
-		<English>Robotic Rights</English>
+		<Tag>TXT_KEY_TECH_ROBOT_RIGHTS</Tag>
+		<English>Robot Rights</English>
 	</TEXT>
 	<!-- custom: replace tech_stealth in related but anyways etc "_STEALTH" and "MP_STEALTH" with "_ALIEN_LIFE" and such anyways etc -->
 	<TEXT>

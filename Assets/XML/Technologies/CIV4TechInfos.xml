@@ -4226,7 +4226,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_ROBOTIC_RIGHTS</PrereqTech>
+				<PrereqTech>TECH_ROBOT_RIGHTS</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_TRANSHUMANISM</PrereqTech>
@@ -6145,7 +6145,7 @@
 				<PrereqTech>TECH_FUSION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_ROBOTIC_RIGHTS</PrereqTech>
+				<PrereqTech>TECH_ROBOT_RIGHTS</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_QUANTUM_MECHANICS_QUOTE</Quote>
 			<Sound>AS2D_TECH_QUANTUM_MECHANICS</Sound>
@@ -6793,10 +6793,10 @@
 			<SoundMP>AS2D_TECH_MP_SATELLITES</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Satellites.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,7</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_ROBOTIC_RIGHTS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
-			<Type>TECH_ROBOTIC_RIGHTS</Type>
-			<Description>TXT_KEY_TECH_ROBOTIC_RIGHTS</Description>
-			<Civilopedia>TXT_KEY_TECH_ROBOTIC_RIGHTS_PEDIA</Civilopedia>
+		<TechInfo> <!-- custom: type: TECH_ROBOT_RIGHTS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+			<Type>TECH_ROBOT_RIGHTS</Type>
+			<Description>TXT_KEY_TECH_ROBOT_RIGHTS</Description>
+			<Civilopedia>TXT_KEY_TECH_ROBOT_RIGHTS_PEDIA</Civilopedia>
 			<Help/>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_CULTURE</Advisor>
@@ -6861,11 +6861,11 @@
 				<PrereqTech>TECH_AI</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
-			<Quote>TXT_KEY_TECH_ROBOTIC_RIGHTS_QUOTE</Quote>
-			<Sound>AS2D_TECH_ROBOTIC_RIGHTS</Sound>
-			<SoundMP>AS2D_TECH_MP_ROBOTIC_RIGHTS</SoundMP>
+			<Quote>TXT_KEY_TECH_ROBOT_RIGHTS_QUOTE</Quote>
+			<Sound>AS2D_TECH_ROBOT_RIGHTS</Sound>
+			<SoundMP>AS2D_TECH_MP_ROBOT_RIGHTS</SoundMP>
 			<!-- custom: button art import from c2c mod anyways etc -->
-			<Button>Art/AdvCiv_SAS/Techs/Robotic_Rights/astroimperialism.dds</Button>
+			<Button>Art/AdvCiv_SAS/Techs/Robot_Rights/astroimperialism.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_TRANSHUMANISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
 			<Type>TECH_TRANSHUMANISM</Type>

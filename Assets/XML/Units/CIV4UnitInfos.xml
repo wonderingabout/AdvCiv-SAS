@@ -14186,7 +14186,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: was the now removed TECH_ROBOTIC_RIGHTS and TECH_FIREARMS -->
+			<!-- custom: was the now removed TECH_ROBOT_RIGHTS and TECH_FIREARMS -->
 			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
@@ -20473,9 +20473,8 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<iWithdrawalProb>0</iWithdrawalProb>
 			<iCollateralDamage>100</iCollateralDamage>
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
-			<!-- custom: was 6 -->
 			<!-- K-Mod: was 7 -->
-			<iCollateralDamageMaxUnits>7</iCollateralDamageMaxUnits>
+			<iCollateralDamageMaxUnits>6</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>
 			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
@@ -23799,7 +23798,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: was TECH_ROBOTIC_RIGHTS -->
+			<!-- custom: was TECH_ROBOT_RIGHTS -->
 			<PrereqTech>TECH_ROCKETRY</PrereqTech>
 			<!-- custom: was empty -->
 			<TechTypes>
@@ -24884,7 +24883,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: was the now removed TECH_STEALTH and tech types TECH_ROBOTIC_RIGHTS -->
+			<!-- custom: was the now removed TECH_STEALTH and tech types TECH_ROBOT_RIGHTS -->
 			<PrereqTech>TECH_ADVANCED_FLIGHT</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_ROCKETRY</PrereqTech>

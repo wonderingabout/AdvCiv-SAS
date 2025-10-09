@@ -8984,7 +8984,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_ROBOTIC_RIGHTS</SoundID>
+			<SoundID>SND_TECH_ROBOT_RIGHTS</SoundID>
 			<Filename>Sounds/Tech/Tech_Robotics</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -9628,7 +9628,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_ROBOTIC_RIGHTS</SoundID>
+			<SoundID>SND_TECH_MP_ROBOT_RIGHTS</SoundID>
 			<Filename>Sounds/Tech/Tech_MP_Robotics</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>

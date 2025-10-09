@@ -795,9 +795,9 @@
 
 
 
-	<!-- custom: replace robotics in "_ROBOTICS" and "MP_ROBOTICS" with "_ROBOTIC_RIGHTS" and such anyways etc, also pedia entry from https://en.wikipedia.org/wiki/Ethics_of_artificial_intelligence#Robot_rights_or_AI_rights similarly, modified or not for advciv-sas anyways etc -->
+	<!-- custom: replace robotics in "_ROBOTICS" and "MP_ROBOTICS" with "_ROBOT_RIGHTS" and such anyways etc, also pedia entry from https://en.wikipedia.org/wiki/Ethics_of_artificial_intelligence#Robot_rights_or_AI_rights similarly, modified or not for advciv-sas anyways etc -->
 	<TEXT>
-		<Tag>TXT_KEY_TECH_ROBOTIC_RIGHTS_PEDIA</Tag>
+		<Tag>TXT_KEY_TECH_ROBOT_RIGHTS_PEDIA</Tag>
 		<English>[TAB]"Robot rights" is the concept that people should have moral obligations towards their machines, akin to human rights or animal rights. It has been suggested that robot rights (such as a right to exist and perform its own mission) could be linked to robot duty to serve humanity, analogous to linking human rights with human duties before society. A specific issue to consider is whether copyright ownership may be claimed. The issue has been considered by the Institute for the Future and by the U.K. Department of Trade and Industry.[PARAGRAPH:1]In October 2017, the android Sophia was granted citizenship in Saudi Arabia, though some considered this to be more of a publicity stunt than a meaningful legal recognition. Some saw this gesture as openly denigrating of human rights and the rule of law.[PARAGRAPH:1]The philosophy of sentientism grants degrees of moral consideration to all sentient beings, primarily humans and most non-human animals. If artificial or alien intelligence show evidence of being sentient, this philosophy holds that they should be shown compassion and granted rights.[PARAGRAPH:1]Joanna Bryson has argued that creating AI that requires rights is both avoidable, and would in itself be unethical, both as a burden to the AI agents and to human society.</English>
 	</TEXT>
 

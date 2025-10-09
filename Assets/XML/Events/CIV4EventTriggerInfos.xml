@@ -15039,7 +15039,7 @@
 				<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
 			</AndPreReqs>
 			<ObsoleteTechs>
-				<ObsoleteTech>TECH_ROBOTIC_RIGHTS</ObsoleteTech>
+				<ObsoleteTech>TECH_ROBOT_RIGHTS</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -16205,7 +16205,7 @@
 				<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
 			</AndPreReqs>
 			<ObsoleteTechs>
-				<ObsoleteTech>TECH_ROBOTIC_RIGHTS</ObsoleteTech>
+				<ObsoleteTech>TECH_ROBOT_RIGHTS</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
