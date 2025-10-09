@@ -430,6 +430,14 @@
 
 
 
+	<!-- custom: replace the "HOLY_ROMAN_LANDSKNECHT" with the "HOLY_ROMAN_HOUFNICE" -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_HOLY_ROMAN_HOUFNICE</Tag>
+		<English>Houfnice</English>
+	</TEXT>
+
+
+
 	<!-- custom: rename "_PERIA_IMMORTAL" to "_PERSIA_IMMORTAL" -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_PERSIA_IMMORTAL</Tag>

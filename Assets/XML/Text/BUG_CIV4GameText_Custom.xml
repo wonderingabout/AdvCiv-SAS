@@ -885,14 +885,11 @@
 		<Spanish>Severo</Spanish>
 	</TEXT>
 	
+	<!-- custom: was Ressources -->
 	<!-- Strategic Advantages Tab -->
 	<TEXT>
 		<Tag>TXT_KEY_MILITARY_STRATADV_RESOURCES</Tag>
-		<English>Resources</English>
-		<French>Ressources</French>
-		<German>Ressourcen</German>
-		<Italian>Risorse</Italian>
-		<Spanish>Recursos</Spanish>
+		<English>Bonuses</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_MILITARY_STRATADV_OURS</Tag>
@@ -1353,6 +1350,11 @@
 		<German>Mögliche Vorlieben</German>
 		<Italian>Possibili Forme di Governo Favorite</Italian>
 		<Spanish>Posibles Principios Favoritos</Spanish>
+	</TEXT>
+	<!-- custom: rename from "Ressources" anyways etc -->
+	<TEXT>
+		<Tag>TXT_KEY_FOREIGN_ADVISOR_RESOURCES</Tag>
+		<English>Bonuses</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_CIVICOPTION_ABBR_GOVERNMENT</Tag>

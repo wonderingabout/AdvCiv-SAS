@@ -4,6 +4,7 @@
 	 Some of the Romance-language translations are based on www.deepl.com. -->
 <Civ4GameText>
 
+	<!-- custom: rename "AdvCiv mod" to "AdvCiv-SAS mod" in replay screen too but anyways etc, was [AdvCiv] anyways etc -->
 	<!-- advc.106i: Mod name to be used as a prefix for replay file names and
 		 to be written into the first replay message (the DLL removes the
 		 square brackets in that context). If this text key is removed
@@ -11,7 +12,7 @@
 		 first replay message. -->
 	<TEXT>
 		<Tag>TXT_KEY_REPLAY_PREFIX</Tag>
-		<English>[AdvCiv]</English>
+		<English>[AdvCiv-SAS]</English>
 	</TEXT>
 
 	<!-- advc.100: In-game text for displaying and logging messages about

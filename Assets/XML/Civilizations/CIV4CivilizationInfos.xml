@@ -1785,8 +1785,8 @@
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_PIKEMAN</UnitClassType>
-					<UnitType>UNIT_HOLY_ROMAN_LANDSKNECHT</UnitType>
+					<UnitClassType>UNITCLASS_CANNON</UnitClassType>
+					<UnitType>UNIT_HOLY_ROMAN_HOUFNICE</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>
