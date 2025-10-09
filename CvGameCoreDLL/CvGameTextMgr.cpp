@@ -389,8 +389,11 @@ void CvGameTextMgr::setEspionageMissionHelp(CvWStringBuffer &szBuffer, const CvU
 	}
 	else if (pUnit->getFortifyTurns() > 0)
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE = GC.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE");
+
 		int iModifier = -pUnit->getFortifyTurns() *
-				GC.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE");
+				iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE;
 		if (iModifier != 0)
 		{
 			szBuffer.append(NEWLINE);
@@ -2766,7 +2769,11 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
 		return false; // </advc.010>
 	// <advc.048>
 	bool bBestOddsHelp = false;
-	if (!bMaxSurvival && GC.getDefineINT("GROUP_ATTACK_BEST_ODDS_HELP") > 0)
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const bool bGROUP_ATTACK_BEST_ODDS_HELP = (GC.getDefineINT("GROUP_ATTACK_BEST_ODDS_HELP") > 0);
+
+	if (!bMaxSurvival && bGROUP_ATTACK_BEST_ODDS_HELP)
 	{
 		CvUnit* pBestOddsAttacker = kSelectionList.AI_getBestGroupAttacker(pPlot, false, iOddsDummy,
 				false, false, false, true);
@@ -8908,7 +8915,10 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 
 	if (u.getLeaderExperience() > 0)
 	{
-		if (GC.getDefineINT("WARLORD_EXTRA_EXPERIENCE_PER_UNIT_PERCENT") == 0)
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const bool bWARLORD_EXTRA_EXPERIENCE_PER_UNIT_PERCENT_Equals_Zero = (GC.getDefineINT("WARLORD_EXTRA_EXPERIENCE_PER_UNIT_PERCENT") == 0);
+
+		if (bWARLORD_EXTRA_EXPERIENCE_PER_UNIT_PERCENT_Equals_Zero)
 		{
 			szBuffer.append(NEWLINE);
 			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_LEADER", u.getLeaderExperience()));
@@ -11714,9 +11724,12 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
 			{
 				if (pCity->isBuildingsMaxed())
 				{
+					// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+					static const int iMAX_BUILDINGS_PER_CITY = GC.getDefineINT("MAX_BUILDINGS_PER_CITY");
+
 					szBuffer.append(NEWLINE);
 					szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_NUM_PER_CITY",
-							GC.getDefineINT("MAX_BUILDINGS_PER_CITY")));
+							iMAX_BUILDINGS_PER_CITY));
 				}
 			}
 		}
@@ -12568,10 +12581,13 @@ void CvGameTextMgr::setProjectHelp(CvWStringBuffer &szBuffer, ProjectTypes eProj
 				iCost = GET_PLAYER(ePlayer).getProductionNeeded(eProject);
 			else
 			{
+				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				static const int iPROJECT_PRODUCTION_PERCENT = GC.getDefineINT("PROJECT_PRODUCTION_PERCENT");
+
 				// <advc.251>
 				int const iBaseCost = kProject.getProductionCost();
 				iCost = iBaseCost;
-				iCost *= GC.getDefineINT("PROJECT_PRODUCTION_PERCENT");
+				iCost *= iPROJECT_PRODUCTION_PERCENT;
 				iCost /= 100;
 				// To match CvPlayer::getProductionNeeded
 				iCost = fmath::roundToMultiple(iCost, iBaseCost > 500 ? 50 : 5);
@@ -13603,7 +13619,10 @@ void CvGameTextMgr::setHappyHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 	}
 	if (kCity.getHappinessTimer() > 0)
 	{
-		int iHappy = GC.getDefineINT("TEMP_HAPPY");
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iTEMP_HAPPY = GC.getDefineINT("TEMP_HAPPY");
+
+		int iHappy = iTEMP_HAPPY;
 		iTotalHappy += iHappy;
 		szBuffer.append(gDLL->getText("TXT_KEY_HAPPY_TEMP", iHappy,
 				kCity.getHappinessTimer()));
@@ -18176,26 +18195,44 @@ void CvGameTextMgr::setVassalRevoltHelp(CvWStringBuffer& szBuffer, TeamTypes eMa
 	int iMasterLand = kMaster.getTotalLand(false);
 	// advc.112: Lower bound added
 	int iVassalLand = std::max(10, kVassal.getTotalLand(false));
-	if (iMasterLand > 0 && GC.getDefineINT("FREE_VASSAL_LAND_PERCENT") >= 0)
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iFREE_VASSAL_LAND_PERCENT = GC.getDefineINT("FREE_VASSAL_LAND_PERCENT");
+	static const bool bFREE_VASSAL_LAND_PERCENT = (iFREE_VASSAL_LAND_PERCENT >= 0);
+
+	if (iMasterLand > 0 && bFREE_VASSAL_LAND_PERCENT)
 	{
-		szBuffer.append(gDLL->getText("TXT_KEY_MISC_VASSAL_LAND_STATS", (iVassalLand * 100) / iMasterLand, GC.getDefineINT("FREE_VASSAL_LAND_PERCENT")));
+		szBuffer.append(gDLL->getText("TXT_KEY_MISC_VASSAL_LAND_STATS", (iVassalLand * 100) / iMasterLand, iFREE_VASSAL_LAND_PERCENT));
 	}
 
 	int iMasterPop = kMaster.getTotalPopulation(false);
 	int iVassalPop = kVassal.getTotalPopulation(false);
-	if (iMasterPop > 0 && GC.getDefineINT("FREE_VASSAL_POPULATION_PERCENT") >= 0)
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iFREE_VASSAL_POPULATION_PERCENT = GC.getDefineINT("FREE_VASSAL_POPULATION_PERCENT");
+	static const bool bFREE_VASSAL_POPULATION_PERCENT = (iFREE_VASSAL_POPULATION_PERCENT >= 0);
+
+	if (iMasterPop > 0 && bFREE_VASSAL_POPULATION_PERCENT)
 	{
-		szBuffer.append(gDLL->getText("TXT_KEY_MISC_VASSAL_POPULATION_STATS", (iVassalPop * 100) / iMasterPop, GC.getDefineINT("FREE_VASSAL_POPULATION_PERCENT")));
+		szBuffer.append(gDLL->getText("TXT_KEY_MISC_VASSAL_POPULATION_STATS", (iVassalPop * 100) / iMasterPop, iFREE_VASSAL_POPULATION_PERCENT));
 	}
 
-	if (GC.getDefineINT("VASSAL_REVOLT_OWN_LOSSES_FACTOR") > 0 && kVassal.getVassalPower() > 0)
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iVASSAL_REVOLT_OWN_LOSSES_FACTOR = GC.getDefineINT("VASSAL_REVOLT_OWN_LOSSES_FACTOR");
+	static const bool bVASSAL_REVOLT_OWN_LOSSES_FACTOR = (iVASSAL_REVOLT_OWN_LOSSES_FACTOR > 0);
+
+	if (bVASSAL_REVOLT_OWN_LOSSES_FACTOR && kVassal.getVassalPower() > 0)
 	{
-		szBuffer.append(gDLL->getText("TXT_KEY_MISC_VASSAL_AREA_LOSS", (iVassalLand * 100) / kVassal.getVassalPower(), GC.getDefineINT("VASSAL_REVOLT_OWN_LOSSES_FACTOR")));
+		szBuffer.append(gDLL->getText("TXT_KEY_MISC_VASSAL_AREA_LOSS", (iVassalLand * 100) / kVassal.getVassalPower(), iVASSAL_REVOLT_OWN_LOSSES_FACTOR));
 	}
 
-	if (GC.getDefineINT("VASSAL_REVOLT_MASTER_LOSSES_FACTOR") > 0 && kVassal.getMasterPower() > 0)
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iVASSAL_REVOLT_MASTER_LOSSES_FACTOR = GC.getDefineINT("VASSAL_REVOLT_MASTER_LOSSES_FACTOR");
+	static const bool bVASSAL_REVOLT_MASTER_LOSSES_FACTOR = (iVASSAL_REVOLT_MASTER_LOSSES_FACTOR > 0);
+
+	if (bVASSAL_REVOLT_MASTER_LOSSES_FACTOR && kVassal.getMasterPower() > 0)
 	{
-		szBuffer.append(gDLL->getText("TXT_KEY_MISC_MASTER_AREA_LOSS", (iMasterLand * 100) / kVassal.getMasterPower(), GC.getDefineINT("VASSAL_REVOLT_MASTER_LOSSES_FACTOR")));
+		szBuffer.append(gDLL->getText("TXT_KEY_MISC_MASTER_AREA_LOSS", (iMasterLand * 100) / kVassal.getMasterPower(), iVASSAL_REVOLT_MASTER_LOSSES_FACTOR));
 	}
 }
 
@@ -18386,7 +18423,10 @@ void CvGameTextMgr::parseGreatPeopleHelp(CvWStringBuffer &szBuffer, CvCity const
 	}
 	if (kOwner.isGoldenAge())
 	{
-		int iGoldenAgeMod = GC.getDefineINT("GOLDEN_AGE_GREAT_PEOPLE_MODIFIER");
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iGOLDEN_AGE_GREAT_PEOPLE_MODIFIER = GC.getDefineINT("GOLDEN_AGE_GREAT_PEOPLE_MODIFIER");
+
+		int iGoldenAgeMod = iGOLDEN_AGE_GREAT_PEOPLE_MODIFIER;
 		if (iGoldenAgeMod != 0)
 		{
 			szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_GREATPEOPLE_GOLDEN_AGE",
@@ -18740,49 +18780,65 @@ void CvGameTextMgr::setScoreHelp(CvWStringBuffer &szString, PlayerTypes ePlayer)
 
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 
+	// <!-- custom: performance optimizations as recommended as well by chatgpt 5 thanks, check if accurate anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	const CvGame& kGame = GC.getGame();
+
 	int iPop = kPlayer.getPopScore();
-	int iMaxPop = GC.getGame().getMaxPopulation();
+	int iMaxPop = kGame.getMaxPopulation();
 	int iPopScore = 0;
 	if (iMaxPop > 0)
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iSCORE_POPULATION_FACTOR = GC.getDefineINT("SCORE_POPULATION_FACTOR");
+
 		iPopScore = intdiv::round( // advc.003y: round
-				GC.getDefineINT("SCORE_POPULATION_FACTOR") * iPop, iMaxPop);
+				iSCORE_POPULATION_FACTOR * iPop, iMaxPop);
 	}
 	int iLand = kPlayer.getLandScore();
-	int iMaxLand = GC.getGame().getMaxLand();
+	int iMaxLand = kGame.getMaxLand();
 	int iLandScore = 0;
 	if (iMaxLand > 0)
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iSCORE_LAND_FACTOR = GC.getDefineINT("SCORE_LAND_FACTOR");
+
 		iLandScore = intdiv::round( // advc.003y
-				GC.getDefineINT("SCORE_LAND_FACTOR") * iLand, iMaxLand);
+				iSCORE_LAND_FACTOR * iLand, iMaxLand);
 	}
 	int iTech = kPlayer.getTechScore();
-	int iMaxTech = GC.getGame().getMaxTech();
+	int iMaxTech = kGame.getMaxTech();
 	int iTechScore = 0;
 	if (iMaxTech > 0) // BETTER_BTS_AI_MOD, Bugfix, 02/24/10, jdog5000
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iSCORE_TECH_FACTOR = GC.getDefineINT("SCORE_TECH_FACTOR");
+
 		iTechScore = intdiv::round( // advc.003y
-				GC.getDefineINT("SCORE_TECH_FACTOR") * iTech, iMaxTech);
+				iSCORE_TECH_FACTOR * iTech, iMaxTech);
 	}
 	int iWonders = kPlayer.getWondersScore();
-	int iMaxWonders = GC.getGame().getMaxWonders();
+	int iMaxWonders = kGame.getMaxWonders();
 	int iWondersScore = 0;
 	if (iMaxWonders > 0) // BETTER_BTS_AI_MOD, Bugfix, 02/24/10, jdog5000
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iSCORE_WONDER_FACTOR = GC.getDefineINT("SCORE_WONDER_FACTOR");
+
 		iWondersScore = intdiv::round( // advc.003y
-				GC.getDefineINT("SCORE_WONDER_FACTOR") * iWonders, iMaxWonders);
+				iSCORE_WONDER_FACTOR * iWonders, iMaxWonders);
 	}
 	int iTotalScore = iPopScore + iLandScore + iTechScore + iWondersScore;
 	int iVictoryScore = kPlayer.calculateScore(true, true);
 	// <advc.250c> Show leader name while in Advanced Start
-	if(GC.getGame().isInAdvancedStart())
+	if(kGame.isInAdvancedStart())
 	{
 		szString.append(GC.getInfo(kPlayer.getLeaderType()).getText());
 		szString.append(L"\n");
 	} // </advc.250c>
 	if (iTotalScore == kPlayer.calculateScore())
 	{	// <advc.703> Advertise the Score Tab
-		if(GC.getGame().isOption(GAMEOPTION_RISE_FALL))
+		if(kGame.isOption(GAMEOPTION_RISE_FALL))
 		{
 			szString.append(gDLL->getText("TXT_KEY_RF_CIV_SCORE_BREAKDOWN",
 					iPopScore, iPop, iMaxPop, iLandScore, iLand, iMaxLand,
@@ -18981,18 +19037,22 @@ void CvGameTextMgr::setEventHelp(CvWStringBuffer& szBuffer,
 
 	if (kEvent.getHappyTurns() > 0)
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+		static const int iTEMP_HAPPY = GC.getDefineINT("TEMP_HAPPY");
+
 		if (kEvent.isCityEffect() || kEvent.isOtherPlayerCityEffect())
 		{
 			szBuffer.append(NEWLINE);
 			szBuffer.append(gDLL->getText("TXT_KEY_EVENT_TEMP_HAPPY_CITY",
-					GC.getDefineINT("TEMP_HAPPY"), kEvent.getHappyTurns(),
+					iTEMP_HAPPY, kEvent.getHappyTurns(),
 					szCity.GetCString()));
 		}
 		else
 		{
 			szBuffer.append(NEWLINE);
 			szBuffer.append(gDLL->getText("TXT_KEY_EVENT_TEMP_HAPPY",
-					GC.getDefineINT("TEMP_HAPPY"), kEvent.getHappyTurns()));
+					iTEMP_HAPPY, kEvent.getHappyTurns()));
 		}
 	}
 
@@ -19734,7 +19794,10 @@ void CvGameTextMgr::setTradeRouteHelp(CvWStringBuffer &szBuffer, int iRoute, CvC
 	}
 	if (pCity->isConnectedToCapital())
 	{
-		int iModifier = GC.getDefineINT("CAPITAL_TRADE_MODIFIER");
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iCAPITAL_TRADE_MODIFIER = GC.getDefineINT("CAPITAL_TRADE_MODIFIER");
+
+		int iModifier = iCAPITAL_TRADE_MODIFIER;
 		if (iModifier != 0)
 		{
 			szBuffer.append(NEWLINE);
@@ -19744,7 +19807,10 @@ void CvGameTextMgr::setTradeRouteHelp(CvWStringBuffer &szBuffer, int iRoute, CvC
 	}
 	if (!pCity->sameArea(*pOtherCity))
 	{
-		int iModifier = GC.getDefineINT("OVERSEAS_TRADE_MODIFIER");
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iOVERSEAS_TRADE_MODIFIER = GC.getDefineINT("OVERSEAS_TRADE_MODIFIER");
+
+		int iModifier = iOVERSEAS_TRADE_MODIFIER;
 		if (iModifier != 0)
 		{
 			szBuffer.append(NEWLINE);
@@ -20090,7 +20156,10 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer,
 		CvCity const* pCity = (pPlot == NULL ? NULL : pPlot->getPlotCity());
 		if (pCity != NULL && kMission.isTargetsCity())
 		{
-			iTempModifier = GC.getDefineINT("ESPIONAGE_CITY_POP_EACH_MOD") *
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const int iESPIONAGE_CITY_POP_EACH_MOD = GC.getDefineINT("ESPIONAGE_CITY_POP_EACH_MOD");
+
+			iTempModifier = iESPIONAGE_CITY_POP_EACH_MOD *
 					(pCity->getPopulation() - 1);
 			if (iTempModifier != 0)
 			{
@@ -20102,7 +20171,10 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer,
 			}
 			if (pCity->isTradeRoute(kPlayer.getID()))
 			{
-				iTempModifier = GC.getDefineINT("ESPIONAGE_CITY_TRADE_ROUTE_MOD");
+				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				static const int iESPIONAGE_CITY_TRADE_ROUTE_MOD = GC.getDefineINT("ESPIONAGE_CITY_TRADE_ROUTE_MOD");
+
+				iTempModifier = iESPIONAGE_CITY_TRADE_ROUTE_MOD;
 				if (iTempModifier != 0)
 				{
 					szBuffer.append(NEWLINE);
@@ -20119,9 +20191,19 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer,
 				if (pCity->isHasReligion(eReligion))
 				{
 					if (GET_PLAYER(eTargetPlayer).getStateReligion() != eReligion)
-						iTempModifier += GC.getDefineINT("ESPIONAGE_CITY_RELIGION_STATE_MOD");
+					{
+						// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+						static const int iESPIONAGE_CITY_RELIGION_STATE_MOD = GC.getDefineINT("ESPIONAGE_CITY_RELIGION_STATE_MOD");
+
+						iTempModifier += iESPIONAGE_CITY_RELIGION_STATE_MOD;
+					}
 					if (kPlayer.hasHolyCity(eReligion))
-						iTempModifier += GC.getDefineINT("ESPIONAGE_CITY_HOLY_CITY_MOD");
+					{
+						// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+						static const int iESPIONAGE_CITY_HOLY_CITY_MOD = GC.getDefineINT("ESPIONAGE_CITY_HOLY_CITY_MOD");
+
+						iTempModifier += iESPIONAGE_CITY_HOLY_CITY_MOD;
+					}
 				}
 				if (iTempModifier != 0)
 				{
@@ -20157,7 +20239,10 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer,
 			// K-Mod. Culture Mod. (Based on plot culture rather than city culture.)
 			if (kMission.isSelectPlot() || kMission.isTargetsCity())
 			{
-				iTempModifier = - (pPlot->getCulture(kPlayer.getID()) * GC.getDefineINT("ESPIONAGE_CULTURE_MULTIPLIER_MOD")) / std::max(1, pPlot->getCulture(eTargetPlayer) + pPlot->getCulture(kPlayer.getID()));
+				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				static const int iESPIONAGE_CULTURE_MULTIPLIER_MOD = GC.getDefineINT("ESPIONAGE_CULTURE_MULTIPLIER_MOD");
+
+				iTempModifier = - (pPlot->getCulture(kPlayer.getID()) * iESPIONAGE_CULTURE_MULTIPLIER_MOD) / std::max(1, pPlot->getCulture(eTargetPlayer) + pPlot->getCulture(kPlayer.getID()));
 				if (iTempModifier != 0)
 				{
 					szBuffer.append(NEWLINE);
@@ -20190,8 +20275,12 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer,
 				}
 			}
 			// <advc.140> (was maxPlotDistance)
+
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const int iESPIONAGE_DISTANCE_MULTIPLIER_MOD = GC.getDefineINT("ESPIONAGE_DISTANCE_MULTIPLIER_MOD");
+
 			iTempModifier = (iDistance + GC.getMap().maxTypicalDistance()) *
-					GC.getDefineINT("ESPIONAGE_DISTANCE_MULTIPLIER_MOD") /
+					iESPIONAGE_DISTANCE_MULTIPLIER_MOD /
 					GC.getMap().maxTypicalDistance() - 100; // </advc.140>
 			if (iTempModifier != 0)
 			{
@@ -20205,8 +20294,11 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer,
 		// Spy presence mission cost alteration
 		if (pSpyUnit != NULL)
 		{
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			static const int iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE = GC.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE");
+
 			iTempModifier = -(pSpyUnit->getFortifyTurns() *
-					GC.getDefineINT("ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE"));
+					iESPIONAGE_EACH_TURN_UNIT_COST_DECREASE);
 			if (iTempModifier != 0)
 			{
 				szBuffer.append(NEWLINE);
@@ -20897,6 +20989,11 @@ void CvGameTextMgr::getPlotHelp(CvPlot* pMouseOverPlot,
 				// Check if any selected unit is unable to enter eTerrain
 				bool bCanAllEnter = true;
 				CvPlot const& kUnitPlot = pSelectedUnit->getPlot();
+
+				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+				static const int iSHOW_IMPASSABLE_TECH_ERA_DIFFERENCE = GC.getDefineINT("SHOW_IMPASSABLE_TECH_ERA_DIFFERENCE");
+
 				FOR_EACH_UNIT_IN(pUnit, kUnitPlot)
 				{
 					if (!pUnit->IsSelected())
@@ -20911,7 +21008,7 @@ void CvGameTextMgr::getPlotHelp(CvPlot* pMouseOverPlot,
 					if (eReqTech != NO_TECH && !GET_TEAM(eActiveTeam).isHasTech(eReqTech) &&
 						GC.getInfo(eReqTech).getEra() -
 						GET_PLAYER(pSelectedUnit->getOwner()).getCurrentEra() <=
-						GC.getDefineINT("SHOW_IMPASSABLE_TECH_ERA_DIFFERENCE"))
+						iSHOW_IMPASSABLE_TECH_ERA_DIFFERENCE)
 					{
 						if (!strHelp.isEmpty())
 							strHelp.append(NEWLINE);
@@ -21502,6 +21599,11 @@ void CvGameTextMgr::getUnitDataForAS(std::vector<CvWBData>& mapUnitList)
 
 	CvWStringBuffer szBuffer;
 	CvCivilization const& kCiv = kActivePlayer.getCivilization(); // advc.003w
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const int iADVANCED_START_MAX_UNITS_PER_CITY = GC.getDefineINT("ADVANCED_START_MAX_UNITS_PER_CITY");
+
 	for (int i = 0; i < kCiv.getNumUnits(); i++)
 	{
 		UnitTypes eUnit = kCiv.unitAt(i);
@@ -21512,7 +21614,7 @@ void CvGameTextMgr::getUnitDataForAS(std::vector<CvWBData>& mapUnitList)
 			szBuffer.clear();
 			setUnitHelp(szBuffer, eUnit);
 
-			int iMaxUnitsPerCity = GC.getDefineINT("ADVANCED_START_MAX_UNITS_PER_CITY");
+			int iMaxUnitsPerCity = iADVANCED_START_MAX_UNITS_PER_CITY;
 			if (iMaxUnitsPerCity >= 0 && GC.getInfo(eUnit).isMilitarySupport())
 			{
 				szBuffer.append(NEWLINE);
@@ -21790,7 +21892,12 @@ int CvGameTextMgr::getHelpFontSize() const
 		removed, and I don't want to rely on players changing the XML setting
 		after removing it. */
 	if (isGfcThemeModified())
-		iFontSize = ::range(GC.getDefineINT("HELP_FONT_SIZE", 16), 8, 22);
+	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iHELP_FONT_SIZE_iFontSize = ::range(GC.getDefineINT("HELP_FONT_SIZE", 16), 8, 22);
+
+		iFontSize = iHELP_FONT_SIZE_iFontSize;
+	}
 	return iFontSize;
 } // </advc.002b>
 

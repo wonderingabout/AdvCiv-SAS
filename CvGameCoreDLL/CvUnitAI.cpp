@@ -10428,7 +10428,12 @@ void CvUnitAI::AI_cityAutomated()
 // XXX make sure we include any new UnitAITypes...
 int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 {
-	if (GC.getInfo(ePromotion).isLeader())
+	// <!-- custom: very nice optimization by chatgpt 5 after feeding it our entire .cpp file thanks a lot, check if accurate as i don't know too much about these but it does seem nice, check to be sure though but anyways etc; i adjusted it (variable naming but anyways etc) bit or not, based on an existing name to make sure pattern indeed exists but anways etc but anyways etc -->
+	// Promotion scoring: hoist GC.getInfo(ePromotion) once per loop
+	// In AI_promotionValue you read from GC.getInfo(ePromotion) many times (amphib, river, enemyRoute, blitz, etc.). Grab a single const CvPromotionInfo& kProm = GC.getInfo(ePromotion); and reuse it. This loop runs a lot (every promotion decision), so it’s a free speedup.
+	const CvPromotionInfo& kPromo = GC.getInfo(ePromotion);
+
+	if (kPromo.isLeader())
 	{
 		// Don't consume the leader as a regular promotion
 		return 0;
@@ -10662,9 +10667,9 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	}
 
 	int iValue = 0;
-	//if (GC.getInfo(ePromotion).isBlitz())
+	//if (kPromo.isBlitz())
 	// <advc.164>
-	int iBlitz = GC.getInfo(ePromotion).getBlitz();
+	int iBlitz = kPromo.getBlitz();
 	if(iBlitz != 0)
 	{
 		if(iBlitz < 0)
@@ -10687,7 +10692,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		}
 	}
 
-	if (GC.getInfo(ePromotion).isAmphib())
+	if (kPromo.isAmphib())
 	{
 		if (eAI == UNITAI_ATTACK ||
 			eAI == UNITAI_ATTACK_CITY)
@@ -10697,7 +10702,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		else iValue++;
 	}
 
-	if (GC.getInfo(ePromotion).isRiver())
+	if (kPromo.isRiver())
 	{
 		if (eAI == UNITAI_ATTACK ||
 			eAI == UNITAI_ATTACK_CITY)
@@ -10707,7 +10712,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		else iValue++;
 	}
 
-	if (GC.getInfo(ePromotion).isEnemyRoute())
+	if (kPromo.isEnemyRoute())
 	{
 		if (eAI == UNITAI_PILLAGE)
 			iValue += 40;
@@ -10721,7 +10726,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		else iValue += 4;
 	}
 
-	if (GC.getInfo(ePromotion).isAlwaysHeal())
+	if (kPromo.isAlwaysHeal())
 	{
 		if (eAI == UNITAI_ATTACK ||
 			eAI == UNITAI_ATTACK_CITY ||
@@ -10737,14 +10742,14 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		else iValue += 8;
 	}
 
-	if (GC.getInfo(ePromotion).isHillsDoubleMove())
+	if (kPromo.isHillsDoubleMove())
 	{
 		if (eAI == UNITAI_EXPLORE)
 			iValue += 20;
 		else iValue += 10;
 	}
 
-	if (GC.getInfo(ePromotion).isImmuneToFirstStrikes() &&
+	if (kPromo.isImmuneToFirstStrikes() &&
 		!immuneToFirstStrikes())
 	{
 		if (eAI == UNITAI_ATTACK_CITY)
@@ -10756,7 +10761,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 
 	int iExtra = 0;
 	int iTemp;
-	iTemp = GC.getInfo(ePromotion).getVisibilityChange();
+	iTemp = kPromo.getVisibilityChange();
 	if (eAI == UNITAI_EXPLORE_SEA ||
 		eAI == UNITAI_EXPLORE)
 	{
@@ -10765,7 +10770,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	else if (eAI == UNITAI_PIRATE_SEA)
 		iValue += (iTemp * 20);
 
-	iTemp = GC.getInfo(ePromotion).getMovesChange();
+	iTemp = kPromo.getMovesChange();
 	if (eAI == UNITAI_ATTACK_SEA ||
 		eAI == UNITAI_PIRATE_SEA ||
 		eAI == UNITAI_RESERVE_SEA ||
@@ -10781,12 +10786,12 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	}
 	else iValue += (iTemp * 4);
 
-	iTemp = GC.getInfo(ePromotion).getMoveDiscountChange();
+	iTemp = kPromo.getMoveDiscountChange();
 	if (eAI == UNITAI_PILLAGE)
 		iValue += (iTemp * 10);
 	else iValue += (iTemp * 2);
 
-	iTemp = GC.getInfo(ePromotion).getAirRangeChange();
+	iTemp = kPromo.getAirRangeChange();
 	if (eAI == UNITAI_ATTACK_AIR ||
 		eAI == UNITAI_CARRIER_AIR)
 	{
@@ -10795,7 +10800,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	else if (eAI == UNITAI_DEFENSE_AIR)
 		iValue += (iTemp * 10);
 
-	iTemp = GC.getInfo(ePromotion).getInterceptChange();
+	iTemp = kPromo.getInterceptChange();
 	if (eAI == UNITAI_DEFENSE_AIR)
 		iValue += (iTemp * 3);
 	else if (eAI == UNITAI_CITY_SPECIAL ||
@@ -10805,7 +10810,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	}
 	else iValue += (iTemp / 10);
 
-	iTemp = GC.getInfo(ePromotion).getEvasionChange();
+	iTemp = kPromo.getEvasionChange();
 	if (eAI == UNITAI_ATTACK_AIR ||
 		eAI == UNITAI_CARRIER_AIR)
 	{
@@ -10813,8 +10818,8 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	}
 	else iValue += (iTemp / 10);
 
-	iTemp = GC.getInfo(ePromotion).getFirstStrikesChange() * 2;
-	iTemp += GC.getInfo(ePromotion).getChanceFirstStrikesChange();
+	iTemp = kPromo.getFirstStrikesChange() * 2;
+	iTemp += kPromo.getChanceFirstStrikesChange();
 	if (eAI == UNITAI_RESERVE ||
 		eAI == UNITAI_COUNTER ||
 		eAI == UNITAI_CITY_DEFENSE ||
@@ -10830,7 +10835,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	}
 	else iValue += (iTemp * 5);
 
-	iTemp = GC.getInfo(ePromotion).getWithdrawalChange();
+	iTemp = kPromo.getWithdrawalChange();
 	if (iTemp != 0)
 	{
 		iExtra = (getUnitInfo().getWithdrawalProbability() + (getExtraWithdrawal() * 4));
@@ -10850,7 +10855,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		else iValue += (iTemp / 4);
 	}
 
-	iTemp = GC.getInfo(ePromotion).getCollateralDamageChange();
+	iTemp = kPromo.getCollateralDamageChange();
 	if (iTemp != 0)
 	{
 		iExtra = (getExtraCollateralDamage());//collateral has no strong synergy (not like retreat)
@@ -10864,14 +10869,14 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		else iValue += (iTemp / 8);
 	}
 
-	iTemp = GC.getInfo(ePromotion).getBombardRateChange();
+	iTemp = kPromo.getBombardRateChange();
 	if (eAI == UNITAI_ATTACK_CITY)
 	{
 		iValue += (iTemp * 2);
 	}
 	else iValue += (iTemp / 8);
 	// BETTER_BTS_AI_MOD, Unit AI, 04/26/10, jdog5000: START
-	iTemp = GC.getInfo(ePromotion).getEnemyHealChange();
+	iTemp = kPromo.getEnemyHealChange();
 	if (eAI == UNITAI_ATTACK ||
 		eAI == UNITAI_PILLAGE ||
 		eAI == UNITAI_ATTACK_SEA ||
@@ -10883,10 +10888,10 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	}
 	else iValue += (iTemp / 8);
 
-	iTemp = GC.getInfo(ePromotion).getNeutralHealChange();
+	iTemp = kPromo.getNeutralHealChange();
 	iValue += (iTemp / 8);
 
-	iTemp = GC.getInfo(ePromotion).getFriendlyHealChange();
+	iTemp = kPromo.getFriendlyHealChange();
 	if ((eAI == UNITAI_CITY_DEFENSE) ||
 		  (eAI == UNITAI_CITY_COUNTER) ||
 		  (eAI == UNITAI_CITY_SPECIAL))
@@ -10906,7 +10911,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		eAI == UNITAI_ASSAULT_SEA)))
 	{
 	// BBAI / K-Mod
-		iTemp = GC.getInfo(ePromotion).getSameTileHealChange() + getSameTileHeal();
+		iTemp = kPromo.getSameTileHealChange() + getSameTileHeal();
 		iExtra = getSameTileHeal();
 
 		iTemp *= (100 + iExtra * 5);
@@ -10919,7 +10924,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 			else iValue += (iTemp / 8);
 		}
 
-		iTemp = GC.getInfo(ePromotion).getAdjacentTileHealChange();
+		iTemp = kPromo.getAdjacentTileHealChange();
 		iExtra = getAdjacentTileHeal();
 		iTemp *= (100 + iExtra * 5);
 		iTemp /= 100;
@@ -10931,7 +10936,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	}
 
 	// try to use Warlords to create super-medic units
-	if (GC.getInfo(ePromotion).getAdjacentTileHealChange() > 0 || GC.getInfo(ePromotion).getSameTileHealChange() > 0)
+	if (kPromo.getAdjacentTileHealChange() > 0 || kPromo.getSameTileHealChange() > 0)
 	{
 		/*PromotionTypes eLeader = NO_PROMOTION;
 		for (iI = 0; iI < GC.getNumPromotionInfos(); iI++) {
@@ -10939,7 +10944,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 				eLeader = (PromotionTypes)iI;
 		}
 		if (isHasPromotion(eLeader) && eLeader != NO_PROMOTION) {
-			iValue += GC.getInfo(ePromotion).getAdjacentTileHealChange() + GC.getInfo(ePromotion).getSameTileHealChange();
+			iValue += kPromo.getAdjacentTileHealChange() + kPromo.getSameTileHealChange();
 		}*/ // BtS
 		// K-Mod, I've changed the way we work out if we are a leader or not.
 		// The original method would break if there was more than one "leader" promotion)
@@ -10947,14 +10952,14 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		{
 			if (GC.getInfo((PromotionTypes)iI).isLeader() && isHasPromotion((PromotionTypes)iI))
 			{
-				iValue += GC.getInfo(ePromotion).getAdjacentTileHealChange() + GC.getInfo(ePromotion).getSameTileHealChange();
+				iValue += kPromo.getAdjacentTileHealChange() + kPromo.getSameTileHealChange();
 				break;
 			}
 		}
 		// K-Mod end
 	}
 
-	iTemp = GC.getInfo(ePromotion).getCombatPercent();
+	iTemp = kPromo.getCombatPercent();
 	// kmodx: Removed redundant clauses
 	if (eAI == UNITAI_ATTACK || eAI == UNITAI_COUNTER ||
 		eAI == UNITAI_CITY_COUNTER || eAI == UNITAI_ATTACK_SEA ||
@@ -10967,7 +10972,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	}
 	else iValue += (iTemp * 1);
 
-	iTemp = GC.getInfo(ePromotion).getCityAttackPercent();
+	iTemp = kPromo.getCityAttackPercent();
 	if (iTemp != 0)
 	{
 		if (getUnitInfo().getUnitAIType(UNITAI_ATTACK) || getUnitInfo().getUnitAIType(UNITAI_ATTACK_CITY) || getUnitInfo().getUnitAIType(UNITAI_ATTACK_CITY_LEMMING))
@@ -10983,7 +10988,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		}
 	}
 
-	iTemp = GC.getInfo(ePromotion).getCityDefensePercent();
+	iTemp = kPromo.getCityDefensePercent();
 	if (iTemp != 0)
 	{
 		if ((eAI == UNITAI_CITY_DEFENSE) ||
@@ -10995,7 +11000,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		else iValue += (iTemp / 4);
 	}
 
-	iTemp = GC.getInfo(ePromotion).getHillsAttackPercent();
+	iTemp = kPromo.getHillsAttackPercent();
 	if (iTemp != 0)
 	{
 		iExtra = getExtraHillsAttackPercent();
@@ -11009,7 +11014,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		else iValue += (iTemp / 16);
 	}
 
-	iTemp = GC.getInfo(ePromotion).getHillsDefensePercent();
+	iTemp = kPromo.getHillsDefensePercent();
 	if (iTemp != 0)
 	{
 		iExtra = (getUnitInfo().getHillsDefenseModifier() + (getExtraHillsDefensePercent() * 2));
@@ -11029,7 +11034,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		else iValue += (iTemp / 16);
 	}
 	// advc.099e: Commented out
-	/*iTemp = GC.getInfo(ePromotion).getRevoltProtection();
+	/*iTemp = kPromo.getRevoltProtection();
 	if ((eAI == UNITAI_CITY_DEFENSE) ||
 		(eAI == UNITAI_CITY_COUNTER) ||
 		(eAI == UNITAI_CITY_SPECIAL)) {
@@ -11040,7 +11045,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		}
 	}*/
 
-	iTemp = GC.getInfo(ePromotion).getCollateralDamageProtection();
+	iTemp = kPromo.getCollateralDamageProtection();
 	if (eAI == UNITAI_CITY_DEFENSE ||
 		eAI == UNITAI_CITY_COUNTER ||
 		eAI == UNITAI_CITY_SPECIAL)
@@ -11054,7 +11059,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	}
 	else iValue += (iTemp / 8);
 
-	iTemp = GC.getInfo(ePromotion).getPillageChange();
+	iTemp = kPromo.getPillageChange();
 	if (eAI == UNITAI_PILLAGE ||
 		eAI == UNITAI_ATTACK_SEA ||
 		eAI == UNITAI_PIRATE_SEA)
@@ -11063,10 +11068,10 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	}
 	else iValue += (iTemp / 16);
 
-	iTemp = GC.getInfo(ePromotion).getUpgradeDiscount();
+	iTemp = kPromo.getUpgradeDiscount();
 	iValue += (iTemp / 16);
 
-	iTemp = GC.getInfo(ePromotion).getExperiencePercent();
+	iTemp = kPromo.getExperiencePercent();
 	if (eAI == UNITAI_ATTACK ||
 		eAI == UNITAI_ATTACK_SEA ||
 		eAI == UNITAI_PIRATE_SEA ||
@@ -11079,14 +11084,14 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	}
 	else iValue += (iTemp / 2);
 
-	iTemp = GC.getInfo(ePromotion).getKamikazePercent();
+	iTemp = kPromo.getKamikazePercent();
 	if (eAI == UNITAI_ATTACK_CITY)
 		iValue += (iTemp / 16);
 	else iValue += (iTemp / 64);
 
 	FOR_EACH_ENUM(Terrain)
 	{
-		iTemp = GC.getInfo(ePromotion).getTerrainAttackPercent(eLoopTerrain);
+		iTemp = kPromo.getTerrainAttackPercent(eLoopTerrain);
 		if (iTemp != 0)
 		{
 			iExtra = getExtraTerrainAttackPercent(eLoopTerrain);
@@ -11100,7 +11105,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 			else iValue += (iTemp / 16);
 		}
 
-		iTemp = GC.getInfo(ePromotion).getTerrainDefensePercent(eLoopTerrain);
+		iTemp = kPromo.getTerrainDefensePercent(eLoopTerrain);
 		if (iTemp != 0)
 		{
 			iExtra =  getExtraTerrainDefensePercent(eLoopTerrain);
@@ -11115,7 +11120,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 			else iValue += (iTemp / 16);
 		}
 
-		if (GC.getInfo(ePromotion).getTerrainDoubleMove(eLoopTerrain))
+		if (kPromo.getTerrainDoubleMove(eLoopTerrain))
 		{
 			if (eAI == UNITAI_EXPLORE)
 				iValue += 20;
@@ -11130,7 +11135,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 
 	FOR_EACH_ENUM(Feature)
 	{
-		iTemp = GC.getInfo(ePromotion).getFeatureAttackPercent(eLoopFeature);
+		iTemp = kPromo.getFeatureAttackPercent(eLoopFeature);
 		if (iTemp != 0)
 		{
 			iExtra = getExtraFeatureAttackPercent(eLoopFeature);
@@ -11144,7 +11149,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 			else iValue += (iTemp / 16);
 		}
 
-		iTemp = GC.getInfo(ePromotion).getFeatureDefensePercent(eLoopFeature);
+		iTemp = kPromo.getFeatureDefensePercent(eLoopFeature);
 		if (iTemp != 0)
 		{
 			iExtra = getExtraFeatureDefensePercent(eLoopFeature);
@@ -11163,7 +11168,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 			}
 		}
 
-		if (GC.getInfo(ePromotion).getFeatureDoubleMove(eLoopFeature))
+		if (kPromo.getFeatureDoubleMove(eLoopFeature))
 		{
 			if (eAI == UNITAI_EXPLORE)
 				iValue += 20;
@@ -11187,7 +11192,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	}
 	FOR_EACH_ENUM(UnitCombat)
 	{
-		iTemp = GC.getInfo(ePromotion).getUnitCombatModifierPercent(eLoopUnitCombat);
+		iTemp = kPromo.getUnitCombatModifierPercent(eLoopUnitCombat);
 		int iCombatWeight = 0;
 		//Fighting their own kind
 		if (eLoopUnitCombat== eUnitCombat)
@@ -11223,8 +11228,8 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	FOR_EACH_ENUM(Domain)
 	{
 		//WTF? why float and cast to int?
-		//iTemp = (int)((GC.getInfo(ePromotion).getDomainModifierPercent(eLoopDomain) + getExtraDomainModifier(eLoopDomain) * 100.0f);
-		iTemp = GC.getInfo(ePromotion).getDomainModifierPercent(eLoopDomain);
+		//iTemp = (int)((kPromo.getDomainModifierPercent(eLoopDomain) + getExtraDomainModifier(eLoopDomain) * 100.0f);
+		iTemp = kPromo.getDomainModifierPercent(eLoopDomain);
 		if (eAI == UNITAI_COUNTER)
 			iValue += (iTemp * 1);
 		else if (eAI == UNITAI_ATTACK ||

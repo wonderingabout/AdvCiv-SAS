@@ -1852,9 +1852,12 @@ void CvGame::getGlobeLayers(std::vector<CvGlobeLayerData>& aLayers) const
 	kUnit.m_strName = "UNITS";
 	kUnit.m_strButtonHelpTag = "TXT_KEY_GLOBELAYER_UNITS";
 	kUnit.m_strButtonStyle = "Button_HUDGlobeUnit_Style";
-	kUnit.m_iNumOptions =
-			(GC.getDefineINT("SHOW_UNIT_LAYER_OPTIONS") <= 0 ? 0 : // advc.004z
-			NUM_UNIT_OPTION_TYPES);
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iNumOptionsCalculated = ((GC.getDefineINT("SHOW_UNIT_LAYER_OPTIONS") <= 0 ? 0 : // advc.004z
+			NUM_UNIT_OPTION_TYPES));
+
+	kUnit.m_iNumOptions = iNumOptionsCalculated;
 	kUnit.m_bGlobeViewRequired = false;
 	aLayers.push_back(kUnit);
 
@@ -2487,7 +2490,10 @@ int CvGame::getSoundtrackSpace() const
 
 bool CvGame::isSoundtrackOverride(CvString& strSoundtrack) const
 {
-	if (GC.getDefineINT("VICTORY_SOUNDTRACK_AVAILABLE") != 0)
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const bool bVICTORY_SOUNDTRACK_AVAILABLE = (GC.getDefineINT("VICTORY_SOUNDTRACK_AVAILABLE") != 0);
+
+	if (bVICTORY_SOUNDTRACK_AVAILABLE)
 	{
 		if (getGameState() == GAMESTATE_EXTENDED || getGameState() == GAMESTATE_OVER)
 		{

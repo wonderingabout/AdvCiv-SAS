@@ -744,7 +744,10 @@ bool PUF_makeInfoBarDirty(CvUnit* pUnit, int iDummy1, int iDummy2)
 // advc.003j (comment): Unused
 int baseYieldToSymbol(int iNumYieldTypes, int iYieldStack)
 {
-	return iNumYieldTypes * GC.getDefineINT("MAX_YIELD_STACK") + iYieldStack;
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const int iMAX_YIELD_STACK = GC.getDefineINT("MAX_YIELD_STACK");
+
+	return iNumYieldTypes * iMAX_YIELD_STACK + iYieldStack;
 }
 /*  advc.003j: Vanilla Civ 4 function that used to be a DLLExport;
 	certainly unused since BtS, and doesn't sound too useful. */
@@ -802,10 +805,15 @@ int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar,
 	{
 	case CALENDAR_DEFAULT:
 	{
+		// <!-- custom: performance optimizations as recommended as well by chatgpt 5 thanks, check if accurate anyways etc -->
+		// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+        const CvGameSpeedInfo& kSpeed = GC.getInfo(eSpeed);
+        int const n = kSpeed.getNumTurnIncrements();
+
 		int iTurnCount = 0;
-		for (int i = 0; i < GC.getInfo(eSpeed).getNumTurnIncrements(); i++)
+		for (int i = 0; i < n; i++)
 		{
-			GameTurnInfo const& kGameTurn = GC.getInfo(eSpeed).getGameTurnInfo(i);
+			GameTurnInfo const& kGameTurn = kSpeed.getGameTurnInfo(i);
 			if (iGameTurn > iTurnCount + kGameTurn.iNumGameTurnsPerIncrement)
 			{
 				iTurnMonth += kGameTurn.iMonthIncrement *
@@ -821,8 +829,8 @@ int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar,
 		}
 		if (iGameTurn > iTurnCount)
 		{
-			iTurnMonth += GC.getInfo(eSpeed).getGameTurnInfo(
-					GC.getInfo(eSpeed).getNumTurnIncrements() - 1).
+			iTurnMonth += kSpeed.getGameTurnInfo(
+					n - 1).
 					iMonthIncrement * (iGameTurn - iTurnCount);
 		}
 		break;
@@ -846,9 +854,14 @@ int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar,
 		break;
 
 	case CALENDAR_WEEKS:
+	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const int iWEEKS_PER_MONTHS = GC.getDefineINT("WEEKS_PER_MONTHS");
+
 		iTurnMonth += iGameTurn /
-				std::max(1, GC.getDefineINT("WEEKS_PER_MONTHS")); // advc: max
+				std::max(1, iWEEKS_PER_MONTHS); // advc: max
 		break;
+	}
 
 	default:
 		FAssert(false);
