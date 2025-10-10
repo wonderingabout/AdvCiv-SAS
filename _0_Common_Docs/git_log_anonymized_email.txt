@@ -1,3 +1,200 @@
+commit 08c73df0c72844dbcafb90ab38cf3490b4adae0c
+Author: wonderingabout <hidden>
+Date:   2025-10-10 08:57:40 +0200
+
+adjust=reduce tech costs a bit in the mid game until end game but anyways etc + minor or not tech changes or not or yes or etc but anyways etc
+
+commit be91870024551420f202e4fabe17b78e0b51d244
+Author: wonderingabout <hidden>
+Date:   2025-10-10 08:24:25 +0200
+
+more more performance optimizations
+
+commit 1959817ddcec1dcc150ca9b042bcc83e37f4543a
+Author: wonderingabout <hidden>
+Date:   2025-10-10 00:46:17 +0200
+
+more performance optimizations and other minor or not change(s) but anyways etc
+- nerf trait_aggressive: remove the great general modifier now that the free promotion promotion_leadership but anyways etc is correctly applied to unit combats plus to the ones we extended it to in this case i mean but but anyways etc
+
+commit a276719b717f6fc3707e24dddb000b2e4f00ec45
+Author: wonderingabout <hidden>
+Date:   2025-10-09 21:03:23 +0200
+
+rename "ROBOTIC_RIGHTS" to "ROBOT_RIGHTS" or/and such anyways etc
+- minor houfnice balance change anyways etc
+- as for rename seems more correct and after asking chatgpt 5 about it too thanks too i mean in this case i mean but anyways etc
+
+commit 31fc38bd867410ec07e0acaebcb3d61b40305344
+Author: wonderingabout <hidden>
+Date:   2025-10-09 16:34:15 +0200
+
+performance optimizations anyways etc
+
+commit 6efb7c12cd95125024f7a589fdb0f4a9df4e14aa
+Author: wonderingabout <hidden>
+Date:   2025-10-09 15:03:32 +0200
+
+replace the "HOLY_ROMAN_LANDSKNECHT" with the "HOLY_ROMAN_HOUFNICE (better match with holy roman empire's aggressive profile, tight medieval window, and the old landsknetch was obsolete too soon in combat by the time it was produced)
+- buff the korean_hwacha, as it was a bit weak and because as explained according to chatgpt 5 but anyways etc: "The Hwacha fires singijeon rocket arrows and has a unique "shoot-and-scoot" withdrawal mechanic due to its light cart. Giving it free "Retreat I" would work for this, although it's largely thematic." + "Why Retreat/Withdrawal? Not because it’s wooden 🙂—because tactically it’s a shoot-and-scoot cart. One small withdrawal bump makes fewer “suicide” losses without breaking balance." + "<!-- Is “more defenders” relevant? Very. Collateral hits the top defenders by strength; bumping from 6 → 7 is ~+16% more coverage each attack—perfect fit for a rocket-salvo weapon. -->"
+- TXT_KEY_FOREIGN_ADVISOR_RESOURCES: rename from "Ressources" to as of now "Bonuses" anyways etc
+- "<!-- custom: replace the "HOLY_ROMAN_LANDSKNECHT" with the "HOLY_ROMAN_HOUFNICE" -->" + "The early gunpowder artillery, like bombards and hand cannons, often used bronze (copper alloys) or wrought iron. Bronze was preferred for its mobility and shock resistance, with iron being cheaper but more brittle. The 15th-century Bohemian houfnice, key in the Hussite wars, may have used wrought iron early on but later cast in bronze." + + "Hussite artillery used small field guns and howitzers, often wrought iron but sometimes bronze. By the 16th century, Habsburgs used bronze howitzers more widely, so requiring copper as an alternative to iron in Civ4 fits historically." + "<!-- custom: art import from ri mod (their svn version so no fpk nice much easier if i may say thanks but anyways etc)'s ART_DEF_UNIT_CANNON_VIKING, adjusted or not for AdvCiv-SAS but anyways etc -->" + "<!-- custom: based on https://en.wikipedia.org/wiki/Howitzer anyways etc -->"
+- rename "AdvCiv mod" to "AdvCiv-SAS mod" via TXT_KEY_REPLAY_PREFIX if i am not mistaken but anyways etc
+- nerf/rebalance the babylon_bowman (remove free promotion retreat1 as it is plenty strong enough already if i may say but anyways etc; give city_raider1 promotion instead and remove city attack modifier from base stats (so next units can inherit on/after upgrade i mean if i may say but anyways etc)): "<!-- custom: was PROMOTION_RETREAT1 in the generic advciv-sas longbowman anyways etc; should be fine considering these are otherwise mostly defensive units even after being upgraded until much later in the game; plus, they are not so efficient at attack otherwise so should be balanced hopefully but check if you want to be sure i mean if i may say in this case i mean but anyways etc -->"
+- "	<!-- custom: note: as of now copper exception (alternative bonus to iron anyways etc) for Holy Roman Empire's new HOLY_ROMAN_HOUFNICE is not handled to simplify and as is bit tedious, may or not do so in the future (ideally would but not guaranteed, i may or i may not but anyways etc) but anyways etc -->"
+
+commit 2cbb1069bfbf7b4381d25c9cb957c186fc417931
+Author: wonderingabout <hidden>
+Date:   2025-10-08 22:03:37 +0200
+
+fix dual counting bug (as of now was only affecting siege units)
+since i don't understand it, here is chatgpt 5's explanation of it, less tedious as such also but anyways etc:
+
+Here’s the 5-liner:
+- The old code looped UnitTypes and added getUnitClassCount(eClass) for each match.
+- Many types share the same UnitClass (default + UUs like Catapult + Hwacha), so the same class total was added multiple times → double/triple count.
+- This affects any civ whenever a class has >1 type defined in the DB — not just Korea — because you still iterate over all types, even ones your civ can’t build.
+- It doesn’t bite only when a class has exactly one type across the whole mod.
+- Fix: count per UnitClass once (our new code), or keep the type loop but guard with a seenClass set; either way each class contributes once.
+
+commit 6784bb924d8f49ad95c9284c6bf5c59017548a0e
+Author: wonderingabout <hidden>
+Date:   2025-10-08 17:33:14 +0200
+
+fix incorrect iron vs metal on renaissance bonus valuing logic
+- cannons need iron not no bonus, plus logic was checking for all metals, when copper is largely obsolete at renaissance (unlike in middle ages but anyways etc), so fixed logic to value more specifically more iron even if we lack both iron and mounts, and also fix copper relation with all metals at renaissance era anyways etc
+
+commit 8d8af2a7bb1a4301e009e0fc858de6ee782fb646
+Author: wonderingabout <hidden>
+Date:   2025-10-08 15:42:26 +0200
+
+rework and buff most traits, fix missing FreePromotionUnitCombat in traits anyways etc
+- fix missing FreePromotionUnitCombat in all unitcombats for trait_protective and some unitcombats for trait_aggressive.Hopefully works fine now in this case i mean but anyways etc and buffed the eleigible units' unicombar types since but anwyays etc
+- changed imperialistic and organized trait char (the "logo"/"icon" in sevopedia traits if not in other places or not or yes or etc but anyways etc (done in [/BUG/TraitUtil.py](/Assets/Python/BUG/TraitUtil.py) but anyways etc)), commented-out (i.e. disabled but anyways etc) the old trait_expansive info as we don't use it anymore as of now but anyways etc
+- buff and rework most traits (e.g. trait_spiritual is more about religion now, and trait_creative is more about cultural happiness anyways etc) anyways etc
+
+commit a8c169c9cb040f32575352b624c956965b7dfd6a
+Author: wonderingabout <hidden>
+Date:   2025-10-08 08:37:47 +0200
+
+more more performance optimizations anyways etc
+
+commit 324bf1e23ddbb55022962d2d31bb9421ac390327
+Author: wonderingabout <hidden>
+Date:   2025-10-08 07:57:51 +0200
+
+more performance optimizations anyways etc
+
+commit 52cf753676ba24876c1193ab820413da68a19ad3
+Author: wonderingabout <hidden>
+Date:   2025-10-08 07:06:00 +0200
+
+performance optimizations anyways etc
+
+commit fcbb00dfcb72ce37854c941e2d83cf9d989a40e5
+Author: wonderingabout <hidden>
+Date:   2025-10-07 21:43:44 +0200
+
+remove trait_expansive, overhaul traits for many leaders for accuracy and gameplay relevance or/and other or/and not anyways etc
+- in particular, removed trait_expansive: was overlapping with our more general trait_protective (does not just protect defensively in our mod but also more generally protects health too and also has no anarchy (protects political stability more or less anyways etc)) and empire-expansion related trait_imperalist (settler discount same, but also trade route based scaling yield modifiers), so trait_expansive was redundant. Also, it was among weakest (flat health not so helpful) and hardest to balance (most often weak or some (very in this case i mean but anyways etc) rare times op) so removed.
+- in addition to the above, overhauled all traits with a focus on historical accuracy most importantly, but also gameplay relevance (+/- civ-specific building and unit timing and effects as well but anyways etc) and overall civ theme to a lesser extent, with the help of chatgpt 5 and multiple rounds of review, +/- other AIs or not so much or yes in this case i mean but anyways etc. For example, julius caesar has been changed from organized + imperialist to aggressive + imperialist (war theme and strength), hammurabi has been changed from organized + aggressive to organized + protective (more of an administrator + defensive civ overall if i'm not mistaken but anyways etc), saladin has been changed from protective + spiritual to spiritual + charismatic (more of warmonger in civ4 + historical warmonger and charisma), or isabella has been changed from spiritual + expansive to spiritual + aggressive (very ruthless campaigns). See for the list of all changes with a before vs after comparison as well as rationales the table at [README_Assets_Rebalancing.md#new-state-after-rework-with-rationale-andor-such-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#new-state-after-rework-with-rationale-andor-such-anyways-etc) but anyways etc. Note: as of now leaders' flavors unchanged for simplicity vs base advciv but anyways etc
+- removed trait_expansive related building modifiers (they were the granary and harbor in advciv-sas before, removed as too generic and op plus no good/relevant candidate to replace them in a balanced way but anyways etc)
+
+commit 47ac86538b82513d9df5ccbcc948b25f1c3f509b
+Author: wonderingabout <hidden>
+Date:   2025-10-06 21:12:55 +0200
+
+rework and buff the UNIT_FRENCH_MUSKETEER and other minor or not changes anyways etc
+- small buff/rework the chinese civ-specific crossbow anyways etc
+- rework and buff the musketeer: remove extra move, add instead free promotions as of now counter_mounted and collateral_damage1: "<!-- custom: very nice idea by chatgpt 5 thanks to my prompt too hehe but anyways etc thanks lot anyways etc; seems thematically fitting and quite relevant, makes the unit more varied and stronger (especially against cuirassiers so very effective and seemingly nicely thematic and relevant thanks again chatgpt 5 if i may say hehe thanks but anyways etc) as well hopefully as was way too weak if i'm not mistaken in my thinking, check also if accurate but anyways etc, was empty -->" + "History cue: French line infantry excelled at disciplined volley fire and square formations vs cavalry. They weren’t inherently “fast” on foot (the 2-move in BtS is really a “dragoon flavor” abstraction). So your instinct to drop the extra move is spot-on." + "<!-- custom: see note at the top of this xml file about how collateral is calculated according to chatgpt 5 and whether it is additive or multiplicative or other, after feeding it our relevant code, manual, and it doing a quite extensive web search before but anyways etc. As for us, keeping base 0 and adding this free promotion of as of now collateral_damage1 still results in non 0 collateral damage so no need to add collateral and make the unit op, but it doesn't seem that big/high in this case i mean but anyways etc so it seems we don't need to increase unit iCost and leave it as such otherwise if i'm not mistaken but anyways etc -->"
+
+commit a308df2945232ca7c5697d0baac855109d4f2b10
+Author: wonderingabout <hidden>
+Date:   2025-10-06 18:30:12 +0200
+
+pikemen units upgrade to musketman as well anyways etc
+- pikemen units upgrade to musketman as well anyways etc: "<!-- custom: if a pikeman was standing and a cuirassier like unit or even a foot unit with a gun i mean if i may say but anyways etc, and they had a gun nearby to defend themselves they could use, surely they wouldn't just sit around as sitting ducks i mean if i may say but anyways etc but use the gun right (especially since in our mod as of now pikemen are useless / very ineffective against mounted_ranged that the cuirassier units are, so allow musket. May hopefully also help reduce / tone down a bit the AI spam quite late game of pikemen (sometimes even at turn 300 when much better options like cannons or musketmen are available it seems in autoplay at a quick glance in this case i mean if i'm not mistaken if i may say but anyways etc; result ingame: drastically reduced the AI mid late spam of pikemen when very inefficient at least in this short autoplay sample in this case i mean but anyways etc: all the more reason to leave as such if i may say but anyways etc, was UNITCLASS_RIFLEMAN and UNITCLASS_GRENADIER -->"
+
+commit 37be7be033520f7ec9214e46a1ba8fa736e9bf7d
+Author: wonderingabout <hidden>
+Date:   2025-10-06 17:54:38 +0200
+
+Also allow bonus_copper as an alternative bonus prereq for the other civ-specific swordsman class units that didn't have it
+- also allow copper for civ-specific swordsman class units but anyways etc: "<!-- custom: the gallic_warrior had it so no reason why the roman_legionary can't, historically they could use copper/bronze just as well i guess, since it's their civ-specific unit it better be a good one! If i may say but anyways etc; as of now only applied to civ-specific swordsmen for balance and to keep strategic importance of iron but anyways etc, was BonusType bonus_iron and PrereqBonuses empty but anyways etc -->".
+
+commit 152dccffccaf15a3667b9eea6a94d7cb34ef32c7
+Author: wonderingabout <hidden>
+Date:   2025-10-06 14:11:29 +0200
+
+fix missing no trebuchets-like gate in the new no production siege code, fixes excess trebuchets and improves ai performance by allowing a few in fallback code still if i'm not mistaken but anyways etc
+
+commit a4255a54e6829483a4d7d76dd752882477739eb4
+Author: wonderingabout <hidden>
+Date:   2025-10-06 12:52:13 +0200
+
+rename "_EGYPT_WARCHARIOT" to "_EGYPTIAN_WAR_CHARIOT" and other minor or not related or not changes but anyways etc
+- "<!-- custom: rename "_EGYPT_WARCHARIOT" to "_EGYPTIAN_WAR_CHARIOT" to match the existing "_EGYPTIAN_WAR_CHARIOT" and better match the "_EGYPTIAN_OBELISK" we renamed more clearly in the past but anyways etc (note: no idea how the better matching "egyptian_war_chariot" name was detected with old asset names (i don't know how these work it seems but anyways etc) but at least it's consistent now and hopefully clear(er too but anyways etc) if i'm not mistaken but anyways etc) -->"
+- minor refactoring or/and adjustments or not or yes or etc but anyways etc
+
+commit e06283d3d1a6ac5a72945deb22e42d51ca7210fe
+Author: wonderingabout <hidden>
+Date:   2025-10-06 12:15:51 +0200
+
+(Greatly improved and enhanced) Add offense only and defense only logic in no production fallback (in CvCity::doTurn anyways etc) (falls back to overall if none found); also added very cheap gating there anyways etc, remove UNITAI_COUNTER from mounted units as not efficient if i'm not mistaken anyways etc, + various fixes and tweaks and tunables added as well but anyways etc
+- guarantee first non-trebuchets like units in no production fallback unit code: "<!-- custom: do not build too much non-trebuchets like siege units early (i.e. pre-renaissance/cannons anyways etc), but keep enough as they can help us rush an enemy especially if we have no bonus and only longbows as an alternative, but trebuchets are not versatile enough so do not allow them. Defense difference is not big if just for a few units, but these few catapults can many times be decisive so build a few in fallback code but not lot anyways etc. See known issue as of now 53.3 for info related to previous version of these changes anyways etc -->"  + "<!-- custom: simplified non-trebuchets like (i.e. catapults only as of now anyways etc) gate -->" + "<!-- custom: else no restriction, facilitate cannons+ as we have a bit too few generally and they are strong enough to be considered for both defense and offense especially if we have nothing better like pikes and no muskets yet anyways etc. -->"
+- add offense only or defense only alternative logic in no production fallback unit code: "<!-- custom: set to only allow offense default unitais as fallback (as of now UNITAI_COUNTER, UNITAI_ATTACK, UNITAI_ATTACK_CITY, check code for updated version if any change since then anyways etc); untested but may for example reduce early longbow spam in favour of more offense units (if they can be produced, else we allow all land military preferred ones (i.e. both offense and defense ones as of now anyways etc)): it is a trade off though as we'd have (in theory, as of now untested but anyways etc) less defensive units then -->"
+- now added (and also now is default enabled not disabled anymore in this case i mean but anyways etc) in config: "<!-- custom: enable so that even UNITAI_COUNTER default unitai units (e.g. as of now the greek hoplite) are equally inflated (i.e. valorized anyways etc) in the fallback unit code, so the AI players values them if buildable (even though they are generally less effective at offense (but they as civ-specific units should have in one way or another "good"/stronger stats than base units (else rebalance them) so it is maybe fine too to valorize them as well, with here the option to disable it if you prefer anyways etc)). In other words, as of now between for example a greek_hoplite and and a generic unit_longbowman, enable this to choose the greek_hoplite (as it is more efficient in hammer cost, and versatile enough) rather than the longbowman as a fallback unit, but between a spearman and a longbowman as fallback unit, still favour the longbowman (as it is more versatile and slightly stronger as well even if more expensive better than stockpiling weaker units and go bankrupt if i am not mistaken anyways etc) -->"
+- siege count in fallback code now doesn't count trebuchets like units anyways etc "<!-- custom: note: unit not counted in candidates if higher or equal than this value (also this doesn't count trebuchet like units in total as of now if i'm not mistaken but anyways etc). E.g. if value is 3, max we allow is 2 if i'm not mistaken but anyways etc -->"
+- fix the ethiopian_oromo_warrior cost (was 90 instead of as of now 100 like the other musketman class units if i may say but anyways etc)
+- "removed `UNITAI_COUNTER` from mounted units that had it (UNIT_CHARIOT, UNIT_EGYPT_WARCHARIOT, UNIT_CARTHAGE_NUMIDIAN_CAVALRY) as they are not strong enough defender units to warrant it (doesn't ""receive defense bonuses" (i.e. modifiers if i'm not mistaken but anyways etc), plus takes a longbowman slot inefficiently as well i mean if i may say but anyways etc), and are wasted as a non attacker (stays parked in cities sometimes for example for the egyptian war chariot if i remember it correctly anyways etc) if i'm not mistaken but anyways etc. For chariot class units in particular, it may have made sense when longbows were available much later, but now in our mod but anyways etc they are available at about same time in tech as axeman class units but anyways etc, and are a more versatile, cheap enough and overall stronger defender, so prefer it for that purpose rather and use chariots offensively if in window to do so else don't build them (rather than park them in cities if i am not mistaken but anyways etc)."
+- "<!-- custom: note: now the anti excess very cheap units is also included in CvCity::doTurn in the no production fallback unit code, as we were producing too many fallback ancient macemen otherwise with the new offense only code (like 19 ancient macemen at turn 100 which is very inefficient and most likely to bankrupt us or ruin our game but anyways etc) anyways etc -->"
+
+commit 64a6ba2b7c20dbbcc4c11364ab9b6d33645015c0
+Author: wonderingabout <hidden>
+Date:   2025-10-05 05:31:28 +0200
+
+more performance optimizations + crash/code fix it seems
+we had a crash at turn 32 after doing these, but it may be due to the previous commit before this one actually (maybe? I don't know much about these, check if accurate anyways etc.). After reviewing with chatgpt 5 and/or such, i cleaned up what was dangerous code (no null check) and now we don't have a crash anymore with our changes, so not sure it fixed it, but fixes previous commit at least. Hopefully this new batch of changes is safe but i don't know 100% for sure (although should be and seems to most likely be but i can't guarantee it as i don't know too much about these xd so check to be sure and check if i am not mistaken but anyways etc), check if accurate anyways etc.
+
+commit c3d736ff5c86c9c50fce56e71ede27a0173feaea
+Author: wonderingabout <hidden>
+Date:   2025-10-04 22:29:51 +0200
+
+performance optimizations
+
+commit 8a4001086bba122d0f9251c432eabe8dd14594fb
+Author: wonderingabout <hidden>
+Date:   2025-10-04 21:44:29 +0200
+
+(Tremendously Improved) Heavily relaxed AI siege thresholds in renaissance+ eras (our thresholds were too harsh, cannons are strong and valid defenders vs pikemen useless against cuirassiers if we have no bonus and no muskets yet) and other tweaks
+- "Update: since then, heavily relaxed renaissance+ siege thresholds in `CvCityAI::AI_chooseUnit` and in the fallback unit if no production code as well in `CvCity::doTurn`, as cannons as a viable alternative to a defender, especially if we have no bonus and no access to muskets yet, overbuilding pikemen against cuirassiers is useless, ineffective, and will bankrupt us sooner. Also allows for more varied stacks compositions and much better results ingame for some AIs it seems that had the issue of dying due to having too much pikemen and keeping to build them when cannons are available and much stronger, but check to be sure anyways etc."
+
+commit c7a632d3fede902bffaca13ec592f850b9136e34
+Author: wonderingabout <hidden>
+Date:   2025-10-04 10:51:51 +0200
+
+balances fixes and tweaks, performance optimizations (cache mapname is landheavy or navalheavy once per map load (new game, load save, etc. if any more hopefully handled as well but check to be sure anyways etc))
+- balance changes: buff the hoplite a bit (add UnitCombatCollateralImmune vs UNITCOMBAT_SIEGE: "<!-- custom: add this as recommended by chatgpt 5 (nice idea but anyways etc) to buff the hoplite a bit anyways etc -->" and small city defense modifier and unitai_city_defense: "<!-- custom: not the primary role but good enough at it, see code comment at iCityDefense for details anyways etc -->" anyways etc
+- fix persia_immortal's modifiers mistakenly assigned to the quechua instead of the persia_immortal as i had intended anyways etc
+- performance optimization: "caching mapname is landheavy or mapname is navalheavy information once per game (new game, load save, etc if any more hopefully handled but check to be sure anyways etc in the new `CvGame::recomputeMapnameHeaviness` we added (see also [42 - (Enhanced/Addressed) Tune AI's preferred UNITAI based on war status & other factors](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc) for details anyways etc)) so no need to recheck it everytime at each turn for each unit or such if i'm not mistaken but anyways etc (check if accurate as i don't know too much about these, done with the help of chatgpt 5 quite carefully and minimalistically but anyways etc)" + "Seems to be behaving as intended though from quick testing if i'm not mistaken in autoplay (as much land units in land maps with low naval units as intended, and many naval units in naval heavy maps, so hopefully safe enough or safe and working as intended i mean if i may say but check to be sure anyways etc)"
+
+commit 09f8a1b3175131ced24551c3ae4408513579aae1
+Author: wonderingabout <hidden>
+Date:   2025-10-04 07:05:36 +0200
+
+minor fix (iAIAnimalBonus at handicap_chieftain anyways etc) and update docs
+note: the released AdvCiv-SAS 5030 does not use the updated handicap setting (iAIAnimalBonus at handicap_chieftain anyways etc) in the development version as of now 5031, but the difference is so small i am not / will not update the released version 5030 just for that. I hope the documentation is accurate enough, and it always reflects latest development version, which as of now is exact same as released AdvCiv-SAS 5030 minus this difference if i'm not mistaken but anyways etc.
+
+I prefer to give players updated doc even if it references the development version. Maybe i'll change it in the future in this case i mean but anyways etc but as of now documentation links to latest development version, not latest stable, although i could do so. I hope it is not too inconvenient or inaccurate as such, as it is much more convenient for me to do so, perhaps preferable or not to players as they prefer (redundant but anyways etc), but in short this is a very very minor fix, use dev version if you prefer, as for doc i'll keep referencing dev version as it is more accurate, especially if things changed, i prefer players to keep in mind the latest version of information as it will eventually (in theory f i eventually release/update it but anyways etc) become the next version anyway, in this case i mean but anyways etc.
+
+Also updated docs anyways etc.
+
+commit e3ecaf41449b5a4415d3a98ff0c68c0d0ccd7738
+Author: wonderingabout <hidden>
+Date:   2025-10-03 09:51:40 +0200
+
+update docs
+
 commit a43b157d853d0b62b8787dc256bf419ae4f3ba5a
 Author: wonderingabout <hidden>
 Date:   2025-10-03 09:43:40 +0200

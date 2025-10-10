@@ -264,6 +264,33 @@ git push --force origin "$TAG"
 # git push origin "$TAG"
 ```
 
+##### example 3 with more advanced version anyways etc (totally not shameless but anyways etc (or yes xd in this case i mean but anyways etc))
+
+```cmd
+git fetch origin
+
+# choose names
+# new tag
+TAG=5055
+SHA=   # <- the 5055 commit
+OLDNAME="AdvCiv-SAS 5030"                      # quote because of spaces
+BASE=e3ecaf41449b5a4415d3a98ff0c68c0d0ccd7738
+WHEN=$(git show -s --format=%cI "$SHA")        # or %aI if you prefer author date
+
+# replace the tag locally with correct date + message
+GIT_COMMITTER_DATE="$WHEN" GIT_AUTHOR_DATE="$WHEN" \
+git tag -fa "$TAG" "$SHA" \
+  -m "AdvCiv-SAS $TAG" \
+  -m "Commit history from $OLDNAME to $TAG viewable at https://github.com/wonderingabout/AdvCiv-SAS/commits/tech-rework/?since=2025-10-04&until=2025-10-10 or at https://github.com/wonderingabout/AdvCiv-SAS/compare/$BASE...$SHA"
+
+# force-push because we’re updating an existing remote tag object
+git push --force origin "$TAG"
+# if you’re not correcting an existing remote tag:
+# if not force pushing then before you'd need to rather do instead if i'm not mistaken anyways etc git tag -a (note: i commented it here rather than above else the `\` char followed by a command line breaks the date that is shown as now instead of the date we set in this command, as nicely found by chatgpt 5 and i tested it too to seem to be so but anyways etc (but check if accurate anyways etc)) anyways etc, so i put all comments here for reliability and clarity anyways etc
+# and then next line you could do (no force push if new tag that did not existing before if i'm not mistaken but anyways etc): 
+# git push origin "$TAG"
+```
+
 ### manual(s) and docs in .txt
 
 Similarly, i have found it very useful to keep a .txt copy of the docs i use, in particular technical ones, and such as the [AdvCiv base docs](/_0_Common_Docs/AdvCiv%20(Base)%20Doc) in particular the [manual in .txt](/_0_Common_Docs/AdvCiv%20(Base)%20Doc/manual.txt)

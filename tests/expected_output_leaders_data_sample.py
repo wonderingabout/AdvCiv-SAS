@@ -1172,7 +1172,7 @@ def get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE():
 			"FavoriteReligion": "RELIGION_CHRISTIANITY",
 			"Traits": [
 				{
-					"TraitType": "TRAIT_CREATIVE",
+					"TraitType": "TRAIT_PHILOSOPHICAL",
 					"bTrait": "1"
 				},
 				{
@@ -1874,7 +1874,7 @@ def get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE():
 					"bTrait": "1"
 				},
 				{
-					"TraitType": "TRAIT_AGGRESSIVE",
+					"TraitType": "TRAIT_ORGANIZED",
 					"bTrait": "1"
 				}
 			],

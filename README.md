@@ -76,14 +76,17 @@ See [README_More_Exhaustive_Military_Tree.md](/_1_AdvCiv-SAS/Docs_And_Appendixes
 
 ## Ingame gameplay samples
 
-These are from autoplay or me playing them myself (for the 4986 rome AI screenshot as of now but anyways etc). AI is very strong, i wanted to showcase that as well as how AI generally behaves and the game looks/feels ingame. Both of these maps were pangea at monarch difficulty if i'm not mistaken but anyways etc. Later napoleon ai screenshots are shortly before version 5030, and the screenshots after them are from version 5045.
+These are from autoplay or me playing them myself (for the 4986 rome AI screenshot as of now but anyways etc). AI is very strong, i wanted to showcase that as well as how AI generally behaves and the game looks/feels ingame. Both of these maps were pangea at monarch difficulty if i'm not mistaken but anyways etc. Later napoleon ai screenshots are shortly before version 5030, and the screenshots after them are from version 5055.
 
 <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.960_gameplay_4986_sample_monarch_1.JPG" alt="0.960_gameplay_4986_sample_monarch_1.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5030_sample_monarch_1.JPG" alt="0.961_autoplay_about_5030_sample_monarch_1.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5030_sample_monarch_2.JPG" alt="0.961_autoplay_about_5030_sample_monarch_2.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5045_sample_monarch_1_1.JPG" alt="0.961_autoplay_about_5045_sample_monarch_1_1.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5045_sample_monarch_1_2.JPG" alt="0.961_autoplay_about_5045_sample_monarch_1_2.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5045_sample_monarch_2.JPG" alt="0.961_autoplay_about_5045_sample_monarch_2.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5030_sample_monarch_1 (1).JPG" alt="0.961_autoplay_about_5030_sample_monarch_1 (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.961_autoplay_about_5030_sample_monarch_1 (2).JPG" alt="0.961_autoplay_about_5030_sample_monarch_1 (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.962_autoplay_about_5055_sample_monarch_1 (1).JPG" alt="0.962_autoplay_about_5055_sample_monarch_1 (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.962_autoplay_about_5055_sample_monarch_1 (2).JPG" alt="0.962_autoplay_about_5055_sample_monarch_1 (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.962_autoplay_about_5055_sample_monarch_2 (1).JPG" alt="0.962_autoplay_about_5055_sample_monarch_2 (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.962_autoplay_about_5055_sample_monarch_2 (2).JPG" alt="0.962_autoplay_about_5055_sample_monarch_2 (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.962_autoplay_about_5055_sample_monarch_2 (3).JPG" alt="0.962_autoplay_about_5055_sample_monarch_2 (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.962_autoplay_about_5055_sample_monarch_2 (4).JPG" alt="0.962_autoplay_about_5055_sample_monarch_2 (4).JPG" width="250"></img>
 
 See also [the CFC AdvCiv-SAS Discussion Thread here](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) as well, or the google drive link (see [Docs section](/README.md#docs) for link below anyways etc) for more gameplay samples although some of these may be old/dated now but anyways etc.
 

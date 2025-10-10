@@ -25,6 +25,8 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
 [example 12: promotions category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-12-promotions-category)  
 [example 13: civics category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-13-civics-category)  
 
+Note: some many minor changes such as in sevopedia traits beautification changes may not be mentionned here for concision or/and effectiveness if i may say but anyways etc.
+
 ## example 1: more AI Personality examples (in leaders category)
 
 <img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG" alt="0.620_sevopedia_leaders_sample (1).JPG" width="250"></img>
