@@ -14852,7 +14852,13 @@
 					<iProductionTrait>100</iProductionTrait>
 				</ProductionTrait>
 			</ProductionTraits>
-			<HappinessTraits/>
+			<!-- custom: was empty anyways etc -->
+			<HappinessTraits>
+				<HappinessTrait>
+					<HappinessTraitType>TRAIT_ORGANIZED</HappinessTraitType>
+					<iHappinessTrait>1</iHappinessTrait>
+				</HappinessTrait>
+			</HappinessTraits>
 			<NoBonus>NONE</NoBonus>
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>
