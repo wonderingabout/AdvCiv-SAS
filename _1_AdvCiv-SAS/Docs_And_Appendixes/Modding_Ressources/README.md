@@ -264,7 +264,7 @@ git push --force origin "$TAG"
 # git push origin "$TAG"
 ```
 
-##### example 3 with more advanced version anyways etc (totally not shameless but anyways etc (or yes xd in this case i mean but anyways etc))
+##### example 3 with more advanced version anyways etc (totally not shameless but anyways etc (or yes xd in this case i mean but anyways etc)) (but it might also help as well hopefully or not hopefully or yes or etc but anyways etc)
 
 ```cmd
 git fetch origin
@@ -272,7 +272,7 @@ git fetch origin
 # choose names
 # new tag
 TAG=5055
-SHA=   # <- the 5055 commit
+SHA=b8c861af13f28c070022e1bcca3c48e6040bc174  # <- the 5055 commit
 OLDNAME="AdvCiv-SAS 5030"                      # quote because of spaces
 BASE=e3ecaf41449b5a4415d3a98ff0c68c0d0ccd7738
 WHEN=$(git show -s --format=%cI "$SHA")        # or %aI if you prefer author date
