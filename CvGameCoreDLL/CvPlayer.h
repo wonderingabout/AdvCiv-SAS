@@ -249,6 +249,11 @@ public:
 	DllExport DenialTypes getTradeDenial(PlayerTypes eWhoTo, TradeData item) const;									// Exposed to Python
 	bool canTradeNetworkWith(PlayerTypes ePlayer) const;															// Exposed to Python
 	int getNumAvailableBonuses(BonusTypes eBonus) const;															// Exposed to Python
+	// <!-- custom: we need more siege units early if we don't have key strategic bonuses, so relax threshold in these cases but anyways etc. May be useful in other cases, and is reused several times at different code functions or scopes, so make it a helper rather but anyways etc -->
+	// <!-- custom: note: it seems this only checks main capital network (as per getNumAvailableBonuses it seems and as chatgpt 5 confirms it as well but check if accurate but anyways etc), so use it with that intent in mind or if you don't mind xd but anyways etc, else the hasBonus or possibly other functions might be used instead but check to be sure but anyways etc -->
+	// Your simple check will work, but it’s “capital-network only.” If you’re okay with that approximation, keep it. If you want one tiny robustness bump (still very cheap), use global OR city plot-group so a locally-connected city isn’t punished.
+	bool getNumAvailableBonusesHaveAnyKeyEarlyStrategicBonuses() const;
+
 	int getNumTradeableBonuses(BonusTypes eBonus) const																// Exposed to Python
 	{
 		return (getNumAvailableBonuses(eBonus) - getBonusImport(eBonus));

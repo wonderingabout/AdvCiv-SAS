@@ -11420,6 +11420,10 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 				static const bool bNoExcessTrebuchetsLike = GC.getDefineBOOL("SAS_NO_EXCESS_TREBUCHETS_LIKE");
 
+				static const int iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER = GC.getDefineINT("SAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER");
+
+				static const bool bNoExcessSiegesAll = GC.getDefineBOOL("SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL");
+
 				// Trebuchet-like stricter rule
 				if (bTrebuchetLike && bNoExcessTrebuchetsLike)
 				{
@@ -11445,6 +11449,17 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						return false;
 					}
 
+					if (!bEraRenaissanceOrAfter)
+					{
+						// <!-- custom: save some computation by computing this in this sub scope rather (in later eras we don't check this anymore as of now, plus we start to have many unit orders and cities if i'm not mistaken but anyways etc, so save some computation if we can i mean but anyways etc; ideally should refactor this a bit but hopefully maybe also not too bad as such i mean if i may say but anyways etc) but anyways etc -->
+						const bool bHaveAnyKeyEarlyStrategicBonuses = kPlayer.getNumAvailableBonusesHaveAnyKeyEarlyStrategicBonuses();
+
+						if (!bHaveAnyKeyEarlyStrategicBonuses)
+						{
+							iCapTrebs += (iCapTrebs * iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER) / 100;
+						}
+					}
+
 					// <!-- custom: even if we are stronger or otherwise ok to produce trebuchets, another edge case may be that they are simply even less versatile than other siege units, so apply tighter rules (their only purpose is to bombard city defenses or suicide attacking a city, except for that we don't want too many of them in our unit composition as it may be crippling or detrimental due to lack of versatility anyways etc -->
 					static const int iTrebuchetsLikeMinExtraCap = GC.getDefineINT("SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES_TREBUCHETS_LIKE_MIN_EXTRA_CAP");
 
@@ -11457,8 +11472,8 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					}
 				}
 
-				static const bool bNoExcessSiegesAll = GC.getDefineBOOL("SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL");
 
+				
 				if (bNoExcessSiegesAll)
 				{
 					// <!-- custom: if not in cases where we should not produce siege units at all for efficiency, consider the case we can/should, and add some sanity/efficiency limits if i may say but anyways etc -->
@@ -11479,6 +11494,14 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						if (bDanger)
 						{
 							iCapSiegesAll = 10; // <!-- custom: avoid adding too much but anyways etc --> narrow-purpose siege when not stronger
+						}
+
+						// <!-- custom: save some computation by computing this in this sub scope rather (in later eras we don't check this anymore as of now, plus we start to have many unit orders and cities if i'm not mistaken but anyways etc, so save some computation if we can i mean but anyways etc; ideally should refactor this a bit but hopefully maybe also not too bad as such i mean if i may say but anyways etc) but anyways etc -->
+						const bool bHaveAnyKeyEarlyStrategicBonuses = kPlayer.getNumAvailableBonusesHaveAnyKeyEarlyStrategicBonuses();
+
+						if (!bHaveAnyKeyEarlyStrategicBonuses)
+						{
+							iCapSiegesAll += (iCapSiegesAll * iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER) / 100;
 						}
 
 						// <!-- custom: pre renaissance, be wary to not overproduce siege, they are not useful at defense for AIs if i am not mistaken anyways etc -->

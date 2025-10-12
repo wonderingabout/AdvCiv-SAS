@@ -38,8 +38,6 @@
 
 
 
-
-
 	<!-- custom: beware: AIFoundValue::evaluate returns a short not an int, so value can only up to 32 000 to -32 000 before overflowing, what this means is try to not put too extreme value changes. Although i think we compute in int and only at the end cast to short so maybe safe although i don't know a lot about these, still keep it in mind when using extremely high values that risk going beyond said scope (more than +32 000 or less than -32 000 total site value more or less anyways etc); ideally function would be changed so it would return an int instead to grow much larger (and according to chatgpt 5 if i remember it correctly but anyways etc may be even faster with int actually possibly due to it being optiized for such but check if accurate and i could or not be mistaken and is just a hypothesis but may be right or not but anyways etc) but is how it is i mean, there should be plenty room hopefully as long as valuation and devaluation is not extreme (try to not increase more than few thousands max, as other parts fo the function also change the value anyways etc.) -->
 
 	<!-- custom: these are the very bad tiles management knobs/tunables in AIFoundValue::evaluate function. Tweaking these allows to change the code we added that tells AI how very bad tiles are valued. Changing it will (at least should but anyways etc) change AI settling preferences and recommended sites in UI as well if i'm not mistaken anyways etc. Are accounted as very bad tiles (check if not updated in code anyways etc), in BFC (excluding home plot (i.e. plot where we settle/found/plant our city anyways etc)):
@@ -452,6 +450,13 @@
 	<Define>
 		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: we need more siege units early if we don't have key strategic bonuses (as of now defined as no iron nor copper nor horse nor camel nor horse nor elephants anyways etc), so relax threshold in these cases but anyways etc. May be useful in other cases, and is reused several times at different code functions or scopes, so make it a helper rather but anyways etc -->
+	<!-- custom: note: it seems this only checks main capital network (as per getNumAvailableBonuses it seems and as chatgpt 5 confirms it as well but check if accurate but anyways etc), so use it with that intent in mind or if you don't mind xd but anyways etc, else the hasBonus or possibly other functions might be used instead but check to be sure but anyways etc -->
+	<!-- custom: example of calculation: if you set this value to for example x=200, and max sieges is calculated to be a=5, then the new threshold will be a=5 + ((a=5 * x=200) / 100) = 5 + (5 * 2) = 5 + 10 = 15 (i.e. +200% which is the same as value multiplied by 3 but anyways etc); note: 0 would nullify this effect as any a * 0 = 0 so value stays the same if i'm not mistaken but anyways etc -->
+	<Define>
+		<DefineName>SAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<!-- custom: general toggle for trebuchet-like units (any siege unit that has as of now >= 50% city attack modifier is guessed to be weak in other areas and so to be a trebuchet for us anyways etc). -->
 	<!-- custom: note: now shared with no production fallback code hence the different name prefix in this case i mean if i'm not mistaken but anyways etc -->

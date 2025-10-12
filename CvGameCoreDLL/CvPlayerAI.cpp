@@ -12313,14 +12313,14 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		static const BonusTypes B_CAMEL  = (BonusTypes)GC.getInfoTypeForString("BONUS_CAMEL");
 		static const BonusTypes B_ELEPHANTS  = (BonusTypes)GC.getInfoTypeForString("BONUS_ELEPHANTS");
 
-		const bool haveIron   = (B_IRON   != NO_BONUS && getNumAvailableBonuses(B_IRON)   > 0);
-		const bool haveCopper = (B_COPPER != NO_BONUS && getNumAvailableBonuses(B_COPPER) > 0);
-		const bool haveHorse  = (B_HORSE  != NO_BONUS && getNumAvailableBonuses(B_HORSE)  > 0);
-		const bool haveCamel  = (B_CAMEL  != NO_BONUS && getNumAvailableBonuses(B_CAMEL)  > 0);
-		const bool haveElephants = (B_ELEPHANTS != NO_BONUS && getNumAvailableBonuses(B_ELEPHANTS) > 0);
+		const bool bHaveIron   = (B_IRON   != NO_BONUS && getNumAvailableBonuses(B_IRON)   > 0);
+		const bool bHaveCopper = (B_COPPER != NO_BONUS && getNumAvailableBonuses(B_COPPER) > 0);
+		const bool bHaveHorse  = (B_HORSE  != NO_BONUS && getNumAvailableBonuses(B_HORSE)  > 0);
+		const bool bHaveCamel  = (B_CAMEL  != NO_BONUS && getNumAvailableBonuses(B_CAMEL)  > 0);
+		const bool bHaveElephants = (B_ELEPHANTS != NO_BONUS && getNumAvailableBonuses(B_ELEPHANTS) > 0);
 
-		const bool haveAnyMetal  = (haveIron || haveCopper);
-		const bool haveAnyMount  = (haveHorse || haveCamel);
+		const bool bHaveAnyMetal  = (bHaveIron || bHaveCopper);
+		const bool bHaveAnyMount  = (bHaveHorse || bHaveCamel);
 
 		const int iCurrentEra = getCurrentEra();
 		// <!-- custom: as of now eras are (see xml for details or/and updated version anyways etc -->
@@ -12354,11 +12354,11 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 			static const int PREMED_NO_METAL_PCT                    = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_PREMED_NO_METAL_PCT");
 
 			if ((eBonus == B_HORSE || eBonus == B_CAMEL || eBonus == B_ELEPHANTS) &&
-				!haveHorse && !haveCamel && !haveElephants)
+				!bHaveHorse && !bHaveCamel && !bHaveElephants)
 			{
 				pct = PREMED_NO_MOUNT_PCT; // “no mounts at all” → mounts 1.5x
 			}
-			else if ((eBonus == B_IRON || eBonus == B_COPPER) && !haveAnyMetal)
+			else if ((eBonus == B_IRON || eBonus == B_COPPER) && !bHaveAnyMetal)
 			{
 				pct = PREMED_NO_METAL_PCT; // “no metals” → metals 1.5x
 			}
@@ -12375,15 +12375,15 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 			static const int MED_NO_METAL_NO_MOUNT_COPPER_PCT       = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_NO_MOUNT_COPPER_PCT");
 
 			// If we lack mounts
-			if ((eBonus == B_HORSE || eBonus == B_CAMEL) && !haveHorse && !haveCamel)
+			if ((eBonus == B_HORSE || eBonus == B_CAMEL) && !bHaveHorse && !bHaveCamel)
 			{
-				pct = haveAnyMetal ? MED_NO_MOUNT_WITH_METAL_PCT   // 2.0x (Knights attractive)
+				pct = bHaveAnyMetal ? MED_NO_MOUNT_WITH_METAL_PCT   // 2.0x (Knights attractive)
 								: MED_NO_MOUNT_NO_METAL_PCT;   // 0.75x (no metals ⇒ Knights blocked)
 			}
 			// If we lack metals
-			else if (!haveAnyMetal && (eBonus == B_IRON || eBonus == B_COPPER))
+			else if (!bHaveAnyMetal && (eBonus == B_IRON || eBonus == B_COPPER))
 			{
-				if (haveAnyMount) // mounts present ⇒ push Iron, discount Copper
+				if (bHaveAnyMount) // mounts present ⇒ push Iron, discount Copper
 				{
 					pct = (eBonus == B_IRON ? MED_NO_METAL_WITH_MOUNT_IRON_PCT
 											: MED_NO_METAL_WITH_MOUNT_COPPER_PCT);
@@ -12421,15 +12421,15 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 			static const int REN_NO_IRON_NO_MOUNT_IRON_PCT = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_IRON_NO_MOUNT_IRON_PCT");
 
 			// If we lack mounts, modest push only when IRON present
-			if ((eBonus == B_HORSE || eBonus == B_CAMEL) && !haveHorse && !haveCamel)
+			if ((eBonus == B_HORSE || eBonus == B_CAMEL) && !bHaveHorse && !bHaveCamel)
 			{
-				pct = haveIron ? REN_NO_MOUNT_WITH_IRON_PCT
+				pct = bHaveIron ? REN_NO_MOUNT_WITH_IRON_PCT
 							: REN_NO_MOUNT_NO_IRON_PCT;
 			}
 			// If we lack IRON, still push Iron even without mounts (Cannons etc.)
-			else if (!haveIron && eBonus == B_IRON)
+			else if (!bHaveIron && eBonus == B_IRON)
 			{
-				pct = haveAnyMount ? REN_NO_IRON_WITH_MOUNT_IRON_PCT
+				pct = bHaveAnyMount ? REN_NO_IRON_WITH_MOUNT_IRON_PCT
 								: REN_NO_IRON_NO_MOUNT_IRON_PCT;
 			}
 
@@ -12452,12 +12452,12 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 			static const int MOD_PLUS_HORSE_ANY_PCT                 = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MOD_PLUS_HORSE_PCT");
 
 			// Camel fades after Industrial
-			if (eBonus == B_CAMEL && !haveCamel)
+			if (eBonus == B_CAMEL && !bHaveCamel)
 			{
 				pct = IND_PLUS_CAMEL_ANY_PCT;
 			}
 			// Horse: OK in Industrial (Cavalry), but fades by Modern+
-			else if (eBonus == B_HORSE && !haveHorse)
+			else if (eBonus == B_HORSE && !bHaveHorse)
 			{
 				pct = (isModernPlus ? MOD_PLUS_HORSE_ANY_PCT : IND_HORSE_BASE_PCT);
 			}

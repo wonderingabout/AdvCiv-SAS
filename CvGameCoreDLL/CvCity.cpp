@@ -573,9 +573,9 @@ void CvCity::doTurn()
 	// --- BEGIN: hard safety net for AI production ---
 	// <!-- custom: we now successfully always avoid the no production, and other cities don't fall back to our fall back if they have a valid production -->
 	// <!-- custom: note: chatgpt 5 recommends adding !isDisorder() / !isOccupation() to quote it xd but anyways etc, as for me i didn't add them for simplicity and as long as works and for reliability in case these cause other issues or not or yes or etc but anyways etc, but if you or me or such notice issues consider adding one or both of these in this case i mean but anyways etc -->
-	static const bool bNoProductionForceFallbackUnitInstead = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD");
+	static const bool bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD");
 
-	if (!isHuman() && bNoProductionForceFallbackUnitInstead)
+	if (!isHuman() && bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD)
 	{
 		// <!-- custom: previous issue was: if a city fell once in no production and this was avoided by our fallback here, then it will never ever exit the fallback loop, despite having only 1 unit currently built in queue, and the other cities doing fine (building granaries, settlers, scouts, barracks, anything it seems) but not our city that fell into the fallback and seemingly can't get out of it at next production (at least in next 20 turns anyways etc), trying to change the bNeedFallback to prevent that, while keeping effectiveness of the fallback otherwise anyways etc; result: very effective! No more no production still, and japan ai gets out of the fallback successfully switching to a settler a few turns later thanks a lot chatgpt 5 anyways etc -->
 		//const bool bNeedFallback = !isProduction();
@@ -643,19 +643,17 @@ void CvCity::doTurn()
 			static const int iEraRenaissance = 3;
 			const bool bEraRenaissanceOrAfter = (iCurrentEra >= iEraRenaissance);
 
-			static const bool bNoProductionForceFallbackUnitInsteadInflateCivSpecificUnit = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_INFLATE_CIV_SPECIFIC_UNIT");
-			static const bool bNoProductionForceFallbackUnitInsteadInflateCivSpecificUnitAnyOtherUnitDefaultAIUnit = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_INFLATE_CIV_SPECIFIC_ANY_OTHER_DEFAULT_UNITAI_UNIT");
+			static const bool bSAS_InflateCivSpecificUnit = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_INFLATE_CIV_SPECIFIC_UNIT");
+			static const bool bSAS_InflateCivSpecificUnitAnyOtherUnitDefaultAIUnit = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_INFLATE_CIV_SPECIFIC_ANY_OTHER_DEFAULT_UNITAI_UNIT");
 
-			static const bool bNoProductionForceFallbackUnitInsteadOffenseDefaultUnitAIsOnly = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OFFENSE_DEFAULT_UNITAIS_ONLY");
-			static const bool bNoProductionForceFallbackUnitInsteadDefenseDefaultUnitAIsOnly = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_DEFENSE_DEFAULT_UNITAIS_ONLY");
+			static const bool bSAS_OffenseDefaultUnitAIsOnly = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OFFENSE_DEFAULT_UNITAIS_ONLY");
+			static const bool bSAS_DefenseDefaultUnitAIsOnly = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_DEFENSE_DEFAULT_UNITAIS_ONLY");
 
 			// <!-- custom: untested but recommended to add by chatgpt 5 which i think is good too (if i were to use them xd but check if accurate too anyways etc) -->
 			// Defines priority sanity (optional but recommended)
 			// If someone sets both “offense only” and “defense only”, your if/else if currently makes offense win silently. Add a guard once near the defines:
-			FAssertMsg(!(bNoProductionForceFallbackUnitInsteadOffenseDefaultUnitAIsOnly && bNoProductionForceFallbackUnitInsteadDefenseDefaultUnitAIsOnly),
+			FAssertMsg(!(bSAS_OffenseDefaultUnitAIsOnly && bSAS_DefenseDefaultUnitAIsOnly),
 						"Both OFFENSE_ONLY and DEFENSE_ONLY are set; OFFENSE_ONLY will take precedence.");
-
-			static const int iNoProductionForceFallbackUnitInsteadPreRenaissanceSiegesAllNonTrebuchetsLikeThreshold = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_NON_TREBUCHETS_LIKE_THRESHOLD");
 
 			static const bool bNoExcessTrebuchetsLike = GC.getDefineBOOL("SAS_NO_EXCESS_TREBUCHETS_LIKE");
 
@@ -670,10 +668,36 @@ void CvCity::doTurn()
 			const bool bEnemyStrong = (iEnemyPowerPercent >= 120);
 			// <!-- custom: see/read but anyways etc code comment at CvCityAI::AI_chooseUnit corresponding code / variables' initialization for details if i may say but anyways etc -->
 
-			static const int iNoProductionForceFallbackUnitInsteadPreRenaissanceSiegesTrebuchetsLikeThreshold = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD");
-			int iCapTrebsPreRenaissance = iNoProductionForceFallbackUnitInsteadPreRenaissanceSiegesTrebuchetsLikeThreshold;
+			static const int iPRE_RENAISSANCE_SIEGES_ALL_NON_TREBUCHETS_LIKE_THRESHOLD = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_NON_TREBUCHETS_LIKE_THRESHOLD");
+			int iCapNonTrebuchetsLikeSiegesAll = iPRE_RENAISSANCE_SIEGES_ALL_NON_TREBUCHETS_LIKE_THRESHOLD;
 
-			static const int iNoProductionForceFallbackUnitInsteadPreRenaissanceSiegesTrebuchetsLikeThresholdNoWarPlanPercent = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD_NO_WAR_PLAN_PERCENT");
+			static const int iPRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD");
+			int iCapTrebsPreRenaissance = iPRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD;
+
+			static const int iPRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD_NO_WAR_PLAN_PERCENT = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD_NO_WAR_PLAN_PERCENT");
+
+			// <!-- custom: compute everything once cleanly before the loop to avoid multi counting inside the loop but anyways etc; and as chatgpt 5 confirms after asking it; check if accurate but anyways etc -->
+			if (!bEraRenaissanceOrAfter)
+			{
+				static const int iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER = GC.getDefineINT("SAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER");
+
+				const bool bHaveAnyKeyEarlyStrategicBonuses = kOwner.getNumAvailableBonusesHaveAnyKeyEarlyStrategicBonuses();
+
+				// relax both caps when we have no metals/horses/etc.
+				if (!bHaveAnyKeyEarlyStrategicBonuses)
+				{
+					iCapNonTrebuchetsLikeSiegesAll += (iCapNonTrebuchetsLikeSiegesAll * iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER) / 100;
+
+					iCapTrebsPreRenaissance += (iCapTrebsPreRenaissance * iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER) / 100;
+				}
+
+				// <!-- custom: simplified version of the AI_ChooseUnit code if i'm not mistaken in my thinking but anyways etc -->
+				// regardless of bonuses, fewer trebs if there’s no war plan
+				if (!bWarPlan)
+				{
+					iCapTrebsPreRenaissance = (iCapTrebsPreRenaissance * iPRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD_NO_WAR_PLAN_PERCENT) / 100;
+				}
+			}
 
 			static const bool bNoExcessVeryCheapMilitaryUnits = GC.getDefineBOOL("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS");
 
@@ -756,7 +780,7 @@ void CvCity::doTurn()
 						// <!-- custom: simplified non-trebuchets like (i.e. catapults only as of now anyways etc) gate -->
 						if (!bTrebuchetLike)
 						{
-							if (iSiegesAllNonTrebuchetsLike >= iNoProductionForceFallbackUnitInsteadPreRenaissanceSiegesAllNonTrebuchetsLikeThreshold)
+							if (iSiegesAllNonTrebuchetsLike >= iCapNonTrebuchetsLikeSiegesAll)
 							{
 								continue;
 							}
@@ -776,11 +800,7 @@ void CvCity::doTurn()
 								{
 									continue; // don’t add more narrow-purpose siege when not stronger
 								}
-								// <!-- custom: simplified version of the AI_ChooseUnit code if i'm not mistaken in my thinking but anyways etc -->
-								if (!bWarPlan)
-								{
-									iCapTrebsPreRenaissance = (iCapTrebsPreRenaissance * iNoProductionForceFallbackUnitInsteadPreRenaissanceSiegesTrebuchetsLikeThresholdNoWarPlanPercent) / 100;
-								}
+								// <!-- custom: note: !bWarPlan cap change computed instead before the loop to avoid multi counting but anyways etc -->
 								// <!-- custom: even if not at war, if our enemy is already stronger, don't attempt to build trebuchets that will most likely be useless as enemy will get even stronger over time and we'll be more vulnerable with non versatile or not enough defender units anyways etc -->
 								if (bEnemyStrong)
 								{
@@ -873,7 +893,7 @@ void CvCity::doTurn()
 
 				int iLoopScore = iLoopXMLCost;
 
-				if (bNoProductionForceFallbackUnitInsteadInflateCivSpecificUnit)
+				if (bSAS_InflateCivSpecificUnit)
 				{
 					// <!-- custom: inflate artificially the civ-specific unit assuming it is best (war chariot is as of now anyways etc 5 str for 30 hammer, vs 6 str for 50 hammaer for a horse archer! The horse archer is much more efficient, but we can't judge on str alone, as some units have some nice perks like withdraw chance, etc. Simplest way is to assume civ-specific unit is best choice if available, at least a much stronger one than cost would lead on, else fix our XML to make them strong enough to justify being picked by AI but anyways etc) -->
 					// prefer the civilization's unique unit (war chariot over horse archer, etc.)
@@ -889,7 +909,7 @@ void CvCity::doTurn()
 						// <!-- custom: added a +1 tie breaker if both the best generic unit (e.g. if catapults were allowed so 50 hammer vs a civ-specific archer costing 25 hammer if there was any in our mod anyways etc), we'd now have 51 vs 50 hammer so we win with our civ-specific unit anyways etc -->
 						// treat it as ~100% "more valuable" than its raw cost so cheap UUs still win ties
 						// <!-- custom: counter civ-specific (e.g. maya holkan, etc) units are less likely to be useful for offense, so do not especially favour them anyways etc -->
-						if (bNoProductionForceFallbackUnitInsteadInflateCivSpecificUnitAnyOtherUnitDefaultAIUnit || (eLoopDefaultUnitAI != UNITAI_COUNTER))
+						if (bSAS_InflateCivSpecificUnitAnyOtherUnitDefaultAIUnit || (eLoopDefaultUnitAI != UNITAI_COUNTER))
 						{
 							iLoopScore = (2 * iLoopScore) + 1;
 						}
@@ -911,7 +931,7 @@ void CvCity::doTurn()
 						eBestFallbackOverallUnitUnitAI = eLoopDefaultUnitAI;
 					}
 
-					if (bNoProductionForceFallbackUnitInsteadOffenseDefaultUnitAIsOnly)
+					if (bSAS_OffenseDefaultUnitAIsOnly)
 					{
 						if (bOffenseDefaultUnitAI)
 						{
@@ -926,7 +946,7 @@ void CvCity::doTurn()
 							}
 						}
 					}
-					else if (bNoProductionForceFallbackUnitInsteadDefenseDefaultUnitAIsOnly)
+					else if (bSAS_DefenseDefaultUnitAIsOnly)
 					{
 						if (bDefenseDefaultUnitAI)
 						{
@@ -960,7 +980,7 @@ void CvCity::doTurn()
 			UnitTypes   ePick = NO_UNIT;
 			UnitAITypes ePickAI = NO_UNITAI;
 
-			if (bNoProductionForceFallbackUnitInsteadOffenseDefaultUnitAIsOnly)
+			if (bSAS_OffenseDefaultUnitAIsOnly)
 			{
 				if (eBestFallbackOffenseUnit != NO_UNIT && eBestFallbackOffenseUnitUnitAI != NO_UNITAI)
 				{
@@ -968,7 +988,7 @@ void CvCity::doTurn()
 					ePickAI = eBestFallbackOffenseUnitUnitAI;
 				}
 			}
-			else if (bNoProductionForceFallbackUnitInsteadDefenseDefaultUnitAIsOnly)
+			else if (bSAS_DefenseDefaultUnitAIsOnly)
 			{
 				if (eBestFallbackDefenseUnit != NO_UNIT && eBestFallbackDefenseUnitUnitAI != NO_UNITAI)
 				{
