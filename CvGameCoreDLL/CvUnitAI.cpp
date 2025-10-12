@@ -19025,18 +19025,34 @@ bool CvUnitAI::AI_improveLocalPlot(int iRange, CvCity const* pIgnoreCity,
 		int iPathTurns;
 		if (generatePath(p, NO_MOVEMENT_FLAGS, true, &iPathTurns))
 		{
-			int iMaxWorkers = 1;
 			if (at(p))
 			{
 				iValue *= 3;
 				iValue /= 2;
 			}
 			else if (getPathFinder().getFinalMoves() == 0)
+			{
 				iPathTurns++;
-			else if (iPathTurns <= 1)
-				iMaxWorkers = AI_calculatePlotWorkersNeeded(p, pCity->AI_getBestBuild(ePlot));
-			if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(p, MISSIONAI_BUILD, getGroup(),
-				/*<advc.opt>*/0, iMaxWorkers/*</advc.opt>*/) < iMaxWorkers)
+			}
+			// <!-- custom: switch to strict 1 worker per tile for simplicity and efficiency if i'm not mistaken but anyways etc -->
+			// else if (iPathTurns <= 1)
+			// {
+			// 	iMaxWorkers = AI_calculatePlotWorkersNeeded(p, pCity->AI_getBestBuild(ePlot));
+			// }
+			// if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(p, MISSIONAI_BUILD, getGroup(),
+			// 	/*<advc.opt>*/0, iMaxWorkers/*</advc.opt>*/) < iMaxWorkers)
+			//
+			// <!-- custom: chatgpt 5 explanation of this code to help me make sense of this, check to be sure it is accurate or not accurate, hopefully informative as well for me or and others or not or yes or etc but anyways etc -->
+			// It’s not a distance limit for how far the worker can travel. It only affects reservation counting.
+			// AI_plotTargetMissionAIs(plot, …, iRange, …) counts other groups whose mission plot is within iRange tiles of plot.
+			// With iRange = 0, it only counts groups whose target is exactly the same tile.
+			// → Perfect for “one-per-tile”; it doesn’t stop you from going far. It just prevents 2 workers picking the same tile.
+			// If you set iRange = 1 or 2, you create a “soft exclusion bubble” around the target—useful if you wanted to avoid crowding adjacent tiles (I don’t think you want that).
+			int const iRange = 0;
+			// <!-- custom: note: as a side effect of now having 1 AI worker per tile, they are harder to capture and no risk of losing a big worker stack, so i believe this is nice all in all of a change, not just for AI efficiency anymore if i am not mistaken but anyways etc. -->
+			int const iMaxWorkers = 1;
+			 if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(p, MISSIONAI_BUILD, getGroup(),
+			 	/*<advc.opt>*/iRange, iMaxWorkers/*</advc.opt>*/) < iMaxWorkers)
 			{
 				iValue *= 1000;
 				iValue /= 1 + iPathTurns;
@@ -19162,10 +19178,21 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
     // NEW: track best score instead of 'break on first'
     int bestScore = MIN_INT;
 
+	// <!-- custom: try to improve our current city but anyways etc if no other city is good rather than bailing entirely, at least we'd be using our workers rather than them doing nothing at all, if i'm not mistaken but anyways etc -->
+	// yup, that plan is clean: don’t recurse; while scanning cities, also test your current city and stash a “self candidate.” If nothing else wins, fall back to that. Below is a tiny drop-in that reuses the exact same guards you already use (bestBuild gate → 1-per-tile reservation → pathable), plus a final sanity check before pushing missions.
+	// Minimal patch
+	// 1. Add these locals before the FOR_EACH_CITYAI loop:
+	CvPlot*   pSelfPlot   = NULL;
+	BuildTypes eSelfBuild  = NO_BUILD;
+	bool      bSelfImprovable = false;
+
     FOR_EACH_CITYAI(pLoopCity, kOwner)
     {
-        if (pLoopCity == pCity) // don’t pick current city A
-            continue;
+		// Minimal patch
+		// 2. Inside the loop, remove the early continue on the current city and handle it inline. Replace:
+        // if (pLoopCity == pCity) // don’t pick current city A
+        //     continue;
+		bool const bIsSelf = (pLoopCity == pCity);
 
         // land workers stick to same land area (keeps it sane)
         if (!pLoopCity->isArea(getArea()))
@@ -19207,6 +19234,17 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
         // eBestBuild = eBuild;
         // pBestPlot = pPlot;
         // break;
+
+		// Minimal patch
+		// 3. Keep your existing candidate checks (AI_getBestBuild / AI_bestCityBuild / null guards / reservation / path). After those checks pass, do this:
+		if (bIsSelf)
+		{
+			// Store a “self” candidate for later fallback; don’t compete in scoring here.
+			bSelfImprovable = true;
+			pSelfPlot  = pPlot;
+			eSelfBuild = eBuild;
+			continue; // still let the loop look for better (other-city) jobs
+		}
 
         // --- NEW: compute a simple score ---
         int score = 1000;
@@ -19263,9 +19301,20 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 	if (NULL != pBestPlot->getWorkingCity())
 		pBestPlot->getWorkingCity()->AI_changeWorkersHave(+1);*/
 
-	// <!-- custom: doing a more exhaustive best plot check again to be sure, doesn't solve rare crash at turn 156 but still a bit more robust anyways etc -->
+	// // <!-- custom: doing a more exhaustive best plot check again to be sure, doesn't solve rare crash at turn 156 but still a bit more robust anyways etc -->
+	// if (pBestPlot == NULL || eBestBuild == NO_BUILD)
+	// 	return false;
+	// <!-- custom: add in addition to this sanity check if i'm not mistaken but anyways etc a new extra logic to try to improve our city if we have no other city to improve at all, better than doing nothing and bailing, in this case i mean but anyways etc, code by chatgpt 5, check if accurate but anyways etc -->
+	// Minimal patch
+	// 4. Fallback to the stored “self” candidate if no other-city target was found:
+	if ((pBestPlot == NULL || eBestBuild == NO_BUILD) && bSelfImprovable)
+	{
+		pBestPlot  = pSelfPlot;
+		eBestBuild = eSelfBuild;
+	}
 	if (pBestPlot == NULL || eBestBuild == NO_BUILD)
 		return false;
+
 	// <!-- custom: i want to see if just the first new guard is enough and not the second new guard, if you have an error consider enabling the 2nd guard anyways etc -->
 	// re-validate in case something changed just now
 	// if (!canBuild(*pBestPlot, eBestBuild))
@@ -19720,18 +19769,33 @@ bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anywa
 		if(kOwner.getNumTradeableBonuses(eNonObsoleteBonus) == 0)
 			iValue *= 2;
 
-		int iMaxWorkers = 1;
-		if (eBestTempBuild != NO_BUILD && !GC.getInfo(eBestTempBuild).isKill())
-		{ //allow teaming.
-			iMaxWorkers = AI_calculatePlotWorkersNeeded(kPlot, eBestTempBuild);
-			if (getPathFinder().getFinalMoves() == 0)
-			{
-				iMaxWorkers = std::min((iMaxWorkers + 1) / 2,
-						1 + kOwner.AI_baseBonusVal(eNonObsoleteBonus) / 20);
-			}
-		}
+		// <!-- custom: switch to strict 1 worker per tile for simplicity and efficiency if i'm not mistaken but anyways etc -->
+		// int iMaxWorkers = 1;
+		// if (eBestTempBuild != NO_BUILD && !GC.getInfo(eBestTempBuild).isKill())
+		// { //allow teaming.
+		// 	iMaxWorkers = AI_calculatePlotWorkersNeeded(kPlot, eBestTempBuild);
+		// 	if (getPathFinder().getFinalMoves() == 0)
+		// 	{
+		// 		iMaxWorkers = std::min((iMaxWorkers + 1) / 2,
+		// 				1 + kOwner.AI_baseBonusVal(eNonObsoleteBonus) / 20);
+		// 	}
+		// }
+		// if (kOwner.AI_plotTargetMissionAIs(kPlot, MISSIONAI_BUILD, getGroup(),
+		// 	/*<advc.opt>*/0, iMaxWorkers/*</advc.opt>*/) < iMaxWorkers &&
+		// 	(!bDoImprove || kPlot.getBuildTurnsLeft(eBestTempBuild,
+		// 	/* advc.251: */ kOwner.getID(), 0, 0) > iPathTurns * 2 - 1))
+		//
+		// <!-- custom: chatgpt 5 explanation of this code to help me make sense of this, check to be sure it is accurate or not accurate, hopefully informative as well for me or and others or not or yes or etc but anyways etc -->
+		// It’s not a distance limit for how far the worker can travel. It only affects reservation counting.
+		// AI_plotTargetMissionAIs(plot, …, iRange, …) counts other groups whose mission plot is within iRange tiles of plot.
+		// With iRange = 0, it only counts groups whose target is exactly the same tile.
+		// → Perfect for “one-per-tile”; it doesn’t stop you from going far. It just prevents 2 workers picking the same tile.
+		// If you set iRange = 1 or 2, you create a “soft exclusion bubble” around the target—useful if you wanted to avoid crowding adjacent tiles (I don’t think you want that).
+		int const iRange = 0;
+		// <!-- custom: note: as a side effect of now having 1 AI worker per tile, they are harder to capture and no risk of losing a big worker stack, so i believe this is nice all in all of a change, not just for AI efficiency anymore if i am not mistaken but anyways etc. -->
+		int const iMaxWorkers = 1;
 		if (kOwner.AI_plotTargetMissionAIs(kPlot, MISSIONAI_BUILD, getGroup(),
-			/*<advc.opt>*/0, iMaxWorkers/*</advc.opt>*/) < iMaxWorkers &&
+			/*<advc.opt>*/iRange, iMaxWorkers/*</advc.opt>*/) < iMaxWorkers &&
 			(!bDoImprove || kPlot.getBuildTurnsLeft(eBestTempBuild,
 			/* advc.251: */ kOwner.getID(), 0, 0) > iPathTurns * 2 - 1))
 		{
