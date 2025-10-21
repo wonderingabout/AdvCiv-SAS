@@ -38,6 +38,21 @@
 
 
 
+	<!-- custom: allow the option for settlers to found their city on peak if enabled (set to 1), or does not allow it if disabled (set to 0). -->
+	<!-- custom: Note: this requires that you modify the UNITCLASS_SETTLER unit(s)' XML's bCanMoveImpassable field to 1 so that they can walk on peak tiles, else even if they can found on peak, it's useless if they can't eve walk there. So if you want to allow settlers to settle on peak, both first allow them in unitinfo xml to walk on such tiles as explained here, and additionally also set the below define to enabled to allow them to found a city on this peak tile. -->
+	<!-- custom: note: see also SAS_EVALUATE_VALUE_HOME_IMPASSABLE defines anyways etc -->
+	<Define>
+		<DefineName>SAS_CAN_FOUND_ON_IMPASSABLE_PEAK</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: same but for ice cap (i.e. as of now ice feature anyways etc). I find it less likely that cities could propser there so i'd tend to disable it even if settling on peak were allowed but do as you prefer i mean the otpion is there for that in this case i mean but anyways etc -->
+	<Define>
+		<DefineName>SAS_CAN_FOUND_ON_IMPASSABLE_ICE_CAP</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: beware: AIFoundValue::evaluate returns a short not an int, so value can only up to 32 000 to -32 000 before overflowing, what this means is try to not put too extreme value changes. Although i think we compute in int and only at the end cast to short so maybe safe although i don't know a lot about these, still keep it in mind when using extremely high values that risk going beyond said scope (more than +32 000 or less than -32 000 total site value more or less anyways etc); ideally function would be changed so it would return an int instead to grow much larger (and according to chatgpt 5 if i remember it correctly but anyways etc may be even faster with int actually possibly due to it being optiized for such but check if accurate and i could or not be mistaken and is just a hypothesis but may be right or not but anyways etc) but is how it is i mean, there should be plenty room hopefully as long as valuation and devaluation is not extreme (try to not increase more than few thousands max, as other parts fo the function also change the value anyways etc.) -->
 
 	<!-- custom: these are the very bad tiles management knobs/tunables in AIFoundValue::evaluate function. Tweaking these allows to change the code we added that tells AI how very bad tiles are valued. Changing it will (at least should but anyways etc) change AI settling preferences and recommended sites in UI as well if i'm not mistaken anyways etc. Are accounted as very bad tiles (check if not updated in code anyways etc), in BFC (excluding home plot (i.e. plot where we settle/found/plant our city anyways etc)):
@@ -187,7 +202,16 @@
 		<DefineName>SAS_EVALUATE_VALUE_HOME_FLATLAND_SNOW</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
-
+	<!-- custom: add impassable home plot valuation in case sas defines that allow settlers to found there are enabled, see code comments at such defines for details anyways etc. Note: we don't check if settlers can actually walk there via bCanMoveImpassable (if i'm not mistaken but anyways etc) to save computation and simplify logic. Make sure settlers can walk there else even if they can found cities on impassable, it's useless if/since they can't walk there without the move impassable field enabled as well. Plus, enable it for all xml units (at the ones you want) so that cities are actually capturable (else almost units would be incapable to attack a city on peak xd but anyways etc) (you can use vs code find a replace to do it in batch very quick if i'm not mistaken too for example i mean if i may say but anyways etc) -->
+	<!-- custom: even nicer than flatland snow or such, value it even more anyways etc -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_IMPASSABLE_PEAK_IF_CAN_FOUND_THERE</DefineName>
+		<iDefineIntVal>75</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_IMPASSABLE_ICE_CAP_IF_CAN_FOUND_THERE</DefineName>
+		<iDefineIntVal>75</iDefineIntVal>
+	</Define>
 
 
 	<!-- custom: AI still often / quite often ignores water bonus in range and settles as a non-coastal city rather, so try to enforce or strengthen this bonus, especially considering water bonuses are often if not entirely food yield related in advciv-sas at least but anyways etc -->

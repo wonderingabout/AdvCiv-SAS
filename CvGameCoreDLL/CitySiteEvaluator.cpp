@@ -392,7 +392,15 @@ short AIFoundValue::evaluate()
 	int iTileCountPeak = 0;
 	// <!-- custom: these are also bad as they don't yield anything so same as peak, we should definitely count them to help choose better/optimal or at least ebtter / more optimal sites if i may say but anyways etc -->
 	int iTileCountIceCap = 0;
+
+	// <!-- custom: store for each p (before it is a plot (if i am not mistaken, is just a vague guess of mine i mean if i may say but anyways etc that p are broader than plots, check to be sure but anyways etc)) the info of home plot being impassable or not, so that we don't rewrite all just in case it causes issues (again is just a guess, check if accurate anyways etc). I am not sure as i didn't check, but i suspect impassable are not processed too late in the plot loop as of now below but anyways etc, so storing it early on and processing the value a bit later in the loop just to be safe and avoid extensive rewrites but anyways etc (it may not be needed but is just to be safe but anyways etc) -->
+	bool bHomePImpassablePeak = false;
+	bool bHomePImpassableIceCap = false;
+	int iHomePlotImpassable = 0;
 	// <!-- custom: excluding flood plains, oasis, and as of now hill desert as even that yields something unlike "naked" desert if i may say but anyways etc that is really bad and should strongly be ignored without overdoing it if site is otherwise good if i'm not mistaken but anyways etc. Since these tiles are so bad and worse than coast that yields things and food, ignore them extra more. Attempts to address known issue as of now 26.2 of AI not going for a nearby site better in all regards with less desert and more hill grassland if i am not mistaken anyways etc -->
+	static bool const bSAS_CAN_FOUND_ON_IMPASSABLE_PEAK = GC.getDefineBOOL("SAS_CAN_FOUND_ON_IMPASSABLE_PEAK");
+	static bool const bSAS_CAN_FOUND_ON_IMPASSABLE_ICE_CAP = GC.getDefineBOOL("SAS_CAN_FOUND_ON_IMPASSABLE_ICE_CAP");
+
 	int iTileCountVeryBadDesertNoBonus = 0;
 	// <!-- custom: again worse than tundra as has no food and no meaningful improvement if i'm not mistaken but anyways etc; if it's a hill we can still mine or windmill it if i'm not mistaken, but i don't think we can improve snow tiles (although didn't check in detail anyways etc), and even if we could/can, the food penalty on these tiles is really high if i'm not mistaken but anyways etc. We could count 0 food tiles that are not hills, but maybe do as such for clarity or/and such although is less flexible but maybe fine as such anyways etc. We need to count these tiles and deter founding there if there are too much and no other conditions are met if i am not mistaken but anyways etc -->
 	int iTileCountVeryBadSnowNoBonus = 0;
@@ -510,6 +518,9 @@ short AIFoundValue::evaluate()
 	static const int iValueHomeHillSnow = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_HILL_SNOW");
 	static const int iValueHomeFlatlandSnow = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_FLATLAND_SNOW");
 
+	static const int iValueHomeImpassablePeak = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_IMPASSABLE_PEAK_IF_CAN_FOUND_THERE");
+	static const int iValueHomeImpassableIceCap = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_IMPASSABLE_ICE_CAP_IF_CAN_FOUND_THERE");
+
 	static const int iValueHomeWaterBonusNoCoast = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_WATER_BONUS_NO_COAST");
 
 	static const int iExtraValueNotHomeAIObjectiveBonusExtraValueMultiplier = GC.getDefineINT("SAS_EVALUATE_EXTRA_VALUE_NOT_HOME_BONUS_IAIOBJECTIVE_MULTIPLIER");
@@ -529,6 +540,11 @@ short AIFoundValue::evaluate()
 
 	FOR_EACH_ENUM(CityPlot)
 	{
+		// <!-- custom: reset previous values anyways etc -->
+		bHomePImpassablePeak = false;
+		bHomePImpassableIceCap = false;
+		iHomePlotImpassable = 0;
+
 		// <!-- custom: refactor below and adding our new logic(s? But anyways etc) anyways etc -->
 		// <advc.031>
 		// CvPlot const* pLoopPlot = plotCity(iX, iY, eLoopCityPlot);
@@ -603,6 +619,15 @@ short AIFoundValue::evaluate()
 					// {
 					// 	++iTileCountWaterNoBonus;
 					// }
+
+					if (pLoopPlotIsPeak)
+					{
+						bHomePImpassablePeak = true;
+					}
+					else if (eFeaturePlot == eFeatureIce)
+					{
+						bHomePImpassableIceCap = true;
+					}
 				}
 
 				// <!-- custom: low-food environment logic detection, as of now used to prioritize food settling/planting/founding cities on coastal locations if environment is poor to make best of yields rather than starve soon (and/or dicentivize not doing so maybe too anyways etc); note: this is a bit simplified as current plains or tundra or such location could have a lot of wheat and tundra -->
@@ -955,6 +980,15 @@ short AIFoundValue::evaluate()
 						iValue += iValueHomeFlatlandSnow;
 					}
 				}
+				// <!-- custom: add impassable home plot valuation in case sas defines that allow settlers to found there are enabled, see code comments at such defines for details anyways etc -->
+				else if (bHomePImpassablePeak && bSAS_CAN_FOUND_ON_IMPASSABLE_PEAK)
+				{
+					iValue += iValueHomeImpassablePeak;
+				}
+				else if (bHomePImpassableIceCap && bSAS_CAN_FOUND_ON_IMPASSABLE_ICE_CAP)
+				{
+					iValue += iValueHomeImpassableIceCap;
+				}
 			}
 		}
 		else
@@ -1175,7 +1209,16 @@ short AIFoundValue::evaluate()
 	// <!-- custom: regardless of start phase, some tiles are very bad (can't be improved at all, worse that coast ro such that give food and gold at least), but don't overdo it for non-capital i.e. starting sites if i'm not mistaken but anyways etc, as we could easily maybe throw off the computation of the overall site and reject an otherwise nice one, so take it into account but more midly in that case, especially considering we already added compute in our mod to compute these i think in this function but anyways etc -->
 	// <!-- custom: peak in non home plot devalue local plot anyways etc, is as of now not workable, not walkable for most units, and has no yield, so better avoid if possible anyways etc but not too strongly may skew iValue too much for an otherwise good site anyways etc -->
 	// <!-- custom: update: also count very bad desert and very bad snow, the more we the worse, but giving a small leeway if site is otherwise great to not dismiss it or devalue it needlessl,y as we don't need all tiles to be good especially early at low pop, but if enough are bad, start to take it into accoutn and icnrementally for all very bad tiles so if i may say but anyways etc -->
-	const int iTotalVeryBadTiles = iTileCountPeak + iTileCountIceCap + iTileCountVeryBadDesertNoBonus + iTileCountVeryBadSnowNoBonus;
+	// <!-- custom: update 2: remove from count home plots that are peak and impassable as we will found on them so they are not bad anymore anyways etc -->
+	if (bHomePImpassablePeak && bSAS_CAN_FOUND_ON_IMPASSABLE_PEAK)
+	{
+		++iHomePlotImpassable;
+	}
+	else if (bHomePImpassableIceCap && bSAS_CAN_FOUND_ON_IMPASSABLE_ICE_CAP)
+	{
+		++iHomePlotImpassable;
+	}
+	const int iTotalVeryBadTiles = iTileCountPeak + iTileCountIceCap + iTileCountVeryBadDesertNoBonus + iTileCountVeryBadSnowNoBonus - iHomePlotImpassable;
 
 	if (bStartPhase)
 	{

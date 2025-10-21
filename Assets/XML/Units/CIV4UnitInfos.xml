@@ -779,7 +779,8 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple 
 			<bFirstStrikeImmune>0</bFirstStrikeImmune>
 			<bNoDefensiveBonus>0</bNoDefensiveBonus>
 			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
-			<bCanMoveImpassable>0</bCanMoveImpassable>
+			<!-- custom: note: set this to 1 (and same in all other UNITCLASS_SETTLER units if you have any other such as in mod mods or such but anwyays etc) as explained in SAS_CAN_FOUND_ON_IMPASSABLE code comment in order to allow settlers to walk on peak tiles so that they can settle there if the sas define to allow so is enalbed as well (i think they'd be able to walk on ice cap too although not as significant since we don't allow them to settle there i think but anyways etc but anyways etc) -->
+			<bCanMoveImpassable>1</bCanMoveImpassable>
 			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
 			<bFlatMovementCost>0</bFlatMovementCost>
 			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>

@@ -5697,8 +5697,33 @@ bool CvPlot::canFound(bool bTestVisible,
 	Maybe not never ever; e.g. impassable status could change in mods. */
 bool CvPlot::canEverFound() const
 {
+	// <!-- custom: allow settling on peak, fun in itself, but provide a define option for players so they can tweak it as they prefer anyways etc -->
+	bool bCanFoundOnThisImpassable = false;
 	if (isImpassable())
-		return false;
+	{
+		if (isPeak())
+		{
+			static bool const bSAS_CAN_FOUND_ON_IMPASSABLE_PEAK = GC.getDefineBOOL("SAS_CAN_FOUND_ON_IMPASSABLE_PEAK");
+			if (bSAS_CAN_FOUND_ON_IMPASSABLE_PEAK)
+			{
+				bCanFoundOnThisImpassable = true;
+			}
+		}
+		// <!-- custom: ice cap is the only one left if i am not mistaken but anyways etc -->
+		else
+		{
+			static bool const bSAS_CAN_FOUND_ON_IMPASSABLE_ICE_CAP = GC.getDefineBOOL("SAS_CAN_FOUND_ON_IMPASSABLE_ICE_CAP");
+			if (bSAS_CAN_FOUND_ON_IMPASSABLE_ICE_CAP)
+			{
+				bCanFoundOnThisImpassable = true;
+			}
+		}
+
+		if (!bCanFoundOnThisImpassable)
+		{
+			return false;
+		}
+	}
 	// advc.opt: Water check moved up
 	/*  UNOFFICIAL_PATCH, Bugfix, 02/16/10, EmperorFool & jdog5000:
 		(canFoundCitiesOnWater callback handling was incorrect and ignored isWater() if it returned true) */
