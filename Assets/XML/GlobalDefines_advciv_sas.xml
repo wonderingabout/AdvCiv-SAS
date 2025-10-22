@@ -43,7 +43,7 @@
 	<!-- custom: these are the very bad tiles management knobs/tunables in AIFoundValue::evaluate function. Tweaking these allows to change the code we added that tells AI how very bad tiles are valued. Changing it will (at least should but anyways etc) change AI settling preferences and recommended sites in UI as well if i'm not mistaken anyways etc. Are accounted as very bad tiles (check if not updated in code anyways etc), in BFC (excluding home plot (i.e. plot where we settle/found/plant our city anyways etc)):
 		- peak tiles
 		- ice cap tiles
-		- desert tiles that are not hill and have no bonus
+		- desert tiles that are not hill and have no bonus, and that are not floodplains nor oasis
 		- snow (i.e. ice sheet) tiles that are not hill and have no bonus
 	Start phase is before our first city is planted/settled/founded but anyways etc.
 	Note: these max tolerated tiles defines are checked with a >, not >=, so if you choose a value for example of 3, it means 4+ triggers the effect anyways etc

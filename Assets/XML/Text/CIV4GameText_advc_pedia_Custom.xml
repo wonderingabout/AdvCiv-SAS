@@ -194,6 +194,6 @@ hopefully more readable or exportable if need/want be now -->
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE_ICE</Tag>
-		<English>Cannot move: units without bCanMoveImpassable in their XML (all domains displayed)</English>
+		<English>Cannot move: Domain Land/Air without bCanMoveAllTerrain; Domain Sea without bCanMoveImpassable / bCanMoveAllTerrain / FeaturePassableTech in their XML</English>
 	</TEXT>
 </Civ4GameText>

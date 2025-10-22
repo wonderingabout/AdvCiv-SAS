@@ -308,7 +308,15 @@ class SevoPediaFeature:
 				if unitInfo.isGraphicalOnly():
 					continue
 
-				if unitInfo.isCanMoveImpassable():
+				# <!-- custom: note: ingame it seems that bCanMoveImpassable is not enough to move on ice cap (feature ice) that is only allowed on water terrains it seems, so not displaying all units here but anyways etc -->
+				# inside: if self.iFeature == iIce:
+				can_cross_ice = (
+					unitInfo.isCanMoveAllTerrain() or
+					(unitInfo.getDomainType() == DomainTypes.DOMAIN_SEA and
+					(unitInfo.isCanMoveImpassable() or
+					unitInfo.getFeaturePassableTech(iIce) != -1))
+				)
+				if can_cross_ice:
 					# Column index (always 0 when numLists=1)
 					columnIndex = 0
 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
@@ -436,24 +444,50 @@ class SevoPediaFeature:
 		if self.iFeature == iIce:
 			for iUnit in xrange(gc.getNumUnitInfos()):
 				unitInfo = gc.getUnitInfo(iUnit)
+				unitInfoDomain = unitInfo.getDomainType()
 
 				if unitInfo.isGraphicalOnly():
 					continue
 
-				# <!-- custom: allow any domain unlike for the peak code, so workers could walk on the water ice cap feature, unlike in peak where as of now naval units are not displayed as being able to walk on peak as it would make less sense too even though theoretically possible if i am not mistaken (boat with legs... xd but anyways etc..), so having permissive domain any allowed here unlike in peak code if i am not mistaken anyways etc (but now that i think of it why not, such robotic things or mechanical walking things on a naval unit making it hybrid are probably not too far fetched maybe probably even exists or/and in sci-fi or dream if i may say or such other or not or other or etc but anyways etc) ; also not checking unitInfo.isCanMoveAllTerrain() since the ice that is impassable is the ice cap feature if i am not mistaken not the terrain anyways etc -->
-				if not unitInfo.isCanMoveImpassable():
+				# <!-- custom: allow any domain unlike for the peak code, so workers could walk on the water ice cap feature, unlike in peak where as of now naval units are not displayed as being able to walk on peak as it would make less sense too even though theoretically possible if i am not mistaken (boat with legs... xd but anyways etc..), so having permissive domain any allowed here unlike in peak code if i am not mistaken anyways etc (but now that i think of it why not, such robotic things or mechanical walking things on a naval unit making it hybrid are probably not too far fetched maybe probably even exists or/and in sci-fi or dream if i may say or such other or not or other or etc but anyways etc); however still require unitInfo.isCanMoveAllTerrain(), as ice cap (ice feature) is only allowed on water terrains it seems, and bCanMoveImpassable is not enough for land units to allow them to walk there if i'm not mistaken but anyways etc. So as of now we'd allow the gunship and airship to walk on ice cap, but not the scout or quechua warrior, even though they all have the bCanMoveImpassable, but only the airship and gunship among these also have canMoveAllTerrain as of now i'm not mistaken so only these can also walk on ice cap on top of walking on peak if i'm not mistaken but anyways etc; note: code provided by chatgpt 5 thanks to my prompts and or such and which i adjusted and/or such, check if accurate but anyways etc -->
+				# <!-- custom: below condition/code by chatgpt 5 which i formatted or refactored/adjusted a bit or not or yes or etc, check if accurate anyways etc -->
+				# Your Relevant Units panel (from earlier) already shows:
+				# - land/air with All-Terrain (Gunship, Airship, Recon Drone), and
+				# - sea units with a bypass (Move-Impassable or passable tech).
+				# This Impassable panel now mirrors Peak-style behavior by listing every other unit that cannot enter Ice Cap, which should remove the “why can these 3 enter?” confusion.
+				# Land/Air: blocked unless they have All-Terrain (your recon/gunship/airship will be allowed)
+				land_or_air_blocked = (unitInfoDomain != DomainTypes.DOMAIN_SEA) and (not unitInfo.isCanMoveAllTerrain())
+
+				# Sea: blocked if no bypass (or explicitly flagged impassable on ICE)
+				sea_blocked = (unitInfoDomain == DomainTypes.DOMAIN_SEA) and (
+					unitInfo.getFeatureImpassable(iIce) or
+					not (unitInfo.isCanMoveImpassable() or
+						unitInfo.getFeaturePassableTech(iIce) != -1 or
+						unitInfo.isCanMoveAllTerrain())
+				)
+
+				if land_or_air_blocked or sea_blocked:
 					# Column index (always 0 when numLists=1)
 					columnIndex = 0
 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 
 		else:
+			info = gc.getFeatureInfo(self.iFeature)
+
 			for iUnit in xrange(gc.getNumUnitInfos()):
 				unitInfo = gc.getUnitInfo(iUnit)
 
 				if unitInfo.isGraphicalOnly():
 					continue
 
-				if (unitInfo.getFeatureImpassable(self.iFeature) or (unitInfo.getFeaturePassableTech(self.iFeature) != -1)):
+				# <!-- custom: below condition/code by chatgpt 5, check if accurate anyways etc -->
+				blocked = (
+					(info.isImpassable() or unitInfo.getFeatureImpassable(self.iFeature)) and
+					not unitInfo.isCanMoveImpassable() and
+					unitInfo.getFeaturePassableTech(self.iFeature) == -1 and
+					not unitInfo.isCanMoveAllTerrain()
+				)
+				if blocked:
 					# Column index (always 0 when numLists=1)
 					columnIndex = 0
 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
