@@ -186,7 +186,7 @@ hopefully more readable or exportable if need/want be now -->
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE_PEAK</Tag>
-		<English>Cannot move: units without bCanMoveImpassable and without bCanMoveAllTerrain in their XML (only Domain Land displayed)</English>
+		<English>Cannot move: Domain Land/Air without bCanMoveImpassable / bCanMoveAllTerrain / FeaturePassableTech; Domain Sea without bCanMoveAllTerrain in their XML</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE</Tag>
