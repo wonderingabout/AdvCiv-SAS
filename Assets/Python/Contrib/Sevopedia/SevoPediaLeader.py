@@ -92,6 +92,13 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 
 
+	# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or/and such) anyways etc -->
+	# Build once <!-- custom: at this function's scope as we don't need it outside of it but need it many times here if i'm not mistaken but anyways etc -->
+	NUM_LEADERS = gc.getNumLeaderHeadInfos()
+	NON_EXCLUDED_LEADERS = tuple(i for i in xrange(NUM_LEADERS) if i not in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS)
+
+
+
 	def check_required_newly_exposed_python_getters_gc_leader_exist():
 		# <!-- custom: note: to use the AI personality feature in another mod, you need to modify the DLL to expose python BBAI getters and at if i am not mistaken base advciv's getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold as of now, see README.md fixes section or/and in particular known issues readme of advciv-sas (ctrl+f "expose" or "getter" or "bbai" or something similar) if the info is still there on these readmes anwyays etc, as of now it contains info with google drive link and screenshots on how to do it yourself, adding raise error to make user or/and modder aware of this if they are missing anyways etc, see also sevopedia_helpers py file debug output code comments for details too ifi may say anwyays etc anyways etc anyways etc... ; raise an error if any of these are missing to raise awareness if i may say on these... hehe or not hehe or yes hehe but in all cases hehe or etc anyways etc... hehe or not or yes hehe but anyways etc... hehe (this is getting quite funny hehe or ont or yes hehe but in all cases anyways etc... hopefully helpful or not or yes all this code comment i mea maybe this joke or something too ro not or yes or other or etc but anyways etc anyways etc anyways etc...) -->
 
@@ -107,10 +114,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 			"getNativeCityRefuseAttitudeThreshold",
 		)
 
-		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
-			if iLeader in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS:
-				continue
-
+		for iLeader in NON_EXCLUDED_LEADERS:
 			missing = []
 			for getter in REQUIRED_TO_NEWLY_BE_EXPOSED_TO_PYTHON_GETTERS_GC_LEADER:
 				if not hasattr(gc.getLeaderHeadInfo(iLeader), getter):
@@ -142,7 +146,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 
 	def computeAndStoreMinMaxOfOneKey(key, value, leader_info_minimums, leader_info_maximums):
-		if not leader_info_minimums.has_key(key):
+		if key not in leader_info_minimums:
 			leader_info_minimums[key] = value
 			leader_info_maximums[key] = value
 			if IS_DEBUG_LEADER:
@@ -183,10 +187,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 		# <!-- custom: for steps below, see also or/and for details generate_leaders_data.py code/way of handling it/aggregating/synthesizing contact probs anyways etc -->
 
 		# First pass: extract raw values and compute adjusted values (for scoring + min/max)
-		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
-			if iLeader in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS:
-				continue
-
+		for iLeader in NON_EXCLUDED_LEADERS:
 			# <!-- custom: temporary field, no need to check if iLeader key exists before creating it, unlike for leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, anyways etc -->
 			leaders_temp_aggregated_contact_probs[iLeader] = {}
 
@@ -220,10 +221,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 			print("[DEBUG] First pass of compute_and_store_leaders_info_aggregated_raw_contact_probs passed/success, leaders_temp_aggregated_contact_probs=%s\n\n" % str(leaders_temp_aggregated_contact_probs))
 
 		# Second pass: Precompute min/max from adjusted values only <!-- custom: among all leaders anyways etc -->
-		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
-			if iLeader in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS:
-				continue
-
+		for iLeader in NON_EXCLUDED_LEADERS:
 			for i in xrange(NUM_CONTACT_TYPES_ASSESSED):
 				contact_type_2 = gc.getContactTypes(i) # e.g. "CONTACT_JOIN_WAR"
 				suffix_2 = get_pascal_case_suffix(contact_type_2) # → "JoinWar"
@@ -242,12 +240,9 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 		# Third pass: compute raw aggregate scores
 		b_invert_contact_rands, b_invert_contact_delays = get_contact_rand_and_delay_invert_flags()
 
-		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
-			if iLeader in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS:
-				continue
-
+		for iLeader in NON_EXCLUDED_LEADERS:
 			# <!-- custom: even though this should not be needed for raw aggregated contact probs, unlike for positive or negative raw aggregated memory affections or resentments where we loop 4 times for each combination (see there for details anyways etc), as we don't loop again at/in compute_and_store_leaders_info_aggregated_raw_contact_probs after first call since all contact fields are handled/aggregated the same way (no positive/negative or affection/resentment or similar, only one call, anyways etc), do also same initialization and has key check for leaders_info_aggregated_raw_contact_probs than for raw aggregated memory fields anyways, for consistency etc, and also to make sure the raw aggregate calculation dict does not exist until we create it at this stage now and we didn't do a mistake somehow in creating it before that, so similarly to how raw aggregated memory fields computation is handled make sure the raw aggregated contact calculation dict does not have iLeader key already existing before we create it now. -->
-			if leaders_info_aggregated_raw_contact_probs.has_key(iLeader):
+			if iLeader in leaders_info_aggregated_raw_contact_probs:
 				raise(KeyError("[FATAL] Unexpected key iLeader=%d in leaders_info_aggregated_raw_contact_probs already existing, even though we did not intialize contact aggregated calculation dict for each leader yet before we run/start it at this line. This should not exist until then, please make sure steps are executed in the correct order in your mod, or update this code if you aggregated contact fields in another way than in the original mod you based it on if reusing our/this code anyways etc hopefully helpful but anyways etc anyways etc, thanks, anyways etc."))
 			leaders_info_aggregated_raw_contact_probs[iLeader] = {}
 
@@ -327,10 +322,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 		leader_info_maximums_adjusted_values_only_memory_fields = {}
 
 		# First pass: extract raw values and compute adjusted values (for scoring + min/max)
-		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
-			if iLeader in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS:
-				continue
-
+		for iLeader in NON_EXCLUDED_LEADERS:
 			# <!-- custom: temporary field, no need to check if iLeader key exists before creating it, unlike for leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, anyways etc -->
 			leaders_temp_positive_and_negative_memory_affections_and_resentments[iLeader] = {}
 
@@ -370,10 +362,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 			print("[DEBUG] First pass (at is_positive=%s and is_affection=%s) of compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments passed/success, leaders_temp_positive_and_negative_memory_affections_and_resentments=%s\n\n" % (str(is_positive), str(is_affection), str(leaders_temp_positive_and_negative_memory_affections_and_resentments)))
 
 		# Second pass: Precompute min/max from adjusted values only <!-- custom: among all leaders anyways etc -->
-		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
-			if iLeader in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS:
-				continue
-
+		for iLeader in NON_EXCLUDED_LEADERS:
 			for i in positive_or_negative_memory_indexes:
 				mem_type_2 = gc.getMemoryInfo(i).getType() # e.g. "MEMORY_DECLARED_WAR"
 				suffix_2 = get_pascal_case_suffix(mem_type_2) # → "DeclaredWar"
@@ -392,12 +381,9 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 		# Third pass: compute raw aggregate scores
 		b_invert_attitude_percent, b_invert_decay = get_memory_attitude_percent_and_decay_invert_flags(is_positive, is_affection)
 		
-		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
-			if iLeader in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS:
-				continue
-
+		for iLeader in NON_EXCLUDED_LEADERS:
 			# <!-- custom: be careful, we loop 4 times over compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, for positive-affection, positive-resentment, negative-affection, negative-resentment, so do not initalize this 4 times, we would lose 3/4 = 75% of the data otherwise anyways etc ; instead only initialize the iLeader key if it doesn't exist already (i.e. at 1st iteration/combination among the 4, for the other remaining 3 combinations, skip initialization as it would overwrite/delete all previously stored entries if i am not mistaken except the last iteration anyways etc) -->
-			if not leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments.has_key(iLeader):
+			if iLeader not in leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments:
 				leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader] = {}
 
 			for i in positive_or_negative_memory_indexes:
@@ -591,10 +577,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 		leader_info_minimums = {}
 		leader_info_maximums = {}
 
-		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
-			if iLeader in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS:
-				continue
-
+		for iLeader in NON_EXCLUDED_LEADERS:
 			# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or/and such) anyways etc -->
 			loopLeaderHeadInfo = gc.getLeaderHeadInfo(iLeader)
 
@@ -876,10 +859,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 		positive_and_negative_memory_index_labels.update(positive_memory_index_labels)
 		positive_and_negative_memory_index_labels.update(negative_memory_index_labels)
 
-		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
-			if iLeader in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS:
-				continue
-
+		for iLeader in NON_EXCLUDED_LEADERS:
 			leader_info_cached = {}
 
 			# <!-- custom: note: later in the code at UI stage or somewhere after the whole compute_and_store_leaders_info_cached caching function anyways etc, to access the tuple line to display in the table for non-agrgegated and perhaps some other ai attributes or not anyways etc, we may use for some attributes the getter name as a key but we don't call it, it is just more conveninent to store it this way as this is consistent with existing getter name and we didn't flatten field/attribute since it was not nested xml so no need to use another key name than one that starts with "get" for this field/attribute anyways etc, it is still a flat one, so do at load for example for iLeader = 5 dynamically while in the UI loop per attribute/key if i am not mistaken anyways etc LEADERS_INFO_CACHED[5]["getBaseAttitude"] to access the tuple to display, while for some other attributes/fields anyways etc we may use an "i" type of key name such as for some nested fields like flavors for example anyways etc LEADERS_INFO_CACHED[5]["iFlavorMilitary"] since we flatten them as such if i am not mistaken anyways etc, vs also for some other nested fields like aggregated attributes for example similarly (if other kind of fields exist, as of now not but is to be exhaustive or as it is or and other or and not but anyways etc) instead we may do for example anyways etc LEADERS_INFO_CACHED[5]["iAggregatedNegativeMemoryHiredTradeEmbargoResentment"] (not using a "get" getter name for the key here either, but these are all key names regardless of "i" or "get" or other name/prefix in key name to access in LEADERS_INFO_CACHED if i am not mistaken anyways etc that we don't call like getters even if there is a "get", but only use as key names anyways etc), hopefully clearer or/and helps maybe ideally or nto or yes or etc understand or see how it works-functions but or not but or yes but but anyways etc anyways etc anyways etc, i find it quite plesant design this way, but anyways etc -->
