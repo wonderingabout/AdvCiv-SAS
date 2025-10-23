@@ -29,7 +29,7 @@
 #	 - Exclude leaders (typically barbarian, as for defaults DLL has excluded it entirely from idnexes it seems in abse advciv and since we use similar if not identical code since we didn't modify  this part thanks for making it anyways etc, no need to handle leader_defaults it seems anyways etc)
 #	 - Compute raw aggregated fields (contact probs, and positive and negative memory affections and resentments): they are now flat fields like any other field, ready to be processed then stored anyways etc.
 # 	 - Store minmax of all fields we want to parse, like Base peace weight, max war rand, sometimes flattening fields like flavors that are initially nested in XML, now stored for exmapel as iFlavorMilitary or iFlavorReligion if i am not mistaken too for example anyways etc flat fields anyways etc, also including raw aggregated fields like iAggregatedContactProbReligionPressure for example, and similarly for raw aggregated positive and negative memory affections and resentments anyways etc
-#	 - Cache in LEADERS_INFO_CACHED tuples of as of now at least if not always or not but anyways etc (label (with raw value display in the label too so no need to fetch it later again at UI just to display it in label, faster performance this way if i am not mistaken too, also from using tuples or and such rather than dicts but anyways etc), normalized value for display, and scale precomputed to enhance performance as well as advised by chatgpt or maybe it was me or both but i think it was it but anyways etc in all cases thanks to it and me too or and other or and not anwyays etc....)
+#	 - Cache in LEADERS_INFO_CACHED tuples of as of now at least if not always or not but anyways etc (label (with raw value display in the label too so no need to fetch it later again at UI just to display it in label, faster performance this way if i am not mistaken too, also from using tuples or and such rather than dicts but anyways etc), normalized value for display, and scale precomputed to enhance performance as well as advised by chatgpt or maybe it was me or both but i think it was it but anyways etc in all cases thanks to it and me too or and other or and not anwyays etc...)
 #	 - Categories precomputing as well as tuples as well anyways etc: the ai_category_header that handles also emoji buttons in header label too anyways etc (which is anyways etc) optionally displayed based on/if config flag is set to True, including also in the ai_category tuple the x_offset for each category (a bit redundant but so we don't need to check it again, could optimize it further but also allows for more cusotmization later if needed maybe evne though is a qutie weak argument if i may say but anyways etc, still fine as is maybe anyways etc, the main point is this x_offset is toif needed to accomodate these emoji buttons as text anyways etc ; and then also packing all categories with an inter category order within their main "categories" tuple (as of now right, middle, left, since we have 3 tables in the AI personality panel feature as of now anyways etc)
 # 2) UI: nothing remains only displaying it, nothing left to compute, a bit of tuple direct unpacking without any check if i am not mistaken, so display is very fast despite the quite big data if i may say but anyways etc anyways etc anyways etc.
 #
@@ -192,9 +192,12 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 			# <!-- custom: note: we get very weird bugs if misnaming variables, as python sadly or angrily for me xd stupidly anyways etc reuses variables from other loops even though they should not exist in another indepent scope other loop, so naming them with _0 _1 _2 _3 _4 for each pass to make sure python doesn't reuse them anwyays etc and we successfully get an error as intended if variable doesn't exist anyways etc -->
 
+			# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or/and such) anyways etc -->
+			loopLeaderHeadInfo = gc.getLeaderHeadInfo(iLeader)
+
 			for i in range(NUM_CONTACT_TYPES_ASSESSED):
-				value_1_rand_raw = gc.getLeaderHeadInfo(iLeader).getContactRand(i)
-				value_1_delay_raw = gc.getLeaderHeadInfo(iLeader).getContactDelay(i)
+				value_1_rand_raw = loopLeaderHeadInfo.getContactRand(i)
+				value_1_delay_raw = loopLeaderHeadInfo.getContactDelay(i)
 				contact_type_1 = gc.getContactTypes(i) # e.g. "CONTACT_JOIN_WAR"
 				suffix_1 = get_pascal_case_suffix(contact_type_1) # → "JoinWar"
 
@@ -328,10 +331,13 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 			# <!-- custom: note: we get very weird bugs if misnaming variables, as python sadly or angrily for me xd stupidly anyways etc reuses variables from other loops even though they should not exist in another indepent scope other loop, so naming them with _0 _1 _2 _3 _4 for each pass to make sure python doesn't reuse them anwyays etc and we successfully get an error as intended if variable doesn't exist anyways etc -->
 
+			# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or/and such) anyways etc -->
+			loopLeaderHeadInfo = gc.getLeaderHeadInfo(iLeader)
+
 			# <!-- custom: skip negative memories if is_positive and vice versa anyways etc ; note: there is no such index skipping depending on memory type equivalent in the contact code (that uses range over all contact indexes (i.e. over all contact types if i am not mistaken anyways etc anyways etc) as we always process and handle all contact types the same (only difference is at display level where as of now we display them as contact offer or contact demand, but it is only a functional/visual difference if i am not mistaken anyways etc and computationally we handle them all the same, unlike memory types where the raw values are adjusted differently depending on whether memory type is positive or negative anyways etc) anyways etc -->
 			for i in positive_or_negative_memory_indexes:
-				value_1_attitude_percent_raw = gc.getLeaderHeadInfo(iLeader).getMemoryAttitudePercent(i)
-				value_1_decay_raw = gc.getLeaderHeadInfo(iLeader).getMemoryDecayRand(i)
+				value_1_attitude_percent_raw = loopLeaderHeadInfo.getMemoryAttitudePercent(i)
+				value_1_decay_raw = loopLeaderHeadInfo.getMemoryDecayRand(i)
 				mem_type_1 = gc.getMemoryInfo(i).getType() # e.g. "MEMORY_DECLARED_WAR"
 				suffix_1 = get_pascal_case_suffix(mem_type_1) # → "DeclaredWar"
 				
@@ -584,19 +590,22 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 			if iLeader in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS:
 				continue
 
+			# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or/and such) anyways etc -->
+			loopLeaderHeadInfo = gc.getLeaderHeadInfo(iLeader)
+
 			for getter_name, (label, b_invert) in fields_with_direct_getters.items():
-				value_generic = getattr(gc.getLeaderHeadInfo(iLeader), getter_name)()
+				value_generic = getattr(loopLeaderHeadInfo, getter_name)()
 				computeAndStoreMinMaxOfOneKey(getter_name, value_generic, leader_info_minimums, leader_info_maximums)
 
 			for getter_name, (label, b_invert) in fields_attitude_thresholds.items():
-				value_attitude_threshold = getattr(gc.getLeaderHeadInfo(iLeader), getter_name)()
+				value_attitude_threshold = getattr(loopLeaderHeadInfo, getter_name)()
 				computeAndStoreMinMaxOfOneKey(getter_name, value_attitude_threshold, leader_info_minimums, leader_info_maximums)
 
 			# <!-- custom: parse fields with nested or/and with incremental getters as flat fields with an alternative key so we can loop over them more easily and reorder them later if need(ed?) anyways etc, also our code is more consistent this way anyways etc -->
 			# ==== FLAVORS ====
 			for i in range(gc.getNumFlavorTypes()):
 				# <!-- custom: store them as a parsed key name since getter is incremental and does nto directly reference the name of each flavor if i am not mistaken anyways etc -->
-				value_flavor = gc.getLeaderHeadInfo(iLeader).getFlavorValue(i)
+				value_flavor = loopLeaderHeadInfo.getFlavorValue(i)
 				flavor_type = gc.getFlavorTypes(i)  # e.g. "FLAVOR_MILITARY"
 				suffix = get_pascal_case_suffix(flavor_type) # → <!-- custom: "Military" anyways etc -->
 				parsed_name_flavor = "iFlavor%s" % suffix  # → iFlavorMilitary
@@ -609,8 +618,8 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 				contact_type = gc.getContactTypes(i) # e.g. "CONTACT_JOIN_WAR"
 				suffix = get_pascal_case_suffix(contact_type) # → "JoinWar"
 
-				value_rand_raw = gc.getLeaderHeadInfo(iLeader).getContactRand(i)
-				value_delay_raw = gc.getLeaderHeadInfo(iLeader).getContactDelay(i)
+				value_rand_raw = loopLeaderHeadInfo.getContactRand(i)
+				value_delay_raw = loopLeaderHeadInfo.getContactDelay(i)
 				parsed_name_rand = "iContactRand%s" % suffix # → iContactRandJoinWar
 				parsed_name_delay = "iContactDelay%s" % suffix # → iContactDelayJoinWar
 				computeAndStoreMinMaxOfOneKey(parsed_name_delay, value_delay_raw, leader_info_minimums, leader_info_maximums)
@@ -639,12 +648,12 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 						# <!-- custom: similarly for min max of raw attitude percents and decays export anyways etc only once out of the 4 combinations (among positive-affection, positive-resentment, negative-affection, negative-resentment, anyways etc), since the raw value is always the same field and field name, no need to do it again for the other 3 times/combinations anyways etc -->
 						parsed_name_attitude_percent = "iMemoryAttitudePercent%s" % suffix # → iMemoryAttitudePercentDeclaredWar
 						if (parsed_name_attitude_percent not in leader_info_minimums) and (parsed_name_attitude_percent not in leader_info_maximums):
-							value_attitude_percent = gc.getLeaderHeadInfo(iLeader).getMemoryAttitudePercent(i)
+							value_attitude_percent = loopLeaderHeadInfo.getMemoryAttitudePercent(i)
 							computeAndStoreMinMaxOfOneKey(parsed_name_attitude_percent, value_attitude_percent, leader_info_minimums, leader_info_maximums)
 
 						parsed_name_decay = "iMemoryDecay%s" % suffix # → iMemoryDecayDeclaredWar
 						if (parsed_name_decay not in leader_info_minimums) and (parsed_name_decay not in leader_info_maximums):
-							value_decay = gc.getLeaderHeadInfo(iLeader).getMemoryDecayRand(i)
+							value_decay = loopLeaderHeadInfo.getMemoryDecayRand(i)
 							computeAndStoreMinMaxOfOneKey(parsed_name_decay, value_decay, leader_info_minimums, leader_info_maximums)
 
 						# <!-- custom: Step 2: Raw aggregated positive and negative memory affections and resentments anyways etc -->
@@ -654,7 +663,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 			# ==== NOWARATTITUDEPROBS ====
 			for i in range(NUM_ATTITUDE_TYPES_ASSESSED):
-				value_no_war_attitude_prob = gc.getLeaderHeadInfo(iLeader).getNoWarAttitudeProb(i)
+				value_no_war_attitude_prob = loopLeaderHeadInfo.getNoWarAttitudeProb(i)
 				attitude_type = gc.getAttitudeInfo(i).getType()  # e.g. "ATTITUDE_FURIOUS"
 				suffix = get_pascal_case_suffix(attitude_type)  # → "Furious"
 				parsed_name_no_war_attitude_prob = "iNoWarAttitudeProb%s" % suffix  # → iNoWarAttitudeProbFurious
@@ -870,9 +879,12 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 			# <!-- custom: note: later in the code at UI stage or somewhere after the whole compute_and_store_leaders_info_cached caching function anyways etc, to access the tuple line to display in the table for non-agrgegated and perhaps some other ai attributes or not anyways etc, we may use for some attributes the getter name as a key but we don't call it, it is just more conveninent to store it this way as this is consistent with existing getter name and we didn't flatten field/attribute since it was not nested xml so no need to use another key name than one that starts with "get" for this field/attribute anyways etc, it is still a flat one, so do at load for example for iLeader = 5 dynamically while in the UI loop per attribute/key if i am not mistaken anyways etc LEADERS_INFO_CACHED[5]["getBaseAttitude"] to access the tuple to display, while for some other attributes/fields anyways etc we may use an "i" type of key name such as for some nested fields like flavors for example anyways etc LEADERS_INFO_CACHED[5]["iFlavorMilitary"] since we flatten them as such if i am not mistaken anyways etc, vs also for some other nested fields like aggregated attributes for example similarly (if other kind of fields exist, as of now not but is to be exhaustive or as it is or and other or and not but anyways etc) instead we may do for example anyways etc LEADERS_INFO_CACHED[5]["iAggregatedNegativeMemoryHiredTradeEmbargoResentment"] (not using a "get" getter name for the key here either, but these are all key names regardless of "i" or "get" or other name/prefix in key name to access in LEADERS_INFO_CACHED if i am not mistaken anyways etc that we don't call like getters even if there is a "get", but only use as key names anyways etc), hopefully clearer or/and helps maybe ideally or nto or yes or etc understand or see how it works-functions but or not but or yes but but anyways etc anyways etc anyways etc, i find it quite plesant design this way, but anyways etc -->
 
+			# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or/and such) anyways etc -->
+			loopLeaderHeadInfo = gc.getLeaderHeadInfo(iLeader)
+
 			symbol_generics = all_symbols["RAW_SCALE_SYMBOL"]
 			for getter_name_generic, (label_generic, b_invert_generic) in fields_with_direct_getters.items():
-				raw_value_generic = getattr(gc.getLeaderHeadInfo(iLeader), getter_name_generic)()
+				raw_value_generic = getattr(loopLeaderHeadInfo, getter_name_generic)()
 				# <!-- custom: also add raw value to label like "Military (12)" for example for flavors instead of just "Military" (so we have both raw value in label as well as normalized value in the 2nd column of each of the AI personality panel tables anyways etc (i.e. before the scale (e.g. "++++" or similar anyways etc column of each of the AI personality panel tables too anyways etc -->
 				label_raw_generic = "(%d)" % raw_value_generic
 				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
@@ -885,7 +897,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 			symbol_attitude_thresholds = all_symbols["RAW_SCALE_SYMBOL"]
 			for getter_name_attitude_threshold, (label_attitude_threshold, b_invert_attitude_threshold) in fields_attitude_thresholds.items():
-				raw_value_attitude_threshold = getattr(gc.getLeaderHeadInfo(iLeader), getter_name_attitude_threshold)()
+				raw_value_attitude_threshold = getattr(loopLeaderHeadInfo, getter_name_attitude_threshold)()
 				label_raw_attitude_threshold = "(%d)" % raw_value_attitude_threshold
 				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
 					label_with_raw_value_attitude_threshold = get_labels_as_keys_or_suffixes_max_length_label(getter_name_attitude_threshold, label_raw_attitude_threshold, 18)
@@ -902,7 +914,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 				suffix = get_pascal_case_suffix(flavor_type) # → "Military"
 				parsed_name_flavor = "iFlavor%s" % suffix  # → iFlavorMilitary
 				label_flavor = suffix
-				raw_value_flavor = gc.getLeaderHeadInfo(iLeader).getFlavorValue(i)
+				raw_value_flavor = loopLeaderHeadInfo.getFlavorValue(i)
 				label_raw_flavor = "(%d)" % raw_value_flavor
 				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
 					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
@@ -925,7 +937,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 				label_contact = contact_index_labels[i]
 
 				# parsed_name_rand = "iContactRand%s" % suffix # → iContactRandJoinWar
-				# raw_value_rand = gc.getLeaderHeadInfo(iLeader).getContactRand(i)
+				# raw_value_rand = loopLeaderHeadInfo.getContactRand(i)
 				# label_raw_rand = "(%d)" % raw_value_rand
 				# if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
 				# 	# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
@@ -937,7 +949,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 				# compute_and_store_leader_info_cached_tuple(raw_value_rand, min_value_rand, max_value_rand, b_invert_contact_rands, symbol_contact_rands_delays, all_symbols, parsed_name_rand, label_with_raw_value_rand, iLeader, leader_info_cached)
 
 				# parsed_name_delay = "iContactDelay%s" % suffix # → iContactDelayJoinWar
-				# raw_value_delay = gc.getLeaderHeadInfo(iLeader).getContactDelay(i)
+				# raw_value_delay = loopLeaderHeadInfo.getContactDelay(i)
 				# min_value_delay = leader_info_minimums[parsed_name_delay]
 				# max_value_delay = leader_info_maximums[parsed_name_delay]
 				# label_raw_delay = "(%d)" % raw_value_delay
@@ -956,8 +968,8 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 				parsed_name_4_aggregated_contact_prob = "iAggregatedContactProb%s" % suffix # → iAggregatedContactProbJoinWar
 
 				# <!-- custom: generate the label before normalizing, and so we also have the label as well for later display after normalization done anyways etc in/at UI anyways etc -->
-				raw_value_rand = gc.getLeaderHeadInfo(iLeader).getContactRand(i)
-				raw_value_delay = gc.getLeaderHeadInfo(iLeader).getContactDelay(i)
+				raw_value_rand = loopLeaderHeadInfo.getContactRand(i)
+				raw_value_delay = loopLeaderHeadInfo.getContactDelay(i)
 				# <!-- custom: do not display the raw aggregated prob here, but instead the raw rand and raw delay -->
 				label_raw_rand_and_raw_delay = "(%d/%d)" % (raw_value_rand, raw_value_delay)
 				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
@@ -971,6 +983,9 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 				min_value_4_aggregated_raw_contact_prob = leader_info_minimums[parsed_name_4_aggregated_raw_contact_prob]
 				max_value_4_aggregated_raw_contact_prob = leader_info_maximums[parsed_name_4_aggregated_raw_contact_prob]
 
+				# <!-- custom: note to chatgpt 5 or other AIs or readers xd but anyways etc: chatgpt 5 told me to change parsed_name_4_aggregated_contact_prob to parsed_name_4_aggregated_raw_contact_prob claiming it was a real bug, but doing it created an error ingame, and undoing it as it told me later solved the error. So i think or at least it seems like this is not a bug. Chatgpt 5 may have received a truncated prompt or something though as it mentionned ... in code which was not the case if i'm not mistaken; after i sent it an entire file as appended file rather, it told me to not do this change as this would cause an error if i'm not mistaken, so this is now reverted to how it was before and seems to run fine as such. I don't remember enough of the code to be sure, but it seems like this is as intended to use raw aggregated values in order to store normalized aggregated ones under a field name that does not use "raw" in it anymore as it is the normalized aggregated value we are storing and displaying in UI now, no longer the intermediate for calculations raw aggregated value if i'm not mistaken, but check to be sure; seems to run fine as such but check to be sure, anyways etc. Thanks for all help chatgpt 5 you helped me lot, confirmed current logic, and helped me find a nice performance optimization as of now with loopLeaderHeadInfo but in all cases if i may say thanks anyways etc -->
+				# Conclusion: it was not a bug in your code.
+				# Your original line was correct:
 				compute_and_store_leader_info_cached_tuple(raw_value_4_aggregated_contact_prob, min_value_4_aggregated_raw_contact_prob, max_value_4_aggregated_raw_contact_prob, b_invert_4_aggregated_contact_probs, symbol_aggregated_contact_probs, all_symbols, parsed_name_4_aggregated_contact_prob, label_with_raw_value_rand_and_raw_value_delay, iLeader, leader_info_cached)
 
 			# <!-- custom: similarly for memory fields, we don't need the raw attitude_percent and decay since they are already in label and we don't display them normalized otherwise either (or neither? But anyways etc...) anyways etc, so normalize only aggregated positive and negative memory affections and resentments, but more specifically also, we don't display positive memory resentments and negative memory affections due to table being too small for these all but anyways etc and/but also our XML being otherwise quite straightforward at least as of now if not always or not, as positive memories all have a positive attitude_percent if i'm not mistaken and same or similarly rather anyways etc negative memories all have a negative atittude_percent, so positive memory resentments and negative memory affections would just perfectly overlap and be redundant with positive memory affections and negative memory resentments, so don't display them in our mod advciv-sas at least as of now if not most likely always in advciv-sas or maybe not but most likely anyways etc. But the feature is there if some mods want to display it, and i think it's very cool to have masochistic (negative memory affections) and/or bitterly ungrateful (positive memory resentments), so code comment code samples or rather maybe lines anyways etc if you want to support it in your mod, remember to also add these fields (parsed_name (parsed names for all fields actually but anyways etc)) in UI categories too and order them as you see fit if you'd want that, which i think is very cool and wish i did and could do, but table is already too full, and i dont have such a crazy in a way i like hehe leader as of yet (or yet? Simply? But anyways etc...) if not always or maybe not but most likely in this case i mean anyways etc, but in all cases, regardless of which, uncomment if you want to add positive memory resentments and negative memory resentments, same also for raw memory attitude_percents and decays not displayed as well since they are in label of aggregated field and we don't otherwise need them, anyways etc -->
@@ -1003,7 +1018,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 						# <!-- custom: export raw attitude percents and decays only once out of the 4 combinations (among positive-affection, positive-resentment, negative-affection, negative-resentment, anyways etc), since the raw value is always the same field and field name, no need to do it again for the other 3 times/combinations anyways etc -->
 						# parsed_name_attitude_percent = "iMemoryAttitudePercent%s" % suffix # → iMemoryAttitudePercentDeclaredWar
 						# if parsed_name_attitude_percent not in leader_info_cached:
-						# 	raw_value_attitude_percent = gc.getLeaderHeadInfo(iLeader).getMemoryAttitudePercent(i)
+						# 	raw_value_attitude_percent = loopLeaderHeadInfo.getMemoryAttitudePercent(i)
 						# 	label_raw_attitude_percent = "(%d)" % raw_value_attitude_percent
 						# 	if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
 						# 		# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
@@ -1016,7 +1031,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 						# parsed_name_decay = "iMemoryDecay%s" % suffix # → iMemoryDecayDeclaredWar
 						# if parsed_name_decay not in leader_info_cached:
-						# 	raw_value_decay = gc.getLeaderHeadInfo(iLeader).getMemoryDecayRand(i)
+						# 	raw_value_decay = loopLeaderHeadInfo.getMemoryDecayRand(i)
 						# 	label_raw_decay = "(%d)" % raw_value_decay
 						# 	if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
 						# 		# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
@@ -1037,8 +1052,8 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 
 						# <!-- custom: generate the label before normalizing, and so we also have the label as well for later display after normalization done anyways etc in/at UI anyways etc -->
-						raw_value_4_attitude_percent = gc.getLeaderHeadInfo(iLeader).getMemoryAttitudePercent(i)
-						raw_value_4_decay = gc.getLeaderHeadInfo(iLeader).getMemoryDecayRand(i)
+						raw_value_4_attitude_percent = loopLeaderHeadInfo.getMemoryAttitudePercent(i)
+						raw_value_4_decay = loopLeaderHeadInfo.getMemoryDecayRand(i)
 						label_raw_attitude_percent_and_raw_decay = "(%d/%d)" % (raw_value_4_attitude_percent, raw_value_4_decay)
 						if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
 							# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
@@ -1060,7 +1075,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 				suffix = get_pascal_case_suffix(attitude_type)  # → "Furious"
 				parsed_name_no_war_attitude_prob = "iNoWarAttitudeProb%s" % suffix  # → iNoWarAttitudeProbFurious
 				label_no_war_attitude_prob = suffix
-				raw_value_no_war_attitude_prob = gc.getLeaderHeadInfo(iLeader).getNoWarAttitudeProb(i)
+				raw_value_no_war_attitude_prob = loopLeaderHeadInfo.getNoWarAttitudeProb(i)
 				label_raw_no_war_attitude_prob = "(%d)" % raw_value_no_war_attitude_prob
 				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
 					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes anyways etc, so use the suffix it instead of parsed name -->
