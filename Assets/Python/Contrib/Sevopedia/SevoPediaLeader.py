@@ -107,7 +107,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 			"getNativeCityRefuseAttitudeThreshold",
 		)
 
-		for iLeader in range(gc.getNumLeaderHeadInfos()):
+		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
 			if iLeader in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS:
 				continue
 
@@ -183,7 +183,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 		# <!-- custom: for steps below, see also or/and for details generate_leaders_data.py code/way of handling it/aggregating/synthesizing contact probs anyways etc -->
 
 		# First pass: extract raw values and compute adjusted values (for scoring + min/max)
-		for iLeader in range(gc.getNumLeaderHeadInfos()):
+		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
 			if iLeader in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS:
 				continue
 
@@ -195,7 +195,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 			# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or/and such) anyways etc -->
 			loopLeaderHeadInfo = gc.getLeaderHeadInfo(iLeader)
 
-			for i in range(NUM_CONTACT_TYPES_ASSESSED):
+			for i in xrange(NUM_CONTACT_TYPES_ASSESSED):
 				value_1_rand_raw = loopLeaderHeadInfo.getContactRand(i)
 				value_1_delay_raw = loopLeaderHeadInfo.getContactDelay(i)
 				contact_type_1 = gc.getContactTypes(i) # e.g. "CONTACT_JOIN_WAR"
@@ -220,11 +220,11 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 			print("[DEBUG] First pass of compute_and_store_leaders_info_aggregated_raw_contact_probs passed/success, leaders_temp_aggregated_contact_probs=%s\n\n" % str(leaders_temp_aggregated_contact_probs))
 
 		# Second pass: Precompute min/max from adjusted values only <!-- custom: among all leaders anyways etc -->
-		for iLeader in range(gc.getNumLeaderHeadInfos()):
+		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
 			if iLeader in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS:
 				continue
 
-			for i in range(NUM_CONTACT_TYPES_ASSESSED):
+			for i in xrange(NUM_CONTACT_TYPES_ASSESSED):
 				contact_type_2 = gc.getContactTypes(i) # e.g. "CONTACT_JOIN_WAR"
 				suffix_2 = get_pascal_case_suffix(contact_type_2) # → "JoinWar"
 				parsed_name_2_adjusted_rand = "iAdjustedContactRand%s" % suffix_2 # → iAdjustedContactRandJoinWar
@@ -242,7 +242,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 		# Third pass: compute raw aggregate scores
 		b_invert_contact_rands, b_invert_contact_delays = get_contact_rand_and_delay_invert_flags()
 
-		for iLeader in range(gc.getNumLeaderHeadInfos()):
+		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
 			if iLeader in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS:
 				continue
 
@@ -251,7 +251,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 				raise(KeyError("[FATAL] Unexpected key iLeader=%d in leaders_info_aggregated_raw_contact_probs already existing, even though we did not intialize contact aggregated calculation dict for each leader yet before we run/start it at this line. This should not exist until then, please make sure steps are executed in the correct order in your mod, or update this code if you aggregated contact fields in another way than in the original mod you based it on if reusing our/this code anyways etc hopefully helpful but anyways etc anyways etc, thanks, anyways etc."))
 			leaders_info_aggregated_raw_contact_probs[iLeader] = {}
 
-			for i in range(NUM_CONTACT_TYPES_ASSESSED):
+			for i in xrange(NUM_CONTACT_TYPES_ASSESSED):
 				contact_type_3 = gc.getContactTypes(i) # e.g. "CONTACT_JOIN_WAR"
 				suffix_3 = get_pascal_case_suffix(contact_type_3) # → "JoinWar"
 				parsed_name_3_adjusted_rand = "iAdjustedContactRand%s" % suffix_3 # → iAdjustedContactDelayJoinWar
@@ -288,15 +288,20 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 
 
+	# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or/and such) anyways etc -->
+	MEM_POS_IDX = tuple(get_positive_memory_indexes_to_types().keys())
+	MEM_NEG_IDX = tuple(get_negative_memory_indexes_to_types().keys())
+
+
 	def get_positive_or_negative_memory_indexes(is_positive):
 		# <!-- custom: similarly to contact aggregated code but for memory fields, that have positive/negative memory affection/resentment aggregated probs, see generate_leaders_data.py code or/and code comments for details anyways etc -->
 		# <!-- custom: use memory indexes instead rather than types (string of full memory type name) as we fetch from DLL directly in sevopedia leader unlike in generate_leaders_data.py so we have access to these indexes so use them if i am not mistaken in my understanding anyways etc -->
 		positive_or_negative_memory_indexes = None
 
 		if is_positive:
-			positive_or_negative_memory_indexes = tuple(get_positive_memory_indexes_to_types().keys())
+			positive_or_negative_memory_indexes = MEM_POS_IDX
 		else:
-			positive_or_negative_memory_indexes = tuple(get_negative_memory_indexes_to_types().keys())
+			positive_or_negative_memory_indexes = MEM_NEG_IDX
 
 		if not positive_or_negative_memory_indexes:
 			raise ValueError("[VALUE ERROR] memory_indexes=%s check is false ; memory_indexes cannot be empty or missing or some other kind of related or similar error anyways etc, please check memory types (positive or negative) are fetched/imported correctly" % str(positive_or_negative_memory_indexes))
@@ -322,7 +327,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 		leader_info_maximums_adjusted_values_only_memory_fields = {}
 
 		# First pass: extract raw values and compute adjusted values (for scoring + min/max)
-		for iLeader in range(gc.getNumLeaderHeadInfos()):
+		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
 			if iLeader in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS:
 				continue
 
@@ -365,7 +370,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 			print("[DEBUG] First pass (at is_positive=%s and is_affection=%s) of compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments passed/success, leaders_temp_positive_and_negative_memory_affections_and_resentments=%s\n\n" % (str(is_positive), str(is_affection), str(leaders_temp_positive_and_negative_memory_affections_and_resentments)))
 
 		# Second pass: Precompute min/max from adjusted values only <!-- custom: among all leaders anyways etc -->
-		for iLeader in range(gc.getNumLeaderHeadInfos()):
+		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
 			if iLeader in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS:
 				continue
 
@@ -387,7 +392,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 		# Third pass: compute raw aggregate scores
 		b_invert_attitude_percent, b_invert_decay = get_memory_attitude_percent_and_decay_invert_flags(is_positive, is_affection)
 		
-		for iLeader in range(gc.getNumLeaderHeadInfos()):
+		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
 			if iLeader in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS:
 				continue
 
@@ -586,7 +591,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 		leader_info_minimums = {}
 		leader_info_maximums = {}
 
-		for iLeader in range(gc.getNumLeaderHeadInfos()):
+		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
 			if iLeader in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS:
 				continue
 
@@ -603,7 +608,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 			# <!-- custom: parse fields with nested or/and with incremental getters as flat fields with an alternative key so we can loop over them more easily and reorder them later if need(ed?) anyways etc, also our code is more consistent this way anyways etc -->
 			# ==== FLAVORS ====
-			for i in range(gc.getNumFlavorTypes()):
+			for i in xrange(gc.getNumFlavorTypes()):
 				# <!-- custom: store them as a parsed key name since getter is incremental and does nto directly reference the name of each flavor if i am not mistaken anyways etc -->
 				value_flavor = loopLeaderHeadInfo.getFlavorValue(i)
 				flavor_type = gc.getFlavorTypes(i)  # e.g. "FLAVOR_MILITARY"
@@ -612,7 +617,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 				computeAndStoreMinMaxOfOneKey(parsed_name_flavor, value_flavor, leader_info_minimums, leader_info_maximums)
 
 			# ==== CONTACTS ====
-			for i in range(NUM_CONTACT_TYPES_ASSESSED):
+			for i in xrange(NUM_CONTACT_TYPES_ASSESSED):
 				# <!-- custom: compute minimum and maximum among all leaders for raw contact fields, which here and as of now if i am not mistaken are only contact rands and contact delays anyways etc -->
 				# <!-- custom: Step 1: Raw contact rands and delays -->
 				contact_type = gc.getContactTypes(i) # e.g. "CONTACT_JOIN_WAR"
@@ -662,7 +667,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 						computeAndStoreMinMaxOfOneKey(parsed_name_aggregated_raw_positive_or_negative_memory_affection_or_resentment, value_aggregated_raw_positive_or_negative_memory_affection_or_resentment, leader_info_minimums, leader_info_maximums)
 
 			# ==== NOWARATTITUDEPROBS ====
-			for i in range(NUM_ATTITUDE_TYPES_ASSESSED):
+			for i in xrange(NUM_ATTITUDE_TYPES_ASSESSED):
 				value_no_war_attitude_prob = loopLeaderHeadInfo.getNoWarAttitudeProb(i)
 				attitude_type = gc.getAttitudeInfo(i).getType()  # e.g. "ATTITUDE_FURIOUS"
 				suffix = get_pascal_case_suffix(attitude_type)  # → "Furious"
@@ -871,7 +876,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 		positive_and_negative_memory_index_labels.update(positive_memory_index_labels)
 		positive_and_negative_memory_index_labels.update(negative_memory_index_labels)
 
-		for iLeader in range(gc.getNumLeaderHeadInfos()):
+		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
 			if iLeader in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS:
 				continue
 
@@ -909,7 +914,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 			b_invert_flavors = False
 			symbol_flavors = all_symbols["RAW_SCALE_SYMBOL"]
-			for i in range(gc.getNumFlavorTypes()):
+			for i in xrange(gc.getNumFlavorTypes()):
 				flavor_type = gc.getFlavorTypes(i)  # e.g. "FLAVOR_MILITARY"
 				suffix = get_pascal_case_suffix(flavor_type) # → "Military"
 				parsed_name_flavor = "iFlavor%s" % suffix  # → iFlavorMilitary
@@ -931,7 +936,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 			b_invert_4_aggregated_contact_probs = False
 			symbol_aggregated_contact_probs = all_symbols["AGGREGATED_SCALE_SYMBOL"]
-			for i in range(NUM_CONTACT_TYPES_ASSESSED):
+			for i in xrange(NUM_CONTACT_TYPES_ASSESSED):
 				contact_type = gc.getContactTypes(i) # e.g. "CONTACT_JOIN_WAR"
 				suffix = get_pascal_case_suffix(contact_type) # → "JoinWar"
 				label_contact = contact_index_labels[i]
@@ -1070,7 +1075,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 
 			b_invert_no_war_attitude_probs = False
 			symbol_no_war_attitude_probs = all_symbols["RAW_SCALE_SYMBOL"]
-			for i in range(NUM_ATTITUDE_TYPES_ASSESSED):
+			for i in xrange(NUM_ATTITUDE_TYPES_ASSESSED):
 				attitude_type = gc.getAttitudeInfo(i).getType()  # e.g. "ATTITUDE_FURIOUS"
 				suffix = get_pascal_case_suffix(attitude_type)  # → "Furious"
 				parsed_name_no_war_attitude_prob = "iNoWarAttitudeProb%s" % suffix  # → iNoWarAttitudeProbFurious
@@ -1682,7 +1687,7 @@ class SevoPediaLeader:
 	# <!-- custom: logo / flag of the civ -->
 	def placeCiv(self):
 		screen = self.top.getScreen()
-		for iCiv in range(gc.getNumCivilizationInfos()):
+		for iCiv in xrange(gc.getNumCivilizationInfos()):
 			civ = gc.getCivilizationInfo(iCiv)
 			if civ.isLeaders(self.iLeader):
 				screen.setImageButton(self.top.getNextWidgetName(), civ.getButton(), self.X_CIV, self.Y_CIV, self.W_CIV, self.H_CIV, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iCiv, 1)
@@ -1693,7 +1698,7 @@ class SevoPediaLeader:
 	@staticmethod
 	def getCiv(iLeader):
 		iNumCivs = 0
-		for iCiv in range(gc.getNumCivilizationInfos()):
+		for iCiv in xrange(gc.getNumCivilizationInfos()):
 			if gc.getCivilizationInfo(iCiv).isLeaders(iLeader):
 				iNumCivs += 1
 				iLeaderCiv = iCiv
