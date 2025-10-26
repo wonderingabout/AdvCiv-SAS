@@ -3389,8 +3389,11 @@ void CvDLLWidgetData::parseChangeSpecialistHelp(
 	int const iChange = widgetDataStruct.m_iData2;
 	if (iChange > 0)
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
+
 		GAMETEXT.parseSpecialistHelp(szBuffer, eSpecialist, pHeadSelectedCity);
-		if (widgetDataStruct.m_iData1 != GC.getDEFAULT_SPECIALIST())
+		if (widgetDataStruct.m_iData1 != eDefaultSpecialist)
 		{
 			if (!GET_PLAYER(pHeadSelectedCity->getOwner()).
 					isSpecialistValid((SpecialistTypes)widgetDataStruct.m_iData1))

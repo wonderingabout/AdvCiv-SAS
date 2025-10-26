@@ -26434,6 +26434,10 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
 	if (isHuman())
 		return; // Humans can use their own reasoning for choosing specialists
 
+	// // <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// // <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	// static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
+		
 	FOR_EACH_ENUM(Specialist)
 	{
 		UnitClassTypes eGreatPersonClass = (UnitClassTypes)
@@ -26448,7 +26452,7 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
 			continue;
 		/* I've disabled the validity check, because 'invalid' specialists
 			still affect the value of the things that enable them. */
-		/*bool bValid = isSpecialistValid((SpecialistTypes)i) || i == GC.getDEFAULT_SPECIALIST();
+		/*bool bValid = isSpecialistValid((SpecialistTypes)i) || i == eDefaultSpecialist;
 		FOR_EACH_CITY(pLoopCity, *this) {
 			if (pLoopCity->getMaxSpecialistCount((SpecialistTypes)i) > 0) {
 				bValid = true;

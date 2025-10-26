@@ -9215,6 +9215,10 @@ void CvCity::alterSpecialistCount(SpecialistTypes eSpecialist, int iChange)
 	}
 	else
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+		static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
+
 		for (int i = 0; i < -iChange; i++)
 		{
 			if (getSpecialistCount(eSpecialist) <= 0)
@@ -9222,10 +9226,10 @@ void CvCity::alterSpecialistCount(SpecialistTypes eSpecialist, int iChange)
 
 			changeSpecialistCount(eSpecialist, -1);
 
-			if (eSpecialist != GC.getDEFAULT_SPECIALIST() &&
-				GC.getDEFAULT_SPECIALIST() != NO_SPECIALIST)
+			if (eSpecialist != eDefaultSpecialist &&
+				eDefaultSpecialist != NO_SPECIALIST)
 			{
-				changeSpecialistCount(GC.getDEFAULT_SPECIALIST(), 1);
+				changeSpecialistCount(eDefaultSpecialist, 1);
 				continue;
 			}
 			if (extraFreeSpecialists() > 0)
@@ -9249,9 +9253,12 @@ void CvCity::alterSpecialistCount(SpecialistTypes eSpecialist, int iChange)
 
 bool CvCity::isSpecialistValid(SpecialistTypes eSpecialist, int iExtra) const
 {
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
+
 	return (getSpecialistCount(eSpecialist) + iExtra <= getMaxSpecialistCount(eSpecialist) ||
 		GET_PLAYER(getOwner()).isSpecialistValid(eSpecialist) ||
-		eSpecialist == GC.getDEFAULT_SPECIALIST());
+		eSpecialist == eDefaultSpecialist);
 }
 
 
@@ -9485,9 +9492,12 @@ void CvCity::alterWorkingPlot(CityPlotTypes ePlot)
 	setCitizensAutomated(false);
 	if (isWorkingPlot(ePlot))
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
+
 		setWorkingPlot(ePlot, false);
-		if (GC.getDEFAULT_SPECIALIST() != NO_SPECIALIST)
-			changeSpecialistCount(GC.getDEFAULT_SPECIALIST(), 1);
+		if (eDefaultSpecialist != NO_SPECIALIST)
+			changeSpecialistCount(eDefaultSpecialist, 1);
 		else AI().AI_addBestCitizen(false, true);
 	}
 	else if (extraPopulation() > 0 || AI().AI_removeWorstCitizen())

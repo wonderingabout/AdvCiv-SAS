@@ -5087,13 +5087,17 @@ void CvGameTextMgr::setPlotHelpDebug_ShiftAltOnly(CvWStringBuffer& szString, CvP
 			setCityPlotYieldValueString(szString, pCity, 15, bIgnoreFood, iGrowthValue);
 			setCityPlotYieldValueString(szString, pCity, 14, bIgnoreFood, iGrowthValue);
 
+			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+			// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+			static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)eDefaultSpecialist;
+
 			// show specialist values too
 			for (int iI = 0; iI < GC.getNumSpecialistInfos(); ++iI)
 			{
 				int iMaxThisSpecialist = pCity->getMaxSpecialistCount((SpecialistTypes) iI);
 				int iSpecialistCount = pCity->getSpecialistCount((SpecialistTypes) iI);
 				bool bUsingSpecialist = (iSpecialistCount > 0);
-				bool bDefaultSpecialist = (iI == GC.getDEFAULT_SPECIALIST());
+				bool bDefaultSpecialist = (iI == eDefaultSpecialist);
 
 				// can this city have any of this specialist?
 				if (iMaxThisSpecialist > 0 || bDefaultSpecialist)

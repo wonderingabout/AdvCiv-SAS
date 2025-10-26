@@ -5776,6 +5776,10 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 	int const iHasMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
 	// <!-- custom: end of moved block anyways etc -->
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
+
 	int iValue = 0;
 	for (int iPass = 0; iPass < 2; iPass++)
 	{
@@ -6068,7 +6072,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			// K-Mod. (original code deleted)
 			int iSpecialistsValue = 0;
 			//int iUnusedSpecialists = 0;
-			SpecialistTypes const eDefaultSpecialist = GC.getDEFAULT_SPECIALIST();
+			
 			int iAvailableWorkers = iFoodDifference / 2;
 			if (eDefaultSpecialist != NO_SPECIALIST)
 				iAvailableWorkers += getSpecialistCount(eDefaultSpecialist);
@@ -12667,18 +12671,21 @@ bool CvCityAI::AI_removeWorstCitizen(SpecialistTypes eIgnoreSpecialist)
 	// if we are using more specialists than the free ones we get
 	if (extraFreeSpecialists() < 0)
 	{
+		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+		static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
+
 		// does generic 'citizen' specialist exist?
-		if (GC.getDEFAULT_SPECIALIST() != NO_SPECIALIST)
+		if (eDefaultSpecialist != NO_SPECIALIST)
 		{
 			// is ignore something other than generic citizen?
-			if (eIgnoreSpecialist != GC.getDEFAULT_SPECIALIST())
+			if (eIgnoreSpecialist != eDefaultSpecialist)
 			{
 				// do we have at least one more generic citizen than we are forcing?
-				if (getSpecialistCount((SpecialistTypes)GC.getDEFAULT_SPECIALIST()) >
-					getForceSpecialistCount((SpecialistTypes)GC.getDEFAULT_SPECIALIST()))
+				if (getSpecialistCount(eDefaultSpecialist) >
+					getForceSpecialistCount(eDefaultSpecialist))
 				{
 					// remove the extra generic citzen
-					changeSpecialistCount((SpecialistTypes)GC.getDEFAULT_SPECIALIST(), -1);
+					changeSpecialistCount(eDefaultSpecialist, -1);
 					return true;
 				}
 			}
@@ -13925,12 +13932,15 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 
 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
+
 	// <!-- custom: code provided by gemini ai (and chatgpt's help too at first hehe but anyways etc) and adjusted or not for advciv-sas anyways etc, to prevent AI from choosing the citizen specialist, which is generally if not almost always a bad or inefficient choice, espcially crippling in the early game i think but anyways etc. As gemini AI did, it is also more efficient computationally to early return at beginning of function rather than do all computation just to return an int without any computation.  Early return and drastic disallowing is more efficient computationally and strategically, i can barely see cases where the citizen specialist would be valuable. Originally this code returned 1 as gemini ai did and had suggested in code comment below, but then as per chatgpt 5's review now released hehe with available code samples, and while adding the strict population limit to address AI cities wrongly assigning inefficiently/too early sometimes specialists and then stagnating (see below for details) or such similar or relatded issue if i'm not mistaken but anyways etc, use a lower value to be safe and better cover edge cases, unlike what is written below from gemini ai, kept for exhaustiveness and just in case, hopefully helpful or not or yes or etc, anyways etc -->
 	if (!kOwner.isHuman())
 	{
 		// <!-- custom: update: recommended by chatgpt 5 to use a high negative value such as -100000 instead of 1 in case other values could be lower and then our specialist unwantingly still being chosen if i understood its explanation correctly. To avoid that, use a very negative value, still high enough to avoid overflow according to my understanding of chatgpt's explanation, check if accurate and relevant here anyways etc -->
 		static const int AI_JOB_FORBIDDEN = -100000; // decisively low, far from overflow/underflow
-		static const SpecialistTypes eSpecialistDefault = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
 
 		const int iCityPopulation = getPopulation();
 
@@ -13972,7 +13982,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 		// Note: A similar idea (devaluing generic citizens) was previously present in commented-out code towards the end of this function.
 		// This new approach provides a stronger, direct override for AI players.
 		// If the 'new_job' being considered is a specialist AND it's the default Citizen specialist
-		if ((eSpecialistDefault != NO_SPECIALIST) && new_job.first && (new_job.second == eSpecialistDefault))
+		if ((eDefaultSpecialist != NO_SPECIALIST) && new_job.first && (new_job.second == eDefaultSpecialist))
 		{
 			// Return a very low, positive value. This makes it undesirable for the AI
 			// compared to actual plots or other specialists, effectively making them avoid it.
@@ -14233,7 +14243,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 		}
 		// Devalue generic citizens (for no specific reason). (cf. AI_specialistValue)
 		/* if (no gpp) {
-			SpecialistTypes eGenericCitizen = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
+			SpecialistTypes eGenericCitizen = eDefaultSpecialist;
 			if (eGenericCitizen != NO_SPECIALIST) {
 				if (new_job.first && new_job.second == eGenericCitizen)
 					iTotalValue = iTotalValue * 80 / 100;
@@ -14434,11 +14444,15 @@ int CvCityAI::AI_growthValuePerFood() const
 
 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
+
 	FOR_EACH_ENUM2(Specialist, eSpec)
 	{
 		// cf. CvCity::isSpecialistValid
 		int iAvailable = (kOwner.isSpecialistValid(eSpec) ||
-				eSpec == GC.getDEFAULT_SPECIALIST()) ? 3 :
+				eSpec == eDefaultSpecialist) ? 3 :
 				std::min(3, getMaxSpecialistCount(eSpec) - getSpecialistCount(eSpec));
 		// this could get messed up by free specialists. I'm not sure if that's a problem.
 		int iCurrent = getSpecialistCount(eSpec);
@@ -15630,6 +15644,11 @@ int CvCityAI::AI_calculateTargetCulturePerTurn() const
 int CvCityAI::AI_countGoodSpecialists(bool bHealthy) const
 {
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
+
+	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+	static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
+
 	int iCount = 0;
 	FOR_EACH_ENUM2(Specialist, eSpecialist)
 	{
@@ -15650,7 +15669,7 @@ int CvCityAI::AI_countGoodSpecialists(bool bHealthy) const
 			//iCount += getMaxSpecialistCount(eSpecialist);
 			// K-Mod
 			if (kPlayer.isSpecialistValid(eSpecialist) ||
-				eSpecialist == GC.getDEFAULT_SPECIALIST())
+				eSpecialist == eDefaultSpecialist)
 			{
 				return getPopulation(); // unlimited
 			}
