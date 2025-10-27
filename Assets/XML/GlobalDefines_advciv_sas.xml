@@ -838,10 +838,28 @@
 		<DefineName>SAS_DO_TURN_FORCE_ARTIST_FOR_BFC_MIN_NO_CULTURE_PER_TURN_THRESHOLD</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
-	<!-- custom: note: setting to 1 it looks like this doesn't work, so it seems like BFC-level culture ("Fledging") is actually 2 and not 1 based on autoplay result (but check to be sure), while "Poor" culture level is 1 not 0 it seems based on autoplay but again check to be sure as it is just a guess anyways etc (more or less 10 total culture if i'm not mistaken but anyways etc), 2 = next culture level which is i think around 100 total culture (check to be sure as i didn't check i mean but anyways etc), recommended to keep to BFC-level threshold so that we don't force artists anymore past this point (i.e. once we have BFC but anyways etc) -->
+	<!-- custom: note: setting to 1 it looks like this doesn't work, so it seems like BFC-level culture ("Fledgling") is actually 2 and not 1 based on autoplay result (but check to be sure), while "Poor" culture level is 1 not 0 it seems based on autoplay but again check to be sure as it is just a guess anyways etc (more or less 10 total culture if i'm not mistaken but anyways etc), 2 = next culture level which is i think around 100 total culture (check to be sure as i didn't check i mean but anyways etc), recommended to keep to BFC-level threshold so that we don't force artists anymore past this point (i.e. once we have BFC but anyways etc) -->
 	<Define>
 		<DefineName>SAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: water food building (as of now building_harbor anyways etc) emergency/force anyways etc production choice for a city if it is low food and coastal. Set to 1 to enable (recommended, fixes AI cities in autoplay stagnant for dozen turns while being coastal and surrounded by tundra, but never building a harbor (or whatever building the water food building is anyways etc)), 0 to disable it -->
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: if food per turn in city is <= 1 food per turn and city is coastal, then force harbor as we would stagnate soon anyway -->
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING_FOOD_THRESHOLD</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: whichever XML name is for the water food building class (in advciv-sas the harbor buildings give +1 food on water tile, adjust based on your building info xml to prioritize building this if low food and coastal if you want to anyways etc) -->
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING_BUILDINGCLASS_FULL_NAME</DefineName>
+		<DefineTextVal>BUILDINGCLASS_HARBOR</DefineTextVal>
 	</Define>
 
 

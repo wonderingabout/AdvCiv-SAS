@@ -569,13 +569,71 @@ void CvCity::doTurn()
 
 	doProduction(!bForceProduction);
 
+	// <!-- custom: forcing buildings in chooseproduction is sometimes ignored or slow to fire in autoplay, put it here in doturn for max effectiveness and reliability if i'm not mistaken but anyways etc -->
+	const bool bHuman = isHuman();
+	bool const bDanger  = AI().AI_isDanger();	// method lives on CvCityAI
+	// <!-- custom: add this to make sure we don't overlap our previously chosen emergency building with some other logic if i'm not mistaken but anyways etc -->
+	bool bEmergencyBuilding = false;
+
+	// <!-- custom: emergency harbor (or whatever the water food building is in your mod anyways etc) is top priority if city is coastal, low food per turn (stagnant coastal tundra cities in autoplay never build a harbor and stay low food for dozen turns), code added thanks to chatgpt 5 and my prompts and adjustments anyways etc and/or such, check if accurate anyways etc -->
+	// --- SAS: force Harbor ASAP if coastal & buildable (no era/pop checks) ---
+	static const bool bSAS_DO_TURN_FORCE_WATER_FOOD_BUILDING = GC.getDefineBOOL("SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING");
+
+	// Optional (recommended) war–danger gate
+	// So you don’t cancel a critical unit in a besieged city:
+	if (bSAS_DO_TURN_FORCE_WATER_FOOD_BUILDING && !bHuman && !bDanger)
+	{
+		// The low-food gate matches your original intent (fix tundra coasts that stagnate), while leaving healthy coastals alone.
+		const int iOceanThresh = GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN);
+		const bool bOceanCoastal = isCoastal(iOceanThresh); // excludes lakes
+
+		// <!-- custom: save some computation, don't run what's next unless we have a coastal city, which should remove most if i'm not mistaken but is just a guess so check to be sure anyways etc. -->
+		if (bOceanCoastal && !isFoodProduction())
+		{
+			// Threshold: 1 = low food or worse.
+			static const int iFoodThresh = GC.getDefineINT("SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING_FOOD_THRESHOLD"); // e.g. 1
+			const int iFoodDiff = foodDifference();
+			const bool bLowFood = (iFoodDiff <= iFoodThresh);
+
+			if (bLowFood)
+			{
+				// <!-- custom: performance optimization: compute this only once if i'm not mistaken anyways etc; e.g. "BUILDINGCLASS_HARBOR", check defines for string value anyways etc. -->
+				static const BuildingClassTypes eWaterFoodBuildingClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING_BUILDINGCLASS_FULL_NAME"));
+				BuildingTypes eWaterFoodBuilding = NO_BUILDING;
+				if (eWaterFoodBuildingClass != NO_BUILDINGCLASS)
+				{
+					eWaterFoodBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(eWaterFoodBuildingClass);
+				}
+
+				if ((eWaterFoodBuilding != NO_BUILDING) &&
+					getNumActiveBuilding(eWaterFoodBuilding) == 0 &&
+					canConstruct(eWaterFoodBuilding, false, false, true))
+				{
+					// if already building Harbor, let it finish
+					if (getProductionBuilding() == eWaterFoodBuilding)
+					{
+						bEmergencyBuilding = true;	// <!-- custom: don't overwrite urgent building anyways etc -->
+					}
+					else
+					{
+						clearOrderQueue();                       		// hard override
+						pushOrder(ORDER_CONSTRUCT, eWaterFoodBuilding);	// put Harbor at head
+						setChooseProductionDirty(false);         		// don't clear it next turn
+						bEmergencyBuilding = true;						// done
+					}
+				}
+			}
+		}
+	}
+	// --- end SAS rule ---
+
 	// <!-- custom: we had an issue of AI cities sometimes having seemingly no production at all for several turns, see known issue as of now 51 for examples and details. It seems to have happened in base advciv as well in an example i had documented, although the issue may have been something else back then as it was at end game and affected the human player too (i.e. me at the time xd if i may say but anyways etc) (or maybe not something else? In this case i mean but anyways etc) vs early game now in advciv-sas. In all cases, this was crippling, now worked around reliably and successfully as below but anyways etc with the help of chatgpt 5 but anyways etc, check if accurate anyways etc -->
 	// --- BEGIN: hard safety net for AI production ---
 	// <!-- custom: we now successfully always avoid the no production, and other cities don't fall back to our fall back if they have a valid production -->
 	// <!-- custom: note: chatgpt 5 recommends adding !isDisorder() / !isOccupation() to quote it xd but anyways etc, as for me i didn't add them for simplicity and as long as works and for reliability in case these cause other issues or not or yes or etc but anyways etc, but if you or me or such notice issues consider adding one or both of these in this case i mean but anyways etc -->
 	static const bool bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD");
 
-	if (!isHuman() && bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD)
+	if (!bEmergencyBuilding && !bHuman && bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD)
 	{
 		// <!-- custom: previous issue was: if a city fell once in no production and this was avoided by our fallback here, then it will never ever exit the fallback loop, despite having only 1 unit currently built in queue, and the other cities doing fine (building granaries, settlers, scouts, barracks, anything it seems) but not our city that fell into the fallback and seemingly can't get out of it at next production (at least in next 20 turns anyways etc), trying to change the bNeedFallback to prevent that, while keeping effectiveness of the fallback otherwise anyways etc; result: very effective! No more no production still, and japan ai gets out of the fallback successfully switching to a settler a few turns later thanks a lot chatgpt 5 anyways etc -->
 		//const bool bNeedFallback = !isProduction();
@@ -661,7 +719,7 @@ void CvCity::doTurn()
 			// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate anyways etc -->
 			// change to:
 			bool const bWarPlan = kOwner.AI().AI_isFocusWar();   // method lives on CvPlayerAI
-			bool const bDanger  = AI().AI_isDanger();            // method lives on CvCityAI
+			// bool const bDanger  = AI().AI_isDanger();            // method lives on CvCityAI
 			// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate, anyways etc -->
 			const bool bAtWar = (GET_TEAM(getTeam()).getNumWars() > 0);
 			const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
@@ -1054,7 +1112,7 @@ void CvCity::doTurn()
 	// <!-- custom: force an artist if we don't have our BFC and city's culture per turn is low -->
 	// --- BEGIN: SAS hard patch: force 1 Artist for fast BFC when culture/turn is low ---
 	static const bool bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE = GC.getDefineBOOL("SAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE");
-	if (!isHuman() && bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE)
+	if (!bHuman && bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE)
 	{
 		static const int iLowCpt = GC.getDefineINT("SAS_DO_TURN_FORCE_ARTIST_FOR_BFC_MIN_NO_CULTURE_PER_TURN_THRESHOLD");
 
@@ -1093,7 +1151,7 @@ void CvCity::doTurn()
 	}  // <advc.004x>
 	else
 	{
-		if(isHuman() && !isProduction() && !isProductionAutomated() &&
+		if(bHuman && !isProduction() && !isProductionAutomated() &&
 			kOwner.getAnarchyTurns() == 1 &&
 			GC.getGame().getGameState() != GAMESTATE_EXTENDED)
 		{

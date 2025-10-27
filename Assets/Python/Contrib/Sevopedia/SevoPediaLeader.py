@@ -288,6 +288,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 	MEM_NEG_IDX = tuple(get_negative_memory_indexes_to_types().keys())
 
 
+
 	def get_positive_or_negative_memory_indexes(is_positive):
 		# <!-- custom: similarly to contact aggregated code but for memory fields, that have positive/negative memory affection/resentment aggregated probs, see generate_leaders_data.py code or/and code comments for details anyways etc -->
 		# <!-- custom: use memory indexes instead rather than types (string of full memory type name) as we fetch from DLL directly in sevopedia leader unlike in generate_leaders_data.py so we have access to these indexes so use them if i am not mistaken in my understanding anyways etc -->

@@ -5092,6 +5092,7 @@
 			<iPower>0</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<!-- custom: get this effect from the old lighthouse before its rework, anyways etc, was empty anyways etc -->
+			<!-- custom: see related info and define to configure at SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING_BUILDINGCLASS_FULL_NAME but anyways etc -->
 			<SeaPlotYieldChanges>
 				<iYield>1</iYield>
 			</SeaPlotYieldChanges>
@@ -5288,6 +5289,7 @@
 			<iPower>0</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
 			<!-- custom: get this effect from the old lighthouse before its rework, anyways etc, was empty anyways etc -->
+			<!-- custom: see related info and define to configure at SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING_BUILDINGCLASS_FULL_NAME but anyways etc -->
 			<SeaPlotYieldChanges>
 				<iYield>1</iYield>
 			</SeaPlotYieldChanges>
