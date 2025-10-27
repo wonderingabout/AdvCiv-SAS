@@ -817,4 +817,33 @@
 		<DefineName>SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MOD_PLUS_HORSE_PCT</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
+
+
+
+	<!-- custom: set to 1 (enabled) (recommended) to allow sas specialist assignment optimizations (if any are implemented) anyways etc -->
+	<Define>
+		<DefineName>SAS_JOB_CHANGE_VALUE_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: set to 1 to enable the advciv-sas optimization of forcing an artist if no bfc and city's culture per turn is low (0 to disable it) -->
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: if city has less than this amount of culture per turn, and still no BFC, force an artist specialist regardless of previous rules (like no specialist if low pop, now ignored anyways etc). Example: < 3 culture per turn is too slow so we want an artist specialist until we have our BFC.  -->
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_ARTIST_FOR_BFC_MIN_NO_CULTURE_PER_TURN_THRESHOLD</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<!-- custom: note: setting to 1 it looks like this doesn't work, so it seems like BFC-level culture ("Fledging") is actually 2 and not 1 based on autoplay result (but check to be sure), while "Poor" culture level is 1 not 0 it seems based on autoplay but again check to be sure as it is just a guess anyways etc (more or less 10 total culture if i'm not mistaken but anyways etc), 2 = next culture level which is i think around 100 total culture (check to be sure as i didn't check i mean but anyways etc), recommended to keep to BFC-level threshold so that we don't force artists anymore past this point (i.e. once we have BFC but anyways etc) -->
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+
+
+
 </Civ4Defines>

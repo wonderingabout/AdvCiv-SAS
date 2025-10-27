@@ -13937,40 +13937,59 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 	static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
 
 	// <!-- custom: code provided by gemini ai (and chatgpt's help too at first hehe but anyways etc) and adjusted or not for advciv-sas anyways etc, to prevent AI from choosing the citizen specialist, which is generally if not almost always a bad or inefficient choice, espcially crippling in the early game i think but anyways etc. As gemini AI did, it is also more efficient computationally to early return at beginning of function rather than do all computation just to return an int without any computation.  Early return and drastic disallowing is more efficient computationally and strategically, i can barely see cases where the citizen specialist would be valuable. Originally this code returned 1 as gemini ai did and had suggested in code comment below, but then as per chatgpt 5's review now released hehe with available code samples, and while adding the strict population limit to address AI cities wrongly assigning inefficiently/too early sometimes specialists and then stagnating (see below for details) or such similar or relatded issue if i'm not mistaken but anyways etc, use a lower value to be safe and better cover edge cases, unlike what is written below from gemini ai, kept for exhaustiveness and just in case, hopefully helpful or not or yes or etc, anyways etc -->
-	if (!kOwner.isHuman())
+
+	static const bool bSAS_JOB_CHANGE_VALUE_OPTIMIZE = GC.getDefineBOOL("SAS_JOB_CHANGE_VALUE_OPTIMIZE");
+
+	if (bSAS_JOB_CHANGE_VALUE_OPTIMIZE && !kOwner.isHuman())
 	{
+		// <!-- custom: before the no specialist at low pop rule, and regardless of city population, handle the exception where we absolutely need an artist to get our BFC, if city has low or no culture. Code provided by chatgpt 5 and thanks to my prompts and/or such and that i adjusted and/or such, check if accurate anyways etc -->
+		// --- Simple BFC Artist precheck ---------------------------------------------
+		// If we don't have BFC yet (level < 1) and city culture is very low (<3),
+		// force-pick exactly one Artist; and don't drop it until BFC is reached.
+		static const bool bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE = GC.getDefineBOOL("SAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE");
+
+		static const int iSAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD = GC.getDefineINT("SAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD");
+		const bool bBelowCultureLevel = (getCultureLevel() < iSAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD);
+
+		static const SpecialistTypes eSpecialistArtist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ARTIST");
+
+		const bool bWantBFCArtist = (bBelowCultureLevel && bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE && (eSpecialistArtist != NO_SPECIALIST));
+
 		// <!-- custom: update: recommended by chatgpt 5 to use a high negative value such as -100000 instead of 1 in case other values could be lower and then our specialist unwantingly still being chosen if i understood its explanation correctly. To avoid that, use a very negative value, still high enough to avoid overflow according to my understanding of chatgpt's explanation, check if accurate and relevant here anyways etc -->
 		static const int AI_JOB_FORBIDDEN = -100000; // decisively low, far from overflow/underflow
 
-		const int iCityPopulation = getPopulation();
-
-		// <!-- custom: AIs often misassign specialists especially when their city is still small and perhaps low food too, resulting in pop 2 cities being stagnant. Sometimes even 2 specialists were assigned in said cities. Happened to barbarians too. It would be amazing to retweak all, but i believe a simple sanity/safe patch of preventing cities <= 4 to use a specialist of any kind would help a lot, see known issue as of now 45 for details anyways etc, also code by chatgpt 5 that i adjusted or not or yes or etc but anyways etc, check if accurate and thanks for help chatgpt 5 hehe anyways etc -->
-		if (iCityPopulation <= 4)
+		if (!bWantBFCArtist)
 		{
-			if (new_job.first && !old_job.first)
-			{
-				return AI_JOB_FORBIDDEN;
-			}
-		}
-		// <!-- custom: also disable/discourage AI from choosing a specialist for any bigger size city if they can still grow before that, hopefully also helps them be more efficient and stronger without killing versatility if i am not mistaken anyways etc -->
-		// <!-- custom: update: generalizing the previous is "grow when you can instead of assigning any specialist" policy below now to all bigger sized cities without population cap anymore if i am not mistaken but anyways etc, as some cities still are inefficiently stagnant when they could have grown first instead, see known issue as of now 45 for details with screenshots anyways etc -->
-		// <!-- custom: also note if i may say but anyways etc: on the plus side as well, not having to think about specialists at all in some conditions will probably save quite a lot or a bit at least if i may say of computation as well as a nice side effect too hopefully while preserving versatility or preserving it enough and assuming our change works as intended if i am not mistaken (would need to test more to be sure but anyways etc)-->
-		// strict growth-first rule for small-but-not-tiny cities with headroom
-		// Block *hiring* specialists when: pop >= 7, net happy ≥ 1, food surplus ≥ 2,
-		// and we're NOT in food→production mode (Settlers/Workers).
-		// <!-- custom: update: generalizing this "grow when you can instead of assigning any specialist" policy, as some cities still are inefficiently stagnant when they could have grown first instead, see known issue as of now 45 for details with screenshots anyways etc -->
-		// else if (iCityPopulation <= 7 && !isFoodProduction() && (iHappySurplus >= 1))
-		else
-		{
-			const int iHappySurplus = (happyLevel() - unhappyLevel(0));
+			const int iCityPopulation = getPopulation();
 
-			if (!isFoodProduction() && (iHappySurplus >= 1))
+			// <!-- custom: AIs often misassign specialists especially when their city is still small and perhaps low food too, resulting in pop 2 cities being stagnant. Sometimes even 2 specialists were assigned in said cities. Happened to barbarians too. It would be amazing to retweak all, but i believe a simple sanity/safe patch of preventing cities <= 4 to use a specialist of any kind would help a lot, see known issue as of now 45 for details anyways etc, also code by chatgpt 5 that i adjusted or not or yes or etc but anyways etc, check if accurate and thanks for help chatgpt 5 hehe anyways etc -->
+			if (iCityPopulation <= 4)
 			{
-				int const iFoodSurplus = getYieldRate(YIELD_FOOD) - foodConsumption();
-
-				if (iFoodSurplus >= 2 && new_job.first && !old_job.first)
+				if (new_job.first /* hiring any specialist */)
 				{
 					return AI_JOB_FORBIDDEN;
+				}
+			}
+			// <!-- custom: also disable/discourage AI from choosing a specialist for any bigger size city if they can still grow before that, hopefully also helps them be more efficient and stronger without killing versatility if i am not mistaken anyways etc -->
+			// <!-- custom: update: generalizing the previous is "grow when you can instead of assigning any specialist" policy below now to all bigger sized cities without population cap anymore if i am not mistaken but anyways etc, as some cities still are inefficiently stagnant when they could have grown first instead, see known issue as of now 45 for details with screenshots anyways etc -->
+			// <!-- custom: also note if i may say but anyways etc: on the plus side as well, not having to think about specialists at all in some conditions will probably save quite a lot or a bit at least if i may say of computation as well as a nice side effect too hopefully while preserving versatility or preserving it enough and assuming our change works as intended if i am not mistaken (would need to test more to be sure but anyways etc)-->
+			// strict growth-first rule for small-but-not-tiny cities with headroom
+			// Block *hiring* specialists when: pop >= 7, net happy ≥ 1, food surplus ≥ 2,
+			// and we're NOT in food→production mode (Settlers/Workers).
+			// <!-- custom: update: generalizing this "grow when you can instead of assigning any specialist" policy, as some cities still are inefficiently stagnant when they could have grown first instead, see known issue as of now 45 for details with screenshots anyways etc -->
+			// else if (iCityPopulation <= 7 && !isFoodProduction() && (iHappySurplus >= 1))
+			else
+			{
+				const int iHappySurplus = (happyLevel() - unhappyLevel(0));
+
+				if (!isFoodProduction() && (iHappySurplus >= 1))
+				{
+					int const iFoodSurplus = getYieldRate(YIELD_FOOD) - foodConsumption();
+
+					if (iFoodSurplus >= 2 && new_job.first)
+					{
+						return AI_JOB_FORBIDDEN;
+					}
 				}
 			}
 		}

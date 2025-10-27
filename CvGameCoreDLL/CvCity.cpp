@@ -1051,6 +1051,36 @@ void CvCity::doTurn()
 		would make production turns difficult to anticipate. */
 	AI().AI_assignWorkingPlots();
 
+	// <!-- custom: force an artist if we don't have our BFC and city's culture per turn is low -->
+	// --- BEGIN: SAS hard patch: force 1 Artist for fast BFC when culture/turn is low ---
+	static const bool bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE = GC.getDefineBOOL("SAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE");
+	if (!isHuman() && bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE)
+	{
+		static const int iLowCpt = GC.getDefineINT("SAS_DO_TURN_FORCE_ARTIST_FOR_BFC_MIN_NO_CULTURE_PER_TURN_THRESHOLD");
+
+		// "No BFC yet" = still at the initial culture level (pre-10 culture)
+		static const int iSAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD = GC.getDefineINT("SAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD");
+		const bool bNoCultureLevelReqYet = (getCultureLevel() < iSAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD);
+
+		static const SpecialistTypes eArtist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ARTIST");
+
+		// <!-- custom: save some computation, only run this if we are in no BFC anyways etc -->
+		if (bNoCultureLevelReqYet && eArtist != NO_SPECIALIST)
+		{
+			const int iCpt = getCommerceRate(COMMERCE_CULTURE);
+
+			// <!-- custom: note: after first artist is assigned, city's culture per turn is 4+, so we won't assign a second artist with this code i guess, and so no need to check or handle these cases if i'm not mistaken but anyways etc -->
+			if (iCpt <= iLowCpt)
+			{
+				if (getForceSpecialistCount(eArtist) < 1)
+				{
+					changeForceSpecialistCount(eArtist, 1);			
+				}
+			}
+		}
+	}
+	// --- END: SAS hard patch ---
+
 	updateEspionageVisibility(true);
 
 	if (!isDisorder())
