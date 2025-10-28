@@ -11305,59 +11305,6 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 		// <!-- custom: note: all values here are linked to their counterpart/equivalent in the canScrap function e.g. to know which is the max (decisions to scrap or not are not directly symetrical to what we do here to produce them (e.g. don't produce naval units at war on land, but don't scrap exist ones though), but may often be or not, in all cases please refer to each function to see the link between them if i may say but anyways etc -->
 		if (!bBarbarian)
 		{
-			// <!-- custom: add our pre-checks to help improve the naval dementia of overproducing naval units and pangea or/and scrapping them as well possibly, then being invaded and losing top city while having spent needlessly hammers on 20+ mix of galleons/privateers on pangea, fixing the overproducing part of the issue here by setting sanity gates / pre-checks before we push the final order, and so we can control here all order if i'm not mistaken but anyways etc -->
-			const bool bNavalFrontLineUnitAIs = (
-				(eChangedUnitAI == UNITAI_ATTACK_SEA) ||
-				(eChangedUnitAI == UNITAI_RESERVE_SEA) ||
-				(eChangedUnitAI == UNITAI_PIRATE_SEA)
-			);
-
-			const bool bNavalExploreSeaUnitAIs = (
-				(eChangedUnitAI == UNITAI_EXPLORE_SEA)
-			);
-
-			const bool bNavalSupportOffenseFrontUnitAIs = (
-				(eChangedUnitAI == UNITAI_ASSAULT_SEA)
-			);
-
-			const bool bNavalSupportDefenseFrontUnitAIs = (
-				(eChangedUnitAI == UNITAI_ESCORT_SEA)
-			);
-
-			const bool bNavalAirExtraUnitAIs = (
-				(eChangedUnitAI == UNITAI_CARRIER_SEA) ||
-				(eChangedUnitAI == UNITAI_MISSILE_CARRIER_SEA)
-			);
-
-			const bool bNavalSettlerSeaUnitAIs = (
-				(eChangedUnitAI == UNITAI_SETTLER_SEA)
-			);
-
-			const bool bNavalWorkerSeaUnitAIs = (
-				(eChangedUnitAI == UNITAI_WORKER_SEA)
-			);
-
-			const bool bNavalMissionarySeaUnitAIs = (
-				(eChangedUnitAI == UNITAI_MISSIONARY_SEA)
-			);
-
-			const bool bNavalSpySeaUnitAIs = (
-				(eChangedUnitAI == UNITAI_SPY_SEA)
-			);
-
-			const bool bAllHandledNavalUnitAIs = (
-				bNavalFrontLineUnitAIs ||
-				bNavalSupportOffenseFrontUnitAIs ||
-				bNavalSupportDefenseFrontUnitAIs ||
-				bNavalExploreSeaUnitAIs ||
-				bNavalAirExtraUnitAIs ||
-				//
-				bNavalSettlerSeaUnitAIs ||
-				bNavalWorkerSeaUnitAIs ||
-				bNavalMissionarySeaUnitAIs ||
-				bNavalSpySeaUnitAIs
-			);
-
 			const int iCurrentEra = kPlayer.getCurrentEra();
 			// <!-- custom: as of now eras are (see xml for details or/and updated version anyways etc -->
 			// 18,5: 			<Type>ERA_ANCIENT</Type> (0 i assume anyways etc)
@@ -11483,8 +11430,6 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					}
 				}
 
-
-				
 				if (bNoExcessSiegesAll)
 				{
 					// <!-- custom: if not in cases where we should not produce siege units at all for efficiency, consider the case we can/should, and add some sanity/efficiency limits if i may say but anyways etc -->
@@ -11650,7 +11595,14 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 								const int iMaxCost = iMaxHammerPerEra * (iCurrentEra + 1);
 
 								// prefetch civ UU mapping once
-								const CvCivilizationInfo& kCiv = GC.getInfo(kPlayer.getCivilizationType());
+								const CvCivilizationInfo& kCivInfo = GC.getInfo(kPlayer.getCivilizationType());
+
+								static const bool bSAS_INFLATE_CIV_SPECIFIC_UNIT = GC.getDefineBOOL("SAS_INFLATE_CIV_SPECIFIC_UNIT");
+								static const bool bSAS_INFLATE_CIV_SPECIFIC_ANY_OTHER_DEFAULT_UNITAI_UNIT = GC.getDefineBOOL("SAS_INFLATE_CIV_SPECIFIC_ANY_OTHER_DEFAULT_UNITAI_UNIT");
+
+								static const int iSAS_INFLATE_CIV_SPECIFIC_UNIT_MULT = GC.getDefineINT("SAS_INFLATE_CIV_SPECIFIC_UNIT_MULT");
+								static const int iSAS_INFLATE_CIV_SPECIFIC_UNIT_DIV = std::max(1, GC.getDefineINT("SAS_INFLATE_CIV_SPECIFIC_UNIT_DIV"));
+								static const int iSAS_INFLATE_CIV_SPECIFIC_UNIT_ADD = GC.getDefineINT("SAS_INFLATE_CIV_SPECIFIC_UNIT_ADD");
 
 								FOR_EACH_ENUM(Unit)
 								{
@@ -11706,16 +11658,20 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 										// prefer the civilization's unique unit (war chariot over horse archer, etc.)
 										// score = cost, with a UU override bump (2*cost + 1)
 										int iLoopScore = iLoopCost;
-										const UnitClassTypes eClass = kU.getUnitClassType();
-										const UnitTypes eCivUnitForClass = (UnitTypes)kCiv.getCivilizationUnits(eClass);
-										const UnitTypes eDefaultForClass  = (UnitTypes)GC.getUnitClassInfo(eClass).getDefaultUnit();
-										const bool bIsUUOverride = (eCivUnitForClass == eLoopUnit && eLoopUnit != eDefaultForClass);
-										if (bIsUUOverride)
+
+										if (bSAS_INFLATE_CIV_SPECIFIC_UNIT)
 										{
-											// <!-- custom: counter civ-specific (e.g. maya holkan, etc) units are less likely to be useful for offense, so do not especially favour them anyways etc -->
-											if (eLoopDefaultUnitAI != UNITAI_COUNTER)
+											const UnitClassTypes eClass = kU.getUnitClassType();
+											const UnitTypes eCivUnitForClass = (UnitTypes)kCivInfo.getCivilizationUnits(eClass);
+											const UnitTypes eDefaultForClass  = (UnitTypes)GC.getUnitClassInfo(eClass).getDefaultUnit();
+											const bool bIsUUOverride = (eCivUnitForClass == eLoopUnit && eLoopUnit != eDefaultForClass);
+											if (bIsUUOverride)
 											{
-												iLoopScore = (2 * iLoopScore) + 1;
+												// <!-- custom: counter civ-specific (e.g. maya holkan, etc) units are less likely to be useful for offense, so do not especially favour them anyways etc -->
+												if (bSAS_INFLATE_CIV_SPECIFIC_ANY_OTHER_DEFAULT_UNITAI_UNIT || (eLoopDefaultUnitAI != UNITAI_COUNTER))
+												{
+													iLoopScore = ((iSAS_INFLATE_CIV_SPECIFIC_UNIT_MULT * iLoopScore) / iSAS_INFLATE_CIV_SPECIFIC_UNIT_DIV) + iSAS_INFLATE_CIV_SPECIFIC_UNIT_ADD;
+												}
 											}
 										}
 
@@ -11863,6 +11819,59 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					}
 				}
 			}
+
+			// <!-- custom: add our pre-checks to help improve the naval dementia of overproducing naval units and pangea or/and scrapping them as well possibly, then being invaded and losing top city while having spent needlessly hammers on 20+ mix of galleons/privateers on pangea, fixing the overproducing part of the issue here by setting sanity gates / pre-checks before we push the final order, and so we can control here all order if i'm not mistaken but anyways etc -->
+			const bool bNavalFrontLineUnitAIs = (
+				(eChangedUnitAI == UNITAI_ATTACK_SEA) ||
+				(eChangedUnitAI == UNITAI_RESERVE_SEA) ||
+				(eChangedUnitAI == UNITAI_PIRATE_SEA)
+			);
+
+			const bool bNavalExploreSeaUnitAIs = (
+				(eChangedUnitAI == UNITAI_EXPLORE_SEA)
+			);
+
+			const bool bNavalSupportOffenseFrontUnitAIs = (
+				(eChangedUnitAI == UNITAI_ASSAULT_SEA)
+			);
+
+			const bool bNavalSupportDefenseFrontUnitAIs = (
+				(eChangedUnitAI == UNITAI_ESCORT_SEA)
+			);
+
+			const bool bNavalAirExtraUnitAIs = (
+				(eChangedUnitAI == UNITAI_CARRIER_SEA) ||
+				(eChangedUnitAI == UNITAI_MISSILE_CARRIER_SEA)
+			);
+
+			const bool bNavalSettlerSeaUnitAIs = (
+				(eChangedUnitAI == UNITAI_SETTLER_SEA)
+			);
+
+			const bool bNavalWorkerSeaUnitAIs = (
+				(eChangedUnitAI == UNITAI_WORKER_SEA)
+			);
+
+			const bool bNavalMissionarySeaUnitAIs = (
+				(eChangedUnitAI == UNITAI_MISSIONARY_SEA)
+			);
+
+			const bool bNavalSpySeaUnitAIs = (
+				(eChangedUnitAI == UNITAI_SPY_SEA)
+			);
+
+			const bool bAllHandledNavalUnitAIs = (
+				bNavalFrontLineUnitAIs ||
+				bNavalSupportOffenseFrontUnitAIs ||
+				bNavalSupportDefenseFrontUnitAIs ||
+				bNavalExploreSeaUnitAIs ||
+				bNavalAirExtraUnitAIs ||
+				//
+				bNavalSettlerSeaUnitAIs ||
+				bNavalWorkerSeaUnitAIs ||
+				bNavalMissionarySeaUnitAIs ||
+				bNavalSpySeaUnitAIs
+			);
 
 			// <!-- custom: do not limit naval units on naval heavy maps, it seems we have way too few units as a result in archipelago, after all if a frigate defeats an invading galleon it counts same as having more units than all land cargo invaders, so do not limit it anyways etc, also maybe this allows for more versatile naval games, let AI decide its own strategy in this case i mean but anyways etc (hopefully not nonsensical one else we could tweak it, but naval maps could go many ways and with various approaches perhaps, so let AI handle it and keep versatility here rather if i am not mistaken in my thinking and based on previous results that were bad when nerfing naval production way too hard as of now on archipelago for example anyways etc but anyways etc) -->
 			if (!bNavalHeavyMapname && bAllHandledNavalUnitAIs)

@@ -592,7 +592,7 @@ void CvCity::doTurn()
 	// GC.getCivilizationInfo(eCiv) is just a tiny wrapper that returns getInfo(eCiv). In AdvCiv/K-Mod it’s defined inline in CvGlobals.h:
 	// DllExport CvCivilizationInfo& getCivilizationInfo(CivilizationTypes eCivilization) { return getInfo(eCivilization); }
 	// So either call (getCivilizationInfo(...) or getInfo(...)) yields the same CvCivilizationInfo&. Your earlier grep just showed project usage prefers getInfo(...), but both compile to the same thing.
-	const CvCivilizationInfo& kCiv = GC.getInfo(getCivilizationType());
+	const CvCivilizationInfo& kCivInfo = GC.getInfo(getCivilizationType());
 
 	// <!-- custom: add this to make sure we don't overlap our previously chosen emergency building with some other logic if i'm not mistaken but anyways etc -->
 	bool bEmergencyBuilding = false;
@@ -605,7 +605,7 @@ void CvCity::doTurn()
 	if (bSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS && !bHuman && !bEmergencyBuilding)
 	{
 		// <!-- custom: note: logic applies only if these buildings are urgent: at war and we are weaker, else no need to force these buildings and it would most likely be inefficient in terms of AI strength if i may say but anyways etc to do so but anyways etc -->
-		const bool bShouldBuildEmergencyDefenseBuilding = (
+		const bool bShouldBuildEmergencyDefenseBuildings = (
 			bEnemyStrong ||
 			// <!-- custom: we risk being backstabbed while attacking someone, so be more cautious and build some defense if we don't have such maybe (slightly less effective offense, but much more reliable defense as a result so seems fine and good maybe but anyways etc) -->
 			(bAtWar && !bEnemyWeakNotZero) || 
@@ -613,7 +613,7 @@ void CvCity::doTurn()
 		);
 
 		// Your broader trigger: strong enemy, or we’re at war and they aren’t weak, or city flagged in danger
-		if (bShouldBuildEmergencyDefenseBuilding)
+		if (bShouldBuildEmergencyDefenseBuildings)
 		{
 			// Resolve civ-specific building from BuildingClass
 			static const BuildingClassTypes eWallsClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_BUILDINGCLASS_FULL_NAME"));
@@ -622,17 +622,17 @@ void CvCity::doTurn()
 			BuildingTypes eWalls = NO_BUILDING;
 			if (eWallsClass != NO_BUILDINGCLASS)
 			{
-				eWalls = (BuildingTypes)kCiv.getCivilizationBuildings(eWallsClass);
+				eWalls = (BuildingTypes)kCivInfo.getCivilizationBuildings(eWallsClass);
 			}
 			BuildingTypes eCastle = NO_BUILDING;
 			if (eCastleClass != NO_BUILDINGCLASS)
 			{
-				eCastle = (BuildingTypes)kCiv.getCivilizationBuildings(eCastleClass);
+				eCastle = (BuildingTypes)kCivInfo.getCivilizationBuildings(eCastleClass);
 			}
 
 			// First: Walls
 			if ((eWalls != NO_BUILDING) &&
-				getNumBuilding(eWalls) == 0 &&
+				(getNumBuilding(eWalls) == 0) &&
 				canConstruct(eWalls, false, false, true))
 			{
 				if (getProductionBuilding() == eWalls)
@@ -649,7 +649,7 @@ void CvCity::doTurn()
 			}
 			// Otherwise: Castle (requires Walls anyway; canConstruct handles it)
 			else if ((eCastle != NO_BUILDING) &&
-					getNumBuilding(eCastle) == 0 &&
+					(getNumBuilding(eCastle) == 0) &&
 					canConstruct(eCastle, false, false, true))
 			{
 				if (getProductionBuilding() == eCastle)
@@ -672,6 +672,7 @@ void CvCity::doTurn()
 	// --- SAS: force Harbor ASAP if coastal & buildable (no era/pop checks) ---
 	static const bool bSAS_DO_TURN_FORCE_WATER_FOOD_BUILDING = GC.getDefineBOOL("SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING");
 
+	// Optional (recommended) war–danger gate
 	// Don’t cancel a critical unit in a besieged city:
 	if (bSAS_DO_TURN_FORCE_WATER_FOOD_BUILDING && !bHuman && !bEmergencyBuilding && !bDanger)
 	{
@@ -694,7 +695,7 @@ void CvCity::doTurn()
 				BuildingTypes eWaterFoodBuilding = NO_BUILDING;
 				if (eWaterFoodBuildingClass != NO_BUILDINGCLASS)
 				{
-					eWaterFoodBuilding = (BuildingTypes)kCiv.getCivilizationBuildings(eWaterFoodBuildingClass);
+					eWaterFoodBuilding = (BuildingTypes)kCivInfo.getCivilizationBuildings(eWaterFoodBuildingClass);
 				}
 
 				// When to use each
@@ -704,7 +705,7 @@ void CvCity::doTurn()
 				// - Harbor: use getNumBuilding(...) (harbors don’t obsolete anyway; this avoids any edge weirdness).
 				// - Walls/Castle: also fine with getNumBuilding(...) for the “already have it?” guard; canConstruct(...) will block obsolete castle builds.
 				if ((eWaterFoodBuilding != NO_BUILDING) &&
-					getNumBuilding(eWaterFoodBuilding) == 0 &&
+					(getNumBuilding(eWaterFoodBuilding) == 0) &&
 					canConstruct(eWaterFoodBuilding, false, false, true))
 				{
 					// if already building Harbor, let it finish
@@ -785,10 +786,6 @@ void CvCity::doTurn()
 			int iBestFallbackOffenseScore = -1;
 			int iBestFallbackDefenseScore = -1;
 
-			// <!-- custom: optimization from our new code in CvCityAI::AI_chooseUnit (see known issue as of now 53.2.2 for related info anyways etc): assume civ-specific units are best (e.g. pick an egyptian war chariot over a longbow anyways etc) -->
-			// prefetch civ UU mapping once
-			const CvCivilizationInfo& kCiv = GC.getInfo(kOwner.getCivilizationType());
-
 			// <!-- custom: it seems we need to cast to CvPlayerAI (i don't know much about these so check if accurate, but chatgpt 5 recommended this after i asked it about the compile error we had before adding it, but check if accurate anyways etc) (with .AI() it seems if i understood it correctly but check if accurate or to be sure in this case i mean but anyways etc) as as of now this function is in CvPlayerAI not CvPlayer, we also seem to do .AI() in other parts of this CvCity.cpp so maybe fine as such but check if accurate or to be sure anyways etc. As for us this fixes our compile error that it was not a member of a class if i'm not mistaken so left as such as well but check if accurate or to be sure anyways etc -->
 			const int iSiegesAllNonTrebuchetsLike = kOwner.AI().AI_countUnitsByCombatNoTrebuchetsLike(eUnitCombatSiege);
 			const int iSiegesAllTrebuchetsLike = kOwner.AI().AI_countTrebuchetsLike();
@@ -799,8 +796,12 @@ void CvCity::doTurn()
 			static const int iEraRenaissance = 3;
 			const bool bEraRenaissanceOrAfter = (iCurrentEra >= iEraRenaissance);
 
-			static const bool bSAS_InflateCivSpecificUnit = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_INFLATE_CIV_SPECIFIC_UNIT");
-			static const bool bSAS_InflateCivSpecificUnitAnyOtherUnitDefaultAIUnit = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_INFLATE_CIV_SPECIFIC_ANY_OTHER_DEFAULT_UNITAI_UNIT");
+			static const bool bSAS_INFLATE_CIV_SPECIFIC_UNIT = GC.getDefineBOOL("SAS_INFLATE_CIV_SPECIFIC_UNIT");
+			static const bool bSAS_INFLATE_CIV_SPECIFIC_ANY_OTHER_DEFAULT_UNITAI_UNIT = GC.getDefineBOOL("SAS_INFLATE_CIV_SPECIFIC_ANY_OTHER_DEFAULT_UNITAI_UNIT");
+
+			static const int iSAS_INFLATE_CIV_SPECIFIC_UNIT_MULT = GC.getDefineINT("SAS_INFLATE_CIV_SPECIFIC_UNIT_MULT");
+			static const int iSAS_INFLATE_CIV_SPECIFIC_UNIT_DIV = std::max(1, GC.getDefineINT("SAS_INFLATE_CIV_SPECIFIC_UNIT_DIV"));
+			static const int iSAS_INFLATE_CIV_SPECIFIC_UNIT_ADD = GC.getDefineINT("SAS_INFLATE_CIV_SPECIFIC_UNIT_ADD");
 
 			static const bool bSAS_OffenseDefaultUnitAIsOnly = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OFFENSE_DEFAULT_UNITAIS_ONLY");
 			static const bool bSAS_DefenseDefaultUnitAIsOnly = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_DEFENSE_DEFAULT_UNITAIS_ONLY");
@@ -1044,14 +1045,15 @@ void CvCity::doTurn()
 
 				int iLoopScore = iLoopXMLCost;
 
-				if (bSAS_InflateCivSpecificUnit)
+				if (bSAS_INFLATE_CIV_SPECIFIC_UNIT)
 				{
 					// <!-- custom: inflate artificially the civ-specific unit assuming it is best (war chariot is as of now anyways etc 5 str for 30 hammer, vs 6 str for 50 hammaer for a horse archer! The horse archer is much more efficient, but we can't judge on str alone, as some units have some nice perks like withdraw chance, etc. Simplest way is to assume civ-specific unit is best choice if available, at least a much stronger one than cost would lead on, else fix our XML to make them strong enough to justify being picked by AI but anyways etc) -->
 					// prefer the civilization's unique unit (war chariot over horse archer, etc.)
 					const UnitClassTypes eClass = kU.getUnitClassType();
 					// <!-- custom: explanation and code below by/from chatgpt 5 but anyways etc, check if accurate as i don't know for sure but it is maybe correct or not or etc but check to be sure anyways etc -->
 					// To prevent inflating default units for civs without unique units (UU), add the check eLoopUnit != GC.getUnitClassInfo(eClass).getDefaultUnit()
-					const UnitTypes eCivUnitForClass = (UnitTypes)kCiv.getCivilizationUnits(eClass);
+					// <!-- custom: see code in CvCityAI::AI_chooseUnit (and see known issue as of now 53.2.2 for related info anyways etc): assume civ-specific units are best (e.g. pick an egyptian war chariot over a longbow anyways etc) -->
+					const UnitTypes eCivUnitForClass = (UnitTypes)kCivInfo.getCivilizationUnits(eClass);
 					const UnitTypes eDefaultForClass = (UnitTypes)GC.getUnitClassInfo(eClass).getDefaultUnit();
 					const bool bIsUUOverride = (eCivUnitForClass == eLoopUnit && eLoopUnit != eDefaultForClass);
 					// Then use bIsUUOverride for the inflation.
@@ -1060,9 +1062,9 @@ void CvCity::doTurn()
 						// <!-- custom: added a +1 tie breaker if both the best generic unit (e.g. if catapults were allowed so 50 hammer vs a civ-specific archer costing 25 hammer if there was any in our mod anyways etc), we'd now have 51 vs 50 hammer so we win with our civ-specific unit anyways etc -->
 						// treat it as ~100% "more valuable" than its raw cost so cheap UUs still win ties
 						// <!-- custom: counter civ-specific (e.g. maya holkan, etc) units are less likely to be useful for offense, so do not especially favour them anyways etc -->
-						if (bSAS_InflateCivSpecificUnitAnyOtherUnitDefaultAIUnit || (eLoopDefaultUnitAI != UNITAI_COUNTER))
+						if (bSAS_INFLATE_CIV_SPECIFIC_ANY_OTHER_DEFAULT_UNITAI_UNIT || (eLoopDefaultUnitAI != UNITAI_COUNTER))
 						{
-							iLoopScore = (2 * iLoopScore) + 1;
+							iLoopScore = ((iSAS_INFLATE_CIV_SPECIFIC_UNIT_MULT * iLoopScore) / iSAS_INFLATE_CIV_SPECIFIC_UNIT_DIV) + iSAS_INFLATE_CIV_SPECIFIC_UNIT_ADD;
 						}
 					}
 				}

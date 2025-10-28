@@ -652,15 +652,34 @@
 		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD_NO_WAR_PLAN_PERCENT</DefineName>
 		<iDefineIntVal>67</iDefineIntVal>
 	</Define>
+
+
+
 	<!-- custom: inflate artificially the civ-specific unit assuming it is best (war chariot is as of now anyways etc 5 str for 30 hammer, vs 6 str for 50 hammaer for a horse archer! The horse archer is much more efficient, but we can't judge on str alone, as some units have some nice perks like withdraw chance, etc. Simplest way is to assume civ-specific unit is best choice if available, at least a much stronger one than cost would lead on, else fix our XML to make them strong enough to justify being picked by AI but anyways etc) -->
 	<Define>
-		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_INFLATE_CIV_SPECIFIC_UNIT</DefineName>
+		<DefineName>SAS_INFLATE_CIV_SPECIFIC_UNIT</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: enable so that even UNITAI_COUNTER default unitai units (e.g. as of now the greek hoplite) are equally inflated (i.e. valorized anyways etc) in the fallback unit code, so the AI players values them if buildable (even though they are generally less effective at offense (but they as civ-specific units should have in one way or another "good"/stronger stats than base units (else rebalance them) so it is maybe fine too to valorize them as well, with here the option to disable it if you prefer anyways etc)). In other words, as of now between for example a greek_hoplite and and a generic unit_longbowman, enable this to choose the greek_hoplite (as it is more efficient in hammer cost, and versatile enough) rather than the longbowman as a fallback unit, but between a spearman and a longbowman as fallback unit, still favour the longbowman (as it is more versatile and slightly stronger as well even if more expensive better than stockpiling weaker units and go bankrupt if i am not mistaken anyways etc) -->
 	<Define>
-		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_INFLATE_CIV_SPECIFIC_ANY_OTHER_DEFAULT_UNITAI_UNIT</DefineName>
+		<DefineName>SAS_INFLATE_CIV_SPECIFIC_ANY_OTHER_DEFAULT_UNITAI_UNIT</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: ((mult * X) / div) + add. Note: div is max(1, div) so that we don't divide by 0 anyways etc. -->
+	<!-- custom: Example: mult 14; div = 10; add = 0; cost = 70 (a civ-specific medieval maceman) -> inflated cost = ((14 * 70) / 10) + 0 = (70 * 1.4) + 0 = 98 (horse knight takes precedence). -->
+	<!-- custom: Example 2: mult 14; div = 10; add = 0; cost = 35 (a civ-specific spearman) -> inflated cost = ((14 * 35) / 10) + 0 = (35 * 1.4) + 0 = 49 (catapult takes precedence) -->
+	<!-- custom: Example 3: mult 14; div = 10; add = 0; cost = 42 (a civ-specific swordsman) -> inflated cost = ((14 * 42) / 10) + 0 = (42 * 1.4) + 0 = 58,8 = 58 (civ-specific swordsman takes precedence over catapult, but crossbow takes precedence over our unit) -->
+	<Define>
+		<DefineName>SAS_INFLATE_CIV_SPECIFIC_UNIT_MULT</DefineName>
+		<iDefineIntVal>14</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_INFLATE_CIV_SPECIFIC_UNIT_DIV</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_INFLATE_CIV_SPECIFIC_UNIT_ADD</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 
 
