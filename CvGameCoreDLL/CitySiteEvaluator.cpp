@@ -816,9 +816,14 @@ short AIFoundValue::evaluate()
 				int fImp = 0, hImp = 0, cImp = 0;
 				if (eBonusSpecificImprovement != NO_IMPROVEMENT)
 				{
-					fImp = GC.getInfo(eBonusSpecificImprovement).getImprovementBonusYield(eBonus, YIELD_FOOD);
-					hImp = GC.getInfo(eBonusSpecificImprovement).getImprovementBonusYield(eBonus, YIELD_PRODUCTION);
-					cImp = GC.getInfo(eBonusSpecificImprovement).getImprovementBonusYield(eBonus, YIELD_COMMERCE);
+					// <!-- custom: note to chatgpt 5 or other AIs or such anywyas etc: GC.getImprovementInfo doesn't seem to exist in .cpp files only .py files, while we have plenty instances of using code like `CvImprovementInfo const& kImprovement = GC.getInfo(eImprovement);` in the mod's code, code that i did not add myself as well anyways etc, so use this rather if i'm not mistaken but anyways etc -->
+					// You’re right — in your C++ DLL (AdvCiv/AdvCiv-SAS) the correct accessor is the templated:
+					// C++: GC.getInfo(ImprovementTypes) → CvImprovementInfo&
+					// Python: gc.getImprovementInfo(i) → Python wrapper
+					CvImprovementInfo const& impInfo = GC.getInfo(eBonusSpecificImprovement);
+					fImp = impInfo.getImprovementBonusYield(eBonus, YIELD_FOOD);
+					hImp = impInfo.getImprovementBonusYield(eBonus, YIELD_PRODUCTION);
+					cImp = impInfo.getImprovementBonusYield(eBonus, YIELD_COMMERCE);
 
 					// <!-- custom: use this to detect food bonuses, as according to chatgpt 5 nature yield is not reliable in accurately assessing a tile's yield of a bonus is indeed food bonus or not something else like the city base's tile yield from little in this case i mean but anyways etc i understood of it, check if accurate anyways etc; also note: for food any food is extremely valuable, even if a commerce bonus that happens to give some improved food, value it much still anyways etc as recommended by chatgpt 5 and what i understood got the idea to do of it too i mean if i may say but anyways etc -->
 					if (fImp >= iMinOnBonusFoodImproveWorth)

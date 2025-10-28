@@ -823,18 +823,29 @@ int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
 // <!-- custom: new addition by gemini ai thanks to my prompt too, to help AI workers know the bonus-specific (note: land only bonuses, as it seems workboats and water plots are not handled in CvUnitAI::AI_bestCityBuild if i am not mistaken anyways etc) improvement for a bonus and optimize AI workers improvement choice based on this, moved as a static helper for potential reuse and clarity/clean code in this case at least i mean but anyways etc, see also CvUnitAI::AI_bestCityBuild for details -->
 // Helper function to provide a static, constant map of bonus-specific land builds.
 // This is more efficient than rebuilding the map on every function call.
-// <!-- custom: actually hardcode them rather would be much easier so AI knows gold wants a mine not a workshop, and spices want a plantation or nothing, not a farm (nor a cottage! as i saw done then replaced hehe in base advciv if i remember it correctly anyways etc), may help fix the banana cottage issue in base advciv ideally and theoretically as well anyways etc at least for this part of the code anyways etc. Cleanest way would be an xml flag, but tedious to implement, hardcode here for simplicity and may later or may not implement it properly, adjust this code for your mod anyways etc -->
-// This is the pre-C++11 compatible way to initialize a static map.
-std::map<BonusTypes, BuildTypes> const& CvUnitAI::getBonusSpecificLandBuilds()
+// <!-- custom: update: switch to vector as is computationally faster according to chatgpt 5, i don't know too much about these so check if accurate and thanks chatgpt 5 if i may say anyways etc -->
+// short version: yes, a vector is faster than a map for lookups here.
+// - std::map lookup: O(log N) + pointer chasing (cache-unfriendly).
+// - std::vector lookup: O(1) direct index, very cache-friendly.
+// - Init time: vector also wins (no per-node allocations), but you only init once, so the big win is lookup.
+// Why we used a map before? Convenience for sparse mappings. But your key space is a dense enum (BonusTypes in [0..GC.getNumBonusInfos())), and “no entry” can be represented by NO_BUILD. That makes a vector the ideal structure.
+std::vector<BuildTypes> const& CvUnitAI::getBonusSpecificLandBuilds()
 {
 	// <!-- custom: refactor of this new function i had added, with chatgpt 5 so we can reuse it in other .cpp files, and simplifying/optimizing its performance to cache it or such since it shouldn't change while we can anyways etc and if was not done before already (i don't know too much about these, check if accurate anyways etc), check if accurate anyways etc -->
-    static std::map<BonusTypes, BuildTypes> s;   // created once, reused forever
-    static bool s_inited = false;
-    if (s_inited) return s;
+    static std::vector<BuildTypes> v; // created once, reused forever
+    static bool v_inited = false;
+    if (v_inited) return v;
+
+	// you must size it to GC.getNumBonusInfos() because we index by BonusTypes (the XML enum id). I also added a tiny bounds guard on read.
+	// size to the number of bonuses; default to NO_BUILD (dense table indexed by BonusTypes)
+	const int iNumBonuses = GC.getNumBonusInfos();
+	v.assign(iNumBonuses, NO_BUILD);
 
 	// <!-- custom: note: we initialize this once per session so no need to make a static const of this total int define as we use it at every new game loaded during our entire civ4 session if i'm not mistaken but anyways etc -->
+	const int iSAS_GET_BONUS_SPECIFIC_LAND_BUILDS_TOTAL_BONUS_SPECIFIC_TOTAL_NUMBER_OF_PAIRS = GC.getDefineINT("SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_TOTAL_BONUS_SPECIFIC_TOTAL_NUMBER_OF_PAIRS");
+
 	// <!-- custom: note 2: ideally move this to some utils so we don't need to recheck everytime if it is inited every time (i guess, check if my guess is accurate but anyways etc) -->
-    for (int i = 0; i < GC.getDefineINT("SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_TOTAL_BONUS_SPECIFIC_TOTAL_NUMBER_OF_PAIRS"); ++i)
+    for (int i = 0; i < iSAS_GET_BONUS_SPECIFIC_LAND_BUILDS_TOTAL_BONUS_SPECIFIC_TOTAL_NUMBER_OF_PAIRS; ++i)
 	{
 		// GC.getDefineSTRING(...) doesn’t do printf-style formatting, and CvString::Format is an instance method that returns void, so you can’t chain it. Build the key first, then call getDefineSTRING.
 		CvString keyBonus;
@@ -850,29 +861,47 @@ std::map<BonusTypes, BuildTypes> const& CvUnitAI::getBonusSpecificLandBuilds()
         const BonusTypes eBonus = (BonusTypes)GC.getInfoTypeForString(bonusName);
         const BuildTypes eBuild = (BuildTypes)GC.getInfoTypeForString(buildName);
 
-        if ((eBonus != NO_BONUS) && (eBuild != NO_BUILD))
+		// guard bad ids (user responsibility; we skip silently)
+        if ((eBonus == NO_BONUS) || (eBuild == NO_BUILD))
 		{
-            s[eBonus] = eBuild;
+			continue;
+			// silently skip (or IFLOG a warning if you like)
 		}
-        // else: silently skip (or IFLOG a warning if you like)
+		else
+		{
+            v[eBonus] = eBuild;
+		}
     }
 
-    s_inited = true;
-    return s;
+    v_inited = true;
+    return v;
 }
 
 BuildTypes CvUnitAI::getBonusSpecificLandBuild(BonusTypes eBonus)
 {
-    std::map<BonusTypes, BuildTypes> const& m = getBonusSpecificLandBuilds();
-    std::map<BonusTypes, BuildTypes>::const_iterator it = m.find(eBonus);
-    return (it == m.end() ? NO_BUILD : it->second);
+	if (eBonus == NO_BONUS)
+	{
+		return NO_BUILD;
+	}
+
+	std::vector<BuildTypes> const& v = getBonusSpecificLandBuilds();
+
+	// <!-- custom: note: untested as as of now i don't use/check asserts, but added as recommended by chatgpt 5, check if accurate anyways etc -->
+	FAssertMsg((int)eBonus >= 0 && (int)eBonus < (int)v.size(), "Bonus index out of range");
+
+	return v[eBonus];
 }
 
 ImprovementTypes CvUnitAI::getBonusSpecificLandImprovement(BonusTypes eBonus)
 {
-    BuildTypes eBuild = getBonusSpecificLandBuild(eBonus);
-    return (eBuild == NO_BUILD ? NO_IMPROVEMENT
-                               : (ImprovementTypes)GC.getInfo(eBuild).getImprovement());
+    const BuildTypes eBonusSpecificBuild = getBonusSpecificLandBuild(eBonus);
+
+	if (eBonusSpecificBuild == NO_BUILD)
+	{
+		return NO_IMPROVEMENT;
+	}
+
+    return (ImprovementTypes)GC.getInfo(eBonusSpecificBuild).getImprovement();
 }
 
 // Define the Candidate<!-- custom: Plot but anyways etc --> struct outside the function so it can be used as a template argument.
