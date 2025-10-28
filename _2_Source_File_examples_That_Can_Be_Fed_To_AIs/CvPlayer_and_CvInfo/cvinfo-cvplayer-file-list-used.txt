@@ -1,4 +1,0 @@
-CvPlayerAI.h
-CvPlayerAI.cpp
-CvInfo_Civilization.h
-CvInfo_Civilization.cpp

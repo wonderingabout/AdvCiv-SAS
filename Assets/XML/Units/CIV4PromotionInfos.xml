@@ -1373,7 +1373,7 @@
 			<!-- advc.164: was PROMOTION_FIRST_STRIKE3 in K-Mod -->
 			<PromotionPrereqOr1>PROMOTION_CITY_RAIDER1</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_COMBAT1</PromotionPrereqOr2>
-			<!-- custom: reduce tech prerequirement, seems to have been used in classical era if not sooner from quick search about it i mean  or longer in past or both or none or and other ro and not or other anyways etc anyways etc anyways etc, was TECH_MILITARY_SCIENCE -->
+			<!-- custom: reduce tech prerequirement, seems to have been used in classical era if not sooner from quick search about it i mean  or longer in past or both or none or and other or and not or other anyways etc anyways etc anyways etc, was TECH_MILITARY_SCIENCE -->
 			<TechPrereq>TECH_CONSTITUTION</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>

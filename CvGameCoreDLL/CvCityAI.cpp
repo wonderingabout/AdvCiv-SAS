@@ -1712,14 +1712,14 @@ void CvCityAI::AI_chooseProduction()
 		bool const bDefense = (getArea().getAreaAIType(getTeam()) == AREAAI_DEFENSIVE);
 		bLandWar = (bDefense || (getArea().getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) || (getArea().getAreaAIType(getTeam()) == AREAAI_MASSING));
 		// bool const bLandWar = kOwner.AI_isLandWar(getArea()); // K-Mod
-		// <!-- cusotm: already defined at beginning of this chooseProduction function if i'm not mistaken anyways etc, so no double define here but anyways etc -->
+		// <!-- custom: already defined at beginning of this chooseProduction function if i'm not mistaken anyways etc, so no double define here but anyways etc -->
 		// //bool const bAssault = (getArea().getAreaAIType(getTeam()) == AREAAI_ASSAULT);
 		// bool const bPrimaryArea = kOwner.AI_isPrimaryArea(getArea());
 		// bool const bAreaAlone = kOwner.AI_isAreaAlone(getArea());
 		// bool const bFinancialTrouble = kOwner.AI_isFinancialTrouble();
 		// <!-- custom: be careful, do not use this bWarPossible, this is always true at last for the 100 turns where i tested it, using this for settler build control logic resulted in no settler at all in 100 turns (probably true longer but didn't test anyways etc) -->
 		// bool const bWarPossible = GET_TEAM(getTeam()).AI_isWarPossible();
-		// <!-- cusotm: already defined at beginning of this chooseProduction function if i'm not mistaken anyways etc, so no double define here but anyways etc -->
+		// <!-- custom: already defined at beginning of this chooseProduction function if i'm not mistaken anyways etc, so no double define here but anyways etc -->
 		// //bool const bDanger = AI_isDanger();
 
 		// int const iHasMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
