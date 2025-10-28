@@ -832,46 +832,28 @@ std::map<BonusTypes, BuildTypes> const& CvUnitAI::getBonusSpecificLandBuilds()
     static bool s_inited = false;
     if (s_inited) return s;
 
-    struct Pair { const char* bonus; const char* build; };
-    static const Pair kEntries[] = {
-		// <!-- custom: bonuses as per the XML order for exhaustiveness and reliability and making sure we don't forget any anyways etc, adjust as you see fit anyways etc ; see also https://civilization.fandom.com/wiki/Resource_(Civ4)#Strategic_Resources and such or not or yes or etc anyways etc related categories in this link anyways etc for bonus-specific build/improvement i mean anyways etc -->
-        {"BONUS_ALUMINUM","BUILD_MINE"},
-        {"BONUS_COAL","BUILD_MINE"},
-        {"BONUS_COPPER","BUILD_MINE"},
-        {"BONUS_HORSE","BUILD_PASTURE"},
-        {"BONUS_IRON","BUILD_MINE"},
-        {"BONUS_MARBLE","BUILD_QUARRY"},
-        {"BONUS_OIL","BUILD_WELL"},
-        {"BONUS_STONE","BUILD_QUARRY"},
-        {"BONUS_URANIUM","BUILD_MINE"},
-        {"BONUS_BANANA","BUILD_PLANTATION"},
-        {"BONUS_MAIZE","BUILD_FARM"},
-        {"BONUS_CATTLE","BUILD_PASTURE"},
-        {"BONUS_DEER","BUILD_CAMP"},
-        {"BONUS_PIG","BUILD_PASTURE"},
-        {"BONUS_RICE","BUILD_FARM"},
-        {"BONUS_SHEEP","BUILD_PASTURE"},
-        {"BONUS_WHEAT","BUILD_FARM"},
-        {"BONUS_DYE","BUILD_PLANTATION"},
-        {"BONUS_FUR","BUILD_CAMP"},
-        {"BONUS_GEMSTONES","BUILD_MINE"},
-        {"BONUS_GOLD","BUILD_MINE"},
-        {"BONUS_INCENSE","BUILD_PLANTATION"},
-        {"BONUS_ELEPHANTS","BUILD_CAMP"},
-        {"BONUS_SILK","BUILD_PLANTATION"},
-        {"BONUS_SILVER","BUILD_MINE"},
-        {"BONUS_SPICES","BUILD_PLANTATION"},
-        {"BONUS_SUGAR","BUILD_PLANTATION"},
-        {"BONUS_GRAPES","BUILD_PLANTATION"},
-        {"BONUS_CAMEL","BUILD_PASTURE"},
-		// Add other bonus-specific mappings here as needed.
-    };
+	// <!-- custom: note: we initialize this once per session so no need to make a static const of this total int define as we use it at every new game loaded during our entire civ4 session if i'm not mistaken but anyways etc -->
+	// <!-- custom: note 2: ideally move this to some utils so we don't need to recheck everytime if it is inited every time (i guess, check if my guess is accurate but anyways etc) -->
+    for (int i = 0; i < GC.getDefineINT("SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_TOTAL_BONUS_SPECIFIC_TOTAL_NUMBER_OF_PAIRS"); ++i)
+	{
+		// GC.getDefineSTRING(...) doesn’t do printf-style formatting, and CvString::Format is an instance method that returns void, so you can’t chain it. Build the key first, then call getDefineSTRING.
+		CvString keyBonus;
+		keyBonus.Format("SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_%d", i);
+		CvString keyBuild;
+		keyBuild.Format("SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_%d", i);
 
-    for (size_t i = 0; i < sizeof(kEntries)/sizeof(kEntries[0]); ++i) {
-        int b  = GC.getInfoTypeForString(kEntries[i].bonus);
-        int bd = GC.getInfoTypeForString(kEntries[i].build);
-        if (b != -1 && bd != -1)
-            s[(BonusTypes)b] = (BuildTypes)bd;
+		// <!-- custom: note: no need to store them as static const lookups as we need them only once at first initalize and then they are not needed anymore if i'm not mistaken but anyways etc; added thanks to chatgpt 5 and my prompts too and/or such, check if accurate anyways etc -->
+		const CvString bonusName = GC.getDefineSTRING(keyBonus);
+		const CvString buildName = GC.getDefineSTRING(keyBuild);
+		if (bonusName.empty() || buildName.empty()) continue;
+
+        const BonusTypes eBonus = (BonusTypes)GC.getInfoTypeForString(bonusName);
+        const BuildTypes eBuild = (BuildTypes)GC.getInfoTypeForString(buildName);
+
+        if ((eBonus != NO_BONUS) && (eBuild != NO_BUILD))
+		{
+            s[eBonus] = eBuild;
+		}
         // else: silently skip (or IFLOG a warning if you like)
     }
 
