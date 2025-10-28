@@ -571,17 +571,109 @@ void CvCity::doTurn()
 
 	// <!-- custom: forcing buildings in chooseproduction is sometimes ignored or slow to fire in autoplay, put it here in doturn for max effectiveness and reliability if i'm not mistaken but anyways etc -->
 	const bool bHuman = isHuman();
-	bool const bDanger  = AI().AI_isDanger();	// method lives on CvCityAI
+
+	bool const bDanger = AI().AI_isDanger();	// method lives on CvCityAI
+	// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate, anyways etc -->
+	const bool bAtWar = (GET_TEAM(getTeam()).getNumWars() > 0);
+	const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
+	static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
+	const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
+	// Practical use in your siege gate
+	// Don’t use iEnemyPowPct<=90 to mean “we’re stronger” when you aren’t at war or actively preparing one, because you’ll read 0% and green-light trebuchets in peacetime.
+	// This way:
+	// - In peacetime, you won’t accidentally treat “0” as “we totally dominate” and overbuild siege.
+	static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
+	//const bool bEnemyWeak = (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD);
+	// <!-- custom: modified version i guessedly made without checking relevant function's code if i may say but anyways etc, hopefully more accurate but check to be sure as is just a guess from me but anyways etc -->
+	const bool bEnemyWeakNotZero = ((iEnemyPowerPercent > 0) && (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD));
+
+	// <!-- custom: note to chatgpt 5 and other AIs and/or such: it looks like `GC.getCivilizationInfo` does not exist at all in our entire .cpp and .h codebase (but there are many in .py files though although not relevant here for our need if i'm not mistaken but anyways etc), but there are many .cpp and .h pieces of code in our mod (including which i didn't write myself at all) like `GC.getInfo(getCivilizationType())` so it may be the more correct one in our mod, although after looking at CvGlobals.h and chatgpt 5's analysis of it it seems fine to use any, sticking with the only used one in this case i mean but anyways etc, check if accurate anyways etc -->
+	// Yep—that header explains it perfectly.
+	// GC.getCivilizationInfo(eCiv) is just a tiny wrapper that returns getInfo(eCiv). In AdvCiv/K-Mod it’s defined inline in CvGlobals.h:
+	// DllExport CvCivilizationInfo& getCivilizationInfo(CivilizationTypes eCivilization) { return getInfo(eCivilization); }
+	// So either call (getCivilizationInfo(...) or getInfo(...)) yields the same CvCivilizationInfo&. Your earlier grep just showed project usage prefers getInfo(...), but both compile to the same thing.
+	const CvCivilizationInfo& kCiv = GC.getInfo(getCivilizationType());
+
 	// <!-- custom: add this to make sure we don't overlap our previously chosen emergency building with some other logic if i'm not mistaken but anyways etc -->
 	bool bEmergencyBuilding = false;
+
+	// <!-- custom: emergency buildings to build if we are at war and weaker, or some similar risky situation where we may be backstabbed and it is advisable to have some defense buildings in our city: it takes some time to build walls and a castle, but it is better than having our city taken, especially if the risk of such is high enough (see quick guide or code for details anyways etc), however trying not to overdo it as they are quite costly and may hurt our growth if overbuilt or built too often anyways etc. All in all, i'd recommend to set this to 1 to enable it as it is a nice AI boost in limited / conservative cases situations where it may most likely help but anyways etc, or if you prefer/want anyways etc 0 to disable anyways etc. Note: tune as per xml (as of now is BUILDINGCLASS_WALLS and BUILDINGCLASS_CASTLE if i'm not mistaken anyways etc) -->
+	// Your guards use getNumBuilding(...) (not “active”), which is exactly what we want for “do we already have one?”—and canConstruct(...) will handle obsolescence (e.g., Castle after Economics). Good.
+	// --- SAS: force Walls/Castle if at war and enemy stronger ---
+	static const bool bSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS = GC.getDefineBOOL("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS");
+
+	if (bSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS && !bHuman && !bEmergencyBuilding)
+	{
+		// <!-- custom: note: logic applies only if these buildings are urgent: at war and we are weaker, else no need to force these buildings and it would most likely be inefficient in terms of AI strength if i may say but anyways etc to do so but anyways etc -->
+		const bool bShouldBuildEmergencyDefenseBuilding = (
+			bEnemyStrong ||
+			// <!-- custom: we risk being backstabbed while attacking someone, so be more cautious and build some defense if we don't have such maybe (slightly less effective offense, but much more reliable defense as a result so seems fine and good maybe but anyways etc) -->
+			(bAtWar && !bEnemyWeakNotZero) || 
+			bDanger
+		);
+
+		// Your broader trigger: strong enemy, or we’re at war and they aren’t weak, or city flagged in danger
+		if (bShouldBuildEmergencyDefenseBuilding)
+		{
+			// Resolve civ-specific building from BuildingClass
+			static const BuildingClassTypes eWallsClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_BUILDINGCLASS_FULL_NAME"));
+			static const BuildingClassTypes eCastleClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_BUILDINGCLASS_FULL_NAME"));
+
+			BuildingTypes eWalls = NO_BUILDING;
+			if (eWallsClass != NO_BUILDINGCLASS)
+			{
+				eWalls = (BuildingTypes)kCiv.getCivilizationBuildings(eWallsClass);
+			}
+			BuildingTypes eCastle = NO_BUILDING;
+			if (eCastleClass != NO_BUILDINGCLASS)
+			{
+				eCastle = (BuildingTypes)kCiv.getCivilizationBuildings(eCastleClass);
+			}
+
+			// First: Walls
+			if ((eWalls != NO_BUILDING) &&
+				getNumBuilding(eWalls) == 0 &&
+				canConstruct(eWalls, false, false, true))
+			{
+				if (getProductionBuilding() == eWalls)
+				{
+					bEmergencyBuilding = true; // already doing it
+				}
+				else
+				{
+					clearOrderQueue();                         // hard override
+					pushOrder(ORDER_CONSTRUCT, eWalls);        // head of queue
+					setChooseProductionDirty(false);           // keep it next turn
+					bEmergencyBuilding = true;
+				}
+			}
+			// Otherwise: Castle (requires Walls anyway; canConstruct handles it)
+			else if ((eCastle != NO_BUILDING) &&
+					getNumBuilding(eCastle) == 0 &&
+					canConstruct(eCastle, false, false, true))
+			{
+				if (getProductionBuilding() == eCastle)
+				{
+					bEmergencyBuilding = true;
+				}
+				else
+				{
+					clearOrderQueue();
+					pushOrder(ORDER_CONSTRUCT, eCastle);
+					setChooseProductionDirty(false);
+					bEmergencyBuilding = true;
+				}
+			}
+		}
+	}
+	// --- end SAS defense rule ---
 
 	// <!-- custom: emergency harbor (or whatever the water food building is in your mod anyways etc) is top priority if city is coastal, low food per turn (stagnant coastal tundra cities in autoplay never build a harbor and stay low food for dozen turns), code added thanks to chatgpt 5 and my prompts and adjustments anyways etc and/or such, check if accurate anyways etc -->
 	// --- SAS: force Harbor ASAP if coastal & buildable (no era/pop checks) ---
 	static const bool bSAS_DO_TURN_FORCE_WATER_FOOD_BUILDING = GC.getDefineBOOL("SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING");
 
-	// Optional (recommended) war–danger gate
-	// So you don’t cancel a critical unit in a besieged city:
-	if (bSAS_DO_TURN_FORCE_WATER_FOOD_BUILDING && !bHuman && !bDanger)
+	// Don’t cancel a critical unit in a besieged city:
+	if (bSAS_DO_TURN_FORCE_WATER_FOOD_BUILDING && !bHuman && !bEmergencyBuilding && !bDanger)
 	{
 		// The low-food gate matches your original intent (fix tundra coasts that stagnate), while leaving healthy coastals alone.
 		const int iOceanThresh = GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN);
@@ -602,11 +694,17 @@ void CvCity::doTurn()
 				BuildingTypes eWaterFoodBuilding = NO_BUILDING;
 				if (eWaterFoodBuildingClass != NO_BUILDINGCLASS)
 				{
-					eWaterFoodBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(eWaterFoodBuildingClass);
+					eWaterFoodBuilding = (BuildingTypes)kCiv.getCivilizationBuildings(eWaterFoodBuildingClass);
 				}
 
+				// When to use each
+				// - getNumBuilding(eBuilding): counts even if obsolete. Good to answer “do we already have this?” regardless of techs.
+				// - getNumActiveBuilding(eBuilding): zero if obsolete. Good when you care about “is it still providing effects?”
+				// For your emergencies:
+				// - Harbor: use getNumBuilding(...) (harbors don’t obsolete anyway; this avoids any edge weirdness).
+				// - Walls/Castle: also fine with getNumBuilding(...) for the “already have it?” guard; canConstruct(...) will block obsolete castle builds.
 				if ((eWaterFoodBuilding != NO_BUILDING) &&
-					getNumActiveBuilding(eWaterFoodBuilding) == 0 &&
+					getNumBuilding(eWaterFoodBuilding) == 0 &&
 					canConstruct(eWaterFoodBuilding, false, false, true))
 				{
 					// if already building Harbor, let it finish
@@ -719,11 +817,6 @@ void CvCity::doTurn()
 			// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate anyways etc -->
 			// change to:
 			bool const bWarPlan = kOwner.AI().AI_isFocusWar();   // method lives on CvPlayerAI
-			// bool const bDanger  = AI().AI_isDanger();            // method lives on CvCityAI
-			// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate, anyways etc -->
-			const bool bAtWar = (GET_TEAM(getTeam()).getNumWars() > 0);
-			const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
-			const bool bEnemyStrong = (iEnemyPowerPercent >= 120);
 			// <!-- custom: see/read but anyways etc code comment at CvCityAI::AI_chooseUnit corresponding code / variables' initialization for details if i may say but anyways etc -->
 
 			static const int iPRE_RENAISSANCE_SIEGES_ALL_NON_TREBUCHETS_LIKE_THRESHOLD = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_NON_TREBUCHETS_LIKE_THRESHOLD");

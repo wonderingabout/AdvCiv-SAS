@@ -847,6 +847,41 @@
 
 
 
+	<!-- custom: e.g. 120 means that enemy team has 1.2 times if we were to use our team's power as 1.0 as a base comparison (they are 20% stronger than us) anyways etc -->
+	<!-- Enemy strength threshold (team power%) to trigger -->
+	<Define>
+		<DefineName>SAS_ENEMY_STRONG_POWER_THRESHOLD</DefineName>
+		<iDefineIntVal>120</iDefineIntVal>
+	</Define>
+	<!-- custom: if enemy team has less than this power as compared to ours, they are weaker. E.g. if < 80 (i.e. < 0.8 times our team's power), we consider them weaker than us in our as of now advciv-sas added pieces of logic anyways etc -->
+	<!-- custom: if not at war value may be 0 so it is not always reliable for comparisons as is, check code for detail and if what i say is accurate as it is just from me remembering my vague understanding of it if i may say but anyways etc -->
+	<Define>
+		<DefineName>SAS_ENEMY_WEAK_POWER_THRESHOLD</DefineName>
+		<iDefineIntVal>80</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: emergency buildings to build if we are at war and weaker, or some similar risky situation where we may be backstabbed and it is advisable to have some defense buildings in our city: it takes some time to build walls and a castle, but it is better than having our city taken, especially if the risk of such is high enough (see quick guide or code for details anyways etc), however trying not to overdo it as they are quite costly and may hurt our growth if overbuilt or built too often anyways etc. All in all, i'd recommend to set this to 1 to enable it as it is a nice AI boost in limited / conservative cases situations where it may most likely help but anyways etc, or if you prefer/want anyways etc 0 to disable anyways etc. Note: tune as per xml (as of now is BUILDINGCLASS_WALLS and BUILDINGCLASS_CASTLE if i'm not mistaken anyways etc) -->
+	<!-- custom: note 2: logic applies only if these buildings are urgent, else no need to force these buildings and it would most likely be inefficient in terms of AI strength if i may say but anyways etc to do so but anyways etc -->
+	<!-- // Your broader trigger: strong enemy, or we’re at war and they aren’t weak, or city flagged in danger -->
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: adjust as per your xml if your defense buildings to urgently build are not the walls and the castle anyways etc -->
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_BUILDINGCLASS_FULL_NAME</DefineName>
+		<DefineTextVal>BUILDINGCLASS_WALLS</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_BUILDINGCLASS_FULL_NAME</DefineName>
+		<DefineTextVal>BUILDINGCLASS_CASTLE</DefineTextVal>
+	</Define>
+	<!-- custom: note 3: higher increments like 3, 4, 5, etc. not supported in current code, implement logic in .cpp or such files if you want such defines in your mod mod if you have extra building class defense buildings you want AIs to build urgently when needed anyways etc. -->
+
+
+
 	<!-- custom: water food building (as of now building_harbor anyways etc) emergency/force anyways etc production choice for a city if it is low food and coastal. Set to 1 to enable (recommended, fixes AI cities in autoplay stagnant for dozen turns while being coastal and surrounded by tundra, but never building a harbor (or whatever building the water food building is anyways etc)), 0 to disable it -->
 	<Define>
 		<DefineName>SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING</DefineName>

@@ -3496,8 +3496,10 @@ bool CvUnit::canScrap() const
 			// 	const bool bWarPlan = kOwner.AI_isFocusWar();
 			// 	const bool bAtWar = (kTeam.getNumWars() > 0);
 			// 	const int  iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
-			// 	const bool bEnemyStrong = (iEnemyPowerPercent >= 120);
-			// 	const bool bEnemyWeak   = (iEnemyPowerPercent <= 80);
+			// 	static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
+			// 	const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
+			// 	static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
+			// 	const bool bEnemyWeak   = (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD);
 
 			// 	// There is no AI_isDanger() at player scope. Build a bDanger flag by scanning your cities.
 			// 	// Danger heuristic: any unsafe city or any plot danger near a city
