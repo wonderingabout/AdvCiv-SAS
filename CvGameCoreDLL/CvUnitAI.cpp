@@ -10454,14 +10454,20 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	UnitAITypes const eAI = AI_getUnitAIType();
 	UnitCombatTypes const eUnitCombat = getUnitCombatType();
 
-	if (ePromotion != NO_PROMOTION)
+	// <!-- custom: cache once since we reuse it as is done in other parts of this as of now .cpp file if i'm not mistaken but anyways etc -->
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+
+	static const bool bSAS_PROMOTION_VALUE_OPTIMIZE = GC.getDefineBOOL("SAS_PROMOTION_VALUE_OPTIMIZE");
+
+	if (bSAS_PROMOTION_VALUE_OPTIMIZE && (ePromotion != NO_PROMOTION))
 	{
 		// <!-- custom: similarly to what we did for AI specialists in CvCityAI::AI_jobChangeValue, also do not allow some promotions for AI players, as these promotions are either too weak most times (e.g. woodsman promotions ineffective in cities etc, even with the buff in our mod anyways etc) or/and too situational to be reliably good for AI players, hopefully helps AI better pick promotions without killing versatility. Better promotion choice is especially important in the early game where any small advantage may give an edge for successfuly invasion or defense, but nice if kept during the whole game as well to do good promotion choices that are in most cases effective for AI players but anyways etc. Done with the help of chatgpt 5 and that i adjusted too and such if i may say but anyways etc, check if accurate, anyways etc -->
 		// <!-- custom: note: as of now this mostly, except for some strict unitais where it seems beneficial to do so, doesn't incentivize anything, only forbids some promotions, otherwise mostly (minus these exceptions) keeping AI choices the same ; hopefully this leads to saner and more effective AI promotion choices, while patching the core issues of flawed to sometimes very flawed AI promotion choices while keeping at least as of now otherwise most of the base advciv behaviour that we attempt to enhance with these rules but anyways etc -->
 		// === HARD BLOCK: promos that can’t possibly help this unit right now ===
-		static const int AI_PROMOTION_FORBIDDEN = -100000; // decisively low, far from overflow/underflow
+		// decisively low, far from overflow/underflow
+		static const int AI_PROMOTION_FORBIDDEN = GC.getDefineINT("SAS_PROMOTION_VALUE_AI_PROMOTION_FORBIDDEN");
 		// <!-- custom: always pick these first if in this specific case if i may say but anyways etc especially relevant but anyways etc -->
-		static const int AI_PROMOTION_ALWAYS_PICK_FIRST = 100000;
+		static const int AI_PROMOTION_ALWAYS_PICK_FIRST = GC.getDefineINT("SAS_PROMOTION_VALUE_AI_PROMOTION_ALWAYS_PICK_FIRST");
 
 		static const PromotionTypes ePromotionAmphibious = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_AMPHIBIOUS", true);
 
@@ -10528,27 +10534,120 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 
 		const bool bStrictAttackCityLandUnitAI = (
 			(eAI == UNITAI_ATTACK_CITY) ||
+			// <!-- custom: note: as of now seemingly unused or/and disabled for AIs but just in case or/and to be exhaustive anyways etc -->
 			(eAI == UNITAI_ATTACK_CITY_LEMMING)
+		);
+		const bool bMostlyOffensiveLandUnitAI = (
+			(eAI == UNITAI_ATTACK)
 		);
 
 		static const PromotionTypes ePromotionCityRaider1 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_CITY_RAIDER1", true);
 		static const PromotionTypes ePromotionCityRaider2 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_CITY_RAIDER2", true);
 		static const PromotionTypes ePromotionCityRaider3 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_CITY_RAIDER3", true);
 
+		static const PromotionTypes ePromotionCombat1 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COMBAT1", true);
+		static const PromotionTypes ePromotionCombat2 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COMBAT2", true);
+		static const PromotionTypes ePromotionCombat3 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COMBAT3", true);
+		static const PromotionTypes ePromotionCombat4 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COMBAT4", true);
+		static const PromotionTypes ePromotionCombat5 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COMBAT5", true);
+		static const PromotionTypes ePromotionCombat6 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COMBAT6", true);
+
+		static const PromotionTypes ePromotionRetreat1 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_RETREAT1", true);
+		static const PromotionTypes ePromotionRetreat2 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_RETREAT2", true);
+
+		// Situation read
+		// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate anyways etc -->
+		// bool const bWarPlan = kOwner.AI_isFocusWar();
+
+		// <!-- custom: and the `AI().` "prefix" i mean thing we added before in other file still does not fix the compile error in this file, so using an existing pattern to check danger in this file anyways etc -->
+		// <!-- custom: we have a crash in the first few turns after implementing this pCity code, maybe this is because don't have a city yet but try to promote anyway? Add this guard as a nice sanity check as well if i'm not mistaken and as chatgpt 5 recommended as well after reviewing it as well i mean but anyways etc -->
+		CvCityAI const* pCity = getPlot().AI_getPlotCity();
+		bool const bDanger = ((pCity != NULL) && pCity->AI_isDanger());	// method lives on CvCityAI <!-- custom: see as of now above code comment for details anyways etc -->
+		// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate, anyways etc -->
+		const bool bAtWar = (GET_TEAM(getTeam()).getNumWars() > 0);
+		const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
+		static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
+		const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
+		// Practical use in your siege gate
+		// Don’t use iEnemyPowPct<=90 to mean “we’re stronger” when you aren’t at war or actively preparing one, because you’ll read 0% and green-light trebuchets in peacetime.
+		// This way:
+		// - In peacetime, you won’t accidentally treat “0” as “we totally dominate” and overbuild siege.
+		static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
+		//const bool bEnemyWeak = (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD);
+		// <!-- custom: modified version i guessedly made without checking relevant function's code if i may say but anyways etc, hopefully more accurate but check to be sure as is just a guess from me but anyways etc -->
+		const bool bEnemyWeakNotZero = ((iEnemyPowerPercent > 0) && (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD));
+
 		// <!-- custom: if we are strict city offense units / unitais but anywayse city, city raider would be the best or among to go for first and foremost at least in most cases for AIs if i'm not mistaken but anyways etc -->
-		if (bStrictAttackCityLandUnitAI)
+		if (bStrictAttackCityLandUnitAI || bMostlyOffensiveLandUnitAI)
 		{
-			if (ePromotion == ePromotionCityRaider1)
+			// <!-- custom: update: except if we are weaker than our rivals or in danger or such, then city raider won't help us and we'd be most likely be defending our cities rather, so attempt a more versatile promotion instead like combat promotions or such first but anyways etc -->
+			const bool bDangerousToGoWithFullOffensePromotions = (
+				bDanger ||
+				// Gate CR suppression to real war (recommended)
+				// This can suppress City Raider in peacetime just because someone’s power spiked. Safer:
+				(bAtWar && bEnemyStrong)
+			);
+
+			if (bDangerousToGoWithFullOffensePromotions)
 			{
-				return AI_PROMOTION_ALWAYS_PICK_FIRST + 2000;
+				if (ePromotion == ePromotionCombat1)
+				{
+					return AI_PROMOTION_ALWAYS_PICK_FIRST + 8000;
+				}
+				else if (ePromotion == ePromotionCombat2)
+				{
+					return AI_PROMOTION_ALWAYS_PICK_FIRST + 7000;
+				}
+				else if (ePromotion == ePromotionCombat3)
+				{
+					return AI_PROMOTION_ALWAYS_PICK_FIRST + 6000;
+				}
+				else if (ePromotion == ePromotionCombat4)
+				{
+					return AI_PROMOTION_ALWAYS_PICK_FIRST + 5000;
+				}
+				else if (ePromotion == ePromotionCombat5)
+				{
+					return AI_PROMOTION_ALWAYS_PICK_FIRST + 4000;
+				}
+				else if (ePromotion == ePromotionCombat6)
+				{
+					return AI_PROMOTION_ALWAYS_PICK_FIRST + 3000;
+				}
+				// <!-- custom: consider retreat promotions as a versatile offensive or defensive promotion for city attacker unitais, with a bit more caution in case city raider is maybe better anyways etc, based on a similar/related idea chatgpt 5 gave me thanks etc i mean thanks but anyways etc; and which also helped em enhance it thanks but anyways etc -->
+				// If you want retreat only when losing a real war, gate it like this:
+				if (bAtWar && bEnemyStrong)
+				{
+					if (ePromotion == ePromotionRetreat1)
+					{
+						return AI_PROMOTION_ALWAYS_PICK_FIRST + 2900;
+					}
+					else if (ePromotion == ePromotionRetreat2)
+					{
+						return AI_PROMOTION_ALWAYS_PICK_FIRST + 2800;
+					}
+				}
 			}
-			else if (ePromotion == ePromotionCityRaider2)
+
+			const bool bShouldAttack = (
+				(bAtWar && bEnemyWeakNotZero)
+			);
+
+			if (bStrictAttackCityLandUnitAI ||
+			(bMostlyOffensiveLandUnitAI && bShouldAttack))
 			{
-				return AI_PROMOTION_ALWAYS_PICK_FIRST + 1000;
-			}
-			else if (ePromotion == ePromotionCityRaider3)
-			{
-				return AI_PROMOTION_ALWAYS_PICK_FIRST;
+				if (ePromotion == ePromotionCityRaider1)
+				{
+					return AI_PROMOTION_ALWAYS_PICK_FIRST + 2000;
+				}
+				else if (ePromotion == ePromotionCityRaider2)
+				{
+					return AI_PROMOTION_ALWAYS_PICK_FIRST + 1000;
+				}
+				else if (ePromotion == ePromotionCityRaider3)
+				{
+					return AI_PROMOTION_ALWAYS_PICK_FIRST;
+				}
 			}
 		}
 
@@ -10568,10 +10667,9 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		// <!-- custom: note: counter and city_counter are seemingly hybrids according to chatgpt 5, i.e. used both for defense and offense so not included either the offensive block nor in the defensive one, as too aggressive promotion restricitions may hurt the unit as pointed by chatgpt 5, check if accurate, hopefully helps the AI without hurting it xd if i may say in this case but anyways etc -->
 		const bool bCommonOffenseLandUnitAI = (
 			// <!-- custom: note: as of now seemingly unused or/and disabled for AIs but just in case or/and to be exhaustive anyways etc -->
-			(eAI == UNITAI_ATTACK_CITY_LEMMING) || 
-			// <!-- custom: note: as of now seemingly unused or/and disabled for AIs but just in case or/and to be exhaustive anyways etc -->
 			(eAI == UNITAI_COLLATERAL) ||
-			(eAI == UNITAI_PARADROP)
+			(eAI == UNITAI_PARADROP) ||
+			bMostlyOffensiveLandUnitAI
 		);
 
 		// <!-- custom: the less strict rules such as not pick hills master still stand, for example if all city raider of the strict rules are already picked if i am not mistaken but anyways etc ; so include strict offense unitais in the general offense unitai rules if i'm not mistaken but anyways etc -->
@@ -10590,6 +10688,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 			(ePromotion == ePromotionHillsMaster1) ||
 			(ePromotion == ePromotionHillsMaster2) ||
 			(ePromotion == ePromotionHillsMaster3) ||
+			// <!-- custom: as explained to chatgpt 5 while thinking about it but anyways etc, counter promotions are too "niche" as it described about another thing if i'm not mistaken but anyways etc, and after upgrading units AI would have no need for some of these as well, so mostly if not entirely disable these for efficiency of promotion choices i would say but anyways etc -->
 			(ePromotion == ePromotionCounterMelee) ||
 			(ePromotion == ePromotionCounterMounted) ||
 			(ePromotion == ePromotionCounterSiege) ||
@@ -10605,12 +10704,9 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 			(eAI == UNITAI_CITY_DEFENSE) ||
 			(eAI == UNITAI_CITY_SPECIAL)
 		);
-
-		// <!-- custom: note: reserve (and reserve_sea) similarly excluded from this due to being hybrids frequently flipped from defense to offense according to the doc i had compiled as in recorded/saved at the time xd if i may say but anyways etc, as well as chatgpt 5's info after i asked it about it and after it did a web search too, so removing / not having strict nor less strict defensive rules for these then if i am not mistaken, check if accurate, anyways etc -->
-		const bool bDefenseLandUnitAI = bStrictDefenseLandUnitAI;
-
 		// <!-- custom: if we are strict or strongly most likely to be city defenders units / unitais but anyways etc, city garrison would be the best or among to go for first and foremost at least in most cases for AIs if i'm not mistaken but anyways etc -->
-		if (bDefenseLandUnitAI)
+		// <!-- custom: note: reserve (and reserve_sea) similarly excluded from this due to being hybrids frequently flipped from defense to offense according to the doc i had compiled as in recorded/saved at the time xd if i may say but anyways etc, as well as chatgpt 5's info after i asked it about it and after it did a web search too, so removing / not having strict nor less strict defensive rules for these then if i am not mistaken, check if accurate, anyways etc -->
+		if (bStrictDefenseLandUnitAI)
 		{
 			if (ePromotion == ePromotionCityGarrison1)
 			{
@@ -10626,6 +10722,12 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 			}
 		}
 
+		const bool bMostlyDefensiveLandUnitAI = (
+			(eAI == UNITAI_RESERVE)
+		);
+
+		const bool bDefenseLandUnitAI = (bStrictDefenseLandUnitAI || bMostlyDefensiveLandUnitAI);
+
 		// <!-- custom: sea no pun but typo or mistake but anyways etc.. i mean see if i may say but anyways etc the note about reserve_sea not included here as it is a sort of hybrid it seems and being too strict about it may hurt it if i am not mistaken but anyways etc -->
 		const bool bDefenseNavalUnitAI = (
 			(eAI == UNITAI_ESCORT_SEA)
@@ -10636,8 +10738,6 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		static const PromotionTypes ePromotionBlitzkrieg = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_BLITZKRIEG", true);
 		static const PromotionTypes ePromotionMobilityCost = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_MOBILITY_COST", true);
 		static const PromotionTypes ePromotionMobilityRange = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_MOBILITY_RANGE", true);
-		static const PromotionTypes ePromotionRetreat1 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_RETREAT1", true);
-		static const PromotionTypes ePromotionRetreat2 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_RETREAT2", true);
 
 		static const PromotionTypes ePromotionCounterArcher = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COUNTER_ARCHER", true);
 
@@ -10656,8 +10756,6 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		if ((ePromotion == ePromotionBlitzkrieg) ||
 			(ePromotion == ePromotionMobilityCost) ||
 			(ePromotion == ePromotionMobilityRange) ||
-			(ePromotion == ePromotionRetreat1) ||
-			(ePromotion == ePromotionRetreat2) ||
 			(ePromotion == ePromotionCityRaider1) ||
 			(ePromotion == ePromotionCityRaider2) ||
 			(ePromotion == ePromotionCityRaider3) ||
@@ -10667,12 +10765,60 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 			(ePromotion == ePromotionCollateralDamage3) ||
 			(ePromotion == ePromotionCollateralDamage4) ||
 			(ePromotion == ePromotionCollateralDamage5) ||
-			(ePromotion == ePromotionNavigator) ||
 			(ePromotion == ePromotionCounterArcher))
 		{
 			if (bDefenseUnitAI)
 			{
 				return AI_PROMOTION_FORBIDDEN;
+			}
+		}
+		// <!-- custom: retreat promotions are useful for,
+		// on land:
+		// 	- non defense unitais (versatile attack/defense utility)
+		// on sea:
+		// 	- non defense unitais (versatile attack/defense utility)
+		//	- defense unitais as well (naval defensive units can move, they are not as often parked to cities)
+		// so forbid retreat promotions only for defense land unitais, and otherwise allow for versatility if i'm not mistaken in my thinking and thanks to chatgpt 5's related review which gave me this idea thanks but anyways etc -->
+		if (bStrictDefenseLandUnitAI || bMostlyDefensiveLandUnitAI)
+		{
+			if ((ePromotion == ePromotionRetreat1) ||
+				(ePromotion == ePromotionRetreat2))
+			{
+				return AI_PROMOTION_FORBIDDEN;
+			}
+		}
+
+		// <!-- custom: for naval unitais, combat promotions are often the best choice, followed by navigator if i'm not mistaken but anyways etc -->
+		if (bOffenseNavalUnitAI || bDefenseNavalUnitAI)
+		{
+			// <!-- custom: navigator is useful for naval defense unitais if i'm not mistaken and as recommended by chatgpt 5 but check to be sure but anyways etc anyways etc -->
+			if (ePromotion == ePromotionCombat1)
+			{
+				return AI_PROMOTION_ALWAYS_PICK_FIRST + 5000;
+			}
+			else if (ePromotion == ePromotionCombat2)
+			{
+				return AI_PROMOTION_ALWAYS_PICK_FIRST + 4000;
+			}
+			else if (ePromotion == ePromotionCombat3)
+			{
+				return AI_PROMOTION_ALWAYS_PICK_FIRST + 3000;
+			}
+			else if (ePromotion == ePromotionCombat4)
+			{
+				return AI_PROMOTION_ALWAYS_PICK_FIRST + 2000;
+			}
+			else if (ePromotion == ePromotionCombat5)
+			{
+				return AI_PROMOTION_ALWAYS_PICK_FIRST + 1000;
+			}
+			else if (ePromotion == ePromotionCombat6)
+			{
+				return AI_PROMOTION_ALWAYS_PICK_FIRST;
+			}
+			else if (ePromotion == ePromotionNavigator)
+			{
+				return AI_PROMOTION_ALWAYS_PICK_FIRST - 1000;
 			}
 		}
 	}
@@ -11051,7 +11197,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		(eAI == UNITAI_CITY_SPECIAL)) {
 		if (iTemp > 0) {
 			PlayerTypes eOwner = getPlot().calculateCulturalOwner();
-			if (eOwner != NO_PLAYER && GET_PLAYER(eOwner).getTeam() != GET_PLAYER(getOwner()).getTeam())
+			if (eOwner != NO_PLAYER && GET_PLAYER(eOwner).getTeam() != kOwner.getTeam())
 				iValue += (iTemp / 2);
 		}
 	}*/
@@ -11220,7 +11366,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 			else iCombatWeight = 30;
 		}
 
-		iCombatWeight *= GET_PLAYER(getOwner()).AI_getUnitCombatWeight(eLoopUnitCombat);
+		iCombatWeight *= kOwner.AI_getUnitCombatWeight(eLoopUnitCombat);
 		iCombatWeight /= 100;
 
 		if (eAI == UNITAI_COUNTER ||

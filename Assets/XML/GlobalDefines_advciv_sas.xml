@@ -919,6 +919,24 @@
 
 
 
+	<!-- custom: enable (1, recommended) / disable (0) to toggle advciv-sas smart unit promotions optimization (e.g. as of now pick city raider for UNITAI_ATTACK_CITY units first if not in danger or enemy is strong, or don't pick medic or woodsman promotions (inefficient), etc.)-->
+	<Define>
+		<DefineName>SAS_PROMOTION_VALUE_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: low value so a promotion does not get picked (assuming no other logic overrides ours as seems to happen sometimes for rare unexpected medic promotions, although generalyl our code seems as of now quite/very effective but check to be sure anyways etc) -->
+	<Define>
+		<DefineName>SAS_PROMOTION_VALUE_AI_PROMOTION_FORBIDDEN</DefineName>
+		<iDefineIntVal>-100000</iDefineIntVal>
+	</Define>
+	<!-- custom: high value so a promotion is ideally always picked first (same anyways etc) -->
+	<Define>
+		<DefineName>SAS_PROMOTION_VALUE_AI_PROMOTION_ALWAYS_PICK_FIRST</DefineName>
+		<iDefineIntVal>100000</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: customize (no pun but anyways etc) civ4 bonus-specific worker builds here, to tell the AI which build is the best for a bonus: e.g. for BONUS_BANANA (as per xml) BUILD_PLANATATION is the best build (we can build a cottage or farm or etc but not best), or for BONUS_WHEAT (as per xml) BUILD_FARM is the best (we can build a cottage or workshop or whatever but not the best anyways etc): note: hit bonuses not included since we don't use them for worker builds, and they are disabled as of now in advciv-sas anyway, so this numbering follows xml order but doesn't necessarily attempt nor does it respect bonus info exact numbering, although it happens to do so for convenience and need in this case i mean if i may say but anyways etc -->
 	<!-- custom: set this value to match total number of bonus specific builds you have, so that you can add or remove as many as you want directly via xml without needing to recompile (the bonus specific bonus->build array does not know the total number and uses this to know last entry, so you can for example add a 30th entry of say (imaginary) BONUS_30 with corresponding BUILD_30, just remember to also change the total here anyways etc). Works similarly for remove as well anyways etc -->
 	<!-- custom: bonuses as per the XML order for exhaustiveness and reliability and making sure we don't forget any anyways etc, adjust as you see fit anyways etc ; see also https://civilization.fandom.com/wiki/Resource_(Civ4)#Strategic_Resources and such or not or yes or etc anyways etc related categories in this link anyways etc for bonus-specific build/improvement i mean anyways etc -->
