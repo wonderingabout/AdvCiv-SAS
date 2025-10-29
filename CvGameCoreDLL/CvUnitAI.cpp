@@ -2939,7 +2939,7 @@ static int countImprovedTiles(CvCity const* pCity)
 		}
 
         // Count any improvement in the city radius.
-        ImprovementTypes eImp = pPlot->getImprovementType();
+        const ImprovementTypes eImp = pPlot->getImprovementType();
         if (eImp != NO_IMPROVEMENT)
 		{
             ++iCount;
