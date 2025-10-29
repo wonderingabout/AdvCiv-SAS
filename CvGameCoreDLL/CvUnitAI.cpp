@@ -2972,13 +2972,24 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	bool bCanRetreat = true; // advc.opt: Try only once (uses of this variable not marked with comments)
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 
+	// <!-- custom: cache this since we seem to check it many times, if i'm not mistaken in my thinking but anyways etc -->
+	const bool bWeOwnThisPlot = (getPlot().getOwner() == getOwner());
+
 	// <!-- custom: in rare cases, workers still get parked in cities, seeming with MISSIONAI_RETREAT + ACTIVITY_HOLD, as also noticed by chatgpt 5 in the screenshot i showed it about it. Trying to fix that with the help of chatgpt 5 now, check if accurate anyways etc, and see for details known issue as of now 50 with screenshots and such but anyways etc -->
 	// two small patches that fix it
 	// 2) Unstick “retreaters” at the start of the turn
 	// Right at the top of AI_workerMove (after you build kOwner), add:
 	// Unstick previous retreats: if we’re in our land and not threatened, wake up.
-	if (getGroup()->AI().AI_getMissionAIType() == MISSIONAI_RETREAT &&
-		getPlot().getOwner() == getOwner() &&
+	// <!-- custom: update: we still have some workers that are on hold when cities could be improved, add an additional HOLD wake up as well if i understood it correctly as recommended by chatgpt 5, check if accurate, in autoplay they do appear to be on HOLD activity though it seems if i remember it correctly but anyways etc -->
+	// Wake safe retreaters (expand your existing un-sticker):
+	// You already clear MISSIONAI_RETREAT when safe. Do the same if the group is just on HOLD, even if its MissionAI isn’t RETREAT.
+	// if (getGroup()->AI().AI_getMissionAIType() == MISSIONAI_RETREAT &&
+	const bool bWorkerSleeping = (
+		(getGroup()->AI().AI_getMissionAIType() == MISSIONAI_RETREAT) ||
+		(getGroup()->getActivityType() == ACTIVITY_HOLD)
+	);
+	if (bWorkerSleeping &&
+		bWeOwnThisPlot &&
 		!kOwner.AI_isPlotThreatened(plot(), 1)) // adjacent only
 	{
 		getGroup()->setActivityType(ACTIVITY_AWAKE);
@@ -2988,7 +2999,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 
 	// <!-- custom: disable this as this may cause unintended retreats or interfere with our own logic, chatgpt 5 recommends removing or narrowing it, i'll comment it out then as i got the idea to do myself as well if i may say but thanks a lot for help and confirmation / expertise if i may say thanks a lot anyways etc -->
 	// // XXX could be trouble...
-	// if (getPlot().getOwner() != getOwner())
+	// if (!bWeOwnThisPlot)
 	// {
 	// 	if (AI_retreatToCity())
 	// 		return;
@@ -2997,7 +3008,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 
 	if (!isHuman())
 	{
-		if (getPlot().getOwner() == getOwner())
+		if (bWeOwnThisPlot)
 		{
 			if (AI_load(UNITAI_SETTLER_SEA, MISSIONAI_LOAD_SETTLER, UNITAI_SETTLE,
 				2, -1, -1, 0, MOVE_SAFE_TERRITORY))
@@ -3099,7 +3110,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 		}
 	}
 
-	if (bCanRoute && getPlot().getOwner() == getOwner()) // XXX team???
+	if (bCanRoute && bWeOwnThisPlot) // XXX team???
 	{
 		BonusTypes eNonObsoleteBonus = getPlot().getNonObsoleteBonusType(getTeam());
 		if (eNonObsoleteBonus != NO_BONUS)
@@ -3488,6 +3499,35 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 
 	if (AI_safety())
 		return;
+
+	// <!-- custom: tentative safety if workers are still on HOLD or such, try to manually reset them so they do something, anything, as recommended by chatgpt 5 (check if accurate) anyways etc; note: refresh the value to another bWorkerSleeping2 variable in case it changed since then anyways etc  -->
+	// Bottom-of-function failsafe (“do something, anything”)
+	// At the very end of AI_workerMove (just before returning with no action), add:
+	const bool bWorkerSleeping2 = (
+		(getGroup()->AI().AI_getMissionAIType() == MISSIONAI_RETREAT) ||
+		(getGroup()->getActivityType() == ACTIVITY_HOLD)
+	);
+	if (bWorkerSleeping2 && bWeOwnThisPlot)
+	{
+		getGroup()->setActivityType(ACTIVITY_AWAKE);
+		getGroup()->AI().AI_setMissionAI(NO_MISSIONAI, NULL, NULL);
+
+		CvCityAI* pCityToImprove = AI_getCityToImprove();
+		if (pCityToImprove != NULL && AI_improveCity(*pCityToImprove))
+		{
+			return;
+		}
+		if (AI_nextCityToImprove(NULL))
+		{
+			return;
+		}
+	}
+	// Put the failsafe before the final MISSION_SKIP
+	// <!-- custom: then after i asked it why only to understand/guess xd but anyways etc that our fallback would not be reached or fail due to the skip or such, it added this info, check if accurate anyways etc -->
+	// yep — your intuition is right.
+	// pushMission(MISSION_SKIP) queues a “do nothing this turn” for the group (effectively HOLD/skip-turn).
+	// Once you’ve queued that, any logic after it is either not reached (if you return;) or will be overwritten by the queued skip (the group will still execute the skip you just pushed).
+	// So if you put your wake-up + reassignment after MISSION_SKIP, it neuters the sanity checks. They must run before any skip is pushed.
 
 	getGroup()->pushMission(MISSION_SKIP);
 }
