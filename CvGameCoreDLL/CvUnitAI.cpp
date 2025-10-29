@@ -2917,6 +2917,10 @@ CvCityAI* CvUnitAI::AI_getCityToImprove() const
 
 
 // <!-- custom: helper provided by chatgpt o3 to count tiles as part of fine tuning next city to improve based on the number of tiles already improved in a city (see below in CvUnitAI::AI_workerMove for details anyways etc) -->
+// <!-- custom: update: according to claude sonnet 4.5 and then according to chatgpt 5 as well after feeding it its explanation, there was an issue with our approach, so fixed as below with chatgpt 5's rationale in comments, check if accurate anyways etc -->
+// B) Make the tile-count tolerant of overlap
+// Change countImprovedTiles to count any improved tile in the BFC (not only those assigned to the city):
+// (Your current version filters by getWorkingCity()==pCity; remove that.)
 static int countImprovedTiles(CvCity const* pCity)
 {
     int iCount = 0;
@@ -2930,11 +2934,16 @@ static int countImprovedTiles(CvCity const* pCity)
 								// 1>  Stop.
 								// ") -->
         if (pPlot == NULL)
+		{
             continue;
-        if (pPlot->getWorkingCity() != pCity)
-            continue;
-        if (pPlot->getImprovementType() != NO_IMPROVEMENT)
+		}
+
+        // Count any improvement in the city radius.
+        ImprovementTypes eImp = pPlot->getImprovementType();
+        if (eImp != NO_IMPROVEMENT)
+		{
             ++iCount;
+        }
     }
     return iCount;
 }
@@ -3176,15 +3185,16 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 		// <!-- custom: add an extra tolerance and leeway for small cities, indeed they can be expected to grow fast, so stay longer in these even if we have a few more plots than our current pop (e.g. if city pop is 2, continue improving tiles until we have >= 0 + 2 pop + 2 extra tiles = 4 plots improved in city radius if i am not mistaken but anyways etc), hopefully this also helps if cities share tiles and in case they are counted as belonging to city B when in fact it is worked by city A (just a guess/theory but hopefully this helps too but anyways etc) -->
 		const int iCityPopulation = pCity->getPopulation();
 		// <!-- custom: make the extra plot count a bit larger to account for (no pun but anyways etc) plot overlapping between cities, so if city A and city B share 2 plots, and these were improved in city A, we don't want the AI worker to think "hey, city B already has 2 tiles improved and its pop is 1, not too much more to do if threshold plots ot improve vs city population is reached, so make it a bit larger to account for that anyways etc, as of now here 3 (see below at iBufferForAllCities anyways etc) rather than say 2 anyways etc." -->
-		const int iBufferExtraForSmallCities = (iCityPopulation <= 4 ? 2 : 0);
+		const int iBufferExtraForSmallCities = (iCityPopulation <= 4 ? 3 : 0);
 		// <!-- custom: note: even for big cities, the extra is not 0, to help reduce oscillation, so workers would stay a bit longer in city (if pop is 7 they'd stay until 8 plots are improved, so city A is ready for its next citizen, and when workers are in city B, they can stay longer as city A already has a few more/extra improvements to grow, even if not no big deal it is already developped, but don't overimprove city A, as city B is more urgent, but just a little bit extra in city A to avoid the back and forth / oscillation as discussed with chatgpt 5 with the idea i got hehe, so in short improve big cities a bit more than needed so we can comeback to them later and they'll still grow fine for a while, but don't overimprove, so that we move sooner to city B that is smaller and much needing early improvements, which we currently don't do or not enough (small cities take too logn to be improved by AI workers as of now anyways etc), and when we are in city B, improve a lot more plots than needed as it will grow fast, and do not leave city B until a few extra plots have been developped (if city pop 1, dont leave until 4 plots are improved for example if i'm not mistaken but anyways etc, then don't come back for a while if i'm not mistkane and in this case i mean but anyways etc)) -->
-		const int iBufferForAllCities = 1;
+		const int iBufferForAllCities = 2;
 		if ((countImprovedTiles(pCity) >= (iCityPopulation + iBufferForAllCities + iBufferExtraForSmallCities)) ||
 			// <!-- custom: for big cities, if they are unhappy it can be expected they have stagnated and won't grow further, go to smaller city B or even city C that can grow more and need and would benefit from the improvements now instead of overimproving city A that won't grow seemingly soon -->
 			(iCityPopulation >= 6 && (pCity->unhappyLevel(0) > pCity->happyLevel())))
 		{
 			if (AI_nextCityToImprove(pCity))   // go pick city B right now
 				return;
+			// If we couldn't find a better city, work here anyway
 		}
 
 		// <!-- custom: as for this code we don't need it, we now have our own logic to decide if worker should go to city B or back to city A or to city C, make them more dynamic, so smaller cities get max chance to be improved, even if it means a bit back and forth, currently small cities take too long to be improved, we don't want workers to stay too long in a city when others could be waiting, anyways etc ; in very short, don't give workers too many reasons to stay in same city; delaying improving other cities :) If i may say but anyways etc, improve city B or other cities, then come back later to city A if/when needed in this case i mean but anyways etc -->
@@ -3213,6 +3223,21 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 		// 	if (AI_improveCity(*pCity))
 		// 		return;
 		// }
+
+		// <!-- custom: attempt to reduce worker parking when cities are underimproved, solution recommended by claude sonnet 4.5, check if accurate anyways etc -->
+		// But you also commented out the local need check:
+		// ⚠️ This might be a problem. The original code had workers actually do work in their city before considering leaving. You removed this and replaced it with just a "should I leave?" check, but if the worker decides NOT to leave, it skips the "do work here" part entirely and falls through to less efficient functions.
+		// Option 1: Add fallback after your city-switch check
+		// Always try to improve current city if we have one
+		// <!-- custom: chatgpt 5's comment about this change/addition as well anyways etc -->
+		// C) Only use “self city” as selection, let actual work be decided by AI_improveCity
+		// Keep your current structure where AI_workerMove tries AI_improveCity(*pCity) after city switching. That path is already present and safe; just avoid having AI_nextCityToImprove return “true” with a self target that isn’t actionable (Fix A handles that). Your current call sites do return immediately on “success,” so ensuring “success” means “we actually queued missions” is the key.
+		// <!-- custom: when i asked it again if a change was needed regarding C it said this to explain it i mean, check if accurate anyways etc -->
+		// Short answer: you’re good — with A and B in place, you don’t need to change anything for option C.
+		// - Your current AI_workerMove still early-returns when AI_nextCityToImprove(pCity) succeeds. That’s fine now that A/B make sure we don’t “succeed” on a no-op self-city target; we’ll only return early when we actually queued a move/build to another city.
+		// - The local-work path still runs when no switch happens: after the first switch attempt, you fall through and try AI_improveCity(*pCity) and AI_improveLocalPlot(...), so the worker won’t park if it stayed in place.
+		if (AI_improveCity(*pCity))
+			return;
 	}
 
 	/*if (AI_improveLocalPlot(2, pCity))
@@ -19504,10 +19529,20 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 	// <!-- custom: add in addition to this sanity check if i'm not mistaken but anyways etc a new extra logic to try to improve our city if we have no other city to improve at all, better than doing nothing and bailing, in this case i mean but anyways etc, code by chatgpt 5, check if accurate but anyways etc -->
 	// Minimal patch
 	// 4. Fallback to the stored “self” candidate if no other-city target was found:
+	// <!-- custom: update: according to claude sonnet 4.5 and then according to chatgpt 5 as well after feeding it its explanation, there was an issue with our approach, so fixed as below with chatgpt 5's rationale in comments, check if accurate anyways etc -->
+	// A) Gate the self fallback (stop returning a no-op)
+	// Replace your fallback block with this guard so it only fires when there’s real work to do:
+	// Fallback to stored self target *only if actionable*
+	// This keeps your self-candidate idea but prevents “successful” no-ops that lead to parking. (Your current fallback is here.)
 	if ((pBestPlot == NULL || eBestBuild == NO_BUILD) && bSelfImprovable)
 	{
-		pBestPlot  = pSelfPlot;
-		eBestBuild = eSelfBuild;
+		// Use self only if we're not already standing there,
+		// or if we can actually start the build right now.
+		if (!atPlot(pSelfPlot) || canBuild(*pSelfPlot, eSelfBuild))
+		{
+			pBestPlot  = pSelfPlot;
+			eBestBuild = eSelfBuild;
+		}
 	}
 	if (pBestPlot == NULL || eBestBuild == NO_BUILD)
 		return false;
