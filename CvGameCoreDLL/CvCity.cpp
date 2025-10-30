@@ -569,6 +569,13 @@ void CvCity::doTurn()
 
 	doProduction(!bForceProduction);
 
+	// <!-- custom: also cache these as is done in this file in other functions since we reuse them if i'm not mistaken in doing so but anyways etc -->
+	CvGame const& kGame = GC.getGame();
+
+	// Early-game window (scaled by game speed TrainPercent)
+	const int iCurrentTurn = kGame.getGameTurn();
+	const int iTrainPct = GC.getInfo(kGame.getGameSpeedType()).getTrainPercent();
+
 	// <!-- custom: forcing buildings in chooseproduction is sometimes ignored or slow to fire in autoplay, put it here in doturn for max effectiveness and reliability if i'm not mistaken but anyways etc -->
 	const bool bHuman = isHuman();
 
@@ -619,49 +626,66 @@ void CvCity::doTurn()
 			static const BuildingClassTypes eWallsClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_BUILDINGCLASS_FULL_NAME"));
 			static const BuildingClassTypes eCastleClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_BUILDINGCLASS_FULL_NAME"));
 
-			BuildingTypes eWalls = NO_BUILDING;
-			if (eWallsClass != NO_BUILDINGCLASS)
-			{
-				eWalls = (BuildingTypes)kCivInfo.getCivilizationBuildings(eWallsClass);
-			}
-			BuildingTypes eCastle = NO_BUILDING;
-			if (eCastleClass != NO_BUILDINGCLASS)
-			{
-				eCastle = (BuildingTypes)kCivInfo.getCivilizationBuildings(eCastleClass);
-			}
+			// 
+			static const int iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL = GC.getDefineINT("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL");
+			static const int iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL = GC.getDefineINT("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL");
+
+			const int iEarlyCutoff1 = (iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL * iTrainPct) / 100;
+			const int iEarlyCutoff2 = (iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL * iTrainPct) / 100;
+
+			const bool bEarlyBuildingClassName1 = (iCurrentTurn <= iEarlyCutoff1);
+			const bool bEarlyBuildingClassName2 = (iCurrentTurn <= iEarlyCutoff2);
 
 			// First: Walls
-			if ((eWalls != NO_BUILDING) &&
-				(getNumBuilding(eWalls) == 0) &&
-				canConstruct(eWalls, false, false, true))
+			if (!bEarlyBuildingClassName1)
 			{
-				if (getProductionBuilding() == eWalls)
+				BuildingTypes eWalls = NO_BUILDING;
+				if (eWallsClass != NO_BUILDINGCLASS)
 				{
-					bEmergencyBuilding = true; // already doing it
+					eWalls = (BuildingTypes)kCivInfo.getCivilizationBuildings(eWallsClass);
 				}
-				else
+
+				if ((eWalls != NO_BUILDING) &&
+					(getNumBuilding(eWalls) == 0) &&
+					canConstruct(eWalls, false, false, true))
 				{
-					clearOrderQueue();                         // hard override
-					pushOrder(ORDER_CONSTRUCT, eWalls);        // head of queue
-					setChooseProductionDirty(false);           // keep it next turn
-					bEmergencyBuilding = true;
+					if (getProductionBuilding() == eWalls)
+					{
+						bEmergencyBuilding = true; // already doing it
+					}
+					else
+					{
+						clearOrderQueue();                         // hard override
+						pushOrder(ORDER_CONSTRUCT, eWalls);        // head of queue
+						setChooseProductionDirty(false);           // keep it next turn
+						bEmergencyBuilding = true;
+					}
 				}
 			}
 			// Otherwise: Castle (requires Walls anyway; canConstruct handles it)
-			else if ((eCastle != NO_BUILDING) &&
+			else if (!bEarlyBuildingClassName2)
+			{
+				BuildingTypes eCastle = NO_BUILDING;
+				if (eCastleClass != NO_BUILDINGCLASS)
+				{
+					eCastle = (BuildingTypes)kCivInfo.getCivilizationBuildings(eCastleClass);
+				}
+
+				if ((eCastle != NO_BUILDING) &&
 					(getNumBuilding(eCastle) == 0) &&
 					canConstruct(eCastle, false, false, true))
-			{
-				if (getProductionBuilding() == eCastle)
 				{
-					bEmergencyBuilding = true;
-				}
-				else
-				{
-					clearOrderQueue();
-					pushOrder(ORDER_CONSTRUCT, eCastle);
-					setChooseProductionDirty(false);
-					bEmergencyBuilding = true;
+					if (getProductionBuilding() == eCastle)
+					{
+						bEmergencyBuilding = true;
+					}
+					else
+					{
+						clearOrderQueue();
+						pushOrder(ORDER_CONSTRUCT, eCastle);
+						setChooseProductionDirty(false);
+						bEmergencyBuilding = true;
+					}
 				}
 			}
 		}
@@ -868,20 +892,16 @@ void CvCity::doTurn()
 
 			// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc, and if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
 			// <!-- custom: trying to save some computing power by condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
-			bool const bLandHeavyMapname = GC.getGame().isLandHeavyMapnameCached();
+			bool const bLandHeavyMapname = kGame.isLandHeavyMapnameCached();
 			bool bNavalHeavyMapname = false;
 			if (!bLandHeavyMapname)
 			{
-				bNavalHeavyMapname = GC.getGame().isNavalHeavyMapnameCached();
+				bNavalHeavyMapname = kGame.isNavalHeavyMapnameCached();
 			}
 
-			// Early-game window (scaled by game speed TrainPercent)
-			const int iTrainPct = GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent();
 			// <!-- custom: extend to turn 200 at normal where we reasonably expect muskets to bail us from a no bonus at all start and game, overproducing defenders won't help and would cripple us in fact, so produce just enough to not die while we beeline muskets or such other no bonus units to help us not die if i am not mistaken anyways etc -->
-			// const int iEarlyCutoff = (150 * iTrainPct) / 100; // ~T150 @ Normal
 			static const int iEarlyTurnNoExcessDefendersNormal = GC.getDefineINT("SAS_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD");
 			const int iEarlyCutoff = (iEarlyTurnNoExcessDefendersNormal * iTrainPct) / 100; // e.g. ~T200 @ Normal
-			const int iCurrentTurn = GC.getGame().getGameTurn();
 			const bool bEarly = (iCurrentTurn <= iEarlyCutoff);
 
 			static const int TH_ANC      = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_ANCIENT_TIER_THRESHOLD");
@@ -1264,7 +1284,7 @@ void CvCity::doTurn()
 	{
 		if(bHuman && !isProduction() && !isProductionAutomated() &&
 			kOwner.getAnarchyTurns() == 1 &&
-			GC.getGame().getGameState() != GAMESTATE_EXTENDED)
+			kGame.getGameState() != GAMESTATE_EXTENDED)
 		{
 			UnitTypes eMostRecentUnit = NO_UNIT;
 			BuildingTypes eMostRecentBuilding = NO_BUILDING;

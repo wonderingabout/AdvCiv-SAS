@@ -17217,25 +17217,46 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
 //		...
 //	}
 
+	// <!-- custom: also cache these as is done in this file in other functions since we reuse them if i'm not mistaken in doing so but anyways etc -->
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	CvGame const& kGame = GC.getGame();
+
 	CvPlot* pBestPlot = NULL;
 	CvPlot* pBestFoundPlot = NULL;
 	int iBestFoundValue = 0;
-	bool const bRandomize = (!isHuman() && GC.getGame().isScenario()); // advc.052
+	bool const bRandomize = (!isHuman() && kGame.isScenario()); // advc.052
+
+	// <!-- custom: we have an issue of AI having a settler parked in capital at turn +/- 45 at normal gamespeed, and still having only 1 city (the capital) at turn 100 in autoplay. The candidate city sites were more than safe enough, relaxing this with the help of claude sonnet 4.5 and chatgpt 5's idea as well, check if accurate anyways etc -->
+	// Looking at your issue, the AI settler is getting stuck in the capital because the safety check is too strict.
+	// Solution 1: Time-Based Override (Easiest)
+	// Add a grace period where safety is ignored early game
+	// Solution 2: Conditional Safety (Better)
+	// Only require safety after the first city
 	bool const bSafe = (getGroup()->canDefend() ||
-			getInvisibleType() != NO_INVISIBLE); // advc.057b
-	for (int i = 0; i < GET_PLAYER(getOwner()).AI_getNumCitySites(); i++)
+	 		getInvisibleType() != NO_INVISIBLE); // advc.057b
+	static const bool bSAS_FOUND_OPTIMIZE = GC.getDefineBOOL("SAS_FOUND_OPTIMIZE");
+	static const int iSAS_FOUND_BSAFE_IGNORE_TURN_NORMAL = GC.getDefineINT("SAS_FOUND_BSAFE_IGNORE_TURN_NORMAL");
+	const int iTrainPct = GC.getInfo(kGame.getGameSpeedType()).getTrainPercent();
+	const int iEarlyCutoff = (iSAS_FOUND_BSAFE_IGNORE_TURN_NORMAL * iTrainPct) / 100; // e.g. ~T80 @ Normal
+	const int iCurrentTurn = kGame.getGameTurn();
+	const bool bEarly = (iCurrentTurn <= iEarlyCutoff); // Allow risky settling early
+	static const int iSAS_FOUND_BSAFE_IGNORE_NUM_CITIES = GC.getDefineINT("SAS_FOUND_BSAFE_IGNORE_NUM_CITIES");
+	const bool bNotEnoughCities = kOwner.getNumCities() <= 1; // Always allow 2nd city
+	const bool bSafeOverride = (bSAS_FOUND_OPTIMIZE && (bEarly || bNotEnoughCities));
+	const bool bGoSettleAnyway = (bSafe || bSafeOverride);
+	for (int i = 0; i < kOwner.AI_getNumCitySites(); i++)
 	{
-		CvPlot& kSite = GET_PLAYER(getOwner()).AI_getCitySite(i);
+		CvPlot& kSite = kOwner.AI_getCitySite(i);
 		if (AI_canEnterByLand(kSite.getArea()) || // advc.030 (replacing same-area check)
 			// BETTER_BTS_AI_MOD, Settler AI, 10/23/09, jdog5000:
 			canMoveAllTerrain())
 		{
 			if (canFound(&kSite) &&
-				!GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
+				!kOwner.AI_isAnyPlotTargetMissionAI(
 				kSite, MISSIONAI_FOUND, getGroup()))
 			{
-				if (bSafe ||
-					GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
+				if (bGoSettleAnyway ||
+					kOwner.AI_isAnyPlotTargetMissionAI(
 					kSite, MISSIONAI_GUARD_CITY))
 				{
 					int iPathTurns;
@@ -17243,7 +17264,7 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
 					{
 						if (!kSite.isVisible(getTeam()) || // K-Mod
 							!kSite.isVisibleEnemyUnit(this) ||
-							(iPathTurns > 1 && bSafe)) // K-Mod
+							(iPathTurns > 1 && bGoSettleAnyway)) // K-Mod
 						{
 							int iValue = kSite.getFoundValue(getOwner());
 							// <advc.052>
@@ -17256,7 +17277,7 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
 							} // </advc.052>
 							iValue *= 1000;
 							//iValue /= (iPathTurns + 1);
-							iValue /= iPathTurns + (bSafe ? 4 : 1); // K-Mod
+							iValue /= iPathTurns + (bGoSettleAnyway ? 4 : 1); // K-Mod
 							if (iValue > iBestFoundValue)
 							{
 								iBestFoundValue = iValue;

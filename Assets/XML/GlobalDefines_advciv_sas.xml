@@ -438,6 +438,25 @@
 
 
 
+	<!-- custom: we have an issue of AI having a settler parked in capital at turn +/- 45 at normal gamespeed, and still having only 1 city (the capital) at turn 100 in autoplay. The candidate city sites were more than safe enough, relaxing this with the help of claude sonnet 4.5 and chatgpt 5's idea as well, check if accurate anyways etc; results are very good ingame, now spain ai has 3 cities at turn 100, and they are well guarded with 2 units per city each, other ais seem to have a few more cities as well, see known issue as of now 68 for details anyways etc -->
+	<!-- custom: 1 to enable (recommended), 0 to disable -->
+	<Define>
+		<DefineName>SAS_FOUND_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: e.g. turn 80 at normal game speed is turn 80 * 1.5 = 120 at gamespeed epic, etc. -->
+	<Define>
+		<DefineName>SAS_FOUND_BSAFE_IGNORE_TURN_NORMAL</DefineName>
+		<iDefineIntVal>75</iDefineIntVal>
+	</Define>
+	<!-- custom: e.g. ignore safety restrictions if we have this number of cities (idea is to settle them fast when it is early and safe enough to do so to not fall behind as we overly do anyways etc) -->
+	<Define>
+		<DefineName>SAS_FOUND_BSAFE_IGNORE_NUM_CITIES</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: if unit has enough city attack, it can be assumed the rest of its stats are otherwise bad, else would be broken for balance. Use to detect as of now trebuchet units, but also similar profile of high city bombard but weak otherwise type of units if i'm not mistaken anyways etc -->
 	<!-- custom: hopefully enough just with the modifier that trebuchets use if i am not mistaken as of now (but check if accurate as i didn't check in detail but anyways etc) but anyways etc -->
 	<Define>
@@ -914,9 +933,19 @@
 		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_BUILDINGCLASS_FULL_NAME</DefineName>
 		<DefineTextVal>BUILDINGCLASS_WALLS</DefineTextVal>
 	</Define>
+	<!-- custom: don't force walls or whichever building you set too soon, threats are not high, and we risk halting key settler units. Turn 100 at normal is for example turn 100 * 1.5 = turn 150 at gamespeed epic anyways etc -->
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL</DefineName>
+		<iDefineIntVal>80</iDefineIntVal>
+	</Define>
 	<Define>
 		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_BUILDINGCLASS_FULL_NAME</DefineName>
 		<DefineTextVal>BUILDINGCLASS_CASTLE</DefineTextVal>
+	</Define>
+	<!-- custom: don't force castle or whichever building you set too soon similarly anyways etc -->
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<!-- custom: note 3: higher increments like 3, 4, 5, etc. not supported in current code, implement logic in .cpp or such files if you want such defines in your mod mod if you have extra building class defense buildings you want AIs to build urgently when needed anyways etc. -->
 
