@@ -447,6 +447,11 @@
 
 
 
+	<!-- custom: note: the can_scrap logic has been written with the choose_unit logic in mind (don't over or under produce this or that unit, don't scrap needlessly this or that unit in more or less same ratios or conditions minus some adjustments if any), so it is strongly recommended to have the same value for the as of now can_scrap_optimize and choose_unit (and do_turn fallback unit code logic as well since it changes production of units as well): i.e. enable all or disable, but weird results may happen such as infinite loop or such if one is enabled and not the other or vice versa, check if accurate as well if needed as this is just a guess of mine but if i remember it correctly it is indeed as such, but check to be sure if needed, anyways etc -->
+	<Define>
+		<DefineName>SAS_CHOOSE_UNIT_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: set this to enable advciv-sas anti excess siege code (via one of the AI_ChooseUnit functions anyways etc). 1 to enabled (recommended), 0 to disabled (disables it entirely, if you want to selectively disable some features, consider tweaking one or a few of the sub configure options below instead anyways etc). Note: if i'm not mistaken the code we added in this function takes into account units in queue, not just existing ones, anyways etc. Note: contrary to what the name indicates, excess is not just about quantity, but also war circumstances, for example if we are at war and enemy is strong, it is very tight if not rejecting all new sieges, or if in danger or such other conditions (not added all here as bit tedious but hopefully the below help enough control siege production for this function, with the hope that other functions don't interfere too much with our logic here (it is quite centralized so effective, but sometimes maybe it would not although it seemed very effective ingame anyways etc)). -->
 	<Define>
 		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES</DefineName>
@@ -609,8 +614,9 @@
 
 
 	<!-- custom: we had an issue of AI cities sometimes having seemingly no production at all for several turns, see known issue as of now 51 for examples and details. It seems to have happened in base advciv as well in an example i had documented, although the issue may have been something else back then as it was at end game and affected the human player too (i.e. me at the time xd if i may say but anyways etc) (or maybe not something else? In this case i mean but anyways etc) vs early game now in advciv-sas. In all cases, this was crippling, now worked around reliably and successfully as below but anyways etc with the help of chatgpt 5 but anyways etc, check if accurate anyways etc -->
+	<!-- custom: note: the can_scrap logic has been written with the choose_unit logic in mind (don't over or under produce this or that unit, don't scrap needlessly this or that unit in more or less same ratios or conditions minus some adjustments if any), so it is strongly recommended to have the same value for the as of now can_scrap_optimize and choose_unit (and do_turn fallback unit code logic as well since it changes production of units as well): i.e. enable all or disable, but weird results may happen such as infinite loop or such if one is enabled and not the other or vice versa, check if accurate as well if needed as this is just a guess of mine but if i remember it correctly it is indeed as such, but check to be sure if needed, anyways etc -->
 	<Define>
-		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD</DefineName>
+		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: safety value, recommended to not change this except increasing it if you have very expensive units you want to build anyways etc. -->

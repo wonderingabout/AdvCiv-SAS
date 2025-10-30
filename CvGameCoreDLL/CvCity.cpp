@@ -730,9 +730,9 @@ void CvCity::doTurn()
 	// --- BEGIN: hard safety net for AI production ---
 	// <!-- custom: we now successfully always avoid the no production, and other cities don't fall back to our fall back if they have a valid production -->
 	// <!-- custom: note: chatgpt 5 recommends adding !isDisorder() / !isOccupation() to quote it xd but anyways etc, as for me i didn't add them for simplicity and as long as works and for reliability in case these cause other issues or not or yes or etc but anyways etc, but if you or me or such notice issues consider adding one or both of these in this case i mean but anyways etc -->
-	static const bool bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD");
+	static const bool bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OPTIMIZE = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OPTIMIZE");
 
-	if (!bEmergencyBuilding && !bHuman && bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD)
+	if (!bEmergencyBuilding && !bHuman && bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OPTIMIZE)
 	{
 		// <!-- custom: previous issue was: if a city fell once in no production and this was avoided by our fallback here, then it will never ever exit the fallback loop, despite having only 1 unit currently built in queue, and the other cities doing fine (building granaries, settlers, scouts, barracks, anything it seems) but not our city that fell into the fallback and seemingly can't get out of it at next production (at least in next 20 turns anyways etc), trying to change the bNeedFallback to prevent that, while keeping effectiveness of the fallback otherwise anyways etc; result: very effective! No more no production still, and japan ai gets out of the fallback successfully switching to a settler a few turns later thanks a lot chatgpt 5 anyways etc -->
 		//const bool bNeedFallback = !isProduction();

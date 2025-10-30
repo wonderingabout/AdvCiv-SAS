@@ -11289,1064 +11289,1072 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 		// <!-- custom: also make a copy of our unit right now so we don't have to recheck everytime later if we changed it or not anyways etc -->
 		UnitTypes   eChangedUnit   = eUnit;
 		UnitAITypes eChangedUnitAI = eUnitAI;
-		// <!-- custom: use a pointer (pUnitInfo) rather than a reference (kUnitInfo) so that if we change the unit, we can just refresh the pointer itself, while refreshing the reference is risky according to chatgpt 5 (for example if reference is a const by GC (i don't know too much about it but it's what i understood of it anyways etc), check if accurate anyways etc -->
-		// CvUnitInfo& kUnitInfo = GC.getInfo(eChangedUnit);
-		const CvUnitInfo* pUnitInfo = &GC.getInfo(eChangedUnit);
-		// <!-- custom: info below by chatgpt 5 for reminder, check if accurate anyways etc -->
-		// Cheatsheet:
-		// T& = reference (alias, cannot be reseated).
-		// T* = pointer (can be reseated; use -> to access).
-		// &expr = address-of operator (produces a pointer).
 
-		// <!-- custom: not sure if we should exclude barbarian (e.g. if we someday add land units rules here (e.g. more defenders if in dangers based on total unitais anyways etc, on top of what is done in bestunitai (so maybe redundant but to be safe about short circuits or such as well but anyways etc))) but just in case anyways etc -->
-		CvPlayerAI const& kPlayer = GET_PLAYER(getOwner());
-		const bool bBarbarian = kPlayer.isBarbarian();
+		static const bool bSAS_CHOOSE_UNIT_OPTIMIZE = GC.getDefineBOOL("SAS_CHOOSE_UNIT_OPTIMIZE");
 
-		// <!-- custom: note: all values here are linked to their counterpart/equivalent in the canScrap function e.g. to know which is the max (decisions to scrap or not are not directly symetrical to what we do here to produce them (e.g. don't produce naval units at war on land, but don't scrap exist ones though), but may often be or not, in all cases please refer to each function to see the link between them if i may say but anyways etc -->
-		if (!bBarbarian)
+		if (bSAS_CHOOSE_UNIT_OPTIMIZE)
 		{
-			const EraTypes eCurrentEra = kPlayer.getCurrentEra();
-			// <!-- custom: as of now eras are (see xml for details or/and updated version anyways etc -->
-			// 18,5: 			<Type>ERA_ANCIENT</Type>
-			// 79,5: 			<Type>ERA_CLASSICAL</Type>
-			// 154,5: 			<Type>ERA_MEDIEVAL</Type>
-			// 237,5: 			<Type>ERA_RENAISSANCE</Type>
-			// 320,5: 			<Type>ERA_INDUSTRIAL</Type>
-			// 401,5: 			<Type>ERA_MODERN</Type>
-			// 477,5: 			<Type>ERA_FUTURE</Type>
-			// <!-- custom: note: this pattern of xml lookup and comparison for era types seems safe as it is used in Civ4 Reimagined mod but check to be sure anyways etc -->
-			// cache once; uses hidden-assert overload if available in your DLL
-			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
-			static const EraTypes eERA_RENAISSANCE  = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE");
+			// <!-- custom: use a pointer (pUnitInfo) rather than a reference (kUnitInfo) so that if we change the unit, we can just refresh the pointer itself, while refreshing the reference is risky according to chatgpt 5 (for example if reference is a const by GC (i don't know too much about it but it's what i understood of it anyways etc), check if accurate anyways etc -->
+			// CvUnitInfo& kUnitInfo = GC.getInfo(eChangedUnit);
+			const CvUnitInfo* pUnitInfo = &GC.getInfo(eChangedUnit);
+			// <!-- custom: info below by chatgpt 5 for reminder, check if accurate anyways etc -->
+			// Cheatsheet:
+			// T& = reference (alias, cannot be reseated).
+			// T* = pointer (can be reseated; use -> to access).
+			// &expr = address-of operator (produces a pointer).
 
-			// <!-- custom: added as recommended by chatgpt 5; as of now untested since i don't use asserts at least barely did so yet, check if accurate anyways etc -->
-			FAssertMsg((eERA_RENAISSANCE != NO_ERA), "Era key missing; check CIV4EraInfos.xml");
+			// <!-- custom: not sure if we should exclude barbarian (e.g. if we someday add land units rules here (e.g. more defenders if in dangers based on total unitais anyways etc, on top of what is done in bestunitai (so maybe redundant but to be safe about short circuits or such as well but anyways etc))) but just in case anyways etc -->
+			CvPlayerAI const& kPlayer = GET_PLAYER(getOwner());
+			const bool bBarbarian = kPlayer.isBarbarian();
 
-			const bool bRenaissancePlus    = (eCurrentEra >= eERA_RENAISSANCE);
-
-			// CvGame::getCurrentEra()
-			// It returns an EraTypes (enum), computed as the rounded average of alive players’ eras (barbs excluded) via intdiv::uround.
-			// Your pattern is fine: keep variables as EraTypes for comparisons and cast to int only when doing arithmetic.
-			const int iCurrentEra = static_cast<int>(eCurrentEra);
-			static const int iERA_RENAISSANCE  = static_cast<int>(eERA_RENAISSANCE);
-
-			// Situation read
-			// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate anyways etc -->
-			bool const bWarPlan = kPlayer.AI_isFocusWar();
-			bool const bDanger = AI_isDanger();
-			// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate, anyways etc -->
-			const bool bAtWar = (GET_TEAM(getTeam()).getNumWars() > 0);
-			const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
-			static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
-			const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
-			// <!-- custom: note: if i remember it correctly but anyways etc, chatgpt 5 said this applies also if not at war. I guessedly thought this maybe would or could return 0 if we are not at war with any ennemy, faslifying formula and defeating the purpose. In some places, i have added bAtWarAndEnemyWeak, while in some other places i may have left it as bEnemyWeak (check to be sure, i didn't check too much anyways etc). I don't know which is more correct as of now and didn't dig too deep into it, so left as such, hopefully accurate enough but anyways etc, thankfully at this part of the code the difference wouldn't be too big regardless, and most importantly it already pre-checks bAtWar before so no issue there but ideally figure out how it works to decide in this case i mean but anyways etc if we should merge the weak with an at war check to be safe or if uneeded and be more flexible and accurate with only a weak check, but left as such anyways etc -->
-			// <!-- custom: update: to be sure i asked chatgpt 5 again about this while implementing known issue as of now 53.3 but anyways etc's related fixes and/or tweaks but anyways etc, if iEnemyPowerPercent is valid/relaible if at peace or if we have an unreliable 0 making us misleadedly think that you potentially strong rivals are very weak, or how it works, here is what it replied (i edited and formatted it a bit but is mostly the same otherwise anyways etc) when fed the code sample, check if accurate anyways etc -->
-			// Short answer: it’s solid during war or when a war is already “chosen”, but it’s not meaningful in generic peacetime.
-			//
-			// Why:
-			// - It loops only over known potential enemies.
-			// - For each enemy:
-			// 		- If at war, adds a weighted chunk of their getPower(false).
-			// 		- Else if we’ve set a chosen war on them (AI_isChosenWar) and they aren’t a vassal, it adds a weighted chunk of their defensive power vs us.
-			// - It discounts distant enemies (/2 if they have cities in our primary area, else /3) and minor civs (/3).
-			// - If bConsiderOthers is true, it divides by the enemy’s number of current wars so someone already fighting multiple fronts counts less.
-			// - Finally it divides by an averaged notion of our power (our own + master’s, halved).
-			//
-			// So:
-			// - Not at war & no chosen-war plans ⇒ loop adds nothing ⇒ returns 0. That doesn’t mean “we’re stronger”; it means “no active/selected enemy to compare to”.
-			// - It’s a sum over applicable enemies, not “the strongest enemy”. Nearby-ness is only approximated via the “primary area” discount.
-			//
-			// Practical use in your siege gate
-			// Don’t use iEnemyPowPct<=90 to mean “we’re stronger” when you aren’t at war or actively preparing one, because you’ll read 0% and green-light trebuchets in peacetime.
-			// This way:
-			// - In peacetime, you won’t accidentally treat “0” as “we totally dominate” and overbuild siege.
-			static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
-			//const bool bEnemyWeak = (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD);
-			// <!-- custom: modified version i guessedly made without checking relevant function's code if i may say but anyways etc, hopefully more accurate but check to be sure as is just a guess from me but anyways etc -->
-			const bool bEnemyWeakNotZero = ((iEnemyPowerPercent > 0) && (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD));
-
-			const int iNumCities = kPlayer.getNumCities();
-
-			// <!-- custom: trim excess trebuchet and siege unit orders when not relevant (not attacking cities for trebuchets, being weaker, etc; defending cities for siege units in general which AIs with catapults don't do well i think but anyways etc), as AI produces way too much of them especially when not relevant and detrimental to it, see known issue as of now 53.3 for details anyways etc -->
-			static const UnitCombatTypes eUnitCombatSiege = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SIEGE");
-
-			const bool bUnitCombatSiege = (pUnitInfo->getUnitCombatType() == eUnitCombatSiege);
-
-			const int iSiegesAll = kPlayer.AI_countUnitsByCombat(eUnitCombatSiege);
-			const int iTrebsLike = kPlayer.AI_countTrebuchetsLike();
-
-			const int iMainDefenders = kPlayer.AI_mainDefensiveLandTotalUnitAIs();
-			const int iMainAttackers = kPlayer.AI_mainOffensiveLandTotalUnitAIs();
-
-			static const bool bNoExcessSieges = GC.getDefineBOOL("SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES");
-
-			if (bUnitCombatSiege && bNoExcessSieges)
+			// <!-- custom: note: all values here are linked to their counterpart/equivalent in the canScrap function e.g. to know which is the max (decisions to scrap or not are not directly symetrical to what we do here to produce them (e.g. don't produce naval units at war on land, but don't scrap exist ones though), but may often be or not, in all cases please refer to each function to see the link between them if i may say but anyways etc -->
+			if (!bBarbarian)
 			{
-				static const int TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD = GC.getDefineINT("SAS_TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD");
+				const EraTypes eCurrentEra = kPlayer.getCurrentEra();
+				// <!-- custom: as of now eras are (see xml for details or/and updated version anyways etc -->
+				// 18,5: 			<Type>ERA_ANCIENT</Type>
+				// 79,5: 			<Type>ERA_CLASSICAL</Type>
+				// 154,5: 			<Type>ERA_MEDIEVAL</Type>
+				// 237,5: 			<Type>ERA_RENAISSANCE</Type>
+				// 320,5: 			<Type>ERA_INDUSTRIAL</Type>
+				// 401,5: 			<Type>ERA_MODERN</Type>
+				// 477,5: 			<Type>ERA_FUTURE</Type>
+				// <!-- custom: note: this pattern of xml lookup and comparison for era types seems safe as it is used in Civ4 Reimagined mod but check to be sure anyways etc -->
+				// cache once; uses hidden-assert overload if available in your DLL
+				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+				static const EraTypes eERA_RENAISSANCE  = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE");
 
-				const int iCityAttackModifier = pUnitInfo->getCityAttackModifier();
-				const bool bTrebuchetLike = (iCityAttackModifier >= TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD);
+				// <!-- custom: added as recommended by chatgpt 5; as of now untested since i don't use asserts at least barely did so yet, check if accurate anyways etc -->
+				FAssertMsg((eERA_RENAISSANCE != NO_ERA), "Era key missing; check CIV4EraInfos.xml");
 
-				static const bool bNoExcessTrebuchetsLike = GC.getDefineBOOL("SAS_NO_EXCESS_TREBUCHETS_LIKE");
+				const bool bRenaissancePlus    = (eCurrentEra >= eERA_RENAISSANCE);
 
-				static const int iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER = GC.getDefineINT("SAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER");
+				// CvGame::getCurrentEra()
+				// It returns an EraTypes (enum), computed as the rounded average of alive players’ eras (barbs excluded) via intdiv::uround.
+				// Your pattern is fine: keep variables as EraTypes for comparisons and cast to int only when doing arithmetic.
+				const int iCurrentEra = static_cast<int>(eCurrentEra);
+				static const int iERA_RENAISSANCE  = static_cast<int>(eERA_RENAISSANCE);
 
-				static const bool bNoExcessSiegesAll = GC.getDefineBOOL("SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL");
+				// Situation read
+				// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate anyways etc -->
+				bool const bWarPlan = kPlayer.AI_isFocusWar();
+				bool const bDanger = AI_isDanger();
+				// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate, anyways etc -->
+				const bool bAtWar = (GET_TEAM(getTeam()).getNumWars() > 0);
+				const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
+				static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
+				const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
+				// <!-- custom: note: if i remember it correctly but anyways etc, chatgpt 5 said this applies also if not at war. I guessedly thought this maybe would or could return 0 if we are not at war with any ennemy, faslifying formula and defeating the purpose. In some places, i have added bAtWarAndEnemyWeak, while in some other places i may have left it as bEnemyWeak (check to be sure, i didn't check too much anyways etc). I don't know which is more correct as of now and didn't dig too deep into it, so left as such, hopefully accurate enough but anyways etc, thankfully at this part of the code the difference wouldn't be too big regardless, and most importantly it already pre-checks bAtWar before so no issue there but ideally figure out how it works to decide in this case i mean but anyways etc if we should merge the weak with an at war check to be safe or if uneeded and be more flexible and accurate with only a weak check, but left as such anyways etc -->
+				// <!-- custom: update: to be sure i asked chatgpt 5 again about this while implementing known issue as of now 53.3 but anyways etc's related fixes and/or tweaks but anyways etc, if iEnemyPowerPercent is valid/relaible if at peace or if we have an unreliable 0 making us misleadedly think that you potentially strong rivals are very weak, or how it works, here is what it replied (i edited and formatted it a bit but is mostly the same otherwise anyways etc) when fed the code sample, check if accurate anyways etc -->
+				// Short answer: it’s solid during war or when a war is already “chosen”, but it’s not meaningful in generic peacetime.
+				//
+				// Why:
+				// - It loops only over known potential enemies.
+				// - For each enemy:
+				// 		- If at war, adds a weighted chunk of their getPower(false).
+				// 		- Else if we’ve set a chosen war on them (AI_isChosenWar) and they aren’t a vassal, it adds a weighted chunk of their defensive power vs us.
+				// - It discounts distant enemies (/2 if they have cities in our primary area, else /3) and minor civs (/3).
+				// - If bConsiderOthers is true, it divides by the enemy’s number of current wars so someone already fighting multiple fronts counts less.
+				// - Finally it divides by an averaged notion of our power (our own + master’s, halved).
+				//
+				// So:
+				// - Not at war & no chosen-war plans ⇒ loop adds nothing ⇒ returns 0. That doesn’t mean “we’re stronger”; it means “no active/selected enemy to compare to”.
+				// - It’s a sum over applicable enemies, not “the strongest enemy”. Nearby-ness is only approximated via the “primary area” discount.
+				//
+				// Practical use in your siege gate
+				// Don’t use iEnemyPowPct<=90 to mean “we’re stronger” when you aren’t at war or actively preparing one, because you’ll read 0% and green-light trebuchets in peacetime.
+				// This way:
+				// - In peacetime, you won’t accidentally treat “0” as “we totally dominate” and overbuild siege.
+				static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
+				//const bool bEnemyWeak = (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD);
+				// <!-- custom: modified version i guessedly made without checking relevant function's code if i may say but anyways etc, hopefully more accurate but check to be sure as is just a guess from me but anyways etc -->
+				const bool bEnemyWeakNotZero = ((iEnemyPowerPercent > 0) && (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD));
 
-				// Trebuchet-like stricter rule
-				if (bTrebuchetLike && bNoExcessTrebuchetsLike)
+				const int iNumCities = kPlayer.getNumCities();
+
+				// <!-- custom: trim excess trebuchet and siege unit orders when not relevant (not attacking cities for trebuchets, being weaker, etc; defending cities for siege units in general which AIs with catapults don't do well i think but anyways etc), as AI produces way too much of them especially when not relevant and detrimental to it, see known issue as of now 53.3 for details anyways etc -->
+				static const UnitCombatTypes eUnitCombatSiege = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SIEGE");
+
+				const bool bUnitCombatSiege = (pUnitInfo->getUnitCombatType() == eUnitCombatSiege);
+
+				const int iSiegesAll = kPlayer.AI_countUnitsByCombat(eUnitCombatSiege);
+				const int iTrebsLike = kPlayer.AI_countTrebuchetsLike();
+
+				const int iMainDefenders = kPlayer.AI_mainDefensiveLandTotalUnitAIs();
+				const int iMainAttackers = kPlayer.AI_mainOffensiveLandTotalUnitAIs();
+
+				static const bool bNoExcessSieges = GC.getDefineBOOL("SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES");
+
+				if (bUnitCombatSiege && bNoExcessSieges)
 				{
-					int iCapTrebs = 20;
+					static const int TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD = GC.getDefineINT("SAS_TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD");
 
-					// <!-- custom: the war has already started, no time to produce them if we didn't do so already, focus on defense or immediate joining stack units to finalize our offensive stacks, now is not the time to weaken our stacks with trebuchets that are quite likely to be not relevant anyways etc anyways etc -->
-					if (bAtWar && bEnemyStrong)
+					const int iCityAttackModifier = pUnitInfo->getCityAttackModifier();
+					const bool bTrebuchetLike = (iCityAttackModifier >= TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD);
+
+					static const bool bNoExcessTrebuchetsLike = GC.getDefineBOOL("SAS_NO_EXCESS_TREBUCHETS_LIKE");
+
+					static const int iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER = GC.getDefineINT("SAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER");
+
+					static const bool bNoExcessSiegesAll = GC.getDefineBOOL("SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL");
+
+					// Trebuchet-like stricter rule
+					if (bTrebuchetLike && bNoExcessTrebuchetsLike)
 					{
-						return false; // don’t add more narrow-purpose siege when not stronger
-					}
-					// <!-- custom: even if not at war and still in planning stage, trebuchets are bad if we're weak regardless (we can expect to be attacked, so don't build them if i am not mistaken anyways etc); note: i guessedly assume if we are planning war we are strong enough to do so and so don't mind some trebuchets to help that (otherwise maybe not if other conditions are also not met if i'm not mistaken but anyways etc) but i didn't check, check if accurate anyways etc -->
-					if (bDanger)
-					{
-						return false; // don’t add more narrow-purpose siege when not stronger
-					}
-					if (!bWarPlan)
-					{
-						iCapTrebs = 15;
-					}
-					// <!-- custom: even if not at war, if our enemy is already stronger, don't attempt to build trebuchets that will most likely be useless as enemy will get even stronger over time and we'll be more vulnerable with non versatile or not enough defender units anyways etc -->
-					if (bEnemyStrong)
-					{
-						return false;
-					}
+						int iCapTrebs = 20;
 
-					if (!bRenaissancePlus)
-					{
-						// <!-- custom: save some computation by computing this in this sub scope rather (in later eras we don't check this anymore as of now, plus we start to have many unit orders and cities if i'm not mistaken but anyways etc, so save some computation if we can i mean but anyways etc; ideally should refactor this a bit but hopefully maybe also not too bad as such i mean if i may say but anyways etc) but anyways etc -->
-						const bool bHaveAnyKeyEarlyStrategicBonuses = kPlayer.getNumAvailableBonusesHaveAnyKeyEarlyStrategicBonuses();
-
-						if (!bHaveAnyKeyEarlyStrategicBonuses)
-						{
-							iCapTrebs += (iCapTrebs * iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER) / 100;
-						}
-					}
-
-					// <!-- custom: even if we are stronger or otherwise ok to produce trebuchets, another edge case may be that they are simply even less versatile than other siege units, so apply tighter rules (their only purpose is to bombard city defenses or suicide attacking a city, except for that we don't want too many of them in our unit composition as it may be crippling or detrimental due to lack of versatility anyways etc -->
-					static const int iTrebuchetsLikeMinExtraCap = GC.getDefineINT("SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES_TREBUCHETS_LIKE_MIN_EXTRA_CAP");
-
-
-					int const iTrebsShareOff = (100 * iTrebsLike) / std::max(1, iMainAttackers);
-
-					if (iTrebsShareOff >= (iCapTrebs + iTrebuchetsLikeMinExtraCap))
-					{
-						return false;
-					}
-				}
-
-				if (bNoExcessSiegesAll)
-				{
-					// <!-- custom: if not in cases where we should not produce siege units at all for efficiency, consider the case we can/should, and add some sanity/efficiency limits if i may say but anyways etc -->
-					// Simple caps:
-					int iCapSiegesAll;
-					int iTotalMainUnits;
-
-					// <!-- custom: a few catapults are a valid alternative if we have nothing else to build but longbows, these can help our rush or versatility, just don't overdo it anyways etc -->
-					if (!bRenaissancePlus)
-					{
-						iCapSiegesAll = 40;
-
+						// <!-- custom: the war has already started, no time to produce them if we didn't do so already, focus on defense or immediate joining stack units to finalize our offensive stacks, now is not the time to weaken our stacks with trebuchets that are quite likely to be not relevant anyways etc anyways etc -->
 						if (bAtWar && bEnemyStrong)
 						{
-							// <!-- custom: no need to overinvest since we won't attack, but don't neglect it entirely as we may target other rivals instead, or maybe we don't have a better unit at all to build -->
-							iCapSiegesAll = 20;
+							return false; // don’t add more narrow-purpose siege when not stronger
 						}
+						// <!-- custom: even if not at war and still in planning stage, trebuchets are bad if we're weak regardless (we can expect to be attacked, so don't build them if i am not mistaken anyways etc); note: i guessedly assume if we are planning war we are strong enough to do so and so don't mind some trebuchets to help that (otherwise maybe not if other conditions are also not met if i'm not mistaken but anyways etc) but i didn't check, check if accurate anyways etc -->
 						if (bDanger)
 						{
-							iCapSiegesAll = 10; // <!-- custom: avoid adding too much but anyways etc --> narrow-purpose siege when not stronger
+							return false; // don’t add more narrow-purpose siege when not stronger
 						}
-
-						// <!-- custom: save some computation by computing this in this sub scope rather (in later eras we don't check this anymore as of now, plus we start to have many unit orders and cities if i'm not mistaken but anyways etc, so save some computation if we can i mean but anyways etc; ideally should refactor this a bit but hopefully maybe also not too bad as such i mean if i may say but anyways etc) but anyways etc -->
-						const bool bHaveAnyKeyEarlyStrategicBonuses = kPlayer.getNumAvailableBonusesHaveAnyKeyEarlyStrategicBonuses();
-
-						if (!bHaveAnyKeyEarlyStrategicBonuses)
+						if (!bWarPlan)
 						{
-							iCapSiegesAll += (iCapSiegesAll * iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER) / 100;
+							iCapTrebs = 15;
+						}
+						// <!-- custom: even if not at war, if our enemy is already stronger, don't attempt to build trebuchets that will most likely be useless as enemy will get even stronger over time and we'll be more vulnerable with non versatile or not enough defender units anyways etc -->
+						if (bEnemyStrong)
+						{
+							return false;
 						}
 
-						// <!-- custom: pre renaissance, be wary to not overproduce siege, they are not useful at defense for AIs if i am not mistaken anyways etc -->
-						iTotalMainUnits = iMainAttackers;
+						if (!bRenaissancePlus)
+						{
+							// <!-- custom: save some computation by computing this in this sub scope rather (in later eras we don't check this anymore as of now, plus we start to have many unit orders and cities if i'm not mistaken but anyways etc, so save some computation if we can i mean but anyways etc; ideally should refactor this a bit but hopefully maybe also not too bad as such i mean if i may say but anyways etc) but anyways etc -->
+							const bool bHaveAnyKeyEarlyStrategicBonuses = kPlayer.getNumAvailableBonusesHaveAnyKeyEarlyStrategicBonuses();
+
+							if (!bHaveAnyKeyEarlyStrategicBonuses)
+							{
+								iCapTrebs += (iCapTrebs * iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER) / 100;
+							}
+						}
+
+						// <!-- custom: even if we are stronger or otherwise ok to produce trebuchets, another edge case may be that they are simply even less versatile than other siege units, so apply tighter rules (their only purpose is to bombard city defenses or suicide attacking a city, except for that we don't want too many of them in our unit composition as it may be crippling or detrimental due to lack of versatility anyways etc -->
+						static const int iTrebuchetsLikeMinExtraCap = GC.getDefineINT("SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES_TREBUCHETS_LIKE_MIN_EXTRA_CAP");
+
+
+						int const iTrebsShareOff = (100 * iTrebsLike) / std::max(1, iMainAttackers);
+
+						if (iTrebsShareOff >= (iCapTrebs + iTrebuchetsLikeMinExtraCap))
+						{
+							return false;
+						}
 					}
-					// <!-- custom: cannons are strong enough to not limit them so heavily, sometimes they may be our only option except from pikemen if we don't have muskets yet, and pikemen are useless against cuirassiers units, so definitely go for cannon more aggressively or generously if i may say but anyways etc -->
-					else
+
+					if (bNoExcessSiegesAll)
 					{
-						iCapSiegesAll = 60;
+						// <!-- custom: if not in cases where we should not produce siege units at all for efficiency, consider the case we can/should, and add some sanity/efficiency limits if i may say but anyways etc -->
+						// Simple caps:
+						int iCapSiegesAll;
+						int iTotalMainUnits;
 
-						// <!-- custom: post renaissance, cannons can serve as defenders if we have no better units (do not overbuild pikemen), so make sure to account for them here as well among total units (counting percentage among attackers only would make us stockpile defenders after we have met our siege quotas, which is not what we want (don't want too much excess pikemen at renaissance, they are useless then anyway consider cannons instead, just don't overdo it anyways etc)) -->
-						iTotalMainUnits = iMainAttackers + iMainDefenders;
-					}
+						// <!-- custom: a few catapults are a valid alternative if we have nothing else to build but longbows, these can help our rush or versatility, just don't overdo it anyways etc -->
+						if (!bRenaissancePlus)
+						{
+							iCapSiegesAll = 40;
 
-					const int iSiegesShareOff = (100 * iSiegesAll) / std::max(1, iTotalMainUnits);
+							if (bAtWar && bEnemyStrong)
+							{
+								// <!-- custom: no need to overinvest since we won't attack, but don't neglect it entirely as we may target other rivals instead, or maybe we don't have a better unit at all to build -->
+								iCapSiegesAll = 20;
+							}
+							if (bDanger)
+							{
+								iCapSiegesAll = 10; // <!-- custom: avoid adding too much but anyways etc --> narrow-purpose siege when not stronger
+							}
 
-					static const int iSiegesAllMinExtraCap = GC.getDefineINT("SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL_MIN_EXTRA_CAP");
+							// <!-- custom: save some computation by computing this in this sub scope rather (in later eras we don't check this anymore as of now, plus we start to have many unit orders and cities if i'm not mistaken but anyways etc, so save some computation if we can i mean but anyways etc; ideally should refactor this a bit but hopefully maybe also not too bad as such i mean if i may say but anyways etc) but anyways etc -->
+							const bool bHaveAnyKeyEarlyStrategicBonuses = kPlayer.getNumAvailableBonusesHaveAnyKeyEarlyStrategicBonuses();
 
-					if ((iSiegesShareOff) >= (iCapSiegesAll + iSiegesAllMinExtraCap))
-					{
-						return false;
+							if (!bHaveAnyKeyEarlyStrategicBonuses)
+							{
+								iCapSiegesAll += (iCapSiegesAll * iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER) / 100;
+							}
+
+							// <!-- custom: pre renaissance, be wary to not overproduce siege, they are not useful at defense for AIs if i am not mistaken anyways etc -->
+							iTotalMainUnits = iMainAttackers;
+						}
+						// <!-- custom: cannons are strong enough to not limit them so heavily, sometimes they may be our only option except from pikemen if we don't have muskets yet, and pikemen are useless against cuirassiers units, so definitely go for cannon more aggressively or generously if i may say but anyways etc -->
+						else
+						{
+							iCapSiegesAll = 60;
+
+							// <!-- custom: post renaissance, cannons can serve as defenders if we have no better units (do not overbuild pikemen), so make sure to account for them here as well among total units (counting percentage among attackers only would make us stockpile defenders after we have met our siege quotas, which is not what we want (don't want too much excess pikemen at renaissance, they are useless then anyway consider cannons instead, just don't overdo it anyways etc)) -->
+							iTotalMainUnits = iMainAttackers + iMainDefenders;
+						}
+
+						const int iSiegesShareOff = (100 * iSiegesAll) / std::max(1, iTotalMainUnits);
+
+						static const int iSiegesAllMinExtraCap = GC.getDefineINT("SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL_MIN_EXTRA_CAP");
+
+						if ((iSiegesShareOff) >= (iCapSiegesAll + iSiegesAllMinExtraCap))
+						{
+							return false;
+						}
 					}
 				}
-			}
 
-			// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc, and if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
-			// <!-- custom: trying to save some computing power by condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
-			bool const bLandHeavyMapname = GC.getGame().isLandHeavyMapnameCached();
-			bool bNavalHeavyMapname = false;
-			if (!bLandHeavyMapname)
-			{
-				bNavalHeavyMapname = GC.getGame().isNavalHeavyMapnameCached();
-			}
-
-			// Early-game window (scaled by game speed TrainPercent)
-			const int iTrainPct = GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent();
-			// <!-- custom: extend to turn 200 at normal where we reasonably expect muskets to bail us from a no bonus at all start and game, overproducing defenders won't help and would cripple us in fact, so produce just enough to not die while we beeline muskets or such other no bonus units to help us not die if i am not mistaken anyways etc -->
-			// const int iEarlyCutoff = (150 * iTrainPct) / 100; // ~T150 @ Normal
-			static const int iEarlyTurnNoExcessDefendersNormal = GC.getDefineINT("SAS_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD");
-			const int iEarlyCutoff = (iEarlyTurnNoExcessDefendersNormal * iTrainPct) / 100; // e.g. ~T200 @ Normal
-			const int iCurrentTurn = GC.getGame().getGameTurn();
-			const bool bEarly = (iCurrentTurn <= iEarlyCutoff);
-
-			if (bEarly)
-			{
-				// <!-- custom: does not include UNITAI_CITY_COUNTER so we make sure we have enough pure defenders per city on average anyways etc -->
-				const bool bStrictLandDefenderUnitAI = (
-					(eChangedUnitAI == UNITAI_CITY_DEFENSE) ||
-					(eChangedUnitAI == UNITAI_CITY_SPECIAL) ||
-					(eChangedUnitAI == UNITAI_RESERVE)
-				);
-
-				static const bool bNoExcessStrictDefendersUnitAIs = GC.getDefineBOOL("SAS_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS");
-
-				if (bStrictLandDefenderUnitAI && bNoExcessStrictDefendersUnitAIs)
+				// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc, and if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
+				// <!-- custom: trying to save some computing power by condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
+				bool const bLandHeavyMapname = GC.getGame().isLandHeavyMapnameCached();
+				bool bNavalHeavyMapname = false;
+				if (!bLandHeavyMapname)
 				{
-					// 2) Don’t starve defenders if there’s immediate danger
-					// <!-- custom: update: the unitai swap to unitai_counter is not working anymore ingame it seems, so make it less strict to see if solves anyways etc -->
-					// if (!bDanger && !(bAtWar && bEnemyStrong))
-					if (!(bAtWar && bEnemyStrong))
+					bNavalHeavyMapname = GC.getGame().isNavalHeavyMapnameCached();
+				}
+
+				// Early-game window (scaled by game speed TrainPercent)
+				const int iTrainPct = GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent();
+				// <!-- custom: extend to turn 200 at normal where we reasonably expect muskets to bail us from a no bonus at all start and game, overproducing defenders won't help and would cripple us in fact, so produce just enough to not die while we beeline muskets or such other no bonus units to help us not die if i am not mistaken anyways etc -->
+				// const int iEarlyCutoff = (150 * iTrainPct) / 100; // ~T150 @ Normal
+				static const int iEarlyTurnNoExcessDefendersNormal = GC.getDefineINT("SAS_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD");
+				const int iEarlyCutoff = (iEarlyTurnNoExcessDefendersNormal * iTrainPct) / 100; // e.g. ~T200 @ Normal
+				const int iCurrentTurn = GC.getGame().getGameTurn();
+				const bool bEarly = (iCurrentTurn <= iEarlyCutoff);
+
+				if (bEarly)
+				{
+					// <!-- custom: does not include UNITAI_CITY_COUNTER so we make sure we have enough pure defenders per city on average anyways etc -->
+					const bool bStrictLandDefenderUnitAI = (
+						(eChangedUnitAI == UNITAI_CITY_DEFENSE) ||
+						(eChangedUnitAI == UNITAI_CITY_SPECIAL) ||
+						(eChangedUnitAI == UNITAI_RESERVE)
+					);
+
+					static const bool bNoExcessStrictDefendersUnitAIs = GC.getDefineBOOL("SAS_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS");
+
+					if (bStrictLandDefenderUnitAI && bNoExcessStrictDefendersUnitAIs)
 					{
-						// // <!-- custom: be careful to not be to aggressive, i had tried 25 and it seems we have too many longbowmen converted to counter, for an AI that had enough cities, make sure this is aggressive enough so AIs switch to offense units more, but not too much so that it would make a regularly defended and expanded AI grow thin due to going attack if i am not mistaken but anyways etc (especially considering this steals from our real defenders sohandle with caution, and mostly for AIs likely to have few cities, and thus many extra defenders to convert from if i am not mistaken but anyways etc) -->
-						// // 1) “Lagging expansion”: ~1 city per 30 turns (scaled the same way)
-						// const int iTurnsPerCity = std::max(1, (30 * iTrainPct) / 100);
-						// const int iExpectedCities = std::max(1, iCurrentTurn / iTurnsPerCity);
-						// const bool bLaggingBehindNumCities = (iNumCities < iExpectedCities);
-						// <!-- custom: update: what matters is not that we are lagging behind, but whether we are overall strong and have met unit requriements to defend cities, which is generally the case when we have less cities than our rivals, so more units per city generally. However sometimes we have both many cities, but also many cities if we get a very good run. In such cases, the same logic of not overdefending early applies, although we should be bit more concerned about not losing our empire and consolidating it rather, still, if somehow we are much stronger than our rivals, it is useless to over defend, as happened in known issue as of now 53.2.2 in autoplay anyways etc. In that case, favour offense more, after all offensive units can defend as well if we are attacked, and generally offense is defense, so we are not too likely to be targeted if we are strong, as human players would do perhaps in some games as well and not overbuild longbows for example especially at higher difficulties where it would most likely cause us to lose the game due to handicap setting penalties especially if not in advciv-sas as their penalties are harsher generally. Still, in our mod we'd want AI to react well to overproduction of defensive units, and block it before it happens in this case i mean but anyways etc, so add this logic regardless of if we are lagging behind in cities or not, purpose is the same, see known issue as of now 53.2.2 for details or/and related info anyways etc -->
-
-						const int iCurrentTurnAdjusted = (iCurrentTurn * iTrainPct) / 100;
-
-						// <!-- custom: very simple and computationally efficient "are we lagging behind in city count vs other rivals? If so switch to offense rather to attempt to make gains" by approximating we'd need about 1 city per 25 turn to be expanding enough. Even if this is not striclty accurate, what matters is we get a signal soon enough to switch to offense, as it can get time to build units. Plus, limit this to the early game, as later we don't expand as much, and our military composition should be stable so it wouldn't help as much. This attempts to fix issue of joao ai building 36 longbowmen at turn 130 instead while having only 3 cities, and his neighbour that has 8+ cities at a glance and weaker and thinner military would have been a perfect target if say half of our forces had been offense units; code provided by chatgpt 5 check if accurate anyways etc; see known issue as of now 53.2 for details as well anyways etc; also note: we're focused on land warfare here as it is the most important even in water heavy maps the point is to not lose cities or gain them especially early if i'm not mistaken but anyways etc -->
-						// cap = 2 …then +1 at ~T100, +1 at ~T150 (and you can add ~T200 too)
-						int iMaxDefendersPerCityEarlyAdjusted = 2;
-						if (iCurrentTurnAdjusted >= 100) iMaxDefendersPerCityEarlyAdjusted += 1;
-						// else if (iCurrentTurnAdjusted >= 155) iMaxDefendersPerCityEarlyAdjusted += 1;
-
-						// <!-- custom: not checking units in city plot, as code i added seemed or might be unreliable (was based on getNumDefenders), issue may have been something/somewhere else but anyways etc, but i thought in all cases but anyways etc it's better/good to simplify it as well to be more reliable; as we are in the early game such an approximation is i assume fine anyways etc; using instead only a generous enough but not too broad grossly guessed per city defender, i want AIs to quickly switch to offense mode when they can make gains early, and not produce tons of longbows or such that would prevent that, but we need to be careful to have enough units in general as well, hopefully this is a fine enough and safe enough approximation anyways etc -->
-						// Guard against div-by-zero and define a very simple “defense overweight” signal:
-						const bool bDefenseOverweight = (3 * iMainDefenders > 4 * iMainAttackers);
-
-						const int iEnoughEarlyDefendersPerCityGuessedly = (iMaxDefendersPerCityEarlyAdjusted * iNumCities);
-						const bool bEnoughEarlyDefendersPerCityGuessedly = (iMainDefenders >= iEnoughEarlyDefendersPerCityGuessedly);
-
-						// 3) Empire composition check: are we defender-heavy?
-						// <!-- custom: reuse bEnoughDefenders anyways etc -->
-
-						// 4) If we’re about to add another pure defender while boxed/lagging, reroll to offense.
-						// <!-- custom: reused bStrictLandDefenderUnitAI rather than recomputing as it is more efficient i think anyways etc -->
-
-						// <!-- custom: if we have too much defenders and it's early and not in danger, switch to attack (although we could use power ratios to help us, hopefully accurate enough to do as such and much simpler maybe although i don't know too much about, potentially computaitonally much faster maybe but anyways etc) -->
-						// <!-- custom: use an or here to favour versatility and focus on offense when we are defended enough in the early game. For example if we have 5 cities (at as of now turn 100+ anyways etc) and 2 longbowmen and 1 spearman in our city, or 2 spearmen and 1 longbow or something simlar, we may consider ourselves safe enough when it comes to the early game for this part of the city's computation (if it has more units count the excess as well as virtually belonging to other cities instead, only look at total defenders in all empires in the end to simplify and they could maybe move if needed anyways etc) also remaining attackers could be used as defense, and there shouldn't be too much differences early, so try to grab any offensive edge we can rather as soon / as long as we are safe enough in the early game and if i am not mistaken but anyways etc -->
-						// Short answer: yes—use OR between your two simple signals. It’s safe and matches your intent.
-						// You already gate on “safe to flip” with
-						// !bDanger && !(bAtWar && bEnemyStrong), so you won’t starve defenders when things look bad.
-						// Using non-strict defenders makes the check tolerant to variety (mix of spears/LBs/etc).
-						// With 5 cities and target 3 per city → cap=15: hitting that cap early and flipping is fine—your new offense units still defend in practice.
-
-						if (bEnoughEarlyDefendersPerCityGuessedly || bDefenseOverweight)
+						// 2) Don’t starve defenders if there’s immediate danger
+						// <!-- custom: update: the unitai swap to unitai_counter is not working anymore ingame it seems, so make it less strict to see if solves anyways etc -->
+						// if (!bDanger && !(bAtWar && bEnemyStrong))
+						if (!(bAtWar && bEnemyStrong))
 						{
-							static const bool bNoExcessStrictDefendersUnitAIsRejectUnit = GC.getDefineBOOL("SAS_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_REJECT_UNIT");
-							static const bool bNoExcessStrictDefendersUnitAIsAttemptReplaceUnit = GC.getDefineBOOL("SAS_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_REPLACE_UNIT");
-							static const bool bNoExcessStrictDefendersUnitAIsAttemptHijackUnitAI = GC.getDefineBOOL("SAS_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_HIJACK_UNITAI");
+							// // <!-- custom: be careful to not be to aggressive, i had tried 25 and it seems we have too many longbowmen converted to counter, for an AI that had enough cities, make sure this is aggressive enough so AIs switch to offense units more, but not too much so that it would make a regularly defended and expanded AI grow thin due to going attack if i am not mistaken but anyways etc (especially considering this steals from our real defenders sohandle with caution, and mostly for AIs likely to have few cities, and thus many extra defenders to convert from if i am not mistaken but anyways etc) -->
+							// // 1) “Lagging expansion”: ~1 city per 30 turns (scaled the same way)
+							// const int iTurnsPerCity = std::max(1, (30 * iTrainPct) / 100);
+							// const int iExpectedCities = std::max(1, iCurrentTurn / iTurnsPerCity);
+							// const bool bLaggingBehindNumCities = (iNumCities < iExpectedCities);
+							// <!-- custom: update: what matters is not that we are lagging behind, but whether we are overall strong and have met unit requriements to defend cities, which is generally the case when we have less cities than our rivals, so more units per city generally. However sometimes we have both many cities, but also many cities if we get a very good run. In such cases, the same logic of not overdefending early applies, although we should be bit more concerned about not losing our empire and consolidating it rather, still, if somehow we are much stronger than our rivals, it is useless to over defend, as happened in known issue as of now 53.2.2 in autoplay anyways etc. In that case, favour offense more, after all offensive units can defend as well if we are attacked, and generally offense is defense, so we are not too likely to be targeted if we are strong, as human players would do perhaps in some games as well and not overbuild longbows for example especially at higher difficulties where it would most likely cause us to lose the game due to handicap setting penalties especially if not in advciv-sas as their penalties are harsher generally. Still, in our mod we'd want AI to react well to overproduction of defensive units, and block it before it happens in this case i mean but anyways etc, so add this logic regardless of if we are lagging behind in cities or not, purpose is the same, see known issue as of now 53.2.2 for details or/and related info anyways etc -->
 
-							if (bNoExcessStrictDefendersUnitAIsRejectUnit)
+							const int iCurrentTurnAdjusted = (iCurrentTurn * iTrainPct) / 100;
+
+							// <!-- custom: very simple and computationally efficient "are we lagging behind in city count vs other rivals? If so switch to offense rather to attempt to make gains" by approximating we'd need about 1 city per 25 turn to be expanding enough. Even if this is not striclty accurate, what matters is we get a signal soon enough to switch to offense, as it can get time to build units. Plus, limit this to the early game, as later we don't expand as much, and our military composition should be stable so it wouldn't help as much. This attempts to fix issue of joao ai building 36 longbowmen at turn 130 instead while having only 3 cities, and his neighbour that has 8+ cities at a glance and weaker and thinner military would have been a perfect target if say half of our forces had been offense units; code provided by chatgpt 5 check if accurate anyways etc; see known issue as of now 53.2 for details as well anyways etc; also note: we're focused on land warfare here as it is the most important even in water heavy maps the point is to not lose cities or gain them especially early if i'm not mistaken but anyways etc -->
+							// cap = 2 …then +1 at ~T100, +1 at ~T150 (and you can add ~T200 too)
+							int iMaxDefendersPerCityEarlyAdjusted = 2;
+							if (iCurrentTurnAdjusted >= 100) iMaxDefendersPerCityEarlyAdjusted += 1;
+							// else if (iCurrentTurnAdjusted >= 155) iMaxDefendersPerCityEarlyAdjusted += 1;
+
+							// <!-- custom: not checking units in city plot, as code i added seemed or might be unreliable (was based on getNumDefenders), issue may have been something/somewhere else but anyways etc, but i thought in all cases but anyways etc it's better/good to simplify it as well to be more reliable; as we are in the early game such an approximation is i assume fine anyways etc; using instead only a generous enough but not too broad grossly guessed per city defender, i want AIs to quickly switch to offense mode when they can make gains early, and not produce tons of longbows or such that would prevent that, but we need to be careful to have enough units in general as well, hopefully this is a fine enough and safe enough approximation anyways etc -->
+							// Guard against div-by-zero and define a very simple “defense overweight” signal:
+							const bool bDefenseOverweight = (3 * iMainDefenders > 4 * iMainAttackers);
+
+							const int iEnoughEarlyDefendersPerCityGuessedly = (iMaxDefendersPerCityEarlyAdjusted * iNumCities);
+							const bool bEnoughEarlyDefendersPerCityGuessedly = (iMainDefenders >= iEnoughEarlyDefendersPerCityGuessedly);
+
+							// 3) Empire composition check: are we defender-heavy?
+							// <!-- custom: reuse bEnoughDefenders anyways etc -->
+
+							// 4) If we’re about to add another pure defender while boxed/lagging, reroll to offense.
+							// <!-- custom: reused bStrictLandDefenderUnitAI rather than recomputing as it is more efficient i think anyways etc -->
+
+							// <!-- custom: if we have too much defenders and it's early and not in danger, switch to attack (although we could use power ratios to help us, hopefully accurate enough to do as such and much simpler maybe although i don't know too much about, potentially computaitonally much faster maybe but anyways etc) -->
+							// <!-- custom: use an or here to favour versatility and focus on offense when we are defended enough in the early game. For example if we have 5 cities (at as of now turn 100+ anyways etc) and 2 longbowmen and 1 spearman in our city, or 2 spearmen and 1 longbow or something simlar, we may consider ourselves safe enough when it comes to the early game for this part of the city's computation (if it has more units count the excess as well as virtually belonging to other cities instead, only look at total defenders in all empires in the end to simplify and they could maybe move if needed anyways etc) also remaining attackers could be used as defense, and there shouldn't be too much differences early, so try to grab any offensive edge we can rather as soon / as long as we are safe enough in the early game and if i am not mistaken but anyways etc -->
+							// Short answer: yes—use OR between your two simple signals. It’s safe and matches your intent.
+							// You already gate on “safe to flip” with
+							// !bDanger && !(bAtWar && bEnemyStrong), so you won’t starve defenders when things look bad.
+							// Using non-strict defenders makes the check tolerant to variety (mix of spears/LBs/etc).
+							// With 5 cities and target 3 per city → cap=15: hitting that cap early and flipping is fine—your new offense units still defend in practice.
+
+							if (bEnoughEarlyDefendersPerCityGuessedly || bDefenseOverweight)
 							{
-								// <!-- custom: update: actually add a reject all excess defenders check and knob/tunable anyways etc, useful in itself as an option i mean in this case i mean if i may say but anyways etc but/and but anyways etc also to help debug the cases where we have excess early defenders anyways etc -->
-								return false;
-							}
-							else if (bNoExcessStrictDefendersUnitAIsAttemptReplaceUnit)
-							{
-								// <!-- custom: if we can produce better, more offense or versatile focused units, abandon current defense unit project -->
-								// <!-- custom: a catapult rush could work if we have nothing better at all, better than a longbow rush! Just don't overbuild anyways etc; we already processed if we should build siege and trebuchets in particular or not but anyways etc, so use a simplified version here for the "enough defenders but checking if siege are good if we have nothing better part of the code" if i am not mistaken but anyways etc, is bit redundant, ideally should be merged there if i am not mistaken but maybe not too bad as such, as we are not looping over units there in siege checks but are doing so here, so maybe fine as such or not too bad as i said but anyways etc -->
-								const bool bEnoughSiegeAlready = (iSiegesAll >= iNumCities);
-								// <!-- custom: as for trebuchets, be stricter as they are even less versatile, however if we really have absolutely nothing better, a few of them could help us win our rush of longbows + trebuchets xd, so allow some minimally as they are otherwise not efficient and best not produced if not for specific role. Do not implement all checks here again, use a very simple approximation of it here anyways etc. -->
-								const bool bEnoughTrebsLikeAlready = (iTrebsLike >= 3);
+								static const bool bNoExcessStrictDefendersUnitAIsRejectUnit = GC.getDefineBOOL("SAS_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_REJECT_UNIT");
+								static const bool bNoExcessStrictDefendersUnitAIsAttemptReplaceUnit = GC.getDefineBOOL("SAS_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_REPLACE_UNIT");
+								static const bool bNoExcessStrictDefendersUnitAIsAttemptHijackUnitAI = GC.getDefineBOOL("SAS_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_HIJACK_UNITAI");
 
-								const bool bNoNewSiegeRightNow = (
-									(bAtWar && !bEnemyWeakNotZero) ||
-									// <!-- custom: try to be a bit more versatile and not too restrictive, as we don't produce enough siege units as of now anyways etc -->
-									// !bWarPlan ||
-									bDanger
-									// <!-- custom: try to not restrict new siege units too much as we have a bit too few now after our changes although it's a lot better than trebuchets insanity of before but trying to increase it bit more now, as well as also trying to do so in other uncommented changes if i may say in this case i mean but anyways etc -->
-									// bEnemyStrong
-								);
-
-								// “Can we build any generic offensive land unit right now?”
-								// <!-- custom: assume most expensive unit is strongest so we are hammer efficient, as i noticed hatshepsut ai for example built many ancient macemen at turn 100+, possibly because of this new no more defender code, so if we want to pick an attacker, use cost to determine strongest, i.e. the more expensive the stronger we can expect it to be anyways etc. Based on the code in CvCity::doTurn anyways etc -->
-								UnitTypes   eBestCandidateUnit = NO_UNIT;
-								UnitAITypes eBestCandidateUnitAI = NO_UNITAI;
-								int         iBestScore = -1;
-								int         iBestCost  = MIN_INT;
-
-								// same era cap you use elsewhere
-								static const int iMaxHammerPerEra = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_MAX_HAMMER_PER_ERA");
-								const int iMaxCost = iMaxHammerPerEra * (iCurrentEra + 1);
-
-								// prefetch civ UU mapping once
-								const CvCivilizationInfo& kCivInfo = GC.getInfo(kPlayer.getCivilizationType());
-
-								static const bool bSAS_INFLATE_CIV_SPECIFIC_UNIT = GC.getDefineBOOL("SAS_INFLATE_CIV_SPECIFIC_UNIT");
-								static const bool bSAS_INFLATE_CIV_SPECIFIC_ANY_OTHER_DEFAULT_UNITAI_UNIT = GC.getDefineBOOL("SAS_INFLATE_CIV_SPECIFIC_ANY_OTHER_DEFAULT_UNITAI_UNIT");
-
-								static const int iSAS_INFLATE_CIV_SPECIFIC_UNIT_MULT = GC.getDefineINT("SAS_INFLATE_CIV_SPECIFIC_UNIT_MULT");
-								static const int iSAS_INFLATE_CIV_SPECIFIC_UNIT_DIV = std::max(1, GC.getDefineINT("SAS_INFLATE_CIV_SPECIFIC_UNIT_DIV"));
-								static const int iSAS_INFLATE_CIV_SPECIFIC_UNIT_ADD = GC.getDefineINT("SAS_INFLATE_CIV_SPECIFIC_UNIT_ADD");
-
-								FOR_EACH_ENUM(Unit)
+								if (bNoExcessStrictDefendersUnitAIsRejectUnit)
 								{
-									if (!canTrain(eLoopUnit, false)) continue;
-									// <!-- custom: note: this is eLoopUnit's pointer, not currently chosen to be produced eChangedUnit anyways etc -->
-									const CvUnitInfo& kU = GC.getInfo(eLoopUnit);
-									if (kU.getDomainType() != DOMAIN_LAND) continue;
-									if (kU.getCombat() <= 0) continue;
-									// Skip picking the same type you’re trying to replace (just in case an archer line slips through with an offensive AI):
-									if (eLoopUnit == eChangedUnit) continue;
+									// <!-- custom: update: actually add a reject all excess defenders check and knob/tunable anyways etc, useful in itself as an option i mean in this case i mean if i may say but anyways etc but/and but anyways etc also to help debug the cases where we have excess early defenders anyways etc -->
+									return false;
+								}
+								else if (bNoExcessStrictDefendersUnitAIsAttemptReplaceUnit)
+								{
+									// <!-- custom: if we can produce better, more offense or versatile focused units, abandon current defense unit project -->
+									// <!-- custom: a catapult rush could work if we have nothing better at all, better than a longbow rush! Just don't overbuild anyways etc; we already processed if we should build siege and trebuchets in particular or not but anyways etc, so use a simplified version here for the "enough defenders but checking if siege are good if we have nothing better part of the code" if i am not mistaken but anyways etc, is bit redundant, ideally should be merged there if i am not mistaken but maybe not too bad as such, as we are not looping over units there in siege checks but are doing so here, so maybe fine as such or not too bad as i said but anyways etc -->
+									const bool bEnoughSiegeAlready = (iSiegesAll >= iNumCities);
+									// <!-- custom: as for trebuchets, be stricter as they are even less versatile, however if we really have absolutely nothing better, a few of them could help us win our rush of longbows + trebuchets xd, so allow some minimally as they are otherwise not efficient and best not produced if not for specific role. Do not implement all checks here again, use a very simple approximation of it here anyways etc. -->
+									const bool bEnoughTrebsLikeAlready = (iTrebsLike >= 3);
 
-									const bool bLoopUnitIsSiege = (kU.getUnitCombatType() == eUnitCombatSiege);
-									if (bLoopUnitIsSiege)
+									const bool bNoNewSiegeRightNow = (
+										(bAtWar && !bEnemyWeakNotZero) ||
+										// <!-- custom: try to be a bit more versatile and not too restrictive, as we don't produce enough siege units as of now anyways etc -->
+										// !bWarPlan ||
+										bDanger
+										// <!-- custom: try to not restrict new siege units too much as we have a bit too few now after our changes although it's a lot better than trebuchets insanity of before but trying to increase it bit more now, as well as also trying to do so in other uncommented changes if i may say in this case i mean but anyways etc -->
+										// bEnemyStrong
+									);
+
+									// “Can we build any generic offensive land unit right now?”
+									// <!-- custom: assume most expensive unit is strongest so we are hammer efficient, as i noticed hatshepsut ai for example built many ancient macemen at turn 100+, possibly because of this new no more defender code, so if we want to pick an attacker, use cost to determine strongest, i.e. the more expensive the stronger we can expect it to be anyways etc. Based on the code in CvCity::doTurn anyways etc -->
+									UnitTypes   eBestCandidateUnit = NO_UNIT;
+									UnitAITypes eBestCandidateUnitAI = NO_UNITAI;
+									int         iBestScore = -1;
+									int         iBestCost  = MIN_INT;
+
+									// same era cap you use elsewhere
+									static const int iMaxHammerPerEra = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_MAX_HAMMER_PER_ERA");
+									const int iMaxCost = iMaxHammerPerEra * (iCurrentEra + 1);
+
+									// prefetch civ UU mapping once
+									const CvCivilizationInfo& kCivInfo = GC.getInfo(kPlayer.getCivilizationType());
+
+									static const bool bSAS_INFLATE_CIV_SPECIFIC_UNIT = GC.getDefineBOOL("SAS_INFLATE_CIV_SPECIFIC_UNIT");
+									static const bool bSAS_INFLATE_CIV_SPECIFIC_ANY_OTHER_DEFAULT_UNITAI_UNIT = GC.getDefineBOOL("SAS_INFLATE_CIV_SPECIFIC_ANY_OTHER_DEFAULT_UNITAI_UNIT");
+
+									static const int iSAS_INFLATE_CIV_SPECIFIC_UNIT_MULT = GC.getDefineINT("SAS_INFLATE_CIV_SPECIFIC_UNIT_MULT");
+									static const int iSAS_INFLATE_CIV_SPECIFIC_UNIT_DIV = std::max(1, GC.getDefineINT("SAS_INFLATE_CIV_SPECIFIC_UNIT_DIV"));
+									static const int iSAS_INFLATE_CIV_SPECIFIC_UNIT_ADD = GC.getDefineINT("SAS_INFLATE_CIV_SPECIFIC_UNIT_ADD");
+
+									FOR_EACH_ENUM(Unit)
 									{
-										// keep siege out of the “simple offense” bucket <!-- custom: unless we have nothing better and not too much of these as explained/said in above anyways etc -->
-										if (bEnoughSiegeAlready || bEnoughTrebsLikeAlready || bNoNewSiegeRightNow)
+										if (!canTrain(eLoopUnit, false)) continue;
+										// <!-- custom: note: this is eLoopUnit's pointer, not currently chosen to be produced eChangedUnit anyways etc -->
+										const CvUnitInfo& kU = GC.getInfo(eLoopUnit);
+										if (kU.getDomainType() != DOMAIN_LAND) continue;
+										if (kU.getCombat() <= 0) continue;
+										// Skip picking the same type you’re trying to replace (just in case an archer line slips through with an offensive AI):
+										if (eLoopUnit == eChangedUnit) continue;
+
+										const bool bLoopUnitIsSiege = (kU.getUnitCombatType() == eUnitCombatSiege);
+										if (bLoopUnitIsSiege)
+										{
+											// keep siege out of the “simple offense” bucket <!-- custom: unless we have nothing better and not too much of these as explained/said in above anyways etc -->
+											if (bEnoughSiegeAlready || bEnoughTrebsLikeAlready || bNoNewSiegeRightNow)
+											{
+												continue;
+											}
+										}  
+
+										// <!-- custom: be careful, cost can greatly vary based on gamespeed, map size (maybe?), handicap settings, use XML costs rather as a much more reliable cost indicator anyways etc -->
+										// // sanity cap by era on REAL cost (don’t use inflated for the cap)
+										// const int iLoopCost = getProductionNeeded(eLoopUnit);
+										const int iLoopCost = GC.getInfo(eLoopUnit).getProductionCost(); // XML base
+										// <!-- custom: don't deal with garbage or very unexpected XML if i am not mistaken anyways etc -->
+										if (iLoopCost < 0)
 										{
 											continue;
 										}
-									}  
-
-									// <!-- custom: be careful, cost can greatly vary based on gamespeed, map size (maybe?), handicap settings, use XML costs rather as a much more reliable cost indicator anyways etc -->
-									// // sanity cap by era on REAL cost (don’t use inflated for the cap)
-									// const int iLoopCost = getProductionNeeded(eLoopUnit);
-									const int iLoopCost = GC.getInfo(eLoopUnit).getProductionCost(); // XML base
-									// <!-- custom: don't deal with garbage or very unexpected XML if i am not mistaken anyways etc -->
-									if (iLoopCost < 0)
-									{
-										continue;
-									}
-									if (iLoopCost > iMaxCost)
-									{
-										continue;
-									}
-
-									// must be usable offensively by default UnitAI
-									const UnitAITypes eLoopDefaultUnitAI = kU.getDefaultUnitAIType();
-									const bool bMainOffenseDefaultUnitAIUnit = (
-										(eLoopDefaultUnitAI == UNITAI_ATTACK) ||
-										(eLoopDefaultUnitAI == UNITAI_ATTACK_CITY) ||
-										// <!-- custom: use getDefaultUnitAIType rather than getUnitAIType to maybe (i guess but i don't know so check to be sure anyways etc) avoid longbowmen as attackers since they have unitai_counter, assume the default type is most representative of the unit's capabilities anyways etc -->
-										(eLoopDefaultUnitAI == UNITAI_COUNTER)
-									);
-
-									if (!bMainOffenseDefaultUnitAIUnit)
-									{
-										continue;
-									}
-									// <!-- custom: if we can build an offensive unitAI unit instead, then switch to it here manually rather anyways etc, then later if all good it would be the final order if i am not mistaken but anyways etc -->
-									else
-									{
-										// <!-- custom: inflate artificially the civ-specific unit assuming it is best (war chariot is as of now anyways etc 5 str for 30 hammer, vs 6 str for 50 hammaer for a horse archer! The horse archer is much more efficient, but we can't judge on str alone, as some units have some nice perks like withdraw chance, etc. Simplest way is to assume civ-specific unit is best choice if available, at least a much stronger one than cost would lead on, else fix our XML to make them strong enough to justify being picked by AI but anyways etc) -->
-										// prefer the civilization's unique unit (war chariot over horse archer, etc.)
-										// score = cost, with a UU override bump (2*cost + 1)
-										int iLoopScore = iLoopCost;
-
-										if (bSAS_INFLATE_CIV_SPECIFIC_UNIT)
+										if (iLoopCost > iMaxCost)
 										{
-											const UnitClassTypes eClass = kU.getUnitClassType();
-											const UnitTypes eCivUnitForClass = (UnitTypes)kCivInfo.getCivilizationUnits(eClass);
-											const UnitTypes eDefaultForClass  = (UnitTypes)GC.getUnitClassInfo(eClass).getDefaultUnit();
-											const bool bIsUUOverride = (eCivUnitForClass == eLoopUnit && eLoopUnit != eDefaultForClass);
-											if (bIsUUOverride)
+											continue;
+										}
+
+										// must be usable offensively by default UnitAI
+										const UnitAITypes eLoopDefaultUnitAI = kU.getDefaultUnitAIType();
+										const bool bMainOffenseDefaultUnitAIUnit = (
+											(eLoopDefaultUnitAI == UNITAI_ATTACK) ||
+											(eLoopDefaultUnitAI == UNITAI_ATTACK_CITY) ||
+											// <!-- custom: use getDefaultUnitAIType rather than getUnitAIType to maybe (i guess but i don't know so check to be sure anyways etc) avoid longbowmen as attackers since they have unitai_counter, assume the default type is most representative of the unit's capabilities anyways etc -->
+											(eLoopDefaultUnitAI == UNITAI_COUNTER)
+										);
+
+										if (!bMainOffenseDefaultUnitAIUnit)
+										{
+											continue;
+										}
+										// <!-- custom: if we can build an offensive unitAI unit instead, then switch to it here manually rather anyways etc, then later if all good it would be the final order if i am not mistaken but anyways etc -->
+										else
+										{
+											// <!-- custom: inflate artificially the civ-specific unit assuming it is best (war chariot is as of now anyways etc 5 str for 30 hammer, vs 6 str for 50 hammaer for a horse archer! The horse archer is much more efficient, but we can't judge on str alone, as some units have some nice perks like withdraw chance, etc. Simplest way is to assume civ-specific unit is best choice if available, at least a much stronger one than cost would lead on, else fix our XML to make them strong enough to justify being picked by AI but anyways etc) -->
+											// prefer the civilization's unique unit (war chariot over horse archer, etc.)
+											// score = cost, with a UU override bump (2*cost + 1)
+											int iLoopScore = iLoopCost;
+
+											if (bSAS_INFLATE_CIV_SPECIFIC_UNIT)
 											{
-												// <!-- custom: counter civ-specific (e.g. maya holkan, etc) units are less likely to be useful for offense, so do not especially favour them anyways etc -->
-												if (bSAS_INFLATE_CIV_SPECIFIC_ANY_OTHER_DEFAULT_UNITAI_UNIT || (eLoopDefaultUnitAI != UNITAI_COUNTER))
+												const UnitClassTypes eClass = kU.getUnitClassType();
+												const UnitTypes eCivUnitForClass = (UnitTypes)kCivInfo.getCivilizationUnits(eClass);
+												const UnitTypes eDefaultForClass  = (UnitTypes)GC.getUnitClassInfo(eClass).getDefaultUnit();
+												const bool bIsUUOverride = (eCivUnitForClass == eLoopUnit && eLoopUnit != eDefaultForClass);
+												if (bIsUUOverride)
 												{
-													iLoopScore = ((iSAS_INFLATE_CIV_SPECIFIC_UNIT_MULT * iLoopScore) / iSAS_INFLATE_CIV_SPECIFIC_UNIT_DIV) + iSAS_INFLATE_CIV_SPECIFIC_UNIT_ADD;
+													// <!-- custom: counter civ-specific (e.g. maya holkan, etc) units are less likely to be useful for offense, so do not especially favour them anyways etc -->
+													if (bSAS_INFLATE_CIV_SPECIFIC_ANY_OTHER_DEFAULT_UNITAI_UNIT || (eLoopDefaultUnitAI != UNITAI_COUNTER))
+													{
+														iLoopScore = ((iSAS_INFLATE_CIV_SPECIFIC_UNIT_MULT * iLoopScore) / iSAS_INFLATE_CIV_SPECIFIC_UNIT_DIV) + iSAS_INFLATE_CIV_SPECIFIC_UNIT_ADD;
+													}
 												}
 											}
-										}
 
-										// pick highest score; on score tie pick the higher real cost
-										if (iLoopScore > iBestScore || (iLoopScore == iBestScore && iLoopCost > iBestCost))
-										{
-											iBestScore = iLoopScore;
-											iBestCost  = iLoopCost;
-											eBestCandidateUnit  = eLoopUnit;
-											eBestCandidateUnitAI = eLoopDefaultUnitAI;
+											// pick highest score; on score tie pick the higher real cost
+											if (iLoopScore > iBestScore || (iLoopScore == iBestScore && iLoopCost > iBestCost))
+											{
+												iBestScore = iLoopScore;
+												iBestCost  = iLoopCost;
+												eBestCandidateUnit  = eLoopUnit;
+												eBestCandidateUnitAI = eLoopDefaultUnitAI;
+											}
 										}
 									}
+									// commit if we found something
+									if (eBestCandidateUnit != NO_UNIT)
+									{
+										eChangedUnit   = eBestCandidateUnit;
+										eChangedUnitAI = eBestCandidateUnitAI;
+										// <!-- custom: if we change the unit, also refresh the pointer if i am not mistaken anyways etc -->
+										// refresh
+										pUnitInfo = &GC.getInfo(eChangedUnit);
+										// <!-- custom: be very careful!!! we are not recomputing our booleans that check unitais later, so if any land unit were to change, we would need to either recompute the booleans, or directly check in the check itself (much cleaner i think), as nicely noted by chatgpt 5 thanks a lot, is todo ideally to be safe but anyways etc -->
+									}
 								}
-								// commit if we found something
-								if (eBestCandidateUnit != NO_UNIT)
+								// <!-- custom: else if no unit was found, fallback to alternative unitai types for this defensive unit that had a strict or heavily defensive unitai, now instead focusing on most reliable unitais we can most likely always build for simplicty and no error ideally although we could check this but i don't know how but anyways etc; what matters most here is we switch to offense soon enough so that we have enough offense units later in the game where it matters most (joao ai having 36 longbowmen at turn 130 for example is way too much as most of these were city_defense or city_counter or something similar anyways etc), see known issue as of now 53.2 for related info anyways etc -->
+								else if (bNoExcessStrictDefendersUnitAIsAttemptHijackUnitAI && (pUnitInfo->getDomainType() == DOMAIN_LAND) && (pUnitInfo->getCombat() > 0))
 								{
-									eChangedUnit   = eBestCandidateUnit;
-									eChangedUnitAI = eBestCandidateUnitAI;
-									// <!-- custom: if we change the unit, also refresh the pointer if i am not mistaken anyways etc -->
-									// refresh
-									pUnitInfo = &GC.getInfo(eChangedUnit);
-									// <!-- custom: be very careful!!! we are not recomputing our booleans that check unitais later, so if any land unit were to change, we would need to either recompute the booleans, or directly check in the check itself (much cleaner i think), as nicely noted by chatgpt 5 thanks a lot, is todo ideally to be safe but anyways etc -->
+									// preconditions already true: bNoExcessStrictDefendersUnitAIsAttemptHijackUnitAI
+									// and we're in the strict-defender branch
+
+									// <!-- custom: maybe (hypothetically/guessedly of me but i have no idea is just a hunch or random or rather blind or rather intutition but anyways etc / guess but maybe producing attack unitais motivates ai less to fill quotas otherwise, so try counter first and then if not other roles anyways etc) -->
+									// Prefer COUNTER, then ATTACK, then ATTACK_CITY.
+									if (pUnitInfo->getUnitAIType(UNITAI_COUNTER))
+									{
+										eChangedUnitAI = UNITAI_COUNTER;
+									}
+									else if (pUnitInfo->getUnitAIType(UNITAI_CITY_COUNTER))
+									{
+										eChangedUnitAI = UNITAI_CITY_COUNTER;
+									}
+									else if (pUnitInfo->getUnitAIType(UNITAI_ATTACK))
+									{
+										eChangedUnitAI = UNITAI_ATTACK;
+									}
+									else if (pUnitInfo->getUnitAIType(UNITAI_ATTACK_CITY))
+									{
+										eChangedUnitAI = UNITAI_ATTACK_CITY;
+									}
+									// <!-- custom: if offensive roles fail, prefer defensive but more versatile ones, anything is better than overstacking excess defense without using our advantage of unit count (or desperate position but anyways etc then dying later anyways etc) -->
+									else if (pUnitInfo->getUnitAIType(UNITAI_RESERVE))
+									{
+										eChangedUnitAI = UNITAI_RESERVE;
+									}
+									// else: leave as is (keeps defender AI)
 								}
-							}
-							// <!-- custom: else if no unit was found, fallback to alternative unitai types for this defensive unit that had a strict or heavily defensive unitai, now instead focusing on most reliable unitais we can most likely always build for simplicty and no error ideally although we could check this but i don't know how but anyways etc; what matters most here is we switch to offense soon enough so that we have enough offense units later in the game where it matters most (joao ai having 36 longbowmen at turn 130 for example is way too much as most of these were city_defense or city_counter or something similar anyways etc), see known issue as of now 53.2 for related info anyways etc -->
-							else if (bNoExcessStrictDefendersUnitAIsAttemptHijackUnitAI && (pUnitInfo->getDomainType() == DOMAIN_LAND) && (pUnitInfo->getCombat() > 0))
+								// else: keep original defender AI (can’t sensibly attack)
+								// <!-- custom: and then do not push order here, only alter selection on bestunitai if i'm not mistaken, do not redo all the pipeline and let it be handled before or/and later wherever it is anyways etc -->
+								// notes
+								// This doesn’t push orders or re-run best-unit logic; it just tweaks eChangedUnitAI if the already-picked eChangedUnit supports the offensive role.
+								// Because ATTACK/ATTACK_CITY/COUNTER aren’t in your “handled civilian/naval/air” blocks, the rest of the function just falls through to the final pushOrder(ORDER_TRAIN, eChangedUnit, eChangedUnitAI); as desired.
+							}		
+						}
+					}
+				}
+
+				// <!-- custom: do not overproduce very cheap (limit ourselves to combat units as is most likely to bankrupt us and we don't have cheap civilian (especially not that we overproduce if i am not mistaken but anyways etc) units as of now if i am not mistaken but anyways etc) units, for example and in particular ancient macemen early, they are so cheap so it's very easy to go bankrupt carelessly anyways etc, add some sanity limits to prevent that, especially considering they won't be too useful later in the game anyways etc; but since there are so many train percent modifiers (game speed, handicap, possibly eras or whatever although we disabled them so far but a chore to remember them everytime, use xml values rather as nicely sugegsted thanks if i may say but anyways etc by chatgpt 5, check if accurate anyways etc); note: we don't have air units so early and they are not check so ignored air check by chatgpt 5, could be useful in some mod mod but not for us anyways etc; note: the way code is written as of now but anyways etc, it may apply to scouts as well since they have strength/combat as well if i'm not mistaken, but the cap should be large enough that it shouldn't be a concern (unless we overproduce them then fine to limit them as well if i'm not mistaken but anyways etc). -->
+
+				static const bool bNoExcessVeryCheapMilitaryUnits = GC.getDefineBOOL("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS");
+
+				if (bNoExcessVeryCheapMilitaryUnits && (pUnitInfo->getCombat() > 0) /*|| pUnitInfo->getAirCombat() > 0*/)
+				{
+					// Stable classification by XML base cost
+					const int iXMLCost = pUnitInfo->getProductionCost();     // from XML (unscaled)
+					// <!-- custom: don't deal with garbage or very unexpected XML if i am not mistaken anyways etc -->
+					// weird/placeholder cost: skip the cap rather than vetoing the choice
+					// (keeps behavior stable if a modmod has odd XML)
+					if (iXMLCost > 0)
+					{
+						// <!-- custom: make sure to not overproduce them and risk going bankrupt or hindering our early progression, but build enough for our immediate early or defense needs anyways etc. Note: in our mod as of now archers are available at TECH_HUNTING and they are more versatile and stronger at city defense (also a bit more expensive) and require as of now no bonus, only the tech. If all else fails (then longbows), build these rather than stacking very cheap units that would be bit inefficient, but don't overdo it, as ancient macemen are better at combat outside of cities anyways etc, just they would be produced too much which would cripple our economy. Gating them early also helps us meet our quota of defenders sooner indirectly by focusing more on archers or whatever else we want to build, so that we hopefully maybe can move sooner to our no excess defender code in next productions so all in all should hopefully be good and helpful if i am not mistaken but anyways etc -->
+						// Tier thresholds
+						static const int TH_ANC      = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_ANCIENT_TIER_THRESHOLD");
+						static const int TH_CLA      = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_CLASSICAL_TIER_THRESHOLD");
+						static const int TH_MED_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_MEDIEVAL_PLUS_TIER_THRESHOLD");
+
+						// Classify tier (exclusive)
+						const bool bTierAnc = (iXMLCost <= TH_ANC);
+						const bool bTierCla = (!bTierAnc && iXMLCost <= TH_CLA);
+						const bool bTierMedPlus = (!bTierAnc && !bTierCla && iXMLCost <= TH_MED_PLUS);
+
+						if (bTierAnc || bTierCla || bTierMedPlus)
+						{
+							// Non-regressing cap by tier: take the minimum across tiers up to this one
+							int iVeryCheapUnitsCap = 0;
+							// Do you really need the “min across tiers”?
+							// - If you promise your XML will always keep capAnc ≤ capCla ≤ capMed, then picking the single tier cap is fine.
+							// - In practice, knobs evolve (mods, balance passes). The min(...) costs just a few integer ops per call and guarantees that Ancient-tier units never get a looser cap because some later-tier numbers got bumped. It’s cheap insurance.
+							// <!-- custom: answer to chatgpt 5: yes i promise xd thanks :) if i may say but anyways etc -->
+
+							if (bTierAnc)
 							{
-								// preconditions already true: bNoExcessStrictDefendersUnitAIsAttemptHijackUnitAI
-								// and we're in the strict-defender branch
+								// <!-- custom: need less for naval maps as there are no invaders or such if i am not mistaken and naval units are also more important so trim it a bit more there anyways etc; also even if some mod mod were to add cheap combat naval units, we are isolated so we would trim less units due to death in combat, account for this and produce less, be it land units like as of now ancient macemen, or some potential naval combat unit or such but anyways etc a modmod might additionally add but anyways etc -->
+								// Per-tier knobs
+								static const int CM_ANC      = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_ANCIENT_TIER");
+								static const int EX_ANC_NAV  = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_ANCIENT_TIER_NAVAL_HEAVY_MAP");
+								static const int EX_ANC_LAND = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_ANCIENT_TIER_NOT_NAVAL_HEAVY_MAP");
 
-								// <!-- custom: maybe (hypothetically/guessedly of me but i have no idea is just a hunch or random or rather blind or rather intutition but anyways etc / guess but maybe producing attack unitais motivates ai less to fill quotas otherwise, so try counter first and then if not other roles anyways etc) -->
-								// Prefer COUNTER, then ATTACK, then ATTACK_CITY.
-								if (pUnitInfo->getUnitAIType(UNITAI_COUNTER))
+								// <!-- custom: it's as chatgpt 5 says indeed, if we go by era, then we would reach classical era the cap would increase and suddenly we'd have more room to produce ancient macemen as i have noticed ingame and told chatgpt 5 to fix xd (thanks for code if i may say really but anyways etc). To avoid that, always take worst cap for a tier (era-independant) (e.g. ancient macemen or scouts for example anyways etc units (<= 20 anyways etc)) anyways etc keep the worst cap of a few units max even in classical and even in medieval, helps system be saner as well to have a lower risk to overproduce these were they for some reason still available to build for some reason or newly so in this case i mean but anyways etc, prevent it by keeping cap in this case i mean but anyways etc -->
+								// Style caps (independent of current era)
+								iVeryCheapUnitsCap = (CM_ANC * iNumCities) + (bNavalHeavyMapname ? EX_ANC_NAV : EX_ANC_LAND);
+
+								// <!-- custom: most likely to be useless after the very early game (for ancient macemen at least i mean which are the only very cheap combat units so far in our mod anyways etc), so further tone it down (doesn't make sense to produce ancient macemen at turn 100 on normal as i've seen AIs do when many options are better and it would just bankrupt us or increase unit costs / reduce unit costs efficiency (i.e. maintenance gold per turn for the military units i mean but anyways etc)) anyways etc; note: don't scrap existing ones, they'll die fighting or maybe be upgraded eventually or be useful for some other purpose if hopefully not too numerous but anyways etc, but don't produce anymore if beyond this new cap after the very early game if i am not mistaken in my thinking (i think i am not as this is a good idea i think (but check if accurate or is but anyways etc) but anyways etc) -->
+								static const int VERY_EARLY_TURN_ANCIENT_TIER_END = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_VERY_EARLY_ANCIENT_TIER_END");
+								const int iTurnVeryEarlyThresholdScaled = (VERY_EARLY_TURN_ANCIENT_TIER_END * iTrainPct) / 100;
+								const bool bVeryEarly = (iCurrentTurn < iTurnVeryEarlyThresholdScaled);
+								// Past turn e.g. 50 (scaled)? Halve the cap strictly.
+								if (!bVeryEarly)
 								{
-									eChangedUnitAI = UNITAI_COUNTER;
+									iVeryCheapUnitsCap /=  2;
 								}
-								else if (pUnitInfo->getUnitAIType(UNITAI_CITY_COUNTER))
-								{
-									eChangedUnitAI = UNITAI_CITY_COUNTER;
-								}
-								else if (pUnitInfo->getUnitAIType(UNITAI_ATTACK))
-								{
-									eChangedUnitAI = UNITAI_ATTACK;
-								}
-								else if (pUnitInfo->getUnitAIType(UNITAI_ATTACK_CITY))
-								{
-									eChangedUnitAI = UNITAI_ATTACK_CITY;
-								}
-								// <!-- custom: if offensive roles fail, prefer defensive but more versatile ones, anything is better than overstacking excess defense without using our advantage of unit count (or desperate position but anyways etc then dying later anyways etc) -->
-								else if (pUnitInfo->getUnitAIType(UNITAI_RESERVE))
-								{
-									eChangedUnitAI = UNITAI_RESERVE;
-								}
-								// else: leave as is (keeps defender AI)
 							}
-							// else: keep original defender AI (can’t sensibly attack)
-							// <!-- custom: and then do not push order here, only alter selection on bestunitai if i'm not mistaken, do not redo all the pipeline and let it be handled before or/and later wherever it is anyways etc -->
-							// notes
-							// This doesn’t push orders or re-run best-unit logic; it just tweaks eChangedUnitAI if the already-picked eChangedUnit supports the offensive role.
-							// Because ATTACK/ATTACK_CITY/COUNTER aren’t in your “handled civilian/naval/air” blocks, the rest of the function just falls through to the final pushOrder(ORDER_TRAIN, eChangedUnit, eChangedUnitAI); as desired.
-						}		
-					}
-				}
-			}
-
-			// <!-- custom: do not overproduce very cheap (limit ourselves to combat units as is most likely to bankrupt us and we don't have cheap civilian (especially not that we overproduce if i am not mistaken but anyways etc) units as of now if i am not mistaken but anyways etc) units, for example and in particular ancient macemen early, they are so cheap so it's very easy to go bankrupt carelessly anyways etc, add some sanity limits to prevent that, especially considering they won't be too useful later in the game anyways etc; but since there are so many train percent modifiers (game speed, handicap, possibly eras or whatever although we disabled them so far but a chore to remember them everytime, use xml values rather as nicely sugegsted thanks if i may say but anyways etc by chatgpt 5, check if accurate anyways etc); note: we don't have air units so early and they are not check so ignored air check by chatgpt 5, could be useful in some mod mod but not for us anyways etc; note: the way code is written as of now but anyways etc, it may apply to scouts as well since they have strength/combat as well if i'm not mistaken, but the cap should be large enough that it shouldn't be a concern (unless we overproduce them then fine to limit them as well if i'm not mistaken but anyways etc). -->
-
-			static const bool bNoExcessVeryCheapMilitaryUnits = GC.getDefineBOOL("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS");
-
-			if (bNoExcessVeryCheapMilitaryUnits && (pUnitInfo->getCombat() > 0) /*|| pUnitInfo->getAirCombat() > 0*/)
-			{
-				// Stable classification by XML base cost
-				const int iXMLCost = pUnitInfo->getProductionCost();     // from XML (unscaled)
-				// <!-- custom: don't deal with garbage or very unexpected XML if i am not mistaken anyways etc -->
-				// weird/placeholder cost: skip the cap rather than vetoing the choice
-				// (keeps behavior stable if a modmod has odd XML)
-				if (iXMLCost > 0)
-				{
-					// <!-- custom: make sure to not overproduce them and risk going bankrupt or hindering our early progression, but build enough for our immediate early or defense needs anyways etc. Note: in our mod as of now archers are available at TECH_HUNTING and they are more versatile and stronger at city defense (also a bit more expensive) and require as of now no bonus, only the tech. If all else fails (then longbows), build these rather than stacking very cheap units that would be bit inefficient, but don't overdo it, as ancient macemen are better at combat outside of cities anyways etc, just they would be produced too much which would cripple our economy. Gating them early also helps us meet our quota of defenders sooner indirectly by focusing more on archers or whatever else we want to build, so that we hopefully maybe can move sooner to our no excess defender code in next productions so all in all should hopefully be good and helpful if i am not mistaken but anyways etc -->
-					// Tier thresholds
-					static const int TH_ANC      = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_ANCIENT_TIER_THRESHOLD");
-					static const int TH_CLA      = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_CLASSICAL_TIER_THRESHOLD");
-					static const int TH_MED_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_MEDIEVAL_PLUS_TIER_THRESHOLD");
-
-					// Classify tier (exclusive)
-					const bool bTierAnc = (iXMLCost <= TH_ANC);
-					const bool bTierCla = (!bTierAnc && iXMLCost <= TH_CLA);
-					const bool bTierMedPlus = (!bTierAnc && !bTierCla && iXMLCost <= TH_MED_PLUS);
-
-					if (bTierAnc || bTierCla || bTierMedPlus)
-					{
-						// Non-regressing cap by tier: take the minimum across tiers up to this one
-						int iVeryCheapUnitsCap = 0;
-						// Do you really need the “min across tiers”?
-						// - If you promise your XML will always keep capAnc ≤ capCla ≤ capMed, then picking the single tier cap is fine.
-						// - In practice, knobs evolve (mods, balance passes). The min(...) costs just a few integer ops per call and guarantees that Ancient-tier units never get a looser cap because some later-tier numbers got bumped. It’s cheap insurance.
-						// <!-- custom: answer to chatgpt 5: yes i promise xd thanks :) if i may say but anyways etc -->
-
-						if (bTierAnc)
-						{
-							// <!-- custom: need less for naval maps as there are no invaders or such if i am not mistaken and naval units are also more important so trim it a bit more there anyways etc; also even if some mod mod were to add cheap combat naval units, we are isolated so we would trim less units due to death in combat, account for this and produce less, be it land units like as of now ancient macemen, or some potential naval combat unit or such but anyways etc a modmod might additionally add but anyways etc -->
-							// Per-tier knobs
-							static const int CM_ANC      = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_ANCIENT_TIER");
-							static const int EX_ANC_NAV  = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_ANCIENT_TIER_NAVAL_HEAVY_MAP");
-							static const int EX_ANC_LAND = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_ANCIENT_TIER_NOT_NAVAL_HEAVY_MAP");
-
-							// <!-- custom: it's as chatgpt 5 says indeed, if we go by era, then we would reach classical era the cap would increase and suddenly we'd have more room to produce ancient macemen as i have noticed ingame and told chatgpt 5 to fix xd (thanks for code if i may say really but anyways etc). To avoid that, always take worst cap for a tier (era-independant) (e.g. ancient macemen or scouts for example anyways etc units (<= 20 anyways etc)) anyways etc keep the worst cap of a few units max even in classical and even in medieval, helps system be saner as well to have a lower risk to overproduce these were they for some reason still available to build for some reason or newly so in this case i mean but anyways etc, prevent it by keeping cap in this case i mean but anyways etc -->
-							// Style caps (independent of current era)
-							iVeryCheapUnitsCap = (CM_ANC * iNumCities) + (bNavalHeavyMapname ? EX_ANC_NAV : EX_ANC_LAND);
-
-							// <!-- custom: most likely to be useless after the very early game (for ancient macemen at least i mean which are the only very cheap combat units so far in our mod anyways etc), so further tone it down (doesn't make sense to produce ancient macemen at turn 100 on normal as i've seen AIs do when many options are better and it would just bankrupt us or increase unit costs / reduce unit costs efficiency (i.e. maintenance gold per turn for the military units i mean but anyways etc)) anyways etc; note: don't scrap existing ones, they'll die fighting or maybe be upgraded eventually or be useful for some other purpose if hopefully not too numerous but anyways etc, but don't produce anymore if beyond this new cap after the very early game if i am not mistaken in my thinking (i think i am not as this is a good idea i think (but check if accurate or is but anyways etc) but anyways etc) -->
-							static const int VERY_EARLY_TURN_ANCIENT_TIER_END = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_VERY_EARLY_ANCIENT_TIER_END");
-							const int iTurnVeryEarlyThresholdScaled = (VERY_EARLY_TURN_ANCIENT_TIER_END * iTrainPct) / 100;
-							const bool bVeryEarly = (iCurrentTurn < iTurnVeryEarlyThresholdScaled);
-							// Past turn e.g. 50 (scaled)? Halve the cap strictly.
-							if (!bVeryEarly)
+							else if (bTierCla)
 							{
-								iVeryCheapUnitsCap /=  2;
+								static const int CM_CLA      = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_CLASSICAL_TIER");
+								static const int EX_CLA      = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_CLASSICAL_TIER");
+
+								iVeryCheapUnitsCap = (CM_CLA * iNumCities) + EX_CLA;
+							}
+							else if (bTierMedPlus)
+							{
+								static const int CM_MED_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_MEDIEVAL_PLUS_TIER");
+								static const int EX_MED_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_MEDIEVAL_PLUS_TIER");
+
+								iVeryCheapUnitsCap = (CM_MED_PLUS * iNumCities) + EX_MED_PLUS;
+							}
+
+							// <!-- custom: use a reference only in this scope in case we change the unit again later (reuse reference as needed maybe but anyways etc) if i am not mistaken, check if accurate anyways etc -->
+							const UnitClassTypes eUnitClassSoFar = pUnitInfo->getUnitClassType();
+							const int iHaveVeryCheapThisUnits = kPlayer.getUnitClassCountPlusMaking(eUnitClassSoFar);
+
+							// if iVeryCheapUnitsCap == 0, then at the very first attempt iHaveThis is 0, so 0 >= 0 is true → you block production immediately. So you’ll produce zero of that unit after the halving—not one.
+							if (iHaveVeryCheapThisUnits >= iVeryCheapUnitsCap)
+							{
+								return false; // over cap → let chooser try a different unit
 							}
 						}
-						else if (bTierCla)
-						{
-							static const int CM_CLA      = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_CLASSICAL_TIER");
-							static const int EX_CLA      = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_CLASSICAL_TIER");
-
-							iVeryCheapUnitsCap = (CM_CLA * iNumCities) + EX_CLA;
-						}
-						else if (bTierMedPlus)
-						{
-							static const int CM_MED_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_MEDIEVAL_PLUS_TIER");
-							static const int EX_MED_PLUS = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_MEDIEVAL_PLUS_TIER");
-
-							iVeryCheapUnitsCap = (CM_MED_PLUS * iNumCities) + EX_MED_PLUS;
-						}
-
-						// <!-- custom: use a reference only in this scope in case we change the unit again later (reuse reference as needed maybe but anyways etc) if i am not mistaken, check if accurate anyways etc -->
-						const UnitClassTypes eUnitClassSoFar = pUnitInfo->getUnitClassType();
-						const int iHaveVeryCheapThisUnits = kPlayer.getUnitClassCountPlusMaking(eUnitClassSoFar);
-
-						// if iVeryCheapUnitsCap == 0, then at the very first attempt iHaveThis is 0, so 0 >= 0 is true → you block production immediately. So you’ll produce zero of that unit after the halving—not one.
-						if (iHaveVeryCheapThisUnits >= iVeryCheapUnitsCap)
-						{
-							return false; // over cap → let chooser try a different unit
-						}
 					}
 				}
-			}
 
-			// <!-- custom: add our pre-checks to help improve the naval dementia of overproducing naval units and pangea or/and scrapping them as well possibly, then being invaded and losing top city while having spent needlessly hammers on 20+ mix of galleons/privateers on pangea, fixing the overproducing part of the issue here by setting sanity gates / pre-checks before we push the final order, and so we can control here all order if i'm not mistaken but anyways etc -->
-			const bool bNavalFrontLineUnitAIs = (
-				(eChangedUnitAI == UNITAI_ATTACK_SEA) ||
-				(eChangedUnitAI == UNITAI_RESERVE_SEA) ||
-				(eChangedUnitAI == UNITAI_PIRATE_SEA)
-			);
-
-			const bool bNavalExploreSeaUnitAIs = (
-				(eChangedUnitAI == UNITAI_EXPLORE_SEA)
-			);
-
-			const bool bNavalSupportOffenseFrontUnitAIs = (
-				(eChangedUnitAI == UNITAI_ASSAULT_SEA)
-			);
-
-			const bool bNavalSupportDefenseFrontUnitAIs = (
-				(eChangedUnitAI == UNITAI_ESCORT_SEA)
-			);
-
-			const bool bNavalAirExtraUnitAIs = (
-				(eChangedUnitAI == UNITAI_CARRIER_SEA) ||
-				(eChangedUnitAI == UNITAI_MISSILE_CARRIER_SEA)
-			);
-
-			const bool bNavalSettlerSeaUnitAIs = (
-				(eChangedUnitAI == UNITAI_SETTLER_SEA)
-			);
-
-			const bool bNavalWorkerSeaUnitAIs = (
-				(eChangedUnitAI == UNITAI_WORKER_SEA)
-			);
-
-			const bool bNavalMissionarySeaUnitAIs = (
-				(eChangedUnitAI == UNITAI_MISSIONARY_SEA)
-			);
-
-			const bool bNavalSpySeaUnitAIs = (
-				(eChangedUnitAI == UNITAI_SPY_SEA)
-			);
-
-			const bool bAllHandledNavalUnitAIs = (
-				bNavalFrontLineUnitAIs ||
-				bNavalSupportOffenseFrontUnitAIs ||
-				bNavalSupportDefenseFrontUnitAIs ||
-				bNavalExploreSeaUnitAIs ||
-				bNavalAirExtraUnitAIs ||
-				//
-				bNavalSettlerSeaUnitAIs ||
-				bNavalWorkerSeaUnitAIs ||
-				bNavalMissionarySeaUnitAIs ||
-				bNavalSpySeaUnitAIs
-			);
-
-			// <!-- custom: do not limit naval units on naval heavy maps, it seems we have way too few units as a result in archipelago, after all if a frigate defeats an invading galleon it counts same as having more units than all land cargo invaders, so do not limit it anyways etc, also maybe this allows for more versatile naval games, let AI decide its own strategy in this case i mean but anyways etc (hopefully not nonsensical one else we could tweak it, but naval maps could go many ways and with various approaches perhaps, so let AI handle it and keep versatility here rather if i am not mistaken in my thinking and based on previous results that were bad when nerfing naval production way too hard as of now on archipelago for example anyways etc but anyways etc) -->
-			if (!bNavalHeavyMapname && bAllHandledNavalUnitAIs)
-			{
-				if (bNavalFrontLineUnitAIs)
-				{
-					// <!-- custom: let's limit certain types of naval units by map type (less on land heavy ones like pangea, more in naval heavy ones like archipelago, anyways etc), to help the known issue as of now 53 of having an AI player have 20+ galleons/privateers, yet producing them +/- scrapping them (dementia/insane like behvaiour if may say but anyways etc.., but not its fault, it just wasn't told better, so hopefully we can help AI have saner unit limits, and we'll ahndle the seemignly naval units scrapping elsewhere as we did in known issue as of now 52 for many units but anyways etc), so for now a few of the combat naval unit AIs (like max iNumCities per AI player seems very sane on pangea, possibly * 2 for naval heavy maps, no need to overproduce beyond that, nor to scrap before that potentially risking crazy loops but anyways etc, we hopefully maybe also save computation by implementing our check here before code is executed but anyways etc) ; code added with the help / thanks to chatgpt 5 as well, check if accurate (and check mine too i mean but anyways etc) anyways etc -->
-					int iMaxUnits = iNumCities;
-					// if (bNavalHeavyMapname)
-					// {
-					// 	iMaxUnits = 2 * iNumCities;
-					// }
-
-					// <!-- custom: adjust based on danger, do not waste hammer if threatened in particular, or if preparing a nice offense, make it effective and use our hammer wisely if i may say but anyways etc -->
-					if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
-					{
-						// When you halve naval caps under danger/war, iNumCities == 1 would drop to 0 and hard-block all builds. If that’s not what you want, clamp to at least 1.
-						iMaxUnits = std::max(1, iMaxUnits / 2);
-					}
-
-					// <!-- custom: this counts existing and being produced units if i'm not mistaken, which is perfect to avoid overproducing (e.g. if we 5 units, limit is 6, but cities C D E are producing one unit each, they all think limit is not reached so fine, but if they finish production we'll/'d end up with 5+3 = 8 units above what we want by 2, so to produce, check the total being produced + existing already, as pointed by chatgpt 5 as well, check if accurate anyways etc -->
-					// Sum current empire-wide SEA combat AIs (exclude workers / settlers / explorers)
-					const int iTotalUnitAIs = (
-						kPlayer.AI_totalUnitAIs(UNITAI_ATTACK_SEA)
-						+ kPlayer.AI_totalUnitAIs(UNITAI_RESERVE_SEA)
-						// counts pirates too
-						+ kPlayer.AI_totalUnitAIs(UNITAI_PIRATE_SEA)
-					);
-
-					if (iTotalUnitAIs >= iMaxUnits)
-					{
-						return false;
-					}
-					// <!-- custom: else continue and if all good otherwise produce the unit at the end of this function if i'm not mistaken but anyways etc -->
-				}
-				else if (bNavalExploreSeaUnitAIs)
-				{
-					// <!-- custom: we don't need too many explore units, especially on land heavy maps, so make sure we don't overproduce (unless they all die or something then replenish if i may say but anyways etc) them and waste hammer anyways etc -->
-					int iMaxUnits = 1 + (3 * iNumCities) / 10; // 1 + ⌊0.3 * cities⌋;
-					// if (bNavalHeavyMapname)
-					// {
-					// 	iMaxUnits = 2 + (3 * iNumCities) / 10;
-					// }
-
-					// <!-- custom: adjust based on danger, do not waste hammer if threatened in particular, or if preparing a nice offense, make it effective and use our hammer wisely if i may say but anyways etc -->
-					if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
-					{
-						iMaxUnits = std::max(1, iMaxUnits / 2);
-					}
-
-					const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_EXPLORE_SEA);
-
-					if (iTotalUnitAIs >= iMaxUnits)
-					{
-						return false;
-					}
-				}
-				else if (bNavalSupportOffenseFrontUnitAIs)
-				{
-					// <!-- custom: the needed amount will heavily be influenced by our war strategy or situation if i may say but anyways etc, otherwise falling back with the as of now below default anyways etc -->
-					int iMaxUnits = iNumCities;
-					// if (bNavalHeavyMapname)
-					// {
-					// 	iMaxUnits = 2 * iNumCities;
-					// }
-
-					// // <!-- custom: adjust based on danger, do not waste hammer if threatened in particular, or if preparing a nice offense, make it effective and use our hammer wisely if i may say but anyways etc -->
-					// if (bEnemyStrong || bDanger || bWarPlan)
-					// <!-- custom: was too strict according to chatgpt 5 and probably is so, reduce it a bit if planning war to have at least 1 or 2 available or something without sacrificing land warfare anyways etc -->
-					if (bEnemyStrong || bDanger)
-					{
-						// <!-- custom: no time for these, focus is on defense atm not offense if i may say anyways etc -->
-						return false;
-					}
-					else if (bWarPlan)
-					{
-						// <!-- custom: no time for these, focus is on defense atm not offense if i may say anyways etc -->
-						iMaxUnits = 2;
-					}
-					// <!-- custom: else if bEnemyStrong stay the same, fine as such anyways etc -->
-
-					const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_ASSAULT_SEA);
-
-					if (iTotalUnitAIs >= iMaxUnits)
-					{
-						return false;
-					}
-				}
-				else if (bNavalSupportDefenseFrontUnitAIs)
-				{
-					// <!-- custom: the needed amount will be influenced by our war strategy or situation if i may say but anyways etc, otherwise falling back with the as of now below default anyways etc -->
-					int iMaxUnits = iNumCities;
-					// if (bNavalHeavyMapname)
-					// {
-					// 	iMaxUnits = 2 * iNumCities;
-					// }
-
-					// <!-- custom: it is hard to predict how these units will be used, we could maybe settle a new island, guard our cargo, who knows, i don't know exactly how this is used, so let's be a bit conservative and also broad in case they have many use cases, following our general rule though to be conservative and preserve hammer, especially considering our current issue of 20+ galleons/privateers crazy dementia pump xd if i may say but anyways etc while our top city is captured around turn 220, so giving lower priority to naval units in harsh times as well here as a general rule, but with less concern than for assault as of now at least if i may say but anyways etc -->
-					if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
-					{
-						iMaxUnits = std::max(1, (iMaxUnits * 6 / 10));
-					}
-
-					const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_ESCORT_SEA);
-
-					if (iTotalUnitAIs >= iMaxUnits)
-					{
-						return false;
-					}
-				}
-				else if (bNavalAirExtraUnitAIs)
-				{
-					// <!-- custom: i don't know too much about these units so allow some quite conservatively and in a sane manner without going overboard on restriction nor in unrestricting them but anyways etc -->
-					int iMaxUnits = iNumCities;
-					// if (bNavalHeavyMapname)
-					// {
-					// 	iMaxUnits = 2 * iNumCities;
-					// }
-
-					// <!-- custom: it is hard to predict how these units will be used, we could maybe settle a new island, guard our cargo, who knows, i don't know exactly how this is used, so let's be a bit conservative and also broad in case they have many use cases, following our general rule though to be conservative and preserve hammer, especially considering our current issue of 20+ galleons/privateers crazy dementia pump xd if i may say but anyways etc while our top city is captured around turn 220, so giving lower priority to naval units in harsh times as well here as a general rule, but with less concern than for assault as of now at least if i may say but anyways etc -->
-					if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
-					{
-						iMaxUnits = std::max(1, (iMaxUnits * 6 / 10));
-					}
-					// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant) but anyways etc -->
-
-					const int iTotalUnitAIs = (
-						kPlayer.AI_totalUnitAIs(UNITAI_CARRIER_SEA)
-						+ kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_CARRIER_SEA)
-					);
-
-					if (iTotalUnitAIs >= iMaxUnits)
-					{
-						return false;
-					}
-				}
-				else if (bNavalSettlerSeaUnitAIs)
-				{
-					// <!-- custom: don't overbuild these especially early, we won't found too many cities all at the same time (else something may be wrong with our economy or something xd i would guess at least with base/current settings of maintenance / city cost / settler cost but anyways etc) -->
-					int iMaxUnits = 1 + (3 * iNumCities) / 10; // 1 + ⌊0.3 * cities⌋;
-					// if (bNavalHeavyMapname)
-					// {
-					// 	iMaxUnits = 2 + (3 * iNumCities) / 10;
-					// }
-
-					// <!-- custom: if at war or such danger or threat, don't die, don't expand, but since this is about founding cities, allow one for naval heavy maps anyways etc -->
-					if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
-					{
-						// if (bNavalHeavyMapname)
-						// {
-						// 	iMaxUnits = 1;
-						// }
-						// else
-						// {
-						// 	return false;
-						// }
-						return false;
-					}
-					// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant) but anyways etc -->
-
-					const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_SETTLER_SEA);
-
-					if (iTotalUnitAIs >= iMaxUnits)
-					{
-						return false;
-					}
-				}
-				else if (bNavalWorkerSeaUnitAIs)
-				{
-					// <!-- custom: no reason to have too many of these, but early we may need quite a few -->
-					int iMaxUnits;
-					if (!bRenaissancePlus)
-					{
-						iMaxUnits = iNumCities;
-						// if (bNavalHeavyMapname)
-						// {
-						// 	iMaxUnits = 2 * iNumCities;
-						// }
-					}
-					else
-					{
-						iMaxUnits = 1 + (3 * iNumCities) / 10; // 1 + ⌊0.3 * cities⌋;
-						// if (bNavalHeavyMapname)
-						// {
-						// 	iMaxUnits = 2 + (3 * iNumCities) / 10;
-						// }
-					}
-
-					// <!-- custom: the limits are sane, and at war, especially if pilalged, we may need more workboats, plus they are cheap anyway, so just make sure to not overbuild which we do then all fine i would say/guess but anyways etc, so no threat/war or such change for this unitai anyways etc -->
-
-					const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_WORKER_SEA);
-
-					if (iTotalUnitAIs >= iMaxUnits)
-					{
-						return false;
-					}
-				}
-				else if (bNavalMissionarySeaUnitAIs)
-				{
-					// <!-- custom: no reason to have too many of these, but early we may need quite a few -->
-					int iMaxUnits;
-					if (!bRenaissancePlus)
-					{
-						iMaxUnits = iNumCities;
-						// if (bNavalHeavyMapname)
-						// {
-						// 	iMaxUnits = 2 * iNumCities;
-						// }
-					}
-					else
-					{
-						iMaxUnits = 1 + (3 * iNumCities) / 10; // 1 + ⌊0.3 * cities⌋;
-						// if (bNavalHeavyMapname)
-						// {
-						// 	iMaxUnits = 2 + (3 * iNumCities) / 10;
-						// }
-					}
-
-					// <!-- custom: if at war or such danger or threat, don't die, don't worry or try to propagate religions, now is not the time, save every hammer (and unit cost if it costs, which i don't know, but hammer is justification/raitonale of enough if i may say but anyways etc to not overbuild or at all maybe but anyways etc) -->
-					if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
-					{
-						return false;
-					}
-					// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant) but anyways etc -->
-
-					const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_MISSIONARY_SEA);
-
-					if (iTotalUnitAIs >= iMaxUnits)
-					{
-						return false;
-					}
-				}
-				else if (bNavalSpySeaUnitAIs)
-				{
-					// <!-- custom: allow AI to be quite versatile with these, just don't overdo it anyways etc -->
-					int iMaxUnits = iNumCities;
-					// if (bNavalHeavyMapname)
-					// {
-					// 	iMaxUnits = (iNumCities * 3) / 2;
-					// }
-
-					// <!-- custom: at war these can go a long way, especially on land maps, we can get a big advantage from using these, but if we don't already have them, don't build them now, they won't be ready nor effective in time anyway and we'd have just wasted hammer if i may say but anyways etc -->
-					if (bAtWar || bEnemyStrong || bDanger)
-					{
-						return false;
-					}
-					else if (bWarPlan)
-					{
-						if (!bNavalHeavyMapname)
-						{
-							// <!-- custom: useless or/and ineffective at land warfare, better not waste hammer here if i am not mistaken, but anyways etc -->
-							return false;
-						}
-						// <!-- custom: else keep as is most likely fine but anyways etc -->
-					}
-					// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant) but anyways etc -->
-
-					const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_SPY_SEA);
-
-					if (iTotalUnitAIs >= iMaxUnits)
-					{
-						return false;
-					}
-				}
-			}
-
-			const bool bLandExploreUnitAIs = (
-				(eChangedUnitAI == UNITAI_EXPLORE)
-			);
-
-			const bool bLandSettlerUnitAIs = (
-				(eChangedUnitAI == UNITAI_SETTLE)
-			);
-
-			const bool bLandWorkerUnitAIs = (
-				(eChangedUnitAI == UNITAI_WORKER)
-			);
-
-			const bool bLandMissionaryUnitAIs = (
-				(eChangedUnitAI == UNITAI_MISSIONARY)
-			);
-
-			const bool bLandSpyUnitAIs = (
-				(eChangedUnitAI == UNITAI_SPY)
-			);
-
-			const bool bAllHandledLandCivilianUnitAIs = (
-				bLandExploreUnitAIs ||
-				bLandSettlerUnitAIs ||
-				bLandWorkerUnitAIs ||
-				bLandMissionaryUnitAIs ||
-				bLandSpyUnitAIs
-			);
-
-			if (bAllHandledLandCivilianUnitAIs)
-			{
-				if (bLandExploreUnitAIs)
-				{
-					// <!-- custom: we don't need too many explore units, especially on naval heavy maps, so make sure we don't overproduce (unless they all die or something then replenish if i may say but anyways etc) them and waste hammer anyways etc -->
-					int iMaxUnits = 2;
-					if (bNavalHeavyMapname)
-					{
-						iMaxUnits = 1;
-					}
-
-					// <!-- custom: adjust based on danger, squeeze every last bit of hammer xd we can save if i may say but anyways etc -->
-					if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
-					{
-						return false;
-					}
-
-					const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_EXPLORE);
-
-					if (iTotalUnitAIs >= iMaxUnits)
-					{
-						return false;
-					}
-				}
-				else if (bLandSettlerUnitAIs)
-				{
-					// <!-- custom: only one settler at a time and for efficiency anyways etc -->
-					int iMaxUnits = 1;
-
-					// <!-- custom: no time for expansion at war or danger or similar anyways etc -->
-					if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
-					{
-						return false;
-					}
-
-					const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_SETTLE);
-
-					if (iTotalUnitAIs >= iMaxUnits)
-					{
-						return false;
-					}
-				}
-				else if (bLandWorkerUnitAIs)
-				{
-					// <!-- custom: have a good amount early, gradually fade past a certain point/era (as of now before renaissance but anyways etc) anyways etc -->
-					// base: 2.5 workers per city
-					int iMaxUnits = (2 * iNumCities) + ((iNumCities * 5) / 10);
-					// <!-- custom: be careful to not overproduce them, workers are expensive and block growth, could be 1.5 swordsman instead for example plus the food growth used as slaving if stored in that time but anyways etc, but some amount is needed to grow especially early but anyways etc -->
-
-					if (bRenaissancePlus)
-					{
-						// <!-- custom: +1 since we start eras at 0 if i'm not mistaken so renaissance is first era where our decay starts to apply but anyways etc -->
-						// clamp to avoid negative
-						const int iErasSinceRenaissance = std::max(0, (iCurrentEra - iERA_RENAISSANCE) + 1);
-
-						// <!-- custom: as for decay use a very simple and effecive formula/idea i got hehe thanks to chatgpt 5's own review of my previous idea it gave me this idea too so thanks really but anysays etc: 10% decay per era, starting from renaissance included hehe thanks but anyways etc ; scale * 100 for rounding error/precision asa chatgpt 5 described sugegsted although i may have had or not or yes or etc but anyways etc same idea or not or yes or etc in this case i mean but anyways etc -->
-						// Era decay: start at Renaissance; <!-- custom: linear (as chatgpt 5 describes them, i don't know too much about these xd but anyways etc, but i like the idea of a linear.. reduction xd not regression! i know even less about these or a bit more but in all cases i like how predictable and simple this is if all good, rather than (0.9^n)*x if i'm not mistaken in understanding chatgpt 5's explanation of what compound is which again i don't know a lot about if at all but i can understand a bit from this thanks, and prefer linear if all good as is simple and predictable (at least to me and/or more easily but anyways etc) anyways etc) --> -10% per era -->
-						const int pct = std::max(60, (100 - (10 * iErasSinceRenaissance))); // never below <!-- custom: 40% reduction/decay, so never below 60% of the max value but anyways etc -->
-						const int iMaxWorkersDecayed = (iMaxUnits * pct) / 100;
-						// <!-- custom: keep minimal force of 3+ workers around in case but no need to pay maintenance (if it costs? I don't know but i guess so but anyways etc) for all anyways etc -->
-						const int iMinWorkersInCase = 3 + ((iNumCities * 3) / 10);
-						iMaxUnits = std::max(iMinWorkersInCase, iMaxWorkersDecayed);
-					}
-
-					// <!-- custom: no time for expansion at war or danger or similar anyways etc, but the worker is so important we'll be a bit more lenient, we may unlock more hammers for example if i may say but anyways etc by producing a worker that would then chop or build a mine or workshop or anything useful so don't be too harsh here as advised by chatgpt 5 thanks but anyways etc -->
-					if (bAtWar && bEnemyStrong)
-					{
-						return false;
-					}
-					// <!-- custom: else if planning war and otherwise no danger or such (e.g. enemy is weak or no danger but anyways etc), still continue to grow anyways etc ; as for bDanger and bEnemyStrong and such if any more maybe but anyways etc, they may be a bit too strong signals so we'll ignore them as well here for workers, hopefully AI handles these well and doesn't overproduce them but anyways etc (workers are also not that expensive like wonders that we'd need so bad to avoid them, and benefits may be immediate so go with a more lenient check or rather maybe gate if i may say but anyways etc) -->
-
-					const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_WORKER);
-
-					if (iTotalUnitAIs >= iMaxUnits)
-					{
-						return false;
-					}
-				}
-				else if (bLandMissionaryUnitAIs)
-				{
-					// <!-- custom: peacetime or early: spread religion (capped as they are national units if i am not mistaken but adding an extra check here just in case anyways etc), and also with more conditions and fine tuning but anyways etc, so else don't or do less anyways etc -->
-					int iMaxUnits;
-					if (!bRenaissancePlus)
-					{
-						iMaxUnits = iNumCities;
-					}
-					else
-					{
-						iMaxUnits = 2;
-					}
-
-					// <!-- custom: if at war or such danger or threat, don't die, don't worry or try to propagate religions, now is not the time, save every hammer (and unit cost if it costs, which i don't know, but hammer is justification/raitonale of enough if i may say but anyways etc to not overbuild or at all maybe but anyways etc) -->
-					if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
-					{
-						return false;
-					}
-					// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant) but anyways etc -->
-
-					const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_MISSIONARY);
-
-					if (iTotalUnitAIs >= iMaxUnits)
-					{
-						return false;
-					}
-				}
-				else if (bLandSpyUnitAIs)
-				{
-					// <!-- custom: allow AI to be quite versatile with these, just don't overdo it anyways etc -->
-					int iMaxUnits = iNumCities;
-					if (bNavalHeavyMapname)
-					{
-						iMaxUnits = (iNumCities * 3) / 2;
-					}
-
-					// <!-- custom: at war these can go a long way, especially on land maps, we can get a big advantage from using these, but if we don't already have them, don't build them now, they won't be ready nor effective in time anyway and we'd have just wasted hammer if i may say but anyways etc -->
-					if (bAtWar || bEnemyStrong || bDanger)
-					{
-						return false;
-					}
-					// <!-- custom: else if bWarPlan, don't interfere, they could help with our offense, e.g. weakening our target or spying on it to gather data or steal info or such but anyways etc -->
-					else if (bWarPlan)
-					{
-						if (!bNavalHeavyMapname)
-						{
-							// <!-- custom: useless or/and ineffective at land warfare, better not waste hammer here if i am not mistaken, but anyways etc -->
-							return false;
-						}
-						// <!-- custom: else keep as is most likely fine but anyways etc -->
-					}
-					// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant) but anyways etc -->
-
-					const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_SPY);
-
-					if (iTotalUnitAIs >= iMaxUnits)
-					{
-						return false;
-					}
-				}
-			}
-
-			// <!-- custom: i didn't check, but just in case we have the issue with air units, manage in a very straightforward and simple max units just in case, these are not critical if i'm not mistaken, but we want to avoid preemptively if exists dementia of destroy produce infinite loop, or excess producing at the cost of cities being weakly guarded or/and newer (mostly land but anyways etc) units not build especially when hammer is plenty but anyways etc, give some leeway for versatility but not too much for efficiency anyways etc -->
-			const bool bAirCombatUnitAIs = (
-				(eChangedUnitAI == UNITAI_ATTACK_AIR) ||
-				(eChangedUnitAI == UNITAI_DEFENSE_AIR)
-			);
-			if (bAirCombatUnitAIs)
-			{
-				// <!-- custom: let's limit certain types of naval units by map type (less on land heavy ones like pangea, more in naval heavy ones like archipelago, anyways etc), to help the known issue as of now 53 of having an AI player have 20+ galleons/privateers, yet producing them +/- scrapping them (dementia/insane like behvaiour if may say but anyways etc.., but not its fault, it just wasn't told better, so hopefully we can help AI have saner unit limits, and we'll ahndle the seemignly naval units scrapping elsewhere as we did in known issue as of now 52 for many units but anyways etc), so for now a few of the combat naval unit AIs (like max iNumCities per AI player seems very sane on pangea, possibly * 2 for naval heavy maps, no need to overproduce beyond that, nor to scrap before that potentially risking crazy loops but anyways etc, we hopefully maybe also save computation by implementing our check here before code is executed but anyways etc) ; code added with the help / thanks to chatgpt 5 as well, check if accurate (and check mine too i mean but anyways etc) anyways etc -->
-				// <!-- custom: combined total shared between air fighters and air bombers if i'm not mistaken but anyways etc -->
-				const int iMaxUnits = 3 * iNumCities;
-
-				const int iTotalUnitAIs = (
-					kPlayer.AI_totalUnitAIs(UNITAI_ATTACK_AIR)
-					+ kPlayer.AI_totalUnitAIs(UNITAI_DEFENSE_AIR)
+				// <!-- custom: add our pre-checks to help improve the naval dementia of overproducing naval units and pangea or/and scrapping them as well possibly, then being invaded and losing top city while having spent needlessly hammers on 20+ mix of galleons/privateers on pangea, fixing the overproducing part of the issue here by setting sanity gates / pre-checks before we push the final order, and so we can control here all order if i'm not mistaken but anyways etc -->
+				const bool bNavalFrontLineUnitAIs = (
+					(eChangedUnitAI == UNITAI_ATTACK_SEA) ||
+					(eChangedUnitAI == UNITAI_RESERVE_SEA) ||
+					(eChangedUnitAI == UNITAI_PIRATE_SEA)
 				);
 
-				if (iTotalUnitAIs >= iMaxUnits)
-				{
-					return false;
-				}
-			}
+				const bool bNavalExploreSeaUnitAIs = (
+					(eChangedUnitAI == UNITAI_EXPLORE_SEA)
+				);
 
-			// <!-- custom: note: as of now unhandled unitais here mean free production or let AI decide, the more the better: military land units, air units but anyways etc, see canScrap function for the handling of these produced units anyways etc -->
+				const bool bNavalSupportOffenseFrontUnitAIs = (
+					(eChangedUnitAI == UNITAI_ASSAULT_SEA)
+				);
+
+				const bool bNavalSupportDefenseFrontUnitAIs = (
+					(eChangedUnitAI == UNITAI_ESCORT_SEA)
+				);
+
+				const bool bNavalAirExtraUnitAIs = (
+					(eChangedUnitAI == UNITAI_CARRIER_SEA) ||
+					(eChangedUnitAI == UNITAI_MISSILE_CARRIER_SEA)
+				);
+
+				const bool bNavalSettlerSeaUnitAIs = (
+					(eChangedUnitAI == UNITAI_SETTLER_SEA)
+				);
+
+				const bool bNavalWorkerSeaUnitAIs = (
+					(eChangedUnitAI == UNITAI_WORKER_SEA)
+				);
+
+				const bool bNavalMissionarySeaUnitAIs = (
+					(eChangedUnitAI == UNITAI_MISSIONARY_SEA)
+				);
+
+				const bool bNavalSpySeaUnitAIs = (
+					(eChangedUnitAI == UNITAI_SPY_SEA)
+				);
+
+				const bool bAllHandledNavalUnitAIs = (
+					bNavalFrontLineUnitAIs ||
+					bNavalSupportOffenseFrontUnitAIs ||
+					bNavalSupportDefenseFrontUnitAIs ||
+					bNavalExploreSeaUnitAIs ||
+					bNavalAirExtraUnitAIs ||
+					//
+					bNavalSettlerSeaUnitAIs ||
+					bNavalWorkerSeaUnitAIs ||
+					bNavalMissionarySeaUnitAIs ||
+					bNavalSpySeaUnitAIs
+				);
+
+				// <!-- custom: do not limit naval units on naval heavy maps, it seems we have way too few units as a result in archipelago, after all if a frigate defeats an invading galleon it counts same as having more units than all land cargo invaders, so do not limit it anyways etc, also maybe this allows for more versatile naval games, let AI decide its own strategy in this case i mean but anyways etc (hopefully not nonsensical one else we could tweak it, but naval maps could go many ways and with various approaches perhaps, so let AI handle it and keep versatility here rather if i am not mistaken in my thinking and based on previous results that were bad when nerfing naval production way too hard as of now on archipelago for example anyways etc but anyways etc) -->
+				if (!bNavalHeavyMapname && bAllHandledNavalUnitAIs)
+				{
+					if (bNavalFrontLineUnitAIs)
+					{
+						// <!-- custom: let's limit certain types of naval units by map type (less on land heavy ones like pangea, more in naval heavy ones like archipelago, anyways etc), to help the known issue as of now 53 of having an AI player have 20+ galleons/privateers, yet producing them +/- scrapping them (dementia/insane like behvaiour if may say but anyways etc.., but not its fault, it just wasn't told better, so hopefully we can help AI have saner unit limits, and we'll ahndle the seemignly naval units scrapping elsewhere as we did in known issue as of now 52 for many units but anyways etc), so for now a few of the combat naval unit AIs (like max iNumCities per AI player seems very sane on pangea, possibly * 2 for naval heavy maps, no need to overproduce beyond that, nor to scrap before that potentially risking crazy loops but anyways etc, we hopefully maybe also save computation by implementing our check here before code is executed but anyways etc) ; code added with the help / thanks to chatgpt 5 as well, check if accurate (and check mine too i mean but anyways etc) anyways etc -->
+						int iMaxUnits = iNumCities;
+						// if (bNavalHeavyMapname)
+						// {
+						// 	iMaxUnits = 2 * iNumCities;
+						// }
+
+						// <!-- custom: adjust based on danger, do not waste hammer if threatened in particular, or if preparing a nice offense, make it effective and use our hammer wisely if i may say but anyways etc -->
+						if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
+						{
+							// When you halve naval caps under danger/war, iNumCities == 1 would drop to 0 and hard-block all builds. If that’s not what you want, clamp to at least 1.
+							iMaxUnits = std::max(1, iMaxUnits / 2);
+						}
+
+						// <!-- custom: this counts existing and being produced units if i'm not mistaken, which is perfect to avoid overproducing (e.g. if we 5 units, limit is 6, but cities C D E are producing one unit each, they all think limit is not reached so fine, but if they finish production we'll/'d end up with 5+3 = 8 units above what we want by 2, so to produce, check the total being produced + existing already, as pointed by chatgpt 5 as well, check if accurate anyways etc -->
+						// Sum current empire-wide SEA combat AIs (exclude workers / settlers / explorers)
+						const int iTotalUnitAIs = (
+							kPlayer.AI_totalUnitAIs(UNITAI_ATTACK_SEA)
+							+ kPlayer.AI_totalUnitAIs(UNITAI_RESERVE_SEA)
+							// counts pirates too
+							+ kPlayer.AI_totalUnitAIs(UNITAI_PIRATE_SEA)
+						);
+
+						if (iTotalUnitAIs >= iMaxUnits)
+						{
+							return false;
+						}
+						// <!-- custom: else continue and if all good otherwise produce the unit at the end of this function if i'm not mistaken but anyways etc -->
+					}
+					else if (bNavalExploreSeaUnitAIs)
+					{
+						// <!-- custom: we don't need too many explore units, especially on land heavy maps, so make sure we don't overproduce (unless they all die or something then replenish if i may say but anyways etc) them and waste hammer anyways etc -->
+						int iMaxUnits = 1 + (3 * iNumCities) / 10; // 1 + ⌊0.3 * cities⌋;
+						// if (bNavalHeavyMapname)
+						// {
+						// 	iMaxUnits = 2 + (3 * iNumCities) / 10;
+						// }
+
+						// <!-- custom: adjust based on danger, do not waste hammer if threatened in particular, or if preparing a nice offense, make it effective and use our hammer wisely if i may say but anyways etc -->
+						if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
+						{
+							iMaxUnits = std::max(1, iMaxUnits / 2);
+						}
+
+						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_EXPLORE_SEA);
+
+						if (iTotalUnitAIs >= iMaxUnits)
+						{
+							return false;
+						}
+					}
+					else if (bNavalSupportOffenseFrontUnitAIs)
+					{
+						// <!-- custom: the needed amount will heavily be influenced by our war strategy or situation if i may say but anyways etc, otherwise falling back with the as of now below default anyways etc -->
+						int iMaxUnits = iNumCities;
+						// if (bNavalHeavyMapname)
+						// {
+						// 	iMaxUnits = 2 * iNumCities;
+						// }
+
+						// // <!-- custom: adjust based on danger, do not waste hammer if threatened in particular, or if preparing a nice offense, make it effective and use our hammer wisely if i may say but anyways etc -->
+						// if (bEnemyStrong || bDanger || bWarPlan)
+						// <!-- custom: was too strict according to chatgpt 5 and probably is so, reduce it a bit if planning war to have at least 1 or 2 available or something without sacrificing land warfare anyways etc -->
+						if (bEnemyStrong || bDanger)
+						{
+							// <!-- custom: no time for these, focus is on defense atm not offense if i may say anyways etc -->
+							return false;
+						}
+						else if (bWarPlan)
+						{
+							// <!-- custom: no time for these, focus is on defense atm not offense if i may say anyways etc -->
+							iMaxUnits = 2;
+						}
+						// <!-- custom: else if bEnemyStrong stay the same, fine as such anyways etc -->
+
+						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_ASSAULT_SEA);
+
+						if (iTotalUnitAIs >= iMaxUnits)
+						{
+							return false;
+						}
+					}
+					else if (bNavalSupportDefenseFrontUnitAIs)
+					{
+						// <!-- custom: the needed amount will be influenced by our war strategy or situation if i may say but anyways etc, otherwise falling back with the as of now below default anyways etc -->
+						int iMaxUnits = iNumCities;
+						// if (bNavalHeavyMapname)
+						// {
+						// 	iMaxUnits = 2 * iNumCities;
+						// }
+
+						// <!-- custom: it is hard to predict how these units will be used, we could maybe settle a new island, guard our cargo, who knows, i don't know exactly how this is used, so let's be a bit conservative and also broad in case they have many use cases, following our general rule though to be conservative and preserve hammer, especially considering our current issue of 20+ galleons/privateers crazy dementia pump xd if i may say but anyways etc while our top city is captured around turn 220, so giving lower priority to naval units in harsh times as well here as a general rule, but with less concern than for assault as of now at least if i may say but anyways etc -->
+						if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
+						{
+							iMaxUnits = std::max(1, (iMaxUnits * 6 / 10));
+						}
+
+						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_ESCORT_SEA);
+
+						if (iTotalUnitAIs >= iMaxUnits)
+						{
+							return false;
+						}
+					}
+					else if (bNavalAirExtraUnitAIs)
+					{
+						// <!-- custom: i don't know too much about these units so allow some quite conservatively and in a sane manner without going overboard on restriction nor in unrestricting them but anyways etc -->
+						int iMaxUnits = iNumCities;
+						// if (bNavalHeavyMapname)
+						// {
+						// 	iMaxUnits = 2 * iNumCities;
+						// }
+
+						// <!-- custom: it is hard to predict how these units will be used, we could maybe settle a new island, guard our cargo, who knows, i don't know exactly how this is used, so let's be a bit conservative and also broad in case they have many use cases, following our general rule though to be conservative and preserve hammer, especially considering our current issue of 20+ galleons/privateers crazy dementia pump xd if i may say but anyways etc while our top city is captured around turn 220, so giving lower priority to naval units in harsh times as well here as a general rule, but with less concern than for assault as of now at least if i may say but anyways etc -->
+						if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
+						{
+							iMaxUnits = std::max(1, (iMaxUnits * 6 / 10));
+						}
+						// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant) but anyways etc -->
+
+						const int iTotalUnitAIs = (
+							kPlayer.AI_totalUnitAIs(UNITAI_CARRIER_SEA)
+							+ kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_CARRIER_SEA)
+						);
+
+						if (iTotalUnitAIs >= iMaxUnits)
+						{
+							return false;
+						}
+					}
+					else if (bNavalSettlerSeaUnitAIs)
+					{
+						// <!-- custom: don't overbuild these especially early, we won't found too many cities all at the same time (else something may be wrong with our economy or something xd i would guess at least with base/current settings of maintenance / city cost / settler cost but anyways etc) -->
+						int iMaxUnits = 1 + (3 * iNumCities) / 10; // 1 + ⌊0.3 * cities⌋;
+						// if (bNavalHeavyMapname)
+						// {
+						// 	iMaxUnits = 2 + (3 * iNumCities) / 10;
+						// }
+
+						// <!-- custom: if at war or such danger or threat, don't die, don't expand, but since this is about founding cities, allow one for naval heavy maps anyways etc -->
+						if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
+						{
+							// if (bNavalHeavyMapname)
+							// {
+							// 	iMaxUnits = 1;
+							// }
+							// else
+							// {
+							// 	return false;
+							// }
+							return false;
+						}
+						// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant) but anyways etc -->
+
+						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_SETTLER_SEA);
+
+						if (iTotalUnitAIs >= iMaxUnits)
+						{
+							return false;
+						}
+					}
+					else if (bNavalWorkerSeaUnitAIs)
+					{
+						// <!-- custom: no reason to have too many of these, but early we may need quite a few -->
+						int iMaxUnits;
+						if (!bRenaissancePlus)
+						{
+							iMaxUnits = iNumCities;
+							// if (bNavalHeavyMapname)
+							// {
+							// 	iMaxUnits = 2 * iNumCities;
+							// }
+						}
+						else
+						{
+							iMaxUnits = 1 + (3 * iNumCities) / 10; // 1 + ⌊0.3 * cities⌋;
+							// if (bNavalHeavyMapname)
+							// {
+							// 	iMaxUnits = 2 + (3 * iNumCities) / 10;
+							// }
+						}
+
+						// <!-- custom: the limits are sane, and at war, especially if pilalged, we may need more workboats, plus they are cheap anyway, so just make sure to not overbuild which we do then all fine i would say/guess but anyways etc, so no threat/war or such change for this unitai anyways etc -->
+
+						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_WORKER_SEA);
+
+						if (iTotalUnitAIs >= iMaxUnits)
+						{
+							return false;
+						}
+					}
+					else if (bNavalMissionarySeaUnitAIs)
+					{
+						// <!-- custom: no reason to have too many of these, but early we may need quite a few -->
+						int iMaxUnits;
+						if (!bRenaissancePlus)
+						{
+							iMaxUnits = iNumCities;
+							// if (bNavalHeavyMapname)
+							// {
+							// 	iMaxUnits = 2 * iNumCities;
+							// }
+						}
+						else
+						{
+							iMaxUnits = 1 + (3 * iNumCities) / 10; // 1 + ⌊0.3 * cities⌋;
+							// if (bNavalHeavyMapname)
+							// {
+							// 	iMaxUnits = 2 + (3 * iNumCities) / 10;
+							// }
+						}
+
+						// <!-- custom: if at war or such danger or threat, don't die, don't worry or try to propagate religions, now is not the time, save every hammer (and unit cost if it costs, which i don't know, but hammer is justification/raitonale of enough if i may say but anyways etc to not overbuild or at all maybe but anyways etc) -->
+						if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
+						{
+							return false;
+						}
+						// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant) but anyways etc -->
+
+						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_MISSIONARY_SEA);
+
+						if (iTotalUnitAIs >= iMaxUnits)
+						{
+							return false;
+						}
+					}
+					else if (bNavalSpySeaUnitAIs)
+					{
+						// <!-- custom: allow AI to be quite versatile with these, just don't overdo it anyways etc -->
+						int iMaxUnits = iNumCities;
+						// if (bNavalHeavyMapname)
+						// {
+						// 	iMaxUnits = (iNumCities * 3) / 2;
+						// }
+
+						// <!-- custom: at war these can go a long way, especially on land maps, we can get a big advantage from using these, but if we don't already have them, don't build them now, they won't be ready nor effective in time anyway and we'd have just wasted hammer if i may say but anyways etc -->
+						if (bAtWar || bEnemyStrong || bDanger)
+						{
+							return false;
+						}
+						else if (bWarPlan)
+						{
+							if (!bNavalHeavyMapname)
+							{
+								// <!-- custom: useless or/and ineffective at land warfare, better not waste hammer here if i am not mistaken, but anyways etc -->
+								return false;
+							}
+							// <!-- custom: else keep as is most likely fine but anyways etc -->
+						}
+						// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant) but anyways etc -->
+
+						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_SPY_SEA);
+
+						if (iTotalUnitAIs >= iMaxUnits)
+						{
+							return false;
+						}
+					}
+				}
+
+				const bool bLandExploreUnitAIs = (
+					(eChangedUnitAI == UNITAI_EXPLORE)
+				);
+
+				const bool bLandSettlerUnitAIs = (
+					(eChangedUnitAI == UNITAI_SETTLE)
+				);
+
+				const bool bLandWorkerUnitAIs = (
+					(eChangedUnitAI == UNITAI_WORKER)
+				);
+
+				const bool bLandMissionaryUnitAIs = (
+					(eChangedUnitAI == UNITAI_MISSIONARY)
+				);
+
+				const bool bLandSpyUnitAIs = (
+					(eChangedUnitAI == UNITAI_SPY)
+				);
+
+				const bool bAllHandledLandCivilianUnitAIs = (
+					bLandExploreUnitAIs ||
+					bLandSettlerUnitAIs ||
+					bLandWorkerUnitAIs ||
+					bLandMissionaryUnitAIs ||
+					bLandSpyUnitAIs
+				);
+
+				if (bAllHandledLandCivilianUnitAIs)
+				{
+					if (bLandExploreUnitAIs)
+					{
+						// <!-- custom: we don't need too many explore units, especially on naval heavy maps, so make sure we don't overproduce (unless they all die or something then replenish if i may say but anyways etc) them and waste hammer anyways etc -->
+						int iMaxUnits = 2;
+						if (bNavalHeavyMapname)
+						{
+							iMaxUnits = 1;
+						}
+
+						// <!-- custom: adjust based on danger, squeeze every last bit of hammer xd we can save if i may say but anyways etc -->
+						if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
+						{
+							return false;
+						}
+
+						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_EXPLORE);
+
+						if (iTotalUnitAIs >= iMaxUnits)
+						{
+							return false;
+						}
+					}
+					else if (bLandSettlerUnitAIs)
+					{
+						// <!-- custom: only one settler at a time and for efficiency anyways etc -->
+						int iMaxUnits = 1;
+
+						// <!-- custom: no time for expansion at war or danger or similar anyways etc -->
+						if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
+						{
+							return false;
+						}
+
+						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_SETTLE);
+
+						if (iTotalUnitAIs >= iMaxUnits)
+						{
+							return false;
+						}
+					}
+					else if (bLandWorkerUnitAIs)
+					{
+						// <!-- custom: have a good amount early, gradually fade past a certain point/era (as of now before renaissance but anyways etc) anyways etc -->
+						// base: 2.5 workers per city
+						int iMaxUnits = (2 * iNumCities) + ((iNumCities * 5) / 10);
+						// <!-- custom: be careful to not overproduce them, workers are expensive and block growth, could be 1.5 swordsman instead for example plus the food growth used as slaving if stored in that time but anyways etc, but some amount is needed to grow especially early but anyways etc -->
+
+						if (bRenaissancePlus)
+						{
+							// <!-- custom: +1 since we start eras at 0 if i'm not mistaken so renaissance is first era where our decay starts to apply but anyways etc -->
+							// clamp to avoid negative
+							const int iErasSinceRenaissance = std::max(0, (iCurrentEra - iERA_RENAISSANCE) + 1);
+
+							// <!-- custom: as for decay use a very simple and effecive formula/idea i got hehe thanks to chatgpt 5's own review of my previous idea it gave me this idea too so thanks really but anysays etc: 10% decay per era, starting from renaissance included hehe thanks but anyways etc ; scale * 100 for rounding error/precision asa chatgpt 5 described sugegsted although i may have had or not or yes or etc but anyways etc same idea or not or yes or etc in this case i mean but anyways etc -->
+							// Era decay: start at Renaissance; <!-- custom: linear (as chatgpt 5 describes them, i don't know too much about these xd but anyways etc, but i like the idea of a linear.. reduction xd not regression! i know even less about these or a bit more but in all cases i like how predictable and simple this is if all good, rather than (0.9^n)*x if i'm not mistaken in understanding chatgpt 5's explanation of what compound is which again i don't know a lot about if at all but i can understand a bit from this thanks, and prefer linear if all good as is simple and predictable (at least to me and/or more easily but anyways etc) anyways etc) --> -10% per era -->
+							const int pct = std::max(60, (100 - (10 * iErasSinceRenaissance))); // never below <!-- custom: 40% reduction/decay, so never below 60% of the max value but anyways etc -->
+							const int iMaxWorkersDecayed = (iMaxUnits * pct) / 100;
+							// <!-- custom: keep minimal force of 3+ workers around in case but no need to pay maintenance (if it costs? I don't know but i guess so but anyways etc) for all anyways etc -->
+							const int iMinWorkersInCase = 3 + ((iNumCities * 3) / 10);
+							iMaxUnits = std::max(iMinWorkersInCase, iMaxWorkersDecayed);
+						}
+
+						// <!-- custom: no time for expansion at war or danger or similar anyways etc, but the worker is so important we'll be a bit more lenient, we may unlock more hammers for example if i may say but anyways etc by producing a worker that would then chop or build a mine or workshop or anything useful so don't be too harsh here as advised by chatgpt 5 thanks but anyways etc -->
+						if (bAtWar && bEnemyStrong)
+						{
+							return false;
+						}
+						// <!-- custom: else if planning war and otherwise no danger or such (e.g. enemy is weak or no danger but anyways etc), still continue to grow anyways etc ; as for bDanger and bEnemyStrong and such if any more maybe but anyways etc, they may be a bit too strong signals so we'll ignore them as well here for workers, hopefully AI handles these well and doesn't overproduce them but anyways etc (workers are also not that expensive like wonders that we'd need so bad to avoid them, and benefits may be immediate so go with a more lenient check or rather maybe gate if i may say but anyways etc) -->
+
+						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_WORKER);
+
+						if (iTotalUnitAIs >= iMaxUnits)
+						{
+							return false;
+						}
+					}
+					else if (bLandMissionaryUnitAIs)
+					{
+						// <!-- custom: peacetime or early: spread religion (capped as they are national units if i am not mistaken but adding an extra check here just in case anyways etc), and also with more conditions and fine tuning but anyways etc, so else don't or do less anyways etc -->
+						int iMaxUnits;
+						if (!bRenaissancePlus)
+						{
+							iMaxUnits = iNumCities;
+						}
+						else
+						{
+							iMaxUnits = 2;
+						}
+
+						// <!-- custom: if at war or such danger or threat, don't die, don't worry or try to propagate religions, now is not the time, save every hammer (and unit cost if it costs, which i don't know, but hammer is justification/raitonale of enough if i may say but anyways etc to not overbuild or at all maybe but anyways etc) -->
+						if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
+						{
+							return false;
+						}
+						// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant) but anyways etc -->
+
+						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_MISSIONARY);
+
+						if (iTotalUnitAIs >= iMaxUnits)
+						{
+							return false;
+						}
+					}
+					else if (bLandSpyUnitAIs)
+					{
+						// <!-- custom: allow AI to be quite versatile with these, just don't overdo it anyways etc -->
+						int iMaxUnits = iNumCities;
+						if (bNavalHeavyMapname)
+						{
+							iMaxUnits = (iNumCities * 3) / 2;
+						}
+
+						// <!-- custom: at war these can go a long way, especially on land maps, we can get a big advantage from using these, but if we don't already have them, don't build them now, they won't be ready nor effective in time anyway and we'd have just wasted hammer if i may say but anyways etc -->
+						if (bAtWar || bEnemyStrong || bDanger)
+						{
+							return false;
+						}
+						// <!-- custom: else if bWarPlan, don't interfere, they could help with our offense, e.g. weakening our target or spying on it to gather data or steal info or such but anyways etc -->
+						else if (bWarPlan)
+						{
+							if (!bNavalHeavyMapname)
+							{
+								// <!-- custom: useless or/and ineffective at land warfare, better not waste hammer here if i am not mistaken, but anyways etc -->
+								return false;
+							}
+							// <!-- custom: else keep as is most likely fine but anyways etc -->
+						}
+						// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant) but anyways etc -->
+
+						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_SPY);
+
+						if (iTotalUnitAIs >= iMaxUnits)
+						{
+							return false;
+						}
+					}
+				}
+
+				// <!-- custom: i didn't check, but just in case we have the issue with air units, manage in a very straightforward and simple max units just in case, these are not critical if i'm not mistaken, but we want to avoid preemptively if exists dementia of destroy produce infinite loop, or excess producing at the cost of cities being weakly guarded or/and newer (mostly land but anyways etc) units not build especially when hammer is plenty but anyways etc, give some leeway for versatility but not too much for efficiency anyways etc -->
+				const bool bAirCombatUnitAIs = (
+					(eChangedUnitAI == UNITAI_ATTACK_AIR) ||
+					(eChangedUnitAI == UNITAI_DEFENSE_AIR)
+				);
+				if (bAirCombatUnitAIs)
+				{
+					// <!-- custom: let's limit certain types of naval units by map type (less on land heavy ones like pangea, more in naval heavy ones like archipelago, anyways etc), to help the known issue as of now 53 of having an AI player have 20+ galleons/privateers, yet producing them +/- scrapping them (dementia/insane like behvaiour if may say but anyways etc.., but not its fault, it just wasn't told better, so hopefully we can help AI have saner unit limits, and we'll ahndle the seemignly naval units scrapping elsewhere as we did in known issue as of now 52 for many units but anyways etc), so for now a few of the combat naval unit AIs (like max iNumCities per AI player seems very sane on pangea, possibly * 2 for naval heavy maps, no need to overproduce beyond that, nor to scrap before that potentially risking crazy loops but anyways etc, we hopefully maybe also save computation by implementing our check here before code is executed but anyways etc) ; code added with the help / thanks to chatgpt 5 as well, check if accurate (and check mine too i mean but anyways etc) anyways etc -->
+					// <!-- custom: combined total shared between air fighters and air bombers if i'm not mistaken but anyways etc -->
+					const int iMaxUnits = 3 * iNumCities;
+
+					const int iTotalUnitAIs = (
+						kPlayer.AI_totalUnitAIs(UNITAI_ATTACK_AIR)
+						+ kPlayer.AI_totalUnitAIs(UNITAI_DEFENSE_AIR)
+					);
+
+					if (iTotalUnitAIs >= iMaxUnits)
+					{
+						return false;
+					}
+				}
+
+				// <!-- custom: note: as of now unhandled unitais here mean free production or let AI decide, the more the better: military land units, air units but anyways etc, see canScrap function for the handling of these produced units anyways etc -->
+			}
 		}
+
 		if (eChangedUnit != NO_UNIT && eChangedUnitAI != NO_UNITAI)
 		{
 			pushOrder(ORDER_TRAIN, eChangedUnit, eChangedUnitAI);
 		}
 		return true;
 	}
+
 	return false;
 }
 
